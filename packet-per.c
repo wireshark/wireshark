@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.28 2004/05/17 20:03:36 sahlberg Exp $
+ * $Id: packet-per.c,v 1.29 2004/06/24 21:50:04 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -707,6 +707,8 @@ dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinf
 {
 	proto_item *it=NULL;
 	guint32 range, val;
+	gint val_start, val_length;
+	nstime_t timeval;
 	header_field_info *hfi;
 	int num_bits;
 	int pad;
@@ -738,20 +740,12 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	num_bits=0;
 	pad=0;
 	val=0;
+	timeval.secs=val; timeval.nsecs=0;
 	/* 10.5.4 */
 	if(range==1){
-		it=proto_tree_add_uint_format(tree, hf_index, tvb, offset>>3, 0, min, "%s: %d", hfi->name, min);
-		if(item){
-			*item=it;
-		}
-		if(value){
-			*value=val;
-		}
-		return offset;
-	}
-
-	/* 10.5.7 */
-	if(range<=255){
+		val_start = offset>>3; val_length = 0;
+		val = min; 
+	} else if(range<=255) {
 		/* 10.5.7.1 */
 		char str[256];
 		int i, bit, length;
@@ -807,19 +801,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			}
 			strcat(str,".");
 		}
+		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;
-		if(hfi->strings){
-			it=proto_tree_add_uint_format(tree, hf_index, tvb, (offset-num_bits)>>3, length, val, "%s : %s (%d)", str, val_to_str(val, hfi->strings, "Unknown(%d)"),val);
-		} else {
-			it=proto_tree_add_uint(tree, hf_index, tvb, (offset-num_bits)>>3, length, val);
-		}
-		if(item){
-			*item=it;
-		}
-		if(value){
-			*value=val;
-		}
-		return offset;
 	} else if(range==256){
 		/* 10.5.7.2 */
 		num_bits=8;
@@ -832,15 +815,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		val=tvb_get_guint8(tvb, offset>>3);
 		offset+=8;
 
+		val_start = (offset>>3)-1; val_length = 1;
 		val+=min;
-		it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, val);
-		if(item){
-			*item=it;
-		}
-		if(value){
-			*value=val;
-		}
-		return offset;
 	} else if(range<=65536){
 		/* 10.5.7.3 */
 		num_bits=16;
@@ -856,15 +832,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		val|=tvb_get_guint8(tvb, offset>>3);
 		offset+=8;
 
+		val_start = (offset>>3)-2; val_length = 2;
 		val+=min;
-		it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-2, 2, val);
-		if(item){
-			*item=it;
-		}
-		if(value){
-			*value=val;
-		}
-		return offset;
 	} else {
 		int i,num_bytes;
 		gboolean bit;
@@ -887,20 +856,23 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			val=(val<<8)|tvb_get_guint8(tvb,offset>>3);
 			offset+=8;
 		}
+		val_start = (offset>>3)-(num_bytes+1); val_length = num_bytes+1;
 		val+=min;
-		it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-(num_bytes+1), num_bytes+1, val);
-		if(item){
-			*item=it;
-		}
-		if(value){
-			*value=val;
-		}
-		return offset;
 	}
 
-	PER_NOT_DECODED_YET("10.5");
-	return offset;
-}
+	timeval.secs = val;
+	if (IS_FT_UINT(hfi->type)) {
+		it = proto_tree_add_uint(tree, hf_index, tvb, val_start, val_length, val);
+	} else if (IS_FT_INT(hfi->type)) {
+		it = proto_tree_add_int(tree, hf_index, tvb, val_start, val_length, val);
+	} else if (IS_FT_TIME(hfi->type)) {
+		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
+	} else {
+		g_assert_not_reached();
+	}
+	if (item) *item = it;
+	if (value) *value = val;
+	return offset;}
 
 /* this functions decodes a CHOICE
    it can only handle CHOICE INDEX values that fits inside a 32 bit integer.
@@ -1402,25 +1374,30 @@ DEBUG_ENTRY("dissect_per_bit_string");
 guint32
 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, guint32 *value_offset, guint32 *value_len)
 {
+	proto_tree *etr = NULL;
+	proto_item *it = NULL;
+	gint val_start, val_length;
 	guint32 length;
 	header_field_info *hfi;
+	static char bytes[4];
+	char *pbytes = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
-
-DEBUG_ENTRY("dissect_per_octet_string");
-	/* 16.5 if the length is 0 bytes there will be no encoding */
-	if(max_len==0){
-		return offset;
+	if (display_internal_per_fields) {
+		etr = tree;
 	}
 
+DEBUG_ENTRY("dissect_per_octet_string");
 
 	if(min_len==-1){
 		min_len=0;
 	}
+	
+	if (max_len==0) {  /* 16.5 if the length is 0 bytes there will be no encoding */
+		val_start = offset>>3; 
+		val_length = 0;
 
-	/* 16.6 if length is fixed and less than or equal to two bytes*/
-	if((min_len==max_len)&&(max_len<=2)){
-		static char bytes[4];
+	} else if((min_len==max_len)&&(max_len<=2)) {  /* 16.6 if length is fixed and less than or equal to two bytes*/
 		guint32 i, old_offset=offset;
 		gboolean bit;
 
@@ -1435,72 +1412,63 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			}
 		}
 		bytes[min_len]=0;
-		if (hfi) {
-			if(hfi->type==FT_STRING){
-				proto_tree_add_string(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
-			} else {
-				proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
+		pbytes = bytes;
+		val_start = old_offset>>3; 
+		val_length = min_len+(offset&0x07)?1:0;
+
+	} else if ((min_len==max_len)&&(min_len<65536)) {  /* 16.7 if length is fixed and less than to 64k*/
+		/* align to byte */
+		if(offset&0x07){
+			offset=(offset&0xfffffff8)+8;
+		}
+		val_start = offset>>3; 
+		val_length = min_len;
+		offset+=min_len*8;
+
+	} else {  /* 16.8 */
+		if(max_len>0) {  
+			offset = dissect_per_constrained_integer(tvb, offset, pinfo, etr,
+				hf_per_octet_string_length, min_len, max_len,
+				&length, NULL, FALSE);
+		} else {
+			offset = dissect_per_length_determinant(tvb, offset, pinfo, etr, 
+				hf_per_octet_string_length, &length);
+		}
+
+		if(length){
+			/* align to byte */
+			if(offset&0x07){
+				offset=(offset&0xfffffff8)+8;
 			}
 		}
-		if (value_offset) {
-			*value_offset = old_offset>>3;
-		}
-		if (value_len) {
-			*value_len = min_len+(offset&0x07)?1:0;
-		}
-		return offset;
+		val_start = offset>>3; 
+		val_length = length;
+		offset+=length*8;
 	}
 
-
-	/* 16.7 if length is fixed and less than to 64k*/
-	if((min_len==max_len)&&(min_len<65536)){
-		/* align to byte */
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
-		if (hfi) {
-			proto_tree_add_item(tree, hf_index, tvb, offset>>3, min_len, FALSE);
-		}
-		if (value_offset) {
-			*value_offset = offset>>3;
-		}
-		if (value_len) {
-			*value_len = min_len;
-		}
-		offset+=min_len*8;
-		return offset;
-	}
-
-	/* 16.8 */
-	if(max_len>0){
-		proto_tree *etr = NULL;
-
-		if(display_internal_per_fields){
-			etr=tree;
-		}
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
-			etr, hf_per_octet_string_length, min_len, max_len,
-			&length, NULL, FALSE);
-	} else {
-		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_octet_string_length, &length);
-	}
-	if(length){
-		/* align to byte */
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
-		if (hfi) {
-			proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
+	if (hfi) {
+		if (IS_FT_UINT(hfi->type)||IS_FT_INT(hfi->type)) {
+			if (IS_FT_UINT(hfi->type))
+				it = proto_tree_add_uint(tree, hf_index, tvb, val_start, val_length, val_length);
+			else
+				it = proto_tree_add_int(tree, hf_index, tvb, val_start, val_length, val_length);
+			proto_item_append_text(it, (val_length == 1) ? " octet" : " octets");
+		} else {
+			if (pbytes) {
+				if(IS_FT_STRING(hfi->type)){
+					proto_tree_add_string(tree, hf_index, tvb, val_start, val_length, pbytes);
+				} else if (hfi->type==FT_BYTES) {
+					proto_tree_add_bytes(tree, hf_index, tvb, val_start, val_length, pbytes);
+				} else {
+					g_assert_not_reached();
+				}
+			} else {
+				proto_tree_add_item(tree, hf_index, tvb, val_start, val_length, FALSE);
+			}
 		}
 	}
-	if (value_offset) {
-		*value_offset = offset>>3;
-	}
-	if (value_len) {
-		*value_len = length;
-	}
-	offset+=length*8;
-
+	if (value_offset) *value_offset = val_start;
+	if (value_len) *value_len = val_length;
 	return offset;
 }
 

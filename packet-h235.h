@@ -4,13 +4,13 @@
 /* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
 
 /* Input file: packet-h235-template.h */
-/* Include files: packet-h235-exp.h */
+/* Include files: packet-h235-exp.h, packet-h235-valexp.h */
 
 /* packet-h235.h
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id: packet-h235.h,v 1.5 2004/06/04 11:30:35 sahlberg Exp $
+ * $Id: packet-h235.h,v 1.6 2004/06/24 21:50:04 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -5,13 +5,13 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.10 2004/06/24 05:13:59 sahlberg Exp $
+# $Id: asn2eth.py,v 1.11 2004/06/24 21:50:05 sahlberg Exp $
 #
 
 """ASN.1 to Ethereal dissector compiler"""
 
 #
-# Compiler from ASN.1 specification to the Ethereal PER dissector
+# Compiler from ASN.1 specification to the Ethereal dissector
 #
 # Based on ASN.1 to Python compiler from Aaron S. Lav's PyZ3950 package licensed under the X Consortium license
 # http://www.pobox.com/~asl2/software/PyZ3950/
@@ -411,9 +411,10 @@ class EthCtx:
     if self.type.has_key(ident):
       raise "Duplicate type for " + ident
     self.type[ident] = {'import'  : mod, 'proto' : proto,
-                        'ethname' : '', 
-                        'ftype'   : 'FT_NONE', 'display' : 'BASE_NONE',
-                        'strings' : 'NULL'}
+                        'ethname' : '' }
+    self.type[ident]['attr'] = { 'TYPE' : 'FT_NONE', 'DISPLAY' : 'BASE_NONE',
+                                 'STRINGS' : 'NULL', 'BITMASK' : '0' }
+    self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
     self.type_imp.append(ident)
 
   #--- eth_import_value -------------------------------------------------------
@@ -447,6 +448,13 @@ class EthCtx:
     self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', ident)
     self.type[ident]['tname'] = self.conform.use_item('TYPE_RENAME', ident, val_dflt=self.type[ident]['tname'])
     self.type[ident]['ethname'] = ''
+    if val.type == 'Type_Ref':
+      self.type[ident]['attr'] = {}
+    else:
+      (ftype, display) = val.eth_ftype()
+      self.type[ident]['attr'] = { 'TYPE' : ftype, 'DISPLAY' : display,
+                                   'STRINGS' : val.eth_strings(), 'BITMASK' : '0' }
+    self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
     self.type_ord.append(ident)
 
   #--- eth_reg_value ----------------------------------------------------------
@@ -464,7 +472,11 @@ class EthCtx:
     #print "eth_reg_field(ident='%s', type='%s')" % (ident, type)
     if self.field.has_key(ident):
       raise "Duplicate field for " + ident
-    self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl}
+    self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 
+                         'modified' : '', 'attr' : {} }
+    if self.conform.check_item('FIELD_ATTR', ident):
+      self.field[ident]['modified'] = '#' + str(id(self))
+      self.field[ident]['attr'].update(self.conform.use_item('FIELD_ATTR', ident))
     self.field_ord.append(ident)
     if parent: self.eth_dep_add(parent, type)
 
@@ -479,7 +491,8 @@ class EthCtx:
 
     for t in self.type_imp:
       nm = t
-      self.eth_type[nm] = { 'import' : self.type[t]['import'], 'proto' : self.type[t]['proto'], 'ref' : []}
+      self.eth_type[nm] = { 'import' : self.type[t]['import'], 'proto' : self.type[t]['proto'],
+                            'attr' : {}, 'ref' : []}
       self.type[t]['ethname'] = nm
     for t in self.type_ord:
       nm = self.type[t]['tname']
@@ -504,7 +517,12 @@ class EthCtx:
         self.eth_type_ord.append(nm)
         self.eth_type[nm] = { 'import' : None, 'proto' : self.proto, 'export' : 0,
                               'user_def' : 0x03, 'no_emit' : 0x03, 
-                              'val' : self.type[t]['val'], 'ref' : [t]}
+                              'val' : self.type[t]['val'], 
+                              'attr' : {}, 
+                              'ref' : [t]}
+        self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
+        if self.type[t]['attr'].get('STRINGS') == '$$':
+          self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s_vals)' % (nm)
       self.type[t]['ethname'] = nm
       if (not self.eth_type[nm]['export'] and self.type[t]['export']):  # new export
         self.eth_export_ord.append(nm)
@@ -589,7 +607,7 @@ class EthCtx:
       name += self.field[f]['idx']
       abbrev = nm.replace('-', '_')
       nm = self.conform.use_item('FIELD_RENAME', f, val_dflt=nm)
-      nm = "hf_%s_%s" % (self.proto, nm.replace('-', '_'))
+      nm = nm.replace('-', '_')
       t = self.field[f]['type']
       if self.type.has_key(t):
         ethtype = self.type[t]['ethname']
@@ -597,15 +615,16 @@ class EthCtx:
         # dummy imported
         print "Dummy imported: ", t
         self.type[t] = {'import'  : 'xxx', 'proto' : 'xxx',
-                        'ethname' : t, 
-                        'ftype'   : 'FT_NONE', 'display' : 'BASE_NONE',
-                        'strings' : 'NULL'}
-        self.eth_type[t] = { 'import' : 'xxx', 'proto' : 'xxx' , 'ref' : []}
+                        'ethname' : t }
+        self.type[t]['attr'] = { 'TYPE' : 'FT_NONE', 'DISPLAY' : 'BASE_NONE',
+                                 'STRINGS' : 'NULL', 'BITMASK' : '0' }
+        self.eth_type[t] = { 'import' : 'xxx', 'proto' : 'xxx' , 'attr' : {}, 'ref' : []}
         ethtype = t
+      ethtypemod = ethtype + self.field[f]['modified']
       if self.eth_hf.has_key(nm):
         if self.eth_hf_dupl.has_key(nm):
-          if self.eth_hf_dupl[nm].has_key(ethtype):
-            nm = self.eth_hf_dupl[nm][ethtype]
+          if self.eth_hf_dupl[nm].has_key(ethtypemod):
+            nm = self.eth_hf_dupl[nm][ethtypemod]
             self.eth_hf[nm]['ref'].append(f)
             self.field[f]['ethname'] = nm
             continue
@@ -614,35 +633,35 @@ class EthCtx:
             self.eth_hf_dupl[nm][ethtype] = nmx
             nm = nmx
         else:
-          if self.eth_hf[nm]['ethtype'] == ethtype:
+          if (self.eth_hf[nm]['ethtype']+self.eth_hf[nm]['modified']) == ethtypemod:
             self.eth_hf[nm]['ref'].append(f)
             self.field[f]['ethname'] = nm
             continue
           else:
-            self.eth_hf_dupl[nm] = {self.eth_hf[nm]['ethtype'] : nm, \
-                                    ethtype : nm+'1'}
+            self.eth_hf_dupl[nm] = {self.eth_hf[nm]['ethtype']+self.eth_hf[nm]['modified'] : nm, \
+                                    ethtypemod : nm+'1'}
             nm += '1'
       self.eth_hf_ord.append(nm)
+      fullname = "hf_%s_%s" % (self.proto, nm)
       type = self.field[f]['type']
+      types = [type]
       while (not self.type[type]['import'] 
              and self.type[type]['val'].type == 'Type_Ref'):
         type = self.type[type]['val'].val
+        types.append(type)
       #print self.field[f]['type'], ' -> ', type
-      if (self.type[type]['import']):
-        ftype = self.type[type]['ftype']
-        display = self.type[type]['display']
-        strings = self.type[type]['strings']
-      else:
-        (ftype, display) = self.type[type]['val'].eth_ftype()
-        strings = self.type[type]['val'].eth_strings()
-      if strings == '$$':
-        strings = 'VALS(%s_vals)' % (self.type[type]['ethname'])
-      self.eth_hf[nm] = {'ethtype' : ethtype, 'ref' : [f],
-                         'name' : name, 'abbrev' : abbrev,
-                         'type' : ftype, 
-                         'display' : display, 
-                         'strings' : strings, 
-                         'bitmask' : '0'}
+      attr = {}
+      while len(types):
+        t = types.pop()
+        attr.update(self.type[t]['attr'])
+        attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
+      attr.update(self.field[f]['attr'])
+      attr['NAME'] = '"%s"' % name
+      attr['ABBREV'] = abbrev
+      attr.update(self.conform.use_item('EFIELD_ATTR', nm))
+      self.eth_hf[nm] = {'fullname' : fullname,
+                         'ethtype' : ethtype, 'modified' : self.field[f]['modified'],
+                         'attr' : attr.copy(), 'ref' : [f]}
       self.field[f]['ethname'] = nm
     #--- type dependencies -------------------
     self.eth_type_ord1 = []
@@ -789,7 +808,7 @@ class EthCtx:
     fx = file(fn, 'w')
     fx.write(eth_fhdr(fn))
     for f in self.eth_hf_ord:
-      fx.write("%-50s/* %s */\n" % ("static int %s = -1;  " % (f), self.eth_hf[f]['ethtype']))
+      fx.write("%-50s/* %s */\n" % ("static int %s = -1;  " % (self.eth_hf[f]['fullname']), self.eth_hf[f]['ethtype']))
     if (self.named_bit):
       fx.write('/* named bits */\n')
     for nb in self.named_bit:
@@ -804,13 +823,17 @@ class EthCtx:
     fx.write(eth_fhdr(fn))
     for f in self.eth_hf_ord:
       if len(self.eth_hf[f]['ref']) == 1:
-        blurb = self.eth_hf[f]['ref'][0]
+        blurb = '"' + self.eth_hf[f]['ref'][0] + '"'
       else:
-        blurb = ''
-      fx.write('    { &%s,\n' % (f))
-      fx.write('      { "%s", "%s.%s",\n' % (self.eth_hf[f]['name'], self.proto, self.eth_hf[f]['abbrev']))
-      fx.write('        %s, %s, %s, %s,\n' % (self.eth_hf[f]['type'], self.eth_hf[f]['display'], self.eth_hf[f]['strings'], self.eth_hf[f]['bitmask']))
-      fx.write('        "%s", HFILL }},\n' % (blurb))
+        blurb = '""'
+      attr = self.eth_hf[f]['attr'].copy()
+      attr['ABBREV'] = '"%s.%s"' % (self.proto, attr['ABBREV'])
+      if not attr.has_key('BLURB'):
+        attr['BLURB'] = blurb
+      fx.write('    { &%s,\n' % (self.eth_hf[f]['fullname']))
+      fx.write('      { %(NAME)s, %(ABBREV)s,\n' % attr)
+      fx.write('        %(TYPE)s, %(DISPLAY)s, %(STRINGS)s, %(BITMASK)s,\n' % attr)
+      fx.write('        %(BLURB)s, HFILL }},\n' % attr)
     for nb in self.named_bit:
       blurb = ''
       fx.write('    { &%s,\n' % (nb['ethname']))
@@ -861,6 +884,29 @@ class EthCtx:
         fx.write(self.eth_type_fn_h(t))
     fx.close()
 
+  #--- eth_output_expcnf ------------------------------------------------------
+  def eth_output_expcnf(self):
+    if (not len(self.eth_export_ord)): return
+    fn = self.eth_output_fname('exp', ext='cnf')
+    fx = file(fn, 'w')
+    fx.write(eth_fhdr(fn, comment = '#'))
+    if self.Ber():
+      fx.write('#.IMPORT_TAG\n')
+      for t in self.eth_export_ord:  # functions
+        if (self.eth_type[t]['export'] & 0x01):
+          fx.write('%-24s ' % (t))
+          fx.write('%s %s\n' % self.eth_type[t]['val'].GetTag(self))
+      fx.write('#.END\n\n')
+    fx.write('#.TYPE_ATTR\n')
+    for t in self.eth_export_ord:  # functions
+      if (self.eth_type[t]['export'] & 0x01):
+        fx.write('%-24s ' % (t))
+        attr = self.type[self.eth_type[t]['ref'][0]]['attr'].copy()
+        attr.update(self.eth_type[t]['attr'])
+        fx.write('TYPE = %(TYPE)-9s  DISPLAY = %(DISPLAY)-9s  STRINGS = %(STRINGS)s  BITMASK = %(BITMASK)s\n' % attr)
+    fx.write('#.END\n\n')
+    fx.close()
+
   #--- eth_output_val ------------------------------------------------------
   def eth_output_val(self):
     if (not len(self.eth_value_ord1)): return
@@ -904,10 +950,10 @@ class EthCtx:
           if (i): postfix = '_impl'; impl = 'TRUE'
           else:   postfix = '';      impl = 'FALSE'
           out = 'static int dissect_'+f+postfix+'(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {\n'
-          par=((impl, 'tvb', 'offset', 'pinfo', 'tree', f),)
+          par=((impl, 'tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
         else:
           out = 'static int dissect_'+f+'(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {\n'
-          par=(('tvb', 'offset', 'pinfo', 'tree', f),)
+          par=(('tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
         out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='return',
                                 par=par)
         out += '}\n'
@@ -957,7 +1003,7 @@ class EthCtx:
     tmplist = self.eth_type_dupl.keys()
     tmplist.sort()
     for t in tmplist:
-      msg = "The same type names for different types. Explicit renaming is recommended.\n"
+      msg = "The same type names for different types. Explicit type renaming is recommended.\n"
       msg += t + "\n"
       x = ''
       for tt in self.eth_type_dupl[t]:
@@ -969,7 +1015,7 @@ class EthCtx:
     tmplist = self.eth_hf_dupl.keys()
     tmplist.sort()
     for f in tmplist:
-      msg = "The same field names for different types. Explicit renaming is recommended.\n"
+      msg = "The same field names for different types. Explicit field renaming is recommended.\n"
       msg += f + "\n"
       for tt in self.eth_hf_dupl[f].keys():
         msg += " %-20s %-20s " % (self.eth_hf_dupl[f][tt], tt)
@@ -993,6 +1039,12 @@ class EthCnf:
     self.tblcfg['TYPE_RENAME']     = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['FIELD_RENAME']    = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['IMPORT_TAG']      = { 'val_nm' : 'ttag',     'val_dflt' : (),    'chk_dup' : True, 'chk_use' : False }
+    self.tblcfg['FN_PARS']         = { 'val_nm' : 'pars',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['TYPE_ATTR']       = { 'val_nm' : 'attr',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : False }
+    self.tblcfg['ETYPE_ATTR']      = { 'val_nm' : 'attr',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : False }
+    self.tblcfg['FIELD_ATTR']      = { 'val_nm' : 'attr',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['EFIELD_ATTR']     = { 'val_nm' : 'attr',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : True }
+
 
     for k in self.tblcfg.keys() :
       self.table[k] = {}
@@ -1055,12 +1107,48 @@ class EthCnf:
         return par[0:pmax]
       return par
 
+    def get_par_nm(line, pnum, fn, lineno):
+      if pnum:
+        par = line.split(None, 1)
+      else:
+        par = [line,]
+      for i in range(len(par)):
+        if par[i][0] == '#':
+          par[i:] = []
+          break
+      if len(par) < pnum:
+        warnings.warn_explicit("Too few parameters.", UserWarning, fn, lineno)
+        return None
+      if len(par) > pnum:
+        nmpar = par[pnum]
+      else:
+        nmpar = ''
+      nmpars = {}
+      nmpar_first = re.compile(r'^\s*(?P<attr>[_A-Z][_A-Z0-9]*)\s*=\s*')
+      nmpar_next = re.compile(r'\s+(?P<attr>[_A-Z][_A-Z0-9]*)\s*=\s*')
+      nmpar_end = re.compile(r'\s*$')
+      result = nmpar_first.search(nmpar)
+      pos = 0
+      while result:
+        k = result.group('attr')
+        pos = result.end()
+        result = nmpar_next.search(nmpar, pos)
+        p1 = pos
+        if result:
+          p2 = result.start()
+        else:
+          p2 = nmpar_end.search(nmpar, pos).start()
+        v = nmpar[p1:p2]
+        nmpars[k] = v
+      par[pnum] = nmpars
+      return par
+
     f = open(fn, "r")
     directive = re.compile(r'^\s*#\.(?P<name>[A-Z_]+)\s+')
     comment = re.compile(r'^\s*#[^.]')
     empty = re.compile(r'^\s*$')
     lineno = 0
-    ctx = ''
+    ctx = None
     name = ''
     stack = []
     while 1:
@@ -1077,13 +1165,21 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG'):
+        if result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG',
+                                    'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
         elif result.group('name') in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: continue
           ctx = result.group('name')
           name = par[0]
+        elif result.group('name') == 'FN_PARS':
+          par = get_par(line[result.end():], 0, 1, fn=fn, lineno=lineno)
+          ctx = result.group('name')
+          if not par:
+            name = None
+          else:
+            name = par[0]
         elif result.group('name') == 'INCLUDE':
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: continue
@@ -1091,15 +1187,15 @@ class EthCnf:
           stack.append({'fn' : fn, 'f' : f, 'lineno' : lineno})
           fn, f, lineno = par[0], fnew, 0
         elif result.group('name') == 'END':
-          ctx = ''
+          ctx = None
         else:
           warnings.warn_explicit("Unknown directive '%s'" % (result.group('name')), UserWarning, fn, lineno)
         continue
       if not ctx:
-        if not empty.search(line):
+        if not empty.match(line):
           warnings.warn_explicit("Non-empty line in empty context", UserWarning, fn, lineno)
       elif ctx in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
-        if empty.search(line): continue
+        if empty.match(line): continue
         par = get_par(line, 1, 2, fn=fn, lineno=lineno)
         if not par: continue
         flag = 0x03
@@ -1114,30 +1210,35 @@ class EthCnf:
             warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
         self.add_item(ctx, par[0], flag=flag, fn=fn, lineno=lineno)
       elif ctx == 'MODULE_IMPORT':
-        if empty.search(line): continue
+        if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('MODULE_IMPORT', par[0], proto=par[1], fn=fn, lineno=lineno)
       elif ctx == 'IMPORT_TAG':
-        if empty.search(line): continue
+        if empty.match(line): continue
         par = get_par(line, 3, 3, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('IMPORT_TAG', par[0], ttag=(par[1], par[2]), fn=fn, lineno=lineno)
       elif ctx == 'OMIT_ASSIGNMENT':
-        if empty.search(line): continue
+        if empty.match(line): continue
         par = get_par(line, 1, 1, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('OMIT_ASSIGNMENT', par[0], omit=True, fn=fn, lineno=lineno)
       elif ctx == 'TYPE_RENAME':
-        if empty.search(line): continue
+        if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('TYPE_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
       elif ctx == 'FIELD_RENAME':
-        if empty.search(line): continue
+        if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('FIELD_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
+      elif ctx in ('TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
+        if empty.match(line): continue
+        par = get_par_nm(line, 1, fn=fn, lineno=lineno)
+        if not par: continue
+        self.add_item(ctx, par[0], attr=par[1], fn=fn, lineno=lineno)
       elif ctx in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
         self.add_fn_line(name, ctx, line, fn=fn, lineno=lineno)
 
@@ -1866,7 +1967,16 @@ class ChoiceType (Type):
       return True
 
     def GetTTag(self, ectx):
-      return (-1, -1)
+      lst = self.elt_list
+      cls = '-1/*choice*/'
+      if hasattr(self, 'ext_list'):
+        lst.extend(self.ext_list)
+      if (len(lst) > 0):
+        cls = lst[0].GetTag(ectx)[0]
+      for e in (lst):
+        if (e.GetTag(ectx)[0] != cls):
+          cls = '-1/*choice*/'
+      return (cls, '-1/*choice*/')
 
     def IndetermTag(self, ectx):
       #print "Choice IndetermTag()=%s" % (str(not self.HasOwnTag()))
@@ -2223,7 +2333,7 @@ class RestrictedCharacterStringType (CharacterStringType):
     (minv, maxv, ext) = self.eth_get_size_constr()
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_ber_restricted_string' + ectx.pvp(), ret='offset',
-                              par=(('implicit_tag', self.GetTTag(ectx)[1]),
+                              par=(('implicit_tag', self.GetTag(ectx)[1]),
                                    ('pinfo', 'tree', 'tvb', 'offset', 'hf_index'),
                                    ('NULL',)))
     elif (ectx.NPer()):
@@ -3692,7 +3802,7 @@ def p_ActualParameter (t):
 def p_error(t):
     raise ParseError(str(t))
 
-yacc.yacc ()
+yacc.yacc(method='SLR')
 
 def testlex (s):
     lexer.input (s)
@@ -3715,11 +3825,12 @@ def eth_do_module (ast, ectx):
     if ectx.dbg('s'): print ast.str_depth(0)
     ast.to_eth(ectx)
     ectx.eth_prepare()
-    if ectx.dbg('t'):
+    if ectx.dbg('a'):
       print "\n# Assignments"
       print "\n".join(ectx.assign_ord)
       print "\n# Value assignments"
       print "\n".join(ectx.vassign_ord)
+    if ectx.dbg('t'):
       print "\n# Imported Types"
       print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
       print "-" * 100
@@ -3786,13 +3897,15 @@ def eth_do_module (ast, ectx):
     ectx.eth_output_hf_arr()
     ectx.eth_output_ett_arr()
     ectx.eth_output_export()
+    if ectx.expcnf:
+      ectx.eth_output_expcnf()
     ectx.eth_output_val()
     ectx.eth_output_valexp()
     ectx.conform.unused_report()
 
 import time
-def testyacc (s, fn, defined_dict):
-    ast = yacc.parse (s, debug=0)
+def testyacc(s, fn, defined_dict):
+    ast = yacc.parse(s, debug=0)
     time_str = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())
     print """#!/usr/bin/env python
 # Auto-generated from %s at %s
@@ -3809,16 +3922,18 @@ def eth_usage():
   print """
 competh [-h|?] [-d dbg] [-p proto] [-c conform_file] input_file
   -h|?       : usage
-  -d dbg     : debug output, dbg = [l][y][s][t]
+  -d dbg     : debug output, dbg = [l][y][s][a][t]
                l - lex 
                y - yacc
-               s - internal ASN structure
+               s - internal ASN.1 structure
+               a - list of assignments
                t - tables
   -b         : BER (default is PER)
   -X         : original dissector API (see Note)
   -p proto   : protocol name (default is basenam of <input_file> without extension)
   -o name    : output files name (default is <proto>)
   -c conform_file : conformation file
+  -e         : create conformation file for exported types
   -s template : single file output (templete is input file without .c/.h extension)
   input_file : input ASN.1 file
 
@@ -3826,9 +3941,12 @@ Note: It can create output for an original or a new PER/BER dissectors API,
       but the new PER/BER dissectors API is not implemented now.
 """
 
-def eth_fhdr(fn):
+def eth_fhdr(fn, comment = None):
   def outln(ln):
-    return '/* ' + ('%-74s' % (ln)) + ' */\n'
+    if comment:
+      return '# %s\n' % (ln)
+    else:
+      return '/* %-74s */\n' % (ln)
   out = ''
   out += outln('Do not modify this file.')
   out += outln('It is created automatically by the ASN.1 to Ethereal dissector compiler')
@@ -3873,7 +3991,7 @@ def make_include(out_nm, in_nm, inc_nms, remove_inc=False):
 def eth_main():
   print "ASN.1 to Ethereal dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?bXd:p:o:c:s:");
+    opts, args = getopt.getopt(sys.argv[1:], "h?bXd:p:o:c:es:");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) != 1:
@@ -3887,6 +4005,8 @@ def eth_main():
   ectx.outnm = ectx.proto
   ectx.new = True
   ectx.dbgopt = ''
+  ectx.new = True
+  ectx.expcnf = False
   single_file = None
   for o, a in opts:
     if o in ("-h", "-?"):
@@ -3904,6 +4024,8 @@ def eth_main():
       ectx.new = False
     if o in ("-d",):
       ectx.dbgopt = a
+    if o in ("-e",):
+      ectx.expcnf = True
     if o in ("-s",):
       single_file = a
   
@@ -3911,7 +4033,7 @@ def eth_main():
   s = f.read();
   f.close()
   lexer.debug=ectx.dbg('l')
-  ast = yacc.parse (s, debug=ectx.dbg('y'))
+  ast = yacc.parse(s, debug=ectx.dbg('y'))
   for module in ast:
     eth_do_module(module, ectx)
 

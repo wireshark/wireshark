@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.46 2004/06/24 20:58:46 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.47 2004/06/24 21:50:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10166,7 +10166,7 @@ proto_register_h225(void)
         "CryptoH323Token/cryptoEPPwdHash", HFILL }},
     { &hf_h225_timeStamp,
       { "timeStamp", "h225.timeStamp",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_h225_token,
       { "token", "h225.token",

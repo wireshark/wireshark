@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.32 2004/05/09 10:03:40 guy Exp $
+ * $Id: ftypes.h,v 1.33 2004/06/24 21:50:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,11 @@ enum ftenum {
 	FT_PCRE,		/* a compiled Perl-Compatible Regular Expression object */
 	FT_NUM_TYPES /* last item number plus one */
 };
+
+#define IS_FT_INT(ft)    ((ft)==FT_INT8||(ft)==FT_INT16||(ft)==FT_INT24||(ft)==FT_INT32)
+#define IS_FT_UINT(ft)   ((ft)==FT_UINT8||(ft)==FT_UINT16||(ft)==FT_UINT24||(ft)==FT_UINT32||(ft)==FT_FRAMENUM)
+#define IS_FT_TIME(ft)   ((ft)==FT_ABSOLUTE_TIME||(ft)==FT_RELATIVE_TIME)
+#define IS_FT_STRING(ft) ((ft)==FT_STRING||(ft)==FT_STRINGZ)
 
 typedef enum ftenum ftenum_t;
 typedef struct _ftype_t ftype_t;
