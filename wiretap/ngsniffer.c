@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.17 1999/08/20 07:38:30 guy Exp $
+ * $Id: ngsniffer.c,v 1.18 1999/08/20 23:11:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -508,19 +508,19 @@ static int ngsniffer_read(wtap *wth, int *err)
 			wth->phdr.pseudo_header.ngsniffer_atm.AppHLType =
 			    frame4.atm_info.AppHLType;
 			wth->phdr.pseudo_header.ngsniffer_atm.Vpi =
-			    frame4.atm_info.Vpi;
+			    pletohs(&frame4.atm_info.Vpi);
 			wth->phdr.pseudo_header.ngsniffer_atm.Vci =
-			    frame4.atm_info.Vci;
+			    pletohs(&frame4.atm_info.Vci);
 			wth->phdr.pseudo_header.ngsniffer_atm.channel =
-			    frame4.atm_info.channel;
+			    pletohs(&frame4.atm_info.channel);
 			wth->phdr.pseudo_header.ngsniffer_atm.cells =
-			    frame4.atm_info.cells;
+			    pletohs(&frame4.atm_info.cells);
 			wth->phdr.pseudo_header.ngsniffer_atm.aal5t_u2u =
-			    frame4.atm_info.Trailer.aal5t_u2u;
+			    pletohs(&frame4.atm_info.Trailer.aal5t_u2u);
 			wth->phdr.pseudo_header.ngsniffer_atm.aal5t_len =
-			    frame4.atm_info.Trailer.aal5t_len;
+			    pletohs(&frame4.atm_info.Trailer.aal5t_len);
 			wth->phdr.pseudo_header.ngsniffer_atm.aal5t_chksum =
-			    frame4.atm_info.Trailer.aal5t_chksum;
+			    pletohl(&frame4.atm_info.Trailer.aal5t_chksum);
 			goto found;
 
 		case REC_EOF:
