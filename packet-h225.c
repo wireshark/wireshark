@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.11 2003/08/31 00:32:19 guy Exp $
+ * $Id: packet-h225.c,v 1.12 2003/09/02 21:37:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -770,6 +770,8 @@ static dissector_handle_t h245dg_handle=NULL;
 
 static guint32  ipv4_address;
 static guint32  ipv4_port;
+
+static gboolean contains_faststart = FALSE;
 
 static const true_false_string tfs_unsolicited_bit = {
 	"unsolicited bit is SET",
@@ -4783,9 +4785,7 @@ dissect_h225_fastStart_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h225_fastStart_item_length, &length);
 	offset=dissect_h245_OpenLogicalChannel(tvb, offset, pinfo, tree);
 
- 	if (check_col(pinfo->cinfo, COL_INFO)) {
- 		col_append_str(pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
- 	}
+	contains_faststart = TRUE;
 
 	return offset;
 }
@@ -6792,6 +6792,7 @@ static per_sequence_t SetupUUIE_sequence[] = {
 static int 
 dissect_h225_SetupUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	contains_faststart = FALSE;
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_SetupUUIE, ett_h225_SetupUUIE, SetupUUIE_sequence);
 	return offset;
 }
@@ -6903,13 +6904,25 @@ dissect_h225_h323_message_body(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 {
 	guint32 value;
 	
+	contains_faststart = FALSE;
+
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_h323_message_body, ett_h225_h323_message_body, h323_message_body_choice, "h323_message_body", &(value));
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "CS: %s ",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "CS: %s ",
 			val_to_str(value, h323_message_body_vals, "<unknown>"));
+        }
+
+	if (contains_faststart == TRUE )
+	{
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
+		}
 	}
-	
+
+	col_set_fence(pinfo->cinfo,COL_INFO);
+
 	return offset;
 }
 
@@ -8146,9 +8159,6 @@ dissect_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
-	}
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), "H.225.0 RAS");
