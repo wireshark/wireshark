@@ -363,6 +363,33 @@ guint32 value_len;
   h225_pi.reason = value;
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_BODY AdmissionRejectReason
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_AdmissionRejectReason, AdmissionRejectReason_choice, "AdmissionRejectReason",
+                              &value);
+  h225_pi.reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY LocationRejectReason
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_LocationRejectReason, LocationRejectReason_choice, "LocationRejectReason",
+                              &value);
+  h225_pi.reason = value;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY RegistrationRejectReason
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_RegistrationRejectReason, RegistrationRejectReason_choice, "RegistrationRejectReason",
+                              &value);
+  h225_pi.reason = value;
+#.END
+#----------------------------------------------------------------------------------------
 #.FN_BODY InfoRequestNakReason
   guint32 value;
 	

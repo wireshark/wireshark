@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h225.h                                                            */
+/* ./packet-h225.h                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.h */
@@ -73,7 +73,7 @@ typedef struct _h225_packet_info {
 
 
 
-/*--- Included file: packet-H225-exp.h ---*/
+/*--- Included file: packet-h225-exp.h ---*/
 
 ETH_VAR_IMPORT const value_string T_h323_message_body_vals[];
 ETH_VAR_IMPORT const value_string ReleaseCompleteReason_vals[];
@@ -100,7 +100,7 @@ int dissect_h225_AliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 int dissect_h225_PartyNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_h225_RasMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
-/*--- End of included file: packet-H225-exp.h ---*/
+/*--- End of included file: packet-h225-exp.h ---*/
 
 
 #endif  /* PACKET_H225_H */

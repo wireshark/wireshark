@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h225.c                                                            */
+/* ./packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
@@ -7186,9 +7186,12 @@ static const per_choice_t RegistrationRejectReason_choice[] = {
 
 static int
 dissect_h225_RegistrationRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_RegistrationRejectReason, RegistrationRejectReason_choice, "RegistrationRejectReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
 
   return offset;
 }
@@ -7627,9 +7630,12 @@ static const per_choice_t AdmissionRejectReason_choice[] = {
 
 static int
 dissect_h225_AdmissionRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_AdmissionRejectReason, AdmissionRejectReason_choice, "AdmissionRejectReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
 
   return offset;
 }
@@ -8052,9 +8058,12 @@ static const per_choice_t LocationRejectReason_choice[] = {
 
 static int
 dissect_h225_LocationRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_LocationRejectReason, LocationRejectReason_choice, "LocationRejectReason",
-                              NULL);
+                              &value);
+  h225_pi.reason = value;
 
   return offset;
 }
