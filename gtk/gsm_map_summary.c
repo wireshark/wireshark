@@ -105,7 +105,7 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(file_box);
 
   /* filename */
-  g_snprintf(string_buff, SUM_STR_MAX, "Name: %s", summary.filename);
+  g_snprintf(string_buff, SUM_STR_MAX, "Name: %s", ((summary.filename) ? summary.filename : "None"));
   add_string_to_box(string_buff, file_box);
 
   /* length */
@@ -172,7 +172,10 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_box(string_buff, invoke_box);
 
   /* Total number of invokes per second */
-  g_snprintf(string_buff, SUM_STR_MAX, "Total number of Invokes per second: %.2f", tot_invokes/seconds);
+  if (seconds)
+	g_snprintf(string_buff, SUM_STR_MAX, "Total number of Invokes per second: %.2f", tot_invokes/seconds);
+  else
+	g_snprintf(string_buff, SUM_STR_MAX, "Total number of Invokes per second: N/A");
   add_string_to_box(string_buff, invoke_box);
 
   /* Total size of invokes */
@@ -180,11 +183,17 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_box(string_buff, invoke_box);
 
   /* Average size of invokes */
-  g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Invoke: %.2f", tot_invokes_size/tot_invokes);
+  if (tot_invokes)
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Invoke: %.2f", tot_invokes_size/tot_invokes);
+  else
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Invoke: N/A");
   add_string_to_box(string_buff, invoke_box);
 
   /* Average size of invokes per second */
-  g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: %.2f", tot_invokes_size/seconds);
+  if (seconds)
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: %.2f", tot_invokes_size/seconds);
+  else
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: N/A");
   add_string_to_box(string_buff, invoke_box);
 
   /* Return Results frame */
@@ -201,7 +210,10 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_box(string_buff, rr_box);
 
   /* Total number of return results per second */
-  g_snprintf(string_buff, SUM_STR_MAX, "Total number of Return Results per second: %.2f", tot_rr/seconds);
+  if (seconds)
+	g_snprintf(string_buff, SUM_STR_MAX, "Total number of Return Results per second: %.2f", tot_rr/seconds);
+  else
+	g_snprintf(string_buff, SUM_STR_MAX, "Total number of Return Results per second: N/A");
   add_string_to_box(string_buff, rr_box);
 
   /* Total size of return results */
@@ -209,11 +221,17 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_box(string_buff, rr_box);
 
   /* Average size of return results */
-  g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Return Result: %.2f", tot_rr_size/tot_rr);
+  if (tot_rr)
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Return Result: %.2f", tot_rr_size/tot_rr);
+  else
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Return Result: N/A");
   add_string_to_box(string_buff, rr_box);
 
   /* Average size of return results per second */
-  g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: %.2f", tot_rr_size/seconds);
+  if (seconds)
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: %.2f", tot_rr_size/seconds);
+  else
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: N/A");
   add_string_to_box(string_buff, rr_box);
 
   /* Totals frame */
@@ -229,19 +247,28 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   g_snprintf(string_buff, SUM_STR_MAX, "Total number of GSM MAP messages: %u", tot_invokes + tot_rr);
   add_string_to_box(string_buff, tot_box);
 
-  g_snprintf(string_buff, SUM_STR_MAX, "Total number of GSM MAP messages per second: %.2f",
-    (tot_invokes + tot_rr)/seconds);
+  if (seconds)
+	g_snprintf(string_buff, SUM_STR_MAX, "Total number of GSM MAP messages per second: %.2f",
+		(tot_invokes + tot_rr)/seconds);
+  else
+	g_snprintf(string_buff, SUM_STR_MAX, "Total number of GSM MAP messages per second: N/A");
   add_string_to_box(string_buff, tot_box);
 
   g_snprintf(string_buff, SUM_STR_MAX, "Total number of bytes for GSM MAP messages: %.0f", tot_invokes_size + tot_rr_size);
   add_string_to_box(string_buff, tot_box);
 
-  g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per GSM MAP messages: %.2f",
-    (tot_invokes_size + tot_rr_size)/(tot_invokes + tot_rr));
+  if (tot_invokes + tot_rr)
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per GSM MAP messages: %.2f",
+		(tot_invokes_size + tot_rr_size)/(tot_invokes + tot_rr));
+  else
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per GSM MAP messages: N/A");
   add_string_to_box(string_buff, tot_box);
 
-  g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes second: %.2f",
-    (tot_invokes_size + tot_rr_size)/seconds);
+  if (seconds)
+	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes second: %.2f",
+		(tot_invokes_size + tot_rr_size)/seconds);
+  else
+	  g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes second: N/A");
   add_string_to_box(string_buff, tot_box);
 
 
