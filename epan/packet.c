@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.82 2002/11/15 03:10:36 guy Exp $
+ * $Id: packet.c,v 1.83 2002/11/16 21:36:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,10 +38,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-
-#ifdef NEED_INET_V6DEFS_H
-# include "inet_v6defs.h"
-#endif
 
 #include "packet.h"
 #include "timestamp.h"
