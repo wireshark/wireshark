@@ -1,7 +1,7 @@
 /* tap-dcerpcstat.c
  * dcerpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-dcerpcstat.c,v 1.8 2004/01/19 18:23:01 jmayer Exp $
+ * $Id: tap-dcerpcstat.c,v 1.9 2004/01/19 23:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,7 +158,7 @@ dcerpcstat_draw(void *prs)
 #endif
 	printf("\n");
 	printf("===================================================================\n");
-	printf("%s Version %u.%u RTT Statistics:\n", rs->prog, rs->ver&0xff,rs->ver>>8);
+	printf("%s Major Version %u RTT Statistics:\n", rs->prog, rs->ver);
 	printf("Filter: %s\n",rs->filter?rs->filter:"");
 	printf("Procedure                  Calls   Min RTT   Max RTT   Avg RTT\n");
 	for(i=0;i<rs->num_procedures;i++){
@@ -199,6 +199,22 @@ dcerpcstat_init(char *optarg)
         char *filter=NULL;
         GString *error_string;
     
+	/*
+	 * XXX - DCE RPC statistics are maintained only by major version,
+	 * not by major and minor version, so the minor version number is
+	 * ignored.
+	 *
+	 * Should we just stop supporting minor version numbers here?
+	 * Or should we allow it to be omitted?  Or should we keep
+	 * separate statistics for different minor version numbers,
+	 * and allow the minor version number to be omitted, and
+	 * report aggregate statistics for all minor version numbers
+	 * if it's omitted?
+	 *
+	 * XXX - should this be called "srt" rather than "rtt"?  The
+	 * equivalent tap for Ethereal calls it "srt", for "Service
+	 * Response Time", rather than "rtt" for "Round-Trip Time".
+	 */
 	if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
 		uuid.Data1=d1;
 		uuid.Data2=d2;
@@ -220,21 +236,21 @@ dcerpcstat_init(char *optarg)
 		fprintf(stderr, "tethereal: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
-	if (major < 0 || major > 255) {
-		fprintf(stderr,"tethereal: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 255\n", major);
+	if (major < 0 || major > 65535) {
+		fprintf(stderr,"tethereal: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535\n", major);
 		exit(1);
 	}
-	if (minor < 0 || minor > 255) {
-		fprintf(stderr,"tethereal: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 255\n", minor);
+	if (minor < 0 || minor > 65535) {
+		fprintf(stderr,"tethereal: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535\n", minor);
 		exit(1);
 	}
-	ver = ((minor<<8)|(major&0xff));
+	ver = major;
 
 	rs=g_malloc(sizeof(rpcstat_t));
 	rs->prog=dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
-		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u.%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
+		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],ver);
 		exit(1);
 	}
 	procs=dcerpc_get_proto_sub_dissector(&uuid, ver);

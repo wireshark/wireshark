@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.41 2004/01/19 23:00:12 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.42 2004/01/19 23:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,7 @@ dcerpcstat_gen_title(rpcstat_t *rs)
 {
 	char *title;
 
-	title = g_strdup_printf("DCE-RPC Service Response Time statistics for %s version %u.%u: %s", rs->prog, rs->ver&0xff, rs->ver>>8, cf_get_display_name(&cfile));
+	title = g_strdup_printf("DCE-RPC Service Response Time statistics for %s major version %u: %s", rs->prog, rs->ver, cf_get_display_name(&cfile));
 	return title;
 }
 
@@ -203,6 +203,18 @@ gtk_dcerpcstat_init(char *optarg)
         GString *error_string;
 	int hf_opnum;
 
+	/*
+	 * XXX - DCE RPC statistics are maintained only by major version,
+	 * not by major and minor version, so the minor version number is
+	 * ignored.
+	 *
+	 * Should we just stop supporting minor version numbers here?
+	 * Or should we allow it to be omitted?  Or should we keep
+	 * separate statistics for different minor version numbers,
+	 * and allow the minor version number to be omitted, and
+	 * report aggregate statistics for all minor version numbers
+	 * if it's omitted?
+	 */
 	if(sscanf(optarg,"dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
 		uuid.Data1=d1;
 		uuid.Data2=d2;
@@ -224,22 +236,21 @@ gtk_dcerpcstat_init(char *optarg)
 		fprintf(stderr, "ethereal: invalid \"-z dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
-	if (major < 0 || major > 255) {
-		fprintf(stderr,"ethereal: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 255\n", major);
+	if (major < 0 || major > 65535) {
+		fprintf(stderr,"ethereal: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535\n", major);
 		exit(1);
 	}
-	if (minor < 0 || minor > 255) {
-		fprintf(stderr,"ethereal: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 255\n", minor);
+	if (minor < 0 || minor > 65535) {
+		fprintf(stderr,"ethereal: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535\n", minor);
 		exit(1);
 	}
-	ver = ((minor<<8)|(major&0xff));
-
+	ver = major;
 
 	rs=g_malloc(sizeof(rpcstat_t));
 	rs->prog=dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
-		fprintf(stderr,"ethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u.%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
+		fprintf(stderr,"ethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],ver);
 		exit(1);
 	}
 	hf_opnum=dcerpc_get_proto_hf_opnum(&uuid, ver);
@@ -343,7 +354,7 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	    dcerpc_uuid_program->Data4[2], dcerpc_uuid_program->Data4[3],
 	    dcerpc_uuid_program->Data4[4], dcerpc_uuid_program->Data4[5],
 	    dcerpc_uuid_program->Data4[6], dcerpc_uuid_program->Data4[7],
-	    dcerpc_version&0xff, dcerpc_version>>8);
+	    dcerpc_version, 0);
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]!=0){
 		g_string_sprintfa(str, ",%s", filter);
@@ -376,7 +387,7 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 		return NULL;
 	}
 
-	sprintf(vs,"%u.%u",k->ver&0xff,k->ver>>8);
+	sprintf(vs,"%u",k->ver);
 	menu_item=gtk_menu_item_new_with_label(vs);
 	SIGNAL_CONNECT(menu_item, "activate", dcerpcstat_version_select,
                        ((int)k->ver));
