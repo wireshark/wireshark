@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.42 1999/08/10 07:12:53 guy Exp $
+ * $Id: capture.c,v 1.43 1999/08/10 11:08:38 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -424,13 +424,12 @@ capture(void) {
   loop_data   ld;
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
-  int         err;
+  int         err, inpkts;
   
   ld.go           = TRUE;
   ld.counts.total = 0;
   ld.max          = cf.count;
   ld.linktype     = DLT_NULL;
-  ld.sync_time    = 0;
   ld.sync_packets = 0;
   ld.counts.tcp   = 0;
   ld.counts.udp   = 0;
@@ -544,8 +543,9 @@ capture(void) {
     upd_time = time(NULL);
     while (ld.go) {
       while (gtk_events_pending()) gtk_main_iteration();
-      pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
-
+      inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
+      if (inpkts)
+        ld.sync_packets++;
       /* Only update once a second so as not to overload slow displays */
       cur_time = time(NULL);
       if (cur_time > upd_time) {
@@ -574,6 +574,15 @@ capture(void) {
         sprintf(label_str, "Other: %d (%.1f%%)", ld.counts.other,
           pct(ld.counts.other, ld.counts.total));
         gtk_label_set(GTK_LABEL(other_lb), label_str);
+
+	/* do sync here, too */
+	fflush((FILE *)ld.pdh);
+	if (sync_mode && ld.sync_packets) {
+	  char tmp[20];
+	  sprintf(tmp, "%d*", ld.sync_packets);
+	  write(1, tmp, strlen(tmp));
+	  ld.sync_packets = 0;
+	}
       }
     }
     
@@ -627,7 +636,6 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd) {
   
   loop_data *ld = (loop_data *) user;
-  time_t *sync_time= &ld->sync_time, cur_time;
   
   if ((++ld->counts.total >= ld->max) && (ld->max > 0)) 
   {
@@ -635,23 +643,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   }
   /* Currently, pcap_dumper_t is a FILE *.  Let's hope that doesn't change. */
   if (ld->pdh) pcap_dump((u_char *) ld->pdh, phdr, pd);
-  
-  cur_time = time(NULL);
-
-  ld->sync_packets ++;
-
-  if (cur_time > *sync_time) {
-    /* sync every second */
-    *sync_time = cur_time;
-    fflush((FILE *)ld->pdh);
-    if (sync_mode && ld->sync_packets) {
-      char tmp[20];
-      sprintf(tmp, "%d*", ld->sync_packets);
-      write(1, tmp, strlen(tmp));
-      ld->sync_packets = 0;
-    }
-  }
-  
+    
   switch (ld->linktype) {
     case DLT_EN10MB :
       capture_eth(pd, phdr->caplen, &ld->counts);
