@@ -913,6 +913,7 @@ Tim Potter <tpot[AT]samba.org> {
 	    extract the FID from them
 	Use the FID, for DCE RPC-over-SMB, as part of the conversation
 	   matching
+	Assorted SMB fixes
 }
 
 Raghu Angadi <rangadi[AT]inktomi.com> {

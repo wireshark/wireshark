@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.27 2001/11/28 11:33:55 guy Exp $
+ * $Id: smb.h,v 1.28 2001/12/05 00:49:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,6 +138,7 @@
 #define SMBE_filexists 80          /* File in operation already exists */
 #define SMBE_cannotopen 110        /* Cannot open the file specified */
 #define SMBE_unknownlevel 124
+#define SMBE_alreadyexists 183     /* File already exists */
 #define SMBE_badpipe 230           /* Named pipe invalid */
 #define SMBE_pipebusy 231          /* All instances of pipe are busy */
 #define SMBE_pipeclosing 232       /* named pipe close in progress */

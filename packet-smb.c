@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.177 2001/12/05 00:25:44 guy Exp $
+ * $Id: packet-smb.c,v 1.178 2001/12/05 00:49:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -11754,6 +11754,7 @@ static const value_string DOS_errors[] = {
   {SMBE_notify_buf_small, "Buffer too small to return change notify."},
   {SMBE_unknownipc, "Unknown IPC Operation"},
   {SMBE_noipc, "Don't support ipc"},
+  {SMBE_alreadyexists, "File already exists"},
   {0, NULL}
   };
 
