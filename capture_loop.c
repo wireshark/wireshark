@@ -618,7 +618,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     return FALSE;
 #else
     /* try to open iface as a pipe */
-    ld->cap_pipe_fd = cap_pipe_open_live(cf_get_iface(capture_opts->cf), &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
+    ld->cap_pipe_fd = cap_pipe_open_live(capture_opts->iface, &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
 
     if (ld->cap_pipe_fd == -1) {
 

@@ -348,9 +348,9 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     argv = sync_pipe_add_arg(argv, &argc, "-m");
     argv = sync_pipe_add_arg(argv, &argc, prefs.PREFS_GUI_FONT_NAME);
 
-    if (cf_get_cfilter(capture_opts->cf) != NULL && cf_get_cfilter(capture_opts->cf) != 0) {
+    if (capture_opts->cfilter != NULL && capture_opts->cfilter != 0) {
       argv = sync_pipe_add_arg(argv, &argc, "-f");
-      argv = sync_pipe_add_arg(argv, &argc, cf_get_cfilter(capture_opts->cf));
+      argv = sync_pipe_add_arg(argv, &argc, capture_opts->cfilter);
     }
 
     if ((capture_opts->fork_child = fork()) == 0) {
