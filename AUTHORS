@@ -255,6 +255,7 @@ Heikki Vatiainen <hessu[AT]cs.tut.fi> {
 	Make "get_host_ipaddr()" require dotted-quad IP addresses to
 	    really be quads
 	CGMP-over-Ethernet II support
+	Fix the test for IS-IS virtual links
 }
 
 Greg Hankins <gregh[AT]twoguys.org> {
