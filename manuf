@@ -1,12 +1,12 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.29 2003/04/13 13:51:32 jmayer Exp $
+# $Id: manuf,v 1.30 2003/04/25 15:04:31 gerald Exp $
 #
-# Laurent Deniel <laurent.deniel@free.fr>
+# Laurent Deniel <laurent.deniel [AT] free.fr>
 #
 # Ethereal - Network traffic analyzer
-# By Gerald Combs <gerald@ethereal.com>
+# By Gerald Combs <gerald [AT] ethereal.com>
 # Copyright 1998 Gerald Combs
 #
 # This program is free software; you can redistribute it and/or
@@ -3355,6 +3355,38 @@
 00:0D:10	Embedtroni             # Embedtronics Oy
 00:0D:11	Dentsply-G             # DENTSPLY - Gendex
 00:0D:12	Axell                  # AXELL Corporation
+00:0D:13	WilhelmRut             # Wilhelm Rutenbeck GmbH&Co.
+00:0D:14	VtechInnov             # Vtech Innovation LP dba Advanced American Telephones
+00:0D:15	VoipacSRO              # Voipac s.r.o.
+00:0D:16	UhsPty                 # UHS Systems Pty Ltd
+00:0D:17	TurboNetwo             # Turbo Networks Co.Ltd
+00:0D:18	SunitecEnt             # Sunitec Enterprise Co., Ltd.
+00:0D:19	RobeShowLi             # ROBE Show lighting
+00:0D:1A	MustekSyst             # Mustek System Inc.
+00:0D:1B	KyotoElect             # Kyoto Electronics Manufacturing Co., Ltd.
+00:0D:1C	I2eTelecom             # I2E TELECOM
+00:0D:1D	High-TekHa             # HIGH-TEK HARNESS ENT. CO., LTD.
+00:0D:1E	ControlTec             # Control Techniques
+00:0D:1F	AvDigital              # AV Digital
+00:0D:20	Asahikasei             # ASAHIKASEI TECHNOSYSTEM CO.,LTD.
+00:0D:21	Wiscore                # WISCORE Inc.
+00:0D:22	Unitronics
+00:0D:23	SmartSolut             # Smart Solution, Inc
+00:0D:24	SentecE&E              # SENTEC E&E CO., LTD.
+00:0D:25	Sanden                 # SANDEN CORPORATION
+00:0D:26	Primagraph             # Primagraphics Limited
+00:0D:27	MicroplexP             # MICROPLEX Printware AG
+00:0D:28	Cisco
+00:0D:29	Cisco
+00:0D:2A	ScanmaticA             # Scanmatic AS
+00:0D:2B	RacalInstr             # Racal Instruments
+00:0D:2C	PatapscoDe             # Patapsco Designs Ltd
+00:0D:2D	NctDeutsch             # NCT Deutschland GmbH
+00:0D:2E	Matsushita             # Matsushita Avionics Systems Corporation
+00:0D:2F	AinCommTec             # AIN Comm.Tech.Co., LTD
+00:0D:30	IcefyreSem             # IceFyre Semiconductor
+00:0D:31	Compellent             # Compellent Technologies, Inc.
+00:0D:32	Dispenseso             # DispenseSource, Inc.
 00:10:00	CableTelev             # CABLE TELEVISION LABORATIES, INC.
 00:10:01	MckCommuni             # MCK COMMUNICATIONS
 00:10:02	Actia
@@ -6683,10 +6715,10 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.29 2003/04/13 13:51:32 jmayer Exp $
+# $Id: manuf,v 1.30 2003/04/25 15:04:31 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
-# By Gerald Combs <gerald@ethereal.com>
+# By Gerald Combs <gerald [AT] ethereal.com>
 # Copyright 1998 Gerald Combs
 #
 # This program is free software; you can redistribute it and/or
