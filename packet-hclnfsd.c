@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.14 2002/05/10 23:20:38 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.15 2002/07/31 19:58:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,11 +204,11 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 				newoffset = dissect_rpc_string(tvb, ident_tree,
 					hf_hclnfsd_auth_ident_obscure, offset, &ident);
 
-				proto_item_set_len(ident_item, newoffset - offset);
-
 				if (ident)
 				{
-					ident_len = newoffset - offset;
+					ident_len = strlen(ident);
+
+					proto_item_set_len(ident_item, ident_len);
 
 					hclnfsd_decode_obscure(ident, ident_len);
 
