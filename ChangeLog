@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.21 2003/05/01 03:09:51 gerald Exp $
+$Id: ChangeLog,v 1.22 2003/05/02 00:46:18 gerald Exp $
 
 Overview of changes in Ethereal 0.9.12:
 
@@ -268,8 +268,8 @@ Overview of changes in Ethereal 0.9.12:
 * Fix a typo in packet-isis-lsp.c (Laurent Rabret)
 * Don't export IP's "ip_dissector_table" explicitly (Guy)
 * More dissector table export fixes (Guy)
-* Greatly enhance packet-dcerpc-wkssv.c based on one-off VC++ programs
-  (Richard)
+* Make major improvements to packet-dcerpc-wkssvc.c based on a custom VC++
+  program (Richard)
 * Add a "proto_item_set_end()" routine to proto.c (Guy)
 * Small manuf update (Joerg)
 * Modify tvb_get_nstringz*() to behave more like snprintf(), fixing
@@ -281,10 +281,13 @@ Overview of changes in Ethereal 0.9.12:
   fully-reassembled packets (Guy)
 * Incorporate the AODV6 dissector into the AODV dissector (Guy)
 * Fix typedefs in plugins/plugin_table.h, eliminate duplicate code (Guy)
-* 
-
-Left off at: http://www.ethereal.com/lists/ethereal-cvs/200304/msg00269.html
-
+* Fix asn1_string_decode() plugin pointer (Lars)
+* Add names for some additional SAM messages (Jim McDonough)
+* Improve WBXML code page handling, add more content types (Olivier)
+* Fix some plugin exporation/macro issues (Matthijs)
+* Fetch both bytes of the message type in M2PA V2 and V6 headers 
+  (Jeff Morriss)
+* Clean up some column information display in MTP3MG (Jeff)
 
 
 Overview of changes in Ethereal 0.9.11:
@@ -616,6 +619,7 @@ Overview of changes in Ethereal 0.9.10:
 * Include io.h if needed in tap_rtp.c (Guy)
 * Add an average packet size to the summary dialog (Gerald)
 * Add a note about io.h to README.developer (Guy)
+* 
 
 
 Overview of changes in Ethereal 0.9.9:
