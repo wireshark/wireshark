@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.7 2000/12/22 21:43:53 nneul Exp $
+ * $Id: packet-kerberos.c,v 1.8 2000/12/24 09:10:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,8 +44,6 @@
 
 #include "asn1.h"
 
-#include "packet-kerberos.h"
-
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
 
@@ -59,42 +57,46 @@ static gint ett_encrypted  = -1;
 static gint ett_etype      = -1;
 static gint proto_kerberos = -1;
 
-#define KRB5_MSG_AS_REQ   0x0a
-#define KRB5_MSG_AS_RESP  0x0b
-#define KRB5_MSG_TGS_REQ  0x0c
-#define KRB5_MSG_TGS_RESP 0x0d
-#define KRB5_MSG_AP_REQ 0x0e
-#define KRB5_MSG_AP_RESP 0x0f
-#define KRB5_MSG_SAFE 0x14
-#define KRB5_MSG_PRIV 0x15
-#define KRB5_MSG_CRED 0x16
-#define KRB5_MSG_ERROR 0x1e
+#define KRB5_MSG_AS_REQ   10	/* AS-REQ type */
+#define KRB5_MSG_AS_REP   11	/* AS-REP type */
+#define KRB5_MSG_TGS_REQ  12	/* TGS-REQ type */
+#define KRB5_MSG_TGS_REP  13	/* TGS-REP type */
+#define KRB5_MSG_AP_REQ   14	/* AP-REQ type */
+#define KRB5_MSG_AP_REP   15	/* AP-REP type */
 
-#define KRB5_KDC_REQ_PVNO     0x01
-#define KRB5_KDC_REQ_MSG_TYPE 0x02
-#define KRB5_KDC_REQ_PADATA   0x03
-#define KRB5_KDC_REQ_REQBODY  0x04
+#define KRB5_MSG_SAFE     20	/* KRB-SAFE type */
+#define KRB5_MSG_PRIV     21	/* KRB-PRIV type */
+#define KRB5_MSG_CRED     22	/* KRB-CRED type */
+#define KRB5_MSG_ERROR    30	/* KRB-ERROR type */
 
-#define KRB5_KDC_RESP_PVNO     0x00
-#define KRB5_KDC_RESP_MSG_TYPE 0x01
-#define KRB5_KDC_RESP_PADATA   0x02
-#define KRB5_KDC_RESP_CREALM   0x03
-#define KRB5_KDC_RESP_CNAME    0x04
-#define KRB5_KDC_RESP_TICKET   0x05
-#define KRB5_KDC_RESP_ENC_PART 0x06
+/* Type tags within KDC-REQ */
+#define KRB5_KDC_REQ_PVNO     1
+#define KRB5_KDC_REQ_MSG_TYPE 2
+#define KRB5_KDC_REQ_PADATA   3
+#define KRB5_KDC_REQ_REQBODY  4
 
-#define KRB5_BODY_KDC_OPTIONS            0x00
-#define KRB5_BODY_CNAME                  0x01
-#define KRB5_BODY_REALM                  0x02
-#define KRB5_BODY_SNAME                  0x03
-#define KRB5_BODY_FROM                   0x04
-#define KRB5_BODY_TILL                   0x05
-#define KRB5_BODY_RTIME                  0x06
-#define KRB5_BODY_NONCE                  0x07
-#define KRB5_BODY_ETYPE                  0x08
-#define KRB5_BODY_ADDRESSES              0x09
-#define KRB5_BODY_ENC_AUTHORIZATION_DATA 0x0a
-#define KRB5_BODY_ADDITIONAL_TICKETS     0x0b
+/* Type tags within KDC-REP */
+#define KRB5_KDC_REP_PVNO     0
+#define KRB5_KDC_REP_MSG_TYPE 1
+#define KRB5_KDC_REP_PADATA   2
+#define KRB5_KDC_REP_CREALM   3
+#define KRB5_KDC_REP_CNAME    4
+#define KRB5_KDC_REP_TICKET   5
+#define KRB5_KDC_REP_ENC_PART 6
+
+/* Type tags within KDC-REQ-BODY */
+#define KRB5_BODY_KDC_OPTIONS            0
+#define KRB5_BODY_CNAME                  1
+#define KRB5_BODY_REALM                  2
+#define KRB5_BODY_SNAME                  3
+#define KRB5_BODY_FROM                   4
+#define KRB5_BODY_TILL                   5
+#define KRB5_BODY_RTIME                  6
+#define KRB5_BODY_NONCE                  7
+#define KRB5_BODY_ETYPE                  8
+#define KRB5_BODY_ADDRESSES              9
+#define KRB5_BODY_ENC_AUTHORIZATION_DATA 10
+#define KRB5_BODY_ADDITIONAL_TICKETS     11
 
 #define KRB5_ADDR_IPv4       0x02
 #define KRB5_ADDR_CHAOS      0x05
@@ -112,6 +114,12 @@ static gint proto_kerberos = -1;
 #define KRB5_PA_ENC_TIMESTAMP 0x02
 #define KRB5_PA_PW_SALT       0x03
 
+/* Type tags within Ticket */
+#define KRB5_TKT_TKT_VNO  0
+#define KRB5_TKT_REALM    1
+#define KRB5_TKT_SNAME    2
+#define KRB5_TKT_ENC_PART 3
+
 static const value_string krb5_preauthentication_types[] = {
     { KRB5_PA_TGS_REQ      , "PA-TGS-REQ" },
     { KRB5_PA_ENC_TIMESTAMP, "PA-ENC-TIMESTAMP" },
@@ -126,28 +134,38 @@ static const value_string krb5_encryption_types[] = {
 };
 
 static const value_string krb5_address_types[] = {
-    { KRB5_ADDR_IPv4,	"IPv4"},
-    { KRB5_ADDR_CHAOS,	"CHAOS"},
-    { KRB5_ADDR_XEROX,	"XEROX"},
-    { KRB5_ADDR_ISO,	"ISO"},
-    { KRB5_ADDR_DECNET,	"DECNET"},
+    { KRB5_ADDR_IPv4,		"IPv4"},
+    { KRB5_ADDR_CHAOS,		"CHAOS"},
+    { KRB5_ADDR_XEROX,		"XEROX"},
+    { KRB5_ADDR_ISO,		"ISO"},
+    { KRB5_ADDR_DECNET,		"DECNET"},
     { KRB5_ADDR_APPLETALK,	"APPLETALK"}
 };
 
 static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_TGS_REQ,	"TGS-REQ" },
-	{ KRB5_MSG_TGS_RESP,    "TGS-RESP" },
+	{ KRB5_MSG_TGS_REP,	"TGS-REP" },
 	{ KRB5_MSG_AS_REQ,	"AS-REQ" },
-	{ KRB5_MSG_AS_RESP,	"AS-RESP" },
+	{ KRB5_MSG_AS_REP,	"AS-REP" },
 	{ KRB5_MSG_AP_REQ,	"AP-REQ" },
-	{ KRB5_MSG_AP_RESP,	"AP-RESP" },
-	{ KRB5_MSG_SAFE,	"SAFE" },
-	{ KRB5_MSG_PRIV,	"PRIV" },
-	{ KRB5_MSG_CRED,	"CRED" },
-	{ KRB5_MSG_ERROR,	"ERROR" }
+	{ KRB5_MSG_AP_REP,	"AP-REP" },
+	{ KRB5_MSG_SAFE,	"KRB-SAFE" },
+	{ KRB5_MSG_PRIV,	"KRB-PRIV" },
+	{ KRB5_MSG_CRED,	"KRB-CRED" },
+	{ KRB5_MSG_ERROR,	"KRB-ERROR" }
 };
 
-const char *
+static int dissect_PrincipalName(char *title, ASN1_SCK *asn1p,
+                                 frame_data *fd, proto_tree *tree,
+                                 int start_offset);
+static int dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd,
+                          proto_tree *tree, int start_offset);
+static int dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
+                                 proto_tree *tree, int start_offset);
+static int dissect_Addresses(char *title, ASN1_SCK *asn1p, frame_data *fd,
+                             proto_tree *tree, int start_offset);
+
+static const char *
 to_error_str(int ret) {
     switch (ret) {
 
@@ -173,7 +191,7 @@ to_error_str(int ret) {
     return("Unknown error");
 }
 
-void
+static void
 krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
                         char *name, guchar *str) {
     if (tree)
@@ -197,16 +215,55 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
        if (check_col(fd, COL_INFO)) \
            col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
                     token, to_error_str(ret)); \
-       return; \
+       return -1; \
    } \
    if (!def) {\
        if (check_col(fd, COL_INFO)) \
            col_add_fstr(fd, COL_INFO, "not definite: %s", token); \
        fprintf(stderr,"not definite: %s\n", token); \
-       return; \
+       return -1; \
    } \
    offset += (asn1p->pointer - start);
 
+#define CHECK_APPLICATION_TYPE(expected_tag) \
+    (cls == ASN1_APL && con == ASN1_CON && tag == expected_tag)
+
+#define DIE_IF_NOT_APPLICATION_TYPE(token, expected_tag) \
+    if (!CHECK_APPLICATION_TYPE(expected_tag)) \
+        DIE_WITH_BAD_TYPE(token);
+
+#define CHECK_CONTEXT_TYPE(expected_tag) \
+    (cls == ASN1_CTX && con == ASN1_CON && tag == expected_tag)
+
+#define DIE_IF_NOT_CONTEXT_TYPE(token, expected_tag) \
+    if (!CHECK_CONTEXT_TYPE(expected_tag)) \
+        DIE_WITH_BAD_TYPE(token);
+
+#define DIE_WITH_BAD_TYPE(token) \
+    { \
+      if (check_col(fd, COL_INFO)) \
+         col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
+                      token, to_error_str(ASN1_ERR_WRONG_TYPE)); \
+      return -1; \
+    }
+
+#define KRB_DECODE_APPLICATION_TAGGED_HEAD_OR_DIE(token, expected_tag) \
+    KRB_HEAD_DECODE_OR_DIE(token); \
+    DIE_IF_NOT_APPLICATION_TYPE(token, expected_tag);
+
+#define KRB_DECODE_CONTEXT_HEAD_OR_DIE(token, expected_tag) \
+    KRB_HEAD_DECODE_OR_DIE(token); \
+    DIE_IF_NOT_CONTEXT_TYPE(token, expected_tag);
+
+#define KRB_SEQ_HEAD_DECODE_OR_DIE(token) \
+   ret = asn1_sequence_decode (asn1p, &item_len, &header_len); \
+   if (ret != ASN1_ERR_NOERROR && ret != ASN1_ERR_EMPTY) {\
+       if (check_col(fd, COL_INFO)) \
+           col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
+                    token, to_error_str(ret)); \
+       return -1; \
+   } \
+   offset += header_len;
 
 #define KRB_DECODE_OR_DIE(token, fn, val) \
     ret = fn (asn1p, &val, &length); \
@@ -214,8 +271,29 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
        if (check_col(fd, COL_INFO)) \
          col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
                      token, to_error_str(ret)); \
-        return; \
+        return -1; \
     } \
+
+#define KRB_DECODE_UINT32_OR_DIE(token, val) \
+    KRB_DECODE_OR_DIE(token, asn1_uint32_decode, val);
+
+#define KRB_DECODE_STRING_OR_DIE(token, expected_tag, val, val_len, item_len) \
+    ret = asn1_string_decode (asn1p, &val, &val_len, &item_len, expected_tag); \
+    if (ret != ASN1_ERR_NOERROR) { \
+       if (check_col(fd, COL_INFO)) \
+         col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
+                     token, to_error_str(ret)); \
+        return -1; \
+    }
+
+#define KRB_DECODE_OCTET_STRING_OR_DIE(token, val, val_len, item_len) \
+    KRB_DECODE_STRING_OR_DIE(token, ASN1_OTS, val, val_len, item_len)
+
+#define KRB_DECODE_GENERAL_STRING_OR_DIE(token, val, val_len, item_len) \
+    KRB_DECODE_STRING_OR_DIE(token, ASN1_GENSTR, val, val_len, item_len)
+
+#define KRB_DECODE_GENERAL_TIME_OR_DIE(token, val, val_len, item_len) \
+    KRB_DECODE_STRING_OR_DIE(token, ASN1_GENTIM, val, val_len, item_len)
 
 /* dissect_type_value_pair decodes (roughly) this:
 
@@ -226,9 +304,9 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
 
     which is all over the place in krb5 */
 
-void
+static void
 dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
-                        int *type, int *type_len, int *type_off,
+                        guint32 *type, int *type_len, int *type_off,
                         guchar **val, int *val_len, int *val_off) {
     int offset = *inoff;
     guint cls, con, tag;
@@ -252,7 +330,7 @@ dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
         *type_off = offset;
 
     /* value */
-    ret =  asn1_int32_decode(asn1p, type, type_len);
+    ret =  asn1_uint32_decode(asn1p, type, type_len);
     if (ret != ASN1_ERR_NOERROR) {
         fprintf(stderr,"die: type_value_pair: type, %s\n", to_error_str(ret));
         return;
@@ -270,14 +348,14 @@ dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
         *val_off = offset;
 
     /* value */
-    asn1_octet_string_value_decode (asn1p, *val_len, val);
+    asn1_string_value_decode (asn1p, *val_len, val);
 
     *inoff = offset + *val_len;
 }
 
-
-void
-dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static gboolean
+dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
+                      proto_tree *tree)
 {
     proto_tree *kerberos_tree = NULL;
     proto_tree *etype_tree = NULL;
@@ -296,20 +374,15 @@ dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     guint protocol_message_type;
     
-    gint32 version;
-    gint32 msg_type;
-    gint32 preauth_type;
-    gint32 tmp_int;
+    guint32 version;
+    guint32 msg_type;
+    guint32 preauth_type;
+    guint32 tmp_int;
 
     /* simple holders */
     int str_len;
     guchar *str;
     int tmp_pos1, tmp_pos2;
-
-    OLD_CHECK_DISPLAY_AS_DATA(proto_kerberos, pd, offset, fd, tree);
-
-    if (check_col(fd, COL_PROTOCOL))
-        col_set_str(fd, COL_PROTOCOL, "KRB5");
 
     if (tree) {
         item = proto_tree_add_item(tree, proto_kerberos, NullTVB, offset,
@@ -328,7 +401,7 @@ dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     /* version number */
     KRB_HEAD_DECODE_OR_DIE("version-wrap");
-    KRB_DECODE_OR_DIE("version", asn1_int32_decode, version);
+    KRB_DECODE_UINT32_OR_DIE("version", version);
 
     if (kerberos_tree) {
         proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
@@ -339,7 +412,7 @@ dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     /* message type */
     KRB_HEAD_DECODE_OR_DIE("message-type-wrap");
-    KRB_DECODE_OR_DIE("message-type", asn1_int32_decode, msg_type);
+    KRB_DECODE_UINT32_OR_DIE("message-type", msg_type);
 
     if (kerberos_tree) {
         proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
@@ -358,9 +431,9 @@ dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (((protocol_message_type == KRB5_MSG_AS_REQ ||
           protocol_message_type == KRB5_MSG_TGS_REQ) &&
          tag == KRB5_KDC_REQ_PADATA) ||
-        ((protocol_message_type == KRB5_MSG_AS_RESP ||
-          protocol_message_type == KRB5_MSG_TGS_RESP) &&
-         tag == KRB5_KDC_RESP_PADATA)) {
+        ((protocol_message_type == KRB5_MSG_AS_REP ||
+          protocol_message_type == KRB5_MSG_TGS_REP) &&
+         tag == KRB5_KDC_REP_PADATA)) {
         /* pre-authentication supplied */
 
         if (tree) {
@@ -391,9 +464,41 @@ dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         KRB_HEAD_DECODE_OR_DIE("message-body");
     }
 
-    if (protocol_message_type == KRB5_MSG_AS_REQ ||
-        protocol_message_type == KRB5_MSG_TGS_REQ) {
+    switch (protocol_message_type) {
+
+    case KRB5_MSG_AS_REQ:
+    case KRB5_MSG_TGS_REQ:
+/*
+  AS-REQ ::=         [APPLICATION 10] KDC-REQ
+  TGS-REQ ::=        [APPLICATION 12] KDC-REQ
     
+  KDC-REQ ::=        SEQUENCE {
+           pvno[1]               INTEGER,
+           msg-type[2]           INTEGER,
+           padata[3]             SEQUENCE OF PA-DATA OPTIONAL,
+           req-body[4]           KDC-REQ-BODY
+  }
+
+  KDC-REQ-BODY ::=   SEQUENCE {
+            kdc-options[0]       KDCOptions,
+            cname[1]             PrincipalName OPTIONAL,
+                         -- Used only in AS-REQ
+            realm[2]             Realm, -- Server's realm
+                         -- Also client's in AS-REQ
+            sname[3]             PrincipalName OPTIONAL,
+            from[4]              KerberosTime OPTIONAL,
+            till[5]              KerberosTime,
+            rtime[6]             KerberosTime OPTIONAL,
+            nonce[7]             INTEGER,
+            etype[8]             SEQUENCE OF INTEGER, -- EncryptionType,
+                         -- in preference order
+            addresses[9]         HostAddresses OPTIONAL,
+            enc-authorization-data[10]   EncryptedData OPTIONAL,
+                         -- Encrypted AuthorizationData encoding
+            additional-tickets[11]       SEQUENCE OF Ticket OPTIONAL
+  }
+
+*/
         /* request body */
         KRB_HEAD_DECODE_OR_DIE("body-sequence");
         if (tree) {
@@ -415,176 +520,181 @@ dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         offset += item_len;
         asn1.pointer += item_len;
 
-        KRB_HEAD_DECODE_OR_DIE("Principal Name");
+        KRB_HEAD_DECODE_OR_DIE("Client Name or Realm");
 
-        if (tag == KRB5_BODY_CNAME) {
-            dissect_PrincipalName("Client Name", asn1p, fd, request_tree,
-                                   &offset);
-            KRB_HEAD_DECODE_OR_DIE("realm name");
+        if (CHECK_CONTEXT_TYPE(KRB5_BODY_CNAME)) {
+            item_len = dissect_PrincipalName("Client Name", asn1p, fd,
+                                             request_tree, offset);
+            if (item_len == -1)
+                return -1;
+            offset += item_len;
+            KRB_HEAD_DECODE_OR_DIE("Realm");
         }
 
-        if (tag == KRB5_BODY_REALM) {
-            dissect_GeneralString(asn1p, &str, &str_len, &item_len);
-            offset += item_len - str_len;
-            if (request_tree) {
-                proto_tree_add_text(request_tree, NullTVB, offset, str_len,
-                                    "Realm: %.*s", str_len, str);
-            }
-            offset += str_len;
-            KRB_HEAD_DECODE_OR_DIE("realm name");
-        } else {
-            return;
+        DIE_IF_NOT_CONTEXT_TYPE("Realm", KRB5_BODY_REALM);
+        KRB_DECODE_GENERAL_STRING_OR_DIE("Realm", str, str_len, item_len);
+        if (request_tree) {
+            proto_tree_add_text(request_tree, NullTVB, offset, item_len,
+                                "Realm: %.*s", str_len, str);
+        }
+        offset += item_len;
+
+        KRB_HEAD_DECODE_OR_DIE("Server Name");
+        if (CHECK_CONTEXT_TYPE(KRB5_BODY_SNAME)) {
+            item_len = dissect_PrincipalName("Server Name", asn1p, fd,
+                                             request_tree, offset);
+            if (item_len == -1)
+                return -1;
+            offset += item_len;
+            KRB_HEAD_DECODE_OR_DIE("From or Till");
         }
 
-        if (tag == KRB5_BODY_SNAME) {
-            dissect_PrincipalName("Server Name", asn1p, fd, request_tree, &offset);
-            KRB_HEAD_DECODE_OR_DIE("realm name");
-        }
-
-        if (tag == KRB5_BODY_FROM) {
-            dissect_GeneralString(asn1p, &str, &str_len, &item_len);
-            offset += item_len - str_len;
-            krb_proto_tree_add_time(request_tree, offset, str_len,
+        if (CHECK_CONTEXT_TYPE(KRB5_BODY_FROM)) {
+            KRB_DECODE_GENERAL_TIME_OR_DIE("From", str, str_len, item_len);
+            krb_proto_tree_add_time(request_tree, offset, item_len,
                                     "Start Time", str);
-            offset += str_len;
-            KRB_HEAD_DECODE_OR_DIE("realm name");
+            offset += item_len;
+            KRB_HEAD_DECODE_OR_DIE("Till");
         }
 
-        if (tag == KRB5_BODY_TILL) {
-            dissect_GeneralString(asn1p, &str, &str_len, &item_len);
-            offset += item_len - str_len;
-            krb_proto_tree_add_time(request_tree, offset, str_len,
-                                    "End Time", str);
-            offset += str_len;
-            KRB_HEAD_DECODE_OR_DIE("realm name");
-        } else {
-            return;
-        }
-        
-        if (tag == KRB5_BODY_RTIME) {
-            dissect_GeneralString(asn1p, &str, &str_len, &item_len);
-            offset += item_len - str_len;
-            krb_proto_tree_add_time(request_tree, offset, str_len,
+        DIE_IF_NOT_CONTEXT_TYPE("Till", KRB5_BODY_TILL);
+        KRB_DECODE_GENERAL_TIME_OR_DIE("Till", str, str_len, item_len);
+        krb_proto_tree_add_time(request_tree, offset, item_len,
+                                "End Time", str);
+        offset += item_len;
+
+        KRB_HEAD_DECODE_OR_DIE("Renewable Until or Nonce");
+        if (CHECK_CONTEXT_TYPE(KRB5_BODY_RTIME)) {
+            KRB_DECODE_GENERAL_TIME_OR_DIE("Renewable Until", str, str_len, item_len);
+            krb_proto_tree_add_time(request_tree, offset, item_len,
                                     "Renewable Until", str);
-            offset += str_len;
-            KRB_HEAD_DECODE_OR_DIE("realm name");
+            offset += item_len;
+            KRB_HEAD_DECODE_OR_DIE("Nonce");
         }
             
-        if (tag == KRB5_BODY_NONCE) {
-            ret =  asn1_int32_decode(asn1p, &tmp_int, &length);
-            if (ret != ASN1_ERR_NOERROR) {
-                fprintf(stderr,"die: nonce, %s\n", to_error_str(ret));
-                return;
-            }
-            if (request_tree) {
-                proto_tree_add_text(request_tree, NullTVB, offset, length,
-                                    "Random Number: %d",
-                                    tmp_int);
+        DIE_IF_NOT_CONTEXT_TYPE("Nonce", KRB5_BODY_NONCE);
+        KRB_DECODE_UINT32_OR_DIE("Nonce", tmp_int);
+        if (request_tree) {
+            proto_tree_add_text(request_tree, NullTVB, offset, length,
+                                "Random Number: %u",
+                                tmp_int);
+        }
+        offset += length;
+        
+        KRB_DECODE_CONTEXT_HEAD_OR_DIE("encryption type spot",
+                                              KRB5_BODY_ETYPE);
+        KRB_HEAD_DECODE_OR_DIE("encryption type list");
+        if (kerberos_tree) {
+            item = proto_tree_add_text(request_tree, NullTVB, offset,
+                                       item_len, "Encryption Types");
+            etype_tree = proto_item_add_subtree(item, ett_etype);
+        }
+        total_len = item_len;
+        while(total_len > 0) {
+            KRB_DECODE_UINT32_OR_DIE("encryption type", tmp_int);
+            if (etype_tree) {
+                proto_tree_add_text(etype_tree, NullTVB, offset, length,
+                                    "Type: %s",
+                                    val_to_str(tmp_int,
+                                               krb5_encryption_types,
+                                               "Unknown encryption type %#x"));
             }
             offset += length;
-        } else {
-            return;
-        }
-        
-        KRB_HEAD_DECODE_OR_DIE("encryption type spot");
-        if (tag == KRB5_BODY_ETYPE) {
-            KRB_HEAD_DECODE_OR_DIE("encryption type list");
-            if (kerberos_tree) {
-                item = proto_tree_add_text(request_tree, NullTVB, offset,
-                                           item_len, "Encryption Types");
-                etype_tree = proto_item_add_subtree(item, ett_etype);
-            }
-            total_len = item_len;
-            while(total_len > 0) {
-                ret =  asn1_int32_decode(asn1p, &tmp_int, &length);
-                if (ret != ASN1_ERR_NOERROR) {
-                    fprintf(stderr,"die: etype, %s\n", to_error_str(ret));
-                    return;
-                }
-                if (etype_tree) {
-                    proto_tree_add_text(etype_tree, NullTVB, offset, length,
-                                        "Type: %s",
-                                        val_to_str(tmp_int,
-                                                   krb5_encryption_types,
-                                                   "Unknown encryption type %#x"));
-                }
-                offset += length;
-                total_len -= length;
-            }
-        } else {
-            return;
+            total_len -= length;
         }
 
         KRB_HEAD_DECODE_OR_DIE("addresses");
-        if (tag == KRB5_BODY_ADDRESSES) {
+        if (CHECK_CONTEXT_TYPE(KRB5_BODY_ADDRESSES)) {
             /* pre-authentication supplied */
 
-            dissect_Addresses("Addresses", asn1p, fd, kerberos_tree, &offset);
+            offset = dissect_Addresses("Addresses", asn1p, fd, kerberos_tree,
+                                       offset);
+            if (offset == -1)
+                return -1;
             KRB_HEAD_DECODE_OR_DIE("auth-data");
         }
-    } else if (protocol_message_type == KRB5_MSG_AS_RESP ||
-               protocol_message_type == KRB5_MSG_TGS_RESP) {
-        if (tag == KRB5_KDC_RESP_CREALM) {
-            dissect_GeneralString(asn1p, &str, &str_len, &item_len);
-            offset += item_len - str_len;
+        break;
+
+    case KRB5_MSG_AS_REP:
+    case KRB5_MSG_TGS_REP:
+/*
+   AS-REP ::=    [APPLICATION 11] KDC-REP
+   TGS-REP ::=   [APPLICATION 13] KDC-REP
+
+   KDC-REP ::=   SEQUENCE {
+                 pvno[0]                    INTEGER,
+                 msg-type[1]                INTEGER,
+                 padata[2]                  SEQUENCE OF PA-DATA OPTIONAL,
+                 crealm[3]                  Realm,
+                 cname[4]                   PrincipalName,
+                 ticket[5]                  Ticket,
+                 enc-part[6]                EncryptedData
+   }
+*/
+
+        if (tag == KRB5_KDC_REP_CREALM) {
+            KRB_DECODE_GENERAL_STRING_OR_DIE("realm name", str, str_len, item_len);
             if (kerberos_tree) {
-                proto_tree_add_text(kerberos_tree, NullTVB, offset, str_len,
+                proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
                                     "Realm: %.*s", str_len, str);
             }
-            offset += str_len;
+            offset += item_len;
         } else {
-            return;
+            DIE_WITH_BAD_TYPE("crealm");
         }
 
-        KRB_HEAD_DECODE_OR_DIE("cname");
-        if (tag == KRB5_KDC_RESP_CNAME) {
-            dissect_PrincipalName("Client Name", asn1p, fd, kerberos_tree,
-                                   &offset);
-        } else {
-            return;
-        }
+        KRB_DECODE_CONTEXT_HEAD_OR_DIE("cname", KRB5_KDC_REP_CNAME);
+        item_len = dissect_PrincipalName("Client Name", asn1p, fd,
+                                         kerberos_tree, offset);
+        if (item_len == -1)
+            return -1;
+        offset += item_len;
         
-        KRB_HEAD_DECODE_OR_DIE("ticket");
-        if (tag == KRB5_KDC_RESP_TICKET) {
-            dissect_ticket("ticket", asn1p, fd, kerberos_tree, &offset);
-        } else {
-            return;
-        }
+        KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_KDC_REP_TICKET);
+        offset = dissect_Ticket("ticket", asn1p, fd, kerberos_tree, offset);
+        if (offset == -1)
+            return -1;
 
-        KRB_HEAD_DECODE_OR_DIE("enc-msg-part");
-        if (tag == KRB5_KDC_RESP_TICKET) {
-            dissect_EncryptedData("Encrypted Payload", asn1p, fd, kerberos_tree,
-                                  &offset);
-        } else {
-            return;
-        }
+        KRB_DECODE_CONTEXT_HEAD_OR_DIE("enc-msg-part",
+                                              KRB5_KDC_REP_ENC_PART);
+        offset = dissect_EncryptedData("Encrypted Payload", asn1p, fd,
+                                       kerberos_tree, offset);
+        if (offset == -1)
+            return -1;
+        break;
     }
+    return offset;
 }
 
-void
-dissect_GeneralString(ASN1_SCK *asn1p, guchar **where,
-                      guint *item_len, guint *pkt_len)
+static void
+dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-    guint cls, con, tag;
-    gboolean def;
-    const guchar *start = asn1p->pointer;
+    OLD_CHECK_DISPLAY_AS_DATA(proto_kerberos, pd, offset, fd, tree);
 
-    asn1_header_decode (asn1p, &cls, &con, &tag, &def, item_len);
-    asn1_octet_string_value_decode (asn1p, *item_len, where);
-    *pkt_len = asn1p->pointer - start;
+    if (check_col(fd, COL_PROTOCOL))
+        col_set_str(fd, COL_PROTOCOL, "KRB5");
+
+    dissect_kerberos_main(pd, offset, fd, tree);
 }
 
-void
+static int
 dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
-                       proto_tree *tree, int *inoff) {
+                       proto_tree *tree, int start_offset)
+{
+/*
+   PrincipalName ::=   SEQUENCE {
+                       name-type[0]     INTEGER,
+                       name-string[1]   SEQUENCE OF GeneralString
+   }
+*/
     proto_tree *princ_tree = NULL;
-    int offset = 0;
+    int offset = start_offset;
 
-    gint32 princ_type;
+    guint32 princ_type;
 
     const guchar *start;
     guint cls, con, tag;
-    guint item_len, total_len, type_len;
+    guint header_len, item_len, total_len, type_len;
     int ret;
 
     proto_item *item = NULL;
@@ -596,57 +706,50 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
     guchar *name;
     guint name_len;
 
-    if (inoff)
-        offset = *inoff;
-    
     /* principal name */
-    KRB_HEAD_DECODE_OR_DIE("principal section");
+    KRB_SEQ_HEAD_DECODE_OR_DIE("principal section");
 
-    KRB_HEAD_DECODE_OR_DIE("principal type");
-    KRB_DECODE_OR_DIE("princ-type", asn1_int32_decode, princ_type);
+    if (tree) {
+      item = proto_tree_add_text(tree, NullTVB, start_offset,
+                                 (offset - start_offset) + item_len, "%s",
+                                 title);
+      princ_tree = proto_item_add_subtree(item, ett_princ);
+    } else {
+      item = NULL;
+      princ_tree = NULL;
+    }
+
+    KRB_DECODE_CONTEXT_HEAD_OR_DIE("principal type", 0);
+    KRB_DECODE_UINT32_OR_DIE("princ-type", princ_type);
     type_offset = offset;
     type_len = item_len;
     offset += length;
 
-    KRB_HEAD_DECODE_OR_DIE("cname header");
-    total_len = item_len;
-
-    dissect_GeneralString(asn1p, &name, &name_len, &item_len);
-    offset += item_len - name_len;
-    
-    if (tree) {
-        item = proto_tree_add_text(tree, NullTVB, *inoff, total_len,
-                                   "%s: %.*s", title, (int) name_len, name);
-        princ_tree = proto_item_add_subtree(item, ett_princ);
-
-        proto_tree_add_text(princ_tree, NullTVB, type_offset, type_len,
-                            "Type: %d", princ_type);
-        proto_tree_add_text(princ_tree, NullTVB, offset, name_len,
-                            "Name: %.*s", (int) name_len, name);
+    if (princ_tree) {
+      proto_tree_add_text(princ_tree, NullTVB, type_offset, type_len,
+                          "Type: %u", princ_type);
     }
 
-    total_len -= item_len;
-    offset += name_len;
-    
-    while(total_len > 0) {
-        dissect_GeneralString(asn1p, &name, &name_len, &item_len);
-        offset += item_len - name_len;
+    KRB_DECODE_CONTEXT_HEAD_OR_DIE("principal name-string", 1);
+    KRB_SEQ_HEAD_DECODE_OR_DIE("principal name-string sequence-of");
+    total_len = item_len;
+    while (total_len > 0) {
+        KRB_DECODE_GENERAL_STRING_OR_DIE("principal name", name, name_len, item_len);
         if (princ_tree) {
-            proto_tree_add_text(princ_tree, NullTVB, offset, name_len,
+            proto_tree_add_text(princ_tree, NullTVB, offset, item_len,
                                 "Name: %.*s", (int) name_len, name);
         }
         total_len -= item_len;
-        offset += name_len;
+        offset += item_len;
     }
-    if (inoff)
-        *inoff = offset;
+    return offset - start_offset;
 }
 
-void
+static int
 dissect_Addresses(char *title, ASN1_SCK *asn1p, frame_data *fd,
-                  proto_tree *tree, int *inoff) {
+                  proto_tree *tree, int start_offset) {
     proto_tree *address_tree = NULL;
-    int offset = 0;
+    int offset = start_offset;
 
     const guchar *start;
     guint cls, con, tag;
@@ -657,13 +760,10 @@ dissect_Addresses(char *title, ASN1_SCK *asn1p, frame_data *fd,
     gboolean def;
 
     int tmp_pos1, tmp_pos2;
-    gint32 address_type;
+    guint32 address_type;
 
     int str_len;
     guchar *str;
-
-    if (inoff)
-        offset = *inoff;
 
     KRB_HEAD_DECODE_OR_DIE("sequence of addresses");
     if (tree) {
@@ -699,43 +799,47 @@ dissect_Addresses(char *title, ASN1_SCK *asn1p, frame_data *fd,
         }
     }
     
-    if (inoff)
-        *inoff = offset;
+    return offset;
 }
 
-void
+static int
 dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
-                      proto_tree *tree, int *inoff) {
+                      proto_tree *tree, int start_offset)
+{
+/*
+   EncryptedData ::=   SEQUENCE {
+                       etype[0]     INTEGER, -- EncryptionType
+                       kvno[1]      INTEGER OPTIONAL,
+                       cipher[2]    OCTET STRING -- ciphertext
+   }
+*/
     proto_tree *encr_tree = NULL;
-    int offset = 0;
+    int offset = start_offset;
 
     const guchar *start;
     guint cls, con, tag;
-    guint item_len;
+    guint header_len, item_len, data_len;
     int ret;
 
     proto_item *item = NULL;
     guint length;
     gboolean def;
-    int val;
+    guint32 val;
 
     guchar *data;
 
-    if (inoff)
-        offset = *inoff;
-    
-    KRB_HEAD_DECODE_OR_DIE("encrypted data section");
+    KRB_SEQ_HEAD_DECODE_OR_DIE("encrypted data section");
 
     if (tree) {
-        item = proto_tree_add_text(tree, NullTVB, *inoff, item_len,
+        item = proto_tree_add_text(tree, NullTVB, start_offset,
+                                   (offset - start_offset) + item_len,
                                    "Encrypted Data: %s", title);
         encr_tree = proto_item_add_subtree(item, ett_princ);
     }
 
     /* type */
-    KRB_HEAD_DECODE_OR_DIE("encryption type");
-    KRB_DECODE_OR_DIE("encr-type", asn1_int32_decode, val);
-
+    KRB_DECODE_CONTEXT_HEAD_OR_DIE("encryption type", 0);
+    KRB_DECODE_UINT32_OR_DIE("encr-type", val);
     if (encr_tree) {
         proto_tree_add_text(encr_tree, NullTVB, offset, length,
                             "Type: %s",
@@ -745,32 +849,33 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
     offset += length;
 
     /* kvno */
-    KRB_HEAD_DECODE_OR_DIE("kvno-wrap");
-    KRB_DECODE_OR_DIE("kvno", asn1_int32_decode, val);
-
-    if (encr_tree) {
-        proto_tree_add_text(encr_tree, NullTVB, offset, length,
-                            "KVNO: %d", val);
+    KRB_HEAD_DECODE_OR_DIE("kvno-wrap or cipher-wrap");
+    if (CHECK_CONTEXT_TYPE(1)) {
+      KRB_DECODE_UINT32_OR_DIE("kvno", val);
+      if (encr_tree) {
+          proto_tree_add_text(encr_tree, NullTVB, offset, length,
+                              "KVNO: %d", val);
+      }
+      offset += length;
+      KRB_HEAD_DECODE_OR_DIE("cipher-wrap");
     }
-    offset += length;
 
-    KRB_HEAD_DECODE_OR_DIE("cipher-wrap");
-    KRB_HEAD_DECODE_OR_DIE("cipher");
-    asn1_octet_string_value_decode (asn1p, item_len, &data);
+    DIE_IF_NOT_CONTEXT_TYPE("cipher-wrap", 2);
+    KRB_DECODE_OCTET_STRING_OR_DIE("cipher", data, data_len, item_len);
 
     if (encr_tree) {
-        proto_tree_add_text(encr_tree, NullTVB, offset, length,
+        proto_tree_add_text(encr_tree, NullTVB, offset, data_len,
                             "Cipher: %s", bytes_to_str(data, item_len));
     }
-    offset += item_len;
+    offset += data_len;
     
-    if (inoff)
-        *inoff = offset;
+    return offset;
 }
 
-void
-dissect_ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
-               int *inoff) {
+static int
+dissect_Ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
+               int start_offset)
+{
 /*
    Ticket ::=                    [APPLICATION 1] SEQUENCE {
                                  tkt-vno[0]                   INTEGER,
@@ -780,63 +885,68 @@ dissect_ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
    }
 */
     proto_tree *ticket_tree = NULL;
-    int offset = 0;
+    int offset = start_offset;
 
     const guchar *start;
     guint cls, con, tag;
-    guint item_len;
+    guint header_len, item_len, total_len;
     int ret;
 
     proto_item *item = NULL;
     guint length;
     gboolean def;
-    int val;
+    guint32 val;
 
     int str_len;
     guchar *str;
 
-    if (inoff)
-        offset = *inoff;
-    
-    KRB_HEAD_DECODE_OR_DIE("ticket section");
-    KRB_HEAD_DECODE_OR_DIE("ticket sequence");
+    KRB_DECODE_APPLICATION_TAGGED_HEAD_OR_DIE("Ticket section", 1);
+    KRB_SEQ_HEAD_DECODE_OR_DIE("Ticket sequence");
+    total_len = item_len;
 
     if (tree) {
-        item = proto_tree_add_text(tree, NullTVB, *inoff, item_len,
+        item = proto_tree_add_text(tree, NullTVB, start_offset,
+                                   (offset - start_offset) + item_len,
                                    "Ticket");
         ticket_tree = proto_item_add_subtree(item, ett_ticket);
     }
 
     /* type */
-    KRB_HEAD_DECODE_OR_DIE("ticket type");
-    KRB_DECODE_OR_DIE("ticket-type", asn1_int32_decode, val);
-
+    KRB_DECODE_CONTEXT_HEAD_OR_DIE("Ticket tkt-vno", KRB5_TKT_TKT_VNO);
+    KRB_DECODE_UINT32_OR_DIE("Ticket tkt-vno", val);
     if (ticket_tree) {
         proto_tree_add_text(ticket_tree, NullTVB, offset, length,
-                            "Version: %d", val);
+                            "Version: %u", val);
     }
     offset += length;
+    total_len -= length;
 
     /* realm name */
-    KRB_HEAD_DECODE_OR_DIE("realm");
-    dissect_GeneralString(asn1p, &str, &str_len, &item_len);
-    offset += item_len - str_len;
+    KRB_DECODE_CONTEXT_HEAD_OR_DIE("Ticket realm", KRB5_TKT_REALM);
+    KRB_DECODE_GENERAL_STRING_OR_DIE("Ticket realm string", str, str_len, item_len);
     if (ticket_tree) {
-        proto_tree_add_text(ticket_tree, NullTVB, offset, str_len,
+        proto_tree_add_text(ticket_tree, NullTVB, offset, item_len,
                             "Realm: %.*s", str_len, str);
     }
-    offset += str_len;
+    offset += item_len;
+    total_len -= item_len;
 
     /* server name (sname) */
-    KRB_HEAD_DECODE_OR_DIE("sname");
-    dissect_PrincipalName("Service Name", asn1p, fd, ticket_tree, &offset);
+    KRB_DECODE_CONTEXT_HEAD_OR_DIE("Ticket sname", KRB5_TKT_SNAME);
+    item_len = dissect_PrincipalName("Service Name", asn1p, fd, ticket_tree,
+                                     offset);
+    if (item_len == -1)
+        return -1;
+    offset += item_len;
 
-    /* ticket */
-    KRB_HEAD_DECODE_OR_DIE("enc-part");
-    dissect_EncryptedData("ticket data", asn1p, fd, ticket_tree, &offset);
+    /* encrypted part */
+    KRB_DECODE_CONTEXT_HEAD_OR_DIE("enc-part", KRB5_TKT_ENC_PART);
+    offset = dissect_EncryptedData("Ticket data", asn1p, fd, ticket_tree,
+                                   offset);
+    if (offset == -1)
+        return -1;
 
-    if (inoff)
-        *inoff = offset;
+    return offset;
 }
 
 
@@ -874,68 +984,124 @@ proto_reg_handoff_kerberos(void)
 
   MISC definitions from RFC1510:
   
-   KerberosTime ::=   GeneralizedTime
    Realm ::=           GeneralString
-   PrincipalName ::=   SEQUENCE {
-                       name-type[0]     INTEGER,
-                       name-string[1]   SEQUENCE OF GeneralString
+
+   KerberosTime ::=   GeneralizedTime
+
+   HostAddress ::=    SEQUENCE  {
+                      addr-type[0]             INTEGER,
+                      address[1]               OCTET STRING
    }
-    HostAddress ::=     SEQUENCE  {
-                        addr-type[0]             INTEGER,
-                        address[1]               OCTET STRING
-    }
 
-    HostAddresses ::=   SEQUENCE OF SEQUENCE {
-                        addr-type[0]             INTEGER,
-                        address[1]               OCTET STRING
-    }
+   HostAddresses ::=   SEQUENCE OF SEQUENCE {
+                       addr-type[0]             INTEGER,
+                       address[1]               OCTET STRING
+   }
 
-    AS-REQ ::=         [APPLICATION 10] KDC-REQ
-    TGS-REQ ::=        [APPLICATION 12] KDC-REQ
-    
-    KDC-REQ ::=        SEQUENCE {
-           pvno[1]               INTEGER,
-           msg-type[2]           INTEGER,
-           padata[3]             SEQUENCE OF PA-DATA OPTIONAL,
-           req-body[4]           KDC-REQ-BODY
-    }
+   AuthorizationData ::=   SEQUENCE OF SEQUENCE {
+                           ad-type[0]               INTEGER,
+                           ad-data[1]               OCTET STRING
+   }
+                   APOptions ::=   BIT STRING {
+                                   reserved(0),
+                                   use-session-key(1),
+                                   mutual-required(2)
+                   }
 
-    PA-DATA ::=        SEQUENCE {
+
+                   TicketFlags ::=   BIT STRING {
+                                     reserved(0),
+                                     forwardable(1),
+                                     forwarded(2),
+                                     proxiable(3),
+                                     proxy(4),
+                                     may-postdate(5),
+                                     postdated(6),
+                                     invalid(7),
+                                     renewable(8),
+                                     initial(9),
+                                     pre-authent(10),
+                                     hw-authent(11)
+                   }
+
+                  KDCOptions ::=   BIT STRING {
+                                   reserved(0),
+                                   forwardable(1),
+                                   forwarded(2),
+                                   proxiable(3),
+                                   proxy(4),
+                                   allow-postdate(5),
+                                   postdated(6),
+                                   unused7(7),
+                                   renewable(8),
+                                   unused9(9),
+                                   unused10(10),
+                                   unused11(11),
+                                   renewable-ok(27),
+                                   enc-tkt-in-skey(28),
+                                   renew(30),
+                                   validate(31)
+                  }
+
+
+            LastReq ::=   SEQUENCE OF SEQUENCE {
+                          lr-type[0]               INTEGER,
+                          lr-value[1]              KerberosTime
+            }
+
+   Ticket ::=                    [APPLICATION 1] SEQUENCE {
+                                 tkt-vno[0]                   INTEGER,
+                                 realm[1]                     Realm,
+                                 sname[2]                     PrincipalName,
+                                 enc-part[3]                  EncryptedData
+   }
+
+  -- Encrypted part of ticket
+  EncTicketPart ::=     [APPLICATION 3] SEQUENCE {
+                        flags[0]             TicketFlags,
+                        key[1]               EncryptionKey,
+                        crealm[2]            Realm,
+                        cname[3]             PrincipalName,
+                        transited[4]         TransitedEncoding,
+                        authtime[5]          KerberosTime,
+                        starttime[6]         KerberosTime OPTIONAL,
+                        endtime[7]           KerberosTime,
+                        renew-till[8]        KerberosTime OPTIONAL,
+                        caddr[9]             HostAddresses OPTIONAL,
+                        authorization-data[10]   AuthorizationData OPTIONAL
+  }
+
+  -- encoded Transited field
+  TransitedEncoding ::=         SEQUENCE {
+                                tr-type[0]  INTEGER, -- must be registered
+                                contents[1]          OCTET STRING
+  }
+
+  -- Unencrypted authenticator
+  Authenticator ::=    [APPLICATION 2] SEQUENCE    {
+                 authenticator-vno[0]          INTEGER,
+                 crealm[1]                     Realm,
+                 cname[2]                      PrincipalName,
+                 cksum[3]                      Checksum OPTIONAL,
+                 cusec[4]                      INTEGER,
+                 ctime[5]                      KerberosTime,
+                 subkey[6]                     EncryptionKey OPTIONAL,
+                 seq-number[7]                 INTEGER OPTIONAL,
+                 authorization-data[8]         AuthorizationData OPTIONAL
+  }
+
+  PA-DATA ::=        SEQUENCE {
            padata-type[1]        INTEGER,
            padata-value[2]       OCTET STRING,
                          -- might be encoded AP-REQ
-    }
+  }
 
-KDC-REQ-BODY ::=   SEQUENCE {
-            kdc-options[0]       KDCOptions,
-            cname[1]             PrincipalName OPTIONAL,
-                         -- Used only in AS-REQ
-            realm[2]             Realm, -- Server's realm
-                         -- Also client's in AS-REQ
-            sname[3]             PrincipalName OPTIONAL,
-            from[4]              KerberosTime OPTIONAL,
-            till[5]              KerberosTime,
-            rtime[6]             KerberosTime OPTIONAL,
-            nonce[7]             INTEGER,
-            etype[8]             SEQUENCE OF INTEGER, -- EncryptionType,
-                         -- in preference order
-            addresses[9]         HostAddresses OPTIONAL,
-            enc-authorization-data[10]   EncryptedData OPTIONAL,
-                         -- Encrypted AuthorizationData encoding
-            additional-tickets[11]       SEQUENCE OF Ticket OPTIONAL
-}
+   padata-type     ::= PA-ENC-TIMESTAMP
+   padata-value    ::= EncryptedData -- PA-ENC-TS-ENC
 
-   AS-REP ::=    [APPLICATION 11] KDC-REP
-   TGS-REP ::=   [APPLICATION 13] KDC-REP
-
-   KDC-REP ::=   SEQUENCE {
-                 pvno[0]                    INTEGER,
-                 msg-type[1]                INTEGER,
-                 padata[2]                  SEQUENCE OF PA-DATA OPTIONAL,
-                 crealm[3]                  Realm,
-                 cname[4]                   PrincipalName,
-                 ticket[5]                  Ticket,
-                 enc-part[6]                EncryptedData
+   PA-ENC-TS-ENC   ::= SEQUENCE {
+           patimestamp[0]               KerberosTime, -- client's time
+           pausec[1]                    INTEGER OPTIONAL
    }
 
    EncASRepPart ::=    [APPLICATION 25[25]] EncKDCRepPart
@@ -956,12 +1122,137 @@ KDC-REQ-BODY ::=   SEQUENCE {
                caddr[11]                    HostAddresses OPTIONAL
    }
 
-   Ticket ::=                    [APPLICATION 1] SEQUENCE {
-                                 tkt-vno[0]                   INTEGER,
-                                 realm[1]                     Realm,
-                                 sname[2]                     PrincipalName,
-                                 enc-part[3]                  EncryptedData
+   AP-REQ ::=      [APPLICATION 14] SEQUENCE {
+                   pvno[0]                       INTEGER,
+                   msg-type[1]                   INTEGER,
+                   ap-options[2]                 APOptions,
+                   ticket[3]                     Ticket,
+                   authenticator[4]              EncryptedData
    }
 
+   APOptions ::=   BIT STRING {
+                   reserved(0),
+                   use-session-key(1),
+                   mutual-required(2)
+   }
+
+   AP-REP ::=         [APPLICATION 15] SEQUENCE {
+              pvno[0]                   INTEGER,
+              msg-type[1]               INTEGER,
+              enc-part[2]               EncryptedData
+   }
+
+   EncAPRepPart ::=   [APPLICATION 27]     SEQUENCE {
+              ctime[0]                  KerberosTime,
+              cusec[1]                  INTEGER,
+              subkey[2]                 EncryptionKey OPTIONAL,
+              seq-number[3]             INTEGER OPTIONAL
+   }
+
+   KRB-SAFE ::=        [APPLICATION 20] SEQUENCE {
+               pvno[0]               INTEGER,
+               msg-type[1]           INTEGER,
+               safe-body[2]          KRB-SAFE-BODY,
+               cksum[3]              Checksum
+   }
+
+   KRB-SAFE-BODY ::=   SEQUENCE {
+               user-data[0]          OCTET STRING,
+               timestamp[1]          KerberosTime OPTIONAL,
+               usec[2]               INTEGER OPTIONAL,
+               seq-number[3]         INTEGER OPTIONAL,
+               s-address[4]          HostAddress,
+               r-address[5]          HostAddress OPTIONAL
+   }
+
+   KRB-PRIV ::=         [APPLICATION 21] SEQUENCE {
+                pvno[0]                   INTEGER,
+                msg-type[1]               INTEGER,
+                enc-part[3]               EncryptedData
+   }
+
+   EncKrbPrivPart ::=   [APPLICATION 28] SEQUENCE {
+                user-data[0]              OCTET STRING,
+                timestamp[1]              KerberosTime OPTIONAL,
+                usec[2]                   INTEGER OPTIONAL,
+                seq-number[3]             INTEGER OPTIONAL,
+                s-address[4]              HostAddress, -- sender's addr
+                r-address[5]              HostAddress OPTIONAL
+                                                      -- recip's addr
+   }
+
+   KRB-CRED         ::= [APPLICATION 22]   SEQUENCE {
+                    pvno[0]                INTEGER,
+                    msg-type[1]            INTEGER, -- KRB_CRED
+                    tickets[2]             SEQUENCE OF Ticket,
+                    enc-part[3]            EncryptedData
+   }
+
+   EncKrbCredPart   ::= [APPLICATION 29]   SEQUENCE {
+                    ticket-info[0]         SEQUENCE OF KrbCredInfo,
+                    nonce[1]               INTEGER OPTIONAL,
+                    timestamp[2]           KerberosTime OPTIONAL,
+                    usec[3]                INTEGER OPTIONAL,
+                    s-address[4]           HostAddress OPTIONAL,
+                    r-address[5]           HostAddress OPTIONAL
+   }
+
+   KrbCredInfo      ::=                    SEQUENCE {
+                    key[0]                 EncryptionKey,
+                    prealm[1]              Realm OPTIONAL,
+                    pname[2]               PrincipalName OPTIONAL,
+                    flags[3]               TicketFlags OPTIONAL,
+                    authtime[4]            KerberosTime OPTIONAL,
+                    starttime[5]           KerberosTime OPTIONAL,
+                    endtime[6]             KerberosTime OPTIONAL
+                    renew-till[7]          KerberosTime OPTIONAL,
+                    srealm[8]              Realm OPTIONAL,
+                    sname[9]               PrincipalName OPTIONAL,
+                    caddr[10]              HostAddresses OPTIONAL
+   }
+
+   KRB-ERROR ::=   [APPLICATION 30] SEQUENCE {
+                   pvno[0]               INTEGER,
+                   msg-type[1]           INTEGER,
+                   ctime[2]              KerberosTime OPTIONAL,
+                   cusec[3]              INTEGER OPTIONAL,
+                   stime[4]              KerberosTime,
+                   susec[5]              INTEGER,
+                   error-code[6]         INTEGER,
+                   crealm[7]             Realm OPTIONAL,
+                   cname[8]              PrincipalName OPTIONAL,
+                   realm[9]              Realm, -- Correct realm
+                   sname[10]             PrincipalName, -- Correct name
+                   e-text[11]            GeneralString OPTIONAL,
+                   e-data[12]            OCTET STRING OPTIONAL
+   }
+
+   e-data    This field contains additional data about the error for use
+             by the application to help it recover from or handle the
+             error.  If the errorcode is KDC_ERR_PREAUTH_REQUIRED, then
+             the e-data field will contain an encoding of a sequence of
+             padata fields, each corresponding to an acceptable pre-
+             authentication method and optionally containing data for
+             the method:
+
+      METHOD-DATA ::=    SEQUENCE of PA-DATA
+
+   If the error-code is KRB_AP_ERR_METHOD, then the e-data field will
+   contain an encoding of the following sequence:
+
+      METHOD-DATA ::=    SEQUENCE {
+                         method-type[0]   INTEGER,
+                         method-data[1]   OCTET STRING OPTIONAL
+       }
+
+          EncryptionKey ::=   SEQUENCE {
+                              keytype[0]    INTEGER,
+                              keyvalue[1]   OCTET STRING
+          }
+
+            Checksum ::=   SEQUENCE {
+                           cksumtype[0]   INTEGER,
+                           checksum[1]    OCTET STRING
+            }
 
 */

@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.5 2000/06/26 00:08:48 guy Exp $
+ * $Id: asn1.c,v 1.6 2000/12/24 09:10:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -631,14 +631,15 @@ asn1_bits_decode ( ASN1_SCK *asn1, const guchar *eoc, guchar **bits,
 }
 
 /*
- * NAME:        asn1_octet_string_value_decode                       [API]
- * SYNOPSIS:    int asn1_octet_string_value_decode
+ * NAME:        asn1_string_value_decode                       [API]
+ * SYNOPSIS:    int asn1_string_value_decode
  *                  (
  *                      ASN1_SCK *asn1,
  *                      int      enc_len,
  *                      guchar   **octets
  *                  )
- * DESCRIPTION: Decodes value portion of Octet String.
+ * DESCRIPTION: Decodes value portion of string (Octet String, various
+ *              character string types)
  *              Parameters:
  *              asn1:    pointer to ASN1 socket.
  *              enc_len: length of encoding of value.
@@ -646,7 +647,7 @@ asn1_bits_decode ( ASN1_SCK *asn1, const guchar *eoc, guchar **bits,
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
 int
-asn1_octet_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
+asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
 {
     int          ret;
     const guchar *eoc;
@@ -664,6 +665,60 @@ asn1_octet_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
 	}
     }
     return ASN1_ERR_NOERROR;
+}
+
+/*
+ * NAME:        asn1_string_decode                             [API]
+ * SYNOPSIS:    int asn1_string_decode
+ *                  (
+ *                      ASN1_SCK  *asn1,
+ *                      guchar    **octets,
+ *                      guint     *str_len,
+ *                      guint     *nbytes,
+ *                      guint     expected_tag
+ *                  )
+ * DESCRIPTION: Decodes string (Octet String, various character string
+ *              types)
+ *              Parameters:
+ *              asn1:         pointer to ASN1 socket.
+ *              octets:       pointer to variable we set to point to string.
+ *              str_len:      length of octet_string.
+ *              nbytes:       number of bytes used to encode.
+ *              expected_tag: tag expected for this type of string.
+ * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
+ */
+int
+asn1_string_decode ( ASN1_SCK *asn1, guchar **octets, guint *str_len,
+			guint *nbytes, guint expected_tag)
+{
+    int          ret;
+    const guchar *start;
+    int          enc_len;
+    guint        cls;
+    guint        con;
+    guint        tag;
+    gboolean     def;
+
+    start = asn1->pointer;
+    ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &enc_len);
+    if (ret != ASN1_ERR_NOERROR)
+	goto done;
+    if (cls != ASN1_UNI || con != ASN1_PRI || tag != expected_tag) {
+    	/* XXX - handle the constructed encoding? */
+	ret = ASN1_ERR_WRONG_TYPE;
+	goto done;
+    }
+    if (!def) {
+    	ret = ASN1_ERR_LENGTH_NOT_DEFINITE;
+    	goto done;
+    }
+
+    ret = asn1_string_value_decode (asn1, enc_len, octets);
+    *str_len = enc_len;
+
+done:
+    *nbytes = asn1->pointer - start;
+    return ret;
 }
 
 /*
@@ -687,34 +742,7 @@ int
 asn1_octet_string_decode ( ASN1_SCK *asn1, guchar **octets, guint *str_len,
 			guint *nbytes)
 {
-    int          ret;
-    const guchar *start;
-    int          enc_len;
-    guint        cls;
-    guint        con;
-    guint        tag;
-    gboolean     def;
-
-    start = asn1->pointer;
-    ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &enc_len);
-    if (ret != ASN1_ERR_NOERROR)
-	goto done;
-    if (cls != ASN1_UNI || con != ASN1_PRI || tag != ASN1_OTS) {
-    	/* XXX - handle the constructed encoding? */
-	ret = ASN1_ERR_WRONG_TYPE;
-	goto done;
-    }
-    if (!def) {
-    	ret = ASN1_ERR_LENGTH_NOT_DEFINITE;
-    	goto done;
-    }
-
-    ret = asn1_octet_string_value_decode (asn1, enc_len, octets);
-    *str_len = enc_len;
-
-done:
-    *nbytes = asn1->pointer - start;
-    return ret;
+    return asn1_string_decode(asn1, octets, str_len, nbytes, ASN1_OTS);
 }
 
 /*

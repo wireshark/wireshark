@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.17 2000/11/19 08:53:59 guy Exp $
+ * $Id: packet-ldap.c,v 1.18 2000/12/24 09:10:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -267,7 +267,7 @@ static void read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   
   if (length)
   {
-    asn1_octet_string_value_decode(a, length, &string);
+    asn1_string_value_decode(a, length, &string);
     string = g_realloc(string, length + 1);
     string[length] = '\0';
   }
@@ -394,6 +394,7 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
     if (ret != ASN1_ERR_NOERROR)
       return ret;
 
+    /* XXX - check the tag? */
     if (cls != ASN1_CTX || con != ASN1_PRI) {
     	/* XXX - handle the constructed encoding? */
 	return ASN1_ERR_WRONG_TYPE;
@@ -401,7 +402,7 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
     if (!def)
     	return ASN1_ERR_LENGTH_NOT_DEFINITE;
 
-    ret = asn1_octet_string_value_decode(a, (int) string_length, &string);
+    ret = asn1_string_value_decode(a, (int) string_length, &string);
     if (ret != ASN1_ERR_NOERROR)
       return ret;
 
@@ -553,7 +554,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const 
     
         if (con != ASN1_PRI)
           return ASN1_ERR_WRONG_TYPE;
-        ret = asn1_octet_string_value_decode(a, length, &string);
+        ret = asn1_string_value_decode(a, length, &string);
         if (ret != ASN1_ERR_NOERROR)
           return ret;
         *filter_length += 4 + length;

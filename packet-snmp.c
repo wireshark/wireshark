@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.53 2000/11/19 08:54:07 guy Exp $
+ * $Id: packet-snmp.c,v 1.54 2000/12/24 09:10:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -804,7 +804,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 	case SNMP_NSAP:
 	case SNMP_BITSTR:
 	case SNMP_COUNTER64:
-		ret = asn1_octet_string_value_decode (asn1, vb_length,
+		ret = asn1_string_value_decode (asn1, vb_length,
 		    &vb_octet_string);
 		if (ret != ASN1_ERR_NOERROR)
 			return ret;
@@ -1086,7 +1086,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 			    "agent_address", ASN1_ERR_WRONG_LENGTH_FOR_TYPE);
 			return;
 		}
-		ret = asn1_octet_string_value_decode (&asn1,
+		ret = asn1_string_value_decode (&asn1,
 		    agent_address_length, &agent_address);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(pd, offset, fd, tree,
