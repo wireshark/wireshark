@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.29 1999/11/16 11:42:28 guy Exp $
+ * $Id: packet-dns.c,v 1.30 1999/11/27 07:46:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -900,7 +900,28 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       }
     }
     break;
-      
+
+  case T_AAAA:
+    if (fd != NULL) {
+      col_append_fstr(fd, COL_INFO, " %s %s", type_name,
+			ip6_to_str((struct e_in6_addr *)dptr));
+    }
+    if (dns_tree != NULL) {
+      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s, addr %s",
+		     name, type_name, class_name,
+		     ip6_to_str((struct e_in6_addr *)dptr));
+      rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		     long_type_name, class_name, ttl, data_len);
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 16)) {
+	/* We ran past the end of the captured data in the packet. */
+	return 0;
+      }
+      proto_tree_add_text(rr_tree, cur_offset, 16, "Addr: %s",
+		     ip6_to_str((struct e_in6_addr *)dptr));
+    }
+    break;
+
   case T_LOC:
     {
       if (fd != NULL)
