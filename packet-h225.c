@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.45 2004/06/24 05:05:42 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.46 2004/06/24 20:58:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -546,7 +546,7 @@ static int hf_h225_cryptoGKCert = -1;             /* SIGNEDxxx */
 static int hf_h225_cryptoFastStart = -1;          /* SIGNEDxxx */
 static int hf_h225_nestedcryptoToken = -1;        /* CryptoToken */
 static int hf_h225_cryptoTokens_item = -1;        /* CryptoH323Token */
-static int hf_h225_authenticationCapability = -1;  /* SEQUNCE_OF_AuthenticationMechanism */
+static int hf_h225_authenticationCapability = -1;  /* SEQUENCE_OF_AuthenticationMechanism */
 static int hf_h225_authenticationCapability_item = -1;  /* AuthenticationMechanism */
 static int hf_h225_authenticationMode = -1;       /* AuthenticationMechanism */
 static int hf_h225_alertingTime = -1;             /* TimeStamp */
@@ -10660,8 +10660,11 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 			/* add link to response frame, if available */
 			if(h225ras_call->rsp_num != 0){
+				proto_item *ti =
 				proto_tree_add_uint_format(tree, hf_h225_ras_rsp_frame, tvb, 0, 0, h225ras_call->rsp_num,
-					"The response to this request is in frame %u", h225ras_call->rsp_num);
+					                           "The response to this request is in frame %u",
+					                           h225ras_call->rsp_num);
+				PROTO_ITEM_SET_GENERATED(ti);
 			}
 
   		/* end of request message handling*/
@@ -10715,12 +10718,14 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					}
 
 					if(h225ras_call->req_num != 0){
+						proto_item *ti;
 						h225ras_call->responded = TRUE;
 						pi->request_available = TRUE;
 
 						/* Indicate the frame to which this is a reply. */
-						proto_tree_add_uint_format(tree, hf_h225_ras_req_frame, tvb, 0, 0, h225ras_call->req_num,
+						ti = proto_tree_add_uint_format(tree, hf_h225_ras_req_frame, tvb, 0, 0, h225ras_call->req_num,
 							"This is a response to a request in frame %u", h225ras_call->req_num);
+						PROTO_ITEM_SET_GENERATED(ti);
 
 						/* Calculate RAS Service Response Time */
 						delta.secs= pinfo->fd->abs_secs-h225ras_call->req_time.secs;
@@ -10733,7 +10738,8 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 						pi->delta_time.nsecs = delta.nsecs;
 
 						/* display Ras Service Response Time and make it filterable */
-						proto_tree_add_time(tree, hf_h225_ras_deltatime, tvb, 0, 0, &(pi->delta_time));
+						ti = proto_tree_add_time(tree, hf_h225_ras_deltatime, tvb, 0, 0, &(pi->delta_time));
+						PROTO_ITEM_SET_GENERATED(ti);
 					}
 				}
 			}
