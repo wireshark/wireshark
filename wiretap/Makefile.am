@@ -1,12 +1,11 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.39 2002/07/31 19:27:56 guy Exp $
+# $Id: Makefile.am,v 1.40 2003/04/02 20:21:45 guy Exp $
 #
 # Ethereal - Network traffic analyzer
-# By Gerald Combs <gerald@zing.org>
+# By Gerald Combs <gerald@ethereal.com>
 # Copyright 1998 Gerald Combs
-#
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -88,6 +87,7 @@ libwiretap_a_SOURCES = \
 	wtap-int.h
 
 EXTRA_DIST = \
+	README.developer	\
 	ascend-grammar.c	\
 	ascend-grammar.h	\
 	ascend-scanner.c	\
