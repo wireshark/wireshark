@@ -2000,147 +2000,148 @@ main(int argc, char *argv[])
   /* Everything is prepared now, preferences and command line was read in,
        we are NOT a child window for a synced capture. */
 
-    /* Pop up the main window, and read in a capture file if
-       we were told to. */
-    create_main_window(pl_size, tv_size, bv_size, prefs);
+  /* Pop up the main window, and read in a capture file if
+     we were told to. */
+  create_main_window(pl_size, tv_size, bv_size, prefs);
 
-    /* Read the recent file, as we have the gui now ready for it. */
-    read_recent(&rf_path, &rf_open_errno);
+  /* Read the recent file, as we have the gui now ready for it. */
+  read_recent(&rf_path, &rf_open_errno);
 
-    /* rearrange all the widgets as we now have the recent settings for this */
-    main_widgets_rearrange();
+  /* rearrange all the widgets as we now have the recent settings for this */
+  main_widgets_rearrange();
 
-    /* Fill in column titles.  This must be done after the top level window
-       is displayed.
+  /* Fill in column titles.  This must be done after the top level window
+     is displayed.
 
-       XXX - is that still true, with fixed-width columns? */
-    packet_list_set_column_titles();
+     XXX - is that still true, with fixed-width columns? */
+  packet_list_set_column_titles();
 
-    menu_recent_read_finished();
+  menu_recent_read_finished();
 
-    switch (user_font_apply()) {
-    case FA_SUCCESS:
-        break;
-    case FA_FONT_NOT_RESIZEABLE:
-        /* "user_font_apply()" popped up an alert box. */
-        /* turn off zooming - font can't be resized */
-    case FA_FONT_NOT_AVAILABLE:
-        /* XXX - did we successfully load the un-zoomed version earlier?
-        If so, this *probably* means the font is available, but not at
-        this particular zoom level, but perhaps some other failure
-        occurred; I'm not sure you can determine which is the case,
-        however. */
-        /* turn off zooming - zoom level is unavailable */
-    default:
-        /* in any other case than FA_SUCCESS, turn off zooming */
-        recent.gui_zoom_level = 0;	
-        /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
-    }
+  switch (user_font_apply()) {
+  case FA_SUCCESS:
+      break;
+  case FA_FONT_NOT_RESIZEABLE:
+      /* "user_font_apply()" popped up an alert box. */
+      /* turn off zooming - font can't be resized */
+  case FA_FONT_NOT_AVAILABLE:
+      /* XXX - did we successfully load the un-zoomed version earlier?
+      If so, this *probably* means the font is available, but not at
+      this particular zoom level, but perhaps some other failure
+      occurred; I'm not sure you can determine which is the case,
+      however. */
+      /* turn off zooming - zoom level is unavailable */
+  default:
+      /* in any other case than FA_SUCCESS, turn off zooming */
+      recent.gui_zoom_level = 0;	
+      /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
+  }
 
-    dnd_init(top_level);
+  dnd_init(top_level);
 
-    colors_init();
-    colfilter_init();
-    decode_as_init();
+  colors_init();
+  colfilter_init();
+  decode_as_init();
 
-    /* the window can be sized only, if it's not already shown, so do it now! */
-    main_load_window_geometry(top_level);
+  /* the window can be sized only, if it's not already shown, so do it now! */
+  main_load_window_geometry(top_level);
 
-    /*** we have finished all init things, show the main window ***/
-    gtk_widget_show(top_level);
+  /*** we have finished all init things, show the main window ***/
+  gtk_widget_show(top_level);
 
-    /* the window can be maximized only, if it's visible, so do it after show! */
-    main_load_window_geometry(top_level);
+  /* the window can be maximized only, if it's visible, so do it after show! */
+  main_load_window_geometry(top_level);
 
-    /* process all pending GUI events before continue */
-    while (gtk_events_pending()) gtk_main_iteration();
+  /* process all pending GUI events before continue */
+  while (gtk_events_pending()) gtk_main_iteration();
 
-    /* Pop up any queued-up alert boxes. */
-    display_queued_messages();
+  /* Pop up any queued-up alert boxes. */
+  display_queued_messages();
 
-    /* If we were given the name of a capture file, read it in now;
-       we defer it until now, so that, if we can't open it, and pop
-       up an alert box, the alert box is more likely to come up on
-       top of the main window - but before the preference-file-error
-       alert box, so, if we get one of those, it's more likely to come
-       up on top of us. */
-    if (cf_name) {
-      if (rfilter != NULL) {
-        if (!dfilter_compile(rfilter, &rfcode)) {
-          bad_dfilter_alert_box(rfilter);
-          rfilter_parse_failed = TRUE;
-        }
-      }
-      if (!rfilter_parse_failed) {
-        if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
-          /* "cf_open()" succeeded, so it closed the previous
-	     capture file, and thus destroyed any previous read filter
-	     attached to "cf". */
-          cfile.rfcode = rfcode;
-
-          /* Open tap windows; we do so after creating the main window,
-             to avoid GTK warnings, and after successfully opening the
-             capture file, so we know we have something to tap. */
-          if (tap_opt && tli) {
-            (*tli->func)(tap_opt);
-            g_free(tap_opt);
-          }
-
-          /* Read the capture file. */
-          switch (cf_read(&cfile)) {
-
-          case CF_READ_OK:
-          case CF_READ_ERROR:
-            /* Just because we got an error, that doesn't mean we were unable
-               to read any of the file; we handle what we could get from the
-               file. */
-            break;
-
-          case CF_READ_ABORTED:
-            /* Exit now. */
-            gtk_exit(0);
-            break;
-          }
-          /* Save the name of the containing directory specified in the
-	     path name, if any; we can write over cf_name, which is a
-             good thing, given that "get_dirname()" does write over its
-             argument. */
-          s = get_dirname(cf_name);
-          /* we might already set this from the recent file, don't overwrite this */
-          if(get_last_open_dir() == NULL) 
-            set_last_open_dir(s);
-          g_free(cf_name);
-          cf_name = NULL;
-        } else {
-          if (rfcode != NULL)
-            dfilter_free(rfcode);
-          cfile.rfcode = NULL;
-        }
+  /* If we were given the name of a capture file, read it in now;
+     we defer it until now, so that, if we can't open it, and pop
+     up an alert box, the alert box is more likely to come up on
+     top of the main window - but before the preference-file-error
+     alert box, so, if we get one of those, it's more likely to come
+     up on top of us. */
+  if (cf_name) {
+    if (rfilter != NULL) {
+      if (!dfilter_compile(rfilter, &rfcode)) {
+        bad_dfilter_alert_box(rfilter);
+        rfilter_parse_failed = TRUE;
       }
     }
-#ifdef HAVE_LIBPCAP
-    if (start_capture) {
-      if (capture_opts->save_file != NULL) {
-        /* Save the directory name for future file dialogs. */
-        /* (get_dirname overwrites filename) */
-        s = get_dirname(g_strdup(capture_opts->save_file));  
-        set_last_open_dir(s);
-        g_free(s);
-      }
-      /* "-k" was specified; start a capture. */
-      if (do_capture(capture_opts)) {
-        /* The capture started.  Open tap windows; we do so after creating
-           the main window, to avoid GTK warnings, and after starting the
-           capture, so we know we have something to tap. */
+    if (!rfilter_parse_failed) {
+      if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
+        /* "cf_open()" succeeded, so it closed the previous
+           capture file, and thus destroyed any previous read filter
+           attached to "cf". */
+
+        cfile.rfcode = rfcode;
+        /* Open tap windows; we do so after creating the main window,
+           to avoid GTK warnings, and after successfully opening the
+           capture file, so we know we have something to tap. */
         if (tap_opt && tli) {
           (*tli->func)(tap_opt);
           g_free(tap_opt);
         }
+
+        /* Read the capture file. */
+        switch (cf_read(&cfile)) {
+
+        case CF_READ_OK:
+        case CF_READ_ERROR:
+          /* Just because we got an error, that doesn't mean we were unable
+             to read any of the file; we handle what we could get from the
+             file. */
+          break;
+
+        case CF_READ_ABORTED:
+          /* Exit now. */
+          gtk_exit(0);
+          break;
+        }
+        /* Save the name of the containing directory specified in the
+           path name, if any; we can write over cf_name, which is a
+           good thing, given that "get_dirname()" does write over its
+           argument. */
+        s = get_dirname(cf_name);
+        /* we might already set this from the recent file, don't overwrite this */
+        if(get_last_open_dir() == NULL) 
+          set_last_open_dir(s);
+        g_free(cf_name);
+        cf_name = NULL;
+      } else {
+        if (rfcode != NULL)
+          dfilter_free(rfcode);
+        cfile.rfcode = NULL;
       }
     }
-    else {
-      set_menus_for_capture_in_progress(FALSE);
+  }
+
+#ifdef HAVE_LIBPCAP
+  if (start_capture) {
+    if (capture_opts->save_file != NULL) {
+      /* Save the directory name for future file dialogs. */
+      /* (get_dirname overwrites filename) */
+      s = get_dirname(g_strdup(capture_opts->save_file));  
+      set_last_open_dir(s);
+      g_free(s);
     }
+    /* "-k" was specified; start a capture. */
+    if (do_capture(capture_opts)) {
+      /* The capture started.  Open tap windows; we do so after creating
+         the main window, to avoid GTK warnings, and after starting the
+         capture, so we know we have something to tap. */
+      if (tap_opt && tli) {
+        (*tli->func)(tap_opt);
+        g_free(tap_opt);
+      }
+    }
+  }
+  else {
+    set_menus_for_capture_in_progress(FALSE);
+  }
 
   /* if the user didn't supplied a capture filter, use the one to filter out remote connections like SSH */
   if (!start_capture && (capture_opts->cfilter == NULL || strlen(capture_opts->cfilter) == 0)) {
@@ -2914,4 +2915,3 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     welcome_pane = welcome_new();
     gtk_widget_show(welcome_pane);
 }
-
