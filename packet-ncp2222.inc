@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.34 2002/10/14 16:47:56 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.35 2002/10/15 07:36:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8172,7 +8172,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                                 request_value->nds_version = nds_version;
                                                 request_value->object_name = global_object_name;
                                                 request_value->req_nds_flags = global_flags;
-                                        }                                                
+                                        }
                                 }
                			break;
                
@@ -8273,108 +8273,98 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
        		}
        	}
         
-       	if (ncp_tree) 
-        {
-       		/* If the dissection throws an exception, be sure to free
-       		 * the temporary proto_tree that was created. Because of the
-       		 * way the CLEANUP_PUSH macro works, we can't put it in an 'if'
-       		 * block; it has to be in the same scope as the terminating
-       		 * CLEANUP_POP or CLEANUP_POP_AND_ALLOC. So, we always
-       		 * call CLEANUP_POP and friends, but the value of temp_tree is
-       		 * NULL if no cleanup is needed, and non-null if cleanup is needed. 
-                 */
-                 
-       		CLEANUP_PUSH(free_proto_tree, temp_tree);
+	/* If the dissection throws an exception, be sure to free
+	 * the temporary proto_tree that was created. Because of the
+	 * way the CLEANUP_PUSH macro works, we can't put it in an 'if'
+	 * block; it has to be in the same scope as the terminating
+	 * CLEANUP_POP or CLEANUP_POP_AND_ALLOC. So, we always
+	 * call CLEANUP_POP and friends, but the value of temp_tree is
+	 * NULL if no cleanup is needed, and non-null if cleanup is needed. 
+	 */
+	CLEANUP_PUSH(free_proto_tree, temp_tree);
         
-       		conversation = find_conversation(&pinfo->src, &pinfo->dst,
-       		    PT_NCP, nw_connection, nw_connection, 0);
+	switch (type) {
+
+	case NCP_BROADCAST_SLOT:
+		; /* nothing */
+		break;
         
-       		switch (type) 
-                {
-                        case NCP_BROADCAST_SLOT:
-       				; /* nothing */
-       				break;
-        
-       			case NCP_SERVICE_REQUEST:
-       				proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
-       					func, "Function: %d (0x%02X), %s",
-       					func, func, ncp_rec ? ncp_rec->name : "Unknown");
+	case NCP_SERVICE_REQUEST:
+		if (ncp_tree) {
+			proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
+				func, "Function: %d (0x%02X), %s",
+				func, func, ncp_rec ? ncp_rec->name : "Unknown");
                                         
-				proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 7, 1,
-					subfunc, "SubFunction: %d (0x%02x)",
-					subfunc, subfunc);
+			proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 7, 1,
+				subfunc, "SubFunction: %d (0x%02x)",
+				subfunc, subfunc);
+		}
                                         
-        		        length_remaining = tvb_length_remaining(tvb, 8);
-                                if (length_remaining > 8)
-                                {
-					proto_tree_add_item(ncp_tree, hf_nds_version, tvb, 8, 4,
-						FALSE);
-                               
-                                        nds_flags = tvb_get_letohl(tvb, 12);
-                        		strcpy(flags_str, " ");
-                        		sep = "(";
-                        		if (nds_flags & nds_flag_tree) 
-                                        {
-                        			strcat(flags_str, sep);
-                        			strcat(flags_str, "Tree");
-                        			sep = ",";
-		                        }
-		                        if (nds_flags & nds_flag_depth) 
-                                        {
-			                        strcat(flags_str, sep);
-			                        strcat(flags_str, "Depth");
-			                        sep = ",";
-		                        }
-		                        if (nds_flags & nds_flag_rev) 
-                                        {
-			                        strcat(flags_str, sep);
-			                        strcat(flags_str, "Revision");
-		                        }
-		                        if (nds_flags & nds_flag_flags) 
-                                        {
-			                        strcat(flags_str, sep);
-			                        strcat(flags_str, "Flags");
-		                        }
-		                        if (flags_str[0] != '\0')
-                                        {
-			                        strcat(flags_str, ")");
-		                                tinew = proto_tree_add_uint_format(ncp_tree, hf_nds_flags,
-		                                        tvb, 12, 4, nds_flags, "Flags: 0x%08x -%s", nds_flags,
-		                                        flags_str);
+		length_remaining = tvb_reported_length_remaining(tvb, 8);
+		if (length_remaining >= 8) {
+			if (ncp_tree) {
+				proto_tree_add_item(ncp_tree, hf_nds_version, tvb, 8, 4,
+					FALSE);
+			}
+
+			nds_flags = tvb_get_letohl(tvb, 12);
+			if (request_value)
+				request_value->req_nds_flags = nds_flags;
+
+			if (ncp_tree) {
+				strcpy(flags_str, " ");
+				sep = "(";
+				if (nds_flags & nds_flag_tree) {
+					strcat(flags_str, sep);
+					strcat(flags_str, "Tree");
+					sep = ",";
+				}
+				if (nds_flags & nds_flag_depth) {
+					strcat(flags_str, sep);
+					strcat(flags_str, "Depth");
+					sep = ",";
+				}
+				if (nds_flags & nds_flag_rev) {
+					strcat(flags_str, sep);
+					strcat(flags_str, "Revision");
+					sep = ",";
+				}
+				if (nds_flags & nds_flag_flags) {
+					strcat(flags_str, sep);
+					strcat(flags_str, "Flags");
+				}
+				if (flags_str[0] != '\0') {
+					strcat(flags_str, ")");
+					tinew = proto_tree_add_uint_format(ncp_tree, hf_nds_flags,
+						tvb, 12, 4, nds_flags, "Flags: 0x%08x -%s", nds_flags,
+						flags_str);
+
+					flags_tree = proto_item_add_subtree(tinew, ett_nds);
                                                 
-		                                flags_tree = proto_item_add_subtree(tinew, ett_nds);
-                                                
-                                                if(request_value)
-                                                {        
-                                                        request_value->req_nds_flags = nds_flags;
-                                                }
-                                                                                                        
-		                                proto_tree_add_item(flags_tree, hf_nds_flags_tree,
-		                                        tvb, 12, 4, TRUE);
-		                                proto_tree_add_item(flags_tree, hf_nds_flags_flags,
-		                                        tvb, 12, 4, TRUE);
-		                                proto_tree_add_item(flags_tree, hf_nds_flags_rev,
-		                                        tvb, 12, 4, TRUE);
-		                                proto_tree_add_item(flags_tree, hf_nds_flags_depth,
-		                                        tvb, 12, 4, TRUE);
-                                        } 
-                                }                                         
-       				break;
+					proto_tree_add_item(flags_tree, hf_nds_flags_tree,
+						tvb, 12, 4, TRUE);
+					proto_tree_add_item(flags_tree, hf_nds_flags_flags,
+						tvb, 12, 4, TRUE);
+					proto_tree_add_item(flags_tree, hf_nds_flags_rev,
+						tvb, 12, 4, TRUE);
+					proto_tree_add_item(flags_tree, hf_nds_flags_depth,
+						tvb, 12, 4, TRUE);
+				}
+			}
+		}
+		break;
        
-       			default:
-       				; /* nothing */
-       				break;
-                                
-       		}
- 		ptvc = ptvcursor_new(ncp_tree, tvb, 7);
-       		if (ncp_rec && ncp_rec->request_ptvc) {
-       			clear_repeat_vars();
-       			process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
-       		}
-       		ptvcursor_free(ptvc);
-       
-       		/* Free the temporary proto_tree */
-       		CLEANUP_CALL_AND_POP;
-       	}
-        
+	default:
+		; /* nothing */
+		break;
+	}
+	ptvc = ptvcursor_new(ncp_tree, tvb, 7);
+	if (ncp_rec && ncp_rec->request_ptvc) {
+		clear_repeat_vars();
+		process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
+	}
+	ptvcursor_free(ptvc);
+
+	/* Free the temporary proto_tree */
+	CLEANUP_CALL_AND_POP;
 }
