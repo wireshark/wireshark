@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.61 2003/05/23 05:25:18 tpot Exp $
+ * $Id: util.c,v 1.62 2003/05/26 22:55:43 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,18 +129,24 @@ get_compiled_version_info(GString *str)
 #ifdef HAVE_SOME_SNMP
 
 #ifdef HAVE_UCD_SNMP
-	g_string_append(str, ", with UCD-SNMP ");
+	g_string_append(str, ",\nwith UCD-SNMP ");
 	g_string_append(str, VersionInfo);
 #endif /* HAVE_UCD_SNMP */
 
 #ifdef HAVE_NET_SNMP
-	g_string_append(str, ", with Net-SNMP ");
+	g_string_append(str, ",\nwith Net-SNMP ");
 	g_string_append(str, netsnmp_get_version());
 #endif /* HAVE_NET_SNMP */
 
 #else /* no SNMP library */
-	g_string_append(str, ", without UCD-SNMP or Net-SNMP");
+	g_string_append(str, ",\nwithout UCD-SNMP or Net-SNMP");
 #endif /* HAVE_SOME_SNMP */
+
+#ifdef HAVE_GNU_ADNS
+	g_string_append(str, ", with ADNS");
+#else
+	g_string_append(str, ", without ADNS");
+#endif /* HAVE_GNU_ADNS */
 }
 
 /*
