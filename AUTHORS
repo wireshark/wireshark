@@ -1,4 +1,4 @@
-
+﻿
 
 Original Author
 -------- ------
@@ -1681,8 +1681,13 @@ Anders Broman           <anders.broman [AT] ericsson.com> {
 	Assorted ISUP enhancements
 	MEGACO updates and fixes
 	T.35 country code support for H.245
+	BICC dissection
 	Multipart media dissector
 	E.164 number dissector
+	Assorted SIP enhancements
+	Assorted DIAMETER enhancements
+	SIP-T dissection
+	PoC1 Application dissection in RTCP
 }
 
 Christian Falckenberg   <christian.falckenberg [AT] nortelnetworks.com> {
@@ -2125,7 +2130,8 @@ Carlos Pignataro        <cpignata [AT] cisco.com> {
 
 Thomas Anders           <thomas.anders [AT] blue-cable.de> {
 	PacketCable DHCP options
-	PKTC enhancements
+	PacketCable (PKTC) updates and enhancements
+	MGCP sub-parameter dissection
 }
 
 Rich Coe                <Richard.Coe [AT] med.ge.com> {
@@ -2134,10 +2140,6 @@ Rich Coe                <Richard.Coe [AT] med.ge.com> {
 
 Dominic Béchaz          <bdo [AT] zhwin.ch> {
 	IEEE 1588 / PTP support
-}
-
-Thomas Anders           <thomas.anders [AT] blue-cable.de> {
-	PacketCable updates and enhancements
 }
 
 
