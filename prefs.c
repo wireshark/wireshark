@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.65 2001/10/21 21:47:57 guy Exp $
+ * $Id: prefs.c,v 1.66 2001/10/22 22:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,7 +70,6 @@ static void   free_col_info(e_prefs *);
 
 static gboolean init_prefs = TRUE;
 static gchar *gpf_path = NULL;
-static gchar *pf_path = NULL;
 
 /*
  * XXX - variables to allow us to attempt to interpret the first
@@ -604,6 +603,23 @@ print.file: /a/very/long/path/
 
 static void read_prefs_file(const char *pf_path, FILE *pf);
 
+/*
+ * Get the pathname of the preferences file.
+ */
+static const char *
+get_preffile_path(void)
+{
+  static gchar *pf_path = NULL;
+
+  if (pf_path == NULL) {
+    pf_path = (gchar *) g_malloc(strlen(get_persconffile_dir()) +
+      strlen(PF_NAME) + 2);
+    sprintf(pf_path, "%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
+      PF_NAME);
+  }
+  return pf_path;
+}
+
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
    If we got an error (other than "it doesn't exist") trying to read
@@ -617,16 +633,16 @@ static void read_prefs_file(const char *pf_path, FILE *pf);
    return NULL. */
 e_prefs *
 read_prefs(int *gpf_errno_return, char **gpf_path_return,
-	   int *pf_errno_return, char **pf_path_return)
+	   int *pf_errno_return, const char **pf_path_return)
 {
-  int       i;
-  FILE     *pf;
-  fmt_data *cfmt;
-  gchar    *col_fmt[] = {"No.",      "%m", "Time",        "%t",
-                         "Source",   "%s", "Destination", "%d",
-                         "Protocol", "%p", "Info",        "%i"};
+  int         i;
+  const char *pf_path;
+  FILE       *pf;
+  fmt_data   *cfmt;
+  gchar      *col_fmt[] = {"No.",      "%m", "Time",        "%t",
+                           "Source",   "%s", "Destination", "%d",
+                           "Protocol", "%p", "Info",        "%i"};
 
-  
   if (init_prefs) {
     /* Initialize preferences to wired-in default values.
        They may be overridded by the global preferences file or the
@@ -757,12 +773,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
   }
 
   /* Construct the pathname of the user's preferences file. */
-  if (! pf_path) {
-    pf_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(PF_DIR) +
-      strlen(PF_NAME) + 4);
-    sprintf(pf_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
-      get_home_dir(), PF_DIR, PF_NAME);
-  }
+  pf_path = get_preffile_path();
     
   /* Read the user's preferences file, if it exists. */
   *pf_path_return = NULL;
@@ -1450,8 +1461,10 @@ write_module_prefs(gpointer data, gpointer user_data)
    If we got an error, stuff a pointer to the path of the preferences file
    into "*pf_path_return", and return the errno. */
 int
-write_prefs(char **pf_path_return)
+write_prefs(const char **pf_path_return)
 {
+  const char  *pf_dir_path;
+  const char  *pf_path;
   FILE        *pf;
   struct stat  s_buf;
   GList       *clp, *col_l;
@@ -1463,21 +1476,18 @@ write_prefs(char **pf_path_return)
    *   so that duplication can be avoided with filter.c
    */
 
-  if (! pf_path) {
-    pf_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(PF_DIR) +
-      strlen(PF_NAME) + 4);
-  }
-
-  sprintf(pf_path, "%s" G_DIR_SEPARATOR_S "%s", get_home_dir(), PF_DIR);
-  if (stat(pf_path, &s_buf) != 0)
+  /*
+   * Create the directory that holds personal configuration files.
+   */
+  pf_dir_path = get_persconffile_dir();
+  if (stat(pf_dir_path, &s_buf) != 0)
 #ifdef WIN32
-    mkdir(pf_path);
+    mkdir(pf_dir_path);
 #else
-    mkdir(pf_path, 0755);
+    mkdir(pf_dir_path, 0755);
 #endif
 
-  sprintf(pf_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
-    get_home_dir(), PF_DIR, PF_NAME);
+  pf_path = get_preffile_path();
   if ((pf = fopen(pf_path, "w")) == NULL) {
     *pf_path_return = pf_path;
     return errno;

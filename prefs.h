@@ -1,12 +1,11 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.31 2001/07/22 21:25:11 guy Exp $
+ * $Id: prefs.h,v 1.32 2001/10/22 22:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -186,13 +185,13 @@ void prefs_register_modules(void);
    the user's preferences file, stuff the errno into "*pf_errno_return"
    and a pointer to the path of the file into "*pf_path_return", and
    return NULL. */
-e_prefs *read_prefs(int *, char **, int *, char **);
+e_prefs *read_prefs(int *, char **, int *, const char **);
 
 /* Write out "prefs" to the user's preferences file, and return 0.
 
    If we got an error, stuff a pointer to the path of the preferences file
    into "*pf_path_return", and return the errno. */
-int write_prefs(char **);
+int write_prefs(const char **);
 
 /* Copy a set of preferences. */
 void copy_prefs(e_prefs *dest, e_prefs *src);

@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.10 2001/10/21 21:47:57 guy Exp $
+ * $Id: filters.c,v 1.11 2001/10/22 22:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,8 @@ void
 read_filter_list(filter_list_type_t list, char **pref_path_return,
     int *errno_return)
 {
-  char       *ff_path, *ff_dir = PF_DIR, *ff_name;
+  const char *pf_dir_path;
+  char       *ff_path, *ff_name;
   FILE       *ff;
   GList      **flp;
   GList      *fl_ent;
@@ -120,10 +121,9 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
   }
 
   /* To do: generalize this */
-  ff_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(ff_dir) +  
-    strlen(ff_name) + 4);
-  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
-    get_home_dir(), ff_dir, ff_name);
+  pf_dir_path = get_persconffile_dir();
+  ff_path = (gchar *) g_malloc(strlen(pf_dir_path) + strlen(ff_name) + 2);
+  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s", pf_dir_path, ff_name);
 
   if ((ff = fopen(ff_path, "r")) == NULL) {
     /*
@@ -146,8 +146,8 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
      * the filter lists, and delete the ones that don't belong in
      * a particular list.
      */
-    sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
-      get_home_dir(), ff_dir, FILTER_FILE_NAME);
+    sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s", pf_dir_path,
+      FILTER_FILE_NAME);
     if ((ff = fopen(ff_path, "r")) == NULL) {
       /*
        * Well, that didn't work, either.  Just give up.
@@ -418,7 +418,8 @@ void
 save_filter_list(filter_list_type_t list, char **pref_path_return,
     int *errno_return)
 {
-  gchar      *ff_path, *ff_path_new, *ff_dir = PF_DIR, *ff_name;
+  const char *pf_dir_path;
+  gchar      *ff_path, *ff_path_new, *ff_name;
   int         path_length;
   GList      *fl;
   GList      *flp;
@@ -446,27 +447,23 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
     return;
   }
 
-  path_length = strlen(get_home_dir()) + strlen(ff_dir) + strlen(ff_name)
-  		+ 4 + 4;
-  ff_path = (gchar *) g_malloc(path_length);
-  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s", get_home_dir(), ff_dir);
-
-  if (stat(ff_path, &s_buf) != 0)
+  pf_dir_path = get_persconffile_dir();
+  if (stat(pf_dir_path, &s_buf) != 0)
 #ifdef WIN32
-    mkdir(ff_path);
+    mkdir(pf_dir_path);
 #else
-    mkdir(ff_path, 0755);
+    mkdir(pf_dir_path, 0755);
 #endif
     
-  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s",
-    get_home_dir(), ff_dir, ff_name);
+  path_length = strlen(pf_dir_path) + strlen(ff_name) + 2;
+  ff_path = (gchar *) g_malloc(path_length);
+  sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s", pf_dir_path, ff_name);
 
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out
      completely. */
-  ff_path_new = (gchar *) g_malloc(path_length);
-  sprintf(ff_path_new, "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s.new",
-    get_home_dir(), ff_dir, ff_name);
+  ff_path_new = (gchar *) g_malloc(path_length + 4);
+  sprintf(ff_path_new, "%s.new", ff_path);
 
   if ((ff = fopen(ff_path_new, "w")) == NULL) {
     *pref_path_return = ff_path;

@@ -1,12 +1,11 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.22 2001/04/09 22:35:23 gram Exp $
+ * $Id: main.h,v 1.23 2001/10/22 22:59:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,7 +31,12 @@
 
 #include "globals.h"
 
-#define RC_FILE PF_DIR "/gtkrc"
+/*
+ * File under personal preferences directory in which GTK settings for
+ * Ethereal are stored.
+ */
+#define RC_FILE "gtkrc"
+
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550
 #ifdef HAVE_LIBPCAP

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.92 2001/10/04 08:30:33 guy Exp $
+ * $Id: tethereal.c,v 1.93 2001/10/22 22:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -214,7 +214,8 @@ main(int argc, char *argv[])
   WSADATA		wsaData;
 #endif
 
-  char                *gpf_path, *pf_path;
+  char                *gpf_path;
+  const char          *pf_path;
   int                  gpf_open_errno, pf_open_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP

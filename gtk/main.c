@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.206 2001/10/21 16:15:19 gerald Exp $
+ * $Id: main.c,v 1.207 2001/10/22 22:59:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -866,7 +866,8 @@ main(int argc, char *argv[])
   WSADATA 	       wsaData; 
 #endif
 
-  char                *gpf_path, *pf_path, *cf_path, *df_path;
+  char                *gpf_path, *cf_path, *df_path;
+  const char          *pf_path;
   int                  gpf_open_errno, pf_open_errno, cf_open_errno, df_open_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
@@ -1324,8 +1325,10 @@ main(int argc, char *argv[])
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
   
-  rc_file = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(RC_FILE) + 4);
-  sprintf(rc_file, "%s/%s", get_home_dir(), RC_FILE);
+  rc_file = (gchar *) g_malloc(strlen(get_persconffile_dir()) +
+    strlen(RC_FILE) + 2);
+  sprintf(rc_file, "%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
+    RC_FILE);
   gtk_rc_parse(rc_file);
 
   /* Try to load the regular and boldface fixed-width fonts */

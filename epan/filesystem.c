@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.7 2001/10/21 21:47:58 guy Exp $
+ * $Id: filesystem.c,v 1.8 2001/10/22 22:59:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -362,4 +362,33 @@ get_home_dir(void)
 #endif
 
 	return home;
+}
+
+/*
+ * Name of directory, under the user's home directory, in which
+ * personal configuration files are stored.
+ *
+ * XXX - should this be ".libepan"? For backwards-compatibility, I'll keep
+ * it ".ethereal" for now.
+ */
+#define PF_DIR ".ethereal"
+
+/*
+ * Get the directory in which personal configuration files reside;
+ * it's PF_DIR, under the user's home directory.
+ */
+const char *
+get_persconffile_dir(void)
+{
+	static char *pf_dir = NULL;
+	const char *homedir;
+
+	/* Return the cached value, if available */
+	if (pf_dir != NULL)
+		return pf_dir;
+
+	homedir = get_home_dir();
+	pf_dir = g_malloc(strlen(homedir) + strlen(PF_DIR) + 2);
+	sprintf(pf_dir, "%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
+	return pf_dir;
 }
