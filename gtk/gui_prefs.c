@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.19 2000/09/09 10:35:53 guy Exp $
+ * $Id: gui_prefs.c,v 1.20 2000/10/09 06:28:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -319,6 +319,13 @@ font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs)
 
 	font_name = g_strdup(gtk_font_selection_dialog_get_font_name(
 	      GTK_FONT_SELECTION_DIALOG(fs)));
+	if (font_name == NULL) {
+		/* No font was selected; let the user know, and don't let
+		   them accept that non-font. */
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		   "You have not selected a font.");
+		return;
+	}
 
 	/* Get the name that the boldface version of that font would have. */
 	bold_font_name = boldify(font_name);
