@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.23 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-vines.c,v 1.24 2001/02/04 10:29:49 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -146,7 +146,7 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Decode the "real" Vines now */
 	next_tvb = tvb_new_subset(tvb, 2, -1, -1);
-	dissect_vines(tvb, pinfo, tree);
+	dissect_vines(next_tvb, pinfo, tree);
 }
 
 void
