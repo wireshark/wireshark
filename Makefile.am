@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.704 2004/01/31 04:40:08 guy Exp $
+# $Id: Makefile.am,v 1.705 2004/02/01 04:34:53 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -876,6 +876,10 @@ EXTRA_DIST = \
 	image/mergecap.rc.in	\
 	image/nsis-checked.bmp	\
 	image/nsis-unchecked.bmp	\
+	image/stock_dialog_error_48.xpm	\
+	image/stock_dialog_warning_48.xpm	\
+	image/stock_dialog_question_48.xpm	\
+	image/stock_dialog_info_48.xpm	\
 	image/tethereal.rc.in	\
 	image/text2pcap.rc.in	\
 	image/toolbar/capture_24.xpm	\
