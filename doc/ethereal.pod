@@ -595,16 +595,19 @@ which to save it.
 
 =item File:Export
 
-Export captured data, currently very limited.
+Export captured data into an external format. Note: the data cannot be 
+imported back into Ethereal, so be sure to keep the capture file.
 
 =item File:Print
 
-Print, for a selectable range of packets in the current capture, either
-the summary line for the packet or the packet details view of the
-packet; when printing the packet details view, the hex dump of the
-packet can be printed as well.  Printing options can be set with the
-I<Edit:Preferences> menu item, or in the dialog box popped up by this
-item.
+Print packet data from the current capture. You can select the range of 
+packets to be printed (which packets are printed), and the output format of 
+each packet (how each packet is printed). The output format will be similar 
+to the displayed values, so a summary line, the packet details view, and/or 
+the hex dump of the packet can be printed. 
+
+Printing options can be set with the I<Edit:Preferences> menu item, or in the 
+dialog box popped up by this menu item.
 
 =item File:Quit
 
@@ -682,24 +685,18 @@ Unmark all packets that are currently displayed.
 Set the packet printing, column display, TCP stream coloring, and GUI
 options (see L<"Preferences"> below).
 
-=item Edit:Coloring Rules
-
-Change the foreground and background colors of the packet information in
-the list of packets, based upon display filters.  The list of display
-filters is applied to each packet sequentially.  After the first display
-filter matches a packet, any additional display filters in the list are
-ignored.  Therefore, if you are filtering on the existence of protocols,
-you should list the higher-level protocols first, and the lower-level
-protocols last.
-
 =item View:Main Toolbar
+
 =item View:Filter Toolbar
+
 =item View:Statusbar
 
 Show or hide the main window controls.
 
 =item View:Packet List
+
 =item View:Packet Details
+
 =item View:Packet Bytes
 
 Show or hide the main window panes.
@@ -738,6 +735,20 @@ Collapse all branches of the packet details.
 
 Expands all branches of the packet details.
 
+=item View:Expand Tree
+
+Expands the currently selected item in the packet details.
+
+=item Edit:Coloring Rules
+
+Change the foreground and background colors of the packet information in
+the list of packets, based upon display filters.  The list of display
+filters is applied to each packet sequentially.  After the first display
+filter matches a packet, any additional display filters in the list are
+ignored.  Therefore, if you are filtering on the existence of protocols,
+you should list the higher-level protocols first, and the lower-level
+protocols last.
+
 =over
 
 =item How Colorization Works
@@ -747,96 +758,10 @@ consists of a name, a filter expression and a coloration. A packet is
 colored according to the first filter that it matches, Color filter
 expressions use exactly the same syntax as display filter expressions.
  
-When Ethereal starts the color filters are loaded from:
+When Ethereal starts, the color filters are loaded from:
 1. The user's personal color filters file or, if that does not exist,
 2. The global color filters file.
 If neither of these exist then the packets will not be colored.
-
-=item The Color Filters Dialog
-
-This dialog displays a list of color filters and allows it to be
-modified.
-
-=over
-
-=item THE FILTER LIST
-
-Single rows may be selected by clicking. Multiple rows may be selected
-by using the ctrl and shift keys in combination with the mouse button.
-
-=item NEW
-
-Adds a new filter at the bottom of the list and opens the Edit Color
-Filter dialog box. You will have to alter the filter expression at
-least before the filter will be accepted. The format of color filter
-expressions is identical to that of display filters. The new filter is
-selected, so it may immediately be moved up and down, deleted or edited.
-To avoid confusion all filters are unselected before the new filter is
-created.
-
-=item EDIT
-
-Opens the Edit Color Filter dialog box for the selected filter. (If this
-button is disabled you may have more than one filter selected, making it
-ambiguous which is to be edited.)
-
-=item DELETE
-
-Deletes the selected color filter(s).
-
-=item EXPORT
-
-Allows you to choose a file in which to save the current list of color
-filters. You may also choose to save only the selected filters. A
-button is provided to save the filters in the global color filters file
-(you must have sufficient permissions to write this file, of course).
-
-=item IMPORT
-
-Allows you to choose a file containing color filters which are then
-added to the bottom of the current list. All the added filters are
-selected, so they may be moved to the correct position in the list as a
-group. To avoid confusion, all filters are unselected before the new
-filters are imported. A button is provided to load the filters from the
-global color filters file.
-
-=item CLEAR
-
-Deletes your personal color filters file, reloads the global
-color filters file, if any, and closes the dialog.
-
-=item UP
-
-Moves the selected filter(s) up the list, making it more likely that
-they will be used to color packets.
-
-=item DOWN
-
-Moves the selected filter(s) down the list, making it less likely that
-they will be used to color packets.
-
-=item OK
-
-Closes the dialog and uses the color filters as they stand.
-
-=item APPLY
-
-Colors the packets according to the current list of color filters, but
-does not close the dialog.
-
-=item SAVE
-
-Saves the current list of color filters in your personal color filters
-file. Unless you do this they will not be used the next time you start
-Ethereal.
-
-=item CLOSE
-
-Closes the dialog without changing the coloration of the packets. Note
-that changes you have made to the current list of color filters are not
-undone.
-
-=back
 
 =back
 
@@ -898,7 +823,7 @@ changed, or deleted.
 Edit the saved list of display filters, allowing filters to be added,
 changed, or deleted.
 
-=item Analyze:Match
+=item Analyze:Apply as Filter
 
 Create a display filter, or add to the display filter strip at the
 bottom, a display filter based on the data currently highlighted in the
@@ -917,7 +842,7 @@ B<And Not Selected>, and B<Or Not Selected> options add to the end of
 the display filter in the strip at the bottom an AND or OR operator
 followed by the new display filter expression.
 
-=item Analyze:Prepare
+=item Analyze:Prepare a Filter
 
 Create a display filter, or add to the display filter strip at the
 bottom, a display filter based on the data currently highlighted in the
@@ -1132,7 +1057,6 @@ Below the graph are the LOAD values for each interval that would be calculated.
 --------------------------------------------------> Time
  500   1500   500  750   1000   500    0     0
 
-
 =item Statistics:Conversation List
 
 This option will open a new window that displays a list of all
@@ -1148,7 +1072,6 @@ By first selecting a conversation by clicking on it and then using the
 right mouse button (on those platforms that have a right
 mouse button) ethereal will display a popup menu offering several different 
 filter operations to apply to the capture.
-
 
 These statistics windows can also be invoked from the Ethereal command
 line using the B<-z conv> argument. 
@@ -1289,14 +1212,10 @@ Some help texts.
 
 List of supported protocols and display filter protocol fields.
 
-=item Help:About Plugins
-
-See what dynamically loadable dissector plugin modules have been loaded
-(see I<"Plugins"> below).
-
 =item Help:About Ethereal
 
-What this is all about...
+See various information about Ethereal (see I<"About"> below), like the 
+version, the folders used, the available plugins, ...
 
 =back
 
@@ -1306,13 +1225,40 @@ What this is all about...
 
 =item Main Window
 
-The main window is split into three panes.  You can resize each pane using
-a "thumb" at the right end of each divider line.  Below the panes is a
-strip that shows the current filter and informational text.
+The main window contains the usual things like the menu, some toolbars, the 
+main area and a statusbar. The main area is split into three panes, you can 
+resize each pane using a "thumb" at the right end of each divider line.
+
+The main window is much more flexible than before. The layout of the main
+window can be customized by the I<Layout> page in the dialog box popped
+up by I<Edit:Preferences>, the following will describe the layout with the 
+default settings.
 
 =over 6
 
-=item Top Pane
+=item Main Toolbar
+
+Some menu items are available for quick access here. There is no way to 
+customize the items in the toolbar, however the toolbar can be hidden by 
+I<View:Main Toolbar>.
+
+=item Filter Toolbar
+
+A display filter can be entered into the filter toolbar. 
+A filter for HTTP, HTTPS, and DNS traffic might look like this:
+
+  tcp.port == 80 || tcp.port == 443 || tcp.port == 53
+
+Selecting the I<Filter:> button lets you choose from a list of named
+filters that you can optionally save.  Pressing the Return or Enter
+keys, or selecting the I<Apply> button, will cause the filter to be
+applied to the current list of packets.  Selecting the I<Reset> button
+clears the display filter so that all packets are displayed (again).
+
+There is no way to customize the items in the toolbar, however the toolbar 
+can be hidden by I<View:Filter Toolbar>.
+
+=item Packet List Pane
 
 The top pane contains the list of network packets that you can scroll
 through and select.  By default, the packet number, packet timestamp,
@@ -1334,14 +1280,14 @@ The right mouse button can be used to pop up a menu of operations.
 
 The middle mouse button can be used to mark a packet.
 
-=item Middle Pane
+=item Packet Details Pane
 
 The middle pane contains a display of the details of the
 currently-selected packet.  The display shows each field and its value
 in each protocol header in the stack.  The right mouse button can be
 used to pop up a menu of operations.
 
-=item Bottom Pane
+=item Packet Bytes Pane
 
 The lowest pane contains a hex and ASCII dump of the actual packet data. 
 Selecting a field in the packet details highlights the corresponding
@@ -1349,18 +1295,14 @@ bytes in this section.
 
 The right mouse button can be used to pop up a menu of operations.
 
-=item Current Filter
+=item Statusbar
 
-A display filter can be entered into the strip at the bottom. 
-A filter for HTTP, HTTPS, and DNS traffic might look like this:
+The statusbar is divided into two parts, on the left some context dependant 
+things are shown, like information about the loaded file, on the right the 
+number of packets are displayed: P = Packets captured/loaded, D = Displayed 
+in packet list (after filtering), M = Marked by user.
 
-  tcp.port == 80 || tcp.port == 443 || tcp.port == 53
-
-Selecting the I<Filter:> button lets you choose from a list of named
-filters that you can optionally save.  Pressing the Return or Enter
-keys, or selecting the I<Apply> button, will cause the filter to be
-applied to the current list of packets.  Selecting the I<Reset> button
-clears the display filter so that all packets are displayed.
+The statusbar can be hidden by I<View:Statusbar>.
 
 =back
 
@@ -1370,62 +1312,6 @@ The I<Preferences> dialog lets you control various personal preferences
 for the behavior of B<Ethereal>.
 
 =over 6
-
-=item Printing Preferences
-
-The radio buttons at the top of the I<Printing> page allow you choose
-between printing packets with the I<File:Print Packet> menu item as text
-or PostScript, and sending the output directly to a command or saving it
-to a file.  The I<Command:> text entry box, on UNIX-compatible systems,
-is the command to send files to (usually B<lpr>), and the I<File:> entry
-box lets you enter the name of the file you wish to save to. 
-Additionally, you can select the I<File:> button to browse the file
-system for a particular save file.
-
-=item Column Preferences
-
-The I<Columns> page lets you specify the number, title, and format
-of each column in the packet list.
-
-The I<Column title> entry is used to specify the title of the column
-displayed at the top of the packet list.  The type of data that the column
-displays can be specified using the I<Column format> option menu.
-The row of buttons on the left perform the following actions:
-
-=over 6
-
-=item Add New
-
-Adds a new column to the list.
-
-=item Delete
-
-Deletes the currently selected list item.
-
-=item Up / Down
-
-Moves the selected list item up or down one position.
-
-=item OK
-
-Currently has no effect.
-
-=item Save
-
-Saves the current column format as the default.
-
-=item Cancel
-
-Closes the dialog without making any changes.
-
-=back
-
-=item TCP Streams Preferences
-
-The I<TCP Streams> page can be used to change the color of the text
-displayed in the TCP stream window.  To change a color, simply select
-an attribute from the "Set:" menu and use the color selector to get the
-desired color.  The new text colors are displayed in a sample window.
 
 =item User Interface Preferences
 
@@ -1485,21 +1371,55 @@ directory of the most recently opened file, even between launches of Ethereal.
 "Always Open in Directory" allows the user to define a persistent directory
 that the dialog will always default to.
 
-=item Directory:
+=item Directory
 
 Allows the user to specify a persistent File Open directory.  Trailing
 slashes or backslashes will automatically be added.
 
-=item Fonts
+=back
 
-The "Font..." button lets you select the font to be used for most text.
+=item Layout Preferences
 
-=item Colors
+The I<Layout> page lets you specify the general layout of the main window.
+You can choose from six different layouts and fill the three panes with the 
+contents you like.
 
-The "Colors..." button lets you select the colors to be used for instance
-for the marked packets.
+=item Column Preferences
+
+The I<Columns> page lets you specify the number, title, and format
+of each column in the packet list.
+
+The I<Column title> entry is used to specify the title of the column
+displayed at the top of the packet list.  The type of data that the column
+displays can be specified using the I<Column format> option menu.
+The row of buttons on the left perform the following actions:
+
+=over 6
+
+=item New
+
+Adds a new column to the list.
+
+=item Delete
+
+Deletes the currently selected list item.
+
+=item Up / Down
+
+Moves the selected list item up or down one position.
 
 =back
+
+=item Font Preferences
+
+The I<Font> page lets you select the font to be used for most text.
+
+=item Color Preferences
+
+The I<Colors> page can be used to change the color of the text
+displayed in the TCP stream window and for marked packets. To change a color,
+simply select an attribute from the "Set:" menu and use the color selector to 
+get the desired color.  The new text colors are displayed as a sample text.
 
 =item Capture Preferences
 
@@ -1538,6 +1458,17 @@ The I<Automatic scrolling in live capture> check box lets you specify
 whether, in an "Update list of packets in real time" capture, the packet
 list pane should automatically scroll to show the most recently captured
 packets.
+
+=item Printing Preferences
+
+The radio buttons at the top of the I<Printing> page allow you choose
+between printing packets with the I<File:Print Packet> menu item as text
+or PostScript, and sending the output directly to a command or saving it
+to a file.  The I<Command:> text entry box, on UNIX-compatible systems,
+is the command to send files to (usually B<lpr>), and the I<File:> entry
+box lets you enter the name of the file you wish to save to. 
+Additionally, you can select the I<File:> button to browse the file
+system for a particular save file.
 
 =item Protocol Preferences
 
@@ -1648,6 +1579,92 @@ string> entry.
 
 =back
 
+=item The Color Filters Dialog
+
+This dialog displays a list of color filters and allows it to be
+modified.
+
+=over
+
+=item THE FILTER LIST
+
+Single rows may be selected by clicking. Multiple rows may be selected
+by using the ctrl and shift keys in combination with the mouse button.
+
+=item NEW
+
+Adds a new filter at the bottom of the list and opens the Edit Color
+Filter dialog box. You will have to alter the filter expression at
+least before the filter will be accepted. The format of color filter
+expressions is identical to that of display filters. The new filter is
+selected, so it may immediately be moved up and down, deleted or edited.
+To avoid confusion all filters are unselected before the new filter is
+created.
+
+=item EDIT
+
+Opens the Edit Color Filter dialog box for the selected filter. (If this
+button is disabled you may have more than one filter selected, making it
+ambiguous which is to be edited.)
+
+=item DELETE
+
+Deletes the selected color filter(s).
+
+=item EXPORT
+
+Allows you to choose a file in which to save the current list of color
+filters. You may also choose to save only the selected filters. A
+button is provided to save the filters in the global color filters file
+(you must have sufficient permissions to write this file, of course).
+
+=item IMPORT
+
+Allows you to choose a file containing color filters which are then
+added to the bottom of the current list. All the added filters are
+selected, so they may be moved to the correct position in the list as a
+group. To avoid confusion, all filters are unselected before the new
+filters are imported. A button is provided to load the filters from the
+global color filters file.
+
+=item CLEAR
+
+Deletes your personal color filters file, reloads the global
+color filters file, if any, and closes the dialog.
+
+=item UP
+
+Moves the selected filter(s) up the list, making it more likely that
+they will be used to color packets.
+
+=item DOWN
+
+Moves the selected filter(s) down the list, making it less likely that
+they will be used to color packets.
+
+=item OK
+
+Closes the dialog and uses the color filters as they stand.
+
+=item APPLY
+
+Colors the packets according to the current list of color filters, but
+does not close the dialog.
+
+=item SAVE
+
+Saves the current list of color filters in your personal color filters
+file. Unless you do this they will not be used the next time you start
+Ethereal.
+
+=item CLOSE
+
+Closes the dialog without changing the coloration of the packets. Note
+that changes you have made to the current list of color filters are not
+undone.
+
+=back
+
 =item Capture Options
 
 The I<Capture Options> dialog lets you specify various parameters for
@@ -1729,9 +1746,27 @@ I<Enable transport name resolution> check boxes let you specify whether
 MAC addresses, network addresses, and transport-layer port numbers
 should be translated to names.
 
-=item Plugins
+=item About
 
-The I<Plugins> dialog lets you view the dissector plugin modules
+The I<About> dialog lets you view various information about Ethereal.
+
+=item About:Ethereal
+
+The I<Ethereal> page lets you view general information about Ethereal, 
+like the installed version, licensing information and such.
+
+=item About:Authors
+
+The I<Authors> page shows the author and all contributors.
+
+=item About:Folders
+
+The I<Folders> page lets you view the directory names where Ethereal is
+searching it's various configuration and other files.
+
+=item About:Plugins
+
+The I<Plugins> page lets you view the dissector plugin modules
 available on your system.
 
 The I<Plugins List> shows the name and version of each dissector plugin
