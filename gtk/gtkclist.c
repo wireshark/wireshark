@@ -2393,7 +2393,7 @@ gtk_clist_set_shift (GtkCList *clist,
 		     gint      vertical,
 		     gint      horizontal)
 {
-  GtkRequisition requisition = { 0 };
+  GtkRequisition requisition = { 0, 0 };
   GtkCListRow *clist_row;
 
   g_return_if_fail (clist != NULL);
@@ -3216,7 +3216,7 @@ gtk_clist_set_cell_style (GtkCList *clist,
 			  gint      column,
 			  GtkStyle *style)
 {
-  GtkRequisition requisition = { 0 };
+  GtkRequisition requisition = { 0, 0 };
   GtkCListRow *clist_row;
 
   g_return_if_fail (clist != NULL);
@@ -7120,7 +7120,7 @@ move_vertical (GtkCList *clist,
 static gint
 horizontal_timeout (GtkCList *clist)
 {
-  GdkEventMotion event = { 0 };
+  GdkEventMotion event;
 
   GDK_THREADS_ENTER ();
 
@@ -7139,7 +7139,7 @@ horizontal_timeout (GtkCList *clist)
 static gint
 vertical_timeout (GtkCList *clist)
 {
-  GdkEventMotion event = { 0 };
+  GdkEventMotion event;
 
   GDK_THREADS_ENTER ();
 
@@ -7344,7 +7344,7 @@ gtk_clist_merge (GtkCList *clist,
 		 GList    *a,         /* first list to merge */
 		 GList    *b)         /* second list to merge */
 {
-  GList z = { 0 };                    /* auxiliary node */
+  GList z = { NULL, NULL, NULL };     /* auxiliary node */
   GList *c;
   gint cmp;
 

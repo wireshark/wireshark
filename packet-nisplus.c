@@ -1884,7 +1884,7 @@ static const vsff cb1_proc[] = {
 		NULL,	NULL },
 	{ CBPROC_ERROR,			"NULL",
 		dissect_nisplus_error,	NULL },
-	{	0,	NULL	},
+	{	0,	NULL,	NULL,	NULL },
 };
 
 void

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.149 2001/05/01 00:18:46 guy Exp $
+ * $Id: capture.c,v 1.150 2001/06/02 06:26:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1230,17 +1230,17 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       gint *value_ptr;
       GtkWidget *label, *value, *percent;
   } counts[] = {
-      { "Total", &ld.counts.total },
-      { "SCTP", &ld.counts.sctp },
-      { "TCP", &ld.counts.tcp },
-      { "UDP", &ld.counts.udp },
-      { "ICMP", &ld.counts.icmp },
-      { "OSPF", &ld.counts.ospf },
-      { "GRE", &ld.counts.gre },
-      { "NetBIOS", &ld.counts.netbios },
-      { "IPX", &ld.counts.ipx },
-      { "VINES", &ld.counts.vines },
-      { "Other", &ld.counts.other }
+      { "Total", &ld.counts.total, NULL, NULL, NULL },
+      { "SCTP", &ld.counts.sctp, NULL, NULL, NULL },
+      { "TCP", &ld.counts.tcp, NULL, NULL, NULL },
+      { "UDP", &ld.counts.udp, NULL, NULL, NULL },
+      { "ICMP", &ld.counts.icmp, NULL, NULL, NULL },
+      { "OSPF", &ld.counts.ospf, NULL, NULL, NULL },
+      { "GRE", &ld.counts.gre, NULL, NULL, NULL },
+      { "NetBIOS", &ld.counts.netbios, NULL, NULL, NULL },
+      { "IPX", &ld.counts.ipx, NULL, NULL, NULL },
+      { "VINES", &ld.counts.vines, NULL, NULL, NULL },
+      { "Other", &ld.counts.other, NULL, NULL, NULL }
   };
 
 #define N_COUNTS (sizeof counts / sizeof counts[0])

@@ -20,7 +20,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.7 2000/09/22 16:37:49 gram Exp $
+$Id: ncp2222.py,v 1.8 2001/06/02 06:26:53 guy Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
 
@@ -1451,7 +1451,7 @@ proto_register_ncp2222(void)
 		print '\t\t%s, NULL, %s, NULL,' % (ptvc_request, ptvc_reply)
 		print '\t\t%s },\n' % (errors.Name())
 
-	print '\t{ 0, 0, 0, NULL }'
+	print '\t{ 0, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL }'
 	print "};\n"
 
 	print "/* ncp funcs that require a subfunc */"

@@ -76,6 +76,8 @@ Joerg Mayer      <jmayer@loplof.de> {
 	NTP fixes
 	DHCP support for Intel PXEclient DHCP requests
 	Support for "-N" flag enabling selected forms of name resolution
+	Changes to structure initializations not to initialize some but
+	    not all members
 }
 
 Martin Maciaszek <fastjack@i-s-o.net> {
