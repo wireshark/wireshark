@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.71 2002/07/17 00:42:40 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.72 2002/07/31 09:00:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,6 +87,9 @@ static void init_wepkeys(void);
 static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
 #define SSWAP(a,b) {guint8 tmp = s[a]; s[a] = s[b]; s[b] = tmp;}
+
+/* FCS utility function. */
+static guint32 crc32(const unsigned char* buf, unsigned int len);
 
 /* #define USE_ENV */
 /* When this is set, an unlimited number of WEP keys can be set in the 
@@ -1520,7 +1523,19 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	  len -= 4;
 	  reported_len -= 4;
 	  if (tree)
-	    proto_tree_add_item (hdr_tree, hf_fcs, tvb, hdr_len + len, 4, FALSE);
+	    {
+	      guint32 fcs = crc32(tvb_get_ptr(tvb, 0, hdr_len + len), hdr_len + len);
+	      guint32 sent_fcs = tvb_get_ntohl(tvb, hdr_len + len);
+	      if (fcs == sent_fcs)
+		proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
+			hdr_len + len, 4, sent_fcs,
+			"Frame check sequence: 0x%08x (correct)", sent_fcs);
+	      else
+		proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
+			hdr_len + len, 4, sent_fcs,
+			"Frame check sequence: 0x%08x (incorrect, should be 0x%08x)",
+			sent_fcs, fcs);
+	    }
 	}
     }
 
@@ -2120,7 +2135,7 @@ proto_register_wlan (void)
       "Sequence number", HFILL }},
 
     {&hf_fcs,
-     {"Frame Check Sequence (not verified)", "wlan.fcs", FT_UINT32, BASE_HEX,
+     {"Frame check sequence", "wlan.fcs", FT_UINT32, BASE_HEX,
       NULL, 0, "FCS", HFILL }},
 
     {&hf_fragment_overlap,
@@ -2622,4 +2637,22 @@ static void init_wepkeys(void) {
   }
 
   return;
+}
+
+static guint32
+crc32(const unsigned char* buf, unsigned int len)
+{
+  unsigned int i;
+  guint32 crc32 = 0xFFFFFFFF, c_crc;
+
+  for (i = 0; i < len; i++)
+    crc32 = wep_crc32_table[(crc32 ^ buf[i]) & 0xff] ^ (crc32 >> 8);
+
+  /* Byte reverse. */
+  c_crc = ((unsigned char)(crc32>>0)<<24) |
+    ((unsigned char)(crc32>>8)<<16) |
+    ((unsigned char)(crc32>>16)<<8) |
+    ((unsigned char)(crc32>>24)<<0);
+
+  return ( ~c_crc );
 }
