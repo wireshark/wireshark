@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.2 1999/10/29 02:25:53 guy Exp $
+ * $Id: packet-rpc.c,v 1.3 1999/11/05 07:16:23 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -322,6 +322,96 @@ roundup(unsigned int a)
 }
 
 
+int
+dissect_rpc_uint32(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+char* name, char* type)
+{
+	guint32 value;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	value = EXTRACT_UINT(pd, offset+0);
+
+	if (tree) {
+		proto_tree_add_text(tree, offset, 4,
+		"%s (%s): %u", name, type, value);
+	}
+
+	offset += 4;
+	return offset;
+}
+
+
+int
+dissect_rpc_uint64(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+char* name, char* type)
+{
+	guint32 value_low;
+	guint32 value_high;
+
+	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
+	value_high = EXTRACT_UINT(pd, offset+0);
+	value_low = EXTRACT_UINT(pd, offset+4);
+
+	if (tree) {
+		if (value_high)
+			proto_tree_add_text(tree, offset, 8,
+				"%s (%s): %x%08x", name, type, value_high, value_low);
+		else
+			proto_tree_add_text(tree, offset, 8,
+				"%s (%s): %u", name, type, value_low);
+	}
+
+	offset += 8;
+	return offset;
+}
+
+
+
+/* arbitrary limit */
+#define RPC_STRING_MAXBUF 1024
+
+int
+dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
+{
+	proto_item *string_item;
+	proto_tree *string_tree = NULL;
+
+	guint32 string_length;
+	guint32 string_fill;
+	guint32 string_length_full;
+	char string_buffer[RPC_STRING_MAXBUF];
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	string_length = EXTRACT_UINT(pd,offset+0);
+	string_length_full = roundup(string_length);
+	string_fill = string_length_full - string_length;
+	if (!BYTES_ARE_IN_FRAME(offset+4,string_length_full)) return offset;
+	if (string_length>=sizeof(string_buffer)) return offset;
+	memcpy(string_buffer,pd+offset+4,string_length);
+	string_buffer[string_length] = '\0';
+	if (tree) {
+		string_item = proto_tree_add_text(tree,offset+0,
+			4+string_length_full,
+			"%s: %s", name, string_buffer);
+		if (string_item) {
+			string_tree = proto_item_add_subtree(string_item, ETT_RPC_STRING);
+		}
+	}
+	if (string_tree) {
+		proto_tree_add_text(string_tree,offset+0,4,
+			"length: %u", string_length);
+		proto_tree_add_text(string_tree,offset+4,string_length,
+			"text: %s", string_buffer);
+		if (string_fill)
+			proto_tree_add_text(string_tree,offset+4+string_length,string_fill,
+				"fill bytes: opaque data");
+	}
+
+	offset += 4 + string_length_full;
+	return offset;
+}
+
+
 void
 dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -338,9 +428,9 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 	if (tree) {
 		proto_tree_add_text(tree,offset+0,4,
-		"Flavor: %s (%d)", val_to_str(flavor,rpc_auth_flavor,"Unknown"),flavor);
+		"Flavor: %s (%u)", val_to_str(flavor,rpc_auth_flavor,"Unknown"),flavor);
 		proto_tree_add_text(tree,offset+4,4,
-			"Length: %d", length);
+			"Length: %u", length);
 	}
 
 	offset += 8;
@@ -348,9 +438,6 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	switch (flavor) {
 		case AUTH_UNIX: {
 			guint stamp;
-			guint machinename_count;
-			guint machinename_full;
-			char machinename_buffer[256];
 			guint uid;
 			guint gid;
 			guint gids_count;
@@ -366,32 +453,20 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 					"stamp: 0x%08x", stamp);
 			offset += 4;
 
-			/* all the following stuff should go into something
-			   like dissect_rpc_string() */
-			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
-			machinename_count = EXTRACT_UINT(pd,offset+0);
-			machinename_full = roundup(machinename_count);
-			if (!BYTES_ARE_IN_FRAME(offset+4,machinename_full)) return;
-			if (machinename_count>=sizeof(machinename_buffer)) return;
-			memcpy(machinename_buffer,pd+offset+4,machinename_count);
-			machinename_buffer[machinename_count] = '\0';
-			if (tree)
-				proto_tree_add_text(tree,offset+0,4+machinename_full,
-				"machinename: %s", machinename_buffer);
-			offset += 4 + machinename_full;
+			offset = dissect_rpc_string(pd,offset,fd,tree,"machinename");
 
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			uid = EXTRACT_UINT(pd,offset+0);
 			if (tree)
 				proto_tree_add_text(tree,offset+0,4,
-					"uid: %d", uid);
+					"uid: %u", uid);
 			offset += 4;
 
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			gid = EXTRACT_UINT(pd,offset+0);
 			if (tree)
 				proto_tree_add_text(tree,offset+0,4,
-					"gid: %d", gid);
+					"gid: %u", gid);
 			offset += 4;
 
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
@@ -407,7 +482,7 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 				gids_entry = EXTRACT_UINT(pd,offset+0);
 				if (gtree)
 				proto_tree_add_text(gtree, offset, 4, 
-					"%d", gids_entry);
+					"%u", gids_entry);
 				offset+=4;
 			}
 			/* how can I NOW change the gitem to print a list with
@@ -543,15 +618,15 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	xid      = EXTRACT_UINT(pd,offset+0);
 	if (rpc_tree) {
 		proto_tree_add_text(rpc_tree,offset+0,4,
-			"XID: 0x%x (%d)", xid, xid);
+			"XID: 0x%x (%u)", xid, xid);
 	}
 
 	/* we should better compare this with the argument?! */
 	msg_type = EXTRACT_UINT(pd,offset+4);
-	msg_type_name = val_to_str(msg_type,rpc_msg_type,"%d");
+	msg_type_name = val_to_str(msg_type,rpc_msg_type,"%u");
 	if (rpc_tree) {
 		proto_tree_add_text(rpc_tree,offset+4,4,
-			"msg_type: %s (%d)",
+			"msg_type: %s (%u)",
 			msg_type_name, msg_type);
 	}
 
@@ -567,14 +642,14 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		rpcvers = EXTRACT_UINT(pd,offset+0);
 		if (rpc_tree) {
 			proto_tree_add_text(rpc_tree,offset+0,4,
-				"RPC Version: %d", rpcvers);
+				"RPC Version: %u", rpcvers);
 		}
 
 		prog = EXTRACT_UINT(pd,offset+4);
 		
 		if (rpc_tree) {
 			proto_tree_add_text(rpc_tree,offset+4,4,
-				"Program: %s (%d)", progname, prog);
+				"Program: %s (%u)", progname, prog);
 		}
 		
 		if (check_col(fd, COL_PROTOCOL)) {
@@ -606,12 +681,12 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			/* happens only with strange program versions or
 			   non-existing dissectors */
 			dissect_function = NULL;
-			sprintf(procname_static, "proc-%d", proc);
+			sprintf(procname_static, "proc-%u", proc);
 			procname = procname_static;
 		}
 		if (rpc_tree) {
 			proto_tree_add_text(rpc_tree,offset+12,4,
-				"Procedure: %s (%d)", procname, proc);
+				"Procedure: %s (%u)", procname, proc);
 		}
 
 		if (check_col(fd, COL_INFO)) {
@@ -674,13 +749,13 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				procname = rpc_call->proc_info->name;
 			}
 			else {
-				sprintf(procname_static, "proc-%d", proc);
+				sprintf(procname_static, "proc-%u", proc);
 				procname = procname_static;
 			}
 		}
 		else {
 			dissect_function = NULL;
-			sprintf(procname_static, "proc-%d", proc);
+			sprintf(procname_static, "proc-%u", proc);
 			procname = procname_static;
 		}
 		rpc_call->replies++;
@@ -714,12 +789,12 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 		if (rpc_tree) {
 			proto_tree_add_text(rpc_tree,0,0,
-				"Program: %s (%d)", 
+				"Program: %s (%u)", 
 				progname, prog);
 			proto_tree_add_text(rpc_tree,0,0,
 				"Program Version: %u", vers);
 			proto_tree_add_text(rpc_tree,0,0,
-				"Procedure: %s (%d)", procname, proc);
+				"Procedure: %s (%u)", procname, proc);
 		}
 
 		if (rpc_call->replies>1) {
@@ -732,7 +807,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		reply_state = EXTRACT_UINT(pd,offset+0);
 		if (rpc_tree) {
 			proto_tree_add_text(rpc_tree,offset+0, 4,
-				"Reply State: %s (%d)",
+				"Reply State: %s (%u)",
 				val_to_str(reply_state,rpc_reply_state,"Unknown"),
 				reply_state);
 		}
@@ -744,7 +819,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			accept_state = EXTRACT_UINT(pd,offset+0);
 			if (rpc_tree) {
 				proto_tree_add_text(rpc_tree,offset+0, 4,
-					"Accept State: %s (%d)", 
+					"Accept State: %s (%u)", 
 					val_to_str(accept_state,rpc_accept_state,"Unknown"),
 					accept_state);
 			}
@@ -761,11 +836,11 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 					if (rpc_tree) {
 						proto_tree_add_text(rpc_tree,
 							offset+0, 4,
-							"min. Program Version: %d",
+							"min. Program Version: %u",
 							vers_low);
 						proto_tree_add_text(rpc_tree,
 							offset+4, 4,
-							"max. Program Version: %d",
+							"max. Program Version: %u",
 							vers_high);
 					}
 					offset += 8;
@@ -779,7 +854,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			reject_state = EXTRACT_UINT(pd,offset+0);
 			if (rpc_tree) {
 				proto_tree_add_text(rpc_tree, offset+0, 4,
-					"Reject State: %s (%d)",
+					"Reject State: %s (%u)",
 					val_to_str(reject_state,rpc_reject_state,"Unknown"),
 					reject_state);
 			}
@@ -792,11 +867,11 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				if (rpc_tree) {
 					proto_tree_add_text(rpc_tree,
 						offset+0, 4,
-						"min. RPC Version: %d",
+						"min. RPC Version: %u",
 						vers_low);
 					proto_tree_add_text(rpc_tree,
 						offset+4, 4,
-						"max. RPC Version: %d",
+						"max. RPC Version: %u",
 						vers_high);
 				}
 				offset += 8;
@@ -806,7 +881,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				if (rpc_tree) {
 					proto_tree_add_text(rpc_tree,
 						offset+0, 4,
-						"Authentication error: %s (%d)",
+						"Authentication error: %s (%u)",
 						val_to_str(auth_state,rpc_auth_state,"Unknown"),
 						auth_state);
 				}
