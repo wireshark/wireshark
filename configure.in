@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.215 2003/08/05 05:09:36 guy Exp $
+# $Id: configure.in,v 1.216 2003/08/20 22:05:08 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -542,7 +542,7 @@ else
 fi
 AC_SUBST(SSL_LIBS)
 
-dnl UCD SNMP Check
+dnl UCD SNMP/NET-SNMP Check
 SNMP_LIBS=''
 
 AC_ARG_WITH(net-snmp,
@@ -573,7 +573,9 @@ AC_ARG_WITH(ucdsnmp,
 ])
 
 dnl try net-snmp first
+AC_MSG_CHECKING(whether to use NET-SNMP library if available)
 if test "x$netsnmpconfig" != "xno" ; then
+	AC_MSG_RESULT(yes)
 	dnl get the net-snmp-config binary
 	if test "x$netsnmpconfig" = "xyes" -o "x$netsnmpconfig" = "x" ; then
 		dnl search for it
@@ -584,9 +586,10 @@ if test "x$netsnmpconfig" != "xno" ; then
 			AC_MSG_ERROR(Invalid net-snmp-config: $NETSNMPCONFIG)
 		fi
 	fi
+else
+	AC_MSG_RESULT(no)
 fi
 
-AC_MSG_CHECKING(whether to use UCD SNMP/NET-SNMP library if available)
 if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCONFIG" ; then
 	dnl other choices for flags to use here: could also use
 	dnl --prefix or --exec-prefix if you don't want the full list.
@@ -598,7 +601,6 @@ if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCO
 		SNMP_LIBS=`net-snmp-config --libs`
 		AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for NET-SNMP])
 		have_net_snmp="yes"
-		AC_MSG_RESULT(yes (net-snmp))
 	else
 		# technically, we should retry ucd-snmp but it's
 		# unlikely they have installed net-snmp-config and not
@@ -606,13 +608,13 @@ if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCO
 		# headers.  This would likely be a broken system to
 		# try and use anyway.
 		NETSNMPCONFIG="no"
-		AC_MSG_RESULT(no)
 	fi	
 else
+	AC_MSG_CHECKING(whether to use UCD SNMP library if available)
 	if test "x$want_ucdsnmp" = "xno" ; then
 		AC_MSG_RESULT(no)
 	else
-		AC_MSG_RESULT(yes (ucd-snmp))
+		AC_MSG_RESULT(yes)
 		AC_ETHEREAL_UCDSNMP_CHECK
 	fi
 fi
