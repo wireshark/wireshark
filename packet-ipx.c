@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.123 2003/04/08 00:39:27 guy Exp $
+ * $Id: packet-ipx.c,v 1.124 2003/04/08 02:00:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -354,14 +354,6 @@ typedef struct {
 	guint32		    spx_src;
 } spx_hash_key;
 
-typedef struct {
-        guint16             spx_seq;
-        guint16             spx_ack;
-        guint16             spx_all;
-        guint32             num;
-        gboolean            retransmission;
-} spx_hash_value;
-
 static GHashTable *spx_hash = NULL;
 static GMemChunk *spx_hash_keys = NULL;
 static GMemChunk *spx_hash_values = NULL;
@@ -406,8 +398,8 @@ spx_init_protocol(void)
 			SPX_PACKET_INIT_COUNT * sizeof(spx_hash_key),
 			G_ALLOC_ONLY);
 	spx_hash_values = g_mem_chunk_new("spx_hash_values",
-			sizeof(spx_hash_value),
-			SPX_PACKET_INIT_COUNT * sizeof(spx_hash_value),
+			sizeof(spx_info),
+			SPX_PACKET_INIT_COUNT * sizeof(spx_info),
 			G_ALLOC_ONLY);
 }
 
@@ -430,11 +422,11 @@ spx_postseq_cleanup(void)
 	 * needed during random-access processing of the proto_tree.*/
 }
 
-spx_hash_value*
+spx_info*
 spx_hash_insert(conversation_t *conversation, guint32 spx_src)
 {
 	spx_hash_key		*key;
-	spx_hash_value		*value;
+	spx_info		*value;
 
 	/* Now remember the packet, so we can find it if we later. */
 	key = g_mem_chunk_alloc(spx_hash_keys);
@@ -446,7 +438,6 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src)
 	value->spx_ack = 0;
 	value->spx_all = 0;
 	value->num = 0;
-	value->retransmission = FALSE;
        
 	g_hash_table_insert(spx_hash, key, value);
 
@@ -454,7 +445,7 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src)
 }
 
 /* Returns the spx_rec*, or NULL if not found. */
-spx_hash_value*
+spx_info*
 spx_hash_lookup(conversation_t *conversation, guint32 spx_src)
 {
 	spx_hash_key		key;
@@ -520,7 +511,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char	*spx_msg_string;
 	guint16		low_socket, high_socket;
 	guint32		src;
-	spx_hash_value	*pkt_value = NULL;
+	spx_info	*pkt_value = NULL;
 	conversation_t	*conversation = NULL;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -555,56 +546,70 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
 	}
-	src = tvb_get_ntohs(tvb, 0)+tvb_get_ntohs(tvb, 2)+tvb_get_ntohs(tvb, 4)+tvb_get_ntohs(tvb, 6)+tvb_get_ntohs(tvb, 8);
-	/* SPX is Connection Oriented and Delivery Guaranteed
-	 *  We need to flag retransmissions by the SPX protocol
+
+	/*
+	 * SPX is Connection Oriented and Delivery Guaranteed.
+	 * We need to flag retransmissions by the SPX protocol, so that
+	 * subdissectors know whether a packet was retransmitted.
+	 *
+	 * We start out by creating a conversation for this IPX session.
+	 * XXX - should we be using "pinfo->srcport" twice, or
+	 * "pinfo->srcport" and "pinfo->destport"?  For that matter, should
+	 * we just be using PT_IPX, and get rid of PT_NCP?
 	 */
-	if (!pinfo->fd->flags.visited) {
-		conversation = find_conversation(&pinfo->src, &pinfo->dst,
-		    PT_NCP, pinfo->srcport, pinfo->srcport, 0);
-    
-		if (conversation == NULL) {
-			/*
-			 * It's not part of any conversation - create a new
-			 * one.
-			 */
-			conversation = conversation_new(&pinfo->src,
-			    &pinfo->dst, PT_NCP, pinfo->srcport,
-			    pinfo->srcport, 0);
-			pkt_value = spx_hash_insert(conversation, src);
-			pkt_value->spx_seq = tvb_get_ntohs(tvb, 6);
-			pkt_value->spx_ack = tvb_get_ntohs(tvb, 8);
-			pkt_value->spx_all = tvb_get_ntohs(tvb, 10);
-			pkt_value->num = pinfo->fd->num;
-			pkt_value->retransmission = FALSE;
-		} else {
-			pkt_value = spx_hash_lookup(conversation, src);
-			if (pkt_value &&
-			    tvb_reported_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_add_fstr(pinfo->cinfo, COL_INFO,
-					"[Retransmission] Original Packet %u",
-					pkt_value->num);
-				}
-				pkt_value->spx_seq = tvb_get_ntohs(tvb, 6);
-				pkt_value->spx_ack = tvb_get_ntohs(tvb, 8);
-				pkt_value->spx_all = tvb_get_ntohs(tvb, 10);
-				pkt_value->retransmission = TRUE;
-			} else {
-				pkt_value = spx_hash_insert(conversation, src);
-				pkt_value->spx_seq = tvb_get_ntohs(tvb, 6);
-				pkt_value->spx_ack = tvb_get_ntohs(tvb, 8);
-				pkt_value->spx_all = tvb_get_ntohs(tvb, 10);
-				pkt_value->num = pinfo->fd->num;
-				pkt_value->retransmission = FALSE;
-			}
-		}
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	    PT_NCP, pinfo->srcport, pinfo->srcport, 0);
+	if (conversation == NULL) {
 		/*
-		 * Store the spx info so that subidissectors know what this
-		 * is.
-		 * Note: num will equal retransmitted source packet number.
+		 * It's not part of any conversation - create a new one.
 		 */
-		pinfo->private_data = pkt_value;
+		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+		    PT_NCP, pinfo->srcport, pinfo->srcport, 0);
+	}
+
+	/*
+	 * Now we'll hash the SPX header and use the result of that,
+	 * plus the conversation, as a hash key to identify this packet,
+	 * and, if it's not already in the SPX packet hash table, enter
+	 * it into that hash table so we can detect retransmissions.
+	 *
+	 * On the first pass, if we don't find it in the hash table, it's
+	 * not a retransmission, otherwise it is.  If we don't find it,
+	 * we enter it into the hash table, with the frame number.
+	 *
+	 * On subsequent passes, we should find it in the frame table
+	 * whether it's a retransmission or not; it's a retransmission
+	 * iff the frame number doesn't match the frame number in the
+	 * hash table.
+	 */
+	src = tvb_get_ntohs(tvb, 0)+tvb_get_ntohs(tvb, 2)+tvb_get_ntohs(tvb, 4)+tvb_get_ntohs(tvb, 6)+tvb_get_ntohs(tvb, 8);
+	pkt_value = spx_hash_lookup(conversation, src);
+	if (pkt_value == NULL) {
+		/*
+		 * Not found in the hash table.
+		 * Enter it into the hash table.
+		 */
+		pkt_value = spx_hash_insert(conversation, src);
+		pkt_value->spx_seq = tvb_get_ntohs(tvb, 6);
+		pkt_value->spx_ack = tvb_get_ntohs(tvb, 8);
+		pkt_value->spx_all = tvb_get_ntohs(tvb, 10);
+		pkt_value->num = pinfo->fd->num;
+	}
+
+	/*
+	 * It's a retransmission iff the frame number in the hash table
+	 * entry (which is the frame number of the original transmission)
+	 * isn't the frame number of this frame.
+	 *
+	 * XXX - put something into the protocol tree as well?
+	 * If so, give the frame number, as an FT_FRAMENUM.
+	 */
+	if (pkt_value->num != pinfo->fd->num) {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
+			    "[Retransmission] Original Packet %u",
+			    pkt_value->num);
+		}
 	}
 
 	if (tvb_reported_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
@@ -630,6 +635,13 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			low_socket = pinfo->srcport;
 			high_socket = pinfo->destport;
 		}
+
+		/*
+		 * Pass the SPX info to subdissectors, so that they know
+		 * what this is.
+		 * Note: num will equal retransmitted source packet number.
+		 */
+		pinfo->private_data = pkt_value;
 
 		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
 		if (dissector_try_port(spx_socket_dissector_table, low_socket,

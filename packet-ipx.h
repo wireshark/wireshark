@@ -6,7 +6,7 @@
  * Portions Copyright (c) by Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.h,v 1.24 2003/04/08 00:22:26 guy Exp $
+ * $Id: packet-ipx.h,v 1.25 2003/04/08 02:00:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,5 +150,19 @@ extern const value_string ipx_socket_vals[];
 extern const value_string server_vals[];
 
 void capture_ipx(packet_counts *);
+
+/*
+ * Structure passed to subdissectors of the SPX dissector.
+ * It contains fields from the SPX header, plus the frame number.
+ * It's kept in a hash table, so if an SPX packet is retransmitted,
+ * there's only one copy, and "num" is the frame number of the first
+ * transmission.
+ */
+typedef struct _spx_info{
+        guint16             spx_seq;
+        guint16             spx_ack;
+        guint16             spx_all;
+        guint32             num;
+} spx_info;
 
 #endif
