@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.51 2003/07/29 22:10:18 guy Exp $
+ * $Id: packet-wtp.c,v 1.52 2003/08/07 18:28:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -595,9 +595,13 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     /*
      * Any remaining data ought to be WSP data (if not WTP ACK, NACK
-     * or ABORT pdu), so hand off (defragmented) to the WSP dissector
+     * or ABORT pdu), so hand off (defragmented) to the WSP dissector.
+     * Note that the last packet of a fragmented WTP message needn't
+     * contain any data, so we allow payloadless packets to be
+     * reassembled.  (XXX - does the reassembly code handle this
+     * for packets other than the last packet?)
      */
-    if ((tvb_reported_length_remaining(tvb, offCur + cbHeader + vHeader) > 0) &&
+    if ((tvb_reported_length_remaining(tvb, offCur + cbHeader + vHeader) >= 0) &&
 	! ((pdut==ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)))
     {
 	int	dataOffset = offCur + cbHeader + vHeader;
