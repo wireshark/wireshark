@@ -323,6 +323,18 @@ dissect_ndr_counted_ascii_string(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_index, cb_str_postprocess, GINT_TO_POINTER(2 + levels));
 }
 
+static int hf_nt_guid = -1;
+
+int
+dissect_nt_GUID(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			guint8 *drep)
+{
+	offset=dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, hf_nt_guid, NULL);
+
+	return offset;
+}
+
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
    XXX it should be fixed both here and in dissect_nt_64bit_time so
    it can handle both BIG and LITTLE endian encodings
@@ -1486,6 +1498,11 @@ void dcerpc_smb_init(int proto_dcerpc)
 		    NULL, 0x0, "Length of string in short integers", 
 		    HFILL }},
 		
+		/* GUIDs */
+		{ &hf_nt_guid,
+		  { "GUID", "nt.guid", FT_STRING, BASE_NONE, 
+		    NULL, 0x0, "GUID (uuid for groups?)", HFILL }},
+
 		/* Policy handles */
 
 		{ &hf_nt_policy_open_frame,

@@ -42,7 +42,6 @@ static int hf_netlogon_group_attrs_mandatory = -1;
 static int hf_netlogon_group_attrs_enabled_by_default = -1;
 static int hf_netlogon_group_attrs_enabled = -1;
 static int hf_netlogon_opnum = -1;
-static int hf_netlogon_guid = -1;
 static int hf_netlogon_rc = -1;
 static int hf_netlogon_len = -1;
 static int hf_netlogon_sensitive_data_flag = -1;
@@ -4893,16 +4892,6 @@ netlogon_dissect_UNICODE_MULTI(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-int
-dissect_nt_GUID(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *tree,
-			guint8 *drep)
-{
-	offset=dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, hf_netlogon_guid, NULL);
-
-	return offset;
-}
-
 static int
 netlogon_dissect_DOMAIN_CONTROLLER_INFO(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
@@ -7428,10 +7417,6 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_audit_retention_period,
 		{ "Audit Retention Period", "netlogon.audit_retention_period", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0, "Audit retention period", HFILL }},
-
-	{ &hf_netlogon_guid,
-		{ "GUID", "netlogon.guid", FT_STRING, BASE_NONE, 
-		NULL, 0x0, "GUID (uuid for groups?)", HFILL }},
 
 	{ &hf_netlogon_timelimit,
 		{ "Time Limit", "netlogon.time_limit", FT_RELATIVE_TIME, BASE_NONE,

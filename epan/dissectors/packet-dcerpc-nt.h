@@ -109,6 +109,12 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *parent_tree, guint8 *drep);
+
+int
+dissect_nt_GUID(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			guint8 *drep);
+
 int
 dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
