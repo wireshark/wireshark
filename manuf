@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes 
 #
-# $Id: manuf,v 1.7 2000/02/11 03:17:45 gram Exp $
+# $Id: manuf,v 1.8 2000/03/29 16:55:08 gram Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -31,6 +31,7 @@
 # This file is in the same format as ethers(4) except that vendor names
 # are truncated to eight characters when used with Ethereal.
 #
+
 
 00:00:0c	Cisco
 00:00:0e 	Fujitsu
@@ -119,6 +120,7 @@
 00:50:BA	D-link
 00:60:08	3Com
 00:60:09	Cisco
+00:60:1d	Lucent
 00:60:2f	Cisco
 00:60:3e	Cisco
 00:60:47	Cisco
@@ -144,8 +146,8 @@
 00:a0:57	ELSA
 00:aa:00	Intel
 00:c0:4f	Dell
-00:c0:95	Znyx            # Network Appliance
 00:c0:7b	Ascend
+00:c0:95	Znyx            # Network Appliance
 00:e0:14	Cisco
 00:e0:1e	Cisco
 00:e0:34	Cisco
@@ -165,6 +167,7 @@
 08:00:0a	Nestar
 08:00:0b	Unisys
 08:00:0e	NCR
+08:00:0f	Chipcom
 08:00:0f	SMC
 08:00:11	Tektrnix	# Tektronix
 08:00:1a	DataGenl	# Data General
@@ -185,7 +188,6 @@
 08:00:89	Kinetix
 08:00:8b	Pyramid
 08:00:8e	Tandem
-08:00:0f	Chipcom
 08:00:90	Retix
 09:00:6a	AT&T
 10:00:5a	IBM
@@ -195,4 +197,3 @@
 44:45:53	Micrsoft
 aa:00:03	DEC
 aa:00:04	DEC
-
