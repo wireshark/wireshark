@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.46 2000/02/05 09:19:05 guy Exp $
+ * $Id: packet-llc.c,v 1.47 2000/02/05 09:34:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,6 +166,13 @@ static const value_string llc_ctrl_vals[] = {
 	{ 0, NULL }
 };
 
+/*
+ * See
+ *
+ * http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/vlan.htm
+ *
+ * for the PIDs for VTP and DRiP that go with an OUI of OUI_CISCO.
+ */
 const value_string oui_vals[] = {
 	{ OUI_ENCAP_ETHER, "Encapsulated Ethernet" },
 /*
@@ -392,6 +399,12 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			}
 			if (XDLC_IS_INFORMATION(control)) {
 				switch (etype) {
+
+#if 0
+				case 0x0102:
+					dissect_drip(pd, offset+8, fd, tree);
+					break;
+#endif
 
 				case 0x2000:
 					dissect_cdp(pd, offset+8, fd, tree);
