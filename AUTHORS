@@ -870,6 +870,8 @@ Tomas Kukosa <tomas.kukosa[AT]anfdata.cz> {
 
 <a.stockmeier[AT]avm.de> {
 	IPCOMP transformation and ID_IPV4_ADDR_SUBNET for ISAKMP
+	Fix the file dialog box code to use "g_strdup()", not "strdup()"
+	    to copy strings
 }
 
 Pekka Nikander <pekka.nikander[AT]nomadiclab.com> {

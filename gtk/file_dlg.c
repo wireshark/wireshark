@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.43 2001/10/24 07:18:39 guy Exp $
+ * $Id: file_dlg.c,v 1.44 2001/11/09 00:08:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -564,7 +564,7 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
 
      Also, "close_cap_file()" will free "cfile.filename", so we must make
      a copy of it first. */
-  filename = strdup(cfile.filename);
+  filename = g_strdup(cfile.filename);
   is_tempfile = cfile.is_tempfile;
   cfile.is_tempfile = FALSE;
   if (open_cap_file(filename, is_tempfile, &cfile) == 0) {
