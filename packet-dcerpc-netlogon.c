@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.34 2002/07/07 02:39:51 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.35 2002/07/07 03:04:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3728,7 +3728,7 @@ netlogon_dissect_TYPE_20(tvbuff_t *tvb, int offset,
 	case 7:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			netlogon_dissect_DELTA_RENAME, NDR_POINTER_UNIQUE,
-			"TYPE_23 pointer:", hf_netlogon_group_name/*XXX*/, 0);
+			"DELTA_RENAME_USER:", hf_netlogon_acct_name, 0);
 		break;
 	case 8:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3743,7 +3743,7 @@ netlogon_dissect_TYPE_20(tvbuff_t *tvb, int offset,
 	case 11:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			netlogon_dissect_DELTA_RENAME, NDR_POINTER_UNIQUE,
-			"TYPE_23 pointer:", hf_netlogon_group_name/*XXX*/, 0);
+			"DELTA_RENAME_ALIAS:", hf_netlogon_alias_name, 0);
 		break;
 	case 12:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
