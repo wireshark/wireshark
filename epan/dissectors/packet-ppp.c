@@ -2489,7 +2489,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
 static void
 dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		proto_tree *fh_tree, proto_item *ti )
+		proto_tree *fh_tree, proto_item *ti, int proto_offset )
 {
   guint16 ppp_prot;
   int     proto_len;
@@ -2506,11 +2506,12 @@ dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   /* If "ti" is not null, it refers to the top-level "proto_ppp" item
-     for PPP, and was given a length equal to the length of any
-     stuff in the header preceding the protocol type, e.g. an HDLC
-     header; add the length of the protocol type field to it. */
+     for PPP, and proto_offset is the length of any stuff in the header
+     preceding the protocol type, e.g. an HDLC header; add the length
+     of the protocol type field to it, and set the length of that item
+     to the result. */
   if (ti != NULL)
-    proto_item_set_len(ti, proto_item_get_len(ti) + proto_len);
+    proto_item_set_len(ti, proto_offset + proto_len);
 
   if (tree)
     proto_tree_add_uint(fh_tree, hf_ppp_protocol, tvb, 0, proto_len, ppp_prot);
@@ -2883,7 +2884,7 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 
-  dissect_ppp_common(tvb, pinfo, tree, fh_tree, ti);
+  dissect_ppp_common(tvb, pinfo, tree, fh_tree, ti, 0);
 }
 
 /*
@@ -2950,7 +2951,7 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   }
 
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, proto_offset, FALSE);
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
     if (byte0 == 0xff) {
       proto_tree_add_item(fh_tree, hf_ppp_address, tvb, 0, 1, FALSE);
@@ -2960,7 +2961,7 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
   next_tvb = decode_fcs(tvb, fh_tree, ppp_fcs_decode, proto_offset);
 
-  dissect_ppp_common(next_tvb, pinfo, tree, fh_tree, ti);
+  dissect_ppp_common(next_tvb, pinfo, tree, fh_tree, ti, proto_offset);
 }
 
 /*
