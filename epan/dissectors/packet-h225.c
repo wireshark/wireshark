@@ -744,7 +744,7 @@ static int hf_h225_transportQOS = -1;             /* TransportQOS */
 static int hf_h225_gatewayDataRate = -1;          /* DataRate */
 static int hf_h225_desiredTunnelledProtocol = -1;  /* TunnelledProtocol */
 static int hf_h225_canMapSrcAlias = -1;           /* BOOLEAN */
-static int hf_h225_DestinationInfo_item = -1;     /* AliasAddress */
+static int hf_h225_DestinationInfo_item = -1;     /* DestinationInfo_item */
 static int hf_h225_pointToPoint = -1;             /* NULL */
 static int hf_h225_oneToN = -1;                   /* NULL */
 static int hf_h225_nToOne = -1;                   /* NULL */
@@ -2232,8 +2232,12 @@ static int dissect_h245Address(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 static int
 dissect_h225_DialedDigits(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13);
+  if (h225_pi->is_destinationInfo == TRUE) {
+    offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, (char *)&h225_pi->dialedDigits , 64);  
+	h225_pi->is_destinationInfo = FALSE;
+  }
+  else
+	offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, NULL);
 
   return offset;
 }
@@ -2515,7 +2519,7 @@ static int dissect_publicTypeOfNumber(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 dissect_h225_NumberDigits(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, NULL);
 
   return offset;
 }
@@ -2649,7 +2653,8 @@ static int dissect_routeCalltoSCN_item(tvbuff_t *tvb, int offset, packet_info *p
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index,
-                                                   -1, -1, "0123456789#*abc", strlen("0123456789#*abc"));
+                                                   -1, -1, "0123456789#*abc", strlen("0123456789#*abc"),
+                                                   NULL, NULL);
 
   return offset;
 }
@@ -2913,9 +2918,6 @@ static int dissect_duplicateAlias_item(tvbuff_t *tvb, int offset, packet_info *p
 }
 static int dissect_srcInfo_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_AliasAddress(tvb, offset, pinfo, tree, hf_h225_srcInfo_item);
-}
-static int dissect_DestinationInfo_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_AliasAddress(tvb, offset, pinfo, tree, hf_h225_DestinationInfo_item);
 }
 static int dissect_modifiedSrcInfo_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_AliasAddress(tvb, offset, pinfo, tree, hf_h225_modifiedSrcInfo_item);
@@ -7580,6 +7582,19 @@ dissect_h225_CallModel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 }
 static int dissect_callModel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_CallModel(tvb, offset, pinfo, tree, hf_h225_callModel);
+}
+
+
+static int
+dissect_h225_DestinationInfo_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+
+  h225_pi->is_destinationInfo = TRUE;
+  offset = dissect_h225_AliasAddress(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_DestinationInfo_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_DestinationInfo_item(tvb, offset, pinfo, tree, hf_h225_DestinationInfo_item);
 }
 
 
@@ -12274,6 +12289,8 @@ static void reset_h225_packet_info(h225_packet_info *pi)
 	pi->h245_address = 0;
 	pi->h245_port = 0;
 	pi->frame_label[0] = '\0';
+	pi->dialedDigits[0] = '\0';
+	pi->is_destinationInfo = FALSE;
 }
 
 /*

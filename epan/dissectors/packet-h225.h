@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h225.h                                                            */
+/* ./packet-h225.h                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.h */
@@ -72,6 +72,8 @@ typedef struct _h225_packet_info {
 	gboolean is_h245Tunneling;
 	guint32 h245_address;
 	guint16 h245_port;
+	gchar dialedDigits[64]; /* Dialed Digits in the LRQ and LCF used for voip analysis */
+	gboolean is_destinationInfo;
 	gchar frame_label[50]; /* the Fram label used by graph_analysis, what is a abreviation of cinfo */
 } h225_packet_info;
 
