@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.50 1999/11/26 17:57:14 gram Exp $
+ * $Id: wtap.h,v 1.51 1999/12/04 05:22:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -335,14 +335,29 @@ typedef struct wtap {
 
 struct wtap_dumper;
 
-typedef int (*subtype_write_func)(struct wtap_dumper*,
+typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
 		const struct wtap_pkthdr*, const u_char*, int*);
-typedef int (*subtype_close_func)(struct wtap_dumper*, int*);
+typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
+
+typedef struct {
+	guint32	frame_table_offset;
+	struct timeval first_record_time;
+	gboolean got_first_record_time;
+	guint32	*frame_table;
+	int	frame_table_index;
+	int	frame_table_size;
+} netmon_dump_t;
+
 typedef struct wtap_dumper {
 	FILE*			fh;
 	int			file_type;
 	int			snaplen;
 	int			encap;
+
+	union {
+		void			*opaque;
+		netmon_dump_t		*netmon;
+	} private;
 
 	subtype_write_func	subtype_write;
 	subtype_close_func	subtype_close;
@@ -374,10 +389,10 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	int snaplen, int *err);
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	int *err);
-int wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const u_char *,
+gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const u_char *,
 	int *err);
 FILE* wtap_dump_file(wtap_dumper *);
-int wtap_dump_close(wtap_dumper *, int *);
+gboolean wtap_dump_close(wtap_dumper *, int *);
 
 /* XXX - needed until "wiretap" can do live packet captures */
 int wtap_pcap_encap_to_wtap_encap(int encap);
@@ -422,6 +437,21 @@ int wtap_pcap_encap_to_wtap_encap(int encap);
 #define	WTAP_ERR_ZLIB				-200
 #define	WTAP_ERR_ZLIB_MAX			-100
 #define	WTAP_ERR_ZLIB_MIN			-300
+
+/* Turn host-byte-order values into little-endian values. */
+#ifdef WORDS_BIGENDIAN
+#define htoles(s) ((guint16)                       \
+                    ((guint16)((s) & 0x00FF)<<8|  \
+                     (guint16)((s) & 0xFF00)>>8))
+
+#define htolel(l) ((guint32)((l) & 0x000000FF)<<24|  \
+                   (guint32)((l) & 0x0000FF00)<<8|  \
+                   (guint32)((l) & 0x00FF0000)>>8|   \
+                   (guint32)((l) & 0xFF000000)>>24)
+#else
+#define htoles(s)	(s)
+#define htolel(l)	(l)
+#endif
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
