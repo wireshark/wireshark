@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.53 2003/04/08 00:46:15 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.54 2003/04/09 08:36:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4398,12 +4398,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	 * can have different meanings, depending on the ncp.func (and ncp.subfunc)
 	 * value. */
 	completion_code = tvb_get_guint8(tvb, 6);
-	if (ncp_rec && ncp_rec->errors) {
-		error_string = ncp_error_string(ncp_rec->errors, completion_code);
-	}
-	else {
-		error_string = "Not OK";
-	}
 	if (completion_code == 0) {
 		if(type == NCP_POSITIVE_ACK)
                 {
@@ -4413,6 +4407,13 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 {                
                         error_string = "OK";
                 }        
+	} else {
+		if (ncp_rec && ncp_rec->errors) {
+			error_string = ncp_error_string(ncp_rec->errors, completion_code);
+		}
+		else {
+			error_string = "Not OK";
+		}
 	}
         if (type == NCP_SERVICE_REPLY && ncp_rec && ncp_rec->func==0x68 &&
             ncp_rec->subfunc==0x02)
