@@ -3,7 +3,7 @@
  * dissection
  * Copyright 2003, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-ns.c,v 1.2 2003/09/06 06:55:57 guy Exp $
+ * $Id: packet-gprs-ns.c,v 1.3 2003/09/09 07:51:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,14 +51,16 @@
 #define BVCI            0x03
 #define NSEI            0x04
 
-static gint proto_gprs_ns = -1;
+static int proto_gprs_ns = -1;
 static gint ett_gprs_ns = -1;
-static gint hf_gprs_ns_vci = -1;
-static gint hf_gprs_ns_pdutype = -1;
-static gint hf_gprs_ns_nsei = -1;
-static gint hf_gprs_ns_bvci = -1;
-static gint hf_gprs_ns_spare = -1;
-static gint hf_gprs_ns_cause = -1;
+static int hf_gprs_ns_pdutype = -1;
+static int hf_gprs_ns_ie_type = -1;
+static int hf_gprs_ns_ie_length = -1;
+static int hf_gprs_ns_cause = -1;
+static int hf_gprs_ns_vci = -1;
+static int hf_gprs_ns_nsei = -1;
+static int hf_gprs_ns_bvci = -1;
+static int hf_gprs_ns_spare = -1;
  
 static const value_string ns_pdu_type[]= {
         { NS_UNITDATA,    "NS-UNITDATA" },
@@ -101,13 +103,152 @@ static const value_string cause_val[]= {
 static dissector_handle_t bssgp_handle;
 
 static void
+process_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 type;
+	int length_len;
+	guint16 length;
+	guint8 cause;
+	guint16 nsvc, bvc, nsei;
+
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		type = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(tree, hf_gprs_ns_ie_type,
+		    tvb, offset, 1, type);
+		offset++;
+
+		length_len = 1;
+		length = tvb_get_guint8(tvb, offset);
+		if (length & 0x80) {
+			length_len++;
+			length = ((length & 0x7F) << 8) | tvb_get_guint8(tvb, offset);
+		}
+		proto_tree_add_uint(tree, hf_gprs_ns_ie_length,
+		    tvb, offset, length_len, length);
+		offset += length_len;
+
+		switch (type) {
+
+		case Cause:
+			if (length == 1) {
+				cause = tvb_get_guint8(tvb, offset);
+				if (tree) {
+					proto_tree_add_uint(tree,
+					    hf_gprs_ns_cause, tvb, offset, 1,
+					    cause);
+				}
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+					    "  Cause: %s",
+					    val_to_str(cause, cause_val, "Unknown (0x%02x)"));
+				}
+			} else {
+				if (tree) {
+					proto_tree_add_text(tree,
+					    tvb, offset, length,
+					    "Bad cause length %u, should be 1\n",
+					    length);
+				}
+			}
+			break;
+
+		case NS_VCI:
+			if (length == 2) {
+				nsvc = tvb_get_ntohs(tvb, offset);
+				if (tree) {
+					proto_tree_add_uint(tree,
+					    hf_gprs_ns_vci, tvb, offset, 2,
+					    nsvc);
+				}
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+					    " NSVCI: %u", nsvc);
+				}
+			} else {
+				if (tree) {
+					proto_tree_add_text(tree,
+					    tvb, offset, length,
+					    "Bad NS-VCI length %u, should be 2\n",
+					    length);
+				}
+			}
+			break;
+
+		case NS_PDU:
+			/*
+			 * XXX - dissect as a GPRS NS PDU.
+			 * Do the usual "error packet" stuff.
+			 */
+			if (tree) {
+				proto_tree_add_text(tree,
+				    tvb, offset, length,
+				    "Error PDU");
+			}
+			break;
+
+		case BVCI:
+			if (length == 2) {
+				bvc = tvb_get_ntohs(tvb, offset);
+				if (tree) {
+					proto_tree_add_uint(tree,
+					    hf_gprs_ns_bvci, tvb, offset, 2,
+					    bvc);
+				}
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+					    " BVCI: %u", bvc);
+				}
+			} else {
+				if (tree) {
+					proto_tree_add_text(tree,
+					    tvb, offset, length,
+					    "Bad BVCI length %u, should be 2\n",
+					    length);
+				}
+			}
+			break;
+
+		case NSEI:
+			if (length == 2) {
+				nsei = tvb_get_ntohs(tvb, offset);
+				if (tree) {
+					proto_tree_add_uint(tree,
+					    hf_gprs_ns_nsei, tvb, offset, 2,
+					    nsei);
+				}
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+					    " NSEI: %u", nsei);
+				}
+			} else {
+				if (tree) {
+					proto_tree_add_text(tree,
+					    tvb, offset, length,
+					    "Bad NSEI length %u, should be 2\n",
+					    length);
+				}
+			}
+			break;
+
+		default:
+			if (tree) {
+				proto_tree_add_text(tree,
+				    tvb, offset, length,
+				    "Unknown IE contents");
+			}
+			break;
+		}
+	}
+}
+
+static void
 dissect_gprs_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	proto_item *ti = NULL;
 	proto_tree *gprs_ns_tree = NULL;
-	guint8 nspdu, cause;
-	guint16 nsvc, bvc;
+	guint8 nspdu;
+	guint16 bvc;
 	tvbuff_t *next_tvb;
   
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -134,61 +275,14 @@ dissect_gprs_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	case NS_BLOCK:
-		offset=offset+2;
-		cause = tvb_get_guint8(tvb,offset);
-		if (tree)
-			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_cause, tvb, offset, 1, cause);
-		offset=offset+3;
-		nsvc = tvb_get_ntohs(tvb,offset);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " NSVCI: %u Cause: %s", nsvc,
-					match_strval(cause,cause_val));
-		if (tree)
-			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_vci, tvb, offset, 2, nsvc);
-		offset=offset+2;
-		break;
-
 	case NS_BLOCK_ACK:
-		offset=offset+3;
-		nsvc = tvb_get_ntohs(tvb,offset);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " NSVCI: %u", nsvc);
-		if (tree)
-			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_vci, tvb, offset, 2, nsvc);
-		offset=offset+2;
-		break;
-
 	case NS_RESET:
-		offset=offset+2;
-		cause = tvb_get_guint8(tvb,offset);
-		if (tree)
-			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_cause, tvb, offset, 1, cause);
-		offset=offset+3;
-		nsvc = tvb_get_ntohs(tvb,offset);
-		if (tree)
-			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_vci, tvb, offset, 2, nsvc);
-		offset=offset+4;
-		bvc = tvb_get_ntohs(tvb,offset); 		
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " NSVCI: %u NSEI: %u Cause: %s",
-					nsvc, bvc, match_strval(cause, cause_val));
-		if (tree)
-			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_nsei, tvb, offset, 2, bvc);
-		offset=offset+2;
-		break;
-
 	case NS_RESET_ACK:
-		offset=offset+2;
-		nsvc = tvb_get_ntohs(tvb,offset);
-		if (tree)
-			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_vci, tvb, offset, 2, nsvc);
-		offset=offset+4;
-		bvc = tvb_get_ntohs(tvb,offset); 		
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " NSVCI: %u NSEI: %u", nsvc, bvc);
-		if (tree)
-			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_nsei, tvb, offset, 2, bvc);
-		offset=offset+2;
+	case NS_STATUS:
+		/*
+		 * Process TLVs.
+		 */
+		process_tlvs(tvb, offset, pinfo, gprs_ns_tree);
 		break;
 
 	case NS_UNITDATA:
@@ -205,9 +299,6 @@ dissect_gprs_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(bssgp_handle, next_tvb, pinfo, tree);
 		break;
 
-	case NS_STATUS:
-		break;		 
-
 	default:
 		break;
 	}
@@ -221,6 +312,12 @@ proto_register_gprs_ns(void)
 		{ &hf_gprs_ns_pdutype, {
 		  "PDU Type", "gprs_ns.pdutype", FT_UINT8, BASE_HEX,
 		  VALS(ns_pdu_type), 0x0, "NS Command", HFILL}},
+		{ &hf_gprs_ns_ie_type, {
+		  "IE Type", "gprs_ns.ietype", FT_UINT8, BASE_HEX,
+		  VALS(ns_pdu_type), 0x0, "IE Type", HFILL}},
+		{ &hf_gprs_ns_ie_length, {
+		  "IE Length", "gprs_ns.ielength", FT_UINT16, BASE_DEC,
+		  NULL, 0x0, "IE Length", HFILL}},
 		{ &hf_gprs_ns_cause, {
 		  "Cause", "gprs_ns.cause", FT_UINT8, BASE_HEX,
 		  VALS(cause_val), 0x0, "Cause", HFILL}},
