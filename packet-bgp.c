@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.38 2001/06/10 02:08:09 guy Exp $
+ * $Id: packet-bgp.c,v 1.39 2001/06/15 07:36:31 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -362,7 +362,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
         case AFNUM_INET6:
                 length = 16 ;
                 tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8,offset, sizeof(ip6addr));
-                snprintf(buf, sizeof(buf), "%s", ip6_to_str(&ip6addr));
+                snprintf(buf, buflen, "%s", ip6_to_str(&ip6addr));
                 break;
         default:
                 length = 0 ;
