@@ -1,4 +1,37 @@
-$Id: NEWS,v 1.140 2004/02/19 02:39:26 gerald Exp $
+$Id: NEWS,v 1.141 2004/02/24 02:38:22 gerald Exp $
+
+== February 23, 2004
+
+This release fixes two major bugs in 0.10.1:
+  
+  Under Windows, the error 
+  
+     ** WARNING **: error opening
+     /usr/local/share/ethereal/asn1/default.tt, No such file or directory
+
+  would be printed at startup.
+
+  The 0.10.1 source release was missing several files required for
+  compiling.
+
+
+New and updated features
+
+  The user interface has received further updates.  The Statistics menu
+  layout has been improved, as well as the capture options dialog layout.
+
+
+New protocol support
+
+  Cisco Cast Client Control Protocol
+
+
+Updated protocol support
+
+  AppleTalk, ASN.1, DCERPC, Diameter, FCSP, GSM A, GSM MAP, GSM SMS, HTTP,
+  IEEE 802.3, Kerberos, MSN Messenger, PostgreSQL, Q.931, RPL, Skinny,
+  TCAP, TDS
+  
 
 == February 18, 2004
 
