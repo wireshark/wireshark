@@ -310,14 +310,14 @@ SRT statistics for a specific host.
 
 B<-z> io,stat
 
-Collect frame/bytes statistics for the capture in intervals of 1 seconds.
+Collect packet/bytes statistics for the capture in intervals of 1 seconds.
 This option will open a window with up to 5 color-coded graphs where
-number-of-frames-per-second or number-of-bytes-per-second statistics
+number-of-packets-per-second or number-of-bytes-per-second statistics
 can be calculated and displayed.
 
 This option can be used multiple times on the command line. 
 
-This graph window can also be opened from the Tools:Statistics:Traffic:IO-Stat
+This graph window can also be opened from the Analyze:Statistics:Traffic:IO-Stat
 menu item.
 
 
@@ -367,7 +367,7 @@ Collect call/reply SRT (Service Response Time) data for FC.  Data collected
 is number of calls for each Fibre Channel command, MinSRT, MaxSRT and AvgSRT. 
 Example: use B<-z fc,srt>.
 The Service Response Time is calculated as the time delta between the
-First frame of the exchange and the Last frame of the exchange.
+First packet of the exchange and the Last packet of the exchange.
 
 The data will be presented as separate tables for all normal FC commands,
 Only those commands that are seen in the capture will have its stats
@@ -443,9 +443,9 @@ If the optional filter string is specified, only those packets that match the
 filter will be used in the calculations.
 
 The table is presented with one line for each conversation and displays
-number of frames/bytes in each direction as well as total number of
-frames/bytes.  By default, the table is sorted according to total number
-of frames.
+number of packets/bytes in each direction as well as total number of
+packets/bytes.  By default, the table is sorted according to total number
+of packets.
 
 These tables can also be generated at runtime by selecting the appropriate
 conversation type from the menu "Tools/Statistics/Conversation List/".
@@ -471,7 +471,7 @@ B<-z> h225,srt[I<,filter>]
 
 Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS. 
 Data collected is number of calls of each ITU-T H.225 RAS Message Type,
-Minimum SRT, Maximum SRT, Average SRT, Minimum in Frame, and Maximum in Frame. 
+Minimum SRT, Maximum SRT, Average SRT, Minimum in Packet, and Maximum in Packet. 
 You will also get the number of Open Requests (Unresponded Requests), 
 Discarded Responses (Responses without matching request) and Duplicate Messages.
 Example: use B<-z h225,srt>.
@@ -493,9 +493,9 @@ ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
 =over 4
 
-=item File:Open, File:Close, File:Reload
+=item File:Open, File:Close
 
-Open, close, or reload a capture file.  The I<File:Open> dialog box
+Open or close a capture file.  The I<File:Open> dialog box
 allows a filter to be specified; when the capture file is read, the
 filter is applied to all packets read from the file, and packets not
 matching the filter are discarded.
@@ -529,7 +529,7 @@ item.
 
 Exit the application.
 
-=item Edit:Find Frame
+=item Edit:Find Packet
 
 Search forward or backward, starting with the currently selected packet
 (or the most recently selected packet, if no packet is selected).  Search
@@ -556,9 +556,19 @@ Search backward, starting with the currently selected packet (or the
 most recently selected packet, if no packet is selected), for a packet
 matching the filter from the previous search.
 
-=item Edit:Go To Frame
+=item Edit:Go To Packet
 
 Go to a particular numbered packet.
+
+=item Edit:Go To Corresponding Packet
+
+If a field in the protocol tree pane containing a packet number is
+selected, go to the packet number specified by that field.  (This works
+only if the dissector that put that entry into the protocol tree put it
+into the tree as a filterable field rather than just as text.)  This can
+be used, for example, to go to the packet for the request corresponding
+to a reply, or the reply corresponding to a request, if that packet
+number has been put into the protocol tree.
 
 =item Edit:Set Time Reference
 
@@ -566,7 +576,7 @@ Set (or unset if currently set) the selected packet as a Time Reference packet.
 When a packet is set as a Time Reference packet, the timestamps in the packet
 pane will be replaced with the string "*REF*".
 The relative time timestamp in later packets will then be calculated relative
-to the timestamp of this Time Reference frame and not the first frame in 
+to the timestamp of this Time Reference packet and not the first packet in 
 the capture.
 
 Packets that have been selected as Time Reference packets will always be 
@@ -574,21 +584,21 @@ displayed in the packet pane. Display filters will not affect or hide these
 packets.
 
 If there is a column displayed for "Culmulative Bytes" this counter will 
-be reset at every Time Reference frame.
+be reset at every Time Reference packet.
 
-=item Edit:Mark Frame
+=item Edit:Mark Packet
 
 Mark (or unmark if currently marked) the selected packet.  The field
-"frame.marked" is set for frames that are marked, so that, for example,
-a display filters can be used to display only marked frames, and so that
-the L<Find Frame> menu item can be used to find the next or previous
-marked frame.
+"frame.marked" is set for packets that are marked, so that, for example,
+a display filters can be used to display only marked packets, and so that
+the L<Find Packet> menu item can be used to find the next or previous
+marked packet.
 
-=item Edit:Mark All Frames
+=item Edit:Mark All Packets
 
 Mark all packets that are currently displayed.
 
-=item Edit:Unmark All Frames
+=item Edit:Unmark All Packets
 
 Unmark all packets that are currently displayed.
 
@@ -597,49 +607,7 @@ Unmark all packets that are currently displayed.
 Set the packet printing, column display, TCP stream coloring, and GUI
 options (see L<"Preferences"> below).
 
-=item Edit:Capture Filters
-
-Edit the saved list of capture filters, allowing filters to be added,
-changed, or deleted.
-
-=item Edit:Display Filters
-
-Edit the saved list of display filters, allowing filters to be added,
-changed, or deleted.
-
-=item Edit:Protocols
-
-Allow protocol dissection to be enabled or disabled for a specific
-protocol.  Individual protocols can be enabled or disabled by clicking
-on them in the list or by highlighting them and pressing the space bar.
-The entire list can be enabled, disabled, or inverted using the buttons
-below the list.
-
-When a protocol is disabled, dissection in a particular packet stops
-when that protocol is reached, and Ethereal moves on to the next packet.
-Any higher-layer protocols that would otherwise have been processed will
-not be displayed.  For example, disabling TCP will prevent the dissection
-and display of TCP, HTTP, SMTP, Telnet, and any other protocol exclusively
-dependent on TCP.
-
-The list of protocols can be saved, so that Ethereal will start up with
-the protocols in that list disabled.
-
-=item Capture:Start
-
-Initiate a live packet capture (see L<"Capture Options"> below).  A
-temporary file will be created to hold the capture.  The location of the
-file can be chosen by setting your TMPDIR environment variable before
-starting B<Ethereal>.  Otherwise, the default TMPDIR location is
-system-dependent, but is likely either F</var/tmp> or F</tmp>.
-
-=item Capture:Stop
-
-In a capture that updates the packet display as packets arrive (so that
-Ethereal responds to user input other than pressing the "Stop" button in
-the capture packet statistics dialog box), stop the capture.
-
-=item Display:Options
+=item View:Options
 
 Pop up a dialog allowing you to set the format of the packet timestamp
 displayed in the packet list window to relative, absolute, absolute date
@@ -647,32 +615,15 @@ and time, or delta, to enable or disable the automatic scrolling of the
 packet list while a live capture is in progress or to enable or disable
 translation of addresses to names in the display.
 
-=item Display:Match
+=item View:Collapse All
 
-Create a display filter, or add to the display filter strip at the
-bottom, a display filter based on the data currently highlighted in the
-protocol tree, and apply the filter.
+Collapse the protocol tree branches.
 
-If that data is a field that can be tested in a display filter
-expression, the display filter will test that field; otherwise, the
-display filter will be based on absolute offset within the packet, and
-so could be unreliable if the packet contains protocols with
-variable-length headers, such as a source-routed token-ring packet.
+=item View:Expand All
 
-The B<Selected> option creates a display filter that tests for a match
-of the data; the B<Not Selected> option creates a display filter that
-tests for a non-match of the data.  The B<And Selected>, B<Or Selected>,
-B<And Not Selected>, and B<Or Not Selected> options add to the end of
-the display filter in the strip at the bottom an AND or OR operator
-followed by the new display filter expression.
+Expands all branches of the protocol tree.
 
-=item Display:Prepare
-
-Create a display filter, or add to the display filter strip at the
-bottom, a display filter based on the data currently highlighted in the
-protocol tree, but don't apply the filter.
-
-=item Display:Colorize Display
+=item View:Coloring Rules
 
 Change the foreground and background colors of the packet information in
 the list of packets, based upon display filters.  The list of display
@@ -784,37 +735,102 @@ undone.
 
 =back
 
-=item Display:Collapse All
-
-Collapse the protocol tree branches.
-
-=item Display:Expand All
-
-Expand all branches of the protocol tree.
-
-=item Display:Expand All
-
-Expands all branches of the protocol tree.
-
-=item Display:Show Packet In New Window
+=item View:Show Packet In New Window
 
 Create a new window containing a protocol tree view and a hex dump
 window of the currently selected packet; this window will continue to
 display that packet's protocol tree and data even if another packet is
 selected.
 
-=item Display:User Specified Decodes
+=item View:Reload
+
+Reload a capture file.  Same as I<File:Close> and IFile:Open> the same 
+file again.
+
+=item Capture:Start
+
+Initiate a live packet capture (see L<"Capture Options"> below).  A
+temporary file will be created to hold the capture.  The location of the
+file can be chosen by setting your TMPDIR environment variable before
+starting B<Ethereal>.  Otherwise, the default TMPDIR location is
+system-dependent, but is likely either F</var/tmp> or F</tmp>.
+
+=item Capture:Stop
+
+In a capture that updates the packet display as packets arrive (so that
+Ethereal responds to user input other than pressing the "Stop" button in
+the capture packet statistics dialog box), stop the capture.
+
+=item Capture:Capture Filters
+
+Edit the saved list of capture filters, allowing filters to be added,
+changed, or deleted.
+
+=item Analyze:Display Filters
+
+Edit the saved list of display filters, allowing filters to be added,
+changed, or deleted.
+
+=item Analyze:Match
+
+Create a display filter, or add to the display filter strip at the
+bottom, a display filter based on the data currently highlighted in the
+protocol tree, and apply the filter.
+
+If that data is a field that can be tested in a display filter
+expression, the display filter will test that field; otherwise, the
+display filter will be based on absolute offset within the packet, and
+so could be unreliable if the packet contains protocols with
+variable-length headers, such as a source-routed token-ring packet.
+
+The B<Selected> option creates a display filter that tests for a match
+of the data; the B<Not Selected> option creates a display filter that
+tests for a non-match of the data.  The B<And Selected>, B<Or Selected>,
+B<And Not Selected>, and B<Or Not Selected> options add to the end of
+the display filter in the strip at the bottom an AND or OR operator
+followed by the new display filter expression.
+
+=item Analyze:Prepare
+
+Create a display filter, or add to the display filter strip at the
+bottom, a display filter based on the data currently highlighted in the
+protocol tree, but don't apply the filter.
+
+=item Analyze:Enabled Protocols
+
+Allow protocol dissection to be enabled or disabled for a specific
+protocol.  Individual protocols can be enabled or disabled by clicking
+on them in the list or by highlighting them and pressing the space bar.
+The entire list can be enabled, disabled, or inverted using the buttons
+below the list.
+
+When a protocol is disabled, dissection in a particular packet stops
+when that protocol is reached, and Ethereal moves on to the next packet.
+Any higher-layer protocols that would otherwise have been processed will
+not be displayed.  For example, disabling TCP will prevent the dissection
+and display of TCP, HTTP, SMTP, Telnet, and any other protocol exclusively
+dependent on TCP.
+
+The list of protocols can be saved, so that Ethereal will start up with
+the protocols in that list disabled.
+
+=item Analyze:Decode As
+
+If you have a packet selected, present a dialog allowing you to change
+which dissectors are used to decode this packet.  The dialog has one
+panel each for the link layer, network layer and transport layer
+protocol/port numbers, and will allow each of these to be changed
+independently.  For example, if the selected packet is a TCP packet to
+port 12345, using this dialog you can instruct Ethereal to decode all
+packets to or from that TCP port as HTTP packets.
+
+=item Analyze:User Specified Decodes
 
 Create a new window showing whether any protocol ID to dissector
 mappings have been changed by the user.  This window also allows the
 user to reset all decodes to their default values.
 
-=item Tools:Plugins
-
-See what dynamically loadable dissector plugin modules have been loaded
-(see I<"Plugins"> below).
-
-=item Tools:Follow TCP Stream
+=item Analyze:Follow TCP Stream
 
 If you have a TCP packet selected, display the contents of the data
 stream for the TCP connection to which that packet belongs, as text, in
@@ -844,34 +860,14 @@ and lets you print what's currently being displayed, using the same
 print options that are used for the I<File:Print Packet> menu item, or
 save it as text to a file.
 
-=item Tools:Decode As
-
-If you have a packet selected, present a dialog allowing you to change
-which dissectors are used to decode this packet.  The dialog has one
-panel each for the link layer, network layer and transport layer
-protocol/port numbers, and will allow each of these to be changed
-independently.  For example, if the selected packet is a TCP packet to
-port 12345, using this dialog you can instruct Ethereal to decode all
-packets to or from that TCP port as HTTP packets.
-
-=item Tools:Go To Corresponding Frame
-
-If a field in the protocol tree pane containing a frame number is
-selected, go to the frame number specified by that field.  (This works
-only if the dissector that put that entry into the protocol tree put it
-into the tree as a filterable field rather than just as text.)  This can
-be used, for example, to go to the frame for the request corresponding
-to a reply, or the reply corresponding to a request, if that frame
-number has been put into the protocol tree.
-
-=item Tools:Summary
+=item Analyze:Summary
 
 Show summary information about the capture, including elapsed time,
 packet counts, byte counts, and the like.  If a display filter is in
 effect, summary information will be shown about the capture and about
 the packets currently being displayed.
 
-=item Tools:Protocol Hierarchy Statistics
+=item Analyze:Protocol Hierarchy Statistics
 
 Show the number of packets, and the number of bytes in those packets,
 for each protocol in the trace.  It organizes the protocols in the same
@@ -882,12 +878,12 @@ last-protocol counts show you how many packets (and the byte count
 associated with those packets) B<ended> in a particular protocol.  In
 the table, they are listed under "End Packets" and "End Bytes".
 
-=item Tools:Statistics:ONC-RPC:Programs
+=item Analyze:Statistics:ONC-RPC:Programs
 
 This dialog will open a window showing aggregated RTT statistics for all
 ONC-RPC Programs/versions that exist in the capture file.
 
-=item Tools:Statistics:Service Response Time:DCE-RPC
+=item Analyze:Statistics:Service Response Time:DCE-RPC
 
 Open a window to display Service Response Time statistics for an 
 arbitrary DCE-RPC program
@@ -902,7 +898,7 @@ If an optional filter string is used only such DCE-RPC request/response pairs
 that match that filter will be used to calculate the statistics. If no filter 
 string is specified all request/response pairs will be used.
 
-=item Tools:Statistics:Service Response Time:Fibre Channel
+=item Analyze:Statistics:Service Response Time:Fibre Channel
 
 Open a window to display Service Response Time statistics for Fibre Channel
 and display B<FC Type>, B<Number of Calls>, B<Minimum SRT>,
@@ -911,14 +907,14 @@ These windows opened will update in semi-real time to
 reflect changes when doing live captures or when reading new capture
 files into B<Ethereal>.
 The Service Response Time is calculated as the time delta between the
-First frame of the exchange and the Last frame of the exchange.
+First packet of the exchange and the Last packet of the exchange.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such FC first/last exchange pairs 
 that match that filter will be used to calculate the statistics. If no filter 
 string is specified all request/response pairs will be used.
 
-=item Tools:Statistics:Service Response Time:ONC-RPC
+=item Analyze:Statistics:Service Response Time:ONC-RPC
 
 Open a window to display statistics for an arbitrary ONC-RPC program interface
 and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>, B<Maximum SRT> and B<Average SRT> for all procedures for that program/version.
@@ -935,7 +931,7 @@ right mouse button (on those platforms that have a right
 mouse button) ethereal will display a popup menu offering several different 
 filter operations to apply to the capture.
 
-=item Tools:Statistics:Service Response Time:SMB
+=item Analyze:Statistics:Service Response Time:SMB
 
 Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
 is number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT. 
@@ -958,14 +954,14 @@ right mouse button (on those platforms that have a right
 mouse button) ethereal will display a popup menu offering several different 
 filter operations to apply to the capture.
 
-=item Tools:Statistics:Conversation List
+=item Analyze:Statistics:Conversation List
 
 This option will open a new window that displays a list of all
 conversations between two endpoints.  The list has one row for each
-unique conversation and displays total number of frames/bytes seen as
-well as number of frames/bytes in each direction.
+unique conversation and displays total number of packets/bytes seen as
+well as number of packets/bytes in each direction.
 
-By default the list is sorted according to the number of frames but by
+By default the list is sorted according to the number of packets but by
 clicking on the column header; it is possible to re-sort the list in
 ascending or descending order by any column.
 
@@ -978,12 +974,12 @@ filter operations to apply to the capture.
 These statistics windows can also be invoked from the Ethereal command
 line using the B<-z conv> argument. 
 
-=item Tools:Statistics:Traffic:IO-Stat
+=item Analyze:Statistics:Traffic:IO-Stat
 
 Open a window where up to 5 graphs in different colors can be displayed
-to indicate number of frames or number of bytes per second for all packets
+to indicate number of packets or number of bytes per second for all packets
 matching the specified filter.
-By default only one graph will be displayed showing number of frames per second.
+By default only one graph will be displayed showing number of packets per second.
 
 The top part of the window contains the graphs and scales for the X and
 Y axis.  If the graph is too long to fit inside the window there is a
@@ -1008,12 +1004,12 @@ quantity.
 
 To the right of the 5 graph controls there are four menus to control
 global aspects of the draw area and graphs.  The "Unit:" menu is used to
-control what to measure; "frames/tick", "bytes/tick" or "advanced..."
+control what to measure; "packets/tick", "bytes/tick" or "advanced..."
 
-frames/tick will measure the number of frames matching the (if
+packets/tick will measure the number of packets matching the (if
 specified) display filter for the graph in each measurement interval. 
 
-bytes/tick will measure the total number of bytes in all frames matching
+bytes/tick will measure the total number of bytes in all packets matching
 the (if specified) display filter for the graph in each measurement
 interval.
 
@@ -1094,11 +1090,11 @@ Below the graph are the LOAD values for each interval that would be calculated.
  500   1500   500  750   1000   500    0     0
 
 
-=item Tools:Statistics:Service Response Time:MGCP
+=item Analyze:Statistics:Service Response Time:MGCP
 
 Collect requests/response SRT (Service Response Time) data for MGCP. 
 Data collected is B<number of calls> for each known MGCP Type, 
-B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Frame>, and B<Maximum in Frame>. 
+B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Packet>, and B<Maximum in Packet>. 
 These windows opened will update in semi-real time to reflect changes when
 doing live captures or when reading new capture files into B<Ethereal>.
 
@@ -1106,7 +1102,7 @@ You can apply an optional filter string in a dialog box, before starting
 the calculation. The statistics will only be calculated 
 on those calls matching that filter.
 
-=item Tools:Statistics:Watch protocol:ITU-T H.225
+=item Analyze:Statistics:Watch protocol:ITU-T H.225
 
 Count ITU-T H.225 messages and their reasons. In the first column you get a 
 list of H.225 messages and H.225 message reasons, which occur in the current
@@ -1119,11 +1115,11 @@ You can apply an optional filter string in a dialog box, before starting
 the counter. The statistics will only be calculated 
 on those calls matching that filter.
 
-=item Tools:Statistics:Service Response Time:ITU-T H.225 RAS
+=item Analyze:Statistics:Service Response Time:ITU-T H.225 RAS
 
 Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS. 
 Data collected is B<number of calls> for each known ITU-T H.225 RAS Message Type,
-B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Frame>, and B<Maximum in Frame>.
+B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Packet>, and B<Maximum in Packet>.
 You will also get the number of B<Open Requests> (Unresponded Requests), 
 B<Discarded Responses> (Responses without matching request) and Duplicate Messages.
 These windows opened will update in semi-real time to reflect changes when
@@ -1132,6 +1128,23 @@ doing live captures or when reading new capture files into B<Ethereal>.
 You can apply an optional filter string in a dialog box, before starting
 the calculation. The statistics will only be calculated 
 on those calls matching that filter.
+
+=item Help:Contents
+
+Some help texts.
+
+=item Help:Supported Protocols
+
+List of supported protocols and display filter protocol fields.
+
+=item Help:About Plugins
+
+See what dynamically loadable dissector plugin modules have been loaded
+(see I<"Plugins"> below).
+
+=item Help:About Ethereal
+
+What this is all about...
 
 =back
 
@@ -1332,7 +1345,7 @@ The "Font..." button lets you select the font to be used for most text.
 =item Colors
 
 The "Colors..." button lets you select the colors to be used for instance
-for the marked frames.
+for the marked packets.
 
 =back
 
@@ -1459,7 +1472,7 @@ display filter, and applies it to the current capture.  In the I<Read
 Filter> dialog, closes the dialog box and makes the filter in the
 I<Filter string> entry the filter in the I<Open Capture File> dialog. 
 In the I<Search Filter> dialog, closes the dialog box and makes the
-filter in the I<Filter string> entry the filter in the I<Find Frame>
+filter in the I<Filter string> entry the filter in the I<Find Packet>
 dialog.
 
 =item Apply
@@ -1564,7 +1577,7 @@ The I<Display Options> dialog lets you specify the format of the time
 stamp in the packet list.  You can select "Time of day" for absolute
 time stamps, "Date and time of day" for absolute time stamps with the
 date, "Seconds since beginning of capture" for relative time stamps, or
-"Seconds since previous frame" for delta time stamps.  You can also
+"Seconds since previous packet" for delta time stamps.  You can also
 specify whether, when the display is updated as packets are captured,
 the list should automatically scroll to show the most recently captured
 packets or not and whether addresses or port numbers should be
