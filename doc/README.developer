@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.45 2002/01/20 22:12:37 guy Exp $
+$Id: README.developer,v 1.46 2002/01/21 07:52:35 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -101,7 +101,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.45 2002/01/20 22:12:37 guy Exp $"
+The "$Id: README.developer,v 1.46 2002/01/21 07:52:35 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -111,7 +111,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.45 2002/01/20 22:12:37 guy Exp $
+ * $Id: README.developer,v 1.46 2002/01/21 07:52:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,7 +160,7 @@ version of the file is currently checked out.
 # include "snprintf.h"
 #endif
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "packet-PROTOABBREV.h"
 
 /* Initialize the protocol and registered fields */

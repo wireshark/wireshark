@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.19 2001/12/19 08:59:06 guy Exp $
+# $Id: ethereal_gen.py,v 1.20 2002/01/21 07:50:24 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -2085,8 +2085,8 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 
 #include <string.h>
 #include <glib.h>
-#include "packet.h"
-#include "proto.h"
+#include <epan/packet.h>
+#include <epan/proto.h>
 #include "packet-giop.h"
 
 #include "plugins/plugin_api_defs.h"
