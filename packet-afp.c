@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.26 2002/11/28 03:57:49 guy Exp $
+ * $Id: packet-afp.c,v 1.27 2003/01/19 21:21:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@
   available from http://www.apple.com
 
   AFP3.0.pdf from http://www.apple.com
+  AFP3.1.pdf from http://www.apple.com
 
   The netatalk source code by Wesley Craig & Adrian Sun
 	http://netatalk.sf.net
@@ -149,6 +150,8 @@ static int hf_afp_AFPVersion = -1;
 static int hf_afp_UAM = -1;
 static int hf_afp_user = -1;
 static int hf_afp_passwd = -1;
+static int hf_afp_random = -1;
+
 static int hf_afp_login_flags = -1;
 static int hf_afp_pad = -1;
 
@@ -768,6 +771,9 @@ typedef struct {
 static GHashTable *afp_request_hash = NULL;
 static GMemChunk *afp_request_keys = NULL;
 static GMemChunk *afp_request_vals = NULL;
+
+static guint Vol;      /* volume */
+static guint Did;      /* parent directory ID */
 
 /* Hash Functions */
 static gint  afp_equal (gconstpointer v, gconstpointer v2)
@@ -1466,9 +1472,11 @@ name_in_fbitmap(tvbuff_t *tvb, gint offset, guint16 bitmap)
 static gint
 decode_vol_did(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
+	Vol = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
 	offset += 2;
 
+	Did = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
 	offset += 4;
 	return offset;
@@ -1537,7 +1545,10 @@ decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint off
 	name = get_name(tvb, offset +1, type);
 
 	if (pinfo && check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", name);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Vol=%u Did=%u", Vol, Did);
+		if (len) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, " Name=%s", name);
+		}
 	}
 
 	if (tree) {
@@ -1570,6 +1581,30 @@ static gint
 decode_name (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset)
 {
 	return decode_name_label(tree, pinfo, tvb, offset, "Path: %s");
+}
+
+/* -------------------------- */
+static void
+add_info_fork(tvbuff_t *tvb, packet_info *pinfo, gint offset)
+{
+	guint16 ofork;
+
+	ofork = tvb_get_ntohs(tvb, offset);
+	if (ofork && check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Fork=%u", ofork);
+	}
+}
+
+/* -------------------------- */
+static void
+add_info_vol(tvbuff_t *tvb, packet_info *pinfo, gint offset)
+{
+	guint16 vol;
+
+	vol = tvb_get_ntohs(tvb, offset);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": Vol=%u", vol);
+	}
 }
 
 /* ************************** */
@@ -1724,13 +1759,14 @@ dissect_query_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_reply_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	int f_bitmap;
-
+	
 	f_bitmap = decode_file_bitmap(tree, tvb, offset);
 	offset += 2;
 
+        add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -1996,9 +2032,12 @@ dissect_reply_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 /* **************************/
 static gint
-dissect_query_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
+
 	PAD(1)
+        add_info_vol(tvb, pinfo, offset);
+	
 	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2024,11 +2063,13 @@ dissect_reply_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* **************************/
 static gint
-dissect_query_afp_set_vol_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_set_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	guint16 bitmap;
 
 	PAD(1)
+
+        add_info_vol(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2042,33 +2083,58 @@ dissect_query_afp_set_vol_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* ***************************/
 static gint
+decode_uam_parameters(const char *uam, int len_uam, tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+	int len;
+
+	if (!strncasecmp(uam, "Cleartxt passwrd", len_uam)) {
+		if ((offset & 1))
+			PAD(1);
+
+		len = 8; /* tvb_strsize(tvb, offset);*/
+		proto_tree_add_item(tree, hf_afp_passwd, tvb, offset, len,FALSE);
+		offset += len;
+	}
+	else if (!strncasecmp(uam, "DHCAST128", len_uam)) {
+		if ((offset & 1))
+			PAD(1);
+
+		len = 16;
+		proto_tree_add_item(tree, hf_afp_random, tvb, offset, len,FALSE);
+		offset += len;
+        }
+	else if (!strncasecmp(uam, "2-Way Randnum exchange", len_uam)) {
+		/* nothing */
+		return offset;
+	}
+	return offset;
+}
+
+/* ---------------- */
+static gint
 dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	int len;
+	int len_uam;
 	const char *uam;
 
 	len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_AFPVersion, tvb, offset, 1,FALSE);
 	offset += len +1;
-	len = tvb_get_guint8(tvb, offset);
-	uam = tvb_get_ptr(tvb, offset +1, len);
+	len_uam = tvb_get_guint8(tvb, offset);
+	uam = tvb_get_ptr(tvb, offset +1, len_uam);
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1,FALSE);
-	offset += len +1;
+	offset += len_uam +1;
 
-	if (!strncasecmp(uam, "Cleartxt passwrd", len)) {
-		/* clear text */
-		len = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_user, tvb, offset, 1,FALSE);
-		offset += len +1;
-		if ((offset & 1))
-			PAD(1);
-		len = 8; /* tvb_strsize(tvb, offset);*/
-		proto_tree_add_item(tree, hf_afp_passwd, tvb, offset, len,FALSE);
-		offset += len;
+	if (!strncasecmp(uam, "No User Authent", len_uam)) {
+		return offset;
 	}
-	else if (!strncasecmp(uam, "No User Authent", len)) {
-	}
-	return(offset);
+
+	len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_user, tvb, offset, 1,FALSE);
+	offset += len +1;
+	
+	return decode_uam_parameters(uam, len_uam, tvb, tree, offset);
 }
 
 /* ***************************/
@@ -2129,25 +2195,18 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	default:
 		break;
     	}
-	PAD(1);
 	
-	if (!strncasecmp(uam, "Cleartxt passwrd", len_uam)) {
-		len = 8; /* tvb_strsize(tvb, offset);*/
-		proto_tree_add_item(tree, hf_afp_passwd, tvb, offset, len,FALSE);
-		offset += len;
-	}
-	else if (!strncasecmp(uam, "No User Authent", len_uam)) {
-	}
-	return(offset);
+	return decode_uam_parameters(uam, len_uam, tvb, tree, offset);
 }
 
 /* ************************** */
 static gint
-dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1,FALSE);
 	offset += 1;
 
+        add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2176,6 +2235,7 @@ dissect_query_afp_write_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1,FALSE);
 	offset += 1;
 
+        add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2203,6 +2263,7 @@ dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
 	PAD(1);
 
+        add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2227,6 +2288,7 @@ dissect_query_afp_read_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
 	PAD(1);
 
+        add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2274,9 +2336,10 @@ dissect_query_afp_close_dt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	AFP_CLOSEFORK
 */
 static gint
-dissect_query_afp_with_fork(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_with_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	PAD(1);
+        add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2467,10 +2530,11 @@ dissect_query_afp_resolve_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 /* ************************** */
 static gint
-dissect_query_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 
 	PAD(1);
+        add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2495,10 +2559,11 @@ dissect_reply_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 /* ************************** */
 static gint
-dissect_query_afp_set_fork_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_set_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 
 	PAD(1);
+        add_info_fork(tvb, pinfo, offset);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
@@ -2579,8 +2644,8 @@ dissect_query_afp_rename(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	PAD(1);
 	offset = decode_vol_did(tree, tvb, offset);
 
-	offset = decode_name_label(tree, pinfo, tvb, offset, "Old name:     %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:     %s");
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Old name: %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "New name: %s");
 
 	return offset;
 }
@@ -2987,14 +3052,16 @@ static gint
 dissect_reply_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 int len;
+int size;
 
 	proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2,FALSE);
 	offset += 2;
 
-	len = tvb_get_ntohl(tvb, offset);
-	/* FIXME spec and capture differ : spec 4 bytes, capture 2 bytes? */
-	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, 4,FALSE);
-	offset += 4;
+	/* FIXME spec and capture disagree : spec 4 bytes, capture 2 bytes? */
+	size = 2;
+	len = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, size,FALSE);
+	offset += size;
 
 	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len,FALSE);
 	offset += len;
@@ -3401,6 +3468,11 @@ proto_register_afp(void)
       { "Password",     "afp.passwd",
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
       	"Password", HFILL }},
+
+    { &hf_afp_random,
+      { "Random number",         "afp.random",
+		FT_BYTES, BASE_HEX, NULL, 0x0,
+      	"UAM random number", HFILL }},
 
     { &hf_afp_login_flags,
       { "Flags",         "afp.afp_login_flags",
@@ -4326,9 +4398,10 @@ proto_register_afp(void)
 		FT_UINT16, BASE_HEX, NULL, 0x0,
       	"Session token type", HFILL }},
 
+    /* FIXME FT_UINT32 in specs */
     { &hf_afp_session_token_len,
       { "Len",         "afp.session_token_len",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
+		FT_UINT16, BASE_DEC, NULL, 0x0,
       	"Session token length", HFILL }},
 
     { &hf_afp_session_token,
