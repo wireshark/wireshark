@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.717 2004/03/03 23:51:31 jmayer Exp $
+# $Id: Makefile.am,v 1.718 2004/03/04 08:26:20 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -284,12 +284,6 @@ cvsversion.h:
 	$(PERL) $(srcdir)/make-version.pl
 
 #
-# Build various header files for the X11 dissector.
-#
-x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
-	$(PERL) $(srcdir)/process-x11-fields.pl <$(srcdir)/x11-fields
-
-#
 # Build shell scripts by doing variable substitution.
 # Taken from autoconf 2.13.
 #
@@ -362,7 +356,6 @@ CLEANFILES =	\
 	idl2eth
 
 DISTCLEANFILES = \
-	aclocal-missing/*.m4 \
 	ps.c \
 	*~
 
@@ -389,7 +382,6 @@ EXTRA_DIST = \
 	aclocal-fallback/gtk-2.0.m4 \
 	aclocal-fallback/gtk.m4 \
 	aclocal-flags		\
-	aclocal-missing/dummy	\
 	autogen.sh		\
 	capture-wpcap.c		\
 	capture-wpcap.h		\

@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.36 2004/03/03 21:55:59 jmayer Exp $
+# $Id: Makefile.am,v 1.37 2004/03/04 08:26:20 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -175,6 +175,12 @@ register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/../make-reg-dotc
 #
 #dist-hook:
 #	@rm -f $(distdir)/register.c
+
+#
+# Build various header files for the X11 dissector.
+#
+x11-declarations.h x11-register-info.h: ../x11-fields ../process-x11-fields.pl
+	$(PERL) $(srcdir)/../process-x11-fields.pl <$(srcdir)/../x11-fields
 
 if HAVE_PLUGINS
 
