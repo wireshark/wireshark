@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.30 2003/03/02 17:14:08 deniel Exp $
+ * $Id: plugins_dlg.c,v 1.31 2003/11/28 00:08:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,13 +130,20 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     gtk_widget_show(main_hbnbox);
 
 #if GTK_MAJOR_VERSION < 2
-    close_bn = gtk_button_new_with_label("Close");
+    close_bn = gtk_button_new_with_label("OK");
 #else
-    close_bn = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+    close_bn = gtk_button_new_from_stock(GTK_STOCK_OK);
 #endif
     gtk_container_add(GTK_CONTAINER(main_hbnbox), close_bn);
+    GTK_WIDGET_SET_FLAGS(close_bn, GTK_CAN_DEFAULT);
+	gtk_widget_grab_default(close_bn);
     gtk_widget_show(close_bn);
     SIGNAL_CONNECT(close_bn, "clicked", plugins_close_cb, plugins_window);
+
+    /* Catch the "key_press_event" signal in the window, so that we can catch
+       the ESC key being pressed and act as if the "Cancel" button had
+       been selected. */
+	dlg_set_cancel(plugins_window, close_bn);
 
     gtk_widget_show(plugins_window);
 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.332 2003/11/27 22:12:18 guy Exp $
+ * $Id: main.c,v 1.333 2003/11/28 00:13:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,6 +233,11 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
   GTK_WIDGET_SET_FLAGS(ok_btn, GTK_CAN_DEFAULT);
   gtk_widget_grab_default(ok_btn);
   gtk_widget_show(ok_btn);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(win, ok_btn);
 
   gtk_widget_show(win);
 }

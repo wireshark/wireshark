@@ -38,6 +38,7 @@
 #include "gtkglobals.h"
 #include "ui_util.h"
 #include "compat_macros.h"
+#include "dlg_utils.h"
 
 
 
@@ -93,15 +94,8 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
-#if GTK_MAJOR_VERSION < 2
-  supported_w = gtk_window_new(GTK_WINDOW_DIALOG);
-#else
-  supported_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-#endif
-  gtk_widget_set_name(supported_w, "Ethereal Supported Protocols window" );
-  gtk_window_set_title(GTK_WINDOW(supported_w), "Ethereal: Supported Protocols");
+  supported_w = dlg_window_new("Ethereal: Supported Protocols");
   SIGNAL_CONNECT(supported_w, "destroy", supported_destroy_cb, NULL);
-  SIGNAL_CONNECT(supported_w, "realize", window_icon_realize_cb, NULL);
   WIDGET_SET_SIZE(supported_w, DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
   gtk_container_border_width(GTK_CONTAINER(supported_w), 2);
 
@@ -242,6 +236,12 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(close_bt);
 
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(supported_w));
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(supported_w, close_bt);
+
   gtk_widget_show(supported_w);
 
 } /* supported_cb */
