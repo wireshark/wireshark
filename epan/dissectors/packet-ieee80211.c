@@ -2581,7 +2581,7 @@ dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_bsfc (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, TRUE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, 0, TRUE);
 }
 
 /*
@@ -2591,7 +2591,7 @@ dissect_ieee80211_bsfc (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_fixed (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, 0, FALSE);
 }
 
 static void
