@@ -273,7 +273,7 @@ void unprotect_thread_critical_region(void);
 /****************************************************************************/
 /* whenever a rtp event packet is seen by the tap listener */
 static int 
-rtp_event_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtp_event_info _U_)
+rtp_event_packet(void *ptr _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *rtp_event_info)
 {
 	const struct _rtp_event_info *pi = rtp_event_info;
 	voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
