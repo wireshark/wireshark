@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.11 2001/02/13 00:50:05 guy Exp $
+ * $Id: wtap-int.h,v 1.12 2001/02/13 07:07:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -222,12 +222,13 @@ struct wtap_dumper {
 
 #ifdef G_HAVE_GINT64
 #define htolell(ll) GUINT64_TO_LE(ll)
-#endif
+#endif /* G_HAVE_GINT64 */
 
-#else
+#else /* WORDS_BIGENDIAN */
 #define htoles(s)	(s)
 #define htolel(l)	(l)
-#endif
+#define htolell(ll)	(ll)
+#endif /* WORDS_BIGENDIAN */
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
