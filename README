@@ -1,4 +1,4 @@
-$Id: README,v 1.49 2001/11/13 23:55:29 gram Exp $
+$Id: README,v 1.50 2001/12/04 22:43:41 guy Exp $
 
 General Information
 ------- -----------
@@ -87,15 +87,16 @@ to read multiple file types. You can read the following file
 formats:
 
 libpcap (tcpdump -w, Ethereal)
-Sniffer (compressed and uncompressed)
-NetXray
-Sniffer Pro
 snoop
 atmsnoop
 Shomiti
 LANalyzer
+Sniffer (compressed and uncompressed)
 Microsoft Network Monitor
 AIX's iptrace
+NetXray
+Sniffer Pro
+Etherpeek versions 5, 6, and 7
 RADCOM's WAN/LAN Analyzer
 Lucent/Ascend access products
 HP-UX's nettl
@@ -103,7 +104,9 @@ Toshiba's ISDN routers
 ISDN4BSD "i4btrace" utility
 Cisco Secure Intrustion Detection System iplogging facility
 pppd logs (pppdump-format files)
-Etherpeek versions 5, 6, and 7
+VMS's TCPIPtrace utility
+DBS Etherwatch for VMS
+Visual Networks traffic captures
 
 In addition, it can read gzipped versions of any of these files
 automatically, if you have the zlib library available when compiling
