@@ -1,7 +1,7 @@
 /* endpoint_talkers_tcpip.c
  * endpoint_talkers_tcpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tcpip.c,v 1.11 2003/08/30 01:05:03 sahlberg Exp $
+ * $Id: endpoint_talkers_tcpip.c,v 1.12 2003/08/30 01:18:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,18 +63,6 @@ tcpip_port_to_str(guint32 port)
 	return strp;
 }
 
-static void
-tcpip_talkers_reset(void *pit)
-{
-	endpoints_table *talkers=(endpoints_table *)pit;
-	char title[256];
-
-	reset_ett_table_data(talkers);
-	snprintf(title, 255, "TCP Talkers: %s", cfile.filename);
-	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
-}
-
-
 static int
 tcpip_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
@@ -117,6 +105,7 @@ gtk_tcpip_talkers_init(char *optarg)
 
 	talkers=g_malloc(sizeof(endpoints_table));
 
+	talkers->name="TCP";
 	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 	snprintf(title, 255, "TCP Talkers: %s", cfile.filename);
@@ -138,7 +127,7 @@ gtk_tcpip_talkers_init(char *optarg)
 
 	init_ett_table(talkers, vbox, tcpip_port_to_str, filter_names);
 
-	error_string=register_tap_listener("tcp", talkers, filter, tcpip_talkers_reset, tcpip_talkers_packet, (void *)draw_ett_table_data);
+	error_string=register_tap_listener("tcp", talkers, filter, (void *)reset_ett_table_data, tcpip_talkers_packet, (void *)draw_ett_table_data);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);

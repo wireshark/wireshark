@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.7 2003/08/30 00:53:15 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.8 2003/08/30 01:18:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,10 @@ void
 reset_ett_table_data(endpoints_table *et)
 {
 	guint32 i;
+	char title[256];
+
+	snprintf(title, 255, "%s Conversations: %s", et->name, cfile.filename);
+	gtk_window_set_title(GTK_WINDOW(et->win), title);
 
 	/* remove all entries from the clist */
 	for(i=0;i<et->num_endpoints;i++){
@@ -92,6 +96,7 @@ reset_ett_table_data(endpoints_table *et)
 	et->endpoints=NULL;
 	et->num_endpoints=0;
 }
+
 
 static gint
 ett_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)

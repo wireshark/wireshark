@@ -1,7 +1,7 @@
 /* endpoint_talkers_eth.c
  * endpoint_talkers_eth   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_eth.c,v 1.9 2003/08/30 01:05:03 sahlberg Exp $
+ * $Id: endpoint_talkers_eth.c,v 1.10 2003/08/30 01:18:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,19 +46,6 @@
 #include "packet-eth.h"
 
 
-static void
-eth_talkers_reset(void *pit)
-{
-	char title[256];
-	endpoints_table *talkers=(endpoints_table *)pit;
-
-	reset_ett_table_data(talkers);
-
-	snprintf(title, 255, "Ethernet Talkers: %s", cfile.filename);
-	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
-}
-
-
 static int
 eth_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
@@ -98,6 +85,7 @@ gtk_eth_talkers_init(char *optarg)
 
 	talkers=g_malloc(sizeof(endpoints_table));
 
+	talkers->name="Ethernet";
 	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
 	snprintf(title, 255, "Ethernet Talkers: %s", cfile.filename);
@@ -119,7 +107,7 @@ gtk_eth_talkers_init(char *optarg)
 
 	init_ett_table(talkers, vbox, NULL, filter_names);
 
-	error_string=register_tap_listener("eth", talkers, filter, eth_talkers_reset, eth_talkers_packet, (void *)draw_ett_table_data);
+	error_string=register_tap_listener("eth", talkers, filter, (void *)reset_ett_table_data, eth_talkers_packet, (void *)draw_ett_table_data);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
