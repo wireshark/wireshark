@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.62 2000/01/08 23:49:33 guy Exp $
+ * $Id: file.h,v 1.63 2000/01/24 19:27:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,22 +56,14 @@
 
 #ifdef HAVE_LIBZ
 #include "zlib.h"
-
 #define FILE_T gzFile
 #define file_open gzopen
 #define filed_open gzdopen
-#define file_seek gzseek
-#define file_read(buf, bsize, count, file) gzread((file),(buf),((count)*(bsize)))
-#define file_write(buf, bsize, count, file) gzwrite((file),(buf),((count)*(bsize)))
 #define file_close gzclose
-
 #else /* No zLib */
 #define FILE_T FILE *
 #define file_open fopen
 #define filed_open fdopen
-#define file_seek fseek
-#define file_read fread
-#define file_write fwrite
 #define file_close fclose
 #endif /* HAVE_LIBZ */
 
