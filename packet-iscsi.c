@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.13 2001/10/21 17:20:10 guy Exp $
+ * $Id: packet-iscsi.c,v 1.14 2001/10/21 19:04:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@
 #include "packet.h"
 #include "prefs.h"
 
-static uint iscsi_desegment = TRUE;
+static gboolean iscsi_desegment = TRUE;
 
 static int enable_bogosity_filter = TRUE;
 static guint32 bogus_pdu_data_length_threshold = 256 * 1024;
@@ -64,7 +64,7 @@ static int headerDigestIsCRC32 = TRUE;
 static int dataDigestSize = 4;
 static int headerDigestSize = 4;
 
-static uint iscsi_port = 5003;
+static guint iscsi_port = 5003;
 
 /* Initialize the protocol and registered fields */
 static int proto_iscsi = -1;
