@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.45 2002/06/28 01:23:26 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.46 2002/07/09 14:24:39 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -446,6 +446,40 @@ static int hf_spoolss_routerreplyprinter_condition = -1;
 static int hf_spoolss_routerreplyprinter_unknown1 = -1;
 static int hf_spoolss_routerreplyprinter_changeid = -1;
 
+/* Forms */
+
+static int hf_spoolss_form_level = -1;
+static int hf_spoolss_form_name = -1;
+static int hf_spoolss_form_flags = -1;
+static int hf_spoolss_form_unknown = -1;
+static int hf_spoolss_form_width = -1;
+static int hf_spoolss_form_height = -1;
+static int hf_spoolss_form_left_margin = -1;
+static int hf_spoolss_form_top_margin = -1;
+static int hf_spoolss_form_horiz_len = -1;
+static int hf_spoolss_form_vert_len = -1;
+
+/* AddForm RPC */
+
+static int hf_spoolss_addform_level = -1;
+
+/* GetForm RPC */
+
+static int hf_spoolss_getform_level = -1;
+
+/* SetForm RPC */
+
+static int hf_spoolss_setform_level = -1;
+
+/* EnumForms RPC */
+
+static int hf_spoolss_enumforms_num = -1;
+
+/* Printerdata */
+
+static int hf_spoolss_printerdata_size = -1;
+static int hf_spoolss_printerdata_data = -1;
+
 /* 
  * Routines to dissect a spoolss BUFFER 
  */
@@ -775,9 +809,13 @@ static int dissect_printerdata_data(tvbuff_t *tvb, int offset,
 	item = proto_tree_add_text(tree, tvb, offset, 0, "Printer data");
 	subtree = proto_item_add_subtree(item, ett_printerdata_data);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, &size, "Size");
-  
-	offset = prs_uint8s(tvb, offset, pinfo, subtree, size, NULL, "Data");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_printerdata_size, &size);
+
+	offset = dissect_ndr_uint8s(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_printerdata_data, size, NULL);
 
 	proto_item_set_len(item, size + 4);
 
@@ -2886,49 +2924,62 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static const value_string form_type_vals[] =
 {
-	{ FORM_USER, "FORM_USER" },
-	{ FORM_BUILTIN, "FORM_BUILTIN" },
-	{ FORM_PRINTER, "FORM_PRINTER" },
+	{ FORM_USER, "User" },
+	{ FORM_BUILTIN, "Builtin" },
+	{ FORM_PRINTER, "Printer" },
 	{ 0, NULL }
 };
 
 static gint ett_FORM_REL = -1;
 
-static int prs_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			proto_tree *tree, int struct_start, GList **dp_list, 
-			void **data _U_)
+static int dissect_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep, int struct_start)
 {
 	proto_item *item;
 	proto_tree *subtree;
 	guint32 flags;
+	int item_start = offset;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "FORM_REL");
 
 	subtree = proto_item_add_subtree(item, ett_FORM_REL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, &flags, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep,
+		hf_spoolss_form_flags, &flags);
 
 	proto_tree_add_text(subtree, tvb, offset - 4, 4, "Flags: %s",
 			    val_to_str(flags, form_type_vals, "Unknown (%d)"));
 
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list,
-			    struct_start, NULL, "Name");
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_form_name,
+		struct_start, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Width");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_width, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Height");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_height, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-			    "Left margin");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_left_margin, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-			    "Top margin");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_top_margin, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-			    "Horizontal imageable length");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_horiz_len, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-			    "Vertical imageable length");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_vert_len, NULL);
+
+	proto_item_set_len(item, offset - item_start);
 
 	return offset;
 }
@@ -2976,9 +3027,9 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 count;
-	struct BUFFER_DATA *bd = NULL;
-	void **data_list;
+	BUFFER buffer;
+	guint32 level = (guint32)dcv->private_data, i, count;
+	int buffer_offset;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2986,43 +3037,34 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					   prs_BUFFER, NULL, &data_list);
+	offset = dissect_spoolss_buffer(
+		tvb, offset, pinfo, tree, drep, &buffer);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_needed, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, &count, "Num entries");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_enumforms_num, &count);
 
-	if (data_list)
-		bd = (struct BUFFER_DATA *)data_list[0];
+	/* Unfortunately this array isn't in NDR format so we can't
+	   use prs_array().  The other weird thing is the
+	   struct_start being inside the loop rather than outside.
+	   Very strange. */
 
-	CLEANUP_PUSH(g_free, bd);
+	buffer_offset = buffer.offset;
 
-	if (bd && bd->tree) {
-		guint32 level = (guint32)dcv->private_data, i;
-		GList *child_dp_list = NULL;
+	for (i = 0; i < count; i++) {
+		int struct_start = buffer.offset;
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
-
-		proto_item_append_text(bd->item, ", FORM_%d", level);
-
-		/* Unfortunately this array isn't in NDR format so we can't
-		   use prs_array().  The other weird thing is the
-		   struct_start being inside the loop rather than outside.
-		   Very strange. */
-
-		for (i = 0; i < count; i++) {
-			int struct_start = bd->offset;
-
-			bd->offset = prs_FORM_REL(
-				bd->tvb, bd->offset, pinfo, bd->tree, 
-				struct_start, &child_dp_list, NULL);
-		}
-
+		buffer_offset = dissect_FORM_REL(
+			tvb, buffer_offset, pinfo, buffer.tree, drep, 
+			struct_start);
 	}
-
-	CLEANUP_CALL_AND_POP;
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -3402,45 +3444,64 @@ static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
 
 static gint ett_FORM_1 = -1;
 
-static int prs_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		      proto_tree *tree, GList **dp_list, void **data _U_)
+static int dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			  proto_tree *tree, char *drep)
 {
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 ptr = 0, flags;
+	guint32 flags;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "FORM_1");
 
 	subtree = proto_item_add_subtree(item, ett_FORM_1);
 
-	offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "Name");
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, subtree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Name", hf_spoolss_form_name, 0);
 
-	if (ptr)
-		defer_ptr(dp_list, prs_UNISTR2_dp, subtree);
+	/* Eek - we need to know whether this pointer was NULL or not.
+	   Currently there is not any way to do this. */
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, &flags, NULL);
+	if (tvb_length_remaining(tvb, offset) == 0)
+		goto done;
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep,
+		hf_spoolss_form_flags, &flags);
 
 	proto_tree_add_text(subtree, tvb, offset - 4, 4, "Flags: %s",
 			    val_to_str(flags, form_type_vals, "Unknown (%d)"));
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Unknown");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_unknown, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Width");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_width, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Height");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_height, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-			    "Left margin");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_left_margin, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-			    "Top margin");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_top_margin, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-			    "Horizontal imageable length");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_horiz_len, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
-			    "Vertical imageable length");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_vert_len, NULL);
 
+ done:
 	return offset;
 }
 
@@ -3450,8 +3511,9 @@ static int prs_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static gint ett_FORM_CTR = -1;
 
-static int prs_FORM_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *tree, GList **dp_list _U_, void **data _U_)
+static int dissect_FORM_CTR(tvbuff_t *tvb, int offset,
+			    packet_info *pinfo, proto_tree *tree,
+			    char *drep)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -3461,13 +3523,15 @@ static int prs_FORM_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	subtree = proto_item_add_subtree(item, ett_FORM_CTR);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, &level, "Level");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_form_level, &level);
 
 	switch(level) {
 	case 1:
-		offset = prs_struct_and_referents(tvb, offset, pinfo, subtree,
-						  prs_FORM_1, NULL, NULL);
+		offset = dissect_FORM_1(tvb, offset, pinfo, subtree, drep);
 		break;
+
 	default:
 		proto_tree_add_text(subtree, tvb, offset, 0,
 				    "[Unknown info level %d]", level);
@@ -3476,6 +3540,33 @@ static int prs_FORM_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	return offset;
 }
+
+/* Form name - this is actually a unistr2 without the pointer */
+
+static int dissect_form_name(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			     proto_tree *tree, char *drep)
+{
+	extern int hf_nt_str_len;
+	extern int hf_nt_str_off;
+	extern int hf_nt_str_max_len;
+	guint32 len;
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_nt_str_max_len, NULL);
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_nt_str_off, NULL);
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_nt_str_len, &len);
+
+	offset = dissect_ndr_uint16s(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_form_name, len, NULL);
+
+	return offset;
+}
+
 
 /*
  * AddForm
@@ -3498,7 +3589,9 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");	
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_addform_level, &level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -3507,8 +3600,7 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	dcv->private_data = (void *)level;
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					  prs_FORM_CTR, NULL, NULL);
+	offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, drep);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -3544,7 +3636,6 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *form_name;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -3556,14 +3647,8 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					  prs_UNISTR2_dp, (void **)&form_name,
-					  NULL);
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", form_name);
-
-	g_free(form_name);
+	offset = dissect_form_name(
+		tvb, offset, pinfo, tree, drep);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -3600,7 +3685,6 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 level;
-	char *form_name;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -3612,23 +3696,18 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					  prs_UNISTR2_dp, (void **)&form_name,
-					  NULL);	
+	offset = dissect_form_name(
+		tvb, offset, pinfo, tree, drep);
 
-	CLEANUP_PUSH(g_free, form_name);
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");	
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_setform_level, &level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, level %d", 
-				form_name, level);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	CLEANUP_CALL_AND_POP;
-
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					  prs_FORM_CTR, NULL, NULL);
-
+	offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, drep);
+	
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
@@ -3664,7 +3743,6 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 level;
-	char *form_name;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -3676,26 +3754,24 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					  prs_UNISTR2_dp, (void **)&form_name,
-					  NULL);	
+	offset = dissect_form_name(
+		tvb, offset, pinfo, tree, drep);
 
-	CLEANUP_PUSH(g_free, form_name);
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_getform_level, &level);
 
 	dcv->private_data = (void *)level;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, level %d",
-				form_name, level);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d",
+				level);
 
-	CLEANUP_CALL_AND_POP;
+	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					  prs_BUFFER, NULL, NULL);
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Offered");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_offered, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -3707,8 +3783,9 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	void **data_list;
-	struct BUFFER_DATA *bd = NULL;
+	BUFFER buffer;
+	int buffer_offset;
+	guint32 level = (guint32)dcv->private_data;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -3716,40 +3793,38 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					  prs_BUFFER, NULL, &data_list);
+	offset = dissect_spoolss_buffer(
+		tvb, offset, pinfo, tree, drep, &buffer);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_needed, NULL);
 
-	if (data_list)
-		bd = (struct BUFFER_DATA *)data_list[0];
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+	
+	if (!buffer.size) 
+		goto done;
 
-	CLEANUP_PUSH(g_free, bd);
+	buffer_offset = buffer.offset;
 
-	if (bd && bd->tree) {
-		guint32 level = (guint32)dcv->private_data;
+	switch(level) {
+	case 1: {
+		int struct_start = buffer.offset;
 
-		switch(level) {
-		case 1: {
-			int struct_start = bd->offset;
-			GList *dp_list = NULL;
-
-			bd->offset = prs_FORM_REL(
-				bd->tvb, bd->offset, pinfo, bd->tree, 
-				struct_start, &dp_list, NULL);
-			break;
-		}
-		default:
-			proto_tree_add_text(
-				bd->tree, bd->tvb, bd->offset, 0, 
-				"[Unknown info level %d]", level);
-			break;
-		}
-
+		buffer_offset = dissect_FORM_REL(
+			tvb, buffer_offset, pinfo, tree, drep, struct_start);
+		break;
 	}
 
-	CLEANUP_CALL_AND_POP;
+	default:
+		proto_tree_add_text(
+			buffer.tree, tvb, buffer_offset, buffer.size,
+			"[Unknown info level %d]", level);
+		goto done;
+	}
 
+ done:
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
 
@@ -4021,8 +4096,9 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_offered, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_offered, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -4048,8 +4124,9 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep,
 					&buffer); 
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_needed, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_needed, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_enumjobs_numjobs, &num_jobs);
@@ -4194,8 +4271,9 @@ static int SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_offered, NULL);	
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_offered, NULL);	
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -4239,8 +4317,9 @@ static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 done:
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_needed, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_needed, NULL);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -4852,8 +4931,9 @@ static int SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_offered, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_offered, NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -4879,11 +4959,13 @@ static int SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep,
 					&buffer);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_needed, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_needed, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_returned, &num_drivers);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_returned, &num_drivers);
 
 	buffer_offset = buffer.offset;
 
@@ -4959,8 +5041,9 @@ static int SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_offered, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_offered, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_clientmajorversion, NULL);
@@ -5007,8 +5090,9 @@ static int SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 		break;
 	}
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_needed, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_needed, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_servermajorversion, NULL);
@@ -6391,6 +6475,84 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_routerreplyprinter_changeid,
 		  { "Change id", "spoolss.routerreplyprinter.changeid", FT_UINT32, 
 		    BASE_DEC, NULL, 0, "Change id", HFILL }},
+
+		/* Forms */
+
+		{ &hf_spoolss_form_level,
+		  { "Level", "spoolss.form.level", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Level", HFILL }},
+		
+		{ &hf_spoolss_form_name,
+		  { "Name", "spoolss.form.name", FT_STRING, BASE_NONE,
+		    NULL, 0, "Name", HFILL }},
+
+		{ &hf_spoolss_form_flags,
+		  { "Flags", "spoolss.form.flags", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Flags", HFILL }},
+		
+		{ &hf_spoolss_form_unknown,
+		  { "Unknown", "spoolss.form.unknown", FT_UINT32, 
+		    BASE_HEX, NULL, 0, "Unknown", HFILL }},
+		
+		{ &hf_spoolss_form_width,
+		  { "Width", "spoolss.form.width", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Width", HFILL }},
+		
+		{ &hf_spoolss_form_height,
+		  { "Height", "spoolss.form.height", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Height", HFILL }},
+		
+		{ &hf_spoolss_form_left_margin,
+		  { "Left margin", "spoolss.form.left", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Left", HFILL }},
+		
+		{ &hf_spoolss_form_top_margin,
+		  { "Top", "spoolss.form.top", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Top", HFILL }},
+		
+		{ &hf_spoolss_form_horiz_len,
+		  { "Horizontal", "spoolss.form.horiz", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Horizontal", HFILL }},
+		
+		{ &hf_spoolss_form_vert_len,
+		  { "Vertical", "spoolss.form.vert", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Vertical", HFILL }},
+
+		/* GetForm RPC */
+
+		{ &hf_spoolss_getform_level,
+		  { "Level", "spoolss.getform.level", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Level", HFILL }},
+
+		/* SetForm RPC */
+
+		{ &hf_spoolss_setform_level,
+		  { "Level", "spoolss.setform.level", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Level", HFILL }},
+
+		/* AddForm RPC */
+
+		{ &hf_spoolss_addform_level,
+		  { "Level", "spoolss.addform.level", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Level", HFILL }},
+
+		/* EnumForms RPC */
+
+		{ &hf_spoolss_enumforms_num,
+		  { "Num", "spoolss.enumforms.num", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Num", HFILL }},
+
+		/* Printerdata */
+
+		{ &hf_spoolss_printerdata_size,
+		  { "Size", "spoolss.printerdata.size", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Size", HFILL }},
+
+		{ &hf_spoolss_printerdata_data,
+		  { "Data", "spoolss.printerdata.data", FT_BYTES, 
+		    BASE_HEX, NULL, 0, "Data", HFILL }},
+
+		
 	};
 
         static gint *ett[] = {
