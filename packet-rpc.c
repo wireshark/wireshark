@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.23 1999/12/13 21:04:50 gram Exp $
+ * $Id: packet-rpc.c,v 1.24 1999/12/14 11:43:59 girlich Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -116,6 +116,9 @@ static int hf_rpc_state_accept = -1;
 static int hf_rpc_state_reply = -1;
 static int hf_rpc_state_reject = -1;
 static int hf_rpc_state_auth = -1;
+static int hf_rpc_dup = -1;
+static int hf_rpc_call_dup = -1;
+static int hf_rpc_reply_dup = -1;
 
 static gint ett_rpc = -1;
 static gint ett_rpc_string = -1;
@@ -338,6 +341,22 @@ rpc_roundup(unsigned int a)
 {
 	unsigned int mod = a % 4;
 	return a + ((mod)? 4-mod : 0);
+}
+
+
+int
+dissect_rpc_bool(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+int hfindex)
+{
+	guint32 value;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	value = EXTRACT_UINT(pd, offset+0);
+	if (tree)
+		proto_tree_add_item(tree, hfindex, offset, 4, value);
+	offset += 4;
+
+	return offset;
 }
 
 
@@ -963,6 +982,12 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			/* duplicate request */
 			if (check_col(fd, COL_INFO)) {
 				col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
+				if (rpc_tree) {
+					proto_tree_add_item_hidden(rpc_tree,
+						hf_rpc_dup, 0,0, xid);
+					proto_tree_add_item_hidden(rpc_tree,
+						hf_rpc_call_dup, 0,0, xid);
+				}
 			}
 		}
 		else {
@@ -1050,6 +1075,12 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		if (rpc_call->replies>1) {
 			if (check_col(fd, COL_INFO)) {
 				col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
+				if (rpc_tree) {
+					proto_tree_add_item_hidden(rpc_tree,
+						hf_rpc_dup, 0,0, xid);
+					proto_tree_add_item_hidden(rpc_tree,
+						hf_rpc_reply_dup, 0,0, xid);
+				}
 			}
 		}
 
@@ -1253,6 +1284,15 @@ proto_register_rpc(void)
 		{ &hf_rpc_auth_machinename, {
 			"Machine Name", "rpc.auth.machinename", FT_STRING, 
 			BASE_DEC, NULL, 0, "Machine Name" }},
+		{ &hf_rpc_dup, {
+			"Duplicate Transaction", "rpc.dup", FT_UINT32, BASE_DEC,
+			NULL, 0, "Duplicate Transaction" }},
+		{ &hf_rpc_call_dup, {
+			"Duplicate Call", "rpc.call.dup", FT_UINT32, BASE_DEC,
+			NULL, 0, "Duplicate Call" }},
+		{ &hf_rpc_reply_dup, {
+			"Duplicate Reply", "rpc.reply.dup", FT_UINT32, BASE_DEC,
+			NULL, 0, "Duplicate Reply" }}
 	};
 	static gint *ett[] = {
 		&ett_rpc,
