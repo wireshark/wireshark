@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.24 1999/08/18 04:17:36 guy Exp $
+ * $Id: wtap.h,v 1.25 1999/08/18 04:41:20 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -176,8 +176,8 @@ typedef struct wtap {
 struct wtap_dumper;
 
 typedef int (*subtype_write_func)(struct wtap_dumper*,
-		const struct wtap_pkthdr*, const u_char*);
-typedef int (*subtype_close_func)(struct wtap_dumper *);
+		const struct wtap_pkthdr*, const u_char*, int*);
+typedef int (*subtype_close_func)(struct wtap_dumper*, int*);
 typedef struct wtap_dumper {
 	FILE*			fh;
 	int			file_type;
@@ -196,9 +196,6 @@ typedef struct wtap_dumper {
  *
  * a negative number, indicating the type of error, on other failures.
  */
-#define	WTAP_ERR_NOT_REGULAR_FILE	-1	/* not a plain file */
-#define	WTAP_ERR_FILE_UNKNOWN_FORMAT	-2	/* not a capture file in a known format */
-
 wtap* wtap_open_offline(const char *filename, int *err);
 void wtap_loop(wtap *wth, int, wtap_handler, u_char*);
 
@@ -208,34 +205,35 @@ int wtap_file_type(wtap *wth);
 const char *wtap_file_type_string(wtap *wth);
 void wtap_close(wtap *wth);
 
-/*
- * On failure, "wtap_dump_open()" and "wtap_dump_fdopen()" return NULL,
- * and put into the "int" pointed to by its second argument:
- *
- * a positive "errno" value if the capture file can't be created, or
- * some other failure that sets "errno" occurs;
- *
- * a negative number, indicating the type of error, on other failures.
- */
-#define	WTAP_ERR_CANT_OPEN			-1
-		/* couldn't open, reason unknown */
-#define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-2
-		/* can't save files in that format */
-#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-3
-		/* that format doesn't support per-packet encapsulations */
-#define	WTAP_ERR_SHORT_WRITE			-4
-		/* write wrote less data than it should have */
-
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	int snaplen, int *err);
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	int *err);
-int wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const u_char *);
+int wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const u_char *,
+	int *err);
 FILE* wtap_dump_file(wtap_dumper *);
-int wtap_dump_close(wtap_dumper *);
+int wtap_dump_close(wtap_dumper *, int *);
 
 /* XXX - needed until "wiretap" can do live packet captures */
 int wtap_pcap_encap_to_wtap_encap(int encap);
+
+/*
+ * Wiretap error codes.
+ */
+#define	WTAP_ERR_NOT_REGULAR_FILE		-1
+	/* The file being opened for reading isn't a plain file */
+#define	WTAP_ERR_FILE_UNKNOWN_FORMAT		-2
+	/* The file being opened is not a capture file in a known format */
+#define	WTAP_ERR_CANT_OPEN			-3
+	/* The file couldn't be opened, reason unknown */
+#define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-4
+	/* Wiretap can't save files in the specified format */
+#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-5
+	/* The specified format doesn't support per-packet encapsulations */
+#define	WTAP_ERR_CANT_CLOSE			-6
+	/* The file couldn't be closed, reason unknown */
+#define	WTAP_ERR_SHORT_WRITE			-7
+	/* An attempt to write wrote less data than it should have */
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.

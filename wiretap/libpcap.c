@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.7 1999/08/18 04:17:35 guy Exp $
+ * $Id: libpcap.c,v 1.8 1999/08/18 04:41:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -72,8 +72,8 @@ struct pcaprec_hdr {
 
 static int libpcap_read(wtap *wth);
 static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd);
-static int libpcap_dump_close(wtap_dumper *wdh);
+    const u_char *pd, int *err);
+static int libpcap_dump_close(wtap_dumper *wdh, int *err);
 
 static const int pcap_encap[] = {
 	WTAP_ENCAP_NONE,	/* no encapsulation */
@@ -298,7 +298,7 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns 1 on success, 0 on failure. */
 static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd)
+    const u_char *pd, int *err)
 {
 	struct pcaprec_hdr rec_hdr;
 	int nwritten;
@@ -308,17 +308,28 @@ static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	rec_hdr.incl_len = phdr->caplen;
 	rec_hdr.orig_len = phdr->len;
 	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
-	if (nwritten != sizeof rec_hdr)
-		return 0;	/* failed (XXX - save reason why) */
+	if (nwritten != sizeof rec_hdr) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return 0;
+	}
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-	if (nwritten != phdr->caplen)
-		return 0;	/* failed (XXX - save reason why) */
+	if (nwritten != phdr->caplen) {
+		if (nwritten < 0)
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return 0;
+	}
 	return 1;
 }
 
-/* Close a dump file.
+/* Finish writing to a dump file.
    Returns 1 on success, 0 on failure. */
-static int libpcap_dump_close(wtap_dumper *wdh)
+static int libpcap_dump_close(wtap_dumper *wdh, int *err)
 {
+	/* Nothing to do here. */
 	return 1;
 }

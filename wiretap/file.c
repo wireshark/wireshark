@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.14 1999/08/18 04:17:37 guy Exp $
+ * $Id: file.c,v 1.15 1999/08/18 04:41:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -51,7 +51,7 @@ wtap* wtap_open_offline(const char *filename, int *err)
 	wtap	*wth;
 
 	/* First, make sure the file is valid */
-	if (stat(filename, &statb)) {
+	if (stat(filename, &statb) < 0) {
 		*err = errno;
 		return NULL;
 	}
@@ -62,9 +62,15 @@ wtap* wtap_open_offline(const char *filename, int *err)
 	}
 #endif
 
+	errno = ENOMEM;
 	wth = (wtap*)malloc(sizeof(wtap));
+	if (wth == NULL) {
+		*err = errno;
+		return NULL;
+	}
 
 	/* Open the file */
+	errno = WTAP_ERR_CANT_OPEN;
 	if (!(wth->fh = fopen(filename, "rb"))) {
 		*err = errno;
 		free(wth);
@@ -201,20 +207,29 @@ FILE* wtap_dump_file(wtap_dumper *wdh)
 }
 
 int wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd)
+    const u_char *pd, int *err)
 {
-	return (wdh->subtype_write)(wdh, phdr, pd);
+	return (wdh->subtype_write)(wdh, phdr, pd, err);
 }
 
-int wtap_dump_close(wtap_dumper *wdh)
+int wtap_dump_close(wtap_dumper *wdh, int *err)
 {
 	int ret = 1;
 
-	if (!(wdh->subtype_close)(wdh))
+	if (!(wdh->subtype_close)(wdh, err))
 		ret = 0;
+	errno = WTAP_ERR_CANT_CLOSE;
 	ret = fclose(wdh->fh);
-	if (ret == EOF)
+	if (ret == EOF) {
+		if (ret) {
+			/* The per-format close function succeeded,
+			   but the fclose didn't.  Save the reason
+			   why, if our caller asked for it. */
+			if (err != NULL)
+				*err = errno;
+		}
 		ret = 0;
+	}
 	free(wdh);
 	return ret;
 }

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.53 1999/08/18 04:17:26 guy Exp $
+ * $Id: capture.c,v 1.54 1999/08/18 04:41:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -506,19 +506,19 @@ capture(void) {
       if (pcap_lookupnet (cf.iface, &netnum, &netmask, err_str) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL,
           "Can't use filter:  Couldn't obtain netmask info.");
-        wtap_dump_close(ld.pdh);
+        wtap_dump_close(ld.pdh, NULL);
         unlink(cf.save_file); /* silently ignore error */
         pcap_close(pch);
         return;
       } else if (pcap_compile(pch, &cf.fcode, cf.cfilter, 1, netmask) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string.");
-        wtap_dump_close(ld.pdh);
+        wtap_dump_close(ld.pdh, NULL);
         unlink(cf.save_file); /* silently ignore error */
         pcap_close(pch);
         return;
       } else if (pcap_setfilter(pch, &cf.fcode) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Can't install filter.");
-        wtap_dump_close(ld.pdh);
+        wtap_dump_close(ld.pdh, NULL);
         unlink(cf.save_file); /* silently ignore error */
         pcap_close(pch);
         return;
@@ -642,7 +642,37 @@ capture(void) {
       }
     }
     
-    if (ld.pdh) wtap_dump_close(ld.pdh);
+    if (ld.pdh) {
+      if (!wtap_dump_close(ld.pdh, &err)) {
+        switch (err) {
+
+        case WTAP_ERR_CANT_CLOSE:
+          errmsg = "The file to which the capture was being saved"
+                 " couldn't be closed for some unknown reason.";
+          break;
+
+        case WTAP_ERR_SHORT_WRITE:
+          errmsg = "Not all the data could be written to the file"
+                   " to which the capture was being saved.";
+          break;
+
+        default:
+          if (err < 0) {
+            sprintf(errmsg_errno, "The file to which the capture was being"
+	                      " saved (\"%%s\") could not be closed: Error %d.",
+	  			err);
+          } else {
+            sprintf(errmsg_errno, "The file to which the capture was being"
+	                      " saved (\"%%s\") could not be closed: %s.",
+	  			strerror(err));
+	  }
+	  errmsg = errmsg_errno;
+	  break;
+        }
+        snprintf(err_str, PCAP_ERRBUF_SIZE, errmsg, cf.save_file);
+        simple_dialog(ESD_TYPE_WARN, NULL, err_str);
+      }
+    }
     pcap_close(pch);
 
     gtk_grab_remove(GTK_WIDGET(cap_w));
@@ -695,6 +725,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd) {
   struct wtap_pkthdr whdr;
   loop_data *ld = (loop_data *) user;
+  int err;
 
   if ((++ld->counts.total >= ld->max) && (ld->max > 0)) 
   {
@@ -706,8 +737,8 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      whdr.len = phdr->len;
      whdr.pkt_encap = ld->wtap_linktype;
 
-     /* XXX - check for errors */
-     wtap_dump(ld->pdh, &whdr, pd);
+     /* XXX - do something if this fails */
+     wtap_dump(ld->pdh, &whdr, pd, &err);
   }
     
   switch (ld->linktype) {
