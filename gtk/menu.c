@@ -356,6 +356,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Text2pcap", NULL, url_page_menu_cb, LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Home Page", NULL, url_page_menu_cb, ONLINEPAGE_HOME, GTK_STOCK_HOME),
+    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Wiki", NULL, url_page_menu_cb, ONLINEPAGE_WIKI, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/User's Guide", NULL, url_page_menu_cb, ONLINEPAGE_USERGUIDE, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/FAQ's", NULL, url_page_menu_cb, ONLINEPAGE_FAQ, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Downloads", NULL, url_page_menu_cb, ONLINEPAGE_DOWNLOAD, NULL, NULL),

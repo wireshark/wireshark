@@ -269,6 +269,9 @@ url_page_action(url_page_action_e action)
     case(ONLINEPAGE_HOME):
         browser_open_url ("http://www.ethereal.com");
         break;
+    case(ONLINEPAGE_WIKI):
+        browser_open_url ("http://wiki.ethereal.com");
+        break;
     case(ONLINEPAGE_DOWNLOAD):
         browser_open_url ("http://www.ethereal.com/download.html");
         break;

@@ -53,6 +53,7 @@ void help_redraw(void);
 typedef enum {
     /* pages online at www.ethereal.com */
     ONLINEPAGE_HOME,
+    ONLINEPAGE_WIKI,
     ONLINEPAGE_USERGUIDE,
     ONLINEPAGE_FAQ,
     ONLINEPAGE_DOWNLOAD,
