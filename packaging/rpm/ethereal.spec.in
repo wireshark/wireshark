@@ -36,6 +36,11 @@ cp ethereal.1 $RPM_BUILD_ROOT/usr/X11R6/man/man1
 cp tethereal.1 $RPM_BUILD_ROOT/usr/man/man1
 cp editcap.1 $RPM_BUILD_ROOT/usr/man/man1
 cp manuf $RPM_BUILD_ROOT/etc
+cp dictionary.dtd $RPM_BUILD_ROOT/etc
+cp dictionary.xml $RPM_BUILD_ROOT/etc
+cp mobileipv4.xml $RPM_BUILD_ROOT/etc
+cp nasreq.xml $RPM_BUILD_ROOT/etc
+cp sunping.xml $RPM_BUILD_ROOT/etc
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -47,6 +52,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc README.aix  README.irix  README.tru64  README.win32
 %doc README.bsd
 %config /etc/manuf
+%config /etc/dictionary.dtd
+%config /etc/dictionary.xml
+%config /etc/mobileipv4.xml
+%config /etc/nasreq.xml
+%config /etc/sunping.xml
 /usr/X11R6/bin/ethereal
 /usr/X11R6/man/man1/ethereal.1.gz
 /usr/bin/tethereal
