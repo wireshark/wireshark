@@ -10,6 +10,10 @@
 	the various tools needed for Ethereal development.
 	</para>
 	<para>
+	None of the tools mentioned in this chapter is needed to run Ethereal,
+	they are only needed to build Ethereal.
+	</para>
+	<para>
 	In the next chapters you will find explanations of the tool
 	usage for some of the specific development tasks.
 	</para>
@@ -22,15 +26,10 @@
   	<listitem>
 	<para>
 	Unix: as described above, the tools should be commonly available on the
-	supported unix platforms
+	supported unix platforms, and through the cygwin unix emulation also for 
+	win32 platforms
 	</para>
   	</listitem>
-  	<listitem>
-	<para>
-	Win32 cygwin: cygwin provides a unix emulation layer with a lot
-	of unix based tools on the win32 platform
-	</para>
-	</listitem>
   	<listitem>
 	<para>
 	Win32 native: native Win32 tools, no emulation required
@@ -85,7 +84,7 @@
 	</section>
 
 	<section id="ChToolsBash">
-	<title>Bash</title>
+	<title>bash</title>
 	<para>
 	The bash shell is needed to run several shell scripts.
 	</para>
@@ -437,8 +436,8 @@ to the extent permitted by law.]]>
 	<section>
 	<title>Unix: bison</title>
 	<para>
-	Bison is available as the <application>bison</application>
-	package from the cygwin setup.
+	Bison is available for most of the unix-like platforms and as the 
+	<application>bison</application> package from the cygwin setup.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -479,8 +478,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	
 	<title>Unix: flex</title>
 	<para>
-	Flex is available as the <application>flex</application>
-	package from the cygwin setup.
+	Flex is available for most of the unix-like platforms and as the 
+	<application>flex</application> package from the cygwin setup.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -518,7 +517,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 	<para>
 	For detailed information about the different ways to obtain the sources, 
-	see <xref linkend="ChSrcObtaining"/>.
+	2.
 	</para>
 	<para>
 	There is a book on subversion available at:
@@ -528,7 +527,28 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<section>
 	<title>Unix: svn</title>
 	<para>
-	XXX
+	SVN is available for most of the unix-like platforms and as the 
+	<application>SVN</application> package from the cygwin setup.
+	</para>
+	<para>
+	After correct installation, typing inside the bash:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>svn --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[svn, version 1.0.5 (r9954)
+   compiled Jun 20 2004, 23:28:30
+
+Copyright (C) 2000-2004 CollabNet.
+Subversion is open source software, see http://subversion.tigris.org/
+This product includes software developed by CollabNet (http://www.Collab.Net/).
+
+...]]>
+	</programlisting>
+	However, the version string may vary.
 	</para>
 	</section>
 
@@ -536,7 +556,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<title>Win32 native: TortoiseSVN</title>
 	<para>
 	A good subversion client for Win32 can be found at: 
-	<ulink url="http://tortoisesvn.tigris.org/"/>
+	<ulink url="http://tortoisesvn.tigris.org/"/>. It will nicely integrate 
+	into the Explorer window.
 	</para>
 	</section>
 
@@ -554,8 +575,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<section>
 	<title>Unix: GNU diff</title>
 	<para>
-	Diff is available as the <application>diff</application>
-	package from the cygwin setup.
+	Diff is available for most of the unix-like platforms and as the 
+	<application>diff</application> package from the cygwin setup.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -600,8 +621,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<section>
 	<title>Unix: patch</title>
 	<para>
-	Patch is available as the <application>patch</application>
-	package from the cygwin setup.
+	Patch is available for most of the unix-like platforms and as the 
+	<application>patch</application> package from the cygwin setup.
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -640,7 +661,16 @@ written by Larry Wall and Paul Eggert]]>
 	<section id="ChToolsWget">
 	<title>Win32: wget (optional)</title>
 	<para>
-	XXX http_proxy
+	wget is used to download files from the internet using command line parameters.
+	</para>
+	<para>
+	You will need wget only, if you want to use the win32 setup target, see 
+	<xref linkend="ChLibsSetup"/> for details.
+	</para>
+	<para>
+	If you are behind a HTTP proxy, you must set the environment variable http_proxy
+	before using wget to something like:
+	HTTP_PROXY=http://proxy.de:8080/
 	</para>
 	</section>
 
@@ -687,26 +717,36 @@ written by Larry Wall and Paul Eggert]]>
 	<row>
 	  <entry>C compiler</entry>
 	  <entry>gcc</entry>
-	  <entry><command>MSVC</command></entry>
+	  <entry><command>cl.exe (MSVC)</command></entry>
 	</row>
 	<row>
 	  <entry>make</entry>
 	  <entry>make</entry>
-	  <entry><command>MSVC nmake</command></entry>
+	  <entry><command>nmake.exe (MSVC)</command></entry>
 	</row>
 	<row>
-	  <entry>python interpreter (XXX: which one is recommended?)</entry>
-	  <entry>python</entry>
+	  <entry>python interpreter</entry>
+	  <entry><command>python</command></entry>
 	  <entry><ulink url="http://python.org/download/"/></entry>
 	</row>
 	<row>
-	  <entry>perl interpreter (XXX: which one is recommended?)</entry>
-	  <entry>perl</entry>
+	  <entry>perl interpreter</entry>
+	  <entry><command>perl</command></entry>
 	  <entry><ulink url="http://www.ActiveState.com"/></entry>
 	</row>
 	<row>
 	  <entry>sed</entry>
 	  <entry><command>sed</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry>yacc</entry>
+	  <entry><command>yacc</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry>lexx</entry>
+	  <entry><command>lexx</command></entry>
 	  <entry>-</entry>
 	</row>
 	</tbody>
@@ -727,6 +767,11 @@ written by Larry Wall and Paul Eggert]]>
 	</thead>
 	<tbody>
 	<row>
+	  <entry>subversion</entry>
+	  <entry>svn</entry>
+	  <entry><command><ulink url="http://tortoisesvn.tigris.org/">TortoiseSVN</ulink></command></entry>
+	</row>
+	<row>
 	  <entry>diff</entry>
 	  <entry><command>diff</command></entry>
 	  <entry>-</entry>
@@ -737,9 +782,14 @@ written by Larry Wall and Paul Eggert]]>
 	  <entry>-</entry>
 	</row>
 	<row>
+	  <entry>wget</entry>
+	  <entry><command>wget</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
 	  <entry>nsis</entry>
 	  <entry>-</entry>
-	  <entry><command><ulink url="http://tortoisesvn.tigris.org/"/></command></entry>
+	  <entry><command><ulink url="http://nsis.sourceforge.net">NSIS</ulink></command></entry>
 	</row>
 	</tbody>
 	</tgroup>

@@ -3,6 +3,9 @@
 
 <chapter id="ChapterLibraries">
   <title>Libraries</title>
+  
+  <section>
+	<title>Introduction</title>
 	<para>
 	Several libraries are needed to build / run Ethereal. Most of the
 	libraries are splitted into three packages:
@@ -24,27 +27,33 @@
 	</para>
 	</listitem>
 	</orderedlist>
+	<note><title>Note!</title>
+	<para>
 	Win32: The library formats for GCC (cygwin) .a and MSVC .lib are
 	different, only the MSVC library variants are currently 
 	recommended / supported.
 	</para>	
-	<para>
+	</note>
 	<tip><title>Tip!</title>
 	<para>
-	All required libraries for the MSVC
+	Win32: All required libraries for the MSVC
 	generation are available at: 
-	<ulink	url="http://www.ethereal.com/distribution/win32/development/"/>.
+	<ulink	url="http://www.ethereal.com/distribution/win32/development/"/>,
+	but see <xref linkend="ChLibsSetup"/> for an easier way to install the 
+	libraries.
 	</para>
 	</tip>
-	<note><title>Note!</title>
-	<para>
-	It's a good idea to use the setup target described below to install the
-	required libraries.
 	</para>
-	</note>
-	</para>
+  </section>
+	
   <section id="ChLibsSetup">
     <title>Win32 setup target</title>
+	<tip><title>Tip!</title>
+	<para>
+	It's a really good idea to use the Win32 setup target to install the 
+	required libraries.
+	</para>
+	</tip>
 	<para>
 	If you have the required tools installed, you can download/install all
 	required libraries by using the setup target of the Makefile.nmake from
@@ -61,7 +70,25 @@
 	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake setup</userinput>
 	</para>
 	<para>
-	This will download and install (unpack) all required libraries into the
+	This will first check for all the various tools needed to build Ethereal:
+	</para>
+	<para>
+	<programlisting>
+<![CDATA[Checking for required applications:
+        bash: /usr/bin/bash
+        bison: /usr/bin/bison
+        flex: /usr/bin/flex
+        grep: /usr/bin/grep
+        perl: /usr/bin/perl
+        env: /usr/bin/env
+        python: /usr/bin/python
+        sed: /usr/bin/sed
+        unzip: /usr/bin/unzip
+        wget: /usr/bin/wget]]>
+	</programlisting>
+	</para>
+	<para>
+	Then it will download and install (unpack) all required libraries into the
 	ETHEREAL_LIBS directory.
 	</para>
   </section>
@@ -70,12 +97,25 @@
   <section id="ChLibsGTK">
 	<title>GLIB / GDK / GTK / Pango / Atk / GNU libiconv / GNU gettext</title>
 	<para>
-	The libraries (and dependant libraries) of the user interface. See the
-	GTK section below for a more detailed description.
+	The libraries (and dependant libraries) of the user interface. See 
+	<xref linkend="ChUIWhatGTK"/> for a more detailed description of the GTK 
+	libraries.
 	</para>
+	
+	<section>
+	<title>Unix: GTK / ...</title>
+	<para>
+	Unix: <ulink url="http://www.gtk.org"/>
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: GTK / ...</title>
 	<para>
 	Win32 native: <ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>
 	</para>
+	</section>
+	
   </section>
   
   
@@ -84,9 +124,21 @@
 	<para>
 	"Various tools relating to the Simple Network Management Protocol"
 	</para>
+	
+	<section>
+	<title>Unix: Net SNMP</title>
 	<para>
-	Win32 native: XXX: where to find the binaries?
+	Unix: XXX: where to find the right binaries?
 	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: Net SNMP</title>
+	<para>
+	Win32 native: XXX: where to find the right binaries?
+	</para>
+	</section>
+		
   </section>
   
 
@@ -96,9 +148,21 @@
 	"Advanced, easy to use, asynchronous-capable DNS client library and
 utilities."
 	</para>
+	
+	<section>
+	<title>Unix: GNU ADNS</title>
+	<para>
+	Unix: XXX: where to find the right binaries?
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: GNU ADNS</title>
 	<para>
 	Win32 native: <ulink url="http://adns.jgaa.com/"/>
 	</para>
+	</section>
+	
   </section>
   
 
@@ -107,9 +171,21 @@ utilities."
 	<para>
 	"Perl compatible regular expressions"
 	</para>
+	
+	<section>
+	<title>Unix: PCRE</title>
+	<para>
+	Unix: XXX: where to find the right binaries?
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: PCRE</title>
 	<para>
 	Win32 native: <ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
 	</para>
+	</section>
+		
   </section>
   
   
@@ -122,32 +198,69 @@ utilities."
 	patents -- lossless data-compression library for use on virtually any computer
 	hardware and operating system."
 	</para>
+
+	<section>
+	<title>Unix: zlib</title>
+	<para>
+	Unix: XXX: where to find the right binaries?
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: zlib</title>
 	<para>
 	Win32 native: <ulink url="http://www.gzip.org/zlib/"/>
 	</para>
+	</section>
+
   </section>
   
   
   <section id="ChLibsWinpPcap">
-	<title>Win32: WinPcap (optional)</title>
+	<title>libpcap/WinPcap (optional)</title>
+	<para>
+	"packet capture library"
+	</para>
+	
+	<section>
+	<title>Unix: libpcap</title>
+	<para>
+	Unix: XXX
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: WinPcap</title>
 	<para>
 	"Windows packet capture library"
 	</para>
 	<para>
 	Win32 native: <ulink url="http://winpcap.polito.it/install/default.htm"/>
 	</para>
+	</section>
+
   </section>
 
 
   <section id="ChLibsWimp">
-	<title>Win32: GTK WIMP (optional, for GTK2.x only)</title>
+	<title>GTK WIMP (optional)</title>
 	<para>
 	"GTK-Wimp ("Windows impersonator") is a GTK theme that blends well into
 	the Windows desktop environment."
 	</para>
+
+	<section>
+	<title>Unix: -</title>
+	</section>
+
+	<section>
+	<title>Win32 native: WIMP (for GTK2.x only)</title>
 	<para>
-	Win32 native: <ulink url="http://gtk-wimp.sourceforge.net/"/>
+	Wimp is only available for the GTK2.x versions at: 
+	<ulink url="http://gtk-wimp.sourceforge.net/"/>
 	</para>
+	</section>
+
   </section>
 
   
