@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.22 2001/12/13 21:49:22 hagbard Exp $
+ * $Id: packet-sdp.c,v 1.23 2001/12/15 05:37:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -229,9 +229,9 @@ proto_register_sdp(void)
 {
   static hf_register_info hf[] = {
     { &hf_protocol_version,
-      { "Session Description (v), version",
+      { "Session Description Protocol Version (v)",
 	"sdp.version", FT_STRING, BASE_NONE,NULL,0x0,
-	"Session Description, version", HFILL }},
+	"Session Description Protocol Version", HFILL }},
     { &hf_owner, 
       { "Owner/Creator, Session Id (o)",
 	"sdp.owner", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -276,10 +276,10 @@ proto_register_sdp(void)
       { "Session Attribute (a)", 
 	"sdp.session_attr", FT_STRING, BASE_NONE, NULL, 0x0,
 	"Session Attribute", HFILL }},
-    { &hf_session_attribute, 
+    { &hf_media_attribute, 
       { "Media Attribute (a)", 
 	"sdp.media_attr", FT_STRING, BASE_NONE, NULL, 0x0,
-	"Session Attribute", HFILL }},
+	"Media Attribute", HFILL }},
     { &hf_time,
       { "Time Description, active time (t)",
 	"sdp.time", FT_STRING, BASE_NONE, NULL, 0x0,
