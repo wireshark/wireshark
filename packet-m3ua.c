@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-m3ua.c,v 1.28 2003/02/18 19:48:31 tuexen Exp $
+ * $Id: packet-m3ua.c,v 1.29 2003/04/12 07:54:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -318,11 +318,14 @@ typedef enum {
 
 static Version_Type version = M3UA_RFC;
 
+static gboolean subdissector_called = FALSE;
+static gint32 info_messagetype = -1;
+
 static void
 dissect_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
 
 static void
-dissect_v5_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *m3ua_tree)
+dissect_v5_common_header(tvbuff_t *common_header_tvb, proto_tree *m3ua_tree)
 {
   guint8  message_class, message_type;
 
@@ -330,10 +333,7 @@ dissect_v5_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_class * 256 + message_type, v5_message_class_type_acro_values, "reserved"));
-    col_append_str(pinfo->cinfo, COL_INFO, " ");
-  }
+  info_messagetype = message_class * 256 + message_type;
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -347,7 +347,7 @@ dissect_v5_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_
 }
 
 static void
-dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *m3ua_tree)
+dissect_common_header(tvbuff_t *common_header_tvb, proto_tree *m3ua_tree)
 {
   guint8  message_class, message_type;
 
@@ -355,10 +355,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
-    col_append_str(pinfo->cinfo, COL_INFO, " ");
-  }
+  info_messagetype = message_class * 256 + message_type;
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -393,6 +390,7 @@ dissect_v5_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, 
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
+  subdissector_called = TRUE;
 }
 
 #define INFO_STRING_OFFSET PARAMETER_VALUE_OFFSET
@@ -770,6 +768,7 @@ dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
+  subdissector_called = TRUE;
 
 }
 
@@ -790,6 +789,7 @@ dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + LI_OCTETT_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
+  subdissector_called = TRUE;
 }
 
 
@@ -1053,6 +1053,8 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
   if (!dissector_try_port(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
     call_dissector(data_handle, payload_tvb, pinfo, tree);
+  else
+    subdissector_called = TRUE;
 }
 
 #define CORR_ID_OFFSET PARAMETER_VALUE_OFFSET
@@ -1609,17 +1611,38 @@ dissect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, pro
 {
   tvbuff_t *common_header_tvb, *parameters_tvb;
 
+  /* Reset these globals prior to dissecting the message */
+  subdissector_called = FALSE;
+  info_messagetype = -1;
+
   common_header_tvb = tvb_new_subset(message_tvb, 0, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
   if (version == M3UA_V5)
-  	dissect_v5_common_header(common_header_tvb, pinfo, m3ua_tree);
+  	dissect_v5_common_header(common_header_tvb, m3ua_tree);
   else
-    dissect_common_header(common_header_tvb, pinfo, m3ua_tree);
+    dissect_common_header(common_header_tvb, m3ua_tree);
 
   /*  Need to dissect (certain) parameters even when !tree, so subdissectors
    *  (e.g., MTP3) are always called.
    */
   dissect_parameters(parameters_tvb, pinfo, tree, m3ua_tree);
+
+  /* Only put something in the Info column if no subdissector was called */
+  if (!subdissector_called && (info_messagetype != -1))
+  {
+    const value_string *message_type_values;
+
+    if (version == M3UA_V5)
+      message_type_values = v5_message_class_type_acro_values;
+    else
+      message_type_values = message_class_type_acro_values;
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_append_str(pinfo->cinfo, COL_INFO, val_to_str(info_messagetype, message_type_values, "reserved"));
+      col_append_str(pinfo->cinfo, COL_INFO, " ");
+    }
+  }
+
 }
 
 static void
@@ -1641,6 +1664,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   } else {
     m3ua_tree = NULL;
   };
+
   /* dissect the message */
   dissect_message(message_tvb, pinfo, tree, m3ua_tree);
 }
