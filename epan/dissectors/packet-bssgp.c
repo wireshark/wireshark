@@ -417,6 +417,7 @@ get_masked_guint8(guint8 value, guint8 mask) {
   return (value & mask) >> i;
 }
 
+#if 0
 static guint16
 get_masked_guint16(guint16 value, guint16 mask) {
   const guint16 MASK_BIT_1 = 0x01; 
@@ -428,6 +429,7 @@ get_masked_guint16(guint16 value, guint16 mask) {
   }
   return (value & mask) >> i;
 }
+#endif
 
 static gint32
 make_mask32(guint8 num_bits, guint8 shift_value) {
