@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.10 2003/12/02 21:15:46 guy Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.11 2004/05/07 12:29:03 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,7 +140,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, vo
 	if(!ri->call_data){
 		return 0;
 	}
-	if(ri->request){
+	if(ri->ptype == PDU_REQ){
 		gp=proto_get_finfo_ptr_array(edt->tree, hf_samr_hnd);
 		if(!gp || gp->len!=1){
 			return 0;

@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.169 2004/05/07 11:24:02 ulfl Exp $
+ * $Id: packet-dcerpc.c,v 1.170 2004/05/07 12:29:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1884,7 +1884,8 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                                        name, info->call_data->opnum);
     }
 
-    sub_dissect = info->request ? proc->dissect_rqst : proc->dissect_resp;
+    sub_dissect = (info->ptype == PDU_REQ) ? 
+	    proc->dissect_rqst : proc->dissect_resp;
 
     if (decrypted_tvb != NULL) {
         /* Either there was no encryption or we successfully decrypted
