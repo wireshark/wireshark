@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.54 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-null.c,v 1.55 2002/08/03 19:49:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,10 +29,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
 
 #include <string.h>
 #include <epan/packet.h>
