@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.6 1999/05/11 00:00:40 sharpe Exp $
+ * $Id: packet-smb.c,v 1.7 1999/05/11 00:28:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -632,7 +632,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
       if (dialect == 0xFFFF) { /* Server didn't like them dialects */
 
-	proto_tree_add_item(tree, offset, 2, "Dialect Index: %u, Supplied dialects not recognized");
+	proto_tree_add_item(tree, offset, 2, "Supplied dialects not recognized");
 
       }
       else {
@@ -659,7 +659,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Dialect Index: %d, Greater than CORE PROTOCOL and up to LANMAN2.1", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Dialect Index: %u, Greater than CORE PROTOCOL and up to LANMAN2.1", GSHORT(pd, offset));
 
     }
 
@@ -667,7 +667,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     offset += 2;
 
-    mode = GBYTE(pd, offset);
+    mode = GSHORT(pd, offset);
 
     if (tree) {
 
@@ -685,11 +685,19 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     }
 
-    offset += 1;
+    offset += 2;
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Max multiplex count: %d", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Max buffer size:     %u", GSHORT(pd, offset));
+
+    }
+
+    offset += 2;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Max multiplex count: %u", GSHORT(pd, offset));
 
     }
     
@@ -697,7 +705,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Max vcs:             %d", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Max vcs:             %u", GSHORT(pd, offset));
 
     }
 
@@ -723,6 +731,14 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     offset += 2;
 
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 4, "Session key:         %08x", GWORD(pd, offset));
+
+    }
+
+    offset += 4;
+
     /* Now the server time, two short parameters ... */
 
     if (tree) {
@@ -730,11 +746,20 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
       proto_tree_add_item(tree, offset, 2, "Server Time: 0x%04x", GSHORT(pd, offset));
       proto_tree_add_item(tree, offset + 2, 2, "Server Date: 0x%04x", GSHORT(pd, offset + 2));
 
-      proto_tree_add_item(tree, offset + 4, 2, "Server Time Zone: 0x%04x", GSHORT(pd, offset + 4));
+    }
+
+    offset += 4;
+
+    /* Server Time Zone, SHORT */
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Server time zone: %i min from UTC",
+			  (signed)GSSHORT(pd, offset));
 
     }
 
-    offset += 6;
+    offset += 2;
 
     /* Encryption Key Length, should be zero */
 
