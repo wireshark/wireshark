@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.21 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-socks.c,v 1.22 2001/09/03 08:27:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -534,7 +534,7 @@ void display_socks_v5( const u_char *pd, int offset, frame_data *fd,
 /* didn't have that when I wrote this. And I didn't expect this to get	*/
 /* so messy.								*/
 
-	int i, command;
+	unsigned int i, command;
 	guint temp;
 	char *AuthMethodStr;
 
