@@ -278,6 +278,7 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_in
 	guint32 old_offset;
 
 DEBUG_ENTRY("dissect_per_restricted_character_string");
+
 	/* xx.x if the length is 0 bytes there will be no encoding */
 	if(max_len==0){
 		return offset;
@@ -288,46 +289,6 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		min_len=0;
 	}
 
-
-	/* xx.x */
-	length=max_len;
-	if(min_len!=max_len){
-		proto_tree *etr = NULL;
-
-		if(display_internal_per_fields){
-			etr=tree;
-		}
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
-			etr, hf_per_octet_string_length, min_len, max_len,
-			&length, NULL, FALSE);
-	}
-
-
-	/* xx.x if length is fixed or constrained to be less than or equal to
-	   two bytes, then it will not be byte aligned. */
-	byte_aligned=TRUE;
-	if((min_len==max_len)&&(max_len<=2)){
-		byte_aligned=FALSE;
-	}
-	if(max_len<2){
-		byte_aligned=FALSE;
-	}
-	if(!length){  
-		/* there is no string at all, so dont do any byte alignment */
-		byte_aligned=FALSE;
-	}
-
-	if(byte_aligned){
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
-	}
-
-
-	if(length>=1024){
-		PER_NOT_DECODED_YET("restricted char string too long");
-		length=1024;
-	}
 
 	/* 27.5.2 depending of the alphabet length, find how many bits
 	   are used to encode each character */
@@ -360,6 +321,57 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		bits_per_char=8;
 	}
 
+
+	byte_aligned=TRUE;
+	if((min_len==max_len)&&(max_len<=2)){
+		byte_aligned=FALSE;
+	}
+	if((max_len!=-1)&&(max_len<2)){
+		byte_aligned=FALSE;
+	}
+	if(!length){  
+		/* there is no string at all, so dont do any byte alignment */
+		byte_aligned=FALSE;
+	}
+
+
+
+	/* xx.x */
+	length=max_len;
+	if(max_len==-1){
+		proto_tree *etr = NULL;
+
+		if(display_internal_per_fields){
+			etr=tree;
+		}
+		offset = dissect_per_length_determinant(tvb, offset, pinfo, etr, 
+				hf_per_octet_string_length, &length);
+		/* the unconstrained strings are always byte aligned (27.6.3)*/
+		byte_aligned=TRUE;
+	} else if(min_len!=max_len){
+		proto_tree *etr = NULL;
+
+		if(display_internal_per_fields){
+			etr=tree;
+		}
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+			etr, hf_per_octet_string_length, min_len, max_len,
+			&length, NULL, FALSE);
+	}
+
+	if(byte_aligned){
+		if(offset&0x07){
+			offset=(offset&0xfffffff8)+8;
+		}
+	}
+
+
+	if(length>=1024){
+		PER_NOT_DECODED_YET("restricted char string too long");
+		length=1024;
+	}
+
+
 	old_offset=offset;
 	for(char_pos=0;char_pos<length;char_pos++){
 		guchar val;
@@ -371,10 +383,18 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 			offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
 			val=(val<<1)|bit;
 		}
-		if (val >= alphabet_length)
-			str[char_pos] = '?';	/* XXX - how to mark this? */
-		else
-			str[char_pos]=alphabet[val];
+		/* ALIGNED PER does not do any remapping of chars if 
+		   bitsperchar is 8 
+		*/
+		if(bits_per_char==8){
+			str[char_pos]=val;
+		} else {
+			if (val < alphabet_length){
+				str[char_pos]=alphabet[val];
+			} else {
+				str[char_pos] = '?';	/* XXX - how to mark this? */
+			}
+		}
 	}
 	str[char_pos]=0;
 	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), str);
