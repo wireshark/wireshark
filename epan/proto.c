@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.12 2001/03/02 23:10:11 gram Exp $
+ * $Id: proto.c,v 1.13 2001/03/07 19:33:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2603,7 +2603,7 @@ check_for_offset(GNode *node, gpointer data)
 	/* !fi == the top most container node which holds nothing */
 	if (fi && fi->visible) {
 		if (offsearch->offset >= fi->start &&
-				offsearch->offset <= (fi->start + fi->length)) {
+				offsearch->offset < (fi->start + fi->length)) {
 
 			offsearch->finfo = fi;
 			return FALSE; /* keep traversing */

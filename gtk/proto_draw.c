@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.27 2001/03/02 23:10:12 gram Exp $
+ * $Id: proto_draw.c,v 1.28 2001/03/07 19:33:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,10 +133,15 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event, gpointer data)
 	/* The column of the last hex digit in the second half. */
 	const int	digits_end_2 = 53;
 
-	/* The column of the first "text dump" character. */
-	const int	text_start = 57;
-	/* The column of the last "text dump" character. */
-	const int	text_end = 73;
+	/* The column of the first "text dump" character in first half. */
+	const int	text_start_1 = 57;
+	/* The column of the last "text dump" character in first half. */
+	const int	text_end_1 = 64;
+
+	/* The column of the first "text dump" character in second half. */
+	const int	text_start_2 = 66;
+	/* The column of the last "text dump" character in second half. */
+	const int	text_end_2 = 73;
 
 	/* Given the mouse (x,y) and the current GtkText (h,v)
 	 * adjustments, and the size of the font, figure out
@@ -161,8 +166,11 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event, gpointer data)
 		}
 		byte += 8;
 	}
-	else if (column >= text_start && column <= text_end) {
-		byte = column - text_start;
+	else if (column >= text_start_1 && column <= text_end_1) {
+		byte = column - text_start_1;
+	}
+	else if (column >= text_start_2 && column <= text_end_2) {
+		byte = 8 + column - text_start_2;
 	}
 	else {
 		/* The user didn't select a hex digit or
