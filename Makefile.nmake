@@ -2,17 +2,20 @@
 ## Use: nmake -f makefile.nmake
 
 GTK_VERSION=1.3
-GLIB_VERSION=1.3
+GLIB_VERSION=1.2
 
-GLIB_DIR=d:\prj\w\src\glib
-GTK_DIR=d:\prj\w\src\gtk+
+GLIB_DIR=d:\prj\src\glib-1.2
+GTK_DIR=d:\prj\src\gtk-plus
 
 LOCAL_CFLAGS=/Ic:\tools\msdev\include
 
 ############### no need to modify below this line #########
 
 CC = cl
-LDFLAGS = /link
+LINK= link
+
+LDFLAGS = /NOLOGO /SUBSYSTEM:console /INCREMENTAL:no /MACHINE:I386 \
+	/OUT:ethereal.exe
 
 CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GTK_DIR) /Iwiretap \
 	/I$(GTK_DIR)\gdk\win32
@@ -32,18 +35,20 @@ OBJECTS=capture.obj column.obj dfilter-grammar.obj dfilter.obj \
 	packet-rip.obj packet-rsvp.obj packet-rtsp.obj packet-sdp.obj \
 	packet-smb.obj packet-snmp.obj packet-tcp.obj packet-telnet.obj \
 	packet-tftp.obj packet-tr.obj packet-trmac.obj packet-udp.obj \
-	packet-vines.obj packet.obj prefs.obj print.obj proto.obj \
+	packet-vines.obj packet.obj prefs.obj print.obj proto.obj ps.obj \
 	resolv.obj snprintf.obj strerror.obj summary.obj util.obj
 
-LIBS=wiretap\libwtap.lib \
+LIBS= wiretap\libwtap.lib wsock32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
-	$(GTK_DIR)\gdk\win32\gdk-$(GTK_VERSION).lib \
-	$(GLIB_DIR)\glib-$(GTK_VERSION).lib \
-	$(GLIB_DIR)\gmodule-$(GTK_VERSION).lib
+	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib
 
 
-ethereal.exe	: config.h $(OBJECTS) $(LIBS)
-	$(CC) $(CFLAGS) -Feethereal.exe $(OBJECTS) $(LIBS) $(LDFLAGS)
+ethereal.exe	: config.h $(OBJECTS) 
+	$(LINK) @<<
+		$(LDFLAGS) $(LIBS) $(OBJECTS)
+<<
 
 config.h	: config.h.win32
 	copy config.h.win32 $@

@@ -1,4 +1,4 @@
-GLIB_DIR=d:\prj\w\src\glib
+GLIB_DIR=d:\prj\src\glib-1.2
 LOCAL_CFLAGS=/Ic:\tools\msdev\include
 
 #################3

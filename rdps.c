@@ -1,7 +1,7 @@
 /* rdps.c
  *
  *
- * $Id: rdps.c,v 1.2 1998/09/16 03:22:17 gerald Exp $
+ * $Id: rdps.c,v 1.3 1999/07/21 17:40:34 gram Exp $
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 
 	fprintf(output, "/* Created by rdps.c. Do not edit! */\n\n"
           "#include <stdio.h>\n\n"
-          "#include <ps.h>\n\n");
+          "#include \"ps.h\"\n\n");
 
 	while (fgets(buf, BUFFER_SIZE - 1, input)) {
 
