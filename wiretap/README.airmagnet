@@ -2,18 +2,17 @@ AMC: Wireless Analyzer Captured Data (AirMagnet)
 ------------------------------------------------
 $Id$
 
-This is just a braindump from looking at exactly one
-Airmagnet capture file without having access to the
-decoded display in Airmagnet itself. Lots of things are
-still unknown.
-This is NOT the intention to write a file importer in
-the forseeable future.
+This is just a braindump from looking at some Airmagnet capture files,
+in one case having a look at a decoded display in Airmagnet itself.
+Lots of things are still unknown.
+This is NOT the intention to write a file importer in the forseeable
+future.
 
-From a decoded examples:
-06 51 49 1b   Timestamp   (105990427)  03:30:27.497544
+Exact timestamp decoding still unkown:
+From decoded examples:
+06 51 49 1b     Timestamp  (105990427)  =  03:30:27.497544
 06 51 4a cd     Timestamp  (105990861)  =  03:30:27.497978  (+434)
 06 51 4b ce     Timestamp  (105991118)  =  03:30:27.498235  (+257)
-
 
 Unknown stuff:
 Header: 0000 0000 0002 | 3b93 d886
