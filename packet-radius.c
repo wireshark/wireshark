@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.14 2000/07/30 07:16:03 guy Exp $
+ * $Id: packet-radius.c,v 1.15 2000/07/30 08:11:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -499,14 +499,7 @@ guint32 totlen=0;
 }
 
 gchar *rd_match_strval(guint32 val, const value_string *vs) {
-	gchar		*result;
-	static gchar	undf[30];
-	result=match_strval(val,vs);
-	if (result == NULL ) {
-		sprintf(undf,"Undefined(%d)",val);
-		result=undf;
-	}
-	return result;
+	return val_to_str(val, vs, "Undefined (%u)");
 }
 
 gchar *rd_value_to_str(e_avphdr *avph,const u_char *pd, int offset)
