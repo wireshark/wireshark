@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.63 2002/04/19 10:03:52 guy Exp $
+ * $Id: proto.c,v 1.64 2002/04/20 08:07:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -276,11 +276,11 @@ proto_cleanup(void)
 void
 proto_tree_free(proto_tree *tree)
 {
-    /* Free all the data pointed to by the tree. */
+	/* Free all the data pointed to by the tree. */
 	g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, -1,
 		proto_tree_free_node, NULL);
 
-    /* Then free the tree. */
+	/* Then free the tree. */
 	g_node_destroy((GNode*)tree);
 }
 
@@ -294,9 +294,9 @@ free_field_info(void *fi)
 static void
 free_GPtrArray_value(gpointer key _U_, gpointer value, gpointer user_data _U_)
 {
-    GPtrArray   *ptrs = value;
+	GPtrArray   *ptrs = value;
 
-    g_ptr_array_free(ptrs, TRUE);
+	g_ptr_array_free(ptrs, TRUE);
 }
 
 static void
@@ -316,11 +316,11 @@ free_node_tree_data(tree_data_t *tree_data)
 static void
 free_node_field_info(field_info* finfo)
 {
-		if (finfo->representation) {
-			g_mem_chunk_free(gmc_item_labels, finfo->representation);
-		}
-		fvalue_free(finfo->value);
-		free_field_info(finfo);
+	if (finfo->representation) {
+		g_mem_chunk_free(gmc_item_labels, finfo->representation);
+	}
+	fvalue_free(finfo->value);
+	free_field_info(finfo);
 }
 
 static gboolean
@@ -1823,8 +1823,8 @@ proto_tree_create_root(void)
 void
 proto_tree_prime_hfid(proto_tree *tree, int hfid)
 {
-    g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
-            GINT_TO_POINTER(hfid), g_ptr_array_new());
+	g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
+	    GINT_TO_POINTER(hfid), g_ptr_array_new());
 }
 
 proto_tree*
@@ -1943,20 +1943,23 @@ find_protocol_by_id(int proto_id)
 static gint compare_filter_name(gconstpointer proto_arg, 
 				gconstpointer filter_name)
 {
-  const protocol_t *protocol = proto_arg;
-  const gchar* f_name = filter_name;
-  return (strcmp(protocol->filter_name, f_name));
+	const protocol_t *protocol = proto_arg;
+	const gchar* f_name = filter_name;
+
+	return (strcmp(protocol->filter_name, f_name));
 }
 
 int proto_get_id_by_filter_name(gchar* filter_name)
 {
-  GList *list_entry;
-  protocol_t *protocol;
-  list_entry = g_list_find_custom(protocols,filter_name,compare_filter_name); 
-  if(list_entry == NULL)
-    return -1;
-  protocol = list_entry->data;
-  return(protocol->proto_id);
+	GList *list_entry;
+	protocol_t *protocol;
+
+	list_entry = g_list_find_custom(protocols, filter_name,
+	    compare_filter_name); 
+	if (list_entry == NULL)
+		return -1;
+	protocol = list_entry->data;
+	return protocol->proto_id;
 }
 
 char *
@@ -2777,17 +2780,17 @@ proto_registrar_get_length(int n)
 gboolean
 proto_check_for_protocol_or_field(proto_tree* tree, int id)
 {
-    GPtrArray *ptrs = proto_get_finfo_ptr_array(tree, id);
+	GPtrArray *ptrs = proto_get_finfo_ptr_array(tree, id);
 
-    if (!ptrs) {
-        return FALSE;
-    }
-    else if (g_ptr_array_len(ptrs) > 0) {
-        return TRUE;
-    }
-    else {
-        return FALSE;
-    }
+	if (!ptrs) {
+		return FALSE;
+	}
+	else if (g_ptr_array_len(ptrs) > 0) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
 }
 
 /* Return GPtrArray* of field_info pointers for all hfindex that appear in tree.
@@ -2798,8 +2801,8 @@ proto_check_for_protocol_or_field(proto_tree* tree, int id)
 GPtrArray*
 proto_get_finfo_ptr_array(proto_tree *tree, int id)
 {
-    return g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
-            GINT_TO_POINTER(id));
+	return g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
+	    GINT_TO_POINTER(id));
 }
 
 
@@ -3176,7 +3179,8 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			buf = g_malloc0(32 + finfo->length * 3);
 			ptr = buf;
 
-			sprintf(ptr, "frame[%d] == ", finfo->start);
+			sprintf(ptr, "frame[%d:%d] == ", finfo->start,
+			    finfo->length);
 			ptr = buf+strlen(buf);
 
 			for (i=0;i<finfo->length; i++) {
