@@ -368,7 +368,7 @@ Doug Nazar <nazard[AT]dragoninc.on.ca> {
 	LDAP support
 }
 
-Andreas Sikkema <andreas.sikkema[AT]philips.com> {
+Andreas Sikkema <h323 [AT] ramdyne.nl> {
 	Fixes to SMB dissector
 	Fixes to capture file handling on Win32
 	RTCP, RTP, TPKT (RFC 1006), H.261

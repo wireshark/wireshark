@@ -1802,7 +1802,7 @@ B<http://www.ethereal.com>.
   Jochen Friedrich         <jochen+ethereal[AT]scram.de>
   Paul Welchinski          <paul.welchinski[AT]telusplanet.net>
   Doug Nazar               <nazard[AT]dragoninc.on.ca>
-  Andreas Sikkema          <andreas.sikkema[AT]philips.com>
+  Andreas Sikkema          <h323 [AT] ramdyne.nl>
   Mark Muhlestein          <mmm[AT]netapp.com>
   Graham Bloice            <graham.bloice[AT]trihedral.com>
   Ralf Schneider           <ralf.schneider[AT]alcatel.se>
