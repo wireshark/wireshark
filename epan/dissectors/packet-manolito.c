@@ -183,10 +183,16 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dtype = tvb_get_guint8(tvb, offset);
 			length = tvb_get_guint8(tvb, ++offset);
 
-			/* get the payload */
-			g_assert(length<0xff); /* to avoid guint8 overflow */
-			data = malloc(length + 1);
-			tvb_memcpy(tvb, (guint8*)data, ++offset, length);
+			/*
+			 * Get the payload.
+			 *
+			 * XXX - is the cast necessary?  I think the
+			 * "usual arithmetic conversions" should
+			 * widen it past 8 bits, so there shouldn't
+			 * be an overflow.
+			 */
+			data = malloc((guint)length + 1);
+			tvb_memcpy(tvb, data, ++offset, length);
 			offset += length; 
 
 			/* convert the 16-bit integer field name to a string */
