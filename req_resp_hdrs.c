@@ -2,7 +2,7 @@
  * Routines handling protocols with a request/response line, headers,
  * a blank line, and an optional body.
  *
- * $Id: req_resp_hdrs.c,v 1.4 2004/04/26 17:10:40 obiot Exp $
+ * $Id: req_resp_hdrs.c,v 1.5 2004/05/04 06:53:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 	gint		next_offset_sav;
 	gint		length_remaining, reported_length_remaining;
 	int		linelen;
+	gchar		*header_val;
 	long int	content_length;
 	gboolean	content_length_found = FALSE;
 	gboolean	chunked_encoding = FALSE;
@@ -146,51 +147,49 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 				 */
 				if (tvb_strncaseeql(tvb, next_offset_sav,
 				    "Content-Length:", 15) == 0) {
-					if (sscanf(
-					    tvb_get_string(tvb,
-					        next_offset_sav + 15,
-					        linelen - 15),
+					header_val = tvb_get_string(tvb,
+					    next_offset_sav + 15,
+					    linelen - 15);
+					if (sscanf(header_val,
 					    "%li", &content_length)
 					    == 1)
 						content_length_found = TRUE;
+					g_free(header_val);
 				} else if (tvb_strncaseeql(tvb,
 					    next_offset_sav,
 					    "Transfer-Encoding:", 18) == 0) {
-					gchar *chunk_type = tvb_get_string(tvb,
-					    next_offset_sav + 18, linelen - 18);
 					/*
 					 * Find out if this Transfer-Encoding is
 					 * chunked.  It should be, since there
 					 * really aren't any other types, but
 					 * RFC 2616 allows for them.
 					 */
+					gchar *p;
+					gint len;
 
-					if (chunk_type != NULL) {
-						gchar *c = chunk_type;
-						gint len = strlen(chunk_type);
-
-						
-						/* start after any white-space */
-						while (c != NULL && c <
-							    chunk_type + len &&
-							    (*c == ' ' ||
-							     *c == 0x09)) {
-							c++;
+					header_val = tvb_get_string(tvb,
+					    next_offset_sav + 18, linelen - 18);
+					p = header_val;
+					len = strlen(header_val);
+					/* Skip white space */
+					while (p < header_val + len &&
+					    (*p == ' ' || *p == '\t'))
+						p++;
+					if (p <= header_val + len) {
+						if (strncasecmp(p, "chunked", 7)
+						    == 0) {
+							/*
+							 * Don't bother looking
+							 * for extensions;
+							 * since we don't
+							 * understand them,
+							 * they should be
+							 * ignored.
+							 */
+							chunked_encoding = TRUE;
 						}
-
-						if (c <= chunk_type + len ) {
-							if (strncasecmp(c, "chunked", 7)
-							    == 0) {
-								/*
-								 * Don't bother looking for extensions;
-								 * since we don't understand them,
-								 * they should be ignored.
-								 */
-								chunked_encoding = TRUE;
-							}
-						}
-						g_free(chunk_type);
 					}
+					g_free(header_val);
 				}
 			}
 		}
