@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.38 2003/10/14 09:15:51 sahlberg Exp $
+ * $Id: io_stat.c,v 1.39 2003/10/14 09:27:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,11 +138,6 @@ typedef struct _io_stat_yscale_t {
 	int yscale;
 } io_stat_yscale_t;
 
-typedef struct _io_stat_pixels_per_tick_t {
-	struct _io_stat_t *io;
-	int pixels_per_tick;
-} io_stat_pixels_per_tick_t;
-
 typedef struct _io_stat_count_type_t {
 	struct _io_stat_t *io;
 	int count_type;
@@ -157,7 +152,6 @@ typedef struct _io_stat_t {
 
 	struct _io_stat_graph_t graphs[MAX_GRAPHS];
 	struct _io_stat_yscale_t yscale[MAX_YSCALE];
-	struct _io_stat_pixels_per_tick_t pixelspertick[MAX_PIXELS_PER_TICK];
 	struct _io_stat_count_type_t counttype[MAX_COUNT_TYPES];
 	GtkWidget *window;
 	GtkWidget *draw_area;
@@ -1138,13 +1132,17 @@ tick_interval_select(GtkWidget *item, gpointer key)
 }
 
 static void
-pixels_per_tick_select(GtkWidget *item _U_, gpointer key)
+pixels_per_tick_select(GtkWidget *item, gpointer key)
 {
-	io_stat_pixels_per_tick_t *ppt=(io_stat_pixels_per_tick_t *)key;
+	int val;
+	io_stat_t *io;
 
-	ppt->io->pixels_per_tick=ppt->pixels_per_tick;
-	ppt->io->needs_redraw=TRUE;
-	gtk_iostat_draw(&ppt->io->graphs[0]);
+	io=(io_stat_t *)key;
+	val=(int)gtk_object_get_data(GTK_OBJECT(item), "pixels_per_tick");
+
+	io->pixels_per_tick=val;
+	io->needs_redraw=TRUE;
+	gtk_iostat_draw(&io->graphs[0]);
 }
 
 static void
@@ -1172,9 +1170,9 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 	for(i=0;i<MAX_PIXELS_PER_TICK;i++){
 		sprintf(str,"%d", pixels_per_tick[i]);
 		menu_item=gtk_menu_item_new_with_label(str);
-		io->pixelspertick[i].io=io;
-		io->pixelspertick[i].pixels_per_tick=pixels_per_tick[i];
-		SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, &io->pixelspertick[i]);
+
+		gtk_object_set_data(GTK_OBJECT(menu_item), "pixels_per_tick", (gpointer)pixels_per_tick[i]);
+		SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
