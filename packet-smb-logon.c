@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.8 2000/08/13 14:08:49 deniel Exp $
+ * $Id: packet-smb-logon.c,v 1.9 2000/10/31 09:41:07 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -515,7 +515,9 @@ static void (*dissect_smb_logon_cmds[])(const u_char *, int, frame_data *,
   dissect_smb_acc_update,    	/* 0x11 (LM2.1 Announce Acc updates) 	*/
   dissect_smb_sam_logon_req,   	/* 0x12 (SAM LOGON request )		*/
   dissect_smb_sam_logon_resp,  	/* 0x13 (SAM LOGON response) 		*/
-  dissect_smb_unknown,    	/* 0x14 (LM2.1 Announce Acc updates) 	*/
+  dissect_smb_unknown,          /* 0x14 (SAM Response during LOGON Pause) */
+  dissect_smb_unknown,          /* 0x15 (SAM Response User Unknown)      */
+  dissect_smb_unknown,          /* 0x16 (SAM Response to Interrogate)   */
 };
 
 
