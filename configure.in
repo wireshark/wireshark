@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.267 2004/06/19 00:07:22 guy Exp $
+# $Id: configure.in,v 1.268 2004/06/19 04:12:56 guy Exp $
 #
 AC_INIT(etypes.h)
 
@@ -808,14 +808,14 @@ changequote([, ])dnl
 	#
 	# Use kerberos/heimdal if specified, otherwise don't.
 	#
-	want_krb5=yes
+	want_krb5=ifpresent
 	krb5_dir=
 ])
 if test "x$want_krb5" = "xno" ; then
-        AC_MSG_RESULT(no)
+	AC_MSG_RESULT(no)
 else
-        AC_MSG_RESULT(yes)
-        AC_ETHEREAL_KRB5_CHECK
+	AC_MSG_RESULT(yes)
+	AC_ETHEREAL_KRB5_CHECK
 	if test "x$want_krb5" = "xno" ; then
 		AC_MSG_RESULT(heimdal not found - disabling dissection for some kerberos data in packet decoding)
 	fi
