@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.38 2003/10/07 21:15:00 guy Exp $
+ * $Id: to_str.c,v 1.39 2003/11/17 22:56:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,58 +132,98 @@ ether_to_str(const guint8 *ad)
 	return bytestring_to_str(ad, 6, ':');
 }
 
-/* XXX FIXME   
-remove this one later when every call has been converted to address_to_str() 
+/* 
+ This function is very fast and this function is called a lot.
+ XXX update the address_to_str stuff to use this function.
 */
 gchar *
 ip_to_str(const guint8 *ad) {
   static gchar  str[4][16];
-  static gchar *cur;
+  static int   cur_idx=0;
+  gchar *cur;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else if (cur == &str[2][0]) {
-    cur = &str[3][0];
-  } else {
-    cur = &str[0][0];
+  cur_idx++;
+  if(cur_idx>3){ 
+     cur_idx=0;
   }
+  cur=&str[cur_idx][0];
+
   ip_to_str_buf(ad, cur);
   return cur;
 }
 
+/* 
+ This function is very fast and this function is called a lot.
+ XXX update the address_to_str stuff to use this function.
+*/
+static const char * const fast_strings[] = {
+"0", "1", "2", "3", "4", "5", "6", "7", 
+"8", "9", "10", "11", "12", "13", "14", "15", 
+"16", "17", "18", "19", "20", "21", "22", "23", 
+"24", "25", "26", "27", "28", "29", "30", "31", 
+"32", "33", "34", "35", "36", "37", "38", "39", 
+"40", "41", "42", "43", "44", "45", "46", "47", 
+"48", "49", "50", "51", "52", "53", "54", "55", 
+"56", "57", "58", "59", "60", "61", "62", "63", 
+"64", "65", "66", "67", "68", "69", "70", "71", 
+"72", "73", "74", "75", "76", "77", "78", "79", 
+"80", "81", "82", "83", "84", "85", "86", "87", 
+"88", "89", "90", "91", "92", "93", "94", "95", 
+"96", "97", "98", "99", "100", "101", "102", "103", 
+"104", "105", "106", "107", "108", "109", "110", "111", 
+"112", "113", "114", "115", "116", "117", "118", "119", 
+"120", "121", "122", "123", "124", "125", "126", "127", 
+"128", "129", "130", "131", "132", "133", "134", "135", 
+"136", "137", "138", "139", "140", "141", "142", "143", 
+"144", "145", "146", "147", "148", "149", "150", "151", 
+"152", "153", "154", "155", "156", "157", "158", "159", 
+"160", "161", "162", "163", "164", "165", "166", "167", 
+"168", "169", "170", "171", "172", "173", "174", "175", 
+"176", "177", "178", "179", "180", "181", "182", "183", 
+"184", "185", "186", "187", "188", "189", "190", "191", 
+"192", "193", "194", "195", "196", "197", "198", "199", 
+"200", "201", "202", "203", "204", "205", "206", "207", 
+"208", "209", "210", "211", "212", "213", "214", "215", 
+"216", "217", "218", "219", "220", "221", "222", "223", 
+"224", "225", "226", "227", "228", "229", "230", "231", 
+"232", "233", "234", "235", "236", "237", "238", "239", 
+"240", "241", "242", "243", "244", "245", "246", "247", 
+"248", "249", "250", "251", "252", "253", "254", "255"
+};
 void
 ip_to_str_buf(const guint8 *ad, gchar *buf)
 {
-  gchar        *p;
-  int           i;
-  guint32       octet;
-  guint32       digit;
-  gboolean      saw_nonzero;
+	register gchar const *p;
+	register gchar *b=buf;
+	register gchar c;
 
-  p = buf;
-  i = 0;
-  for (;;) {
-    saw_nonzero = FALSE;
-    octet = ad[i];
-    digit = octet/100;
-    if (digit != 0) {
-      *p++ = digit + '0';
-      saw_nonzero = TRUE;
-    }
-    octet %= 100;
-    digit = octet/10;
-    if (saw_nonzero || digit != 0)
-      *p++ = digit + '0';
-    digit = octet%10;
-    *p++ = digit + '0';
-    if (i == 3)
-      break;
-    *p++ = '.';
-    i++;
-  }
-  *p = '\0';
+	p=fast_strings[*ad++];
+	while((c=*p)){
+		*b++=c;
+		p++;
+	}
+	*b++='.';
+
+	p=fast_strings[*ad++];
+	while((c=*p)){
+		*b++=c;
+		p++;
+	}
+	*b++='.';
+
+	p=fast_strings[*ad++];
+	while((c=*p)){
+		*b++=c;
+		p++;
+	}
+	*b++='.';
+
+	p=fast_strings[*ad++];
+	while((c=*p)){
+		*b++=c;
+		p++;
+	}
+	*b=0;
 }
 
 
