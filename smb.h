@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.44 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: smb.h,v 1.45 2002/08/30 23:49:22 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,6 +283,7 @@ typedef struct smb_info {
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
   gboolean unidir;
+  gboolean raw_ntlmssp;         /* Do extended security exc use raw ntlmssp */
   int info_level;
   int info_count;
   smb_saved_info_t *sip;	/* smb_saved_info_t, if any, for this */

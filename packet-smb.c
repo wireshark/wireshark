@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.287 2002/08/29 19:05:41 guy Exp $
+ * $Id: packet-smb.c,v 1.288 2002/08/30 23:49:21 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2353,7 +2353,12 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 				tvb, offset, bc, TRUE);
 
 			/* security blob */
-			if(bc){
+			/* 
+			 * If Extended security and BCC == 16, then raw 
+			 * NTLMSSP is in use. We need to save this info
+			 */
+ 
+			if(bc != 16){
 				tvbuff_t *gssapi_tvb;
 				proto_tree *gssapi_tree;
 
@@ -2368,6 +2373,15 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 					gssapi_tree);
 
 				COUNT_BYTES(bc);
+			}
+			else { 
+
+			  /*
+			   * There is no blob. We just have to make sure
+			   * that subsequent routines know to call the 
+			   * right things ...
+			   */
+
 			}
 		}
 		break;
