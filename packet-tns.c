@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.24 2001/12/10 00:25:40 guy Exp $
+ * $Id: packet-tns.c,v 1.25 2002/01/17 20:47:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -195,18 +195,18 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		proto_tree *df_tree = NULL;
 		
-		ti = proto_tree_add_uint(data_tree, hf_tns_data_flag, tvb, offset, 2, FALSE);
+		ti = proto_tree_add_item(data_tree, hf_tns_data_flag, tvb, offset, 2, FALSE);
 		
 		df_tree = proto_item_add_subtree(ti, ett_tns_data_flag);
-		proto_tree_add_uint(df_tree, hf_tns_data_flag_send, tvb, offset, 2, FALSE);
-		proto_tree_add_uint(df_tree, hf_tns_data_flag_rc, tvb, offset, 2, FALSE);
-		proto_tree_add_uint(df_tree, hf_tns_data_flag_c, tvb, offset, 2, FALSE);
-		proto_tree_add_uint(df_tree, hf_tns_data_flag_reserved, tvb, offset, 2, FALSE);
-		proto_tree_add_uint(df_tree, hf_tns_data_flag_more, tvb, offset, 2, FALSE);
-		proto_tree_add_uint(df_tree, hf_tns_data_flag_eof, tvb, offset, 2, FALSE);
-		proto_tree_add_uint(df_tree, hf_tns_data_flag_dic, tvb, offset, 2, FALSE);
-		proto_tree_add_uint(df_tree, hf_tns_data_flag_rts, tvb, offset, 2, FALSE);
-		proto_tree_add_uint(df_tree, hf_tns_data_flag_sntt, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_send, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_rc, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_c, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_reserved, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_more, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_eof, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_dic, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_rts, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_sntt, tvb, offset, 2, FALSE);
 	}
 	offset += 2;
 
@@ -270,43 +270,43 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree )
 	{
 		/* need to break down w/ bitfield */
-		proto_tree_add_uint(connect_tree, hf_tns_service_options, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_service_options, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_sdu_size, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_sdu_size, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_max_tdu_size, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_max_tdu_size, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_nt_proto_characteristics, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_nt_proto_characteristics, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_line_turnaround, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_line_turnaround, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_bytes(connect_tree, hf_tns_value_of_one, tvb,
-			offset, 2, tvb_get_ptr(tvb, offset, 2));
+		proto_tree_add_item(connect_tree, hf_tns_value_of_one, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
@@ -328,52 +328,51 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_connect_data_max, tvb,
-			offset, 4, tvb_get_ntohl(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_connect_data_max, tvb,
+			offset, 4, FALSE);
 	}
 	offset += 4;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_connect_flags0, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_connect_flags0, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_connect_flags1, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_connect_flags1, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_trace_cf1, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_trace_cf1, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_trace_cf2, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_trace_cf2, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
-		proto_tree_add_uint(connect_tree, hf_tns_trace_cid, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(connect_tree, hf_tns_trace_cid, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( connect_tree && cd_len > 0)
 	{
-		proto_tree_add_string(connect_tree, hf_tns_connect_data, tvb,
-			tns_offset+cd_offset, tvb_length(tvb)-(tns_offset+cd_offset), 
-			tvb_get_ptr(tvb, tns_offset+cd_offset,
-			tvb_length(tvb)-(tns_offset+cd_offset)));
+		proto_tree_add_item(connect_tree, hf_tns_connect_data, tvb,
+			tns_offset+cd_offset,
+			tvb_length(tvb)-(tns_offset+cd_offset), FALSE);
 	}
 	return;
 }
@@ -410,29 +409,29 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	if ( accept_tree )
 	{
-		proto_tree_add_uint(accept_tree, hf_tns_service_options, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(accept_tree, hf_tns_service_options, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( accept_tree )
 	{
-		proto_tree_add_uint(accept_tree, hf_tns_sdu_size, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(accept_tree, hf_tns_sdu_size, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( accept_tree )
 	{
-		proto_tree_add_uint(accept_tree, hf_tns_max_tdu_size, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(accept_tree, hf_tns_max_tdu_size, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( accept_tree )
 	{
-		proto_tree_add_bytes(accept_tree, hf_tns_value_of_one, tvb,
-			offset, 2, tvb_get_ptr(tvb, offset, 2));
+		proto_tree_add_item(accept_tree, hf_tns_value_of_one, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
@@ -454,24 +453,23 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( accept_tree )
 	{
-		proto_tree_add_uint(accept_tree, hf_tns_connect_flags0, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(accept_tree, hf_tns_connect_flags0, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( accept_tree )
 	{
-		proto_tree_add_uint(accept_tree, hf_tns_connect_flags1, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(accept_tree, hf_tns_connect_flags1, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( accept_tree && accept_len > 0)
 	{
-		proto_tree_add_string(accept_tree, hf_tns_accept_data, tvb,
-			tns_offset+accept_offset, tvb_length(tvb)-(tns_offset+accept_offset), 
-			tvb_get_ptr(tvb, tns_offset+accept_offset,
-			tvb_length(tvb)-(tns_offset+accept_offset)));
+		proto_tree_add_item(accept_tree, hf_tns_accept_data, tvb,
+			tns_offset+accept_offset,
+			tvb_length(tvb)-(tns_offset+accept_offset), FALSE);
 	}
 	return;
 }
@@ -499,30 +497,29 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( refuse_tree )
 	{
-		proto_tree_add_uint(refuse_tree, hf_tns_refuse_reason_user, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(refuse_tree, hf_tns_refuse_reason_user, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( refuse_tree )
 	{
-		proto_tree_add_uint(refuse_tree, hf_tns_refuse_reason_system, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(refuse_tree, hf_tns_refuse_reason_system, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( refuse_tree )
 	{
-		proto_tree_add_uint(refuse_tree, hf_tns_refuse_data_length, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(refuse_tree, hf_tns_refuse_data_length, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( refuse_tree )
 	{
-		proto_tree_add_string(refuse_tree, hf_tns_refuse_data, tvb,
-			offset, tvb_length(tvb)-offset, 
-			tvb_get_ptr(tvb, offset, tvb_length(tvb)-offset));
+		proto_tree_add_item(refuse_tree, hf_tns_refuse_data, tvb,
+			offset, tvb_length(tvb)-offset, FALSE);
 	}
 	return;
 }
@@ -550,23 +547,22 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( abort_tree )
 	{
-		proto_tree_add_uint(abort_tree, hf_tns_abort_reason_user, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(abort_tree, hf_tns_abort_reason_user, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( abort_tree )
 	{
-		proto_tree_add_uint(abort_tree, hf_tns_abort_reason_system, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(abort_tree, hf_tns_abort_reason_system, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( abort_tree )
 	{
-		proto_tree_add_string(abort_tree, hf_tns_abort_data, tvb,
-			offset, tvb_length_remaining(tvb,offset), 
-			tvb_get_ptr(tvb, offset, tvb_length_remaining(tvb,offset)));
+		proto_tree_add_item(abort_tree, hf_tns_abort_data, tvb,
+			offset, tvb_length_remaining(tvb,offset), FALSE);
 	}
 	return;
 }
@@ -609,22 +605,22 @@ static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( marker_tree )
 	{
-		proto_tree_add_uint(marker_tree, hf_tns_marker_type, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(marker_tree, hf_tns_marker_type, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( marker_tree )
 	{
-		proto_tree_add_uint(marker_tree, hf_tns_marker_data_byte, tvb,
-			offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
 	if ( marker_tree )
 	{
-		proto_tree_add_uint(marker_tree, hf_tns_marker_data_byte, tvb,
-			offset, 1, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
+			offset, 1, FALSE);
 	}
 	offset += 1;
 
@@ -653,16 +649,15 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( redirect_tree )
 	{
-		proto_tree_add_uint(redirect_tree, hf_tns_redirect_data_length, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(redirect_tree, hf_tns_redirect_data_length, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( redirect_tree )
 	{
-		proto_tree_add_string(redirect_tree, hf_tns_redirect_data, tvb,
-			offset, tvb_length(tvb)-offset, 
-			tvb_get_ptr(tvb, offset, tvb_length(tvb)-offset));
+		proto_tree_add_item(redirect_tree, hf_tns_redirect_data, tvb,
+			offset, tvb_length(tvb)-offset, FALSE);
 	}
 	return;
 }
@@ -689,16 +684,15 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( control_tree )
 	{
-		proto_tree_add_uint(control_tree, hf_tns_control_cmd, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(control_tree, hf_tns_control_cmd, tvb,
+			offset, 2, FALSE);
 	}
 	offset += 2;
 
 	if ( control_tree )
 	{
-		proto_tree_add_string(control_tree, hf_tns_control_data, tvb,
-			offset, tvb_length(tvb)-offset, 
-			tvb_get_ptr(tvb, offset, tvb_length(tvb)-offset));
+		proto_tree_add_item(control_tree, hf_tns_control_data, tvb,
+			offset, tvb_length(tvb)-offset, FALSE);
 	}
 	return;
 }
