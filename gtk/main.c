@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.423 2004/04/16 23:16:29 guy Exp $
+ * $Id: main.c,v 1.424 2004/04/16 23:57:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2022,6 +2022,32 @@ main(int argc, char *argv[])
   /* Read the preference files. */
   prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                      &pf_open_errno, &pf_read_errno, &pf_path);
+  if (gpf_path != NULL) {
+    if (gpf_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open global preferences file\n\"%s\": %s.", gpf_path,
+        strerror(gpf_open_errno));
+    }
+    if (gpf_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
+        strerror(gpf_read_errno));
+    }
+  }
+  if (pf_path != NULL) {
+    if (pf_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open your preferences file\n\"%s\": %s.", pf_path,
+        strerror(pf_open_errno));
+    }
+    if (pf_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
+        strerror(pf_read_errno));
+    }
+    g_free(pf_path);
+    pf_path = NULL;
+  }
 
 #ifdef HAVE_LIBPCAP
   capture_opts.has_snaplen = FALSE;
@@ -2071,13 +2097,51 @@ main(int argc, char *argv[])
 
   /* Read the capture filter file. */
   read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
+  if (cf_path != NULL) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open your capture filter file\n\"%s\": %s.", cf_path,
+        strerror(cf_open_errno));
+      g_free(cf_path);
+  }
 
   /* Read the display filter file. */
   read_filter_list(DFILTER_LIST, &df_path, &df_open_errno);
+  if (df_path != NULL) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open your display filter file\n\"%s\": %s.", df_path,
+        strerror(df_open_errno));
+      g_free(df_path);
+  }
 
   /* Read the disabled protocols file. */
   read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
 			    &dp_path, &dp_open_errno, &dp_read_errno);
+  if (gdp_path != NULL) {
+    if (gdp_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open global disabled protocols file\n\"%s\": %s.",
+	gdp_path, strerror(gdp_open_errno));
+    }
+    if (gdp_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "I/O error reading global disabled protocols file\n\"%s\": %s.",
+	gdp_path, strerror(gdp_read_errno));
+    }
+    g_free(gdp_path);
+  }
+  if (dp_path != NULL) {
+    if (dp_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
+        strerror(dp_open_errno));
+    }
+    if (dp_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
+        strerror(dp_read_errno));
+    }
+    g_free(dp_path);
+  }
 
   init_cap_file(&cfile);
 
@@ -2694,9 +2758,6 @@ main(int argc, char *argv[])
        we were told to. */
     create_main_window(pl_size, tv_size, bv_size, prefs);
 
-    /* Pop up any queued-up alert boxes. */
-    display_queued_messages();
-
     /* Read the recent file, as we have the gui now ready for it. */
     read_recent(&rf_path, &rf_open_errno);
 
@@ -2746,6 +2807,9 @@ main(int argc, char *argv[])
 
     /* process all pending GUI events before continue */
     while (gtk_events_pending()) gtk_main_iteration();
+
+    /* Pop up any queued-up alert boxes. */
+    display_queued_messages();
 
     /* If we were given the name of a capture file, read it in now;
        we defer it until now, so that, if we can't open it, and pop
@@ -2808,117 +2872,6 @@ main(int argc, char *argv[])
       }
     }
 #ifdef HAVE_LIBPCAP
-  }
-#endif
-
-  /* Pop up any queued-up alert boxes. */
-  display_queued_messages();
-
-  /* If the global preferences file exists but we failed to open it
-     or had an error reading it, pop up an alert box; we defer that
-     until now, so that the alert box is more likely to come up on top of
-     the main window. */
-  if (gpf_path != NULL) {
-    if (gpf_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open global preferences file\n\"%s\": %s.", gpf_path,
-        strerror(gpf_open_errno));
-    }
-    if (gpf_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
-        strerror(gpf_read_errno));
-    }
-  }
-
-  /* If the user's preferences file exists but we failed to open it
-     or had an error reading it, pop up an alert box; we defer that
-     until now, so that the alert box is more likely to come up on top of
-     the main window. */
-  if (pf_path != NULL) {
-    if (pf_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your preferences file\n\"%s\": %s.", pf_path,
-        strerror(pf_open_errno));
-    }
-    if (pf_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
-        strerror(pf_read_errno));
-    }
-    g_free(pf_path);
-    pf_path = NULL;
-  }
-
-  /* If the user's capture filter file exists but we failed to open it,
-     pop up an alert box; we defer that until now, so that the alert
-     box is more likely to come up on top of the main window. */
-  if (cf_path != NULL) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your capture filter file\n\"%s\": %s.", cf_path,
-        strerror(cf_open_errno));
-      g_free(cf_path);
-  }
-
-  /* If the user's display filter file exists but we failed to open it,
-     pop up an alert box; we defer that until now, so that the alert
-     box is more likely to come up on top of the main window. */
-  if (df_path != NULL) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your display filter file\n\"%s\": %s.", df_path,
-        strerror(df_open_errno));
-      g_free(df_path);
-  }
-
-  /* If the global disabled protocols file exists but we failed to open it,
-     or had an error reading it, pop up an alert box; we defer that until now,
-     so that the alert box is more likely to come up on top of the main
-     window. */
-  if (gdp_path != NULL) {
-    if (gdp_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open global disabled protocols file\n\"%s\": %s.",
-	gdp_path, strerror(gdp_open_errno));
-    }
-    if (gdp_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading global disabled protocols file\n\"%s\": %s.",
-	gdp_path, strerror(gdp_read_errno));
-    }
-    g_free(gdp_path);
-  }
-
-  /* If the user's disabled protocols file exists but we failed to open it,
-     or had an error reading it, pop up an alert box; we defer that until now,
-     so that the alert box is more likely to come up on top of the main
-     window. */
-  if (dp_path != NULL) {
-    if (dp_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
-        strerror(dp_open_errno));
-    }
-    if (dp_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
-        strerror(dp_read_errno));
-    }
-    g_free(dp_path);
-  }
-
-#ifdef HAVE_LIBPCAP
-  if (capture_child) {
-    /* This is the child process for a sync mode or fork mode capture,
-       so just do the low-level work of a capture - don't create
-       a temporary file and fork off *another* child process (so don't
-       call "do_capture()"). */
-
-       /* XXX - hand these stats to the parent process */
-       capture(&stats_known, &stats);
-
-       /* The capture is done; there's nothing more for us to do. */
-       gtk_exit(0);
-  } else {
     if (start_capture) {
       /* "-k" was specified; start a capture. */
       if (do_capture(save_file)) {
@@ -2941,17 +2894,30 @@ main(int argc, char *argv[])
     else {
       set_menus_for_capture_in_progress(FALSE);
     }
-  }
+  } else {
+    /* This is the child process for a sync mode or fork mode capture,
+       so just do the low-level work of a capture - don't create
+       a temporary file and fork off *another* child process (so don't
+       call "do_capture()"). */
 
+    /* Pop up any queued-up alert boxes. */
+    display_queued_messages();
+
+    /* XXX - hand these stats to the parent process */
+    capture(&stats_known, &stats);
+
+    /* The capture is done; there's nothing more for us to do. */
+    gtk_exit(0);
+  }
   if (!start_capture && (cfile.cfilter == NULL || strlen(cfile.cfilter) == 0)) {
     if (cfile.cfilter) {
       g_free(cfile.cfilter);
     }
     cfile.cfilter = g_strdup(get_conn_cfilter());
   }
-#else
+#else /* HAVE_LIBPCAP */
   set_menus_for_capture_in_progress(FALSE);
-#endif
+#endif /* HAVE_LIBPCAP */
 
   gtk_main();
 
