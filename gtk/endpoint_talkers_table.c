@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.42 2004/06/01 20:37:09 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.43 2004/06/01 21:29:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1387,7 +1387,7 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void 
-add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, int sat, int port_type)
+add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
 {
 	address *addr1, *addr2;
 	guint32 port1, port2;
