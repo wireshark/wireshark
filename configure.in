@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.82 2000/02/01 14:12:20 gram Exp $
+# $Id: configure.in,v 1.83 2000/02/11 03:17:43 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -14,6 +14,8 @@ AC_INIT(etypes.h)
 AC_PREREQ(2.13)
 
 AM_INIT_AUTOMAKE(ethereal, 0.8.3)
+
+AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
@@ -173,6 +175,17 @@ else
 	AC_ETHEREAL_IPV6_STACK
 fi
 
+
+dnl Check if ethereal should be installed setuid
+AC_ARG_ENABLE(setuid-install,
+[  --enable-setuid-install install ethereal as setuid. DANGEROUS!!! [default=no]],,enable_setuid_install=no)
+
+AC_MSG_CHECKING(whether to install ethereal setuid)
+if test "x$enable_setuid_install" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC

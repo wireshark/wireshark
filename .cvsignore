@@ -4,6 +4,7 @@ Makefile
 Makefile.in
 aclocal.m4
 config.cache
+config.guess
 config.h
 config.h.in
 config.log
@@ -21,6 +22,8 @@ ethereal.1
 ethereal.spec
 install-sh
 libtool
+ltconfig
+ltmain.sh
 missing
 mkinstalldirs
 ps.c

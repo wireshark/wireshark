@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.7 1999/12/30 21:34:58 guy Exp $
+# $Id: autogen.sh,v 1.8 2000/02/11 03:17:43 gram Exp $
 
 DIE=0
 PROJECT="Ethereal"
@@ -33,7 +33,7 @@ PROJECT="Ethereal"
 
 (libtool --version) < /dev/null > /dev/null 2>&1 || {
 	echo
-	echo "You must have libtool 1.3.4 or later installed to compile $PROJECT."
+	echo "You must have libtool 1.3.3 or later installed to compile $PROJECT."
 	echo "Download the appropriate package for your distribution/OS,"
 	echo "or get the source tarball at ftp://ftp.gnu.org/pub/gnu/libtool/"
 	DIE=1
@@ -42,6 +42,8 @@ PROJECT="Ethereal"
 if test "$DIE" -eq 1 ; then
 	exit 1
 fi
+
+libtoolize --copy --force
 
 if test -z "$*"; then
 	echo "Running ./configure with no arguments. If you wish to pass any,"

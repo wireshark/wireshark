@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.163 2000/02/09 17:15:46 gram Exp $
+# $Id: Makefile.am,v 1.164 2000/02/11 03:17:42 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -427,6 +427,13 @@ EXTRA_DIST = \
 	randpkt.c		\
 	rdps.c			\
 	TODO
+
+if SETUID_INSTALL
+install-exec-hook:
+	-chmod +s $(DESTDIR)$(bindir)/ethereal
+	-chmod +s $(DESTDIR)$(bindir)/tethereal
+	-chmod +s $(DESTDIR)$(bindir)/ethereal_static
+endif
 
 #
 # Currently register.c can be included in the distribution because
