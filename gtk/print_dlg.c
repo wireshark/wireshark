@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.44 2003/11/12 19:04:58 ulfl Exp $
+ * $Id: print_dlg.c,v 1.45 2003/11/18 19:27:39 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   GtkWidget     *range_fr, *range_vb;
   GtkWidget     *all_captured_rb, *all_displayed_rb, *selected_rb, *marked_rb;
-  GtkWidget     *range_rb, *range_lb;
+  GtkWidget     *range_rb;
 
   GtkWidget     *packet_fr, *packet_vb;
   GtkWidget     *details_cb, *details_fr, *details_vb;
@@ -714,7 +714,6 @@ static void
 print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 {
   GtkWidget     *button;
-  GtkWidget     *text_entry;
   print_args_t  print_args;
   const gchar   *g_dest;
   gchar         *f_name;
