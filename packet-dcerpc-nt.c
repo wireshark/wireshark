@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.60 2003/01/30 22:42:57 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.61 2003/01/31 06:47:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -298,9 +298,15 @@ dissect_ndr_nt_STRING(tvbuff_t *tvb, int offset,
 		      packet_info *pinfo, proto_tree *parent_tree,
 		      char *drep, int hf_index)
 {
+	header_field_info *hfi;
+
+	hfi = proto_registrar_get_nth(hf_index);
+
 	return dissect_ndr_nt_STRING_cb(
 		tvb, offset, pinfo, parent_tree, drep, hf_index,
-		cb_str_postprocess, GINT_TO_POINTER(1));
+		cb_str_postprocess,
+		hfi->type == FT_STRING ? GINT_TO_POINTER(1):
+					 GINT_TO_POINTER(0));
 }
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
