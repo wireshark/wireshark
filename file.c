@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.185 2000/05/12 22:03:59 gram Exp $
+ * $Id: file.c,v 1.186 2000/05/15 01:50:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,6 +95,8 @@ static guint32 prevsec, prevusec;
 
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
     const u_char *);
+
+static void set_selected_row(int row);
 
 static void freeze_clist(capture_file *cf);
 static void thaw_clist(capture_file *cf);
@@ -507,7 +509,7 @@ apply_color_filter(gpointer filter_arg, gpointer argp)
   }
 }
 
-static void
+static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
 {
   apply_color_filter_args args;
@@ -571,6 +573,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
 
   if (fdata->flags.passed_dfilter) {
+    /* This frame passed the display filter, so add it to the clist. */
+
     /* If we don't have the time stamp of the previous displayed packet,
        it's because this is the first displayed packet.  Save the time
        stamp of this packet as the time stamp of the previous displayed
@@ -620,11 +624,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
     gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
 
-    /* If this was the current frame, remember the row it's in, so
-       we can arrange that it's on the screen when we're done. */
-    if (cf->current_frame == fdata)
-      cf->current_row = row;
-
     if (filter_list != NULL && (args.colorf != NULL)) {
         gtk_clist_set_background(GTK_CLIST(packet_list), row,
                    &args.colorf->bg_color);
@@ -634,13 +633,19 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
         gtk_clist_set_background(GTK_CLIST(packet_list), row, &WHITE);
         gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &BLACK);
     }
+  } else {
+    /* This frame didn't pass the display filter, so it's not being added
+       to the clist, and thus has no row. */
+    row = -1;
   }
   fdata->cinfo = NULL;
+  return row;
 }
 
 static void
 wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-  const u_char *buf) {
+  const u_char *buf)
+{
   frame_data   *fdata;
   capture_file *cf = (capture_file *) user;
   int           passed;
@@ -768,6 +773,19 @@ colorize_packets(capture_file *cf)
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
   int count;
+  frame_data *selected_frame;
+  int selected_row;
+  int row;
+
+  /* Which frame, if any, is the currently selected frame?
+     XXX - should the selected frame or the focus frame be the "current"
+     frame, that frame being the one from which "Find Frame" searches
+     start? */
+  selected_frame = cf->current_frame;
+
+  /* We don't yet know what row that frame will be on, if any, after we
+     rebuild the clist, however. */
+  selected_row = -1;
 
   /* We need to re-initialize all the state information that protocols
      keep, because we're making a fresh pass through all the packets. */
@@ -790,10 +808,6 @@ colorize_packets(capture_file *cf)
   /* We don't yet know which will be the first and last frames displayed. */
   cf->first_displayed = NULL;
   cf->last_displayed = NULL;
-
-  /* If a packet was selected, we don't know yet what row, if any, it'll
-     get. */
-  cf->current_row = -1;
 
   /* Iterate through the list of packets, calling a routine
      to run the filter on the packet, see if it matches, and
@@ -839,29 +853,27 @@ colorize_packets(capture_file *cf)
 
     wtap_seek_read (cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
 
-    add_packet_to_packet_list(fdata, cf, cf->pd);
+    row = add_packet_to_packet_list(fdata, cf, cf->pd);
+    if (fdata == selected_frame)
+      selected_row = row;
   }
  
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
 
-  if (cf->current_row != -1) {
-    /* The current frame passed the filter; make sure it's visible. */
-    if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), cf->current_row))
-      gtk_clist_moveto(GTK_CLIST(packet_list), cf->current_row, -1, 0.0, 0.0);
-    if (cf->current_frame_is_selected) {
-      /* It was selected, so re-select it. */
-      gtk_clist_select_row(GTK_CLIST(packet_list), cf->current_row, -1);
-    }
+  /* Unfreeze the packet list. */
+  gtk_clist_thaw(GTK_CLIST(packet_list));
+
+  if (selected_row != -1) {
+    /* The frame that was selected passed the filter; select it, make it
+       the focus row, and make it visible. */
+    set_selected_row(selected_row);
     finfo_selected = NULL;
   } else {
-    /* The current frame didn't pass the filter; make the first frame
+    /* The selected frame didn't pass the filter; make the first frame
        the current frame, and leave it unselected. */
     unselect_packet(cf);
     cf->current_frame = cf->first_displayed;
   }
-
-  /* Unfreeze the packet list. */
-  gtk_clist_thaw(GTK_CLIST(packet_list));
 }
 
 int
@@ -1228,20 +1240,8 @@ find_packet(capture_file *cf, dfilter *sfcode)
     row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), new_fd);
     g_assert(row != -1);
 
-    /* Make it visible, and select it. */
-    if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), row))
-      gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0, 0.0);
-
-    /* XXX - why is there no "gtk_clist_set_focus_row()", so that we
-       can make the row for the frame we found the focus row?
-
-       See
-
-   http://www.gnome.org/mailing-lists/archives/gtk-list/2000-January/0038.shtml
-
-       */
-    GTK_CLIST(packet_list)->focus_row = row;
-    gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
+    /* Select that row, make it the focus row, and make it visible. */
+    set_selected_row(row);
     return TRUE;	/* success */
   } else
     return FALSE;	/* failure */
@@ -1266,13 +1266,8 @@ goto_frame(capture_file *cf, guint fnumber)
   row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata);
   g_assert(row != -1);
 
-  /* Make it visible, and select it. */
-  if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), row))
-    gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0, 0.0);
-
-  /* See above complaint about the lack of "gtk_clist_set_focus_row()". */
-  GTK_CLIST(packet_list)->focus_row = row;
-  gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
+  /* Select that row, make it the focus row, and make it visible. */
+  set_selected_row(row);
   return FOUND_FRAME;
 }
 
@@ -1316,9 +1311,8 @@ select_packet(capture_file *cf, int row)
          fdata = cf->first_displayed;
   }
 
-  /* Record that this frame is the current frame, and that it's selected. */
+  /* Record that this frame is the current frame. */
   cf->current_frame = fdata;
-  cf->current_frame_is_selected = TRUE;
 
   /* Get the data in that frame. */
   wtap_seek_read (cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
@@ -1344,8 +1338,6 @@ select_packet(capture_file *cf, int row)
 void
 unselect_packet(capture_file *cf)
 {
-  cf->current_frame_is_selected = FALSE;
-
   /* Destroy the protocol tree for that packet. */
   if (cf->protocol_tree != NULL) {
     proto_tree_free(cf->protocol_tree);
@@ -1359,6 +1351,27 @@ unselect_packet(capture_file *cf)
 
   /* No packet is selected. */
   set_menus_for_selected_packet(FALSE);
+}
+
+/* Set the selected row and the focus row of the packet list to the specified
+   row, and make it visible if it's not currently visible. */
+static void
+set_selected_row(int row)
+{
+  if (gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) != GTK_VISIBILITY_FULL)
+    gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0, 0.0);
+
+  /* XXX - why is there no "gtk_clist_set_focus_row()", so that we
+     can make the row for the frame we found the focus row?
+
+     See
+
+ http://www.gnome.org/mailing-lists/archives/gtk-list/2000-January/0038.shtml
+
+     */
+  GTK_CLIST(packet_list)->focus_row = row;
+
+  gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
 }
 
 static void

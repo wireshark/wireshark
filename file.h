@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.65 2000/04/03 08:42:45 guy Exp $
+ * $Id: file.h,v 1.66 2000/05/15 01:50:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,8 +109,6 @@ typedef struct _capture_file {
   frame_data  *last_displayed;  /* Last frame displayed */
   column_info  cinfo;    /* Column formatting information */
   frame_data  *current_frame;  /* Frame data for current frame */
-  int          current_row;    /* Row in packet display of current frame */
-  gboolean     current_frame_is_selected; /* TRUE if that frame is selected */
   proto_tree  *protocol_tree; /* Protocol tree for currently selected packet */
   FILE        *print_fh;  /* File we're printing to */
 } capture_file;
