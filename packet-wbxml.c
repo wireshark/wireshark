@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.36 2004/05/13 17:26:32 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.37 2004/05/14 16:32:49 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -5042,7 +5042,6 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			case 0x82: /* EXT_T_2 */
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
 				{   char *s;
 				    if (map->ext_t[peek & 0x03])
 					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
@@ -5455,7 +5454,6 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			case 0x82: /* EXT_T_2 */
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
 				proto_tree_add_text (tree, tvb, off, 1+len,
 						"  %3d | Tag   | T %3d    "
 						"| EXT_T_%1x    (Extension Token)    "
@@ -5845,7 +5843,6 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			case 0x82: /* EXT_T_2 */
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
 				{   char *s;
 
 				    if (map->ext_t[peek & 0x03])
@@ -5862,13 +5859,6 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 						s);
 				    g_free(s);
 				}
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| EXT_T_%1x    (Extension Token)    "
-						"|     %s(%s: \'%s\')",
-						level, *codepage_attr, peek & 0x0f, Indent (level),
-						map_token (map->global, 0, peek),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
@@ -6069,7 +6059,6 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			case 0x82: /* EXT_T_2 */
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
 				proto_tree_add_text (tree, tvb, off, 1+len,
 						"  %3d |  Attr | A %3d    "
 						"| EXT_T_%1x    (Extension Token)    "
