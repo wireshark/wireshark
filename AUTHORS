@@ -713,6 +713,7 @@ Andy Hood <ahood[AT]westpac.com.au> {
 	   compiled with crypto support and needs -lcrypto
 	On Solaris, with GCC, add flags to reduce warnings from
 	   inadequacies of function declarations in X11 headers
+	Translate enterprise OIDs in SNMP traps to strings if possible
 }
 
 Randy McEoin <rmceoin[AT]pe.net> {
