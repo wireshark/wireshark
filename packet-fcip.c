@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.9 2003/11/16 23:17:17 guy Exp $
+ * $Id: packet-fcip.c,v 1.10 2003/12/04 05:38:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,6 +104,7 @@ static const value_string fcip_sof_vals[] = {
 static const value_string fcencap_proto_vals[] = {
     {FCENCAP_PROTO_FCIP, "FCIP"},
     {FCENCAP_PROTO_iFCP, "iFCP"},
+    {0, NULL},
 };
 
 static guint fcip_header_2_bytes[2] = {FCIP_ENCAP_PROTO_VER,
