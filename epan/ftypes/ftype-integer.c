@@ -192,7 +192,7 @@ s_cmp_le(fvalue_t *a, fvalue_t *b)
 static gboolean
 cmp_bitwise_and(fvalue_t *a, fvalue_t *b)
 {
-	return (a->value.integer & b->value.integer);
+	return ((a->value.integer & b->value.integer) != 0);
 }
 
 static void
@@ -321,7 +321,7 @@ s_cmp_le64(fvalue_t *a, fvalue_t *b)
 static gboolean
 cmp_bitwise_and64(fvalue_t *a, fvalue_t *b)
 {
-	return (a->value.integer64 & b->value.integer64);
+	return ((a->value.integer64 & b->value.integer64) != 0);
 }
 
 /* BOOLEAN-specific */
