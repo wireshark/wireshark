@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.17 1998/12/22 05:52:50 gram Exp $
+ * $Id: ethereal.c,v 1.18 1998/12/27 20:47:53 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,7 @@ GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
 frame_data  *fd;
 gint         start_capture = 0;
+gchar        comp_info_str[256];
 
 ts_type timestamp_type = RELATIVE;
 
@@ -87,7 +88,8 @@ void
 about_ethereal( GtkWidget *w, gpointer data ) {
   simple_dialog(ESD_TYPE_INFO, NULL,
 		"GNU Ethereal - network protocol analyzer\n"
-		"Version %s (C) 1998 Gerald Combs <gerald@zing.org>\n\n"
+		"Version %s (C) 1998 Gerald Combs <gerald@zing.org>\n"
+                "Compiled with %s\n\n"
 		"Contributors:\n"
 		"Gilbert Ramirez Jr. <gram@verdict.uthscsa.edu>\n"
 		"Hannes R. Boehm     <hannes@boehm.org>\n"
@@ -97,7 +99,8 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Don Lafontaine      <lafont02@cn.ca>\n"
 		"Guy Harris          <guy@netapp.com>\n"
 		"Simon Wilkinson     <sxw@dcs.ed.ac.uk>\n\n"
-		"See http://ethereal.zing.org for more information", VERSION);
+		"See http://ethereal.zing.org for more information",
+                VERSION, comp_info_str);
 }
 
 /* Things to do when the OK button is pressed */
@@ -374,7 +377,8 @@ main_realize_cb(GtkWidget *w, gpointer data) {
 void 
 print_usage(void) {
 
-  fprintf(stderr, "This is GNU %s %s\n", PACKAGE, VERSION);
+  fprintf(stderr, "This is GNU %s %s, compiled with %s\n", PACKAGE,
+  VERSION, comp_info_str);
   fprintf(stderr, "%s [-v] [-b bold font] [-B byte view height] [-c count] [-h]\n",
 	  PACKAGE);
   fprintf(stderr, "         [-i interface] [-m medium font] [-n] [-P packet list height]\n");
@@ -446,6 +450,20 @@ main(int argc, char *argv[])
     cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
+  /* Assemble the compile-time options */
+  snprintf(comp_info_str, 256,
+#ifdef GTK_MAJOR_VERSION
+    "GTK+ %d.%d.%d and %s", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+    GTK_MICRO_VERSION,
+#else
+    "GTK+ (version unknown) and %s",
+#endif
+#ifdef WITH_WIRETAP
+    "wiretap");
+#else
+    "libpcap");
+#endif
+
   /* Now get our args */
   while ((opt = getopt(argc, argv, "b:B:c:hi:m:nP:r:s:t:T:w:v")) != EOF) {
     switch (opt) {
@@ -502,7 +520,7 @@ main(int argc, char *argv[])
         tv_size = atoi(optarg);
         break;
       case 'v':        /* Show version and exit */
-        printf("%s %s\n", PACKAGE, VERSION);
+        printf("%s %s, with %s\n", PACKAGE, VERSION, comp_info_str);
         exit(0);
         break;
       case 'w':        /* Write capture file xxx */
@@ -541,6 +559,7 @@ main(int argc, char *argv[])
     GTK_SIGNAL_FUNC(main_realize_cb), cf_name);
   gtk_window_set_title(GTK_WINDOW(window), "The Ethereal Network Analyzer");
   gtk_widget_set_usize(GTK_WIDGET(window), DEF_WIDTH, -1);
+  gtk_window_set_policy(GTK_WINDOW(window), TRUE, TRUE, FALSE);
 
   /* Container for menu bar, paned windows and progress/info box */
   main_vbox = gtk_vbox_new(FALSE, 1);
