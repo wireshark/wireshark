@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.18 2003/05/20 20:17:03 guy Exp $
+ * $Id: vms.c,v 1.19 2003/05/27 10:14:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -208,10 +208,17 @@ static gboolean vms_check_file_type(wtap *wth, int *err)
 {
   char	buf[VMS_LINE_LENGTH];
   guint	reclen, line;
+  long mpos;
   
   buf[VMS_LINE_LENGTH-1] = '\0';
   
   for (line = 0; line < VMS_HEADER_LINES_TO_CHECK; line++) {
+    mpos = file_tell(wth->fh);
+    if (mpos == -1) {
+      /* Error. */
+      *err = file_error(wth->fh);
+      return FALSE;
+    }
     if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) != NULL) {
       
       reclen = strlen(buf);
@@ -224,6 +231,12 @@ static gboolean vms_check_file_type(wtap *wth, int *err)
       if (strstr(buf, VMS_HDR_MAGIC_STR1) ||
 	  strstr(buf, VMS_HDR_MAGIC_STR2) ||
 	  strstr(buf, VMS_HDR_MAGIC_STR3)) {
+	/* Go back to the beginning of this line, so we will
+	 * re-read it. */
+	if (file_seek(wth->fh, mpos, SEEK_SET, err) == -1) {
+	  /* Error. */
+	  return FALSE;
+	}
 	return TRUE;
       }
     } else {
