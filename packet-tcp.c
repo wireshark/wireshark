@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.151 2002/08/16 20:59:18 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.152 2002/08/17 22:26:00 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -467,7 +467,7 @@ ack_finished:
 	if( (!ual2) && (flags&TH_ACK) ){
 		ual2=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual2->next=NULL;
-		ual2->frame=pinfo->fd->num;
+		ual2->frame=0;
 		ual2->seq=ack;
 		ual2->nextseq=ack;
 		ual2->ts.secs=0;
