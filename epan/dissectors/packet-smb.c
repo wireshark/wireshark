@@ -15051,6 +15051,14 @@ proto_register_smb(void)
 		{ "SMB Command", "smb.cmd", FT_UINT8, BASE_HEX,
 		VALS(smb_cmd_vals), 0x0, "SMB Command", HFILL }},
 
+	{ &hf_smb_trans2_subcmd,
+		{ "Subcommand", "smb.trans2.cmd", FT_UINT16, BASE_HEX,
+		VALS(trans2_cmd_vals), 0, "Subcommand for TRANSACTION2", HFILL }},
+
+	{ &hf_smb_nt_trans_subcmd,
+		{ "Function", "smb.nt.function", FT_UINT16, BASE_DEC,
+		VALS(nt_cmd_vals), 0, "Function for NT Transaction", HFILL }},
+
 	{ &hf_smb_word_count,
 		{ "Word Count (WCT)", "smb.wct", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "Word Count, count of parameter words", HFILL }},
@@ -16091,10 +16099,6 @@ proto_register_smb(void)
 		{ "Setup Count", "smb.sc", FT_UINT8, BASE_DEC,
 		NULL, 0, "Number of setup words in this buffer", HFILL }},
 
-	{ &hf_smb_nt_trans_subcmd,
-		{ "Function", "smb.nt.function", FT_UINT16, BASE_DEC,
-		VALS(nt_cmd_vals), 0, "Function for NT Transaction", HFILL }},
-
 	{ &hf_smb_nt_ioctl_function_code,
 		{ "Function", "smb.nt.ioctl.function", FT_UINT32, BASE_HEX,
 		NULL, 0, "NT IOCTL function code", HFILL }},
@@ -16617,10 +16621,6 @@ proto_register_smb(void)
 	{ &hf_smb_cancel_to,
 		{ "Cancel to", "smb.cancel_to", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "This packet is a cancellation of the packet in this frame", HFILL }},
-
-	{ &hf_smb_trans2_subcmd,
-		{ "Subcommand", "smb.trans2.cmd", FT_UINT16, BASE_HEX,
-		VALS(trans2_cmd_vals), 0, "Subcommand for TRANSACTION2", HFILL }},
 
 	{ &hf_smb_trans_name,
 		{ "Transaction Name", "smb.trans_name", FT_STRING, BASE_NONE,
