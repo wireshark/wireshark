@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.14 1998/12/31 20:36:43 gram Exp $
+ * $Id: packet-ipx.c,v 1.15 1999/03/05 05:20:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -492,7 +492,7 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		if (query.query_type == IPX_SAP_GENERAL_RESPONSE ||
 				query.query_type == IPX_SAP_NEAREST_RESPONSE) { /* responses */
 
-			for (cursor = offset + 2; cursor < fd->cap_len; cursor += 64) {
+			for (cursor = offset + 2; (cursor + 64) <= fd->cap_len; cursor += 64) {
 				server.server_type = pntohs(&pd[cursor]);
 				memcpy(server.server_name, &pd[cursor+2], 48);
 				memcpy(&server.server_network, &pd[cursor+50], 4);
