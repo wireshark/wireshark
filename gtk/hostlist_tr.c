@@ -37,7 +37,7 @@
 #include "../tap.h"
 #include "../register.h"
 #include "hostlist_table.h"
-#include "packet-tr.h"
+#include <epan/dissectors/packet-tr.h>
 
 
 static int

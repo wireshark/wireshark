@@ -46,7 +46,7 @@
 #include "ui_util.h"
 #include "tap.h"
 #include "../register.h"
-#include "packet-dcerpc.h"
+#include <epan/dissectors/packet-dcerpc.h>
 #include "../globals.h"
 #include "filter_prefs.h"
 #include "compat_macros.h"

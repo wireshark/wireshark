@@ -43,7 +43,7 @@
 #include "dlg_utils.h"
 #include "tap.h"
 #include "../register.h"
-#include "packet-rpc.h"
+#include <epan/dissectors/packet-rpc.h>
 #include "../globals.h"
 #include "filter_prefs.h"
 #include "compat_macros.h"

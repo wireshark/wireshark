@@ -33,7 +33,7 @@
 #include "epan/value_string.h"
 #include "tap.h"
 #include "register.h"
-#include "packet-http.h"
+#include <epan/dissectors/packet-http.h>
 
 	
 /* used to keep track of the statictics for an entire program interface */

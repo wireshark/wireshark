@@ -33,13 +33,13 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-dcerpc.h"
+#include <epan/dissectors/packet-dcerpc.h>
 #include <epan/conversation.h>
 #include "prefs.h"
 #include "reassemble.h"
 #include "tap.h"
-#include "packet-frame.h"
-#include "packet-dcerpc-nt.h"
+#include <epan/dissectors/packet-frame.h>
+#include <epan/dissectors/packet-dcerpc-nt.h>
 
 static int dcerpc_tap = -1;
 

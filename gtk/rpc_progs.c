@@ -40,7 +40,7 @@
 #include "tap_menu.h"
 #include "tap.h"
 #include "../register.h"
-#include "packet-rpc.h"
+#include <epan/dissectors/packet-rpc.h>
 #include "../globals.h"
 #include "ui_util.h"
 #include "dlg_utils.h"

@@ -37,7 +37,7 @@
 #include "../tap.h"
 #include "../register.h"
 #include "hostlist_table.h"
-#include "packet-udp.h"
+#include <epan/dissectors/packet-udp.h>
 
 
 static int

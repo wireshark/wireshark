@@ -32,15 +32,6 @@ include epan\Makefile.common
 BUILT_SOURCES =	$(BUILT_SOURCES) \
 	svnversion.h
 
-DISSECTOR_SRC = $(DISSECTOR_SRC:../=)
-DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
-
-DISSECTOR_SUPPORT_SRC = $(DISSECTOR_SUPPORT_SRC:../=)
-DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
-
-# remove register.obj from "DISSECTOR_SUPPORT_OBJECTS". 
-# creation and compilation of register.c has been moved to epan.  
-DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_OBJECTS:register.obj=)
 
 ethereal_OBJECTS = $(ethereal_SOURCES:.c=.obj)
 tethereal_OBJECTS = $(tethereal_SOURCES:.c=.obj)
@@ -60,7 +51,7 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !IFDEF ENABLE_LIBETHEREAL
 	epan\libethereal.lib \
 !ELSE
-	dissectors.lib \
+	epan\dissectors\dissectors.lib \
 	epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
@@ -76,7 +67,7 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !IFDEF ENABLE_LIBETHEREAL
 	epan\libethereal.lib \
 !ELSE
-	dissectors.lib \
+	epan\dissectors\dissectors.lib \
 	epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
@@ -99,7 +90,7 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 !IFDEF ENABLE_LIBETHEREAL
 	epan\libethereal.lib \
 !ELSE
-	dissectors.lib \
+	epan\dissectors\dissectors.lib \
 	epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
@@ -144,7 +135,7 @@ wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
 !IFNDEF GTK1_DIR
 ethereal.exe	: 
 !ELSE
-ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib dissectors.lib plugins
+ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK1_LIBS) gtk\libui.lib $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
@@ -154,14 +145,14 @@ ethereal.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan g
 !IFNDEF GTK2_DIR
 ethereal-gtk2.exe	: 
 !ELSE
-ethereal-gtk2.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib dissectors.lib plugins
+ethereal-gtk2.exe	: config.h svnversion.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) epan gtk2 image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:ethereal-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(GTK2_LIBS) gtk2.tmp\libui.lib $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
 <<
 !ENDIF
 
-tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib dissectors.lib plugins
+tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
@@ -185,7 +176,7 @@ text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime
 		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
 <<
 
-dftest.exe	: $(dftest_OBJECTS) $(EXTRA_OBJECTS) dissectors.lib
+dftest.exe	: $(dftest_OBJECTS) $(EXTRA_OBJECTS) epan
 	$(LINK) @<<
 		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS) $(EXTRA_OBJECTS)
 <<
@@ -194,9 +185,6 @@ randpkt.exe	: $(randpkt_OBJECTS) $(EXTRA_OBJECTS)
 	$(LINK) @<<
 		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS)
 <<
-
-dissectors.lib: config.h $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS)
-	link /lib /out:dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS)
 
 config.h	: config.h.win32 config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
@@ -280,7 +268,6 @@ gtk2_distclean:
 clean: gtk2_distclean
 	rm -f $(ethereal_OBJECTS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
-		$(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) dissectors.lib\
 		editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb config.h ps.c AUTHORS-SHORT \
@@ -360,7 +347,7 @@ gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
-epan:: $(RESOURCES) packet-ncp2222.c x11-declarations.h x11-register-info.h dissectors.lib doxygen
+epan:: $(RESOURCES) packet-ncp2222.c x11-declarations.h x11-register-info.h doxygen
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..

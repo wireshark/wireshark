@@ -58,18 +58,18 @@
 
 #include <epan/strutil.h>
 
-#include "packet-kerberos.h"
-#include "packet-netbios.h"
-#include "packet-tcp.h"
+#include <epan/dissectors/packet-kerberos.h>
+#include <epan/dissectors/packet-netbios.h>
+#include <epan/dissectors/packet-tcp.h>
 #include "prefs.h"
-#include "packet-ber.h"
-#include "packet-smb-common.h"
+#include <epan/dissectors/packet-ber.h>
+#include <epan/dissectors/packet-smb-common.h>
 
-#include "packet-dcerpc-netlogon.h"
-#include "packet-dcerpc.h"
+#include <epan/dissectors/packet-dcerpc-netlogon.h>
+#include <epan/dissectors/packet-dcerpc.h>
 
 #include "asn1.h"		/* for "subid_t" */
-#include "packet-gssapi.h"
+#include <epan/dissectors/packet-gssapi.h>
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88

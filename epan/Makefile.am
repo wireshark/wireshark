@@ -22,7 +22,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-SUBDIRS = ftypes dfilter
+SUBDIRS = ftypes dfilter dissectors
 
 # EPAN will eventually be a shared library. While I move source code around,
 # however, it is an archive library.
@@ -124,75 +124,12 @@ MAINTAINERCLEANFILES =	\
 #
 # Add the object files for missing routines, if any.
 #
-libethereal_la_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la
-libethereal_la_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la
-
-../packet-ncp2222.c : $(srcdir)/../ncp2222.py
-	$(PYTHON) $(srcdir)/../ncp2222.py -o $@
+libethereal_la_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
+libethereal_la_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o
 	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o strutil.o `glib-config --libs`
 
-#
-# Build "register.c", which contains a function "register_all_protocols()"
-# that calls the register routines for all protocols.
-#
-# We do this by grepping through sources.  If that turns out to be too slow,
-# maybe we could just require every .o file to have an register routine
-# of a given name (packet-aarp.o -> proto_register_aarp, etc.).
-#
-# Formatting conventions:  The name of the proto_register_* routines must
-# start in column zero, or must be preceded only by "void " starting in
-# column zero, and must not be inside #if.
-#
-# We assume that all dissector routines are in "packet-XXX.c" files.
-#
-# For some unknown reason, having a big "for" loop in the Makefile
-# to scan all the "packet-XXX.c" files doesn't work with some "make"s;
-# they seem to pass only the first few names in the list to the shell,
-# for some reason.
-#
-# Therefore, we have a script to generate the "register.c" file.
-#
-# The first argument is the name of the file to write.
-# The second argument is the directory in which the source files live.
-# All subsequent arguments are the files to scan.
-#
-# HACK : removing config.h is a hack and may be removed at the end of August 2004
-register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/../make-reg-dotc
-	@rm -f config.h
-	@if test -n $(PYTHON); then \
-		echo Making register.c with python ; \
-		$(PYTHON) $(srcdir)/../make-reg-dotc.py $(srcdir) $(DISSECTOR_SRC) ; \
-	else \
-		echo Making register.c with shell script ; \
-		$(srcdir)/../make-reg-dotc register.c $(srcdir) \
-			$(plugin_src) $(DISSECTOR_SRC) ; \
-	fi
-
-#
-# Currently register.c can be included in the distribution because
-# we always build all protocol dissectors. We used to have to check
-# whether or not to build the snmp dissector. If we again need to
-# variably build something, making register.c non-portable, uncomment
-# the dist-hook line below.
-#
-# Oh, yuk.  We don't want to include "register.c" in the distribution, as
-# its contents depend on the configuration, and therefore we want it
-# to be built when the first "make" is done; however, Automake insists
-# on putting *all* source into the distribution.
-#
-# We work around this by having a "dist-hook" rule that deletes
-# "register.c", so that "dist" won't pick it up.
-#
-#dist-hook:
-#	@rm -f $(distdir)/register.c
-
-#
-# Build various header files for the X11 dissector.
-#
-x11-declarations.h x11-register-info.h: ../x11-fields ../process-x11-fields.pl
-	$(PERL) $(srcdir)/../process-x11-fields.pl <$(srcdir)/../x11-fields
 
 if HAVE_PLUGINS
 

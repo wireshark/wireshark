@@ -40,9 +40,9 @@
 
 #include "asn1.h"
 #include "format-oid.h"
-#include "packet-dcerpc.h"
-#include "packet-gssapi.h"
-#include "packet-frame.h"
+#include <epan/dissectors/packet-dcerpc.h>
+#include <epan/dissectors/packet-gssapi.h>
+#include <epan/dissectors/packet-frame.h>
 #include "epan/conversation.h"
 
 static int proto_gssapi = -1;

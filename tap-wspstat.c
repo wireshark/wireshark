@@ -46,7 +46,7 @@
 #include "tap.h"
 #include "register.h"
 #include "epan/value_string.h"
-#include "packet-wsp.h"
+#include <epan/dissectors/packet-wsp.h>
 
 /* used to keep track of the stats for a specific PDU type*/
 typedef struct _wsp_pdu_t {

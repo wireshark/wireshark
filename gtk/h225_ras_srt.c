@@ -42,7 +42,7 @@
 #include "tap_menu.h"
 #include "../tap.h"
 #include "../register.h"
-#include "../packet-h225.h"
+#include <epan/dissectors/packet-h225.h>
 #include "../timestats.h"
 #include "gtk_stat_util.h"
 #include "compat_macros.h"

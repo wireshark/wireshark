@@ -25,7 +25,7 @@ libethereal_LIBS = \
 	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib \
 	ftypes\ftypes.lib \
 	dfilter\dfilter.lib \
-	..\dissectors.lib
+	dissectors\dissectors.lib
 
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
@@ -59,16 +59,16 @@ OBJECTS=addr_and_mask.obj \
 	value_string.obj
 
 !IFDEF ENABLE_LIBETHEREAL
-all: ftypes dfilter libethereal.dll
+all: ftypes dfilter dissectors libethereal.dll
 !ELSE
-all: ftypes dfilter ethereal.lib
+all: ftypes dfilter dissectors ethereal.lib
 !ENDIF
 
 # For use when making libethereal.dll
 libethereal.lib: libethereal.dll
 libethereal.exp: libethereal.dll
 
-libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter doxygen ..\image\libethereal.res
+libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter dissectors doxygen ..\image\libethereal.res
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
 		/DEF:libethereal.def /OUT:libethereal.dll \
@@ -91,6 +91,8 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dfilter
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
 distclean: clean
@@ -108,6 +110,11 @@ ftypes:: ..\config.h
 
 dfilter:: ..\config.h
 	cd dfilter
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+dissectors:: ..\config.h
+	cd dissectors
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 

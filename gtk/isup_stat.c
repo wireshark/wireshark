@@ -50,7 +50,7 @@
 #include "../globals.h"
 #include "filter_prefs.h"
 #include "compat_macros.h"
-#include "packet-isup.h"
+#include <epan/dissectors/packet-isup.h>
 #include "ui_util.h"
 
 

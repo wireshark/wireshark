@@ -40,8 +40,8 @@
 #include "print.h"
 #include "ps.h"
 #include "util.h"
-#include "packet-data.h"
-#include "packet-frame.h"
+#include <epan/dissectors/packet-data.h>
+#include <epan/dissectors/packet-frame.h>
 
 #define PDML_VERSION "0"
 #define PSML_VERSION "0"

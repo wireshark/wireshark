@@ -39,7 +39,7 @@
 #include "dlg_utils.h"
 #include "tap.h"
 #include "../register.h"
-#include "../packet-http.h"
+#include <epan/dissectors/packet-http.h>
 #include "../globals.h"
 #include "compat_macros.h"
 #include "../tap_dfilter_dlg.h"

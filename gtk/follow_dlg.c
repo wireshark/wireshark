@@ -53,7 +53,7 @@
 #include "main.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
-#include "packet-ipv6.h"
+#include <epan/dissectors/packet-ipv6.h>
 #include "prefs.h"
 #include <epan/resolv.h>
 #include "util.h"

@@ -47,8 +47,8 @@
 #include "dlg_utils.h"
 #include "tap.h"
 #include "../register.h"
-#include "packet-bssap.h"
-#include "packet-gsm_a.h"
+#include <epan/dissectors/packet-bssap.h>
+#include <epan/dissectors/packet-gsm_a.h>
 #include "../globals.h"
 #include "filter_prefs.h"
 #include "compat_macros.h"

@@ -1142,6 +1142,7 @@ AC_OUTPUT(
   epan/Makefile
   epan/doxygen.cfg
   epan/dfilter/Makefile
+  epan/dissectors/Makefile
   epan/ftypes/Makefile
   gtk/Makefile
   gtk/doxygen.cfg

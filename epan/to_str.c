@@ -64,7 +64,7 @@
 #include "atalk-utils.h"
 #include "sna-utils.h"
 #include "osi-utils.h"
-#include "packet-mtp3.h"
+#include <epan/dissectors/packet-mtp3.h>
 #include <stdio.h>
 #include <time.h>
 

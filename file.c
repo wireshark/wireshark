@@ -86,7 +86,7 @@
 #include <epan/epan_dissect.h>
 #include "tap.h"
 #include "tap_dfilter_dlg.h"
-#include "packet-data.h"
+#include <epan/dissectors/packet-data.h>
 
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY

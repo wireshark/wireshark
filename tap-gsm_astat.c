@@ -46,8 +46,8 @@
 #include "epan/packet_info.h"
 #include "epan/value_string.h"
 #include "tap.h"
-#include "packet-bssap.h"
-#include "packet-gsm_a.h"
+#include <epan/dissectors/packet-bssap.h>
+#include <epan/dissectors/packet-gsm_a.h>
 #include "register.h"
 
 

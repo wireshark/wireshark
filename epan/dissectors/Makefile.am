@@ -1,0 +1,117 @@
+# Makefile.am
+#
+# $Id$
+#
+# Ethereal - Network traffic analyzer
+# By Gerald Combs <gerald@zing.org>
+# Copyright 2004 Gerald Combs
+#
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+noinst_LTLIBRARIES = libdissectors.la
+
+CLEANFILES = \
+	libdissectors.a		\
+	libdissectors.la	\
+	*~
+
+INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
+
+include Makefile.common
+
+libdissectors_la_SOURCES = \
+	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC)
+
+EXTRA_DIST = \
+	Makefile.nmake		
+
+packet-ncp2222.c : $(srcdir)/ncp2222.py
+	$(PYTHON) $< -o $@
+
+#
+# Build various header files for the X11 dissector.
+#
+PROC_X11_FIELDS := $(srcdir)/process-x11-fields.pl
+X11_FIELDS := $(srcdir)/x11-fields
+
+x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
+	$(PERL) $(PROC_X11_FIELDS) < $(X11_FIELDS)
+
+#
+# Build "register.c", which contains a function "register_all_protocols()"
+# that calls the register routines for all protocols.
+#
+# We do this by grepping through sources.  If that turns out to be too slow,
+# maybe we could just require every .o file to have an register routine
+# of a given name (packet-aarp.o -> proto_register_aarp, etc.).
+#
+# Formatting conventions:  The name of the proto_register_* routines must
+# start in column zero, or must be preceded only by "void " starting in
+# column zero, and must not be inside #if.
+#
+# We assume that all dissector routines are in "packet-XXX.c" files.
+#
+# For some unknown reason, having a big "for" loop in the Makefile
+# to scan all the "packet-XXX.c" files doesn't work with some "make"s;
+# they seem to pass only the first few names in the list to the shell,
+# for some reason.
+#
+# Therefore, we have a script to generate the "register.c" file.
+#
+# The first argument is the name of the file to write.
+# The second argument is the directory in which the source files live.
+# All subsequent arguments are the files to scan.
+#
+register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc $(srcdir)/make-reg-dotc.py
+	@if test -n $(PYTHON); then \
+		echo Making register.c with python ; \
+		$(PYTHON) $(srcdir)/make-reg-dotc.py $(srcdir) $(DISSECTOR_SRC) ; \
+	else \
+		echo Making register.c with shell script ; \
+		$(srcdir)/make-reg-dotc register.c $(srcdir) \
+			$(plugin_src) $(DISSECTOR_SRC) ; \
+	fi
+
+#
+# Currently register.c can be included in the distribution because
+# we always build all protocol dissectors. We used to have to check
+# whether or not to build the snmp dissector. If we again need to
+# variably build something, making register.c non-portable, uncomment
+# the dist-hook line below.
+#
+# Oh, yuk.  We don't want to include "register.c" in the distribution, as
+# its contents depend on the configuration, and therefore we want it
+# to be built when the first "make" is done; however, Automake insists
+# on putting *all* source into the distribution.
+#
+# We work around this by having a "dist-hook" rule that deletes
+# "register.c", so that "dist" won't pick it up.
+#
+#dist-hook:
+#	@rm -f $(distdir)/register.c
+
+
+MAINTAINERCLEANFILES =	\
+	register.c	\
+	packet-ncp2222.c
+
+CLEANFILES = \
+	libdissectors.a		\
+	libdissectors.la	\
+	x11-declarations.h	\
+	x11-register-info.h	\
+	*~

@@ -50,7 +50,7 @@
 #include "util.h"
 #include "tap.h"
 #include "register.h"
-#include "packet-rtp.h"
+#include <epan/dissectors/packet-rtp.h>
 #include "g711.h"
 #include "rtp_pt.h"
 

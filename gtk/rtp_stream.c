@@ -36,7 +36,7 @@
 
 #include "tap.h"
 #include "register.h"
-#include "packet-rtp.h"
+#include <epan/dissectors/packet-rtp.h>
 
 #include "alert_box.h"
 #include "simple_dialog.h"

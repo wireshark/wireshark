@@ -35,7 +35,7 @@
 #include "ipproto.h"
 #include <epan/packet.h>
 #include <epan/resolv.h>
-#include "packet-ip.h"
+#include <epan/dissectors/packet-ip.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"

@@ -38,7 +38,7 @@
 #include "tap.h"
 #include "epan/value_string.h"
 #include "register.h"
-#include "packet-h225.h"
+#include <epan/dissectors/packet-h225.h>
 #include "timestats.h"
 
 /* following values represent the size of their valuestring arrays */

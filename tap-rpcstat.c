@@ -45,7 +45,7 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include "tap.h"
-#include "packet-rpc.h"
+#include <epan/dissectors/packet-rpc.h>
 #include "register.h"
 
 /* used to keep track of statistics for a specific procedure */

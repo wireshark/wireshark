@@ -40,7 +40,7 @@
 
 #include "tap_menu.h"
 #include "../tap.h"
-#include "../packet-ldap.h"
+#include <epan/dissectors/packet-ldap.h>
 #include "../register.h"
 #include "../timestats.h"
 #include "compat_macros.h"

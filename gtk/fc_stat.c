@@ -40,7 +40,7 @@
 
 #include "tap_menu.h"
 #include "../tap.h"
-#include "../packet-fc.h"
+#include <epan/dissectors/packet-fc.h>
 #include "../register.h"
 #include "../timestats.h"
 #include "compat_macros.h"

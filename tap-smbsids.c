@@ -38,7 +38,7 @@
 
 #include <string.h>
 #include "epan/packet_info.h"
-#include "packet-smb-sidsnooping.h"
+#include <epan/dissectors/packet-smb-sidsnooping.h>
 #include "register.h"
 #include "tap.h"
 #include "epan/value_string.h"

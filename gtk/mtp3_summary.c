@@ -48,7 +48,7 @@
 #include "compat_macros.h"
 #include "tap.h"
 
-#include "packet-mtp3.h"
+#include <epan/dissectors/packet-mtp3.h>
 #include "mtp3_stat.h"
 
 #define SUM_STR_MAX 1024

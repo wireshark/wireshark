@@ -50,7 +50,7 @@
 #include "../globals.h"
 #include "filter_prefs.h"
 #include "compat_macros.h"
-#include "packet-ansi_map.h"
+#include <epan/dissectors/packet-ansi_map.h>
 #include "ui_util.h"
 
 

@@ -37,7 +37,7 @@
 #include "../tap.h"
 #include "../register.h"
 #include "endpoint_talkers_table.h"
-#include "packet-tcp.h"
+#include <epan/dissectors/packet-tcp.h>
 
 
 static int

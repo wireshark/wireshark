@@ -38,14 +38,14 @@
 #include <epan/resolv.h>
 #include "tap.h"
 #include "register.h"
-#include "packet-ip.h"
-#include "packet-ipx.h"
-#include "packet-tcp.h"
-#include "packet-udp.h"
-#include "packet-eth.h"
-#include "packet-tr.h"
-#include "packet-fc.h"
-#include "packet-fddi.h"
+#include <epan/dissectors/packet-ip.h>
+#include <epan/dissectors/packet-ipx.h>
+#include <epan/dissectors/packet-tcp.h>
+#include <epan/dissectors/packet-udp.h>
+#include <epan/dissectors/packet-eth.h>
+#include <epan/dissectors/packet-tr.h>
+#include <epan/dissectors/packet-fc.h>
+#include <epan/dissectors/packet-fddi.h>
 #include <string.h>
 
 typedef struct _io_users_t {

@@ -32,7 +32,7 @@
 
 #include "reassemble.h"
 
-#include "packet-dcerpc.h"
+#include <epan/dissectors/packet-dcerpc.h>
 
 typedef struct _fragment_key {
 	address src;
