@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.14 2002/06/28 20:13:03 guy Exp $
+ * $Id: column-utils.c,v 1.15 2002/06/28 22:58:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -430,11 +430,6 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
       ipx_addr_to_str(pntohl(&addr->data[0]), &addr->data[4]), COL_MAX_LEN);
     pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
     pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-    if (is_src)
-      strcpy(pinfo->cinfo->col_expr[col], "ipx.src");
-    else
-      strcpy(pinfo->cinfo->col_expr[col], "ipx.dst");
-    strcpy(pinfo->cinfo->col_expr_val[col],pinfo->cinfo->col_buf[col]);
     break;
 
   case AT_SNA:
