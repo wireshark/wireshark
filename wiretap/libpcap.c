@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.117 2004/03/11 09:18:32 guy Exp $
+ * $Id: libpcap.c,v 1.118 2004/03/19 05:22:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1146,6 +1146,9 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		break;
 
 	case WTAP_ENCAP_IEEE_802_11:
+	case WTAP_ENCAP_PRISM_HEADER:
+	case WTAP_ENCAP_IEEE_802_11_WLAN_BSD:
+	case WTAP_ENCAP_IEEE_802_11_WLAN_AVS:
 		/*
 		 * We don't know whether there's an FCS in this frame or not.
 		 * XXX - are there any OSes where the capture mechanism
@@ -1254,6 +1257,18 @@ libpcap_seek_read(wtap *wth, long seek_off,
 		 * We don't know whether there's an FCS in this frame or not.
 		 */
 		pseudo_header->eth.fcs_len = -1;
+		break;
+
+	case WTAP_ENCAP_IEEE_802_11:
+	case WTAP_ENCAP_PRISM_HEADER:
+	case WTAP_ENCAP_IEEE_802_11_WLAN_BSD:
+	case WTAP_ENCAP_IEEE_802_11_WLAN_AVS:
+		/*
+		 * We don't know whether there's an FCS in this frame or not.
+		 * XXX - are there any OSes where the capture mechanism
+		 * supplies an FCS?
+		 */
+		pseudo_header->ieee_802_11.fcs_len = -1;
 		break;
 
 	case WTAP_ENCAP_IRDA:
