@@ -95,7 +95,7 @@ proper helper routines
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.15 2003/07/09 11:07:57 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.16 2003/07/10 07:31:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -521,7 +521,6 @@ static int hf_h245_H2250LogicalChannelParameters_mediaPacketization = -1;
 static int hf_h245_CRCLength = -1;
 static int hf_h245_open_type_length = -1;
 static int hf_h245_sequence_of_length = -1;
-static int hf_h245_IA5String_length = -1;
 static int hf_h245_octet_string_length = -1;
 static int hf_h245_V76LogicalChannelParameters_mode_eRM_recovery = -1;
 static int hf_h245_V76LogicalChannelParameters_mode = -1;
@@ -1625,6 +1624,7 @@ static const true_false_string tfs_optional_field_bit = {
 
 guint32 dissect_per_boolean(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, gboolean *bool, proto_item **item);
 guint32 dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, proto_item **item);
+guint32 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len);
 
 
 /* 10.9 */
@@ -1789,31 +1789,9 @@ DEBUG_ENTRY("dissect_per_sequence_of");
    i.e. no FROM stuff limiting the alphabet 
 */
 guint32
-dissect_per_constrained_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	guint32 length;
-	proto_tree *etr=NULL;
-
-	if(display_internal_per_fields){
-		etr=tree;
-	}
-
-
-DEBUG_ENTRY("dissect_per_constrained_IA5String");
-
-	/* guesswork,   i dont know how IA5String is declared  but this might 
-	   be a constrained integer 
-	*/
-	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
-		etr, hf_h245_IA5String_length, min_len, max_len, 
-		&length, NULL);
-
-	/* these ACSII chars are byte aligned ?*/
-	if(offset&0x07){
-		offset=(offset&0xfffffff8)+8;
-	}
-	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
-	offset+=8*length;
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len);
 
 	return offset;
 }
@@ -2266,7 +2244,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	   22.8 extension marker == 1
 */
 guint32
-dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, per_choice_t *choice, char *name)
+dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, per_choice_t *choice, char *name, guint32 *value)
 {
 	gboolean extension_present, extension_flag;
 	int extension_root_entries;
@@ -2317,6 +2295,10 @@ DEBUG_ENTRY("dissect_per_choice");
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
 			tr, hf_index, 0, extension_root_entries-1, 
 			&choice_index, &choiceitem);
+		if(value){
+			*value=choice_index;
+		}
+
 		choicetree=proto_item_add_subtree(choiceitem, ett_index);
 
 		if(display_internal_per_fields){
@@ -2365,6 +2347,11 @@ DEBUG_ENTRY("dissect_per_choice");
 					break;
 				}
 				choice_index--;
+			}
+		}
+		if(index!=-1){
+			if(value){
+				*value=choice_index;
 			}
 		}
 
@@ -2703,6 +2690,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 
 
+
 /*************************************************************
  ASN.1_PER functions ends here 
 **************************************************************/
@@ -2739,7 +2727,7 @@ static per_choice_t MasterSlaveDeterminationAck_decision_choice[] = {
 static int
 dissect_h245_MasterSlaveDeterminationAck_decision(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MasterSlaveDeterminationAck_decision, ett_h245_MasterSlaveDeterminationAck_decision, MasterSlaveDeterminationAck_decision_choice, "Decision");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MasterSlaveDeterminationAck_decision, ett_h245_MasterSlaveDeterminationAck_decision, MasterSlaveDeterminationAck_decision_choice, "Decision", NULL);
 
 	return offset;
 }
@@ -2772,7 +2760,7 @@ static per_choice_t MasterSlaveDeterminationReject_cause_choice[] = {
 static int
 dissect_h245_MasterSlaveDeterminationReject_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MasterSlaveDeterminationReject_cause, ett_h245_MasterSlaveDeterminationReject_cause, MasterSlaveDeterminationReject_cause_choice, "Cause");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MasterSlaveDeterminationReject_cause, ett_h245_MasterSlaveDeterminationReject_cause, MasterSlaveDeterminationReject_cause_choice, "Cause", NULL);
 
 	return offset;
 }
@@ -2809,7 +2797,7 @@ static per_choice_t QOSMode_choice[] = {
 static int
 dissect_h245_QOSMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_QOSMode, ett_h245_QOSMode, QOSMode_choice, "QOSMode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_QOSMode, ett_h245_QOSMode, QOSMode_choice, "QOSMode", NULL);
 
 	return offset;
 }
@@ -2840,7 +2828,7 @@ static per_choice_t RefPictureSelection_videoBackChannelSend_choice[] = {
 static int
 dissect_h245_RefPictureSelection_videoBackChannelSend(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RefPictureSelection_videoBackChannelSend, ett_h245_RefPictureSelection_videoBackChannelSend, RefPictureSelection_videoBackChannelSend_choice, "videoBackChannelSend");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RefPictureSelection_videoBackChannelSend, ett_h245_RefPictureSelection_videoBackChannelSend, RefPictureSelection_videoBackChannelSend_choice, "videoBackChannelSend", NULL);
 
 	return offset;
 }
@@ -2862,7 +2850,7 @@ static per_choice_t T38FaxRateManagement_choice[] = {
 static int
 dissect_h245_T38FaxRateManagement(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_T38FaxRateManagement, ett_h245_T38FaxRateManagement, T38FaxRateManagement_choice, "T38FaxRateManagement");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_T38FaxRateManagement, ett_h245_T38FaxRateManagement, T38FaxRateManagement_choice, "T38FaxRateManagement", NULL);
 
 	return offset;
 }
@@ -2884,7 +2872,7 @@ static per_choice_t T38FaxUdpOptions_t38FaxUdpEC_choice[] = {
 static int
 dissect_h245_T38FaxUdpOptions_t38FaxUdpEC(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_T38FaxUdpOptions_t38FaxUdpEC, ett_h245_T38FaxUdpOptions_t38FaxUdpEC, T38FaxUdpOptions_t38FaxUdpEC_choice, "t38FaxUdpEC");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_T38FaxUdpOptions_t38FaxUdpEC, ett_h245_T38FaxUdpOptions_t38FaxUdpEC, T38FaxUdpOptions_t38FaxUdpEC_choice, "t38FaxUdpEC", NULL);
 
 	return offset;
 }
@@ -2906,7 +2894,7 @@ static per_choice_t NetworkAccessParameters_distribution_choice[] = {
 static int
 dissect_h245_NetworkAccessParameters_distribution(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NetworkAccessParameters_distribution, ett_h245_NetworkAccessParameters_distribution, NetworkAccessParameters_distribution_choice, "Distribution");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NetworkAccessParameters_distribution, ett_h245_NetworkAccessParameters_distribution, NetworkAccessParameters_distribution_choice, "Distribution", NULL);
 
 	return offset;
 }
@@ -2931,7 +2919,7 @@ static per_choice_t NetworkAccessParameters_t120SetupProcedure_choice[] = {
 static int
 dissect_h245_NetworkAccessParameters_t120SetupProcedure(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NetworkAccessParameters_t120SetupProcedure, ett_h245_NetworkAccessParameters_t120SetupProcedure, NetworkAccessParameters_t120SetupProcedure_choice, "t120SetupProcedure");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NetworkAccessParameters_t120SetupProcedure, ett_h245_NetworkAccessParameters_t120SetupProcedure, NetworkAccessParameters_t120SetupProcedure_choice, "t120SetupProcedure", NULL);
 
 	return offset;
 }
@@ -2953,7 +2941,7 @@ static per_choice_t H223AL1MParameters_transferMode_choice[] = {
 static int
 dissect_h245_H223AL1MParameters_transferMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL1MParameters_transferMode, ett_h245_H223AL1MParameters_transferMode, H223AL1MParameters_transferMode_choice, "transferMode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL1MParameters_transferMode, ett_h245_H223AL1MParameters_transferMode, H223AL1MParameters_transferMode_choice, "transferMode", NULL);
 
 	return offset;
 }
@@ -2975,7 +2963,7 @@ static per_choice_t H223AL1MParameters_headerFEC_choice[] = {
 static int
 dissect_h245_H223AL1MParameters_headerFEC(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL1MParameters_headerFEC, ett_h245_H223AL1MParameters_headerFEC, H223AL1MParameters_headerFEC_choice, "headerFEC");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL1MParameters_headerFEC, ett_h245_H223AL1MParameters_headerFEC, H223AL1MParameters_headerFEC_choice, "headerFEC", NULL);
 
 	return offset;
 }
@@ -3015,7 +3003,7 @@ static per_choice_t H223AL1MParameters_crcLength_choice[] = {
 static int
 dissect_h245_H223AL1MParameters_crcLength(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL1MParameters_crcLength, ett_h245_H223AL1MParameters_crcLength, H223AL1MParameters_crcLength_choice, "crcLength");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL1MParameters_crcLength, ett_h245_H223AL1MParameters_crcLength, H223AL1MParameters_crcLength_choice, "crcLength", NULL);
 
 	return offset;
 }
@@ -3037,7 +3025,7 @@ static per_choice_t H223AL2MParameters_headerFEC_choice[] = {
 static int
 dissect_h245_H223AL2MParameters_headerFEC(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL2MParameters_headerFEC, ett_h245_H223AL2MParameters_headerFEC, H223AL2MParameters_headerFEC_choice, "headerFEC");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL2MParameters_headerFEC, ett_h245_H223AL2MParameters_headerFEC, H223AL2MParameters_headerFEC_choice, "headerFEC", NULL);
 
 	return offset;
 }
@@ -3060,7 +3048,7 @@ static per_choice_t H223AL3MParameters_headerFormat_choice[] = {
 static int
 dissect_h245_H223AL3MParameters_headerFormat(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL3MParameters_headerFormat, ett_h245_H223AL3MParameters_headerFormat, H223AL3MParameters_headerFormat_choice, "headerFormat");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL3MParameters_headerFormat, ett_h245_H223AL3MParameters_headerFormat, H223AL3MParameters_headerFormat_choice, "headerFormat", NULL);
 
 	return offset;
 }
@@ -3101,7 +3089,7 @@ static per_choice_t H223AL3MParameters_crcLength_choice[] = {
 static int
 dissect_h245_H223AL3MParameters_crcLength(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL3MParameters_crcLength, ett_h245_H223AL3MParameters_crcLength, H223AL3MParameters_crcLength_choice, "crcLength");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL3MParameters_crcLength, ett_h245_H223AL3MParameters_crcLength, H223AL3MParameters_crcLength_choice, "crcLength", NULL);
 
 	return offset;
 }
@@ -3127,7 +3115,7 @@ static per_choice_t V76LogicalChannelParameters_suspendResume_choice[] = {
 static int
 dissect_h245_V76LogicalChannelParameters_suspendResume(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_V76LogicalChannelParameters_suspendResume, ett_h245_V76LogicalChannelParameters_suspendResume, V76LogicalChannelParameters_suspendResume_choice, "suspendResume");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_V76LogicalChannelParameters_suspendResume, ett_h245_V76LogicalChannelParameters_suspendResume, V76LogicalChannelParameters_suspendResume_choice, "suspendResume", NULL);
 
 	return offset;
 }
@@ -3153,7 +3141,7 @@ static per_choice_t V76LogicalChannelParameters_mode_eRM_recovery_choice[] = {
 static int
 dissect_h245_V76LogicalChannelParameters_mode_eRM_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_V76LogicalChannelParameters_mode_eRM_recovery, ett_h245_V76LogicalChannelParameters_mode_eRM_recovery, V76LogicalChannelParameters_mode_eRM_recovery_choice, "recovery");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_V76LogicalChannelParameters_mode_eRM_recovery, ett_h245_V76LogicalChannelParameters_mode_eRM_recovery, V76LogicalChannelParameters_mode_eRM_recovery_choice, "recovery", NULL);
 
 	return offset;
 }
@@ -3179,7 +3167,7 @@ static per_choice_t CRCLength_choice[] = {
 static int
 dissect_h245_CRCLength(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CRCLength, ett_h245_CRCLength, CRCLength_choice, "CRCLength");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CRCLength, ett_h245_CRCLength, CRCLength_choice, "CRCLength", NULL);
 
 	return offset;
 }
@@ -3202,7 +3190,7 @@ static per_choice_t UnicastAddress_iPSourceRouteAddress_routing_choice[] = {
 static int
 dissect_h245_UnicastAddress_iPSourceRouteAddress_routing(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UnicastAddress_iPSourceRouteAddress_routing, ett_h245_UnicastAddress_iPSourceRouteAddress_routing, UnicastAddress_iPSourceRouteAddress_routing_choice, "routing");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UnicastAddress_iPSourceRouteAddress_routing, ett_h245_UnicastAddress_iPSourceRouteAddress_routing, UnicastAddress_iPSourceRouteAddress_routing_choice, "routing", NULL);
 
 	return offset;
 }
@@ -3261,7 +3249,7 @@ static per_choice_t OpenLogicalChannelReject_cause_choice[] = {
 static int
 dissect_h245_OpenLogicalChannelReject_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannelReject_cause, ett_h245_OpenLogicalChannelReject_cause, OpenLogicalChannelReject_cause_choice, "cause");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannelReject_cause, ett_h245_OpenLogicalChannelReject_cause, OpenLogicalChannelReject_cause_choice, "cause", NULL);
 
 	return offset;
 }
@@ -3283,7 +3271,7 @@ static per_choice_t CloseLogicalChannel_source_choice[] = {
 static int
 dissect_h245_CloseLogicalChannel_source(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CloseLogicalChannel_source, ett_h245_CloseLogicalChannel_source, CloseLogicalChannel_source_choice, "source");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CloseLogicalChannel_source, ett_h245_CloseLogicalChannel_source, CloseLogicalChannel_source_choice, "source", NULL);
 
 	return offset;
 }
@@ -3307,7 +3295,7 @@ static per_choice_t CloseLogicalChannel_reason_choice[] = {
 static int
 dissect_h245_CloseLogicalChannel_reason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CloseLogicalChannel_reason, ett_h245_CloseLogicalChannel_reason, CloseLogicalChannel_reason_choice, "reason");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CloseLogicalChannel_reason, ett_h245_CloseLogicalChannel_reason, CloseLogicalChannel_reason_choice, "reason", NULL);
 
 	return offset;
 }
@@ -3335,7 +3323,7 @@ static per_choice_t RequestChannelClose_reason_choice[] = {
 static int
 dissect_h245_RequestChannelClose_reason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestChannelClose_reason, ett_h245_RequestChannelClose_reason, RequestChannelClose_reason_choice, "reason");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestChannelClose_reason, ett_h245_RequestChannelClose_reason, RequestChannelClose_reason_choice, "reason", NULL);
 
 	return offset;
 }
@@ -3354,7 +3342,7 @@ static per_choice_t RequestChannelCloseReject_cause_choice[] = {
 static int
 dissect_h245_RequestChannelCloseReject_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestChannelCloseReject_cause, ett_h245_RequestChannelCloseReject_cause, RequestChannelCloseReject_cause_choice, "cause");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestChannelCloseReject_cause, ett_h245_RequestChannelCloseReject_cause, RequestChannelCloseReject_cause_choice, "cause", NULL);
 
 	return offset;
 }
@@ -3377,7 +3365,7 @@ static per_choice_t MultiplexEntryRejectionDescriptions_cause_choice[] = {
 static int
 dissect_h245_MultiplexEntryRejectionDescriptions_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexEntryRejectionDescriptions_cause, ett_h245_MultiplexEntryRejectionDescriptions_cause, MultiplexEntryRejectionDescriptions_cause_choice, "cause");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexEntryRejectionDescriptions_cause, ett_h245_MultiplexEntryRejectionDescriptions_cause, MultiplexEntryRejectionDescriptions_cause_choice, "cause", NULL);
 
 	return offset;
 }
@@ -3396,7 +3384,7 @@ static per_choice_t RequestMultiplexEntryRejectionDescriptions_cause_choice[] = 
 static int
 dissect_h245_RequestMultiplexEntryRejectionDescriptions_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestMultiplexEntryRejectionDescriptions_cause, ett_h245_RequestMultiplexEntryRejectionDescriptions_cause, RequestMultiplexEntryRejectionDescriptions_cause_choice, "cause");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestMultiplexEntryRejectionDescriptions_cause, ett_h245_RequestMultiplexEntryRejectionDescriptions_cause, RequestMultiplexEntryRejectionDescriptions_cause_choice, "cause", NULL);
 
 	return offset;
 }
@@ -3421,7 +3409,7 @@ static per_choice_t RequestModeReject_cause_choice[] = {
 static int
 dissect_h245_RequestModeReject_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestModeReject_cause, ett_h245_RequestModeReject_cause, RequestModeReject_cause_choice, "cause");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestModeReject_cause, ett_h245_RequestModeReject_cause, RequestModeReject_cause_choice, "cause", NULL);
 
 	return offset;
 }
@@ -3444,7 +3432,7 @@ static per_choice_t V76ModeParameters_choice[] = {
 static int
 dissect_h245_V76ModeParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_V76ModeParameters, ett_h245_V76ModeParameters, V76ModeParameters_choice, "V76ModeParameters");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_V76ModeParameters, ett_h245_V76ModeParameters, V76ModeParameters_choice, "V76ModeParameters", NULL);
 
 	return offset;
 }
@@ -3493,7 +3481,7 @@ static per_choice_t H262VideoMode_profileAndLevel_choice[] = {
 static int
 dissect_h245_H262VideoMode_profileAndLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H262VideoMode_profileAndLevel, ett_h245_H262VideoMode_profileAndLevel, H262VideoMode_profileAndLevel_choice, "profileAndLevel");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H262VideoMode_profileAndLevel, ett_h245_H262VideoMode_profileAndLevel, H262VideoMode_profileAndLevel_choice, "profileAndLevel", NULL);
 
 	return offset;
 }
@@ -3528,7 +3516,7 @@ static per_choice_t H263VideoMode_resolution_choice[] = {
 static int
 dissect_h245_H263VideoMode_resolution(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H263VideoMode_resolution, ett_h245_H263VideoMode_resolution, H263VideoMode_resolution_choice, "resolution");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H263VideoMode_resolution, ett_h245_H263VideoMode_resolution, H263VideoMode_resolution_choice, "resolution", NULL);
 
 	return offset;
 }
@@ -3555,7 +3543,7 @@ static per_choice_t AudioMode_g7231_choice[] = {
 static int
 dissect_h245_AudioMode_g7231(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_AudioMode_g7231, ett_h245_AudioMode_g7231, AudioMode_g7231_choice, "g7231");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_AudioMode_g7231, ett_h245_AudioMode_g7231, AudioMode_g7231_choice, "g7231", NULL);
 
 	return offset;
 }
@@ -3580,7 +3568,7 @@ static per_choice_t IS11172AudioMode_audioLayer_choice[] = {
 static int
 dissect_h245_IS11172AudioMode_audioLayer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS11172AudioMode_audioLayer, ett_h245_IS11172AudioMode_audioLayer, IS11172AudioMode_audioLayer_choice, "audioLayer");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS11172AudioMode_audioLayer, ett_h245_IS11172AudioMode_audioLayer, IS11172AudioMode_audioLayer_choice, "audioLayer", NULL);
 
 	return offset;
 }
@@ -3605,7 +3593,7 @@ static per_choice_t IS11172AudioMode_audioSampling_choice[] = {
 static int
 dissect_h245_IS11172AudioMode_audioSampling(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS11172AudioMode_audioSampling, ett_h245_IS11172AudioMode_audioSampling, IS11172AudioMode_audioSampling_choice, "audioSampling");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS11172AudioMode_audioSampling, ett_h245_IS11172AudioMode_audioSampling, IS11172AudioMode_audioSampling_choice, "audioSampling", NULL);
 
 	return offset;
 }
@@ -3630,7 +3618,7 @@ static per_choice_t IS11172AudioMode_multichannelType_choice[] = {
 static int
 dissect_h245_IS11172AudioMode_multichannelType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS11172AudioMode_multichannelType, ett_h245_IS11172AudioMode_multichannelType, IS11172AudioMode_multichannelType_choice, "multichannelType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS11172AudioMode_multichannelType, ett_h245_IS11172AudioMode_multichannelType, IS11172AudioMode_multichannelType_choice, "multichannelType", NULL);
 
 	return offset;
 }
@@ -3656,7 +3644,7 @@ static per_choice_t IS13818AudioMode_audioLayer_choice[] = {
 static int
 dissect_h245_IS13818AudioMode_audioLayer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS13818AudioMode_audioLayer, ett_h245_IS13818AudioMode_audioLayer, IS13818AudioMode_audioLayer_choice, "audioLayer");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS13818AudioMode_audioLayer, ett_h245_IS13818AudioMode_audioLayer, IS13818AudioMode_audioLayer_choice, "audioLayer", NULL);
 
 	return offset;
 }
@@ -3691,7 +3679,7 @@ static per_choice_t IS13818AudioMode_audioSampling_choice[] = {
 static int
 dissect_h245_IS13818AudioMode_audioSampling(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS13818AudioMode_audioSampling, ett_h245_IS13818AudioMode_audioSampling, IS13818AudioMode_audioSampling_choice, "audioSampling");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS13818AudioMode_audioSampling, ett_h245_IS13818AudioMode_audioSampling, IS13818AudioMode_audioSampling_choice, "audioSampling", NULL);
 
 	return offset;
 }
@@ -3738,7 +3726,7 @@ static per_choice_t IS13818AudioMode_multiChannelType_choice[] = {
 static int
 dissect_h245_IS13818AudioMode_multiChannelType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS13818AudioMode_multiChannelType, ett_h245_IS13818AudioMode_multiChannelType, IS13818AudioMode_multiChannelType_choice, "multiChannelType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IS13818AudioMode_multiChannelType, ett_h245_IS13818AudioMode_multiChannelType, IS13818AudioMode_multiChannelType_choice, "multiChannelType", NULL);
 
 	return offset;
 }
@@ -3758,7 +3746,7 @@ static per_choice_t MaintenanceLoopReject_cause_choice[] = {
 static int
 dissect_h245_MaintenanceLoopReject_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MaintenanceLoopReject_cause, ett_h245_MaintenanceLoopReject_cause, MaintenanceLoopReject_cause_choice, "cause");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MaintenanceLoopReject_cause, ett_h245_MaintenanceLoopReject_cause, MaintenanceLoopReject_cause_choice, "cause", NULL);
 
 	return offset;
 }
@@ -3781,7 +3769,7 @@ static per_choice_t ConferenceResponse_makeMeChairResponse_choice[] = {
 static int
 dissect_h245_ConferenceResponse_makeMeChairResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse_makeMeChairResponse, ett_h245_ConferenceResponse_makeMeChairResponse, ConferenceResponse_makeMeChairResponse_choice, "makeMeChairResponse");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse_makeMeChairResponse, ett_h245_ConferenceResponse_makeMeChairResponse, ConferenceResponse_makeMeChairResponse_choice, "makeMeChairResponse", NULL);
 
 	return offset;
 }
@@ -3804,7 +3792,7 @@ static per_choice_t ConferenceResponse_broadcastMyLogicalChannelResponse_choice[
 static int
 dissect_h245_ConferenceResponse_broadcastMyLogicalChannelResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse_broadcastMyLogicalChannelResponse, ett_h245_ConferenceResponse_broadcastMyLogicalChannelResponse, ConferenceResponse_broadcastMyLogicalChannelResponse_choice, "broadcastMyLogicalChannelResponse");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse_broadcastMyLogicalChannelResponse, ett_h245_ConferenceResponse_broadcastMyLogicalChannelResponse, ConferenceResponse_broadcastMyLogicalChannelResponse_choice, "broadcastMyLogicalChannelResponse", NULL);
 
 	return offset;
 }
@@ -3826,7 +3814,7 @@ static per_choice_t ConferenceResponse_makeTerminalBroadcasterResponse_choice[] 
 static int
 dissect_h245_ConferenceResponse_makeTerminalBroadcasterResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse_makeTerminalBroadcasterResponse, ett_h245_ConferenceResponse_makeTerminalBroadcasterResponse, ConferenceResponse_makeTerminalBroadcasterResponse_choice, "makeTerminalBroadcasterResponse");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse_makeTerminalBroadcasterResponse, ett_h245_ConferenceResponse_makeTerminalBroadcasterResponse, ConferenceResponse_makeTerminalBroadcasterResponse_choice, "makeTerminalBroadcasterResponse", NULL);
 
 	return offset;
 }
@@ -3849,7 +3837,7 @@ static per_choice_t ConferenceResponse_sendThisSourceResponse_choice[] = {
 static int
 dissect_h245_ConferenceResponse_sendThisSourceResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse_sendThisSourceResponse, ett_h245_ConferenceResponse_sendThisSourceResponse, ConferenceResponse_sendThisSourceResponse_choice, "sendThisSourceResponse");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse_sendThisSourceResponse, ett_h245_ConferenceResponse_sendThisSourceResponse, ConferenceResponse_sendThisSourceResponse_choice, "sendThisSourceResponse", NULL);
 
 	return offset;
 }
@@ -3874,7 +3862,7 @@ static per_choice_t RemoteMCRequest_choice[] = {
 static int
 dissect_h245_RemoteMCRequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RemoteMCRequest, ett_h245_RemoteMCRequest, RemoteMCRequest_choice, "RemoteMCRequest");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RemoteMCRequest, ett_h245_RemoteMCRequest, RemoteMCRequest_choice, "RemoteMCRequest", NULL);
 
 	return offset;
 }
@@ -3897,7 +3885,7 @@ static per_choice_t RemoteMCResponse_reject_choice[] = {
 static int
 dissect_h245_RemoteMCResponse_reject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RemoteMCResponse_reject, ett_h245_RemoteMCResponse_reject, RemoteMCResponse_reject_choice, "reject");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RemoteMCResponse_reject, ett_h245_RemoteMCResponse_reject, RemoteMCResponse_reject_choice, "reject", NULL);
 
 	return offset;
 }
@@ -3920,7 +3908,7 @@ static per_choice_t RemoteMCResponse_choice[] = {
 static int
 dissect_h245_RemoteMCResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RemoteMCResponse, ett_h245_RemoteMCResponse, RemoteMCResponse_choice, "RemoteMCResponse");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RemoteMCResponse, ett_h245_RemoteMCResponse, RemoteMCResponse_choice, "RemoteMCResponse", NULL);
 
 	return offset;
 }
@@ -3943,7 +3931,7 @@ static per_choice_t MultilinkResponse_addConnection_responseCode_rejected_choice
 static int
 dissect_h245_MultilinkResponse_addConnection_responseCode_rejected(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkResponse_addConnection_responseCode_rejected, ett_h245_MultilinkResponse_addConnection_responseCode_rejected, MultilinkResponse_addConnection_responseCode_rejected_choice, "rejected");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkResponse_addConnection_responseCode_rejected, ett_h245_MultilinkResponse_addConnection_responseCode_rejected, MultilinkResponse_addConnection_responseCode_rejected_choice, "rejected", NULL);
 
 	return offset;
 }
@@ -3965,7 +3953,7 @@ static per_choice_t MultilinkResponse_addConnection_responseCode_choice[] = {
 static int
 dissect_h245_MultilinkResponse_addConnection_responseCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkResponse_addConnection_responseCode, ett_h245_MultilinkResponse_addConnection_responseCode, MultilinkResponse_addConnection_responseCode_choice, "responseCode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkResponse_addConnection_responseCode, ett_h245_MultilinkResponse_addConnection_responseCode, MultilinkResponse_addConnection_responseCode_choice, "responseCode", NULL);
 
 	return offset;
 }
@@ -3987,7 +3975,7 @@ static per_choice_t LogicalChannelRateRejectReason_choice[] = {
 static int
 dissect_h245_LogicalChannelRateRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_LogicalChannelRateRejectReason, ett_h245_LogicalChannelRateRejectReason, LogicalChannelRateRejectReason_choice, "LogicalChannelRateRejectReason");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_LogicalChannelRateRejectReason, ett_h245_LogicalChannelRateRejectReason, LogicalChannelRateRejectReason_choice, "LogicalChannelRateRejectReason", NULL);
 
 	return offset;
 }
@@ -4019,7 +4007,7 @@ static per_choice_t EndSessionCommand_gstnOptions_choice[] = {
 static int
 dissect_h245_EndSessionCommand_gstnOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EndSessionCommand_gstnOptions, ett_h245_EndSessionCommand_gstnOptions, EndSessionCommand_gstnOptions_choice, "gstnOptions");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EndSessionCommand_gstnOptions, ett_h245_EndSessionCommand_gstnOptions, EndSessionCommand_gstnOptions_choice, "gstnOptions", NULL);
 
 	return offset;
 }
@@ -4045,7 +4033,7 @@ static per_choice_t EndSessionCommand_isdnOptions_choice[] = {
 static int
 dissect_h245_EndSessionCommand_isdnOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EndSessionCommand_isdnOptions, ett_h245_EndSessionCommand_isdnOptions, EndSessionCommand_isdnOptions_choice, "isdnOptions");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EndSessionCommand_isdnOptions, ett_h245_EndSessionCommand_isdnOptions, EndSessionCommand_isdnOptions_choice, "isdnOptions", NULL);
 
 	return offset;
 }
@@ -4074,7 +4062,7 @@ static per_choice_t MiscellaneousCommand_type_progressiveRefinementStart_repeatC
 static int
 dissect_h245_MiscellaneousCommand_type_progressiveRefinementStart_repeatCount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MiscellaneousCommand_type_progressiveRefinementStart_repeatCount, ett_h245_MiscellaneousCommand_type_progressiveRefinementStart_repeatCount, MiscellaneousCommand_type_progressiveRefinementStart_repeatCount_choice, "repeatCount");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MiscellaneousCommand_type_progressiveRefinementStart_repeatCount, ett_h245_MiscellaneousCommand_type_progressiveRefinementStart_repeatCount, MiscellaneousCommand_type_progressiveRefinementStart_repeatCount_choice, "repeatCount", NULL);
 
 	return offset;
 }
@@ -4118,7 +4106,7 @@ static per_choice_t H223MultiplexReconfiguration_h223ModeChange_choice[] = {
 static int
 dissect_h245_H223MultiplexReconfiguration_h223ModeChange(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223MultiplexReconfiguration_h223ModeChange, ett_h245_H223MultiplexReconfiguration_h223ModeChange, H223MultiplexReconfiguration_h223ModeChange_choice, "h223ModeChange");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223MultiplexReconfiguration_h223ModeChange, ett_h245_H223MultiplexReconfiguration_h223ModeChange, H223MultiplexReconfiguration_h223ModeChange_choice, "h223ModeChange", NULL);
 
 	return offset;
 }
@@ -4141,7 +4129,7 @@ static per_choice_t H223MultiplexReconfiguration_h223AnnexADoubleFlag_choice[] =
 static int
 dissect_h245_H223MultiplexReconfiguration_h223AnnexADoubleFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223MultiplexReconfiguration_h223AnnexADoubleFlag, ett_h245_H223MultiplexReconfiguration_h223AnnexADoubleFlag, H223MultiplexReconfiguration_h223AnnexADoubleFlag_choice, "h223AnnexADoubleFlag");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223MultiplexReconfiguration_h223AnnexADoubleFlag, ett_h245_H223MultiplexReconfiguration_h223AnnexADoubleFlag, H223MultiplexReconfiguration_h223AnnexADoubleFlag_choice, "h223AnnexADoubleFlag", NULL);
 
 	return offset;
 }
@@ -4164,7 +4152,7 @@ static per_choice_t H223MultiplexReconfiguration_choice[] = {
 static int
 dissect_h245_H223MultiplexReconfiguration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223MultiplexReconfiguration, ett_h245_H223MultiplexReconfiguration, H223MultiplexReconfiguration_choice, "H223MultiplexReconfiguration");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223MultiplexReconfiguration, ett_h245_H223MultiplexReconfiguration, H223MultiplexReconfiguration_choice, "H223MultiplexReconfiguration", NULL);
 
 	return offset;
 }
@@ -4190,7 +4178,7 @@ static per_choice_t NewATMVCCommand_aal_aal1_clockRecovery_choice[] = {
 static int
 dissect_h245_NewATMVCCommand_aal_aal1_clockRecovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_aal_aal1_clockRecovery, ett_h245_NewATMVCCommand_aal_aal1_clockRecovery, NewATMVCCommand_aal_aal1_clockRecovery_choice, "clockRecovery");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_aal_aal1_clockRecovery, ett_h245_NewATMVCCommand_aal_aal1_clockRecovery, NewATMVCCommand_aal_aal1_clockRecovery_choice, "clockRecovery", NULL);
 
 	return offset;
 }
@@ -4220,7 +4208,7 @@ static per_choice_t NewATMVCCommand_aal_aal1_errorCorrection_choice[] = {
 static int
 dissect_h245_NewATMVCCommand_aal_aal1_errorCorrection(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_aal_aal1_errorCorrection, ett_h245_NewATMVCCommand_aal_aal1_errorCorrection, NewATMVCCommand_aal_aal1_errorCorrection_choice, "errorCorrection");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_aal_aal1_errorCorrection, ett_h245_NewATMVCCommand_aal_aal1_errorCorrection, NewATMVCCommand_aal_aal1_errorCorrection_choice, "errorCorrection", NULL);
 
 	return offset;
 }
@@ -4246,7 +4234,7 @@ static per_choice_t NewATMVCCommand_multiplex_choice[] = {
 static int
 dissect_h245_NewATMVCCommand_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_multiplex, ett_h245_NewATMVCCommand_multiplex, NewATMVCCommand_multiplex_choice, "multiplex");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_multiplex, ett_h245_NewATMVCCommand_multiplex, NewATMVCCommand_multiplex_choice, "multiplex", NULL);
 
 	return offset;
 }
@@ -4272,7 +4260,7 @@ static per_choice_t NewATMVCCommand_reverseParameters_multiplex_choice[] = {
 static int
 dissect_h245_NewATMVCCommand_reverseParameters_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_reverseParameters_multiplex, ett_h245_NewATMVCCommand_reverseParameters_multiplex, NewATMVCCommand_reverseParameters_multiplex_choice, "multiplex");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_reverseParameters_multiplex, ett_h245_NewATMVCCommand_reverseParameters_multiplex, NewATMVCCommand_reverseParameters_multiplex_choice, "multiplex", NULL);
 
 	return offset;
 }
@@ -4294,7 +4282,7 @@ static per_choice_t MobileMultilinkReconfigurationCommand_status_choice[] = {
 static int
 dissect_h245_MobileMultilinkReconfigurationCommand_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MobileMultilinkReconfigurationCommand_status, ett_h245_MobileMultilinkReconfigurationCommand_status, MobileMultilinkReconfigurationCommand_status_choice, "status");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MobileMultilinkReconfigurationCommand_status, ett_h245_MobileMultilinkReconfigurationCommand_status, MobileMultilinkReconfigurationCommand_status_choice, "status", NULL);
 
 	return offset;
 }
@@ -4320,7 +4308,7 @@ static per_choice_t FunctionNotSupported_cause_choice[] = {
 static int
 dissect_h245_FunctionNotSupported_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FunctionNotSupported_cause, ett_h245_FunctionNotSupported_cause, FunctionNotSupported_cause_choice, "cause");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FunctionNotSupported_cause, ett_h245_FunctionNotSupported_cause, FunctionNotSupported_cause_choice, "cause", NULL);
 
 	return offset;
 }
@@ -4346,7 +4334,7 @@ static per_choice_t NewATMVCIndication_aal_aal1_clockRecovery_choice[] = {
 static int
 dissect_h245_NewATMVCIndication_aal_aal1_clockRecovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_aal_aal1_clockRecovery, ett_h245_NewATMVCIndication_aal_aal1_clockRecovery, NewATMVCIndication_aal_aal1_clockRecovery_choice, "clockRecovery");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_aal_aal1_clockRecovery, ett_h245_NewATMVCIndication_aal_aal1_clockRecovery, NewATMVCIndication_aal_aal1_clockRecovery_choice, "clockRecovery", NULL);
 
 	return offset;
 }
@@ -4374,7 +4362,7 @@ static per_choice_t NewATMVCIndication_aal_aal1_errorCorrection_choice[] = {
 static int
 dissect_h245_NewATMVCIndication_aal_aal1_errorCorrection(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_aal_aal1_errorCorrection, ett_h245_NewATMVCIndication_aal_aal1_errorCorrection, NewATMVCIndication_aal_aal1_errorCorrection_choice, "errorCorrection");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_aal_aal1_errorCorrection, ett_h245_NewATMVCIndication_aal_aal1_errorCorrection, NewATMVCIndication_aal_aal1_errorCorrection_choice, "errorCorrection", NULL);
 
 	return offset;
 }
@@ -4400,7 +4388,7 @@ static per_choice_t NewATMVCIndication_multiplex_choice[] = {
 static int
 dissect_h245_NewATMVCIndication_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_multiplex, ett_h245_NewATMVCIndication_multiplex, NewATMVCIndication_multiplex_choice, "multiplex");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_multiplex, ett_h245_NewATMVCIndication_multiplex, NewATMVCIndication_multiplex_choice, "multiplex", NULL);
 
 	return offset;
 }
@@ -4426,7 +4414,7 @@ static per_choice_t NewATMVCIndication_reverseParameters_multiplex_choice[] = {
 static int
 dissect_h245_NewATMVCIndication_reverseParameters_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_reverseParameters_multiplex, ett_h245_NewATMVCIndication_reverseParameters_multiplex, NewATMVCIndication_reverseParameters_multiplex_choice, "multiplex");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_reverseParameters_multiplex, ett_h245_NewATMVCIndication_reverseParameters_multiplex, NewATMVCIndication_reverseParameters_multiplex_choice, "multiplex", NULL);
 
 	return offset;
 }
@@ -4473,7 +4461,7 @@ static per_choice_t MaintenanceLoopRequest_type_choice[] = {
 static int
 dissect_h245_MaintenanceLoopRequest_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MaintenanceLoopRequest_type, ett_h245_MaintenanceLoopRequest_type, MaintenanceLoopRequest_type_choice, "type");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MaintenanceLoopRequest_type, ett_h245_MaintenanceLoopRequest_type, MaintenanceLoopRequest_type_choice, "type", NULL);
 
 	return offset;
 }
@@ -4499,7 +4487,7 @@ static per_choice_t MaintenanceLoopAck_type_choice[] = {
 static int
 dissect_h245_MaintenanceLoopAck_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MaintenanceLoopAck_type, ett_h245_MaintenanceLoopAck_type, MaintenanceLoopAck_type_choice, "type");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MaintenanceLoopAck_type, ett_h245_MaintenanceLoopAck_type, MaintenanceLoopAck_type_choice, "type", NULL);
 
 	return offset;
 }
@@ -4525,7 +4513,7 @@ static per_choice_t MaintenanceLoopReject_type_choice[] = {
 static int
 dissect_h245_MaintenanceLoopReject_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MaintenanceLoopReject_type, ett_h245_MaintenanceLoopReject_type, MaintenanceLoopReject_type_choice, "type");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MaintenanceLoopReject_type, ett_h245_MaintenanceLoopReject_type, MaintenanceLoopReject_type_choice, "type", NULL);
 
 	return offset;
 }
@@ -5998,7 +5986,7 @@ static per_choice_t MediaTransportType_choice[] = {
 static int
 dissect_h245_MediaTransportType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MediaTransportType, ett_h245_MediaTransportType, MediaTransportType_choice, "MediaTransportType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MediaTransportType, ett_h245_MediaTransportType, MediaTransportType_choice, "MediaTransportType", NULL);
 
 	return offset;
 }
@@ -7999,7 +7987,7 @@ static per_choice_t T84Profile_choice[] = {
 static int
 dissect_h245_T84Profile(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_T84Profile, ett_h245_T84Profile, T84Profile_choice, "T84Profile");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_T84Profile, ett_h245_T84Profile, T84Profile_choice, "T84Profile", NULL);
 
 	return offset;
 }
@@ -8246,7 +8234,7 @@ static per_choice_t FECCapability_choice[] = {
 static int
 dissect_h245_FECCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECCapability, ett_h245_FECCapability, FECCapability_choice, "FECCapability");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECCapability, ett_h245_FECCapability, FECCapability_choice, "FECCapability", NULL);
 
 	return offset;
 }
@@ -8887,7 +8875,7 @@ static per_choice_t TerminalCapabilitySetReject_cause_tableEntryCapacityExceeded
 static int
 dissect_h245_TerminalCapabilitySetReject_cause_tableEntryCapacityExceeded(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_TerminalCapabilitySetReject_cause_tableEntryCapacityExceeded, ett_h245_TerminalCapabilitySetReject_cause_tableEntryCapacityExceeded, TerminalCapabilitySetReject_cause_tableEntryCapacityExceeded_choice, "tableEntryCapacityExceeded");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_TerminalCapabilitySetReject_cause_tableEntryCapacityExceeded, ett_h245_TerminalCapabilitySetReject_cause_tableEntryCapacityExceeded, TerminalCapabilitySetReject_cause_tableEntryCapacityExceeded_choice, "tableEntryCapacityExceeded", NULL);
 
 	return offset;
 }
@@ -8917,7 +8905,7 @@ static per_choice_t TerminalCapabilitySetReject_cause_choice[] = {
 static int
 dissect_h245_TerminalCapabilitySetReject_cause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_TerminalCapabilitySetReject_cause, ett_h245_TerminalCapabilitySetReject_cause, TerminalCapabilitySetReject_cause_choice, "cause");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_TerminalCapabilitySetReject_cause, ett_h245_TerminalCapabilitySetReject_cause, TerminalCapabilitySetReject_cause_choice, "cause", NULL);
 
 	return offset;
 }
@@ -9091,7 +9079,7 @@ static per_choice_t NewATMVCCommand_aal_choice[] = {
 static int
 dissect_h245_NewATMVCCommand_aal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_aal, ett_h245_NewATMVCCommand_aal, NewATMVCCommand_aal_choice, "aal");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCCommand_aal, ett_h245_NewATMVCCommand_aal, NewATMVCCommand_aal_choice, "aal", NULL);
 
 	return offset;
 }
@@ -9132,7 +9120,7 @@ static per_choice_t NewATMVCIndication_aal_choice[] = {
 static int
 dissect_h245_NewATMVCIndication_aal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_aal, ett_h245_NewATMVCIndication_aal, NewATMVCIndication_aal_choice, "aal");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NewATMVCIndication_aal, ett_h245_NewATMVCIndication_aal, NewATMVCIndication_aal_choice, "aal", NULL);
 
 	return offset;
 }
@@ -9212,7 +9200,7 @@ static per_choice_t VCCapability_availableBitRates_type_choice[] = {
 static int
 dissect_h245_VCCapability_availableBitRates_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_VCCapability_availableBitRates_type, ett_h245_VCCapability_availableBitRates_type, VCCapability_availableBitRates_type_choice, "type");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_VCCapability_availableBitRates_type, ett_h245_VCCapability_availableBitRates_type, VCCapability_availableBitRates_type_choice, "type", NULL);
 
 	return offset;
 }
@@ -9328,7 +9316,7 @@ static per_choice_t H223Capability_h223MultiplexTableCapability_choice[] = {
 static int
 dissect_h245_H223Capability_h223MultiplexTableCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223Capability_h223MultiplexTableCapability, ett_h245_H223Capability_h223MultiplexTableCapability, H223Capability_h223MultiplexTableCapability_choice, "h223MultiplexTableCapability");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223Capability_h223MultiplexTableCapability, ett_h245_H223Capability_h223MultiplexTableCapability, H223Capability_h223MultiplexTableCapability_choice, "h223MultiplexTableCapability", NULL);
 
 	return offset;
 }
@@ -11325,7 +11313,7 @@ static per_choice_t CompressionType_choice[] = {
 static int
 dissect_h245_CompressionType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CompressionType, ett_h245_CompressionType, CompressionType_choice, "CompressionType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CompressionType, ett_h245_CompressionType, CompressionType_choice, "CompressionType", NULL);
 
 	return offset;
 }
@@ -11352,7 +11340,7 @@ static per_choice_t DataProtocolCapability_v76wCompression_choice[] = {
 static int
 dissect_h245_DataProtocolCapability_v76wCompression(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataProtocolCapability_v76wCompression, ett_h245_DataProtocolCapability_v76wCompression, DataProtocolCapability_v76wCompression_choice, "v76wCompression");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataProtocolCapability_v76wCompression, ett_h245_DataProtocolCapability_v76wCompression, DataProtocolCapability_v76wCompression_choice, "v76wCompression", NULL);
 
 	return offset;
 }
@@ -11564,7 +11552,7 @@ static per_choice_t FlowControlCommand_scope_choice[] = {
 static int
 dissect_h245_FlowControlCommand_scope(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FlowControlCommand_scope, ett_h245_FlowControlCommand_scope, FlowControlCommand_scope_choice, "scope");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FlowControlCommand_scope, ett_h245_FlowControlCommand_scope, FlowControlCommand_scope_choice, "scope", NULL);
 
 	return offset;
 }
@@ -11592,7 +11580,7 @@ static per_choice_t JitterIndication_scope_choice[] = {
 static int
 dissect_h245_JitterIndication_scope(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_JitterIndication_scope, ett_h245_JitterIndication_scope, JitterIndication_scope_choice, "scope");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_JitterIndication_scope, ett_h245_JitterIndication_scope, JitterIndication_scope_choice, "scope", NULL);
 
 	return offset;
 }
@@ -11619,7 +11607,7 @@ static per_choice_t FlowControlIndication_scope_choice[] = {
 static int
 dissect_h245_FlowControlIndication_scope(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FlowControlIndication_scope, ett_h245_FlowControlIndication_scope, FlowControlIndication_scope_choice, "scope");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FlowControlIndication_scope, ett_h245_FlowControlIndication_scope, FlowControlIndication_scope_choice, "scope", NULL);
 
 	return offset;
 }
@@ -11797,7 +11785,7 @@ static per_choice_t H223AnnexCArqParameters_numberOfRetransmissions_choice[] = {
 static int
 dissect_h245_H223AnnexCArqParameters_numberOfRetransmissions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AnnexCArqParameters_numberOfRetransmissions, ett_h245_H223AnnexCArqParameters_numberOfRetransmissions, H223AnnexCArqParameters_numberOfRetransmissions_choice, "numberOfRetransmissions");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AnnexCArqParameters_numberOfRetransmissions, ett_h245_H223AnnexCArqParameters_numberOfRetransmissions, H223AnnexCArqParameters_numberOfRetransmissions_choice, "numberOfRetransmissions", NULL);
 
 	return offset;
 }
@@ -11842,7 +11830,7 @@ static per_choice_t H223AL1MParameters_arqType_choice[] = {
 static int
 dissect_h245_H223AL1MParameters_arqType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL1MParameters_arqType, ett_h245_H223AL1MParameters_arqType, H223AL1MParameters_arqType_choice, "arqType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL1MParameters_arqType, ett_h245_H223AL1MParameters_arqType, H223AL1MParameters_arqType_choice, "arqType", NULL);
 
 	return offset;
 }
@@ -11868,7 +11856,7 @@ static per_choice_t H223AL3MParameters_arqType_choice[] = {
 static int
 dissect_h245_H223AL3MParameters_arqType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL3MParameters_arqType, ett_h245_H223AL3MParameters_arqType, H223AL3MParameters_arqType_choice, "arqType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223AL3MParameters_arqType, ett_h245_H223AL3MParameters_arqType, H223AL3MParameters_arqType_choice, "arqType", NULL);
 
 	return offset;
 }
@@ -11979,7 +11967,7 @@ static per_choice_t V76LogicalChannelParameters_mode_choice[] = {
 static int
 dissect_h245_V76LogicalChannelParameters_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_V76LogicalChannelParameters_mode, ett_h245_V76LogicalChannelParameters_mode, V76LogicalChannelParameters_mode_choice, "mode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_V76LogicalChannelParameters_mode, ett_h245_V76LogicalChannelParameters_mode, V76LogicalChannelParameters_mode_choice, "mode", NULL);
 
 	return offset;
 }
@@ -12168,7 +12156,7 @@ static per_choice_t FECData_rfc2733_mode_separateStream_choice[] = {
 static int
 dissect_h245_FECData_rfc2733_mode_separateStream(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECData_rfc2733_mode_separateStream, ett_h245_FECData_rfc2733_mode_separateStream, FECData_rfc2733_mode_separateStream_choice, "separateStream");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECData_rfc2733_mode_separateStream, ett_h245_FECData_rfc2733_mode_separateStream, FECData_rfc2733_mode_separateStream_choice, "separateStream", NULL);
 
 	return offset;
 }
@@ -12191,7 +12179,7 @@ static per_choice_t FECData_rfc2733_mode_choice[] = {
 static int
 dissect_h245_FECData_rfc2733_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECData_rfc2733_mode, ett_h245_FECData_rfc2733_mode, FECData_rfc2733_mode_choice, "mode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECData_rfc2733_mode, ett_h245_FECData_rfc2733_mode, FECData_rfc2733_mode_choice, "mode", NULL);
 
 	return offset;
 }
@@ -12227,7 +12215,7 @@ static per_choice_t FECData_choice[] = {
 static int
 dissect_h245_FECData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECData, ett_h245_FECData, FECData_choice, "FECData");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECData, ett_h245_FECData, FECData_choice, "FECData", NULL);
 
 	return offset;
 }
@@ -12306,7 +12294,7 @@ static per_choice_t MultiplexElement_repeatCount_choice[] = {
 static int
 dissect_h245_MultiplexElement_repeatCount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexElement_repeatCount, ett_h245_MultiplexElement_repeatCount, MultiplexElement_repeatCount_choice, "repeatCount");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexElement_repeatCount, ett_h245_MultiplexElement_repeatCount, MultiplexElement_repeatCount_choice, "repeatCount", NULL);
 
 	return offset;
 }
@@ -12502,7 +12490,7 @@ static per_choice_t MultilinkRequest_maximumHeaderInterval_requestType_choice[] 
 static int
 dissect_h245_MultilinkRequest_maximumHeaderInterval_requestType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkRequest_maximumHeaderInterval_requestType, ett_h245_MultilinkRequest_maximumHeaderInterval_requestType, MultilinkRequest_maximumHeaderInterval_requestType_choice, "requestType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkRequest_maximumHeaderInterval_requestType, ett_h245_MultilinkRequest_maximumHeaderInterval_requestType, MultilinkRequest_maximumHeaderInterval_requestType_choice, "requestType", NULL);
 
 	return offset;
 }
@@ -12788,7 +12776,7 @@ static per_choice_t FlowControlCommand_restriction_choice[] = {
 static int
 dissect_h245_FlowControlCommand_restriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FlowControlCommand_restriction, ett_h245_FlowControlCommand_restriction, FlowControlCommand_restriction_choice, "restriction");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FlowControlCommand_restriction, ett_h245_FlowControlCommand_restriction, FlowControlCommand_restriction_choice, "restriction", NULL);
 
 	return offset;
 }
@@ -12811,7 +12799,7 @@ static per_choice_t FlowControlIndication_restriction_choice[] = {
 static int
 dissect_h245_FlowControlIndication_restriction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FlowControlIndication_restriction, ett_h245_FlowControlIndication_restriction, FlowControlIndication_restriction_choice, "restriction");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FlowControlIndication_restriction, ett_h245_FlowControlIndication_restriction, FlowControlIndication_restriction_choice, "restriction", NULL);
 
 	return offset;
 }
@@ -13115,7 +13103,7 @@ static per_choice_t PictureReference_choice[] = {
 static int
 dissect_h245_PictureReference(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_PictureReference, ett_h245_PictureReference, PictureReference_choice, "PictureReference");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_PictureReference, ett_h245_PictureReference, PictureReference_choice, "PictureReference", NULL);
 
 	return offset;
 }
@@ -13331,7 +13319,7 @@ static per_choice_t ConferenceIndication_choice[] = {
 static int
 dissect_h245_ConferenceIndication(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceIndication, ett_h245_ConferenceIndication, ConferenceIndication_choice, "ConferenceIndication");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceIndication, ett_h245_ConferenceIndication, ConferenceIndication_choice, "ConferenceIndication", NULL);
 
 	return offset;
 }
@@ -13679,7 +13667,7 @@ static per_choice_t NonStandardIdentifier_choice[] = {
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NonStandardIdentifier, ett_h245_NonStandardIdentifier, NonStandardIdentifier_choice, "NonStandardIdentifier");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NonStandardIdentifier, ett_h245_NonStandardIdentifier, NonStandardIdentifier_choice, "NonStandardIdentifier", NULL);
 
 	return offset;
 }
@@ -14285,7 +14273,7 @@ static per_choice_t ConferenceCommand_choice[] = {
 static int
 dissect_h245_ConferenceCommand(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceCommand, ett_h245_ConferenceCommand, ConferenceCommand_choice, "ConferenceCommand");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceCommand, ett_h245_ConferenceCommand, ConferenceCommand_choice, "ConferenceCommand", NULL);
 
 	return offset;
 }
@@ -14382,7 +14370,7 @@ static per_choice_t DataProtocolCapability_choice[] = {
 static int
 dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataProtocolCapability, ett_h245_DataProtocolCapability, DataProtocolCapability_choice, "DataProtocolCapability");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataProtocolCapability, ett_h245_DataProtocolCapability, DataProtocolCapability_choice, "DataProtocolCapability", NULL);
 
 	return offset;
 }
@@ -14405,7 +14393,7 @@ static per_choice_t MediaEncryptionAlgorithm_choice[] = {
 static int
 dissect_h245_MediaEncryptionAlgorithm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MediaEncryptionAlgorithm, ett_h245_MediaEncryptionAlgorithm, MediaEncryptionAlgorithm_choice, "MediaEncryptionAlgorithm");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MediaEncryptionAlgorithm, ett_h245_MediaEncryptionAlgorithm, MediaEncryptionAlgorithm_choice, "MediaEncryptionAlgorithm", NULL);
 
 	return offset;
 }
@@ -14443,7 +14431,7 @@ static per_choice_t UserInputCapability_choice[] = {
 static int
 dissect_h245_UserInputCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UserInputCapability, ett_h245_UserInputCapability, UserInputCapability_choice, "UserInputCapability");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UserInputCapability, ett_h245_UserInputCapability, UserInputCapability_choice, "UserInputCapability", NULL);
 
 	return offset;
 }
@@ -14453,7 +14441,7 @@ dissect_h245_UserInputCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 dissect_h245_domainBased(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_constrained_IA5String(tvb, offset, pinfo, tree, hf_h245_domainBased, 1, 64);
+	offset=dissect_per_IA5String(tvb, offset, pinfo, tree, hf_h245_domainBased, 1, 64);
 
 	return offset;
 }
@@ -14482,7 +14470,7 @@ static per_choice_t CapabilityIdentifier_choice[] = {
 static int
 dissect_h245_CapabilityIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CapabilityIdentifier, ett_h245_CapabilityIdentifier, CapabilityIdentifier_choice, "CapabilityIdentifier");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CapabilityIdentifier, ett_h245_CapabilityIdentifier, CapabilityIdentifier_choice, "CapabilityIdentifier", NULL);
 
 	return offset;
 }
@@ -14511,7 +14499,7 @@ static per_choice_t ParameterIdentifier_choice[] = {
 static int
 dissect_h245_ParameterIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ParameterIdentifier, ett_h245_ParameterIdentifier, ParameterIdentifier_choice, "ParameterIdentifier");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ParameterIdentifier, ett_h245_ParameterIdentifier, ParameterIdentifier_choice, "ParameterIdentifier", NULL);
 
 	return offset;
 }
@@ -14553,7 +14541,7 @@ static per_choice_t H223LogicalChannelParameters_adaptationLayerType_choice[] = 
 static int
 dissect_h245_H223LogicalChannelParameters_adaptationLayerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223LogicalChannelParameters_adaptationLayerType, ett_h245_H223LogicalChannelParameters_adaptationLayerType, H223LogicalChannelParameters_adaptationLayerType_choice, "adaptationLayerType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223LogicalChannelParameters_adaptationLayerType, ett_h245_H223LogicalChannelParameters_adaptationLayerType, H223LogicalChannelParameters_adaptationLayerType_choice, "adaptationLayerType", NULL);
 
 	return offset;
 }
@@ -14583,7 +14571,7 @@ static per_choice_t MulticastAddress_choice[] = {
 static int
 dissect_h245_MulticastAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MulticastAddress, ett_h245_MulticastAddress, MulticastAddress_choice, "MulticastAddress");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MulticastAddress, ett_h245_MulticastAddress, MulticastAddress_choice, "MulticastAddress", NULL);
 
 	return offset;
 }
@@ -14627,7 +14615,7 @@ static per_choice_t H223ModeParameters_adaptationLayerType_choice[] = {
 static int
 dissect_h245_H223ModeParameters_adaptationLayerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223ModeParameters_adaptationLayerType, ett_h245_H223ModeParameters_adaptationLayerType, H223ModeParameters_adaptationLayerType_choice, "Type");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H223ModeParameters_adaptationLayerType, ett_h245_H223ModeParameters_adaptationLayerType, H223ModeParameters_adaptationLayerType_choice, "Type", NULL);
 
 	return offset;
 }
@@ -14650,7 +14638,7 @@ static per_choice_t EncryptionMode_choice[] = {
 static int
 dissect_h245_EncryptionMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EncryptionMode, ett_h245_EncryptionMode, EncryptionMode_choice, "EncryptionMode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EncryptionMode, ett_h245_EncryptionMode, EncryptionMode_choice, "EncryptionMode", NULL);
 
 	return offset;
 }
@@ -14693,7 +14681,7 @@ static per_choice_t MultilinkIndication_choice[] = {
 static int
 dissect_h245_MultilinkIndication(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkIndication, ett_h245_MultilinkIndication, MultilinkIndication_choice, "MultilinkIndication");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkIndication, ett_h245_MultilinkIndication, MultilinkIndication_choice, "MultilinkIndication", NULL);
 
 	return offset;
 }
@@ -14722,7 +14710,7 @@ static per_choice_t DialingInformationNetworkType_choice[] = {
 static int
 dissect_h245_DialingInformationNetworkType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DialingInformationNetworkType, ett_h245_DialingInformationNetworkType, DialingInformationNetworkType_choice, "DialingInformationNetworkType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DialingInformationNetworkType, ett_h245_DialingInformationNetworkType, DialingInformationNetworkType_choice, "DialingInformationNetworkType", NULL);
 
 	return offset;
 }
@@ -14950,7 +14938,7 @@ static per_choice_t EncryptionCommand_choice[] = {
 static int
 dissect_h245_EncryptionCommand(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EncryptionCommand, ett_h245_EncryptionCommand, EncryptionCommand_choice, "EncryptionCommand");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EncryptionCommand, ett_h245_EncryptionCommand, EncryptionCommand_choice, "EncryptionCommand", NULL);
 
 	return offset;
 }
@@ -14979,7 +14967,7 @@ static per_choice_t EndSessionCommand_choice[] = {
 static int
 dissect_h245_EndSessionCommand(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EndSessionCommand_type, ett_h245_EndSessionCommand, EndSessionCommand_choice, "EndSessionCommand");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_EndSessionCommand_type, ett_h245_EndSessionCommand, EndSessionCommand_choice, "EndSessionCommand", NULL);
 
 	return offset;
 }
@@ -15066,7 +15054,7 @@ static per_choice_t ParameterValue_choice[] = {
 static int
 dissect_h245_ParameterValue(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ParameterValue, ett_h245_ParameterValue, ParameterValue_choice, "ParameterValue");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ParameterValue, ett_h245_ParameterValue, ParameterValue_choice, "ParameterValue", NULL);
 
 	return offset;
 }
@@ -15304,7 +15292,7 @@ static per_choice_t DataApplicationCapability_application_choice[] = {
 static int
 dissect_h245_DataApplicationCapability_application(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataApplicationCapability_application, ett_h245_DataApplicationCapability_application, DataApplicationCapability_application_choice, "application");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataApplicationCapability_application, ett_h245_DataApplicationCapability_application, DataApplicationCapability_application_choice, "application", NULL);
 
 	return offset;
 }
@@ -15363,7 +15351,7 @@ static per_choice_t DataMode_application_choice[] = {
 static int
 dissect_h245_DataMode_application(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataMode_application, ett_h245_DataMode_application, DataMode_application_choice, "application");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataMode_application, ett_h245_DataMode_application, DataMode_application_choice, "application", NULL);
 
 	return offset;
 }
@@ -15521,7 +15509,7 @@ static per_choice_t UnicastAddress_choice[] = {
 static int
 dissect_h245_UnicastAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UnicastAddress, ett_h245_UnicastAddress, UnicastAddress_choice, "UnicastAddress");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UnicastAddress, ett_h245_UnicastAddress, UnicastAddress_choice, "UnicastAddress", NULL);
 
 	return offset;
 }
@@ -15544,28 +15532,28 @@ static per_choice_t TransportAddress_choice[] = {
 static int
 dissect_h245_localAreaAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_localAreaAddress, ett_h245_TransportAddress, TransportAddress_choice, "localAreaAddress");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_localAreaAddress, ett_h245_TransportAddress, TransportAddress_choice, "localAreaAddress", NULL);
 
 	return offset;
 }
 static int
 dissect_h245_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_mediaChannel, ett_h245_TransportAddress, TransportAddress_choice, "mediaChannel");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_mediaChannel, ett_h245_TransportAddress, TransportAddress_choice, "mediaChannel", NULL);
 
 	return offset;
 }
 static int
 dissect_h245_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_mediaControlChannel, ett_h245_TransportAddress, TransportAddress_choice, "mediaControlChannel");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_mediaControlChannel, ett_h245_TransportAddress, TransportAddress_choice, "mediaControlChannel", NULL);
 
 	return offset;
 }
 static int
 dissect_h245_signalAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_signalAddress, ett_h245_TransportAddress, TransportAddress_choice, "signalAddress");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_signalAddress, ett_h245_TransportAddress, TransportAddress_choice, "signalAddress", NULL);
 
 	return offset;
 }
@@ -15627,7 +15615,7 @@ static per_choice_t forwardMultiplexAckParameters_choice[] = {
 static int
 dissect_h245_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_forwardMultiplexAckParameters, ett_h245_forwardMultiplexAckParameters, forwardMultiplexAckParameters_choice, "forwardMultiplexAckParameters");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_forwardMultiplexAckParameters, ett_h245_forwardMultiplexAckParameters, forwardMultiplexAckParameters_choice, "forwardMultiplexAckParameters", NULL);
 
 	return offset;
 }
@@ -15749,7 +15737,7 @@ static per_choice_t MiscellaneousIndication_type_choice[] = {
 static int
 dissect_h245_MiscellaneousIndication_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MiscellaneousIndication_type, ett_h245_MiscellaneousIndication_type, MiscellaneousIndication_type_choice, "type");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MiscellaneousIndication_type, ett_h245_MiscellaneousIndication_type, MiscellaneousIndication_type_choice, "type", NULL);
 
 	return offset;
 }
@@ -15814,7 +15802,7 @@ static per_choice_t RTPH263VideoRedundancyEncoding_frameToThreadMapping_choice[]
 static int
 dissect_h245_RTPH263VideoRedundancyEncoding_frameToThreadMapping(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RTPH263VideoRedundancyEncoding_frameToThreadMapping, ett_h245_RTPH263VideoRedundancyEncoding_frameToThreadMapping, RTPH263VideoRedundancyEncoding_frameToThreadMapping_choice, "frameToThreadMapping");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RTPH263VideoRedundancyEncoding_frameToThreadMapping, ett_h245_RTPH263VideoRedundancyEncoding_frameToThreadMapping, RTPH263VideoRedundancyEncoding_frameToThreadMapping_choice, "frameToThreadMapping", NULL);
 
 	return offset;
 }
@@ -15886,7 +15874,7 @@ static per_choice_t RedundancyEncodingMethod_choice[] = {
 static int
 dissect_h245_RedundancyEncodingMethod(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RedundancyEncodingMethod, ett_h245_RedundancyEncodingMethod, RedundancyEncodingMethod_choice, "RedundancyEncodingMethod");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RedundancyEncodingMethod, ett_h245_RedundancyEncodingMethod, RedundancyEncodingMethod_choice, "RedundancyEncodingMethod", NULL);
 
 	return offset;
 }
@@ -16120,7 +16108,7 @@ static per_choice_t MiscellaneousCommand_type_choice[] = {
 static int
 dissect_h245_MiscellaneousCommand_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MiscellaneousCommand_type, ett_h245_MiscellaneousCommand_type, MiscellaneousCommand_type_choice, "type");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MiscellaneousCommand_type, ett_h245_MiscellaneousCommand_type, MiscellaneousCommand_type_choice, "type", NULL);
 
 	return offset;
 }
@@ -16197,7 +16185,7 @@ static per_choice_t MultiplexElement_type_choice[] = {
 static int
 dissect_h245_MultiplexElement_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexElement_type, ett_h245_MultiplexElement_type, MultiplexElement_type_choice, "type");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexElement_type, ett_h245_MultiplexElement_type, MultiplexElement_type_choice, "type", NULL);
 
 	return offset;
 }
@@ -16338,7 +16326,7 @@ static per_choice_t ConferenceRequest_choice[] = {
 static int
 dissect_h245_ConferenceRequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceRequest, ett_h245_ConferenceRequest, ConferenceRequest_choice, "ConferenceRequest");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceRequest, ett_h245_ConferenceRequest, ConferenceRequest_choice, "ConferenceRequest", NULL);
 
 	return offset;
 }
@@ -16765,7 +16753,7 @@ static per_choice_t VideoCapability_choice[] = {
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_VideoCapability, ett_h245_VideoCapability, VideoCapability_choice, "VideoCapability");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_VideoCapability, ett_h245_VideoCapability, VideoCapability_choice, "VideoCapability", NULL);
 
 	return offset;
 }
@@ -16886,7 +16874,7 @@ static per_choice_t CustomPictureFormat_pixelAspectInformation_choice[] = {
 static int
 dissect_h245_CustomPictureFormat_pixelAspectInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CustomPictureFormat_pixelAspectInformation, ett_h245_CustomPictureFormat_pixelAspectInformation, CustomPictureFormat_pixelAspectInformation_choice, "pixelAspectInformation");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CustomPictureFormat_pixelAspectInformation, ett_h245_CustomPictureFormat_pixelAspectInformation, CustomPictureFormat_pixelAspectInformation_choice, "pixelAspectInformation", NULL);
 
 	return offset;
 }
@@ -17225,7 +17213,7 @@ static per_choice_t CommunicationModeResponse_choice[] = {
 static int
 dissect_h245_CommunicationModeResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CommunicationModeResponse, ett_h245_CommunicationModeResponse, CommunicationModeResponse_choice, "CommunicationModeResponse");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CommunicationModeResponse, ett_h245_CommunicationModeResponse, CommunicationModeResponse_choice, "CommunicationModeResponse", NULL);
 
 	return offset;
 }
@@ -17275,7 +17263,7 @@ static per_choice_t DialingInformation_choice[] = {
 static int
 dissect_h245_DialingInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DialingInformation, ett_h245_DialingInformation, DialingInformation_choice, "DialingInformation");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DialingInformation, ett_h245_DialingInformation, DialingInformation_choice, "DialingInformation", NULL);
 
 	return offset;
 }
@@ -17328,7 +17316,7 @@ static per_choice_t MultilinkResponse_choice[] = {
 static int
 dissect_h245_MultilinkResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkResponse, ett_h245_MultilinkResponse, MultilinkResponse_choice, "MultilinkResponse");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkResponse, ett_h245_MultilinkResponse, MultilinkResponse_choice, "MultilinkResponse", NULL);
 
 	return offset;
 }
@@ -17379,7 +17367,7 @@ static per_choice_t MultilinkRequest_choice[] = {
 static int
 dissect_h245_MultilinkRequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkRequest, ett_h245_MultilinkRequest, MultilinkRequest_choice, "MultilinkRequest");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultilinkRequest, ett_h245_MultilinkRequest, MultilinkRequest_choice, "MultilinkRequest", NULL);
 
 	return offset;
 }
@@ -17455,7 +17443,7 @@ static per_choice_t SendTerminalCapabilitySet_choice[] = {
 static int
 dissect_h245_SendTerminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_SendTerminalCapabilitySet, ett_h245_SendTerminalCapabilitySet, SendTerminalCapabilitySet_choice, "SendTerminalCapabilitySet");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_SendTerminalCapabilitySet, ett_h245_SendTerminalCapabilitySet, SendTerminalCapabilitySet_choice, "SendTerminalCapabilitySet", NULL);
 
 	return offset;
 }
@@ -17596,7 +17584,7 @@ static per_choice_t AudioCapability_choice[] = {
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_AudioCapability, ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_AudioCapability, ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability", NULL);
 
 	return offset;
 }
@@ -17626,7 +17614,7 @@ static per_choice_t H235Media_mediaType_choice[] = {
 static int
 dissect_h245_H235Media_mediaType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H235Media_mediaType, ett_h245_H235Media_mediaType, H235Media_mediaType_choice, "mediaType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H235Media_mediaType, ett_h245_H235Media_mediaType, H235Media_mediaType_choice, "mediaType", NULL);
 
 	return offset;
 }
@@ -17654,7 +17642,7 @@ static per_choice_t CommunicationModeTableEntry_dataType_choice[] = {
 static int
 dissect_h245_CommunicationModeTableEntry_dataType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CommunicationModeTableEntry_dataType, ett_h245_CommunicationModeTableEntry_dataType, CommunicationModeTableEntry_dataType_choice, "dataType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CommunicationModeTableEntry_dataType, ett_h245_CommunicationModeTableEntry_dataType, CommunicationModeTableEntry_dataType_choice, "dataType", NULL);
 
 	return offset;
 }
@@ -17715,7 +17703,7 @@ static per_choice_t UserInputIndication_userInputSupportIndication_choice[] = {
 static int
 dissect_h245_UserInputIndication_userInputSupportIndication(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UserInputIndication_userInputSupportIndication, ett_h245_UserInputIndication_userInputSupportIndication, UserInputIndication_userInputSupportIndication_choice, "userInputSupportIndication");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UserInputIndication_userInputSupportIndication, ett_h245_UserInputIndication_userInputSupportIndication, UserInputIndication_userInputSupportIndication_choice, "userInputSupportIndication", NULL);
 
 	return offset;
 }
@@ -17767,7 +17755,7 @@ static per_choice_t RTPPayloadType_payloadDescriptor_choice[] = {
 static int
 dissect_h245_RTPPayloadType_payloadDescriptor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RTPPayloadType_payloadDescriptor, ett_h245_RTPPayloadType_payloadDescriptor, RTPPayloadType_payloadDescriptor_choice, "payloadDescriptor");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RTPPayloadType_payloadDescriptor, ett_h245_RTPPayloadType_payloadDescriptor, RTPPayloadType_payloadDescriptor_choice, "payloadDescriptor", NULL);
 
 	return offset;
 }
@@ -17811,7 +17799,7 @@ static per_choice_t H2250LogicalChannelParameters_mediaPacketization_choice[] = 
 static int
 dissect_h245_H2250LogicalChannelParameters_mediaPacketization(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H2250LogicalChannelParameters_mediaPacketization, ett_h245_H2250LogicalChannelParameters_mediaPacketization, H2250LogicalChannelParameters_mediaPacketization_choice, "mediaPacketization");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H2250LogicalChannelParameters_mediaPacketization, ett_h245_H2250LogicalChannelParameters_mediaPacketization, H2250LogicalChannelParameters_mediaPacketization_choice, "mediaPacketization", NULL);
 
 	return offset;
 }
@@ -18025,7 +18013,7 @@ static per_choice_t forwardLogicalChannelParameters_multiplexParameters_choice[]
 static int
 dissect_h245_forwardLogicalChannelParameters_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_forwardLogicalChannelParameters_multiplexParameters, ett_h245_forwardLogicalChannelParameters_multiplexParameters, forwardLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_forwardLogicalChannelParameters_multiplexParameters, ett_h245_forwardLogicalChannelParameters_multiplexParameters, forwardLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters", NULL);
 
 	return offset;
 }
@@ -18069,7 +18057,7 @@ static per_choice_t reverseLogicalChannelParameters_multiplexParameters_choice[]
 static int
 dissect_h245_reverseLogicalChannelParameters_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_reverseLogicalChannelParameters_multiplexParameters, ett_h245_reverseLogicalChannelParameters_multiplexParameters, reverseLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_reverseLogicalChannelParameters_multiplexParameters, ett_h245_reverseLogicalChannelParameters_multiplexParameters, reverseLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters", NULL);
 
 	return offset;
 }
@@ -18092,7 +18080,7 @@ static per_choice_t OpenLogicalChannelAck_reverseLogicalChannelParameters_multip
 static int
 dissect_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters, ett_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters, OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters, ett_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters, OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters", NULL);
 
 	return offset;
 }
@@ -18216,7 +18204,7 @@ static per_choice_t MultiplexFormat_choice[] = {
 static int
 dissect_h245_MultiplexFormat(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexFormat, ett_h245_MultiplexFormat, MultiplexFormat_choice, "MultiplexFormat");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexFormat, ett_h245_MultiplexFormat, MultiplexFormat_choice, "MultiplexFormat", NULL);
 
 	return offset;
 }
@@ -18332,7 +18320,7 @@ static per_choice_t Capability_choice[] = {
 static int
 dissect_h245_Capability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_Capability, ett_h245_Capability, Capability_choice, "Capability");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_Capability, ett_h245_Capability, Capability_choice, "Capability", NULL);
 
 	return offset;
 }
@@ -18421,7 +18409,7 @@ static per_choice_t DataType_choice[] = {
 static int
 dissect_h245_DataType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataType, ett_h245_DataType, DataType_choice, "DataType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataType, ett_h245_DataType, DataType_choice, "DataType", NULL);
 
 	return offset;
 }
@@ -18508,7 +18496,7 @@ static per_choice_t AudioMode_choice[] = {
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_AudioMode, ett_h245_AudioMode, AudioMode_choice, "AudioMode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_AudioMode, ett_h245_AudioMode, AudioMode_choice, "AudioMode", NULL);
 
 	return offset;
 }
@@ -18531,7 +18519,7 @@ static per_choice_t RedundancyEncodingMode_secondaryEncoding_choice[] = {
 static int
 dissect_h245_RedundancyEncodingMode_secondaryEncoding(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RedundancyEncodingMode_secondaryEncoding, ett_h245_RedundancyEncodingMode_secondaryEncoding, RedundancyEncodingMode_secondaryEncoding_choice, "secondaryEncoding");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RedundancyEncodingMode_secondaryEncoding, ett_h245_RedundancyEncodingMode_secondaryEncoding, RedundancyEncodingMode_secondaryEncoding_choice, "secondaryEncoding", NULL);
 
 	return offset;
 }
@@ -18614,7 +18602,7 @@ static per_choice_t MultiplexCapability_choice[] = {
 static int
 dissect_h245_MultiplexCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexCapability, ett_h245_MultiplexCapability, MultiplexCapability_choice, "MultiplexCapability");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_MultiplexCapability, ett_h245_MultiplexCapability, MultiplexCapability_choice, "MultiplexCapability", NULL);
 
 	return offset;
 }
@@ -18725,7 +18713,7 @@ static per_choice_t ConferenceResponse_choice[] = {
 static int
 dissect_h245_ConferenceResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse, ett_h245_ConferenceResponse, ConferenceResponse_choice, "ConferenceResponse");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ConferenceResponse, ett_h245_ConferenceResponse, ConferenceResponse_choice, "ConferenceResponse", NULL);
 
 	return offset;
 }
@@ -18749,7 +18737,7 @@ static per_choice_t H261VideoMode_resolution_choice[] = {
 static int
 dissect_h245_H261VideoMode_resolution(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H261VideoMode_resolution, ett_h245_H261VideoMode_resolution, H261VideoMode_resolution_choice, "resolution");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H261VideoMode_resolution, ett_h245_H261VideoMode_resolution, H261VideoMode_resolution_choice, "resolution", NULL);
 
 	return offset;
 }
@@ -18804,7 +18792,7 @@ static per_choice_t VideoMode_choice[] = {
 static int
 dissect_h245_VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_VideoMode, ett_h245_VideoMode, VideoMode_choice, "VideoMode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_VideoMode, ett_h245_VideoMode, VideoMode_choice, "VideoMode", NULL);
 
 	return offset;
 }
@@ -18833,7 +18821,7 @@ static per_choice_t H235Mode_mediaMode_choice[] = {
 static int
 dissect_h245_H235Mode_mediaMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H235Mode_mediaMode, ett_h245_H235Mode_mediaMode, H235Mode_mediaMode_choice, "mediaMode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_H235Mode_mediaMode, ett_h245_H235Mode_mediaMode, H235Mode_mediaMode_choice, "mediaMode", NULL);
 
 	return offset;
 }
@@ -18887,7 +18875,7 @@ static per_choice_t RedundancyEncodingDTModeElement_type_choice[] = {
 static int
 dissect_h245_RedundancyEncodingDTModeElement_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RedundancyEncodingDTModeElement_type, ett_h245_RedundancyEncodingDTModeElement_type, RedundancyEncodingDTModeElement_type_choice, "type");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RedundancyEncodingDTModeElement_type, ett_h245_RedundancyEncodingDTModeElement_type, RedundancyEncodingDTModeElement_type_choice, "type", NULL);
 
 	return offset;
 }
@@ -18972,7 +18960,7 @@ static per_choice_t ModeElementType_choice[] = {
 static int
 dissect_h245_ModeElementType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ModeElementType, ett_h245_ModeElementType, ModeElementType_choice, "ModeElementType");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ModeElementType, ett_h245_ModeElementType, ModeElementType_choice, "ModeElementType", NULL);
 
 	return offset;
 }
@@ -19027,7 +19015,7 @@ static per_choice_t FECMode_rfc2733Mode_mode_separateStream_choice[] = {
 static int
 dissect_h245_FECMode_rfc2733Mode_mode_separateStream(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECMode_rfc2733Mode_mode_separateStream, ett_h245_FECMode_rfc2733Mode_mode_separateStream, FECMode_rfc2733Mode_mode_separateStream_choice, "separateStream");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECMode_rfc2733Mode_mode_separateStream, ett_h245_FECMode_rfc2733Mode_mode_separateStream, FECMode_rfc2733Mode_mode_separateStream_choice, "separateStream", NULL);
 
 	return offset;
 }
@@ -19051,7 +19039,7 @@ static per_choice_t FECMode_rfc2733Mode_mode_choice[] = {
 static int
 dissect_h245_FECMode_rfc2733Mode_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECMode_rfc2733Mode_mode, ett_h245_FECMode_rfc2733Mode_mode, FECMode_rfc2733Mode_mode_choice, "mode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECMode_rfc2733Mode_mode, ett_h245_FECMode_rfc2733Mode_mode, FECMode_rfc2733Mode_mode_choice, "mode", NULL);
 
 	return offset;
 }
@@ -19086,7 +19074,7 @@ static per_choice_t FECMode_choice[] = {
 static int
 dissect_h245_FECMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECMode, ett_h245_FECMode, FECMode_choice, "FECMode");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FECMode, ett_h245_FECMode, FECMode_choice, "FECMode", NULL);
 
 	return offset;
 }
@@ -19115,7 +19103,7 @@ static per_choice_t FunctionNotUnderstood_choice[] = {
 static int
 dissect_h245_FunctionNotUnderstood(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FunctionNotUnderstood, ett_h245_FunctionNotUnderstood, FunctionNotUnderstood_choice, "FunctionNotUnderstood");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_FunctionNotUnderstood, ett_h245_FunctionNotUnderstood, FunctionNotUnderstood_choice, "FunctionNotUnderstood", NULL);
 
 	return offset;
 }
@@ -19184,7 +19172,7 @@ static per_choice_t UserInputIndication_choice[] = {
 static int
 dissect_h245_UserInputIndication(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UserInputIndication, ett_h245_UserInputIndication, UserInputIndication_choice, "UserInputIndication");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_UserInputIndication, ett_h245_UserInputIndication, UserInputIndication_choice, "UserInputIndication", NULL);
 
 	return offset;
 }
@@ -19232,7 +19220,7 @@ static per_choice_t Q2931Address_address_choice[] = {
 static int
 dissect_h245_Q2931Address_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_Q2931Address_address, ett_h245_Q2931Address_address, Q2931Address_address_choice, "address");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_Q2931Address_address, ett_h245_Q2931Address_address, Q2931Address_address_choice, "address", NULL);
 
 	return offset;
 }
@@ -19287,7 +19275,7 @@ static per_choice_t NetworkAccessParameters_networkAddress_choice[] = {
 static int
 dissect_h245_NetworkAccessParameters_networkAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NetworkAccessParameters_networkAddress, ett_h245_NetworkAccessParameters_networkAddress, NetworkAccessParameters_networkAddress_choice, "networkAddress");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_NetworkAccessParameters_networkAddress, ett_h245_NetworkAccessParameters_networkAddress, NetworkAccessParameters_networkAddress_choice, "networkAddress", NULL);
 
 	return offset;
 }
@@ -19418,7 +19406,7 @@ static per_choice_t RequestModeAck_response_decision_choice[] = {
 static int
 dissect_h245_RequestModeAck_response_decision(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestModeAck_response_decision, ett_h245_RequestModeAck_response_decision, RequestModeAck_response_decision_choice, "decision");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestModeAck_response_decision, ett_h245_RequestModeAck_response_decision, RequestModeAck_response_decision_choice, "decision", NULL);
 
 	return offset;
 }
@@ -19566,7 +19554,14 @@ static per_choice_t IndicationMessage_choice[] = {
 static int
 dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IndicationMessage_type, ett_h245_IndicationMessage, IndicationMessage_choice, "IndicationMessage");
+	guint32 value;
+
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_IndicationMessage_type, ett_h245_IndicationMessage, IndicationMessage_choice, "IndicationMessage", &value);
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str(value, IndicationMessage_vals, "<unknown>"));
+	}
 
 	return offset;
 }
@@ -19629,7 +19624,13 @@ static per_choice_t RequestMessage_choice[] = {
 static int
 dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestMessage_type, ett_h245_RequestMessage, RequestMessage_choice, "RequestMessage");
+	guint32 value;
+
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_RequestMessage_type, ett_h245_RequestMessage, RequestMessage_choice, "RequestMessage", &value);
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str(value, RequestMessage_vals, "<unknown>"));
+	}
 
 	return offset;
 }
@@ -19923,7 +19924,14 @@ static per_choice_t CommandMessage_choice[] = {
 static int
 dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CommandMessage_type, ett_h245_CommandMessage, CommandMessage_choice, "CommandMessage");
+	guint32 value;
+
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_CommandMessage_type, ett_h245_CommandMessage, CommandMessage_choice, "CommandMessage", &value);
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str(value, CommandMessage_vals, "<unknown>"));
+	}
 
 	return offset;
 }
@@ -20014,7 +20022,14 @@ static per_choice_t ResponseMessage_choice[] = {
 static int
 dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ResponseMessage_type, ett_h245_ResponseMessage, ResponseMessage_choice, "ResponseMessage");
+	guint32 value;
+
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_ResponseMessage_type, ett_h245_ResponseMessage, ResponseMessage_choice, "ResponseMessage", &value);
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str(value, ResponseMessage_vals, "<unknown>"));
+	}
 
 	return offset;
 }
@@ -20037,7 +20052,7 @@ NOT_DECODED_YET("DialingInformationNumber_networkAddress");
 static int
 dissect_h245_DialingInformationNumber_subAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_constrained_IA5String(tvb, offset, pinfo, tree, hf_h245_subAddress, 0, 40);
+	offset=dissect_per_IA5String(tvb, offset, pinfo, tree, hf_h245_subAddress, 0, 40);
 
 	return offset;
 }
@@ -20086,15 +20101,25 @@ dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
+	guint32 value;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.245");
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_clear(pinfo->cinfo, COL_INFO);
+	}
 
 	it=proto_tree_add_protocol_format(tree, proto_h245, tvb, 0, tvb_length(tvb), "H.245");
 	tr=proto_item_add_subtree(it, ett_h245);
 
-	offset=dissect_per_choice(tvb, offset, pinfo, tr, hf_h245_pdu_type, ett_h245_MultimediaSystemControlMessage, MultimediaSystemControlMessage_choice, "MultimediaSystemControlMessage");
+	offset=dissect_per_choice(tvb, offset, pinfo, tr, hf_h245_pdu_type, ett_h245_MultimediaSystemControlMessage, MultimediaSystemControlMessage_choice, "MultimediaSystemControlMessage", &value);
 
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str(value, MultimediaSystemControlMessage_vals, "<unknown>"));
+	}
+	
 }
 
 
@@ -21260,9 +21285,6 @@ proto_register_h245(void)
 	{ &hf_h245_sequence_of_length,
 		{ "Sequence-Of Length", "h245.sequence_of_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of items in the Sequence Of", HFILL }},
-	{ &hf_h245_IA5String_length,
-		{ "IA5String Length", "h245.ia5string_length", FT_UINT32, BASE_DEC,
-		NULL, 0, "Number of characters in the IA5String", HFILL }},
 	{ &hf_h245_octet_string_length,
 		{ "Octet String Length", "h245.octet_string_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes in the Octet String", HFILL }},
