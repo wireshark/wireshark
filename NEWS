@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.132 2003/07/23 23:14:57 gerald Exp $
+$Id: NEWS,v 1.133 2003/07/24 01:41:34 gerald Exp $
 
 == July 23, 2003
 
@@ -34,7 +34,7 @@ Updated protocols
 
 Updated capture file support
 
-  LANalyzer, NetXRay,
+  LANalyzer, NetXRay
 
 
 == June 11, 2003
