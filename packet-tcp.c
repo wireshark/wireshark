@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.149 2002/08/03 22:28:16 guy Exp $
+ * $Id: packet-tcp.c,v 1.150 2002/08/03 23:20:06 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,6 +130,13 @@ struct tcp_unacked {
 	guint32 nextseq;
 	nstime_t ts;
 };
+
+/* Idea for gt: either x > y, or y is much bigger (assume wrap) */
+#define GT_SEQ(x, y) ((x > y) || ((y - x) > 0x80000000))
+#define LT_SEQ(x, y) ((x < y) || ((x - y) > 0x80000000))
+#define GE_SEQ(x, y) ((x >= y) || ((y - x) > 0x80000000))
+#define LE_SEQ(x, y) ((x <= y) || ((x - y) > 0x80000000))
+#define EQ_SEQ(x, y) (x == y)
 
 static GMemChunk *tcp_acked_chunk = NULL;
 static int tcp_acked_count = 5000;	/* one for almost every other segment in the capture */
@@ -283,7 +290,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	/* if we get past here we know that ual1 points to a segment */
 
 	/* if seq is beyond ual1->nextseq we have lost a segment */
-	if( seq>ual1->nextseq ){
+	if (GT_SEQ(seq, ual1->nextseq)) {
 		struct tcp_acked *ta;
 
 		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
@@ -304,7 +311,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	/* keep-alives are empty semgents with a sequence number -1 of what
 	 * we would expect.
 	 */
-	if( (!seglen) && (seq==(ual1->nextseq-1)) ){
+	if( (!seglen) && EQ_SEQ(seq, (ual1->nextseq-1)) ){
 		struct tcp_acked *ta;
 
 		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
@@ -319,7 +326,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	}
 
 	/* check if the sequence number is lower than expected, i.e. retransmission */
-	if( seq < ual1->nextseq ){
+	if( LT_SEQ(seq, ual1->nextseq )){
 		struct tcp_acked *ta;
 
 		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
@@ -328,7 +335,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		/* did this segment contain any more data we havent seen yet?
 		 * if so we can just increase nextseq
 		 */
-		if((seq+seglen)>ual1->nextseq){
+		if(GT_SEQ((seq+seglen), ual1->nextseq)){
 			ual1->nextseq=seq+seglen;
 			ual1->frame=pinfo->fd->num;
 			ual1->ts.secs=pinfo->fd->abs_secs;
@@ -377,7 +384,7 @@ seq_finished:
 	 * we must have lost packets. Not much point in keeping the segments
 	 * in the other direction either.
 	 */
-	if( ack>ual2->nextseq ){
+	if( GT_SEQ(ack, ual2->nextseq )){
 		struct tcp_acked *ta;
 
 		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
@@ -391,7 +398,7 @@ seq_finished:
 
 
 	/* does this ACK ack all semgents we have seen in the other direction?*/
-	if( ack==ual2->nextseq ){
+	if( EQ_SEQ(ack, ual2->nextseq )){
 		struct tcp_acked *ta;
 
 		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
@@ -415,7 +422,7 @@ seq_finished:
 	 * update and remove the ACKed segments
 	 */
 	for(ual=ual2;ual->next;ual=ual->next){
-		if(ack>=ual->next->nextseq){
+		if( GE_SEQ(ack, ual->next->nextseq)){
 			break;
 		}
 	}
