@@ -1,4 +1,4 @@
-$Id: README,v 1.10 1999/02/20 08:12:20 guy Exp $
+$Id: README,v 1.11 1999/03/01 18:57:02 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -32,8 +32,16 @@ SunOS has NIT and Solaris has DLPI, which both use the CMU/Stanford
 packet-filter psuedomachine. RMON has another type of packet-filter syntax
 which we could support.
 
-Currently, only #2 is available. Wiretap doesn't even do any filtering yet. It
-can only be used to read packet capture files.
+Wiretap is very good at reading may file formats, as per #2
+above. Display filters are now appearing in wiretap, but they are
+still basic. Development is continuing on the BPF compiler, so display
+filters will continue to be enhanced. Wiretap can't capture packets yet,
+but once it can, it will have the ability to do capture-filtering via
+BPF, either through BPF kernel facilities or through a user-space BPF
+implementation. BPF is my first target, but the filter compiler will
+be generic enough so that as per #6, other packet-filtering engines can
+be used.
+
 
 File Formats
 ============
@@ -77,7 +85,7 @@ Network Monitor
 ---------------
 Microsoft's Network Monitor file format is supported, at least under Ethernet
 and token-ring. If you have capture files of other datalink types, please send
-them to Guy Harris <guy@netapp.com>.
+them to Guy Harris.
 
 "snoop"
 -------
@@ -103,5 +111,5 @@ read, and the packet time stamp isn't correctly computed.  Network
 Associates' Windows Sniffer Pro appears to use a variant of that format;
 it's supported to the same extent.
 
-Gilbert Ramirez
-<gram@verdict.uthscsa.edu>
+Gilbert Ramirez <gram@verdict.uthscsa.edu>
+Guy Harris <guy@netapp.com>

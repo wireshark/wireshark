@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.8 1999/02/20 06:49:26 guy Exp $
+ * $Id: file.c,v 1.9 1999/03/01 18:57:04 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -25,6 +25,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "wtap.h"
+#include "buffer.h"
 #include "lanalyzer.h"
 #include "ngsniffer.h"
 #include "libpcap.h"
@@ -50,7 +51,14 @@ wtap* wtap_open_offline(char *filename)
 		return NULL;
 	}
 
-	/* Try all my file types */
+	/* initialization */
+	wth->file_encap = WTAP_ENCAP_NONE;
+	wth->filter.offline = NULL;
+	wth->filter_type = WTAP_FILTER_NONE;
+	wth->filter_length = 0;
+	wth->offline_filter_lengths = NULL;
+
+	/* Try all file types */
 
 	/* WTAP_FILE_PCAP */
 	if ((wth->file_type = libpcap_open(wth)) != WTAP_FILE_UNKNOWN) {
@@ -89,8 +97,7 @@ wtap* wtap_open_offline(char *filename)
 	return wth;
 
 success:
-	buffer_init(&wth->frame_buffer, 1500);
-	wth->frame_number = 0;
-	wth->file_byte_offset = 0;
+	wth->frame_buffer = g_malloc(sizeof(struct Buffer));
+	buffer_init(wth->frame_buffer, 1500);
 	return wth;
 }

@@ -1,3 +1,9 @@
+March 1, 1999
+	Added first code for display filters.
+
+February 20, 1999
+	Guy added the netxray file format.
+
 January 27, 1999
 	Added token-ring support in netmon.c
 
@@ -5,7 +11,7 @@ January 19, 1999
 	Changed number of arguments of wtap_open_offline().
 
 January 14, 1999
-	Guy added support for reading MicroSoft Network Monitor files.
+	Guy added support for reading Microsoft Network Monitor files.
 
 January 7, 1999
 	Made all filetypes provide a per-packet encapsulation type, and

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.13 1999/02/09 00:35:36 guy Exp $
+ * $Id: menu.c,v 1.14 1999/03/01 18:57:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -167,7 +167,9 @@ menus_init(void) {
 
 #ifdef USE_ITEM
     factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
-    gtk_item_factory_create_items(factory, nmenu_items, menu_items, NULL);
+    /*gtk_item_factory_create_items(factory, nmenu_items, menu_items,
+     *NULL);grj*/
+    gtk_item_factory_create_items_ac(factory, nmenu_items, menu_items, NULL,2);
     set_menu_sensitivity("/File/Close", FALSE);
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save as", FALSE);

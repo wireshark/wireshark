@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.2 1999/01/07 16:15:35 gram Exp $
+ * $Id: iptrace.c,v 1.3 1999/03/01 18:57:04 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -24,6 +24,7 @@
 #include <time.h>
 #include <string.h>
 #include "wtap.h"
+#include "buffer.h"
 #include "iptrace.h"
 
 int iptrace_open(wtap *wth)
@@ -70,9 +71,9 @@ int iptrace_read(wtap *wth)
 	packet_size = pntohs(&header[2]) - 32;
 
 	/* Read the packet data */
-	buffer_assure_space(&wth->frame_buffer, packet_size);
+	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
-	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
+	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {

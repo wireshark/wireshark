@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.11 1999/01/07 16:15:36 gram Exp $
+ * $Id: ngsniffer.c,v 1.12 1999/03/01 18:57:06 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -59,6 +59,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "wtap.h"
+#include "buffer.h"
 #include "ngsniffer.h"
 
 /*
@@ -290,8 +291,6 @@ int ngsniffer_open(wtap *wth)
 	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
 	wth->subtype_read = ngsniffer_read;
 	wth->snapshot_length = 16384;	/* not available in header, only in frame */
-	/*wth->frame_number = 0;*/
-	/*wth->file_byte_offset = 0x10b;*/
 
 	/*
 	 * Read the first record, which the manual says is a version
@@ -317,7 +316,7 @@ int ngsniffer_open(wtap *wth)
 
 	/* Make sure this is an uncompressed Sniffer file */
 	if (version.format != 1) {
-		g_message("ngsniffer: This Sniffer file type is not supported");
+		g_message("ngsniffer: Compressed Sniffer files are not supported");
 		free(wth->capture.ngsniffer);
 		return WTAP_FILE_UNKNOWN;
 	}
@@ -329,7 +328,7 @@ int ngsniffer_open(wtap *wth)
 		return WTAP_FILE_UNKNOWN;
 	}
 	else {
-		wth->encapsulation = sniffer_encap[version.network];
+		wth->file_encap = sniffer_encap[version.network];
 	}
 
 	/* Get time unit */
@@ -404,8 +403,8 @@ int ngsniffer_open(wtap *wth)
 		 * anyway; the only place you lose is with FORE
 		 * SPANS.
 		 */
-		wth->encapsulation = get_atm_linktype(wth);
-		if (wth->encapsulation == -1) {
+		wth->file_encap = get_atm_linktype(wth);
+		if (wth->file_encap == -1) {
 			/*
 			 * Oops, we couldn't find a link type we can
 			 * handle.
@@ -675,7 +674,7 @@ int ngsniffer_read(wtap *wth)
 			linktype = linktype_for_packet(
 			    frame4.atm_info.AppTrafType,
 			    frame4.atm_info.AppHLType);
-			if (wth->encapsulation != linktype)
+			if (wth->file_encap != linktype)
 				break;
 
 			/*
@@ -714,7 +713,7 @@ found:
 	 * leaves an Ethernet/802.3 header for Ethernet/802.3, and
 	 * leaves a pad byte and an 802.5 frame control byte for 802.5.
 	 */
-	if (wth->capture.ngsniffer->is_atm && wth->encapsulation != WTAP_ENCAP_ATM_RFC1483) {
+	if (wth->capture.ngsniffer->is_atm && wth->file_encap != WTAP_ENCAP_ATM_RFC1483) {
 		if (length <= ATM_LANE_HEADER_LEN)
 			return -1;
 		fseek(wth->fh, ATM_LANE_HEADER_LEN, SEEK_CUR);
@@ -726,9 +725,9 @@ found:
 	/*
 	 * Read the packet data.
 	 */
-	buffer_assure_space(&wth->frame_buffer, length);
+	buffer_assure_space(wth->frame_buffer, length);
 	data_offset = ftell(wth->fh);
-	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
+	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			length, wth->fh);
 
 	if (bytes_read != length) {
@@ -746,6 +745,6 @@ found:
 	wth->phdr.ts.tv_sec = (long)t;
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
 			*1.0e6);
-	wth->phdr.pkt_encap = wth->encapsulation;
+	wth->phdr.pkt_encap = wth->file_encap;
 	return data_offset;
 }

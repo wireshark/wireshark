@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.19 1999/01/21 05:03:55 gram Exp $
+ * $Id: file.c,v 1.20 1999/03/01 18:57:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -181,6 +181,12 @@ open_cap_file(char *fname, capture_file *cf) {
     return 1;
   }
 #else
+    if (cf->dfilter) {
+      if (wtap_offline_filter(cf->wth, cf->dfilter) < 0) {
+        simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string "
+          "\"%s\".", cf->dfilter);
+      }
+    }
   cf->fh = wtap_file(cf->wth);
   cf->cd_t = wtap_file_type(cf->wth);
   cf->snap = wtap_snapshot_length(cf->wth);

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.1 1999/02/20 06:49:26 guy Exp $
+ * $Id: netxray.c,v 1.2 1999/03/01 18:57:06 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -25,6 +25,7 @@
 #include <time.h>
 #include "wtap.h"
 #include "netxray.h"
+#include "buffer.h"
 
 /* Capture file header, *including* magic number, is padded to 128 bytes. */
 #define	CAPTUREFILE_HEADER_SIZE	128
@@ -37,7 +38,12 @@ static const char netxray_magic[] = {	/* magic header */
 /* NetXRay file header (minus magic number). */
 struct netxray_hdr {
 	char	version[8];	/* version number */
-	guint32	xxx[10];	/* unknown */
+	guint32	xxx[3];		/* unknown */
+	guint32	start_offset;	/* offset of first packet in capture */
+	guint32	end_offset;	/* offset after last packet in capture */
+	guint32 xxy[3];		/* unknown */
+	guint16	network;	/* datalink type */
+	guint8	xxz[6];
 	guint32	timelo;		/* lower 32 bits of time stamp */
 	guint32	timehi;		/* upper 32 bits of time stamp */
 	/*
@@ -69,8 +75,13 @@ int netxray_open(wtap *wth)
 	int bytes_read;
 	char magic[sizeof netxray_magic];
 	struct netxray_hdr hdr;
-	double	timeunit;
-	double	t;
+	double timeunit;
+	double t;
+	static const int netxray_encap[] = {
+		WTAP_ENCAP_ETHERNET,
+		WTAP_ENCAP_TR
+	};
+	#define NUM_NETXRAY_ENCAPS (sizeof netxray_encap / sizeof netxray_encap[0])
 
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
@@ -102,10 +113,16 @@ int netxray_open(wtap *wth)
 		return WTAP_FILE_UNKNOWN;
 	}
 
+	hdr.network = pletohs(&hdr.network);
+	if (hdr.network >= NUM_NETXRAY_ENCAPS) {
+		g_error("netxray: network type %d unknown", hdr.network);
+		return WTAP_FILE_UNKNOWN;
+	}
+
 	/* This is a netxray file */
 	wth->capture.netxray = g_malloc(sizeof(netxray_t));
 	wth->subtype_read = netxray_read;
-	wth->encapsulation = WTAP_ENCAP_ETHERNET;	/* XXX - where is it? */
+	wth->file_encap = netxray_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
 	wth->capture.netxray->timeunit = timeunit;
 	t = (double)pletohl(&hdr.timelo)
@@ -115,8 +132,14 @@ int netxray_open(wtap *wth)
 	/*wth->frame_number = 0;*/
 	/*wth->file_byte_offset = 0x10b;*/
 
+	/* Remember the offset after the last packet in the capture (which
+	 * isn't necessarily the last packet in the file), as it appears
+	 * there's sometimes crud after it. */
+	wth->capture.netxray->wrapped = 0;
+	wth->capture.netxray->end_offset = pletohl(&hdr.end_offset);
+
 	/* Seek to the beginning of the data records. */
-	fseek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+	fseek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET);
 
 	return WTAP_FILE_NETXRAY;
 }
@@ -130,6 +153,13 @@ int netxray_read(wtap *wth)
 	int	data_offset;
 	double	t;
 
+reread:
+	/* Have we reached the end of the packet data? */
+	data_offset = ftell(wth->fh);
+	if (data_offset == wth->capture.netxray->end_offset) {
+		/* Yes. */
+		return 0;
+	}
 	/* Read record header. */
 	bytes_read = fread(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
@@ -138,14 +168,23 @@ int netxray_read(wtap *wth)
 					bytes_read);
 			return -1;
 		}
+
+		/* We're at EOF.  Wrap? */
+		if (!wth->capture.netxray->wrapped) {
+			/* Yes.  Remember that we did. */
+			wth->capture.netxray->wrapped = 1;
+			fseek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+			goto reread;
+		}
+
+		/* We've already wrapped - don't wrap again. */
 		return 0;
 	}
 	data_offset += sizeof hdr;
 
 	packet_size = pletohs(&hdr.incl_len);
-	buffer_assure_space(&wth->frame_buffer, packet_size);
-	data_offset = ftell(wth->fh);
-	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
+	buffer_assure_space(wth->frame_buffer, packet_size);
+	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
@@ -169,7 +208,7 @@ int netxray_read(wtap *wth)
 			*1.0e6);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = pletohs(&hdr.orig_len);
-	wth->phdr.pkt_encap = wth->encapsulation;
+	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
 }

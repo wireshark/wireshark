@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.4 1999/02/20 06:46:33 guy Exp $
+ * $Id: netmon.c,v 1.5 1999/03/01 18:57:05 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -23,6 +23,7 @@
 #include <netinet/in.h>
 #include <time.h>
 #include "wtap.h"
+#include "buffer.h"
 #include "netmon.h"
 
 /* The file at
@@ -117,7 +118,7 @@ int netmon_open(wtap *wth)
 	/* This is a netmon file */
 	wth->capture.netmon = g_malloc(sizeof(netmon_t));
 	wth->subtype_read = netmon_read;
-	wth->encapsulation = netmon_encap[hdr.network];
+	wth->file_encap = netmon_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
 	/*
 	 * Convert the time stamp to a "time_t" and a number of
@@ -153,8 +154,6 @@ int netmon_open(wtap *wth)
 	 * more packets to read.
 	 */
 	wth->capture.netmon->end_offset = pletohl(&hdr.frametableoffset);
-	/*wth->frame_number = 0;*/
-	/*wth->file_byte_offset = 0x10b;*/
 
 	/* Seek to the beginning of the data records. */
 	fseek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
@@ -191,8 +190,8 @@ int netmon_read(wtap *wth)
 	data_offset += sizeof hdr;
 
 	packet_size = pletohs(&hdr.incl_len);
-	buffer_assure_space(&wth->frame_buffer, packet_size);
-	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
+	buffer_assure_space(wth->frame_buffer, packet_size);
+	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
@@ -212,7 +211,7 @@ int netmon_read(wtap *wth)
 	wth->phdr.ts.tv_usec = msecs*1000;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = pletohs(&hdr.orig_len);
-	wth->phdr.pkt_encap = wth->encapsulation;
+	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
 }

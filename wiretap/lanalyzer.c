@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.8 1999/01/29 17:06:56 gram Exp $
+ * $Id: lanalyzer.c,v 1.9 1999/03/01 18:57:05 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "wtap.h"
+#include "buffer.h"
 #include "lanalyzer.h"
 
 int lanalyzer_open(wtap *wth)
@@ -111,13 +112,13 @@ int lanalyzer_open(wtap *wth)
 				board_type = pletohs(&summary[188]);
 				switch (board_type) {
 					case 226:
-						wth->encapsulation = WTAP_ENCAP_ETHERNET;
+						wth->file_encap = WTAP_ENCAP_ETHERNET;
 						break;
 					case 227:
-						wth->encapsulation = WTAP_ENCAP_TR;
+						wth->file_encap = WTAP_ENCAP_TR;
 						break;
 					default:
-						wth->encapsulation = WTAP_ENCAP_NONE;
+						wth->file_encap = WTAP_ENCAP_NONE;
 				}
 				break;
 
@@ -183,9 +184,9 @@ int lanalyzer_read(wtap *wth)
 	}
 
 	/* Read the packet data */
-	buffer_assure_space(&wth->frame_buffer, packet_size);
+	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
-	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
+	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
@@ -214,7 +215,7 @@ int lanalyzer_read(wtap *wth)
 
 	wth->phdr.len = true_size - 4;
 	wth->phdr.caplen = packet_size;
-	wth->phdr.pkt_encap = wth->encapsulation;
+	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
 }

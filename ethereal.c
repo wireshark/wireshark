@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.23 1999/02/19 05:28:38 guy Exp $
+ * $Id: ethereal.c,v 1.24 1999/03/01 18:57:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -288,6 +288,8 @@ file_close_cmd_cb(GtkWidget *widget, gpointer data) {
 void
 file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+
+  filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
   if (cf.dfilter) g_free(cf.dfilter);
   cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
@@ -705,24 +707,23 @@ main(int argc, char *argv[])
     GTK_SIGNAL_FUNC(prefs_cb), (gpointer) E_PR_PG_FILTER);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
-#ifdef WITH_WIRETAP
-  gtk_widget_set_sensitive(filter_bt, FALSE);
-#endif
   
   filter_te = gtk_entry_new();
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_te, TRUE, TRUE, 3);
   gtk_widget_show(filter_te);
-#ifdef WITH_WIRETAP
-  gtk_widget_set_sensitive(filter_te, FALSE);
-  gtk_entry_set_text(GTK_ENTRY(filter_te), "<unavailable>");
-#endif
 
+#ifdef USE_ITEM
+  set_menu_object_data("/File/Open", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
+    filter_te);
+#else
   set_menu_object_data("<Main>/File/Open", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("<Main>/File/Reload", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("<Main>/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
     filter_te);
-
+#endif
   info_bar = gtk_statusbar_new();
   main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
   file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");

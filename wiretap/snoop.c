@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.3 1999/02/20 06:46:57 guy Exp $
+ * $Id: snoop.c,v 1.4 1999/03/01 18:57:07 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,6 +21,7 @@
  *
  */
 #include "wtap.h"
+#include "buffer.h"
 #include "snoop.h"
 #include <netinet/in.h>
 
@@ -98,10 +99,8 @@ int snoop_open(wtap *wth)
 
 	/* This is a snoop file */
 	wth->subtype_read = snoop_read;
-	wth->encapsulation = snoop_encap[hdr.network];
+	wth->file_encap = snoop_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
-	/*wth->frame_number = 0;*/
-	/*wth->file_byte_offset = 0x10b;*/
 
 	return WTAP_FILE_SNOOP;
 }
@@ -126,9 +125,9 @@ int snoop_read(wtap *wth)
 	}
 
 	packet_size = ntohl(hdr.incl_len);
-	buffer_assure_space(&wth->frame_buffer, packet_size);
+	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
-	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
+	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
@@ -145,7 +144,7 @@ int snoop_read(wtap *wth)
 	wth->phdr.ts.tv_usec = ntohl(hdr.ts_usec);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = ntohl(hdr.orig_len);
-	wth->phdr.pkt_encap = wth->encapsulation;
+	wth->phdr.pkt_encap = wth->file_encap;
 
 	/* Skip over the padding. */
 	fseek(wth->fh, ntohl(hdr.rec_len) - (sizeof hdr + packet_size),

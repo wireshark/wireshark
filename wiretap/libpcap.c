@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.3 1999/01/07 16:15:36 gram Exp $
+ * $Id: libpcap.c,v 1.4 1999/03/01 18:57:05 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,6 +21,7 @@
  *
  */
 #include "wtap.h"
+#include "buffer.h"
 #include "libpcap.h"
 
 /* See source to the "libpcap" library for information on the "libpcap"
@@ -133,10 +134,8 @@ int libpcap_open(wtap *wth)
 	wth->capture.pcap->version_major = hdr.version_major;
 	wth->capture.pcap->version_minor = hdr.version_minor;
 	wth->subtype_read = libpcap_read;
-	wth->encapsulation = pcap_encap[hdr.network];
+	wth->file_encap = pcap_encap[hdr.network];
 	wth->snapshot_length = hdr.snaplen;
-	/*wth->frame_number = 0;*/
-	/*wth->file_byte_offset = 0x10b;*/
 
 	return WTAP_FILE_PCAP;
 }
@@ -188,9 +187,9 @@ int libpcap_read(wtap *wth)
 	}
 
 	packet_size = hdr.incl_len;
-	buffer_assure_space(&wth->frame_buffer, packet_size);
+	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
-	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
+	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
@@ -207,7 +206,7 @@ int libpcap_read(wtap *wth)
 	wth->phdr.ts.tv_usec = hdr.ts_usec;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = hdr.orig_len;
-	wth->phdr.pkt_encap = wth->encapsulation;
+	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
 }

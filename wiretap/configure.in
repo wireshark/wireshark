@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.6 1999/01/13 04:14:29 gerald Exp $
+# $Id: configure.in,v 1.7 1999/03/01 18:57:03 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(wtap.c)
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
@@ -17,9 +17,15 @@ else
   AC_MSG_RESULT(no)
 fi
 
-# GTK checks (copied from ethereal)
-AM_PATH_GTK(1.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
-                   AC_MSG_ERROR(GTK+ distribution not found.))
+# Checks for glib first, or gtk+ if not present
+AM_PATH_GLIB(1.1.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS",
+                   AC_MSG_WARN(GLIB 1.1.x or above not found.))
+
+if test "x$GLIB_CFLAGS" = x ; then
+ AM_PATH_GTK(1.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
+                    AC_MSG_ERROR(GTK+ library not found.))
+ AC_DEFINE(HAVE_GLIB10)
+fi
 
 # Wiretap check (copied and modified from ethereal)
 AC_MSG_CHECKING(whether to include wiretap library)

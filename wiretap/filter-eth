@@ -1,0 +1,38 @@
+# filter-eth
+#
+# Ethernet Filter
+#
+
+protocol eth "Ethernet";
+#length variable;
+parents none;
+
+field	src		"Source Hardware Address",
+				ether,
+				byte_offset(6);
+
+field	dst		"Destination Hardware Address",
+				ether,
+				byte_offset(0);
+
+field	srcvendor	"Vendor of Source Hardware Address",
+				byte[3],
+				byte_offset(6);
+
+field	dstvendor	"Vendor of Destination Hardware Address",
+				byte[3],
+				byte_offset(0);
+
+alias	src		srcaddr;
+alias	dst		dest, dstaddr, destaddr;
+
+field	addr		"Hardware Address",
+				ether,
+				either_of(src, dst);
+
+alias	addr		hwaddr;
+
+field	vendor		"Hardware Vendor",
+				byte[3],
+				either_of(srcvendor, dstvendor);
+

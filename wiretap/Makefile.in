@@ -58,6 +58,9 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CC = @CC@
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_CONFIG = @GLIB_CONFIG@
+GLIB_LIBS = @GLIB_LIBS@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
@@ -67,17 +70,30 @@ PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
+bin_PROGRAMS = wiretap filterc
 noinst_LIBRARIES = @LIBWIRETAP_A@
 
 EXTRA_LIBRARIES = libwiretap.a
 
-CLEANFILES = libwiretap.a
+CLEANFILES = \
+	libwiretap.a		\
+	filterc 		\
+	*~ 			\
+	ct-grammar.c		\
+	ct-scanner.c		\
+	ct-tokdefs.h		\
+	rt-grammar.c		\
+	rt-grammar.y		\
+	rt-scanner.c		\
+	rt-scanner.l		\
+	rt-tokdefs.h
 
 libwiretap_a_SOURCES = \
+	bpf.c			\
+	bpf-engine.c		\
 	buffer.c		\
 	buffer.h		\
 	config.h		\
-	debug.h			\
 	file.c			\
 	iptrace.c		\
 	iptrace.h		\
@@ -91,10 +107,35 @@ libwiretap_a_SOURCES = \
 	netxray.h		\
 	ngsniffer.c		\
 	ngsniffer.h		\
+	rt-compile.c		\
+	rt-grammar.c		\
+	rt-scanner.c		\
 	snoop.c			\
 	snoop.h			\
 	wtap.c			\
 	wtap.h
+
+filterc_SOURCES = \
+	ct-compile.c		\
+	ct-grammar.c		\
+	ct-main.c		\
+	ct-scanner.c		\
+	glib-new.c
+
+FILTERS = \
+	filter-eth		\
+	filter-tr
+
+CT_YACC=bison -y
+CT_LEX=flex -i
+RT_YACC=bison -y -p wtap_
+RT_LEX=flex -i -Pwtap_
+
+wiretap_SOURCES = \
+	wiretap.c 		\
+	glib-new.c
+
+wiretap_LDADD = libwiretap.a
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
 CONFIG_HEADER = config.h
@@ -107,9 +148,20 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libwiretap_a_LIBADD = 
-libwiretap_a_OBJECTS =  buffer.o file.o iptrace.o lanalyzer.o libpcap.o \
-netmon.o netxray.o ngsniffer.o snoop.o wtap.o
+libwiretap_a_OBJECTS =  bpf.o bpf-engine.o buffer.o file.o iptrace.o \
+lanalyzer.o libpcap.o netmon.o netxray.o ngsniffer.o rt-compile.o \
+rt-grammar.o rt-scanner.o snoop.o wtap.o
 AR = ar
+PROGRAMS =  $(bin_PROGRAMS)
+
+wiretap_OBJECTS =  wiretap.o glib-new.o
+wiretap_DEPENDENCIES =  libwiretap.a
+wiretap_LDFLAGS = 
+filterc_OBJECTS =  ct-compile.o ct-grammar.o ct-main.o ct-scanner.o \
+glib-new.o
+filterc_LDADD = $(LDADD)
+filterc_DEPENDENCIES = 
+filterc_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LINK = $(CC) $(CFLAGS) $(LDFLAGS) -o $@
@@ -122,13 +174,16 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP = --best
-DEP_FILES =  .deps/buffer.P .deps/file.P .deps/iptrace.P \
+DEP_FILES =  .deps/bpf-engine.P .deps/bpf.P .deps/buffer.P \
+.deps/ct-compile.P .deps/ct-grammar.P .deps/ct-main.P \
+.deps/ct-scanner.P .deps/file.P .deps/glib-new.P .deps/iptrace.P \
 .deps/lanalyzer.P .deps/libpcap.P .deps/netmon.P .deps/netxray.P \
-.deps/ngsniffer.P .deps/snoop.P .deps/wtap.P
-SOURCES = $(libwiretap_a_SOURCES)
-OBJECTS = $(libwiretap_a_OBJECTS)
+.deps/ngsniffer.P .deps/rt-compile.P .deps/rt-grammar.P \
+.deps/rt-scanner.P .deps/snoop.P .deps/wiretap.P .deps/wtap.P
+SOURCES = $(libwiretap_a_SOURCES) $(wiretap_SOURCES) $(filterc_SOURCES)
+OBJECTS = $(libwiretap_a_OBJECTS) $(wiretap_OBJECTS) $(filterc_OBJECTS)
 
-all: Makefile $(LIBRARIES) config.h
+all: Makefile $(LIBRARIES) $(PROGRAMS) config.h
 
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
@@ -197,6 +252,39 @@ libwiretap.a: $(libwiretap_a_OBJECTS) $(libwiretap_a_DEPENDENCIES)
 	-rm -f libwiretap.a
 	$(AR) cru libwiretap.a $(libwiretap_a_OBJECTS) $(libwiretap_a_LIBADD)
 	$(RANLIB) libwiretap.a
+
+mostlyclean-binPROGRAMS:
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+distclean-binPROGRAMS:
+
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`"; \
+	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`; \
+	done
+
+wiretap: $(wiretap_OBJECTS) $(wiretap_DEPENDENCIES)
+	@rm -f wiretap
+	$(LINK) $(wiretap_LDFLAGS) $(wiretap_OBJECTS) $(wiretap_LDADD) $(LIBS)
+
+filterc: $(filterc_OBJECTS) $(filterc_DEPENDENCIES)
+	@rm -f filterc
+	$(LINK) $(filterc_LDFLAGS) $(filterc_OBJECTS) $(filterc_LDADD) $(LIBS)
 
 tags: TAGS
 
@@ -299,7 +387,7 @@ dvi:
 check: all
 	$(MAKE)
 installcheck:
-install-exec: 
+install-exec: install-binPROGRAMS
 	@$(NORMAL_INSTALL)
 
 install-data: 
@@ -308,11 +396,12 @@ install-data:
 install: install-exec install-data all
 	@:
 
-uninstall: 
+uninstall: uninstall-binPROGRAMS
 
 install-strip:
 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
 installdirs:
+	$(mkinstalldirs)  $(DATADIR)$(bindir)
 
 
 mostlyclean-generic:
@@ -330,20 +419,21 @@ maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 mostlyclean:  mostlyclean-hdr mostlyclean-noinstLIBRARIES \
-		mostlyclean-compile mostlyclean-tags mostlyclean-depend \
-		mostlyclean-generic
+		mostlyclean-compile mostlyclean-binPROGRAMS \
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
-clean:  clean-hdr clean-noinstLIBRARIES clean-compile clean-tags \
-		clean-depend clean-generic mostlyclean
+clean:  clean-hdr clean-noinstLIBRARIES clean-compile clean-binPROGRAMS \
+		clean-tags clean-depend clean-generic mostlyclean
 
 distclean:  distclean-hdr distclean-noinstLIBRARIES distclean-compile \
-		distclean-tags distclean-depend distclean-generic clean
+		distclean-binPROGRAMS distclean-tags distclean-depend \
+		distclean-generic clean
 	-rm -f config.status
 
 maintainer-clean:  maintainer-clean-hdr maintainer-clean-noinstLIBRARIES \
-		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-depend maintainer-clean-generic \
-		distclean
+		maintainer-clean-compile maintainer-clean-binPROGRAMS \
+		maintainer-clean-tags maintainer-clean-depend \
+		maintainer-clean-generic distclean
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 	-rm -f config.status
@@ -352,13 +442,41 @@ maintainer-clean:  maintainer-clean-hdr maintainer-clean-noinstLIBRARIES \
 mostlyclean-noinstLIBRARIES distclean-noinstLIBRARIES \
 clean-noinstLIBRARIES maintainer-clean-noinstLIBRARIES \
 mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile tags mostlyclean-tags distclean-tags \
-clean-tags maintainer-clean-tags distdir mostlyclean-depend \
-distclean-depend clean-depend maintainer-clean-depend info dvi \
-installcheck install-exec install-data install uninstall all \
-installdirs mostlyclean-generic distclean-generic clean-generic \
-maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+maintainer-clean-compile mostlyclean-binPROGRAMS distclean-binPROGRAMS \
+clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
+install-binPROGRAMS tags mostlyclean-tags distclean-tags clean-tags \
+maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
+clean-depend maintainer-clean-depend info dvi installcheck install-exec \
+install-data install uninstall all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
 
+
+ct-grammar.c : ct-grammar.y
+	@rm -f $@ ct-tokdefs.h
+	$(CT_YACC) -d $<
+	mv y.tab.c ct-grammar.c
+	mv y.tab.h ct-tokdefs.h
+
+ct-scanner.c : ct-scanner.l
+	@rm -f $@
+	$(CT_LEX) -t $< > $@
+
+rt-scanner.l : rt-scanner-skel.l filterc
+	cat $(FILTERS) | ./filterc > /dev/null
+
+rt-scanner.c : rt-scanner.l rt-grammar.c
+	@rm -f $@
+	$(RT_LEX) -t $< > $@
+
+rt-grammar.y : rt-grammar-skel.y filterc
+	cat $(FILTERS) | ./filterc > /dev/null
+
+rt-grammar.c : rt-grammar.y
+	@rm -f $@ rt-tokdefs.h
+	$(RT_YACC) -d $<
+	mv y.tab.c rt-grammar.c
+	mv y.tab.h rt-tokdefs.h
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
