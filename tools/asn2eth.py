@@ -35,6 +35,17 @@ from __future__ import nested_scopes
 
 import warnings
 
+import re
+import sys
+import os
+import os.path
+import time
+import getopt
+
+import __main__ # XXX blech!
+import lex
+import yacc
+
 # OID name -> number conversion table
 oid_names = {
   '/itu-t' : 0,
@@ -147,7 +158,7 @@ reserved_words = {
     'COMPONENT': 'COMPONENT',
     'PRESENT'  : 'PRESENT',
     'ABSENT'   : 'ABSENT',
-    'DEFINED'  : 'DEFINED',
+#    'DEFINED'  : 'DEFINED',
     'CONSTRAINED' : 'CONSTRAINED',
     'BY'       : 'BY',
     'PLUS-INFINITY'   : 'PLUS_INFINITY',
@@ -210,7 +221,6 @@ tokens = static_tokens.values() \
             'UCASE_IDENT', 'LCASE_IDENT',
             'NUMBER', 'PYQUOTE']
 
-import __main__ # XXX blech!
 
 for (k, v) in static_tokens.items ():
   __main__.__dict__['t_' + v] = k
@@ -269,10 +279,6 @@ def t_error(t):
     raise LexError
 
     
-import lex
-lexer = lex.lex(debug=0)
-
-import yacc
 
 class Ctx:
     def __init__ (self, defined_dict, indent = 0):
@@ -1103,7 +1109,6 @@ class EthCtx:
       warnings.warn_explicit(msg, UserWarning, '', '')
 
 #--- EthCnf -------------------------------------------------------------------
-import re
 class EthCnf:
   def __init__(self):
     self.tblcfg = {}
@@ -1394,9 +1399,6 @@ class EthCnf:
                                   UserWarning, self.table[t][k]['fn'], self.table[t][k]['lineno'])
 
 #--- EthOut -------------------------------------------------------------------
-import sys
-import os
-import os.path
 class EthOut:
   def __init__(self):
     self.outnm = None
@@ -2454,6 +2456,25 @@ class EnumeratedType (Type):
     out += ectx.eth_type_fn_ftr(tname)
     return out
 
+#--- AnyType -----------------------------------------------------------
+class AnyType (Type):
+  def to_python (self, ctx):
+    return "asn1.ANY"
+
+  def eth_ftype(self):
+    return ('FT_NONE', 'BASE_NONE')
+
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_ANY', '0')
+
+  def eth_type_fn(self, proto, tname, ectx):
+    out = '\n'
+    out += ectx.eth_type_fn_hdr(tname)
+    body = '#error Can not decode %s' % (tname)
+    out += ectx.eth_type_fn_body(tname, body)
+    out += ectx.eth_type_fn_ftr(tname)
+    return out
+
 class Literal (Node):
     def to_python (self, ctx):
         return self.val
@@ -3177,7 +3198,8 @@ def p_Type (t):
 
 # 16.2
 def p_BuiltinType (t):
-  '''BuiltinType : BitStringType
+  '''BuiltinType : AnyType
+                 | BitStringType
                  | BooleanType
                  | CharacterStringType
                  | ChoiceType
@@ -3192,7 +3214,6 @@ def p_BuiltinType (t):
                  | SetType
                  | SetOfType
                  | selection_type
-                 | any_type
                  | TaggedType'''
   t[0] = t[1]
 
@@ -3225,6 +3246,7 @@ def p_BuiltinValue (t):
                   | ObjectIdentifierValue
                   | special_real_val
                   | SignedNumber
+                  | SequenceValue
                   | hex_string
                   | binary_string
                   | char_string''' # XXX we don't support {data} here
@@ -3465,9 +3487,9 @@ def p_element_type_3 (t):
 # XXX get to COMPONENTS later
 
 # 24.17
-#def p_SequenceValue_1 (t):
-#  'SequenceValue : LBRACE RBRACE'
-#  t[0] = []
+def p_SequenceValue_1 (t):
+  'SequenceValue : LBRACE RBRACE'
+  t[0] = []
 
 
 #def p_SequenceValue_2 (t):
@@ -3605,13 +3627,13 @@ def p_Class_2 (t):
     t[0] = 'CONTEXT'
 
 
-def p_any_type_1 (t):
-    'any_type : ANY'
-    t[0] = Literal (val='asn1.ANY')
+def p_AnyType (t):
+    'AnyType : ANY'
+    t[0] = AnyType ()
 
-def p_any_type_2 (t):
-    'any_type : ANY DEFINED BY identifier'
-    t[0] = Literal (val='asn1.ANY_constr(def_by="%s")' % t[4]) # XXX
+#def p_any_type_2 (t):
+#    'any_type : ANY DEFINED BY identifier'
+#    t[0] = Literal (val='asn1.ANY_constr(def_by="%s")' % t[4]) # XXX
 
 
 # 31 Notation for the object identifier type ----------------------------------
@@ -4110,8 +4132,6 @@ def p_ActualParameter (t):
 def p_error(t):
     raise ParseError(str(t))
 
-yacc.yacc(method='SLR')
-
 def testlex (s):
     lexer.input (s)
     while 1:
@@ -4216,7 +4236,6 @@ def eth_do_module (ast, ectx):
     ectx.eth_output_dis_tab()
     ectx.conform.unused_report()
 
-import time
 def testyacc(s, fn, defined_dict):
     ast = yacc.parse(s, debug=0)
     time_str = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())
@@ -4226,17 +4245,16 @@ from PyZ3950 import asn1""" % (fn, time_str)
     for module in ast:
       eth_do_module (module, defined_dict)
 
-import sys
-import getopt
 
 # Ethereal compiler
 def eth_usage():
   print """
 asn2eth [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file
   -h|?       : usage
-  -d dbg     : debug output, dbg = [l][y][s][a][t]
+  -d dbg     : debug output, dbg = [l][y][p][s][a][t]
                l - lex 
                y - yacc
+               p - parsing
                s - internal ASN.1 structure
                a - list of assignments
                t - tables
@@ -4303,8 +4321,13 @@ def eth_main():
   f = open(fn, "r")
   s = f.read();
   f.close()
-  lexer.debug=ectx.dbg('l')
-  ast = yacc.parse(s, debug=ectx.dbg('y'))
+  (ld, yd, pd) = (0, 0, 0); 
+  if ectx.dbg('l'): ld = 1
+  if ectx.dbg('y'): yd = 1
+  if ectx.dbg('p'): pd = 2
+  lexer = lex.lex(debug=ld)
+  yacc.yacc(method='SLR', debug=yd)
+  ast = yacc.parse(s, lexer=lexer, debug=pd)
   for module in ast:
     eth_do_module(module, ectx)
 
