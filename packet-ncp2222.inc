@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.45 2002/10/21 18:56:51 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.46 2002/10/22 08:24:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4723,6 +4723,12 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 nds_offset += 4;        
                                 if (nds_reply_buffer > 7)
                                 {                        
+					/*
+					 * XXX - is this present in
+					 * replies to continuation
+					 * messages?  It doesn't appear to
+					 * be.
+					 */
                                         proto_tree_add_uint_format(ncp_tree, hf_nds_reply_error, tvb, nds_offset,
                                                 4, nds_error_code, "NDS Completion Code: 0x%08x, %s",
         				        nds_error_code, nds_error_string);
