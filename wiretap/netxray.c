@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.35 2001/02/13 00:50:05 guy Exp $
+ * $Id: netxray.c,v 1.36 2001/02/14 09:38:10 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -108,7 +108,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
 static double netxray_ticks2double(netxray_ticks *t)
 {
 #	ifdef G_HAVE_GINT64
-	return pletohll(t);
+	return (gint64)pletohll(t);
 #	else
 	return pletohl(&t->lo) +
 	       pletohl(&t->hi) * 4294967296.0;
