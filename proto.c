@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.57 2000/04/03 09:24:11 guy Exp $
+ * $Id: proto.c,v 1.58 2000/04/04 02:34:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -248,7 +248,7 @@ proto_tree_free_node(GNode *node, gpointer data)
 
 /* Finds a record in the hf_info_records array by id. */
 struct header_field_info*
-find_hfinfo_record(int hfindex)
+proto_registrar_get_nth(int hfindex)
 {
 	g_assert(hfindex >= 0 && hfindex < gpa_hfinfo->len);
 	return g_ptr_array_index(gpa_hfinfo, hfindex);
@@ -263,7 +263,7 @@ find_dissector_table(const char *name)
 
 	len = gpa_hfinfo->len;
 	for (i = 0; i < len ; i++) {
-		hfinfo = find_hfinfo_record(i);
+		hfinfo = proto_registrar_get_nth(i);
 		if (strcmp(name, hfinfo->abbrev) == 0)
 			return hfinfo->sub_dissectors;
 	}
@@ -459,7 +459,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, gint start, gint l
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_NONE);
 
 	va_start(ap, format);
@@ -484,7 +484,7 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start, gint leng
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_BYTES);
 
 	va_start(ap, format);
@@ -520,7 +520,7 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, gint start, gint lengt
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_ABSOLUTE_TIME ||
 				hfinfo->type == FT_RELATIVE_TIME);
 
@@ -553,7 +553,7 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, gint start, gint len
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_IPXNET);
 
 	va_start(ap, format);
@@ -585,7 +585,7 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, gint start, gint lengt
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_IPv4);
 
 	va_start(ap, format);
@@ -618,7 +618,7 @@ proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, gint start, gint lengt
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_IPv6);
 
 	va_start(ap, format);
@@ -650,7 +650,7 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start, gint len
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_STRING);
 
 	va_start(ap, format);
@@ -683,7 +683,7 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, gint start, gint leng
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_ETHER);
 
 	va_start(ap, format);
@@ -715,7 +715,7 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, gint start, gint le
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_BOOLEAN);
 
 	va_start(ap, format);
@@ -747,7 +747,7 @@ proto_tree_add_double_format(proto_tree *tree, int hfindex, gint start, gint len
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_DOUBLE);
 
 	va_start(ap, format);
@@ -779,7 +779,7 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, gint start, gint lengt
 	if (!tree)
 		return (NULL);
 
-	hfinfo = find_hfinfo_record(hfindex);
+	hfinfo = proto_registrar_get_nth(hfindex);
 	switch(hfinfo->type) {
 		case FT_UINT8:
 		case FT_UINT16:
@@ -828,7 +828,7 @@ proto_tree_add_field_info(int hfindex, gint start, gint length, int visible)
 
 	fi = g_mem_chunk_alloc(gmc_field_info);
 
-	fi->hfinfo = find_hfinfo_record(hfindex);
+	fi->hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(fi->hfinfo != NULL);
 	fi->start = start;
 	fi->length = length;
@@ -1496,7 +1496,7 @@ char*
 proto_registrar_get_name(int n)
 {
     struct header_field_info *hfinfo;
-    hfinfo = find_hfinfo_record(n);
+    hfinfo = proto_registrar_get_nth(n);
     if (hfinfo)
         return hfinfo->name;
     else        return NULL;
@@ -1507,7 +1507,7 @@ proto_registrar_get_abbrev(int n)
 {
 	struct header_field_info *hfinfo;
 
-	hfinfo = find_hfinfo_record(n);
+	hfinfo = proto_registrar_get_nth(n);
 	if (hfinfo)
 		return hfinfo->abbrev;
 	else
@@ -1519,7 +1519,7 @@ proto_registrar_get_ftype(int n)
 {
 	struct header_field_info *hfinfo;
 
-	hfinfo = find_hfinfo_record(n);
+	hfinfo = proto_registrar_get_nth(n);
 	if (hfinfo)
 		return hfinfo->type;
 	else
@@ -1531,7 +1531,7 @@ proto_registrar_get_parent(int n)
 {
 	struct header_field_info *hfinfo;
 
-	hfinfo = find_hfinfo_record(n);
+	hfinfo = proto_registrar_get_nth(n);
 	if (hfinfo)
 		return hfinfo->parent;
 	else
@@ -1543,7 +1543,7 @@ proto_registrar_is_protocol(int n)
 {
 	struct header_field_info *hfinfo;
 
-	hfinfo = find_hfinfo_record(n);
+	hfinfo = proto_registrar_get_nth(n);
 	if (hfinfo)
 		return (hfinfo->parent == -1 ? TRUE : FALSE);
 	else
@@ -1559,7 +1559,7 @@ proto_registrar_get_length(int n)
 {
 	struct header_field_info *hfinfo;
 
-	hfinfo = find_hfinfo_record(n);
+	hfinfo = proto_registrar_get_nth(n);
 	if (!hfinfo)
 		return -1;
 
@@ -1726,7 +1726,7 @@ proto_registrar_dump(void)
 
 	len = gpa_hfinfo->len;
 	for (i = 0; i < len ; i++) {
-		hfinfo = find_hfinfo_record(i);
+		hfinfo = proto_registrar_get_nth(i);
 
 		/* format for protocols */
 		if (proto_registrar_is_protocol(i)) {
@@ -1734,7 +1734,7 @@ proto_registrar_dump(void)
 		}
 		/* format for header fields */
 		else {
-			parent_hfinfo = find_hfinfo_record(hfinfo->parent);
+			parent_hfinfo = proto_registrar_get_nth(hfinfo->parent);
 			g_assert(parent_hfinfo);
 
 			switch(hfinfo->type) {

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.26 2000/04/03 09:24:12 guy Exp $
+ * $Id: proto.h,v 1.27 2000/04/04 02:34:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -340,7 +340,7 @@ char* proto_registrar_get_name(int n);
 char* proto_registrar_get_abbrev(int n);
 
 /* get the header field information based upon a field or protocol id */
-struct header_field_info* find_hfinfo_record(int hfindex);
+struct header_field_info* proto_registrar_get_nth(int hfindex);
 
 /* get the dissector table based upon a field or protocol name */
 dissector_table_t find_dissector_table(const char *name);

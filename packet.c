@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.70 2000/04/03 09:24:08 guy Exp $
+ * $Id: packet.c,v 1.71 2000/04/04 02:34:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1299,7 +1299,7 @@ dissector_table_t register_dissector_table( int id){
 /* 	by glib and we don't have to create hashing or comparison funtcions. */
 	
 
-	header_field_info *hfinfo = find_hfinfo_record(id);
+	header_field_info *hfinfo = proto_registrar_get_nth(id);
 
 	g_assert( hfinfo);	
 		
