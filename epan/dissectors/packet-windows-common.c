@@ -1779,6 +1779,15 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* size */
 	size = tvb_get_letohs(tvb, offset);
+	if (size < 4) {
+		/*
+		 * BOGUS - the size includes the ACE header length,
+		 * which is 4.
+		 */
+		proto_tree_add_uint_format(tree, hf_nt_ace_size, tvb, offset, 2,
+		    size, "Size: %u (bogus, must be >= 4)", size);
+		return old_offset;	/* our caller quits in this case */
+	}
 	proto_tree_add_uint(tree, hf_nt_ace_size, tvb, offset, 2, size);
 	offset += 2;
 
@@ -1814,7 +1823,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset = offset;
-    int pre_ace_offset;
+	int pre_ace_offset;
 	guint8  revision;
 	guint32 num_aces;
 
@@ -1825,7 +1834,20 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/* revision */
-    revision = tvb_get_letohs(tvb, offset);
+	/*
+	 * XXX - is this *really* 2 bytes?  The page at
+	 *
+	 *	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthz/security/acl.asp
+	 *
+	 * indicates that it's one byte of revision and one byte of
+	 * zero padding, which means the code that used to be here
+	 * was correct - and this code would give the same results
+	 * as long as the padding is zero, so if this dissects it
+	 * correctly when the padding is zero, and the padding is
+	 * always zero, the old code would dissect it correctly
+	 * also.
+	 */
+	revision = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_nt_acl_revision,
 		tvb, offset, 2, revision);
 	offset += 2;
@@ -1838,17 +1860,26 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  offset += 2;
 
 	  /* number of ace structures */
+	  /*
+	   * XXX - is this *really* 4 bytes?  The page referred to above
+	   * says it's 2 bytes of count followed by two bytes of
+	   * zero padding.
+	   */
 	  num_aces = tvb_get_letohl(tvb, offset);
 	  proto_tree_add_uint(tree, hf_nt_acl_num_aces,
 			      tvb, offset, 4, num_aces);
 	  offset += 4;
 
-      while(num_aces--){
-          pre_ace_offset = offset;
-          offset=dissect_nt_v2_ace(tvb, offset, pinfo, tree, drep, ami);
-          if (pre_ace_offset == offset) 
-              break;
-      }
+	  while(num_aces--){
+		pre_ace_offset = offset;
+		offset = dissect_nt_v2_ace(tvb, offset, pinfo, tree, drep, ami);
+		if (pre_ace_offset == offset) {
+			/*
+			 * Bogus ACE, with a length < 4.
+			 */
+			break;
+		}
+	  }
 	}
 
 	proto_item_set_len(item, offset-old_offset);
