@@ -698,7 +698,7 @@ dissect_PNDCP_Block(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* subtree for block */
 	block_item = proto_tree_add_none_format(tree, hf_pn_dcp_block, 
-		tvb, offset, block_length, "");
+		tvb, offset, block_length, "Block: ");
 	block_tree = proto_item_add_subtree(block_item, ett_pn_dcp_block);
 
 
@@ -833,7 +833,7 @@ dissect_PNDCP_Data_heur(tvbuff_t *tvb,
 
 
     /* the tvb will NOT contain the frame_id here, so get it from our private data! */
-    u16FrameID = GPOINTER_TO_INT(pinfo->private_data);
+    u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
 	/* frame id must be in valid range (acyclic Real-Time, DCP) */
 	if (u16FrameID < FRAME_ID_UC || u16FrameID > FRAME_ID_MC_RESP) {
@@ -844,7 +844,7 @@ dissect_PNDCP_Data_heur(tvbuff_t *tvb,
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PN-DCP");
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "");
+      col_add_str(pinfo->cinfo, COL_INFO, "");
 
     /* subtree for DCP */
 	item = proto_tree_add_protocol_format(tree, proto_pn_dcp, tvb, 0, tvb_get_ntohs(tvb, 8) + 10,
@@ -887,7 +887,7 @@ proto_register_pn_dcp (void)
 	{ &hf_pn_dcp_result,
 		{ "Result", "pn_dcp.result", FT_UINT8, BASE_DEC, VALS(pn_dcp_result), 0x0, "", HFILL }},
 	{ &hf_pn_dcp_block,
-		{ "DCPBlock", "pn_dcp.block", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ "Block", "pn_dcp.block", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_dcp_req_status,
 		{ "Status", "pn_dcp.req_status", FT_UINT16, BASE_DEC, VALS(pn_dcp_req_status), 0x0, "", HFILL }},
 	{ &hf_pn_dcp_res_status,

@@ -976,8 +976,14 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 			    "(Call redirection or deflection notification)", fac);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_call_transfer);
 		    byte1 = tvb_get_guint8(tvb, *offset+1);
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
-			    "Length : %u", byte1);
+		    if (byte1 < 2) {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Bogus length : %d", byte1);
+			return;
+		    } else {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Length : %u", byte1);
+		    }
 		    byte2 = tvb_get_guint8(tvb, *offset+2);
 		    if ((byte2 & 0xC0) == 0xC0) {
 			proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
@@ -1040,8 +1046,14 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_calling_addr_ext);
 		    byte1 = tvb_get_guint8(tvb, *offset+1);
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
-			    "Length : %u", byte1);
+		    if (byte1 < 1) {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Bogus length : %d", byte1);
+			return;
+		    } else {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Length : %u", byte1);
+		    }
 		    byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
 		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
 			    "Number of semi-octets in DTE address : %u", byte2);
@@ -1073,8 +1085,14 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_called_addr_ext);
 		    byte1 = tvb_get_guint8(tvb, *offset+1);
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
-			    "Length : %u", byte1);
+		    if (byte1 < 1) {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Bogus length : %d", byte1);
+			return;
+		    } else {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Length : %u", byte1);
+		    }
 		    byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
 		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
 			    "Number of semi-octets in DTE address : %u", byte2);
@@ -1118,8 +1136,14 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_call_deflect);
 		    byte1 = tvb_get_guint8(tvb, *offset+1);
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
-			    "Length : %u", byte1);
+		    if (byte1 < 2) {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Bogus length : %d", byte1);
+			return;
+		    } else {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Length : %u", byte1);
+		    }
 		    byte2 = tvb_get_guint8(tvb, *offset+2);
 		    if ((byte2 & 0xC0) == 0xC0)
 			proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,

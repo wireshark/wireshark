@@ -2,7 +2,7 @@
  * Routines for PROFINET IO dissection
  * (based on DCE-RPC and PN-RT protocols)
  *
- * $ID: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1007,12 +1007,14 @@ dissect_PNIO_Data(tvbuff_t *tvb, int offset,
     proto_item *data_item;
 /*	proto_tree *data_tree;*/
 
-	data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, 0, tvb_length(tvb),
+
+    data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, 0, tvb_length(tvb),
 				"PROFINET IO Data: %u bytes", tvb_length(tvb));
+
 #if 0
+    /* XXX - remaining bytes: dissection not yet implemented */
     data_tree = proto_item_add_subtree(data_item, ett_pn_io_rta);
 
-    /* XXX - remaining bytes: dissection not yet implemented */
     proto_tree_add_string_format(data_tree, hf_pn_io_data, tvb, 0, tvb_length(tvb), "data", 
         "PN-IO Data: %u bytes", tvb_length(tvb));
 #endif
@@ -1135,7 +1137,7 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 
 
     /* the sub tvb will NOT contain the frame_id here! */
-    u16FrameID = GPOINTER_TO_INT(pinfo->private_data);
+    u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
     u8CBAVersion = tvb_get_guint8 (tvb, 0);
 

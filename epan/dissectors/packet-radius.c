@@ -3150,7 +3150,7 @@ static const radius_attr_info radius_vendor_3gpp_attrib[] =
 static const value_string the3gpp2_security_level_vals[] = {
   {1,	"IPSec for registration messages (deprecated)"},
   {2,	"IPSec for tunnels (deprecated)"},
-  {3,	"IPSec for tunnels and registration messages"}, 
+  {3,	"IPSec for tunnels and registration messages"},
   {4,	"No IPSec security"},
   {0, NULL}
 };
@@ -3190,9 +3190,59 @@ static const value_string th3gpp2_always_on_vals[] = {
   {0, NULL}
 };
 
+/* http://www.3gpp2.org/Public_html/specs/C.R1001-C_v1.0.pdf */
+static const value_string th3gpp2_service_option_vals[] = {
+  {1,	"Basic Variable Rate Voice Service (8 kbps)"},
+  {2,	"Mobile Station Loopback (8 kbps)"},
+  {3,	"Enhanced Variable Rate Voice Service (8 kbps)"},
+  {4,	"Asynchronous Data Service (9.6 kbps)"},
+  {5,	"Group 3 Facsimile (9.6 kbps)"},
+  {6,	"Short Message Services (Rate Set 1)"},
+  {7,	"Packet Data Service: Internet or ISO Protocol Stack(9.6 kbps)"},
+  {8,	"Packet Data Service: CDPD Protocol Stack(9.6 kbps)"},
+  {9,	"Mobile Station Loopback (13 kbps)"},
+  {10,	"STU-III Transparent Service"},
+  {11,	"STU-III Non-Transparent Service"},
+  {12,	"Asynchronous Data Service (14.4 or 9.6 kbps)"},
+  {13,	"Group 3 Facsimile (14.4 or 9.6 kbps)"},
+  {14,	"Short Message Services (Rate Set 2)"},
+  {15,	"Packet Data Service: Internet or ISO Protocol Stack(14.4 kbps)"},
+  {16,	"Packet Data Service: CDPD Protocol Stack (14.4kbps)"},
+  {17,	"High Rate Voice Service (13 kbps)"},
+  {18,	"Over-the-Air Parameter Administration (Rate Set 1)"},
+  {19,	"Over-the-Air Parameter Administration (Rate Set 2)"},
+  {20,	"Group 3 Analog Facsimile (Rate Set 1)"},
+  {21,	"Group 3 Analog Facsimile (Rate Set 2)"},
+  {22,	"High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)"},
+  {23,	"High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)"},
+  {24,	"High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)"},
+  {25,	"High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS2 reverse)"},
+  {26,	"High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)"},
+  {27,	"High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)"},
+  {28,	"High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)"},
+  {29,	"High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)"},
+  {30,	"Supplemental Channel Loopback Test for Rate Set (Rate Set 1)"},
+  {31,	"Supplemental Channel Loopback Test for Rate Set (Rate Set 2)"},
+  {32,	"Test Data Service Option (TDSO)"},
+  {33,	"cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack"},
+  {34,	"cdma2000 High Speed Packet Data Service, CDPD Protocol Stack"},
+  {35,	"Location Services, Rate Set 1 (9.6 kbps)"},
+  {36,	"Location Services, Rate Set 2 (14.4 kbps)"},
+  {37,	"ISDN Interworking Service (64 kbps)"},
+  {38,	"GSM Voice"},
+  {39,	"GSM Circuit Data"},
+  {40,	"GSM Packet Data"},
+  {41,	"GSM Short Message Service"},
+/* 42 - 53 None Reserved for MC-MAP standard service options */
+  {54,	"GSM Short Message Service"},
+  {55,	"Loopback Service Option (LSO)"},
+  {56,	"Selectable Mode Vocoder"},
+  {0, NULL}
+};
+
 static const radius_attr_info radius_vendor_3gpp2_attrib[] =
 {
-   /* According to 3GPP2 X.S0011-005-C 
+   /* According to 3GPP2 X.S0011-005-C
 	* http://www.3gpp2.org/Public_html/specs/X.S0011-005-C_v1.0_110703.pdf
 	* TODO Dissect the BITSTRING AVP:s further
 	*/
@@ -3210,7 +3260,7 @@ static const radius_attr_info radius_vendor_3gpp2_attrib[] =
    {12,		RADIUS_INTEGER4,		"Forward FCH Mux Option", NULL, NULL},
    {13,		RADIUS_INTEGER4,		"Reverse FCH Mux Option", NULL, NULL},
    {14,		RADIUS_STRING,			"BSID", NULL, NULL},
-   {16,		RADIUS_INTEGER4,		"Service Option", NULL, NULL},
+   {16,		RADIUS_INTEGER4,		"Service Option", th3gpp2_service_option_vals, NULL},
    {17,		RADIUS_INTEGER4,		"Forward Traffic Type", NULL, NULL},
    {18,		RADIUS_INTEGER4,		"Reverse Traffic Type", NULL, NULL},
    {19,		RADIUS_INTEGER4,		"FCH Frame Size", NULL, NULL},
@@ -3982,6 +4032,25 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
 			       attr_info ? attr_info->str : "Unknown Type",
 			       avph.avp_type, avph.avp_length);
     }
+
+    if (avph.avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {  /* Vendor-specific */
+      guint16 vendor, em_type;
+      guint8  type;
+
+      vendor = tvb_get_ntohl(tvb, offset + 2);
+      if (vendor == VENDOR_CABLELABS) {
+        type = tvb_get_guint8(tvb, offset + 6);
+        if (type == PACKETCABLE_EM_HEADER_CODE) {
+          em_type = tvb_get_ntohs(tvb, offset + 34);
+          if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo,COL_INFO," pkt-EM Msg Type=%s(%u)",
+		val_to_str(em_type, radius_vendor_packetcable_event_message_vals, "Unknown"),
+		em_type);
+	  }
+        }
+      }
+    }
+
     if (attr_info != NULL && attr_info->value_type == RADIUS_EAP_MESSAGE) {
       /* EAP Message */
       proto_tree *eap_tree = NULL;
@@ -4150,7 +4219,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint rhlength;
   guint rhcode;
   guint rhident;
-  guint avplength,hdrlength;
+  gint avplength,hdrlength;
   e_radiushdr rh;
   gchar *hex_authenticator;
 
@@ -4163,10 +4232,12 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tvb_memcpy(tvb,(guint8 *)&rh,0,sizeof(e_radiushdr));
 
-  rhcode= rh.rh_code;
-  rhident= rh.rh_ident;
-  rhlength= g_ntohs(rh.rh_pktlength);
-  codestrval=  match_strval(rhcode,radius_vals);
+  rhcode = rh.rh_code;
+  rhident = rh.rh_ident;
+  rhlength = g_ntohs(rh.rh_pktlength);
+  hdrlength = RD_HDR_LENGTH + AUTHENTICATOR_LENGTH;
+  avplength = rhlength - hdrlength;
+  codestrval =  match_strval(rhcode,radius_vals);
   if (codestrval==NULL)
   {
 	codestrval="Unknown Packet";
@@ -4201,8 +4272,14 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 rh.rh_ident, "Packet identifier: 0x%01x (%d)",
 			rhident,rhident);
 
-	proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
+	if (avplength > 0) {
+	    proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
 			2, 2, rhlength);
+	} else {
+	    proto_tree_add_text(radius_tree, tvb, 2, 2, "Bogus header length: %d",
+	    		rhlength);
+	    return;
+	}
 	if ( authenticator ) {
 	    g_free(authenticator);
 	}
@@ -4218,8 +4295,6 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	g_free(hex_authenticator);
   }
 
-  hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
-  avplength= rhlength -hdrlength;
 
   if (avplength > 0) {
     /* list the attribute value pairs */

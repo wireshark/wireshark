@@ -1,5 +1,17 @@
 /* packet-etheric.c
  * Routines for Etheric dissection a Ericsson propriatary protocol.
+ * See
+ *
+ *	http://watersprings.org/pub/id/draft-toivanen-sccp-etheric-00.txt
+ *
+ * XXX - the version in that draft appears to use the same codes for
+ * parameters as ISUP does, although it doesn't use all of them.  Should
+ * we use the ISUP dissector's #defines and tables for them, as we do
+ * now, or should we use our own?
+ *
+ * We also use its table for message types, but have our own #defines
+ * for them; should we adopt the ISUP dissector's #defines, or have our
+ * own table?
  * 
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
@@ -152,176 +164,6 @@ static const value_string protocol_version_vals[] = {
 #define ETHERIC_MESSAGE_TYPE_PRE_RELEASE_INFO  66
 #define ETHERIC_MESSAGE_TYPE_SUBSEQUENT_DIR_NUM 67
 
-
-/* Definition of Parameter Types */
-#define ETHERIC_PARAM_TYPE_END_OF_OPT_PARAMS      0
-#define ETHERIC_PARAM_TYPE_CALL_REF               1
-#define ETHERIC_PARAM_TYPE_TRANSM_MEDIUM_REQU     2
-#define ETHERIC_PARAM_TYPE_ACC_TRANSP             3
-#define ETHERIC_PARAM_TYPE_CALLED_PARTY_NR        4
-#define ETHERIC_PARAM_TYPE_SUBSQT_NR              5
-#define ETHERIC_PARAM_TYPE_NATURE_OF_CONN_IND     6
-#define ETHERIC_PARAM_TYPE_FORW_CALL_IND          7
-#define ETHERIC_PARAM_TYPE_OPT_FORW_CALL_IND      8
-#define ETHERIC_PARAM_TYPE_CALLING_PRTY_CATEG     9
-#define ETHERIC_PARAM_TYPE_CALLING_PARTY_NR      10
-#define ETHERIC_PARAM_TYPE_REDIRECTING_NR        11
-#define ETHERIC_PARAM_TYPE_REDIRECTION_NR        12
-#define ETHERIC_PARAM_TYPE_CONNECTION_REQ        13
-#define ETHERIC_PARAM_TYPE_INFO_REQ_IND          14
-#define ETHERIC_PARAM_TYPE_INFO_IND              15
-#define ETHERIC_PARAM_TYPE_CONTINUITY_IND        16
-#define ETHERIC_PARAM_TYPE_BACKW_CALL_IND        17
-#define ETHERIC_PARAM_TYPE_CAUSE_INDICATORS      18
-#define ETHERIC_PARAM_TYPE_REDIRECTION_INFO      19
-#define ETHERIC_PARAM_TYPE_CIRC_GRP_SV_MSG_TYPE  21
-#define ETHERIC_PARAM_TYPE_RANGE_AND_STATUS      22
-#define ETHERIC_PARAM_TYPE_FACILITY_IND          24
-#define ETHERIC_PARAM_TYPE_CLSD_USR_GRP_ILOCK_CD 26
-#define ETHERIC_PARAM_TYPE_USER_SERVICE_INFO     29
-#define ETHERIC_PARAM_TYPE_SIGNALLING_POINT_CODE 30
-#define ETHERIC_PARAM_TYPE_USER_TO_USER_INFO     32
-#define ETHERIC_PARAM_TYPE_CONNECTED_NR          33
-#define ETHERIC_PARAM_TYPE_SUSP_RESUME_IND       34
-#define ETHERIC_PARAM_TYPE_TRANSIT_NETW_SELECT   35
-#define ETHERIC_PARAM_TYPE_EVENT_INFO            36
-#define ETHERIC_PARAM_TYPE_CIRC_ASSIGN_MAP       37
-#define ETHERIC_PARAM_TYPE_CIRC_STATE_IND        38
-#define ETHERIC_PARAM_TYPE_AUTO_CONG_LEVEL       39
-#define ETHERIC_PARAM_TYPE_ORIG_CALLED_NR        40
-#define ETHERIC_PARAM_TYPE_OPT_BACKW_CALL_IND    41
-#define ETHERIC_PARAM_TYPE_USER_TO_USER_IND      42
-#define ETHERIC_PARAM_TYPE_ORIG_ISC_POINT_CODE   43
-#define ETHERIC_PARAM_TYPE_GENERIC_NOTIF_IND     44
-#define ETHERIC_PARAM_TYPE_CALL_HIST_INFO        45
-#define ETHERIC_PARAM_TYPE_ACC_DELIV_INFO        46
-#define ETHERIC_PARAM_TYPE_NETW_SPECIFIC_FACLTY  47
-#define ETHERIC_PARAM_TYPE_USER_SERVICE_INFO_PR  48
-#define ETHERIC_PARAM_TYPE_PROPAG_DELAY_COUNTER  49
-#define ETHERIC_PARAM_TYPE_REMOTE_OPERATIONS     50
-#define ETHERIC_PARAM_TYPE_SERVICE_ACTIVATION    51
-#define ETHERIC_PARAM_TYPE_USER_TELESERV_INFO    52
-#define ETHERIC_PARAM_TYPE_TRANSM_MEDIUM_USED    53
-#define ETHERIC_PARAM_TYPE_CALL_DIV_INFO         54
-#define ETHERIC_PARAM_TYPE_ECHO_CTRL_INFO        55
-#define ETHERIC_PARAM_TYPE_MSG_COMPAT_INFO       56
-#define ETHERIC_PARAM_TYPE_PARAM_COMPAT_INFO     57
-#define ETHERIC_PARAM_TYPE_MLPP_PRECEDENCE       58
-#define ETHERIC_PARAM_TYPE_MCID_REQ_IND          59
-#define ETHERIC_PARAM_TYPE_MCID_RSP_IND          60
-#define ETHERIC_PARAM_TYPE_HOP_COUNTER           61
-#define ETHERIC_PARAM_TYPE_TRANSM_MEDIUM_RQUR_PR 62
-#define ETHERIC_PARAM_TYPE_LOCATION_NR           63
-#define ETHERIC_PARAM_TYPE_REDIR_NR_RSTRCT       64
-#define ETHERIC_PARAM_TYPE_CALL_TRANS_REF        67
-#define ETHERIC_PARAM_TYPE_LOOP_PREV_IND         68
-#define ETHERIC_PARAM_TYPE_CALL_TRANS_NR         69
-#define ETHERIC_PARAM_TYPE_CCSS                  75
-#define ETHERIC_PARAM_TYPE_FORW_GVNS             76
-#define ETHERIC_PARAM_TYPE_BACKW_GVNS            77
-#define ETHERIC_PARAM_TYPE_REDIRECT_CAPAB        78
-#define ETHERIC_PARAM_TYPE_NETW_MGMT_CTRL        91
-#define ETHERIC_PARAM_TYPE_CORRELATION_ID       101
-#define ETHERIC_PARAM_TYPE_SCF_ID               102
-#define ETHERIC_PARAM_TYPE_CALL_DIV_TREAT_IND   110
-#define ETHERIC_PARAM_TYPE_CALLED_IN_NR         111
-#define ETHERIC_PARAM_TYPE_CALL_OFF_TREAT_IND   112
-#define ETHERIC_PARAM_TYPE_CHARGED_PARTY_IDENT  113
-#define ETHERIC_PARAM_TYPE_CONF_TREAT_IND       114
-#define ETHERIC_PARAM_TYPE_DISPLAY_INFO         115
-#define ETHERIC_PARAM_TYPE_UID_ACTION_IND       116
-#define ETHERIC_PARAM_TYPE_UID_CAPAB_IND        117
-#define ETHERIC_PARAM_TYPE_REDIRECT_COUNTER     119
-#define ETHERIC_PARAM_TYPE_APPLICATON_TRANS	120
-#define ETHERIC_PARAM_TYPE_COLLECT_CALL_REQ     121
-#define ETHERIC_PARAM_TYPE_GENERIC_NR           192
-#define ETHERIC_PARAM_TYPE_GENERIC_DIGITS       193
-
-static const value_string isup_parameter_type_value[] = {
-{ ETHERIC_PARAM_TYPE_END_OF_OPT_PARAMS,        "End of optional parameters"},
-  { ETHERIC_PARAM_TYPE_CALL_REF,               "Call Reference (national use)"},
-  { ETHERIC_PARAM_TYPE_TRANSM_MEDIUM_REQU,     "Transmission medium requirement"},
-  { ETHERIC_PARAM_TYPE_ACC_TRANSP,             "Access transport"},
-  { ETHERIC_PARAM_TYPE_CALLED_PARTY_NR,        "Called party number"},
-  { ETHERIC_PARAM_TYPE_SUBSQT_NR,              "Subsequent number"},
-  { ETHERIC_PARAM_TYPE_NATURE_OF_CONN_IND,     "Nature of connection indicators"},
-  { ETHERIC_PARAM_TYPE_FORW_CALL_IND,          "Forward call indicators"},
-  { ETHERIC_PARAM_TYPE_OPT_FORW_CALL_IND,      "Optional forward call indicators"},
-  { ETHERIC_PARAM_TYPE_CALLING_PRTY_CATEG,     "Calling party's category"},
-  { ETHERIC_PARAM_TYPE_CALLING_PARTY_NR,       "Calling party number"},
-  { ETHERIC_PARAM_TYPE_REDIRECTING_NR,         "Redirecting number"},
-  { ETHERIC_PARAM_TYPE_REDIRECTION_NR,         "Redirection number"},
-  { ETHERIC_PARAM_TYPE_CONNECTION_REQ,         "Connection request"},
-  { ETHERIC_PARAM_TYPE_INFO_REQ_IND,           "Information request indicators (national use)"},
-  { ETHERIC_PARAM_TYPE_INFO_IND,               "Information indicators (national use)"},
-  { ETHERIC_PARAM_TYPE_CONTINUITY_IND,         "Continuity request"},
-  { ETHERIC_PARAM_TYPE_BACKW_CALL_IND,         "Backward call indicators"},
-  { ETHERIC_PARAM_TYPE_CAUSE_INDICATORS,       "Cause indicators"},
-  { ETHERIC_PARAM_TYPE_REDIRECTION_INFO,       "Redirection information"},
-  { ETHERIC_PARAM_TYPE_CIRC_GRP_SV_MSG_TYPE,   "Circuit group supervision message type"},
-  { ETHERIC_PARAM_TYPE_RANGE_AND_STATUS,       "Range and Status"},
-  { ETHERIC_PARAM_TYPE_FACILITY_IND,           "Facility indicator"},
-  { ETHERIC_PARAM_TYPE_CLSD_USR_GRP_ILOCK_CD,  "Closed user group interlock code"},
-  { ETHERIC_PARAM_TYPE_USER_SERVICE_INFO,      "User service information"},
-  { ETHERIC_PARAM_TYPE_SIGNALLING_POINT_CODE,  "Signalling point code (national use)"},
-  { ETHERIC_PARAM_TYPE_USER_TO_USER_INFO,      "User-to-user information"},
-  { ETHERIC_PARAM_TYPE_CONNECTED_NR,           "Connected number"},
-  { ETHERIC_PARAM_TYPE_SUSP_RESUME_IND,        "Suspend/Resume indicators"},
-  { ETHERIC_PARAM_TYPE_TRANSIT_NETW_SELECT,    "Transit network selection (national use)"},
-  { ETHERIC_PARAM_TYPE_EVENT_INFO,             "Event information"},
-  { ETHERIC_PARAM_TYPE_CIRC_ASSIGN_MAP,        "Circuit assignment map"},
-  { ETHERIC_PARAM_TYPE_CIRC_STATE_IND,         "Circuit state indicator (national use)"},
-  { ETHERIC_PARAM_TYPE_AUTO_CONG_LEVEL,        "Automatic congestion level"},
-  { ETHERIC_PARAM_TYPE_ORIG_CALLED_NR,         "Original called number"},
-  { ETHERIC_PARAM_TYPE_OPT_BACKW_CALL_IND,     "Backward call indicators"},
-  { ETHERIC_PARAM_TYPE_USER_TO_USER_IND,       "User-to-user indicators"},
-  { ETHERIC_PARAM_TYPE_ORIG_ISC_POINT_CODE,    "Origination ISC point code"},
-  { ETHERIC_PARAM_TYPE_GENERIC_NOTIF_IND,      "Generic notification indicator"},
-  { ETHERIC_PARAM_TYPE_CALL_HIST_INFO,         "Call history information"},
-  { ETHERIC_PARAM_TYPE_ACC_DELIV_INFO,         "Access delivery information"},
-  { ETHERIC_PARAM_TYPE_NETW_SPECIFIC_FACLTY,   "Network specific facility (national use)"},
-  { ETHERIC_PARAM_TYPE_USER_SERVICE_INFO_PR,   "User service information prime"},
-  { ETHERIC_PARAM_TYPE_PROPAG_DELAY_COUNTER,   "Propagation delay counter"},
-  { ETHERIC_PARAM_TYPE_REMOTE_OPERATIONS,      "Remote operations (national use)"},
-  { ETHERIC_PARAM_TYPE_SERVICE_ACTIVATION,     "Service activation"},
-  { ETHERIC_PARAM_TYPE_USER_TELESERV_INFO,     "User teleservice information"},
-  { ETHERIC_PARAM_TYPE_TRANSM_MEDIUM_USED,     "Transmission medium used"},
-  { ETHERIC_PARAM_TYPE_CALL_DIV_INFO,          "Call diversion information"},
-  { ETHERIC_PARAM_TYPE_ECHO_CTRL_INFO,         "Echo control information"},
-  { ETHERIC_PARAM_TYPE_MSG_COMPAT_INFO,        "Message compatibility information"},
-  { ETHERIC_PARAM_TYPE_PARAM_COMPAT_INFO,      "Parameter compatibility information"},
-  { ETHERIC_PARAM_TYPE_MLPP_PRECEDENCE,        "MLPP precedence"},
-  { ETHERIC_PARAM_TYPE_MCID_REQ_IND,           "MCID request indicators"},
-  { ETHERIC_PARAM_TYPE_MCID_RSP_IND,           "MCID response indicators"},
-  { ETHERIC_PARAM_TYPE_HOP_COUNTER,            "Hop counter"},
-  { ETHERIC_PARAM_TYPE_TRANSM_MEDIUM_RQUR_PR,  "Transmission medium requirement prime"},
-  { ETHERIC_PARAM_TYPE_LOCATION_NR,            "Location number"},
-  { ETHERIC_PARAM_TYPE_REDIR_NR_RSTRCT,        "Redirection number restriction"},
-  { ETHERIC_PARAM_TYPE_CALL_TRANS_REF,         "Call transfer reference"},
-  { ETHERIC_PARAM_TYPE_LOOP_PREV_IND,          "Loop prevention indicators"},
-  { ETHERIC_PARAM_TYPE_CALL_TRANS_NR,          "Call transfer number"},
-  { ETHERIC_PARAM_TYPE_CCSS,                   "CCSS"},
-  { ETHERIC_PARAM_TYPE_FORW_GVNS,              "Forward GVNS"},
-  { ETHERIC_PARAM_TYPE_BACKW_GVNS,             "Backward GVNS"},
-  { ETHERIC_PARAM_TYPE_REDIRECT_CAPAB,         "Redirect capability (reserved for national use)"},
-  { ETHERIC_PARAM_TYPE_NETW_MGMT_CTRL,         "Network management controls"},
-  { ETHERIC_PARAM_TYPE_CORRELATION_ID,         "Correlation id"},
-  { ETHERIC_PARAM_TYPE_SCF_ID,                 "SCF id"},
-  { ETHERIC_PARAM_TYPE_CALL_DIV_TREAT_IND,     "Call diversion treatment indicators"},
-  { ETHERIC_PARAM_TYPE_CALLED_IN_NR,           "Called IN number"},
-  { ETHERIC_PARAM_TYPE_CALL_OFF_TREAT_IND,     "Call offering treatment indicators"},
-  { ETHERIC_PARAM_TYPE_CHARGED_PARTY_IDENT,    "Charged party identification (national use)"},
-  { ETHERIC_PARAM_TYPE_CONF_TREAT_IND,         "Conference treatment indicators"},
-  { ETHERIC_PARAM_TYPE_DISPLAY_INFO,           "Display information"},
-  { ETHERIC_PARAM_TYPE_UID_ACTION_IND,         "UID action indicators"},
-  { ETHERIC_PARAM_TYPE_UID_CAPAB_IND,          "UID capability indicators"},
-  { ETHERIC_PARAM_TYPE_REDIRECT_COUNTER,       "Redirect counter (reserved for national use)"},
-  { ETHERIC_PARAM_TYPE_COLLECT_CALL_REQ,       "Collect call request"},
-  { ETHERIC_PARAM_TYPE_GENERIC_NR,             "Generic number"},
-  { ETHERIC_PARAM_TYPE_GENERIC_DIGITS,         "Generic digits (national use)"},
-  { ETHERIC_PARAM_TYPE_APPLICATON_TRANS,       "Application transport"},
-  { 0,                                 NULL}};
-
 static const true_false_string isup_ISDN_originating_access_ind_value = {
   "originating access ISDN",
   "originating access non-ISDN"
@@ -340,12 +182,6 @@ static const value_string isup_calling_partys_category_value[] = {
   /* q.763-200212Amd2 */
   { 14,	"Reserved"},
   { 15,	"Reserved"},
-  { 0,	NULL}};
-static const value_string isup_transmission_medium_requirement_value[] = {
-  { 0,	"speech"},
-  { 1,	"64 kbit/s restricted"},
-  { 2,	"64 kbit/s unrestricted"},
-  { 3,	"3.1 khz audio"},
   { 0,	NULL}};
 
 static const true_false_string isup_odd_even_ind_value = {
@@ -897,7 +733,7 @@ dissect_etheric_release_message(tvbuff_t *message_tvb, proto_tree *etheric_tree)
   gint parameter_type, parameter_pointer, parameter_length;
 
   /* Do stuff for mandatory variable parameter Cause indicators */
-  parameter_type =  ETHERIC_PARAM_TYPE_CAUSE_INDICATORS;
+  parameter_type =  PARAM_TYPE_CAUSE_INDICATORS;
 
   parameter_pointer = 0;
   parameter_length = 1;
@@ -951,7 +787,7 @@ dissect_etheric_initial_address_message(tvbuff_t *message_tvb, proto_tree *ether
   gint parameter_type, parameter_pointer, parameter_length, actual_length;
 
   /* Do stuff for 1nd mandatory fixed parameter: Forward Call Indicators */
-  parameter_type =  ETHERIC_PARAM_TYPE_FORW_CALL_IND;
+  parameter_type =  PARAM_TYPE_FORW_CALL_IND;
   parameter_item = proto_tree_add_text(etheric_tree, message_tvb, offset,
 				       1,
 				       "Forward Call Indicators");
@@ -964,7 +800,7 @@ dissect_etheric_initial_address_message(tvbuff_t *message_tvb, proto_tree *ether
   offset +=  1;
 
   /* Do stuff for 2nd mandatory fixed parameter: Calling party's category */
-  parameter_type = ETHERIC_PARAM_TYPE_CALLING_PRTY_CATEG;
+  parameter_type = PARAM_TYPE_CALLING_PRTY_CATEG;
   parameter_item = proto_tree_add_text(etheric_tree, message_tvb, offset,
 				       1, "Calling Party's category");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_etheric_parameter);
@@ -974,7 +810,7 @@ dissect_etheric_initial_address_message(tvbuff_t *message_tvb, proto_tree *ether
   dissect_etheric_calling_partys_category_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += 1;
   /* Do stuff for 3d mandatory fixed parameter: Transmission medium requirement */
-  parameter_type = ETHERIC_PARAM_TYPE_TRANSM_MEDIUM_REQU;
+  parameter_type = PARAM_TYPE_TRANSM_MEDIUM_REQU;
   parameter_item = proto_tree_add_text(etheric_tree, message_tvb, offset,
 				       1, "Transmission medium requirement");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_etheric_parameter);
@@ -986,7 +822,7 @@ dissect_etheric_initial_address_message(tvbuff_t *message_tvb, proto_tree *ether
 
 
   /* Do stuff for mandatory variable parameter Called party number */
-  parameter_type = ETHERIC_PARAM_TYPE_CALLED_PARTY_NR;
+  parameter_type = PARAM_TYPE_CALLED_PARTY_NR;
   parameter_pointer = tvb_get_guint8(message_tvb, offset);
   parameter_length = tvb_get_guint8(message_tvb, offset + parameter_pointer);
 
@@ -1006,7 +842,7 @@ dissect_etheric_initial_address_message(tvbuff_t *message_tvb, proto_tree *ether
   dissect_etheric_called_party_number_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += 1;
   /* Do stuff for mandatory variable parameter Calling party number */
-  parameter_type = ETHERIC_PARAM_TYPE_CALLING_PARTY_NR;
+  parameter_type = PARAM_TYPE_CALLING_PARTY_NR;
   parameter_pointer = tvb_get_guint8(message_tvb, offset);
   parameter_length = tvb_get_guint8(message_tvb, offset + parameter_pointer);
 
@@ -1039,7 +875,7 @@ dissect_etheric_address_complete_message(tvbuff_t *message_tvb, proto_tree *ethe
   gint parameter_type, actual_length;
 
   /* Do stuff for first mandatory fixed parameter: backward call indicators*/
-  parameter_type = ETHERIC_PARAM_TYPE_BACKW_CALL_IND;
+  parameter_type = PARAM_TYPE_BACKW_CALL_IND;
   parameter_item = proto_tree_add_text(etheric_tree, message_tvb, offset,
 				       1,
 				       "Backward Call Indicators");
@@ -1066,7 +902,7 @@ dissect_etheric_call_progress_message(tvbuff_t *message_tvb, proto_tree *isup_tr
   gint parameter_type, actual_length;
 
   /* Do stuff for first mandatory fixed parameter: Event information*/
-  parameter_type = ETHERIC_PARAM_TYPE_EVENT_INFO;
+  parameter_type = PARAM_TYPE_EVENT_INFO;
   parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset,
 				       1,
 				       "Event information");
@@ -1093,10 +929,10 @@ dissect_etheric_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info
   /* Dissect all optional parameters while end of message isn't reached */
   parameter_type = 0xFF; /* Start-initializiation since parameter_type is used for while-condition */
 
-  while ((tvb_length_remaining(optional_parameters_tvb, offset)  >= 1) && (parameter_type != ETHERIC_PARAM_TYPE_END_OF_OPT_PARAMS)){
+  while ((tvb_length_remaining(optional_parameters_tvb, offset)  >= 1) && (parameter_type != PARAM_TYPE_END_OF_OPT_PARAMS)){
     parameter_type = tvb_get_guint8(optional_parameters_tvb, offset);
 
-    if (parameter_type != ETHERIC_PARAM_TYPE_END_OF_OPT_PARAMS){
+    if (parameter_type != PARAM_TYPE_END_OF_OPT_PARAMS){
       parameter_length = tvb_get_guint8(optional_parameters_tvb, offset + 1);
 
       parameter_item = proto_tree_add_text(etheric_tree, optional_parameters_tvb,
@@ -1115,14 +951,14 @@ dissect_etheric_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info
       if (actual_length > 0){
 	parameter_tvb = tvb_new_subset(optional_parameters_tvb, offset, MIN(parameter_length, actual_length), parameter_length);
 	switch (parameter_type) {
-	case ETHERIC_PARAM_TYPE_USER_SERVICE_INFO:
+	case PARAM_TYPE_USER_SERVICE_INFO:
 	  dissect_etheric_user_service_information_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
-	case ETHERIC_PARAM_TYPE_ACC_TRANSP:
+	case PARAM_TYPE_ACC_TRANSP:
 	  dissect_etheric_access_transport_parameter(parameter_tvb, parameter_tree, parameter_item, pinfo);
 	  break;
 	 
-	case ETHERIC_PARAM_TYPE_LOCATION_NR:
+	case PARAM_TYPE_LOCATION_NR:
 	  dissect_etheric_location_number_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
 
