@@ -2,7 +2,7 @@
  * Routines for arcnet dissection
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: packet-arcnet.c,v 1.8 2003/01/23 09:54:54 guy Exp $
+ * $Id: packet-arcnet.c,v 1.9 2003/01/23 10:11:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -305,6 +305,7 @@ static const value_string arcnet_prot_id_vals[] = {
   {ARCNET_PROTO_APPLETALK,        "Appletalk"},
   {ARCNET_PROTO_BANYAN,           "Banyan VINES"},
   {ARCNET_PROTO_DIAGNOSE,         "Diagnose"},
+  {ARCNET_PROTO_BACNET,           "BACnet"},
   {0,                             NULL}
 };
 
