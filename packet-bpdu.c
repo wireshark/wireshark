@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.1 1999/10/08 20:50:38 guy Exp $
+ * $Id: packet-bpdu.c,v 1.2 1999/10/08 21:20:23 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -156,5 +156,5 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 void
 proto_register_bpdu(void)
 {
-        proto_bpdu = proto_register_protocol("Spanning Tree Protocol", "STP");
+        proto_bpdu = proto_register_protocol("Spanning Tree Protocol", "stp");
 }
