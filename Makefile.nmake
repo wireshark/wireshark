@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.160 2001/12/27 20:58:35 guy Exp $
+# $Id: Makefile.nmake,v 1.161 2002/01/04 06:57:07 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -409,7 +409,8 @@ clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) $(PDB_FILE) \
 		tethereal.obj editcap.obj mergecap.obj text2pcap.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c register.c \
-		rdps.obj rdps.pdb config.h ps.c packet-ncp2222.c register.c
+		rdps.obj rdps.pdb config.h ps.c packet-ncp2222.c register.c \
+		rdps.exe rdps.ilk $(RESOURCES)
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../gtk

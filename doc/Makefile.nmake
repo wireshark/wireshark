@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.5 2001/07/30 21:40:13 guy Exp $
+# $Id: Makefile.nmake,v 1.6 2002/01/04 06:57:08 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,32 +29,17 @@ include ../config.nmake
 doc: ethereal.html tethereal.html editcap.html idl2eth.html \
 	mergecap.html text2pcap.html
 
-#
-# XXX - can't we just use "pod2html" here?
-#
-ethereal.html : ethereal.1
-	man2html ethereal.1 > $@
-
-tethereal.html : tethereal.1
-	man2html tethereal.1 > $@
-
-editcap.html : editcap.1
-	man2html editcap.1 > $@
-
-idl2eth.html : idl2eth.1
-	man2html idl2eth.1 > $@
-
-mergecap.html : mergecap.1
-	man2html mergecap.1 > $@
-
-text2pcap.html : text2pcap.1
-	man2html text2pcap.1 > $@
-
 ethereal.1: ethereal.pod ../config.h
 	$(POD2MAN) ethereal.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> ethereal.1
+
+ethereal.html: ethereal.pod ../config.h
+	$(POD2HTML) ethereal.pod                     \
+	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	> ethereal.html
 
 ethereal.pod: ethereal.pod.template  ../tethereal.exe
 	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl ethereal.pod.template > ethereal.pod
@@ -65,6 +50,12 @@ tethereal.1: tethereal.pod ../config.h
 	--release=$(VERSION)			 \
 	> tethereal.1
 
+tethereal.html: tethereal.pod ../config.h
+	$(POD2HTML) tethereal.pod                     \
+	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	> tethereal.html
+
 tethereal.pod: tethereal.pod.template  ../tethereal.exe
 	..\\tethereal.exe -G | $(PERL) dfilter2pod.pl tethereal.pod.template > tethereal.pod
 
@@ -74,11 +65,23 @@ editcap.1: editcap.pod ../config.h
 	--release=$(VERSION)			 \
 	> editcap.1
 
+editcap.html: editcap.pod ../config.h
+	$(POD2HTML) editcap.pod                     \
+	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	> editcap.html
+
 mergecap.1: mergecap.pod ../config.h
 	$(POD2MAN) mergecap.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> mergecap.1
+
+mergecap.html: mergecap.pod ../config.h
+	$(POD2HTML) mergecap.pod                     \
+	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	> mergecap.html
 
 idl2eth.1: idl2eth.pod ../config.h
 	$(POD2MAN) idl2eth.pod                       \
@@ -86,11 +89,23 @@ idl2eth.1: idl2eth.pod ../config.h
 	--release=$(VERSION)			 \
 	> idl2eth.1
 
+idl2eth.html: idl2eth.pod ../config.h
+	$(POD2HTML) idl2eth.pod                     \
+	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	> idl2eth.html
+
 text2pcap.1: text2pcap.pod ../config.h
 	$(POD2MAN) text2pcap.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> text2pcap.1
+
+text2pcap.html: text2pcap.pod ../config.h
+	$(POD2HTML) text2pcap.pod                     \
+	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	> text2pcap.html
 
 clean:
 	rm -f ethereal.html ethereal.1 ethereal.pod
@@ -99,3 +114,4 @@ clean:
 	rm -f idl2eth.html idl2eth.1
 	rm -f mergecap.html mergecap.1
 	rm -f text2pcap.html text2pcap.1
+	rm -f pod2htm*

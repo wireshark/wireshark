@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.11 2001/12/19 19:16:12 guy Exp $
+; $Id: ethereal.nsi.in,v 1.12 2002/01/04 06:57:09 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -16,8 +16,7 @@ OutFile "ethereal-setup.exe"
 Icon "..\..\image\ethereal.ico"
 
 ; Uninstall stuff
-UninstallText "This will uninstall Etheral. Hit 'Next' to continue."
-UninstallExeName "uninstall.exe"
+UninstallText "This will uninstall Ethereal. Hit 'Next' to continue."
 
 ; ============================================================================
 ; License page configuration
@@ -73,6 +72,7 @@ File "..\..\sunping.xml"
 ; Write the uninstall keys for Windows
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "Ethereal"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "UninstallString" '"$INSTDIR\uninstall.exe"'
+WriteUninstaller "uninstall.exe"
 SectionEnd
 
 Section "Ethereal"
@@ -165,5 +165,5 @@ RMDir "$SMPROGRAMS\Ethereal"
 RMDir "$INSTDIR\plugins\@VERSION@"
 RMDir "$INSTDIR\plugins"
 RMDir "$INSTDIR"
-SectionEnd
 
+SectionEnd

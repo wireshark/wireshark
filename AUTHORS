@@ -915,6 +915,9 @@ Pekka Nikander <pekka.nikander[AT]nomadiclab.com> {
 Hamish Moffatt <hamish[AT]cloud.net.au> {
 	MPLS support for handling either IPv4 or IPv6 as the payload
 	    protocol type
+	Win32 Makefile fixes
+	Use pod2html rather than man2html to build HTML man pages
+	Fix ethereal.nsi.in for recent versions of NSIS
 }
 
 Kazushi Sugyo <k-sugyou[AT]nwsl.mesh.ad.jp> {
