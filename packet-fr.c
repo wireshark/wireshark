@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.11 2001/03/23 21:49:23 guy Exp $
+ * $Id: packet-fr.c,v 1.12 2001/03/23 23:56:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,6 +66,11 @@
 #define	FRELAY_DE	0x0002		/* Discard Eligibility */
 #define	FRELAY_DC	0x0002		/* Control bits */
 
+/*
+ * Extract the DLCI from the address field.
+ */
+#define	EXTRACT_DLCI(addr)	((((addr)&0xfc00) >> 6) | (((addr)&0xf0) >> 4))
+
 #define FROM_DCE	0x80		/* for direction setting */
 
 static gint proto_fr    = -1;
@@ -101,29 +106,13 @@ dissector_table_t fr_subdissector_table;
 static void dissect_lapf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-
-static void add_dlci( tvbuff_t *tvb, proto_tree *tree) {
-
-/* Display this DLCI address. Use special format because the DLCI address */
-/* is a masked bit field with unused bits in the middle. */
-
-
-   char buf[32];
-   guint16 address = (( tvb_get_guint8( tvb, 0)& 0xfc) << 2) 
-			| ((tvb_get_guint8( tvb, 1) & 0xf0) >> 4);
-
-   decode_bitfield_value( buf, tvb_get_ntohs(tvb, 0), FRELAY_DLCI, 16);
-   proto_tree_add_uint_format( tree, hf_fr_dlci, tvb, 0, 2, address, "%sDLCI: %d", 
-      buf, address);
-}
-
-
 static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *fr_tree = NULL;
   guint16 fr_header,fr_type,offset=2; /* default header length of FR is 2 bytes */
   guint16 address;
+  char    buf[32];
   guint8  fr_nlpid,fr_ctrl;
 
   CHECK_DISPLAY_AS_DATA(proto_fr, tvb, pinfo, tree);
@@ -149,7 +138,7 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   fr_header = tvb_get_ntohs(tvb, 0);
   fr_ctrl = tvb_get_guint8( tvb, 2);
-  address = ((fr_header & 0xfc00) >> 6) | ((fr_header & 0xf0) >> 4);
+  address = EXTRACT_DLCI(fr_header);
 
   if (check_col(pinfo->fd, COL_INFO)) 
       col_add_fstr(pinfo->fd, COL_INFO, "DLCI %u", address);
@@ -158,7 +147,9 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, 4, "Frame Relay");
       fr_tree = proto_item_add_subtree(ti, ett_fr);
 
-      add_dlci(tvb, fr_tree); 
+      decode_bitfield_value(buf, fr_header, FRELAY_DLCI, 16);
+      proto_tree_add_uint_format(fr_tree, hf_fr_dlci, tvb, 0, 2, address,
+	"%sDLCI: %u", buf, address);
       proto_tree_add_boolean(fr_tree, hf_fr_cr,   tvb, 0, offset, fr_header);
       proto_tree_add_boolean(fr_tree, hf_fr_fecn, tvb, 0, offset, fr_header);
       proto_tree_add_boolean(fr_tree, hf_fr_becn, tvb, 0, offset, fr_header);
@@ -220,7 +211,7 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_data(tvb_new_subset(tvb,offset,-1,-1), 0, pinfo, tree);
       return;
   } else {
-      if ((fr_header && 0xFCF0) == 0) {
+      if (address == 0) {
 		/* this must be some sort of lapf on DLCI 0 for SVC */
 		/* because DLCI 0 is rezerved for LMI and  SVC signaling encaplulated in lapf */
 		/* and LMI is transmitted in unnumbered information (03) */
