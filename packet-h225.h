@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Tomas Kukosa
  *
- * $Id: packet-h225.h,v 1.4 2003/10/28 00:31:16 guy Exp $
+ * $Id: packet-h225.h,v 1.5 2003/11/16 23:11:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,9 @@ typedef struct _h225_packet_info {
 	gint reason;			/* reason tag, if available */
 	guint requestSeqNum;		/* request sequence number of ras-message, if available */
 	guint8 guid[16];		/* globally unique call id */
+	gboolean is_duplicate;		/* true, if this is a repeated message */
+	gboolean request_available;	/* true, if response matches to a request */
+	nstime_t delta_time; 		/* this is the RAS response time delay */
 } h225_packet_info;
 
 #endif  /* __H225_H__ */

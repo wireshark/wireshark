@@ -615,6 +615,22 @@ on those calls that match that filter.
 Example: use B<-z "h225,counter,ip.addr==1.2.3.4"> to only collect stats for
 H.225 packets exchanged by the host at IP address 1.2.3.4 .
 
+B<-z> h225,srt[I<,filter>]
+
+Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS. 
+Data collected is number of calls of each ITU-T H.225 RAS Message Type,
+Minimum SRT, Maximum SRT, Average SRT, Minimum in Frame, and Maximum in Frame. 
+You will also get the number of Open Requests (Unresponded Requests), 
+Discarded Responses (Responses without matching request) and Duplicate Messages.
+Example: use B<-z h225,srt>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "h225,srt,ip.addr==1.2.3.4"> to only collect stats for
+ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
+
 =back
 
 =head1 CAPTURE FILTER SYNTAX

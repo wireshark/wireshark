@@ -466,6 +466,25 @@ on those calls that match that filter.
 Example: use B<-z "h225,counter,ip.addr==1.2.3.4"> to only collect stats for
 H.225 packets exchanged by the host at IP address 1.2.3.4 .
 
+
+B<-z> h225,srt[I<,filter>]
+
+Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS. 
+Data collected is number of calls of each ITU-T H.225 RAS Message Type,
+Minimum SRT, Maximum SRT, Average SRT, Minimum in Frame, and Maximum in Frame. 
+You will also get the number of Open Requests (Unresponded Requests), 
+Discarded Responses (Responses without matching request) and Duplicate Messages.
+Example: use B<-z h225,srt>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "h225,srt,ip.addr==1.2.3.4"> to only collect stats for
+ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
+
+
+
 =back
 
 =head1 INTERFACE
@@ -1079,7 +1098,7 @@ Below the graph are the LOAD values for each interval that would be calculated.
 
 Collect requests/response SRT (Service Response Time) data for MGCP. 
 Data collected is B<number of calls> for each known MGCP Type, 
-B<Minimum SRT>, B<Maximum SRT> and B<Average SRT>. 
+B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Frame>, and B<Maximum in Frame>. 
 These windows opened will update in semi-real time to reflect changes when
 doing live captures or when reading new capture files into B<Ethereal>.
 
@@ -1098,6 +1117,20 @@ doing live captures or when reading new capture files into B<Ethereal>.
 
 You can apply an optional filter string in a dialog box, before starting
 the counter. The statistics will only be calculated 
+on those calls matching that filter.
+
+=item Tools:Statistics:Service Response Time:ITU-T H.225 RAS
+
+Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS. 
+Data collected is B<number of calls> for each known ITU-T H.225 RAS Message Type,
+B<Minimum SRT>, B<Maximum SRT>, B<Average SRT>, B<Minimum in Frame>, and B<Maximum in Frame>.
+You will also get the number of B<Open Requests> (Unresponded Requests), 
+B<Discarded Responses> (Responses without matching request) and Duplicate Messages.
+These windows opened will update in semi-real time to reflect changes when
+doing live captures or when reading new capture files into B<Ethereal>.
+
+You can apply an optional filter string in a dialog box, before starting
+the calculation. The statistics will only be calculated 
 on those calls matching that filter.
 
 =back

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.651 2003/11/11 08:29:33 guy Exp $
+# $Id: Makefile.am,v 1.652 2003/11/16 23:11:17 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -780,6 +780,8 @@ ETHEREAL_COMMON_SRC = \
 	g711.c		\
 	g711.h		\
 	greproto.h     \
+	h225-persistentdata.c \
+	h225-persistentdata.h \
 	in_cksum.c     \
 	in_cksum.h     \
 	ip_opts.h      \
@@ -916,6 +918,7 @@ TETHEREAL_TAP_SRC = \
 	tap-bootpstat.c		\
 	tap-dcerpcstat.c	\
 	tap-h225counter.c	\
+	tap-h225rassrt.c	\
 	tap-httpstat.c		\
 	tap-iostat.c		\
 	tap-iousers.c		\

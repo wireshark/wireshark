@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.24 2003/11/10 21:42:38 guy Exp $
+ * $Id: packet-h225.c,v 1.25 2003/11/16 23:11:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,12 +43,14 @@
 #include "packet-h225.h"
 #include "packet-h245.h"
 #include "t35.h"
+#include "h225-persistentdata.h"
 
 #define UDP_PORT_RAS1 1718
 #define UDP_PORT_RAS2 1719
 #define TCP_PORT_CS   1720
 
 static void reset_h225_packet_info(h225_packet_info *pi);
+static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
 
 static h225_packet_info h225_pi;
 
@@ -524,6 +526,10 @@ static int hf_h225_nonStandard = -1;
 static int hf_h225_nonStandardReason = -1;
 static int hf_h225_nonStandardAddress = -1;
 static int hf_h225_aliasAddress_sequence = -1;
+static int hf_h225_ras_req_frame = -1;
+static int hf_h225_ras_rsp_frame = -1;
+static int hf_h225_ras_dup = -1;
+static int hf_h225_ras_deltatime = -1;
 /*aaa*/
 
 static gint ett_h225 = -1;
@@ -7150,7 +7156,10 @@ dissect_h225_h323_message_body(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			val_to_str(value, h323_message_body_vals, "<unknown>"));
         }
 
-        h225_pi.msg_tag = value;
+	if (h225_pi.msg_type == H225_CS) {
+		/* Don't override msg_tag value from IRR */
+		h225_pi.msg_tag = value;
+	}
 
 	if (contains_faststart == TRUE )
 	{
@@ -8448,6 +8457,8 @@ dissect_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(value, RasMessage_vals, "<unknown>"));
 	}
 	h225_pi.msg_tag = value;
+
+	ras_call_matching(tvb, pinfo, tr, &(h225_pi));
 
 	tap_queue_packet(h225_tap, pinfo, &h225_pi);
 }
@@ -9900,6 +9911,18 @@ proto_register_h225(void)
 	{ &hf_h225_nonStandardAddress,
 		{ "nonStandardAddress", "h225.nonStandardAddress", FT_NONE, BASE_NONE,
 		NULL, 0, "NonStandardParameter SEQUENCE", HFILL }},
+	{ &hf_h225_ras_req_frame,
+      		{ "RAS Request Frame", "h225.ras.reqframe", FT_FRAMENUM, BASE_NONE,
+      		NULL, 0, "RAS Request Frame", HFILL }},
+  	{ &hf_h225_ras_rsp_frame,
+      		{ "RAS Response Frame", "h225.ras.rspframe", FT_FRAMENUM, BASE_NONE,
+      		NULL, 0, "RAS Response Frame", HFILL }},
+  	{ &hf_h225_ras_dup,
+      		{ "Duplicate RAS Message", "h225.ras.dup", FT_UINT32, BASE_DEC,
+		NULL, 0, "Duplicate RAS Message", HFILL }},
+  	{ &hf_h225_ras_deltatime,
+      		{ "RAS Service Response Time", "h225.ras.timedelta", FT_RELATIVE_TIME, BASE_NONE,
+      		NULL, 0, "Timedelta between RAS-Request and RAS-Response", HFILL }},
 
 /*ddd*/
 	};
@@ -10169,7 +10192,7 @@ proto_register_h225(void)
 		&ett_h225_H221NonStandard,
 		&ett_h225_NonStandardIdentifier,
 		&ett_h225_NonStandardParameter,
-            &ett_h225_aliasAddress_sequence,
+		&ett_h225_aliasAddress_sequence,
 /*eee*/
 	};
 	module_t *h225_module;
@@ -10187,6 +10210,7 @@ proto_register_h225(void)
 	nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE);
 	nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
 
+	register_init_routine(&h225_init_routine);
 	h225_tap = register_tap("h225");
 }
 
@@ -10205,6 +10229,7 @@ proto_reg_handoff_h225(void)
 	dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
 }
 
+
 static void reset_h225_packet_info(h225_packet_info *pi)
 {
 	if(pi == NULL) {
@@ -10216,4 +10241,191 @@ static void reset_h225_packet_info(h225_packet_info *pi)
 	pi->reason = -1;
 	pi->requestSeqNum = 0;
 	memset(pi->guid,0,16);
+	pi->is_duplicate = FALSE;
+	pi->request_available = FALSE;
+}
+
+/*
+	The following function contains the routines for RAS request/response matching.
+	A RAS response matches with a request, if both messages have the same
+	RequestSequenceNumber, belong to the same IP conversation and belong to the same
+	RAS "category" (e.g. Admission, Registration).
+
+	We use hashtables to access the lists of RAS calls (request/response pairs).
+	We have one hashtable for each RAS category. The hashkeys consist of the
+	non-unique 16-bit RequestSequenceNumber and values representing the conversation.
+
+	In big capture files, we might get different requests with identical keys.
+	These requests aren't necessarily duplicates. They might be valid new requests.
+	At the moment we just use the timedelta between the last valid and the new request
+	to decide if the new request is a duplicate or not. There might be better ways.
+	Two thresholds are defined below.
+
+	However the decision is made, another problem arises. We can't just add those
+	requests to our hashtables. Instead we create lists of RAS calls with identical keys.
+	The hashtables for RAS calls contain now pointers to the first RAS call in a list of
+	RAS calls with identical keys.
+	These lists aren't expected to contain more than 3 items and are usually single item
+	lists. So we don't need an expensive but intelligent way to access these lists
+	(e.g. hashtables). Just walk through such a list.
+*/
+
+#define THRESHOLD_REPEATED_RESPONDED_CALL 300
+#define THRESHOLD_REPEATED_NOT_RESPONDED_CALL 1800
+
+static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi)
+{
+	conversation_t* conversation = NULL;
+	h225ras_call_info_key h225ras_call_key;
+	h225ras_call_t *h225ras_call = NULL;
+	nstime_t delta;
+	guint msg_category;
+
+	if(pi->msg_type == H225_RAS && pi->msg_tag < 21) {
+		/* make RAS request/response matching only for tags from 0 to 20 for now */
+
+		msg_category = pi->msg_tag / 3;
+		if(pi->msg_tag % 3 == 0) {		/* Request Message */
+			conversation = find_conversation(&pinfo->src,
+				&pinfo->dst, pinfo->ptype, pinfo->srcport,
+				pinfo->destport, 0);
+
+			if (conversation == NULL) {
+				/* It's not part of any conversation - create a new one. */
+				conversation = conversation_new(&pinfo->src,
+				    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+				    pinfo->destport, 0);
+
+			}
+
+			/* prepare the key data */
+			h225ras_call_key.reqSeqNum = pi->requestSeqNum;
+			h225ras_call_key.conversation = conversation;
+
+			/* look up the request */
+			h225ras_call = find_h225ras_call(&h225ras_call_key ,msg_category);
+
+			if (h225ras_call != NULL) {
+				/* We've seen requests with this reqSeqNum, with the same
+				   source and destination, before - do we have
+				   *this* request already? */
+				/* Walk through list of ras requests with identical keys */
+				do {
+					if (pinfo->fd->num == h225ras_call->req_num) {
+						/* We have seen this request before -> do nothing */
+						break;
+					}
+
+					/* if end of list is reached, exit loop and decide if request is duplicate or not. */
+					if (h225ras_call->next_call == NULL) {
+						if ( (pinfo->fd->num > h225ras_call->rsp_num && h225ras_call->rsp_num != 0
+						   && pinfo->fd->abs_secs > h225ras_call->req_time.secs + THRESHOLD_REPEATED_RESPONDED_CALL )
+						   ||(pinfo->fd->num > h225ras_call->req_num && h225ras_call->rsp_num == 0
+						   && pinfo->fd->abs_secs > h225ras_call->req_time.secs + THRESHOLD_REPEATED_NOT_RESPONDED_CALL ) )
+						{
+							/* if last request has been responded
+							   and this request appears after last response (has bigger frame number)
+							   and last request occured more than 300 seconds ago,
+							   or if last request hasn't been responded
+							   and this request appears after last request (has bigger frame number)
+							   and last request occured more than 1800 seconds ago,
+							   we decide that we have a new request */
+							/* Append new ras call to list */
+							h225ras_call = append_h225ras_call(h225ras_call, pinfo, pi->guid, msg_category);
+						} else {
+							/* No, so it's a duplicate request.
+							   Mark it as such. */
+							pi->is_duplicate = TRUE;
+							proto_tree_add_uint_hidden(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+						}
+						break;
+					}
+					h225ras_call = h225ras_call->next_call;
+				} while (h225ras_call != NULL );
+			}
+			else {
+				h225ras_call = new_h225ras_call(&h225ras_call_key, pinfo, pi->guid, msg_category);
+			}
+
+			/* add link to response frame, if available */
+			if(h225ras_call->rsp_num != 0){
+				proto_tree_add_uint_format(tree, hf_h225_ras_rsp_frame, tvb, 0, 0, h225ras_call->rsp_num,
+					"The response to this request is in frame %u", h225ras_call->rsp_num);
+			}
+
+  		/* end of request message handling*/
+		}
+		else { 					/* Confirm or Reject Message */
+			conversation = find_conversation(&pinfo->src,
+    				&pinfo->dst, pinfo->ptype, pinfo->srcport,
+  				pinfo->destport, 0);
+  			if (conversation != NULL) {
+				/* look only for matching request, if
+				   matching conversation is available. */
+				h225ras_call_key.reqSeqNum = pi->requestSeqNum;
+				h225ras_call_key.conversation = conversation;
+				h225ras_call = find_h225ras_call(&h225ras_call_key ,msg_category);
+				if(h225ras_call) {
+					/* find matching ras_call in list of ras calls with identical keys */
+					do {
+						if (pinfo->fd->num == h225ras_call->rsp_num) {
+							/* We have seen this response before -> stop now with matching ras call */
+							break;
+						}
+
+						/* Break when list end is reached */
+						if(h225ras_call->next_call == NULL) {
+							break;
+						}
+						h225ras_call = h225ras_call->next_call;
+					} while (h225ras_call != NULL) ;
+
+					/* if this is an ACF, ARJ or DCF, DRJ, give guid to tap and make it filterable */
+					if (msg_category == 3 || msg_category == 5) {
+						memcpy(pi->guid, h225ras_call->guid,16);
+						proto_tree_add_bytes_hidden(tree, hf_h225_guid, tvb, 0, 16, pi->guid);
+					}
+
+					if (h225ras_call->rsp_num == 0) {
+						/* We have not yet seen a response to that call, so
+						   this must be the first response; remember its
+						   frame number. */
+						h225ras_call->rsp_num = pinfo->fd->num;
+					}
+					else {
+						/* We have seen a response to this call - but was it
+						   *this* response? */
+						if (h225ras_call->rsp_num != pinfo->fd->num) {
+							/* No, so it's a duplicate response.
+							   Mark it as such. */
+							pi->is_duplicate = TRUE;
+							proto_tree_add_uint_hidden(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+						}
+					}
+
+					if(h225ras_call->req_num != 0){
+						h225ras_call->responded = TRUE;
+						pi->request_available = TRUE;
+
+						/* Indicate the frame to which this is a reply. */
+						proto_tree_add_uint_format(tree, hf_h225_ras_req_frame, tvb, 0, 0, h225ras_call->req_num,
+							"This is a response to a request in frame %u", h225ras_call->req_num);
+
+						/* Calculate RAS Service Response Time */
+						delta.secs= pinfo->fd->abs_secs-h225ras_call->req_time.secs;
+						delta.nsecs=pinfo->fd->abs_usecs*1000-h225ras_call->req_time.nsecs;
+						if(delta.nsecs<0){
+							delta.nsecs+=1000000000;
+							delta.secs--;
+						}
+						pi->delta_time.secs = delta.secs; /* give it to tap */
+						pi->delta_time.nsecs = delta.nsecs;
+
+						/* display Ras Service Response Time and make it filterable */
+						proto_tree_add_time(tree, hf_h225_ras_deltatime, tvb, 0, 0, &(pi->delta_time));
+					}
+				}
+			}
+		}
+	}
 }
