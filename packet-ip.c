@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.46 1999/08/31 23:21:29 guy Exp $
+ * $Id: packet-ip.c,v 1.47 1999/09/14 08:18:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -781,11 +781,11 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     tf = proto_tree_add_item_format(ip_tree, hf_ip_flags, offset +  6, 1, flags,
 		   "Flags: 0x%x", flags);
     field_tree = proto_item_add_subtree(tf, ETT_IP_OFF);
-    proto_tree_add_text(field_tree, offset + 6, 2, "%s",
-      decode_boolean_bitfield(iph.ip_off >> 8, IP_DF >> 8, 8, "don't fragment",
+    proto_tree_add_text(field_tree, offset + 6, 1, "%s",
+      decode_boolean_bitfield(iph.ip_off >> 12, IP_DF >> 12, 4, "don't fragment",
                                            "may fragment"));
-    proto_tree_add_text(field_tree, offset + 6, 2, "%s",
-      decode_boolean_bitfield(iph.ip_off >> 8, IP_MF >> 8, 8, "more fragments",
+    proto_tree_add_text(field_tree, offset + 6, 1, "%s",
+      decode_boolean_bitfield(iph.ip_off >> 12, IP_MF >> 12, 4, "more fragments",
                                            "last fragment"));
 
     proto_tree_add_item(ip_tree, hf_ip_frag_offset, offset +  6, 2,
