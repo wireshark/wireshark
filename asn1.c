@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.17 2002/08/28 21:00:05 jmayer Exp $
+ * $Id: asn1.c,v 1.18 2003/04/28 00:31:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -592,35 +592,37 @@ done:
  *                  )
  * DESCRIPTION: Decodes Bit String.
  *              Parameters:
- *              asn1:   pointer to ASN1 socket.
- *              eoc: offset of end of encoding, or -1 if indefinite.
- *              bits:   pointer to begin of Bit String.
- *              size:   Size of Bit String in characters.
- *              len:    Length of Bit String in characters.
- *              unused: Number of unused bits in last character.
+ *              asn1:    pointer to ASN1 socket.
+ *              enc_len: length of value.
+ *              bits:    pointer to variable we set to point to strring
+ *              len:     Size of Bit String in characters.
+ *              unused:  Number of unused bits in last character.
  * RETURNS:     ASN1_ERR value (ASN1_ERR_NOERROR on success)
  */
 int
-asn1_bits_decode ( ASN1_SCK *asn1, int eoc, guchar **bits,
+asn1_bits_decode ( ASN1_SCK *asn1, int enc_len, guchar **bits,
 		     guint *len, guchar *unused)
-
 {
     int ret;
+    int eoc;
+    guchar *ptr;
 
+    eoc = asn1->offset + enc_len;
     *bits = NULL;
     ret = asn1_octet_decode (asn1, unused);
     if (ret != ASN1_ERR_NOERROR)
         return ret;
     *len = 0;
-    *bits = g_malloc(eoc - asn1->offset);
+    ptr = *bits = g_malloc(enc_len);
     while (asn1->offset < eoc) {
-        ret = asn1_octet_decode (asn1, (guchar *)bits++);
+        ret = asn1_octet_decode (asn1, (guchar *)ptr++);
         if (ret != ASN1_ERR_NOERROR) {
             g_free(*bits);
             *bits = NULL;
 	    return ret;
           }
     }
+    *len = ptr - *bits;
     return ASN1_ERR_NOERROR;
 }
 
