@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.53 1999/10/14 03:50:27 itojun Exp $
+ * $Id: packet-ip.c,v 1.54 1999/10/14 16:46:55 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -838,8 +838,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     if (check_col(fd, COL_PROTOCOL))
       col_add_str(fd, COL_PROTOCOL, "IP");
     if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, "Fragmented IP protocol (proto=%02x, off=%d)",
-	iph.ip_p, iph.ip_off & IP_OFFSET);
+      col_add_fstr(fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%d)",
+	ipprotostr(iph.ip_p), iph.ip_p, iph.ip_off & IP_OFFSET);
     dissect_data(pd, offset, fd, tree);
     return;
   }
