@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.666 2003/12/10 19:21:55 guy Exp $
+# $Id: Makefile.am,v 1.667 2003/12/13 00:22:24 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -609,6 +609,7 @@ noinst_HEADERS = \
 	packet-afs-register-info.h \
 	packet-afs.h   \
 	packet-ansi_a.h \
+	packet-ansi_map.h \
 	packet-arcnet.h \
 	packet-arp.h   \
 	packet-atalk.h \
