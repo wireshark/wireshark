@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.30 2001/05/31 08:36:41 guy Exp $
+ * $Id: prefs.h,v 1.31 2001/07/22 21:25:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -205,6 +205,9 @@ void free_prefs(e_prefs *pr);
  * as an argument to a "-o" option, parse it and set the preference in
  * question.  Return an indication of whether it succeeded or failed
  * in some fashion.
+ *
+ * XXX - should supply, for syntax errors, a detailed explanation of
+ * the syntax error.
  */
 #define PREFS_SET_OK		0	/* succeeded */
 #define PREFS_SET_SYNTAX_ERR	1	/* syntax error in string */
