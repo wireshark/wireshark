@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.14 1999/11/16 11:42:23 guy Exp $
+ * $Id: packet-aarp.c,v 1.15 1999/12/08 18:12:06 nneul Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -57,9 +57,9 @@ static gint ett_aarp = -1;
 #endif
 
 static const value_string op_vals[] = {
-  {AARP_REQUEST,  "AARP request" },
-  {AARP_REPLY,    "AARP reply"   },
-  {AARP_PROBE,    "AARP probe"   },
+  {AARP_REQUEST,  "request" },
+  {AARP_REPLY,    "reply"   },
+  {AARP_PROBE,    "probe"   },
   {0,             NULL           } };
 
 /* AARP protocol HARDWARE identifiers. */
@@ -181,12 +181,12 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
       ti = proto_tree_add_item_format(tree, proto_aarp, offset,
 				      MIN_AARP_HEADER_SIZE + 2*ar_hln + 
-				      2*ar_pln, NULL, op_str);
+				      2*ar_pln, NULL, "AppleTalk Address Resolution Protocol (%s)", op_str);
     else
       ti = proto_tree_add_item_format(tree, proto_aarp, offset,
 				      MIN_AARP_HEADER_SIZE + 2*ar_hln + 
 				      2*ar_pln, NULL,
-				      "Unknown AARP (opcode 0x%04x)", ar_op);
+				      "AppleTalk Address Resolution Protocol (opcode 0x%04x)", ar_op);
     aarp_tree = proto_item_add_subtree(ti, ett_aarp);
     proto_tree_add_item(aarp_tree, hf_aarp_hard_type, offset + AR_HRD, 2,
 			       ar_hrd);

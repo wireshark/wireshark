@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.4 1999/11/16 11:42:53 guy Exp $
+ * $Id: packet-rx.c,v 1.5 1999/12/08 18:12:06 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -109,8 +109,9 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rx, offset,
-			sizeof(struct rx_header), NULL);
+		ti = proto_tree_add_item_format(tree, proto_rx, offset,
+			sizeof(struct rx_header), NULL, "RX Protocol (%s)", 
+			val_to_str(rxh->type,rx_types,"unknown (%d)"));
 		rx_tree = proto_item_add_subtree(ti, ett_rx);
 
 		proto_tree_add_item(rx_tree, hf_rx_epoch,
