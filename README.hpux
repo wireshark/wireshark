@@ -1,4 +1,4 @@
-$Id: README.hpux,v 1.18 2002/04/29 23:09:35 guy Exp $
+$Id: README.hpux,v 1.19 2002/06/29 04:38:31 guy Exp $
 
 Contents:
 
@@ -239,6 +239,9 @@ captures on HP-UX 9.x:
 
 (as per other messages cited here, the ability to see the system's own
 outbound traffic did happen).
+
+Rick Jones reports that HP-UX 11i needs no patches for outbound
+promiscuous mode support.
 
 An additional note, from Jost Martin, for HP-UX 10.20:
 
