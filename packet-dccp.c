@@ -4,7 +4,7 @@
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-dccp.c,v 1.3 2002/05/03 19:31:02 nneul Exp $
+ * $Id: packet-dccp.c,v 1.4 2002/05/03 19:47:09 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,7 @@ static int hf_dccp_adminop = -1;
 static int hf_dccp_adminval = -1;
 
 static gint ett_dccp = -1;
+static gint ett_dccp_opnums = -1;
 static gint ett_dccp_op = -1;
 static gint ett_dccp_ck = -1;
 
@@ -195,7 +196,7 @@ static const value_string dccp_target_vals[] = {
 static gboolean
 dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree      *dccp_tree, *dccp_optree, *ti;
+	proto_tree      *dccp_tree, *dccp_optree, *dccp_opnumtree, *ti;
 	int offset = 0;
 	int client_is_le = 0;
 	int op = 0;
@@ -254,6 +255,9 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset, 4, FALSE);
 		offset += 4;
 
+		ti = proto_tree_add_text(dccp_tree, tvb, offset, -1, "Operation Numbers (Opaque to Server)");
+		dccp_opnumtree = proto_item_add_subtree(ti, ett_dccp_opnums);
+
 		/* Note - these are indeterminate - they are sortof considered opaque to the client */
 		/* Make some attempt to figure out if this data is little endian, not guaranteed to be
 		correct if connection went through a firewall or similar. */
@@ -265,19 +269,19 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 (tvb_get_guint8(tvb, offset+8) | tvb_get_guint8(tvb, offset+9)) &&
 						 (tvb_get_guint8(tvb, offset+12) | tvb_get_guint8(tvb, offset+13)) );
 
-		proto_tree_add_item(dccp_tree, hf_dccp_opnums_host, tvb, 
+		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_host, tvb, 
 			offset, 4, client_is_le);
 		offset += 4;
 
-		proto_tree_add_item(dccp_tree, hf_dccp_opnums_pid, tvb, 
+		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_pid, tvb, 
 			offset, 4, client_is_le);
 		offset += 4;
 
-		proto_tree_add_item(dccp_tree, hf_dccp_opnums_report, tvb, 
+		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_report, tvb, 
 			offset, 4, client_is_le);
 		offset += 4;
 
-		proto_tree_add_item(dccp_tree, hf_dccp_opnums_retrans, tvb, 
+		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_retrans, tvb, 
 			offset, 4, client_is_le);
 		offset += 4;
 
@@ -398,20 +402,20 @@ proto_register_dccp(void)
 				NULL, 0, "Client ID", HFILL }},
 
 			{ &hf_dccp_opnums_host, {	
-				"OpNums: Host", "dcc.opnums.host", FT_IPv4, BASE_DEC,
-				NULL, 0, "OpNums: Host", HFILL }},
+				"Host", "dcc.opnums.host", FT_IPv4, BASE_DEC,
+				NULL, 0, "Host", HFILL }},
 
 			{ &hf_dccp_opnums_pid, {	
-				"OpNums: Process ID", "dcc.opnums.pid", FT_UINT32, BASE_DEC,
-				NULL, 0, "OpNums: Process ID", HFILL }},
+				"Process ID", "dcc.opnums.pid", FT_UINT32, BASE_DEC,
+				NULL, 0, "Process ID", HFILL }},
 
 			{ &hf_dccp_opnums_report, {	
-				"OpNums: Report", "dcc.opnums.report", FT_UINT32, BASE_DEC,
-				NULL, 0, "OpNums: Report", HFILL }},
+				"Report", "dcc.opnums.report", FT_UINT32, BASE_DEC,
+				NULL, 0, "Report", HFILL }},
 
 			{ &hf_dccp_opnums_retrans, {	
-				"OpNums: Retransmission", "dcc.opnums.retrans", FT_UINT32, BASE_DEC,
-				NULL, 0, "OpNums: Retransmission", HFILL }},
+				"Retransmission", "dcc.opnums.retrans", FT_UINT32, BASE_DEC,
+				NULL, 0, "Retransmission", HFILL }},
 
 			{ &hf_dccp_signature, {	
 				"Signature", "dcc.signature", FT_BYTES, BASE_HEX,
@@ -461,6 +465,7 @@ proto_register_dccp(void)
 		&ett_dccp,
 		&ett_dccp_op,
 		&ett_dccp_ck,
+		&ett_dccp_opnums,
 	};
 
 	proto_dccp = proto_register_protocol("Distributed Checksum Clearinghouse Prototocl",
