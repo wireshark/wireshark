@@ -322,11 +322,12 @@ static gboolean
 str_to_gint32(char *s, gint32* pint)
 {
 	char    *endptr;
-	gint32	integer;
+	long	integer;
 
+	errno = 0;
 	integer = strtol(s, &endptr, 0);
 
-	if (endptr == s || *endptr != '\0') {
+	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		dfilter_fail("\"%s\" is not a valid number.", s);
 		return FALSE;
@@ -339,8 +340,28 @@ str_to_gint32(char *s, gint32* pint)
 			dfilter_fail("\"%s\" causes an integer underflow.", s);
 		}
 		else {
+			/*
+			 * XXX - can "strtol()" set errno to ERANGE without
+			 * returning LONG_MAX or LONG_MIN?
+			 */
 			dfilter_fail("\"%s\" is not an integer.", s);
 		}
+		return FALSE;
+	}
+	if (integer > G_MAXINT32) {
+		/*
+		 * Fits in a long, but not in a gint32 (a long might be
+		 * 64 bits).
+		 */
+		dfilter_fail("\"%s\" causes an integer overflow.", s);
+		return FALSE;
+	}
+	if (integer < G_MININT32) {
+		/*
+		 * Fits in a long, but not in a gint32 (a long might be
+		 * 64 bits).
+		 */
+		dfilter_fail("\"%s\" causes an integer underflow.", s);
 		return FALSE;
 	}
 

@@ -51,11 +51,13 @@ get_integer(fvalue_t *fv)
 static gboolean
 val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
+	unsigned long value;
 	char    *endptr;
 
-	fv->value.integer = strtoul(s, &endptr, 0);
+	errno = 0;
+	value = strtoul(s, &endptr, 0);
 
-	if (endptr == s || *endptr != '\0') {
+	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		if (logfunc != NULL)
 			logfunc("\"%s\" is not a valid number.", s);
@@ -63,17 +65,31 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	}
 	if (errno == ERANGE) {
 		if (logfunc != NULL) {
-			if (fv->value.integer == ULONG_MAX) {
+			if (value == ULONG_MAX) {
 				logfunc("\"%s\" causes an integer overflow.",
 				    s);
 			}
 			else {
+				/*
+				 * XXX - can "strtoul()" set errno to
+				 * ERANGE without returning ULONG_MAX?
+				 */
 				logfunc("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
 	}
+	if (value > G_MAXUINT32) {
+		/*
+		 * Fits in an unsigned long, but not in a guint32
+		 * (an unsigned long might be 64 bits).
+		 */
+		if (logfunc != NULL)
+			logfunc("\"%s\" causes an integer overflow.", s);
+		return FALSE;
+	}
 
+	fv->value.integer = value;
 	return TRUE;
 }
 
