@@ -98,7 +98,6 @@ typedef struct print_stream {
 extern gboolean proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
      print_stream_t *stream);
 extern gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt);
-extern void print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summary);
 
 extern print_stream_t *print_stream_text_new(int to_file, const char *dest);
 extern print_stream_t *print_stream_text_stdio_new(FILE *fh);
