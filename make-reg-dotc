@@ -20,7 +20,7 @@ echo '#include "register.h"' >>register.c-tmp
 echo 'void register_all_protocols(void) {' >>register.c-tmp
 for f in "$@"
 do
-	if [ -e $f ]
+	if [ -f $f ]
 	then
 		srcfile=$f
 	else
@@ -30,7 +30,7 @@ do
 done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 for f in "$@"
 do
-	if [ -e $f ]
+	if [ -f $f ]
 	then
 		srcfile=$f
 	else
@@ -46,7 +46,7 @@ echo '}' >>register.c-tmp
 echo 'void register_all_protocol_handoffs(void) {' >>register.c-tmp
 for f in "$@"
 do
-	if [ -e $f ]
+	if [ -f $f ]
 	then
 		srcfile=$f
 	else
@@ -56,7 +56,7 @@ do
 done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 for f in "$@"
 do
-	if [ -e $f ]
+	if [ -f $f ]
 	then
 		srcfile=$f
 	else
