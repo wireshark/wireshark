@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.115 2002/01/10 09:51:22 guy Exp $
+ * $Id: tethereal.c,v 1.116 2002/01/11 11:04:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,7 +132,7 @@ typedef struct _loop_data {
 
 static loop_data ld;
 
-static int capture(int, int);
+static int capture(volatile int, int);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
 static void capture_cleanup(int);
