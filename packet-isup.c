@@ -1,8 +1,10 @@
 /* packet-isup.c
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
- *
- * $Id: packet-isup.c,v 1.24 2003/06/26 08:39:46 guy Exp $
+ * Modified 2003-09-10 by Anders Broman
+ *		<anders.broman@ericsson.com>
+ * Inserted routines for BICC dissection
+ * $Id: packet-isup.c,v 1.25 2003/09/11 00:08:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +41,7 @@
 #include "packet-q931.h"
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
+#define MTP3_BICC_SERVICE_INDICATOR     13
 #define ASCII_NUMBER_DELTA              0x30
 #define ASCII_LETTER_DELTA              0x37
 
@@ -91,6 +94,10 @@
 #define MESSAGE_TYPE_IDENT_RSP         55
 #define MESSAGE_TYPE_SEGMENTATION      56
 #define MESSAGE_TYPE_LOOP_PREVENTION   64
+#define MESSAGE_TYPE_APPLICATION_TRANS 65
+#define MESSAGE_TYPE_PRE_RELEASE_INFO  66
+#define MESSAGE_TYPE_SUBSEQUENT_DIR_NUM 67
+
 
 static const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,          "Initial address"},
@@ -139,6 +146,10 @@ static const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_IDENT_RSP,             "Identification response"},
   { MESSAGE_TYPE_SEGMENTATION,          "Segmentation"},
   { MESSAGE_TYPE_LOOP_PREVENTION,       "Loop prevention"},
+  { MESSAGE_TYPE_APPLICATION_TRANS,	"Application transport"},
+  { MESSAGE_TYPE_PRE_RELEASE_INFO,	"Pre-release information"},	
+  { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,	"Subsequent Directory Number (national use)"},
+
   { 0,                                  NULL}};
 
 /* Same as above but in acronym form (for the Info column) */
@@ -189,6 +200,10 @@ static const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_IDENT_RSP,             "IDS"},
   { MESSAGE_TYPE_SEGMENTATION,          "SGM"},
   { MESSAGE_TYPE_LOOP_PREVENTION,       "LOP"},
+  { MESSAGE_TYPE_APPLICATION_TRANS,	"APM"},
+  { MESSAGE_TYPE_PRE_RELEASE_INFO,	"PRI"}, 	
+  { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,	"SDN"},
+
   { 0,                                  NULL}};
 
 /* Definition of Parameter Types */
@@ -270,6 +285,7 @@ static const value_string isup_message_type_value_acro[] = {
 #define PARAM_TYPE_UID_ACTION_IND       116
 #define PARAM_TYPE_UID_CAPAB_IND        117
 #define PARAM_TYPE_REDIRECT_COUNTER     119
+#define PARAM_TYPE_APPLICATON_TRANS	120
 #define PARAM_TYPE_COLLECT_CALL_REQ     121
 #define PARAM_TYPE_GENERIC_NR           192
 #define PARAM_TYPE_GENERIC_DIGITS       193
@@ -356,12 +372,15 @@ static const value_string isup_parameter_type_value[] = {
   { PARAM_TYPE_COLLECT_CALL_REQ,       "Collect call request"},
   { PARAM_TYPE_GENERIC_NR,             "Generic number"},
   { PARAM_TYPE_GENERIC_DIGITS,         "Generic digits (national use)"},
+  { PARAM_TYPE_APPLICATON_TRANS,       "Application transport"},
   { 0,                                 NULL}};
 
 
 #define CIC_LENGTH                             2
+#define BICC_CIC_LENGTH                        4
 #define MESSAGE_TYPE_LENGTH                    1
 #define COMMON_HEADER_LENGTH                   (CIC_LENGTH + MESSAGE_TYPE_LENGTH)
+#define BICC_COMMON_HEADER_LENGTH              (BIC_CIC_LENGTH + MESSAGE_TYPE_LENGTH)
 
 #define MAXLENGTH                            0xFF /* since length field is 8 Bit long - used in number dissectors;
 						     max. number of address digits is 15 digits, but MAXLENGTH used
@@ -433,6 +452,7 @@ static const value_string isup_parameter_type_value[] = {
 #define CREDIT_LENGTH         1 /* for parameter Connection request */
 
 #define CIC_OFFSET            0
+#define BICC_CIC_OFFSET       0
 
 #define NO_SATELLITE_CIRCUIT_IN_CONNECTION   0
 #define ONE_SATELLITE_CIRCUIT_IN_CONNECTION  1
@@ -1031,6 +1051,8 @@ static const true_false_string isup_extension_ind_value = {
   "information continues through the next octet"
 };
 
+
+
 static const value_string isup_call_to_be_diverted_ind_value[] = {
   /* according 3.72/Q.763 */
   {  0,        "no indication"},
@@ -1055,6 +1077,45 @@ static const value_string isup_conference_acceptance_ind_value[] = {
   {  3,        "spare"},
   {  0,         NULL}};
 
+static const value_string isup_application_transport_parameter_value[] = {
+  /* according 3.82/Q.763 */
+  {  0,        "Unidentified Context and Error Handling (UCEH) ASE"},
+  {  1,        "PSS1 ASE (VPN)"},
+  {  2,        "spare"},
+  {  3,        "Charging ASE"},
+  {  4,        "GAT"},
+  {  5,	   "BAT ASE"},
+  {  6,	   "Enhanced Unidentified Context and Error Handling ASE (EUCEH ASE)"},
+  {  0,         NULL}};
+
+static const true_false_string isup_Release_call_indicator_value = {
+  "release call",
+  "do not release call"
+};
+
+static const true_false_string isup_Send_notification_ind_value = {
+  "send notification",
+  "do not send notification"
+};
+static const value_string isup_APM_segmentation_ind_value[] = {
+ 
+  {  0x00,                     "final segment"},
+  {  0x01,                     "number of following segments"},
+  {  0x02,                     "number of following segments"},
+  {  0x03,                     "number of following segments"},
+  {  0x04,                     "number of following segments"},
+  {  0x05,                     "number of following segments"},
+  {  0x06,                     "number of following segments"},
+  {  0x07,                     "number of following segments"},
+  {  0x08,                     "number of following segments"},
+  {  0x09,                     "number of following segments"},
+  {  0,                NULL}};
+
+static const true_false_string isup_Sequence_ind_value = {
+  "new sequence",
+  "subsequent segment to first segment"
+};
+
 
 /* Generalized bit masks for 8 and 16 bits fields */
 #define A_8BIT_MASK  0x01
@@ -1070,6 +1131,7 @@ static const value_string isup_conference_acceptance_ind_value[] = {
 #define CB_8BIT_MASK 0x06
 #define DC_8BIT_MASK 0x0C
 #define FE_8BIT_MASK 0x30
+#define GF_8BIT_MASK 0x60
 #define GFE_8BIT_MASK 0x70
 #define DCBA_8BIT_MASK 0x0F
 #define EDCBA_8BIT_MASK 0x1F
@@ -1109,7 +1171,10 @@ static const value_string isup_conference_acceptance_ind_value[] = {
 
 /* Initialize the protocol and registered fields */
 static int proto_isup = -1;
+static int proto_bicc = -1;
 static int hf_isup_cic = -1;
+static int hf_bicc_cic = -1;
+
 static int hf_isup_message_type = -1;
 static int hf_isup_parameter_type = -1;
 static int hf_isup_parameter_length = -1;
@@ -1217,11 +1282,25 @@ static int hf_isup_loop_prevention_response_ind = -1;
 static int hf_isup_temporary_alternative_routing_ind = -1;
 static int hf_isup_extension_ind = -1;
 
-static int hf_isup_call_to_be_diverted_ind = -1;
+static int hf_isup_call_to_be_diverted_ind 			= -1;
 
-static int hf_isup_call_to_be_offered_ind = -1;
+static int hf_isup_call_to_be_offered_ind 			= -1;
 
-static int hf_isup_conference_acceptance_ind = -1;
+static int hf_isup_conference_acceptance_ind			= -1;
+
+static int hf_isup_transit_at_intermediate_exchange_ind 	= -1;
+static int hf_isup_Release_call_ind 				= -1;
+static int hf_isup_Send_notification_ind 			= -1;
+static int hf_isup_Discard_message_ind_value			= -1;
+static int hf_isup_Discard_parameter_ind			= -1;
+static int hf_isup_Pass_on_not_possible_indicator		= -1;
+static int hf_isup_Broadband_narrowband_interworking_ind	= -1;
+
+static int hf_isup_app_cont_ident			= -1;
+static int hf_isup_app_Send_notification_ind		= -1;
+static int hf_isup_apm_segmentation_ind			= -1;
+static int hf_isup_apm_si_ind				= -1;
+static int hf_isup_app_Release_call_ind			= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_isup = -1;
@@ -1230,7 +1309,7 @@ static gint ett_isup_address_digits = -1;
 static gint ett_isup_pass_along_message = -1;
 static gint ett_isup_circuit_state_ind = -1;
 
-
+static gint ett_bicc = -1;
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character
  ------------------------------------------------------------------ */
@@ -1730,6 +1809,74 @@ dissect_isup_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Access transport parameter field (-> Q.931)");
   proto_item_set_text(parameter_item, "Access transport, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
 }
+
+
+static void
+dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{ 
+
+
+  guint8 application_context_identifier;
+  guint8 application_transport_instruction_ind;
+  guint8 si_and_apm_segmentation_indicator;
+  guint8 apm_Segmentation_local_ref;
+  guint8 pointer_to_transparent_data;
+  guint16 application_context_identifier16;
+  guint8 offset = 0;
+  guint length = tvb_length(parameter_tvb);
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Application transport parameter fields:");
+  proto_item_set_text(parameter_item, "Application transport, (%u byte%s length)", length , plurality(length, "", "s"));
+  application_context_identifier = tvb_get_guint8(parameter_tvb, 0);
+ 
+  if ( (application_context_identifier & H_8BIT_MASK) == 0x80) {
+      proto_tree_add_uint(parameter_tree, hf_isup_app_cont_ident, parameter_tvb,offset, 1, (application_context_identifier & GFEDCBA_8BIT_MASK));
+	offset = offset + 1;
+	if ((application_context_identifier & 0x7f) > 6) return;
+       }
+  else
+	{
+	application_context_identifier16 = tvb_get_letohs(parameter_tvb,offset); 
+	proto_tree_add_text(parameter_tree, parameter_tvb, offset, 2, "Application context identifier: 0x%x", application_context_identifier16);
+	offset = offset + 2;
+	return; /* no further decoding of this element */
+	}
+  proto_tree_add_text(parameter_tree, parameter_tvb, offset, length, "Application transport instruction indictators: ");
+  application_transport_instruction_ind = tvb_get_guint8(parameter_tvb, offset);	
+  proto_tree_add_boolean(parameter_tree, hf_isup_app_Release_call_ind, parameter_tvb, offset, 1, application_transport_instruction_ind);
+  proto_tree_add_boolean(parameter_tree, hf_isup_app_Send_notification_ind, parameter_tvb, offset, 1, application_transport_instruction_ind);
+  offset = offset + 1; 
+  if ( (application_transport_instruction_ind & H_8BIT_MASK) == 0x80) {
+        proto_tree_add_text(parameter_tree, parameter_tvb, offset, length, "APM segmentation indicator:");
+	si_and_apm_segmentation_indicator  = tvb_get_guint8(parameter_tvb, offset);
+	proto_tree_add_uint(parameter_tree, hf_isup_apm_segmentation_ind , parameter_tvb, offset, 1, si_and_apm_segmentation_indicator  );
+	proto_tree_add_boolean(parameter_tree, hf_isup_apm_si_ind , parameter_tvb, offset, 1, si_and_apm_segmentation_indicator  );
+	offset = offset + 1;
+
+	  if ( (si_and_apm_segmentation_indicator & H_8BIT_MASK) == 0x80) {
+		apm_Segmentation_local_ref  = tvb_get_guint8(parameter_tvb, offset);
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Segmentation local reference (SLR): 0x%x", apm_Segmentation_local_ref  );
+		offset = offset + 1;
+  	  }
+  }	
+
+   proto_tree_add_text(parameter_tree, parameter_tvb, offset, length, "APM-user information field"  );
+   /* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */ 
+   if ((application_context_identifier & 0x7f) != 5) {
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset, length, "No further dissection of APM-user information field");
+		return;
+	}
+   pointer_to_transparent_data = tvb_get_guint8(parameter_tvb, offset);
+   if (pointer_to_transparent_data != 0)
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x Don't know how to dissect further", pointer_to_transparent_data  );
+   proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x No transparent data", pointer_to_transparent_data  );
+   offset = offset + 1;
+         
+
+
+}
+
+
+
 /* ------------------------------------------------------------------
   Dissector Parameter Optional Forward Call indicators
  */
@@ -2357,37 +2504,27 @@ dissect_isup_message_compatibility_information_parameter(tvbuff_t *parameter_tvb
 /* ------------------------------------------------------------------
   Dissector Parameter compatibility information
  */
-static const value_string ISUP_transit_at_intermediate_exchange_indicator_vals[] = {
-	{ 0x00, "Transit interpretation" },
-	{ 0x01, "End node interpretation" },
+static const true_false_string isup_transit_at_intermediate_exchange_ind_value  = {
+  "End node interpretation",
+  "Transit interpretation"
 };
 
-static const value_string ISUP_Release_call_indicator_vals[] = {
-	{ 0x00, "Do not release call" },
-	{ 0x02, "Release call" },
+
+static const true_false_string isup_Discard_message_ind_value = {
+	"Discard message",
+	"Do not discard message (pass on)",
 };
 
-static const value_string ISUP_Send_notification_indicator_vals[] = {
-	{ 0x00, "Do not send notification" },
-	{ 0x04, "Send notification" },
-};
- 
-
-static const value_string ISUP_Discard_message_indicator_vals[] = {
-	{ 0x00, "Do not discard message (pass on)" },
-	{ 0x08, "Discard message" },
-};
- 
-static const value_string ISUP_Discard_parameter_indicator_vals[] = {
-	{ 0x00, "Do not discard parameter (pass on)" },
-	{ 0x10, "Discard parameter" },
+static const true_false_string isup_Discard_parameter_ind_value = {
+	"Discard parameter",
+	"Do not discard parameter (pass on)",
 };
 
-static const value_string ISUP_Pass_on_not_possible_indicator_vals[] = {
+static const value_string isup_Pass_on_not_possible_indicator_vals[] = {
 	{ 0x00, "Release call" },
-	{ 0x20, "Discard message" },
-	{ 0x40, "Discard parameter" },
-	{ 0x60, "Reserved (interpreted as 00)" },
+	{ 0x01, "Discard message" },
+	{ 0x02, "Discard parameter" },
+	{ 0x03, "Reserved (interpreted as 00)" },
 
 };
 static const value_string ISUP_Broadband_narrowband_interworking_indicator_vals[] = {
@@ -2425,39 +2562,27 @@ dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_t
 		    "Instruction indicators: 0x%x ",
 		    instruction_indicators);
 
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
-		    "Transit at intermediate exchange indicator: Bit A %s",
-		    val_to_str(instruction_indicators & 0x01,ISUP_transit_at_intermediate_exchange_indicator_vals ,NULL));
-  
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
-		    "Release call indicator: Bit B %s",
-		    val_to_str(instruction_indicators & 0x02,ISUP_Release_call_indicator_vals ,NULL));
+ proto_tree_add_boolean(parameter_tree, hf_isup_transit_at_intermediate_exchange_ind, 
+                parameter_tvb, offset, 1, instruction_indicators );
 
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
-		    "Send_notification_indicator: Bit C %s",
-		    val_to_str(instruction_indicators & 0x04,ISUP_Send_notification_indicator_vals ,NULL));
+ proto_tree_add_boolean(parameter_tree, hf_isup_Release_call_ind, parameter_tvb, offset, 1, instruction_indicators );
 
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
-		    "Discard message indicator: Bit D %s",
-		    val_to_str(instruction_indicators & 0x08,ISUP_Discard_message_indicator_vals ,NULL));
+ proto_tree_add_boolean(parameter_tree, hf_isup_Send_notification_ind, parameter_tvb, offset, 1, instruction_indicators );
 
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
-		    "Discard parameter indicator: Bit E %s",
-		    val_to_str(instruction_indicators & 0x10,ISUP_Discard_parameter_indicator_vals ,NULL));
+ proto_tree_add_boolean(parameter_tree, hf_isup_Discard_message_ind_value, parameter_tvb, offset, 1, instruction_indicators );
 
-  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
-		    "Pass on not possible indicator: Bits FG %s",
-		    val_to_str(instruction_indicators & 0x60,ISUP_Pass_on_not_possible_indicator_vals ,NULL));
+ proto_tree_add_boolean(parameter_tree, hf_isup_Discard_parameter_ind, parameter_tvb, offset, 1, instruction_indicators );
+
+ proto_tree_add_uint(parameter_tree, hf_isup_Pass_on_not_possible_indicator, parameter_tvb, 0, 1,instruction_indicators);
+
   offset += 1;
   len -= 1;
   if (!(instruction_indicators & H_8BIT_MASK)) {
 		if (len == 0)
 			return;
                   instruction_indicators = tvb_get_guint8(parameter_tvb, offset);
-                  proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
-		    "Broadband/narrowband interworking indicator: Bit JI %s",
-		    val_to_str(instruction_indicators & 0x03,ISUP_Broadband_narrowband_interworking_indicator_vals ,NULL));
-                  offset += 1;
+		 proto_tree_add_uint(parameter_tree, hf_isup_Broadband_narrowband_interworking_ind, parameter_tvb, offset, 1,instruction_indicators);
+                 offset += 1;
                   len -= 1;
                   }
    if (len == 0)
@@ -3278,6 +3403,10 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, proto_tree *i
 	case PARAM_TYPE_GENERIC_DIGITS:
 	  dissect_isup_generic_digits_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
+	case PARAM_TYPE_APPLICATON_TRANS:
+	  dissect_isup_application_transport_parameter(parameter_tvb, parameter_tree, parameter_item);
+	  break;
+	  
 	default:
 	  dissect_isup_unknown_parameter(parameter_tvb, parameter_item);
 	  break;
@@ -4098,6 +4227,19 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
       /* no dissector necessary since no mandatory parameters included */
        opt_part_possible = TRUE;
       break;
+    case MESSAGE_TYPE_APPLICATION_TRANS:
+      /* no dissector necessary since no mandatory parameters included */
+       opt_part_possible = TRUE;
+      break;
+    case MESSAGE_TYPE_PRE_RELEASE_INFO:
+      /* no dissector necessary since no mandatory parameters included */
+       opt_part_possible = TRUE;
+      break;
+    case MESSAGE_TYPE_SUBSEQUENT_DIR_NUM:
+      /* do nothing since format is a national matter */
+      proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+      break;
+
     default:
       proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
       break;
@@ -4159,7 +4301,44 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+/* ------------------------------------------------------------------ */
+static void
+dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
 
+/* Set up structures needed to add the protocol subtree and manage it */
+	proto_item *ti;
+	proto_tree *bicc_tree;
+	tvbuff_t *message_tvb;
+	guint32 bicc_cic;
+	guint8 message_type;
+
+/* Make entries in Protocol column and Info column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC");
+
+/* Extract message type field */
+	message_type = tvb_get_guint8(tvb, BICC_CIC_OFFSET + BICC_CIC_LENGTH);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
+
+/* In the interest of speed, if "tree" is NULL, don't do any work not
+   necessary to generate protocol tree items. */
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_bicc, tvb, 0, -1, FALSE);
+		bicc_tree = proto_item_add_subtree(ti, ett_bicc);
+
+		/* dissect CIC in main dissector since pass-along message type carrying complete BICC/ISUP message w/o CIC needs
+		   recursive message dissector call */
+		bicc_cic =          tvb_get_letohs(tvb, BICC_CIC_OFFSET);
+
+		proto_tree_add_uint_format(bicc_tree, hf_bicc_cic, tvb, BICC_CIC_OFFSET, BICC_CIC_LENGTH, bicc_cic, "CIC: %u", bicc_cic);
+	
+		message_tvb = tvb_new_subset(tvb, BICC_CIC_LENGTH, -1, -1);
+		dissect_isup_message(message_tvb, pinfo, bicc_tree);
+	}
+}
 /*---------------------------------------------------------------------*/
 /* Register the protocol with Ethereal */
 void
@@ -4601,6 +4780,68 @@ proto_register_isup(void)
 			{ "Conference acceptance indicator",  "isup.conference_acceptance_ind",
 			FT_UINT8, BASE_DEC, VALS(isup_conference_acceptance_ind_value), BA_8BIT_MASK,
 			"", HFILL }},
+
+		{ &hf_isup_transit_at_intermediate_exchange_ind,
+			{ "Transit at intermediate exchange indicator", "isup.transit_at_intermediate_exchange_ind",
+			FT_BOOLEAN, 16, TFS(&isup_transit_at_intermediate_exchange_ind_value), A_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_Release_call_ind,
+			{ "Release call indicator", "isup.Release_call_ind",
+			FT_BOOLEAN, 16, TFS(&isup_Release_call_indicator_value), B_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_Send_notification_ind,
+			{ "Send notification indicator", "isup.Send_notification_ind",
+			FT_BOOLEAN, 16, TFS(&isup_Send_notification_ind_value),C_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_Discard_message_ind_value,
+			{ "Discard message indicator","isup.Discard_message_ind_value",
+			FT_BOOLEAN, 16, TFS(&isup_Discard_message_ind_value), D_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_Discard_parameter_ind,		
+			{ "Discard parameter indicator","isup.Discard_parameter_ind",
+			FT_BOOLEAN, 16, TFS(&isup_Discard_parameter_ind_value), E_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_Pass_on_not_possible_indicator,
+			{ "Pass on not possible indicator",  "isup_Pass_on_not_possible_ind",
+			FT_UINT8, BASE_HEX, VALS(isup_Pass_on_not_possible_indicator_vals),GF_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_Broadband_narrowband_interworking_ind,
+			{ "Broadband narrowband interworking indicator Bits JF",  "isup_Pass_on_not_possible_ind",
+			FT_UINT8, BASE_HEX, VALS(ISUP_Broadband_narrowband_interworking_indicator_vals),BA_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_app_cont_ident,
+			{ "Application context identifier",  "isup.app_context_identifier",
+			FT_UINT8, BASE_DEC, VALS(isup_application_transport_parameter_value),0x0,
+			"", HFILL }},
+
+		{ &hf_isup_app_Release_call_ind, 
+			{ "Release call indicator (RCI)",  "isup.app_Release_call_ indicator",
+			FT_BOOLEAN, 8, TFS(&isup_Release_call_indicator_value), A_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_app_Send_notification_ind, 
+			{ "Send notification indicator (SNI)",  "isup.app_Send_notification_ind",
+			FT_BOOLEAN, 8, TFS(&isup_Send_notification_ind_value), B_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_apm_segmentation_ind,
+		        { "APM segmentation indicator",  "isup.apm_segmentation_ind",
+			FT_UINT8, BASE_DEC, VALS(isup_APM_segmentation_ind_value), FEDCBA_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_apm_si_ind, 
+			{ "Sequence indicator (SI)",  "isup.APM_Sequence_ind",
+			FT_BOOLEAN, 8, TFS(& isup_Sequence_ind_value), G_8BIT_MASK,
+			"", HFILL }},
+
+
 	};
 
 /* Setup protocol subtree array */
@@ -4628,8 +4869,43 @@ void
 proto_reg_handoff_isup(void)
 {
   dissector_handle_t isup_handle;
-
+ 
   isup_handle = create_dissector_handle(dissect_isup, proto_isup);
   dissector_add("mtp3.service_indicator", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
   dissector_add("m3ua.protocol_data_si", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
+
 }
+
+void
+proto_register_bicc(void)
+{
+/* Setup list of header fields  See Section 1.6.1 for details*/
+	static hf_register_info hf[] = {
+		{ &hf_bicc_cic,
+			{ "Call identification Code (CIC)",           "bicc.cic",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			  "", HFILL }},
+	};
+
+/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_bicc
+	};
+	proto_bicc = proto_register_protocol("Bearer Independent Call Control ",
+	    "BICC", "bicc"); 
+/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_bicc, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+/* Register isup with the sub-laying MTP L3 dissector */
+void
+proto_reg_handoff_bicc(void)
+{
+   dissector_handle_t bicc_handle;
+
+  bicc_handle = create_dissector_handle(dissect_bicc, proto_bicc);
+  dissector_add("mtp3.service_indicator", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
+  dissector_add("m3ua.protocol_data_si", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
+}
+
