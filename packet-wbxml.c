@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.3 2003/02/12 21:46:15 guy Exp $
+ * $Id: packet-wbxml.c,v 1.4 2003/02/13 22:00:53 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,7 +157,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 
 /* Code to actually dissect the packets */
 static void
-dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
