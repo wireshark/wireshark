@@ -1,7 +1,7 @@
 /* text_page.h
  * Declarations of routine to construct a simple text page from a file.
  *
- * $Id: text_page.h,v 1.2 2004/06/02 22:13:04 ulfl Exp $
+ * $Id: text_page.h,v 1.3 2004/06/03 14:54:26 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,7 @@
 
 /** @file
  *  Construct a simple text page widget from a file.
+ *  @todo move this and the implementation to ui_util.
  */
 
 /** Construct a simple text page widget from a file (UTF8 encoded).
