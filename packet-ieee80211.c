@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.83 2003/03/04 06:47:09 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.84 2003/04/01 19:05:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -876,12 +876,14 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       memset (out_buff, 0, SHORT_STR);
 
       snprintf (out_buff, SHORT_STR,
-		"ERP info: 0x%x (%sNon-ERP STAs, %suse protection)",
+		"ERP info: 0x%x (%sNon-ERP STAs, %suse protection, %s preambles)",
 		tag_data_ptr[0],
 		tag_data_ptr[0] & 0x01 ? "" : "no ",
-		tag_data_ptr[0] & 0x02 ? "" : "do not ");
+		tag_data_ptr[0] & 0x02 ? "" : "do not ",
+		tag_data_ptr[0] & 0x04 ? "short or long": "long");
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
+
       break;
 
 
@@ -2070,6 +2072,16 @@ proto_register_ieee80211 (void)
      "associated stations"},
     {0x12, "Association denied due to requesting station not supporting all "
      "of the datarates in the BSSBasicServiceSet Parameter"},
+    {0x13, "Association denied due to requesting station not supporting "
+     "short preamble operation"},
+    {0x14, "Association denied due to requesting station not supporting "
+     "PBCC encoding"},
+    {0x15, "Association denied due to requesting station not supporting "
+     "channel agility"},
+    {0x19, "Association denied due to requesting station not supporting "
+     "short slot operation"},
+    {0x1A, "Association denied due to requesting station not supporting "
+     "DSSS-OFDM operation"},
     {0x00, NULL}
   };
 
