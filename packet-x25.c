@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.77 2003/02/16 20:55:10 deniel Exp $
+ * $Id: packet-x25.c,v 1.78 2003/02/28 00:48:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1415,7 +1415,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint x25_pkt_len;
     int modulo;
     guint16 vc;
-    dissector_handle_t dissect;
+    dissector_handle_t dissect = NULL;
     gboolean toa;         /* TOA/NPI address format */
     guint16 bytes0_1;
     guint8 pkt_type;
@@ -1715,7 +1715,31 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					"X.263 secondary protocol ID: %s",
 					val_to_str(spi, nlpid_vals, "Unknown (0x%02x)"));
 		}
-		localoffset++;
+
+		/*
+		 * If there's more than one octet of user data, we'll
+		 * dissect it; for some protocols, the NLPID is considered
+		 * to be part of the PDU, so, for those cases, we don't
+		 * skip past it.  For other protocols, we skip the NLPID.
+		 */
+		switch (spi) {
+
+		case NLPID_ISO8473_CLNP:
+		case NLPID_ISO9542_ESIS:
+		case NLPID_ISO10589_ISIS:
+		case NLPID_ISO10747_IDRP:
+		case NLPID_SNDCF:
+		    /*
+		     * The NLPID is part of the PDU.  Don't skip it.
+		     */
+		    break;
+
+		default:
+		    /*
+		     * The NLPID isn't part of the PDU - skip it.
+		     */
+		    localoffset++;
+		}
 
 		if (!pinfo->fd->flags.visited) {
 		    /*
@@ -1726,13 +1750,6 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    if (dissect != NULL)
 			x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
 		}
-	    }
-	    if (localoffset < tvb_length(tvb)) {
-		if (userdata_tree) {
-		    proto_tree_add_text(userdata_tree, tvb, localoffset, -1,
-				"Data");
-		}
-		localoffset = tvb_length(tvb);
 	    }
 	}
 	break;
@@ -1771,13 +1788,6 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (localoffset < x25_pkt_len) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
-
-	if (localoffset < tvb_reported_length(tvb)) { /* user data */
-	    if (x25_tree)
-	        proto_tree_add_text(x25_tree, tvb, localoffset,
-				    tvb_reported_length(tvb)-localoffset, "Data");
-	    localoffset=tvb_reported_length(tvb);
-	}
 	break;
     case X25_CLEAR_REQUEST:
         switch (dir) {
