@@ -1,0 +1,21 @@
+# pkix1explicit.cnf
+# pkix1explicit conformation file
+
+# $Id: pkix1explicit.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+
+#.NO_EMIT
+
+CertificateSerialNumber
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
