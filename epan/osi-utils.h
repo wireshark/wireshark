@@ -1,6 +1,6 @@
 /* osi-utils.h
  *
- * $Id: osi-utils.h,v 1.2 2001/04/01 07:06:23 hagbard Exp $
+ * $Id: osi-utils.h,v 1.3 2001/04/02 10:41:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,9 +48,9 @@
 #define NSAP_IDI_ISODCC       0x39
 #define NSAP_IDI_GOSIP2       0x47
 
-gchar*     print_nsap_net ( const u_char *, int );
-gchar*     print_area     ( const u_char *, int );
-gchar*     print_system_id( const u_char *, int );
+gchar*     print_nsap_net ( const guint8 *, int );
+gchar*     print_area     ( const guint8 *, int );
+gchar*     print_system_id( const guint8 *, int );
 
 
 #endif /* __OSI_UTILS_H__ */

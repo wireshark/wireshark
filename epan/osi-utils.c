@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: osi-utils.c,v 1.1 2001/04/01 05:48:15 hagbard Exp $
+ * $Id: osi-utils.c,v 1.2 2001/04/02 10:41:19 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -44,7 +44,7 @@
 
 #include "osi-utils.h"
 
-gchar *print_nsap_net( const u_char *buffer, int length)
+gchar *print_nsap_net( const guint8 *buffer, int length)
 {
   /* to do : NSAP / NET decoding */
 
@@ -74,9 +74,9 @@ gchar *print_nsap_net( const u_char *buffer, int length)
 } /* print_nsap */
 
 
-gchar *print_system_id( const u_char *buffer, int length ) {
+gchar *print_system_id( const guint8 *buffer, int length ) {
   int           tmp;
-  u_char       *cur; 
+  gchar        *cur; 
   static gchar  str[MAX_SYSTEMID_LEN * 3 + 5]; /* Don't trust exact matching */  
  
   if ( ( length <= 0 ) || ( length > MAX_SYSTEMID_LEN ) ) {
@@ -110,7 +110,7 @@ gchar *print_system_id( const u_char *buffer, int length ) {
   return( str );
 }
 
-gchar *print_area(const u_char *buffer, int length)
+gchar *print_area(const guint8 *buffer, int length)
 {
   /* to do : all real area decoding now: NET is assumed if id len is 1 more byte
    * and take away all these stupid resource consuming local statics
@@ -118,7 +118,7 @@ gchar *print_area(const u_char *buffer, int length)
   
   static gchar  str[MAX_AREA_LEN * 3 + 20]; /* reserve space for nice layout */
   gchar *cur;
-  u_int  tmp  = 0;
+  int  tmp  = 0;
 
   cur = str;
 
