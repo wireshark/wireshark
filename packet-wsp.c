@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.25 2001/07/20 07:25:34 guy Exp $
+ * $Id: packet-wsp.c,v 1.26 2001/07/20 08:04:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "ipv6-utils.h"
 #include "conversation.h"
 #include "packet-wap.h"
 #include "packet-wsp.h"
@@ -146,6 +147,7 @@ static int hf_wsp_redirect_afl_address_len		= HF_EMPTY;
 static int hf_wsp_redirect_bearer_type			= HF_EMPTY;
 static int hf_wsp_redirect_port_num			= HF_EMPTY;
 static int hf_wsp_redirect_ipv4_addr			= HF_EMPTY;
+static int hf_wsp_redirect_ipv6_addr			= HF_EMPTY;
 static int hf_wsp_redirect_addr				= HF_EMPTY;
 
 /* Initialize the subtree pointers */
@@ -388,6 +390,74 @@ static const value_string vals_field_names[] = {
 	{ FN_ENCODING_VERSION,     "Encoding-Version" },
 	{ 0,                       NULL }
 };	
+
+/*
+ * Bearer types (from the WDP specification).
+ */
+#define BT_IPv4			0x00
+#define BT_IPv6			0x01
+#define BT_GSM_USSD		0x02
+#define BT_GSM_SMS		0x03
+#define BT_ANSI_136_GUTS	0x04
+#define BT_IS_95_SMS		0x05
+#define BT_IS_95_CSD		0x06
+#define BT_IS_95_PACKET_DATA	0x07
+#define BT_ANSI_136_CSD		0x08
+#define BT_ANSI_136_PACKET_DATA	0x09
+#define BT_GSM_CSD		0x0A
+#define BT_GSM_GPRS		0x0B
+#define BT_GSM_USSD_IPv4	0x0C
+#define BT_AMPS_CDPD		0x0D
+#define BT_PDC_CSD		0x0E
+#define BT_PDC_PACKET_DATA	0x0F
+#define BT_IDEN_SMS		0x10
+#define BT_IDEN_CSD		0x11
+#define BT_IDEN_PACKET_DATA	0x12
+#define BT_PAGING_FLEX		0x13
+#define BT_PHS_SMS		0x14
+#define BT_PHS_CSD		0x15
+#define BT_GSM_USSD_GSM_SC	0x16
+#define BT_TETRA_SDS_ITSI	0x17
+#define BT_TETRA_SDS_MSISDN	0x18
+#define BT_TETRA_PACKET_DATA	0x19
+#define BT_PAGING_REFLEX	0x1A
+#define BT_GSM_USSD_MSISDN	0x1B
+#define BT_MOBITEX_MPAK		0x1C
+#define BT_ANSI_136_GHOST	0x1D
+
+static const value_string vals_bearer_types[] = {
+	{ BT_IPv4,                 "IPv4" },
+	{ BT_IPv6,                 "IPv6" },
+	{ BT_GSM_USSD,             "GSM USSD" },
+	{ BT_GSM_SMS,              "GSM SMS" },
+	{ BT_ANSI_136_GUTS,        "ANSI-136 GUTS/R-Data" },
+	{ BT_IS_95_SMS,            "IS-95 CDMA SMS" },
+	{ BT_IS_95_CSD,            "IS-95 CDMA CSD" },
+	{ BT_IS_95_PACKET_DATA,    "IS-95 CDMA Packet data" },
+	{ BT_ANSI_136_CSD,         "ANSI-136 CSD" },
+	{ BT_ANSI_136_PACKET_DATA, "ANSI-136 Packet data" },
+	{ BT_GSM_CSD,              "GSM CSD" },
+	{ BT_GSM_GPRS,             "GSM GPRS" },
+	{ BT_GSM_USSD_IPv4,        "GSM USSD (IPv4 addresses)" },
+	{ BT_AMPS_CDPD,            "AMPS CDPD" },
+	{ BT_PDC_CSD,              "PDC CSD" },
+	{ BT_PDC_PACKET_DATA,      "PDC Packet data" },
+	{ BT_IDEN_SMS,             "IDEN SMS" },
+	{ BT_IDEN_CSD,             "IDEN CSD" },
+	{ BT_IDEN_PACKET_DATA,     "IDEN Packet data" },
+	{ BT_PAGING_FLEX,          "Paging network FLEX(TM)" },
+	{ BT_PHS_SMS,              "PHS SMS" },
+	{ BT_PHS_CSD,              "PHS CSD" },
+	{ BT_GSM_USSD_GSM_SC,      "GSM USSD (GSM Service Code addresses)" },
+	{ BT_TETRA_SDS_ITSI,       "TETRA SDS (ITSI addresses)" },
+	{ BT_TETRA_SDS_MSISDN,     "TETRA SDS (MSISDN addresses)" },
+	{ BT_TETRA_PACKET_DATA,    "TETRA Packet data" },
+	{ BT_PAGING_REFLEX,        "Paging network ReFLEX(TM)" },
+	{ BT_GSM_USSD_MSISDN,      "GSM USSD (MSISDN addresses)" },
+	{ BT_MOBITEX_MPAK,         "Mobitex MPAK" },
+	{ BT_ANSI_136_GHOST,       "ANSI-136 GHOST/R-Data" },
+	{ 0,                       NULL }
+};
 
 static const value_string vals_content_types[] = {
 	{ 0x00, "*/*" },
@@ -693,11 +763,13 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint8 flags;
 	proto_item *ti;
 	proto_tree *flags_tree;
+	guint8 bearer_type;
 	guint8 address_flags_len;
 	int address_len;
 	proto_tree *atf_tree;
-	guint16 port_num = 0;
-	guint32 address_ipv4 = 0;
+	guint16 port_num;
+	guint32 address_ipv4;
+	struct e_in6_addr address_ipv6;
 	address redir_address;
 	conversation_t *conv;
 
@@ -727,12 +799,14 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		offset++;
 		if (address_flags_len & BEARER_TYPE_INCLUDED) {
+			bearer_type = tvb_get_guint8 (tvb, offset);
 			if (tree) {
-				proto_tree_add_item (tree, hf_wsp_redirect_bearer_type,
-				    tvb, offset, 1, bo_little_endian);
+				proto_tree_add_uint (tree, hf_wsp_redirect_bearer_type,
+				    tvb, offset, 1, bearer_type);
 			}
 			offset++;
-		}
+		} else
+			bearer_type = 0x00;	/* XXX */
 		if (address_flags_len & PORT_NUMBER_INCLUDED) {
 			port_num = tvb_get_ntohs (tvb, offset);
 			if (tree) {
@@ -749,35 +823,114 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			port_num = pinfo->srcport;
 		}
 		address_len = address_flags_len & ADDRESS_LEN;
-		switch (address_len) {
+		if (!(address_flags_len & BEARER_TYPE_INCLUDED)) {
+			/*
+			 * We don't have the bearer type in the message,
+			 * so we don't know the address type.
+			 * (It's the same bearer type as the original
+			 * connection.)
+			 */
+			goto unknown_address_type;
+		}
 
-		case 0:		/* no address? */
-			break;
+		/*
+		 * We know the bearer type, so we know the address type.
+		 */
+		switch (bearer_type) {
 
-		case 4:		/* we assume this is IPv4 */
+		case BT_IPv4:
+		case BT_IS_95_CSD:
+		case BT_IS_95_PACKET_DATA:
+		case BT_ANSI_136_CSD:
+		case BT_ANSI_136_PACKET_DATA:
+		case BT_GSM_CSD:
+		case BT_GSM_GPRS:
+		case BT_GSM_USSD_IPv4:
+		case BT_AMPS_CDPD:
+		case BT_PDC_CSD:
+		case BT_PDC_PACKET_DATA:
+		case BT_IDEN_CSD:
+		case BT_IDEN_PACKET_DATA:
+		case BT_PHS_CSD:
+		case BT_TETRA_PACKET_DATA:
+			/*
+			 * IPv4.
+			 */
+			if (address_len != 4) {
+				/*
+				 * Say what?
+				 */
+				goto unknown_address_type;
+			}
 			tvb_memcpy(tvb, (guint8 *)&address_ipv4, offset, 4);
 			if (tree) {
-				proto_tree_add_ipv4 (tree, hf_wsp_redirect_ipv4_addr,
+				proto_tree_add_ipv4 (tree,
+				    hf_wsp_redirect_ipv4_addr,
 				    tvb, offset, 4, address_ipv4);
 			}
 
+			/*
+			 * Create a conversation so that the
+			 * redirected session will be dissected
+			 * as WAP.
+			 */
 			redir_address.type = AT_IPv4;
 			redir_address.len = 4;
 			redir_address.data = (const guint8 *)&address_ipv4;
-			conv = find_conversation(&redir_address, &pinfo->dst, 
+			conv = find_conversation(&redir_address, &pinfo->dst,
 			    PT_UDP, port_num, 0, NO_PORT_B);
 			if (conv == NULL) {
-				conv = conversation_new(&redir_address, &pinfo->dst,
-				    PT_UDP, port_num, 0, NULL, NO_PORT2);
+				conv = conversation_new(&redir_address,
+				    &pinfo->dst, PT_UDP, port_num, 0,
+				    NULL, NO_PORT2);
 			}
 			conversation_set_dissector(conv, dissector);
 			break;
 
-		case 16:	/* XXX - handle this as IPv6? */
-		default:
+		case BT_IPv6:
+			/*
+			 * IPv6.
+			 */
+			if (address_len != 16) {
+				/*
+				 * Say what?
+				 */
+				goto unknown_address_type;
+			}
+			tvb_memcpy(tvb, (guint8 *)&address_ipv6, offset, 16);
 			if (tree) {
-				proto_tree_add_item (tree, hf_wsp_redirect_addr,
-				    tvb, offset, address_len, bo_little_endian);
+				proto_tree_add_ipv6 (tree,
+				    hf_wsp_redirect_ipv6_addr,
+				    tvb, offset, 16, (guint8 *)&address_ipv6);
+			}
+
+			/*
+			 * Create a conversation so that the
+			 * redirected session will be dissected
+			 * as WAP.
+			 */
+			redir_address.type = AT_IPv6;
+			redir_address.len = 16;
+			redir_address.data = (const guint8 *)&address_ipv4;
+			conv = find_conversation(&redir_address, &pinfo->dst,
+			    PT_UDP, port_num, 0, NO_PORT_B);
+			if (conv == NULL) {
+				conv = conversation_new(&redir_address,
+				    &pinfo->dst, PT_UDP, port_num, 0,
+				    NULL, NO_PORT2);
+			}
+			conversation_set_dissector(conv, dissector);
+			break;
+
+		unknown_address_type:
+		default:
+			if (address_len != 0) {
+				if (tree) {
+					proto_tree_add_item (tree,
+					    hf_wsp_redirect_addr,
+					    tvb, offset, address_len,
+					    bo_little_endian);
+				}
 			}
 			break;
 		}
@@ -3594,13 +3747,9 @@ proto_register_wsp(void)
 			}
 		},
 		{ &hf_wsp_redirect_bearer_type,
-			/*
-			 * XXX - the values are specified in the WDP
-			 * specification.
-			 */
 			{ 	"Bearer Type",
 				"wsp.redirect_bearer_type",
-				 FT_UINT8, BASE_DEC, NULL, 0x0,
+				 FT_UINT8, BASE_HEX, VALS(vals_bearer_types), 0x0,
 				"Redirect Bearer Type", HFILL
 			}
 		},
@@ -3616,6 +3765,13 @@ proto_register_wsp(void)
 				"wsp.redirect_ipv4_addr",
 				 FT_IPv4, BASE_NONE, NULL, 0x0,
 				"Redirect Address (IP)", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_ipv6_addr,
+			{ 	"IPv6 Address",
+				"wsp.redirect_ipv6_addr",
+				 FT_IPv6, BASE_NONE, NULL, 0x0,
+				"Redirect Address (IPv6)", HFILL
 			}
 		},
 		{ &hf_wsp_redirect_addr,
