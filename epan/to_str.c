@@ -804,7 +804,7 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
    address types */
 /* convert an address struct into a printable string */
 gchar*	
-address_to_str(address *addr)
+address_to_str(const address *addr)
 {
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46
@@ -823,7 +823,7 @@ address_to_str(address *addr)
 }
 
 void
-address_to_str_buf(address *addr, gchar *buf)
+address_to_str_buf(const address *addr, gchar *buf)
 {
   struct atalk_ddp_addr ddp_addr;
 
