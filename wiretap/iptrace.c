@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.21 1999/11/26 17:57:13 gram Exp $
+ * $Id: iptrace.c,v 1.22 1999/11/27 01:55:44 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -35,8 +35,7 @@
 static int iptrace_read_1_0(wtap *wth, int *err);
 static int iptrace_read_2_0(wtap *wth, int *err);
 static int wtap_encap_ift(unsigned int  ift);
-static void atm_guess_content(wtap *wth, guint8 *header, guint8 *pd);
-
+static void get_atm_pseudo_header(wtap *wth, guint8 *header, guint8 *pd);
 
 int iptrace_open(wtap *wth, int *err)
 {
@@ -78,13 +77,13 @@ int iptrace_open(wtap *wth, int *err)
 /* iptrace 1.0, discovered through inspection */
 typedef struct {
 /* 0-3 */	guint32		pkt_length;	/* packet length + 0x16 */
-/* 4-7 */	guint8		tv_sec;		/* time */
+/* 4-7 */	guint32		tv_sec;		/* time stamp, seconds since the Epoch */
 /* 8-11 */	guint32		junk1;		/* ???, not time */
 /* 12-15 */	char		if_name[4];	/* null-terminated */
 /* 16-27 */	char		junk2[12];	/* ??? */
 /* 28 */	guint8		if_type;	/* BSD net/if_types.h */
 /* 29 */	guint8		tx_flag;	/* 0=receive, 1=transmit */
-} iptrace_1_0_phdr;;
+} iptrace_1_0_phdr;
 
 /* Read the next packet */
 static int iptrace_read_1_0(wtap *wth, int *err)
@@ -152,13 +151,8 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 		return -1;
 	}
 
-	/* IBM couldn't make it easy on me, could they? For anyone out there
-	 * who is thinking about writing a packet capture program, be sure
-	 * to store all pertinent information about a packet in the trace file.
-	 * Let us know what the next layer is!
-	 */
 	if ( wth->phdr.pkt_encap == WTAP_ENCAP_ATM_SNIFFER ) {
-		atm_guess_content(wth, header, data_ptr);
+		get_atm_pseudo_header(wth, header, data_ptr);
 	}
 
 	/* If the per-file encapsulation isn't known, set it to this
@@ -184,15 +178,15 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 /* iptrace 2.0, discovered through inspection */
 typedef struct {
 /* 0-3 */	guint32		pkt_length;	/* packet length + 32 */
-/* 4-7 */	guint32		tv_sec0;
+/* 4-7 */	guint32		tv_sec0;	/* time stamp, seconds since the Epoch */
 /* 8-11 */	guint32		junk1;		/* ?? */
 /* 12-15 */	char		if_name[4];	/* null-terminated */
 /* 16-27 */	char		if_desc[12];	/* interface description. */
 /* 28 */	guint8		if_type;	/* BSD net/if_types.h */
 /* 29 */	guint8		tx_flag;	/* 0=receive, 1=transmit */
 /* 30-31 */	guint16		junk3;
-/* 32-35 */	guint32		tv_sec;
-/* 36-39 */	guint32		tv_usec;
+/* 32-35 */	guint32		tv_sec;		/* time stamp, seconds since the Epoch */
+/* 36-39 */	guint32		tv_nsec;	/* nanoseconds since that second */
 } iptrace_2_0_phdr;
 
 /* Read the next packet */
@@ -261,13 +255,8 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 		return -1;
 	}
 
-	/* IBM couldn't make it easy on me, could they? For anyone out there
-	 * who is thinking about writing a packet capture program, be sure
-	 * to store all pertinent information about a packet in the trace file.
-	 * Let us know what the next layer is!
-	 */
 	if ( wth->phdr.pkt_encap == WTAP_ENCAP_ATM_SNIFFER ) {
-		atm_guess_content(wth, header, data_ptr);
+		get_atm_pseudo_header(wth, header, data_ptr);
 	}
 
 	/* If the per-file encapsulation isn't known, set it to this
@@ -286,20 +275,33 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 	return data_offset;
 }
 
-/* See comment above about writing good packet sniffers */
+/*
+ * Fill in the pseudo-header information we can; alas, "iptrace" doesn't
+ * tell us what type of traffic is in the packet - it was presumably
+ * run on a machine that was one of the endpoints of the connection, so
+ * in theory it could presumably have told us, but, for whatever reason,
+ * it failed to do so - perhaps the low-level mechanism that feeds the
+ * presumably-AAL5 frames to us doesn't have access to that information
+ * (e.g., because it's in the ATM driver, and the ATM driver merely knows
+ * that stuff on VPI/VCI X.Y should be handed up to some particular
+ * client, it doesn't know what that client is).
+ *
+ * We let our caller try to figure out what kind of traffic it is, either
+ * by guessing based on the VPI/VCI, guessing based on the header of the
+ * packet, seeing earlier traffic that set up the circuit and specified
+ * in some fashion what sort of traffic it is, or being told by the user.
+ */
 static void
-atm_guess_content(wtap *wth, guint8 *header, guint8 *pd)
+get_atm_pseudo_header(wtap *wth, guint8 *header, guint8 *pd)
 {
 	char	if_text[9];
 	char	*decimal;
 	int	Vpi = 0;
 	int	Vci = 0;
 
-	wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType = ATT_AAL5;
-
 	/* Rip apart the "x.y" text into Vpi/Vci numbers */
-	header[8] = '\0';
 	memcpy(if_text, &header[20], 8);
+	if_text[8] = '\0';
 	decimal = strchr(if_text, '.');
 	if (decimal) {
 		*decimal = '\0';
@@ -310,35 +312,23 @@ atm_guess_content(wtap *wth, guint8 *header, guint8 *pd)
 	wth->phdr.pseudo_header.ngsniffer_atm.Vpi = Vpi;
 	wth->phdr.pseudo_header.ngsniffer_atm.Vci = Vci;
 
+	/*
+	 * OK, which value means "DTE->DCE" and which value means
+	 * "DCE->DTE"?
+	 */
+	wth->phdr.pseudo_header.ngsniffer_atm.channel = header[29];
 
 	/* We don't have this information */
-	wth->phdr.pseudo_header.ngsniffer_atm.channel = 0;
 	wth->phdr.pseudo_header.ngsniffer_atm.cells = 0;
 	wth->phdr.pseudo_header.ngsniffer_atm.aal5t_u2u = 0;
 	wth->phdr.pseudo_header.ngsniffer_atm.aal5t_len = 0;
 	wth->phdr.pseudo_header.ngsniffer_atm.aal5t_chksum = 0;
 
-	if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
-		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_LLCMX;
-	}
-	else if ( Vpi == 0 && Vci == 16 ) {
-		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_ILMI;
-	}
-	else if ( Vpi == 0 && Vci == 5 ) {
-		/* Signalling AAL */
-		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType = ATT_AAL_SIGNALLING;
-	}
-	else {
-		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_LANE;
-		if (pd[0] == 0xff && pd[1] == 0x00)
-			wth->phdr.pseudo_header.ngsniffer_atm.AppHLType = AHLT_LANE_LE_CTRL;
-		else {
-			/*
-			 * XXX - Ethernet, or Token Ring?
-			 */
-			wth->phdr.pseudo_header.ngsniffer_atm.AppHLType = AHLT_LANE_802_3;
-		}
-	}
+	/* Assume it's AAL5 traffic, but indicate that we don't know what
+	   it is beyond that. */
+	wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType =
+	    ATT_AAL5|ATT_HL_UNKNOWN;
+	wth->phdr.pseudo_header.ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
 }
 
 /* Given an RFC1573 (SNMP ifType) interface type,

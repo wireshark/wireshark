@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.7 1999/11/19 07:28:15 guy Exp $
+ * $Id: packet-atm.c,v 1.8 1999/11/27 01:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -414,6 +414,74 @@ static const value_string ipsilon_type_vals[] = {
 	{ 0,                NULL }
 };
 
+/*
+ * We don't know what kind of traffic this is; try to guess.
+ * We at least know it's AAL5....
+ */
+static void
+atm_guess_content(const u_char *pd, frame_data *fd)
+{
+	if (fd->pseudo_header.ngsniffer_atm.Vpi == 0) {
+		/*
+		 * Traffic on some PVCs with a VPI of 0 and certain
+		 * VCIs is of particular types.
+		 */
+		switch (fd->pseudo_header.ngsniffer_atm.Vci) {
+
+		case 5:
+			/*
+			 * Signalling AAL.
+			 */
+			fd->pseudo_header.ngsniffer_atm.AppTrafType =
+			    ATT_AAL_SIGNALLING;
+			return;
+
+		case 16:
+			/*
+			 * ILMI.
+			 */
+			fd->pseudo_header.ngsniffer_atm.AppTrafType |=
+			    ATT_HL_ILMI;
+			return;
+		}
+	}
+
+	/*
+	 * OK, we can't tell what it is based on the VPI/VCI; try
+	 * guessing based on the contents.
+	 */
+	if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
+		/*
+		 * Looks like a SNAP header; assume it's LLC multiplexed
+		 * RFC 1483 traffic.
+		 */
+		fd->pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_LLCMX;
+	} else {
+		/*
+		 * Assume it's LANE.
+		 */
+		fd->pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_LANE;
+		if (pd[0] == 0xff && pd[1] == 0x00) {
+			/*
+			 * Looks like LE Control traffic.
+			 */
+			fd->pseudo_header.ngsniffer_atm.AppHLType =
+			    AHLT_LANE_LE_CTRL;
+		} else {
+			/*
+			 * XXX - Ethernet, or Token Ring?
+			 * Assume Ethernet for now; if we see earlier
+			 * LANE traffic, we may be able to figure out
+			 * the traffic type from that, but there may
+			 * still be situations where the user has to
+			 * tell us.
+			 */
+			fd->pseudo_header.ngsniffer_atm.AppHLType =
+			    AHLT_LANE_802_3;
+		}
+	}
+}
+
 void
 dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree) 
 {
@@ -425,6 +493,38 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
 
   aal_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_AALTYPE;
   hl_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_HLTYPE;
+  if (aal_type == ATT_AAL5) {
+    if (hl_type == ATT_HL_UNKNOWN ||
+	fd->pseudo_header.ngsniffer_atm.AppHLType == AHLT_UNKNOWN) {
+      /*
+       * The joys of a connection-oriented link layer; the type of
+       * traffic may be implied by the connection on which it's
+       * traveling, rather than being specified in the packet itself.
+       *
+       * For this packet, the program that captured the packet didn't
+       * save the type of traffic, presumably because it didn't know
+       * the traffic type (either it didn't see the connection setup
+       * and wasn't running on one of the endpoints, and wasn't later
+       * told, e.g. by the human running it, what type of traffic was
+       * on that circuit, or was running on one of the endpoints but
+       * was using, to capture the packets, a mechanism that either
+       * doesn't have access to data saying what's going over the
+       * connection or doesn't bother providing that information).
+       *
+       * For now, we try to guess the traffic type based on the VPI/VCI
+       * or the packet header; later, we should provide a mechanism
+       * by which the user can specify what sort of traffic is on a
+       * particular circuit.
+       */
+      atm_guess_content(pd, fd);
+
+      /*
+       * OK, now get the AAL type and high-layer type again.
+       */
+      aal_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_AALTYPE;
+      hl_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_HLTYPE;
+    }
+  }
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "ATM");
@@ -516,15 +616,28 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
  		fd->pseudo_header.ngsniffer_atm.channel);
       break;
     }
-    proto_tree_add_text(atm_tree, 0, 0, "Cells: %u",
+    if (fd->pseudo_header.ngsniffer_atm.cells != 0) {
+      /*
+       * If the cell count is 0, assume it means we don't know how
+       * many cells it was.
+       *
+       * XXX - also, if this is AAL5 traffic, assume it means we don't
+       * know what was in the AAL5 trailer.  We may, however, find
+       * some capture program that can give us the AAL5 trailer
+       * information but not the cell count, in which case we need
+       * some other way of indicating whether we have the AAL5 trailer
+       * information.
+       */
+      proto_tree_add_text(atm_tree, 0, 0, "Cells: %u",
 		fd->pseudo_header.ngsniffer_atm.cells);
-    if (aal_type == ATT_AAL5) {
-      proto_tree_add_text(atm_tree, 0, 0, "AAL5 U2U: %u",
+      if (aal_type == ATT_AAL5) {
+        proto_tree_add_text(atm_tree, 0, 0, "AAL5 U2U: %u",
 		fd->pseudo_header.ngsniffer_atm.aal5t_u2u);
-      proto_tree_add_text(atm_tree, 0, 0, "AAL5 len: %u",
+        proto_tree_add_text(atm_tree, 0, 0, "AAL5 len: %u",
 		fd->pseudo_header.ngsniffer_atm.aal5t_len);
-      proto_tree_add_text(atm_tree, 0, 0, "AAL5 checksum: 0x%08X",
+        proto_tree_add_text(atm_tree, 0, 0, "AAL5 checksum: 0x%08X",
 		fd->pseudo_header.ngsniffer_atm.aal5t_chksum);
+      }
     }
   }
 

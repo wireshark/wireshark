@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.15 1999/11/26 11:18:12 guy Exp $
+ * $Id: snoop.c,v 1.16 1999/11/27 01:55:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -84,6 +84,21 @@ static int snoop_read(wtap *wth, int *err);
  * can handle any of them; even if it can't, this may be useful reference
  * information for anybody doing code to use DLPI to do raw packet
  * captures.
+ *
+ *	http://mrpink.lerc.nasa.gov/118x/support/convert.c
+ *
+ * which is a program to convert files from the format written by
+ * the "atmsnoop" program that comes with the SunATM package to
+ * regular "snoop" format, claims that "SunATM 2.1 claimed to be DL_FDDI
+ * (don't ask why).  SunATM 3.0 claims to be DL_IPATM, which is 0x12".
+ *
+ * It also says that "ATM Mac header is 12 bytes long.", and seems to imply
+ * that in an "atmsnoop" file, the header contains 2 bytes (direction and
+ * VPI?), 2 bytes of VCI, 6 bytes of something, and 2 bytes of Ethernet
+ * type; if those 6 bytes are 2 bytes of DSAP, 2 bytes of LSAP, 1 byte
+ * of LLC control, and 3 bytes of SNAP OUI, that'd mean that an ATM
+ * pseudo-header in an "atmsnoop" file is probably 1 byte of direction,
+ * 1 byte of VPI, and 2 bytes of VCI.
  */
 int snoop_open(wtap *wth, int *err)
 {
@@ -109,7 +124,7 @@ int snoop_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* not defined in "dlpi.h" */
 		WTAP_ENCAP_UNKNOWN,	/* Fibre Channel */
 		WTAP_ENCAP_UNKNOWN,	/* ATM */
-		WTAP_ENCAP_UNKNOWN,	/* ATM Classical IP */
+		WTAP_ENCAP_ATM_SNIFFER,	/* ATM Classical IP */
 		WTAP_ENCAP_UNKNOWN,	/* X.25 LAPB */
 		WTAP_ENCAP_UNKNOWN,	/* ISDN */
 		WTAP_ENCAP_UNKNOWN,	/* HIPPI */
@@ -175,9 +190,12 @@ int snoop_open(wtap *wth, int *err)
 /* Read the next packet */
 static int snoop_read(wtap *wth, int *err)
 {
+	guint32 rec_size;
 	guint32	packet_size;
+	guint32 orig_size;
 	int	bytes_read;
 	struct snooprec_hdr hdr;
+	char	atm_phdr[4];
 	int	data_offset;
 	char	padbuf[4];
 	int	padbytes;
@@ -198,6 +216,8 @@ static int snoop_read(wtap *wth, int *err)
 	}
 	wth->data_offset += sizeof hdr;
 
+	rec_size = ntohl(hdr.rec_len);
+	orig_size = ntohl(hdr.orig_len);
 	packet_size = ntohl(hdr.incl_len);
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
 		/*
@@ -209,6 +229,71 @@ static int snoop_read(wtap *wth, int *err)
 		*err = WTAP_ERR_BAD_RECORD;
 		return -1;
 	}
+
+	/*
+	 * If this is an ATM packet, the first four bytes are the
+	 * direction of the packet (transmit/receive), the VPI, and
+	 * the VCI; read them and generate the pseudo-header from
+	 * them.
+	 */
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+		if (packet_size < 4) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("snoop: atmsnoop file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+			    packet_size);
+			*err = WTAP_ERR_BAD_RECORD;
+			return -1;
+		}
+		errno = WTAP_ERR_CANT_READ;
+		bytes_read = file_read(atm_phdr, 1, 4, wth->fh);
+		if (bytes_read != 4) {
+			*err = file_error(wth->fh);
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+
+		/*
+		 * OK, which value means "DTE->DCE" and which value means
+		 * "DCE->DTE"?
+		 */
+		wth->phdr.pseudo_header.ngsniffer_atm.channel =
+		    (atm_phdr[0] & 0x80) ? 1 : 0;
+		wth->phdr.pseudo_header.ngsniffer_atm.Vpi = atm_phdr[1];
+		wth->phdr.pseudo_header.ngsniffer_atm.Vci = pntohs(&atm_phdr[2]);
+
+		/* We don't have this information */
+		wth->phdr.pseudo_header.ngsniffer_atm.cells = 0;
+		wth->phdr.pseudo_header.ngsniffer_atm.aal5t_u2u = 0;
+		wth->phdr.pseudo_header.ngsniffer_atm.aal5t_len = 0;
+		wth->phdr.pseudo_header.ngsniffer_atm.aal5t_chksum = 0;
+
+		/*
+		 * Assume it's AAL5; we know nothing more about it.
+		 *
+		 * For what it's worth, in one "atmsnoop" capture,
+		 * the lower 7 bits of the first byte of the header
+		 * were 0x05 for ILMI traffic, 0x06 for Signalling
+		 * AAL traffic, and 0x02 for at least some RFC 1483-style
+		 * LLC multiplexed traffic.
+		 */
+		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType =
+		    ATT_AAL5|ATT_HL_UNKNOWN;
+		wth->phdr.pseudo_header.ngsniffer_atm.AppHLType =
+		    AHLT_UNKNOWN;
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		rec_size -= 4;
+		orig_size -= 4;
+		packet_size -= 4;
+		wth->data_offset += 4;
+	}
+
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
@@ -226,7 +311,7 @@ static int snoop_read(wtap *wth, int *err)
 	wth->phdr.ts.tv_sec = ntohl(hdr.ts_sec);
 	wth->phdr.ts.tv_usec = ntohl(hdr.ts_usec);
 	wth->phdr.caplen = packet_size;
-	wth->phdr.len = ntohl(hdr.orig_len);
+	wth->phdr.len = orig_size;
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	/*
@@ -236,7 +321,7 @@ static int snoop_read(wtap *wth, int *err)
 	 * There's probably not much padding (it's probably padded only
 	 * to a 4-byte boundary), so we probably need only do one read.
 	 */
-	padbytes = ntohl(hdr.rec_len) - (sizeof hdr + packet_size);
+	padbytes = rec_size - (sizeof hdr + packet_size);
 	while (padbytes != 0) {
 		bytes_to_read = padbytes;
 		if (bytes_to_read > sizeof padbuf)
