@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.38 2002/01/20 23:05:22 gerald Exp $
+dnl $Id: acinclude.m4,v 1.39 2002/01/30 07:52:52 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -399,7 +399,7 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 	        AC_TRY_LINK_FUNC(gzseek, AC_MSG_RESULT(no),
 		  [
 		    AC_MSG_RESULT(yes)
-		    AC_MSG_ERROR(old XFree86 zlib found - rebuild XFree86 using system zlib or configure Ethereal without compressed file support.)
+		    AC_MSG_ERROR(old zlib found when linking with X11 - get rid of old zlib.)
 		  ])
 		CFLAGS="$ac_save_CFLAGS"
 		LIBS="$ac_save_LIBS"
