@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.34 1999/12/12 22:40:10 gram Exp $
+ * $Id: wtap.c,v 1.35 1999/12/12 22:53:25 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -111,7 +111,7 @@ const static struct encap_type_info {
 	{ "LAPD", "lapd" },
 
 	/* WTAP_ENCAP_V120 */
-	{ "V120", "v120" },
+	{ "V.120", "v120" },
 };
 
 /* Name that should be somewhat descriptive. */
