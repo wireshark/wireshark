@@ -2,12 +2,12 @@
  * Routines for MTP2 Peer Adaptation Layer dissection
  * It is hopefully (needs testing) compliant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-02.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-08.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-09.txt
  *
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2pa.c,v 1.21 2003/05/04 09:43:49 tuexen Exp $
+ * $Id: packet-m2pa.c,v 1.22 2003/09/04 14:32:34 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,10 +76,10 @@ static dissector_handle_t mtp3_handle;
 
 typedef enum {
   M2PA_V2 = 1,
-  M2PA_V8 = 2
+  M2PA_V9 = 2
 } Version_Type;
 
-static Version_Type m2pa_version = M2PA_V8;
+static Version_Type m2pa_version = M2PA_V9;
 
 #define VERSION_LENGTH         1
 #define SPARE_LENGTH           1
@@ -361,10 +361,10 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     switch(m2pa_version) {
     case M2PA_V2:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (02)");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 02)");
       break;
-    case M2PA_V8:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (08)");
+    case M2PA_V9:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 09)");
       break;
     };      
 
@@ -380,7 +380,7 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case M2PA_V2:
       dissect_v2_message(tvb, pinfo, m2pa_item, m2pa_tree, tree);
       break;
-    case M2PA_V8:
+    case M2PA_V9:
       dissect_v8_message(tvb, pinfo, m2pa_item, m2pa_tree, tree);
       break;
   };      
@@ -416,7 +416,7 @@ proto_register_m2pa(void)
 
   static enum_val_t m2pa_version_options[] = {
     { "Internet Draft version 2", M2PA_V2 },
-    { "Internet Draft version 6", M2PA_V8 },
+    { "Internet Draft version 9", M2PA_V9 },
     { NULL, 0 }
   };
 
