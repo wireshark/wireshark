@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.12 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-mip.c,v 1.13 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -136,7 +136,7 @@ static const value_string mip_reply_codes[]= {
 
 /* Code to actually dissect the packets */
 static void
-dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_mip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures we will need to add the protocol subtree and manage it */
@@ -144,25 +144,19 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree	*mip_tree;
 	guint8		type, code;
 
-	/* Make our own tvb until the function call includes one */
-	tvbuff_t	*tvb;
-	packet_info	*pinfo = &pi;
-	tvb = tvb_create_from_top(offset);
-
-	CHECK_DISPLAY_AS_DATA(proto_mip, tvb, pinfo, tree);
-
 /* Make entries in Protocol column and Info column on summary display */
 
-	pinfo->current_proto = "Mobile IP";
-	if (check_col(fd, COL_PROTOCOL)) 
-		col_set_str(fd, COL_PROTOCOL, "mip");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "Mobile IP");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
     
 	type = tvb_get_guint8(tvb, 0);
 
 	if (type==1) {
 
-	  if (check_col(fd, COL_INFO)) 
-		 col_set_str(fd, COL_INFO, "Mobile IP Registration Request");
+	  if (check_col(pinfo->fd, COL_INFO)) 
+		 col_set_str(pinfo->fd, COL_INFO, "Mobile IP Registration Request");
 	
 	  if (tree) {
 		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);
@@ -187,8 +181,8 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 
 	if (type==3){
-	  if (check_col(fd, COL_INFO)) 
-		 col_set_str(fd, COL_INFO, "Mobile IP Registration Reply");
+	  if (check_col(pinfo->fd, COL_INFO)) 
+		 col_set_str(pinfo->fd, COL_INFO, "Mobile IP Registration Reply");
 
 	  if (tree) {
 		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);
@@ -299,5 +293,5 @@ void proto_register_mip(void)
 void
 proto_reg_handoff_mip(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_MIP, dissect_mip, proto_mip);
+	dissector_add("udp.port", UDP_PORT_MIP, dissect_mip, proto_mip);
 }

@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.12 2001/01/14 08:27:25 guy Exp $
+ * $Id: packet-sctp.c,v 1.13 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1630,10 +1630,6 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *sctp_item;
   proto_tree *sctp_tree;
 
-  CHECK_DISPLAY_AS_DATA(proto_sctp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "SCTP";
-
   /* Extract the common header */
   source_port      = tvb_get_ntohs(tvb, SOURCE_PORT_OFFSET);
   destination_port = tvb_get_ntohs(tvb, DESTINATION_PORT_OFFSET);
@@ -1641,9 +1637,9 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   checksum         = tvb_get_ntohl(tvb, CHECKSUM_OFFSET);
 
   /* update pi structure */
-  pi.ptype    = PT_SCTP;
-  pi.srcport  = source_port;
-  pi.destport = destination_port;
+  pinfo->ptype    = PT_SCTP;
+  pinfo->srcport  = source_port;
+  pinfo->destport = destination_port;
 
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->fd, COL_PROTOCOL)) 

@@ -2,10 +2,8 @@
  * Routines for time packet dissection
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
- * Craig Newell <CraigN@cheque.uq.edu.au>
- *	RFC2347 TIME Option Extension
  *
- * $Id: packet-time.c,v 1.12 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-time.c,v 1.13 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,16 +45,12 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree	*time_tree;
   proto_item	*ti;
 
-  CHECK_DISPLAY_AS_DATA(proto_time, tvb, pinfo, tree);
-  
-  pinfo->current_proto = "TIME";
-
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "TIME");
   
   if (check_col(pinfo->fd, COL_INFO)) {
     col_add_fstr(pinfo->fd, COL_INFO, "TIME %s",
-		 pinfo->srcport == UDP_PORT_TIME? "Response":"Request");
+		 pinfo->srcport == pinfo->match_port ? "Response":"Request");
   }
   
   if (tree) {

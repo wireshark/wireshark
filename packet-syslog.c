@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@zing.org>
  *
- * $Id: packet-syslog.c,v 1.9 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-syslog.c,v 1.10 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,9 +145,11 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *syslog_tree;
   gchar msg_str[COL_INFO_LEN];
 
-  CHECK_DISPLAY_AS_DATA(proto_syslog, tvb, pinfo, tree);
-
-  pinfo->current_proto = "Syslog";
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "Syslog");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
+    
   msg_len = tvb_length(tvb);
   
   if (tvb_get_guint8(tvb, 0) == '<' && isdigit(tvb_get_guint8(tvb, 1))) {
@@ -173,9 +175,6 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_memcpy(tvb, msg_str, msg_off, msg_len);
     msg_str[msg_len] = '\0';
   }
-    
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_set_str(pinfo->fd, COL_PROTOCOL, "Syslog");
     
   if (check_col(pinfo->fd, COL_INFO)) {
     if (pri >= 0) {

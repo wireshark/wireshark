@@ -3,7 +3,7 @@
  * Richard Sharpe <rsharpe@ns.aus.com> based on the lapb module by
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapbether.c,v 1.4 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-lapbether.c,v 1.5 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,12 +54,10 @@ dissect_lapbether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int			len;
     tvbuff_t		*next_tvb;
 
-    CHECK_DISPLAY_AS_DATA(proto_lapbether, tvb, pinfo, tree);
-
-    pinfo->current_proto = "LAPBETHER";
-
     if (check_col(pinfo->fd, COL_PROTOCOL))
 	col_set_str(pinfo->fd, COL_PROTOCOL, "LAPBETHER");
+    if (check_col(pinfo->fd, COL_INFO))
+	col_clear(pinfo->fd, COL_INFO);
 
     len = tvb_get_guint8(tvb, 0) + tvb_get_guint8(tvb, 1) * 256;
 

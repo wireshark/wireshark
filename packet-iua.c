@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-iua.c,v 1.3 2001/01/14 10:15:56 guy Exp $
+ * $Id: packet-iua.c,v 1.4 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -845,10 +845,6 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *iua_item;
   proto_tree *iua_tree;
 
-  pinfo->current_proto = "IUA";
-
-  CHECK_DISPLAY_AS_DATA(proto_iua, message_tvb, pinfo, tree);
-
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
     col_add_str(pinfo->fd, COL_PROTOCOL, "IUA");
@@ -1017,5 +1013,3 @@ proto_reg_handoff_iua(void)
   dissector_add("sctp.port", SCTP_PORT_IUA, dissect_iua, proto_iua);
   dissector_add("sctp.ppi", IUA_PAYLOAD_PROTO_ID, dissect_iua, proto_iua);
 }
-
-

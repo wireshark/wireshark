@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.19 2001/01/09 06:31:43 guy Exp $
+ * $Id: packet-sdp.c,v 1.20 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,10 +60,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		valuelen;
 	const char	*typename;
 	int		datalen;
-
-	CHECK_DISPLAY_AS_DATA(proto_sdp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "SDP";
 
 	/*
 	 * As RFC 2327 says, "SDP is purely a format for session

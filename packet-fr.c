@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.7 2001/01/13 07:47:48 guy Exp $
+ * $Id: packet-fr.c,v 1.8 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,9 +70,6 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
   guint8  fr_nlpid,fr_ctrl;
     
-  CHECK_DISPLAY_AS_DATA(proto_fr, tvb, pinfo, tree);
-
-  pinfo->current_proto = "Frame Relay";
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
       col_set_str(pinfo->fd, COL_PROTOCOL, "FR");
   if (check_col(pinfo->fd, COL_INFO)) 

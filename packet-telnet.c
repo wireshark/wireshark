@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.23 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-telnet.c,v 1.24 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -362,10 +362,6 @@ static void
 dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         proto_tree      *telnet_tree, *ti;
-
-	CHECK_DISPLAY_AS_DATA(proto_telnet, tvb, pinfo, tree);
-
-	pinfo->current_proto = "TELNET";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "TELNET");

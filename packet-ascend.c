@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.23 2001/01/09 06:31:33 guy Exp $
+ * $Id: packet-ascend.c,v 1.24 2001/01/25 06:14:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,10 +58,6 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree			*fh_tree;
   proto_item			*ti;
   union wtap_pseudo_header	*pseudo_header = pinfo->pseudo_header;
-
-  CHECK_DISPLAY_AS_DATA(proto_ascend, tvb, pinfo, tree);
-
-  pinfo->current_proto = "Lucent/Ascend";
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */

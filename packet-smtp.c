@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.14 2001/01/09 06:31:43 guy Exp $
+ * $Id: packet-smtp.c,v 1.15 2001/01/25 06:14:14 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -174,10 +174,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean                is_continuation_line;
     int                     cmdlen;
 
-    CHECK_DISPLAY_AS_DATA(proto_smtp, tvb, pinfo, tree);
-
-    pinfo->current_proto = "SMTP";
-
     /* As there is no guarantee that we will only see frames in the
      * the SMTP conversation once, and that we will see them in
      * order - in Ethereal, the user could randomly click on frames
@@ -204,10 +200,14 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* SMTP messages have a simple format ... */
 
-    request = pinfo -> destport == TCP_PORT_SMTP;
+    request = pinfo -> destport == pinfo -> match_port;
 
     /*
      * Get the first line from the buffer.
+     *
+     * Note that "tvb_find_line_end()" will return a value that
+     * is not longer than what's in the buffer, so the
+     * "tvb_get_ptr()" call won't throw an exception.
      */
     linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
     line = tvb_get_ptr(tvb, offset, linelen);

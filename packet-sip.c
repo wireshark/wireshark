@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.10 2001/01/09 06:31:43 guy Exp $
+ * $Id: packet-sip.c,v 1.11 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,12 +75,17 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tvbuff_t *next_tvb;
         gboolean is_request;
 
-	CHECK_DISPLAY_AS_DATA(proto_sip, tvb, pinfo, tree);
-
-        pinfo->current_proto = "SIP";
         if (check_col(pinfo->fd, COL_PROTOCOL)) 
                 col_set_str(pinfo->fd, COL_PROTOCOL, "SIP");
     
+	/*
+	 * Note that "tvb_strneql()" doesn't throw exceptions, so
+	 * "sip_is_request()" won't throw an exception.
+	 *
+	 * Note that "tvb_find_line_end()" will return a value that
+	 * is not longer than what's in the buffer, so the
+	 * "tvb_get_ptr()" call s below won't throw exceptions.
+	 */
         offset = 0;
         is_request = sip_is_request(tvb, 0);
         eol = tvb_find_line_end(tvb, 0, -1, &next_offset);

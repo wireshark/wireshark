@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.12 2001/01/09 06:31:34 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.13 2001/01/25 06:14:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -124,12 +124,10 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         guint8 ver_type, rp_count;
 
-        CHECK_DISPLAY_AS_DATA(proto_auto_rp, tvb, pinfo, tree);
-
-        pinfo->current_proto = "Auto-RP";
-
         if (check_col(pinfo->fd, COL_PROTOCOL))
                 col_set_str(pinfo->fd, COL_PROTOCOL, "Auto-RP");
+        if (check_col(pinfo->fd, COL_INFO))
+                col_clear(pinfo->fd, COL_INFO);
         
         ver_type = tvb_get_guint8(tvb, 0);
         rp_count = tvb_get_guint8(tvb, 1);

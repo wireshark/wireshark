@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.3 2001/01/14 10:15:56 guy Exp $
+ * $Id: packet-m3ua.c,v 1.4 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -820,10 +820,6 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *m3ua_item;
   proto_tree *m3ua_tree;
-
-  CHECK_DISPLAY_AS_DATA(proto_m3ua, message_tvb, pinfo, tree);
-
-  pinfo->current_proto = "M3UA";
 
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->fd, COL_PROTOCOL)) 

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.35 2001/01/13 02:28:27 guy Exp $
+ * $Id: packet-rtsp.c,v 1.36 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -659,12 +659,10 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		offset = 0;
 	int		len;
 
-	CHECK_DISPLAY_AS_DATA(proto_rtsp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "RTSP";
-
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "RTSP");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	while (tvb_offset_exists(tvb, offset)) {
 		len = (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR)

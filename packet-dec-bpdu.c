@@ -1,7 +1,7 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.5 2001/01/14 08:25:14 guy Exp $
+ * $Id: packet-dec-bpdu.c,v 1.6 2001/01/25 06:14:14 guy Exp $
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  * 
@@ -78,12 +78,11 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       proto_tree *bpdu_tree;
       proto_item *ti;
 
-      CHECK_DISPLAY_AS_DATA(proto_dec_bpdu, tvb, pinfo, tree);
-
-      pinfo->current_proto = "DEC_STP";
-
       if (check_col(pinfo->fd, COL_PROTOCOL)) {
 	    col_set_str(pinfo->fd, COL_PROTOCOL, "DEC_STP");
+      }
+      if (check_col(pinfo->fd, COL_INFO)) {
+	    col_clear(pinfo->fd, COL_INFO);
       }
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);

@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.24 2001/01/10 04:17:13 gram Exp $
+ * $Id: packet-sna.c,v 1.25 2001/01/25 06:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -327,9 +327,10 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		sna_header_len = 0, th_header_len = 0;
 	int		offset;
 
-	CHECK_DISPLAY_AS_DATA(proto_sna, tvb, pinfo, tree);
-
-	pinfo->current_proto = "SNA";
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "SNA");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	/* SNA data should be printed in EBCDIC, not ASCII */
 	pinfo->fd->flags.encoding = CHAR_EBCDIC;
@@ -338,8 +339,6 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	th_fid = hi_nibble(tvb_get_guint8(tvb, 0));
 
 	/* Summary information */
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "SNA");
 	if (check_col(pinfo->fd, COL_INFO))
 		col_add_str(pinfo->fd, COL_INFO,
 				val_to_str(th_fid, sna_th_fid_vals, "Unknown FID: %01x"));
