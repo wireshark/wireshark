@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.14 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-ldp.c,v 1.15 2001/05/21 10:14:35 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -276,6 +276,7 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
       while (fec_len > 0) {
 	proto_tree *fec_tree = NULL;
+	guint prefix_len_octets, prefix_len, prefix;  
 
 
 	switch (tvb_get_guint8(tvb, offset)) {
@@ -305,15 +306,34 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_af, tvb, offset, 2, FALSE);
 	  offset += 2;
 
-
+	  prefix_len = tvb_get_guint8(tvb, offset);
 	  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_len, tvb, offset, 1, FALSE);
 
 	  offset += 1;
-
-	  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pfval, tvb, offset, 4, FALSE);
-
-	  fec_len -= 8;
-
+	  /* This is IPv4 specific. Should do IPv6 according to AF*/
+	  prefix_len_octets = MIN( (prefix_len+7)/8 , 4 );
+	  switch (prefix_len_octets){
+	    case (0): /*prefix_length=0*/
+	      prefix = 0;
+	      break;
+	    case (1): /*1<=prefix_length<=8*/
+	      prefix = tvb_get_guint8(tvb, offset);
+	      break;
+	    case (2): /*9<=prefix_length<=16*/
+	      prefix = tvb_get_letohs(tvb, offset);
+	      break;
+	    case (3): /*17<=prefix_length<=24*/
+	      prefix = tvb_get_letoh24(tvb, offset);
+	      break;
+	    case (4): /*25<=prefix_length<=32*/
+	      prefix = tvb_get_letohl(tvb, offset);
+	      break;
+	  }
+	  proto_tree_add_ipv4(fec_tree, hf_ldp_tlv_fec_pfval, tvb, 
+			      offset, prefix_len_octets, prefix);
+	  fec_len -= 4+prefix_len_octets;
+	  if (prefix_len > 32)
+	    proto_tree_add_text(tlv_tree, tvb, offset, 4, "Invalid prefix length, guessing 32");
 	  break;
 
 	case 3:   /* Host address */
@@ -769,7 +789,7 @@ proto_register_ldp(void)
       { "FEC Element Length", "ldp.msg.tlv.fec.len", FT_UINT8, BASE_DEC, NULL, 0x0, "Forwarding Equivalence Class Element Length"}},
 
     { &hf_ldp_tlv_fec_pfval,
-      { "FEC Element Prefix Value", "ldp.msg.tlv.fec.pfval", FT_UINT32, BASE_HEX, NULL, 0x0, "Forwarding Equivalence Class Element Prefix"}},
+      { "FEC Element Prefix Value", "ldp.msg.tlv.fec.pfval", FT_IPv4, BASE_DEC, NULL, 0x0, "Forwarding Equivalence Class Element Prefix"}},
 
     { &hf_ldp_tlv_generic_label,
       { "Generic Label", "ldp.msg.tlv.label", FT_UINT32, BASE_HEX, NULL, 0x0, "Label Mapping Generic Label"}},
