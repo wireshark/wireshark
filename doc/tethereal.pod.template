@@ -107,6 +107,8 @@ to write the file.  The following formats are supported:
 
 =back
 
+This list is also displayed by the B<-h> flag.
+
 Read filters in B<Tethereal>, which allow you to select which packets
 are to be decoded or written to a file, are very powerful; more fields
 are filterable in B<Tethereal> than in other protocol analyzers, and the
