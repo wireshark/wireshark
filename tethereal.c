@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.104 2001/12/10 00:25:41 guy Exp $
+ * $Id: tethereal.c,v 1.105 2001/12/10 02:12:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1239,7 +1239,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   cf->count++;
   if (cf->rfcode) {
     fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
-    edt = epan_dissect_new(pseudo_header, buf, &fdata, TRUE, &cf->cinfo);
+    edt = epan_dissect_new(pseudo_header, buf, &fdata, TRUE, NULL);
     passed = dfilter_apply_edt(cf->rfcode, edt);
   } else {
     passed = TRUE;
@@ -1342,8 +1342,10 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
     create_proto_tree = TRUE;
   else
     create_proto_tree = FALSE;
+  /* We only need the columns if we're *not* verbose; in verbose mode,
+     we print the protocol tree, not the protocol summary. */
   edt = epan_dissect_new(pseudo_header, buf, &fdata, create_proto_tree,
-    &cf->cinfo);
+    verbose ? NULL : &cf->cinfo);
   if (cf->rfcode)
     passed = dfilter_apply_edt(cf->rfcode, edt);
   if (passed) {
