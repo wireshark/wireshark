@@ -1,7 +1,7 @@
 /* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.h,v 1.4 2000/01/05 21:48:16 gram Exp $
+ * $Id: conversation.h,v 1.5 2000/04/12 22:53:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,7 @@
 #ifndef __CONVERSATION_H__
 #define __CONVERSATION_H__
 
+#include "packet.h"		/* for conversation dissector type */
 /*
  * Data structure representing a conversation.
  */
@@ -33,12 +34,17 @@ typedef struct conversation {
 	struct conversation *next;	/* pointer to next conversation on hash chain */
 	guint32	index;	/* unique ID for conversation */
 	void	*data;	/* data our client can associate with a conversation */
+	dissector_t	dissector; 	/* protocol dissector client can associate with conversation */
+
 } conversation_t;
 
 extern void conversation_init(void);
 conversation_t *conversation_new(address *src, address *dst, port_type ptype,
     guint32 src_port, guint32 dst_port, void *data);
 conversation_t *find_conversation(address *src, address *dst, port_type ptype,
+    guint32 src_port, guint32 dst_port);
+
+dissector_t find_conversation_dissector(address *src, address *dst, port_type ptype,
     guint32 src_port, guint32 dst_port);
 
 #endif /* conversation.h */

@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.6 2000/01/05 21:48:16 gram Exp $
+ * $Id: conversation.c,v 1.7 2000/04/12 22:53:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -243,6 +243,10 @@ conversation_new(address *src, address *dst, port_type ptype,
 	conversation = g_mem_chunk_alloc(conversation_chunk);
 	conversation->index = new_index;
 	conversation->data = data;
+
+/* clear dissector pointer */
+	conversation->dissector = NULL;
+
 	new_index++;
 
 	g_hash_table_insert(conversation_hashtable, new_key, conversation);
@@ -270,4 +274,20 @@ find_conversation(address *src, address *dst, port_type ptype,
 	key.port_src = src_port;
 	key.port_dst = dst_port;
 	return g_hash_table_lookup(conversation_hashtable, &key);
+}
+
+/*
+ * Given source and destination addresses and ports for a packet,
+ * search for a conversational dissector.
+ * Returns NULL if not found.
+ */
+dissector_t find_conversation_dissector(address *src, address *dst, port_type ptype,
+    guint32 src_port, guint32 dst_port){
+
+	conversation_t *conversation = find_conversation(src, dst, ptype, src_port, dst_port);
+
+	if ( conversation)
+		return conversation->dissector;
+
+	return NULL;
 }

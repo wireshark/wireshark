@@ -146,6 +146,9 @@ Jeff Foster <jfoste@woodward.com> {
 	Support for protocols registering themselves with dissectors for
 	    protocols on top of which they run
 	Rlogin support
+	Support for associating a dissector with a conversation, and for
+	    use of that dissector by TCP and UDP
+	SOCKS support
 }
 
 Peter Torvals <petertv@xoommail.com> {

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.66 2000/04/08 07:07:39 guy Exp $
+ * $Id: packet-tcp.c,v 1.67 2000/04/12 22:53:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -353,6 +353,76 @@ static const true_false_string flags_set_truth = {
   "Not set"
 };
 
+
+void
+decode_tcp_ports( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+	int src_port, int dst_port) {
+
+/* Determine if there is a sub-dissector and call it.  This has been */
+/* separated into a stand alone routine to other protocol dissectors */
+/* can call to it, ie. socks	*/
+
+
+  dissector_t sub_dissector;
+
+  sub_dissector = find_conversation_dissector( &pi.src, &pi.dst, PT_TCP,
+		src_port, dst_port);
+  if (sub_dissector){
+	(sub_dissector)(pd, offset, fd, tree);
+	return;
+  }
+
+    /* ONC RPC.  We can't base this on anything in the TCP header; we have
+       to look at the payload.  If "dissect_rpc()" returns TRUE, it was
+       an RPC packet, otherwise it's some other type of packet. */
+    if (dissect_rpc(pd, offset, fd, tree))
+      return;
+
+    /* try to apply the plugins */
+#ifdef HAVE_PLUGINS
+    {
+      plugin *pt_plug = plugin_list;
+
+      if (enabled_plugins_number > 0) {
+	while (pt_plug) {
+	  if (pt_plug->enabled && !strcmp(pt_plug->protocol, "tcp") &&
+	      tree && dfilter_apply(pt_plug->filter, tree, pd)) {
+	    pt_plug->dissector(pd, offset, fd, tree);
+	    return;
+	  }
+	  pt_plug = pt_plug->next;
+	}
+      }
+    }
+#endif
+
+    /* do lookup with the subdissector table */
+    if (dissector_try_port(subdissector_table, src_port, pd, offset,
+				fd, tree) ||
+        dissector_try_port(subdissector_table, dst_port, pd, offset,
+				fd, tree))
+	return;
+
+    /* check existence of high level protocols */
+
+#define PORT_IS(port)   ( src_port == port || dst_port == port)    
+
+    if (memcmp(&pd[offset], "GIOP",  4) == 0) {
+	dissect_giop(pd, offset, fd, tree);
+	return;
+    }
+
+    if ( PORT_IS(TCP_PORT_YHOO) && 
+		(memcmp(&pd[offset], "YPNS",  4) == 0 ||
+		memcmp(&pd[offset], "YHOO",  4) == 0 )) {
+	dissect_yhoo(pd, offset, fd, tree);
+	return;
+    }
+
+    dissect_data(pd, offset, fd, tree);
+}
+
+
 void
 dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_tcphdr   th;
@@ -469,59 +539,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   /* Check the packet length to see if there's more data
      (it could be an ACK-only packet) */
-  if (packet_max > offset) {
-
-    /* ONC RPC.  We can't base this on anything in the TCP header; we have
-       to look at the payload.  If "dissect_rpc()" returns TRUE, it was
-       an RPC packet, otherwise it's some other type of packet. */
-    if (dissect_rpc(pd, offset, fd, tree))
-      goto reas;
-
-    /* try to apply the plugins */
-#ifdef HAVE_PLUGINS
-    {
-      plugin *pt_plug = plugin_list;
-
-      if (enabled_plugins_number > 0) {
-	while (pt_plug) {
-	  if (pt_plug->enabled && !strcmp(pt_plug->protocol, "tcp") &&
-	      tree && dfilter_apply(pt_plug->filter, tree, pd)) {
-	    pt_plug->dissector(pd, offset, fd, tree);
-	    goto reas;
-	  }
-	  pt_plug = pt_plug->next;
-	}
-      }
-    }
-#endif
-
-    /* do lookup with the subdissector table */
-    if (dissector_try_port(subdissector_table, th.th_sport, pd, offset,
-				fd, tree) ||
-        dissector_try_port(subdissector_table, th.th_dport, pd, offset,
-				fd, tree))
-	goto reas;
-
-    /* check existence of high level protocols */
-
-#define PORT_IS(port)   (th.th_sport == port || th.th_dport == port)    
-
-    if (memcmp(&pd[offset], "GIOP",  4) == 0) {
-	dissect_giop(pd, offset, fd, tree);
-	goto reas;
-    }
-
-    if ( PORT_IS(TCP_PORT_YHOO) && 
-		(memcmp(&pd[offset], "YPNS",  4) == 0 ||
-		memcmp(&pd[offset], "YHOO",  4) == 0 )) {
-	dissect_yhoo(pd, offset, fd, tree);
-	goto reas;
-    }
-
-    dissect_data(pd, offset, fd, tree);
-  }
-
-reas:
+  if (packet_max > offset) 
+    decode_tcp_ports( pd, offset, fd, tree, th.th_sport, th.th_dport);
  
   if( data_out_file ) {
     reassemble_tcp( th.th_seq,		/* sequence number */

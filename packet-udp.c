@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.59 2000/04/08 07:07:41 guy Exp $
+ * $Id: packet-udp.c,v 1.60 2000/04/12 22:53:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,54 +83,27 @@ typedef struct _e_udphdr {
 
 static dissector_table_t udp_dissector_table;
 
+
 void
-dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-  e_udphdr  uh;
-  guint16    uh_sport, uh_dport, uh_ulen, uh_sum;
-  proto_tree *udp_tree;
-  proto_item *ti;
+decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree, int uh_sport, int uh_dport){
 
-  if (!BYTES_ARE_IN_FRAME(offset, sizeof(e_udphdr))) {
-    dissect_data(pd, offset, fd, tree);
-    return;
+/* Determine if there is a sub-dissector and call it.  This has been */
+/* separated into a stand alone routine to other protocol dissectors */
+/* can call to it, ie. socks	*/
+
+  dissector_t sub_dissector;
+
+
+/* determine if this packet is part of a conversation and call dissector */
+/* for the conversation if available */
+
+  sub_dissector = find_conversation_dissector( &pi.src, &pi.dst, PT_UDP,
+		uh_sport, uh_dport);
+  if (sub_dissector){
+	(sub_dissector)(pd, offset, fd, tree);
+	return;
   }
-
-  /* Avoids alignment problems on many architectures. */
-  memcpy(&uh, &pd[offset], sizeof(e_udphdr));
-  uh_sport = ntohs(uh.uh_sport);
-  uh_dport = ntohs(uh.uh_dport);
-  uh_ulen  = ntohs(uh.uh_ulen);
-  uh_sum   = ntohs(uh.uh_sum);
-  
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "UDP");
-  if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "Source port: %s  Destination port: %s",
-	    get_udp_port(uh_sport), get_udp_port(uh_dport));
-    
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_udp, offset, 8);
-    udp_tree = proto_item_add_subtree(ti, ett_udp);
-
-    proto_tree_add_uint_format(udp_tree, hf_udp_srcport, offset, 2, uh_sport,
-	"Source port: %s (%u)", get_udp_port(uh_sport), uh_sport);
-    proto_tree_add_uint_format(udp_tree, hf_udp_dstport, offset + 2, 2, uh_dport,
-	"Destination port: %s (%u)", get_udp_port(uh_dport), uh_dport);
-
-    proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset, 2, uh_sport);
-    proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset+2, 2, uh_dport);
-
-    proto_tree_add_item(udp_tree, hf_udp_length, offset + 4, 2,  uh_ulen);
-    proto_tree_add_uint_format(udp_tree, hf_udp_checksum, offset + 6, 2, uh_sum,
-	"Checksum: 0x%04x", uh_sum);
-  }
-
-  /* Skip over header */
-  offset += 8;
-
-  pi.ptype = PT_UDP;
-  pi.srcport = uh_sport;
-  pi.destport = uh_dport;
 
   /* ONC RPC.  We can't base this on anything in the UDP header; we have
      to look at the payload.  If "dissect_rpc()" returns TRUE, it was
@@ -183,6 +156,61 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				fd, tree))
 	dissect_data(pd, offset, fd, tree);
   }
+}
+
+
+void
+dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+  e_udphdr  uh;
+  guint16    uh_sport, uh_dport, uh_ulen, uh_sum;
+  proto_tree *udp_tree;
+  proto_item *ti;
+
+  if (!BYTES_ARE_IN_FRAME(offset, sizeof(e_udphdr))) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
+  /* Avoids alignment problems on many architectures. */
+  memcpy(&uh, &pd[offset], sizeof(e_udphdr));
+  uh_sport = ntohs(uh.uh_sport);
+  uh_dport = ntohs(uh.uh_dport);
+  uh_ulen  = ntohs(uh.uh_ulen);
+  uh_sum   = ntohs(uh.uh_sum);
+  
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "UDP");
+  if (check_col(fd, COL_INFO))
+    col_add_fstr(fd, COL_INFO, "Source port: %s  Destination port: %s",
+	    get_udp_port(uh_sport), get_udp_port(uh_dport));
+    
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_udp, offset, 8);
+    udp_tree = proto_item_add_subtree(ti, ett_udp);
+
+    proto_tree_add_uint_format(udp_tree, hf_udp_srcport, offset, 2, uh_sport,
+	"Source port: %s (%u)", get_udp_port(uh_sport), uh_sport);
+    proto_tree_add_uint_format(udp_tree, hf_udp_dstport, offset + 2, 2, uh_dport,
+	"Destination port: %s (%u)", get_udp_port(uh_dport), uh_dport);
+
+    proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset, 2, uh_sport);
+    proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset+2, 2, uh_dport);
+
+    proto_tree_add_item(udp_tree, hf_udp_length, offset + 4, 2,  uh_ulen);
+    proto_tree_add_uint_format(udp_tree, hf_udp_checksum, offset + 6, 2, uh_sum,
+	"Checksum: 0x%04x", uh_sum);
+  }
+
+  /* Skip over header */
+  offset += 8;
+
+  pi.ptype = PT_UDP;
+  pi.srcport = uh_sport;
+  pi.destport = uh_dport;
+
+/* call sub-dissectors */
+  decode_udp_ports( pd, offset, fd, tree, uh_sport, uh_dport);
+
 }
 
 void
