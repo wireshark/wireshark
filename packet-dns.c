@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.52 2000/08/13 14:08:08 deniel Exp $
+ * $Id: packet-dns.c,v 1.53 2000/08/18 09:05:02 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -111,7 +111,7 @@ static gint ett_t_key_flags = -1;
 #define T_SRV           33              /* service location (RFC 2052) */
 #define T_ATMA          34              /* ??? */
 #define T_NAPTR         35              /* naming authority pointer (RFC 2168) */
-#define T_A6		38              /* IPv6 address with indirection (draft-ietf-ipngwg-dns-lookups-07) */
+#define T_A6		38              /* IPv6 address with indirection (RFC 2874) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
 #define T_WINS_R	65282		/* Microsoft's WINS-R RR */
@@ -199,7 +199,7 @@ dns_type_name (u_int type)
     "NAPTR",				/* RFC 2168 */
     NULL,
     NULL,
-    "A6",				/* draft-ietf-ipngwg-dns-lookups-07 */
+    "A6",				/* RFC 2874 */
     NULL,
     NULL,
     "OPT"				/* RFC 2671 */
@@ -285,7 +285,7 @@ dns_long_type_name (u_int type)
     "Naming authority pointer",		/* RFC 2168 */
     NULL,
     NULL,
-    "IPv6 address with indirection",	/* draft-ietf-ipngwg-dns-lookups-07 */
+    "IPv6 address with indirection",	/* RFC 2874 */
     NULL,
     NULL,
     "EDNS0 option"			/* RFC 2671 */
