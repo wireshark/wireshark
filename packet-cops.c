@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.20 2002/02/22 11:28:02 guy Exp $
+ * $Id: packet-cops.c,v 1.21 2002/02/22 21:52:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -434,7 +434,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
 static void
 dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        int offset = 0;
+        volatile int offset = 0;
 	int length_remaining;
 	guint32 msg_len;
 	int length;

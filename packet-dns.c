@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.82 2002/02/22 11:28:03 guy Exp $
+ * $Id: packet-dns.c,v 1.83 2002/02/22 21:52:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1952,7 +1952,7 @@ dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int offset = 0;
+	volatile int offset = 0;
 	int length_remaining;
 	guint16 plen;
 	int length;

@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.13 2002/02/22 11:28:03 guy Exp $
+ * $Id: packet-tpkt.c,v 1.14 2002/02/22 21:52:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,10 +113,10 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_item *ti = NULL;
 	proto_tree *tpkt_tree = NULL;
-	int offset = 0;
+	volatile int offset = 0;
 	int length_remaining;
 	int data_len;
-	int length;
+	volatile int length;
 	tvbuff_t *next_tvb;
 	const char *saved_proto;
 
