@@ -910,7 +910,7 @@ g_warning("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_CHKSUM_REAL_CRC32          0xffffff7c
 #define KRB5_CHKSUM_SHA1                0xffffff7d
 #define KRB5_CHKSUM_LM                  0xffffff7e
-
+#define KRB5_CHKSUM_GSSAPI		0x8003
 
 /*
  * For KERB_ENCTYPE_RC4_HMAC and KERB_ENCTYPE_RC4_HMAC_EXP, see
@@ -1255,6 +1255,7 @@ static const value_string krb5_checksum_types[] = {
     { KRB5_CHKSUM_REAL_CRC32      , "real-crc32" },
     { KRB5_CHKSUM_SHA1            , "sha1" },
     { KRB5_CHKSUM_LM              , "lm" },
+    { KRB5_CHKSUM_GSSAPI	  , "gssapi-8003" },
     { 0                           , NULL },
 };
 
@@ -4400,6 +4401,10 @@ proto_reg_handoff_kerberos(void)
 	proto_kerberos);
     dissector_add("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);
     dissector_add("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);
+
+    register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_INTEGRITY,
+				      DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
+				      &gss_kerb_auth_fns);
 
     register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
 				      DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,

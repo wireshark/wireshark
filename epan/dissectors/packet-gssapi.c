@@ -473,6 +473,12 @@ proto_reg_handoff_gssapi(void)
 {
 	data_handle = find_dissector("data");
 
+	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
+					  DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,
+					  &gssapi_auth_fns);
+	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_INTEGRITY,
+					  DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,
+					  &gssapi_auth_fns);
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
 					  DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,
 					  &gssapi_auth_fns);
