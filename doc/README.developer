@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.1 2000/03/01 07:43:23 guy Exp $
+$Id: README.developer,v 1.2 2000/03/01 08:05:49 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -28,7 +28,50 @@ name is "packet-", followed by the abbreviated name for the protocol,
 followed by ".h"; any dissector file that calls your dissector should be
 changed to include that file.
 
-/* Recommended includes for Ethereal protocol dissectors */
+You may not need to include all the headers listed in the skeleton
+below, and you may need to include additional headers.  For example, the
+code inside
+
+	#ifdef NEED_SNPRINTF_H
+
+		...
+
+	#endif
+
+is needed only if you are using the "snprintf()" function.
+
+The "$Id: README.developer,v 1.2 2000/03/01 08:05:49 guy Exp $" in the comment will be updated by CVS when the file is
+checked in; it will allow the RCS "ident" command to report which
+version of the file is currently checked out.
+
+------------------------------------Cut here------------------------------------
+/* packet-PROTOABBREV.c
+ * Routines for PROTONAME dissection
+ * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
+ *
+ * $Id: README.developer,v 1.2 2000/03/01 08:05:49 guy Exp $
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@unicom.net>
+ * Copyright 1998 Gerald Combs
+ *
+ * Copied from WHATEVER_FILE_YOU_USED
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -65,7 +108,6 @@ static int hf_PROTOABBREV_FIELDABBREV = -1;
 /* Initialize the subtree pointers */
 static gint ett_PROTOABBREV = -1;
 
-
 /* Code to actually dissect the packets */
 void
 dissect_PROTOABBREV(cont u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -77,20 +119,35 @@ dissect_PROTOABBREV(cont u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(fd, COL_PROTOCOL)) 
-	col_add_str(fd, COL_PROTOCOL, "PROTOABBREV");
+		col_add_str(fd, COL_PROTOCOL, "PROTOABBREV");
     
-	if (check_col(fd, COL_INFO)) 
-	col_add_str(fd, COL_INFO, "PROTONAME");
+/* This field shows up as the "Info" column in the display; you should make
+   it, if possible, summarize what's in the packet, so that a user looking
+   at the list of packets can tell what type of packet it is.
 
+   "col_add_fstr()" can be used instead of "col_add_str()"; it takes
+   "printf()"-like arguments. */
+	if (check_col(fd, COL_INFO)) 
+		col_add_str(fd, COL_INFO, "XXX Request");
+
+/* In the interest of speed, if "tree" is NULL, don't do any work not
+   necessary to generate protocol tree items. */
 	if (tree) {
+/* NOTE: The offset and length values in the previous call to
+   "proto_tree_add_item()" define what data bytes to highlight in the hex
+   display window when the line in the protocol tree display
+   corresponding to that item is selected.
+
+   END_OF_FRAME is a handy way to highlight all data from the offset to
+   the end of the packet. */
 		ti = proto_tree_add_item(tree, proto_PROTOABBREV, offset, END_OF_FRAME, NULL);
 	        PROTOABBREV_tree = proto_item_add_subtree(ti, ett_PROTOABBREV);
 
 /* Code to process the packet goes here */
 
 
-	};
-};
+	}
+}
 
 /* Register the protocol with Ethereal */
 proto_register_PROTOABBREV(void)
@@ -117,12 +174,18 @@ proto_register_PROTOABBREV(void)
 	proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 };
+------------------------------------Cut here------------------------------------
 
 1.2 Explanation of needed substitutions in code skeleton.
 
 In the above code block the following strings should be substituted with
 your information.
 
+YOUR_NAME	Your name, of course.  You do want credit, don't you?
+		It's the only payment you will receive....
+YOUR_EMAIL_ADDRESS	Keep those cards and letters coming.
+WHATEVER_FILE_YOU_USED	Add this line if you are using another file as a
+		starting point.
 PROTONAME	The name of the protocol.
 PROTOABBREV	An abbreviated name for the protocol. (NO SPACES) (rec. 
 		a-z, 0-9 only and try to conform with IANA names)
@@ -204,7 +267,7 @@ static const true_false_string boolstringname = {
 1.4 The dissector and the data it receives.
 
 1.4.1 The dissector has the following header which must be placed into
-packet.h.
+packet-PROTOABBREV.h.
 
 void
 dissect_PROTOABBREV(const u_char *pd, int offset, frame_data *fd, proto_tree *tree); 
