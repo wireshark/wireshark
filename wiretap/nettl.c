@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.3 2000/01/13 07:09:18 guy Exp $
+ * $Id: nettl.c,v 1.4 2000/01/20 17:13:42 oabad Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -32,8 +32,11 @@
 #include "buffer.h"
 #include "nettl.h"
 
-static char nettl_magic[5] = {
-    0x54, 0x52, 0x00, 0x64, 0x00
+static char nettl_magic_hpux9[12] = {
+    0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD0, 0x00
+};
+static char nettl_magic_hpux10[12] = {
+    0x54, 0x52, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80
 };
 
 /* HP nettl record header - The FCS is not included in the file. */
@@ -55,21 +58,22 @@ static int nettl_read(wtap *wth, int *err);
 
 int nettl_open(wtap *wth, int *err)
 {
-    char magic[5];
+    char magic[12];
     int bytes_read;
 
     /* Read in the string that should be at the start of a HP file */
     file_seek(wth->fh, 0, SEEK_SET);
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(magic, 1, 5, wth->fh);
-    if (bytes_read != 5) {
+    bytes_read = file_read(magic, 1, 12, wth->fh);
+    if (bytes_read != 12) {
     	*err = file_error(wth->fh);
 	if (*err != 0)
 	    return -1;
 	return 0;
     }
 
-    if (memcmp(magic, nettl_magic, 5)) {
+    if (memcmp(magic, nettl_magic_hpux9, 12) &&
+        memcmp(magic, nettl_magic_hpux10, 12)) {
 	return 0;
     }
 
