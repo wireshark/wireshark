@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.206 2004/06/22 16:28:27 ulfl Exp $
+ * $Id: menu.c,v 1.207 2004/06/25 17:33:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,6 +227,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Previous Packet", NULL, timestamp_delta_cb, 
                         0, "/View/Time Display Format/Time of Day", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resol_ution", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _MAC Layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Network Layer", NULL, name_resolution_network_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Transport Layer", NULL, name_resolution_transport_cb, 0, "<CheckItem>", NULL),
@@ -407,7 +409,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/_Go to Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Protocol Properties...", NULL, properties_cb,
+    ITEM_FACTORY_ENTRY("/Protocol Preferences...", NULL, properties_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Apply as Filter/_Selected", NULL, match_selected_ptree_cb, 
@@ -1693,6 +1695,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(NULL, "/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
+  set_menu_sensitivity(main_menu_factory, "/View/Name Resolution/Resolve Name",
+      cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
   set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
       cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
   set_menu_sensitivity(packet_list_menu_factory, "/Apply as Filter",
@@ -1794,7 +1798,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
+	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  properties);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", cf->finfo_selected->tree_type != -1);
 	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", cf->finfo_selected->tree_type != -1);
@@ -1807,7 +1811,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
+	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  FALSE);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", FALSE);
