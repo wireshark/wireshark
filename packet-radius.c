@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.94 2004/03/06 22:06:26 guy Exp $
+ * $Id: packet-radius.c,v 1.95 2004/03/06 22:17:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2398,6 +2398,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
   guint8 tag;
   guint8 ipv6_prefix_length;
   guint8 ipv6_addr_temp[16];
+  gint avp_length_remaining;
 
   int vsa_length;
   int vsa_len;
@@ -2541,9 +2542,9 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		break;
 
 	case( THE3GPP_IPV6_DNS_SERVERS ):
-		/* XXX - does this have more than one IPv6 address?
-		   If not, we should just use RADIUS_IP6_ADDRESS;
-		   if so, we should process those addresses. */
+		/* XXX - this is described as a list of IPv6 addresses of
+		   DNS servers, so we probably need to process more than
+		   one IPv6 address. */
 		ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb,offset+2,16),cont);
 		break;
 
