@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.36 2002/08/02 23:36:00 jmayer Exp $
+ * $Id: packet-rx.c,v 1.37 2002/08/28 21:00:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,7 @@ static const value_string rx_reason[] = {
 	{ RX_ACK_REQUESTED,		"Ack Requested"		},
 	{ RX_ACK_DUPLICATE,		"Duplicate Packet"	},
 	{ RX_ACK_OUT_OF_SEQUENCE,	"Out Of Sequence"	},
-	{ RX_ACK_EXEEDS_WINDOW,		"Exceeds Window" 	},	
+	{ RX_ACK_EXEEDS_WINDOW,		"Exceeds Window" 	},
 	{ RX_ACK_NOSPACE,		"No Space"		},
 	{ RX_ACK_PING,			"Ping"			},
 	{ RX_ACK_PING_RESPONSE,		"Ping Response"		},
@@ -156,7 +156,7 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 		nstime_t ts;
 		ts.secs = tvb_get_ntohl(tvb, offset);
 		ts.nsecs = 0;
-		
+
 		proto_tree_add_time(tree, hf_rx_epoch, tvb,
 			offset, 4, &ts);
 		offset += 4;
@@ -188,11 +188,11 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	/* level : 4 bytes */
 	proto_tree_add_item(tree, hf_rx_level, tvb, offset, 4, FALSE);
 	offset += 4;
-	
-	proto_item_set_len(item, offset-old_offset);	
+
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
-	
+
 
 static int
 dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
@@ -234,18 +234,18 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		/* kvno */
 		proto_tree_add_item(tree, hf_rx_kvno, tvb, offset, 4, FALSE);
 		offset += 4;
-		
+
 		/* ticket_len */
 		tl = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_uint(tree, hf_rx_ticket_len, tvb,
 			offset, 4, tl);
 		offset += 4;
-	
+
 		proto_tree_add_item(tree, hf_rx_ticket, tvb, offset, tl, FALSE);
-		offset += tl;	
+		offset += tl;
 	}
 
-	proto_item_set_len(item, offset-old_offset);	
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -276,8 +276,8 @@ dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	/* kvno */
 	proto_tree_add_item(tree, hf_rx_abortcode, tvb, offset, 4, FALSE);
 	offset += 4;
-		
-	proto_item_set_len(item, offset-old_offset);	
+
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -320,7 +320,7 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		offset += 4;
 	}
 
-	proto_item_set_len(item, offset-old_offset);	
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -353,20 +353,20 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 	/* bufferspace: 2 bytes*/
 	proto_tree_add_item(tree, hf_rx_bufferspace, tvb, offset, 2, FALSE);
 	offset += 2;
-	
+
 	/* maxskew: 2 bytes*/
 	proto_tree_add_item(tree, hf_rx_maxskew, tvb, offset, 2, FALSE);
 	offset += 2;
-	
+
 	/* first packet: 4 bytes*/
 	proto_tree_add_item(tree, hf_rx_first_packet, tvb, offset, 4, FALSE);
 	offset += 4;
-	
+
 	/* prev packet: 4 bytes*/
 	proto_tree_add_item(tree, hf_rx_prev_packet, tvb, offset, 4, FALSE);
 	offset += 4;
 
-	/* serial : 4 bytes */	
+	/* serial : 4 bytes */
 	proto_tree_add_item(tree, hf_rx_serial, tvb, offset, 4, FALSE);
 	offset += 4;
 
@@ -418,7 +418,7 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 		}
 	}
 
-	proto_item_set_len(item, offset-old_offset);	
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -468,7 +468,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	item = proto_tree_add_protocol_format(parent_tree, proto_rx, tvb, 
+	item = proto_tree_add_protocol_format(parent_tree, proto_rx, tvb,
 		offset,	28, "RX Protocol");
 	tree = proto_item_add_subtree(item, ett_rx);
 
@@ -477,7 +477,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		nstime_t ts;;
 		ts.secs = tvb_get_ntohl(tvb, offset);
 		ts.nsecs = 0;
-		
+
 		proto_tree_add_time(tree, hf_rx_epoch, tvb,
 			offset, 4, &ts);
 		offset += 4;
@@ -542,10 +542,10 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	switch (type) {
 	case RX_PACKET_TYPE_ACK:
-		/*dissect_rx_acks(tvb, pinfo, parent_tree, offset, 
+		/*dissect_rx_acks(tvb, pinfo, parent_tree, offset,
 			cant create it in a parallell tree, then ett seasrch
 			wont work */
-		dissect_rx_acks(tvb, pinfo, tree, offset, 
+		dissect_rx_acks(tvb, pinfo, tree, offset,
 			seq, callnumber);
 		break;
 	case RX_PACKET_TYPE_ACKALL:

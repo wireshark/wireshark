@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.15 2002/08/28 10:07:30 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.16 2002/08/28 21:00:41 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,7 +86,7 @@ process_node(proto_item *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 	g_assert(finfo);
 
 	stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
-	
+
 	/* Assert that the finfo is related to a protocol, not a field. */
 	g_assert(finfo->hfinfo->parent == -1);
 

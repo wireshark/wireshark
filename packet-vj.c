@@ -1,7 +1,7 @@
 /* packet-vj.c
- * Routines for Van Jacobson header decompression. 
+ * Routines for Van Jacobson header decompression.
  *
- * $Id: packet-vj.c,v 1.15 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-vj.c,v 1.16 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9,7 +9,7 @@
  * This file created by Irfan Khan <ikhan@qualcomm.com>
  * Copyright (c) 2001  by QUALCOMM, Incorporated.
  * All Rights reserved.
- * 
+ *
  * Routines to compress and uncompress TCP packets (for transmission
  * over low speed serial lines).
  *
@@ -55,7 +55,7 @@
  *                      Use ip_fast_csum from ip.h
  *      - July 1995     Christos A. Polyzols
  *                      Spotted bug in tcp option checking
- *      - Sep 2001      Irfan Khan 
+ *      - Sep 2001      Irfan Khan
  *                      Rewrite to make the code work for ethereal.
  */
 
@@ -111,7 +111,7 @@
 
 /* VJ Mem Chunk defines */
 #define VJ_DATA_SIZE  128 /* Max IP hdr(64)+Max TCP hdr(64) */
-#define VJ_ATOM_COUNT 250 /* Number of Atoms per block      */ 
+#define VJ_ATOM_COUNT 250 /* Number of Atoms per block      */
 
 /* IP and TCP header types */
 typedef struct {
@@ -143,7 +143,7 @@ typedef struct {
 
 /* State per active tcp conversation */
 typedef struct cstate {
-  iphdr_type cs_ip; 
+  iphdr_type cs_ip;
   tcphdr_type cs_tcp;
   guint8 cs_ipopt[IP_MAX_OPT_LEN];
   guint8 cs_tcpopt[TCP_MAX_OPT_LEN];
@@ -186,14 +186,14 @@ static dissector_handle_t data_handle;
 /* State repository (Full Duplex) */
 #define RX_TX_STATE_COUNT 2
 static slcompress *rx_tx_state[RX_TX_STATE_COUNT] = {NULL, NULL};
- 
+
 /* Mem Chunks for storing decompressed headers */
 static GMemChunk *vj_header_memchunk = NULL;
 typedef struct {
 	int	offset;			/* uppermost bit is "can't dissect" flag */
 	guint8	data[VJ_DATA_SIZE];
 } vj_header_t;
-	
+
 /* Function prototypes */
 static int get_unsigned_delta(tvbuff_t *tvb, int *offsetp, int hf,
                         proto_tree *tree);
@@ -374,7 +374,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
     }
   }
 
-  /* 
+  /*
    * Set up tvbuff containing packet with protocol type.
    * Neither header checksum is recalculated.
    *
@@ -494,7 +494,7 @@ proto_register_vj(void)
       { "IP ID delta",			"vj.ip_id_delta",	FT_UINT16, BASE_DEC,
         NULL, 0x0, "Delta for IP ID", HFILL }},
   };
-  static gint *ett[] = { 
+  static gint *ett[] = {
     &ett_vj,
     &ett_vj_changes,
   };
@@ -522,7 +522,7 @@ proto_reg_handoff_vj(void)
 }
 
 /* Initialization function */
-static void 
+static void
 vj_init(void)
 {
   gint i           = ZERO;
@@ -530,7 +530,7 @@ vj_init(void)
 
   if(vj_header_memchunk != NULL)
     g_mem_chunk_destroy(vj_header_memchunk);
-  vj_header_memchunk = g_mem_chunk_new("vj header store", sizeof (vj_header_t), 
+  vj_header_memchunk = g_mem_chunk_new("vj header store", sizeof (vj_header_t),
                                        sizeof (vj_header_t) * VJ_ATOM_COUNT,
                                        G_ALLOC_ONLY);
   for(i = 0; i < RX_TX_STATE_COUNT; i++) {
@@ -559,12 +559,12 @@ slhc_init(void)
   for (i = 0; i < TCP_SIMUL_CONV_MAX; i++)
     comp->rstate[i].flags |= SLF_TOSS;
   return comp;
-} 
+}
 
 /* Setup the decompressed packet tvb for VJ compressed packets */
-static gint 
-vjc_tvb_setup(tvbuff_t *src_tvb, 
-              tvbuff_t **dst_tvb, 
+static gint
+vjc_tvb_setup(tvbuff_t *src_tvb,
+              tvbuff_t **dst_tvb,
               packet_info *pinfo)
 {
   vj_header_t *hdr_buf;
@@ -606,7 +606,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   tvb_set_child_real_data_tvbuff(src_tvb, *dst_tvb);
   add_new_data_source(pinfo, *dst_tvb, "VJ Decompressed");
   return VJ_OK;
-} 
+}
 
 /*
  * For VJ compressed packet:
@@ -615,7 +615,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
  *	dissect the relevant fields;
  *	update the decompressor state on the first pass.
  */
-static gint 
+static gint
 vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
             slcompress *comp)
 {
@@ -707,7 +707,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
     offset++;
     if(comp != NULL)
       comp->recv_current = conn_index;
-  } 
+  }
 
   if(!pinfo->fd->flags.visited) {
     /*
@@ -838,7 +838,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   return VJ_OK;
-} 
+}
 
 /*
  * Get an unsigned delta for a field, and put it into the protocol tree if
@@ -889,7 +889,7 @@ get_signed_delta(tvbuff_t *tvb, int *offsetp, int hf, proto_tree *tree)
 }
 
 /* Wrapper for in_cksum function */
-static guint16 
+static guint16
 ip_csum(const guint8 * ptr, guint32 len)
 {
   vec_t cksum_vec[1];

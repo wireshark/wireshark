@@ -2,22 +2,22 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001, 2002 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.10 2002/08/07 01:03:10 tpot Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.11 2002/08/28 21:00:10 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -91,7 +91,7 @@ dissect_open_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * OpenHKLM
  */
 
-static int 
+static int
 RegOpenHKLM_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
@@ -99,7 +99,7 @@ RegOpenHKLM_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
@@ -112,9 +112,9 @@ RegOpenHKLM_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
-static int 
+static int
 RegOpenHKLM_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
@@ -123,7 +123,7 @@ RegOpenHKLM_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	e_ctx_hnd policy_hnd;
 
 	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
@@ -140,13 +140,13 @@ RegOpenHKLM_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
 /*
  * OpenHKU
  */
 
-static int 
+static int
 RegOpenHKU_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     proto_tree *tree, char *drep)
 {
@@ -154,7 +154,7 @@ RegOpenHKU_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
@@ -167,9 +167,9 @@ RegOpenHKU_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
-static int 
+static int
 RegOpenHKU_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     proto_tree *tree, char *drep)
 {
@@ -178,7 +178,7 @@ RegOpenHKU_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	e_ctx_hnd policy_hnd;
 
 	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
@@ -195,13 +195,13 @@ RegOpenHKU_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
 /*
  * OpenHKCR
  */
 
-static int 
+static int
 RegOpenHKCR_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
@@ -209,7 +209,7 @@ RegOpenHKCR_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
@@ -222,9 +222,9 @@ RegOpenHKCR_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
-static int 
+static int
 RegOpenHKCR_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
@@ -233,7 +233,7 @@ RegOpenHKCR_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	e_ctx_hnd policy_hnd;
 
 	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
@@ -250,13 +250,13 @@ RegOpenHKCR_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
 /*
  * RegClose
  */
 
-static int 
+static int
 RegClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   proto_tree *tree, char *drep)
 {
@@ -264,7 +264,7 @@ RegClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
@@ -276,9 +276,9 @@ RegClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
-static int 
+static int
 RegClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   proto_tree *tree, char *drep)
 {
@@ -286,7 +286,7 @@ RegClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
@@ -301,13 +301,13 @@ RegClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
 /*
  * RegQueryKey
  */
 
-static int 
+static int
 RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
@@ -315,7 +315,7 @@ RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
@@ -330,9 +330,9 @@ RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
-static int 
+static int
 RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
@@ -340,7 +340,7 @@ RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
@@ -385,13 +385,13 @@ RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
 /*
  * OpenEntry
  */
 
-static int 
+static int
 RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
@@ -399,7 +399,7 @@ RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
@@ -422,9 +422,9 @@ RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
-static int 
+static int
 RegOpenEntry_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
@@ -433,7 +433,7 @@ RegOpenEntry_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	e_ctx_hnd policy_hnd;
 
 	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
@@ -450,13 +450,13 @@ RegOpenEntry_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
 /*
  * Unknown1A
  */
 
-static int 
+static int
 RegUnknown1A_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
@@ -464,7 +464,7 @@ RegUnknown1A_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
@@ -476,9 +476,9 @@ RegUnknown1A_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
-static int 
+static int
 RegUnknown1A_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
@@ -486,7 +486,7 @@ RegUnknown1A_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
@@ -501,13 +501,13 @@ RegUnknown1A_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
 /*
  * EnumKey
  */
 
-static int 
+static int
 RegEnumKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     proto_tree *tree, char *drep)
 {
@@ -515,7 +515,7 @@ RegEnumKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
@@ -527,9 +527,9 @@ RegEnumKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
-static int 
+static int
 RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     proto_tree *tree, char *drep)
 {
@@ -537,7 +537,7 @@ RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
@@ -548,7 +548,7 @@ RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
 #if 0
 
@@ -558,7 +558,7 @@ RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * FOO
  */
 
-static int 
+static int
 RegFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 proto_tree *tree, char *drep)
 {
@@ -566,7 +566,7 @@ RegFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
@@ -574,9 +574,9 @@ RegFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
-static int 
+static int
 RegFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 proto_tree *tree, char *drep)
 {
@@ -584,7 +584,7 @@ RegFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
 	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0, 
+		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
@@ -595,7 +595,7 @@ RegFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
-}	
+}
 
 #endif
 
@@ -691,7 +691,7 @@ static const value_string reg_opnum_vals[] = {
 	{ 0, NULL }
 };
 
-void 
+void
 proto_register_dcerpc_reg(void)
 {
 	static hf_register_info hf[] = {
@@ -699,11 +699,11 @@ proto_register_dcerpc_reg(void)
 		/* Global indexes */
 
 		{ &hf_hnd,
-		  { "Context handle", "reg.hnd", FT_BYTES, BASE_NONE, 
+		  { "Context handle", "reg.hnd", FT_BYTES, BASE_NONE,
 		    NULL, 0x0, "REG policy handle", HFILL }},
 
 		{ &hf_rc,
-		  { "Return code", "reg.rc", FT_UINT32, BASE_HEX, 
+		  { "Return code", "reg.rc", FT_UINT32, BASE_HEX,
 		    VALS(NT_errors), 0x0, "REG return code", HFILL }},
 
 		{ &hf_reg_opnum,
@@ -723,7 +723,7 @@ proto_register_dcerpc_reg(void)
 		{ &hf_openhklm_unknown2,
 		  { "Unknown 2", "reg.openhklm.unknown2", FT_UINT16, BASE_HEX,
 		    NULL, 0x0, "Unknown 2", HFILL }},
-		
+
 		/* QueryClass */
 
 		{ &hf_querykey_class,

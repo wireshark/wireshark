@@ -1,22 +1,22 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.65 2002/08/24 01:17:09 guy Exp $
+ * $Id: menu.c,v 1.66 2002/08/28 21:03:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -87,7 +87,7 @@ static void set_menu_sensitivity (gchar *, gint);
                <path>             -> path of a radio item to link against
                "<Separator>"      -> create a separator
                "<Branch>"         -> create an item to hold sub items (optional)
-               "<LastBranch>"     -> create a right justified branch 
+               "<LastBranch>"     -> create a right justified branch
     */
 
 /* main menu */
@@ -207,7 +207,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 	{"/Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
 	{"/Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
   	{"/Print Packet", NULL, GTK_MENU_FUNC(file_print_packet_cmd_cb), 0, NULL},
-  	{"/Show Packet In New Window", NULL, GTK_MENU_FUNC(new_window_cb), 0, NULL}, 
+  	{"/Show Packet In New Window", NULL, GTK_MENU_FUNC(new_window_cb), 0, NULL},
 };
 
 static GtkItemFactoryEntry tree_view_menu_items[] =
@@ -293,7 +293,7 @@ menus_init(void) {
     gtk_item_factory_create_items_ac(hexdump_menu_factory, sizeof(hexdump_menu_items)/sizeof(hexdump_menu_items[0]), hexdump_menu_items, popup_menu_object, 2);
     gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY, hexdump_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, hexdump_menu_factory);
-    
+
     factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(factory, nmenu_items, menu_items, NULL,2);
     set_menus_for_unsaved_capture_file(FALSE);
@@ -314,7 +314,7 @@ menus_init(void) {
 void
 set_menu_sensitivity_meat(GtkItemFactory *ifactory, gchar *path, gint val) {
 	GtkWidget *menu = NULL;
-	
+
 	if((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL) {
 		gtk_widget_set_sensitive(menu,val);
 	}
@@ -360,7 +360,7 @@ void
 set_menu_object_data_meat(GtkItemFactory *ifactory, gchar *path, gchar *key, gpointer data)
 {
 	GtkWidget *menu = NULL;
-	
+
 	if ((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL)
 		gtk_object_set_data(GTK_OBJECT(menu), key, data);
 }
@@ -369,7 +369,7 @@ void
 set_menu_object_data (gchar *path, gchar *key, gpointer data) {
   GSList *menu_list = popup_menu_list;
   gchar *shortpath = strrchr(path, '/');
-  
+
   set_menu_object_data_meat(factory, path, key, data);
   while (menu_list != NULL) {
   	set_menu_object_data_meat(menu_list->data, shortpath, key, data);
@@ -388,7 +388,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 	if(widget == NULL || event == NULL || data == NULL) {
 		return FALSE;
 	}
-	
+
 	/*
 	 * If we ever want to make the menu differ based on what row
 	 * and/or column we're above, we'd use "gtk_clist_get_selection_info()"
@@ -412,7 +412,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 	menu = (GtkWidget *)data;
 	if(event->type == GDK_BUTTON_PRESS) {
 		event_button = (GdkEventButton *) event;
-		
+
 		if(event_button->button == 3) {
 			gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, event_button->button, event_button->time);
 			gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), "button_press_event");
@@ -488,7 +488,7 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
       have_selected_packet ? (cfile.edt->pi.ipproto == 6) : FALSE);
   set_menu_sensitivity("/Tools/Decode As...",
       have_selected_packet && decode_as_ok());
-  set_menu_sensitivity("/Resolve Name", 
+  set_menu_sensitivity("/Resolve Name",
       have_selected_packet && g_resolv_flags == 0);
   set_menu_sensitivity("/Tools/TCP Stream Analysis",
             have_selected_packet ? (cfile.edt->pi.ipproto == 6) : FALSE);

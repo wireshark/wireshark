@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.31 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-ascend.c,v 1.32 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10,12 +10,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -84,16 +84,16 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_protocol_format(tree, proto_ascend, tvb, 0, 0,
 					"Lucent/Ascend packet trace");
     fh_tree = proto_item_add_subtree(ti, ett_raw);
-    proto_tree_add_uint(fh_tree, hf_link_type, tvb, 0, 0, 
+    proto_tree_add_uint(fh_tree, hf_link_type, tvb, 0, 0,
 			pseudo_header->ascend.type);
     if (pseudo_header->ascend.type == ASCEND_PFX_WDD) {
-      proto_tree_add_string(fh_tree, hf_called_number, tvb, 0, 0, 
+      proto_tree_add_string(fh_tree, hf_called_number, tvb, 0, 0,
 			  pseudo_header->ascend.call_num);
       proto_tree_add_uint(fh_tree, hf_chunk, tvb, 0, 0,
 			  pseudo_header->ascend.chunk);
       proto_tree_add_uint_hidden(fh_tree, hf_session_id, tvb, 0, 0, 0);
     } else {  /* It's wandsession data */
-      proto_tree_add_string(fh_tree, hf_user_name, tvb, 0, 0, 
+      proto_tree_add_string(fh_tree, hf_user_name, tvb, 0, 0,
 			  pseudo_header->ascend.user);
       proto_tree_add_uint(fh_tree, hf_session_id, tvb, 0, 0,
 			  pseudo_header->ascend.sess);

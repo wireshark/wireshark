@@ -1,22 +1,22 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.34 2002/07/30 07:04:08 guy Exp $
+ * $Id: print_dlg.c,v 1.35 2002/08/28 21:03:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -117,7 +117,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   GSList        *expand_grp;
   GtkWidget     *bbox, *ok_bt, *cancel_bt;
 
-  
+
   if (print_w != NULL) {
     /* There's already a "Print" dialog box; reactivate it. */
     reactivate_window(print_w);
@@ -139,7 +139,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(print_w), main_vb);
   gtk_widget_show(main_vb);
-  
+
   main_tb = gtk_table_new(4, 2, FALSE);
 
   gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
@@ -275,7 +275,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 			GTK_SIGNAL_FUNC(print_cmd_toggle_detail), NULL);
   gtk_container_add(GTK_CONTAINER(print_type_vb), detail_rb);
   gtk_widget_show(detail_rb);
-  
+
   /* "Print hex" check button. */
   hex_cb = dlg_check_button_new_with_label_with_mnemonic("Print _hex data",
 				accel_group);
@@ -475,7 +475,7 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
 static void
 print_fs_ok_cb(GtkWidget *w _U_, gpointer data)
 {
-  
+
   gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
       PRINT_FILE_TE_KEY)),
       gtk_file_selection_get_filename (GTK_FILE_SELECTION(data)));
@@ -519,7 +519,7 @@ void setup_mswin_print( print_args_t *print_args) {
     print_args->dest = g_strdup(path1);
     print_args->to_file = TRUE;
 }
-#endif	
+#endif
 
 static void
 print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
@@ -542,7 +542,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 #ifdef _WIN32
     win_printer_flag = TRUE;
     setup_mswin_print(&print_args);
-#else	
+#else
     print_args.dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
       PRINT_CMD_TE_KEY))));
 #endif

@@ -1,7 +1,7 @@
 /* packet-cosine.c
  * Routines for decoding CoSine IPNOS L2 debug output
  *
- * $Id: packet-cosine.c,v 1.3 2002/08/16 00:41:37 guy Exp $
+ * $Id: packet-cosine.c,v 1.4 2002/08/28 21:00:08 jmayer Exp $
  *
  * Motonori Shindo <mshindo@mshindo.net>
  *
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -83,7 +83,7 @@ dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(fh_tree, hf_pri, tvb, 0, 0, pseudo_header->cosine.pri);
     proto_tree_add_uint(fh_tree, hf_rm,  tvb, 0, 0, pseudo_header->cosine.rm);
     proto_tree_add_uint(fh_tree, hf_err, tvb, 0, 0, pseudo_header->cosine.err);
-    
+
     switch (pseudo_header->cosine.encap) {
     case COSINE_ENCAP_ETH:
 	    break;
@@ -98,10 +98,10 @@ dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
     case COSINE_ENCAP_HDLC:
 	    if (pseudo_header->cosine.direction == COSINE_DIR_TX) {
-		    proto_tree_add_text(fh_tree, tvb, 0, 2, 
+		    proto_tree_add_text(fh_tree, tvb, 0, 2,
 					"Channel handle ID");
 	    } else if (pseudo_header->cosine.direction == COSINE_DIR_RX) {
-		    proto_tree_add_text(fh_tree, tvb, 0, 4, 
+		    proto_tree_add_text(fh_tree, tvb, 0, 4,
 					"Channel handle ID");
 	    }
 	    break;
@@ -112,30 +112,30 @@ dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (pseudo_header->cosine.encap) {
   case COSINE_ENCAP_ETH:
-    	  call_dissector(eth_handle, tvb_new_subset(tvb, 0, -1, -1), 
+    	  call_dissector(eth_handle, tvb_new_subset(tvb, 0, -1, -1),
 			 pinfo, tree);
 	  break;
   case COSINE_ENCAP_ATM:
   case COSINE_ENCAP_PPoATM:
-    	  call_dissector(llc_handle, tvb_new_subset(tvb, 16, -1, -1), 
+    	  call_dissector(llc_handle, tvb_new_subset(tvb, 16, -1, -1),
 			 pinfo, tree);
 	  break;
   case COSINE_ENCAP_PPP:
-	  call_dissector(ppp_hdlc_handle, tvb_new_subset(tvb, 4, -1, -1), 
+	  call_dissector(ppp_hdlc_handle, tvb_new_subset(tvb, 4, -1, -1),
 			 pinfo, tree);
 	  break;
   case COSINE_ENCAP_HDLC:
 	  if (pseudo_header->cosine.direction == COSINE_DIR_TX) {
-		  call_dissector(chdlc_handle, tvb_new_subset(tvb, 2, -1, -1), 
+		  call_dissector(chdlc_handle, tvb_new_subset(tvb, 2, -1, -1),
 				 pinfo, tree);
 	  } else if (pseudo_header->cosine.direction == COSINE_DIR_RX) {
-		  call_dissector(chdlc_handle, tvb_new_subset(tvb, 4, -1, -1), 
+		  call_dissector(chdlc_handle, tvb_new_subset(tvb, 4, -1, -1),
 			 pinfo, tree);
 	  }
 	  break;
   case COSINE_ENCAP_FR:
   case COSINE_ENCAP_PPoFR:
-	  call_dissector(fr_handle, tvb_new_subset(tvb, 4, -1, -1), 
+	  call_dissector(fr_handle, tvb_new_subset(tvb, 4, -1, -1),
 			 pinfo, tree);
 	  break;
   case COSINE_ENCAP_TEST:
@@ -151,15 +151,15 @@ void
 proto_register_cosine(void)
 {
   static hf_register_info hf[] = {
-    { &hf_pro, 
+    { &hf_pro,
       { "Protocol", "cosine.pro", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_off, 
+    { &hf_off,
       { "Offset", "cosine.off", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_pri, 
+    { &hf_pri,
       { "Priority", "cosine.pri", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_rm, 
+    { &hf_rm,
       { "Rate Marking",	"cosine.rm",  FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_err, 
+    { &hf_err,
       { "Error Code", "cosine.err", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
   };
 

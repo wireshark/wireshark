@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.23 2002/08/02 23:36:05 jmayer Exp $
+ * $Id: packet-ypserv.c,v 1.24 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,7 +99,7 @@ dissect_domain_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	{
 		offset = dissect_rpc_string(tvb,tree,hf_ypserv_domain,offset,NULL);
 	}
-	
+
 	return offset;
 }
 
@@ -112,7 +112,7 @@ dissect_domain_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 			offset, 4, tvb_get_ntohl(tvb,offset));
 	}
 
-	offset += 4;	
+	offset += 4;
 	return offset;
 }
 
@@ -125,7 +125,7 @@ dissect_match_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 		offset = dissect_rpc_string(tvb, tree, hf_ypserv_map, offset, NULL);
 		offset = dissect_rpc_string(tvb, tree, hf_ypserv_key, offset, NULL);
 	}
-	
+
 	return offset;
 }
 
@@ -138,7 +138,7 @@ dissect_match_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 		offset = dissect_rpc_string(tvb, tree, hf_ypserv_value,offset, NULL);
 	}
-	
+
 	return offset;
 }
 
@@ -163,13 +163,13 @@ dissect_first_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	 * had a "ypreq_nokey" as the argument, I'm assuming that "yp.x"
 	 * is buggy.
 	 */
-	
+
 	if ( tree )
 	{
 		offset = dissect_rpc_string(tvb, tree, hf_ypserv_domain, offset, NULL);
 		offset = dissect_rpc_string(tvb, tree, hf_ypserv_map, offset, NULL);
 	}
-	
+
 	return offset;
 }
 
@@ -184,7 +184,7 @@ dissect_firstnext_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 		offset = dissect_rpc_string(tvb, tree, hf_ypserv_value, offset, NULL);
 		offset = dissect_rpc_string(tvb, tree, hf_ypserv_key, offset, NULL);
 	}
-	
+
 	return offset;
 }
 
@@ -198,7 +198,7 @@ dissect_next_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 		offset = dissect_rpc_string(tvb, tree, hf_ypserv_map, offset, NULL);
 		offset = dissect_rpc_string(tvb, tree, hf_ypserv_key, offset, NULL);
 	}
-	
+
 	return offset;
 }
 
@@ -217,7 +217,7 @@ dissect_xfr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 	}
 
 	offset = dissect_rpc_string(tvb, sub_tree, hf_ypserv_domain, offset, NULL);
-	
+
 	offset = dissect_rpc_string(tvb, sub_tree, hf_ypserv_map, offset, NULL);
 
 	offset = dissect_rpc_uint32(tvb, sub_tree, hf_ypserv_ordernum, offset);
@@ -252,7 +252,7 @@ dissect_ypreq_nokey(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 {
 
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_domain, offset, NULL);
-	
+
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_map, offset, NULL);
 
 	return offset;
@@ -325,23 +325,23 @@ static const vsff ypserv1_proc[] = {
 		NULL, NULL },
     { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK",
 		NULL, NULL },
-    { YPPROC_MATCH, "MATCH",        
+    { YPPROC_MATCH, "MATCH",
 		NULL, NULL },
-    { YPPROC_FIRST, "FIRST",        
+    { YPPROC_FIRST, "FIRST",
 		NULL, NULL },
-    { YPPROC_NEXT,  "NEXT",     
+    { YPPROC_NEXT,  "NEXT",
 		NULL, NULL },
-    { YPPROC_XFR,   "XFR",      
+    { YPPROC_XFR,   "XFR",
 		NULL, NULL },
-    { YPPROC_CLEAR, "CLEAR",        
+    { YPPROC_CLEAR, "CLEAR",
 		NULL, NULL },
-    { YPPROC_ALL,   "ALL",      
+    { YPPROC_ALL,   "ALL",
 		NULL, NULL },
-    { YPPROC_MASTER,    "MASTER",       
+    { YPPROC_MASTER,    "MASTER",
 		NULL, NULL },
-    { YPPROC_ORDER, "ORDER",        
+    { YPPROC_ORDER, "ORDER",
 		NULL, NULL },
-    { YPPROC_MAPLIST,   "MAPLIST",      
+    { YPPROC_MAPLIST,   "MAPLIST",
 		NULL, NULL },
     { 0, NULL, NULL, NULL }
 };
@@ -353,23 +353,23 @@ static const vsff ypserv2_proc[] = {
 		dissect_domain_call, dissect_domain_reply },
     { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK",
 		dissect_domain_call, dissect_domain_reply },
-    { YPPROC_MATCH, "MATCH",        
+    { YPPROC_MATCH, "MATCH",
 		dissect_match_call, dissect_match_reply },
-    { YPPROC_FIRST, "FIRST",        
+    { YPPROC_FIRST, "FIRST",
 		dissect_first_call, dissect_firstnext_reply },
-    { YPPROC_NEXT,  "NEXT",     
+    { YPPROC_NEXT,  "NEXT",
 		dissect_next_call, dissect_firstnext_reply },
-    { YPPROC_XFR,   "XFR",      
+    { YPPROC_XFR,   "XFR",
 		dissect_xfr_call, dissect_xfr_reply },
-    { YPPROC_CLEAR, "CLEAR",        
+    { YPPROC_CLEAR, "CLEAR",
 		NULL, NULL },
-    { YPPROC_ALL,   "ALL",      
+    { YPPROC_ALL,   "ALL",
 		dissect_ypreq_nokey, dissect_ypresp_all },
-    { YPPROC_MASTER,    "MASTER",       
+    { YPPROC_MASTER,    "MASTER",
 		dissect_ypreq_nokey, dissect_ypresp_master },
-    { YPPROC_ORDER, "ORDER",        
+    { YPPROC_ORDER, "ORDER",
 		dissect_ypreq_nokey, dissect_ypresp_order },
-    { YPPROC_MAPLIST,   "MAPLIST",      
+    { YPPROC_MAPLIST,   "MAPLIST",
 		dissect_domain_call, dissect_ypresp_maplist },
     { 0, NULL, NULL, NULL }
 };
@@ -381,7 +381,7 @@ proto_register_ypserv(void)
 {
 	/*static struct true_false_string okfailed = { "Ok", "Failed" };*/
 	static struct true_false_string yesno = { "Yes", "No" };
-		
+
 	static hf_register_info hf[] = {
 		{ &hf_ypserv_domain, {
 			"Domain", "ypserv.domain", FT_STRING, BASE_DEC,

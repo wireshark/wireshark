@@ -2,22 +2,22 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.24 2002/08/02 23:35:49 jmayer Exp $
+ * $Id: packet-eigrp.c,v 1.25 2002/08/28 21:00:13 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -80,7 +80,7 @@ static const value_string eigrp_opcode_vals[] = {
 	{ EIGRP_SAP,		"IPX/SAP Update" },
 	{ EIGRP_HI,		"Hello" },
 	{ EIGRP_ACK,		"Acknowledge" },
-	{ 0,				NULL }    
+	{ 0,				NULL }
 };
 
 static const value_string eigrp_tlv_vals[] = {
@@ -135,11 +135,11 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   proto_tree *eigrp_tree,*tlv_tree;
   proto_item *ti;
-    
+
   guint opcode,opcode_tmp;
   guint16 tlv,size, offset = EIGRP_HEADER_LENGTH;
   guint32 ack;
-      
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EIGRP");
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -148,7 +148,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   opcode_tmp=opcode=tvb_get_guint8(tvb,1);
   ack = tvb_get_ntohl(tvb,12);
   if (opcode==EIGRP_HELLO) { if (ack == 0) opcode_tmp=EIGRP_HI; else opcode_tmp=EIGRP_ACK; }
-  
+
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
 	val_to_str(opcode_tmp , eigrp_opcode_vals, "Unknown (0x%04x)"));
@@ -160,16 +160,16 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
      ti = proto_tree_add_protocol_format(tree, proto_eigrp, tvb, 0, -1,
               "Cisco EIGRP");
-              
+
      eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
-  
+
      proto_tree_add_text (eigrp_tree, tvb, 0,1,"Version    = %u",tvb_get_guint8(tvb,0)) ;
      proto_tree_add_uint_format (eigrp_tree, hf_eigrp_opcode, tvb, 1,1,opcode,"Opcode = %u (%s)",opcode,val_to_str(opcode_tmp,eigrp_opcode_vals, "Unknown")) ;
      proto_tree_add_text (eigrp_tree, tvb, 2,2,"Checksum   = 0x%04x",tvb_get_ntohs(tvb,2)) ;
      proto_tree_add_text (eigrp_tree, tvb, 4,4,"Flags      = 0x%08x",tvb_get_ntohl(tvb,4)) ;
      proto_tree_add_text (eigrp_tree, tvb, 8,4,"Sequence   = %u",tvb_get_ntohl(tvb,8)) ;
      proto_tree_add_text (eigrp_tree, tvb, 12,4,"Acknowledge  = %u",tvb_get_ntohl(tvb,12)) ;
-     proto_tree_add_uint (eigrp_tree, hf_eigrp_as, tvb, 16,4,tvb_get_ntohl(tvb,16)) ; 
+     proto_tree_add_uint (eigrp_tree, hf_eigrp_as, tvb, 16,4,tvb_get_ntohl(tvb,16)) ;
 
      if (opcode==EIGRP_SAP)
      	{
@@ -181,7 +181,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	     tlv = tvb_get_ntohs(tvb,offset);
 	     size =  tvb_get_ntohs(tvb,offset+2);
-	     if ( size == 0 ) 
+	     if ( size == 0 )
 		{
 		proto_tree_add_text(eigrp_tree,tvb,offset,-1,"Unknown data (maybe authentication)");
 		return;
@@ -194,7 +194,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	     proto_tree_add_uint_format (tlv_tree,hf_eigrp_tlv, tvb,offset,2,tlv,"Type = 0x%04x (%s)",tlv,val_to_str(tlv,eigrp_tlv_vals, "Unknown")) ;
 	     proto_tree_add_text (tlv_tree,tvb,offset+2,2,"Size = %u bytes",size) ;
 
-                     
+
 	     switch (tlv){
 	     	case TLV_PAR:
 	     		dissect_eigrp_par(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree);
@@ -211,34 +211,34 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	     	case TLV_IP_INT:
      			dissect_eigrp_ip_int(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;                   
+     			break;
 	     	case TLV_IP_EXT:
      			dissect_eigrp_ip_ext(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;                   
+     			break;
 
 	     	case TLV_IPX_INT:
      			dissect_eigrp_ipx_int(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;                   
+     			break;
 	     	case TLV_IPX_EXT:
      			dissect_eigrp_ipx_ext(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;                   
-	
+     			break;
+
 	     	case TLV_AT_CBL:
      			dissect_eigrp_at_cbl(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;                   
+     			break;
 	     	case TLV_AT_INT:
      			dissect_eigrp_at_int(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;                   
+     			break;
 	     	case TLV_AT_EXT:
      			dissect_eigrp_at_ext(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;                   
+     			break;
 		case TLV_AUTH:
 			proto_tree_add_text(tlv_tree,tvb,offset+4,size-4,"Authentication data");
 			break;
 	     }
 
 	     offset+=size;
-     }     
+     }
 
    }
 }
@@ -270,7 +270,7 @@ static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree)
 			/* nothing */
 			;
 		}
-}        	
+}
 
 static void dissect_eigrp_sv (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 {
@@ -298,8 +298,8 @@ static void dissect_eigrp_nms (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 }
 
 
-	
-static void dissect_eigrp_ip_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti) 
+
+static void dissect_eigrp_ip_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 {
 	guint8 ip_addr[4],length,addr_len;
 	tvb_memcpy(tvb,ip_addr,0,4);
@@ -329,8 +329,8 @@ static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,4,4,"Originating router = %s",ip_to_str(ip_addr));
 	proto_tree_add_text (tree,tvb,8,4,"Originating A.S. = %u",tvb_get_ntohl(tvb,8));
 	proto_tree_add_text (tree,tvb,12,4,"Arbitrary tag = %u",tvb_get_ntohl(tvb,12));
-	proto_tree_add_text (tree,tvb,16,4,"External protocol metric = %u",tvb_get_ntohl(tvb,16));	
-	proto_tree_add_text (tree,tvb,20,2,"Reserved");	
+	proto_tree_add_text (tree,tvb,16,4,"External protocol metric = %u",tvb_get_ntohl(tvb,16));
+	proto_tree_add_text (tree,tvb,20,2,"Reserved");
 	proto_tree_add_text (tree,tvb,22,1,"External protocol ID = %u (%s)",tvb_get_guint8(tvb,22),val_to_str(tvb_get_guint8(tvb,22),eigrp_pid_vals, "Unknown"));
 	proto_tree_add_text (tree,tvb,23,1,"Flags = 0x%0x",tvb_get_guint8(tvb,23));
 
@@ -363,7 +363,7 @@ static void dissect_eigrp_ipx_int (tvbuff_t *tvb, proto_tree *tree, proto_item *
 	proto_tree_add_text (tree,tvb,22,1,"Reliability = %u",tvb_get_guint8(tvb,22));
 	proto_tree_add_text (tree,tvb,23,1,"Load = %u",tvb_get_guint8(tvb,23));
 	proto_tree_add_text (tree,tvb,24,2,"Reserved ");
-        proto_tree_add_text (tree,tvb,26,4,"Destination Address =  %08x",tvb_get_ntohl(tvb,26)); 
+        proto_tree_add_text (tree,tvb,26,4,"Destination Address =  %08x",tvb_get_ntohl(tvb,26));
         proto_item_append_text (ti,"  =   %08x%s",tvb_get_ntohl(tvb,26),((tvb_get_ntohl(tvb,10)==0xffffffff)?" - Destination unreachable":""));
 }
 
@@ -377,9 +377,9 @@ static void dissect_eigrp_ipx_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *
         proto_tree_add_text (tree,tvb,20,4,"Arbitrary tag = %u",tvb_get_ntohl(tvb,20));
         proto_tree_add_text (tree,tvb,24,1,"External protocol  = %u",tvb_get_guint8(tvb,24));
         proto_tree_add_text (tree,tvb,25,1,"Reserved");
-        proto_tree_add_text (tree,tvb,26,2,"External metric = %u ",tvb_get_ntohs(tvb,26)); 
-        proto_tree_add_text (tree,tvb,28,2,"External delay  = %u ",tvb_get_ntohs(tvb,28)); 
-        
+        proto_tree_add_text (tree,tvb,26,2,"External metric = %u ",tvb_get_ntohs(tvb,26));
+        proto_tree_add_text (tree,tvb,28,2,"External delay  = %u ",tvb_get_ntohs(tvb,28));
+
 	proto_tree_add_text (tree,tvb,30,4,"Delay     = %u",tvb_get_ntohl(tvb,30));
 	proto_tree_add_text (tree,tvb,34,4,"Bandwidth = %u",tvb_get_ntohl(tvb,34));
 	proto_tree_add_text (tree,tvb,38,3,"MTU    = %u",tvb_get_ntoh24(tvb,38));
@@ -387,7 +387,7 @@ static void dissect_eigrp_ipx_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *
 	proto_tree_add_text (tree,tvb,42,1,"Reliability = %u",tvb_get_guint8(tvb,42));
 	proto_tree_add_text (tree,tvb,43,1,"Load = %u",tvb_get_guint8(tvb,43));
 	proto_tree_add_text (tree,tvb,44,2,"Reserved ");
-        proto_tree_add_text (tree,tvb,46,4,"Destination Address =  %08x",tvb_get_ntohl(tvb,46)); 
+        proto_tree_add_text (tree,tvb,46,4,"Destination Address =  %08x",tvb_get_ntohl(tvb,46));
         proto_item_append_text (ti,"  =   %08x%s",tvb_get_ntohl(tvb,46),((tvb_get_ntohl(tvb,30)==0xffffffff)?" - Destination unreachable":""));
 
 }
@@ -427,7 +427,7 @@ static void dissect_eigrp_at_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,12,4,"Arbitrary tag = %u",tvb_get_ntohl(tvb,12));
 	proto_tree_add_text (tree,tvb,16,1,"External protocol ID = %u ",tvb_get_guint8(tvb,16));
 	proto_tree_add_text (tree,tvb,17,1,"Flags = 0x%0x",tvb_get_guint8(tvb,17));
-	proto_tree_add_text (tree,tvb,18,2,"External protocol metric = %u",tvb_get_ntohs(tvb,18));	
+	proto_tree_add_text (tree,tvb,18,2,"External protocol metric = %u",tvb_get_ntohs(tvb,18));
 
 	proto_tree_add_text (tree,tvb,20,4,"Delay     = %u",tvb_get_ntohl(tvb,20));
 	proto_tree_add_text (tree,tvb,24,4,"Bandwidth = %u",tvb_get_ntohl(tvb,24));
@@ -464,7 +464,7 @@ proto_register_eigrp(void)
      "Type/Length/Value", HFILL }
     },
    };
-                                                       
+
    static gint *ett[] = {
      &ett_eigrp,
      &ett_tlv,

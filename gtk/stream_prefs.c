@@ -1,22 +1,22 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.11 2002/03/05 11:56:00 guy Exp $
+ * $Id: stream_prefs.c,v 1.12 2002/08/28 21:03:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -70,14 +70,14 @@ stream_prefs_show()
   color_t_to_gdkcolor(&tcolors[CBG_IDX], &prefs.st_client_bg);
   color_t_to_gdkcolor(&tcolors[SFG_IDX], &prefs.st_server_fg);
   color_t_to_gdkcolor(&tcolors[SBG_IDX], &prefs.st_server_bg);
-  
+
   curcolor = &tcolors[CFG_IDX];
 
   scolor[CS_RED]     = (gdouble) (curcolor->red)   / 65535.0;
   scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
   scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
   scolor[CS_OPACITY] = 1.0;
-  
+
   /* Enclosing containers for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -100,7 +100,7 @@ stream_prefs_show()
   menu = gtk_menu_new ();
   for (i = 0; i < mcount; i++){
     menuitem = gtk_menu_item_new_with_label (mt[i]);
-    gtk_object_set_data(GTK_OBJECT(menuitem), STREAM_CS_KEY, 
+    gtk_object_set_data(GTK_OBJECT(menuitem), STREAM_CS_KEY,
       (gpointer) colorsel);
     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
       GTK_SIGNAL_FUNC(update_current_color), &tcolors[i]);
@@ -129,7 +129,7 @@ stream_prefs_show()
 
   gtk_object_set_data(GTK_OBJECT(colorsel), STREAM_SAMPLE_KEY,
     (gpointer) sample);
-  gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed", 
+  gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed",
     GTK_SIGNAL_FUNC(update_text_color), NULL);
   gtk_widget_show(colorsel);
 
@@ -143,11 +143,11 @@ update_text_color(GtkWidget *w, gpointer data _U_) {
   gdouble   scolor[4];
 
   gtk_color_selection_get_color(GTK_COLOR_SELECTION(w), &scolor[CS_RED]);
-  
+
   curcolor->red   = (gushort) (scolor[CS_RED]   * 65535.0);
   curcolor->green = (gushort) (scolor[CS_GREEN] * 65535.0);
   curcolor->blue  = (gushort) (scolor[CS_BLUE]  * 65535.0);
-  
+
   gtk_text_freeze(sample);
   gtk_text_set_point(sample, 0);
   gtk_text_forward_delete(sample, gtk_text_get_length(sample));
@@ -166,12 +166,12 @@ update_current_color(GtkWidget *w, gpointer data)
   gdouble            scolor[4];
 
   curcolor = (GdkColor *) data;
-  
+
   scolor[CS_RED]     = (gdouble) (curcolor->red)   / 65535.0;
   scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
   scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
   scolor[CS_OPACITY] = 1.0;
-  
+
   gtk_color_selection_set_color(colorsel, &scolor[CS_RED]);
 }
 

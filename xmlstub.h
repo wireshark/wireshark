@@ -450,7 +450,7 @@ struct _xmlNode {
     struct _xmlNode *prev;      /* previous sibling link  */
     struct _xmlDoc  *doc;       /* the containing document */
     xmlNs           *ns;        /* pointer to the associated namespace */
-#ifndef XML_USE_BUFFER_CONTENT    
+#ifndef XML_USE_BUFFER_CONTENT
     xmlChar         *content;   /* the content */
 #else
     xmlBufferPtr     content;   /* the content in a buffer */
@@ -581,7 +581,7 @@ typedef int (* xmlCharEncodingOutputFunc)(unsigned char* out, int *outlen,
 
 /*
  * Block defining the handlers for non UTF-8 encodings.
- * If iconv is supported, there is two extra fields 
+ * If iconv is supported, there is two extra fields
  */
 
 typedef struct _xmlCharEncodingHandler xmlCharEncodingHandler;
@@ -607,9 +607,9 @@ struct _xmlParserInputBuffer {
     void*                  context;
     xmlInputReadCallback   readcallback;
     xmlInputCloseCallback  closecallback;
-    
+
     xmlCharEncodingHandlerPtr encoder; /* I18N conversions to UTF-8 */
-    
+
     xmlBufferPtr buffer;    /* Local buffer encoded in UTF-8 */
     xmlBufferPtr raw;       /* if encoder != NULL buffer for raw input */
 };
@@ -632,9 +632,9 @@ struct _xmlOutputBuffer {
     void*                   context;
     xmlOutputWriteCallback  writecallback;
     xmlOutputCloseCallback  closecallback;
-    
+
     xmlCharEncodingHandlerPtr encoder; /* I18N conversions to UTF-8 */
-    
+
     xmlBufferPtr buffer;    /* Local buffer encoded in UTF-8 or ISOLatin */
     xmlBufferPtr conv;      /* if encoder != NULL buffer for output */
     int written;            /* total number of byte written */
@@ -675,7 +675,7 @@ struct _xmlParserInput {
 
 /**
  * the parser can be asked to collect Node informations, i.e. at what
- * place in the file they were detected. 
+ * place in the file they were detected.
  * NOTE: This is off by default and not very well tested.
  */
 typedef struct _xmlParserNodeInfo xmlParserNodeInfo;
@@ -862,7 +862,7 @@ struct _xmlParserCtxt {
     xmlValidCtxt        vctxt;        /* The validity context */
 
     xmlParserInputState instate;      /* current type of input */
-    int                 token;        /* next char look-ahead */    
+    int                 token;        /* next char look-ahead */
 
     char           *directory;        /* the data directory */
 
@@ -1088,10 +1088,10 @@ typedef struct {
 	char            *(*xmlGetProp)(xmlNodePtr, char *);
 	int              (*xmlKeepBlanksDefault)(int);
 	int              (*xmlSubstituteEntitiesDefault)(int);
-	
+
 	/* Variables */
 	int              *xmlDoValidityCheckingDefaultValue;
-	
+
 } XML_STUB;
 
 XML_EXTERN XML_STUB XmlStub;

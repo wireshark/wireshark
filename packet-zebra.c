@@ -3,22 +3,22 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.22 2002/08/02 23:36:05 jmayer Exp $
+ * $Id: packet-zebra.c,v 1.23 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -206,7 +206,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			if (request) break;
 			/* Request just subscribes to messages */
 
-			proto_tree_add_item(tree, hf_zebra_interface, 
+			proto_tree_add_item(tree, hf_zebra_interface,
 				tvb, offset, INTERFACE_NAMSIZ, FALSE);
 			offset += INTERFACE_NAMSIZ;
 
@@ -217,7 +217,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			proto_tree_add_item(tree, hf_zebra_intflags, tvb,
 				 offset, 4, FALSE);
 			offset += 4;
-			
+
 			proto_tree_add_item(tree, hf_zebra_metric, tvb,
 				 offset, 4, FALSE);
 			offset += 4;
@@ -455,7 +455,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			break;
 	}
 }
-		
+
 static void
 dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -472,7 +472,7 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, 
+		col_set_str(pinfo->cinfo, COL_INFO,
 			request? "ZEBRA Request" : "ZEBRA Reply");
 	}
 	if (tree) {
@@ -486,7 +486,7 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			guint8		command;
 			guint16		len;
 			proto_tree	*zebra_request_tree;
-			
+
 			if (left < 3) break;
 
 			len = tvb_get_ntohs(tvb, offset);

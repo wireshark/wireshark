@@ -3,27 +3,27 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.26 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-ripng.c,v 1.27 2002/08/28 21:00:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #include "config.h"
 
 #include <string.h>
@@ -50,14 +50,14 @@ static const value_string cmdvals[] = {
     { 0, NULL },
 };
 
-static void 
+static void
 dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
     struct rip6 rip6;
     struct netinfo6 ni6;
     proto_tree *ripng_tree = NULL;
     proto_tree *subtree = NULL;
-    proto_item *ti; 
+    proto_item *ti;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIPng");
@@ -66,12 +66,12 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     /* avoid alignment problem */
     tvb_memcpy(tvb, (guint8 *)&rip6, offset, sizeof(rip6));
-  
+
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "RIPng version %u", rip6.rip6_vers);
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_str(pinfo->cinfo, COL_INFO,
-	    val_to_str(rip6.rip6_cmd, cmdvals, "Unknown command (%u)")); 
+	    val_to_str(rip6.rip6_cmd, cmdvals, "Unknown command (%u)"));
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ripng, tvb, offset, -1, FALSE);

@@ -1,22 +1,22 @@
 /* capture_stop_conditions.c
  * Implementation for 'stop condition handler'.
  *
- * $Id: capture_stop_conditions.c,v 1.3 2002/05/04 09:20:28 guy Exp $
+ * $Id: capture_stop_conditions.c,v 1.4 2002/08/28 21:00:05 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -25,12 +25,12 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/stat.h> 
+#include <sys/stat.h>
 #include <stdarg.h>
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 
-/* predefined classes function prototypes */ 
+/* predefined classes function prototypes */
 static condition* _cnd_constr_timeout(condition*, va_list);
 static void _cnd_destr_timeout(condition*);
 static gboolean _cnd_eval_timeout(condition*, va_list);
@@ -52,12 +52,12 @@ void init_capture_stop_conditions(void){
                      _cnd_destr_capturesize,
                      _cnd_eval_capturesize,
                      _cnd_reset_capturesize);
-} /* END init_capture_stop_conditions() */ 
+} /* END init_capture_stop_conditions() */
 
 void cleanup_capture_stop_conditions(void){
   cnd_unregister_class(CND_CLASS_TIMEOUT);
   cnd_unregister_class(CND_CLASS_CAPTURESIZE);
-} /* END cleanup_capture_stop_conditions() */ 
+} /* END cleanup_capture_stop_conditions() */
 
 /*****************************************************************************/
 /* Predefined condition 'timeout'.                                           */
@@ -65,7 +65,7 @@ void cleanup_capture_stop_conditions(void){
 /* class id */
 const char* CND_CLASS_TIMEOUT = "cnd_class_timeout";
 
-/* structure that contains user supplied data for this condition */ 
+/* structure that contains user supplied data for this condition */
 typedef struct _cnd_timeout_dat{
   time_t start_time;
   gint32 timeout_s;
@@ -76,8 +76,8 @@ typedef struct _cnd_timeout_dat{
  * 'cnd_new()' in order to perform class specific initialization.
  *
  * parameter: cnd - Pointer to condition passed by 'cnd_new()'.
- *            ap  - Pointer to user supplied arguments list for this 
- *                  constructor.   
+ *            ap  - Pointer to user supplied arguments list for this
+ *                  constructor.
  * returns:   Pointer to condition - Construction was successful.
  *            NULL                 - Construction failed.
  */
@@ -109,8 +109,8 @@ static void _cnd_destr_timeout(condition* cnd){
  * 'cnd_eval()' in order to perform class specific condition checks.
  *
  * parameter: cnd - The inititalized timeout condition.
- *            ap  - Pointer to user supplied arguments list for this 
- *                  handler.   
+ *            ap  - Pointer to user supplied arguments list for this
+ *                  handler.
  * returns:   TRUE  - Condition is true.
  *            FALSE - Condition is false.
  */
@@ -118,7 +118,7 @@ static gboolean _cnd_eval_timeout(condition* cnd, va_list ap _U_){
   cnd_timeout_dat* data = (cnd_timeout_dat*)cnd_get_user_data(cnd);
   gint32 elapsed_time;
   /* check timeout here */
-  if(data->timeout_s == 0) return FALSE; /* 0 == infinite */ 
+  if(data->timeout_s == 0) return FALSE; /* 0 == infinite */
   elapsed_time = time(NULL) - data->start_time;
   if(elapsed_time > data->timeout_s) return TRUE;
   return FALSE;
@@ -132,16 +132,16 @@ static gboolean _cnd_eval_timeout(condition* cnd, va_list ap _U_){
  */
 static void _cnd_reset_timeout(condition *cnd){
   ((cnd_timeout_dat*)cnd_get_user_data(cnd))->start_time = time(NULL);
-} /* END _cnd_reset_timeout() */ 
- 
+} /* END _cnd_reset_timeout() */
+
 
 /*****************************************************************************/
 /* Predefined condition 'max. capturesize'.                                  */
 
-/* class id */ 
+/* class id */
 const char* CND_CLASS_CAPTURESIZE = "cnd_class_capturesize";
 
-/* structure that contains user supplied data for this condition */ 
+/* structure that contains user supplied data for this condition */
 typedef struct _cnd_capturesize_dat{
   long max_capture_size;
 }cnd_capturesize_dat;
@@ -151,8 +151,8 @@ typedef struct _cnd_capturesize_dat{
  * 'cnd_new()' in order to perform class specific initialization.
  *
  * parameter: cnd - Pointer to condition passed by 'cnd_new()'.
- *            ap  - Pointer to user supplied arguments list for this 
- *                  constructor.   
+ *            ap  - Pointer to user supplied arguments list for this
+ *                  constructor.
  * returns:   Pointer to condition - Construction was successful.
  *            NULL                 - Construction failed.
  */
@@ -183,15 +183,15 @@ static void _cnd_destr_capturesize(condition* cnd){
  * 'cnd_eval()' in order to perform class specific condition checks.
  *
  * parameter: cnd - The inititalized capturesize condition.
- *            ap  - Pointer to user supplied arguments list for this 
- *                  handler.   
+ *            ap  - Pointer to user supplied arguments list for this
+ *                  handler.
  * returns:   TRUE  - Condition is true.
  *            FALSE - Condition is false.
  */
 static gboolean _cnd_eval_capturesize(condition* cnd, va_list ap){
   cnd_capturesize_dat* data = (cnd_capturesize_dat*)cnd_get_user_data(cnd);
   /* check capturesize here */
-  if(data->max_capture_size == 0) return FALSE; /* 0 == infinite */ 
+  if(data->max_capture_size == 0) return FALSE; /* 0 == infinite */
   if(va_arg(ap, long) >= data->max_capture_size){
     return TRUE;
   }
@@ -205,4 +205,4 @@ static gboolean _cnd_eval_capturesize(condition* cnd, va_list ap){
  * parameter: cnd - Pointer to an initialized condition.
  */
 static void _cnd_reset_capturesize(condition *cnd _U_){
-} /* END _cnd_reset_capturesize() */ 
+} /* END _cnd_reset_capturesize() */

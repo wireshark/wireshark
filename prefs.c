@@ -1,22 +1,22 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.88 2002/08/02 23:36:06 jmayer Exp $
+ * $Id: prefs.c,v 1.89 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -342,7 +342,7 @@ gboolean
 prefs_is_registered_protocol(char *name)
 {
 	module_t *m = find_module(name);
-	
+
 	return (m != NULL && !m->obsolete);
 }
 
@@ -627,13 +627,13 @@ put_string_list(GList *sl)
     pref_str[cur_len - 2] = '\0';
 
   return(pref_str);
-}    
+}
 
 static void
 clear_string_list(GList *sl)
 {
   GList *l = sl;
-  
+
   while (l) {
     g_free(l->data);
     l = g_list_remove_link(l, l);
@@ -658,7 +658,7 @@ find_val_for_string(const char *needle, const enum_val_t *haystack,
 		if (strcasecmp(needle, haystack[i].name) == 0) {
 			return haystack[i].value;
 		}
-		i++;	
+		i++;
 	}
 	return default_value;
 }
@@ -677,13 +677,13 @@ find_index_from_string_array(char *needle, char **haystack, int default_value)
 		if (strcmp(needle, haystack[i]) == 0) {
 			return i;
 		}
-		i++;	
+		i++;
 	}
 	return default_value;
 }
 
 /* Preferences file format:
- * - Configuration directives start at the beginning of the line, and 
+ * - Configuration directives start at the beginning of the line, and
  *   are terminated with a colon.
  * - Directives can be continued on the next line by preceding them with
  *   whitespace.
@@ -865,7 +865,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
 
   /* Construct the pathname of the user's preferences file. */
   pf_path = get_persconffile_path(PF_NAME, FALSE);
-    
+
   /* Read the user's preferences file, if it exists. */
   *pf_path_return = NULL;
   if ((pf = fopen(pf_path, "r")) != NULL) {
@@ -883,7 +883,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
       *pf_path_return = pf_path;
     }
   }
-  
+
   return &prefs;
 }
 
@@ -921,7 +921,7 @@ read_prefs_file(const char *pf_path, FILE *pf)
       var_len = 0;
       continue;
     }
-    
+
     switch (state) {
       case START:
         if (isalnum(got_c)) {
@@ -1356,18 +1356,18 @@ set_pref(gchar *pref_name, gchar *value)
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
     prefs.gui_geometry_main_height = strtol(value, NULL, 10);
 
-/* handle the capture options */ 
+/* handle the capture options */
   } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {
     if (prefs.capture_device != NULL)
       g_free(prefs.capture_device);
     prefs.capture_device = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
-    prefs.capture_prom_mode = ((strcasecmp(value, "true") == 0)?TRUE:FALSE); 
+    prefs.capture_prom_mode = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
-    prefs.capture_real_time = ((strcasecmp(value, "true") == 0)?TRUE:FALSE); 
+    prefs.capture_real_time = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
-    prefs.capture_auto_scroll = ((strcasecmp(value, "true") == 0)?TRUE:FALSE); 
- 
+    prefs.capture_auto_scroll = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
+
 /* handle the global options */
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE) == 0 ||
 	     strcmp(pref_name, PRS_CAP_NAME_RESOLVE) == 0) {
@@ -1551,7 +1551,7 @@ set_pref(gchar *pref_name, gchar *value)
       return PREFS_SET_OBSOLETE;	/* no such preference any more */
     }
   }
-  
+
   return PREFS_SET_OK;
 }
 
@@ -1678,7 +1678,7 @@ write_prefs(char **pf_path_return)
     *pf_path_return = pf_path;
     return errno;
   }
-    
+
   fputs("# Configuration file for Ethereal " VERSION ".\n"
     "#\n"
     "# This file is regenerated each time preferences are saved within\n"

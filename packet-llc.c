@@ -2,22 +2,22 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.99 2002/08/02 23:35:53 jmayer Exp $
+ * $Id: packet-llc.c,v 1.100 2002/08/28 21:00:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -218,7 +218,7 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
 				break;
 			}
 		}
-	}		
+	}
 	else {
 		/* non-SNAP */
 		if (XDLC_IS_INFORMATION(control)) {
@@ -267,18 +267,18 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, FALSE);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
-		proto_tree_add_uint(llc_tree, hf_llc_dsap, tvb, 0, 
+		proto_tree_add_uint(llc_tree, hf_llc_dsap, tvb, 0,
 			1, dsap & SAP_MASK);
-		proto_tree_add_boolean(llc_tree, hf_llc_dsap_ig, tvb, 0, 
+		proto_tree_add_boolean(llc_tree, hf_llc_dsap_ig, tvb, 0,
 			1, dsap & DSAP_GI_BIT);
 	} else
 		llc_tree = NULL;
 
 	ssap = tvb_get_guint8(tvb, 1);
 	if (tree) {
-		proto_tree_add_uint(llc_tree, hf_llc_ssap, tvb, 1, 
+		proto_tree_add_uint(llc_tree, hf_llc_ssap, tvb, 1,
 			1, ssap & SAP_MASK);
-		proto_tree_add_boolean(llc_tree, hf_llc_ssap_cr, tvb, 1, 
+		proto_tree_add_boolean(llc_tree, hf_llc_ssap_cr, tvb, 1,
 			1, ssap & SSAP_CR_BIT);
 	} else
 		llc_tree = NULL;
@@ -308,7 +308,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else {
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, 
+			col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "; DSAP %s %s, SSAP %s %s",
 			    val_to_str(dsap & SAP_MASK, sap_vals, "%02x"),
 			    dsap & DSAP_GI_BIT ?
@@ -434,7 +434,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			break;
 		}
 		break;
-		
+
 	case OUI_CISCO:
 		/* So are all CDP packets LLC packets
 		   with an OUI of OUI_CISCO and a
@@ -484,36 +484,36 @@ proto_register_llc(void)
 
 	static hf_register_info hf[] = {
 		{ &hf_llc_dsap,
-		{ "DSAP",	"llc.dsap", FT_UINT8, BASE_HEX, 
+		{ "DSAP",	"llc.dsap", FT_UINT8, BASE_HEX,
 			VALS(sap_vals), 0x0, "", HFILL }},
 
 		{ &hf_llc_dsap_ig,
-		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, BASE_HEX, 
+		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, BASE_HEX,
 			&ig_bit, 0x0, "Individual/Group", HFILL }},
 
 		{ &hf_llc_ssap,
-		{ "SSAP", "llc.ssap", FT_UINT8, BASE_HEX, 
+		{ "SSAP", "llc.ssap", FT_UINT8, BASE_HEX,
 			VALS(sap_vals), 0x0, "", HFILL }},
 
 		{ &hf_llc_ssap_cr,
-		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, BASE_HEX, 
+		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, BASE_HEX,
 			&cr_bit, 0x0, "Command/Response", HFILL }},
 
 		{ &hf_llc_ctrl,
-		{ "Control", "llc.control", FT_UINT16, BASE_HEX, 
+		{ "Control", "llc.control", FT_UINT16, BASE_HEX,
 			NULL, 0x0, "", HFILL }},
 
 		/* registered here but handled in ethertype.c */
 		{ &hf_llc_type,
-		{ "Type", "llc.type", FT_UINT16, BASE_HEX, 
+		{ "Type", "llc.type", FT_UINT16, BASE_HEX,
 			VALS(etype_vals), 0x0, "", HFILL }},
 
 		{ &hf_llc_oui,
-		{ "Organization Code",	"llc.oui", FT_UINT24, BASE_HEX, 
+		{ "Organization Code",	"llc.oui", FT_UINT24, BASE_HEX,
 			VALS(oui_vals), 0x0, "", HFILL }},
 
 		{ &hf_llc_pid,
-		{ "Protocol ID", "llc.pid", FT_UINT16, BASE_HEX, 
+		{ "Protocol ID", "llc.pid", FT_UINT16, BASE_HEX,
 			NULL, 0x0, "", HFILL }}
 	};
 	static gint *ett[] = {

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.69 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-ospf.c,v 1.70 2002/08/28 21:00:24 jmayer Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -12,26 +12,26 @@
  *   - (c) 2001 Palle Lyckegaard <palle[AT]lyckegaard.dk>
  *
  * TOS - support is not fully implemented
- * 
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -84,7 +84,7 @@ static const value_string auth_vals[] = {
 #define OSPF_V2_OPTIONS_DC		0x20
 #define OSPF_V2_OPTIONS_O		0x40
 #define OSPF_V2_OPTIONS_DN		0x01
-#define OSPF_V3_OPTIONS_V6              0x01    
+#define OSPF_V3_OPTIONS_V6              0x01
 #define OSPF_V3_OPTIONS_E		0x02
 #define OSPF_V3_OPTIONS_MC		0x04
 #define OSPF_V3_OPTIONS_N		0x08
@@ -111,7 +111,7 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_LSTYPE_INTER_AREA_PREFIX     0x2003
 #define OSPF_V3_LSTYPE_INTER_AREA_ROUTER     0x2004
 #define OSPF_V3_LSTYPE_AS_EXTERNAL           0x4005
-#define OSPF_V3_LSTYPE_GROUP_MEMBERSHIP      0x2006     
+#define OSPF_V3_LSTYPE_GROUP_MEMBERSHIP      0x2006
 #define OSPF_V3_LSTYPE_TYPE_7                0x2007
 #define OSPF_V3_LSTYPE_LINK                  0x0008
 #define OSPF_V3_LSTYPE_INTRA_AREA_PREFIX     0x2009
@@ -160,13 +160,13 @@ static const value_string ls_opaque_type_vals[] = {
 };
 
 static const value_string v3_ls_type_vals[] = {
-  	{OSPF_V3_LSTYPE_ROUTER,               "Router-LSA"                   }, 
-  	{OSPF_V3_LSTYPE_NETWORK,              "Network-LSA"                  }, 
-  	{OSPF_V3_LSTYPE_INTER_AREA_PREFIX,    "Inter-Area-Prefix-LSA"        }, 
-  	{OSPF_V3_LSTYPE_INTER_AREA_ROUTER,    "Inter-Area-Router-LSA"        }, 
-  	{OSPF_V3_LSTYPE_AS_EXTERNAL,          "AS-External-LSA"              }, 
-  	{OSPF_V3_LSTYPE_GROUP_MEMBERSHIP,     "Group-Membership-LSA"         }, 
-  	{OSPF_V3_LSTYPE_TYPE_7,               "Type-LSA"                     }, 
+  	{OSPF_V3_LSTYPE_ROUTER,               "Router-LSA"                   },
+  	{OSPF_V3_LSTYPE_NETWORK,              "Network-LSA"                  },
+  	{OSPF_V3_LSTYPE_INTER_AREA_PREFIX,    "Inter-Area-Prefix-LSA"        },
+  	{OSPF_V3_LSTYPE_INTER_AREA_ROUTER,    "Inter-Area-Router-LSA"        },
+  	{OSPF_V3_LSTYPE_AS_EXTERNAL,          "AS-External-LSA"              },
+  	{OSPF_V3_LSTYPE_GROUP_MEMBERSHIP,     "Group-Membership-LSA"         },
+  	{OSPF_V3_LSTYPE_TYPE_7,               "Type-LSA"                     },
 	{OSPF_V3_LSTYPE_LINK,                 "Link-LSA"                     },
 	{OSPF_V3_LSTYPE_INTRA_AREA_PREFIX,    "Intra-Area-Prefix-LSA"        },
 	{0,                                   NULL                           }
@@ -220,7 +220,7 @@ enum {
     OSPFF_MSG_LS_REQ,
     OSPFF_MSG_LS_UPD,
     OSPFF_MSG_LS_ACK,
-    
+
     OSPFF_LS_TYPE,
     OSPFF_LS_OPAQUE_TYPE,
 
@@ -256,101 +256,101 @@ static int ospf_filter[OSPFF_MAX];
 static hf_register_info ospff_info[] = {
 
     /* Message type number */
-    {&ospf_filter[OSPFF_MSG_TYPE], 
+    {&ospf_filter[OSPFF_MSG_TYPE],
      { "Message Type", "ospf.msg", FT_UINT8, BASE_DEC, VALS(pt_vals), 0x0,
      	"", HFILL }},
 
     /* Message types */
-    {&ospf_filter[OSPFF_MSG_HELLO], 
+    {&ospf_filter[OSPFF_MSG_HELLO],
      { "Hello", "ospf.msg.hello", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_MSG_DB_DESC], 
+    {&ospf_filter[OSPFF_MSG_DB_DESC],
      { "Database Description", "ospf.msg.dbdesc", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_MSG_LS_REQ], 
+    {&ospf_filter[OSPFF_MSG_LS_REQ],
      { "Link State Adv Request", "ospf.msg.lsreq", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_MSG_LS_UPD], 
+    {&ospf_filter[OSPFF_MSG_LS_UPD],
      { "Link State Adv Update", "ospf.msg.lsupdate", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_MSG_LS_ACK], 
-     { "Link State Adv Acknowledgement", "ospf.msg.lsack", FT_BOOLEAN, 
+    {&ospf_filter[OSPFF_MSG_LS_ACK],
+     { "Link State Adv Acknowledgement", "ospf.msg.lsack", FT_BOOLEAN,
        BASE_NONE, NULL, 0x0, "", HFILL }},
 
 
 
     /* LS Types */
-    {&ospf_filter[OSPFF_LS_TYPE], 
-     { "Link-State Advertisement Type", "ospf.lsa", FT_UINT8, BASE_DEC, 
+    {&ospf_filter[OSPFF_LS_TYPE],
+     { "Link-State Advertisement Type", "ospf.lsa", FT_UINT8, BASE_DEC,
        VALS(ls_type_vals), 0x0, "", HFILL }},
-    {&ospf_filter[OSPFF_LS_OPAQUE_TYPE], 
-     { "Link State ID Opaque Type", "ospf.lsid_opaque_type", FT_UINT8, BASE_DEC, 
+    {&ospf_filter[OSPFF_LS_OPAQUE_TYPE],
+     { "Link State ID Opaque Type", "ospf.lsid_opaque_type", FT_UINT8, BASE_DEC,
        VALS(ls_opaque_type_vals), 0x0, "", HFILL }},
 
-    {&ospf_filter[OSPFF_LS_MPLS_TE_INSTANCE], 
-     { "Link State ID TE-LSA Instance", "ospf.lsid_te_lsa.instance", FT_UINT16, BASE_DEC, 
+    {&ospf_filter[OSPFF_LS_MPLS_TE_INSTANCE],
+     { "Link State ID TE-LSA Instance", "ospf.lsid_te_lsa.instance", FT_UINT16, BASE_DEC,
        NULL, 0x0, "", HFILL }},
 
-    {&ospf_filter[OSPFF_LS_ROUTER], 
+    {&ospf_filter[OSPFF_LS_ROUTER],
      { "Router LSA", "ospf.lsa.router", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_LS_NETWORK], 
+    {&ospf_filter[OSPFF_LS_NETWORK],
      { "Network LSA", "ospf.lsa.network", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_LS_SUMMARY], 
-     { "Summary LSA (IP Network)", "ospf.lsa.summary", FT_BOOLEAN, BASE_NONE, 
+    {&ospf_filter[OSPFF_LS_SUMMARY],
+     { "Summary LSA (IP Network)", "ospf.lsa.summary", FT_BOOLEAN, BASE_NONE,
        NULL, 0x0, "", HFILL }},
-    {&ospf_filter[OSPFF_LS_ASBR], 
+    {&ospf_filter[OSPFF_LS_ASBR],
      { "Summary LSA (ASBR)", "ospf.lsa.asbr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_LS_ASEXT], 
+    {&ospf_filter[OSPFF_LS_ASEXT],
      { "AS-External LSA (ASBR)", "ospf.lsa.asext", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_LS_GRPMEMBER], 
+    {&ospf_filter[OSPFF_LS_GRPMEMBER],
      { "Group Membership LSA", "ospf.lsa.member", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_LS_ASEXT7], 
+    {&ospf_filter[OSPFF_LS_ASEXT7],
      { "NSSA AS-External LSA", "ospf.lsa.nssa", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_LS_EXTATTR], 
+    {&ospf_filter[OSPFF_LS_EXTATTR],
      { "External Attributes LSA", "ospf.lsa.attr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
-    {&ospf_filter[OSPFF_LS_OPAQUE], 
+    {&ospf_filter[OSPFF_LS_OPAQUE],
      { "Opaque LSA", "ospf.lsa.opaque", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     /* Other interesting OSPF values */
 
-    {&ospf_filter[OSPFF_SRC_ROUTER], 
-     { "Source OSPF Router", "ospf.srcrouter", FT_IPv4, BASE_NONE, NULL, 0x0, 
-       "", HFILL }}, 
-
-    {&ospf_filter[OSPFF_ADV_ROUTER], 
-     { "Advertising Router", "ospf.advrouter", FT_IPv4, BASE_NONE, NULL, 0x0, 
-       "", HFILL }}, 
-
-   {&ospf_filter[OSPFF_LS_MPLS], 
-     { "MPLS Traffic Engineering LSA", "ospf.lsa.mpls", FT_BOOLEAN, 
-       BASE_NONE, NULL, 0x0, "", HFILL }},
-
-    {&ospf_filter[OSPFF_LS_MPLS_ROUTERID], 
-     { "MPLS/TE Router ID", "ospf.mpls.routerid", FT_IPv4, BASE_NONE, NULL, 0x0, 
+    {&ospf_filter[OSPFF_SRC_ROUTER],
+     { "Source OSPF Router", "ospf.srcrouter", FT_IPv4, BASE_NONE, NULL, 0x0,
        "", HFILL }},
 
-    {&ospf_filter[OSPFF_LS_MPLS_LINKID], 
-     { "MPLS/TE Link ID", "ospf.mpls.linkid", FT_IPv4, BASE_NONE, NULL, 0x0, 
+    {&ospf_filter[OSPFF_ADV_ROUTER],
+     { "Advertising Router", "ospf.advrouter", FT_IPv4, BASE_NONE, NULL, 0x0,
        "", HFILL }},
-    {&ospf_filter[OSPFF_LS_MPLS_LOCAL_ADDR], 
-     { "MPLS/TE Local Interface Address", "ospf.mpls.local_addr", FT_IPv4, 
+
+   {&ospf_filter[OSPFF_LS_MPLS],
+     { "MPLS Traffic Engineering LSA", "ospf.lsa.mpls", FT_BOOLEAN,
        BASE_NONE, NULL, 0x0, "", HFILL }},
-    {&ospf_filter[OSPFF_LS_MPLS_REMOTE_ADDR], 
-     { "MPLS/TE Remote Interface Address", "ospf.mpls.remote_addr", FT_IPv4, 
+
+    {&ospf_filter[OSPFF_LS_MPLS_ROUTERID],
+     { "MPLS/TE Router ID", "ospf.mpls.routerid", FT_IPv4, BASE_NONE, NULL, 0x0,
+       "", HFILL }},
+
+    {&ospf_filter[OSPFF_LS_MPLS_LINKID],
+     { "MPLS/TE Link ID", "ospf.mpls.linkid", FT_IPv4, BASE_NONE, NULL, 0x0,
+       "", HFILL }},
+    {&ospf_filter[OSPFF_LS_MPLS_LOCAL_ADDR],
+     { "MPLS/TE Local Interface Address", "ospf.mpls.local_addr", FT_IPv4,
        BASE_NONE, NULL, 0x0, "", HFILL }},
-    {&ospf_filter[OSPFF_LS_MPLS_LOCAL_IFID], 
-     { "MPLS/TE Local Interface Index", "ospf.mpls.local_id", FT_UINT32, 
+    {&ospf_filter[OSPFF_LS_MPLS_REMOTE_ADDR],
+     { "MPLS/TE Remote Interface Address", "ospf.mpls.remote_addr", FT_IPv4,
+       BASE_NONE, NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_LS_MPLS_LOCAL_IFID],
+     { "MPLS/TE Local Interface Index", "ospf.mpls.local_id", FT_UINT32,
        BASE_DEC, NULL, 0x0, "", HFILL }},
-    {&ospf_filter[OSPFF_LS_MPLS_REMOTE_IFID], 
-     { "MPLS/TE Remote Interface Index", "ospf.mpls.remote_id", FT_UINT32, 
+    {&ospf_filter[OSPFF_LS_MPLS_REMOTE_IFID],
+     { "MPLS/TE Remote Interface Index", "ospf.mpls.remote_id", FT_UINT32,
        BASE_DEC, NULL, 0x0, "", HFILL }},
 
 
@@ -359,18 +359,18 @@ static hf_register_info ospff_info[] = {
 
 static guint8 ospf_msg_type_to_filter (guint8 msg_type)
 {
-    if (msg_type >= OSPF_HELLO && 
-	msg_type <= OSPF_LS_ACK) 
+    if (msg_type >= OSPF_HELLO &&
+	msg_type <= OSPF_LS_ACK)
 	return msg_type + OSPFF_MSG_MIN;
     return -1;
 }
 
 static guint8 ospf_ls_type_to_filter (guint8 ls_type)
 {
-    if (ls_type >= OSPF_LSTYPE_ROUTER && 
-	ls_type <= OSPF_LSTYPE_EXTATTR) 
+    if (ls_type >= OSPF_LSTYPE_ROUTER &&
+	ls_type <= OSPF_LSTYPE_EXTATTR)
 	return OSPFF_LS_MIN + ls_type;
-    else if (ls_type >= OSPF_LSTYPE_OP_LINKLOCAL && 
+    else if (ls_type >= OSPF_LSTYPE_OP_LINKLOCAL &&
 	     ls_type <= OSPF_LSTYPE_OP_ASWIDE)
 	return OSPFF_LS_OPAQUE;
     else
@@ -380,18 +380,18 @@ static guint8 ospf_ls_type_to_filter (guint8 ls_type)
 static dissector_handle_t data_handle;
 
 static void dissect_ospf_hello(tvbuff_t*, int, proto_tree*, guint8);
-static void dissect_ospf_db_desc(tvbuff_t*, int, proto_tree*, guint8); 
-static void dissect_ospf_ls_req(tvbuff_t*, int, proto_tree*, guint8); 
-static void dissect_ospf_ls_upd(tvbuff_t*, int, proto_tree*, guint8); 
-static void dissect_ospf_ls_ack(tvbuff_t*, int, proto_tree*, guint8); 
+static void dissect_ospf_db_desc(tvbuff_t*, int, proto_tree*, guint8);
+static void dissect_ospf_ls_req(tvbuff_t*, int, proto_tree*, guint8);
+static void dissect_ospf_ls_upd(tvbuff_t*, int, proto_tree*, guint8);
+static void dissect_ospf_ls_ack(tvbuff_t*, int, proto_tree*, guint8);
 
 /* dissect_ospf_v[23]lsa returns the offset of the next LSA
- * if disassemble_body is set to FALSE (e.g. in LSA ACK 
+ * if disassemble_body is set to FALSE (e.g. in LSA ACK
  * packets), the offset is set to the offset of the next
  * LSA header
  */
-static int dissect_ospf_v2_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body); 
-static int dissect_ospf_v3_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body); 
+static int dissect_ospf_v2_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body);
+static int dissect_ospf_v3_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body);
 
 static void dissect_ospf_options(tvbuff_t *, int, proto_tree *, guint8);
 
@@ -399,11 +399,11 @@ static void dissect_ospf_v3_prefix_options(tvbuff_t *, int, proto_tree *);
 
 static void dissect_ospf_v3_address_prefix(tvbuff_t *, int, int, proto_tree *);
 
-static void 
+static void
 dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *ospf_tree = NULL;
-    proto_item *ti; 
+    proto_item *ti;
     proto_tree *ospf_header_tree;
     guint8  version;
     guint8  packet_type;
@@ -444,7 +444,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(packet_type, pt_vals, "Unknown (%u)"));
-    }  
+    }
 
     if (tree) {
 	ospflen = tvb_get_ntohs(tvb, 2);
@@ -453,19 +453,19 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ospf_tree = proto_item_add_subtree(ti, ett_ospf);
 
 	ti = proto_tree_add_text(ospf_tree, tvb, 0, ospf_header_length,
-				 "OSPF Header"); 
+				 "OSPF Header");
 	ospf_header_tree = proto_item_add_subtree(ti, ett_ospf_hdr);
 
         proto_tree_add_text(ospf_header_tree, tvb, 0, 1, "OSPF Version: %u",
-			    version);  
-	proto_tree_add_item(ospf_header_tree, ospf_filter[OSPFF_MSG_TYPE], 
+			    version);
+	proto_tree_add_item(ospf_header_tree, ospf_filter[OSPFF_MSG_TYPE],
 			    tvb, 1, 1, FALSE);
-	proto_tree_add_item_hidden(ospf_header_tree, 
+	proto_tree_add_item_hidden(ospf_header_tree,
 				   ospf_filter[ospf_msg_type_to_filter(packet_type)],
 				   tvb, 1, 1, FALSE);
  	proto_tree_add_text(ospf_header_tree, tvb, 2, 2, "Packet Length: %u",
 			    ospflen);
-	proto_tree_add_item(ospf_header_tree, ospf_filter[OSPFF_SRC_ROUTER], 
+	proto_tree_add_item(ospf_header_tree, ospf_filter[OSPFF_SRC_ROUTER],
 			    tvb, 4, 4, FALSE);
 	areaid=tvb_get_ntohl(tvb,8);
 	proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s%s",
@@ -544,7 +544,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	/* Authentication is only valid for OSPFv2 */
-        if ( version == OSPF_VERSION_2 ) {        
+        if ( version == OSPF_VERSION_2 ) {
             auth_type = tvb_get_ntohs(tvb, 14);
 	    proto_tree_add_text(ospf_header_tree, tvb, 14, 2, "Auth Type: %s",
 		    	    val_to_str(auth_type, auth_vals, "Unknown (%u)"));
@@ -567,7 +567,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				crypto_len);
 	        proto_tree_add_text(ospf_header_tree, tvb, 20, 4, "Auth Crypto Sequence Number: 0x%x",
 				tvb_get_ntohl(tvb, 20));
-  
+
 	        /* Show the message digest that was appended to the end of the
 	           OSPF message - but only if it's present (we don't want
 	           to get an exception before we've tried dissecting OSPF
@@ -637,11 +637,11 @@ static void
 dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 {
     proto_tree *ospf_hello_tree;
-    proto_item *ti; 
+    proto_item *ti;
 
     ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF Hello Packet");
     ospf_hello_tree = proto_item_add_subtree(ti, ett_ospf_hello);
-    
+
     switch (version ) {
         case OSPF_VERSION_2:
             proto_tree_add_text(ospf_hello_tree, tvb, offset, 4, "Network Mask: %s",
@@ -693,7 +693,7 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 
 	    break;
 
-        default:    
+        default:
             break;
     }
 }
@@ -702,17 +702,17 @@ static void
 dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 {
     proto_tree *ospf_db_desc_tree=NULL;
-    proto_item *ti; 
+    proto_item *ti;
     guint8 flags;
     guint8 reserved;
     char flags_string[20] = "";
 
     if (tree) {
-	ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF DB Description"); 
+	ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF DB Description");
 	ospf_db_desc_tree = proto_item_add_subtree(ti, ett_ospf_desc);
 
         switch (version ) {
- 
+
 	    case OSPF_VERSION_2:
 
                 proto_tree_add_text(ospf_db_desc_tree, tvb, offset, 2, "Interface MTU: %u",
@@ -807,14 +807,14 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
     /* we place every request for a LSA in a single subtree */
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
 	ti = proto_tree_add_text(tree, tvb, offset, OSPF_LS_REQ_LENGTH,
-				 "Link State Request"); 
+				 "Link State Request");
 	ospf_lsr_tree = proto_item_add_subtree(ti, ett_ospf_lsr);
-      
+
         switch ( version ) {
 
     	    case OSPF_VERSION_2:
  	        ls_type = tvb_get_ntohl(tvb, offset);
-  	        proto_tree_add_item(ospf_lsr_tree, ospf_filter[OSPFF_LS_TYPE], 
+  	        proto_tree_add_item(ospf_lsr_tree, ospf_filter[OSPFF_LS_TYPE],
 				    tvb, offset, 4, FALSE);
 	        break;
     	    case OSPF_VERSION_3:
@@ -832,7 +832,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
         }
 
 
-	proto_tree_add_text(ospf_lsr_tree, tvb, offset + 4, 4, "Link State ID: %s", 
+	proto_tree_add_text(ospf_lsr_tree, tvb, offset + 4, 4, "Link State ID: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
 	proto_tree_add_item(ospf_lsr_tree, ospf_filter[OSPFF_ADV_ROUTER],
 			    tvb, offset + 8, 4, FALSE);
@@ -847,7 +847,7 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
     proto_tree *ospf_lsa_upd_tree=NULL;
     proto_item *ti;
     guint32 lsa_nr;
-    guint32 lsa_counter; 
+    guint32 lsa_counter;
 
     ti = proto_tree_add_text(tree, tvb, offset, -1, "LS Update Packet");
     ospf_lsa_upd_tree = proto_item_add_subtree(ti, ett_ospf_lsa_upd);
@@ -857,7 +857,7 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
     			lsa_nr);
     /* skip to the beginning of the first LSA */
     offset += 4; /* the LS Upd Packet contains only a 32 bit #LSAs field */
-    
+
     lsa_counter = 0;
     while (lsa_counter < lsa_nr) {
         if ( version == OSPF_VERSION_2)
@@ -883,7 +883,7 @@ dissect_ospf_ls_ack(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 }
 
 /*
- * Returns if an LSA is opaque, i.e. requires special treatment 
+ * Returns if an LSA is opaque, i.e. requires special treatment
  */
 static int
 is_opaque(int lsa_type)
@@ -932,14 +932,14 @@ static const value_string mpls_link_stlv_str[] = {
     {0, NULL},
 };
 
-/* 
- * Dissect MPLS/TE opaque LSA 
+/*
+ * Dissect MPLS/TE opaque LSA
  */
 static void
 dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		      guint32 length)
 {
-    proto_item *ti; 
+    proto_item *ti;
     proto_tree *mpls_tree;
     proto_tree *tlv_tree;
     proto_tree *stlv_tree;
@@ -967,7 +967,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	case MPLS_TLV_ROUTER:
 	    ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4,
-				     "Router Address: %s", 
+				     "Router Address: %s",
 				     ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
 	    tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_router);
 	    proto_tree_add_text(tlv_tree, tvb, offset, 2, "TLV Type: 1 - Router Address");
@@ -1032,9 +1032,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    /*   The Local/Remote Interface IP Address sub-TLV is TLV type 3/4, and is 4N
 		       octets in length, where N is the number of neighbor addresses. */
 		    for (i=0; i < stlv_len; i+=4)
-		      proto_tree_add_item(stlv_tree, 
-					  stlv_type==MPLS_LINK_LOCAL_IF ? 
-					  ospf_filter[OSPFF_LS_MPLS_LOCAL_ADDR] : 
+		      proto_tree_add_item(stlv_tree,
+					  stlv_type==MPLS_LINK_LOCAL_IF ?
+					  ospf_filter[OSPFF_LS_MPLS_LOCAL_ADDR] :
 					  ospf_filter[OSPFF_LS_MPLS_REMOTE_ADDR],
 					  tvb, stlv_offset+4+i, 4, FALSE);
 		    break;
@@ -1094,9 +1094,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    proto_tree_add_item(stlv_tree, 
-					stlv_type==MPLS_LINK_LOCAL_ID ? 
-					ospf_filter[OSPFF_LS_MPLS_LOCAL_IFID] : 
+		    proto_tree_add_item(stlv_tree,
+					stlv_type==MPLS_LINK_LOCAL_ID ?
+					ospf_filter[OSPFF_LS_MPLS_LOCAL_IFID] :
 					ospf_filter[OSPFF_LS_MPLS_REMOTE_IFID],
 					tvb, stlv_offset+4, 4, FALSE);
 		    break;
@@ -1109,11 +1109,11 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Switching Type: %s", 
-					val_to_str(tvb_get_guint8(tvb,stlv_offset+4), 
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Switching Type: %s",
+					val_to_str(tvb_get_guint8(tvb,stlv_offset+4),
 						   gmpls_switching_type_str, "Unknown (%d)"));
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+5, 1, "Encoding: %s", 
-					val_to_str(tvb_get_guint8(tvb,stlv_offset+5), 
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+5, 1, "Encoding: %s",
+					val_to_str(tvb_get_guint8(tvb,stlv_offset+5),
 						   gmpls_lsp_enc_str, "Unknown (%d)"));
 		    for (i = 0; i < 8; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+8+(i*4), 4,
@@ -1133,7 +1133,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 	    break;
 
 	default:
-	    ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4, 
+	    ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4,
 				     "Unknown LSA: %u", tlv_type);
 	    tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link);
 	    proto_tree_add_text(tlv_tree, tvb, offset, 2, "TLV Type: %u - Unknown",
@@ -1174,7 +1174,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 		 gboolean disassemble_body)
 {
     proto_tree *ospf_lsa_tree;
-    proto_item *ti; 
+    proto_item *ti;
 
     guint8		 ls_type;
     guint16		 ls_length;
@@ -1200,23 +1200,23 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     end_offset = offset + ls_length;
 
     if (disassemble_body) {
-	ti = proto_tree_add_text(tree, tvb, offset, ls_length, 
-				 "LS Type: %s", 
-				 val_to_str(ls_type, ls_type_vals, "Unknown (%d)")); 
+	ti = proto_tree_add_text(tree, tvb, offset, ls_length,
+				 "LS Type: %s",
+				 val_to_str(ls_type, ls_type_vals, "Unknown (%d)"));
     } else {
 	ti = proto_tree_add_text(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
-				 "LSA Header"); 
+				 "LSA Header");
     }
     ospf_lsa_tree = proto_item_add_subtree(ti, ett_ospf_lsa);
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "LS Age: %u seconds",
 			tvb_get_ntohs(tvb, offset));
     dissect_ospf_options(tvb, offset + 2, ospf_lsa_tree, OSPF_VERSION_2);
-    proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_LS_TYPE], tvb, 
-			offset + 3, 1, FALSE); 
-    proto_tree_add_item_hidden(ospf_lsa_tree, 
-			       ospf_filter[ospf_ls_type_to_filter(ls_type)], tvb, 
-			       offset + 3, 1, FALSE); 
+    proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_LS_TYPE], tvb,
+			offset + 3, 1, FALSE);
+    proto_tree_add_item_hidden(ospf_lsa_tree,
+			       ospf_filter[ospf_ls_type_to_filter(ls_type)], tvb,
+			       offset + 3, 1, FALSE);
 
     if (is_opaque(ls_type)) {
     	ls_id_type = tvb_get_guint8(tvb, offset + 4);
@@ -1272,7 +1272,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 2, 2, "Number of Links: %u",
 			    nr_links);
 	offset += 4;
-	/* nr_links links follow 
+	/* nr_links links follow
 	 * maybe we should put each of the links into its own subtree ???
 	 */
 	for (link_counter = 1; link_counter <= nr_links; link_counter++) {
@@ -1323,7 +1323,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	    offset += 12;
 
-	    /* nr_tos metrics may follow each link 
+	    /* nr_tos metrics may follow each link
 	     * ATTENTION: TOS metrics are not tested (I don't have TOS
 	     * based routing)
 	     * please send me a mail if it is/isn't working
@@ -1371,7 +1371,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     case OSPF_LSTYPE_ASEXT:
     case OSPF_LSTYPE_ASEXT7:
-	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Netmask: %s", 
+	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Netmask: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 	offset += 4;
 
@@ -1388,7 +1388,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    tvb_get_ntoh24(tvb, offset + 1));
 	offset += 4;
 
-	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Forwarding Address: %s", 
+	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Forwarding Address: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 	offset += 4;
 
@@ -1411,7 +1411,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 				tvb_get_ntoh24(tvb, offset + 1));
 	    offset += 4;
 
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Forwarding Address: %s", 
+	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Forwarding Address: %s",
 				ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 	    offset += 4;
 
@@ -1448,7 +1448,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 		 gboolean disassemble_body)
 {
     proto_tree *ospf_lsa_tree;
-    proto_item *ti; 
+    proto_item *ti;
 
     guint16		 ls_type;
     guint16		 ls_length;
@@ -1481,10 +1481,10 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     if (disassemble_body) {
 	ti = proto_tree_add_text(tree, tvb, offset, ls_length,
-				 "%s (Type: 0x%04x)", val_to_str(ls_type, v3_ls_type_vals,"Unknown"), ls_type); 
+				 "%s (Type: 0x%04x)", val_to_str(ls_type, v3_ls_type_vals,"Unknown"), ls_type);
     } else {
 	ti = proto_tree_add_text(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
-				 "LSA Header"); 
+				 "LSA Header");
     }
     ospf_lsa_tree = proto_item_add_subtree(ti, ett_ospf_lsa);
 
@@ -1552,7 +1552,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
         if (ls_length > 0)
 	     proto_tree_add_text(ospf_lsa_tree, tvb, offset, ls_length,
-		   "Router Interfaces:"); 
+		   "Router Interfaces:");
 
         /* scan all router-lsa router interfaces */
 	/* maybe we should put each of the links into its own subtree ??? */
@@ -1716,7 +1716,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 1, "Flags: 0x%02x (%s)",
 			    flags, flags_string);
-        
+
 	/* 24 bits metric */
 	metric=tvb_get_ntoh24(tvb, offset+1);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset+1, 3,
@@ -1738,7 +1738,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
         /* address_prefix */
         dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree);
-       
+
         offset+=(prefix_length+31)/32*4;
 
         /* Forwarding Address (optional - only if F-flag is on) */
@@ -1760,7 +1760,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
         /* Referenced Link State ID (optional - only if Referenced LS type is non-zero */
         if ( (offset < end_offset) && (referenced_ls_type != 0) ) {
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Referenced Link State ID: %s", 
+	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Referenced Link State ID: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 	    offset+=4;
         }
@@ -1804,12 +1804,12 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
             /* address_prefix */
             dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree);
-       
+
             offset+=(prefix_length+31)/32*4;
 
             number_prefixes--;
 
-        }             
+        }
         break;
 
     case OSPF_V3_LSTYPE_INTRA_AREA_PREFIX:
@@ -1824,11 +1824,11 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    referenced_ls_type, val_to_str(referenced_ls_type, v3_ls_type_vals, "Unknown"));
 
         /* Referenced Link State ID */
-	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Referenced Link State ID: %s", 
+	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Referenced Link State ID: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
 
         /* Referenced Advertising Router */
-	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 8, 4, "Referenced Advertising Router: %s", 
+	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 8, 4, "Referenced Advertising Router: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset + 8, 4)));
 
         offset+=12;
@@ -1851,7 +1851,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
             /* address_prefix */
             dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree);
-       
+
             offset+=(prefix_length+31)/32*4;
 
             number_prefixes--;
@@ -1921,7 +1921,7 @@ dissect_ospf_options(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
             if (options_ospfv2 & OSPF_V2_OPTIONS_DN) {
     	        if (options_string[0] != '\0')
 	            strcat(options_string, "/");
-	        strcat(options_string, "DN");  
+	        strcat(options_string, "DN");
             }
 
             proto_tree_add_text(tree, tvb, offset, 1, "Options: 0x%x (%s)",
@@ -1984,7 +1984,7 @@ static void dissect_ospf_v3_prefix_options(tvbuff_t *tvb, int offset, proto_tree
     guint8 position;
 
     position=0;
-    
+
     prefix_options=tvb_get_guint8(tvb, offset);
 
     strcpy(prefix_options_string,"");
@@ -2051,15 +2051,15 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix
 	    buffer[bufpos++]=':';
 
         sprintf(bytebuf,"%02x",value);
-        buffer[bufpos++]=bytebuf[0];        
-        buffer[bufpos++]=bytebuf[1];        
-        
+        buffer[bufpos++]=bytebuf[0];
+        buffer[bufpos++]=bytebuf[1];
+
 	position++;
 	offset++;
         bytes_to_process--;
     }
 
-    buffer[bufpos]=0;  
+    buffer[bufpos]=0;
     proto_tree_add_text(tree, tvb, start_offset, ((prefix_length+31)/32)*4, "Address Prefix: %s",buffer);
 
 }

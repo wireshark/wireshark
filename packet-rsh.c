@@ -4,22 +4,22 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.19 2002/08/02 23:35:58 jmayer Exp $
+ * $Id: packet-rsh.c,v 1.20 2002/08/28 21:00:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -90,11 +90,11 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = next_offset;
 		}
 
-		if (pinfo->match_port == pinfo->destport) 
-			proto_tree_add_boolean_hidden(rsh_tree, 
+		if (pinfo->match_port == pinfo->destport)
+			proto_tree_add_boolean_hidden(rsh_tree,
 			    hf_rsh_request, tvb, 0, 0, 1);
 		else
-			proto_tree_add_boolean_hidden(rsh_tree, 
+			proto_tree_add_boolean_hidden(rsh_tree,
 			    hf_rsh_response, tvb, 0, 0, 1);
 	}
 }
@@ -105,7 +105,7 @@ proto_register_rsh(void)
 
 	static hf_register_info hf[] = {
 		{ &hf_rsh_response,
-		{ "Response",		"rsh.response",  
+		{ "Response",		"rsh.response",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"TRUE if rsh response", HFILL }},
 		{ &hf_rsh_request,

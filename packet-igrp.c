@@ -1,25 +1,25 @@
 /* packet-igrp.c
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
- * 
- * $Id: packet-igrp.c,v 1.12 2002/01/24 09:20:48 guy Exp $
+ *
+ * $Id: packet-igrp.c,v 1.13 2002/08/28 21:00:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-syslog.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -58,18 +58,18 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 as,net1,net2,net3;
   proto_item *ti;
   proto_tree *igrp_tree, *igrp_vektor_tree;
-  tvbuff_t   *next_tvb; 
-  
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  tvbuff_t   *next_tvb;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IGRP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
-    
+
   ver_and_opcode = tvb_get_guint8(tvb,0);
   update 	 = tvb_get_guint8(tvb,1);
   as		 = tvb_get_ntohs(tvb,2);
-  
-  
+
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     switch (ver_and_opcode) {
     case 0x11:
@@ -78,23 +78,23 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x12:
     	col_add_fstr(pinfo->cinfo, COL_INFO, "Request" );
         break;
-    default:	        
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown version or opcode"); 
+    default:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown version or opcode");
     }
   }
 
 
 
-  
+
   if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_igrp, tvb, 0, -1,
         "Cisco IGRP");
-        
+
       igrp_tree = proto_item_add_subtree(ti, ett_igrp);
-      
+
       version = (ver_and_opcode&0xf0)>>4 ; /* version is the fist half of the byte */
       opcode = ver_and_opcode&0x0f ;       /* opcode is the last half of the byte */
-      
+
       proto_tree_add_text(igrp_tree,  tvb, 0,1,"IGRP Version  : %d %s",version,(version==1?" ":" -  Unknown Version, The dissection may be innacurate"));
       proto_tree_add_text(igrp_tree,  tvb, 0,1,"Command       : %d %s",opcode,(opcode==1?"(Response)":"(Request)"));
       proto_tree_add_uint(igrp_tree, hf_igrp_update, tvb, 1,1, update);
@@ -106,7 +106,7 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* this is a ugly hack to find the first byte of the IP source address */
       network = pinfo->net_src.data[0];
-      
+
       ti = proto_tree_add_text(igrp_tree,  tvb, 4,2,"Interior routes : %d",net1);
 	for( ; net1>0 ; net1-- )
 	{
@@ -155,21 +155,21 @@ static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, gu
 	if (network==0) ptr_addr=&addr[1];
 
 	ti = proto_tree_add_text (igrp_vektor_tree, tvb, 0 ,14,
-	  "Entry for network %s", ip_to_str(ptr_addr)) ; 
+	  "Entry for network %s", ip_to_str(ptr_addr)) ;
 	igrp_vektor_tree =  proto_item_add_subtree(ti,ett_igrp_net);
-	proto_tree_add_text (igrp_vektor_tree, tvb, 0 ,3,"Network     = %s",ip_to_str(ptr_addr)) ; 
-	proto_tree_add_text (igrp_vektor_tree, tvb, 3 ,3,"Delay       = %d",tvb_get_ntoh24(tvb,3)) ; 
-	proto_tree_add_text (igrp_vektor_tree, tvb, 6 ,3,"Bandwidth   = %d",tvb_get_ntoh24(tvb,6)) ; 
-	proto_tree_add_text (igrp_vektor_tree, tvb, 9 ,2,"MTU         = %d  bytes",tvb_get_ntohs(tvb,9)) ; 
-	proto_tree_add_text (igrp_vektor_tree, tvb, 11,1,"Reliability = %d",tvb_get_guint8(tvb,11)) ; 
-	proto_tree_add_text (igrp_vektor_tree, tvb, 12,1,"Load        = %d",tvb_get_guint8(tvb,12)) ; 
-	proto_tree_add_text (igrp_vektor_tree, tvb, 13,1,"Hop count   = %d  hops",tvb_get_guint8(tvb,13)) ; 
-}	
+	proto_tree_add_text (igrp_vektor_tree, tvb, 0 ,3,"Network     = %s",ip_to_str(ptr_addr)) ;
+	proto_tree_add_text (igrp_vektor_tree, tvb, 3 ,3,"Delay       = %d",tvb_get_ntoh24(tvb,3)) ;
+	proto_tree_add_text (igrp_vektor_tree, tvb, 6 ,3,"Bandwidth   = %d",tvb_get_ntoh24(tvb,6)) ;
+	proto_tree_add_text (igrp_vektor_tree, tvb, 9 ,2,"MTU         = %d  bytes",tvb_get_ntohs(tvb,9)) ;
+	proto_tree_add_text (igrp_vektor_tree, tvb, 11,1,"Reliability = %d",tvb_get_guint8(tvb,11)) ;
+	proto_tree_add_text (igrp_vektor_tree, tvb, 12,1,"Load        = %d",tvb_get_guint8(tvb,12)) ;
+	proto_tree_add_text (igrp_vektor_tree, tvb, 13,1,"Hop count   = %d  hops",tvb_get_guint8(tvb,13)) ;
+}
 
- 
+
 /* Register the protocol with Ethereal */
 void proto_register_igrp(void)
-{                 
+{
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
@@ -220,7 +220,7 @@ HEADER structure is 12 bytes as follows :
 
 4  bits		Version (only version 1 is defined)
 4  bits		Opcode (1=Replay, 2=Request)
-8  bits		Update Release 
+8  bits		Update Release
 16 bits		Autonomous system number
 16 bits		Number of Interior routes
 16 bits		Number of System routes

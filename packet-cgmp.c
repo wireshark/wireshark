@@ -1,27 +1,27 @@
 /* packet-cgmp.c
  * Routines for the disassembly of the Cisco Group Management Protocol
  *
- * $Id: packet-cgmp.c,v 1.16 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-cgmp.c,v 1.17 2002/08/28 21:00:08 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #include "config.h"
 
 #include <stdlib.h>
@@ -52,11 +52,11 @@ static const value_string type_vals[] = {
 	{ 1, "Leave" },
 	{ 0, NULL },
 };
-	
-static void 
+
+static void
 dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti; 
+	proto_item *ti;
 	proto_tree *cgmp_tree = NULL;
 	int offset = 0;
 	guint8 count;
@@ -64,13 +64,13 @@ dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CGMP");
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Cisco Group Management Protocol"); 
+		col_set_str(pinfo->cinfo, COL_INFO, "Cisco Group Management Protocol");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_cgmp, tvb, offset, -1,
 		    FALSE);
 		cgmp_tree = proto_item_add_subtree(ti, ett_cgmp);
-	
+
 		proto_tree_add_item(cgmp_tree, hf_cgmp_version, tvb, offset, 1,
 		    FALSE);
 		proto_tree_add_item(cgmp_tree, hf_cgmp_type, tvb, offset, 1,

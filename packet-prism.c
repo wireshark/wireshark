@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.7 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-prism.c,v 1.8 2002/08/28 21:00:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,12 +21,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -60,7 +60,7 @@ struct val_80211 {
 struct prism_hdr {
     unsigned int msgcode, msglen;
     char devname[16];
-    struct val_80211 hosttime, mactime, channel, rssi, sq, signal, 
+    struct val_80211 hosttime, mactime, channel, rssi, sq, signal,
         noise, rate, istx, frmlen;
 };
 
@@ -134,7 +134,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      hdr.msgcode, hdr.msglen);
 
     if(tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_prism, 
+        ti = proto_tree_add_protocol_format(tree, proto_prism,
             tvb, 0, sizeof hdr, "Prism Monitoring Header");
         prism_tree = proto_item_add_subtree(ti, ett_prism);
 
@@ -184,8 +184,8 @@ proto_register_prism(void)
         VALFIELD2(rate, "Rate")
         VALFIELD2(istx, "IsTX")
         VALFIELD2(frmlen, "Frame Length")
-        
-    }; 
+
+    };
     static gint *ett[] = {
         &ett_prism
     };

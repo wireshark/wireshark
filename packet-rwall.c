@@ -1,6 +1,6 @@
 /* packet-rwall.c
  *
- * $Id: packet-rwall.c,v 1.6 2002/08/02 23:36:00 jmayer Exp $
+ * $Id: packet-rwall.c,v 1.7 2002/08/28 21:00:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@ static int
 dissect_rwall_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_rpc_string(tvb, tree, hf_rwall_message, offset, NULL);
-	
+
 	return offset;
 }
 

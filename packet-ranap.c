@@ -3,24 +3,24 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.14 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-ranap.c,v 1.15 2002/08/28 21:00:28 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -56,9 +56,9 @@
 static const value_string   ranap_pdu_index_values[] = {
   {InitiatingMessage, 		"InitiatingMessage"},
   {SuccessfulOutcome, 		"SuccessfulOutcome"},
-  {UnsuccessfulOutcome,  	"UnsuccessfulOutcome"},  
-  {Outcome,  			"Outcome"},  
-  { 0,				NULL} 
+  {UnsuccessfulOutcome,  	"UnsuccessfulOutcome"},
+  {Outcome,  			"Outcome"},
+  { 0,				NULL}
 };
 
 
@@ -134,7 +134,7 @@ static const value_string  ranap_message_names[][5] = {
      { SuccessfulOutcome,		"undefined message"},
      { UnsuccessfulOutcome,		"undefined message"},
      { Outcome,				"RAB-AssignmentResponse"},
-     { 0,				NULL}, },	
+     { 0,				NULL}, },
   { /* PC_Iu_Release */
      { InitiatingMessage,		"Iu-ReleaseCommand"},
      { SuccessfulOutcome,	  	"Iu-ReleaseComplete"},
@@ -143,165 +143,165 @@ static const value_string  ranap_message_names[][5] = {
      { 0,				NULL}, },
   { /* PC_RelocationPreparation */
      { InitiatingMessage,		"RelocationRequired"},
-     { SuccessfulOutcome,	  	"RelocationCommand"},  
+     { SuccessfulOutcome,	  	"RelocationCommand"},
      { UnsuccessfulOutcome,	  	"RelocationPreparationFailure"},
-     { Outcome,			  	NULL},  
+     { Outcome,			  	NULL},
      { 0,				NULL}, },
   { /* PC_RelocationResourceAllocation */
-     { InitiatingMessage,		"RelocationRequest"},  
-     { SuccessfulOutcome,	  	"RelocationRequestAcknowledge"},  
-     { UnsuccessfulOutcome,	  	"RelocationFailure"}, 
-     { Outcome,			  	NULL},  
+     { InitiatingMessage,		"RelocationRequest"},
+     { SuccessfulOutcome,	  	"RelocationRequestAcknowledge"},
+     { UnsuccessfulOutcome,	  	"RelocationFailure"},
+     { Outcome,			  	NULL},
      { 0,				NULL}, },
   { /* PC_RelocationCancel */
-     { InitiatingMessage,		"RelocationCancel"},  
-     { SuccessfulOutcome,	  	"RelocationCancelAcknowledge"},  
-     { UnsuccessfulOutcome,	  	NULL},  
-     { Outcome,			  	NULL},  
+     { InitiatingMessage,		"RelocationCancel"},
+     { SuccessfulOutcome,	  	"RelocationCancelAcknowledge"},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
      { 0,				NULL}, },
   { /* PC_SRNS_ContextTransfer */
      { InitiatingMessage,		"SRNS-ContextRequest"},
-     { SuccessfulOutcome,	  	"SRNS-ContextResponse"},     	
-     { UnsuccessfulOutcome,	  	NULL},        	
-     { Outcome,			  	NULL},        	
-     { 0,				NULL}, },                    	
+     { SuccessfulOutcome,	  	"SRNS-ContextResponse"},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_SecurityModeControl */
-     { InitiatingMessage,		"SecurityModeCommand"},  
-     { SuccessfulOutcome,	  	"SecurityModeComplete"},  
-     { UnsuccessfulOutcome,	  	"SecurityModeReject"},  
-     { Outcome,			  	NULL},    
-     { 0,				NULL}, },                
+     { InitiatingMessage,		"SecurityModeCommand"},
+     { SuccessfulOutcome,	  	"SecurityModeComplete"},
+     { UnsuccessfulOutcome,	  	"SecurityModeReject"},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_DataVolumeReport */
-     { InitiatingMessage,		"DataVolumeReportRequest"},  
-     { SuccessfulOutcome,	  	"DataVolumeReport"},  
-     { UnsuccessfulOutcome,	  	NULL},   
-     { Outcome,			  	NULL},   
-     { 0,				NULL}, },  
+     { InitiatingMessage,		"DataVolumeReportRequest"},
+     { SuccessfulOutcome,	  	"DataVolumeReport"},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_CN_InformationBroadcast */
-     { InitiatingMessage,		"CN-InformationBroadcastRequest"},  
-     { SuccessfulOutcome,	  	"CN-InformationBroadcastConfirm"}, 
-     { UnsuccessfulOutcome,	  	"CN-InformationBroadcastReject"},  
-     { Outcome,			  	NULL},   
-     { 0,				NULL}, }, 
+     { InitiatingMessage,		"CN-InformationBroadcastRequest"},
+     { SuccessfulOutcome,	  	"CN-InformationBroadcastConfirm"},
+     { UnsuccessfulOutcome,	  	"CN-InformationBroadcastReject"},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
  { /* PC_Reset */
-     { InitiatingMessage,		"Reset"}, 
-     { SuccessfulOutcome,	  	"ResetAcknowledge"}, 
-     { UnsuccessfulOutcome,	  	NULL}, 
-     { Outcome,			  	NULL},  
-     { 0,				NULL}, },  
+     { InitiatingMessage,		"Reset"},
+     { SuccessfulOutcome,	  	"ResetAcknowledge"},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_RAB_ReleaseRequest */
-     { InitiatingMessage,		"RAB-ReleaseRequest"},  
-     { SuccessfulOutcome,	  	NULL},  
-     { UnsuccessfulOutcome,	  	NULL},  
-     { Outcome,			  	NULL},    
-     { 0,				NULL}, },                
+     { InitiatingMessage,		"RAB-ReleaseRequest"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_Iu_ReleaseRequest */
-     { InitiatingMessage,		"Iu-ReleaseRequest"},  
-     { SuccessfulOutcome,	  	NULL},  
-     { UnsuccessfulOutcome,	  	NULL},  
-     { Outcome,			  	NULL},    
-     { 0,				NULL}, },      
+     { InitiatingMessage,		"Iu-ReleaseRequest"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_RelocationDetect */
-     { InitiatingMessage,		"RelocationDetect"},  
-     { SuccessfulOutcome,	  	NULL},  
-     { UnsuccessfulOutcome,	  	NULL},  
-     { Outcome,			  	NULL},    
-     { 0,				NULL}, },   
+     { InitiatingMessage,		"RelocationDetect"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_RelocationComplete */
-     { InitiatingMessage,		"RelocationComplete"},  
-     { SuccessfulOutcome,	  	NULL},  
-     { UnsuccessfulOutcome,	  	NULL},  
-     { Outcome,			  	NULL},    
-     { 0,				NULL}, },     
+     { InitiatingMessage,		"RelocationComplete"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_Paging */
-     { InitiatingMessage,		"Paging"},  
-     { SuccessfulOutcome,	  	NULL},  
-     { UnsuccessfulOutcome,	  	NULL},  
-     { Outcome,			  	NULL},    
-     { 0,				NULL}, },       
+     { InitiatingMessage,		"Paging"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_CommonID */
-     { InitiatingMessage,		"CommonID"},  
-     { SuccessfulOutcome,	  	NULL},  
-     { UnsuccessfulOutcome,	  	NULL},  
-     { Outcome,			  	NULL},    
-     { 0,				NULL}, },    
+     { InitiatingMessage,		"CommonID"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_CN_InvokeTrace */
-     { InitiatingMessage,		"CN-InvokeTrace"},  
-     { SuccessfulOutcome,	  	NULL},  
-     { UnsuccessfulOutcome,	  	NULL},  
-     { Outcome,			  	NULL},    
-     { 0,				NULL}, },     
+     { InitiatingMessage,		"CN-InvokeTrace"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   {/* PC_LocationReportingControl */
-     { InitiatingMessage,		"LocationReportingControl"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },            
+     { InitiatingMessage,		"LocationReportingControl"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_LocationReport */
-     { InitiatingMessage,		"LocationReport"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },     
+     { InitiatingMessage,		"LocationReport"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_InitialUE_Message */
-     { InitiatingMessage,		"InitialUE-Message"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },    
+     { InitiatingMessage,		"InitialUE-Message"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_DirectTransfer */
-     { InitiatingMessage,		"DirectTransfer"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },      
+     { InitiatingMessage,		"DirectTransfer"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_OverloadControl */
-     { InitiatingMessage,		"Overload"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },    
+     { InitiatingMessage,		"Overload"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_ErrorIndication */
-     { InitiatingMessage,		"ErrorIndication"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },   
+     { InitiatingMessage,		"ErrorIndication"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_SRNS_DataForward */
-     { InitiatingMessage,		"SRNS-DataForwardCommand"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
+     { InitiatingMessage,		"SRNS-DataForwardCommand"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
      { 0,				NULL}, },
   { /* PC_ForwardSRNS_Context */
-     { InitiatingMessage,		"ForwardSRNS-Context"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },  
+     { InitiatingMessage,		"ForwardSRNS-Context"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_privateMessage */
-     { InitiatingMessage,		"PrivateMessage"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },    
+     { InitiatingMessage,		"PrivateMessage"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_CN_DeactivateTrace */
-     { InitiatingMessage,		"CN-DeactivateTrace"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },      
+     { InitiatingMessage,		"CN-DeactivateTrace"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_ResetResource */
-     { InitiatingMessage,		"ResetResource"},   
-     { SuccessfulOutcome,	  	"ResetResourceAcknowledge"},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
-     { 0,				NULL}, },  
+     { InitiatingMessage,		"ResetResource"},
+     { SuccessfulOutcome,	  	"ResetResourceAcknowledge"},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
+     { 0,				NULL}, },
   { /* PC_RANAP_Relocation */
-     { InitiatingMessage,		"RANAP-RelocationInformation"},   
-     { SuccessfulOutcome,	  	NULL},               
-     { UnsuccessfulOutcome,	  	NULL},               
-     { Outcome,			  	NULL},               
+     { InitiatingMessage,		"RANAP-RelocationInformation"},
+     { SuccessfulOutcome,	  	NULL},
+     { UnsuccessfulOutcome,	  	NULL},
+     { Outcome,			  	NULL},
      { 0,				NULL}, }
 };
 
@@ -483,7 +483,7 @@ static const value_string   ranap_ie_id_values[] = {
   {IE_SAI,					"SAI"},
   {IE_SAPI,					"SAPI"},
   {IE_SourceID,					"SourceID"},
-  {IE_SourceRNC_ToTargetRNC_TransparentContainer, 
+  {IE_SourceRNC_ToTargetRNC_TransparentContainer,
   						"SourceRNC_ToTargetRNC_TransparentContainer"},
   {IE_TargetID,					"TargetID"},
   {IE_TargetRNC_ToSourceRNC_TransparentContainer,
@@ -530,8 +530,8 @@ static const value_string   ranap_ie_id_values[] = {
 
 /* Traffic Class values */
 #define	TC_conversational 0
-#define TC_streaming 1 
-#define TC_interactive 2 
+#define TC_streaming 1
+#define TC_interactive 2
 #define TC_background 3
 
 static const value_string ranap_trafficClass_values[] = {
@@ -577,53 +577,53 @@ static const value_string ranap_deliveryOfErroneousSDU_values[] = {
    {DOES_no,					"no"},
    {DOES_no_error_detection_consideration,	"no-error-detection-consideration"},
    {0,                         			NULL}};
-   
-   
-#define subflowSDU_Size_LENGTH 2  
+
+
+#define subflowSDU_Size_LENGTH 2
 #define transferDelay_LENGTH 2
-   
-   
+
+
 /* trafficHandlingPriority values */
 static const value_string ranap_priority_values[] = {
    {  0,	"spare"},
    {  1,	"highest"},
    {  2,	""},
    {  3,	""},
-   {  4,	""},   
-   {  5,	""},  
+   {  4,	""},
+   {  5,	""},
    {  6,	""},
    {  7,	""},
-   {  8,	""},              
-   {  9,	""}, 
-   { 10,	""}, 
-   { 11,	""},          
-   { 12,	""}, 
-   { 13,	""},       
-   { 14,	"lowest"},    
-   { 15,	"no-priority-used"},    
-   {  0,	NULL}}; 
-   
- 
+   {  8,	""},
+   {  9,	""},
+   { 10,	""},
+   { 11,	""},
+   { 12,	""},
+   { 13,	""},
+   { 14,	"lowest"},
+   { 15,	"no-priority-used"},
+   {  0,	NULL}};
+
+
 /* pre-emptionCapability values */
 static const value_string ranap_pre_emptionCapability_values[] = {
    {  0,	"shall-not-trigger-pre-emption"},
    {  1,	"may-trigger-pre-emption"},
-   {  0,	NULL}}; 
- 
+   {  0,	NULL}};
+
 /* pre-emptionVulnerability values */
 static const value_string ranap_pre_emptionVulnerability_values[] = {
-   {  0,	"not-pre-emptable"}, 	
-   {  1,	"pre-emptable"},      	
+   {  0,	"not-pre-emptable"},
+   {  1,	"pre-emptable"},
    {  0,	NULL}};
-	
-	
+
+
 /* queuingAllowed values	 */
 static const value_string ranap_queuingAllowed_values[] = {
    {  0,	"queueing-not-allowed"},
-   {  1,	"queueing-allowed"},     
-   {  0,	NULL}};	
+   {  1,	"queueing-allowed"},
+   {  0,	NULL}};
 
-   
+
 /* sourceStatisticsDescriptor values */
 static const value_string ranap_sourceStatisticsDescriptor_values[] = {
    {  0,	"speech"},
@@ -635,27 +635,27 @@ static const value_string ranap_relocationRequirement_values[] = {
    {  0,	"lossless"},
    {  1,	"none"},
    {  0,	NULL}};
-   
+
 /* userPlaneMode values */
-static const value_string ranap_userPlaneMode_values[] = { 
-   {  0,	"transparent-mode"},                    
+static const value_string ranap_userPlaneMode_values[] = {
+   {  0,	"transparent-mode"},
    {  1,	"support-mode-for-predefined-SDU-sizes"},
    {  0,	NULL}};
 
 /* PDP_Type values */
-static const value_string ranap_PDP_Type_values[] = { 
-   {  0,	"empty"},   
-   {  1,	"ppp"},     
+static const value_string ranap_PDP_Type_values[] = {
+   {  0,	"empty"},
+   {  1,	"ppp"},
    {  2,	"osp-ihoss"},
-   {  3,	"ipv4"},       
+   {  3,	"ipv4"},
    {  4,	"ipv6"},
    {  0,	NULL}};
 
 /* dataVolumeReportingIndication values */
-static const value_string ranap_dataVolumeReportingIndication_values[] = { 
-   {  0,	"do-report"},    
-   {  1,	"do-not-report"},   
-   {  0,	NULL}}; 
+static const value_string ranap_dataVolumeReportingIndication_values[] = {
+   {  0,	"do-report"},
+   {  1,	"do-not-report"},
+   {  0,	NULL}};
 
 
 /* cause_choice values */
@@ -666,12 +666,12 @@ static const value_string ranap_dataVolumeReportingIndication_values[] = {
 #define CC_CauseMisc			4
 #define CC_CauseNon_Standard		5
 
-static const value_string ranap_cause_choice_values[] = { 
-   {  CC_CauseRadioNetwork,		"CauseRadioNetwork"},                        
-   {  CC_CauseTransmissionNetwork,	"CauseTransmissionNetwork"},                 
+static const value_string ranap_cause_choice_values[] = {
+   {  CC_CauseRadioNetwork,		"CauseRadioNetwork"},
+   {  CC_CauseTransmissionNetwork,	"CauseTransmissionNetwork"},
    {  CC_CauseNAS,			"CauseNAS"},
-   {  CC_CauseProtocol,			"CauseProtocol"},                            
-   {  CC_CauseMisc,			"CauseMisc"},           
+   {  CC_CauseProtocol,			"CauseProtocol"},
+   {  CC_CauseMisc,			"CauseMisc"},
    {  CC_CauseNon_Standard,		"CauseNon-Standard"},
    {  0,				NULL}};
 
@@ -723,7 +723,7 @@ static const value_string ranap_cause_value_str[] = {
    { 42,	"requested-information-not-available"},
    { 43,	"relocation-desirable-for-radio-reasons"},
    { 44,	"relocation-not-supported-in-target-RNC-or-target-system"},
-   { 45,	"directed-retry"},              
+   { 45,	"directed-retry"},
    { 46,        "radio-connection-with-UE-Lost"},
 
 /* CauseTransmissionNetwork (65..80) */
@@ -749,27 +749,27 @@ static const value_string ranap_cause_value_str[] = {
    {115,	"unspecified-failure"},
    {116,	"network-optimisation"},
    {  0,	NULL}};
- 	
+
 
 /* CN_DomainIndicator_values */
 static const value_string ranap_CN_DomainIndicator_values[] = {
    {  0,	"cs-domain"},
-   {  1,	"ps-domain"}, 	
-   {  0,	NULL}}; 	
+   {  1,	"ps-domain"},
+   {  0,	NULL}};
 
 
 /* SAPI_values */
 static const value_string ranap_SAPI_values[] = {
    {  0,	"sapi-0"},
-   {  1,	"sapi-3"}, 	
-   {  0,	NULL}}; 	
+   {  1,	"sapi-3"},
+   {  0,	NULL}};
 
 /* service_Handover_values */
 static const value_string ranap_service_Handover_values[] = {
    {  0,	"handover-to-GSM-should-be-performed"},
-   {  1,	"handover-to-GSM-should-not-be-performed"}, 
-   {  2,	"handover-to-GSM-shall-not-be-performed"},    	
-   {  0,	NULL}}; 
+   {  1,	"handover-to-GSM-should-not-be-performed"},
+   {  2,	"handover-to-GSM-shall-not-be-performed"},
+   {  0,	NULL}};
 
 /* Initialize the protocol and registered fields */
 /* protocol */
@@ -912,7 +912,7 @@ static gint ett_ranap_CriticalityDiagnostics_IE = -1;
 /*                                                                           */
 /*****************************************************************************/
 
-/* sets *offset and *bitoffset n bits further */ 
+/* sets *offset and *bitoffset n bits further */
 static void
 proceed_nbits(gint *offset, gint *bitoffset, gint n)
 {
@@ -938,7 +938,7 @@ proceed_perint32(gint *offset, gint *bitoffset, gint length)
    proceed_nbits(offset, bitoffset, 2);
    allign(offset, bitoffset);
    *offset += length;
-}  
+}
 
 
 /* extract length field found at offset */
@@ -948,7 +948,7 @@ extract_length(tvbuff_t *tvb, gint offset, gint *length, gint *length_size)
 {
    guint8	tmp_length8;
    guint16	tmp_length16;
-	
+
    tmp_length8 = tvb_get_guint8(tvb, offset);
    if ((tmp_length8 & 0x80) == 0)
    {
@@ -956,7 +956,7 @@ extract_length(tvbuff_t *tvb, gint offset, gint *length, gint *length_size)
    	*length = tmp_length8;
    	*length_size = 1;
     }
-    else 
+    else
     {
     	tmp_length16 = tvb_get_ntohs(tvb, offset);
     	if ( ((tmp_length16 & 0x8000) == 0x8000) &&  ((tmp_length16 & 0x4000) == 0) )
@@ -979,7 +979,7 @@ extract_nbits(tvbuff_t *tvb, gint offset, gint bitoffset, gint n)
 {
    guint8	uint_bits;
    guint16	tmp_2bytes;
-   
+
    /* extract value */
    if (bitoffset + n <= 8)
    {
@@ -1006,17 +1006,17 @@ extract_int32(tvbuff_t *tvb, gint offset, gint bitoffset, gint *length)
 {
    guint16	tmp_2byte;
    guint32	result = 0;
-   
+
    tmp_2byte = tvb_get_ntohs(tvb, offset);
-   
+
    tmp_2byte <<= bitoffset;		/* remove bitoffset */
    *length = tmp_2byte >> (6 + 8);	/* allign 2bit length field to LSB */
    (*length)++;				/* now we have the length of the int value */
- 
+
    proceed_nbits(&offset, &bitoffset, 2);
    allign(&offset, &bitoffset);
 
-   switch (*length) 
+   switch (*length)
    {
       case 1:
          result = tvb_get_guint8(tvb, offset);
@@ -1031,7 +1031,7 @@ extract_int32(tvbuff_t *tvb, gint offset, gint bitoffset, gint *length)
          result = tvb_get_ntohl(tvb, offset);
          break;
     }
-    
+
     return(result);
 }
 
@@ -1042,16 +1042,16 @@ bitmaskstr(guint bitoffset, guint bitlength, guint16 value, guint *length)
 {
    static char		maskstr[20];
    guint		i;
-	
+
 
    strcpy(maskstr, "                   ");
 
    for (i=0; i<16; i++)
    {
-      if ( i < bitoffset  ||  i > bitoffset+bitlength-1 ) 
+      if ( i < bitoffset  ||  i > bitoffset+bitlength-1 )
       {
       	 /* i is outside extracted bitfield */
-      	 maskstr[i + i/4] = '.';  
+      	 maskstr[i + i/4] = '.';
       }
       else
       {  /* i is inside extracted bitfield */
@@ -1076,16 +1076,16 @@ bitmaskstr(guint bitoffset, guint bitlength, guint16 value, guint *length)
    else
    {
       /* bitfield is located within first & second byte */
-      maskstr[19] = '\0'; 
+      maskstr[19] = '\0';
       *length = 2;
-   }     
+   }
 
    return(maskstr);
-}   
+}
 
 /* add bitstring */
 static proto_item *
-proto_tree_add_bitstring(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offset, 
+proto_tree_add_bitstring(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offset,
                          gint bitoffset, gint bitlength)
 {
    guint16		read_2bytes;
@@ -1101,19 +1101,19 @@ proto_tree_add_bitstring(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offs
    gint			byte_span;
    gint			initial_offset = offset;
 
-   memset(bitstr, 0, 128); 
-   
+   memset(bitstr, 0, 128);
+
    /* create bitmask string for first byte */
    read_2bytes = tvb_get_ntohs(tvb, offset);
-   maskstr = bitmaskstr(bitoffset, (bitoffset+bitlength >8) ? 8-bitoffset : bitlength, read_2bytes, &length); 
+   maskstr = bitmaskstr(bitoffset, (bitoffset+bitlength >8) ? 8-bitoffset : bitlength, read_2bytes, &length);
    if (bitoffset+bitlength > 8)
    {
-      sprintf(maskstr_buf, "%s + %d Bits = ", maskstr, bitlength - (8-bitoffset));   
+      sprintf(maskstr_buf, "%s + %d Bits = ", maskstr, bitlength - (8-bitoffset));
    }
    else
    {
-      sprintf(maskstr_buf, "%s = ", maskstr);   
-   }      
+      sprintf(maskstr_buf, "%s = ", maskstr);
+   }
 
 
    /* print all but the last byte to buf */
@@ -1122,47 +1122,47 @@ proto_tree_add_bitstring(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offs
    {
       read_2bytes = tvb_get_ntohs(tvb, offset);
       alligned_2bytes = read_2bytes << bitoffset;	/* remove bitoffset */
-      one_byte = alligned_2bytes >> 8;			/* move to low byte */ 
-      
+      one_byte = alligned_2bytes >> 8;			/* move to low byte */
+
       bitstr[i]=one_byte;
       sprintf(&(buf[2*i]), "%02X", one_byte);
    }
-   
+
    /* add last byte if it contains bits which have not yet been shifted in */
    if ( ((bitlength + 7) / 8 ) == byte_span )
    {
       read_2bytes = tvb_get_ntohs(tvb, offset);
       alligned_2bytes = read_2bytes << bitoffset;	/* remove bitoffset */
-      one_byte = alligned_2bytes >> 8;			/* move to low byte */ 
-      one_byte >>= (8 - (bitlength%8));			/*cut off surplus bits */  
-      one_byte <<= (8 - (bitlength%8));			/* allign to MSB in low byte*/        
-            
+      one_byte = alligned_2bytes >> 8;			/* move to low byte */
+      one_byte >>= (8 - (bitlength%8));			/*cut off surplus bits */
+      one_byte <<= (8 - (bitlength%8));			/* allign to MSB in low byte*/
+
       bitstr[i]=one_byte;
-      sprintf(&(buf[2*i]), "%02X", one_byte);    
+      sprintf(&(buf[2*i]), "%02X", one_byte);
    }
-      
+
    /* get header field info */
    hf_info_p = proto_registrar_get_nth(hfindex);
 
 
   return ( proto_tree_add_bytes_format(tree, hfindex, tvb, initial_offset,
-	   byte_span , bitstr, "%s %s: %s", maskstr_buf, hf_info_p->name, buf) );   
-   
+	   byte_span , bitstr, "%s %s: %s", maskstr_buf, hf_info_p->name, buf) );
+
 }
-      
- 
+
+
 /* add unsigned int, 1-8 bits long */
 static proto_item *
-proto_tree_add_uint_bits(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offset, 
+proto_tree_add_uint_bits(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offset,
                          gint bitoffset, gint bitlength, gint min)
 {
    guint8		uint_bits;
    guint16		read_2bytes, alligned_2bytes;
-   char			*maskstr;   
+   char			*maskstr;
    guint		length;
    header_field_info	*hf_info_p;
 
- 
+
    /* extract value */
    if (bitoffset + bitlength <= 8)
    {
@@ -1177,12 +1177,12 @@ proto_tree_add_uint_bits(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offs
       read_2bytes = tvb_get_ntohs(tvb, offset);
    }
    alligned_2bytes = read_2bytes << bitoffset;			/* remove bitoffset */
-   uint_bits = alligned_2bytes >> ( 8 + (8-bitlength));		/* allign to LSB */   
-   
+   uint_bits = alligned_2bytes >> ( 8 + (8-bitlength));		/* allign to LSB */
+
    uint_bits += min;
 
    /* create bitmask string */
-   maskstr = bitmaskstr(bitoffset, bitlength, read_2bytes, &length);  
+   maskstr = bitmaskstr(bitoffset, bitlength, read_2bytes, &length);
 
    /* get header field info */
    hf_info_p = proto_registrar_get_nth(hfindex);
@@ -1191,44 +1191,44 @@ proto_tree_add_uint_bits(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offs
    {
       /* string representation for decoded header field present */
       return ( proto_tree_add_uint_format(tree, hfindex, tvb, offset,
-	      length, uint_bits, "%s = %s: %s (%d)", maskstr, hf_info_p->name, 
+	      length, uint_bits, "%s = %s: %s (%d)", maskstr, hf_info_p->name,
 	      val_to_str(uint_bits, hf_info_p->strings, "%d"), uint_bits) );
    }
    else
    {
       /* no string representation */
       return ( proto_tree_add_uint_format(tree, hfindex, tvb, offset,
-	      length, uint_bits, "%s = %s: %d", maskstr, hf_info_p->name, uint_bits) );   
-   }	         
-}   		      
+	      length, uint_bits, "%s = %s: %d", maskstr, hf_info_p->name, uint_bits) );
+   }
+}
 
 /* add PER encoded integer (maximum length of value: 4 bytes) */
 static proto_item *
-proto_tree_add_PERint32(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offset, 
+proto_tree_add_PERint32(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offset,
                          gint bitoffset, gint *length, gint min)
-{              
-    guint32		value;   
+{
+    guint32		value;
     guint16		tmp_2bytes;
     char		*maskstr;
     guint		length_size;
-    header_field_info	*hf_info_p;    
-    
+    header_field_info	*hf_info_p;
+
     /* get value */
     value = extract_int32(tvb, offset, bitoffset, length);
     value += min;
-    
+
     /* create bitmask string for 2 bit length field */
-    tmp_2bytes = tvb_get_ntohs(tvb, offset); 
-    maskstr = bitmaskstr(bitoffset, 2, tmp_2bytes, &length_size); 
+    tmp_2bytes = tvb_get_ntohs(tvb, offset);
+    maskstr = bitmaskstr(bitoffset, 2, tmp_2bytes, &length_size);
 
     /* get header field info */
     hf_info_p = proto_registrar_get_nth(hfindex);
-    
+
     return ( proto_tree_add_uint_format(tree, hfindex, tvb, offset,
-	     (*length) + length_size, value, 
-	     "%s + %d Bytes = %s: %d", maskstr, *length, hf_info_p->name, value) );   
-}	         
- 
+	     (*length) + length_size, value,
+	     "%s + %d Bytes = %s: %d", maskstr, *length, hf_info_p->name, value) );
+}
+
 
 
 /*****************************************************************************/
@@ -1240,31 +1240,31 @@ static int
 dissect_iE_Extension(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *bitoffset, char *description)
 {
   proto_item	*ext_item = NULL;
-  proto_tree	*ext_tree = NULL;   	
-  guint16	number_of_extFields; 
+  proto_tree	*ext_tree = NULL;
+  guint16	number_of_extFields;
   gint		number_of_octets = 0;
   gint		number_of_octets_size = 0;
   int		i;
-		
+
   allign(offset, bitoffset);
-  
+
   /* create subtree for iE_Extension */
   if (tree)
   {
      ext_item = proto_tree_add_text(tree, tvb, *offset, 0, "%s iE-Extensions", description);
      ext_tree = proto_item_add_subtree(ext_item, ett_ranap_iE_Extension);
   }
-			
+
   /* number of extension fields */
   number_of_extFields = tvb_get_ntohs(tvb, *offset) + 1;
   if (ext_tree)
   {
-     proto_tree_add_uint(ext_tree, hf_ranap_number_of_ProtocolExtensionFields, 
-	           	         tvb, *offset, 2, number_of_extFields); 
+     proto_tree_add_uint(ext_tree, hf_ranap_number_of_ProtocolExtensionFields,
+	           	         tvb, *offset, 2, number_of_extFields);
   }
-		      
-  *offset += 2;		       
-  
+
+  *offset += 2;
+
   /*  for each extension field */
   for (i=1; i <= number_of_extFields; i++)
   {
@@ -1273,25 +1273,25 @@ dissect_iE_Extension(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *bitoff
      if (ext_tree)
      {
         proto_tree_add_item(ext_tree, hf_ranap_ext_field_id, tvb,
-                            *offset, IE_ID_LENGTH, FALSE); 
-     }       	
+                            *offset, IE_ID_LENGTH, FALSE);
+     }
      *offset += IE_ID_LENGTH;
- 
+
      /* criticality */
      if (ext_tree)
      {
-        proto_tree_add_uint_bits(ext_tree, hf_ranap_ext_field_criticality, tvb, 
+        proto_tree_add_uint_bits(ext_tree, hf_ranap_ext_field_criticality, tvb,
                                  *offset, *bitoffset, 2, 0);
      }
-     proceed_nbits(offset, bitoffset, 2);      
- 	
+     proceed_nbits(offset, bitoffset, 2);
+
      /* number of octets in the IE */
      allign(offset, bitoffset);
      if (0 == extract_length(tvb, *offset, &number_of_octets, &number_of_octets_size))
      {
        if (ext_tree)
        {
-          proto_tree_add_uint(ext_tree, hf_ranap_ext_field_number_of_octets, tvb, 
+          proto_tree_add_uint(ext_tree, hf_ranap_ext_field_number_of_octets, tvb,
                               *offset, number_of_octets_size, number_of_octets);
        }
      }
@@ -1305,28 +1305,28 @@ dissect_iE_Extension(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *bitoff
        }
        return(-1);
      }
-     
+
      *offset += number_of_octets_size;
      if (ext_tree)
      {
      	proto_tree_add_item(ext_tree, hf_ranap_extension_field, tvb,
                             *offset, number_of_octets, FALSE);
-     	
+
      }
 
      *offset +=  number_of_octets;
   }
-  
+
   return(0);
 }
-     
-     
-static int 
+
+
+static int
 dissect_userPlaneInformation(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *bitoffset)
 {
    int		extension_present;
    int		iE_Extensions_present;
-   int		tmp_extension_present;   
+   int		tmp_extension_present;
 
    /* protocol_extension present ? */
    extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
@@ -1334,36 +1334,36 @@ dissect_userPlaneInformation(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint
 
    /* iE_Extensions present ? */
    iE_Extensions_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proceed_nbits(offset, bitoffset, 1); 
+   proceed_nbits(offset, bitoffset, 1);
 
    /* userPlaneMode */
    tmp_extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proceed_nbits(offset, bitoffset, 1);  
-   
-   proto_tree_add_uint_bits(tree, hf_ranap_userPlaneMode, tvb, *offset, 
+   proceed_nbits(offset, bitoffset, 1);
+
+   proto_tree_add_uint_bits(tree, hf_ranap_userPlaneMode, tvb, *offset,
                             *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);     
-   
+   proceed_nbits(offset, bitoffset, 1);
+
    /* uP-ModeVersions */
-   proto_tree_add_bitstring(tree, hf_ranap_uP_ModeVersions, tvb, *offset, 
+   proto_tree_add_bitstring(tree, hf_ranap_uP_ModeVersions, tvb, *offset,
                             *bitoffset, 16);
-   proceed_nbits(offset, bitoffset, 16);  
-   
+   proceed_nbits(offset, bitoffset, 16);
+
    /* iE-Extensions */
    if (iE_Extensions_present)
-   {   	
-      return(dissect_iE_Extension(tvb, tree, offset, bitoffset, "UserPlaneInformation"));	
+   {
+      return(dissect_iE_Extension(tvb, tree, offset, bitoffset, "UserPlaneInformation"));
    }
    return(0);
 }
 
 
 
-static int 
+static int
 dissect_sDU_Parameters(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset)
 {
    proto_item	*sDU_item = NULL;
-   proto_tree	*sDU_tree = NULL;   
+   proto_tree	*sDU_tree = NULL;
    proto_item	*optionals_item = NULL;
    proto_tree	*optionals_tree = NULL;
    int		ret;
@@ -1380,179 +1380,179 @@ dissect_sDU_Parameters(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *b
    int		rAB_SubflowCombinationBitRate_present;
    int		sDU_FormatInformationParameters_iE_Extensions_present;
    gint		i;
-   
+
    /* create subtree for sDU_Parameters */
    sDU_item = proto_tree_add_text(ie_tree, tvb, *offset, 0,
                                       "sDU Parameters");
-   sDU_tree = proto_item_add_subtree(sDU_item, ett_ranap_sDU);	
+   sDU_tree = proto_item_add_subtree(sDU_item, ett_ranap_sDU);
 
    /* create subtree for extension/optional/default bitmap */
    optionals_item = proto_tree_add_text(sDU_tree, tvb, *offset, 1,
                                       "sDU_Parameters Extension/Optional/Default bitmap");
-   optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
+   optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
 
    /* protocol_extension present ? */
    extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+   proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                             *offset, *bitoffset, 1, 0);
    proceed_nbits(offset, bitoffset, 1);
-   
+
    /*  sDU_ErrorRatio present ? */
    sDU_ErrorRatio_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proto_tree_add_uint_bits(optionals_tree, hf_ranap_sDU_ErrorRatio_present, tvb, 
+   proto_tree_add_uint_bits(optionals_tree, hf_ranap_sDU_ErrorRatio_present, tvb,
                             *offset, *bitoffset, 1, 0);
    proceed_nbits(offset, bitoffset, 1);
-   
+
    /*  sDU_FormatInformationParameters present ? */
    sDU_FormatInformationParameters_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proto_tree_add_uint_bits(optionals_tree, hf_ranap_sDU_FormatInformationParameters_present, tvb, 
-                            *offset, *bitoffset, 1, 0);   
-   proceed_nbits(offset, bitoffset, 1); 
-   
+   proto_tree_add_uint_bits(optionals_tree, hf_ranap_sDU_FormatInformationParameters_present, tvb,
+                            *offset, *bitoffset, 1, 0);
+   proceed_nbits(offset, bitoffset, 1);
+
    /* iE_Extensions present ? */
    iE_Extensions_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb, 
-                            *offset, *bitoffset, 1, 0);      
-   proceed_nbits(offset, bitoffset, 1); 
+   proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb,
+                            *offset, *bitoffset, 1, 0);
+   proceed_nbits(offset, bitoffset, 1);
 
 
    /* sDU_ErrorRatio */
    if (sDU_ErrorRatio_present)
    {
       sDU_ErrorRatio_iE_Extensions_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-      proceed_nbits(offset, bitoffset, 1);      
+      proceed_nbits(offset, bitoffset, 1);
 
-      proto_tree_add_uint_bits(sDU_tree, hf_ranap_sDU_ErrorRatio_mantissa, tvb, *offset, 
+      proto_tree_add_uint_bits(sDU_tree, hf_ranap_sDU_ErrorRatio_mantissa, tvb, *offset,
                                *bitoffset, 4, 1);
       proceed_nbits(offset, bitoffset, 4);
-                                          
-      proto_tree_add_uint_bits(sDU_tree, hf_ranap_sDU_ErrorRatio_exponent, tvb, *offset, 
+
+      proto_tree_add_uint_bits(sDU_tree, hf_ranap_sDU_ErrorRatio_exponent, tvb, *offset,
                                *bitoffset, 3, 1);
-      proceed_nbits(offset, bitoffset, 3);   
-        	                  
+      proceed_nbits(offset, bitoffset, 3);
+
       if (sDU_ErrorRatio_iE_Extensions_present)
       {
       	 if ((ret=dissect_iE_Extension(tvb, sDU_tree, offset, bitoffset, "sDU_ErrorRatio")) != 0)
       	     return (ret);
-      }	                                    
+      }
    }
-   
+
    /* residualBitErrorRatio */
    residualBitErrorRatio_iE_Extensions_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proceed_nbits(offset, bitoffset, 1);
-	                  
-   proto_tree_add_uint_bits(sDU_tree, hf_ranap_residualBitErrorRatio_mantissa, tvb, *offset, 
+
+   proto_tree_add_uint_bits(sDU_tree, hf_ranap_residualBitErrorRatio_mantissa, tvb, *offset,
                             *bitoffset, 4, 1);
    proceed_nbits(offset, bitoffset, 4);
-                                       
-   proto_tree_add_uint_bits(sDU_tree, hf_ranap_sDU_ErrorRatio_exponent, tvb, *offset, 
+
+   proto_tree_add_uint_bits(sDU_tree, hf_ranap_sDU_ErrorRatio_exponent, tvb, *offset,
                             *bitoffset, 3, 1);
-   proceed_nbits(offset, bitoffset, 3);   	                  
-	                  
-	                  
+   proceed_nbits(offset, bitoffset, 3);
+
+
    if (residualBitErrorRatio_iE_Extensions_present)
    {
       if ((ret=dissect_iE_Extension(tvb, sDU_tree, offset, bitoffset, "residualBitErrorRatio")) != 0)
            return(ret);
-   }	                                    
- 
-   
+   }
+
+
    /* deliveryOfErroneousSDU */
-   proto_tree_add_uint_bits(sDU_tree, hf_ranap_deliveryOfErroneousSDU, tvb, *offset, 
+   proto_tree_add_uint_bits(sDU_tree, hf_ranap_deliveryOfErroneousSDU, tvb, *offset,
                             *bitoffset, 2, 0);
    proceed_nbits(offset, bitoffset, 2);
 
- 
+
    /* sDU_FormatInformationParameters */
    if (sDU_FormatInformationParameters_present)
    {
       number_of_sDU_FormatInformationParameters = extract_nbits(tvb, *offset, *bitoffset, 6) + 1;
       proceed_nbits(offset, bitoffset, 6);
-      
+
       for (i=1; i<= number_of_sDU_FormatInformationParameters; i++)
       {
       	  /* create subtree for extension/optional/default bitmap */
          optionals_item = proto_tree_add_text(sDU_tree, tvb, *offset, 1,
                                       "sDU_FormatInformationParameters Extension/Optional/Default bitmap");
          optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
-         
+
          /* protocol extension present ? */
-         sDU_FormatInformationParameters_extension_present = 
+         sDU_FormatInformationParameters_extension_present =
              extract_nbits(tvb, *offset, *bitoffset, 1);
-         proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
-                            *offset, *bitoffset, 1, 0);             
-         proceed_nbits(offset, bitoffset, 1); 
-                
+         proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
+                            *offset, *bitoffset, 1, 0);
+         proceed_nbits(offset, bitoffset, 1);
+
          /* subflowSDU_Size present ? */
          subflowSDU_Size_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-         proto_tree_add_uint_bits(optionals_tree, hf_ranap_subflowSDU_Size_present, tvb, 
-                            *offset, *bitoffset, 1, 0);   
-         proceed_nbits(offset, bitoffset, 1);      
-         
+         proto_tree_add_uint_bits(optionals_tree, hf_ranap_subflowSDU_Size_present, tvb,
+                            *offset, *bitoffset, 1, 0);
+         proceed_nbits(offset, bitoffset, 1);
+
          /* rAB_SubflowCombinationBitRate present ? */
          rAB_SubflowCombinationBitRate_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-         proto_tree_add_uint_bits(optionals_tree, hf_ranap_rAB_SubflowCombinationBitRate_present, tvb, 
-                            *offset, *bitoffset, 1, 0);            
-         proceed_nbits(offset, bitoffset, 1); 
-         
-         /* ie_Extension present ? */                    
-         sDU_FormatInformationParameters_iE_Extensions_present = 
-             extract_nbits(tvb, *offset, *bitoffset, 1); 
-         proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb, 
-                            *offset, *bitoffset, 1, 0);                  
-         proceed_nbits(offset, bitoffset, 1);       
-   
+         proto_tree_add_uint_bits(optionals_tree, hf_ranap_rAB_SubflowCombinationBitRate_present, tvb,
+                            *offset, *bitoffset, 1, 0);
+         proceed_nbits(offset, bitoffset, 1);
+
+         /* ie_Extension present ? */
+         sDU_FormatInformationParameters_iE_Extensions_present =
+             extract_nbits(tvb, *offset, *bitoffset, 1);
+         proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb,
+                            *offset, *bitoffset, 1, 0);
+         proceed_nbits(offset, bitoffset, 1);
+
          if (subflowSDU_Size_present)
          {
             allign(offset, bitoffset);
-            proto_tree_add_item(sDU_tree, hf_ranap_subflowSDU_Size, 
-			tvb, *offset, subflowSDU_Size_LENGTH, FALSE); 
-            offset += subflowSDU_Size_LENGTH;	
+            proto_tree_add_item(sDU_tree, hf_ranap_subflowSDU_Size,
+			tvb, *offset, subflowSDU_Size_LENGTH, FALSE);
+            offset += subflowSDU_Size_LENGTH;
          }
-                        
+
          if (rAB_SubflowCombinationBitRate_present)
          {
              proto_tree_add_PERint32(sDU_tree, hf_ranap_rAB_SubflowCombinationBitRate,
-                                     tvb, *offset, *bitoffset, &length, 0);        	
+                                     tvb, *offset, *bitoffset, &length, 0);
              proceed_perint32(offset, bitoffset, length);
-	 }  
-   	                  
+	 }
+
          if (sDU_FormatInformationParameters_iE_Extensions_present)
          {
-      	    if ((ret=dissect_iE_Extension(tvb, sDU_tree, offset, bitoffset, 
+      	    if ((ret=dissect_iE_Extension(tvb, sDU_tree, offset, bitoffset,
       	                                   "sDU_FormatInformationParameters" )) != 0)
       	        return (ret);
          }
-      }        
-    } 
-         
+      }
+    }
+
     if (extension_present)
     {
-        /* extended sequence */ 
+        /* extended sequence */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, *offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for sDU_FormatInformationParameters present, dissection not supported");
-        return(-1);                           
-    }      
-   
-  return (0); 
-   
-}      
+        return(-1);
+    }
+
+  return (0);
+
+}
 
 
-static int 
+static int
 dissect_rAB_Parameters(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset)
 {
    guint8	tmp_byte;
    proto_item	*rab_item = NULL;
-   proto_tree	*rab_tree = NULL;   
+   proto_tree	*rab_tree = NULL;
    proto_item	*optionals_item = NULL;
-   proto_tree	*optionals_tree = NULL;  
+   proto_tree	*optionals_tree = NULL;
    proto_item	*prio_item = NULL;
    proto_tree	*prio_tree = NULL;
    int		ret;
    int		extension_present;
-   int		tmp_extension_present;   
+   int		tmp_extension_present;
    int		guaranteedBitRate_present;
    int		transferDelay_present;
    int		trafficHandlingPriority_present;
@@ -1563,74 +1563,74 @@ dissect_rAB_Parameters(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *b
    int		tmp_iE_Extensions_present;
    int		i;
    gint		length;
-  
+
    /* create subtree for rAB_Parameters */
    rab_item = proto_tree_add_text(ie_tree, tvb, *offset, 0,
                                       "rAB_Parameters");
-   rab_tree = proto_item_add_subtree(rab_item, ett_ranap_rAB_Parameters);  
-  
+   rab_tree = proto_item_add_subtree(rab_item, ett_ranap_rAB_Parameters);
+
    /* create subtree for extension/optional/default bitmap */
    optionals_item = proto_tree_add_text(rab_tree, tvb, *offset, IE_PROTOCOL_EXTENSION_LENGTH,
                                       "rAB_Parameters Extension/Optional/Default bitmap");
-   optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
+   optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
 
    /* protocol extension present ? */
    extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+   proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                             *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);   
+   proceed_nbits(offset, bitoffset, 1);
 
    /* guaranteedBitRate present ? */
    guaranteedBitRate_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proto_tree_add_uint_bits(optionals_tree, hf_ranap_guaranteedBitRate_present,
                             tvb, *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);  
-   
+   proceed_nbits(offset, bitoffset, 1);
+
    /* transferDelay present ? */
    transferDelay_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proto_tree_add_uint_bits(optionals_tree, hf_ranap_transferDelay_present,
                             tvb, *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);     
-  
+   proceed_nbits(offset, bitoffset, 1);
+
    /* trafficHandlingPriority present ? */
    trafficHandlingPriority_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proto_tree_add_uint_bits(optionals_tree, hf_ranap_trafficHandlingPriority_present,
                             tvb, *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);       
-    
+   proceed_nbits(offset, bitoffset, 1);
+
    /* allocationOrRetentionPriority present ? */
    allocationOrRetentionPriority_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proto_tree_add_uint_bits(optionals_tree, hf_ranap_allocationOrRetentionPriority_present,
                             tvb, *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);         
+   proceed_nbits(offset, bitoffset, 1);
 
    /* sourceStatisticsDescriptor present ? */
    sourceStatisticsDescriptor_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proto_tree_add_uint_bits(optionals_tree, hf_ranap_sourceStatisticsDescriptor_present,
                             tvb, *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1); 
-       
+   proceed_nbits(offset, bitoffset, 1);
+
    /* relocationRequirement present ? */
    relocationRequirement_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proto_tree_add_uint_bits(optionals_tree, hf_ranap_relocationRequirement_present,
                             tvb, *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);      
-   
+   proceed_nbits(offset, bitoffset, 1);
+
    /* iE-Extensions present ? */
    iE_Extensions_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present,
                             tvb, *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1); 
- 
- 
+   proceed_nbits(offset, bitoffset, 1);
+
+
    /* trafficClass */
    tmp_extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proceed_nbits(offset, bitoffset, 1); 
-      
+   proceed_nbits(offset, bitoffset, 1);
+
    proto_tree_add_uint_bits(rab_tree, hf_ranap_trafficClass,
                             tvb, *offset, *bitoffset, 2, 0);
    proceed_nbits(offset, bitoffset, 2);
-   
+
    if (tmp_extension_present)
    {
       /* decoding is not supported */
@@ -1642,83 +1642,83 @@ dissect_rAB_Parameters(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *b
 
    /* rAB-AsymmetryIndicator */
    tmp_extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proceed_nbits(offset, bitoffset, 1); 
-   
+   proceed_nbits(offset, bitoffset, 1);
+
    proto_tree_add_uint_bits(rab_tree, hf_ranap_rAB_AsymmetryIndicator,
                             tvb, *offset, *bitoffset, 2, 0);
-   proceed_nbits(offset, bitoffset, 2);     
-      
+   proceed_nbits(offset, bitoffset, 2);
+
    if (tmp_extension_present)
    {
       /* decoding is not supported */
       proto_tree_add_text(rab_tree, tvb, *offset, IE_PROTOCOL_EXTENSION_LENGTH,
     	                  "Protocol extension for rAB-AsymmetryIndicator present, dissection not supported");
       return(-1);
-   }   
+   }
 
-	               
+
    /* maxBitrate */
    tmp_byte = extract_nbits(tvb, *offset, *bitoffset, 1) +1 ;  /*sequence 1..2 */
    proceed_nbits(offset, bitoffset, 1);
-   
+
    for (i=1; i<= tmp_byte; i++)
    {
       proto_tree_add_PERint32(rab_tree, hf_ranap_maxBitrate,
-                              tvb, *offset, *bitoffset, &length, 1);        	
+                              tvb, *offset, *bitoffset, &length, 1);
       proceed_perint32(offset, bitoffset, length);
-   }	              
-   	
- 
+   }
+
+
    /* guaranteedBitRate */
    if (guaranteedBitRate_present)
    {
       tmp_byte = extract_nbits(tvb, *offset, *bitoffset, 1) +1 ;  /*sequence 1..2 */
       proceed_nbits(offset, bitoffset, 1);
-      
+
       for (i=1; i<= tmp_byte; i++)
       {
         proto_tree_add_PERint32(rab_tree, hf_ranap_guaranteedBitrate,
-                                tvb, *offset, *bitoffset, &length, 0); 
-        proceed_perint32(offset, bitoffset, length);       	
-      }	         
+                                tvb, *offset, *bitoffset, &length, 0);
+        proceed_perint32(offset, bitoffset, length);
+      }
    }
 
    /* deliveryOrder */
-   proto_tree_add_uint_bits(rab_tree, hf_ranap_deliveryOrder, tvb, *offset, 
+   proto_tree_add_uint_bits(rab_tree, hf_ranap_deliveryOrder, tvb, *offset,
                             *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);   	               
-	               
-	               
+   proceed_nbits(offset, bitoffset, 1);
+
+
    /* maxSDU-Size */
    allign(offset, bitoffset);
-   proto_tree_add_item(rab_tree, hf_ranap_maxSDU_Size, 
-			tvb, *offset, maxSDU_Size_LENGTH, FALSE); 
-   *offset += maxSDU_Size_LENGTH;	               
-	               
+   proto_tree_add_item(rab_tree, hf_ranap_maxSDU_Size,
+			tvb, *offset, maxSDU_Size_LENGTH, FALSE);
+   *offset += maxSDU_Size_LENGTH;
+
    /* sDU-Parameters */
    tmp_byte = extract_nbits(tvb, *offset, *bitoffset, 3) + 1; /*sequence 1..7 */
-   proceed_nbits(offset, bitoffset, 3);      	               
+   proceed_nbits(offset, bitoffset, 3);
    for (i=1; i<= tmp_byte; i++)
-   {	               
+   {
       if ((ret=dissect_sDU_Parameters(tvb, rab_tree, offset, bitoffset))!=0) return(ret);
    }
-   
-   /* transferDelay  */  
+
+   /* transferDelay  */
    if (transferDelay_present)
    {
       allign(offset, bitoffset);
-      proto_tree_add_item(rab_tree, hf_ranap_transferDelay, 
-			  tvb, *offset, transferDelay_LENGTH, FALSE); 
-      *offset += transferDelay_LENGTH;	
+      proto_tree_add_item(rab_tree, hf_ranap_transferDelay,
+			  tvb, *offset, transferDelay_LENGTH, FALSE);
+      *offset += transferDelay_LENGTH;
    }
 
 
    /* trafficHandlingPriority */
    if (trafficHandlingPriority_present)
    {
-      proto_tree_add_uint_bits(rab_tree, hf_ranap_trafficHandlingPriority, tvb, *offset, 
+      proto_tree_add_uint_bits(rab_tree, hf_ranap_trafficHandlingPriority, tvb, *offset,
                                *bitoffset, 4, 0);
-      proceed_nbits(offset, bitoffset, 4); 
+      proceed_nbits(offset, bitoffset, 4);
    }
 
    /* allocationOrRetentionPriority */
@@ -1727,58 +1727,58 @@ dissect_rAB_Parameters(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *b
       /* create subtree for */
       prio_item = proto_tree_add_text(rab_tree, tvb, *offset, 0,
                                       "allocationOrRetentionPriority");
-      prio_tree = proto_item_add_subtree(prio_item, ett_ranap_allocationOrRetentionPriority);	
-   	
+      prio_tree = proto_item_add_subtree(prio_item, ett_ranap_allocationOrRetentionPriority);
+
       /* protocol extension  present ? */
       tmp_extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-      proceed_nbits(offset, bitoffset, 1);       
-      
+      proceed_nbits(offset, bitoffset, 1);
+
       /* iE Extension present ? */
       tmp_iE_Extensions_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-      proceed_nbits(offset, bitoffset, 1);  
-            
+      proceed_nbits(offset, bitoffset, 1);
+
       /* allocationOrRetentionPriority */
-      proto_tree_add_uint_bits(prio_tree, hf_ranap_priorityLevel, tvb, *offset, 
+      proto_tree_add_uint_bits(prio_tree, hf_ranap_priorityLevel, tvb, *offset,
                                *bitoffset, 4, 0);
-      proceed_nbits(offset, bitoffset, 4); 
-   
+      proceed_nbits(offset, bitoffset, 4);
+
       /* pre-emptionCapability */
-      proto_tree_add_uint_bits(prio_tree, hf_ranap_pre_emptionCapability, tvb, *offset, 
+      proto_tree_add_uint_bits(prio_tree, hf_ranap_pre_emptionCapability, tvb, *offset,
                                *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1); 
-   
+      proceed_nbits(offset, bitoffset, 1);
+
       /* pre-emptionVulnerability */
-      proto_tree_add_uint_bits(prio_tree, hf_ranap_pre_emptionVulnerability, tvb, *offset, 
+      proto_tree_add_uint_bits(prio_tree, hf_ranap_pre_emptionVulnerability, tvb, *offset,
                                *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1); 
-   
+      proceed_nbits(offset, bitoffset, 1);
+
       /* queuingAllowed */
-      proto_tree_add_uint_bits(prio_tree, hf_ranap_queuingAllowed, tvb, *offset, 
+      proto_tree_add_uint_bits(prio_tree, hf_ranap_queuingAllowed, tvb, *offset,
                                *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1);       
-    
+      proceed_nbits(offset, bitoffset, 1);
+
       if (tmp_iE_Extensions_present)
       {
-      	 if ((ret=dissect_iE_Extension(tvb, prio_tree, offset, bitoffset, 
+      	 if ((ret=dissect_iE_Extension(tvb, prio_tree, offset, bitoffset,
       	                                   "AllocationOrRetentionPriority")) != 0)
-      	        return (ret);   
-      } 
-   
+      	        return (ret);
+      }
+
       if (tmp_extension_present)
       {
          /* decoding is not supported */
          proto_tree_add_text(prio_tree, tvb, *offset, IE_PROTOCOL_EXTENSION_LENGTH,
     	                  "Protocol extension for rAB-allocationOrRetentionPriority present, dissection not supported");
          return(-1);
-      } 
+      }
    }
-   
+
    /* sourceStatisticsDescriptor */
-   if (sourceStatisticsDescriptor_present) 
+   if (sourceStatisticsDescriptor_present)
    {
       /* protocol extension */
       tmp_extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-      proceed_nbits(offset, bitoffset, 1);   
+      proceed_nbits(offset, bitoffset, 1);
 
       if (tmp_extension_present)
       {
@@ -1787,11 +1787,11 @@ dissect_rAB_Parameters(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *b
     	                  "Protocol extension for sourceStatisticsDescriptor present, dissection not supported");
          return(-1);
       }
-      
-      proto_tree_add_uint_bits(rab_tree, hf_ranap_sourceStatisticsDescriptor, tvb, *offset, 
+
+      proto_tree_add_uint_bits(rab_tree, hf_ranap_sourceStatisticsDescriptor, tvb, *offset,
                                *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1); 
-    }	
+      proceed_nbits(offset, bitoffset, 1);
+    }
 
     /* relocationRequirement */
     if (relocationRequirement_present)
@@ -1799,29 +1799,29 @@ dissect_rAB_Parameters(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *b
       /* protocol extension */
       tmp_extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
       proceed_nbits(offset, bitoffset, 1);
-      
+
       if (tmp_extension_present)
       {
          /* decoding is not supported */
          proto_tree_add_text(prio_tree, tvb, *offset, IE_PROTOCOL_EXTENSION_LENGTH,
     	                  "Protocol extension for relocationRequirement present, dissection not supported");
          return(-1);
-      }      
-             	
-      proto_tree_add_uint_bits(rab_tree, hf_ranap_relocationRequirement, tvb, *offset, 
+      }
+
+      proto_tree_add_uint_bits(rab_tree, hf_ranap_relocationRequirement, tvb, *offset,
                                *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1);       	
-    }	
+      proceed_nbits(offset, bitoffset, 1);
+    }
 
 
    /* iE-Extensions */
    if (iE_Extensions_present)
    {
      if ((ret=dissect_iE_Extension(tvb, rab_tree, offset, bitoffset, "rAB_Parameters" )) != 0 )
-      	        return (ret);   
+      	        return (ret);
    }
 
-   /* extended */	               
+   /* extended */
    if (extension_present)
    {
       /* decoding is not supported */
@@ -1839,31 +1839,31 @@ static int
 dissect_TransportLayerAddress(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset)
 {
    gint		extension_present;
-   gint		str_length;	
-      
+   gint		str_length;
+
    extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proceed_nbits(offset, bitoffset, 1);
    if (extension_present)
-   {  
-      /* extended integer */    
+   {
+      /* extended integer */
       proto_tree_add_text(ie_tree, tvb, *offset, 0,
-                          "extension present for TransportLayerAddress, dissection not supported");   	
+                          "extension present for TransportLayerAddress, dissection not supported");
       return (-1);
    }
-   
+
    /* extract and add length of transportLayerAddress bitstring */
-   str_length = extract_nbits(tvb, *offset, *bitoffset, 8) + 1;	
+   str_length = extract_nbits(tvb, *offset, *bitoffset, 8) + 1;
    proto_tree_add_uint_bits(ie_tree, hf_ranap_transportLayerAddress_length,
                              tvb, *offset, *bitoffset, 8, 1);
-   proceed_nbits(offset, bitoffset, 8);  
-   allign(offset, bitoffset);  
-    	
+   proceed_nbits(offset, bitoffset, 8);
+   allign(offset, bitoffset);
+
    /* add transportLayerAddress */
-   proto_tree_add_bitstring(ie_tree, hf_ranap_transportLayerAddress, tvb, *offset, 
-                            *bitoffset, str_length); 
+   proto_tree_add_bitstring(ie_tree, hf_ranap_transportLayerAddress, tvb, *offset,
+                            *bitoffset, str_length);
    proceed_nbits(offset, bitoffset, str_length);
 
-   return (0);      
+   return (0);
 }
 
 
@@ -1873,100 +1873,100 @@ dissect_iuTransportAssociation(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset,
 {
    guint	extension_present;
    guint	choice_value;
-   
+
    /* extension present ? */
    extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    if (extension_present)
-   {  
-      /* extended choice */    
+   {
+      /* extended choice */
       proto_tree_add_text(ie_tree, tvb, *offset, 0,
-                          "extension present for IuTransportAssociation, dissection not supported");   	
+                          "extension present for IuTransportAssociation, dissection not supported");
       return (-1);
    }
-   proceed_nbits(offset, bitoffset, 1); 
-   
+   proceed_nbits(offset, bitoffset, 1);
+
    /* choice */
    choice_value = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proceed_nbits(offset, bitoffset, 1); 
-   allign(offset, bitoffset);    	
+   proceed_nbits(offset, bitoffset, 1);
+   allign(offset, bitoffset);
    if (choice_value == 0)
    {
-      /*  gTP-TEI */	
+      /*  gTP-TEI */
       proto_tree_add_item(ie_tree, hf_ranap_gTP_TEI, tvb, *offset, 4, FALSE);
       *offset += 4;
    }
    else
-   {	
+   {
       /* bindingID */
       proto_tree_add_item(ie_tree, hf_ranap_bindingID, tvb, *offset, 4, FALSE);
-      *offset += 4;	
+      *offset += 4;
    }
-   
+
    return (0);
-}   
-   
+}
+
 
 static int
 dissect_transportLayerInformation(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset)
 {
    proto_item	*optionals_item = NULL;
-   proto_tree	*optionals_tree = NULL;	
+   proto_tree	*optionals_tree = NULL;
    int		extension_present;
-   int		iE_Extensions_present; 
-   int		ret;  
+   int		iE_Extensions_present;
+   int		ret;
 
    /* create subtree for extension/optional/default bitmap */
    optionals_item = proto_tree_add_text(ie_tree, tvb, *offset, IE_PROTOCOL_EXTENSION_LENGTH,
                                       "TransportLayerInformation Extension/Optional/Default bitmap");
-   optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
+   optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
 
 
    /* protocol extension present ? */
    extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-   proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+   proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                             *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);   
-   
+   proceed_nbits(offset, bitoffset, 1);
+
    /* iE-Extensions present ? */
    iE_Extensions_present = extract_nbits(tvb, *offset, *bitoffset, 1);
    proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present,
                             tvb, *offset, *bitoffset, 1, 0);
-   proceed_nbits(offset, bitoffset, 1);    
+   proceed_nbits(offset, bitoffset, 1);
 
 
-   /* transportLayerAddress */   
-   if ((ret=dissect_TransportLayerAddress(tvb, ie_tree, offset, bitoffset)) != 0) 
+   /* transportLayerAddress */
+   if ((ret=dissect_TransportLayerAddress(tvb, ie_tree, offset, bitoffset)) != 0)
        return (ret);
 
-   /* iuTransportAssociation */ 
-   if ((ret=dissect_iuTransportAssociation(tvb, ie_tree, offset, bitoffset)) != 0) 
+   /* iuTransportAssociation */
+   if ((ret=dissect_iuTransportAssociation(tvb, ie_tree, offset, bitoffset)) != 0)
       return (ret);
-      
+
    /* iE-Extensions */
    if (iE_Extensions_present)
    {
      if ((ret=dissect_iE_Extension(tvb, ie_tree, offset, bitoffset, "TransportLayerInformation" )) != 0 )
-      	        return (ret);   
+      	        return (ret);
    }
 
    /* protocol extension */
    if (extension_present)
-   {  
-      /* extended sequence */    
+   {
+      /* extended sequence */
       proto_tree_add_text(ie_tree, tvb, *offset, 0,
-                          "extension present for TransportLayerInformation, dissection not supported");   	
+                          "extension present for TransportLayerInformation, dissection not supported");
       return (-1);
    }
-   
+
    return(0);
 }
 
-   
+
 static int
-dissect_dataVolumeList (tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset, char *parname) 
+dissect_dataVolumeList (tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset, char *parname)
 {
    proto_item	*optionals_item = NULL;
-   proto_tree	*optionals_tree = NULL; 	
+   proto_tree	*optionals_tree = NULL;
    gint		extension_present;
    gint		dataVolumeReference_present;
    gint		iE_Extensions_present;
@@ -1974,128 +1974,128 @@ dissect_dataVolumeList (tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *
    gint		length;
    gint		i;
    int		ret;
-   
+
    /* number of volumes */
    number_vol = extract_nbits(tvb, *offset, *bitoffset, 1) + 1;
-   proceed_nbits(offset, bitoffset, 1); 
-      	
+   proceed_nbits(offset, bitoffset, 1);
+
    for (i=1; i<=number_vol; i++)
    {
       /* create subtree for extension/optional/default bitmap */
       optionals_item = proto_tree_add_text(ie_tree, tvb, *offset, 1,
                                            "%d. %s Extension/Optional/Default bitmap",
                                             i, parname);
-      optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);   	
-   	   	
+      optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
       /* protocol_extension present ? */
       extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-      proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
-                               *offset, *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1);    	
-   
-      /* dataVolumeReference present ? */
-      dataVolumeReference_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-      proto_tree_add_uint_bits(optionals_tree, hf_ranap_dataVolumeReference_present, tvb, 
+      proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                                *offset, *bitoffset, 1, 0);
       proceed_nbits(offset, bitoffset, 1);
-    	
+
+      /* dataVolumeReference present ? */
+      dataVolumeReference_present = extract_nbits(tvb, *offset, *bitoffset, 1);
+      proto_tree_add_uint_bits(optionals_tree, hf_ranap_dataVolumeReference_present, tvb,
+                               *offset, *bitoffset, 1, 0);
+      proceed_nbits(offset, bitoffset, 1);
+
       /* iE_Extensions present ? */
       iE_Extensions_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-      proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb, 
+      proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb,
                                *offset, *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1);   	
-   	  	
-   	
+      proceed_nbits(offset, bitoffset, 1);
+
+
       /* UnsuccessfullyTransmittedDataVolume */
       proto_tree_add_PERint32(ie_tree, hf_ranap_dl_UnsuccessfullyTransmittedDataVolume,
-                              tvb, *offset, *bitoffset, &length, 0);        	
+                              tvb, *offset, *bitoffset, &length, 0);
       proceed_perint32(offset, bitoffset, length);
-      
+
       /* DataVolumeReference */
       if (dataVolumeReference_present)
       {
-         proto_tree_add_uint_bits(ie_tree, hf_ranap_dataVolumeReference, tvb, 
+         proto_tree_add_uint_bits(ie_tree, hf_ranap_dataVolumeReference, tvb,
                                   *offset, *bitoffset, 8, 0);
          proceed_nbits(offset, bitoffset, 8);
-      }                 	 
-      
+      }
+
      /* iE-Extensions */
      if (iE_Extensions_present)
      {
       	if ((ret=dissect_iE_Extension(tvb, ie_tree, offset, bitoffset, "dl-dataVolumes" )) != 0)
       	     return(ret);
-     }   
-          
+     }
+
      /* protocol extended */
      if (extension_present)
      {
-        /* extended sequence */ 
+        /* extended sequence */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, *offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for dl-dataVolumes present, dissection not supported");
-        return(-1);                                       
-     }    	
+        return(-1);
+     }
   }
-	
-  return (0);	
-  	
-}	
+
+  return (0);
+
+}
 
 static int
-dissect_cause(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset) 
+dissect_cause(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset)
 {
    gint		extension_present;
-   int		cause_choice;   
+   int		cause_choice;
 
   /* protocol extension present ? */
-  extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);  
-  proceed_nbits(offset, bitoffset, 1);   
+  extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
+  proceed_nbits(offset, bitoffset, 1);
   if (extension_present)
-  {  
-     /* choice extension present */    
+  {
+     /* choice extension present */
      proto_tree_add_text(ie_tree, tvb, *offset, 0,
-                          "extension present for cause, dissection not supported");   	
+                          "extension present for cause, dissection not supported");
      return (-1);
-  }  
+  }
   cause_choice = extract_nbits(tvb, *offset, *bitoffset, 3);
   proto_tree_add_uint_bits(ie_tree, hf_ranap_cause_choice,
                            tvb, *offset, *bitoffset, 3, 0);
   proceed_nbits(offset, bitoffset, 3);
-  
+
   switch (cause_choice)
   {
      case CC_CauseRadioNetwork:
         proto_tree_add_uint_bits(ie_tree, hf_ranap_cause_value,
-                                 tvb, *offset, *bitoffset, 6, 1);  
-        proceed_nbits(offset, bitoffset, 6); 
+                                 tvb, *offset, *bitoffset, 6, 1);
+        proceed_nbits(offset, bitoffset, 6);
         break;
      case CC_CauseTransmissionNetwork:
         proto_tree_add_uint_bits(ie_tree, hf_ranap_cause_value,
-                                 tvb, *offset, *bitoffset, 4, 65);  
-        proceed_nbits(offset, bitoffset, 4); 
-        break;     
+                                 tvb, *offset, *bitoffset, 4, 65);
+        proceed_nbits(offset, bitoffset, 4);
+        break;
      case CC_CauseNAS:
         proto_tree_add_uint_bits(ie_tree, hf_ranap_cause_value,
-                                 tvb, *offset, *bitoffset, 4, 81);  
-        proceed_nbits(offset, bitoffset, 4); 
-        break;      
+                                 tvb, *offset, *bitoffset, 4, 81);
+        proceed_nbits(offset, bitoffset, 4);
+        break;
      case CC_CauseProtocol:
         proto_tree_add_uint_bits(ie_tree, hf_ranap_cause_value,
-                                 tvb, *offset, *bitoffset, 4, 97);  
-        proceed_nbits(offset, bitoffset, 4);      
+                                 tvb, *offset, *bitoffset, 4, 97);
+        proceed_nbits(offset, bitoffset, 4);
      case CC_CauseMisc:
         proto_tree_add_uint_bits(ie_tree, hf_ranap_cause_value,
-                                 tvb, *offset, *bitoffset, 4, 113);  
-        proceed_nbits(offset, bitoffset, 4); 
-        break;     
+                                 tvb, *offset, *bitoffset, 4, 113);
+        proceed_nbits(offset, bitoffset, 4);
+        break;
      case CC_CauseNon_Standard:
         proto_tree_add_uint_bits(ie_tree, hf_ranap_cause_value,
-                                 tvb, *offset, *bitoffset, 7, 129);  
-        proceed_nbits(offset, bitoffset, 7); 
-        break; 
+                                 tvb, *offset, *bitoffset, 7, 129);
+        proceed_nbits(offset, bitoffset, 7);
+        break;
      default:
        proto_tree_add_text(ie_tree, tvb, *offset, 0,
-                            "unexpected cause choice value, dissection not supported"); 
+                            "unexpected cause choice value, dissection not supported");
        return(-1);
   }
   return(0);
@@ -2103,65 +2103,65 @@ dissect_cause(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset)
 
 
 static int
-dissect_iEsCriticalityDiagnostics(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset) 
+dissect_iEsCriticalityDiagnostics(tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset)
 {
    proto_item		*diag_item = NULL;
    proto_tree		*diag_tree = NULL;
    proto_item		*optionals_item = NULL;
-   proto_tree		*optionals_tree = NULL;    	
+   proto_tree		*optionals_tree = NULL;
    int			extension_present;
    int			repetitionNumber_present;
    int			iE_Extensions_present;
    int			num_of_errors;
-   int			i;   
+   int			i;
 
    allign(offset, bitoffset);
    num_of_errors = extract_nbits(tvb, *offset, *bitoffset, 8) + 1;
-   proto_tree_add_uint_bits(ie_tree, hf_ranap_num_of_CriticalityDiagnostics_IEs, tvb, 
+   proto_tree_add_uint_bits(ie_tree, hf_ranap_num_of_CriticalityDiagnostics_IEs, tvb,
                             *offset, *bitoffset, 8, 1);
-   proceed_nbits(offset, bitoffset, 8); 
-   
+   proceed_nbits(offset, bitoffset, 8);
+
    for ( i= 1; i <= num_of_errors; i++)
    {
       /* add subtree for CriticalityDiagnostics-IE */
-      diag_item = proto_tree_add_text(ie_tree, tvb, *offset, 0, 
+      diag_item = proto_tree_add_text(ie_tree, tvb, *offset, 0,
                                       "%d. CriticalityDiagnostics-IE", i);
       diag_tree = proto_item_add_subtree(diag_item, ett_ranap_CriticalityDiagnostics_IE);
-      
+
       /* create subtree for extension/optional/default bitmap */
       optionals_item = proto_tree_add_text(diag_tree, tvb, *offset, 1,
                                          "CriticalityDiagnostics-IE Extension/Optional/Default bitmap");
-      optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-    
+      optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
       /* protocol_extension present ? */
       extension_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-      proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+      proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                                *offset, *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1);           
-       
+      proceed_nbits(offset, bitoffset, 1);
+
       /* repetitionNumber present ? */
       repetitionNumber_present = extract_nbits(tvb, *offset, *bitoffset, 1);
-      proto_tree_add_uint_bits(optionals_tree, hf_ranap_repetitionNumber_present, tvb, 
+      proto_tree_add_uint_bits(optionals_tree, hf_ranap_repetitionNumber_present, tvb,
                                *offset, *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1); 
-      
+      proceed_nbits(offset, bitoffset, 1);
+
       /* iE_Extensions present ? */
       iE_Extensions_present = extract_nbits(tvb, *offset, *bitoffset, 1);
       proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present,
                                tvb, *offset, *bitoffset, 1, 0);
-      proceed_nbits(offset, bitoffset, 1);           
- 
+      proceed_nbits(offset, bitoffset, 1);
+
       /* iECriticality */
       proto_tree_add_uint_bits(diag_tree, hf_ranap_iECriticality,
                                tvb, *offset, *bitoffset, 2, 0);
-      proceed_nbits(offset, bitoffset, 2); 
- 
+      proceed_nbits(offset, bitoffset, 2);
+
       /* iE-ID */
       allign(offset, bitoffset);
       proto_tree_add_item(diag_tree, hf_ranap_ie_ie_id, tvb,
-                          *offset, IE_ID_LENGTH, FALSE);  
+                          *offset, IE_ID_LENGTH, FALSE);
       *offset += IE_ID_LENGTH;
-        
+
       /* repetitionNumber */
       if (repetitionNumber_present)
       {
@@ -2169,28 +2169,28 @@ dissect_iEsCriticalityDiagnostics(tvbuff_t *tvb, proto_tree *ie_tree, gint *offs
          proto_tree_add_uint_bits(diag_tree, hf_ranap_repetitionNumber,
                                   tvb, *offset, *bitoffset, 8, 1);
          proceed_nbits(offset, bitoffset, 8);
-      } 
+      }
 
       /* iE-Extensions */
       if (iE_Extensions_present)
       {
-        return(dissect_iE_Extension(tvb, diag_tree, offset, bitoffset, "CriticalityDiagnostics-IE"));	
+        return(dissect_iE_Extension(tvb, diag_tree, offset, bitoffset, "CriticalityDiagnostics-IE"));
       }
-      
-      
+
+
       /* protocol extended */
       if (extension_present)
       {
-         /* extended sequence */ 
+         /* extended sequence */
          /* decoding is not supported */
          proto_tree_add_text(diag_tree, tvb, *offset, IE_PROTOCOL_EXTENSION_LENGTH,
        	                  "Protocol extension for CriticalityDiagnostics-IE present, dissection not supported");
-         return(-1);                                       
-      }          
-   } 
-   
-   return(0);     
-}   
+         return(-1);
+      }
+   }
+
+   return(0);
+}
 
 
 
@@ -2204,9 +2204,9 @@ static int
 dissect_IE_RAB_ID(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   if (ie_tree)
-  {	
+  {
        proto_tree_add_item(ie_tree, hf_ranap_rab_id, tvb,
-                           0, RAB_ID_LENGTH, FALSE);    
+                           0, RAB_ID_LENGTH, FALSE);
   }
   return(0);
 }
@@ -2216,9 +2216,9 @@ static int
 dissect_IE_RAC(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   if (ie_tree)
-  {	
+  {
        proto_tree_add_item(ie_tree, hf_ranap_rac, tvb,
-                           0, RAC_LENGTH, FALSE);    
+                           0, RAC_LENGTH, FALSE);
   }
   return(0);
 }
@@ -2228,42 +2228,42 @@ static int
 dissect_IE_LAI(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   proto_item	*optionals_item = NULL;
-  proto_tree	*optionals_tree = NULL; 
-  int		iE_Extensions_present;  	
+  proto_tree	*optionals_tree = NULL;
+  int		iE_Extensions_present;
   gint		offset = 0;
   gint		bitoffset = 0;
   int		ret;
-  
+
   if (ie_tree)
-  {	
+  {
       /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                       "LAI Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-  	
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* iE_Extensions_present present ? */
      iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  
-     
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* plmn_id */
      allign(&offset, &bitoffset);
      proto_tree_add_item(ie_tree, hf_ranap_plmn_id, tvb,
-                         offset, PLMN_ID_LENGTH, FALSE);  
+                         offset, PLMN_ID_LENGTH, FALSE);
      offset += PLMN_ID_LENGTH;
-                         
-     /* lac */                        
+
+     /* lac */
      proto_tree_add_item(ie_tree, hf_ranap_lac, tvb,
                          offset, LAC_LENGTH, FALSE);
      offset += LAC_LENGTH;
-     
+
      /* iE_Extensions */
      if (iE_Extensions_present)
      {
       	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "LAI")) != 0)
-      	     return (ret);     
-     }                             
+      	     return (ret);
+     }
   }
   return(0);
 }
@@ -2273,46 +2273,46 @@ static int
 dissect_IE_SAI(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   proto_item	*optionals_item = NULL;
-  proto_tree	*optionals_tree = NULL; 
-  int		iE_Extensions_present;  	
+  proto_tree	*optionals_tree = NULL;
+  int		iE_Extensions_present;
   gint		offset = 0;
   gint		bitoffset = 0;
-  int		ret;	
-  	
+  int		ret;
+
   if (ie_tree)
   {
       /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                       "SAI Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-  	
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* iE_Extensions_present present ? */
      iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  
-     
-     /*  plmn_id */		
+     proceed_nbits(&offset, &bitoffset, 1);
+
+     /*  plmn_id */
      proto_tree_add_item(ie_tree, hf_ranap_plmn_id, tvb,
-                           offset, PLMN_ID_LENGTH, FALSE); 
-     offset += PLMN_ID_LENGTH;                           
-     
-     /* lac */                       
+                           offset, PLMN_ID_LENGTH, FALSE);
+     offset += PLMN_ID_LENGTH;
+
+     /* lac */
      proto_tree_add_item(ie_tree, hf_ranap_lac, tvb,
                            offset, LAC_LENGTH, FALSE);
-     offset += LAC_LENGTH;                           
-     
-     /* sac */                      
+     offset += LAC_LENGTH;
+
+     /* sac */
      proto_tree_add_item(ie_tree, hf_ranap_sac, tvb,
                            offset, SAC_LENGTH, FALSE);
-     offset += SAC_LENGTH;                           
-     
+     offset += SAC_LENGTH;
+
      /* iE_Extensions */
      if (iE_Extensions_present)
      {
       	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "LAI")) != 0)
-      	     return (ret);     
-     }   
+      	     return (ret);
+     }
   }
   return(0);
 }
@@ -2322,8 +2322,8 @@ static int
 dissect_IE_NAS_PDU(tvbuff_t *tvb, proto_tree *ie_tree)
 {
    gint			length;
-   gint			length_size;	
-   
+   gint			length_size;
+
    if (extract_length(tvb, 0, &length, &length_size) != 0)
    {
       if (ie_tree)
@@ -2341,16 +2341,16 @@ dissect_IE_NAS_PDU(tvbuff_t *tvb, proto_tree *ie_tree)
        proto_tree_add_item(ie_tree, hf_ranap_nas_pdu_length, tvb,
                            0, length_size, FALSE);
    }
-   
-   /* call NAS dissector (not implemented yet) */ 
-   /* ............. */   	
-      	
-   /* meanwhile display in hex */	
+
+   /* call NAS dissector (not implemented yet) */
+   /* ............. */
+
+   /* meanwhile display in hex */
    if (ie_tree)
    {
        /* NAS - PDU */
        proto_tree_add_item(ie_tree, hf_ranap_nas_pdu, tvb,
-                           length_size, length, FALSE);    
+                           length_size, length, FALSE);
    }
    return(0);
 }
@@ -2361,10 +2361,10 @@ dissect_IE_CN_DomainIndicator(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   gint		offset = 0;
   gint		bitoffset = 0;
-  	
+
   if (ie_tree)
   {
-     proto_tree_add_uint_bits(ie_tree, hf_ranap_CN_DomainIndicator, tvb, 
+     proto_tree_add_uint_bits(ie_tree, hf_ranap_CN_DomainIndicator, tvb,
                               offset, bitoffset, 1, 0);
   }
   return(0);
@@ -2375,11 +2375,11 @@ static int
 dissect_IE_IuSigConId(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   if (ie_tree)
-  {	
-     proto_tree_add_bitstring(ie_tree, hf_ranap_IuSigConId, tvb, 0, 0, 24); 
+  {
+     proto_tree_add_bitstring(ie_tree, hf_ranap_IuSigConId, tvb, 0, 0, 24);
   }
   return(0);
-} 
+}
 
 
 static int
@@ -2388,24 +2388,24 @@ dissect_IE_SAPI(tvbuff_t *tvb, proto_tree *ie_tree)
   gint		offset = 0;
   gint		bitoffset = 0;
   int		extension_present;
-  	
+
   if (ie_tree)
-  {	
+  {
      /* protocol_extension present ? */
      extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proceed_nbits(&offset, &bitoffset, 1); 
+     proceed_nbits(&offset, &bitoffset, 1);
 
      if (extension_present)
      {
-        /* extended enum */ 
+        /* extended enum */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for IE_SAPI present, dissection not supported");
-        return(-1);                                       
-     }       
-     
+        return(-1);
+     }
+
      /* SAPI */
-     proto_tree_add_uint_bits(ie_tree, hf_ranap_SAPI, tvb, 
+     proto_tree_add_uint_bits(ie_tree, hf_ranap_SAPI, tvb,
                               offset, bitoffset, 1, 0);
   }
   return(0);
@@ -2417,9 +2417,9 @@ dissect_IE_TransportLayerAddress(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   gint		offset = 0;
   gint		bitoffset = 0;
-  
+
   if (ie_tree)
-  {	
+  {
      return(dissect_TransportLayerAddress(tvb, ie_tree, &offset, &bitoffset));
   }
   return(0);
@@ -2431,9 +2431,9 @@ dissect_IE_IuTransportAssociation(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   gint		offset = 0;
   gint		bitoffset = 0;
-  
+
   if (ie_tree)
-  {	
+  {
      return(dissect_iuTransportAssociation(tvb, ie_tree, &offset, &bitoffset));
   }
   return(0);
@@ -2445,9 +2445,9 @@ dissect_IE_Cause(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   gint		offset = 0;
   gint		bitoffset = 0;
-  
+
   if (ie_tree)
-  {	
+  {
      return(dissect_cause(tvb, ie_tree, &offset, &bitoffset));
   }
   return(0);
@@ -2458,7 +2458,7 @@ static int
 dissect_IE_RAB_ReleasedItem_IuRelComp(tvbuff_t *tvb, proto_tree *ie_tree)
 {
    proto_item	*optionals_item = NULL;
-   proto_tree	*optionals_tree = NULL; 
+   proto_tree	*optionals_tree = NULL;
    int		extension_present;
    int		dl_GTP_PDU_SequenceNumber_present;
    int		ul_GTP_PDU_SequenceNumber_present;
@@ -2466,78 +2466,78 @@ dissect_IE_RAB_ReleasedItem_IuRelComp(tvbuff_t *tvb, proto_tree *ie_tree)
    gint		offset = 0;
    gint		bitoffset = 0;
    int		ret;
-  	
+
   if (ie_tree)
-  {	
+  {
      /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                       "RAB_ReleasedItem_IuRelComp Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-  	
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* protocol_extension present ? */
      extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  	
-    		
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* dl_GTP_PDU_SequenceNumber present ? */
      dl_GTP_PDU_SequenceNumber_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_GTP_PDU_SequenceNumber_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_GTP_PDU_SequenceNumber_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  		
-	
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* ul_GTP_PDU_SequenceNumber present ? */
      ul_GTP_PDU_SequenceNumber_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ul_GTP_PDU_SequenceNumber_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ul_GTP_PDU_SequenceNumber_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  
+     proceed_nbits(&offset, &bitoffset, 1);
 
      /* iE_Extensions_present present ? */
      iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  
-    
-    
+     proceed_nbits(&offset, &bitoffset, 1);
+
+
      /* rAB-ID */
      proto_tree_add_uint_bits(ie_tree, hf_ranap_rab_id,
                              tvb, offset, bitoffset, 8, 0);
-     proceed_nbits(&offset, &bitoffset, 8);       
-     
+     proceed_nbits(&offset, &bitoffset, 8);
+
      /* dl-GTP-PDU-SequenceNumber */
      if (dl_GTP_PDU_SequenceNumber_present)
      {
      	allign(&offset, &bitoffset);
      	proto_tree_add_item(ie_tree, hf_ranap_dl_GTP_PDU_SequenceNumber, tvb, offset, 2, FALSE);
-        offset += 2;	
-     } 	
+        offset += 2;
+     }
 
      /* ul-GTP-PDU-SequenceNumber */
      if (ul_GTP_PDU_SequenceNumber_present)
      {
      	allign(&offset, &bitoffset);
      	proto_tree_add_item(ie_tree, hf_ranap_ul_GTP_PDU_SequenceNumber, tvb, offset, 2, FALSE);
-        offset += 2;	
-     } 	
+        offset += 2;
+     }
 
      /* iE-Extensions */
      if (iE_Extensions_present)
      {
       	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "RAB_ReleasedItem_IuRelComp")) != 0)
       	     return (ret);
-     }   
-          
+     }
+
      /* protocol extended */
      if (extension_present)
      {
-        /* extended sequence */ 
+        /* extended sequence */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for RAB_ReleasedItem_IuRelComp present, dissection not supported");
-        return(-1);                                       
-     }    		                                  
-  }                                                       
-  return(0);	
+        return(-1);
+     }
+  }
+  return(0);
 }
 
 
@@ -2545,51 +2545,51 @@ static int
 dissect_IE_RAB_DataVolumeReportItem(tvbuff_t *tvb, proto_tree *ie_tree)
 {
    proto_item	*optionals_item = NULL;
-   proto_tree	*optionals_tree = NULL; 
+   proto_tree	*optionals_tree = NULL;
    int		extension_present;
-   int		dl_UnsuccessfullyTransmittedDataVolume_present;   
+   int		dl_UnsuccessfullyTransmittedDataVolume_present;
    int		iE_Extensions_present;
    gint		offset = 0;
    gint		bitoffset = 0;
    int		ret;
-  	
+
   if (ie_tree)
-  {	
+  {
      /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                       "RAB_DataVolumeReportItem Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-  	
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* protocol_extension present ? */
      extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  	
-    	
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* dl_UnsuccessfullyTransmittedDataVolume present ? */
      dl_UnsuccessfullyTransmittedDataVolume_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_UnsuccessfullyTransmittedDataVolume_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_UnsuccessfullyTransmittedDataVolume_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);    	
-    	
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* iE_Extensions_present present ? */
      iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);    	
+     proceed_nbits(&offset, &bitoffset, 1);
 
 
      /* rAB-ID */
      proto_tree_add_uint_bits(ie_tree, hf_ranap_rab_id,
                              tvb, offset, bitoffset, 8, 0);
-     proceed_nbits(&offset, &bitoffset, 8);  
+     proceed_nbits(&offset, &bitoffset, 8);
 
      /* dl_UnsuccessfullyTransmittedDataVolume */
      if (dl_UnsuccessfullyTransmittedDataVolume_present)
      {
-     	
-        if ((ret = dissect_dataVolumeList(tvb, ie_tree, &offset, &bitoffset, 
-             "dl_UnsuccessfullyTransmittedDataVolume")) != 0) 
+
+        if ((ret = dissect_dataVolumeList(tvb, ie_tree, &offset, &bitoffset,
+             "dl_UnsuccessfullyTransmittedDataVolume")) != 0)
             return (ret);
      }
 
@@ -2598,19 +2598,19 @@ dissect_IE_RAB_DataVolumeReportItem(tvbuff_t *tvb, proto_tree *ie_tree)
      {
       	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "IE_RAB_DataVolumeReportItem")) != 0)
       	     return (ret);
-     }   
-          
+     }
+
      /* protocol extended */
      if (extension_present)
      {
-        /* extended enum */ 
+        /* extended enum */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for IE_RAB_DataVolumeReportItem present, dissection not supported");
-        return(-1);                                       
-     }    		                                  
-  }                                                       
-  return(0);	
+        return(-1);
+     }
+  }
+  return(0);
 }
 
 
@@ -2618,7 +2618,7 @@ static int
 dissect_IE_RAB_SetupOrModifyItemSecond(tvbuff_t *tvb, proto_tree *ie_tree)
 {
    proto_item	*optionals_item = NULL;
-   proto_tree	*optionals_tree = NULL; 
+   proto_tree	*optionals_tree = NULL;
    int		extension_present;
    int		tmp_extension;
    int		pDP_TypeInformation_present;
@@ -2633,102 +2633,102 @@ dissect_IE_RAB_SetupOrModifyItemSecond(tvbuff_t *tvb, proto_tree *ie_tree)
    gint8	tmp_byte;
    gint		i;
    int		ret;
-  	
+
   if (ie_tree)
-  {	
+  {
      /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                       "SetupOrModifyItemSecond Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-  	
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* protocol_extension present ? */
      extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  	
-    	
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* pDP_TypeInformation present ? */
      pDP_TypeInformation_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_pDP_TypeInformation_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_pDP_TypeInformation_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  
+     proceed_nbits(&offset, &bitoffset, 1);
 
      /* dataVolumeReportingIndication present ? */
      dataVolumeReportingIndication_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dataVolumeReportingIndication_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dataVolumeReportingIndication_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1); 
+     proceed_nbits(&offset, &bitoffset, 1);
 
      /* dl_GTP_PDU_SequenceNumber present present ? */
      dl_GTP_PDU_SequenceNumber_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_GTP_PDU_SequenceNumber_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_GTP_PDU_SequenceNumber_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);     
-     
-     
+     proceed_nbits(&offset, &bitoffset, 1);
+
+
      /* ul_GTP_PDU_SequenceNumber present ? */
      ul_GTP_PDU_SequenceNumber_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ul_GTP_PDU_SequenceNumber_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ul_GTP_PDU_SequenceNumber_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);  
+     proceed_nbits(&offset, &bitoffset, 1);
 
      /* dl_N_PDU_SequenceNumber present ? */
      dl_N_PDU_SequenceNumber_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_N_PDU_SequenceNumber_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_N_PDU_SequenceNumber_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);      
-    
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* ul_N_PDU_SequenceNumber present ? */
      ul_N_PDU_SequenceNumber_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ul_N_PDU_SequenceNumber_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ul_N_PDU_SequenceNumber_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);          
-    
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* iE_Extensions present ? */
-     iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);       	
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb, 
+     iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb,
                               offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);             	
-            	
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* pDP-TypeInformation */
      if (pDP_TypeInformation_present)
      {
      	tmp_byte = extract_nbits(tvb, offset, bitoffset, 1) + 1;    /* Sequence 1..2 */
-        proceed_nbits(&offset, &bitoffset, 1);         	
+        proceed_nbits(&offset, &bitoffset, 1);
      	for (i=1; i<=tmp_byte; i++)
      	{
      	   tmp_extension = extract_nbits(tvb, offset, bitoffset, 1);
            proceed_nbits(&offset, &bitoffset, 1);
            if (tmp_extension != 0)
            {
-              /* extended enum */ 
+              /* extended enum */
               /* decoding is not supported */
               proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
             	                  "Protocol extension for PDP-Type present, dissection not supported");
               return(-1);
-           } 
-           
-           proto_tree_add_uint_bits(ie_tree, hf_ranap_PDP_Type, tvb, 
+           }
+
+           proto_tree_add_uint_bits(ie_tree, hf_ranap_PDP_Type, tvb,
                                     offset, bitoffset, 3, 0);
-           proceed_nbits(&offset, &bitoffset, 3);           
+           proceed_nbits(&offset, &bitoffset, 3);
         }
-     }   
+     }
 
      /* dataVolumeReportingIndication */
      if (dataVolumeReportingIndication_present)
      {
-       proto_tree_add_uint_bits(ie_tree, hf_ranap_dataVolumeReportingIndication, tvb, 
+       proto_tree_add_uint_bits(ie_tree, hf_ranap_dataVolumeReportingIndication, tvb,
                                 offset, bitoffset, 1, 0);
-       proceed_nbits(&offset, &bitoffset, 1);   
+       proceed_nbits(&offset, &bitoffset, 1);
      }
-     
+
      /* dl-GTP-PDU-SequenceNumber */
      if (dl_GTP_PDU_SequenceNumber_present)
      {
      	allign(&offset, &bitoffset);
      	proto_tree_add_item(ie_tree, hf_ranap_dl_GTP_PDU_SequenceNumber, tvb, offset, 2, FALSE);
-        offset += 2;	
-     }     
+        offset += 2;
+     }
 
      /* ul-GTP-PDU-SequenceNumber */
      if (ul_GTP_PDU_SequenceNumber_present)
@@ -2736,7 +2736,7 @@ dissect_IE_RAB_SetupOrModifyItemSecond(tvbuff_t *tvb, proto_tree *ie_tree)
      	allign(&offset, &bitoffset);
      	proto_tree_add_item(ie_tree, hf_ranap_ul_GTP_PDU_SequenceNumber, tvb, offset, 2, FALSE);
         offset += 2;
-     }        
+     }
 
      /* dl-N-PDU-SequenceNumber	*/
      if (dl_N_PDU_SequenceNumber_present)
@@ -2744,7 +2744,7 @@ dissect_IE_RAB_SetupOrModifyItemSecond(tvbuff_t *tvb, proto_tree *ie_tree)
      	allign(&offset, &bitoffset);
      	proto_tree_add_item(ie_tree, hf_ranap_dl_N_PDU_SequenceNumber, tvb, offset, 2, FALSE);
         offset += 2;
-     }        
+     }
 
      /* ul-N-PDU-SequenceNumber */
      if (ul_N_PDU_SequenceNumber_present)
@@ -2752,34 +2752,34 @@ dissect_IE_RAB_SetupOrModifyItemSecond(tvbuff_t *tvb, proto_tree *ie_tree)
      	allign(&offset, &bitoffset);
      	proto_tree_add_item(ie_tree, hf_ranap_ul_N_PDU_SequenceNumber, tvb, offset, 2, FALSE);
         offset += 2;
-     }        
+     }
 
      /* iE-Extensions */
      if (iE_Extensions_present)
      {
       	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "SetupOrModifyItemSecond")) != 0)
       	     return (ret);
-     }   
-          
+     }
+
      /* protocol extended */
      if (extension_present)
      {
-        /* extended enum */ 
+        /* extended enum */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for SetupOrModifyItemSecond present, dissection not supported");
-        return(-1);                                       
-     }    		                                  
-  }                                                       
-  return(0);	
+        return(-1);
+     }
+  }
+  return(0);
 }
 
 
-static int 
+static int
 dissect_IE_RAB_SetupOrModifiedItem (tvbuff_t *tvb, proto_tree *ie_tree)
 {
    proto_item	*optionals_item = NULL;
-   proto_tree	*optionals_tree = NULL; 
+   proto_tree	*optionals_tree = NULL;
    int		ret;
    int		extension_present;
    int		transportLayerAddress_present;
@@ -2789,41 +2789,41 @@ dissect_IE_RAB_SetupOrModifiedItem (tvbuff_t *tvb, proto_tree *ie_tree)
    gint		offset = 0;
    gint		bitoffset = 0;
 
-  	
+
   if (ie_tree)
   {
      /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                         "RAB-SetupOrModifiedItem Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-   
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* protocol_extension present ? */
      extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
-  
+
      /* transportLayerAddress present ? */
      transportLayerAddress_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_transportLayerAddress_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_transportLayerAddress_present, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
 
      /* iuTransportAssociation present ? */
      iuTransportAssociation_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iuTransportAssociation_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iuTransportAssociation_present, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
 
      /* dl_dataVolumes present ? */
      dl_dataVolumes_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_dataVolumes_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_dataVolumes_present, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
 
      /* iE_Extensions present ? */
      iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
 
@@ -2831,49 +2831,49 @@ dissect_IE_RAB_SetupOrModifiedItem (tvbuff_t *tvb, proto_tree *ie_tree)
      /* rAB-ID */
      proto_tree_add_uint_bits(ie_tree, hf_ranap_rab_id,
                              tvb, offset, bitoffset, 8, 0);
-     proceed_nbits(&offset, &bitoffset, 8);       
-      
+     proceed_nbits(&offset, &bitoffset, 8);
+
      /* transportLayerAddress */
      if (transportLayerAddress_present)
      {
-        if ((ret=dissect_TransportLayerAddress(tvb, ie_tree, &offset, &bitoffset)) != 0) 
+        if ((ret=dissect_TransportLayerAddress(tvb, ie_tree, &offset, &bitoffset)) != 0)
             return (ret);
      }
-      
+
      /* iuTransportAssociation	*/
      if (iuTransportAssociation_present)
-     {      
-        if ((ret=dissect_iuTransportAssociation(tvb, ie_tree, &offset, &bitoffset)) != 0) 
+     {
+        if ((ret=dissect_iuTransportAssociation(tvb, ie_tree, &offset, &bitoffset)) != 0)
             return (ret);
      }
-    		
+
      /* dl-dataVolumes	*/
      if (dl_dataVolumes_present)
-     {      
-        if ((ret = dissect_dataVolumeList(tvb, ie_tree, &offset, &bitoffset, 
-                                          "dl-dataVolumes")) != 0) 
+     {
+        if ((ret = dissect_dataVolumeList(tvb, ie_tree, &offset, &bitoffset,
+                                          "dl-dataVolumes")) != 0)
             return (ret);
-     } 
-         
+     }
+
      /* iE-Extensions	*/
      if (iE_Extensions_present)
      {
        if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "RAB_SetupOrModifiedItem")) != 0)
-       	   return (ret); 
+       	   return (ret);
      }
-      
+
      /* protocol extended */
      if (extension_present)
      {
-        /* extended sequence */ 
+        /* extended sequence */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
      	                  "Protocol extension for RAB_SetupOrModifiedItem present, dissection not supported");
-        return(-1);                                       
+        return(-1);
      }
   }
-  
-  return (0);  
+
+  return (0);
 }
 
 
@@ -2893,99 +2893,99 @@ dissect_IE_RAB_SetupOrModifyItemFirst (tvbuff_t *tvb, proto_tree *ie_tree)
   int		iE_Extensions_present;
   int		tmp_extension_present;
   int		ret;
-  	
+
   if (ie_tree)
-  {	
+  {
     offset = 0; bitoffset = 0;
-     
+
     /* create subtree for extension/optional/default bitmap */
     optionals_item = proto_tree_add_text(ie_tree, tvb, offset,IE_PROTOCOL_EXTENSION_LENGTH,
                                       "RAB_SetupOrModifyItemFirst Extension/Optional/Default bitmap");
-    optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-  	     
+    optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
     /* protocol extension present ? */
     extension_present = extract_nbits(tvb, offset, bitoffset, 1);
     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension,
                              tvb, offset, bitoffset, 1, 0);
-    proceed_nbits(&offset, &bitoffset, 1);      
- 
+    proceed_nbits(&offset, &bitoffset, 1);
+
     /* nAS_SynchronisationIndicator present ? */
     nAS_SynchronisationIndicator_present = extract_nbits(tvb, offset, bitoffset, 1);
     proto_tree_add_uint_bits(optionals_tree, hf_ranap_nAS_SynchronisationIndicator_present,
                              tvb, offset, bitoffset, 1, 0);
-    proceed_nbits(&offset, &bitoffset, 1); 
-    
+    proceed_nbits(&offset, &bitoffset, 1);
+
     /* rAB_Parameters present ? */
     rAB_Parameters_present = extract_nbits(tvb, offset, bitoffset, 1);
     proto_tree_add_uint_bits(optionals_tree, hf_ranap_rAB_Parameters_present,
                              tvb, offset, bitoffset, 1, 0);
     proceed_nbits(&offset, &bitoffset, 1);
-    
+
     /* userPlaneInformation present ? */
     userPlaneInformation_present = extract_nbits(tvb, offset, bitoffset, 1);
     proto_tree_add_uint_bits(optionals_tree, hf_ranap_userPlaneInformation_present,
                              tvb, offset, bitoffset, 1, 0);
     proceed_nbits(&offset, &bitoffset, 1);
-    
+
     /* transportLayerInformation present ? */
     transportLayerInformation_present = extract_nbits(tvb, offset, bitoffset, 1);
     proto_tree_add_uint_bits(optionals_tree, hf_ranap_transportLayerInformation_present,
                              tvb, offset, bitoffset, 1, 0);
     proceed_nbits(&offset, &bitoffset, 1);
-    
+
     /* service_Handover present ? */
     service_Handover_present = extract_nbits(tvb, offset, bitoffset, 1);
     proto_tree_add_uint_bits(optionals_tree, hf_ranap_service_Handover_present,
                              tvb, offset, bitoffset, 1, 0);
-    proceed_nbits(&offset, &bitoffset, 1);    
-        			
+    proceed_nbits(&offset, &bitoffset, 1);
+
     /* iE_Extensions present ? */
     iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
     proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present,
                              tvb, offset, bitoffset, 1, 0);
-    proceed_nbits(&offset, &bitoffset, 1); 
+    proceed_nbits(&offset, &bitoffset, 1);
 
 
     /* add RAB-ID */
     proto_tree_add_uint_bits(ie_tree, hf_ranap_rab_id,
                              tvb, offset, bitoffset, 8, 0);
-    proceed_nbits(&offset, &bitoffset, 8); 
+    proceed_nbits(&offset, &bitoffset, 8);
 
     /* nAS-SynchronisationIndicator */
     if (nAS_SynchronisationIndicator_present)
     {
        proto_tree_add_uint_bits(ie_tree, hf_ranap_nAS_SynchronisationIndicator,
                              tvb, offset, bitoffset, 4, 0);
-       proceed_nbits(&offset, &bitoffset, 4); 
-    }	                
-    	
+       proceed_nbits(&offset, &bitoffset, 4);
+    }
+
     /* rAB-Parameters */
     if (rAB_Parameters_present)
-    {    	
-       if ((ret=dissect_rAB_Parameters(tvb, ie_tree, &offset, &bitoffset)) != 0) 
-           return(ret);
-    }
-   
-    /* userPlaneInformation */
-    if (userPlaneInformation_present)
-    {    
-       if ((ret=dissect_userPlaneInformation(tvb, ie_tree, &offset, &bitoffset)) != 0) 
+    {
+       if ((ret=dissect_rAB_Parameters(tvb, ie_tree, &offset, &bitoffset)) != 0)
            return(ret);
     }
 
-   /* transportLayerInformation */   
+    /* userPlaneInformation */
+    if (userPlaneInformation_present)
+    {
+       if ((ret=dissect_userPlaneInformation(tvb, ie_tree, &offset, &bitoffset)) != 0)
+           return(ret);
+    }
+
+   /* transportLayerInformation */
     if (transportLayerInformation_present)
-    {    
-       if ((ret=dissect_transportLayerInformation(tvb, ie_tree, &offset, &bitoffset)) != 0) 
+    {
+       if ((ret=dissect_transportLayerInformation(tvb, ie_tree, &offset, &bitoffset)) != 0)
            return(ret);
     }
 
     /* service_Handover */
     if (service_Handover_present)
-    {     
+    {
        tmp_extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-       proceed_nbits(&offset, &bitoffset, 1); 
-       
+       proceed_nbits(&offset, &bitoffset, 1);
+
        if (tmp_extension_present)
        {
        	  /* extended enum */
@@ -2993,22 +2993,22 @@ dissect_IE_RAB_SetupOrModifyItemFirst (tvbuff_t *tvb, proto_tree *ie_tree)
           proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
         	                  "Protocol extension for service_Handover present, dissection not supported");
           return(-1);
-       }       
-   
+       }
+
        proto_tree_add_uint_bits(ie_tree, hf_ranap_service_Handover,
                             tvb, offset, bitoffset, 2, 0);
-       proceed_nbits(&offset, &bitoffset, 2);     
-    } 
+       proceed_nbits(&offset, &bitoffset, 2);
+    }
 
    /* iE-Extensions */
    if (iE_Extensions_present)
    {
      if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "SetupOrModifyItemFirst" )) != 0)
-      	        return(ret); 
+      	        return(ret);
    }
 
   }
-  return(0);	
+  return(0);
 }
 
 
@@ -3018,7 +3018,7 @@ dissect_IE_RAB_ReleaseItem(tvbuff_t *tvb, proto_tree *ie_tree)
   proto_item	*optionals_item = NULL;
   proto_tree	*optionals_tree = NULL;
   gint		offset = 0;
-  gint		bitoffset = 0; 
+  gint		bitoffset = 0;
   int		extension_present;
   int		iE_Extensions_present;
   int		ret;
@@ -3027,59 +3027,59 @@ dissect_IE_RAB_ReleaseItem(tvbuff_t *tvb, proto_tree *ie_tree)
   /* create subtree for extension/optional/default bitmap */
   optionals_item = proto_tree_add_text(ie_tree, tvb, offset,IE_PROTOCOL_EXTENSION_LENGTH,
                                     "RAB_ReleaseItem Extension/Optional/Default bitmap");
-  optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-      
+  optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
   /* protocol extension present ? */
   extension_present = extract_nbits(tvb, offset, bitoffset, 1);
   proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension,
                            tvb, offset, bitoffset, 1, 0);
-  proceed_nbits(&offset, &bitoffset, 1);      
-  
-	      		
+  proceed_nbits(&offset, &bitoffset, 1);
+
+
   /* iE_Extensions present ? */
   iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
   proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present,
                            tvb, offset, bitoffset, 1, 0);
-  proceed_nbits(&offset, &bitoffset, 1); 
-  
-  
+  proceed_nbits(&offset, &bitoffset, 1);
+
+
   /* add RAB-ID */
   proto_tree_add_uint_bits(ie_tree, hf_ranap_rab_id,
                            tvb, offset, bitoffset, 8, 0);
-  proceed_nbits(&offset, &bitoffset, 8); 
+  proceed_nbits(&offset, &bitoffset, 8);
 
 
   /* add cause */
   if ((ret=dissect_cause(tvb, ie_tree, &offset, &bitoffset)) != 0)
-   	     return (ret);  
-  
+   	     return (ret);
+
   /* iE Extensions */
   if (iE_Extensions_present)
   {
    	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "RAB_ReleasedItem")) != 0)
    	     return (ret);
-  }   
-       
+  }
+
   /* protocol extended */
   if (extension_present)
   {
-     /* extended sequence */ 
+     /* extended sequence */
      /* decoding is not supported */
      proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
    	                  "Protocol extension for RAB_ReleasedItem present, dissection not supported");
-     return(-1);                                       
-  }    	
+     return(-1);
+  }
 
   return(0);
 }
 
 
-static int 
+static int
 dissect_IE_RAB_ReleasedItem (tvbuff_t *tvb, proto_tree *ie_tree)
 {
    proto_item	*optionals_item = NULL;
    proto_tree	*optionals_tree = NULL;
-   int		ret; 
+   int		ret;
    int		extension_present;
    int		dl_dataVolumes_present;
    int		dl_GTP_PDU_SequenceNumber_present;
@@ -3093,17 +3093,17 @@ dissect_IE_RAB_ReleasedItem (tvbuff_t *tvb, proto_tree *ie_tree)
      /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                         "RAB-ReleasedItem Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-   
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* protocol_extension present ? */
      extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
-  
+
      /* dl_dataVolumes present ? */
      dl_dataVolumes_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_dataVolumes_present, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_dataVolumes_present, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
 
@@ -3111,41 +3111,41 @@ dissect_IE_RAB_ReleasedItem (tvbuff_t *tvb, proto_tree *ie_tree)
      dl_GTP_PDU_SequenceNumber_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_dl_GTP_PDU_SequenceNumber_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1); 
-     
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* uL_GTP_PDU_SequenceNumber present ? */
      ul_GTP_PDU_SequenceNumber_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_ul_GTP_PDU_SequenceNumber_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1); 
-     
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* iE_Extensions present ? */
      iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);              
+     proceed_nbits(&offset, &bitoffset, 1);
 
      /* rAB-ID */
      proto_tree_add_uint_bits(ie_tree, hf_ranap_rab_id,
                               tvb, offset, bitoffset, 8, 0);
-     proceed_nbits(&offset, &bitoffset, 8);       
+     proceed_nbits(&offset, &bitoffset, 8);
 
      /* dl-dataVolumes */
      if (dl_dataVolumes_present)
-     {      
+     {
         if ((ret=dissect_dataVolumeList(tvb, ie_tree, &offset, &bitoffset,
-                                        "dl-dataVolumes")) != 0) 
+                                        "dl-dataVolumes")) != 0)
             return (ret);
-     }      
-   
+     }
+
      /* dL-GTP-PDU-SequenceNumber */
      if (dl_GTP_PDU_SequenceNumber_present)
      {
      	allign(&offset, &bitoffset);
      	proto_tree_add_item(ie_tree, hf_ranap_dl_GTP_PDU_SequenceNumber, tvb, offset, 2, FALSE);
-        offset += 2;	
-     }          
-   
+        offset += 2;
+     }
+
      /* uL-GTP-PDU-SequenceNumber */
      if (ul_GTP_PDU_SequenceNumber_present)
      {
@@ -3157,20 +3157,20 @@ dissect_IE_RAB_ReleasedItem (tvbuff_t *tvb, proto_tree *ie_tree)
      /* iE-Extensions */
      if (iE_Extensions_present)
      {
-        if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "UserPlaneInformation")) != 0) 
-           return(ret);	
+        if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "UserPlaneInformation")) != 0)
+           return(ret);
      }
-   
+
      /* protocol extended */
      if (extension_present)
      {
-        /* extended sequence */ 
+        /* extended sequence */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for RAB_ReleasedItem present, dissection not supported");
-        return(-1);                                       
-     } 
-  }   	
+        return(-1);
+     }
+  }
 
   return(0);
 }
@@ -3181,7 +3181,7 @@ dissect_IE_RAB_QueuedItem (tvbuff_t *tvb, proto_tree *ie_tree)
 {
    proto_item	*optionals_item = NULL;
    proto_tree	*optionals_tree = NULL;
-   int		ret; 
+   int		ret;
    int		extension_present;
    int		iE_Extensions_present;
    gint		offset = 0;
@@ -3193,11 +3193,11 @@ dissect_IE_RAB_QueuedItem (tvbuff_t *tvb, proto_tree *ie_tree)
      /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                         "RAB-QueuedItem Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-   
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* protocol_extension present ? */
      extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
 
@@ -3205,33 +3205,33 @@ dissect_IE_RAB_QueuedItem (tvbuff_t *tvb, proto_tree *ie_tree)
      iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1); 
-	
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* rAB-ID */
      proto_tree_add_uint_bits(ie_tree, hf_ranap_rab_id,
                              tvb, offset, bitoffset, 8, 0);
-     proceed_nbits(&offset, &bitoffset, 8);      
-     
+     proceed_nbits(&offset, &bitoffset, 8);
+
      /* iE-Extensions */
      if (iE_Extensions_present)
      {
        if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "RAB_QueuedItem" )) != 0 )
-        	        return (ret);   
-     }     
-     
+        	        return (ret);
+     }
+
      /* protocol extended */
      if (extension_present)
      {
-        /* extended sequence */ 
+        /* extended sequence */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for RAB_QueuedItem present, dissection not supported");
-        return(-1);                                       
-     } 
-  }   	
+        return(-1);
+     }
+  }
 
   return(0);
-} 
+}
 
 
 static int
@@ -3239,7 +3239,7 @@ dissect_IE_RAB_FailedItem(tvbuff_t *tvb, proto_tree *ie_tree)
 {
    proto_item	*optionals_item = NULL;
    proto_tree	*optionals_tree = NULL;
-   int		ret; 
+   int		ret;
    int		extension_present;
    int		iE_Extensions_present;
    gint		offset = 0;
@@ -3250,11 +3250,11 @@ dissect_IE_RAB_FailedItem(tvbuff_t *tvb, proto_tree *ie_tree)
      /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                         "RAB-FailedItem Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-   
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* protocol_extension present ? */
      extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
 
@@ -3262,47 +3262,47 @@ dissect_IE_RAB_FailedItem(tvbuff_t *tvb, proto_tree *ie_tree)
      iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1); 
+     proceed_nbits(&offset, &bitoffset, 1);
 
      /* rAB-ID */
      proto_tree_add_uint_bits(ie_tree, hf_ranap_rab_id,
                              tvb, offset, bitoffset, 8, 0);
-     proceed_nbits(&offset, &bitoffset, 8);      
-     
+     proceed_nbits(&offset, &bitoffset, 8);
+
      /* cause */
      if ((ret=dissect_cause(tvb, ie_tree, &offset, &bitoffset)) != 0)
-   	        return (ret);  
+   	        return (ret);
 
      /* iE-Extensions */
      if (iE_Extensions_present)
      {
        if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "RAB-FailedItem")) != 0)
-      	     return (ret);     	
+      	     return (ret);
      }
-     
-     
+
+
      /* protocol extended */
      if (extension_present)
      {
-        /* extended sequence */ 
+        /* extended sequence */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for RAB-FailedItem present, dissection not supported");
-        return(-1);                                       
-     } 
-  }   	
+        return(-1);
+     }
+  }
   return(0);
-} 
+}
 
 
-static int 
+static int
 dissect_IE_CriticalityDiagnostics(tvbuff_t *tvb, proto_tree *ie_tree)
 
 {
    proto_item	*optionals_item = NULL;
    proto_tree	*optionals_tree = NULL;
-   int		ret; 
-   int		extension_present; 
+   int		ret;
+   int		extension_present;
    int		procedureCode_present;
    int		triggeringMessage_present;
    int		procedureCriticality_present;
@@ -3310,18 +3310,18 @@ dissect_IE_CriticalityDiagnostics(tvbuff_t *tvb, proto_tree *ie_tree)
    int 		iE_Extensions_present;
    gint		offset = 0;
    gint		bitoffset = 0;
-   
+
 
   if (ie_tree)
   {
      /* create subtree for extension/optional/default bitmap */
      optionals_item = proto_tree_add_text(ie_tree, tvb, offset, 1,
                                         "IE-CriticalityDiagnostics Extension/Optional/Default bitmap");
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
-   
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
+
      /* protocol_extension present ? */
      extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb, 
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_ie_protocol_extension, tvb,
                               offset, bitoffset, 1, 0);
      proceed_nbits(&offset, &bitoffset, 1);
 
@@ -3329,41 +3329,41 @@ dissect_IE_CriticalityDiagnostics(tvbuff_t *tvb, proto_tree *ie_tree)
      procedureCode_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_procedureCode_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1); 
-     
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* triggeringMessage present ? */
      triggeringMessage_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_triggeringMessage_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);      
+     proceed_nbits(&offset, &bitoffset, 1);
 
      /* procedureCriticality present ? */
      procedureCriticality_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_procedureCriticality_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);     
+     proceed_nbits(&offset, &bitoffset, 1);
 
      /* iEsCriticalityDiagnostics present ? */
      iEsCriticalityDiagnostics_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_iEsCriticalityDiagnostics_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1);     
-                            
+     proceed_nbits(&offset, &bitoffset, 1);
+
      /* iE_Extensions present ? */
      iE_Extensions_present = extract_nbits(tvb, offset, bitoffset, 1);
      proto_tree_add_uint_bits(optionals_tree, hf_ranap_iE_Extensions_present,
                               tvb, offset, bitoffset, 1, 0);
-     proceed_nbits(&offset, &bitoffset, 1); 		
+     proceed_nbits(&offset, &bitoffset, 1);
 
 
      /* procedureCode */
      if (procedureCode_present)
      {
      	allign (&offset, &bitoffset);
-        proto_tree_add_item(ie_tree, hf_ranap_procedure_code, tvb, offset, 1, FALSE);                         
+        proto_tree_add_item(ie_tree, hf_ranap_procedure_code, tvb, offset, 1, FALSE);
         offset += 1;
-     }        
-     	     
+     }
+
      /* triggeringMessage */
      if (triggeringMessage_present)
      {
@@ -3371,7 +3371,7 @@ dissect_IE_CriticalityDiagnostics(tvbuff_t *tvb, proto_tree *ie_tree)
                                  tvb, offset, bitoffset, 2, 0);
         proceed_nbits(&offset, &bitoffset, 2);
      }
-     
+
      /* procedureCriticality */
      if (procedureCriticality_present)
      {
@@ -3379,46 +3379,46 @@ dissect_IE_CriticalityDiagnostics(tvbuff_t *tvb, proto_tree *ie_tree)
                                  tvb, offset, bitoffset, 2, 0);
         proceed_nbits(&offset, &bitoffset, 2);
      }
-     
+
      /* iEsCriticalityDiagnostics */
      if (iEsCriticalityDiagnostics_present)
      {
-     	if ((ret=dissect_iEsCriticalityDiagnostics(tvb, ie_tree, &offset, &bitoffset)) != 0) 
-           return(ret);	
+     	if ((ret=dissect_iEsCriticalityDiagnostics(tvb, ie_tree, &offset, &bitoffset)) != 0)
+           return(ret);
      }
-	
+
      /* iE-Extensions */
      if (iE_Extensions_present)
      {
-     	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "IE_CriticalityDiagnostics")) != 0) 
-           return(ret);		
+     	if ((ret=dissect_iE_Extension(tvb, ie_tree, &offset, &bitoffset, "IE_CriticalityDiagnostics")) != 0)
+           return(ret);
      }
-     
-     
+
+
      /* protocol extended */
      if (extension_present)
      {
-        /* extended sequence */ 
+        /* extended sequence */
         /* decoding is not supported */
         proto_tree_add_text(ie_tree, tvb, offset, IE_PROTOCOL_EXTENSION_LENGTH,
       	                  "Protocol extension for IE CriticalityDiagnostics present, dissection not supported");
-        return(-1);                                       
-     } 
-  }   	
+        return(-1);
+     }
+  }
   return(0);
-} 
+}
 
-           
+
 static int
 dissect_unknown_IE(tvbuff_t *tvb, proto_tree *ie_tree)
 {
   if (ie_tree)
-  {	
+  {
      proto_tree_add_text(ie_tree, tvb, 0, -1,
-	   		   "IE Contents (dissection not implemented)"); 
+	   		   "IE Contents (dissection not implemented)");
   }
-  return(0);	
-}        
+  return(0);
+}
 
 
 
@@ -3436,9 +3436,9 @@ dissect_RAB_IE_ContainerPairList(tvbuff_t *tvb, proto_tree *ie_tree)
   proto_item	*ie_pair_item = NULL;
   proto_tree	*ie_pair_tree = NULL;
   proto_item	*first_value_item = NULL;
-  proto_tree	*first_value_tree = NULL; 
+  proto_tree	*first_value_tree = NULL;
   proto_item	*second_value_item = NULL;
-  proto_tree	*second_value_tree = NULL;    
+  proto_tree	*second_value_tree = NULL;
   guint 	number_of_RABs, currentRAB;
   guint		number_of_IEs, currentIE;
   gint		number_of_octets_first, number_of_octets_second;
@@ -3449,50 +3449,50 @@ dissect_RAB_IE_ContainerPairList(tvbuff_t *tvb, proto_tree *ie_tree)
   guint16	ie_id;
   tvbuff_t	*first_value_tvb;
   tvbuff_t	*second_value_tvb;
- 
+
   if (ie_tree)
-  {	
+  {
      /* number of RABs in the list */
      number_of_RABs = 1 + tvb_get_guint8(tvb, offset);
-     proto_tree_add_uint(ie_tree, hf_ranap_num_rabs, 
-	                 tvb, offset, 
+     proto_tree_add_uint(ie_tree, hf_ranap_num_rabs,
+	                 tvb, offset,
 		         NUM_RABS_LENGTH, number_of_RABs);
 
      offset += NUM_RABS_LENGTH;
-  
+
      /* do for each RAB */
-     for (currentRAB=1; currentRAB<=number_of_RABs; currentRAB++) 
+     for (currentRAB=1; currentRAB<=number_of_RABs; currentRAB++)
      {
      	/* create subtree for RAB */
         rab_item = proto_tree_add_text(ie_tree, tvb, offset, 0, "%d. RAB", currentRAB);
         rab_tree = proto_item_add_subtree(rab_item, ett_ranap_rab);
-      	     	
+
      	/* number of IE pairs for this RAB */
         number_of_IEs = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(rab_tree, hf_ranap_number_of_ies_in_list, 
+        proto_tree_add_uint(rab_tree, hf_ranap_number_of_ies_in_list,
 		            tvb, offset, 2, number_of_IEs);
 
         offset += 2; /*points now to beginning of first IE pair */
-        
+
         /* do for each IE pair */
         for (currentIE=1; currentIE<=number_of_IEs; currentIE++)
         {
-           /*  use tmp_offset to point to current field */	
+           /*  use tmp_offset to point to current field */
            tmp_offset = offset;
            /* IE pair ID */
            ie_id = tvb_get_ntohs(tvb, tmp_offset);
            tmp_offset += IE_ID_LENGTH;
-           
+
            tmp_offset += 1; /* skip first criticality byte */
            /* number of octets in first value */
-           extract_length(tvb, tmp_offset, &number_of_octets_first, &number_of_octets_first_size);    
-           tmp_offset += number_of_octets_first_size + number_of_octets_first;                      
+           extract_length(tvb, tmp_offset, &number_of_octets_first, &number_of_octets_first_size);
+           tmp_offset += number_of_octets_first_size + number_of_octets_first;
 
            tmp_offset += 1; /* skip second criticality byte */
            /* number of octets in second value */
            extract_length(tvb, tmp_offset, &number_of_octets_second, &number_of_octets_second_size);
-           tmp_offset += number_of_octets_second_size + number_of_octets_second;    
-        
+           tmp_offset += number_of_octets_second_size + number_of_octets_second;
+
            /* create subtree for ie_pair */
            ie_pair_item = proto_tree_add_text(rab_tree, tvb, offset,
            			     tmp_offset - offset,
@@ -3500,25 +3500,25 @@ dissect_RAB_IE_ContainerPairList(tvbuff_t *tvb, proto_tree *ie_tree)
                                      val_to_str(ie_id, ranap_ie_id_values, "Unknown"),
                                      ie_id);
            ie_pair_tree = proto_item_add_subtree(ie_pair_item, ett_ranap_ie_pair);
-       
+
            /* add fields to ie pair subtee */
            /* use offset to point to current field */
             /* IE ID */
-           proto_tree_add_item(ie_pair_tree, hf_ranap_ie_ie_id, tvb, offset, IE_ID_LENGTH, FALSE);        
+           proto_tree_add_item(ie_pair_tree, hf_ranap_ie_ie_id, tvb, offset, IE_ID_LENGTH, FALSE);
            offset += IE_ID_LENGTH;
-       
+
            /* first criticality */
-           proto_tree_add_uint_bits(ie_pair_tree, hf_ranap_ie_pair_first_criticality, tvb, 
+           proto_tree_add_uint_bits(ie_pair_tree, hf_ranap_ie_pair_first_criticality, tvb,
                                     offset, bitoffset, 2, 0);
-           proceed_nbits(&offset, &bitoffset, 2);            
-       
+           proceed_nbits(&offset, &bitoffset, 2);
+
            /* number of octets in first value */
            allign(&offset, &bitoffset);
            if (number_of_octets_first != 0)
            {
-              proto_tree_add_uint(ie_pair_tree, hf_ranap_first_value_number_of_octets, 
-	                          tvb, offset, 
-	                          number_of_octets_first_size, 
+              proto_tree_add_uint(ie_pair_tree, hf_ranap_first_value_number_of_octets,
+	                          tvb, offset,
+	                          number_of_octets_first_size,
 	                          number_of_octets_first);
            }
            else
@@ -3535,38 +3535,38 @@ dissect_RAB_IE_ContainerPairList(tvbuff_t *tvb, proto_tree *ie_tree)
                                      number_of_octets_first,
                                      "%sFirst",
                                      val_to_str(ie_id, ranap_ie_id_values, "Unknown"));
-           first_value_tree = proto_item_add_subtree(first_value_item, ett_ranap_ie_pair_first_value);           
-           
+           first_value_tree = proto_item_add_subtree(first_value_item, ett_ranap_ie_pair_first_value);
+
            /* create tvb containing first value */
            first_value_tvb = tvb_new_subset(tvb, offset, number_of_octets_first, number_of_octets_first);
-           
+
            /* add fields of first value */
            switch (ie_id)
            {
               case  IE_RAB_SetupOrModifyItem:
                  dissect_IE_RAB_SetupOrModifyItemFirst (first_value_tvb, first_value_tree);
                  break;
-      
+
               default:
                  dissect_unknown_IE(first_value_tvb, first_value_tree);
                  break;
            }
-           
+
            offset += number_of_octets_first;
-         
-           
+
+
            /* second criticality */
-           proto_tree_add_uint_bits(ie_pair_tree, hf_ranap_ie_pair_second_criticality, tvb, 
+           proto_tree_add_uint_bits(ie_pair_tree, hf_ranap_ie_pair_second_criticality, tvb,
                                     offset, bitoffset, 2, 0);
-           proceed_nbits(&offset, &bitoffset, 2);                        
-           
+           proceed_nbits(&offset, &bitoffset, 2);
+
            /* number of octets of second value */
            allign(&offset, &bitoffset);
            if (number_of_octets_second != 0)
            {
-              proto_tree_add_uint(ie_pair_tree, hf_ranap_second_value_number_of_octets, 
-	                          tvb, offset, 
-	                          number_of_octets_second_size, 
+              proto_tree_add_uint(ie_pair_tree, hf_ranap_second_value_number_of_octets,
+	                          tvb, offset,
+	                          number_of_octets_second_size,
 	                          number_of_octets_second);
            }
            else
@@ -3576,35 +3576,35 @@ dissect_RAB_IE_ContainerPairList(tvbuff_t *tvb, proto_tree *ie_tree)
     	                    2, "Number of Octets greater than 0x3FFF, dissection not supported");
     	      return(-1);
            }
-           offset += number_of_octets_second_size;           
-           
+           offset += number_of_octets_second_size;
+
            /* add subtree for second value */
            second_value_item = proto_tree_add_text(ie_pair_tree, tvb, offset,
                                      number_of_octets_second,
                                      "%sSecond",
                                      val_to_str(ie_id, ranap_ie_id_values, "Unknown"));
-           second_value_tree = proto_item_add_subtree(second_value_item, ett_ranap_ie_pair_second_value);           
-           
+           second_value_tree = proto_item_add_subtree(second_value_item, ett_ranap_ie_pair_second_value);
+
            /* create tvb containing first value */
-           second_value_tvb = tvb_new_subset(tvb, offset, number_of_octets_second, number_of_octets_second);           
-           
+           second_value_tvb = tvb_new_subset(tvb, offset, number_of_octets_second, number_of_octets_second);
+
            /* add fields of second value */
            switch (ie_id)
            {
               case  IE_RAB_SetupOrModifyItem:
                  dissect_IE_RAB_SetupOrModifyItemSecond (second_value_tvb, second_value_tree);
                  break;
-          
+
               default:
                  dissect_unknown_IE(second_value_tvb, second_value_tree);
                  break;
            }
-           
-           offset += number_of_octets_second;           
-           
+
+           offset += number_of_octets_second;
+
         }/* for each IE ... */
-     }/* for each RAB ... */     
-   }    
+     }/* for each RAB ... */
+   }
    return(0);
 }
 
@@ -3616,31 +3616,31 @@ dissect_RAB_IE_ContainerList(tvbuff_t *tvb, proto_tree *list_tree)
   proto_tree	*rab_tree = NULL;
   proto_item	*ie_item = NULL;
   proto_tree	*ie_tree = NULL;
-  
+
   guint		number_of_RABs, currentRAB;
   guint		number_of_IEs, currentIE;
   gint		ie_number_of_octets = 0;
-  gint		ie_number_of_octets_size = 0;  
+  gint		ie_number_of_octets_size = 0;
   gint		offset = 0;
   gint		bitoffset = 0;
   gint		ie_offset = 0;
   gint		ie_header_length;
   guint16	ie_id;
   tvbuff_t	*ie_tvb;
- 
+
 
   if (list_tree)
-  {	
+  {
      /* number of RABs in the list */
      number_of_RABs = 1 + tvb_get_guint8(tvb, offset);
-     proto_tree_add_uint(list_tree, hf_ranap_num_rabs, 
-	                 tvb, offset, 
+     proto_tree_add_uint(list_tree, hf_ranap_num_rabs,
+	                 tvb, offset,
 		         NUM_RABS_LENGTH, number_of_RABs);
 
      offset +=  NUM_RABS_LENGTH;
-  
+
      /* do for each RAB */
-     for (currentRAB=1; currentRAB<=number_of_RABs; currentRAB++) 
+     for (currentRAB=1; currentRAB<=number_of_RABs; currentRAB++)
      {
      	/* create subtree for RAB */
         rab_item = proto_tree_add_text(list_tree, tvb, offset, 0, "%d. RAB", currentRAB);
@@ -3648,7 +3648,7 @@ dissect_RAB_IE_ContainerList(tvbuff_t *tvb, proto_tree *list_tree)
 
      	/* number of IEs for this RAB */
         number_of_IEs = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(rab_tree, hf_ranap_number_of_ies_in_list, 
+        proto_tree_add_uint(rab_tree, hf_ranap_number_of_ies_in_list,
 		            tvb, offset, 2, number_of_IEs);
 
         offset += 2; /*points now to beginning of first IE in list */
@@ -3658,18 +3658,18 @@ dissect_RAB_IE_ContainerList(tvbuff_t *tvb, proto_tree *list_tree)
         for (currentIE=1; currentIE<=number_of_IEs; currentIE++)
         {
            /* extract IE ID */
-           ie_id = tvb_get_ntohs(tvb, offset); 
+           ie_id = tvb_get_ntohs(tvb, offset);
            offset += IE_ID_LENGTH;
-           
-           offset += IE_CRITICALITY_LENGTH; /* skip criticality byte */                
+
+           offset += IE_CRITICALITY_LENGTH; /* skip criticality byte */
 
            /* number of octets */
            extract_length(tvb, offset, &ie_number_of_octets, &ie_number_of_octets_size);
-           ie_header_length = IE_ID_LENGTH + IE_CRITICALITY_LENGTH + ie_number_of_octets_size;    
-           
+           ie_header_length = IE_ID_LENGTH + IE_CRITICALITY_LENGTH + ie_number_of_octets_size;
+
            /* reset offset to beginning of ie */
            offset = ie_offset;
-           
+
            /* create subtree for ie */
            ie_item = proto_tree_add_text(rab_tree, tvb, offset,
                              ie_header_length + ie_number_of_octets,
@@ -3677,21 +3677,21 @@ dissect_RAB_IE_ContainerList(tvbuff_t *tvb, proto_tree *list_tree)
                              val_to_str(ie_id, ranap_ie_id_values, "Unknown"),
                              ie_id);
            ie_tree = proto_item_add_subtree(ie_item, ett_ranap_ie);
-           
+
            /* IE ID */
            proto_tree_add_item(ie_tree, hf_ranap_ie_ie_id, tvb,
-                               offset, IE_ID_LENGTH, FALSE);       
+                               offset, IE_ID_LENGTH, FALSE);
            offset += IE_ID_LENGTH;
-           
+
            /* criticality */
-           proto_tree_add_uint_bits(ie_tree, hf_ranap_ie_criticality, tvb, 
+           proto_tree_add_uint_bits(ie_tree, hf_ranap_ie_criticality, tvb,
                                     offset, bitoffset, 2, 0);
-           proceed_nbits(&offset, &bitoffset, 2);             
-           
-           allign(&offset, &bitoffset);           
+           proceed_nbits(&offset, &bitoffset, 2);
+
+           allign(&offset, &bitoffset);
            if (ie_number_of_octets != 0)
            {
-              proto_tree_add_uint(ie_tree, hf_ranap_ie_number_of_octets, tvb, 
+              proto_tree_add_uint(ie_tree, hf_ranap_ie_number_of_octets, tvb,
                                   offset, ie_number_of_octets_size, ie_number_of_octets);
            }
            else
@@ -3700,93 +3700,93 @@ dissect_RAB_IE_ContainerList(tvbuff_t *tvb, proto_tree *list_tree)
         	  proto_tree_add_text(ie_tree, tvb, offset,
         	                    0, "Number of Octets greater than 0x3FFF, dissection not supported");
         	  return(-1);
-           }                      
-           offset += ie_number_of_octets_size; 
-           
-                       
+           }
+           offset += ie_number_of_octets_size;
+
+
            /* create tvb containing ie */
            ie_tvb = tvb_new_subset(tvb, offset, ie_number_of_octets, ie_number_of_octets);
-           
+
            /* add fields of ie */
            switch (ie_id)
            {
               case  IE_RAB_SetupOrModifiedItem:
                  dissect_IE_RAB_SetupOrModifiedItem(ie_tvb, ie_tree);
-                 break; 
+                 break;
               case  IE_RAB_ReleaseItem:
                  dissect_IE_RAB_ReleaseItem(ie_tvb, ie_tree);
-                 break; 
+                 break;
               case  IE_RAB_ReleasedItem:
                  dissect_IE_RAB_ReleasedItem(ie_tvb, ie_tree);
                  break;
               case  IE_RAB_ReleasedItem_IuRelComp:
                  dissect_IE_RAB_ReleasedItem_IuRelComp(ie_tvb, ie_tree);
-                 break;                  
+                 break;
               case  IE_RAB_QueuedItem:
                  dissect_IE_RAB_QueuedItem(ie_tvb, ie_tree);
-                 break;   
+                 break;
               case  IE_RAB_FailedItem:
                  dissect_IE_RAB_FailedItem(ie_tvb, ie_tree);
-                 break;  
+                 break;
               case  IE_RAB_DataVolumeReportItem:
                  dissect_IE_RAB_DataVolumeReportItem(ie_tvb, ie_tree);
-                 break;                                                                                
+                 break;
               default:
                  dissect_unknown_IE(ie_tvb, ie_tree);
                  break;
            }
-           
+
            ie_offset += (ie_header_length + ie_number_of_octets);
            offset = ie_offset;
         } /* for each IE */
      } /* for each RAB */
    }
    return (0);
-}   
+}
 
 
 static int
 dissect_ranap_ie(guint16 ie_id, tvbuff_t *ie_contents_tvb, proto_tree *ie_tree)
 {
      /* call specific dissection function for ie contents */
-     switch(ie_id) 
+     switch(ie_id)
      {
         case IE_RAB_ID:
            return(dissect_IE_RAB_ID(ie_contents_tvb, ie_tree));
            break;
-        case IE_NAS_PDU:   
+        case IE_NAS_PDU:
            return(dissect_IE_NAS_PDU(ie_contents_tvb, ie_tree));
            break;
-        case IE_LAI:   
+        case IE_LAI:
            return(dissect_IE_LAI(ie_contents_tvb, ie_tree));
            break;
-        case IE_RAC:   
+        case IE_RAC:
            return(dissect_IE_RAC(ie_contents_tvb, ie_tree));
            break;
-        case IE_SAI:   
+        case IE_SAI:
            return(dissect_IE_SAI(ie_contents_tvb, ie_tree));
            break;
-        case IE_CN_DomainIndicator:   
+        case IE_CN_DomainIndicator:
            return(dissect_IE_CN_DomainIndicator(ie_contents_tvb, ie_tree));
            break;
-        case IE_IuSigConId:   
+        case IE_IuSigConId:
            return(dissect_IE_IuSigConId(ie_contents_tvb, ie_tree));
            break;
-        case IE_SAPI:   
+        case IE_SAPI:
            return(dissect_IE_SAPI(ie_contents_tvb, ie_tree));
            break;
-        case IE_TransportLayerAddress:   
+        case IE_TransportLayerAddress:
            return(dissect_IE_TransportLayerAddress(ie_contents_tvb, ie_tree));
            break;
-        case IE_IuTransportAssociation:   
+        case IE_IuTransportAssociation:
            return(dissect_IE_IuTransportAssociation(ie_contents_tvb, ie_tree));
-           break;                                                              
-        case IE_RAB_SetupOrModifyList:   
+           break;
+        case IE_RAB_SetupOrModifyList:
            return(dissect_RAB_IE_ContainerPairList(ie_contents_tvb, ie_tree));
            break;
-        case IE_RAB_SetupOrModifiedList: 
-        case IE_RAB_ReleaseList:                     
-        case IE_RAB_ReleasedList: 
+        case IE_RAB_SetupOrModifiedList:
+        case IE_RAB_ReleaseList:
+        case IE_RAB_ReleasedList:
         case IE_RAB_QueuedList:
         case IE_RAB_FailedList:
         case IE_RAB_ReleaseFailedList:
@@ -3803,13 +3803,13 @@ dissect_ranap_ie(guint16 ie_id, tvbuff_t *ie_contents_tvb, proto_tree *ie_tree)
         case IE_RAB_FailedtoReportList:
         case IE_RAB_ContextList_RANAP_RelocInf:
            return(dissect_RAB_IE_ContainerList(ie_contents_tvb, ie_tree));
-           break; 
+           break;
         case IE_CriticalityDiagnostics:
            return(dissect_IE_CriticalityDiagnostics(ie_contents_tvb, ie_tree));
-           break; 
+           break;
         case IE_Cause:
            return(dissect_IE_Cause(ie_contents_tvb, ie_tree));
-           break;                           
+           break;
         default:
            return(dissect_unknown_IE(ie_contents_tvb, ie_tree));
            break;
@@ -3821,64 +3821,64 @@ static int
 dissect_ranap_ie_container(tvbuff_t *tvb, proto_tree *ranap_tree)
 {
   proto_item	*ie_item = NULL;
-  proto_tree	*ie_tree = NULL;	
+  proto_tree	*ie_tree = NULL;
   proto_item	*optionals_item = NULL;
-  proto_tree	*optionals_tree = NULL;	
-  
+  proto_tree	*optionals_tree = NULL;
+
   int		msg_extension_present;
   int		ProtocolExtensionContainer_present;
-  	
-  guint16	number_of_ies; 
+
+  guint16	number_of_ies;
   guint16	ie_id;
   gint		ie_number_of_octets = 0;
   gint		ie_number_of_octets_size = 0;
   guint16	ie_header_length;
   gint		offset = 0;
-  gint		bitoffset = 0;   
+  gint		bitoffset = 0;
   gint		i, ie_offset;
   tvbuff_t	*ie_contents_tvb;
-						
+
   if (ranap_tree)
-  {		
+  {
      /* create subtree for extension/optional bitmap of message */
      optionals_item = proto_tree_add_text(ranap_tree, tvb, offset, 1,
-                                        "Message Extension/Optional/Default bitmap");                                      
-     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);	
+                                        "Message Extension/Optional/Default bitmap");
+     optionals_tree = proto_item_add_subtree(optionals_item, ett_ranap_optionals);
   }
-     
+
   /* msg_extension present ? */
   msg_extension_present = extract_nbits(tvb, offset, bitoffset, 1);
-  
+
   if (ranap_tree)
-  {  
-     proto_tree_add_uint_bits(optionals_tree, hf_ranap_msg_extension_present, tvb, 
+  {
+     proto_tree_add_uint_bits(optionals_tree, hf_ranap_msg_extension_present, tvb,
                               offset, bitoffset, 1, 0);
-  }                              
+  }
   proceed_nbits(&offset, &bitoffset, 1);
-  
+
   /* ProtocolExtensionContainer present ? */
   ProtocolExtensionContainer_present = extract_nbits(tvb, offset, bitoffset, 1);
   if (ranap_tree)
-  {   
+  {
       proto_tree_add_uint_bits(optionals_tree, hf_ranap_ProtocolExtensionContainer_present,
                               tvb, offset, bitoffset, 1, 0);
   }
-  proceed_nbits(&offset, &bitoffset, 1); 
-   
-  
-  /* extract ie container data */			
+  proceed_nbits(&offset, &bitoffset, 1);
+
+
+  /* extract ie container data */
   /* number of ies */
   allign(&offset, &bitoffset);
   number_of_ies = tvb_get_ntohs(tvb, offset);
   if (ranap_tree)
-  {  
-     proto_tree_add_uint(ranap_tree, hf_ranap_number_of_ies, 
-		         tvb, offset, 2, number_of_ies); 
+  {
+     proto_tree_add_uint(ranap_tree, hf_ranap_number_of_ies,
+		         tvb, offset, 2, number_of_ies);
   }
   offset += 2;
-  
+
   ie_offset = offset; /* ie_offset marks beginning of IE-Header */
-  
+
   /* do the following for each IE in the PDU */
   for (i=1; i <= number_of_ies; i++)
   {
@@ -3886,13 +3886,13 @@ dissect_ranap_ie_container(tvbuff_t *tvb, proto_tree *ranap_tree)
      /* IE-ID */
      ie_id = tvb_get_ntohs(tvb, offset);
      offset += IE_ID_LENGTH;
- 
+
     /* number of octets in the IE */
     offset += IE_CRITICALITY_LENGTH; /* skip criticality byte */
     ie_number_of_octets = 0;
     extract_length(tvb, offset, &ie_number_of_octets, &ie_number_of_octets_size);
-    ie_header_length = IE_ID_LENGTH + IE_CRITICALITY_LENGTH + ie_number_of_octets_size;    
-                          
+    ie_header_length = IE_ID_LENGTH + IE_CRITICALITY_LENGTH + ie_number_of_octets_size;
+
     if (ranap_tree)
     {
        offset = ie_offset; /* start from beginning of IE */
@@ -3903,23 +3903,23 @@ dissect_ranap_ie_container(tvbuff_t *tvb, proto_tree *ranap_tree)
                                      val_to_str(ie_id, ranap_ie_id_values, "Unknown"),
                                      ie_id);
        ie_tree = proto_item_add_subtree(ie_item, ett_ranap_ie);
-       
+
        /* add fields to ie subtee */
        /* IE ID */
        proto_tree_add_item(ie_tree, hf_ranap_ie_ie_id, tvb,
-                           offset, IE_ID_LENGTH, FALSE); 
-       offset += IE_ID_LENGTH;      
-       
+                           offset, IE_ID_LENGTH, FALSE);
+       offset += IE_ID_LENGTH;
+
        /* criticality */
-       proto_tree_add_uint_bits(ie_tree, hf_ranap_ie_criticality, tvb, 
+       proto_tree_add_uint_bits(ie_tree, hf_ranap_ie_criticality, tvb,
                                 offset, bitoffset, 2, 0);
-       proceed_nbits(&offset, &bitoffset, 2);        
-			       
+       proceed_nbits(&offset, &bitoffset, 2);
+
        /* number of octets */
        allign(&offset, &bitoffset);
        if (ie_number_of_octets != 0)
        {
-          proto_tree_add_uint(ie_tree, hf_ranap_ie_number_of_octets, tvb, 
+          proto_tree_add_uint(ie_tree, hf_ranap_ie_number_of_octets, tvb,
                               offset, ie_number_of_octets_size, ie_number_of_octets);
           offset += ie_number_of_octets_size;
        }
@@ -3939,23 +3939,23 @@ dissect_ranap_ie_container(tvbuff_t *tvb, proto_tree *ranap_tree)
      /* create tvb containing the ie contents */
      ie_contents_tvb = tvb_new_subset(tvb, ie_offset + ie_header_length,
                                       ie_number_of_octets, ie_number_of_octets);
-     
+
      /* call specific dissection function for ie contents */
      dissect_ranap_ie(ie_id, ie_contents_tvb, ie_tree);
-            
+
      /* set ie_offset to beginning of next ie */
      ie_offset += (ie_header_length + ie_number_of_octets);
      offset = ie_offset;
   }
-  
+
   /* protocol Extensions */
   if (ProtocolExtensionContainer_present)
-  {   	
-     return(dissect_iE_Extension(tvb, ranap_tree, &offset, &bitoffset, "PDU"));	
+  {
+     return(dissect_iE_Extension(tvb, ranap_tree, &offset, &bitoffset, "PDU"));
   }
-  
+
   return(0);
- 
+
 }
 
 
@@ -3964,8 +3964,8 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item	*ranap_item = NULL;
   proto_tree	*ranap_tree = NULL;
-  
-  guint		procedure_code; 
+
+  guint		procedure_code;
   guint		pdu_index;
   gint		number_of_octets = 0;
   gint		number_of_octets_size = 0;
@@ -3973,87 +3973,87 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint		tmp_offset = 0;
   gint		bitoffset = 0;
   gint		tmp_bitoffset = 0;
-  guint		extension_present;  
-  
+  guint		extension_present;
+
   tvbuff_t	*ie_tvb;
-  
+
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");  
-  
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
+
   /* extract header fields which are needed even if no tree exists */
-  
+
   /* protocol_extension present ? */
   extension_present = extract_nbits(tvb, tmp_offset, tmp_bitoffset, 1);
   proceed_nbits(&tmp_offset, &tmp_bitoffset, 1);
   if (extension_present)
   {
-      /* extended choice */ 
+      /* extended choice */
       /* decoding is not supported */
       col_append_str(pinfo->cinfo, COL_INFO, "RANAP-PDU Protocol extension present, dissection not supported");
-      return;                           
-  }      
-  
+      return;
+  }
+
   /* pdu_index choice 0..3 */
   pdu_index = extract_nbits(tvb, tmp_offset, tmp_bitoffset, 2);
   proceed_nbits(&tmp_offset, &tmp_bitoffset, 2);
-  
+
   /* procedure code */
-  allign(&tmp_offset, &tmp_bitoffset); 
+  allign(&tmp_offset, &tmp_bitoffset);
   procedure_code = tvb_get_guint8(tvb, tmp_offset);
   tmp_offset += 1;
-    
-  /* add Procedure Code to Info Column */			       
-  if (check_col(pinfo->cinfo, COL_INFO)) 
+
+  /* add Procedure Code to Info Column */
+  if (check_col(pinfo->cinfo, COL_INFO))
   {
     if (procedure_code <= PC_max)
     {
-       col_append_str(pinfo->cinfo, COL_INFO, 
-                   val_to_str(pdu_index, ranap_message_names[procedure_code], 
+       col_append_str(pinfo->cinfo, COL_INFO,
+                   val_to_str(pdu_index, ranap_message_names[procedure_code],
                               "unknown message"));
        col_append_str(pinfo->cinfo, COL_INFO, " ");
     }
   }
-  
+
   /* extract number of octets */
   tmp_offset += 1; /* leave out criticality byte */
   extract_length(tvb, tmp_offset, &number_of_octets, &number_of_octets_size);
-  
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
-  if (tree) 
+  if (tree)
   {
     /* create the ranap protocol tree */
     ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
     ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
-    
+
     /* Add fields to ranap protocol tree */
     /* PDU Index */
-    proceed_nbits(&offset, &bitoffset, 1);  /* leave out extension bit, checked above */   
-    proto_tree_add_uint_bits(ranap_tree, hf_ranap_pdu_index, tvb, 
+    proceed_nbits(&offset, &bitoffset, 1);  /* leave out extension bit, checked above */
+    proto_tree_add_uint_bits(ranap_tree, hf_ranap_pdu_index, tvb,
                              offset, bitoffset, 2, 0);
-    proceed_nbits(&offset, &bitoffset, 2);                             
+    proceed_nbits(&offset, &bitoffset, 2);
 
-    
+
     /* Procedure Code */
-    allign(&offset, &bitoffset);     
+    allign(&offset, &bitoffset);
     proto_tree_add_item(ranap_tree, hf_ranap_procedure_code, tvb, offset, 1, FALSE);
     offset += 1;
-			
+
     /* PDU Criticality */
-    proto_tree_add_uint_bits(ranap_tree, hf_ranap_pdu_criticality, tvb, 
+    proto_tree_add_uint_bits(ranap_tree, hf_ranap_pdu_criticality, tvb,
                              offset, bitoffset, 2, 0);
-    proceed_nbits(&offset, &bitoffset, 2);    		
- 
+    proceed_nbits(&offset, &bitoffset, 2);
+
     /* number of octets */
     allign(&offset, &bitoffset);
     if (number_of_octets != 0)
     {
-       proto_tree_add_uint(ranap_tree, hf_ranap_pdu_number_of_octets, 
-	                   tvb, offset, 
+       proto_tree_add_uint(ranap_tree, hf_ranap_pdu_number_of_octets,
+	                   tvb, offset,
 	                   number_of_octets_size, number_of_octets);
-       offset += number_of_octets_size;	                   
+       offset += number_of_octets_size;
     }
     else
     {
@@ -4063,16 +4063,16 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     	return;
     }
   }
-  
+
   /* set offset to the beginning of ProtocolIE-Container */
   /* in case we skipped "if(tree){...}" above */
   offset = PDU_NUMBER_OF_OCTETS_OFFSET + number_of_octets_size;
-           
+
   /* create a tvb containing the remainder of the PDU */
   ie_tvb = tvb_new_subset(tvb, offset, -1, -1);
-			
+
   /* dissect the ies */
-  dissect_ranap_ie_container(ie_tvb, ranap_tree);			
+  dissect_ranap_ie_container(ie_tvb, ranap_tree);
 }
 
 
@@ -4085,675 +4085,675 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_ranap(void)
-{                 
+{
   /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_ranap_pdu_index,
-      { "RANAP-PDU Index", 
-        "ranap.ranap_pdu_index", 
+      { "RANAP-PDU Index",
+        "ranap.ranap_pdu_index",
 	FT_UINT8, BASE_HEX, VALS(&ranap_pdu_index_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_procedure_code,
-      { "Procedure Code", 
+      { "Procedure Code",
         "ranap.procedure_code",
-	FT_UINT8, BASE_DEC, VALS(&ranap_procedure_code_values), 0x0,          
+	FT_UINT8, BASE_DEC, VALS(&ranap_procedure_code_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_pdu_criticality,
-      { "Criticality of PDU", 
+      { "Criticality of PDU",
         "ranap.pdu.criticality",
-	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
+	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_pdu_number_of_octets,
       { "Number of Octets in PDU",
         "ranap.pdu.num_of_octets",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_ie_protocol_extension,
       { "Protocol Extension",
         "ranap.ie.protocol_extension_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,          
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_number_of_ies,
       { "Number of IEs in PDU",
         "ranap.pdu.number_of_ies",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_number_of_ProtocolExtensionFields,
       { "Number of Protocol Extension Fields",
         "ranap.ie.number_of_ProtocolExtensionFields",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_number_of_ies_in_list,
       { "Number of IEs in list",
         "ranap.number_of_ies",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_ie_ie_id,
-      { "IE-ID", 
+      { "IE-ID",
         "ranap.ie.ie_id",
-	FT_UINT16, BASE_DEC, VALS(&ranap_ie_id_values), 0x0,          
+	FT_UINT16, BASE_DEC, VALS(&ranap_ie_id_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_ext_field_id,
-      { "ProtocolExtensionField ID", 
+      { "ProtocolExtensionField ID",
         "ranap.ie.ProtocolExtensionFields.Id",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_ie_criticality,
-      { "Criticality of IE", 
-        "ranap.ie.criticality", 
-	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
+      { "Criticality of IE",
+        "ranap.ie.criticality",
+	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_ext_field_criticality,
-      { "Criticality of ProtocolExtensionField", 
-        "ranap.ie.ProtocolExtensionFields.criticality", 
-	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
+      { "Criticality of ProtocolExtensionField",
+        "ranap.ie.ProtocolExtensionFields.criticality",
+	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_ie_pair_first_criticality,
-      { "First Criticality", 
-        "ranap.ie_pair.first_criticality", 
-	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
+      { "First Criticality",
+        "ranap.ie_pair.first_criticality",
+	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_ie_pair_second_criticality,
-      { "Second Criticality", 
-        "ranap.ie_pair.second_criticality", 
-	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
+      { "Second Criticality",
+        "ranap.ie_pair.second_criticality",
+	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_ie_number_of_octets,
-      { "Number of Octets in IE", 
+      { "Number of Octets in IE",
         "ranap.ie.number_of_octets",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_first_value_number_of_octets,
-      { "Number of Octets in first value", 
+      { "Number of Octets in first value",
         "ranap.ie_pair.first_value.number_of_octets",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_second_value_number_of_octets,
-      { "Number of Octets in second value", 
+      { "Number of Octets in second value",
         "ranap.ie_pair.second_value.number_of_octets",
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_rab_id,
-      { "RAB-ID", 
+      { "RAB-ID",
         "ranap.RAB_ID",
-	FT_UINT8, BASE_HEX, NULL, 0x0,          
+	FT_UINT8, BASE_HEX, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_nas_pdu,
-      { "NAS-PDU", 
+      { "NAS-PDU",
         "ranap.NAS_PDU",
-	FT_BYTES, BASE_NONE, NULL, 0x0,          
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_extension_field,
-      { "Extension Field Value", 
+      { "Extension Field Value",
         "ranap.Extension_Field_Value",
-	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	"", HFILL }
-    },    
-    { &hf_ranap_plmn_id,
-      { "PLMN-ID", 
-        "ranap.PLMN_ID",
-	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	"", HFILL }
-    },
-    { &hf_ranap_lac,
-      { "LAC", 
-        "ranap.PLMN_ID",
-	FT_BYTES, BASE_NONE, NULL, 0x0,          
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_plmn_id,
-      { "PLMN-ID", 
+      { "PLMN-ID",
         "ranap.PLMN_ID",
-	FT_BYTES, BASE_NONE, NULL, 0x0,          
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_lac,
-      { "LAC", 
+      { "LAC",
         "ranap.PLMN_ID",
-	FT_BYTES, BASE_NONE, NULL, 0x0,          
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+	"", HFILL }
+    },
+    { &hf_ranap_plmn_id,
+      { "PLMN-ID",
+        "ranap.PLMN_ID",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+	"", HFILL }
+    },
+    { &hf_ranap_lac,
+      { "LAC",
+        "ranap.PLMN_ID",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_sac,
-      { "SAC", 
+      { "SAC",
         "ranap.SAC",
-	FT_BYTES, BASE_NONE, NULL, 0x0,          
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_rac,
-      { "RAC", 
+      { "RAC",
         "ranap.RAC",
-	FT_BYTES, BASE_NONE, NULL, 0x0,          
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_num_rabs,
-      { "Number of RABs", 
+      { "Number of RABs",
         "ranap.number_of_RABs",
-	FT_UINT8, BASE_DEC, NULL, 0x0, 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_nAS_SynchronisationIndicator_present,
-      { "nAS-SynchronisationIndicator", 
+      { "nAS-SynchronisationIndicator",
         "ranap.nAS-SynchronisationIndicator_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_rAB_Parameters_present,
-      { "rAB-Parameters", 
+      { "rAB-Parameters",
         "ranap.rAB_Parameters_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_userPlaneInformation_present,
-      { "userPlaneInformation", 
+      { "userPlaneInformation",
         "ranap.userPlaneInformation_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    }, 
+    },
     { &hf_ranap_transportLayerInformation_present,
-      { "transportLayerInformation", 
+      { "transportLayerInformation",
         "ranap.transportLayerInformation_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_service_Handover_present,
-      { "service-Handover", 
+      { "service-Handover",
         "ranap.service_Handover_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },               
+    },
     { &hf_ranap_iE_Extensions_present,
-      { "iE-Extensions", 
+      { "iE-Extensions",
         "ranap.ie.iE-Extensions_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_nAS_SynchronisationIndicator,
-      { "nAS-SynchronisationIndicator", 
+      { "nAS-SynchronisationIndicator",
         "ranap.nAS-SynchronisationIndicator",
-	FT_UINT8, BASE_HEX, NULL, 0x0, 
+	FT_UINT8, BASE_HEX, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_guaranteedBitRate_present,
-      { "guaranteedBitRate", 
+      { "guaranteedBitRate",
         "ranap.guaranteedBitRate_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_transferDelay_present,
-      { "transferDelay", 
+      { "transferDelay",
         "ranap.transferDelay_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_trafficHandlingPriority_present,
-      { "trafficHandlingPriority", 
+      { "trafficHandlingPriority",
         "ranap.trafficHandlingPriority_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_allocationOrRetentionPriority_present,
-      { "allocationOrRetentionPriority", 
+      { "allocationOrRetentionPriority",
         "ranap.allocationOrRetentionPriority_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_sourceStatisticsDescriptor_present,
-      { "sourceStatisticsDescriptor", 
+      { "sourceStatisticsDescriptor",
         "ranap.sourceStatisticsDescriptor_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_relocationRequirement_present,
-      { "relocationRequirement", 
+      { "relocationRequirement",
         "ranap.relocationRequirement_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_trafficClass,
-      { "Traffic Class", 
+      { "Traffic Class",
         "ranap.rab_Parameters.trafficClass",
-	FT_UINT8, BASE_DEC, VALS(&ranap_trafficClass_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_trafficClass_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_rAB_AsymmetryIndicator,
-      { "rAB_AsymmetryIndicator", 
+      { "rAB_AsymmetryIndicator",
         "ranap.rab_Parameters.rAB_AsymmetryIndicator",
-	FT_UINT8, BASE_DEC, VALS(&ranap_rAB_AsymmetryIndicator_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_rAB_AsymmetryIndicator_values), 0x0,
 	"", HFILL }
-    },   
+    },
     { &hf_ranap_maxBitrate,
-      { "maxBitrate", 
+      { "maxBitrate",
         "ranap.rab_Parameters.maxBitrate",
-	FT_UINT32, BASE_DEC, NULL, 0x0, 
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },   
+    },
     { &hf_ranap_guaranteedBitrate,
-      { "guaranteedBitrate", 
+      { "guaranteedBitrate",
         "ranap.rab_Parameters.guaranteedBitrate",
-	FT_UINT32, BASE_DEC, NULL, 0x0, 
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },   
+    },
     { &hf_ranap_deliveryOrder,
-      { "deliveryOrder", 
+      { "deliveryOrder",
         "ranap.rab_Parameters.deliveryOrder",
-	FT_UINT8, BASE_DEC, VALS(&ranap_DeliveryOrder_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_DeliveryOrder_values), 0x0,
 	"", HFILL }
-    }, 
+    },
     { &hf_ranap_maxSDU_Size,
-      { "maxSDU_Size", 
+      { "maxSDU_Size",
         "ranap.rab_Parameters.maxSDU_Size",
-	FT_UINT16, BASE_DEC, NULL, 0x0, 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },  
+    },
     { &hf_ranap_sDU_ErrorRatio_mantissa,
-      { "sDU_ErrorRatio: mantissa", 
+      { "sDU_ErrorRatio: mantissa",
         "ranap.rab_Parameters.sDU_ErrorRatio.mantissa",
-	FT_UINT8, BASE_DEC, NULL, 0x0, 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_sDU_ErrorRatio_exponent,
-      { "sDU_ErrorRatio: exponent", 
+      { "sDU_ErrorRatio: exponent",
         "ranap.rab_Parameters.sDU_ErrorRatio.exponent",
-	FT_UINT8, BASE_DEC, NULL, 0x0, 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_residualBitErrorRatio_mantissa,
-      { "residualBitErrorRatio: mantissa", 
+      { "residualBitErrorRatio: mantissa",
         "ranap.rab_Parameters.residualBitErrorRatio.mantissa",
-	FT_UINT8, BASE_DEC, NULL, 0x0, 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_residualBitErrorRatio_exponent,
-      { "residualBitErrorRatio: exponent", 
+      { "residualBitErrorRatio: exponent",
         "ranap.rab_Parameters.residualBitErrorRatio.exponent",
-	FT_UINT8, BASE_DEC, NULL, 0x0, 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },         
+    },
     { &hf_ranap_deliveryOfErroneousSDU,
-      { "deliveryOfErroneousSDU", 
+      { "deliveryOfErroneousSDU",
         "ranap.rab_Parameters.ranap_deliveryOfErroneousSDU",
-	FT_UINT8, BASE_DEC, VALS(&ranap_deliveryOfErroneousSDU_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_deliveryOfErroneousSDU_values), 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_subflowSDU_Size,
-      { "subflowSDU_Size", 
+      { "subflowSDU_Size",
         "ranap.rab_Parameters.subflowSDU_Size",
-	FT_UINT8, BASE_DEC, NULL, 0x0, 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_rAB_SubflowCombinationBitRate,
-      { "rAB_SubflowCombinationBitRate", 
+      { "rAB_SubflowCombinationBitRate",
         "ranap.rab_Parameters.rAB_SubflowCombinationBitRate",
-	FT_UINT32, BASE_DEC, NULL, 0x0, 
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },   
+    },
     { &hf_ranap_sDU_ErrorRatio_present,
-      { "sDU_ErrorRatio", 
+      { "sDU_ErrorRatio",
         "ranap.sDU_ErrorRatio_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_sDU_FormatInformationParameters_present,
-      { "sDU_FormatInformationParameters", 
+      { "sDU_FormatInformationParameters",
         "ranap.sDU_FormatInformationParameters_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    }, 
+    },
     { &hf_ranap_subflowSDU_Size_present,
-      { "subflowSDU_Size", 
+      { "subflowSDU_Size",
         "ranap.subflowSDU_Size_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_rAB_SubflowCombinationBitRate_present,
-      { "subflowSDU_Size", 
+      { "subflowSDU_Size",
         "ranap.rAB_SubflowCombinationBitRate_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_transferDelay,
-      { "transferDelay", 
+      { "transferDelay",
         "ranap.rab_Parameters.transferDelay",
-	FT_UINT16, BASE_DEC, NULL, 0x0, 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_trafficHandlingPriority,
-      { "trafficHandlingPriority", 
+      { "trafficHandlingPriority",
         "ranap.rab_Parameters.trafficHandlingPriority",
-	FT_UINT8, BASE_DEC, VALS(&ranap_priority_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_priority_values), 0x0,
 	"", HFILL }
-    },      
+    },
     { &hf_ranap_priorityLevel,
-      { "priorityLevel", 
+      { "priorityLevel",
         "ranap.rab_Parameters.allocationOrRetentionPriority.priorityLevel",
-	FT_UINT8, BASE_DEC, VALS(&ranap_priority_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_priority_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_pre_emptionCapability,
-      { "pre-emptionCapability", 
+      { "pre-emptionCapability",
         "ranap.rab_Parameters.allocationOrRetentionPriority.pre_emptionCapability",
-	FT_UINT8, BASE_DEC, VALS(&ranap_pre_emptionCapability_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_pre_emptionCapability_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_pre_emptionVulnerability,
-      { "pre-emptionVulnerability", 
+      { "pre-emptionVulnerability",
         "ranap.rab_Parameters.allocationOrRetentionPriority.pre_emptionVulnerability",
-	FT_UINT8, BASE_DEC, VALS(&ranap_pre_emptionVulnerability_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_pre_emptionVulnerability_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_queuingAllowed,
-      { "queuingAllowed", 
+      { "queuingAllowed",
         "ranap.rab_Parameters.allocationOrRetentionPriority.queuingAllowed",
-	FT_UINT8, BASE_DEC, VALS(&ranap_queuingAllowed_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_queuingAllowed_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_sourceStatisticsDescriptor,
-      { "sourceStatisticsDescriptor", 
+      { "sourceStatisticsDescriptor",
         "ranap.rab_Parameters.sourceStatisticsDescriptor",
-	FT_UINT8, BASE_DEC, VALS(&ranap_sourceStatisticsDescriptor_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_sourceStatisticsDescriptor_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_relocationRequirement,
-      { "relocationRequirement", 
+      { "relocationRequirement",
         "ranap.rab_Parameters.relocationRequirement",
-	FT_UINT8, BASE_DEC, VALS(&ranap_relocationRequirement_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_relocationRequirement_values), 0x0,
 	"", HFILL }
-    },                      
+    },
     { &hf_ranap_userPlaneMode,
-      { "userPlaneMode", 
+      { "userPlaneMode",
         "ranap.userPlaneMode",
-	FT_UINT8, BASE_DEC, VALS(&ranap_userPlaneMode_values), 0x0, 
+	FT_UINT8, BASE_DEC, VALS(&ranap_userPlaneMode_values), 0x0,
 	"", HFILL }
-    }, 
+    },
     { &hf_ranap_uP_ModeVersions,
-      { "uP_ModeVersions", 
+      { "uP_ModeVersions",
         "ranap.uP_ModeVersions",
-	FT_BYTES, BASE_NONE, NULL, 0x0, 
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_number_of_ProtocolExtensionFields,
-      { "Number of ProtocolExtensionFields", 
+      { "Number of ProtocolExtensionFields",
         "ranap.number_of_ProtocolExtensionFields",
-	FT_UINT16, BASE_DEC, NULL, 0x0, 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_ext_field_number_of_octets,
-      { "Number of octets", 
+      { "Number of octets",
         "ranap.ProtocolExtensionFields.octets",
-	FT_UINT16, BASE_DEC, NULL, 0x0, 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_transportLayerAddress_length,
-      { "bit length of transportLayerAddress", 
+      { "bit length of transportLayerAddress",
         "ranap.transportLayerAddress_length",
-	FT_UINT8, BASE_DEC, NULL, 0x0, 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_transportLayerAddress,
-      { "transportLayerAddress", 
+      { "transportLayerAddress",
         "ranap.transportLayerAddress",
-	FT_BYTES, BASE_NONE, NULL, 0x0, 
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_gTP_TEI,
-      { "gTP_TEI", 
+      { "gTP_TEI",
         "ranap.gTP_TEI",
-	FT_BYTES, BASE_NONE, NULL, 0x0, 
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_bindingID,
-      { "bindingID", 
+      { "bindingID",
         "ranap.bindingID",
-	FT_BYTES, BASE_NONE, NULL, 0x0, 
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_pDP_TypeInformation_present,
-      { "pDP_TypeInformation", 
+      { "pDP_TypeInformation",
         "ranap.pDP_TypeInformation_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_dataVolumeReportingIndication_present,
-      { "dataVolumeReportingIndication", 
+      { "dataVolumeReportingIndication",
         "ranap.dataVolumeReportingIndication_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    }, 
+    },
     { &hf_ranap_dl_GTP_PDU_SequenceNumber_present,
-      { "dl_GTP_PDU_SequenceNumber", 
+      { "dl_GTP_PDU_SequenceNumber",
         "ranap.dl_GTP_PDU_SequenceNumber_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_ul_GTP_PDU_SequenceNumber_present,
-      { "ul_GTP_PDU_SequenceNumber", 
+      { "ul_GTP_PDU_SequenceNumber",
         "ranap.ul_GTP_PDU_SequenceNumber_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },          
+    },
     { &hf_ranap_dl_N_PDU_SequenceNumber_present,
-      { "dl_N_PDU_SequenceNumber", 
+      { "dl_N_PDU_SequenceNumber",
         "ranap.dl_N_PDU_SequenceNumber_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_ul_N_PDU_SequenceNumber_present,
-      { "ul_N_PDU_SequenceNumber", 
+      { "ul_N_PDU_SequenceNumber",
         "ranap.ul_N_PDU_SequenceNumber_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_PDP_Type,
-      { "PDP-Type", 
+      { "PDP-Type",
         "ranap.RAB_SetupOrModifyItemSecond.PDP_Type",
-	FT_UINT8, BASE_HEX, VALS(&ranap_PDP_Type_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_PDP_Type_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_dataVolumeReportingIndication,
-      { "dataVolumeReportingIndication", 
+      { "dataVolumeReportingIndication",
         "ranap.RAB_SetupOrModifyItemSecond.dataVolumeReportingIndication",
-	FT_UINT8, BASE_HEX, VALS(&ranap_dataVolumeReportingIndication_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_dataVolumeReportingIndication_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_dl_GTP_PDU_SequenceNumber,
-      { "dl_GTP_PDU_SequenceNumber", 
+      { "dl_GTP_PDU_SequenceNumber",
         "ranap.RAB_SetupOrModifyItemSecond.dl_GTP_PDU_SequenceNumber",
-	FT_UINT16, BASE_DEC, NULL, 0x0, 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_ul_GTP_PDU_SequenceNumber,
-      { "ul_GTP_PDU_SequenceNumber", 
+      { "ul_GTP_PDU_SequenceNumber",
         "ranap.RAB_SetupOrModifyItemSecond.ul_GTP_PDU_SequenceNumber",
-	FT_UINT16, BASE_DEC, NULL, 0x0, 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_dl_N_PDU_SequenceNumber,
-      { "ul_GTP_PDU_SequenceNumber", 
+      { "ul_GTP_PDU_SequenceNumber",
         "ranap.RAB_SetupOrModifyItemSecond.ul_GTP_PDU_SequenceNumber",
-	FT_UINT16, BASE_DEC, NULL, 0x0, 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_ul_N_PDU_SequenceNumber,
-      { "ul_GTP_PDU_SequenceNumber", 
+      { "ul_GTP_PDU_SequenceNumber",
         "ranap.RAB_SetupOrModifyItemSecond.ul_GTP_PDU_SequenceNumber",
-	FT_UINT16, BASE_DEC, NULL, 0x0, 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    }, 
+    },
     { &hf_ranap_cause_choice,
-      { "cause choice", 
+      { "cause choice",
         "ranap.cause_choice",
-	FT_UINT8, BASE_HEX, VALS(&ranap_cause_choice_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_cause_choice_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_cause_value,
-      { "cause value", 
+      { "cause value",
         "ranap.cause_value",
 	FT_UINT8, BASE_DEC,VALS(&ranap_cause_value_str), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_transportLayerAddress_present,
-      { "transportLayerAddress", 
+      { "transportLayerAddress",
         "ranap.transportLayerAddress_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_iuTransportAssociation_present,
-      { "iuTransportAssociation", 
+      { "iuTransportAssociation",
         "ranap.iuTransportAssociation_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_dl_dataVolumes_present,
-      { "dl_dataVolumes", 
+      { "dl_dataVolumes",
         "ranap.dl_dataVolumes_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_dataVolumeReference_present,
-      { "dataVolumeReference", 
+      { "dataVolumeReference",
         "ranap.dataVolumeReference_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_dl_UnsuccessfullyTransmittedDataVolume,
-      { "dl-UnsuccessfullyTransmittedDataVolume", 
+      { "dl-UnsuccessfullyTransmittedDataVolume",
         "ranap.dl-UnsuccessfullyTransmittedDataVolume",
-	FT_UINT32, BASE_DEC, NULL, 0x0, 
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    }, 
+    },
     { &hf_ranap_dataVolumeReference,
-      { "dataVolumeReference", 
+      { "dataVolumeReference",
         "ranap.dataVolumeReference",
-	FT_UINT8, BASE_DEC, NULL, 0x0, 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_procedureCode_present,
-      { "procedureCode", 
+      { "procedureCode",
         "ranap.procedureCode_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_triggeringMessage_present,
-      { "triggeringMessage", 
+      { "triggeringMessage",
         "ranap.triggeringMessage_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_procedureCriticality_present,
-      { "procedureCriticality", 
+      { "procedureCriticality",
         "ranap.procedureCriticality_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_iEsCriticalityDiagnostics_present,
-      { "iEsCriticalityDiagnostics", 
+      { "iEsCriticalityDiagnostics",
         "ranap.iEsCriticalityDiagnostics_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_triggeringMessage,
-      { "triggeringMessage", 
-        "ranap.triggeringMessage", 
-	FT_UINT8, BASE_HEX, VALS(&ranap_pdu_index_values), 0x0,          
+      { "triggeringMessage",
+        "ranap.triggeringMessage",
+	FT_UINT8, BASE_HEX, VALS(&ranap_pdu_index_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_procedureCriticality,
-      { "procedureCriticality", 
-        "ranap.procedureCriticality", 
-	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
+      { "procedureCriticality",
+        "ranap.procedureCriticality",
+	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,
 	"", HFILL }
-    },          
+    },
     { &hf_ranap_iECriticality,
-      { "iECriticality", 
-        "ranap.iECriticality", 
-	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
+      { "iECriticality",
+        "ranap.iECriticality",
+	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_repetitionNumber,
-      { "repetitionNumber", 
-        "ranap.repetitionNumber", 
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+      { "repetitionNumber",
+        "ranap.repetitionNumber",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_num_of_CriticalityDiagnostics_IEs,
-      { "Number of CriticalityDiagnostics-IEs", 
-        "ranap.num_of_CriticalityDiagnostics_IEs", 
-	FT_UINT16, BASE_DEC, NULL, 0x0,          
+      { "Number of CriticalityDiagnostics-IEs",
+        "ranap.num_of_CriticalityDiagnostics_IEs",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_ranap_repetitionNumber_present,
-      { "repetitionNumber", 
+      { "repetitionNumber",
         "ranap.repetitionNumber_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },      
+    },
     { &hf_ranap_dl_UnsuccessfullyTransmittedDataVolume_present,
-      { "dl-UnsuccessfullyTransmittedDataVolume", 
+      { "dl-UnsuccessfullyTransmittedDataVolume",
         "ranap.dl_UnsuccessfullyTransmittedDataVolume_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },        
+    },
     { &hf_ranap_CN_DomainIndicator,
-      { "CN-DomainIndicator", 
+      { "CN-DomainIndicator",
         "ranap.CN_DomainIndicator",
-	FT_UINT8, BASE_HEX, VALS(&ranap_CN_DomainIndicator_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_CN_DomainIndicator_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_service_Handover,
-      { "service-Handover", 
+      { "service-Handover",
         "ranap.service_Handover",
-	FT_UINT8, BASE_HEX, VALS(&ranap_service_Handover_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_service_Handover_values), 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_IuSigConId,
-      { "IuSigConId", 
+      { "IuSigConId",
         "ranap.IuSigConId",
-	FT_BYTES, BASE_NONE, NULL, 0x0, 
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL }
-    },    
+    },
     { &hf_ranap_SAPI,
-      { "SAPI", 
+      { "SAPI",
         "ranap.IuSigConId",
-	FT_UINT8, BASE_HEX, VALS(&ranap_SAPI_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_SAPI_values), 0x0,
 	"", HFILL }
-    },     
+    },
     { &hf_ranap_msg_extension_present,
-      { "Message Extension", 
+      { "Message Extension",
         "ranap.msg_extension_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
-    },          
+    },
     { &hf_ranap_ProtocolExtensionContainer_present,
-      { "ProtocolExtensionContainer", 
+      { "ProtocolExtensionContainer",
         "ranap.ProtocolExtensionContainer_present",
-	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
+	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,
 	"", HFILL }
     },
     { &hf_ranap_nas_pdu_length,
-      { "length of NAS-PDU", 
+      { "length of NAS-PDU",
         "ranap.nas_pdu_length",
-	FT_UINT16, BASE_DEC, NULL, 0x0, 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
-    }                                                                     
+    }
   };
 
   /* Setup protocol subtree array */
@@ -4769,18 +4769,18 @@ proto_register_ranap(void)
     &ett_ranap_sDU,
     &ett_ranap_rAB_Parameters,
     &ett_ranap_allocationOrRetentionPriority  ,
-    &ett_ranap_CriticalityDiagnostics_IE  
+    &ett_ranap_CriticalityDiagnostics_IE
   };
-  
-  
+
+
   /* Register the protocol name and description */
   proto_ranap = proto_register_protocol("Radio Access Network Application Part",
 				       "RANAP", "ranap");
-  
+
   /* Register the header fields and subtrees */
   proto_register_field_array(proto_ranap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
 };
 
 
@@ -4791,6 +4791,6 @@ proto_reg_handoff_ranap(void)
 
   ranap_handle = create_dissector_handle(dissect_ranap, proto_ranap);
   dissector_add("sual.subsystem_number",  SCCP_SSN_RANAP, ranap_handle);
-  dissector_add("sual.subsystem_number",  SCCP_SSN_RANAP_C, ranap_handle);  
-  dissector_add("sual.subsystem_number",  SCCP_SSN_RANAP_D, ranap_handle); 
+  dissector_add("sual.subsystem_number",  SCCP_SSN_RANAP_C, ranap_handle);
+  dissector_add("sual.subsystem_number",  SCCP_SSN_RANAP_D, ranap_handle);
 }

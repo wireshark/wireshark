@@ -2,24 +2,24 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.27 2002/06/24 01:53:10 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.28 2002/08/28 21:00:31 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -174,7 +174,7 @@ display_LM_token(tvbuff_t *tvb, int offset, proto_tree *tree)
 	Token = tvb_get_letohs(tvb, offset);
 
 	if (Token & 0x01) {
-		proto_tree_add_uint_format(tree, hf_lm_token, tvb, offset, 2, 
+		proto_tree_add_uint_format(tree, hf_lm_token, tvb, offset, 2,
 			Token,
 			"LM20 Token: 0x%04x (LanMan 2.0 or higher)", Token);
 	} else {
@@ -183,7 +183,7 @@ display_LM_token(tvbuff_t *tvb, int offset, proto_tree *tree)
 		 * and all values with it not set LM 1.0?
 		 * What do the other bits mean, if anything?
 		 */
-		proto_tree_add_uint_format(tree, hf_lm_token, tvb, offset, 2, 
+		proto_tree_add_uint_format(tree, hf_lm_token, tvb, offset, 2,
 			Token,
 			"LM10 Token: 0x%04x (WFW Networking)", Token);
 	}
@@ -201,14 +201,14 @@ display_LMNT_token(tvbuff_t *tvb, int offset, proto_tree *tree)
 	Token = tvb_get_letohs(tvb, offset);
 
 	if (Token == 0xffff) {
-		proto_tree_add_uint_format(tree, hf_lmnt_token, tvb, offset, 2, 
+		proto_tree_add_uint_format(tree, hf_lmnt_token, tvb, offset, 2,
 			Token,
 			"LMNT Token: 0x%04x (Windows NT Networking)", Token);
 	} else {
 		/*
 		 * XXX - what is it if it's not 0xffff?
 		 */
-		proto_tree_add_uint_format(tree, hf_lm_token, tvb, offset, 2, 
+		proto_tree_add_uint_format(tree, hf_lm_token, tvb, offset, 2,
 			Token,
 			"LMNT Token: 0x%04x (Unknown)", Token);
 	}
@@ -222,7 +222,7 @@ static int
 dissect_smb_logon_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	/*** 0x00 (LM1.0/LM2.0 LOGON Request) ***/
- 
+
 	/* computer name */
 	offset = display_ms_string(tvb, tree, offset, hf_computer_name);
 
@@ -311,7 +311,7 @@ static int
 dissect_smb_pdc_query(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	/*** 0x07 Query for Primary PDC  ***/
- 
+
 	/* computer name */
 	offset = display_ms_string(tvb, tree, offset, hf_computer_name);
 
@@ -353,13 +353,13 @@ static int
 dissect_smb_pdc_startup(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	/*** 0x08  Announce startup of PDC ***/
- 
+
 	/* pdc name */
 	offset = display_ms_string(tvb, tree, offset, hf_pdc_name);
 
 	/* A short Announce will not have the rest */
 
-	if (tvb_reported_length_remaining(tvb, offset) != 0) { 
+	if (tvb_reported_length_remaining(tvb, offset) != 0) {
 
 	  if (offset % 2) offset++;      /* word align ... */
 
@@ -544,7 +544,7 @@ dissect_smb_sam_logon_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 		/* Domain SID */
 		offset = dissect_nt_sid(tvb, offset, tree, "Domain");
 	}
- 	
+
 	/* NT version */
 	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
 	offset += 4;
@@ -883,7 +883,7 @@ proto_register_smb_logon( void)
 			{ "NT Version", "netlogon.nt_version", FT_UINT32, BASE_DEC,
 			  NULL, 0, "NETLOGON NT Version", HFILL }},
 
-		/* An LMNT Token, if 0xffff, is "WindowsNT Networking"; 
+		/* An LMNT Token, if 0xffff, is "WindowsNT Networking";
 		   what is it otherwise? */
 		{ &hf_lmnt_token,
 			{ "LMNT Token", "netlogon.lmnt_token", FT_UINT16, BASE_HEX,
@@ -1004,5 +1004,5 @@ proto_register_smb_logon( void)
    		"Microsoft Windows Logon Protocol", "NETLOGON", "netlogon");
 
 	proto_register_field_array(proto_smb_logon, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));          
+	proto_register_subtree_array(ett, array_length(ett));
 }

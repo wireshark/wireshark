@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.25 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: editcap.c,v 1.26 2002/08/28 21:00:06 jmayer Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -61,7 +61,7 @@ static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
 
 /* Add a selection item, a simple parser for now */
 
-static void add_selection(char *sel) 
+static void add_selection(char *sel)
 {
   char *locn;
   char *next;
@@ -134,7 +134,7 @@ typedef struct {
 
 static void
 edit_callback(guchar *user, const struct wtap_pkthdr *phdr, long offset _U_,
-    union wtap_pseudo_header *pseudo_header, const guchar *buf) 
+    union wtap_pseudo_header *pseudo_header, const guchar *buf)
 {
   callback_arg *argp = (callback_arg *)user;
   int err;
@@ -187,7 +187,7 @@ edit_callback(guchar *user, const struct wtap_pkthdr *phdr, long offset _U_,
       }
       phdr = &snap_phdr;
     }
-      
+
     if (!wtap_dump(argp->pdh, phdr, pseudo_header, buf, &err)) {
 
       fprintf(stderr, "editcap: Error writing to %s: %s\n", argp->filename,
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
       	exit(1);
       }
       break;
-      
+
     case 'F':
       out_file_type = wtap_short_string_to_file_type(optarg);
       if (out_file_type < 0) {
@@ -443,4 +443,4 @@ int main(int argc, char *argv[])
 
   return 0;
 }
-  
+

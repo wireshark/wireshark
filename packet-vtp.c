@@ -1,27 +1,27 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.20 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-vtp.c,v 1.21 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #include "config.h"
 
 #include <stdlib.h>
@@ -85,11 +85,11 @@ static const value_string type_vals[] = {
 	{ ADVERT_REQUEST, "Advert-Request" },
 	{ 0,              NULL },
 };
-	
-static void 
+
+static void
 dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *ti; 
+	proto_item *ti;
 	proto_tree *vtp_tree = NULL;
 	int offset = 0;
 	guint8 code;
@@ -100,7 +100,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VTP");
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Virtual Trunking Protocol"); 
+		col_set_str(pinfo->cinfo, COL_INFO, "Virtual Trunking Protocol");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vtp, tvb, offset, -1,
@@ -115,7 +115,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(vtp_tree, hf_vtp_code, tvb, offset, 1,
 		    code);
 		offset += 1;
-		
+
 		switch (code) {
 
 		case SUMMARY_ADVERT:
@@ -171,7 +171,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 4;
 
 			while (tvb_reported_length_remaining(tvb, offset) > 0) {
-				vlan_info_len = 
+				vlan_info_len =
 				    dissect_vlan_info(tvb, offset, vtp_tree);
 				if (vlan_info_len < 0)
 					break;
@@ -257,7 +257,7 @@ static const value_string vlan_tlv_type_vals[] = {
 static int
 dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_item *ti; 
+	proto_item *ti;
 	proto_tree *vlan_info_tree;
 	proto_tree *status_tree;
 	guint8 vlan_info_len;

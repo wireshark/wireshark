@@ -4,24 +4,24 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.27 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-quake.c,v 1.28 2002/08/28 21:00:26 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -37,9 +37,9 @@
 #include "prefs.h"
 
 static int proto_quake = -1;
-static int hf_quake_header_flags = -1; 
-static int hf_quake_header_length = -1; 
-static int hf_quake_header_sequence = -1; 
+static int hf_quake_header_flags = -1;
+static int hf_quake_header_length = -1;
+static int hf_quake_header_sequence = -1;
 static int hf_quake_control_command = -1;
 
 static int hf_quake_CCREQ_CONNECT_game = -1;
@@ -87,14 +87,14 @@ static unsigned int gbl_quakeServerPort=DEFAULTnet_hostport;
 #define NETFLAG_NAK                     0x00040000
 #define NETFLAG_EOM                     0x00080000
 #define NETFLAG_UNRELIABLE      0x00100000
-#define NETFLAG_CTL                     0x80000000                              
+#define NETFLAG_CTL                     0x80000000
 
 
 #define CCREQ_CONNECT           0x01
 #define CCREQ_SERVER_INFO       0x02
 #define CCREQ_PLAYER_INFO       0x03
 #define CCREQ_RULE_INFO         0x04
- 
+
 #define CCREP_ACCEPT            0x81
 #define CCREP_REJECT            0x82
 #define CCREP_SERVER_INFO       0x83
@@ -296,7 +296,7 @@ dissect_quake_CCREP_SERVER_INFO
 			tvb, offset, len + 1, server);
 	}
 	offset += len + 1;
-	
+
 	maxbufsize = MIN((int)sizeof(map), tvb_length_remaining(tvb, offset));
 	len = tvb_get_nstringz0(tvb, offset, maxbufsize, map);
 	if (tree) {
@@ -344,7 +344,7 @@ dissect_quake_CCREP_PLAYER_INFO
 			tvb, offset, 1, player);
 	}
 	offset += 1;
-	
+
 	maxbufsize = MIN((int)sizeof(name), tvb_length_remaining(tvb, offset));
 	len = tvb_get_nstringz0(tvb, offset, maxbufsize, name);
 	if (tree) {
@@ -433,7 +433,7 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*control_tree = NULL;
 	guint		rest_length;
 	tvbuff_t	*next_tvb;
-	
+
 	command = tvb_get_guint8(tvb, 0);
 	direction = (command & 0x80) ? CCREP : CCREQ;
 
@@ -589,16 +589,16 @@ proto_reg_handoff_quake(void)
 {
 	static int Initialized=FALSE;
 	static int ServerPort=0;
- 
+
 	if (Initialized) {
 		dissector_delete("udp.port", ServerPort, quake_handle);
 	} else {
 		Initialized=TRUE;
 	}
- 
+
 	/* set port for future deletes */
 	ServerPort=gbl_quakeServerPort;
- 
+
 	dissector_add("udp.port", gbl_quakeServerPort, quake_handle);
 	data_handle = find_dissector("data");
 }

@@ -2,22 +2,22 @@
  * Routines for Frame Relay Local Management Interface (LMI) disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-lmi.c,v 1.10 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-lmi.c,v 1.11 2002/08/28 21:00:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -49,7 +49,7 @@ static int hf_lmi_call_ref = -1;
 static int hf_lmi_msg_type = -1;
 static int hf_lmi_inf_ele = -1;
 static int hf_lmi_inf_len = -1;
-	                
+
 static int hf_lmi_rcd_type = -1;
 static int hf_lmi_send_seq = -1;
 static int hf_lmi_recv_seq = -1;
@@ -159,7 +159,7 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ele_id = tvb_get_guint8( tvb, offset);
 			len =  tvb_get_guint8( tvb, offset + 1);
 
-			ti = proto_tree_add_uint(lmi_tree, hf_lmi_inf_ele, tvb, offset, len + 2, 
+			ti = proto_tree_add_uint(lmi_tree, hf_lmi_inf_ele, tvb, offset, len + 2,
 				tvb_get_guint8( tvb, offset));
 
 			lmi_subtree = proto_item_add_subtree(ti, ett_lmi_ele);
@@ -170,14 +170,14 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			len =  tvb_get_guint8( tvb, offset);
 	                proto_tree_add_uint(lmi_subtree, hf_lmi_inf_len, tvb, offset, 1, len);
 			++offset;
-			if (( ele_id == 1) || (ele_id == 51)) 	
+			if (( ele_id == 1) || (ele_id == 51))
 				dissect_lmi_report_type( tvb, offset, lmi_subtree);
-			else if (( ele_id == 3) || (ele_id == 53)) 	
+			else if (( ele_id == 3) || (ele_id == 53))
 				dissect_lmi_link_int( tvb, offset, lmi_subtree);
-			else if (( ele_id == 7) || (ele_id == 57)) 	
+			else if (( ele_id == 7) || (ele_id == 57))
 				dissect_lmi_pvc_status( tvb, offset, lmi_subtree);
 			offset += len;
-		}	
+		}
 	}
 	else {
 		lmi_tree = NULL;
@@ -190,11 +190,11 @@ proto_register_lmi(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_lmi_call_ref,
-	  { "Call reference", "lmi.cmd", FT_UINT8, BASE_HEX, NULL, 0, 
+	  { "Call reference", "lmi.cmd", FT_UINT8, BASE_HEX, NULL, 0,
 	  	"Call Reference", HFILL }},
 
 	{ &hf_lmi_msg_type,
-	  { "Message Type", "lmi.msg_type", FT_UINT8, BASE_HEX, VALS(msg_type_str), 0, 
+	  { "Message Type", "lmi.msg_type", FT_UINT8, BASE_HEX, VALS(msg_type_str), 0,
 	  	"Message Type", HFILL }},
 
 	{ &hf_lmi_inf_ele,

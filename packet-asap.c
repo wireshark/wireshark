@@ -6,24 +6,24 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-asap.c,v 1.4 2002/07/08 21:09:32 guy Exp $
+ * $Id: packet-asap.c,v 1.5 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -80,7 +80,7 @@ dissect_parameters(tvbuff_t *, proto_tree *);
 
 /* Helper functions */
 
-static guint 
+static guint
 nr_of_padding_bytes (guint length)
 {
   guint remainder;
@@ -112,7 +112,7 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
   length            = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
   cause_info_length = length - CAUSE_HEADER_LENGTH;
   if (cause_info_length > 0)
-    proto_tree_add_bytes(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, 
+    proto_tree_add_bytes(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length,
                          tvb_get_ptr(cause_tvb, CAUSE_INFO_OFFSET, cause_info_length));
   proto_item_set_text(cause_item, "Error cause with code %u and %u byte%s information", code, cause_info_length, plurality(cause_info_length, "", "s"));
 }
@@ -147,10 +147,10 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
 
   cause_item = proto_tree_add_text(parameter_tree, cause_tvb, CAUSE_HEADER_OFFSET, total_length, "BAD ERROR CAUSE");
   cause_tree = proto_item_add_subtree(cause_item, ett_asap_cause);
- 
+
   proto_tree_add_uint(cause_tree, hf_cause_code, cause_tvb, CAUSE_CODE_OFFSET, CAUSE_CODE_LENGTH, code);
   proto_tree_add_uint(cause_tree, hf_cause_length, cause_tvb, CAUSE_LENGTH_OFFSET, CAUSE_LENGTH_LENGTH, length);
- 
+
   switch(code) {
   default:
     dissect_unknown_cause(cause_tvb, cause_tree, cause_item);
@@ -174,7 +174,7 @@ dissect_error_causes(tvbuff_t *error_causes_tvb, proto_tree *parameter_tree)
     padding_length  = nr_of_padding_bytes(length);
     total_length    = length + padding_length;
     error_cause_tvb = tvb_new_subset(error_causes_tvb, offset , total_length, total_length);
-    dissect_error_cause(error_cause_tvb, parameter_tree); 
+    dissect_error_cause(error_cause_tvb, parameter_tree);
     offset += total_length;
   }
 }
@@ -198,8 +198,8 @@ dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 {
   guint32 ipv4_address;
 
-  tvb_memcpy(parameter_tvb, (guint8 *)&ipv4_address, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH); 
-  proto_tree_add_ipv4(parameter_tree, hf_parameter_ipv4_address, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, ipv4_address);  
+  tvb_memcpy(parameter_tvb, (guint8 *)&ipv4_address, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH);
+  proto_tree_add_ipv4(parameter_tree, hf_parameter_ipv4_address, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, ipv4_address);
   proto_item_set_text(parameter_item, "IPV4 address parameter: %s", ip_to_str((const guint8 *)&ipv4_address));
 }
 
@@ -210,11 +210,11 @@ static void
 dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 *ip6_address_ptr;
-  
+
   ip6_address_ptr = (guint8 *)tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
   proto_tree_add_ipv6(parameter_tree, hf_parameter_ipv6_address, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH,
                       (const guint8 *)ip6_address_ptr);
-  
+
   proto_item_set_text(parameter_item, "IPV6 address parameter: %s", ip6_to_str((struct e_in6_addr *)ip6_address_ptr));
 }
 
@@ -226,20 +226,20 @@ dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 
 static void
 dissect_sctp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{  
+{
   tvbuff_t *parameters_tvb;
   guint16 port, reserved;
-  
+
   port     = tvb_get_ntohs(parameter_tvb, SCTP_PORT_OFFSET);
   reserved = tvb_get_ntohs(parameter_tvb, SCTP_RESERVED_OFFSET);
-  
+
   proto_tree_add_uint(parameter_tree, hf_sctp_port, parameter_tvb, SCTP_PORT_OFFSET, SCTP_PORT_LENGTH, port);
   proto_tree_add_uint(parameter_tree, hf_sctp_reserved, parameter_tvb, SCTP_RESERVED_OFFSET, SCTP_RESERVED_LENGTH, reserved);
-  
+
   proto_item_set_text(parameter_item, "SCTP transport parameter");
 
   parameters_tvb = tvb_new_subset(parameter_tvb, SCTP_ADDRESS_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);  
+  dissect_parameters(parameters_tvb, parameter_tree);
 }
 
 #define TCP_PORT_LENGTH     2
@@ -250,20 +250,20 @@ dissect_sctp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 
 static void
 dissect_tcp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{  
+{
   tvbuff_t *parameters_tvb;
   guint16 port, reserved;
-  
+
   port     = tvb_get_ntohs(parameter_tvb, TCP_PORT_OFFSET);
   reserved = tvb_get_ntohs(parameter_tvb, TCP_RESERVED_OFFSET);
-  
+
   proto_tree_add_uint(parameter_tree, hf_tcp_port, parameter_tvb, TCP_PORT_OFFSET, TCP_PORT_LENGTH, port);
   proto_tree_add_uint(parameter_tree, hf_tcp_reserved, parameter_tvb, TCP_RESERVED_OFFSET, TCP_RESERVED_LENGTH, reserved);
-  
+
   proto_item_set_text(parameter_item, "TCP transport parameter");
 
   parameters_tvb = tvb_new_subset(parameter_tvb, TCP_ADDRESS_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);  
+  dissect_parameters(parameters_tvb, parameter_tree);
 }
 
 #define UDP_PORT_LENGTH     2
@@ -274,20 +274,20 @@ dissect_tcp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 
 static void
 dissect_udp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{  
+{
   tvbuff_t *parameters_tvb;
   guint16 port, reserved;
-  
+
   port     = tvb_get_ntohs(parameter_tvb, UDP_PORT_OFFSET);
   reserved = tvb_get_ntohs(parameter_tvb, UDP_RESERVED_OFFSET);
-  
+
   proto_tree_add_uint(parameter_tree, hf_udp_port, parameter_tvb, UDP_PORT_OFFSET, UDP_PORT_LENGTH, port);
   proto_tree_add_uint(parameter_tree, hf_udp_reserved, parameter_tvb, UDP_RESERVED_OFFSET, UDP_RESERVED_LENGTH, reserved);
-  
+
   proto_item_set_text(parameter_item, "UDP transport parameter");
 
   parameters_tvb = tvb_new_subset(parameter_tvb, UDP_ADDRESS_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);  
+  dissect_parameters(parameters_tvb, parameter_tree);
 }
 
 #define POLICY_TYPE_LENGTH   1
@@ -310,10 +310,10 @@ static const value_string policy_type_values[] = {
 
 static void
 dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{  
+{
   guint8  policy_type;
   gint32 policy_value;
-  
+
   policy_type  = tvb_get_guint8(parameter_tvb, POLICY_TYPE_OFFSET);
   policy_value = tvb_get_ntoh24(parameter_tvb, POLICY_VALUE_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_policy_type, parameter_tvb, POLICY_TYPE_OFFSET, POLICY_TYPE_LENGTH, policy_type);
@@ -332,7 +332,7 @@ dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   char *handle_ptr;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
+
   handle_length = length - PARAMETER_HEADER_LENGTH;
   handle_ptr    = (char *)tvb_get_ptr(parameter_tvb, POOL_HANDLE_OFFSET, handle_length);
   proto_tree_add_bytes(parameter_tree, hf_pool_handle, parameter_tvb, POOL_HANDLE_OFFSET, handle_length, handle_ptr);
@@ -354,17 +354,17 @@ dissect_pool_element_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
   tvbuff_t *parameters_tvb;
   guint32 pe_identifier, home_enrp_identifier;
   gint32 reg_life;
-  
+
   pe_identifier        = tvb_get_ntohl(parameter_tvb, PE_PE_IDENTIFIER_OFFSET);
   home_enrp_identifier = tvb_get_ntohl(parameter_tvb, HOME_ENRP_INDENTIFIER_OFFSET);
   reg_life             = tvb_get_ntohl(parameter_tvb, REGISTRATION_LIFE_OFFSET);
-  
+
   proto_tree_add_uint(parameter_tree, hf_pe_pe_identifier, parameter_tvb, PE_PE_IDENTIFIER_OFFSET, PE_PE_IDENTIFIER_LENGTH, pe_identifier);
   proto_tree_add_uint(parameter_tree, hf_home_enrp_id, parameter_tvb, HOME_ENRP_INDENTIFIER_OFFSET, HOME_ENRP_INDENTIFIER_LENGTH, home_enrp_identifier);
   proto_tree_add_int(parameter_tree, hf_reg_life, parameter_tvb, REGISTRATION_LIFE_OFFSET, REGISTRATION_LIFE_LENGTH, reg_life);
 
   parameters_tvb = tvb_new_subset(parameter_tvb, USER_TRANSPORT_PARAMETER_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);  
+  dissect_parameters(parameters_tvb, parameter_tree);
 
   proto_item_set_text(parameter_item, "Pool element");
 }
@@ -381,28 +381,28 @@ dissect_pool_element_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 
 static void
 dissect_server_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{   
+{
   tvbuff_t *parameters_tvb;
   guint32 server_identifier, reserved;
 
   server_identifier  = tvb_get_ntohl(parameter_tvb, SERVER_ID_OFFSET);
   reserved           = tvb_get_ntohl(parameter_tvb, RESERVED_OFFSET);
-  
+
   proto_tree_add_uint(parameter_tree, hf_server_identifier, parameter_tvb, SERVER_ID_OFFSET, SERVER_ID_LENGTH, server_identifier);
   proto_tree_add_boolean(parameter_tree, hf_m_bit, parameter_tvb, RESERVED_OFFSET, RESERVED_LENGTH, reserved);
   proto_tree_add_uint(parameter_tree, hf_reserved, parameter_tvb, RESERVED_OFFSET, RESERVED_LENGTH, reserved);
-  
+
   proto_item_set_text(parameter_item, "Server information");
 
   parameters_tvb = tvb_new_subset(parameter_tvb, SERVER_TRANSPORT_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, parameter_tree);  
+  dissect_parameters(parameters_tvb, parameter_tree);
 }
 
 #define ERROR_CAUSES_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
 dissect_operation_error_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{  
+{
   tvbuff_t *error_causes_tvb;
 
   error_causes_tvb = tvb_new_subset(parameter_tvb, ERROR_CAUSES_OFFSET, -1,-1);
@@ -414,12 +414,12 @@ dissect_operation_error_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
 
 static void
 dissect_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{  
+{
   guint16 cookie_length;
-  
+
   cookie_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (cookie_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_cookie, parameter_tvb, COOKIE_OFFSET, cookie_length, 
+    proto_tree_add_bytes(parameter_tree, hf_cookie, parameter_tvb, COOKIE_OFFSET, cookie_length,
                          tvb_get_ptr(parameter_tvb, COOKIE_OFFSET, cookie_length));
   proto_item_set_text(parameter_item, "Cookie (%u byte%s)", cookie_length, plurality(cookie_length, "", "s"));
 }
@@ -429,9 +429,9 @@ dissect_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, pr
 
 static void
 dissect_pe_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{  
+{
   guint32 pe_identifer;
-  
+
   pe_identifer = tvb_get_ntohl(parameter_tvb, PE_IDENTIFIER_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_pe_identifier, parameter_tvb, PE_IDENTIFIER_OFFSET, PE_IDENTIFIER_LENGTH, pe_identifer);
   proto_item_set_text(parameter_item, "PE identifier: 0x%x", pe_identifer);
@@ -441,14 +441,14 @@ static void
 dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 type, length, parameter_value_length;
-  
+
   type   = tvb_get_ntohs(parameter_tvb, PARAMETER_TYPE_OFFSET);
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
+
   parameter_value_length = length - PARAMETER_HEADER_LENGTH;
 
   if (parameter_value_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, 
+    proto_tree_add_bytes(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length));
 
   proto_item_set_text(parameter_item, "Parameter with type %u and %u byte%s value", type, parameter_value_length, plurality(parameter_value_length, "", "s"));
@@ -548,7 +548,7 @@ dissect_asap_parameter(tvbuff_t *parameter_tvb, proto_tree *asap_tree)
   };
 
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, 
+    proto_tree_add_bytes(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length));
 }
 
@@ -568,7 +568,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
       total_length = length + padding_length;
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
-    dissect_asap_parameter(parameter_tvb, tree); 
+    dissect_asap_parameter(parameter_tvb, tree);
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -621,7 +621,7 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
   tvbuff_t *parameters_tvb;
   guint8  type, flags;
   guint16 length;
-  
+
   type   = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   flags  = tvb_get_guint8(message_tvb, MESSAGE_FLAGS_OFFSET);
   length = tvb_get_ntohs (message_tvb, MESSAGE_LENGTH_OFFSET);
@@ -633,9 +633,9 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
   if (asap_tree) {
     proto_tree_add_uint(asap_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   type);
     proto_tree_add_uint(asap_tree, hf_message_flags,  message_tvb, MESSAGE_FLAGS_OFFSET,  MESSAGE_FLAGS_LENGTH,  flags);
-    proto_tree_add_uint(asap_tree, hf_message_length, message_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, length);  
+    proto_tree_add_uint(asap_tree, hf_message_length, message_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, length);
     parameters_tvb    = tvb_new_subset(message_tvb, MESSAGE_VALUE_OFFSET, -1, -1);
-    dissect_parameters(parameters_tvb, asap_tree);      
+    dissect_parameters(parameters_tvb, asap_tree);
     }
 }
 
@@ -646,9 +646,9 @@ dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *asap_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASAP");
-  
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
@@ -678,7 +678,7 @@ proto_register_asap(void)
       { "Flags", "asap.message_flags",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "", HFILL }
-    }, 
+    },
     { &hf_message_length,
       { "Length", "asap.message_length",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -738,7 +738,7 @@ proto_register_asap(void)
       { "Port", "asap.sctp_transport.port",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "", HFILL }
-    }, 
+    },
     { &hf_sctp_reserved,
       { "Reserved", "asap.sctp_transport.reserved",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -778,7 +778,7 @@ proto_register_asap(void)
       { "Pool handle", "asap.pool_handle.pool_handle",
         FT_BYTES, BASE_HEX, NULL, 0x0,
         "", HFILL }
-    }, 
+    },
     { &hf_pe_pe_identifier,
       { "PE identifier", "asap.pool_element.pe_identifier",
         FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -788,7 +788,7 @@ proto_register_asap(void)
       { "Home ENRP server identifier", "asap.pool_element.home_enrp_server_identifier",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         "", HFILL }
-    }, 
+    },
     { &hf_reg_life,
       { "Registration life", "asap.pool_element.registration_life",
         FT_INT32, BASE_DEC, NULL, 0x0,
@@ -820,14 +820,14 @@ proto_register_asap(void)
         "", HFILL }
     },
   };
-  
+
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_asap,
     &ett_asap_parameter,
     &ett_asap_cause,
   };
-  
+
   /* Register the protocol name and description */
   proto_asap = proto_register_protocol("Aggregate Server Access Protocol", "ASAP",  "asap");
 
@@ -841,7 +841,7 @@ void
 proto_reg_handoff_asap(void)
 {
   dissector_handle_t asap_handle;
-  
+
   asap_handle = create_dissector_handle(dissect_asap, proto_asap);
   dissector_add("sctp.ppi",  ASAP_PAYLOAD_PROTO_ID, asap_handle);
 }

@@ -3,22 +3,22 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.57 2002/08/27 19:02:51 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.58 2002/08/28 21:00:09 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -160,8 +160,8 @@ static gint ett_lsa_auth_information = -1;
 
 
 static int
-lsa_dissect_pointer_NTTIME(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+lsa_dissect_pointer_NTTIME(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	dcerpc_info *di;
@@ -179,8 +179,8 @@ lsa_dissect_pointer_NTTIME(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+lsa_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	dcerpc_info *di;
@@ -197,8 +197,8 @@ lsa_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_pointer_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+lsa_dissect_pointer_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	dcerpc_info *di;
@@ -217,8 +217,8 @@ lsa_dissect_pointer_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_pointer_STRING(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+lsa_dissect_pointer_STRING(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	dcerpc_info *di;
@@ -236,7 +236,7 @@ lsa_dissect_pointer_STRING(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_LSA_SECRET_data(tvbuff_t *tvb, int offset, 
+lsa_dissect_LSA_SECRET_data(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
@@ -295,13 +295,13 @@ lsa_dissect_LSA_SECRET_pointer(tvbuff_t *tvb, int offset,
 }
 
 int
-lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset, 
+lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	guint32 len;
 	dcerpc_info *di;
-	
+
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -452,7 +452,7 @@ lsa_dissect_ACCESS_MASK(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, tree, drep, hf_lsa_access_mask, 
+		tvb, offset, pinfo, tree, drep, hf_lsa_access_mask,
 		lsa_specific_rights);
 
 	return offset;
@@ -516,7 +516,7 @@ lsa_dissect_LSA_OBJECT_ATTRIBUTES(tvbuff_t *tvb, int offset,
 		lsa_dissect_LPSTR, NDR_POINTER_UNIQUE,
 		"LSPTR pointer: ", -1, 0);
 
-	/* attribute name */	
+	/* attribute name */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_pointer_STRING, NDR_POINTER_UNIQUE,
 		"NAME pointer: ", hf_lsa_obj_attr_name, 0);
@@ -530,7 +530,7 @@ lsa_dissect_LSA_OBJECT_ATTRIBUTES(tvbuff_t *tvb, int offset,
 		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_UNIQUE,
 		"LSA_SECURITY_DESCRIPTOR pointer: ", -1, 0);
 
-	/* security quality of service */	
+	/* security quality of service */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_SECURITY_QUALITY_OF_SERVICE, NDR_POINTER_UNIQUE,
 		"LSA_SECURITY_QUALITY_OF_SERVICE pointer: ", -1, 0);
@@ -567,11 +567,11 @@ lsa_dissect_lsaclose_reply(tvbuff_t *tvb, int offset,
    character of the server name which is always '\'.  This is fixed in lsa
    openpolicy2 but the function remains for backwards compatibility. */
 
-static int dissect_lsa_openpolicy_server(tvbuff_t *tvb, int offset, 
-					     packet_info *pinfo, 
+static int dissect_lsa_openpolicy_server(tvbuff_t *tvb, int offset,
+					     packet_info *pinfo,
 					     proto_tree *tree, char *drep)
 {
-	return dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, 
+	return dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 				  hf_lsa_server, NULL);
 }
 
@@ -1047,7 +1047,7 @@ lsa_dissect_POLICY_INFORMATION(tvbuff_t *tvb, int offset,
 
 	ALIGN_TO_4_BYTES;  /* all union arms aligned to 4 bytes, case 7 and 9 need this  */
 	switch(level){
-	case 1:	
+	case 1:
 		offset = lsa_dissect_POLICY_AUDIT_LOG_INFO(
 				tvb, offset, pinfo, tree, drep);
 		break;
@@ -1394,7 +1394,7 @@ static const true_false_string tfs_trust_attr_tree_root = {
 	"Tree root is NOT set"
 };
 static int
-lsa_dissect_trust_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+lsa_dissect_trust_attr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *parent_tree, char *drep)
 {
 	guint32 mask;
@@ -1455,7 +1455,7 @@ lsa_dissect_LSA_TRUST_INFORMATION_EX(tvbuff_t *tvb, int offset,
 	/* type */
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_trust_type, NULL);
-	
+
 	/* attributes */
 	offset = lsa_dissect_trust_attr(tvb, offset, pinfo, tree, drep);
 
@@ -1878,7 +1878,7 @@ lsa_dissect_LSA_PRIVILEGE(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_LSA_PRIVILEGE);
 	}
 
-	/* privilege name */	
+	/* privilege name */
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 			hf_lsa_privilege_name, 0);
 
@@ -1965,7 +1965,7 @@ lsa_dissect_lsalookupprivilegevalue_rqst(tvbuff_t *tvb, int offset,
 	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
 		pinfo, tree, drep);
 
-	/* privilege name */	
+	/* privilege name */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
 		"NAME pointer: ", hf_lsa_privilege_name, 0);
@@ -2380,7 +2380,7 @@ lsa_dissect_LSA_UNICODE_STRING_ARRAY(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_UNICODE_STRING_array, NDR_POINTER_UNIQUE,
 		"UNICODE_STRING pointer: ", di->hf_index, 0);
-	
+
 	return offset;
 }
 
@@ -2598,7 +2598,7 @@ lsa_dissect_TRUSTED_DOMAIN_INFORMATION(tvbuff_t *tvb, int offset,
 
 	ALIGN_TO_4_BYTES;  /* all union arms aligned to 4 bytes, case 7 and 9 need this  */
 	switch(level){
-	case 1:	
+	case 1:
 		offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 			hf_lsa_domain, 0);
 		break;
@@ -4107,7 +4107,7 @@ static const value_string lsa_opnum_vals[] = {
 	{ 0, NULL }
 };
 
-void 
+void
 proto_register_dcerpc_lsa(void)
 {
         static hf_register_info hf[] = {
@@ -4121,7 +4121,7 @@ proto_register_dcerpc_lsa(void)
 		NULL, 0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
 
 	{ &hf_lsa_hnd,
-		{ "Context Handle", "lsa.hnd", FT_BYTES, BASE_NONE, 
+		{ "Context Handle", "lsa.hnd", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "LSA policy handle", HFILL }},
 
 	{ &hf_lsa_server,
@@ -4133,211 +4133,211 @@ proto_register_dcerpc_lsa(void)
 		NULL, 0, "Name of Domain Controller", HFILL }},
 
 	{ &hf_lsa_unknown_hyper,
-		{ "Unknown hyper", "lsa.unknown.hyper", FT_UINT64, BASE_HEX, 
+		{ "Unknown hyper", "lsa.unknown.hyper", FT_UINT64, BASE_HEX,
 		NULL, 0x0, "Unknown hyper. If you know what this is, contact ethereal developers.", HFILL }},
 
 	{ &hf_lsa_unknown_long,
-		{ "Unknown long", "lsa.unknown.long", FT_UINT32, BASE_HEX, 
+		{ "Unknown long", "lsa.unknown.long", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
 
 	{ &hf_lsa_unknown_short,
-		{ "Unknown short", "lsa.unknown.short", FT_UINT16, BASE_HEX, 
+		{ "Unknown short", "lsa.unknown.short", FT_UINT16, BASE_HEX,
 		NULL, 0x0, "Unknown short. If you know what this is, contact ethereal developers.", HFILL }},
 
 	{ &hf_lsa_unknown_char,
-		{ "Unknown char", "lsa.unknown.char", FT_UINT8, BASE_HEX, 
+		{ "Unknown char", "lsa.unknown.char", FT_UINT8, BASE_HEX,
 		NULL, 0x0, "Unknown char. If you know what this is, contact ethereal developers.", HFILL }},
 
 	{ &hf_lsa_rc,
-		{ "Return code", "lsa.rc", FT_UINT32, BASE_HEX, 
+		{ "Return code", "lsa.rc", FT_UINT32, BASE_HEX,
 		VALS (NT_errors), 0x0, "LSA return status code", HFILL }},
 
 	{ &hf_lsa_obj_attr,
-		{ "Attributes", "lsa.obj_attr", FT_UINT32, BASE_HEX, 
+		{ "Attributes", "lsa.obj_attr", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "LSA Attributes", HFILL }},
 
 	{ &hf_lsa_obj_attr_len,
-		{ "Length", "lsa.obj_attr.len", FT_UINT32, BASE_DEC, 
+		{ "Length", "lsa.obj_attr.len", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Length of object attribute structure", HFILL }},
 
 	{ &hf_lsa_obj_attr_name,
-		{ "Name", "lsa.obj_attr.name", FT_STRING, BASE_NONE, 
+		{ "Name", "lsa.obj_attr.name", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Name of object attribute", HFILL }},
 
 	{ &hf_lsa_access_mask,
-		{ "Access Mask", "lsa.access_mask", FT_UINT32, BASE_HEX, 
+		{ "Access Mask", "lsa.access_mask", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "LSA Access Mask", HFILL }},
 
 	{ &hf_lsa_info_level,
-		{ "Level", "lsa.info.level", FT_UINT16, BASE_DEC, 
+		{ "Level", "lsa.info.level", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Information level of requested data", HFILL }},
 
 	{ &hf_lsa_trusted_info_level,
-		{ "Info Level", "lsa.trusted.info_level", FT_UINT16, BASE_DEC, 
+		{ "Info Level", "lsa.trusted.info_level", FT_UINT16, BASE_DEC,
 		VALS(trusted_info_level_vals), 0x0, "Information level of requested Trusted Domain Information", HFILL }},
 
 	{ &hf_lsa_sd_size,
-		{ "Size", "lsa.sd_size", FT_UINT32, BASE_DEC, 
+		{ "Size", "lsa.sd_size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size of lsa security descriptor", HFILL }},
 
 	{ &hf_lsa_qos_len,
-		{ "Length", "lsa.qos.len", FT_UINT32, BASE_DEC, 
+		{ "Length", "lsa.qos.len", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Length of quality of service structure", HFILL }},
 
 	{ &hf_lsa_qos_impersonation_level,
-		{ "Impersonation level", "lsa.qos.imp_lev", FT_UINT16, BASE_DEC, 
+		{ "Impersonation level", "lsa.qos.imp_lev", FT_UINT16, BASE_DEC,
 		VALS(lsa_impersonation_level_vals), 0x0, "QOS Impersonation Level", HFILL }},
 
 	{ &hf_lsa_qos_track_context,
-		{ "Context Tracking", "lsa.qos.track_ctx", FT_UINT8, BASE_DEC, 
+		{ "Context Tracking", "lsa.qos.track_ctx", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "QOS Context Tracking Mode", HFILL }},
 
 	{ &hf_lsa_qos_effective_only,
-		{ "Effective only", "lsa.qos.effective_only", FT_UINT8, BASE_DEC, 
+		{ "Effective only", "lsa.qos.effective_only", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "QOS Flag whether this is Effective Only or not", HFILL }},
 
 	{ &hf_lsa_pali_percent_full,
-		{ "Percent Full", "lsa.pali.percent_full", FT_UINT32, BASE_DEC, 
+		{ "Percent Full", "lsa.pali.percent_full", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "How full audit log is in percentage", HFILL }},
 
 	{ &hf_lsa_pali_log_size,
-		{ "Log Size", "lsa.pali.log_size", FT_UINT32, BASE_DEC, 
+		{ "Log Size", "lsa.pali.log_size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size of audit log", HFILL }},
 
 	{ &hf_lsa_pali_retention_period,
-		{ "Retention Period", "lsa.pali.retention_period", FT_RELATIVE_TIME, BASE_NONE, 
+		{ "Retention Period", "lsa.pali.retention_period", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_pali_time_to_shutdown,
-		{ "Time to shutdown", "lsa.pali.time_to_shutdown", FT_RELATIVE_TIME, BASE_NONE, 
+		{ "Time to shutdown", "lsa.pali.time_to_shutdown", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0x0, "Time to shutdown", HFILL }},
 
-	{ &hf_lsa_pali_shutdown_in_progress,	
-		{ "Shutdown in progress", "lsa.pali.shutdown_in_progress", FT_UINT8, BASE_DEC, 
+	{ &hf_lsa_pali_shutdown_in_progress,
+		{ "Shutdown in progress", "lsa.pali.shutdown_in_progress", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "Flag whether shutdown is in progress or not", HFILL }},
 
 	{ &hf_lsa_pali_next_audit_record,
-		{ "Next Audit Record", "lsa.pali.next_audit_record", FT_UINT32, BASE_HEX, 
+		{ "Next Audit Record", "lsa.pali.next_audit_record", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Next audit record", HFILL }},
 
 	{ &hf_lsa_paei_enabled,
-		{ "Enabled", "lsa.paei.enabled", FT_UINT8, BASE_DEC, 
+		{ "Enabled", "lsa.paei.enabled", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "If Audit Events Information is Enabled or not", HFILL }},
 
 	{ &hf_lsa_paei_settings,
-		{ "Settings", "lsa.paei.settings", FT_UINT32, BASE_HEX, 
+		{ "Settings", "lsa.paei.settings", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Audit Events Information settings", HFILL }},
 
 	{ &hf_lsa_count,
-		{ "Count", "lsa.count", FT_UINT32, BASE_DEC, 
+		{ "Count", "lsa.count", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Count of objects", HFILL }},
 
 	{ &hf_lsa_max_count,
-		{ "Max Count", "lsa.max_count", FT_UINT32, BASE_DEC, 
+		{ "Max Count", "lsa.max_count", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_domain,
-		{ "Domain", "lsa.domain", FT_STRING, BASE_NONE, 
+		{ "Domain", "lsa.domain", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Domain", HFILL }},
 
 	{ &hf_lsa_acct,
-		{ "Account", "lsa.acct", FT_STRING, BASE_NONE, 
+		{ "Account", "lsa.acct", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Account", HFILL }},
 
 	{ &hf_lsa_source,
-		{ "Source", "lsa.source", FT_STRING, BASE_NONE, 
+		{ "Source", "lsa.source", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Replica Source", HFILL }},
 
 	{ &hf_lsa_server_role,
-		{ "Role", "lsa.server_role", FT_UINT16, BASE_DEC, 
+		{ "Role", "lsa.server_role", FT_UINT16, BASE_DEC,
 		VALS(server_role_vals), 0x0, "LSA Server Role", HFILL }},
 
 	{ &hf_lsa_quota_paged_pool,
-		{ "Paged Pool", "lsa.quota.paged_pool", FT_UINT32, BASE_DEC, 
+		{ "Paged Pool", "lsa.quota.paged_pool", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size of Quota Paged Pool", HFILL }},
 
 	{ &hf_lsa_quota_non_paged_pool,
-		{ "Non Paged Pool", "lsa.quota.non_paged_pool", FT_UINT32, BASE_DEC, 
+		{ "Non Paged Pool", "lsa.quota.non_paged_pool", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size of Quota non-Paged Pool", HFILL }},
 
 	{ &hf_lsa_quota_min_wss,
-		{ "Min WSS", "lsa.quota.min_wss", FT_UINT32, BASE_DEC, 
+		{ "Min WSS", "lsa.quota.min_wss", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size of Quota Min WSS", HFILL }},
 
 	{ &hf_lsa_quota_max_wss,
-		{ "Max WSS", "lsa.quota.max_wss", FT_UINT32, BASE_DEC, 
+		{ "Max WSS", "lsa.quota.max_wss", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size of Quota Max WSS", HFILL }},
 
 	{ &hf_lsa_quota_pagefile,
-		{ "Pagefile", "lsa.quota.pagefile", FT_UINT32, BASE_DEC, 
+		{ "Pagefile", "lsa.quota.pagefile", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size of quota pagefile usage", HFILL }},
 
 	{ &hf_lsa_mod_seq_no,
-		{ "Seq No", "lsa.mod.seq_no", FT_UINT64, BASE_DEC, 
+		{ "Seq No", "lsa.mod.seq_no", FT_UINT64, BASE_DEC,
 		NULL, 0x0, "Sequence number for this modification", HFILL }},
 
 	{ &hf_lsa_mod_mtime,
-		{ "MTime", "lsa.mod.mtime", FT_ABSOLUTE_TIME, BASE_NONE, 
+		{ "MTime", "lsa.mod.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0x0, "Time when this modification occured", HFILL }},
 
 	{ &hf_lsa_cur_mtime,
-		{ "Current MTime", "lsa.cur.mtime", FT_ABSOLUTE_TIME, BASE_NONE, 
+		{ "Current MTime", "lsa.cur.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0x0, "Current MTime to set", HFILL }},
 
 	{ &hf_lsa_old_mtime,
-		{ "Old MTime", "lsa.old.mtime", FT_ABSOLUTE_TIME, BASE_NONE, 
+		{ "Old MTime", "lsa.old.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0x0, "Old MTime for this object", HFILL }},
 
 	{ &hf_lsa_name,
-		{ "Name", "lsa.name", FT_STRING, BASE_NONE, 
+		{ "Name", "lsa.name", FT_STRING, BASE_NONE,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_key,
-		{ "Key", "lsa.key", FT_STRING, BASE_NONE, 
+		{ "Key", "lsa.key", FT_STRING, BASE_NONE,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_flat_name,
-		{ "Flat Name", "lsa.flat_name", FT_STRING, BASE_NONE, 
+		{ "Flat Name", "lsa.flat_name", FT_STRING, BASE_NONE,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_forest,
-		{ "Forest", "lsa.forest", FT_STRING, BASE_NONE, 
+		{ "Forest", "lsa.forest", FT_STRING, BASE_NONE,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_info_type,
-		{ "Info Type", "lsa.info_type", FT_UINT32, BASE_DEC, 
+		{ "Info Type", "lsa.info_type", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_new_pwd,
-		{ "New Password", "lsa.new_pwd", FT_BYTES, BASE_HEX, 
+		{ "New Password", "lsa.new_pwd", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "New password", HFILL }},
 
 	{ &hf_lsa_old_pwd,
-		{ "Old Password", "lsa.old_pwd", FT_BYTES, BASE_HEX, 
+		{ "Old Password", "lsa.old_pwd", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "Old password", HFILL }},
 
 	{ &hf_lsa_sid_type,
-		{ "SID Type", "lsa.sid_type", FT_UINT16, BASE_DEC, 
+		{ "SID Type", "lsa.sid_type", FT_UINT16, BASE_DEC,
 		VALS(sid_type_vals), 0x0, "Type of SID", HFILL }},
 
 	{ &hf_lsa_rid,
-		{ "RID", "lsa.rid", FT_UINT32, BASE_HEX, 
+		{ "RID", "lsa.rid", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "RID", HFILL }},
 
 	{ &hf_lsa_rid_offset,
-		{ "RID Offset", "lsa.rid.offset", FT_UINT32, BASE_HEX, 
+		{ "RID Offset", "lsa.rid.offset", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "RID Offset", HFILL }},
 
 	{ &hf_lsa_index,
-		{ "Index", "lsa.index", FT_UINT32, BASE_DEC, 
+		{ "Index", "lsa.index", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_num_mapped,
-		{ "Num Mapped", "lsa.num_mapped", FT_UINT32, BASE_DEC, 
+		{ "Num Mapped", "lsa.num_mapped", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_policy_information_class,
-		{ "Info Class", "lsa.policy.info", FT_UINT16, BASE_DEC, 
+		{ "Info Class", "lsa.policy.info", FT_UINT16, BASE_DEC,
 		VALS(policy_information_class_vals), 0x0, "Policy information class", HFILL }},
 
 	{ &hf_lsa_secret,
@@ -4349,55 +4349,55 @@ proto_register_dcerpc_lsa(void)
 		NULL, 0, "", HFILL }},
 
 	{ &hf_nt_luid_high,
-		{ "High", "nt.luid.high", FT_UINT32, BASE_HEX, 
+		{ "High", "nt.luid.high", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "LUID High component", HFILL }},
 
 	{ &hf_nt_luid_low,
-		{ "Low", "nt.luid.low", FT_UINT32, BASE_HEX, 
+		{ "Low", "nt.luid.low", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "LUID Low component", HFILL }},
 
 	{ &hf_lsa_size,
-		{ "Size", "lsa.size", FT_UINT32, BASE_DEC, 
+		{ "Size", "lsa.size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_size16,
-		{ "Size", "lsa.size", FT_UINT16, BASE_DEC, 
+		{ "Size", "lsa.size", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_size_needed,
-		{ "Size Needed", "lsa.size_needed", FT_UINT16, BASE_DEC, 
+		{ "Size Needed", "lsa.size_needed", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_privilege_name,
-		{ "Name", "lsa.privilege.name", FT_STRING, BASE_NONE, 
+		{ "Name", "lsa.privilege.name", FT_STRING, BASE_NONE,
 		NULL, 0x0, "LSA Privilege Name", HFILL }},
 
 	{ &hf_lsa_rights,
-		{ "Rights", "lsa.rights", FT_STRING, BASE_NONE, 
+		{ "Rights", "lsa.rights", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Account Rights", HFILL }},
 
 	{ &hf_lsa_attr,
-		{ "Attr", "lsa.attr", FT_UINT64, BASE_HEX, 
+		{ "Attr", "lsa.attr", FT_UINT64, BASE_HEX,
 		NULL, 0x0, "LSA Attributes", HFILL }},
 
 	{ &hf_lsa_auth_update,
-		{ "Update", "lsa.auth.update", FT_UINT64, BASE_HEX, 
+		{ "Update", "lsa.auth.update", FT_UINT64, BASE_HEX,
 		NULL, 0x0, "LSA Auth Info update", HFILL }},
 
 	{ &hf_lsa_resume_handle,
-		{ "Resume Handle", "lsa.resume_handle", FT_UINT32, BASE_DEC, 
+		{ "Resume Handle", "lsa.resume_handle", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Resume Handle", HFILL }},
 
 	{ &hf_lsa_trust_direction,
-		{ "Trust Direction", "lsa.trust.direction", FT_UINT32, BASE_DEC, 
+		{ "Trust Direction", "lsa.trust.direction", FT_UINT32, BASE_DEC,
 		VALS(trusted_direction_vals), 0x0, "Trust direction", HFILL }},
 
 	{ &hf_lsa_trust_type,
-		{ "Trust Type", "lsa.trust.type", FT_UINT32, BASE_DEC, 
+		{ "Trust Type", "lsa.trust.type", FT_UINT32, BASE_DEC,
 		VALS(trusted_type_vals), 0x0, "Trust type", HFILL }},
 
 	{ &hf_lsa_trust_attr,
-		{ "Trust Attr", "lsa.trust.attr", FT_UINT32, BASE_HEX, 
+		{ "Trust Attr", "lsa.trust.attr", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Trust attributes", HFILL }},
 
 	{ &hf_lsa_trust_attr_non_trans,
@@ -4417,70 +4417,70 @@ proto_register_dcerpc_lsa(void)
 		TFS(&tfs_trust_attr_tree_root), 0x00800000, "Tree Root trust", HFILL }},
 
 	{ &hf_lsa_auth_type,
-		{ "Auth Type", "lsa.auth.type", FT_UINT32, BASE_DEC, 
+		{ "Auth Type", "lsa.auth.type", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Auth Info type", HFILL }},
 
 	{ &hf_lsa_auth_len,
-		{ "Auth Len", "lsa.auth.len", FT_UINT32, BASE_DEC, 
+		{ "Auth Len", "lsa.auth.len", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Auth Info len", HFILL }},
 
 	{ &hf_lsa_remove_all,
-		{ "Remove All", "lsa.remove_all", FT_UINT8, BASE_DEC, 
+		{ "Remove All", "lsa.remove_all", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "Flag whether all rights should be removed or only the specified ones", HFILL }},
-	
+
 	{ &hf_view_local_info,
-	        { "View local info", "lsa.access_mask.view_local_info", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_VIEW_LOCAL_INFORMATION, 
+	        { "View local info", "lsa.access_mask.view_local_info",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_VIEW_LOCAL_INFORMATION,
 		  "View local info", HFILL }},
 
 	{ &hf_view_audit_info,
-	        { "View audit info", "lsa.access_mask.view_audit_info", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_VIEW_AUDIT_INFORMATION, 
+	        { "View audit info", "lsa.access_mask.view_audit_info",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_VIEW_AUDIT_INFORMATION,
 		  "View audit info", HFILL }},
 
 	{ &hf_get_private_info,
-	        { "Get private info", "lsa.access_mask.get_privateinfo", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_GET_PRIVATE_INFORMATION, 
+	        { "Get private info", "lsa.access_mask.get_privateinfo",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_GET_PRIVATE_INFORMATION,
 		  "Get private info", HFILL }},
 
 	{ &hf_trust_admin,
-	        { "Trust admin", "lsa.access_mask.trust_admin", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_TRUST_ADMIN, 
+	        { "Trust admin", "lsa.access_mask.trust_admin",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_TRUST_ADMIN,
 		  "Trust admin", HFILL }},
 
 	{ &hf_create_account,
-	        { "Create account", "lsa.access_mask.create_account", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_ACCOUNT, 
+	        { "Create account", "lsa.access_mask.create_account",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_ACCOUNT,
 		  "Create account", HFILL }},
 
 	{ &hf_create_secret,
-	        { "Create secret", "lsa.access_mask.create_secret", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_SECRET, 
+	        { "Create secret", "lsa.access_mask.create_secret",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_SECRET,
 		  "Create secret", HFILL }},
 
 	{ &hf_create_priv,
-	        { "Create privilege", "lsa.access_mask.create_priv", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_PRIVILEGE, 
+	        { "Create privilege", "lsa.access_mask.create_priv",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_CREATE_PRIVILEGE,
 		  "Create privilege", HFILL }},
 
 	{ &hf_set_default_quota_limits,
-	        { "Set default quota limits", "lsa.access_mask.set_default_quota_limits", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SET_DEFAULT_QUOTA_LIMITS, 
+	        { "Set default quota limits", "lsa.access_mask.set_default_quota_limits",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SET_DEFAULT_QUOTA_LIMITS,
 		  "Set default quota limits", HFILL }},
 
 	{ &hf_set_audit_requirements,
-	        { "Set audit requirements", "lsa.access_mask.set_audit_requirements", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SET_AUDIT_REQUIREMENTS, 
+	        { "Set audit requirements", "lsa.access_mask.set_audit_requirements",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SET_AUDIT_REQUIREMENTS,
 		  "Set audit requirements", HFILL }},
 
 	{ &hf_server_admin,
-	        { "Server admin", "lsa.access_mask.server_admin", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SERVER_ADMIN, 
+	        { "Server admin", "lsa.access_mask.server_admin",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_SERVER_ADMIN,
 		  "Server admin", HFILL }},
 
 	{ &hf_lookup_names,
-	        { "Lookup names", "lsa.access_mask.lookup_names", 
-		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_LOOKUP_NAMES, 
+	        { "Lookup names", "lsa.access_mask.lookup_names",
+		  FT_BOOLEAN, 32, TFS(&flags_set_truth), POLICY_LOOKUP_NAMES,
 		  "Lookup names", HFILL }}
 };
 
@@ -4529,7 +4529,7 @@ proto_register_dcerpc_lsa(void)
 /* Protocol handoff */
 
 static e_uuid_t uuid_dcerpc_lsa = {
-        0x12345778, 0x1234, 0xabcd, 
+        0x12345778, 0x1234, 0xabcd,
         { 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab}
 };
 

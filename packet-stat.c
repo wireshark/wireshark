@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.16 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-stat.c,v 1.17 2002/08/28 21:00:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,8 +67,8 @@ static const value_string stat_res[] =
 	{	0,	NULL }
 };
 
-/* Calculate length (including padding) of my_id structure. 
- * First read the length of the string and round it upwards to nearest 
+/* Calculate length (including padding) of my_id structure.
+ * First read the length of the string and round it upwards to nearest
  * multiple of 4, then add 16 (4*uint32)
  */
 static int
@@ -85,8 +85,8 @@ my_id_len(tvbuff_t *tvb, int offset)
 	return len;
 }
 
-/* Calculate length (including padding) of my_id structure. 
- * First read the length of the string and round it upwards to nearest 
+/* Calculate length (including padding) of my_id structure.
+ * First read the length of the string and round it upwards to nearest
  * multiple of 4, then add 4 (string len) and size of my_id struct.
  */
 static int
@@ -141,7 +141,7 @@ dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	}
 
 	return offset;
-}	
+}
 
 static int
 dissect_stat_my_id(tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -197,7 +197,7 @@ dissect_stat_priv(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_stat_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	
+
 	offset = dissect_stat_mon_id(tvb,offset,pinfo,tree);
 
 	offset = dissect_stat_priv(tvb,offset,tree);
@@ -210,7 +210,7 @@ dissect_stat_state(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	offset = dissect_rpc_uint32(tvb,tree,hf_stat_state,offset);
 
 	return offset;
-}	
+}
 
 static int
 dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
@@ -227,7 +227,7 @@ dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	}
 
 	offset = dissect_rpc_string(tvb,sub_tree,hf_stat_mon_id_name,offset,NULL);
-	
+
 	offset = dissect_rpc_uint32(tvb,tree,hf_stat_state,offset);
 
 	if(sub_item)
@@ -249,17 +249,17 @@ dissect_stat_umon_all(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 static const vsff stat_proc[] = {
     { 0, "NULL", NULL, NULL },
-    { STATPROC_STAT,   "STAT",      
+    { STATPROC_STAT,   "STAT",
 		dissect_stat_stat, dissect_stat_stat_res },
-    { STATPROC_MON,   "MON",      
+    { STATPROC_MON,   "MON",
 		dissect_stat_mon, dissect_stat_stat_res },
-    { STATPROC_UNMON, "UNMON",        
+    { STATPROC_UNMON, "UNMON",
 		dissect_stat_mon_id, dissect_stat_state },
-    { STATPROC_UNMON_ALL, "UNMON_ALL",        
+    { STATPROC_UNMON_ALL, "UNMON_ALL",
 		dissect_stat_umon_all, dissect_stat_state },
-    { STATPROC_SIMU_CRASH, "SIMU_CRASH",        
+    { STATPROC_SIMU_CRASH, "SIMU_CRASH",
 		NULL, NULL },
-    { STATPROC_NOTIFY, "NOTIFY",        
+    { STATPROC_NOTIFY, "NOTIFY",
 		dissect_stat_notify, NULL },
     { 0, NULL, NULL, NULL }
 };
@@ -275,7 +275,7 @@ proto_register_stat(void)
 			NULL, 0, "Name", HFILL }},
 		{ &hf_stat_stat_res, {
 			"Status Result", "stat.stat_res", FT_NONE,0,
-			NULL, 0, "Status Result", HFILL }}, 
+			NULL, 0, "Status Result", HFILL }},
 		{ &hf_stat_stat_res_res, {
 			"Result", "stat.stat_res.res", FT_UINT32, BASE_DEC,
 			VALS(stat_res), 0, "Result", HFILL }},
@@ -290,7 +290,7 @@ proto_register_stat(void)
 			NULL, 0, "Monitor ID Name", HFILL }},
 		{ &hf_stat_my_id, {
 			"My ID", "stat.my_id", FT_NONE,0,
-			NULL, 0, "My_ID structure", HFILL }}, 
+			NULL, 0, "My_ID structure", HFILL }},
 		{ &hf_stat_my_id_hostname, {
 			"Hostname", "stat.my_id.hostname", FT_STRING, BASE_DEC,
 			NULL, 0, "My_ID Host to callback", HFILL }},
@@ -313,7 +313,7 @@ proto_register_stat(void)
 			"Status Change", "stat.stat_chge", FT_NONE, 0,
 			NULL, 0, "Status Change structure", HFILL }},
 	};
-	
+
 	static gint *ett[] = {
 		&ett_stat,
 		&ett_stat_stat_res,

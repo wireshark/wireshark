@@ -2,24 +2,24 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.27 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-rlogin.c,v 1.28 2002/08/28 21:00:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Based upon RFC-1282 - BSD Rlogin
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -65,7 +65,7 @@ typedef struct {
 	int	state;
 	guint32	info_framenum;
 	char  	name[ NAME_LEN];
-	
+
 } rlogin_hash_entry_t;
 
 #define NONE		0
@@ -102,7 +102,7 @@ rlogin_init(void)
 
 /**************** Decoder State Machine ******************/
 
-static void  
+static void
 rlogin_state_machine( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 	packet_info *pinfo)
 {
@@ -119,9 +119,9 @@ rlogin_state_machine( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 						/* exit if not needed */
 	if (( hash_info->state == DONE) || (  hash_info->state == BAD))
 		return;
-		
+
 						/* test timestamp */
-	if (( last_abs_sec > pinfo->fd->abs_secs) || 
+	if (( last_abs_sec > pinfo->fd->abs_secs) ||
 	    (( last_abs_sec == pinfo->fd->abs_secs) &&
 	     ( last_abs_usec >= pinfo->fd->abs_usecs)))
 	    	return;
@@ -131,7 +131,7 @@ rlogin_state_machine( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 	length = tvb_length(tvb);
 	if ( length == 0)				/* exit if no data */
-		return;   
+		return;
 
 	if ( hash_info->state == NONE){      		/* new connection*/
 		if (tvb_get_guint8(tvb, 0) != '\0') {
@@ -147,12 +147,12 @@ rlogin_state_machine( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 			else {
 				hash_info->state = DONE;
 				hash_info->info_framenum = pinfo->fd->num;
-			}	
+			}
 		}
 	}					/* expect user data here */
-/*$$$ may need to do more checking here */	
+/*$$$ may need to do more checking here */
 	else if ( hash_info->state == USER_INFO_WAIT) {
-		hash_info->state = DONE;	
+		hash_info->state = DONE;
 		hash_info->info_framenum = pinfo->fd->num;
 							/* save name for later*/
 		stringlen = tvb_strnlen(tvb, 0, NAME_LEN);
@@ -162,11 +162,11 @@ rlogin_state_machine( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 			stringlen = NAME_LEN - 1;	/* name too long */
 		tvb_memcpy(tvb, (guint8 *)hash_info->name, 0, stringlen);
 		hash_info->name[stringlen] = '\0';
-		
+
 		if (check_col(pinfo->cinfo, COL_INFO))	/* update summary */
 			col_append_str(pinfo->cinfo, COL_INFO,
 			    ", User information");
-	}		
+	}
 }
 
 static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
@@ -200,11 +200,11 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 		int urgent_offset = tcpinfo->urgent_pointer - 1;
 		guint8 Temp = tvb_get_guint8(tvb, urgent_offset);
-		
+
 		if (urgent_offset > offset)	/* check for data in front */
 			proto_tree_add_text( rlogin_tree, tvb, offset,
 			    urgent_offset, "Data");
-		
+
 		proto_tree_add_text( rlogin_tree, tvb, urgent_offset, 1,
 				"Control byte: %u (%s)",
 				Temp,
@@ -219,13 +219,13 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 		if ( pinfo->srcport== RLOGIN_PORT)   /* from server */
 	   		proto_tree_add_text(rlogin_tree, tvb, offset, 1,
 					"Startup info received flag (0x00)");
-					
-		else 
+
+		else
 	   		proto_tree_add_text(rlogin_tree, tvb, offset, 1,
 					"Client Startup Flag (0x00)");
 		++offset;
 	}
-		
+
 	if (!tvb_offset_exists(tvb, offset))
 		return;	/* No more data to check */
 
@@ -255,7 +255,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 				"Client User Name: %.*s", str_len - 1,
 				tvb_get_ptr(tvb, offset, str_len - 1));
 		offset += str_len;
-		
+
 		/*
 		 * Do terminal type/speed.
 		 */
@@ -273,7 +273,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 						/* look for first 0xff byte */
 	ti_offset = tvb_find_guint8(tvb, offset, -1, 0xff);
-		
+
 	if (ti_offset != -1 &&
 	    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
 	    tvb_get_guint8(tvb, ti_offset + 1) == 0xff) {
@@ -291,15 +291,15 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 		window_info_item = proto_tree_add_item(rlogin_tree,
 				hf_window_info, tvb, offset, 12, FALSE );
-			
+
 		window_tree = proto_item_add_subtree(window_info_item,
 			                 ett_rlogin_window);
 
-	        proto_tree_add_text(window_tree, tvb, offset, 2, 
+	        proto_tree_add_text(window_tree, tvb, offset, 2,
 			"Magic Cookie: (0xff, 0xff)");
 		offset += 2;
-					
-	      	proto_tree_add_text(window_tree, tvb, offset, 2, 
+
+	      	proto_tree_add_text(window_tree, tvb, offset, 2,
 			"Window size marker: 'ss'");
 		offset += 2;
 
@@ -319,14 +319,14 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 			offset, 2, FALSE);
 		offset += 2;
 	}
-			
+
 	if (tvb_offset_exists(tvb, offset)) {
 		/*
 		 * There's more data in the frame.
 		 */
 		proto_tree_add_text(rlogin_tree, tvb, offset, -1, "Data");
 	}
-}	
+}
 
 static void
 dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -354,30 +354,30 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		conversation_add_proto_data(conversation, proto_rlogin,
 			hash_info);
 	}
-	
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))		/* update protocol  */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Rlogin");
 
 	if (check_col(pinfo->cinfo, COL_INFO)){		/* display packet info*/
 
 		char temp[1000];
-		
+
 		col_clear(pinfo->cinfo, COL_INFO);
 		if ( hash_info->name[0]) {
 			strcpy( temp, "User name: ");
 			strcat( temp, hash_info->name);
 			strcat( temp, ", ");
 		}
-		else 
+		else
 			temp[0] = 0;
 
 		length = tvb_length(tvb);
 		if (length != 0) {
 			if ( tvb_get_guint8(tvb, 0) == '\0')
-				strcat( temp, "Start Handshake"); 
+				strcat( temp, "Start Handshake");
 			else if ( tcpinfo->urgent &&
 				  length >= tcpinfo->urgent_pointer )
-				strcat( temp, "Control Message"); 
+				strcat( temp, "Control Message");
 
 			else {			/* check for terminal info */
 				ti_offset = tvb_find_guint8(tvb, 0, -1, 0xff);
@@ -399,7 +399,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					temp[i + bytes_to_copy] = '\0';
 				}
 			}
-		}		
+		}
 
 		col_add_str(pinfo->cinfo, COL_INFO, temp);
 	}
@@ -425,7 +425,7 @@ proto_register_rlogin( void){
 		&ett_rlogin_window_y_pixels,
 		&ett_rlogin_user_info
 	};
-	
+
 	static hf_register_info hf[] = {
 
 		{ &hf_user_info,
@@ -464,7 +464,7 @@ proto_register_rlogin( void){
 		"Rlogin Protocol", "Rlogin", "rlogin");
 
 	proto_register_field_array(proto_rlogin, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));  
+	proto_register_subtree_array(ett, array_length(ett));
 
 	register_init_routine( &rlogin_init);	/* register re-init routine */
 }
@@ -472,8 +472,8 @@ proto_register_rlogin( void){
 void
 proto_reg_handoff_rlogin(void) {
 
-	/* dissector install routine */ 
- 
+	/* dissector install routine */
+
 	dissector_handle_t rlogin_handle;
 
 	rlogin_handle = create_dissector_handle(dissect_rlogin, proto_rlogin);

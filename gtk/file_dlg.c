@@ -1,22 +1,22 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.49 2002/03/05 11:55:58 guy Exp $
+ * $Id: file_dlg.c,v 1.50 2002/08/28 21:03:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -123,7 +123,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
     GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
-  
+
   filter_te = gtk_entry_new();
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
@@ -158,7 +158,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   gtk_widget_show(t_resolv_cb);
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
 		  E_FILE_T_RESOLVE_KEY, t_resolv_cb);
-  
+
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
   gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION(file_open_w)->ok_button),
@@ -252,7 +252,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
     g_free(cf_name);
     return;
   }
-    
+
   /* Save the name of the containing directory specified in the path name,
      if any; we can write over cf_name, which is a good thing, given that
      "get_dirname()" does write over its argument. */
@@ -323,7 +323,7 @@ can_save_with_wiretap(int ft)
    "filtered" is TRUE if we're to save only the packets that passed
    the display filter (in which case we have to save it using Wiretap)
    and FALSE if we're to save the entire file (in which case, if we're
-   saving it in the type it has already, we can just copy it). 
+   saving it in the type it has already, we can just copy it).
 
    "marked" is TRUE if we have to save only the marked packets,
    the same remark as "filtered" applies.
@@ -455,7 +455,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_save_as_w)->action_area),
     main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);
-  
+
   /*
    * XXX - should this be sensitive only if the current display filter
    * has rejected some packets, so that not all packets are currently
@@ -495,7 +495,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   ft_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(main_vb), ft_hb);
   gtk_widget_show(ft_hb);
-  
+
   ft_lb = gtk_label_new("File type:");
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_lb, FALSE, FALSE, 0);
   gtk_widget_show(ft_lb);

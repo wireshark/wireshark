@@ -1,22 +1,22 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.34 2002/03/05 11:55:59 guy Exp $
+ * $Id: gui_prefs.c,v 1.35 2002/08/28 21:03:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -194,13 +194,13 @@ gui_prefs_show(void)
 	    prefs.gui_hex_dump_highlight_style);
 	gtk_object_set_data(GTK_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY,
 	    highlight_style_om);
-	
+
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb,
 	    6, "Save window position:", NULL, prefs.gui_geometry_save_position);
 	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_POSITION_KEY,
 	    save_position_cb);
-	    
+
 	save_size_cb = create_preference_check_button(main_tb,
 	    7, "Save window size:", NULL, prefs.gui_geometry_save_size);
 	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_SIZE_KEY,
@@ -282,7 +282,7 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 	/* Set the FONT_DIALOG_PTR_KEY for the caller to point to us */
 	gtk_object_set_data(GTK_OBJECT(caller), FONT_DIALOG_PTR_KEY,
 	    font_browse_w);
-  
+
 	/* Connect the ok_button to font_browse_ok_cb function and pass along a
 	   pointer to the font selection box widget */
 	gtk_signal_connect(
@@ -407,10 +407,10 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_hex_dump_highlight_style = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), HEX_DUMP_HIGHLIGHT_STYLE_KEY),
 	    highlight_style_vals);
-	prefs.gui_geometry_save_position = 
+	prefs.gui_geometry_save_position =
 	    gtk_toggle_button_get_active(gtk_object_get_data(GTK_OBJECT(w),
 	    	GEOMETRY_POSITION_KEY));
-	prefs.gui_geometry_save_size = 
+	prefs.gui_geometry_save_size =
 	    gtk_toggle_button_get_active(gtk_object_get_data(GTK_OBJECT(w),
 	    	GEOMETRY_SIZE_KEY));
 
@@ -534,9 +534,9 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   GtkWidget *main_vb, *main_tb, *label, *optmenu, *menu, *menuitem;
   GtkWidget *sample, *colorsel, *bbox, *cancel_bt, *ok_bt, *color_w;
   int        width, height, i;
-  gdouble    scolor[4]; 
+  gdouble    scolor[4];
   GtkWidget *caller = gtk_widget_get_toplevel(w);
- 
+
   /* Has a color dialog box already been opened for that top-level
      widget? */
   color_w = gtk_object_get_data(GTK_OBJECT(caller),
@@ -570,7 +570,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
      if any, that we've been destroyed. */
   gtk_signal_connect(GTK_OBJECT(color_w), "destroy",
 		     GTK_SIGNAL_FUNC(color_destroy_cb), NULL);
-  
+
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add (GTK_CONTAINER (color_w), main_vb);
@@ -589,7 +589,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   menu = gtk_menu_new();
   for (i = 0; i < MAX_HANDLED_COL; i++){
     menuitem = gtk_menu_item_new_with_label(color_info[i].label);
-    gtk_object_set_data(GTK_OBJECT(menuitem), COLOR_SELECTION_PTR_KEY, 
+    gtk_object_set_data(GTK_OBJECT(menuitem), COLOR_SELECTION_PTR_KEY,
 			(gpointer) colorsel);
     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
 		       GTK_SIGNAL_FUNC(update_current_color),
@@ -606,18 +606,18 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   width = gdk_string_width(sample->style->font, SAMPLE_MARKED_TEXT);
   gtk_widget_set_usize(GTK_WIDGET(sample), width, height);
   gtk_text_set_editable(GTK_TEXT(sample), FALSE);
-  gtk_text_insert(GTK_TEXT(sample), NULL, 
-		  &color_info[MFG_IDX].color, 
+  gtk_text_insert(GTK_TEXT(sample), NULL,
+		  &color_info[MFG_IDX].color,
 		  &color_info[MBG_IDX].color,
 		  SAMPLE_MARKED_TEXT, -1);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), sample, 2, 3, 0, 2);
   gtk_widget_show(sample);
-  gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel), 
+  gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel),
 				&scolor[CS_RED]);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), colorsel, 0, 3, 2, 3);
   gtk_object_set_data(GTK_OBJECT(colorsel), COLOR_SAMPLE_PTR_KEY,
 		      (gpointer) sample);
-  gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed", 
+  gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed",
 		     GTK_SIGNAL_FUNC(update_text_color), NULL);
   gtk_widget_show(colorsel);
   gtk_widget_show(main_vb);
@@ -625,7 +625,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   gtk_object_set_data(GTK_OBJECT(color_w), COLOR_CALLER_PTR_KEY, caller);
   gtk_object_set_data(GTK_OBJECT(caller), COLOR_DIALOG_PTR_KEY, color_w);
 
-  /* Ok, Cancel Buttons */  
+  /* Ok, Cancel Buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
   gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
@@ -640,7 +640,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked", 
+  gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
 			    (GtkSignalFunc)gtk_widget_destroy,
 			    GTK_OBJECT(color_w));
   gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
@@ -656,16 +656,16 @@ update_text_color(GtkWidget *w, gpointer data _U_) {
   gdouble   scolor[4];
 
   gtk_color_selection_get_color(GTK_COLOR_SELECTION(w), &scolor[CS_RED]);
-  
+
   curcolor->red   = (gushort) (scolor[CS_RED]   * 65535.0);
   curcolor->green = (gushort) (scolor[CS_GREEN] * 65535.0);
   curcolor->blue  = (gushort) (scolor[CS_BLUE]  * 65535.0);
-  
+
   gtk_text_freeze(sample);
   gtk_text_set_point(sample, 0);
   gtk_text_forward_delete(sample, gtk_text_get_length(sample));
-  gtk_text_insert(GTK_TEXT(sample), NULL, 
-		  &color_info[MFG_IDX].color, 
+  gtk_text_insert(GTK_TEXT(sample), NULL,
+		  &color_info[MFG_IDX].color,
 		  &color_info[MBG_IDX].color,
 		  SAMPLE_MARKED_TEXT, -1);
   gtk_text_thaw(sample);
@@ -674,7 +674,7 @@ update_text_color(GtkWidget *w, gpointer data _U_) {
 static void
 update_current_color(GtkWidget *w, gpointer data)
 {
-  GtkColorSelection *colorsel;    
+  GtkColorSelection *colorsel;
   gdouble            scolor[4];
 
   colorsel = GTK_COLOR_SELECTION(gtk_object_get_data(GTK_OBJECT(w),
@@ -684,7 +684,7 @@ update_current_color(GtkWidget *w, gpointer data)
   scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
   scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
   scolor[CS_OPACITY] = 1.0;
-  
+
   gtk_color_selection_set_color(colorsel, &scolor[CS_RED]);
 }
 
@@ -722,7 +722,7 @@ color_delete_cb(GtkWidget *prefs_w _U_, gpointer dummy _U_)
 static void
 color_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
-  GtkWidget *caller = gtk_object_get_data(GTK_OBJECT(w), 
+  GtkWidget *caller = gtk_object_get_data(GTK_OBJECT(w),
 					  COLOR_CALLER_PTR_KEY);
   if (caller != NULL) {
     gtk_object_set_data(GTK_OBJECT(caller), COLOR_DIALOG_PTR_KEY, NULL);

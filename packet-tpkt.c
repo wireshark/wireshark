@@ -7,22 +7,22 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.21 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-tpkt.c,v 1.22 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -57,7 +57,7 @@ static gboolean tpkt_desegment = TRUE;
 #define TCP_PORT_TPKT	102
 
 /* find the dissector for OSI TP (aka COTP) */
-static dissector_handle_t osi_tp_handle; 
+static dissector_handle_t osi_tp_handle;
 
 /*
  * Check whether this could be a TPKT-encapsulated PDU.
@@ -85,8 +85,8 @@ is_tpkt(tvbuff_t *tvb, int min_len)
 		return -1;	/* there aren't */
 
 	/*
-	 * The first octet should be 3 and the second one should be 0 
-	 * The H.323 implementers guide suggests that this might not 
+	 * The first octet should be 3 and the second one should be 0
+	 * The H.323 implementers guide suggests that this might not
 	 * always be the case....
 	 */
 	if (!(tvb_get_guint8(tvb, 0) == 3 && tvb_get_guint8(tvb, 1) == 0))
@@ -134,7 +134,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	if (tpkt_desegment && check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, "");
-  
+
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
 		 * Is the first byte of this putative TPKT header
@@ -325,47 +325,47 @@ dissect_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_tpkt(void)
 {
-	static hf_register_info hf[] = 
+	static hf_register_info hf[] =
 	{
-		{ 
+		{
 			&hf_tpkt_version,
-			{ 
-				"Version", 
-				"tpkt.version", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Version",
+				"tpkt.version",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_tpkt_reserved,
-			{ 
-				"Reserved", 
-				"tpkt.reserved", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Reserved",
+				"tpkt.reserved",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_tpkt_length,
-			{ 
-				"Length", 
-				"tpkt.length", 
-				FT_UINT16, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Length",
+				"tpkt.length",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
 	};
-	
-	static gint *ett[] = 
+
+	static gint *ett[] =
 	{
 		&ett_tpkt,
 	};

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.56 2002/08/02 22:34:54 jmayer Exp $
+ * $Id: proto_draw.c,v 1.57 2002/08/28 21:03:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9,17 +9,17 @@
  *
  * Jeff Foster,    2001/03/12,  added support for displaying named
  *				data sources as tabbed hex windows
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -134,7 +134,7 @@ redraw_hex_dump(GtkWidget *nb, frame_data *fd, field_info *finfo)
   GtkWidget *bv;
   const guint8 *data;
   guint len;
- 
+
   bv = get_notebook_bv_ptr(nb);
   if (bv != NULL) {
     data = get_byte_view_data_and_length(bv, &len);
@@ -149,7 +149,7 @@ redraw_hex_dump_all(void)
 {
   if (cfile.current_frame != NULL)
     redraw_hex_dump( byte_nb_ptr, cfile.current_frame, finfo_selected);
-  
+
   redraw_hex_dump_packet_wins();
 }
 
@@ -413,7 +413,7 @@ byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 	if(widget == NULL || event == NULL || data == NULL) {
 		return FALSE;
 	}
-	
+
 	if(event->type == GDK_BUTTON_PRESS) {
 		event_button = (GdkEventButton *) event;
 
@@ -566,7 +566,7 @@ packet_hex_print_common(GtkText *bv, const guint8 *pd, int len, int bstart,
 
   /* Clear out the text */
   gtk_text_set_point(bv, 0);
-  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see 
+  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
      http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
      http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
      for more information */
@@ -605,7 +605,7 @@ packet_hex_print_common(GtkText *bv, const guint8 *pd, int len, int bstart,
     line[cur++] = ' ';
     line[cur++] = ' ';
     line[cur] = '\0';
-    
+
     /* Display with inverse video ? */
     if (prefs.gui_hex_dump_highlight_style) {
       gtk_text_insert(bv, m_r_font, &BLACK, &WHITE, line, -1);
@@ -902,7 +902,7 @@ set_ptree_style_cb(gpointer data, gpointer user_data)
 {
 	gtk_widget_set_style((GtkWidget *)data, (GtkStyle *)user_data);
 }
-	
+
 void
 set_ptree_font_all(GdkFont *font)
 {
@@ -933,7 +933,7 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
   gtk_widget_set_usize(tv_scrollw, -1, tv_size);
   gtk_widget_show(tv_scrollw);
-  
+
   tree_view = ctree_new(1, 0);
   gtk_signal_connect( GTK_OBJECT(tree_view), "key-press-event",
 		      (GtkSignalFunc) toggle_tree, NULL );
@@ -1037,7 +1037,7 @@ proto_tree_draw_node(GNode *node, gpointer data)
 		is_leaf = TRUE;
 		is_expanded = FALSE;
 	}
-	
+
 	info.ctree = parent_info->ctree;
 	parent = gtk_ctree_insert_node ( info.ctree, parent_info->ctree_node, NULL,
 			&label_ptr, 5, NULL, NULL, NULL, NULL,

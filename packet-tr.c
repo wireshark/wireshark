@@ -2,22 +2,22 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.72 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-tr.c,v 1.73 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -33,7 +33,7 @@
 #include <epan/packet.h>
 #include "packet-tr.h"
 #include "packet-llc.h"
-	
+
 static int proto_tr = -1;
 static int hf_tr_dst = -1;
 static int hf_tr_src = -1;
@@ -118,8 +118,8 @@ static dissector_handle_t data_handle;
 
 /*
  * DODGY LINUX HACK DODGY LINUX HACK
- * Linux 2.0.x always passes frames to the Token Ring driver for transmission with 
- * 18 bytes padding for source routing information.  Some drivers copy the first 
+ * Linux 2.0.x always passes frames to the Token Ring driver for transmission with
+ * 18 bytes padding for source routing information.  Some drivers copy the first
  * (18 - srlen) bytes up the frame (18 - srlen) bytes thus removing the padding.
  * Other drivers just make a copy of the entire frame and then hack about with it
  * so the frame the sniffer gets is fine (just has extra sr routing).
@@ -130,7 +130,7 @@ static dissector_handle_t data_handle;
  * This only detects frames that we have sent ourselves so if we are packet sniffing
  * on the machine we are watching this is useful.
  * Compare offset 0 with offset x+1 for a length of x bytes for all value of x = 1 to 18
- * if match then Linux driver has done in situ source route compression of the crappy 
+ * if match then Linux driver has done in situ source route compression of the crappy
  * Linux 2.0.x frame so the beginning of the real frame is x bytes in.
  * (And this real frame x bytes in looks like a proper TR frame that goes on the wire
  * with none of the Linux idiosyncrasies).
@@ -156,7 +156,7 @@ int check_for_old_linux_tvb(tvbuff_t *tvb)
 			return x;
 		}
 	}
-	return 0;		
+	return 0;
 }
 
 static
@@ -170,7 +170,7 @@ int check_for_old_linux(const guchar * pd)
 			return x;
 		}
 	}
-	return 0;		
+	return 0;
 }
 
 
@@ -199,7 +199,7 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
 	if ((x = check_for_old_linux(pd)))
 	{
 		/* Actually packet starts x bytes into what we have got but with all
-		   source routing compressed 
+		   source routing compressed
 		*/
 		 /* pd = &pd[x]; */ offset+=x;
 	}
@@ -278,7 +278,7 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
                        offset += 8; /* Skip fake LLC and SNAP */
                 }
 	}
-	
+
 	offset += actual_rif_bytes + TR_MIN_HEADER_LEN;
 
 	/* The package is either MAC or LLC */
@@ -325,7 +325,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* non-source-routed version of source addr */
 	static guint8		trn_shost_nonsr[6];
 	int			x;
-	
+
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
 
@@ -384,8 +384,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				if ( ( first2_sr == 0xaaaa &&
 					tvb_get_guint8(tr_tvb, trn_rif_bytes + 0x10) == 0x03)   ||
-					
-					first2_sr == 0xe0e0 || 
+
+					first2_sr == 0xe0e0 ||
 					first2_sr == 0xe0aa ) {
 
 					source_routed = 1;
@@ -415,11 +415,11 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (frame_type == 1 && ( (source_routed && trn_rif_bytes == 2) ||
 					 !source_routed) ) {
 			/* look for SNAP or IPX only */
-			if ( 	
+			if (
 				(tvb_get_ntohs(tr_tvb, 0x20) == 0xaaaa &&
 				tvb_get_guint8(tr_tvb, 0x22) == 0x03)
 			 ||
-				tvb_get_ntohs(tr_tvb, 0x20) == 0xe0e0 ) { 
+				tvb_get_ntohs(tr_tvb, 0x20) == 0xe0e0 ) {
 
 				actual_rif_bytes = 18;
 		       }
@@ -575,7 +575,7 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 		size = sprintf(buffer+buff_offset, "-%01X-%03X",brdgnmb,segment);
 		proto_tree_add_uint_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
 		proto_tree_add_uint_hidden(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
-		buff_offset += size;	
+		buff_offset += size;
 	}
 	proto_tree_add_string(tree, hf_tr_rif, tvb, TR_MIN_HEADER_LEN + 2, rcf_len, buffer);
 

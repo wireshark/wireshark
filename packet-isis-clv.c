@@ -1,23 +1,23 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.22 2002/08/02 23:35:51 jmayer Exp $
+ * $Id: packet-isis-clv.c,v 1.23 2002/08/28 21:00:18 jmayer Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -49,7 +49,7 @@ free_g_string(void *arg)
 
 /*
  * Name: isis_dissect_area_address_clv()
- * 
+ *
  * Description:
  *	Take an area address CLV and display it pieces.  An area address
  *	CLV is n, x byte hex strings.
@@ -59,14 +59,14 @@ free_g_string(void *arg)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of clv we are decoding
- * 
+ *
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
-void 
+void
 isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length)
-{	
+{
 	int		arealen,area_idx;
 	GString		*gstr;
 
@@ -86,7 +86,7 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		}
 
 		if ( tree ) {
-			/* 
+			/*
 			 * Lets turn the area address into "standard"
 			 * xx.xxxx.xxxx.xxxx.xxxx.xxxx.xxxx format string.
 	                 * this is a private routine as the print_nsap_net in
@@ -112,7 +112,7 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			}
 
 			/* and spit it out */
-			proto_tree_add_text ( tree, tvb, offset, arealen + 1,  
+			proto_tree_add_text ( tree, tvb, offset, arealen + 1,
 				"Area address (%d): %s", arealen, gstr->str );
 
 			/*
@@ -129,14 +129,14 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 /*
  * Name: isis_dissect_authentication_clv()
- * 
+ *
  * Description:
  *	Take apart the CLV that hold authentication information.  This
  *	is currently 1 octet auth type (which must be 1) and then
  *	the clear text password.
- *	
+ *
  *	An ISIS password has different meaning depending where it
- *	is found.  Thus we support a passed in prefix string to 
+ *	is found.  Thus we support a passed in prefix string to
  *	use to name this.
  *
  * Input:
@@ -145,14 +145,14 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	int : offset into packet data where we are.
  *	int : length of clv we are decoding
  *	char * : Password meaning
- * 
+ *
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
-void 
+void
 isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length, char *meaning)
-{	
+{
 	guchar pw_type;
 	char sbuf[300];		/* 255 + header info area */
 	char *s = sbuf;
@@ -207,8 +207,8 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
        	if ( auth_unsupported ) {
 		isis_dissect_unknown(tvb, tree, offset,
        			"Unknown authentication type" );
-	}	
-}	    
+	}
+}
 
 /*
  * Name: isis_dissect_hostname_clv()
@@ -231,7 +231,7 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 void
 isis_dissect_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length)
-{	
+{
         if ( !tree ) return;            /* nothing to do! */
 
         if ( length == 0 ) {
@@ -247,15 +247,15 @@ isis_dissect_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 
 
-void 
+void
 isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
 	int tree_id)
-{	
+{
 	guint16 mt_block;
 	char mt_desc[60];
 
 	while (length>0) {
-	    /* length can only be a multiple of 2, otherwise there is 
+	    /* length can only be a multiple of 2, otherwise there is
 	       something broken -> so decode down until length is 1 */
 	    if (length!=1) {
 		/* fetch two bytes */
@@ -302,7 +302,7 @@ isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
 
 /*
  * Name: isis_dissect_ip_int_clv()
- * 
+ *
  * Description:
  *	Take apart the CLV that lists all the IP interfaces.  The
  *	meaning of which is slightly different for the different base packet
@@ -315,11 +315,11 @@ isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
  *	int : offset into packet data where we are.
  *	int : length of clv we are decoding
  *	int : tree id to use for proto tree.
- * 
+ *
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
-void 
+void
 isis_dissect_ip_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length, int tree_id)
 {
@@ -344,7 +344,7 @@ isis_dissect_ip_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 /*
  * Name: isis_dissect_ipv6_int_clv()
- * 
+ *
  * Description:
  *	Take apart the CLV that lists all the IPv6 interfaces.  The
  *	meaning of which is slightly different for the different base packet
@@ -357,11 +357,11 @@ isis_dissect_ip_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	int : offset into packet data where we are.
  *	int : length of clv we are decoding
  *	int : tree id to use for proto tree.
- * 
+ *
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
-void 
+void
 isis_dissect_ipv6_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length, int tree_id)
 {
@@ -425,7 +425,7 @@ isis_dissect_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 /*
  * Name: isis_dissect_nlpid_clv()
- * 
+ *
  * Description:
  *	Take apart a NLPID packet and display it.  The NLPID (for intergrated
  *	ISIS, contains n network layer protocol IDs that the box supports.
@@ -437,11 +437,11 @@ isis_dissect_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of clv we are decoding
- * 
+ *
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
-void 
+void
 isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 {
 	char sbuf[256*6];
@@ -453,12 +453,12 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 
 	while ( length-- > 0 ) {
 		if (s != sbuf ) {
-			s += sprintf ( s, ", " ); 
+			s += sprintf ( s, ", " );
 		}
 		s += sprintf ( s, "%s (0x%02x)",
-		    val_to_str(tvb_get_guint8(tvb, offset), nlpid_vals, 
+		    val_to_str(tvb_get_guint8(tvb, offset), nlpid_vals,
 			"Unknown"), tvb_get_guint8(tvb, offset));
-		offset++;	
+		offset++;
 	}
 
 	if ( hlen == 0 ) {
@@ -471,7 +471,7 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 
 /*
  * Name: isis_dissect_clvs()
- * 
+ *
  * Description:
  *	Dispatch routine to shred all the CLVs in a packet.  We just
  *	walk through the clv entries in the packet.  For each one, we
@@ -489,11 +489,11 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
  *	int : length of CLV area.
  *	int : length of IDs in packet.
  *	int : unknown clv tree id
- * 
+ *
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
-void 
+void
 isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 	const isis_clv_handle_t *opts, int len, int id_length,
 	int unknown_tree_id)
@@ -528,11 +528,11 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 		if ( opts[q].dissect ) {
 			if (tree) {
 				/* adjust by 2 for code/len octets */
-				snprintf ( sbuf, sizeof(sbuf), "%s (%d)", 
-					opts[q].tree_text, length ); 
-				ti = proto_tree_add_text(tree, tvb, offset - 2, 
+				snprintf ( sbuf, sizeof(sbuf), "%s (%d)",
+					opts[q].tree_text, length );
+				ti = proto_tree_add_text(tree, tvb, offset - 2,
 					length + 2, sbuf);
-				clv_tree = proto_item_add_subtree(ti, 
+				clv_tree = proto_item_add_subtree(ti,
 					*opts[q].tree_id );
 			} else {
 				clv_tree = NULL;
@@ -540,14 +540,14 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			opts[q].dissect(tvb, clv_tree, offset,
 				id_length, length);
 		} else {
-			if (tree) { 
-				snprintf ( sbuf, sizeof(sbuf), 
-					"Unknown code (%d:%d)", code, length ); 
-				ti = proto_tree_add_text(tree, tvb, offset - 2, 
+			if (tree) {
+				snprintf ( sbuf, sizeof(sbuf),
+					"Unknown code (%d:%d)", code, length );
+				ti = proto_tree_add_text(tree, tvb, offset - 2,
 					length + 2, sbuf);
-				clv_tree = proto_item_add_subtree(ti, 
+				clv_tree = proto_item_add_subtree(ti,
 					unknown_tree_id );
-			} else { 
+			} else {
 				clv_tree = NULL;
 			}
 		}

@@ -1,10 +1,10 @@
 /* packet-gtp.c
- * 
+ *
  * Routines for GTP dissection
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.35 2002/08/26 20:22:27 guy Exp $
+ * $Id: packet-gtp.c,v 1.36 2002/08/28 21:00:14 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -14,12 +14,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -41,10 +41,10 @@
 #include "ppptypes.h"
 #include "prefs.h"
 
-/* 
+/*
  * All data related to GTP v0 (GPRS) uses "gtpv0" or "GTPv0",
  * all data related to GTP v1 (UMTS) uses "gtpv1" or "GTPv1",
- * if there is any gtp alone statement it means that this data is common 
+ * if there is any gtp alone statement it means that this data is common
  * for both: GPRS and UMTS
  */
 
@@ -57,8 +57,8 @@
 #define GTP_PRIME_HDR_LENGTH 6
 
 /* for function checking compliance with ETSI  */
-#define MANDATORY	1			
-#define OPTIONAL	2 
+#define MANDATORY	1
+#define OPTIONAL	2
 #define CONDITIONAL	4
 
 static int g_gtpv0_port			= GTPv0_PORT;
@@ -531,15 +531,15 @@ static const value_string message_type[] = {
 #define GTP_EXT_SEL_MODE	0x0F
 
 #define GTP_EXT_16		0x10
-#define GTP_EXT_FLOW_LABEL	0x10	
+#define GTP_EXT_FLOW_LABEL	0x10
 #define GTP_EXT_TEID		0x10 	/* 0xFF10 3G */
 
 #define GTP_EXT_17		0x11
-#define GTP_EXT_FLOW_SIG	0x11	
+#define GTP_EXT_FLOW_SIG	0x11
 #define GTP_EXT_TEID_CP		0x11	/* 0xFF11 3G */
 
 #define GTP_EXT_18		0x12
-#define GTP_EXT_FLOW_II		0x12	
+#define GTP_EXT_FLOW_II		0x12
 #define GTP_EXT_TEID_II		0x12	/* 0xFF12 3G*/
 
 #define GTP_EXT_19		0x13
@@ -600,19 +600,19 @@ static const value_string gtp_val[] = {
 	{ GTP_EXT_16,		"Flow label data I" },
 	{ GTP_EXT_FLOW_LABEL,	"Flow label data I" },
 	{ GTP_EXT_TEID,		"Tunnel Endpoint Identifier Data I" },		/* 3G */
-	
+
 	{ GTP_EXT_17,		"Flow label signalling" },
 	{ GTP_EXT_FLOW_SIG,	"Flow label signalling" },
 	{ GTP_EXT_TEID_CP,	"Tunnel Endpoint Identifier Data Control Plane" },	/* 3G */
-	
+
 	{ GTP_EXT_18,		"Flow label data II" },
 	{ GTP_EXT_FLOW_II,	"Flow label data II" },
 	{ GTP_EXT_TEID_II,	"Tunnel Endpoint Identifier Data II" },		/* 3G */
-	
+
 	{ GTP_EXT_19,		"MS not reachable reason" },
 	{ GTP_EXT_MS_REASON,	"MS not reachable reason" },
 	{ GTP_EXT_TEAR_IND,	"Teardown ID" },					/* 3G */
-	
+
 	{ GTP_EXT_NSAPI,	"NSAPI" },						/* 3G */
 	{ GTP_EXT_RANAP_CAUSE,	"RANAP cause" },					/* 3G */
 	{ GTP_EXT_RAB_CNTXT,	"RAB context" },					/* 3G */
@@ -652,7 +652,7 @@ static const value_string gtp_val[] = {
 };
 
 /* GPRS:	9.60 v7.6.0, page 37
- * UMTS:	29.060 v4.0, page 45 
+ * UMTS:	29.060 v4.0, page 45
  */
 static const value_string cause_type[] = {
 	{ 0,	"Request IMSI" },
@@ -781,7 +781,7 @@ static const value_string qos_peak_type[] = {
 	{ 0x07, "Up to 64 000 oct/s" },
 	{ 0x08, "Up to 128 000 oct/s" },
 	{ 0x09, "Up to 256 000 oct/s" },
-/* QoS Peak throughput classes from 0x0A to 0x0F (from 10 to 15) are subscribed */ 
+/* QoS Peak throughput classes from 0x0A to 0x0F (from 10 to 15) are subscribed */
 	{ 0x0A,	"Reserved" },
 	{ 0x0B,	"Reserved" },
 	{ 0x0C,	"Reserved" },
@@ -866,7 +866,7 @@ static const value_string qos_traf_class[] = {
 
 static const value_string qos_max_sdu_size[] = {
 	{ 0x00, "Subscribed maximum SDU size (in MS to network direction" },
-	/* For values from 0x01 to 0x96 (from 1 to 150), use a granularity of 10 octets */ 
+	/* For values from 0x01 to 0x96 (from 1 to 150), use a granularity of 10 octets */
 	{ 0x97, "1502 octets" },
 	{ 0x98, "1510 octets" },
 	{ 0x99, "1520 octets" },
@@ -917,7 +917,7 @@ static const value_string qos_sdu_err_ratio[] = {
 	{ 0x07, "1/10 = 1x10^-1" },
 	{ 0x0F, "Reserved" },		/* All other values are reserved */
 	{ 0, NULL }
-}; 
+};
 
 static const value_string qos_traf_handl_prio[] = {
 	{ 0x00, "Subscribed traffic handling priority (in MS to network direction)" },
@@ -1154,7 +1154,7 @@ static const value_string mm_rr_mess[] = {
 	{ 0x30, "Configuration change command" },
 	{ 0x31, "Configuration change ack" },
 	{ 0x33, "Configuration change reject" },
-	
+
 	{ 0x2E, "Assignment command" },
 	{ 0x29, "Assignment complete" },
 	{ 0x2F, "Assigment failure" },
@@ -1245,7 +1245,7 @@ static const value_string mm_mm_mess[] = {
 	{ 0, NULL }
 };
 
-static const value_string mm_cc_mess[] = { 			
+static const value_string mm_cc_mess[] = {
 	{ 0x00, "escape to nationally specific" },
 /*{ 0 x 0 0, "- - - Call establishment messages:" },*/
 	{ 0x01, "ALERTING" },
@@ -1334,7 +1334,7 @@ static const value_string cdr_close_type[] = {
 	{ 7, "Abnormal" },
 	{ 0, NULL }
 };
-			
+
 static dissector_handle_t ip_handle;
 static dissector_handle_t ppp_handle;
 
@@ -1393,7 +1393,7 @@ static int decode_gtp_priv_ext		(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int decode_gtp_unknown		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 typedef struct _gtp_opt {
-	int   optcode; 
+	int   optcode;
 /*	char  *name; */
 	int  (*decode)(tvbuff_t  *, int, packet_info *, proto_tree *);
 } gtp_opt_t;
@@ -1622,13 +1622,13 @@ static struct _stcdr {					/* STCDR 79B */
 	guint32		time2;
 	guint16		smsres;
 } stcdr;
-	
+
 static	guint8		gtp_version = 0;
 static	char		*yesno[] = { "False", "True" };
-	
+
 static void
 col_append_str_gtp(column_info *cinfo, gint el, gchar *proto_name) {
-	
+
 	int	i;
 	int	max_len;
 	gchar	_tmp[COL_MAX_LEN];
@@ -1638,11 +1638,11 @@ col_append_str_gtp(column_info *cinfo, gint el, gchar *proto_name) {
 	for (i = 0; i < cinfo->num_cols; i++) {
 		if (cinfo->fmt_matx[i][el]) {
 			if (cinfo->col_data[i] != cinfo->col_buf[i]) {
-				
+
     				strncpy(cinfo->col_buf[i], cinfo->col_data[i], max_len);
     				cinfo->col_buf[i][max_len - 1] = '\0';
       			}
-	
+
 			_tmp[0] = '\0';
 			strcat(_tmp, proto_name);
 			strcat(_tmp, " <");
@@ -1657,7 +1657,7 @@ col_append_str_gtp(column_info *cinfo, gint el, gchar *proto_name) {
 
 static gchar *
 id_to_str(const guint8 *ad) {
-		
+
 	static gchar	*str[17];
 	gchar		*p;
 	guint8		bits8to5, bits4to1, i;
@@ -1669,7 +1669,7 @@ id_to_str(const guint8 *ad) {
 	for (;;) {
 		bits8to5 = (ad[i] >> 4) & 0x0F;
 		bits4to1 = ad[i] & 0x0F;
-		if (bits8to5 < 0xA) *--p = hex_digits[bits8to5]; 
+		if (bits8to5 < 0xA) *--p = hex_digits[bits8to5];
 		if (bits4to1 < 0xA) *--p = hex_digits[bits4to1];
 		if (i == 0) break;
 		i--;
@@ -1679,7 +1679,7 @@ id_to_str(const guint8 *ad) {
 
 static gchar *
 msisdn_to_str(const guint8 *ad, int len) {
-		
+
 	static gchar	*str[17];
 	gchar		*p;
 	guint8		bits8to5, bits4to1, i;
@@ -1724,8 +1724,8 @@ rel_time_int_to_str (guint32 time)
 	return rel_time_to_str (&nstime);
 }
 
-/* Next definitions and function check_field_presence checks if given field 
- * in GTP packet is compliant with ETSI 
+/* Next definitions and function check_field_presence checks if given field
+ * in GTP packet is compliant with ETSI
  */
 typedef struct _header {
 	guint8		code;
@@ -1738,12 +1738,12 @@ typedef struct _message {
 } _gtp_mess_items;
 
 /* ---------------------
- * GPRS messages 
+ * GPRS messages
  * ---------------------*/
 static _gtp_mess_items gprs_mess_items[] = {
 
 {
-	GTP_MSG_ECHO_REQ, {					
+	GTP_MSG_ECHO_REQ, {
 		{ GTP_EXT_PRIV_EXT,	OPTIONAL },
 		{ 0, 			0 }
 	}
@@ -1788,7 +1788,7 @@ static _gtp_mess_items gprs_mess_items[] = {
 		{ 0,			0 }
 	}
 },
-{ 
+{
 	GTP_MSG_CREATE_PDP_REQ, {
 		{ GTP_EXT_QOS_GPRS, 	MANDATORY },
 		{ GTP_EXT_RECOVER, 	OPTIONAL },
@@ -1805,7 +1805,7 @@ static _gtp_mess_items gprs_mess_items[] = {
 		{ 0, 			0 }
 	}
 },
-{ 
+{
 	GTP_MSG_CREATE_PDP_RESP, {
 		{ GTP_EXT_CAUSE,	MANDATORY },
 		{ GTP_EXT_QOS_GPRS,	CONDITIONAL },
@@ -1823,7 +1823,7 @@ static _gtp_mess_items gprs_mess_items[] = {
 		{ 0, 			0 }
 	}
 },
-{	
+{
 	GTP_MSG_UPDATE_PDP_REQ, {
 		{ GTP_EXT_QOS_GPRS,	MANDATORY },
 		{ GTP_EXT_RECOVER,	OPTIONAL },
@@ -1880,7 +1880,7 @@ static _gtp_mess_items gprs_mess_items[] = {
 	}
 },
 {
-	GTP_MSG_CREATE_AA_PDP_RESP, {					
+	GTP_MSG_CREATE_AA_PDP_RESP, {
 		{ GTP_EXT_CAUSE,	MANDATORY },
 		{ GTP_EXT_QOS_GPRS,	CONDITIONAL },
 		{ GTP_EXT_REORDER,	CONDITIONAL },
@@ -1924,7 +1924,7 @@ static _gtp_mess_items gprs_mess_items[] = {
 		{ 0,			0 }
 	}
 },
-{	
+{
 	GTP_MSG_PDU_NOTIFY_RESP, {
 		{ GTP_EXT_CAUSE,	MANDATORY },
 		{ GTP_EXT_PRIV_EXT,	OPTIONAL },
@@ -2069,12 +2069,12 @@ static _gtp_mess_items gprs_mess_items[] = {
 };
 
 /* -----------------------------
- * UMTS messages 
+ * UMTS messages
  * -----------------------------*/
 static _gtp_mess_items umts_mess_items[] = {
 
 {
-	GTP_MSG_ECHO_REQ, {					
+	GTP_MSG_ECHO_REQ, {
 		{ GTP_EXT_PRIV_EXT,	OPTIONAL },
 		{ 0, 			0 }
 	}
@@ -2437,17 +2437,17 @@ static _gtp_mess_items umts_mess_items[] = {
 }
 };
 
-static int 
+static int
 check_field_presence(guint8 message, guint8 field, int *position) {
-	
+
 	guint			i = 0;
 	_gtp_mess_items		*mess_items;
 
 	switch(gtp_version) {
-		case 0: 
+		case 0:
 			mess_items = gprs_mess_items;
 			break;
-		case 1: 
+		case 1:
 			mess_items = umts_mess_items;
 			break;
 		default:
@@ -2456,12 +2456,12 @@ check_field_presence(guint8 message, guint8 field, int *position) {
 
 	while (mess_items[i].code) {
 		if (mess_items[i].code == message) {
-			
+
 			while (mess_items[i].fields[*position].code) {
 				if (mess_items[i].fields[*position].code == field) {
 					(*position)++;
 					return 0;
-				} else { 
+				} else {
 				if (mess_items[i].fields[*position].presence == MANDATORY) {
 					return mess_items[i].fields[(*position)++].code;
 				} else {
@@ -2471,7 +2471,7 @@ check_field_presence(guint8 message, guint8 field, int *position) {
 			return -1;
 		}
 		i++;
-	}	
+	}
 
 	return -2;
 }
@@ -2485,9 +2485,9 @@ static int
 decode_gtp_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint8	cause;
-	
-	cause = tvb_get_guint8(tvb, offset+1);	
-	
+
+	cause = tvb_get_guint8(tvb, offset+1);
+
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_cause : hf_gtpv0_cause, tvb, offset, 2, cause);
 
 	return 2;
@@ -2496,16 +2496,16 @@ decode_gtp_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 /* GPRS:	9.60 v7.6.0, chapter 7.9.2
  * UMTS:	29.060 v4.0, chapter 7.7.2
  */
-static int 
+static int
 decode_gtp_imsi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint8	tid_val[8];
 	gchar	*tid_str;
 
 	tvb_memcpy(tvb, tid_val, offset+1, 8);
 	tid_val[1] = tid_val[1] & 0x0F;
 	tid_str = id_to_str(tid_val);
-	
+
 	proto_tree_add_string(tree, gtp_version ? hf_gtpv1_imsi : hf_gtpv0_imsi, tvb, offset, 9, tid_str);
 
 	return 9;
@@ -2517,20 +2517,20 @@ decode_gtp_imsi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
  */
 static int
 decode_gtp_rai(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	proto_tree	*ext_tree_rai;
 	proto_item	*te;
 	guint8		byte[3];
-	
-	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_RAI, gtp_val, "Unknown message")); 
+
+	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_RAI, gtp_val, "Unknown message"));
 	ext_tree_rai = proto_item_add_subtree(te, ett_gtp_rai);
-	
+
 /*	tvb_memcpy (tvb, (guint8 *)&byte, offset + 1, 3); */
 	byte[1] = tvb_get_guint8 (tvb, offset + 1);
 	byte[2] = tvb_get_guint8 (tvb, offset + 2);
 	byte[3] = tvb_get_guint8 (tvb, offset + 3);
-	
-	
+
+
 	proto_tree_add_uint(ext_tree_rai, gtp_version ? hf_gtpv1_rai_mcc : hf_gtpv0_rai_mcc, tvb, offset+1, 2, (byte[1] & 0x0F) * 100 + ((byte[1] & 0xF0) >> 4) * 10  + (byte[2] & 0x0F ));
 	proto_tree_add_uint(ext_tree_rai, gtp_version ? hf_gtpv1_rai_mnc : hf_gtpv0_rai_mnc, tvb, offset+2, 2, ((byte[3] & 0xF0) >> 4 ) * 10  + (byte[3] & 0x0F));
 	proto_tree_add_uint(ext_tree_rai, gtp_version ? hf_gtpv1_rai_lac : hf_gtpv0_rai_lac, tvb, offset+4, 2, tvb_get_ntohs (tvb, offset+4));
@@ -2544,11 +2544,11 @@ decode_gtp_rai(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
  */
 static int
 decode_gtp_tlli(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint32	tlli;
-	
-	tlli = tvb_get_ntohl(tvb, offset+1);	
-	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_tlli : hf_gtpv0_tlli, tvb, offset, 5, tlli); 
+
+	tlli = tvb_get_ntohl(tvb, offset+1);
+	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_tlli : hf_gtpv0_tlli, tvb, offset, 5, tlli);
 
 	return 5;
 }
@@ -2558,24 +2558,24 @@ decode_gtp_tlli(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
  */
 static int
 decode_gtp_ptmsi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint32	ptmsi;
-	
-	ptmsi = tvb_get_ntohl(tvb, offset);	
+
+	ptmsi = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_ptmsi : hf_gtpv0_ptmsi, tvb, offset, 5, ptmsi);
 
 	return 5;
 }
 
-/* adjust - how many bytes before offset should be highlighted 
+/* adjust - how many bytes before offset should be highlighted
  */
 static int
 decode_qos_gprs(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, guint8 adjust) {
-	
+
 	guint8		spare1, delay, reliability, peak, spare2,  precedence, spare3, mean;
 	proto_tree	*ext_tree_qos;
 	proto_item	*te;
-	
+
 	spare1 = tvb_get_guint8(tvb, offset) & 0xC0;
 	delay = tvb_get_guint8(tvb, offset) & 0x38;
 	reliability = tvb_get_guint8(tvb, offset) & 0x07;
@@ -2584,7 +2584,7 @@ decode_qos_gprs(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	precedence = tvb_get_guint8(tvb, offset+1) & 0x07;
 	spare3 = tvb_get_guint8(tvb, offset+2) & 0xE0;
 	mean = tvb_get_guint8(tvb, offset+2) & 0x1F;
-	
+
 	te = proto_tree_add_text(tree, tvb, offset-adjust, 3+adjust, "%s: delay: %u, reliability: %u, peak: %u, precedence: %u, mean: %u",
 				                                        qos_str, delay, reliability, peak, precedence, mean);
 	ext_tree_qos = proto_item_add_subtree(te, ett_gtp_qos);
@@ -2600,20 +2600,20 @@ decode_qos_gprs(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 		proto_tree_add_uint(ext_tree_qos, hf_gtpv0_qos_mean, tvb, offset+2, 1, mean);
 	}
 
-	return 3; 
+	return 3;
 }
 
 /* GPRS:	9.60 v7.6.0, chapter 7.9.6, page 39
  * 		4.08
  * 		3.60
  * UMTS: 	not present
- * TODO:	check if length is included: ETSI 4.08 vs 9.60 
+ * TODO:	check if length is included: ETSI 4.08 vs 9.60
  */
 static int
 decode_gtp_qos_gprs(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	return (1+decode_qos_gprs(tvb, offset+1, tree, "Quality of Service", 1));
-	
+
 }
 
 /* GPRS:	9.60 v7.6.0, chapter 7.9.7, page 39
@@ -2623,15 +2623,15 @@ static int
 decode_gtp_reorder(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint8	reorder;
-	
-	reorder = tvb_get_guint8(tvb, offset+1) & 0x01;	
-	proto_tree_add_boolean(tree, gtp_version ? hf_gtpv1_reorder : hf_gtpv0_reorder, tvb, offset, 2, reorder); 
+
+	reorder = tvb_get_guint8(tvb, offset+1) & 0x01;
+	proto_tree_add_boolean(tree, gtp_version ? hf_gtpv1_reorder : hf_gtpv0_reorder, tvb, offset, 2, reorder);
 
 	return 2;
 }
 
 /* GPRS:	9.60 v7.6.0, chapter 7.9.8, page 40
- * 		4.08 v7.1.2, chapter 10.5.3.1+ 
+ * 		4.08 v7.1.2, chapter 10.5.3.1+
  * UMTS:	29.060 v4.0, chapter 7.7.7
  * TODO: Add blurb support by registering items in the protocol registration
  */
@@ -2641,14 +2641,14 @@ decode_gtp_auth_tri(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	proto_tree	*ext_tree_auth_tri;
 	proto_item	*te;
 	guint32		rand[4], sres, kc[2];
-	
+
 	tvb_memcpy(tvb, (guint8 *)&rand, offset+1, 16);
 	sres = tvb_get_ntohl(tvb, offset+17);
 	tvb_memcpy(tvb, (guint8 *)&kc, offset+21, 16);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 29, val_to_str(GTP_EXT_AUTH_TRI, gtp_val, "Unknown message"));
 	ext_tree_auth_tri = proto_item_add_subtree(tree, ett_gtp_auth_tri);
-							
+
 	proto_tree_add_text(ext_tree_auth_tri, tvb, offset+1, 16, "RAND: %x%x%x%x", rand[0], rand[1], rand[2], rand[3]);
 	proto_tree_add_text(ext_tree_auth_tri, tvb, offset+17, 4, "SRES: %x", sres);
 	proto_tree_add_text(ext_tree_auth_tri, tvb, offset+21, 8, "Kc: %x%x", kc[0], kc[1]);
@@ -2663,10 +2663,10 @@ decode_gtp_auth_tri(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  */
 static int
 decode_gtp_map_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint8	map_cause;
-	
-	map_cause = tvb_get_guint8(tvb, offset+1);	
+
+	map_cause = tvb_get_guint8(tvb, offset+1);
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_map_cause : hf_gtpv0_map_cause, tvb, offset, 2, map_cause);
 
 	return 2;
@@ -2677,10 +2677,10 @@ decode_gtp_map_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
  */
 static int
 decode_gtp_ptmsi_sig(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint32	ptmsi_sig;
-	
-	ptmsi_sig = tvb_get_ntoh24(tvb, offset+1);	
+
+	ptmsi_sig = tvb_get_ntoh24(tvb, offset+1);
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_ptmsi_sig : hf_gtpv0_ptmsi_sig, tvb, offset, 4, ptmsi_sig);
 
 	return 4;
@@ -2691,10 +2691,10 @@ decode_gtp_ptmsi_sig(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
  */
 static int
 decode_gtp_ms_valid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint8	ms_valid;
-	
-	ms_valid = tvb_get_guint8(tvb, offset+1) & 0x01;	
+
+	ms_valid = tvb_get_guint8(tvb, offset+1) & 0x01;
 	proto_tree_add_boolean(tree, gtp_version ? hf_gtpv1_ms_valid : hf_gtpv0_ms_valid, tvb, offset, 2, ms_valid);
 
 	return 2;
@@ -2705,10 +2705,10 @@ decode_gtp_ms_valid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  */
 static int
 decode_gtp_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint8	recovery;
-	
-	recovery = tvb_get_guint8(tvb, offset+1);	
+
+	recovery = tvb_get_guint8(tvb, offset+1);
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_recovery : hf_gtpv0_recovery, tvb, offset, 2, recovery);
 
 	return 2;
@@ -2719,10 +2719,10 @@ decode_gtp_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  */
 static int
 decode_gtp_sel_mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint8	sel_mode;
-	
-	sel_mode = tvb_get_guint8(tvb, offset+1) & 0x03;	
+
+	sel_mode = tvb_get_guint8(tvb, offset+1) & 0x03;
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_sel_mode : hf_gtpv0_sel_mode, tvb, offset, 2, sel_mode);
 
 	return 2;
@@ -2733,24 +2733,24 @@ decode_gtp_sel_mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  */
 static int
 decode_gtp_16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
-	guint16	ext_flow_label;	
+
+	guint16	ext_flow_label;
 	guint32	teid_data;
 
 	switch (gtp_version) {
 		case 0:
-			ext_flow_label = tvb_get_ntohs(tvb, offset+1);	
+			ext_flow_label = tvb_get_ntohs(tvb, offset+1);
 			proto_tree_add_uint(tree, hf_gtpv0_ext_flow_label, tvb, offset, 3, ext_flow_label);
-			
+
 			return 3;
 		case 1:
 			teid_data = tvb_get_ntohl(tvb, offset+1);
 			proto_tree_add_uint(tree, hf_gtpv1_teid_data, tvb, offset, 5, teid_data);
 
 			return 5;
-		default: 
+		default:
 			proto_tree_add_text(tree, tvb, offset, 1, "Flow label/TEID Data I : GTP version not supported");
-			
+
 			return 3;
 	}
 }
@@ -2766,18 +2766,18 @@ decode_gtp_17(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
 
 	switch (gtp_version) {
 		case 0:
-			flow_sig = tvb_get_ntohs(tvb, offset+1);	
+			flow_sig = tvb_get_ntohs(tvb, offset+1);
 			proto_tree_add_uint(tree, hf_gtpv0_flow_sig, tvb, offset, 3, flow_sig);
-			
+
 			return 3;
 		case 1:
 			teid_cp = tvb_get_ntohl(tvb, offset+1);
 			proto_tree_add_uint(tree, hf_gtpv1_teid_cp, tvb, offset, 5, teid_cp);
-			
+
 			return 5;
 		default:
 			proto_tree_add_text(tree, tvb, offset, 1, "Flow label signalling/TEID control plane : GTP version not supported");
-			
+
 			return 3;
 	}
 }
@@ -2797,27 +2797,27 @@ decode_gtp_18(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
 		case 0:
 			te = proto_tree_add_text(tree, tvb, offset, 4, val_to_str(GTP_EXT_FLOW_II, gtp_val, "Unknown message"));
 			ext_tree_flow_ii = proto_item_add_subtree(te, ett_gtp_flow_ii);
-			
+
 			proto_tree_add_uint(ext_tree_flow_ii, hf_gtpv0_nsapi, tvb, offset+1, 1, tvb_get_guint8(tvb, offset+1) & 0x0F);
-			
-			flow_ii = tvb_get_ntohs(tvb, offset+2);	
+
+			flow_ii = tvb_get_ntohs(tvb, offset+2);
 			proto_tree_add_uint(ext_tree_flow_ii, hf_gtpv0_flow_ii, tvb, offset+2, 2, flow_ii);
-			
+
 			return 4;
-		case 1:	
+		case 1:
 			te = proto_tree_add_text(tree, tvb, offset, 6, val_to_str(GTP_EXT_TEID_II, gtp_val, "Unknown message"));
 			ext_tree_flow_ii = proto_item_add_subtree(te, ett_gtp_flow_ii);
-			
+
 			proto_tree_add_uint(ext_tree_flow_ii, hf_gtpv1_nsapi, tvb, offset+1, 1, tvb_get_guint8(tvb, offset+1) & 0x0F);
 
-			
+
 			teid_ii = tvb_get_ntohl(tvb, offset+2);
 			proto_tree_add_uint(ext_tree_flow_ii, hf_gtpv1_teid_ii, tvb, offset+2, 4, teid_ii);
-			
+
 			return 6;
 		default:
 			proto_tree_add_text(tree, tvb, offset, 1, "Flow data II/TEID Data II : GTP Version not supported");
-			
+
 			return 4;
 	}
 }
@@ -2828,19 +2828,19 @@ decode_gtp_18(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
  */
 static int
 decode_gtp_19(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
-	guint8		field19;	
-	
-	field19 = tvb_get_guint8(tvb, offset+1);	
-	
+
+	guint8		field19;
+
+	field19 = tvb_get_guint8(tvb, offset+1);
+
 	switch (gtp_version) {
-		case 0:	
+		case 0:
 			proto_tree_add_uint(tree, hf_gtpv0_ms_reason, tvb, offset, 2, field19);
-			
+
 			break;
 		case 1:
 			proto_tree_add_boolean(tree, hf_gtpv1_tear_ind, tvb, offset, 2, field19 & 0x01);
-			
+
 			break;
 		default:
 			proto_tree_add_text(tree, tvb, offset, 1, "Information Element Type = 19 : GTP Version not supported");
@@ -2856,10 +2856,10 @@ decode_gtp_19(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
  */
 static int
 decode_gtp_nsapi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint8		nsapi;
-	
-	nsapi = tvb_get_guint8(tvb, offset+1) & 0x0F;	
+
+	nsapi = tvb_get_guint8(tvb, offset+1) & 0x0F;
 	proto_tree_add_uint(tree, hf_gtpv1_nsapi, tvb, offset, 2, nsapi);
 
 	return 2;
@@ -2870,9 +2870,9 @@ decode_gtp_nsapi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
  */
 static int
 decode_gtp_ranap_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint8		ranap;
-	
+
 	ranap = tvb_get_guint8(tvb, offset+1);
 
 	if(ranap > 0 && ranap <=64)
@@ -2901,16 +2901,16 @@ decode_gtp_ranap_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
  */
 static int
 decode_gtp_rab_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint8		nsapi, dl_pdcp_seq, ul_pdcp_seq;
 	guint16		dl_gtpu_seq, ul_gtpu_seq;
 	proto_tree	*ext_tree_rab_cntxt;
 	proto_item	*te;
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 8, val_to_str(GTP_EXT_RAB_CNTXT, gtp_val, "Unknown message"));
 	ext_tree_rab_cntxt = proto_item_add_subtree(te, ett_gtp_rab_cntxt);
-	
-	nsapi = tvb_get_guint8(tvb, offset+1) & 0x0F;	
+
+	nsapi = tvb_get_guint8(tvb, offset+1) & 0x0F;
 	dl_gtpu_seq = tvb_get_ntohs(tvb, offset+2);
 	ul_gtpu_seq = tvb_get_ntohs(tvb, offset+4);
 	dl_pdcp_seq = tvb_get_guint8(tvb, offset+6);
@@ -2931,10 +2931,10 @@ decode_gtp_rab_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
  */
 static int
 decode_gtp_rp_sms(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint8		rp_sms;
-	
-	rp_sms = tvb_get_guint8(tvb, offset+1) & 0x07;	
+
+	rp_sms = tvb_get_guint8(tvb, offset+1) & 0x07;
 	proto_tree_add_uint(tree, hf_gtpv1_rp_sms, tvb, offset, 2, rp_sms);
 
 	return 2;
@@ -2945,11 +2945,11 @@ decode_gtp_rp_sms(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
  */
 static int
 decode_gtp_rp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	proto_tree	*ext_tree_rp;
 	proto_item	*te;
 	guint8 		nsapi, rp, spare;
-	
+
 	nsapi = tvb_get_guint8(tvb, offset+1) & 0xF0;
 	spare = tvb_get_guint8(tvb, offset+1) & 0x08;
 	rp = tvb_get_guint8(tvb, offset+1) & 0x07;
@@ -2969,11 +2969,11 @@ decode_gtp_rp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
  */
 static int
 decode_gtp_pkt_flow_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	proto_tree	*ext_tree_pkt_flow_id;
 	proto_item	*te;
 	guint8 		nsapi, pkt_flow_id;
-	
+
 	nsapi = tvb_get_guint8(tvb, offset+1) & 0x0F;
 	pkt_flow_id = tvb_get_guint8(tvb, offset+2);
 
@@ -2982,7 +2982,7 @@ decode_gtp_pkt_flow_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
 	proto_tree_add_uint(ext_tree_pkt_flow_id, hf_gtpv1_nsapi, tvb, offset+1, 1, nsapi);
 	proto_tree_add_uint_format(ext_tree_pkt_flow_id, hf_gtpv1_pkt_flow_id, tvb, offset+2, 1, pkt_flow_id, "%s : %u", val_to_str(GTP_EXT_PKT_FLOW_ID, gtp_val, "Unknown message"), pkt_flow_id);
-	
+
 	return 3;
 }
 
@@ -2992,66 +2992,66 @@ decode_gtp_pkt_flow_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
  */
 static int
 decode_gtp_chrg_char(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint16		chrg_char;
 	proto_item	*te;
 	proto_tree	*ext_tree_chrg_char;
-	
+
 	chrg_char = tvb_get_ntohs(tvb, offset+1);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 3, "%s: %x", val_to_str(GTP_EXT_CHRG_CHAR, gtp_val, "Unknown message"), chrg_char);
 	ext_tree_chrg_char = proto_item_add_subtree(te, ett_gtp_chrg_char);
-	
+
 	proto_tree_add_uint(ext_tree_chrg_char, hf_gtpv1_chrg_char_s, tvb, offset+1, 2, chrg_char);
 	proto_tree_add_uint(ext_tree_chrg_char, hf_gtpv1_chrg_char_n, tvb, offset+1, 2, chrg_char);
 	proto_tree_add_uint(ext_tree_chrg_char, hf_gtpv1_chrg_char_p, tvb, offset+1, 2, chrg_char);
 	proto_tree_add_uint(ext_tree_chrg_char, hf_gtpv1_chrg_char_f, tvb, offset+1, 2, chrg_char);
 	proto_tree_add_uint(ext_tree_chrg_char, hf_gtpv1_chrg_char_h, tvb, offset+1, 2, chrg_char);
 	proto_tree_add_uint(ext_tree_chrg_char, hf_gtpv1_chrg_char_r, tvb, offset+1, 2, chrg_char);
-	
+
 	return 3;
 }
 
 /* GPRS:	not present
- * UMTS:	29.060 v4.0, chapter 7.7.24, page 
+ * UMTS:	29.060 v4.0, chapter 7.7.24, page
  */
 static int
 decode_gtp_trace_ref(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint16		trace_ref;
-	
+
 	trace_ref = tvb_get_ntohs(tvb, offset+1);
-	
+
 	proto_tree_add_uint(tree, hf_gtpv1_trace_ref, tvb, offset, 3, trace_ref);
 
 	return 3;
 }
 
 /* GPRS:	not present
- * UMTS:	29.060 v4.0, chapter 7.7.25, page 
+ * UMTS:	29.060 v4.0, chapter 7.7.25, page
  */
 static int
 decode_gtp_trace_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint16		trace_type;
-	
+
 	trace_type = tvb_get_ntohs(tvb, offset+1);
-	
+
 	proto_tree_add_uint(tree, hf_gtpv1_trace_type, tvb, offset, 3, trace_type);
-	
+
 	return 3;
 }
 
 /* GPRS:	9.60 v7.6.0, chapter 7.9.16A
- * UMTS:	29.060 v4.0, chapter 7.7.25A, page 
+ * UMTS:	29.060 v4.0, chapter 7.7.25A, page
  */
 static int
 decode_gtp_ms_reason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
-	guint8		reason;	
-	
-	reason = tvb_get_guint8(tvb, offset+1);	
-	
+
+	guint8		reason;
+
+	reason = tvb_get_guint8(tvb, offset+1);
+
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_ms_reason : hf_gtpv0_ms_reason, tvb, offset, 2, reason);
 
 	return 2;
@@ -3063,11 +3063,11 @@ decode_gtp_ms_reason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
  */
 static int
 decode_gtp_tr_comm(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
-	guint8	tr_command;	
-	
-	tr_command = tvb_get_ntohl(tvb, offset+1);	
-	
+
+	guint8	tr_command;
+
+	tr_command = tvb_get_ntohl(tvb, offset+1);
+
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_tr_comm : hf_gtpv0_tr_comm, tvb, offset, 2, tr_command);
 
 	return 2;
@@ -3078,10 +3078,10 @@ decode_gtp_tr_comm(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
  */
 static int
 decode_gtp_chrg_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
-	guint32	chrg_id;	
-	
-	chrg_id = tvb_get_ntohl(tvb, offset+1);	
+
+	guint32	chrg_id;
+
+	chrg_id = tvb_get_ntohl(tvb, offset+1);
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_chrg_id : hf_gtpv0_chrg_id, tvb, offset, 5, chrg_id);
 
 	return 5;
@@ -3092,15 +3092,15 @@ decode_gtp_chrg_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
  */
 static int
 decode_gtp_user_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	guint16		length;
-	guint8		pdp_typ, pdp_org;	
+	guint8		pdp_typ, pdp_org;
 	guint32		addr_ipv4;
 	struct		e_in6_addr addr_ipv6;
 	proto_tree	*ext_tree_user;
 	proto_item	*te;
-	
-	
+
+
     	length = tvb_get_ntohs(tvb, offset+1);
 	pdp_org = tvb_get_guint8(tvb, offset+3) & 0x0F;
 	pdp_typ = tvb_get_guint8(tvb, offset+4);
@@ -3110,11 +3110,11 @@ decode_gtp_user_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	    val_to_str(pdp_org, pdp_org_type, "Unknown PDP Organization"),
 	    val_to_str(pdp_typ, pdp_type, "Unknown PDP Type"));
 	ext_tree_user = proto_item_add_subtree(te, ett_gtp_user);
-	
+
 	proto_tree_add_text(ext_tree_user, tvb, offset+1, 2, "Length : %u", length);
 	proto_tree_add_uint(ext_tree_user, gtp_version ? hf_gtpv1_user_addr_pdp_org : hf_gtpv0_user_addr_pdp_org, tvb, offset+3, 1, pdp_org);
 	proto_tree_add_uint(ext_tree_user, gtp_version ? hf_gtpv1_user_addr_pdp_type : hf_gtpv0_user_addr_pdp_type, tvb, offset+4, 1, pdp_typ);
-	
+
 	if (length == 2) {
 		if (pdp_org == 0 && pdp_typ == 1)
 			proto_item_append_text(te, " (Point to Point Protocol)");
@@ -3135,32 +3135,32 @@ decode_gtp_user_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 		}
 	} else
 		proto_item_append_text(te, " : empty PDP Address");
-				
+
 	return 3+length;
 }
 
 static int
 decode_triplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count) {
-	
+
 	proto_tree	*ext_tree_trip;
 	proto_item	*te_trip;
 	guint32		rand[4], sres, kc[2];
 	guint16		i;
-	
+
 	for (i=0;i<count;i++) {
-		
+
 		tvb_memcpy(tvb, (guint8 *)&rand, offset+i*28, 16);
 		sres = tvb_get_ntohl(tvb, offset+i*28+16);
 		tvb_memcpy(tvb, (guint8 *)&kc, offset+i*28+20, 8);
 
 		te_trip = proto_tree_add_text(tree, tvb, offset+i*28, 28, "Triplet no%x", i);
 		ext_tree_trip = proto_item_add_subtree(te_trip, ett_gtp_trip);
-							
+
 		proto_tree_add_text(ext_tree_trip, tvb, offset+i*28, 16, "RAND: %x%x%x%x", rand[0], rand[1], rand[2], rand[3]);
 		proto_tree_add_text(ext_tree_trip, tvb, offset+i*28+16, 4, "SRES: %x", sres);
 		proto_tree_add_text(ext_tree_trip, tvb, offset+i*28+20, 8, "Kc: %x%x", kc[0], kc[1]);
 	}
-	
+
 	return count*28;
 }
 
@@ -3168,20 +3168,20 @@ decode_triplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count) {
  */
 static int
 decode_quintuplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count, guint8 adjust) {
-	
+
 	proto_tree	*ext_tree_quint;
 	proto_item	*te_quint;
 	guint32		rand[4], q_ck[4], q_ik[4];
 	guint16		q_len, xres_len, auth_len, q_offset, i;
 
 	q_offset = 0;
-	
-	for (i=0;i<count;i++) {	
-	
+
+	for (i=0;i<count;i++) {
+
 		offset = offset + q_offset;
-		
+
 		q_len = tvb_get_ntohs(tvb, offset);
-		
+
 		tvb_memcpy(tvb, (guint8 *)&rand, offset+2, 16);
 		xres_len = tvb_get_ntohs(tvb, offset+18);
 /*		xres = tvb_get_ptr(tvb, offset+20, xres_len);*/
@@ -3192,7 +3192,7 @@ decode_quintuplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count, gu
 
 		te_quint = proto_tree_add_text(tree, tvb, offset-adjust, q_len+adjust, "Quintuplet #%x", i);
 		ext_tree_quint = proto_item_add_subtree(te_quint, ett_gtp_quint);
-							
+
 		proto_tree_add_text(ext_tree_quint, tvb, offset, 2, "Length: %x", q_len);
 		proto_tree_add_text(ext_tree_quint, tvb, offset+2, 16, "RAND: %x%x%x%x", rand[0], rand[1], rand[2], rand[3]);
 		proto_tree_add_text(ext_tree_quint, tvb, offset+18, 2, "XRES length: %x", xres_len);
@@ -3204,35 +3204,35 @@ decode_quintuplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count, gu
 
 		q_offset = q_offset + q_len + 2;
 	}
-	
+
 	return q_offset;
 }
 
-/* GPRS:	9.60 v7.6.0, chapter 7.9.19 page 
+/* GPRS:	9.60 v7.6.0, chapter 7.9.19 page
  * UMTS:	29.060 v4.0, chapter 7.7.28 page 57
  * TODO:	- check if for quintuplets first 2 bytes are length, according to AuthQuint
  * 		- finish displaying last 3 parameters
  */
 static int
 decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
-	guint16		length, quint_len, net_cap, con_len;	
+
+	guint16		length, quint_len, net_cap, con_len;
 	guint8		cksn, count, sec_mode, cipher, trans_id, proto_disc, message, drx_split, drx_len, drx_ccch, non_drx_timer;
 	guint32		kc[4], ik[4];
 	proto_tree	*ext_tree_mm;
 	proto_item	*te;
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_MM_CNTXT, gtp_val, "Unknown message"));
 	ext_tree_mm = proto_item_add_subtree(te, ett_gtp_mm);
-	
+
 	length = tvb_get_ntohs(tvb, offset+1);
 	if (length < 1) return 3;
-	
+
 	cksn = tvb_get_guint8(tvb, offset+3) & 0x07;
 	sec_mode = (tvb_get_guint8(tvb, offset+4) >> 6) & 0x03;
 	count = (tvb_get_guint8(tvb, offset+4) >> 3) & 0x07;
 	cipher = tvb_get_guint8(tvb, offset+4) & 0x07;
-	
+
 	proto_tree_add_text(ext_tree_mm, tvb, offset+1, 2, "Length: %x", length);
 	proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Ciphering Key Sequence Number: %u", cksn);
 	if (gtp_version != 0) {
@@ -3240,11 +3240,11 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	} else {
 		sec_mode = 1;
 	}
-	
+
 	proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of triplets: %u", count);
 
 	switch (sec_mode) {
-		case 0: 
+		case 0:
 			if (cipher == 0) {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: no ciphering");
 			} else {
@@ -3258,10 +3258,10 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			proto_tree_add_text(ext_tree_mm, tvb, offset+37, 2, "Quintuplets length: %x", quint_len);
 
 			offset = offset + decode_quintuplet(tvb, offset+39, ext_tree_mm, count, 0) + 39;
-			
-					
+
+
 			break;
-		case 1: 
+		case 1:
 			if (cipher == 0) {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: no ciphering");
 			} else {
@@ -3273,18 +3273,18 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			offset = offset + decode_triplet(tvb, offset+13, ext_tree_mm, count) + 13;
 
 			break;
-		case 2: 
+		case 2:
 			tvb_memcpy(tvb, (guint8 *)&kc, offset+5, 16);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 16, "Ciphering key CK: %x%x%x%x", kc[0], kc[1], kc[2], kc[3]);
 			tvb_memcpy(tvb, (guint8 *)&ik, offset+21, 16);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key CK: %x%x%x%x", ik[0], ik[1], ik[2], ik[3]);
 			quint_len = tvb_get_ntohs(tvb, offset+37);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+37, 2, "Quintuplets length: %x", quint_len);
-			
+
 			offset = offset + decode_quintuplet(tvb, offset+39, ext_tree_mm, count, 0) + 39;
-			
+
 			break;
-		case 3: 
+		case 3:
 			if (cipher == 0) {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: no ciphering");
 			} else {
@@ -3296,13 +3296,13 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			proto_tree_add_text(ext_tree_mm, tvb, offset+13, 2, "Quintuplets length: %x", quint_len);
 
 			offset = offset + decode_quintuplet(tvb, offset+15, ext_tree_mm, count, 0) + 15;
-			
+
 			break;
 		default:
 			break;
 	}
-	
-	
+
+
 	drx_split = tvb_get_guint8(tvb, offset);
 	drx_len = (tvb_get_guint8(tvb, offset+1) >> 4) & 0x0F;
 	drx_ccch = (tvb_get_guint8(tvb, offset+1) >> 3) & 0x01;
@@ -3310,7 +3310,7 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 	net_cap	= tvb_get_ntohs(tvb, offset+2);
 	con_len = tvb_get_ntohs(tvb, offset+4);
-	
+
 	proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "DRX: split PG cycle code: %u", drx_split);
 	proto_tree_add_text(ext_tree_mm, tvb, offset+1, 1, "DRX: CN specific DRX cycle length coefficient: %u", drx_len);
 	proto_tree_add_text(ext_tree_mm, tvb, offset+1, 1, "DRX: split PG cycle on CCCH supported by MS: %s", yesno[drx_ccch]);
@@ -3319,10 +3319,10 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	} else {
 		proto_tree_add_text(ext_tree_mm, tvb, offset+1, 1, "DRX: max sec non-DRX mode after transfer state:  2^%u", non_drx_timer-1);
 	}
-	
+
 	proto_tree_add_text(ext_tree_mm, tvb, offset+2, 2, "MS network capability: %u", net_cap);
 	proto_tree_add_text(ext_tree_mm, tvb, offset+4, 2, "Container length: %u", con_len);
-	
+
 	if (con_len > 0) {
 		trans_id = (tvb_get_guint8(tvb, offset+6) >> 4) & 0x0F;
 		proto_disc = tvb_get_guint8(tvb, offset+6) & 0x0F;
@@ -3348,15 +3348,15 @@ static guint8 hex2dec (guint8 x)
 	return x;
 }
 
-/* Wrapper function to add UTF-8 decoding for QoS attributes in 
+/* Wrapper function to add UTF-8 decoding for QoS attributes in
  * RADIUS messages.
  * */
 static guint8 wrapped_tvb_get_guint8(
 					 tvbuff_t *tvb, int offset, int type)
 {
 	if (type == 2)
-		return (hex2dec(tvb_get_guint8(tvb, offset)) << 4 
-					| hex2dec(tvb_get_guint8(tvb, offset + 1))); 
+		return (hex2dec(tvb_get_guint8(tvb, offset)) << 4
+					| hex2dec(tvb_get_guint8(tvb, offset + 1)));
 	else
 		return tvb_get_guint8(tvb, offset);
 }
@@ -3383,13 +3383,13 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	int		mss, mu, md, gu, gd;
 
 	/* Will keep if the input is UTF-8 encoded (as in RADIUS messages).
-	 * If 1, input is *not* UTF-8 encoded (i.e. each input octet corresponds 
+	 * If 1, input is *not* UTF-8 encoded (i.e. each input octet corresponds
 	 * to one byte to be dissected).
 	 * If 2, input is UTF-8 encoded (i.e. each *couple* of input octets
 	 * corresponds to one byte to be dissected)
 	 * */
 	guint8      utf8_type = 1;
-	
+
 	/* In RADIUS messages the QoS has a version field of two octets prepended.
 	 * */
 	guint8		version_buffer[2];
@@ -3408,14 +3408,14 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			proto_tree_add_text (ext_tree_qos, tvb, offset + 1, 2, "Length: %u", length);
 			type++;		/* +1 because of first 0x86 byte for UMTS QoS */
 			break;
-		case 3: 
+		case 3:
 			/* For QoS inside RADIUS Client messages from GGSN */
 			utf8_type = 2;
-			
+
 			/* The field in the RADIUS message starts one byte before :) */
 			length = tvb_get_guint8 (tvb, offset);
 			te = proto_tree_add_text (tree, tvb, offset - 1, length, "%s", qos_str);
-			
+
 			ext_tree_qos = proto_item_add_subtree (te, ett_gtp_qos);
 			version_buffer[0] = tvb_get_guint8(tvb, offset + 1);
 			version_buffer[1] = tvb_get_guint8(tvb, offset + 2);
@@ -3431,9 +3431,9 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			ext_tree_qos = NULL;
 			break;
 	}
-	
+
 	offset += type;
-	
+
 	/* In RADIUS messages there is no allocation-retention priority
 	 * so I don't need to wrap the following call to tvb_get_guint8
 	 * */
@@ -3459,7 +3459,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	/* In RADIUS messages there is no allocation-retention priority */
 	if (type != 3)
 		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_al_ret_priority, tvb, offset, 1, al_ret_priority);
-	
+
 	/* All additions must take care of the fact that QoS fields in RADIUS
 	 * messages are UTF-8 encoded, so we have to use the same trick as above.
 	 * */
@@ -3473,7 +3473,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_mean, tvb, offset+(3 - 1) * utf8_type + 1, utf8_type, mean);
 
 	if (length > 4) {
-		
+
 		/* See above for the need of wrapping
 		 * */
 		traf_class = wrapped_tvb_get_guint8(tvb, offset+(4 - 1) * utf8_type + 1, utf8_type) & 0xE0;
@@ -3488,7 +3488,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 		traf_handl_prio = wrapped_tvb_get_guint8(tvb, offset+(9 - 1) * utf8_type + 1, utf8_type) & 0x03;
 		guar_ul = wrapped_tvb_get_guint8(tvb, offset+(10 - 1) * utf8_type + 1, utf8_type);
 		guar_dl = wrapped_tvb_get_guint8(tvb, offset+(11 - 1) * utf8_type + 1, utf8_type);
-		
+
 		/* See above comments for the changes
 		 * */
 		proto_tree_add_uint(ext_tree_qos, hf_gtpv1_qos_traf_class, tvb, offset+(4 - 1) * utf8_type + 1, utf8_type, traf_class);
@@ -3509,7 +3509,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			mu = 64 + ( max_ul - 64 ) * 8;
 			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+(6 - 1) * utf8_type + 1, utf8_type, mu, "Maximum bit rate for uplink : %u kbps", mu);
 		}
-	
+
 		if(max_ul > 127 && max_ul <=254) {
 			mu = 576 + ( max_ul - 128 ) * 64;
 			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_max_ul, tvb, offset+(6 - 1) * utf8_type + 1, utf8_type, mu, "Maximum bit rate for uplink : %u kbps", mu);
@@ -3558,9 +3558,9 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			gd = 576 + ( guar_dl - 128 ) * 64;
 			proto_tree_add_uint_format(ext_tree_qos, hf_gtpv1_qos_guar_dl, tvb, offset+(11 - 1) * utf8_type + 1, utf8_type, gd, "Guaranteed bit rate for downlink : %u kbps", gd);
 		}
-	
+
 	}
-	
+
 	return length + type;
 
 }
@@ -3586,7 +3586,7 @@ decode_apn(tvbuff_t *tvb, int offset, guint16 length, proto_tree *tree) {
 		} else {
 			tvb_memcpy (tvb, apn, offset, length);
 		}
-		
+
 		apn[length-1] = '\0';
 		proto_tree_add_string(tree, gtp_version ? hf_gtpv1_apn : hf_gtpv0_apn, tvb, offset, length, apn);
 		g_free(apn);
@@ -3595,7 +3595,7 @@ decode_apn(tvbuff_t *tvb, int offset, guint16 length, proto_tree *tree) {
 
 /* GPRS:	9.60 v7.6.0, chapter 7.9.20
  * UMTS:	29.060 v4.0, chapter 7.7.29
- * TODO:	unify addr functions 
+ * TODO:	unify addr functions
  */
 static int
 decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
@@ -3604,33 +3604,33 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 			pdp_type_org, pdp_type_num, pdp_addr_len;
 	guint16		length, sn_down, sn_up, up_flow;
 	guint32 	addr_ipv4, up_teid, up_teid_cp;
-	struct	e_in6_addr addr_ipv6;	
+	struct	e_in6_addr addr_ipv6;
 	proto_tree	*ext_tree_pdp;
 	proto_item	*te;
-	
+
 	length = tvb_get_ntohs(tvb, offset+1);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, length+3, val_to_str(GTP_EXT_PDP_CNTXT, gtp_val, "Unknown message"));
 	ext_tree_pdp = proto_item_add_subtree(te, ett_gtp_pdp);
-	
+
 	vaa = (tvb_get_guint8(tvb, offset+3) >> 6) & 0x01;
 	order = (tvb_get_guint8(tvb, offset+3) >> 4) & 0x01;
 	nsapi =  tvb_get_guint8(tvb, offset+3) & 0x0F;
 	sapi = tvb_get_guint8(tvb, offset+4) & 0x0F;
-	
+
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+3, 1, "VPLMN address allowed: %s", yesno[vaa]);
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+3, 1, "Reordering required: %s", yesno[order]);
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+3, 1, "NSAPI: %u", nsapi);
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+4, 1, "SAPI: %u", sapi);
-	
+
 	switch (gtp_version) {
-		case 0:	
+		case 0:
 			decode_qos_gprs(tvb, offset+5, ext_tree_pdp, "QoS subscribed", 0);
 			decode_qos_gprs(tvb, offset+8, ext_tree_pdp, "QoS requested", 0);
 			decode_qos_gprs(tvb, offset+11, ext_tree_pdp, "QoS negotiated", 0);
 			offset = offset + 14;
 			break;
-		case 1: 
+		case 1:
 			offset = offset + 5;
 			offset = offset + decode_qos_umts(tvb, offset, ext_tree_pdp, "QoS subscribed", 1);
 			offset = offset + decode_qos_umts(tvb, offset, ext_tree_pdp, "QoS requested", 1);
@@ -3639,17 +3639,17 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 		default:
 			break;
 	}
-	
+
 	sn_down = tvb_get_ntohs(tvb, offset);
 	sn_up = tvb_get_ntohs(tvb, offset+2);
 	pdu_send_no = tvb_get_guint8(tvb, offset+4);
 	pdu_rec_no = tvb_get_guint8(tvb, offset+5);
-	
+
 	proto_tree_add_text(ext_tree_pdp, tvb, offset, 2, "Sequence number down: %u", sn_down);
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+2, 2, "Sequence number up: %u", sn_up);
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+4, 1, "Send N-PDU number: %u", pdu_send_no);
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+5, 1, "Receive N-PDU number: %u", pdu_rec_no);
-	
+
 	switch (gtp_version) {
 		case 0:
 			up_flow = tvb_get_ntohs(tvb, offset+6);
@@ -3672,7 +3672,7 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	pdp_type_org = tvb_get_guint8(tvb, offset) & 0x0F;
 	pdp_type_num = tvb_get_guint8(tvb, offset+1);
 	pdp_addr_len = tvb_get_guint8(tvb, offset+2);
-	
+
 	proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "PDP organization: %s", val_to_str(pdp_type_org, pdp_type, "Unknown PDP org"));
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 1, "PDP type: %s", val_to_str(pdp_type_num, pdp_org_type, "Unknown PDP type"));
 	proto_tree_add_text(ext_tree_pdp, tvb, offset+2, 1, "PDP address length: %u", pdp_addr_len);
@@ -3691,38 +3691,38 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 				break;
 		}
 	}
-	
+
 	offset = offset + 3 + pdp_addr_len;
 
 	ggsn_addr_len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "GGSN address length: %u", ggsn_addr_len);
-	
+
 	switch (ggsn_addr_len) {
-		case 4: 
+		case 4:
 			tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+1, sizeof addr_ipv4);
 			proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 4, "GGSN address: %s", ip_to_str((guint8 *)&addr_ipv4));
 			break;
-		case 16: 
+		case 16:
 			tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset+1, sizeof addr_ipv6);
 			proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 16, "GGSN address: %s", ip6_to_str((struct e_in6_addr*)&addr_ipv6));
 			break;
 		default:
 			break;
 	}
-	
+
 	offset = offset + 1 + ggsn_addr_len;
-	
+
 	if (gtp_version == 1) {
 
 		ggsn_addr_len = tvb_get_guint8(tvb, offset);
 		proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "GGSN 2 address length: %u", ggsn_addr_len);
-		
+
 		switch (ggsn_addr_len) {
-			case 4: 
+			case 4:
 				tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+1, sizeof addr_ipv4);
 				proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 4, "GGSN 2 address: %s", ip_to_str((guint8 *)&addr_ipv4));
 				break;
-			case 16: 
+			case 16:
 				tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset+1, sizeof addr_ipv6);
 				proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 16, "GGSN 2 address: %s", ip6_to_str((struct e_in6_addr*)&addr_ipv6));
 				break;
@@ -3730,15 +3730,15 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 				break;
 		}
 		offset = offset + 1 + ggsn_addr_len;
-		
+
 	}
-	
+
 	apn_len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "APN length: %u", apn_len);
 	decode_apn(tvb, offset+1, apn_len, ext_tree_pdp);
 
 	offset = offset + 1 + apn_len;
-	
+
 	trans_id = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "Transaction identifier: %u", trans_id);
 
@@ -3754,12 +3754,12 @@ decode_gtp_apn(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 	guint16		length;
 	proto_tree	*ext_tree_apn;
 	proto_item	*te;
-	
-	length = tvb_get_ntohs(tvb, offset+1);	
+
+	length = tvb_get_ntohs(tvb, offset+1);
 
 	te = proto_tree_add_text(tree, tvb, offset, length+3, val_to_str(GTP_EXT_APN, gtp_val, "Unknown field"));
 	ext_tree_apn = proto_item_add_subtree(te, ett_gtp_apn);
-	
+
 	proto_tree_add_text(ext_tree_apn, tvb, offset+1, 2, "APN length : %u", length);
 	decode_apn(tvb, offset+3, length, ext_tree_apn);
 
@@ -3791,43 +3791,43 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 	conf = tvb_get_guint8 (tvb, offset + 3) & 0x07;
 	proto_tree_add_text (ext_tree_proto, tvb, offset + 3, 1, "Configuration protocol (00000xxx): %u", conf);
-	
+
 	proto_offset = 1;       /* ... 1st byte is conf */
 	offset += 4;
 
 	for (;;) {
 		if (proto_offset >= length) break;
-		proto_len = tvb_get_guint8 (tvb, offset + 2); 
+		proto_len = tvb_get_guint8 (tvb, offset + 2);
 		proto_offset += proto_len + 3;		/* 3 = proto id + length byte */
-			
-		if ((proto_len > 0) && ppp_reorder) { 
-			
-			/* this part changes layout of GTP payload: 
-			 * it swaps "length field" with "protocol header"  */ 
-			
-			ptr = (guint8 *)tvb_get_ptr(tvb, offset, 3); 
-			
-			tmp = ptr[2]; 
-			ptr[2] = ptr[1]; 
-			ptr[1] = ptr[0]; 
-			ptr[0] = tmp; 
-				
+
+		if ((proto_len > 0) && ppp_reorder) {
+
+			/* this part changes layout of GTP payload:
+			 * it swaps "length field" with "protocol header"  */
+
+			ptr = (guint8 *)tvb_get_ptr(tvb, offset, 3);
+
+			tmp = ptr[2];
+			ptr[2] = ptr[1];
+			ptr[1] = ptr[0];
+			ptr[0] = tmp;
+
 			proto_tree_add_text (ext_tree_proto, tvb, offset, 3, "[WARNING] Next 3 bytes were swapped to allow processing PPP section");
 			proto_tree_add_text (ext_tree_proto, tvb, offset, 1, "Protocol %u length: %u", cnt, proto_len);
-			
-			next_tvb = tvb_new_subset (tvb, offset + 1, proto_len + 2, proto_len + 2); 
-			call_dissector(ppp_handle, next_tvb, pinfo, ext_tree_proto); 
-				
+
+			next_tvb = tvb_new_subset (tvb, offset + 1, proto_len + 2, proto_len + 2);
+			call_dissector(ppp_handle, next_tvb, pinfo, ext_tree_proto);
+
 			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP"); 
-				
-			if (check_col(pinfo->cinfo, COL_INFO)) { 
-					
-				msg = tvb_get_guint8(tvb, 1); 
-						
-				col_set_str(pinfo->cinfo, COL_INFO, val_to_str(msg, message_type, "Unknown")); 
-			} 
-		} 
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
+
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+
+				msg = tvb_get_guint8(tvb, 1);
+
+				col_set_str(pinfo->cinfo, COL_INFO, val_to_str(msg, message_type, "Unknown"));
+			}
+		}
 
 		offset += proto_len + 3;
 		cnt++;
@@ -3841,19 +3841,19 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
  */
 static int
 decode_gtp_gsn_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-	
-	guint8		addr_type, addr_len;	
-	guint16		length;	
+
+	guint8		addr_type, addr_len;
+	guint16		length;
 	guint32		addr_ipv4;
 	struct	e_in6_addr addr_ipv6;
 	proto_tree	*ext_tree_gsn_addr;
 	proto_item	*te;
-	
+
 	length = tvb_get_ntohs(tvb, offset+1);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "GSN address : ");
 	ext_tree_gsn_addr = proto_item_add_subtree(te, ett_gtp_gsn_addr);
-	
+
 	switch (length) {
 		case 4:
 			proto_tree_add_text(ext_tree_gsn_addr, tvb, offset+1, 2, "GSN address length : %u", length);
@@ -3872,12 +3872,12 @@ decode_gtp_gsn_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			proto_tree_add_ipv4(ext_tree_gsn_addr, gtp_version ? hf_gtpv1_gsn_ipv4 : hf_gtpv0_gsn_ipv4, tvb, offset+4, 4, addr_ipv4);
 			break;
 		case 16:
-			proto_tree_add_text(ext_tree_gsn_addr, tvb, offset+1, 2, "GSN address length : %u", length); 
+			proto_tree_add_text(ext_tree_gsn_addr, tvb, offset+1, 2, "GSN address length : %u", length);
 			tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset+3, sizeof addr_ipv6);
 			proto_item_append_text(te, "%s", ip6_to_str((struct e_in6_addr*)&addr_ipv6));
 			proto_tree_add_ipv6(ext_tree_gsn_addr, gtp_version ? hf_gtpv1_gsn_ipv6 : hf_gtpv0_gsn_ipv6, tvb, offset+3, 16, (guint8*)&addr_ipv6);
 			break;
-		case 17: 
+		case 17:
 			proto_tree_add_text(ext_tree_gsn_addr, tvb, offset+1, 2, "GSN address Information Element length : %u", length);
 			addr_type = tvb_get_guint8(tvb, offset+3) & 0xC0;
 			proto_tree_add_uint(ext_tree_gsn_addr, gtp_version ? hf_gtpv1_gsn_addr_type : hf_gtpv0_gsn_addr_type, tvb, offset+3, 1, addr_type);
@@ -3891,7 +3891,7 @@ decode_gtp_gsn_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			proto_item_append_text(te, "unknown type or wrong length");
 			break;
 	}
-	
+
 	return 3+length;
 }
 
@@ -3900,20 +3900,20 @@ decode_gtp_gsn_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  */
 static int
 decode_gtp_msisdn(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
+
 	const guint8	*msisdn_val;
 	gchar		*msisdn_str;
 	guint16		length;
-	
+
 	length = tvb_get_ntohs(tvb, offset+1);
-	
+
 	if (length < 1) return 3;
-	
+
 	msisdn_val = tvb_get_ptr(tvb, offset+3, length);
 	msisdn_str = msisdn_to_str(msisdn_val, length);
-	
+
 	proto_tree_add_string(tree, gtp_version ? hf_gtpv1_msisdn : hf_gtpv0_msisdn, tvb, offset, 3+length, msisdn_str);
-	
+
 	return 3+length;
 }
 
@@ -3932,7 +3932,7 @@ decode_gtp_qos_umts(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  */
 static int
 decode_gtp_auth_qui(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-	
+
 	return (1 + decode_quintuplet(tvb, offset+1, tree, 1, 1));
 
 }
@@ -3950,60 +3950,60 @@ decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 	struct	e_in6_addr addr_ipv6, mask_ipv6;
 	proto_tree	*ext_tree_tft, *ext_tree_tft_pf, *ext_tree_tft_flags;
 	proto_item	*te, *tee, *tef;
-	
+
 	length = tvb_get_ntohs(tvb, offset+1);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "Traffic flow template");
 	ext_tree_tft = proto_item_add_subtree(te, ett_gtp_tft);
-	
+
 	tft_flags = tvb_get_guint8(tvb, offset+3);
 	tft_code = (tft_flags >> 5) & 0x07;
 	spare = (tft_flags >> 4) & 0x01;
 	no_packet_filters = tft_flags & 0x0F;
-	
+
 	proto_tree_add_text(ext_tree_tft, tvb, offset+1, 2, "TFT length: %u", length);
 
 	tef = proto_tree_add_text (ext_tree_tft, tvb, offset + 3, 1, "TFT flags");
 	ext_tree_tft_flags = proto_item_add_subtree (tef, ett_gtp_tft_flags);
-	proto_tree_add_uint (ext_tree_tft_flags, hf_gtpv1_tft_code, tvb, offset + 3, 1, tft_flags);	
-	proto_tree_add_uint (ext_tree_tft_flags, hf_gtpv1_tft_spare, tvb, offset + 3, 1, tft_flags);	
-	proto_tree_add_uint (ext_tree_tft_flags, hf_gtpv1_tft_number, tvb, offset + 3, 1, tft_flags);	
+	proto_tree_add_uint (ext_tree_tft_flags, hf_gtpv1_tft_code, tvb, offset + 3, 1, tft_flags);
+	proto_tree_add_uint (ext_tree_tft_flags, hf_gtpv1_tft_spare, tvb, offset + 3, 1, tft_flags);
+	proto_tree_add_uint (ext_tree_tft_flags, hf_gtpv1_tft_number, tvb, offset + 3, 1, tft_flags);
 
 	offset = offset + 4;
-	
+
 	for (i=0;i<no_packet_filters;i++) {
-		
+
 		pf_id = tvb_get_guint8(tvb, offset);
-			
+
 		tee = proto_tree_add_text (ext_tree_tft, tvb, offset, 1, "Packet filter id: %u", pf_id);
 		ext_tree_tft_pf = proto_item_add_subtree (tee, ett_gtp_tft_pf);
 		offset++;
 
 		if (tft_code != 2) {
-			
+
 			pf_eval = tvb_get_guint8(tvb, offset);
 			pf_len = tvb_get_guint8(tvb, offset + 1);
-			
+
 			proto_tree_add_uint (ext_tree_tft_pf, hf_gtpv1_tft_eval, tvb, offset, 1, pf_eval);
 			proto_tree_add_text (ext_tree_tft_pf, tvb, offset+1, 1, "Content length: %u", pf_len);
 
 			offset = offset + 2;
 			pf_offset = 0;
 
-			while (pf_offset < pf_len) {	
-			
+			while (pf_offset < pf_len) {
+
 				pf_content_id = tvb_get_guint8 (tvb, offset + pf_offset);
 
 				switch (pf_content_id) {
 					/* address IPv4 and mask = 8 bytes*/
-					case 0x10: 
+					case 0x10:
 						tvb_memcpy (tvb, (guint8 *)&addr_ipv4, offset + pf_offset + 1, sizeof addr_ipv4);
 						tvb_memcpy (tvb, (guint8 *)&mask_ipv4, offset + pf_offset + 5, sizeof mask_ipv4);
 						proto_tree_add_text (ext_tree_tft_pf, tvb, offset + pf_offset, 9, "ID 0x10: IPv4/mask: %s/%s", ip_to_str ((guint8 *)&addr_ipv4), ip_to_str ((guint8 *)&mask_ipv4));
 						pf_offset = pf_offset + 9;
 						break;
 					/* address IPv6 and mask = 32 bytes*/
-					case 0x20: 
+					case 0x20:
 						tvb_memcpy (tvb, (guint8 *)&addr_ipv6, offset+pf_offset+1, sizeof addr_ipv6);
 						tvb_memcpy (tvb, (guint8 *)&mask_ipv6, offset+pf_offset+17, sizeof mask_ipv6);
 						proto_tree_add_text (ext_tree_tft_pf, tvb, offset+pf_offset, 33, "ID 0x20: IPv6/mask: %s/%s", ip6_to_str ((struct e_in6_addr*)&addr_ipv6), ip6_to_str ((struct e_in6_addr*)&mask_ipv6));
@@ -4059,8 +4059,8 @@ decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 						proto_tree_add_text (ext_tree_tft_pf, tvb, offset + pf_offset, 4, "ID 0x80: Flow Label: %u (%x)", label, label);
 						pf_offset = pf_offset + 4;
 						break;
-					
-					default: 
+
+					default:
 						proto_tree_add_text (ext_tree_tft_pf, tvb, offset + pf_offset, 1, "Unknown value: %x ", pf_content_id);
 						pf_offset++; /* to avoid infinite loop */
 						break;
@@ -4068,7 +4068,7 @@ decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 			}
 
 			offset = offset + pf_offset;
-		}	
+		}
 	}
 
 	return 3 + length;
@@ -4086,7 +4086,7 @@ decode_gtp_target_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	length = tvb_get_ntohs(tvb, offset + 1);
 
 	proto_tree_add_text(tree, tvb, offset, 3 + length, "Targer Identification");
-	
+
 	return 3 + length;
 }
 
@@ -4106,7 +4106,7 @@ decode_gtp_utran_cont(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	return 3 + length;
 
 }
-	
+
 
 /* GPRS:	not present
  * UMTS:	29.060 v4.0, chapter 7.7.39
@@ -4120,7 +4120,7 @@ decode_gtp_rab_setup(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	struct	e_in6_addr addr_ipv6;
 	proto_tree	*ext_tree_rab_setup;
 	proto_item	*te;
-	
+
 	length = tvb_get_ntohs(tvb, offset + 1);
 	nsapi = tvb_get_guint8(tvb, offset + 3) & 0x0F;
 
@@ -4131,17 +4131,17 @@ decode_gtp_rab_setup(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	proto_tree_add_uint(ext_tree_rab_setup, hf_gtpv1_nsapi, tvb, offset+3, 1, nsapi);
 
 	if (length > 1) {
-		
+
 		teid = tvb_get_ntohl(tvb, offset + 4);
 
 		proto_tree_add_uint(ext_tree_rab_setup, hf_gtpv1_teid_data, tvb, offset+4, 4, teid);
-	
+
 		switch (length) {
 			case 12:
 				tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+8, sizeof addr_ipv4);
 				proto_tree_add_ipv4(ext_tree_rab_setup, hf_gtpv1_rnc_ipv4, tvb, offset+8, 4, addr_ipv4);
 				break;
-			case 24: 
+			case 24:
 				tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset+8, sizeof addr_ipv6);
 				proto_tree_add_ipv6(ext_tree_rab_setup, hf_gtpv1_rnc_ipv6, tvb, offset+8, 16, (guint8 *)&addr_ipv6);
 				break;
@@ -4164,12 +4164,12 @@ decode_gtp_hdr_list(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	guint8		length, hdr;
 	proto_tree	*ext_tree_hdr_list;
 	proto_item	*te;
-	
+
 	length = tvb_get_guint8(tvb, offset + 1);
 
 	te = proto_tree_add_text(tree, tvb, offset, 2+length, "%s", val_to_str(GTP_EXT_HDR_LIST, gtp_val, "Unknown"));
 	ext_tree_hdr_list = proto_item_add_subtree(te, ett_gtp_hdr_list);
-	
+
 	proto_tree_add_text(ext_tree_hdr_list, tvb, offset+1, 1, "Number of Extension Header Types in list (i.e., length) : %u", length);
 
 	for(i=0 ; i<length ; i++) {
@@ -4220,27 +4220,27 @@ decode_gtp_omc_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
  */
 static int
 decode_gtp_chrg_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
-	guint16		length;	
+
+	guint16		length;
 	guint32		addr_ipv4;
 	struct	e_in6_addr addr_ipv6;
 	proto_tree	*ext_tree_chrg_addr;
 	proto_item	*te;
-	
+
 	length = tvb_get_ntohs(tvb, offset+1);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_CHRG_ADDR, gtp_val, "Unknown"));
 	ext_tree_chrg_addr = proto_item_add_subtree(te, ett_gtp_chrg_addr);
-	
+
 	proto_tree_add_text(ext_tree_chrg_addr, tvb, offset+1, 2, "%s length : %u", val_to_str(GTP_EXT_CHRG_ADDR, gtp_val, "Unknown"), length);
-	
+
 	switch (length) {
 		case 4:
 			tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+3, sizeof addr_ipv4);
 			proto_item_append_text(te, "%s", ip_to_str((guint8 *)&addr_ipv4));
 			proto_tree_add_ipv4(ext_tree_chrg_addr, gtp_version ? hf_gtpv1_chrg_ipv4 : hf_gtpv0_chrg_ipv4, tvb, offset+3, 4, addr_ipv4);
 			break;
-		case 16: 
+		case 16:
 			tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset+3, sizeof addr_ipv6);
 			proto_item_append_text(te, "%s", ip6_to_str((struct e_in6_addr*)&addr_ipv6));
 			proto_tree_add_ipv6(ext_tree_chrg_addr, gtp_version ? hf_gtpv1_chrg_ipv6 : hf_gtpv0_chrg_ipv6, tvb, offset+3, 16, (guint8*)&addr_ipv6);
@@ -4258,18 +4258,18 @@ decode_gtp_chrg_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
  */
 static int
 decode_gtp_rel_pack(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-	
+
 	guint16		length, n, number;
 	proto_tree	*ext_tree_rel_pack;
 	proto_item	*te;
 
 	length = tvb_get_ntohs(tvb, offset + 1);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 3 + length, "Sequence numbers of released packets IE");
 	ext_tree_rel_pack = proto_item_add_subtree(te, ett_gtp_rel_pack);
-	
+
 	n = 0;
-	
+
 	while (n < length) {
 
 		number = tvb_get_ntohs(tvb, offset + 3 + n);
@@ -4277,7 +4277,7 @@ decode_gtp_rel_pack(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 		n = n + 2;
 
 	}
-	
+
 	return 3 + length;
 }
 
@@ -4286,18 +4286,18 @@ decode_gtp_rel_pack(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  */
 static int
 decode_gtp_can_pack(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-	
+
 	guint16		length, n, number;
 	proto_tree	*ext_tree_can_pack;
 	proto_item	*te;
 
 	length = tvb_get_ntohs(tvb, offset + 1);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 3 + length, "Sequence numbers of cancelled  packets IE");
 	ext_tree_can_pack = proto_item_add_subtree(te, ett_gtp_can_pack);
-	
+
 	n = 0;
-	
+
 	while (n < length) {
 
 		number = tvb_get_ntohs(tvb, offset + 3 + n);
@@ -4305,14 +4305,14 @@ decode_gtp_can_pack(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 		n = n + 2;
 
 	}
-	
+
 	return 3 + length;
 }
 
 /* CDRs dissector */
 static int
 decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-	
+
 	guint16		length, format_ver, data_len, i, j;
 	guint8		no, format, rectype;
 	proto_tree	*ext_tree, *cdr_tree;
@@ -4320,12 +4320,12 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_DATA_REQ, gtp_val, "Unknown message"));
 	ext_tree = proto_item_add_subtree(te, ett_gtp_ext);
-	
+
 	length = tvb_get_ntohs(tvb, offset + 1);
 	no = tvb_get_guint8(tvb, offset + 3);
 	format = tvb_get_guint8(tvb, offset + 4);
 	format_ver = tvb_get_ntohs(tvb, offset + 5);
-	
+
 	proto_tree_add_text(ext_tree, tvb, offset+1, 2, "Length: %u", length);
 	proto_tree_add_text(ext_tree, tvb, offset+3, 1, "Number of data records: %u", no);
 	proto_tree_add_text(ext_tree, tvb, offset+4, 1, "Data record format: %u", format);
@@ -4335,18 +4335,18 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	offset = offset + 7;
 
 	if (gtpv0_cdr_as != DONT_DISSECT_CDRS) {
-	
+
 	for (i = 0; i < no; i++) {
 		data_len = tvb_get_ntohs(tvb, offset);
 		rectype = tvb_get_guint8(tvb, offset+2);
 		switch (rectype) {
-			case 0x13:		/* GCDR */ 
+			case 0x13:		/* GCDR */
 				if (tvb_length_remaining(tvb, offset) < 3 + 118) {
 					proto_tree_add_text(ext_tree, tvb, offset, tvb_length_remaining(tvb, offset), "GCDR fragmented, can't dissect");
 					break;
 				}
-				
-				tvb_memcpy(tvb, gcdr.imsi, offset+3, 8);	
+
+				tvb_memcpy(tvb, gcdr.imsi, offset+3, 8);
 				tvb_memcpy(tvb, (guint8 *)&gcdr.ggsnaddr, offset+11, sizeof gcdr.ggsnaddr);
 				gcdr.chrgid = tvb_get_ntohl(tvb, offset+15);
 				tvb_memcpy(tvb, (guint8 *)&gcdr.sgsnaddr, offset+19, sizeof gcdr.sgsnaddr);
@@ -4362,7 +4362,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 				gcdr.duration = tvb_get_ntohl(tvb, offset+112);
 				gcdr.closecause = tvb_get_guint8(tvb, offset+116);
 				gcdr.seqno = tvb_get_ntohl(tvb, offset+117);
-				
+
 				ce = proto_tree_add_text(ext_tree, tvb, offset, data_len + 2, "GCDR (0x13), sequence number: %u", gcdr.seqno);
 				cdr_tree = proto_item_add_subtree(ce, ett_gtp_ext);
 				proto_tree_add_text(cdr_tree, tvb, offset, 2, "Length: %u", data_len);
@@ -4384,12 +4384,12 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 				proto_tree_add_text(cdr_tree, tvb, offset+112, 4, "Duration: %s", rel_time_int_to_str(gcdr.duration));
 				proto_tree_add_text(cdr_tree, tvb, offset+116, 1, "Cause for close: %s (%u)", val_to_str(gcdr.closecause, cdr_close_type, "Unknown cause"), gcdr.closecause);
 				proto_tree_add_text(cdr_tree, tvb, offset+117, 4, "Sequence number: %u", gcdr.seqno);
-				
+
 				if (data_len > 119) {
 					tvb_memcpy (tvb, gcdr.msisdn, offset + 121, 9);
 					proto_tree_add_text(cdr_tree, tvb, offset+121, 9, "MSISDN: %s", msisdn_to_str (gcdr.msisdn, 9));
 				}
-					
+
 				break;
 
 			case 0x12:		/* SCDR */
@@ -4397,7 +4397,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 					proto_tree_add_text(ext_tree, tvb, offset, tvb_length_remaining(tvb, offset), "SCDR fragmented, can't dissect");
 					break;
 				}
-				
+
 				scdr.len = tvb_get_letohs(tvb, offset+3);
 				scdr.netini = tvb_get_guint8(tvb, offset+5);
 				scdr.anon = tvb_get_guint8(tvb, offset+6);
@@ -4457,7 +4457,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 				proto_tree_add_text(cdr_tree, tvb, offset+35, 4, "SGSN address: %s", ip_to_str((guint8 *)&scdr.sgsnaddr));
 				proto_tree_add_text(cdr_tree, tvb, offset+39, 12, "(not used)");
 				proto_tree_add_text(cdr_tree, tvb, offset+51, 1, "MS network capability length: %u", scdr.msclass_caplen);
-				
+
 /*				cap_id = proto_tree_add_text(cdr_tree, tvb, offset+52, 1, "MS network capability: %u", scdr.msclass_cap);
 				cap_tree = proto_item_add_subtree(cap_id, ett_chrg_cap);
 				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_gea, tvb, offset+52, 1, scdr.cap);
@@ -4488,7 +4488,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 					proto_tree_add_text(cdr_tree, tvb, offset+152+23*j, 4, "Downlink: %x", scdr.change[j].downlink);
 					decode_qos_gprs(tvb, offset+156, cdr_tree, "QoS requested", 0);
 					decode_qos_gprs(tvb, offset+159, cdr_tree, "QoS negotiated", 0);
-				}	
+				}
 				proto_tree_add_text(cdr_tree, tvb, offset+254, 4, "Timestamp: %s", time_int_to_str(scdr.timestamp));
 				proto_tree_add_text(cdr_tree, tvb, offset+258, 4, "Opening: %s", time_int_to_str(scdr.opening));
 				proto_tree_add_text(cdr_tree, tvb, offset+262, 4, "Duration: %s", rel_time_int_to_str(scdr.duration));
@@ -4553,7 +4553,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 				proto_tree_add_text(cdr_tree, tvb, offset+33, 4, "SGSN address: %s", ip_to_str((guint8 *)&mcdr.sgsnaddr));
 				proto_tree_add_text(cdr_tree, tvb, offset+37, 12, "(not used)");
 				proto_tree_add_text(cdr_tree, tvb, offset+49, 1, "MS network capability length: %u", mcdr.msclass_caplen);
-				
+
 /*				cap_id = proto_tree_add_text(cdr_tree, tvb, offset+50, 1, "MS network capability: %u", mcdr.msclass_cap);
 				cap_tree = proto_item_add_subtree(cap_id, ett_chrg_cap);
 				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_gea, tvb, offset+50, 1, mcdr.cap);
@@ -4627,7 +4627,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 				proto_tree_add_text(cdr_tree, tvb, offset+23, 10, "MSISDN: %s", msisdn_to_str(socdr.msisdn, 10));
 				proto_tree_add_text(cdr_tree, tvb, offset+33, 12, "(not used)");
 				proto_tree_add_text(cdr_tree, tvb, offset+45, 1, "MS network capability length: %u", socdr.msclass_caplen);
-				
+
 /*				cap_id = proto_tree_add_text(cdr_tree, tvb, offset+46, 1, "MS network capability: %u", socdr.msclass_cap);
 				cap_tree = proto_item_add_subtree(cap_id, ett_chrg_cap);
 				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_gea, tvb, offset+46, 1, socdr.cap);
@@ -4686,7 +4686,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 				proto_tree_add_text(cdr_tree, tvb, offset+23, 10, "MSISDN: %s", msisdn_to_str(stcdr.msisdn, 10));
 				proto_tree_add_text(cdr_tree, tvb, offset+33, 12, "(not used)");
 				proto_tree_add_text(cdr_tree, tvb, offset+45, 1, "MS network capability length: %u", stcdr.msclass_caplen);
-				
+
 /*				cap_id = proto_tree_add_text(cdr_tree, tvb, offset+46, 1, "MS network capability: %u", stcdr.msclass_cap);
 				cap_tree = proto_item_add_subtree(cap_id, ett_chrg_cap);
 				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_gea, tvb, offset+46, 1, stcdr.cap);
@@ -4718,18 +4718,18 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  */
 static int
 decode_gtp_data_resp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-	
+
 	guint16		length, n, number;
 	proto_tree	*ext_tree_data_resp;
 	proto_item	*te;
 
 	length = tvb_get_ntohs(tvb, offset + 1);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 3 + length, "Requests responded");
 	ext_tree_data_resp = proto_item_add_subtree(te, ett_gtp_data_resp);
-	
+
 	n = 0;
-	
+
 	while (n < length) {
 
 		number = tvb_get_ntohs(tvb, offset + 3 + n);
@@ -4741,33 +4741,33 @@ decode_gtp_data_resp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	return 3 + length;
 
 }
-	
+
 /* GPRS:	12.15
  * UMTS:	33.015
  */
 static int
 decode_gtp_node_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
-		
-	guint16		length;	
+
+	guint16		length;
 	guint32		addr_ipv4;
 	struct	e_in6_addr addr_ipv6;
 	proto_tree	*ext_tree_node_addr;
 	proto_item	*te;
-	
+
 	length = tvb_get_ntohs(tvb, offset+1);
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "Node address: ");
 	ext_tree_node_addr = proto_item_add_subtree(te, ett_gtp_node_addr);
-	
+
 	proto_tree_add_text(ext_tree_node_addr, tvb, offset+1, 2, "Node address length: %u", length);
-	
+
 	switch (length) {
 		case 4:
 			tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset+3, sizeof addr_ipv4);
 			proto_item_append_text(te, "%s", ip_to_str((guint8 *)&addr_ipv4));
 			proto_tree_add_ipv4(ext_tree_node_addr, gtp_version ? hf_gtpv1_node_ipv4 : hf_gtpv0_node_ipv4, tvb, offset+3, 4, addr_ipv4);
 			break;
-		case 16: 
+		case 16:
 			tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset+3, sizeof addr_ipv6);
 			proto_item_append_text(te, "%s", ip6_to_str((struct e_in6_addr*)&addr_ipv6));
 			proto_tree_add_ipv6(ext_tree_node_addr, gtp_version ? hf_gtpv1_node_ipv6 : hf_gtpv0_node_ipv6, tvb, offset+3, 16, (guint8*)&addr_ipv6);
@@ -4785,25 +4785,25 @@ decode_gtp_node_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
  * UMTS:	29.060 v4.0, chapter 7.7.44
  */
 static int
-decode_gtp_priv_ext(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {	
-		
-	guint16		length, ext_id;	
+decode_gtp_priv_ext(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
+
+	guint16		length, ext_id;
 	gchar		ext_val[64];
 	proto_tree	*ext_tree_priv_ext;
 	proto_item	*te;
-	
+
 	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_PRIV_EXT, gtp_val, "Unknown message"));
 	ext_tree_priv_ext = proto_item_add_subtree(te, ett_gtp_ext);
-	
+
 	length = tvb_get_ntohs(tvb, offset+1);
 	if (length < 1) return 3+length;
-	
-	ext_id = tvb_get_ntohs(tvb, offset+3);	
+
+	ext_id = tvb_get_ntohs(tvb, offset+3);
 	tvb_memcpy(tvb, ext_val, offset+5, length > 65 ? 63 : length-2);
 	ext_val[length > 65 ? 64 : length-1] = '\0';
 	proto_tree_add_uint(ext_tree_priv_ext, gtp_version ? hf_gtpv1_ext_id : hf_gtpv0_ext_id, tvb, offset+3, 2, ext_id);
 	proto_tree_add_string(ext_tree_priv_ext, gtp_version ? hf_gtpv1_ext_val : hf_gtpv0_ext_val, tvb, offset+5, length-2, ext_val);
-	
+
 	return 3+length;
 }
 
@@ -4818,7 +4818,7 @@ decode_gtp_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 static void
 dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	
+
 	_gtpv0_hdr	gtpv0_hdr;
 	proto_item	*ti, *tf;
 	proto_tree	*gtpv0_tree, *flags_tree;
@@ -4827,13 +4827,13 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guint8	*tid_val;
 	gchar		*tid_str;
 	int		offset, length, i, mandatory, checked_field, gtp_prime = 0;
-	
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	tvb_memcpy(tvb, (guint8 *)&gtpv0_hdr, 0, 12); 
+	tvb_memcpy(tvb, (guint8 *)&gtpv0_hdr, 0, 12);
 	tid_val = tvb_get_ptr(tvb, 12, 8);
 	tid_str = id_to_str(tid_val);
 	gtp_version = (gtpv0_hdr.flags >> 5) & 0x07;
@@ -4857,9 +4857,9 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtpv0_hdr.message, message_type, "Unknown"));
-	
+
 	if (tree) {
-			
+
 		/* dissect GTP header */
 		ti = proto_tree_add_item(tree, proto_gtpv0, tvb, 0, -1, FALSE);
 		gtpv0_tree = proto_item_add_subtree(ti, ett_gtp);
@@ -4871,7 +4871,7 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(flags_tree, hf_gtpv0_flags_pt, tvb, 0, 1, gtpv0_hdr.flags);
 		proto_tree_add_uint(flags_tree, hf_gtpv0_flags_spare, tvb, 0, 1, gtpv0_hdr.flags);
 		proto_tree_add_boolean(flags_tree, hf_gtpv0_flags_snn, tvb, 0, 1, gtpv0_hdr.flags);
-		
+
 		gtpv0_hdr.length = g_ntohs(gtpv0_hdr.length);
 		gtpv0_hdr.seq_no = g_ntohs(gtpv0_hdr.seq_no);
 		proto_tree_add_uint(gtpv0_tree, hf_gtpv0_message_type, tvb, 1, 1, gtpv0_hdr.message);
@@ -4884,22 +4884,22 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(gtpv0_tree, hf_gtpv0_sndcp_number, tvb, 8, 1, gtpv0_hdr.sndcp_no);
 			proto_tree_add_string(gtpv0_tree, hf_gtpv0_tid, tvb, 12, 8, tid_str);
 		}
-	
+
 		if (gtpv0_hdr.message != GTP_MSG_TPDU) {
-				
+
 			proto_tree_add_text(gtpv0_tree, tvb, 0, 0, "[--- end of GTPv0 header, beginning of extension headers ---]");
-					
+
 			offset = gtp_prime ? GTP_PRIME_HDR_LENGTH : GTPv0_HDR_LENGTH;
 
 			length = tvb_length(tvb);
 
 			mandatory = 0;		/* check order of GTP fields against ETSI */
-		
+
 			for (;;) {
-					
+
 				if (offset >= length) break;
 				ext_hdr_val = tvb_get_guint8(tvb, offset);
-				
+
 				if (gtpv0_etsi_order) {
 					checked_field = check_field_presence (gtpv0_hdr.message, ext_hdr_val , (int *)&mandatory);
 					switch (checked_field) {
@@ -4911,30 +4911,30 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						default: proto_tree_add_text(gtpv0_tree, tvb, offset, 1, "[WARNING] wrong next field, should be: %s", val_to_str(checked_field, gtp_val, "Unknown extension field"));
 					}
 				}
-				
+
 				i = -1;
 				while (gtpopt[++i].optcode) if (gtpopt[i].optcode == ext_hdr_val) break;
 				offset = offset + (*gtpopt[i].decode)(tvb, offset, pinfo, gtpv0_tree);
 			}
 		}
-	} 
+	}
 
 /* next part dissects sublayers of GTP
  * right now it's only IP */
-	
+
 	if ((gtpv0_hdr.message == GTP_MSG_TPDU) && gtp_tpdu) {
 		next_tvb = tvb_new_subset(tvb, 20, -1, -1);
 		call_dissector(ip_handle, next_tvb, pinfo, tree);
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP");
 	}
-	
+
 }
 
 /* GTP v1 dissector */
 static void
 dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	
+
 	_gtpv1_hdr	gtpv1_hdr;
 	proto_item	*ti, *tf;
 	proto_tree	*gtpv1_tree, *flags_tree;
@@ -4942,7 +4942,7 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	guint8		ext_hdr_val, i, hdr_offset = 4, next_hdr, npdu_no, sub_proto;
 	tvbuff_t	*next_tvb;
 	int		offset, length, mandatory, checked_field, gtp_prime = 0;
-	
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP-C");
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -4955,22 +4955,22 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtpv1_hdr.message, message_type, "Unknown"));
 
 	if (tree) {
-			
+
 		ti = proto_tree_add_item(tree, proto_gtpv1, tvb, 0, -1, FALSE);
 		gtpv1_tree = proto_item_add_subtree(ti, ett_gtp);
 
 		tf = proto_tree_add_uint(gtpv1_tree, hf_gtpv1_flags, tvb, 0, 1, gtpv1_hdr.flags);
 		flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
-		
+
 		proto_tree_add_uint(flags_tree, hf_gtpv1_flags_ver, tvb, 0, 1, gtpv1_hdr.flags);
 		proto_tree_add_uint(flags_tree, hf_gtpv1_flags_pt, tvb, 0, 1, gtpv1_hdr.flags);
 		proto_tree_add_uint(flags_tree, hf_gtpv1_flags_spare, tvb, 0, 1, gtpv1_hdr.flags);
 		proto_tree_add_boolean(flags_tree, hf_gtpv1_flags_e, tvb, 0, 1, gtpv1_hdr.flags);
 		proto_tree_add_boolean(flags_tree, hf_gtpv1_flags_s, tvb, 0, 1, gtpv1_hdr.flags);
 		proto_tree_add_boolean(flags_tree, hf_gtpv1_flags_pn, tvb, 0, 1, gtpv1_hdr.flags);
-		
+
 		proto_tree_add_uint(gtpv1_tree, hf_gtpv1_message_type, tvb, 1, 1, gtpv1_hdr.message);
-		
+
 		gtpv1_hdr.length = g_ntohs(gtpv1_hdr.length);
 		proto_tree_add_uint(gtpv1_tree, hf_gtpv1_length, tvb, 2, 2, gtpv1_hdr.length);
 
@@ -4978,8 +4978,8 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 		/* GTP' has 6 bytes of length */
 
-		if (!gtp_prime) { 
-		
+		if (!gtp_prime) {
+
 			gtpv1_hdr.teid = g_ntohl(gtpv1_hdr.teid);
 			proto_tree_add_uint(gtpv1_tree, hf_gtpv1_teid, tvb, 4, 4, gtpv1_hdr.teid);
 
@@ -4991,26 +4991,26 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				next_hdr = tvb_get_guint8(tvb, 11);
 				proto_tree_add_uint(gtpv1_tree, hf_gtpv1_next, tvb, 11, 1, next_hdr);
 				hdr_offset = 0;
-			
+
 				if (next_hdr) hdr_offset = 1;
 				else hdr_offset = 0;
 			}
 		}
-	
+
 		if (gtpv1_hdr.message != GTP_MSG_TPDU) {
 
 			proto_tree_add_text(gtpv1_tree, tvb, 0, 0, "[--- end of GTP v1 header, beginning of extension headers ---]");
-				
+
 			offset = gtp_prime ? GTP_PRIME_HDR_LENGTH: GTPv1_HDR_LENGTH - hdr_offset;
 			length = tvb_length(tvb);
-		
+
 			mandatory = 0;		/* check order of GTP fields against ETSI */
-		
+
 			for (;;) {
-					
+
 				if (offset >= length) break;
 				ext_hdr_val = tvb_get_guint8(tvb, offset);
-				
+
 				if (gtpv1_etsi_order) {
 					checked_field = check_field_presence (gtpv1_hdr.message, ext_hdr_val , (int *)&mandatory);
 					switch (checked_field) {
@@ -5022,12 +5022,12 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 						default: proto_tree_add_text(gtpv1_tree, tvb, offset, 1, "[WARNING] wrong next field, should be: %s", val_to_str(checked_field, gtp_val, "Unknown extension field"));
 					}
 				}
-				
+
 				i = -1;
 				while (gtpopt[++i].optcode) if (gtpopt[i].optcode == ext_hdr_val) break;
 				offset = offset + (*gtpopt[i].decode)(tvb, offset, pinfo, gtpv1_tree);
 			}
-		} 
+		}
 	}
 
 	if (gtpv1_hdr.message == GTP_MSG_ERR_IND)
@@ -5036,8 +5036,8 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
 	if ((gtpv1_hdr.message == GTP_MSG_TPDU) && gtp_tpdu) {
-			
-		if (gtpv1_hdr.flags & 0x07) {	
+
+		if (gtpv1_hdr.flags & 0x07) {
 			if (tvb_get_guint8 (tvb, 11))
 				hdr_offset = 1;		/* if next_hdr != 0 */
 			else
@@ -5048,9 +5048,9 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 		switch(sub_proto) {
 			case GTP_PPP_0x00:
-			case GTP_PPP_0xC0:   
-			case GTP_PPP_0x80:   
-			case GTP_PPP_0xC2:   
+			case GTP_PPP_0xC0:
+			case GTP_PPP_0x80:
+			case GTP_PPP_0xC2:
 				next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
 				call_dissector(ppp_handle, next_tvb, pinfo, tree);
 				if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -5061,9 +5061,9 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				sub_proto = tvb_get_guint8(tvb,GTPv1_HDR_LENGTH - hdr_offset+2);
 				switch(sub_proto) {
 					case GTP_PPP_0x00:
-					case GTP_PPP_0xC0:   
-					case GTP_PPP_0x80:   
-					case GTP_PPP_0xC2:   
+					case GTP_PPP_0xC0:
+					case GTP_PPP_0x80:
+					case GTP_PPP_0xC2:
 						next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset+2, -1, -1);
 						call_dissector(ppp_handle, next_tvb, pinfo, tree);
 						if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -5079,24 +5079,24 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 						break;
 				}
 				break;
-			default: 
+			default:
 				next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
 				call_dissector(ip_handle, next_tvb, pinfo, tree);
 				if (check_col(pinfo->cinfo, COL_PROTOCOL))
 					col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
 				break;
-		}	
+		}
 	}
 }
 
-static const true_false_string yes_no_tfs = { 
+static const true_false_string yes_no_tfs = {
 	"yes" ,
 	"no"
 };
 
 void
 proto_register_gtp(void)
-{                 
+{
 
 	static hf_register_info hf_gtpv0[] = {
 
@@ -5160,7 +5160,7 @@ proto_register_gtp(void)
 
 	};
 
-	
+
 	static hf_register_info hf_gtpv1[] = {
 
 	{ &hf_gtpv1_flags,		{ "Flags", 		"gtpv1.flags", 			FT_UINT8, 	BASE_HEX, NULL, 0, "Ver/PT/Spare/E/S/PN", HFILL }},
@@ -5247,12 +5247,12 @@ proto_register_gtp(void)
 	{ &hf_gtpv1_qos_traf_handl_prio,	{ "Traffic handling priority",	"gtpv1.qos_traf_handl_prio",	FT_UINT8,	BASE_DEC, VALS(qos_traf_handl_prio), GTP_EXT_QOS_TRAF_HANDL_PRIORITY_MASK, "Traffic Handling Priority", HFILL }},
 	{ &hf_gtpv1_qos_guar_ul,		{ "Guaranteed bit rate for uplink",	"gtpv1.qos_guar_ul",	FT_UINT8,	BASE_DEC, VALS(qos_guar_ul), 0, "Guaranteed bit rate for uplink", HFILL }},
 	{ &hf_gtpv1_qos_guar_dl,		{ "Guaranteed bit rate for downlink",	"gtpv1.qos_guar_dl",	FT_UINT8,	BASE_DEC, VALS(qos_guar_dl), 0, "Guaranteed bit rate for downlink", HFILL }},
-	
+
 	{ &hf_gtpv1_tft_code,		{ "TFT operation code",	"gtpv1.tft_code",		FT_UINT8,	BASE_DEC, VALS (tft_code_type), GTPv1_TFT_CODE_MASK, "TFT operation code", HFILL }},
 	{ &hf_gtpv1_tft_spare,		{ "TFT spare bit",	"gtpv1.tft_spare",		FT_UINT8,	BASE_DEC, NULL, GTPv1_TFT_SPARE_MASK, "TFT spare bit", HFILL }},
 	{ &hf_gtpv1_tft_number,		{ "Number of packet filters",	"gtpv1.tft_number",	FT_UINT8,	BASE_DEC, NULL, GTPv1_TFT_NUMBER_MASK, "Number of packet filters", HFILL }},
 	{ &hf_gtpv1_tft_eval,		{ "Evaluation precedence",	"gtpv1.tft_eval",	FT_UINT8,	BASE_DEC, NULL, 0, "Evaluation precedence", HFILL }},
-	
+
 	{ &hf_gtpv1_rnc_ipv4,		{ "RNC address IPv4", 	"gtpv1.rnc_ipv4", 		FT_IPv4, 	BASE_DEC, NULL, 0, "Radio Network Controller address IPv4", HFILL }},
 	{ &hf_gtpv1_rnc_ipv6,		{ "RNC address IPv6", 	"gtpv1.rnc_ipv6",	 	FT_IPv6, 	BASE_HEX, NULL, 0, "Radio Network Controller address IPv6", HFILL }},
 	{ &hf_gtpv1_chrg_ipv4,		{ "CG address IPv4", 	"gtpv1.chrg_ipv4", 		FT_IPv4, 	BASE_DEC, NULL, 0, "Charging Gateway address IPv4", HFILL }},
@@ -5299,7 +5299,7 @@ proto_register_gtp(void)
 	};
 
 	module_t	*gtp_module;
-	
+
 	static enum_val_t gtpv0_cdr_options[] = {
 		{ "GSM 12.15 (not implemented yet)",	0 },
 		{ "Nokia CDR", 	1 },
@@ -5309,17 +5309,17 @@ proto_register_gtp(void)
 
 	/* proto_gtp defined only for preference tab */
 	proto_gtp = proto_register_protocol ("GPRS Tunneling Protocol", "GTP", "gtp");
-	
+
 	proto_gtpv0 = proto_register_protocol ("GPRS Tunnelling Protocol v0", "GTPv0", "gtpv0");
 	proto_register_field_array(proto_gtpv0, hf_gtpv0, array_length(hf_gtpv0));
 	proto_register_subtree_array(ett_gtp_array, array_length(ett_gtp_array));
-	
+
 	proto_gtpv1 = proto_register_protocol("GPRS Tunnelling Protocol v1", "GTPv1", "gtpv1");
 	proto_register_field_array(proto_gtpv1, hf_gtpv1, array_length(hf_gtpv1));
 	proto_register_subtree_array(ett_gtp_array, array_length(ett_gtp_array));
-	
+
 	gtp_module = prefs_register_protocol(proto_gtp, proto_reg_handoff_gtp);
-	
+
 	prefs_register_uint_preference(gtp_module, "gtpv0_port", "GTPv0 port ", "GTPv0 port (default 3386)", 10, &g_gtpv0_port);
 	prefs_register_uint_preference(gtp_module, "gtpv1c_port", "GTPv1 control plane (GTP-C) port ", "GTPv1 control plane port (default 2123)", 10, &g_gtpv1c_port);
 	prefs_register_uint_preference(gtp_module, "gtpv1u_port", "GTPv1 user plane (GTP-U) port ", "GTPv1 user plane port (default 2152)", 10, &g_gtpv1u_port);
@@ -5328,7 +5328,7 @@ proto_register_gtp(void)
 	prefs_register_bool_preference(gtp_module, "gtpv0_check_etsi", "Compare GTPv0 order with ETSI ", "GTPv0 ETSI order", &gtpv0_etsi_order);
 	prefs_register_bool_preference(gtp_module, "gtpv1_check_etsi", "Compare GTPv1 order with ETSI ", "GTPv1 ETSI order", &gtpv1_etsi_order);
 	prefs_register_bool_preference(gtp_module, "ppp_reorder", "Reorder & dissect PPP in Protocol conf. options", "Reorder & dissect PPP inside of Protocol Configuration Options, 3 bytes will be swapped to allow processing PPP section: 1 byte of length with 2 bytes of protocol id (refer to ETSI 29.060, 7.7.21 & 24.008 10.5.6.3)", &ppp_reorder);
-	
+
 	register_dissector("gtpv0", dissect_gtpv0, proto_gtpv0);
 	register_dissector("gtpv1", dissect_gtpv1, proto_gtpv1);
 
@@ -5340,17 +5340,17 @@ proto_reg_handoff_gtp(void)
 	static int Initialized = FALSE;
 	static dissector_handle_t gtpv0_handle;
 	static dissector_handle_t gtpv1_handle;
-	
+
 	if (!Initialized) {
-		
+
 		gtpv0_handle = find_dissector("gtpv0");
 
 		gtpv1_handle = find_dissector("gtpv1");
 
 		Initialized = TRUE;
-		
+
 	} else {
-		
+
 		dissector_delete("udp.port", gtpv0_port, gtpv0_handle);
 		dissector_delete("tcp.port", gtpv0_port, gtpv0_handle);
 
@@ -5359,24 +5359,24 @@ proto_reg_handoff_gtp(void)
 		dissector_delete("udp.port", gtpv1u_port, gtpv1_handle);
 		dissector_delete("tcp.port", gtpv1u_port, gtpv1_handle);
 	}
-		
+
 	gtpv0_port = g_gtpv0_port;
 	gtpv1c_port = g_gtpv1c_port;
 	gtpv1u_port = g_gtpv1u_port;
-	
+
 	/* GTP v0 */
-	
+
 	dissector_add("udp.port", g_gtpv0_port, gtpv0_handle);
 	dissector_add("tcp.port", g_gtpv0_port, gtpv0_handle);
 
 	/* GTP v1 */
-	
+
 	dissector_add("udp.port", g_gtpv1c_port, gtpv1_handle);
 	dissector_add("tcp.port", g_gtpv1c_port, gtpv1_handle);
 	dissector_add("udp.port", g_gtpv1u_port, gtpv1_handle);
 	dissector_add("tcp.port", g_gtpv1u_port, gtpv1_handle);
 	dissector_add("ppp.protocol", PPP_IP, ip_handle);
-	
+
 	ip_handle = find_dissector("ip");
 	ppp_handle = find_dissector("ppp");
 }

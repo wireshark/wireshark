@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.23 2002/08/02 22:34:53 jmayer Exp $
+ * $Id: help_dlg.c,v 1.24 2002/08/28 21:03:48 jmayer Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -77,13 +77,13 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
     *proto_vb,
     *dfilter_tb, *dfilter_vsb,
     *cfilter_vb;
-  
+
   if (help_w != NULL) {
     /* There's already a "Help" dialog box; reactivate it. */
     reactivate_window(help_w);
     return;
   }
-  
+
   help_w = gtk_window_new(GTK_WINDOW_DIALOG);
   gtk_widget_set_name(help_w, "Ethereal Help window" );
   gtk_window_set_title(GTK_WINDOW(help_w), "Ethereal: Help");
@@ -93,7 +93,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 		     GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
   gtk_widget_set_usize(GTK_WIDGET(help_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
-  
+
   /* Container for each row of widgets */
 
   main_vb = gtk_vbox_new(FALSE, 1);
@@ -109,7 +109,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   /* Overview panel */
 
   overview_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(overview_vb), 1);  
+  gtk_container_border_width(GTK_CONTAINER(overview_vb), 1);
   txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_box_pack_start(GTK_BOX(overview_vb), txt_scrollw, TRUE, TRUE, 0);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
@@ -133,7 +133,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 
   proto_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(proto_vb), 1);
-  
+
   txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_box_pack_start(GTK_BOX(proto_vb), txt_scrollw, TRUE, TRUE, 0);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
@@ -144,22 +144,22 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_text_set_line_wrap(GTK_TEXT(proto_text), FALSE);
   set_help_text(proto_text, PROTOCOL_HELP);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(txt_scrollw),
-					proto_text);  
+					proto_text);
   gtk_widget_show(txt_scrollw);
   gtk_widget_show(proto_text);
   gtk_widget_show(proto_vb);
   label = gtk_label_new("Protocols");
   gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), proto_vb, label);
-  
+
   /* display filter help */
   /* X windows have a maximum size of 32767.  Since the height can easily
      exceed this, we have to jump through some hoops to have a functional
      vertical scroll bar. */
-  
+
   dfilter_tb = gtk_table_new(2, 2, FALSE);
   gtk_table_set_col_spacing (GTK_TABLE (dfilter_tb), 0, 3);
   gtk_table_set_row_spacing (GTK_TABLE (dfilter_tb), 0, 3);
-  gtk_container_border_width(GTK_CONTAINER(dfilter_tb), 1);  
+  gtk_container_border_width(GTK_CONTAINER(dfilter_tb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
@@ -184,7 +184,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_text_set_line_wrap(GTK_TEXT(dfilter_text), FALSE);
   set_help_text(dfilter_text, DFILTER_HELP);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(txt_scrollw),
-					dfilter_text);  
+					dfilter_text);
   gtk_widget_show(txt_scrollw);
   gtk_widget_show(dfilter_text);
   gtk_widget_show(dfilter_tb);
@@ -195,7 +195,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   /* capture filter help (this one has no horizontal scrollbar) */
 
   cfilter_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(cfilter_vb), 1);  
+  gtk_container_border_width(GTK_CONTAINER(cfilter_vb), 1);
   txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_box_pack_start(GTK_BOX(cfilter_vb), txt_scrollw, TRUE, TRUE, 0);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
@@ -217,7 +217,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_widget_show(help_nb);
 
-  /* Buttons (only one for now) */  
+  /* Buttons (only one for now) */
 
   bbox = gtk_hbox_new(FALSE, 1);
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
@@ -229,7 +229,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(bbox), close_bt);
   gtk_widget_grab_default(close_bt);
   gtk_widget_show(close_bt);
-  
+
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(help_w));
   gtk_widget_show(help_w);
 
@@ -251,15 +251,15 @@ static void set_text(GtkWidget *w, char *buffer, int nchars)
   gtk_text_insert(GTK_TEXT(w), m_r_font, NULL, NULL, buffer, nchars);
 }
 
-static char *proto_help = 
+static char *proto_help =
 "The protocols (and packet types) currently supported by "
 "Ethereal are the following:\n\n";
 
-static char *dfilter_help = 
+static char *dfilter_help =
 "The following list shows all per-protocol fields that "
 "can be used in a display filter:\n";
 
-static char *cfilter_help = 
+static char *cfilter_help =
 "Packet capturing is performed with the pcap library. The capture filter "
 "syntax follows the rules of this library.\nSo this syntax is different "
 "from the display filter syntax: see manual page of tcpdump.\n"
@@ -269,7 +269,7 @@ static char *cfilter_help =
 ;
 #endif
 
-static char *overview_help = 
+static char *overview_help =
 "Ethereal is a GUI network protocol analyzer. It lets you interactively "
 "browse packet data from a live network or from a previously saved capture "
 "file. Ethereal knows how to read libpcap capture files, including those "
@@ -319,7 +319,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     set_text(w, overview_help, -1);
     break;
 
-  case PROTOCOL_HELP :    
+  case PROTOCOL_HELP :
     /* first pass to know the maximum length of first field */
     for (i = proto_get_first_protocol(&cookie); i != -1;
 	    i = proto_get_next_protocol(&cookie)) {
@@ -333,7 +333,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     maxlen2 = strlen(proto_help);
     width = gdk_string_width(m_r_font, proto_help);
     set_text(w, proto_help, maxlen2);
-    
+
     /* ok, display the correctly aligned strings */
     for (i = proto_get_first_protocol(&cookie); i != -1;
 	    i = proto_get_next_protocol(&cookie)) {
@@ -378,7 +378,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     set_text(w, dfilter_help, maxlen3);
 
     for (i = 0; i < proto_registrar_n() ; i++) {
-      hfinfo = proto_registrar_get_nth(i);	
+      hfinfo = proto_registrar_get_nth(i);
       if (proto_registrar_is_protocol(i)) {
 	snprintf(buffer, BUFF_LEN, "\n%s:\n", hfinfo->name);
 	set_text(w, buffer, strlen(buffer));
@@ -387,7 +387,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 
 	type_name = ftype_pretty_name(hfinfo->type);
 	snprintf(buffer, BUFF_LEN, "%s%s%s%s(%s)\n",
-		 hfinfo->abbrev, 
+		 hfinfo->abbrev,
 		 &blanks[B_LEN - (maxlen - strlen(hfinfo->abbrev)) - 2],
 		 hfinfo->name,
 		 &blanks[B_LEN - (maxlen2 - strlen(hfinfo->name)) - 2],
@@ -423,7 +423,7 @@ static void clear_help_text(GtkWidget *w)
   GtkText *txt = GTK_TEXT(w);
 
   gtk_text_set_point(txt, 0);
-  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see 
+  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
      http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
      http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
      for more information */

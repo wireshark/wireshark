@@ -2,24 +2,24 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.23 2002/08/02 23:36:01 jmayer Exp $
+ * $Id: packet-smb-browse.c,v 1.24 2002/08/28 21:00:31 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -276,7 +276,7 @@ static const value_string desire_flags[] = {
 };
 
 static const true_false_string tfs_desire_backup = {
-	"Backup Browse Server", 
+	"Backup Browse Server",
 	"NOT Backup Browse Server"
  };
 static const true_false_string tfs_desire_standby = {
@@ -361,11 +361,11 @@ dissect_election_criterion_os(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	      	tree = proto_item_add_subtree(item, ett_browse_election_os);
 	}
 
-	proto_tree_add_boolean(tree, hf_election_os_wfw, 
+	proto_tree_add_boolean(tree, hf_election_os_wfw,
 		tvb, offset, 1, os);
-	proto_tree_add_boolean(tree, hf_election_os_ntw, 
+	proto_tree_add_boolean(tree, hf_election_os_ntw,
 		tvb, offset, 1, os);
-	proto_tree_add_boolean(tree, hf_election_os_nts, 
+	proto_tree_add_boolean(tree, hf_election_os_nts,
 		tvb, offset, 1, os);
 
 }
@@ -384,17 +384,17 @@ dissect_election_criterion_desire(tvbuff_t *tvb, proto_tree *parent_tree, int of
 	      	tree = proto_item_add_subtree(item, ett_browse_election_desire);
 	}
 
-	proto_tree_add_boolean(tree, hf_election_desire_flags_backup, 
+	proto_tree_add_boolean(tree, hf_election_desire_flags_backup,
 		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_standby, 
+	proto_tree_add_boolean(tree, hf_election_desire_flags_standby,
 		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_master, 
+	proto_tree_add_boolean(tree, hf_election_desire_flags_master,
 		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_domain_master, 
+	proto_tree_add_boolean(tree, hf_election_desire_flags_domain_master,
 		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_wins, 
+	proto_tree_add_boolean(tree, hf_election_desire_flags_wins,
 		tvb, offset, 1, desire);
-	proto_tree_add_boolean(tree, hf_election_desire_flags_nt, 
+	proto_tree_add_boolean(tree, hf_election_desire_flags_nt,
 		tvb, offset, 1, desire);
 
 }
@@ -463,53 +463,53 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	}
 
-	proto_tree_add_boolean(tree, hf_server_type_workstation, 
+	proto_tree_add_boolean(tree, hf_server_type_workstation,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_server, 
+	proto_tree_add_boolean(tree, hf_server_type_server,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_sql, 
+	proto_tree_add_boolean(tree, hf_server_type_sql,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_domain, 
+	proto_tree_add_boolean(tree, hf_server_type_domain,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_backup, 
+	proto_tree_add_boolean(tree, hf_server_type_backup,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_time, 
+	proto_tree_add_boolean(tree, hf_server_type_time,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_apple, 
+	proto_tree_add_boolean(tree, hf_server_type_apple,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_novell, 
+	proto_tree_add_boolean(tree, hf_server_type_novell,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_member, 
+	proto_tree_add_boolean(tree, hf_server_type_member,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_print, 
+	proto_tree_add_boolean(tree, hf_server_type_print,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_dialin, 
+	proto_tree_add_boolean(tree, hf_server_type_dialin,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_xenix, 
+	proto_tree_add_boolean(tree, hf_server_type_xenix,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_ntw, 
+	proto_tree_add_boolean(tree, hf_server_type_ntw,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_wfw, 
+	proto_tree_add_boolean(tree, hf_server_type_wfw,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_nts, 
+	proto_tree_add_boolean(tree, hf_server_type_nts,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_potentialb, 
+	proto_tree_add_boolean(tree, hf_server_type_potentialb,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_backupb, 
+	proto_tree_add_boolean(tree, hf_server_type_backupb,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_masterb, 
+	proto_tree_add_boolean(tree, hf_server_type_masterb,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_domainmasterb, 
+	proto_tree_add_boolean(tree, hf_server_type_domainmasterb,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_osf, 
+	proto_tree_add_boolean(tree, hf_server_type_osf,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_vms, 
+	proto_tree_add_boolean(tree, hf_server_type_vms,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_w95, 
+	proto_tree_add_boolean(tree, hf_server_type_w95,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_local, 
+	proto_tree_add_boolean(tree, hf_server_type_local,
 		tvb, offset, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_domainenum, 
+	proto_tree_add_boolean(tree, hf_server_type_domainenum,
 		tvb, offset, 4, flags);
 
 }
@@ -586,7 +586,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			host_name,
 			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
 				"Domain/Workgroup: %s":
-				"Host Name: %s", 
+				"Host Name: %s",
 			host_name);
 		offset += 16;
 
@@ -646,7 +646,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* name of computer to which to send reply */
 		namelen = tvb_strsize(tvb, offset);
-		proto_tree_add_item(tree, hf_response_computer_name, 
+		proto_tree_add_item(tree, hf_response_computer_name,
 			tvb, offset, namelen, TRUE);
 		offset += namelen;
 		break;
@@ -673,7 +673,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* server name */
 		namelen = tvb_strsize(tvb, offset);
-		proto_tree_add_item(tree, hf_server_name, 
+		proto_tree_add_item(tree, hf_server_name,
 			tvb, offset, namelen, TRUE);
 		offset += namelen;
 		break;
@@ -702,7 +702,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		/* backup server names */
 		for (i = 0; i < server_count; i++) {
 			namelen = tvb_strsize(tvb, offset);
-			proto_tree_add_item(tree, hf_backup_server, 
+			proto_tree_add_item(tree, hf_backup_server,
 				tvb, offset, namelen, TRUE);
 			offset += namelen;
 		}
@@ -711,7 +711,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	case BROWSE_MASTER_ANNOUNCEMENT:
 		/* master browser server name */
 		namelen = tvb_strsize(tvb, offset);
-		proto_tree_add_item(tree, hf_mb_server_name, 
+		proto_tree_add_item(tree, hf_mb_server_name,
 			tvb, offset, namelen, TRUE);
 		offset += namelen;
 		break;
@@ -719,7 +719,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	case BROWSE_BECOME_BACKUP:
 		/* name of browser to promote */
 		namelen = tvb_strsize(tvb, offset);
-		proto_tree_add_item(tree, hf_browser_to_promote, 
+		proto_tree_add_item(tree, hf_browser_to_promote,
 			tvb, offset, namelen, TRUE);
 		offset += namelen;
 		break;
@@ -1085,5 +1085,5 @@ proto_register_smb_browse(void)
 	    "BROWSER", "browser");
 
 	proto_register_field_array(proto_smb_browse, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));          
+	proto_register_subtree_array(ett, array_length(ett));
 }

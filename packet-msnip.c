@@ -1,22 +1,22 @@
 /* packet-msnip.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/MSNIP packet disassembly
  *
- * $Id: packet-msnip.c,v 1.7 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-msnip.c,v 1.8 2002/08/28 21:00:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -25,10 +25,10 @@
 
 
 			MSNIP
-	code			
+	code
 
 	0x23		x
-	0x24		x	
+	0x24		x
 	0x25		x
 
 	MSNIP " Multicast Source Notification of Interest Protocol
@@ -104,7 +104,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		guint32 maddr;
 		int old_offset = offset;
 
-		item = proto_tree_add_item(parent_tree, hf_groups, 
+		item = proto_tree_add_item(parent_tree, hf_groups,
 				tvb, offset, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_groups);
 
@@ -124,7 +124,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 
 		if (item) {
 			proto_item_set_text(item,"Group: %s %s",
-				ip_to_str((guint8 *)&maddr), 
+				ip_to_str((guint8 *)&maddr),
 				val_to_str(rec_type, msnip_rec_types,
 					"Unknown Type:0x%02x"));
 
@@ -183,7 +183,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		guint8 masklen;
 		int old_offset = offset;
 
-		item = proto_tree_add_item(parent_tree, hf_groups, 
+		item = proto_tree_add_item(parent_tree, hf_groups,
 				tvb, offset, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_groups);
 
@@ -195,7 +195,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 
 		/* mask length */
 		masklen = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(tree, hf_mask, tvb, 
+		proto_tree_add_uint(tree, hf_mask, tvb,
 			offset, 1, masklen);
 		offset += 1;
 
@@ -209,7 +209,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			proto_item_set_len(item, offset-old_offset);
 		}
 	}
-	
+
 	return offset;
 }
 
@@ -244,7 +244,7 @@ dissect_msnip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 	type = tvb_get_guint8(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-			"%s",val_to_str(type, msnip_types, 
+			"%s",val_to_str(type, msnip_types,
 				"Unknown Type:0x%02x"));
 	}
 

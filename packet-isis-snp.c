@@ -1,23 +1,23 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.17 2002/08/02 23:35:52 jmayer Exp $
+ * $Id: packet-isis-snp.c,v 1.18 2002/08/28 21:00:18 jmayer Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -78,7 +78,7 @@ static const isis_clv_handle_t clv_l1_csnp_opts[] = {
 		dissect_l1_snp_authentication_clv
 	},
 	{
-		0, "", NULL, NULL 
+		0, "", NULL, NULL
 	}
 };
 
@@ -102,7 +102,7 @@ static const isis_clv_handle_t clv_l2_csnp_opts[] = {
 		dissect_l2_snp_authentication_clv
 	},
 	{
-		0, "", NULL, NULL 
+		0, "", NULL, NULL
 	}
 };
 
@@ -126,7 +126,7 @@ static const isis_clv_handle_t clv_l1_psnp_opts[] = {
 		dissect_l1_snp_authentication_clv
 	},
 	{
-		0, "", NULL, NULL 
+		0, "", NULL, NULL
 	}
 };
 
@@ -150,7 +150,7 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
 		dissect_l2_snp_authentication_clv
 	},
 	{
-		0, "", NULL, NULL 
+		0, "", NULL, NULL
 	}
 };
 /*
@@ -174,7 +174,7 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
  * Output:
  *      void, but we will add to proto tree if !NULL.
  */
-static void 
+static void
 dissect_snp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length, int length)
 {
@@ -185,7 +185,7 @@ dissect_snp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 				2+id_length+2+4+2 );
 			return;
 		}
-		
+
 		proto_tree_add_text(tree, tvb, offset, 2, "Remaining life      : %d",
 			tvb_get_ntohs(tvb, offset));
 		length -= 2;
@@ -196,13 +196,13 @@ dissect_snp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 		length -= id_length + 2;
 		offset += id_length + 2;
 
-		proto_tree_add_text(tree, tvb, offset, 4, 
+		proto_tree_add_text(tree, tvb, offset, 4,
 			"LSP Sequence Number : 0x%04x",
 			tvb_get_ntohl(tvb, offset));
 		length -= 4;
 		offset += 4;
 
-		proto_tree_add_text(tree, tvb, offset, 2, 
+		proto_tree_add_text(tree, tvb, offset, 2,
 			"LSP checksum        : 0x%02x",
 			tvb_get_ntohs(tvb, offset));
 		length -= 2;
@@ -229,7 +229,7 @@ dissect_snp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Output:
  *      void, but we will add to proto tree if !NULL.
  */
-void 
+void
 isis_dissect_isis_csnp(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int type, int header_length, int id_length)
 {
@@ -252,7 +252,7 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, proto_tree *tree, int offset,
 	offset += 2;
 
 	if (tree) {
-		proto_tree_add_text(csnp_tree, tvb, offset, id_length + 1, 
+		proto_tree_add_text(csnp_tree, tvb, offset, id_length + 1,
 			"Source id    : %s",
 				print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
 	}
@@ -304,7 +304,7 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Output:
  *      void, but we will add to proto tree if !NULL.
  */
-void 
+void
 isis_dissect_isis_psnp(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int type, int header_length, int id_length)
 {
@@ -369,7 +369,7 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Output:
  *	void, will modify proto_tree if not null.
  */
-static void 
+static void
 dissect_l1_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
@@ -394,7 +394,7 @@ dissect_l1_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Output:
  *	void, will modify proto_tree if not null.
  */
-static void 
+static void
 dissect_l2_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
@@ -405,20 +405,20 @@ dissect_l2_snp_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 /*
  * Name: isis_register_csnp()
  *
- * Description: 
+ * Description:
  *	Register our protocol sub-sets with protocol manager.
  *
- * Input: 
+ * Input:
  *	int : protocol index for the ISIS protocol
  *
  * Output:
  *	void
  */
-void 
+void
 isis_register_csnp(int proto_isis) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_csnp_pdu_length,
-		{ "PDU length",		"isis.csnp.pdu_length", FT_UINT16, 
+		{ "PDU length",		"isis.csnp.pdu_length", FT_UINT16,
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
@@ -436,20 +436,20 @@ isis_register_csnp(int proto_isis) {
 /*
  * Name: isis_register_psnp()
  *
- * Description: 
+ * Description:
  *	Register our protocol sub-sets with protocol manager.
  *
- * Input: 
+ * Input:
  *	int : protocol index for the ISIS protocol
  *
  * Output:
  *	void
  */
-void 
+void
 isis_register_psnp(int proto_isis) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_psnp_pdu_length,
-		{ "PDU length",		"isis.psnp.pdu_length", FT_UINT16, 
+		{ "PDU length",		"isis.psnp.pdu_length", FT_UINT16,
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {

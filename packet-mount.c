@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.32 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-mount.c,v 1.33 2002/08/28 21:00:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,9 +80,9 @@ static int  group_names_len;
 /* RFC 1094, Page 24 */
 /* This function dissects fhstatus for v1 and v2 of the mount protocol.
  * Formally, hf_mount3_status only define the status codes returned by version
- * 3 of the protocol. 
- * Though not formally defined in the standard, we use the same 
- * value-to-string mappings as version 3 since we belive that this mapping 
+ * 3 of the protocol.
+ * Though not formally defined in the standard, we use the same
+ * value-to-string mappings as version 3 since we belive that this mapping
  * is consistant with most v1 and v2 implementations.
  */
 static int
@@ -176,7 +176,7 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 			lock_tree = proto_item_add_subtree(lock_item, ett_mount_mountlist);
 	}
 
-	offset = dissect_rpc_string(tvb, lock_tree, 
+	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_mount_mountlist_hostname, offset, &hostname);
 	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_mount_mountlist_directory, offset, &directory);
@@ -225,7 +225,7 @@ dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tre
 	}
 	group_name_list[group_names_len]=0;
 
-	offset = dissect_rpc_string(tvb, tree, 
+	offset = dissect_rpc_string(tvb, tree,
 			hf_mount_groups_group, offset, NULL);
 
 	return offset;
@@ -386,7 +386,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 	if (!(pc_mask & (PC_ERROR_MAX_CANON|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree, 
+			proto_tree_add_item(tree,
 				hf_mount_pathconf_max_canon,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
@@ -395,7 +395,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 	if (!(pc_mask & (PC_ERROR_MAX_INPUT|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree, 
+			proto_tree_add_item(tree,
 				hf_mount_pathconf_max_input,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
@@ -404,7 +404,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 	if (!(pc_mask & (PC_ERROR_NAME_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree, 
+			proto_tree_add_item(tree,
 				hf_mount_pathconf_name_max,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
@@ -413,7 +413,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 	if (!(pc_mask & (PC_ERROR_PATH_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree, 
+			proto_tree_add_item(tree,
 				hf_mount_pathconf_path_max,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
@@ -422,7 +422,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 	if (!(pc_mask & (PC_ERROR_PIPE_BUF|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree, 
+			proto_tree_add_item(tree,
 				hf_mount_pathconf_pipe_buf,tvb,offset+2,2,
 				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
@@ -433,7 +433,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 	if (!(pc_mask & (PC_ERROR_VDISABLE|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree, 
+			proto_tree_add_item(tree,
 				hf_mount_pathconf_vdisable,tvb,offset+3,1,
 				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
@@ -474,7 +474,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 }
 
 /* RFC 1813, Page 107 */
-static const value_string mount3_mountstat3[] = 
+static const value_string mount3_mountstat3[] =
 {
 	{	0,	"OK" },
 	{	1,	"ERR_PERM" },
@@ -511,7 +511,7 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	guint32 auth_flavors;
 	guint32 auth_flavor;
 	guint32 auth_flavor_i;
-	
+
 	offset = dissect_mountstat3(tvb,tree,offset,hf_mount3_status,&status);
 
 	switch (status) {
@@ -533,7 +533,7 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			/* void */
 		break;
 	}
-	
+
 	return offset;
 }
 
@@ -544,11 +544,11 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* Mount protocol version 1, RFC 1094 */
 static const vsff mount1_proc[] = {
     { 0, "NULL", NULL, NULL },
-    { MOUNTPROC_MNT,        "MNT",      
+    { MOUNTPROC_MNT,        "MNT",
 		dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
     { MOUNTPROC_DUMP,       "DUMP",
 		NULL, dissect_mount_dump_reply },
-    { MOUNTPROC_UMNT,      "UMNT",        
+    { MOUNTPROC_UMNT,      "UMNT",
 		dissect_mount_dirpath_call, NULL },
     { MOUNTPROC_UMNTALL,   "UMNTALL",
 		NULL, NULL },
@@ -566,11 +566,11 @@ static const vsff mount1_proc[] = {
    POSIX "pathconf()" call. */
 static const vsff mount2_proc[] = {
     { 0, "NULL", NULL, NULL },
-    { MOUNTPROC_MNT,        "MNT",      
+    { MOUNTPROC_MNT,        "MNT",
 		dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
     { MOUNTPROC_DUMP,       "DUMP",
 		NULL, dissect_mount_dump_reply },
-    { MOUNTPROC_UMNT,      "UMNT",        
+    { MOUNTPROC_UMNT,      "UMNT",
 		dissect_mount_dirpath_call, NULL },
     { MOUNTPROC_UMNTALL,   "UMNTALL",
 		NULL, NULL },

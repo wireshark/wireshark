@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.69 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-bootp.c,v 1.70 2002/08/28 21:00:08 jmayer Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -19,17 +19,17 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -561,7 +561,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				val_to_str(byte, nbnt_vals,
 				    "Unknown (0x%02x)"));
 		break;
-				
+
 	case 53:	/* DHCP Message Type */
 		proto_tree_add_text(bp_tree, tvb, voff, 3, "Option %d: %s = DHCP %s",
 			code, text, get_dhcp_type(tvb_get_guint8(tvb, voff+2)));
@@ -643,7 +643,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 
 		protocol = tvb_get_guint8(tvb, voff+2);
-		proto_tree_add_text(v_tree, tvb, voff+2, 1, "Protocol: %s (%u)", 
+		proto_tree_add_text(v_tree, tvb, voff+2, 1, "Protocol: %s (%u)",
 				    val_to_str(protocol, authen_protocol_vals, "Unknown"),
 				    protocol);
 
@@ -673,13 +673,13 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		case AUTHEN_RDM_MONOTONIC_COUNTER:
 			proto_tree_add_text(v_tree, tvb, voff+5, 8,
-				    "Replay Detection Value: %s", 
+				    "Replay Detection Value: %s",
 				    u64toh(tvb_get_ptr(tvb, voff+5, 8)));
 			break;
 
 		default:
 			proto_tree_add_text(v_tree, tvb, voff+5, 8,
-				    "Replay Detection Value: %s", 
+				    "Replay Detection Value: %s",
 				    tvb_bytes_to_str(tvb, voff+5, 8));
 			break;
 		}
@@ -691,7 +691,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 			case AUTHEN_DELAYED_ALGO_HMAC_MD5:
 				proto_tree_add_text(v_tree, tvb, voff+13, 4,
-					"Secret ID: 0x%08x", 
+					"Secret ID: 0x%08x",
 					tvb_get_ntohl(tvb, voff+13));
 				proto_tree_add_text(v_tree, tvb, voff+17, 16,
 					"HMAC MD5 Hash: %s",
@@ -843,7 +843,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 {
 	guint8 subopt;
 	guint8 subopt_len;
-	
+
 	subopt = tvb_get_guint8(tvb, optp);
 	subopt_len = tvb_get_guint8(tvb, optp+1);
 	switch (subopt) {
@@ -873,7 +873,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	proto_tree *o43pxeclient_v_tree;
 	proto_item *vti;
 
-	struct o43pxeclient_opt_info { 
+	struct o43pxeclient_opt_info {
 		char	*text;
 		enum field_type	ft;
 	};
@@ -902,7 +902,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 255 {"PXE end options", special} */
 	};
 #define NUM_O43PXECLIENT_SUBOPTS (12)
-		
+
 	subopt = tvb_get_guint8(tvb, optp);
 
 	if (subopt == 0 ) {
@@ -916,7 +916,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 
 	subopt_len = tvb_get_guint8(tvb, optp+1);
 
-	if ( subopt == 71 ) {	/* 71 {"PXE boot item", special} */ 
+	if ( subopt == 71 ) {	/* 71 {"PXE boot item", special} */
 		/* case special */
 		/* I may need to decode that properly one day */
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
@@ -935,7 +935,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 				"Suboption %d: %s", subopt, o43pxeclient_opt[subopt].text);
 			break;
    XXX */
-		case special:	
+		case special:
 			/* I may need to decode that properly one day */
 			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 				"Suboption %d: %s (%d byte%s)" ,
@@ -948,13 +948,13 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 			    subopt, o43pxeclient_opt[subopt].text,
 			    tvb_get_letohs(tvb, optp+2));
 			break;
-							
+
 		case val_u_byte:
 			proto_tree_add_text(v_tree, tvb, optp, 3, "Suboption %d: %s = %u",
 			    subopt, o43pxeclient_opt[subopt].text,
 			    tvb_get_guint8(tvb, optp+2));
 			break;
-							
+
 		case ipv4:
 			if (subopt_len == 4) {
 				/* one IP address */
@@ -992,7 +992,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	proto_tree *o63_v_tree;
 	proto_item *vti;
 
-	struct o63_opt_info { 
+	struct o63_opt_info {
 		char	*truet;
 		char 	*falset;
 		enum field_type	ft;
@@ -1004,7 +1004,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 2 */ {"NWIP exist in options area","",string},
 		/* 3 */ {"NWIP exists in sname/file","",string},
 		/* 4 */ {"NWIP exists, but too big","",string},
-		/* 5 */ {"Broadcast for nearest Netware server","Do NOT Broadcast for nearest Netware server",yes_no}, 
+		/* 5 */ {"Broadcast for nearest Netware server","Do NOT Broadcast for nearest Netware server",yes_no},
 		/* 6 */ {"Preferred DSS server","",ipv4},
 		/* 7 */ {"Nearest NWIP server","",ipv4},
 		/* 8 */ {"Autoretries","",val_u_short},
@@ -1012,7 +1012,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 10*/ {"Support NetWare/IP v1.1","Do NOT support NetWare/IP v1.1",yes_no},
 		/* 11*/ {"Primary DSS ", "" , special}
 	};
-		
+
 	subopt = tvb_get_guint8(tvb, optp);
 	if (subopt > NUM_O63_SUBOPTS) {
 		proto_tree_add_text(v_tree, tvb,optp,1,"Unknown suboption %d", subopt);
@@ -1034,7 +1034,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 			optp+=3;
 			break;
 
-		case special:	
+		case special:
 			proto_tree_add_text(v_tree, tvb, optp, 6,
 			    "Suboption %d: %s = %s" ,
 			    subopt, o63_opt[subopt].truet,
@@ -1048,7 +1048,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 			    tvb_get_guint8(tvb, optp+2));	/* XXX - 1 byte? */
 			optp+=3;
 			break;
-							
+
 		case ipv4:
 			subopt_len = tvb_get_guint8(tvb, optp+1);
 			if (subopt_len == 4) {
@@ -1142,7 +1142,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, FALSE);
 		bp_tree = proto_item_add_subtree(ti, ett_bootp);
 
-		proto_tree_add_uint(bp_tree, hf_bootp_type, tvb, 
+		proto_tree_add_uint(bp_tree, hf_bootp_type, tvb,
 					   0, 1,
 					   op);
 		proto_tree_add_uint_format(bp_tree, hf_bootp_hw_type, tvb,
@@ -1169,9 +1169,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    10, 2, flags);
 		proto_tree_add_uint(flag_tree, hf_bootp_flags_reserved, tvb,
 				    10, 2, flags);
-		proto_tree_add_item(bp_tree, hf_bootp_ip_client, tvb, 
+		proto_tree_add_item(bp_tree, hf_bootp_ip_client, tvb,
 				    12, 4, FALSE);
-		proto_tree_add_item(bp_tree, hf_bootp_ip_your, tvb, 
+		proto_tree_add_item(bp_tree, hf_bootp_ip_your, tvb,
 				    16, 4, FALSE);
 		proto_tree_add_item(bp_tree, hf_bootp_ip_server, tvb,
 				    20, 4, FALSE);
@@ -1180,7 +1180,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (hlen > 0) {
 			haddr = tvb_get_ptr(tvb, 28, hlen);
-			proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, tvb, 
+			proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, tvb,
 						   28, hlen,
 						   haddr,
 						   "Client hardware address: %s",
@@ -1302,8 +1302,8 @@ proto_register_bootp(void)
     { &hf_bootp_dhcp,
       { "Frame is DHCP",                "bootp.dhcp",    FT_BOOLEAN,
         BASE_NONE,			NULL,		 0x0,
-        "", HFILL }},                            
-                      
+        "", HFILL }},
+
     { &hf_bootp_type,
       { "Message type",			"bootp.type",	 FT_UINT8,
          BASE_DEC, 			VALS(op_vals),   0x0,
@@ -1399,7 +1399,7 @@ proto_register_bootp(void)
     &ett_bootp_flags,
     &ett_bootp_option,
   };
-  
+
   proto_bootp = proto_register_protocol("Bootstrap Protocol", "BOOTP/DHCP",
 					"bootp");
   proto_register_field_array(proto_bootp, hf, array_length(hf));

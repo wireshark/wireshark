@@ -1,22 +1,22 @@
 /* conditions.h
  * Header for condition handler.
  *
- * $Id: conditions.h,v 1.1 2001/12/04 07:32:00 guy Exp $
+ * $Id: conditions.h,v 1.2 2002/08/28 21:00:06 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -29,19 +29,19 @@
 
 #include <glib.h>
 
-/* forward declaration for type 'condition' */ 
+/* forward declaration for type 'condition' */
 typedef struct condition condition;
 
-/* condition evaluation handler type */ 
+/* condition evaluation handler type */
 typedef gboolean (*_cnd_eval)(condition*, va_list);
 
-/* condition reset handler type */ 
+/* condition reset handler type */
 typedef void (*_cnd_reset)(condition*);
 
-/* condition class constructor type */ 
+/* condition class constructor type */
 typedef condition* (*_cnd_constr)(condition*, va_list);
 
-/* condition class destructor type */ 
+/* condition class destructor type */
 typedef void (*_cnd_destr)(condition*);
 
 /*
@@ -50,7 +50,7 @@ typedef void (*_cnd_destr)(condition*);
  *
  * parameter: const char* - Identification of a registered condition class.
  *            ...         - Any number of class specific initial values.
- * returns:   Pointer to a initialized condition of the particular class on 
+ * returns:   Pointer to a initialized condition of the particular class on
  *            success or NULL on failure.
  */
 condition* cnd_new(const char*, ...);
@@ -129,6 +129,6 @@ void* cnd_get_user_data(condition*);
  *            void*      - Pointer to user specified data structure.
  * returns:   -
  */
-void cnd_set_user_data(condition*, void*); 
+void cnd_set_user_data(condition*, void*);
 
 #endif /* CONDITIONS_H */

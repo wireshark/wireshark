@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.28 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-nlm.c,v 1.29 2002/08/28 21:00:24 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,7 @@ static gint ett_nlm_lock = -1;
 
 
 
-/* 
+/*
  * stuff to match MSG and RES packets for async NLM
  */
 
@@ -97,9 +97,9 @@ static gboolean nlm_match_msgres = FALSE;
 static GHashTable *nlm_msg_res_unmatched = NULL;
 static GHashTable *nlm_msg_res_matched = NULL;
 
-/* XXX 	when matching the packets we should really check the conversation (only address 
+/* XXX 	when matching the packets we should really check the conversation (only address
 	NOT ports) and command type as well. I am lazy and thinks the cookie itself is
-	good enough for now 
+	good enough for now
 */
 typedef struct _nlm_msg_res_unmatched_data {
 	int req_frame;
@@ -235,7 +235,7 @@ nlm_match_fhandle_reply(packet_info *pinfo, proto_tree *tree)
 	if(md && md->rep_frame){
 		nfs_fhandle_data_t *fhd;
 		fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
-			nfs_fhandle_frame_table, 
+			nfs_fhandle_frame_table,
 			(gconstpointer)md->req_frame);
 		if(fhd){
 			dissect_fhandle_hidden(pinfo,
@@ -252,7 +252,7 @@ nlm_match_fhandle_request(packet_info *pinfo, proto_tree *tree)
 	if(md && md->rep_frame){
 		nfs_fhandle_data_t *fhd;
 		fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
-			nfs_fhandle_frame_table, 
+			nfs_fhandle_frame_table,
 			(gconstpointer)md->rep_frame);
 		if(fhd){
 			dissect_fhandle_hidden(pinfo,
@@ -429,14 +429,14 @@ dissect_nlm_test(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
 			}
-			/* for the fhandle matching that finds both request and 
+			/* for the fhandle matching that finds both request and
 			   response packet */
 			if(nfs_fhandle_reqrep_matching){
 				nlm_match_fhandle_request(pinfo, tree);
 			}
 		}
 	}
-	
+
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
 	dissect_rpc_bool(tvb, tree, hf_nlm_exclusive, offset);
 	offset += 4;
@@ -456,14 +456,14 @@ dissect_nlm_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
 			}
-			/* for the fhandle matching that finds both request and 
+			/* for the fhandle matching that finds both request and
 			   response packet */
 			if(nfs_fhandle_reqrep_matching){
 				nlm_match_fhandle_request(pinfo, tree);
 			}
 		}
 	}
-	
+
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
 	offset = dissect_rpc_bool(tvb, tree, hf_nlm_block, offset);
 	offset = dissect_rpc_bool(tvb, tree, hf_nlm_exclusive, offset);
@@ -485,7 +485,7 @@ dissect_nlm_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
 			}
-			/* for the fhandle matching that finds both request and 
+			/* for the fhandle matching that finds both request and
 			   response packet */
 			if(nfs_fhandle_reqrep_matching){
 				nlm_match_fhandle_request(pinfo, tree);
@@ -512,14 +512,14 @@ dissect_nlm_unlock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
 			}
-			/* for the fhandle matching that finds both request and 
+			/* for the fhandle matching that finds both request and
 			   response packet */
 			if(nfs_fhandle_reqrep_matching){
 				nlm_match_fhandle_request(pinfo, tree);
 			}
 		}
 	}
-	
+
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
 	offset = dissect_lock(tvb, pinfo, tree, version, offset);
 	return offset;
@@ -537,7 +537,7 @@ dissect_nlm_granted(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
 			}
-			/* for the fhandle matching that finds both request and 
+			/* for the fhandle matching that finds both request and
 			   response packet */
 			if(nfs_fhandle_reqrep_matching){
 				nlm_match_fhandle_request(pinfo, tree);
@@ -567,7 +567,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			} else {
 				nlm_print_msgres_reply(pinfo, tree, tvb);
 			}
-			/* for the fhandle matching that finds both request and 
+			/* for the fhandle matching that finds both request and
 			   response packet */
 			if(nfs_fhandle_reqrep_matching){
 				nlm_match_fhandle_reply(pinfo, tree);
@@ -581,7 +581,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		lock_item = proto_tree_add_item(tree, hf_nlm_test_stat, tvb,
 				offset, -1, FALSE);
 		if (lock_item)
-			lock_tree = proto_item_add_subtree(lock_item, 
+			lock_tree = proto_item_add_subtree(lock_item,
 				ett_nlm_lock);
 	}
 
@@ -597,7 +597,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		lock_item = proto_tree_add_item(lock_tree, hf_nlm_holder, tvb,
 				offset, -1, FALSE);
 		if (lock_item)
-			lock_tree = proto_item_add_subtree(lock_item, 
+			lock_tree = proto_item_add_subtree(lock_item,
 				ett_nlm_lock);
 	}
 
@@ -638,13 +638,13 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		lock_item = proto_tree_add_item(tree, hf_nlm_share, tvb,
 				offset, -1, FALSE);
 		if (lock_item)
-			lock_tree = proto_item_add_subtree(lock_item, 
+			lock_tree = proto_item_add_subtree(lock_item,
 				ett_nlm_lock);
 	}
 
 	offset = dissect_rpc_string(tvb,lock_tree,
 			hf_nlm_lock_caller_name, offset, NULL);
-	
+
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh");
 
 	offset = dissect_rpc_data(tvb, lock_tree, hf_nlm_lock_owner, offset);
@@ -699,7 +699,7 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			} else {
 				nlm_print_msgres_reply(pinfo, tree, tvb);
 			}
-			/* for the fhandle matching that finds both request and 
+			/* for the fhandle matching that finds both request and
 			   response packet */
 			if(nfs_fhandle_reqrep_matching){
 				nlm_match_fhandle_reply(pinfo, tree);
@@ -850,11 +850,11 @@ dissect_nlm4_freeall(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* NULL as function pointer means: type of arguments is "void". */
 /* NLM protocol version 1 */
 static const vsff nlm1_proc[] = {
-	{ NLM_NULL,		"NULL",		
+	{ NLM_NULL,		"NULL",
 		NULL,				NULL },
 	{ NLM_TEST,		"TEST",
 		dissect_nlm1_test,		dissect_nlm1_test_res },
-	{ NLM_LOCK,		"LOCK",	
+	{ NLM_LOCK,		"LOCK",
 		dissect_nlm1_lock,		dissect_nlm_gen_reply },
 	{ NLM_CANCEL,		"CANCEL",
 		dissect_nlm1_cancel,		dissect_nlm_gen_reply },
@@ -868,19 +868,19 @@ static const vsff nlm1_proc[] = {
 		dissect_nlm1_lock,		NULL },
 	{ NLM_CANCEL_MSG,	"CANCEL_MSG",
 		dissect_nlm1_cancel,		NULL },
-	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",
 		dissect_nlm1_unlock,		NULL },
 	{ NLM_GRANTED_MSG,	"GRANTED_MSG",
 		dissect_nlm1_granted,		NULL },
 	{ NLM_TEST_RES,		"TEST_RES",
 		dissect_nlm1_test_res,		NULL },
-	{ NLM_LOCK_RES,		"LOCK_RES",	
+	{ NLM_LOCK_RES,		"LOCK_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_CANCEL_RES,	"CANCEL_RES",	
+	{ NLM_CANCEL_RES,	"CANCEL_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_GRANTED_RES,	"GRANTED_RES",	
+	{ NLM_GRANTED_RES,	"GRANTED_RES",
 		dissect_nlm_gen_reply,		NULL },
 	{ 0,			NULL,
 		NULL,				NULL }
@@ -889,11 +889,11 @@ static const vsff nlm1_proc[] = {
 
 /* NLM protocol version 2 */
 static const vsff nlm2_proc[] = {
-	{ NLM_NULL,		"NULL",		
+	{ NLM_NULL,		"NULL",
 		NULL,				NULL },
 	{ NLM_TEST,		"TEST",
 		dissect_nlm1_test,		dissect_nlm1_test_res },
-	{ NLM_LOCK,		"LOCK",	
+	{ NLM_LOCK,		"LOCK",
 		dissect_nlm1_lock,		dissect_nlm_gen_reply },
 	{ NLM_CANCEL,		"CANCEL",
 		dissect_nlm1_cancel,		dissect_nlm_gen_reply },
@@ -907,19 +907,19 @@ static const vsff nlm2_proc[] = {
 		dissect_nlm1_lock,		NULL },
 	{ NLM_CANCEL_MSG,	"CANCEL_MSG",
 		dissect_nlm1_cancel,		NULL },
-	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",
 		dissect_nlm1_unlock,		NULL },
 	{ NLM_GRANTED_MSG,	"GRANTED_MSG",
 		dissect_nlm1_granted,		NULL },
 	{ NLM_TEST_RES,		"TEST_RES",
 		dissect_nlm1_test_res,		NULL },
-	{ NLM_LOCK_RES,		"LOCK_RES",	
+	{ NLM_LOCK_RES,		"LOCK_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_CANCEL_RES,	"CANCEL_RES",	
+	{ NLM_CANCEL_RES,	"CANCEL_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_GRANTED_RES,	"GRANTED_RES",	
+	{ NLM_GRANTED_RES,	"GRANTED_RES",
 		dissect_nlm_gen_reply,		NULL },
 	{ 0,			NULL,
 		NULL,				NULL }
@@ -928,11 +928,11 @@ static const vsff nlm2_proc[] = {
 
 /* NLM protocol version 3 */
 static const vsff nlm3_proc[] = {
-	{ NLM_NULL,		"NULL",		
+	{ NLM_NULL,		"NULL",
 		NULL,				NULL },
 	{ NLM_TEST,		"TEST",
 		dissect_nlm1_test,		dissect_nlm1_test_res },
-	{ NLM_LOCK,		"LOCK",	
+	{ NLM_LOCK,		"LOCK",
 		dissect_nlm1_lock,		dissect_nlm_gen_reply },
 	{ NLM_CANCEL,		"CANCEL",
 		dissect_nlm1_cancel,		dissect_nlm_gen_reply },
@@ -946,27 +946,27 @@ static const vsff nlm3_proc[] = {
 		dissect_nlm1_lock,		NULL },
 	{ NLM_CANCEL_MSG,	"CANCEL_MSG",
 		dissect_nlm1_cancel,		NULL },
-	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",
 		dissect_nlm1_unlock,		NULL },
 	{ NLM_GRANTED_MSG,	"GRANTED_MSG",
 		dissect_nlm1_granted,		NULL },
 	{ NLM_TEST_RES,		"TEST_RES",
 		dissect_nlm1_test_res,		NULL },
-	{ NLM_LOCK_RES,		"LOCK_RES",	
+	{ NLM_LOCK_RES,		"LOCK_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_CANCEL_RES,	"CANCEL_RES",	
+	{ NLM_CANCEL_RES,	"CANCEL_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_GRANTED_RES,	"GRANTED_RES",	
+	{ NLM_GRANTED_RES,	"GRANTED_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_SHARE,		"SHARE",	
+	{ NLM_SHARE,		"SHARE",
 		dissect_nlm3_share,		dissect_nlm3_shareres },
-	{ NLM_UNSHARE,		"UNSHARE",	
+	{ NLM_UNSHARE,		"UNSHARE",
 		dissect_nlm3_share,		dissect_nlm3_shareres },
-	{ NLM_NM_LOCK,		"NM_LOCK",	
+	{ NLM_NM_LOCK,		"NM_LOCK",
 		dissect_nlm1_lock,		dissect_nlm_gen_reply },
-	{ NLM_FREE_ALL,		"FREE_ALL",	
+	{ NLM_FREE_ALL,		"FREE_ALL",
 		dissect_nlm3_freeall,		NULL },
 	{ 0,			NULL,
 		NULL,				NULL }
@@ -976,43 +976,43 @@ static const vsff nlm3_proc[] = {
 
 /* NLM protocol version 4 */
 static const vsff nlm4_proc[] = {
-	{ NLM_NULL,		"NULL",		
+	{ NLM_NULL,		"NULL",
 		NULL,				NULL },
-	{ NLM_TEST,		"TEST",		
+	{ NLM_TEST,		"TEST",
 		dissect_nlm4_test,		dissect_nlm4_test_res },
-	{ NLM_LOCK,		"LOCK",		
+	{ NLM_LOCK,		"LOCK",
 		dissect_nlm4_lock,		dissect_nlm_gen_reply },
-	{ NLM_CANCEL,		"CANCEL",	
+	{ NLM_CANCEL,		"CANCEL",
 		dissect_nlm4_cancel,		dissect_nlm_gen_reply },
-	{ NLM_UNLOCK,		"UNLOCK",	
+	{ NLM_UNLOCK,		"UNLOCK",
 		dissect_nlm4_unlock,	 	dissect_nlm_gen_reply },
-	{ NLM_GRANTED,		"GRANTED",	
+	{ NLM_GRANTED,		"GRANTED",
 		dissect_nlm4_granted,		dissect_nlm_gen_reply },
-	{ NLM_TEST_MSG,		"TEST_MSG",	
+	{ NLM_TEST_MSG,		"TEST_MSG",
 		dissect_nlm4_test,		NULL },
-	{ NLM_LOCK_MSG,		"LOCK_MSG",	
+	{ NLM_LOCK_MSG,		"LOCK_MSG",
 		dissect_nlm4_lock,		NULL },
-	{ NLM_CANCEL_MSG,	"CANCEL_MSG",	
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG",
 		dissect_nlm4_cancel,		NULL },
-	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",
 		dissect_nlm4_unlock,		NULL },
-	{ NLM_GRANTED_MSG,	"GRANTED_MSG",	
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG",
 		dissect_nlm4_granted,		NULL },
 	{ NLM_TEST_RES,		"TEST_RES",
 		dissect_nlm4_test_res,		NULL },
-	{ NLM_LOCK_RES,		"LOCK_RES",	
+	{ NLM_LOCK_RES,		"LOCK_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_CANCEL_RES,	"CANCEL_RES",	
+	{ NLM_CANCEL_RES,	"CANCEL_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",
 		dissect_nlm_gen_reply,		NULL },
-	{ NLM_GRANTED_RES,	"GRANTED_RES",	
+	{ NLM_GRANTED_RES,	"GRANTED_RES",
 		dissect_nlm_gen_reply,		NULL },
 	{ NLM_SHARE,		"SHARE",
 		dissect_nlm4_share,		dissect_nlm4_shareres },
 	{ NLM_UNSHARE,		"UNSHARE",
 		dissect_nlm4_share,		dissect_nlm4_shareres },
-	{ NLM_NM_LOCK,		"NM_LOCK",	
+	{ NLM_NM_LOCK,		"NM_LOCK",
 		dissect_nlm4_lock,		dissect_nlm_gen_reply },
 	{ NLM_FREE_ALL,		"FREE_ALL",
 		dissect_nlm4_freeall,		NULL },

@@ -1,22 +1,22 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.15 2002/03/05 11:55:59 guy Exp $
+ * $Id: goto_dlg.c,v 1.16 2002/08/28 21:03:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -60,22 +60,22 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
                 *bbox, *ok_bt, *cancel_bt;
 
   goto_frame_w = dlg_window_new("Ethereal: Go To Frame");
-  
+
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(goto_frame_w), main_vb);
   gtk_widget_show(main_vb);
-  
+
   /* Frame number row */
   fnumber_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(main_vb), fnumber_hb);
   gtk_widget_show(fnumber_hb);
-  
+
   fnumber_lb = gtk_label_new("Frame number:");
   gtk_box_pack_start(GTK_BOX(fnumber_hb), fnumber_lb, FALSE, FALSE, 0);
   gtk_widget_show(fnumber_lb);
-  
+
   fnumber_te = gtk_entry_new();
   gtk_box_pack_start(GTK_BOX(fnumber_hb), fnumber_te, FALSE, FALSE, 0);
   gtk_widget_show(fnumber_te);

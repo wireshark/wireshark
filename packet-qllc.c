@@ -2,22 +2,22 @@
  * Routines for QLLC protocol - Qualified? LLC
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-qllc.c,v 1.6 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-qllc.c,v 1.7 2002/08/28 21:00:26 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -139,7 +139,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         /* Non-ambiguous control field value */
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_set_str(pinfo->cinfo, COL_INFO, 
+            col_set_str(pinfo->cinfo, COL_INFO,
                     val_to_str(ctrl, qllc_control_vals,
                         "Control Field: 0x%02x (unknown)"));
         }
@@ -150,7 +150,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Do we have an I field ? */
-    /* XXX - I field exists for QUI too, but only for subarea nodes. 
+    /* XXX - I field exists for QUI too, but only for subarea nodes.
      * Need to test for this. */
     if (ctrl == QXID || ctrl == QTEST || ctrl == QFRMR) {
         /* yes */
@@ -168,7 +168,7 @@ proto_register_qllc(void)
 			"", HFILL }},
 
 		{ &hf_qllc_control,
-		{ "Control Field",	"qllc.control", FT_UINT8, BASE_HEX, 
+		{ "Control Field",	"qllc.control", FT_UINT8, BASE_HEX,
             VALS(qllc_control_vals), 0x0, "", HFILL }},
 
 	};

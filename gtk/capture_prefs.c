@@ -1,22 +1,22 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.13 2002/07/17 00:22:30 guy Exp $
+ * $Id: capture_prefs.c,v 1.14 2002/08/28 21:03:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -76,7 +76,7 @@ capture_prefs_show(void)
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_lb, 0, 1, 0, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_lb), 1.0, 0.5);
 	gtk_widget_show(if_lb);
-  
+
 	if_cb = gtk_combo_new();
 	/*
 	 * XXX - what if we can't get the list?
@@ -90,7 +90,7 @@ capture_prefs_show(void)
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cb, 1, 2, 0, 1);
 	gtk_widget_show(if_cb);
 	gtk_object_set_data(GTK_OBJECT(main_vb), DEVICE_KEY, if_cb);
-  
+
 	free_interface_list(if_list);
 
 	/* Promiscuous mode */

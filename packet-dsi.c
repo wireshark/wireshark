@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.23 2002/08/02 23:35:49 jmayer Exp $
+ * $Id: packet-dsi.c,v 1.24 2002/08/28 21:00:12 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -14,12 +14,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -186,7 +186,7 @@ static const value_string func_vals[] = {
   {DSIFUNC_ATTN,	"Attention" },
   {0,			NULL } };
 
-static gint 
+static gint
 dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 {
         proto_tree      *tree;
@@ -208,17 +208,17 @@ dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 	else {
 		proto_tree_add_item(tree, hf_dsi_open_option, tvb, offset, len, FALSE);
 	}
-	offset += len;	
+	offset += len;
 	return offset;
 }
 
-static gint 
+static gint
 dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 {
         proto_tree      *tree;
 	proto_item	*ti;
 	guint16		flag;
-	
+
 	if (!tvb_reported_length_remaining(tvb,offset))
 		return offset;
 
@@ -233,7 +233,7 @@ dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 	proto_tree_add_item(tree, hf_dsi_attn_flag_msg, tvb, offset, 2, FALSE);
 	proto_tree_add_item(tree, hf_dsi_attn_flag_reconnect, tvb, offset, 2, FALSE);
 	/* FIXME */
-	if ((flag & 0xf000) != 0x3000) 
+	if ((flag & 0xf000) != 0x3000)
 		proto_tree_add_item(tree, hf_dsi_attn_flag_time, tvb, offset, 2, FALSE);
 	else
 		proto_tree_add_item(tree, hf_dsi_attn_flag_bitmap, tvb, offset, 2, FALSE);
@@ -241,10 +241,10 @@ dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 	return offset;
 }
 
-/* ----------------------------- 
+/* -----------------------------
 	from netatalk/etc/afpd/status.c
 */
-static gint 
+static gint
 dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
         proto_tree      *sub_tree;
@@ -258,10 +258,10 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	guint8	nbe;
 	guint8  len;
 	guint8  i;
-		
+
 	if (!tree)
 		return offset;
-		
+
 	ti = proto_tree_add_text(tree, tvb, offset, -1, "Get Status");
 	tree = proto_item_add_subtree(ti, ett_dsi_status);
 
@@ -317,7 +317,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			dir_ofs += offset;
 		}
 	}
-		
+
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
 	if (ofs)
 		proto_tree_add_item(tree, hf_dsi_server_type, tvb, ofs, 1, FALSE);
@@ -334,7 +334,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			ofs += len;
 		}
 	}
-	
+
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
 	if (ofs) {
 		nbe = tvb_get_guint8(tvb, ofs);
@@ -363,7 +363,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		guint16 net;
 		guint8  node;
         	guint16 port;
-		        	
+
 		ofs = adr_ofs;
 		nbe = tvb_get_guint8(tvb, ofs);
 		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %d", nbe);
@@ -371,7 +371,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		adr_tree = proto_item_add_subtree(ti, ett_dsi_addr);
 		for (i = 0; i < nbe; i++) {
 			guint8 type;
-			
+
 			len = tvb_get_guint8(tvb, ofs);
 			type =  tvb_get_guint8(tvb, ofs +1);
 			switch (type) {
@@ -386,9 +386,9 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 				break;
 			case 3: /* DDP, atalk_addr_to_str want host order not network */
 				net  = tvb_get_ntohs(tvb, ofs+2);
-				node = tvb_get_guint8(tvb, ofs +4);			
+				node = tvb_get_guint8(tvb, ofs +4);
 				port = tvb_get_guint8(tvb, ofs +5);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u", 
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u",
 					net, node, port);
 				break;
 			case 4: /* DNS */
@@ -399,23 +399,23 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
 					g_free(tmp);
 					break;
-				} 
+				}
 				/* else fall to default malformed record */
 			default:
 				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %d", type);
 				break;
-			}			
+			}
 			len -= 2;
 			sub_tree = proto_item_add_subtree(ti,ett_dsi_addr_line);
 			proto_tree_add_item(sub_tree, hf_dsi_server_addr_len, tvb, ofs, 1, FALSE);
 			ofs++;
-			proto_tree_add_item(sub_tree, hf_dsi_server_addr_type, tvb, ofs, 1, FALSE); 
+			proto_tree_add_item(sub_tree, hf_dsi_server_addr_type, tvb, ofs, 1, FALSE);
 			ofs++;
 			proto_tree_add_item(sub_tree, hf_dsi_server_addr_value,tvb, ofs, len, FALSE);
 			ofs += len;
 		}
 	}
-	
+
 	if (dir_ofs) {
 		ofs = dir_ofs;
 		nbe = tvb_get_guint8(tvb, ofs);
@@ -443,7 +443,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		dsi_length;
 	guint32		dsi_reserved;
 	struct		aspinfo aspinfo;
- 
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -494,7 +494,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(dsi_tree, hf_dsi_reserved, tvb,
 			12, 4, dsi_reserved);
 	}
-	else 
+	else
 		dsi_tree = tree;
 	switch (dsi_command) {
 	case DSIFUNC_OPEN:
@@ -511,7 +511,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree && (dsi_flags == DSIFL_REPLY)) {
 			dissect_dsi_reply_get_status(tvb, dsi_tree, DSI_BLOCKSIZ);
 		}
-		break;	
+		break;
 	case DSIFUNC_CMD:
 	case DSIFUNC_WRITE:
 		{
@@ -530,7 +530,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		break;
   	default:
-		if (tree) {	
+		if (tree) {
  			call_dissector(data_handle,
  			    tvb_new_subset(tvb, DSI_BLOCKSIZ, -1, -1),
  			    pinfo, dsi_tree);

@@ -1,27 +1,27 @@
 /*
- * $Id: snprintf.c,v 1.13 2001/07/12 07:06:25 guy Exp $
+ * $Id: snprintf.c,v 1.14 2002/08/28 21:00:41 jmayer Exp $
  */
 
 /*
    Unix snprintf implementation.
    Version 1.2
-   
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
    It can be redistribute also under the terms of GNU Library General
    Public License.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-   
+
    Revision History:
 
    1.2:
@@ -59,7 +59,7 @@
  */
 PRIVATE double
 pow_10(int n)
-{ 
+{
   int i;
   double P;
 
@@ -71,7 +71,7 @@ pow_10(int n)
 }
 
 /*
- * Find the integral part of the log in base 10 
+ * Find the integral part of the log in base 10
  * Note: this not a real log10()
          I just need and approximation(integerpart) of x in:
           10^x ~= r
@@ -80,7 +80,7 @@ pow_10(int n)
  */
 PRIVATE int
 log_10(double r)
-{ 
+{
   int i = 0;
   double result = 1.;
 
@@ -105,7 +105,7 @@ log_10(double r)
  */
 PRIVATE double
 integral(double real, double * ip)
-{ 
+{
   int j;
   double i, s, p;
   double real_integral = 0.;
@@ -139,11 +139,11 @@ integral(double real, double * ip)
 }
 
 #define PRECISION 1.e-6
-/* 
+/*
  * return an ascii representation of the integral part of the number
  * and set fract to be an ascii representation of the fraction part
  * the container for the fraction and the integral part or staticly
- * declare with fix size 
+ * declare with fix size
  */
 PRIVATE char *
 numtoa(double number, int base, int precision, char ** fract)
@@ -158,7 +158,7 @@ numtoa(double number, int base, int precision, char ** fract)
   int ch;
 
 /* taking care of the obvious case: 0.0 */
-  if (number == 0.) { 
+  if (number == 0.) {
     integral_part[0] = '0';
     integral_part[1] = '\0';
     fraction_part[0] = '0';
@@ -170,7 +170,7 @@ numtoa(double number, int base, int precision, char ** fract)
   if ((sign = number) < 0.) {
     number = -number;
     digits--; /* sign consume one digit */
-  } 
+  }
 
   fraction = integral(number, &ip);
   number = ip;
@@ -185,11 +185,11 @@ numtoa(double number, int base, int precision, char ** fract)
       ch = (int)((fp + PRECISION)*base); /* force to round */
       integral_part[i] = (ch <= 9) ? ch + '0' : ch + 'a' - 10;
       if (! isxdigit((unsigned char)integral_part[i])) /* bail out overflow !! */
-        break; 
+        break;
       number = ip;
      }
   }
-     
+
 /* Oh No !! out of bound, ho well fill it up ! */
   if (number != 0.)
     for (i = 0; i < digits; ++i)
@@ -203,7 +203,7 @@ numtoa(double number, int base, int precision, char ** fract)
 
 /* reverse every thing */
   for ( i--, j = 0; j < i; j++, i--)
-    SWAP_INT(integral_part[i], integral_part[j]);  
+    SWAP_INT(integral_part[i], integral_part[j]);
 
 /* the fractionnal part */
   for (i=0, fp=fraction; precision > 0 && i < MAX_FRACT ; i++, precision--	) {
@@ -311,7 +311,7 @@ floating(struct DATA *p, double d)
             ((d > 0. && p->justify == RIGHT) ? 1:0) -
             ((p->space == FOUND) ? 1:0) -
             strlen(tmp) - p->precision - 1;
-  PAD_RIGHT(p);  
+  PAD_RIGHT(p);
   PUT_PLUS(d, p);
   PUT_SPACE(d, p);
   while (*tmp) { /* the integral */
@@ -322,12 +322,12 @@ floating(struct DATA *p, double d)
     PUT_CHAR('.', p);  /* put the '.' */
   if (*p->pf == 'g' || *p->pf == 'G') /* smash the trailing zeros */
     for (i = strlen(tmp2) - 1; i >= 0 && tmp2[i] == '0'; i--)
-       tmp2[i] = '\0'; 
+       tmp2[i] = '\0';
   for (; *tmp2; tmp2++)
     PUT_CHAR(*tmp2, p); /* the fraction */
-  
+
   PAD_LEFT(p);
-} 
+}
 
 /* %e %E %g exponent representation */
 PRIVATE void
@@ -339,12 +339,12 @@ exponent(struct DATA *p, double d)
   DEF_PREC(p);
   j = log_10(d);
   d = d / pow_10(j);  /* get the Mantissa */
-  d = ROUND(d, p);                  
+  d = ROUND(d, p);
   tmp = dtoa(d, p->precision, &tmp2);
   /* 1 for unit, 1 for the '.', 1 for 'e|E',
    * 1 for '+|-', 3 for 'exp' */
   /* calculate how much padding need */
-  p->width = p->width - 
+  p->width = p->width -
              ((d > 0. && p->justify == RIGHT) ? 1:0) -
              ((p->space == FOUND) ? 1:0) - p->precision - 7;
   PAD_RIGHT(p);
@@ -358,7 +358,7 @@ exponent(struct DATA *p, double d)
     PUT_CHAR('.', p);  /* the '.' */
   if (*p->pf == 'g' || *p->pf == 'G') /* smash the trailing zeros */
     for (i = strlen(tmp2) - 1; i >= 0 && tmp2[i] == '0'; i--)
-       tmp2[i] = '\0'; 
+       tmp2[i] = '\0';
   for (; *tmp2; tmp2++)
     PUT_CHAR(*tmp2, p); /* the fraction */
 
@@ -415,7 +415,7 @@ conv_flag(char * s, struct DATA * p)
       case '1': case '2': case '3':
       case '4': case '5': case '6':
       case '7': case '8': case '9':     /* gob all the digits */
-        for (i = 0; isdigit((unsigned char)*s); i++, s++) 
+        for (i = 0; isdigit((unsigned char)*s); i++, s++)
           if (i < MAX_FIELD/2 - 1)
             number[i] = *s;
         number[i] = '\0';
@@ -461,10 +461,10 @@ vsnprintf(char *string, size_t length, const char * format, va_list args)
           case 'f':  /* float, double */
             STAR_ARGS(&data);
             d = va_arg(args, double);
-            floating(&data, d);  
+            floating(&data, d);
             state = 0;
             break;
-          case 'g': 
+          case 'g':
           case 'G':
             STAR_ARGS(&data);
             DEF_PREC(&data);
@@ -516,7 +516,7 @@ vsnprintf(char *string, size_t length, const char * format, va_list args)
             octal(&data, d);
             state = 0;
             break;
-          case 'x': 
+          case 'x':
           case 'X':  /* hexadecimal */
             STAR_ARGS(&data);
             if (data.a_long == FOUND)
@@ -550,11 +550,11 @@ vsnprintf(char *string, size_t length, const char * format, va_list args)
             state = 0;
             break;
           case '#': case ' ': case '+': case '*':
-          case '-': case '.': case '0': case '1': 
+          case '-': case '.': case '0': case '1':
           case '2': case '3': case '4': case '5':
           case '6': case '7': case '8': case '9':
            /* initialize width and precision */
-            for (i = 0; isflag((unsigned char)*data.pf); i++, data.pf++) 
+            for (i = 0; isflag((unsigned char)*data.pf); i++, data.pf++)
               if (i < MAX_FIELD - 1)
                 conv_field[i] = *data.pf;
             conv_field[i] = '\0';
@@ -738,7 +738,7 @@ void main()
   printf("abc%n", &i); printf("%d\n", i);
   snprintf(holder, sizeof holder, "abc%n", &i);
   printf("%s", holder); printf("%d\n\n", i);
-  
+
   printf("%%*.*s --> 10.10\n");
   snprintf(holder, sizeof holder, "%*.*s\n", 10, 10, BLURB);
   printf("%*.*s\n", 10, 10, BLURB);
@@ -751,7 +751,7 @@ void main()
 
 #define BIG "Hello this is a too big string for the buffer"
 /*  printf("A buffer to small of 10, trying to put this:\n");*/
-  printf("<%%>, %s\n", BIG); 
+  printf("<%%>, %s\n", BIG);
   i = snprintf(holder, 10, "%s\n", BIG);
   printf("<%s>\n", BIG);
   printf("<%s>\n", holder);

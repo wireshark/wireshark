@@ -1,24 +1,24 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.30 2002/08/02 23:35:49 jmayer Exp $
+ * $Id: packet-ethertype.c,v 1.31 2002/08/28 21:00:13 jmayer Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -56,8 +56,8 @@ const value_string etype_vals[] = {
     {ETHERTYPE_TRAIN,		"Netmon Train"			},
     {ETHERTYPE_LOOP,		"Loopback"			}, /* Ethernet Loopback */
     {ETHERTYPE_WCP,		"Wellfleet Compression Protocol" },
-    {ETHERTYPE_PPPOED,		"PPPoE Discovery"		}, 
-    {ETHERTYPE_PPPOES,		"PPPoE Session"			}, 
+    {ETHERTYPE_PPPOED,		"PPPoE Discovery"		},
+    {ETHERTYPE_PPPOES,		"PPPoE Session"			},
     {ETHERTYPE_VLAN,		"802.1Q Virtual LAN"		},
     {ETHERTYPE_EAPOL,		"802.1X Authentication"         },
     {ETHERTYPE_MPLS,		"MPLS label switched packet"	},
@@ -131,7 +131,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	tvbuff_t		*next_tvb;
 	guint			length_before;
 	volatile gboolean	dissector_found;
-	
+
 	/* Add to proto_tree */
 	if (tree) {
 		proto_tree_add_uint(fh_tree, etype_id, tvb,

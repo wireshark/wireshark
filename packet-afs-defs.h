@@ -6,9 +6,9 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  * Portions based on information/specs retrieved from the OpenAFS sources at
- *   www.openafs.org, Copyright IBM. 
+ *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-defs.h,v 1.11 2002/02/08 22:36:21 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.12 2002/08/28 21:00:06 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -432,7 +432,7 @@ static const value_string afs_errors[] = {
 	{ 1492325135, "No volume"},
 	{ 1492325136, "Multiple RW volumes"},
 	{ 1492325137, "Failed operation"},
-	
+
 	/* add more of these errors to decode the errcode responses */
 	{ 0, NULL },
 };

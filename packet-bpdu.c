@@ -1,24 +1,24 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.37 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-bpdu.c,v 1.38 2002/08/28 21:00:08 jmayer Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
- * 
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -148,7 +148,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       double max_age;
       double hello_time;
       double forward_delay;
-      
+
       proto_tree *bpdu_tree;
       proto_item *bpdu_item;
       proto_tree *flags_tree;
@@ -158,7 +158,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* GARP application frames require special interpretation of the
          destination address field; otherwise, they will be mistaken as
-         BPDU frames.  
+         BPDU frames.
          Fortunately, they can be recognized by checking the first 6 octets
          of the destination address, which are in the range from
          01-80-C2-00-00-20 to 01-80-C2-00-00-2F.
@@ -238,7 +238,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    switch (bpdu_type) {
 
 	    case BPDU_TYPE_CONF:
-		  col_add_fstr(pinfo->cinfo, COL_INFO, "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x", 
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
 			       flags & 0x1 ? "TC + " : "",
 			       root_identifier_bridge_priority, root_identifier_mac_str, root_path_cost,
 			       port_identifier);
@@ -249,7 +249,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  break;
 
 	    case BPDU_TYPE_RST:
-		  col_add_fstr(pinfo->cinfo, COL_INFO, "RST. %sRoot = %d/%s  Cost = %d  Port = 0x%04x", 
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "RST. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
 			       flags & 0x1 ? "TC + " : "",
 			       root_identifier_bridge_priority, root_identifier_mac_str, root_path_cost,
 			       port_identifier);
@@ -287,8 +287,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				BPDU_IDENTIFIER, 2, protocol_identifier);
 
 	    protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb, 
-				BPDU_VERSION_IDENTIFIER, 1, 
+	    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb,
+				BPDU_VERSION_IDENTIFIER, 1,
 				protocol_version_identifier);
             switch (protocol_version_identifier) {
               case 0:
@@ -301,7 +301,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             }
 	    proto_tree_add_uint(bpdu_tree, hf_bpdu_type, tvb,
-				       BPDU_TYPE, 1, 
+				       BPDU_TYPE, 1,
 				       bpdu_type);
 
 	    if (bpdu_type != BPDU_TYPE_CONF && bpdu_type != BPDU_TYPE_RST) {
@@ -316,7 +316,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_BRIDGE_IDENTIFIER + 2, 6);
 	    bridge_identifier_mac_str = ether_to_str(bridge_identifier_mac);
 
-	    flags_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, tvb, 
+	    flags_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, tvb,
 				BPDU_FLAGS, 1, flags);
 	    flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
 	    sep = initial_sep;
@@ -365,40 +365,40 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_root_mac, tvb,
 				       BPDU_ROOT_IDENTIFIER + 2, 6,
 				       root_identifier_mac);
-	    proto_tree_add_text(bpdu_tree, tvb, 
-				BPDU_ROOT_IDENTIFIER, 8, 
-				"Root Identifier: %d / %s", 
-				root_identifier_bridge_priority, 
+	    proto_tree_add_text(bpdu_tree, tvb,
+				BPDU_ROOT_IDENTIFIER, 8,
+				"Root Identifier: %d / %s",
+				root_identifier_bridge_priority,
 				root_identifier_mac_str);
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_root_cost, tvb, 
-				BPDU_ROOT_PATH_COST, 4, 
+	    proto_tree_add_uint(bpdu_tree, hf_bpdu_root_cost, tvb,
+				BPDU_ROOT_PATH_COST, 4,
 				root_path_cost);
-	    proto_tree_add_text(bpdu_tree, tvb, 
-				BPDU_BRIDGE_IDENTIFIER, 8, 
-				"Bridge Identifier: %d / %s", 
-				bridge_identifier_bridge_priority, 
+	    proto_tree_add_text(bpdu_tree, tvb,
+				BPDU_BRIDGE_IDENTIFIER, 8,
+				"Bridge Identifier: %d / %s",
+				bridge_identifier_bridge_priority,
 				bridge_identifier_mac_str);
 	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_bridge_mac, tvb,
 				       BPDU_BRIDGE_IDENTIFIER + 2, 6,
 				       bridge_identifier_mac);
 	    proto_tree_add_uint(bpdu_tree, hf_bpdu_port_id, tvb,
-				BPDU_PORT_IDENTIFIER, 2, 
+				BPDU_PORT_IDENTIFIER, 2,
 				port_identifier);
 	    message_age = tvb_get_ntohs(tvb, BPDU_MESSAGE_AGE) / 256.0;
 	    proto_tree_add_double(bpdu_tree, hf_bpdu_msg_age, tvb,
-				BPDU_MESSAGE_AGE, 2, 
+				BPDU_MESSAGE_AGE, 2,
 				message_age);
 	    max_age = tvb_get_ntohs(tvb, BPDU_MAX_AGE) / 256.0;
 	    proto_tree_add_double(bpdu_tree, hf_bpdu_max_age, tvb,
-				BPDU_MAX_AGE, 2, 
+				BPDU_MAX_AGE, 2,
 				max_age);
 	    hello_time = tvb_get_ntohs(tvb, BPDU_HELLO_TIME) / 256.0;
 	    proto_tree_add_double(bpdu_tree, hf_bpdu_hello_time, tvb,
-				BPDU_HELLO_TIME, 2, 
+				BPDU_HELLO_TIME, 2,
 				hello_time);
 	    forward_delay = tvb_get_ntohs(tvb, BPDU_FORWARD_DELAY) / 256.0;
 	    proto_tree_add_double(bpdu_tree, hf_bpdu_forward_delay, tvb,
-				BPDU_FORWARD_DELAY, 2, 
+				BPDU_FORWARD_DELAY, 2,
 				forward_delay);
             if (rstp_bpdu) {
 	      proto_tree_add_item(bpdu_tree, hf_bpdu_version_1_length, tvb,
@@ -407,7 +407,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 }
 
-static const true_false_string yesno = {  
+static const true_false_string yesno = {
 	"Yes",
 	"No"
 };
@@ -519,7 +519,7 @@ proto_reg_handoff_bpdu(void)
    * Get handle for the GVRP dissector.
    */
   gvrp_handle = find_dissector("gvrp");
-  
+
   /*
    * Get handle for the GMRP dissector.
    */

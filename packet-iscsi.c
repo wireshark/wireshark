@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.37 2002/08/20 22:33:16 guy Exp $
+ * $Id: packet-iscsi.c,v 1.38 2002/08/28 21:00:18 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -771,7 +771,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         if (conversation) {
             ckey.conv_idx = conversation->index;
             ckey.itt = tvb_get_ntohl (tvb, offset+16);
-            
+
             cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_hash,
                                                               &ckey);
 
@@ -782,7 +782,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             /* no conversation, meaning we didn't see the request */
             pinfo->private_data = NULL;
         }
-        
+
         if (cdata) {
             del_usecs = (pinfo->fd->abs_secs - cdata->abs_secs)* 1000000 +
                 (pinfo->fd->abs_usecs - cdata->abs_usecs);
@@ -797,16 +797,16 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                                              pinfo->ptype, pinfo->srcport,
                                              pinfo->destport, 0);
         }
-        
+
         ckey.conv_idx = conversation->index;
         ckey.itt = tvb_get_ntohl (tvb, offset+16);
-        
+
         cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_hash,
                                                           &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
              * case of another request using the same exchange as a previous
-             * req. 
+             * req.
              */
             cdata->abs_usecs = pinfo->fd->abs_usecs;
             cdata->abs_secs = pinfo->fd->abs_secs;
@@ -815,11 +815,11 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             req_key = g_mem_chunk_alloc (iscsi_req_keys);
             req_key->conv_idx = conversation->index;
             req_key->itt = tvb_get_ntohl (tvb, offset+16);
-            
+
             cdata = g_mem_chunk_alloc (iscsi_req_vals);
             cdata->abs_usecs = pinfo->fd->abs_usecs;
             cdata->abs_secs = pinfo->fd->abs_secs;
-            
+
             g_hash_table_insert (iscsi_req_hash, req_key, cdata);
         }
 
@@ -832,7 +832,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     else {
         pinfo->private_data = NULL;
     }
-    
+
     if (check_col(pinfo->cinfo, COL_INFO)) {
 
         if (opcode != ISCSI_OPCODE_SCSI_COMMAND) {
@@ -949,7 +949,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
-		
+
 		proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_F, tvb, offset + 1, 1, b);
 		proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_R, tvb, offset + 1, 1, b);
 		proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_W, tvb, offset + 1, 1, b);
@@ -990,7 +990,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
-		
+
 		proto_tree_add_boolean(tt, hf_iscsi_SCSIResponse_o, tvb, offset + 1, 1, b);
 		proto_tree_add_boolean(tt, hf_iscsi_SCSIResponse_u, tvb, offset + 1, 1, b);
 		proto_tree_add_boolean(tt, hf_iscsi_SCSIResponse_O, tvb, offset + 1, 1, b);
@@ -1066,7 +1066,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 #endif
-		
+
 		proto_tree_add_boolean(ti, hf_iscsi_Login_T, tvb, offset + 1, 1, b);
 		if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT08) {
 		    proto_tree_add_boolean(ti, hf_iscsi_Login_X, tvb, offset + 1, 1, b);
@@ -1131,7 +1131,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 #endif
-		
+
 		proto_tree_add_boolean(ti, hf_iscsi_Login_T, tvb, offset + 1, 1, b);
 		proto_tree_add_item(ti, hf_iscsi_Login_CSG, tvb, offset + 1, 1, FALSE);
 		proto_tree_add_item(ti, hf_iscsi_Login_NSG, tvb, offset + 1, 1, FALSE);
@@ -1185,7 +1185,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
-		
+
 		proto_tree_add_boolean(tt, hf_iscsi_Text_F, tvb, offset + 1, 1, b);
 	    }
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
@@ -1208,7 +1208,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
-		
+
 		proto_tree_add_boolean(tt, hf_iscsi_Text_F, tvb, offset + 1, 1, b);
 	    }
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
@@ -1456,16 +1456,16 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         }
         if (cdata && tree) {
             /* destroy the data structures for this SCSI task */
-#if 0            
+#if 0
             g_mem_chunk_free (iscsi_req_vals, cdata);
             g_hash_table_remove (iscsi_req_hash, &ckey);
             pinfo->private_data = NULL;
-#endif             
+#endif
         }
     }
     else if ((opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
              (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
-        /* offset is setup correctly by the iscsi code for response above */ 
+        /* offset is setup correctly by the iscsi code for response above */
         dissect_scsi_payload (tvb, pinfo, tree, offset, FALSE,
                               iscsi_min (data_segment_len, end_offset-offset));
     }
@@ -1567,7 +1567,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    pduLen += data_segment_len;
 	    if((pduLen & 3) != 0)
 		pduLen += 4 - (pduLen & 3);
-	    
+
 	    if(digestsActive && enableHeaderDigests) {
 		if(headerDigestIsCRC32)
 		    pduLen += 4;
@@ -1581,7 +1581,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		else
 		    pduLen += dataDigestSize;
 	    }
-	    
+
 	    /*
 	     * Desegmentation check.
 	     */
@@ -1630,7 +1630,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 void
 proto_register_iscsi(void)
-{                 
+{
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -1701,49 +1701,49 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_Opcode,
 	  { "Opcode", "iscsi.opcode",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_opcodes), 0,          
+	    FT_UINT8, BASE_HEX, VALS(iscsi_opcodes), 0,
 	    "Opcode", HFILL }
 	},
 /* #ifdef DRAFT08 */
 	{ &hf_iscsi_X,
 	  { "X", "iscsi.X",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_X), 0x80,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_X), 0x80,
 	    "Command Retry", HFILL }
 	},
 /* #endif */
 	{ &hf_iscsi_I,
 	  { "I", "iscsi.I",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_I), 0x40,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_I), 0x40,
 	    "Immediate delivery", HFILL }
 	},
 	{ &hf_iscsi_Flags,
 	  { "Flags", "iscsi.flags",
-	    FT_UINT8, BASE_HEX, NULL, 0,          
+	    FT_UINT8, BASE_HEX, NULL, 0,
 	    "Opcode specific flags", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_F,
 	  { "F", "iscsi.scsicommand.F",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,
 	    "PDU completes command", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_R,
 	  { "R", "iscsi.scsicommand.R",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_R), 0x40,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_R), 0x40,
 	    "Command reads from SCSI target", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_W,
 	  { "W", "iscsi.scsicommand.W",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_W), 0x20,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_W), 0x20,
 	    "Command writes to SCSI target", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_Attr,
 	  { "Attr", "iscsi.scsicommand.attr",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_scsicommand_taskattrs), 0x07,          
+	    FT_UINT8, BASE_HEX, VALS(iscsi_scsicommand_taskattrs), 0x07,
 	    "SCSI task attributes", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_CRN,
 	  { "CRN", "iscsi.scsicommand.crn",
-	    FT_UINT8, BASE_HEX, NULL, 0,          
+	    FT_UINT8, BASE_HEX, NULL, 0,
 	    "SCSI command reference number", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_AddCDB,
@@ -1808,22 +1808,22 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_SCSIResponse_o,
 	  { "o", "iscsi.scsiresponse.o",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_o), 0x10,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_o), 0x10,
 	    "Bi-directional read residual overflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_u,
 	  { "u", "iscsi.scsiresponse.u",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_u), 0x08,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_u), 0x08,
 	    "Bi-directional read residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_O,
 	  { "O", "iscsi.scsiresponse.O",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_O), 0x04,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_O), 0x04,
 	    "Residual overflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_U,
 	  { "U", "iscsi.scsiresponse.U",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_U), 0x02,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_U), 0x02,
 	    "Residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_Status,
@@ -1989,7 +1989,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_Login_T,
 	  { "T", "iscsi.login.T",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_T), 0x80,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_T), 0x80,
 	    "Transit to next login stage",  HFILL }
 	},
 /* #ifdef DRAFT09 */
@@ -2001,12 +2001,12 @@ proto_register_iscsi(void)
 /* #endif */
 	{ &hf_iscsi_Login_CSG,
 	  { "CSG", "iscsi.login.csg",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_login_stage), CSG_MASK,          
+	    FT_UINT8, BASE_HEX, VALS(iscsi_login_stage), CSG_MASK,
 	    "Current stage",  HFILL }
 	},
 	{ &hf_iscsi_Login_NSG,
 	  { "NSG", "iscsi.login.nsg",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_login_stage), NSG_MASK,          
+	    FT_UINT8, BASE_HEX, VALS(iscsi_login_stage), NSG_MASK,
 	    "Next stage",  HFILL }
 	},
 	{ &hf_iscsi_Login_Status,
@@ -2021,7 +2021,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_Text_F,
 	  { "F", "iscsi.text.F",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,
 	    "Final PDU in text sequence", HFILL }
 	},
 	{ &hf_iscsi_ExpDataSN,
@@ -2111,7 +2111,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_snack_type,
 	  { "S", "iscsi.snack.type",
-	    FT_UINT8, BASE_DEC, VALS(iscsi_snack_types), 0x0f,          
+	    FT_UINT8, BASE_DEC, VALS(iscsi_snack_types), 0x0f,
 	    "Type of SNACK requested", HFILL }
 	},
 	{ &hf_iscsi_BegRun,
@@ -2145,7 +2145,7 @@ proto_register_iscsi(void)
     proto_register_field_array(proto_iscsi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine (&iscsi_init_protocol);
-    
+
     {
 	module_t *iscsi_module = prefs_register_protocol(proto_iscsi, NULL);
 
@@ -2164,61 +2164,61 @@ proto_register_iscsi(void)
 				       &iscsi_desegment);
 
 	prefs_register_bool_preference(iscsi_module,
-				       "bogus_pdu_filter", 
+				       "bogus_pdu_filter",
 				       "Enable bogus pdu filter",
 				       "When enabled, packets that appear bogus are ignored",
 				       &enable_bogosity_filter);
 
 	prefs_register_bool_preference(iscsi_module,
-				       "demand_good_f_bit", 
+				       "demand_good_f_bit",
 				       "Ignore packets with bad F bit",
 				       "Ignore packets that haven't set the F bit when they should have",
 				       &demand_good_f_bit);
 
 	prefs_register_uint_preference(iscsi_module,
-				       "bogus_pdu_max_data_len", 
+				       "bogus_pdu_max_data_len",
 				       "Bogus pdu max data length threshold",
 				       "Treat packets whose data segment length is greater than this value as bogus",
 				       10,
 				       &bogus_pdu_data_length_threshold);
 
 	prefs_register_uint_preference(iscsi_module,
-				       "iscsi_port", 
+				       "iscsi_port",
 				       "Target port",
 				       "Port number of iSCSI target",
 				       10,
 				       &iscsi_port);
 
 	prefs_register_bool_preference(iscsi_module,
-				       "enable_header_digests", 
+				       "enable_header_digests",
 				       "Enable header digests",
 				       "When enabled, pdus are assumed to contain a header digest",
 				       &enableHeaderDigests);
 	prefs_register_bool_preference(iscsi_module,
-				       "enable_data_digests", 
+				       "enable_data_digests",
 				       "Enable data digests",
 				       "When enabled, pdus are assumed to contain a data digest",
 				       &enableDataDigests);
 
 	prefs_register_bool_preference(iscsi_module,
-				       "header_digest_is_crc32c", 
+				       "header_digest_is_crc32c",
 				       "Header digest is CRC32C",
 				       "When enabled, header digests are assumed to be CRC32C",
 				       &headerDigestIsCRC32);
 	prefs_register_bool_preference(iscsi_module,
-				       "data_digest_is_crc32c", 
+				       "data_digest_is_crc32c",
 				       "Data digest is CRC32C",
 				       "When enabled, data digests are assumed to be CRC32C",
 				       &dataDigestIsCRC32);
 
 	prefs_register_uint_preference(iscsi_module,
-				       "header_digest_size", 
+				       "header_digest_size",
 				       "Header digest size",
 				       "The size of a header digest (bytes)",
 				       10,
 				       &headerDigestSize);
 	prefs_register_uint_preference(iscsi_module,
-				       "data_digest_size", 
+				       "data_digest_size",
 				       "Data digest size",
 				       "The size of a data digest (bytes)",
 				       10,

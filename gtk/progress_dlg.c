@@ -1,22 +1,22 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.12 2002/08/28 10:07:37 guy Exp $
+ * $Id: progress_dlg.c,v 1.13 2002/08/28 21:03:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -191,7 +191,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title, const gcha
 	bbox = gtk_hbutton_box_new();
 	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
 	gtk_container_add(GTK_CONTAINER(main_vb), bbox);
-  
+
 	/*
 	 * Allow user to either click a "stop this operation" button, or
 	 * the close button on the window, to stop an operation in
@@ -218,8 +218,8 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title, const gcha
 }
 
 progdlg_t *
-delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title, 
-							const gchar *stop_title, gboolean *stop_flag, 
+delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
+							const gchar *stop_title, gboolean *stop_flag,
 							GTimeVal *start_time, gfloat progress)
 {
   GTimeVal    time_now;
@@ -267,7 +267,7 @@ delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
   else
     min_display = 2 * MIN_DISPLAY_DEFAULT - delta_time;
              /* = MIN_DISPLAY_DEFAULT - (delta_time - MIN_DISPLAY_DEFAULT) */
- 
+
   /* Assuming the progress increases linearly, see if the progress
    * dialog would be displayed for at least min_display microseconds if
    * we created it now.
@@ -294,7 +294,7 @@ static gint
 delete_event_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data)
 {
 	gboolean *stop_flag = (gboolean *) data;
-  
+
 	*stop_flag = TRUE;
 	return TRUE;
 }
@@ -309,7 +309,7 @@ static void
 stop_cb(GtkWidget *w _U_, gpointer data)
 {
 	gboolean *stop_flag = (gboolean *) data;
-  
+
 	*stop_flag = TRUE;
 }
 
@@ -349,7 +349,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status)
 	g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_elapsed / 60, ul_elapsed % 60);
 	gtk_label_set_text(dlg->elapsed_lb, tmp);
 
-	/* show "Time Left" only, 
+	/* show "Time Left" only,
 	 * if at least 5% and 3 seconds running (to get a useful estimation) */
 	if (ul_percentage >= 5 && delta_time >= 3 * 1e6) {
 		ul_left = (delta_time / percentage - delta_time) / 1000 / 1000;

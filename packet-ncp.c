@@ -2,31 +2,31 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
- * Modified to decode server op-lock 
+ * Modified to decode server op-lock
  * & NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp.c,v 1.67 2002/08/23 21:54:30 guy Exp $
+ * $Id: packet-ncp.c,v 1.68 2002/08/28 21:00:23 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifdef HAVE_CONFIG_H 
+#ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
@@ -150,7 +150,7 @@ struct ncp_common_header {
 	guint8	conn_low;
 	guint8	task;
 	guint8	conn_high; /* type=0x5555 doesn't have this */
-};                         
+};
 
 
 static value_string ncp_type_vals[] = {
@@ -405,7 +405,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
 			ncp_nds_verb = tvb_get_ntohl(tvb, commhdr+4);
 			if (tvb_get_guint8(tvb, commhdr+7) == 0x02) {  /* NDS Packet to decode */
-				dissect_nds_request(next_tvb, pinfo, nw_connection, 
+				dissect_nds_request(next_tvb, pinfo, nw_connection,
 				    header.sequence, header.type, ncp_tree);
 			} else {
 				dissect_ncp_request(next_tvb, pinfo, nw_connection,
@@ -519,7 +519,7 @@ get_ncp_pdu_len(tvbuff_t *tvb, int offset)
   signature = tvb_get_ntohl(tvb, offset);
   if (signature != NCPIP_RQST && signature != NCPIP_RPLY)
     return tvb_length_remaining(tvb, offset);
-  
+
   /*
    * Get the length of the NCP-over-TCP packet.  Strip off the "has
    * signature" flag.

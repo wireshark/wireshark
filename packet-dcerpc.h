@@ -1,22 +1,22 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.18 2002/06/24 00:03:18 tpot Exp $
+ * $Id: packet-dcerpc.h,v 1.19 2002/08/28 21:00:12 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -104,16 +104,16 @@ guint16 dcerpc_tvb_get_ntohs (tvbuff_t *tvb, gint offset, char *drep);
 guint32 dcerpc_tvb_get_ntohl (tvbuff_t *tvb, gint offset, char *drep);
 void dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, char *drep, e_uuid_t *uuid);
 int dissect_dcerpc_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                          proto_tree *tree, char *drep, 
+                          proto_tree *tree, char *drep,
                           int hfindex, guint8 *pdata);
 int dissect_dcerpc_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                           proto_tree *tree, char *drep, 
+                           proto_tree *tree, char *drep,
                            int hfindex, guint16 *pdata);
 int dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                           proto_tree *tree, char *drep, 
+                           proto_tree *tree, char *drep,
                            int hfindex, guint32 *pdata);
 int dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                           proto_tree *tree, char *drep, 
+                           proto_tree *tree, char *drep,
                            int hfindex, unsigned char *pdata);
 
 
@@ -121,22 +121,22 @@ int dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
  * NDR routines for subdissectors.
  */
 int dissect_ndr_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, char *drep, 
+                       proto_tree *tree, char *drep,
                        int hfindex, guint8 *pdata);
 int dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep, 
+                        proto_tree *tree, char *drep,
                         int hfindex, guint16 *pdata);
 int dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep, 
+                        proto_tree *tree, char *drep,
                         int hfindex, guint32 *pdata);
 int dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep, 
+                        proto_tree *tree, char *drep,
                         int hfindex, unsigned char *pdata);
 int dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep, 
+                        proto_tree *tree, char *drep,
                         int hfindex, e_uuid_t *pdata);
 int dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                         proto_tree *tree, char *drep, 
+                         proto_tree *tree, char *drep,
                          int hfindex, e_ctx_hnd *pdata);
 
 
@@ -145,19 +145,19 @@ typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinf
 #define NDR_POINTER_REF		1
 #define NDR_POINTER_UNIQUE	2
 #define NDR_POINTER_PTR		3
-	
+
 int dissect_ndr_pointer (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep, 
+                        proto_tree *tree, char *drep,
                         dcerpc_dissect_fnct_t *fnct, int type, char *text, int hf_index, int levels);
 
 /* dissect a NDR unidimensional conformant array */
 int dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep, 
+                        proto_tree *tree, char *drep,
                         dcerpc_dissect_fnct_t *fnct);
 
 /* dissect a NDR unidimensional conformant and varying array */
 int dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep, 
+                        proto_tree *tree, char *drep,
                         dcerpc_dissect_fnct_t *fnct);
 
 
@@ -207,11 +207,11 @@ typedef struct _dcerpc_info {
 	gboolean conformant_run;
 	gint32 conformant_eaten; /* how many bytes did the conformant run eat?*/
 	guint32 array_max_count;	/* max_count for conformant arrays */
-	guint32 array_max_count_offset;	
+	guint32 array_max_count_offset;
 	guint32 array_offset;
 	guint32 array_offset_offset;
-	guint32 array_actual_count;	
-	guint32 array_actual_count_offset;	
+	guint32 array_actual_count;
+	guint32 array_actual_count_offset;
 	int hf_index;
 	int levels;                    /* number of levels upwards in the tree to append text*/
 	dcerpc_call_value *call_data;

@@ -4,7 +4,7 @@
  * By Peter Torvals
  * Copyright 1999 Peter Torvals
  *
- * $Id: packet-icp.c,v 1.22 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-icp.c,v 1.23 2002/08/28 21:00:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,7 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
@@ -74,7 +74,7 @@ static value_string opcode_vals[] = {
 { CODE_ICP_OP_SENDA, "ICP_SENDA"},
 { CODE_ICP_OP_DATABEG, "ICP_DATABEG"},
 { CODE_ICP_OP_DATA,    "ICP_DATA"},
-{ CODE_ICP_OP_DATAEND, "ICP_DATA_END"}, 
+{ CODE_ICP_OP_DATAEND, "ICP_DATA_END"},
 { CODE_ICP_OP_SECHO ,    "ICP_SECHO"},
 { CODE_ICP_OP_DECHO ,    "ICP_DECHO"},
 { CODE_ICP_OP_MISS_NOFETCH ,    "ICP_MISS_NOFETCH"},
@@ -137,7 +137,7 @@ static void dissect_icp_payload(tvbuff_t *tvb, int offset,
 				"Packet is fragmented, rest of object is in next udp packet");
 		}
 		break;
-	default: 
+	default:
 		break;
   }
 }
@@ -182,7 +182,7 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_uint(icp_tree,hf_icp_request_nr, tvb, 4, 4,
                 request_number);
-		
+
 	options=tvb_get_ntohl(tvb, 8);
 	if ( (opcode == CODE_ICP_OP_QUERY) && ((options & 0x80000000 ) != 0) )
 	{
@@ -201,8 +201,8 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"option: ICP_FLAG_SCR_RTT RTT=%u",
 			option_data & 0x0000ffff);
 	}
-	
-	proto_tree_add_text(icp_tree, tvb, 16, 4, 
+
+	proto_tree_add_text(icp_tree, tvb, 16, 4,
 			"Sender Host IP address %s",
 			ip_to_str(tvb_get_ptr(tvb, 16, 4)));
 

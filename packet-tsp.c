@@ -3,24 +3,24 @@
  *
  * Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-tsp.c,v 1.2 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-tsp.c,v 1.3 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-quake.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -33,19 +33,19 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-/* 
+/*
  * For a full documentation of the Time Synchronization Protocol (TSP) see:
  * http://docs.freebsd.org/44doc/smm/12.timed/paper.pdf
  */
 
 static int proto_tsp = -1;
-static int hf_tsp_type = -1; 
-static int hf_tsp_vers = -1; 
-static int hf_tsp_seq = -1; 
-static int hf_tsp_hopcnt = -1; 
-static int hf_tsp_time_sec = -1; 
-static int hf_tsp_time_usec = -1; 
-static int hf_tsp_name = -1; 
+static int hf_tsp_type = -1;
+static int hf_tsp_vers = -1;
+static int hf_tsp_seq = -1;
+static int hf_tsp_hopcnt = -1;
+static int hf_tsp_time_sec = -1;
+static int hf_tsp_time_usec = -1;
+static int hf_tsp_name = -1;
 
 static gint ett_tsp = -1;
 

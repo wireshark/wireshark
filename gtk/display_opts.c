@@ -1,22 +1,22 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.28 2002/08/02 22:34:53 jmayer Exp $
+ * $Id: display_opts.c,v 1.29 2002/08/28 21:03:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -99,9 +99,9 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   initial_timestamp_type = timestamp_type;
 
   /* Save the current timestamp type so that we know whether it has changed;
-     we don't want to redisplay the time fields unless we've changed the way 
-     they should be displayed (as redisplaying the time fields could be 
-     expensive - we have to scan through all the packets and rebuild the 
+     we don't want to redisplay the time fields unless we've changed the way
+     they should be displayed (as redisplaying the time fields could be
+     expensive - we have to scan through all the packets and rebuild the
      packet list).*/
   current_timestamp_type = timestamp_type;
 
@@ -120,7 +120,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(display_opt_w), main_vb);
   gtk_widget_show(main_vb);
-  
+
   button = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Time of day",
 							accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
@@ -128,7 +128,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_ABS_KEY,
                button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
-  
+
   gtk_widget_show(button);
 
   button = dlg_radio_button_new_with_label_with_mnemonic(
@@ -179,7 +179,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
-    
+
   button = dlg_check_button_new_with_label_with_mnemonic(
   		"Enable _network name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
@@ -188,7 +188,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
-    
+
   button = dlg_check_button_new_with_label_with_mnemonic(
   		"Enable _transport name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
@@ -197,7 +197,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
-    
+
   /* Button row: OK, Apply, and Cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);

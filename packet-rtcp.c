@@ -1,27 +1,27 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.34 2002/08/02 23:35:59 jmayer Exp $
+ * $Id: packet-rtcp.c,v 1.35 2002/08/28 21:00:29 jmayer Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
- * 
+ *
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -32,7 +32,7 @@
  * of ITU-T Recommendation H.225.0 (02/98) and RFC 1889
  * H.225.0 literally copies RFC 1889, but omitting a few sections.
  *
- * RTCP traffic is handled by an uneven UDP portnumber. This can be any 
+ * RTCP traffic is handled by an uneven UDP portnumber. This can be any
  * port number, but there is a registered port available, port 5005
  * See Annex B of ITU-T Recommendation H.225.0, section B.7
  *
@@ -65,7 +65,7 @@
 /* Receiver/ Sender count is the 5 last bits  */
 #define RTCP_COUNT(octet)	((octet) & 0x1F)
 
-static const value_string rtcp_version_vals[] = 
+static const value_string rtcp_version_vals[] =
 {
 	{ 0, "Old VAT Version" },
 	{ 1, "First Draft Version" },
@@ -83,7 +83,7 @@ static const value_string rtcp_version_vals[] =
 #define RTCP_FIR  192
 #define RTCP_NACK 193
 
-static const value_string rtcp_packet_type_vals[] = 
+static const value_string rtcp_packet_type_vals[] =
 {
 	{ RTCP_SR,   "Sender Report" },
 	{ RTCP_RR,   "Receiver Report" },
@@ -106,7 +106,7 @@ static const value_string rtcp_packet_type_vals[] =
 #define RTCP_SDES_NOTE   7
 #define RTCP_SDES_PRIV   8
 
-static const value_string rtcp_sdes_type_vals[] = 
+static const value_string rtcp_sdes_type_vals[] =
 {
 	{ RTCP_SDES_END,   "END" },
 	{ RTCP_SDES_CNAME, "CNAME (user and domain)" },
@@ -136,7 +136,7 @@ static int hf_rtcp_sender_oct_cnt    = -1;
 static int hf_rtcp_ssrc_source       = -1;
 static int hf_rtcp_ssrc_fraction     = -1;
 static int hf_rtcp_ssrc_cum_nr       = -1;
-/* First the 32 bit number, then the split 
+/* First the 32 bit number, then the split
  * up 16 bit values */
 /* These two are added to a subtree */
 static int hf_rtcp_ssrc_ext_high_seq = -1;
@@ -203,7 +203,7 @@ void rtcp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
 	}
 
 	/*
-	 * Check if the ip address and port combination is not 
+	 * Check if the ip address and port combination is not
 	 * already registered
 	 */
 	pconv = find_conversation( &src_addr, &fake_addr, PT_UDP, prt, 0, 0 );
@@ -221,7 +221,7 @@ void rtcp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
 }
 
 #if 0
-static void rtcp_init( void ) 
+static void rtcp_init( void )
 {
 	unsigned char* tmp_data;
 	int i;
@@ -295,7 +295,7 @@ dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 	/* SSRC  */
 	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 	offset += 4;
-	
+
 	/* FSN, 16 bits */
 	proto_tree_add_uint( tree, hf_rtcp_fsn, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
 	offset += 2;
@@ -324,7 +324,7 @@ dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 	/* SSRC  */
 	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 	offset += 4;
-	
+
 	return offset;
 }
 
@@ -352,7 +352,7 @@ dissect_rtcp_app( tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	/* Applications specific data */
 	if ( padding ) {
-		/* If there's padding present, we have to remove that from the data part 
+		/* If there's padding present, we have to remove that from the data part
 		 * The last octet of the packet contains the length of the padding
 		 */
 		packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
@@ -415,7 +415,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 	unsigned int counter        = 0;
 	unsigned int prefix_len     = 0;
 	char *prefix_string = NULL;
-	
+
 	while ( chunk <= count ) {
 		/* Create a subtree for this chunk; we don't yet know
 		   the length. */
@@ -431,12 +431,12 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 		offset += 4;
 
 		/* Create a subtree for the SDES items; we don't yet know
-		   the length */	
+		   the length */
 		items_start_offset = offset;
 		ti = proto_tree_add_text(sdes_tree, tvb, offset, -1,
 		    "SDES items" );
 		sdes_item_tree = proto_item_add_subtree( ti, ett_sdes_item );
-		
+
 		/*
 		 * Not every message is ended with "null" bytes, so check for
 		 * end of frame instead.
@@ -486,8 +486,8 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 		/* Set the length of the items subtree. */
 		proto_item_set_len(ti, offset - items_start_offset);
 
-		/* 32 bits = 4 bytes, so..... 
-		 * If offset % 4 != 0, we divide offset by 4, add one and then 
+		/* 32 bits = 4 bytes, so.....
+		 * If offset % 4 != 0, we divide offset by 4, add one and then
 		 * multiply by 4 again to reach the boundary
 		 */
 		if ( offset % 4 != 0 )
@@ -517,11 +517,11 @@ dissect_rtcp_rr( tvbuff_t *tvb, int offset, proto_tree *tree,
 		ti = proto_tree_add_text(tree, tvb, offset, 24,
 		    "Source %u", counter );
 		ssrc_tree = proto_item_add_subtree( ti, ett_ssrc );
-		
+
 		/* SSRC_n source identifier, 32 bits */
 		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 		offset += 4;
-	
+
 		ti = proto_tree_add_text(ssrc_tree, tvb, offset, 20, "SSRC contents" );
 		ssrc_sub_tree = proto_item_add_subtree( ti, ett_ssrc_item );
 
@@ -630,7 +630,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTCP" );
 	}
-	
+
 	if ( check_col( pinfo->cinfo, COL_INFO) ) {
 		/* The second octet contains the packet type */
 		/* switch ( pd[ offset + 1 ] ) { */
@@ -664,14 +664,14 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	if ( tree ) {
 
-		/* 
-		 * Check if there are at least 4 bytes left in the frame, 
-		 * the last 16 bits of those is the length of the current 
+		/*
+		 * Check if there are at least 4 bytes left in the frame,
+		 * the last 16 bits of those is the length of the current
 		 * RTCP message. The last compound message contains padding,
 		 * that enables us to break from the while loop.
 		 */
 		while ( tvb_bytes_exist( tvb, offset, 4) ) {
-			/* 
+			/*
 			 * First retreive the packet_type
 			 */
 			packet_type = tvb_get_guint8( tvb, offset + 1 );
@@ -681,13 +681,13 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			 */
 			if ( ( packet_type < 192 ) || ( packet_type >  204 ) )
 				break;
-			
+
 			/*
 			 * get the packet-length for the complete RTCP packet
 			 */
 			packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
 
-			ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE ); 
+			ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE );
 			rtcp_tree = proto_item_add_subtree( ti, ett_rtcp );
 
 			temp_byte = tvb_get_guint8( tvb, offset );
@@ -772,13 +772,13 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					break;
 			}
 		}
-		/* If the padding bit is set, the last octet of the 
-		 * packet contains the length of the padding 
+		/* If the padding bit is set, the last octet of the
+		 * packet contains the length of the padding
 		 * We only have to check for this at the end of the LAST RTCP message
 		 */
 		if ( padding_set ) {
-			/* If everything went according to plan offset should now point to the 
-			 * first octet of the padding 
+			/* If everything went according to plan offset should now point to the
+			 * first octet of the padding
 			 */
 			proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, tvb_length_remaining( tvb, offset) - 1, FALSE );
 			offset += tvb_length_remaining( tvb, offset) - 1;
@@ -790,407 +790,407 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 void
 proto_register_rtcp(void)
 {
-	static hf_register_info hf[] = 
+	static hf_register_info hf[] =
 	{
-		{ 
+		{
 			&hf_rtcp_version,
-			{ 
-				"Version", 
-				"rtcp.version", 
-				FT_UINT8, 
-				BASE_DEC, 
-				VALS(rtcp_version_vals), 
+			{
+				"Version",
+				"rtcp.version",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_version_vals),
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_padding,
-			{ 
-				"Padding", 
-				"rtcp.padding", 
-				FT_BOOLEAN, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Padding",
+				"rtcp.padding",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_rc,
-			{ 
-				"Reception report count", 
-				"rtcp.rc", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Reception report count",
+				"rtcp.rc",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_sc,
-			{ 
-				"Source count", 
-				"rtcp.sc", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Source count",
+				"rtcp.sc",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_pt,
-			{ 
-				"Packet type", 
-				"rtcp.pt", 
-				FT_UINT8, 
-				BASE_DEC, 
-				VALS( rtcp_packet_type_vals ), 
+			{
+				"Packet type",
+				"rtcp.pt",
+				FT_UINT8,
+				BASE_DEC,
+				VALS( rtcp_packet_type_vals ),
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_length,
-			{ 
-				"Length", 
-				"rtcp.length", 
-				FT_UINT16, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Length",
+				"rtcp.length",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_sender,
-			{ 
-				"Sender SSRC", 
-				"rtcp.senderssrc", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Sender SSRC",
+				"rtcp.senderssrc",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ntp,
-			{ 
-				"NTP timestamp", 
-				"rtcp.timestamp.ntp", 
-				FT_STRING, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"NTP timestamp",
+				"rtcp.timestamp.ntp",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_rtp_timestamp,
-			{ 
-				"RTP timestamp", 
-				"rtcp.timestamp.rtp", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"RTP timestamp",
+				"rtcp.timestamp.rtp",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_sender_pkt_cnt,
-			{ 
-				"Sender's packet count", 
-				"rtcp.sender.packetcount", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Sender's packet count",
+				"rtcp.sender.packetcount",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_sender_oct_cnt,
-			{ 
-				"Sender's octet count", 
-				"rtcp.sender.octetcount", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Sender's octet count",
+				"rtcp.sender.octetcount",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_source,
-			{ 
-				"Identifier", 
-				"rtcp.ssrc.identifier", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Identifier",
+				"rtcp.ssrc.identifier",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_fraction,
-			{ 
-				"Fraction lost", 
-				"rtcp.ssrc.fraction", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Fraction lost",
+				"rtcp.ssrc.fraction",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_cum_nr,
-			{ 
-				"Cumulative number of packets lost", 
-				"rtcp.ssrc.cum_nr", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Cumulative number of packets lost",
+				"rtcp.ssrc.cum_nr",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_ext_high_seq,
-			{ 
-				"Extended highest sequence number received", 
-				"rtcp.ssrc.ext_high", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Extended highest sequence number received",
+				"rtcp.ssrc.ext_high",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_high_seq,
-			{ 
-				"Highest sequence number received", 
-				"rtcp.ssrc.high_seq", 
-				FT_UINT16, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Highest sequence number received",
+				"rtcp.ssrc.high_seq",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_high_cycles,
-			{ 
-				"Sequence number cycles count", 
-				"rtcp.ssrc.high_cycles", 
-				FT_UINT16, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Sequence number cycles count",
+				"rtcp.ssrc.high_cycles",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_jitter,
-			{ 
-				"Interarrival jitter", 
-				"rtcp.ssrc.jitter", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Interarrival jitter",
+				"rtcp.ssrc.jitter",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_lsr,
-			{ 
-				"Last SR timestamp", 
-				"rtcp.ssrc.lsr", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Last SR timestamp",
+				"rtcp.ssrc.lsr",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_dlsr,
-			{ 
-				"Delay since last SR timestamp", 
-				"rtcp.ssrc.dlsr", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Delay since last SR timestamp",
+				"rtcp.ssrc.dlsr",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_csrc,
-			{ 
-				"SSRC / CSRC identifier", 
-				"rtcp.sdes.ssrc_csrc", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"SSRC / CSRC identifier",
+				"rtcp.sdes.ssrc_csrc",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_type,
-			{ 
-				"Type", 
-				"rtcp.sdes.type", 
-				FT_UINT8, 
-				BASE_DEC, 
-				VALS( rtcp_sdes_type_vals ), 
+			{
+				"Type",
+				"rtcp.sdes.type",
+				FT_UINT8,
+				BASE_DEC,
+				VALS( rtcp_sdes_type_vals ),
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_length,
-			{ 
-				"Length", 
-				"rtcp.sdes.length", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Length",
+				"rtcp.sdes.length",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_text,
-			{ 
-				"Text", 
-				"rtcp.sdes.text", 
-				FT_STRING, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Text",
+				"rtcp.sdes.text",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_prefix_len,
-			{ 
-				"Prefix length", 
-				"rtcp.sdes.prefix.length", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Prefix length",
+				"rtcp.sdes.prefix.length",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_ssrc_prefix_string,
-			{ 
-				"Prefix string", 
-				"rtcp.sdes.prefix.string", 
-				FT_STRING, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Prefix string",
+				"rtcp.sdes.prefix.string",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_subtype,
-			{ 
-				"Subtype", 
-				"rtcp.app.subtype", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Subtype",
+				"rtcp.app.subtype",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_name_ascii,
-			{ 
-				"Name (ASCII)", 
-				"rtcp.app.name", 
-				FT_STRING, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Name (ASCII)",
+				"rtcp.app.name",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_app_data,
-			{ 
-				"Application specific data", 
-				"rtcp.app.data", 
-				FT_BYTES, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Application specific data",
+				"rtcp.app.data",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_fsn,
-			{ 
-				"First sequence number", 
-				"rtcp.nack.fsn", 
-				FT_UINT16, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"First sequence number",
+				"rtcp.nack.fsn",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_blp,
-			{ 
-				"Bitmask of following lost packets", 
-				"rtcp.nack.blp", 
-				FT_UINT16, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Bitmask of following lost packets",
+				"rtcp.nack.blp",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_padding_count,
-			{ 
-				"Padding count", 
-				"rtcp.padding.count", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Padding count",
+				"rtcp.padding.count",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtcp_padding_data,
-			{ 
-				"Padding data", 
-				"rtcp.padding.data", 
-				FT_BYTES, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Padding data",
+				"rtcp.padding.data",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
 };
-	
-	static gint *ett[] = 
+
+	static gint *ett[] =
 	{
 		&ett_rtcp,
 		&ett_ssrc,

@@ -1,22 +1,22 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.52 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-arp.c,v 1.53 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -446,7 +446,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tot_len = MIN_ATMARP_HEADER_SIZE + ar_shl + ar_ssl + ar_spln +
 				ar_thl + ar_tsl + ar_tpln;
-  
+
   /* Adjust the length of this tvbuff to include only the ARP datagram.
      Our caller may use that to determine how much of its packet
      was padding. */
@@ -558,7 +558,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     if ((op_str = match_strval(ar_op, atmop_vals)))
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
-					"ATM Address Resolution Protocol (%s)", 
+					"ATM Address Resolution Protocol (%s)",
 					op_str);
     else
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
@@ -691,7 +691,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ar_op  = tvb_get_ntohs(tvb, AR_OP);
 
   tot_len = MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2;
-  
+
   /* Adjust the length of this tvbuff to include only the ARP datagram.
      Our caller may use that to determine how much of its packet
      was padding. */
@@ -702,7 +702,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   spa_offset = sha_offset + ar_hln;
   tha_offset = spa_offset + ar_pln;
   tpa_offset = tha_offset + ar_hln;
-  
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     switch (ar_op) {
 
@@ -772,7 +772,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tvb_memcpy(tvb, (guint8 *)&ip, spa_offset, sizeof(ip));
     add_ether_byip(ip, tvb_get_ptr(tvb, sha_offset, 6));
-    
+
     if (ar_op == ARPOP_REQUEST) {
       /* Add target address *if* the target MAC address isn't a
          broadcast address. */
@@ -828,7 +828,7 @@ proto_register_arp(void)
 
   static hf_register_info hf[] = {
     { &hf_arp_hard_type,
-      { "Hardware type",		"arp.hw.type",	 
+      { "Hardware type",		"arp.hw.type",
 	FT_UINT16,	BASE_HEX,	VALS(hrd_vals),	0x0,
       	"", HFILL }},
 

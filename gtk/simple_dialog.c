@@ -1,23 +1,23 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.10 2002/06/04 11:24:35 guy Exp $
+ * $Id: simple_dialog.c,v 1.11 2002/08/28 21:03:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -51,17 +51,17 @@ static const gchar bm_key[] = "button mask";
 
 /* Simple dialog function - Displays a dialog box with the supplied message
  * text.
- * 
+ *
  * Args:
  * type       : One of ESD_TYPE_*.
  * btn_mask   : The address of a gint.  The value passed in determines if
- *              the 'Cancel' button is displayed.  The button pressed by the 
+ *              the 'Cancel' button is displayed.  The button pressed by the
  *              user is passed back.
  * msg_format : Sprintf-style format of the text displayed in the dialog.
  * ...        : Argument list for msg_format
  *
  */
- 
+
 #define ESD_MAX_MSG_LEN 2048
 void
 simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
@@ -109,7 +109,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   top_hb = gtk_hbox_new(FALSE, 10);
   gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
   gtk_widget_show(top_hb);
-  
+
   style = gtk_widget_get_style(win);
   cmap  = gdk_colormap_get_system();
   pixmap = gdk_pixmap_colormap_create_from_xpm_d(NULL, cmap,  &mask,
@@ -128,7 +128,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
   gtk_container_add(GTK_CONTAINER(top_hb), msg_label);
   gtk_widget_show(msg_label);
-  
+
   /* Button row */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -137,7 +137,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
 
   ok_btn = gtk_button_new_with_label ("OK");
   gtk_signal_connect_object(GTK_OBJECT(ok_btn), "clicked",
-    GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT (win)); 
+    GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT (win));
   gtk_container_add(GTK_CONTAINER(bbox), ok_btn);
   GTK_WIDGET_SET_FLAGS(ok_btn, GTK_CAN_DEFAULT);
   gtk_widget_grab_default(ok_btn);
@@ -171,7 +171,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
 static void
 simple_dialog_cancel_cb(GtkWidget *w _U_, gpointer win) {
   gint *btn_mask = (gint *) gtk_object_get_data(win, bm_key);
-  
+
   if (btn_mask)
     *btn_mask = ESD_BTN_CANCEL;
   gtk_widget_destroy(GTK_WIDGET(win));

@@ -3,22 +3,22 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.29 2002/07/31 19:27:39 guy Exp $
+ * $Id: packet-fr.c,v 1.30 2002/08/28 21:00:13 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -147,7 +147,7 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   char    buf[32];
   guint8  fr_ctrl;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
 
   if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
@@ -169,7 +169,7 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fr_ctrl = tvb_get_guint8( tvb, 2);
   address = EXTRACT_DLCI(fr_header);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) 
+  if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", address);
 
   if (tree) {
@@ -237,9 +237,9 @@ static void dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti = NULL;
   proto_tree *fr_tree = NULL;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
-  if (check_col(pinfo->cinfo, COL_INFO)) 
+  if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
@@ -361,48 +361,48 @@ static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(tree, tvb, 0, 0, "Frame relay xid not yet implemented");
 	call_dissector(data_handle,tvb_new_subset(tvb,0,-1,-1),pinfo,tree);
 }
- 
+
 /* Register the protocol with Ethereal */
 void proto_register_fr(void)
-{                 
+{
   static hf_register_info hf[] = {
 
-        { &hf_fr_dlci, { 
-           "DLCI", "fr.dlci", FT_UINT16, BASE_DEC, 
+        { &hf_fr_dlci, {
+           "DLCI", "fr.dlci", FT_UINT16, BASE_DEC,
             NULL, FRELAY_DLCI, "Data-Link Connection Identifier", HFILL }},
-        { &hf_fr_cr, { 
+        { &hf_fr_cr, {
            "CR", "fr.cr", FT_BOOLEAN, 16, TFS(&cmd_string),
             FRELAY_CR, "Command/Response", HFILL }},
-        { &hf_fr_dc, { 
+        { &hf_fr_dc, {
            "DC", "fr.dc", FT_BOOLEAN, 16, TFS(&ctrl_string),
             FRELAY_CR, "Address/Control", HFILL }},
 
-        { &hf_fr_fecn, { 
-           "FECN", "fr.fecn", FT_BOOLEAN, 16, 
+        { &hf_fr_fecn, {
+           "FECN", "fr.fecn", FT_BOOLEAN, 16,
             NULL, FRELAY_FECN, "Forward Explicit Congestion Notification", HFILL }},
-        { &hf_fr_becn, { 
-           "BECN", "fr.becn", FT_BOOLEAN, 16, 
+        { &hf_fr_becn, {
+           "BECN", "fr.becn", FT_BOOLEAN, 16,
             NULL, FRELAY_BECN, "Backward Explicit Congestion Notification", HFILL }},
-        { &hf_fr_de, { 
-           "DE", "fr.de", FT_BOOLEAN, 16, 
+        { &hf_fr_de, {
+           "DE", "fr.de", FT_BOOLEAN, 16,
             NULL, FRELAY_DE, "Discard Eligibility", HFILL }},
-        { &hf_fr_ea, { 
+        { &hf_fr_ea, {
            "EA", "fr.ea", FT_BOOLEAN, 16, TFS(&ea_string),
             FRELAY_EA, "Extended Address", HFILL }},
-        { &hf_fr_nlpid, { 
-           "NLPID", "fr.nlpid", FT_UINT8, BASE_HEX, 
+        { &hf_fr_nlpid, {
+           "NLPID", "fr.nlpid", FT_UINT8, BASE_HEX,
             VALS(fr_nlpid_vals), 0x0, "FrameRelay Encapsulated Protocol NLPID", HFILL }},
 	{ &hf_fr_oui, {
-	   "Organization Code",	"fr.snap.oui", FT_UINT24, BASE_HEX, 
+	   "Organization Code",	"fr.snap.oui", FT_UINT24, BASE_HEX,
 	   VALS(oui_vals), 0x0, "", HFILL }},
 	{ &hf_fr_pid, {
-	   "Protocol ID", "fr.snap.pid", FT_UINT16, BASE_HEX, 
+	   "Protocol ID", "fr.snap.pid", FT_UINT16, BASE_HEX,
 	   NULL, 0x0, "", HFILL }},
-        { &hf_fr_snaptype, { 
-           "Type", "fr.snaptype", FT_UINT16, BASE_HEX, 
+        { &hf_fr_snaptype, {
+           "Type", "fr.snaptype", FT_UINT16, BASE_HEX,
             VALS(etype_vals), 0x0, "FrameRelay SNAP Encapsulated Protocol", HFILL }},
-        { &hf_fr_chdlctype, { 
-           "Type", "fr.chdlctype", FT_UINT16, BASE_HEX, 
+        { &hf_fr_chdlctype, {
+           "Type", "fr.chdlctype", FT_UINT16, BASE_HEX,
             VALS(chdlc_vals), 0x0, "FrameRelay Cisco HDLC Encapsulated Protocol", HFILL }},
   };
 

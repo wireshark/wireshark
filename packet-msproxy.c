@@ -2,30 +2,30 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.31 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-msproxy.c,v 1.32 2002/08/28 21:00:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * This was derived from the dante socks implementation source code. 
+ * This was derived from the dante socks implementation source code.
  * Most of the information came from common.h and msproxy_clientprotocol.c
  *
- * See http://www.inet.no/dante for more information 
+ * See http://www.inet.no/dante for more information
  */
 
 /************************************************************************
@@ -100,48 +100,48 @@ static dissector_handle_t msproxy_sub_handle;
 
 /*$$$ 0x0500 was dante value, I see 0x05ff and 0x0500 */
 
-#define MSPROXY_HELLO			0x0500	
-#define MSPROXY_HELLO_2			0x05ff	
+#define MSPROXY_HELLO			0x0500
+#define MSPROXY_HELLO_2			0x05ff
 
-#define MSPROXY_HELLO_ACK		0x1000	
+#define MSPROXY_HELLO_ACK		0x1000
 
-#define MSPROXY_USERINFO		0x1000	
-#define MSPROXY_USERINFO_ACK		0x0400	
+#define MSPROXY_USERINFO		0x1000
+#define MSPROXY_USERINFO_ACK		0x0400
 
-#define MSPROXY_AUTH			0x4700	
+#define MSPROXY_AUTH			0x4700
 #define MSPROXY_AUTH_1_ACK		0x4714
 #define MSPROXY_AUTH_2			0x4701
 #define MSPROXY_AUTH_2_ACK		0x4715
 #define MSPROXY_AUTH_2_ACK2		0x4716
 
-#define MSPROXY_RESOLVE			0x070d	
+#define MSPROXY_RESOLVE			0x070d
 #define MSPROXY_RESOLVE_ACK		0x070f
 
-#define MSPROXY_BIND			0x0704	
-#define MSPROXY_BIND_ACK		0x0706	
+#define MSPROXY_BIND			0x0704
+#define MSPROXY_BIND_ACK		0x0706
 
 #define MSPROXY_TCP_BIND		0x0707
-#define MSPROXY_TCP_BIND_ACK		0x0708	
+#define MSPROXY_TCP_BIND_ACK		0x0708
 
-#define MSPROXY_LISTEN			0x0406	
+#define MSPROXY_LISTEN			0x0406
 
 #define MSPROXY_BINDINFO		0x0709
 
-#define MSPROXY_BINDINFO_ACK		0x070a	
+#define MSPROXY_BINDINFO_ACK		0x070a
 
-#define MSPROXY_CONNECT			0x071e	
-#define MSPROXY_CONNECT_ACK		0x0703	
+#define MSPROXY_CONNECT			0x071e
+#define MSPROXY_CONNECT_ACK		0x0703
 
-#define MSPROXY_UDPASSOCIATE		0x0705	
-#define MSPROXY_UDPASSOCIATE_ACK	0x0706	
+#define MSPROXY_UDPASSOCIATE		0x0705
+#define MSPROXY_UDPASSOCIATE_ACK	0x0706
 
 #define MSPROXY_UDP_BIND_REQ		0x070b
 
-#define MSPROXY_CONNECTED		0x042c	
-#define MSPROXY_SESSIONEND		0x251e			
+#define MSPROXY_CONNECTED		0x042c
+#define MSPROXY_SESSIONEND		0x251e
 
-#define MSPROXY_BIND_AUTHFAILED		0x0804	
-#define MSPROXY_CONNECT_AUTHFAILED	0x081e	
+#define MSPROXY_BIND_AUTHFAILED		0x0804
+#define MSPROXY_CONNECT_AUTHFAILED	0x081e
 #define MSPROXY_CONNREFUSED		0x4		/* low 12 bits seem to vary.	*/
 
 #define FROM_SERVER 1			/* direction of packet data for get_msproxy_cmd_name */
@@ -203,7 +203,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 	conversation_t *conversation;
 	proto_tree      *msp_tree;
 	proto_item      *ti;
-	
+
 	conversation = find_conversation( &pinfo->src, &pinfo->dst,
 		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
@@ -231,25 +231,25 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 		proto_tree_add_ipv4( msp_tree, hf_msproxy_dstaddr, tvb, 0, 0,
 			redirect_info->remote_addr);
-			
+
 	}
 
 /* set pinfo->{src/dst port} and call the UDP sub-dissector lookup */
 
-	if ( pinfo->srcport == redirect_info->clnt_port) 		
+	if ( pinfo->srcport == redirect_info->clnt_port)
        		ptr = &pinfo->destport;
    	else
     		ptr = &pinfo->srcport;
 
         *ptr = redirect_info->remote_port;
-   	
+
 	if ( redirect_info->proto == PT_TCP)
 		decode_tcp_ports( tvb, 0, pinfo, tree, pinfo->srcport,
 			pinfo->destport);
 	else
 		decode_udp_ports( tvb, 0, pinfo, tree, pinfo->srcport,
 			pinfo->destport);
- 
+
         *ptr = redirect_info->server_int_port;
 }
 
@@ -271,7 +271,7 @@ static void add_msproxy_conversation( packet_info *pinfo,
 
 	conversation_t *conversation;
 	redirect_entry_t *new_conv_info;
-	
+
 	if (pinfo->fd->flags.visited) {
 		/*
 		 * We've already processed this frame once, so we
@@ -307,10 +307,10 @@ static void add_msproxy_conversation( packet_info *pinfo,
 
 static int display_application_name(tvbuff_t *tvb, int offset,
 	proto_tree *tree) {
-	
+
 /* display the application name in the proto tree.   			*/
 
-/* NOTE: this routine assumes that the tree pointer is valid (not NULL) */	
+/* NOTE: this routine assumes that the tree pointer is valid (not NULL) */
 
 	int length;
 
@@ -328,12 +328,12 @@ static char *get_msproxy_cmd_name( int cmd, int direction) {
 
 	switch (cmd){
 		case MSPROXY_HELLO_2:
-		case MSPROXY_HELLO: 		return "Hello"; 
+		case MSPROXY_HELLO: 		return "Hello";
 
 /* MSPROXY_HELLO_ACK & MSPROXY_USERINFO have the same value (0x1000).	*/
 /* So use the direction flag to determine which to use.			*/
 
-		case MSPROXY_USERINFO: 		
+		case MSPROXY_USERINFO:
 			if ( direction == FROM_SERVER)
 				return "Hello Acknowledge";
 			else
@@ -359,7 +359,7 @@ static char *get_msproxy_cmd_name( int cmd, int direction) {
 		case MSPROXY_CONNECTED: 	return "Connected";
 		case MSPROXY_SESSIONEND:	return "Session End";
 
-		default:			return "Unknown";				
+		default:			return "Unknown";
 	}
 }
 
@@ -381,7 +381,7 @@ static void dissect_user_info_2(tvbuff_t *tvb, int offset,
 			"User name: %.*s", length,
 			tvb_get_ptr( tvb, offset, length));
 		offset += length + 2;
-	
+
 		length = tvb_strnlen( tvb, offset, 255);
 		if (length == -1)
 			return;
@@ -389,7 +389,7 @@ static void dissect_user_info_2(tvbuff_t *tvb, int offset,
 			"Application name: %.*s", length,
 			tvb_get_ptr( tvb, offset, length));
 		offset += length + 1;
-	
+
 		length = tvb_strnlen( tvb, offset, 255);
 		if (length == -1)
 			return;
@@ -431,12 +431,12 @@ static void dissect_bind(tvbuff_t *tvb, int offset,
 		proto_tree_add_item( tree, hf_msproxy_bindport, tvb, offset, 2,
 			 FALSE);
 	offset += 6;
-			
+
 	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_clntport, tvb, offset, 2,
 			 FALSE);
 	offset += 2;
-			
+
 	conv_info->clnt_port = tvb_get_ntohs( tvb, offset);
 	offset += 6;
 
@@ -505,14 +505,14 @@ static void dissect_request_connect(tvbuff_t *tvb, int offset,
 	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_dstport, tvb, offset, 2,
 			FALSE);
-		
+
 	conv_info->dst_port = tvb_get_ntohs( tvb, offset);
 	offset += 2;
 
 	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
 			FALSE);
-			
+
 	tvb_memcpy( tvb, (guint8 *)&conv_info->dst_addr, offset, sizeof( guint32));
 
 	offset += 12;
@@ -522,7 +522,7 @@ static void dissect_request_connect(tvbuff_t *tvb, int offset,
 	if ( tree){
 		proto_tree_add_uint( tree, hf_msproxy_clntport, tvb, offset, 2,
 			conv_info->clnt_port);
-	
+
 		offset += 84;
 
 		display_application_name( tvb, offset, tree);
@@ -596,7 +596,7 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 		proto_tree_add_text( name_tree, tvb, offset, length, "String: %s",
    		 	tvb_get_ptr( tvb, offset, length));
 	}
-}	
+}
 
 
 
@@ -623,16 +623,16 @@ static void dissect_udp_bind(tvbuff_t *tvb, int offset,
 			FALSE);
 	offset += 2;
 
-	if ( tree) 
+	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
 			FALSE);
 
 	offset += 96;
-	
+
 	if ( tree)
 		display_application_name( tvb, offset, tree);
-}	
- 
+}
+
 
 static void dissect_udp_assoc(tvbuff_t *tvb, int offset,
 	proto_tree *tree, hash_entry_t *conv_info) {
@@ -643,7 +643,7 @@ static void dissect_udp_assoc(tvbuff_t *tvb, int offset,
 
 	offset += 28;
 
-	if ( tree) 
+	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_clntport, tvb, offset, 2,
 			FALSE);
 
@@ -651,10 +651,10 @@ static void dissect_udp_assoc(tvbuff_t *tvb, int offset,
 
 	offset += 90;
 
-	if ( tree) 
+	if ( tree)
 		display_application_name( tvb, offset, tree);
-}	
- 
+}
+
 
 static void dissect_msproxy_request(tvbuff_t *tvb,
 	proto_tree *tree, hash_entry_t *conv_info) {
@@ -663,30 +663,30 @@ static void dissect_msproxy_request(tvbuff_t *tvb,
 	int cmd;
 
 	if ( tree) {
-		proto_tree_add_text( tree, tvb, offset, 4, "Client id: 0x%0x", 
-			tvb_get_letohl( tvb, offset));
-		offset += 4;
-	
-		proto_tree_add_text( tree, tvb, offset, 4, "Version: 0x%04x", 
+		proto_tree_add_text( tree, tvb, offset, 4, "Client id: 0x%0x",
 			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		proto_tree_add_text( tree, tvb, offset, 4, "Server id: 0x%0x", 
+		proto_tree_add_text( tree, tvb, offset, 4, "Version: 0x%04x",
 			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		proto_tree_add_text( tree, tvb, offset, 1, "Server ack: %u", 
+		proto_tree_add_text( tree, tvb, offset, 4, "Server id: 0x%0x",
+			tvb_get_letohl( tvb, offset));
+		offset += 4;
+
+		proto_tree_add_text( tree, tvb, offset, 1, "Server ack: %u",
 			tvb_get_guint8( tvb, offset));
 		offset += 4;
 
-		proto_tree_add_text( tree, tvb, offset, 1, "Sequence Number: %u", 
+		proto_tree_add_text( tree, tvb, offset, 1, "Sequence Number: %u",
 			tvb_get_guint8( tvb, offset));
 		offset += 8;
 
 		proto_tree_add_text( tree, tvb, offset, 4, "RWSP signature: %.4s",
 			tvb_get_ptr( tvb, offset, 4));
 		offset += 12;
-	} 
+	}
 	else 			/* no tree */
 		offset += 36;
 
@@ -694,16 +694,16 @@ static void dissect_msproxy_request(tvbuff_t *tvb,
 
 	if ( tree)
 		proto_tree_add_uint_format( tree, hf_msproxy_cmd, tvb, offset, 2,
-			cmd, "Command: 0x%02x (%s)", cmd, 
+			cmd, "Command: 0x%02x (%s)", cmd,
 			get_msproxy_cmd_name( cmd, FROM_CLIENT));
 
 	offset += 2;
 
-	switch (cmd){ 
+	switch (cmd){
 		case MSPROXY_AUTH:
 			dissect_auth( tvb, offset, tree);
 			break;
-			
+
 		case MSPROXY_BIND:
 			dissect_bind( tvb, offset, tree, conv_info);
 			break;
@@ -711,22 +711,22 @@ static void dissect_msproxy_request(tvbuff_t *tvb,
 		case MSPROXY_UDP_BIND_REQ:
 			dissect_udp_bind( tvb, offset, tree, conv_info);
 			break;
-	
+
 		case MSPROXY_AUTH_2:	/*$$ this is probably wrong place for this */
 		case MSPROXY_TCP_BIND:
 			dissect_tcp_bind( tvb, offset, tree, conv_info);
 			break;
-	
+
 		case MSPROXY_RESOLVE:
 			dissect_request_resolve( tvb, offset, tree);
 			break;
-	
+
 		case MSPROXY_CONNECT:
 		case MSPROXY_LISTEN:
 			dissect_request_connect( tvb, offset, tree,
 				conv_info);
 			break;
-	
+
 		case MSPROXY_BINDINFO_ACK:
 			dissect_bind_info_ack( tvb, offset, tree);
 			break;
@@ -758,7 +758,7 @@ static void dissect_hello_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 		proto_tree_add_item( tree, hf_msproxy_serverport, tvb, offset, 2,
 			 FALSE);
 		offset += 2;
-	
+
 		proto_tree_add_item( tree, hf_msproxy_serveraddr, tvb, offset, 4,
 			FALSE);
 		offset += 4;
@@ -780,7 +780,7 @@ static void dissect_user_info_ack(tvbuff_t *tvb, int offset,
 
 
 
-static void dissect_udpassociate_ack(tvbuff_t *tvb, int offset, 
+static void dissect_udpassociate_ack(tvbuff_t *tvb, int offset,
 	proto_tree *tree) {
 
 	offset += 6;
@@ -845,7 +845,7 @@ static void dissect_connect_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
 	conv_info->proto = PT_TCP;
 	conv_info->server_int_port = tvb_get_ntohs( tvb, offset);
 	offset += 2;
-	
+
 	if ( tree){
 		proto_tree_add_item( tree, hf_msproxy_server_int_addr, tvb,
 			offset, 4, FALSE);
@@ -904,14 +904,14 @@ static void dissect_bind_info( tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset += 6;
 
-	if ( tree) 
+	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_bind_id, tvb, offset, 4,
 			FALSE);
 	offset += 14;
 
 
 	conv_info->dst_port = tvb_get_ntohs( tvb, offset);
-	if ( tree) 
+	if ( tree)
  		proto_tree_add_uint( tree, hf_msproxy_dstport, tvb, offset, 2,
  			conv_info->dst_port);
 	offset += 2;
@@ -923,11 +923,11 @@ static void dissect_bind_info( tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset += 12;
 
 	conv_info->server_int_port = tvb_get_ntohs( tvb, offset);
-	if ( tree) 
+	if ( tree)
  		proto_tree_add_uint( tree, hf_msproxy_server_int_port, tvb,
  			offset, 2, conv_info->server_int_port);
 	offset += 4;
-	
+
 	if ( tree) {
  		proto_tree_add_item( tree, hf_msproxy_server_ext_port, tvb,
  			offset, 2, FALSE);
@@ -938,9 +938,9 @@ static void dissect_bind_info( tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset += 78;
 		display_application_name( tvb, offset, tree);
-		
+
 	}
-	
+
 	add_msproxy_conversation( pinfo, conv_info);
 }
 
@@ -956,21 +956,21 @@ static void dissect_resolve(tvbuff_t *tvb, int offset, proto_tree *tree) {
 	if ( tree) {
 		int addr_offset;
 
-		addr_offset = tvb_get_guint8( tvb, offset); 
-  	
+		addr_offset = tvb_get_guint8( tvb, offset);
+
 		proto_tree_add_text( tree, tvb, offset, 1, "Address offset: %d",
 			addr_offset);
 
 		++offset;
-	
+
 		offset += 13;
 
-		offset += addr_offset; 
+		offset += addr_offset;
 
 		proto_tree_add_item( tree, hf_msproxy_resolvaddr, tvb, offset, 4,
 			FALSE);
 	}
-}	
+}
 
 
 
@@ -981,25 +981,25 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 	int cmd;
 
 	if ( tree) {
-		proto_tree_add_text( tree, tvb, offset, 4, "Client id: 0x%0x", 
+		proto_tree_add_text( tree, tvb, offset, 4, "Client id: 0x%0x",
 			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		proto_tree_add_text( tree, tvb, offset, 4, "Version: 0x%04x", 
+		proto_tree_add_text( tree, tvb, offset, 4, "Version: 0x%04x",
 			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		proto_tree_add_text( tree, tvb, offset, 4, "Server id: 0x%04x", 
+		proto_tree_add_text( tree, tvb, offset, 4, "Server id: 0x%04x",
 			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		proto_tree_add_text( tree, tvb, offset, 1, "Client ack: 0x%02x", 
+		proto_tree_add_text( tree, tvb, offset, 1, "Client ack: 0x%02x",
 			tvb_get_guint8( tvb, offset));
 		offset += 4;
 
-		proto_tree_add_text( tree, tvb, offset, 1, "Sequence Number: 0x%02x", 
+		proto_tree_add_text( tree, tvb, offset, 1, "Sequence Number: 0x%02x",
 			tvb_get_guint8( tvb, offset));
-	
+
 		offset += 8;
 
 		proto_tree_add_text( tree, tvb, offset, 4, "RWSP signature: %.4s",
@@ -1011,32 +1011,32 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 		offset += 36;
 
 	cmd = tvb_get_ntohs( tvb, offset);
-	
+
 	if ( tree)
 		proto_tree_add_uint_format( tree, hf_msproxy_cmd, tvb, offset, 2,
-			cmd, "Command: 0x%02x (%s)", cmd, 
+			cmd, "Command: 0x%02x (%s)", cmd,
 			get_msproxy_cmd_name( cmd, FROM_SERVER));
 	offset += 2;
-	
+
 	switch (cmd) {
 		case MSPROXY_HELLO_ACK:
 			dissect_hello_ack( tvb, offset, tree);
 			break;
-	
+
 		case MSPROXY_USERINFO_ACK:
 			dissect_user_info_ack( tvb, offset, tree);
 			break;
-			
+
 		case MSPROXY_AUTH_1_ACK:
 			dissect_auth_1_ack( tvb, offset, tree);
 			break;
 
 /* this also handle the MSPROXY_BIND_ACK ??? check this */
 
-		case MSPROXY_UDPASSOCIATE_ACK:			
+		case MSPROXY_UDPASSOCIATE_ACK:
 			dissect_udpassociate_ack( tvb, offset, tree);
 			break;
-		
+
 		case MSPROXY_AUTH_2_ACK:
 		case MSPROXY_AUTH_2_ACK2:
 			dissect_msproxy_response_4( tvb, offset, tree);
@@ -1054,11 +1054,11 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 		case MSPROXY_BINDINFO:
 			dissect_bind_info( tvb, offset, pinfo, tree, conv_info);
 			break;
-	
+
 		case MSPROXY_RESOLVE_ACK:
 			dissect_resolve( tvb, offset, tree);
 			break;
-		
+
 		case MSPROXY_CONNECT_AUTHFAILED:
 		case MSPROXY_BIND_AUTHFAILED:
 			proto_tree_add_text( tree, tvb, offset, 0, "No know information (help wanted)");
@@ -1071,13 +1071,13 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 			    ((cmd >> 12) ==  MSPROXY_CONNREFUSED)))
 				proto_tree_add_text( tree, tvb, offset, 0,
 					"No know information (help wanted)");
-	
+
 			else if ( tree)
 				proto_tree_add_text( tree, tvb, offset, 0,
 					"Unhandled response command (report this, please)");
 	}
-	
-	
+
+
 }
 
 
@@ -1092,7 +1092,7 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	hash_entry_t *hash_info;
 	conversation_t *conversation;
-	
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSproxy");
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -1113,16 +1113,16 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-	
+
 		cmd = tvb_get_ntohs( tvb, 36);
-		
+
 		if ( pinfo->srcport == UDP_PORT_MSPROXY)
 			col_add_fstr( pinfo->cinfo, COL_INFO, "Server message: %s",
 				get_msproxy_cmd_name( cmd, FROM_SERVER));
 		else
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Client message: %s",
 				get_msproxy_cmd_name( cmd, FROM_CLIENT));
-		
+
 	}
 
 	if (tree) {				/* if proto tree, decode data */
@@ -1146,15 +1146,15 @@ static void msproxy_reinit( void){
 /* performed. Reset the highest row seen counter and re-initialize the	*/
 /* conversation memory chunks.						*/
 
-	last_row = 0;			
-	
+	last_row = 0;
+
   	if (vals)
     		g_mem_chunk_destroy(vals);
 
   	vals = g_mem_chunk_new("msproxy_vals", hash_val_length,
 		hash_init_count * hash_val_length,
 		G_ALLOC_AND_FREE);
-		
+
   	if (redirect_vals)
     		g_mem_chunk_destroy(redirect_vals);
 
@@ -1175,13 +1175,13 @@ proto_register_msproxy( void){
 		&ett_msproxy_name
 	};
   	static hf_register_info hf[] = {
-    
+
                 { &hf_msproxy_cmd,
                 	{ "Command", "msproxy.command", FT_UINT16, BASE_DEC,
                 		 NULL, 0x0, "", HFILL
                 	}
 		},
-               	
+
  		{ &hf_msproxy_dstaddr,
 			{ "Destination Address", "msproxy.dstaddr", FT_IPv4, BASE_NONE, NULL,
 			 	0x0, "", HFILL
@@ -1208,7 +1208,7 @@ proto_register_msproxy( void){
 			 	0x0, "", HFILL
 			}
 		},
-		
+
 		{ &hf_msproxy_server_ext_port,
 			{ "Server External Port",	"msproxy.server_ext_port", FT_UINT16,
 				BASE_DEC, NULL, 0x0, "", HFILL
@@ -1220,7 +1220,7 @@ proto_register_msproxy( void){
 			 	0x0, "", HFILL
 			}
 		},
-		
+
 		{ &hf_msproxy_server_int_port,
 			{ "Server Internal Port",	"msproxy.server_int_port", FT_UINT16,
 				BASE_DEC, NULL, 0x0, "", HFILL
@@ -1268,7 +1268,7 @@ proto_register_msproxy( void){
 	    "MS Proxy", "msproxy");
 
 	proto_register_field_array(proto_msproxy, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));  
+	proto_register_subtree_array(ett, array_length(ett));
 
 	register_init_routine( &msproxy_reinit);	/* register re-init routine */
 
@@ -1280,7 +1280,7 @@ proto_register_msproxy( void){
 void
 proto_reg_handoff_msproxy(void) {
 
-	/* dissector install routine */ 
+	/* dissector install routine */
 
 	dissector_handle_t msproxy_handle;
 

@@ -3,7 +3,7 @@
  * Copyright 2002, Antti J. Tuominen <ajtuomin@tml.hut.fi>
  * Loosely based on packet-aodv.c.
  *
- * $Id: packet-aodv6.c,v 1.4 2002/08/22 07:32:22 guy Exp $
+ * $Id: packet-aodv6.c,v 1.5 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -235,7 +235,7 @@ dissect_aodv6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     rerr_t rerr;
 
     /* Make entries in Protocol column and Info column on summary
-     * display 
+     * display
      */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AODV6");

@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.31 2002/08/02 23:36:02 jmayer Exp $
+ * $Id: packet-smtp.c,v 1.32 2002/08/28 21:00:34 jmayer Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -65,7 +65,7 @@ static gboolean smtp_desegment = TRUE;
  * last part of a message
  */
 
-#define SMTP_PDU_CMD     0   
+#define SMTP_PDU_CMD     0
 #define SMTP_PDU_MESSAGE 1
 #define SMTP_PDU_EOM     2
 
@@ -94,7 +94,7 @@ smtp_init_protocol(void)
   if (smtp_packet_infos)
     g_mem_chunk_destroy(smtp_packet_infos);
 
-  smtp_request_vals = g_mem_chunk_new("smtp_request_vals", 
+  smtp_request_vals = g_mem_chunk_new("smtp_request_vals",
 				      sizeof(struct smtp_request_val),
 				      smtp_packet_init_count * sizeof(struct smtp_request_val), G_ALLOC_AND_FREE);
   smtp_packet_infos = g_mem_chunk_new("smtp_packet_infos",
@@ -136,12 +136,12 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * We only need that for the client->server stream; responses
      * are easy to manage.
      *
-     * If we have per frame data, use that, else, we must be on the first 
+     * If we have per frame data, use that, else, we must be on the first
      * pass, so we figure it out on the first pass.
      */
 
     /* Find out what conversation this packet is part of ... but only
-     * if we have no information on this packet, so find the per-frame 
+     * if we have no information on this packet, so find the per-frame
      * info first.
      */
 
@@ -204,7 +204,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       }
 
-      /* 
+      /*
        * Check whether or not this packet is an end of message packet
        * We should look for CRLF.CRLF and they may be split.
        * We have to keep in mind that we may see what we want on
@@ -215,7 +215,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/*
 	 * The order of these is important ... We want to avoid
-	 * cases where there is a CRLF at the end of a packet and a 
+	 * cases where there is a CRLF at the end of a packet and a
 	 * .CRLF at the begining of the same packet.
 	 */
 
@@ -239,7 +239,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
     /*
-     * OK, Check if we have seen a DATA request. We do it here for 
+     * OK, Check if we have seen a DATA request. We do it here for
      * simplicity, but we have to be careful below.
      */
 
@@ -317,8 +317,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
 
-    /* 
-     * From here, we simply add items to the tree and info to the info 
+    /*
+     * From here, we simply add items to the tree and info to the info
      * fields ...
      */
 
@@ -329,7 +329,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /*
        * If it is a request, we have to look things up, otherwise, just
-       * display the right things 
+       * display the right things
        */
 
       if (request) {
@@ -371,7 +371,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       smtp_tree = proto_item_add_subtree(ti, ett_smtp);
       if (request) {
 
-	/* 
+	/*
 	 * Check out whether or not we can see a command in there ...
 	 * What we are looking for is not data_seen and the word DATA
 	 * and not eom_seen.
@@ -516,7 +516,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 
 	}
-	
+
       }
     }
 }

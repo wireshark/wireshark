@@ -4,22 +4,22 @@
  *
  * Based on CORBAv2.4.2  Chapter 15 GIOP Description.
  *
- * $Id: packet-giop.h,v 1.9 2002/05/13 01:24:46 guy Exp $
+ * $Id: packet-giop.h,v 1.10 2002/08/28 21:00:13 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -40,7 +40,7 @@ typedef struct Version {
 } Version;
 
 
-/* 
+/*
  * Useful data collected from message header. Note, this
  * struct encapsulates useful data from GIOP header, as well
  * as request_id and reply_status for use by sub dissectors.
@@ -58,7 +58,7 @@ typedef struct MessageHeader {
   guint32 req_id;               /* request id in MSG  */
 
   /* MSG dependant data */
-  
+
   guint32 rep_status;           /* reply status in MSG if available */
   gchar *exception_id;             /* exception string if a USER EXCEPTION occurs  */
 
@@ -173,7 +173,7 @@ extern void get_CDR_any(tvbuff_t *tvb, proto_tree *tree, gint *offset,
     gboolean stream_is_big_endian, int boundary, MessageHeader * header );
 
 
-/* Copy a 1 octet sequence from the tvbuff 
+/* Copy a 1 octet sequence from the tvbuff
  * which represents a boolean value, and convert
  * it to a boolean value.
  * Offset is then incremented by 1, to indicate the 1 octet which
@@ -183,7 +183,7 @@ extern void get_CDR_any(tvbuff_t *tvb, proto_tree *tree, gint *offset,
 extern gboolean get_CDR_boolean(tvbuff_t *tvb, int *offset);
 
 
-/* Copy a 1 octet sequence from the tvbuff 
+/* Copy a 1 octet sequence from the tvbuff
  * which represents a char, and convert
  * it to an char value.
  * offset is then incremented by 1, to indicate the 1 octet which
@@ -194,10 +194,10 @@ extern guint8 get_CDR_char(tvbuff_t *tvb, int *offset);
 
 
 
-/* 
- * Floating Point Data Type double IEEE 754-1985 
+/*
+ * Floating Point Data Type double IEEE 754-1985
  *
- * Copy an 8 octet sequence from the tvbuff 
+ * Copy an 8 octet sequence from the tvbuff
  * which represents a double value, and convert
  * it to a double value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -210,7 +210,7 @@ extern gdouble get_CDR_double(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
-/* Copy a 4 octet sequence from the tvbuff 
+/* Copy a 4 octet sequence from the tvbuff
  * which represents an enum value, and convert
  * it to an enum value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -231,13 +231,13 @@ extern guint32 get_CDR_enum(tvbuff_t *tvb, int *offset,
  * which represents a Fixed point decimal type, and create a string representing
  * a Fixed point decimal type. There are no alignment restrictions.
  * Size and scale of fixed decimal type is determined by IDL.
- * 
+ *
  * digits - IDL specified number of "digits" for this fixed type
  * scale  - IDL specified "scale" for this fixed type
  *
  *
  * eg: typedef fixed <5,2> fixed_t;
- *     could represent numbers like 123.45, 789.12, 
+ *     could represent numbers like 123.45, 789.12,
  *
  *
  * As the fixed type could be any size, I will not try to fit it into our
@@ -245,7 +245,7 @@ extern guint32 get_CDR_enum(tvbuff_t *tvb, int *offset,
  * a  representation (after scale is applied), and with a decimal point or zero padding
  * inserted at the right place if necessary. The string is null terminated
  *
- * so string may look like 
+ * so string may look like
  *
  *
  *  "+1.234" or "-3456.78" or "1234567309475760377365465897891" or "-2789000000" etc
@@ -264,9 +264,9 @@ extern void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset,
 
 
 /*
- * Floating Point Data Type float IEEE 754-1985 
- * 
- * Copy a 4 octet sequence from the tvbuff 
+ * Floating Point Data Type float IEEE 754-1985
+ *
+ * Copy a 4 octet sequence from the tvbuff
  * which represents a float value, and convert
  * it to a float value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -287,7 +287,7 @@ extern void get_CDR_interface(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int *offset, gboolean stream_is_big_endian, int boundary);
 
 
-/* Copy a 4 octet sequence from the tvbuff 
+/* Copy a 4 octet sequence from the tvbuff
  * which represents a signed long value, and convert
  * it to an signed long vaule, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -301,7 +301,7 @@ extern gint32 get_CDR_long(tvbuff_t *tvb, int *offset,
 
 
 
-/* Copy a 16 octet sequence from the tvbuff 
+/* Copy a 16 octet sequence from the tvbuff
  * which represents a long double value, and convert
  * it to a long double value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -324,7 +324,7 @@ extern gdouble get_CDR_long_double(tvbuff_t *tvb, int *offset,
 #endif
 
 
-/* Copy an 8 octet sequence from the tvbuff 
+/* Copy an 8 octet sequence from the tvbuff
  * which represents a signed long long value, and convert
  * it to a signed long long value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -346,7 +346,7 @@ extern void get_CDR_object(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int *offset, gboolean stream_is_big_endian, int boundary);
 
 
-/* Copy a 1 octet sequence from the tvbuff 
+/* Copy a 1 octet sequence from the tvbuff
  * which represents a octet, and convert
  * it to an octet value.
  * offset is then incremented by 1, to indicate the 1 octet which
@@ -357,14 +357,14 @@ extern guint8 get_CDR_octet(tvbuff_t *tvb, int *offset);
 
 
 /* Copy a sequence of octets from the tvbuff.
- * Caller of this function must remember to free the 
+ * Caller of this function must remember to free the
  * array pointed to by seq.
- * This function also increments offset by len. 
+ * This function also increments offset by len.
  */
 
 extern void get_CDR_octet_seq(tvbuff_t *tvb, gchar **seq, int *offset, guint32 len);
 
-/* Copy a 2 octet sequence from the tvbuff 
+/* Copy a 2 octet sequence from the tvbuff
  * which represents a signed short value, and convert
  * it to a signed short value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -377,7 +377,7 @@ extern gint16 get_CDR_short(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
-/* Copy an octet sequence from the tvbuff 
+/* Copy an octet sequence from the tvbuff
  * which represents a string, and convert
  * it to an string value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -399,21 +399,21 @@ extern guint32 get_CDR_string(tvbuff_t *tvb, gchar **seq, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
-/* Process a sequence of octets that represent the 
+/* Process a sequence of octets that represent the
  * Pseudo Object Type "TypeCode". Typecodes are used for example,
- * by "Any values". 
+ * by "Any values".
  * This function also increments offset to the correct position.
  *
  * It will parse the TypeCode and output data to the "tree" provided
  * by the user
  *
- * It returns a guint32 representing a TCKind value. 
+ * It returns a guint32 representing a TCKind value.
  */
 
 extern guint32 get_CDR_typeCode(tvbuff_t *tvb, proto_tree *tree, gint *offset,
     gboolean stream_is_big_endian, int boundary, MessageHeader * header );
 
-/* Copy a 4 octet sequence from the tvbuff 
+/* Copy a 4 octet sequence from the tvbuff
  * which represents an unsigned long value, and convert
  * it to an unsigned long value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -426,7 +426,7 @@ extern guint32 get_CDR_ulong(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
-/* Copy an 8 octet sequence from the tvbuff 
+/* Copy an 8 octet sequence from the tvbuff
  * which represents an unsigned long long value, and convert
  * it to an unsigned long long value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -441,7 +441,7 @@ extern guint64 get_CDR_ulong_long(tvbuff_t *tvb, int *offset,
 #endif
 
 
-/* Copy a 2 octet sequence from the tvbuff 
+/* Copy a 2 octet sequence from the tvbuff
  * which represents an unsigned short value, and convert
  * it to an unsigned short value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
@@ -455,7 +455,7 @@ extern guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset,
 
 
 /* Copy a wchar from the tvbuff.
- * Caller of this function must remember to free the 
+ * Caller of this function must remember to free the
  * array pointed to by seq.
  * This function also increments offset according to
  * the wchar size.
@@ -475,7 +475,7 @@ extern guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset,
 /* NOTE: This is very primitive in that it just reads
  * the wchar as a series of octets and returns them
  * to the user. No translation is attempted based on
- * byte orientation, nor on code set. I.e it only 
+ * byte orientation, nor on code set. I.e it only
  * really reads past the wchar and increments the offset
  * by the length of the octet sequence.
  */
@@ -489,7 +489,7 @@ extern gint get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset,
 
 
 /* Copy a wstring from the tvbuff.
- * Caller of this function must remember to free the 
+ * Caller of this function must remember to free the
  * array pointed to by seq.
  * This function also increments offset, according to
  * wstring length. length is returned as guint32
@@ -498,7 +498,7 @@ extern gint get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset,
 /* NOTE: This is very primitive in that it just reads
  * the wstring as a series of octets and returns them
  * to the user. No translation is attempted based on
- * byte orientation, nor on code set. I.e it only 
+ * byte orientation, nor on code set. I.e it only
  * really reads past the wstring and increments the offset
  * by the length of the octet sequence.
  */
@@ -530,7 +530,7 @@ extern gboolean is_big_endian (MessageHeader * header);
  * and *offset, and returns the sequence length.
  */
 
-extern guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset, 
+extern guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
 			   gboolean old_stream_is_big_endian, guint32 old_boundary,
 			   gboolean *new_stream_is_big_endian_ptr, guint32 *new_boundary_ptr );
 

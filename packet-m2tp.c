@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Heinz Prantner <heinz.prantner[AT]radisys.com>
  *
- * $Id: packet-m2tp.c,v 1.3 2002/01/24 09:20:49 guy Exp $
+ * $Id: packet-m2tp.c,v 1.4 2002/08/28 21:00:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13,17 +13,17 @@
  *
  * Copied from packet-m3ua.c
  * Thanks to Michael Tuexen for his valuable improvements
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -152,7 +152,7 @@ static const value_string m2tp_message_class_type_acro_values[] = {
 #define M2TP_USER_OFFSET PARAMETER_VALUE_OFFSET
 
 #define PROTOCOL_DATA_OFFSET PARAMETER_VALUE_OFFSET
-  
+
 #define MASTER_SLAVE_LENGTH 4
 #define MASTER_SLAVE_OFFSET PARAMETER_VALUE_OFFSET
 
@@ -163,7 +163,7 @@ static const value_string m2tp_message_class_type_acro_values[] = {
 
 #define ERROR_CODE_LENGTH 4
 #define ERROR_CODE_OFFSET PARAMETER_VALUE_OFFSET
-  
+
 #define INFO_STRING_OFFSET PARAMETER_VALUE_OFFSET
 
 #define BSN_OFFSET PARAMETER_VALUE_OFFSET
@@ -186,7 +186,7 @@ static const value_string m2tp_mode_values[] = {
     { M2TP_MODE_MASTER,      "Master" },
     { M2TP_MODE_SLAVE,       "Slave" },
     { 0, NULL}};
-    
+
 #define M2TP_ERROR_CODE_INVALID_VERSION                         1
 #define M2TP_ERROR_CODE_INVALID_INTERFACE_IDENTIFIER            2
 #define M2TP_ERROR_CODE_INVALID_ADAPTATION_LAYER_IDENTIFIER     3
@@ -217,7 +217,7 @@ static const value_string m2tp_reason_code_values[] = {
       { MTP_RELEASE_REASON_CODE,                           "MTP Release" },
       { 0,                                                 NULL } };
 
-      
+
 /* Initialize the protocol and registered fields */
 static int proto_m2tp = -1;
 static int hf_m2tp_version = -1;
@@ -245,7 +245,7 @@ static gint ett_m2tp_parameter = -1;
 static dissector_handle_t mtp2_handle;
 static int mtp2_proto_id;
 
-static guint 
+static guint
 nr_of_padding_bytes (guint length)
 {
   guint remainder;
@@ -264,7 +264,7 @@ dissect_m2tp_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
 {
   guint8  version, reserved, message_class, message_type;
   guint32 message_length;
-  
+
   /* Extract the common header */
   version        = tvb_get_guint8(common_header_tvb, VERSION_OFFSET);
   reserved       = tvb_get_guint8(common_header_tvb, RESERVED_OFFSET);
@@ -283,7 +283,7 @@ dissect_m2tp_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
     proto_tree_add_uint(m2tp_tree, hf_m2tp_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, version);
     proto_tree_add_uint(m2tp_tree, hf_m2tp_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, reserved);
     proto_tree_add_uint(m2tp_tree, hf_m2tp_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, message_class);
-    proto_tree_add_uint_format(m2tp_tree, hf_m2tp_message_type, 
+    proto_tree_add_uint_format(m2tp_tree, hf_m2tp_message_type,
                                common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
                                message_type, "Message type: %u (%s)",
                                message_type, val_to_str(message_class * 256 + message_type, m2tp_message_class_type_values, "reserved"));
@@ -351,9 +351,9 @@ static void
 dissect_m2tp_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, diagnostic_info_length;
-  
+
   if (parameter_tree) {
-    length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);  
+    length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
     diagnostic_info_length = length - PARAMETER_HEADER_LENGTH;
     proto_tree_add_bytes(parameter_tree, hf_m2tp_diagnostic_info, parameter_tvb, PARAMETER_VALUE_OFFSET, diagnostic_info_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, diagnostic_info_length));
@@ -366,7 +366,7 @@ static void
 dissect_m2tp_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, heartbeat_data_length;
-  
+
   if (parameter_tree) {
     length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
     heartbeat_data_length = length - PARAMETER_HEADER_LENGTH;
@@ -432,16 +432,16 @@ static void
 dissect_m2tp_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 tag, length, parameter_value_length;
-  
+
   if (parameter_tree) {
     tag    = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
     length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-    
+
     parameter_value_length = length - PARAMETER_HEADER_LENGTH;
-    proto_tree_add_bytes(parameter_tree, hf_m2tp_parameter_value, 
+    proto_tree_add_bytes(parameter_tree, hf_m2tp_parameter_value,
                         parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length,
                         tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length));
-  
+
     proto_item_set_text(parameter_item, "Parameter with tag %u and %u byte%s value", tag, parameter_value_length, plurality(parameter_value_length, "", "s"));
   }
 }
@@ -466,12 +466,12 @@ dissect_m2tp_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *
     /* create proto_tree stuff */
     parameter_item   = proto_tree_add_text(m2tp_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, total_length, "Incomplete parameter");
     parameter_tree   = proto_item_add_subtree(parameter_item, ett_m2tp_parameter);
-  
+
     /* add tag and length to the m2tp tree */
     proto_tree_add_uint(parameter_tree, hf_m2tp_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag);
     proto_tree_add_uint(parameter_tree, hf_m2tp_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, length);
   }
-    
+
   switch(tag) {
     case INTERFACE_IDENTIFIER_PARAMETER_TAG:
       dissect_m2tp_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -506,7 +506,7 @@ dissect_m2tp_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *
   };
 
   if ((parameter_tree) && (padding_length > 0))
-    proto_tree_add_bytes(parameter_tree, hf_m2tp_parameter_padding, 
+    proto_tree_add_bytes(parameter_tree, hf_m2tp_parameter_padding,
                          parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length));
 }
@@ -524,7 +524,7 @@ dissect_m2tp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2tp
   common_header_tvb = tvb_new_subset(message_tvb, offset, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_m2tp_common_header(common_header_tvb, pinfo, m2tp_tree);
   offset += COMMON_HEADER_LENGTH;
-  
+
   /* extract zero or more parameters and process them individually */
   while(tvb_reported_length_remaining(message_tvb, offset)) {
     length         = tvb_get_ntohs(message_tvb, offset + PARAMETER_LENGTH_OFFSET);
@@ -532,7 +532,7 @@ dissect_m2tp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2tp
     total_length   = length + padding_length;
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb    = tvb_new_subset(message_tvb, offset, total_length, total_length);
-    dissect_m2tp_parameter(parameter_tvb, pinfo, m2tp_tree, m2tp_item, tree); 
+    dissect_m2tp_parameter(parameter_tvb, pinfo, m2tp_tree, m2tp_item, tree);
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -546,9 +546,9 @@ dissect_m2tp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *m2tp_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2TP");
-  
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
@@ -566,103 +566,103 @@ dissect_m2tp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Ethereal */
 void
 proto_register_m2tp(void)
-{                 
+{
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_m2tp_version,
       { "Version", "m2tp.version",
-        FT_UINT8, BASE_DEC, VALS(m2tp_protocol_version_values), 0x0,          
+        FT_UINT8, BASE_DEC, VALS(m2tp_protocol_version_values), 0x0,
         "", HFILL}
     },
     { &hf_m2tp_reserved,
       { "Reserved", "m2tp.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x0,          
+        FT_UINT8, BASE_HEX, NULL, 0x0,
         "", HFILL}
-    }, 
+    },
     { &hf_m2tp_message_class,
       { "Message class", "m2tp.message_class",
-        FT_UINT8, BASE_DEC, VALS(m2tp_message_class_values), 0x0,          
+        FT_UINT8, BASE_DEC, VALS(m2tp_message_class_values), 0x0,
         "", HFILL}
     },
     { &hf_m2tp_message_type,
       { "Message Type", "m2tp.message_type",
-        FT_UINT8, BASE_DEC, NULL, 0x0,          
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         "", HFILL}
     },
     { &hf_m2tp_message_length,
       { "Message length", "m2tp.message_length",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "", HFILL}
-    }, 
+    },
     { &hf_m2tp_parameter_tag,
       { "Parameter Tag", "m2tp.parameter_tag",
-        FT_UINT16, BASE_DEC, VALS(m2tp_parameter_tag_values), 0x0,          
+        FT_UINT16, BASE_DEC, VALS(m2tp_parameter_tag_values), 0x0,
         "", HFILL}
     },
     { &hf_m2tp_parameter_length,
       { "Parameter length", "m2tp.parameter_length",
-        FT_UINT16, BASE_DEC, NULL, 0x0,          
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         "", HFILL}
-    }, 
+    },
     { &hf_m2tp_parameter_value,
       { "Parameter Value", "m2tp.parameter_value",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_m2tp_parameter_padding,
       { "Padding", "m2tp.parameter_padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_m2tp_interface_identifier,
       { "Interface Identifier", "m2tp.interface_identifier",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "", HFILL}
-    }, 
+    },
     { &hf_m2tp_user,
       { "M2tp User Identifier", "m2tp.user_identifier",
-        FT_UINT32, BASE_DEC, VALS(m2tp_user_identifier_values), 0x0,          
+        FT_UINT32, BASE_DEC, VALS(m2tp_user_identifier_values), 0x0,
         "", HFILL}
-    }, 
+    },
     { &hf_m2tp_master_slave,
       { "Master Slave Indicator", "m2tp.master_slave",
-        FT_UINT32, BASE_DEC, VALS(m2tp_mode_values), 0x0,          
+        FT_UINT32, BASE_DEC, VALS(m2tp_mode_values), 0x0,
         "", HFILL}
-    }, 
+    },
     { &hf_m2tp_info_string,
       { "Info string", "m2tp.info_string",
-        FT_STRING, BASE_DEC, NULL, 0x0,          
+        FT_STRING, BASE_DEC, NULL, 0x0,
         "", HFILL}
-    }, 
+    },
     { &hf_m2tp_diagnostic_info,
       { "Diagnostic information", "m2tp.diagnostic_info",
-	       FT_BYTES, BASE_NONE, NULL, 0x0,          
+	       FT_BYTES, BASE_NONE, NULL, 0x0,
 	       "", HFILL }
     },
     { &hf_m2tp_heartbeat_data,
       { "Heartbeat data", "m2tp.heartbeat_data",
-	       FT_BYTES, BASE_NONE, NULL, 0x0,          
+	       FT_BYTES, BASE_NONE, NULL, 0x0,
 	       "", HFILL }
     },
     { &hf_m2tp_error_code,
       { "Error code", "m2tp.error_code",
-        FT_UINT32, BASE_DEC, VALS(m2tp_error_code_values), 0x0,          
+        FT_UINT32, BASE_DEC, VALS(m2tp_error_code_values), 0x0,
         "", HFILL}
-    }, 
+    },
     { &hf_m2tp_reason,
       { "Reason", "m2tp.reason",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         "", HFILL}
-    }, 
+    },
   };
-  
+
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_m2tp,
     &ett_m2tp_parameter,
   };
-  
+
   /* Register the protocol name and description */
   proto_m2tp = proto_register_protocol("MTP 2 Transparent Proxy", "M2TP",  "m2tp");
 

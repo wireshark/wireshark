@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.26 2002/08/02 22:34:53 jmayer Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.27 2002/08/28 21:03:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -17,22 +17,22 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* Todo - 
+/* Todo -
  * may want to check the enable field to decide if protocol should be in tree
  * improve speed of dialog box creation
  *	- I believe this is slow because of tree widget creation.
- *		1) could improve the widget 
+ *		1) could improve the widget
  *		2) keep a copy in memory after the first time.
  * user can pop multiple tree dialogs by pressing the "Tree" button multiple
  *	time.  not a good thing.
@@ -788,7 +788,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 			g_free(value_str);
 			return;
 		}
-	
+
 		/*
 		 * Make sure the value is valid.
 		 *
@@ -1004,7 +1004,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
 	range_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(col2_vb), range_entry, FALSE, FALSE, 0);
-	
+
 	/*
 	 * OK, show the relation label and range stuff as it would be
 	 * with everything turned on, so it'll request as much space
@@ -1036,7 +1036,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	value_entry = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(value_vb), value_entry, FALSE, FALSE, 0);
 	gtk_widget_show(value_entry);
-	
+
 	value_list_scrolled_win = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(value_list_scrolled_win),
 			GTK_POLICY_AUTOMATIC,

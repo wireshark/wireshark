@@ -6,7 +6,7 @@
  * Adds support for the data packet protocol for the SliMP3
  * See www.slimdevices.com for details.
  *
- * $Id: packet-slimp3.c,v 1.7 2002/08/02 23:36:01 jmayer Exp $
+ * $Id: packet-slimp3.c,v 1.8 2002/08/28 21:00:31 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -16,12 +16,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -76,42 +76,42 @@ static const value_string slimp3_opcode_vals[] = {
 };
 
 static const value_string slimp3_ir_codes_jvc[] = {
-    { 0xf786, "One" }, 
-    { 0xf746, "Two" }, 
-    { 0xf7c6, "Three" }, 
-    { 0xf726, "Four" }, 
-    { 0xf7a6, "Five" }, 
-    { 0xf766, "Six" }, 
-    { 0xf7e6, "Seven" }, 
-    { 0xf716, "Eight" }, 
-    { 0xf796, "Nine" }, 
-    { 0xf776, "Ten" }, 
+    { 0xf786, "One" },
+    { 0xf746, "Two" },
+    { 0xf7c6, "Three" },
+    { 0xf726, "Four" },
+    { 0xf7a6, "Five" },
+    { 0xf766, "Six" },
+    { 0xf7e6, "Seven" },
+    { 0xf716, "Eight" },
+    { 0xf796, "Nine" },
+    { 0xf776, "Ten" },
 
-    { 0xf7f6, "Picture-In-Picture" }, 
+    { 0xf7f6, "Picture-In-Picture" },
     /* { 0xf7XX, "Enter" }, */
-    { 0xf70e, "Back" }, 
-    { 0xf732, "Play" }, 
-    { 0xf76e, "Forward" }, 
-    { 0xf743, "Record" }, 
-    { 0xf7c2, "Stop" }, 
-    { 0xf7b2, "Pause" }, 
+    { 0xf70e, "Back" },
+    { 0xf732, "Play" },
+    { 0xf76e, "Forward" },
+    { 0xf743, "Record" },
+    { 0xf7c2, "Stop" },
+    { 0xf7b2, "Pause" },
     /* { 0xf7XX, "TV/Video" }, */
-    { 0xf703, "Display" }, 
-    { 0xf7b3, "Sleep" }, 
-    { 0xf7b6, "Guide" }, 
-    { 0xf70b, "Up" }, 
-    { 0xf74b, "Left" }, 
-    { 0xf7cb, "Right" }, 
-    { 0xf78b, "Down" }, 
-    { 0xf783, "Menu" }, 
-    { 0xf72b, "OK" }, 
-    { 0xf778, "Volume Up" }, 
-    { 0xf7f8, "Volume Down" }, 
-    { 0xf70d, "Channel Up" }, 
-    { 0xf78d, "Channel Down" }, 
+    { 0xf703, "Display" },
+    { 0xf7b3, "Sleep" },
+    { 0xf7b6, "Guide" },
+    { 0xf70b, "Up" },
+    { 0xf74b, "Left" },
+    { 0xf7cb, "Right" },
+    { 0xf78b, "Down" },
+    { 0xf783, "Menu" },
+    { 0xf72b, "OK" },
+    { 0xf778, "Volume Up" },
+    { 0xf7f8, "Volume Down" },
+    { 0xf70d, "Channel Up" },
+    { 0xf78d, "Channel Down" },
     /* { 0xf7XX, "Mute" },  */
-    { 0xf7ab, "Recall" }, 
-    { 0xf702, "Power" }, 
+    { 0xf7ab, "Recall" },
+    { 0xf702, "Power" },
 };
 
 static const value_string slimp3_display_commands[] = {
@@ -122,7 +122,7 @@ static const value_string slimp3_display_commands[] = {
     {  0x5, "Mode: Decrement Address, Shift Display"},
     {  0x6, "Mode: Increment Address, Shift Cursor"},
     {  0x7, "Mode: Increment Address, Shift Display"},
-    
+
     {  0x8, "Display Off"},
     {  0xd, "Display On, With Blinking"},
     {  0xe, "Display On, With Cursor"},
@@ -168,7 +168,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16		opcode;
     char addc_str[101];
     char *addc_strp;
-    
+
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SliMP3");
@@ -198,34 +198,34 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_ir, tvb, offset+8, 4, FALSE);
 
 	    i1 = tvb_get_ntohl(tvb, offset+2);
-	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 4, "Uptime: %u sec (%u ticks)", 
+	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 4, "Uptime: %u sec (%u ticks)",
 				i1/625000, i1);
-	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 1, "Code identifier: 0x%0x: %s", 
-				tvb_get_guint8(tvb, offset+6), 
+	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 1, "Code identifier: 0x%0x: %s",
+				tvb_get_guint8(tvb, offset+6),
 				tvb_get_guint8(tvb, offset+6)==0xff ? "JVC DVD Player" : "Unknown");
 	    proto_tree_add_text(slimp3_tree, tvb, offset+7, 1, "Code bits: %d",
 				tvb_get_guint8(tvb, offset+7));
 
 	    i1 = tvb_get_ntohl(tvb, offset+8);
 	    /* Is this a standard JVC remote code? */
-	    if (tvb_get_guint8(tvb, offset+6) == 0xff && 
+	    if (tvb_get_guint8(tvb, offset+6) == 0xff &&
 		tvb_get_guint8(tvb, offset+7) == 16) {
 
-		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4, 
-				    "Infrared Code: %s: 0x%0x", 
+		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4,
+				    "Infrared Code: %s: 0x%0x",
 				    val_to_str(i1, slimp3_ir_codes_jvc, "Unknown"),
 				    tvb_get_ntohl(tvb, offset+8));
 	    } else {
 		/* Unknown code; just write it */
-		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4, "Infrared Code: 0x%0x", 
+		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4, "Infrared Code: 0x%0x",
 				    tvb_get_ntohl(tvb, offset+8));
 	    }
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    i1 = tvb_get_ntohl(tvb, offset+8);
-	    if (tvb_get_guint8(tvb, offset+6) == 0xff && 
+	    if (tvb_get_guint8(tvb, offset+6) == 0xff &&
 		tvb_get_guint8(tvb, offset+7) == 16) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", JVC: %s", 
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", JVC: %s",
 				val_to_str(i1, slimp3_ir_codes_jvc, "Unknown (0x%0x)"));
 	    } else {
 		/* Unknown code; just write it */
@@ -247,18 +247,18 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    while (i1 < tvb_reported_length_remaining(tvb, offset)) {
 		switch(tvb_get_guint8(tvb, offset + i1)) {
 		case 0:
-		    in_str = 0; 
-		    proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2, 
+		    in_str = 0;
+		    proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
 					"Delay (%d ms)", tvb_get_guint8(tvb, offset + i1 + 1));
 		    i1 += 2;
 		    break;
 		case 3:
 		    if (ti && in_str) {
-			proto_item_append_text(ti, "%c", 
+			proto_item_append_text(ti, "%c",
 					       tvb_get_guint8(tvb, offset + i1 + 1));
 		    } else {
-			ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2, 
-						 "String: %c", 
+			ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
+						 "String: %c",
 						 tvb_get_guint8(tvb, offset + i1 + 1));
 			in_str = 1;
 		    }
@@ -266,25 +266,25 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 
 		case 2:
-		    in_str = 0; 
-		    ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2, 
-					     "Command: %s", 
-					     val_to_str(tvb_get_guint8(tvb, offset + i1 + 1), 
-							slimp3_display_commands, 
+		    in_str = 0;
+		    ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
+					     "Command: %s",
+					     val_to_str(tvb_get_guint8(tvb, offset + i1 + 1),
+							slimp3_display_commands,
 							"Unknown (0x%0x)"));
-		    if ((tvb_get_guint8(tvb, offset + i1 + 1) & 0xf0) == 0x30) { 
-			proto_item_append_text(ti, ": %s", 
+		    if ((tvb_get_guint8(tvb, offset + i1 + 1) & 0xf0) == 0x30) {
+			proto_item_append_text(ti, ": %s",
 					       val_to_str(tvb_get_guint8(tvb, offset + i1 + 2),
-							  slimp3_display_fset8, 
+							  slimp3_display_fset8,
 							  "Unknown (0x%0x)"));
 			i1 += 2 ;
 		    }
 		    i1 += 2;
 		    break;
-			
+
 		default:
-		    proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2, 
-					"Unknown 0x%0x, 0x%0x", 
+		    proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
+					"Unknown 0x%0x, 0x%0x",
 					tvb_get_guint8(tvb, offset + i1),
 					tvb_get_guint8(tvb, offset + i1 + 1));
 		    i1 += 2;
@@ -304,7 +304,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 
 		case 2:
-		    *addc_strp++ = '|'; 
+		    *addc_strp++ = '|';
 		    if (tvb_offset_exists(tvb, offset + i1 + 1) &&
 			  (tvb_get_guint8(tvb, offset + i1 + 1) & 0xf0) == 0x30)
 			i1 += 2;
@@ -312,7 +312,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 3:
 		    if (tvb_offset_exists(tvb, offset + i1 + 1)) {
-			if (addc_strp == addc_str || 
+			if (addc_strp == addc_str ||
 			      *(addc_strp-1) != ' ' ||
 			      tvb_get_guint8(tvb, offset + i1 + 1) != ' ')
 			    *addc_strp++ = tvb_get_guint8(tvb, offset + i1 + 1);
@@ -332,13 +332,13 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_control,
 				       tvb, offset+1, 1, FALSE);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+1, 1, "Command: %s",
-				val_to_str(tvb_get_guint8(tvb, offset+1), 
+				val_to_str(tvb_get_guint8(tvb, offset+1),
 					   slimp3_stream_control, "Unknown (0x%0x)"));
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", 
-			    val_to_str(tvb_get_guint8(tvb, offset+1), 
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+			    val_to_str(tvb_get_guint8(tvb, offset+1),
 				       slimp3_stream_control, "Unknown (0x%0x)"));
 	}
 	break;
@@ -351,10 +351,10 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint8 fw_ver = 0;
 		/* Hello response; client->server */
 		proto_tree_add_text(slimp3_tree, tvb, offset, 1, "Hello Response (Client --> Server)");
-		proto_tree_add_text(slimp3_tree, tvb, offset+1, 1, "Device ID: %d", 
+		proto_tree_add_text(slimp3_tree, tvb, offset+1, 1, "Device ID: %d",
 				    tvb_get_guint8(tvb, offset+1));
 		fw_ver = tvb_get_guint8(tvb, offset+2);
-		proto_tree_add_text(slimp3_tree, tvb, offset+2, 1, "Firmware Revision: %d.%d (0x%0x)", 
+		proto_tree_add_text(slimp3_tree, tvb, offset+2, 1, "Firmware Revision: %d.%d (0x%0x)",
 				    fw_ver>>4, fw_ver & 0xf, fw_ver);
 	    } else {
 		/* Hello request; server->client */
@@ -369,11 +369,11 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				       tvb, offset, 1, FALSE);
 	    if (pinfo->destport == UDP_PORT_SLIMP3) {
 		/* Hello response; client->server */
-		proto_tree_add_text(slimp3_tree, tvb, offset, -1, 
+		proto_tree_add_text(slimp3_tree, tvb, offset, -1,
 				    "I2C Response (Client --> Server)");
 	    } else {
 		/* Hello request; server->client */
-		proto_tree_add_text(slimp3_tree, tvb, offset, -1, 
+		proto_tree_add_text(slimp3_tree, tvb, offset, -1,
 				    "I2C Request (Server --> Client)");
 	    }
 	}
@@ -391,8 +391,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_data_request,
 				       tvb, offset, 1, FALSE);
-	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 2, 
-				"Requested offset: %d bytes.", 
+	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 2,
+				"Requested offset: %d bytes.",
 				tvb_get_ntohs(tvb, offset+2)*2);
 	}
 
@@ -406,10 +406,10 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_data,
 				       tvb, offset, 1, FALSE);
-	    proto_tree_add_text(slimp3_tree, tvb, offset, -1, 
+	    proto_tree_add_text(slimp3_tree, tvb, offset, -1,
 				"Length: %d bytes", tvb_reported_length_remaining(tvb, offset+18));
-	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 2, 
-				"Buffer offset: %d bytes.", 
+	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 2,
+				"Buffer offset: %d bytes.",
 				tvb_get_ntohs(tvb, offset+2) * 2);
 	}
 
@@ -428,7 +428,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(slimp3_tree, tvb, offset+1, 1,
 				"Device ID: %d.", tvb_get_guint8(tvb, offset+1));
 	    fw_ver = tvb_get_guint8(tvb, offset+2);
-	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 1, "Firmware Revision: %d.%d (0x%0x)", 
+	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 1, "Firmware Revision: %d.%d (0x%0x)",
 				fw_ver>>4, fw_ver & 0xf, fw_ver);
 	}
 
@@ -444,14 +444,14 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_discover_response,
 				       tvb, offset, 1, FALSE);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 4,
-				"Server Address: %s.", 
+				"Server Address: %s.",
 				ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
-	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 2, 
+	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 2,
 				"Server Port: %d", tvb_get_ntohs(tvb, offset + 6));
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Server Address: %s. Server Port: %d", 
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Server Address: %s. Server Port: %d",
 			    ip_to_str(tvb_get_ptr(tvb, offset+2, 4)),
 			    tvb_get_ntohs(tvb, offset + 6));
 	}

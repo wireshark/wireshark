@@ -1,22 +1,22 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.51 2002/08/02 22:34:54 jmayer Exp $
+ * $Id: prefs_dlg.c,v 1.52 2002/08/28 21:03:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -85,8 +85,8 @@ static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint, gpointer);
 
 #define FIRST_PROTO_PREFS_PAGE	6
 
-/* 
- * Keep a static pointer to the notebook to be able to choose the 
+/*
+ * Keep a static pointer to the notebook to be able to choose the
  * displayed page.
  */
 static GtkWidget *notebook;
@@ -230,7 +230,7 @@ module_prefs_show(module_t *module, gpointer user_data)
 
   gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), frame, NULL);
   strcpy(label_str, module->title);
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts->ctree), cts->node, NULL, 
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts->ctree), cts->node, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
   gtk_ctree_node_set_row_data(GTK_CTREE(cts->ctree), ct_node,
   		GINT_TO_POINTER(cts->page));
@@ -269,7 +269,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
     GTK_SIGNAL_FUNC(prefs_main_delete_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(prefs_w), "destroy",
 	GTK_SIGNAL_FUNC(prefs_main_destroy_cb), NULL);
-  
+
   /*
    * Unfortunately, we can't arrange that a GtkTable widget wrap an event box
    * around a table row, so the spacing between the preference item's label
@@ -283,7 +283,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(prefs_w), main_vb);
   gtk_widget_show(main_vb);
-  
+
   /* Top row: Preferences tree and notebook */
   top_hb = gtk_hbox_new(FALSE, 10);
   gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
@@ -304,14 +304,14 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_signal_connect(GTK_OBJECT(cts.ctree), "tree-select-row",
     GTK_SIGNAL_FUNC(prefs_tree_select_cb), NULL);
   gtk_widget_show(cts.ctree);
-  
+
   /* A notebook widget sans tabs is used to flip between prefs */
   notebook = prefs_nb = gtk_notebook_new();
   gtk_notebook_set_show_tabs(GTK_NOTEBOOK(notebook), FALSE);
   gtk_notebook_set_show_border(GTK_NOTEBOOK(notebook), FALSE);
   gtk_container_add(GTK_CONTAINER(top_hb), prefs_nb);
   gtk_widget_show(prefs_nb);
-  
+
   /* Printing prefs */
   frame = gtk_frame_new("Printing");
   gtk_widget_show(GTK_WIDGET(frame));
@@ -320,12 +320,12 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_object_set_data(GTK_OBJECT(prefs_w), E_PRINT_PAGE_KEY, print_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Printing");
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.ctree), ct_node,
   		GINT_TO_POINTER(cts.page));
   cts.page++;
-    
+
   /* Column prefs */
   frame = gtk_frame_new("Columns");
   gtk_widget_show(GTK_WIDGET(frame));
@@ -334,12 +334,12 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_object_set_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY, column_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Columns");
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.ctree), ct_node,
   		GINT_TO_POINTER(cts.page));
   cts.page++;
-  
+
   /* TCP Streams prefs */
   frame = gtk_frame_new("TCP Streams");
   gtk_widget_show(GTK_WIDGET(frame));
@@ -348,7 +348,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_object_set_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY, stream_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "TCP Streams");
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.ctree), ct_node,
   		GINT_TO_POINTER(cts.page));
@@ -362,7 +362,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_object_set_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY, gui_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "User Interface");
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.ctree), ct_node,
   		GINT_TO_POINTER(cts.page));
@@ -381,7 +381,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_object_set_data(GTK_OBJECT(prefs_w), E_CAPTURE_PAGE_KEY, capture_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Capture");
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.ctree), ct_node,
   		GINT_TO_POINTER(cts.page));
@@ -399,7 +399,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_object_set_data(GTK_OBJECT(prefs_w), E_NAMERES_PAGE_KEY, nameres_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Name resolution");
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.ctree), ct_node,
   		GINT_TO_POINTER(cts.page));
@@ -423,7 +423,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
-  
+
   ok_bt = gtk_button_new_with_label ("OK");
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
     GTK_SIGNAL_FUNC(prefs_main_ok_cb), GTK_OBJECT(prefs_w));
@@ -445,7 +445,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   GTK_WIDGET_SET_FLAGS(save_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), save_bt, TRUE, TRUE, 0);
   gtk_widget_show(save_bt);
-  
+
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
     GTK_SIGNAL_FUNC(prefs_main_cancel_cb), GTK_OBJECT(prefs_w));
@@ -1144,7 +1144,7 @@ module_search_properties(module_t *module, gpointer user_data)
 }
 
 void
-properties_cb(GtkWidget *w, gpointer dummy) 
+properties_cb(GtkWidget *w, gpointer dummy)
 {
   gchar *title = NULL;
   struct properties_data p;
@@ -1160,9 +1160,9 @@ properties_cb(GtkWidget *w, gpointer dummy)
   } else {
     return;
   }
-  
+
   if (!title) return;
-  
+
   if (prefs_w != NULL) {
     reactivate_window(prefs_w);
   } else {
@@ -1177,13 +1177,13 @@ properties_cb(GtkWidget *w, gpointer dummy)
 
 }
 
-/* Prefs tree selection callback.  The node data has been loaded with 
+/* Prefs tree selection callback.  The node data has been loaded with
    the proper notebook page to load. */
 static void
 prefs_tree_select_cb(GtkCTree *ct, GtkCTreeNode *node, gint col _U_, gpointer dummy _U_)
 {
   gint page = GPOINTER_TO_INT(gtk_ctree_node_get_row_data(ct, node));
-  
-  if (page >= 0) 
+
+  if (page >= 0)
     gtk_notebook_set_page(GTK_NOTEBOOK(notebook), page);
 }

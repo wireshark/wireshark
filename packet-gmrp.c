@@ -5,7 +5,7 @@
  * Based on the code from packet-gvrp.c (GVRP) from
  * Kevin Shi <techishi@ms22.hinet.net> Copyright 2000
  *
- * $Id: packet-gmrp.c,v 1.9 2002/08/02 23:35:49 jmayer Exp $
+ * $Id: packet-gmrp.c,v 1.10 2002/08/28 21:00:13 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15,12 +15,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -119,11 +119,11 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8        octet;
     guint8		  attribute_type;
     int           msg_index, attr_index, offset = 0, length = tvb_reported_length(tvb);
-    
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GMRP");
-    
-    if (check_col(pinfo->cinfo, COL_INFO)) 
+
+    if (check_col(pinfo->cinfo, COL_INFO))
 	col_set_str(pinfo->cinfo, COL_INFO, "GMRP");
 
     if (tree)
@@ -134,20 +134,20 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Read in GARP protocol ID */
 	protocol_id = tvb_get_ntohs(tvb, GARP_PROTOCOL_ID);
-    
+
 	proto_tree_add_uint_format(gmrp_tree, hf_gmrp_proto_id, tvb,
-				   GARP_PROTOCOL_ID, sizeof(guint16), 
+				   GARP_PROTOCOL_ID, sizeof(guint16),
 				   protocol_id,
-				   "Protocol Identifier: 0x%04x (%s)", 
+				   "Protocol Identifier: 0x%04x (%s)",
 				   protocol_id,
-				   protocol_id == GARP_DEFAULT_PROTOCOL_ID ? 
+				   protocol_id == GARP_DEFAULT_PROTOCOL_ID ?
 				     "GARP Multicast Registration Protocol" :
 				     "Unknown Protocol");
 
 	/* Currently only one protocol ID is supported */
 	if (protocol_id != GARP_DEFAULT_PROTOCOL_ID)
 	{
-	    proto_tree_add_text(gmrp_tree, tvb, GARP_PROTOCOL_ID, sizeof(guint16), 
+	    proto_tree_add_text(gmrp_tree, tvb, GARP_PROTOCOL_ID, sizeof(guint16),
  "   (Warning: this version of Ethereal only knows about protocol id = 1)");
 	    call_dissector(data_handle,
 	        tvb_new_subset(tvb, GARP_PROTOCOL_ID + sizeof(guint16), -1, -1),
@@ -219,7 +219,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Check for end of mark */
 				if (octet == GARP_END_OF_MARK)
 				{
-					/* If at least one message has been already read, 
+					/* If at least one message has been already read,
 					 * check for another end of mark.
 					 */
 					if (attr_index)
@@ -305,7 +305,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						/* Service Requirement */
 						proto_tree_add_item(gmrp_tree, hf_gmrp_attribute_value_service_requirement,
 							tvb, offset, sizeof(guint8), FALSE);
-							
+
 						offset += sizeof(guint8);
 						length -= sizeof(guint8);
 					}
@@ -342,7 +342,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Ethereal */
 void
 proto_register_gmrp(void)
-{		 
+{
     static hf_register_info hf[] = {
 	{ &hf_gmrp_proto_id,
 	    { "Protocol ID", "garp.protocol_id",
@@ -374,7 +374,7 @@ proto_register_gmrp(void)
 	    FT_UINT8,        BASE_HEX,      NULL,  0x0,
 	    "" , HFILL }
 	}
-	
+
     };
 
     static gint *ett[] = {
@@ -388,9 +388,9 @@ proto_register_gmrp(void)
      * used by GMRP */
     proto_register_field_array(proto_gmrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    
+
     register_dissector("gmrp", dissect_gmrp, proto_gmrp);
-    
+
 }
 
 void

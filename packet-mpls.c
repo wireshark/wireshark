@@ -1,24 +1,24 @@
 /* packet-mpls.c
  * Routines for MPLS data packet disassembly
- * 
+ *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.27 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-mpls.c,v 1.28 2002/08/28 21:00:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -82,24 +82,24 @@ enum mpls_filter_keys {
 static int mpls_filter[MPLSF_MAX];
 static hf_register_info mplsf_info[] = {
 
-/*    {&mpls_filter[MPLSF_PACKET], 
-     {"MPLS Label Switched Packet", "mpls", FT_UINT8, BASE_DEC, NULL, 0x0, 
+/*    {&mpls_filter[MPLSF_PACKET],
+     {"MPLS Label Switched Packet", "mpls", FT_UINT8, BASE_DEC, NULL, 0x0,
       "", HFILL }},*/
 
-    {&mpls_filter[MPLSF_LABEL], 
-     {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, VALS(special_labels), 0x0, 
+    {&mpls_filter[MPLSF_LABEL],
+     {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, VALS(special_labels), 0x0,
       "", HFILL }},
 
-    {&mpls_filter[MPLSF_EXP], 
-     {"MPLS Experimental Bits", "mpls.exp", FT_UINT8, BASE_DEC, NULL, 0x0, 
+    {&mpls_filter[MPLSF_EXP],
+     {"MPLS Experimental Bits", "mpls.exp", FT_UINT8, BASE_DEC, NULL, 0x0,
       "", HFILL }},
 
-    {&mpls_filter[MPLSF_BOTTOM_OF_STACK], 
-     {"MPLS Bottom Of Label Stack", "mpls.bottom", FT_UINT8, BASE_DEC, NULL, 0x0, 
+    {&mpls_filter[MPLSF_BOTTOM_OF_STACK],
+     {"MPLS Bottom Of Label Stack", "mpls.bottom", FT_UINT8, BASE_DEC, NULL, 0x0,
       "", HFILL }},
 
-    {&mpls_filter[MPLSF_TTL], 
-     {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0, 
+    {&mpls_filter[MPLSF_TTL],
+     {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
       "", HFILL }},
 };
 
@@ -128,7 +128,7 @@ void decode_mpls_label(tvbuff_t *tvb, int offset,
 }
 
 static void
-dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int offset = 0;
     guint32 label;
@@ -144,7 +144,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 	col_set_str(pinfo->cinfo,COL_PROTOCOL, "MPLS");
     }
-    
+
     if (check_col(pinfo->cinfo,COL_INFO)) {
 	col_add_fstr(pinfo->cinfo,COL_INFO,"MPLS Label Switched Packet");
     }
@@ -160,18 +160,18 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    if (label <= MAX_RESERVED)
 		proto_tree_add_uint_format(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
-				    offset, 3, label, "Label: %u (%s)", 
-				    label, val_to_str(label, special_labels, 
+				    offset, 3, label, "Label: %u (%s)",
+				    label, val_to_str(label, special_labels,
 						      "Reserved - Unknown"));
 	    else
 		proto_tree_add_uint(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
 				    offset, 3, label);
 
-	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_EXP], tvb, 
+	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_EXP], tvb,
 				offset+2,1, exp);
-	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_BOTTOM_OF_STACK], tvb, 
+	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_BOTTOM_OF_STACK], tvb,
 				offset+2,1, bos);
-	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_TTL], tvb, 
+	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_TTL], tvb,
 				offset+3,1, ttl);
 	}
 	offset += 4;

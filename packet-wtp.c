@@ -1,8 +1,8 @@
 /* packet-wtp.c
  *
  * Routines to dissect WTP component of WAP traffic.
- * 
- * $Id: packet-wtp.c,v 1.38 2002/08/09 09:12:51 guy Exp $
+ *
+ * $Id: packet-wtp.c,v 1.39 2002/08/28 21:00:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -16,12 +16,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -46,27 +46,27 @@
 #include "packet-wtp.h"
 #include "packet-wsp.h"
 
-static const true_false_string continue_truth = { 
+static const true_false_string continue_truth = {
     "TPI Present" ,
     "No TPI"
 };
 
-static const true_false_string RID_truth = { 
+static const true_false_string RID_truth = {
     "Re-Transmission",
     "First transmission"
 };
 
-static const true_false_string TIDNew_truth = { 
+static const true_false_string TIDNew_truth = {
     "TID is new" ,
     "TID is valid"
 };
 
-static const true_false_string tid_response_truth = { 
+static const true_false_string tid_response_truth = {
     "Response" ,
     "Original"
 };
 
-static const true_false_string UP_truth = { 
+static const true_false_string UP_truth = {
     "User Acknowledgement required" ,
     "User Acknowledgement optional"
 };
@@ -323,7 +323,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Set up structures we'll need to add the protocol subtree and manage it */
     proto_item		*ti;
     proto_tree		*wtp_tree = NULL;
-    
+
     char		pdut;
     char		clsTransaction 	= ' ';
     int			cchInfo;
@@ -441,14 +441,14 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 #ifdef DEBUG
-    fprintf( stderr, "dissect_wtp: cbHeader = %d\n", cbHeader );  
+    fprintf( stderr, "dissect_wtp: cbHeader = %d\n", cbHeader );
 #endif
 
     /* Only update "Info" column when no data in this PDU will
      * be handed off to a subsequent dissector.
      */
     if (check_col(pinfo->cinfo, COL_INFO) &&
-	((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) <= 0) || 
+	((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) <= 0) ||
 	 (pdut == ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)) ) {
 #ifdef DEBUG
 	fprintf(stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo);
@@ -469,14 +469,14 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to process the packet goes here */
 #ifdef DEBUG
-	fprintf(stderr, "dissect_wtp: cbHeader = %d\n", cbHeader);  
-	fprintf(stderr, "dissect_wtp: offCur = %d\n", offCur);  
+	fprintf(stderr, "dissect_wtp: cbHeader = %d\n", cbHeader);
+	fprintf(stderr, "dissect_wtp: offCur = %d\n", offCur);
 #endif
 	/* Add common items: only CON and PDU Type */
 	proto_tree_add_item(
 			wtp_tree,	 		/* tree */
 			hf_wtp_header_flag_continue, 	/* id */
-			tvb, 
+			tvb,
 			offCur, 			/* start of highlight */
 			1,				/* length of highlight*/
 			b0				/* value */
@@ -567,7 +567,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    unsigned char	 tByte;
 	    unsigned char	 tpiLen;
 	    tvbuff_t		*tmp_tvb;
-	    
+
 	    vHeader = 0;		/* Start scan all over	*/
 
 	    do {
@@ -588,14 +588,14 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}	/* End of variable part of header */
     } else {
 #ifdef DEBUG
-	fprintf(stderr, "dissect_wtp: (4) tree was %p\n", tree); 
+	fprintf(stderr, "dissect_wtp: (4) tree was %p\n", tree);
 #endif
     }
     /*
      * Any remaining data ought to be WSP data (if not WTP ACK, NACK
      * or ABORT pdu), so hand off (defragmented) to the WSP dissector
      */
-    if ((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) > 0) && 
+    if ((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) > 0) &&
 	! ((pdut==ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)))
     {
 	int	dataOffset = offCur + cbHeader + vHeader;
@@ -678,110 +678,110 @@ dissect_wtp_fromwap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Ethereal */
 void
 proto_register_wtp(void)
-{                 
+{
 
     /* Setup list of header fields */
     static hf_register_info hf[] = {
 	{ &hf_wtp_header_sub_pdu_size,
-	    { 	"Sub PDU size",           
+	    { 	"Sub PDU size",
 		"wtp.sub_pdu_size",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
 		"Size of Sub-PDU", HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_continue,
-	    { 	"Continue Flag",           
+	    { 	"Continue Flag",
 		"wtp.continue_flag",
-		FT_BOOLEAN, 8, TFS( &continue_truth ), 0x80,          
+		FT_BOOLEAN, 8, TFS( &continue_truth ), 0x80,
 		"Continue Flag", HFILL
 	    }
 	},
 	{ &hf_wtp_header_pdu_type,
-	    { 	"PDU Type",           
+	    { 	"PDU Type",
 		"wtp.pdu_type",
 		FT_UINT8, BASE_HEX, VALS( vals_pdu_type ), 0x78,
 		"PDU Type", HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_Trailer,
-	    { 	"Trailer Flags",           
+	    { 	"Trailer Flags",
 		"wtp.trailer_flags",
 		FT_UINT8, BASE_HEX, VALS( vals_transaction_trailer ), 0x06,
 		"Trailer Flags", HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_RID,
-	    { 	"Re-transmission Indicator",           
+	    { 	"Re-transmission Indicator",
 		"wtp.RID",
 		FT_BOOLEAN, 8, TFS( &RID_truth ), 0x01,
 		"Re-transmission Indicator", HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_TID_response,
-	    { 	"TID Response",           
+	    { 	"TID Response",
 		"wtp.TID.response",
 		FT_BOOLEAN, 16, TFS( &tid_response_truth ), 0x8000,
 		"TID Response", HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_TID,
-	    { 	"Transaction ID",           
+	    { 	"Transaction ID",
 		"wtp.TID",
 		FT_UINT16, BASE_HEX, NULL, 0x7FFF,
 		"Transaction ID", HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_version,
-	    { 	"Version",           
+	    { 	"Version",
 		"wtp.header.version",
 		FT_UINT8, BASE_HEX, VALS( vals_version ), 0xC0,
 		"Version", HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_flag_TIDNew,
-	    { 	"TIDNew",           
+	    { 	"TIDNew",
 		"wtp.header.TIDNew",
 		FT_BOOLEAN, 8, TFS( &TIDNew_truth ), 0x20,
 		"TIDNew", HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_flag_UP,
-	    { 	"U/P flag",           
+	    { 	"U/P flag",
 		"wtp.header.UP",
 		FT_BOOLEAN, 8, TFS( &UP_truth ), 0x10,
 		"U/P Flag", HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_Reserved,
-	    { 	"Reserved",           
+	    { 	"Reserved",
 		"wtp.inv.reserved",
 		FT_UINT8, BASE_HEX, NULL, 0x0C,
 		"Reserved", HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_TransactionClass,
-	    { 	"Transaction Class",           
+	    { 	"Transaction Class",
 		"wtp.inv.transaction_class",
 		FT_UINT8, BASE_HEX, VALS( vals_transaction_classes ), 0x03,
 		"Transaction Class", HFILL
 	    }
 	},
 	{ &hf_wtp_header_Ack_flag_TVETOK,
-	    { 	"Tve/Tok flag",           
+	    { 	"Tve/Tok flag",
 		"wtp.ack.tvetok",
 		FT_BOOLEAN, 8, TFS( &TVETOK_truth ), 0x04,
 		"Tve/Tok flag", HFILL
 	    }
 	},
 	{ &hf_wtp_header_Abort_type,
-	    { 	"Abort Type",           
+	    { 	"Abort Type",
 		"wtp.abort.type",
 		FT_UINT8, BASE_HEX, VALS ( vals_abort_type ), 0x07,
 		"Abort Type", HFILL
 	    }
 	},
 	{ &hf_wtp_header_Abort_reason_provider,
-	    { 	"Abort Reason",           
+	    { 	"Abort Reason",
 		"wtp.abort.reason.provider",
 		FT_UINT8, BASE_HEX, VALS ( vals_abort_reason_provider ), 0x00,
 		"Abort Reason", HFILL
@@ -789,70 +789,70 @@ proto_register_wtp(void)
 	},
 	/* Assume WSP is the user and use its reason codes */
 	{ &hf_wtp_header_Abort_reason_user,
-	    { 	"Abort Reason",           
+	    { 	"Abort Reason",
 		"wtp.abort.reason.user",
 		FT_UINT8, BASE_HEX, VALS ( vals_wsp_reason_codes ), 0x00,
 		"Abort Reason", HFILL
 	    }
 	},
 	{ &hf_wtp_header_sequence_number,
-	    { 	"Packet Sequence Number",           
+	    { 	"Packet Sequence Number",
 		"wtp.header.sequence",
 		FT_UINT8, BASE_HEX, NULL, 0x00,
 		"Packet Sequence Number", HFILL
 	    }
 	},
 	{ &hf_wtp_header_missing_packets,
-	    { 	"Missing Packets",           
+	    { 	"Missing Packets",
 		"wtp.header.missing_packets",
 		FT_UINT8, BASE_HEX, NULL, 0x00,
 		"Missing Packets", HFILL
 	    }
 	},
 	{ &hf_wtp_header_variable_part,
-	    { 	"Header: Variable part",           
+	    { 	"Header: Variable part",
 		"wtp.header_variable_part",
-		FT_BYTES, BASE_HEX, NULL, 0x0,          
+		FT_BYTES, BASE_HEX, NULL, 0x0,
 		"Variable part of the header", HFILL
 	    }
 	},
 	{ &hf_wtp_data,
-	    { 	"Data",           
+	    { 	"Data",
 		"wtp.header_data",
-		FT_BYTES, BASE_HEX, NULL, 0x0,          
+		FT_BYTES, BASE_HEX, NULL, 0x0,
 		"Data", HFILL
 	    }
 	},
 	{ &hf_wtp_tpi_type,
-	    { 	"TPI",           
+	    { 	"TPI",
 		"wtp.tpi",
 		FT_UINT8, BASE_HEX, VALS(vals_tpi_type), 0x00,
 		"Identification of the Transport Information Item", HFILL
 	    }
 	},
 	{ &hf_wtp_tpi_psn,
-	    { 	"Packet sequence number",           
+	    { 	"Packet sequence number",
 		"wtp.tpi.psn",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		"Sequence number of this packet", HFILL
 	    }
 	},
 	{ &hf_wtp_tpi_opt,
-	    { 	"Option",           
+	    { 	"Option",
 		"wtp.tpi.opt",
 		FT_UINT8, BASE_HEX, VALS(vals_tpi_opt), 0x00,
 		"The given option for this TPI", HFILL
 	    }
 	},
 	{ &hf_wtp_tpi_optval,
-	    { 	"Option Value",           
+	    { 	"Option Value",
 		"wtp.tpi.opt.val",
 		FT_NONE, BASE_NONE, NULL, 0x00,
 		"The value that is supplied with this option", HFILL
 	    }
 	},
 	{ &hf_wtp_tpi_info,
-	    { 	"Information",           
+	    { 	"Information",
 		"wtp.tpi.info",
 		FT_NONE, BASE_NONE, NULL, 0x00,
 		"The information being send by this TPI", HFILL
@@ -910,7 +910,7 @@ proto_register_wtp(void)
 	    }
 	},
     };
-	
+
     /* Setup protocol subtree array */
     static gint *ett[] = {
 	&ett_wtp,
@@ -922,9 +922,9 @@ proto_register_wtp(void)
 
     /* Register the protocol name and description */
     proto_wtp = proto_register_protocol(
-	"Wireless Transaction Protocol",   /* protocol name for use by ethereal */ 
+	"Wireless Transaction Protocol",   /* protocol name for use by ethereal */
 	"WTP",                             /* short version of name */
-	"wap-wsp-wtp"                      /* Abbreviated protocol name, should Match IANA 
+	"wap-wsp-wtp"                      /* Abbreviated protocol name, should Match IANA
 					    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
 					    */
     );

@@ -2,22 +2,22 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.12 2002/06/24 00:03:17 tpot Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.13 2002/08/28 21:00:09 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -190,15 +190,15 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 
 	   It seems that ASCII text strings always are NULL terminated,
 	   also no obvious string-length-byte can be seen so it seems the
-	   length of strings are determined by searching the terminating null 
+	   length of strings are determined by searching the terminating null
 	   byte.
 
 	   The first two bytes of the PDU is the length of the PDU including
 	   the two length bytes.
 	   The third byte may be a subcommand byte ?
 
-	   After the PDU comes, in requests a 4 byte thing. Which is either 
-	   (not very often) 0xffffffff or something else. If it is 
+	   After the PDU comes, in requests a 4 byte thing. Which is either
+	   (not very often) 0xffffffff or something else. If it is
 	   'something else' these four bytes are repeated for the matching
 	   response packet.
 	   In some repsonse packets, this 4 byte trailer are sometimes followed
@@ -241,7 +241,7 @@ mapi_logon_rqst(tvbuff_t *tvb, int offset,
 			"unknown string", hf_mapi_unknown_string, -1);
 
         DISSECT_UNKNOWN(tvb_length_remaining(tvb, offset));
-  
+
 	return offset;
 }
 
@@ -284,7 +284,7 @@ mapi_unknown_02_request(tvbuff_t *tvb, int offset,
 
 	if(!mapi_decrypt){
 		/* this is a unidimensional varying and conformant array of
-		   encrypted data */  
+		   encrypted data */
        		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 				dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
 				"unknown data", hf_mapi_unknown_data, -1);
@@ -310,14 +310,14 @@ mapi_unknown_02_reply(tvbuff_t *tvb, int offset,
 
 	if(!mapi_decrypt){
 		/* this is a unidimensional varying and conformant array of
-		   encrypted data */  
+		   encrypted data */
        		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 				dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
 				"unknown data", hf_mapi_unknown_data, -1);
 	} else {
 		offset = mapi_decrypt_pdu(tvb, offset, pinfo, tree, drep);
 	}
-	
+
 	/* length of encrypted data */
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_mapi_encap_datalen, NULL);
@@ -353,30 +353,30 @@ mapi_logoff_reply(tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector dcerpc_mapi_dissectors[] = {
-        { MAPI_LOGON,		"Logon", 
+        { MAPI_LOGON,		"Logon",
 		mapi_logon_rqst,
 		mapi_logon_reply },
-        { MAPI_LOGOFF,		"Logoff", 
+        { MAPI_LOGOFF,		"Logoff",
 		mapi_logoff_rqst,
 		mapi_logoff_reply },
-        { MAPI_UNKNOWN_02,	"unknown_02", 
+        { MAPI_UNKNOWN_02,	"unknown_02",
 		mapi_unknown_02_request,
 		mapi_unknown_02_reply },
 
         {0, NULL, NULL,  NULL }
 };
 
-void 
+void
 proto_register_dcerpc_mapi(void)
 {
 
 static hf_register_info hf[] = {
 	{ &hf_mapi_hnd,
-		{ "Context Handle", "mapi.hnd", FT_BYTES, BASE_NONE, 
+		{ "Context Handle", "mapi.hnd", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_mapi_rc,
-		{ "Return code", "mapi.rc", FT_UINT32, BASE_HEX, 
+		{ "Return code", "mapi.rc", FT_UINT32, BASE_HEX,
 		VALS (NT_errors), 0x0, "", HFILL }},
 
 	{ &hf_mapi_unknown_string,
@@ -392,35 +392,35 @@ static hf_register_info hf[] = {
 		NULL, 0, "Unknown data. If you know what this is, contact ethereal developers.", HFILL }},
 
 	{ &hf_mapi_encap_datalen,
-		{ "Length", "mapi.encap_len", FT_UINT16, BASE_DEC, 
+		{ "Length", "mapi.encap_len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Length of encapsulated/encrypted data", HFILL }},
 
 	{ &hf_mapi_decrypted_data_maxlen,
-		{ "Max Length", "mapi.decrypted.data.maxlen", FT_UINT32, BASE_DEC, 
+		{ "Max Length", "mapi.decrypted.data.maxlen", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Maximum size of buffer for decrypted data", HFILL }},
 
 	{ &hf_mapi_decrypted_data_offset,
-		{ "Offset", "mapi.decrypted.data.offset", FT_UINT32, BASE_DEC, 
+		{ "Offset", "mapi.decrypted.data.offset", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Offset into buffer for decrypted data", HFILL }},
 
 	{ &hf_mapi_decrypted_data_len,
-		{ "Length", "mapi.decrypted.data.len", FT_UINT32, BASE_DEC, 
+		{ "Length", "mapi.decrypted.data.len", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Used size of buffer for decrypted data", HFILL }},
 
 	{ &hf_mapi_decrypted_data,
-		{ "Decrypted data", "mapi.decrypted.data", FT_BYTES, BASE_HEX, 
+		{ "Decrypted data", "mapi.decrypted.data", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "Decrypted data", HFILL }},
 
 	{ &hf_mapi_pdu_len,
-		{ "Length", "mapi.pdu.len", FT_UINT16, BASE_DEC, 
+		{ "Length", "mapi.pdu.len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Size of the command PDU", HFILL }},
 
 	{ &hf_mapi_pdu_trailer,
-		{ "Trailer", "mapi.pdu.trailer", FT_UINT32, BASE_HEX, 
+		{ "Trailer", "mapi.pdu.trailer", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "If you know what this is, contact ethereal developers", HFILL }},
 
 	{ &hf_mapi_pdu_extra_trailer,
-		{ "unknown", "mapi.pdu.extra_trailer", FT_BYTES, BASE_HEX, 
+		{ "unknown", "mapi.pdu.extra_trailer", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "If you know what this is, contact ethereal developers", HFILL }}
 	};
 
@@ -434,7 +434,7 @@ static hf_register_info hf[] = {
         proto_dcerpc_mapi = proto_register_protocol(
                 "Microsoft Exchange MAPI", "MAPI", "mapi");
 
-        proto_register_field_array(proto_dcerpc_mapi, hf, 
+        proto_register_field_array(proto_dcerpc_mapi, hf,
 				   array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 	mapi_module = prefs_register_protocol(proto_dcerpc_mapi, NULL);
@@ -450,7 +450,7 @@ proto_reg_handoff_dcerpc_mapi(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_dcerpc_mapi, ett_dcerpc_mapi, 
-                         &uuid_dcerpc_mapi, ver_dcerpc_mapi, 
+        dcerpc_init_uuid(proto_dcerpc_mapi, ett_dcerpc_mapi,
+                         &uuid_dcerpc_mapi, ver_dcerpc_mapi,
                          dcerpc_mapi_dissectors, -1);
 }

@@ -2,7 +2,7 @@
  * Routines for IAPP dissection
  * Copyright 2002, Alfred Arnold <aarnold@elsa.de>
  *
- * $Id: packet-iapp.c,v 1.5 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-iapp.c,v 1.6 2002/08/28 21:00:16 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,17 +12,17 @@
  * don't bother with the "Copied from" - you don't even need to put
  * in a "Copied from" if you copied an existing dissector, especially
  * if the bulk of the code in the new dissector is your code)
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -55,10 +55,10 @@ static gint ett_iapp_auth = -1;
 
 #define UDP_PORT_IAPP     2313
 
-#define IAPP_ANNOUNCE_REQUEST  0 
-#define IAPP_ANNOUNCE_RESPONSE 1 
-#define IAPP_HANDOVER_REQUEST 2 
-#define IAPP_HANDOVER_RESPONSE 3 
+#define IAPP_ANNOUNCE_REQUEST  0
+#define IAPP_ANNOUNCE_RESPONSE 1
+#define IAPP_HANDOVER_REQUEST 2
+#define IAPP_HANDOVER_RESPONSE 3
 
 #define IAPP_PDU_SSID 0
 #define IAPP_PDU_BSSID 1
@@ -279,7 +279,7 @@ authval_to_str(int type, int len, tvbuff_t *tvb, int offset)
                         run += sprintf(run, "%d seconds", val);
 			break;
 		case IAPP_AUTH_IPADDR:
-			run += sprintf(run, "%d.%d.%d.%d", 
+			run += sprintf(run, "%d.%d.%d.%d",
 				tvb_get_guint8(tvb, offset + 3),
 				tvb_get_guint8(tvb, offset + 4),
 				tvb_get_guint8(tvb, offset + 5),
@@ -290,7 +290,7 @@ authval_to_str(int type, int len, tvbuff_t *tvb, int offset)
 			run += sprintf(run, " %02x", tvb_get_guint8(tvb, offset + 3 + z));
 			break;
 	}
-	
+
 	return textbuffer;
 }
 
@@ -351,7 +351,7 @@ pduval_to_str(int type, int len, tvbuff_t *tvb, int offset)
 		case IAPP_PDU_CAPABILITY:
 		{
 			int mask, first = 1;
-			
+
 			val = tvb_get_guint8(tvb, offset + 3);
 			run += sprintf(run, "%02x (", val);
 			for (mask = 0x80; mask; mask >>= 1)
@@ -407,13 +407,13 @@ pduval_to_str(int type, int len, tvbuff_t *tvb, int offset)
 			run += sprintf(run, strval);
 			break;
 	}
-	
+
 	return textbuffer;
 }
 
 /* code to dissect a list of PDUs */
 
-static void 
+static void
 dissect_pdus(tvbuff_t *tvb, int offset, proto_tree *pdutree, int pdulen)
 {
 	e_pduhdr pduhdr;
@@ -439,10 +439,10 @@ dissect_pdus(tvbuff_t *tvb, int offset, proto_tree *pdutree, int pdulen)
 			pdustrval, pduhdr.pdu_type, valstr);
 
 		if (pduhdr.pdu_type == IAPP_PDU_CAPABILITY)
-			dissect_caps(ti, tvb, offset); 
+			dissect_caps(ti, tvb, offset);
 
 		if (pduhdr.pdu_type == IAPP_PDU_AUTHINFO)
-			dissect_authinfo(ti, tvb, offset + 3, len); 
+			dissect_authinfo(ti, tvb, offset + 3, len);
 
 		pdulen -= (len + 3);
 		offset += (len + 3);
@@ -460,10 +460,10 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int ia_type;
 	gchar *codestrval;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAPP");
-    
-	if (check_col(pinfo->cinfo, COL_INFO)) 
+
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	tvb_memcpy(tvb, (guint8 *)&ih, 0, sizeof(e_iapphdr));
@@ -510,7 +510,7 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_iapp(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {

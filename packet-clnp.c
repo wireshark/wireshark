@@ -1,24 +1,24 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.58 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-clnp.c,v 1.59 2002/08/28 21:00:08 jmayer Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -303,17 +303,17 @@ static gchar *print_tsap(const guchar *tsap, int length)
 
   if (cur == &str[0][0]) {
     cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
+  } else if (cur == &str[1][0]) {
     cur = &str[2][0];
-  } else {  
+  } else {
     cur = &str[0][0];
   }
 
 
   cur[0] = '\0';
-  if (length <= 0 || length > MAX_TSAP_LEN) 
+  if (length <= 0 || length > MAX_TSAP_LEN)
     sprintf(cur, "<unsupported TSAP length>");
-  else {    
+  else {
     allprintable=TRUE;
     for (i=0;i<length;i++) {
 	/* If any byte is not printable ASCII, display the TSAP as a
@@ -326,7 +326,7 @@ static gchar *print_tsap(const guchar *tsap, int length)
 	if (!(isascii(tsap[i]) && isprint(tsap[i]))) {
 	  allprintable=FALSE;
 	  break;
-	  }	 
+	  }
 	}
     if (!allprintable){
       strcat(cur,"0x");
@@ -375,7 +375,7 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
 
     case VP_ACK_TIME:
       s = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_text(tree, tvb, offset, length, 
+      proto_tree_add_text(tree, tvb, offset, length,
 			      "Ack time (ms): %u", s);
       offset += length;
       vp_length -= length;
@@ -413,7 +413,7 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
       offset += length;
       vp_length -= length;
       break;
-	
+
     case VP_TRANSIT_DEL:
       s1 = tvb_get_ntohs(tvb, offset);
       proto_tree_add_text(tree, tvb, offset, 2,
@@ -511,7 +511,7 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
       vp_length -= length;
       break;
 
-    case VP_REASSIGNMENT: 
+    case VP_REASSIGNMENT:
       proto_tree_add_text(tree, tvb, offset, 2,
 		"Reassignment time: %u secs", tvb_get_ntohs(tvb, offset));
       offset += length;
@@ -541,7 +541,7 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
 
     case VP_TPDU_SIZE:
       c1 = tvb_get_guint8(tvb, offset) & 0x0F;
-      proto_tree_add_text(tree, tvb, offset, length, 
+      proto_tree_add_text(tree, tvb, offset, length,
 		"TPDU size: %u", 1 << c1);
       offset += length;
       vp_length -= length;
@@ -645,7 +645,7 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
 		"Preferred maximum TPDU size: %u", pref_max_tpdu_size*128);
       offset += length;
       vp_length -= length;
-      break; 
+      break;
 
     case VP_INACTIVITY_TIMER:
       proto_tree_add_text(tree, tvb, offset, length,
@@ -653,7 +653,7 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
       offset += length;
       vp_length -= length;
       break;
-	
+
     case VP_PROTECTION:           /* user-defined */
     case VP_PROTO_CLASS:          /* todo */
     default:			  /* unknown, no decoding */
@@ -661,25 +661,25 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
 			      "Parameter value: <not shown>");
       offset += length;
       vp_length -= length;
-      break; 
+      break;
     }
   } /* while */
 
   return TRUE;
 }
 
-static int osi_decode_DR(tvbuff_t *tvb, int offset, 
-			 packet_info *pinfo, proto_tree *tree) 
+static int osi_decode_DR(tvbuff_t *tvb, int offset,
+			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
   proto_item *ti;
   gushort src_ref;
   guchar  reason;
   char *str;
-  
-  if (li < LI_MIN_DR) 
+
+  if (li < LI_MIN_DR)
     return -1;
-  
+
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
   reason  = tvb_get_guint8(tvb, offset + P_REASON_IN_DR);
 
@@ -712,13 +712,13 @@ static int osi_decode_DR(tvbuff_t *tvb, int offset,
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, tvb, offset,      1,
 			"Length indicator: %u", li);
-    proto_tree_add_text(cotp_tree, tvb, offset +  1, 1, 
-			"TPDU code: 0x%x (DR)", tpdu); 
-    proto_tree_add_text(cotp_tree, tvb, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  1, 1,
+			"TPDU code: 0x%x (DR)", tpdu);
+    proto_tree_add_text(cotp_tree, tvb, offset +  2, 2,
 			"Destination reference: 0x%04x", dst_ref);
-    proto_tree_add_text(cotp_tree, tvb, offset +  4, 2, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  4, 2,
 			"Source reference: 0x%04x", src_ref);
-    proto_tree_add_text(cotp_tree, tvb, offset +  6, 1, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  6, 1,
 			"Cause: %s", str);
   }
 
@@ -733,7 +733,7 @@ static int osi_decode_DR(tvbuff_t *tvb, int offset,
 
 } /* osi_decode_DR */
 
-static int osi_decode_DT(tvbuff_t *tvb, int offset, 
+static int osi_decode_DT(tvbuff_t *tvb, int offset,
 			 packet_info *pinfo, proto_tree *tree,
 			 gboolean uses_inactive_subset,
 			 gboolean *subdissector_found)
@@ -745,7 +745,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
   guint    tpdu_nr ;
   guint    fragment = 0;
   tvbuff_t *next_tvb;
-    
+
   /* VP_CHECKSUM is the only parameter allowed in the variable part.
      (This means we may misdissect this if the packet is bad and
      contains other parameters.) */
@@ -786,7 +786,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
       if ( tpdu_nr & 0x80 )
 	tpdu_nr = tpdu_nr & 0x7F;
       else
-	fragment = 1;      
+	fragment = 1;
       is_extended = FALSE;
       is_class_234 = FALSE;
       break;
@@ -798,7 +798,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
   }
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s", 
+    col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s",
 		 tpdu_nr,
 		 dst_ref,
 		 (fragment)? "(fragment)" : "");
@@ -813,7 +813,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
 
   if (tree) {
     proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			"TPDU code: 0x%x (DT)", tpdu); 
+			"TPDU code: 0x%x (DT)", tpdu);
 
   }
   offset += 1;
@@ -830,8 +830,8 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
 
   if (is_extended) {
     if (tree) {
-      proto_tree_add_text(cotp_tree, tvb, offset, 4, 
-			    "TPDU number: 0x%08x (%s)", 
+      proto_tree_add_text(cotp_tree, tvb, offset, 4,
+			    "TPDU number: 0x%08x (%s)",
 			    tpdu_nr,
 			    (fragment)? "fragment":"complete");
     }
@@ -840,7 +840,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
   } else {
     if (tree) {
       proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			    "TPDU number: 0x%02x (%s)", 
+			    "TPDU number: 0x%02x (%s)",
 			    tpdu_nr,
 			    (fragment)? "fragment":"complete");
     }
@@ -870,7 +870,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
 
 } /* osi_decode_DT */
 
-static int osi_decode_ED(tvbuff_t *tvb, int offset, 
+static int osi_decode_ED(tvbuff_t *tvb, int offset,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
@@ -921,7 +921,7 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
   } /* li */
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x", 
+    col_append_fstr(pinfo->cinfo, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
 
   if (tree) {
@@ -933,7 +933,7 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
   offset += 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, tvb, offset, 1, 
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"TPDU code: 0x%x (ED)", tpdu);
   }
   offset += 1;
@@ -956,7 +956,7 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
   } else {
     if (tree) {
       proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			    "TPDU number: 0x%02x", tpdu_nr);	
+			    "TPDU number: 0x%02x", tpdu_nr);
     }
     offset += 1;
     li -= 1;
@@ -976,7 +976,7 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
 
 } /* osi_decode_ED */
 
-static int osi_decode_RJ(tvbuff_t *tvb, int offset, 
+static int osi_decode_RJ(tvbuff_t *tvb, int offset,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
@@ -999,7 +999,7 @@ static int osi_decode_RJ(tvbuff_t *tvb, int offset,
   }
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x", 
+    col_append_fstr(pinfo->cinfo, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
 
   if (tree) {
@@ -1007,20 +1007,20 @@ static int osi_decode_RJ(tvbuff_t *tvb, int offset,
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, tvb, offset,      1,
 			"Length indicator: %u", li);
-    proto_tree_add_text(cotp_tree, tvb, offset +  1, 1, 
-			"TPDU code: 0x%x (RJ)", tpdu); 
+    proto_tree_add_text(cotp_tree, tvb, offset +  1, 1,
+			"TPDU code: 0x%x (RJ)", tpdu);
     if (li == LI_NORMAL_RJ)
-      proto_tree_add_text(cotp_tree, tvb, offset +  1, 1, 
+      proto_tree_add_text(cotp_tree, tvb, offset +  1, 1,
 			  "Credit: %u", cdt);
-    proto_tree_add_text(cotp_tree, tvb, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  2, 2,
 			"Destination reference: 0x%04x", dst_ref);
     if (li == LI_NORMAL_RJ)
-      proto_tree_add_text(cotp_tree, tvb, offset +  4, 1, 
+      proto_tree_add_text(cotp_tree, tvb, offset +  4, 1,
 			  "Your TPDU number: 0x%02x", tpdu_nr);
     else {
-      proto_tree_add_text(cotp_tree, tvb, offset +  4, 4, 
+      proto_tree_add_text(cotp_tree, tvb, offset +  4, 4,
 			  "Your TPDU number: 0x%02x", tpdu_nr);
-      proto_tree_add_text(cotp_tree, tvb, offset +  8, 2, 
+      proto_tree_add_text(cotp_tree, tvb, offset +  8, 2,
 			  "Credit: 0x%02x", credit);
     }
   }
@@ -1031,7 +1031,7 @@ static int osi_decode_RJ(tvbuff_t *tvb, int offset,
 
 } /* osi_decode_RJ */
 
-static int osi_decode_CC(tvbuff_t *tvb, int offset, 
+static int osi_decode_CC(tvbuff_t *tvb, int offset,
 			 packet_info *pinfo, proto_tree *tree)
 {
 
@@ -1104,21 +1104,21 @@ static int osi_decode_CC(tvbuff_t *tvb, int offset,
 
 } /* osi_decode_CC */
 
-static int osi_decode_DC(tvbuff_t *tvb, int offset, 
+static int osi_decode_DC(tvbuff_t *tvb, int offset,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
   gushort src_ref;
 
-  if (li > LI_MAX_DC) 
+  if (li > LI_MAX_DC)
     return -1;
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO,
-		 "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", 
+		 "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 src_ref,
 		 dst_ref);
 
@@ -1159,7 +1159,7 @@ static int osi_decode_DC(tvbuff_t *tvb, int offset,
 
 } /* osi_decode_DC */
 
-static int osi_decode_AK(tvbuff_t *tvb, int offset, 
+static int osi_decode_AK(tvbuff_t *tvb, int offset,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
@@ -1167,7 +1167,7 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
   guint      tpdu_nr;
   gushort    cdt_in_ak;
 
-  if (li > LI_MAX_AK) 
+  if (li > LI_MAX_AK)
     return -1;
 
   if (is_LI_NORMAL_AK(li)) {
@@ -1175,7 +1175,7 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
     tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
+      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x",
 		   tpdu_nr, dst_ref);
 
     if (tree) {
@@ -1214,14 +1214,14 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
     offset += li;
 
   } else { /* extended format */
-    
+
     tpdu_nr   = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
     cdt_in_ak = tvb_get_ntohs(tvb, offset + P_CDT_IN_AK);
 
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
+      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x",
 		   tpdu_nr, dst_ref);
-    
+
     if (tree) {
       ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
       cotp_tree = proto_item_add_subtree(ti, ett_cotp);
@@ -1257,7 +1257,7 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
     }
     offset += 2;
     li -= 2;
-    
+
     if (tree)
       osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
     offset += li;
@@ -1268,7 +1268,7 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
 
 } /* osi_decode_AK */
 
-static int osi_decode_EA(tvbuff_t *tvb, int offset, 
+static int osi_decode_EA(tvbuff_t *tvb, int offset,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
@@ -1276,7 +1276,7 @@ static int osi_decode_EA(tvbuff_t *tvb, int offset,
   gboolean is_extended;
   guint    tpdu_nr ;
 
-  if (li > LI_MAX_EA) 
+  if (li > LI_MAX_EA)
     return -1;
 
   /* VP_CHECKSUM is the only parameter allowed in the variable part.
@@ -1313,7 +1313,7 @@ static int osi_decode_EA(tvbuff_t *tvb, int offset,
   } /* li */
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, 
+    col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "EA TPDU (%u) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
@@ -1362,14 +1362,14 @@ static int osi_decode_EA(tvbuff_t *tvb, int offset,
 
 } /* osi_decode_EA */
 
-static int osi_decode_ER(tvbuff_t *tvb, int offset, 
+static int osi_decode_ER(tvbuff_t *tvb, int offset,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
   proto_item *ti;
   guchar *str;
 
-  if (li > LI_MAX_ER) 
+  if (li > LI_MAX_ER)
     return -1;
 
   switch(tvb_get_guint8(tvb, offset + P_REJECT_ER)) {
@@ -1399,11 +1399,11 @@ static int osi_decode_ER(tvbuff_t *tvb, int offset,
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, tvb, offset,      1,
 			"Length indicator: %u", li);
-    proto_tree_add_text(cotp_tree, tvb, offset +  1, 1, 
-			"TPDU code: 0x%x (ER)", tpdu); 
-    proto_tree_add_text(cotp_tree, tvb, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  1, 1,
+			"TPDU code: 0x%x (ER)", tpdu);
+    proto_tree_add_text(cotp_tree, tvb, offset +  2, 2,
 			"Destination reference: 0x%04x", dst_ref);
-    proto_tree_add_text(cotp_tree, tvb, offset +  4, 1, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  4, 1,
 			"Reject cause: %s", str);
   }
 
@@ -1413,7 +1413,7 @@ static int osi_decode_ER(tvbuff_t *tvb, int offset,
 
 } /* osi_decode_ER */
 
-static int osi_decode_UD(tvbuff_t *tvb, int offset, 
+static int osi_decode_UD(tvbuff_t *tvb, int offset,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
@@ -1432,7 +1432,7 @@ static int osi_decode_UD(tvbuff_t *tvb, int offset,
   offset += 1;
 
   if (tree) {
-    proto_tree_add_text(cltp_tree, tvb, offset, 1, 
+    proto_tree_add_text(cltp_tree, tvb, offset, 1,
 			"TPDU code: 0x%x (UD)", tpdu);
   }
   offset += 1;
@@ -1460,7 +1460,7 @@ static int osi_decode_UD(tvbuff_t *tvb, int offset,
    only valid CLTP PDU type is not a valid COTP PDU type, so we'll handle
    both of them here. */
 static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
-		  proto_tree *tree, gboolean uses_inactive_subset) 
+		  proto_tree *tree, gboolean uses_inactive_subset)
 {
   int offset = 0;
   gboolean first_tpdu = TRUE;
@@ -1562,7 +1562,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
   return found_ositp;
 } /* dissect_ositp_internal */
 
-static void dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+static void dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   if (!dissect_ositp_internal(tvb, pinfo, tree, FALSE))
     call_dissector(data_handle,tvb, pinfo, tree);
@@ -1570,7 +1570,7 @@ static void dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /*
- *  CLNP part / main entry point 
+ *  CLNP part / main entry point
 */
 
 static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1620,15 +1620,15 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
       ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, FALSE);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);
-      proto_tree_add_uint_format(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1, 
+      proto_tree_add_uint_format(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
 				 cnf_proto_id,
 				 "Inactive subset");
-    } 
+    }
     next_tvb = tvb_new_subset(tvb, 1, -1, -1);
     dissect_ositp_internal(next_tvb, pinfo, tree, TRUE);
     return;
-  } 
- 
+  }
+
   /* return if version not known */
   cnf_vers = tvb_get_guint8(tvb, P_CLNP_VERS);
   if (cnf_vers != ISO8473_V1) {
@@ -1643,16 +1643,16 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, FALSE);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
-    proto_tree_add_uint(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
 			       cnf_proto_id);
-    proto_tree_add_uint(clnp_tree, hf_clnp_length, tvb, P_CLNP_HDR_LEN, 1, 
-			cnf_hdr_len); 
-    proto_tree_add_uint(clnp_tree, hf_clnp_version, tvb, P_CLNP_VERS, 1, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_length, tvb, P_CLNP_HDR_LEN, 1,
+			cnf_hdr_len);
+    proto_tree_add_uint(clnp_tree, hf_clnp_version, tvb, P_CLNP_VERS, 1,
 			cnf_vers);
     cnf_ttl = tvb_get_guint8(tvb, P_CLNP_TTL);
-    proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, tvb, P_CLNP_TTL, 1, 
+    proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, tvb, P_CLNP_TTL, 1,
 			       cnf_ttl,
-			       "Holding Time : %u (%u.%u secs)", 
+			       "Holding Time : %u (%u.%u secs)",
 			       cnf_ttl, cnf_ttl / 2, (cnf_ttl % 2) * 5);
   }
 
@@ -1747,7 +1747,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } /* tree */
 
   /* address part */
-  
+
   offset = P_CLNP_ADDRESS_PART;
   dst_len  = tvb_get_guint8(tvb, offset);
   dst_addr = tvb_get_ptr(tvb, offset + 1, dst_len);
@@ -1756,18 +1756,18 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   src_addr = tvb_get_ptr(tvb, offset + dst_len + 2, src_len);
 
   if (tree) {
-    proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, tvb, offset, 1, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, tvb, offset, 1,
 			dst_len);
-    proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset + 1 , dst_len, 
+    proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset + 1 , dst_len,
 			       dst_addr,
-			       " DA : %s", 
+			       " DA : %s",
 			       print_nsap_net(dst_addr, dst_len));
-    proto_tree_add_uint(clnp_tree, hf_clnp_src_length, tvb, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_src_length, tvb,
 			offset + 1 + dst_len, 1, src_len);
-    proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, tvb, 
+    proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, tvb,
 			       offset + dst_len + 2, src_len,
 			       src_addr,
-			       " SA : %s", 
+			       " SA : %s",
 			       print_nsap_net(src_addr, src_len));
 
     opt_len -= dst_len + src_len +2;
@@ -1785,21 +1785,21 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (cnf_type & CNF_SEG_OK) {
     struct clnp_segment seg;			/* XXX - not used */
     tvb_memcpy(tvb, (guint8 *)&seg, offset, sizeof(seg));	/* XXX - not used */
-    
+
     segment_offset = tvb_get_ntohs(tvb, offset + 2);
     du_id = tvb_get_ntohs(tvb, offset);
     if (tree) {
-      proto_tree_add_text(clnp_tree, tvb, offset, 2, 
+      proto_tree_add_text(clnp_tree, tvb, offset, 2,
 			"Data unit identifier: %06u",
 			du_id);
       proto_tree_add_text(clnp_tree, tvb, offset + 2 , 2,
-			"Segment offset      : %6u", 
+			"Segment offset      : %6u",
 			segment_offset);
       proto_tree_add_text(clnp_tree, tvb, offset + 4 , 2,
-			"Total length        : %6u", 
+			"Total length        : %6u",
 			tvb_get_ntohs(tvb, offset + 4));
     }
-    
+
     offset  += 6;
     opt_len -= 6;
   }
@@ -1807,14 +1807,14 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     /* To do : decode options  */
 /*
-    proto_tree_add_text(clnp_tree, tvb, offset, 
+    proto_tree_add_text(clnp_tree, tvb, offset,
 			cnf_hdr_len - offset,
 			"Options/Data: <not shown>");
 */
 /* QUICK HACK Option Len:= PDU_Hd_length-( FixedPart+AddresPart+SegmentPart )*/
 
     dissect_osi_options( opt_len,
-                         tvb, offset, clnp_tree ); 
+                         tvb, offset, clnp_tree );
   }
 
   /* Length of CLNP datagram plus headers above it. */
@@ -1904,7 +1904,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          XXX - if this isn't the first Derived PDU of a segmented Initial
          PDU, skip that? */
 
-      if (nsel == (char)tp_nsap_selector || always_decode_transport) { 
+      if (nsel == (char)tp_nsap_selector || always_decode_transport) {
         if (dissect_ositp_internal(next_tvb, pinfo, tree, FALSE)) {
           pinfo->fragmented = save_fragmented;
           return;	/* yes, it appears to be COTP or CLTP */
@@ -2000,7 +2000,7 @@ void proto_register_clnp(void)
 {
   static hf_register_info hf[] = {
     { &hf_clnp_id,
-      { "Network Layer Protocol Identifier", "clnp.nlpi", FT_UINT8, BASE_HEX, 
+      { "Network Layer Protocol Identifier", "clnp.nlpi", FT_UINT8, BASE_HEX,
         VALS(nlpid_vals), 0x0, "", HFILL }},
 
     { &hf_clnp_length,

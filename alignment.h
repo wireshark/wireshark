@@ -1,15 +1,15 @@
  /*
   * alignment.h, Copyright, 1998, Richard Sharpe, All Rights Reserved
   *
-  * $Id: alignment.h,v 1.3 1999/09/23 05:26:18 guy Exp $
+  * $Id: alignment.h,v 1.4 2002/08/28 21:00:05 jmayer Exp $
   *
   * Please see the file COPYING in the top level for details of copying
-  * this software. Use of this software is approved only under certain 
+  * this software. Use of this software is approved only under certain
   * conditions.
-  * 
+  *
   * This file implements the alignment macros for the Threaded SMB Server
   *
-  * For the moment we assume Intel style architecture, but can support 
+  * For the moment we assume Intel style architecture, but can support
   * others.
   *
   * Modification History

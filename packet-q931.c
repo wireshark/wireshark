@@ -2,24 +2,24 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.45 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-q931.c,v 1.46 2002/08/28 21:00:25 jmayer Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -360,7 +360,7 @@ static const value_string q931_information_transfer_capability_vals[] = {
 	{ 0x18, "Video" },
 	{ 0,    NULL }
 };
-	
+
 static const value_string q931_transfer_mode_vals[] = {
 	{ 0x00, "Circuit mode" },
 	{ 0x40, "Packet mode" },
@@ -379,7 +379,7 @@ static const value_string q931_information_transfer_rate_vals[] = {
 	{ Q931_IT_RATE_MULTIRATE,	"Multirate (64 kbit/s base rate)" },
 	{ 0,				NULL }
 };
-	
+
 static const value_string q931_uil1_vals[] = {
 	{ 0x01, "V.110/I.460/X.30 rate adaption" },
 	{ 0x02, "Recommendation G.711 u-law" },
@@ -515,7 +515,7 @@ static const value_string q931_uil3_vals[] = {
 	{ 0,			NULL }
 };
 
-static void 
+static void
 dissect_q931_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	unsigned int discriminator = tvb_get_guint8(tvb, offset);
@@ -633,7 +633,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		      "Unknown (0x%02X)"));
 		offset += 1;
 		len -= 1;
-		
+
 		if (octet & Q931_IE_VL_EXTENSION)
 			goto l1_done;
 		if (len == 0)
@@ -893,7 +893,7 @@ static const value_string q931_cause_coding_standard_vals[] = {
 	{ 0x60, "Standard specific to identified location" },
 	{ 0,    NULL }
 };
-	
+
 const value_string q931_cause_location_vals[] = {
 	{ 0x00, "User (U)" },
 	{ 0x01, "Private network serving the local user (LPN)" },
@@ -1077,7 +1077,7 @@ static const value_string q931_coding_standard_vals[] = {
 	{ 0x60, "Standard defined for the network" },
 	{ 0,    NULL }
 };
-	
+
 static const value_string q931_call_state_vals[] = {
 	{ 0x00, "Null" },
 	{ 0x01, "Call initiated" },
@@ -1153,7 +1153,7 @@ static const value_string q931_not_basic_channel_selection_vals[] = {
 };
 
 #define	Q931_IS_SLOT_MAP		0x10
-	
+
 static const value_string q931_element_type_vals[] = {
 	{ 0x03, "B-channel units" },
 	{ 0x06, "H0-channel units" },
@@ -2108,7 +2108,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8		message_type;
 	guint8		info_element;
 	guint16		info_element_len;
-	int		codeset; 
+	int		codeset;
 	gboolean	non_locking_shift;
 	tvbuff_t	*h225_tvb;
 
@@ -2209,7 +2209,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    val_to_str(info_element & Q931_IE_SO_IE_MASK,
 				      q931_congestion_level_vals,
 				      "Unknown (0x%X)"));
-			}		
+			}
 			offset += 1;
 			if (non_locking_shift)
 				codeset = 0;
@@ -2222,7 +2222,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    val_to_str(info_element & Q931_IE_SO_IE_MASK,
 				      q931_repeat_indication_vals,
 				      "Unknown (0x%X)"));
-			}		
+			}
 			offset += 1;
 			if (non_locking_shift)
 				codeset = 0;
@@ -2244,7 +2244,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * IE with ASN.1 encoding of the user information.
 		 */
 		if (is_tpkt && tvb_bytes_exist(tvb, offset, 4) &&
-		    tvb_get_guint8(tvb, offset) == Q931_IE_USER_USER && 
+		    tvb_get_guint8(tvb, offset) == Q931_IE_USER_USER &&
 		    tvb_get_guint8(tvb, offset + 3) == Q931_PROTOCOL_DISCRIMINATOR_ASN1)  {
 			info_element_len = tvb_get_ntohs(tvb, offset + 1);
 			if (q931_tree != NULL) {
@@ -2578,7 +2578,7 @@ proto_register_q931(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_q931_discriminator,
-		  { "Protocol discriminator", "q931.disc", FT_UINT8, BASE_HEX, NULL, 0x0, 
+		  { "Protocol discriminator", "q931.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
 		  	"", HFILL }},
 
 		{ &hf_q931_call_ref_len,

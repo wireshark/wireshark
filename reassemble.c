@@ -1,22 +1,22 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.22 2002/06/17 01:12:13 guy Exp $
+ * $Id: reassemble.c,v 1.23 2002/08/28 21:00:41 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -194,7 +194,7 @@ fragment_table_init(GHashTable **fragment_table)
 	if (*fragment_table != NULL) {
 		/*
 		 * The fragment hash table exists.
-		 * 
+		 *
 		 * Remove all entries and free fragment data for
 		 * each entry.  (The key and value data is freed
 		 * by "reassemble_init()".)
@@ -217,7 +217,7 @@ reassembled_table_init(GHashTable **reassembled_table)
 	if (*reassembled_table != NULL) {
 		/*
 		 * The reassembled-packet hash table exists.
-		 * 
+		 *
 		 * Remove all entries and free fragment data for
 		 * each entry.  (The key and value data is freed
 		 * by "reassemble_init()".)
@@ -254,14 +254,14 @@ reassemble_init(void)
 
 /* This function cleans up the stored state and removes the reassembly data and
  * (with one exception) all allocated memory for matching reassembly.
- * 
+ *
  * The exception is :
- * If the PDU was already completely reassembled, then the buffer containing the 
+ * If the PDU was already completely reassembled, then the buffer containing the
  * reassembled data WILL NOT be free()d, and the pointer to that buffer will be
  * returned.
  * Othervise the function will return NULL.
  *
- * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to 
+ * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to
  * g_free() that buffer.
  */
 unsigned char *
@@ -315,7 +315,7 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 	key.id  = id;
 
 	fd_head = g_hash_table_lookup(fragment_table, &key);
-	
+
 	return fd_head;
 }
 
@@ -330,11 +330,11 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
  * using fragment_set_tot_len immediately after doing fragment_add for the first packet.
  *
  * note that for FD_BLOCKSEQUENCE tot_len is the index for the tail fragment.
- * i.e. since the block numbers start at 0, if we specify tot_len==2, that 
+ * i.e. since the block numbers start at 0, if we specify tot_len==2, that
  * actually means we want to defragment 3 blocks, block 0, 1 and 2.
  */
 void
-fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table, 
+fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
 		     guint32 tot_len)
 {
 	fragment_data *fd_head;
@@ -379,7 +379,7 @@ fragment_get_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
    When this function is called, the fh MUST already exist, i.e.
    the fh MUST be created by the initial call to fragment_add() before
    this function is called.
-   Also note that this function MUST be called to indicate a fh will be 
+   Also note that this function MUST be called to indicate a fh will be
    extended (increase the already stored data)
 */
 
@@ -417,7 +417,7 @@ fragment_set_partial_reassembly(packet_info *pinfo, guint32 id, GHashTable *frag
  *
  * 01-2002
  * Once the fh is defragmented (= FD_DEFRAGMENTED set), it can be
- * extended using the FD_PARTIAL_REASSEMBLY flag. This flag should be set 
+ * extended using the FD_PARTIAL_REASSEMBLY flag. This flag should be set
  * using fragment_set_partial_reassembly() before calling fragment_add
  * with the new fragment. FD_TOOLONGFRAGMENT and FD_MULTIPLETAILS flags
  * are lowered when a new extension process is started.
@@ -506,7 +506,7 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 		fd_head->datalen=0;
 	}
 
-	if (!more_frags) {  
+	if (!more_frags) {
 		/*
 		 * This is the tail fragment in the sequence.
 		 */
@@ -585,7 +585,7 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	 */
 	max = 0;
 	for (fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
-		if ( ((fd_i->offset)<=max) && 
+		if ( ((fd_i->offset)<=max) &&
 		    ((fd_i->offset+fd_i->len)>max) ){
 			max = fd_i->offset+fd_i->len;
 		}
@@ -607,7 +607,7 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 
 
 	/* we have received an entire packet, defragment it and
-         * free all fragments 
+         * free all fragments
          */
 	/* store old data just in case */
 	old_data=fd_head->data;
@@ -626,7 +626,7 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 					fd_i->flags    |= FD_OVERLAPCONFLICT;
 					fd_head->flags |= FD_OVERLAPCONFLICT;
 				}
-			} 
+			}
 			/* dfpos is always >= than fd_i->offset */
 			/* No gaps can exist here, max_loop(above) does this */
 			if( fd_i->offset+fd_i->len > dfpos )
@@ -682,7 +682,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	fd->len  = frag_data_len;
 	fd->data = NULL;
 
-	if (!more_frags) {  
+	if (!more_frags) {
 		/*
 		 * This is the tail fragment in the sequence.
 		 */
@@ -787,7 +787,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 
 
 	/* we have received an entire packet, defragment it and
-         * free all fragments 
+         * free all fragments
          */
 	size=0;
 	last_fd=NULL;
@@ -1110,7 +1110,7 @@ show_fragment(fragment_data *fd, int offset, fragment_items *fit,
 {
 	if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
 		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-		/* this fragment has some flags set, create a subtree 
+		/* this fragment has some flags set, create a subtree
 		 * for it and display the flags.
 		 */
 		proto_tree *fet=NULL;
@@ -1123,7 +1123,7 @@ show_fragment(fragment_data *fd, int offset, fragment_items *fit,
 		} else {
 			hf = *(fit->hf_fragment);
 		}
-		fei = proto_tree_add_none_format(ft, hf, 
+		fei = proto_tree_add_none_format(ft, hf,
 			tvb, offset, fd->len,
 			"Frame:%u payload:%u-%u",
 			fd->frame,
@@ -1131,32 +1131,32 @@ show_fragment(fragment_data *fd, int offset, fragment_items *fit,
 			offset+fd->len-1);
 		fet = proto_item_add_subtree(fei, *(fit->ett_fragment));
 		if (fd->flags&FD_OVERLAP) {
-			proto_tree_add_boolean(fet, 
+			proto_tree_add_boolean(fet,
 				*(fit->hf_fragment_overlap),
-				tvb, 0, 0, 
+				tvb, 0, 0,
 				TRUE);
 		}
 		if (fd->flags&FD_OVERLAPCONFLICT) {
-			proto_tree_add_boolean(fet, 
-				*(fit->hf_fragment_overlap_conflict), 
-				tvb, 0, 0, 
+			proto_tree_add_boolean(fet,
+				*(fit->hf_fragment_overlap_conflict),
+				tvb, 0, 0,
 				TRUE);
 		}
 		if (fd->flags&FD_MULTIPLETAILS) {
-			proto_tree_add_boolean(fet, 
+			proto_tree_add_boolean(fet,
 				*(fit->hf_fragment_multiple_tails),
-				tvb, 0, 0, 
+				tvb, 0, 0,
 				TRUE);
 		}
 		if (fd->flags&FD_TOOLONGFRAGMENT) {
-			proto_tree_add_boolean(fet, 
-				*(fit->hf_fragment_too_long_fragment), 
-				tvb, 0, 0, 
+			proto_tree_add_boolean(fet,
+				*(fit->hf_fragment_too_long_fragment),
+				tvb, 0, 0,
 				TRUE);
 		}
 	} else {
 		/* nothing of interest for this fragment */
-		proto_tree_add_none_format(ft, *(fit->hf_fragment), 
+		proto_tree_add_none_format(ft, *(fit->hf_fragment),
 			tvb, offset, fd->len,
 			"Frame:%u payload:%u-%u",
 			fd->frame,
@@ -1173,7 +1173,7 @@ show_fragment_errs_in_col(fragment_data *fd_head, fragment_items *fit,
 	if (fd_head->flags & (FD_OVERLAPCONFLICT
 		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, 
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 				"[Illegal %s]", fit->tag);
 			return TRUE;
 		}
@@ -1184,7 +1184,7 @@ show_fragment_errs_in_col(fragment_data *fd_head, fragment_items *fit,
 
 /* This function will build the fragment subtree; it's for fragments
    reassembled with "fragment_add()".
-   
+
    It will return TRUE if there were fragmentation errors
    or FALSE if fragmentation was ok.
 */
@@ -1199,18 +1199,18 @@ show_fragment_tree(fragment_data *fd_head, fragment_items *fit,
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
 
-	fi = proto_tree_add_item(tree, *(fit->hf_fragments), 
+	fi = proto_tree_add_item(tree, *(fit->hf_fragments),
 		tvb, 0, -1, FALSE);
 	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
 	for (fd=fd_head->next; fd; fd=fd->next)
 		show_fragment(fd, fd->offset, fit, ft, tvb);
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
-}	
+}
 
 /* This function will build the fragment subtree; it's for fragments
    reassembled with "fragment_add_seq()" or "fragment_add_seq_check()".
-   
+
    It will return TRUE if there were fragmentation errors
    or FALSE if fragmentation was ok.
 */
@@ -1226,7 +1226,7 @@ show_fragment_seq_tree(fragment_data *fd_head, fragment_items *fit,
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
 
-	fi = proto_tree_add_item(tree, *(fit->hf_fragments), 
+	fi = proto_tree_add_item(tree, *(fit->hf_fragments),
 		tvb, 0, -1, FALSE);
 	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
 	offset = 0;
@@ -1236,4 +1236,4 @@ show_fragment_seq_tree(fragment_data *fd_head, fragment_items *fit,
 	}
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
-}	
+}

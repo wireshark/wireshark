@@ -2,22 +2,22 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.27 2002/08/02 23:35:49 jmayer Exp $
+ * $Id: packet-eap.c,v 1.28 2002/08/28 21:00:12 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -49,7 +49,7 @@ static dissector_handle_t ssl_handle;
 #define EAP_SUCCESS	3
 #define EAP_FAILURE	4
 
-static const value_string eap_code_vals[] = { 
+static const value_string eap_code_vals[] = {
     { EAP_REQUEST,  "Request" },
     { EAP_RESPONSE, "Response" },
     { EAP_SUCCESS,  "Success" },
@@ -59,7 +59,7 @@ static const value_string eap_code_vals[] = {
 
 /*
 References:
-  1) http://www.iana.org/assignments/ppp-numbers	
+  1) http://www.iana.org/assignments/ppp-numbers
 			PPP EAP REQUEST/RESPONSE TYPES
   2) http://www.ietf.org/internet-drafts/draft-ietf-pppext-rfc2284bis-02.txt
   3) RFC2284
@@ -71,7 +71,7 @@ References:
 #define EAP_TYPE_TLS	13
 #define EAP_TYPE_LEAP	17
 
-static const value_string eap_type_vals[] = { 
+static const value_string eap_type_vals[] = {
   {EAP_TYPE_ID,  "Identity [RFC2284]" },
   {EAP_TYPE_NOTIFY,"Notification [RFC2284]" },
   {EAP_TYPE_NAK, "Nak (Response only) [RFC2284]" },
@@ -88,14 +88,14 @@ static const value_string eap_type_vals[] = {
   { 14,          "Defender Token (AXENT) [Rosselli]" },
   { 15,          "Windows 2000 EAP [Asnes]" },
   { 16,          "Arcot Systems EAP [Jerdonek]" },
-  {EAP_TYPE_LEAP,"EAP-Cisco Wireless (LEAP) [Norman]" }, 
-  { 18,          "Nokia IP smart card authentication [Haverinen]" },  
+  {EAP_TYPE_LEAP,"EAP-Cisco Wireless (LEAP) [Norman]" },
+  { 18,          "Nokia IP smart card authentication [Haverinen]" },
   { 19,          "SRP-SHA1 Part 1 [Carlson]" },
   { 20,          "SRP-SHA1 Part 2 [Carlson]" },
   { 21,          "EAP-TTLS [Funk]" },
   { 22,          "Remote Access Service [Fields]" },
-  { 23,          "UMTS Authentication and Key Agreement [Haverinen]" }, 
-  { 24,          "EAP-3Com Wireless [Young]" }, 
+  { 23,          "UMTS Authentication and Key Agreement [Haverinen]" },
+  { 24,          "EAP-3Com Wireless [Young]" },
   { 25,          "PEAP [Palekar]" },
   { 26,          "MS-EAP-Authentication [Palekar]" },
   { 27,          "Mutual Authentication w/Key Exchange (MAKE)[Berrendonner]" },
@@ -155,7 +155,7 @@ typedef struct {
 } frame_state_t;
 
 /*********************************************************************
-                           EAP-TLS 
+                           EAP-TLS
 RFC2716
 **********************************************************************/
 
@@ -211,7 +211,7 @@ fragment_items eaptls_frag_items = {
 **********************************************************************/
 
 static gboolean
-test_flag(unsigned char flag, unsigned char mask) 
+test_flag(unsigned char flag, unsigned char mask)
 {
   return ( ( flag & mask ) != 0 );
 }
@@ -391,7 +391,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       **********************************************************************/
       case EAP_TYPE_ID:
 	if (tree) {
-	  proto_tree_add_text(eap_tree, tvb, offset, size, 
+	  proto_tree_add_text(eap_tree, tvb, offset, size,
 			      "Identity (%d byte%s): %s",
 			      size, plurality(size, "", "s"),
 			      tvb_format_text(tvb, offset, size));
@@ -404,7 +404,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       **********************************************************************/
       case EAP_TYPE_NOTIFY:
 	if (tree) {
-	  proto_tree_add_text(eap_tree, tvb, offset, size, 
+	  proto_tree_add_text(eap_tree, tvb, offset, size,
 			      "Notification (%d byte%s): %s",
 			      size, plurality(size, "", "s"),
 			      tvb_format_text(tvb, offset, size));
@@ -456,39 +456,39 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (size>0) {
 
 	  tvbuff_t *next_tvb;
-	  gint tvb_len; 
+	  gint tvb_len;
 	  gboolean save_fragmented;
 
 	  tvb_len = tvb_length_remaining(tvb, offset);
 	  if (size < tvb_len)
 	    tvb_len = size;
-	  
-	    /* 
-	       EAP/TLS is weird protocol (it comes from 
-	       Microsoft after all). 
+
+	    /*
+	       EAP/TLS is weird protocol (it comes from
+	       Microsoft after all).
 
 	       If we have series of fragmented packets,
 	       then there's no way of knowing that from
 	       the packet itself, if it is the last packet
-	       in series, that is that the packet part of 
+	       in series, that is that the packet part of
 	       bigger fragmented set of data.
 
 	       The only way to know is, by knowing
 	       that we are already in defragmentation
 	       "mode" and we are expecing packet
-	       carrying fragment of data. (either 
+	       carrying fragment of data. (either
 	       because we have not received expected
 	       amount of data, or because the packet before
 	       had "F"ragment flag set.)
 
-	       The situation is alleviated by fact that it 
-	       is simple ack/nack protcol so there's no 
-	       place for out-of-order packets like it is 
-	       possible with IP. 
+	       The situation is alleviated by fact that it
+	       is simple ack/nack protcol so there's no
+	       place for out-of-order packets like it is
+	       possible with IP.
 
 	       Anyway, point of this lengthy essay is that
 	       we have to keep state information in the
-	       conversation, so that we can put ourselves in 
+	       conversation, so that we can put ourselves in
 	       defragmenting mode and wait for the last packet,
 	       and have to attach state to frames as well, so
 	       that we can handle defragmentation after the
@@ -587,9 +587,9 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    eap_tls_seq = 0;
 	  }
 
-	  /* 
-	     We test here to see whether EAP-TLS packet 
-	     carry fragmented of TLS data. 
+	  /*
+	     We test here to see whether EAP-TLS packet
+	     carry fragmented of TLS data.
 
 	     If this is the case, we do reasembly below,
 	     otherwise we just call dissector.
@@ -603,10 +603,10 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	     */
 	    save_fragmented = pinfo->fragmented;
 	    pinfo->fragmented = TRUE;
-	    fd_head = fragment_add_seq(tvb, offset, pinfo, 
+	    fd_head = fragment_add_seq(tvb, offset, pinfo,
 				   eap_reass_cookie,
 				   eaptls_fragment_table,
-				   eap_tls_seq, 
+				   eap_tls_seq,
 				   size,
 				   more_fragments);
 
@@ -633,7 +633,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	      }
 
 	    pinfo->fragmented = save_fragmented;
-			
+
 	  } else { /* this data is NOT fragmented */
 	    next_tvb = tvb_new_subset(tvb, offset, tvb_len, size);
 	    call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
@@ -652,7 +652,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  /* Version (byte) */
 	  if (tree) {
 	    field = tvb_get_guint8(tvb, offset);
-	    proto_tree_add_text(eap_tree, tvb, offset, 1, 
+	    proto_tree_add_text(eap_tree, tvb, offset, 1,
 				"Version: %i",field);
 	  }
 	  size--;
@@ -661,7 +661,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  /* Unused  (byte) */
 	  if (tree) {
 	    field = tvb_get_guint8(tvb, offset);
-	    proto_tree_add_text(eap_tree, tvb, offset, 1, 
+	    proto_tree_add_text(eap_tree, tvb, offset, 1,
 				"Reserved: %i",field);
 	  }
 	  size--;
@@ -670,7 +670,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  /* Count   (byte) */
 	  count = tvb_get_guint8(tvb, offset);
 	  if (tree) {
-	    proto_tree_add_text(eap_tree, tvb, offset, 1, 
+	    proto_tree_add_text(eap_tree, tvb, offset, 1,
 				"Count: %i",count);
 	  }
 	  size--;
@@ -687,7 +687,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	     * state in the conversation.
 	     */
 	    leap_state = conversation_state->leap_state;
-	    
+
 	    /* Advance the state machine. */
 	    if (leap_state==0) leap_state =  1; else
 	    if (leap_state==1) leap_state =  2; else
@@ -712,26 +712,26 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  /* Get the remembered state. */
 	  leap_state = packet_state->info;
 
-	  if (tree) { 
+	  if (tree) {
 
 	    if        (leap_state==1) {
-	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+	      proto_tree_add_text(eap_tree, tvb, offset, count,
 				  "Peer Challenge [8] Random Value:\"%s\"",
 				  tvb_bytes_to_str(tvb, offset, count));
 	    } else if (leap_state==2) {
-	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+	      proto_tree_add_text(eap_tree, tvb, offset, count,
 				  "Peer Response [24] NtChallengeResponse(%s)",
 				  tvb_bytes_to_str(tvb, offset, count));
 	    } else if (leap_state==3) {
-	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+	      proto_tree_add_text(eap_tree, tvb, offset, count,
 				  "AP Challenge [8] Random Value:\"%s\"",
 				  tvb_bytes_to_str(tvb, offset, count));
 	    } else if (leap_state==4) {
-	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+	      proto_tree_add_text(eap_tree, tvb, offset, count,
 				  "AP Response [24] ChallengeResponse(%s)",
 				  tvb_bytes_to_str(tvb, offset, count));
 	    } else {
-	      proto_tree_add_text(eap_tree, tvb, offset, count, 
+	      proto_tree_add_text(eap_tree, tvb, offset, count,
 				"Data (%d byte%s): \"%s\"",
 				count, plurality(count, "", "s"),
 				tvb_bytes_to_str(tvb, offset, count));
@@ -746,7 +746,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  /* Name    (Length-(8+Count)) */
 	  namesize = eap_len - (8+count);
 	  if (tree) {
-	    proto_tree_add_text(eap_tree, tvb, offset, namesize, 
+	    proto_tree_add_text(eap_tree, tvb, offset, namesize,
 				"Name (%d byte%s): %s",
 				namesize, plurality(count, "", "s"),
 				tvb_format_text(tvb, offset, namesize));
@@ -760,7 +760,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       **********************************************************************/
       default:
         if (tree) {
-	  proto_tree_add_text(eap_tree, tvb, offset, size, 
+	  proto_tree_add_text(eap_tree, tvb, offset, size,
 			      "Type-Data (%d byte%s) Value: %s",
 			      size, plurality(size, "", "s"),
 			      tvb_bytes_to_str(tvb, offset, size));
@@ -793,8 +793,8 @@ void
 proto_register_eap(void)
 {
   static hf_register_info hf[] = {
-	{ &hf_eap_code, { 
-		"Code", "eap.code", FT_UINT8, BASE_DEC, 
+	{ &hf_eap_code, {
+		"Code", "eap.code", FT_UINT8, BASE_DEC,
 		VALS(eap_code_vals), 0x0, "", HFILL }},
 	{ &hf_eap_identifier, {
 		"Id", "eap.id", FT_UINT8, BASE_DEC,
@@ -802,18 +802,18 @@ proto_register_eap(void)
 	{ &hf_eap_len, {
 		"Length", "eap.len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
-	{ &hf_eap_type, { 
-		"Type", "eap.type", FT_UINT8, BASE_DEC, 
+	{ &hf_eap_type, {
+		"Type", "eap.type", FT_UINT8, BASE_DEC,
 		VALS(eap_type_vals), 0x0, "", HFILL }},
-	{ &hf_eap_type_nak, { 
-		"Desired Auth Type", "eap.type", FT_UINT8, BASE_DEC, 
+	{ &hf_eap_type_nak, {
+		"Desired Auth Type", "eap.type", FT_UINT8, BASE_DEC,
 		VALS(eap_type_vals), 0x0, "", HFILL }},
 	{ &hf_eaptls_fragment,
-	  { "EAP-TLS Fragment", "eaptls.fragment", 
+	  { "EAP-TLS Fragment", "eaptls.fragment",
 		FT_NONE, BASE_NONE, NULL, 0x0,
 		"EAP-TLS Fragment", HFILL }},
 	{ &hf_eaptls_fragments,
-	  { "EAP-TLS Fragments", "eaptls.fragments", 
+	  { "EAP-TLS Fragments", "eaptls.fragments",
 	        FT_NONE, BASE_NONE, NULL, 0x0,
 	        "EAP-TLS Fragments", HFILL }},
 	{ &hf_eaptls_fragment_overlap,
@@ -843,7 +843,7 @@ proto_register_eap(void)
 	&ett_eaptls_fragments,
   };
 
-  proto_eap = proto_register_protocol("Extensible Authentication Protocol", 
+  proto_eap = proto_register_protocol("Extensible Authentication Protocol",
 				      "EAP", "eap");
   proto_register_field_array(proto_eap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

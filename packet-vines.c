@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.42 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-vines.c,v 1.43 2002/08/28 21:00:36 jmayer Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -9,17 +9,17 @@
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * Joerg Mayer <jmayer@loplof.de>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -96,7 +96,7 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		vines_frp_tree = proto_item_add_subtree(ti, ett_vines_frp);
 
 		vines_frp_ctrl = tvb_get_guint8(tvb, 0);
-  
+
 		/*
 		 * 1: first fragment of vines packet
 		 * 2: last fragment of vines packet
@@ -124,12 +124,12 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			strcpy(frp_flags_str, "please report: unknown");
 			break;
 		}
-  
-		proto_tree_add_text(vines_frp_tree, tvb, 0, 1, 
-				    "Control Flags: 0x%02x = %s fragment", 
+
+		proto_tree_add_text(vines_frp_tree, tvb, 0, 1,
+				    "Control Flags: 0x%02x = %s fragment",
 				    vines_frp_ctrl, frp_flags_str);
 
-		proto_tree_add_text(vines_frp_tree, tvb, 1, 1, 
+		proto_tree_add_text(vines_frp_tree, tvb, 1, 1,
 				    "Sequence Number: 0x%02x",
 				    tvb_get_guint8(tvb, 1));
 	}
@@ -204,7 +204,7 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO, "IPC (%02x)", viph.vip_proto);
  		break;
- 	case VIP_PROTO_SPP:      
+ 	case VIP_PROTO_SPP:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
 		if (check_col(pinfo->cinfo, COL_INFO))
@@ -232,7 +232,7 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IP");
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown VIP protocol (%02x)", 
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown VIP protocol (%02x)",
 				     viph.vip_proto);
 	}
 
@@ -248,8 +248,8 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  	if ((viph.vip_dnet == 0xffffffff) && (viph.vip_dsub == 0xffff)) {
  		is_broadcast = 1;
  	}
- 	hops = viph.vip_tctl & 0xf; 
- 
+ 	hops = viph.vip_tctl & 0xf;
+
 	/*
 	viph.ip_tos = IPTOS_TOS(viph.ip_tos);
 	switch (viph.ip_tos) {
@@ -275,28 +275,28 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*/
 
 	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_vines, tvb, 
+		ti = proto_tree_add_protocol_format(tree, proto_vines, tvb,
 						    offset, (viph.vip_pktlen),
 						    "Vines IP");
 		vip_tree = proto_item_add_subtree(ti, ett_vines);
-		proto_tree_add_text(vip_tree, tvb, offset,      2, 
-				    "Packet checksum: 0x%04x", 
+		proto_tree_add_text(vip_tree, tvb, offset,      2,
+				    "Packet checksum: 0x%04x",
 				    viph.vip_chksum);
-		proto_tree_add_text(vip_tree, tvb, offset +  2, 2, 
-				    "Packet length: 0x%04x (%d)", 
-				    viph.vip_pktlen, viph.vip_pktlen); 
-		proto_tree_add_text(vip_tree, tvb, offset +  4, 1, 
+		proto_tree_add_text(vip_tree, tvb, offset +  2, 2,
+				    "Packet length: 0x%04x (%d)",
+				    viph.vip_pktlen, viph.vip_pktlen);
+		proto_tree_add_text(vip_tree, tvb, offset +  4, 1,
 				    "Transport control: 0x%02x",
 				    viph.vip_tctl);
-		proto_tree_add_uint(vip_tree, hf_vines_protocol, tvb, 
-				    offset +  5, 1, 
+		proto_tree_add_uint(vip_tree, hf_vines_protocol, tvb,
+				    offset +  5, 1,
 				    viph.vip_proto);
-		proto_tree_add_text(vip_tree, tvb, offset +  6, 
-				    VINES_ADDR_LEN, 
+		proto_tree_add_text(vip_tree, tvb, offset +  6,
+				    VINES_ADDR_LEN,
 				    "Destination: %s",
 				    vines_addr_to_str(dst_addr));
-		proto_tree_add_text(vip_tree, tvb, offset +  12, 
-				    VINES_ADDR_LEN, 
+		proto_tree_add_text(vip_tree, tvb, offset +  12,
+				    VINES_ADDR_LEN,
 				    "Source: %s",
 				    vines_addr_to_str(src_addr));
 
@@ -367,15 +367,15 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	viph.vspp_rmtid = g_ntohs(viph.vspp_rmtid);
 
 	switch (viph.vspp_pkttype) {
-	case VSPP_PKTTYPE_DATA:      
+	case VSPP_PKTTYPE_DATA:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Data");
 		break;
-	case VSPP_PKTTYPE_DISC:      
+	case VSPP_PKTTYPE_DISC:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Disconnect");
 		break;
-	case VSPP_PKTTYPE_PROBE:      
+	case VSPP_PKTTYPE_PROBE:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Probe");
 		break;
@@ -389,9 +389,9 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
- 		col_add_fstr(pinfo->cinfo, COL_INFO, 
-			     "NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x", 
-			     viph.vspp_seqno, viph.vspp_ack, viph.vspp_win, 
+ 		col_add_fstr(pinfo->cinfo, COL_INFO,
+			     "NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x",
+			     viph.vspp_seqno, viph.vspp_ack, viph.vspp_win,
 			     viph.vspp_rmtid, viph.vspp_lclid, viph.vspp_dport,
 			     viph.vspp_sport);
 
@@ -417,29 +417,29 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		strcpy(tos_str, "Unknon.  Malformed?");
 		break;
 	}
-	*/ 
+	*/
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_spp, tvb, offset,
 		    sizeof(viph), FALSE);
 		vspp_tree = proto_item_add_subtree(ti, ett_vines_spp);
-		proto_tree_add_text(vspp_tree, tvb, offset,      2, 
+		proto_tree_add_text(vspp_tree, tvb, offset,      2,
 				    "Source port: 0x%04x", viph.vspp_sport);
-		proto_tree_add_text(vspp_tree, tvb, offset + 2,  2, 
+		proto_tree_add_text(vspp_tree, tvb, offset + 2,  2,
 				    "Destination port: 0x%04x",
-				    viph.vspp_dport); 
-		proto_tree_add_text(vspp_tree, tvb, offset + 4,  1, 
+				    viph.vspp_dport);
+		proto_tree_add_text(vspp_tree, tvb, offset + 4,  1,
 				    "Packet type: 0x%02x", viph.vspp_pkttype);
-		proto_tree_add_text(vspp_tree, tvb, offset + 5,  1, 
+		proto_tree_add_text(vspp_tree, tvb, offset + 5,  1,
 				    "Control: 0x%02x", viph.vspp_control);
-		proto_tree_add_text(vspp_tree, tvb, offset + 6,  2, 
+		proto_tree_add_text(vspp_tree, tvb, offset + 6,  2,
 				    "Local Connection ID: 0x%04x",
 				    viph.vspp_lclid);
 		proto_tree_add_text(vspp_tree, tvb, offset + 8,  2,
-				    "Remote Connection ID: 0x%04x", 
+				    "Remote Connection ID: 0x%04x",
 				    viph.vspp_rmtid);
 		proto_tree_add_text(vspp_tree, tvb, offset + 10, 2,
-				    "Sequence number: 0x%04x", 
+				    "Sequence number: 0x%04x",
 				    viph.vspp_seqno);
 		proto_tree_add_text(vspp_tree, tvb, offset + 12, 2,
 				    "Ack number: 0x%04x", viph.vspp_ack);

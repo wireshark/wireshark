@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.43 2002/08/21 21:31:54 tpot Exp $
+ * $Id: smb.h,v 1.44 2002/08/28 21:00:41 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -124,7 +124,7 @@
 #define SMBE_badformat 11          /* Invalid format */
 #define SMBE_badaccess 12          /* Invalid open mode */
 #define SMBE_baddata 13            /* Invalid data (only from ioctl call) */
-#define SMBE_res 14 
+#define SMBE_res 14
 #define SMBE_baddrive 15           /* Invalid drive */
 #define SMBE_remcd 16              /* Attempt to delete current directory */
 #define SMBE_diffdevice 17         /* rename/move across different filesystems */
@@ -181,9 +181,9 @@
 #define SMBE_smbcmd 64             /* Unrecognised command */
 #define SMBE_srverror 65           /* smb server internal error */
 #define SMBE_filespecs 67          /* fid and pathname invalid combination */
-#define SMBE_badlink 68 
+#define SMBE_badlink 68
 #define SMBE_badpermits 69         /* Access specified for a file is not valid */
-#define SMBE_badpid 70 
+#define SMBE_badpid 70
 #define SMBE_setattrmode 71        /* attribute mode invalid */
 #define SMBE_paused 81             /* Message server paused */
 #define SMBE_msgoff 82             /* Not receiving messages */
@@ -196,7 +196,7 @@
 #define SMBE_useMPX 250            /* temporarily unable to use raw mode, use MPX mode */
 #define SMBE_useSTD 251            /* temporarily unable to use raw mode, use standard mode */
 #define SMBE_contMPX 252           /* resume MPX mode */
-#define SMBE_badPW 253             /* Check this out ... */ 
+#define SMBE_badPW 253             /* Check this out ... */
 #define SMBE_nosupport 0xFFFF
 #define SMBE_unknownsmb 22         /* from NT 3.5 response */
 
@@ -230,7 +230,7 @@
 #define SMB_SIF_TID_IS_IPC	0x0001
 typedef struct {
 	guint32 frame_req, frame_res;
-	nstime_t req_time;              
+	nstime_t req_time;
 	guint16 flags;
 	int cmd;
 	void *extra_info;

@@ -1,26 +1,26 @@
 /* packet-netbios.c
  * Routines for NetBIOS protocol packet disassembly
- * Jeff Foster <jfoste@woodward.com>            
+ * Jeff Foster <jfoste@woodward.com>
  * Copyright 1999 Jeffrey C. Foster
- * 
+ *
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.50 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-netbios.c,v 1.51 2002/08/28 21:00:23 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -122,9 +122,9 @@ static dissector_handle_t data_handle;
 static const value_string nb_name_type_vals[] = {
 	{0x00,	"Workstation/Redirector"},
 	{0x01,	"Browser"},
-	{0x02,	"Workstation/Redirector"}, 
+	{0x02,	"Workstation/Redirector"},
 		/* not sure what 0x02 is, I'm seeing alot of them however */
-		/* i'm seeing them with workstation/redirection host 
+		/* i'm seeing them with workstation/redirection host
 			announcements */
 	{0x03,	"Messenger service/Main name"},
 	{0x05,	"Forwarded name"},
@@ -156,7 +156,7 @@ static const value_string nb_name_type_vals[] = {
 };
 
 /* See
-   
+
 	http://www.s390.ibm.com/bookmgr-cgi/bookmgr.cmd/BOOKS/BK8P7001/CCONTENTS
 
    and
@@ -310,7 +310,7 @@ void netbios_add_name(char* label, tvbuff_t *tvb, int offset,
     proto_tree *tree)
 
 {/* add a name field display tree. Display the name and station type in sub-tree */
- 
+
 	proto_tree *field_tree;
 	proto_item *tf;
 	char  name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
@@ -445,7 +445,7 @@ static void nb_xmit_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* display the transmit correlator */
 
-	proto_tree_add_item( tree, hf_netb_xmit_corrl, tvb, offset + NB_XMIT_CORL, 
+	proto_tree_add_item( tree, hf_netb_xmit_corrl, tvb, offset + NB_XMIT_CORL,
 		2, TRUE);
 }
 
@@ -473,7 +473,7 @@ static void nb_local_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the local session to tree */
 
-	proto_tree_add_uint( tree, hf_netb_local_ses_no, tvb, offset + NB_LOCAL_SES, 1, 
+	proto_tree_add_uint( tree, hf_netb_local_ses_no, tvb, offset + NB_LOCAL_SES, 1,
 		tvb_get_guint8( tvb, offset + NB_LOCAL_SES));
 
 }
@@ -551,19 +551,19 @@ static void  dissect_netb_add_group_name( tvbuff_t *tvb, int offset,
 
 {/* Handle the ADD GROUP NAME QUERY command */
 
-	nb_resp_corrl( tvb, offset, tree); 
+	nb_resp_corrl( tvb, offset, tree);
 
 	netbios_add_name("Group name to add", tvb, offset + NB_SENDER_NAME,
 	    tree);
 }
 
 
-static void  dissect_netb_add_name( tvbuff_t *tvb, int offset, 
+static void  dissect_netb_add_name( tvbuff_t *tvb, int offset,
     proto_tree *tree)
 
 {/* Handle the ADD NAME QUERY command */
 
-	nb_resp_corrl( tvb, offset, tree); 
+	nb_resp_corrl( tvb, offset, tree);
 
 	netbios_add_name("Name to add", tvb, offset + NB_SENDER_NAME, tree);
 }
@@ -605,7 +605,7 @@ static void  dissect_netb_status_query( tvbuff_t *tvb, int offset, proto_tree *t
 		break;
 	}
 	nb_data2( hf_netb_status_buffer_len, tvb, offset, tree);
-	nb_resp_corrl( tvb, offset, tree); 
+	nb_resp_corrl( tvb, offset, tree);
 	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
 	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME, tree);
 }
@@ -690,7 +690,7 @@ static void  dissect_netb_add_name_resp( tvbuff_t *tvb, int offset,
 
 	nb_data1( hf_netb_status, tvb, offset, tree);
 	nb_data2( hf_netb_name_type, tvb, offset, tree);
-	nb_xmit_corrl( tvb, offset, tree); 
+	nb_xmit_corrl( tvb, offset, tree);
 	netbios_add_name("Name to be added", tvb, offset + NB_RECVER_NAME,
 	    tree);
 	netbios_add_name("Name to be added", tvb, offset + NB_SENDER_NAME,
@@ -768,7 +768,7 @@ static void  dissect_netb_status_resp( tvbuff_t *tvb, int offset, proto_tree *tr
 	proto_tree_add_text(data2_tree, tvb, offset, 2, "%s",
 	    decode_numeric_bitfield(data2, 0x3FFF, 2*8,
 			"Status data length = %u"));
-	nb_xmit_corrl( tvb, offset, tree); 
+	nb_xmit_corrl( tvb, offset, tree);
 	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
 	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 	    tree);
@@ -960,7 +960,7 @@ void (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
   dissect_netb_unknown,		/* unknown 		0x1D */
   dissect_netb_unknown,		/* unknown 		0x1E */
   dissect_netb_session_alive,	/* Session Alive	0x1f */
-  dissect_netb_unknown,	
+  dissect_netb_unknown,
 };
 
 static heur_dissector_list_t netbios_heur_subdissector_list;
@@ -1056,7 +1056,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if ( command < sizeof( dissect_netb)/ sizeof(void *))
 
 						/* branch to handle commands */
-			(dissect_netb[ command])( tvb, offset, netb_tree);		
+			(dissect_netb[ command])( tvb, offset, netb_tree);
 	}
 
 	offset += hdr_len;			/* move past header */
@@ -1120,7 +1120,7 @@ void proto_register_netbios(void)
 			"", HFILL }},
 
 		{ &hf_netb_ack_with_data,
-		{ "Acknowledge with data", "netbios.ack_with_data", FT_BOOLEAN, 8, TFS( &flags_allowed), 0x04, 
+		{ "Acknowledge with data", "netbios.ack_with_data", FT_BOOLEAN, 8, TFS( &flags_allowed), 0x04,
 			"", HFILL }},
 
 		{ &hf_netb_ack_expected,
@@ -1185,7 +1185,7 @@ void proto_register_netbios(void)
 		};
 
 	proto_netbios = proto_register_protocol("NetBIOS", "NetBIOS", "netbios");
-	proto_register_subtree_array(ett, array_length(ett));                 
+	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_netbios, hf_netb, array_length(hf_netb));
 
 	register_heur_dissector_list("netbios", &netbios_heur_subdissector_list);

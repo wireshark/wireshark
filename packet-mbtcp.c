@@ -10,22 +10,22 @@
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.10 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-mbtcp.c,v 1.11 2002/08/28 21:00:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -33,8 +33,8 @@
 
 /*	TODO:
  *	Analysis of the payload of the Modbus packet.
- *		--	Based on the function code in the header, and the fact that the packet is 
- *			either a query or a response, the different fields in the payload can be 
+ *		--	Based on the function code in the header, and the fact that the packet is
+ *			either a query or a response, the different fields in the payload can be
  *			interpreted and displayed.
  */
 
@@ -50,7 +50,7 @@
 
 #include <epan/packet.h>
 
-#define DEBUG  
+#define DEBUG
 
 #define TCP_PORT_MBTCP		502	/* Modbus/TCP located on TCP port 502 */
 
@@ -127,7 +127,7 @@ static int hf_mbtcp_functioncode = -1;
 /* Initialize the subtree pointers */
 static gint ett_mbtcp = -1;
 static gint ett_modbus_hdr = -1;
-	
+
 static int
 classify_packet(packet_info *pinfo)
 {
@@ -136,16 +136,16 @@ classify_packet(packet_info *pinfo)
 	if ( ( 502 == pinfo->srcport && 502 != pinfo->destport ) ||
 		  ( 502 != pinfo->srcport && 502 == pinfo->destport ) ) {
 		/* the slave is receiving queries on port 502 */
-		if ( 502 == pinfo->srcport )  
+		if ( 502 == pinfo->srcport )
 			return response_packet;
-		else if ( 502 == pinfo->destport ) 
+		else if ( 502 == pinfo->destport )
 			return query_packet;
 	}
 	/* else, cannot classify */
 	return cannot_classify;
 }
 
-/* returns string describing function, as given on p6 of 
+/* returns string describing function, as given on p6 of
  * "Open Modbus/TCP Specification", release 1 by Andy Swales. */
 static char *
 function_string(guint16 func_code)
@@ -213,12 +213,12 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char			*func_string = "", pkt_type_str[9] = "";
 	char			err_str[100] = "";
 	int			packet_type;
-	guint32		packet_num = 0;	/* num to uniquely identify different mbtcp 
+	guint32		packet_num = 0;	/* num to uniquely identify different mbtcp
 												 * packets in one TCP packet */
 	guint8		exception_code = 0, exception_returned = 0;
-	
+
 /* Make entries in Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus/TCP");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -238,9 +238,9 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		packet_type = classify_packet(pinfo);
 		switch ( packet_type ) {
-			case query_packet : 			strcpy(pkt_type_str, "query");  
+			case query_packet : 			strcpy(pkt_type_str, "query");
 												break;
-			case response_packet : 		strcpy(pkt_type_str, "response");  
+			case response_packet : 		strcpy(pkt_type_str, "response");
 												break;
 			case cannot_classify :		strcpy(err_str, "Unable to classify as query or response.");
 												strcpy(pkt_type_str, "unknown");
@@ -250,11 +250,11 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if ( exception_returned )
 			strcpy(err_str, "Exception returned ");
-		col_add_fstr(pinfo->cinfo, COL_INFO, 
-				"%8s [%2u pkt(s)]: trans: %5u; unit: %3u, func: %3u: %s. %s", 
-				pkt_type_str, 1, mh.transaction_id, (unsigned char) mh.mdbs_hdr.unit_id, 
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+				"%8s [%2u pkt(s)]: trans: %5u; unit: %3u, func: %3u: %s. %s",
+				pkt_type_str, 1, mh.transaction_id, (unsigned char) mh.mdbs_hdr.unit_id,
 				(unsigned char) mh.mdbs_hdr.function_code, func_string, err_str);
-	}	
+	}
 
 	/* build up protocol tree */
 	do {
@@ -263,64 +263,64 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		mh.transaction_id				=	g_ntohs(mh.transaction_id);
 		mh.protocol_id					=	g_ntohs(mh.protocol_id);
 		mh.len							=	g_ntohs(mh.len);
-			
+
 		if ( mh.mdbs_hdr.function_code & 0x80 ) {
 			tvb_memcpy(tvb, (guint8 *)&exception_code, offset + sizeof(mbtcp_hdr), 1);
 			mh.mdbs_hdr.function_code ^= 0x80;
 			exception_returned = 1;
-		} else 
+		} else
 			exception_code = 0;
-		
+
 		packet_type = classify_packet(pinfo);
-		
+
 		/* if a tree exists, perform operations to add fields to it */
 		if (tree) {
 			packet_len = sizeof(mbtcp_hdr) - sizeof(modbus_hdr) + mh.len;
-			mi = proto_tree_add_protocol_format(tree, proto_mbtcp, tvb, offset, 
+			mi = proto_tree_add_protocol_format(tree, proto_mbtcp, tvb, offset,
 					packet_len, "Modbus/TCP");
 			mbtcp_tree = proto_item_add_subtree(mi, ett_mbtcp);
-	
+
 			/* Add items to protocol tree */
 			/* Modbus/TCP */
-			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_transid, tvb, offset, 2, 
+			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_transid, tvb, offset, 2,
 					mh.transaction_id);
-			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_protid, tvb, offset + 2, 2, 
+			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_protid, tvb, offset + 2, 2,
 					mh.protocol_id);
-			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_len, tvb, offset + 4, 2, 
+			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_len, tvb, offset + 4, 2,
 					mh.len);
 			/* Modbus */
 			packet_end = mh.len;
-			mf = proto_tree_add_text(mbtcp_tree, tvb, offset + 6, packet_end, 
+			mf = proto_tree_add_text(mbtcp_tree, tvb, offset + 6, packet_end,
 					"Modbus");
-	  		modbus_tree = proto_item_add_subtree(mf, ett_modbus_hdr);	
-			proto_tree_add_item(modbus_tree, hf_mbtcp_unitid, tvb, offset + 6, 1, 
+	  		modbus_tree = proto_item_add_subtree(mf, ett_modbus_hdr);
+			proto_tree_add_item(modbus_tree, hf_mbtcp_unitid, tvb, offset + 6, 1,
 					mh.mdbs_hdr.unit_id);
-			mi = proto_tree_add_item(modbus_tree, hf_mbtcp_functioncode, tvb, offset + 7, 1, 
+			mi = proto_tree_add_item(modbus_tree, hf_mbtcp_functioncode, tvb, offset + 7, 1,
 					mh.mdbs_hdr.function_code);
 			func_string = function_string(mh.mdbs_hdr.function_code);
-			if ( 0 == exception_code ) 
-				proto_item_set_text(mi, "function %u:  %s", mh.mdbs_hdr.function_code, 
+			if ( 0 == exception_code )
+				proto_item_set_text(mi, "function %u:  %s", mh.mdbs_hdr.function_code,
 						func_string);
-			else  
-				proto_item_set_text(mi, "function %u:  %s.  Exception: %s",	
-						mh.mdbs_hdr.function_code, func_string, exception_string(exception_code)); 
-			
+			else
+				proto_item_set_text(mi, "function %u:  %s.  Exception: %s",
+						mh.mdbs_hdr.function_code, func_string, exception_string(exception_code));
+
 			packet_end = mh.len - 2;
-			proto_tree_add_text(modbus_tree, tvb, offset + 8, packet_end, 
+			proto_tree_add_text(modbus_tree, tvb, offset + 8, packet_end,
 					"Modbus data");
 		}
 		offset = offset + sizeof(mbtcp_hdr) + (mh.len - sizeof(modbus_hdr));
 		packet_num++;
 	} while ( tvb_reported_length_remaining(tvb, offset) > 0 );
 
-	
+
 /* Update entries in Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		switch ( packet_type ) {
-			case query_packet : 			strcpy(pkt_type_str, "query");  
+			case query_packet : 			strcpy(pkt_type_str, "query");
 												break;
-			case response_packet : 		strcpy(pkt_type_str, "response");  
+			case response_packet : 		strcpy(pkt_type_str, "response");
 												break;
 			case cannot_classify :		strcpy(err_str, "Unable to classify as query or response.");
 												strcpy(pkt_type_str, "unknown");
@@ -330,10 +330,10 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if ( exception_returned )
 			strcpy(err_str, "Exception returned ");
-		col_add_fstr(pinfo->cinfo, COL_INFO, 
-				"%8s [%2u pkt(s)]: trans: %5u; unit: %3u, func: %3u: %s. %s", 
-				pkt_type_str, packet_num, mh.transaction_id, (unsigned char) mh.mdbs_hdr.unit_id, 
-				(unsigned char) mh.mdbs_hdr.function_code, func_string, err_str); 
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+				"%8s [%2u pkt(s)]: trans: %5u; unit: %3u, func: %3u: %s. %s",
+				pkt_type_str, packet_num, mh.transaction_id, (unsigned char) mh.mdbs_hdr.unit_id,
+				(unsigned char) mh.mdbs_hdr.function_code, func_string, err_str);
 	}
 
 /* If this protocol has a sub-dissector call it here, see section 1.8 */
@@ -348,35 +348,35 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_modbus(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		/* Modbus/TCP header fields */
 		{ &hf_mbtcp_transid,
 			{ "transaction identifier",           "modbus_tcp.trans_id",
-			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }
 		},
 		{ &hf_mbtcp_protid,
 			{ "protocol identifier",           "modbus_tcp.prot_id",
-			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }
 		},
 		{ &hf_mbtcp_len,
 			{ "length",           "modbus_tcp.len",
-			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }
 		},
 		/* Modbus header fields */
 		{ &hf_mbtcp_unitid,
 			{ "unit identifier",           "modbus_tcp.unit_id",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL }
 		},
 		{ &hf_mbtcp_functioncode,
 			{ "function code ",           "modbus_tcp.func_code",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL }
 		}
 	};

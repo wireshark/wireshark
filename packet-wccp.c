@@ -2,22 +2,22 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.32 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-wccp.c,v 1.33 2002/08/28 21:00:37 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,7 +42,7 @@ static int hf_wccp_message_type = -1;	/* the message type */
 static int hf_wccp_version = -1;	/* protocol version */
 static int hf_hash_revision = -1;	/* the version of the hash */
 static int hf_change_num = -1;		/* change number */
-static int hf_recvd_id = -1;			
+static int hf_recvd_id = -1;
 static int hf_cache_ip = -1;
 
 static gint ett_wccp = -1;
@@ -187,7 +187,7 @@ static void dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
     guint16 capability_val_len, gint ett, const capability_flag *flags,
     proto_tree *element_tree);
 
-static void 
+static void
 dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
@@ -597,7 +597,7 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, int length,
 		    "Service Type: Well-known service");
 		proto_tree_add_text(info_tree, tvb, offset+1, 1,
 		    "Service ID: %s",
-		    val_to_str(tvb_get_guint8(tvb, offset+1), service_id_vals, 
+		    val_to_str(tvb_get_guint8(tvb, offset+1), service_id_vals,
 			    "Unknown (0x%02X)"));
 
 		break;
@@ -607,7 +607,7 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, int length,
 		    "Service Type: Dynamic service");
 		proto_tree_add_text(info_tree, tvb, offset+1, 1,
 		    "Service ID: %s",
-		    val_to_str(tvb_get_guint8(tvb, offset+1), service_id_vals, 
+		    val_to_str(tvb_get_guint8(tvb, offset+1), service_id_vals,
 			    "Unknown (0x%02X)"));
 		proto_tree_add_text(info_tree, tvb, offset+2, 1,
 		    "Priority: %u", tvb_get_guint8(tvb, offset+2));
@@ -951,7 +951,7 @@ dissect_wccp2_wc_view_info(tvbuff_t *tvb, int offset, int length,
 		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 		offset += 4;
 	}
-	
+
 	return TRUE;
 }
 
@@ -1104,7 +1104,7 @@ static const capability_flag forwarding_method_flags[] = {
 	  "IP-GRE", "GRE-encapsulated" },
 	{ WCCP2_FORWARDING_METHOD_L2,
 	  "L2", "L2 rewrite" },
-	{ 0, 
+	{ 0,
 	  NULL, NULL }
 };
 
@@ -1125,7 +1125,7 @@ static const capability_flag packet_return_method_flags[] = {
 	  "IP-GRE", "GRE-encapsulated" },
 	{ WCCP2_PACKET_RETURN_METHOD_L2,
 	  "L2", "L2 rewrite" },
-	{ 0, 
+	{ 0,
 	  NULL, NULL }
 };
 
@@ -1260,7 +1260,7 @@ proto_register_wccp(void)
 			{ "WCCP Message Type", "wccp.message", FT_UINT32, BASE_DEC, VALS(wccp_type_vals), 0x0,
 				"The WCCP message that was sent", HFILL }
 		},
-		{ &hf_wccp_version, 
+		{ &hf_wccp_version,
 			{ "WCCP Version", "wccp.version", FT_UINT32, BASE_HEX, VALS(wccp_version_val), 0x0,
 				"The WCCP version", HFILL }
 		},

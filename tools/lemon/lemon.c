@@ -15,7 +15,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.13 2002/05/04 10:16:12 guy Exp $
+** $Id: lemon.c,v 1.14 2002/08/28 21:04:11 jmayer Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -435,7 +435,7 @@ void myassert(char *file, int line)
 */
 
 /* Find a precedence symbol of every rule in the grammar.
-** 
+**
 ** Those rules which have a precedence symbol coded in the input
 ** grammar using the "[symbol]" construct will already have the
 ** rp->precsym field filled.  Other rules take as their precedence
@@ -720,7 +720,7 @@ void FindFollowSets(struct lemon *lemp)
       cfp->status = INCOMPLETE;
     }
   }
-  
+
   do{
     progress = 0;
     for(i=0; i<lemp->nstate; i++){
@@ -751,7 +751,7 @@ void FindActions(struct lemon *lemp)
   struct symbol *sp;
   struct rule *rp;
 
-  /* Add all of the reduce actions 
+  /* Add all of the reduce actions
   ** A reduce action is added for each element of the followset of
   ** a configuration which has its dot at the extreme right.
   */
@@ -1225,7 +1225,7 @@ int main(int argc _U_, char **argv)
        "Copyright 1991-1997 by D. Richard Hipp\n"
        "Freely distributable under the GNU Public License.\n"
      );
-     exit(0); 
+     exit(0);
   }
   if( optnargs()!=1 ){
     fprintf(stderr,"Exactly one filename argument is required.\n");
@@ -1881,7 +1881,7 @@ to follow the previous rule.");
     case IN_RHS:
       if( x[0]=='.' ){
         struct rule *rp;
-        rp = (struct rule *)malloc( sizeof(struct rule) + 
+        rp = (struct rule *)malloc( sizeof(struct rule) +
              sizeof(struct symbol*)*psp->nrhs + sizeof(char*)*psp->nrhs );
         if( rp==0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
@@ -2389,7 +2389,7 @@ PRIVATE FILE *file_open(struct lemon *lemp, char *suffix, char *mode)
   return fp;
 }
 
-/* Duplicate the input file without comments and without actions 
+/* Duplicate the input file without comments and without actions
 ** on rules */
 void Reprint(struct lemon *lemp)
 {
@@ -2743,7 +2743,7 @@ int has_destructor(struct symbol *sp, struct lemon *lemp)
   return ret;
 }
 
-/* 
+/*
 ** Generate code which executes when the rule "rp" is reduced.  Write
 ** the code to "out".  Make sure lineno stays up-to-date.
 */
@@ -3024,7 +3024,7 @@ void ReportTable(
 
   /* Generate the action table.
   **
-  ** Each entry in the action table is an element of the following 
+  ** Each entry in the action table is an element of the following
   ** structure:
   **   struct yyActionEntry {
   **       YYCODETYPE            lookahead;
@@ -3104,7 +3104,7 @@ void ReportTable(
           fprintf(out,"0                    }, /* ");
         }
         PrintAction(table[j],out,22);
-        fprintf(out," */\n"); 
+        fprintf(out," */\n");
       }
       lineno++;
     }
@@ -3146,7 +3146,7 @@ void ReportTable(
   tplt_xfer(lemp->name,in,out,&lineno);
 
   /* Generate code which executes every time a symbol is popped from
-  ** the stack while processing errors or while destroying the parser. 
+  ** the stack while processing errors or while destroying the parser.
   ** (In other words, generate the %destructor actions) */
   if( lemp->tokendest ){
     for(i=0; i<lemp->nsymbol; i++){
@@ -3173,7 +3173,7 @@ void ReportTable(
   tplt_print(out,lemp,lemp->overflow,lemp->overflowln,&lineno);
   tplt_xfer(lemp->name,in,out,&lineno);
 
-  /* Generate the table of rule information 
+  /* Generate the table of rule information
   **
   ** Note: This code depends on the fact that rules are number
   ** sequentually beginning with 0.
@@ -3242,7 +3242,7 @@ void ReportHeader(struct lemon *lemp)
     for(i=1; i<lemp->nterminal; i++){
       fprintf(out,"#define %s%-30s %2d\n",prefix,lemp->symbols[i]->name,i);
     }
-    fclose(out);  
+    fclose(out);
   }
   return;
 }
@@ -3415,7 +3415,7 @@ void Strsafe_init(void){
   if( x1a ){
     x1a->size = 1024;
     x1a->count = 0;
-    x1a->tbl = (x1node*)malloc( 
+    x1a->tbl = (x1node*)malloc(
       (sizeof(x1node) + sizeof(x1node*))*1024 );
     if( x1a->tbl==0 ){
       free(x1a);
@@ -3576,7 +3576,7 @@ void Symbol_init(void){
   if( x2a ){
     x2a->size = 128;
     x2a->count = 0;
-    x2a->tbl = (x2node*)malloc( 
+    x2a->tbl = (x2node*)malloc(
       (sizeof(x2node) + sizeof(x2node*))*128 );
     if( x2a->tbl==0 ){
       free(x2a);
@@ -3774,7 +3774,7 @@ void State_init(void){
   if( x3a ){
     x3a->size = 128;
     x3a->count = 0;
-    x3a->tbl = (x3node*)malloc( 
+    x3a->tbl = (x3node*)malloc(
       (sizeof(x3node) + sizeof(x3node*))*128 );
     if( x3a->tbl==0 ){
       free(x3a);
@@ -3916,7 +3916,7 @@ void Configtable_init(void){
   if( x4a ){
     x4a->size = 64;
     x4a->count = 0;
-    x4a->tbl = (x4node*)malloc( 
+    x4a->tbl = (x4node*)malloc(
       (sizeof(x4node) + sizeof(x4node*))*64 );
     if( x4a->tbl==0 ){
       free(x4a);

@@ -1,25 +1,25 @@
 /* packet-rpc.c
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
- * 
- * $Id: packet-rpc.c,v 1.102 2002/08/22 20:47:10 guy Exp $
- * 
+ *
+ * $Id: packet-rpc.c,v 1.103 2002/08/28 21:00:29 jmayer Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * Copied from packet-smb.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -267,7 +267,7 @@ rpc_proc_equal(gconstpointer k1, gconstpointer k2)
 	rpc_proc_info_key* key1 = (rpc_proc_info_key*) k1;
 	rpc_proc_info_key* key2 = (rpc_proc_info_key*) k2;
 
-	return ((key1->prog == key2->prog && 
+	return ((key1->prog == key2->prog &&
 		key1->vers == key2->vers &&
 		key1->proc == key2->proc) ?
 	TRUE : FALSE);
@@ -544,7 +544,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 			fill_truncated = 0;
 		}
 	}
-	string_buffer = (char*)g_malloc(string_length_copy + 
+	string_buffer = (char*)g_malloc(string_length_copy +
 			(string_data ? 1 : 0));
 	tvb_memcpy(tvb,string_buffer,offset+4,string_length_copy);
 	if (string_data)
@@ -565,7 +565,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 				   in the case of totally wrong packets,
 				   where \0 are inside the string.
 				   TRUNCATED will appear at the
-				   first \0 or at the end (where we 
+				   first \0 or at the end (where we
 				   put the securing \0).
 				*/
 				strcat(string_buffer_print,"<TRUNCATED>");
@@ -607,12 +607,12 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		if (string_data) {
 			proto_tree_add_string_format(string_tree,
 			    hfindex, tvb, offset, string_length_copy,
-				string_buffer_print, 
+				string_buffer_print,
 				"contents: %s", string_buffer_print);
 		} else {
 			proto_tree_add_bytes_format(string_tree,
 			    hfindex, tvb, offset, string_length_copy,
-				string_buffer_print, 
+				string_buffer_print,
 				"contents: %s", string_buffer_print);
 		}
 	}
@@ -632,7 +632,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		}
 		offset += fill_length_copy;
 	}
-	
+
 	if (string_item) {
 		proto_item_set_len(string_item, offset - old_offset);
 	}
@@ -720,7 +720,7 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	lock_item = proto_tree_add_item(tree, hfindex, tvb, offset, -1, FALSE);
 
-	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array); 	
+	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array);
 
 	offset = dissect_rpc_uint32(tvb, lock_tree,
 			hf_rpc_array_len, offset);
@@ -773,7 +773,7 @@ dissect_rpc_authunix_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 		gtree = proto_item_add_subtree(gitem, ett_rpc_gids);
 	}
 	offset += 4;
-	
+
 	for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {
 		gids_entry = tvb_get_ntohl(tvb,offset+0);
 		if (gtree)
@@ -800,28 +800,28 @@ dissect_rpc_authgss_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 		proto_tree_add_uint(tree, hf_rpc_authgss_v,
 				    tvb, offset+0, 4, agc_v);
 	offset += 4;
-	
+
 	agc_proc = tvb_get_ntohl(tvb, offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_proc,
 				    tvb, offset+0, 4, agc_proc);
 	offset += 4;
-	
+
 	agc_seq = tvb_get_ntohl(tvb, offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_seq,
 				    tvb, offset+0, 4, agc_seq);
 	offset += 4;
-	
+
 	agc_svc = tvb_get_ntohl(tvb, offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_svc,
 				    tvb, offset+0, 4, agc_svc);
 	offset += 4;
-	
+
 	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_ctx,
 			offset);
-	
+
 	return offset;
 }
 
@@ -837,7 +837,7 @@ int hfindex, int offset)
 
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 8,
-			"%s: 0x%x%08x", proto_registrar_get_name(hfindex), value_high, 
+			"%s: 0x%x%08x", proto_registrar_get_name(hfindex), value_high,
 			value_low);
 	}
 
@@ -860,7 +860,7 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	switch(adc_namekind)
 	{
 	case AUTHDES_NAMEKIND_FULLNAME:
-		offset = dissect_rpc_string(tvb, tree, 
+		offset = dissect_rpc_string(tvb, tree,
 			hf_rpc_authdes_netname, offset, NULL);
 		offset = dissect_rpc_authdes_desblock(tvb, tree,
 			hf_rpc_authdes_convkey, offset);
@@ -915,7 +915,7 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 		case AUTH_DES:
 			dissect_rpc_authdes_cred(tvb, ctree, offset+8);
 			break;
-			
+
 		case RPCSEC_GSS:
 			dissect_rpc_authgss_cred(tvb, ctree, offset+8);
 			break;
@@ -939,7 +939,7 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type)
 {
 	guint flavor;
 	guint length;
-	
+
 	proto_item *vitem;
 	proto_tree *vtree;
 
@@ -971,7 +971,7 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type)
 				dissect_rpc_authdes_desblock(tvb, vtree,
 					hf_rpc_authdes_timestamp, offset+8);
 				window = tvb_get_ntohl(tvb, offset+16);
-				proto_tree_add_uint(vtree, hf_rpc_authdes_windowverf, tvb, 
+				proto_tree_add_uint(vtree, hf_rpc_authdes_windowverf, tvb,
 					offset+16, 4, window);
 			}
 			else
@@ -982,7 +982,7 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type)
 				dissect_rpc_authdes_desblock(tvb, vtree,
 					hf_rpc_authdes_timeverf, offset+8);
 				nickname = tvb_get_ntohl(tvb, offset+16);
-				proto_tree_add_uint(vtree, hf_rpc_authdes_nickname, tvb, 
+				proto_tree_add_uint(vtree, hf_rpc_authdes_nickname, tvb,
 				 	offset+16, 4, nickname);
 			}
 			break;
@@ -1058,10 +1058,10 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
     packet_info *pinfo)
 {
 	int major, minor, window;
-	
+
 	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_ctx,
 			offset);
-	
+
 	major = tvb_get_ntohl(tvb,offset+0);
 	if (tree)
 		proto_tree_add_uint(tree, hf_rpc_authgss_major, tvb,
@@ -1116,7 +1116,7 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	const char *progname)
 {
 	guint32 length, rounded_length, seq;
-	
+
 	proto_item *gitem;
 	proto_tree *gtree = NULL;
 
@@ -1654,13 +1654,13 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		prog = tvb_get_ntohl(tvb, offset + 4);
-		
+
 		if (rpc_tree) {
 			proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_program, tvb, offset+4, 4, prog,
 				"Program: %s (%u)", progname, prog);
 		}
-		
+
 		if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 			/* Set the protocol name to the underlying
 			   program name. */
@@ -1692,7 +1692,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			sprintf(procname_static, "proc-%u", proc);
 			procname = procname_static;
 		}
-		
+
 		if (rpc_tree) {
 			proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_procedure, tvb, offset+12, 4, proc,
@@ -2067,7 +2067,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 */
 			dissect_rpc = FALSE;
 			break;
-		} 
+		}
 		break; /* end of RPC reply */
 
 	default:
@@ -2168,7 +2168,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		case RPCSEC_GSS_DATA:
 			if (gss_svc == RPCSEC_GSS_SVC_NONE) {
-				offset = call_dissect_function(tvb, 
+				offset = call_dissect_function(tvb,
 						pinfo, ptree, offset,
 						dissect_function,
 						progname);
@@ -2203,7 +2203,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case RPC_CALL:
 			if(rpc_call && rpc_call->rep_num){
 				fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
-					nfs_fhandle_frame_table, 
+					nfs_fhandle_frame_table,
 					(gconstpointer)rpc_call->rep_num);
 				if(fhd){
 					dissect_fhandle_hidden(pinfo,
@@ -2214,7 +2214,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case RPC_REPLY:
 			if(rpc_call && rpc_call->req_num){
 				fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
-					nfs_fhandle_frame_table, 
+					nfs_fhandle_frame_table,
 					(gconstpointer)rpc_call->req_num);
 				if(fhd){
 					dissect_fhandle_hidden(pinfo,
@@ -2633,7 +2633,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		if (ipfd_head == NULL) {
 			/*
-			 * fragment_add() returned NULL, This means that 
+			 * fragment_add() returned NULL, This means that
 			 * defragmentation is not completed yet.
 			 *
 			 * We must add an entry to the hash table with
@@ -2894,22 +2894,22 @@ proto_register_rpc(void)
 			"RPC Version", "rpc.version", FT_UINT32, BASE_DEC,
 			NULL, 0, "RPC Version", HFILL }},
 		{ &hf_rpc_version_min, {
-			"RPC Version (Minimum)", "rpc.version.min", FT_UINT32, 
+			"RPC Version (Minimum)", "rpc.version.min", FT_UINT32,
 			BASE_DEC, NULL, 0, "Program Version (Minimum)", HFILL }},
 		{ &hf_rpc_version_max, {
-			"RPC Version (Maximum)", "rpc.version.max", FT_UINT32, 
+			"RPC Version (Maximum)", "rpc.version.max", FT_UINT32,
 			BASE_DEC, NULL, 0, "RPC Version (Maximum)", HFILL }},
 		{ &hf_rpc_program, {
 			"Program", "rpc.program", FT_UINT32, BASE_DEC,
 			NULL, 0, "Program", HFILL }},
 		{ &hf_rpc_programversion, {
-			"Program Version", "rpc.programversion", FT_UINT32, 
+			"Program Version", "rpc.programversion", FT_UINT32,
 			BASE_DEC, NULL, 0, "Program Version", HFILL }},
 		{ &hf_rpc_programversion_min, {
-			"Program Version (Minimum)", "rpc.programversion.min", FT_UINT32, 
+			"Program Version (Minimum)", "rpc.programversion.min", FT_UINT32,
 			BASE_DEC, NULL, 0, "Program Version (Minimum)", HFILL }},
 		{ &hf_rpc_programversion_max, {
-			"Program Version (Maximum)", "rpc.programversion.max", FT_UINT32, 
+			"Program Version (Maximum)", "rpc.programversion.max", FT_UINT32,
 			BASE_DEC, NULL, 0, "Program Version (Maximum)", HFILL }},
 		{ &hf_rpc_procedure, {
 			"Procedure", "rpc.procedure", FT_UINT32, BASE_DEC,
@@ -2978,7 +2978,7 @@ proto_register_rpc(void)
 			"Window (encrypted)", "rpc.authdes.window", FT_UINT32,
 			BASE_HEX, NULL, 0, "Windows (encrypted)", HFILL }},
 		{ &hf_rpc_authdes_nickname, {
-			"Nickname", "rpc.authdes.nickname", FT_UINT32, 
+			"Nickname", "rpc.authdes.nickname", FT_UINT32,
 			BASE_HEX, NULL, 0, "Nickname", HFILL }},
 		{ &hf_rpc_authdes_timestamp, {
 			"Timestamp (encrypted)", "rpc.authdes.timestamp", FT_UINT32,
@@ -2990,7 +2990,7 @@ proto_register_rpc(void)
 			"Timestamp verifier (encrypted)", "rpc.authdes.timeverf", FT_UINT32,
 			BASE_HEX, NULL, 0, "Timestamp verifier (encrypted)", HFILL }},
 		{ &hf_rpc_auth_machinename, {
-			"Machine Name", "rpc.auth.machinename", FT_STRING, 
+			"Machine Name", "rpc.auth.machinename", FT_STRING,
 			BASE_DEC, NULL, 0, "Machine Name", HFILL }},
 		{ &hf_rpc_dup, {
 			"Duplicate Transaction", "rpc.dup", FT_UINT32, BASE_DEC,

@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.10 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: mergecap.c,v 1.11 2002/08/28 21:00:06 jmayer Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -36,7 +36,7 @@
  */
 static int verbose = 0;                      /* Not so verbose         */
 
-/* 
+/*
  * Structures to manage our files
  */
 typedef struct in_file_t {
@@ -62,12 +62,12 @@ static out_file_t out_file;
  */
 static void
 write_frame(guchar *user, const struct wtap_pkthdr *phdr, long offset _U_,
-            union wtap_pseudo_header *pseudo_header, const guchar *buf) 
+            union wtap_pseudo_header *pseudo_header, const guchar *buf)
 {
   wtap_dumper *pdh = (wtap_dumper*)user;
   int err;
   struct wtap_pkthdr snap_phdr;
-  
+
   if (verbose)
     printf("Record: %u\n", out_file.count++);
 
@@ -110,7 +110,7 @@ append(int count, in_file_t in_files[], out_file_t *out_file)
  * returns TRUE if first argument is earlier than second
  */
 static gboolean
-is_earlier(struct timeval *l, struct timeval *r) {     
+is_earlier(struct timeval *l, struct timeval *r) {
   if (l->tv_sec > r->tv_sec) {  /* left is later */
     return FALSE;
   } else if (l->tv_sec < r->tv_sec) { /* left is earlier */
@@ -121,7 +121,7 @@ is_earlier(struct timeval *l, struct timeval *r) {
   /* either one < two or one == two
    * either way, return one
    */
-  return TRUE;    
+  return TRUE;
 }
 
 
@@ -145,7 +145,7 @@ earliest(int count, in_file_t in_files[]) {
   }
   return ei;
 }
- 
+
 /*
  * actually merge the files
  */
@@ -162,7 +162,7 @@ merge(int count, in_file_t in_files[], out_file_t *out_file)
 
   /* now keep writing the earliest frame until we're out of frames */
   while ( -1 != (i = earliest(count, in_files))) {
-    
+
     /* write out earliest frame, and fetch another from its
      * input file
      */
@@ -190,9 +190,9 @@ select_frame_type(int count, in_file_t files[])
 {
   int i;
   int selected_frame_type;
-  
+
   selected_frame_type = wtap_file_encap(files[0].wth);
-  
+
   for (i = 1; i < count; i++) {
     int this_frame_type = wtap_file_encap(files[i].wth);
     if (selected_frame_type != this_frame_type) {
@@ -212,7 +212,7 @@ select_frame_type(int count, in_file_t files[])
       break;
     }
   }
-  
+
   if (verbose) {
       fprintf(stderr, "mergecap: selected frame_type %s (%s)\n",
               wtap_encap_string(selected_frame_type),
@@ -221,7 +221,7 @@ select_frame_type(int count, in_file_t files[])
 
   return selected_frame_type;
 }
-    
+
 
 /*
  * Close the output file
@@ -310,7 +310,7 @@ open_in_files(int argc, char *argv[], in_file_t *in_files[])
   int err;
   in_file_t *files;
   int files_size = argc * sizeof(in_file_t);
-  
+
 
   files = malloc(files_size);
   if (!files) {
@@ -347,7 +347,7 @@ open_in_files(int argc, char *argv[], in_file_t *in_files[])
 
 /*
  * Show the usage
- */  
+ */
 static void
 usage()
 {
@@ -391,9 +391,9 @@ main(int argc, char *argv[])
   gboolean     do_append     = FALSE;
   int          in_file_count = 0;
   in_file_t   *in_files      = NULL;
-  
+
   /* initialize out_file */
-  out_file.filename   = NULL;   
+  out_file.filename   = NULL;
   out_file.pdh        = NULL;              /* wiretap dumpfile */
   out_file.file_type  = WTAP_FILE_PCAP;    /* default to "libpcap" */
   out_file.frame_type = -2;                /* leave type alone */
@@ -407,11 +407,11 @@ main(int argc, char *argv[])
     case 'w':
       out_file.filename = optarg;
       break;
-        
+
     case 'a':
       do_append = !do_append;
       break;
-    
+
     case 'T':
       out_file.frame_type = wtap_short_string_to_encap(optarg);
       if (out_file.frame_type < 0) {
@@ -478,7 +478,7 @@ main(int argc, char *argv[])
   /* set the outfile frame type */
   if (out_file.frame_type == -2)
     out_file.frame_type = select_frame_type(in_file_count, in_files);
-  
+
   /* open the outfile */
   if (!open_outfile(&out_file, max_snapshot_length(in_file_count, in_files))) {
     close_in_files(in_file_count, in_files);

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.66 2002/08/27 19:12:35 guy Exp $
+ * $Id: packet-bgp.c,v 1.67 2002/08/28 21:00:07 jmayer Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -168,27 +168,27 @@ static const value_string bgp_l2vpn_encaps[] = {
     { 0,                      "Reserved"},
     { 1,                      "Frame Relay"},
     { 2,                      "ATM AAL5 VCC transport"},
-    { 3,                      "ATM transparent cell transport"}, 
-    { 4,                      "Ethernet VLAN"}, 
-    { 5,                      "Ethernet"}, 
-    { 6,                      "Cisco-HDLC"}, 
-    { 7,                      "PPP"}, 
-    { 8,                      "CEM"}, 
-    { 9,                      "ATM VCC cell transport"}, 
-    { 10,                     "ATM VPC cell transport"}, 
-    { 11,                     "MPLS"}, 
-    { 12,                     "VPLS"}, 
-    { 64,                     "IP-interworking"}, 
+    { 3,                      "ATM transparent cell transport"},
+    { 4,                      "Ethernet VLAN"},
+    { 5,                      "Ethernet"},
+    { 6,                      "Cisco-HDLC"},
+    { 7,                      "PPP"},
+    { 8,                      "CEM"},
+    { 9,                      "ATM VCC cell transport"},
+    { 10,                     "ATM VPC cell transport"},
+    { 11,                     "MPLS"},
+    { 12,                     "VPLS"},
+    { 64,                     "IP-interworking"},
     { 0, NULL},
 };
 
 static const value_string bgpext_ospf_rtype[] = {
-  { BGP_OSPF_RTYPE_RTR, "Router" },  
-  { BGP_OSPF_RTYPE_NET, "Network" },  
-  { BGP_OSPF_RTYPE_SUM, "Summary" },  
-  { BGP_OSPF_RTYPE_EXT, "External" },  
+  { BGP_OSPF_RTYPE_RTR, "Router" },
+  { BGP_OSPF_RTYPE_NET, "Network" },
+  { BGP_OSPF_RTYPE_SUM, "Summary" },
+  { BGP_OSPF_RTYPE_EXT, "External" },
   { BGP_OSPF_RTYPE_NSSA,"NSSA External" },
-  { BGP_OSPF_RTYPE_SHAM,"MPLS-VPN Sham" },  
+  { BGP_OSPF_RTYPE_SHAM,"MPLS-VPN Sham" },
   { 0, NULL },
 };
 
@@ -272,7 +272,7 @@ static gint ett_bgp_communities = -1;
 static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
 static gint ett_bgp_options = -1;       /* optional parameters tree   */
 static gint ett_bgp_option = -1;        /* an optional parameter tree */
-static gint ett_bgp_extended_communities = -1 ; /* extended communities list tree */ 
+static gint ett_bgp_extended_communities = -1 ; /* extended communities list tree */
 static gint ett_bgp_orf = -1; 		/* orf (outbound route filter) tree */
 static gint ett_bgp_orf_entry = -1; 		/* orf entry tree */
 
@@ -371,7 +371,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 	    if (strlen(buf) + strlen(junk_buf) + 1 <= buflen)
 		strcat(buf, junk_buf);
 	    break;
-	}	  
+	}
     }
 
     return((index - offset) / 3);
@@ -463,7 +463,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                         default:
                             length = 0 ;
                             snprintf(buf, buflen, "Unknown SAFI (%u) for AFI %u", safi, afi);
-                            break; 
+                            break;
                 }
                 break;
         default:
@@ -613,7 +613,7 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
                                 ce_id=tvb_get_ntohs(tvb,offset+10);
                                 labblk_off=tvb_get_ntohs(tvb,offset+12);
                                 labnum = decode_MPLS_stack(tvb, offset + 14, lab_stk, sizeof(lab_stk));
- 
+
                                 switch (rd_type) {
                                         case FORMAT_AS2_LOC:
                                                 tvb_memcpy(tvb, ip4addr, offset + 6, 4);
@@ -856,7 +856,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
                              val_to_str(i, afn_vals, "Unknown"), i);
 			p += 2;
 			/* Reserved */
-			proto_tree_add_text(subtree3, tvb, p, 
+			proto_tree_add_text(subtree3, tvb, p,
 			     1, "Reserved: 1 byte");
 			p++;
 			/* SAFI */
@@ -883,7 +883,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
 			    orfsendrecv = tvb_get_guint8(tvb, p);
 			    proto_tree_add_text(subtree3, tvb, p,
 				1, "Send/Receive: %s (%u)",
-				val_to_str(orfsendrecv, orf_send_recv_vals, 
+				val_to_str(orfsendrecv, orf_send_recv_vals,
 				"Uknown"), orfsendrecv);
 			    p++;
 			}
@@ -1580,7 +1580,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                 }
                 tlen -= off;
 		aoff += off;
-                
+
 		ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
 			"Network layer reachability information (%u %s)",
 			tlen, (tlen == 1) ? "byte" : "bytes");
@@ -1694,14 +1694,14 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                                 junk_buf[junk_buf_len]='\0';
                                 proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
                                 break;
-                            case BGP_EXT_COM_OSPF_RTYPE: 
+                            case BGP_EXT_COM_OSPF_RTYPE:
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
                                 junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": Area:%s %s",
                                          ip_to_str(ipaddr),
                                          val_to_str(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
 				/* print OSPF Metric type if selected */
 				/* always print E2 even if not external route -- receiving router should ignore */
-                                if ( (tvb_get_guint8(tvb,q+7)) & BGP_OSPF_RTYPE_METRIC_TYPE ) { 
+                                if ( (tvb_get_guint8(tvb,q+7)) & BGP_OSPF_RTYPE_METRIC_TYPE ) {
                                     junk_buf_len+=snprintf(junk_buf+junk_buf_len,sizeof(junk_buf)-junk_buf_len," E2");
                                 } else if (tvb_get_guint8(tvb,q+6)==(BGP_OSPF_RTYPE_EXT ||BGP_OSPF_RTYPE_NSSA ) ) {
                                     junk_buf_len+=snprintf(junk_buf+junk_buf_len,sizeof(junk_buf)-junk_buf_len," E1");
@@ -1729,7 +1729,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                                                        tvb_get_ntohs(tvb,q+4)==1 ? "byte" : "bytes");
                                 junk_buf[junk_buf_len]='\0';
                                 ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
-  
+
                                 subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities) ;
                                 proto_tree_add_text(subtree4,tvb,q+2,1, "Encapsulation: %s",
                                                          val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"));
@@ -1737,7 +1737,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                                                     tvb_get_ntohs(tvb,q+3)&0x08 ? "Q flag (Reserved) set" : "",
                                                     tvb_get_ntohs(tvb,q+3)&0x04 ? "F flag (reserved) set" : "",
                                                     tvb_get_ntohs(tvb,q+3)&0x02 ? "is" : "not",
-                                                    tvb_get_ntohs(tvb,q+3)&0x01 ? "is" : "not"); 
+                                                    tvb_get_ntohs(tvb,q+3)&0x01 ? "is" : "not");
                                 proto_tree_add_text(subtree4,tvb,q+4,2, "MTU: %u %s",
                                                     tvb_get_ntohs(tvb,q+4),
                                                     tvb_get_ntohs(tvb,q+4)==1 ? "byte" : "bytes");
@@ -1848,9 +1848,9 @@ dissect_bgp_route_refresh(tvbuff_t *tvb, int offset, proto_tree *tree)
     guint8          pfx_le;         /* ORF PrefixList mask upper bound */
     char            pfxbuf[20];	    /* ORF PrefixList prefix string buffer */
     int             pfx_masklen;    /* ORF PRefixList prefix mask length */
-    
 
-/* 
+
+/*
 example 1
  00 1c 05	hlen=28
  00 01 00 01    afi,safi= ipv4-unicast
@@ -1870,17 +1870,17 @@ example 2
     p = offset + BGP_HEADER_SIZE;
     /* AFI */
     i = tvb_get_ntohs(tvb, p);
-    proto_tree_add_text(tree, tvb, p, 2, 
+    proto_tree_add_text(tree, tvb, p, 2,
                         "Address family identifier: %s (%u)",
                         val_to_str(i, afn_vals, "Unknown"), i);
     p += 2;
     /* Reserved */
-    proto_tree_add_text(tree, tvb, p, 1, 
+    proto_tree_add_text(tree, tvb, p, 1,
                         "Reserved: 1 byte");
     p++;
     /* SAFI */
     i = tvb_get_guint8(tvb, p);
-    proto_tree_add_text(tree, tvb, p, 1, 
+    proto_tree_add_text(tree, tvb, p, 1,
                         "Subsequent address family identifier: %s (%u)",
                         val_to_str(i, bgpattr_nlri_safi,
                         i >= 128 ? "Vendor specific" : "Unknown"),
@@ -1924,7 +1924,7 @@ example 2
 			ti1 = proto_tree_add_text(subtree, tvb, p, entrylen, "ORFEntry-PrefixList (%u bytes)", entrylen);
 			subtree1 = proto_item_add_subtree(ti1, ett_bgp_orf_entry);
 			proto_tree_add_text(subtree1, tvb, p , 1, "ACTION: %s MATCH: %s",
-                         val_to_str(entryflag&BGP_ORF_ACTION, orf_entry_action_vals,"UNKNOWN"), 
+                         val_to_str(entryflag&BGP_ORF_ACTION, orf_entry_action_vals,"UNKNOWN"),
                          val_to_str(entryflag&BGP_ORF_MATCH, orf_entry_match_vals,"UNKNOWN"));
 			p++;
 			proto_tree_add_text(subtree1, tvb, p , 4, "Entry Sequence No: %u", entryseq);

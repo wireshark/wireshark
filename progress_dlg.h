@@ -1,22 +1,22 @@
 /* progress_dlg.h
  * Definitions for progress dialog box routines
  *
- * $Id: progress_dlg.h,v 1.3 2002/08/28 10:07:28 guy Exp $
+ * $Id: progress_dlg.h,v 1.4 2002/08/28 21:00:41 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -45,7 +45,7 @@ typedef struct progdlg progdlg_t;
  * The fourth argument is a pointer to a Boolean variable that will be
  *   set to TRUE if the user hits that button.
  */
-progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title, 
+progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title,
     const gchar *stop_title, gboolean *stop_flag);
 
 /* Create a progress dialog, but only if it's not likely to disappear
@@ -57,7 +57,7 @@ progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title,
  * current progress (0..1).
  */
 progdlg_t *
-delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title, 
+delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
     const gchar *stop_title, gboolean *stop_flag, GTimeVal *start_time,
     gfloat progress);
 

@@ -1,22 +1,22 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.96 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: file.h,v 1.97 2002/08/28 21:00:06 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -63,9 +63,9 @@ typedef struct _capture_file {
   gchar       *save_file; /* File that user saved capture to */
   int          save_file_fd; /* File descriptor for saved file */
   wtap        *wth;       /* Wiretap session */
-  dfilter_t   *rfcode;    /* Compiled read filter program */ 
+  dfilter_t   *rfcode;    /* Compiled read filter program */
   gchar       *dfilter;   /* Display filter string */
-  dfilter_t   *dfcode;    /* Compiled display filter program */ 
+  dfilter_t   *dfcode;    /* Compiled display filter program */
 #ifdef HAVE_LIBPCAP
   gchar       *cfilter;   /* Capture filter string */
 #endif

@@ -1,22 +1,22 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.9 2002/08/02 23:36:05 jmayer Exp $
+ * $Id: pcap-util.c,v 1.10 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -392,10 +392,10 @@ GList *
 get_interface_list(int *err, char *err_str) {
   GList  *il = NULL;
   wchar_t *names;
-  char *win95names; 
+  char *win95names;
   char newname[MAX_WIN_IF_NAME_LEN + 1];
   int i, j, done;
-  
+
   /* On Windows pcap_lookupdev is implemented by calling
    * PacketGetAdapterNames.  According to the documentation I can find
    * (http://winpcap.polito.it/docs/dll.htm#PacketGetAdapterNames)
@@ -412,8 +412,8 @@ get_interface_list(int *err, char *err_str) {
    * of the adapters, in ASCII format, separated by a single ASCII
    * "\0" . The string is terminated by a double ASCII "\0".
    *
-   * We prepend the device name with a description to make it easier 
-   * for users to choose the interface they want.  This requires that 
+   * We prepend the device name with a description to make it easier
+   * for users to choose the interface they want.  This requires that
    * we split out the device name later on in tethereal.c and gtk/main.c.
    * It might be useful to have separate structures for raw names and
    * descriptions at some point.
@@ -426,7 +426,7 @@ get_interface_list(int *err, char *err_str) {
 	  char* desc = 0;
 	  int desc_pos = 0;
 
-	  if (names[0]<256) { 
+	  if (names[0]<256) {
 		  /* If names[0] is less than 256 it means the first byte is 0
 		     This implies that we are using unicode characters */
 	          while(*(names+desc_pos) || *(names+desc_pos-1))
@@ -434,61 +434,61 @@ get_interface_list(int *err, char *err_str) {
 		  desc_pos++;	/* Step over the extra '\0' */
 		  desc = (char*)(names + desc_pos); /* cast *after* addition */
 
-		  do 
-		  { 
+		  do
+		  {
 			j = 0;
 			while (*desc) {
 			    if (j < MAX_WIN_IF_NAME_LEN)
-				newname[j++] = *desc++; 
+				newname[j++] = *desc++;
 			}
 			*desc++;
 			if (j < MAX_WIN_IF_NAME_LEN - 1) {
-			    newname[j++] = ':'; 
-			    newname[j++] = ' '; 
+			    newname[j++] = ':';
+			    newname[j++] = ' ';
 			}
 			while (names[i] != 0) {
-			    if (j < MAX_WIN_IF_NAME_LEN) 
-				newname[j++] = names[i++]; 
+			    if (j < MAX_WIN_IF_NAME_LEN)
+				newname[j++] = names[i++];
 			}
-			i++; 
-			if (names[i] == 0) 
-			    done = 1; 
-			newname[j] = 0; 
-			il = g_list_append(il, g_strdup(newname)); 
-		  } while (!done); 
-	  } 
-	  else { 
+			i++;
+			if (names[i] == 0)
+			    done = 1;
+			newname[j] = 0;
+			il = g_list_append(il, g_strdup(newname));
+		  } while (!done);
+	  }
+	  else {
 		  /* Otherwise we are in Windows 95/98 and using ascii(8 bit)
 		     characters */
-	          win95names=(char *)names; 
+	          win95names=(char *)names;
 		  while(*(win95names+desc_pos) || *(win95names+desc_pos-1))
 		  	desc_pos++;
 		  desc_pos++;	/* Step over the extra '\0' */
 		  desc = win95names + desc_pos;
 
-		  do 
-		  { 
+		  do
+		  {
 			j = 0;
 			while (*desc) {
 			    if (j < MAX_WIN_IF_NAME_LEN)
-				newname[j++] = *desc++; 
+				newname[j++] = *desc++;
 			}
 			*desc++;
 			if (j < MAX_WIN_IF_NAME_LEN - 1) {
-			    newname[j++] = ':'; 
-			    newname[j++] = ' '; 
+			    newname[j++] = ':';
+			    newname[j++] = ' ';
 			}
 			while (win95names[i] != 0) {
-			    if (j < MAX_WIN_IF_NAME_LEN) 
-				newname[j++] = win95names[i++]; 
+			    if (j < MAX_WIN_IF_NAME_LEN)
+				newname[j++] = win95names[i++];
 			}
-			i++; 
-			if (win95names[i] == 0) 
-			    done = 1; 
-			newname[j] = 0; 
-			il = g_list_append(il, g_strdup(newname)); 
-		  } while (!done); 
-	  } 
+			i++;
+			if (win95names[i] == 0)
+			    done = 1;
+			newname[j] = 0;
+			il = g_list_append(il, g_strdup(newname));
+		  } while (!done);
+	  }
   }
   return(il);
 }

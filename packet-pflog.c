@@ -1,7 +1,7 @@
 /* packet-pflog.c
  * Routines for pflog (OpenBSD Firewall Logging) packet disassembly
  *
- * $Id: packet-pflog.c,v 1.6 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-pflog.c,v 1.7 2002/08/28 21:00:25 jmayer Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -13,7 +13,7 @@
  *    - Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *      with the distribution.
- *          
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -70,7 +70,7 @@ capture_pflog(const guchar *pd, int offset, int len, packet_counts *ld)
   }
 
   offset += PFLOG_HDRLEN;
-  
+
   /* Copy out the pflog header to insure alignment */
   memcpy(&pflogh, pd, sizeof(pflogh));
   pflogh.af = g_ntohl(pflogh.af);

@@ -1,27 +1,27 @@
 /* packet-osi-options.c
- * Routines for the decode of ISO/OSI option part 
+ * Routines for the decode of ISO/OSI option part
  * Covers:
  * ISO  8473 CLNP (ConnectionLess Mode Network Service Protocol)
  * ISO 10589 ISIS (Intradomain Routing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.13 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-osi-options.c,v 1.14 2002/08/28 21:00:24 jmayer Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -70,7 +70,7 @@
 #define OSI_OPT_QOS_SRC_ADR_SPEC   0x40
 #define OSI_OPT_QOS_DST_ADR_SPEC   0x80
 #define OSI_OPT_QOS_GLOBAL_UNIQUE  0xc0
- 
+
 #define OSI_OPT_QOS_SUB_MASK        0x3f
 #define OSI_OPT_QOS_SUB_RSVD        0x20
 #define OSI_OPT_QOS_SUB_SEQ_VS_TRS  0x10
@@ -103,14 +103,14 @@ static const value_string osi_opt_sec_vals[] = {
         { OSI_OPT_SEC_DST_ADR_SPEC,  "Destination Address Specific"},
         { OSI_OPT_SEC_GLOBAL_UNIQUE, "Globally Unique"},
         { 0,            NULL} };
-     
+
 static const value_string osi_opt_qos_vals[] = {
         { OSI_OPT_QOS_RESERVED,      "Reserved"},
         { OSI_OPT_QOS_SRC_ADR_SPEC,  "Source Address Specific"},
         { OSI_OPT_QOS_DST_ADR_SPEC,  "Destination Address Specific"},
         { OSI_OPT_QOS_GLOBAL_UNIQUE, "Globally Unique"},
         { 0,            NULL} };
-     
+
 static const value_string osi_opt_qos_sub_vals[] = {
         { 0x20,  " xx10 0000 Reserved"},
         { 0x10,  " xx01 0000 Sequencing versus transit delay"},
@@ -119,7 +119,7 @@ static const value_string osi_opt_qos_sub_vals[] = {
         { 0x02,  " xx00 0010 Residual error probability versus transit delay"},
         { 0x01,  " xx00 0001 Residual error probability versus cost"},
         { 0,            NULL} };
-  
+
 static const value_string osi_opt_rfd_general[] = {
         { 0x00, "Reason not specified"},
         { 0x01, "Protocol procedure error"},
@@ -130,24 +130,24 @@ static const value_string osi_opt_rfd_general[] = {
         { 0x06, "Incomplete PDU received"},
         { 0x07, "Duplicate option"},
         { 0,    NULL} };
-     
+
 static const value_string osi_opt_rfd_address[] = {
         { 0x00, "Destination Address unreachable"},
         { 0x01, "Destination Address unknown"},
         { 0,    NULL} };
-     
+
 static const value_string osi_opt_rfd_src_route[] = {
         { 0x00, "Unspecified source routing error"},
         { 0x01, "Syntax error in source routing field"},
         { 0x02, "Unknown address in source routing field"},
         { 0x03, "Path not acceptable"},
         { 0,    NULL} };
-     
+
 static const value_string osi_opt_rfd_lifetime[] = {
         { 0x00, "Lifetime expired while data unit in transit"},
         { 0x01, "Lifetime expired during reassembly"},
         { 0,    NULL} };
-     
+
 static const value_string osi_opt_rfd_discarded[] = {
         { 0x00, "Unsupported option not specified"},
         { 0x01, "Unsupported protocol version"},
@@ -155,11 +155,11 @@ static const value_string osi_opt_rfd_discarded[] = {
         { 0x03, "Unsupported source routing option"},
         { 0x04, "Unsupported recording of route option"},
         { 0,    NULL} };
-     
+
 static const value_string osi_opt_rfd_reassembly[] = {
         { 0x00, "Reassembly interference"},
         { 0,    NULL} };
-     
+
 
 static void
 dissect_option_qos( const guchar type, const guchar sub_type, int offset,
@@ -168,14 +168,14 @@ dissect_option_qos( const guchar type, const guchar sub_type, int offset,
   guchar      tmp_type = 0;
   proto_item *ti;
   proto_tree *osi_qos_tree = NULL;
-  
-  
+
+
   ti = proto_tree_add_text( tree, tvb, offset, len,
                             "Quality of service maintenance: %s",
                        val_to_str( type, osi_opt_qos_vals, "Unknown (0x%x)") );
-  
+
   osi_qos_tree = proto_item_add_subtree( ti, ott_osi_qos );
-                           
+
   if ( OSI_OPT_SEC_MASK == type ) {     /* Analye BIT field to get all Values */
 
     tmp_type = sub_type & OSI_OPT_QOS_SUB_RSVD;
@@ -194,7 +194,7 @@ dissect_option_qos( const guchar type, const guchar sub_type, int offset,
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type & OSI_OPT_QOS_SUB_TSD_VS_COST;
-    
+
     if ( tmp_type ) {
          proto_tree_add_text( osi_qos_tree, tvb, offset, len,
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
@@ -213,7 +213,7 @@ dissect_option_qos( const guchar type, const guchar sub_type, int offset,
 }
 
 static void
-dissect_option_route( guchar parm_type, guchar offset, guchar parm_len, 
+dissect_option_route( guchar parm_type, guchar offset, guchar parm_len,
                       tvbuff_t *tvb, proto_tree *tree ) {
 
   guchar      next_hop = 0;
@@ -221,7 +221,7 @@ dissect_option_route( guchar parm_type, guchar offset, guchar parm_len,
   guchar      netl     = 0;
   guchar      last_hop = 0;
   guchar      cnt_hops = 0;
-  
+
   proto_item *ti;
   proto_tree *osi_route_tree = NULL;
 
@@ -235,10 +235,10 @@ dissect_option_route( guchar parm_type, guchar offset, guchar parm_len,
     netl     = tvb_get_guint8(tvb, next_hop + 2 );
     this_hop = offset + 3;         /* points to first netl */
 
-    ti = proto_tree_add_text( tree, tvb, offset + next_hop, netl, 
+    ti = proto_tree_add_text( tree, tvb, offset + next_hop, netl,
             "Source Routing: %s   ( Next Hop Highlighted In Data Buffer )",
             (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routing" :
-                                                 "Complete Source Routing"  ); 
+                                                 "Complete Source Routing"  );
   }
   else {
     last_hop = tvb_get_guint8(tvb, offset + 1 );
@@ -251,13 +251,13 @@ dissect_option_route( guchar parm_type, guchar offset, guchar parm_len,
             (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routing" :
                                                  "Complete Source Routing" ,
             val_to_str( last_hop, osi_opt_route, "Unknown (0x%x" ) );
-    if ( 255 == last_hop ) 
+    if ( 255 == last_hop )
       this_hop = parm_len + 1;   /* recording terminated, nothing to show */
     else
       this_hop = offset + 3;
   }
   osi_route_tree = proto_item_add_subtree( ti, ott_osi_route );
-  
+
   while ( this_hop < parm_len ) {
     netl = tvb_get_guint8(tvb, this_hop + 1);
     proto_tree_add_text( osi_route_tree, tvb, offset + this_hop, netl,
@@ -277,7 +277,7 @@ static void
 dissect_option_rfd( const guchar error, const guchar field, guchar offset,
                           guchar len, tvbuff_t *tvb, proto_tree *tree ) {
   guchar error_class = 0;
-  char   *format_string[] = 
+  char   *format_string[] =
              { "Reason for discard {General}        : %s, in field %u",
                "Reason for discard {Address}        : %s, in field %u",
                "Reason for discard {Source Routing}: %s, in field %u",
@@ -285,7 +285,7 @@ dissect_option_rfd( const guchar error, const guchar field, guchar offset,
                "Reason for discard {PDU discarded}  : %s, in field %u",
                "Reason for discard {Reassembly}     : %s, in field %u"
              };
-  
+
   error_class = error & OSI_OPT_RFD_MASK;
 
   if ( OSI_OPT_RFD_GENERAL == error_class ) {
@@ -321,20 +321,20 @@ dissect_option_rfd( const guchar error, const guchar field, guchar offset,
   else {
     proto_tree_add_text( tree, tvb, offset, len,
                          "Reason for discard: UNKNOWN Error Class" );
-  } 
+  }
 }
 
 /* ############################## Dissection Functions ###################### */
 
 /*
  * Name: dissect_osi_options()
- * 
+ *
  * Description:
  *   Main entry area for esis de-mangling.  This will build the
  *   main esis tree data and call the sub-protocols as needed.
  *
  * Input:
- *   guchar       : length of option section 
+ *   guchar       : length of option section
  *   tvbuff_t *   : tvbuff containing packet data
  *   int          : offset into packet where we are (packet_data[offset]== start
  *                  of what we care about)
@@ -344,7 +344,7 @@ dissect_option_rfd( const guchar error, const guchar field, guchar offset,
  *   void, but we will add to the proto_tree if it is not NULL.
  */
 void
-dissect_osi_options( guchar opt_len, tvbuff_t *tvb, 
+dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
                      int offset, proto_tree *tree) {
    proto_item *ti;
    proto_tree *osi_option_tree = NULL;
@@ -354,11 +354,11 @@ dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
 
    if (tree) {
      if ( 0 == opt_len ) {
-       proto_tree_add_text( tree, tvb, offset, 0, 
+       proto_tree_add_text( tree, tvb, offset, 0,
                             "### No Options for this PDU ###" );
        return;
      }
-     
+
      ti = proto_tree_add_text( tree, tvb, offset, opt_len,
                                "### Option Section ###" );
      osi_option_tree = proto_item_add_subtree( ti, ott_osi_options );
@@ -368,7 +368,7 @@ dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
         offset++;
         parm_len    = (int) tvb_get_guint8(tvb, offset);
         offset++;
-         
+
         switch ( parm_type ) {
           case   OSI_OPT_QOS_MAINTANANCE:
                  octet = tvb_get_guint8(tvb, offset);
@@ -385,15 +385,15 @@ dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
           break;
           case   OSI_OPT_PRIORITY:
                  octet = tvb_get_guint8(tvb, offset);
-                 if ( OSI_OPT_MAX_PRIORITY >= octet ) { 
+                 if ( OSI_OPT_MAX_PRIORITY >= octet ) {
                    proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
                                         "Priority    : %u", octet );
                  }
                  else {
                    proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
-                                        "Priority    : %u ( Invalid )", 
+                                        "Priority    : %u ( Invalid )",
                                         octet );
-                 } 
+                 }
           break;
           case   OSI_OPT_ADDRESS_MASK:
                  proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
@@ -407,7 +407,7 @@ dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
           break;
           case   OSI_OPT_ES_CONFIG_TIMER:
                  proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
-                  "ESCT     : %u seconds", tvb_get_ntohs( tvb, offset ) ); 
+                  "ESCT     : %u seconds", tvb_get_ntohs( tvb, offset ) );
           break;
           case   OSI_OPT_PADDING:
                  proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
@@ -427,7 +427,7 @@ dissect_osi_options( guchar opt_len, tvbuff_t *tvb,
         opt_len -= parm_len + 2;
         offset  += parm_len;
       }
-   } 
+   }
 } /* dissect-osi-options */
 
 

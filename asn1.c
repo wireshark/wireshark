@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.16 2002/08/02 23:35:45 jmayer Exp $
+ * $Id: asn1.c,v 1.17 2002/08/28 21:00:05 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@
 
 /*
  * MODULE INFORMATION
- * ------------------ 
+ * ------------------
  *     FILE     NAME:       g_asn1.c
  *     SYSTEM   NAME:       ASN1 Basic Encoding
  *     ORIGINAL AUTHOR(S):  Dirk Wisse
@@ -48,7 +48,7 @@
  *              asn1_int_decode (asn1, end_of_int, &integer);
  *              asn1_eoc_decode (asn1, end_of_seq);
  *              asn1_close (asn1, &offset);
- *              
+ *
  *              For indefinite encoding end_of_seq and &end_of_seq in the
  *              example above should be replaced by NULL.
  *              For indefinite decoding nothing has to be changed.
@@ -113,7 +113,7 @@ asn1_open(ASN1_SCK *asn1, tvbuff_t *tvb, int offset)
  * RETURNS:     void
  */
 
-void 
+void
 asn1_close(ASN1_SCK *asn1, int *offset)
 {
     *offset = asn1->offset;
@@ -332,7 +332,7 @@ asn1_eoc_decode (ASN1_SCK *asn1, int eoc)
 {
     int    ret;
     guchar ch;
-    
+
     if (eoc == -1) {
         ret = asn1_octet_decode (asn1, &ch);
         if (ret != ASN1_ERR_NOERROR)
@@ -829,7 +829,7 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
     size = enc_len + 1;
     *oid = g_malloc(size * sizeof(gulong));
     optr = *oid;
- 
+
     ret = asn1_subid_decode (asn1, &subid);
     if (ret != ASN1_ERR_NOERROR) {
 	g_free(*oid);

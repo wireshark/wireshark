@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.24 2002/08/02 22:34:53 jmayer Exp $
+ * $Id: follow_dlg.c,v 1.25 2002/08/28 21:03:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10,12 +10,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -470,7 +470,7 @@ follow_read_stream(follow_info_t *follow_info,
     gboolean		skip;
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
-     
+
     data_out_file = fopen(follow_info->data_out_filename, "rb");
     if (data_out_file) {
 	char buffer[FLT_BUF_SIZE];
@@ -524,7 +524,7 @@ follow_read_stream(follow_info_t *follow_info,
 				int i, cur;
 				/* is_server indentation : put 63 spaces at the begenning
 				 * of the string */
-				sprintf(hexbuf, (is_server && 
+				sprintf(hexbuf, (is_server &&
 					follow_info->show_stream == BOTH_HOSTS) ?
 					"                                 "
 					"                                             %08X  " :
@@ -546,7 +546,7 @@ follow_read_stream(follow_info_t *follow_info,
 				/* Fill it up if column isn't complete */
 				if (i < 16) {
 				    int j;
-					
+
 				    for (j = i; j < 16; j++) {
 					if (j == 7)
 					    hexbuf[cur++] = ' ';
@@ -565,7 +565,7 @@ follow_read_stream(follow_info_t *follow_info,
 				        buffer[current_pos + i] : '.' );
 				    if (i == 7) {
 					hexbuf[cur++] = ' ';
-				    } 
+				    }
 				}
 				current_pos += i;
 				(*global_pos) += i;

@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.36 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: packet-aarp.c,v 1.37 2002/08/28 21:00:06 jmayer Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -57,7 +57,7 @@ static gint ett_aarp = -1;
 #ifndef AARP_REPLY
 #define AARP_REPLY	0x0002
 #endif
-#ifndef AARP_PROBE	
+#ifndef AARP_PROBE
 #define AARP_PROBE	0x0003
 #endif
 
@@ -107,15 +107,15 @@ atalkid_to_str(const guint8 *ad) {
   gint node;
   static gchar  str[3][16];
   static gchar *cur;
-  
+
   if (cur == &str[0][0]) {
     cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
+  } else if (cur == &str[1][0]) {
     cur = &str[2][0];
-  } else {  
+  } else {
     cur = &str[0][0];
   }
-  
+
   node=ad[1]<<8|ad[2];
   sprintf(cur, "%d.%d",node,ad[3]);
   return cur;
@@ -139,7 +139,7 @@ aarpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type) {
   }
   return bytes_to_str(ad, ad_len);
 }
-    
+
 /* Offsets of fields within an AARP packet. */
 #define	AR_HRD		0
 #define	AR_PRO		2
@@ -215,17 +215,17 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
       ti = proto_tree_add_protocol_format(tree, proto_aarp, tvb, 0,
-				      MIN_AARP_HEADER_SIZE + 2*ar_hln + 
+				      MIN_AARP_HEADER_SIZE + 2*ar_hln +
 				      2*ar_pln, "AppleTalk Address Resolution Protocol (%s)", op_str);
     else
       ti = proto_tree_add_protocol_format(tree, proto_aarp, tvb, 0,
-				      MIN_AARP_HEADER_SIZE + 2*ar_hln + 
+				      MIN_AARP_HEADER_SIZE + 2*ar_hln +
 				      2*ar_pln,
 				      "AppleTalk Address Resolution Protocol (opcode 0x%04x)", ar_op);
     aarp_tree = proto_item_add_subtree(ti, ett_aarp);
     proto_tree_add_uint(aarp_tree, hf_aarp_hard_type, tvb, AR_HRD, 2,
 			       ar_hrd);
-    proto_tree_add_uint(aarp_tree, hf_aarp_proto_type, tvb, AR_PRO, 2, 
+    proto_tree_add_uint(aarp_tree, hf_aarp_proto_type, tvb, AR_PRO, 2,
 			       ar_pro);
     proto_tree_add_uint(aarp_tree, hf_aarp_hard_size, tvb, AR_HLN, 1,
 			       ar_hln);
@@ -244,7 +244,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_proto_id, tvb, spa_offset, ar_pln,
 			       spa_val,
 			       "Sender ID: %s", spa_str);
-      } else { 
+      } else {
         proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_proto, tvb, spa_offset, ar_pln,
 			       spa_val,
 			       "Sender protocol address: %s", spa_str);
@@ -276,22 +276,22 @@ proto_register_aarp(void)
 {
   static hf_register_info hf[] = {
     { &hf_aarp_hard_type,
-      { "Hardware type",		"aarp.hard.type",	
+      { "Hardware type",		"aarp.hard.type",
 	FT_UINT16,	BASE_HEX,	VALS(hrd_vals),	0x0,
       	"", HFILL }},
 
     { &hf_aarp_proto_type,
-      { "Protocol type",		"aarp.proto.type",	
+      { "Protocol type",		"aarp.proto.type",
 	FT_UINT16,	BASE_HEX, 	VALS(etype_vals),	0x0,
-      	"", HFILL }},    
+      	"", HFILL }},
 
     { &hf_aarp_hard_size,
-      { "Hardware size",		"aarp.hard.size",	
+      { "Hardware size",		"aarp.hard.size",
 	FT_UINT8,	BASE_DEC, 	NULL,	0x0,
       	"", HFILL }},
 
     { &hf_aarp_proto_size,
-      { "Protocol size",		"aarp.proto.size",	
+      { "Protocol size",		"aarp.proto.size",
 	FT_UINT8,	BASE_DEC, 	NULL,	0x0,
       	"", HFILL }},
 

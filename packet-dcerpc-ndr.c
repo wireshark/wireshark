@@ -2,22 +2,22 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.7 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.8 2002/08/28 21:00:09 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -43,7 +43,7 @@
 
 int
 dissect_ndr_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, char *drep, 
+                   proto_tree *tree, char *drep,
                    int hfindex, guint8 *pdata)
 {
     dcerpc_info *di;
@@ -55,13 +55,13 @@ dissect_ndr_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     /* no alignment needed */
-    return dissect_dcerpc_uint8 (tvb, offset, pinfo, 
+    return dissect_dcerpc_uint8 (tvb, offset, pinfo,
                                  tree, drep, hfindex, pdata);
 }
 
 int
 dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, char *drep, 
+                    proto_tree *tree, char *drep,
                     int hfindex, guint16 *pdata)
 {
     dcerpc_info *di;
@@ -76,13 +76,13 @@ dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 2) {
         offset++;
     }
-    return dissect_dcerpc_uint16 (tvb, offset, pinfo, 
+    return dissect_dcerpc_uint16 (tvb, offset, pinfo,
                                   tree, drep, hfindex, pdata);
 }
 
 int
 dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, char *drep, 
+                    proto_tree *tree, char *drep,
                     int hfindex, guint32 *pdata)
 {
     dcerpc_info *di;
@@ -97,13 +97,13 @@ dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 4) {
         offset += 4 - (offset % 4);
     }
-    return dissect_dcerpc_uint32 (tvb, offset, pinfo, 
+    return dissect_dcerpc_uint32 (tvb, offset, pinfo,
                                   tree, drep, hfindex, pdata);
 }
 
 int
 dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, char *drep, 
+                    proto_tree *tree, char *drep,
                     int hfindex, unsigned char *pdata)
 {
     dcerpc_info *di;
@@ -117,13 +117,13 @@ dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 4) {
         offset += 4 - (offset % 4);
     }
-    return dissect_dcerpc_uint64 (tvb, offset, pinfo, 
+    return dissect_dcerpc_uint64 (tvb, offset, pinfo,
                                   tree, drep, hfindex, pdata);
 }
 
 int
 dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, char *drep, 
+                    proto_tree *tree, char *drep,
                     int hfindex, e_uuid_t *pdata)
 {
     e_uuid_t uuid;
@@ -157,7 +157,7 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                     proto_tree *tree, char *drep, 
+                     proto_tree *tree, char *drep,
                      int hfindex, e_ctx_hnd *pdata)
 {
     static e_ctx_hnd ctx_hnd;

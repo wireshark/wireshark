@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.45 2002/08/26 09:21:54 guy Exp $
+ * $Id: packet-ldap.c,v 1.46 2002/08/28 21:00:19 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -11,12 +11,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -26,14 +26,14 @@
  * This is not a complete implementation. It doesn't handle the full version 3, more specifically,
  * it handles only the commands of version 2, but any additional characteristics of the ver3 command are supported.
  * It's also missing extensible search filters.
- * 
+ *
  * There should probably be alot more error checking, I simply assume that if we have a full packet, it will be a complete
  * and correct packet.
- * 
+ *
  * AFAIK, it will handle all messages used by the OpenLDAP 1.2.9 server and libraries which was my goal. I do plan to add
  * the remaining commands as time permits but this is not a priority to me. Send me an email if you need it and I'll see what
  * I can do.
- * 
+ *
  * Doug Nazar
  * nazard@dragoninc.on.ca
  */
@@ -125,7 +125,7 @@ static value_string msgTypes [] = {
   {LDAP_REQ_COMPARE, "Compare Request"},
   {LDAP_REQ_ABANDON, "Abandon Request"},
   {LDAP_REQ_EXTENDED, "Extended Request"},
-    
+
   {LDAP_RES_BIND, "Bind Result"},
   {LDAP_RES_SEARCH_ENTRY, "Search Entry"},
   {LDAP_RES_SEARCH_RESULT, "Search Result"},
@@ -145,7 +145,7 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
   gboolean def = FALSE;
   int start = a->offset;
   int ret;
-  
+
   ret = asn1_length_decode(a, &def, &length);
   if (ret != ASN1_ERR_NOERROR) {
     if (tree) {
@@ -171,7 +171,7 @@ static int read_sequence(ASN1_SCK *a, guint *len)
   gboolean def;
   guint length;
   int ret;
-  
+
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret != ASN1_ERR_NOERROR)
     return ret;
@@ -180,7 +180,7 @@ static int read_sequence(ASN1_SCK *a, guint *len)
 
   if (len)
     *len = length;
-  
+
   return ASN1_ERR_NOERROR;
 }
 
@@ -190,16 +190,16 @@ static int read_set(ASN1_SCK *a, guint *len)
   gboolean def;
   guint length;
   int ret;
-  
+
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret != ASN1_ERR_NOERROR)
     return ret;
   if (cls != ASN1_UNI || con != ASN1_CON || tag != ASN1_SET)
     return ASN1_ERR_WRONG_TYPE;
-  
+
   if (len)
     *len = length;
-  
+
   return ASN1_ERR_NOERROR;
 }
 
@@ -240,7 +240,7 @@ static int read_integer(ASN1_SCK *a, proto_tree *tree, int hf_id,
   guint length;
   int start = a->offset;
   int ret;
-  
+
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret == ASN1_ERR_NOERROR) {
     if (cls != ASN1_UNI || con != ASN1_PRI || tag != expected_tag)
@@ -295,7 +295,7 @@ static int read_boolean(ASN1_SCK *a, proto_tree *tree, int hf_id,
   guint length;
   int start = a->offset;
   int ret;
-  
+
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret == ASN1_ERR_NOERROR) {
     if (cls != ASN1_UNI || con != ASN1_PRI || tag != ASN1_BOL)
@@ -319,7 +319,7 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   guchar *string;
   proto_item *temp_item = NULL;
   int ret;
-  
+
   if (length)
   {
     ret = asn1_string_value_decode(a, length, &string);
@@ -336,7 +336,7 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   }
   else
     string = "(null)";
-    
+
   if (tree)
     temp_item = proto_tree_add_string(tree, hf_id, a->tvb, start, a->offset - start, string);
   if (new_item)
@@ -358,7 +358,7 @@ static int read_string(ASN1_SCK *a, proto_tree *tree, int hf_id,
   guint length;
   int start = a->offset;
   int ret;
-  
+
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret == ASN1_ERR_NOERROR) {
     if (cls != expected_cls || con != ASN1_PRI || tag != expected_tag)
@@ -382,7 +382,7 @@ static int read_bytestring_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   guchar *string;
   proto_item *temp_item = NULL;
   int ret;
-  
+
   if (length)
   {
     ret = asn1_string_value_decode(a, length, &string);
@@ -399,7 +399,7 @@ static int read_bytestring_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   }
   else
     string = "(null)";
-    
+
   if (tree)
     temp_item = proto_tree_add_bytes(tree, hf_id, a->tvb, start, a->offset - start, string);
   if (new_item)
@@ -421,7 +421,7 @@ static int read_bytestring(ASN1_SCK *a, proto_tree *tree, int hf_id,
   guint length;
   int start = a->offset;
   int ret;
-  
+
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret == ASN1_ERR_NOERROR) {
     if (cls != expected_cls || con != ASN1_PRI || tag != expected_tag)
@@ -485,7 +485,7 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
   guint string_length;
   guint string_bytes;
   guint seq_len;
-  guint header_bytes;  
+  guint header_bytes;
   int ret, any_valued;
 
   /* For ASN.1 parsing of octet strings */
@@ -504,7 +504,7 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
 
   *filter_length += 2 + 1 + string_length;
   *filter = g_realloc(*filter, *filter_length);
-  
+
   filterp = *filter + strlen(*filter);
   *filterp++ = '(';
   if (string_length != 0) {
@@ -568,7 +568,7 @@ static int parse_filter_substrings(ASN1_SCK *a, char **filter, guint *filter_len
     filterp = *filter + strlen(*filter);
     *filterp++ = '*';
   }
-  
+
   /* NB: Allocated byte for this earlier */
   *filterp++ = ')';
   *filterp = '\0';
@@ -588,7 +588,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret != ASN1_ERR_NOERROR)
     return ret;
-  
+
   if (*end == 0)
   {
     *end = a->offset + length;
@@ -684,7 +684,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
       {
         guchar *string;
         char *filterp;
-    
+
         if (con != ASN1_PRI)
           return ASN1_ERR_WRONG_TYPE;
         ret = asn1_string_value_decode(a, length, &string);
@@ -717,7 +717,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
       return ASN1_ERR_WRONG_TYPE;
     }
   }
-  
+
   if (a->offset == *end)
     return -1;
   else
@@ -731,7 +731,7 @@ static gboolean read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
   guint filter_length = 0;
   int end = 0;
   int ret;
-     
+
   while ((ret = parse_filter(a, &filter, &filter_length, &end))
 	== ASN1_ERR_NOERROR)
     continue;
@@ -756,7 +756,7 @@ static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree)
 {
   guint resultCode = 0;
   int ret;
-  
+
   if (read_integer(a, tree, hf_ldap_message_result, 0, &resultCode, ASN1_ENUM) != ASN1_ERR_NOERROR)
     return;
   if (read_string(a, tree, hf_ldap_message_result_matcheddn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
@@ -771,7 +771,7 @@ static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree)
     guint length;
     proto_item *ti;
     proto_tree *referralTree;
-    
+
     ret = read_sequence(a, &length);
     if (ret != ASN1_ERR_NOERROR) {
       if (tree) {
@@ -908,7 +908,7 @@ static void dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
   guint seq_length;
   int end;
   int ret;
-  
+
   if (read_string(a, tree, hf_ldap_message_search_base, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
   if (read_integer(a, tree, hf_ldap_message_search_scope, 0, 0, ASN1_ENUM) != ASN1_ERR_NOERROR)
@@ -945,7 +945,7 @@ static void dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
   guint seq_length;
   int end_of_sequence;
   int ret;
- 
+
   if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
   ret = read_sequence(a, &seq_length);
@@ -1002,7 +1002,7 @@ static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree)
   guint seq_length;
   int end_of_sequence;
   int ret;
-  
+
   if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
 
@@ -1072,7 +1072,7 @@ static void dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
     return;
   if (read_boolean(a, tree, hf_ldap_message_modrdn_delete, 0, 0) != ASN1_ERR_NOERROR)
     return;
-  
+
   if (a->offset < (int) (start + length)) {
     /* LDAP V3 Modify DN operation, with newSuperior */
     if (read_string(a, tree, hf_ldap_message_modrdn_superior, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
@@ -1088,7 +1088,7 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   char *string2 = 0;
   char *compare;
   int ret;
-  
+
   if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
   ret = read_sequence(a, 0);
@@ -1124,11 +1124,11 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   snprintf(compare, length, "%s=%s", string1, string2);
   proto_tree_add_string(tree, hf_ldap_message_compare, a->tvb, start,
       a->offset-start, compare);
-  
+
   g_free(string1);
   g_free(string2);
   g_free(compare);
-  
+
   return;
 }
 
@@ -1137,7 +1137,7 @@ static void dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
   guint seq_length;
   int end_of_sequence;
   int ret;
-  
+
   if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
   ret = read_sequence(a, &seq_length);
@@ -1235,7 +1235,7 @@ static void dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
 		int start, guint length)
 {
   read_integer_value(a, tree, hf_ldap_message_abandon_msgid, NULL, NULL,
-			    start, length); 
+			    start, length);
 }
 
 static void
@@ -1260,7 +1260,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int message_id_start;
     int message_id_length;
     int message_start;
-    
+
     /*
      * XXX - should handle the initial sequence specifier split across
      * segment boundaries.
@@ -1322,7 +1322,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_clear(pinfo->cinfo, COL_INFO);
     }
 
-    if (tree) 
+    if (tree)
     {
       ti = proto_tree_add_item(tree, proto_ldap, tvb, message_start,
 			       next_offset - message_start, FALSE);
@@ -1359,7 +1359,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       first_time = FALSE;
     }
 
-    if (ldap_tree) 
+    if (ldap_tree)
     {
       proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_id, tvb, message_id_start, message_id_length, messageId);
       proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_type, tvb,
@@ -1489,14 +1489,14 @@ proto_register_ldap(void)
     {LDAP_AUTH_SASL,      "SASL"},
     {0, NULL},
   };
-  
+
   static value_string search_scope[] = {
     {0x00, "Base"},
     {0x01, "Single"},
     {0x02, "Subtree"},
     {0x00, NULL},
   };
-    
+
   static value_string search_dereference[] = {
     {0x00, "Never"},
     {0x01, "Searching"},
@@ -1504,13 +1504,13 @@ proto_register_ldap(void)
     {0x03, "Always"},
     {0x00, NULL},
   };
-  
+
   static hf_register_info hf[] = {
     { &hf_ldap_length,
       { "Length",		"ldap.length",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Length", HFILL }},
-	  
+
     { &hf_ldap_message_id,
       { "Message Id",		"ldap.message_id",
 	FT_UINT32, BASE_DEC, NULL, 0x0,

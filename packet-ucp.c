@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.18 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-ucp.c,v 1.19 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -664,7 +664,7 @@ ucp_mktime(char *datestr)
     r_time.tm_mday = 10 * (datestr[0] - '0') + (datestr[1] - '0');
     r_time.tm_mon  = (10 * (datestr[2] - '0') + (datestr[3] - '0')) - 1;
     r_time.tm_year = 10 * (datestr[4] - '0') + (datestr[5] - '0');
-    if (r_time.tm_year < 90) 
+    if (r_time.tm_year < 90)
 	r_time.tm_year += 100;
     r_time.tm_hour = 10 * (datestr[6] - '0') + (datestr[7] - '0');
     r_time.tm_min  = 10 * (datestr[8] - '0') + (datestr[9] - '0');
@@ -722,7 +722,7 @@ ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     guint	 intval = 0;
     int		 tmpoff = *offset;
     int		 idx = 0;
- 
+
     while ((strval[idx++] = tvb_get_guint8(tvb, tmpoff++)) != '/')
 	;
     if (idx > 1) {
@@ -762,7 +762,7 @@ ucp_handle_data(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 
     while (tvb_get_guint8(tvb, tmpoff++) != '/')
 	;
-    if ((tmpoff - *offset) > 1)	
+    if ((tmpoff - *offset) > 1)
 	proto_tree_add_item(tree, field, tvb, *offset,
 			    tmpoff - *offset - 1, FALSE);
     *offset = tmpoff;
@@ -1542,7 +1542,7 @@ dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return FALSE;
 
     /*
-     * Try getting the operation-type and whether it's a request/response 
+     * Try getting the operation-type and whether it's a request/response
      */
     O_R = tvb_get_guint8(tvb, UCP_O_R_OFFSET);
     if (match_strval(O_R, vals_hdr_O_R) == NULL)

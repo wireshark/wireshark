@@ -3,22 +3,22 @@
  *
  * Copyright 2000, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-xot.c,v 1.10 2002/04/09 08:15:02 guy Exp $
+ * $Id: packet-xot.c,v 1.11 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -60,7 +60,7 @@ static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int length;
   proto_item *ti;
   proto_tree *xot_tree;
-  tvbuff_t   *next_tvb; 
+  tvbuff_t   *next_tvb;
 
   while (tvb_reported_length_remaining(tvb, offset) != 0) {
     length_remaining = tvb_length_remaining(tvb, offset);
@@ -125,7 +125,7 @@ static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     TRY {
       if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
 		     version,plen );
 
@@ -133,7 +133,7 @@ static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, offset, 4,
 					    "X.25 over TCP");
 	xot_tree = proto_item_add_subtree(ti, ett_xot);
-     
+
 	proto_tree_add_uint(xot_tree, hf_xot_version, tvb, offset, 2, version);
 	proto_tree_add_uint(xot_tree, hf_xot_length, tvb, offset + 2, 2, plen);
       }
@@ -174,7 +174,7 @@ static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Register the protocol with Ethereal */
-void 
+void
 proto_register_xot(void)
 {
 	static hf_register_info hf[] = {

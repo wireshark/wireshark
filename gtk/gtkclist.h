@@ -22,7 +22,7 @@
  * Modified by the GTK+ Team and others 1997-1999.  See the AUTHORS
  * file for a list of people on the GTK+ Team.  See the ChangeLog
  * files for a list of changes.  These files are distributed with
- * GTK+ at ftp://ftp.gtk.org/pub/gtk/. 
+ * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
 #ifndef __GTK_CLIST_H__
@@ -54,7 +54,7 @@ enum {
   GTK_CLIST_USE_DRAG_ICONS      = 1 <<  8,
   GTK_CLIST_DRAW_DRAG_LINE      = 1 <<  9,
   GTK_CLIST_DRAW_DRAG_RECT      = 1 << 10
-}; 
+};
 
 /* cell types */
 typedef enum
@@ -145,58 +145,58 @@ struct _GtkCListDestInfo
 struct _GtkCList
 {
   GtkContainer container;
-  
+
   guint16 flags;
-  
+
   /* mem chunks */
   GMemChunk *row_mem_chunk;
   GMemChunk *cell_mem_chunk;
 
   guint freeze_count;
-  
+
   /* allocation rectangle after the conatiner_border_width
    * and the width of the shadow border */
   GdkRectangle internal_allocation;
-  
+
   /* rows */
   gint rows;
   gint row_center_offset;
   gint row_height;
   GList *row_list;
   GList *row_list_end;
-  
+
   /* columns */
   gint columns;
   GdkRectangle column_title_area;
   GdkWindow *title_window;
-  
+
   /* dynamicly allocated array of column structures */
   GtkCListColumn *column;
-  
+
   /* the scrolling window and its height and width to
    * make things a little speedier */
   GdkWindow *clist_window;
   gint clist_window_width;
   gint clist_window_height;
-  
+
   /* offsets for scrolling */
   gint hoffset;
   gint voffset;
-  
+
   /* border shadow style */
   GtkShadowType shadow_type;
-  
+
   /* the list's selection mode (gtkenums.h) */
   GtkSelectionMode selection_mode;
-  
+
   /* list of selected rows */
   GList *selection;
   GList *selection_end;
-  
+
   GList *undo_selection;
   GList *undo_unselection;
   gint undo_anchor;
-  
+
   /* mouse buttons */
   guint8 button_actions[5];
 
@@ -208,30 +208,30 @@ struct _GtkCList
   /* scroll adjustments */
   GtkAdjustment *hadjustment;
   GtkAdjustment *vadjustment;
-  
+
   /* xor GC for the vertical drag line */
   GdkGC *xor_gc;
-  
+
   /* gc for drawing unselected cells */
   GdkGC *fg_gc;
   GdkGC *bg_gc;
-  
+
   /* cursor used to indicate dragging */
   GdkCursor *cursor_drag;
-  
+
   /* the current x-pixel location of the xor-drag line */
   gint x_drag;
-  
+
   /* focus handling */
   gint focus_row;
-  
+
   /* dragging the selection */
   gint anchor;
   GtkStateType anchor_state;
   gint drag_pos;
   gint htimer;
   gint vtimer;
-  
+
   GtkSortType sort_type;
   GtkCListCompareFunc compare;
   gint sort_column;
@@ -240,7 +240,7 @@ struct _GtkCList
 struct _GtkCListClass
 {
   GtkContainerClass parent_class;
-  
+
   void  (*set_scroll_adjustments) (GtkCList       *clist,
 				   GtkAdjustment  *hadjustment,
 				   GtkAdjustment  *vadjustment);
@@ -320,16 +320,16 @@ struct _GtkCListColumn
 {
   gchar *title;
   GdkRectangle area;
-  
+
   GtkWidget *button;
   GdkWindow *window;
-  
+
   gint width;
   gint min_width;
   gint max_width;
   GtkJustification justification;
-  
-  guint visible        : 1;  
+
+  guint visible        : 1;
   guint width_set      : 1;
   guint resizeable     : 1;
   guint auto_resize    : 1;
@@ -340,15 +340,15 @@ struct _GtkCListRow
 {
   GtkCell *cell;
   GtkStateType state;
-  
+
   GdkColor foreground;
   GdkColor background;
-  
+
   GtkStyle *style;
 
   gpointer data;
   GtkDestroyNotify destroy;
-  
+
   guint fg_set     : 1;
   guint bg_set     : 1;
   guint selectable : 1;
@@ -358,10 +358,10 @@ struct _GtkCListRow
 struct _GtkCellText
 {
   GtkCellType type;
-  
+
   gint16 vertical;
   gint16 horizontal;
-  
+
   GtkStyle *style;
 
   gchar *text;
@@ -370,10 +370,10 @@ struct _GtkCellText
 struct _GtkCellPixmap
 {
   GtkCellType type;
-  
+
   gint16 vertical;
   gint16 horizontal;
-  
+
   GtkStyle *style;
 
   GdkPixmap *pixmap;
@@ -383,10 +383,10 @@ struct _GtkCellPixmap
 struct _GtkCellPixText
 {
   GtkCellType type;
-  
+
   gint16 vertical;
   gint16 horizontal;
-  
+
   GtkStyle *style;
 
   gchar *text;
@@ -398,10 +398,10 @@ struct _GtkCellPixText
 struct _GtkCellWidget
 {
   GtkCellType type;
-  
+
   gint16 vertical;
   gint16 horizontal;
-  
+
   GtkStyle *style;
 
   GtkWidget *widget;
@@ -410,27 +410,27 @@ struct _GtkCellWidget
 struct _GtkCell
 {
   GtkCellType type;
-  
+
   gint16 vertical;
   gint16 horizontal;
-  
+
   GtkStyle *style;
 
   union {
     gchar *text;
-    
+
     struct {
       GdkPixmap *pixmap;
       GdkBitmap *mask;
     } pm;
-    
+
     struct {
       gchar *text;
       guint8 spacing;
       GdkPixmap *pixmap;
       GdkBitmap *mask;
     } pt;
-    
+
     GtkWidget *widget;
   } u;
 };
@@ -485,7 +485,7 @@ void gtk_clist_thaw   (GtkCList *clist);
 void gtk_clist_column_titles_show (GtkCList *clist);
 void gtk_clist_column_titles_hide (GtkCList *clist);
 
-/* set the column title to be a active title (responds to button presses, 
+/* set the column title to be a active title (responds to button presses,
  * prelights, and grabs keyboard focus), or passive where it acts as just
  * a title
  */

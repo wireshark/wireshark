@@ -2,22 +2,22 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.45 2002/08/22 18:24:06 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.46 2002/08/28 21:00:10 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -45,7 +45,7 @@ int prs_align(int offset, int n)
 {
 	if (offset % n)
 		offset += n - (offset % n);
-	
+
 	return offset;
 }
 
@@ -55,14 +55,14 @@ int prs_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	      proto_tree *tree, guint8 *data, char *name)
 {
 	guint8 i;
-	
+
 	/* No alignment required */
 
 	i = tvb_get_guint8(tvb, offset);
 	offset++;
 
 	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset - 1, 1, 
+		proto_tree_add_text(tree, tvb, offset - 1, 1,
 				    "%s: %u", name, i);
 
 	if (data)
@@ -93,14 +93,14 @@ int prs_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	       proto_tree *tree, guint16 *data, char *name)
 {
 	guint16 i;
-	
+
 	offset = prs_align(offset, 2);
-	
+
 	i = tvb_get_letohs(tvb, offset);
 	offset += 2;
 
 	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset - 2, 2, 
+		proto_tree_add_text(tree, tvb, offset - 2, 2,
 				    "%s: %u", name, i);
 	if (data)
 		*data = i;
@@ -114,9 +114,9 @@ int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree, int count, int *data_offset, char *name)
 {
 	offset = prs_align(offset, 2);
-	
+
 	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset, count * 2, 
+		proto_tree_add_text(tree, tvb, offset, count * 2,
 				    "%s", name);
 	if (data_offset)
 		*data_offset = offset;
@@ -132,14 +132,14 @@ int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	       proto_tree *tree, guint32 *data, char *name)
 {
 	guint32 i;
-	
+
 	offset = prs_align(offset, 4);
-	
+
 	i = tvb_get_letohl(tvb, offset);
 	offset += 4;
 
 	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset - 4, 4, 
+		proto_tree_add_text(tree, tvb, offset - 4, 4,
 				    "%s: %u", name, i);
 
 	if (data)
@@ -154,9 +154,9 @@ int prs_uint32s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree, int count, int *data_offset, char *name)
 {
 	offset = prs_align(offset, 4);
-	
+
 	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset - 4, 4, 
+		proto_tree_add_text(tree, tvb, offset - 4, 4,
 				    "%s", name);
 	if (data_offset)
 		*data_offset = offset;
@@ -236,7 +236,7 @@ int prs_push_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_uint32(tvb, offset, pinfo, tree, &value, NULL);
 
 	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset - 4, 4, 
+		proto_tree_add_text(tree, tvb, offset - 4, 4,
 				    "%s pointer: 0x%08x", name, value);
 
 	p = new_ptr(name, value);
@@ -328,9 +328,9 @@ int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (flags & PARSE_SCALARS) {
 		offset = prs_uint32(tvb, offset, pinfo, tree, &len, "Length");
-		offset = prs_uint32(tvb, offset, pinfo, tree, &unknown, 
+		offset = prs_uint32(tvb, offset, pinfo, tree, &unknown,
 				    "Offset");
-		offset = prs_uint32(tvb, offset, pinfo, tree, &max_len, 
+		offset = prs_uint32(tvb, offset, pinfo, tree, &max_len,
 				    "Max length");
 	}
 
@@ -347,14 +347,14 @@ int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-/* following are a few functions for dissecting common structures used by NT 
+/* following are a few functions for dissecting common structures used by NT
    services. These might need to be cleaned up at a later time but at least we get
    them out of the real service dissectors.
 */
 
 
 /* UNICODE_STRING  BEGIN */
-/* functions to dissect a UNICODE_STRING structure, common to many 
+/* functions to dissect a UNICODE_STRING structure, common to many
    NT services
    struct {
      short len;
@@ -362,7 +362,7 @@ int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
      [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
    } UNICODE_STRING;
 
-   these variables can be found in packet-dcerpc-samr.c 
+   these variables can be found in packet-dcerpc-samr.c
 */
 extern int hf_nt_str_len;
 extern int hf_nt_str_off;
@@ -388,8 +388,8 @@ static gint ett_nt_policy_hnd = -1;
   the name: string to any higher levels in the tree .
 */
 int
-dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *tree, 
+dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
 	guint32 len, off, max_len;
@@ -447,14 +447,14 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
      [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
    } UNICODE_STRING;
   structure used by NT to transmit unicode string values.
- 
+
   the function takes one additional parameter, level
   which specifies how many additional levels up in the tree where we should
   append the string.  If unsure, specify levels as 0.
 */
 int
-dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *parent_tree, 
+dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep, int hf_index, int levels)
 {
 	proto_item *item=NULL;
@@ -493,7 +493,7 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 }
 /* UNICODE_STRING  END */
 
-/* functions to dissect a STRING structure, common to many 
+/* functions to dissect a STRING structure, common to many
    NT services
    struct {
      short len;
@@ -502,8 +502,8 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
    } STRING;
 */
 int
-dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	guint32 len, off, max_len;
@@ -534,7 +534,7 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
 		offset = prs_uint8s(tvb, offset, pinfo, tree, len,
 			&text_offset, NULL);
 		text = tvb_get_ptr(tvb, text_offset, len);
-		proto_tree_add_string_format(tree, di->hf_index, 
+		proto_tree_add_string_format(tree, di->hf_index,
 			tvb, old_offset, offset-old_offset,
 			text, "%s: %s", hfi->name, text);
 		break;
@@ -564,8 +564,8 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
 }
 
 int
-dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *parent_tree, 
+dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *parent_tree,
                              char *drep, int hf_index, int levels)
 {
 	proto_item *item=NULL;
@@ -604,11 +604,11 @@ dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
    XXX it should be fixed both here and in dissect_smb_64bit_time so
-   it can handle both BIG and LITTLE endian encodings 
+   it can handle both BIG and LITTLE endian encodings
  */
 int
-dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *tree, 
+dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
 			char *drep _U_, int hf_index)
 {
 	dcerpc_info *di;
@@ -659,7 +659,7 @@ static guint pol_hash_fn(gconstpointer k)
 
 	/* Bytes 4-7 of the policy handle are a timestamp so should make a
 	   reasonable hash value */
-	
+
 	return key->policy_hnd[4] + (key->policy_hnd[5] << 8) +
 		(key->policy_hnd[6] << 16) + (key->policy_hnd[7] << 24);
 }
@@ -680,13 +680,13 @@ static gint pol_hash_compare(gconstpointer k1, gconstpointer k2)
 	pol_hash_key *key1 = (pol_hash_key *)k1;
 	pol_hash_key *key2 = (pol_hash_key *)k2;
 
-	return memcmp(key1->policy_hnd, key2->policy_hnd, 
+	return memcmp(key1->policy_hnd, key2->policy_hnd,
 		      sizeof(key1->policy_hnd)) == 0;
 }
 
 /* Store the open and close frame numbers of a policy handle */
 
-void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, guint32 open_frame, 
+void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, guint32 open_frame,
 			       guint32 close_frame)
 {
 	pol_hash_key *key;
@@ -786,7 +786,7 @@ void dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, char *name)
 
 /* Retrieve a policy handle */
 
-gboolean dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name, 
+gboolean dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name,
 			      guint32 *open_frame, guint32 *close_frame)
 {
 	pol_hash_key key;
@@ -810,7 +810,7 @@ gboolean dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name,
 	value = g_hash_table_lookup(pol_hash, &key);
 
 	/* Return name and frame numbers */
-	
+
 	if (value) {
 		if (name)
 			*name = value->name;
@@ -852,7 +852,7 @@ static void init_pol_hash(void)
 	pol_hash_key_chunk = g_mem_chunk_new(
 		"Policy handle hash keys", sizeof(pol_hash_key),
 		POL_HASH_INIT_COUNT * sizeof(pol_hash_key), G_ALLOC_ONLY);
-					    
+
 	if (pol_hash_value_chunk)
 		g_mem_chunk_destroy(pol_hash_value_chunk);
 
@@ -872,7 +872,7 @@ static void init_pol_hash(void)
 
 /* Dissect an access mask.  All this stuff is kind of explained at MSDN:
 
-http://msdn.microsoft.com/library/default.asp?url=/library/en-us/security/security/windows_2000_windows_nt_access_mask_format.asp 
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/security/security/windows_2000_windows_nt_access_mask_format.asp
 
 */
 
@@ -976,11 +976,11 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_tree_add_boolean(
 		standard, hf_access_standard_write_owner, tvb, offset - 4, 4,
 		access);
-	
+
 	proto_tree_add_boolean(
 		standard, hf_access_standard_write_dac, tvb, offset - 4, 4,
 		access);
-	
+
 	proto_tree_add_boolean(
 		standard, hf_access_standard_read_control, tvb, offset - 4, 4,
 		access);
@@ -1007,67 +1007,67 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_tree_add_boolean(
 		specific, hf_access_specific_15, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_14, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_13, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_12, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_11, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_10, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_9, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_8, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_7, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_6, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_5, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_4, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_3, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_2, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_1, tvb, offset - 4, 4,
 		access);
- 
+
 	proto_tree_add_boolean(
 		specific, hf_access_specific_0, tvb, offset - 4, 4,
 		access);
- 
+
 	return offset;
 }
 
@@ -1094,27 +1094,27 @@ void proto_register_dcerpc_smb(void)
 
 		{ &hf_access_generic_read,
 		  { "Generic read", "nt.access_mask.generic_read",
-		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 		    GENERIC_READ_ACCESS, "Generic read", HFILL }},
 
 		{ &hf_access_generic_write,
 		  { "Generic write", "nt.access_mask.generic_write",
-		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 		    GENERIC_WRITE_ACCESS, "Generic write", HFILL }},
 
 		{ &hf_access_generic_execute,
 		  { "Generic execute", "nt.access_mask.generic_execute",
-		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 		    GENERIC_EXECUTE_ACCESS, "Generic execute", HFILL }},
 
 		{ &hf_access_generic_all,
 		  { "Generic all", "nt.access_mask.generic_all",
-		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 		    GENERIC_ALL_ACCESS, "Generic all", HFILL }},
 
 		{ &hf_access_maximum_allowed,
 		  { "Maximum allowed", "nt.access_mask.maximum_allowed",
-		    FT_BOOLEAN, 32, TFS(&flags_set_truth), 
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
 		    MAXIMUM_ALLOWED_ACCESS, "Maximum allowed", HFILL }},
 
 		{ &hf_access_sacl,
@@ -1261,13 +1261,13 @@ void proto_register_dcerpc_smb(void)
    frame exception.  For the DCERPC over SMB dissectors a long frame
    indicates a bug in a dissector. */
 
-void dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset, 
+void dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree)
 {
 	if (tvb_length_remaining(tvb, offset) != 0) {
 
 		proto_tree_add_text(
-			tree, tvb, offset, tvb_length_remaining(tvb, offset), 
+			tree, tvb, offset, tvb_length_remaining(tvb, offset),
 			"[Long frame (%d bytes): SPOOLSS]",
 			tvb_length_remaining(tvb, offset));
 
@@ -1282,7 +1282,7 @@ void dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset,
 
 int
 dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		 proto_tree *tree, char *drep, 
+		 proto_tree *tree, char *drep,
 		 int hfindex, guint32 *pdata)
 {
 	guint32 status;
@@ -1292,7 +1292,7 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	if (tree && status != 0 && check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(status, NT_errors, 
+				val_to_str(status, NT_errors,
 					   "Unknown error 0x%08x"));
 	if (pdata)
 		*pdata = status;
@@ -1304,7 +1304,7 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-	       proto_tree *tree, char *drep, 
+	       proto_tree *tree, char *drep,
 	       int hfindex, guint32 *pdata)
 {
 	guint32 status;
@@ -1314,7 +1314,7 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	if (tree && status != 0 && check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(status, DOS_errors, 
+				val_to_str(status, DOS_errors,
 					   "Unknown error 0x%08x"));
 	if (pdata)
 		*pdata = status;
@@ -1326,7 +1326,7 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		      proto_tree *tree, char *drep, int hfindex, 
+		      proto_tree *tree, char *drep, int hfindex,
 		      e_ctx_hnd *pdata, gboolean is_open, gboolean is_close)
 {
 	proto_item *item;
@@ -1338,16 +1338,16 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* Add to proto tree */
 
-	item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd), 
+	item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd),
 				   "Policy Handle");
 
 	subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
 
-	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, drep, 
-				     hfindex, &hnd); 
+	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, drep,
+				     hfindex, &hnd);
 
 	/* Store request/reply information */
-		
+
 	dcerpc_smb_store_pol_pkts(&hnd, 0, is_close ? pinfo->fd->num : 0);
 	dcerpc_smb_store_pol_pkts(&hnd, is_open ? pinfo->fd->num: 0, 0);
 
@@ -1381,7 +1381,7 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, char *drep, int hfindex, 
+                      proto_tree *tree, char *drep, int hfindex,
 		      int length, guint8 **pdata)
 {
     guint8 *data;
@@ -1400,7 +1400,7 @@ dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 int
 dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, char *drep, 
+                   proto_tree *tree, char *drep,
                    int hfindex, int length, guint8 **pdata)
 {
     dcerpc_info *di;
@@ -1412,13 +1412,13 @@ dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     /* no alignment needed */
-    return dissect_dcerpc_uint8s(tvb, offset, pinfo, 
+    return dissect_dcerpc_uint8s(tvb, offset, pinfo,
                                  tree, drep, hfindex, length, pdata);
 }
 
 int
 dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, char *drep, int hfindex, 
+                      proto_tree *tree, char *drep, int hfindex,
 		      int length, guint16 **pdata)
 {
     guint16 *data;
@@ -1437,7 +1437,7 @@ dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 int
 dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, char *drep, 
+                   proto_tree *tree, char *drep,
                    int hfindex, int length, guint16 **pdata)
 {
     dcerpc_info *di;
@@ -1451,6 +1451,6 @@ dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 2)
         offset++;
 
-    return dissect_dcerpc_uint16s(tvb, offset, pinfo, 
+    return dissect_dcerpc_uint16s(tvb, offset, pinfo,
                                  tree, drep, hfindex, length, pdata);
 }

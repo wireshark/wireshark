@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.67 2002/08/26 20:22:31 guy Exp $
+ * $Id: packet-radius.c,v 1.68 2002/08/28 21:00:28 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -385,7 +385,7 @@ static value_value_string radius_attrib[] =
   {53,	RADIUS_INTEGER4,		"Acct Output Gigawords"},
   /* 54 Unused */
   {55,	RADIUS_TIMESTAMP,		"Event Timestamp"},
-  /* 56-59 Unused */ 
+  /* 56-59 Unused */
   {60,	RADIUS_BINSTRING,		"CHAP Challenge"},
   {61,	RADIUS_NAS_PORT_TYPE,		"NAS Port Type"},
   {62,	RADIUS_INTEGER4,		"Port Limit"},
@@ -579,7 +579,7 @@ static value_string radius_tunnel_type_vals[] =
 
 static value_string radius_tunnel_medium_type_vals[] =
 {
-  {1,	"IPv4"}, 
+  {1,	"IPv4"},
   {2,	"IPv6"},
   {3,	"NSAP"},
   {4,	"HDLC"},
@@ -624,7 +624,7 @@ static value_string radius_nas_port_type_vals[] =
 
 /*
 reference:
-	'dictionary.acc' file from FreeRADIUS 
+	'dictionary.acc' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.acc
 */
 static value_value_string radius_vendor_acc_attrib[] =
@@ -839,7 +839,7 @@ static value_string radius_vendor_acc_access_community_vals[] =
 
 /*
 references:
-	'dictionary.cisco' file from FreeRADIUS 
+	'dictionary.cisco' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.cisco
 
 	http://www.cisco.com/univercd/cc/td/doc/product/access/acs_serv/vapp_dev/vsaig3.htm
@@ -906,32 +906,32 @@ static value_value_string radius_vendor_cisco_attrib[] =
 */
   {187,	RADIUS_INTEGER4,	"Cisco Multilink ID"},
   {188,	RADIUS_INTEGER4,	"Cisco Num In Multilink"},
-  /* #189 */ 
+  /* #189 */
   {190,	RADIUS_INTEGER4,	"Cisco Pre Input Octets"},
   {191,	RADIUS_INTEGER4,	"Cisco Pre Output Octets"},
   {192,	RADIUS_INTEGER4,	"Cisco Pre Input Packets"},
   {193,	RADIUS_INTEGER4,	"Cisco Pre Output Packets"},
   {194,	RADIUS_INTEGER4,	"Cisco Maximum Time"},
   {195,	CISCO_DISCONNECT_CAUSE,	"Cisco Disconnect Cause"},
-  /* #196 */ 
+  /* #196 */
   {197,	RADIUS_INTEGER4,	"Cisco Data Rate"},
   {198,	RADIUS_INTEGER4,	"Cisco PreSession Time"},
-  /* #199-#207 */ 
+  /* #199-#207 */
   {208,	RADIUS_INTEGER4,	"Cisco PW Lifetime"},
   {209,	RADIUS_INTEGER4,	"Cisco IP Direct"},
   {210,	RADIUS_INTEGER4,	"Cisco PPP VJ Slot Comp"},
-  /* #211 */ 
+  /* #211 */
   {212,	RADIUS_INTEGER4,	"Cisco PPP Async Map"},
-  /* #213-#216 */ 
+  /* #213-#216 */
   {217,	RADIUS_INTEGER4,	"Cisco IP Pool Definition"},
   {218,	RADIUS_INTEGER4,	"Cisco Asing IP Pool"},
-  /* #219-#227 */ 
+  /* #219-#227 */
   {228,	RADIUS_INTEGER4,	"Cisco Route IP"},
-  /* #229-#232 */ 
+  /* #229-#232 */
   {233,	RADIUS_INTEGER4,	"Cisco Link Compression"},
   {234,	RADIUS_INTEGER4,	"Cisco Target Util"},
   {235,	RADIUS_INTEGER4,	"Cisco Maximum Channels"},
-  /* #236-#241 */ 
+  /* #236-#241 */
   {242,	RADIUS_INTEGER4,	"Cisco Data Filter"},
   {243,	RADIUS_INTEGER4,	"Cisco Call Filter"},
   {244,	RADIUS_INTEGER4,	"Cisco Idle Limit"},
@@ -971,7 +971,7 @@ static value_string radius_vendor_cisco_disconnect_cause_vals[] =
 
 /*
 reference:
-	'dictionary.shiva' file from FreeRADIUS 
+	'dictionary.shiva' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.shiva
 */
 static value_value_string radius_vendor_shiva_attrib[] =
@@ -1055,7 +1055,7 @@ static value_string radius_vendor_shiva_connect_reason_vals[] =
 
 /*
 reference:
-	'dictionary.livingston' file from FreeRADIUS 
+	'dictionary.livingston' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.livingston
 */
 static value_value_string radius_vendor_livingston_attrib[] =
@@ -1497,7 +1497,7 @@ static value_string radius_vendor_ascend_calling_id_screening_vals[] =
 
 /*
 reference:
-	'dictionary.bay' file from FreeRADIUS 
+	'dictionary.bay' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.bay
 */
 static value_value_string radius_vendor_bay_attrib[] =
@@ -1689,7 +1689,7 @@ static value_string radius_vendor_bay_audit_level_vals[] =
 
 /*
 reference:
-	'dictionary.foundry' file from FreeRADIUS 
+	'dictionary.foundry' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.foundry
 */
 static value_value_string radius_vendor_foundry_attrib[] =
@@ -1702,7 +1702,7 @@ static value_value_string radius_vendor_foundry_attrib[] =
 
 /*
 reference:
-	'dictionary.versanet' file from FreeRADIUS 
+	'dictionary.versanet' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.versanet
 */
 static value_value_string radius_vendor_versanet_attrib[] =
@@ -1740,7 +1740,7 @@ static value_string radius_vendor_versanet_termination_cause_vals[] =
 
 /*
 reference:
-	'dictionary.redback' file from FreeRADIUS 
+	'dictionary.redback' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.redback
 */
 static value_value_string radius_vendor_redback_attrib[] =
@@ -1825,7 +1825,7 @@ static value_value_string radius_vendor_redback_attrib[] =
   {138,	RADIUS_INTEGER4,		"LAC Real Port"},
   {139,	REDBACK_LAC_PORT_TYPE,		"LAC Port Type"},
   {140,	REDBACK_LAC_REAL_PORT_TYPE,	"LAC Real Port Type"},
-  {141, RADIUS_STRING,			"Acct Dyn Ac Ent"}, 
+  {141, RADIUS_STRING,			"Acct Dyn Ac Ent"},
   {142, RADIUS_INTEGER4,		"Session Error Code"},
   {143, RADIUS_STRING,			"Session Error Msg"},
   {0, 0, NULL},
@@ -1986,7 +1986,7 @@ static value_value_string radius_vendor_juniper_attrib[] =
 
 /*
 reference:
-	'dictionary.aptis' file from FreeRADIUS 
+	'dictionary.aptis' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.aptis
 */
 static value_value_string radius_vendor_aptis_attrib[] =
@@ -2031,7 +2031,7 @@ static value_value_string radius_vendor_cosine_attrib[] =
 
 /*
 reference:
-	'dictionary.shasta' file from FreeRADIUS 
+	'dictionary.shasta' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.shasta
 */
 static value_value_string radius_vendor_shasta_attrib[] =
@@ -2052,7 +2052,7 @@ static value_string radius_vendor_shasta_user_privilege_vals[] =
 
 /*
 reference:
-	'dictionary.nomadix' file from FreeRADIUS 
+	'dictionary.nomadix' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.nomadix
 */
 static value_value_string radius_vendor_nomadix_attrib[] =
@@ -2064,7 +2064,7 @@ static value_value_string radius_vendor_nomadix_attrib[] =
 
 /*
 reference:
-	'dictionary.erx' file from FreeRADIUS 
+	'dictionary.erx' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.erx
 */
 static value_value_string radius_vendor_unisphere_attrib[] =
@@ -2119,7 +2119,7 @@ static value_value_string radius_vendor_issanni_attrib[] =
 
 /*
 reference:
-	'dictionary.quintum' file from FreeRADIUS 
+	'dictionary.quintum' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.quintum
 */
 static value_value_string radius_vendor_quintum_attrib[] =
@@ -2162,7 +2162,7 @@ static value_value_string radius_vendor_colubris_attrib[] =
 
 /*
 reference:
-	'dictionary.columbia_university' file from FreeRADIUS 
+	'dictionary.columbia_university' file from FreeRADIUS
 		http://www.freeradius.org/radiusd/raddb/dictionary.columbia_university
 */
 static value_value_string radius_vendor_columbia_university_attrib[] =
@@ -2429,7 +2429,7 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 				int offset, const value_value_string *vvs, proto_tree *tree)
 {
   int print_type;
-  
+
   /* Variable to peek which will be the next print_type for VENDOR-SPECIFIC
    * RADIUS attributes
    * */
@@ -2439,7 +2439,7 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
    * is needed only when THE3GPP_QOS in involved.
    * */
   gchar *tmp_punt;
-  
+
   gchar *cont;
   value_string *valstrarr;
   guint32 intval;
@@ -2511,7 +2511,7 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 		if (tag <= 0x1f) {
 			sprintf(dest, "Tag:%u, Value:",
 					tag);
-			cont=&cont[strlen(cont)];	
+			cont=&cont[strlen(cont)];
 			rdconvertbufftostr(cont,tvb,offset+3,avph->avp_length-3);
 			break;
 		}
@@ -2540,7 +2540,7 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 			vsabuffer[vsa_index].str = cont;
 			vsabuffer[vsa_index].offset = offset+vsa_len;
 			vsabuffer[vsa_index].length = vsa_avph->avp_length;
-			sprintf(cont, "t:%s(%u) l:%u, ", 
+			sprintf(cont, "t:%s(%u) l:%u, ",
 				(vsa_rvt
 					? rd_match_strval_attrib(vsa_avph->avp_type,vsa_rvt->attrib)
 					: "Unknown Type"),
@@ -2550,7 +2550,7 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 				(vsa_rvt ? vsa_rvt->attrib : NULL), tree);
 			vsa_index++;
 			vsa_len += vsa_avph->avp_length;
-			if (next_print_type == THE3GPP_QOS ) 
+			if (next_print_type == THE3GPP_QOS )
 			{
 				cont = tmp_punt;
 				vsa_index--;
@@ -2639,12 +2639,12 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 		while (*tmp_punt)
 			tmp_punt--;
 		tmp_punt++;
-		
+
 		/* Call decode_qos_umts from packet-gtp package
 		 * */
 		decode_qos_umts(tvb, offset + 1, tree, tmp_punt, 3);
 		break;
-			
+
         case( RADIUS_TIMESTAMP ):
 		intval=tvb_get_ntohl(tvb,offset+2);
 		rtimestamp=ctime((time_t*)&intval);
@@ -2857,7 +2857,7 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
         valstr = rd_value_to_str(&avph, tvb, offset, vsa_tree);
         proto_item_append_text(ti, ", %s", valstr);
 	for (i = 0; vsabuffer[i].str && i < VSABUFFER; i++)
-	    proto_tree_add_text(vsa_tree, tvb, vsabuffer[i].offset, 
+	    proto_tree_add_text(vsa_tree, tvb, vsabuffer[i].offset,
 				vsabuffer[i].length, "%s", vsabuffer[i].str);
       }
     }
@@ -2916,7 +2916,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 rh.rh_code);
         proto_tree_add_uint_format(radius_tree,hf_radius_id, tvb, 1, 1,
                 rh.rh_ident, "Packet identifier: 0x%01x (%d)",
-			rhident,rhident);         
+			rhident,rhident);
 
 	proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
 			2, 2, rhlength);
@@ -2924,7 +2924,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			AUTHENTICATOR_LENGTH,
                          "Authenticator");
   }
-   
+
   hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
   avplength= rhlength -hdrlength;
 

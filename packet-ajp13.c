@@ -2,7 +2,7 @@
  * Routines for AJP13 dissection
  * Copyright 2002, Christopher K. St. John <cks@distributopia.com>
  *
- * $Id: packet-ajp13.c,v 1.7 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-ajp13.c,v 1.8 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -77,7 +77,7 @@
  *
  * Since AJP13 is a TCP/IP based protocol, writing a dissector for it
  * requires addressing several other issues:
- * 
+ *
  * 1) TCP/IP segments can get retransmitted or be sent out of
  * order. Users don't normally care, because the low-level kernel
  * networking code takes care of reassembling them properly. But we're
@@ -236,7 +236,7 @@ typedef struct ajp13_frame_data {
  *
  * XXX - is there a tvbuff routine to handle this?
  */
-static guint16 
+static guint16
 get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf, size_t cbuflen)
 {
   guint16 len;
@@ -331,7 +331,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
     /* dangerous assumption that we can just %s out raw bytes */
     if(check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", rsmsg_bytes);
-    
+
     /* NUMBER OF HEADERS
      */
     nhdr = tvb_get_ntohs(tvb, pos);
@@ -436,7 +436,7 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree)
      */
     proto_tree_add_item(ajp13_tree, hf_ajp13_len, tvb, pos, 2, 0);
     pos+=2;
-    
+
     /* BODY (AS STRING)
      */
     body_len = get_nstring(tvb, pos, body_bytes, sizeof body_bytes);
@@ -578,7 +578,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(ajp13_tree, hf_ajp13_nhdr, tvb, pos, 2, 0);
   pos+=2;
   cd->content_length = 0;
-      
+
   /* HEADERS
    */
   for(i=0; i<nhdr; i++) {
@@ -705,7 +705,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
-  
+
   mag = tvb_get_ntohs(tvb, 0);
   len = tvb_get_ntohs(tvb, 2);
 
@@ -718,7 +718,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:Body", conv->index);
     else if (mag == 0x4142)
       col_append_fstr(pinfo->cinfo, COL_INFO, "%d:RSP:", conv->index);
-    else 
+    else
       col_set_str(pinfo->cinfo, COL_INFO, "AJP13 Error?");
   }
 
@@ -762,7 +762,7 @@ get_ajp13_pdu_len(tvbuff_t *tvb, int offset)
 
 
 
-/* Code to actually dissect the packets. 
+/* Code to actually dissect the packets.
  */
 static void
 dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -782,7 +782,7 @@ dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_ajp13(void)
-{                 
+{
   static hf_register_info hf[] = {
     { &hf_ajp13_magic,
       { "Magic",  "ajp13.magic", FT_BYTES, BASE_HEX, NULL, 0x0, "Magic Number",

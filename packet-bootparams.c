@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.21 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-bootparams.c,v 1.22 2002/08/28 21:00:08 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,16 +60,16 @@ dissect_bp_address(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
 
 
 	type = tvb_get_ntohl(tvb, offset);
-	
+
 	offset = dissect_rpc_uint32(tvb, tree, hf_bootparams_addresstype, offset);
 
 	switch(type){
 	case 1:
-		ipaddr = ((tvb_get_guint8(tvb, offset+3 )&0xff)<<24) 
+		ipaddr = ((tvb_get_guint8(tvb, offset+3 )&0xff)<<24)
 			|((tvb_get_guint8(tvb, offset+7 )&0xff)<<16)
 			|((tvb_get_guint8(tvb, offset+11)&0xff)<<8 )
 			|((tvb_get_guint8(tvb, offset+15)&0xff) );
-		proto_tree_add_ipv4(tree, hfindex, tvb, 
+		proto_tree_add_ipv4(tree, hfindex, tvb,
 			offset, 16, g_ntohl(ipaddr));
 		offset += 16;
 		break;
@@ -90,7 +90,7 @@ dissect_getfile_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 		offset = dissect_rpc_string(tvb, tree, hf_bootparams_host, offset, NULL);
 		offset = dissect_rpc_string(tvb, tree, hf_bootparams_fileid, offset, NULL);
 	}
-	
+
 	return offset;
 }
 
@@ -103,7 +103,7 @@ dissect_getfile_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 		offset = dissect_bp_address(tvb, offset, tree, hf_bootparams_hostaddr);
 		offset = dissect_rpc_string(tvb, tree, hf_bootparams_filepath, offset, NULL);
 	}
-	
+
 	return offset;
 }
 
@@ -114,7 +114,7 @@ dissect_whoami_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	{
 		offset = dissect_bp_address(tvb, offset, tree, hf_bootparams_hostaddr);
 	}
-	
+
 	return offset;
 }
 
@@ -127,7 +127,7 @@ dissect_whoami_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 		offset = dissect_rpc_string(tvb, tree, hf_bootparams_domain, offset, NULL);
 		offset = dissect_bp_address(tvb, offset, tree, hf_bootparams_routeraddr);
 	}
-	
+
 	return offset;
 }
 
@@ -136,9 +136,9 @@ dissect_whoami_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 static const vsff bootparams1_proc[] = {
 	{ BOOTPARAMSPROC_NULL, "NULL",
 		NULL, NULL },
-	{ BOOTPARAMSPROC_WHOAMI, "WHOAMI", 
+	{ BOOTPARAMSPROC_WHOAMI, "WHOAMI",
 		dissect_whoami_call, dissect_whoami_reply },
-	{ BOOTPARAMSPROC_GETFILE, "GETFILE", 
+	{ BOOTPARAMSPROC_GETFILE, "GETFILE",
 		dissect_getfile_call, dissect_getfile_reply },
 	{ 0, NULL, NULL, NULL }
 };

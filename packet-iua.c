@@ -8,24 +8,24 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-iua.c,v 1.15 2002/07/12 19:37:33 guy Exp $
+ * $Id: packet-iua.c,v 1.16 2002/08/28 21:00:19 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -86,7 +86,7 @@ static gboolean support_IG          = FALSE;
 
 static dissector_handle_t q931_handle;
 
-static guint 
+static guint
 nr_of_padding_bytes (guint length)
 {
   guint remainder;
@@ -124,11 +124,11 @@ static void
 dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 interface_id_length;
-  
+
   interface_id_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
 
   proto_tree_add_item(parameter_tree, hf_text_interface_id, parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (%.*s)", interface_id_length, 
+  proto_item_append_text(parameter_item, " (%.*s)", interface_id_length,
                          (char *)tvb_get_ptr(parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length));
 }
 
@@ -138,7 +138,7 @@ static void
 dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 info_string_length;
-  
+
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
@@ -161,7 +161,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 
 static void
 dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
-{ 
+{
   proto_tree_add_item(parameter_tree, hf_dlci_zero_bit,  parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_dlci_spare_bit, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_dlci_sapi,      parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  NETWORK_BYTE_ORDER);
@@ -174,7 +174,7 @@ static void
 dissect_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 diag_info_length;
-    
+
   diag_info_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_diag_info, parameter_tvb, PARAMETER_VALUE_OFFSET, diag_info_length, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%u byte%s)", diag_info_length, plurality(diag_info_length, "", "s"));
@@ -192,7 +192,7 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
 {
   guint16 number_of_ranges, range_number;
   gint offset;
-  
+
   number_of_ranges = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INTERVAL_LENGTH;
   offset = PARAMETER_VALUE_OFFSET;
   for(range_number = 1; range_number <= number_of_ranges; range_number++) {
@@ -210,7 +210,7 @@ static void
 dissect_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 heartbeat_data_length;
-    
+
   heartbeat_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_heartbeat_data, parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%u byte%s)", heartbeat_data_length, plurality(heartbeat_data_length, "", "s"));
@@ -245,7 +245,7 @@ static const value_string traffic_mode_type_values[] = {
 
 static void
 dissect_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{  
+{
   proto_tree_add_item(parameter_tree, hf_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%s)",
                          val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), traffic_mode_type_values, "unknown"));
@@ -307,7 +307,7 @@ static void
 dissect_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, support_IG?hf_error_code_ig:hf_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (%s)", 
+  proto_item_append_text(parameter_item, " (%s)",
                          val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), support_IG?error_code_ig_values:error_code_values, "unknown"));
 }
 
@@ -328,18 +328,18 @@ static const value_string status_type_values[] = {
 #define ALTERNATE_ASP_ACTIVE_STATUS_IDENT       0x02
 
 static const value_string status_type_id_values[] = {
-  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_DOWN_STATUS_IDENT,         "Application server down" }, 
-  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_INACTIVE_STATUS_IDENT,     "Application server inactive" }, 
-  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_ACTIVE_STATUS_IDENT,       "Application server active" }, 
-  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_PENDING_STATUS_IDENT,      "Application server pending" }, 
+  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_DOWN_STATUS_IDENT,         "Application server down" },
+  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_INACTIVE_STATUS_IDENT,     "Application server inactive" },
+  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_ACTIVE_STATUS_IDENT,       "Application server active" },
+  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_PENDING_STATUS_IDENT,      "Application server pending" },
   { OTHER_STATUS_TYPE * 256 * 256 + INSUFFICIENT_ASP_RESOURCES_STATUS_IDENT, "Insufficient ASP resources active in AS" },
   { OTHER_STATUS_TYPE * 256 * 256 + ALTERNATE_ASP_ACTIVE_STATUS_IDENT,       "Alternate ASP active" },
   { 0,                                           NULL } };
 
 static const value_string status_type_id_ig_values[] = {
-  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_INACTIVE_STATUS_IDENT,     "Application server inactive" }, 
-  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_ACTIVE_STATUS_IDENT,       "Application server active" }, 
-  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_PENDING_STATUS_IDENT,      "Application server pending" }, 
+  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_INACTIVE_STATUS_IDENT,     "Application server inactive" },
+  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_ACTIVE_STATUS_IDENT,       "Application server active" },
+  { ASP_STATE_CHANGE_STATUS_TYPE * 256 * 256 + AS_PENDING_STATUS_IDENT,      "Application server pending" },
   { OTHER_STATUS_TYPE * 256 * 256 + INSUFFICIENT_ASP_RESOURCES_STATUS_IDENT, "Insufficient ASP resources active in AS" },
   { OTHER_STATUS_TYPE * 256 * 256 + ALTERNATE_ASP_ACTIVE_STATUS_IDENT,       "Alternate ASP active" },
   { 0,                                           NULL } };
@@ -400,7 +400,7 @@ static void
 dissect_release_reason_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_release_reason, parameter_tvb, RELEASE_REASON_OFFSET, RELEASE_REASON_LENGTH, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (%s)", 
+  proto_item_append_text(parameter_item, " (%s)",
                          val_to_str(tvb_get_ntohl(parameter_tvb, RELEASE_REASON_OFFSET), release_reason_values, "unknown"));
 }
 
@@ -419,7 +419,7 @@ static void
 dissect_tei_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_tei_status, parameter_tvb, TEI_STATUS_OFFSET, TEI_STATUS_LENGTH, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (%s)", 
+  proto_item_append_text(parameter_item, " (%s)",
                       val_to_str(tvb_get_ntohl(parameter_tvb, TEI_STATUS_OFFSET), tei_status_values, "unknown"));
 }
 
@@ -437,11 +437,11 @@ static void
 dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 parameter_value_length;
-    
+
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (parameter_value_length > 0)
     proto_tree_add_item(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " with tag %u and %u byte%s value", 
+  proto_item_append_text(parameter_item, " with tag %u and %u byte%s value",
                          tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET), parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
 
@@ -551,10 +551,10 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
     dissect_error_code_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case STATUS_TYPE_INDENTIFICATION_PARAMETER_TAG:
-    dissect_status_type_identification_parameter(parameter_tvb, parameter_tree, parameter_item);   
+    dissect_status_type_identification_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case PROTOCOL_DATA_PARAMETER_TAG:
-    dissect_protocol_data_parameter(parameter_tvb, parameter_item, pinfo, tree);   
+    dissect_protocol_data_parameter(parameter_tvb, parameter_item, pinfo, tree);
     break;
   case RELEASE_REASON_PARAMETER_TAG:
     dissect_release_reason_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -572,7 +572,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   };
-  
+
   if (padding_length > 0)
     proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, NETWORK_BYTE_ORDER);
 }
@@ -593,7 +593,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
       total_length = length + padding_length;
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
-    dissect_parameter(parameter_tvb, pinfo, tree, iua_tree); 
+    dissect_parameter(parameter_tvb, pinfo, tree, iua_tree);
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -762,7 +762,7 @@ static const value_string message_class_type_acro_values[] = {
   { MESSAGE_CLASS_QPTM_MESSAGE  * 256 + MESSAGE_TYPE_RELEASE_CONFIRM,      "REL_CON" },
   { MESSAGE_CLASS_QPTM_MESSAGE  * 256 + MESSAGE_TYPE_RELEASE_INDICATION,   "REL_IND" },
   { 0,                                                                     NULL } };
-  
+
 static const value_string message_class_type_acro_ig_values[] = {
   { MESSAGE_CLASS_MGMT_MESSAGE  * 256 + MESSAGE_TYPE_ERR,                  "ERR" },
   { MESSAGE_CLASS_MGMT_MESSAGE  * 256 + MESSAGE_TYPE_NTFY,                 "NTFY" },
@@ -810,7 +810,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item(iua_tree, hf_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(iua_tree, hf_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(iua_tree, hf_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_uint_format(iua_tree, hf_message_type, 
+    proto_tree_add_uint_format(iua_tree, hf_message_type,
                                common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
                                message_type, "Message type: %u (%s)",
                                message_type, val_to_str(message_class * 256 + message_type, support_IG?message_class_type_ig_values:message_class_type_values, "reserved"));
@@ -826,7 +826,7 @@ dissect_iua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree,
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset(message_tvb, PARAMETERS_OFFSET, -1, -1);
   dissect_common_header(common_header_tvb, pinfo, iua_tree);
-  dissect_parameters(parameters_tvb, pinfo, tree, iua_tree);      
+  dissect_parameters(parameters_tvb, pinfo, tree, iua_tree);
 }
 
 static void
@@ -836,9 +836,9 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *iua_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, support_IG?"IUA (IG)":"IUA (RFC 3057)");
-  
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
@@ -855,49 +855,49 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Ethereal */
 void
 proto_register_iua(void)
-{                 
+{
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_int_interface_id,      { "Integer interface identifier", "iua.int_interface_identifier",  FT_INT32,   BASE_HEX,  NULL,                           0x0,            "", HFILL } }, 
-    { &hf_text_interface_id,     { "Text interface identifier",    "iua.text_interface_identifier", FT_STRING,  BASE_NONE, NULL,                           0x0,            "", HFILL } }, 
-    { &hf_info_string,           { "Info string",                  "iua.info_string",               FT_STRING,  BASE_NONE, NULL,                           0x0,            "", HFILL } }, 
-    { &hf_dlci_zero_bit,         { "Zero bit",                     "iua.dlci_zero_bit",             FT_BOOLEAN, 8,         NULL,                           ZERO_BIT_MASK,  "", HFILL } }, 
-    { &hf_dlci_spare_bit,        { "Spare bit",                    "iua.dlci_spare_bit",            FT_BOOLEAN, 8,         NULL,                           SPARE_BIT_MASK, "", HFILL } }, 
-    { &hf_dlci_sapi,             { "SAPI",                         "iua.dlci_sapi",                 FT_UINT8,   BASE_HEX,  NULL,                           SAPI_MASK,      "", HFILL } }, 
-    { &hf_dlci_one_bit,          { "One bit",                      "iua.dlci_one_bit",              FT_BOOLEAN, 8,         NULL,                           ONE_BIT_MASK,   "", HFILL } }, 
+    { &hf_int_interface_id,      { "Integer interface identifier", "iua.int_interface_identifier",  FT_INT32,   BASE_HEX,  NULL,                           0x0,            "", HFILL } },
+    { &hf_text_interface_id,     { "Text interface identifier",    "iua.text_interface_identifier", FT_STRING,  BASE_NONE, NULL,                           0x0,            "", HFILL } },
+    { &hf_info_string,           { "Info string",                  "iua.info_string",               FT_STRING,  BASE_NONE, NULL,                           0x0,            "", HFILL } },
+    { &hf_dlci_zero_bit,         { "Zero bit",                     "iua.dlci_zero_bit",             FT_BOOLEAN, 8,         NULL,                           ZERO_BIT_MASK,  "", HFILL } },
+    { &hf_dlci_spare_bit,        { "Spare bit",                    "iua.dlci_spare_bit",            FT_BOOLEAN, 8,         NULL,                           SPARE_BIT_MASK, "", HFILL } },
+    { &hf_dlci_sapi,             { "SAPI",                         "iua.dlci_sapi",                 FT_UINT8,   BASE_HEX,  NULL,                           SAPI_MASK,      "", HFILL } },
+    { &hf_dlci_one_bit,          { "One bit",                      "iua.dlci_one_bit",              FT_BOOLEAN, 8,         NULL,                           ONE_BIT_MASK,   "", HFILL } },
     { &hf_dlci_tei,              { "TEI",                          "iua.dlci_tei",                  FT_UINT8,   BASE_HEX,  NULL,                           TEI_MASK,       "", HFILL } },
     { &hf_dlci_spare,            { "Spare",                        "iua.dlci_spare",                FT_UINT16,  BASE_HEX,  NULL,                           0x0,            "", HFILL } },
-    { &hf_diag_info,             { "Diagnostic information",       "iua.diagnostic_information",    FT_BYTES,   BASE_NONE, NULL,                           0x0,            "", HFILL } }, 
-    { &hf_interface_range_start, { "Start",                        "iua.interface_range_start",     FT_UINT32,  BASE_DEC,  NULL,                           0x0,            "", HFILL } }, 
-    { &hf_interface_range_end,   { "End",                          "iua.interface_range_end",       FT_UINT32,  BASE_DEC,  NULL,                           0x0,            "", HFILL } }, 
-    { &hf_heartbeat_data,        { "Heartbeat data",               "iua.heartbeat_data",            FT_BYTES,   BASE_NONE, NULL,                           0x0,            "", HFILL } }, 
-    { &hf_asp_reason,            { "Reason",                       "iua.asp_reason",                FT_UINT32,  BASE_HEX,  VALS(asp_reason_values),        0x0,            "", HFILL } }, 
-    { &hf_traffic_mode_type,     { "Traffic mode type",            "iua.traffic_mode_type",         FT_UINT32,  BASE_HEX,  VALS(traffic_mode_type_values), 0x0,            "", HFILL } }, 
-    { &hf_error_code,            { "Error code",                   "iua.error_code",                FT_UINT32,  BASE_DEC,  VALS(error_code_values),        0x0,            "", HFILL } }, 
-    { &hf_error_code_ig,         { "Error code",                   "iua.error_code",                FT_UINT32,  BASE_DEC,  VALS(error_code_ig_values),     0x0,            "", HFILL } }, 
-    { &hf_status_type,           { "Status type",                  "iua.status_type",               FT_UINT16,  BASE_DEC,  VALS(status_type_values),       0x0,            "", HFILL } },    
-    { &hf_status_id,             { "Status identification",        "iua.status_identification",     FT_UINT16,  BASE_DEC,  NULL,                           0x0,            "", HFILL } },    
+    { &hf_diag_info,             { "Diagnostic information",       "iua.diagnostic_information",    FT_BYTES,   BASE_NONE, NULL,                           0x0,            "", HFILL } },
+    { &hf_interface_range_start, { "Start",                        "iua.interface_range_start",     FT_UINT32,  BASE_DEC,  NULL,                           0x0,            "", HFILL } },
+    { &hf_interface_range_end,   { "End",                          "iua.interface_range_end",       FT_UINT32,  BASE_DEC,  NULL,                           0x0,            "", HFILL } },
+    { &hf_heartbeat_data,        { "Heartbeat data",               "iua.heartbeat_data",            FT_BYTES,   BASE_NONE, NULL,                           0x0,            "", HFILL } },
+    { &hf_asp_reason,            { "Reason",                       "iua.asp_reason",                FT_UINT32,  BASE_HEX,  VALS(asp_reason_values),        0x0,            "", HFILL } },
+    { &hf_traffic_mode_type,     { "Traffic mode type",            "iua.traffic_mode_type",         FT_UINT32,  BASE_HEX,  VALS(traffic_mode_type_values), 0x0,            "", HFILL } },
+    { &hf_error_code,            { "Error code",                   "iua.error_code",                FT_UINT32,  BASE_DEC,  VALS(error_code_values),        0x0,            "", HFILL } },
+    { &hf_error_code_ig,         { "Error code",                   "iua.error_code",                FT_UINT32,  BASE_DEC,  VALS(error_code_ig_values),     0x0,            "", HFILL } },
+    { &hf_status_type,           { "Status type",                  "iua.status_type",               FT_UINT16,  BASE_DEC,  VALS(status_type_values),       0x0,            "", HFILL } },
+    { &hf_status_id,             { "Status identification",        "iua.status_identification",     FT_UINT16,  BASE_DEC,  NULL,                           0x0,            "", HFILL } },
     { &hf_release_reason,        { "Reason",                       "iua.release_reason",            FT_UINT32,  BASE_HEX,  VALS(release_reason_values),    0x0,            "", HFILL } },
-    { &hf_tei_status,            { "TEI status",                   "iua.tei_status",                FT_UINT32,  BASE_HEX,  VALS(tei_status_values),        0x0,            "", HFILL } }, 
-    { &hf_asp_id,                { "ASP identifier",               "iua.asp_identifier",            FT_UINT32,  BASE_HEX,  NULL,                           0x0,            "", HFILL } }, 
+    { &hf_tei_status,            { "TEI status",                   "iua.tei_status",                FT_UINT32,  BASE_HEX,  VALS(tei_status_values),        0x0,            "", HFILL } },
+    { &hf_asp_id,                { "ASP identifier",               "iua.asp_identifier",            FT_UINT32,  BASE_HEX,  NULL,                           0x0,            "", HFILL } },
     { &hf_parameter_tag,         { "Parameter Tag",                "iua.parameter_tag",             FT_UINT16,  BASE_DEC,  VALS(parameter_tag_values),     0x0,            "", HFILL } },
     { &hf_parameter_tag_ig,      { "Parameter Tag",                "iua.parameter_tag",             FT_UINT16,  BASE_DEC,  VALS(parameter_tag_ig_values),  0x0,            "", HFILL } },
-    { &hf_parameter_length,      { "Parameter length",             "iua.parameter_length",          FT_UINT16,  BASE_DEC,  NULL,                           0x0,            "", HFILL } }, 
-    { &hf_parameter_value,       { "Parameter value",              "iua.parameter_value",           FT_BYTES,   BASE_NONE, NULL,                           0x0,            "", HFILL } }, 
-    { &hf_parameter_padding,     { "Parameter padding",            "iua.parameter_padding",         FT_BYTES,   BASE_NONE, NULL,                           0x0,            "", HFILL } }, 
+    { &hf_parameter_length,      { "Parameter length",             "iua.parameter_length",          FT_UINT16,  BASE_DEC,  NULL,                           0x0,            "", HFILL } },
+    { &hf_parameter_value,       { "Parameter value",              "iua.parameter_value",           FT_BYTES,   BASE_NONE, NULL,                           0x0,            "", HFILL } },
+    { &hf_parameter_padding,     { "Parameter padding",            "iua.parameter_padding",         FT_BYTES,   BASE_NONE, NULL,                           0x0,            "", HFILL } },
     { &hf_version,               { "Version",                      "iua.version",                   FT_UINT8,   BASE_DEC,  VALS(protocol_version_values),  0x0,            "", HFILL } },
-    { &hf_reserved,              { "Reserved",                     "iua.reserved",                  FT_UINT8,   BASE_HEX,  NULL,                           0x0,            "", HFILL } }, 
+    { &hf_reserved,              { "Reserved",                     "iua.reserved",                  FT_UINT8,   BASE_HEX,  NULL,                           0x0,            "", HFILL } },
     { &hf_message_class,         { "Message class",                "iua.message_class",             FT_UINT8,   BASE_DEC,  VALS(message_class_values),     0x0,            "", HFILL } },
     { &hf_message_type,          { "Message Type",                 "iua.message_type",              FT_UINT8,   BASE_DEC,  NULL,                           0x0,            "", HFILL } },
-    { &hf_message_length,        { "Message length",               "iua.message_length",            FT_UINT32,  BASE_DEC,  NULL,                           0x0,            "", HFILL } }, 
+    { &hf_message_length,        { "Message length",               "iua.message_length",            FT_UINT32,  BASE_DEC,  NULL,                           0x0,            "", HFILL } },
    };
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_iua,
     &ett_iua_parameter,
   };
-  
+
   /* Register the protocol name and description */
   proto_iua = proto_register_protocol("ISDN Q.921-User Adaptation Layer", "IUA", "iua");
   iua_module = prefs_register_protocol(proto_iua, NULL);

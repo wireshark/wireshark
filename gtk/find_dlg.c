@@ -1,22 +1,22 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.22 2002/05/03 21:55:14 guy Exp $
+ * $Id: find_dlg.c,v 1.23 2002/08/28 21:03:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -96,30 +96,30 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
      Ctrl+<key> is an accelerator). */
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(find_frame_w), accel_group);
-  
+
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(find_frame_w), main_vb);
   gtk_widget_show(main_vb);
-  
+
   /* Filter row */
   filter_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(main_vb), filter_hb);
   gtk_widget_show(filter_hb);
-  
+
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
     GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
-  
+
   filter_te = gtk_entry_new();
   if (cfile.sfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.sfilter);
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
   gtk_widget_show(filter_te);
-  
+
   /* Misc row: Forward and reverse radio buttons */
   direction_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(main_vb), direction_hb);
@@ -259,9 +259,9 @@ find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
   dfilter_t *sfcode;
 
   if (cfile.sfilter) {
-     if (!dfilter_compile(cfile.sfilter, &sfcode)) 
+     if (!dfilter_compile(cfile.sfilter, &sfcode))
         return;
-     if (sfcode == NULL) 
+     if (sfcode == NULL)
         return;
      cfile.sbackward = sens;
      find_packet(&cfile, sfcode);

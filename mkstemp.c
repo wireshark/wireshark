@@ -34,7 +34,7 @@
 #endif
 
 #ifndef __set_errno
-#define __set_errno(x) errno=(x) 
+#define __set_errno(x) errno=(x)
 #endif
 #ifndef O_BINARY
 #define O_BINARY 0

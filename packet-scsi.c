@@ -2,22 +2,22 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.19 2002/08/21 10:40:09 guy Exp $
+ * $Id: packet-scsi.c,v 1.20 2002/08/28 21:00:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2002 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -38,7 +38,7 @@
  * There are four main routines that are provided:
  * o dissect_scsi_cdb - invoked on receiving a SCSI Command
  *   void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *, guint,
- *   guint); 
+ *   guint);
  * o dissect_scsi_payload - invoked to decode SCSI responses
  *   void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *, guint,
  *                              gboolean, guint32);
@@ -72,7 +72,7 @@
  * SCSI command set (SPC-2/3) is decoded for all SCSI devices. If there is a
  * mixture of devices in the trace, some with Inquiry response and some
  * without, the user preference is used only for those devices whose type the
- * decoder has not been able to determine. 
+ * decoder has not been able to determine.
  *
  */
 #ifdef HAVE_CONFIG_H
@@ -197,8 +197,8 @@ typedef guint32 scsi_device_type;
 #define SCSI_SPC2_RELEASE10              0x57
 #define SCSI_SPC2_REPORTDEVICEID         0xA3
 #define SCSI_SPC2_REPORTLUNS             0xA0
-#define SCSI_SPC2_REQSENSE               0x03 
-#define SCSI_SPC2_RESERVE6               0x16 
+#define SCSI_SPC2_REQSENSE               0x03
+#define SCSI_SPC2_RESERVE6               0x16
 #define SCSI_SPC2_RESERVE10              0x56
 #define SCSI_SPC2_SENDDIAG               0x1D
 #define SCSI_SPC2_SETDEVICEID            0xA4
@@ -1255,7 +1255,7 @@ scsi_new_task (packet_info *pinfo)
 {
     scsi_task_data_t *cdata = NULL;
     scsi_task_id_t ckey, *req_key;
-    
+
     if ((pinfo != NULL) && (pinfo->private_data)) {
         ckey = *(scsi_task_id_t *)pinfo->private_data;
 
@@ -1264,9 +1264,9 @@ scsi_new_task (packet_info *pinfo)
         if (!cdata) {
             req_key = g_mem_chunk_alloc (scsi_req_keys);
             *req_key = *(scsi_task_id_t *)pinfo->private_data;
-            
+
             cdata = g_mem_chunk_alloc (scsi_req_vals);
-            
+
             g_hash_table_insert (scsi_req_hash, req_key, cdata);
         }
     }
@@ -1388,7 +1388,7 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                   val_to_str (pcode, scsi_evpd_pagecode_val,
                                               "Unknown (0x%08x)"));
         evpd_tree = proto_item_add_subtree (ti, ett_scsi_page);
-        
+
         proto_tree_add_text (evpd_tree, tvb, offset, 1,
                              "Peripheral Qualifier: 0x%x",
                              (tvb_get_guint8 (tvb, offset) & 0xF0)>>4);
@@ -1426,9 +1426,9 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                                  scsi_devid_assoc_val,
                                                  "Unknown (0x%02x)"));
                 proto_tree_add_text (evpd_tree, tvb, offset+1, 1,
-                                     "Identifier Type: %s", 
+                                     "Identifier Type: %s",
                                      val_to_str ((flags & 0x0F),
-                                                 scsi_devid_idtype_val, 
+                                                 scsi_devid_idtype_val,
                                                  "Unknown (0x%02x)"));
                 idlen = tvb_get_guint8 (tvb, offset+3);
                 proto_tree_add_text (evpd_tree, tvb, offset+3, 1,
@@ -1508,23 +1508,23 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (!devdata) {
             req_key = g_mem_chunk_alloc (scsidev_req_keys);
             COPY_ADDRESS (&(req_key->devid), &(pinfo->src));
-        
+
             devdata = g_mem_chunk_alloc (scsidev_req_vals);
             devdata->devtype = tvb_get_guint8 (tvb, offset) & 0x3F;
-        
+
             g_hash_table_insert (scsidev_req_hash, req_key, devdata);
 	}
     }
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
         if (cdata != NULL) {
             cdata->flags = flags;
         }
-        
+
         proto_tree_add_uint_format (tree, hf_scsi_inquiry_flags, tvb, offset, 1,
                                     flags, "CMDT = %u, EVPD = %u",
                                     flags & 0x2, flags & 0x1);
@@ -1584,7 +1584,7 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvb_get_nstringz0 (tvb, offset+32, 4, str);
         proto_tree_add_text (tree, tvb, offset+32, 4, "Product Revision: %s",
                              str);
-        
+
         offset += 58;
         if ((tot_len > 58) && tvb_bytes_exist (tvb, offset, 16)) {
             for (i = 0; i < 8; i++) {
@@ -1601,11 +1601,11 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_scsi_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
-		      proto_tree *tree _U_, guint offset _U_, 
+dissect_scsi_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+		      proto_tree *tree _U_, guint offset _U_,
 		      gboolean isreq _U_, gboolean iscdb _U_)
 {
-    
+
 }
 
 static void
@@ -1613,13 +1613,13 @@ dissect_scsi_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb)
 {
     guint8 flags;
-    
+
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-        
+
         proto_tree_add_uint_format (tree, hf_scsi_logsel_flags, tvb, offset, 1,
                                     flags, "PCR = %u, SP = %u", flags & 0x2,
                                     flags & 0x1);
@@ -1643,13 +1643,13 @@ dissect_scsi_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb)
 {
     guint8 flags;
-    
+
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-        
+
         proto_tree_add_uint_format (tree, hf_scsi_logsns_flags, tvb, offset, 1,
                                     flags, "PPC = %u, SP = %u", flags & 0x2,
                                     flags & 0x1);
@@ -1816,7 +1816,7 @@ dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static gboolean
-dissect_scsi_spc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_, 
+dissect_scsi_spc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 		            proto_tree *tree, guint offset, guint8 pcode)
 {
     guint8 flags, proto;
@@ -1941,7 +1941,7 @@ dissect_scsi_spc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static gboolean
-dissect_scsi_sbc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_, 
+dissect_scsi_sbc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 		            proto_tree *tree, guint offset, guint8 pcode)
 {
     guint8 flags;
@@ -2086,7 +2086,7 @@ static const value_string compression_algorithm_vals[] = {
 };
 
 static gboolean
-dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
+dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 		            proto_tree *tree _U_, guint offset _U_,
                             guint8 pcode)
 {
@@ -2130,7 +2130,7 @@ dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 static gboolean
-dissect_scsi_smc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_, 
+dissect_scsi_smc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 		            proto_tree *tree, guint offset, guint8 pcode)
 {
     guint8 flags;
@@ -2237,7 +2237,7 @@ dissect_scsi_smc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static guint
-dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo, 
+dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
 		       proto_tree *scsi_tree, guint offset,
                        scsi_device_type devtype)
 {
@@ -2298,7 +2298,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
                                           "Unknown (0x%08x)"));
     tree = proto_item_add_subtree (ti, ett_scsi_page);
     proto_tree_add_text (tree, tvb, offset, 1, "PS: %u", (pcode & 0x80) >> 7);
-                         
+
     proto_tree_add_item (tree, hf_pagecode, tvb, offset, 1, 0);
     proto_tree_add_text (tree, tvb, offset+1, 1, "Page Length: %u",
                          plen);
@@ -2307,7 +2307,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
     	/* XXX - why not just drive on and throw an exception? */
         return (plen + 2);
     }
-    
+
     if (!(*dissect_modepage)(tvb, pinfo, tree, offset, pcode & 0x3F)) {
         proto_tree_add_text (tree, tvb, offset+2, plen,
                              "Unknown Page");
@@ -2322,13 +2322,13 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8 flags;
     guint tot_len, desclen, plen;
-    
+
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-        
+
         proto_tree_add_uint_format (tree, hf_scsi_modesel_flags, tvb, offset, 1,
                                     flags, "PF = %u, SP = %u", flags & 0x10,
                                     flags & 0x1);
@@ -2406,13 +2406,13 @@ dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 flags;
     gboolean longlba;
     guint tot_len, desclen, plen;
-    
+
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-        
+
         proto_tree_add_uint_format (tree, hf_scsi_modesel_flags, tvb, offset, 1,
                                     flags, "PF = %u, SP = %u", flags & 0x10,
                                     flags & 0x1);
@@ -2535,13 +2535,13 @@ dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8 flags;
     guint tot_len, desclen, plen;
-    
+
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-        
+
         proto_tree_add_uint_format (tree, hf_scsi_modesns_flags, tvb, offset, 1,
                                     flags, "DBD = %u", flags & 0x8);
         proto_tree_add_item (tree, hf_scsi_modesns_pc, tvb, offset+1, 1, 0);
@@ -2625,13 +2625,13 @@ dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 flags;
     gboolean longlba;
     guint tot_len, desclen, plen;
- 
+
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-        
+
         proto_tree_add_uint_format (tree, hf_scsi_modesns_flags, tvb, offset, 1,
                                     flags, "LLBAA = %u, DBD = %u", flags & 0x10,
                                     flags & 0x8);
@@ -2726,7 +2726,7 @@ dissect_scsi_persresvin (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_persresvin_svcaction, tvb, offset+1,
                              1, 0);
@@ -2753,13 +2753,13 @@ dissect_scsi_persresvin (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_text (tree, tvb, offset, 4, "Additional Length: %u",
                              len);
         len = (payload_len > len) ? len : payload_len;
-        
+
         if ((flags & 0x1F) == SCSI_SPC2_RESVIN_SVCA_RDKEYS) {
 	    /* XXX - what if len is < 8?  That may be illegal, but
 	       that doesn't make it impossible.... */
             numrec = (len - 8)/8;
             offset += 8;
-            
+
             for (i = 0; i < numrec; i++) {
                 proto_tree_add_item (tree, hf_scsi_persresv_key, tvb, offset,
                                      8, 0);
@@ -2789,7 +2789,7 @@ dissect_scsi_persresvout (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_persresvin_svcaction, tvb, offset,
                              1, 0);
@@ -2816,7 +2816,7 @@ dissect_scsi_release6 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
@@ -2827,14 +2827,14 @@ dissect_scsi_release6 (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
+dissect_scsi_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb)
 {
     guint8 flags;
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
 
@@ -2861,7 +2861,7 @@ dissect_scsi_reportdeviceid (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                              proto_tree *tree _U_, guint offset _U_,
                              gboolean isreq _U_, gboolean iscdb _U_)
 {
-    
+
 }
 
 static void
@@ -2874,7 +2874,7 @@ dissect_scsi_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_alloclen32, tvb, offset+5, 4, 0);
 
@@ -2909,7 +2909,7 @@ dissect_scsi_reqsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, 0);
 
@@ -2929,7 +2929,7 @@ dissect_scsi_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
@@ -2947,7 +2947,7 @@ dissect_scsi_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
 
@@ -2978,7 +2978,7 @@ dissect_scsi_testunitrdy (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
@@ -2997,7 +2997,7 @@ dissect_scsi_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
         proto_tree_add_uint_format (tree, hf_scsi_formatunit_flags, tvb, offset,
@@ -3029,7 +3029,7 @@ dissect_scsi_sbc2_rdwr6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                              tvb_get_ntoh24 (tvb, offset),
                              tvb_get_guint8 (tvb, offset+3));
     }
-    
+
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_rdwr6_lba, tvb, offset, 3, 0);
         proto_tree_add_item (tree, hf_scsi_rdwr6_xferlen, tvb, offset+3, 1, 0);
@@ -3134,13 +3134,13 @@ dissect_scsi_readcapacity (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
 
         proto_tree_add_uint_format (tree, hf_scsi_readcapacity_flags, tvb,
                                     offset, 1, flags,
-                                    "LongLBA = %u, RelAddr = %u", 
+                                    "LongLBA = %u, RelAddr = %u",
                                     flags & 0x2, flags & 0x1);
         proto_tree_add_item (tree, hf_scsi_readcapacity_lba, tvb, offset+1,
                              4, 0);
@@ -3171,7 +3171,7 @@ dissect_scsi_readdefdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
 
@@ -3197,7 +3197,7 @@ dissect_scsi_readdefdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
 
@@ -3223,7 +3223,7 @@ dissect_scsi_reassignblks (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
 
@@ -3245,7 +3245,7 @@ dissect_scsi_varlencdb (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_control, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_add_cdblen, tvb, offset+6, 1, 0);
@@ -3265,7 +3265,7 @@ dissect_scsi_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
             col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
                              tvb_get_ntoh24 (tvb, offset+1));
     }
-    
+
     if (tree && isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
@@ -3291,7 +3291,7 @@ dissect_scsi_ssc2_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
             col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
                              tvb_get_ntoh24 (tvb, offset+1));
     }
-    
+
     if (tree && isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
@@ -3317,7 +3317,7 @@ dissect_scsi_ssc2_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
                              tvb_get_ntoh24 (tvb, offset+1));
     }
-    
+
     if (tree && isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
@@ -3370,7 +3370,7 @@ dissect_scsi_ssc2_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
@@ -3839,9 +3839,9 @@ dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
     flags = tvb_get_guint8 (tvb, offset);
     proto_tree_add_text (tree, tvb, offset, 1,
-                         "Identifier Type: %s", 
+                         "Identifier Type: %s",
                          val_to_str ((flags & 0x0F),
-                                     scsi_devid_idtype_val, 
+                                     scsi_devid_idtype_val,
                                      "Unknown (0x%02x)"));
     offset += 1;
     elem_bytecnt -= 1;
@@ -3908,7 +3908,7 @@ dissect_scsi_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 
     if (!tree)
         return;
-    
+
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
@@ -4024,7 +4024,7 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *sns_tree;
 
     scsi_end_task (pinfo);
-    
+
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
                                              snslen, "SCSI: SNS Info");
@@ -4071,7 +4071,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_task_data_t *cdata;
     scsi_devtype_key_t dkey;
     scsi_devtype_data_t *devdata;
-    
+
     opcode = tvb_get_guint8 (tvb, offset);
 
     if (devtype_arg != SCSI_DEV_UNKNOWN)
@@ -4131,7 +4131,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
         cmd = SCSI_CMND_SPC2;
     }
-    
+
     if (valstr != NULL) {
         if (check_col (pinfo->cinfo, COL_INFO)) {
             col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: %s", valstr);
@@ -4150,7 +4150,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         cdata->cmd = cmd;
         cdata->devtype = devtype;
     }
-    
+
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, start,
                                              cdblen, "SCSI CDB");
@@ -4194,7 +4194,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item (scsi_tree, hf_scsi_spcopcode, tvb, offset, 1, 0);
         }
     }
-        
+
     switch (cmd) {
     case SCSI_CMND_SPC2:
         switch (opcode) {
@@ -4454,9 +4454,9 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_cmnd_type cmd = 0;     /* 0 is undefined type */
     scsi_device_type devtype;
     scsi_task_data_t *cdata = NULL;
-    
+
     cdata = scsi_find_task (pinfo);
-    
+
     if (!cdata) {
         /* we have no record of this exchange and so we can't dissect the
          * payload
@@ -4467,7 +4467,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     opcode = cdata->opcode;
     cmd = cdata->cmd;
     devtype = cdata->devtype;
-    
+
     if (tree) {
         switch (cmd) {
         case SCSI_CMND_SPC2:
@@ -5006,7 +5006,7 @@ proto_register_scsi (void)
         &ett_scsi_page,
     };
     module_t *scsi_module;
-    
+
     /* Register the protocol name and description */
     proto_scsi = proto_register_protocol("SCSI", "SCSI", "scsi");
 

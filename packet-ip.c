@@ -1,22 +1,22 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.172 2002/08/02 23:35:51 jmayer Exp $
+ * $Id: packet-ip.c,v 1.173 2002/08/28 21:00:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -193,7 +193,7 @@ static gint ett_icmp_mip_flags = -1;
 
 /* IP structs and definitions */
 
-typedef struct _e_ip 
+typedef struct _e_ip
    {
    guint8  ip_v_hl; /* combines ip_v and ip_hl */
    guint8  ip_tos;
@@ -557,11 +557,11 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 {
   /* Router-Alert, as defined by RFC2113 */
   int opt = tvb_get_ntohs(tvb, offset + 2);
-  static const value_string ra_opts[] = { 
+  static const value_string ra_opts[] = {
 	{0, "Every router examines packet"},
 	{0, NULL}
   };
-  
+
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: %s", optp->name, val_to_str(opt, ra_opts, "Unknown (%d)"));
   return;
@@ -857,7 +857,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   set_actual_length(tvb, len);
 
   hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
- 
+
   if (tree) {
     if (ip_summary_in_tree && hlen >= IPH_MIN_LEN) {
       ti = proto_tree_add_protocol_format(tree, proto_ip, tvb, offset, hlen,
@@ -1094,7 +1094,7 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 
   /* Not much to do if we're not parsing everything */
   if (!tree) return;
-  
+
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
 	type = tvb_get_guint8(tvb, offset + 0);
@@ -1109,14 +1109,14 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 							 val_to_str(type, mip_extensions,
 										"Unknown ext %u"));
 	mip_tree = proto_item_add_subtree(ti, ett_icmp_mip);
-  
+
 
 	switch (type) {
 	case ICMP_MIP_EXTENSION_PAD:
 	  /* One byte padding extension */
 	  /* Add our fields */
 	  /* type */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
 						  1, FALSE);
 	  offset++;
 	  break;
@@ -1124,19 +1124,19 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 	  /* Mobility Agent Advertisement Extension (RFC 2002)*/
 	  /* Add our fields */
 	  /* type */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
 						  1, FALSE);
 	  offset++;
 	  /* length */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset,
 						  1, FALSE);
 	  offset++;
 	  /* sequence number */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_seq, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_seq, tvb, offset,
 						  2, FALSE);
 	  offset+=2;
 	  /* Registration Lifetime */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_life, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_life, tvb, offset,
 						  2, FALSE);
 	  offset+=2;
 	  /* flags */
@@ -1153,16 +1153,16 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_v, tvb, offset, 1, flags);
 	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_res, tvb, offset, 1, flags);
 	  offset++;
-	  
+
 	  /* Reserved */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_reserved, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_reserved, tvb, offset,
 						  1, FALSE);
 	  offset++;
-	  
+
 	  /* COAs */
 	  numCOAs = (length - 6) / 4;
 	  for (i=0; i<numCOAs; i++) {
-		proto_tree_add_item(mip_tree, hf_icmp_mip_coa, tvb, offset, 
+		proto_tree_add_item(mip_tree, hf_icmp_mip_coa, tvb, offset,
 							4, FALSE);
 		offset+=4;
 	  }
@@ -1171,11 +1171,11 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 	  /* Prefix-Lengths Extension  (RFC 2002)*/
 	  /* Add our fields */
 	  /* type */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
 						  1, FALSE);
 	  offset++;
 	  /* length */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset,
 						  1, FALSE);
 	  offset++;
 
@@ -1189,18 +1189,18 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 	case ICMP_MIP_CHALLENGE:
 	  /* Challenge Extension  (RFC 3012)*/
 	  /* type */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
 						  1, FALSE);
 	  offset++;
 	  /* length */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset,
 						  1, FALSE);
 	  offset++;
 	  /* challenge */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_challenge, tvb, offset, 
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_challenge, tvb, offset,
 						  length, FALSE);
 	  offset+=length;
-	  
+
 	  break;
 	default:
 	  g_warning("Unknown type(%u)!  I hope the length is right (%u)",
@@ -1209,7 +1209,7 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 	  break;
 	} /* switch type */
   } /* end while */
-  
+
 } /* dissect_mip_extensions */
 
 static const gchar *unreach_str[] = {"Network unreachable",
@@ -1228,7 +1228,7 @@ static const gchar *unreach_str[] = {"Network unreachable",
                                      "Communication administratively filtered",
                                      "Host precedence violation",
                                      "Precedence cutoff in effect"};
-                                     
+
 #define	N_UNREACH	(sizeof unreach_str / sizeof unreach_str[0])
 
 static const gchar *redir_str[] = {"Redirect for network",
@@ -1240,7 +1240,7 @@ static const gchar *redir_str[] = {"Redirect for network",
 
 static const gchar *ttl_str[] = {"TTL equals 0 during transit",
                                  "TTL equals 0 during reassembly"};
-                                 
+
 #define	N_TIMXCEED	(sizeof ttl_str / sizeof ttl_str[0])
 
 static const gchar *par_str[] = {"IP header bad", "Required option missing"};
@@ -1371,11 +1371,11 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     reported_length = tvb_reported_length(tvb);
     ti = proto_tree_add_item(tree, proto_icmp, tvb, 0, length, FALSE);
     icmp_tree = proto_item_add_subtree(ti, ett_icmp);
-    proto_tree_add_uint_format(icmp_tree, hf_icmp_type, tvb, 0, 1, 
+    proto_tree_add_uint_format(icmp_tree, hf_icmp_type, tvb, 0, 1,
 			       icmp_type,
 			       "Type: %u (%s)",
 			       icmp_type, type_str);
-    proto_tree_add_uint_format(icmp_tree, hf_icmp_code, tvb, 1, 1, 
+    proto_tree_add_uint_format(icmp_tree, hf_icmp_code, tvb, 1, 1,
 			       icmp_code,
 			       "Code: %u %s",
 			       icmp_code, code_str);
@@ -1759,14 +1759,14 @@ void
 proto_register_icmp(void)
 {
   static hf_register_info hf[] = {
-    
+
     { &hf_icmp_type,
       { "Type",		"icmp.type",		FT_UINT8, BASE_DEC,	NULL, 0x0,
       	"", HFILL }},
 
     { &hf_icmp_code,
       { "Code",		"icmp.code",		FT_UINT8, BASE_HEX,	NULL, 0x0,
-      	"", HFILL }},    
+      	"", HFILL }},
 
     { &hf_icmp_checksum,
       { "Checksum",	"icmp.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
@@ -1849,8 +1849,8 @@ proto_register_icmp(void)
 	&ett_icmp_mip,
 	&ett_icmp_mip_flags
   };
-  
-  proto_icmp = proto_register_protocol("Internet Control Message Protocol", 
+
+  proto_icmp = proto_register_protocol("Internet Control Message Protocol",
 				       "ICMP", "icmp");
   proto_register_field_array(proto_icmp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

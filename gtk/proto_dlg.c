@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.12 2002/08/02 22:34:54 jmayer Exp $
+ * $Id: proto_dlg.c,v 1.13 2002/08/28 21:03:49 jmayer Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -69,9 +69,9 @@ typedef struct protocol_data {
 void proto_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 
-  GtkWidget *main_vb, *bbox, *proto_nb, *apply_bt, *cancel_bt, *ok_bt, 
+  GtkWidget *main_vb, *bbox, *proto_nb, *apply_bt, *cancel_bt, *ok_bt,
     *label, *scrolled_w, *selection_vb, *button;
-  
+
   if (proto_w != NULL) {
     reactivate_window(proto_w);
     return;
@@ -92,7 +92,7 @@ void proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(main_vb);
 
   /* Protocol topics container */
-  
+
   proto_nb = gtk_notebook_new();
   gtk_container_add(GTK_CONTAINER(main_vb), proto_nb);
   /* XXX do not know why I need this to fill all space around buttons */
@@ -102,12 +102,12 @@ void proto_cb(GtkWidget *w _U_, gpointer data _U_)
   /* Protocol selection panel ("enable/disable" protocols) */
 
   selection_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(selection_vb), 1);  
+  gtk_container_border_width(GTK_CONTAINER(selection_vb), 1);
   label = gtk_label_new("Button pressed: protocol decoding is enabled");
   gtk_widget_show(label);
   gtk_box_pack_start(GTK_BOX(selection_vb), label, FALSE, FALSE, 0);
-  scrolled_w = scrolled_window_new(NULL, NULL);         
-  gtk_container_set_border_width(GTK_CONTAINER(scrolled_w), 1);           
+  scrolled_w = scrolled_window_new(NULL, NULL);
+  gtk_container_set_border_width(GTK_CONTAINER(scrolled_w), 1);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_w),
 				 GTK_POLICY_AUTOMATIC,
 				 GTK_POLICY_ALWAYS);
@@ -155,7 +155,7 @@ void proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_widget_show(proto_nb);
 
-  /* Ok, Apply, Cancel Buttons */  
+  /* Ok, Apply, Cancel Buttons */
 
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
@@ -250,14 +250,14 @@ static void proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
   if (proto_w)
     gtk_widget_destroy(proto_w);
   proto_w = NULL;
-  
+
   /* remove protocol list */
   if (protocol_list) {
     for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
       g_free(entry->data);
     }
     g_slist_free(protocol_list);
-    protocol_list = NULL;    
+    protocol_list = NULL;
   }
 }
 
@@ -271,7 +271,7 @@ static gboolean proto_delete_cb(GtkWidget *proto_w, gpointer dummy _U_)
   return FALSE;
 }
 
-static void proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) 
+static void proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   gboolean redissect;
 
@@ -281,13 +281,13 @@ static void proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     redissect_packets(&cfile);
 }
 
-static void proto_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w) 
+static void proto_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 {
   if (set_proto_selection(GTK_WIDGET(parent_w)))
     redissect_packets(&cfile);
 }
 
-static void proto_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w) 
+static void proto_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 {
   gboolean redissect;
 
@@ -311,7 +311,7 @@ static gboolean set_proto_selection(GtkWidget *parent_w)
     if (proto_is_protocol_enabled(p->hfinfo_index) != GTK_TOGGLE_BUTTON (button)->active) {
       proto_set_decoding(p->hfinfo_index, GTK_TOGGLE_BUTTON (button)->active);
       need_redissect = TRUE;
-    }  
+    }
   }
 
   return need_redissect;
@@ -332,7 +332,7 @@ static gboolean revert_proto_selection(void)
     if (proto_is_protocol_enabled(p->hfinfo_index) != p->was_enabled) {
       proto_set_decoding(p->hfinfo_index, p->was_enabled);
       need_redissect = TRUE;
-    }  
+    }
   }
 
   return need_redissect;
@@ -341,7 +341,7 @@ static gboolean revert_proto_selection(void)
 
 gint protocol_data_compare(gconstpointer a, gconstpointer b)
 {
-  return strcmp(((protocol_data_t *)a)->abbrev, 
+  return strcmp(((protocol_data_t *)a)->abbrev,
 		((protocol_data_t *)b)->abbrev);
 }
 
@@ -367,8 +367,8 @@ static void show_proto_selection(GtkWidget *main, GtkWidget *container)
         p->abbrev = proto_get_protocol_filter_name(i);
         p->hfinfo_index = i;
         p->was_enabled = proto_is_protocol_enabled(i);
-        protocol_list = g_slist_insert_sorted(protocol_list, 
-					    p, protocol_data_compare);     
+        protocol_list = g_slist_insert_sorted(protocol_list,
+					    p, protocol_data_compare);
         nb_proto ++;
       }
   }

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.152 2002/08/20 20:49:29 jmayer Exp $
+ * $Id: tethereal.c,v 1.153 2002/08/28 21:00:41 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -183,7 +183,7 @@ static capture_options capture_opts = {
 };
 #endif
 
-static void 
+static void
 print_usage(gboolean print_ver)
 {
   int i;
@@ -385,7 +385,7 @@ main(int argc, char *argv[])
   /* Load Wpcap, if possible */
   load_wpcap();
 #endif
-    
+
   /* Initialize the capture file struct */
   cfile.plist		= NULL;
   cfile.plist_end	= NULL;
@@ -451,7 +451,7 @@ main(int argc, char *argv[])
 #else /* no SNMP library */
   g_string_append(comp_info_str, ", without UCD SNMP");
 #endif
-    
+
   /* Now get our args */
   while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vx")) != -1) {
     switch (opt) {
@@ -459,7 +459,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
         if (set_autostop_criterion(optarg) == FALSE) {
           fprintf(stderr, "ethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
-          exit(1);          
+          exit(1);
         }
 #else
         capture_option_specified = TRUE;
@@ -650,7 +650,7 @@ main(int argc, char *argv[])
         break;
     }
   }
-  
+
   /* If no capture filter or read filter has been specified, and there are
      still command-line arguments, treat them as the tokens of a capture
      filter (if no "-r" flag was specified) or a read filter (if a "-r"
@@ -694,16 +694,16 @@ main(int argc, char *argv[])
     else {
       err = test_for_fifo(cfile.save_file);
       switch (err) {
-  
+
       case ENOENT:	/* it doesn't exist, so we'll be creating it,
       			   and it won't be a FIFO */
       case 0:		/* found it, but it's not a FIFO */
         break;
-  
+
       case ESPIPE:	/* it is a FIFO */
         ld.output_to_pipe = TRUE;
         break;
-  
+
       default:		/* couldn't stat it */
         fprintf(stderr,
                 "tethereal: Error testing whether capture file is a pipe: %s\n",
@@ -773,7 +773,7 @@ main(int argc, char *argv[])
     exit(1);
   }
 
-  /* Build the column format array */  
+  /* Build the column format array */
   col_init(&cfile.cinfo, prefs->num_cols);
   for (i = 0; i < cfile.cinfo.num_cols; i++) {
     cfile.cinfo.col_fmt[i] = get_column_format(i);
@@ -796,14 +796,14 @@ main(int argc, char *argv[])
     capture_opts.snaplen = WTAP_MAX_PACKET_SIZE;
   else if (capture_opts.snaplen < MIN_PACKET_SIZE)
     capture_opts.snaplen = MIN_PACKET_SIZE;
-  
+
   /* Check the value range of the ringbuffer_num_files parameter */
   if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
     capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
   else if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
     capture_opts.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
 #endif
-  
+
   if (rfilter != NULL) {
     if (!dfilter_compile(rfilter, &rfcode)) {
       fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
@@ -981,7 +981,7 @@ capture(int out_file_type)
        * only for filters that check for broadcast IP addresses, so
        * we just warn the user, and punt and use 0.
        */
-      fprintf(stderr, 
+      fprintf(stderr,
         "Warning:  Couldn't obtain netmask info (%s).\n", lookup_net_err_str);
       netmask = 0;
     }
@@ -1051,7 +1051,7 @@ capture(int out_file_type)
   /* Let the user know what interface was chosen. */
   fprintf(stderr, "Capturing on %s\n", cfile.iface);
 
-  /* initialize capture stop conditions */ 
+  /* initialize capture stop conditions */
   init_capture_stop_conditions();
   /* create stop conditions */
   if (capture_opts.has_autostop_filesize)
@@ -1140,7 +1140,7 @@ capture(int out_file_type)
            in effect. */
         ld.go = FALSE;
       } else if (cnd_stop_capturesize != NULL &&
-                    cnd_eval(cnd_stop_capturesize, 
+                    cnd_eval(cnd_stop_capturesize,
                               (guint32)wtap_get_bytes_dumped(ld.pdh))) {
         /* We're saving the capture to a file, and the capture file reached
            its maximum size. */
@@ -1170,7 +1170,7 @@ capture(int out_file_type)
       }
     } /* inpkts > 0 */
   } /* while (ld.go) */
-  
+
   /* delete stop conditions */
   if (cnd_stop_capturesize != NULL)
     cnd_delete(cnd_stop_capturesize);
@@ -1491,7 +1491,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
     cf->esec = fdata->rel_secs;
     cf->eusec = fdata->rel_usecs;
   }
-  
+
   /* Get the time elapsed between the previous displayed packet and
      this packet. */
   compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
@@ -2017,7 +2017,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   cf->progbar_nextstep = 0;
   firstsec = 0, firstusec = 0;
   prevsec = 0, prevusec = 0;
- 
+
   return (0);
 
 fail:

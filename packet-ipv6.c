@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.86 2002/08/03 20:06:46 guy Exp $
+ * $Id: packet-ipv6.c,v 1.87 2002/08/28 21:00:18 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -463,7 +463,7 @@ static int
 dissect_mipv6_sub_u(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
 {
     int len = 0;
-			
+
     proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb,
 	offset + len, IP6_MIPv6_SUB_TYPE_LENGTH,
 	tvb_get_guint8(tvb, offset + len),

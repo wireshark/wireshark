@@ -1,24 +1,24 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.56 2002/08/02 23:36:06 jmayer Exp $
+ * $Id: print.c,v 1.57 2002/08/28 21:00:40 jmayer Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -150,7 +150,7 @@ void proto_tree_print_node(GNode *node, gpointer data)
 		label_ptr = label_str;
 		proto_item_fill_label(fi, label_str);
 	}
-		
+
 	print_line(pdata->fh, pdata->level, pdata->format, label_ptr);
 
 	/* If it's uninterpreted data, dump it (unless our caller will

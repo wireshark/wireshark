@@ -2,22 +2,22 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.24 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-h1.c,v 1.25 2002/08/28 21:00:14 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -97,10 +97,10 @@ static gint ett_empty = -1;
 
 static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  tvbuff_t *next_tvb; 
-  
+  tvbuff_t *next_tvb;
+
   proto_tree *h1_tree = NULL;
-  
+
   proto_item *ti;
   proto_tree *opcode_tree = NULL;
   proto_tree *org_tree = NULL;
@@ -235,9 +235,9 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      }
 	    break;
 	  default:
-	    /* This is not a valid telegram. So cancel dissection 
+	    /* This is not a valid telegram. So cancel dissection
                and try the next dissector */
-            return FALSE; 
+            return FALSE;
 	    break;
 	}
 	position += tvb_get_guint8(tvb,offset + position + 1);	/* Goto next section */

@@ -5,24 +5,24 @@
  *
  * Copyright 2001, Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-mtp2.c,v 1.3 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-mtp2.c,v 1.4 2002/08/28 21:00:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-m2pa.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -87,18 +87,18 @@ static const value_string status_field_vals[] = {
 	{ STATUS_OS, "Status Indication OS" },
 	{ STATUS_PO, "Status Indication PO" },
 	{ STATUS_B,  "Status Indication BO" },
-  { 0,         NULL} 
+  { 0,         NULL}
 };
 
 static void
 dissect_mtp2_header(tvbuff_t *su_tvb, proto_item *mtp2_tree)
-{  
+{
   guint8 bsn_bib, fsn_fib, li;
-  
+
   bsn_bib = tvb_get_guint8(su_tvb, BSN_BIB_OFFSET);
   fsn_fib = tvb_get_guint8(su_tvb, FSN_FIB_OFFSET);
   li      = tvb_get_guint8(su_tvb, LI_OFFSET);
-  
+
   if (mtp2_tree) {
     proto_tree_add_uint(mtp2_tree, hf_mtp2_bsn, su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, bsn_bib);
     proto_tree_add_uint(mtp2_tree, hf_mtp2_bib, su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, bsn_bib);
@@ -111,14 +111,14 @@ dissect_mtp2_header(tvbuff_t *su_tvb, proto_item *mtp2_tree)
 
 static void
 dissect_mtp2_fisu(packet_info *pinfo)
-{  
+{
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_str(pinfo->cinfo, COL_INFO, "FISU");
 }
 
 static void
 dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
-{  
+{
   guint8  li, sf;
   guint16 long_sf;
 
@@ -139,17 +139,17 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
 
 static void
 dissect_mtp2_msu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, proto_item *tree)
-{  
+{
   gint sif_sio_length;
   tvbuff_t *sif_sio_tvb;
 
   if ((check_col(pinfo->cinfo, COL_INFO)) && (!proto_is_protocol_enabled(mtp3_proto_id)))
     col_append_str(pinfo->cinfo, COL_INFO, "MSU");
-    
+
   sif_sio_length = tvb_length(su_tvb) - HEADER_LENGTH;
   sif_sio_tvb = tvb_new_subset(su_tvb, SIO_OFFSET, sif_sio_length, sif_sio_length);
   call_dissector(mtp3_handle, sif_sio_tvb, pinfo, tree);
-  
+
   if (tree)
     proto_item_set_len(mtp2_item, HEADER_LENGTH);
 
@@ -159,7 +159,7 @@ static void
 dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, proto_item *mtp2_tree, proto_tree *tree)
 {
   guint8 li;
-  
+
   dissect_mtp2_header(su_tvb, mtp2_tree);
   li = tvb_get_guint8(su_tvb, LI_OFFSET);
   switch(li & LI_MASK) {
@@ -200,42 +200,42 @@ proto_register_mtp2(void)
   static hf_register_info hf[] = {
     { &hf_mtp2_bsn,
       { "Backward sequence number", "mtp2.bsn",
-	      FT_UINT8, BASE_DEC, NULL, BSN_MASK,          
+	      FT_UINT8, BASE_DEC, NULL, BSN_MASK,
 	      "", HFILL }
     },
     { &hf_mtp2_bib,
       { "Backward indicator bit", "mtp2.bib",
-	      FT_UINT8, BASE_DEC, NULL, BIB_MASK,          
+	      FT_UINT8, BASE_DEC, NULL, BIB_MASK,
 	      "", HFILL }
     },
     { &hf_mtp2_fsn,
       { "Forward sequence number", "mtp2.fsn",
-	      FT_UINT8, BASE_DEC, NULL, FSN_MASK,          
+	      FT_UINT8, BASE_DEC, NULL, FSN_MASK,
 	      "", HFILL }
     },
     { &hf_mtp2_fib,
       { "Forward indicator bit", "mtp2.fib",
-	      FT_UINT8, BASE_DEC, NULL, FIB_MASK,          
+	      FT_UINT8, BASE_DEC, NULL, FIB_MASK,
 	      "", HFILL }
     },
     { &hf_mtp2_li,
       { "Length Indicator", "mtp2.li",
-	      FT_UINT8, BASE_DEC, NULL, LI_MASK,          
+	      FT_UINT8, BASE_DEC, NULL, LI_MASK,
 	      "", HFILL }
     },
     { &hf_mtp2_spare,
       { "Spare", "mtp2.spare",
-	      FT_UINT8, BASE_DEC, NULL, SPARE_MASK,          
+	      FT_UINT8, BASE_DEC, NULL, SPARE_MASK,
 	      "", HFILL }
     },
     { &hf_mtp2_sf,
       { "Status field", "mtp2.sf",
-	      FT_UINT8, BASE_DEC, VALS(status_field_vals), 0x0,          
+	      FT_UINT8, BASE_DEC, VALS(status_field_vals), 0x0,
 	      "", HFILL }
     },
     { &hf_mtp2_long_sf,
       { "Status field", "mtp2.long_sf",
-	      FT_UINT16, BASE_HEX, NULL, 0x0,          
+	      FT_UINT16, BASE_HEX, NULL, 0x0,
 	      "", HFILL }
     }
   };

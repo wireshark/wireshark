@@ -8,24 +8,24 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m2ua.c,v 1.3 2002/08/17 18:38:41 tuexen Exp $
+ * $Id: packet-m2ua.c,v 1.4 2002/08/28 21:00:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -92,7 +92,7 @@ static dissector_handle_t mtp3_handle;
 static void
 dissect_m2ua_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
 
-static guint 
+static guint
 nr_of_padding_bytes (guint length)
 {
   guint remainder;
@@ -124,7 +124,7 @@ nr_of_padding_bytes (guint length)
 static const value_string m2ua_protocol_version_values[] = {
   { PROTOCOL_VERSION_RELEASE_1,  "Release 1" },
   { 0,                           NULL } };
-  
+
 #define MESSAGE_CLASS_MGMT_MESSAGE         0
 #define MESSAGE_CLASS_ASPSM_MESSAGE        3
 #define MESSAGE_CLASS_ASPTM_MESSAGE        4
@@ -253,7 +253,7 @@ dissect_m2ua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
 {
   guint8  version, reserved, message_class, message_type;
   guint32 message_length;
-  
+
   /* Extract the common header */
   version        = tvb_get_guint8(common_header_tvb, VERSION_OFFSET);
   reserved       = tvb_get_guint8(common_header_tvb, RESERVED_OFFSET);
@@ -272,7 +272,7 @@ dissect_m2ua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
     proto_tree_add_uint(m2ua_tree, hf_m2ua_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, reserved);
     proto_tree_add_uint(m2ua_tree, hf_m2ua_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, message_class);
     proto_tree_add_uint_format(m2ua_tree, hf_m2ua_message_type, common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH, message_type,
-                               "Message type: %s (%u)", 
+                               "Message type: %s (%u)",
                                val_to_str(message_class * 256 + message_type, m2ua_message_class_type_values, "reserved"), message_type);
     proto_tree_add_uint(m2ua_tree, hf_m2ua_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, message_length);
   }
@@ -310,7 +310,7 @@ dissect_m2ua_interface_identifier_text_parameter(tvbuff_t *parameter_tvb, proto_
   char *id;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
+
   id_length = length - PARAMETER_HEADER_LENGTH;
   id        = (char *)tvb_get_ptr(parameter_tvb, INTERFACE_IDENTIFIER_TEXT_OFFSET, id_length);
   proto_tree_add_string(parameter_tree, hf_m2ua_interface_id_text, parameter_tvb, INTERFACE_IDENTIFIER_TEXT_OFFSET, id_length, id);
@@ -326,7 +326,7 @@ dissect_m2ua_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
   char *info_string;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
+
   info_string_length = length - PARAMETER_HEADER_LENGTH;
   info_string        = (char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length);
   proto_tree_add_string(parameter_tree, hf_m2ua_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, info_string);
@@ -339,7 +339,7 @@ static void
 dissect_m2ua_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, diagnostic_info_length;
-  
+
   length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   diagnostic_info_length = length - PARAMETER_HEADER_LENGTH;
 
@@ -379,11 +379,11 @@ static void
 dissect_m2ua_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, heartbeat_data_length;
-  
+
   length                = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   heartbeat_data_length = length - PARAMETER_HEADER_LENGTH;
 
-  if (heartbeat_data_length > 0) 
+  if (heartbeat_data_length > 0)
     proto_tree_add_bytes(parameter_tree, hf_m2ua_heartbeat_data, parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length,
       	                 tvb_get_ptr(parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length));
 
@@ -410,7 +410,7 @@ dissect_m2ua_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 
   traffic_mode_type = tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, traffic_mode_type);
-   
+
   proto_item_set_text(parameter_item, "Traffic mode type parameter (%s)", val_to_str(traffic_mode_type, m2ua_traffic_mode_type_values, "unknown"));
 
 }
@@ -511,7 +511,7 @@ dissect_m2ua_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   proto_tree_add_uint_format(parameter_tree, hf_m2ua_status_info, parameter_tvb, STATUS_INFO_OFFSET, STATUS_INFO_LENGTH, status_info,
                              "Status info: %s (%u)", val_to_str(status_type * 256 * 256 + status_info, m2ua_status_type_info_values, "unknown"), status_info);
 
-  proto_item_set_text(parameter_item, 
+  proto_item_set_text(parameter_item,
                       "Status type / ID (%s)", val_to_str(status_type * 256 * 256 + status_info, m2ua_status_type_info_values, "unknown status information"));
 }
 
@@ -522,7 +522,7 @@ static void
 dissect_m2ua_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 id;
-  
+
   id = tvb_get_ntohl(parameter_tvb, ASP_IDENTIFIER_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_asp_id, parameter_tvb, ASP_IDENTIFIER_OFFSET, ASP_IDENTIFIER_LENGTH, id);
   proto_item_set_text(parameter_item, "ASP identifier (%u)", id);
@@ -538,7 +538,7 @@ dissect_m2ua_correlation_identifier_parameter(tvbuff_t *parameter_tvb, proto_tre
 
   id = tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, id);
-   
+
   proto_item_set_text(parameter_item, "Correlation identifier parameter (%u)", id);
 }
 
@@ -569,10 +569,10 @@ dissect_m2ua_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pin
   tvbuff_t *payload_tvb;
   guint32 payload_length;
   guint8  li;
-  
+
   payload_length = tvb_length(parameter_tvb) - PARAMETER_HEADER_LENGTH - DATA_2_LI_LENGTH;
   li = tvb_get_guint8(parameter_tvb, DATA_2_LI_OFFSET);
-  
+
   proto_tree_add_uint(parameter_tree, hf_m2ua_data_2_li, parameter_tvb, DATA_2_LI_OFFSET, DATA_2_LI_LENGTH, li);
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_2_MTP3_OFFSET, payload_length, payload_length);
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + DATA_2_LI_LENGTH);
@@ -607,7 +607,7 @@ static const value_string m2ua_state_values[] = {
   { STATUS_CONG_ACCEPT,    "Congestion accept" },
   { STATUS_CONG_DISCARD,   "Congestion discard" },
   {0,                       NULL } };
-  
+
 #define STATE_LENGTH 4
 #define STATE_OFFSET PARAMETER_VALUE_OFFSET
 
@@ -618,7 +618,7 @@ dissect_m2ua_state_request_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 
   state = tvb_get_ntohl(parameter_tvb, STATE_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_state, parameter_tvb, STATE_OFFSET, STATE_LENGTH, state);
-   
+
   proto_item_set_text(parameter_item, "State request parameter (%s)", val_to_str(state, m2ua_state_values, "unknown"));
 }
 
@@ -644,7 +644,7 @@ dissect_m2ua_event_request_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 
   event = tvb_get_ntohl(parameter_tvb, STATE_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_event, parameter_tvb, EVENT_OFFSET, EVENT_LENGTH, event);
-   
+
   proto_item_set_text(parameter_item, "State event parameter (%s)", val_to_str(event, m2ua_event_values, "unknown"));
 }
 
@@ -670,7 +670,7 @@ dissect_m2ua_congestion_status_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 
   status = tvb_get_ntohl(parameter_tvb, CONGESTION_STATUS_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_congestion_status, parameter_tvb, CONGESTION_STATUS_OFFSET, CONGESTION_STATUS_LENGTH, status);
-   
+
   proto_item_set_text(parameter_item, "Congestion status parameter (%s)", val_to_str(status, m2ua_level_values, "unknown"));
 }
 
@@ -684,7 +684,7 @@ dissect_m2ua_discard_status_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 
   status = tvb_get_ntohl(parameter_tvb, DISCARD_STATUS_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_discard_status, parameter_tvb, DISCARD_STATUS_OFFSET, DISCARD_STATUS_LENGTH, status);
-   
+
   proto_item_set_text(parameter_item, "Discard status parameter (%s)", val_to_str(status, m2ua_level_values, "unknown"));
 }
 
@@ -707,7 +707,7 @@ dissect_m2ua_action_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 
   action = tvb_get_ntohl(parameter_tvb, ACTION_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_action, parameter_tvb, ACTION_OFFSET, ACTION_LENGTH, action);
-   
+
   proto_item_set_text(parameter_item, "Action parameter (%s)", val_to_str(action, m2ua_action_values, "unknown"));
 }
 
@@ -721,7 +721,7 @@ dissect_m2ua_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
 
   number = tvb_get_ntohl(parameter_tvb, SEQUENCE_NUMBER_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_sequence_number, parameter_tvb, SEQUENCE_NUMBER_OFFSET, SEQUENCE_NUMBER_LENGTH, number);
-   
+
   proto_item_set_text(parameter_item, "Sequence number parameter (%u)", number);
 }
 
@@ -744,7 +744,7 @@ dissect_m2ua_retrieval_result_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
   result = tvb_get_ntohl(parameter_tvb, RETRIEVAL_RESULT_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_retrieval_result, parameter_tvb, RETRIEVAL_RESULT_OFFSET, RETRIEVAL_RESULT_LENGTH, result);
-   
+
   proto_item_set_text(parameter_item, "Retrieval result parameter (%s)",  val_to_str(result, m2ua_retrieval_result_values, "unknown"));
 }
 
@@ -753,7 +753,7 @@ dissect_m2ua_link_key_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
-  
+
   length            = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
   parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
@@ -771,12 +771,12 @@ dissect_m2ua_local_lk_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
 
   id = tvb_get_ntohl(parameter_tvb, LOCAL_LK_ID_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_local_lk_id, parameter_tvb, LOCAL_LK_ID_OFFSET, LOCAL_LK_ID_LENGTH, id);
-   
+
   proto_item_set_text(parameter_item, "Local KL identifier parameter (%u)",  id);
 }
 
 #define SDT_RESERVED_LENGTH 2
-#define SDT_ID_LENGTH       2  
+#define SDT_ID_LENGTH       2
 #define SDT_RESERVED_OFFSET PARAMETER_VALUE_OFFSET
 #define SDT_ID_OFFSET       (SDT_RESERVED_OFFSET + SDT_RESERVED_LENGTH)
 
@@ -787,7 +787,7 @@ dissect_m2ua_sdt_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 
   reserved = tvb_get_ntohs(parameter_tvb, SDT_RESERVED_OFFSET);
   id       = tvb_get_ntohs(parameter_tvb, SDT_ID_OFFSET);
-  
+
   proto_tree_add_uint(parameter_tree, hf_m2ua_sdt_reserved, parameter_tvb, SDT_RESERVED_OFFSET, SDT_RESERVED_LENGTH, reserved);
   proto_tree_add_uint(parameter_tree, hf_m2ua_sdt_id, parameter_tvb, SDT_ID_OFFSET, SDT_ID_LENGTH, id);
 
@@ -795,7 +795,7 @@ dissect_m2ua_sdt_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 }
 
 #define SDL_RESERVED_LENGTH 2
-#define SDL_ID_LENGTH       2  
+#define SDL_ID_LENGTH       2
 #define SDL_RESERVED_OFFSET PARAMETER_VALUE_OFFSET
 #define SDL_ID_OFFSET       (SDL_RESERVED_OFFSET + SDL_RESERVED_LENGTH)
 
@@ -806,7 +806,7 @@ dissect_m2ua_sdl_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 
   reserved = tvb_get_ntohs(parameter_tvb, SDT_RESERVED_OFFSET);
   id       = tvb_get_ntohs(parameter_tvb, SDT_ID_OFFSET);
-  
+
   proto_tree_add_uint(parameter_tree, hf_m2ua_sdl_reserved, parameter_tvb, SDL_RESERVED_OFFSET, SDL_RESERVED_LENGTH, reserved);
   proto_tree_add_uint(parameter_tree, hf_m2ua_sdl_id, parameter_tvb, SDL_ID_OFFSET, SDL_ID_LENGTH, id);
 
@@ -818,7 +818,7 @@ dissect_m2ua_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info 
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
-  
+
   length            = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
   parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
@@ -858,7 +858,7 @@ dissect_m2ua_registration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *
 
   status = tvb_get_ntohl(parameter_tvb, REGISTRATION_STATUS_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_registration_status, parameter_tvb, REGISTRATION_STATUS_OFFSET, REGISTRATION_STATUS_LENGTH, status);
-   
+
   proto_item_set_text(parameter_item, "Registration status parameter (%s)",  val_to_str(status, m2ua_registration_status_values, "unknown"));
 }
 
@@ -867,7 +867,7 @@ dissect_m2ua_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_inf
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
-  
+
   length            = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
   parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
@@ -899,7 +899,7 @@ dissect_m2ua_deregistration_status_parameter(tvbuff_t *parameter_tvb, proto_tree
 
   status = tvb_get_ntohl(parameter_tvb, DEREGISTRATION_STATUS_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m2ua_deregistration_status, parameter_tvb, DEREGISTRATION_STATUS_OFFSET, DEREGISTRATION_STATUS_LENGTH, status);
-   
+
   proto_item_set_text(parameter_item, "Deregistration status parameter (%s)",  val_to_str(status, m2ua_deregistration_status_values, "unknown"));
 }
 
@@ -907,14 +907,14 @@ static void
 dissect_m2ua_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 tag, length, parameter_value_length;
-  
+
   tag    = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
+
   parameter_value_length = length - PARAMETER_HEADER_LENGTH;
 
   if (parameter_value_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_m2ua_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, 
+    proto_tree_add_bytes(parameter_tree, hf_m2ua_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length));
 
   proto_item_set_text(parameter_item, "Parameter with tag %u and %u byte%s value", tag, parameter_value_length, plurality(parameter_value_length, "", "s"));
@@ -1097,7 +1097,7 @@ dissect_m2ua_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *
   };
 
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_m2ua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, 
+    proto_tree_add_bytes(parameter_tree, hf_m2ua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length));
 }
 
@@ -1118,7 +1118,7 @@ dissect_m2ua_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree
       total_length = length + padding_length;
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb    = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
-    dissect_m2ua_parameter(parameter_tvb, pinfo, tree, m2ua_tree); 
+    dissect_m2ua_parameter(parameter_tvb, pinfo, tree, m2ua_tree);
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -1132,7 +1132,7 @@ dissect_m2ua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree
 
   common_header_tvb = tvb_new_subset(message_tvb, 0, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
-  dissect_m2ua_common_header(common_header_tvb, pinfo, m2ua_tree);  
+  dissect_m2ua_common_header(common_header_tvb, pinfo, m2ua_tree);
   dissect_m2ua_parameters(parameters_tvb, pinfo, tree, m2ua_tree);
 }
 
@@ -1143,9 +1143,9 @@ dissect_m2ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *m2ua_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2UA");
-  
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
@@ -1162,32 +1162,32 @@ dissect_m2ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Ethereal */
 void
 proto_register_m2ua(void)
-{                 
+{
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_m2ua_version,                { "Version",                        "m2ua.version",                    FT_UINT8,  BASE_DEC,  VALS(m2ua_protocol_version_values),      0x0, "", HFILL } },
-    { &hf_m2ua_reserved,               { "Reserved",                       "m2ua.reserved",                   FT_UINT8,  BASE_HEX,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_reserved,               { "Reserved",                       "m2ua.reserved",                   FT_UINT8,  BASE_HEX,  NULL,                                    0x0, "", HFILL } },
     { &hf_m2ua_message_class,          { "Message class",                  "m2ua.message_class",              FT_UINT8,  BASE_DEC,  VALS(m2ua_message_class_values),         0x0, "", HFILL } },
     { &hf_m2ua_message_type,           { "Message Type",                   "m2ua.message_type",               FT_UINT8,  BASE_DEC,  NULL,                                    0x0, "", HFILL } },
-    { &hf_m2ua_message_length,         { "Message length",                 "m2ua.message_length",             FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_message_length,         { "Message length",                 "m2ua.message_length",             FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
     { &hf_m2ua_parameter_tag,          { "Parameter Tag",                  "m2ua.parameter_tag",              FT_UINT16, BASE_HEX,  VALS(m2ua_parameter_tag_values),         0x0, "", HFILL } },
-    { &hf_m2ua_parameter_length,       { "Parameter length",               "m2ua.parameter_length",           FT_UINT16, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
-    { &hf_m2ua_parameter_value,        { "Parameter value",                "m2ua.parameter_value",            FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },    
-    { &hf_m2ua_parameter_padding,      { "Padding",                        "m2ua.parameter_padding",          FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },    
-    { &hf_m2ua_interface_id_int,       { "Interface Identifier (integer)", "m2ua.interface_identifier_int",   FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
-    { &hf_m2ua_interface_id_text,      { "Interface identifier (text)",    "m2ua.interface_identifier_text",  FT_STRING, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
-    { &hf_m2ua_info_string,            { "Info string",                    "m2ua.info_string",                FT_STRING, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
-    { &hf_m2ua_diagnostic_information, { "Diagnostic information",         "m2ua.diagnostic_information",     FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },    
-    { &hf_m2ua_interface_id_start,     { "Interface Identifier (start)",   "m2ua.interface_identifier_start", FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
-    { &hf_m2ua_interface_id_stop,      { "Interface Identifier (stop)",    "m2ua.interface_identifier_stop",  FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
-    { &hf_m2ua_heartbeat_data,         { "Heartbeat data",                 "m2ua.heartbeat_data",             FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },    
-    { &hf_m2ua_traffic_mode_type,      { "Traffic mode Type",              "m2ua.traffic_mode_type",          FT_UINT32, BASE_DEC,  VALS(m2ua_traffic_mode_type_values),     0x0, "", HFILL } }, 
-    { &hf_m2ua_error_code,             { "Error code",                     "m2ua.error_code",                 FT_UINT32, BASE_DEC,  VALS(m2ua_error_code_values),            0x0, "", HFILL } }, 
-    { &hf_m2ua_status_type,            { "Status type",                    "m2ua.status_type",                FT_UINT16, BASE_DEC,  VALS(m2ua_status_type_values),           0x0, "", HFILL } }, 
-    { &hf_m2ua_status_info,            { "Status info",                    "m2ua.status_info",                FT_UINT16, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
-    { &hf_m2ua_asp_id,                 { "ASP identifier",                 "m2ua.asp_identifier",             FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },    
-    { &hf_m2ua_correlation_id,         { "Correlation identifier",         "m2ua.correlation identifier",     FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_parameter_length,       { "Parameter length",               "m2ua.parameter_length",           FT_UINT16, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_parameter_value,        { "Parameter value",                "m2ua.parameter_value",            FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_parameter_padding,      { "Padding",                        "m2ua.parameter_padding",          FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_interface_id_int,       { "Interface Identifier (integer)", "m2ua.interface_identifier_int",   FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_interface_id_text,      { "Interface identifier (text)",    "m2ua.interface_identifier_text",  FT_STRING, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_info_string,            { "Info string",                    "m2ua.info_string",                FT_STRING, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_diagnostic_information, { "Diagnostic information",         "m2ua.diagnostic_information",     FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_interface_id_start,     { "Interface Identifier (start)",   "m2ua.interface_identifier_start", FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_interface_id_stop,      { "Interface Identifier (stop)",    "m2ua.interface_identifier_stop",  FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_heartbeat_data,         { "Heartbeat data",                 "m2ua.heartbeat_data",             FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_traffic_mode_type,      { "Traffic mode Type",              "m2ua.traffic_mode_type",          FT_UINT32, BASE_DEC,  VALS(m2ua_traffic_mode_type_values),     0x0, "", HFILL } },
+    { &hf_m2ua_error_code,             { "Error code",                     "m2ua.error_code",                 FT_UINT32, BASE_DEC,  VALS(m2ua_error_code_values),            0x0, "", HFILL } },
+    { &hf_m2ua_status_type,            { "Status type",                    "m2ua.status_type",                FT_UINT16, BASE_DEC,  VALS(m2ua_status_type_values),           0x0, "", HFILL } },
+    { &hf_m2ua_status_info,            { "Status info",                    "m2ua.status_info",                FT_UINT16, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_asp_id,                 { "ASP identifier",                 "m2ua.asp_identifier",             FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_correlation_id,         { "Correlation identifier",         "m2ua.correlation identifier",     FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
     { &hf_m2ua_data_2_li,              { "Length indicator",               "m2ua.data_2_li",                  FT_UINT8,  BASE_DEC,  NULL,                                    0x0, "", HFILL } },
     { &hf_m2ua_state,                  { "State",                          "m2ua.state",                      FT_UINT32, BASE_DEC,  VALS(m2ua_state_values),                 0x0, "", HFILL } },
     { &hf_m2ua_event,                  { "Event",                          "m2ua.event",                      FT_UINT32, BASE_DEC,  VALS(m2ua_event_values),                 0x0, "", HFILL } },
@@ -1204,13 +1204,13 @@ proto_register_m2ua(void)
     { &hf_m2ua_registration_status,    { "Registration status",            "m2ua.registration_status",        FT_UINT32, BASE_DEC,  VALS(m2ua_registration_status_values),   0x0, "", HFILL } },
     { &hf_m2ua_deregistration_status,  { "Deregistration status",          "m2ua.deregistration_status",      FT_UINT32, BASE_DEC,  VALS(m2ua_deregistration_status_values), 0x0, "", HFILL } },
   };
-  
+
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_m2ua,
     &ett_m2ua_parameter,
   };
-  
+
   /* Register the protocol name and description */
   proto_m2ua = proto_register_protocol("MTP 2 User Adaptation Layer", "M2UA",  "m2ua");
 
@@ -1224,7 +1224,7 @@ void
 proto_reg_handoff_m2ua(void)
 {
   dissector_handle_t m2ua_handle;
-  
+
   mtp3_handle = find_dissector("mtp3");
   m2ua_handle = create_dissector_handle(dissect_m2ua, proto_m2ua);
   dissector_add("sctp.ppi",  M2UA_PAYLOAD_PROTO_ID, m2ua_handle);

@@ -1,7 +1,7 @@
 /* packet-yppasswd.c
  * Routines for yppasswd dissection
  *
- * $Id: packet-yppasswd.c,v 1.7 2002/08/02 23:36:05 jmayer Exp $
+ * $Id: packet-yppasswd.c,v 1.8 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@ dissect_yppasswd_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	proto_item *lock_item = NULL;
 	proto_tree *lock_tree = NULL;
 
-	offset = dissect_rpc_string(tvb, tree, hf_yppasswd_oldpass, 
+	offset = dissect_rpc_string(tvb, tree, hf_yppasswd_oldpass,
 			offset, NULL);
 
 	lock_item = proto_tree_add_item(tree, hf_yppasswd_newpw, tvb,
@@ -60,19 +60,19 @@ dissect_yppasswd_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_yppasswd_newpw);
 
-	offset = dissect_rpc_string(tvb, lock_tree, 
+	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_yppasswd_newpw_name, offset, NULL);
-	offset = dissect_rpc_string(tvb, lock_tree, 
+	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_yppasswd_newpw_passwd, offset, NULL);
-	offset = dissect_rpc_uint32(tvb, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, lock_tree,
 			hf_yppasswd_newpw_uid, offset);
-	offset = dissect_rpc_uint32(tvb, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, lock_tree,
 			hf_yppasswd_newpw_gid, offset);
-	offset = dissect_rpc_string(tvb, lock_tree, 
+	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_yppasswd_newpw_gecos, offset, NULL);
-	offset = dissect_rpc_string(tvb, lock_tree, 
+	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_yppasswd_newpw_dir, offset, NULL);
-	offset = dissect_rpc_string(tvb, lock_tree, 
+	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_yppasswd_newpw_shell, offset, NULL);
 
 	return offset;

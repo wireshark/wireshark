@@ -3,22 +3,22 @@
  *
  * Srishylam Simharajan simha@netapp.com
  *
- * $Id: packet-icap.c,v 1.11 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-icap.c,v 1.12 2002/08/28 21:00:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -229,7 +229,7 @@ is_icap_header:
 	}
 }
 
-	
+
 static int
 is_icap_message(const guchar *data, int linelen, icap_type_t *type)
 {
@@ -245,10 +245,10 @@ is_icap_message(const guchar *data, int linelen, icap_type_t *type)
 	 */
 	if (linelen >= 5) {
 		ICAP_COMPARE("ICAP/", 5, ICAP_RESPONSE); /* response */
-	} 
+	}
 	if (linelen >= 7) {
 		ICAP_COMPARE("REQMOD ", 7, ICAP_REQMOD); /* request mod */
-	} 
+	}
 	if (linelen >= 8) {
 		ICAP_COMPARE("OPTIONS ", 8, ICAP_OPTIONS); /* options */
 		ICAP_COMPARE("RESPMOD ", 8, ICAP_RESPMOD); /* response mod */
@@ -262,7 +262,7 @@ proto_register_icap(void)
 {
 	static hf_register_info hf[] = {
 	    { &hf_icap_response,
-	      { "Response",		"icap.response",  
+	      { "Response",		"icap.response",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"TRUE if ICAP response", HFILL }},
 	    { &hf_icap_reqmod,
@@ -287,7 +287,7 @@ proto_register_icap(void)
 	};
 
 	proto_icap = proto_register_protocol(
-			"Internet Content Adaptation Protocol", 
+			"Internet Content Adaptation Protocol",
 			"ICAP", "icap");
 	proto_register_field_array(proto_icap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

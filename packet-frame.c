@@ -2,22 +2,22 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.29 2002/08/26 19:09:00 guy Exp $
+ * $Id: packet-frame.c,v 1.30 2002/08/28 21:00:13 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -65,7 +65,7 @@ static const value_string p2p_dirs[] = {
 };
 
 static dissector_table_t wtap_encap_dissector_table;
-	
+
 static void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -146,7 +146,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_uint_format(fh_tree, hf_frame_packet_len, tvb,
 		0, 0, pkt_len, "Packet Length: %d byte%s", pkt_len,
 		plurality(pkt_len, "", "s"));
-		
+
 	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, tvb,
 		0, 0, cap_len, "Capture Length: %d byte%s", cap_len,
 		plurality(cap_len, "", "s"));
@@ -262,7 +262,7 @@ proto_register_frame(void)
 	static gint *ett[] = {
 		&ett_frame,
 	};
-	module_t *frame_module; 
+	module_t *frame_module;
 
 	wtap_encap_dissector_table = register_dissector_table("wtap_encap",
 	    "Wiretap encapsulation type", FT_UINT32, BASE_DEC);

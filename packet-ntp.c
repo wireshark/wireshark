@@ -2,24 +2,24 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.36 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-ntp.c,v 1.37 2002/08/28 21:00:24 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -239,7 +239,7 @@ ntp_fmt_ts(const guint8 *reftime, char* buff)
 	}
 	return buff;
 }
-		
+
 /* dissect_ntp - dissects NTP packet data
  * tvb - tvbuff for packet data (IN)
  * pinfo - packet info
@@ -310,7 +310,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ppoll = tvb_get_guint8(tvb, 2);
 		proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
 					   ppoll,
-					   (((ppoll >= 4) && (ppoll <= 16)) ? 
+					   (((ppoll >= 4) && (ppoll <= 16)) ?
 					   "Peer Polling Interval: %u (%u sec)" :
 					   "Peer Polling Interval: invalid (%u)"),
 					   ppoll,
@@ -384,7 +384,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		reftime = tvb_get_ptr(tvb, 16, 8);
 		proto_tree_add_bytes_format(ntp_tree, hf_ntp_reftime, tvb, 16, 8,
 					   reftime,
-				           "Reference Clock Update Time: %s", 
+				           "Reference Clock Update Time: %s",
 					   ntp_fmt_ts(reftime, buff));
 
 		/* Originate Timestamp: This is the time at which the request departed
@@ -393,7 +393,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		org = tvb_get_ptr(tvb, 24, 8);
 		proto_tree_add_bytes_format(ntp_tree, hf_ntp_org, tvb, 24, 8,
 					   org,
-				           "Originate Time Stamp: %s", 
+				           "Originate Time Stamp: %s",
 					   ntp_fmt_ts(org, buff));
 		/* Receive Timestamp: This is the time at which the request arrived at
 		 * the server.
@@ -401,7 +401,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rec = tvb_get_ptr(tvb, 32, 8);
 		proto_tree_add_bytes_format(ntp_tree, hf_ntp_rec, tvb, 32, 8,
 					   rec,
-				           "Receive Time Stamp: %s", 
+				           "Receive Time Stamp: %s",
 					   ntp_fmt_ts(rec, buff));
 		/* Transmit Timestamp: This is the time at which the reply departed the
 		 * server for the client.
@@ -409,7 +409,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		xmt = tvb_get_ptr(tvb, 40, 8);
 		proto_tree_add_bytes_format(ntp_tree, hf_ntp_xmt, tvb, 40, 8,
 					   xmt,
-				           "Transmit Time Stamp: %s", 
+				           "Transmit Time Stamp: %s",
 					   ntp_fmt_ts(xmt, buff));
 
 		/* When the NTP authentication scheme is implemented, the
@@ -432,8 +432,8 @@ void
 proto_register_ntp(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_ntp_flags, {	
-			"Flags", "ntp.flags", FT_UINT8, BASE_HEX, 
+		{ &hf_ntp_flags, {
+			"Flags", "ntp.flags", FT_UINT8, BASE_HEX,
 			NULL, 0, "Flags (Leap/Version/Mode)", HFILL }},
 		{ &hf_ntp_flags_li, {
 			"Leap Indicator", "ntp.flags.li", FT_UINT8, BASE_DEC,
@@ -444,41 +444,41 @@ proto_register_ntp(void)
 		{ &hf_ntp_flags_mode, {
 			"Mode", "ntp.flags.mode", FT_UINT8, BASE_DEC,
 			VALS(mode_types), NTP_MODE_MASK, "Mode", HFILL }},
-		{ &hf_ntp_stratum, {	
+		{ &hf_ntp_stratum, {
 			"Peer Clock Stratum", "ntp.stratum", FT_UINT8, BASE_DEC,
 			NULL, 0, "Peer Clock Stratum", HFILL }},
-		{ &hf_ntp_ppoll, {	
-			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC, 
+		{ &hf_ntp_ppoll, {
+			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC,
 			NULL, 0, "Peer Polling Interval", HFILL }},
-		{ &hf_ntp_precision, {	
-			"Peer Clock Precision", "ntp.precision", FT_UINT8, BASE_DEC, 
+		{ &hf_ntp_precision, {
+			"Peer Clock Precision", "ntp.precision", FT_UINT8, BASE_DEC,
 			NULL, 0, "Peer Clock Precision", HFILL }},
-		{ &hf_ntp_rootdelay, {	
+		{ &hf_ntp_rootdelay, {
 			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_DEC,
 			NULL, 0, "Root Delay", HFILL }},
-		{ &hf_ntp_rootdispersion, {	
-			"Clock Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_DEC, 
+		{ &hf_ntp_rootdispersion, {
+			"Clock Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_DEC,
 			NULL, 0, "Clock Dispersion", HFILL }},
-		{ &hf_ntp_refid, {	
-			"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE, 
+		{ &hf_ntp_refid, {
+			"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE,
 			NULL, 0, "Reference Clock ID", HFILL }},
-		{ &hf_ntp_reftime, {	
-			"Reference Clock Update Time", "ntp.reftime", FT_BYTES, BASE_NONE, 
+		{ &hf_ntp_reftime, {
+			"Reference Clock Update Time", "ntp.reftime", FT_BYTES, BASE_NONE,
 			NULL, 0, "Reference Clock Update Time", HFILL }},
-		{ &hf_ntp_org, {	
-			"Originate Time Stamp", "ntp.org", FT_BYTES, BASE_NONE, 
+		{ &hf_ntp_org, {
+			"Originate Time Stamp", "ntp.org", FT_BYTES, BASE_NONE,
 			NULL, 0, "Originate Time Stamp", HFILL }},
-		{ &hf_ntp_rec, {	
-			"Receive Time Stamp", "ntp.rec", FT_BYTES, BASE_NONE, 
+		{ &hf_ntp_rec, {
+			"Receive Time Stamp", "ntp.rec", FT_BYTES, BASE_NONE,
 			NULL, 0, "Receive Time Stamp", HFILL }},
-		{ &hf_ntp_xmt, {	
-			"Transmit Time Stamp", "ntp.xmt", FT_BYTES, BASE_NONE, 
+		{ &hf_ntp_xmt, {
+			"Transmit Time Stamp", "ntp.xmt", FT_BYTES, BASE_NONE,
 			NULL, 0, "Transmit Time Stamp", HFILL }},
-		{ &hf_ntp_keyid, {	
-			"Key ID", "ntp.keyid", FT_BYTES, BASE_HEX, 
+		{ &hf_ntp_keyid, {
+			"Key ID", "ntp.keyid", FT_BYTES, BASE_HEX,
 			NULL, 0, "Key ID", HFILL }},
-		{ &hf_ntp_mac, {	
-			"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_HEX, 
+		{ &hf_ntp_mac, {
+			"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_HEX,
 			NULL, 0, "Message Authentication Code", HFILL }},
         };
 	static gint *ett[] = {

@@ -2,22 +2,22 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.108 2002/08/02 23:35:51 jmayer Exp $
+ * $Id: packet-ipx.c,v 1.109 2002/08/28 21:00:18 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -48,7 +48,7 @@
   And from the ncpfs source code by Volker Lendecke
 
 */
-	
+
 static int proto_ipx = -1;
 static int hf_ipx_checksum = -1;
 static int hf_ipx_len = -1;
@@ -415,8 +415,8 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sig_char = tvb_get_guint8(tvb, 1);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, 
-			"%s, Connection %d", 
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+			"%s, Connection %d",
 			val_to_str(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
 	}
 
@@ -466,12 +466,12 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"RIP packet type: %s", rip_type[operation]);
 
 			if (operation == 0) {
-			  proto_tree_add_boolean_hidden(rip_tree, 
-						     hf_ipxrip_request, 
+			  proto_tree_add_boolean_hidden(rip_tree,
+						     hf_ipxrip_request,
 						     tvb, 0, 2, 1);
 			} else {
-			  proto_tree_add_boolean_hidden(rip_tree, 
-						     hf_ipxrip_response, 
+			  proto_tree_add_boolean_hidden(rip_tree,
+						     hf_ipxrip_response,
 						     tvb, 0, 2, 1);
 			}
 
@@ -796,12 +796,12 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (query.query_type >= 1 && query.query_type <= 4) {
 			proto_tree_add_text(sap_tree, tvb, 0, 2, sap_type[query.query_type - 1]);
 			if ((query.query_type - 1) % 2) {
-			  proto_tree_add_boolean_hidden(sap_tree, 
-						     hf_sap_response, 
+			  proto_tree_add_boolean_hidden(sap_tree,
+						     hf_sap_response,
 						     tvb, 0, 2, 1);
 			} else {
-			  proto_tree_add_boolean_hidden(sap_tree, 
-						     hf_sap_request, 
+			  proto_tree_add_boolean_hidden(sap_tree,
+						     hf_sap_request,
 						     tvb, 0, 2, 1);
 			}
 		}
@@ -899,73 +899,73 @@ proto_register_ipx(void)
 
 	static hf_register_info hf_spx[] = {
 		{ &hf_spx_connection_control,
-		{ "Connection Control",		"spx.ctl", 
+		{ "Connection Control",		"spx.ctl",
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
 		  "", HFILL }},
 
 		{ &hf_spx_datastream_type,
-		{ "Datastream type",	       	"spx.type", 
+		{ "Datastream type",	       	"spx.type",
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
 		  "", HFILL }},
 
 		{ &hf_spx_src_id,
-		{ "Source Connection ID",	"spx.src", 
+		{ "Source Connection ID",	"spx.src",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
 		  "", HFILL }},
 
 		{ &hf_spx_dst_id,
-		{ "Destination Connection ID",	"spx.dst", 
+		{ "Destination Connection ID",	"spx.dst",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
 		  "", HFILL }},
 
 		{ &hf_spx_seq_nr,
-		{ "Sequence Number",		"spx.seq", 
+		{ "Sequence Number",		"spx.seq",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
 		  "", HFILL }},
 
 		{ &hf_spx_ack_nr,
-		{ "Acknowledgment Number",	"spx.ack", 
+		{ "Acknowledgment Number",	"spx.ack",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
 		  "", HFILL }},
 
 		{ &hf_spx_all_nr,
-		{ "Allocation Number",		"spx.alloc", 
+		{ "Allocation Number",		"spx.alloc",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
 		  "", HFILL }}
 	};
 
 	static hf_register_info hf_ipxrip[] = {
 		{ &hf_ipxrip_request,
-		{ "Request",			"ipxrip.request", 
+		{ "Request",			"ipxrip.request",
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
 		  "TRUE if IPX RIP request", HFILL }},
 
 		{ &hf_ipxrip_response,
-		{ "Response",			"ipxrip.response", 
+		{ "Response",			"ipxrip.response",
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
 		  "TRUE if IPX RIP response", HFILL }}
 	};
 
 	static hf_register_info hf_sap[] = {
 		{ &hf_sap_request,
-		{ "Request",			"ipxsap.request", 
+		{ "Request",			"ipxsap.request",
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
 		  "TRUE if SAP request", HFILL }},
 
 		{ &hf_sap_response,
-		{ "Response",			"ipxsap.response", 
+		{ "Response",			"ipxsap.response",
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
 		  "TRUE if SAP response", HFILL }}
 	};
 
 	static hf_register_info hf_ipxmsg[] = {
 		{ &hf_msg_conn,
-		{ "Connection Number",			"ipxmsg.conn", 
+		{ "Connection Number",			"ipxmsg.conn",
 		  FT_UINT8,	BASE_DEC,	NULL,	0x0,
 		  "Connection Number", HFILL }},
 
 		{ &hf_msg_sigchar,
-		{ "Signature Char",			"ipxmsg.sigchar", 
+		{ "Signature Char",			"ipxmsg.sigchar",
 		  FT_UINT8,	BASE_DEC,	VALS(ipxmsg_sigchar_vals),	0x0,
 		  "Signature Char", HFILL }}
 	};

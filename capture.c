@@ -1,22 +1,22 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.188 2002/08/13 18:12:11 guy Exp $
+ * $Id: capture.c,v 1.189 2002/08/28 21:00:05 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -735,7 +735,7 @@ cap_timer_cb(gpointer data)
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
-static void 
+static void
 cap_file_input_cb(gpointer data, gint source _U_,
   GdkInputCondition condition _U_)
 {
@@ -756,7 +756,7 @@ cap_file_input_cb(gpointer data, gint source _U_,
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
     wait_for_child(FALSE);
-      
+
     /* Read what remains of the capture file, and finish the capture.
        XXX - do something if this fails? */
     switch (finish_tail_cap_file(cf, &err)) {
@@ -835,7 +835,7 @@ cap_file_input_cb(gpointer data, gint source _U_,
       q++;
       nread--;
       break;
-    } 
+    }
   }
 
   /* Read from the capture file the number of records the child told us
@@ -970,7 +970,7 @@ signame(int sig)
     sigmsg = "Segmentation violation";
     break;
 
-  /* http://metalab.unc.edu/pub/Linux/docs/HOWTO/GCC-HOWTO 
+  /* http://metalab.unc.edu/pub/Linux/docs/HOWTO/GCC-HOWTO
      Linux is POSIX compliant.  These are not POSIX-defined signals ---
      ISO/IEC 9945-1:1990 (IEEE Std 1003.1-1990), paragraph B.3.3.1.1 sez:
 
@@ -1052,7 +1052,7 @@ adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
   }
 }
 
-/* Mimic pcap_open_live() for pipe captures 
+/* Mimic pcap_open_live() for pipe captures
  * We check if "pipename" is "-" (stdin) or a FIFO, open it, and read the
  * header.
  * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
@@ -1306,9 +1306,9 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     phdr.ts.tv_usec = rechdr->hdr.ts_usec;
     phdr.caplen = rechdr->hdr.incl_len;
     phdr.len = rechdr->hdr.orig_len;
-  
+
     capture_pcap_cb((guchar *)ld, &phdr, data);
-  
+
     ld->pipe_state = STATE_EXPECT_REC_HDR;
     return 1;
 
@@ -1380,9 +1380,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 
 #define N_COUNTS (sizeof counts / sizeof counts[0])
 
-#ifdef _WIN32 
-  WORD wVersionRequested; 
-  WSADATA wsaData; 
+#ifdef _WIN32
+  WORD wVersionRequested;
+  WSADATA wsaData;
 #else
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
@@ -1400,18 +1400,18 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
    signed/unsigned 64-bit int */
 #define DECISIZE 20
 
-  /* Initialize Windows Socket if we are in a WIN32 OS 
+  /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
-#ifdef _WIN32 
-  wVersionRequested = MAKEWORD( 1, 1 ); 
-  err = WSAStartup( wVersionRequested, &wsaData ); 
-  if (err!=0) { 
-    snprintf(errmsg, sizeof errmsg, 
-      "Couldn't initialize Windows Sockets."); 
-	pch=NULL; 
-    goto error; 
-  } 
-#endif 
+#ifdef _WIN32
+  wVersionRequested = MAKEWORD( 1, 1 );
+  err = WSAStartup( wVersionRequested, &wsaData );
+  if (err!=0) {
+    snprintf(errmsg, sizeof errmsg,
+      "Couldn't initialize Windows Sockets.");
+	pch=NULL;
+    goto error;
+  }
+#endif
 
   ld.go             = TRUE;
   ld.counts.total   = 0;
@@ -1574,7 +1574,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     goto error;
   }
   if (capture_opts.ringbuffer_on) {
-    ld.pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld.linktype, 
+    ld.pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld.linktype,
       file_snaplen, &err);
   } else {
     ld.pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
@@ -1705,12 +1705,12 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   if (capture_child)
     signal(SIGUSR1, stop_capture);
 #endif
-  /* initialize capture stop conditions */ 
+  /* initialize capture stop conditions */
   init_capture_stop_conditions();
   /* create stop conditions */
   if (capture_opts.has_autostop_filesize)
     cnd_stop_capturesize =
-        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize * 1000); 
+        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize * 1000);
   if (capture_opts.has_autostop_duration)
     cnd_stop_timeout =
         cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts.autostop_duration);
@@ -1811,7 +1811,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     if (inpkts > 0) {
       ld.sync_packets += inpkts;
       /* check capture stop conditons */
-      if (cnd_stop_capturesize != NULL && cnd_eval(cnd_stop_capturesize, 
+      if (cnd_stop_capturesize != NULL && cnd_eval(cnd_stop_capturesize,
                     (guint32)wtap_get_bytes_dumped(ld.pdh))){
         /* Capture file reached its maximum size. */
         if (capture_opts.ringbuffer_on) {
@@ -1841,12 +1841,12 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
         for (i = 0; i < N_COUNTS; i++) {
             snprintf(label_str, sizeof(label_str), "%d",
                      *counts[i].value_ptr);
-  
+
             gtk_label_set(GTK_LABEL(counts[i].value), label_str);
-  
+
             snprintf(label_str, sizeof(label_str), "(%.1f%%)",
                      pct(*counts[i].value_ptr, ld.counts.total));
-  
+
             gtk_label_set(GTK_LABEL(counts[i].percent), label_str);
         }
 
@@ -1872,7 +1872,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       }
     }
   } /* while (ld.go) */
-    
+
   /* delete stop conditions */
   if (cnd_stop_capturesize != NULL)
     cnd_delete(cnd_stop_capturesize);
@@ -2096,7 +2096,7 @@ capture_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
 static void
 capture_stop_cb(GtkWidget *w _U_, gpointer data) {
   loop_data *ld = (loop_data *) data;
-  
+
   ld->go = FALSE;
 }
 
@@ -2133,7 +2133,7 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
   loop_data *ld = (loop_data *) user;
   int err;
 
-  if ((++ld->counts.total >= ld->max) && (ld->max > 0)) 
+  if ((++ld->counts.total >= ld->max) && (ld->max > 0))
   {
      ld->go = FALSE;
   }

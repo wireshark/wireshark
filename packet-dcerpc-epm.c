@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.13 2002/08/04 00:45:49 sahlberg Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.14 2002/08/28 21:00:09 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,8 +68,8 @@ static guint16  ver_epm = 3;
 
 
 static int
-epm_dissect_ept_lookup_rqst (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+epm_dissect_ept_lookup_rqst (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
     guint32 dummy;
@@ -106,8 +106,8 @@ epm_dissect_ept_lookup_rqst (tvbuff_t *tvb, int offset,
 
 
 static int
-epm_dissect_ept_lookup_resp (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+epm_dissect_ept_lookup_resp (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
     offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
@@ -121,8 +121,8 @@ epm_dissect_ept_lookup_resp (tvbuff_t *tvb, int offset,
 
 #if 0
 static int
-epm_dissect_uuid (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+epm_dissect_uuid (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
     offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
@@ -167,10 +167,10 @@ static const value_string proto_id_vals[] = {
 
 /* XXX this function assumes LE encoding. can not use the NDR routines
    since they assume padding.
-*/ 
+*/
 static int
-epm_dissect_tower_data (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+epm_dissect_tower_data (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
     guint16 num_floors, i;
@@ -202,7 +202,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 
         proto_id = tvb_get_guint8(tvb, offset);
         proto_tree_add_uint(tr, hf_epm_tower_proto_id, tvb, offset, 1, proto_id);
-        
+
         switch(proto_id){
         case 0x0d: /* UUID */
             dcerpc_tvb_get_uuid (tvb, offset+1, drep, &uuid);
@@ -217,7 +217,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
             break;
         }
         offset += len;
-      
+
         len = tvb_get_letohs(tvb, offset);
         proto_tree_add_uint(tr, hf_epm_tower_rhs_len, tvb, offset, 2, len);
         offset += 2;
@@ -250,8 +250,8 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
    } twr_t, *twr_p_t;
 */
 static int
-epm_dissect_tower (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+epm_dissect_tower (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
     guint32 len;
@@ -273,8 +273,8 @@ epm_dissect_tower (tvbuff_t *tvb, int offset,
     return offset;
 }
 static int
-epm_dissect_tower_pointer (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+epm_dissect_tower_pointer (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -283,8 +283,8 @@ epm_dissect_tower_pointer (tvbuff_t *tvb, int offset,
     return offset;
 }
 static int
-epm_dissect_tower_array (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+epm_dissect_tower_array (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
     offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep,
@@ -294,8 +294,8 @@ epm_dissect_tower_array (tvbuff_t *tvb, int offset,
 }
 
 static int
-epm_dissect_ept_map_rqst (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+epm_dissect_ept_map_rqst (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
     /* [in] handle_t h */
@@ -328,8 +328,8 @@ epm_dissect_ept_map_rqst (tvbuff_t *tvb, int offset,
 }
 
 static int
-epm_dissect_ept_map_resp (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+epm_dissect_ept_map_resp (tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
     /* [in, out] ept_lookup_handle_t *entry_handle */
@@ -355,11 +355,11 @@ epm_dissect_ept_map_resp (tvbuff_t *tvb, int offset,
 static dcerpc_sub_dissector epm_dissectors[] = {
     { 0, "ept_insert", NULL, NULL },
     { 1, "ept_delete", NULL, NULL },
-    { 2, "ept_lookup", 
-	epm_dissect_ept_lookup_rqst, 
+    { 2, "ept_lookup",
+	epm_dissect_ept_lookup_rqst,
 	epm_dissect_ept_lookup_resp },
-    { 3, "Map", 
-	epm_dissect_ept_map_rqst, 
+    { 3, "Map",
+	epm_dissect_ept_map_rqst,
 	epm_dissect_ept_map_resp },
     { 4, "ept_lookup_handle_free", NULL, NULL },
     { 5, "ept_inq_object", NULL, NULL },
@@ -400,15 +400,15 @@ proto_register_epm (void)
         { &hf_epm_ver_min,
           { "Version Minor", "epm.ver_min", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_ver_opt,
-          { "Version Option", "epm.ver_opt", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},	
+          { "Version Option", "epm.ver_opt", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_hnd,
-          { "Handle", "epm.hnd", FT_BYTES, BASE_NONE, NULL, 0x0, "Context handle", HFILL }},	
+          { "Handle", "epm.hnd", FT_BYTES, BASE_NONE, NULL, 0x0, "Context handle", HFILL }},
         { &hf_epm_max_ents,
           { "Max entries", "epm.max_ents", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_num_ents,
           { "Num entries", "epm.num_ents", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_uuid,
-          { "UUID", "epm.uuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }},	
+          { "UUID", "epm.uuid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
         { &hf_epm_tower_length,
           { "Length", "epm.tower.len", FT_UINT32, BASE_DEC, NULL, 0x0, "Length of tower data", HFILL }},
         { &hf_epm_tower_data,

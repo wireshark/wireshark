@@ -9,24 +9,24 @@
  *
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.20 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-m3ua.c,v 1.21 2002/08/28 21:00:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -112,7 +112,7 @@ static const value_string m3ua_v6_parameter_tag_values[] = {
   { V6_REASON_PARAMETER_TAG,                       "Reason" },
   { V6_TRAFFIC_MODE_TYPE_PARAMETER_TAG,            "Traffic mode type" },
   { V6_ERROR_CODE_PARAMETER_TAG,                   "Error code" },
-  { V6_STATUS_PARAMETER_TAG,                       "Status" }, 
+  { V6_STATUS_PARAMETER_TAG,                       "Status" },
   { V6_CONGESTION_INDICATION_PARAMETER_TAG,        "Congestion indication" },
   { V6_CONCERNED_DESTINATION_PARAMETER_TAG,        "Concerned destination" },
   { V6_ROUTING_KEY_PARAMETER_TAG,                  "Routing Key" },
@@ -127,7 +127,7 @@ static const value_string m3ua_v6_parameter_tag_values[] = {
   { V6_REGISTRATION_RESULTS_PARAMETER_TAG,         "Registration results" },
   { V6_DEREGISTRATION_RESULTS_PARAMETER_TAG,       "De-registration results" },
   { 0,                           NULL } };
-  
+
 #define V12_INFO_STRING_PARAMETER_TAG                  0x0004
 #define V12_ROUTING_CONTEXT_PARAMETER_TAG              0x0006
 #define V12_DIAGNOSTIC_INFORMATION_PARAMETER_TAG       0x0007
@@ -383,7 +383,7 @@ static gint m3ua_version = M3UA_V12;
 static void
 dissect_m3ua_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
 
-static guint 
+static guint
 nr_of_padding_bytes (guint length)
 {
   guint remainder;
@@ -401,7 +401,7 @@ dissect_m3ua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
 {
   guint8  version, reserved, message_class, message_type;
   guint32 message_length;
-  
+
   /* Extract the common header */
   version        = tvb_get_guint8(common_header_tvb, VERSION_OFFSET);
   reserved       = tvb_get_guint8(common_header_tvb, RESERVED_OFFSET);
@@ -420,7 +420,7 @@ dissect_m3ua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
     proto_tree_add_uint(m3ua_tree, hf_m3ua_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, reserved);
     proto_tree_add_uint(m3ua_tree, hf_m3ua_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, message_class);
     proto_tree_add_uint_format(m3ua_tree, hf_m3ua_message_type, common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH, message_type,
-                               "Message type: %s (%u)", 
+                               "Message type: %s (%u)",
                                val_to_str(message_class * 256 + message_type, m3ua_message_class_type_values, "reserved"), message_type);
     proto_tree_add_uint(m3ua_tree, hf_m3ua_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, message_length);
   }
@@ -435,7 +435,7 @@ dissect_m3ua_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
   char *info_string;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
+
   info_string_length = length - PARAMETER_HEADER_LENGTH;
   info_string = (char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length);
   proto_tree_add_string(parameter_tree, hf_m3ua_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, info_string);
@@ -466,7 +466,7 @@ static void
 dissect_m3ua_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, diagnostic_info_length;
-  
+
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   diagnostic_info_length = length - PARAMETER_HEADER_LENGTH;
 
@@ -480,9 +480,9 @@ static void
 dissect_m3ua_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, heartbeat_data_length;
-  
+
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
+
   heartbeat_data_length = length - PARAMETER_HEADER_LENGTH;
 
   proto_tree_add_bytes(parameter_tree, hf_m3ua_heartbeat_data, parameter_tvb, PARAMETER_VALUE_OFFSET, heartbeat_data_length,
@@ -530,7 +530,7 @@ dissect_m3ua_v12_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree
 
   traffic_mode_type = tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET);
 
-  proto_tree_add_uint_format(parameter_tree, hf_m3ua_traffic_mode_type, 
+  proto_tree_add_uint_format(parameter_tree, hf_m3ua_traffic_mode_type,
 			                       parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH,
 			                       traffic_mode_type, "Traffic mode type: %u (%s)",
 			                       traffic_mode_type, val_to_str(traffic_mode_type, m3ua_v12_traffic_mode_type_values, "unknown"));
@@ -672,7 +672,7 @@ dissect_m3ua_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   proto_tree_add_uint_format(parameter_tree, hf_m3ua_status_info, parameter_tvb, STATUS_INFO_OFFSET, STATUS_INFO_LENGTH, status_info,
                              "Status info: %s (%u)", val_to_str(status_type * 256 * 256 + status_info, m3ua_status_type_info_values, "unknown"), status_info);
 
-  proto_item_set_text(parameter_item, 
+  proto_item_set_text(parameter_item,
                       "Status type / ID (%s)", val_to_str(status_type * 256 * 256 + status_info, m3ua_status_type_info_values, "unknown status information"));
 }
 
@@ -683,7 +683,7 @@ static void
 dissect_m3ua_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 identifier;
-  
+
   identifier = tvb_get_ntohl(parameter_tvb, ASP_IDENTIFIER_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m3ua_asp_identifier, parameter_tvb, ASP_IDENTIFIER_OFFSET, ASP_IDENTIFIER_LENGTH, identifier);
   proto_item_set_text(parameter_item, "ASP identifier (%u)", identifier);
@@ -857,7 +857,7 @@ static void
 dissect_m3ua_congestion_indication_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 level;
-  
+
   level = tvb_get_guint8(parameter_tvb, CONG_IND_LEVEL_OFFSET);
 
   proto_tree_add_bytes(parameter_tree, hf_m3ua_congestion_reserved, parameter_tvb, CONG_IND_RESERVED_OFFSET, CONG_IND_RESERVED_LENGTH,
@@ -876,7 +876,7 @@ static void
 dissect_m3ua_concerned_destination_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 pc;
-  
+
   pc = tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET);
 
   proto_tree_add_bytes(parameter_tree, hf_m3ua_concerned_dest_reserved, parameter_tvb, CON_DEST_RESERVED_OFFSET, CON_DEST_RESERVED_LENGTH,
@@ -890,7 +890,7 @@ dissect_m3ua_routing_key_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, 
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
-  
+
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
   parameters_tvb          = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
@@ -929,7 +929,7 @@ dissect_m3ua_v6_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tre
 
   proto_tree_add_uint(parameter_tree, hf_m3ua_registration_result_identifier, parameter_tvb, REG_RES_IDENTIFIER_OFFSET, REG_RES_IDENTIFIER_LENGTH, id);
   proto_tree_add_uint(parameter_tree, hf_m3ua_registration_result_status, parameter_tvb, REG_RES_STATUS_OFFSET, REG_RES_STATUS_LENGTH, status);
-  proto_tree_add_uint(parameter_tree, hf_m3ua_registration_result_context, parameter_tvb, REG_RES_CONTEXT_OFFSET, REG_RES_CONTEXT_LENGTH, context); 
+  proto_tree_add_uint(parameter_tree, hf_m3ua_registration_result_context, parameter_tvb, REG_RES_CONTEXT_OFFSET, REG_RES_CONTEXT_LENGTH, context);
   proto_item_set_text(parameter_item, "Registration result");
 }
 
@@ -938,7 +938,7 @@ dissect_m3ua_v12_registration_result_parameter(tvbuff_t *parameter_tvb, packet_i
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
-  
+
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
   parameters_tvb          = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
@@ -968,7 +968,7 @@ dissect_m3ua_v6_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_t
   context = tvb_get_ntohl(parameter_tvb, DEREG_RES_CONTEXT_OFFSET);
   status  = tvb_get_ntohl(parameter_tvb, DEREG_RES_STATUS_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_m3ua_deregistration_result_context, parameter_tvb, DEREG_RES_CONTEXT_OFFSET, DEREG_RES_CONTEXT_LENGTH, context); 
+  proto_tree_add_uint(parameter_tree, hf_m3ua_deregistration_result_context, parameter_tvb, DEREG_RES_CONTEXT_OFFSET, DEREG_RES_CONTEXT_LENGTH, context);
   proto_tree_add_uint(parameter_tree, hf_m3ua_deregistration_result_status, parameter_tvb, DEREG_RES_STATUS_OFFSET, DEREG_RES_STATUS_LENGTH, status);
   proto_item_set_text(parameter_item, "De-registration result");
 
@@ -979,7 +979,7 @@ dissect_m3ua_v12_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
-  
+
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
   parameters_tvb          = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
@@ -995,7 +995,7 @@ static void
 dissect_m3ua_local_routing_key_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 id;
-  
+
   id = tvb_get_ntohl(parameter_tvb, LOCAL_RK_IDENTIFIER_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m3ua_local_rk_identifier, parameter_tvb, LOCAL_RK_IDENTIFIER_OFFSET, LOCAL_RK_IDENTIFIER_LENGTH, id);
   proto_item_set_text(parameter_item, "Local routing key identifier (%u)", id);
@@ -1012,7 +1012,7 @@ dissect_m3ua_destination_point_code_parameter(tvbuff_t *parameter_tvb, proto_tre
 {
   guint32 pc;
   guint8  mask;
- 
+
   mask = tvb_get_guint8(parameter_tvb, DPC_MASK_OFFSET);
   pc   = tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET);
 
@@ -1171,7 +1171,7 @@ dissect_m3ua_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo
 
   proto_item_set_text(parameter_item, "Protocol data (SS7 message of %u byte%s)", ulp_length, plurality(ulp_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + DATA_HDR_LENGTH);
-  
+
   if (!dissector_try_port(m3ua_si_dissector_table, si, payload_tvb, pinfo, tree)) {
     call_dissector(data_handle, payload_tvb, pinfo, tree);
   }
@@ -1184,7 +1184,7 @@ static void
 dissect_m3ua_correlation_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 id;
-  
+
   id = tvb_get_ntohl(parameter_tvb, CORR_ID_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m3ua_correlation_identifier, parameter_tvb, CORR_ID_OFFSET, CORR_ID_LENGTH, id);
   proto_item_set_text(parameter_item, "Correlation Identifer (%u)", id);
@@ -1211,7 +1211,7 @@ static void
 dissect_m3ua_registration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 status;
-  
+
   status = tvb_get_ntohl(parameter_tvb, REG_STATUS_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m3ua_registration_status, parameter_tvb, REG_STATUS_OFFSET, REG_STATUS_LENGTH, status);
   proto_item_set_text(parameter_item, "Registration status (%s)", val_to_str(status, m3ua_registration_status_values, "unknown"));
@@ -1233,7 +1233,7 @@ static void
 dissect_m3ua_deregistration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 status;
-  
+
   status = tvb_get_ntohl(parameter_tvb, DEREG_STATUS_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_m3ua_deregistration_status, parameter_tvb, DEREG_STATUS_OFFSET, DEREG_STATUS_LENGTH, status);
   proto_item_set_text(parameter_item, "Deregistration status (%s)", val_to_str(status, m3ua_deregistration_status_values, "unknown"));
@@ -1244,7 +1244,7 @@ dissect_m3ua_registration_results_parameter(tvbuff_t *parameter_tvb, packet_info
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
-  
+
   length            = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
   parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
@@ -1257,7 +1257,7 @@ dissect_m3ua_deregistration_results_parameter(tvbuff_t *parameter_tvb, packet_in
 {
   tvbuff_t *parameters_tvb;
   guint16 length, parameters_length;
-  
+
   length            = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
   parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
@@ -1269,13 +1269,13 @@ static void
 dissect_m3ua_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 tag, length, parameter_value_length;
-  
+
   tag    = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
+
   parameter_value_length = length - PARAMETER_HEADER_LENGTH;
 
-  proto_tree_add_bytes(parameter_tree, hf_m3ua_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, 
+  proto_tree_add_bytes(parameter_tree, hf_m3ua_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length));
 
   proto_item_set_text(parameter_item, "Parameter with tag %u and %u byte%s value", tag, parameter_value_length, plurality(parameter_value_length, "", "s"));
@@ -1301,7 +1301,7 @@ dissect_m3ua_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tre
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_m3ua_parameter);
 
   /* add tag and length to the m3ua tree */
-  proto_tree_add_uint_format(parameter_tree, hf_m3ua_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag, 
+  proto_tree_add_uint_format(parameter_tree, hf_m3ua_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag,
                              "Parameter tag: %s (0x%x)", val_to_str(tag, m3ua_v6_parameter_tag_values, "unknown"), tag);
   proto_tree_add_uint(parameter_tree, hf_m3ua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, length);
 
@@ -1390,7 +1390,7 @@ dissect_m3ua_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tre
   };
 
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_m3ua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, 
+    proto_tree_add_bytes(parameter_tree, hf_m3ua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length));
 }
 
@@ -1414,7 +1414,7 @@ dissect_m3ua_v12_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tr
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_m3ua_parameter);
 
   /* add tag and length to the m3ua tree */
-  proto_tree_add_uint_format(parameter_tree, hf_m3ua_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag, 
+  proto_tree_add_uint_format(parameter_tree, hf_m3ua_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag,
                              "Parameter tag: %s (0x%x)", val_to_str(tag, m3ua_v12_parameter_tag_values, "unknown"), tag);
   proto_tree_add_uint(parameter_tree, hf_m3ua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, length);
 
@@ -1500,7 +1500,7 @@ dissect_m3ua_v12_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tr
   };
 
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_m3ua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, 
+    proto_tree_add_bytes(parameter_tree, hf_m3ua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length));
 }
 
@@ -1522,7 +1522,7 @@ dissect_m3ua_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree
     parameter_tvb    = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
     switch(m3ua_version) {
       case M3UA_V6:
-        dissect_m3ua_v6_parameter(parameter_tvb, pinfo, tree, m3ua_tree); 
+        dissect_m3ua_v6_parameter(parameter_tvb, pinfo, tree, m3ua_tree);
         break;
       case M3UA_V12:
         dissect_m3ua_v12_parameter(parameter_tvb, pinfo, tree, m3ua_tree);
@@ -1541,7 +1541,7 @@ dissect_m3ua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree
 
   common_header_tvb = tvb_new_subset(message_tvb, 0, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
-  dissect_m3ua_common_header(common_header_tvb, pinfo, m3ua_tree);  
+  dissect_m3ua_common_header(common_header_tvb, pinfo, m3ua_tree);
   if (m3ua_tree)
     dissect_m3ua_parameters(parameters_tvb, pinfo, tree, m3ua_tree);
 }
@@ -1553,9 +1553,9 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *m3ua_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA");
-  
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
@@ -1572,288 +1572,288 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Ethereal */
 void
 proto_register_m3ua(void)
-{                 
+{
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_m3ua_version,
       { "Version", "m3ua.version",
-	      FT_UINT8, BASE_DEC, VALS(m3ua_protocol_version_values), 0x0,          
+	      FT_UINT8, BASE_DEC, VALS(m3ua_protocol_version_values), 0x0,
         "", HFILL }
     },
     { &hf_m3ua_reserved,
       { "Reserved", "m3ua.reserved",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_message_class,
       { "Message class", "m3ua.message_class",
-        FT_UINT8, BASE_DEC, VALS(m3ua_message_class_values), 0x0,          
+        FT_UINT8, BASE_DEC, VALS(m3ua_message_class_values), 0x0,
 	      "", HFILL }
     },
     { &hf_m3ua_message_type,
       { "Message Type", "m3ua.message_type",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_m3ua_message_length,
       { "Message length", "m3ua.message_length",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
+        FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_parameter_tag,
       { "Parameter Tag", "m3ua.parameter_tag",
-        FT_UINT16, BASE_DEC, NULL, 0x0,          
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         "", HFILL }
     },
     { &hf_m3ua_parameter_length,
       { "Parameter length", "m3ua.parameter_length",
-        FT_UINT16, BASE_DEC, NULL, 0x0,          
+        FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_parameter_value,
       { "Parameter value", "m3ua.parameter_value",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_parameter_padding,
       { "Padding", "m3ua.parameter_padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_info_string,
       { "Info string", "m3ua.info_string",
-	      FT_STRING, BASE_DEC, NULL, 0x0,          
+	      FT_STRING, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_routing_context,
       { "Routing context", "m3ua.routing_context",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
         "", HFILL }
-    }, 
+    },
     { &hf_m3ua_diagnostic_information,
       { "Diagnostic information", "m3ua.diagnostic_information",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_heartbeat_data,
       { "Heartbeat data", "m3ua.heartbeat_data",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_error_code,
       { "Error code", "m3ua.error_code",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
+        FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_status_type,
       { "Status type", "m3ua.status_type",
-	      FT_UINT16, BASE_DEC, VALS(m3ua_status_type_values), 0x0,          
+	      FT_UINT16, BASE_DEC, VALS(m3ua_status_type_values), 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_status_info,
       { "Status info", "m3ua.status_info",
-	      FT_UINT16, BASE_DEC, NULL, 0x0,          
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_asp_identifier,
       { "ASP identifier", "m3ua.asp_identifier",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_affected_point_code_mask,
       { "Mask", "m3ua.affected_point_code_mask",
-        FT_UINT8, BASE_DEC, NULL, 0x0,          
+        FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_affected_point_code_pc,
       { "Affected point code", "m3ua.affected_point_code_pc",
-	      FT_UINT24, BASE_DEC, NULL, 0x0,          
+	      FT_UINT24, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_network_appearance,
       { "Network appearance", "m3ua.network_appearance",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_unavailability_cause,
       { "Unavailability cause", "m3ua.unavailability_cause",
-	      FT_UINT16, BASE_DEC, VALS(m3ua_unavailability_cause_values), 0x0,          
+	      FT_UINT16, BASE_DEC, VALS(m3ua_unavailability_cause_values), 0x0,
         "", HFILL }
-    }, 
+    },
     { &hf_m3ua_user_identity,
       { "User Identity", "m3ua.user_identity",
-	       FT_UINT16, BASE_DEC, VALS(m3ua_user_identity_values), 0x0,          
+	       FT_UINT16, BASE_DEC, VALS(m3ua_user_identity_values), 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_m3ua_congestion_reserved,
       { "Reserved", "m3ua.congestion_reserved",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_congestion_level,
       { "Congestion level", "m3ua.congestion_level",
-	       FT_UINT8, BASE_DEC, VALS(m3ua_congestion_level_values), 0x0,          
+	       FT_UINT8, BASE_DEC, VALS(m3ua_congestion_level_values), 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_m3ua_concerned_dest_reserved,
       { "Reserved", "m3ua.concerned_reserved",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_concerned_dest_pc,
       { "Concerned DPC", "m3ua.concerned_dpc",
-	       FT_UINT24, BASE_DEC, NULL, 0x0,          
+	       FT_UINT24, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_m3ua_dpc_mask,
       { "Mask", "m3ua.dpc_mask",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_dpc_pc,
       { "Destination point code", "m3ua.dpc_pc",
-	       FT_UINT24, BASE_DEC, NULL, 0x0,          
+	       FT_UINT24, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_m3ua_si,
       { "Service indicator", "m3ua_si",
-        FT_UINT8, BASE_DEC, VALS(m3ua_user_identity_values), 0x0,          
+        FT_UINT8, BASE_DEC, VALS(m3ua_user_identity_values), 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_ssn,
       { "Subsystem number", "m3ua_ssn",
-        FT_UINT8, BASE_DEC, NULL, 0x0,          
+        FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_opc_list_mask,
       { "Mask", "m3ua.opc_list_mask",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_opc_list_pc,
       { "Originating point code", "m3ua.opc_list_pc",
-	       FT_UINT24, BASE_DEC, NULL, 0x0,          
+	       FT_UINT24, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_m3ua_cic_range_mask,
       { "Mask", "m3ua.cic_range_mask",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_cic_range_pc,
       { "Originating point code", "m3ua.cic_range_pc",
-	       FT_UINT24, BASE_DEC, NULL, 0x0,          
+	       FT_UINT24, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_m3ua_cic_range_lower,
       { "Lower CIC value", "m3ua.cic_range_lower",
-	      FT_UINT16, BASE_DEC, NULL, 0x0,          
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_m3ua_cic_range_upper,
       { "Upper CIC value", "m3ua.cic_range_upper",
-	       FT_UINT16, BASE_DEC, NULL, 0x0,          
+	       FT_UINT16, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_m3ua_local_rk_identifier,
       { "Local routing key identifier", "m3ua.local_rk_identifier",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_li,
       { "Length indicator", "m3ua.protocol_data_2_li",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_protocol_data_opc,
       { "OPC", "m3ua.protocol_data_opc",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_protocol_data_dpc,
       { "DPC", "m3ua.protocol_data_dpc",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_protocol_data_si,
       { "SI", "m3ua.protocol_data_si",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_protocol_data_ni,
       { "NI", "m3ua.protocol_data_ni",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_protocol_data_mp,
       { "MP", "m3ua.protocol_data_mp",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_protocol_data_sls,
       { "SLS", "m3ua.protocol_data_sls",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_correlation_identifier,
       { "Correlation Identifier", "m3ua.correlation_identifier",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_m3ua_registration_status,
       { "Registration status", "m3ua.registration_status",
-	      FT_UINT32, BASE_DEC, VALS(m3ua_registration_status_values), 0x0,          
+	      FT_UINT32, BASE_DEC, VALS(m3ua_registration_status_values), 0x0,
 	      "", HFILL }
     },
     { &hf_m3ua_deregistration_status,
       { "Deregistration status", "m3ua.deregistration_status",
-	      FT_UINT32, BASE_DEC, VALS(m3ua_deregistration_status_values), 0x0,          
+	      FT_UINT32, BASE_DEC, VALS(m3ua_deregistration_status_values), 0x0,
 	      "", HFILL }
     },
     { &hf_m3ua_reason,
       { "Reason", "m3ua_reason",
-        FT_UINT32, BASE_DEC, VALS(m3ua_reason_values), 0x0,          
+        FT_UINT32, BASE_DEC, VALS(m3ua_reason_values), 0x0,
         "", HFILL }
-    }, 
+    },
     { &hf_m3ua_traffic_mode_type,
       { "Traffic mode Type", "m3ua.traffic_mode_type",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_registration_result_identifier,
       { "Local RK-identifier value", "m3ua.registration_result_identifier",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_registration_result_status,
       { "Registration status", "m3ua.registration_results_status",
-	      FT_UINT32, BASE_DEC, VALS(m3ua_registration_result_status_values), 0x0,          
+	      FT_UINT32, BASE_DEC, VALS(m3ua_registration_result_status_values), 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_registration_result_context,
       { "Routing context", "m3ua.registration_result_routing_context",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_deregistration_result_status,
       { "De-Registration status", "m3ua.deregistration_results_status",
-	      FT_UINT32, BASE_DEC, VALS(m3ua_deregistration_result_status_values), 0x0,          
+	      FT_UINT32, BASE_DEC, VALS(m3ua_deregistration_result_status_values), 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_m3ua_deregistration_result_context,
       { "Routing context", "m3ua.deregistration_result_routing_context",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
   };
-  
+
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_m3ua,
     &ett_m3ua_parameter,
   };
-  
+
   static enum_val_t m3ua_options[] = {
     { "Internet Draft version 6",        M3UA_V6 },
     { "Internet Draft version 12",       M3UA_V12 },

@@ -1,22 +1,22 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.156 2002/08/22 19:47:15 guy Exp $
+ * $Id: packet-tcp.c,v 1.157 2002/08/28 21:00:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -116,7 +116,7 @@ static dissector_handle_t data_handle;
 
 
 
-/* ************************************************************************** 
+/* **************************************************************************
  * stuff to analyze TCP sequencenumbers for retransmissions, missing segments,
  * RTT and reltive sequence numbers.
  * **************************************************************************/
@@ -277,7 +277,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	}
 
 	/* handle the sequence numbers */
-	/* if this was a SYN packet, then remove existing list and 
+	/* if this was a SYN packet, then remove existing list and
 	 * put SEQ+1 first the list */
 	if(flags&TH_SYN){
 		for(ual=ual1;ual1;ual1=ual){
@@ -311,7 +311,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 
 	/* if we get past here we know that ual1 points to a segment */
 
-	/* To handle FIN, just pretend they have a length of 1. 
+	/* To handle FIN, just pretend they have a length of 1.
 	   else the ACK following the FIN-ACK will look like it was
 	   outside the window. */
 	if( (!seglen) && (flags&TH_FIN) ){
@@ -399,7 +399,7 @@ seq_finished:
 		goto ack_finished;
 	}
 
-	/* if we dont have any real segments in the other direction not 
+	/* if we dont have any real segments in the other direction not
 	 * acked yet (as we see from the magic frame==0 entry)
 	 * then there is no point in continuing
 	 */
@@ -484,7 +484,7 @@ seq_finished:
 
 
 ack_finished:
-	/* we might have deleted the entire ual2 list, if this is an ACK, 
+	/* we might have deleted the entire ual2 list, if this is an ACK,
 	   make sure ual2 at least has a dummy entry for the current ACK */
 	if( (!ual2) && (flags&TH_ACK) ){
 		ual2=g_mem_chunk_alloc(tcp_unacked_chunk);
@@ -542,14 +542,14 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 	item=proto_tree_add_text(parent_tree, tvb, 0, 0, "SEQ/ACK analysis");
 	tree=proto_item_add_subtree(item, ett_tcp_analysis);
 
-	/* encapsulate all proto_tree_add_xxx in ifs so we only print what 
+	/* encapsulate all proto_tree_add_xxx in ifs so we only print what
 	   data we actually have */
 	if(ta->frame_acked){
-		proto_tree_add_uint(tree, hf_tcp_analysis_acks_frame, 
+		proto_tree_add_uint(tree, hf_tcp_analysis_acks_frame,
 			tvb, 0, 0, ta->frame_acked);
 	}
 	if( ta->ts.secs || ta->ts.nsecs ){
-		proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt, 
+		proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt,
 		tvb, 0, 0, &ta->ts);
 	}
 
@@ -630,7 +630,7 @@ tcp_analyze_seq_init(void)
 		g_hash_table_destroy(tcp_rel_seq_table);
 		tcp_rel_seq_table = NULL;
 	}
-		
+
 	/*
 	 * Now destroy the chunk from which the conversation table
 	 * structures were allocated.
@@ -680,7 +680,7 @@ tcp_analyze_seq_init(void)
 }
 
 /* **************************************************************************
- * End of tcp sequence number analysis 
+ * End of tcp sequence number analysis
  * **************************************************************************/
 
 
@@ -692,7 +692,7 @@ tcp_analyze_seq_init(void)
 /*
  *	TCP option
  */
- 
+
 #define TCPOPT_NOP		1	/* Padding */
 #define TCPOPT_EOL		0	/* End of options */
 #define TCPOPT_MSS		2	/* Segment size negotiating */
@@ -890,7 +890,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			(nxtseq < (tsk->start_seq + tsk->tot_len)) );
 
 		if(!ipfd_head){
-			/* fragment_add() returned NULL, This means that 
+			/* fragment_add() returned NULL, This means that
 			   desegmentation is not completed yet.
 			   (its like defragmentation but we know we will
 			    always add the segments in order).
@@ -912,14 +912,14 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		   contain a continuation of a higher-level PDU.
 		   Call the normal subdissector.
 		*/
-		decode_tcp_ports(tvb, offset, pinfo, tree, 
+		decode_tcp_ports(tvb, offset, pinfo, tree,
 				sport, dport);
 		called_dissector = TRUE;
 
 		/* Did the subdissector ask us to desegment some more data
-		   before it could handle the packet? 
+		   before it could handle the packet?
 		   If so we have to create some structures in our table but
-		   this is something we only do the first time we see this 
+		   this is something we only do the first time we see this
 		   packet.
 		*/
 		if(pinfo->desegment_len) {
@@ -1706,7 +1706,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->ptype = PT_TCP;
   pinfo->srcport = th_sport;
   pinfo->destport = th_dport;
-  
+
   th_seq = tvb_get_ntohl(tvb, offset + 4);
   th_ack = tvb_get_ntohl(tvb, offset + 8);
   th_off_x2 = tvb_get_guint8(tvb, offset + 12);
@@ -1740,7 +1740,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Compute the sequence number of next octet after this segment. */
   nxtseq = th_seq + seglen;
 
-  if (check_col(pinfo->cinfo, COL_INFO) || tree) {  
+  if (check_col(pinfo->cinfo, COL_INFO) || tree) {
     for (i = 0; i < 8; i++) {
       bpos = 1 << i;
       if (th_flags & bpos) {
@@ -1826,7 +1826,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        can checksum it and, unless it's being returned in an error
        packet, are willing to allow subdissectors to request reassembly
        on it. */
-  
+
     if (tcp_check_checksum) {
       /* We haven't turned checksum checking off; checksum it. */
 
@@ -2096,15 +2096,15 @@ proto_register_tcp(void)
 			"This is a keep-alive segment", HFILL }},
 
 		{ &hf_tcp_len,
-		  { "TCP Segment Len",            "tcp.len", FT_UINT32, BASE_DEC, NULL, 0x0, 
+		  { "TCP Segment Len",            "tcp.len", FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "", HFILL}},
 
 		{ &hf_tcp_analysis_acks_frame,
-		  { "This is an ACK to the segment in frame",            "tcp.analysis.acks_frame", FT_UINT32, BASE_DEC, NULL, 0x0, 
+		  { "This is an ACK to the segment in frame",            "tcp.analysis.acks_frame", FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Which previous segment is this an ACK for", HFILL}},
 
 		{ &hf_tcp_analysis_ack_rtt,
-		  { "The RTT to ACK the segment was",            "tcp.analysis.ack_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, 
+		  { "The RTT to ACK the segment was",            "tcp.analysis.ack_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "How long time it took to ACK the segment (RTT)", HFILL}},
 
 		{ &hf_tcp_urgent_pointer,

@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.12 2002/04/24 06:03:34 guy Exp $
+ * $Id: packet-vines.h,v 1.13 2002/08/28 21:00:36 jmayer Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -9,17 +9,17 @@
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * Joerg Mayer <jmayer@loplof.de>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -94,10 +94,10 @@ typedef struct _e_vsmb {
   guint16 vsmb_d4;
   guint32 vsmb_d5;
   guint32 vsmb_d6;
-  guint16 vsmb_treeid; 
+  guint16 vsmb_treeid;
   guint16 vsmb_pid;
   guint16 vsmb_uid;
-  guint16 vsmb_mid; 
+  guint16 vsmb_mid;
   guint8  vsmb_wcnt;
   guint16 vsmb_pbytes;
   guint16 vsmb_dbytes;

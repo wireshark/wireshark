@@ -1,22 +1,22 @@
 /* ringbuffer.c
  * Routines for packet capture windows
  *
- * $Id: ringbuffer.c,v 1.4 2002/08/02 23:36:07 jmayer Exp $
+ * $Id: ringbuffer.c,v 1.5 2002/08/28 21:00:41 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -79,15 +79,15 @@ typedef struct _ringbuf_data {
   guint         curr_file_num;  /* Number of the current file */
   gchar*        fprefix;        /* Filename prefix */
   gchar*        fsuffix;        /* Filename suffix */
-} ringbuf_data; 
+} ringbuf_data;
 
 /* Create the ringbuffer data structure */
 static ringbuf_data rb_data;
 
-/* 
+/*
  * Initialize the ringbuffer data structure
  */
-int 
+int
 ringbuf_init(const char *capfile_name, guint num_files)
 {
   int          save_file_fd;
@@ -115,7 +115,7 @@ ringbuf_init(const char *capfile_name, guint num_files)
     /* open failed */
     return -1;
   }
- 
+
   /* allocate memory */
   rb_data.files = (rb_file *)calloc(num_files, sizeof(rb_file));
   if (rb_data.files == NULL) {
@@ -175,17 +175,17 @@ ringbuf_init(const char *capfile_name, guint num_files)
       return -1;
     }
   }
-  
+
   /* done */
   rb_data.curr_file_num = 0;
   return rb_data.files[0].fd;
 }
 
-/* 
+/*
  * Calls wtap_dump_fdopen() for all ringbuffer files
  */
-wtap_dumper* 
-ringbuf_init_wtap_dump_fdopen(int filetype, int linktype, 
+wtap_dumper*
+ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,
   int snaplen, int *err)
 {
   unsigned int  i;
@@ -229,7 +229,7 @@ ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,
   return rb_data.files[0].pdh;
 }
 
-/* 
+/*
  * Switches to the next ringbuffer file
  */
 gboolean
@@ -249,7 +249,7 @@ ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
     }
     return FALSE;
   }
-    
+
   /* get the next file number */
   next_file_num = (rb_data.curr_file_num + 1) % rb_data.num_files;
   /* prepare the file if it was already used */
@@ -285,7 +285,7 @@ ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
   return TRUE;
 }
 
-/* 
+/*
  * Calls wtap_dump_close() for all ringbuffer files
  */
 gboolean
@@ -349,9 +349,9 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
     if (!rb_data.files[i].is_new) {
       /* rename the file */
       snprintf(filenum,5+1,"%05d",rb_data.files[i].number);
-      strftime(timestr,14+1,"%Y%m%d%H%M%S", 
+      strftime(timestr,14+1,"%Y%m%d%H%M%S",
         localtime(&(rb_data.files[i].creation_time)));
-      new_name = g_strconcat(rb_data.fprefix,"_", filenum, "_", timestr, 
+      new_name = g_strconcat(rb_data.fprefix,"_", filenum, "_", timestr,
         rb_data.fsuffix, NULL);
       if (rename(rb_data.files[i].name, new_name) != 0) {
         /* save the latest error */
@@ -374,14 +374,14 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
   return ret_val;
 }
 
-/* 
+/*
  * Frees all memory allocated by the ringbuffer
  */
 void
 ringbuf_free()
-{ 
+{
   unsigned int i;
-  
+
   if (rb_data.files != NULL) {
     for (i=0; i < rb_data.num_files; i++) {
       g_free(rb_data.files[i].name);
@@ -394,14 +394,14 @@ ringbuf_free()
   g_free(rb_data.fsuffix);
 }
 
-/* 
+/*
  * Frees all memory allocated by the ringbuffer
  */
-void 
+void
 ringbuf_error_cleanup(void)
 {
   unsigned int i;
-  
+
   if (rb_data.files == NULL) {
     ringbuf_free();
     return;
@@ -425,7 +425,7 @@ ringbuf_error_cleanup(void)
       unlink(rb_data.files[i].name);
     }
   }
-  /* free the memory */  
+  /* free the memory */
   ringbuf_free();
 }
 

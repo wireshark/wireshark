@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.38 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-portmap.c,v 1.39 2002/08/28 21:00:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,7 +102,7 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree_add_item(tree, hf_portmap_port, tvb,
 			offset+12, 4, FALSE);
 	}
-	
+
 	return offset+16;
 }
 
@@ -127,7 +127,7 @@ dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			}
 		}
 	}
-				
+
 	offset = dissect_rpc_uint32(tvb, tree, hf_portmap_port,
 	    offset);
 	return offset;
@@ -157,7 +157,7 @@ dissect_set_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree_add_item(tree, hf_portmap_port, tvb,
 			offset+12, 4, FALSE);
 	}
-	
+
 	return offset+16;
 }
 
@@ -222,7 +222,7 @@ dissect_dump_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree_add_uint(subtree, hf_portmap_version, tvb,
 			offset+4, 4, version);
 		proto_tree_add_uint_format(subtree, hf_portmap_proto, tvb,
-			offset+8, 4, proto, 
+			offset+8, 4, proto,
 			"Protocol: %s (0x%02x)", ipprotostr(proto), proto);
 		proto_tree_add_uint(subtree, hf_portmap_port, tvb,
 			offset+12, 4, port);
@@ -355,7 +355,7 @@ dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree
 	prog = tvb_get_ntohl(tvb, offset);
 	if (rpcb_tree)
 		proto_tree_add_uint_format(rpcb_tree, hf_portmap_rpcb_prog, tvb,
-			offset, 4, prog, 
+			offset, 4, prog,
 			"Program: %s (%u)", rpc_prog_name(prog), prog);
 	offset += 4;
 

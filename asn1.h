@@ -1,7 +1,7 @@
 /* asn1.h
  * Definitions for ASN.1 BER dissection
  *
- * $Id: asn1.h,v 1.9 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: asn1.h,v 1.10 2002/08/28 21:00:05 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,7 +127,7 @@ int asn1_int32_value_decode (ASN1_SCK *asn1, int enc_len, gint32 *integer);
 int asn1_int32_decode (ASN1_SCK *asn1, gint32 *integer, guint *nbytes);
 int asn1_uint32_value_decode (ASN1_SCK *asn1, int enc_len, guint *integer);
 int asn1_uint32_decode (ASN1_SCK *asn1, guint32 *integer, guint *nbytes);
-int asn1_bits_decode (ASN1_SCK *asn1, int eoc, guchar **bits, 
+int asn1_bits_decode (ASN1_SCK *asn1, int eoc, guchar **bits,
                              guint *len, guchar *unused);
 int asn1_string_value_decode (ASN1_SCK *asn1, int enc_len,
 			guchar **octets);

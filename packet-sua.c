@@ -6,24 +6,24 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sua.c,v 1.9 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-sua.c,v 1.10 2002/08/28 21:00:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -124,7 +124,7 @@ static const value_string sua_parameter_tag_values[] = {
   { DIAGNOSTIC_INFO_PARAMETER_TAG,              "Diagnostic Info" },
   { HEARTBEAT_DATA_PARAMETER_TAG,               "Heartbeat data" },
   { TRAFFIC_MODE_TYPE_PARAMETER_TAG,            "Traffic mode type" },
-  { ERROR_CODE_PARAMETER_TAG,                   "Error code" },  
+  { ERROR_CODE_PARAMETER_TAG,                   "Error code" },
   { STATUS_PARAMETER_TAG,                       "Status" },
   { CONGESTION_LEVEL_PARAMETER_TAG,             "Congestion Level" },
   { ASP_IDENTIFIER_PARAMETER_TAG,               "ASP Identifier" },
@@ -442,7 +442,7 @@ static dissector_table_t sua_light_dissector_table;
 static void
 dissect_sua_tlv_list(tvbuff_t *tlv_tvb, proto_tree *sua_tree, gint initial_offset);
 
-static guint 
+static guint
 nr_of_padding_bytes (guint length)
 {
   guint remainder;
@@ -473,16 +473,16 @@ dissect_sua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto
 
   if (sua_tree) {
     /* add the components of the common header to the protocol tree */
-    proto_tree_add_uint(sua_tree, hf_sua_version, 
+    proto_tree_add_uint(sua_tree, hf_sua_version,
                         common_header_tvb, VERSION_OFFSET, VERSION_LENGTH,
                         version);
     proto_tree_add_bytes(sua_tree, hf_sua_reserved,
 			                   common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH,
                          tvb_get_ptr(common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH));
-    proto_tree_add_uint(sua_tree, hf_sua_message_class, 
+    proto_tree_add_uint(sua_tree, hf_sua_message_class,
                         common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH,
                         message_class);
-    proto_tree_add_uint_format(sua_tree, hf_sua_message_type, 
+    proto_tree_add_uint_format(sua_tree, hf_sua_message_type,
                                common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
                                message_type, "Message Type: %s (%u)",
 			                         val_to_str(message_class * 256 + message_type, sua_message_class_type_values, "reserved"), message_type);
@@ -498,16 +498,16 @@ static void
 dissect_sua_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, data_length, padding_length;
- 
+
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   data_length    = length - PARAMETER_HEADER_LENGTH;
   padding_length = nr_of_padding_bytes(length);
-  
+
   proto_tree_add_text(parameter_tree, parameter_tvb, DATA_PARAMETER_DATA_OFFSET, data_length,
 		                  "Data (%u byte%s)", data_length, plurality(data_length, "", "s"));
 
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_sua_data_padding, 
+    proto_tree_add_bytes(parameter_tree, hf_sua_data_padding,
                          parameter_tvb, PARAMETER_VALUE_OFFSET + data_length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET + data_length, padding_length));
 
@@ -525,16 +525,16 @@ dissect_sua_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = nr_of_padding_bytes(length);
- 
+
   info_string_length = length - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_sua_info_string,
 			                parameter_tvb, INFO_PARAMETER_INFO_STRING_OFFSET, info_string_length, FALSE);
 
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_sua_info_string_padding, 
+    proto_tree_add_bytes(parameter_tree, hf_sua_info_string_padding,
                          parameter_tvb, PARAMETER_VALUE_OFFSET + info_string_length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET + info_string_length, padding_length));
-                         
+
   info_string = (char *)tvb_get_ptr(parameter_tvb, INFO_PARAMETER_INFO_STRING_OFFSET, info_string_length);
   proto_item_set_text(parameter_item, "Info String (%.*s)", (int) info_string_length, info_string);
 }
@@ -557,7 +557,7 @@ dissect_sua_routing_context_parameter(tvbuff_t *parameter_tvb, proto_tree *param
     proto_tree_add_uint(parameter_tree, hf_sua_routing_context, parameter_tvb, context_offset, ROUTING_CONTEXT_LENGTH, context);
     context_offset += ROUTING_CONTEXT_LENGTH;
   };
-  
+
   proto_item_set_text(parameter_item, "Routing context (%u context%s)",
 		                  number_of_contexts, plurality(number_of_contexts, "", "s"));
 }
@@ -566,17 +566,17 @@ static void
 dissect_sua_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, info_length, padding_length;
-  
+
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = nr_of_padding_bytes(length);
   info_length    = length - PARAMETER_HEADER_LENGTH;
 
-  proto_tree_add_bytes(parameter_tree, hf_sua_diagnostic_information_info, 
+  proto_tree_add_bytes(parameter_tree, hf_sua_diagnostic_information_info,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, info_length,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, info_length));
-  
+
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_sua_diagnostic_information_padding, 
+    proto_tree_add_bytes(parameter_tree, hf_sua_diagnostic_information_padding,
                          parameter_tvb, PARAMETER_VALUE_OFFSET + info_length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET + info_length, padding_length));
 
@@ -587,17 +587,17 @@ static void
 dissect_sua_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, data_length, padding_length;
-  
+
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = nr_of_padding_bytes(length);
   data_length    = length - PARAMETER_HEADER_LENGTH;
 
-  proto_tree_add_bytes(parameter_tree, hf_sua_heartbeat_data, 
+  proto_tree_add_bytes(parameter_tree, hf_sua_heartbeat_data,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, data_length,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, data_length));
-  
+
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_sua_heartbeat_padding, 
+    proto_tree_add_bytes(parameter_tree, hf_sua_heartbeat_padding,
                          parameter_tvb, PARAMETER_VALUE_OFFSET + data_length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET + data_length, padding_length));
 
@@ -606,7 +606,7 @@ dissect_sua_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 
 #define TRAFFIC_MODE_TYPE_OFFSET PARAMETER_VALUE_OFFSET
 #define TRAFFIC_MODE_TYPE_LENGTH 4
-        
+
 #define OVER_RIDE_TYPE           1
 #define LOAD_SHARE_TYPE          2
 #define BROADCAST_TYPE           3
@@ -624,10 +624,10 @@ dissect_sua_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
   traffic_mode_type = tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_traffic_mode_type, 
+  proto_tree_add_uint(parameter_tree, hf_sua_traffic_mode_type,
                       parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH,
                       traffic_mode_type);
-  
+
   proto_item_set_text(parameter_item, "Traffic mode type (%s)", val_to_str(traffic_mode_type, sua_traffic_mode_type_values, "unknown"));
 }
 
@@ -684,7 +684,7 @@ dissect_sua_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   guint32 error_code;
 
   error_code = tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET);
-  proto_tree_add_uint(parameter_tree, hf_sua_error_code, 
+  proto_tree_add_uint(parameter_tree, hf_sua_error_code,
                       parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH,
                       error_code);
   proto_item_set_text(parameter_item, "Error code (%s)", val_to_str(error_code, sua_error_code_values, "unknown"));
@@ -730,10 +730,10 @@ dissect_sua_status_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
   status_type = tvb_get_ntohs(parameter_tvb, STATUS_TYPE_OFFSET);
   status_info = tvb_get_ntohs(parameter_tvb, STATUS_INFO_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_status_type, 
+  proto_tree_add_uint(parameter_tree, hf_sua_status_type,
                       parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH,
                       status_type);
-  proto_tree_add_uint_format(parameter_tree, hf_sua_status_info, 
+  proto_tree_add_uint_format(parameter_tree, hf_sua_status_info,
 			                       parameter_tvb, STATUS_INFO_OFFSET, STATUS_INFO_LENGTH,
 			                       status_info, "Status info: %s (%u)",
 			                       val_to_str(status_type * 256 * 256 + status_info, sua_status_type_info_values, "unknown"), status_info);
@@ -752,10 +752,10 @@ dissect_sua_congestion_level_parameter(tvbuff_t *parameter_tvb, proto_tree *para
 
   congestion_level = tvb_get_ntohl(parameter_tvb, CONGESTION_LEVEL_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_congestion_level, 
+  proto_tree_add_uint(parameter_tree, hf_sua_congestion_level,
                       parameter_tvb, CONGESTION_LEVEL_OFFSET, CONGESTION_LEVEL_LENGTH,
                       congestion_level);
-    
+
   proto_item_set_text(parameter_item, "Congestion Level: %u", congestion_level);
 
 }
@@ -770,10 +770,10 @@ dissect_sua_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 
   asp_identifier = tvb_get_ntohl(parameter_tvb, ASP_IDENTIFIER_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_asp_identifier, 
+  proto_tree_add_uint(parameter_tree, hf_sua_asp_identifier,
                       parameter_tvb, ASP_IDENTIFIER_OFFSET, ASP_IDENTIFIER_LENGTH,
                       asp_identifier);
-    
+
   proto_item_set_text(parameter_item, "ASP Identifer: %u", asp_identifier);
 }
 
@@ -804,10 +804,10 @@ dissect_sua_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree 
     destination_item = proto_tree_add_text(parameter_tree, parameter_tvb, destination_offset, AFFECTED_DESTINATION_LENGTH, "Affected destination");
     destination_tree = proto_item_add_subtree(destination_item, ett_sua_affected_destination);
 
-    proto_tree_add_uint(destination_tree, hf_sua_mask, 
+    proto_tree_add_uint(destination_tree, hf_sua_mask,
 			                  parameter_tvb, destination_offset + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH,
 			                  mask);
-    proto_tree_add_uint(destination_tree, hf_sua_dpc, 
+    proto_tree_add_uint(destination_tree, hf_sua_dpc,
 			                  parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET, AFFECTED_DPC_LENGTH,
 			                  dpc);
     destination_offset += AFFECTED_DESTINATION_LENGTH;
@@ -824,17 +824,17 @@ static void
 dissect_sua_ss7_hop_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 hop_counter;
- 
+
   hop_counter = tvb_get_guint8(parameter_tvb,  SS7_HOP_COUNTER_OFFSET);
-    
-  proto_tree_add_bytes(parameter_tree, hf_sua_ss7_hop_counter_reserved, 
+
+  proto_tree_add_bytes(parameter_tree, hf_sua_ss7_hop_counter_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH));
-                       
-  proto_tree_add_uint(parameter_tree, hf_sua_ss7_hop_counter_counter, 
+
+  proto_tree_add_uint(parameter_tree, hf_sua_ss7_hop_counter_counter,
                       parameter_tvb, SS7_HOP_COUNTER_OFFSET, SS7_HOP_COUNTER_LENGTH,
                       hop_counter);
-  
+
   proto_item_set_text(parameter_item, "SS7 Hop Counter (%u)", hop_counter);
 }
 
@@ -870,17 +870,17 @@ dissect_sua_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   guint16 routing_indicator, address_indicator;
   proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
-  
+
   routing_indicator = tvb_get_ntohs(parameter_tvb, ROUTING_INDICATOR_OFFSET);
   address_indicator = tvb_get_ntohs(parameter_tvb, ADDRESS_INDICATOR_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_source_address_routing_indicator, 
+  proto_tree_add_uint(parameter_tree, hf_sua_source_address_routing_indicator,
                       parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH,
                       routing_indicator);
-  
+
   address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
   address_indicator_tree = proto_item_add_subtree(address_indicator_item, ett_sua_source_address_indicator);
-  proto_tree_add_uint(address_indicator_tree, hf_sua_source_address_reserved_bits, 
+  proto_tree_add_uint(address_indicator_tree, hf_sua_source_address_reserved_bits,
                       parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH,
                       address_indicator);
   proto_tree_add_boolean(address_indicator_tree, hf_sua_source_address_gt_bit, parameter_tvb,
@@ -891,7 +891,7 @@ dissect_sua_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 			                   ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, address_indicator);
 
   proto_item_set_text(parameter_item, "Source Address");
-  
+
   /* dissect address parameters */
   dissect_sua_tlv_list(parameter_tvb, parameter_tree, ADDRESS_PARAMETERS_OFFSET);
 }
@@ -902,17 +902,17 @@ dissect_sua_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   guint16 routing_indicator, address_indicator;
   proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
-  
+
   routing_indicator = tvb_get_ntohs(parameter_tvb, ROUTING_INDICATOR_OFFSET);
   address_indicator = tvb_get_ntohs(parameter_tvb, ADDRESS_INDICATOR_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_destination_address_routing_indicator, 
+  proto_tree_add_uint(parameter_tree, hf_sua_destination_address_routing_indicator,
                       parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH,
                       routing_indicator);
-  
+
   address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
   address_indicator_tree = proto_item_add_subtree(address_indicator_item, ett_sua_destination_address_indicator);
-  proto_tree_add_uint(address_indicator_tree, hf_sua_destination_address_reserved_bits, 
+  proto_tree_add_uint(address_indicator_tree, hf_sua_destination_address_reserved_bits,
                       parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH,
                       address_indicator);
   proto_tree_add_boolean(address_indicator_tree, hf_sua_destination_address_gt_bit, parameter_tvb,
@@ -923,7 +923,7 @@ dissect_sua_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 			                   ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, address_indicator);
 
   proto_item_set_text(parameter_item, "Destination Address");
-  
+
   /* dissect address parameters */
   dissect_sua_tlv_list(parameter_tvb, parameter_tree, ADDRESS_PARAMETERS_OFFSET);
 }
@@ -938,10 +938,10 @@ dissect_sua_source_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tre
 
   reference = tvb_get_ntohl(parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_source_reference_number, 
+  proto_tree_add_uint(parameter_tree, hf_sua_source_reference_number,
                       parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET, SOURCE_REFERENCE_NUMBER_LENGTH,
                       reference);
-    
+
   proto_item_set_text(parameter_item, "Source Reference Number: %u", reference);
 }
 
@@ -955,10 +955,10 @@ dissect_sua_destination_reference_number_parameter(tvbuff_t *parameter_tvb, prot
 
   reference = tvb_get_ntohl(parameter_tvb, DESTINATION_REFERENCE_NUMBER_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_destination_reference_number, 
+  proto_tree_add_uint(parameter_tree, hf_sua_destination_reference_number,
                       parameter_tvb, DESTINATION_REFERENCE_NUMBER_OFFSET, DESTINATION_REFERENCE_NUMBER_LENGTH,
                       reference);
-    
+
   proto_item_set_text(parameter_item, "Destination Reference Number: %u", reference);
 }
 
@@ -986,20 +986,20 @@ static void
 dissect_sua_sccp_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 type, value;
- 
+
   type  = tvb_get_guint8(parameter_tvb,  CAUSE_TYPE_OFFSET);
   value = tvb_get_guint8(parameter_tvb,  CAUSE_VALUE_OFFSET);
-    
-  proto_tree_add_bytes(parameter_tree, hf_sua_cause_reserved, 
+
+  proto_tree_add_bytes(parameter_tree, hf_sua_cause_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH));
-  proto_tree_add_uint(parameter_tree, hf_sua_cause_type, 
+  proto_tree_add_uint(parameter_tree, hf_sua_cause_type,
                       parameter_tvb, CAUSE_TYPE_OFFSET, CAUSE_TYPE_LENGTH,
                       type);
-  proto_tree_add_uint(parameter_tree, hf_sua_cause_value, 
+  proto_tree_add_uint(parameter_tree, hf_sua_cause_value,
                       parameter_tvb, CAUSE_VALUE_OFFSET, CAUSE_VALUE_LENGTH,
                       value);
-  
+
   proto_item_set_text(parameter_item, "SCCP Cause (%s)", val_to_str(type, sua_cause_type_values, "unknown"));
 }
 
@@ -1025,34 +1025,34 @@ dissect_sua_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   proto_tree *sent_sequence_number_tree;
   proto_item *receive_sequence_number_item;
   proto_tree *receive_sequence_number_tree;
-  
+
   receive_sequence_number = tvb_get_guint8(parameter_tvb, SEQUENCE_NUMBER_REC_SEQ_OFFSET);
   sent_sequence_number    = tvb_get_guint8(parameter_tvb, SEQUENCE_NUMBER_SENT_SEQ_OFFSET);
 
-  proto_tree_add_bytes(parameter_tree, hf_sua_sequence_number_reserved, 
+  proto_tree_add_bytes(parameter_tree, hf_sua_sequence_number_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH));
-                       
+
   receive_sequence_number_item = proto_tree_add_text(parameter_tree, parameter_tvb,
                                                      SEQUENCE_NUMBER_REC_SEQ_OFFSET,
                                                      SEQUENCE_NUMBER_REC_SEQ_LENGTH, "Receive Sequence Number");
   receive_sequence_number_tree = proto_item_add_subtree(receive_sequence_number_item, ett_sua_sequence_number_rec_number);
-  proto_tree_add_uint(receive_sequence_number_tree, hf_sua_sequence_number_rec_number, 
+  proto_tree_add_uint(receive_sequence_number_tree, hf_sua_sequence_number_rec_number,
                       parameter_tvb, SEQUENCE_NUMBER_REC_SEQ_OFFSET, SEQUENCE_NUMBER_REC_SEQ_LENGTH,
                       receive_sequence_number);
   proto_tree_add_boolean(receive_sequence_number_tree, hf_sua_sequence_number_more_data_bit,
-                         parameter_tvb, SEQUENCE_NUMBER_REC_SEQ_OFFSET, SEQUENCE_NUMBER_REC_SEQ_LENGTH, 
+                         parameter_tvb, SEQUENCE_NUMBER_REC_SEQ_OFFSET, SEQUENCE_NUMBER_REC_SEQ_LENGTH,
                          receive_sequence_number);
-  
+
   sent_sequence_number_item = proto_tree_add_text(parameter_tree, parameter_tvb,
                                                      SEQUENCE_NUMBER_SENT_SEQ_OFFSET,
                                                      SEQUENCE_NUMBER_SENT_SEQ_LENGTH, "Sent Sequence Number");
   sent_sequence_number_tree = proto_item_add_subtree(sent_sequence_number_item, ett_sua_sequence_number_sent_number);
-  proto_tree_add_uint(sent_sequence_number_tree, hf_sua_sequence_number_sent_number, 
+  proto_tree_add_uint(sent_sequence_number_tree, hf_sua_sequence_number_sent_number,
                       parameter_tvb, SEQUENCE_NUMBER_SENT_SEQ_OFFSET, SEQUENCE_NUMBER_SENT_SEQ_LENGTH,
                       sent_sequence_number);
   proto_tree_add_boolean(sent_sequence_number_tree, hf_sua_sequence_number_spare_bit,
-                         parameter_tvb, SEQUENCE_NUMBER_SENT_SEQ_OFFSET, SEQUENCE_NUMBER_SENT_SEQ_LENGTH, 
+                         parameter_tvb, SEQUENCE_NUMBER_SENT_SEQ_OFFSET, SEQUENCE_NUMBER_SENT_SEQ_LENGTH,
                          sent_sequence_number);
 
   proto_item_set_text(parameter_item, "Sequence Number");
@@ -1067,21 +1067,21 @@ dissect_sua_receive_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tre
   guint8  receive_sequence_number;
   proto_item *receive_sequence_number_item;
   proto_tree *receive_sequence_number_tree;
-  
+
   receive_sequence_number = tvb_get_guint8(parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET);
-  
-  proto_tree_add_bytes(parameter_tree, hf_sua_receive_sequence_number_reserved, 
+
+  proto_tree_add_bytes(parameter_tree, hf_sua_receive_sequence_number_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH));
   receive_sequence_number_item = proto_tree_add_text(parameter_tree, parameter_tvb,
                                                      RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET,
                                                      RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH, "Receive Sequence Number");
   receive_sequence_number_tree = proto_item_add_subtree(receive_sequence_number_item, ett_sua_receive_sequence_number_number);
-  proto_tree_add_uint(receive_sequence_number_tree, hf_sua_receive_sequence_number_number, 
+  proto_tree_add_uint(receive_sequence_number_tree, hf_sua_receive_sequence_number_number,
                       parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH,
                       receive_sequence_number);
   proto_tree_add_boolean(receive_sequence_number_tree, hf_sua_receive_sequence_number_spare_bit,
-                         parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH, 
+                         parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH,
                          receive_sequence_number);
 
   proto_item_set_text(parameter_item, "Receive Sequence Number");
@@ -1121,16 +1121,16 @@ dissect_sua_asp_capabilities_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   guint8  protocol_classes, interworking;
   proto_item *protocol_classes_item;
   proto_tree *protocol_classes_tree;
-  
+
   protocol_classes = tvb_get_guint8(parameter_tvb, PROTOCOL_CLASSES_OFFSET);
   interworking     = tvb_get_guint8(parameter_tvb, INTERWORKING_OFFSET);
-  
-  proto_tree_add_bytes(parameter_tree, hf_sua_asp_capabilities_reserved, 
+
+  proto_tree_add_bytes(parameter_tree, hf_sua_asp_capabilities_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH));
   protocol_classes_item = proto_tree_add_text(parameter_tree, parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, "Protocol classes");
   protocol_classes_tree = proto_item_add_subtree(protocol_classes_item, ett_sua_protcol_classes);
-  proto_tree_add_uint(protocol_classes_tree, hf_sua_asp_capabilities_reserved_bits, 
+  proto_tree_add_uint(protocol_classes_tree, hf_sua_asp_capabilities_reserved_bits,
                       parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH,
                       protocol_classes);
   proto_tree_add_boolean(protocol_classes_tree, hf_sua_asp_capabilities_a_bit, parameter_tvb,
@@ -1142,10 +1142,10 @@ dissect_sua_asp_capabilities_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   proto_tree_add_boolean(protocol_classes_tree, hf_sua_asp_capabilities_d_bit, parameter_tvb,
 			                   PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, protocol_classes);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_asp_capabilities_interworking, 
+  proto_tree_add_uint(parameter_tree, hf_sua_asp_capabilities_interworking,
                       parameter_tvb, INTERWORKING_OFFSET, INTERWORKING_LENGTH,
                       interworking);
-  
+
   proto_item_set_text(parameter_item, "ASP Capabilities");
 }
 
@@ -1159,10 +1159,10 @@ dissect_sua_credit_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 
   credit = tvb_get_ntohl(parameter_tvb, CREDIT_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_credit, 
+  proto_tree_add_uint(parameter_tree, hf_sua_credit,
                       parameter_tvb, CREDIT_OFFSET, CREDIT_LENGTH,
                       credit);
-    
+
   proto_item_set_text(parameter_item, "Credit: %u", credit);
 }
 
@@ -1189,13 +1189,13 @@ dissect_sua_user_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   cause = tvb_get_ntohs(parameter_tvb, CAUSE_OFFSET);
   user  = tvb_get_ntohs(parameter_tvb, USER_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_cause, 
+  proto_tree_add_uint(parameter_tree, hf_sua_cause,
                       parameter_tvb, CAUSE_OFFSET, CAUSE_LENGTH,
                       cause);
-  proto_tree_add_uint(parameter_tree, hf_sua_user, 
+  proto_tree_add_uint(parameter_tree, hf_sua_user,
                       parameter_tvb, USER_OFFSET, USER_LENGTH,
                       user);
-   
+
   proto_item_set_text(parameter_item, "User / Cause");
 }
 
@@ -1209,10 +1209,10 @@ dissect_sua_network_appearance_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 
   appearance = tvb_get_ntohl(parameter_tvb, NETWORK_APPEARANCE_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_network_appearance, 
+  proto_tree_add_uint(parameter_tree, hf_sua_network_appearance,
                       parameter_tvb, NETWORK_APPEARANCE_OFFSET, NETWORK_APPEARANCE_LENGTH,
                       appearance);
-    
+
   proto_item_set_text(parameter_item, "Network Appearance: %u", appearance);
 }
 
@@ -1224,15 +1224,15 @@ static void
 dissect_sua_routing_key_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint32 identifier;
-  
+
   identifier = tvb_get_ntohl(parameter_tvb, IDENTIFIER_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_routing_key_identifier, 
+  proto_tree_add_uint(parameter_tree, hf_sua_routing_key_identifier,
                       parameter_tvb, IDENTIFIER_OFFSET, IDENTIFIER_LENGTH,
                       identifier);
-  
+
   proto_item_set_text(parameter_item, "Routing Key");
-  
+
   dissect_sua_tlv_list(parameter_tvb, parameter_tree, KEY_PARAMETERS_OFFSET);
 }
 
@@ -1278,16 +1278,16 @@ dissect_sua_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   registration_status = tvb_get_ntohl(parameter_tvb, REGISTRATION_STATUS_OFFSET);
   routing_context = tvb_get_ntohl(parameter_tvb, REGISTRATION_ROUTING_CONTEXT_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_registration_result_routing_key_identifier, 
+  proto_tree_add_uint(parameter_tree, hf_sua_registration_result_routing_key_identifier,
                       parameter_tvb, LOCAL_ROUTING_KEY_OFFSET, LOCAL_ROUTING_KEY_ID_LENGTH,
                       local_routing_key_identifier);
-  proto_tree_add_uint(parameter_tree, hf_sua_registration_result_status, 
+  proto_tree_add_uint(parameter_tree, hf_sua_registration_result_status,
                       parameter_tvb, REGISTRATION_STATUS_OFFSET, REGISTRATION_STATUS_LENGTH,
                       registration_status);
-  proto_tree_add_uint(parameter_tree, hf_sua_registration_result_routing_context, 
+  proto_tree_add_uint(parameter_tree, hf_sua_registration_result_routing_context,
                       parameter_tvb, REGISTRATION_ROUTING_CONTEXT_OFFSET, REGISTRATION_ROUTING_CONTEXT_LENGTH,
                       routing_context);
-   
+
   proto_item_set_text(parameter_item, "Registration Result: %s", val_to_str(registration_status, sua_registration_status_values, "Unknown"));
 }
 
@@ -1321,13 +1321,13 @@ dissect_sua_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_tree 
   routing_context       = tvb_get_ntohl(parameter_tvb, DEREGISTRATION_ROUTING_CONTEXT_OFFSET);
   deregistration_status = tvb_get_ntohl(parameter_tvb, DEREGISTRATION_STATUS_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_deregistration_result_routing_context, 
+  proto_tree_add_uint(parameter_tree, hf_sua_deregistration_result_routing_context,
                       parameter_tvb, DEREGISTRATION_ROUTING_CONTEXT_OFFSET, DEREGISTRATION_ROUTING_CONTEXT_LENGTH,
                       routing_context);
-  proto_tree_add_uint(parameter_tree, hf_sua_deregistration_result_status, 
+  proto_tree_add_uint(parameter_tree, hf_sua_deregistration_result_status,
                       parameter_tvb, REGISTRATION_STATUS_OFFSET, REGISTRATION_STATUS_LENGTH,
                       deregistration_status);
-   
+
   proto_item_set_text(parameter_item, "Deregistration Result: %s", val_to_str(deregistration_status, sua_deregistration_status_values, "Unknown"));
 }
 
@@ -1337,7 +1337,7 @@ static void
 dissect_sua_address_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item_set_text(parameter_item, "Address Range");
-  
+
   dissect_sua_tlv_list(parameter_tvb, parameter_tree, ADDRESS_RANGE_ADDRESS_PARAMETERS_OFFSET);
 }
 
@@ -1351,10 +1351,10 @@ dissect_sua_correlation_id_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 
   correlation_id = tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_correlation_id, 
+  proto_tree_add_uint(parameter_tree, hf_sua_correlation_id,
                       parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH,
                       correlation_id);
-    
+
   proto_item_set_text(parameter_item, "Correlation ID: %u", correlation_id);
 }
 
@@ -1365,16 +1365,16 @@ static void
 dissect_sua_importance_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 importance;
- 
+
   importance = tvb_get_guint8(parameter_tvb,  IMPORTANCE_OFFSET);
-    
-  proto_tree_add_bytes(parameter_tree, hf_sua_importance_reserved, 
+
+  proto_tree_add_bytes(parameter_tree, hf_sua_importance_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH));
-  proto_tree_add_uint(parameter_tree, hf_sua_importance, 
+  proto_tree_add_uint(parameter_tree, hf_sua_importance,
                       parameter_tvb, IMPORTANCE_OFFSET, IMPORTANCE_LENGTH,
                       importance);
-  
+
   proto_item_set_text(parameter_item, "Importance (%u)", importance);
 }
 
@@ -1385,16 +1385,16 @@ static void
 dissect_sua_message_priority_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 priority;
- 
+
   priority = tvb_get_guint8(parameter_tvb,  MESSAGE_PRIORITY_OFFSET);
-  proto_tree_add_bytes(parameter_tree, hf_sua_message_priority_reserved, 
+  proto_tree_add_bytes(parameter_tree, hf_sua_message_priority_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH));
-  
-  proto_tree_add_uint(parameter_tree, hf_sua_message_priority, 
+
+  proto_tree_add_uint(parameter_tree, hf_sua_message_priority,
                       parameter_tvb, MESSAGE_PRIORITY_OFFSET, MESSAGE_PRIORITY_LENGTH,
                       priority);
-  
+
   proto_item_set_text(parameter_item, "Message Priority (%u)", priority);
 }
 
@@ -1416,23 +1416,23 @@ dissect_sua_protocol_class_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   guint8  protocol_class;
   proto_item *protocol_class_item;
   proto_tree *protocol_class_tree;
-  
+
   protocol_class = tvb_get_guint8(parameter_tvb, PROTOCOL_CLASS_OFFSET);
-  
-  proto_tree_add_bytes(parameter_tree, hf_sua_protocol_class_reserved, 
+
+  proto_tree_add_bytes(parameter_tree, hf_sua_protocol_class_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH));
 
   protocol_class_item = proto_tree_add_text(parameter_tree, parameter_tvb, PROTOCOL_CLASS_OFFSET, PROTOCOL_CLASS_LENGTH,
                                             "Protocol Class");
   protocol_class_tree = proto_item_add_subtree(protocol_class_item, ett_sua_return_on_error_bit_and_protocol_class);
- 
+
   proto_tree_add_boolean(protocol_class_tree, hf_sua_return_on_error_bit, parameter_tvb,
 			                   PROTOCOL_CLASS_OFFSET, PROTOCOL_CLASS_LENGTH, protocol_class);
-  proto_tree_add_uint(protocol_class_tree, hf_sua_protocol_class, 
+  proto_tree_add_uint(protocol_class_tree, hf_sua_protocol_class,
                       parameter_tvb, PROTOCOL_CLASS_OFFSET, PROTOCOL_CLASS_LENGTH,
-                      protocol_class); 
-   
+                      protocol_class);
+
   proto_item_set_text(parameter_item, "Protocol Class");
 }
 
@@ -1446,10 +1446,10 @@ dissect_sua_sequence_control_parameter(tvbuff_t *parameter_tvb, proto_tree *para
 
   sequence_control = tvb_get_ntohl(parameter_tvb, SEQUENCE_CONTROL_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_sequence_control, 
+  proto_tree_add_uint(parameter_tree, hf_sua_sequence_control,
                       parameter_tvb, SEQUENCE_CONTROL_OFFSET, SEQUENCE_CONTROL_LENGTH,
                       sequence_control);
-    
+
   proto_item_set_text(parameter_item, "Sequence Control: %u", sequence_control);
 }
 
@@ -1473,23 +1473,23 @@ dissect_sua_segmentation_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
   guint32 segmentation_reference;
   proto_item *first_remaining_item;
   proto_tree *first_remaining_tree;
-  
+
   first_remaining        = tvb_get_guint8(parameter_tvb, FIRST_REMAINING_OFFSET);
   segmentation_reference = tvb_get_ntoh24(parameter_tvb, SEGMENTATION_REFERENCE_OFFSET);
-  
+
   first_remaining_item = proto_tree_add_text(parameter_tree, parameter_tvb, FIRST_REMAINING_OFFSET, FIRST_REMAINING_LENGTH,
 				                                     "First / Remaining");
   first_remaining_tree = proto_item_add_subtree(first_remaining_item, ett_sua_first_remaining);
   proto_tree_add_boolean(first_remaining_tree, hf_sua_first_bit, parameter_tvb,
 			                   FIRST_REMAINING_OFFSET, FIRST_REMAINING_LENGTH, first_remaining);
-  proto_tree_add_uint(first_remaining_tree, hf_sua_number_of_remaining_segments, 
+  proto_tree_add_uint(first_remaining_tree, hf_sua_number_of_remaining_segments,
                       parameter_tvb, FIRST_REMAINING_OFFSET, FIRST_REMAINING_LENGTH,
                       first_remaining);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_segmentation_reference, 
+  proto_tree_add_uint(parameter_tree, hf_sua_segmentation_reference,
                       parameter_tvb, SEGMENTATION_REFERENCE_OFFSET, SEGMENTATION_REFERENCE_LENGTH,
                       segmentation_reference);
-  
+
   proto_item_set_text(parameter_item, "Segmentation");
 }
 
@@ -1500,16 +1500,16 @@ static void
 dissect_sua_smi_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 smi;
- 
+
   smi = tvb_get_guint8(parameter_tvb,  SMI_OFFSET);
-    
-  proto_tree_add_bytes(parameter_tree, hf_sua_smi_reserved, 
+
+  proto_tree_add_bytes(parameter_tree, hf_sua_smi_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH));
-  proto_tree_add_uint(parameter_tree, hf_sua_smi, 
+  proto_tree_add_uint(parameter_tree, hf_sua_smi,
                       parameter_tvb, SMI_OFFSET, SMI_LENGTH,
                       smi);
-  
+
   proto_item_set_text(parameter_item, "SMI (%u)", smi);
 }
 
@@ -1526,21 +1526,21 @@ dissect_sua_tid_label_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 {
   guint8  start, end;
   guint16 value;
-  
+
   start = tvb_get_guint8(parameter_tvb,  TID_START_OFFSET);
   end   = tvb_get_guint8(parameter_tvb,  TID_END_OFFSET);
   value = tvb_get_ntohs(parameter_tvb,   TID_VALUE_OFFSET);
-   
-  proto_tree_add_uint(parameter_tree, hf_sua_tid_label_start, 
+
+  proto_tree_add_uint(parameter_tree, hf_sua_tid_label_start,
                       parameter_tvb, TID_START_OFFSET, TID_START_LENGTH,
                       start);
-  proto_tree_add_uint(parameter_tree, hf_sua_tid_label_end, 
+  proto_tree_add_uint(parameter_tree, hf_sua_tid_label_end,
                       parameter_tvb, TID_END_OFFSET, TID_END_LENGTH,
                       end);
-  proto_tree_add_uint(parameter_tree, hf_sua_tid_label_value, 
+  proto_tree_add_uint(parameter_tree, hf_sua_tid_label_value,
                       parameter_tvb, TID_VALUE_OFFSET, TID_VALUE_LENGTH,
                       value);
-  
+
   proto_item_set_text(parameter_item, "TID Label");
 }
 
@@ -1557,21 +1557,21 @@ dissect_sua_drn_label_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 {
   guint8  start, end;
   guint16 value;
-  
+
   start = tvb_get_guint8(parameter_tvb,  DRN_START_OFFSET);
   end   = tvb_get_guint8(parameter_tvb,  DRN_END_OFFSET);
   value = tvb_get_ntohs(parameter_tvb,   DRN_VALUE_OFFSET);
-   
-  proto_tree_add_uint(parameter_tree, hf_sua_drn_label_start, 
+
+  proto_tree_add_uint(parameter_tree, hf_sua_drn_label_start,
                       parameter_tvb, DRN_START_OFFSET, DRN_START_LENGTH,
                       start);
-  proto_tree_add_uint(parameter_tree, hf_sua_drn_label_end, 
+  proto_tree_add_uint(parameter_tree, hf_sua_drn_label_end,
                       parameter_tvb, DRN_END_OFFSET, DRN_END_LENGTH,
                       end);
-  proto_tree_add_uint(parameter_tree, hf_sua_drn_label_value, 
+  proto_tree_add_uint(parameter_tree, hf_sua_drn_label_value,
                       parameter_tvb, DRN_VALUE_OFFSET, DRN_VALUE_LENGTH,
                       value);
-  
+
   proto_item_set_text(parameter_item, "DRN Label");
 }
 
@@ -1625,7 +1625,7 @@ dissect_sua_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 {
   guint8  number_of_digits, translation_type, numbering_plan, nature_of_address;
   guint16 length, global_title_length, padding_length;
-  
+
   length              = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   global_title_length = length - (PARAMETER_HEADER_LENGTH + NO_OF_DIGITS_LENGTH
                                                           + TRANSLATION_TYPE_LENGTH
@@ -1638,27 +1638,27 @@ dissect_sua_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
   numbering_plan    = tvb_get_guint8(parameter_tvb, NUMBERING_PLAN_OFFSET);
   nature_of_address = tvb_get_guint8(parameter_tvb, NATURE_OF_ADDRESS_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_number_of_digits, 
+  proto_tree_add_uint(parameter_tree, hf_sua_number_of_digits,
                       parameter_tvb, NO_OF_DIGITS_OFFSET, NO_OF_DIGITS_LENGTH,
                       number_of_digits);
-  proto_tree_add_uint(parameter_tree, hf_sua_translation_type, 
+  proto_tree_add_uint(parameter_tree, hf_sua_translation_type,
                       parameter_tvb, TRANSLATION_TYPE_OFFSET, TRANSLATION_TYPE_LENGTH,
                       translation_type);
-  proto_tree_add_uint(parameter_tree, hf_sua_numbering_plan, 
+  proto_tree_add_uint(parameter_tree, hf_sua_numbering_plan,
                       parameter_tvb, NUMBERING_PLAN_OFFSET, NUMBERING_PLAN_LENGTH,
                       numbering_plan);
-  proto_tree_add_uint(parameter_tree, hf_sua_nature_of_address, 
+  proto_tree_add_uint(parameter_tree, hf_sua_nature_of_address,
                       parameter_tvb, NATURE_OF_ADDRESS_OFFSET, NATURE_OF_ADDRESS_LENGTH,
                       nature_of_address);
-  proto_tree_add_bytes(parameter_tree, hf_sua_global_title, 
+  proto_tree_add_bytes(parameter_tree, hf_sua_global_title,
                        parameter_tvb, GLOBAL_TITLE_OFFSET, global_title_length,
                        tvb_get_ptr(parameter_tvb, GLOBAL_TITLE_OFFSET, global_title_length));
 
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_sua_global_title_padding, 
+    proto_tree_add_bytes(parameter_tree, hf_sua_global_title_padding,
                          parameter_tvb, GLOBAL_TITLE_OFFSET + global_title_length, padding_length,
                          tvb_get_ptr(parameter_tvb, GLOBAL_TITLE_OFFSET + global_title_length, padding_length));
-                         
+
   proto_item_set_text(parameter_item, "Global Title");
 
 }
@@ -1672,10 +1672,10 @@ dissect_sua_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   mask = tvb_get_guint8(parameter_tvb, AFFECTED_MASK_OFFSET);
   dpc  = tvb_get_ntoh24(parameter_tvb, AFFECTED_DPC_OFFSET);
 
-  proto_tree_add_uint(parameter_tree, hf_sua_point_code_mask, 
+  proto_tree_add_uint(parameter_tree, hf_sua_point_code_mask,
                       parameter_tvb, PARAMETER_VALUE_OFFSET + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH,
                       mask);
-  proto_tree_add_uint(parameter_tree, hf_sua_point_code_dpc, 
+  proto_tree_add_uint(parameter_tree, hf_sua_point_code_dpc,
                       parameter_tvb, PARAMETER_VALUE_OFFSET + AFFECTED_DPC_OFFSET, AFFECTED_DPC_LENGTH,
                       dpc);
   proto_item_set_text(parameter_item, "Point Code");
@@ -1689,16 +1689,16 @@ static void
 dissect_sua_ssn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 ssn;
- 
+
   ssn = tvb_get_guint8(parameter_tvb,  SSN_OFFSET);
-    
-  proto_tree_add_bytes(parameter_tree, hf_sua_ssn_reserved, 
+
+  proto_tree_add_bytes(parameter_tree, hf_sua_ssn_reserved,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH));
-  proto_tree_add_uint(parameter_tree, hf_sua_ssn_number, 
+  proto_tree_add_uint(parameter_tree, hf_sua_ssn_number,
                       parameter_tvb, SSN_OFFSET, SSN_LENGTH,
                       ssn);
-  
+
   proto_item_set_text(parameter_item, "Subsystem number (%u)", ssn);
 }
 
@@ -1710,10 +1710,10 @@ dissect_sua_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
 {
   guint32 ipv4_address;
 
-  tvb_memcpy(parameter_tvb, (guint8 *)&ipv4_address, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH); 
+  tvb_memcpy(parameter_tvb, (guint8 *)&ipv4_address, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH);
   proto_tree_add_ipv4(parameter_tree, hf_sua_ipv4,
 		                  parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH,
-		                  ipv4_address);  
+		                  ipv4_address);
   proto_item_set_text(parameter_item, "IPV4 Address");
 }
 
@@ -1727,12 +1727,12 @@ dissect_sua_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
   padding_length = nr_of_padding_bytes(length);
   hostname_length = length - PARAMETER_HEADER_LENGTH;
   hostname = (char *)tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, hostname_length);
-  
+
   proto_tree_add_string(parameter_tree, hf_sua_hostname, parameter_tvb,
 			                  PARAMETER_VALUE_OFFSET, hostname_length,
 			                  hostname);
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_sua_hostname_padding, 
+    proto_tree_add_bytes(parameter_tree, hf_sua_hostname_padding,
                          parameter_tvb, PARAMETER_VALUE_OFFSET + hostname_length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET + hostname_length, padding_length));
 
@@ -1748,7 +1748,7 @@ dissect_sua_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
   proto_tree_add_ipv6(parameter_tree, hf_sua_ipv6,
 		                  parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH,
 		                  tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH));
-  
+
   proto_item_set_text(parameter_item, "IPV6 Address");
 }
 
@@ -1756,19 +1756,19 @@ static void
 dissect_sua_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 tag, length, parameter_value_length, padding_length;
-  
+
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = nr_of_padding_bytes(length);
 
   parameter_value_length = length - PARAMETER_HEADER_LENGTH;
 
-  proto_tree_add_bytes(parameter_tree, hf_sua_parameter_value, 
+  proto_tree_add_bytes(parameter_tree, hf_sua_parameter_value,
                        parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length,
                        tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length));
-  
+
   if (padding_length > 0)
-    proto_tree_add_bytes(parameter_tree, hf_sua_parameter_padding, 
+    proto_tree_add_bytes(parameter_tree, hf_sua_parameter_padding,
                          parameter_tvb, PARAMETER_VALUE_OFFSET + parameter_value_length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET + parameter_value_length, padding_length));
 
@@ -1796,11 +1796,11 @@ dissect_sua_parameter(tvbuff_t *parameter_tvb, proto_tree *sua_tree)
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
 
   /* add tag and length to the sua tree */
-  proto_tree_add_uint(parameter_tree, hf_sua_parameter_tag, 
+  proto_tree_add_uint(parameter_tree, hf_sua_parameter_tag,
 		                  parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH,
 		                  tag);
-  
-  proto_tree_add_uint(parameter_tree, hf_sua_parameter_length, 
+
+  proto_tree_add_uint(parameter_tree, hf_sua_parameter_length,
 		                  parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH,
 		                  length);
 
@@ -1942,16 +1942,16 @@ dissect_sua_tlv_list(tvbuff_t *tlv_tvb, proto_tree *sua_tree, gint initial_offse
 {
   gint offset, length, padding_length, total_length;
   tvbuff_t *parameter_tvb;
-  
+
   offset = initial_offset;
-  
+
   while(tvb_reported_length_remaining(tlv_tvb, offset)) {
     length         = tvb_get_ntohs(tlv_tvb, offset + PARAMETER_LENGTH_OFFSET);
     padding_length = nr_of_padding_bytes(length);
     total_length   = length + padding_length;
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb    = tvb_new_subset(tlv_tvb, offset, total_length, total_length);
-    dissect_sua_parameter(parameter_tvb, sua_tree); 
+    dissect_sua_parameter(parameter_tvb, sua_tree);
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -1964,7 +1964,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_sua_common_header(common_header_tvb, pinfo, sua_tree);
-  
+
   if (sua_tree)
     dissect_sua_tlv_list(message_tvb, sua_tree, COMMON_HEADER_LENGTH);
 }
@@ -2025,17 +2025,17 @@ static const value_string sua_light_message_type_acro_values[] = {
 #define SUAL_ERR_INVMSGTYP	0x0006
 
 static const value_string sua_light_error_code_values[] = {
-  {  SUAL_ERR_INVVERS,		"Invalid Protocol Version"},	
-  {  SUAL_ERR_INVSTRID,		"Invalid Stream Identifier"},	
+  {  SUAL_ERR_INVVERS,		"Invalid Protocol Version"},
+  {  SUAL_ERR_INVSTRID,		"Invalid Stream Identifier"},
   {  SUAL_ERR_INVMSGTYP,      	"Invalid Message Type"},
   {  0,                          NULL}};
 
 static void
-dissect_sua_light_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, 
+dissect_sua_light_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo,
                                 proto_tree *sual_tree, guint16  *subsystem_number)
 {
   guint8  version, spare_1;
-  guint16 message_type, spare_2; 
+  guint16 message_type, spare_2;
   guint32 message_length;
 
   /* Extract the common header */
@@ -2067,7 +2067,7 @@ dissect_sua_light_payload(tvbuff_t *payload_tvb, packet_info *pinfo,
                           guint16 subsystem_number, proto_tree *sual_tree, proto_tree *tree)
 {
   guint		payload_length = tvb_reported_length(payload_tvb);
-	
+
   /* do lookup with the subdissector table */
   if ( ! dissector_try_port (sua_light_dissector_table, subsystem_number, payload_tvb, pinfo, tree))
   {
@@ -2079,8 +2079,8 @@ dissect_sua_light_payload(tvbuff_t *payload_tvb, packet_info *pinfo,
 static void
 dissect_sua_light_error_payload(tvbuff_t *payload_tvb, proto_tree *sual_tree)
 {
-    if (sual_tree) 
-       proto_tree_add_item(sual_tree, hf_sua_light_error_code, payload_tvb, 0, 2, FALSE); 
+    if (sual_tree)
+       proto_tree_add_item(sual_tree, hf_sua_light_error_code, payload_tvb, 0, 2, FALSE);
 }
 
 static void
@@ -2105,7 +2105,7 @@ dissect_sua_light_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
      if (message_type != SUAL_MSG_ERR)
         dissect_sua_light_payload(payload_tvb, pinfo, subsystem_number, sual_tree, tree);
      else
-     	dissect_sua_light_error_payload(payload_tvb, sual_tree);   
+     	dissect_sua_light_error_payload(payload_tvb, sual_tree);
   }
 }
 
@@ -2118,15 +2118,15 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   /* make entry in the Protocol column on summary display */
   switch(sua_version) {
     case IETF_VERSION08:
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+      if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA");
       break;
-    case SIEMENS_VERSION: 
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    case SIEMENS_VERSION:
+      if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA-Light");
       break;
   }
-  
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
@@ -2136,7 +2136,7 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   } else {
     sua_tree = NULL;
   };
-  
+
   /* dissect the message */
   switch(sua_version) {
     case IETF_VERSION08:
@@ -2151,500 +2151,500 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Ethereal */
 void
 proto_register_sua(void)
-{                 
+{
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_sua_version,
       { "Version", "sua.version",
-	      FT_UINT8, BASE_DEC, VALS(sua_protocol_version_values), 0x0,          
+	      FT_UINT8, BASE_DEC, VALS(sua_protocol_version_values), 0x0,
 	      "", HFILL }
     },
     { &hf_sua_reserved,
       { "Reserved", "sua.reserved",
-	       FT_BYTES, BASE_NONE, NULL, 0x0,          
+	       FT_BYTES, BASE_NONE, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_message_class,
       { "Message Class", "sua.message_class",
-	       FT_UINT8, BASE_DEC, VALS(sua_message_class_values), 0x0,          
+	       FT_UINT8, BASE_DEC, VALS(sua_message_class_values), 0x0,
 	       "", HFILL }
     },
     { &hf_sua_message_type,
       { "Message Type", "sua.message_type",
-        FT_UINT8, BASE_DEC, NULL, 0x0,          
+        FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_message_length,
       { "Message Length", "sua.message_length",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_sua_parameter_tag,
       { "Parameter Tag", "sua.parameter_tag",
-    	FT_UINT16, BASE_HEX, VALS(sua_parameter_tag_values), 0x0,          
+    	FT_UINT16, BASE_HEX, VALS(sua_parameter_tag_values), 0x0,
 	    "", HFILL }
     },
     { &hf_sua_parameter_length,
       { "Parameter Length", "sua.parameter_length",
-	      FT_UINT16, BASE_DEC, NULL, 0x0,          
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_sua_parameter_value,
       { "Parameter Value", "sua.parameter_value",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_sua_parameter_padding,
       { "Padding", "sua.parameter_padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_sua_data_padding,
       { "Padding", "sua.data.padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_sua_info_string,
       { "Info string", "sua.info_string.string",
-	      FT_STRING, BASE_NONE, NULL, 0x0,          
+	      FT_STRING, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_sua_info_string_padding,
       { "Padding", "sua.info_string.padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_sua_routing_context,
       { "Routing context", "sua.routing_context.context",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
+        FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_diagnostic_information_info,
       { "Diagnostic Information", "sua.diagnostic_information.info",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_sua_diagnostic_information_padding,
       { "Padding", "sua.diagnostic_information.padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_sua_heartbeat_data,
       { "Heratbeat Data", "sua.heartbeat.data",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_sua_heartbeat_padding,
       { "Padding", "sua.heartbeat.padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_sua_traffic_mode_type,
       { "Traffic mode Type", "sua.traffic_mode_type.type",
-	      FT_UINT32, BASE_DEC, VALS(sua_traffic_mode_type_values), 0x0,          
+	      FT_UINT32, BASE_DEC, VALS(sua_traffic_mode_type_values), 0x0,
 	      "", HFILL }
     },
     { &hf_sua_error_code,
       { "Error code", "sua.error_code.code",
-	      FT_UINT32, BASE_DEC, VALS(sua_error_code_values), 0x0,          
+	      FT_UINT32, BASE_DEC, VALS(sua_error_code_values), 0x0,
 	      "", HFILL }
     },
     { &hf_sua_status_type,
       { "Status type", "sua.status.type",
-	    FT_UINT16, BASE_DEC, VALS(sua_status_type_values), 0x0,          
+	    FT_UINT16, BASE_DEC, VALS(sua_status_type_values), 0x0,
 	    "", HFILL }
-    }, 
+    },
     { &hf_sua_status_info,
       { "Status info", "sua.status.info",
-     	  FT_UINT16, BASE_DEC, NULL, 0x0,          
+     	  FT_UINT16, BASE_DEC, NULL, 0x0,
     	  "", HFILL }
-    }, 
+    },
     { &hf_sua_congestion_level,
       { "Congestion Level", "sua.congestion_level.level",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_asp_identifier,
       { "ASP Identifier", "sua.asp_identifier.id",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_mask,
       { "Mask", "sua.affected_point_code.mask",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_sua_dpc,
       { "Affected DPC", "sua.affected_pointcode.dpc",
-	      FT_UINT24, BASE_DEC, NULL, 0x0,          
+	      FT_UINT24, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_sua_ss7_hop_counter_counter,
       { "SS7 Hop Counter", "sua.ss7_hop_counter.counter",
-	       FT_UINT8, BASE_DEC, NULL, 0x0,          
+	       FT_UINT8, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_ss7_hop_counter_reserved,
       { "Reserved", "sua.ss7_hop_counter.reserved",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },   
+    },
     { &hf_sua_source_address_routing_indicator,
       { "Routing Indicator", "sua.source_address.routing_indicator",
-	      FT_UINT16, BASE_DEC, VALS(sua_routing_indicator_values), 0x0,          
+	      FT_UINT16, BASE_DEC, VALS(sua_routing_indicator_values), 0x0,
 	      "", HFILL }
     },
     { &hf_sua_source_address_reserved_bits,
       { "Reserved Bits", "sua.source_address.reserved_bits",
-	      FT_UINT16, BASE_DEC, NULL, ADDRESS_RESERVED_BITMASK,          
+	      FT_UINT16, BASE_DEC, NULL, ADDRESS_RESERVED_BITMASK,
 	      "", HFILL }
     },
     { &hf_sua_source_address_gt_bit,
       { "Include GT", "sua.source_address.gt_bit",
-	      FT_BOOLEAN, 16, NULL, ADDRESS_GT_BITMASK,          
+	      FT_BOOLEAN, 16, NULL, ADDRESS_GT_BITMASK,
 	      "", HFILL }
     },
     { &hf_sua_source_address_pc_bit,
       { "Include PC", "sua.source_address.pc_bit",
-	      FT_BOOLEAN, 16, NULL, ADDRESS_PC_BITMASK,          
+	      FT_BOOLEAN, 16, NULL, ADDRESS_PC_BITMASK,
 	      "", HFILL }
     },
     { &hf_sua_source_address_ssn_bit,
       { "Include SSN", "sua.source_address.ssn_bit",
-	      FT_BOOLEAN, 16, NULL, ADDRESS_SSN_BITMASK,          
+	      FT_BOOLEAN, 16, NULL, ADDRESS_SSN_BITMASK,
 	      "", HFILL }
     },
     { &hf_sua_destination_address_routing_indicator,
       { "Routing Indicator", "sua.destination_address.routing_indicator",
-	      FT_UINT16, BASE_DEC, VALS(sua_routing_indicator_values), 0x0,          
+	      FT_UINT16, BASE_DEC, VALS(sua_routing_indicator_values), 0x0,
 	      "", HFILL }
     },
     { &hf_sua_destination_address_reserved_bits,
       { "Reserved Bits", "sua.destination_address.reserved_bits",
-	      FT_UINT16, BASE_DEC, NULL, ADDRESS_RESERVED_BITMASK,          
+	      FT_UINT16, BASE_DEC, NULL, ADDRESS_RESERVED_BITMASK,
 	      "", HFILL }
     },
     { &hf_sua_destination_address_gt_bit,
       { "Include GT", "sua.destination_address.gt_bit",
-	      FT_BOOLEAN, 16, NULL, ADDRESS_GT_BITMASK,          
+	      FT_BOOLEAN, 16, NULL, ADDRESS_GT_BITMASK,
 	      "", HFILL }
     },
     { &hf_sua_destination_address_pc_bit,
       { "Include PC", "sua.destination_address.pc_bit",
-	      FT_BOOLEAN, 16, NULL, ADDRESS_PC_BITMASK,          
+	      FT_BOOLEAN, 16, NULL, ADDRESS_PC_BITMASK,
 	      "", HFILL }
     },
     { &hf_sua_destination_address_ssn_bit,
       { "Include SSN", "sua.destination_address.ssn_bit",
-	      FT_BOOLEAN, 16, NULL, ADDRESS_SSN_BITMASK,          
+	      FT_BOOLEAN, 16, NULL, ADDRESS_SSN_BITMASK,
 	      "", HFILL }
     },
     { &hf_sua_source_reference_number,
       { "Source Reference Number", "sua.source_reference_number.number",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_destination_reference_number,
       { "Destination Reference Number", "sua.destination_reference_number",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_cause_reserved,
       { "Reserved", "sua.sccp_cause.reserved",
-	       FT_BYTES, BASE_NONE, NULL, 0x0,          
+	       FT_BYTES, BASE_NONE, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_cause_type,
       { "Cause Type", "sua.sccp_cause.type",
-	       FT_UINT8, BASE_HEX, VALS(sua_cause_type_values), 0x0,          
+	       FT_UINT8, BASE_HEX, VALS(sua_cause_type_values), 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_cause_value,
       { "Cause Value", "sua.sccp_cause.value",
-	       FT_UINT8, BASE_HEX, NULL, 0x0,          
+	       FT_UINT8, BASE_HEX, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_sequence_number_reserved,
       { "Reserved", "sua.sequence_number.reserved",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_sequence_number_rec_number,
       { "Receive Sequence Number P(R)", "sua.sequence_number.receive_sequence_number",
-	      FT_UINT8, BASE_DEC, NULL, SEQ_NUM_MASK,          
+	      FT_UINT8, BASE_DEC, NULL, SEQ_NUM_MASK,
 	      "", HFILL }
     },
     { &hf_sua_sequence_number_more_data_bit,
       { "More Data Bit", "sua.sequence_number.more_data_bit",
-	      FT_BOOLEAN, 8, TFS(&sua_more_data_bit_value), MORE_DATA_BIT_MASK,          
+	      FT_BOOLEAN, 8, TFS(&sua_more_data_bit_value), MORE_DATA_BIT_MASK,
 	      "", HFILL }
     },
     { &hf_sua_sequence_number_sent_number,
       { "Sent Sequence Number P(S)", "sua.sequence_number.sent_sequence_number",
-	      FT_UINT8, BASE_DEC, NULL, SEQ_NUM_MASK,          
+	      FT_UINT8, BASE_DEC, NULL, SEQ_NUM_MASK,
 	      "", HFILL }
     },
     { &hf_sua_sequence_number_spare_bit,
       { "Spare Bit", "sua.sequence_number.spare_bit",
-	      FT_BOOLEAN, 8, NULL, SPARE_BIT_MASK,          
+	      FT_BOOLEAN, 8, NULL, SPARE_BIT_MASK,
 	      "", HFILL }
     },
     { &hf_sua_receive_sequence_number_reserved,
       { "Reserved", "sua.receive_sequence_number.reserved",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_receive_sequence_number_number,
       { "Receive Sequence Number P(R)", "sua.receive_sequence_number.number",
-	      FT_UINT8, BASE_DEC, NULL, SEQ_NUM_MASK,          
+	      FT_UINT8, BASE_DEC, NULL, SEQ_NUM_MASK,
 	      "", HFILL }
     },
     { &hf_sua_receive_sequence_number_spare_bit,
       { "Spare Bit", "sua.receive_sequence_number.spare_bit",
-	      FT_BOOLEAN, 8, NULL, SPARE_BIT_MASK,          
+	      FT_BOOLEAN, 8, NULL, SPARE_BIT_MASK,
 	      "", HFILL }
     },
     { &hf_sua_asp_capabilities_reserved,
       { "Reserved", "sua.asp_capabilities.reserved",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_asp_capabilities_reserved_bits,
       { "Reserved Bits", "sua.asp_capabilities.reserved_bits",
-	      FT_UINT8, BASE_HEX, NULL, RESERVED_BITS_MASK,          
+	      FT_UINT8, BASE_HEX, NULL, RESERVED_BITS_MASK,
 	      "", HFILL }
     },
     { &hf_sua_asp_capabilities_a_bit,
       { "Protocol Class 3", "sua.asp_capabilities.a_bit",
-	      FT_BOOLEAN, 8, TFS(&sua_supported_bit_value), A_BIT_MASK,          
+	      FT_BOOLEAN, 8, TFS(&sua_supported_bit_value), A_BIT_MASK,
 	      "", HFILL }
     },
     { &hf_sua_asp_capabilities_b_bit,
       { "Protocol Class 2", "sua.asp_capabilities.b_bit",
-	      FT_BOOLEAN, 8, TFS(&sua_supported_bit_value), B_BIT_MASK,          
+	      FT_BOOLEAN, 8, TFS(&sua_supported_bit_value), B_BIT_MASK,
 	      "", HFILL }
     },
     { &hf_sua_asp_capabilities_c_bit,
       { "Protocol Class 1", "sua.asp_capabilities.c_bit",
-	      FT_BOOLEAN, 8, TFS(&sua_supported_bit_value), C_BIT_MASK,          
+	      FT_BOOLEAN, 8, TFS(&sua_supported_bit_value), C_BIT_MASK,
 	      "", HFILL }
     },
     { &hf_sua_asp_capabilities_d_bit,
       { "Protocol Class 0", "sua.asp_capabilities.d_bit",
-	      FT_BOOLEAN, 8, TFS(&sua_supported_bit_value), D_BIT_MASK,          
+	      FT_BOOLEAN, 8, TFS(&sua_supported_bit_value), D_BIT_MASK,
 	      "", HFILL }
     },
     { &hf_sua_asp_capabilities_interworking,
       { "Interworking", "sua.asp_capabilities.interworking",
-	      FT_UINT8, BASE_HEX, VALS(sua_interworking_values), 0x0,          
+	      FT_UINT8, BASE_HEX, VALS(sua_interworking_values), 0x0,
 	      "", HFILL }
     },
     { &hf_sua_credit,
       { "Credit", "sua.credit.credit",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_cause,
       { "Cause", "sua.cause_user.cause",
-	      FT_UINT16, BASE_DEC, VALS(sua_cause_values), 0x0,          
+	      FT_UINT16, BASE_DEC, VALS(sua_cause_values), 0x0,
 	      "", HFILL }
     },
     { &hf_sua_user,
       { "User", "sua.cause_user.user",
-	      FT_UINT16, BASE_DEC, NULL, 0x0,          
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_network_appearance,
       { "Network Appearance", "sua.network_appearance.appearance",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_routing_key_identifier,
       { "Local Routing Key Identifier", "sua.routing_key.identifier",
-	      FT_UINT32, BASE_HEX, NULL, 0x0,          
+	      FT_UINT32, BASE_HEX, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_registration_result_routing_key_identifier,
       { "Local Routing Key Identifier", "sua.registration_result.local_routing_key_identifier",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,          
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "", HFILL }
-    }, 
+    },
     { &hf_sua_registration_result_status,
       { "Registration Status", "sua.registration_result.registration_status",
-	    FT_UINT32, BASE_DEC, VALS(sua_registration_status_values), 0x0,          
+	    FT_UINT32, BASE_DEC, VALS(sua_registration_status_values), 0x0,
 	    "", HFILL }
-    }, 
+    },
     { &hf_sua_registration_result_routing_context,
       { "Routing Context", "sua.registration_result.routing_context",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,          
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "", HFILL }
-    }, 
+    },
     { &hf_sua_deregistration_result_status,
       { "Deregistration Status", "sua.deregistration_result.deregistration_status",
-	    FT_UINT32, BASE_DEC, VALS(sua_deregistration_status_values), 0x0,          
+	    FT_UINT32, BASE_DEC, VALS(sua_deregistration_status_values), 0x0,
 	    "", HFILL }
-    }, 
+    },
     { &hf_sua_deregistration_result_routing_context,
       { "Routing Context", "sua.deregistration_result.routing_context",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,          
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "", HFILL }
-    }, 
+    },
     { &hf_sua_correlation_id,
       { "Correlation ID", "sua.correlation_id.identifier",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_importance_reserved,
       { "Reserved", "sua.importance.reserved",
-	       FT_BYTES, BASE_NONE, NULL, 0x0,          
+	       FT_BYTES, BASE_NONE, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_importance,
       { "Importance", "sua.importance.inportance",
-	       FT_UINT8, BASE_DEC, NULL, 0x0,          
+	       FT_UINT8, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_message_priority_reserved,
       { "Reserved", "sua.message_priority.reserved",
-	       FT_BYTES, BASE_NONE, NULL, 0x0,          
+	       FT_BYTES, BASE_NONE, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_message_priority,
       { "Message Priority", "sua.message_priority.priority",
-	       FT_UINT8, BASE_DEC, NULL, 0x0,          
+	       FT_UINT8, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_protocol_class_reserved,
       { "Reserved", "sua.protcol_class.reserved",
-	      FT_BYTES, BASE_HEX, NULL, 0x0,          
+	      FT_BYTES, BASE_HEX, NULL, 0x0,
 	      "", HFILL }
     },
     {&hf_sua_return_on_error_bit,
      { "Return On Error Bit", "sua.protocol_class.return_on_error_bit",
-       FT_BOOLEAN, 8, TFS(&sua_return_on_error_bit_value), RETURN_ON_ERROR_BIT_MASK,          
+       FT_BOOLEAN, 8, TFS(&sua_return_on_error_bit_value), RETURN_ON_ERROR_BIT_MASK,
        "", HFILL }
     },
     {&hf_sua_protocol_class,
      { "Protocol Class", "sua.protocol_class.class",
-       FT_UINT8, BASE_DEC, NULL, PROTOCOL_CLASS_MASK,          
+       FT_UINT8, BASE_DEC, NULL, PROTOCOL_CLASS_MASK,
        "", HFILL }
     },
     { &hf_sua_sequence_control,
       { "Sequence Control", "sua.sequence_control.sequence_control",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
+	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     {&hf_sua_first_bit,
      { "First Segment Bit", "sua.segmentation.first_bit",
-       FT_BOOLEAN, 8, TFS(&sua_first_bit_value), FIRST_BIT_MASK,          
+       FT_BOOLEAN, 8, TFS(&sua_first_bit_value), FIRST_BIT_MASK,
        "", HFILL }
     },
     {&hf_sua_number_of_remaining_segments,
      { "Number of Remaining Segments", "sua.segmentation.number_of_remaining_segments",
-       FT_UINT8, BASE_DEC, NULL, NUMBER_OF_SEGMENTS_MASK,          
+       FT_UINT8, BASE_DEC, NULL, NUMBER_OF_SEGMENTS_MASK,
        "", HFILL }
     },
     { &hf_sua_segmentation_reference,
       { "Segmentation Reference", "sua.segmentation.reference",
-	      FT_UINT24, BASE_DEC, NULL, 0x0,          
+	      FT_UINT24, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_smi_reserved,
       { "Reserved", "sua.smi.reserved",
-	       FT_BYTES, BASE_DEC, NULL, 0x0,          
+	       FT_BYTES, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_smi,
       { "SMI", "sua.smi.smi",
-	       FT_UINT8, BASE_DEC, NULL, 0x0,          
+	       FT_UINT8, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_tid_label_start,
       { "Start", "sua.tid_label.start",
-	       FT_UINT8, BASE_DEC, NULL, 0x0,          
+	       FT_UINT8, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_tid_label_end,
       { "End", "sua.tid_label.end",
-	       FT_UINT8, BASE_DEC, NULL, 0x0,          
+	       FT_UINT8, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_tid_label_value,
       { "Label Value", "sua.tid_label.value",
-	       FT_UINT16, BASE_HEX, NULL, 0x0,          
+	       FT_UINT16, BASE_HEX, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_drn_label_start,
       { "Start", "sua.drn_label.start",
-	       FT_UINT8, BASE_DEC, NULL, 0x0,          
+	       FT_UINT8, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_drn_label_end,
       { "End", "sua.drn_label.end",
-	       FT_UINT8, BASE_DEC, NULL, 0x0,          
+	       FT_UINT8, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_drn_label_value,
       { "Label Value", "sua.drn_label.value",
-	       FT_UINT16, BASE_HEX, NULL, 0x0,          
+	       FT_UINT16, BASE_HEX, NULL, 0x0,
 	       "", HFILL }
-    }, 
+    },
     { &hf_sua_number_of_digits,
       { "Number of Digits", "sua.global_title.number_of_digits",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_translation_type,
       { "Translation Type", "sua.global_title.translation_type",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_numbering_plan,
       { "Numbering Plan", "sua.global_title.numbering_plan",
-	      FT_UINT8, BASE_HEX, VALS(sua_numbering_plan_values), 0x0,          
+	      FT_UINT8, BASE_HEX, VALS(sua_numbering_plan_values), 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_nature_of_address,
       { "Nature of Address", "sua.global_title.nature_of_address",
-	      FT_UINT8, BASE_HEX, VALS(sua_nature_of_address_values), 0x0,          
+	      FT_UINT8, BASE_HEX, VALS(sua_nature_of_address_values), 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_nature_of_address,
       { "Nature Of Address", "sua.global_title.nature_of_address",
-	      FT_UINT8, BASE_HEX, VALS(sua_nature_of_address_values), 0x0,          
+	      FT_UINT8, BASE_HEX, VALS(sua_nature_of_address_values), 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_global_title,
       { "Global Title", "sua.global_title.signals",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_global_title_padding,
       { "Padding", "sua.global_title.padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_point_code_mask,
       { "Mask", "sua.point_code.mask",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_point_code_dpc,
       { "Point Code", "sua.point_code.pc",
-	      FT_UINT24, BASE_DEC, NULL, 0x0,          
+	      FT_UINT24, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_ssn_reserved,
       { "Reserved", "sua.ssn.reserved",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
+	      FT_BYTES, BASE_NONE, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     { &hf_sua_ssn_number,
       { "Subsystem Number", "sua.ssn.number",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
-    },    
+    },
     {&hf_sua_ipv4,
      { "IP Version 4 address", "sua.ipv4.address",
        FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -2652,14 +2652,14 @@ proto_register_sua(void)
     },
     {&hf_sua_hostname,
      { "Hostname", "sua.hostname.name",
-       FT_STRING, BASE_NONE, NULL, 0x0,          
+       FT_STRING, BASE_NONE, NULL, 0x0,
        "", HFILL }
-    }, 
+    },
     {&hf_sua_hostname_padding,
      { "Padding", "sua.hostname.padding",
-       FT_BYTES, BASE_NONE, NULL, 0x0,          
+       FT_BYTES, BASE_NONE, NULL, 0x0,
        "", HFILL }
-    }, 
+    },
     {&hf_sua_ipv6,
      { "IP Version 6 address", "sua.ipv6.address",
        FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -2667,32 +2667,32 @@ proto_register_sua(void)
     },
     { &hf_sua_light_version,
       { "Version", "sua.light.version",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_light_spare_1,
       { "Spare", "sua.light.spare_1",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
 	      "", HFILL }
-    }, 
+    },
     { &hf_sua_light_message_type,
       { "Message Type", "sua.light.message_type",
-	      FT_UINT16, BASE_DEC, VALS(sua_light_message_type_values), 0x0,          
+	      FT_UINT16, BASE_DEC, VALS(sua_light_message_type_values), 0x0,
 	      "", HFILL }
     },
     { &hf_sua_light_subsystem_number,
       { "Subsystem number", "sua.light.subsystem_number",
-	      FT_UINT16, BASE_DEC, NULL, 0x0,          
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_light_spare_2,
       { "Spare", "sua.light.spare_2",
-	      FT_UINT16, BASE_DEC, NULL, 0x0,          
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
 	      "", HFILL }
     },
     { &hf_sua_light_message_length,
       { "Message length", "sua.light.message_length",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
+        FT_UINT32, BASE_DEC, NULL, 0x0,
 	       "", HFILL }
     },
     { &hf_sua_light_error_code,
@@ -2701,7 +2701,7 @@ proto_register_sua(void)
 	      "", HFILL }
     }
   };
-  
+
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_sua,
@@ -2716,21 +2716,21 @@ proto_register_sua(void)
     &ett_sua_first_remaining,
     &ett_sua_return_on_error_bit_and_protocol_class
   };
-  
+
   static enum_val_t sua_options[] = {
     { "Internet draft 8 version",        IETF_VERSION08 },
     { "SUA light (Siemens proprietary)", SIEMENS_VERSION },
     { NULL, 0 }
   };
 
-  
+
   /* Register the protocol name and description */
   proto_sua = proto_register_protocol("SS7 SCCP-User Adaptation Layer", "SUA", "sua");
-  
+
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-    
+
   sua_module = prefs_register_protocol(proto_sua, NULL);
   sua_light_dissector_table = register_dissector_table("sual.subsystem_number",
 				"SUA Light subsystem number", FT_UINT16,

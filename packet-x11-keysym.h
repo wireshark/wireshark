@@ -1,6 +1,6 @@
 /* packet-x11-keysym.h
  *
- * $Id: packet-x11-keysym.h,v 1.5 2001/10/04 08:52:38 guy Exp $
+ * $Id: packet-x11-keysym.h,v 1.6 2002/08/28 21:00:40 jmayer Exp $
  *
  * Put there so as to make packet-x11.c lighter. See packet-x11.c
  */
@@ -46,18 +46,18 @@ static const value_string keysym_vals_source[] = {
       { 0x0c8, "\x0c8" }, { 0x0c9, "\x0c9" }, { 0x0ca, "\x0ca" }, { 0x0cb, "\x0cb" },
       { 0x0cc, "\x0cc" }, { 0x0cd, "\x0cd" }, { 0x0ce, "\x0ce" }, { 0x0cf, "\x0cf" },
 
-      { 0x0d0, "\x0d0" }, { 0x0d1, "\x0d1" }, { 0x0d2, "\x0d2" }, { 0x0d3, "\x0d3" }, 
-      { 0x0d4, "\x0d4" }, { 0x0d5, "\x0d5" }, { 0x0d6, "\x0d6" }, { 0x0d7, "\x0d7" }, 
-      { 0x0d8, "\x0d8" }, { 0x0d9, "\x0d9" }, { 0x0da, "\x0da" }, { 0x0db, "\x0db" }, 
-      { 0x0dc, "\x0dc" }, { 0x0dd, "\x0dd" }, { 0x0de, "\x0de" }, { 0x0df, "\x0df" }, 
-      { 0x0e0, "\x0e0" }, { 0x0e1, "\x0e1" }, { 0x0e2, "\x0e2" }, { 0x0e3, "\x0e3" }, 
-      { 0x0e4, "\x0e4" }, { 0x0e5, "\x0e5" }, { 0x0e6, "\x0e6" }, { 0x0e7, "\x0e7" }, 
-      { 0x0e8, "\x0e8" }, { 0x0e9, "\x0e9" }, { 0x0ea, "\x0ea" }, { 0x0eb, "\x0eb" }, 
-      { 0x0ec, "\x0ec" }, { 0x0ed, "\x0ed" }, { 0x0ee, "\x0ee" }, { 0x0ef, "\x0ef" }, 
-      { 0x0f0, "\x0f0" }, { 0x0f1, "\x0f1" }, { 0x0f2, "\x0f2" }, { 0x0f3, "\x0f3" }, 
-      { 0x0f4, "\x0f4" }, { 0x0f5, "\x0f5" }, { 0x0f6, "\x0f6" }, { 0x0f7, "\x0f7" }, 
-      { 0x0f8, "\x0f8" }, { 0x0f9, "\x0f9" }, { 0x0fa, "\x0fa" }, { 0x0fb, "\x0fb" }, 
-      { 0x0fc, "\x0fc" }, { 0x0fd, "\x0fd" }, { 0x0fe, "\x0fe" }, { 0x0ff, "\x0ff" }, 
+      { 0x0d0, "\x0d0" }, { 0x0d1, "\x0d1" }, { 0x0d2, "\x0d2" }, { 0x0d3, "\x0d3" },
+      { 0x0d4, "\x0d4" }, { 0x0d5, "\x0d5" }, { 0x0d6, "\x0d6" }, { 0x0d7, "\x0d7" },
+      { 0x0d8, "\x0d8" }, { 0x0d9, "\x0d9" }, { 0x0da, "\x0da" }, { 0x0db, "\x0db" },
+      { 0x0dc, "\x0dc" }, { 0x0dd, "\x0dd" }, { 0x0de, "\x0de" }, { 0x0df, "\x0df" },
+      { 0x0e0, "\x0e0" }, { 0x0e1, "\x0e1" }, { 0x0e2, "\x0e2" }, { 0x0e3, "\x0e3" },
+      { 0x0e4, "\x0e4" }, { 0x0e5, "\x0e5" }, { 0x0e6, "\x0e6" }, { 0x0e7, "\x0e7" },
+      { 0x0e8, "\x0e8" }, { 0x0e9, "\x0e9" }, { 0x0ea, "\x0ea" }, { 0x0eb, "\x0eb" },
+      { 0x0ec, "\x0ec" }, { 0x0ed, "\x0ed" }, { 0x0ee, "\x0ee" }, { 0x0ef, "\x0ef" },
+      { 0x0f0, "\x0f0" }, { 0x0f1, "\x0f1" }, { 0x0f2, "\x0f2" }, { 0x0f3, "\x0f3" },
+      { 0x0f4, "\x0f4" }, { 0x0f5, "\x0f5" }, { 0x0f6, "\x0f6" }, { 0x0f7, "\x0f7" },
+      { 0x0f8, "\x0f8" }, { 0x0f9, "\x0f9" }, { 0x0fa, "\x0fa" }, { 0x0fb, "\x0fb" },
+      { 0x0fc, "\x0fc" }, { 0x0fd, "\x0fd" }, { 0x0fe, "\x0fe" }, { 0x0ff, "\x0ff" },
       { 0x13bc, "OE" }, { 0x13bd, "oe" }, { 0x13be, "Ydiaeresis" },
       { 0x1a1, "Aogonek" }, { 0x1a2, "breve" }, { 0x1a3, "Lstroke" }, { 0x1a5, "Lcaron" },
       { 0x1a6, "Sacute" }, { 0x1a9, "Scaron" }, { 0x1aa, "Scedilla" }, { 0x1ab, "Tcaron" },

@@ -1,22 +1,22 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.9 2002/06/07 10:11:41 guy Exp $
+ * $Id: reassemble.h,v 1.10 2002/08/28 21:00:41 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -32,8 +32,8 @@
 /* there are overlapping fragments */
 #define FD_OVERLAP		0x0002
 
-/* overlapping fragments contain different data */ 
-#define FD_OVERLAPCONFLICT	0x0004  
+/* overlapping fragments contain different data */
+#define FD_OVERLAPCONFLICT	0x0004
 
 /* more than one fragment which indicates end-of data */
 #define FD_MULTIPLETAILS	0x0008
@@ -129,15 +129,15 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     GHashTable *reassembled_table, guint32 frag_number,
 	     guint32 frag_data_len, gboolean more_frags);
 
-/* to specify how much to reassemble, for fragmentation where last fragment can not be 
+/* to specify how much to reassemble, for fragmentation where last fragment can not be
  * identified by flags or such.
  * note that for FD_BLOCKSEQUENCE tot_len is the index for the tail fragment.
- * i.e. since the block numbers start at 0, if we specify tot_len==2, that 
+ * i.e. since the block numbers start at 0, if we specify tot_len==2, that
  * actually means we want to defragment 3 blocks, block 0, 1 and 2.
  *
  */
 void
-fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table, 
+fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
 		     guint32 tot_len);
 
 /* to resad whatever totlen previously set */
@@ -148,7 +148,7 @@ fragment_get_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
  * This function will set the partial reassembly flag(FD_PARTIAL_REASSEMBLY) for a fh.
  * When this function is called, the fh MUST already exist, i.e.
  * the fh MUST be created by the initial call to fragment_add() before
- * this function is called. Also note that this function MUST be called to indicate 
+ * this function is called. Also note that this function MUST be called to indicate
  * a fh will be extended (increase the already stored data). After calling this function,
  * and if FD_DEFRAGMENTED is set, the reassembly process will be continued.
  */
@@ -165,8 +165,8 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
  * Except if the PDU is completely reassembled, then it would NOT deallocate the
  * buffer holding the reassembled data but instead return the pointer to that
  * buffer.
- * 
- * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to 
+ *
+ * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to
  * g_free() that buffer.
  */
 unsigned char *
@@ -174,7 +174,7 @@ fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 
 typedef struct _fragment_items {
-	gint	*ett_fragment;	
+	gint	*ett_fragment;
 	gint	*ett_fragments;
 
 	int	*hf_fragments;

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.258 2002/08/24 01:17:08 guy Exp $
+ * $Id: main.c,v 1.259 2002/08/28 21:03:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9,18 +9,18 @@
  * Richard Sharpe, 13-Feb-1999, added support for initializing structures
  *                              needed by dissect routines
  * Jeff Foster,    2001/03/12,  added support tabbed hex display windowss
- * 
- * 
+ *
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -423,7 +423,7 @@ get_text_from_packet_list(gpointer data)
 
 	epan_dissect_free(edt);
     }
-	    
+
     return buf;
 }
 
@@ -534,10 +534,10 @@ filter_activate_cb(GtkWidget *w, gpointer data)
   gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
   char      *s;
-  
+
   g_assert(data);
   s = g_strdup(gtk_entry_get_text(GTK_ENTRY(data)));
-  
+
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
@@ -584,9 +584,9 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
   /* Attempt to convert to numbers */
   double  num1 = atof(text1);
   double  num2 = atof(text2);
-  
+
   gint  col_fmt = cfile.cinfo.col_fmt[clist->sort_column];
-  
+
   if ((col_fmt == COL_NUMBER) || (col_fmt == COL_REL_TIME) || (col_fmt == COL_DELTA_TIME) ||
       ((col_fmt == COL_CLS_TIME) && (timestamp_type == RELATIVE)) ||
       ((col_fmt == COL_CLS_TIME) && (timestamp_type == DELTA))    ||
@@ -604,9 +604,9 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
     else
       return 0;
   }
-  
+
   else {
-    
+
     /* Compare text column */
     if (!text2)
       return (text1 != NULL);
@@ -619,19 +619,19 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 }
 
 /* What to do when a column is clicked */
-static void 
+static void
 packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
 {
   column_arrows *col_arrows = (column_arrows *) data;
   int i;
-  
+
   gtk_clist_freeze(clist);
-  
+
   for (i = 0; i < cfile.cinfo.num_cols; i++) {
     gtk_widget_hide(col_arrows[i].ascend_pm);
     gtk_widget_hide(col_arrows[i].descend_pm);
   }
-  
+
   if (column == clist->sort_column) {
     if (clist->sort_type == GTK_SORT_ASCENDING) {
       clist->sort_type = GTK_SORT_DESCENDING;
@@ -652,7 +652,7 @@ packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
 }
 
 /* mark packets */
-static void 
+static void
 set_frame_mark(gboolean set, frame_data *frame, gint row) {
   GdkColor fg, bg;
 
@@ -674,7 +674,7 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
 
 static void
 packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_) {
-  
+
   GdkEventButton *event_button = (GdkEventButton *)event;
   gint row, column;
 
@@ -693,8 +693,8 @@ void mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
   if (cfile.current_frame) {
     /* XXX hum, should better have a "cfile->current_row" here ... */
     set_frame_mark(!cfile.current_frame->flags.marked,
-		   cfile.current_frame, 
-		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), 
+		   cfile.current_frame,
+		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
 						cfile.current_frame));
   }
 }
@@ -704,7 +704,7 @@ static void mark_all_frames(gboolean set) {
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     set_frame_mark(set,
 		   fdata,
-		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata));    
+		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata));
   }
 }
 
@@ -773,7 +773,7 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_, gpointer 
 	set_menus_for_selected_tree_row(TRUE);
 
 	if (finfo->hfinfo) {
-	  if (finfo->hfinfo->blurb != NULL && 
+	  if (finfo->hfinfo->blurb != NULL &&
 	      finfo->hfinfo->blurb[0] != '\0') {
 	    has_blurb = TRUE;
 	    length = strlen(finfo->hfinfo->blurb);
@@ -791,7 +791,7 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_, gpointer 
           if (length) {
 	    length += strlen(finfo->hfinfo->abbrev) + strlen(len_str) + 10;
 	    help_str = g_malloc(sizeof(gchar) * length);
-	    sprintf(help_str, "%s (%s)%s", 
+	    sprintf(help_str, "%s (%s)%s",
 	       (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
 	       finfo->hfinfo->abbrev, len_str);
 	    statusbar_push_field_msg(help_str);
@@ -829,7 +829,7 @@ tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
 {
 	GtkWidget	*byte_view;
 	const guint8	*data;
-	guint		len;	
+	guint		len;
 
 	/*
 	 * Which byte view is displaying the current protocol tree
@@ -906,7 +906,7 @@ set_plist_sel_browse(gboolean val)
 		gtk_clist_set_selection_mode(GTK_CLIST(packet_list), GTK_SELECTION_BROWSE);
 	}
 }
-	
+
 /* Set the font of the packet list window. */
 void
 set_plist_font(GdkFont *font)
@@ -1066,13 +1066,13 @@ file_quit_cmd_cb (GtkWidget *widget _U_, gpointer data _U_)
 	do_quit();
 }
 
-static void 
+static void
 print_usage(gboolean print_ver) {
 
   if (print_ver) {
     fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled %s\n",
 	  comp_info_str->str);
-  }  
+  }
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "\n%s [ -vh ] [ -klpQS ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
@@ -1093,7 +1093,7 @@ print_usage(gboolean print_ver) {
 #endif
 }
 
-static void 
+static void
 show_version(void)
 {
 #ifdef WIN32
@@ -1199,9 +1199,9 @@ main(int argc, char *argv[])
   extern char          pcap_version[];
 #endif /* HAVE_PCAP_VERSION */
 #endif /* HAVE_LIBPCAP */
-  
+
 #ifdef WIN32
-  WSADATA 	       wsaData; 
+  WSADATA 	       wsaData;
 #endif
 
   char                *gpf_path, *cf_path, *df_path;
@@ -1323,7 +1323,7 @@ main(int argc, char *argv[])
     exit(0);
   }
 
-  /* Set the current locale according to the program environment. 
+  /* Set the current locale according to the program environment.
    * We haven't localized anything, but some GTK widgets are localized
    * (the file selection dialogue, for example).
    * This also sets the C-language locale to the native environment. */
@@ -1331,7 +1331,7 @@ main(int argc, char *argv[])
 
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
-  
+
   /* Read the preference files. */
   prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
 
@@ -1458,7 +1458,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
         if (set_autostop_criterion(optarg) == FALSE) {
           fprintf(stderr, "ethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
-          exit(1);          
+          exit(1);
         }
 #else
         capture_option_specified = TRUE;
@@ -1762,12 +1762,12 @@ main(int argc, char *argv[])
         if_list = get_interface_list(&err, err_str);
         if (if_list == NULL) {
           switch (err) {
-  
+
           case CANT_GET_INTERFACE_LIST:
               fprintf(stderr, "ethereal: Can't get list of interfaces: %s\n",
   			err_str);
               break;
-  
+
           case NO_INTERFACES_FOUND:
               fprintf(stderr, "ethereal: There are no interfaces on which a capture can be done\n");
               break;
@@ -1789,7 +1789,7 @@ main(int argc, char *argv[])
   }
 #endif
 
-  /* Build the column format array */  
+  /* Build the column format array */
   col_init(&cfile.cinfo, prefs->num_cols);
   for (i = 0; i < cfile.cinfo.num_cols; i++) {
     cfile.cinfo.col_fmt[i] = get_column_format(i);
@@ -1813,14 +1813,14 @@ main(int argc, char *argv[])
     else if (capture_opts.snaplen < MIN_PACKET_SIZE)
       capture_opts.snaplen = MIN_PACKET_SIZE;
   }
-  
+
   /* Check the value range of the ringbuffer_num_files parameter */
   if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
     capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
   else if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
     capture_opts.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
 #endif
-  
+
   rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);
 
@@ -2001,10 +2001,10 @@ main(int argc, char *argv[])
 		 documentation correctly, gdk_window_get_deskrelative_origin applies
 		 mainly to Enlightenment and gdk_window_get_root_origin applies for
 		 all other WMs.
-	   
+
 	   The code below tries both routines, and picks the one that returns
 	   the upper-left-most coordinates.
-	   
+
 	   More info at:
 
 	   http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
@@ -2035,7 +2035,7 @@ main(int argc, char *argv[])
 				prefs_write_needed = TRUE;
 			}
 		}
-		
+
 		if (prefs->gui_geometry_save_size) {
 			if (top_level->window != NULL) {
 				/* XXX - Is this the "approved" method? */
@@ -2050,7 +2050,7 @@ main(int argc, char *argv[])
 				prefs_write_needed = TRUE;
 			}
 		}
-		
+
 		if (prefs_write_needed) {
 			write_prefs(&pf_path);
 		}
@@ -2058,7 +2058,7 @@ main(int argc, char *argv[])
 		/* Ignore errors silently */
 		g_free(pf_path);
 	}
-	
+
   epan_cleanup();
   g_free(rc_file);
 
@@ -2190,7 +2190,7 @@ static const struct {
 	{ "bold",       "ultrabold" }
 };
 #define	N_WEIGHTS	(sizeof weight_map / sizeof weight_map[0])
-	
+
 char *
 boldify(const char *font_name)
 {
@@ -2262,11 +2262,11 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   	TRUE,
   	TRUE
   };
-  
-  /* Main window */  
+
+  /* Main window */
   top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_name(top_level, "main window");
-  gtk_signal_connect(GTK_OBJECT(top_level), "delete_event", 
+  gtk_signal_connect(GTK_OBJECT(top_level), "delete_event",
     GTK_SIGNAL_FUNC(main_window_delete_event_cb), NULL);
   gtk_signal_connect (GTK_OBJECT (top_level), "realize",
     GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
@@ -2317,7 +2317,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
 
   col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * cfile.cinfo.num_cols);
-  
+
   set_plist_sel_browse(prefs->gui_plist_sel_browse);
   set_plist_font(m_r_font);
   gtk_widget_set_name(packet_list, "packet list");
@@ -2333,12 +2333,12 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Right-justify the packet number column. */
     if (cfile.cinfo.col_fmt[i] == COL_NUMBER)
-      gtk_clist_set_column_justification(GTK_CLIST(packet_list), i, 
+      gtk_clist_set_column_justification(GTK_CLIST(packet_list), i,
         GTK_JUSTIFY_RIGHT);
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
   gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
-		     GTK_SIGNAL_FUNC(popup_menu_handler), 
+		     GTK_SIGNAL_FUNC(popup_menu_handler),
 		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
   gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
 		     GTK_SIGNAL_FUNC(packet_list_button_pressed_cb), NULL);
@@ -2377,7 +2377,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
-  
+
   filter_cm = gtk_combo_new();
   filter_list = g_list_append (filter_list, "");
   gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
@@ -2453,7 +2453,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     	GTK_SHRINK, GTK_SHRINK, 0, 0);
     gtk_widget_show(column_lb);
     col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
-    gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 
+    gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
     	1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
     if (i == 0) {
       gtk_widget_show(col_arrows[i].ascend_pm);

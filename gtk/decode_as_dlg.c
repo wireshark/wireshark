@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.24 2002/08/02 22:34:53 jmayer Exp $
+ * $Id: decode_as_dlg.c,v 1.25 2002/08/28 21:03:46 jmayer Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -11,12 +11,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -326,7 +326,7 @@ decode_show_reset_cb (GtkWidget *reset_bt _U_, gpointer parent_w)
 {
     dissector_delete_item_t *item;
     GSList *tmp;
-    
+
     dissector_all_tables_foreach_changed(decode_build_reset_list, NULL);
 
     for (tmp = dissector_reset_list; tmp; tmp = g_slist_next(tmp)) {
@@ -405,7 +405,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 		       GTK_SIGNAL_FUNC(decode_show_delete_cb), NULL);
     gtk_signal_connect(GTK_OBJECT(decode_show_w), "destroy",
 		       GTK_SIGNAL_FUNC(decode_show_destroy_cb), NULL);
-  
+
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
     gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -1223,7 +1223,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 		       GTK_SIGNAL_FUNC(decode_delete_cb), NULL);
     gtk_signal_connect(GTK_OBJECT(decode_w), "destroy",
 		       GTK_SIGNAL_FUNC(decode_destroy_cb), NULL);
-  
+
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
     gtk_container_border_width(GTK_CONTAINER(main_vb), 5);

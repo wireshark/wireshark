@@ -2,7 +2,7 @@
  * Routines for BACnet (APDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacapp.c,v 1.12 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-bacapp.c,v 1.13 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -19,7 +19,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -84,7 +84,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		proto_tree_add_uint_format(bacapp_tree, hf_bacapp_type, tvb, 
+		proto_tree_add_uint_format(bacapp_tree, hf_bacapp_type, tvb,
 			offset, 1, bacapp_type, "APDU Type: %u (%s)", bacapp_type,
 				bacapp_type_name(bacapp_type));
 		offset ++;

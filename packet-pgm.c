@@ -1,14 +1,14 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.18 2002/08/03 19:50:44 guy Exp $
- * 
+ * $Id: packet-pgm.c,v 1.19 2002/08/28 21:00:25 jmayer Exp $
+ *
  * Copyright (c) 2000 by Talarian Corp
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1999 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -196,7 +196,7 @@ typedef struct {
 	nchar_t res;
 } pgm_opt_nak_list_t;
 
-/* 
+/*
  * To squeeze the whole option into 255 bytes, we
  * can only have 62 in the list
  */
@@ -474,15 +474,15 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 	tvb_memcpy(tvb, (guint8 *)&opts, offset, sizeof(opts));
 	opts.total_len = g_ntohs(opts.total_len);
 
-	tf = proto_tree_add_text(tree, tvb, offset, 
-		opts.total_len, 
+	tf = proto_tree_add_text(tree, tvb, offset,
+		opts.total_len,
 		"%s Options (Total Length %d)", pktname, opts.total_len);
 	opts_tree = proto_item_add_subtree(tf, ett_pgm_opts);
-	proto_tree_add_uint(opts_tree, hf_pgm_opt_type, tvb, 
+	proto_tree_add_uint(opts_tree, hf_pgm_opt_type, tvb,
 		offset, 1, opts.type);
-	proto_tree_add_uint(opts_tree, hf_pgm_opt_len, tvb, 
+	proto_tree_add_uint(opts_tree, hf_pgm_opt_len, tvb,
 		offset+1, 1, opts.len);
-	proto_tree_add_uint(opts_tree, hf_pgm_opt_tlen, tvb, 
+	proto_tree_add_uint(opts_tree, hf_pgm_opt_tlen, tvb,
 		offset+2, 2, opts.total_len);
 
 	offset += 4;
@@ -506,19 +506,19 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_join);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb,
 				offset+2, 1, genopts.opx);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_res, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_res, tvb,
 				offset+3, 1, optdata.res);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_minjoin, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_minjoin, tvb,
 				offset+4, 4, g_ntohl(optdata.opt_join_min));
 
 			break;
@@ -529,16 +529,16 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_parityprm);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
 
-			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_prm_po, tvb, 
+			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_prm_po, tvb,
 				offset+3, 1, optdata.po, "Parity Parameters: %s (0x%x)",
 				paritystr(optdata.po), optdata.po);
 
@@ -553,16 +553,16 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_paritygrp);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_grp_res, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_grp_res, tvb,
 				offset+3, 1, optdata.res);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_grp_prmgrp,
@@ -579,16 +579,16 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_naklist);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, tvb,
 				offset, 1, genopts.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_res, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_res, tvb,
 				offset+3, 1, optdata.res);
 
 			optdata.len -= sizeof(pgm_opt_nak_list_t);
@@ -597,7 +597,7 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			ptr = nakbuf;
 			j = 0;
 			/*
-			 * Print out 8 per line 
+			 * Print out 8 per line
 			 */
 			for (i=0; i < naks; i++) {
 				sprintf(nakbuf+soffset, "0x%lx ",
@@ -605,13 +605,13 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 				soffset = strlen(nakbuf);
 				if ((++j % 8) == 0) {
 					if (firsttime) {
-						proto_tree_add_bytes_format(opt_tree, 
+						proto_tree_add_bytes_format(opt_tree,
 							hf_pgm_opt_nak_list, tvb, offset+4, optdata.len,
 							nakbuf, "List(%d): %s", naks, nakbuf);
 							soffset = 0;
 					} else {
-						proto_tree_add_bytes_format(opt_tree, 
-							hf_pgm_opt_nak_list, tvb, offset+4, optdata.len, 
+						proto_tree_add_bytes_format(opt_tree,
+							hf_pgm_opt_nak_list, tvb, offset+4, optdata.len,
 							nakbuf, "List: %s", nakbuf);
 							soffset = 0;
 					}
@@ -620,13 +620,13 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			}
 			if (soffset) {
 				if (firsttime) {
-					proto_tree_add_bytes_format(opt_tree, 
+					proto_tree_add_bytes_format(opt_tree,
 						hf_pgm_opt_nak_list, tvb, offset+4, optdata.len,
 						nakbuf, "List(%d): %s", naks, nakbuf);
 						soffset = 0;
 				} else {
-					proto_tree_add_bytes_format(opt_tree, 
-						hf_pgm_opt_nak_list, tvb, offset+4, optdata.len, 
+					proto_tree_add_bytes_format(opt_tree,
+						hf_pgm_opt_nak_list, tvb, offset+4, optdata.len,
 						nakbuf, "List: %s", nakbuf);
 						soffset = 0;
 				}
@@ -639,25 +639,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res, tvb,
 				offset+3, 1, optdata.res);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_tsp, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_tsp, tvb,
 				offset+4, 4, optdata.tsp);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_afi, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_afi, tvb,
 				offset+8, 2, g_ntohs(optdata.acker_afi));
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res2, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res2, tvb,
 				offset+10, 2, g_ntohs(optdata.res2));
 
 			switch (g_ntohs(optdata.acker_afi)) {
@@ -688,25 +688,25 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type,
 				tvb, offset, 1, genopts.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
 				offset+1, 1, genopts.len);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx,
 				tvb, offset+2, 1, genopts.opx);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_res, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_res, tvb,
 				offset+3, 1, optdata.res);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_tsp, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_tsp, tvb,
 				offset+4, 4, optdata.tsp);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_afi, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_afi, tvb,
 				offset+8, 2, g_ntohs(optdata.acker_afi));
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_lossrate, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_lossrate, tvb,
 				offset+10, 2, g_ntohs(optdata.loss_rate));
 
 			switch (g_ntohs(optdata.acker_afi)) {
@@ -763,12 +763,12 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
   /* do lookup with the subdissector table */
-  found = dissector_try_port(subdissector_table, pgmhdr->sport, 
+  found = dissector_try_port(subdissector_table, pgmhdr->sport,
 			next_tvb, pinfo, tree);
   if (found)
 	return;
 
-  found = dissector_try_port(subdissector_table, pgmhdr->dport, 
+  found = dissector_try_port(subdissector_table, pgmhdr->dport,
 			next_tvb, pinfo, tree);
   if (found)
 	return;
@@ -781,7 +781,7 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   call_dissector(data_handle,next_tvb, pinfo, tree);
 
 }
-int 
+int
 total_size(tvbuff_t *tvb, pgm_type *hdr)
 {
 	int bytes = sizeof(pgm_type);
@@ -900,7 +900,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_pgm, 
+		ti = proto_tree_add_protocol_format(tree, proto_pgm,
 			tvb, offset, total_size(tvb, &pgmhdr),
 			"Pragmatic General Multicast: Type %s"
 			    " SrcPort %u, DstPort %u, GSI %s", pktname,
@@ -910,30 +910,30 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pgm_tree = proto_item_add_subtree(ti, ett_pgm);
 		proto_tree_add_uint(pgm_tree, hf_pgm_main_sport, tvb, offset, 2,
 			pgmhdr.sport);
-		proto_tree_add_uint(pgm_tree, hf_pgm_main_dport, tvb, offset+2, 
+		proto_tree_add_uint(pgm_tree, hf_pgm_main_dport, tvb, offset+2,
 			2, pgmhdr.dport);
-		proto_tree_add_uint(pgm_tree, hf_pgm_main_type, tvb, 
+		proto_tree_add_uint(pgm_tree, hf_pgm_main_type, tvb,
 			offset+4, 1, pgmhdr.type);
 
-		tf = proto_tree_add_uint_format(pgm_tree, hf_pgm_main_opts, tvb, 
-			offset+5, 1, pgmhdr.opts, "Options: %s (0x%x)", 
+		tf = proto_tree_add_uint_format(pgm_tree, hf_pgm_main_opts, tvb,
+			offset+5, 1, pgmhdr.opts, "Options: %s (0x%x)",
 			optsstr(pgmhdr.opts), pgmhdr.opts);
 		opt_tree = proto_item_add_subtree(tf, ett_pgm_optbits);
 
-		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_opt, tvb, 
+		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_opt, tvb,
 			offset+5, 1, (pgmhdr.opts & PGM_OPT));
-		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_netsig, tvb, 
+		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_netsig, tvb,
 			offset+5, 1, (pgmhdr.opts & PGM_OPT_NETSIG));
-		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_varlen, tvb, 
+		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_varlen, tvb,
 			offset+5, 1, (pgmhdr.opts & PGM_OPT_VAR_PKTLEN));
-		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_parity, tvb, 
+		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_parity, tvb,
 			offset+5, 1, (pgmhdr.opts & PGM_OPT_PARITY));
 
-		proto_tree_add_uint(pgm_tree, hf_pgm_main_cksum, tvb, offset+6, 
+		proto_tree_add_uint(pgm_tree, hf_pgm_main_cksum, tvb, offset+6,
 			2, pgmhdr.cksum);
-		proto_tree_add_bytes(pgm_tree, hf_pgm_main_gsi, tvb, offset+8, 
+		proto_tree_add_bytes(pgm_tree, hf_pgm_main_gsi, tvb, offset+8,
 			6, pgmhdr.gsi);
-		proto_tree_add_uint(pgm_tree, hf_pgm_main_tsdulen, tvb, 
+		proto_tree_add_uint(pgm_tree, hf_pgm_main_tsdulen, tvb,
 			offset+14, 2, pgmhdr.tsdulen);
 
 		offset = sizeof(pgm_type);
@@ -943,15 +943,15 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case PGM_SPM_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_spm);
 
-			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb,
 				offset, 4, spm.sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_trail, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_spm_trail, tvb,
 				offset+4, 4, spm.trail);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_lead, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_spm_lead, tvb,
 				offset+8, 4, spm.lead);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_pathafi, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_spm_pathafi, tvb,
 				offset+10, 2, spm.path_afi);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_res, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_spm_res, tvb,
 				offset+12, 2, spm.res);
 			switch (spm.path_afi) {
 
@@ -985,9 +985,9 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case PGM_ODATA_PCKT: {
 			type_tree = proto_item_add_subtree(tf, ett_pgm_data);
 
-			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb,
 				offset, 4, data.sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_spm_trail, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_spm_trail, tvb,
 				offset+4, 4, data.trail);
 
 			if ((pgmhdr.opts & PGM_OPT) == FALSE)
@@ -1005,11 +1005,11 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case PGM_NCF_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_nak);
 
-			proto_tree_add_uint(type_tree, hf_pgm_nak_sqn, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_nak_sqn, tvb,
 				offset, 4, nak.sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_nak_srcafi, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_nak_srcafi, tvb,
 				offset+4, 2, nak.src_afi);
-			proto_tree_add_uint(type_tree, hf_pgm_nak_srcres, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_nak_srcres, tvb,
 				offset+6, 2, nak.src_res);
 
 			switch (nak.src_afi) {
@@ -1032,9 +1032,9 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 			}
 
-			proto_tree_add_uint(type_tree, hf_pgm_nak_grpafi, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_nak_grpafi, tvb,
 				offset+12, 2, nak.grp_afi);
-			proto_tree_add_uint(type_tree, hf_pgm_nak_grpres, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_nak_grpres, tvb,
 				offset+14, 2, nak.grp_res);
 
 			switch (nak.grp_afi) {
@@ -1067,9 +1067,9 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case PGM_ACK_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_ack);
 
-			proto_tree_add_uint(type_tree, hf_pgm_ack_sqn, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_ack_sqn, tvb,
 				offset, 4, ack.rx_max_sqn);
-			proto_tree_add_uint(type_tree, hf_pgm_ack_bitmap, tvb, 
+			proto_tree_add_uint(type_tree, hf_pgm_ack_bitmap, tvb,
 				offset+4, 4, ack.bitmap);
 
 			if ((pgmhdr.opts & PGM_OPT) == FALSE)
@@ -1091,13 +1091,13 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	pktname = NULL;
 }
-static const true_false_string opts_present = {      
+static const true_false_string opts_present = {
 	"Present",
-	"Not Present" 
+	"Not Present"
 };
 
 /* Register all the bits needed with the filtering engine */
-void 
+void
 proto_register_pgm(void)
 {
   static hf_register_info hf[] = {
@@ -1117,11 +1117,11 @@ proto_register_pgm(void)
       { "Options", "pgm.hdr.opts.opt", FT_BOOLEAN, BASE_NONE,
 	  TFS(&opts_present), PGM_OPT, "", HFILL }},
     { &hf_pgm_main_opts_netsig,
-      { "Network Significant Options", "pgm.hdr.opts.netsig", 
+      { "Network Significant Options", "pgm.hdr.opts.netsig",
 	  FT_BOOLEAN, BASE_NONE,
 	  TFS(&opts_present), PGM_OPT_NETSIG, "", HFILL }},
     { &hf_pgm_main_opts_varlen,
-      { "Variable length Parity Packet Option", "pgm.hdr.opts.varlen", 
+      { "Variable length Parity Packet Option", "pgm.hdr.opts.varlen",
 	  FT_BOOLEAN, BASE_NONE,
 	  TFS(&opts_present), PGM_OPT_VAR_PKTLEN, "", HFILL }},
     { &hf_pgm_main_opts_parity,
@@ -1131,19 +1131,19 @@ proto_register_pgm(void)
       { "Checksum", "pgm.hdr.cksum", FT_UINT16, BASE_HEX,
         NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_gsi,
-      { "Global Source Identifier", "pgm.hdr.gsi", FT_BYTES, BASE_HEX, 
+      { "Global Source Identifier", "pgm.hdr.gsi", FT_BYTES, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_tsdulen,
-      { "Transport Service Data Unit Length", "pgm.hdr.tsdulen", FT_UINT16, 
+      { "Transport Service Data Unit Length", "pgm.hdr.tsdulen", FT_UINT16,
 	  BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pgm_spm_sqn,
       { "Sequence number", "pgm.spm.sqn", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_spm_trail,
-      { "Trailing Edge Sequence Number", "pgm.spm.trail", FT_UINT32, BASE_HEX, 
+      { "Trailing Edge Sequence Number", "pgm.spm.trail", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_spm_lead,
-      { "Leading Edge Sequence Number", "pgm.spm.lead", FT_UINT32, BASE_HEX, 
+      { "Leading Edge Sequence Number", "pgm.spm.lead", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_spm_pathafi,
       { "Path NLA AFI", "pgm.spm.pathafi", FT_UINT16, BASE_DEC,
@@ -1155,13 +1155,13 @@ proto_register_pgm(void)
       { "Path NLA", "pgm.spm.path", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_data_sqn,
-      { "Data Packet Sequence Number", "pgm.data.sqn", FT_UINT32, BASE_HEX, 
+      { "Data Packet Sequence Number", "pgm.data.sqn", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_data_trail,
-      { "Trailing Edge Sequence Number", "pgm.data.trail", FT_UINT32, BASE_HEX, 
+      { "Trailing Edge Sequence Number", "pgm.data.trail", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_nak_sqn,
-      { "Requested Sequence Number", "pgm.nak.sqn", FT_UINT32, BASE_HEX, 
+      { "Requested Sequence Number", "pgm.nak.sqn", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_nak_srcafi,
       { "Source NLA AFI", "pgm.nak.srcafi", FT_UINT16, BASE_DEC,
@@ -1182,10 +1182,10 @@ proto_register_pgm(void)
       { "Multicast Group NLA", "pgm.nak.grp", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_ack_sqn,
-      { "Maximum Received Sequence Number", "pgm.ack.maxsqn", FT_UINT32, 
+      { "Maximum Received Sequence Number", "pgm.ack.maxsqn", FT_UINT32,
 	  BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pgm_ack_bitmap,
-      { "Packet Bitmap", "pgm.ack.bitmap", FT_UINT32, BASE_HEX, 
+      { "Packet Bitmap", "pgm.ack.bitmap", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_type,
       { "Type", "pgm.opts.type", FT_UINT8, BASE_HEX,
@@ -1291,23 +1291,23 @@ proto_register_pgm(void)
 
   /*
    * Register configuration preferences for UDP encapsulation
-   * (Note: Initially the ports are set to zero so the 
+   * (Note: Initially the ports are set to zero so the
    *        dissecting of PGM encapsulated in UPD packets
    *        is off by default)
    */
    pgm_module = prefs_register_protocol(proto_pgm, proto_rereg_pgm);
 
    prefs_register_uint_preference(pgm_module, "udp.encap_ucast_port",
-		"PGM Encap Unicast Port (standard is 3055)", 
+		"PGM Encap Unicast Port (standard is 3055)",
 		"PGM Encap is PGM packets encapsulated in UDP packets"
-		" (Note: This option is off, i.e. port is 0, by default)", 
+		" (Note: This option is off, i.e. port is 0, by default)",
 		10, &udp_encap_ucast_port);
    old_encap_ucast_port = udp_encap_ucast_port;
 
    prefs_register_uint_preference(pgm_module, "udp.encap_mcast_port",
-		"PGM Encap Multicast Port (standard is 3056)", 
+		"PGM Encap Multicast Port (standard is 3056)",
 		"PGM Encap is PGM packets encapsulated in UDP packets"
-		" (Note: This option is off, i.e. port is 0, by default)", 
+		" (Note: This option is off, i.e. port is 0, by default)",
 		10, &udp_encap_mcast_port);
 
    old_encap_mcast_port = udp_encap_mcast_port;
@@ -1328,7 +1328,7 @@ proto_reg_handoff_pgm(void)
   dissector_add("udp.port", udp_encap_mcast_port, pgm_handle);
 
   dissector_add("ip.proto", IP_PROTO_PGM, pgm_handle);
-  
+
   data_handle = find_dissector("data");
 }
 

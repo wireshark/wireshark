@@ -3,22 +3,22 @@
  * as described in rfc2478.
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-snego.c,v 1.1 2002/08/21 20:54:16 tpot Exp $
+ * $Id: packet-snego.c,v 1.2 2002/08/28 21:00:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -65,20 +65,20 @@ proto_register_snego(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_snego,
-		  { "SNEGO", "Snego", FT_NONE, BASE_NONE, NULL, 0x0, 
+		  { "SNEGO", "Snego", FT_NONE, BASE_NONE, NULL, 0x0,
 		    "SNEGO", HFILL }},
 	};
-  
+
 	static gint *ett[] = {
 		&ett_snego,
 	};
-	
+
 	proto_snego = proto_register_protocol(
 		"Snego", "Snego", "snego");
 
 	proto_register_field_array(proto_snego, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-  
+
 	register_dissector("snego", dissect_snego, proto_snego);
 }
 

@@ -1,21 +1,21 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.11 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-osi.h,v 1.12 2002/08/28 21:00:24 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,10 +42,10 @@
 
 
 
-#define PROTO_STRING_ISIS "ISO 10589 ISIS InTRA Domain Routeing Information Exchange Protocol" 
-#define PROTO_STRING_IDRP "ISO 10747 IDRP InTER Domain Routeing Information Exchange Protocol" 
+#define PROTO_STRING_ISIS "ISO 10589 ISIS InTRA Domain Routeing Information Exchange Protocol"
+#define PROTO_STRING_IDRP "ISO 10747 IDRP InTER Domain Routeing Information Exchange Protocol"
 #define PROTO_STRING_ESIS "ISO 9542 ESIS Routeing Information Exchange Protocol"
-#define PROTO_STRING_CLNP "ISO 8473 CLNP ConnectionLess Network Protocol" 
+#define PROTO_STRING_CLNP "ISO 8473 CLNP ConnectionLess Network Protocol"
 #define PROTO_STRING_COTP "ISO 8073 COTP Connection-Oriented Transport Protocol"
 #define PROTO_STRING_CLTP "ISO 8602 CLTP ConnectionLess Transport Protocol"
 #define PROTO_STRING_LSP  "ISO 10589 ISIS Link State Protocol Data Unit"
@@ -54,7 +54,7 @@
 
 #define OSI_PDU_TYPE_MASK 0x1f
 #define BIS_PDU_TYPE MASK 0xff
-                             
+
 
 #define BIT_1   0x01
 #define BIT_2   0x02

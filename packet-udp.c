@@ -1,30 +1,30 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.104 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-udp.c,v 1.105 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * Richard Sharpe, 13-Feb-1999, added dispatch table support and 
+ * Richard Sharpe, 13-Feb-1999, added dispatch table support and
  *                              support for tftp.
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -45,7 +45,7 @@
 #include "packet-ip.h"
 #include <epan/conversation.h>
 
-static int proto_udp = -1;		
+static int proto_udp = -1;
 static int hf_udp_srcport = -1;
 static int hf_udp_dstport = -1;
 static int hf_udp_port = -1;
@@ -154,11 +154,11 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   uh_dport = g_ntohs(uh.uh_dport);
   uh_ulen  = g_ntohs(uh.uh_ulen);
   uh_sum   = g_ntohs(uh.uh_sum);
-  
+
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "Source port: %s  Destination port: %s",
 	    get_udp_port(uh_sport), get_udp_port(uh_dport));
-    
+
   if (tree) {
     if (udp_summary_in_tree) {
       ti = proto_tree_add_protocol_format(tree, proto_udp, tvb, offset, 8,
@@ -288,11 +288,11 @@ proto_register_udp(void)
 	udp_dissector_table = register_dissector_table("udp.port",
 	    "UDP port", FT_UINT16, BASE_DEC);
 	register_heur_dissector_list("udp", &heur_subdissector_list);
-	
+
 	/* Register configuration preferences */
 	udp_module = prefs_register_protocol(proto_udp, NULL);
 	prefs_register_bool_preference(udp_module, "udp_summary_in_tree",
-	"Show UDP summary in protocol tree", 
+	"Show UDP summary in protocol tree",
 	"Whether the UDP summary line should be shown in the protocol tree",
 	&udp_summary_in_tree);
 }

@@ -2,24 +2,24 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.31 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-telnet.c,v 1.32 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -176,7 +176,7 @@ telnet_will_wont_do_dont(proto_tree *telnet_tree, tvbuff_t *tvb,
   else
     opt = options[opt_byte];
   offset++;
-		      
+
   proto_tree_add_text(telnet_tree, tvb, start_offset, 3,
 			"Command: %s %s", type, opt);
   return offset;
@@ -187,7 +187,7 @@ telnet_command(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
 {
   int offset = start_offset;
   guchar optcode;
-  
+
   offset += 1;	/* skip IAC */
   optcode = tvb_get_guint8(tvb, offset);
   offset++;
@@ -386,7 +386,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      data_len = iac_offset - offset;
 	      if (data_len > 0)
 	      	telnet_add_text(telnet_tree, tvb, offset, data_len);
-	      
+
 	      /*
 	       * Now interpret the command.
 	       */

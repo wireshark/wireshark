@@ -4,24 +4,24 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.15 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-quakeworld.c,v 1.16 2002/08/28 21:00:28 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-quake.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -198,7 +198,7 @@ Cmd_TokenizeString(char* text)
 	int i;
 	int start;
 	int length;
-	
+
 
 	/* clear the args from the last string */
 	for (i=0 ; i<cmd_argc ; i++)
@@ -225,7 +225,7 @@ Cmd_TokenizeString(char* text)
 
 		if (!*text)
 			return;
-			
+
 		text = COM_Parse (text);
 		if (!text)
 			return;
@@ -241,9 +241,9 @@ Cmd_TokenizeString(char* text)
 	}
 }
 
-			
+
 static void
-dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree, 
+dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 	int offset, char* infostring,
 	gint ett_key_value, int hf_key_value, int hf_key, int hf_value)
 {
@@ -265,7 +265,7 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 
 		for (keylength = 0
 			;
-			*(keypos + keylength) != '\\' && 
+			*(keypos + keylength) != '\\' &&
 			*(keypos + keylength) != 0
 			;
 			keylength++) ;
@@ -274,7 +274,7 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 		valuepos = keyvaluesep+1;
 		for (valuelength = 0
 			;
-			*(valuepos + valuelength) != '\\' && 
+			*(valuepos + valuelength) != '\\' &&
 			*(valuepos + valuelength) != 0
 			;
 			valuelength++) ;
@@ -284,7 +284,7 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 		}
 		*(keyvaluesep) = '=';
 		*(valueend) = 0;
-		
+
 		if (tree) {
 			proto_item* sub_item = NULL;
 			proto_tree* sub_tree = NULL;
@@ -294,7 +294,7 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 				tvb,
 				offset + (keypos-infostring),
 				keylength + 1 + valuelength, keypos);
-			if (sub_item) 
+			if (sub_item)
 				sub_tree =
 					proto_item_add_subtree(
 					sub_item,
@@ -333,11 +333,11 @@ static unsigned int gbl_quakeworldServerPort=PORT_MASTER;
 
 
 /* out of band message id bytes (taken out of quakeworldsource/client/protocol.h */
- 
+
 /* M = master, S = server, C = client, A = any */
 /* the second character will allways be \n if the message isn't a single */
 /* byte long (?? not true anymore?) */
- 
+
 #define S2C_CHALLENGE		'c'
 #define S2C_CONNECTION		'j'
 #define A2A_PING		'k'	/* respond with an A2A_ACK */
@@ -345,7 +345,7 @@ static unsigned int gbl_quakeworldServerPort=PORT_MASTER;
 #define A2A_NACK		'm'	/* [+ comment] general failure */
 #define A2A_ECHO		'e'	/* for echoing */
 #define A2C_PRINT		'n'	/* print a message on client */
- 
+
 #define S2M_HEARTBEAT		'a'	/* + serverinfo + userlist + fraglist */
 #define A2C_CLIENT_COMMAND	'B'	/* + command line */
 #define S2M_SHUTDOWN		'C'
@@ -404,7 +404,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 
 		Cmd_TokenizeString(text);
 		c = Cmd_Argv(0);
-		
+
 		/* client to sever commands */
 		if (strcmp(c,"ping") == 0) {
 			strcpy(command, "Ping");
@@ -431,11 +431,11 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					tvb, offset, command_len, command);
 				argument_item = proto_tree_add_string(text_tree,
 					hf_quakeworld_connectionless_arguments,
-					tvb, offset + Cmd_Argv_start(1), len + 1 - Cmd_Argv_start(1), 
+					tvb, offset + Cmd_Argv_start(1), len + 1 - Cmd_Argv_start(1),
 					text + Cmd_Argv_start(1));
 				if (argument_item) {
 					argument_tree =
-						proto_item_add_subtree(argument_item,	
+						proto_item_add_subtree(argument_item,
 							ett_quakeworld_connectionless_arguments);
 				}
 				command_finished=TRUE;
@@ -491,11 +491,11 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					tvb, offset, command_len, command);
 				argument_item = proto_tree_add_string(text_tree,
 					hf_quakeworld_connectionless_arguments,
-					tvb, offset + Cmd_Argv_start(1), len + 1 - Cmd_Argv_start(1), 
+					tvb, offset + Cmd_Argv_start(1), len + 1 - Cmd_Argv_start(1),
 					text + Cmd_Argv_start(1));
 				if (argument_item) {
 					argument_tree =
-						proto_item_add_subtree(argument_item,	
+						proto_item_add_subtree(argument_item,
 							ett_quakeworld_connectionless_arguments);
 				}
 				command_finished=TRUE;
@@ -557,11 +557,11 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			command_len = len;
 		}
 	}
-		
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", command);
 	}
-		
+
 	if (text_tree && !command_finished) {
 		proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
 			tvb, offset, command_len, command);
@@ -667,7 +667,7 @@ dissect_quakeworld_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 		/* client to server */
 		guint16 qport = tvb_get_letohs(tvb, offset);
 		if (game_tree) {
-			proto_tree_add_uint(game_tree, hf_quakeworld_game_qport, 
+			proto_tree_add_uint(game_tree, hf_quakeworld_game_qport,
 				tvb, offset, 2, qport);
 		}
 		offset +=2;
@@ -774,7 +774,7 @@ proto_reg_handoff_quakeworld(void)
 	static int Initialized=FALSE;
 	static dissector_handle_t quakeworld_handle;
 	static int ServerPort=0;
- 
+
 	if (!Initialized) {
 		quakeworld_handle = create_dissector_handle(dissect_quakeworld,
 				proto_quakeworld);
@@ -782,10 +782,10 @@ proto_reg_handoff_quakeworld(void)
 	} else {
 		dissector_delete("udp.port", ServerPort, quakeworld_handle);
 	}
- 
+
         /* set port for future deletes */
         ServerPort=gbl_quakeworldServerPort;
- 
+
 	dissector_add("udp.port", gbl_quakeworldServerPort, quakeworld_handle);
 	data_handle = find_dissector("data");
 }

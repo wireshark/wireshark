@@ -2,7 +2,7 @@
  * Routines for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.c,v 1.4 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-rmi.c,v 1.5 2002/08/28 21:00:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -94,14 +94,14 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rmitype    = 0;
 
 /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMI");
 
     datalen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
     data = tvb_get_ptr(tvb, offset, datalen);
-    
+
     rmitype = get_rmi_type(data, datalen);
-    
+
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	switch(rmitype) {
 	case RMI_OUTPUTSTREAM:
@@ -110,7 +110,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 "JRMI, Version: %d, ", version);
 
 	    proto   = tvb_get_guint8(tvb, 6);
-	    col_append_str(pinfo->cinfo, COL_INFO, 
+	    col_append_str(pinfo->cinfo, COL_INFO,
 			   val_to_str(proto, rmi_protocol_str,
 				      "Unknown protocol"));
 	    break;
@@ -183,7 +183,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				      epid_hostname);
 
 		port = tvb_get_ntohs(tvb, offset + len + 5);
-  		proto_tree_add_uint(rmi_tree, hf_rmi_epid_port, 
+  		proto_tree_add_uint(rmi_tree, hf_rmi_epid_port,
   				    tvb, offset + len + 5, 2, port);
 	    }
 	    if(message == RMI_INPUTSTREAM_MESSAGE_RETURNDATA) {
@@ -230,7 +230,7 @@ dissect_ser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint offset;
 
     offset = 0;
-    
+
     if(tree) {
 	ti = proto_tree_add_item(tree, proto_ser, tvb, 0, -1, FALSE);
 	ser_tree = proto_item_add_subtree(ti, ett_ser);
@@ -246,7 +246,7 @@ static rmi_type
 get_rmi_type(const guchar *data, int datalen)
 {
     guint16 ser_magic;
-    
+
     if (datalen >= 2) {
 	ser_magic = data[0] << 8 | data[1];
 	if (ser_magic == SER_STREAM_MAGIC) {
@@ -279,7 +279,7 @@ get_rmi_type(const guchar *data, int datalen)
 void
 proto_register_rmi(void)
 {
-    
+
     static hf_register_info hf[] = {
 	{ &hf_rmi_magic,
 	  { "Magic",   "rmi.magic",
@@ -287,11 +287,11 @@ proto_register_rmi(void)
 	    "RMI Header Magic", HFILL }},
 	{ &hf_rmi_version,
 	  { "Version", "rmi.version",
-	    FT_UINT16, BASE_DEC, NULL, 0x0,          
+	    FT_UINT16, BASE_DEC, NULL, 0x0,
 	    "RMI Protocol Version", HFILL }},
 	{ &hf_rmi_protocol,
 	  { "Protocol","rmi.protocol",
-	    FT_STRING, BASE_HEX, NULL, 0x0,          
+	    FT_STRING, BASE_HEX, NULL, 0x0,
 	    "RMI Protocol Type", HFILL }},
 	{ &hf_rmi_inputmessage,
 	  { "Input Stream Message", "rmi.inputstream.message",
@@ -303,7 +303,7 @@ proto_register_rmi(void)
 	    "RMI Outputstream Message token", HFILL }},
 	{ &hf_rmi_epid_length,
 	  { "Length", "rmi.endpoint_id.length",
-	    FT_UINT16, BASE_DEC, NULL, 0x0,          
+	    FT_UINT16, BASE_DEC, NULL, 0x0,
 	    "RMI Endpointidentifier Length", HFILL }},
 	{ &hf_rmi_epid_hostname,
 	  { "Hostname", "rmi.endpoint_id.hostname",
@@ -320,10 +320,10 @@ proto_register_rmi(void)
 	    "Java Serialization Magic", HFILL }},
 	{ &hf_ser_version,
 	  { "Version", "rmi.ser.version",
-	    FT_UINT16, BASE_DEC, NULL, 0x0,          
+	    FT_UINT16, BASE_DEC, NULL, 0x0,
 	    "Java Serialization Version", HFILL }},
     };
-    
+
     static gint *ett[] = {
 	&ett_rmi,
 	&ett_rmi_magic,
@@ -335,7 +335,7 @@ proto_register_rmi(void)
 	&ett_rmi_epid_port,
 	&ett_ser,
     };
-    
+
     proto_rmi = proto_register_protocol("Java RMI", "RMI", "rmi");
     proto_ser = proto_register_protocol("Java Serialization", "Serialization",
 					"serialization");

@@ -4,22 +4,22 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.58 2002/08/20 18:20:11 guy Exp $
+ * $Id: packet-isakmp.c,v 1.59 2002/08/28 21:00:18 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -357,21 +357,21 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
   hdr.length = tvb_get_ntohl(tvb, offset + sizeof(hdr) - sizeof(hdr.length));
-  
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, hdr.length, FALSE);
     isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
   }
-    
+
   tvb_memcpy(tvb, (guint8 *)&encap_hdr, 0, sizeof(encap_hdr));
-  
+
   if (encap_hdr.non_esp_marker[0] == 0xFF) {
-    if (check_col(pinfo->cinfo, COL_INFO)) 
+    if (check_col(pinfo->cinfo, COL_INFO))
       col_add_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - NAT Keepalive");
     return;
   }
   if (memcmp(encap_hdr.non_esp_marker,non_esp_marker,4) == 0) {
-    if (check_col(pinfo->cinfo, COL_INFO)) 
+    if (check_col(pinfo->cinfo, COL_INFO))
           col_add_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - ESP");
     if (tree)
       proto_tree_add_text(isakmp_tree, tvb, offset,
@@ -385,18 +385,18 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hdr.exch_type = tvb_get_guint8(tvb, sizeof(hdr.icookie) + sizeof(hdr.rcookie) + sizeof(hdr.next_payload) + sizeof(hdr.version));
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO, exchtype2str(hdr.exch_type));
-  
+
   if (tree) {
     tvb_memcpy(tvb, (guint8 *)&hdr.icookie, offset, sizeof(hdr.icookie));
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.icookie),
 			"Initiator cookie: 0x%s", tvb_bytes_to_str(tvb, offset, sizeof(hdr.icookie)));
     offset += sizeof(hdr.icookie);
-   
-    tvb_memcpy(tvb, (guint8 *)&hdr.rcookie, offset, sizeof(hdr.rcookie)); 
+
+    tvb_memcpy(tvb, (guint8 *)&hdr.rcookie, offset, sizeof(hdr.rcookie));
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.rcookie),
 			"Responder cookie: 0x%s", tvb_bytes_to_str(tvb, offset, sizeof(hdr.rcookie)));
     offset += sizeof(hdr.rcookie);
-    
+
     hdr.next_payload = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.next_payload),
 			"Next payload: %s (%u)",
@@ -408,21 +408,21 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"Version: %u.%u",
 			hi_nibble(hdr.version), lo_nibble(hdr.version));
     offset += sizeof(hdr.version);
-   
-    hdr.exch_type = tvb_get_guint8(tvb, offset); 
+
+    hdr.exch_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.exch_type),
 			"Exchange type: %s (%u)",
 			exchtype2str(hdr.exch_type), hdr.exch_type);
     offset += sizeof(hdr.exch_type);
-    
+
     {
       proto_item *	fti;
       proto_tree *	ftree;
-     
-      hdr.flags = tvb_get_guint8(tvb, offset); 
+
+      hdr.flags = tvb_get_guint8(tvb, offset);
       fti   = proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.flags), "Flags");
       ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
-      
+
       proto_tree_add_text(ftree, tvb, offset, 1, "%s",
 			  decode_boolean_bitfield(hdr.flags, E_FLAG, sizeof(hdr.flags)*8,
 						  "Encryption", "No encryption"));
@@ -438,11 +438,11 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.message_id),
         "Message ID: 0x%s", tvb_bytes_to_str(tvb, offset, sizeof(hdr.message_id)));
     offset += sizeof(hdr.message_id);
-    
+
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.length),
 			"Length: %u", hdr.length);
     offset += sizeof(hdr.length);
-    
+
     len = hdr.length - sizeof(hdr);
 
     if (hdr.flags & E_FLAG) {
@@ -506,7 +506,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 		      doitype2str(doi), doi);
   offset += 4;
   length -= 4;
-  
+
   if (doi == 1) {
     /* IPSEC */
     if (length < 4) {
@@ -521,7 +521,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 			situation2str(situation), situation);
     offset += 4;
     length -= 4;
-  
+
     dissect_payloads(tvb, tree, LOAD_TYPE_PROPOSAL, offset, length);
   } else {
     /* Unknown */
@@ -544,20 +544,20 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   guint8		proposal_num;
 
   proposal_num = tvb_get_guint8(tvb, offset);
-  
+
   proto_item_append_text(tree, " # %d",proposal_num);
   proto_tree_add_text(tree, tvb, offset, 1,
 		      "Proposal number: %u", proposal_num);
   offset += 1;
   length -= 1;
-  
+
   protocol_id = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 1,
 		      "Protocol ID: %s (%u)",
 		      proto2str(protocol_id), protocol_id);
   offset += 1;
   length -= 1;
-  
+
   spi_size = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 1,
 		      "SPI size: %u", spi_size);
@@ -603,7 +603,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 {
   guint8		transform_id;
   guint8		transform_num;
-  
+
   transform_num = tvb_get_guint8(tvb, offset);
   proto_item_append_text(tree," # %d",transform_num);
   proto_tree_add_text(tree, tvb, offset, 1,
@@ -640,7 +640,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   }
   offset += 3;
   length -= 3;
-  
+
   while (length>0) {
     const char *str;
     int ike_phase1 = 0;
@@ -726,7 +726,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     proto_tree_add_text(tree, tvb, offset, 2, "Port: %u", port);
   offset += 2;
   length -= 2;
-  
+
   switch (id_type) {
     case 1:
       proto_tree_add_text(tree, tvb, offset, length,
@@ -826,13 +826,13 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 		      proto2str(protocol_id), protocol_id);
   offset += 1;
   length -= 1;
-  
+
   spi_size = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 1,
 		      "SPI size: %u", spi_size);
   offset += 1;
   length -= 1;
-  
+
   msgtype = tvb_get_ntohs(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 2,
 		      "Message type: %s (%u)", msgtype2str(msgtype), msgtype);
@@ -858,7 +858,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   guint8		spi_size;
   guint16		num_spis;
   guint16		i;
-  
+
   doi = tvb_get_ntohl(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 4,
 		      "Domain of Interpretation: %s (%u)",
@@ -872,7 +872,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 		      proto2str(protocol_id), protocol_id);
   offset += 1;
   length -= 1;
-  
+
   spi_size = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 1,
 		      "SPI size: %u", spi_size);
@@ -884,7 +884,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 		      "Number of SPIs: %u", num_spis);
   offset += 2;
   length -= 2;
-  
+
   for (i = 0; i < num_spis; ++i) {
     if (length < spi_size) {
       proto_tree_add_text(tree, tvb, offset, length,
@@ -947,7 +947,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 		default: proto_item_append_text(pt, " Uknown CP version!");
 			break;
 	}
-  } 
+  }
   else
   if (memcmp(pVID, VID_CYBERGUARD, isakmp_min(VID_LEN, length)) == 0)
         proto_item_append_text(pt, "Cyber Guard");
@@ -970,15 +970,15 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   type = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 1,
 		      "Type %s (%u)",attrtype2str(type),type);
-  
+
   offset += 2;
   length -= 2;
-  
+
   proto_tree_add_text(tree, tvb, offset, 2,
                       "Identifier: %u", tvb_get_ntohs(tvb, offset));
   offset += 2;
   length -= 2;
-  
+
   while(length>0) {
     guint16 aft     = tvb_get_ntohs(tvb, offset);
     guint16 type    = aft & 0x7fff;
@@ -1034,7 +1034,7 @@ exchtype2str(guint8 type) {
     "Informational",
     "Transaction (Config Mode)"
   };
-  
+
   if (type < NUM_EXCHSTRS) return exchstrs[type];
   if (type < 32)           return "ISAKMP Future Use";
   switch (type) {
@@ -1045,7 +1045,7 @@ exchtype2str(guint8 type) {
   }
   if (type < 240)          return "DOI Specific Use";
   if (type < 256)          return "Private Use";
-  
+
   return "Huh? You should never see this! Shame on you!";
 }
 
@@ -1120,7 +1120,7 @@ situation2str(guint32 type) {
   int		n = 0;
   char *	sep = "";
   int		ret;
-  
+
   if (type & SIT_IDENTITY) {
     ret = snprintf(msg, SIT_MSG_NUM-n, "%sIDENTITY", sep);
     if (ret == -1) {
@@ -1162,9 +1162,9 @@ situation2str(guint32 type) {
 
 static const char *
 value2str(int ike_p1, guint16 att_type, guint16 value) {
-  
+
   if (value == 0) return "RESERVED";
-  
+
   if (!ike_p1) {
   switch (att_type) {
     case 1:
@@ -1261,7 +1261,7 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
 	  default: return "UNKNOWN-AUTH-METHOD";
         }
       case 4: return grpdesc2str(value);
-      case 6: 
+      case 6:
       case 7:
       case 8:
       case 9:
@@ -1294,7 +1294,7 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
   }
 }
 
-static const char * 
+static const char *
 attrtype2str(guint8 type) {
   switch (type) {
   case 0: return "Reserved";
@@ -1308,7 +1308,7 @@ attrtype2str(guint8 type) {
   return "Private use";
 }
 
-static const char * 
+static const char *
 cfgattrident2str(guint16 ident) {
 #define NUM_ATTR_DEFINED	12
   static const char *msgs[NUM_PREDEFINED] = {
@@ -1325,7 +1325,7 @@ cfgattrident2str(guint16 ident) {
     "INTERNAL_IP6_DNS",
     "INTERNAL_IP6_NBNS",
     "INTERNAL_IP6_DHCP",
-  }; 
+  };
   if(ident < NUM_ATTR_DEFINED)
     return msgs[ident];
   if(ident < 16383)

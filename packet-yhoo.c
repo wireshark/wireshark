@@ -2,24 +2,24 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.24 2002/08/02 23:36:05 jmayer Exp $
+ * $Id: packet-yhoo.c,v 1.25 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -126,8 +126,8 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset = 0;
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, 
-			"%s: %s", 
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+			"%s: %s",
 			( strncmp(tvb_get_ptr(tvb, offset + 0, 4), "YPNS", 4) == 0 ) ? "Request" : "Response",
 			val_to_str(tvb_get_letohl(tvb, offset + 12),
 				 yhoo_service_vals, "Unknown Service: %u")
@@ -139,39 +139,39 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			FALSE);
 		yhoo_tree = proto_item_add_subtree(ti, ett_yhoo);
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_version, tvb, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_version, tvb,
 			offset, 8, TRUE);
 		offset += 8;
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_len, tvb, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_len, tvb,
 			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_service, tvb, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_service, tvb,
 			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_connection_id, tvb, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_connection_id, tvb,
 			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_magic_id, tvb, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_magic_id, tvb,
 			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_unknown1, tvb, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_unknown1, tvb,
 			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_msgtype, tvb, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_msgtype, tvb,
 			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_nick1, tvb, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_nick1, tvb,
 			offset, 36, TRUE);
 		offset += 36;
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_nick2, tvb, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_nick2, tvb,
 			offset, 36, TRUE);
 		offset += 36;
 
@@ -186,34 +186,34 @@ void
 proto_register_yhoo(void)
 {
 	static hf_register_info hf[] = {
-			{ &hf_yhoo_service, {	
+			{ &hf_yhoo_service, {
 				"Service Type", "yhoo.service", FT_UINT32, BASE_DEC,
 				VALS(yhoo_service_vals), 0, "Service Type", HFILL }},
-			{ &hf_yhoo_msgtype, {	
+			{ &hf_yhoo_msgtype, {
 				"Message Type", "yhoo.msgtype", FT_UINT32, BASE_DEC,
 				VALS(yhoo_msgtype_vals), 0, "Message Type Flags", HFILL }},
-			{ &hf_yhoo_connection_id, {	
+			{ &hf_yhoo_connection_id, {
 				"Connection ID", "yhoo.connection_id", FT_UINT32, BASE_HEX,
 				NULL, 0, "Connection ID", HFILL }},
-			{ &hf_yhoo_magic_id, {	
+			{ &hf_yhoo_magic_id, {
 				"Magic ID", "yhoo.magic_id", FT_UINT32, BASE_HEX,
 				NULL, 0, "Magic ID", HFILL }},
-			{ &hf_yhoo_unknown1, {	
+			{ &hf_yhoo_unknown1, {
 				"Unknown 1", "yhoo.unknown1", FT_UINT32, BASE_HEX,
 				NULL, 0, "Unknown 1", HFILL }},
-			{ &hf_yhoo_len, {	
+			{ &hf_yhoo_len, {
 				"Packet Length", "yhoo.len", FT_UINT32, BASE_DEC,
 				NULL, 0, "Packet Length", HFILL }},
-			{ &hf_yhoo_nick1, {	
+			{ &hf_yhoo_nick1, {
 				"Real Nick (nick1)", "yhoo.nick1", FT_STRING, 0,
 				NULL, 0, "Real Nick (nick1)", HFILL }},
-			{ &hf_yhoo_nick2, {	
+			{ &hf_yhoo_nick2, {
 				"Active Nick (nick2)", "yhoo.nick2", FT_STRING, 0,
 				NULL, 0, "Active Nick (nick2)", HFILL }},
-			{ &hf_yhoo_content, {	
+			{ &hf_yhoo_content, {
 				"Content", "yhoo.content", FT_STRING, 0,
 				NULL, 0, "Data portion of the packet", HFILL }},
-			{ &hf_yhoo_version, {	
+			{ &hf_yhoo_version, {
 				"Version", "yhoo.version", FT_STRING, 0,
 				NULL, 0, "Packet version identifier", HFILL }},
         };

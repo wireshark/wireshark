@@ -3,22 +3,22 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.37 2002/06/22 20:00:26 guy Exp $
+ * $Id: filter_prefs.c,v 1.38 2002/08/28 21:03:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -317,7 +317,7 @@ filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
 			*ok_bt,			/* "OK" button */
 			*apply_bt,		/* "Apply" button */
 			*save_bt,		/* "Save" button */
-			*close_bt;		/* "Cancel" button */ 
+			*close_bt;		/* "Cancel" button */
 	GtkWidget	*filter_pg = NULL;	/* filter settings box */
 	GtkWidget	*top_hb,
 			*list_bb,
@@ -381,7 +381,7 @@ filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
 	gtk_container_add(GTK_CONTAINER(main_w), main_vb);
 	gtk_widget_show(main_vb);
 
-	/* Make sure everything is set up */  
+	/* Make sure everything is set up */
 	if (parent_filter_te)
 		filter_te_str = gtk_entry_get_text(GTK_ENTRY(parent_filter_te));
 
@@ -501,11 +501,11 @@ filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
 	middle_hb = gtk_hbox_new(FALSE, 5);
 	gtk_container_add(GTK_CONTAINER(filter_pg), middle_hb);
 	gtk_widget_show(middle_hb);
-  
+
 	name_lb = gtk_label_new("Filter name:");
 	gtk_box_pack_start(GTK_BOX(middle_hb), name_lb, FALSE, FALSE, 3);
 	gtk_widget_show(name_lb);
-  
+
 	name_te = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(middle_hb), name_te, TRUE, TRUE, 3);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_NAME_TE_KEY, name_te);
@@ -517,11 +517,11 @@ filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
 	bottom_hb = gtk_hbox_new(FALSE, 5);
 	gtk_container_add(GTK_CONTAINER(filter_pg), bottom_hb);
 	gtk_widget_show(bottom_hb);
-  
+
 	filter_lb = gtk_label_new("Filter string:");
 	gtk_box_pack_start(GTK_BOX(bottom_hb), filter_lb, FALSE, FALSE, 3);
 	gtk_widget_show(filter_lb);
-  
+
 	filter_te = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(bottom_hb), filter_te, TRUE, TRUE, 3);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_FILTER_TE_KEY, filter_te);
@@ -681,7 +681,7 @@ filter_apply(GtkWidget *main_w, gboolean destroy)
 	    gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY);
 	GtkWidget  *filter_te;
 	gchar      *filter_string;
-	
+
 	if (parent_filter_te != NULL) {
 		/*
 		 * We have a text entry widget associated with this dialog
@@ -865,7 +865,7 @@ filter_sel_list_cb(GtkWidget *l, gpointer data _U_)
 	  sl = GTK_LIST(l)->selection;
   else
 	  sl = NULL;
-          
+
   if (sl) {  /* Something was selected */
     l_item = GTK_OBJECT(sl->data);
     flp    = (GList *) gtk_object_get_data(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
@@ -916,7 +916,7 @@ filter_list_destroy_cb(GtkWidget *l, gpointer data _U_)
 }
 
 /* To do: add input checking to each of these callbacks */
- 
+
 /* Structure containing arguments to be passed to "new_filter_cb()".
 
    "active_filter_l" is the list in the dialog box in which "New" or
@@ -966,10 +966,10 @@ filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
   GList      *fl_entry;
   gchar      *name, *strval;
   new_filter_cb_args_t args;
-  
+
   name   = gtk_entry_get_text(GTK_ENTRY(name_te));
   strval = gtk_entry_get_text(GTK_ENTRY(filter_te));
-  
+
   if (strlen(name) > 0 && strlen(strval) > 0) {
     /* Add a new entry to the filter list. */
     fl_entry = add_to_filter_list(list, name, strval);
@@ -1040,7 +1040,7 @@ filter_chg_bt_clicked_cb(GtkWidget *w, gpointer data)
     nl_lb = (GtkLabel *) gtk_object_get_data(l_item, E_FILT_LBL_KEY);
     if (fl_entry != NULL && nl_lb != NULL) {
       filt = (filter_def *) fl_entry->data;
-      
+
       if (strlen(name) > 0 && strlen(strval) > 0 && filt) {
         g_free(filt->name);
         g_free(filt->strval);
@@ -1137,7 +1137,7 @@ filter_del_bt_clicked_cb(GtkWidget *w, gpointer data)
       /* Update all the filter list widgets, not just the one in
          the dialog box in which we clicked on "Delete". */
       g_list_foreach(get_filter_dialog_list(list), delete_filter_cb, &pos);
-    } 
+    }
   }
 }
 

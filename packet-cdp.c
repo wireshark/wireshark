@@ -2,27 +2,27 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.48 2002/08/18 15:30:38 gerald Exp $
+ * $Id: packet-cdp.c,v 1.49 2002/08/28 21:00:08 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #include "config.h"
 
 #include <stdlib.h>
@@ -92,11 +92,11 @@ static const value_string type_vals[] = {
 	{ TYPE_DUPLEX,          "Duplex" },
 	{ 0,                    NULL },
 };
-	
-static void 
+
+static void
 dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti; 
+    proto_item *ti;
     proto_tree *cdp_tree = NULL;
     int offset = 0;
     guint16 type;
@@ -110,12 +110,12 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "CDP");
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "Cisco Discovery Protocol"); 
+        col_set_str(pinfo->cinfo, COL_INFO, "Cisco Discovery Protocol");
 
     if (tree){
         ti = proto_tree_add_item(tree, proto_cdp, tvb, offset, -1, FALSE);
 	cdp_tree = proto_item_add_subtree(ti, ett_cdp);
-	
+
 	/* CDP header */
 	proto_tree_add_item(cdp_tree, hf_cdp_version, tvb, offset, 1, FALSE);
 	offset += 1;
@@ -271,10 +271,10 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    /* the actual number of prefixes is (length-4)/5
 			    but if the variable is not a "float" but "integer"
 			    then length/5=(length-4)/5  :)  */
-			    
+
 		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
-			    offset + TLV_TYPE, 2, type);  
+			    offset + TLV_TYPE, 2, type);
 		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 			    offset + TLV_LENGTH, 2, length);
 		offset += 4;

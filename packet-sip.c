@@ -1,7 +1,7 @@
 /* packet-sip.c
  * Routines for the Session Initiation Protocol (SIP) dissection.
  * RFC 2543
- * 
+ *
  * TODO: Pay attention to Content-Type: It might not always be SDP.
  *       Add hf_* fields for filtering support.
  *       Add sip msg body dissection based on Content-Type for:
@@ -15,24 +15,24 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.31 2002/07/25 21:43:53 guy Exp $
+ * $Id: packet-sip.c,v 1.32 2002/08/28 21:00:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-cops.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -82,7 +82,7 @@ static const char *sip_methods[] = {
 static gboolean sip_is_request(tvbuff_t *tvb, gint eol);
 static gboolean sip_is_known_request(tvbuff_t *tvb, guint32 offset);
 static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset);
- 
+
 static dissector_handle_t sdp_handle;
 static dissector_handle_t data_handle;
 
@@ -115,9 +115,9 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0 && ! is_request)
                 goto bad;
 
-        if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
-    
+
         req_descr = is_known_request ? "Request" : "Unknown request";
         if (check_col(pinfo->cinfo, COL_INFO))
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
@@ -248,8 +248,8 @@ static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset)
 
         while ((eol = tvb_find_guint8(tvb, offset, -1, '\r')) > 0
             && tvb_bytes_exist(tvb, eol, 4)) {
-                if (tvb_get_guint8(tvb, eol + 1) == '\n' && 
-                    tvb_get_guint8(tvb, eol + 2) == '\r' && 
+                if (tvb_get_guint8(tvb, eol + 1) == '\n' &&
+                    tvb_get_guint8(tvb, eol + 2) == '\r' &&
                     tvb_get_guint8(tvb, eol + 3) == '\n')
                         return eol + 4;
                 offset = eol + 2;
@@ -261,7 +261,7 @@ static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset)
 /* From section 4.1 of RFC 2543:
  *
  * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
- */ 
+ */
 
 static gboolean sip_is_request(tvbuff_t *tvb, gint eol)
 {
@@ -287,7 +287,7 @@ static gboolean sip_is_request(tvbuff_t *tvb, gint eol)
         if (req_colon_pos < 0 || req_colon_pos > ver_start)
                 return FALSE;
         /* XXX - Check for a proper URI prefix? */
-        
+
         /* Do we have a proper version string? */
         if (tvb_strneql(tvb, ver_start, SIP2_HDR, SIP2_HDR_LEN))
                 return TRUE;
@@ -311,7 +311,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, guint32 offset)
 
 /* Register the protocol with Ethereal */
 void proto_register_sip(void)
-{                 
+{
 
         /* Setup list of header fields */
         static hf_register_info hf[] = {

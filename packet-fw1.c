@@ -2,12 +2,12 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002, Alfred Koebler <ak@icon-sult.de>
  *
- * $Id: packet-fw1.c,v 1.4 2002/08/11 22:34:55 guy Exp $
+ * $Id: packet-fw1.c,v 1.5 2002/08/28 21:00:13 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ak@icon-sult.de>
  * Copyright 2002 I.Consult
- * 
+ *
  * To use this dissector use the command line option
  * -o eth.interpret_as_fw1_monitor:TRUE
  *
@@ -46,8 +46,8 @@
  * For the four lines in the Top Pane you will see the according lines
  * in the Middle Pane:
  *   El90x1 o
- * O El90x1 
- * i El90x1 
+ * O El90x1
+ * i El90x1
  *   El90x1 I
  *
  * Example for a packet traversing through the Firewall, first through
@@ -62,12 +62,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -105,7 +105,7 @@ static void
 dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* Set up structures needed to add the protocol subtree and manage it */
-  proto_item    *ti; 
+  proto_item    *ti;
   proto_tree    *volatile fh_tree = NULL;
   char		direction[3];
   char		interface_name[20];
@@ -169,7 +169,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, header);
- 
+
     /* create display subtree for the protocol */
     fh_tree = proto_item_add_subtree(ti, ett_fw1);
 
@@ -182,7 +182,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_fw1_type,
           hf_fw1_trailer);
 }
-    
+
 void
 proto_register_fw1(void)
 {

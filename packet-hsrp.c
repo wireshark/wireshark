@@ -4,24 +4,24 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.23 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-hsrp.c,v 1.24 2002/08/28 21:00:16 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-vrrp.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -103,7 +103,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
         if (check_col(pinfo->cinfo, COL_INFO))
                 col_clear(pinfo->cinfo, COL_INFO);
-        
+
         opcode = tvb_get_guint8(tvb, 1);
         state = tvb_get_guint8(tvb, 2);
         if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -156,7 +156,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 8;
                 proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, FALSE);
                 offset += 4;
-                
+
         }
 
         return;
@@ -166,7 +166,7 @@ void proto_register_hsrp(void)
 {
         static hf_register_info hf[] = {
                 { &hf_hsrp_version,
-                  { "Version", "hsrp.version",  
+                  { "Version", "hsrp.version",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
                     "The version of the HSRP messages", HFILL }},
 

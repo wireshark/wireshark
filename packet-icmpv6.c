@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.66 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-icmpv6.c,v 1.67 2002/08/28 21:00:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,10 +107,10 @@ static const value_string names_rrenum_matchcode[] = {
 };
 
 static const value_string names_router_pref[] = {
-        { ND_RA_FLAG_RTPREF_HIGH,	"High" }, 
-        { ND_RA_FLAG_RTPREF_MEDIUM,	"Medium" }, 
-        { ND_RA_FLAG_RTPREF_LOW,	"Low" }, 
-        { ND_RA_FLAG_RTPREF_RSV,	"Reserved" }, 
+        { ND_RA_FLAG_RTPREF_HIGH,	"High" },
+        { ND_RA_FLAG_RTPREF_MEDIUM,	"Medium" },
+        { ND_RA_FLAG_RTPREF_LOW,	"Low" },
+        { ND_RA_FLAG_RTPREF_RSV,	"Reserved" },
 };
 
 static void
@@ -689,7 +689,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject4);
 	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {
-		tvb_memcpy(tvb, ipaddr, p, 4);                    
+		tvb_memcpy(tvb, ipaddr, p, 4);
 		proto_tree_add_text(field_tree, tvb,
 		    p, sizeof(guint32), "%s", ip_to_str(ipaddr));
 		p += sizeof(guint32);
@@ -863,7 +863,7 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(opt_tree, tvb,
 	    off + offsetof(struct rr_pco_match, rpm_code),
 	    sizeof(match->rpm_code), "OpCode: %s (%u)",
-	    val_to_str(match->rpm_code, names_rrenum_matchcode, "Unknown"), 
+	    val_to_str(match->rpm_code, names_rrenum_matchcode, "Unknown"),
 	    match->rpm_code);
 	proto_tree_add_text(opt_tree, tvb,
 	    off + offsetof(struct rr_pco_match, rpm_len),
@@ -1298,7 +1298,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_boolean_bitfield(ra_flags,
 			ND_RA_FLAG_HOME_AGENT, 8,
-			"Home Agent", "Not Home Agent"));		
+			"Home Agent", "Not Home Agent"));
 	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_enumerated_bitfield(ra_flags, ND_RA_FLAG_RTPREF_MASK, 8,
 		names_router_pref, "Router preference: %s"));

@@ -1,7 +1,7 @@
 /* packet-ypbind.c
  * Routines for ypbind dissection
  *
- * $Id: packet-ypbind.c,v 1.12 2002/08/02 23:36:05 jmayer Exp $
+ * $Id: packet-ypbind.c,v 1.13 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@ static int
 dissect_ypbind_domain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* domain */
-	offset = dissect_rpc_string(tvb, tree, 
+	offset = dissect_rpc_string(tvb, tree,
 			hf_ypbind_domain, offset, NULL);
 
 	return offset;
@@ -86,18 +86,18 @@ dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	switch(type){
 	case YPBIND_RESP_TYPE_SUCC_VAL:
 		/* ip address */
-		proto_tree_add_item(tree, hf_ypbind_addr, 
+		proto_tree_add_item(tree, hf_ypbind_addr,
 			tvb, offset, 4, FALSE);
 		offset += 4;
 
 		/* port */
-		offset = dissect_rpc_uint32(tvb, tree, 
+		offset = dissect_rpc_uint32(tvb, tree,
 				hf_ypbind_port, offset);
-		
+
 		break;
 	case YPBIND_RESP_TYPE_FAIL_VAL:
 		/* error */
-		offset = dissect_rpc_uint32(tvb, tree, 
+		offset = dissect_rpc_uint32(tvb, tree,
 				hf_ypbind_resp_type, offset);
 		break;
 	}
@@ -109,22 +109,22 @@ static int
 dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* domain */
-	offset = dissect_rpc_string(tvb, tree, 
+	offset = dissect_rpc_string(tvb, tree,
 			hf_ypbind_domain, offset, NULL);
 
 	/* ip address */
-	proto_tree_add_item(tree, hf_ypbind_addr, 
+	proto_tree_add_item(tree, hf_ypbind_addr,
 		tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* port */
-	offset = dissect_rpc_uint32(tvb, tree, 
+	offset = dissect_rpc_uint32(tvb, tree,
 			hf_ypbind_port, offset);
-		
+
 	/* version */
-	offset = dissect_rpc_uint32(tvb, tree, 
+	offset = dissect_rpc_uint32(tvb, tree,
 			hf_ypbind_setdom_version, offset);
-		
+
 	return offset;
 }
 
@@ -142,7 +142,7 @@ static const vsff ypbind1_proc[] = {
 
 static const vsff ypbind2_proc[] = {
 	{ YPBINDPROC_NULL,	"NULL",		NULL,				NULL },
-	{ YPBINDPROC_DOMAIN,	"DOMAIN",	
+	{ YPBINDPROC_DOMAIN,	"DOMAIN",
 		dissect_ypbind_domain_v2_request, dissect_ypbind_domain_v2_reply},
 	{ YPBINDPROC_SETDOM,	"SETDOMAIN",
 		dissect_ypbind_setdomain_v2_request, NULL},

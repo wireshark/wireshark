@@ -7,22 +7,22 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.34 2002/08/02 23:35:52 jmayer Exp $
+ * $Id: packet-l2tp.c,v 1.35 2002/08/28 21:00:19 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -33,7 +33,7 @@ static int hf_l2tp_type = -1;
 static int hf_l2tp_length_bit = -1;
 static int hf_l2tp_seq_bit = -1;
 static int hf_l2tp_offset_bit = -1;
-static int hf_l2tp_priority = -1; 
+static int hf_l2tp_priority = -1;
 static int hf_l2tp_version = -1;
 static int hf_l2tp_length = -1;
 static int hf_l2tp_tunnel = -1;
@@ -63,7 +63,7 @@ static int hf_l2tp_tie_breaker = -1;
 #define UDP_PORT_L2TP   1701
 
 #define CONTROL_BIT(msg_info) (msg_info & 0x8000)   /* Type bit control = 1 data = 0 */
-#define LENGTH_BIT(msg_info) (msg_info & 0x4000)    /* Length bit = 1  */ 
+#define LENGTH_BIT(msg_info) (msg_info & 0x4000)    /* Length bit = 1  */
 #define RESERVE_BITS(msg_info) (msg_info &0x37F8)   /* Reserved bit - usused */
 #define SEQUENCE_BIT(msg_info) (msg_info & 0x0800)  /* SEQUENCE bit = 1 Ns and Nr fields */
 #define OFFSET_BIT(msg_info) (msg_info & 0x0200)    /* Offset */
@@ -86,15 +86,15 @@ static gint ett_l2tp_avp = -1;
 #define AVP_SCCCN      3
 #define AVP_StopCCN    4
 #define AVP_Reserved   5
-#define AVP_HELLO      6 
-#define AVP_OCRQ       7 
-#define AVP_OCRP       8 
-#define AVP_ORCRP      9 
-#define AVP_ICRQ      10 
-#define AVP_ICRP      11 
-#define AVP_ICCN      12 
-#define AVP_Reserved1 13 
-#define AVP_CDN       14 
+#define AVP_HELLO      6
+#define AVP_OCRQ       7
+#define AVP_OCRP       8
+#define AVP_ORCRP      9
+#define AVP_ICRQ      10
+#define AVP_ICRP      11
+#define AVP_ICCN      12
+#define AVP_Reserved1 13
+#define AVP_CDN       14
 
 
 #define NUM_CONTROL_CALL_TYPES  16
@@ -188,7 +188,7 @@ static const value_string authen_type_vals[] = {
 #define  ASSIGNED_TUNNEL_ID 9
 #define  RECEIVE_WINDOW_SIZE 10
 #define  CHALLENGE 11
-#define  CAUSE_CODE 12 
+#define  CAUSE_CODE 12
 #define  CHALLENGE_RESPONSE 13
 #define  ASSIGNED_SESSION 14
 #define  CALL_SERIAL_NUMBER 15
@@ -283,7 +283,7 @@ static const value_string avp_type_vals[] = {
 #define VENDOR_COSINE 3085
 #define VENDOR_UNISPHERE 4874
 
-static const value_string avp_vendor_id_vals[] = 
+static const value_string avp_vendor_id_vals[] =
 {{VENDOR_IETF,"IETF"},
 {VENDOR_ACC,"ACC"},
 {VENDOR_CISCO,"Cisco"},
@@ -328,7 +328,7 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t	*next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TP"); 
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TP");
   if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 
@@ -367,11 +367,11 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (SEQUENCE_BIT(control)) {
                     tmp_index += 4;
                 }
-    
+
                 tmp_index+=4;
-    
+
                 avp_type = tvb_get_ntohs(tvb, (tmp_index+=2));
-    
+
                 if (avp_type == CONTROL_MESSAGE)
                 {
                     /* We print message type */
@@ -390,7 +390,7 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     */
                     sprintf(textbuffer,"%s (tunnel id=%d, session id=%d)",
                             control_msg ,  tid ,cid);
-    
+
                 }
               }
         }
@@ -488,11 +488,11 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    		avp_type	= tvb_get_ntohs(tvb, index + 4);
 
 		if (avp_vendor_id == VENDOR_IETF) {
-			tf =  proto_tree_add_text(l2tp_tree, tvb, index, 
+			tf =  proto_tree_add_text(l2tp_tree, tvb, index,
 			avp_len, "%s AVP",
 		        val_to_str(avp_type, avp_type_vals, "Unknown (%u)"));
 		} else {	 /* Vendor-Specific AVP */
-			tf =  proto_tree_add_text(l2tp_tree, tvb, index, 
+			tf =  proto_tree_add_text(l2tp_tree, tvb, index,
 			avp_len, "Vendor %s AVP",
 		        val_to_str(avp_vendor_id, avp_vendor_id_vals, "Unknown (%u)"));
 		}
@@ -533,7 +533,7 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/* For the time being, we don't decode any Vendor-
 			   specific AVP. */
-			proto_tree_add_text(l2tp_avp_tree, tvb, index, 
+			proto_tree_add_text(l2tp_avp_tree, tvb, index,
 					    avp_len, "Vendor-Specific AVP");
 
 			index += avp_len;
@@ -937,8 +937,8 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 			proto_tree_add_text(l2tp_avp_tree, tvb, index, 1,
 			  "Direction: %s",
-			  val_to_str(tvb_get_guint8(tvb, index), 
-				     cause_code_direction_vals, 
+			  val_to_str(tvb_get_guint8(tvb, index),
+				     cause_code_direction_vals,
 				     "Reserved (%u)"));
 			index += 1;
 			avp_len -= 1;

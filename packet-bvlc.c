@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.12 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-bvlc.c,v 1.13 2002/08/28 21:00:08 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,7 +100,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *bvlc_tree;
 	proto_tree *bdt_tree; /* Broadcast Distribution Table */
 	proto_tree *fdt_tree; /* Foreign Device Table */
-	
+
 	gint offset;
 	guint8 bvlc_type;
 	guint8 bvlc_function;
@@ -123,39 +123,39 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	packet_length = tvb_get_ntohs(tvb, offset+2);
 	if (bvlc_function > 0x08) {
 		/*  We have a constant header length of BVLC of 4 in every
-		 *  BVLC-packet forewarding an NPDU. Beware: Changes in the 
-		 *  BACnet-IP-standard may break this. 
+		 *  BVLC-packet forewarding an NPDU. Beware: Changes in the
+		 *  BACnet-IP-standard may break this.
 		 *  At the moment, no functions above 0x0b
 		 *  exist (Addendum 135a to ANSI/ASHRAE 135-1995 - BACnet)
 		 */
 		bvlc_length = 4;
 	} else if(bvlc_function == 0x04) {
 		/* 4 Bytes + 6 Bytes for B/IP Address of Originating Device */
-		bvlc_length = 10; 
+		bvlc_length = 10;
 	} else {
-		/*  BVLC-packets with function below 0x09 contain 
+		/*  BVLC-packets with function below 0x09 contain
 		 *  routing-level data (e.g. Broadcast Distribution)
 		 *  but no NPDU for BACnet, so bvlc_length goes up to the end
 		 *  of the captured frame.
 		 */
 		bvlc_length = packet_length;
 	}
-	
+
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0, 
+		ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0,
 			bvlc_length, FALSE);
 		bvlc_tree = proto_item_add_subtree(ti, ett_bvlc);
-		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_type, tvb, offset, 1, 
+		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_type, tvb, offset, 1,
 			bvlc_type,"Type: 0x%x (Version %s)",bvlc_type,
 			(bvlc_type == 0x81)?"BACnet/IP (Annex J)":"unknown");
 		offset ++;
-		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_function, tvb, 
-			offset, 1, bvlc_function,"Function: 0x%02x (%s)", 
+		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_function, tvb,
+			offset, 1, bvlc_function,"Function: 0x%02x (%s)",
 			bvlc_function, val_to_str (bvlc_function,
 				bvlc_function_names, "Unknown"));
 		offset ++;
-		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_length, tvb, offset, 
-			2, bvlc_length, "BVLC-Length: %d of %d bytes BACnet packet length", 
+		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_length, tvb, offset,
+			2, bvlc_length, "BVLC-Length: %d of %d bytes BACnet packet length",
 			bvlc_length, packet_length);
 		offset += 2;
 		switch (bvlc_function) {
@@ -166,9 +166,9 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			/* We should bitmask the result correctly when we have a
 		 	* packet to dissect, see README.developer, 1.6.2, FID */
-			proto_tree_add_uint_format(bvlc_tree, hf_bvlc_result, tvb, 
-				offset, 2, bvlc_result,"Result: 0x%04x (%s)", 
-				bvlc_result, val_to_str(bvlc_result << 4, 
+			proto_tree_add_uint_format(bvlc_tree, hf_bvlc_result, tvb,
+				offset, 2, bvlc_result,"Result: 0x%04x (%s)",
+				bvlc_result, val_to_str(bvlc_result << 4,
 					bvlc_result_names, "Unknown"));
 			offset += 2;
 			break;
@@ -186,11 +186,11 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(bdt_tree, hf_bvlc_bdt_port,
 					tvb, offset, 2, FALSE);
 				offset += 2;
-				proto_tree_add_item(bdt_tree, 
+				proto_tree_add_item(bdt_tree,
 					hf_bvlc_bdt_mask, tvb, offset, 4,
 					FALSE);
 				offset += 4;
-			} 
+			}
 			/* We check this if we get a BDT-packet somewhere */
 			break;
 		case 0x02: /* Read-Broadcast-Distribution-Table */
@@ -207,12 +207,12 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case 0x07: /* Read-Foreign-Device-Table-Ack */
 			/* List of FDT Entries:	N*10-octet */
-			/* N indicates the number of entries in the FDT whose 
-			 * contents are being returned. Each returned entry 
-			 * consists of the 6-octet B/IP address of the registrant; 
+			/* N indicates the number of entries in the FDT whose
+			 * contents are being returned. Each returned entry
+			 * consists of the 6-octet B/IP address of the registrant;
 			 * the 2-octet Time-to-Live value supplied at the time of
-			 * registration; and a 2-octet value representing the 
-			 * number of seconds remaining before the BBMD will purge 
+			 * registration; and a 2-octet value representing the
+			 * number of seconds remaining before the BBMD will purge
 			 * the registrant's FDT entry if no re-registration occurs.
 			 */
 			ti_fdt = proto_tree_add_item(bvlc_tree, proto_bvlc, tvb,
@@ -226,15 +226,15 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(fdt_tree, hf_bvlc_fdt_port,
 					tvb, offset, 2, FALSE);
 				offset += 2;
-				proto_tree_add_item(fdt_tree, 
+				proto_tree_add_item(fdt_tree,
 					hf_bvlc_fdt_ttl, tvb, offset, 2,
 					FALSE);
 				offset += 2;
-				proto_tree_add_item(fdt_tree, 
+				proto_tree_add_item(fdt_tree,
 					hf_bvlc_fdt_timeout, tvb, offset, 2,
 					FALSE);
 				offset += 2;
-			} 
+			}
 			/* We check this if we get a FDT-packet somewhere */
 			break;
 		case 0x08: /* Delete-Foreign-Device-Table-Entry */
@@ -274,7 +274,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	npdu_length = packet_length - bvlc_length;
 	next_tvb = tvb_new_subset(tvb,bvlc_length,-1,npdu_length);
 	/* Code from Guy Harris */
-	if (!dissector_try_port(bvlc_dissector_table, 
+	if (!dissector_try_port(bvlc_dissector_table,
 	bvlc_function, next_tvb, pinfo, tree)) {
 		/* Unknown function - dissect the paylod as data */
 		call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -388,11 +388,11 @@ proto_reg_handoff_bvlc(void)
 }
 /* Taken from add-135a (BACnet-IP-standard paper):
  *
- * The default UDP port for both directed messages and broadcasts shall 
- * be X'BAC0' and all B/IP devices shall support it. In some cases, 
- * e.g., a situation where it is desirable for two groups of BACnet devices 
- * to coexist independently on the same IP subnet, the UDP port may be 
- * configured locally to a different value without it being considered 
+ * The default UDP port for both directed messages and broadcasts shall
+ * be X'BAC0' and all B/IP devices shall support it. In some cases,
+ * e.g., a situation where it is desirable for two groups of BACnet devices
+ * to coexist independently on the same IP subnet, the UDP port may be
+ * configured locally to a different value without it being considered
  * a violation of this protocol.
  *
  * This dissector does not analyse UDP packets other than on port 0xBAC0.

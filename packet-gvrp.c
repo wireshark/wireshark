@@ -2,7 +2,7 @@
  * Routines for GVRP (GARP VLAN Registration Protocol) dissection
  * Copyright 2000, Kevin Shi <techishi@ms22.hinet.net>
  *
- * $Id: packet-gvrp.c,v 1.13 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-gvrp.c,v 1.14 2002/08/28 21:00:14 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -104,10 +104,10 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8        octet;
     int           msg_index, attr_index, offset = 0, length = tvb_reported_length(tvb);
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GVRP");
-    
-    if (check_col(pinfo->cinfo, COL_INFO)) 
+
+    if (check_col(pinfo->cinfo, COL_INFO))
 	col_set_str(pinfo->cinfo, COL_INFO, "GVRP");
 
     if (tree)
@@ -118,20 +118,20 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Read in GARP protocol ID */
 	protocol_id = tvb_get_ntohs(tvb, GARP_PROTOCOL_ID);
-    
+
 	proto_tree_add_uint_format(gvrp_tree, hf_gvrp_proto_id, tvb,
-				   GARP_PROTOCOL_ID, sizeof(guint16), 
+				   GARP_PROTOCOL_ID, sizeof(guint16),
 				   protocol_id,
-				   "Protocol Identifier: 0x%04x (%s)", 
+				   "Protocol Identifier: 0x%04x (%s)",
 				   protocol_id,
-				   protocol_id == GARP_DEFAULT_PROTOCOL_ID ? 
+				   protocol_id == GARP_DEFAULT_PROTOCOL_ID ?
 				     "GARP VLAN Registration Protocol" :
 				     "Unknown Protocol");
 
 	/* Currently only one protocol ID is supported */
 	if (protocol_id != GARP_DEFAULT_PROTOCOL_ID)
 	{
-	    proto_tree_add_text(gvrp_tree, tvb, GARP_PROTOCOL_ID, sizeof(guint16), 
+	    proto_tree_add_text(gvrp_tree, tvb, GARP_PROTOCOL_ID, sizeof(guint16),
  "   (Warning: this version of Ethereal only knows about protocol id = 1)");
 	    call_dissector(data_handle,
 	        tvb_new_subset(tvb, GARP_PROTOCOL_ID + sizeof(guint16), -1, -1),
@@ -201,7 +201,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Check for end of mark */
 		if (octet == GARP_END_OF_MARK)
 		{
-		    /* If at least one message has been already read, 
+		    /* If at least one message has been already read,
 		     * check for another end of mark.
 		     */
 		    if (attr_index)
@@ -298,7 +298,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Ethereal */
 void
 proto_register_gvrp(void)
-{		 
+{
     static hf_register_info hf[] = {
 	{ &hf_gvrp_proto_id,
 	    { "Protocol ID", "garp.protocol_id",

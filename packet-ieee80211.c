@@ -1,9 +1,9 @@
 /* packet-ieee80211.c
  * Routines for Wireless LAN (IEEE 802.11) dissection
- * Copyright 2000, Axis Communications AB 
+ * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.73 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-ieee80211.c,v 1.74 2002/08/28 21:00:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15,22 +15,22 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * Credits:
- * 
+ *
  * The following people helped me by pointing out bugs etc. Thank you!
  *
  * Marco Molteni
- * Lena-Marie Nilsson     
+ * Lena-Marie Nilsson
  * Magnus Hultman-Persson
  */
 
@@ -84,12 +84,12 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
 static guint32 crc32(const unsigned char* buf, unsigned int len);
 
 /* #define USE_ENV */
-/* When this is set, an unlimited number of WEP keys can be set in the 
-   environment:  
+/* When this is set, an unlimited number of WEP keys can be set in the
+   environment:
 
    ETHEREAL_WEPKEYNUM=##
-   ETHEREAL_WEPKEY1=aa:bb:cc:dd:... 
-   ETHEREAL_WEPKEY2=aa:bab:cc:dd:ee:... 
+   ETHEREAL_WEPKEY1=aa:bb:cc:dd:...
+   ETHEREAL_WEPKEY2=aa:bab:cc:dd:ee:...
 
    ... you get the idea.
 
@@ -598,7 +598,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     case FIELD_CAP_INFO:
       capability = tvb_get_letohs (tvb, offset);
 
-      cap_item = proto_tree_add_uint_format (tree, ff_capture, 
+      cap_item = proto_tree_add_uint_format (tree, ff_capture,
 					     tvb, offset, 2,
 					     capability,
 					     "Capability Information: 0x%04X",
@@ -1209,10 +1209,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
       proto_tree_add_boolean (flag_tree, hf_fc_order, tvb, 1, 1, flags);
 
-      if (frame_type_subtype == CTRL_PS_POLL) 
+      if (frame_type_subtype == CTRL_PS_POLL)
 	proto_tree_add_uint(hdr_tree, hf_assoc_id,tvb,2,2,
 			    COOK_ASSOC_ID(tvb_get_letohs(tvb,2)));
-     
+
       else
 	  proto_tree_add_uint (hdr_tree, hf_did_duration, tvb, 2, 2,
 			       tvb_get_letohs (tvb, 2));
@@ -1416,8 +1416,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 4, 6, dst);
 	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 10, 6, src);
 	      break;
-	      
-	      
+
+
 	    case DATA_ADDR_T2:
 	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6, dst);
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6,
@@ -1432,7 +1432,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 4, 6, dst);
 	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 16, 6, src);
 	      break;
-   
+
 
 	    case DATA_ADDR_T3:
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6,
@@ -1449,7 +1449,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 10, 6, src);
 	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 16, 6, dst);
 	      break;
-	      
+
 
 	    case DATA_ADDR_T4:
 	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
@@ -1647,7 +1647,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       next_tvb = tvb_new_subset(tvb, hdr_len + 4, len, reported_len);
 
       call_dissector(data_handle, next_tvb, pinfo, tree);
-      return; 
+      return;
     } else {
       add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
     }
@@ -1777,8 +1777,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     call_dissector(data_handle, next_tvb, pinfo, tree);
     pinfo->fragmented = save_fragmented;
     return;
-  }  
-  
+  }
+
   switch (COOK_FRAME_TYPE (fcf))
     {
 
@@ -2329,7 +2329,7 @@ proto_register_wlan (void)
 				 &wlan_ignore_wep);
 
 #ifndef USE_ENV
-  prefs_register_enum_preference(wlan_module, "wep_keys", 
+  prefs_register_enum_preference(wlan_module, "wep_keys",
 				 "WEP key count",
 				 "How many WEP keys do we have to choose from? (0 to disable, up to 4)",
 				 &num_wepkeys, wep_keys_options, FALSE);
@@ -2441,7 +2441,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
 
   if ((tmp = g_malloc(len)) == NULL)
     return NULL;  /* krap! */
-  
+
   /* try once with the key index in the packet, then look through our list. */
   for (i = -1; i < (int) num_wepkeys; i++) {
     /* copy the encrypted data over to the tmp buffer */
@@ -2465,7 +2465,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
 
 #if 0
   printf("de-wep %p\n", decr_tvb);
-#endif 
+#endif
 
   return decr_tvb;
 }
@@ -2543,7 +2543,7 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
   c_crc[1] = crc >> 8;
   c_crc[2] = crc >> 16;
   c_crc[3] = crc >> 24;
-  
+
   for (k = 0; k < 4; k++) {
     i = (i + 1) & 0xff;
     j = (j+s[i]) & 0xff;
@@ -2625,7 +2625,7 @@ static void init_wepkeys(void) {
 	j++;
       }
     }
-    
+
   }
 
   return;

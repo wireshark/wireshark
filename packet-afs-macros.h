@@ -6,9 +6,9 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  * Portions based on information/specs retrieved from the OpenAFS sources at
- *   www.openafs.org, Copyright IBM. 
+ *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-macros.h,v 1.18 2002/02/10 02:22:02 guy Exp $
+ * $Id: packet-afs-macros.h,v 1.19 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,12 +53,12 @@
 #define OUT_INT(field) \
 	proto_tree_add_int(tree, field, tvb, offset, sizeof(gint32), tvb_get_ntohl(tvb, offset)); \
 	offset += 4;
-	
+
 /* Output a unsigned integer, stored into field 'field'
-   Assumes it is in network byte order, converts to host before using, 
+   Assumes it is in network byte order, converts to host before using,
    Note - does not increment offset, so can be used repeatedly for bitfields */
 #define DISP_UINT(field) \
-	proto_tree_add_uint(tree,field,tvb,offset,sizeof(guint32),tvb_get_ntohl(tvb, offset)); 
+	proto_tree_add_uint(tree,field,tvb,offset,sizeof(guint32),tvb_get_ntohl(tvb, offset));
 
 /* Output an IPv4 address, stored into field 'field' */
 #define OUT_IP(field) \
@@ -107,7 +107,7 @@
 	offset += 4; \
 	}
 
-/* Output a rx style string, up to a maximum length first 
+/* Output a rx style string, up to a maximum length first
    4 bytes - length, then char data */
 #define OUT_RXString(field) \
 	{	int i,len; \
@@ -236,7 +236,7 @@
 		OUT_UINT(hf_afs_cb_fid_uniqifier); \
 		tree = save; \
 	}
-	
+
 /* Output a StoreStatus */
 #define OUT_FS_AFSStoreStatus(label) \
 	{ 	proto_tree *save, *ti; \
@@ -464,7 +464,7 @@
 /* Skip a certain number of bytes */
 #define SKIP(bytes) \
 	offset += bytes;
-	
+
 /* Raw data - to end of frame */
 #define OUT_BYTES_ALL(field) OUT_BYTES(field, tvb_length_remaining(tvb,offset))
 

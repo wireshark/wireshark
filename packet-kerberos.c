@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.24 2002/08/22 08:47:13 guy Exp $
+ * $Id: packet-kerberos.c,v 1.25 2002/08/28 21:00:19 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -130,7 +130,7 @@ static gint ett_additional_tickets = -1;
 #define KRB5_ENCTYPE_DES3_CBC_SHA        5
 #define KRB5_ENCTYPE_DES3_CBC_RAW        6
 #define KRB5_ENCTYPE_DES_HMAC_SHA1       8
-#define KRB5_ENCTYPE_DES3_CBC_SHA1          0x10 
+#define KRB5_ENCTYPE_DES3_CBC_SHA1          0x10
 #define KRB5_ENCTYPE_UNKNOWN                0x1ff
 #define KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1   0x7007
 
@@ -525,7 +525,7 @@ dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
     asn1_header_decode (asn1p, &cls, &con, &tag, &def, val_len);
     asn1_header_decode (asn1p, &cls, &con, &tag, &def, val_len);
     offset += asn1p->offset - start;
-    
+
     if (val_off)
         *val_off = offset;
 
@@ -557,7 +557,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int ret;
 
     guint protocol_message_type;
-    
+
     guint32 version;
     guint32 msg_type;
     guint32 preauth_type;
@@ -579,7 +579,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
     }
     message_end = asn1p->offset + item_len;
-    
+
     /* second header */
     KRB_HEAD_DECODE_OR_DIE("top2");
 
@@ -655,7 +655,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
   AS-REQ ::=         [APPLICATION 10] KDC-REQ
   TGS-REQ ::=        [APPLICATION 12] KDC-REQ
-    
+
   KDC-REQ ::=        SEQUENCE {
            pvno[1]               INTEGER,
            msg-type[2]           INTEGER,
@@ -757,7 +757,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += item_len;
             KRB_HEAD_DECODE_OR_DIE("Nonce");
         }
-            
+
         DIE_IF_NOT_CONTEXT_TYPE("Nonce", KRB5_BODY_NONCE);
         KRB_DECODE_UINT32_OR_DIE("Nonce", tmp_int);
         if (request_tree) {
@@ -766,7 +766,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 tmp_int);
         }
         offset += length;
-        
+
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("encryption type spot",
                                               KRB5_BODY_ENCTYPE);
         KRB_HEAD_DECODE_OR_DIE("encryption type list");
@@ -866,7 +866,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (item_len == -1)
             return -1;
         offset += item_len;
-        
+
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_KDC_REP_TICKET);
         length = dissect_Ticket(asn1p, pinfo, kerberos_tree, offset);
         if (length == -1)
@@ -932,7 +932,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     	offset += item_len;
 
 	KRB_HEAD_DECODE_OR_DIE("susec");
-	DIE_IF_NOT_CONTEXT_TYPE("susec", KRB5_ERROR_SUSEC);		
+	DIE_IF_NOT_CONTEXT_TYPE("susec", KRB5_ERROR_SUSEC);
 	KRB_DECODE_UINT32_OR_DIE("susec", tmp_int);
 	if (kerberos_tree) {
 		proto_tree_add_text(kerberos_tree, tvb, offset, length,
@@ -1184,7 +1184,7 @@ dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
                                             str_len, format_text(str, str_len));
                     }
                	    break;
-                    
+
                 default:
                     proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos2,
                                         str_len, "Value: %s",
@@ -1192,7 +1192,7 @@ dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
             }
         }
     }
-    
+
     return offset - start_offset;
 }
 
@@ -1262,7 +1262,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
                             "CipherText: %s", bytes_to_str(data, item_len));
     }
     offset += data_len;
-    
+
     return offset - start_offset;
 }
 
@@ -1383,7 +1383,7 @@ proto_reg_handoff_kerberos(void)
 /*
 
   MISC definitions from RFC1510:
-  
+
    Realm ::=           GeneralString
 
    KerberosTime ::=   GeneralizedTime

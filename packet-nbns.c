@@ -3,22 +3,22 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.78 2002/08/07 00:43:13 tpot Exp $
+ * $Id: packet-nbns.c,v 1.79 2002/08/28 21:00:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -239,7 +239,7 @@ nbns_type_name (int type)
 	case T_NBSTAT:
 		return "NBSTAT";
 	}
-	
+
 	return "unknown";
 }
 
@@ -350,7 +350,7 @@ get_nbns_name_type_class(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	name_len = get_nbns_name(tvb, offset, nbns_data_offset, name_ret,
 	   name_type_ret);
 	offset += name_len;
-	
+
 	type = tvb_get_ntohs(tvb, offset);
 	offset += 2;
 
@@ -419,7 +419,7 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		proto_tree_add_text(q_tree, tvb, offset, 2, "Class: %s", class_name);
 		offset += 2;
 	}
-	
+
 	return data_offset - data_start;
 }
 
@@ -927,7 +927,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		cur_offset += data_len;
 		break;
 	}
-	
+
 	return cur_offset - data_start;
 }
 
@@ -938,7 +938,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 	int start_off, add_off;
 	proto_tree *qatree = NULL;
 	proto_item *ti = NULL;
-	
+
 	start_off = cur_off;
 	if (nbns_tree != NULL) {
 		ti = proto_tree_add_text(nbns_tree, tvb, start_off, -1, "Queries");
@@ -965,7 +965,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 	int start_off, add_off;
 	proto_tree *qatree = NULL;
 	proto_item *ti = NULL;
-	
+
 	start_off = cur_off;
 	if (nbns_tree != NULL) {
 		ti = proto_tree_add_text(nbns_tree, tvb, start_off, -1, name);
@@ -1052,7 +1052,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	cur_off = offset + NBNS_HDRLEN;
-    
+
 	if (quest > 0) {
 		/* If this is a response, don't add information about the
 		   queries to the summary, just add information about the
@@ -1131,7 +1131,7 @@ static const value_string nbds_msgtype_vals[] = {
 	{ 0,                       NULL }
 };
 
-static const true_false_string yesno = {  
+static const true_false_string yesno = {
 	"Yes",
 	"No"
 };
@@ -1172,7 +1172,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	header.msg_type = tvb_get_guint8(tvb, offset);
-	
+
 	flags = tvb_get_guint8(tvb, offset+1);
 	header.flags.more = flags & 1;
 	header.flags.first = (flags & 2) >> 1;
@@ -1213,16 +1213,16 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		nbdgm_tree = proto_item_add_subtree(ti, ett_nbdgm);
 
 		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_type, tvb,
-				     offset, 1, 
+				     offset, 1,
 				     header.msg_type);
 		proto_tree_add_boolean(nbdgm_tree, hf_nbdgm_fragment, tvb,
-				       offset+1, 1, 
+				       offset+1, 1,
 				       header.flags.more);
 		proto_tree_add_boolean(nbdgm_tree, hf_nbdgm_first, tvb,
-				       offset+1, 1, 
+				       offset+1, 1,
 				       header.flags.first);
 		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_node_type, tvb,
-				     offset+1, 1, 
+				     offset+1, 1,
 				     header.flags.node_type);
 
 		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_datagram_id, tvb,
@@ -1425,12 +1425,12 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, length + 4, FALSE);
 	  nbss_tree = proto_item_add_subtree(ti, ett_nbss);
-	  
+
 	  proto_tree_add_uint_format(nbss_tree, hf_nbss_type, tvb,
-				     offset, 1, 
+				     offset, 1,
 				     msg_type,
 				     "Message Type: %s",
-				     val_to_str(msg_type, message_types, 
+				     val_to_str(msg_type, message_types,
 						"Unknown (%x)"));
 	}
 
@@ -1469,9 +1469,9 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	  if (check_col(pinfo->cinfo, COL_INFO))
 		  col_append_fstr(pinfo->cinfo, COL_INFO, ", to %s ", name);
-				  
+
 	  len = get_nbns_name(tvb, offset, offset, name, &name_type);
-	  
+
 	  if (tree)
 	    add_name_and_type(nbss_tree, tvb, offset, len,
 				"Calling name", name, name_type);
@@ -1482,7 +1482,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  break;
 
 	case NEGATIVE_SESSION_RESPONSE:
-	  if (tree) 
+	  if (tree)
 	    proto_tree_add_text(nbss_tree, tvb, offset, 1,
 				"Error code: %s",
 				val_to_str(tvb_get_guint8(tvb, offset),
@@ -1500,7 +1500,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    proto_tree_add_text(nbss_tree, tvb, offset, 4,
 				"Retarget IP address: %s",
 				ip_to_str(tvb_get_ptr(tvb, offset, 4)));
-	  
+
 	  offset += 4;
 
 	  if (tree)
@@ -1715,7 +1715,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			goto continuation;
 		}
 	}
- 
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 		    val_to_str(msg_type, message_types, "Unknown (%02x)"));
@@ -1798,50 +1798,50 @@ proto_register_nbt(void)
 	FT_UINT16, BASE_DEC, VALS(rcode_vals), F_RCODE,
 	"Reply code", HFILL }},
     { &hf_nbns_transaction_id,
-      { "Transaction ID",      	"nbns.id",  
+      { "Transaction ID",      	"nbns.id",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
 	"Identification of transaction", HFILL }},
     { &hf_nbns_count_questions,
-      { "Questions",		"nbns.count.queries",  
+      { "Questions",		"nbns.count.queries",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of queries in packet", HFILL }},
     { &hf_nbns_count_answers,
-      { "Answer RRs",		"nbns.count.answers",  
+      { "Answer RRs",		"nbns.count.answers",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of answers in packet", HFILL }},
     { &hf_nbns_count_auth_rr,
-      { "Authority RRs",       	"nbns.count.auth_rr",  
+      { "Authority RRs",       	"nbns.count.auth_rr",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of authoritative records in packet", HFILL }},
     { &hf_nbns_count_add_rr,
-      { "Additional RRs",      	"nbns.count.add_rr",  
+      { "Additional RRs",      	"nbns.count.add_rr",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of additional records in packet", HFILL }}
   };
 
   static hf_register_info hf_nbdgm[] = {
     { &hf_nbdgm_type,
-      { "Message Type",		"nbdgm.type",  
+      { "Message Type",		"nbdgm.type",
 	FT_UINT8, BASE_DEC, VALS(nbds_msgtype_vals), 0x0,
 	"NBDGM message type", HFILL }},
     { &hf_nbdgm_fragment,
-      { "More fragments follow",	"nbdgm.next",  
+      { "More fragments follow",	"nbdgm.next",
 	FT_BOOLEAN, BASE_NONE, TFS(&yesno), 0x0,
 	"TRUE if more fragments follow", HFILL }},
     { &hf_nbdgm_first,
-      { "This is first fragment",	"nbdgm.first",  
+      { "This is first fragment",	"nbdgm.first",
 	FT_BOOLEAN, BASE_NONE, TFS(&yesno), 0x0,
 	"TRUE if first fragment", HFILL }},
     { &hf_nbdgm_node_type,
-      { "Node Type",		"nbdgm.node_type",  
+      { "Node Type",		"nbdgm.node_type",
 	FT_UINT8, BASE_DEC, VALS(node_type_vals), 0x0,
 	"Node type", HFILL }},
     { &hf_nbdgm_datagram_id,
-      { "Datagram ID",		"nbdgm.dgram_id",  
+      { "Datagram ID",		"nbdgm.dgram_id",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
 	"Datagram identifier", HFILL }},
     { &hf_nbdgm_src_ip,
-      { "Source IP",		"nbdgm.src.ip",  
+      { "Source IP",		"nbdgm.src.ip",
 	FT_IPv4, BASE_NONE, NULL, 0x0,
 	"Source IPv4 address", HFILL }},
     { &hf_nbdgm_src_port,
@@ -1852,11 +1852,11 @@ proto_register_nbt(void)
 
   static hf_register_info hf_nbss[] = {
     { &hf_nbss_type,
-      { "Message Type",		"nbss.type",  
+      { "Message Type",		"nbss.type",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"NBSS message type", HFILL }},
     { &hf_nbss_flags,
-      { "Flags",		"nbss.flags",  
+      { "Flags",		"nbss.flags",
 	FT_UINT8, BASE_HEX, NULL, 0x0,
 	"NBSS message flags", HFILL }}
   };
@@ -1877,7 +1877,7 @@ proto_register_nbt(void)
 
   proto_nbns = proto_register_protocol("NetBIOS Name Service", "NBNS", "nbns");
   proto_register_field_array(proto_nbns, hf_nbns, array_length(hf_nbns));
-  
+
   proto_nbdgm = proto_register_protocol("NetBIOS Datagram Service",
 					"NBDS", "nbdgm");
   proto_register_field_array(proto_nbdgm, hf_nbdgm, array_length(hf_nbdgm));

@@ -1,22 +1,22 @@
 /* packet-mrdisc.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/MRDISC packet disassembly
  *
- * $Id: packet-mrdisc.c,v 1.8 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-mrdisc.c,v 1.9 2002/08/28 21:00:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -25,9 +25,9 @@
 
 
 			MRDISC
-	code			
+	code
 
-	0x24		x	
+	0x24		x
 	0x25		x
 	0x26		x
 
@@ -113,7 +113,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 		guint8 type,len;
 		int old_offset = offset;
 
-		item = proto_tree_add_item(parent_tree, hf_options, 
+		item = proto_tree_add_item(parent_tree, hf_options,
 			tvb, offset, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_options);
 
@@ -161,7 +161,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 			proto_item_set_len(item, offset-old_offset);
 		}
 	}
-	
+
 	return offset;
 }
 
@@ -210,7 +210,7 @@ dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int o
 	type = tvb_get_guint8(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-			"%s",val_to_str(type, mrdisc_types, 
+			"%s",val_to_str(type, mrdisc_types,
 				"Unknown Type:0x%02x"));
 	}
 

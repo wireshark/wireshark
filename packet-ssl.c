@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.23 2002/07/17 00:42:42 guy Exp $
+ * $Id: packet-ssl.c,v 1.24 2002/08/28 21:00:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -828,9 +828,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 return offset;
             }
         }
-      
+
     } else {
-      
+
     /* if we don't have a valid content_type, there's no sense
      * continuing any further
      */
@@ -1714,7 +1714,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ssl_set_conv_version(pinfo, *conv_version);
         }
     }
-    
+
     /* if we get here, but don't have a version set for the
      * conversation, then set a version for just this frame
      * (e.g., on a client hello)
@@ -1839,7 +1839,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else
     {
-        /* dissect the message */ 
+        /* dissect the message */
         switch (msg_type) {
         case PCT_MSG_CLIENT_HELLO:
         case PCT_MSG_SERVER_HELLO:
@@ -2119,7 +2119,7 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
     if (cipher_spec_length > 0)
     {
         /* provide a collapsing node for the cipher specs */
-        ti = proto_tree_add_none_format(tree, 
+        ti = proto_tree_add_none_format(tree,
                                         hf_ssl_handshake_cipher_suites,
                                         tvb, offset, cipher_spec_length,
                                         "Cipher Specs (%u spec%s)",
@@ -2803,7 +2803,7 @@ proto_register_ssl(void)
                                      "When enabled, SSL records that span multiple TCP segments are desegmented",
                                      &ssl_desegment);
     }
-  
+
     register_dissector("ssl", dissect_ssl, proto_ssl);
 
 }

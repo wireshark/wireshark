@@ -6,22 +6,22 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.55 2002/08/14 23:34:20 tpot Exp $
+ * $Id: packet-http.c,v 1.56 2002/08/28 21:00:16 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -182,7 +182,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tag = "HTTP";
 		break;
 	}
-	
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -329,17 +329,17 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (http_type) {
 
 		case HTTP_NOTIFICATION:
-			proto_tree_add_boolean_hidden(http_tree, 
+			proto_tree_add_boolean_hidden(http_tree,
 			    hf_http_notification, tvb, 0, 0, 1);
 			break;
 
 		case HTTP_RESPONSE:
-			proto_tree_add_boolean_hidden(http_tree, 
+			proto_tree_add_boolean_hidden(http_tree,
 			    hf_http_response, tvb, 0, 0, 1);
 			break;
 
 		case HTTP_REQUEST:
-			proto_tree_add_boolean_hidden(http_tree, 
+			proto_tree_add_boolean_hidden(http_tree,
 			    hf_http_request, tvb, 0, 0, 1);
 			break;
 
@@ -526,11 +526,11 @@ proto_register_http(void)
 {
 	static hf_register_info hf[] = {
 	    { &hf_http_notification,
-	      { "Notification",		"http.notification",  
+	      { "Notification",		"http.notification",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"TRUE if HTTP notification", HFILL }},
 	    { &hf_http_response,
-	      { "Response",		"http.response",  
+	      { "Response",		"http.response",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"TRUE if HTTP response", HFILL }},
 	    { &hf_http_request,
@@ -563,14 +563,14 @@ proto_register_http(void)
 	subdissector_table = register_dissector_table("http.port",
 	    "TCP port for protocols using HTTP", FT_UINT16, BASE_DEC);
 
-	/* 
-	 * Heuristic dissectors SHOULD register themselves in 
-	 * this table using the standard heur_dissector_add() 
+	/*
+	 * Heuristic dissectors SHOULD register themselves in
+	 * this table using the standard heur_dissector_add()
 	 * function.
 	 */
 
 	register_heur_dissector_list("http",&heur_subdissector_list);
-	
+
 }
 
 /*

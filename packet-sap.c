@@ -4,24 +4,24 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.29 2002/08/21 21:25:23 tpot Exp $
+ * $Id: packet-sap.c,v 1.30 2002/08/28 21:00:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -133,7 +133,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
         if (check_col(pinfo->cinfo, COL_INFO))
                 col_clear(pinfo->cinfo, COL_INFO);
-        
+
 	vers_flags = tvb_get_guint8(tvb, offset);
         is_ipv6 = vers_flags&MCAST_SAP_BIT_A;
         is_del = vers_flags&MCAST_SAP_BIT_T;

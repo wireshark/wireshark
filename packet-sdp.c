@@ -4,22 +4,22 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.32 2002/08/19 12:57:12 guy Exp $
+ * $Id: packet-sdp.c,v 1.33 2002/08/28 21:00:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -261,7 +261,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			        hf = hf_media_attribute;
 			}
 			else{
-			        hf = hf_session_attribute; 
+			        hf = hf_session_attribute;
 			}
 			break;
 		case 'z':
@@ -279,7 +279,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvb_memcpy(tvb, (guint8 *)string, offset + tokenoffset,
 		    linelen - tokenoffset);
 		string[linelen - tokenoffset] = '\0';
-		sub_ti = proto_tree_add_string_format(sdp_tree,hf,tvb, offset, 
+		sub_ti = proto_tree_add_string_format(sdp_tree,hf,tvb, offset,
 					       linelen, string,
 					       "%s: %s",
 					       proto_registrar_get_name(hf),
@@ -299,7 +299,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static void 
+static void
 call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti){
   if(hf == hf_owner){
     dissect_sdp_owner(tvb,ti);
@@ -324,7 +324,7 @@ call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti){
   }
 }
 
-static void 
+static void
 dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   proto_tree *sdp_owner_tree;
   gint offset,next_offset,tokenlen;
@@ -334,7 +334,7 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   tokenlen = 0;
 
   sdp_owner_tree = proto_item_add_subtree(ti,ett_sdp_owner);
-  
+
   /* Find the username */
   next_offset = tvb_find_guint8(tvb,offset,-1,' ');
   if( next_offset == -1 )
@@ -351,7 +351,7 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
     return;
   tokenlen = next_offset - offset;
 
-  proto_tree_add_item(sdp_owner_tree,hf_owner_sessionid, tvb, 
+  proto_tree_add_item(sdp_owner_tree,hf_owner_sessionid, tvb,
 		      offset,tokenlen,FALSE);
   offset = next_offset + 1;
 
@@ -371,17 +371,17 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
     return;
   tokenlen = next_offset - offset;
 
-  proto_tree_add_item(sdp_owner_tree,hf_owner_network_type, tvb, 
+  proto_tree_add_item(sdp_owner_tree,hf_owner_network_type, tvb,
 		      offset,tokenlen,FALSE);
   offset = next_offset + 1;
-  
+
   /* Find the address type */
   next_offset = tvb_find_guint8(tvb,offset,-1,' ');
   if( next_offset == -1 )
     return;
   tokenlen = next_offset - offset;
 
-  proto_tree_add_item(sdp_owner_tree,hf_owner_address_type, tvb, 
+  proto_tree_add_item(sdp_owner_tree,hf_owner_address_type, tvb,
 		      offset,tokenlen,FALSE);
   offset = next_offset + 1;
 
@@ -389,7 +389,7 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   proto_tree_add_item(sdp_owner_tree,hf_owner_address, tvb, offset, -1, FALSE);
 }
 
-static void 
+static void
 dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
   proto_tree *sdp_connection_info_tree;
   gint offset,next_offset,tokenlen;
@@ -397,10 +397,10 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
-  
+
   sdp_connection_info_tree = proto_item_add_subtree(ti,
 						    ett_sdp_connection_info);
-  
+
   /* Find the network type */
   next_offset = tvb_find_guint8(tvb,offset,-1,' ');
   if( next_offset == -1 )
@@ -408,7 +408,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_connection_info_tree,
-		      hf_connection_info_network_type,tvb, 
+		      hf_connection_info_network_type,tvb,
 		      offset,tokenlen,FALSE);
   offset = next_offset + 1;
 
@@ -419,7 +419,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_connection_info_tree,
-		      hf_connection_info_address_type,tvb, 
+		      hf_connection_info_address_type,tvb,
 		      offset,tokenlen,FALSE);
   offset = next_offset + 1;
 
@@ -431,7 +431,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
     tokenlen = next_offset - offset;
   }
   proto_tree_add_item(sdp_connection_info_tree,
-		      hf_connection_info_connection_address, tvb, 
+		      hf_connection_info_connection_address, tvb,
 		      offset,tokenlen,FALSE);
   if(next_offset != -1){
     offset = next_offset + 1;
@@ -452,11 +452,11 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
   }
 }
 
-static void 
+static void
 dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
   proto_tree * sdp_bandwidth_tree;
   gint offset, next_offset, tokenlen;
-  
+
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
@@ -468,14 +468,14 @@ dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
 
   if( next_offset == -1)
     return;
-  
+
   tokenlen = next_offset - offset;
-  
+
   proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_modifier,
 		      tvb, offset, tokenlen, FALSE);
 
   offset = next_offset + 1;
-  
+
   proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_value,
 		      tvb, offset, -1, FALSE);
 
@@ -488,7 +488,7 @@ static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti){
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
-  
+
   sdp_time_tree = proto_item_add_subtree(ti,ett_sdp_time);
 
   /* get start time */
@@ -513,7 +513,7 @@ static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti){
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
-  
+
   sdp_repeat_time_tree = proto_item_add_subtree(ti,ett_sdp_time);
 
   /* get interval */
@@ -547,24 +547,24 @@ static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti){
     proto_tree_add_item(sdp_repeat_time_tree, hf_repeat_time_offset,
 			tvb, offset, tokenlen, FALSE);
   } while( next_offset != -1 );
-  
+
 }
-static void 
+static void
 dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti){
   proto_tree* sdp_timezone_tree;
   gint offset, next_offset, tokenlen;
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
-  
+
   sdp_timezone_tree = proto_item_add_subtree(ti,ett_sdp_timezone);
-  
+
   do{
     next_offset = tvb_find_guint8(tvb,offset,-1,' ');
     if(next_offset == -1)
       break;
     tokenlen = next_offset - offset;
-    
+
     proto_tree_add_item(sdp_timezone_tree,hf_timezone_time,tvb,
 			offset, tokenlen, FALSE);
     offset = next_offset + 1;
@@ -578,7 +578,7 @@ dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti){
 			offset, tokenlen, FALSE);
     offset = next_offset + 1;
   } while (next_offset != -1);
-    
+
 }
 
 
@@ -598,10 +598,10 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti){
     return;
 
   tokenlen = next_offset - offset;
-  
+
   proto_tree_add_item(sdp_encryption_key_tree,hf_encryption_key_type,
 		      tvb, offset, tokenlen, FALSE);
-  
+
   offset = next_offset + 1;
   proto_tree_add_item(sdp_encryption_key_tree,hf_encryption_key_data,
 		      tvb, offset, -1, FALSE);
@@ -627,11 +627,11 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
     return;
 
   tokenlen = next_offset - offset;
-  
+
   proto_tree_add_item(sdp_session_attribute_tree,
 		      hf_session_attribute_field,
 		      tvb, offset, tokenlen, FALSE);
-  
+
   offset = next_offset + 1;
   proto_tree_add_item(sdp_session_attribute_tree,
 		      hf_session_attribute_value,
@@ -639,7 +639,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
 
 }
 
-static void 
+static void
 dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
   proto_tree *sdp_media_tree;
   gint offset, next_offset, tokenlen;
@@ -651,13 +651,13 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
   sdp_media_tree = proto_item_add_subtree(ti,ett_sdp_media);
 
   next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
-  
+
   if(next_offset == -1)
     return;
 
   tokenlen = next_offset - offset;
-  
-  proto_tree_add_item(sdp_media_tree, hf_media_media, tvb, 
+
+  proto_tree_add_item(sdp_media_tree, hf_media_media, tvb,
 		      offset, tokenlen, FALSE);
 
   offset = next_offset + 1;
@@ -667,11 +667,11 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
     return;
   tokenlen = next_offset - offset;
   next_offset = tvb_find_guint8(tvb,offset, tokenlen, '/');
-  
+
   if(next_offset != -1){
     tokenlen = next_offset - offset;
-  
-    proto_tree_add_item(sdp_media_tree, hf_media_port, tvb, 
+
+    proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
 			offset, tokenlen, FALSE);
     offset = next_offset + 1;
     next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
@@ -683,21 +683,21 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
     offset = next_offset + 1;
   } else {
     next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
-    
+
     if(next_offset == -1)
       return;
     tokenlen = next_offset - offset;
-    
+
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
 			offset, tokenlen, FALSE);
     offset = next_offset + 1;
   }
 
   next_offset = tvb_find_guint8(tvb,offset,-1,' ');
-  
+
   if( next_offset == -1)
     return;
-  
+
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb,
@@ -706,7 +706,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
   do{
     offset = next_offset + 1;
     next_offset = tvb_find_guint8(tvb,offset,-1,' ');
-    
+
     if(next_offset == -1){
       tokenlen = -1;	/* End of tvbuff */
     } else {
@@ -736,11 +736,11 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti){
     return;
 
   tokenlen = next_offset - offset;
-  
+
   proto_tree_add_item(sdp_media_attribute_tree,
 		      hf_media_attribute_field,
 		      tvb, offset, tokenlen, FALSE);
-  
+
   offset = next_offset + 1;
   proto_tree_add_item(sdp_media_attribute_tree,
 		      hf_media_attribute_value,
@@ -756,7 +756,7 @@ proto_register_sdp(void)
       { "Session Description Protocol Version (v)",
 	"sdp.version", FT_STRING, BASE_NONE,NULL,0x0,
 	"Session Description Protocol Version", HFILL }},
-    { &hf_owner, 
+    { &hf_owner,
       { "Owner/Creator, Session Id (o)",
 	"sdp.owner", FT_STRING, BASE_NONE, NULL, 0x0,
 	"Owner/Creator, Session Id", HFILL}},
@@ -765,7 +765,7 @@ proto_register_sdp(void)
 	"sdp.session_name", FT_STRING, BASE_NONE,NULL, 0x0,
 	"Session Name", HFILL }},
     { &hf_session_info,
-      { "Session Information (i)", 
+      { "Session Information (i)",
 	"sdp.session_info", FT_STRING, BASE_NONE, NULL, 0x0,
 	"Session Information", HFILL }},
     { &hf_uri,
@@ -773,7 +773,7 @@ proto_register_sdp(void)
 	"sdp.uri", FT_STRING, BASE_NONE,NULL, 0x0,
 	"URI of Description", HFILL }},
     { &hf_email,
-      { "E-mail Address (e)", 
+      { "E-mail Address (e)",
 	"sdp.email", FT_STRING, BASE_NONE, NULL, 0x0,
 	"E-mail Address", HFILL }},
     { &hf_phone,
@@ -796,12 +796,12 @@ proto_register_sdp(void)
       { "Encryption Key (k)",
 	"sdp.encryption_key", FT_STRING, BASE_NONE, NULL, 0x0,
 	"Encryption Key", HFILL }},
-    { &hf_session_attribute, 
-      { "Session Attribute (a)", 
+    { &hf_session_attribute,
+      { "Session Attribute (a)",
 	"sdp.session_attr", FT_STRING, BASE_NONE, NULL, 0x0,
 	"Session Attribute", HFILL }},
-    { &hf_media_attribute, 
-      { "Media Attribute (a)", 
+    { &hf_media_attribute,
+      { "Media Attribute (a)",
 	"sdp.media_attr", FT_STRING, BASE_NONE, NULL, 0x0,
 	"Media Attribute", HFILL }},
     { &hf_time,
@@ -875,11 +875,11 @@ proto_register_sdp(void)
     { &hf_bandwidth_modifier,
       { "Bandwidth Modifier",
 	"sdp.bandwidth.modifier",FT_STRING, BASE_NONE, NULL, 0x0,
-	"Bandwidth Modifier", HFILL }},    
+	"Bandwidth Modifier", HFILL }},
     { &hf_bandwidth_value,
       { "Bandwidth Value",
 	"sdp.bandwidth.value",FT_STRING, BASE_NONE, NULL, 0x0,
-	"Bandwidth Value", HFILL }},    
+	"Bandwidth Value", HFILL }},
     { &hf_time_start,
       { "Session Start Time",
 	"sdp.time.start",FT_STRING, BASE_NONE, NULL, 0x0,
@@ -967,12 +967,12 @@ proto_register_sdp(void)
     &ett_sdp_media,
     &ett_sdp_media_attribute,
   };
-  
+
   proto_sdp = proto_register_protocol("Session Description Protocol",
 				      "SDP", "sdp");
   proto_register_field_array(proto_sdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-	
+
   /*
    * Register the dissector by name, so other dissectors can
    * grab it by name rather than just referring to it directly

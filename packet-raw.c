@@ -1,24 +1,24 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.34 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-raw.c,v 1.35 2002/08/28 21:00:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  *
  * This file created and by Mike Hall <mlh@io.com>
  * Copyright 1998
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -52,7 +52,7 @@ capture_raw(const guchar *pd, int len, packet_counts *ld)
    * Irix PPP connections.  We can't tell what type of data is coming down
    * the line, so our safest bet is IP. - GCC
    */
-   
+
   /* Currently, the Linux 2.1.xxx PPP driver passes back some of the header
    * sometimes.  This check should be removed when 2.2 is out.
    */
@@ -74,7 +74,7 @@ capture_raw(const guchar *pd, int len, packet_counts *ld)
     capture_ip(pd, 10, len, ld);
   }
   else {
-    /* 
+    /*
      * OK, is this IPv4 or IPv6?
      */
     if (BYTES_ARE_IN_FRAME(0,len,1)) {
@@ -126,7 +126,7 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * Irix PPP connections.  We can't tell what type of data is coming down
    * the line, so our safest bet is IP. - GCC
    */
-   
+
   /* Currently, the Linux 2.1.xxx PPP driver passes back some of the header
    * sometimes.  This check should be removed when 2.2 is out.
    */

@@ -2,22 +2,22 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.27 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-wcp.c,v 1.28 2002/08/28 21:00:37 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -40,14 +40,14 @@
 /*
  * Wellfleet compression is a variation on LZSS encoding.
  *
- * Compression is done by keeping a sliding window of previous 
- * data transmited. The sender will use a pattern match to 
+ * Compression is done by keeping a sliding window of previous
+ * data transmited. The sender will use a pattern match to
  * encode repeated data as a data pointer field. Then a stream
  * of pointers and actual data bytes. The pointer values include
  * an offset to previous data in the stream and the length of the
  *  matching data.
  *
- * The data pattern matching is done on the octects. 
+ * The data pattern matching is done on the octects.
  *
  * The data is encoded as 8 field blocks with a compression flag
  * byte at the beginning.  If the bit is set in the compression
@@ -57,7 +57,7 @@
  * The compression field is either 2 or 3 bytes long. The length
  * is determined by the length of the matching data, for short
  * matches the match length is encoded in the high nibble of the
- * first byte. Otherwise the third byte of the field contains 
+ * first byte. Otherwise the third byte of the field contains
  * the match length.
  *
  * First byte -
@@ -65,13 +65,13 @@
  *		High order nibble of the offset
  *
  * upper 4 bits:
- *		1   = length is in 3rd byte 
+ *		1   = length is in 3rd byte
  *		2-F = length of matching data - 1
- *		
- * Second byte - 
+ *
+ * Second byte -
  *  Lower byte of the source offset.
  *
- * Third byte - 
+ * Third byte -
  *  Length of match - 1 if First byte upper nibble = 1, otherwise
  *  this byte isn't added to data stream.
  *
@@ -83,7 +83,7 @@
  *			Flag bits:	0x20 (third field is compressed)
  *			Data:	11 22 20 00 33 44 55
  *				/  /  /  /
- *		raw data ------+--+  /	/	 	
+ *		raw data ------+--+  /	/
  *              (Comp length - 1)<<4+  /
  *		Data offset ----------+
  *
@@ -275,18 +275,18 @@ dissect_wcp_reset( tvbuff_t *tvb, int offset, proto_tree *tree){
 static void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo){
 
 	wcp_window_t *buf_ptr = 0;
-	int len; 
+	int len;
 
 	/* discard first 2 bytes, header and last byte (check byte) */
 	len = tvb_reported_length( tvb)-3;
-	buf_ptr = get_wcp_window_ptr( pinfo); 
+	buf_ptr = get_wcp_window_ptr( pinfo);
 
 	if (( buf_ptr->buf_cur + len) <= (buf_ptr->buffer + MAX_WIN_BUF_LEN)){
 		tvb_memcpy( tvb, buf_ptr->buf_cur, 2, len);
 		buf_ptr->buf_cur = buf_ptr->buf_cur + len;
-	
+
 	} else {
-		guint8 *buf_end = buf_ptr->buffer + MAX_WIN_BUF_LEN; 
+		guint8 *buf_end = buf_ptr->buffer + MAX_WIN_BUF_LEN;
 		tvb_memcpy( tvb, buf_ptr->buf_cur, 2, buf_end - buf_ptr->buf_cur);
 		tvb_memcpy( tvb, buf_ptr->buffer, buf_end - buf_ptr->buf_cur-2,
 			len - (int)(buf_end - buf_ptr->buf_cur));
@@ -309,14 +309,14 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	temp =tvb_get_ntohs(tvb, 0); 
+	temp =tvb_get_ntohs(tvb, 0);
 
 	cmd = (temp & 0xf000) >> 12;
 	ext_cmd = (temp & 0x0f00) >> 8;
 
 	if ( cmd == 0xf)
 		wcp_header_len= 1;
-	else 
+	else
 		wcp_header_len= 2;
 
 	seq = temp & 0x0fff;
@@ -328,7 +328,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		if ( cmd == 0xf)
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str(ext_cmd, ext_cmd_string, "Unknown"));
-	}	
+	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_wcp, tvb, 0, wcp_header_len, FALSE);
@@ -358,7 +358,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			default:
 				break;
 			}
-		}else { 
+		}else {
 			proto_tree_add_uint(wcp_tree, hf_wcp_seq,  tvb, 0, 2, seq);
 		}
 	}
@@ -368,7 +368,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
 					/* exit if done */
-	if ( cmd != 1 && cmd != 0 && !(cmd == 0xf && ext_cmd == 0)) 
+	if ( cmd != 1 && cmd != 0 && !(cmd == 0xf && ext_cmd == 0))
 		return;
 
 	if ( cmd == 1) {		/* uncompressed data */
@@ -416,9 +416,9 @@ static guint8 *decompressed_entry( guint8 *src, guint8 *dst, int *len, guint8 * 
 	}else {					/* one byte count */
 		data_cnt = tmp >> 4;
 		data_cnt++;
-	}		
+	}
 
-	
+
 	src = (dst - 1 - data_offset);
 	if ( src < buf_start)
 		src += MAX_WIN_BUF_LEN;
@@ -443,7 +443,7 @@ static guint8 *decompressed_entry( guint8 *src, guint8 *dst, int *len, guint8 * 
 }
 
 
-static 
+static
 wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 
 /* find the conversation for this side of the DLCI, create one if needed */
@@ -452,12 +452,12 @@ wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 	conversation_t *conv;
 	wcp_window_t *wcp_win_data;
 
-	conv = find_conversation( &pinfo->dl_src, &pinfo->dl_src, PT_NONE, 
-		((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0), 
+	conv = find_conversation( &pinfo->dl_src, &pinfo->dl_src, PT_NONE,
+		((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0),
 		((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0), 0);
 	if ( !conv){
-		conv = conversation_new( &pinfo->dl_src, &pinfo->dl_src, PT_NONE, 
-			((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0), 
+		conv = conversation_new( &pinfo->dl_src, &pinfo->dl_src, PT_NONE,
+			((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0),
 			((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0),
 			0);
 	}
@@ -488,7 +488,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	wcp_window_t *buf_ptr = 0;
 	wcp_pdata_t *volatile pdata_ptr;
 
-	buf_ptr = get_wcp_window_ptr( pinfo); 
+	buf_ptr = get_wcp_window_ptr( pinfo);
 
 	buf_start = buf_ptr->buffer;
 	buf_end = buf_start + MAX_WIN_BUF_LEN;
@@ -562,7 +562,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 			if (tree)
 				proto_tree_add_uint( tree, hf_wcp_comp_bits,  src_tvb, offset-1, 1,
 					comp_flag_bits);
-				
+
 			i = 8;
 		}
 	}
@@ -573,7 +573,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 
 		if ( !pdata_ptr)	/* exit if no data */
 			return NULL;
-		len = pdata_ptr->len;	
+		len = pdata_ptr->len;
 	} else {
 
 	/* save the new data as per packet data */
@@ -581,7 +581,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		memcpy( &pdata_ptr->buffer, buf_ptr->buf_cur,  len);
 		pdata_ptr->len = len;
 
-		p_add_proto_data( pinfo->fd, proto_wcp, (void*)pdata_ptr);	
+		p_add_proto_data( pinfo->fd, proto_wcp, (void*)pdata_ptr);
 
 		buf_ptr->buf_cur = dst;
 	}
@@ -600,7 +600,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		g_free(buf);
 		return NULL;
         }
-        ENDTRY; 
+        ENDTRY;
 
 	/* link new tvbuff into tvbuff chain so cleanup is done later */
         tvb_set_child_real_data_tvbuff( src_tvb, tvb);
@@ -639,13 +639,13 @@ proto_register_wcp(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_wcp_cmd,
-	  { "Command", "wcp.cmd", FT_UINT8, BASE_HEX, VALS(cmd_string), WCP_CMD, 
+	  { "Command", "wcp.cmd", FT_UINT8, BASE_HEX, VALS(cmd_string), WCP_CMD,
 	  	"Compression Command", HFILL }},
 	{ &hf_wcp_ext_cmd,
-	  { "Extended Command", "wcp.ext_cmd", FT_UINT8, BASE_HEX, VALS(ext_cmd_string), WCP_EXT_CMD, 
+	  { "Extended Command", "wcp.ext_cmd", FT_UINT8, BASE_HEX, VALS(ext_cmd_string), WCP_EXT_CMD,
 	  	"Extended Compression Command", HFILL }},
 	{ &hf_wcp_seq,
-	  { "SEQ", "wcp.seq", FT_UINT16, BASE_HEX, NULL, WCP_SEQ, 
+	  { "SEQ", "wcp.seq", FT_UINT16, BASE_HEX, NULL, WCP_SEQ,
 	  	"Sequence Number", HFILL }},
 	{ &hf_wcp_chksum,
 	  { "Checksum", "wcp.checksum", FT_UINT8, BASE_DEC, NULL, 0,

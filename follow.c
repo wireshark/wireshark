@@ -1,23 +1,23 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.30 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: follow.c,v 1.31 2002/08/28 21:00:06 jmayer Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -64,21 +64,21 @@ follow_tcp_stats(follow_tcp_stats_t* stats)
 	}
 }
 
-/* this will build libpcap filter text that will only 
-   pass the packets related to the stream. There is a 
-   chance that two streams could intersect, but not a 
+/* this will build libpcap filter text that will only
+   pass the packets related to the stream. There is a
+   chance that two streams could intersect, but not a
    very good one */
-char* 
+char*
 build_follow_filter( packet_info *pi ) {
   char* buf = g_malloc(1024);
   int len;
   if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
 	&& pi->ipproto == 6 ) {
     /* TCP over IPv4 */
-    sprintf( buf, 
+    sprintf( buf,
 	     "(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-	     ip_to_str( pi->net_src.data), 
-	     ip_to_str( pi->net_dst.data), 
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_dst.data),
 	     pi->srcport, pi->destport );
     len = 4;
     is_ipv6 = FALSE;
@@ -86,15 +86,15 @@ build_follow_filter( packet_info *pi ) {
   else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
 	&& pi->ipproto == 6 ) {
     /* TCP over IPv6 */
-    sprintf( buf, 
+    sprintf( buf,
 	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-	     ip6_to_str((struct e_in6_addr *)pi->net_src.data), 
-	     ip6_to_str((struct e_in6_addr *)pi->net_dst.data), 
+	     ip6_to_str((struct e_in6_addr *)pi->net_src.data),
+	     ip6_to_str((struct e_in6_addr *)pi->net_dst.data),
 	     pi->srcport, pi->destport );
     len = 16;
     is_ipv6 = TRUE;
   }
-  else { 
+  else {
     g_free( buf );
     return NULL;
   }
@@ -106,7 +106,7 @@ build_follow_filter( packet_info *pi ) {
 }
 
 /* here we are going to try and reconstruct the data portion of a TCP
-   session. We will try and handle duplicates, TCP fragments, and out 
+   session. We will try and handle duplicates, TCP fragments, and out
    of order packets in a smart way. */
 
 static tcp_frag *frags[2] = { 0, 0 };
@@ -114,7 +114,7 @@ static gulong seq[2];
 static guint8 src_addr[2][MAX_IPADDR_LEN];
 static guint src_port[2] = { 0, 0 };
 
-void 
+void
 reassemble_tcp( gulong sequence, gulong length, const char* data,
 		gulong data_length, int synflag, address *net_src,
 		address *net_dst, guint srcport, guint dstport) {
@@ -123,9 +123,9 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
   gulong newseq;
   tcp_frag *tmp_frag;
   tcp_stream_chunk sc;
-  
+
   src_index = -1;
-  
+
   /* First, check if this packet should be processed. */
 
   if ((net_src->type != AT_IPv4 && net_src->type != AT_IPv6) ||
@@ -140,7 +140,7 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
   /* Now check if the packet is for this connection. */
   memcpy(srcx, net_src->data, len);
   memcpy(dstx, net_dst->data, len);
-  if ((memcmp(srcx, ip_address[0], len) != 0 && 
+  if ((memcmp(srcx, ip_address[0], len) != 0 &&
        memcmp(srcx, ip_address[1], len) != 0) ||
       (memcmp(dstx, ip_address[0], len) != 0 &&
        memcmp(dstx, ip_address[1], len) != 0) ||
@@ -183,7 +183,7 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
     incomplete_tcp_stream = TRUE;
   }
 
-  /* now that we have filed away the srcs, lets get the sequence number stuff 
+  /* now that we have filed away the srcs, lets get the sequence number stuff
      figured out */
   if( first ) {
     /* this is the first time we have seen this src's sequence number */
@@ -198,14 +198,14 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
   /* if we are here, we have already seen this src, let's
      try and figure out if this packet is in the right place */
   if( sequence < seq[src_index] ) {
-    /* this sequence number seems dated, but 
+    /* this sequence number seems dated, but
        check the end to make sure it has no more
        info than we have already seen */
     newseq = sequence + length;
     if( newseq > seq[src_index] ) {
       gulong new_len;
 
-      /* this one has more than we have seen. let's get the 
+      /* this one has more than we have seen. let's get the
 	 payload that we have not seen. */
 
       new_len = seq[src_index] - sequence;
@@ -221,7 +221,7 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
       sc.dlen = data_length;
       sequence = seq[src_index];
       length = newseq - seq[src_index];
-      
+
       /* this will now appear to be right on time :) */
     }
   }
@@ -257,7 +257,7 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
 
 /* here we search through all the frag we have collected to see if
    one fits */
-static int 
+static int
 check_fragments( int index, tcp_stream_chunk *sc ) {
   tcp_frag *prev = NULL;
   tcp_frag *current;
@@ -286,7 +286,7 @@ check_fragments( int index, tcp_stream_chunk *sc ) {
 }
 
 /* this should always be called before we start to reassemble a stream */
-void 
+void
 reset_tcp_reassembly() {
   tcp_frag *current, *next;
   int i;
@@ -301,7 +301,7 @@ reset_tcp_reassembly() {
     current = frags[i];
     while( current ) {
       next = current->next;
-      free( current->data ); 
+      free( current->data );
       free( current );
       current = next;
     }
@@ -309,7 +309,7 @@ reset_tcp_reassembly() {
   }
 }
 
-static void 
+static void
 write_packet_data( int index, tcp_stream_chunk *sc, const char *data )
 {
   fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file );

@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.16 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-hclnfsd.c,v 1.17 2002/08/28 21:00:16 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,7 +93,7 @@ dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	ngids = tvb_get_ntohl(tvb, offset);
 	if (tree)
 	{
-		giditem = proto_tree_add_text(tree, tvb, offset, 4, "GIDs: %d", 
+		giditem = proto_tree_add_text(tree, tvb, offset, 4, "GIDs: %d",
 			ngids);
 		if (giditem)
 			gidtree = proto_item_add_subtree(giditem, ett_hclnfsd_gids);
@@ -105,7 +105,7 @@ dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 		for (ngids_i = 0; ngids_i < ngids; ngids_i++)
 		{
 			gid = tvb_get_ntohl(tvb, offset + (4 * ngids_i));
-			proto_tree_add_text(gidtree, tvb, offset + (4 * ngids_i), 4, 
+			proto_tree_add_text(gidtree, tvb, offset + (4 * ngids_i), 4,
 				"GID: %d", gid);
 		}
 	}
@@ -182,7 +182,7 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 			4, request_type);
 	offset += 4;
 
-	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_device, offset, 
+	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_device, offset,
 		NULL);
 
 	if (tree)
@@ -236,7 +236,7 @@ dissect_hclnfsd_authorize_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	guint32 status;
 
 	status = tvb_get_ntohl(tvb, offset);
-	if (!tree) 
+	if (!tree)
 		return offset;
 	offset += 4;
 
@@ -266,7 +266,7 @@ static int
 dissect_hclnfsd_grp_name_to_numb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_gid, offset);
-	
+
 	return offset;
 }
 
@@ -284,7 +284,7 @@ dissect_hclnfsd_grp_to_number_call(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 dissect_hclnfsd_grp_to_number_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	return dissect_rpc_string(tvb, tree, hf_hclnfsd_grpname, offset, 
+	return dissect_rpc_string(tvb, tree, hf_hclnfsd_grpname, offset,
 		NULL);
 }
 
@@ -358,7 +358,7 @@ dissect_hclnfsd_uid_to_name_reply(tvbuff_t *tvb, int offset, packet_info *pinfo 
 		return offset;
 
 	for (nusers_i = 0; nusers_i < nusers; nusers_i++)
-		offset = dissect_rpc_string(tvb, usertree, 
+		offset = dissect_rpc_string(tvb, usertree,
 			hf_hclnfsd_username, offset, NULL);
 
 	return offset;
@@ -516,7 +516,7 @@ dissect_hclnfsd_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_offset, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_length, offset);
-	
+
 	return offset;
 }
 
@@ -542,7 +542,7 @@ dissect_hclnfsd_get_printers_reply(tvbuff_t *tvb, int offset, packet_info *pinfo
 			"Print Queues: %d", nqueues);
 
 		if (queuesitem)
-			queuestree = proto_item_add_subtree(queuesitem, 
+			queuestree = proto_item_add_subtree(queuesitem,
 				ett_hclnfsd_printqueues);
 	}
 	offset += 4;
@@ -553,11 +553,11 @@ dissect_hclnfsd_get_printers_reply(tvbuff_t *tvb, int offset, packet_info *pinfo
 	for (nqueues_i = 0; nqueues_i < nqueues; nqueues_i++)
 	{
 		/* create new item for print queue */
-		offset = dissect_rpc_string(tvb, tree, 
+		offset = dissect_rpc_string(tvb, tree,
 			hf_hclnfsd_queuename, offset, NULL);
 
 		/* create subtree on new item with print queue comment */
-		offset = dissect_rpc_string(tvb, tree, 
+		offset = dissect_rpc_string(tvb, tree,
 			hf_hclnfsd_queuecomment, offset, NULL);
 	}
 
@@ -596,7 +596,7 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _
 	datafollows = tvb_get_ntohl(tvb, offset);
 	if (tree)
 	{
-		queueitem = proto_tree_add_text(tree, tvb, offset, 4, 
+		queueitem = proto_tree_add_text(tree, tvb, offset, 4,
 			"Print Jobs: %d", datafollows);
 		if (queueitem)
 			queuetree = proto_item_add_subtree(queueitem, ett_hclnfsd_printqueues);
@@ -605,7 +605,7 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _
 
 	if (!queuetree)
 		return offset;
-	
+
 	while (datafollows)
 	{
 		jobid = tvb_get_ntohl(tvb, offset);
@@ -614,11 +614,11 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _
 		offset += 4;
 
 		jobtree = proto_item_add_subtree(jobitem, ett_hclnfsd_printjob);
-			
-		offset = dissect_rpc_string(tvb, tree, 
+
+		offset = dissect_rpc_string(tvb, tree,
 			hf_hclnfsd_username, offset, NULL);
 
-		offset = dissect_rpc_string(tvb, tree, 
+		offset = dissect_rpc_string(tvb, tree,
 			hf_hclnfsd_printparams, offset, NULL);
 
 		offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_queuestatus, offset);
@@ -627,7 +627,7 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _
 		offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_timesubmitted, offset);
 		offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_size, offset);
 		offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_copies, offset);
-		offset = dissect_rpc_string(tvb, tree, 
+		offset = dissect_rpc_string(tvb, tree,
 			hf_hclnfsd_queuecomment, offset, NULL);
 
 		datafollows = tvb_get_ntohl(tvb, offset);
@@ -642,42 +642,42 @@ dissect_hclnfsd_get_printq_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _
 /* NULL as function pointer means: take the generic one. */
 
 static const vsff hclnfsd1_proc[] = {
-    { HCLNFSDPROC_NULL, "NULL", 
+    { HCLNFSDPROC_NULL, "NULL",
 	 	NULL, NULL },
     { HCLNFSDPROC_SPOOL_INQUIRE, "SPOOL_INQUIRE",
-		dissect_hclnfsd_spool_inquire_call, NULL }, 
+		dissect_hclnfsd_spool_inquire_call, NULL },
     { HCLNFSDPROC_SPOOL_FILE, "SPOOL_FILE",
-		dissect_hclnfsd_spool_file_call, NULL }, 
+		dissect_hclnfsd_spool_file_call, NULL },
     { HCLNFSDPROC_AUTHORIZE, "AUTHORIZE",
-		dissect_hclnfsd_authorize_call, dissect_hclnfsd_authorize_reply }, 
+		dissect_hclnfsd_authorize_call, dissect_hclnfsd_authorize_reply },
     { HCLNFSDPROC_GRP_NAME_TO_NUMB, "GRP_NAME_TO_NUMB",
-		dissect_hclnfsd_grp_name_to_numb_call, dissect_hclnfsd_grp_name_to_numb_reply }, 
+		dissect_hclnfsd_grp_name_to_numb_call, dissect_hclnfsd_grp_name_to_numb_reply },
     { HCLNFSDPROC_GRP_TO_NUMBER, "GRP_TO_NUMBER",
 		dissect_hclnfsd_grp_to_number_call, dissect_hclnfsd_grp_to_number_reply },
     { HCLNFSDPROC_RETURN_HOST, "RETURN_HOST",
-		dissect_hclnfsd_return_host_call, dissect_hclnfsd_return_host_reply }, 
+		dissect_hclnfsd_return_host_call, dissect_hclnfsd_return_host_reply },
     { HCLNFSDPROC_UID_TO_NAME, "UID_TO_NAME",
-		dissect_hclnfsd_uid_to_name_call, dissect_hclnfsd_uid_to_name_reply }, 
+		dissect_hclnfsd_uid_to_name_call, dissect_hclnfsd_uid_to_name_reply },
     { HCLNFSDPROC_NAME_TO_UID, "NAME_TO_UID",
-		dissect_hclnfsd_name_to_uid_call, dissect_hclnfsd_name_to_uid_reply }, 
+		dissect_hclnfsd_name_to_uid_call, dissect_hclnfsd_name_to_uid_reply },
     { HCLNFSDPROC_SHARE, "SHARE",
-		dissect_hclnfsd_share_call, dissect_hclnfsd_share_reply }, 
+		dissect_hclnfsd_share_call, dissect_hclnfsd_share_reply },
     { HCLNFSDPROC_UNSHARE, "UNSHARE",
-		dissect_hclnfsd_unshare_call, dissect_hclnfsd_unshare_reply }, 
+		dissect_hclnfsd_unshare_call, dissect_hclnfsd_unshare_reply },
     { HCLNFSDPROC_LOCK, "LOCK",
-		dissect_hclnfsd_lock_call, dissect_hclnfsd_lock_reply }, 
+		dissect_hclnfsd_lock_call, dissect_hclnfsd_lock_reply },
     { HCLNFSDPROC_REMOVE, "REMOVE",
-		dissect_hclnfsd_remove_call, NULL }, 
+		dissect_hclnfsd_remove_call, NULL },
     { HCLNFSDPROC_UNLOCK, "UNLOCK",
-		dissect_hclnfsd_unlock_call, dissect_hclnfsd_unlock_reply }, 
+		dissect_hclnfsd_unlock_call, dissect_hclnfsd_unlock_reply },
     { HCLNFSDPROC_GET_PRINTERS, "GET_PRINTERS",
-		NULL, dissect_hclnfsd_get_printers_reply }, 
+		NULL, dissect_hclnfsd_get_printers_reply },
     { HCLNFSDPROC_GET_PRINTQ, "GET_PRINTQ",
-		dissect_hclnfsd_get_printq_call, dissect_hclnfsd_get_printq_reply }, 
+		dissect_hclnfsd_get_printq_call, dissect_hclnfsd_get_printq_reply },
     { HCLNFSDPROC_CANCEL_PRJOB, "CANCEL_PRJOB",
-		NULL, NULL }, 
+		NULL, NULL },
     { HCLNFSDPROC_ZAP_LOCKS, "ZAP_LOCKS",
-		NULL, NULL }, 
+		NULL, NULL },
     { 0, NULL, NULL, NULL }
 };
 /* end of hclnfsd version 1 */
@@ -838,7 +838,7 @@ proto_register_hclnfsd(void)
 		&ett_hclnfsd_auth_ident
 	};
 
-	proto_hclnfsd = proto_register_protocol("Hummingbird NFS Daemon", 
+	proto_hclnfsd = proto_register_protocol("Hummingbird NFS Daemon",
 		"HCLNFSD", "hclnfsd");
 	proto_register_field_array(proto_hclnfsd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

@@ -6,9 +6,9 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  * Portions based on information/specs retrieved from the OpenAFS sources at
- *   www.openafs.org, Copyright IBM. 
+ *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs.c,v 1.48 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: packet-afs.c,v 1.49 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,43 +74,43 @@ static GMemChunk *afs_request_vals = NULL;
 /*
  * Dissector prototypes
  */
-static int dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static int dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset);
-static void dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_vol_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_vol_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_vol_request(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_vol_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_kauth_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_kauth_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_kauth_request(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_kauth_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_cb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_cb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_cb_request(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_cb_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_prot_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_prot_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_ubik_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_ubik_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_ubik_request(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_ubik_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_backup_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_backup_reply(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
-static void dissect_backup_request(tvbuff_t *tvb, struct rxinfo *rxinfo, 
+static void dissect_backup_request(tvbuff_t *tvb, struct rxinfo *rxinfo,
 	proto_tree *tree, int offset, int opcode);
 
 /*
@@ -215,11 +215,11 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    pinfo->srcport, pinfo->destport, 0);
 	if (conversation == NULL) {
 		/* It's not part of any conversation - create a new one. */
-		conversation = conversation_new(&pinfo->src, &pinfo->dst, 
+		conversation = conversation_new(&pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 
-	request_key.conversation = conversation->index;	
+	request_key.conversation = conversation->index;
 	request_key.service = rxinfo->serviceid;
 	request_key.callnumber = rxinfo->callnumber;
 
@@ -381,15 +381,15 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ti = proto_tree_add_text(afs_tree, tvb,
 					offset, 0, "Operation: Unknown");
 			}
-	
+
 			/* Add the subtree for this particular service */
 			afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
-	
+
 			if ( typenode != 0 ) {
 				/* indicate the type of request */
 				proto_tree_add_boolean_hidden(afs_tree, typenode, tvb, offset, 0, 1);
 			}
-	
+
 			/* Process the packet according to what service it is */
 			if ( dissector ) {
 				(*dissector)(tvb, rxinfo, afs_op_tree, offset, opcode);
@@ -431,7 +431,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  * Should this just scan the string itself, rather than using "sscanf()"?
  */
-static int 
+static int
 dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset)
 {
 	int old_offset;
@@ -445,12 +445,12 @@ dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offs
 
 
 	if (sscanf((char *) GETSTR, "%d %n", &pos, &n) != 1) {
-		/* does not matter what we return, if this fails, 
+		/* does not matter what we return, if this fails,
 		 * we cant dissect anything else in the packet either.
 		 */
 		return offset;
 	}
-	proto_tree_add_uint(tree, hf_afs_fs_acl_count_positive, tvb, 
+	proto_tree_add_uint(tree, hf_afs_fs_acl_count_positive, tvb,
 		offset, n, pos);
 	offset += n;
 
@@ -458,7 +458,7 @@ dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offs
 	if (sscanf((char *) GETSTR, "%d %n", &neg, &n) != 1) {
 		return offset;
 	}
-	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, tvb, 
+	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, tvb,
 		offset, n, neg);
 	offset += n;
 
@@ -466,7 +466,7 @@ dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offs
 	 * This wacky order preserves the order used by the "fs" command
 	 */
 	for (i = 0; i < pos; i++) {
-		if (sscanf((char *) GETSTR, 
+		if (sscanf((char *) GETSTR,
 				"%127s %d %n", user, &acl, &n) != 2) {
 			return offset;
 		}
@@ -474,7 +474,7 @@ dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offs
 		offset += n;
 	}
 	for (i = 0; i < neg; i++) {
-		if (sscanf((char *) GETSTR, 
+		if (sscanf((char *) GETSTR,
 			"%127s %d %n", user, &acl, &n) != 2) {
 			return offset;
 		}
@@ -518,7 +518,7 @@ dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 				OUT_FS_AFSFetchStatus("Status");
 				OUT_FS_AFSCallBack();
 				OUT_FS_AFSVolSync();
-				break;	
+				break;
 			case 133: /* Store data */
 			case 134: /* Store ACL */
 	 		case 135: /* Store status */
@@ -554,7 +554,7 @@ dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 			case 145: /* old release lock */
 			case 147: /* give up callbacks */
 			case 150: /* set volume status */
-			case 152: /* check token */ 
+			case 152: /* check token */
 				/* nothing returned */
 				break;
 			case 146: /* get statistics */
@@ -578,7 +578,7 @@ dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 				break;
 			case 155: /* bulk status */
 				OUT_FS_AFSBulkStats();
-				SKIP(4); 
+				SKIP(4);
 				OUT_FS_AFSCBs();
 				OUT_FS_AFSVolSync();
 				break;
@@ -625,7 +625,7 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			break;
 		case 131: /* Fetch ACL */
 			OUT_FS_AFSFid("Target");
-			break;		
+			break;
 		case 132: /* Fetch Status */
 			OUT_FS_AFSFid("Target");
 			break;

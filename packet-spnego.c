@@ -4,22 +4,22 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.6 2002/08/28 05:02:41 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.7 2002/08/28 21:00:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -59,7 +59,7 @@ static int proto_spnego = -1;
 
 static int hf_spnego = -1;
 static int hf_spnego_negtokeninit = -1;
-static int hf_spnego_negtokentarg = -1; 
+static int hf_spnego_negtokentarg = -1;
 static int hf_spnego_mechtype = -1;
 
 static gint ett_spnego = -1;
@@ -91,7 +91,7 @@ dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 }
 
-static int 
+static int
 dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			 proto_tree *tree, ASN1_SCK *hnd)
 {
@@ -107,7 +107,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	int length = tvb_length_remaining(tvb, offset);
 
 	/*
-	 * MechTypeList ::= SEQUENCE OF MechType 
+	 * MechTypeList ::= SEQUENCE OF MechType
 	 */
 
 	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len1);
@@ -126,14 +126,14 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  goto done;
 	}
 
-	item = proto_tree_add_item( tree, hf_spnego_mechtype, tvb, offset, 
+	item = proto_tree_add_item( tree, hf_spnego_mechtype, tvb, offset,
 				    length, FALSE);
 	subtree = proto_item_add_subtree(item, ett_spnego_mechtype);
 
 	offset = hnd->offset;
 
 	/*
-	 * Now, the object IDs ... We should translate them: FIXME 
+	 * Now, the object IDs ... We should translate them: FIXME
 	 */
 
 	while (len1) {
@@ -148,7 +148,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  oid_string = format_oid(oid, len);
 
-	  proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s", 
+	  proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
 			      oid_string);
 
 	  offset += nbytes;
@@ -162,7 +162,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 }
 
-static int 
+static int
 dissect_spnego_reqFlags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_tree *tree, ASN1_SCK *hnd)
 {
@@ -171,7 +171,7 @@ dissect_spnego_reqFlags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 }
 
-static int 
+static int
 dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			 proto_tree *tree, ASN1_SCK *hnd)
 {
@@ -180,7 +180,7 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 }
 
-static int 
+static int
 dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			   proto_tree *tree, ASN1_SCK *hnd)
 {
@@ -213,8 +213,8 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* XXX: FIXME, we should dissect this as well */
 
-	proto_tree_add_text(tree, tvb, offset + 4, len1 - 4, 
-			    "mechListMIC: %s\n", 
+	proto_tree_add_text(tree, tvb, offset + 4, len1 - 4,
+			    "mechListMIC: %s\n",
 			    tvb_format_text(tvb, offset + 4, len1 - 4));
 
 	/* Naughty ... but we have to adjust for what we never took */
@@ -229,7 +229,7 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
+dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			    proto_tree *tree, ASN1_SCK *hnd)
 {
 	proto_item *item;
@@ -245,17 +245,17 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	int ret, offset = 0;
 	int length = tvb_length_remaining(tvb, offset);
 
-	item = proto_tree_add_item( tree, hf_spnego_negtokeninit, tvb, offset, 
+	item = proto_tree_add_item( tree, hf_spnego_negtokeninit, tvb, offset,
 				    length, FALSE);
 	subtree = proto_item_add_subtree(item, ett_spnego_negtokeninit);
 
 	/*
 	 * Here is what we need to get ...
-	 * NegTokenInit ::= SEQUENCE { 
-	 *          mechTypes [0] MechTypeList OPTIONAL, 
-	 *          reqFlags [1] ContextFlags OPTIONAL, 
-	 *          mechToken [2] OCTET STRING OPTIONAL, 
-	 *          mechListMIC [3] OCTET STRING OPTIONAL } 
+	 * NegTokenInit ::= SEQUENCE {
+	 *          mechTypes [0] MechTypeList OPTIONAL,
+	 *          reqFlags [1] ContextFlags OPTIONAL,
+	 *          mechToken [2] OCTET STRING OPTIONAL,
+	 *          mechListMIC [3] OCTET STRING OPTIONAL }
 
 	 */
 
@@ -308,7 +308,7 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  case SPNEGO_mechTypes:
 
-	    offset = dissect_spnego_mechTypes(tvb, offset, pinfo, 
+	    offset = dissect_spnego_mechTypes(tvb, offset, pinfo,
 					      subtree, hnd);
 
 	    break;
@@ -345,10 +345,10 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (((value = g_hash_table_lookup(gssapi_oids, oid_string)) == NULL) ||
 	    !proto_is_protocol_enabled(value->proto)) {
 
-		No dissector for this oid 
+		No dissector for this oid
 
 		proto_tree_add_text(
-			subtree, tvb, offset, 
+			subtree, tvb, offset,
 			tvb_length_remaining(tvb, offset), "Token object");
 
 		goto done;
@@ -371,10 +371,10 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
  done:
 
 	return offset; /* Not sure this is right */
-} 
+}
 
 static void
-dissect_spnego_negTokenTarg(tvbuff_t *tvb, packet_info *pinfo _U_, 
+dissect_spnego_negTokenTarg(tvbuff_t *tvb, packet_info *pinfo _U_,
 			    proto_tree *tree)
 
 {
@@ -400,27 +400,27 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	subtree = proto_item_add_subtree(item, ett_spnego);
 
 	/*
-	 * The TVB contains a [0] header and a sequence that consists of an 
+	 * The TVB contains a [0] header and a sequence that consists of an
 	 * object ID and a blob containing the data ...
 	 * Actually, it contains, according to RFC2478:
-         * NegotiationToken ::= CHOICE { 
-	 *          negTokenInit [0] NegTokenInit, 
-	 *          negTokenTarg [1] NegTokenTarg } 
-	 * NegTokenInit ::= SEQUENCE { 
-	 *          mechTypes [0] MechTypeList OPTIONAL, 
-	 *          reqFlags [1] ContextFlags OPTIONAL, 
-	 *          mechToken [2] OCTET STRING OPTIONAL, 
-	 *          mechListMIC [3] OCTET STRING OPTIONAL } 
-         * NegTokenTarg ::= SEQUENCE { 
-	 *          negResult [0] ENUMERATED { 
-	 *              accept_completed (0), 
-	 *              accept_incomplete (1), 
-	 *              reject (2) } OPTIONAL, 
-         *          supportedMech [1] MechType OPTIONAL, 
-         *          responseToken [2] OCTET STRING OPTIONAL, 
+         * NegotiationToken ::= CHOICE {
+	 *          negTokenInit [0] NegTokenInit,
+	 *          negTokenTarg [1] NegTokenTarg }
+	 * NegTokenInit ::= SEQUENCE {
+	 *          mechTypes [0] MechTypeList OPTIONAL,
+	 *          reqFlags [1] ContextFlags OPTIONAL,
+	 *          mechToken [2] OCTET STRING OPTIONAL,
+	 *          mechListMIC [3] OCTET STRING OPTIONAL }
+         * NegTokenTarg ::= SEQUENCE {
+	 *          negResult [0] ENUMERATED {
+	 *              accept_completed (0),
+	 *              accept_incomplete (1),
+	 *              reject (2) } OPTIONAL,
+         *          supportedMech [1] MechType OPTIONAL,
+         *          responseToken [2] OCTET STRING OPTIONAL,
          *          mechListMIC [3] OCTET STRING OPTIONAL }
-         * 
-	 * Windows typically includes mechTypes and mechListMic ('NONE' 
+         *
+	 * Windows typically includes mechTypes and mechListMic ('NONE'
 	 * in the case of NTLMSSP only).
          * It seems to duplicate the responseToken into the mechListMic field
          * as well. Naughty, naughty.
@@ -430,7 +430,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	asn1_open(&hnd, tvb, offset);
 
 	/*
-	 * Get the first header ... 
+	 * Get the first header ...
 	 */
 
 	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
@@ -451,7 +451,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	offset = hnd.offset;
 
-	/* 
+	/*
 	 * The Tag is one of negTokenInit or negTokenTarg
 	 */
 
@@ -459,7 +459,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	case SPNEGO_negTokenInit:
 
-	  offset = dissect_spnego_negTokenInit(tvb, offset, pinfo, 
+	  offset = dissect_spnego_negTokenInit(tvb, offset, pinfo,
 					       subtree, &hnd);
 
 	  break;
@@ -484,32 +484,32 @@ proto_register_spnego(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_spnego,
-		  { "SPNEGO", "spnego", FT_NONE, BASE_NONE, NULL, 0x0, 
+		  { "SPNEGO", "spnego", FT_NONE, BASE_NONE, NULL, 0x0,
 		    "SPNEGO", HFILL }},
-		{ &hf_spnego_negtokeninit, 
+		{ &hf_spnego_negtokeninit,
 		  { "negTokenInit", "spnego.negtokeninit", FT_NONE, BASE_NONE,
 		    NULL, 0x0, "SPNEGO negTokenInit", HFILL}},
 		{ &hf_spnego_negtokentarg,
 		  { "negTokenTarg", "spnego.negtokentarg", FT_NONE, BASE_NONE,
 		    NULL, 0x0, "SPNEGO negTokenTarg", HFILL}},
 		{ &hf_spnego_mechtype,
-		  { "mechType", "spnego.negtokeninit.mechtype", FT_NONE, 
+		  { "mechType", "spnego.negtokeninit.mechtype", FT_NONE,
 		    BASE_NONE, NULL, 0x0, "SPNEGO negTokenInit mechTypes", HFILL}},
 	};
-  
+
 	static gint *ett[] = {
 		&ett_spnego,
 		&ett_spnego_negtokeninit,
 		&ett_spnego_negtokentarg,
 		&ett_spnego_mechtype,
 	};
-	
+
 	proto_spnego = proto_register_protocol(
 		"Spnego", "Spnego", "spnego");
 
 	proto_register_field_array(proto_spnego, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-  
+
 	register_dissector("spnego", dissect_spnego, proto_spnego);
 }
 

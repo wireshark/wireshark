@@ -1,22 +1,22 @@
 /* packet-ipsec.c
- * Routines for IPsec/IPComp packet disassembly 
+ * Routines for IPsec/IPComp packet disassembly
  *
- * $Id: packet-ipsec.c,v 1.41 2002/08/02 23:35:51 jmayer Exp $
+ * $Id: packet-ipsec.c,v 1.42 2002/08/28 21:00:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -134,7 +134,7 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 
-    tvb_memcpy(tvb, (guint8 *)&ah, 0, sizeof(ah)); 
+    tvb_memcpy(tvb, (guint8 *)&ah, 0, sizeof(ah));
     advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -201,7 +201,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 
-    tvb_memcpy(tvb, (guint8 *)&esp, 0, sizeof(esp)); 
+    tvb_memcpy(tvb, (guint8 *)&esp, 0, sizeof(esp));
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "ESP (SPI=0x%08x)",
@@ -215,7 +215,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(tree) {
 	ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, FALSE);
 	esp_tree = proto_item_add_subtree(ti, ett_esp);
-	proto_tree_add_uint(esp_tree, hf_esp_spi, tvb, 
+	proto_tree_add_uint(esp_tree, hf_esp_spi, tvb,
 			    offsetof(struct newesp, esp_spi), 4,
 			    (guint32)g_ntohl(esp.esp_spi));
 	proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
@@ -244,7 +244,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 
-    tvb_memcpy(tvb, (guint8 *)&ipcomp, 0, sizeof(ipcomp)); 
+    tvb_memcpy(tvb, (guint8 *)&ipcomp, 0, sizeof(ipcomp));
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	p = match_strval(g_ntohs(ipcomp.comp_cpi), cpi2val);
@@ -270,7 +270,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_flags, tvb,
 	    offsetof(struct ipcomp, comp_flags), 1,
 	    ipcomp.comp_flags);
-	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, tvb, 
+	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, tvb,
 	    offsetof(struct ipcomp, comp_cpi), 2,
 	    g_ntohs(ipcomp.comp_cpi));
 	call_dissector(data_handle,
@@ -306,7 +306,7 @@ proto_register_ipsec(void)
       { "Flags",	"ipcomp.flags",	FT_UINT8,	BASE_HEX, NULL, 0x0,
       	"", HFILL }},
     { &hf_ipcomp_cpi,
-      { "CPI",		"ipcomp.cpi",	FT_UINT16,	BASE_HEX, 
+      { "CPI",		"ipcomp.cpi",	FT_UINT16,	BASE_HEX,
         VALS(cpi2val),	0x0,      	"", HFILL }},
   };
   static gint *ett[] = {

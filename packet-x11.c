@@ -2,24 +2,24 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.45 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-x11.c,v 1.46 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -30,7 +30,7 @@
  * - keep track of Atom creation by server to be able to display
  *   non-predefined atoms
  * - Idem for keysym <-> keycode ???
- * - Idem for fonts 
+ * - Idem for fonts
  * - Subtree the request ids (that is x11.create-window.window and
  *   x11.change-window.window should be  distinct), and add hidden fields
  *   (so we still have x11.window).
@@ -243,7 +243,7 @@ static const value_string auto_repeat_mode_vals[] = {
       { 0, NULL }
 };
 
-static const value_string background_pixmap_vals[] = { 
+static const value_string background_pixmap_vals[] = {
       { 0, "None" },
       { 1, "ParentRelative" },
       { 0, NULL }
@@ -256,7 +256,7 @@ static const value_string backing_store_vals[] = {
       { 0, NULL }
 };
 
-static const value_string border_pixmap_vals[] = { 
+static const value_string border_pixmap_vals[] = {
       { 0, "CopyFromParent" },
       { 0, NULL }
 };
@@ -294,7 +294,7 @@ static const value_string coordinate_mode_vals[] = {
       { 0, NULL }
 };
 
-static const value_string direction_vals[] = { 
+static const value_string direction_vals[] = {
       { 0, "RaiseLowest" },
       { 1, "LowerHighest" },
       { 0, NULL }
@@ -347,7 +347,7 @@ static const value_string function_vals[] = {
       { 12, "CopyInverted" },
       { 13, "OrInverted" },
       { 14, "Nand" },
-      { 15, "Set" },  
+      { 15, "Set" },
       {  0, NULL }
 };
 
@@ -415,7 +415,7 @@ static const value_string on_off_vals[] = {
 static const value_string opcode_vals[] = {
       {   1, "CreateWindow" },
       {   2, "ChangeWindowAttributes" },
-      {   3, "GetWindowAttributes" }, 
+      {   3, "GetWindowAttributes" },
       {   4, "DestroyWindow" },
       {   5, "DestroySubwindows" },
       {   6, "ChangeSaveSet" },
@@ -749,7 +749,7 @@ static void atom(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 		  interpretation = match_strval(v, cVALS(hfi -> strings));
       }
       if (!interpretation) interpretation = "error in Xlib client program ?";
-      proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, "%s: %u (%s)", 
+      proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, "%s: %u (%s)",
 				 proto_registrar_get_nth(hf) -> name, v, interpretation);
       *offsetp += 4;
 }
@@ -767,7 +767,7 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       unsigned do_red_green_blue = VALUE8(tvb, *offsetp);
       proto_item *ti;
       proto_tree *tt;
-      
+
       if (do_red_green_blue) {
 	    int sep = FALSE;
 	    char buffer[512];
@@ -799,16 +799,16 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 					    "%s", buffer);
 	    tt = proto_item_add_subtree(ti, ett_x11_color_flags);
 	    if (do_red_green_blue & 0x1)
-		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_red, tvb, *offsetp, 1, 
+		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_red, tvb, *offsetp, 1,
 					 do_red_green_blue & 0x1);
 	    if (do_red_green_blue & 0x2)
-		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_green, tvb, *offsetp, 1, 
+		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_green, tvb, *offsetp, 1,
 					 do_red_green_blue & 0x2);
 	    if (do_red_green_blue & 0x4)
-		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_blue, tvb, *offsetp, 1, 
+		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_blue, tvb, *offsetp, 1,
 					 do_red_green_blue & 0x4);
 	    if (do_red_green_blue & 0xf8)
-		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_unused, tvb, *offsetp, 1, 
+		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_unused, tvb, *offsetp, 1,
 					 do_red_green_blue & 0xf8);
       } else
 	    proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, *offsetp, 1, do_red_green_blue,
@@ -843,7 +843,7 @@ static void listOfArc(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    gint16 angle1 = VALUE16(tvb, *offsetp + 8);
 	    gint16 angle2 = VALUE16(tvb, *offsetp + 10);
 
-	    proto_item *tti = proto_tree_add_none_format(tt, hf_x11_arc, tvb, *offsetp, 12, 
+	    proto_item *tti = proto_tree_add_none_format(tt, hf_x11_arc, tvb, *offsetp, 12,
 							     "arc: %dx%d+%d+%d, angle %d -> %d (%f degrees -> %f degrees)",
 							     width, height, x, y, angle1, angle2,
 							     angle1 / 64.0, angle2 / 64.0);
@@ -1049,7 +1049,7 @@ static void listOfRectangle(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    width = VALUE16(tvb, *offsetp + 4);
 	    height = VALUE16(tvb, *offsetp + 6);
 
-	    tti = proto_tree_add_none_format(tt, hf_x11_rectangle, tvb, *offsetp, 8, 
+	    tti = proto_tree_add_none_format(tt, hf_x11_rectangle, tvb, *offsetp, 8,
 						 "rectangle: %dx%d+%d+%d", width, height, x, y);
 	    ttt = proto_item_add_subtree(tti, ett_x11_rectangle);
 	    proto_tree_add_int(ttt, hf_x11_rectangle_x, tvb, *offsetp, 2, x);
@@ -1078,7 +1078,7 @@ static void listOfSegment(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    x2 = VALUE16(tvb, *offsetp + 4);
 	    y2 = VALUE16(tvb, *offsetp + 6);
 
-	    tti = proto_tree_add_none_format(tt, hf_x11_segment, tvb, *offsetp, 8, 
+	    tti = proto_tree_add_none_format(tt, hf_x11_segment, tvb, *offsetp, 8,
 						 "segment: (%d,%d)-(%d,%d)", x1, y1, x2, y2);
 	    ttt = proto_item_add_subtree(tti, ett_x11_segment);
 	    proto_tree_add_item(ttt, hf_x11_segment_x1, tvb, *offsetp, 2, little_endian);
@@ -1115,7 +1115,7 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       int i;
 
       /* Compute total length */
-      
+
       int scanning_offset = *offsetp; /* Scanning pointer */
       int l;
       for(i = length; i; i--) {
@@ -1202,7 +1202,7 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
 	    if (truncated) { *dp++ = '.'; *dp++ = '.'; *dp++ = '.'; }
 
 	    *dp++ = '\0';
-	    proto_tree_add_string_format(t, hf, tvb, offset, length, tvb_get_ptr(tvb, offset, length), "%s: %s", 
+	    proto_tree_add_string_format(t, hf, tvb, offset, length, tvb_get_ptr(tvb, offset, length), "%s: %s",
 					proto_registrar_get_nth(hf) -> name, *s);
       } else
 	    proto_tree_add_item(t, hf_bytes, tvb, offset, length, little_endian);
@@ -1219,7 +1219,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       guint32 fid;
 
       /* Compute total length */
-      
+
       int scanning_offset = *offsetp; /* Scanning pointer */
       int l;                            /* Length of an individual item */
       int n = 0;                        /* Number of items */
@@ -1265,13 +1265,13 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 		  ttt = proto_item_add_subtree(tti, ett_x11_text_item);
 		  proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, little_endian);
 		  if (sizeIs16)
-			string16_with_buffer_preallocated(tvb, ttt, hf_x11_textitem_string_string16, 
+			string16_with_buffer_preallocated(tvb, ttt, hf_x11_textitem_string_string16,
 							  hf_x11_textitem_string_string16_bytes,
 							  *offsetp + 2, l,
 							  &s, &allocated,
 							  little_endian);
 		  else
-			proto_tree_add_string_format(ttt, hf_x11_textitem_string_string8, tvb, 
+			proto_tree_add_string_format(ttt, hf_x11_textitem_string_string8, tvb,
 						     *offsetp + 2, l, s, "\"%s\"", s);
 		  *offsetp += l + 2;
 	    }
@@ -1326,7 +1326,7 @@ static guint32 field32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 				       hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%08x (%s)",
 				       nameAsChar, v, enumValue);
       else
-	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, 
+	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v,
 				       hfi -> display == BASE_DEC ? "%s: %u" : "%s: 0x%08x",
 				       nameAsChar, v);
       *offsetp += 4;
@@ -1470,7 +1470,7 @@ static void setOfKeyMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 	    proto_tree_add_uint_format(t, hf_x11_modifiers_mask_AnyModifier, tvb, *offsetp, 2, 0x8000,
 				       "modifiers-masks: 0x8000 (AnyModifier)");
       else {
-	    ti = proto_tree_add_uint(t, hf_x11_modifiers_mask, tvb, *offsetp, 2, 
+	    ti = proto_tree_add_uint(t, hf_x11_modifiers_mask, tvb, *offsetp, 2,
 						 bitmask_value);
 	    bitmask_tree = proto_item_add_subtree(ti, ett_x11_set_of_key_mask);
 	    FLAG(modifiers, Shift);
@@ -1483,7 +1483,7 @@ static void setOfKeyMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 	    FLAG(modifiers, Mod5);
 	    FLAG_IF_NONZERO(modifiers, erroneous_bits);
       }
-      *offsetp += 2; 
+      *offsetp += 2;
 }
 
 static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
@@ -1892,7 +1892,7 @@ static gboolean consistentWithOrder(int length, tvbuff_t *tvb, int offset, guint
 
 	  case 118: /* SetModifierMapping */
 	    return length == 1 + tvb_get_guint8(tvb, 1) * 2;
-	    
+
 	  case 127: /* NoOperation */
 	    return length >= 1;
 
@@ -1969,9 +1969,9 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo,
 	     */
 	    state_info->byte_order = decision ? BYTE_ORDER_LE : BYTE_ORDER_BE;
       }
-	    
+
       /*
-      fprintf(stderr, "packet %d\tle %d\tbe %d\tlittle_endian %d\tcache %d\n", 
+      fprintf(stderr, "packet %d\tle %d\tbe %d\tlittle_endian %d\tcache %d\n",
 	      pinfo->fd -> num, le, be, decision, decisionToCache);
       */
       return decision;
@@ -2058,7 +2058,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       OPCODE();
 
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", sep,
 			  val_to_str(opcode, opcode_vals, "Unknown (%u)"));
 
@@ -2178,7 +2178,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    BITMASK16(configure_window);
-	    UNUSED(2); 
+	    UNUSED(2);
 	    BITFIELD(INT16,  configure_window_mask, x);
 	    BITFIELD(INT16,  configure_window_mask, y);
 	    BITFIELD(CARD16, configure_window_mask, width);
@@ -2829,7 +2829,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    COLOR_FLAGS(color);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
-	    CARD32(pixel);	
+	    CARD32(pixel);
 	    v16 = FIELD16(name_length);
 	    UNUSED(2);
 	    STRING8(name, v16);
@@ -3071,7 +3071,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
-	    
+
       case 127: /* NoOperation */
 	    UNUSED(1);
 	    REQUEST_LENGTH();
@@ -3315,14 +3315,14 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 	     * Set the column appropriately.
 	     */
 	    if (is_initial_creq) {
-		  if (check_col(pinfo->cinfo, COL_INFO)) 
+		  if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Initial connection request");
 	    } else {
 		  if (sep == NULL) {
 			/*
 			 * We haven't set the column yet; set it.
 			 */
-			if (check_col(pinfo->cinfo, COL_INFO)) 
+			if (check_col(pinfo->cinfo, COL_INFO))
 			      col_add_str(pinfo->cinfo, COL_INFO, "Requests");
 
 			/*
@@ -3376,11 +3376,11 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Set up structures we will need to add the protocol subtree and manage it */
       proto_item *ti;
       proto_tree *x11_tree;
-	
+
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
 	    col_set_str(pinfo->cinfo, COL_INFO, "Replies/events");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -3404,9 +3404,9 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+      if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "X11");
-    
+
       if (pinfo->match_port == pinfo->destport)
 	    dissect_x11_requests(tvb, pinfo, tree);
       else
@@ -3415,14 +3415,14 @@ dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register the protocol with Ethereal */
 void proto_register_x11(void)
-{                 
+{
 
 /* Setup list of header fields */
       static hf_register_info hf[] = {
 /*
   { &hf_x11_FIELDABBREV,
   { "FIELDNAME",           "x11.FIELDABBREV",
-  FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK,          
+  FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK,
   "FIELDDESCR", HFILL }
   },
 */

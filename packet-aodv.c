@@ -2,7 +2,7 @@
  * Routines for AODV dissection
  * Copyright 2000, Erik Nordström <erik.nordstrom@it.uu.se>
  *
- * $Id: packet-aodv.c,v 1.5 2002/08/22 07:32:22 guy Exp $
+ * $Id: packet-aodv.c,v 1.6 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -122,7 +122,7 @@ static int
 dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti = NULL, *tj = NULL, *tk = NULL;
-    proto_tree *aodv_tree = NULL, *aodv_flags_tree = NULL, 
+    proto_tree *aodv_tree = NULL, *aodv_flags_tree = NULL,
 	*aodv_unreach_dest_tree = NULL;
     guint8 type;
     int i;
@@ -131,12 +131,12 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct aodv_rerr rerr;
 
 /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AODV");
 
-    if (check_col(pinfo->cinfo, COL_INFO)) 
+    if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
-	
+
     /* Check the type of AODV packet. */
     type = tvb_get_guint8(tvb, 0);
     if (type < 1 || type > 3) {
@@ -145,7 +145,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	return 0;
     }
-	    
+
     if (tree) {
 	ti = proto_tree_add_protocol_format(tree, proto_aodv, tvb, 0, -1,
 	    "Ad hoc On-demand Distance Vector Routing Protocol, %s",
@@ -168,7 +168,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rreq.dest_seqno = tvb_get_ntohl(tvb, 12);
 	tvb_memcpy(tvb, (guint8 *)&rreq.orig_addr, 16, 4);
 	rreq.orig_seqno = tvb_get_ntohl(tvb, 20);
-	    
+
 	if (tree) {
 	    proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_join, tvb, 1, 1, rreq.flags);
 	    proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rreq_repair, tvb, 1, 1, rreq.flags);
@@ -187,18 +187,18 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_uint(aodv_tree, hf_aodv_orig_seqno, tvb, 20, 4, rreq.orig_seqno);
 	    proto_item_append_text(ti, ", Dest IP: %s, Orig IP: %s, Id=%u", ip_to_str(tvb_get_ptr(tvb, 8, 4)), ip_to_str(tvb_get_ptr(tvb, 16, 4)), rreq.rreq_id);
 	}
-		    
+
 	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, D: %s O: %s Id=%u Hcnt=%u DSN=%u OSN=%u", 
-			 val_to_str(type, type_vals, 
-				    "Unknown AODV Packet Type (%u)"), 
-			 ip_to_str(tvb_get_ptr(tvb, 8, 4)), 
-			 ip_to_str(tvb_get_ptr(tvb, 16, 4)), 
-			 rreq.rreq_id, 
-			 rreq.hop_count, 
-			 rreq.dest_seqno, 
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, D: %s O: %s Id=%u Hcnt=%u DSN=%u OSN=%u",
+			 val_to_str(type, type_vals,
+				    "Unknown AODV Packet Type (%u)"),
+			 ip_to_str(tvb_get_ptr(tvb, 8, 4)),
+			 ip_to_str(tvb_get_ptr(tvb, 16, 4)),
+			 rreq.rreq_id,
+			 rreq.hop_count,
+			 rreq.dest_seqno,
 			 rreq.orig_seqno);
-		    
+
 	break;
     case RREP:
 	rrep.type = type;
@@ -227,27 +227,27 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s D: %s O: %s Hcnt=%u DSN=%u Lifetime=%u", 
-			 val_to_str(type, type_vals, 
-				    "Unknown AODV Packet Type (%u)"), 
-			 ip_to_str(tvb_get_ptr(tvb, 4, 4)), 
-			 ip_to_str(tvb_get_ptr(tvb, 12, 4)), 
-			 rrep.hop_count, 
-			 rrep.dest_seqno, 
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s D: %s O: %s Hcnt=%u DSN=%u Lifetime=%u",
+			 val_to_str(type, type_vals,
+				    "Unknown AODV Packet Type (%u)"),
+			 ip_to_str(tvb_get_ptr(tvb, 4, 4)),
+			 ip_to_str(tvb_get_ptr(tvb, 12, 4)),
+			 rrep.hop_count,
+			 rrep.dest_seqno,
 			 rrep.lifetime);
 	break;
     case RERR:
 	rerr.type = type;
 	rerr.flags = tvb_get_guint8(tvb, 1);
 	rerr.dest_count = tvb_get_guint8(tvb, 3);
-		    
+
 	if (tree) {
 	    proto_tree_add_boolean(aodv_flags_tree, hf_aodv_flags_rerr_nodelete, tvb, 1, 1, rerr.flags);
 	    if (rerr.flags & RERR_NODEL)
 		proto_item_append_text(tj, " N");
 	    proto_tree_add_uint(aodv_tree, hf_aodv_destcount, tvb, 3, 1, rerr.dest_count);
 	    tk = proto_tree_add_text(aodv_tree, tvb, 4, 8*rerr.dest_count, "Unreachable Destinations:");
-		
+
 	    aodv_unreach_dest_tree = proto_item_add_subtree(tk, ett_aodv_unreach_dest);
 	    for (i = 0; i < rerr.dest_count; i++) {
 		tvb_memcpy(tvb, (guint8 *)&rerr.dest_addr, 4+8*i, 4);
@@ -258,9 +258,9 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Dest Count=%u", 
-			 val_to_str(type, type_vals, 
-				    "Unknown AODV Packet Type (%u)"), 
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Dest Count=%u",
+			 val_to_str(type, type_vals,
+				    "Unknown AODV Packet Type (%u)"),
 			 rerr.dest_count);
 	break;
     default:
@@ -276,101 +276,101 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Ethereal */
 void
 proto_register_aodv(void)
-{     
+{
     static hf_register_info hf[] = {
 	{ &hf_aodv_type,
 	  { "Type", "aodv.type",
-	    FT_UINT8, BASE_DEC, VALS(type_vals), 0x0,    
+	    FT_UINT8, BASE_DEC, VALS(type_vals), 0x0,
 	    "AODV packet type", HFILL }
 	},
 	{ &hf_aodv_flags,
 	  { "Flags", "aodv.flags",
-	    FT_UINT16, BASE_DEC, NULL, 0x0,    
+	    FT_UINT16, BASE_DEC, NULL, 0x0,
 	    "Flags", HFILL }
 	},
 	{ &hf_aodv_flags_rreq_join,
 	  { "RREQ Join", "aodv.flags.rreq_join",
-	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_JOIN,    
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_JOIN,
 	    "", HFILL }
 	},
 	{ &hf_aodv_flags_rreq_repair,
 	  { "RREQ Repair", "aodv.flags.rreq_repair",
-	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_REP,    
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_REP,
 	    "", HFILL }
 	},
 	{ &hf_aodv_flags_rreq_gratuitous,
 	  { "RREQ Gratuitous", "aodv.flags.rreq_gratuitous",
-	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_GRAT,    
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREQ_GRAT,
 	    "", HFILL }
 	},
 	{ &hf_aodv_flags_rrep_repair,
 	  { "RREP Repair", "aodv.flags.rrep_repair",
-	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREP_REP,    
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREP_REP,
 	    "", HFILL }
 	},
 	{ &hf_aodv_flags_rrep_ack,
 	  { "RREP Acknowledgement", "aodv.flags.rrep_ack",
-	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREP_ACK,    
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RREP_ACK,
 	    "", HFILL }
 	},
 	{ &hf_aodv_flags_rerr_nodelete,
 	  { "RERR No Delete", "aodv.flags.rerr_nodelete",
-	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RERR_NODEL,    
+	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RERR_NODEL,
 	    "", HFILL }
 	},
 	{ &hf_aodv_prefix_sz,
 	  { "Prefix Size", "aodv.prefix_sz",
-	    FT_UINT8, BASE_DEC, NULL, 0x0,    
+	    FT_UINT8, BASE_DEC, NULL, 0x0,
 	    "Prefix_size", HFILL }
 	},
 	{ &hf_aodv_hopcount,
 	  { "Hop Count", "aodv.hopcount",
-	    FT_UINT8, BASE_DEC, NULL, 0x0,    
+	    FT_UINT8, BASE_DEC, NULL, 0x0,
 	    "Hop Count", HFILL }
 	},
 	{ &hf_aodv_rreq_id,
 	  { "RREQ Id", "aodv.rreq_id",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,    
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "RREQ Id", HFILL }
 	},
 	{ &hf_aodv_dest_ip,
 	  { "Destination IP", "aodv.dest_ip",
-	    FT_IPv4, BASE_DEC, NULL, 0x0,    
+	    FT_IPv4, BASE_DEC, NULL, 0x0,
 	    "Destination IP Address", HFILL }
 	},
 	{ &hf_aodv_dest_seqno,
 	  { "Destination Sequence Number", "aodv.dest_seqno",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,    
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Destination Sequence Number", HFILL }
 	},
 	{ &hf_aodv_orig_ip,
 	  { "Originator IP", "aodv.orig_ip",
-	    FT_IPv4, BASE_DEC, NULL, 0x0,    
+	    FT_IPv4, BASE_DEC, NULL, 0x0,
 	    "Originator IP Address", HFILL }
 	},
 	{ &hf_aodv_orig_seqno,
 	  { "Originator Sequence Number", "aodv.orig_seqno",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,    
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Originator Sequence Number", HFILL }
 	},
 	{ &hf_aodv_lifetime,
 	  { "Lifetime", "aodv.lifetime",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,    
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Lifetime", HFILL }
 	},
 	{ &hf_aodv_destcount,
 	  { "Destination Count", "aodv.destcount",
-	    FT_UINT8, BASE_DEC, NULL, 0x0,    
+	    FT_UINT8, BASE_DEC, NULL, 0x0,
 	    "Unreachable Destinations Count", HFILL }
 	},
 	{ &hf_aodv_unreach_dest_ip,
 	  { "Unreachable Destination IP", "aodv.unreach_dest_ip",
-	    FT_IPv4, BASE_DEC, NULL, 0x0,    
+	    FT_IPv4, BASE_DEC, NULL, 0x0,
 	    "Unreachable Destination  IP Address", HFILL }
 	},
 	{ &hf_aodv_unreach_dest_seqno,
 	  { "Unreachable Destination Sequence Number", "aodv.unreach_dest_seqno",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,    
+	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Unreachable Destination Sequence Number", HFILL }
 	},
     };

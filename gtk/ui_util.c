@@ -1,22 +1,22 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.9 2002/03/05 11:56:00 guy Exp $
+ * $Id: ui_util.c,v 1.10 2002/08/28 21:03:50 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -75,8 +75,8 @@ reactivate_window(GtkWidget *win)
 /* Set our window icon.  The GDK documentation doesn't provide any
    actual documentation for gdk_window_set_icon(), so we'll steal
    libgimp/gimpdialog.c:gimp_dialog_realize_callback() from the Gimp
-   sources and assume it's safe. 
-   
+   sources and assume it's safe.
+
    XXX - The current icon size is fixed at 16x16 pixels, which looks fine
    with kwm (KDE 1.x's window manager), Sawfish (the "default" window
    manager for GNOME?), and under Windows with Exceed putting X windows
@@ -116,7 +116,7 @@ reactivate_window(GtkWidget *win)
    part of the installation of Ethereal.
    */
 void
-window_icon_realize_cb (GtkWidget *win, gpointer data _U_) 
+window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 {
 #ifndef WIN32
   static GdkPixmap *icon_pmap = NULL;

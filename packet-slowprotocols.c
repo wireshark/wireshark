@@ -1,10 +1,10 @@
 /* packet-slowprotocols.c
  * Routines for EtherType (0x8809) Slow Protocols disassembly.
  *
- * $Id: packet-slowprotocols.c,v 1.3 2002/08/02 23:36:01 jmayer Exp $
+ * $Id: packet-slowprotocols.c,v 1.4 2002/08/28 21:00:31 jmayer Exp $
  *
  * Copyright 2002 Steve Housley <steve_housley@3com.com>
- * 
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -170,17 +170,17 @@ dissect_lacpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       const guint8 *a_sys;
       const guint8 *p_sys;
       const guint8 *resv_bytes;
-      
+
       proto_tree *lacpdu_tree;
       proto_item *lacpdu_item;
       proto_tree *actor_flags_tree;
       proto_item *actor_flags_item;
       proto_tree *partner_flags_tree;
       proto_item *partner_flags_item;
-	  
+
 
       const char *sep;
-	  
+
 
       if (check_col(pinfo->cinfo, COL_PROTOCOL))
       {
@@ -225,7 +225,7 @@ dissect_lacpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_uint(lacpdu_tree, hf_lacpdu_actor_sys_priority, tvb,
 				LACPDU_ACTOR_SYS_PRIORITY, 2, raw_word);
 	    /* Actor System */
-		
+
 	    a_sys = tvb_get_ptr(tvb, LACPDU_ACTOR_SYSTEM , 6);
 	    proto_tree_add_ether(lacpdu_tree, hf_lacpdu_actor_sys, tvb,
 				LACPDU_ACTOR_SYSTEM, 6, a_sys);
@@ -256,7 +256,7 @@ dissect_lacpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* Actor State */
 
 	    flags = tvb_get_guint8(tvb, LACPDU_ACTOR_STATE);
-	    actor_flags_item = proto_tree_add_uint(lacpdu_tree, hf_lacpdu_actor_state, tvb, 
+	    actor_flags_item = proto_tree_add_uint(lacpdu_tree, hf_lacpdu_actor_state, tvb,
 				LACPDU_ACTOR_STATE, 1, flags);
 	    actor_flags_tree = proto_item_add_subtree(actor_flags_item, ett_lacpdu_a_flags);
 
@@ -325,7 +325,7 @@ dissect_lacpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* We put something in; put in the terminating ")" */
 		proto_item_append_text(actor_flags_item, ")");
 	    }
-		
+
 	    /* Actor Reserved */
 
 	    resv_bytes = tvb_get_ptr(tvb, LACPDU_ACTOR_RESERVED, 3);
@@ -381,7 +381,7 @@ dissect_lacpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* Partner State */
 
 	    flags = tvb_get_guint8(tvb, LACPDU_PARTNER_STATE);
-	    partner_flags_item = proto_tree_add_uint(lacpdu_tree, hf_lacpdu_partner_state, tvb, 
+	    partner_flags_item = proto_tree_add_uint(lacpdu_tree, hf_lacpdu_partner_state, tvb,
 				LACPDU_PARTNER_STATE, 1, flags);
 	    partner_flags_tree = proto_item_add_subtree(partner_flags_item, ett_lacpdu_p_flags);
 
@@ -450,7 +450,7 @@ dissect_lacpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* We put something in; put in the terminating ")" */
 		proto_item_append_text(partner_flags_item, ")");
 	    }
-		
+
 	    /* Partner Reserved */
 
 	    resv_bytes = tvb_get_ptr(tvb, LACPDU_PARTNER_RESERVED, 3);
@@ -473,7 +473,7 @@ dissect_lacpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    raw_word = tvb_get_ntohs(tvb, LACPDU_COLL_MAX_DELAY);
 	    proto_tree_add_uint(lacpdu_tree, hf_lacpdu_coll_max_delay, tvb,
 				LACPDU_COLL_MAX_DELAY, 2, raw_word);
-		
+
 		/* Collector Reserved */
 
 	    resv_bytes = tvb_get_ptr(tvb, LACPDU_COLL_RESERVED, 12);
@@ -504,7 +504,7 @@ static void
 dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
       guint8 raw_octet;
-	  
+
       if (tree)
       {
 
@@ -543,7 +543,7 @@ static const value_string subtype_vals[] = {
 	{ 0, NULL }
 };
 
-static const true_false_string yesno = {  
+static const true_false_string yesno = {
 	"Yes",
 	"No"
 };

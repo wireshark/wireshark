@@ -1,23 +1,23 @@
 /* packet-cpha.c
  * Routines for the Check Point High-Availability Protocol (CPHAP)
- * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il> 
+ * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il>
  *
- * $Id: packet-cpha.c,v 1.3 2002/08/28 20:02:34 guy Exp $
+ * $Id: packet-cpha.c,v 1.4 2002/08/28 21:00:08 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -73,7 +73,7 @@ static int hf_ifn = -1;
 
 static gint ett_cphap = -1;
 
-#define UDP_PORT_CPHA	8116	
+#define UDP_PORT_CPHA	8116
 #define CPHA_MAGIC 0x1A90
 
 struct cpha_hdr {
@@ -123,7 +123,7 @@ struct fwhap_if_state_s {
 
 static const char *opcode_type_str_short[NUM_OPCODE_TYPES+1] = {
   "Unknown",
-  "FWHA_MY_STATE", 	
+  "FWHA_MY_STATE",
   "FWHA_QUERY_STATE",
   "FWHA_IF_PROBE_REQ",
   "FWHA_IF_PROBE_REPLY",
@@ -225,7 +225,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CPHA");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
- 
+
   tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
   hdr.magic_number = g_ntohs(hdr.magic_number);
   hdr.ha_protocol_ver = g_ntohs(hdr.ha_protocol_ver);
@@ -237,10 +237,10 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hdr.filler = g_ntohs(hdr.filler);
   opcode  = g_ntohs(hdr.opcode);
 
-  snprintf(info,50,"CPHAv%d: %s",g_ntohs(hdr.ha_protocol_ver), opcode2str_short(opcode)); 
-  if (check_col(pinfo->cinfo, COL_INFO)) 
+  snprintf(info,50,"CPHAv%d: %s",g_ntohs(hdr.ha_protocol_ver), opcode2str_short(opcode));
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,info);
-  
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cphap, tvb, offset, -1, FALSE);
     cpha_tree = proto_item_add_subtree(ti, ett_cphap);
@@ -274,13 +274,13 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(hdr.ha_protocol_ver != 1) {/* 4.1 - no policy_id and filler*/
     	proto_tree_add_uint(cpha_tree, hf_policy_id, tvb, offset, sizeof(hdr.policy_id), hdr.policy_id);
     	offset += sizeof(hdr.policy_id);
-  
+
     	proto_tree_add_uint(cpha_tree, hf_filler, tvb, offset, sizeof(hdr.filler), g_ntohs(hdr.filler));
     	offset += sizeof(hdr.filler);
     }
     nti = proto_tree_add_text(cpha_tree, tvb, offset, -1, opcode2str_short(opcode));
     ntree = proto_item_add_subtree(nti, ett_cphap);
- 
+
     switch(opcode) {
 	case 1: dissect_my_state(tvb, offset, ntree); /* FWHAP_MY_STATE */
 		break;
@@ -308,13 +308,13 @@ static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
   int rep_mode, i;
   proto_item *	nti = NULL;
   proto_tree *  ntree = NULL;
- 
-  tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr)); 
+
+  tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
   hdr.id_num = g_ntohs(hdr.id_num);
   hdr.report_code = g_ntohs(hdr.report_code);
   hdr.ha_mode = g_ntohs(hdr.ha_mode);
   hdr.ha_time_unit = g_ntohs(hdr.ha_time_unit);
- 
+
   proto_tree_add_uint(tree, hf_id_num, tvb, offset, sizeof(hdr.id_num), hdr.id_num);
   offset += sizeof(hdr.id_num);
 
@@ -326,7 +326,7 @@ static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
 
   proto_tree_add_uint_format(tree, hf_ha_time_unit, tvb, offset, sizeof(hdr.ha_time_unit), hdr.ha_time_unit, "HA Time unit: %d miliseconds", hdr.ha_time_unit);
   offset += sizeof(hdr.ha_time_unit);
-  
+
   rep_mode = is_report_ifs(hdr.report_code);
   if (hdr.report_code & 1) {
 	/* states */
@@ -350,18 +350,18 @@ static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
 	offset += sizeof(if_hdr.out_up_num);
 	proto_tree_add_int(ntree, hf_out_assumed_up_num, tvb, offset, sizeof(if_hdr.out_assumed_up_num), if_hdr.out_assumed_up_num);
 	offset += sizeof(if_hdr.out_assumed_up_num);
-	
+
 	for(i=0; i < hdr.id_num; i++) {
 		proto_tree_add_text(tree, tvb, offset, sizeof(guint8), "Cluster %d: last packet seen %d time units ago", i, tvb_get_guint8(tvb, offset));
 		offset += sizeof(guint8);
 	}
   }
- 
+
 }
 
 static void dissect_lb_conf(tvbuff_t * tvb, int offset, proto_tree * tree) {
   struct lb_conf_hdr hdr;
-  
+
   tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
   hdr.slot_num = g_ntohs(hdr.slot_num);
   hdr.machine_num = g_ntohs(hdr.machine_num);
@@ -402,11 +402,11 @@ static void dissect_probe(tvbuff_t * tvb, int offset, proto_tree * tree) {
 
 static void dissect_conf_reply(tvbuff_t * tvb, int offset, proto_tree * tree) {
   struct conf_reply_hdr hdr;
-  
+
   tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
   hdr.num_reported_ifs = g_ntohl(hdr.num_reported_ifs);
   hdr.is_if_trusted = g_ntohs(hdr.is_if_trusted);
- 
+
   proto_tree_add_uint(tree, hf_num_reported_ifs, tvb, offset, sizeof(hdr.num_reported_ifs), hdr.num_reported_ifs);
   offset += sizeof(hdr.num_reported_ifs);
   proto_tree_add_ether(tree, hf_ethernet_add, tvb, offset, 6, hdr.ethernet_add);
@@ -530,7 +530,7 @@ proto_register_cpha(void)
     { "IP Address", "cphap.ip", FT_IPv4, BASE_DEC, NULL, 0x0, "IP Address", HFILL}},
     { &hf_slot_num,
     { "Slot Number", "cphap.slot_num", FT_INT16, BASE_DEC, NULL, 0x0, "Slot Number", HFILL}},
-    { &hf_machine_num, 
+    { &hf_machine_num,
     { "Machine Number", "cphap.machine_num", FT_INT16, BASE_DEC, NULL, 0x0, "Machine Number", HFILL}},
     { &hf_seed,
     { "Seed", "cphap.seed", FT_UINT32, BASE_DEC, NULL, 0x0, "Seed", HFILL}},
@@ -539,24 +539,24 @@ proto_register_cpha(void)
     { &hf_in_up_num,
     { "Interfaces up in the Inbound", "cphap.in_up", FT_INT8, BASE_DEC, NULL, 0x0, "Interfaces up in the Inbound", HFILL}},
     { &hf_in_assumed_up_num,
-    { "Interfaces assumed up in the Inbound", "cphap.in_assume_up", FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL}},	
+    { "Interfaces assumed up in the Inbound", "cphap.in_assume_up", FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL}},
     { &hf_out_up_num,
     { "Interfaces up in the Outbound", "cphap.out_up", FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_out_assumed_up_num, 
+    { &hf_out_assumed_up_num,
     { "Interfaces assumed up in the Outbound", "cphap.out_assume_up", FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL}},
     { &hf_status,
     { "Status", "cphap.status", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_ifn, 
+    { &hf_ifn,
     { "Interface Number", "cpha.ifn", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
   };
   static gint *ett[] = {
     &ett_cphap,
   };
-  
+
   proto_cphap = proto_register_protocol("Check Point High Availability Protocol",
 					       "CPHA", "cpha");
   proto_register_field_array(proto_cphap, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett)); 
+  proto_register_subtree_array(ett, array_length(ett));
 }
 
 void

@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.9 2002/03/05 11:56:00 guy Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.10 2002/08/28 21:03:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -146,7 +146,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 	for (i = 0; i < NUM_STAT_COLUMNS; i++) {
 		gtk_clist_set_column_auto_resize(GTK_CLIST(tree), i, TRUE);
 	}
-				
+
 
 	/* Right justify numeric columns */
 	for (i = 1; i <= 5; i++) {

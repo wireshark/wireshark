@@ -2,25 +2,25 @@
  *
  * Routines for ITU-T Recommendation H.261 dissection
  *
- * $Id: packet-h261.c,v 1.16 2002/08/02 23:35:50 jmayer Exp $
- * 
+ * $Id: packet-h261.c,v 1.17 2002/08/28 21:00:15 jmayer Exp $
+ *
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -70,7 +70,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.261" );
 	}
-	
+
 	if ( check_col( pinfo->cinfo, COL_INFO) ) {
 		col_set_str( pinfo->cinfo, COL_INFO, "H.261 message");
 	}
@@ -116,131 +116,131 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 void
 proto_register_h261(void)
 {
-	static hf_register_info hf[] = 
+	static hf_register_info hf[] =
 	{
-		{ 
+		{
 			&hf_h261_sbit,
-			{ 
-				"Start bit position", 
-				"h261.sbit", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Start bit position",
+				"h261.sbit",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_h261_ebit,
-			{ 
-				"End bit position", 
-				"h261.ebit", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"End bit position",
+				"h261.ebit",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_h261_ibit,
-			{ 
-				"Intra frame encoded data flag", 
-				"h261.i", 
-				FT_BOOLEAN, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Intra frame encoded data flag",
+				"h261.i",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_h261_vbit,
-			{ 
-				"Motion vector flag", 
-				"h261.v", 
-				FT_BOOLEAN, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Motion vector flag",
+				"h261.v",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_h261_gobn,
-			{ 
-				"GOB Number", 
-				"h261.gobn", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"GOB Number",
+				"h261.gobn",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_h261_mbap,
-			{ 
-				"Macroblock address predictor", 
-				"h261.mbap", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Macroblock address predictor",
+				"h261.mbap",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_h261_quant,
-			{ 
-				"Quantizer", 
-				"h261.quant", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Quantizer",
+				"h261.quant",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_h261_hmvd,
-			{ 
-				"Horizontal motion vector data", 
-				"h261.hmvd", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Horizontal motion vector data",
+				"h261.hmvd",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_h261_vmvd,
-			{ 
-				"Vertical motion vector data", 
-				"h261.vmvd", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Vertical motion vector data",
+				"h261.vmvd",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_h261_data,
-			{ 
-				"H.261 stream", 
-				"h261.stream", 
-				FT_BYTES, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"H.261 stream",
+				"h261.stream",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
 };
-	
-	static gint *ett[] = 
+
+	static gint *ett[] =
 	{
 		&ett_h261,
 	};

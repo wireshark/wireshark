@@ -4,14 +4,14 @@
  *   (The "D-Channel"-Protocol for Cisco Systems' IP-Phones)
  * Copyright 2001, Joerg Mayer (email: see AUTHORS file)
  *
- * Paul E. Erkkila (pee@erkkila.org) - fleshed out the decode 
- * skeleton to report values for most message/message fields. 
+ * Paul E. Erkkila (pee@erkkila.org) - fleshed out the decode
+ * skeleton to report values for most message/message fields.
  * Much help from Guy Harris on figuring out the ethereal api.
  *
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.19 2002/05/30 08:34:18 guy Exp $
+ * $Id: packet-skinny.c,v 1.20 2002/08/28 21:00:31 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,12 +21,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -117,7 +117,7 @@ static const value_string  message_id[] = {
   {0x0029, "RegisterTokenReq"},
   {0x002B, "unknownClientMessage1"},
   {0x002D, "unknownClientMessage2"},
-  
+
   /* Callmanager -> Station */
   /* 0x0000, 0x0003? */
   {0x0081, "RegisterAckMessage"},
@@ -425,7 +425,7 @@ static const value_string keySetNames[] = {
 };
 
 /* Define soft key labels for the Telecaster station */
-static const value_string softKeyLabel[] = { 
+static const value_string softKeyLabel[] = {
   {0   , "undefined"},
   {1   , "Redial"},
   {2   , "NewCall"},
@@ -446,16 +446,16 @@ static const value_string softKeyLabel[] = {
   {17  , "PickUp"},
   {18  , "GPickUp"},
   {0   , NULL}
-}; 
+};
 
 
-/* 
- * define lamp modes; 
- * lamp cadence is defined as follows 
- * Wink (on 80%) = 448msec on / 64msec off 
- * Flash (fast flash) = 32msec on / 32msec off 
- * Blink (on 50%) = 512msec on / 512msec off 
- * On (on steady) 
+/*
+ * define lamp modes;
+ * lamp cadence is defined as follows
+ * Wink (on 80%) = 448msec on / 64msec off
+ * Flash (fast flash) = 32msec on / 32msec off
+ * Blink (on 50%) = 512msec on / 512msec off
+ * On (on steady)
  */
 static const value_string stationLampModes[] = {
   {0   , "Undefined"},
@@ -465,41 +465,41 @@ static const value_string stationLampModes[] = {
   {0x4 , "Flash"},
   {0x5 , "Blink"},
   {0   , NULL}
-}; 
+};
 
-/* Defined the Call States to be sent to the Telecaste station. 
- * These are NOT the call states used in CM internally. Instead, 
- * they are the call states sent from CM and understood by the Telecaster station 
+/* Defined the Call States to be sent to the Telecaste station.
+ * These are NOT the call states used in CM internally. Instead,
+ * they are the call states sent from CM and understood by the Telecaster station
  */
 static const value_string skinny_stationCallStates[] = {
   {1   , "OffHook"},
   {2   , "OnHook"},
   {3   , "RingOut"},
-  {4   , "RingIn"}, 
-  {5   , "Connected"}, 
-  {6   , "Busy"}, 
-  {7   , "Congestion"}, 
-  {8   , "Hold"}, 
-  {9   , "CallWaiting"}, 
-  {10  , "CallTransfer"}, 
-  {11  , "CallPark"}, 
-  {12  , "Proceed"}, 
-  {13  , "CallRemoteMultiline"}, 
-  {14  , "InvalidNumber"}, 
+  {4   , "RingIn"},
+  {5   , "Connected"},
+  {6   , "Busy"},
+  {7   , "Congestion"},
+  {8   , "Hold"},
+  {9   , "CallWaiting"},
+  {10  , "CallTransfer"},
+  {11  , "CallPark"},
+  {12  , "Proceed"},
+  {13  , "CallRemoteMultiline"},
+  {14  , "InvalidNumber"},
   {0   , NULL}
 };
 
 /* Defined Call Type */
-static const value_string skinny_callTypes[] = { 
+static const value_string skinny_callTypes[] = {
   {1   , "InBoundCall"},
-  {2   , "OutBoundCall"}, 
-  {3   , "ForwardCall"}, 
+  {2   , "OutBoundCall"},
+  {3   , "ForwardCall"},
   {0   , NULL}
-}; 
+};
 
-/* 
- * define station-playable tones; 
- * for tone definitions see SR-TSV-002275, "BOC Notes on the LEC Networks -- 1994" 
+/*
+ * define station-playable tones;
+ * for tone definitions see SR-TSV-002275, "BOC Notes on the LEC Networks -- 1994"
  */
 static const value_string skinny_deviceTones[] = {
   {0    , "Silence"},
@@ -598,7 +598,7 @@ static const value_string skinny_silenceSuppressionModes[] = {
   {0   , "Media_SilenceSuppression_Off"},
   {1   , "Media_SilenceSuppression_On"},
   {0   , NULL}
-}; 
+};
 
 static const value_string skinny_g723BitRates[] = {
   {1   , "Media_G723BRate_5_3"},
@@ -611,13 +611,13 @@ static const value_string skinny_deviceResetTypes[] = {
   {1   , "DEVICE_RESET"},
   {2   , "DEVICE_RESTART"},
   {0   , NULL}
-}; 
+};
 
 static const value_string skinny_echoCancelTypes[] = {
   {0    , "Media_EchoCancellation_Off"},
   {1    , "Media_EchoCancellation_On"},
   {0    , NULL}
-}; 
+};
 
 static const value_string skinny_deviceUnregisterStatusTypes[] = {
   {0   , "Ok"},
@@ -631,16 +631,16 @@ static const value_string skinny_hookFlashDetectModes[] = {
   {1   , "HookFlashOn"},
   {2   , "HookFlashOff"},
   {0   , NULL}
-}; 
+};
 
-/* define station microphone modes; 
- * Mic On - The speakerphone's microphone is turned on ONLY if the phone is in the "Speaker On (Off Hook)" 
- * state (see above). 
- * Mic Off - The microphone is turned off or, if it's not on, the command is ignored. 
+/* define station microphone modes;
+ * Mic On - The speakerphone's microphone is turned on ONLY if the phone is in the "Speaker On (Off Hook)"
+ * state (see above).
+ * Mic Off - The microphone is turned off or, if it's not on, the command is ignored.
  */
 static const value_string skinny_microphoneModes[] = {
   {1   , "MicOn"},
-  {2   , "MicOff"}, 
+  {2   , "MicOff"},
   {0   , NULL}
 };
 
@@ -658,14 +658,14 @@ static const value_string skinny_mediaEnunciationTypes[] = {
   {1  , "None"},
   {2  , "CallPark"},
   {0  , NULL}
-}; 
+};
 
 #define StationMaxDirnumSize 24         /* max size of calling or called party dirnum  */
 #define StationMaxNameSize 40           /* max size of calling party's name  */
 #define StationMaxDeviceNameSize 16     /* max size of station's IP name  */
 #define StationMaxSpeedDials 10         /* max number of speed dial numbers allowed on a station */
 #define StationMaxVersionSize 16        /* max chars in version string  */
-#define StationMaxButtonTemplateSize 42 /* max button template size */ 
+#define StationMaxButtonTemplateSize 42 /* max button template size */
 #define StationMaxDisplayTextSize 33    /* max text size in DisplayText message */
 #define StationMaxPorts 10              /* max number of ports on one device */
 #define StationDateTemplateSize 6       /* date template in the form M/D/Y, D/M/Y, ... */
@@ -866,11 +866,11 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   guint32 softKeyCount;
   guint32 softKeySetCount;
   guint16 validKeyMask;
-  
+
   /* Set up structures we will need to add the protocol subtree and manage it */
   proto_item *ti;
   proto_tree *skinny_tree = NULL;
-  
+
   proto_item *skm = NULL;
   proto_item *skm_tree = NULL;
 
@@ -881,9 +881,9 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   /* In the interest of speed, if "tree" is NULL, don't do any work not
    * necessary to generate protocol tree items. */
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, FALSE); 
+    ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, FALSE);
     skinny_tree = proto_item_add_subtree(ti, ett_skinny);
-    proto_tree_add_uint(skinny_tree, hf_skinny_data_length, tvb, offset, 4, hdr_data_length);  
+    proto_tree_add_uint(skinny_tree, hf_skinny_data_length, tvb, offset, 4, hdr_data_length);
     proto_tree_add_uint(skinny_tree, hf_skinny_reserved, tvb, offset+4, 4, hdr_reserved);
   }
 
@@ -912,10 +912,10 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     case 0x8 :    /* hookFlash */
       break;
-      
+
     case 0xc :    /* configStateReqMessage */
       break;
-      
+
     case 0xd :    /* timeDateReqMessage */
       break;
 
@@ -924,10 +924,10 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     case 0xf :    /* stationVersionReqMessage */
       break;
-      
+
     case 0x12 :   /* stationServerReqMessage */
       break;
-      
+
     case 0x25 :   /* softKeySetReqMessage */
       break;
 
@@ -983,7 +983,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x4 :  /* stationEnblocCallMessage -- This decode NOT verified*/
       proto_tree_add_item(skinny_tree, hf_skinny_calledParty, tvb, offset+12, StationMaxDirnumSize, TRUE);
       break;
-      
+
     case 0x5 : /* stationStimulusMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_stimulus, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_stimulusInstance, tvb, offset+16, 4, TRUE);
@@ -992,7 +992,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x9  : /* stationForwardStatReqMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_lineNumber, tvb, offset+12, 4, TRUE);
       break;
-      
+
     case 0xa :  /* speedDialStatReqMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_speedDialNumber, tvb, offset+12, 4, TRUE);
       break;
@@ -1008,7 +1008,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
        *
        * basically changing StationMaxCapabilities definition
        *
-       */	
+       */
       capCount = tvb_get_letohl(tvb, offset+12);
       proto_tree_add_uint(skinny_tree, hf_skinny_capCount, tvb, offset+12, 4, capCount);
       for (i = 0; i < capCount; i++) {
@@ -1032,13 +1032,13 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_receptionStatus, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       break;
-      
+
     case 0x22 : /* stationOpenReceiveChannelAck */
       proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+20, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+24, 4, TRUE);
-      break;	
+      break;
 
     case 0x23    :  /* stationConnectionStatisticsRes */
       proto_tree_add_item(skinny_tree, hf_skinny_directoryNumber, tvb, offset+12, StationMaxDirnumSize, TRUE);
@@ -1054,7 +1054,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       break;
 
     case 0x24 : /* offHookWithCgpn */
-      proto_tree_add_item(skinny_tree, hf_skinny_calledParty, tvb, offset+12,StationMaxDirnumSize, TRUE); 
+      proto_tree_add_item(skinny_tree, hf_skinny_calledParty, tvb, offset+12,StationMaxDirnumSize, TRUE);
       break;
 
     case 0x26 :  /* softKeyEventMessage */
@@ -1083,7 +1083,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x2d :  /* unknownClientMessage2 */
       break;
 
-      /* 
+      /*
        *
        *  Call manager -> client messages start here(ish)
        *
@@ -1101,7 +1101,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x85 : /* setRingerMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_ringType, tvb, offset+12, 4, TRUE);
       break;
-	
+
     case 0x86 : /* setLampMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_stimulus, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_stimulusInstance, tvb, offset+16, 4, TRUE);
@@ -1114,7 +1114,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       break;
 
     case 0x88 : /* setSpeakerMode */
-      
+
       proto_tree_add_item(skinny_tree, hf_skinny_speakerMode, tvb, offset+12, 4, TRUE);
       break;
 
@@ -1122,7 +1122,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_microphoneMode, tvb, offset+12, 4, TRUE);
       break;
 
-    case 0x8a : /* startMediaTransmistion */     
+    case 0x8a : /* startMediaTransmistion */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+20, 4, TRUE);
@@ -1136,8 +1136,8 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       break;
 
     case 0x8b :  /* stopMediaTransmission */
-     
-      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);      
+
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       break;
 
@@ -1256,7 +1256,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       break;
 
     case 0x99 :  /* displayTextMessage */
-      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, StationMaxDisplayTextSize, TRUE);	     
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, StationMaxDisplayTextSize, TRUE);
       break;
 
     case 0x9c : /* enunciatorCommand */
@@ -1271,7 +1271,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x9d : /* stationRegisterReject */
       proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, StationMaxDisplayTextSize, TRUE);
       break;
-      
+
     case 0x9e : /* serverRes */
       for (i = 0; i < StationMaxServers; i++) {
 	proto_tree_add_item(skinny_tree, hf_skinny_serverIdentifier, tvb, offset+12+(i*StationMaxServers), StationMaxServers, TRUE);
@@ -1358,7 +1358,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_tree_add_item(skinny_tree, hf_skinny_softKeyEvent, tvb, offset+(i*20)+40, 4, TRUE);
       }
       /* there is more data here, but it doesn't make a whole lot of sense, I imagine
-       * it's just some not zero'd out stuff in the packet or... 
+       * it's just some not zero'd out stuff in the packet or...
        */
       break;
 
@@ -1377,7 +1377,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	}
       }
       break;
-      
+
     case 0x110 : /* selectSoftKeys */
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
@@ -1402,30 +1402,30 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_boolean(skm_tree, hf_skinny_softKey14, tvb, offset + 24, 1, validKeyMask);
       proto_tree_add_boolean(skm_tree, hf_skinny_softKey15, tvb, offset + 24, 1, validKeyMask);
       break;
-      
+
     case 0x111 : /* callState */
       proto_tree_add_item(skinny_tree, hf_skinny_callState, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
       break;
-      
+
     case 0x112 : /* displayPromptStatus */
       proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayPromptStatusSize, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+48, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+52, 4, TRUE);
       break;
-      
+
     case 0x113: /* clearPrompt */
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance  , tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
       break;
-      
+
     case 0x114 : /* displayNotify */
       proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayNotifySize , TRUE);
       break;
-      
+
     case 0x116 : /* activateCallPlane */
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
       break;
@@ -1448,7 +1448,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknownLong);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+40, 4, TRUE);
       break;
-      
+
 
 
     default:
@@ -1468,38 +1468,38 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 hdr_reserved;
 
   /* check, if this is really an SKINNY packet, they start with a length + 0 */
-  
+
   /* get relevant header information */
   hdr_data_length = tvb_get_letohl(tvb, 0);
   hdr_reserved    = tvb_get_letohl(tvb, 4);
 
   /*  data_size       = MIN(8+hdr_data_length, tvb_length(tvb)) - 0xC; */
-  
+
   /* hdr_data_length > 1024 is just a heuristic. Better values/checks welcome */
   if (hdr_data_length < 4 || hdr_data_length > 1024 || hdr_reserved != 0) {
     /* Not an SKINNY packet, just happened to use the same port */
     call_dissector(data_handle,tvb, pinfo, tree);
     return;
   }
-  
+
   /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKINNY");
   }
-  
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_set_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
   }
-  
+
   tcp_dissect_pdus(tvb, pinfo, tree, skinny_desegment, 4,
 	get_skinny_pdu_len, dissect_skinny_pdu);
 }
 
 /* Register the protocol with Ethereal */
-void 
+void
 proto_register_skinny(void)
-{                 
-  
+{
+
   /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_skinny_data_length,
@@ -1894,135 +1894,135 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_softKeyMap,
-      { "SoftKeyMap","skinny.softKeyMap", 
+      { "SoftKeyMap","skinny.softKeyMap",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
-	"", 
+	"",
 	HFILL }
     },
-    
+
     { &hf_skinny_softKey0,
-      { "SoftKey0", "skinny.softKeyMap.0", 
+      { "SoftKey0", "skinny.softKeyMap.0",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY0,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey1,
-      { "SoftKey1", "skinny.softKeyMap.1", 
+      { "SoftKey1", "skinny.softKeyMap.1",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY1,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey2,
-      { "SoftKey2", "skinny.softKeyMap.2", 
+      { "SoftKey2", "skinny.softKeyMap.2",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY2,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey3,
       { "SoftKey3", "skinny.softKeyMap.3",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY3,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey4,
-      { "SoftKey4", "skinny.softKeyMap.4", 
+      { "SoftKey4", "skinny.softKeyMap.4",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY4,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey5,
-      { "SoftKey5", "skinny.softKeyMap.5", 
+      { "SoftKey5", "skinny.softKeyMap.5",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY5,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey6,
-      { "SoftKey6", "skinny.softKeyMap.6", 
+      { "SoftKey6", "skinny.softKeyMap.6",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY6,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey7,
-      { "SoftKey7", "skinny.softKeyMap.7", 
+      { "SoftKey7", "skinny.softKeyMap.7",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY7,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey8,
-      { "SoftKey8", "skinny.softKeyMap.8", 
+      { "SoftKey8", "skinny.softKeyMap.8",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY8,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey9,
-      { "SoftKey9", "skinny.softKeyMap.9", 
+      { "SoftKey9", "skinny.softKeyMap.9",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY9,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey10,
-      { "SoftKey10", "skinny.softKeyMap.10", 
+      { "SoftKey10", "skinny.softKeyMap.10",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY10,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey11,
-      { "SoftKey11", "skinny.softKeyMap.11", 
+      { "SoftKey11", "skinny.softKeyMap.11",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY11,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey12,
-      { "SoftKey12", "skinny.softKeyMap.12", 
+      { "SoftKey12", "skinny.softKeyMap.12",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY12,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey13,
-      { "SoftKey13", "skinny.softKeyMap.13", 
+      { "SoftKey13", "skinny.softKeyMap.13",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY13,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey14,
-      { "SoftKey14", "skinny.softKeyMap.14", 
+      { "SoftKey14", "skinny.softKeyMap.14",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY14,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_softKey15,
-      { "SoftKey15", "skinny.softKeyMap.15", 
+      { "SoftKey15", "skinny.softKeyMap.15",
 	FT_BOOLEAN, 16, TFS(&softKeyMapValues), SKINNY_SOFTKEY15,
-	"", 
+	"",
 	HFILL }
     },
 
     { &hf_skinny_lampMode,
-      { "LampMode", "skinny.lampMode", 
+      { "LampMode", "skinny.lampMode",
 	FT_UINT32, BASE_DEC, VALS(stationLampModes), 0x0,
-	"The lamp mode", 
+	"The lamp mode",
 	HFILL }
     },
 
     { &hf_skinny_messageTimeOutValue,
-      { "Message Timeout", "skinny.messageTimeOutValue", 
+      { "Message Timeout", "skinny.messageTimeOutValue",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The timeout in seconds for this message", 
+	"The timeout in seconds for this message",
 	HFILL }
     },
 
@@ -2124,16 +2124,16 @@ proto_register_skinny(void)
 	HFILL }
     },
     { &hf_skinny_callState,
-      { "CallState", "skinny.callState", 
+      { "CallState", "skinny.callState",
 	FT_UINT32, BASE_DEC, VALS(skinny_stationCallStates), 0x0,
-	"The D channel call state of the call", 
+	"The D channel call state of the call",
 	HFILL }
     },
 
     { &hf_skinny_deviceTone,
-      { "Tone", "skinny.deviceTone", 
+      { "Tone", "skinny.deviceTone",
 	FT_UINT32, BASE_HEX, VALS(skinny_deviceTones), 0x0,
-	"Which tone to play", 
+	"Which tone to play",
 	HFILL }
     },
 
@@ -2159,9 +2159,9 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_callType,
-      { "Call Type", "skinny.callType", 
+      { "Call Type", "skinny.callType",
 	FT_UINT32, BASE_DEC, VALS(skinny_callTypes), 0x0,
-	"What type of call, in/out/etc", 
+	"What type of call, in/out/etc",
 	HFILL }
     },
 
@@ -2180,16 +2180,16 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_ringType,
-      { "Ring Type", "skinny.ringType", 
+      { "Ring Type", "skinny.ringType",
 	FT_UINT32, BASE_HEX, VALS(skinny_ringTypes), 0x0,
-	"What type of ring to play", 
+	"What type of ring to play",
 	HFILL }
     },
 
     { &hf_skinny_speakerMode,
-      { "Speaker", "skinny.speakerMode", 
+      { "Speaker", "skinny.speakerMode",
 	FT_UINT32, BASE_HEX, VALS(skinny_speakerModes), 0x0,
-	"This message sets the speaker mode on/off", 
+	"This message sets the speaker mode on/off",
 	HFILL }
     },
 
@@ -2222,16 +2222,16 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_silenceSuppression,
-      { "Silence Suppression", "skinny.silenceSuppression", 
+      { "Silence Suppression", "skinny.silenceSuppression",
 	FT_UINT32, BASE_HEX, VALS(skinny_silenceSuppressionModes), 0x0,
-	"Mode for silence suppression", 
+	"Mode for silence suppression",
 	HFILL }
     },
 
     { &hf_skinny_g723BitRate,
-      { "G723 BitRate", "skinny.g723BitRate", 
+      { "G723 BitRate", "skinny.g723BitRate",
 	FT_UINT32, BASE_DEC, VALS(skinny_g723BitRates), 0x0,
-	"The G723 bit rate for this stream/JUNK if not g723 stream", 
+	"The G723 bit rate for this stream/JUNK if not g723 stream",
 	HFILL }
     },
 
@@ -2243,30 +2243,30 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_deviceResetType,
-      { "Reset Type", "skinny.deviceResetType", 
+      { "Reset Type", "skinny.deviceResetType",
 	FT_UINT32, BASE_DEC, VALS(skinny_deviceResetTypes), 0x0,
-	"How the devices it to be reset (reset/restart)", 
+	"How the devices it to be reset (reset/restart)",
 	HFILL }
     },
 
     { &hf_skinny_echoCancelType,
-      { "Echo Cancel Type", "skinny.echoCancelType", 
+      { "Echo Cancel Type", "skinny.echoCancelType",
 	FT_UINT32, BASE_DEC, VALS(skinny_echoCancelTypes), 0x0,
-	"Is echo cancelling enabled or not", 
+	"Is echo cancelling enabled or not",
 	HFILL }
     },
 
     { &hf_skinny_deviceUnregisterStatus,
-      { "Unregister Status", "skinny.deviceUnregisterStatus", 
+      { "Unregister Status", "skinny.deviceUnregisterStatus",
 	FT_UINT32, BASE_DEC, VALS(skinny_deviceUnregisterStatusTypes), 0x0,
-	"The status of the device unregister request (*CAN* be refused)", 
+	"The status of the device unregister request (*CAN* be refused)",
 	HFILL }
     },
 
     { &hf_skinny_hookFlashDetectMode,
-      { "Hook Flash Mode", "skinny.hookFlashDetectMode", 
+      { "Hook Flash Mode", "skinny.hookFlashDetectMode",
 	FT_UINT32, BASE_DEC, VALS(skinny_hookFlashDetectModes), 0x0,
-	"Which method to use to detect that a hook flash has occured", 
+	"Which method to use to detect that a hook flash has occured",
 	HFILL }
     },
 
@@ -2278,9 +2278,9 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_microphoneMode,
-      { "Microphone Mode", "skinny.microphoneMode", 
+      { "Microphone Mode", "skinny.microphoneMode",
 	FT_UINT32, BASE_DEC, VALS(skinny_microphoneModes), 0x0,
-	"Turns on and off the microphone on the set", 
+	"Turns on and off the microphone on the set",
 	HFILL }
     },
 
@@ -2348,9 +2348,9 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_sessionType,
-      { "Session Type", "skinny.sessionType", 
+      { "Session Type", "skinny.sessionType",
 	FT_UINT32, BASE_DEC, VALS(skinny_sessionTypes), 0x0,
-	"The type of this session.", 
+	"The type of this session.",
 	HFILL }
     },
 
@@ -2362,9 +2362,9 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_mediaEnunciationType,
-      { "Enunciation Type", "skinny.mediaEnunciationType", 
+      { "Enunciation Type", "skinny.mediaEnunciationType",
 	FT_UINT32, BASE_DEC, VALS(skinny_mediaEnunciationTypes), 0x0,
-	"No clue.", 
+	"No clue.",
 	HFILL }
     },
 
@@ -2376,9 +2376,9 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_serverListenPort,
-      { "Server Port", "skinny.serverListenPort", 
+      { "Server Port", "skinny.serverListenPort",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The port the server listens on.", 
+	"The port the server listens on.",
 	HFILL }
     },
 
@@ -2390,9 +2390,9 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_multicastPort,
-      { "Multicast Port", "skinny.multicastPort", 
+      { "Multicast Port", "skinny.multicastPort",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The multicast port the to listens on.", 
+	"The multicast port the to listens on.",
 	HFILL }
     },
 
@@ -2404,21 +2404,21 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_tokenRejWaitTime,
-      { "Retry Wait Time", "skinny.tokenRejWaitTime", 
+      { "Retry Wait Time", "skinny.tokenRejWaitTime",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The time to wait before retrying this token request.", 
+	"The time to wait before retrying this token request.",
 	HFILL }
     },
 
     { &hf_skinny_unknown,
-      { "Data", "skinny.unknown", 
+      { "Data", "skinny.unknown",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
-	"Place holder for unknown data.", 
+	"Place holder for unknown data.",
 	HFILL }
     },
 
   };
-  
+
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_skinny,
@@ -2430,7 +2430,7 @@ proto_register_skinny(void)
   /* Register the protocol name and description */
   proto_skinny = proto_register_protocol("Skinny Client Control Protocol",
 					 "SKINNY", "skinny");
-  
+
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_skinny, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -2462,7 +2462,7 @@ proto_reg_handoff_skinny(void)
  *
  *  id     message                     implemented  decode tested (via capture)
  *  ---------------------------------------------------------------------------
- *  0x0    keepAlive                       Y        N/A 
+ *  0x0    keepAlive                       Y        N/A
  *  0x1    register                        Y        Y
  *  0x2    ipPort                          Y        Y
  *  0x3    keypadButton                    Y        Y
@@ -2479,7 +2479,7 @@ proto_reg_handoff_skinny(void)
  *  0xe    buttonTemplateReq               Y        N/A
  *  0xf    versionReq                      Y        N/A
  *  0x10   capabilitiesRes                 Y        Y -- would like more decodes
- *  0x11   mediaPortList                   S        N -- no info 
+ *  0x11   mediaPortList                   S        N -- no info
  *  0x12   serverReq                       Y        N/A
  *  0x20   alarmMessage                    Y        Y
  *  0x21   multicastMediaReceptionAck      Y        N

@@ -1,22 +1,22 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.20 2002/08/02 23:35:51 jmayer Exp $
+ * $Id: packet-igmp.c,v 1.21 2002/08/28 21:00:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -41,12 +41,12 @@
 	0x07      20
 	0x08      20
 	0x11               8*     8*     >=12
-        0x12               8*     8* 
+        0x12               8*     8*
 	0x13                                     x
 	0x16                      8
 	0x17                      8
 	0x22                            >=8
-	0x23                                                    >=8b      
+	0x23                                                    >=8b
 	0x24                                            >=8a    8b
 	0x25                                            4a      >=8b
 	0x26                                            4a
@@ -61,7 +61,7 @@
 	Size in bytes for each packet
 	type    draft-ietf-idmr-traceroute-ipm-07.ps
 	0x1e      24 + n*32
-	0x1f      24 + n*32 (n == 0 for Query) 
+	0x1f      24 + n*32 (n == 0 for Query)
 
    x DVMRP Protocol  see packet-dvmrp.c
 
@@ -69,7 +69,7 @@
 	RFC1075 Version 1
 	draft-ietf-idmr-dvmrp-v3-10.txt Version 3
 
-	V1 and V3 can be distinguished by looking at bytes 6 and 7 in the 
+	V1 and V3 can be distinguished by looking at bytes 6 and 7 in the
 	IGMP header.
 	If header[6]==0xff and header[7]==0x03 we have version 3.
 
@@ -182,7 +182,7 @@ static int ett_mtrace_block = -1;
 #define IGMP_TYPE_0x24			0x24
 #define IGMP_TYPE_0x25			0x25
 #define IGMP_TYPE_0x26			0x26
-	
+
 #define IGMP_TRACEROUTE_HDR_LEN           24
 #define IGMP_TRACEROUTE_RSP_LEN           32
 
@@ -389,7 +389,7 @@ dissect_v3_max_resp(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		tsecs = tsecs << ( ((bits&IGMP_MAX_RESP_EXP)>>4) + 3);
 	} else {
 		tsecs = bits;
-	}		
+	}
 
 	item = proto_tree_add_uint_format(parent_tree, hf_max_resp, tvb,
 			offset, 1, tsecs, "Max Response Time: %.1f sec (0x%02x)",tsecs*0.1,bits);
@@ -417,7 +417,7 @@ dissect_v3_sqrv_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 	bits = tvb_get_guint8(tvb, offset);
 
-	item = proto_tree_add_text(parent_tree, tvb, offset, 1, 
+	item = proto_tree_add_text(parent_tree, tvb, offset, 1,
 		"QRV=%d S=%s", bits&IGMP_V3_QRV_MASK,
 			(bits&IGMP_V3_S)?tfs_s.true_string:tfs_s.false_string);
 	tree = proto_item_add_subtree(item, ett_sqrv_bits);
@@ -443,8 +443,8 @@ dissect_v3_group_record(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 	tvb_memcpy(tvb, (guint8 *)&ip, offset+4, 4);
 	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-		"Group Record : %s  %s", 
-			ip_to_str((gchar*)&ip), 
+		"Group Record : %s  %s",
+			ip_to_str((gchar*)&ip),
 			val_to_str(tvb_get_guint8(tvb, offset), vs_record_type,"")
 		);
 	tree = proto_item_add_subtree(item, ett_group_record);
@@ -506,7 +506,7 @@ dissect_igmp_v3_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	num = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_num_grp_recs, tvb, offset, 2, num);
 	offset += 2;
-	
+
 	while (num--) {
 		offset = dissect_v3_group_record(tvb, tree, offset);
 	}
@@ -634,8 +634,8 @@ dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	proto_tree_add_item(tree, hf_access_key, tvb, offset, 8, FALSE);
 	offset +=8;
 
-	return offset;		
-} 
+	return offset;
+}
 
 /* dissector for multicast traceroute, rfc???? */
 static int
@@ -763,7 +763,7 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 		offset += 1;
 
 		/* Forwarding information/error code */
-		proto_tree_add_item(block_tree, hf_mtrace_q_fwd_code, tvb, offset, 1, FALSE);	
+		proto_tree_add_item(block_tree, hf_mtrace_q_fwd_code, tvb, offset, 1, FALSE);
 		offset += 1;
 	}
 
@@ -859,7 +859,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		dst = g_htonl(MC_ALL_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
 			offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
-		}  
+		}
 		dst = g_htonl(MC_ALL_IGMPV3_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
 			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);

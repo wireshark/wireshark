@@ -2,28 +2,28 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.7 2002/06/24 00:03:16 tpot Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.8 2002/08/28 21:00:08 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* The IDL file for this interface can be extracted by grepping for idl 
+/* The IDL file for this interface can be extracted by grepping for idl
  * in capitals.
  */
 
@@ -50,8 +50,8 @@ static gint ett_dcerpc_browser = -1;
 
 
 static int
-dissect_browser_long_pointer(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+dissect_browser_long_pointer(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	dcerpc_info *di;
@@ -194,12 +194,12 @@ dissect_browser_TYPE_2(tvbuff_t *tvb, int offset,
 	ALIGN_TO_4_BYTES;
 
 	switch(level){
-	case 100:	
+	case 100:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_3, NDR_POINTER_UNIQUE,
 			"unknown TYPE_3", -1, -1);
 		break;
-	case 101:	
+	case 101:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_4, NDR_POINTER_UNIQUE,
 			"unknown TYPE_4", -1, -1);
@@ -460,7 +460,7 @@ dissect_browser_UNKNOWN_04_reply(tvbuff_t *tvb, int offset,
   IDL   long element_44;
   IDL   TYPE_6 element_45;
   IDL } TYPE_5;
-  IDL 
+  IDL
   IDL typedef struct {
   IDL   hyper element_46;
   IDL } TYPE_6;
@@ -797,12 +797,12 @@ dissect_browser_TYPE_8(tvbuff_t *tvb, int offset,
 	ALIGN_TO_4_BYTES;
 
 	switch(level){
-	case 100:	
+	case 100:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_9, NDR_POINTER_UNIQUE,
 			"unknown TYPE_9", -1, -1);
 		break;
-	case 101:	
+	case 101:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_10, NDR_POINTER_UNIQUE,
 			"unknown TYPE_10", -1, -1);
@@ -1077,7 +1077,7 @@ dissect_browser_UNKNOWN_0b_reply(tvbuff_t *tvb, int offset,
   IDL }
 */
 static dcerpc_sub_dissector dcerpc_browser_dissectors[] = {
-        { BROWSER_UNKNOWN_00, "BROWSER_UNKNOWN_00", 
+        { BROWSER_UNKNOWN_00, "BROWSER_UNKNOWN_00",
 		dissect_browser_UNKNOWN_00_rqst,
 		dissect_browser_UNKNOWN_00_reply },
         { BROWSER_UNKNOWN_01, "BROWSER_UNKNOWN_01",
@@ -1110,35 +1110,35 @@ static dcerpc_sub_dissector dcerpc_browser_dissectors[] = {
         { BROWSER_UNKNOWN_0a, "BROWSER_UNKNOWN_0a",
 		dissect_browser_UNKNOWN_0a_rqst,
 		dissect_browser_UNKNOWN_0a_reply },
-        { BROWSER_UNKNOWN_0b, "BROWSER_UNKNOWN_0b", 
+        { BROWSER_UNKNOWN_0b, "BROWSER_UNKNOWN_0b",
 		dissect_browser_UNKNOWN_0b_rqst,
 		dissect_browser_UNKNOWN_0b_reply },
 
         {0, NULL, NULL,  NULL }
 };
 
-void 
+void
 proto_register_dcerpc_browser(void)
 {
 static hf_register_info hf[] = {
-	{ &hf_browser_rc, { 
-		"Return code", "rpc_browser.rc", FT_UINT32, BASE_HEX, 
+	{ &hf_browser_rc, {
+		"Return code", "rpc_browser.rc", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0x0, "Browser return code", HFILL }},
 
-	{ &hf_browser_unknown_long, { 
-		"Unknown long", "rpc_browser.unknown.long", FT_UINT32, BASE_HEX, 
+	{ &hf_browser_unknown_long, {
+		"Unknown long", "rpc_browser.unknown.long", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
-	
-	{ &hf_browser_unknown_hyper, { 
-		"Unknown hyper", "rpc_browser.unknown.hyper", FT_UINT64, BASE_HEX, 
+
+	{ &hf_browser_unknown_hyper, {
+		"Unknown hyper", "rpc_browser.unknown.hyper", FT_UINT64, BASE_HEX,
 		NULL, 0x0, "Unknown hyper. If you know what this is, contact ethereal developers.", HFILL }},
-	
-	{ &hf_browser_unknown_bytes, { 
-		"Unknown bytes", "rpc_browser.unknown.bytes", FT_BYTES, BASE_HEX, 
+
+	{ &hf_browser_unknown_bytes, {
+		"Unknown bytes", "rpc_browser.unknown.bytes", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "Unknown bytes. If you know what this is, contact ethereal developers.", HFILL }},
 
-	{ &hf_browser_unknown_string, { 
-		"Unknown string", "rpc_browser.unknown.string", FT_STRING, BASE_HEX, 
+	{ &hf_browser_unknown_string, {
+		"Unknown string", "rpc_browser.unknown.string", FT_STRING, BASE_HEX,
 		NULL, 0x0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }}
 
 	};
@@ -1149,7 +1149,7 @@ static hf_register_info hf[] = {
         proto_dcerpc_browser = proto_register_protocol(
                 "RPC Browser", "RPC_BROWSER", "rpc_browser");
 
-        proto_register_field_array(proto_dcerpc_browser, hf, 
+        proto_register_field_array(proto_dcerpc_browser, hf,
 				   array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 }
@@ -1159,7 +1159,7 @@ proto_reg_handoff_dcerpc_browser(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_dcerpc_browser, ett_dcerpc_browser, 
-                         &uuid_dcerpc_browser, ver_dcerpc_browser, 
+        dcerpc_init_uuid(proto_dcerpc_browser, ett_dcerpc_browser,
+                         &uuid_dcerpc_browser, ver_dcerpc_browser,
                          dcerpc_browser_dissectors, -1);
 }

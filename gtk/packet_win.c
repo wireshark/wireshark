@@ -3,22 +3,22 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.38 2002/06/04 07:48:57 guy Exp $
+ * $Id: packet_win.c,v 1.39 2002/08/28 21:03:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -184,8 +184,8 @@ destroy_new_window(GtkObject *object _U_, gpointer user_data)
   g_free(DataPtr);
 }
 
-	
-/* called when a tree row is selected in the popup packet window */	
+
+/* called when a tree row is selected in the popup packet window */
 static void
 new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
 	gpointer user_data)
@@ -217,7 +217,7 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
 		DataPtr->frame, finfo, len);
 }
 
-/* called when a tree row is unselected in the popup packet window */	
+/* called when a tree row is unselected in the popup packet window */
 static void
 new_tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
 	gpointer user_data)
@@ -225,7 +225,7 @@ new_tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column 
 	GtkWidget* byte_view;
 	const guint8* data;
 	guint len;
-	
+
 	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
 
 	DataPtr->finfo_selected = NULL;

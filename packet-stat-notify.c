@@ -2,7 +2,7 @@
  * Routines for async NSM stat callback dissection
  * 2001 Ronnie Sahlberg <See AUTHORS for email>
  *
- * $Id: packet-stat-notify.c,v 1.10 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-stat-notify.c,v 1.11 2002/08/28 21:00:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@ dissect_statnotify_mon(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
 static const vsff statnotify_proc[] = {
     { 0, "NULL", NULL, NULL },
-    { STATNOTIFYPROC_MON,   "MON-CALLBACK",      
+    { STATNOTIFYPROC_MON,   "MON-CALLBACK",
 		dissect_statnotify_mon, NULL },
     { 0, NULL, NULL, NULL }
 };
@@ -79,7 +79,7 @@ proto_register_statnotify(void)
 			"Priv", "statnotify.priv", FT_BYTES, BASE_HEX,
 			NULL, 0, "Client supplied opaque data", HFILL }},
 	};
-	
+
 	static gint *ett[] = {
 		&ett_statnotify,
 	};

@@ -1,22 +1,22 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.40 2002/08/02 23:36:04 jmayer Exp $
+ * $Id: packet-vlan.c,v 1.41 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -49,7 +49,7 @@ capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld ) {
   guint16 encap_proto;
   if ( !BYTES_ARE_IN_FRAME(offset,len,5) ) {
     ld->other++;
-    return; 
+    return;
   }
   encap_proto = pntohs( &pd[offset+2] );
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
@@ -127,17 +127,17 @@ void
 proto_register_vlan(void)
 {
   static hf_register_info hf[] = {
-	{ &hf_vlan_priority, { 
-		"Priority", "vlan.priority", FT_UINT16, BASE_BIN, 
+	{ &hf_vlan_priority, {
+		"Priority", "vlan.priority", FT_UINT16, BASE_BIN,
 		0, 0xE000, "Priority", HFILL }},
-	{ &hf_vlan_cfi, { 
-		"CFI", "vlan.cfi", FT_UINT16, BASE_BIN, 
+	{ &hf_vlan_cfi, {
+		"CFI", "vlan.cfi", FT_UINT16, BASE_BIN,
 		0, 0x1000, "CFI", HFILL }},	/* XXX - Boolean? */
-	{ &hf_vlan_id, { 
-		"ID", "vlan.id", FT_UINT16, BASE_BIN, 
+	{ &hf_vlan_id, {
+		"ID", "vlan.id", FT_UINT16, BASE_BIN,
 		0, 0x0FFF, "ID", HFILL }},
-	{ &hf_vlan_etype, { 
-		"Type", "vlan.etype", FT_UINT16, BASE_HEX, 
+	{ &hf_vlan_etype, {
+		"Type", "vlan.etype", FT_UINT16, BASE_HEX,
 		VALS(etype_vals), 0x0, "Type", HFILL }},
 	{ &hf_vlan_len, {
 		"Length", "vlan.len", FT_UINT16, BASE_DEC,

@@ -2,22 +2,22 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.8 2002/08/21 21:25:23 tpot Exp $
+ * $Id: packet-ntlmssp.c,v 1.9 2002/08/28 21:00:24 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -47,8 +47,8 @@ static const value_string ntlmssp_message_types[] = {
   { 0, NULL }
 };
 
-/* 
- * NTLMSSP negotiation flags 
+/*
+ * NTLMSSP negotiation flags
  * Taken from Samba
  */
 #define NTLMSSP_NEGOTIATE_UNICODE          0x00000001
@@ -162,7 +162,7 @@ static gint ett_ntlmssp = -1;
 static gint ett_ntlmssp_negotiate_flags = -1;
 
 static int
-dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset, 
+dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
 				 proto_tree *ntlmssp_tree,
 				 guint32 negotiate_flags)
 {
@@ -170,115 +170,115 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
   proto_item *tf = NULL;
 
   if (ntlmssp_tree) {
-    tf = proto_tree_add_uint (ntlmssp_tree, 
-			      hf_ntlmssp_negotiate_flags, 
+    tf = proto_tree_add_uint (ntlmssp_tree,
+			      hf_ntlmssp_negotiate_flags,
 			      tvb, offset, 4, negotiate_flags);
     negotiate_flags_tree = proto_item_add_subtree (tf, ett_ntlmssp_negotiate_flags);
   }
 
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_80000000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_80000000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_40000000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_40000000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_20000000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_20000000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_10000000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_10000000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_8000000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_8000000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_4000000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_4000000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_2000000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_2000000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_1000000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_1000000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_800000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_800000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_400000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_400000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_200000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_200000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_100000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_100000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_80000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_80000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_40000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_40000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_20000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_20000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_10000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_10000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_8000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_8000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_4000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_4000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_2000, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_2000,
 			  tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
 			  hf_ntlmssp_negotiate_flags_1000,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_800, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_400, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_200, 
-			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_100, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_800,
 			  tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_80, 
+			  hf_ntlmssp_negotiate_flags_400,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_40, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_200,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_20, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_100,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_80,
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_40,
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_20,
+			  tvb, offset, 4, negotiate_flags);
+  proto_tree_add_boolean (negotiate_flags_tree,
 			  hf_ntlmssp_negotiate_flags_10,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_08, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_08,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_04, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_04,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_02, 
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_02,
 			  tvb, offset, 4, negotiate_flags);
-  proto_tree_add_boolean (negotiate_flags_tree, 
-			  hf_ntlmssp_negotiate_flags_01, 
-			  tvb, offset, 4, negotiate_flags);  
+  proto_tree_add_boolean (negotiate_flags_tree,
+			  hf_ntlmssp_negotiate_flags_01,
+			  tvb, offset, 4, negotiate_flags);
 
   return (offset + 4);
 }
 
 
 static int
-dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, 
+dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset,
 			   proto_tree *ntlmssp_tree)
 {
   guint32 negotiate_flags;
@@ -365,7 +365,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
 		       hf_ntlmssp_ntlm_challenge,
 		       tvb, offset, 8, FALSE);
   offset += 8;
-  
+
   /* Reserved (function not completely known) */
   proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_reserved,
 		       tvb, offset, 8, FALSE);
@@ -506,7 +506,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
       return offset;
     }
 
-    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_domain, tvb, 
+    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_domain, tvb,
 			  offset, result_length, domain);
     offset += domain_length;
   }
@@ -522,7 +522,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
       return offset;
     }
 
-    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_username, tvb, 
+    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_username, tvb,
 			  offset, result_length, username);
     offset += username_length;
   }
@@ -538,7 +538,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
       return offset;
     }
 
-    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_hostname, tvb, 
+    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_hostname, tvb,
 			  offset, result_length, hostname);
     offset += hostname_length;
   }
@@ -551,12 +551,12 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
   /* NTLM Response */
   proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_ntresponse,
 		       tvb, offset, ntresponse_length, FALSE);
-  offset += ntresponse_length; 
+  offset += ntresponse_length;
 
   /* Unknown1 */
   proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_unknown1,
 		       tvb, offset, unknown1_length, FALSE);
-  offset += unknown1_length; 
+  offset += unknown1_length;
 
   return offset;
 }
@@ -572,19 +572,19 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
   /* Compute the total size of the data to be parsed */
   payloadsize = tvb_length_remaining(tvb, 0);
-  
+
   /* Setup a new tree for the NTLMSSP payload */
   if (tree) {
-    tf = proto_tree_add_item (tree, 
+    tf = proto_tree_add_item (tree,
 			      hf_ntlmssp,
 			      tvb, offset, payloadsize, FALSE);
-    
-    ntlmssp_tree = proto_item_add_subtree (tf, 
+
+    ntlmssp_tree = proto_item_add_subtree (tf,
 					   ett_ntlmssp);
   }
-  
+
   /* NTLMSSP constant */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth, 
+  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth,
 		       tvb, offset, 8, FALSE);
   offset += 8;
 
@@ -611,8 +611,8 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
   default:
     /* Unrecognized message type */
-    proto_tree_add_text (ntlmssp_tree, tvb, offset, 
-			 (payloadsize - 12), 
+    proto_tree_add_text (ntlmssp_tree, tvb, offset,
+			 (payloadsize - 12),
 			 "Unrecognized NTLMSSP Message");
     break;
   }
@@ -625,17 +625,17 @@ proto_register_ntlmssp(void)
   static hf_register_info hf[] = {
     { &hf_ntlmssp,
       { "NTLMSSP", "ntlmssp", FT_NONE, BASE_NONE, NULL, 0x0, "NTLMSSP", HFILL }},
-    
-    { &hf_ntlmssp_auth, 
+
+    { &hf_ntlmssp_auth,
       { "NTLMSSP identifier", "ntlmssp.identifier", FT_STRING, BASE_NONE, NULL, 0x0, "NTLMSSP Identifier", HFILL }},
-    
+
     { &hf_ntlmssp_message_type,
       { "NTLM Message Type", "ntlmssp.messagetype", FT_UINT32, BASE_HEX, VALS(ntlmssp_message_types), 0x0, "", HFILL }},
-    
+
     { &hf_ntlmssp_negotiate_flags,
       { "Flags", "dcerpc.negotiateflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_01,
-      
+
       { "Negotiate UNICODE", "ntlmssp.negotiateunicode", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_UNICODE, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_02,
       { "Negotiate OEM", "ntlmssp.negotiateoem", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_OEM, "", HFILL }},
@@ -786,6 +786,6 @@ proto_register_ntlmssp(void)
 					   );
   proto_register_field_array (proto_ntlmssp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
-  
+
   register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
 }

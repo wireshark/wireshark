@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.47 2002/08/03 19:47:50 guy Exp $
+ * $Id: packet-icq.c,v 1.48 2002/08/28 21:00:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -366,7 +366,7 @@ table_v5 [] = {
  0x3B, 0x4D, 0x46, 0x68, 0x63, 0x39, 0x50, 0x5F, 0x5F, 0x3F, 0x6F, 0x67, 0x53, 0x41, 0x25, 0x41,
  0x3C, 0x51, 0x54, 0x3D, 0x5E, 0x54, 0x5D, 0x4E, 0x4C, 0x39, 0x50, 0x5F, 0x5F, 0x5F, 0x3F, 0x6F,
  0x47, 0x43, 0x69, 0x48, 0x33, 0x51, 0x54, 0x5D, 0x6E, 0x3C, 0x31, 0x64, 0x35, 0x5A, 0x00, 0x00 };
- 
+
 static char*
 findMsgType(int num)
 {
@@ -552,7 +552,7 @@ proto_add_icq_attr(proto_tree* tree, /* The tree to add to */
 		   char* descr)	/* The description to use in the tree */
 {
     guint16 len;
-    
+
     len = tvb_get_letohs(tvb, offset);
     if (len > tvb_reported_length_remaining(tvb, offset))
 	return -1;	/* length goes past end of packet */
@@ -607,7 +607,7 @@ icqv5_decode_msgType(proto_tree* tree,
 	"Email address",
     };
 #define N_USER_ADDED_FIELDS	(sizeof user_added_field_descr / sizeof user_added_field_descr[0])
-    
+
     msgType = tvb_get_letohs(tvb, offset);
     ti = proto_tree_add_text(tree, tvb,
 			     offset,
@@ -699,7 +699,7 @@ icqv5_decode_msgType(proto_tree* tree,
 	    left -= sz;
 	}
 	break;
-	
+
     case MSG_AUTH:
     {
 	/* Three bytes, first is a char signifying success */
@@ -816,7 +816,7 @@ icqv5_decode_msgType(proto_tree* tree,
 				    tvb_get_ptr(tvb, sep_offset_prev + 1, sz));
 		n += 2;
 	    }
-	    
+
 	    left -= (sz+1);
 	    offset = sep_offset + 1;
 	}
@@ -826,7 +826,7 @@ icqv5_decode_msgType(proto_tree* tree,
 }
 
 /*********************************
- * 
+ *
  * Client commands
  *
  *********************************/
@@ -876,7 +876,7 @@ icqv5_cmd_rand_search(proto_tree* tree, /* Tree to put the data in */
 	"Man want women",
 	"Women want men"
     };
-    
+
     if (tree){
 	if (size < 4) {
 	    ti = proto_tree_add_text(tree,
@@ -1473,7 +1473,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 				offset,
 				sizeof(guint16),
 				"Length: %u", pktLen);
-	    
+
 	    offset += sizeof(guint16); left -= sizeof(guint16);
 	}
 	case META_USER_FOUND:
@@ -1585,7 +1585,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 				"UIN: %u", uin);
 	    offset+=sizeof(guint32);left-=sizeof(guint32);
 #endif
-	    
+
 	    /*
 	     * Get every field from the description
 	     */
@@ -1665,7 +1665,7 @@ icqv5_srv_recv_message(proto_tree* tree, /* Tree to put the data in */
     guint8 day;
     guint8 hour;
     guint8 minute;
-    
+
     if (tree) {
 	ti = proto_tree_add_text(tree,
 				 tvb,
@@ -1711,7 +1711,7 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
     guint8 commClass;
     guint32 status;
     guint16 tcpVer;
-    
+
     if (tree) {
 	ti = proto_tree_add_text(tree,
 				 tvb,
@@ -1739,7 +1739,7 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 			    offset + SRV_RAND_USER_UIN,
 			    sizeof(guint32),
 			    "Port: %u", port);
-	/* guint32 realIP */		    
+	/* guint32 realIP */
 	realIP = tvb_get_ptr(tvb, offset + SRV_RAND_USER_REAL_IP, 4);
 	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_REAL_IP,
@@ -1786,7 +1786,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
     guint16 cmd;
     guint8 *decr_pd;		/* Decrypted content */
     tvbuff_t *decr_tvb;
-    
+
     pktsize = tvb_reported_length(tvb);
     capturedsize = tvb_length(tvb);
 
@@ -1807,7 +1807,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
     decr_pd = g_malloc(rounded_size);
     tvb_memcpy(tvb, decr_pd, 0, capturedsize);
     decrypt_v5(decr_pd, rounded_size, key);
-    
+
     /* Allocate a new tvbuff, referring to the decrypted data. */
     decr_tvb = tvb_new_real_data(decr_pd, capturedsize, pktsize);
 
@@ -1827,7 +1827,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
-    
+
     if (tree) {
         ti = proto_tree_add_protocol_format(tree,
 				 proto_icq,
@@ -1846,7 +1846,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
 					ICQ5_client,
 					"Header");
 	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
-					
+
 	proto_tree_add_text(icq_header_tree, tvb,
 			    ICQ_VERSION,
 			    2,
@@ -1981,14 +1981,14 @@ dissect_icqv5Server(tvbuff_t *tvb,
     int changeCol = (pktsize==-1);
 
     guint16 cmd;
-    
+
     cmd = tvb_get_letohs(tvb, offset + ICQ5_SRV_CMD);
     if (changeCol && check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
 
     if (pktsize == -1)
 	pktsize = tvb_reported_length(tvb);
-    
+
     if (tree) {
         ti = proto_tree_add_protocol_format(tree,
 					proto_icq,
@@ -1998,7 +1998,7 @@ dissect_icqv5Server(tvbuff_t *tvb,
 					"ICQv5 %s (len %u)",
 					findServerCmd(cmd),
 					pktsize);
-	
+
         icq_tree = proto_item_add_subtree(ti, ett_icq);
 
 	ti = proto_tree_add_uint_format(icq_tree,
@@ -2009,7 +2009,7 @@ dissect_icqv5Server(tvbuff_t *tvb,
 					ICQ5_server,
 					"Header");
 	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
-					
+
 	proto_tree_add_text(icq_header_tree, tvb,
 			    offset + ICQ_VERSION,
 			    2,
@@ -2129,7 +2129,7 @@ static void dissect_icqv5(tvbuff_t *tvb,
 			  proto_tree *tree)
 {
   guint32 unknown;
-  
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv5 (UDP)");
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -2204,9 +2204,9 @@ proto_register_icq(void)
         &ett_icq_body,
         &ett_icq_body_parts,
     };
-    
+
     proto_icq = proto_register_protocol("ICQ Protocol", "ICQ", "icq");
-    
+
     proto_register_field_array(proto_icq, hf, array_length(hf));
 
     proto_register_subtree_array(ett, array_length(ett));

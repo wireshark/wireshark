@@ -5,7 +5,7 @@
  * AVPs.  If libxml is in the LD_LIBRARY_PATH, and dictionary.xml exists,
  * then it will not be used.
  *
- * $Id: packet-diameter-defs.h,v 1.7 2002/03/05 00:21:02 guy Exp $
+ * $Id: packet-diameter-defs.h,v 1.8 2002/08/28 21:00:12 jmayer Exp $
  * Generated: Fri Feb 23 13:04:15 2001
  */
 
@@ -163,7 +163,7 @@ static value_string diameter_tunnel_type_vals[]= {
 };
 
 static value_string diameter_tunnel_medium_type_vals[]= {
-	{1,"IPv4"}, 
+	{1,"IPv4"},
 	{2,"IPv6"},
 	{3,"NSAP"},
 	{4,"HDLC"},
@@ -351,7 +351,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 280, "Proxy-Host",                  DIAMETER_IDENTITY,    (value_string *)NULL},
     { 284, "Proxy-Info",                  DIAMETER_GROUPED,     (value_string *)NULL},
     { 292, "Redirect-Host",               DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 261, "Redirect-Host-Usage",         DIAMETER_ENUMERATED,  diameter_redirect_host_usage_vals}, 
+    { 261, "Redirect-Host-Usage",         DIAMETER_ENUMERATED,  diameter_redirect_host_usage_vals},
     { 262, "Redirect-Max-Cache-Time",     DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 268, "Result-Code",                 DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 282, "Route-Record",                DIAMETER_IDENTITY,    (value_string *)NULL},

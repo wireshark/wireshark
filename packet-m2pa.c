@@ -3,27 +3,27 @@
  * It is hopefully (needs testing) compliant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-05.txt
  *
- * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>, 
+ * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <michael.tuexen[AT]siemens.com>
  *
- * $Id: packet-m2pa.c,v 1.11 2002/08/27 19:28:23 tuexen Exp $
+ * $Id: packet-m2pa.c,v 1.12 2002/08/28 21:00:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-m3ua.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -169,7 +169,7 @@ static const value_string link_status_values[] = {
   { STATUS_ALIGNMENT,                "Alignment" },
   { STATUS_PROVING_NORMAL,           "Proving Normal" },
   { STATUS_PROVING_EMERGENCY,        "Proving Emergency" },
-  { STATUS_READY,                    "Ready" },    
+  { STATUS_READY,                    "Ready" },
   { STATUS_PROCESSOR_OUTAGE,         "Processor Outage" },
   { STATUS_PROCESSOR_OUTAGE_ENDED,   "Processor Outage Ended" },
   { STATUS_BUSY,                     "Busy" },
@@ -182,7 +182,7 @@ static void
 dissect_m2pa_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
   guint16 filler_length;
-  
+
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_str(pinfo->cinfo, COL_INFO, "Link status ");
   if (m2pa_tree) {
@@ -195,7 +195,7 @@ dissect_m2pa_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo,
 
 static void
 dissect_m2pa_unknown_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
-{  
+{
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_str(pinfo->cinfo, COL_INFO, "Unknown ");
   if (m2pa_tree)

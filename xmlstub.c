@@ -3,7 +3,7 @@
  * exists so that the library can be loaded on systems that
  * have it.
  *
- * $Id: xmlstub.c,v 1.1 2001/11/01 21:52:44 guy Exp $
+ * $Id: xmlstub.c,v 1.2 2002/08/28 21:00:41 jmayer Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -51,7 +51,7 @@ loadLibXML()
 	if (XmlStubInitialized) {
 		/* Did you ever get the feeling you've been here before? */
 
-		/* 
+		/*
 		 * This is not thread safe.  With threads, we'd need to
 		 * synchronize all this so two threads can't initialize at once.
 		 */
@@ -71,8 +71,8 @@ loadLibXML()
 		g_warning("XMLStub: Unable to open module " XML_LIBRARY);
 		return (-1);
 	}
-	
-	/* 
+
+	/*
 	 * Now that the library is open, copy all our relevant
 	 * function pointers and integer pointers into our structure.
 	 */
@@ -81,13 +81,13 @@ loadLibXML()
 		error=TRUE;
 	}
 	XmlStub.xmlParseFile= (xmlDocPtr(*)(const char *))symbol;
-	
+
 	if (!g_module_symbol(handle, "xmlStrcmp", &symbol)) {
 		g_warning("Unable to find \"xmlStrcmp\"");
 		error=TRUE;
 	}
 	XmlStub.xmlStrcmp= (int (*)(const xmlChar *, const xmlChar *))symbol;
-	
+
 	if (!g_module_symbol(handle, "xmlCreatePushParserCtxt", &symbol)) {
 		g_warning("Unable to find \"xmlCreatePushParserCtxt\"");
 		error=TRUE;
@@ -152,7 +152,7 @@ loadLibXML()
 
 	/*
 	 * Return if any of the above functions set our error flag.
-	 * A flag was used, instead of returning immediately, so 
+	 * A flag was used, instead of returning immediately, so
 	 * that *all* unresolved symbols would be printed.
 	 */
 	if (error) {

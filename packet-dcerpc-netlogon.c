@@ -3,22 +3,22 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.53 2002/08/27 12:33:14 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.54 2002/08/28 21:00:09 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -752,7 +752,7 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
 }
 
 
-/* 
+/*
  * IDL typedef struct {
  * IDL   long user_id;
  * IDL   long attributes;
@@ -961,7 +961,7 @@ netlogon_dissect_VALIDATION_SAM_INFO(tvbuff_t *tvb, int offset,
  * IDL   long sidcount;
  * IDL   [unique] SID_AND_ATTRIBS;
  * IDL } VALIDATION_SAM_INFO2;
- */ 
+ */
 static int
 netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
@@ -1598,7 +1598,7 @@ netlogon_dissect_SENSITIVE_DATA(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_sensitive_data_len, &data_len);
 
-	proto_tree_add_item(tree, hf_netlogon_sensitive_data, tvb, offset, 
+	proto_tree_add_item(tree, hf_netlogon_sensitive_data, tvb, offset,
 		data_len, FALSE);
 	offset += data_len;
 
@@ -1993,7 +1993,7 @@ netlogon_dissect_DELTA_RENAME(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_RID(tvbuff_t *tvb, int offset, 
+netlogon_dissect_RID(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -2004,7 +2004,7 @@ netlogon_dissect_RID(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_RID_array(tvbuff_t *tvb, int offset, 
+netlogon_dissect_RID_array(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -2015,7 +2015,7 @@ netlogon_dissect_RID_array(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_ATTRIB(tvbuff_t *tvb, int offset, 
+netlogon_dissect_ATTRIB(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -2026,7 +2026,7 @@ netlogon_dissect_ATTRIB(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_ATTRIB_array(tvbuff_t *tvb, int offset, 
+netlogon_dissect_ATTRIB_array(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -2579,7 +2579,7 @@ netlogon_dissect_CIPHER_VALUE_DATA(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 		hf_netlogon_cipher_len, &data_len);
 
-	proto_tree_add_item(tree, di->hf_index, tvb, offset, 
+	proto_tree_add_item(tree, di->hf_index, tvb, offset,
 		data_len, FALSE);
 	offset += data_len;
 
@@ -2638,7 +2638,7 @@ netlogon_dissect_DELTA_SECRET(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	offset = netlogon_dissect_CIPHER_VALUE(tvb, offset,
-		pinfo, tree, drep, 
+		pinfo, tree, drep,
 		"CIPHER_VALUE: current cipher value",
 		hf_netlogon_cipher_current_data);
 
@@ -2646,7 +2646,7 @@ netlogon_dissect_DELTA_SECRET(tvbuff_t *tvb, int offset,
 		hf_netlogon_cipher_current_set_time);
 
 	offset = netlogon_dissect_CIPHER_VALUE(tvb, offset,
-		pinfo, tree, drep, 
+		pinfo, tree, drep,
 		"CIPHER_VALUE: old cipher value",
 		hf_netlogon_cipher_old_data);
 
@@ -2882,13 +2882,13 @@ netlogon_dissect_DELTA_UNION(tvbuff_t *tvb, int offset,
  * IDL   [case(10)] long rid;
  * IDL   [case(11)] long rid;
  * IDL   [case(12)] long rid;
- * IDL   [case(13)] [unique] SID *sid; 
- * IDL   [case(14)] [unique] SID *sid; 
- * IDL   [case(15)] [unique] SID *sid; 
- * IDL   [case(16)] [unique] SID *sid; 
- * IDL   [case(17)] [unique] SID *sid; 
- * IDL   [case(18)] [unique][string] wchar_t *Name ; 
- * IDL   [case(19)] [unique][string] wchar_t *Name ; 
+ * IDL   [case(13)] [unique] SID *sid;
+ * IDL   [case(14)] [unique] SID *sid;
+ * IDL   [case(15)] [unique] SID *sid;
+ * IDL   [case(16)] [unique] SID *sid;
+ * IDL   [case(17)] [unique] SID *sid;
+ * IDL   [case(18)] [unique][string] wchar_t *Name ;
+ * IDL   [case(19)] [unique][string] wchar_t *Name ;
  * IDL   [case(20)] long rid;
  * IDL   [case(21)] long rid;
  * IDL } DELTA_ID_UNION;
@@ -3052,7 +3052,7 @@ netlogon_dissect_DELTA_ENUM_array(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-/* 
+/*
  * IDL typedef struct {
  * IDL   long num_deltas;
  * IDL   [unique][size_is(num_deltas)] DELTA_ENUM *delta_enum;
@@ -3945,13 +3945,13 @@ netlogon_dissect_netlogondatabaseredo_reply(tvbuff_t *tvb, int offset,
 
 
 /* XXX NetMon does not recognize this as a valid function. Muddle however
- * tells us what parameters it takes but not their names. 
+ * tells us what parameters it takes but not their names.
  * It looks similar to logoncontrol2.  perhaps it is logoncontrol3?
  */
 /*
  * IDL long NetFunction_12(
  * IDL      [in][string][unique] wchar_t *logonserver,
- * IDL      [in] long function_code,  
+ * IDL      [in] long function_code,
  * IDL      [in] long level,
  * IDL      [in][ref] CONTROL_DATA_INFORMATION *data,
  * IDL      [out][ref] CONTROL_QUERY_INFORMATION *query
@@ -4002,8 +4002,8 @@ netlogon_dissect_function_12_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_pointer_long(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+netlogon_dissect_pointer_long(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	dcerpc_info *di;
@@ -4015,8 +4015,8 @@ netlogon_dissect_pointer_long(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_pointer_char(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
+netlogon_dissect_pointer_char(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	dcerpc_info *di;
@@ -4028,8 +4028,8 @@ netlogon_dissect_pointer_char(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_UNICODE_STRING(tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *parent_tree, 
+netlogon_dissect_UNICODE_STRING(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep, int type, int hf_index, int levels)
 {
 	proto_item *item=NULL;
@@ -4486,7 +4486,7 @@ netlogon_dissect_TYPE_50_ptr(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_TYPE_50, NDR_POINTER_UNIQUE,
 		"TYPE_50 pointer: unknown_TYPE_50", -1, 0);
-	
+
 	return offset;
 }
 
@@ -4498,7 +4498,7 @@ netlogon_dissect_TYPE_50_ptr_ptr(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_TYPE_50_ptr, NDR_POINTER_UNIQUE,
 		"TYPE_50* pointer: unknown_TYPE_50", -1, 0);
-	
+
 	return offset;
 }
 
@@ -5754,7 +5754,7 @@ static const value_string netlogon_opnum_vals[] = {
 	{ 0, NULL }
 };
 
-void 
+void
 proto_register_dcerpc_netlogon(void)
 {
 
@@ -5763,60 +5763,60 @@ static hf_register_info hf[] = {
 	  { "Operation", "netlogon.opnum", FT_UINT16, BASE_DEC,
 	    VALS(netlogon_opnum_vals), 0x0, "Operation", HFILL }},
 
-	{ &hf_netlogon_rc, { 
-		"Return code", "netlogon.rc", FT_UINT32, BASE_HEX, 
+	{ &hf_netlogon_rc, {
+		"Return code", "netlogon.rc", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0x0, "Netlogon return code", HFILL }},
 
-	{ &hf_netlogon_param_ctrl, { 
-		"Param Ctrl", "netlogon.param_ctrl", FT_UINT32, BASE_HEX, 
+	{ &hf_netlogon_param_ctrl, {
+		"Param Ctrl", "netlogon.param_ctrl", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Param ctrl", HFILL }},
 
-	{ &hf_netlogon_logon_id, { 
-		"Logon ID", "netlogon.logon_id", FT_UINT64, BASE_DEC, 
+	{ &hf_netlogon_logon_id, {
+		"Logon ID", "netlogon.logon_id", FT_UINT64, BASE_DEC,
 		NULL, 0x0, "Logon ID", HFILL }},
 
-	{ &hf_netlogon_modify_count, { 
-		"Modify Count", "netlogon.modify_count", FT_UINT64, BASE_DEC, 
+	{ &hf_netlogon_modify_count, {
+		"Modify Count", "netlogon.modify_count", FT_UINT64, BASE_DEC,
 		NULL, 0x0, "How many times the object has been modified", HFILL }},
 
-	{ &hf_netlogon_security_information, { 
-		"Security Information", "netlogon.security_information", FT_UINT32, BASE_DEC, 
+	{ &hf_netlogon_security_information, {
+		"Security Information", "netlogon.security_information", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Security Information", HFILL }},
 
-	{ &hf_netlogon_count, { 
-		"Count", "netlogon.count", FT_UINT32, BASE_DEC, 
+	{ &hf_netlogon_count, {
+		"Count", "netlogon.count", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
-	{ &hf_netlogon_entries, { 
-		"Entries", "netlogon.entries", FT_UINT32, BASE_DEC, 
+	{ &hf_netlogon_entries, {
+		"Entries", "netlogon.entries", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
-	{ &hf_netlogon_credential, { 
-		"Credential", "netlogon.credential", FT_BYTES, BASE_HEX, 
+	{ &hf_netlogon_credential, {
+		"Credential", "netlogon.credential", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "Netlogon credential", HFILL }},
 
-	{ &hf_netlogon_challenge, { 
-		"Challenge", "netlogon.challenge", FT_BYTES, BASE_HEX, 
+	{ &hf_netlogon_challenge, {
+		"Challenge", "netlogon.challenge", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "Netlogon challenge", HFILL }},
 
-	{ &hf_netlogon_lm_owf_password, { 
-		"LM Pwd", "netlogon.lm_owf_pwd", FT_BYTES, BASE_HEX, 
+	{ &hf_netlogon_lm_owf_password, {
+		"LM Pwd", "netlogon.lm_owf_pwd", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "LanManager OWF Password", HFILL }},
 
-	{ &hf_netlogon_user_session_key, { 
-		"User Session Key", "netlogon.user_session_key", FT_BYTES, BASE_HEX, 
+	{ &hf_netlogon_user_session_key, {
+		"User Session Key", "netlogon.user_session_key", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "User Session Key", HFILL }},
 
-	{ &hf_netlogon_encrypted_lm_owf_password, { 
-		"Encrypted LM Pwd", "netlogon.lm_owf_pwd.encrypted", FT_BYTES, BASE_HEX, 
+	{ &hf_netlogon_encrypted_lm_owf_password, {
+		"Encrypted LM Pwd", "netlogon.lm_owf_pwd.encrypted", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "Encrypted LanManager OWF Password", HFILL }},
 
-	{ &hf_netlogon_nt_owf_password, { 
-		"NT Pwd", "netlogon.nt_owf_pwd", FT_BYTES, BASE_HEX, 
+	{ &hf_netlogon_nt_owf_password, {
+		"NT Pwd", "netlogon.nt_owf_pwd", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "NT OWF Password", HFILL }},
 
-	{ &hf_netlogon_blob, { 
-		"BLOB", "netlogon.blob", FT_BYTES, BASE_HEX, 
+	{ &hf_netlogon_blob, {
+		"BLOB", "netlogon.blob", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "BLOB", HFILL }},
 
 	{ &hf_netlogon_len, {
@@ -5855,57 +5855,57 @@ static hf_register_info hf[] = {
 		{ "Unknown string", "netlogon.unknown_string", FT_STRING, BASE_NONE,
 		NULL, 0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
 	{ &hf_netlogon_unknown_long,
-		{ "Unknown long", "netlogon.unknown.long", FT_UINT32, BASE_HEX, 
+		{ "Unknown long", "netlogon.unknown.long", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
 	{ &hf_netlogon_reserved,
-		{ "Reserved", "netlogon.reserved", FT_UINT32, BASE_HEX, 
+		{ "Reserved", "netlogon.reserved", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Reserved", HFILL }},
 	{ &hf_netlogon_unknown_short,
-		{ "Unknown short", "netlogon.unknown.short", FT_UINT16, BASE_HEX, 
+		{ "Unknown short", "netlogon.unknown.short", FT_UINT16, BASE_HEX,
 		NULL, 0x0, "Unknown short. If you know what this is, contact ethereal developers.", HFILL }},
 
 	{ &hf_netlogon_unknown_char,
-		{ "Unknown char", "netlogon.unknown.char", FT_UINT8, BASE_HEX, 
+		{ "Unknown char", "netlogon.unknown.char", FT_UINT8, BASE_HEX,
 		NULL, 0x0, "Unknown char. If you know what this is, contact ethereal developers.", HFILL }},
 
 	{ &hf_netlogon_acct_expiry_time,
-		{ "Acct Expiry Time", "netlogon.acct.expiry_time", FT_ABSOLUTE_TIME, BASE_NONE, 
+		{ "Acct Expiry Time", "netlogon.acct.expiry_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0x0, "When this account will expire", HFILL }},
 
 	{ &hf_netlogon_nt_pwd_present,
-		{ "NT PWD Present", "netlogon.nt_pwd_present", FT_UINT8, BASE_HEX, 
+		{ "NT PWD Present", "netlogon.nt_pwd_present", FT_UINT8, BASE_HEX,
 		NULL, 0x0, "Is NT password present for this account?", HFILL }},
 
 	{ &hf_netlogon_lm_pwd_present,
-		{ "LM PWD Present", "netlogon.lm_pwd_present", FT_UINT8, BASE_HEX, 
+		{ "LM PWD Present", "netlogon.lm_pwd_present", FT_UINT8, BASE_HEX,
 		NULL, 0x0, "Is LanManager password present for this account?", HFILL }},
 
 	{ &hf_netlogon_pwd_expired,
-		{ "PWD Expired", "netlogon.pwd_expired", FT_UINT8, BASE_HEX, 
+		{ "PWD Expired", "netlogon.pwd_expired", FT_UINT8, BASE_HEX,
 		NULL, 0x0, "Whether this password has expired or not", HFILL }},
 
 	{ &hf_netlogon_authoritative,
-		{ "Authoritative", "netlogon.authoritative", FT_UINT8, BASE_DEC, 
+		{ "Authoritative", "netlogon.authoritative", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_sensitive_data_flag,
-		{ "Sensitive Data", "netlogon.sensitive_data_flag", FT_UINT8, BASE_DEC, 
+		{ "Sensitive Data", "netlogon.sensitive_data_flag", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "Sensitive data flag", HFILL }},
 
 	{ &hf_netlogon_auditing_mode,
-		{ "Auditing Mode", "netlogon.auditing_mode", FT_UINT8, BASE_DEC, 
+		{ "Auditing Mode", "netlogon.auditing_mode", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "Auditing Mode", HFILL }},
 
 	{ &hf_netlogon_max_audit_event_count,
-		{ "Max Audit Event Count", "netlogon.max_audit_event_count", FT_UINT32, BASE_DEC, 
+		{ "Max Audit Event Count", "netlogon.max_audit_event_count", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Max audit event count", HFILL }},
 
 	{ &hf_netlogon_event_audit_option,
-		{ "Event Audit Option", "netlogon.event_audit_option", FT_UINT32, BASE_HEX, 
+		{ "Event Audit Option", "netlogon.event_audit_option", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Event audit option", HFILL }},
 
 	{ &hf_netlogon_sensitive_data_len,
-		{ "Length", "netlogon.sensitive_data_len", FT_UINT32, BASE_DEC, 
+		{ "Length", "netlogon.sensitive_data_len", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Length of sensitive data", HFILL }},
 
 	{ &hf_netlogon_nt_chal_resp,
@@ -6089,75 +6089,75 @@ static hf_register_info hf[] = {
 		NULL, 0, "Dummy string", HFILL }},
 
 	{ &hf_netlogon_logon_count16,
-		{ "Logon Count", "netlogon.logon_count16", FT_UINT16, BASE_DEC, 
+		{ "Logon Count", "netlogon.logon_count16", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Number of successful logins", HFILL }},
 
 	{ &hf_netlogon_logon_count,
-		{ "Logon Count", "netlogon.logon_count", FT_UINT32, BASE_DEC, 
+		{ "Logon Count", "netlogon.logon_count", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Number of successful logins", HFILL }},
 
 	{ &hf_netlogon_bad_pw_count16,
-		{ "Bad PW Count", "netlogon.bad_pw_count16", FT_UINT16, BASE_DEC, 
+		{ "Bad PW Count", "netlogon.bad_pw_count16", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Number of failed logins", HFILL }},
 
 	{ &hf_netlogon_bad_pw_count,
-		{ "Bad PW Count", "netlogon.bad_pw_count", FT_UINT32, BASE_DEC, 
+		{ "Bad PW Count", "netlogon.bad_pw_count", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Number of failed logins", HFILL }},
 
 	{ &hf_netlogon_country,
-		{ "Country", "netlogon.country", FT_UINT16, BASE_DEC, 
+		{ "Country", "netlogon.country", FT_UINT16, BASE_DEC,
 		VALS(ms_country_codes), 0x0, "Country setting for this account", HFILL }},
 
 	{ &hf_netlogon_codepage,
-		{ "Codepage", "netlogon.codepage", FT_UINT16, BASE_DEC, 
+		{ "Codepage", "netlogon.codepage", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Codepage setting for this account", HFILL }},
 
 	{ &hf_netlogon_level16,
-		{ "Level", "netlogon.level16", FT_UINT16, BASE_DEC, 
+		{ "Level", "netlogon.level16", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Which option of the union is represented here", HFILL }},
 
 	{ &hf_netlogon_validation_level,
-		{ "Validation Level", "netlogon.validation_level", FT_UINT16, BASE_DEC, 
+		{ "Validation Level", "netlogon.validation_level", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Requested level of validation", HFILL }},
 
 	{ &hf_netlogon_minpasswdlen,
-		{ "Min Password Len", "netlogon.min_passwd_len", FT_UINT16, BASE_DEC, 
+		{ "Min Password Len", "netlogon.min_passwd_len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Minimum length of password", HFILL }},
 
 	{ &hf_netlogon_passwdhistorylen,
-		{ "Passwd History Len", "netlogon.passwd_history_len", FT_UINT16, BASE_DEC, 
+		{ "Passwd History Len", "netlogon.passwd_history_len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Length of password history", HFILL }},
 
 	{ &hf_netlogon_secure_channel_type,
-		{ "Sec Chn Type", "netlogon.sec_chn_type", FT_UINT16, BASE_DEC, 
+		{ "Sec Chn Type", "netlogon.sec_chn_type", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Secure Channel Type", HFILL }},
 
 	{ &hf_netlogon_restart_state,
-		{ "Restart State", "netlogon.restart_state", FT_UINT16, BASE_DEC, 
+		{ "Restart State", "netlogon.restart_state", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Restart State", HFILL }},
 
 	{ &hf_netlogon_delta_type,
-		{ "Delta Type", "netlogon.delta_type", FT_UINT16, BASE_DEC, 
+		{ "Delta Type", "netlogon.delta_type", FT_UINT16, BASE_DEC,
 		VALS(delta_type_vals), 0x0, "Delta Type", HFILL }},
 
 	{ &hf_netlogon_blob_size,
-		{ "Size", "netlogon.blob.size", FT_UINT32, BASE_DEC, 
+		{ "Size", "netlogon.blob.size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size in bytes of BLOB", HFILL }},
 
 	{ &hf_netlogon_code,
-		{ "Code", "netlogon.code", FT_UINT32, BASE_HEX, 
+		{ "Code", "netlogon.code", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Code", HFILL }},
 
 	{ &hf_netlogon_level,
-		{ "Level", "netlogon.level", FT_UINT32, BASE_DEC, 
+		{ "Level", "netlogon.level", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Which option of the union is represented here", HFILL }},
 
 	{ &hf_netlogon_reference,
-		{ "Reference", "netlogon.reference", FT_UINT32, BASE_DEC, 
+		{ "Reference", "netlogon.reference", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_next_reference,
-		{ "Next Reference", "netlogon.next_reference", FT_UINT32, BASE_DEC, 
+		{ "Next Reference", "netlogon.next_reference", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_timestamp,
@@ -6165,103 +6165,103 @@ static hf_register_info hf[] = {
 		NULL, 0, "", HFILL }},
 
 	{ &hf_netlogon_user_rid,
-		{ "User RID", "netlogon.rid", FT_UINT32, BASE_DEC, 
+		{ "User RID", "netlogon.rid", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_alias_rid,
-		{ "Alias RID", "netlogon.alias_rid", FT_UINT32, BASE_DEC, 
+		{ "Alias RID", "netlogon.alias_rid", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_group_rid,
-		{ "Group RID", "netlogon.group_rid", FT_UINT32, BASE_DEC, 
+		{ "Group RID", "netlogon.group_rid", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_num_rids,
-		{ "Num RIDs", "netlogon.num_rids", FT_UINT32, BASE_DEC, 
+		{ "Num RIDs", "netlogon.num_rids", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Number of RIDs", HFILL }},
 
 	{ &hf_netlogon_num_controllers,
-		{ "Num DCs", "netlogon.num_dc", FT_UINT32, BASE_DEC, 
+		{ "Num DCs", "netlogon.num_dc", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Number of domain controllers", HFILL }},
 
 	{ &hf_netlogon_num_other_groups,
-		{ "Num Other Groups", "netlogon.num_other_groups", FT_UINT32, BASE_DEC, 
+		{ "Num Other Groups", "netlogon.num_other_groups", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_flags,
-		{ "Flags", "netlogon.flags", FT_UINT32, BASE_HEX, 
+		{ "Flags", "netlogon.flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_user_flags,
-		{ "User Flags", "netlogon.user_flags", FT_UINT32, BASE_HEX, 
+		{ "User Flags", "netlogon.user_flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_auth_flags,
-		{ "Auth Flags", "netlogon.auth_flags", FT_UINT32, BASE_HEX, 
+		{ "Auth Flags", "netlogon.auth_flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_systemflags,
-		{ "System Flags", "netlogon.system_flags", FT_UINT32, BASE_HEX, 
+		{ "System Flags", "netlogon.system_flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_database_id,
-		{ "Database Id", "netlogon.database_id", FT_UINT32, BASE_DEC, 
+		{ "Database Id", "netlogon.database_id", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Database Id", HFILL }},
 
 	{ &hf_netlogon_sync_context,
-		{ "Sync Context", "netlogon.sync_context", FT_UINT32, BASE_DEC, 
+		{ "Sync Context", "netlogon.sync_context", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Sync Context", HFILL }},
 
 	{ &hf_netlogon_max_size,
-		{ "Max Size", "netlogon.max_size", FT_UINT32, BASE_DEC, 
+		{ "Max Size", "netlogon.max_size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Max Size of database", HFILL }},
 
 	{ &hf_netlogon_max_log_size,
-		{ "Max Log Size", "netlogon.max_log_size", FT_UINT32, BASE_DEC, 
+		{ "Max Log Size", "netlogon.max_log_size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Max Size of log", HFILL }},
 
 	{ &hf_netlogon_pac_size,
-		{ "Pac Size", "netlogon.pac.size", FT_UINT32, BASE_DEC, 
+		{ "Pac Size", "netlogon.pac.size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size of PacData in bytes", HFILL }},
 
 	{ &hf_netlogon_auth_size,
-		{ "Auth Size", "netlogon.auth.size", FT_UINT32, BASE_DEC, 
+		{ "Auth Size", "netlogon.auth.size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Size of AuthData in bytes", HFILL }},
 
 	{ &hf_netlogon_num_deltas,
-		{ "Num Deltas", "netlogon.num_deltas", FT_UINT32, BASE_DEC, 
+		{ "Num Deltas", "netlogon.num_deltas", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Number of SAM Deltas in array", HFILL }},
 
 	{ &hf_netlogon_logon_attempts,
-		{ "Logon Attempts", "netlogon.logon_attempts", FT_UINT32, BASE_DEC, 
+		{ "Logon Attempts", "netlogon.logon_attempts", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "Number of logon attempts", HFILL }},
 
 	{ &hf_netlogon_pagefilelimit,
-		{ "Page File Limit", "netlogon.page_file_limit", FT_UINT32, BASE_DEC, 
+		{ "Page File Limit", "netlogon.page_file_limit", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_pagedpoollimit,
-		{ "Paged Pool Limit", "netlogon.paged_pool_limit", FT_UINT32, BASE_DEC, 
+		{ "Paged Pool Limit", "netlogon.paged_pool_limit", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_nonpagedpoollimit,
-		{ "Non-Paged Pool Limit", "netlogon.nonpaged_pool_limit", FT_UINT32, BASE_DEC, 
+		{ "Non-Paged Pool Limit", "netlogon.nonpaged_pool_limit", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_minworkingsetsize,
-		{ "Min Working Set Size", "netlogon.min_working_set_size", FT_UINT32, BASE_DEC, 
+		{ "Min Working Set Size", "netlogon.min_working_set_size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_maxworkingsetsize,
-		{ "Max Working Set Size", "netlogon.max_working_set_size", FT_UINT32, BASE_DEC, 
+		{ "Max Working Set Size", "netlogon.max_working_set_size", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_serial_number,
-		{ "Serial Number", "netlogon.serial_number", FT_UINT32, BASE_DEC, 
+		{ "Serial Number", "netlogon.serial_number", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_neg_flags,
-		{ "Neg Flags", "netlogon.neg_flags", FT_UINT32, BASE_HEX, 
+		{ "Neg Flags", "netlogon.neg_flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Negotiation Flags", HFILL }},
 
 	{ &hf_netlogon_logon_time,
@@ -6347,7 +6347,7 @@ static hf_register_info hf[] = {
         proto_dcerpc_netlogon = proto_register_protocol(
                 "Microsoft Network Logon", "NETLOGON", "rpc_netlogon");
 
-        proto_register_field_array(proto_dcerpc_netlogon, hf, 
+        proto_register_field_array(proto_dcerpc_netlogon, hf,
 				   array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 }
@@ -6357,7 +6357,7 @@ proto_reg_handoff_dcerpc_netlogon(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_dcerpc_netlogon, ett_dcerpc_netlogon, 
-                         &uuid_dcerpc_netlogon, ver_dcerpc_netlogon, 
+        dcerpc_init_uuid(proto_dcerpc_netlogon, ett_dcerpc_netlogon,
+                         &uuid_dcerpc_netlogon, ver_dcerpc_netlogon,
                          dcerpc_netlogon_dissectors, hf_netlogon_opnum);
 }

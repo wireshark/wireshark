@@ -1,7 +1,7 @@
 /* packet-pcnfsd.c
  * Routines for PCNFSD dissection
  *
- * $Id: packet-pcnfsd.c,v 1.9 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-pcnfsd.c,v 1.10 2002/08/28 21:00:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,7 +90,7 @@ dissect_pcnfsd_mapreq(tvbuff_t *tvb, int offset, proto_tree *tree)
 	mapreq = tvb_get_ntohl(tvb, offset + 0);
 
 	if (tree)
-		proto_tree_add_text(tree, tvb, offset, 4, "Request: %s (%u)", 
+		proto_tree_add_text(tree, tvb, offset, 4, "Request: %s (%u)",
 			val_to_str(mapreq, names_mapreq, "%u"), mapreq);
 
 	offset += 4;
@@ -99,7 +99,7 @@ dissect_pcnfsd_mapreq(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 int
-dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset, 
+dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_pcnfsd_mapreq(tvb, offset, tree);
@@ -117,7 +117,7 @@ dissect_pcnfsd2_mapid_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	offset = dissect_rpc_string(tvb, tree, hf_pcnfsd_comment, offset, NULL);
 
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset, 
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 		dissect_pcnfsd2_dissect_mapreq_arg_item);
 
 	return offset;
@@ -146,7 +146,7 @@ dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
 	maprstat = tvb_get_ntohl(tvb, offset + 0);
 
 	if (tree)
-		proto_tree_add_text(tree, tvb, offset, 4, "Status: %s (%u)", 
+		proto_tree_add_text(tree, tvb, offset, 4, "Status: %s (%u)",
 			val_to_str(maprstat, names_maprstat, "%u"), maprstat);
 
 	offset += 4;
@@ -208,7 +208,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (ident_item) {
 		proto_item_set_len(ident_item, newoffset-offset);
 	}
-	
+
 	if (ident) {
 		pcnfsd_decode_obscure(ident, strlen(ident));
 		if (ident_tree)
@@ -239,7 +239,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (password_item) {
 		proto_item_set_len(password_item, newoffset-offset);
 	}
-	
+
 	if (password) {
 		pcnfsd_decode_obscure(password, strlen(password));
 		if (password_tree)
@@ -330,9 +330,9 @@ static const vsff pcnfsd2_proc[] = {
 	{ 9,	"PR_REQUEUE",	NULL,				NULL },
 	{ 10,	"PR_HOLD",	NULL,				NULL },
 	{ 11,	"PR_RELEASE",	NULL,				NULL },
-	{ 12,	"MAPID",	
+	{ 12,	"MAPID",
 	dissect_pcnfsd2_mapid_call, dissect_pcnfsd2_mapid_reply },
-	{ 13,	"AUTH",		
+	{ 13,	"AUTH",
 	dissect_pcnfsd2_auth_call,	dissect_pcnfsd2_auth_reply },
 	{ 14,	"ALERT",	NULL,				NULL },
 	{ 0,	NULL,		NULL,				NULL }

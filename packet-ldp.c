@@ -1,8 +1,8 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.42 2002/08/27 19:21:02 guy Exp $
- * 
+ * $Id: packet-ldp.c,v 1.43 2002/08/28 21:00:20 jmayer Exp $
+ *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
  * CRLDP (RFC3212) is now supported
@@ -133,7 +133,7 @@ static int hf_ldp_tlv_fec_vc_controlword = -1;
 static int hf_ldp_tlv_fec_vc_vctype = -1;
 static int hf_ldp_tlv_fec_vc_infolength = -1;
 static int hf_ldp_tlv_fec_vc_groupid = -1;
-static int hf_ldp_tlv_fec_vc_vcid = -1; 
+static int hf_ldp_tlv_fec_vc_vcid = -1;
 static int hf_ldp_tlv_fec_vc_intparam_length = -1;
 static int hf_ldp_tlv_fec_vc_intparam_mtu = -1;
 static int hf_ldp_tlv_fec_vc_intparam_id = -1;
@@ -230,7 +230,7 @@ static int global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_EXPERIMENTAL_START     0x3F00
 #define TLV_EXPERIMENTAL_END       0x3FFF
 
-static const value_string tlv_type_names[] = { 
+static const value_string tlv_type_names[] = {
   { TLV_FEC,                       "Forwarding Equivalence Classes TLV" },
   { TLV_ADDRESS_LIST,              "Address List TLV"},
   { TLV_HOP_COUNT,                 "Hop Count TLV"},
@@ -358,7 +358,7 @@ static const value_string fec_vc_types_vals[] = {
 #define FEC_VC_INTERFACEPARAM_DESCRIPTION  0x03
 #define FEC_VC_INTERFACEPARAM_CEMBYTES     0x04
 #define FEC_VC_INTERFACEPARAM_CEMOPTIONS   0x05
-#define FEC_VC_INTERFACEPARAM_VPNID        0x06 
+#define FEC_VC_INTERFACEPARAM_VPNID        0x06
 
 
 static const value_string fec_vc_interfaceparm[] = {
@@ -551,7 +551,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				family=tvb_get_ntohs(tvb, offset+1);
 				prefix_len=tvb_get_guint8(tvb, offset+3);
 				prefix_len_octets=(prefix_len+7)/8;
-				
+
 				implemented=1;
 				switch(family) {
 					case AFNUM_INET: /*IPv4*/
@@ -569,7 +569,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 				if( !implemented ) {
 					guint16 noctets;
-					
+
 					noctets= rem>4+prefix_len_octets?4+prefix_len_octets:rem;
 					proto_tree_add_text(val_tree, tvb, offset, noctets,"Support for Address Family not implemented");
 					offset+=noctets;
@@ -594,8 +594,8 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 	  			proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_len, tvb, offset, 1, FALSE);
 	  			offset += 1;
-				
-				
+
+
 				if( addr_size < prefix_len_octets) {
 					offset+=addr_size;
 					rem-=addr_size;
@@ -608,7 +608,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 					fprintf(stderr, "packet-ldp: dissect_tlv_fec() malloc failed\n");
 					return;
 				}
-				
+
 				for(ax=0; ax+1 <= prefix_len_octets; ax++)
 					addr[ax]=tvb_get_guint8(tvb, offset+ax);
 				if( prefix_len % 8 )
@@ -616,7 +616,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 				str = (* (char* (*)(guint8 *))str_handler)(addr);
 				proto_tree_add_string_format(fec_tree, hf_ldp_tlv_fec_pfval, tvb, offset, prefix_len_octets, str, "Prefix: %s", str);
-				
+
 				offset += prefix_len_octets;
 				rem -= 4+prefix_len_octets;
 				g_free(addr);
@@ -647,7 +647,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 				if( !implemented ) {
 					guint16 noctets;
-					
+
 					noctets= rem>4+host_len?4+host_len:rem;
 					proto_tree_add_text(val_tree, tvb, offset, noctets,"Support for Address Family not implemented");
 					offset+=noctets;
@@ -672,8 +672,8 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 	  			proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_len, tvb, offset, 1, FALSE);
 	  			offset += 1;
-				
-				
+
+
 				if( addr_size != host_len) {
 					offset+=addr_size;
 					rem-=addr_size;
@@ -686,13 +686,13 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 					fprintf(stderr, "packet-ldp: dissect_tlv_fec() malloc failed\n");
 					return;
 				}
-				
+
 				for(ax=0; ax+1 <= host_len; ax++)
 					addr[ax]=tvb_get_guint8(tvb, offset+ax);
 
 				str = (* (char* (*)(guint8 *))str_handler)(addr);
 				proto_tree_add_string_format(fec_tree, hf_ldp_tlv_fec_hoval, tvb, offset, host_len, str, "Address: %s", str);
-				
+
 				offset += host_len;
 				rem -= 4+host_len;
 				g_free(addr);
@@ -716,7 +716,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_groupid,tvb, offset +4, 4, FALSE);
 			  rem -=8;
 			  offset +=8;
-			  
+
 			  if ( (vc_len > 3) && ( rem > 3 ) ) { /* there is enough room for vcid */
 			    proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_vcid,tvb, offset, 4, FALSE);
 			    proto_item_append_text (ti," VCID: %u",tvb_get_ntohl(tvb,offset));
@@ -908,10 +908,10 @@ dissect_tlv_atm_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		proto_tree_add_item(val_tree, hf_ldp_tlv_atm_label_vbits, tvb, offset, 1, FALSE);
 
 		id=tvb_get_ntohs(tvb, offset)&0x0FFF;
-		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_atm_label_vpi, tvb, offset, 2, id, "VPI: %u", id); 
-			
+		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_atm_label_vpi, tvb, offset, 2, id, "VPI: %u", id);
+
 		id=tvb_get_ntohs(tvb, offset+2);
-		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_atm_label_vci, tvb, offset+2, 2, id, "VCI: %u", id); 
+		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_atm_label_vci, tvb, offset+2, 2, id, "VCI: %u", id);
 	}
 }
 
@@ -936,11 +936,11 @@ dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		if(val_tree == NULL) return;
 
 		len=(guint8)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
-		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_fr_label_len, tvb, offset, 2, len, "Number of DLCI bits: %s (%u)", val_to_str(len, tlv_fr_len_vals, "Unknown Length"), len); 
+		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_fr_label_len, tvb, offset, 2, len, "Number of DLCI bits: %s (%u)", val_to_str(len, tlv_fr_len_vals, "Unknown Length"), len);
 
 		id=tvb_get_ntoh24(tvb, offset+1)&0x7FFFFF;
-		proto_tree_add_uint_format(val_tree, 
-		hf_ldp_tlv_fr_label_dlci, tvb, offset+1, 3, id, "DLCI: %u", id); 
+		proto_tree_add_uint_format(val_tree,
+		hf_ldp_tlv_fr_label_dlci, tvb, offset+1, 3, id, "DLCI: %u", id);
 	}
 }
 
@@ -964,14 +964,14 @@ dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 		if(val_tree == NULL) return;
 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_status_ebit, tvb, offset, 1, FALSE); 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_status_fbit, tvb, offset, 1, FALSE); 
+		proto_tree_add_item(val_tree, hf_ldp_tlv_status_ebit, tvb, offset, 1, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_status_fbit, tvb, offset, 1, FALSE);
 
 		data=tvb_get_ntohl(tvb, offset)&0x3FFFFFFF;
-		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_status_data, tvb, offset, 4, data, "Status Data: %s (0x%X)", val_to_str(data, tlv_status_data, "Unknown Status Data"), data); 
+		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_status_data, tvb, offset, 4, data, "Status Data: %s (0x%X)", val_to_str(data, tlv_status_data, "Unknown Status Data"), data);
 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_status_msg_id, tvb, offset+4, 4, FALSE); 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_status_msg_type, tvb, offset+8, 2, FALSE); 
+		proto_tree_add_item(val_tree, hf_ldp_tlv_status_msg_id, tvb, offset+4, 4, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_status_msg_type, tvb, offset+8, 2, FALSE);
 	}
 }
 
@@ -993,10 +993,10 @@ dissect_tlv_returned_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 		if(val_tree == NULL) return;
 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_version, tvb, offset, 2, FALSE); 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_pdu_len, tvb, offset+2, 2, FALSE); 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_lsr, tvb, offset+4, 4, FALSE); 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_ls_id, tvb, offset+8, 2, FALSE); 
+		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_version, tvb, offset, 2, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_pdu_len, tvb, offset+2, 2, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_lsr, tvb, offset+4, 4, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_ls_id, tvb, offset+8, 2, FALSE);
 		offset += 10;
 		rem -= 10;
 
@@ -1026,17 +1026,17 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 		val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 		if(val_tree == NULL) return;
 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_ubit, tvb, offset, 1, FALSE); 
+		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_ubit, tvb, offset, 1, FALSE);
 
 		type=tvb_get_ntohs(tvb, offset)&0x7FFF;
-		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_returned_msg_type, tvb, offset, 2, type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type); 
+		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_returned_msg_type, tvb, offset, 2, type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type);
 
-		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_len, tvb, offset+2, 2, FALSE); 
+		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_len, tvb, offset+2, 2, FALSE);
 		offset += 4;
 		rem -= 4;
 
 		if( rem >= 4  ) { /*have msg_id*/
-			proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_id, tvb, offset, 4, FALSE); 
+			proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_id, tvb, offset, 4, FALSE);
 			offset += 4;
 			rem -= 4;
 		}
@@ -1050,7 +1050,7 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
 /* Dissect the common hello params */
 
-static void 
+static void
 #if 0
 dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 #else
@@ -1107,7 +1107,7 @@ dissect_tlv_mac(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 /* Dissect the common session params */
 
-static void 
+static void
 dissect_tlv_common_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
@@ -1124,26 +1124,26 @@ dissect_tlv_common_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 
 		if(val_tree != NULL) {
 			/*Protocol Version*/
-			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_ver, tvb,offset, 2, FALSE); 
+			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_ver, tvb,offset, 2, FALSE);
 
 			/*KeepAlive Time*/
 			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_ka, tvb,offset + 2, 2, FALSE);
 
 			/*A bit*/
 			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_advbit,tvb, offset + 4, 1, FALSE);
-					 
+
 			/*D bit*/
 			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_ldetbit,tvb, offset + 4, 1, FALSE);
-					 
+
 			/*Path Vector Limit*/
 			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_pvlim,tvb, offset + 5, 1, FALSE);
-					 
+
 			/*Max PDU Length*/
 			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_mxpdu,tvb, offset + 6, 2, FALSE);
-					 
+
 			/*Rx LSR*/
 			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_rxlsr,tvb, offset + 8, 4, FALSE);
-					 
+
 			/*Rx LS*/
 			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_rxls,tvb, offset + 12, 2, FALSE);
 		}
@@ -1152,7 +1152,7 @@ dissect_tlv_common_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 
 /* Dissect the atm session params */
 
-static void 
+static void
 dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL, *lbl_tree = NULL;
@@ -1171,21 +1171,21 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int
 		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
 		if(val_tree != NULL) {
-			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_atm_merge,tvb, offset, 1, FALSE); 
+			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_atm_merge,tvb, offset, 1, FALSE);
 
-			/*get the number of label ranges*/	
+			/*get the number of label ranges*/
 			numlr=(tvb_get_guint8(tvb, offset)>>2) & 0x0F;
 			proto_tree_add_uint_format(val_tree, hf_ldp_tlv_sess_atm_lr,
 			tvb, offset, 1, numlr, "Number of Label Range components: %u",
-			numlr); 
+			numlr);
 
-			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_atm_dir,tvb, offset, 1, FALSE); 
+			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_atm_dir,tvb, offset, 1, FALSE);
 
 			/*move into range components*/
 			offset += 4;
 			rem -= 4;
 			ti = proto_tree_add_text(val_tree, tvb, offset, rem,"ATM Label Range Components");
-				 
+
 			if(numlr) {
 				val_tree=proto_item_add_subtree(ti,ett_ldp_tlv_val);
 				if( ! val_tree ) return;
@@ -1199,26 +1199,26 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int
 				if( lbl_tree == NULL ) break;
 
 				id=tvb_get_ntohs(tvb, offset)&0x0FFF;
-				proto_tree_add_uint_format(lbl_tree, 
+				proto_tree_add_uint_format(lbl_tree,
 				    hf_ldp_tlv_sess_atm_minvpi,
 				    tvb, offset, 2,
-				    id, "Minimum VPI: %u", id); 
+				    id, "Minimum VPI: %u", id);
 				id=tvb_get_ntohs(tvb, offset+4)&0x0FFF;
-				proto_tree_add_uint_format(lbl_tree, 
+				proto_tree_add_uint_format(lbl_tree,
 				    hf_ldp_tlv_sess_atm_maxvpi,
 				    tvb, (offset+4), 2, id,
-				    "Maximum VPI: %u", id); 
-				 
+				    "Maximum VPI: %u", id);
+
 				id=tvb_get_ntohs(tvb, offset+2);
-				proto_tree_add_uint_format(lbl_tree, 
+				proto_tree_add_uint_format(lbl_tree,
 				    hf_ldp_tlv_sess_atm_minvci,
 				    tvb, offset+2, 2,
-				    id, "Minimum VCI: %u", id); 
+				    id, "Minimum VCI: %u", id);
 				id=tvb_get_ntohs(tvb, offset+6);
-				proto_tree_add_uint_format(lbl_tree, 
+				proto_tree_add_uint_format(lbl_tree,
 				    hf_ldp_tlv_sess_atm_maxvci,
 				    tvb, offset+6, 2,
-				    id, "Maximum VCI: %u", id); 
+				    id, "Maximum VCI: %u", id);
 
 				offset += 8;
 			}
@@ -1231,7 +1231,7 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int
 
 /* Dissect the frame relay session params */
 
-static void 
+static void
 dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL, *lbl_tree = NULL;
@@ -1252,16 +1252,16 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
 
 		if(val_tree != NULL) {
 			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_fr_merge,
-				tvb, offset, 1, FALSE); 
+				tvb, offset, 1, FALSE);
 
-			/*get the number of label ranges*/	
+			/*get the number of label ranges*/
 			numlr=(tvb_get_guint8(tvb, offset)>>2) & 0x0F;
 			proto_tree_add_uint_format(val_tree, hf_ldp_tlv_sess_fr_lr,
 			tvb, offset, 1, numlr, "Number of Label Range components: %u",
-			numlr); 
+			numlr);
 
 			proto_tree_add_item(val_tree, hf_ldp_tlv_sess_fr_dir,
-				 tvb, offset, 1, FALSE); 
+				 tvb, offset, 1, FALSE);
 
 			/*move into range components*/
 			offset += 4;
@@ -1284,14 +1284,14 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
 				if( lbl_tree == NULL ) break;
 
 				len=(guint8)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
-				proto_tree_add_uint_format(lbl_tree, hf_ldp_tlv_sess_fr_len, tvb, offset, 2, len, "Number of DLCI bits: %s (%u)", val_to_str(len, tlv_fr_len_vals, "Unknown Length"), len); 
+				proto_tree_add_uint_format(lbl_tree, hf_ldp_tlv_sess_fr_len, tvb, offset, 2, len, "Number of DLCI bits: %s (%u)", val_to_str(len, tlv_fr_len_vals, "Unknown Length"), len);
 
 				id=tvb_get_ntoh24(tvb, offset+1)&0x7FFFFF;
-				proto_tree_add_uint_format(lbl_tree, 
-			hf_ldp_tlv_sess_fr_mindlci, tvb, offset+1, 3, id, "Minimum DLCI %u", id); 
+				proto_tree_add_uint_format(lbl_tree,
+			hf_ldp_tlv_sess_fr_mindlci, tvb, offset+1, 3, id, "Minimum DLCI %u", id);
 				id=tvb_get_ntoh24(tvb, offset+5)&0x7FFFFF;
-				proto_tree_add_uint_format(lbl_tree, 
-			hf_ldp_tlv_sess_fr_maxdlci, tvb, offset+5, 3, id, "Maximum DLCI %u", id); 
+				proto_tree_add_uint_format(lbl_tree,
+			hf_ldp_tlv_sess_fr_maxdlci, tvb, offset+5, 3, id, "Maximum DLCI %u", id);
 
 				offset += 8;
 			}
@@ -1323,12 +1323,12 @@ dissect_tlv_lspid(tvbuff_t *tvb, guint offset,proto_tree *tree, int rem)
 
 		if(val_tree != NULL) {
 			proto_tree_add_item(val_tree, hf_ldp_tlv_lspid_act_flg,
-					   tvb, offset, 2, FALSE); 
+					   tvb, offset, 2, FALSE);
 			offset += 2;
 			proto_tree_add_item(val_tree, hf_ldp_tlv_lspid_cr_lsp,
 					   tvb, offset, 2, FALSE);
 			offset += 2;
-			proto_tree_add_item(val_tree, hf_ldp_tlv_lspid_ldpid, 
+			proto_tree_add_item(val_tree, hf_ldp_tlv_lspid_ldpid,
 					   tvb, offset, 4, FALSE);
 		}
 	}
@@ -1643,12 +1643,12 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	if (tree != NULL) {
 		/*chk for vendor-private*/
 		if(type>=TLV_VENDOR_PRIVATE_START && type<=TLV_VENDOR_PRIVATE_END){
-			typebak=type;		/*keep type*/	
+			typebak=type;		/*keep type*/
 			type=TLV_VENDOR_PRIVATE_START;
 
 		/*chk for experimental*/
 		} else if(type>=TLV_EXPERIMENTAL_START && type<=TLV_EXPERIMENTAL_END){
-			typebak=type;		/*keep type*/	
+			typebak=type;		/*keep type*/
 			type=TLV_EXPERIMENTAL_START;
 		}
 
@@ -1659,7 +1659,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		proto_tree_add_item(tlv_tree, hf_ldp_tlv_unknown, tvb, offset, 1, FALSE);
 
-		proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2, type, "TLV Type: %s (0x%X)", val_to_str(type, tlv_type_names, "Unknown TLV type"), type ); 
+		proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2, type, "TLV Type: %s (0x%X)", val_to_str(type, tlv_type_names, "Unknown TLV type"), type );
 
 		proto_tree_add_item(tlv_tree, hf_ldp_tlv_len, tvb, offset + 2, 2, FALSE);
 
@@ -1679,7 +1679,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				    "Error processing Hop Count TLV: length is %d, should be 1",
 				    length);
 			else
-				proto_tree_add_item(tlv_tree, hf_ldp_tlv_hc_value, tvb,offset + 4, length, FALSE); 
+				proto_tree_add_item(tlv_tree, hf_ldp_tlv_hc_value, tvb,offset + 4, length, FALSE);
 			break;
 
 		case TLV_PATH_VECTOR:
@@ -1695,7 +1695,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				guint32 label=tvb_get_ntohl(tvb, offset+4) & 0x000FFFFF;
 
 				proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_generic_label,
-					tvb, offset+4, length, label, "Generic Label: %u", label); 
+					tvb, offset+4, length, label, "Generic Label: %u", label);
 			}
 			break;
 
@@ -1717,7 +1717,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				    "Error processing Extended Status TLV: length is %d, should be 4",
 				    length);
 			else {
-				proto_tree_add_item(tlv_tree, hf_ldp_tlv_extstatus_data, tvb, offset + 4, length, FALSE); 
+				proto_tree_add_item(tlv_tree, hf_ldp_tlv_extstatus_data, tvb, offset + 4, length, FALSE);
 			}
 			break;
 
@@ -1766,8 +1766,8 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_ipv6_taddr, tvb, offset + 4, 16, FALSE);
 			}
 			break;
-			
-		case TLV_MAC: /* draft-lasserre-vkompella-ppvpn-vpls-02.txt */ 
+
+		case TLV_MAC: /* draft-lasserre-vkompella-ppvpn-vpls-02.txt */
 			dissect_tlv_mac(tvb, offset + 4, tlv_tree, length);
 			break;
 
@@ -1789,57 +1789,57 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				    "Error processing Label Request Message ID TLV: length is %d, should be 4",
 				    length);
 			else
-				proto_tree_add_item(tlv_tree, hf_ldp_tlv_lbl_req_msg_id, tvb,offset + 4,length, FALSE); 
+				proto_tree_add_item(tlv_tree, hf_ldp_tlv_lbl_req_msg_id, tvb,offset + 4,length, FALSE);
 			break;
 
 		case TLV_LSPID:
 			dissect_tlv_lspid(tvb, offset + 4, tlv_tree, length);
 			break;
-			
+
 		case TLV_ER:
 			dissect_tlv_er(tvb, offset + 4, tlv_tree, length);
 			break;
-			
+
 		case TLV_ER_HOP_IPV4:
 			dissect_tlv_er_hop_ipv4(tvb, offset + 4, tlv_tree, length);
 			break;
-			
+
 		case TLV_ER_HOP_IPV6:
 			dissect_tlv_er_hop_ipv6(tvb, offset +4, tlv_tree, length);
 			break;
-			
+
 		case TLV_ER_HOP_AS:
 			dissect_tlv_er_hop_as(tvb, offset + 4, tlv_tree, length);
 			break;
-			
+
 		case TLV_ER_HOP_LSPID:
 			dissect_tlv_er_hop_lspid(tvb, offset +4, tlv_tree, length);
 			break;
-			
+
 		case TLV_TRAFFIC_PARAM:
 			dissect_tlv_traffic(tvb, offset +4, tlv_tree, length);
 			break;
-			
+
 		case TLV_PREEMPTION:
 			dissect_tlv_preemption(tvb, offset +4, tlv_tree, length);
 			break;
-			
+
 		case TLV_RESOURCE_CLASS:
 			dissect_tlv_resource_class(tvb, offset +4, tlv_tree, length);
 			break;
-			
+
 		case TLV_ROUTE_PINNING:
 			dissect_tlv_route_pinning(tvb, offset +4, tlv_tree, length);
 			break;
-			
+
 		case TLV_VENDOR_PRIVATE_START:
 			if( length < 4 ) /*error, at least Vendor ID*/
 				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
 				    "Error processing Vendor Private Start TLV: length is %d, should be >= 4",
 				    length);
 			else {
-				proto_tree_add_item(tlv_tree, hf_ldp_tlv_vendor_id, tvb,offset + 4, 4, FALSE); 
-				if( length > 4 )  /*have data*/ 
+				proto_tree_add_item(tlv_tree, hf_ldp_tlv_vendor_id, tvb,offset + 4, 4, FALSE);
+				if( length > 4 )  /*have data*/
 					proto_tree_add_text(tlv_tree, tvb, offset + 8, length-4,"Data");
 			}
 			break;
@@ -1850,8 +1850,8 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				    "Error processing Experimental Start TLV: length is %d, should be >= 4",
 				    length);
 			else {
-				proto_tree_add_item(tlv_tree, hf_ldp_tlv_experiment_id, tvb,offset + 4, 4, FALSE); 
-				if( length > 4 )  /*have data*/ 
+				proto_tree_add_item(tlv_tree, hf_ldp_tlv_experiment_id, tvb,offset + 4, 4, FALSE);
+				if( length > 4 )  /*have data*/
 					proto_tree_add_text(tlv_tree, tvb, offset + 8, length-4,"Data");
 			}
 			break;
@@ -1891,12 +1891,12 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 
 	/*chk for vendor-private*/
 	if(type>=LDP_VENDOR_PRIVATE_START && type<=LDP_VENDOR_PRIVATE_END){
-		typebak=type;		/*keep type*/	
+		typebak=type;		/*keep type*/
 		type=LDP_VENDOR_PRIVATE_START;
 		extra=4;
 	/*chk for experimental*/
 	} else if(type>=LDP_EXPERIMENTAL_MESSAGE_START && type<=LDP_EXPERIMENTAL_MESSAGE_END){
-		typebak=type;		/*keep type*/	
+		typebak=type;		/*keep type*/
 		type=LDP_EXPERIMENTAL_MESSAGE_START;
 		extra=4;
 	}
@@ -1910,7 +1910,7 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 			    length, 4+extra);
 		return rem;
 	}
-	rem -= 4; 
+	rem -= 4;
 	length = MIN(length, rem);  /* Don't go haywire if a problem ... */
 
 	if( check_col(pinfo->cinfo, COL_INFO) ){
@@ -1926,7 +1926,7 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(msg_tree, hf_ldp_msg_ubit, tvb, offset, 1, FALSE);
 
 		type=tvb_get_ntohs(tvb, offset)&0x7FFF;
-		proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2, type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type); 
+		proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2, type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type);
 
 		proto_tree_add_item(msg_tree, hf_ldp_msg_len, tvb, offset+2, 2, FALSE);
 		proto_tree_add_item(msg_tree, hf_ldp_msg_id, tvb, offset+4, 4, FALSE);
@@ -1944,17 +1944,17 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(msg_tree, hf_tmp, tvb, offset+8, extra, FALSE);
 		}
 	}
-		
+
 	offset += (8+extra);
 	length -= (4+extra);
-	
-	if( tree )	
+
+	if( tree )
 		while( (length-ao) > 0 ) {
 			co=dissect_tlv(tvb, offset, msg_tree, length-ao);
 		 	offset += co;
 			ao += co;
 		}
-	
+
 	return length+8+extra;
 }
 
@@ -1965,7 +1965,7 @@ dissect_ldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0, co;
 	int rem, length;
 	proto_tree *ti=NULL, *pdu_tree = NULL;
-	
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDP");
 
@@ -2032,14 +2032,14 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static int
 dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{ 
+{
 	volatile gboolean first = TRUE;
 	volatile int offset = 0;
 	int length_remaining;
 	guint16 plen;
 	int length;
 	tvbuff_t *next_tvb;
-  
+
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		length_remaining = tvb_length_remaining(tvb, offset);
 
@@ -2175,7 +2175,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register all the bits needed with the filtering engine */
 
-void 
+void
 proto_register_ldp(void)
 {
   static hf_register_info hf[] = {
@@ -2207,19 +2207,19 @@ proto_register_ldp(void)
     { &hf_ldp_msg_len,
       { "Message Length", "ldp.msg.len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Message Length (excluding message type and len)", HFILL }},
 
-    { &hf_ldp_msg_id, 
+    { &hf_ldp_msg_id,
       { "Message ID", "ldp.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Message ID", HFILL }},
 
-    { &hf_ldp_msg_vendor_id, 
+    { &hf_ldp_msg_vendor_id,
       { "Vendor ID", "ldp.msg.vendor.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Vendor-private Message ID", HFILL }},
 
-    { &hf_ldp_msg_experiment_id, 
+    { &hf_ldp_msg_experiment_id,
       { "Experiment ID", "ldp.msg.experiment.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Experimental Message ID", HFILL }},
 
-    { &hf_ldp_tlv_unknown, 
+    { &hf_ldp_tlv_unknown,
       { "TLV Unknown bits", "ldp.msg.tlv.unknown", FT_UINT8, BASE_HEX, VALS(tlv_unknown_vals), 0xC0, "TLV Unknown bits Field", HFILL }},
 
-    { &hf_ldp_tlv_type, 
+    { &hf_ldp_tlv_type,
       { "TLV Type", "ldp.msg.tlv.type", FT_UINT16, BASE_HEX, VALS(tlv_type_names), 0x3FFF, "TLV Type Field", HFILL }},
 
     { &hf_ldp_tlv_len,
@@ -2236,7 +2236,7 @@ proto_register_ldp(void)
 
     { &hf_ldp_tlv_val_request,
       { "Hello Requested", "ldp,msg.tlv.hello.requested", FT_BOOLEAN, 16, TFS(&hello_requested_vals), 0x4000, "Hello Common Parameters Hello Requested Bit", HFILL }},
- 
+
     { &hf_ldp_tlv_val_res,
       { "Reserved", "ldp.msg.tlv.hello.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, "Hello Common Parameters Reserved Field", HFILL }},
 
@@ -2284,7 +2284,7 @@ proto_register_ldp(void)
 
     { &hf_ldp_tlv_sess_advbit,
       { "Session Label Advertisement Discipline", "ldp.msg.tlv.sess.advbit",
- FT_BOOLEAN, 8, TFS(&tlv_sess_advbit_vals), 0x80, 
+ FT_BOOLEAN, 8, TFS(&tlv_sess_advbit_vals), 0x80,
 	"Common Session Parameters Label Advertisement Discipline", HFILL }},
 
     { &hf_ldp_tlv_sess_ldetbit,
@@ -2341,7 +2341,7 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_sess_fr_maxdlci,
       { "Maximum DLCI", "ldp.msg.tlv.sess.fr.maxdlci", FT_UINT24, BASE_DEC, NULL, 0x7FFFFF, "Maximum DLCI", HFILL }},
 
-    { &hf_ldp_tlv_lbl_req_msg_id, 
+    { &hf_ldp_tlv_lbl_req_msg_id,
       { "Label Request Message ID", "ldp.tlv.lbl_req_msg_id", FT_UINT32, BASE_HEX, NULL, 0x0, "Label Request Message to be aborted", HFILL }},
 
     { &hf_ldp_tlv_vendor_id,
@@ -2377,7 +2377,7 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_status_data,
       { "Status Data", "ldp.msg.tlv.status.data", FT_UINT32, BASE_HEX, VALS(tlv_status_data), 0x3FFFFFFF, "Status Data", HFILL }},
 
-    { &hf_ldp_tlv_status_msg_id, 
+    { &hf_ldp_tlv_status_msg_id,
       { "Message ID", "ldp.msg.tlv.status.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "Identifies peer message to which Status TLV refers", HFILL }},
 
     { &hf_ldp_tlv_status_msg_type,
@@ -2398,7 +2398,7 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_returned_ls_id,
       { "Returned PDU Label Space ID", "ldp.msg.tlv.returned.ldpid.lsid", FT_UINT16, BASE_HEX, NULL, 0x0, "LDP Label Space ID", HFILL }},
 
-    { &hf_ldp_tlv_returned_msg_ubit, 
+    { &hf_ldp_tlv_returned_msg_ubit,
       { "Returned Message Unknown bit", "ldp.msg.tlv.returned.msg.ubit", FT_UINT8, BASE_HEX, TFS(&ldp_message_ubit), 0x80, "Message Unknown bit", HFILL }},
 
     { &hf_ldp_tlv_returned_msg_type,
@@ -2407,7 +2407,7 @@ proto_register_ldp(void)
     { &hf_ldp_tlv_returned_msg_len,
       { "Returned Message Length", "ldp.msg.tlv.returned.msg.len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Message Length (excluding message type and len)", HFILL }},
 
-    { &hf_ldp_tlv_returned_msg_id, 
+    { &hf_ldp_tlv_returned_msg_id,
       { "Returned Message ID", "ldp.msg.tlv.returned.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Message ID", HFILL }},
 
     { &hf_ldp_tlv_mac,
@@ -2471,67 +2471,67 @@ proto_register_ldp(void)
       { "IPv4 Address", "ldp.msg.tlv.er_hop.prefix4", FT_IPv4, BASE_DEC, NULL, 0x0, "IPv4 Address", HFILL}},
    { &hf_ldp_tlv_er_hop_prefix6,
      { "IPv6 Address", "ldp.msg.tlv.er_hop.prefix6", FT_IPv6, BASE_DEC, NULL, 0x0, "IPv6 Address", HFILL}},
-    
+
     { &hf_ldp_tlv_er_hop_as,
       { "AS Number", "ldp.msg.tlv.er_hop.as", FT_UINT16, BASE_DEC, NULL, 0x0, "AS Number", HFILL}},
-    
+
     { &hf_ldp_tlv_er_hop_cr_lsp,
       { "Local CR-LSP ID", "ldp.msg.tlv.er_hop.locallspid", FT_UINT16, BASE_DEC, NULL, 0x0, "Local CR-LSP ID", HFILL}},
-    
+
     { &hf_ldp_tlv_er_hop_ldpid,
       { "Local CR-LSP ID", "ldp.msg.tlv.er_hop.lsrid", FT_IPv4, BASE_DEC, NULL, 0x0, "Local CR-LSP ID", HFILL}},
 
     { &hf_ldp_tlv_flags_reserv,
       { "Reserved", "ldp.msg.tlv.flags_reserv", FT_UINT8, BASE_HEX, NULL, 0xC0, "Reserved", HFILL}},
-    
+
     { &hf_ldp_tlv_flags_pdr,
       { "PDR", "ldp.msg.tlv.flags_pdr", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x1, "PDR negotiability flag", HFILL}},
-    
+
     { &hf_ldp_tlv_flags_pbs,
       { "PBS", "ldp.msg.tlv.flags_pbs", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x2, "PBS negotiability flag", HFILL}},
-    
+
     { &hf_ldp_tlv_flags_cdr,
       { "CDR", "ldp.msg.tlv.flags_cdr", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x4, "CDR negotiability flag", HFILL}},
-    
+
     { &hf_ldp_tlv_flags_cbs,
       { "CBS", "ldp.msg.tlv.flags_cbs", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x8, "CBS negotiability flag", HFILL}},
-    
+
     { &hf_ldp_tlv_flags_ebs,
       { "EBS", "ldp.msg.tlv.flags_ebs", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x10, "EBS negotiability flag", HFILL}},
-    
+
     { &hf_ldp_tlv_flags_weight,
       { "Weight", "ldp.msg.tlv.flags_weight", FT_BOOLEAN, 8, TFS(&tlv_negotiable), 0x20, "Weight negotiability flag", HFILL}},
-    
+
     { &hf_ldp_tlv_frequency,
       { "Frequency", "ldp.msg.tlv.frequency", FT_UINT8, BASE_DEC, VALS(freq_values), 0, "Frequency", HFILL}},
-    
+
     { &hf_ldp_tlv_weight,
       { "Weight", "ldp.msg.tlv.weight", FT_UINT8, BASE_DEC, NULL, 0, "Weight of the CR-LSP", HFILL}},
-    
+
     { &hf_ldp_tlv_pdr,
       { "PDR", "ldp.msg.tlv.pdr", FT_DOUBLE, BASE_NONE, NULL, 0, "Peak Data Rate", HFILL}},
-    
+
     { &hf_ldp_tlv_pbs,
       { "PBS", "ldp.msg.tlv.pbs", FT_DOUBLE, BASE_NONE, NULL, 0, "Peak Burst Size", HFILL}},
-    
+
     { &hf_ldp_tlv_cdr,
       { "CDR", "ldp.msg.tlv.cdr", FT_DOUBLE, BASE_NONE, NULL, 0, "Committed Data Rate", HFILL}},
-    
+
     { &hf_ldp_tlv_cbs,
       { "CBS", "ldp.msg.tlv.cbs", FT_DOUBLE, BASE_NONE, NULL, 0, "Committed Burst Size", HFILL}},
-    
+
     { &hf_ldp_tlv_ebs,
       { "EBS", "ldp.msg.tlv.ebs", FT_DOUBLE, BASE_NONE, NULL, 0, "Excess Burst Size", HFILL}},
-    
+
     { &hf_ldp_tlv_set_prio,
       { "Set Prio", "ldp.msg.tlv.set_prio", FT_UINT8, BASE_DEC, NULL, 0, "LSP setup priority", HFILL}},
-    
+
     { &hf_ldp_tlv_hold_prio,
       { "Hold Prio", "ldp.msg.tlv.hold_prio", FT_UINT8, BASE_DEC, NULL, 0, "LSP hold priority", HFILL}},
 
     { &hf_ldp_tlv_route_pinning,
       { "Route Pinning", "ldp.msg.tlv.route_pinning", FT_UINT32, BASE_DEC, VALS(route_pinning_vals), 0x80000000, "Route Pinning", HFILL}},
-    
+
     { &hf_ldp_tlv_resource_class,
       { "Resource Class", "ldp.msg.tlv.resource_class", FT_UINT32, BASE_HEX, NULL, 0, "Resource Class (Color)", HFILL}},
 
@@ -2547,7 +2547,7 @@ proto_register_ldp(void)
     &ett_ldp_fec,
     &ett_ldp_fec_vc_interfaceparam
   };
-  module_t *ldp_module; 
+  module_t *ldp_module;
 
   proto_ldp = proto_register_protocol("Label Distribution Protocol",
 				       "LDP", "ldp");

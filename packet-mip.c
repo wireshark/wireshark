@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.32 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-mip.c,v 1.33 2002/08/28 21:00:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -188,7 +188,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  ext_len = tvb_get_guint8(tvb, offset + 1);
 	  hdrLen = 2;
 	}
-	
+
 	ti = proto_tree_add_text(exts_tree, tvb, offset, ext_len + hdrLen,
 				 "Extension: %s",
 				 val_to_str(ext_type, mip_ext_types,
@@ -213,7 +213,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 						  FALSE);
 	  break;
 	case MN_NAI_EXT:
-	  proto_tree_add_item(ext_tree, hf_mip_next_nai, tvb, offset, 
+	  proto_tree_add_item(ext_tree, hf_mip_next_nai, tvb, offset,
 						  ext_len, FALSE);
 	  break;
 
@@ -231,7 +231,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  /* Key */
 	  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, offset + 4,
 						  ext_len - 4, FALSE);
-	  
+
 	  break;
 	case OLD_CVSE_EXT:      /* RFC 3115 */
 	case CVSE_EXT:          /* RFC 3115 */
@@ -262,30 +262,30 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8         flags;
   nstime_t       ident_time;
   size_t         offset=0;
-  
+
   /* Make entries in Protocol column and Info column on summary display */
-  
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MobileIP");
-  if (check_col(pinfo->cinfo, COL_INFO)) 
+  if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 
   type = tvb_get_guint8(tvb, offset);
   switch (type) {
   case REGISTRATION_REQUEST:
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Request: HAddr=%s COA=%s", 
+	if (check_col(pinfo->cinfo, COL_INFO))
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Request: HAddr=%s COA=%s",
 				   ip_to_str(tvb_get_ptr(tvb, 4, 4)),
 				   ip_to_str(tvb_get_ptr(tvb,12,4)));
-	
+
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, -1, FALSE);
 	  mip_tree = proto_item_add_subtree(ti, ett_mip);
-	  
+
 	  /* type */
 	  proto_tree_add_uint(mip_tree, hf_mip_type, tvb, offset, 1, type);
 	  offset++;
-	  
+
 	  /* flags */
 	  flags = tvb_get_guint8(tvb, offset);
 	  tf = proto_tree_add_uint(mip_tree, hf_mip_flags, tvb,
@@ -303,15 +303,15 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /* lifetime */
 	  proto_tree_add_item(mip_tree, hf_mip_life, tvb, offset, 2, FALSE);
 	  offset +=2;
-	  
+
 	  /* home address */
 	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, FALSE);
 	  offset += 4;
-	  
+
 	  /* home agent address */
 	  proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, offset, 4, FALSE);
 	  offset += 4;
-	  
+
 	  /* Care of Address */
 	  proto_tree_add_item(mip_tree, hf_mip_coa, tvb, offset, 4, FALSE);
 	  offset += 4;
@@ -321,23 +321,23 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  ident_time.nsecs = tvb_get_ntohl(tvb,20)*1000;
 	  proto_tree_add_time(mip_tree, hf_mip_ident, tvb, offset, 8, &ident_time);
 	  offset += 8;
-		
+
 	} /* if tree */
 	break;
   case REGISTRATION_REPLY:
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Reply: HAddr=%s, Code=%u", 
+	if (check_col(pinfo->cinfo, COL_INFO))
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Reply: HAddr=%s, Code=%u",
 				   ip_to_str(tvb_get_ptr(tvb,4,4)), tvb_get_guint8(tvb,1));
-	
+
 	if (tree) {
 	  /* Add Subtree */
 	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, -1, FALSE);
 	  mip_tree = proto_item_add_subtree(ti, ett_mip);
-	  
+
 	  /* Type */
   	  proto_tree_add_uint(mip_tree, hf_mip_type, tvb, offset, 1, type);
 	  offset++;
-	  
+
 	  /* Reply Code */
 	  proto_tree_add_item(mip_tree, hf_mip_code, tvb, offset, 1, FALSE);
 	  offset++;
@@ -360,7 +360,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_time(mip_tree, hf_mip_ident, tvb, offset, 8, &ident_time);
 	  offset += 8;
 	} /* if tree */
-	
+
 	break;
   } /* End switch */
 
@@ -372,13 +372,13 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register the protocol with Ethereal */
 void proto_register_mip(void)
-{                 
+{
 
 /* Setup list of header fields */
 	static hf_register_info hf[] = {
 	  { &hf_mip_type,
 		 { "Message Type",           "mip.type",
-			FT_UINT8, BASE_DEC, VALS(mip_types), 0,          
+			FT_UINT8, BASE_DEC, VALS(mip_types), 0,
 			"Mobile IP Message type.", HFILL }
 	  },
 	  { &hf_mip_flags,
@@ -389,78 +389,78 @@ void proto_register_mip(void)
 	  { &hf_mip_s,
 		 {"Simultaneous Bindings",           "mip.s",
 
-		   FT_BOOLEAN, 8, NULL, 128,          
+		   FT_BOOLEAN, 8, NULL, 128,
 		   "Simultaneous Bindings Allowed", HFILL }
 	  },
 	  { &hf_mip_b,
 		 {"Broadcast Datagrams",           "mip.b",
-		   FT_BOOLEAN, 8, NULL, 64,          
+		   FT_BOOLEAN, 8, NULL, 64,
 		   "Broadcast Datagrams requested", HFILL }
 	  },
 	  { &hf_mip_d,
 		 { "Co-lcated Care-of Address",           "mip.d",
-		   FT_BOOLEAN, 8, NULL, 32,          
+		   FT_BOOLEAN, 8, NULL, 32,
 		   "MN using Co-located Care-of address", HFILL }
 	  },
 	  { &hf_mip_m,
 		 {"Minimal Encapsulation",           "mip.m",
-		   FT_BOOLEAN, 8, NULL, 16,          
+		   FT_BOOLEAN, 8, NULL, 16,
 		   "MN wants Minimal encapsulation", HFILL }
 	  },
 	  { &hf_mip_g,
 		 {"GRE",           "mip.g",
-		   FT_BOOLEAN, 8, NULL, 8,          
+		   FT_BOOLEAN, 8, NULL, 8,
 		   "MN wants GRE encapsulation", HFILL }
 	  },
 	  { &hf_mip_v,
 		 { "Van Jacobson",           "mip.v",
-		   FT_BOOLEAN, 8, NULL, 4,          
+		   FT_BOOLEAN, 8, NULL, 4,
 		   "Van Jacobson", HFILL }
 	  },
 	  { &hf_mip_t,
 		 { "Reverse Tunneling",           "mip.t",
-		   FT_BOOLEAN, 8, NULL, 2,          
+		   FT_BOOLEAN, 8, NULL, 2,
 		   "Reverse tunneling requested", HFILL }
 	  },
 	  { &hf_mip_code,
 		 { "Reply Code",           "mip.code",
-			FT_UINT8, BASE_DEC, VALS(mip_reply_codes), 0,          
+			FT_UINT8, BASE_DEC, VALS(mip_reply_codes), 0,
 			"Mobile IP Reply code.", HFILL }
 	  },
 	  { &hf_mip_life,
 		 { "Lifetime",           "mip.life",
-			FT_UINT16, BASE_DEC, NULL, 0,          
+			FT_UINT16, BASE_DEC, NULL, 0,
 			"Mobile IP Lifetime.", HFILL }
 	  },
 	  { &hf_mip_homeaddr,
 		 { "Home Address",           "mip.homeaddr",
-			FT_IPv4, BASE_NONE, NULL, 0,          
+			FT_IPv4, BASE_NONE, NULL, 0,
 			"Mobile Node's home address.", HFILL }
 	  },
-	  
+
 	  { &hf_mip_haaddr,
 		 { "Home Agent",           "mip.haaddr",
-			FT_IPv4, BASE_NONE, NULL, 0,          
+			FT_IPv4, BASE_NONE, NULL, 0,
 			"Home agent IP Address.", HFILL }
 	  },
 	  { &hf_mip_coa,
 		 { "Care of Address",           "mip.coa",
-			FT_IPv4, BASE_NONE, NULL, 0,          
+			FT_IPv4, BASE_NONE, NULL, 0,
 			"Care of Address.", HFILL }
 	  },
 	  { &hf_mip_ident,
 		 { "Identification",           "mip.ident",
-			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,          
+			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,
 			"MN Identification.", HFILL }
 	  },
 	  { &hf_mip_ext_type,
 		 { "Extension Type",           "mip.ext.type",
-			FT_UINT8, BASE_DEC, VALS(mip_ext_types), 0,          
+			FT_UINT8, BASE_DEC, VALS(mip_ext_types), 0,
 			"Mobile IP Extension Type.", HFILL }
 	  },
 	  { &hf_mip_ext_stype,
 		 { "Gen Auth Ext SubType",           "mip.ext.auth.subtype",
-			FT_UINT8, BASE_DEC, VALS(mip_ext_stypes), 0,          
+			FT_UINT8, BASE_DEC, VALS(mip_ext_stypes), 0,
 			"Mobile IP Auth Extension Sub Type.", HFILL }
 	  },
 	  { &hf_mip_ext_len,

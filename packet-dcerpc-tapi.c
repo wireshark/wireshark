@@ -2,27 +2,27 @@
  * Routines for DCERPC TAPI packet disassembly
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-tapi.c,v 1.2 2002/06/24 00:03:18 tpot Exp $
+ * $Id: packet-dcerpc-tapi.c,v 1.3 2002/08/28 21:00:11 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-/* The IDL file for this interface can be extracted by grepping for idl 
+/* The IDL file for this interface can be extracted by grepping for idl
  * in capitals.
  */
 
@@ -131,7 +131,7 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 	offset += di->array_actual_count;
 
 	return offset;
-}	
+}
 
 static int
 dissect_tapi_UNKNOWN_01_rqst(tvbuff_t *tvb, int offset,
@@ -199,24 +199,24 @@ static dcerpc_sub_dissector dcerpc_tapi_dissectors[] = {
         {0, NULL, NULL,  NULL }
 };
 
-void 
+void
 proto_register_dcerpc_tapi(void)
 {
 static hf_register_info hf[] = {
-	{ &hf_tapi_rc, { 
-		"Return code", "tapi.rc", FT_UINT32, BASE_HEX, 
+	{ &hf_tapi_rc, {
+		"Return code", "tapi.rc", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0x0, "TAPI return code", HFILL }},
 	{ &hf_tapi_hnd, {
 		"Context Handle", "tapi.hnd", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "Context handle", HFILL }},
-	{ &hf_tapi_unknown_long, { 
-		"Unknown long", "tapi.unknown.long", FT_UINT32, BASE_HEX, 
+	{ &hf_tapi_unknown_long, {
+		"Unknown long", "tapi.unknown.long", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
-	{ &hf_tapi_unknown_string, { 
-		"Unknown string", "tapi.unknown.string", FT_STRING, BASE_HEX, 
+	{ &hf_tapi_unknown_string, {
+		"Unknown string", "tapi.unknown.string", FT_STRING, BASE_HEX,
 		NULL, 0x0, "Unknown string. If you know what this is, contact ethereal developers.", HFILL }},
-	{ &hf_tapi_unknown_bytes, { 
-		"Unknown bytes", "tapi.unknown.bytes", FT_BYTES, BASE_HEX, 
+	{ &hf_tapi_unknown_bytes, {
+		"Unknown bytes", "tapi.unknown.bytes", FT_BYTES, BASE_HEX,
 		NULL, 0x0, "Unknown bytes. If you know what this is, contact ethereal developers.", HFILL }}
 	};
 
@@ -227,7 +227,7 @@ static hf_register_info hf[] = {
         proto_dcerpc_tapi = proto_register_protocol(
                 "Microsoft Telephony API Service", "TAPI", "tapi");
 
-        proto_register_field_array(proto_dcerpc_tapi, hf, 
+        proto_register_field_array(proto_dcerpc_tapi, hf,
 				   array_length(hf));
 
         proto_register_subtree_array(ett, array_length(ett));
@@ -238,7 +238,7 @@ proto_reg_handoff_dcerpc_tapi(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_dcerpc_tapi, ett_dcerpc_tapi, 
-                         &uuid_dcerpc_tapi, ver_dcerpc_tapi, 
+        dcerpc_init_uuid(proto_dcerpc_tapi, ett_dcerpc_tapi,
+                         &uuid_dcerpc_tapi, ver_dcerpc_tapi,
                          dcerpc_tapi_dissectors, -1);
 }

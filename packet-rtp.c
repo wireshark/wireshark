@@ -2,26 +2,26 @@
  *
  * Routines for RTP dissection
  * RTP = Real time Transport Protocol
- * 
+ *
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.35 2002/08/02 23:36:00 jmayer Exp $
+ * $Id: packet-rtp.c,v 1.36 2002/08/28 21:00:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -31,7 +31,7 @@
  * This dissector tries to dissect the RTP protocol according to Annex A
  * of ITU-T Recommendation H.225.0 (02/98) or RFC 1889
  *
- * RTP traffic is handled by an even UDP portnumber. This can be any 
+ * RTP traffic is handled by an even UDP portnumber. This can be any
  * port number, but there is a registered port available, port 5004
  * See Annex B of ITU-T Recommendation H.225.0, section B.7
  *
@@ -116,7 +116,7 @@ static void dissect_rtp( tvbuff_t *tvb, packet_info *pinfo,
 /* CSRC count is the last four bits */
 #define RTP_CSRC_COUNT(octet)	((octet) & 0xF)
 
-static const value_string rtp_version_vals[] = 
+static const value_string rtp_version_vals[] =
 {
 	{ 0, "Old VAT Version" },
 	{ 1, "First Draft Version" },
@@ -134,8 +134,8 @@ static const value_string rtp_version_vals[] =
 /* Payload type is the last 7 bits */
 #define RTP_PAYLOAD_TYPE(octet)	((octet) & 0x7F)
 
-/* 
- * RTP Payload types 
+/*
+ * RTP Payload types
  * Table B.2 / H.225.0
  * Also RFC 1890
  */
@@ -162,7 +162,7 @@ static const value_string rtp_version_vals[] =
 #define PT_MP2T		33
 #define PT_H263		34
 
-static const value_string rtp_payload_type_vals[] = 
+static const value_string rtp_payload_type_vals[] =
 {
 	{ PT_PCMU,	"ITU-T G.711 PCMU" },
 	{ PT_1016,	"USA Federal Standard FS-1016" },
@@ -220,7 +220,7 @@ void rtp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
 	}
 
 	/*
-	 * Check if the ip address an dport combination is not 
+	 * Check if the ip address an dport combination is not
 	 * already registered
 	 */
 	pconv = find_conversation( &src_addr, &fake_addr, PT_UDP, prt, 0, 0 );
@@ -238,7 +238,7 @@ void rtp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
 }
 
 #if 0
-static void rtp_init( void ) 
+static void rtp_init( void )
 {
 	unsigned char* tmp_data;
 	int i;
@@ -290,7 +290,7 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	return TRUE;
 }
 
-static void 
+static void
 dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *rtp_tree, int offset, unsigned int data_len,
     unsigned int data_reported_len, unsigned int payload_type )
@@ -308,7 +308,7 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			newtvb = tvb_new_subset( tvb, offset, data_len,
 			    data_reported_len );
 			call_dissector(mpeg1_handle, newtvb, pinfo, tree);
-			break;	  
+			break;
 
 		default:
 			proto_tree_add_item( rtp_tree, hf_rtp_data, tvb, offset, data_len, FALSE );
@@ -350,7 +350,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 			col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
 		}
-	
+
 		if ( check_col( pinfo->cinfo, COL_INFO) ) {
 			col_add_fstr( pinfo->cinfo, COL_INFO,
 			    "Unknown RTP version %u", version);
@@ -359,7 +359,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		if ( tree ) {
 			ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, -1, FALSE );
 			rtp_tree = proto_item_add_subtree( ti, ett_rtp );
-		
+
 			proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
 			    offset, 1, version );
 		}
@@ -383,7 +383,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
 	}
-	
+
 	if ( check_col( pinfo->cinfo, COL_INFO) ) {
 		col_add_fstr( pinfo->cinfo, COL_INFO,
 		    "Payload type=%s, SSRC=%u, Seq=%u, Time=%u%s",
@@ -398,7 +398,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if ( tree ) {
 		ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, -1, FALSE );
 		rtp_tree = proto_item_add_subtree( ti, ett_rtp );
-		
+
 		proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
 		    offset, 1, version );
 		proto_tree_add_boolean( rtp_tree, hf_rtp_padding, tvb,
@@ -550,203 +550,203 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 void
 proto_register_rtp(void)
 {
-	static hf_register_info hf[] = 
+	static hf_register_info hf[] =
 	{
-		{ 
+		{
 			&hf_rtp_version,
-			{ 
-				"Version", 
-				"rtp.version", 
-				FT_UINT8, 
-				BASE_DEC, 
-				VALS(rtp_version_vals), 
+			{
+				"Version",
+				"rtp.version",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtp_version_vals),
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_padding,
-			{ 
-				"Padding", 
-				"rtp.padding", 
-				FT_BOOLEAN, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Padding",
+				"rtp.padding",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_extension,
-			{ 
-				"Extension", 
-				"rtp.ext", 
-				FT_BOOLEAN, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Extension",
+				"rtp.ext",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_csrc_count,
-			{ 
-				"Contributing source identifiers count", 
-				"rtp.cc", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Contributing source identifiers count",
+				"rtp.cc",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_marker,
-			{ 
-				"Marker", 
-				"rtp.marker", 
-				FT_BOOLEAN, 
-				BASE_NONE, 
-				NULL, 
+			{
+				"Marker",
+				"rtp.marker",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_payload_type,
-			{ 
-				"Payload type", 
-				"rtp.p_type", 
-				FT_UINT8, 
-				BASE_DEC, 
-				VALS(rtp_payload_type_vals), 
+			{
+				"Payload type",
+				"rtp.p_type",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtp_payload_type_vals),
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_seq_nr,
-			{ 
-				"Sequence number", 
-				"rtp.seq", 
-				FT_UINT16, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Sequence number",
+				"rtp.seq",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_timestamp,
-			{ 
-				"Timestamp", 
-				"rtp.timestamp", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Timestamp",
+				"rtp.timestamp",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_ssrc,
-			{ 
-				"Synchronization Source identifier", 
-				"rtp.ssrc", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Synchronization Source identifier",
+				"rtp.ssrc",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_prof_define,
-			{ 
-				"Defined by profile", 
-				"rtp.ext.profile", 
-				FT_UINT16, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Defined by profile",
+				"rtp.ext.profile",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_length,
-			{ 
-				"Extension length", 
-				"rtp.ext.len", 
-				FT_UINT16, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Extension length",
+				"rtp.ext.len",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_csrc_item,
-			{ 
-				"CSRC item", 
-				"rtp.csrc.item", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"CSRC item",
+				"rtp.csrc.item",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_hdr_ext,
-			{ 
-				"Header extension", 
-				"rtp.hdr_ext", 
-				FT_UINT32, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Header extension",
+				"rtp.hdr_ext",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_data,
-			{ 
-				"Payload", 
-				"rtp.payload", 
-				FT_BYTES, 
-				BASE_HEX, 
-				NULL, 
+			{
+				"Payload",
+				"rtp.payload",
+				FT_BYTES,
+				BASE_HEX,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_padding_data,
-			{ 
-				"Padding data", 
-				"rtp.padding.data", 
-				FT_BYTES, 
-				BASE_HEX, 
-				NULL, 
+			{
+				"Padding data",
+				"rtp.padding.data",
+				FT_BYTES,
+				BASE_HEX,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
-		{ 
+		{
 			&hf_rtp_padding_count,
-			{ 
-				"Padding count", 
-				"rtp.padding.count", 
-				FT_UINT8, 
-				BASE_DEC, 
-				NULL, 
+			{
+				"Padding count",
+				"rtp.padding.count",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
 				0x0,
-				"", HFILL 
+				"", HFILL
 			}
 		},
 };
-	
-	static gint *ett[] = 
+
+	static gint *ett[] =
 	{
 		&ett_rtp,
 		&ett_csrc_list,

@@ -1,22 +1,22 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.14 2002/01/21 07:36:31 guy Exp $
+ * $Id: filters.c,v 1.15 2002/08/28 21:00:06 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -247,7 +247,7 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
 		line);
       continue;
     }
-	  
+
     /* Skip over separating white space, if any. */
     while ((c = getc(ff)) != EOF && isspace(c)) {
       if (c == '\n')
@@ -354,7 +354,7 @@ GList *
 get_filter_list_first(filter_list_type_t list)
 {
   GList      **flp;
-  
+
   flp = get_filter_list(list);
   return g_list_first(*flp);
 }
@@ -368,7 +368,7 @@ add_to_filter_list(filter_list_type_t list, char *name, char *expression)
 {
   GList      **flp;
   filter_def *filt;
-  
+
   flp = get_filter_list(list);
   filt = (filter_def *) g_malloc(sizeof(filter_def));
   filt->name = g_strdup(name);
@@ -385,7 +385,7 @@ remove_from_filter_list(filter_list_type_t list, GList *fl_entry)
 {
   GList      **flp;
   filter_def *filt;
-  
+
   flp = get_filter_list(list);
   filt = (filter_def *) fl_entry->data;
   g_free(filt->name);
@@ -412,7 +412,7 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
   filter_def *filt;
   FILE       *ff;
   guchar     *p, c;
-  
+
   *pref_path_return = NULL;	/* assume no error */
 
   switch (list) {

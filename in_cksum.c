@@ -2,7 +2,7 @@
  * 4.4-Lite-2 Internet checksum routine, modified to take a vector of
  * pointers/lengths giving the pieces to be checksummed.
  *
- * $Id: in_cksum.c,v 1.8 2002/08/03 20:01:13 guy Exp $
+ * $Id: in_cksum.c,v 1.9 2002/08/28 21:00:06 jmayer Exp $
  */
 
 /*
@@ -81,7 +81,7 @@ in_cksum(const vec_t *vec, int veclen)
 			 * of a word spanning between this chunk and the
 			 * last chunk.
 			 *
-			 * s_util.c[0] is already saved when scanning previous 
+			 * s_util.c[0] is already saved when scanning previous
 			 * chunk.
 			 */
 			s_util.c[1] = *(const guint8 *)w;

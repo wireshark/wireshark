@@ -1,7 +1,7 @@
 /* packet-beep.c
  * Routines for BEEP packet disassembly
  *
- * $Id: packet-beep.c,v 1.10 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-beep.c,v 1.11 2002/08/28 21:00:07 jmayer Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  * Modified 2001 Darren New <dnew@invisible.net> for BEEP.
@@ -73,7 +73,7 @@ static int hf_beep_ackno = -1;
 static int hf_beep_window = -1;
 
 /* Arrays of hf entry pointers for some routines to use. If you want more
- * hidden items added for a field, add them to the list before the NULL, 
+ * hidden items added for a field, add them to the list before the NULL,
  * and the various routines that these are passed to will add them.
  */
 
@@ -109,13 +109,13 @@ static unsigned int tcp_port = 0;
  *
  * pl_left is the amount of data in this packet that belongs to another
  * frame ...
- * 
+ *
  * It relies on TCP segments not being re-ordered too much ...
  */
 struct beep_proto_data {
   int pl_left;   /* Payload at beginning of frame */
   int pl_size;   /* Payload in current message ...*/
-  int mime_hdr;  /* Whether we expect a mime header. 1 on first, 0 on rest 
+  int mime_hdr;  /* Whether we expect a mime header. 1 on first, 0 on rest
 		  * in a message
 		  */
 };
@@ -133,7 +133,7 @@ struct beep_request_val {
   guint16 processed;     /* Have we processed this conversation? */
   int size;              /* Size of the message                  */
                          /* We need an indication in each dirn of
-			  * whether on not a mime header is expected 
+			  * whether on not a mime header is expected
 			  */
   int c_mime_hdr, s_mime_hdr;
 };
@@ -198,7 +198,7 @@ beep_init_protocol(void)
   beep_request_keys = g_mem_chunk_new("beep_request_keys",
 				       sizeof(struct beep_request_key),
 				       beep_packet_init_count * sizeof(struct beep_request_key), G_ALLOC_AND_FREE);
-  beep_request_vals = g_mem_chunk_new("beep_request_vals", 
+  beep_request_vals = g_mem_chunk_new("beep_request_vals",
 				      sizeof(struct beep_request_val),
 				      beep_packet_init_count * sizeof(struct beep_request_val), G_ALLOC_AND_FREE);
   beep_packet_infos = g_mem_chunk_new("beep_packet_infos",
@@ -257,7 +257,7 @@ dissect_beep_more(tvbuff_t *tvb, int offset,
 
     break;
 
-  default:  
+  default:
 
     if (tree) {
       proto_tree_add_boolean_hidden(tree, hf_beep_proto_viol, tvb, offset, 1, TRUE);
@@ -276,7 +276,7 @@ static void dissect_beep_status(tvbuff_t *tvb, int offset,
 {
 
   /* FIXME: We should return a value to indicate all OK. */
-  
+
   switch(tvb_get_guint8(tvb, offset)) {
 
   case '+':
@@ -320,21 +320,21 @@ static int num_len(tvbuff_t *tvb, int offset)
  * as a terminator, or CR or LF by itself, which will be redorded as
  * an incorrect terminator ... We build the tree at this point
  * However, we depend on the variable beep_strict_term
- */ 
+ */
 
-static int 
+static int
 check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 
-  /* First, check for CRLF, or, if global_beep_strict_term is false, 
+  /* First, check for CRLF, or, if global_beep_strict_term is false,
    * one of CR or LF ... If neither of these hold, we add an element
    * that complains of a protocol violation, and return -1, else
    * we add a terminator to the tree (possibly non-standard) and return
-   * the count of characters we saw ... This may throw off the rest of the 
+   * the count of characters we saw ... This may throw off the rest of the
    * dissection ... so-be-it!
    */
 
-  if ((tvb_get_guint8(tvb, offset) == 0x0d && 
+  if ((tvb_get_guint8(tvb, offset) == 0x0d &&
        tvb_get_guint8(tvb, offset + 1) == 0x0a)){ /* Correct terminator */
 
     if (tree) {
@@ -361,7 +361,7 @@ check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
     return 1;
 
   }
-  else {    
+  else {
 
     if (tree) {
       proto_tree_add_text(tree, tvb, offset, 2, "PROTOCOL VIOLATION, Invalid Terminator: %s", tvb_format_text(tvb, offset, 2));
@@ -381,7 +381,7 @@ static int header_len(tvbuff_t *tvb, int offset)
 
   /* FIXME: Have to make sure we stop looking at the end of the tvb ... */
 
-  /* We look for CRLF, or CR or LF if global_beep_strict_term is 
+  /* We look for CRLF, or CR or LF if global_beep_strict_term is
    * not set.
    */
 
@@ -390,20 +390,20 @@ static int header_len(tvbuff_t *tvb, int offset)
     if (tvb_ensure_length_remaining(tvb, offset + i) < 1)
       return i;   /* Not enough characters left ... */
 
-    if ((sc = tvb_get_guint8(tvb, offset + i)) == 0x0d 
+    if ((sc = tvb_get_guint8(tvb, offset + i)) == 0x0d
 	&& tvb_get_guint8(tvb, offset + i + 1) == 0x0a)
       return i;   /* Done here ... */
 
     if (!global_beep_strict_term && (sc == 0x0d || sc == 0x0a))
       return i;   /* Done here also ... */
-	  
+
     i++;
 
   }
 }
 
 static int
-dissect_beep_mime_header(tvbuff_t *tvb, int offset, 
+dissect_beep_mime_header(tvbuff_t *tvb, int offset,
 			 struct beep_proto_data *frame_data,
 			 proto_tree *tree)
 {
@@ -436,7 +436,7 @@ dissect_beep_mime_header(tvbuff_t *tvb, int offset,
   else {  /* FIXME: Process the headers */
 
     if (tree) {
-      proto_tree_add_text(mime_tree, tvb, offset, mime_length, "Header: %s", 
+      proto_tree_add_text(mime_tree, tvb, offset, mime_length, "Header: %s",
 			  tvb_format_text(tvb, offset, mime_length));
     }
 
@@ -486,7 +486,7 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
 }
 
 static void
-set_mime_hdr_flags(int more, struct beep_request_val *request_val, 
+set_mime_hdr_flags(int more, struct beep_request_val *request_val,
 		   struct beep_proto_data *frame_data, packet_info *pinfo)
 {
 
@@ -498,7 +498,7 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
 
       frame_data->mime_hdr = 0;
 
-      if (!more) request_val->c_mime_hdr = 0; 
+      if (!more) request_val->c_mime_hdr = 0;
 
     }
     else {
@@ -516,7 +516,7 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
 
       frame_data->mime_hdr = 0;
 
-      if (!more) request_val->s_mime_hdr = 0; 
+      if (!more) request_val->s_mime_hdr = 0;
 
     }
     else {
@@ -540,8 +540,8 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
  */
 
 static int
-dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-		  proto_tree *tree, struct beep_request_val *request_val, 
+dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		  proto_tree *tree, struct beep_request_val *request_val,
 		  struct beep_proto_data *frame_data)
 {
   proto_tree     *ti = NULL, *hdr = NULL;
@@ -552,13 +552,13 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
   int is_ANS = 0;
   st_offset = offset;
 
-  if (tvb_strneql(tvb, offset, "MSG ", 4) == 0) 
+  if (tvb_strneql(tvb, offset, "MSG ", 4) == 0)
     cmd_temp = "Command: MSG";
-  if (tvb_strneql(tvb, offset, "RPY ", 4) == 0) 
+  if (tvb_strneql(tvb, offset, "RPY ", 4) == 0)
     cmd_temp = "Command: RPY";
-  if (tvb_strneql(tvb, offset, "ERR ", 4) == 0) 
+  if (tvb_strneql(tvb, offset, "ERR ", 4) == 0)
     cmd_temp = "Command: ERR";
-  if (tvb_strneql(tvb, offset, "NUL ", 4) == 0) 
+  if (tvb_strneql(tvb, offset, "NUL ", 4) == 0)
     cmd_temp = "Command: NUL";
   if (tvb_strneql(tvb, offset, "ANS ", 4) == 0) {
     cmd_temp = "Command: ANS";
@@ -581,14 +581,14 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* Get the channel */
     offset += dissect_beep_int(tvb, offset, hdr, hf_beep_channel, &channel, req_chan_hfa);
     offset += 1; /* Skip the space */
-      
+
     /* Dissect the message number */
     offset += dissect_beep_int(tvb, offset, hdr, hf_beep_msgno, &msgno, req_msgno_hfa);
     offset += 1; /* skip the space */
 
     /* Insert the more elements ... */
     if ((more = dissect_beep_more(tvb, offset, hdr)) >= 0) {
-      /* Figure out which direction this is in and what mime_hdr flag to 
+      /* Figure out which direction this is in and what mime_hdr flag to
        * add to the frame_data. If there are missing segments, this code
        * will get it wrong!
        */
@@ -596,7 +596,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     else {  /* Protocol violation, so dissect rest as undisectable */
       if (tree) {
-	proto_tree_add_text(hdr, tvb, offset, 
+	proto_tree_add_text(hdr, tvb, offset,
 			    tvb_length_remaining(tvb, offset),
 			    "Undissected Payload: %s",
 			    tvb_format_text(tvb, offset,
@@ -634,10 +634,10 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       /* We dissect the rest as data and bail ... */
 
       if (tree) {
-	proto_tree_add_text(hdr, tvb, offset, 
+	proto_tree_add_text(hdr, tvb, offset,
 			    tvb_length_remaining(tvb, offset),
-			    "Undissected Payload: %s", 
-			    tvb_format_text(tvb, offset, 
+			    "Undissected Payload: %s",
+			    tvb_format_text(tvb, offset,
 					    tvb_length_remaining(tvb, offset)
 					    )
 			    );
@@ -648,7 +648,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     offset += cc;
-    
+
     /* Insert MIME header ... */
 
     if (frame_data && frame_data->mime_hdr)
@@ -662,7 +662,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       /* Except, check the payload length, and only dissect that much */
 
-      /* We need to keep track, in the conversation, of how much is left 
+      /* We need to keep track, in the conversation, of how much is left
        * so in the next packet, we can figure out what is part of the payload
        * and what is the next message
        */
@@ -683,7 +683,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (frame_data->pl_size < 0) frame_data->pl_size = 0;
       }
     }
-      
+
     /* If anything else left, dissect it ... */
 
     if (tvb_length_remaining(tvb, offset) > 0)
@@ -721,10 +721,10 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       /* We dissect the rest as data and bail ... */
 
       if (tree) {
-	proto_tree_add_text(tree, tvb, offset, 
+	proto_tree_add_text(tree, tvb, offset,
 			    tvb_length_remaining(tvb, offset),
-			    "Undissected Payload: %s", 
-			    tvb_format_text(tvb, offset, 
+			    "Undissected Payload: %s",
+			    tvb_format_text(tvb, offset,
 					    tvb_length_remaining(tvb, offset)
 					    )
 			    );
@@ -756,10 +756,10 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       /* We dissect the rest as data and bail ... */
 
-      if (tree) { 
+      if (tree) {
 	proto_tree_add_text(tr, tvb, offset, tvb_length_remaining(tvb, offset),
-			    "Undissected Payload: %s", 
-			    tvb_format_text(tvb, offset, 
+			    "Undissected Payload: %s",
+			    tvb_format_text(tvb, offset,
 					    tvb_length_remaining(tvb, offset)
 					    )
 			    );
@@ -782,9 +782,9 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       pl_size = MIN(request_val->size, tvb_length_remaining(tvb, offset));
 
       if (pl_size == 0) { /* The whole of the rest must be payload */
-      
+
 	pl_size = tvb_length_remaining(tvb, offset); /* Right place ? */
-      
+
       }
 
     } else if (frame_data) {
@@ -793,16 +793,16 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       pl_size = tvb_length_remaining(tvb, offset);
     }
 
-    /* Take care here to handle the payload correctly, and if there is 
+    /* Take care here to handle the payload correctly, and if there is
      * another message here, then handle it correctly as well.
      */
 
     /* If the pl_size == 0 and the offset == 0?, then we have not processed
-     * anything in this frame above, so we better treat all this data as 
+     * anything in this frame above, so we better treat all this data as
      * payload to avoid recursion loops
      */
 
-    if (pl_size == 0 && offset == st_offset) 
+    if (pl_size == 0 && offset == st_offset)
       pl_size = tvb_length_remaining(tvb, offset);
 
     if (pl_size > 0) {
@@ -851,19 +851,19 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * The per-frame data tells us how much of this frame is left over from a
    * previous frame, so we dissect it as payload and then try to dissect the
    * rest.
-   * 
+   *
    * We use the conversation to build up info on the first pass over the
    * packets of type BEEP, and record anything that is needed if the user
    * does random dissects of packets in per packet data.
    *
-   * Once we have per-packet data, we don't need the conversation stuff 
-   * anymore, but if per-packet data and conversation stuff gets deleted, as 
-   * it does under some circumstances when a rescan is done, it all gets 
+   * Once we have per-packet data, we don't need the conversation stuff
+   * anymore, but if per-packet data and conversation stuff gets deleted, as
+   * it does under some circumstances when a rescan is done, it all gets
    * rebuilt.
    */
 
   /* Find out what conversation this packet is part of ... but only
-   * if we have no information on this packet, so find the per-frame 
+   * if we have no information on this packet, so find the per-frame
    * info first.
    */
 
@@ -879,13 +879,13 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       }
 
-      /* 
+      /*
        * Check for and insert an entry in the request table if does not exist
        */
       request_key.conversation = conversation->index;
 
       request_val = (struct beep_request_val *)g_hash_table_lookup(beep_request_hash, &request_key);
-      
+
       if (!request_val) { /* Create one */
 
 	new_request_key = g_mem_chunk_alloc(beep_request_keys);
@@ -911,10 +911,10 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
-  /* Here, we parse the message so we can retrieve the info we need, which 
-   * is that there is some payload left from a previous segment on the 
+  /* Here, we parse the message so we can retrieve the info we need, which
+   * is that there is some payload left from a previous segment on the
    * front of this segment ... This all depends on TCP segments not getting
-   * out of order ... 
+   * out of order ...
    *
    * As a huge kludge, we push the checking for the tree down into the code
    * and process as if we were given a tree but not call the routines that
@@ -928,9 +928,9 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     beep_tree = proto_item_add_subtree(ti, ett_beep);
 
   }
-  
-  /* Check the per-frame data and the conversation for any left-over 
-   * payload from the previous frame 
+
+  /* Check the per-frame data and the conversation for any left-over
+   * payload from the previous frame
    *
    * We check that per-frame data exists first, and if so, use it,
    * else we use the conversation data.
@@ -960,7 +960,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     request_val->size = 0;
 
-    /* We create the frame data here for this case, and 
+    /* We create the frame data here for this case, and
      * elsewhere for other frames
      */
 
@@ -969,7 +969,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     frame_data->pl_left = pl_left;
     frame_data->pl_size = 0;
     frame_data->mime_hdr = 0;
-      
+
     p_add_proto_data(pinfo->fd, proto_beep, frame_data);
 
   }
@@ -978,7 +978,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * This _must_ come after the checks above ...
    */
 
-  if (frame_data == NULL) { 
+  if (frame_data == NULL) {
 
     frame_data = g_mem_chunk_alloc(beep_packet_infos);
 
@@ -987,7 +987,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     frame_data->mime_hdr = 0;
 
     p_add_proto_data(pinfo->fd, proto_beep, frame_data);
-	
+
   }
 
   if (tvb_length_remaining(tvb, offset) > 0) {
@@ -1000,7 +1000,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register all the bits needed with the filtering engine */
 
-void 
+void
 proto_register_beep(void)
 {
   static hf_register_info hf[] = {
@@ -1068,7 +1068,7 @@ proto_register_beep(void)
     &ett_header,
     &ett_trailer,
   };
-  module_t *beep_module; 
+  module_t *beep_module;
 
   proto_beep = proto_register_protocol("Blocks Extensible Exchange Protocol",
 				       "BEEP", "beep");
@@ -1086,8 +1086,8 @@ proto_register_beep(void)
 				 " than the default of 10288)",
 				 10, &global_beep_tcp_port);
 
-  prefs_register_bool_preference(beep_module, "strict_header_terminator", 
-				 "BEEP Header Requires CRLF", 
+  prefs_register_bool_preference(beep_module, "strict_header_terminator",
+				 "BEEP Header Requires CRLF",
 				 "Specifies that BEEP requires CRLF as a "
 				 "terminator, and not just CR or LF",
 				 &global_beep_strict_term);

@@ -2,22 +2,22 @@
  * Routines for DLSw packet dissection (Data Link Switching)
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-dlsw.c,v 1.6 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-dlsw.c,v 1.7 2002/08/28 21:00:12 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,7 +42,7 @@ static gint ett_dlsw_header = -1;
 static gint ett_dlsw_data = -1;
 static gint ett_dlsw_vector = -1;
 
-#define  CANUREACH               0x03                     
+#define  CANUREACH               0x03
 #define  ICANREACH               0x04
 #define  REACH_ACK               0x05
 #define  DGRMFRAME               0x06
@@ -163,7 +163,7 @@ static const value_string dlsw_pri_vals[] = {
 static const value_string dlsw_gds_vals[] = {
         { DLSW_GDSID_SEND , "Request Capabilities GDS" },
         { DLSW_GDSID_ACK  , "Response Capabilities GDS" },
-        { DLSW_GDSID_REF  , "Refuse Capabilities GDS" }, 
+        { DLSW_GDSID_REF  , "Refuse Capabilities GDS" },
         { 0               , NULL }
 };
 
@@ -186,7 +186,7 @@ static const value_string dlsw_refuse_vals[] = {
 };
 
 #define UDP_PORT_DLSW		2067
-#define TCP_PORT_DLSW		2065  
+#define TCP_PORT_DLSW		2065
 #define DLSW_INFO_HEADER	16
 #define DLSW_CMD_HEADER		72
 
@@ -208,16 +208,16 @@ dissect_dlsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  if (check_col(pinfo->cinfo, COL_INFO))
    col_add_fstr(pinfo->cinfo, COL_INFO, "DLSw %s",val_to_str(version , dlsw_version_vals, "Unknown Version"));
 
- if (tree) 
+ if (tree)
  {
    ti = proto_tree_add_item(tree, proto_dlsw, tvb, 0, -1, FALSE);
    dlsw_tree = proto_item_add_subtree(ti, ett_dlsw);
-   
+
    hlen=tvb_get_guint8(tvb,1);
 
    ti2 = proto_tree_add_text (dlsw_tree, tvb, 0, hlen,"DLSw header, %s",
      val_to_str(version , dlsw_version_vals, "Unknown Version"));
-           
+
    dlsw_header_tree = proto_item_add_subtree(ti2, ett_dlsw_header);
    proto_tree_add_text (dlsw_header_tree,tvb,0 ,1,"Version        = %s",
     val_to_str(version , dlsw_version_vals, "Unknown Version, dissection may be innacurate"));
@@ -228,17 +228,17 @@ dissect_dlsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_tree_add_text (dlsw_header_tree,tvb,8 ,4,"Remote DLC PID = %u",tvb_get_ntohl(tvb,8)) ;
    proto_tree_add_text (dlsw_header_tree,tvb,12,2,"Reserved") ;
   } ;
-  
+
   mtype=tvb_get_guint8(tvb,14);
   if (check_col(pinfo->cinfo, COL_INFO))
      col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str(mtype , dlsw_type_vals, "Unknown message Type"));
   if (tree)
-  {  
+  {
    proto_tree_add_text (dlsw_header_tree,tvb,14,1,"Message Type   = %s (%d)",
     val_to_str(mtype , dlsw_type_vals, "Unknown Type"),mtype);
    proto_tree_add_text (dlsw_header_tree, tvb, 15,1,"Flow ctrl byte = %d",tvb_get_guint8(tvb,15));
 
-   if (hlen != DLSW_INFO_HEADER) 
+   if (hlen != DLSW_INFO_HEADER)
     {
     proto_tree_add_text (dlsw_header_tree,tvb, 16,1,"Protocol ID    = %d",tvb_get_guint8(tvb,16)) ;
     proto_tree_add_text (dlsw_header_tree,tvb, 17,1,"Header Number  = %d",tvb_get_guint8(tvb,17)) ;
@@ -253,7 +253,7 @@ dissect_dlsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      {
      proto_tree_add_text (dlsw_header_tree,tvb, 24 ,14,"Not used for CapEx") ;
      proto_tree_add_text (dlsw_header_tree,tvb, 38,1,"Frame direction   =  %s",
-      tvb_get_guint8(tvb,38)==1?"Capabilities request":"Capabilities response") ;    
+      tvb_get_guint8(tvb,38)==1?"Capabilities request":"Capabilities response") ;
      proto_tree_add_text (dlsw_header_tree,tvb, 39,33,"Not used for CapEx") ;
      }
     else
@@ -282,7 +282,7 @@ dissect_dlsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti2 = proto_tree_add_text (dlsw_tree, tvb, hlen, mlen,"DLSw data");
     dlsw_data_tree = proto_item_add_subtree(ti2, ett_dlsw_data);
 
-    switch (mtype) 
+    switch (mtype)
       {
       case CAP_EXCHANGE:
         dissect_dlsw_capex(tvb_new_subset(tvb, hlen, mlen, -1), dlsw_data_tree,ti2);
@@ -347,7 +347,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
         case 0x82:
           proto_tree_add_text (dlsw_vector_tree,tvb,offset+2,vlen-2,
            "DLSw Version = %d.%d",tvb_get_guint8(tvb,offset+2),tvb_get_guint8(tvb,offset+3));
-          break;            
+          break;
         case 0x83:
           proto_tree_add_text (dlsw_vector_tree,tvb,offset+2,vlen-2,
            "Initial Pacing Window = %d",tvb_get_ntohs(tvb,offset+2));
@@ -406,7 +406,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
   default:
     proto_tree_add_text (tree,tvb,4,mlen - 4,"Unknown data");
   }
-        
+
 }
 
 void
@@ -422,7 +422,7 @@ proto_register_dlsw(void)
 /*	proto_register_field_array(proto_dlsw, hf, array_length(hf)); */
 	proto_register_subtree_array(ett, array_length(ett));
 }
-                                                                             
+
 void
 proto_reg_handoff_dlsw(void)
 {

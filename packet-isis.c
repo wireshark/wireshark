@@ -2,23 +2,23 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.32 2002/08/02 23:35:52 jmayer Exp $
+ * $Id: packet-isis.c,v 1.33 2002/08/28 21:00:18 jmayer Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -97,7 +97,7 @@ isis_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 /*
  * Name: dissect_isis()
- * 
+ *
  * Description:
  *	Main entry area for isis de-mangling.  This will build the
  *	main isis tree data and call the sub-protocols as needed.
@@ -139,7 +139,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			isis_version, ISIS_REQUIRED_VERSION);
 		return;
 	}
-	
+
 	isis_header_length = tvb_get_guint8(tvb, 1);
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis, tvb, 0, -1, FALSE);
@@ -256,44 +256,44 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * 	NOTE: this procedure to autolinked by the makefile process that
  *	builds register.c
  *
- * Input: 
+ * Input:
  *	void
  *
  * Output:
  *	void
  */
-void 
+void
 proto_register_isis(void) {
   static hf_register_info hf[] = {
     { &hf_isis_irpd,
-      { "Intra Domain Routing Protocol Discriminator",	"isis.irpd",	
+      { "Intra Domain Routing Protocol Discriminator",	"isis.irpd",
         FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, "", HFILL }},
 
     { &hf_isis_header_length,
       { "PDU Header Length  ", "isis.len", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_isis_version,
-      { "Version (==1)      ", "isis.version", FT_UINT8, 
+      { "Version (==1)      ", "isis.version", FT_UINT8,
          BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_isis_system_id_length,
-      { "System ID Length   ", "isis.sysid_len",	
+      { "System ID Length   ", "isis.sysid_len",
         FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
-    { &hf_isis_type, 
-      { "PDU Type           ", "isis.type", FT_UINT8, BASE_DEC, 
+    { &hf_isis_type,
+      { "PDU Type           ", "isis.type", FT_UINT8, BASE_DEC,
         VALS(isis_vals), 0xff, "", HFILL }},
 
-    { &hf_isis_version2, 
-      { "Version2 (==1)     ", "isis.version2", FT_UINT8, BASE_DEC, NULL, 
+    { &hf_isis_version2,
+      { "Version2 (==1)     ", "isis.version2", FT_UINT8, BASE_DEC, NULL,
         0x0, "", HFILL }},
 
     { &hf_isis_reserved,
-      { "Reserved (==0)     ", "isis.reserved", FT_UINT8, BASE_DEC, NULL, 
+      { "Reserved (==0)     ", "isis.reserved", FT_UINT8, BASE_DEC, NULL,
         0x0, "", HFILL }},
 
     { &hf_isis_max_area_adr,
-      { "Max.AREAs: (0==3)  ", "isis.max_area_adr", FT_UINT8, BASE_DEC, NULL, 
+      { "Max.AREAs: (0==3)  ", "isis.max_area_adr", FT_UINT8, BASE_DEC, NULL,
       0x0, "", HFILL }},
 
     };

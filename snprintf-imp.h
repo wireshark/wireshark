@@ -1,27 +1,27 @@
 /*
- * $Id: snprintf-imp.h,v 1.3 2000/08/11 22:03:03 guy Exp $
+ * $Id: snprintf-imp.h,v 1.4 2002/08/28 21:00:41 jmayer Exp $
  */
 
 /*
  Unix snprintf implementation.
  Version 1.2
-   
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
    It can be redistribute also under the terms of GNU Library General
    Public License.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-   
+
    Revision History:
 
    1.2:
@@ -74,7 +74,7 @@ Alain Magloire: alainm@rcsm.ee.mcgill.ca
 */
 
 
-/* 
+/*
  * For the FLOATING POINT FORMAT :
  *  the challenge was finding a way to
  *  manipulate the Real numbers without having
@@ -90,24 +90,24 @@ Alain Magloire: alainm@rcsm.ee.mcgill.ca
       fraction = b(1)*10^-1 + b(2)*10^-2 + ...
 
       where:
-       0 <= a(i) => 9 
-       0 <= b(i) => 9 
- 
+       0 <= a(i) => 9
+       0 <= b(i) => 9
+
     from then it was simple math
  */
 
 /*
  * size of the buffer for the integral part
- * and the fraction part 
+ * and the fraction part
  */
 #define MAX_INT  99 + 1 /* 1 for the null */
 #define MAX_FRACT 29 + 1
 
-/* 
+/*
  * numtoa() uses PRIVATE buffers to store the results,
  * So this function is not reentrant
  */
-#define itoa(n) numtoa(n, 10, 0, (char **)0) 
+#define itoa(n) numtoa(n, 10, 0, (char **)0)
 #define otoa(n) numtoa(n, 8, 0, (char **)0)
 #define htoa(n) numtoa(n, 16, 0, (char **)0)
 #define dtoa(n, p, f) numtoa(n, 10, p, f)
@@ -207,7 +207,7 @@ struct DATA {
             if ((p)->space == FOUND && (d) > 0.) \
               PUT_CHAR(' ', p)
 
-/* pad right */ 
+/* pad right */
 #define PAD_RIGHT(p) \
             if ((p)->width > 0 && (p)->justify != LEFT) \
               for (; (p)->width > 0; (p)->width--) \

@@ -2,24 +2,24 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.54 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-osi.c,v 1.55 2002/08/28 21:00:24 jmayer Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -131,7 +131,7 @@ const value_string nlpid_vals[] = {
 dissector_table_t osinl_subdissector_table;
 static dissector_handle_t data_handle;
 
-static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8 nlpid;
 

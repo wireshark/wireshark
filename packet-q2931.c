@@ -2,22 +2,22 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.28 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-q2931.c,v 1.29 2002/08/28 21:00:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -1002,7 +1002,7 @@ static const value_string q2931_cause_coding_standard_vals[] = {
 	{ 0x60, "Standard defined for the network" },
 	{ 0,    NULL }
 };
-	
+
 static const value_string q2931_cause_location_vals[] = {
 	{ 0x00, "User (U)" },
 	{ 0x01, "Private network serving the local user (LPN)" },
@@ -1149,7 +1149,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		    val_to_str(octet & 0x03, q2931_cause_condition_vals,
 		      "Unknown (0x%X)"));
 		break;
-		
+
 	case Q2931_CAUSE_CALL_REJECTED:
 		rejection_reason = octet & 0x7C;
 		proto_tree_add_text(tree, tvb, offset, 1,
@@ -2099,7 +2099,7 @@ proto_register_q2931(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_q2931_discriminator,
-		  { "Protocol discriminator", "q2931.disc", FT_UINT8, BASE_HEX, NULL, 0x0, 
+		  { "Protocol discriminator", "q2931.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
 		  	"", HFILL }},
 
 		{ &hf_q2931_call_ref_len,

@@ -2,22 +2,22 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.51 2002/08/02 23:35:49 jmayer Exp $
+ * $Id: packet-gre.c,v 1.52 2002/08/28 21:00:13 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -205,7 +205,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 4;
     }
   }
-    
+
   if (flags_and_ver & GH_B_S) {
     if (tree) {
       proto_tree_add_text(gre_tree, tvb, offset, 4,
@@ -278,11 +278,11 @@ add_flags_and_ver(proto_tree *tree, guint16 flags_and_ver, tvbuff_t *tvb,
   proto_item *	ti;
   proto_tree *	fv_tree;
   int		nbits = sizeof(flags_and_ver) * 8;
-  
-  ti = proto_tree_add_text(tree, tvb, offset, 2, 
+
+  ti = proto_tree_add_text(tree, tvb, offset, 2,
 			   "Flags and version: %#04x", flags_and_ver);
   fv_tree = proto_item_add_subtree(ti, ett_gre_flags);
-  
+
   proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
 		      decode_boolean_bitfield(flags_and_ver, GH_B_C, nbits,
 					      "Checksum", "No checksum"));
@@ -326,7 +326,7 @@ dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_item *	ti;
   proto_tree *	rh_tree;
   guint8	rh_flags;
-  
+
   ti = proto_tree_add_text(tree, tvb, offset, 4, "Redirect header");
   rh_tree = proto_item_add_subtree(ti, ett_gre_wccp2_redirect_header);
 
@@ -346,7 +346,7 @@ dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree_add_text(rh_tree, tvb, offset + 3, 1, "Primary bucket index: %u",
 			tvb_get_guint8(tvb, offset + 3));
 }
- 
+
 void
 proto_register_gre(void)
 {

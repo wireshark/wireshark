@@ -4,7 +4,7 @@
  * IItom Tsutomu MIENO <iitom@utouto.com>
  * SHIRASAKI Yasuhiro <yasuhiro@gnome.gr.jp>
  *
- * $Id: packet-dhcpv6.c,v 1.6 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-dhcpv6.c,v 1.7 2002/08/28 21:00:12 jmayer Exp $
  *
  * The information used comes from:
  * draft-ietf-dhc-dhcpv6-26.txt
@@ -17,17 +17,17 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -103,7 +103,7 @@ static guint ett_dhcpv6_option = -1;
 static const value_string msgtype_vals[] = {
 	{ SOLICIT,	"Solicit" },
 	{ ADVERTISE,	"Advertise" },
-	{ REQUEST,	"Request" }, 
+	{ REQUEST,	"Request" },
 	{ CONFIRM,	"Confirm" },
 	{ RENEW,	"Renew" },
 	{ REBIND,	"Rebind" },
@@ -216,8 +216,8 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 		}
 		duidtype = tvb_get_ntohs(tvb, off);
 		proto_tree_add_text(subtree, tvb, off, 2,
-			"DUID type: %s (%u)", 
-				    val_to_str(duidtype, 
+			"DUID type: %s (%u)",
+				    val_to_str(duidtype,
 					       duidtype_vals, "Unknown"),
 				    duidtype);
 		switch (duidtype) {
@@ -326,7 +326,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 		    guint16 requested_opt_code;
 		    requested_opt_code = tvb_get_ntohs(tvb, off + i);
 		    proto_tree_add_text(subtree, tvb, off + i,
-			    2, "Requested Option code: %s (%d)", 
+			    2, "Requested Option code: %s (%d)",
 					    val_to_str(requested_opt_code,
 						       opttype_vals,
 						       "Unknown"),
@@ -399,9 +399,9 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 		guint16 status_code;
 		char *status_message = 0;
 		status_code = tvb_get_ntohs(tvb, off);
-		proto_tree_add_text(subtree, tvb, off, 2, 
+		proto_tree_add_text(subtree, tvb, off, 2,
 				    "Status Code: %s (%d)",
-				    val_to_str(status_code, statuscode_vals, 
+				    val_to_str(status_code, statuscode_vals,
 					       "Unknown"),
 				    status_code);
 
@@ -409,7 +409,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 		    status_message = g_malloc(optlen - 2 + 1);
 		if (status_message != 0){
 		    memset(status_message, 0, optlen - 2 + 1);
-		    status_message = tvb_memcpy(tvb, status_message, off + 2, 
+		    status_message = tvb_memcpy(tvb, status_message, off + 2,
 						optlen - 2);
 		    proto_tree_add_text(subtree, tvb, off + 2, optlen - 2,
 					"Status Message: %s",
@@ -504,11 +504,11 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 		guint32 lease_duration;
 		guint8  prefix_length;
 		struct e_in6_addr in6;
-		
+
 		lease_duration = tvb_get_ntohl(tvb, off);
 		prefix_length  = tvb_get_guint8(tvb, off + 4);
 		if ( lease_duration == DHCPV6_LEASEDURATION_INFINITY) {
-			proto_tree_add_text(subtree, tvb, off, 4,	
+			proto_tree_add_text(subtree, tvb, off, 4,
 				    "Lease duration: infinity");
 		} else {
 			proto_tree_add_text(subtree, tvb, off, 4,
@@ -615,7 +615,7 @@ proto_register_dhcpv6(void)
     &ett_dhcpv6,
     &ett_dhcpv6_option,
   };
-  
+
   proto_dhcpv6 = proto_register_protocol("DHCPv6", "DHCPv6", "dhcpv6");
   proto_register_field_array(proto_dhcpv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

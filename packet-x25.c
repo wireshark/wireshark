@@ -2,22 +2,22 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.68 2002/08/02 23:36:05 jmayer Exp $
+ * $Id: packet-x25.c,v 1.69 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -1859,7 +1859,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    } else if (is_x_264 == 0) {
 		/* It doesn't look like a UN TPDU, so compare the first
 		   octet of the CALL REQUEST packet with various X.263/
-		   ISO 9577 NLPIDs, as per Annex A of X.263/ISO 9577. */ 
+		   ISO 9577 NLPIDs, as per Annex A of X.263/ISO 9577. */
 
 		if (userdata_tree) {
 		    proto_tree_add_text(userdata_tree, tvb, localoffset, 1,
@@ -1867,7 +1867,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					val_to_str(spi, nlpid_vals, "Unknown (0x%02x)"));
 		}
 		localoffset++;
-		
+
 		/*
 		 * What's the dissector handle for this SPI?
 		 */

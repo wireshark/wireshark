@@ -3,22 +3,22 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.19 2002/08/02 22:34:54 jmayer Exp $
+ * $Id: tcp_graph.c,v 1.20 2002/08/28 21:03:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -773,7 +773,7 @@ static void create_drawing_area (struct graph *g)
 	 * and we don't have the GC's at all. so we just postpone installation
 	 * of configure handler until we're ready to deal with it.
 	 *
-	 * !!! NEMÌLO BY TO BÝT NA KONCI graph_init_sequence()? !!! 
+	 * !!! NEMÌLO BY TO BÝT NA KONCI graph_init_sequence()? !!!
 	 *
 	 */
 	gtk_signal_connect (GTK_OBJECT(g->drawing_area),"configure_event",
@@ -978,7 +978,7 @@ static void callback_create_help (GtkWidget *widget _U_, gpointer data)
 	gtk_box_pack_start (GTK_BOX (box), close, FALSE, FALSE, 0);
 	gtk_signal_connect (GTK_OBJECT (close), "clicked",
                     	(GtkSignalFunc )callback_close_help, toplevel);
-	
+
 	gtk_widget_show_all (toplevel);
 }
 
@@ -1166,9 +1166,9 @@ static void callback_zoom_flags (GtkWidget *toggle, gpointer data)
 	int flag = (int )gtk_object_get_data (GTK_OBJECT (toggle), "flag");
 
 	if (GTK_TOGGLE_BUTTON (toggle)->active)
-		g->zoom.flags |= flag;	
+		g->zoom.flags |= flag;
 	else
-		g->zoom.flags &= ~flag;	
+		g->zoom.flags &= ~flag;
 }
 
 static void update_zoom_spins (struct graph *g)
@@ -1381,9 +1381,9 @@ static void callback_mag_flags (GtkWidget *toggle, gpointer data)
 	int flag = (int )gtk_object_get_data (GTK_OBJECT (toggle), "flag");
 
 	if (GTK_TOGGLE_BUTTON (toggle)->active)
-		g->magnify.flags |= flag;	
+		g->magnify.flags |= flag;
 	else
-		g->magnify.flags &= ~flag;	
+		g->magnify.flags &= ~flag;
 }
 
 static GtkWidget *control_panel_create_zoomlock_group (struct graph *g)
@@ -1419,9 +1419,9 @@ static void callback_zoomlock_h (GtkWidget *toggle, gpointer data)
 	struct graph *g = (struct graph * )data;
 
 	if (GTK_TOGGLE_BUTTON (toggle)->active)
-		g->zoom.flags |= ZOOM_HLOCK;	
+		g->zoom.flags |= ZOOM_HLOCK;
 	else
-		g->zoom.flags &= ~ZOOM_HLOCK;	
+		g->zoom.flags &= ~ZOOM_HLOCK;
 }
 
 static void callback_zoomlock_v (GtkWidget *toggle, gpointer data)
@@ -1429,9 +1429,9 @@ static void callback_zoomlock_v (GtkWidget *toggle, gpointer data)
 	struct graph *g = (struct graph * )data;
 
 	if (GTK_TOGGLE_BUTTON (toggle)->active)
-		g->zoom.flags |= ZOOM_VLOCK;	
+		g->zoom.flags |= ZOOM_VLOCK;
 	else
-		g->zoom.flags &= ~ZOOM_VLOCK;	
+		g->zoom.flags &= ~ZOOM_VLOCK;
 }
 
 static GtkWidget *control_panel_create_cross_group (struct graph *g)
@@ -1523,9 +1523,9 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 							(gpointer )0);
 	gtk_object_set_data (GTK_OBJECT (graph_tseqttrace), "new-graph-type",
 							(gpointer )1);
-	gtk_object_set_data (GTK_OBJECT (graph_tput), "new-graph-type", 
+	gtk_object_set_data (GTK_OBJECT (graph_tput), "new-graph-type",
 							(gpointer )2);
-	gtk_object_set_data (GTK_OBJECT (graph_rtt), "new-graph-type", 
+	gtk_object_set_data (GTK_OBJECT (graph_rtt), "new-graph-type",
 							(gpointer )3);
 
 	gtk_signal_connect (GTK_OBJECT (graph_tseqttrace), "toggled",
@@ -2207,7 +2207,7 @@ static void h_axis_pixmap_draw (struct axis *axis)
 	gdk_draw_rectangle (axis->pixmap[not_disp], g->bg_gc, TRUE, 0, 0,
 					axis->p.width, axis->p.height);
 	/* axis */
-	gdk_draw_line (axis->pixmap[not_disp], g->fg_gc, 0, 0,	
+	gdk_draw_line (axis->pixmap[not_disp], g->fg_gc, 0, 0,
 						axis->s.width + (axis->p.width-axis->s.width)/2.0, 0);
 	offset = g->wp.x - g->geom.x;
 
@@ -2341,10 +2341,10 @@ static void axis_compute_ticks (struct axis *axis, double x0, double xmax, int d
 			axis->minor = steps[jj] * pow (10, ii);
 			check_needed = TRUE;
 			diminished = TRUE;
-	
+
 			debug(DBS_AXES_TICKS) printf ("axis->minor diminished to %.1f\n",
 										axis->minor);
-	
+
 			if (axis->minor*zoom < 10) {
 				debug(DBS_AXES_TICKS) printf ("refusing axis->minor of %f: "
 					"axis->minor*zoom == %f\n", axis->minor, axis->minor*zoom);
@@ -2892,7 +2892,7 @@ static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 		y = event->y;
 		state = event->state;
 	}
-    
+
 	/* Testing just (state & GDK_BUTTON1_MASK) is not enough since when button1
 	 * is pressed while pointer is in motion, we will receive one more motion
 	 * notify *before* we get the button press. This last motion notify works
@@ -2929,7 +2929,7 @@ static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 		if (g->cross.draw)
 			cross_draw (g, x, y);
 	}
-  
+
 	return TRUE;
 }
 
@@ -3583,7 +3583,7 @@ static void rtt_initialize (struct graph *g)
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
 			unsigned int seqno = g_ntohl (tmp->tcphdr.seq);
-			
+
 			if (!first)
 				first= tmp;
 

@@ -1,22 +1,22 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.13 2002/08/13 07:54:37 guy Exp $
+ * $Id: print_prefs.c,v 1.14 2002/08/28 21:03:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -171,7 +171,7 @@ printer_opts_file_cb(GtkWidget *file_bt, gpointer file_te) {
 
 static void
 printer_opts_fs_ok_cb(GtkWidget *w, gpointer data) {
-	  
+
 	gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
   	PRINT_FILE_TE_KEY)),
 		gtk_file_selection_get_filename (GTK_FILE_SELECTION(data)));
@@ -180,9 +180,9 @@ printer_opts_fs_ok_cb(GtkWidget *w, gpointer data) {
 
 static void
 printer_opts_fs_cancel_cb(GtkWidget *w _U_, gpointer data) {
-	  
+
 	gtk_widget_destroy(GTK_WIDGET(data));
-} 
+}
 
 static void
 printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data _U_)

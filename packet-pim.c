@@ -2,28 +2,28 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.41 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-pim.c,v 1.42 2002/08/28 21:00:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifdef HAVE_CONFIG_H 
+#ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
@@ -109,9 +109,9 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16 pim_cksum, computed_cksum;
     vec_t cksum_vec[1];
     proto_tree *pim_tree = NULL;
-    proto_item *ti; 
+    proto_item *ti;
     proto_tree *pimopt_tree = NULL;
-    proto_item *tiopt; 
+    proto_item *tiopt;
 
     if (!proto_is_protocol_enabled(proto_pim)) {
 	/*
@@ -343,9 +343,9 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    guint8 mask_len;
 	    guint8 adr_len;
 	    proto_tree *grouptree = NULL;
-	    proto_item *tigroup; 
+	    proto_item *tigroup;
 	    proto_tree *subtree = NULL;
-	    proto_item *tisub; 
+	    proto_item *tisub;
 
 	    proto_tree_add_text(pimopt_tree, tvb, offset, 4,
 		"Upstream-neighbor: %s",
@@ -598,7 +598,7 @@ static const value_string type2vals[] = {
  * is run over IPv6, the rules for computing the PIM checksum from the
  * draft in question, not from RFC 2362, should be used).
  */
-static void 
+static void
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
     guint8 pim_typever;
@@ -608,9 +608,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     guint32 phdr[2];
     char *typestr;
     proto_tree *pim_tree = NULL;
-    proto_item *ti; 
+    proto_item *ti;
     proto_tree *pimopt_tree = NULL;
-    proto_item *tiopt; 
+    proto_item *tiopt;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIM");
@@ -634,16 +634,16 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    PIM_VER(pim_typever));
     }
     if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_str(pinfo->cinfo, COL_INFO, typestr); 
+	col_add_str(pinfo->cinfo, COL_INFO, typestr);
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, FALSE);
 	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
 	proto_tree_add_uint(pim_tree, hf_pim_version, tvb, offset, 1,
-	    PIM_VER(pim_typever)); 
+	    PIM_VER(pim_typever));
 	proto_tree_add_uint(pim_tree, hf_pim_type, tvb, offset, 1,
-	    PIM_TYPE(pim_typever)); 
+	    PIM_TYPE(pim_typever));
 
 	pim_cksum = tvb_get_ntohs(tvb, offset + 2);
 	length = tvb_length(tvb);
@@ -750,12 +750,12 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 		hello_opt = tvb_get_ntohs(tvb, offset);
 		opt_len = tvb_get_ntohs(tvb, offset + 2);
- 
+
 		if(opt_len == 2)
 			opt_value = tvb_get_ntohs(tvb, offset + 4);
 		if(opt_len == 4)
 			opt_value = tvb_get_ntohl(tvb, offset + 4);
- 
+
 		switch(hello_opt) {
 		case 1: /* holdtime */
 			holdtime = opt_value;
@@ -767,11 +767,11 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		{
 			proto_tree *sub_tree = NULL;
 			proto_item *landelay_option;
- 
+
 			landelay_option = proto_tree_add_text(pim_tree, tvb, offset, -1,
 							"LAN Prune Delay");
 			sub_tree = proto_item_add_subtree(landelay_option, ett_pim);
- 
+
 			lan_delay = (opt_value & 0x7f00) >> 8;
 			override_interval = opt_value & 0xff;
 			proto_tree_add_text(sub_tree, tvb, offset, 4 + opt_len,
@@ -792,7 +792,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
 					    "Generation ID: %d", opt_value);
 			break;
- 
+
 		default:
 			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
 					    "Unknown option: %d  len: %d  value: 0x%x",
@@ -810,7 +810,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    guint8 v_hl;
 	    tvbuff_t *next_tvb;
 	    proto_tree *flag_tree = NULL;
-	    proto_item *tiflag; 
+	    proto_item *tiflag;
 
 	    flags = tvb_get_ntohl(tvb, offset);
 	    tiflag = proto_tree_add_text(pimopt_tree, tvb, offset, 4,
@@ -823,7 +823,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		decode_boolean_bitfield(flags, 0x40000000, 32,
 		    "Null-Register", "Not Null-Register"));
 	    offset += 4;
-	    
+
 	    /*
 	     * The rest of the packet is a multicast data packet.
 	     */
@@ -914,9 +914,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    int ngroup, i, njoin, nprune, j;
 	    guint16 holdtime;
 	    proto_tree *grouptree = NULL;
-	    proto_item *tigroup; 
+	    proto_item *tigroup;
 	    proto_tree *subtree = NULL;
-	    proto_item *tisub; 
+	    proto_item *tisub;
 
 	    if (PIM_TYPE(pim_typever) != 7) {
 		/* not graft-ack */
@@ -995,7 +995,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    int frpcnt;
 	    guint16 holdtime;
 	    proto_tree *grouptree = NULL;
-	    proto_item *tigroup; 
+	    proto_item *tigroup;
 
 	    proto_tree_add_text(pimopt_tree, tvb, offset, 2,
 		"Fragment tag: 0x%04x", tvb_get_ntohs(tvb, offset));

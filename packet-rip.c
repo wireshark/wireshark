@@ -3,27 +3,27 @@
  * RFC1058, RFC2453
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.32 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-rip.c,v 1.33 2002/08/28 21:00:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 #include "config.h"
 
 #include <string.h>
@@ -85,7 +85,7 @@ static void dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 static void dissect_rip_authentication(tvbuff_t *tvb, int offset,
     proto_tree *tree);
 
-static void 
+static void
 dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int offset = 0;
@@ -102,7 +102,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     command = tvb_get_guint8(tvb, 0);
     version = tvb_get_guint8(tvb, 1);
-  
+
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_add_str(pinfo->cinfo, COL_PROTOCOL,
 		    val_to_str(version, version_vals, "RIP"));
@@ -175,7 +175,7 @@ dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 	proto_tree_add_item(rip_vektor_tree, hf_rip_next_hop, tvb, offset+12, 4,
 			    FALSE);
     }
-    proto_tree_add_uint(rip_vektor_tree, hf_rip_metric, tvb, 
+    proto_tree_add_uint(rip_vektor_tree, hf_rip_metric, tvb,
 			offset+16, 4, metric);
 }
 
@@ -207,7 +207,7 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 	proto_tree_add_item(rip_vektor_tree, hf_rip_next_hop, tvb, offset+12, 4,
 			    FALSE);
     }
-    proto_tree_add_uint(rip_vektor_tree, hf_rip_metric, tvb, 
+    proto_tree_add_uint(rip_vektor_tree, hf_rip_metric, tvb,
 			offset+16, 4, metric);
 }
 

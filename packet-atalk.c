@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.80 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-atalk.c,v 1.81 2002/08/28 21:00:07 jmayer Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -14,12 +14,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -80,10 +80,10 @@ static int hf_ddp_type = -1;
 #define ATP_MAXDATA     (578+4)         /* maximum ATP data size */
 #define ATP_BUFSIZ      587             /* maximum packet size */
 #define ATP_HDRSIZE     5               /* includes DDP type field */
- 
+
 #define ATP_TRELMASK    0x07            /* mask all but TREL */
 #define ATP_RELTIME     30              /* base release timer (in secs) */
-  
+
 #define ATP_TREL30      0x0             /* release time codes */
 #define ATP_TREL1M      0x1             /* these are passed in flags of */
 #define ATP_TREL2M      0x2             /* atp_sreq call, and set in the */
@@ -95,16 +95,16 @@ static int hf_ddp_type = -1;
 #define ATP_XO          0x20 /* (1<<5)          eXactly Once mode */
 #define ATP_EOM         0x10 /* (1<<4)          End Of Message */
 #define ATP_STS         0x08 /* (1<<3)          Transaction Status */
- 
+
 /* function codes
 */
 #define ATP_FUNCMASK    (3<<6)          /* mask all but function */
-  
+
 #define ATP_TREQ        1 /* (1<<6)        Trans. REQuest */
 #define ATP_TRESP       2 /* (2<<6)        Trans. RESPonse */
 #define ATP_TREL        3 /* (3<<6)        Trans. RELease */
 
-/* ------------------------- */    
+/* ------------------------- */
 static dissector_handle_t asp_handle;
 
 static int proto_atp = -1;
@@ -127,7 +127,7 @@ static int hf_atp_segment_multiple_tails = -1;
 static int hf_atp_segment_too_long_segment = -1;
 static int hf_atp_segment_error = -1;
 
-/* ------------------------- */    
+/* ------------------------- */
 static int proto_zip = -1;
 static dissector_handle_t zip_atp_handle;
 
@@ -181,7 +181,7 @@ static gint ett_zip_network_list = -1;
 /* --------------------------------
  * from netatalk/include/atalk/ats.h
  */
- 
+
 #define ASPFUNC_CLOSE   1
 #define ASPFUNC_CMD     2
 #define ASPFUNC_STAT    3
@@ -191,7 +191,7 @@ static gint ett_zip_network_list = -1;
 #define ASPFUNC_WRTCONT 7
 #define ASPFUNC_ATTN    8
 
-#define ASP_HDRSIZ      4 
+#define ASP_HDRSIZ      4
 #define ASPERR_OK       0x0000
 #define ASPERR_BADVERS  0xfbd6
 #define ASPERR_BUFSMALL 0xfbd5
@@ -256,11 +256,11 @@ typedef struct {
 	guint8  src[4];
 	guint16	seq;
 } asp_request_key;
- 
+
 typedef struct {
 	guint8	value;	/* command for asp, bitmap for atp */
 } asp_request_val;
- 
+
 static GHashTable *asp_request_hash = NULL;
 static GMemChunk *asp_request_keys = NULL;
 static GMemChunk *asp_request_vals = NULL;
@@ -495,7 +495,7 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 	int hf_index)
 {
 	int len;
-	
+
 	len = tvb_get_guint8(tvb, offset);
 	offset++;
 
@@ -504,7 +504,7 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 		char *tmp;
 		proto_tree *item;
 		proto_tree *subtree;
-		
+
 		/*
 		 * XXX - if we could do this inside the protocol tree
 		 * code, we could perhaps avoid allocating and freeing
@@ -518,12 +518,12 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 		subtree = proto_item_add_subtree(item, ett_pstring);
 		proto_tree_add_text(subtree, tvb, offset-1, 1, "Length: %d", len);
 		proto_tree_add_text(subtree, tvb, offset, len, "Data: %s", tmp);
-		
+
 		g_free(tmp);
 	}
 	offset += len;
-	
-	return offset;	
+
+	return offset;
 }
 
 static void
@@ -542,7 +542,7 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 	val_to_str(function, rtmp_function_vals, "Unknown function (%02x)"));
-  
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_rtmp, tvb, 0, 1, FALSE);
     rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
@@ -575,11 +575,11 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     node = tvb_get_ntohs(tvb, offset);
     nodelen = 2;
   }
-  
+
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "Net: %u  Node Len: %u  Node: %u",
 		net, nodelen_bits, node);
-  
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_rtmp, tvb, offset, -1, FALSE);
     rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
@@ -614,10 +614,10 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       tuple_tree = proto_item_add_subtree(tuple_item, ett_rtmp_tuple);
 
       if (tuple_dist & 0x80) {
-        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_range_start, tvb, offset, 2, 
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_range_start, tvb, offset, 2,
 			tuple_net);
       } else {
-        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_net, tvb, offset, 2, 
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_net, tvb, offset, 2,
 			tuple_net);
       }
       proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, tvb, offset+2, 1,
@@ -627,7 +627,7 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         /*
          * Extended network tuple.
          */
-        proto_tree_add_item(tuple_tree, hf_rtmp_tuple_range_end, tvb, offset+3, 2, 
+        proto_tree_add_item(tuple_tree, hf_rtmp_tuple_range_end, tvb, offset+3, 2,
 				FALSE);
 	offset += 6;
       } else
@@ -660,7 +660,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "Op: %s  Count: %u",
       val_to_str(op, nbp_op_vals, "Unknown (0x%01x)"), count);
-  
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_nbp, tvb, offset, -1, FALSE);
     nbp_tree = proto_item_add_subtree(ti, ett_nbp);
@@ -680,7 +680,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       proto_tree *node_item,*node_tree;
       int soffset = offset;
 
-      node_item = proto_tree_add_text(nbp_tree, tvb, offset, -1, 
+      node_item = proto_tree_add_text(nbp_tree, tvb, offset, -1,
 			"Node %u", i+1);
       node_tree = proto_item_add_subtree(node_item, ett_nbp_node);
 
@@ -704,7 +704,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   return;
 }
 
-/* ----------------------------- 
+/* -----------------------------
    ATP protocol cf. inside appletalk chap. 9
    desegmentation from packet-ieee80211.c
 */
@@ -778,25 +778,25 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	 g_hash_table_insert(atp_request_hash, new_request_key,request_val);
   }
 
-  /* 
+  /*
      ATP_EOM is not mandatory. Some implementations don't always set it
      if the query is only one packet.
-    	
+
      So it needs to keep the number of packets asked in request.
-    */    	
+    */
 
   if (aspinfo.reply) {
      more_fragment = !((ATP_EOM & ctrlinfo) || (request_val && 1 == request_val->value));
      frag_number = bitmap;
   }
-  
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %u", 
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %u",
     	val_to_str(op, atp_function_vals, "Unknown (0x%01x)"),tid);
-    if (more_fragment) 
+    if (more_fragment)
 	col_append_fstr(pinfo->cinfo, COL_INFO, " [fragment]");
-  }  
+  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_atp, tvb, offset, -1, FALSE);
@@ -825,7 +825,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     if (aspinfo.release)
     	proto_tree_add_item(atp_tree, hf_atp_user_bytes, tvb, offset +4, 4, FALSE);
-    
+
   }
 
   if (aspinfo.release)
@@ -833,14 +833,14 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   save_fragmented = pinfo->fragmented;
 
-  /* FIXME 
+  /* FIXME
      asp doesn't fit very well here
      move asp back in atp?
   */
   if (atp_defragment && aspinfo.reply && (more_fragment || frag_number != 0)) {
      fragment_data *fd_head;
      int hdr;
-     
+
      hdr = ATP_HDRSIZE -1;
      if (frag_number != 0)
      	hdr += 4;	/* asp header */
@@ -862,7 +862,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		        atp_tree, pinfo, new_tvb);
 	    }
         }
-        else 
+        else
       	    new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1, -1);
      }
      else {
@@ -873,7 +873,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       /* full packet */
      new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1,- 1);
   }
-  
+
   if (new_tvb) {
      pinfo->private_data = &aspinfo;
      /* if port == 6 it's not an ASP packet but a ZIP packet */
@@ -892,9 +892,9 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 /*
-	copy and paste from dsi 
+	copy and paste from dsi
 */
-static gint 
+static gint
 dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
         proto_tree      *sub_tree;
@@ -911,7 +911,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	if (!tree)
 		return offset;
-		
+
 	ti = proto_tree_add_text(tree, tvb, offset, -1, "Get Status");
 	tree = proto_item_add_subtree(ti, ett_asp_status);
 
@@ -967,7 +967,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			dir_ofs += offset;
 		}
 	}
-		
+
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
 	if (ofs)
 		proto_tree_add_item(tree, hf_asp_server_type, tvb, ofs, 1, FALSE);
@@ -984,7 +984,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			ofs += len;
 		}
 	}
-	
+
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
 	if (ofs) {
 		nbe = tvb_get_guint8(tvb, ofs);
@@ -1013,7 +1013,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		guint16 net;
 		guint8  node;
         	guint16 port;
-		        	
+
 		ofs = adr_ofs;
 		nbe = tvb_get_guint8(tvb, ofs);
 		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %u", nbe);
@@ -1021,7 +1021,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		adr_tree = proto_item_add_subtree(ti, ett_asp_addr);
 		for (i = 0; i < nbe; i++) {
 			guint8 type;
-			
+
 			len = tvb_get_guint8(tvb, ofs);
 			type =  tvb_get_guint8(tvb, ofs +1);
 			switch (type) {
@@ -1036,9 +1036,9 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				break;
 			case 3: /* DDP, atalk_addr_to_str want host order not network */
 				net  = tvb_get_ntohs(tvb, ofs+2);
-				node = tvb_get_guint8(tvb, ofs +4);			
+				node = tvb_get_guint8(tvb, ofs +4);
 				port = tvb_get_guint8(tvb, ofs +5);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u", 
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u",
 					net, node, port);
 				break;
 			case 4: /* DNS */
@@ -1049,17 +1049,17 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
 					g_free(tmp);
 					break;
-				} 
+				}
 				/* else fall to default malformed record */
 			default:
 				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %u", type);
 				break;
-			}			
+			}
 			len -= 2;
 			sub_tree = proto_item_add_subtree(ti,ett_asp_addr_line);
 			proto_tree_add_item(sub_tree, hf_asp_server_addr_len, tvb, ofs, 1, FALSE);
 			ofs++;
-			proto_tree_add_item(sub_tree, hf_asp_server_addr_type, tvb, ofs, 1, FALSE); 
+			proto_tree_add_item(sub_tree, hf_asp_server_addr_type, tvb, ofs, 1, FALSE);
 			ofs++;
 			proto_tree_add_item(sub_tree, hf_asp_server_addr_value,tvb, ofs, len, FALSE);
 			ofs += len;
@@ -1082,7 +1082,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	return offset;
 }
 
-/* ----------------------------- 
+/* -----------------------------
    ASP protocol cf. inside appletalk chap. 11
 */
 static struct aspinfo *
@@ -1103,7 +1103,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
   }
 
-  request_key.conversation = conversation->index;	
+  request_key.conversation = conversation->index;
   memcpy(request_key.src, (!aspinfo->reply)?pinfo->src.data:pinfo->dst.data, 4);
   request_key.seq = aspinfo->seq;
 
@@ -1121,7 +1121,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 								request_val);
   }
 
-  if (!request_val) 
+  if (!request_val)
 	return NULL;
 
   aspinfo->command = request_val->value;
@@ -1129,8 +1129,8 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 }
 
 
-static void 
-dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+static void
+dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   struct aspinfo *aspinfo;
   int offset = 0;
@@ -1138,7 +1138,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   guint8 fn;
   int len;
-    
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -1174,7 +1174,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 		proto_tree_add_item(asp_tree, hf_asp_version, tvb, offset, 2, FALSE);
 		offset += 2;
-		break;  		
+		break;
 	case ASPFUNC_TICKLE:
   	case ASPFUNC_CLOSE:
 		proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
@@ -1187,7 +1187,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
 		offset += 2;
-		break;		
+		break;
 	case ASPFUNC_ATTN:
 		proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
 		offset++;
@@ -1203,7 +1203,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2;
 		len = tvb_reported_length_remaining(tvb,offset);
 		new_tvb = tvb_new_subset(tvb, offset,-1,len);
-		call_dissector(afp_handle, new_tvb, pinfo, tree);  	
+		call_dissector(afp_handle, new_tvb, pinfo, tree);
   		break;
   	case ASPFUNC_WRTCONT:
 		proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
@@ -1217,7 +1217,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     		proto_item_set_len(asp_tree, 4);
     		offset += 3;
 		len = tvb_reported_length_remaining(tvb,offset);
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree); 
+		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
 		break;
   	}
   }
@@ -1241,12 +1241,12 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
 		offset += 2;
-		break;		
+		break;
 	case ASPFUNC_STAT:
 		proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, FALSE);
 		offset += 4;
 		dissect_asp_reply_get_status(tvb, pinfo, asp_tree, offset);
-		break;		
+		break;
 	case ASPFUNC_CMD:
   	case ASPFUNC_WRITE:
     		proto_item_set_len(asp_tree, 4);
@@ -1255,7 +1255,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 4;
 		len = tvb_reported_length_remaining(tvb,offset);
 		new_tvb = tvb_new_subset(tvb, offset,-1,len);
-		call_dissector(afp_handle, new_tvb, pinfo, tree);  	
+		call_dissector(afp_handle, new_tvb, pinfo, tree);
   		break;
 	case ASPFUNC_TICKLE:
   	case ASPFUNC_WRTCONT:
@@ -1266,17 +1266,17 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     		proto_item_set_len(asp_tree, 4);
     		offset += 4;
 		len = tvb_reported_length_remaining(tvb,offset);
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree); 
+		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
 		break;
   	}
   }
 }
 
-/* ----------------------------- 
+/* -----------------------------
    ZIP protocol cf. inside appletalk chap. 8
 */
 static void
-dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   struct aspinfo *aspinfo;
   int offset = 0;
@@ -1286,7 +1286,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 fn;
   guint16 count;
   guint8 len;
-    
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -1306,9 +1306,9 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       				val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
   }
 
-  if (!tree) 
+  if (!tree)
      return;
-     
+
   ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, FALSE);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
 
@@ -1327,7 +1327,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   else {
   guint8 i;
-  
+
      proto_tree_add_uint(zip_tree, hf_zip_atp_function, tvb, 0, 0, fn);
      switch(fn) {
      case 7:
@@ -1335,7 +1335,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      case 9:
          proto_tree_add_item(zip_tree, hf_zip_last_flag, tvb, offset, 1, FALSE);
          offset++;
-     
+
          proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
          offset++;
 	 count = tvb_get_ntohs(tvb, offset);
@@ -1353,7 +1353,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *zip_tree = NULL;
   proto_item *ti;
@@ -1367,7 +1367,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16  net;
   guint8 i;
   guint8 count;
-  
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -1379,9 +1379,9 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       val_to_str(fn, zip_function_vals, "Unknown ZIP function (%02x)"));
   }
 
-  if (!tree) 
+  if (!tree)
      return;
-     
+
   ti = proto_tree_add_item(tree, proto_zip, tvb, 0, -1, FALSE);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
 
@@ -1441,7 +1441,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           offset += len +1;
       }
       break;
-      
+
   case 5 :  /* GetNetInfo request */
       proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
       offset++;
@@ -1468,7 +1468,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       len = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
       offset += len +1;
-      
+
       len = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,FALSE);
       offset++;
@@ -1516,7 +1516,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   if (tree)
     proto_tree_add_uint(ddp_tree, hf_ddp_src_socket, tvb, 3, 1, sport);
   type = tvb_get_guint8(tvb, 4);
-  
+
   src.net = 0;
   src.node = snode;
   dst.net = 0;
@@ -1529,19 +1529,19 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   pinfo->ptype = PT_DDP;
   pinfo->destport = dport;
   pinfo->srcport = sport;
-  
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_str(pinfo->cinfo, COL_INFO,
       val_to_str(type, op_vals, "Unknown DDP protocol (%02x)"));
   }
   if (tree) {
-    proto_tree_add_string_hidden(ddp_tree, hf_ddp_src, tvb, 
+    proto_tree_add_string_hidden(ddp_tree, hf_ddp_src, tvb,
 				 4, 3, atalk_addr_to_str(&src));
-    proto_tree_add_string_hidden(ddp_tree, hf_ddp_dst, tvb, 
+    proto_tree_add_string_hidden(ddp_tree, hf_ddp_dst, tvb,
 				 6, 3, atalk_addr_to_str(&dst));
 
     proto_tree_add_uint(ddp_tree, hf_ddp_type, tvb, 4, 1, type);
-  }  
+  }
   new_tvb = tvb_new_subset(tvb, DDP_SHORT_HEADER_SIZE, -1, -1);
 
   if (!dissector_try_port(ddp_dissector_table, type, new_tvb, pinfo, tree))
@@ -1567,7 +1567,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ddp.snet=g_ntohs(ddp.snet);
   ddp.sum=g_ntohs(ddp.sum);
   ddp.hops_len=g_ntohs(ddp.hops_len);
-  
+
   src.net = ddp.snet;
   src.node = ddp.snode;
   dst.net = ddp.dnet;
@@ -1584,20 +1584,20 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
-  
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_HEADER_SIZE,
 			     FALSE);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
 
-    proto_tree_add_string_hidden(ddp_tree, hf_ddp_src, tvb, 
+    proto_tree_add_string_hidden(ddp_tree, hf_ddp_src, tvb,
 				 4, 3, atalk_addr_to_str(&src));
-    proto_tree_add_string_hidden(ddp_tree, hf_ddp_dst, tvb, 
+    proto_tree_add_string_hidden(ddp_tree, hf_ddp_dst, tvb,
 				 6, 3, atalk_addr_to_str(&dst));
 
     proto_tree_add_uint(ddp_tree, hf_ddp_hopcount,   tvb, 0, 1,
 			ddp_hops(ddp.hops_len));
-    proto_tree_add_uint(ddp_tree, hf_ddp_len,        tvb, 0, 2, 
+    proto_tree_add_uint(ddp_tree, hf_ddp_len,        tvb, 0, 2,
 			ddp_len(ddp.hops_len));
     proto_tree_add_uint(ddp_tree, hf_ddp_checksum,   tvb, 2,  2,
 			ddp.sum);
@@ -1614,7 +1614,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(ddp_tree, hf_ddp_src_socket, tvb, 11, 1,
 			ddp.sport);
     proto_tree_add_uint(ddp_tree, hf_ddp_type,       tvb, 12, 1,
-			ddp.type);  
+			ddp.type);
   }
 
   new_tvb = tvb_new_subset(tvb, DDP_HEADER_SIZE, -1, -1);
@@ -1660,7 +1660,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   dnode = tvb_get_guint8(tvb, 0);
-  if (tree)  
+  if (tree)
     proto_tree_add_uint(llap_tree, hf_llap_dst, tvb, 0, 1, dnode);
   snode = tvb_get_guint8(tvb, 1);
   if (tree)
@@ -1672,7 +1672,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   if (tree)
     proto_tree_add_uint(llap_tree, hf_llap_type, tvb, 2, 1, type);
-  
+
   new_tvb = tvb_new_subset(tvb, 3, -1, -1);
 
   if (proto_is_protocol_enabled(proto_ddp)) {
@@ -1717,7 +1717,7 @@ atp_init(void)
 		G_ALLOC_AND_FREE);
 }
 
-static void 
+static void
 asp_reinit( void)
 {
 
@@ -1810,74 +1810,74 @@ proto_register_atalk(void)
 
   static hf_register_info hf_nbp[] = {
     { &hf_nbp_op,
-      { "Operation",		"nbp.op",	FT_UINT8,  BASE_DEC, 
+      { "Operation",		"nbp.op",	FT_UINT8,  BASE_DEC,
 		VALS(nbp_op_vals), 0xF0, "Operation", HFILL }},
     { &hf_nbp_info,
-      { "Info",		"nbp.info",	FT_UINT8,  BASE_HEX, 
+      { "Info",		"nbp.info",	FT_UINT8,  BASE_HEX,
 		NULL, 0x0, "Info", HFILL }},
     { &hf_nbp_count,
-      { "Count",		"nbp.count",	FT_UINT8,  BASE_DEC, 
+      { "Count",		"nbp.count",	FT_UINT8,  BASE_DEC,
 		NULL, 0x0F, "Count", HFILL }},
     { &hf_nbp_node_net,
-      { "Network",		"nbp.net",	FT_UINT16,  BASE_DEC, 
+      { "Network",		"nbp.net",	FT_UINT16,  BASE_DEC,
 		NULL, 0x0, "Network", HFILL }},
     { &hf_nbp_node_node,
-      { "Node",		"nbp.node",	FT_UINT8,  BASE_DEC, 
+      { "Node",		"nbp.node",	FT_UINT8,  BASE_DEC,
 		NULL, 0x0, "Node", HFILL }},
     { &hf_nbp_node_port,
-      { "Port",		"nbp.port",	FT_UINT8,  BASE_DEC, 
+      { "Port",		"nbp.port",	FT_UINT8,  BASE_DEC,
 		NULL, 0x0, "Port", HFILL }},
     { &hf_nbp_node_enum,
-      { "Enumerator",		"nbp.enum",	FT_UINT8,  BASE_DEC, 
+      { "Enumerator",		"nbp.enum",	FT_UINT8,  BASE_DEC,
 		NULL, 0x0, "Enumerator", HFILL }},
     { &hf_nbp_node_object,
-      { "Object",		"nbp.object",	FT_STRING,  BASE_DEC, 
+      { "Object",		"nbp.object",	FT_STRING,  BASE_DEC,
 		NULL, 0x0, "Object", HFILL }},
     { &hf_nbp_node_type,
-      { "Type",		"nbp.type",	FT_STRING,  BASE_DEC, 
+      { "Type",		"nbp.type",	FT_STRING,  BASE_DEC,
 		NULL, 0x0, "Type", HFILL }},
     { &hf_nbp_node_zone,
-      { "Zone",		"nbp.zone",	FT_STRING,  BASE_DEC, 
+      { "Zone",		"nbp.zone",	FT_STRING,  BASE_DEC,
 		NULL, 0x0, "Zone", HFILL }},
     { &hf_nbp_tid,
-      { "Transaction ID",		"nbp.tid",	FT_UINT8,  BASE_DEC, 
+      { "Transaction ID",		"nbp.tid",	FT_UINT8,  BASE_DEC,
 		NULL, 0x0, "Transaction ID", HFILL }}
   };
 
   static hf_register_info hf_rtmp[] = {
     { &hf_rtmp_net,
-      { "Net",		"rtmp.net",	FT_UINT16,  BASE_DEC, 
+      { "Net",		"rtmp.net",	FT_UINT16,  BASE_DEC,
 		NULL, 0x0, "Net", HFILL }},
     { &hf_rtmp_node,
-      { "Node",		"nbp.nodeid",	FT_UINT8,  BASE_DEC, 
+      { "Node",		"nbp.nodeid",	FT_UINT8,  BASE_DEC,
 		NULL, 0x0, "Node", HFILL }},
     { &hf_rtmp_node_len,
-      { "Node Length",		"nbp.nodeid.length",	FT_UINT8,  BASE_DEC, 
+      { "Node Length",		"nbp.nodeid.length",	FT_UINT8,  BASE_DEC,
 		NULL, 0x0, "Node Length", HFILL }},
     { &hf_rtmp_tuple_net,
-      { "Net",		"rtmp.tuple.net",	FT_UINT16,  BASE_DEC, 
+      { "Net",		"rtmp.tuple.net",	FT_UINT16,  BASE_DEC,
 		NULL, 0x0, "Net", HFILL }},
     { &hf_rtmp_tuple_range_start,
-      { "Range Start",		"rtmp.tuple.range_start",	FT_UINT16,  BASE_DEC, 
+      { "Range Start",		"rtmp.tuple.range_start",	FT_UINT16,  BASE_DEC,
 		NULL, 0x0, "Range Start", HFILL }},
     { &hf_rtmp_tuple_range_end,
-      { "Range End",		"rtmp.tuple.range_end",	FT_UINT16,  BASE_DEC, 
+      { "Range End",		"rtmp.tuple.range_end",	FT_UINT16,  BASE_DEC,
 		NULL, 0x0, "Range End", HFILL }},
     { &hf_rtmp_tuple_dist,
-      { "Distance",		"rtmp.tuple.dist",	FT_UINT16,  BASE_DEC, 
+      { "Distance",		"rtmp.tuple.dist",	FT_UINT16,  BASE_DEC,
 		NULL, 0x0, "Distance", HFILL }},
     { &hf_rtmp_function,
-      { "Function",		"rtmp.function",	FT_UINT8,  BASE_DEC, 
+      { "Function",		"rtmp.function",	FT_UINT8,  BASE_DEC,
 		VALS(rtmp_function_vals), 0x0, "Request Function", HFILL }}
   };
 
   static hf_register_info hf_atp[] = {
     { &hf_atp_ctrlinfo,
-      { "Control info",		"atp.ctrlinfo",	FT_UINT8,  BASE_HEX, 
+      { "Control info",		"atp.ctrlinfo",	FT_UINT8,  BASE_HEX,
 		NULL, 0, "control info", HFILL }},
 
     { &hf_atp_function,
-      { "Function",		"atp.function",	FT_UINT8,  BASE_DEC, 
+      { "Function",		"atp.function",	FT_UINT8,  BASE_DEC,
 		VALS(atp_function_vals), ATP_FUNCMASK, "function code", HFILL }},
 
 
@@ -1898,14 +1898,14 @@ proto_register_atalk(void)
 		VALS(atp_trel_timer_vals), 0x07, "TRel timer", HFILL }},
 
     { &hf_atp_bitmap,
-      { "Bitmap",		"atp.bitmap",	FT_UINT8,  BASE_HEX, 
+      { "Bitmap",		"atp.bitmap",	FT_UINT8,  BASE_HEX,
 		NULL, 0x0, "Bitmap or sequence number", HFILL }},
 
     { &hf_atp_tid,
-      { "TID",			"atp.tid",	FT_UINT16,  BASE_DEC, 
+      { "TID",			"atp.tid",	FT_UINT16,  BASE_DEC,
 		NULL, 0x0, "Transaction id", HFILL }},
     { &hf_atp_user_bytes,
-      { "User bytes",			"atp.user_bytes",	FT_UINT32,  BASE_HEX, 
+      { "User bytes",			"atp.user_bytes",	FT_UINT32,  BASE_HEX,
 		NULL, 0x0, "User bytes", HFILL }},
 
     { &hf_atp_segment_overlap,
@@ -1941,39 +1941,39 @@ proto_register_atalk(void)
 
   static hf_register_info hf_asp[] = {
     { &hf_asp_func,
-      { "asp function",		"asp.function",	FT_UINT8,  BASE_DEC, 
+      { "asp function",		"asp.function",	FT_UINT8,  BASE_DEC,
 		VALS(asp_func_vals), 0, "asp function", HFILL }},
 
     { &hf_asp_error,
-      { "asp error",		"asp.error",	FT_INT32,  BASE_DEC, 
+      { "asp error",		"asp.error",	FT_INT32,  BASE_DEC,
 		VALS(asp_error_vals), 0, "return error code", HFILL }},
 
     { &hf_asp_version,
-      { "Version",		"asp.version",	FT_UINT16,  BASE_HEX, 
+      { "Version",		"asp.version",	FT_UINT16,  BASE_HEX,
 		NULL, 0, "asp version", HFILL }},
 
     { &hf_asp_attn_code,
-      { "Attn code",		"asp.attn_code",	FT_UINT16,  BASE_HEX, 
+      { "Attn code",		"asp.attn_code",	FT_UINT16,  BASE_HEX,
 		NULL, 0, "asp attention code", HFILL }},
 
     { &hf_asp_init_error,
-      { "Error",		"asp.init_error",	FT_UINT16,  BASE_DEC, 
+      { "Error",		"asp.init_error",	FT_UINT16,  BASE_DEC,
 		NULL, 0, "asp init error", HFILL }},
 
     { &hf_asp_session_id,
-      { "Session ID",		"asp.session_id", FT_UINT8,  BASE_DEC, 
+      { "Session ID",		"asp.session_id", FT_UINT8,  BASE_DEC,
 		NULL, 0, "asp session id", HFILL }},
 
     { &hf_asp_socket,
-      { "Socket",		"asp.socket",	FT_UINT8,  BASE_DEC, 
+      { "Socket",		"asp.socket",	FT_UINT8,  BASE_DEC,
 		NULL, 0, "asp socket", HFILL }},
 
     { &hf_asp_seq,
-      { "Sequence",		"asp.seq",	FT_UINT16,  BASE_DEC, 
+      { "Sequence",		"asp.seq",	FT_UINT16,  BASE_DEC,
 		NULL, 0, "asp sequence number", HFILL }},
 
     { &hf_asp_size,
-      { "size",		"asp.size",	FT_UINT16,  BASE_DEC, 
+      { "size",		"asp.size",	FT_UINT16,  BASE_DEC,
 		NULL, 0, "asp available size for reply", HFILL }},
 
     { &hf_asp_zero_value,
@@ -2078,7 +2078,7 @@ proto_register_atalk(void)
       	"Address value", HFILL }},
 
   };
-  
+
   static hf_register_info hf_zip[] = {
     { &hf_zip_function,
       { "Function",	"zip.function",	FT_UINT8,  BASE_DEC, VALS(zip_function_vals), 0x0,
@@ -2150,7 +2150,7 @@ proto_register_atalk(void)
       	"Multicast address", HFILL }},
 
   };
-  
+
   static gint *ett[] = {
   	&ett_llap,
 	&ett_ddp,
@@ -2168,7 +2168,7 @@ proto_register_atalk(void)
 	&ett_asp_addr,
 	&ett_asp_addr_line,
 	&ett_asp_directory,
-	
+
 	&ett_nbp,
 	&ett_nbp_info,
 	&ett_nbp_node,
@@ -2178,8 +2178,8 @@ proto_register_atalk(void)
 
 	&ett_zip,
 	&ett_zip_flags,
-        &ett_zip_zones_list, 
-        &ett_zip_network_list, 
+        &ett_zip_zones_list,
+        &ett_zip_network_list,
   };
   module_t *atp_module;
 

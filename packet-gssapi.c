@@ -2,22 +2,22 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.6 2002/08/28 02:30:18 sharpe Exp $
+ * $Id: packet-gssapi.c,v 1.7 2002/08/28 21:00:14 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -44,7 +44,7 @@ static int hf_gssapi = -1;
 
 static gint ett_gssapi = -1;
 
-/* 
+/*
  * Subdissectors
  */
 
@@ -131,7 +131,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Read header */
 
 	asn1_open(&hnd, tvb, offset);
- 
+
 	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
 
 	if (ret != ASN1_ERR_NOERROR) {
@@ -162,7 +162,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	oid_string = format_oid(oid, oid_len);
 
-	proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s", 
+	proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
 			    oid_string);
 
 	offset += nbytes;
@@ -192,7 +192,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* No dissector for this oid */
 
 		proto_tree_add_text(
-			subtree, tvb, offset, 
+			subtree, tvb, offset,
 			tvb_length_remaining(tvb, offset), "Token object");
 
 		goto done;
@@ -226,21 +226,21 @@ proto_register_gssapi(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_gssapi,
-		  { "GSS-API", "gss-api", FT_NONE, BASE_NONE, NULL, 0x0, 
+		  { "GSS-API", "gss-api", FT_NONE, BASE_NONE, NULL, 0x0,
 		    "GSS-API", HFILL }},
 	};
-  
+
 	static gint *ett[] = {
 		&ett_gssapi,
 	};
-	
+
 	proto_gssapi = proto_register_protocol(
 		"Generic Security Service Application Program Interface",
 		"GSS-API", "gss-api");
 
 	proto_register_field_array(proto_gssapi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-  
+
 	register_dissector("gssapi", dissect_gssapi, proto_gssapi);
 
 	gssapi_oids = g_hash_table_new(gssapi_oid_hash, gssapi_oid_equal);

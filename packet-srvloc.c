@@ -3,10 +3,10 @@
  * Copyright 1999, James Coe <jammer@cin.net>
  *
  * NOTE: This is Alpha software not all features have been verified yet.
- *       In particular I have not had an opportunity to see how it 
+ *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.32 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-srvloc.c,v 1.33 2002/08/28 21:00:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -18,12 +18,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -84,16 +84,16 @@ struct srvloc_hdr {
 /* List to resolve function numbers to names */
 
 static const value_string srvloc_functions[] = {
-    { SRVREQ, "Service Request" }, 
-    { SRVRPLY, "Service Reply" }, 
-    { SRVREG, "Service Registration" }, 
-    { SRVDEREG, "Service Deregister" }, 
-    { SRVACK, "Service Acknowledge" }, 
-    { ATTRRQST, "Attribute Request" }, 
-    { ATTRRPLY, "Attribute Reply" }, 
-    { DAADVERT, "DA Advertisement" }, 
-    { SRVTYPERQST, "Service Type Request" }, 
-    { SRVTYPERPLY, "Service Type Reply" }, 
+    { SRVREQ, "Service Request" },
+    { SRVRPLY, "Service Reply" },
+    { SRVREG, "Service Registration" },
+    { SRVDEREG, "Service Deregister" },
+    { SRVACK, "Service Acknowledge" },
+    { ATTRRQST, "Attribute Request" },
+    { ATTRRPLY, "Attribute Reply" },
+    { DAADVERT, "DA Advertisement" },
+    { SRVTYPERQST, "Service Type Request" },
+    { SRVTYPERPLY, "Service Type Reply" },
     { 0, NULL }
 };
 
@@ -178,7 +178,7 @@ dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
     time_t seconds;
     double floatsec;
     guint16 length;
-    
+
     seconds = tvb_get_ntohl(tvb, offset) - 2208988800ul;
     stamp = gmtime(&seconds);
     if (stamp != NULL) {
@@ -220,7 +220,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRVLOC");
-    
+
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 
@@ -230,11 +230,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
         col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(function, srvloc_functions, "Unknown Function (%u)"));
-        
+
     if (tree) {
         ti = proto_tree_add_item(tree, proto_srvloc, tvb, offset, -1, FALSE);
         srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
-    
+
         proto_tree_add_uint(srvloc_tree, hf_srvloc_version, tvb, offset, 1,
                             version);
         proto_tree_add_uint(srvloc_tree, hf_srvloc_function, tvb, offset + 1, 1,
@@ -262,7 +262,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(srvloc_tree, tvb, offset + 10, 2, "Transaction ID: %u",
                             tvb_get_ntohs(tvb, offset + 10));
         offset += 12;
-        
+
         switch (function) {
             case SRVREQ:
                 proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Request");
@@ -281,7 +281,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     tvb_format_text(tvb, offset, length));
                 offset += length;
             break;
-            
+
             case SRVRPLY:
                 proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Reply");
                 proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
@@ -301,7 +301,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_text(srvloc_tree, tvb, offset, length, "Service URL: %s",
                                         tvb_format_text(tvb, offset, length));
                     offset += length;
-                    if ( (flags & FLAG_U) == FLAG_U ) 
+                    if ( (flags & FLAG_U) == FLAG_U )
                         offset = dissect_authblk(tvb, offset, srvloc_tree);
                     count--;
                 };
@@ -319,7 +319,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_text(srvloc_tree, tvb, offset, length, "Service URL: %s",
                                     tvb_format_text(tvb, offset, length));
                 offset += length;
-                if ( (flags & FLAG_U) == FLAG_U ) 
+                if ( (flags & FLAG_U) == FLAG_U )
                     offset = dissect_authblk(tvb, offset, srvloc_tree);
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Attribute List length: %u",
@@ -328,7 +328,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_text(srvloc_tree, tvb, offset, length, "Attribute List: %s",
                                     tvb_format_text(tvb, offset, length));
                 offset += length;
-                if ( (flags & FLAG_A) == FLAG_A ) 
+                if ( (flags & FLAG_A) == FLAG_A )
                     offset = dissect_authblk(tvb, offset, srvloc_tree);
             break;
 
@@ -341,7 +341,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_text(srvloc_tree, tvb, offset, length, "Service URL: %s",
                                     tvb_format_text(tvb, offset, length));
                 offset += length;
-                if ( (flags & FLAG_U) == FLAG_U ) 
+                if ( (flags & FLAG_U) == FLAG_U )
                     offset = dissect_authblk(tvb, offset, srvloc_tree);
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Attribute List length: %u",
@@ -350,10 +350,10 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_text(srvloc_tree, tvb, offset, length, "Attribute List: %s",
                                     tvb_format_text(tvb, offset, length));
                 offset += length;
-                if ( (flags & FLAG_A) == FLAG_A ) 
+                if ( (flags & FLAG_A) == FLAG_A )
                     offset = dissect_authblk(tvb, offset, srvloc_tree);
             break;
-            
+
             case SRVACK:
                 proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Acknowledge");
                 proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
@@ -391,7 +391,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     tvb_format_text(tvb, offset, length));
                 offset += length;
             break;
-            
+
             case ATTRRPLY:
                 proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Attribute Reply");
                 proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
@@ -403,10 +403,10 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_text(srvloc_tree, tvb, offset, length, "Attribute List: %s",
                                     tvb_format_text(tvb, offset, length));
                 offset += length;
-                if ( (flags & FLAG_A) == FLAG_A ) 
+                if ( (flags & FLAG_A) == FLAG_A )
                     offset = dissect_authblk(tvb, offset, srvloc_tree);
             break;
-            
+
             case DAADVERT:
                 proto_tree_add_text(srvloc_tree, tvb, offset, 0, "DA Advertisement");
                 proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
@@ -489,26 +489,26 @@ proto_register_srvloc(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "", HFILL }
         },
-      
+
         {&hf_srvloc_function,
-            {"Function", "srvloc.function", 
-            FT_UINT8, BASE_DEC, VALS(srvloc_functions), 0x0, 
+            {"Function", "srvloc.function",
+            FT_UINT8, BASE_DEC, VALS(srvloc_functions), 0x0,
             "", HFILL }
         },
 
         {&hf_srvloc_flags,
-            {"Flags", "srvloc.flags", 
-            FT_UINT8, BASE_HEX, NULL, 0x0, 
+            {"Flags", "srvloc.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             "", HFILL }
         },
-        
+
         {&hf_srvloc_error,
             {"Error Code", "srvloc.err",
             FT_UINT16, BASE_DEC, VALS(srvloc_errs), 0x0,
             "", HFILL }
         },
     };
-                  
+
     static gint *ett[] = {
 	&ett_srvloc,
 	&ett_srvloc_flags,

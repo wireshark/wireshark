@@ -1,22 +1,22 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.286 2002/08/28 10:07:26 guy Exp $
+ * $Id: file.c,v 1.287 2002/08/28 21:00:06 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -178,7 +178,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   cf->progbar_nextstep = 0;
   firstsec = 0, firstusec = 0;
   prevsec = 0, prevusec = 0;
- 
+
   cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
 	sizeof(frame_data),
 	FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
@@ -377,7 +377,7 @@ read_cap_file(capture_file *cf, int *err)
             g_free(load_msg);
         }
         if (progbar != NULL) {
-          g_snprintf(status_str, sizeof(status_str), 
+          g_snprintf(status_str, sizeof(status_str),
                      "%luKB of %luKB", file_pos / 1024, cf->f_len / 1024);
           update_progress_dlg(progbar, prog_val, status_str);
         }
@@ -532,7 +532,7 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
   /* XXX - this cheats and looks inside the packet list to find the final
      row number. */
   if (auto_scroll_live && cf->plist_end != NULL)
-    gtk_clist_moveto(GTK_CLIST(packet_list), 
+    gtk_clist_moveto(GTK_CLIST(packet_list),
 		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
 
   if (cf->state == FILE_READ_ABORTED) {
@@ -581,7 +581,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
   if (auto_scroll_live && cf->plist_end != NULL)
     /* XXX - this cheats and looks inside the packet list to find the final
        row number. */
-    gtk_clist_moveto(GTK_CLIST(packet_list), 
+    gtk_clist_moveto(GTK_CLIST(packet_list),
 		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
 
   /* We're done reading sequentially through the file. */
@@ -740,7 +740,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       cf->esec = fdata->rel_secs;
       cf->eusec = fdata->rel_usecs;
     }
-  
+
     /* Get the time elapsed between the previous displayed packet and
        this packet. */
     compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
@@ -827,7 +827,7 @@ read_packet(capture_file *cf, long offset)
     epan_dissect_run(edt, pseudo_header, buf, fdata, NULL);
     passed = dfilter_apply_edt(cf->rfcode, edt);
     epan_dissect_free(edt);
-  }   
+  }
   if (passed) {
     plist_end = cf->plist_end;
     fdata->prev = plist_end;
@@ -1057,7 +1057,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     if (fdata == selected_frame)
       selected_row = row;
   }
- 
+
   if (redissect) {
     /* Clear out what remains of the visited flags and per-frame data
        pointers.
@@ -1227,7 +1227,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
     }
 
     count++;
-    /* Check to see if we are suppressing unmarked packets, if so, 
+    /* Check to see if we are suppressing unmarked packets, if so,
      * suppress them and then proceed to check for visibility.
      */
     if (((print_args->suppress_unmarked && fdata->flags.marked ) ||
@@ -1306,7 +1306,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   print_finale(cf->print_fh, print_args->format);
 
   close_print_dest(print_args->to_file, cf->print_fh);
- 
+
   cf->print_fh = NULL;
 
   return TRUE;
@@ -1489,7 +1489,7 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
         if (progbar == NULL)
            progbar = delayed_create_progress_dlg("Searching", cf->sfilter, "Cancel",
              &stop_flag, &start_time, prog_val);
-        
+
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
                      "%4u of %u frames", count, cf->count);
@@ -1794,8 +1794,8 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   statusbar_push_file_msg(save_msg);
   g_free(save_msg);
 
-  /* 
-   * Check that the from file is not the same as to file 
+  /*
+   * Check that the from file is not the same as to file
    * We do it here so we catch all cases ...
    * Unfortunately, the file requester gives us an absolute file
    * name and the read file name may be relative (if supplied on
@@ -1806,7 +1806,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
    stat(cf->filename, &infile);
    stat(fname, &outfile);
    if (infile.st_ino == outfile.st_ino) {
-    simple_dialog(ESD_TYPE_CRIT, NULL, 
+    simple_dialog(ESD_TYPE_CRIT, NULL,
 		      "Can't save over current capture file: %s!",
 		      cf->filename);
     goto fail;

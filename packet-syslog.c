@@ -3,22 +3,22 @@
  *
  * Copyright 2000, Gerald Combs <gerald@ethereal.com>
  *
- * $Id: packet-syslog.c,v 1.18 2002/05/30 08:34:19 guy Exp $
+ * $Id: packet-syslog.c,v 1.19 2002/08/28 21:00:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -128,7 +128,7 @@ static gint hf_syslog_msg = -1;
 
 static gint ett_syslog = -1;
 
-/* I couldn't find any documentation for the syslog message format.  
+/* I couldn't find any documentation for the syslog message format.
    According to the BSD sources, the message format is '<', P, '>', and
    T.  P is a decimal value, which should be treated as an 8 bit
    unsigned integer.  The lower three bits comprise the level, and the
@@ -148,7 +148,7 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Syslog");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
-    
+
   if (tvb_get_guint8(tvb, msg_off) == '<') {
     /* A facility and level follow. */
     msg_off++;
@@ -173,17 +173,17 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_memcpy(tvb, msg_str, msg_off, msg_len);
     msg_str[msg_len] = '\0';
   }
-    
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     if (pri >= 0) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s.%s: %s", 
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s.%s: %s",
         val_to_str(fac, short_fac, "UNKNOWN"),
         val_to_str(lev, short_lev, "UNKNOWN"), msg_str);
     } else {
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
     }
   }
-  
+
   if (tree) {
     if (pri >= 0) {
       ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0, -1,
@@ -206,10 +206,10 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   return;
 }
- 
+
 /* Register the protocol with Ethereal */
 void proto_register_syslog(void)
-{                 
+{
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {

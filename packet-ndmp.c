@@ -2,29 +2,29 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.22 2002/08/20 22:33:16 guy Exp $
+ * $Id: packet-ndmp.c,v 1.23 2002/08/28 21:00:23 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 /* see www.ndmp.org for protocol specifications.
-   this file implements version 3 of ndmp 
+   this file implements version 3 of ndmp
 */
 
 #ifdef HAVE_CONFIG_H
@@ -547,7 +547,7 @@ dissect_auth_attr_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree, guint32 seq _U_)
 {
 	guint type;
-	
+
 	type=tvb_get_ntohl(tvb,offset);
 
 	/* auth type */
@@ -560,7 +560,7 @@ dissect_auth_attr_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	case NDMP_AUTH_TEXT:
 		break;
 	case NDMP_AUTH_MD5:
-		proto_tree_add_item(tree, hf_ndmp_auth_challenge, 
+		proto_tree_add_item(tree, hf_ndmp_auth_challenge,
 			tvb, offset, 64, FALSE);
 		offset+=64;
 	}
@@ -1040,7 +1040,7 @@ dissect_execute_cdb_flags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				"Flags: 0x%08x", flags);
 		tree = proto_item_add_subtree(item, ett_ndmp_execute_cdb_flags);
 	}
-	
+
 	proto_tree_add_boolean(tree, hf_ndmp_execute_cdb_flags_data_in,
 				tvb, offset, 4, flags);
 	proto_tree_add_boolean(tree, hf_ndmp_execute_cdb_flags_data_out,
@@ -1060,7 +1060,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	cdb_len = tvb_get_ntohl(tvb, offset);
 	cdb_len_full = rpc_roundup(cdb_len);
-	
+
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset,
 				4+cdb_len_full, "CDB");
@@ -1091,7 +1091,7 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 	payload_len = tvb_get_ntohl(tvb, offset);
 	payload_len_full = rpc_roundup(payload_len);
-	
+
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset,
 				4+payload_len_full, "%s", name);
@@ -1148,7 +1148,7 @@ dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	task_key.conv_id = conversation->index;
 	task_key.task_id = seq;
 	pinfo->private_data = &task_key;
-        
+
 	/* flags */
 	offset = dissect_execute_cdb_flags(tvb, offset, pinfo, tree);
 
@@ -1196,7 +1196,7 @@ dissect_execute_cdb_sns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 	sns_len = tvb_get_ntohl(tvb, offset);
 	sns_len_full = rpc_roundup(sns_len);
-	
+
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset,
 				4+sns_len_full, "Sense data");
@@ -1238,7 +1238,7 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/* no conversation, meaning we didn't see the request */
 		pinfo->private_data = NULL;
 	}
-        
+
 	/* error */
 	proto_tree_add_item(tree, hf_ndmp_error, tvb, offset, 4, FALSE);
 	offset += 4;
@@ -1556,11 +1556,11 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		/* IP addr */
 		proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, FALSE);
 		offset+=4;
-		
+
 		/* TCP port */
 		proto_tree_add_item(tree, hf_ndmp_addr_tcp, tvb, offset, 4, FALSE);
 		offset+=4;
-		
+
 		break;
 	case NDMP_ADDR_FC:
 		/* FCAL loop id */
@@ -1576,7 +1576,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	return offset;
 }
-		
+
 static int
 dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq _U_)
@@ -1819,7 +1819,7 @@ dissect_auth_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree)
 {
 	guint type;
-	
+
 	type=tvb_get_ntohl(tvb,offset);
 
 	/* auth type */
@@ -1838,7 +1838,7 @@ dissect_auth_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		offset = dissect_rpc_string(tvb, tree,
 				hf_ndmp_auth_password, offset, NULL);
 
-		
+
 		break;
 	case NDMP_AUTH_MD5:
 		/* auth id */
@@ -1846,7 +1846,7 @@ dissect_auth_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				hf_ndmp_auth_id, offset, NULL);
 
 		/* digest */
-		proto_tree_add_item(tree, hf_ndmp_auth_digest, 
+		proto_tree_add_item(tree, hf_ndmp_auth_digest,
 			tvb, offset, 16, FALSE);
 		offset+=16;
 	}
@@ -1990,7 +1990,7 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 			val_to_str(type, file_fs_type_vals, "Unknown type") );
 	}
 
-	proto_item_set_len(item, offset-old_offset);	
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -2120,7 +2120,7 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	proto_tree_add_item(tree, hf_ndmp_file_links, tvb, offset, 4, FALSE);
 	offset += 4;
 
-	proto_item_set_len(item, offset-old_offset);	
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -2154,7 +2154,7 @@ dissect_file(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_t
 	proto_tree_add_item(tree, hf_ndmp_file_fh_info, tvb, offset, 8, FALSE);
 	offset += 8;
 
-	proto_item_set_len(item, offset-old_offset);	
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -2443,51 +2443,51 @@ typedef struct _ndmp_command {
 } ndmp_command;
 
 static const ndmp_command ndmp_commands[] = {
-	{NDMP_CONFIG_GET_HOST_INFO,    
+	{NDMP_CONFIG_GET_HOST_INFO,
 	 	NULL, dissect_ndmp_get_host_info_reply},
-	{NDMP_CONFIG_GET_CONNECTION_TYPE, 
+	{NDMP_CONFIG_GET_CONNECTION_TYPE,
 		NULL, dissect_ndmp_config_get_connection_type_reply},
-	{NDMP_CONFIG_GET_AUTH_ATTR, 
+	{NDMP_CONFIG_GET_AUTH_ATTR,
 		dissect_get_auth_type_request, dissect_auth_attr_msg},
-	{NDMP_CONFIG_GET_BUTYPE_INFO, 	
+	{NDMP_CONFIG_GET_BUTYPE_INFO,
 		NULL, dissect_get_butype_info_reply},
-	{NDMP_CONFIG_GET_FS_INFO, 	
+	{NDMP_CONFIG_GET_FS_INFO,
 		NULL, dissect_get_fs_info_reply},
-	{NDMP_CONFIG_GET_TAPE_INFO, 	
+	{NDMP_CONFIG_GET_TAPE_INFO,
 		NULL, dissect_get_tape_info_reply},
-	{NDMP_CONFIG_GET_SCSI_INFO, 	
+	{NDMP_CONFIG_GET_SCSI_INFO,
 		NULL, dissect_get_scsi_info_reply},
-	{NDMP_CONFIG_GET_SERVER_INFO, 	
+	{NDMP_CONFIG_GET_SERVER_INFO,
 		NULL, dissect_get_server_info_reply},
-	{NDMP_SCSI_OPEN, 		
+	{NDMP_SCSI_OPEN,
 		dissect_scsi_open_request, dissect_error},
-	{NDMP_SCSI_CLOSE, 		
+	{NDMP_SCSI_CLOSE,
 		NULL, dissect_error},
-	{NDMP_SCSI_GET_STATE, 		
+	{NDMP_SCSI_GET_STATE,
 		NULL, dissect_scsi_get_state_reply},
-	{NDMP_SCSI_SET_TARGET, 		
+	{NDMP_SCSI_SET_TARGET,
 		dissect_scsi_set_state_request, dissect_error},
-	{NDMP_SCSI_RESET_DEVICE, 	
+	{NDMP_SCSI_RESET_DEVICE,
 		NULL, dissect_error},
-	{NDMP_SCSI_RESET_BUS, 		
+	{NDMP_SCSI_RESET_BUS,
 		NULL, dissect_error},
 	{NDMP_SCSI_EXECUTE_CDB,
 		dissect_execute_cdb_request_mc, dissect_execute_cdb_reply},
-	{NDMP_TAPE_OPEN, 		
+	{NDMP_TAPE_OPEN,
 		dissect_tape_open_request, dissect_error},
-	{NDMP_TAPE_CLOSE, 		
+	{NDMP_TAPE_CLOSE,
 		NULL, dissect_error},
-	{NDMP_TAPE_GET_STATE, 		
+	{NDMP_TAPE_GET_STATE,
 	 	NULL, dissect_tape_get_state_reply},
-	{NDMP_TAPE_MTIO, 		
+	{NDMP_TAPE_MTIO,
 		dissect_tape_mtio_request, dissect_tape_mtio_reply},
-	{NDMP_TAPE_WRITE, 		
+	{NDMP_TAPE_WRITE,
 		dissect_tape_write_request, dissect_tape_write_reply},
-	{NDMP_TAPE_READ, 	
+	{NDMP_TAPE_READ,
 		dissect_tape_read_request, dissect_tape_read_reply},
 	{NDMP_TAPE_EXECUTE_CDB,
 		dissect_execute_cdb_request_tape, dissect_execute_cdb_reply},
-	{NDMP_DATA_GET_STATE, 		
+	{NDMP_DATA_GET_STATE,
 		NULL, dissect_data_get_state_reply},
 	{NDMP_DATA_START_BACKUP,
 		dissect_data_start_backup_request, dissect_error },
@@ -2495,61 +2495,61 @@ static const ndmp_command ndmp_commands[] = {
 		dissect_data_start_recover_request, dissect_error },
 	{NDMP_DATA_ABORT,
 		NULL, dissect_error},
-	{NDMP_DATA_GET_ENV, 
+	{NDMP_DATA_GET_ENV,
 		NULL, dissect_data_get_env_reply},
-	{NDMP_DATA_STOP, 
+	{NDMP_DATA_STOP,
 		NULL, dissect_error},
-	{NDMP_DATA_LISTEN, 
+	{NDMP_DATA_LISTEN,
 		dissect_ndmp_addr_msg, dissect_mover_listen_reply},
-	{NDMP_DATA_CONNECT, 		
+	{NDMP_DATA_CONNECT,
 		dissect_ndmp_addr_msg, dissect_error},
-	{NDMP_NOTIFY_DATA_HALTED, 	
+	{NDMP_NOTIFY_DATA_HALTED,
 		dissect_notify_data_halted_request, NULL},
-	{NDMP_NOTIFY_CONNECTED, 	
+	{NDMP_NOTIFY_CONNECTED,
 		dissect_notify_connected_request, NULL},
-	{NDMP_NOTIFY_MOVER_HALTED, 
+	{NDMP_NOTIFY_MOVER_HALTED,
 		dissect_notify_data_halted_request, NULL},
-	{NDMP_NOTIFY_MOVER_PAUSED, 
+	{NDMP_NOTIFY_MOVER_PAUSED,
 		dissect_notify_mover_paused_request, NULL},
-	{NDMP_NOTIFY_DATA_READ, 	
+	{NDMP_NOTIFY_DATA_READ,
 		dissect_mover_set_window_request, NULL},
-	{NDMP_LOG_FILE, 		
+	{NDMP_LOG_FILE,
 		dissect_log_file_request, NULL},
-	{NDMP_LOG_MESSAGE, 	
+	{NDMP_LOG_MESSAGE,
 		dissect_log_message_request, NULL},
-	{NDMP_FH_ADD_FILE, 
+	{NDMP_FH_ADD_FILE,
 		dissect_fh_add_file_request, NULL},
-	{NDMP_FH_ADD_DIR, 		
+	{NDMP_FH_ADD_DIR,
 		dissect_fh_add_dir_request, NULL},
-	{NDMP_FH_ADD_NODE, 
+	{NDMP_FH_ADD_NODE,
 		dissect_fh_add_node_request, NULL},
-	{NDMP_CONNECT_OPEN, 		
+	{NDMP_CONNECT_OPEN,
 		dissect_connect_open_request, dissect_error},
-	{NDMP_CONNECT_CLIENT_AUTH, 
+	{NDMP_CONNECT_CLIENT_AUTH,
 		dissect_connect_client_auth_request, dissect_error},
-	{NDMP_CONNECT_CLOSE, 		
+	{NDMP_CONNECT_CLOSE,
 		NULL,NULL},
-	{NDMP_CONNECT_SERVER_AUTH, 
+	{NDMP_CONNECT_SERVER_AUTH,
 		dissect_auth_attr_msg, dissect_connect_server_auth_reply},
-	{NDMP_MOVER_GET_STATE, 		
+	{NDMP_MOVER_GET_STATE,
 		NULL, dissect_mover_get_state_reply},
-	{NDMP_MOVER_LISTEN, 		
+	{NDMP_MOVER_LISTEN,
 		dissect_mover_listen_request, dissect_mover_listen_reply},
-	{NDMP_MOVER_CONTINUE, 		
+	{NDMP_MOVER_CONTINUE,
 		NULL, dissect_error},
-	{NDMP_MOVER_ABORT, 		
+	{NDMP_MOVER_ABORT,
 		NULL, dissect_error},
-	{NDMP_MOVER_STOP, 		
+	{NDMP_MOVER_STOP,
 		NULL, dissect_error},
-	{NDMP_MOVER_SET_WINDOW, 	
+	{NDMP_MOVER_SET_WINDOW,
 		dissect_mover_set_window_request, dissect_error},
-	{NDMP_MOVER_READ, 
+	{NDMP_MOVER_READ,
 		dissect_mover_set_window_request, dissect_error},
-	{NDMP_MOVER_CLOSE, 		
+	{NDMP_MOVER_CLOSE,
 		NULL, dissect_error},
-	{NDMP_MOVER_SET_RECORD_SIZE, 
+	{NDMP_MOVER_SET_RECORD_SIZE,
 		dissect_mover_set_record_size_request, dissect_error},
-	{NDMP_MOVER_CONNECT, 	
+	{NDMP_MOVER_CONNECT,
 		dissect_mover_connect_request, dissect_error},
 	{0, NULL,NULL}
 };
@@ -2629,7 +2629,7 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	}
 
 	if(tree){
-		cmd_item = proto_tree_add_text(tree, tvb, offset, -1, 
+		cmd_item = proto_tree_add_text(tree, tvb, offset, -1,
 			msg_vals[i].strptr);
 		cmd_tree = proto_item_add_subtree(cmd_item, ett_ndmp);
 	}
@@ -2699,9 +2699,9 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return TRUE;
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
@@ -3429,7 +3429,7 @@ proto_register_ndmp(void)
 
   proto_ndmp = proto_register_protocol("Network Data Management Protocol", "NDMP", "ndmp");
   proto_register_field_array(proto_ndmp, hf_ndmp, array_length(hf_ndmp));
-  
+
   proto_register_subtree_array(ett, array_length(ett));
 
   /* desegmentation */

@@ -3,24 +3,24 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-time.c,v 1.18 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-time.c,v 1.19 2002/08/28 21:00:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -47,20 +47,20 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TIME");
-  
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "TIME %s",
 		 pinfo->srcport == pinfo->match_port ? "Response":"Request");
   }
-  
+
   if (tree) {
-    
+
     ti = proto_tree_add_item(tree, proto_time, tvb, 0, -1, FALSE);
     time_tree = proto_item_add_subtree(ti, ett_time);
-    
+
     proto_tree_add_text(time_tree, tvb, 0, 0,
 			pinfo->srcport==UDP_PORT_TIME? "Type: Response":"Type: Request");
-    if (pinfo->srcport == UDP_PORT_TIME) { 
+    if (pinfo->srcport == UDP_PORT_TIME) {
       guint32 delta_seconds = tvb_get_ntohl(tvb, 0);
       proto_tree_add_text(time_tree, tvb, 0, 4,
 			  "%u seconds since midnight 1 January 1900 GMT",

@@ -8,24 +8,24 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.81 2002/08/02 23:36:01 jmayer Exp $
+ * $Id: packet-smb-pipe.c,v 1.82 2002/08/28 21:00:31 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -696,7 +696,7 @@ add_logon_args(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 	return offset;
 }
 
-/* 
+/*
  * The following data structure describes the Remote API requests we
  * understand.
  *
@@ -1406,7 +1406,7 @@ static const struct lanman_desc lmd[] = {
 	  lm_data_resp_netsharegetinfo,
 	  lm_null },
 
-	{ API_NetServerGetInfo, 
+	{ API_NetServerGetInfo,
 	  lm_params_req_netservergetinfo,
 	  NULL,
 	  NULL,
@@ -3164,7 +3164,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	pinfo->can_desegment=0;
 	pinfo->desegment_offset = 0;
 	pinfo->desegment_len = 0;
-	if(smb_dcerpc_reassembly){ 
+	if(smb_dcerpc_reassembly){
 		pinfo->can_desegment=2;
 	}
 
@@ -3175,7 +3175,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		fragment_data *fd_head;
 		tvbuff_t *new_tvb;
 
-		fd_head=fragment_get(pinfo, pinfo->fd->num , 
+		fd_head=fragment_get(pinfo, pinfo->fd->num ,
 			dcerpc_fragment_table);
 		if(fd_head && fd_head->flags&FD_DEFRAGMENTED){
 			new_tvb = tvb_new_real_data(fd_head->data,
@@ -3202,8 +3202,8 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		fragment_add(d_tvb, 0, pinfo, pinfo->fd->num,
 			dcerpc_fragment_table,
 			0, tvb_length(d_tvb), TRUE);
-		fragment_set_tot_len(pinfo, pinfo->fd->num, 
-			dcerpc_fragment_table, 
+		fragment_set_tot_len(pinfo, pinfo->fd->num,
+			dcerpc_fragment_table,
 			pinfo->desegment_len+tvb_length(d_tvb));
 		/* since the other fragments are in normal ReadAndX and WriteAndX calls
 		   we must make sure we can map FID values to this defragmentation
@@ -3212,7 +3212,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		if(g_hash_table_lookup(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid)){
 			g_hash_table_remove(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid);
 		}
-		g_hash_table_insert(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid, 
+		g_hash_table_insert(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid,
 			(void *)pinfo->fd->num);
 	}
 	/* clear out the variables */
@@ -3425,7 +3425,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			/* assume it is DCERPC */
 			trans_subcmd=PIPE_DCERPC;
 		}
-		
+
 		if (!pinfo->fd->flags.visited)
 			tri->trans_subcmd = trans_subcmd;
 	} else

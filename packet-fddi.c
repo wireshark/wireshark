@@ -3,22 +3,22 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.57 2002/08/02 23:35:49 jmayer Exp $
+ * $Id: packet-fddi.c,v 1.58 2002/08/28 21:00:13 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -364,7 +364,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case FDDI_FC_LLC_ASYNC + 15 :
       call_dissector(llc_handle, next_tvb, pinfo, tree);
       return;
-      
+
     default :
       call_dissector(data_handle,next_tvb, pinfo, tree);
       return;
@@ -372,7 +372,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   } /* fc */
 } /* dissect_fddi */
 
-	
+
 static void
 dissect_fddi_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

@@ -1,22 +1,22 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.23 2002/08/02 23:35:56 jmayer Exp $
+ * $Id: packet-pppoe.c,v 1.24 2002/08/28 21:00:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -49,15 +49,15 @@ static dissector_handle_t ppp_handle;
 #define PPPOE_CODE_PADS 0x65
 #define PPPOE_CODE_PADT 0xa7
 
-#define PPPOE_TAG_EOL 0x0000 
+#define PPPOE_TAG_EOL 0x0000
 #define PPPOE_TAG_SVC_NAME 0x0101
-#define PPPOE_TAG_AC_NAME 0x0102 
+#define PPPOE_TAG_AC_NAME 0x0102
 #define PPPOE_TAG_HOST_UNIQ 0x0103
 #define PPPOE_TAG_AC_COOKIE 0x0104
-#define PPPOE_TAG_VENDOR 0x0105 
-#define PPPOE_TAG_RELAY_ID 0x0110 
-#define PPPOE_TAG_SVC_ERR 0x0201 
-#define PPPOE_TAG_AC_ERR 0x0202 
+#define PPPOE_TAG_VENDOR 0x0105
+#define PPPOE_TAG_RELAY_ID 0x0110
+#define PPPOE_TAG_SVC_ERR 0x0201
+#define PPPOE_TAG_AC_ERR 0x0202
 #define PPPOE_TAG_GENERIC_ERR 0x0203
 
 static gchar *
@@ -117,7 +117,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, int offset, proto_tree *tree, int payload_leng
 
 			proto_tree_add_text(pppoe_tree, tvb,tagstart,4,
 				"Tag: %s", pppoetag_to_str(poe_tag,"Unknown (0x%02x)"));
-			
+
 			switch(poe_tag) {
 			case PPPOE_TAG_SVC_NAME:
 			case PPPOE_TAG_AC_NAME:
@@ -269,7 +269,7 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			"Payload Length: %u", pppoe_length);
 	}
 	/* dissect_ppp is apparently done as a 'top level' dissector,
-	 * so this doesn't work:  
+	 * so this doesn't work:
 	 * dissect_ppp(pd,offset+6,pinfo->fd,tree);
 	 * Im gonna try fudging it.
 	 */

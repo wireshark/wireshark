@@ -4,24 +4,24 @@
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-dccp.c,v 1.7 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-dccp.c,v 1.8 2002/08/28 21:00:08 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -121,7 +121,7 @@ static gint ett_dccp_trace = -1;
 	proto_tree_add_time(dccp_optree, hf_dccp_date, tvb, offset, 4, &ts); \
 	offset += 4; \
 }
-	
+
 
 #define D_CHECKSUM() { \
 	proto_tree *cktree, *ti; \
@@ -197,7 +197,7 @@ static const value_string dccp_target_vals[] = {
 };
 
 static const value_string dccp_floodop_vals[] = {
-	{DCC_AOP_FLOD_CHECK, "Check"},   
+	{DCC_AOP_FLOD_CHECK, "Check"},
 	{DCC_AOP_FLOD_SHUTDOWN, "Shutdown"},
 	{DCC_AOP_FLOD_HALT, "Halt"},
 	{DCC_AOP_FLOD_RESUME, "Resume"},
@@ -234,11 +234,11 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset = 0;
 	is_response = pinfo->srcport == DCC_PORT;
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, 
-			"%s: %s", 
-			is_response ? "Response" : "Request", 
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+			"%s: %s",
+			is_response ? "Response" : "Request",
 			val_to_str(tvb_get_guint8(tvb, offset+3),
 				 dccp_op_vals, "Unknown Op: %u")
 		);
@@ -249,7 +249,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			FALSE);
 		dccp_tree = proto_item_add_subtree(ti, ett_dccp);
 
-		proto_tree_add_item(dccp_tree, hf_dccp_len, tvb, 
+		proto_tree_add_item(dccp_tree, hf_dccp_len, tvb,
 			offset, 2, FALSE);
 
 		if ( !tvb_bytes_exist(tvb, 0, tvb_get_ntohs(tvb, offset))) {
@@ -258,16 +258,16 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		offset += 2;
 
-		proto_tree_add_item(dccp_tree, hf_dccp_pkt_vers, tvb, 
+		proto_tree_add_item(dccp_tree, hf_dccp_pkt_vers, tvb,
 			offset, 1, FALSE);
 		offset += 1;
 
 		op = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(dccp_tree, hf_dccp_op, tvb, 
+		proto_tree_add_item(dccp_tree, hf_dccp_op, tvb,
 			offset, 1, FALSE);
 		offset += 1;
 
-		proto_tree_add_item(dccp_tree, hf_dccp_clientid, tvb, 
+		proto_tree_add_item(dccp_tree, hf_dccp_clientid, tvb,
 			offset, 4, FALSE);
 		offset += 4;
 
@@ -278,26 +278,26 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Make some attempt to figure out if this data is little endian, not guaranteed to be
 		correct if connection went through a firewall or similar. */
 
-		/* Very hokey check - if all three of pid/report/retrans look like little-endian 
+		/* Very hokey check - if all three of pid/report/retrans look like little-endian
 			numbers, host is probably little endian. Probably innacurate on super-heavily-used
 			DCC clients though. This should be good enough for now. */
 		client_is_le = ( (tvb_get_guint8(tvb, offset+4) | tvb_get_guint8(tvb, offset+4)) &&
 						 (tvb_get_guint8(tvb, offset+8) | tvb_get_guint8(tvb, offset+9)) &&
 						 (tvb_get_guint8(tvb, offset+12) | tvb_get_guint8(tvb, offset+13)) );
 
-		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_host, tvb, 
+		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_host, tvb,
 			offset, 4, client_is_le);
 		offset += 4;
 
-		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_pid, tvb, 
+		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_pid, tvb,
 			offset, 4, client_is_le);
 		offset += 4;
 
-		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_report, tvb, 
+		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_report, tvb,
 			offset, 4, client_is_le);
 		offset += 4;
 
-		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_retrans, tvb, 
+		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_retrans, tvb,
 			offset, 4, client_is_le);
 		offset += 4;
 
@@ -358,10 +358,10 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						1, FALSE);
 					if (check_col(pinfo->cinfo, COL_INFO)) {
 						col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-							val_to_str(tvb_get_guint8(tvb,offset+4), 
+							val_to_str(tvb_get_guint8(tvb,offset+4),
 							dccp_adminop_vals, "Unknown (%u)"));
 					}
-	
+
 					if (aop == DCC_AOP_TRACE_ON || aop == DCC_AOP_TRACE_OFF )
 					{
 						ti = proto_tree_add_item(dccp_optree, hf_dccp_trace, tvb, offset,
@@ -377,17 +377,17 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					else if ( aop == DCC_AOP_FLOD )
 					{
-						proto_tree_add_item(dccp_optree, hf_dccp_floodop, 
+						proto_tree_add_item(dccp_optree, hf_dccp_floodop,
 							tvb, offset, 4, FALSE);
 						if (check_col(pinfo->cinfo, COL_INFO)) {
 							col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-								val_to_str(tvb_get_ntohl(tvb,offset), 
+								val_to_str(tvb_get_ntohl(tvb,offset),
 								dccp_floodop_vals, "Unknown (%u)"));
 						}
 					}
 					else
 					{
-						proto_tree_add_item(dccp_optree, hf_dccp_adminval, 
+						proto_tree_add_item(dccp_optree, hf_dccp_adminval,
 							tvb, offset, 4, FALSE);
 					}
 					offset += 4;
@@ -408,14 +408,14 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(dccp_optree, hf_dccp_qdelay_ms, tvb,
 					offset, 2, FALSE);
 				offset += 2;
-			
+
 				proto_tree_add_item(dccp_optree, hf_dccp_brand, tvb,
 					offset, sizeof(DCC_BRAND), FALSE);
 				offset += sizeof(DCC_BRAND);
 
 				D_SIGNATURE();
 				break;
-				
+
 			default:
 				/* do nothing */
 				break;
@@ -429,83 +429,83 @@ void
 proto_register_dccp(void)
 {
 	static hf_register_info hf[] = {
-			{ &hf_dccp_len, {	
+			{ &hf_dccp_len, {
 				"Packet Length", "dccp.len", FT_UINT16, BASE_DEC,
 				NULL, 0, "Packet Length", HFILL }},
 
-			{ &hf_dccp_pkt_vers, {	
+			{ &hf_dccp_pkt_vers, {
 				"Packet Version", "dccp.pkt_vers", FT_UINT16, BASE_DEC,
 				NULL, 0, "Packet Version", HFILL }},
 
-			{ &hf_dccp_op, {	
+			{ &hf_dccp_op, {
 				"Operation Type", "dccp.op", FT_UINT8, BASE_DEC,
 				VALS(dccp_op_vals), 0, "Operation Type", HFILL }},
 
-			{ &hf_dccp_clientid, {	
+			{ &hf_dccp_clientid, {
 				"Client ID", "dccp.clientid", FT_UINT32, BASE_DEC,
 				NULL, 0, "Client ID", HFILL }},
 
-			{ &hf_dccp_opnums_host, {	
+			{ &hf_dccp_opnums_host, {
 				"Host", "dccp.opnums.host", FT_IPv4, BASE_DEC,
 				NULL, 0, "Host", HFILL }},
 
-			{ &hf_dccp_opnums_pid, {	
+			{ &hf_dccp_opnums_pid, {
 				"Process ID", "dccp.opnums.pid", FT_UINT32, BASE_DEC,
 				NULL, 0, "Process ID", HFILL }},
 
-			{ &hf_dccp_opnums_report, {	
+			{ &hf_dccp_opnums_report, {
 				"Report", "dccp.opnums.report", FT_UINT32, BASE_DEC,
 				NULL, 0, "Report", HFILL }},
 
-			{ &hf_dccp_opnums_retrans, {	
+			{ &hf_dccp_opnums_retrans, {
 				"Retransmission", "dccp.opnums.retrans", FT_UINT32, BASE_DEC,
 				NULL, 0, "Retransmission", HFILL }},
 
-			{ &hf_dccp_signature, {	
+			{ &hf_dccp_signature, {
 				"Signature", "dccp.signature", FT_BYTES, BASE_HEX,
 				NULL, 0, "Signature", HFILL }},
 
-			{ &hf_dccp_max_pkt_vers, {	
+			{ &hf_dccp_max_pkt_vers, {
 				"Maximum Packet Version", "dccp.max_pkt_vers", FT_UINT8, BASE_DEC,
 				NULL, 0, "Maximum Packet Version", HFILL }},
 
-			{ &hf_dccp_qdelay_ms, {	
+			{ &hf_dccp_qdelay_ms, {
 				"Client Delay", "dccp.qdelay_ms", FT_UINT16, BASE_DEC,
 				NULL, 0, "Client Delay", HFILL }},
 
-			{ &hf_dccp_brand, {	
+			{ &hf_dccp_brand, {
 				"Server Brand", "dccp.brand", FT_STRING, BASE_DEC,
 				NULL, 0, "Server Brand", HFILL }},
 
-			{ &hf_dccp_ck_type, {	
+			{ &hf_dccp_ck_type, {
 				"Type", "dccp.checksum.type", FT_UINT8, BASE_DEC,
 				VALS(dccp_cktype_vals), 0, "Checksum Type", HFILL }},
 
-			{ &hf_dccp_ck_len, {	
+			{ &hf_dccp_ck_len, {
 				"Length", "dccp.checksum.length", FT_UINT8, BASE_DEC,
 				NULL, 0, "Checksum Length", HFILL }},
 
-			{ &hf_dccp_ck_sum, {	
+			{ &hf_dccp_ck_sum, {
 				"Sum", "dccp.checksum.sum", FT_BYTES, BASE_HEX,
 				NULL, 0, "Checksum", HFILL }},
 
-			{ &hf_dccp_target, {	
+			{ &hf_dccp_target, {
 				"Target", "dccp.target", FT_UINT32, BASE_HEX,
 				NULL, 0, "Target", HFILL }},
 
-			{ &hf_dccp_date, {	
+			{ &hf_dccp_date, {
 				"Date", "dccp.date", FT_ABSOLUTE_TIME, BASE_DEC,
 				NULL, 0, "Date", HFILL }},
 
-			{ &hf_dccp_adminop, {	
+			{ &hf_dccp_adminop, {
 				"Admin Op", "dccp.adminop", FT_UINT8, BASE_DEC,
 				VALS(dccp_adminop_vals), 0, "Admin Op", HFILL }},
 
-			{ &hf_dccp_adminval, {	
+			{ &hf_dccp_adminval, {
 				"Admin Value", "dccp.adminval", FT_UINT32, BASE_DEC,
 				NULL, 0, "Admin Value", HFILL }},
 
-			{ &hf_dccp_trace, {	
+			{ &hf_dccp_trace, {
 				"Trace Bits", "dccp.trace", FT_UINT32, BASE_HEX,
 				NULL, 0, "Trace Bits", HFILL }},
 

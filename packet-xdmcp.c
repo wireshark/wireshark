@@ -2,22 +2,22 @@
  * Routines for XDMCP message dissection
  * Copyright 2002, Pasi Eronen <pasi.eronen@nixu.com>
  *
- * $Id: packet-xdmcp.c,v 1.2 2002/08/02 23:36:05 jmayer Exp $
+ * $Id: packet-xdmcp.c,v 1.3 2002/08/28 21:00:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -113,13 +113,13 @@ static gint xdmcp_add_string(proto_tree *tree, gint hf,
 {
   char *str;
   guint len;
-  
+
   len = tvb_get_ntohs(tvb, offset);
   str = g_malloc(len+1);
   stringCopy(str, tvb_get_ptr(tvb, offset+2, len), len);
   proto_tree_add_string(tree, hf, tvb, offset, len+2, str);
   g_free(str);
-  
+
   return len+2;
 }
 
@@ -163,7 +163,7 @@ static gint xdmcp_add_authorization_names(proto_tree *tree,
 				  anames_len);
   anames_tree = proto_item_add_subtree(anames_ti,
 				       ett_xdmcp_authorization_names);
-  
+
   anames_len = tvb_get_guint8(tvb, offset);
   offset++;
   while (anames_len > 0) {
@@ -178,7 +178,7 @@ static gint xdmcp_add_authorization_names(proto_tree *tree,
 /*
  * I didn't find any documentation for the XDMCP protocol, so
  * this is reverse-engineered from XFree86 source files
- * xc/programs/xdm/xdmcp.c and xc/programs/Xserver/os/xdmcp.c. 
+ * xc/programs/xdm/xdmcp.c and xc/programs/Xserver/os/xdmcp.c.
  */
 
 static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -193,7 +193,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Only version 1 exists, so this probably is not XDMCP at all... */
     return;
   }
-  
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "XDMCP");
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -202,7 +202,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_xdmcp, tvb, offset, -1, FALSE);
     xdmcp_tree = proto_item_add_subtree(ti, ett_xdmcp);
-    
+
     proto_tree_add_uint(xdmcp_tree, hf_xdmcp_version, tvb,
 			offset, 2, version);
   }
@@ -217,14 +217,14 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
                  val_to_str(opcode, opcode_vals, "Unknown (0x%04x)"));
-    
+
   }
-  
+
   if (tree) {
     proto_tree_add_item(xdmcp_tree, hf_xdmcp_length, tvb,
 			offset, 2, FALSE);
     offset += 2;
-    
+
     switch (opcode) {
       case XDMCP_FORWARD_QUERY:
       {
@@ -235,22 +235,22 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * families. */
 	if (alen == 4) {
 	  proto_tree_add_text(xdmcp_tree, tvb, offset, alen+2,
-			      "Client address: %s", 
+			      "Client address: %s",
 			      ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
 	  offset += 6;
 	} else {
 	  offset += xdmcp_add_bytes(xdmcp_tree, "Client address", tvb, offset);
 	}
-	
+
 	plen = tvb_get_ntohs(tvb, offset);
 	if (plen == 2) {
 	  proto_tree_add_text(xdmcp_tree, tvb, offset, plen+2,
-			      "Client port: %u", 
+			      "Client port: %u",
 			      tvb_get_ntohs(tvb, offset+2));
 	  offset += 4;
 	} else {
 	  offset += xdmcp_add_bytes(xdmcp_tree, "Client port", tvb, offset);
-	}	
+	}
       }
       /* fall-through */
 
@@ -259,7 +259,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case XDMCP_INDIRECT_QUERY:
 	offset += xdmcp_add_authorization_names(xdmcp_tree, tvb, offset);
 	break;
-	
+
       case XDMCP_WILLING:
 	offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
 				   tvb, offset);
@@ -268,25 +268,25 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
 				   tvb, offset);
 	break;
-	
+
       case XDMCP_UNWILLING:
 	offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_hostname,
 				   tvb, offset);
 	offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
 				   tvb, offset);
 	break;
-	
+
       case XDMCP_REQUEST:
       {
 	proto_tree *clist_tree;
 	proto_item *clist_ti;
 	gint ctypes_len, caddrs_len, n;
 	gint ctypes_start_offset, caddrs_offset;
-	
+
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
 			    offset, 2, FALSE);
 	offset += 2;
-	
+
 	ctypes_len = tvb_get_guint8(tvb, offset);
 	ctypes_start_offset = offset;
 	caddrs_offset = offset + 1 + 2*ctypes_len;
@@ -296,43 +296,43 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      "Error: Connection type/address arrays don't match");
 	  return;
 	}
-	
+
 	clist_ti = proto_tree_add_text(xdmcp_tree,
 				       tvb, ctypes_start_offset, -1,
 				       "Connections (%d)",
 				       ctypes_len);
 	clist_tree = proto_item_add_subtree(clist_ti, ett_xdmcp_connections);
-	
+
 	offset++;
 	caddrs_offset++;
-	
+
 	n = 1;
 	while (ctypes_len > 0) {
 	  proto_item *connection_ti;
 	  proto_tree *connection_tree;
 	  const char *ip_string;
-	  
+
 	  gint alen;
 	  gint ctype = tvb_get_ntohs(tvb, offset);
 	  offset += 2;
 	  alen = tvb_get_ntohs(tvb, caddrs_offset);
 	  caddrs_offset += 2;
-	  
+
 	  if ((ctype == 0) && (alen == 4)) {
 	    ip_string = ip_to_str(tvb_get_ptr(tvb, caddrs_offset, 4));
 	  } else {
 	    ip_string = NULL;
 	  }
-	  
-	  connection_ti = proto_tree_add_text(clist_tree, NULL, 0, 0, 
+
+	  connection_ti = proto_tree_add_text(clist_tree, NULL, 0, 0,
 					      "Connection %d%s%s", n,
 					      (ip_string ? ": " : ""),
 					      (ip_string ? ip_string : ""));
 	  connection_tree = proto_item_add_subtree(connection_ti,
 						   ett_xdmcp_connection);
-	  
+
 	  proto_tree_add_text(connection_tree, tvb, offset-2, 2,
-			      "Type: %s", 
+			      "Type: %s",
 			      val_to_str(ctype, family_vals,
 					 "Unknown (0x%04x)"));
 	  if ((ctype == 0) && (alen == 4)) {
@@ -349,19 +349,19 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset = caddrs_offset;
 	proto_item_set_len(clist_ti, offset - ctypes_start_offset);
-	
+
 	offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
 				   tvb, offset);
 	offset += xdmcp_add_bytes(xdmcp_tree, "Authentication data",
 				  tvb, offset);
-	
+
 	offset += xdmcp_add_authorization_names(xdmcp_tree, tvb, offset);
-	
+
 	offset += xdmcp_add_text(xdmcp_tree, "Manufacturer display ID",
 				 tvb, offset);
 	break;
       }
-      
+
       case XDMCP_ACCEPT:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
 			    offset, 4, FALSE);
@@ -375,7 +375,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += xdmcp_add_bytes(xdmcp_tree, "Authorization data",
 				  tvb, offset);
 	break;
-	
+
       case XDMCP_DECLINE:
 	offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
 				   tvb, offset);
@@ -384,51 +384,51 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += xdmcp_add_bytes(xdmcp_tree, "Authentication data",
 				  tvb, offset);
 	break;
-	
+
       case XDMCP_MANAGE:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
 			    offset, 4, FALSE);
 	offset += 4;
-	
+
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
 			    offset, 2, FALSE);
 	offset += 2;
-	
+
 	offset += xdmcp_add_text(xdmcp_tree, "Display class",
 				 tvb, offset);
 	break;
-	
+
       case XDMCP_REFUSE:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
 			    offset, 4, FALSE);
 	offset += 4;
 	break;
-	
+
       case XDMCP_FAILED:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
 			    offset, 4, FALSE);
 	offset += 4;
-	
+
 	offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
 				   tvb, offset);
 	break;
-	
+
       case XDMCP_KEEPALIVE:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
 			    offset, 2, FALSE);
 	offset += 2;
-	
+
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
 			    offset, 4, FALSE);
 	offset += 4;
 	break;
-	
+
       case XDMCP_ALIVE:
-	proto_tree_add_text(xdmcp_tree, tvb, offset, 1, 
+	proto_tree_add_text(xdmcp_tree, tvb, offset, 1,
 			    "Session running: %s",
 			    (tvb_get_guint8(tvb, offset) ? "Yes" : "No"));
 	offset++;
-	
+
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
 			    offset, 4, FALSE);
 	offset += 4;
@@ -436,15 +436,15 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 }
- 
+
 /* Register the protocol with Ethereal */
 void proto_register_xdmcp(void)
-{                 
+{
   /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_xdmcp_version,
       { "Version",           "xdmcp.version",
-      FT_UINT16, BASE_DEC, NULL, 0, 
+      FT_UINT16, BASE_DEC, NULL, 0,
       "Protocol version", HFILL }
     },
     { &hf_xdmcp_opcode,

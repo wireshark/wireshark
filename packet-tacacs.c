@@ -2,31 +2,31 @@
  * Routines for cisco tacacs/xtacacs/tacacs+ packet dissection
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-tacacs.c,v 1.22 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-tacacs.c,v 1.23 2002/08/28 21:00:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from old packet-tacacs.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 
-/* rfc-1492 for tacacs and xtacacs 
+/* rfc-1492 for tacacs and xtacacs
  * draft-grant-tacacs-00.txt for tacacs+ (tacplus)
  */
 
@@ -89,7 +89,7 @@ static const value_string tacacs_type_vals[] = {
 	{ TACACS_SLIP_ON,   "SLIP on" },
 	{ TACACS_SLIP_OFF,  "SLIP off" },
 	{ TACACS_SLIP_ADDR, "SLIP Addr" },
-	{ 0,                NULL }};	
+	{ 0,                NULL }};
 
 static const value_string tacacs_reason_vals[] = {
 	{ 0  , "none" },
@@ -140,7 +140,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(type, tacacs_type_vals, "Unknown (0x%02x)"));
 
-	if (tree) 
+	if (tree)
 	{
 		ti = proto_tree_add_protocol_format(tree, proto_tacacs,
 		 tvb, 0, -1, version==0?"TACACS":"XTACACS");
@@ -339,10 +339,10 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_set_str(pinfo->cinfo, COL_INFO,
-			request ? "Request" : "Response");	  
+			request ? "Request" : "Response");
 	}
 
-	if (tree) 
+	if (tree)
 	{
 		ti = proto_tree_add_protocol_format(tree, proto_tacplus,
 		 tvb, 0, -1, "TACACS+");

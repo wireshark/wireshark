@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.16 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-aim.c,v 1.17 2002/08/28 21:00:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -113,27 +113,27 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Not an instant messenger packet, just happened to use the same port */
     return;
   }
-  
+
 /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIM");
-    
-  if (check_col(pinfo->cinfo, COL_INFO)) 
+
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO, "AOL Instant Messenger");
 
 /* get relevant header information */
 
   hdr_channel           = tvb_get_guint8(tvb, 1);
-  hdr_sequence_no       = tvb_get_ntohs(tvb, 2);     
-  hdr_data_field_length = tvb_get_ntohs(tvb, 4);     
+  hdr_sequence_no       = tvb_get_ntohs(tvb, 2);
+  hdr_data_field_length = tvb_get_ntohs(tvb, 4);
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
   if (tree) {
-    
-    ti = proto_tree_add_item(tree, proto_aim, tvb, 0, -1, FALSE); 
+
+    ti = proto_tree_add_item(tree, proto_aim, tvb, 0, -1, FALSE);
     aim_tree = proto_item_add_subtree(ti, ett_aim);
-    proto_tree_add_uint(aim_tree, hf_aim_cmd_start, tvb, 0, 1, '*');  
+    proto_tree_add_uint(aim_tree, hf_aim_cmd_start, tvb, 0, 1, '*');
     proto_tree_add_uint(aim_tree, hf_aim_channel, tvb, 1, 1, hdr_channel);
     proto_tree_add_uint(aim_tree, hf_aim_seqno, tvb, 2, 2, hdr_sequence_no);
     proto_tree_add_uint(aim_tree, hf_aim_data_len, tvb, 4, 2, hdr_data_field_length);
@@ -148,17 +148,17 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case CHANNEL_NEW_CONN:
       if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "New Connection");
       break;
-     
+
     /* SNAC channel. Most packets are of this type, such as messages or buddy list
      * management.
      */
     case CHANNEL_SNAC_DATA:
-      family = tvb_get_ntohs(tvb, 6);     
-      subtype = tvb_get_ntohs(tvb, 8);     
+      family = tvb_get_ntohs(tvb, 6);
+      subtype = tvb_get_ntohs(tvb, 8);
 
       if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "SNAC data");
-      }        
+      }
       if( tree )
       {
         ti1 = proto_tree_add_text(aim_tree, tvb, 6, tvb_length(tvb) - 6, "FNAC");
@@ -170,7 +170,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
       if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Family: 0x%04x - Subtype: 0x%04x (unknown)", family, subtype);
-      
+
         switch(family)
         {
           case FAMILY_SIGNON:
@@ -182,16 +182,16 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                   col_add_fstr(pinfo->cinfo, COL_INFO, "Login");
                   col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
-                }        
+                }
 
                 if( tree  )
                 {
-                  proto_tree_add_text(aim_tree_fnac, tvb, 20, buddyname_length, "Screen Name: %s", buddyname);       
+                  proto_tree_add_text(aim_tree_fnac, tvb, 20, buddyname_length, "Screen Name: %s", buddyname);
                 }
 
                 break;
               case 0x0003:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Login information reply");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Login information reply");
                 break;
               case 0x0006:
                 buddyname_length = get_buddyname( buddyname, tvb, 19, 20 );
@@ -199,16 +199,16 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                   col_add_fstr(pinfo->cinfo, COL_INFO, "Sign-on");
                   col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
-                }        
-                
+                }
+
                 if( tree )
                 {
-                  proto_tree_add_text(aim_tree_fnac, tvb, 20, buddyname_length, "Screen Name: %s", buddyname);       
+                  proto_tree_add_text(aim_tree_fnac, tvb, 20, buddyname_length, "Screen Name: %s", buddyname);
                 }
 
                 break;
               case 0x0007:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Sign-on reply");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Sign-on reply");
                 break;
             }
             break;
@@ -217,28 +217,28 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             switch(subtype)
             {
               case 0x0002:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Client is now online and ready for normal function");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Client is now online and ready for normal function");
                 break;
               case 0x0003:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Server is now ready for normal functions");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Server is now ready for normal functions");
                 break;
               case 0x0004:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request for new service (server will redirect client)");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request for new service (server will redirect client)");
                 break;
               case 0x0005:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Redirect response");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Redirect response");
                 break;
               case 0x0006:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rate Information");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rate Information");
                 break;
               case 0x0007:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rate information response");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rate information response");
                 break;
               case 0x0008:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rate Information Response Ack");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rate Information Response Ack");
                 break;
               case 0x0016:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "No-op");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "No-op");
                 break;
             }
             break;
@@ -247,23 +247,23 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             switch(subtype)
             {
               case 0x0001:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Buddylist - Error");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Buddylist - Error");
                 break;
 
               case 0x0002:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights information");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights information");
                 break;
 
               case 0x0003:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rights information");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rights information");
                 break;
 
               case 0x0004:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Add to Buddylist");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Add to Buddylist");
                 break;
 
               case 0x0005:
-                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Remove from Buddylist");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Remove from Buddylist");
                 break;
 
               case 0x000b:
@@ -272,11 +272,11 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                   col_add_fstr(pinfo->cinfo, COL_INFO, "Oncoming Buddy");
                   col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
-                }        
-                
+                }
+
                 if( tree )
                 {
-                  proto_tree_add_text(aim_tree_fnac, tvb, 17, buddyname_length, "Screen Name: %s", buddyname);       
+                  proto_tree_add_text(aim_tree_fnac, tvb, 17, buddyname_length, "Screen Name: %s", buddyname);
                 }
 
                 break;
@@ -288,11 +288,11 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                   col_add_fstr(pinfo->cinfo, COL_INFO, "Offgoing Buddy");
                   col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
-                }        
-                
+                }
+
                 if( tree )
                 {
-                  proto_tree_add_text(aim_tree_fnac, tvb, 17, buddyname_length, "Screen Name: %s", buddyname);       
+                  proto_tree_add_text(aim_tree_fnac, tvb, 17, buddyname_length, "Screen Name: %s", buddyname);
                 }
 
 
@@ -304,28 +304,28 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           switch(subtype)
           {
             case 0x0001:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Location - Error");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Location - Error");
               break;
             case 0x0002:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights Information");
               break;
             case 0x0003:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rights Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rights Information");
               break;
             case 0x0004:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Set User Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Set User Information");
               break;
             case 0x0005:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request User Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request User Information");
               break;
             case 0x0006:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "User Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "User Information");
               break;
             case 0x0007:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Subrequest");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Subrequest");
               break;
             case 0x0008:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Notification");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Notification");
               break;
           }
           break;
@@ -334,13 +334,13 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           switch(subtype)
           {
             case 0x0001:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisements - Error");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisements - Error");
               break;
             case 0x0002:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement Request");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement Request");
               break;
             case 0x0003:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement data (GIF)");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement data (GIF)");
               break;
           }
           break;
@@ -349,13 +349,13 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           switch(subtype)
           {
             case 0x0001:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Search - Error (could be: not found)");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Search - Error (could be: not found)");
               break;
             case 0x0002:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Search for Screen Name by e-mail");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Search for Screen Name by e-mail");
               break;
             case 0x0003:
-              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Screen Name Search Result");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Screen Name Search Result");
               break;
           }
           break;
@@ -370,23 +370,23 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               if (check_col(pinfo->cinfo, COL_INFO)) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Chat Message ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-              }        
+              }
               break;
-            
+
             case 0x006:
               /* channel message to client */
               buddyname_length = get_buddyname( buddyname, tvb, 30, 31 );
               get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) - 36 - buddyname_length );
-              
+
               if (check_col(pinfo->cinfo, COL_INFO)) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Chat Message ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-              }        
-              
+              }
+
               if( tree )
               {
-                proto_tree_add_text(aim_tree_fnac, tvb, 31, buddyname_length, "Screen Name: %s", buddyname);       
+                proto_tree_add_text(aim_tree_fnac, tvb, 31, buddyname_length, "Screen Name: %s", buddyname);
               }
               break;
           }
@@ -400,16 +400,16 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               buddyname_length = get_buddyname( buddyname, tvb, 26, 27 );
 
               get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) - 36 - buddyname_length );
-              
+
               if (check_col(pinfo->cinfo, COL_INFO)) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Message ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "to: %s", buddyname);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-              }        
+              }
 
               if( tree )
               {
-                proto_tree_add_text(aim_tree_fnac, tvb, 27, buddyname_length, "Screen Name: %s", buddyname);       
+                proto_tree_add_text(aim_tree_fnac, tvb, 27, buddyname_length, "Screen Name: %s", buddyname);
               }
 
               break;
@@ -424,38 +424,38 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_append_fstr(pinfo->cinfo, COL_INFO, " from: %s", buddyname);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-              }        
-              
+              }
+
               if( tree )
               {
-                proto_tree_add_text(aim_tree_fnac, tvb, 27, buddyname_length, "Screen Name: %s", buddyname);       
+                proto_tree_add_text(aim_tree_fnac, tvb, 27, buddyname_length, "Screen Name: %s", buddyname);
               }
               break;
           }
 
           break;
       }
-      
 
-      
+
+
       break;
-    
+
     case CHANNEL_FLAP_ERR:
       if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "FLAP error");
-      }        
+      }
       break;
-    
+
     case CHANNEL_CLOSE_CONN:
       if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Close Connection");
-      }        
+      }
       break;
-    
+
     default:
       if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown Channel: %d", hdr_channel );
-      }        
+      }
       break;
   }
 
@@ -467,7 +467,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset)
 {
   guint8 buddyname_length;
-  
+
   buddyname_length = tvb_get_guint8(tvb, len_offset);
 
   if(buddyname_length > MAX_BUDDYNAME_LENGTH ) buddyname_length = MAX_BUDDYNAME_LENGTH;
@@ -513,20 +513,20 @@ static void get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_len
      new_offset++;
      new_length--;
   }
- 
+
   /* set offset and length of message to after the first HTML tag */
   msg_offset = new_offset;
   msg_length = new_length;
   max = msg_length - 1;
   tagchars = 0;
-  
+
   /* find the rest of the message until either a </html> is reached or the end of the frame.
    * All other HTML tags are stripped to display only the raw message (printable characters) */
   while( (c < max) && (tagchars < 7) )
   {
      j = tvb_get_guint8(tvb, msg_offset+c);
 
-     
+
      /* make sure this is an HTML tag by checking the order of the chars */
      if( ( (j == '<') && (tagchars == 0) ) ||
          ( (j == '/') && (tagchars == 1) ) ||
@@ -542,7 +542,7 @@ static void get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_len
 
 #ifdef STRIP_TAGS
      if( j == '<' ) bracket = TRUE;
-     if( j == '>' ) bracket = FALSE; 
+     if( j == '>' ) bracket = FALSE;
      if( (isprint(j) ) && (bracket == FALSE) && (j != '>'))
 #else
      if( isprint(j) )
@@ -554,12 +554,12 @@ static void get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_len
      c++;
   }
 }
-             
+
 
 /* Register the protocol with Ethereal */
-void 
+void
 proto_register_aim(void)
-{                 
+{
 
 /* Setup list of header fields */
   static hf_register_info hf[] = {

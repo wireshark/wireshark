@@ -1,22 +1,22 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.36 2002/08/02 23:35:46 jmayer Exp $
+ * $Id: column.c,v 1.37 2002/08/28 21:00:06 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -53,10 +53,10 @@ col_format_to_string(gint fmt) {
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
                      "%i", "%L" };
-  
+
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
-  
+
   return(slist[fmt]);
 }
 
@@ -80,10 +80,10 @@ col_format_desc(gint fmt) {
                      "Src port (unresolved)", "Destination port",
                      "Dest port (resolved)", "Dest port (unresolved)",
                      "Protocol", "Information", "Packet length (bytes)" };
-  
+
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
-  
+
   return(dlist[fmt]);
 }
 
@@ -303,9 +303,9 @@ gint
 get_column_format(gint col) {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
-  
+
   cfmt = (fmt_data *) clp->data;
-  
+
   return(get_column_format_from_str(cfmt->fmt));
 }
 
@@ -378,8 +378,8 @@ gchar *
 get_column_title(gint col) {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
-  
+
   cfmt = (fmt_data *) clp->data;
 
-  return(cfmt->title);  
+  return(cfmt->title);
 }

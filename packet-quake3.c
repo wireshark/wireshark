@@ -3,24 +3,24 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.13 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-quake3.c,v 1.14 2002/08/28 21:00:27 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-quake2.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -289,7 +289,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 			if (text_tree) {
 				server_item = proto_tree_add_text(text_tree,
-					tvb, base, 7, 
+					tvb, base, 7,
 					"Server: %s:%u",
 						get_hostname(ip_addr),
 						udp_port);
@@ -299,9 +299,9 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 						ett_quake3_server);
 			}
 			if (server_tree) {
-				proto_tree_add_ipv4(server_tree, hf_quake3_server_addr, 
+				proto_tree_add_ipv4(server_tree, hf_quake3_server_addr,
 					tvb, base + 1, 4, ip_addr);
-				proto_tree_add_uint(server_tree, hf_quake3_server_port, 
+				proto_tree_add_uint(server_tree, hf_quake3_server_port,
 					tvb, base + 5, 2, udp_port);
 			}
 
@@ -435,7 +435,7 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 		/* client to server */
 		guint16 qport = tvb_get_letohs(tvb, offset);
 		if (game_tree) {
-			proto_tree_add_uint(game_tree, hf_quake3_game_qport, 
+			proto_tree_add_uint(game_tree, hf_quake3_game_qport,
 				tvb, offset, 2, qport);
 		}
 		offset +=2;
@@ -501,7 +501,7 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dir_item = proto_tree_add_none_format(
 					quake3_tree,
 					hf_quake3_direction, tvb, 0, 0,
-					"Direction: %s", 
+					"Direction: %s",
 					val_to_str(direction,
 						names_direction, "%u"));
 			}
@@ -532,8 +532,8 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb, pinfo, quake3_tree, &direction);
 	}
 	if (direction != DIR_UNKNOWN && dir_item)
-		proto_item_set_text(dir_item, 
-					"Direction: %s", 
+		proto_item_set_text(dir_item,
+					"Direction: %s",
 					val_to_str(direction,
 						names_direction, "%u"));
 
@@ -551,7 +551,7 @@ proto_reg_handoff_quake3(void)
 	static int server_port;
 	static int master_port;
 	int i;
- 
+
 	if (!initialized) {
 		quake3_handle = create_dissector_handle(dissect_quake3,
 				proto_quake3);
@@ -562,11 +562,11 @@ proto_reg_handoff_quake3(void)
 		for (i=0;i<4;i++)
 			dissector_delete("udp.port", master_port+i, quake3_handle);
 	}
- 
+
         /* set port for future deletes */
 	server_port = gbl_quake3_server_port;
 	master_port = gbl_quake3_master_port;
- 
+
 	/* add dissectors */
 	for (i=0;i<4;i++)
 		dissector_add("udp.port", gbl_quake3_server_port + i,
