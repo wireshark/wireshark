@@ -256,9 +256,10 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	char			*text;
 	enum field_type		ftype;
 	guchar			code = tvb_get_guint8(tvb, voff);
-	int			vlen;
+	int			optlen;
 	guchar			byte;
-	int			i,optp, consumed;
+	int			i, consumed;
+	int			optoff, optleft, optend;
 	gulong			time_secs;
 	proto_tree		*v_tree, *o52tree, *flags_tree, *ft;
 	proto_item		*vti;
@@ -277,16 +278,16 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	    {0x8,   "H-node" },
 	    {0,     NULL     } };
 
-    static const value_string slpda_vals[] = {
-        {0x00,   "Dynamic Discovery" },
-        {0x01,   "Static Discovery" },
-        {0x80,   "Backwards compatibility" },
-        {0,     NULL     } };
+	static const value_string slpda_vals[] = {
+	    {0x00,   "Dynamic Discovery" },
+	    {0x01,   "Static Discovery" },
+	    {0x80,   "Backwards compatibility" },
+	    {0,     NULL     } };
 
-    static const value_string slp_scope_vals[] = {
-        {0x00,   "Preferred Scope" },
-        {0x01,   "Mandatory Scope" },
-        {0,     NULL     } };
+	static const value_string slp_scope_vals[] = {
+	    {0x00,   "Preferred Scope" },
+	    {0x01,   "Mandatory Scope" },
+	    {0,     NULL     } };
 
 	static const value_string authen_protocol_vals[] = {
 	    {AUTHEN_PROTO_CONFIG_TOKEN,   "configuration token" },
@@ -521,7 +522,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/* 210 */ { "Authentication",				special }
 	};
 
-	/* Options whose length isn't "vlen + 2". */
+	/* Options whose length isn't "optlen + 2". */
 	switch (code) {
 
 	case 0:		/* Padding */
@@ -576,8 +577,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			return 1;
 		}
 	}
-	vlen = tvb_get_guint8(tvb, voff+1);
-	consumed = vlen + 2;
+	optlen = tvb_get_guint8(tvb, voff+1);
+	consumed = optlen + 2;
 
 	/*
 	 * In the first pass, we don't put anything into the protocol
@@ -624,23 +625,31 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		return consumed;
 	}
 
+	optoff = voff+2;
+
 	text = opt[code].text;
 	/* Special cases */
 	switch (code) {
 
 	case 21:	/* Policy Filter */
-		if (vlen == 8) {
+		if (optlen == 8) {
 			/* one IP address pair */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s/%s", code, text,
-				ip_to_str(tvb_get_ptr(tvb, voff+2, 4)),
-				ip_to_str(tvb_get_ptr(tvb, voff+6, 4)));
+				ip_to_str(tvb_get_ptr(tvb, optoff, 4)),
+				ip_to_str(tvb_get_ptr(tvb, optoff+4, 4)));
 		} else {
 			/* > 1 IP address pair. Let's make a sub-tree */
 			vti = proto_tree_add_text(bp_tree, tvb, voff,
 				consumed, "Option %d: %s", code, text);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			for (i = voff + 2; i < voff + consumed; i += 8) {
+			for (i = optoff, optleft = optlen;
+			    optleft > 0; i += 8, optleft -= 8) {
+				if (optleft < 8) {
+					proto_tree_add_text(v_tree, tvb, i, optleft,
+					    "Option length isn't a multiple of 8");
+					break;
+				}
 				proto_tree_add_text(v_tree, tvb, i, 8, "IP Address/Mask: %s/%s",
 					ip_to_str(tvb_get_ptr(tvb, i, 4)),
 					ip_to_str(tvb_get_ptr(tvb, i+4, 4)));
@@ -649,18 +658,24 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 33:	/* Static Route */
-		if (vlen == 8) {
+		if (optlen == 8) {
 			/* one IP address pair */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s/%s", code, text,
-				ip_to_str(tvb_get_ptr(tvb, voff+2, 4)),
-				ip_to_str(tvb_get_ptr(tvb, voff+6, 4)));
+				ip_to_str(tvb_get_ptr(tvb, optoff, 4)),
+				ip_to_str(tvb_get_ptr(tvb, optoff+4, 4)));
 		} else {
 			/* > 1 IP address pair. Let's make a sub-tree */
 			vti = proto_tree_add_text(bp_tree, tvb, voff,
 				consumed, "Option %d: %s", code, text);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			for (i = voff + 2; i < voff + consumed; i += 8) {
+			for (i = optoff, optleft = optlen; optleft > 0;
+			    i += 8, optleft -= 8) {
+				if (optleft < 8) {
+					proto_tree_add_text(v_tree, tvb, i, optleft,
+					    "Option length isn't a multiple of 8");
+					break;
+				}
 				proto_tree_add_text(v_tree, tvb, i, 8,
 					"Destination IP Address/Router: %s/%s",
 					ip_to_str(tvb_get_ptr(tvb, i, 4)),
@@ -677,10 +692,10 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				consumed, "Option %d: %s (PXEClient)", code, text);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 
-			optp = voff+2;
-			while (optp < voff+consumed) {
-				optp = dissect_vendor_pxeclient_suboption(v_tree,
-					tvb, optp);
+			optend = optoff + optlen;
+			while (optoff < optend) {
+				optoff = dissect_vendor_pxeclient_suboption(v_tree,
+					tvb, optoff);
 			}
 		} else if (*vendor_class_id_p != NULL &&
 			   ((strncmp(*vendor_class_id_p, "pktc", strlen("pktc")) == 0) ||
@@ -691,19 +706,24 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				consumed, "Option %d: %s (CableLabs)", code, text);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 
-			optp = voff+2;
-			while (optp < voff+consumed) {
-			        optp = dissect_vendor_cablelabs_suboption(v_tree,
-					tvb, optp);
+			optend = optoff + optlen;
+			while (optoff < optend) {
+			        optoff = dissect_vendor_cablelabs_suboption(v_tree,
+					tvb, optoff);
 			}
 		} else {
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-				"Option %d: %s (%d bytes)", code, text, vlen);
+				"Option %d: %s (%d bytes)", code, text, optlen);
 		}
 		break;
 
 	case 46:	/* NetBIOS-over-TCP/IP Node Type */
-		byte = tvb_get_guint8(tvb, voff+2);
+		if (optlen != 1) {
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: length isn't 1", code);
+			break;
+		}
+		byte = tvb_get_guint8(tvb, optoff);
 		proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s", code, text,
 				val_to_str(byte, nbnt_vals,
@@ -711,7 +731,12 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 52:	/* Option Overload */
-		byte = tvb_get_guint8(tvb, voff+2);
+		if (optlen < 1) {
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: length isn't >= 1", code);
+			break;
+		}
+		byte = tvb_get_guint8(tvb, optoff);
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 			"Option %d: %s = %s", code, text,
 			val_to_str(byte, opt_overload_vals,
@@ -750,27 +775,32 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			}
 		}
 
-/*		protocol = tvb_get_guint8(tvb, voff+2);
-		proto_tree_add_text(v_tree, tvb, voff+2, 1, "Protocol: %s (%u)",
+/*		protocol = tvb_get_guint8(tvb, optoff);
+		proto_tree_add_text(v_tree, tvb, optoff, 1, "Protocol: %s (%u)",
 				    val_to_str(protocol, authen_protocol_vals, "Unknown"),
 				    protocol); */
 		break;
 	case 53:	/* DHCP Message Type */
+		if (optlen != 1) {
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: length isn't 1", code);
+			break;
+		}
 		proto_tree_add_text(bp_tree, tvb, voff, 3, "Option %d: %s = DHCP %s",
-			code, text, get_dhcp_type(tvb_get_guint8(tvb, voff+2)));
+			code, text, get_dhcp_type(tvb_get_guint8(tvb, optoff)));
 		break;
 
 	case 55:	/* Parameter Request List */
 		vti = proto_tree_add_text(bp_tree, tvb, voff,
-			vlen + 2, "Option %d: %s", code, text);
+			consumed, "Option %d: %s", code, text);
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-		for (i = 0; i < vlen; i++) {
-			byte = tvb_get_guint8(tvb, voff+2+i);
+		for (i = 0; i < optlen; i++) {
+			byte = tvb_get_guint8(tvb, optoff+i);
 			if (byte < array_length(opt)) {
-				proto_tree_add_text(v_tree, tvb, voff+2+i, 1, "%d = %s",
+				proto_tree_add_text(v_tree, tvb, optoff+i, 1, "%d = %s",
 						byte, opt[byte].text);
 			} else {
-				proto_tree_add_text(vti, tvb, voff+2+i, 1,
+				proto_tree_add_text(vti, tvb, optoff+i, 1,
 					"Unknown Option Code: %d", byte);
 			}
 		}
@@ -783,21 +813,21 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		 */
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 			"Option %d: %s = \"%s\"", code, text,
-			tvb_format_stringzpad(tvb, voff+2, consumed-2));
-		if ((tvb_memeql(tvb, voff+2, PACKETCABLE_MTA_CAP10, strlen(PACKETCABLE_MTA_CAP10)) == 0) ||
-			(tvb_memeql(tvb, voff+2, PACKETCABLE_MTA_CAP15, strlen(PACKETCABLE_MTA_CAP10)) == 0)) {
+			tvb_format_stringzpad(tvb, optoff, consumed-2));
+		if ((tvb_memeql(tvb, optoff, PACKETCABLE_MTA_CAP10, strlen(PACKETCABLE_MTA_CAP10)) == 0) ||
+			(tvb_memeql(tvb, optoff, PACKETCABLE_MTA_CAP15, strlen(PACKETCABLE_MTA_CAP10)) == 0)) {
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			dissect_packetcable_mta_cap(v_tree, tvb, voff+2, vlen);
-		} else if (tvb_memeql(tvb, voff+2, PACKETCABLE_CM_CAP11, strlen(PACKETCABLE_CM_CAP11)) == 0 ||
-				tvb_memeql(tvb, voff+2, PACKETCABLE_CM_CAP20, strlen(PACKETCABLE_CM_CAP20)) == 0 ) {
+			dissect_packetcable_mta_cap(v_tree, tvb, optoff, optlen);
+		} else if (tvb_memeql(tvb, optoff, PACKETCABLE_CM_CAP11, strlen(PACKETCABLE_CM_CAP11)) == 0 ||
+				tvb_memeql(tvb, optoff, PACKETCABLE_CM_CAP20, strlen(PACKETCABLE_CM_CAP20)) == 0 ) {
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			dissect_docsis_cm_cap(v_tree, tvb, voff+2, vlen);
+			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen);
 		}
 		break;
 
 	case 61:	/* Client Identifier */
-		if (vlen > 0)
-			byte = tvb_get_guint8(tvb, voff+2);
+		if (optlen > 0)
+			byte = tvb_get_guint8(tvb, optoff);
 		else
 			byte = 0;
 
@@ -810,23 +840,23 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		   field contains an identifier other than a hardware address
 		   (e.g. a fully qualified domain name). */
 
-		if (vlen == 7 && byte > 0 && byte < 48) {
+		if (optlen == 7 && byte > 0 && byte < 48) {
 
 			vti = proto_tree_add_text(bp_tree, tvb, voff,
 				consumed, "Option %d: %s", code, text);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(v_tree, tvb, voff+2, 1,
+			proto_tree_add_text(v_tree, tvb, optoff, 1,
 				"Hardware type: %s",
 				arphrdtype_to_str(byte,
 					"Unknown (0x%02x)"));
-			proto_tree_add_text(v_tree, tvb, voff+3, 6,
+			proto_tree_add_text(v_tree, tvb, optoff+1, 6,
 				"Client hardware address: %s",
-				arphrdaddr_to_str(tvb_get_ptr(tvb, voff+3, 6),
+				arphrdaddr_to_str(tvb_get_ptr(tvb, optoff+1, 6),
 					6, byte));
 		} else {
 			/* otherwise, it's opaque data */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-				"Option %d: %s (%d bytes)", code, text, vlen);
+				"Option %d: %s (%d bytes)", code, text, optlen);
 		}
 		break;
 
@@ -835,68 +865,87 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		    consumed, "Option %d: %s", code, text);
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 
-		optp = voff+2;
-		while (optp < voff+consumed)
-			optp = dissect_netware_ip_suboption(v_tree, tvb, optp);
+		optend = optoff + optlen;
+		while (optoff < optend)
+			optoff = dissect_netware_ip_suboption(v_tree, tvb, optoff);
 		break;
 
 	case 78:	/* SLP Directory Agent Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
-		byte = tvb_get_guint8(tvb, voff+2);
+		if (optlen < 1) {
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: length isn't >= 1", code);
+			break;
+		}
+		optleft = optlen;
+		byte = tvb_get_guint8(tvb, optoff);
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s", code, text,
 				val_to_str(byte, slpda_vals,
 				    "Unknown (0x%02x)"));
+		optoff++;
+		optleft--;
 		if (byte == 0x80) {
-			voff++;
-			consumed--;
+			if (optleft == 0)
+				break;
+			optoff++;
+			optleft--;
 		}
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-		for (i = voff + 3; i < voff + consumed; i += 4) {
+		for (i = optoff; optleft > 0; i += 4, optleft -= 4) {
+			if (optleft < 4) {
+				proto_tree_add_text(v_tree, tvb, i, optleft,
+				    "Option length isn't a multiple of 4");
+				break;
+			}
 			proto_tree_add_text(v_tree, tvb, i, 4, "SLPDA Address: %s",
 			    ip_to_str(tvb_get_ptr(tvb, i, 4)));
-		}
-		if (byte == 0x80) {
-			consumed++;
 		}
 		break;
 
 	case 79:	/* SLP Service Scope Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
-		byte = tvb_get_guint8(tvb, voff+2);
+		byte = tvb_get_guint8(tvb, optoff);
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s", code, text,
 				val_to_str(byte, slp_scope_vals,
 				    "Unknown (0x%02x)"));
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-		proto_tree_add_text(v_tree, tvb, voff+3, consumed-3,
+		optoff++;
+		optleft = optlen - 1;
+		proto_tree_add_text(v_tree, tvb, optoff, optleft,
 		    "%s = \"%s\"", text,
-		    tvb_format_stringzpad(tvb, voff+3, vlen-1));
+		    tvb_format_stringzpad(tvb, optoff, optleft));
 		break;
 
 	case 81:	/* Client Fully Qualified Domain Name */
+		if (optlen < 3) {
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: length isn't >= 3", code);
+			break;
+		}
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: FQDN", code);
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-		fqdn_flags = tvb_get_guint8(tvb, voff+2);
-		ft = proto_tree_add_text(v_tree, tvb, voff+2, 1, "Flags: 0x%02x", fqdn_flags);
+		fqdn_flags = tvb_get_guint8(tvb, optoff);
+		ft = proto_tree_add_text(v_tree, tvb, optoff, 1, "Flags: 0x%02x", fqdn_flags);
 		flags_tree = proto_item_add_subtree(ft, ett_bootp_fqdn);
-		proto_tree_add_item(flags_tree, hf_bootp_fqdn_mbz, tvb, voff+2, 1, FALSE);
-		proto_tree_add_item(flags_tree, hf_bootp_fqdn_n, tvb, voff+2, 1, FALSE);
-		proto_tree_add_item(flags_tree, hf_bootp_fqdn_e, tvb, voff+2, 1, FALSE);
-		proto_tree_add_item(flags_tree, hf_bootp_fqdn_o, tvb, voff+2, 1, FALSE);
-		proto_tree_add_item(flags_tree, hf_bootp_fqdn_s, tvb, voff+2, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_mbz, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_n, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_e, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_o, tvb, optoff, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_bootp_fqdn_s, tvb, optoff, 1, FALSE);
 		/* XXX: use code from packet-dns for return code decoding */
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode1, tvb, voff+3, 1, FALSE);
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode1, tvb, optoff+1, 1, FALSE);
 		/* XXX: use code from packet-dns for return code decoding */
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode2, tvb, voff+4, 1, FALSE);
-		if (vlen > 3) {
+		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode2, tvb, optoff+2, 1, FALSE);
+		if (optlen > 3) {
 			if (fqdn_flags & F_FQDN_E) {
 				/* XXX: use code from packet-dns for binary encoded name */
 				proto_tree_add_item(v_tree, hf_bootp_fqdn_name,
-				    tvb, voff+5, vlen-3, FALSE);
+				    tvb, optoff+3, optlen-3, FALSE);
 
 			} else {
 				proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname,
-				    tvb, voff+5, vlen-3, FALSE);
+				    tvb, optoff+3, optlen-3, FALSE);
 			}
 		}
 		break;
@@ -904,87 +953,106 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	case 82:        /* Relay Agent Information Option */
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 					  "Option %d: %s (%d bytes)",
-					  code, text, vlen);
+					  code, text, optlen);
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-		optp = voff+2;
-		while (optp < voff+consumed) {
-			optp = bootp_dhcp_decode_agent_info(v_tree, tvb, optp);
-		}
+		optend = optoff + optlen;
+		while (optoff < optend)
+			optoff = bootp_dhcp_decode_agent_info(v_tree, tvb, optoff);
 		break;
 
-	case 85:        /* Novell Servers */
+	case 85:        /* Novell Servers (RFC 2241) */
 		/* Option 85 can be sent as a string */
 		/* Added by Greg Morris (gmorris[AT]novell.com) */
 		if (novell_string) {
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 			    "Option %d: %s = \"%s\"", code, text,
-			    tvb_format_stringzpad(tvb, voff+2, consumed-2));
+			    tvb_format_stringzpad(tvb, optoff, optlen));
 		} else {
-			if (vlen == 4) {
+			if (optlen == 4) {
 				/* one IP address */
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
 					"Option %d: %s = %s", code, text,
-					ip_to_str(tvb_get_ptr(tvb, voff+2, 4)));
+					ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
 				vti = proto_tree_add_text(bp_tree, tvb, voff,
 					consumed, "Option %d: %s", code, text);
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (i = voff + 2; i < voff + consumed; i += 4) {
+				for (i = optoff, optleft = optlen; optleft > 0;
+				    i += 4, optleft -= 4) {
+					if (optleft < 4) {
+						proto_tree_add_text(v_tree, tvb, i, optleft,
+						    "Option length isn't a multiple of 4");
+						break;
+					}
 					proto_tree_add_text(v_tree, tvb, i, 4, "IP Address: %s",
 						ip_to_str(tvb_get_ptr(tvb, i, 4)));
 				}
 			}
-        }
-        break;
+        	}
+	        break;
 
 	case 90:	/* DHCP Authentication */
 	case 210:	/* Was this used for authentication at one time? */
+		if (optlen < 11) {
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: length isn't >= 11", code);
+			break;
+		}
 		vti = proto_tree_add_text(bp_tree, tvb, voff,
-			vlen + 2, "Option %d: %s", code, text);
+			consumed, "Option %d: %s", code, text);
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 
-		protocol = tvb_get_guint8(tvb, voff+2);
-		proto_tree_add_text(v_tree, tvb, voff+2, 1, "Protocol: %s (%u)",
+		optleft = optlen;
+		protocol = tvb_get_guint8(tvb, optoff);
+		proto_tree_add_text(v_tree, tvb, optoff, 1, "Protocol: %s (%u)",
 				    val_to_str(protocol, authen_protocol_vals, "Unknown"),
 				    protocol);
+		optoff++;
+		optleft--;
 
-		algorithm = tvb_get_guint8(tvb, voff+3);
+		algorithm = tvb_get_guint8(tvb, optoff);
 		switch (protocol) {
 
 		case AUTHEN_PROTO_DELAYED_AUTHEN:
-			proto_tree_add_text(v_tree, tvb, voff+3, 1,
+			proto_tree_add_text(v_tree, tvb, optoff, 1,
 				    "Algorithm: %s (%u)",
 				    val_to_str(algorithm, authen_da_algo_vals, "Unknown"),
 				    algorithm);
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, voff+3, 1,
+			proto_tree_add_text(v_tree, tvb, optoff, 1,
 				    "Algorithm: %u", algorithm);
 			break;
 		}
+		optoff++;
+		optleft--;
 
-		rdm = tvb_get_guint8(tvb, voff+4);
-		proto_tree_add_text(v_tree, tvb, voff+4, 1,
+		rdm = tvb_get_guint8(tvb, optoff);
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
 				    "Replay Detection Method: %s (%u)",
 				    val_to_str(rdm, authen_rdm_vals, "Unknown"),
 				    rdm);
+		optoff++;
+		optleft--;
 
 		switch (rdm) {
 
 		case AUTHEN_RDM_MONOTONIC_COUNTER:
-			proto_tree_add_text(v_tree, tvb, voff+5, 8,
+			proto_tree_add_text(v_tree, tvb, optoff, 8,
 				    "Replay Detection Value: %" PRIx64,
-				    tvb_get_ntoh64(tvb, voff+5));
+				    tvb_get_ntoh64(tvb, optoff));
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, voff+5, 8,
+			proto_tree_add_text(v_tree, tvb, optoff, 8,
 				    "Replay Detection Value: %s",
-				    tvb_bytes_to_str(tvb, voff+5, 8));
+				    tvb_bytes_to_str(tvb, optoff, 8));
 			break;
 		}
+		optoff += 8;
+		optleft -= 8;
 
 		switch (protocol) {
 
@@ -992,26 +1060,37 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			switch (algorithm) {
 
 			case AUTHEN_DELAYED_ALGO_HMAC_MD5:
-				proto_tree_add_text(v_tree, tvb, voff+13, 4,
+				if (optlen < 31) {
+					proto_tree_add_text(bp_tree, tvb, 0, 0,
+						"Option %d: length isn't >= 31", code);
+					break;
+				}
+				proto_tree_add_text(v_tree, tvb, optoff, 4,
 					"Secret ID: 0x%08x",
-					tvb_get_ntohl(tvb, voff+13));
-				proto_tree_add_text(v_tree, tvb, voff+17, 16,
+					tvb_get_ntohl(tvb, optoff));
+				optoff += 4;
+				optleft -= 4;
+				proto_tree_add_text(v_tree, tvb, optoff, 16,
 					"HMAC MD5 Hash: %s",
-					tvb_bytes_to_str(tvb, voff+17, 16));
+					tvb_bytes_to_str(tvb, optoff, 16));
 				break;
 
 			default:
-				proto_tree_add_text(v_tree, tvb, voff+13, vlen-11,
+				if (optleft == 0)
+					break;
+				proto_tree_add_text(v_tree, tvb, optoff, optleft,
 					"Authentication Information: %s",
-					tvb_bytes_to_str(tvb, voff+17, vlen-11));
+					tvb_bytes_to_str(tvb, optoff, optleft));
 				break;
 			}
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, voff+13, vlen-11,
+			if (optleft == 0)
+				break;
+			proto_tree_add_text(v_tree, tvb, optoff, optleft,
 				"Authentication Information: %s",
-				tvb_bytes_to_str(tvb, voff+17, vlen-11));
+				tvb_bytes_to_str(tvb, optoff, optleft));
 			break;
 		}
 		break;
@@ -1024,17 +1103,17 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			skip_opaque = TRUE;
 			vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 						  "Option %d: CableLabs Client Configuration (%d bytes)",
-						  code, vlen);
+						  code, optlen);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			optp = voff+2;
-			while (optp < voff+consumed) {
+			optend = optoff + optlen;
+			while (optoff < optend) {
 				switch (pkt_ccc_protocol_version) {
 					case PACKETCABLE_CCC_I05:
-						optp = dissect_packetcable_i05_ccc(v_tree, tvb, optp);
+						optoff = dissect_packetcable_i05_ccc(v_tree, tvb, optoff);
 						break;
 					case PACKETCABLE_CCC_DRAFT5:
 					case PACKETCABLE_CCC_RFC_3495:
-						optp = dissect_packetcable_ietf_ccc(v_tree, tvb, optp, pkt_ccc_protocol_version);
+						optoff = dissect_packetcable_ietf_ccc(v_tree, tvb, optoff, pkt_ccc_protocol_version);
 						break;
 					default: /* XXX Should we do something here? */
 						break;
@@ -1056,17 +1135,23 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			return consumed;
 
 		case ipv4:
-			if (vlen == 4) {
+			if (optlen == 4) {
 				/* one IP address */
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
 					"Option %d: %s = %s", code, text,
-					ip_to_str(tvb_get_ptr(tvb, voff+2, 4)));
+					ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
 				vti = proto_tree_add_text(bp_tree, tvb, voff,
 					consumed, "Option %d: %s", code, text);
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (i = voff + 2; i < voff + consumed; i += 4) {
+				for (i = optoff, optleft = optlen; optleft > 0;
+				    i += 4, optleft -= 4) {
+					if (optleft < 4) {
+						proto_tree_add_text(v_tree, tvb, i, voff + consumed - i,
+						    "Option length isn't a multiple of 4");
+						break;
+					}
 					proto_tree_add_text(v_tree, tvb, i, 4, "IP Address: %s",
 						ip_to_str(tvb_get_ptr(tvb, i, 4)));
 				}
@@ -1079,29 +1164,35 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			 */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 					"Option %d: %s = \"%s\"", code, text,
-					tvb_format_stringzpad(tvb, voff+2, consumed-2));
+					tvb_format_stringzpad(tvb, optoff, consumed-2));
 			break;
 
 		case opaque:
 			if (! skip_opaque) { /* Currently used by PacketCable CCC */
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
 						"Option %d: %s (%d bytes)",
-						code, text, vlen);
+						code, text, optlen);
 			}
 			break;
 
 		case val_u_short:
-			if (vlen == 2) {
+			if (optlen == 2) {
 				/* one gushort */
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
 						"Option %d: %s = %d", code, text,
-						tvb_get_ntohs(tvb, voff+2));
+						tvb_get_ntohs(tvb, optoff));
 			} else {
 				/* > 1 gushort */
 				vti = proto_tree_add_text(bp_tree, tvb, voff,
 					consumed, "Option %d: %s", code, text);
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (i = voff + 2; i < voff + consumed; i += 2) {
+				for (i = optoff, optleft = optlen; optleft > 0;
+				    i += 2, optleft -= 2) {
+					if (optleft < 2) {
+						proto_tree_add_text(v_tree, tvb, i, voff + consumed - i,
+						    "Option length isn't a multiple of 2");
+						break;
+					}
 					proto_tree_add_text(v_tree, tvb, i, 4, "Value: %d",
 						tvb_get_ntohs(tvb, i));
 				}
@@ -1109,19 +1200,34 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			break;
 
 		case val_u_long:
+			if (optlen != 4) {
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: length isn't 4", code);
+				break;
+			}
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 					"Option %d: %s = %d", code, text,
-					tvb_get_ntohl(tvb, voff+2));
+					tvb_get_ntohl(tvb, optoff));
 			break;
 
 		case val_u_byte:
+			if (optlen != 1) {
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: length isn't 1", code);
+				break;
+			}
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 					"Option %d: %s = %d", code, text,
-					tvb_get_guint8(tvb, voff+2));
+					tvb_get_guint8(tvb, optoff));
 			break;
 
 		case toggle:
-			i = tvb_get_guint8(tvb, voff+2);
+			if (optlen != 1) {
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: length isn't 1", code);
+				break;
+			}
+			i = tvb_get_guint8(tvb, optoff);
 			if (i != 0 && i != 1) {
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
 						"Option %d: %s = Invalid Value %d", code, text,
@@ -1134,7 +1240,12 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			break;
 
 		case yes_no:
-			i = tvb_get_guint8(tvb, voff+2);
+			if (optlen != 1) {
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: length isn't 1", code);
+				break;
+			}
+			i = tvb_get_guint8(tvb, optoff);
 			if (i != 0 && i != 1) {
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
 						"Option %d: %s = Invalid Value %d", code, text,
@@ -1147,7 +1258,12 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			break;
 
 		case time_in_secs:
-			time_secs = tvb_get_ntohl(tvb, voff+2);
+			if (optlen != 4) {
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: length isn't 4", code);
+				break;
+			}
+			time_secs = tvb_get_ntohl(tvb, optoff);
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s", code, text,
 				((time_secs == 0xffffffff) ?
@@ -1157,11 +1273,11 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		default:
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s (%d bytes)", code, text, vlen);
+					"Option %d: %s (%d bytes)", code, text, optlen);
 		}
 	} else {
 		proto_tree_add_text(bp_tree, tvb, voff, consumed,
-				"Unknown Option Code: %d (%d bytes)", code, vlen);
+				"Unknown Option Code: %d (%d bytes)", code, optlen);
 	}
 
 	return consumed;
