@@ -4224,7 +4224,7 @@ cops_version_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_tree *stt;
 
      /* Create a subtree */
-     stt = info_to_cops_subtree(tvb,st,n,offset,"Gate State");
+     stt = info_to_cops_subtree(tvb,st,n,offset,"Version Info");
 
      /* State */
      info_to_display(tvb,stt,offset,2,"Major Version Number",NULL,FMT_DEC,&hf_cops_pcmm_packetcable_version_info_major);
