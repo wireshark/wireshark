@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.60 2003/01/11 06:03:49 guy Exp $
+ * $Id: packet-atm.c,v 1.61 2003/01/11 06:17:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1028,8 +1028,8 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         calc_crc = update_crc(0xFFFFFFFF, tvb_get_ptr(tvb, 0, length),
 		length);
         proto_tree_add_text(atm_tree, tvb, length - 4, 4,
-		"AAL5 CRC (%s): 0x%08X",
-		(calc_crc == 0xC704DD7B) ? "correct" : "incorrect", crc);
+		"AAL5 CRC: 0x%08X (%s)", crc,
+		(calc_crc == 0xC704DD7B) ? "correct" : "incorrect");
       }
       next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
     }
