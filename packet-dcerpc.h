@@ -2,7 +2,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.37 2003/11/16 23:17:17 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.38 2003/11/21 02:48:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@ typedef struct _e_uuid_t {
 #define DCERPC_UUID_STR_LEN 36+1
 
 typedef struct _e_ctx_hnd {
-    guint32 Data1;
+    guint32 attributes;
     e_uuid_t uuid;
 } e_ctx_hnd;
 

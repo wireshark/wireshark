@@ -2,7 +2,7 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.13 2002/11/03 20:35:49 guy Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.14 2003/11/21 02:48:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -234,6 +234,15 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     return offset + 16;
 }
 
+/*
+ * XXX - at least according to the DCE RPC 1.1 "nbase.idl", an
+ * "ndr_context_handle" is an unsigned32 "context_handle_attributes"
+ * and a uuid_t "context_handle_uuid".  The attributes do not appear to
+ * be used, and always appear to be set to 0, in the DCE RPC 1.1 code.
+ *
+ * Should we display an "ndr_context_handle" with a tree holding the
+ * attributes and the uuid_t?
+ */
 int
 dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                      proto_tree *tree, char *drep,
@@ -251,11 +260,11 @@ dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 4) {
         offset += 4 - (offset % 4);
     }
-    ctx_hnd.Data1 = dcerpc_tvb_get_ntohl (tvb, offset, drep);
+    ctx_hnd.attributes = dcerpc_tvb_get_ntohl (tvb, offset, drep);
     dcerpc_tvb_get_uuid (tvb, offset+4, drep, &ctx_hnd.uuid);
     if (tree) {
-        proto_tree_add_bytes (tree, hfindex, tvb, offset, 20,
-                              tvb_get_ptr (tvb, offset, 20));
+        /* Bytes is bytes - don't worry about the data representation */
+        proto_tree_add_item (tree, hfindex, tvb, offset, 20, FALSE);
     }
     if (pdata) {
         *pdata = ctx_hnd;
