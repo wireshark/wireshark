@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.28 2001/05/01 02:44:51 guy Exp $ */
+/* $Id: config.h.win32,v 1.29 2001/06/02 08:07:47 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -120,6 +120,7 @@
 #define NEED_INET_ATON_H	1
 #define NEED_INET_V6DEFS_H	1
 #define NEED_GETOPT_H		1
+#define NEED_STRPTIME_H		1
 #define snprintf 		_snprintf
 #define vsnprintf 		_vsnprintf
 #define strcasecmp		stricmp
