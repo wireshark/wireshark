@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.16 1999/11/16 11:42:45 guy Exp $
+ * $Id: packet-ospf.c,v 1.17 1999/11/17 19:07:10 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -404,6 +404,7 @@ int
 dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int disassemble_body) {
     e_ospf_lsa_hdr 	 lsa_hdr;
     char		*lsa_type;
+    int			 lsa_end;
 
     /* data strutures for the router LSA */
     e_ospf_router_lsa 		router_lsa;
@@ -440,7 +441,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	    lsa_type="Network LSA";
             break;
         case OSPF_LSTYPE_SUMMERY:
-	    lsa_type="Summery LSA";
+	    lsa_type="Summary LSA";
             break;
         case OSPF_LSTYPE_ASBR:
 	    lsa_type="ASBR LSA";
@@ -481,7 +482,8 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
            return OSPF_LSA_HEADER_LENGTH;
         }
 
-	/* the LSA body starts afte 20 bytes of LSA Header */
+	lsa_end = offset + ntohs(lsa_hdr.length);
+	/* the LSA body starts after 20 bytes of LSA Header */
 	offset+=20;
 
         switch(lsa_hdr.ls_type){
@@ -555,7 +557,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
                                                  ip_to_str((guint8 *) &(network_lsa.network_mask)));
 		offset += 4;
 
-		while( ((int) (pi.captured_len - offset)) >= 4){
+		while( (lsa_end - offset) >= 4){
 		    attached_router = (guint32 *) &pd[offset];
 		    proto_tree_add_text(ospf_lsa_tree, offset, 4, "Attached Router: %s", 
                                                  ip_to_str((guint8 *) attached_router));
