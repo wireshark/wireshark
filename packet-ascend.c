@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.1 1999/09/11 05:32:33 gerald Exp $
+ * $Id: packet-ascend.c,v 1.2 1999/09/11 06:51:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,7 @@
 #endif
 
 #include <glib.h>
+#include <string.h>
 #include "packet.h"
 
 #include "wiretap/ascend.h"
