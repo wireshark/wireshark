@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.387 2001/11/28 07:11:06 guy Exp $
+# $Id: Makefile.am,v 1.388 2001/12/02 00:38:53 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -471,6 +471,7 @@ ETHEREAL_COMMON_SRC = \
 	util.h         \
 	x11-declarations.h \
 	x11-register-info.h \
+	x264_prt_id.h  \
 	xdlc.c         \
 	xdlc.h         \
 	xmlstub.c      \

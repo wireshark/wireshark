@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.56 2001/12/02 00:07:46 guy Exp $
+ * $Id: packet-x25.c,v 1.57 2001/12/02 00:38:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "packet.h"
 #include "prefs.h"
 #include "nlpid.h"
+#include "x264_prt_id.h"
 
 #define FROM_DCE			0x80
 
@@ -191,7 +192,7 @@ typedef struct _vc_info {
  * secondary protocol identifier.
  */
 #define PROTO_SNA	-2
-#define PROTO_ISO_8073	-3
+#define PROTO_OSITP	-3
 
 /*
  * the hash table will contain linked lists of global_vc_info
@@ -1477,14 +1478,12 @@ get_x25_pkt_len(tvbuff_t *tvb)
     return 0;
 }
 
-#define	PRT_ID_ISO_8073	0x01
-
 static const value_string prt_id_vals[] = {
-        {PRT_ID_ISO_8073, "ISO 8073 COTP"},
-        {0x02,            "ISO 8602"},
-        {0x03,            "ISO 10732 in conjunction with ISO 8073"},
-        {0x04,            "ISO 10736 in conjunction with ISO 8602"},
-        {0x00,            NULL}
+        {PRT_ID_ISO_8073,           "ISO 8073 COTP"},
+        {PRT_ID_ISO_8602,           "ISO 8602 CLTP"},
+        {PRT_ID_ISO_10736_ISO_8073, "ISO 10736 in conjunction with ISO 8073 COTP"},
+        {PRT_ID_ISO_10736_ISO_8602, "ISO 10736 in conjunction with ISO 8602 CLTP"},
+        {0x00,                      NULL}
 };
 
 static const value_string sharing_strategy_vals[] = {
@@ -1760,9 +1759,16 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    /* ISO 8073 COTP */
 		    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
 					     pinfo->fd->abs_usecs,
-					     PROTO_ISO_8073);
+					     PROTO_OSITP);
 		    /* XXX - disssect the rest of the user data as COTP?
 		       That needs support for NCM TPDUs, etc. */
+		    break;
+
+		case PRT_ID_ISO_8602:
+		    /* ISO 8602 CLTP */
+		    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
+					     pinfo->fd->abs_usecs,
+					     PROTO_OSITP);
 		    break;
 		}
 	    } else if (is_x_264 == 0) {
@@ -2169,7 +2175,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	call_dissector(sna_handle, next_tvb, pinfo, tree);
 	return;
 
-    case PROTO_ISO_8073:
+    case PROTO_OSITP:
 	call_dissector(ositp_handle, next_tvb, pinfo, tree);
 	return;
 
