@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.88 2003/09/10 09:49:31 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.89 2003/09/11 13:24:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4041,9 +4041,6 @@ netlogon_dissect_function_12_reply(tvbuff_t *tvb, int offset,
 
 
 
-/*qqq*/
-/* Updated above this line */
-
 static const value_string trust_type_vals[] = {
 	{ 1,				"DOWNLEVEL" },
 	{ 2,				"UPLEVEL" },
@@ -4427,39 +4424,6 @@ netlogon_dissect_pointer_char(tvbuff_t *tvb, int offset,
                                      di->hf_index, NULL);
 	return offset;
 }
-
-static int
-netlogon_dissect_UNICODE_STRING(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep, int type, int hf_index, dcerpc_callback_fnct_t *callback)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	int old_offset=offset;
-	dcerpc_info *di;
-	char *name;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-	name = proto_registrar_get_name(hf_index);
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"%s", name);
-		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
-	}
-
-	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_wchar_cvstring, type,
-			name, hf_index, callback, NULL);
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
 
 static int
 netlogon_dissect_UNICODE_MULTI_byte(tvbuff_t *tvb, int offset,
@@ -5436,8 +5400,13 @@ netlogon_dissect_dsrgetsitename_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 
-	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, hf_netlogon_site_name, 0);
+	/* XXX hmmm this does not really look like a UNIQUE pointer but
+	   will do for now.   I think it is really a 32bit integer followed by
+	   a REF pointer to a unicode string */
+	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE, "Site Name", 
+		hf_netlogon_site_name, cb_wstr_postprocess, 
+		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
