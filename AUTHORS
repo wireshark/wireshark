@@ -823,6 +823,10 @@ Georg von Zezschwitz <gvz[AT]2scale.net> {
 	Put URL of WSP GET/POST in the Info column
 }
 
+Steffen Weinreich <steve[AT]weinreich.org> {
+	UCP fixes
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.3 2001/10/08 17:42:18 guy Exp $
+ * $Id: packet-ucp.c,v 1.4 2001/10/15 03:54:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -670,8 +670,10 @@ ucp_mktime(char *datestr)
     struct tm	 r_time;
 
     r_time.tm_mday = 10 * (datestr[0] - '0') + (datestr[1] - '0');
-    r_time.tm_mon  = 10 * (datestr[2] - '0') + (datestr[3] - '0');
+    r_time.tm_mon  = (10 * (datestr[2] - '0') + (datestr[3] - '0')) - 1;
     r_time.tm_year = 10 * (datestr[4] - '0') + (datestr[5] - '0');
+    if (r_time.tm_year < 90) 
+      r_time.tm_year += 100;
     r_time.tm_hour = 10 * (datestr[6] - '0') + (datestr[7] - '0');
     r_time.tm_min  = 10 * (datestr[8] - '0') + (datestr[9] - '0');
     if (datestr[10])
@@ -680,7 +682,7 @@ ucp_mktime(char *datestr)
 }
 
 /*!
- * Scanning rouines to add standard types (byte, int, string, data)
+ * Scanning routines to add standard types (byte, int, string, data)
  * to the protocol-tree. Each field is seperated with a slash ('/').
  *
  * \param	tree	The protocol tree to add to
@@ -1446,7 +1448,9 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleByte(hf_ucp_parm_Dst);
     UcpHandleInt(hf_ucp_parm_Rsn);
     UcpHandleTime(hf_ucp_parm_DSCTS);
-    ucp_handle_mt(tree, tvb, &offset);
+    UcpHandleByte(hf_ucp_parm_MT);
+    UcpHandleString(hf_ucp_parm_NB);
+    UcpHandleData(hf_ucp_data_section);
     UcpHandleByte(hf_ucp_parm_MMS);
     UcpHandleByte(hf_ucp_parm_PR);
     UcpHandleByte(hf_ucp_parm_DCs);
