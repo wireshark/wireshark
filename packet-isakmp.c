@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.57 2002/08/18 19:19:46 guy Exp $
+ * $Id: packet-isakmp.c,v 1.58 2002/08/20 18:20:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,8 @@
 
 #include <epan/packet.h>
 #include "ipproto.h"
+
+#define isakmp_min(a, b)  ((a<b) ? a : b)
 
 static int proto_isakmp = -1;
 
@@ -179,6 +181,26 @@ static const char *idtypestr[NUM_ID_TYPES] = {
   "KEY_ID"
 };
 
+#define NUM_GRPDESC_TYPES 14
+#define grpdesc2str(t) ((t < NUM_GRPDESC_TYPES) ? grpdescstr[t] : "UKNOWEN GROUP DESCRIPTION")
+
+static const char *grpdescstr[NUM_GRPDESC_TYPES] = {
+  "UNDEFINED - 0",
+  "Default 768-bit MODP group",
+  "Alternate 1024-bit MODP group",
+  "EC2N group on GP[2^155] group",
+  "EC2N group on GP[2^185] group",
+  "Reserved to IANA",
+  "EC2N group over GF[2^163]",
+  "EC2N group over GF[2^163]",
+  "EC2N group over GF[2^283]",
+  "EC2N group over GF[2^283]",
+  "EC2N group over GF[2^409]",
+  "EC2N group over GF[2^409]",
+  "EC2N group over GF[2^571]",
+  "EC2N group over GF[2^571]"
+};
+
 struct isakmp_hdr {
   guint8	icookie[8];
   guint8	rcookie[8];
@@ -256,6 +278,20 @@ static struct strfunc {
   {"Attrib",			dissect_config	  }
 };
 
+#define VID_LEN 16
+#define VID_MS_LEN 20
+static const guint8 VID_MS_W2K_WXP[VID_MS_LEN] = {0x1E, 0x2B, 0x51, 0x69, 0x5, 0x99, 0x1C, 0x7D, 0x7C, 0x96, 0xFC, 0xBF, 0xB5, 0x87, 0xE4, 0x61, 0x0, 0x0, 0x0, 0x2}; /* according to http://www.microsoft.com/technet/treeview/default.asp?url=/technet/columns/cableguy/cg0602.asp */
+
+#define VID_CP_LEN 20
+static const guint8 VID_CP[VID_CP_LEN] = {0xF4, 0xED, 0x19, 0xE0, 0xC1, 0x14, 0xEB, 0x51, 0x6F, 0xAA, 0xAC, 0x0E, 0xE3, 0x7D, 0xAF, 0x28, 0x7, 0xB4, 0x38, 0x1F};
+
+static const guint8 VID_CYBERGUARD[VID_LEN] = {0x9A, 0xA1, 0xF3, 0xB4, 0x34, 0x72, 0xA4, 0x5D, 0x5F, 0x50, 0x6A, 0xEB, 0x26, 0xC, 0xF2, 0x14};
+
+static const guint8 VID_SAFENET[VID_LEN] = {0x44, 0x85, 0x15, 0x2D, 0x18, 0xB6, 0xBB, 0xCD, 0x0B, 0xE8, 0xA8, 0x46, 0x95, 0x79, 0xDD, 0xCC};
+
+static const guint8 VID_draft_ietf_ipsec_nat_t_ike_03[VID_LEN] = {0x7D, 0x94, 0x19, 0xA6, 0x53, 0x10, 0xCA, 0x6F, 0x2C, 0x17, 0x9D, 0x92, 0x15, 0x52, 0x9d, 0x56}; /* according to http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-03.txt */
+
+
 static dissector_handle_t esp_handle;
 static dissector_handle_t ah_handle;
 
@@ -331,12 +367,12 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
   if (encap_hdr.non_esp_marker[0] == 0xFF) {
     if (check_col(pinfo->cinfo, COL_INFO)) 
-      col_set_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - NAT Keepalive");
+      col_add_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - NAT Keepalive");
     return;
   }
   if (memcmp(encap_hdr.non_esp_marker,non_esp_marker,4) == 0) {
     if (check_col(pinfo->cinfo, COL_INFO)) 
-          col_set_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - ESP");
+          col_add_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - ESP");
     if (tree)
       proto_tree_add_text(isakmp_tree, tvb, offset,
 			  sizeof(encap_hdr.non_esp_marker),
@@ -349,7 +385,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hdr.exch_type = tvb_get_guint8(tvb, sizeof(hdr.icookie) + sizeof(hdr.rcookie) + sizeof(hdr.next_payload) + sizeof(hdr.version));
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO, exchtype2str(hdr.exch_type));
-
+  
   if (tree) {
     tvb_memcpy(tvb, (guint8 *)&hdr.icookie, offset, sizeof(hdr.icookie));
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.icookie),
@@ -360,7 +396,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.rcookie),
 			"Responder cookie: 0x%s", tvb_bytes_to_str(tvb, offset, sizeof(hdr.rcookie)));
     offset += sizeof(hdr.rcookie);
-
+    
     hdr.next_payload = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.next_payload),
 			"Next payload: %s (%u)",
@@ -505,9 +541,13 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   guint8		next_payload;
   guint16		payload_length;
   proto_tree *		ntree;
+  guint8		proposal_num;
 
+  proposal_num = tvb_get_guint8(tvb, offset);
+  
+  proto_item_append_text(tree, " # %d",proposal_num);
   proto_tree_add_text(tree, tvb, offset, 1,
-		      "Proposal number: %u", tvb_get_guint8(tvb, offset));
+		      "Proposal number: %u", proposal_num);
   offset += 1;
   length -= 1;
   
@@ -562,9 +602,12 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     int protocol_id)
 {
   guint8		transform_id;
-
+  guint8		transform_num;
+  
+  transform_num = tvb_get_guint8(tvb, offset);
+  proto_item_append_text(tree," # %d",transform_num);
   proto_tree_add_text(tree, tvb, offset, 1,
-		      "Transform number: %u", tvb_get_guint8(tvb, offset));
+		      "Transform number: %u", transform_num);
   offset += 1;
   length -= 1;
 
@@ -859,7 +902,63 @@ static void
 dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     int unused _U_)
 {
-  proto_tree_add_text(tree, tvb, offset, length, "Vendor ID: 0x%s", tvb_bytes_to_str(tvb, offset, length));
+  guint32 CPproduct, CPversion;
+  const guint8 * pVID;
+  proto_item * pt;
+  proto_tree * ntree;
+  pVID = tvb_get_ptr(tvb, offset, length);
+  pt = proto_tree_add_text(tree, tvb, offset, length, "Vendor ID: ");
+  if (memcmp(pVID, VID_MS_W2K_WXP, isakmp_min(VID_MS_LEN, length)) == 0)
+	proto_item_append_text(pt, "Microsoft Win2K/WinXP");
+  else
+  if (memcmp(pVID, VID_CP, isakmp_min(VID_CP_LEN, length)) == 0)
+  {
+	proto_item_append_text(pt, "Check Point");
+	offset += VID_CP_LEN;
+	CPproduct = tvb_get_ntohl(tvb, offset);
+	ntree = proto_item_add_subtree(pt, ett_isakmp_payload);
+	pt = proto_tree_add_text(ntree, tvb, offset, sizeof(CPproduct), "Check Point Product: ");
+	switch (CPproduct) {
+		case 1: proto_item_append_text(pt, "VPN-1");
+			break;
+		case 2: proto_item_append_text(pt, "SecuRemote/SecureClient");
+			break;
+		default: proto_item_append_text(pt, "Unknown CP product!");
+			break;
+	}
+	offset += sizeof(CPproduct);
+	CPversion = tvb_get_ntohl(tvb, offset);
+	pt = proto_tree_add_text(ntree, tvb, offset, length, "Version: ");
+	switch (CPversion) {
+		case 2: proto_item_append_text(pt, "4.1");
+			break;
+		case 3: proto_item_append_text(pt, "4.1 SP-1");
+			break;
+		case 4002: proto_item_append_text(pt, "4.1 (SP-2 or above)");
+			break;
+		case 5000: proto_item_append_text(pt, "NG");
+			break;
+		case 5001: proto_item_append_text(pt, "NG Feature Pack 1");
+			break;
+		case 5002: proto_item_append_text(pt, "NG Feature Pack 2");
+			break;
+		case 5003: proto_item_append_text(pt, "NG Feature Pack 3");
+			break;
+		default: proto_item_append_text(pt, " Uknown CP version!");
+			break;
+	}
+  } 
+  else
+  if (memcmp(pVID, VID_CYBERGUARD, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Cyber Guard");
+  else
+  if (memcmp(pVID, VID_SAFENET, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SafeNet");
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_03, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-03");
+  else
+	proto_item_append_text(pt, "unknown vendor ID: 0x%s",tvb_bytes_to_str(tvb, offset, length));
 }
 
 static void
@@ -1070,6 +1169,7 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
   switch (att_type) {
     case 1:
       switch (value) {
+	case 0: return "RESERVED";
         case 1:  return "Seconds";
         case 2:  return "Kilobytes";
         default: return "UNKNOWN-SA-VALUE";
@@ -1080,6 +1180,7 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
       return "Group-Value";
     case 4:
       switch (value) {
+	case 0:  return "RESERVED";
         case 1:  return "Tunnel";
         case 2:  return "Transport";
 	case 61440: return "Check Point IPSec UDP Encapsulation";
@@ -1089,6 +1190,7 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
       }
     case 5:
       switch (value) {
+	case 0:  return "RESERVED";
         case 1:  return "HMAC-MD5";
         case 2:  return "HMAC-SHA";
         case 3:  return "DES-MAC";
@@ -1103,7 +1205,9 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
     case 7:
       return "Key-Rounds";
     case 8:
-      return "log2-size";
+      return "Compress-Dictionary-size";
+    case 9:
+      return "Compress Private Algorithm";
     default: return "UNKNOWN-ATTRIBUTE-TYPE";
   }
   }
@@ -1137,6 +1241,9 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
           case 3:  return "RSA-SIG";
           case 4:  return "RSA-ENC";
           case 5:  return "RSA-Revised-ENC";
+	  case 6:  return "Encryption with El-Gamal";
+ 	  case 7:  return "Revised encryption with El-Gamal";
+	  case 8:  return "ECDSA signatures";
 	  case 64221: return "HybridInitRSA";
 	  case 64222: return "HybridRespRSA";
 	  case 64223: return "HybridInitDSS";
@@ -1153,8 +1260,8 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
           case 65010: return "XAUTHRespRSARevisedEncryption";
 	  default: return "UNKNOWN-AUTH-METHOD";
         }
-      case 4:
-      case 6:
+      case 4: return grpdesc2str(value);
+      case 6: 
       case 7:
       case 8:
       case 9:
