@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.114 2003/09/03 06:27:03 guy Exp $
+ * $Id: packet-llc.c,v 1.115 2003/09/03 06:38:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,6 @@ static gint ett_llc_ctrl = -1;
 
 static dissector_table_t subdissector_table;
 static dissector_table_t xid_subdissector_table;
-
-static dissector_table_t nortel_subdissector_table;
 
 static dissector_handle_t bpdu_handle;
 static dissector_handle_t eth_handle;
@@ -167,7 +165,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_ATM_FORUM,   "ATM Forum" },
 	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
 	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
-	{ OUI_NORTEL,	"Nortel Networks SONMP" },
+	{ OUI_NORTEL,      "Nortel Networks SONMP" },
 	{ 0,               NULL }
 };
 
@@ -521,24 +519,6 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		call_dissector(bpdu_handle, next_tvb, pinfo, tree);
 		break;
 
-	case OUI_NORTEL:
-		/* Nortel Networks
-		 * Synoptics Networks Management Protocol
-		 * protocol ID's 0x01a1, 0x01a2, 0x01a3
-		 */
-		if (tree) {
-			proto_tree_add_uint(snap_tree, hf_pid,tvb, offset+3,2, etype);
-		}
-		next_tvb = tvb_new_subset(tvb, offset + 5, -1, -1);
-		if (XDLC_IS_INFORMATION(control)) {
-			/* do lookup with the subdissector table */
-			if (!dissector_try_port(nortel_subdissector_table,
-                                etype, next_tvb, pinfo, tree))
-                                        call_dissector(data_handle, next_tvb, pinfo, tree);
-                } else
-                        call_dissector(data_handle, next_tvb, pinfo, tree);
-		break;
-
 	default:
 		/*
 		 * Do we have information for this OUI?
@@ -630,8 +610,6 @@ proto_register_llc(void)
 	  "LLC SAP", FT_UINT8, BASE_HEX);
 	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
 	  "LLC XID SAP", FT_UINT8, BASE_HEX);
-	nortel_subdissector_table = register_dissector_table("llc.nortel_pid",
-	  "Nortel OUI PID", FT_UINT16, BASE_HEX);
 
 	register_dissector("llc", dissect_llc, proto_llc);
 }
