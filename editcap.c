@@ -1,7 +1,7 @@
-/* Edit capture files.  We can delete records, or simply convert from one 
- * format to another format.
+/* Edit capture files.  We can delete records, adjust timestamps, or
+ * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.15 2001/06/19 23:08:55 guy Exp $
+ * $Id: editcap.c,v 1.16 2001/07/12 08:16:44 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -46,6 +46,13 @@ struct select_item {
 
 } select_item;
 
+#define ONE_MILLION 1000000
+
+struct time_adjustment {
+  struct timeval tv;
+  int is_negative;
+};
+
 struct select_item selectfrm[100];
 int max_selected = -1;
 static int count = 1;
@@ -54,6 +61,7 @@ static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
 static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
 static unsigned int snaplen = 0;             /* No limit               */
+static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
 
 /* Add a selection item, a simple parser for now */
 
@@ -151,6 +159,39 @@ edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
       phdr = &snap_phdr;
     }
 
+    /* assume that if the frame's tv_sec is 0, then
+     * the timestamp isn't supported */
+    if (phdr->ts.tv_sec > 0 && time_adj.tv.tv_sec != 0) {
+      snap_phdr = *phdr;
+      if (time_adj.is_negative)
+        snap_phdr.ts.tv_sec -= time_adj.tv.tv_sec;
+      else
+        snap_phdr.ts.tv_sec += time_adj.tv.tv_sec;
+      phdr = &snap_phdr;
+    }
+
+    /* assume that if the frame's tv_sec is 0, then
+     * the timestamp isn't supported */
+    if (phdr->ts.tv_sec > 0 && time_adj.tv.tv_usec != 0) {
+      snap_phdr = *phdr;
+      if (time_adj.is_negative) { /* subtract */
+        if (snap_phdr.ts.tv_usec < time_adj.tv.tv_usec) { /* borrow */
+          snap_phdr.ts.tv_sec--;
+          snap_phdr.ts.tv_usec += ONE_MILLION;
+        }
+        snap_phdr.ts.tv_usec -= time_adj.tv.tv_usec;
+      } else {                  /* add */
+        if (snap_phdr.ts.tv_usec + time_adj.tv.tv_usec > ONE_MILLION) {
+          /* carry */
+          snap_phdr.ts.tv_sec++;
+          snap_phdr.ts.tv_usec += time_adj.tv.tv_usec - ONE_MILLION;
+        } else {
+          snap_phdr.ts.tv_usec += time_adj.tv.tv_usec;
+        }
+      }
+      phdr = &snap_phdr;
+    }
+      
     if (!wtap_dump(argp->pdh, phdr, pseudo_header, buf, &err)) {
 
       fprintf(stderr, "editcap: Error writing to %s: %s\n", argp->filename,
@@ -163,6 +204,55 @@ edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 
   count++;
 
+}
+
+static void
+set_time_adjustment(char *optarg)
+{
+  char *frac, *end;
+  long val;
+  int frac_digits;
+
+  if (!optarg)
+    return;
+
+  /* first collect the whole seconds */
+  val = strtol(optarg, &frac, 10);
+  if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
+    fprintf(stderr, "editcap: \"%s\" is not a valid time adjustment\n",
+            optarg);
+    exit(1);
+  }
+  if (val < 0) {
+    time_adj.is_negative = 1;
+    val = -val;
+  }
+  time_adj.tv.tv_sec = val;
+
+  /* now collect the partial seconds, if any */
+  if (*frac != '\0') {             /* have more to string, so more to */
+    val = strtol(&(frac[1]), &end, 10);
+    if (*frac != '.' || end == NULL || end == frac
+        || val < 0 || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
+      fprintf(stderr, "editcap: \"%s\" is not a valid time adjustment\n",
+              optarg);
+      exit(1);
+    }
+  }
+  else {
+    return;                     /* no fractional digits */
+  }
+
+  /* adjust fractional portion from fractional to numerator
+   * e.g., in "1.5" from 5 to 500000 since .5*10^6 = 500000 */
+  if (frac && end) {            /* both are valid */
+    frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
+    while(frac_digits < 6) {    /* this is frac of 10^6 */
+      val *= 10;
+      frac_digits++;
+    }
+  }
+  time_adj.tv.tv_usec = val;
 }
 
 void usage()
@@ -193,6 +283,8 @@ void usage()
   fprintf(stderr, "       \t    default is libpcap\n");
   fprintf(stderr, "       \t-s <snaplen> specifies that packets should be truncated to\n");
   fprintf(stderr, "       \t   <snaplen> bytes of data\n");
+  fprintf(stderr, "       \t-t <time adjustment> specifies the time adjustment\n");
+  fprintf(stderr, "       \t   to be applied to selected packets\n");
   fprintf(stderr, "\n      \t    A range of records can be specified as well\n");
 }
 
@@ -209,7 +301,7 @@ int main(int argc, char *argv[])
 
   /* Process the options first */
 
-  while ((opt = getopt(argc, argv, "T:F:rvs:h")) != EOF) {
+  while ((opt = getopt(argc, argv, "T:F:rvs:t:h")) != EOF) {
 
     switch (opt) {
 
@@ -246,6 +338,10 @@ int main(int argc, char *argv[])
       	    optarg);
       	exit(1);
       }
+      break;
+
+    case 't':
+      set_time_adjustment(optarg);
       break;
 
     case 'h':

@@ -11,6 +11,7 @@ S<[ B<-T> encapsulation type ]>
 S<[ B<-r> ]>
 S<[ B<-v> ]>
 S<[ B<-s> snaplen ]>
+S<[ B<-t> time adjustment ]>
 S<[ B<-h> ]>
 I<infile>
 I<outfile>
@@ -61,6 +62,15 @@ appear to reject Ethernet frames larger than the standard Ethernet MTU,
 making them incapable of handling gigabit Ethernet captures if jumbo
 frames were used).
 
+If the B<-t> flag is used to specify a time adjustment, the specified
+adjustment will be applied to all selected frames in the capture file.
+The adjustment is specified as [-]I<seconds>[I<.fractional seconds>].
+For example, B<-t> 3600 advances the timestamp on selected frames by one
+hour while B<-t> -0.5 reduces the timestamp on selected frames by
+one-half second.  This feature is useful when synchronizing dumps
+collected on different machines where the time difference between the
+two machines is known or can be estimated.
+
 If the B<-T> flag is used to specify an encapsulation type, the
 encapsulation type of the output capture file will be forced to the
 specified type, rather than being the type appropriate to the
@@ -97,6 +107,10 @@ Causes B<editcap> to print a number of messages while it's working.
 =item -s
 
 Sets the snapshot length to use when writing the data.
+
+=item -t
+
+Sets the time adjustment to use on selected frames.
 
 =item -h
 

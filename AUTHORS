@@ -642,6 +642,7 @@ Christian Lacunza <celacunza@gmx.net> {
 
 Scott Renfro <scott@renfro.org> {
 	LDAP checks for invalid packets
+	"-t" flag for editcap, to adjust timestamps in frames
 }
 
 Juan Toledo <toledo@users.sourceforge.net> {
