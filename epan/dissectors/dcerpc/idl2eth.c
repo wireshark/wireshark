@@ -56,10 +56,12 @@ typedef struct _pointer_item_t {
 #define BI_LENGTH_IS		0x00000020
 #define BI_POINTER		0x00000040
 #define BI_BITMAP32		0x00000100
+#define BI_SWITCH_TYPE		0x00000200
 typedef struct _bracket_item_t {
 	long int flags;
 	char *case_name;
 	pointer_item_t *pointer_list;
+	int union_tag_size;
 } bracket_item_t;
 
 typedef struct _no_emit_item_t {
@@ -360,6 +362,7 @@ prune_keyword_parameters(char *name)
 token_item_t *
 parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 	bracket_item_t *br;
+	type_item_t *type_item;
 
 	if(strcmp(ti->str, "[")){
 		fprintf(stderr, "ERROR: parsebrackets first token is not '['\n");
@@ -430,9 +433,11 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		if(!strcmp(ti->str, "default")){
 			br->flags|=BI_CASE;
 			br->flags|=BI_CASE_DEFAULT;
+			br->case_name="default";
 			ti=ti->next;
 			continue;
 		}
+
 
 		/* in */
 		if(!strcmp(ti->str, "in")){
@@ -560,6 +565,34 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 				}
 				ti=ti->next;
 			}
+			continue;
+		}
+
+		/* switch_type */
+		if(!strcmp(ti->str, "switch_type")){
+			br->flags|=BI_SWITCH_TYPE;
+			ti=ti->next;
+
+			if(strcmp(ti->str, "(")){
+				fprintf(stderr, "WARNING: parsebrackets switch_type was not followed by '('\n");
+				Exit(10);
+			}
+			ti=ti->next;
+
+			type_item=find_type(ti->str);
+			if(!type_item){
+				fprintf(stderr, "ERROR : parsebrackets switch_type unknown type %s\n",ti->str);
+				Exit(10);
+			}
+			br->union_tag_size=type_item->alignment;
+			ti=ti->next;
+
+			if(strcmp(ti->str, ")")){
+				fprintf(stderr, "WARNING: parsebrackets switch_type did not end with ')'\n");
+				Exit(10);
+			}
+			ti=ti->next;
+
 			continue;
 		}
 
@@ -1319,6 +1352,7 @@ void parsetypedefstruct(int pass)
 	FPRINTF(NULL,"\nSTRUCT:%s pass:%d\n-------\n",struct_name,pass);
 
 	if(!check_if_to_emit(dissectorname)){
+		FPRINTF(NULL,"NOEMIT Skipping this struct dissector.\n");
 		ti=tmpti;
 		goto typedef_struct_finished;
 	}
@@ -1437,17 +1471,21 @@ void parsetypedefstruct(int pass)
 			fixed_array_size=atoi(ti->str);
 			sprintf(fss, "%d", fixed_array_size);
 
-			if(!strcmp("*", ti->str)){
+			if(!strcmp("]", ti->str)){
+				/* this is just a normal [] array */
+				fixed_array_size=0;
+			} else if(!strcmp("*", ti->str)){
 				if(bi && !(bi->flags|BI_POINTER)){
 					pi=prepend_pointer_list(pi, 1);
 				}
 				fixed_array_size=0;
 				is_array_of_pointers=1;
+				ti=ti->next;
 			} else if(strcmp(fss, ti->str)){
 				fprintf(stderr, "ERROR: typedefstruct (%s) fixed array size looks different to calculated one %s!=%s\n", struct_name, fss, ti->str);
+				ti=ti->next;
 				Exit(10);
 			}
-			ti=ti->next;
 
 			if(strcmp(ti->str, "]")){
 				fprintf(stderr, "ERROR: typedefstruct  fixed array does not end with ']''\n");
@@ -1908,6 +1946,17 @@ void parsetypedefunion(int pass)
 	}
 	ti=ti->next;
 
+	if(!strcmp(ti->str, "[")){
+		ti=parsebrackets(ti, &bi);
+	}
+	/* check that we know how to handle the bracket thing */
+	if(bi){
+		if(bi->flags&(~(BI_SWITCH_TYPE))){
+			fprintf(stderr, "ERROR: typedefunion unknown bracket flags encountered : 0x%08x\n",bi->flags);
+			Exit(10);
+		}
+	}
+
 	if(strcmp(ti->str, "union")){
 		fprintf(stderr, "ERROR: typedefunion  second token is not 'union'\n");
 		Exit(10);
@@ -1939,8 +1988,11 @@ void parsetypedefunion(int pass)
 
 	FPRINTF(NULL,"\nUNION:%s pass:%d\n-------\n",union_name,pass);
 
-	tag_alignment=get_union_tag_size(union_name);
-
+	if(bi->flags&BI_SWITCH_TYPE){
+		tag_alignment=bi->union_tag_size;
+	} else {
+		tag_alignment=get_union_tag_size(union_name);
+	}
 
 	/* this is pass 0  so reset alignment to the minimum possible value
 	   and update as items are processed. 
@@ -2047,6 +2099,7 @@ void parsetypedefunion(int pass)
 			fprintf(stderr, "ERROR : typedefunion no case found in brackets\n");
 			Exit(10);
 		}
+#ifdef REMOVED
 		/* only empty default cases for now */
 		if(bi->flags&BI_CASE_DEFAULT){
 			if(strcmp(ti->str,";")){
@@ -2056,6 +2109,7 @@ void parsetypedefunion(int pass)
 			ti=ti->next;
 			continue;
 		}
+#endif
 
 		/* just skip all and any 'empty' arms */
 		if(!strcmp(ti->str, ";")){
@@ -2129,8 +2183,12 @@ void parsetypedefunion(int pass)
 				sprintf(tmpstr, "%s_%s", ptmpstr, "unique");
 				ptmpstr=strdup(tmpstr);
 			}
-				
-			FPRINTF(eth_code, "    case %s:\n",bi->case_name);
+			
+			if(bi->flags&BI_CASE_DEFAULT){
+				FPRINTF(eth_code, "    default:\n");
+			} else {
+				FPRINTF(eth_code, "    case %s:\n",bi->case_name);
+			}
 			/* each arm itself is aligned independently */
 			switch(item_alignment){
 			case 1:
@@ -2984,11 +3042,19 @@ int main(int argc, char *argv[])
 		}
 
 		/* typedef union { */
-		if( !strcmp(token_list->str,"typedef")
-		  &&!strcmp(token_list->next->str,"union") ){
-			parsetypedefunion(0);
-			parsetypedefunion(1);
-			continue;
+		if( !strcmp(token_list->str,"typedef") ){
+			token_item_t *tmpti;
+			
+			tmpti=token_list->next;
+			if( !strcmp(tmpti->str, "[") ){
+				tmpti=parsebrackets(tmpti, &bi);
+				/* do some sanity checks here of bi->flags */
+			}
+			if( !strcmp(tmpti->str, "union") ){
+				parsetypedefunion(0);
+				parsetypedefunion(1);
+				continue;
+			}
 		}
 
 		/* typedef bitmap { */
