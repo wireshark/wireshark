@@ -208,15 +208,19 @@ cleanup_headers(void *arg)
 
 	if (headers->content_type != NULL)
 		g_free(headers->content_type);
+	headers->content_type = NULL;
 	/*
 	 * The content_type_parameters field actually points into the
 	 * content_type headers, so don't free it, as that'll double-free
 	 * some memory.
 	 */
+	headers->content_type_parameters = NULL;
 	if (headers->content_encoding != NULL)
 		g_free(headers->content_encoding);
+	headers->content_encoding = NULL;
 	if (headers->transfer_encoding != NULL)
 		g_free(headers->transfer_encoding);
+	headers->transfer_encoding = NULL;
 }
 
 /*
@@ -1366,6 +1370,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			if (eh_ptr->content_type != NULL)
 				g_free(eh_ptr->content_type);
 			eh_ptr->content_type = g_malloc(value_len + 1);
+			memcpy(eh_ptr->content_type, value, value_len);
 			for (i = 0; i < value_len; i++) {
 				c = value[i];
 				if (c == ';' || isspace(c)) {
@@ -1382,7 +1387,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				 * Map the character to lower case;
 				 * content types are case-insensitive.
 				 */
-				eh_ptr->content_type[i] = tolower(c);
+				eh_ptr->content_type[i] = tolower(eh_ptr->content_type[i]);
 			}
 			eh_ptr->content_type[i] = '\0';
 			/*
@@ -1392,7 +1397,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			 */
 			i++;
 			while (i < value_len) {
-				c = value[i];
+				c = eh_ptr->content_type[i];
 				if (c == ';' || isspace(c))
 					/* Skip till start of parameters */
 					i++;
@@ -1400,7 +1405,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					break;
 			}
 			if (i < value_len)
-				eh_ptr->content_type_parameters = value + i;
+				eh_ptr->content_type_parameters = eh_ptr->content_type + i;
 			else
 				eh_ptr->content_type_parameters = NULL;
 			break;
