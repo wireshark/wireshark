@@ -1,0 +1,227 @@
+-- some of the definitions use implicit tags  so be careful when adding 
+-- new structures.
+-- Module CMIP-A-ASSOCIATE-Information (X.711:10/1997)
+CMIP-A-ASSOCIATE-Information {joint-iso-itu-t ms(9) cmip(1) modules(0)
+  aAssociateUserInfo(1)} DEFINITIONS ::=
+BEGIN
+
+IMPORTS
+  DistinguishedName, RDNSequence
+    FROM InformationFramework;
+
+
+ObjectClass ::= CHOICE {
+  ocglobalForm  [0] IMPLICIT OBJECT IDENTIFIER,
+  oclocalForm   [1] IMPLICIT INTEGER
+}
+
+ObjectInstance ::= CHOICE {
+  distinguishedName       [2] IMPLICIT DistinguishedName,
+  nonSpecificForm         [3] IMPLICIT OCTET STRING,
+  localDistinguishedName  [4] IMPLICIT RDNSequence
+}
+
+BaseManagedObjectId ::= SEQUENCE {
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance
+}
+
+AttributeId ::= CHOICE {
+  globalForm    [0] IMPLICIT OBJECT IDENTIFIER,
+  localForm     [1] IMPLICIT INTEGER
+}
+
+Attribute ::= SEQUENCE {
+  id         AttributeId,
+  value      ANY
+}
+
+-- This Recommendation | International Standard does not allocate any values for localForm.
+-- Where this alternative is used, the permissible values for the integers and their meanings shall be defined
+-- as part of the application context in which they are used
+FilterItem ::= CHOICE {
+  equality                [0] IMPLICIT Attribute,
+  substrings
+    [1] IMPLICIT SEQUENCE OF
+                   CHOICE {initialString  [0] IMPLICIT Attribute,
+                           anyString      [1] IMPLICIT Attribute,
+                           finalString    [2] IMPLICIT Attribute},
+  greaterOrEqual          [2] IMPLICIT Attribute, -- asserted value ? attribute value
+  lessOrEqual             [3] IMPLICIT Attribute, -- asserted value <= attribute value
+  present                 [4]  AttributeId,
+  subsetOf                [5] IMPLICIT Attribute, -- asserted value is a subset of attribute value
+  supersetOf              [6] IMPLICIT Attribute, -- asserted value is a superset of attribute value
+  nonNullSetIntersection  [7] IMPLICIT Attribute
+}
+
+CMISFilter ::= CHOICE {
+  item  [8]  FilterItem,
+  and   [9] IMPLICIT SET OF CMISFilter,
+  or    [10] IMPLICIT SET OF CMISFilter,
+  not   [11]  CMISFilter
+}
+
+Scope ::= CHOICE {
+  namedNumbers      INTEGER {baseObject(0), firstLevelOnly(1), wholeSubtree(2)},
+  individualLevels  [1] IMPLICIT INTEGER, -- POSITIVE integer indicates the level to be selected
+  baseToNthLevel    [2] IMPLICIT INTEGER
+} -- POSITIVE integer N indicates that the range of levels
+
+CMISSync ::= ENUMERATED {bestEffort(0), atomic(1)}
+
+-- Supporting type definitions
+--XXX Dont support EXTERNAL yet
+--AccessControl ::= EXTERNAL
+AccessControl ::= OCTET STRING
+
+
+GetArgument ::= SEQUENCE {
+--  COMPONENTS OF BaseManagedObjectId,  manually expanded
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance,
+  accessControl    [5]  AccessControl OPTIONAL,
+  synchronization  [6] IMPLICIT CMISSync OPTIONAL,
+  scope            [7]  Scope OPTIONAL,
+  filter           CMISFilter OPTIONAL,
+  attributeIdList  [12] IMPLICIT SET OF AttributeId OPTIONAL,
+  ...
+}
+
+GetResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  attributeList          [6] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+Argument ::= ANY
+
+ReturnResultBody ::= SEQUENCE {
+  opcode      Opcode,
+  argument    Argument
+}
+
+InvokeID ::= INTEGER
+
+Opcode ::= INTEGER { m-EventReport(0), m-EventReport-Confirmed(1), m-Linked-Reply(2), m-Get(3), m-Set(4), m-Set-Confirmed(5), m-Action(6), m-Action-Confirmed(7), m-Create(8), m-Delete(9), m-CancelGet(10) }
+
+InvokeLinkedId ::= CHOICE {
+  present [0] IMPLICIT InvokeId,
+  absent  [1] IMPLICIT NULL
+}
+
+InvokeId ::= CHOICE {
+  present InvokeID,
+  absent  NULL
+}
+
+Invoke ::= SEQUENCE {
+  invokeId    InvokeId,
+  linkedId    InvokeLinkedId OPTIONAL,
+  opcode      Opcode,
+  argument    Argument OPTIONAL
+}
+
+ReturnResult ::= SEQUENCE {
+  invokeId    InvokeId,
+  rRBody      ReturnResultBody OPTIONAL
+}
+
+ReturnError ::= SEQUENCE {
+  invokeId    InvokeId
+--XXX need to fill in missing fields here
+}
+
+
+GeneralProblem ::= INTEGER {
+  unrecognizedPDU(0), mistypedPDU(1), badlyStructuredPDU(2)
+}
+
+InvokeProblem ::= INTEGER {
+  duplicateInvocation(0), unrecognizedOperation(1), mistypedArgument(2),
+  resourceLimitation(3), releaseInProgress(4), unrecognizedLinkedId(5),
+  linkedResponseUnexpected(6), unexpectedLinkedOperation(7)
+}
+
+ReturnResultProblem ::= INTEGER {
+  unrecognizedInvocation(0), resultResponseUnexpected(1), mistypedResult(2)
+}
+
+ReturnErrorProblem ::= INTEGER {
+  unrecognizedInvocation(0), errorResponseUnexpected(1), unrecognizedError(2),
+  unexpectedError(3), mistypedParameter(4)
+}
+
+RejectProblem ::= INTEGER {
+  general-unrecognizedPDU(0), general-mistypedPDU(1),
+  general-badlyStructuredPDU(2), invoke-duplicateInvocation(10),
+  invoke-unrecognizedOperation(11), invoke-mistypedArgument(12),
+  invoke-resourceLimitation(13), invoke-releaseInProgress(14),
+  invoke-unrecognizedLinkedId(15), invoke-linkedResponseUnexpected(16),
+  invoke-unexpectedLinkedOperation(17),
+  returnResult-unrecognizedInvocation(20),
+  returnResult-resultResponseUnexpected(21), returnResult-mistypedResult(22),
+  returnError-unrecognizedInvocation(30),
+  returnError-errorResponseUnexpected(31), returnError-unrecognizedError(32),
+  returnError-unexpectedError(33), returnError-mistypedParameter(34)
+}
+
+RejectProb ::= CHOICE {
+  generalProblem      [0] IMPLICIT GeneralProblem,
+  invokeProblem       [1] IMPLICIT InvokeProblem,
+  returnResultProblem [2] IMPLICIT ReturnResultProblem,
+  returnErrorProblem  [3] IMPLICIT ReturnErrorProblem
+}
+  
+Reject ::= SEQUENCE {
+  invokeId      InvokeId,
+  rejectProblem RejectProb
+}
+
+ROS ::= CHOICE {
+  invoke       [1] IMPLICIT Invoke,
+  returnResult [2] IMPLICIT ReturnResult,
+  returnError  [3] IMPLICIT ReturnError,
+  reject       [4] IMPLICIT Reject
+}
+
+
+
+
+
+
+-- CMIP-A-ABORT
+--      Information carried in user-information parameter of A-ABORT
+CMIPAbortInfo ::= SEQUENCE {
+  abortSource  [0] IMPLICIT CMIPAbortSource
+--XXX Dont know how to handle EXTERNAL yet
+--XXX  userInfo     [1]  EXTERNAL OPTIONAL
+}
+
+CMIPAbortSource ::= ENUMERATED {cmiseServiceUser(0), cmiseServiceProvider(1)}
+
+
+
+
+-- CMIP-A-ASSOCIATE
+FunctionalUnits ::= BIT STRING {
+  multipleObjectSelection(0), filter(1), multipleReply(2), extendedService(3),
+  cancelGet(4)}
+
+--	Functional unit i is supported if and only if bit i is one
+--	Information carried in user-information parameter of A-ASSOCIATE
+CMIPUserInfo ::= SEQUENCE {
+  protocolVersion  [0] IMPLICIT ProtocolVersion OPTIONAL,
+  functionalUnits  [1] IMPLICIT FunctionalUnits OPTIONAL
+--XXX Dont know how to handle EXTERNAL yet
+--XXX  accessControl    [2]  EXTERNAL OPTIONAL,
+--XXX  userInfo         [3]  EXTERNAL OPTIONAL
+}
+
+ProtocolVersion ::= BIT STRING {version1(0), version2(1)}
+
+END
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

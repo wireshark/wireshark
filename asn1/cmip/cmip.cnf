@@ -1,0 +1,124 @@
+# cmip.cnf
+# CMIP conformation file
+
+# $Id: cmip.cnf 12290 2004-10-13 00:21:00Z sahlberg $
+
+#.MODULE_IMPORT
+InformationFramework x509if
+
+#.INCLUDE ../x509if/x509if_exp.cnf
+
+#.EXPORTS
+CMIPAbortInfo
+CMIPUserInfo
+ROS
+
+#.NO_EMIT
+
+#.PDU
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_HDR CMIPAbortInfo
+  if(check_col(pinfo->cinfo, COL_INFO)){
+    col_append_fstr(pinfo->cinfo, COL_INFO, "CMIP-A-ABORT");
+  }
+#.END
+
+#.FN_HDR CMIPUserInfo
+  if(check_col(pinfo->cinfo, COL_INFO)){
+    col_append_fstr(pinfo->cinfo, COL_INFO, "CMIP-A-ASSOCIATE");
+  }
+#.END
+
+#.FN_BODY CMIPAbortSource
+  guint32 value;
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, &value);
+  if(check_col(pinfo->cinfo, COL_INFO)){
+    col_append_fstr(pinfo->cinfo, COL_INFO, " AbortSource:%s", val_to_str(value, CMIPAbortSource_vals, " Unknown AbortSource:%d"));
+  }
+#.END
+
+#.FN_BODY Opcode
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, &opcode);
+  if(check_col(pinfo->cinfo, COL_INFO)){
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, Opcode_vals, " Unknown Opcode:%d"));
+  }
+#.END
+
+#.FN_FTR Invoke
+  opcode_type=OPCODE_INVOKE;
+  if(check_col(pinfo->cinfo, COL_INFO)){
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "Invoke ");
+  }
+#.END
+
+#.FN_FTR ReturnResult
+  opcode_type=OPCODE_RETURN_RESULT;
+  if(check_col(pinfo->cinfo, COL_INFO)){
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "ReturnResult ");
+  }
+#.END
+
+#.FN_FTR ReturnError
+  opcode_type=OPCODE_RETURN_ERROR;
+  if(check_col(pinfo->cinfo, COL_INFO)){
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "ReturnError ");
+  }
+#.END
+
+#.FN_FTR Reject
+  opcode_type=OPCODE_REJECT;
+  if(check_col(pinfo->cinfo, COL_INFO)){
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "Reject ");
+  }
+#.END
+
+#.FN_BODY AttributeId/globalForm
+  attributeform = ATTRIBUTE_GLOBAL_FORM;
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
+                                         hf_cmip_globalForm, attribute_identifier_id);
+
+#.FN_BODY AttributeId/localForm
+  attributeform = ATTRIBUTE_LOCAL_FORM;
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
+
+#.FN_BODY Attribute/value
+  /*XXX handle local form here */
+  if(attributeform==ATTRIBUTE_GLOBAL_FORM){
+    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, pinfo, tree);
+  }
+
+#.FN_BODY Argument
+  switch(opcode_type){
+  case OPCODE_INVOKE:
+    switch(opcode){
+    case 3: /* M-get */
+      offset = dissect_cmip_GetArgument(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    }
+    break;
+  case OPCODE_RETURN_RESULT:
+    switch(opcode){
+    case 3: /* M-get */
+      offset = dissect_cmip_GetResult(FALSE, tvb, offset, pinfo, tree, -1);
+      break;
+    }
+    break;
+  /*XXX add more types here */
+  }
+
+#.FN_BODY ObjectClass/ocglobalForm
+  objectclassform = OBJECTCLASS_GLOBAL_FORM;
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
+                                         hf_cmip_ocglobalForm, objectclass_identifier_id);
+
+#.FN_BODY ObjectClass/oclocalForm
+  objectclassform = OBJECTCLASS_LOCAL_FORM;
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_oclocalForm, NULL);
+
+#.END
+
+
