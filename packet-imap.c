@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.10 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-imap.c,v 1.11 2000/12/29 02:19:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "strutil.h"
 
 static int proto_imap = -1;
 static int hf_imap_response = -1;
@@ -52,66 +53,105 @@ static gint ett_imap = -1;
 #define TCP_PORT_IMAP			143
 
 static void
-dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+        gboolean        is_request;
         proto_tree      *imap_tree, *ti;
-	gchar          rr[50], rd[1500];
-	int i1 = (u_char *)strchr(pd + offset, ' ') - (pd + offset); /* Where is that space */
-	int i2;
-	int max_data = pi.captured_len - offset;
+	gint		offset = 0;
+	const u_char	*line;
+	gint		next_offset;
+	int		linelen;
+	int		tokenlen;
+	const u_char	*next_token;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_imap, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_imap, tvb, pinfo, tree);
 
-	memset(rr, '\0', sizeof(rr));
-	memset(rd, '\0', sizeof(rd));
+	pinfo->current_proto = "IMAP";
 
-	if ((i1 > max_data) || (i1 <= 0)) {
-	  
-	  i1 = max_data;
-	  strncpy(rr, pd + offset, MIN(max_data - 2, sizeof(rr) - 1));
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "IMAP");
 
-	}
-	else {
+	/*
+	 * Find the end of the first line.
+	 */
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+	line = tvb_get_ptr(tvb, offset, linelen);
 
-	  strncpy(rr, pd + offset, MIN(i1, sizeof(rr) - 1));
-	  i2 = ((u_char *)strchr(pd + offset + i1 + 1, '\r') - (pd + offset)) - i1 - 1;
-	  if (i2 > max_data - i1 - 1 || i2 <= 0) {
-	    i2 = ((u_char *)strchr(pd + offset + i1 + 1, '\n') - (pd + offset)) - i1 - 1;
-	    if (i2 > max_data - i1 - 1 || i2 <= 0)
-	      i2 = max_data - i1 - 1;
-	  }
-	  strncpy(rd, pd + offset + i1 + 1, MIN(i2, sizeof(rd) - 1));
-	}
+	if (pinfo->match_port == pinfo->destport)
+		is_request = TRUE;
+	else
+		is_request = FALSE;
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "IMAP");
-
-	if (check_col(fd, COL_INFO)) {
-
-	  col_add_fstr(fd, COL_INFO, "%s: %s %s", (pi.match_port == pi.destport)? "Request" : "Response", rr, rd);	  
+	if (check_col(pinfo->fd, COL_INFO)) {
+		/*
+		 * Put the first line from the buffer into the summary
+		 * (but leave out the line terminator).
+		 */
+		col_add_fstr(pinfo->fd, COL_INFO, "%s: %s",
+		    is_request ? "Request" : "Response",
+		    format_text(line, linelen));
 	}
 
 	if (tree) {
+		ti = proto_tree_add_item(tree, proto_imap, tvb, offset,
+		    tvb_length_remaining(tvb, offset), FALSE);
+		imap_tree = proto_item_add_subtree(ti, ett_imap);
 
-	  ti = proto_tree_add_item(tree, proto_imap, NullTVB, offset, END_OF_FRAME, FALSE);
-	  imap_tree = proto_item_add_subtree(ti, ett_imap);
+		if (is_request) {
+			proto_tree_add_boolean_hidden(imap_tree,
+			    hf_imap_request, tvb, 0, 0, TRUE);
+		} else {
+			proto_tree_add_boolean_hidden(imap_tree,
+			    hf_imap_response, tvb, 0, 0, TRUE);
+		}
 
-	  if (pi.match_port == pi.destport) { /* Request */
+		/*
+		 * Show the first line as tags + requests or replies.
+		 */
 
-	    proto_tree_add_boolean_hidden(imap_tree, hf_imap_request, NullTVB, offset, i1, TRUE);
-	    proto_tree_add_text(imap_tree, NullTVB, offset, i1, "Request Tag: %s", rr);
+		/*
+		 * Extract the first token, and, if there is a first
+		 * token, add it as the request or reply tag.
+		 */
+		tokenlen = get_token_len(line, line + linelen, &next_token);
+		if (tokenlen != 0) {
+			if (is_request) {
+				proto_tree_add_text(imap_tree, tvb, offset,
+				    tokenlen, "Request Tag: %s",
+				    format_text(line, tokenlen));
+			} else {
+				proto_tree_add_text(imap_tree, tvb, offset,
+				    tokenlen, "Response Tag: %s",
+				    format_text(line, tokenlen));
+			}
+			offset += next_token - line;
+			linelen -= next_token - line;
+			line = next_token;
+		}
 
-	    proto_tree_add_text(imap_tree, NullTVB, offset + i1 + 1, END_OF_FRAME, "Request: %s", rd);
+		/*
+		 * Add the rest of the line as request or reply data.
+		 */
+		if (linelen != 0) {
+			if (is_request) {
+				proto_tree_add_text(imap_tree, tvb, offset,
+				    linelen, "Request: %s",
+				    format_text(line, linelen));
+			} else {
+				proto_tree_add_text(imap_tree, tvb, offset,
+				    linelen, "Response: %s",
+				    format_text(line, linelen));
+			}
+		}
 
-	  }
-	  else {
-
-	    proto_tree_add_boolean_hidden(imap_tree, hf_imap_response, NullTVB, offset, i1, TRUE);
-	    proto_tree_add_text(imap_tree, NullTVB, offset, i1, "Response Tag: %s", rr);
-
-	    proto_tree_add_text(imap_tree, NullTVB, offset + i1 + 1, END_OF_FRAME, "Response: %s", rd);
-	  }
-
+		/*
+		 * XXX - show the rest of the frame; this requires that
+		 * we handle literals, quoted strings, continuation
+		 * responses, etc..
+		 *
+		 * This involves a state machine, and attaching
+		 * state information to the packets.
+		 */
 	}
 }
 
@@ -142,5 +182,5 @@ proto_register_imap(void)
 void
 proto_reg_handoff_imap(void)
 {
-  old_dissector_add("tcp.port", TCP_PORT_IMAP, dissect_imap);
+  dissector_add("tcp.port", TCP_PORT_IMAP, dissect_imap);
 }
