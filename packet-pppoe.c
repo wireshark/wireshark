@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.10 2000/08/25 13:00:05 deniel Exp $
+ * $Id: packet-pppoe.c,v 1.11 2000/09/11 16:24:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,7 @@
 #include "etypes.h"
 #include "packet.h"
 #include "packet-ppp.h"
+#include "strutil.h"
 
 static gint ett_pppoed = -1;
 static gint ett_pppoed_tags = -1;
