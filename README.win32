@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.40 2002/10/09 03:17:36 gerald Exp $
+$Id: README.win32,v 1.41 2002/10/09 13:39:17 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -11,12 +11,12 @@ The installation package allows you to install:
 	o Ethereal - the GUI version
 	o Tethereal - the console, line-mode version
 	o Editcap - a console, line-mode utility to convert
-		capture files from one format to another.
-		(The same functions are available in Ethereal)
-        o Text2Pcap - a console, line-mode utility to generate 
-		a capture file from an ASCII hexdump of packets
-        o Mergecap - a console, line-mode utility to merge two 
-		capture files into one
+	  capture files from one format to another.
+	  (The same functions are available in Ethereal)
+	o Text2Pcap - a console, line-mode utility to generate 
+	  a capture file from an ASCII hexdump of packets
+	o Mergecap - a console, line-mode utility to merge two 
+	  capture files into one
 
 Additionally, the installation package contains a "plugins"
 option, which installs the Gryphon, MGCP and GIOP dissector plugins
@@ -102,11 +102,11 @@ or
 (the mirror nearer to you may be faster).
 
 Plugins (gryphon.dll and mgcp.dll) can go in:
-	C:\Program Files\Ethereal\plugins\<version>
-	C:\Ethereal\plugins\<version>
+	<Ethereal installation directory>\plugins\<version>
 
-Where <version> is the version number, without brackets.
-For example, C:\Ethereal\plugins\0.8.16
+Where <version> is the version number, without brackets.  For example,
+if you have Ethereal 0.9.8 installed in the default location, plugins
+will reside in C:\Program Files\Ethereal\plugins\0.9.8
 
 Yes, the location of plugins needs to be more flexible.
 
@@ -146,20 +146,15 @@ or the mirror site at
 
 Compiling the Ethereal distribution from source
 ===============================================
-You'll need the development package for GLIB, GTK+, and WinPcap.
-Those versions are available from the respctive home pages for
-each project (the same URLs as listed above). The development
-packages contain header files and stub libaries to link against.
+You'll need the development packages for GLIB, GTK+, WinPcap, zlib,
+and Net-SNMP.  The GLIB, GTK+, and WinPcap packages are available from
+the respctive home pages for each project (the same URLs as listed
+above). The development packages contain header files and stub libaries
+to link against.  Precompiled zlib and Net-SNMP packages are available
+at
 
-The use of an SNMP library has not been made to work yet in
-Ethereal/Win32, but a binary distribution of the UCD SNMP package,
-including header files and a DLL of the UCD SNMP library, can be had
-from:
+	http://www.ethereal.com/distribution/win32/
 
-	ftp://ftp.revelstone.com/snmp/binaries/
-
-The file will probably be called "ucd-snmp-X.X-x86-win32.zip", where
-"X.X" is the version number of the UCD SNMP library.
 
 Instructions for MS Visual C
 ----------------------------
@@ -169,24 +164,15 @@ comment out the line that defines PYTHON, otherwise set it to refer to
 the pathname of your Python interpreter executable.  You should not have
 to modify any other Makefile.
 
-In order to compile, at least with the default settings, you also need
-zlib and net-snmp. The pre-compiled zlib packages available on the
-Gimp/Win32 and WinImage sites are faulty.  A working version as well as
-a precompiled version of net-snmp can be downloaded from:
-
-	http://www.ethereal.com/distribution/win32/
-
-
 Many of the file and directory names used in the build process go past
-the old 8.3 naming limitations.  As a result, at least on Windows NT
-4.0, Windows 2000, Windows XP, and Windows .NET Server, you should use
-the newer "cmd.exe" command interpreter instead of the old
-"command.com", as the "command.com" on Windows 2000, at least, can't
-handle non-8.3 directory names.  (It may be that the "command.com" in
-Windows 95, Windows 98, and Windows Me, as it's the only command
-interpreter in those systems, can handle those directories.  If not, it
-may not be possible to build Ethereal from the command line on those
-versions of Windows.)
+the old 8.3 naming limitations.  As a result, at least on Windows NT 4.0,
+Windows 2000, Windows XP, and Windows .NET Server, you should use the
+newer "cmd.exe" command interpreter instead of the old "command.com",
+as the "command.com" on Windows 2000, at least, can't handle non-8.3
+directory names.  (It may be that the "command.com" in Windows 95, Windows
+98, and Windows Me, as it's the only command interpreter in those systems,
+can handle those directories.  If not, it may not be possible to build
+Ethereal from the command line on those versions of Windows.)
 
 Be sure that your command-line environment is set up to compile
 and link with MSVC. When installing MSVC, you can have your
