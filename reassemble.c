@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.16 2002/04/22 08:14:12 guy Exp $
+ * $Id: reassemble.c,v 1.17 2002/04/25 21:28:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -736,7 +736,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		/* if we dont know the datalen, there are still missing
 		 * packets. Cheaper than the check below.
 		 */
-		return NULL;
+		return FALSE;
 	}
 
 
