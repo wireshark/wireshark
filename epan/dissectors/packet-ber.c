@@ -133,7 +133,9 @@ call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	tvbuff_t *next_tvb;
 
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
-	dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree);
+	if(!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
+		proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
+	}
 
 	return offset;
 }
