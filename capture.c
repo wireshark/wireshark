@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.140 2001/02/11 21:29:03 guy Exp $
+ * $Id: capture.c,v 1.141 2001/02/11 22:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -168,6 +168,13 @@ gboolean capture_child;	/* if this is the child for "-S" */
 static int fork_child;	/* In parent, process ID of child */
 static guint cap_input_id;
 
+/*
+ * Indications sent out on the sync pipe.
+ */
+#define SP_CAPSTART	';'	/* capture start message */
+#define SP_PACKET_COUNT	'*'	/* count of packets captured since last message */
+#define SP_ERROR	'!'	/* length of error message that follows */
+
 #ifdef _WIN32
 static guint cap_timer_id;
 static int cap_timer_cb(gpointer); /* Win32 kludge to check for pipe input */
@@ -182,7 +189,7 @@ static void capture_delete_cb(GtkWidget *, GdkEvent *, gpointer);
 static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
-static void show_capture_file_io_error(const char *, int, gboolean);
+static void get_capture_file_io_error(char *, int, const char *, int, gboolean);
 static void send_errmsg_to_parent(const char *);
 static float pct(gint, gint);
 static void stop_capture(int signo);
@@ -473,7 +480,7 @@ do_capture(char *capfile_name)
 	wait_for_child(TRUE);
 	return;
       }
-      if (c == ';')
+      if (c == SP_CAPSTART || c == SP_ERROR)
 	break;
       if (!isdigit(c)) {
 	/* Child process handed us crap.
@@ -489,7 +496,7 @@ do_capture(char *capfile_name)
       }
       byte_count = byte_count*10 + c - '0';
     }
-    if (byte_count == 0) {
+    if (c == SP_CAPSTART) {
       /* Success.  Open the capture file, and set up to read it. */
       err = start_tail_cap_file(cfile.save_file, is_tempfile, &cfile);
       if (err == 0) {
@@ -533,6 +540,10 @@ do_capture(char *capfile_name)
       if (msg == NULL) {
 	simple_dialog(ESD_TYPE_WARN, NULL,
 		"Capture child process failed, but its error message was too big.");
+      } else if (byte_count == 0) {
+      	/* Zero-length message? */
+	simple_dialog(ESD_TYPE_WARN, NULL,
+		"Capture child process failed, but its error message was empty.");
       } else {
 	i = read(sync_pipe[READ], msg, byte_count);
 	if (i < 0) {
@@ -672,10 +683,10 @@ static void
 cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
 {
   capture_file *cf = (capture_file *)data;
-  char buffer[256+1], *p = buffer, *q = buffer;
-  int  nread;
+#define BUFSIZE	4096
+  char buffer[BUFSIZE+1], *p = buffer, *q = buffer, *msg, *r;
+  int  nread, msglen, chars_to_copy;
   int  to_read = 0;
-  gboolean exit_loop = FALSE;
   int  err;
 
 #ifndef _WIN32
@@ -683,7 +694,7 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
   gtk_input_remove(cap_input_id);
 #endif
 
-  if ((nread = read(sync_pipe[READ], buffer, 256)) <= 0) {
+  if ((nread = read(sync_pipe[READ], buffer, BUFSIZE)) <= 0) {
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
@@ -717,20 +728,48 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
 
   buffer[nread] = '\0';
 
-  while(!exit_loop) {
-    /* look for (possibly multiple) '*' */
+  while (nread != 0) {
+    /* look for (possibly multiple) indications */
     switch (*q) {
-    case '*' :
+    case SP_PACKET_COUNT :
       to_read += atoi(p);
-      p = q + 1; 
+      p = q + 1;
       q++;
+      nread--;
       break;
-    case '\0' :
-      /* XXX should handle the case of a pipe full (i.e. no star found) */
-      exit_loop = TRUE;
+    case SP_ERROR :
+      msglen = atoi(p);
+      p = q + 1;
+      q++;
+      nread--;
+
+      /* Read the entire message.
+         XXX - if the child hasn't sent it all yet, this could cause us
+         to hang until they do. */
+      msg = g_malloc(msglen + 1);
+      r = msg;
+      while (msglen != 0) {
+      	if (nread == 0) {
+      	  /* Read more. */
+          if ((nread = read(sync_pipe[READ], buffer, BUFSIZE)) <= 0)
+            break;
+          p = buffer;
+          q = buffer;
+        }
+      	chars_to_copy = MIN(msglen, nread);
+        memcpy(r, q, chars_to_copy);
+        r += chars_to_copy;
+        q += chars_to_copy;
+        nread -= chars_to_copy;
+        msglen -= chars_to_copy;
+      }
+      *r = '\0';
+      simple_dialog(ESD_TYPE_WARN, NULL, msg);
+      g_free(msg);
       break;
     default :
       q++;
+      nread--;
       break;
     } 
   }
@@ -1157,6 +1196,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   struct bpf_program fcode;
   time_t      upd_time, cur_time;
   int         err, inpkts, i;
+  static const char capstart_msg = SP_CAPSTART;
   char        errmsg[4096+1];
 #ifndef _WIN32
   static const char ppamsg[] = "can't find PPA for ";
@@ -1399,7 +1439,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
        update its windows to indicate that we have a live capture in
        progress. */
     fflush(wtap_dump_file(ld.pdh));
-    write(1, "0;", 2);
+    write(1, &capstart_msg, 1);
   }
 
   cap_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -1563,7 +1603,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	   our parent a message saying we've written out "ld.sync_packets"
 	   packets to the capture file. */
 	char tmp[20];
-	sprintf(tmp, "%d*", ld.sync_packets);
+	sprintf(tmp, "%d%c", ld.sync_packets, SP_PACKET_COUNT);
 	write(1, tmp, strlen(tmp));
 	ld.sync_packets = 0;
       }
@@ -1571,13 +1611,17 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   }
     
   if (ld.err != 0) {
-    /* XXX - in fork mode, this may not pop up, or, if it does,
-       it may disappear as soon as we exit.
-
-       We should have the parent process, while it's reading
-       the packet count update messages, catch error messages
-       and pop up a message box if it sees one. */
-    show_capture_file_io_error(cfile.save_file, ld.err, FALSE);
+    get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, ld.err,
+			      FALSE);
+    if (capture_child) {
+      /* Tell the parent, so that they can pop up the message;
+         we're going to exit, so if we try to pop it up, either
+         it won't pop up or it'll disappear as soon as we exit. */
+      send_errmsg_to_parent(errmsg);
+    } else {
+     /* Just pop up the message ourselves. */
+     simple_dialog(ESD_TYPE_WARN, NULL, "%s", errmsg);
+    }
 
     /* A write failed, so we've already told the user there's a problem;
        if the close fails, there's no point in telling them about that
@@ -1585,13 +1629,17 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     wtap_dump_close(ld.pdh, &err);
   } else {
     if (!wtap_dump_close(ld.pdh, &err)) {
-      /* XXX - in fork mode, this may not pop up, or, if it does,
-         it may disappear as soon as we exit.
-
-         We should have the parent process, while it's reading
-         the packet count update messages, catch error messages
-         and pop up a message box if it sees one. */
-      show_capture_file_io_error(cfile.save_file, err, TRUE);
+      get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, err,
+				TRUE);
+      if (capture_child) {
+        /* Tell the parent, so that they can pop up the message;
+           we're going to exit, so if we try to pop it up, either
+           it won't pop up or it'll disappear as soon as we exit. */
+        send_errmsg_to_parent(errmsg);
+      } else {
+       /* Just pop up the message ourselves. */
+       simple_dialog(ESD_TYPE_WARN, NULL, "%s", errmsg);
+      }
     }
   }
 #ifndef _WIN32
@@ -1639,7 +1687,7 @@ error:
     send_errmsg_to_parent(errmsg);
   } else {
     /* Display the dialog box ourselves; there's no parent. */
-    simple_dialog(ESD_TYPE_CRIT, NULL, errmsg);
+    simple_dialog(ESD_TYPE_CRIT, NULL, "%s", errmsg);
   }
   if (pch != NULL && !ld.from_pipe)
     pcap_close(pch);
@@ -1648,12 +1696,13 @@ error:
 }
 
 static void
-show_capture_file_io_error(const char *fname, int err, gboolean is_close)
+get_capture_file_io_error(char *errmsg, int errmsglen, const char *fname,
+			  int err, gboolean is_close)
 {
   switch (err) {
 
   case ENOSPC:
-    simple_dialog(ESD_TYPE_WARN, NULL,
+    snprintf(errmsg, errmsglen,
 		"Not all the packets could be written to the file"
 		" to which the capture was being saved\n"
 		"(\"%s\") because there is no space left on the file system\n"
@@ -1663,7 +1712,7 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 
 #ifdef EDQUOT
   case EDQUOT:
-    simple_dialog(ESD_TYPE_WARN, NULL,
+    snprintf(errmsg, errmsglen,
 		"Not all the packets could be written to the file"
 		" to which the capture was being saved\n"
 		"(\"%s\") because you are too close to, or over,"
@@ -1674,13 +1723,13 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 #endif
 
   case WTAP_ERR_CANT_CLOSE:
-    simple_dialog(ESD_TYPE_WARN, NULL,
+    snprintf(errmsg, errmsglen,
 		"The file to which the capture was being saved"
 		" couldn't be closed for some unknown reason.");
     break;
 
   case WTAP_ERR_SHORT_WRITE:
-    simple_dialog(ESD_TYPE_WARN, NULL,
+    snprintf(errmsg, errmsglen,
 		"Not all the packets could be written to the file"
 		" to which the capture was being saved\n"
 		"(\"%s\").",
@@ -1689,12 +1738,12 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 
   default:
     if (is_close) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      snprintf(errmsg, errmsglen,
 		"The file to which the capture was being saved\n"
 		"(\"%s\") could not be closed: %s.",
 		fname, wtap_strerror(err));
     } else {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      snprintf(errmsg, errmsglen,
 		"An error occurred while writing to the file"
 		" to which the capture was being saved\n"
 		"(\"%s\"): %s.",
@@ -1710,7 +1759,7 @@ send_errmsg_to_parent(const char *errmsg)
     int msglen = strlen(errmsg);
     char lenbuf[10+1+1];
 
-    sprintf(lenbuf, "%u;", msglen);
+    sprintf(lenbuf, "%u%c", msglen, SP_ERROR);
     write(1, lenbuf, strlen(lenbuf));
     write(1, errmsg, msglen);
 }
