@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-ddtp.c,v 1.23 2002/09/01 14:30:30 oabad Exp $
+ * $Id: packet-ddtp.c,v 1.24 2003/01/19 21:43:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,16 +22,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-/*#include <string.h>
-#include <ctype.h>
-#include <time.h>*/
 
 #include <glib.h>
 #include <epan/packet.h>
@@ -50,6 +45,11 @@ static int ett_ddtp = -1;
 
 #define UDP_PORT_DDTP	1052
 
+/*
+ * XXX - is 0 an invalid value?  If so, should we remove it from this
+ * list, so that putative DDNS packets with a version number of 0 are
+ * rejected?
+ */
 static const value_string vals_ddtp_version[] = {
     { DDTP_VERSION_ERROR, "Protocol Error" },
     { DDTP_VERSION_4,     "4" },
@@ -88,11 +88,19 @@ static const value_string vals_ddtp_status[] = {
     { 0, NULL}
 };
 
-static void
+static int
 dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *ddtp_tree = NULL;
     proto_item *ti;
+
+    /*
+     * If we don't recognize the version number, don't dissect this.
+     */
+    if (tvb_bytes_exist(tvb, 0, 4)) {
+	if (match_strval(tvb_get_ntohl(tvb, 0), vals_ddtp_version) == NULL)
+	    return 0;
+    }
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 	/* Indicate what kind of message this is. */
@@ -164,6 +172,7 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	    col_set_str (pinfo->cinfo, COL_INFO, "Encrypted payload");
     }
+    return tvb_length(tvb);
 }
 
 void
@@ -206,6 +215,6 @@ proto_reg_handoff_ddtp(void)
 {
     dissector_handle_t ddtp_handle;
 
-    ddtp_handle = create_dissector_handle(dissect_ddtp, proto_ddtp);
+    ddtp_handle = new_create_dissector_handle(dissect_ddtp, proto_ddtp);
     dissector_add("udp.port", UDP_PORT_DDTP, ddtp_handle);
 }
