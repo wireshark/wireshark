@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.16 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-isl.c,v 1.17 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -154,7 +154,7 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   }
 
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "ISL");
+    col_set_str(fd, COL_PROTOCOL, "ISL");
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "VLAN ID: 0x%04X", pntohs(&pd[offset+20]) >> 1);
 

@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.52 2000/11/13 07:18:59 guy Exp $
+ * $Id: packet-snmp.c,v 1.53 2000/11/19 08:54:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1563,7 +1563,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			    "Encrypted PDU (%d bytes)", length);
 			g_free(cryptpdu);
 			if (check_col(fd, COL_INFO))
-				col_add_str(fd, COL_INFO, "Encrypted PDU");
+				col_set_str(fd, COL_INFO, "Encrypted PDU");
 			return;
 		}
 		ret = asn1_sequence_decode(&asn1, &global_length, &length);
@@ -1660,7 +1660,7 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	guint cls, con;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "SMUX");
+		col_set_str(fd, COL_PROTOCOL, "SMUX");
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto, NullTVB, offset,

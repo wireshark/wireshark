@@ -633,7 +633,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	pinfo->current_proto = "RTCP";
 
 	if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
-		col_add_str( pinfo->fd, COL_PROTOCOL, "RTCP" );
+		col_set_str( pinfo->fd, COL_PROTOCOL, "RTCP" );
 	}
 	
 	if ( check_col( pinfo->fd, COL_INFO) ) {
@@ -641,28 +641,28 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/* switch ( pd[ offset + 1 ] ) { */
 		switch ( tvb_get_guint8( tvb, 1 ) ) {
 			case RTCP_SR:
-				col_add_str( pinfo->fd, COL_INFO, "Sender Report");
+				col_set_str( pinfo->fd, COL_INFO, "Sender Report");
 				break;
 			case RTCP_RR:
-				col_add_str( pinfo->fd, COL_INFO, "Receiver Report");
+				col_set_str( pinfo->fd, COL_INFO, "Receiver Report");
 				break;
 			case RTCP_SDES:
-				col_add_str( pinfo->fd, COL_INFO, "Source Description");
+				col_set_str( pinfo->fd, COL_INFO, "Source Description");
 				break;
 			case RTCP_BYE:
-				col_add_str( pinfo->fd, COL_INFO, "Goodbye");
+				col_set_str( pinfo->fd, COL_INFO, "Goodbye");
 				break;
 			case RTCP_APP:
-				col_add_str( pinfo->fd, COL_INFO, "Application defined");
+				col_set_str( pinfo->fd, COL_INFO, "Application defined");
 				break;
 			case RTCP_FIR:
-				col_add_str( pinfo->fd, COL_INFO, "Full Intra-frame Request (H.261)");
+				col_set_str( pinfo->fd, COL_INFO, "Full Intra-frame Request (H.261)");
 				break;
 			case RTCP_NACK:
-				col_add_str( pinfo->fd, COL_INFO, "Negative Acknowledgement (H.261)");
+				col_set_str( pinfo->fd, COL_INFO, "Negative Acknowledgement (H.261)");
 				break;
 			default:
-				col_add_str( pinfo->fd, COL_INFO, "Unknown packet type");
+				col_set_str( pinfo->fd, COL_INFO, "Unknown packet type");
 				break;
 		}
 	}

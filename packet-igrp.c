@@ -2,7 +2,7 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  * 
- * $Id: packet-igrp.c,v 1.1 2000/10/26 09:14:28 guy Exp $
+ * $Id: packet-igrp.c,v 1.2 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,7 +70,7 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
   
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_add_str(pinfo->fd, COL_PROTOCOL, "IGRP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "IGRP");
     
   if (check_col(pinfo->fd, COL_INFO)) {
     switch (ver_and_opcode) {

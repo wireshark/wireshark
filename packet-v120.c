@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.13 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-v120.c,v 1.14 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,7 +71,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->current_proto = "V.120";
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_add_str(pinfo->fd, COL_PROTOCOL, "V.120");
+	col_set_str(pinfo->fd, COL_PROTOCOL, "V.120");
 
     byte0 = tvb_get_guint8(tvb, 0);
 
@@ -83,7 +83,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((byte0 & 0x01) != 0x00 && (byte1 && 0x01) != 0x01)
     {
 	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_str(pinfo->fd, COL_INFO, "Invalid V.120 frame");
+	    col_set_str(pinfo->fd, COL_INFO, "Invalid V.120 frame");
 	if (tree)
 	    ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, tvb_length(tvb),
 			                    "Invalid V.120 frame");
@@ -92,15 +92,15 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
 	if(check_col(pinfo->fd, COL_RES_DL_DST))
-	    col_add_str(pinfo->fd, COL_RES_DL_DST, "DTE");
+	    col_set_str(pinfo->fd, COL_RES_DL_DST, "DTE");
 	if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	    col_add_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
+	    col_set_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
     }
     else {
 	if(check_col(pinfo->fd, COL_RES_DL_DST))
-	    col_add_str(pinfo->fd, COL_RES_DL_DST, "DCE");
+	    col_set_str(pinfo->fd, COL_RES_DL_DST, "DCE");
 	if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	    col_add_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
+	    col_set_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
     }
 
     if (((pinfo->pseudo_header->x25.flags & FROM_DCE) && byte0 & 0x02) ||

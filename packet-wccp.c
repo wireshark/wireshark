@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.11 2000/11/17 21:00:36 gram Exp $
+ * $Id: packet-wccp.c,v 1.12 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,7 +106,7 @@ dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	OLD_CHECK_DISPLAY_AS_DATA(proto_wccp, pd, offset, fd, tree);
 
 	if(check_col(fd, COL_PROTOCOL)) {
-		col_add_str(fd, COL_PROTOCOL, "WCCP");
+		col_set_str(fd, COL_PROTOCOL, "WCCP");
 	}
 
 	wccp_message_type = pntohl(&pd[offset]);

@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.15 2000/11/13 08:58:05 guy Exp $
+ * $Id: packet-nntp.c,v 1.16 2000/11/19 08:54:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,7 +71,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "NNTP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "NNTP");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "NNTP");
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		/*

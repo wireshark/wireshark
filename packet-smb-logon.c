@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.9 2000/10/31 09:41:07 sharpe Exp $
+ * $Id: packet-smb-logon.c,v 1.10 2000/11/19 08:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -533,7 +533,7 @@ static void (*dissect_smb_logon_cmds[])(const u_char *, int, frame_data *,
    	cmd = MIN(  GBYTE(pd, offset), array_length(dissect_smb_logon_cmds)-1);
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NETLOGON");
+		col_set_str(fd, COL_PROTOCOL, "NETLOGON");
 
 
 	if (check_col(fd, COL_INFO))

@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.12 2000/08/25 12:30:30 deniel Exp $
+ * $Id: packet-pptp.c,v 1.13 2000/11/19 08:54:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -393,7 +393,7 @@ dissect_pptp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   OLD_CHECK_DISPLAY_AS_DATA(proto_pptp, pd, offset, fd, tree);
 
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "PPTP");
+    col_set_str(fd, COL_PROTOCOL, "PPTP");
   
   len	     = pntohs(&hdr->len);
   cntrl_type = pntohs(&hdr->cntrl_type);

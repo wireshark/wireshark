@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.29 2000/10/07 06:58:24 guy Exp $
+ * $Id: packet-isakmp.c,v 1.30 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -359,7 +359,7 @@ dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   OLD_CHECK_DISPLAY_AS_DATA(proto_isakmp, pd, offset, fd, tree);
   
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "ISAKMP");
+    col_set_str(fd, COL_PROTOCOL, "ISAKMP");
   
   len = pntohl(&hdr->length);
   

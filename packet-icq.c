@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.21 2000/08/13 14:08:15 deniel Exp $
+ * $Id: packet-icq.c,v 1.22 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -561,10 +561,10 @@ dissect_icqv4(const u_char *pd,
 {
     /* Not really implemented yet */
     if (check_col(fd, COL_PROTOCOL)) {
-	col_add_str(fd, COL_PROTOCOL, "ICQv4 (UDP)");
+	col_set_str(fd, COL_PROTOCOL, "ICQv4 (UDP)");
     }
     if (check_col(fd, COL_INFO)) {
-	col_add_str(fd, COL_INFO, "ICQ Version 4 protocol");
+	col_set_str(fd, COL_INFO, "ICQ Version 4 protocol");
     }
 }
 
@@ -576,10 +576,10 @@ dissect_icqv3(const u_char *pd,
 {
     /* Not really implemented yet */
     if (check_col(fd, COL_PROTOCOL)) {
-	col_add_str(fd, COL_PROTOCOL, "ICQv3 (UDP)");
+	col_set_str(fd, COL_PROTOCOL, "ICQv3 (UDP)");
     }
     if (check_col(fd, COL_INFO)) {
-	col_add_str(fd, COL_INFO, "ICQ Version 3 protocol");
+	col_set_str(fd, COL_INFO, "ICQ Version 3 protocol");
     }
 }
 
@@ -591,10 +591,10 @@ dissect_icqv2(const u_char *pd,
 {
     /* Not really implemented yet */
     if (check_col(fd, COL_PROTOCOL)) {
-	col_add_str(fd, COL_PROTOCOL, "ICQv2 (UDP)");
+	col_set_str(fd, COL_PROTOCOL, "ICQv2 (UDP)");
     }
     if (check_col(fd, COL_INFO)) {
-	col_add_str(fd, COL_INFO, "ICQ Version 2 protocol");
+	col_set_str(fd, COL_INFO, "ICQ Version 2 protocol");
     }
 }
 
@@ -2410,9 +2410,9 @@ static void dissect_icqv5(const u_char *pd,
   guint32 unknown = pletohl(&pd[offset + ICQ5_UNKNOWN]);
   
   if (check_col(fd, COL_PROTOCOL))
-      col_add_str(fd, COL_PROTOCOL, "ICQv5 (UDP)");
+      col_set_str(fd, COL_PROTOCOL, "ICQv5 (UDP)");
   if (check_col(fd, COL_INFO))
-      col_add_str(fd, COL_INFO, "ICQv5 packet");
+      col_set_str(fd, COL_INFO, "ICQv5 packet");
   if (unknown == 0x0L) {
       dissect_icqv5Client(pd, offset, fd, tree);
   } else {

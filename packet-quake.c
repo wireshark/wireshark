@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.8 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-quake.c,v 1.9 2000/11/19 08:54:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -525,7 +525,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	length &= NETFLAG_LENGTH_MASK;
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "QUAKE");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "QUAKE");
 
 	if (tree) {
 		quake_item = proto_tree_add_item(tree, proto_quake,

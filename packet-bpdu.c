@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.14 2000/11/16 07:35:37 guy Exp $
+ * $Id: packet-bpdu.c,v 1.15 2000/11/19 08:53:55 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -110,7 +110,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       port_identifier = tvb_get_ntohs(tvb, BPDU_PORT_IDENTIFIER);
 
       if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	    col_add_str(pinfo->fd, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
+	    col_set_str(pinfo->fd, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
       }
 
       if (check_col(pinfo->fd, COL_INFO)) {

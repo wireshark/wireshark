@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.11 2000/11/18 10:38:23 guy Exp $
+ * $Id: packet-clip.c,v 1.12 2000/11/19 08:53:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,13 +59,13 @@ dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
   if(check_col(pinfo->fd, COL_RES_DL_SRC))
-    col_add_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
+    col_set_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
   if(check_col(pinfo->fd, COL_RES_DL_DST))
-    col_add_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
+    col_set_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
   if(check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "CLIP" );
+    col_set_str(pinfo->fd, COL_PROTOCOL, "CLIP" );
   if(check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, "Classical IP frame" );
+    col_set_str(pinfo->fd, COL_INFO, "Classical IP frame" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none)

@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.16 2000/08/24 05:40:50 guy Exp $
+ * $Id: packet-ldap.c,v 1.17 2000/11/19 08:53:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -924,7 +924,7 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (first_time)
     {
       if (check_col(fd, COL_PROTOCOL))
-        col_add_str(fd, COL_PROTOCOL, "LDAP");
+        col_set_str(fd, COL_PROTOCOL, "LDAP");
 
       if (check_col(fd, COL_INFO))
         col_add_fstr(fd, COL_INFO, "MsgId=%u MsgType=%s",

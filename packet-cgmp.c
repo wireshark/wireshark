@@ -1,7 +1,7 @@
 /* packet-cgmp.c
  * Routines for the disassembly of the Cisco Group Management Protocol
  *
- * $Id: packet-cgmp.c,v 1.4 2000/08/13 14:08:05 deniel Exp $
+ * $Id: packet-cgmp.c,v 1.5 2000/11/19 08:53:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,9 +68,9 @@ dissect_cgmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	OLD_CHECK_DISPLAY_AS_DATA(proto_cgmp, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "CGMP");
+		col_set_str(fd, COL_PROTOCOL, "CGMP");
 	if (check_col(fd, COL_INFO))
-		col_add_str(fd, COL_INFO, "Cisco Group Management Protocol"); 
+		col_set_str(fd, COL_INFO, "Cisco Group Management Protocol"); 
 
 	if (tree) {
 	        ti = proto_tree_add_item(tree, proto_cgmp, NullTVB, offset, END_OF_FRAME, FALSE);

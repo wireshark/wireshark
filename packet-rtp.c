@@ -307,7 +307,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	sync_src = tvb_get_ntohl( tvb, offset + 8 );
 
 	if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
-		col_add_str( pinfo->fd, COL_PROTOCOL, "RTP" );
+		col_set_str( pinfo->fd, COL_PROTOCOL, "RTP" );
 	}
 	
 	if ( check_col( pinfo->fd, COL_INFO) ) {

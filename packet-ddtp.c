@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.10 2000/08/13 14:08:08 deniel Exp $
+ * $Id: packet-ddtp.c,v 1.11 2000/11/19 08:53:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,7 +108,7 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->current_proto = "DDTP";
     if (check_col(pinfo->fd, COL_PROTOCOL)) {
 	/* Indicate what kind of message this is. */
-    	col_add_str (pinfo->fd, COL_PROTOCOL, "DDTP");
+    	col_set_str (pinfo->fd, COL_PROTOCOL, "DDTP");
     }
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0,
@@ -123,11 +123,11 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    switch (tvb_get_ntohl(tvb, 12)) {
 	    case DDTP_MESSAGE_ERROR :
 		if (check_col(pinfo->fd, COL_INFO))
-		    col_add_str (pinfo->fd, COL_INFO, "Message Error");
+		    col_set_str (pinfo->fd, COL_INFO, "Message Error");
 		break;
 	    case DDTP_UPDATE_QUERY :
 		if (check_col(pinfo->fd, COL_INFO))
-		    col_add_str (pinfo->fd, COL_INFO, "Update Query");
+		    col_set_str (pinfo->fd, COL_INFO, "Update Query");
 		proto_tree_add_item(ddtp_tree, hf_ddtp_opcode, tvb, 16, 4,
 			FALSE);
 		proto_tree_add_item(ddtp_tree, hf_ddtp_ipaddr, tvb, 20, 4,
@@ -135,25 +135,25 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	    case DDTP_UPDATE_REPLY :
 		if (check_col(pinfo->fd, COL_INFO))
-		    col_add_str (pinfo->fd, COL_INFO, "Update Reply");
+		    col_set_str (pinfo->fd, COL_INFO, "Update Reply");
 		proto_tree_add_item(ddtp_tree, hf_ddtp_status, tvb, 16, 4,
 			FALSE);
 		break;
 	    case DDTP_ALIVE_QUERY :
 		if (check_col(pinfo->fd, COL_INFO))
-		    col_add_str (pinfo->fd, COL_INFO, "Alive Query");
+		    col_set_str (pinfo->fd, COL_INFO, "Alive Query");
 		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
 			tvb_get_ntohl(tvb, 16));
 		break;
 	    case DDTP_ALIVE_REPLY :
 		if (check_col(pinfo->fd, COL_INFO))
-		    col_add_str (pinfo->fd, COL_INFO, "Alive Reply");
+		    col_set_str (pinfo->fd, COL_INFO, "Alive Reply");
 		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
 			tvb_get_ntohl(tvb, 16));
 		break;
 	    default :
 		if (check_col(pinfo->fd, COL_INFO))
-		    col_add_str (pinfo->fd, COL_INFO, "Unknwon type");
+		    col_set_str (pinfo->fd, COL_INFO, "Unknwon type");
 		proto_tree_add_text(ddtp_tree, tvb, 12, 4, "Unknown type : %u",
 			tvb_get_ntohl(tvb, 12));
 	    }

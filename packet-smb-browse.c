@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.5 2000/08/13 14:08:48 deniel Exp $
+ * $Id: packet-smb-browse.c,v 1.6 2000/11/19 08:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -154,10 +154,10 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
     return 0;
 
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "BROWSER");
+    col_set_str(fd, COL_PROTOCOL, "BROWSER");
 
   if (check_col(fd, COL_INFO)) /* Put in something, and replace it later */
-    col_add_str(fd, COL_INFO, "Browse Announcement");
+    col_set_str(fd, COL_INFO, "Browse Announcement");
 
   /*
    * Now, decode the browse request 

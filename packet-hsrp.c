@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.9 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-hsrp.c,v 1.10 2000/11/19 08:53:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,7 +102,7 @@ dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                 memcpy(&hsrp, pd + offset, sizeof(struct hsrp_packet));
 
         if (check_col(fd, COL_PROTOCOL))
-                col_add_str(fd, COL_PROTOCOL, "HSRP");
+                col_set_str(fd, COL_PROTOCOL, "HSRP");
         
         if (check_col(fd, COL_INFO)) {
                 if (short_packet)

@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.20 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-pop.c,v 1.21 2000/11/19 08:54:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,7 +73,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "POP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "POP");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "POP");
 
 	/*
 	 * Find the end of the first line.
@@ -97,7 +97,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Otherwise, just call it a continuation.
 		 */
 		if (is_continuation)
-			col_add_str(pinfo->fd, COL_INFO, "Continuation");
+			col_set_str(pinfo->fd, COL_INFO, "Continuation");
 		else
 			col_add_fstr(pinfo->fd, COL_INFO, "%s: %s",
 			    is_request ? "Request" : "Response",

@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.17 2000/11/13 08:58:17 guy Exp $
+ * $Id: packet-tftp.c,v 1.18 2000/11/19 08:54:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,7 +126,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "TFTP");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "TFTP");
 
 	opcode = tvb_get_ntohs(tvb, offset);
 

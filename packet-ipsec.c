@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.21 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-ipsec.c,v 1.22 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -117,7 +117,7 @@ dissect_ah_old(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
 
     if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "AH");
+	col_set_str(fd, COL_PROTOCOL, "AH");
     if (check_col(fd, COL_INFO)) {
 	col_add_fstr(fd, COL_INFO, "AH (SPI=0x%08x)",
 	    (guint32)ntohl(ah.ah_spi));
@@ -160,7 +160,7 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
 
     if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "AH");
+	col_set_str(fd, COL_PROTOCOL, "AH");
     if (check_col(fd, COL_INFO)) {
 	col_add_fstr(fd, COL_INFO, "AH (SPI=0x%08x)",
 	    (guint32)ntohl(ah.ah_spi));
@@ -222,7 +222,7 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      * the next protocol in the stack
      */
     if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "ESP");
+	col_set_str(fd, COL_PROTOCOL, "ESP");
     if (check_col(fd, COL_INFO)) {
 	col_add_fstr(fd, COL_INFO, "ESP (SPI=0x%08x)",
 	    (guint32)ntohl(esp.esp_spi));
@@ -262,7 +262,7 @@ dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      * the next protocol in the stack
      */
     if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "IPComp");
+	col_set_str(fd, COL_PROTOCOL, "IPComp");
     if (check_col(fd, COL_INFO)) {
 	p = val_to_str(ntohs(ipcomp.comp_cpi), cpi2val, "");
 	if (p[0] == '\0') {

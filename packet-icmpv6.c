@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.30 2000/11/11 10:23:41 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.31 2000/11/19 08:53:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -882,7 +882,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
 
     if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "ICMPv6");
+	col_set_str(fd, COL_PROTOCOL, "ICMPv6");
     if (check_col(fd, COL_INFO)) {
 	char typebuf[256], codebuf[256];
 

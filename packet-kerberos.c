@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.5 2000/11/13 07:18:48 guy Exp $
+ * $Id: packet-kerberos.c,v 1.6 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -297,7 +297,7 @@ dissect_kerberos(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     OLD_CHECK_DISPLAY_AS_DATA(proto_kerberos, pd, offset, fd, tree);
 
     if (check_col(fd, COL_PROTOCOL))
-        col_add_str(fd, COL_PROTOCOL, "KRB5");
+        col_set_str(fd, COL_PROTOCOL, "KRB5");
 
     if (tree) {
         item = proto_tree_add_item(tree, proto_kerberos, NullTVB, offset,

@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.26 2000/11/16 07:35:37 guy Exp $
+ * $Id: packet-atm.c,v 1.27 2000/11/19 08:53:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -261,7 +261,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 tlv_length;
 
   if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, "LE Control");
+    col_set_str(pinfo->fd, COL_INFO, "LE Control");
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_atm_lane, tvb, offset, 108, "ATM LANE");
@@ -383,9 +383,9 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->current_proto = "ATM LANE";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "ATM LANE");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "ATM LANE");
   if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, "ATM LANE");
+    col_set_str(pinfo->fd, COL_INFO, "ATM LANE");
 
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
   switch (pinfo->pseudo_header->ngsniffer_atm.AppHLType) {
@@ -606,24 +606,24 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "ATM");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "ATM");
 
   switch (pinfo->pseudo_header->ngsniffer_atm.channel) {
 
   case 0:
     /* Traffic from DCE to DTE. */
     if (check_col(pinfo->fd, COL_RES_DL_DST))
-      col_add_str(pinfo->fd, COL_RES_DL_DST, "DTE");
+      col_set_str(pinfo->fd, COL_RES_DL_DST, "DTE");
     if (check_col(pinfo->fd, COL_RES_DL_SRC))
-      col_add_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
+      col_set_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
     break;
 
   case 1:
     /* Traffic from DTE to DCE. */
     if (check_col(pinfo->fd, COL_RES_DL_DST))
-      col_add_str(pinfo->fd, COL_RES_DL_DST, "DCE");
+      col_set_str(pinfo->fd, COL_RES_DL_DST, "DCE");
     if (check_col(pinfo->fd, COL_RES_DL_SRC))
-      col_add_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
+      col_set_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
     break;
   }
 

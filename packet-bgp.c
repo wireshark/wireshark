@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.27 2000/08/20 18:10:12 deniel Exp $
+ * $Id: packet-bgp.c,v 1.28 2000/11/19 08:53:55 guy Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -1141,7 +1141,7 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     OLD_CHECK_DISPLAY_AS_DATA(proto_bgp, pd, offset, fd, tree);
 
     if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "BGP");
+	col_set_str(fd, COL_PROTOCOL, "BGP");
 
     p = &pd[offset];
     l = END_OF_FRAME;

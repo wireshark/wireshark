@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.9 2000/08/13 14:08:16 deniel Exp $
+ * $Id: packet-imap.c,v 1.10 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,7 +84,7 @@ dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "IMAP");
+		col_set_str(fd, COL_PROTOCOL, "IMAP");
 
 	if (check_col(fd, COL_INFO)) {
 

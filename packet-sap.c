@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.14 2000/11/15 07:07:43 guy Exp $
+ * $Id: packet-sap.c,v 1.15 2000/11/19 08:54:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -155,7 +155,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "SAP";
 
         if (check_col(pinfo->fd, COL_PROTOCOL))
-                col_add_str(pinfo->fd, COL_PROTOCOL, "SAP");
+                col_set_str(pinfo->fd, COL_PROTOCOL, "SAP");
         
         if (check_col(pinfo->fd, COL_INFO)) {
                 col_add_fstr(pinfo->fd, COL_INFO, "%s (v%u)",

@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.19 2000/11/19 02:00:02 guy Exp $
+ * $Id: packet-ascend.c,v 1.20 2000/11/19 08:53:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,13 +67,13 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
   if(check_col(pinfo->fd, COL_RES_DL_SRC))
-    col_add_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
+    col_set_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
   if(check_col(pinfo->fd, COL_RES_DL_DST))
-    col_add_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
+    col_set_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
   if(check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "N/A" );
+    col_set_str(pinfo->fd, COL_PROTOCOL, "N/A" );
   if(check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, "Lucent/Ascend packet trace" );
+    col_set_str(pinfo->fd, COL_INFO, "Lucent/Ascend packet trace" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */

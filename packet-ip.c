@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.106 2000/11/18 10:38:24 guy Exp $
+ * $Id: packet-ip.c,v 1.107 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -937,7 +937,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (iph.ip_off & IP_OFFSET) {
     /* fragmented */
     if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_add_str(pinfo->fd, COL_PROTOCOL, "IP");
+      col_set_str(pinfo->fd, COL_PROTOCOL, "IP");
     if (check_col(pinfo->fd, COL_INFO))
       col_add_fstr(pinfo->fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
@@ -956,7 +956,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
     /* Unknown protocol */
     if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_add_str(pinfo->fd, COL_PROTOCOL, "IP");
+      col_set_str(pinfo->fd, COL_PROTOCOL, "IP");
     if (check_col(pinfo->fd, COL_INFO))
       col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
     dissect_data(next_tvb, 0, pinfo, tree);
@@ -1093,7 +1093,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "ICMP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "ICMP");
   if (check_col(pinfo->fd, COL_INFO))
     col_add_str(pinfo->fd, COL_INFO, type_str);
 
@@ -1243,7 +1243,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   pinfo->current_proto = "IGMP";
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "IGMP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "IGMP");
 
   /* Avoids alignment problems on many architectures. */
   memcpy(&ih, tvb_get_ptr(tvb, 0, sizeof(e_igmp)), sizeof(e_igmp));

@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.78 2000/11/18 10:38:25 guy Exp $
+ * $Id: packet-udp.c,v 1.79 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -158,7 +158,7 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   uh_sum   = ntohs(uh.uh_sum);
   
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "UDP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "UDP");
   if (check_col(pinfo->fd, COL_INFO))
     col_add_fstr(pinfo->fd, COL_INFO, "Source port: %s  Destination port: %s",
 	    get_udp_port(uh_sport), get_udp_port(uh_dport));

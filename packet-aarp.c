@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.24 2000/11/13 07:18:37 guy Exp $
+ * $Id: packet-aarp.c,v 1.25 2000/11/19 08:53:54 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -169,7 +169,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   tpa_str = aarpproaddr_to_str(tpa_val, ar_pln, ar_pro);
   
   if(check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "AARP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "AARP");
 
   if (check_col(pinfo->fd, COL_INFO)) {
     switch (ar_op) {

@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-trmac.c,v 1.25 2000/11/17 21:00:36 gram Exp $
+ * $Id: packet-trmac.c,v 1.26 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -284,7 +284,7 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->current_proto = "TR MAC";
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "TR MAC");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "TR MAC");
 
 	mv_val = tvb_get_guint8(tvb, 3);
 

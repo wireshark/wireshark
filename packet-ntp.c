@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.17 2000/11/17 05:25:59 guy Exp $
+ * $Id: packet-ntp.c,v 1.18 2000/11/19 08:54:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -248,10 +248,10 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	pkt = (struct ntp_packet *) &pd[offset];
 	
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NTP");
+		col_set_str(fd, COL_PROTOCOL, "NTP");
 
 	if (check_col(fd, COL_INFO))
-		col_add_str(fd, COL_INFO, "NTP");
+		col_set_str(fd, COL_INFO, "NTP");
 
 	if (tree) {
 		/* Adding NTP item and subtree */

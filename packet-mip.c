@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.8 2000/08/13 14:08:28 deniel Exp $
+ * $Id: packet-mip.c,v 1.9 2000/11/19 08:54:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -153,14 +153,14 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	pinfo->current_proto = "Mobile IP";
 	if (check_col(fd, COL_PROTOCOL)) 
-		col_add_str(fd, COL_PROTOCOL, "mip");
+		col_set_str(fd, COL_PROTOCOL, "mip");
     
 	type = tvb_get_guint8(tvb, 0);
 
 	if (type==1) {
 
 	  if (check_col(fd, COL_INFO)) 
-		 col_add_str(fd, COL_INFO, "Mobile IP Registration Request");
+		 col_set_str(fd, COL_INFO, "Mobile IP Registration Request");
 	
 	  if (tree) {
 		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);
@@ -186,7 +186,7 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (type==3){
 	  if (check_col(fd, COL_INFO)) 
-		 col_add_str(fd, COL_INFO, "Mobile IP Registration Reply");
+		 col_set_str(fd, COL_INFO, "Mobile IP Registration Reply");
 
 	  if (tree) {
 		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);

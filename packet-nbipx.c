@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.28 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-nbipx.c,v 1.29 2000/11/19 08:54:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,7 +120,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "NBIPX";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "NBIPX");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "NBIPX");
 
 	/*
 	 * As said above, we look at the length of the packet to decide
@@ -303,7 +303,7 @@ dissect_nwlink_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	node_name_type = get_netbios_name(tvb, offset+52, node_name);
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "NWLink");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "NWLink");
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		/*
@@ -344,7 +344,7 @@ dissect_nwlink_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 				
 		default:
-			col_add_str(pinfo->fd, COL_INFO, "NetBIOS over IPX (NWLink)");
+			col_set_str(pinfo->fd, COL_INFO, "NetBIOS over IPX (NWLink)");
 			break;
 		}
 	}

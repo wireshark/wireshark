@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.36 2000/11/19 01:00:20 guy Exp $
+ * $Id: packet-arp.c,v 1.37 2000/11/19 08:53:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -472,17 +472,17 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ARPOP_REPLY:
     case ATMARPOP_NAK:
     default:
-      col_add_str(pinfo->fd, COL_PROTOCOL, "ATMARP");
+      col_set_str(pinfo->fd, COL_PROTOCOL, "ATMARP");
       break;
 
     case ARPOP_RREQUEST:
     case ARPOP_RREPLY:
-      col_add_str(pinfo->fd, COL_PROTOCOL, "ATMRARP");
+      col_set_str(pinfo->fd, COL_PROTOCOL, "ATMRARP");
       break;
 
     case ARPOP_IREQUEST:
     case ARPOP_IREPLY:
-      col_add_str(pinfo->fd, COL_PROTOCOL, "Inverse ATMARP");
+      col_set_str(pinfo->fd, COL_PROTOCOL, "Inverse ATMARP");
       break;
     }
   }
@@ -628,17 +628,17 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ARPOP_REQUEST:
     case ARPOP_REPLY:
     default:
-      col_add_str(pinfo->fd, COL_PROTOCOL, "ARP");
+      col_set_str(pinfo->fd, COL_PROTOCOL, "ARP");
       break;
 
     case ARPOP_RREQUEST:
     case ARPOP_RREPLY:
-      col_add_str(pinfo->fd, COL_PROTOCOL, "RARP");
+      col_set_str(pinfo->fd, COL_PROTOCOL, "RARP");
       break;
 
     case ARPOP_IREQUEST:
     case ARPOP_IREPLY:
-      col_add_str(pinfo->fd, COL_PROTOCOL, "Inverse ARP");
+      col_set_str(pinfo->fd, COL_PROTOCOL, "Inverse ARP");
       break;
     }
   }

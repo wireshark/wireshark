@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.18 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-radius.c,v 1.19 2000/11/19 08:54:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -695,7 +695,7 @@ proto_tree
 	codestrval="Unknown Packet";
   }
   if (check_col(fd, COL_PROTOCOL))
-        col_add_str(fd, COL_PROTOCOL, "RADIUS");
+        col_set_str(fd, COL_PROTOCOL, "RADIUS");
   if (check_col(fd, COL_INFO))
   {
 	sprintf(textbuffer,"%s(%d) (id=%d, l=%d)",

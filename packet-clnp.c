@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.15 2000/11/19 04:14:26 guy Exp $
+ * $Id: packet-clnp.c,v 1.16 2000/11/19 08:53:56 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1516,7 +1516,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
       /* Well, we found at least one valid COTP or CLTP PDU, so I guess this
          is either COTP or CLTP. */
       if (!subdissector_found && check_col(pinfo->fd, COL_PROTOCOL))
-        col_add_str(pinfo->fd, COL_PROTOCOL, is_cltp ? "CLTP" : "COTP");
+        col_set_str(pinfo->fd, COL_PROTOCOL, is_cltp ? "CLTP" : "COTP");
       found_ositp = TRUE;
     }
 
@@ -1562,12 +1562,12 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->current_proto = "CLNP";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "CLNP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "CLNP");
 
   cnf_proto_id = tvb_get_guint8(tvb, P_CLNP_PROTO_ID);
   if (cnf_proto_id == NLPID_NULL) {
     if (check_col(pinfo->fd, COL_INFO))
-      col_add_str(pinfo->fd, COL_INFO, "Inactive subset");
+      col_set_str(pinfo->fd, COL_INFO, "Inactive subset");
     if (tree) {
       ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, FALSE);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);

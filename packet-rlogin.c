@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.10 2000/10/21 05:52:21 guy Exp $
+ * $Id: packet-rlogin.c,v 1.11 2000/11/19 08:54:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -386,7 +386,7 @@ dissect_rlogin(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 	
 	if (check_col(fd, COL_PROTOCOL))		/* update protocol  */
-		col_add_str(fd, COL_PROTOCOL, "Rlogin");
+		col_set_str(fd, COL_PROTOCOL, "Rlogin");
 
 	if (check_col(fd, COL_INFO)){			/* display packet info*/
 

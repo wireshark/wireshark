@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.50 2000/11/17 21:00:36 gram Exp $
+ * $Id: packet-tr.c,v 1.51 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -328,7 +328,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "Token-Ring";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "TR");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "TR");
 
 	if ((x = check_for_old_linux_tvb((tvbuff_t*) tvb))) {
 		/* Actually packet starts x bytes into what we have got but with all

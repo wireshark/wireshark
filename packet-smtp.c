@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.11 2000/11/13 08:58:13 guy Exp $
+ * $Id: packet-smtp.c,v 1.12 2000/11/19 08:54:07 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -364,7 +364,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_add_str(pinfo->fd, COL_PROTOCOL, "SMTP");
+      col_set_str(pinfo->fd, COL_PROTOCOL, "SMTP");
 
     if (check_col(pinfo->fd, COL_INFO)) {  /* Add the appropriate type here */
 
@@ -380,7 +380,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (frame_data->pdu_type) {
 	case SMTP_PDU_MESSAGE:
 
-	  col_add_str(pinfo->fd, COL_INFO, "Message Body");
+	  col_set_str(pinfo->fd, COL_INFO, "Message Body");
 	  break;
 
 	case SMTP_PDU_EOM:

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.43 2000/11/19 02:03:00 guy Exp $
+ * $Id: packet-ppp.c,v 1.44 2000/11/19 08:54:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1138,11 +1138,11 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
      the next protocol in the stack */
 
   if(check_col(pinfo->fd, COL_RES_DL_SRC))
-    col_add_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
+    col_set_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
   if(check_col(pinfo->fd, COL_RES_DL_DST))
-    col_add_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
+    col_set_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
   if(check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "PPP" );
+    col_set_str(pinfo->fd, COL_PROTOCOL, "PPP" );
 
   if(tree) {
     ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 4, FALSE);

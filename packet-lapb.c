@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.22 2000/08/13 14:08:24 deniel Exp $
+ * $Id: packet-lapb.c,v 1.23 2000/11/19 08:53:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,19 +62,19 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->current_proto = "LAPB";
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_add_str(pinfo->fd, COL_PROTOCOL, "LAPB");
+	col_set_str(pinfo->fd, COL_PROTOCOL, "LAPB");
 
     if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
 	if(check_col(pinfo->fd, COL_RES_DL_DST))
-	    col_add_str(pinfo->fd, COL_RES_DL_DST, "DTE");
+	    col_set_str(pinfo->fd, COL_RES_DL_DST, "DTE");
 	if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	    col_add_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
+	    col_set_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
     }
     else {
 	if(check_col(pinfo->fd, COL_RES_DL_DST))
-	    col_add_str(pinfo->fd, COL_RES_DL_DST, "DCE");
+	    col_set_str(pinfo->fd, COL_RES_DL_DST, "DCE");
 	if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	    col_add_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
+	    col_set_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
     }
 
     byte0 = tvb_get_guint8(tvb, 0);
@@ -82,7 +82,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (byte0 != 0x01 && byte0 != 0x03) /* invalid LAPB frame */
     {
 	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_str(pinfo->fd, COL_INFO, "Invalid LAPB frame");
+	    col_set_str(pinfo->fd, COL_INFO, "Invalid LAPB frame");
 	if (tree)
 	    ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0,
 			    tvb_length(tvb), "Invalid LAPB frame");

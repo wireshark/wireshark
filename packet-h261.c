@@ -77,11 +77,11 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int offset       = 0;
 
 	if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
-		col_add_str( pinfo->fd, COL_PROTOCOL, "H.261" );
+		col_set_str( pinfo->fd, COL_PROTOCOL, "H.261" );
 	}
 	
 	if ( check_col( pinfo->fd, COL_INFO) ) {
-		col_add_str( pinfo->fd, COL_INFO, "H.261 message");
+		col_set_str( pinfo->fd, COL_INFO, "H.261 message");
 	}
 
 	if ( tree ) {

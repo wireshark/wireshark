@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.37 2000/11/19 04:14:26 guy Exp $
+ * $Id: packet-osi.c,v 1.38 2000/11/19 08:54:00 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -243,19 +243,19 @@ void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case NLPID_ISO9542X25_ESIS:
       if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	col_add_str(pinfo->fd, COL_PROTOCOL, "ESIS (X.25)");
+	col_set_str(pinfo->fd, COL_PROTOCOL, "ESIS (X.25)");
       }
       dissect_data(tvb, 0, pinfo, tree);
       break;
     case NLPID_ISO10747_IDRP:
       if (check_col(pinfo->fd, COL_PROTOCOL)) {
-        col_add_str(pinfo->fd, COL_PROTOCOL, "IDRP");
+        col_set_str(pinfo->fd, COL_PROTOCOL, "IDRP");
       }
       dissect_data(tvb, 0, pinfo, tree);
       break;
     default:
       if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	col_add_str(pinfo->fd, COL_PROTOCOL, "ISO");
+	col_set_str(pinfo->fd, COL_PROTOCOL, "ISO");
       }
       if (check_col(pinfo->fd, COL_INFO)) {
 	col_add_fstr(pinfo->fd, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);

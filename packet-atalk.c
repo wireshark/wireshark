@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.46 2000/11/19 08:20:34 guy Exp $
+ * $Id: packet-atalk.c,v 1.47 2000/11/19 08:53:54 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -205,7 +205,7 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   function = tvb_get_guint8(tvb, 0);
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "RTMP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "RTMP");
 
   if (check_col(pinfo->fd, COL_INFO))
     col_add_fstr(pinfo->fd, COL_INFO, "%s",
@@ -244,7 +244,7 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
   
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "RTMP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "RTMP");
 
   if (check_col(pinfo->fd, COL_INFO))
     col_add_fstr(pinfo->fd, COL_INFO, "Net: %u  Node Len: %u  Node: %u",
@@ -328,7 +328,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   count = info & 0x0F;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "NBP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "NBP");
 
   if (check_col(pinfo->fd, COL_INFO))
     col_add_fstr(pinfo->fd, COL_INFO, "Op: %s  Count: %u",
@@ -407,7 +407,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "DDP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "DDP");
   if (check_col(pinfo->fd, COL_INFO))
     col_add_str(pinfo->fd, COL_INFO,
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));

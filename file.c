@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.225 2000/10/20 04:26:38 gram Exp $
+ * $Id: file.c,v 1.226 2000/11/19 08:53:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -620,7 +620,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   fdata->cinfo = &cf->cinfo;
   for (i = 0; i < fdata->cinfo->num_cols; i++) {
-    fdata->cinfo->col_data[i][0] = '\0';
+    fdata->cinfo->col_buf[i][0] = '\0';
+    fdata->cinfo->col_data[i] = fdata->cinfo->col_buf[i];
   }
 
   /* If either
@@ -1172,7 +1173,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
            the logical protocol tree. */
         fdata->cinfo = &cf->cinfo;
         for (i = 0; i < fdata->cinfo->num_cols; i++) {
-          fdata->cinfo->col_data[i][0] = '\0';
+          fdata->cinfo->col_buf[i][0] = '\0';
+          fdata->cinfo->col_data[i] = fdata->cinfo->col_buf[i];
         }
         edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, NULL);
         fill_in_columns(fdata);
@@ -1332,7 +1334,7 @@ change_time_formats(capture_file *cf)
           if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
             /* This is one of the columns that shows the time in
                "command-line-specified" format; update it. */
-            cf->cinfo.col_data[i][0] = '\0';
+            cf->cinfo.col_buf[i][0] = '\0';
             col_set_cls_time(fdata, i);
             gtk_clist_set_text(GTK_CLIST(packet_list), row, i,
 			  cf->cinfo.col_data[i]);

@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.25 2000/11/13 03:52:16 gerald Exp $
+ * $Id: packet-netbios.c,v 1.26 2000/11/19 08:54:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -995,7 +995,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* load the display labels 	*/
 	pinfo->current_proto = "NetBIOS";
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "NetBIOS");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "NetBIOS");
 
 
 /* Find NetBIOS marker EFFF, this is done because I have seen an extra LLC */
@@ -1006,7 +1006,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if ( 0xefff != tvb_get_letohs(tvb, 3)){
 
 			if (check_col( pinfo->fd, COL_INFO)) 	/* print bad packet */
-				col_add_str( pinfo->fd, COL_INFO, "Bad packet, no 0xEFFF marker");
+				col_set_str( pinfo->fd, COL_INFO, "Bad packet, no 0xEFFF marker");
 
 			return;		/* this is an unknow packet, no marker */
 		}

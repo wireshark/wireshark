@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.69 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-ipx.c,v 1.70 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -321,7 +321,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pi.dst,		AT_IPX, 10, dst_net_node);
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "IPX");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX");
 	if (check_col(pinfo->fd, COL_INFO))
 		col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%04X)",
 				socket_text(ipx_dsocket), ipx_dsocket);
@@ -447,9 +447,9 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->current_proto = "SPX";
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "SPX");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "SPX");
 	if (check_col(pinfo->fd, COL_INFO))
-		col_add_str(pinfo->fd, COL_INFO, "SPX");
+		col_set_str(pinfo->fd, COL_INFO, "SPX");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, SPX_HEADER_LEN, FALSE);
@@ -493,7 +493,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "IPX MSG";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-	 col_add_str(pinfo->fd, COL_PROTOCOL, "IPX MSG");
+	 col_set_str(pinfo->fd, COL_PROTOCOL, "IPX MSG");
 
 	conn_number = tvb_get_guint8(tvb, 0);
 	sig_char = tvb_get_guint8(tvb, 1);
@@ -533,7 +533,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->current_proto = "IPX RIP";
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-	 col_add_str(pinfo->fd, COL_PROTOCOL, "IPX RIP");
+	 col_set_str(pinfo->fd, COL_PROTOCOL, "IPX RIP");
 
 	operation = tvb_get_ntohs(tvb, 0) - 1;
 
@@ -681,7 +681,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->current_proto = "IPX SAP";
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "IPX SAP");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX SAP");
 
 	query.query_type = tvb_get_ntohs(tvb, 0);
 	query.server_type = tvb_get_ntohs(tvb, 2);
@@ -691,7 +691,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_add_str(pinfo->fd, COL_INFO, sap_type[query.query_type - 1]);
 		}
 		else {
-			col_add_str(pinfo->fd, COL_INFO, "Unknown Packet Type");
+			col_set_str(pinfo->fd, COL_INFO, "Unknown Packet Type");
 		}
 	}
 

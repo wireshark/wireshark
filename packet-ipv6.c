@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.45 2000/11/17 06:02:20 guy Exp $
+ * $Id: packet-ipv6.c,v 1.46 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -417,7 +417,7 @@ again:
   if (frag) {
     /* fragmented */
     if (check_col(fd, COL_PROTOCOL))
-      col_add_str(fd, COL_PROTOCOL, "IPv6");
+      col_set_str(fd, COL_PROTOCOL, "IPv6");
     /* COL_INFO was filled in by "dissect_frag6()" */
     old_dissect_data(pd, offset, fd, tree);
   } else {
@@ -425,7 +425,7 @@ again:
     if (!old_dissector_try_port(ip_dissector_table, nxt, pd, offset, fd, tree)) {
       /* Unknown protocol */
       if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "IPv6");
+	col_set_str(fd, COL_PROTOCOL, "IPv6");
       if (check_col(fd, COL_INFO))
 	col_add_fstr(fd, COL_INFO, "%s (0x%02x)", ipprotostr(nxt), nxt);
       old_dissect_data(pd, offset, fd, tree);

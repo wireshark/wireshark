@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.19 2000/11/17 21:00:36 gram Exp $
+ * $Id: packet-vines.c,v 1.20 2000/11/19 08:54:10 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -85,7 +85,7 @@ dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   vines_frp_seqno = pd[offset+1];
   
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "Vines FRP");
+    col_set_str(fd, COL_PROTOCOL, "Vines FRP");
   /*
    * 1: first fragment of vines packet
    * 2: last fragment of vines packet
@@ -171,37 +171,37 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     	switch (viph.vip_proto) {
        	case VIP_PROTO_IPC:
 		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "Vines IPC");
+			col_set_str(fd, COL_PROTOCOL, "Vines IPC");
 		if (check_col(fd, COL_INFO))
 			col_add_fstr(fd, COL_INFO, "IPC (%02x)", viph.vip_proto);
  		break;
        	case VIP_PROTO_SPP:      
 		if (check_col(fd, COL_PROTOCOL))
-        		col_add_str(fd, COL_PROTOCOL, "Vines SPP");
+        		col_set_str(fd, COL_PROTOCOL, "Vines SPP");
 		if (check_col(fd, COL_INFO))
 			col_add_fstr(fd, COL_INFO, "SPP (%02x)", viph.vip_proto);
 		break;
 	case VIP_PROTO_ARP:
 		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "Vines ARP");
+			col_set_str(fd, COL_PROTOCOL, "Vines ARP");
 		if (check_col(fd, COL_INFO))
 			col_add_fstr(fd, COL_INFO, "ARP (%02x)", viph.vip_proto);
 		break;
 	case VIP_PROTO_RTP:
 		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "Vines RTP");
+			col_set_str(fd, COL_PROTOCOL, "Vines RTP");
 		if (check_col(fd, COL_INFO))
 			col_add_fstr(fd, COL_INFO, "RTP (%02x)", viph.vip_proto);
 		break;
 	case VIP_PROTO_ICP:
 		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "Vines ICP");
+			col_set_str(fd, COL_PROTOCOL, "Vines ICP");
 		if (check_col(fd, COL_INFO))
 			col_add_fstr(fd, COL_INFO, "ICP (%02x)", viph.vip_proto);
 		break;
 	default:
 		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "Vines IP");
+			col_set_str(fd, COL_PROTOCOL, "Vines IP");
 		if (check_col(fd, COL_INFO))
 			col_add_fstr(fd, COL_INFO, "Unknown VIP protocol (%02x)", 
 				     viph.vip_proto);
@@ -301,23 +301,23 @@ void dissect_vines_spp(const u_char *pd, int offset, frame_data *fd, proto_tree 
 	switch (viph.vspp_pkttype) {
       	case VSPP_PKTTYPE_DATA:      
 		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "VSPP Data");
+			col_set_str(fd, COL_PROTOCOL, "VSPP Data");
         	break;
       	case VSPP_PKTTYPE_DISC:      
 		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "VSPP Disconnect");
+			col_set_str(fd, COL_PROTOCOL, "VSPP Disconnect");
         	break;
       	case VSPP_PKTTYPE_PROBE:      
 		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "VSPP Probe");
+			col_set_str(fd, COL_PROTOCOL, "VSPP Probe");
         	break;
       	case VSPP_PKTTYPE_ACK:
 		if (check_col(fd, COL_PROTOCOL))
-   	    		col_add_str(fd, COL_PROTOCOL, "VSPP Ack");
+   	    		col_set_str(fd, COL_PROTOCOL, "VSPP Ack");
 		break;
       	default:
 		if (check_col(fd, COL_PROTOCOL))
-   	    		col_add_str(fd, COL_PROTOCOL, "VSPP Unknown");
+   	    		col_set_str(fd, COL_PROTOCOL, "VSPP Unknown");
     	}
 
 	if (check_col(fd, COL_INFO))

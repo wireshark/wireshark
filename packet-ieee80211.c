@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.2 2000/11/15 09:37:49 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.3 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -749,7 +749,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   pinfo->current_proto = capture_proto_name;
 
   if (check_col (pinfo->fd, COL_PROTOCOL))
-    col_add_str (pinfo->fd, COL_PROTOCOL, "IEEE 802.11");
+    col_set_str (pinfo->fd, COL_PROTOCOL, "IEEE 802.11");
 
   /* Add the FC to the current tree */
   if (tree)

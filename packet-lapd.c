@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.15 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-lapd.c,v 1.16 2000/11/19 08:53:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,7 +99,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "LAPD";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "LAPD");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "LAPD");
 
 	address = tvb_get_ntohs(tvb, 0);
 	cr = address & LAPD_CR;
@@ -109,16 +109,16 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (pinfo->pseudo_header->p2p.sent) {
 		is_response = cr ? TRUE : FALSE;
 		if(check_col(pinfo->fd, COL_RES_DL_DST))
-			col_add_str(pinfo->fd, COL_RES_DL_DST, "Network");
+			col_set_str(pinfo->fd, COL_RES_DL_DST, "Network");
 		if(check_col(pinfo->fd, COL_RES_DL_SRC))
-			col_add_str(pinfo->fd, COL_RES_DL_SRC, "User");
+			col_set_str(pinfo->fd, COL_RES_DL_SRC, "User");
 	}
 	else {
 		is_response = cr ? FALSE : TRUE;
 		if(check_col(pinfo->fd, COL_RES_DL_DST))
-		    col_add_str(pinfo->fd, COL_RES_DL_DST, "User");
+		    col_set_str(pinfo->fd, COL_RES_DL_DST, "User");
 		if(check_col(pinfo->fd, COL_RES_DL_SRC))
-		    col_add_str(pinfo->fd, COL_RES_DL_SRC, "Network");
+		    col_set_str(pinfo->fd, COL_RES_DL_SRC, "Network");
 	}
 
 

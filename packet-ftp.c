@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.22 2000/11/13 08:57:59 guy Exp $
+ * $Id: packet-ftp.c,v 1.23 2000/11/19 08:53:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,7 +83,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "FTP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "FTP");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "FTP");
 
 	/*
 	 * Find the end of the first line.
@@ -190,7 +190,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "FTP-DATA";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "FTP-DATA");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "FTP-DATA");
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		col_add_fstr(pinfo->fd, COL_INFO, "FTP Data: %u bytes",

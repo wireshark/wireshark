@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.20 2000/11/13 07:18:56 guy Exp $
+ * $Id: packet-q931.c,v 1.21 2000/11/19 08:54:03 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2218,7 +2218,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "Q.931");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "Q.931");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_q931, tvb, offset,

@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.11 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-sscop.c,v 1.12 2000/11/19 08:54:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -152,7 +152,7 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   sscop_pdu_type = tvb_get_guint8(tvb, SSCOP_PDU_TYPE);
   pdu_type = sscop_pdu_type & SSCOP_TYPE_MASK;
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "SSCOP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "SSCOP");
   if (check_col(pinfo->fd, COL_INFO))
     col_add_str(pinfo->fd, COL_INFO, val_to_str(pdu_type, sscop_type_vals,
 					"Unknown PDU type (0x%02x)"));

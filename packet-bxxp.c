@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.10 2000/10/24 20:23:16 sharpe Exp $
+ * $Id: packet-bxxp.c,v 1.11 2000/11/19 08:53:56 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1047,7 +1047,7 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "BXXP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "BXXP");
 
   if (check_col(pinfo->fd, COL_INFO)) {  /* Check the type ... */
 

@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TIME Option Extension
  *
- * $Id: packet-time.c,v 1.8 2000/08/13 14:09:06 deniel Exp $
+ * $Id: packet-time.c,v 1.9 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,7 +50,7 @@ dissect_time(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   OLD_CHECK_DISPLAY_AS_DATA(proto_time, pd, offset, fd, tree);
   
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "TIME");
+    col_set_str(fd, COL_PROTOCOL, "TIME");
   
   if (check_col(fd, COL_INFO)) {
     col_add_fstr(fd, COL_INFO, "TIME %s", pi.srcport == UDP_PORT_TIME? "Response":"Request");

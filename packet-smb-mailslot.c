@@ -2,7 +2,7 @@
  * Routines for smb mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.6 2000/08/13 14:08:49 deniel Exp $
+ * $Id: packet-smb-mailslot.c,v 1.7 2000/11/19 08:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,7 +85,7 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
     	Temp16 = GSHORT(pd, offset);		/* get Op code */
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "SMB Mailslot");
+		col_set_str(fd, COL_PROTOCOL, "SMB Mailslot");
 
 	if (check_col(fd, COL_INFO))
 		  col_add_fstr(fd, COL_INFO, "%s",

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.6 2000/11/18 11:47:21 guy Exp $
+ * $Id: packet.c,v 1.7 2000/11/19 08:54:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -530,6 +530,18 @@ check_col(frame_data *fd, gint el) {
   return FALSE;
 }
 
+/* Use this if "str" points to something that will stay around (and thus
+   needn't be copied). */
+void
+col_set_str(frame_data *fd, gint el, gchar* str) {
+  int i;
+  
+  for (i = 0; i < fd->cinfo->num_cols; i++) {
+    if (fd->cinfo->fmt_matx[i][el])
+      fd->cinfo->col_data[i] = str;
+  }
+}
+
 /* Adds a vararg list to a packet info string. */
 void
 col_add_fstr(frame_data *fd, gint el, gchar *format, ...) {
@@ -545,11 +557,14 @@ col_add_fstr(frame_data *fd, gint el, gchar *format, ...) {
   va_start(ap, format);
   for (i = 0; i < fd->cinfo->num_cols; i++) {
     if (fd->cinfo->fmt_matx[i][el]) {
-      vsnprintf(fd->cinfo->col_data[i], max_len, format, ap);
+      vsnprintf(fd->cinfo->col_buf[i], max_len, format, ap);
+      fd->cinfo->col_data[i] = fd->cinfo->col_buf[i];
     }
   }
 }
 
+/* Use this if "str" points to something that won't stay around (and
+   must thus be copied). */
 void
 col_add_str(frame_data *fd, gint el, const gchar* str) {
   int    i;
@@ -562,8 +577,9 @@ col_add_str(frame_data *fd, gint el, const gchar* str) {
   
   for (i = 0; i < fd->cinfo->num_cols; i++) {
     if (fd->cinfo->fmt_matx[i][el]) {
-      strncpy(fd->cinfo->col_data[i], str, max_len);
-      fd->cinfo->col_data[i][max_len - 1] = 0;
+      strncpy(fd->cinfo->col_buf[i], str, max_len);
+      fd->cinfo->col_buf[i][max_len - 1] = 0;
+      fd->cinfo->col_data[i] = fd->cinfo->col_buf[i];
     }
   }
 }
@@ -583,8 +599,15 @@ col_append_fstr(frame_data *fd, gint el, gchar *format, ...) {
   va_start(ap, format);
   for (i = 0; i < fd->cinfo->num_cols; i++) {
     if (fd->cinfo->fmt_matx[i][el]) {
-      len = strlen(fd->cinfo->col_data[i]);
-      vsnprintf(&fd->cinfo->col_data[i][len], max_len - len, format, ap);
+      if (fd->cinfo->col_data[i] != fd->cinfo->col_buf[i]) {
+      	/* This was set with "col_set_str()"; copy the string they
+	   set it to into the buffer, so we can append to it. */
+	strncpy(fd->cinfo->col_buf[i], fd->cinfo->col_data[i], max_len);
+	fd->cinfo->col_buf[i][max_len - 1] = '\0';
+      }
+      len = strlen(fd->cinfo->col_buf[i]);
+      vsnprintf(&fd->cinfo->col_buf[i][len], max_len - len, format, ap);
+      fd->cinfo->col_data[i] = fd->cinfo->col_buf[i];
     }
   }
 }
@@ -601,9 +624,16 @@ col_append_str(frame_data *fd, gint el, gchar* str) {
   
   for (i = 0; i < fd->cinfo->num_cols; i++) {
     if (fd->cinfo->fmt_matx[i][el]) {
-      len = strlen(fd->cinfo->col_data[i]);
-      strncat(fd->cinfo->col_data[i], str, max_len - len);
-      fd->cinfo->col_data[i][max_len - 1] = 0;
+      if (fd->cinfo->col_data[i] != fd->cinfo->col_buf[i]) {
+      	/* This was set with "col_set_str()"; copy the string they
+	   set it to into the buffer, so we can append to it. */
+	strncpy(fd->cinfo->col_buf[i], fd->cinfo->col_data[i], max_len);
+	fd->cinfo->col_buf[i][max_len - 1] = '\0';
+      }
+      len = strlen(fd->cinfo->col_buf[i]);
+      strncat(fd->cinfo->col_buf[i], str, max_len - len);
+      fd->cinfo->col_buf[i][max_len - 1] = 0;
+      fd->cinfo->col_data[i] = fd->cinfo->col_buf[i];
     }
   }
 }
@@ -618,11 +648,12 @@ col_set_abs_time(frame_data *fd, int col)
 
   then = fd->abs_secs;
   tmp = localtime(&then);
-  snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%02d:%02d:%02d.%04ld",
+  snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN, "%02d:%02d:%02d.%04ld",
     tmp->tm_hour,
     tmp->tm_min,
     tmp->tm_sec,
     (long)fd->abs_usecs/100);
+  fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
 }
 
 static void
@@ -633,7 +664,7 @@ col_set_abs_date_time(frame_data *fd, int col)
 
   then = fd->abs_secs;
   tmp = localtime(&then);
-  snprintf(fd->cinfo->col_data[col], COL_MAX_LEN,
+  snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN,
     "%04d-%02d-%02d %02d:%02d:%02d.%04ld",
     tmp->tm_year + 1900,
     tmp->tm_mon + 1,
@@ -642,20 +673,23 @@ col_set_abs_date_time(frame_data *fd, int col)
     tmp->tm_min,
     tmp->tm_sec,
     (long)fd->abs_usecs/100);
+  fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
 }
 
 static void
 col_set_rel_time(frame_data *fd, int col)
 {
-  display_signed_time(fd->cinfo->col_data[col], COL_MAX_LEN,
+  display_signed_time(fd->cinfo->col_buf[col], COL_MAX_LEN,
 	fd->rel_secs, fd->rel_usecs);
+  fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
 }
 
 static void
 col_set_delta_time(frame_data *fd, int col)
 {
-  display_signed_time(fd->cinfo->col_data[col], COL_MAX_LEN,
+  display_signed_time(fd->cinfo->col_buf[col], COL_MAX_LEN,
 	fd->del_secs, fd->del_usecs);
+  fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
 }
 
 /* Add "command-line-specified" time.
@@ -699,67 +733,80 @@ col_set_addr(frame_data *fd, int col, address *addr, gboolean is_res)
 
   case AT_ETHER:
     if (is_res)
-      strncpy(fd->cinfo->col_data[col], get_ether_name(addr->data), COL_MAX_LEN);
+      strncpy(fd->cinfo->col_buf[col], get_ether_name(addr->data), COL_MAX_LEN);
     else
-      strncpy(fd->cinfo->col_data[col], ether_to_str(addr->data), COL_MAX_LEN);
+      strncpy(fd->cinfo->col_buf[col], ether_to_str(addr->data), COL_MAX_LEN);
+    fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
     break;
 
   case AT_IPv4:
     memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
     if (is_res)
-      strncpy(fd->cinfo->col_data[col], get_hostname(ipv4_addr), COL_MAX_LEN);
+      strncpy(fd->cinfo->col_buf[col], get_hostname(ipv4_addr), COL_MAX_LEN);
     else
-      strncpy(fd->cinfo->col_data[col], ip_to_str(addr->data), COL_MAX_LEN);
+      strncpy(fd->cinfo->col_buf[col], ip_to_str(addr->data), COL_MAX_LEN);
+    fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
     break;
 
   case AT_IPv6:
     memcpy(&ipv6_addr.s6_addr, addr->data, sizeof ipv6_addr.s6_addr);
     if (is_res)
-      strncpy(fd->cinfo->col_data[col], get_hostname6(&ipv6_addr), COL_MAX_LEN);
+      strncpy(fd->cinfo->col_buf[col], get_hostname6(&ipv6_addr), COL_MAX_LEN);
     else
-      strncpy(fd->cinfo->col_data[col], ip6_to_str(&ipv6_addr), COL_MAX_LEN);
+      strncpy(fd->cinfo->col_buf[col], ip6_to_str(&ipv6_addr), COL_MAX_LEN);
+    fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
     break;
 
   case AT_IPX:
-    strncpy(fd->cinfo->col_data[col],
+    strncpy(fd->cinfo->col_buf[col],
       ipx_addr_to_str(pntohl(&addr->data[0]), &addr->data[4]), COL_MAX_LEN);
+    fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
     break;
 
   case AT_SNA:
     switch (addr->len) {
 
     case 1:
-      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%04X", addr->data[0]);
+      snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN, "%04X", addr->data[0]);
       break;
 
     case 2:
-      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%04X",
+      snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN, "%04X",
         pntohs(&addr->data[0]));
       break;
 
     case SNA_FID_TYPE_4_ADDR_LEN:
       memcpy(&sna_fid_type_4_addr, addr->data, SNA_FID_TYPE_4_ADDR_LEN);
-      strncpy(fd->cinfo->col_data[col],
+      strncpy(fd->cinfo->col_buf[col],
         sna_fid_type_4_addr_to_str(&sna_fid_type_4_addr), COL_MAX_LEN);
       break;
     }
+    fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
     break;
 
   case AT_ATALK:
     memcpy(&ddp_addr, addr->data, sizeof ddp_addr);
-    strncpy(fd->cinfo->col_data[col], atalk_addr_to_str(&ddp_addr),
+    strncpy(fd->cinfo->col_buf[col], atalk_addr_to_str(&ddp_addr),
       COL_MAX_LEN);
+    fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
     break;
 
   case AT_VINES:
-    strncpy(fd->cinfo->col_data[col], vines_addr_to_str(&addr->data[0]),
+    strncpy(fd->cinfo->col_buf[col], vines_addr_to_str(&addr->data[0]),
       COL_MAX_LEN);
+    fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
     break;
 
   default:
     break;
   }
-  fd->cinfo->col_data[col][COL_MAX_LEN - 1] = '\0';
 }
 
 static void
@@ -770,29 +817,30 @@ col_set_port(frame_data *fd, int col, port_type ptype, guint32 port,
 
   case PT_SCTP:
     if (is_res)
-      strncpy(fd->cinfo->col_data[col], get_sctp_port(port), COL_MAX_LEN);
+      strncpy(fd->cinfo->col_buf[col], get_sctp_port(port), COL_MAX_LEN);
     else
-      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%u", port);
+      snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     break;
     
   case PT_TCP:
     if (is_res)
-      strncpy(fd->cinfo->col_data[col], get_tcp_port(port), COL_MAX_LEN);
+      strncpy(fd->cinfo->col_buf[col], get_tcp_port(port), COL_MAX_LEN);
     else
-      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%u", port);
+      snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     break;
 
   case PT_UDP:
     if (is_res)
-      strncpy(fd->cinfo->col_data[col], get_udp_port(port), COL_MAX_LEN);
+      strncpy(fd->cinfo->col_buf[col], get_udp_port(port), COL_MAX_LEN);
     else
-      snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%u", port);
+      snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     break;
 
   default:
     break;
   }
-  fd->cinfo->col_data[col][COL_MAX_LEN - 1] = '\0';
+  fd->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+  fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
 }
 
 void
@@ -804,7 +852,8 @@ fill_in_columns(frame_data *fd)
     switch (fd->cinfo->col_fmt[i]) {
 
     case COL_NUMBER:
-      snprintf(fd->cinfo->col_data[i], COL_MAX_LEN, "%u", fd->num);
+      snprintf(fd->cinfo->col_buf[i], COL_MAX_LEN, "%u", fd->num);
+      fd->cinfo->col_data[i] = fd->cinfo->col_buf[i];
       break;
 
     case COL_CLS_TIME:
@@ -904,7 +953,8 @@ fill_in_columns(frame_data *fd)
       break;
 
     case COL_PACKET_LENGTH:
-      snprintf(fd->cinfo->col_data[i], COL_MAX_LEN, "%d", fd->pkt_len);
+      snprintf(fd->cinfo->col_buf[i], COL_MAX_LEN, "%d", fd->pkt_len);
+      fd->cinfo->col_data[i] = fd->cinfo->col_buf[i];
       break;
 
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */

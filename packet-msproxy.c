@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.13 2000/11/18 10:38:24 guy Exp $
+ * $Id: packet-msproxy.c,v 1.14 2000/11/19 08:54:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -230,7 +230,7 @@ static void msproxy_sub_dissector( const u_char *pd, int offset, frame_data *fd,
 	redirect_info = (redirect_entry_t*)conversation->data;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "MS Proxy");
+		col_set_str(fd, COL_PROTOCOL, "MS Proxy");
 
 	if (check_col(fd, COL_INFO))
 		col_add_fstr(fd, COL_INFO, "%s", 
@@ -1183,7 +1183,7 @@ static void dissect_msproxy(const u_char *pd, int offset, frame_data *fd, proto_
 	}
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "MSproxy");
+		col_set_str(fd, COL_PROTOCOL, "MSproxy");
 
 
 						/* display packet info */

@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.18 2000/08/13 14:08:58 deniel Exp $
+ * $Id: packet-sna.c,v 1.19 2000/11/19 08:54:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -326,7 +326,7 @@ dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Summary information */
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "SNA");
+		col_set_str(fd, COL_PROTOCOL, "SNA");
 	if (check_col(fd, COL_INFO))
 		col_add_str(fd, COL_INFO, val_to_str(th_fid, sna_th_fid_vals, "Unknown FID: %01x"));
 

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.73 2000/10/21 05:52:22 guy Exp $
+ * $Id: packet-smb.c,v 1.74 2000/11/19 08:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -10603,7 +10603,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	cmd = pd[offset + SMB_hdr_com_offset];
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "SMB");
+		col_set_str(fd, COL_PROTOCOL, "SMB");
 
 	/* Hmmm, poor coding here ... Also, should check the type */
 

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.70 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-llc.c,v 1.71 2000/11/19 08:53:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -284,7 +284,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "LLC";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_add_str(pinfo->fd, COL_PROTOCOL, "LLC");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "LLC");
 	}
 
 	dsap = tvb_get_guint8(tvb, 0);

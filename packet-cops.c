@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.5 2000/10/16 14:05:08 gram Exp $
+ * $Id: packet-cops.c,v 1.6 2000/11/19 08:53:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -268,7 +268,7 @@ static void dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         pinfo->current_proto = "COPS";
         if (check_col(pinfo->fd, COL_PROTOCOL)) 
-                col_add_str(pinfo->fd, COL_PROTOCOL, "COPS");
+                col_set_str(pinfo->fd, COL_PROTOCOL, "COPS");
     
         op_code = tvb_get_guint8(tvb, 1);
         if (check_col(pinfo->fd, COL_INFO))

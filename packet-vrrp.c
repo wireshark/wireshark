@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.8 2000/08/13 14:09:08 deniel Exp $
+ * $Id: packet-vrrp.c,v 1.9 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,7 +112,7 @@ dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         }
 
         if (check_col(fd, COL_PROTOCOL))
-                col_add_str(fd, COL_PROTOCOL, "VRRP");
+                col_set_str(fd, COL_PROTOCOL, "VRRP");
         
         if (check_col(fd, COL_INFO)) {
                 if (short_hdr)

@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.14 2000/11/18 10:38:25 guy Exp $
+ * $Id: packet-socks.c,v 1.15 2000/11/19 08:54:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -376,7 +376,7 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 	hash_info = (socks_hash_entry_t*)conversation->data;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "Socks");
+		col_set_str(fd, COL_PROTOCOL, "Socks");
 
 	if (check_col(fd, COL_INFO))
 		col_add_fstr(fd, COL_INFO, "Version: 5, UDP Associated packet");
@@ -985,7 +985,7 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 /* display summary window information  */
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "Socks");
+		col_set_str(fd, COL_PROTOCOL, "Socks");
 
 	if (check_col(fd, COL_INFO)){
 		if (( hash_info->version == 4) || ( hash_info->version == 5)){
@@ -993,7 +993,7 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				hash_info->version);
 		}		
 		else			/* unknown version display error */
-			col_add_str(fd, COL_INFO, "Unknown");
+			col_set_str(fd, COL_INFO, "Unknown");
 		
 
 		if ( hash_info->command == PING_COMMAND)

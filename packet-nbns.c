@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.46 2000/11/14 03:51:41 gram Exp $
+ * $Id: packet-nbns.c,v 1.47 2000/11/19 08:54:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1138,11 +1138,11 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	nbns_data_offset = offset;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NBNS");
+		col_set_str(fd, COL_PROTOCOL, "NBNS");
 
 	if (pi.captured_len < NBNS_HDRLEN) {
 		if (check_col(fd, COL_INFO)) {
-			col_add_str(fd, COL_INFO, "Short NBNS packet");
+			col_set_str(fd, COL_INFO, "Short NBNS packet");
 		}
 		old_dissect_data(pd, offset, fd, tree);
 		return;
@@ -1325,7 +1325,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NBDS");
+		col_set_str(fd, COL_PROTOCOL, "NBDS");
 	if (check_col(fd, COL_INFO)) {
 		col_add_fstr(fd, COL_INFO, "%s", message[message_index]);
 	}
@@ -1635,7 +1635,7 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    (memcmp(pd + offset + 4, "\377SMB", 4) != 0))) {
  
 	  if (check_col(fd, COL_PROTOCOL))
-	    col_add_str(fd, COL_PROTOCOL, "NBSS");
+	    col_set_str(fd, COL_PROTOCOL, "NBSS");
 	  if (check_col(fd, COL_INFO)) {
 	    col_add_fstr(fd, COL_INFO, "NBSS Continuation Message");
 	  }
@@ -1648,7 +1648,7 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #endif
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NBSS");
+		col_set_str(fd, COL_PROTOCOL, "NBSS");
 	if (check_col(fd, COL_INFO)) {
 		col_add_fstr(fd, COL_INFO,
 		    val_to_str(msg_type, message_types, "Unknown (%x)"));

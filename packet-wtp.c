@@ -3,7 +3,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.3 2000/11/05 09:30:11 guy Exp $
+ * $Id: packet-wtp.c,v 1.4 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -264,9 +264,7 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
-   at the list of packets can tell what type of packet it is.
-   "col_add_fstr()" can be used instead of "col_add_str()"; it takes
-   "printf()"-like arguments. */
+   at the list of packets can tell what type of packet it is. */
 	if (check_col(fdata, COL_INFO)) {
 #ifdef DEBUG
 		fprintf( stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo );
@@ -276,13 +274,6 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
 	if (tree) {
-/* NOTE: The offset and length values in the previous call to
-   "proto_tree_add_item()" define what data bytes to highlight in the hex
-   display window when the line in the protocol tree display
-   corresponding to that item is selected.
-
-   END_OF_FRAME is a handy way to highlight all data from the offset to
-   the end of the packet. */
 #ifdef DEBUG
 		fprintf( stderr, "dissect_wtp: cbHeader = %d\n", cbHeader );  
 #endif

@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.13 2000/11/16 07:35:37 guy Exp $
+ * $Id: packet-h1.c,v 1.14 2000/11/19 08:53:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -122,7 +122,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
       if (check_col (pinfo->fd, COL_PROTOCOL))
-	col_add_str (pinfo->fd, COL_PROTOCOL, "H1");
+	col_set_str (pinfo->fd, COL_PROTOCOL, "H1");
       if (check_col (pinfo->fd, COL_INFO))
 	col_add_str (pinfo->fd, COL_INFO, "S5: ");
       if (tree)

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.38 2000/11/19 04:14:26 guy Exp $
+ * $Id: packet-x25.c,v 1.39 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1405,7 +1405,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->current_proto = "X.25";
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_add_str(pinfo->fd, COL_PROTOCOL, "X.25");
+	col_set_str(pinfo->fd, COL_PROTOCOL, "X.25");
 
     bytes0_1 = tvb_get_ntohs(tvb, 0);
 
@@ -1425,7 +1425,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (x25_pkt_len < 3) /* packet too short */
     {
 	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_str(pinfo->fd, COL_INFO, "Invalid/short X.25 packet");
+	    col_set_str(pinfo->fd, COL_INFO, "Invalid/short X.25 packet");
 	if (tree)
 	    proto_tree_add_protocol_format(tree,
 		    (modulo == 8 ? proto_x25 : proto_ex25), tvb, 0,
@@ -1728,7 +1728,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     case X25_RESTART_CONFIRMATION:
 	if(check_col(pinfo->fd, COL_INFO))
-	    col_add_str(pinfo->fd, COL_INFO, "Restart conf.");
+	    col_set_str(pinfo->fd, COL_INFO, "Restart conf.");
 	if (x25_tree)
 	    proto_tree_add_uint(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, tvb,
 		    2, 1, X25_RESTART_CONFIRMATION);
@@ -1736,7 +1736,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     case X25_REGISTRATION_REQUEST:
 	if(check_col(pinfo->fd, COL_INFO))
-	    col_add_str(pinfo->fd, COL_INFO, "Registration req.");
+	    col_set_str(pinfo->fd, COL_INFO, "Registration req.");
 	if (x25_tree)
 	    proto_tree_add_uint(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, tvb,
 		    2, 1, X25_REGISTRATION_REQUEST);
@@ -1758,7 +1758,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     case X25_REGISTRATION_CONFIRMATION:
 	if(check_col(pinfo->fd, COL_INFO))
-	    col_add_str(pinfo->fd, COL_INFO, "Registration conf.");
+	    col_set_str(pinfo->fd, COL_INFO, "Registration conf.");
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, tvb,
 		    2, 1, X25_REGISTRATION_CONFIRMATION);

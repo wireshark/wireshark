@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.6 2000/08/19 08:37:36 guy Exp $
+ * $Id: packet-sctp.c,v 1.7 2000/11/19 08:54:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1523,7 +1523,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_add_str(pinfo->fd, COL_PROTOCOL, "SCTP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "SCTP");
 
   /* Make entries in Info column on summary display */
   if (check_col(pinfo->fd, COL_INFO)) 

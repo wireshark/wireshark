@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.56 2000/11/09 07:29:59 guy Exp $
+ * $Id: tethereal.c,v 1.57 2000/11/19 08:54:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -220,10 +220,10 @@ main(int argc, char *argv[])
     
   /* Initialize the capture file struct */
   cfile.plist		= NULL;
-  cfile.plist_end		= NULL;
+  cfile.plist_end	= NULL;
   cfile.wth		= NULL;
-  cfile.filename		= NULL;
-  cfile.user_saved		= FALSE;
+  cfile.filename	= NULL;
+  cfile.user_saved	= FALSE;
   cfile.is_tempfile	= FALSE;
   cfile.rfcode		= NULL;
   cfile.dfilter		= NULL;
@@ -232,16 +232,17 @@ main(int argc, char *argv[])
   cfile.cfilter		= g_strdup("");
 #endif
   cfile.iface		= NULL;
-  cfile.save_file		= NULL;
+  cfile.save_file	= NULL;
   cfile.save_file_fd	= -1;
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
   cfile.cinfo.num_cols	= prefs->num_cols;
-  cfile.cinfo.col_fmt      = (gint *) g_malloc(sizeof(gint) * cfile.cinfo.num_cols);
+  cfile.cinfo.col_fmt	= (gint *) g_malloc(sizeof(gint) * cfile.cinfo.num_cols);
   cfile.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cfile.cinfo.num_cols);
   cfile.cinfo.col_width	= (gint *) g_malloc(sizeof(gint) * cfile.cinfo.num_cols);
-  cfile.cinfo.col_title    = (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
+  cfile.cinfo.col_title	= (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
   cfile.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
+  cfile.cinfo.col_buf	= (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
 
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
@@ -447,10 +448,11 @@ main(int argc, char *argv[])
     cfile.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
       NUM_COL_FMTS);
     get_column_format_matches(cfile.cinfo.fmt_matx[i], cfile.cinfo.col_fmt[i]);
+    cfile.cinfo.col_data[i] = NULL;
     if (cfile.cinfo.col_fmt[i] == COL_INFO)
-      cfile.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
+      cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
     else
-      cfile.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+      cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
   if (cfile.snap < 1)
@@ -873,7 +875,8 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
 
   fdata->cinfo = &cf->cinfo;
   for (i = 0; i < fdata->cinfo->num_cols; i++) {
-    fdata->cinfo->col_data[i][0] = '\0';
+    fdata->cinfo->col_buf[i][0] = '\0';
+    fdata->cinfo->col_data[i] = fdata->cinfo->col_buf[i];
   }
 }
 

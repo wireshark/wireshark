@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.8 2000/11/14 19:13:40 gram Exp $
+ * $Id: packet-eigrp.c,v 1.9 2000/11/19 08:53:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -154,7 +154,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (opcode==EIGRP_HELLO) { if (ack == 0) opcode_tmp=EIGRP_HI; else opcode_tmp=EIGRP_ACK; }
   
   if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "EIGRP");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "EIGRP");
   if (check_col(pinfo->fd, COL_INFO))
     col_add_str(pinfo->fd, COL_INFO,
 	val_to_str(opcode_tmp , eigrp_opcode_vals, "Unknown (0x%04x)"));

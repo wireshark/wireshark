@@ -98,7 +98,7 @@ dissect_tpkt( tvbuff_t *tvb, unsigned int* offset, packet_info *pinfo, proto_tre
 		       ( tvb_get_guint8( tvb, ( *offset ) + 1 ) == 0 ) ) ) return -1;
 
 	if ( check_col( pinfo->fd, COL_PROTOCOL ) ) {
-		col_add_str( pinfo->fd, COL_PROTOCOL, "TPKT" );
+		col_set_str( pinfo->fd, COL_PROTOCOL, "TPKT" );
 	}
 	
 	if ( check_col( pinfo->fd, COL_INFO) ) {

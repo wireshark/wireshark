@@ -1,7 +1,7 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.6 2000/08/13 14:09:08 deniel Exp $
+ * $Id: packet-vtp.c,v 1.7 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,9 +104,9 @@ dissect_vtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	OLD_CHECK_DISPLAY_AS_DATA(proto_vtp, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "VTP");
+		col_set_str(fd, COL_PROTOCOL, "VTP");
 	if (check_col(fd, COL_INFO))
-		col_add_str(fd, COL_INFO, "Virtual Trunking Protocol"); 
+		col_set_str(fd, COL_INFO, "Virtual Trunking Protocol"); 
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vtp, NullTVB, offset, END_OF_FRAME,

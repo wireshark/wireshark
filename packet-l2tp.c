@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.16 2000/11/19 02:00:02 guy Exp $
+ * $Id: packet-l2tp.c,v 1.17 2000/11/19 08:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -298,7 +298,7 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   pinfo->current_proto = "L2TP";
   if (check_col(pinfo->fd, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
-        col_add_str(pinfo->fd, COL_PROTOCOL, "L2TP"); 
+        col_set_str(pinfo->fd, COL_PROTOCOL, "L2TP"); 
 
   control = tvb_get_ntohs(tvb, 0);
 

@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.7 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-diameter.c,v 1.8 2000/11/19 08:53:56 guy Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -542,7 +542,7 @@ void dissect_diameter(const u_char *pd, int offset, frame_data *fd,
     codestrval="Unknown Packet";
   }
   if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "DIAMETER");
+    col_set_str(fd, COL_PROTOCOL, "DIAMETER");
   if (check_col(fd, COL_INFO)) {
     if (DIAM_FLAGS_W & dh.flagsVer) {
        if (DIAM_FLAGS_A & dh.flagsVer) {

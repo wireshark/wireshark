@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.41 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-bootp.c,v 1.42 2000/11/19 08:53:55 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -628,7 +628,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	dhcp_type = NULL;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "BOOTP");
+		col_set_str(fd, COL_PROTOCOL, "BOOTP");
 
 	if (check_col(fd, COL_INFO)) {
 		if (pd[offset] == 1) {
@@ -637,7 +637,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					pd[offset+2], pd[offset+1]));
 		}
 		else {
-			col_add_str(fd, COL_INFO, "Boot Reply");
+			col_set_str(fd, COL_INFO, "Boot Reply");
 		}
 	}
 
@@ -746,7 +746,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 	if (dhcp_type != NULL ) {
 		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "DHCP");
+			col_set_str(fd, COL_PROTOCOL, "DHCP");
 		if (check_col(fd, COL_INFO))
 			col_add_fstr(fd, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
 			    dhcp_type, pntohl(&pd[offset+4]));

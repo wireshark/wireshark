@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.2 2000/11/12 09:29:38 guy Exp $
+ * $Id: packet-aim.c,v 1.3 2000/11/19 08:53:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -134,7 +134,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
 /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_add_str(pinfo->fd, COL_PROTOCOL, "AIM");
+    col_set_str(pinfo->fd, COL_PROTOCOL, "AIM");
     
   if (check_col(pinfo->fd, COL_INFO)) 
     col_add_str(pinfo->fd, COL_INFO, "AOL Instant Messenger");
@@ -248,7 +248,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 buddyname_length = get_buddyname( buddyname, tvb, 16, 17 );
 
                 if (check_col(pinfo->fd, COL_INFO)) {
-                  col_add_fstr(pinfo->fd, COL_INFO, "Oncoming Buddy");
+                  col_add_str(pinfo->fd, COL_INFO, "Oncoming Buddy");
                   col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
                 }        
                 
@@ -264,7 +264,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 buddyname_length = get_buddyname( buddyname, tvb, 16, 17 );
 
                 if (check_col(pinfo->fd, COL_INFO)) {
-                  col_add_fstr(pinfo->fd, COL_INFO, "Offgoing Buddy");
+                  col_add_str(pinfo->fd, COL_INFO, "Offgoing Buddy");
                   col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
                 }        
                 
@@ -347,7 +347,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) - 36 - buddyname_length );
               
               if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_fstr(pinfo->fd, COL_INFO, "Message ");
+                col_add_str(pinfo->fd, COL_INFO, "Message ");
                 col_append_fstr(pinfo->fd, COL_INFO, "from: %s", buddyname);
                 col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);
               }        
@@ -365,7 +365,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               get_message( msg, tvb, 36 + buddyname_length,  tvb_length(tvb) - 36 - buddyname_length);
 
               if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_fstr(pinfo->fd, COL_INFO, "Message");
+                col_add_str(pinfo->fd, COL_INFO, "Message");
                 col_append_fstr(pinfo->fd, COL_INFO, " to: %s", buddyname);
 
                 col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.22 2000/11/03 22:11:36 nneul Exp $
+ * $Id: packet-afs.c,v 1.23 2000/11/19 08:53:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -198,7 +198,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		return;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "AFS (RX)");
+		col_set_str(fd, COL_PROTOCOL, "AFS (RX)");
 
 	rxh = (struct rx_header *) &pd[offset];
 	doffset = offset + sizeof(struct rx_header);

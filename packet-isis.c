@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.14 2000/08/13 14:08:23 deniel Exp $
+ * $Id: packet-isis.c,v 1.15 2000/11/19 08:53:58 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -142,7 +142,7 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 	OLD_CHECK_DISPLAY_AS_DATA(proto_isis, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "ISIS");
+		col_set_str(fd, COL_PROTOCOL, "ISIS");
 
 	if (!BYTES_ARE_IN_FRAME(offset, sizeof(*ihdr))) {
 		isis_dissect_unknown(offset, sizeof(*ihdr), tree, fd,

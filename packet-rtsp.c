@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.26 2000/11/15 07:07:43 guy Exp $
+ * $Id: packet-rtsp.c,v 1.27 2000/11/19 08:54:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -207,7 +207,7 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, "RTSP");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "RTSP");
 	if (check_col(pinfo->fd, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
@@ -226,7 +226,7 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		default:
-			col_add_str(pinfo->fd, COL_INFO, "Continuation");
+			col_set_str(pinfo->fd, COL_INFO, "Continuation");
 			break;
 		}
 	}

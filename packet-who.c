@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.10 2000/11/17 21:00:36 gram Exp $
+ * $Id: packet-who.c,v 1.11 2000/11/19 08:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,7 +107,7 @@ dissect_who(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	/* Summary information */
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "WHO");
+		col_set_str(fd, COL_PROTOCOL, "WHO");
 
 	/* Figure out if we have enough bytes in the packet
 	 * to retrieve the data that we want to put into the summary
