@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.68 1999/08/15 00:26:09 guy Exp $
+ * $Id: file.c,v 1.69 1999/08/15 00:55:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,7 +216,6 @@ read_cap_file(char *fname, char *rfilter, capture_file *cf) {
   gchar  *err_fmt  = " Error: Could not load '%s'";
   gint    timeout;
   size_t  msg_len;
-  int     err;
 
   if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
     name_ptr = fname;
@@ -231,10 +230,6 @@ read_cap_file(char *fname, char *rfilter, capture_file *cf) {
       goto fail;
     }
   }
-
-  err = open_cap_file(fname, cf);
-  if (err != 0)
-    goto fail;
 
   load_msg = g_malloc(strlen(name_ptr) + strlen(load_fmt) + 2);
   sprintf(load_msg, load_fmt, name_ptr);
