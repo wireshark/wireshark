@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.38 2002/07/07 11:04:09 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.39 2002/07/07 12:29:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,12 @@ static int hf_netlogon_pac_size = -1;
 static int hf_netlogon_pac_data = -1;
 static int hf_netlogon_auth_size = -1;
 static int hf_netlogon_auth_data = -1;
+static int hf_netlogon_cipher_len = -1;
+static int hf_netlogon_cipher_maxlen = -1;
+static int hf_netlogon_cipher_current_data = -1;
+static int hf_netlogon_cipher_current_set_time = -1;
+static int hf_netlogon_cipher_old_data = -1;
+static int hf_netlogon_cipher_old_set_time = -1;
 static int hf_netlogon_priv = -1;
 static int hf_netlogon_privilege_entries = -1;
 static int hf_netlogon_privilege_control = -1;
@@ -115,6 +121,7 @@ static int hf_netlogon_logon_dom = -1;
 static int hf_netlogon_domain_name = -1;
 static int hf_netlogon_domain_create_time = -1;
 static int hf_netlogon_domain_modify_time = -1;
+static int hf_netlogon_modify_count = -1;
 static int hf_netlogon_db_modify_time = -1;
 static int hf_netlogon_db_create_time = -1;
 static int hf_netlogon_oem_info = -1;
@@ -172,11 +179,10 @@ static int hf_netlogon_delta_type = -1;
 
 static gint ett_dcerpc_netlogon = -1;
 static gint ett_QUOTA_LIMITS = -1;
-static gint ett_TYPE_16 = -1;
 static gint ett_IDENTITY_INFO = -1;
-static gint ett_TYPE_34 = -1;
 static gint ett_SAM_DELTA = -1;
 static gint ett_SAM_DELTA_ARRAY = -1;
+static gint ett_CYPHER_VALUE = -1;
 static gint ett_TYPE_36 = -1;
 static gint ett_NETLOGON_INFO_1 = -1;
 static gint ett_NETLOGON_INFO_2 = -1;
@@ -193,7 +199,7 @@ static gint ett_TYPE_52 = -1;
 static gint ett_TYPE_19 = -1;
 static gint ett_NETLOGON_CONTROL_QUERY_INFO = -1;
 static gint ett_TYPE_44 = -1;
-static gint ett_TYPE_20 = -1;
+static gint ett_DELTA_UNION = -1;
 static gint ett_NETLOGON_INFO = -1;
 static gint ett_TYPE_45 = -1;
 static gint ett_TYPE_47 = -1;
@@ -2543,6 +2549,322 @@ netlogon_dissect_DELTA_ACCOUNTS(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/*
+ * IDL typedef struct {
+ * IDL   long len;
+ * IDL   long maxlen;
+ * IDL   [unique][size_is(maxlen)][length_is(len)] char *cipher_data;
+ * IDL } CIPHER_VALUE;
+ */
+static int
+netlogon_dissect_CIPHER_VALUE_DATA(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
+{
+	dcerpc_info *di;
+	guint32 data_len;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_netlogon_cipher_maxlen, NULL);
+
+	/* skip offset */
+	offset += 4;
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_netlogon_cipher_len, &data_len);
+
+	proto_tree_add_item(tree, di->hf_index, tvb, offset, 
+		data_len, FALSE);
+	offset += data_len;
+
+	return offset;
+}
+static int
+netlogon_dissect_CIPHER_VALUE(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			char *drep, char *name, int hf_index)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+ 	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			name);
+		tree = proto_item_add_subtree(item, ett_CYPHER_VALUE);
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_netlogon_cipher_len, NULL);
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_netlogon_cipher_maxlen, NULL);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_CIPHER_VALUE_DATA, NDR_POINTER_UNIQUE,
+		name, hf_index, 0);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   CIPHER_VALUE current_cipher;
+ * IDL   NTTIME current_cipher_set_time;
+ * IDL   CIPHER_VALUE old_cipher;
+ * IDL   NTTIME old_cipher_set_time;
+ * IDL   long SecurityInformation;
+ * IDL   LSA_SECURITY_DESCRIPTOR sec_desc;
+ * IDL   UNICODESTRING dummy1;
+ * IDL   UNICODESTRING dummy2;
+ * IDL   UNICODESTRING dummy3;
+ * IDL   UNICODESTRING dummy4;
+ * IDL   long dummy5;
+ * IDL   long dummy6;
+ * IDL   long dummy7;
+ * IDL   long dummy8;
+ * IDL } DELTA_SECRET;
+ */
+static int
+netlogon_dissect_DELTA_SECRET(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
+{
+	offset = netlogon_dissect_CIPHER_VALUE(tvb, offset,
+		pinfo, tree, drep, 
+		"CIPHER_VALUE: current cipher value",
+		hf_netlogon_cipher_current_data);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_cipher_current_set_time);
+
+	offset = netlogon_dissect_CIPHER_VALUE(tvb, offset,
+		pinfo, tree, drep, 
+		"CIPHER_VALUE: old cipher value",
+		hf_netlogon_cipher_old_data);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_cipher_old_set_time);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_security_information, NULL);
+
+	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_dummy, 0);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_dummy, 0);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_dummy, 0);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_dummy, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_reserved, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_reserved, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_reserved, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_reserved, NULL);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long low_value;
+ * IDL   long high_value;
+ * } MODIFIED_COUNT;
+ */
+static int
+netlogon_dissect_MODIFIED_COUNT(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
+{
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_modify_count, NULL);
+
+	return offset;
+}
+
+
+#define DT_DELTA_DOMAIN			1
+#define DT_DELTA_GROUP			2
+#define DT_DELTA_RENAME_GROUP		4
+#define DT_DELTA_USER			5
+#define DT_DELTA_RENAME_USER		7
+#define DT_DELTA_GROUP_MEMBER		8
+#define DT_DELTA_ALIAS			9
+#define DT_DELTA_RENAME_ALIAS		11
+#define DT_DELTA_ALIAS_MEMBER		12
+#define DT_DELTA_POLICY			13
+#define DT_DELTA_TRUSTED_DOMAINS	14
+#define DT_DELTA_ACCOUNTS		16
+#define DT_DELTA_SECRET			18
+#define DT_DELTA_DELETE_GROUP		20
+#define DT_DELTA_DELETE_USER		21
+#define DT_MODIFIED_COUNT		22
+static const value_string delta_type_vals[] = {
+	{ DT_DELTA_DOMAIN,		"Domain" },
+	{ DT_DELTA_GROUP,		"Group" },
+	{ DT_DELTA_RENAME_GROUP,	"Rename Group" },
+	{ DT_DELTA_USER,		"User" },
+	{ DT_DELTA_RENAME_USER,		"Rename User" },
+	{ DT_DELTA_GROUP_MEMBER,	"Group Member" },
+	{ DT_DELTA_ALIAS,		"Alias" },
+	{ DT_DELTA_RENAME_ALIAS,	"Rename Alias" },
+	{ DT_DELTA_ALIAS_MEMBER,	"Alias Member" },
+	{ DT_DELTA_POLICY,		"Policy" },
+	{ DT_DELTA_TRUSTED_DOMAINS,	"Trusted Domains" },
+	{ DT_DELTA_ACCOUNTS,		"Accounts" },
+	{ DT_DELTA_SECRET,		"Secret" },
+	{ DT_DELTA_DELETE_GROUP,	"Delete Group" },
+	{ DT_DELTA_DELETE_USER,		"Delete User" },
+	{ DT_MODIFIED_COUNT,		"Modified Count" },
+	{ 0, NULL }
+};
+/*
+ * IDL typedef [switch_type(short)] union {
+ * IDL   [case(1)][unique] DELTA_DOMAIN *domain;
+ * IDL   [case(2)][unique] DELTA_GROUP *group;
+ * IDL   [case(4)][unique] DELTA_RENAME_GROUP *rename_group;
+ * IDL   [case(5)][unique] DELTA_USER *user;
+ * IDL   [case(7)][unique] DELTA_RENAME_USER *rename_user;
+ * IDL   [case(8)][unique] DELTA_GROUP_MEMBER *group_member;
+ * IDL   [case(9)][unique] DELTA_ALIAS *alias;
+ * IDL   [case(11)][unique] DELTA_RENAME_ALIAS *rename_alias;
+ * IDL   [case(12)][unique] DELTA_ALIAS_MEMBER *alias_member;
+ * IDL   [case(13)][unique] DELTA_POLICY *policy;
+ * IDL   [case(14)][unique] DELTA_TRUSTED_DOMAINS *trusted_domains;
+ * IDL   [case(16)][unique] DELTA_ACCOUNTS *accounts;
+ * IDL   [case(18)][unique] DELTA_SECRET *secret;
+ * IDL   [case(20)][unique] DELTA_DELETE_USER *delete_group;
+ * IDL   [case(21)][unique] DELTA_DELETE_USER *delete_user;
+ * IDL   [case(22)][unique] MODIFIED_COUNT *modified_count;
+ * IDL } DELTA_UNION;
+ */
+static int
+netlogon_dissect_DELTA_UNION(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+ 	int old_offset=offset;
+	guint16 level;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"DELTA_UNION:");
+		tree = proto_item_add_subtree(item, ett_DELTA_UNION);
+	}
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_delta_type, &level);
+
+	ALIGN_TO_4_BYTES;
+	switch(level){
+	case 1:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_DOMAIN, NDR_POINTER_UNIQUE,
+			"DELTA_DOMAIN:", -1, 0);
+		break;
+	case 2:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_GROUP, NDR_POINTER_UNIQUE,
+			"DELTA_GROUP:", -1, 0);
+		break;
+	case 4:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_RENAME, NDR_POINTER_UNIQUE,
+			"DELTA_RENAME_GROUP:", hf_netlogon_group_name, 0);
+		break;
+	case 5:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_USER, NDR_POINTER_UNIQUE,
+			"DELTA_USER:", -1, 0);
+		break;
+	case 7:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_RENAME, NDR_POINTER_UNIQUE,
+			"DELTA_RENAME_USER:", hf_netlogon_acct_name, 0);
+		break;
+	case 8:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_GROUP_MEMBER, NDR_POINTER_UNIQUE,
+			"DELTA_GROUP_MEMBER:", -1, 0);
+		break;
+	case 9:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_ALIAS, NDR_POINTER_UNIQUE,
+			"DELTA_ALIAS:", -1, 0);
+		break;
+	case 11:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_RENAME, NDR_POINTER_UNIQUE,
+			"DELTA_RENAME_ALIAS:", hf_netlogon_alias_name, 0);
+		break;
+	case 12:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_ALIAS_MEMBER, NDR_POINTER_UNIQUE,
+			"DELTA_ALIAS_MEMBER:", -1, 0);
+		break;
+	case 13:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_POLICY, NDR_POINTER_UNIQUE,
+			"DELTA_POLICY:", -1, 0);
+		break;
+	case 14:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_TRUSTED_DOMAINS, NDR_POINTER_UNIQUE,
+			"DELTA_TRUSTED_DOMAINS:", -1, 0);
+		break;
+	case 16:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_ACCOUNTS, NDR_POINTER_UNIQUE,
+			"DELTA_ACCOUNTS:", -1, 0);
+		break;
+	case 18:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_SECRET, NDR_POINTER_UNIQUE,
+			"DELTA_SECRET:", -1, 0);
+		break;
+	case 20:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_DELETE_USER, NDR_POINTER_UNIQUE,
+			"DELTA_DELETE_GROUP:", -1, 0);
+		break;
+	case 21:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_DELTA_DELETE_USER, NDR_POINTER_UNIQUE,
+			"DELTA_DELETE_USER:", -1, 0);
+		break;
+	case 22:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			netlogon_dissect_MODIFIED_COUNT, NDR_POINTER_UNIQUE,
+			"MODIFIED_COUNT:", -1, 0);
+		break;
+	}
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
 
 
 
@@ -2616,90 +2938,6 @@ netlogon_dissect_UNICODE_STRING(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-
-static int
-netlogon_dissect_TYPE_16(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
- 	int old_offset=offset;
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"TYPE_16:");
-		tree = proto_item_add_subtree(item, ett_TYPE_16);
-	}
-
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_time);
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-
-static int
-netlogon_dissect_TYPE_34(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
- 	int old_offset=offset;
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"TYPE_34:");
-		tree = proto_item_add_subtree(item, ett_TYPE_34);
-	}
-
-	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_time);
-
-	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_time);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
 
 static int
 netlogon_dissect_WCHAR_ptr(tvbuff_t *tvb, int offset,
@@ -3692,113 +3930,6 @@ netlogon_dissect_TYPE_44(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_TYPE_20(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
- 	int old_offset=offset;
-	guint16 level;
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"TYPE_20:");
-		tree = proto_item_add_subtree(item, ett_TYPE_20);
-	}
-
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_level16, &level);
-
-	ALIGN_TO_4_BYTES;
-	switch(level){
-	case 1:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_DOMAIN, NDR_POINTER_UNIQUE,
-			"DELTA_DOMAIN:", -1, 0);
-		break;
-	case 2:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_GROUP, NDR_POINTER_UNIQUE,
-			"DELTA_GROUP:", -1, 0);
-		break;
-	case 4:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_RENAME, NDR_POINTER_UNIQUE,
-			"DELTA_RENAME_GROUP:", hf_netlogon_group_name, 0);
-		break;
-	case 5:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_USER, NDR_POINTER_UNIQUE,
-			"DELTA_USER:", -1, 0);
-		break;
-	case 7:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_RENAME, NDR_POINTER_UNIQUE,
-			"DELTA_RENAME_USER:", hf_netlogon_acct_name, 0);
-		break;
-	case 8:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_GROUP_MEMBER, NDR_POINTER_UNIQUE,
-			"DELTA_GROUP_MEMBER:", -1, 0);
-		break;
-	case 9:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_ALIAS, NDR_POINTER_UNIQUE,
-			"DELTA_ALIAS:", -1, 0);
-		break;
-	case 11:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_RENAME, NDR_POINTER_UNIQUE,
-			"DELTA_RENAME_ALIAS:", hf_netlogon_alias_name, 0);
-		break;
-	case 12:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_ALIAS_MEMBER, NDR_POINTER_UNIQUE,
-			"DELTA_ALIAS_MEMBER:", -1, 0);
-		break;
-	case 13:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_POLICY, NDR_POINTER_UNIQUE,
-			"DELTA_POLICY:", -1, 0);
-		break;
-	case 14:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_TRUSTED_DOMAINS, NDR_POINTER_UNIQUE,
-			"DELTA_TRUSTED_DOMAINS:", -1, 0);
-		break;
-	case 16:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_ACCOUNTS, NDR_POINTER_UNIQUE,
-			"DELTA_ACCOUNTS:", -1, 0);
-		break;
-	case 18:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_TYPE_34, NDR_POINTER_PTR,
-			"TYPE_34 pointer:", -1, 0);
-		break;
-	case 20:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_DELETE_USER, NDR_POINTER_UNIQUE,
-			"DELTA_DELETE_GROUP:", -1, 0);
-		break;
-	case 21:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_DELTA_DELETE_USER, NDR_POINTER_UNIQUE,
-			"DELTA_DELETE_GROUP:", -1, 0);
-		break;
-	case 22:
-		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_TYPE_16, NDR_POINTER_PTR,
-			"TYPE_16 pointer:", -1, 0);
-		break;
-	}
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-static int
 netlogon_dissect_SAM_DELTA(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep)
@@ -3819,7 +3950,7 @@ netlogon_dissect_SAM_DELTA(tvbuff_t *tvb, int offset,
 	offset = netlogon_dissect_TYPE_19(tvb, offset,
 		pinfo, tree, drep);
 
-	offset = netlogon_dissect_TYPE_20(tvb, offset,
+	offset = netlogon_dissect_DELTA_UNION(tvb, offset,
 		pinfo, tree, drep);
 
 	proto_item_set_len(item, offset-old_offset);
@@ -4008,8 +4139,8 @@ netlogon_dissect_netsamdeltas_rqst(tvbuff_t *tvb, int offset,
 		hf_netlogon_database_id, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_TYPE_16, NDR_POINTER_REF,
-		"TYPE_16 pointer: dom_mod_count", -1, 0);
+		netlogon_dissect_MODIFIED_COUNT, NDR_POINTER_REF,
+		"MODIFIED_COUNT:", -1, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_max_size, NULL);
@@ -4027,8 +4158,8 @@ netlogon_dissect_netsamdeltas_reply(tvbuff_t *tvb, int offset,
 		"AUTHENTICATOR: return_authenticator", -1, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_TYPE_16, NDR_POINTER_REF,
-		"TYPE_16 pointer: dom_mod_count", -1, 0);
+		netlogon_dissect_MODIFIED_COUNT, NDR_POINTER_REF,
+		"MODIFIED_COUNT:", -1, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_SAM_DELTA_ARRAY, NDR_POINTER_UNIQUE,
@@ -5592,6 +5723,10 @@ static hf_register_info hf[] = {
 		"Logon ID", "netlogon.logon_id", FT_UINT64, BASE_DEC, 
 		NULL, 0x0, "Logon ID", HFILL }},
 
+	{ &hf_netlogon_modify_count, { 
+		"Modify Count", "netlogon.modify_count", FT_UINT64, BASE_DEC, 
+		NULL, 0x0, "How many times the object has been modified", HFILL }},
+
 	{ &hf_netlogon_security_information, { 
 		"Security Information", "netlogon.security_information", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Security Information", HFILL }},
@@ -5729,6 +5864,14 @@ static hf_register_info hf[] = {
 		{ "LM Chal resp", "netlogon.lm_chal_resp", FT_BYTES, BASE_HEX,
 		NULL, 0, "Challenge response for LM authentication", HFILL }},
 
+	{ &hf_netlogon_cipher_len,
+		{ "Cipher Len", "netlogon.cipher_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_netlogon_cipher_maxlen,
+		{ "Cipher Max Len", "netlogon.cipher_maxlen", FT_UINT32, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
 	{ &hf_netlogon_pac_data,
 		{ "Pac Data", "netlogon.pac.data", FT_BYTES, BASE_HEX,
 		NULL, 0, "Pac Data", HFILL }},
@@ -5740,6 +5883,14 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_auth_data,
 		{ "Auth Data", "netlogon.auth.data", FT_BYTES, BASE_HEX,
 		NULL, 0, "Auth Data", HFILL }},
+
+	{ &hf_netlogon_cipher_current_data,
+		{ "Cipher Current Data", "netlogon.cipher_current_data", FT_BYTES, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_netlogon_cipher_old_data,
+		{ "Cipher Old Data", "netlogon.cipher_old_data", FT_BYTES, BASE_HEX,
+		NULL, 0, "", HFILL }},
 
 	{ &hf_netlogon_acct_name,
 		{ "Acct Name", "netlogon.acct_name", FT_STRING, BASE_NONE,
@@ -5943,7 +6094,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_delta_type,
 		{ "Delta Type", "netlogon.delta_type", FT_UINT16, BASE_DEC, 
-		NULL, 0x0, "Delta Type", HFILL }},
+		VALS(delta_type_vals), 0x0, "Delta Type", HFILL }},
 
 	{ &hf_netlogon_blob_size,
 		{ "Size", "netlogon.blob.size", FT_UINT32, BASE_DEC, 
@@ -6089,6 +6240,14 @@ static hf_register_info hf[] = {
 		{ "DB Create Time", "netlogon.db_create_time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Time when created", HFILL }},
 
+	{ &hf_netlogon_cipher_current_set_time,
+		{ "Cipher Current Set Time", "netlogon.cipher_current_set_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Time when current cipher was initiated", HFILL }},
+
+	{ &hf_netlogon_cipher_old_set_time,
+		{ "Cipher Old Set Time", "netlogon.cipher_old_set_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Time when previous cipher was initiated", HFILL }},
+
 	{ &hf_netlogon_audit_retention_period,
 		{ "Audit Retention Period", "netlogon.audit_retention_period", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0, "Audit retention period", HFILL }},
@@ -6101,10 +6260,9 @@ static hf_register_info hf[] = {
 
         static gint *ett[] = {
                 &ett_dcerpc_netlogon,
-		&ett_TYPE_16,
+		&ett_CYPHER_VALUE,
 		&ett_QUOTA_LIMITS,
 		&ett_IDENTITY_INFO,
-		&ett_TYPE_34,
 		&ett_SAM_DELTA,
 		&ett_SAM_DELTA_ARRAY,
 		&ett_TYPE_36,
@@ -6123,7 +6281,7 @@ static hf_register_info hf[] = {
 		&ett_TYPE_19,
 		&ett_NETLOGON_CONTROL_QUERY_INFO,
 		&ett_TYPE_44,
-		&ett_TYPE_20,
+		&ett_DELTA_UNION,
 		&ett_NETLOGON_INFO,
 		&ett_TYPE_45,
 		&ett_TYPE_47,
