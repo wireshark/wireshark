@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.40 2002/12/10 01:17:07 guy Exp $
+ * $Id: column.c,v 1.41 2003/01/22 06:26:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@ col_format_to_string(gint fmt) {
                      "%us","%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
-                     "%i", "%L", "%XO", "%XR", "%I", "%c" };
+                     "%i", "%L", "%XO", "%XR", "%I", "%c", "%Xs", "%Xd", "%V" };
                      
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
@@ -81,7 +81,8 @@ col_format_desc(gint fmt) {
                      "Dest port (resolved)", "Dest port (unresolved)",
                      "Protocol", "Information", "Packet length (bytes)" ,
                      "OXID", "RXID", "FW-1 monitor if/direction",
-                     "Circuit ID" };
+                     "Circuit ID"
+                     "Src PortIdx", "Dst PortIdx", "VSAN",};
 
   return(dlist[fmt]);
 }
@@ -150,6 +151,15 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_CIRCUIT_ID:
       fmt_list[COL_CIRCUIT_ID] = TRUE;
+      break;
+    case COL_SRCIDX:
+      fmt_list[COL_SRCIDX] = TRUE;
+      break;
+    case COL_DSTIDX:
+      fmt_list[COL_DSTIDX] = TRUE;
+      break;
+    case COL_VSAN:
+      fmt_list[COL_VSAN] = TRUE;
       break;
     default:
       break;
@@ -237,6 +247,13 @@ get_column_longest_string(gint format)
     case COL_CIRCUIT_ID:
       return "000000";
       break;
+    case COL_SRCIDX:
+    case COL_DSTIDX:
+      return "0000000";
+      break;
+    case COL_VSAN:
+      return "000000";
+      break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
       break;
@@ -295,6 +312,9 @@ get_column_resize_type(gint format) {
     case COL_UNRES_NET_DST:
     case COL_OXID:
     case COL_RXID:
+    case COL_SRCIDX:
+    case COL_DSTIDX:
+    case COL_VSAN:
       /* We don't want these to resize dynamically; if they get resolved
          to names, those names could be very long, and auto-resizing
 	 columns showing those names may leave too little room for
@@ -350,10 +370,20 @@ get_column_format_from_str(gchar *str) {
         return COL_NUMBER;
         break;
       case 's':
-        return COL_DEF_SRC + res_off + addr_off;
+        if (prev_code == COL_OXID) {
+          return COL_SRCIDX;
+        }
+        else {
+          return COL_DEF_SRC + res_off + addr_off;
+        }
         break;
       case 'd':
-        return COL_DEF_DST + res_off + addr_off;
+        if (prev_code == COL_OXID) {
+          return COL_DSTIDX;
+        }
+        else {
+          return COL_DEF_DST + res_off + addr_off;
+        }
         break;
       case 'S':
         return COL_DEF_SRC_PORT + res_off;
@@ -410,6 +440,9 @@ get_column_format_from_str(gchar *str) {
         break;
       case 'c':
         return COL_CIRCUIT_ID;
+        break;
+      case 'V':
+        return COL_VSAN;
         break;
     }
     cptr++;

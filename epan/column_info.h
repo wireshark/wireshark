@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column structures and routines
  *
- * $Id: column_info.h,v 1.6 2002/12/10 01:17:21 guy Exp $
+ * $Id: column_info.h,v 1.7 2003/01/22 06:26:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,6 +89,9 @@ enum {
   COL_RXID,           /* Fibre Channel RXID */
   COL_IF_DIR,         /* FW-1 monitor interface/direction */
   COL_CIRCUIT_ID,     /* Circuit ID */
+  COL_SRCIDX,         /* Src port idx - Cisco MDS-specific */
+  COL_DSTIDX,         /* Dst port idx - Cisco MDS-specific */
+  COL_VSAN,           /* VSAN - Cisco MDS-specific */
   NUM_COL_FMTS        /* Should always be last */
 };
 

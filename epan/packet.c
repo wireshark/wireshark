@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.85 2003/01/20 05:42:37 guy Exp $
+ * $Id: packet.c,v 1.86 2003/01/22 06:26:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -289,6 +289,9 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
         edt->pi.oxid = 0;
         edt->pi.rxid = 0;
         edt->pi.r_ctl = 0;
+        edt->pi.src_idx = 0;
+        edt->pi.dst_idx = 0;
+        edt->pi.vsan = 0;
 
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);

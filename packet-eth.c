@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.78 2003/01/22 01:18:03 sahlberg Exp $
+ * $Id: packet-eth.c,v 1.79 2003/01/22 06:26:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,8 +87,23 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
 
   etype = pntohs(&pd[offset+12]);
 
-	/* either ethernet802.3 or ethernet802.2 */
-  if (etype <= IEEE_802_3_MAX_LEN) {
+  /*
+   * If the type/length field is <= the maximum 802.3 length,
+   * and is not zero, this is an 802.3 frame, and it's a length
+   * field; it might be an Novell "raw 802.3" frame, with no
+   * 802.2 LLC header, or it might be a frame with an 802.2 LLC
+   * header.
+   *
+   * If the type/length field is > the maximum 802.3 length,
+   * this is an Ethernet II frame, and it's a type field.
+   *
+   * If the type/length field is zero (ETHERTYPE_UNK), this is
+   * a frame used internally by the Cisco MDS switch to contain
+   * Fibre Channel ("Vegas").  We treat that as an Ethernet II
+   * frame; the dissector for those frames registers itself with
+   * an ethernet type of ETHERTYPE_UNK.
+   */
+  if (etype <= IEEE_802_3_MAX_LEN && etype != ETHERTYPE_UNK) {
     length = etype;
 
     /* Is there an 802.2 layer? I can tell by looking at the first 2
@@ -160,8 +175,23 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   ehdr.type = tvb_get_ntohs(tvb, 12);
 
-	/* either ethernet802.3 or ethernet802.2 */
-  if (ehdr.type <= IEEE_802_3_MAX_LEN) {
+  /*
+   * If the type/length field is <= the maximum 802.3 length,
+   * and is not zero, this is an 802.3 frame, and it's a length
+   * field; it might be an Novell "raw 802.3" frame, with no
+   * 802.2 LLC header, or it might be a frame with an 802.2 LLC
+   * header.
+   *
+   * If the type/length field is > the maximum 802.3 length,
+   * this is an Ethernet II frame, and it's a type field.
+   *
+   * If the type/length field is zero (ETHERTYPE_UNK), this is
+   * a frame used internally by the Cisco MDS switch to contain
+   * Fibre Channel ("Vegas").  We treat that as an Ethernet II
+   * frame; the dissector for those frames registers itself with
+   * an ethernet type of ETHERTYPE_UNK.
+   */
+  if (ehdr.type <= IEEE_802_3_MAX_LEN && ehdr.type != ETHERTYPE_UNK) {
     /* Oh, yuck.  Cisco ISL frames require special interpretation of the
        destination address field; fortunately, they can be recognized by
        checking the first 5 octets of the destination address, which are

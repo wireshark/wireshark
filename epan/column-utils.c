@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.30 2002/12/10 01:17:21 guy Exp $
+ * $Id: column-utils.c,v 1.31 2003/01/22 06:26:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -784,6 +784,26 @@ fill_in_columns(packet_info *pinfo)
       col_set_circuit_id(pinfo, i);
       break;
 
+    case COL_SRCIDX:
+        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x",
+                  pinfo->src_idx);
+        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+        break;
+
+    case COL_DSTIDX:
+        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x",
+                  pinfo->dst_idx);
+        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+        break;
+
+    case COL_VSAN:
+        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%d", pinfo->vsan);
+        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+        break;
+        
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
       break;

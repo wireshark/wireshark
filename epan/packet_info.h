@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.28 2003/01/06 19:08:37 jmayer Exp $
+ * $Id: packet_info.h,v 1.29 2003/01/22 06:26:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,6 +152,9 @@ typedef struct _packet_info {
   guint16 rxid;                 /* channel conversations */
   guint8  r_ctl;                /* R_CTL field in Fibre Channel Protocol */
   guint8  pad;
+  guint16 src_idx;              /* Source port index (Cisco MDS-specific) */
+  guint16 dst_idx;              /* Dest port index (Cisco MDS-specific) */
+  guint16 vsan;                 /* Fibre channel/Cisco MDS-specific */
   void    *private_data;	/* pointer to data passed from one dissector to another */
   void    *decrypted_data;	/* pointer to description of decrypted payload structure */
 } packet_info;

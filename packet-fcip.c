@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-fcip.c,v 1.2 2003/01/22 06:26:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -480,7 +480,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     col_append_str(pinfo->cinfo, COL_INFO, "(Changed)");
             }
 
-            dissect_fcip_sf (tvb, fcip_tree, start);
+            dissect_fcip_sf (tvb, fcip_tree, offset+4);
         }
 
         bytes_remaining -= frame_len;

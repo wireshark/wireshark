@@ -1080,7 +1080,9 @@ Dinesh Dutt <ddutt[AT]cisco.com> {
 	SCSI dissector, for use by iSCSI and other protocols that
 	    transport SCSI operations
 	Fibre Channel (over IP) support
-	MDS Debug Port Adapter (Boardwalk) FC-inside-Ethernet dissector
+	Cisco MDS switch Debug Port Adapter (Boardwalk)
+	    FC-inside-Ethernet dissector
+	Cisco MDS switch internal FC-inside-Ethernet dissector
 }
 
 Nagarjuna Venna <nvenna[AT]Brixnet.com> {

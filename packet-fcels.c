@@ -2,7 +2,7 @@
  * Routines for FC Extended Link Services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcels.c,v 1.2 2002/12/10 02:49:31 guy Exp $
+ * $Id: packet-fcels.c,v 1.3 2003/01/22 06:26:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -264,12 +264,12 @@ construct_cmnsvc_string (guint16 flag, gchar *flagstr, guint8 opcode)
     }
     
     if (flag & 0x0800) {
-        sprintf (&flagstr[stroff], "%sNormal B2B Credit Mgmt", punc);
+        sprintf (&flagstr[stroff], "%sAlt B2B Credit Mgmt", punc);
         strcpy (punc, ", ");
         stroff += 24;
     }
     else {
-        sprintf (&flagstr[stroff], "%sAlt B2B Credit Mgmt", punc);
+        sprintf (&flagstr[stroff], "%sNormal B2B Credit Mgmt", punc);
         strcpy (punc, ", ");
         stroff += 21;
     }
