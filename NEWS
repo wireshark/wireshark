@@ -1,6 +1,6 @@
 $Id$
 
-== March 10, 2005
+== March 11, 2005
 
 Ethereal 0.10.10 has been released.
 
@@ -13,7 +13,9 @@ This release fixes three security and stability-related issues:
   was enabled. (CAN-2005-0705)
 
   Diego Giago discovered a buffer overflow in the 3GPP2 A11 dissector.
-  This flaw was later reported by LSS Security. (CAN-2005-0699)
+  This flaw was later reported by Leon Juranic. (CAN-2005-0699)
+
+  Leon Juranic discovered a buffer overflow in the IAPP dissector.
 
   A bug in the JXTA dissector could make Ethereal crash.
 
@@ -59,7 +61,7 @@ Updated protocol support
 
 New and updated capture file support
 
-    DBS Etherwatch, Lucent/Ascend, Nettl, Tcpdump (Redback)
+  DBS Etherwatch, Lucent/Ascend, Nettl, Tcpdump (Redback)
 
 
 == January 19, 2005
