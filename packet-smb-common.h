@@ -2,7 +2,7 @@
  * Routines for SMB packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.24 2003/05/21 10:16:10 sahlberg Exp $
+ * $Id: packet-smb-common.h,v 1.25 2004/01/10 02:43:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "smb.h"
-#include "alignment.h"
 
 int dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 

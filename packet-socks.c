@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.54 2003/12/30 00:22:38 guy Exp $
+ * $Id: packet-socks.c,v 1.55 2004/01/10 02:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,6 @@
 
 #include <epan/packet.h>
 #include <epan/resolv.h>
-#include "alignment.h"
 #include <epan/conversation.h>
 
 #include "packet-tcp.h"

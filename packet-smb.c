@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.383 2004/01/02 23:44:20 guy Exp $
+ * $Id: packet-smb.c,v 1.384 2004/01/10 02:43:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "smb.h"
-#include "alignment.h"
 #include <epan/strutil.h>
 #include "prefs.h"
 #include "reassemble.h"

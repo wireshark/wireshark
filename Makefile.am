@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.684 2004/01/10 02:38:38 obiot Exp $
+# $Id: Makefile.am,v 1.685 2004/01/10 02:43:28 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -781,7 +781,6 @@ ETHEREAL_COMMON_SRC = \
 	afn.c          \
 	afn.h          \
 	aftypes.h      \
-	alignment.h    \
 	arcnet_pids.h  \
 	asn1.c         \
 	asn1.h         \
