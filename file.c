@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.293 2002/10/17 02:11:19 guy Exp $
+ * $Id: file.c,v 1.294 2002/11/23 03:19:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1100,6 +1100,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   char       *line_buf = NULL;
   int         line_buf_len = 256;
   char        *cp;
+  int         cp_off;
   int         column_len;
   int         line_len;
   epan_dissect_t *edt = NULL;
@@ -1144,8 +1145,10 @@ print_packets(capture_file *cf, print_args_t *print_args)
          double its length. */
       line_len += column_len + 1;	/* "+1" for space */
       if (line_len > line_buf_len) {
+        cp_off = cp - line_buf;
         line_buf_len *= 2;
         line_buf = g_realloc(line_buf, line_buf_len + 1);
+        cp = line_buf + cp_off;
       }
 
       /* Right-justify the packet number column. */
@@ -1240,8 +1243,10 @@ print_packets(capture_file *cf, print_args_t *print_args)
              double its length. */
           line_len += column_len + 1;	/* "+1" for space */
           if (line_len > line_buf_len) {
+            cp_off = cp - line_buf;
             line_buf_len *= 2;
             line_buf = g_realloc(line_buf, line_buf_len + 1);
+            cp = line_buf + cp_off;
           }
 
           /* Right-justify the packet number column. */
