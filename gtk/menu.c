@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.42 2000/08/21 19:36:08 deniel Exp $
+ * $Id: menu.c,v 1.43 2000/08/22 14:21:27 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -111,7 +111,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/_Find Frame...", "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, NULL},
   {"/Edit/_Go To Frame...", "<control>G", GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
-  {"/Edit/Mark Frame", "<control>M", GTK_MENU_FUNC(mark_frame_cb), 0, NULL},
+  {"/Edit/_Mark Frame", "<control>M", GTK_MENU_FUNC(mark_frame_cb), 0, NULL},
   {"/Edit/Mark _All Frames", NULL, GTK_MENU_FUNC(mark_all_frames_cb), 0, NULL},
   {"/Edit/_Unmark All Frames", NULL, GTK_MENU_FUNC(unmark_all_frames_cb), 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
