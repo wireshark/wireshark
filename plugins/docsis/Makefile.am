@@ -1,10 +1,11 @@
 # Makefile.am
-# Automake file for Ethereal/docsis
+# Automake file for Ethereal/docsis subdissectors
+#
+# $Id: Makefile.am,v 1.4 2003/01/11 09:15:00 guy Exp $
 #
 # Ethereal - Network traffic analyzer
-# By Steve Limkemann <stevelim@dgtech.com>
-# Copyright 1998 Steve Limkemann
-#
+# By Gerald Combs <gerald@ethereal.com>
+# Copyright 1998 Gerald Combs
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
