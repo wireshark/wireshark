@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.76 2000/08/11 13:35:33 deniel Exp $
+ * $Id: proto.c,v 1.77 2000/08/13 14:03:37 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1444,8 +1444,43 @@ proto_register_protocol(char *name, char *abbrev)
 	hfinfo->bitshift = 0;
 	hfinfo->blurb = "";
 	hfinfo->parent = -1; /* this field differentiates protos and fields */
+	hfinfo->display = TRUE; /* XXX protocol is enabled by default */
 
 	return proto_register_field_init(hfinfo, hfinfo->parent);
+}
+
+
+/*
+ * XXX - In the future, we might need a hash table or list of procotol
+ * characteristics that will be fill in each time proto_register_protocol is 
+ * called.
+ * A protocol entry could contain the display flag among others (such as the
+ * address of the dissector function for intance). The access to an entry
+ * by protocol abbrev (which shall be unique) would be faster than the actual
+ * way.
+ */
+
+gboolean 
+proto_is_protocol_enabled(int n)
+{
+	struct header_field_info *hfinfo;
+
+	hfinfo = proto_registrar_get_nth(n);
+	if (hfinfo)
+		return (hfinfo->display);
+	else
+		return FALSE;
+
+}
+
+void 
+proto_set_decoding(int n, gboolean enabled)
+{
+	struct header_field_info *hfinfo;
+
+	hfinfo = proto_registrar_get_nth(n);
+	if (hfinfo)
+		hfinfo->display = enabled;
 }
 
 /* for use with static arrays only, since we don't allocate our own copies

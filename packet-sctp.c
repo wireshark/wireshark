@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.4 2000/08/11 13:35:00 deniel Exp $
+ * $Id: packet-sctp.c,v 1.5 2000/08/13 14:08:45 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1481,6 +1481,8 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 verification_tag, checksum;
   proto_item *ti;
   proto_tree *sctp_tree;
+
+  CHECK_DISPLAY_AS_DATA(proto_sctp, tvb, pinfo, tree);
 
   pinfo->current_proto = "SCTP";
 

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.34 2000/08/07 03:21:23 guy Exp $
+ * $Id: packet-x25.c,v 1.35 2000/08/13 14:09:13 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1411,6 +1411,12 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     modulo = ((bytes0_1 & 0x2000) ? 128 : 8);
     vc     = (int)(bytes0_1 & 0x0FFF);
+
+    if (modulo == 8) {
+      CHECK_DISPLAY_AS_DATA(proto_x25, tvb, pinfo, tree);
+    } else {
+      CHECK_DISPLAY_AS_DATA(proto_ex25, tvb, pinfo, tree);
+    }
 
     if (bytes0_1 & 0x8000) toa = TRUE;
     else toa = FALSE;

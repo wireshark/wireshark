@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.6 2000/06/19 08:33:49 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.7 2000/08/13 14:08:22 deniel Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -248,6 +248,8 @@ isis_dissect_isis_csnp(int type, int header_length, int id_length,
 	guint16		pdu_length;
 	int 		len;
 
+	OLD_CHECK_DISPLAY_AS_DATA(proto_isis_csnp, pd, offset, fd, tree);
+
 	hlen = 2+id_length+1+id_length+2+id_length+2;
 
 	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {
@@ -331,6 +333,8 @@ isis_dissect_isis_psnp(int type, int header_length, int id_length,
 	guint16		pdu_length;
 	int 		len;
 
+	OLD_CHECK_DISPLAY_AS_DATA(proto_isis_psnp, pd, offset, fd, tree);
+    
 	hlen = 2+id_length+1;
 
 	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.80 2000/08/11 13:34:55 deniel Exp $
+ * $Id: packet-tcp.c,v 1.81 2000/08/13 14:08:47 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -410,6 +410,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint      hlen;
   guint      optlen;
   guint      packet_max = pi.len;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_tcp, pd, offset, fd, tree);
 
   /* To do: Check for {cap len,pkt len} < struct len */
   /* Avoids alignment problems on many architectures. */

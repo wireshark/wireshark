@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.20 2000/08/11 13:35:24 deniel Exp $
+ * $Id: packet-icq.c,v 1.21 2000/08/13 14:08:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -2426,6 +2426,8 @@ static void dissect_icq(const u_char *pd,
 			proto_tree *tree)
 {
   int version = 0;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_icq, pd, offset, fd, tree);
 
   version = pletohs(&pd[offset + ICQ_VERSION]);
   switch (version) {

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.51 2000/08/09 07:15:19 guy Exp $
+ * $Id: packet-dns.c,v 1.52 2000/08/13 14:08:08 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1727,6 +1727,8 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		  { RCODE_NOTIMPL,   "Not implemented" },
 		  { RCODE_REFUSED,   "Refused"         },
 		  { 0,               NULL              } };
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_dns, pd, offset, fd, tree);
 
   dns_data_offset = offset;
 

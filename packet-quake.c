@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.3 2000/08/07 03:21:02 guy Exp $
+ * $Id: packet-quake.c,v 1.4 2000/08/13 14:08:36 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -542,6 +542,8 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		sequence = 0;
 	guint		rest_length;
 	tvbuff_t	*next_tvb;
+
+	CHECK_DISPLAY_AS_DATA(proto_quake, tvb, pinfo, tree);
 
 	if (!tvb_bytes_exist(tvb, 0, 4)) return;
 

@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.21 2000/08/07 03:20:20 guy Exp $
+ * $Id: packet-aarp.c,v 1.22 2000/08/13 14:07:55 deniel Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -138,6 +138,8 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   gchar       *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_aarp, pd, offset, fd, tree);
 
   if (!BYTES_ARE_IN_FRAME(offset, MIN_AARP_HEADER_SIZE)) {
     old_dissect_data(pd, offset, fd, tree);

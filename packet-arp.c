@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.32 2000/08/10 20:09:29 deniel Exp $
+ * $Id: packet-arp.c,v 1.33 2000/08/13 14:07:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -563,6 +563,8 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   gchar       *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_arp, pd, offset, fd, tree);
 
   if (!BYTES_ARE_IN_FRAME(offset, MIN_ARP_HEADER_SIZE)) {
     old_dissect_data(pd, offset, fd, tree);

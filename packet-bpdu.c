@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.12 2000/08/07 03:20:25 guy Exp $
+ * $Id: packet-bpdu.c,v 1.13 2000/08/13 14:08:04 deniel Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -94,6 +94,8 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
       proto_tree *bpdu_tree;
       proto_item *ti;
       const u_char *bpdu;
+
+      OLD_CHECK_DISPLAY_AS_DATA(proto_bpdu, pd, offset, fd, tree);
 
       bpdu = pd + offset;
       bpdu_type = (guint8) bpdu[BPDU_TYPE];

@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for MSX tns packet dissection
  *
- * $Id: packet-tns.c,v 1.8 2000/08/07 03:21:17 guy Exp $
+ * $Id: packet-tns.c,v 1.9 2000/08/13 14:09:06 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,6 +192,8 @@ dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree      *tns_tree = NULL, *ti;
 	guint16 length;
 	guint16 type;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_tns, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "TNS");

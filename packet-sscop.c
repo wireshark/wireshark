@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.9 2000/08/07 03:21:13 guy Exp $
+ * $Id: packet-sscop.c,v 1.10 2000/08/13 14:09:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -143,6 +143,8 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int pdu_len;
   int pad_len;
   tvbuff_t *next_tvb;
+
+  CHECK_DISPLAY_AS_DATA(proto_sscop, tvb, pinfo, tree);
 
   pinfo->current_proto = "SSCOP";
 

@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.8 2000/08/07 03:20:39 guy Exp $
+ * $Id: packet-imap.c,v 1.9 2000/08/13 14:08:16 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,6 +59,8 @@ dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	int i1 = (u_char *)strchr(pd + offset, ' ') - (pd + offset); /* Where is that space */
 	int i2;
 	int max_data = pi.captured_len - offset;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_imap, pd, offset, fd, tree);
 
 	memset(rr, '\0', sizeof(rr));
 	memset(rd, '\0', sizeof(rd));

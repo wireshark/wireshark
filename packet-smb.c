@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.70 2000/08/07 14:49:03 sharpe Exp $
+ * $Id: packet-smb.c,v 1.71 2000/08/13 14:08:50 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -10594,6 +10594,8 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	guint32         status;
 	int             SMB_offset = offset;
 	struct smb_info si;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_smb, pd, offset, fd, tree);
 
 	si.unicode = 0;
 

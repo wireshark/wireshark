@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.8 2000/06/19 08:33:48 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.9 2000/08/13 14:08:22 deniel Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -794,6 +794,8 @@ isis_dissect_isis_lsp(int lsp_type, int header_length, int id_length,
 	guint16		pdu_length;
 	char		sbuf[128];
 	int		inx, q, some, value, len;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_isis_lsp, pd, offset, fd, tree);
 
 	hlen = 2+2+id_length+2+4+2+1;
 

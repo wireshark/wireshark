@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.9 2000/06/19 08:33:48 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.10 2000/08/13 14:08:19 deniel Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -426,6 +426,8 @@ isis_dissect_isis_hello(int hello_type, int header_length, int id_length,
 	int 		len;
 	int		hlen;
 	guint16		pdu_length;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_isis_hello, pd, offset, fd, tree);
 
 	if (hello_type == ISIS_TYPE_PTP_HELLO) {
 		hlen = 1+id_length+2+2+1;

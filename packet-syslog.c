@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@zing.org>
  *
- * $Id: packet-syslog.c,v 1.5 2000/08/07 03:21:14 guy Exp $
+ * $Id: packet-syslog.c,v 1.6 2000/08/13 14:07:53 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,6 +144,8 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   proto_tree *syslog_tree;
   gchar msg_str[COL_INFO_LEN];
+
+  CHECK_DISPLAY_AS_DATA(proto_syslog, tvb, pinfo, tree);
 
   pinfo->current_proto = "Syslog";
   msg_len = tvb_length(tvb);

@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.14 2000/08/11 13:35:15 deniel Exp $
+ * $Id: packet-ldap.c,v 1.15 2000/08/13 14:08:24 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -836,6 +836,8 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   const guchar *start;
   int first_time = 1;
   int ret;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_ldap, pd, offset, fd, tree);
 
   if (tree) 
   {

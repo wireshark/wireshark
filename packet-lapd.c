@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.12 2000/08/07 03:20:48 guy Exp $
+ * $Id: packet-lapd.c,v 1.13 2000/08/13 14:08:24 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,6 +93,8 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		address, cr, sapi;
 	gboolean	is_response;
 	tvbuff_t	*next_tvb;
+
+	CHECK_DISPLAY_AS_DATA(proto_lapd, tvb, pinfo, tree);
 
 	pinfo->current_proto = "LAPD";
 

@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.74 2000/08/07 03:21:18 guy Exp $
+ * $Id: packet-udp.c,v 1.75 2000/08/13 14:09:07 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,6 +140,8 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint16    uh_sport, uh_dport, uh_ulen, uh_sum;
   proto_tree *udp_tree;
   proto_item *ti;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_udp, pd, offset, fd, tree);
 
   if (!BYTES_ARE_IN_FRAME(offset, sizeof(e_udphdr))) {
     old_dissect_data(pd, offset, fd, tree);

@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.13 2000/08/07 03:21:04 guy Exp $
+ * $Id: packet-ripng.c,v 1.14 2000/08/13 14:08:43 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,6 +66,8 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	{ 0, NULL },
     };
     const char *cmd;
+
+    OLD_CHECK_DISPLAY_AS_DATA(proto_ripng, pd, offset, fd, tree);
 
     /* avoid alignment problem */
     memcpy(&rip6, &pd[offset], sizeof(rip6));

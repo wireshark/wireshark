@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.7 2000/08/06 10:04:14 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.8 2000/08/13 14:08:49 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -524,6 +524,9 @@ static void (*dissect_smb_logon_cmds[])(const u_char *, int, frame_data *,
 	proto_tree      *smb_logon_tree;
 	proto_item      *ti;
 
+
+	if (!proto_is_protocol_enabled(proto_smb_logon))
+	  return 0;
 					   /* get the Command field */
    	cmd = MIN(  GBYTE(pd, offset), array_length(dissect_smb_logon_cmds)-1);
 

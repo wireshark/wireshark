@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.42 2000/08/11 22:18:13 deniel Exp $
+ * $Id: packet-ipv6.c,v 1.43 2000/08/13 14:08:06 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -294,6 +294,8 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   int frag;
 
   struct ip6_hdr ipv6;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_ipv6, pd, offset, fd, tree);
 
   memcpy(&ipv6, (void *) &pd[offset], sizeof(ipv6)); 
 

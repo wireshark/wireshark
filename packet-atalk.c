@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.39 2000/08/07 03:20:22 guy Exp $
+ * $Id: packet-atalk.c,v 1.40 2000/08/13 14:08:00 deniel Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -196,6 +196,8 @@ dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   guint16 node; /* might be more than 8 bits */
   int i;
 
+  OLD_CHECK_DISPLAY_AS_DATA(proto_rtmp, pd, offset, fd, tree);
+
   if (!BYTES_ARE_IN_FRAME(offset, 3)) {
     old_dissect_data(pd, offset, fd, tree);
     return;
@@ -292,6 +294,8 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint op, count;
   int i;
 
+  OLD_CHECK_DISPLAY_AS_DATA(proto_nbp, pd, offset, fd, tree);
+
   if (!BYTES_ARE_IN_FRAME(offset, 2)) {
     old_dissect_data(pd, offset, fd, tree);
     return;
@@ -369,6 +373,8 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *ddp_tree;
   proto_item *ti;
   static struct atalk_ddp_addr src, dst;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_ddp, pd, offset, fd, tree);
 
   if (!BYTES_ARE_IN_FRAME(offset, DDP_HEADER_SIZE)) {
     old_dissect_data(pd, offset, fd, tree);

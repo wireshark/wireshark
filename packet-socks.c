@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.9 2000/08/11 13:34:59 deniel Exp $
+ * $Id: packet-socks.c,v 1.10 2000/08/13 14:09:01 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -954,6 +954,7 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	socks_hash_entry_t *hash_info;
 	conversation_t *conversation;
 	
+	OLD_CHECK_DISPLAY_AS_DATA(proto_socks, pd, offset, fd, tree);
 
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
 		pi.srcport, pi.destport);

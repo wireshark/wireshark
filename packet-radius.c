@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.16 2000/08/07 03:21:03 guy Exp $
+ * $Id: packet-radius.c,v 1.17 2000/08/13 14:08:35 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -679,6 +679,8 @@ proto_tree
 	  dissect_diameter(pd, offset, fd, tree);
 	  return;
   }
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_radius, pd, offset, fd, tree);
 
   memcpy(&rh,&pd[offset],sizeof(e_radiushdr));
 

@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.8 2000/08/07 03:21:20 guy Exp $
+ * $Id: packet-who.c,v 1.9 2000/08/13 14:09:09 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,6 +101,8 @@ dissect_who(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_item	*who_ti = NULL;
 	gchar		server_name[33];
 	double		loadav_5 = 0.0, loadav_10 = 0.0, loadav_15 = 0.0;
+
+        OLD_CHECK_DISPLAY_AS_DATA(proto_who, pd, offset, fd, tree);
 
 	/* Summary information */
 	if (check_col(fd, COL_PROTOCOL))

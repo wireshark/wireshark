@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.19 2000/08/07 03:20:41 guy Exp $
+ * $Id: packet-ipsec.c,v 1.20 2000/08/13 14:08:17 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,6 +153,8 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     struct newah ah;
     int advance;
 
+    OLD_CHECK_DISPLAY_AS_DATA(proto_ah, pd, offset, fd, tree);
+
     memcpy(&ah, (void *) &pd[offset], sizeof(ah)); 
     advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
 
@@ -210,6 +212,8 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     proto_item *ti;
     struct newesp esp;
 
+    OLD_CHECK_DISPLAY_AS_DATA(proto_esp, pd, offset, fd, tree);
+
     memcpy(&esp, (void *) &pd[offset], sizeof(esp)); 
 
     /*
@@ -247,6 +251,8 @@ dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     proto_item *ti;
     struct ipcomp ipcomp;
     char *p;
+
+    OLD_CHECK_DISPLAY_AS_DATA(proto_ipcomp, pd, offset, fd, tree);
 
     memcpy(&ipcomp, (void *) &pd[offset], sizeof(ipcomp)); 
 

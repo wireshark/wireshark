@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.7 2000/08/07 03:21:19 guy Exp $
+ * $Id: packet-vrrp.c,v 1.8 2000/08/13 14:09:08 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,6 +99,8 @@ dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         gboolean short_hdr = FALSE;
         gboolean short_packet = FALSE;
         guint calculated_len = -1; /* initialize to silence false warning from gcc */
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_vrrp, pd, offset, fd, tree);
 
         if (sizeof(struct vrrp_header) > END_OF_FRAME)
                 short_hdr = short_packet = TRUE;

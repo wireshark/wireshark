@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.16 2000/08/07 03:20:34 guy Exp $
+ * $Id: packet-giop.c,v 1.17 2000/08/13 14:08:11 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -213,6 +213,9 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   LocateReplyHeader locate_rep;
   LocateRequestHeader locate_req;
   int i;
+
+  if (!proto_is_protocol_enabled(proto_giop))
+    return FALSE;
 
 #define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE)
 

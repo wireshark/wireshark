@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.15 2000/08/07 03:21:07 guy Exp $
+ * $Id: packet-rtsp.c,v 1.16 2000/08/13 14:08:43 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,6 +148,8 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 	u_char		c;
 	int		is_sdp = 0;
 	int		end_offset;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_rtsp, pd, offset, fd, tree);
 
 	data = &pd[offset];
 	dataend = data + END_OF_FRAME;

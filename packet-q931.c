@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.16 2000/05/31 05:07:31 guy Exp $
+ * $Id: packet-q931.c,v 1.17 2000/08/13 14:08:38 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2066,6 +2066,8 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		info_element_len;
 	int		codeset;
 	gboolean	non_locking_shift;
+
+	CHECK_DISPLAY_AS_DATA(proto_q931, tvb, pinfo, tree);
 
 	pinfo->current_proto = "Q.931";
 

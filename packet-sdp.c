@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.8 2000/05/31 05:07:40 guy Exp $
+ * $Id: packet-sdp.c,v 1.9 2000/08/13 14:08:46 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,8 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 	const u_char	*value;
 	int		valuelen;
 	const char	*typename;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_sdp, pd, offset, fd, tree);
 
 	data = &pd[offset];
 	dataend = data + END_OF_FRAME;

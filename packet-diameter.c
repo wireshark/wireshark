@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.4 2000/08/07 03:20:28 guy Exp $
+ * $Id: packet-diameter.c,v 1.5 2000/08/13 14:08:08 deniel Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -500,6 +500,7 @@ void dissect_diameter(const u_char *pd, int offset, frame_data *fd,
   
   gchar *codestrval;
   
+  OLD_CHECK_DISPLAY_AS_DATA(proto_diameter, pd, offset, fd, tree);
   
   if (gbl_commandCodeInHeader) 
     hdrlength=sizeof(e_diameterhdr);

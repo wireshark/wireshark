@@ -3,7 +3,7 @@
  *
  * Jason Lango <jal@netapp.com>
  *
- * $Id: packet-rtcp.c,v 1.3 2000/05/31 05:07:37 guy Exp $
+ * $Id: packet-rtcp.c,v 1.4 2000/08/13 14:08:43 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -421,6 +421,8 @@ void
 dissect_rtcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	int		end_offset;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_rtcp, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "RTCP");

@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.44 2000/08/07 03:20:53 guy Exp $
+ * $Id: packet-nbns.c,v 1.45 2000/08/13 14:08:30 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1133,6 +1133,8 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	guint16			id, flags, quest, ans, auth, add;
 	int			cur_off;
 
+	OLD_CHECK_DISPLAY_AS_DATA(proto_nbns, pd, offset, fd, tree);
+
 	nbns_data_offset = offset;
 
 	if (check_col(fd, COL_PROTOCOL))
@@ -1292,6 +1294,8 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
 	int name_type;
 	int len;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_nbdgm, pd, offset, fd, tree);
 
 	header.msg_type = pd[offset];
 	
@@ -1585,6 +1589,8 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	int		len;
 	int		max_data;
 	int		is_cifs;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_nbss, pd, offset, fd, tree);
 
 	msg_type = pd[offset];
 

@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.9 2000/08/07 03:20:27 guy Exp $
+ * $Id: packet-ddtp.c,v 1.10 2000/08/13 14:08:08 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,6 +102,8 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *ddtp_tree;
     proto_item *ti;
+
+    CHECK_DISPLAY_AS_DATA(proto_ddtp, tvb, pinfo, tree);
 
     pinfo->current_proto = "DDTP";
     if (check_col(pinfo->fd, COL_PROTOCOL)) {

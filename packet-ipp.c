@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.11 2000/08/07 03:20:41 guy Exp $
+ * $Id: packet-ipp.c,v 1.12 2000/08/13 14:08:17 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,6 +166,8 @@ void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	gboolean is_request = (pi.destport == 631);
 	guint16 status_code;
 	gchar *status_fmt;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_ipp, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "IPP");

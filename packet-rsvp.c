@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.26 2000/08/11 13:35:04 deniel Exp $
+ * $Id: packet-rsvp.c,v 1.27 2000/08/13 14:07:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -846,6 +846,8 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     int offset2;
     struct e_in6_addr *ip6a;
     guint32 ip_addr;
+
+    OLD_CHECK_DISPLAY_AS_DATA(proto_rsvp, pd, offset, fd, tree);
 
     hdr = (rsvp_header *)&pd[offset];
     packet_type = match_strval(hdr->message_type, message_type_vals);

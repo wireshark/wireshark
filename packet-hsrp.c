@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.6 2000/08/07 03:20:36 guy Exp $
+ * $Id: packet-hsrp.c,v 1.7 2000/08/13 14:08:12 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,6 +92,8 @@ dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         struct hsrp_packet hsrp;
         gboolean short_packet = FALSE;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_hsrp, pd, offset, fd, tree);
 
         if (sizeof(struct hsrp_packet) > END_OF_FRAME)
                 short_packet = TRUE;

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.12 2000/08/07 03:20:26 guy Exp $
+ * $Id: packet-clnp.c,v 1.13 2000/08/13 14:08:05 deniel Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1510,6 +1510,7 @@ static gboolean dissect_ositp_internal(const u_char *pd, int offset,
 void dissect_ositp(const u_char *pd, int offset, frame_data *fd,
 		  proto_tree *tree) 
 {
+  OLD_CHECK_DISPLAY_AS_DATA(proto_cotp, pd, offset, fd, tree);
   if (!dissect_ositp_internal(pd, offset, fd, tree, FALSE))
     old_dissect_data(pd, offset, fd, tree);
 }
@@ -1533,6 +1534,8 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   guint16 segment_length;
   guint16 segment_offset = 0;
   guint len;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_clnp, pd, offset, fd, tree);
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "CLNP");

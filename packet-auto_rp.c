@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.7 2000/08/07 03:20:23 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.8 2000/08/13 14:08:02 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -122,6 +122,8 @@ static void dissect_auto_rp(const u_char *pd, int offset, frame_data *fd, proto_
 {
         struct auto_rp_fixed_hdr arh;
         gboolean short_hdr = FALSE;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_auto_rp, pd, offset, fd, tree);
 
         if (sizeof(struct auto_rp_fixed_hdr) > END_OF_FRAME)
                 short_hdr = TRUE;

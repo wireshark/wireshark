@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.9 2000/08/07 03:21:24 guy Exp $
+ * $Id: packet-yhoo.c,v 1.10 2000/08/13 14:09:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,6 +110,10 @@ dissect_yhoo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree      *yhoo_tree, *ti;
 	struct yahoo_rawpacket *pkt;
 
+	if (!proto_is_protocol_enabled(proto_yhoo)) {
+		return FALSE;
+	}
+  
 	if (pi.srcport != TCP_PORT_YHOO && pi.destport != TCP_PORT_YHOO) {
 		/* Not the Yahoo port - not a Yahoo Messenger packet. */
 		return FALSE;

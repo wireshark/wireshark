@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.35 2000/08/08 06:19:51 girlich Exp $
+ * $Id: packet-rpc.c,v 1.36 2000/08/13 14:07:54 deniel Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1041,6 +1041,9 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	static address null_address = { AT_NONE, 0, NULL };
 
 	dissect_function_t *dissect_function = NULL;
+
+	if (!proto_is_protocol_enabled(proto_rpc))
+	  return FALSE;
 
 	/* TCP uses record marking */
 	use_rm = (pi.ptype == PT_TCP);

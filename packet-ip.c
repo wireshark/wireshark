@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.101 2000/08/11 13:35:20 deniel Exp $
+ * $Id: packet-ip.c,v 1.102 2000/08/13 14:08:16 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -827,6 +827,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint8     nxt;
   guint16    ipsum;
 
+  OLD_CHECK_DISPLAY_AS_DATA(proto_ip, pd, offset, fd, tree);
+
   /* To do: check for errs, etc. */
   if (!BYTES_ARE_IN_FRAME(offset, IPH_MIN_LEN)) {
     old_dissect_data(pd, offset, fd, tree);
@@ -1006,6 +1008,8 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
   int        i;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_icmp, pd, offset, fd, tree);
 
   /* Avoids alignment problems on many architectures. */
   memcpy(&ih, &pd[offset], sizeof(e_icmp));
@@ -1207,6 +1211,8 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *igmp_tree;
   proto_item *ti;
   gchar      *type_str;
+
+  CHECK_DISPLAY_AS_DATA(proto_igmp, tvb, pinfo, tree);
 
   pinfo->current_proto = "IGMP";
   if (check_col(pinfo->fd, COL_PROTOCOL))

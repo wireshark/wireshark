@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.10 2000/05/31 05:07:30 guy Exp $
+ * $Id: packet-q2931.c,v 1.11 2000/08/13 14:08:42 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1987,6 +1987,8 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		info_element_len;
 	int		codeset;
 	gboolean	non_locking_shift;
+
+	CHECK_DISPLAY_AS_DATA(proto_q2931, tvb, pinfo, tree);
 
 	pinfo->current_proto = "Q.2931";
 

@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.39 2000/08/07 03:20:54 guy Exp $
+ * $Id: packet-ncp.c,v 1.40 2000/08/13 14:08:31 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -258,6 +258,8 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16				nw_connection;
 	int				hdr_offset = 0;
 	int				commhdr;
+
+	CHECK_DISPLAY_AS_DATA(proto_ncp, tvb, pinfo, tree);
 
 	pinfo->current_proto = "NCP";
 	if (check_col(pinfo->fd, COL_PROTOCOL))

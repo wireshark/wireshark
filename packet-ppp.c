@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.38 2000/08/07 03:21:00 guy Exp $
+ * $Id: packet-ppp.c,v 1.39 2000/08/13 14:08:38 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1046,6 +1046,8 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int         first, last;
   tvbuff_t	*next_tvb;
 
+  CHECK_DISPLAY_AS_DATA(proto_mp, tvb, pinfo, tree);
+
   flags = tvb_get_guint8(tvb, 0);
   first = flags && MP_FRAG_FIRST;
   last  = flags && MP_FRAG_LAST;
@@ -1122,6 +1124,8 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   int        proto_offset;
   tvbuff_t   *next_tvb;
   guint8     byte0;
+
+  CHECK_DISPLAY_AS_DATA(proto_ppp, tvb, pinfo, tree);
 
   pinfo->current_proto = "PPP";
   byte0 = tvb_get_guint8(tvb, 0);

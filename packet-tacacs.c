@@ -1,7 +1,7 @@
 /* packet-tacacs.c
  * Routines for cisco tacacs/tacplus/AAA packet dissection
  *
- * $Id: packet-tacacs.c,v 1.6 2000/08/07 03:21:15 guy Exp $
+ * $Id: packet-tacacs.c,v 1.7 2000/08/13 14:09:05 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,8 @@ static void
 dissect_tacacs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *tacacs_tree, *ti;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_tacacs, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "TACACS");

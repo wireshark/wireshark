@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.13 2000/08/07 03:21:07 guy Exp $
+ * $Id: packet-rx.c,v 1.14 2000/08/13 14:08:44 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,6 +102,8 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree      *rx_tree, *rx_tree_flags, *rx_flags, *ti;
 	struct rx_header *rxh;
 	int reply;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_rx, pd, offset, fd, tree);
 
 	rxh = (struct rx_header *) &pd[offset];
 

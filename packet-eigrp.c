@@ -1,6 +1,6 @@
 /* packet-eigrp.c
  *
- * $Id: packet-eigrp.c,v 1.5 2000/08/07 03:20:29 guy Exp $
+ * $Id: packet-eigrp.c,v 1.6 2000/08/13 14:08:09 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,6 +91,8 @@ dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *eigrp_tree;
   proto_item *ti;
   guint16    cksum;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_eigrp, pd, offset, fd, tree);
 
   /* Avoids alignment problems on many architectures. */
   memcpy(&ih, &pd[offset], sizeof(e_eigrp));

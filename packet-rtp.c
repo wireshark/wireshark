@@ -3,7 +3,7 @@
  *
  * Jason Lango <jal@netapp.com>
  *
- * $Id: packet-rtp.c,v 1.4 2000/05/31 05:07:37 guy Exp $
+ * $Id: packet-rtp.c,v 1.5 2000/08/13 14:08:43 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,6 +83,8 @@ dissect_rtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	int		ii;
 	guint32		*csrc_ptr;
 	rtp_hdr_ext_t	ext;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_rtp, pd, offset, fd, tree);
 
 	data = &pd[offset];
 	dataend = data + END_OF_FRAME;

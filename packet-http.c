@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.20 2000/08/07 03:20:36 guy Exp $
+ * $Id: packet-http.c,v 1.21 2000/08/13 14:08:12 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,6 +71,8 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	int		linelen;
 	u_char		c;
 	http_type_t     http_type = HTTP_OTHERS;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_http, pd, offset, fd, tree);
 
 	data = &pd[offset];
 	dataend = data + END_OF_FRAME;

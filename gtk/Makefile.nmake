@@ -35,6 +35,7 @@ OBJECTS=capture_dlg.obj \
 	print_dlg.obj \
 	print_prefs.obj  \
 	progress_dlg.obj \
+	proto_dlg.obj \
 	proto_draw.obj \
 	simple_dialog.obj \
 	stream_prefs.obj \

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.45 2000/08/07 03:21:17 guy Exp $
+ * $Id: packet-tr.c,v 1.46 2000/08/13 14:09:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -326,6 +326,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
+
+	CHECK_DISPLAY_AS_DATA(proto_tr, tvb, pinfo, tree);
 
 	pinfo->current_proto = "Token-Ring";
 

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.39 2000/08/11 13:34:36 deniel Exp $
+ * $Id: proto.h,v 1.40 2000/08/13 14:03:38 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,21 @@ struct value_string;
 
 /* ... and similarly, */
 #define TFS(x)	(struct true_false_string*)(x)
+
+/* check protocol activation */
+#define OLD_CHECK_DISPLAY_AS_DATA(index, pd, offset, fd, tree) {\
+	if (!proto_is_protocol_enabled(index)) {		\
+		old_dissect_data(pd, offset, fd, tree);		\
+		return;						\
+	}							\
+  }
+
+#define CHECK_DISPLAY_AS_DATA(index, tvb, pinfo, tree) {	\
+	if (!proto_is_protocol_enabled(index)) {		\
+		dissect_data(tvb, pinfo, tree);			\
+		return;						\
+	}							\
+  }
 
 /* field types */
 enum ftenum {
@@ -483,6 +498,12 @@ int proto_registrar_get_parent(int n);
 
 /* Is item #n a protocol? */
 gboolean proto_registrar_is_protocol(int n);
+
+/* Is item #n decoding enabled ? */
+gboolean proto_is_protocol_enabled(int n);
+
+/* Enable / Disable protocol */
+void proto_set_decoding(int n, gboolean enabled);
 
 /* Get length of registered field according to field type.
  * 0 means undeterminable at registration time.

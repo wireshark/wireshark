@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.12 2000/06/21 04:41:30 guy Exp $
+ * $Id: packet-afs.c,v 1.13 2000/08/13 14:07:56 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -727,6 +727,8 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	struct afs_request_val *request_val;
 	void (*dissector)(const u_char *pd, int offset,
 		frame_data *fd, proto_tree *tree, int opcode);
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_afs, pd, offset, fd, tree);
 
 	rxh = (struct rx_header *) &pd[offset];
 	doffset = offset + sizeof(struct rx_header);

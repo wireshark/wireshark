@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.11 2000/08/07 03:20:35 guy Exp $
+ * $Id: packet-h1.c,v 1.12 2000/08/13 14:08:11 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,6 +113,9 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   unsigned int position = 3;
   unsigned int offset=0;
+
+  if (!proto_is_protocol_enabled(proto_h1))
+    return FALSE;
 
   if (!(tvb_get_guint8(tvb,offset) == 'S' && tvb_get_guint8(tvb,offset+1) == '5')) {
     return FALSE;

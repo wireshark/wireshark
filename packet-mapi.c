@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.8 2000/08/07 03:20:51 guy Exp $
+ * $Id: packet-mapi.c,v 1.9 2000/08/13 14:08:27 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,8 @@ static void
 dissect_mapi(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *mapi_tree, *ti;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_mapi, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "MAPI");

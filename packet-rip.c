@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.17 2000/08/07 03:21:04 guy Exp $
+ * $Id: packet-rip.c,v 1.18 2000/08/13 14:08:42 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,8 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     static char *packet_type[8] = { "never used", "Request", "Response", 
     "Traceon", "Traceoff", "Vendor specific (Sun)" };
     static char *version[3] = { "RIP", "RIPv1", "RIPv2" };
+
+    OLD_CHECK_DISPLAY_AS_DATA(proto_rip, pd, offset, fd, tree);
 
     /* avoid alignment problem */
     memcpy(&rip_header, &pd[offset], sizeof(rip_header));

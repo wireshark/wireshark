@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.2 2000/08/12 12:56:23 deniel Exp $
+ * $Id: packet-rsh.c,v 1.3 2000/08/13 14:08:43 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,8 @@ dissect_rsh(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	const u_char	*data, *dataend;
 	const u_char	*lineend, *eol;
 	int		linelen;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_rsh, pd, offset, fd, tree);
 
 	data = &pd[offset];
 	dataend = data + END_OF_FRAME;

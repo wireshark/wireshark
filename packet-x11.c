@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.10 2000/08/07 03:21:20 guy Exp $
+ * $Id: packet-x11.c,v 1.11 2000/08/13 14:09:11 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -2919,6 +2919,9 @@ dissect_x11_event(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 static void
 dissect_x11(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
+
+      OLD_CHECK_DISPLAY_AS_DATA(proto_x11, pd, offset, fd, tree);
+
       pi.current_proto = "X11";
       if (pi.destport == TCP_PORT_X11 || pi.destport == TCP_PORT_X11_2 || pi.destport == TCP_PORT_X11_3)
 	    dissect_x11_request(pd, offset, fd, tree);

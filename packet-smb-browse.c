@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.4 2000/05/31 05:07:40 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.5 2000/08/13 14:08:48 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -149,6 +149,9 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
   proto_item           *ti, *ec;
   guint32              loc_offset = DataOffset, count = 0;
   int                  i;
+
+  if (!proto_is_protocol_enabled(proto_smb_browse))
+    return 0;
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "BROWSER");

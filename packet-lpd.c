@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.21 2000/08/07 03:20:51 guy Exp $
+ * $Id: packet-lpd.c,v 1.22 2000/08/13 14:08:27 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,8 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		"Queue temporarily full, retry later",
 		"Bad job format, do not retry"
 	};
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_lpd, pd, offset, fd, tree);
 
 	/* rfc1179 states that all responses are 1 byte long */
 	if (END_OF_FRAME == 1) {

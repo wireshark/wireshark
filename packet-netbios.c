@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.21 2000/08/07 03:20:55 guy Exp $
+ * $Id: packet-netbios.c,v 1.22 2000/08/13 14:08:32 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -973,6 +973,8 @@ static void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 
 /* Find NetBIOS marker EFFF, this is done because I have seen an extra LLC */
 /* byte on our network. This only checks for one extra LLC byte. */
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_netbios, pd, offset, fd, tree);
 
 	if (( pd[offset + 2] != 0xff) || ( pd[offset + 3] != 0xef)){
 		++offset;

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.9 2000/08/07 03:21:08 guy Exp $
+ * $Id: packet-sap.c,v 1.10 2000/08/13 14:08:44 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -136,6 +136,8 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
         proto_item *si, *sif;
         proto_tree *sap_tree, *sap_flags_tree;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_sap, pd, offset, fd, tree);
 
         is_ipv6 = pd[offset]&MCAST_SAP_BIT_A;
         is_del = pd[offset]&MCAST_SAP_BIT_T;

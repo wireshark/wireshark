@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.8 2000/08/11 13:35:07 deniel Exp $
+ * $Id: packet-rlogin.c,v 1.9 2000/08/13 14:08:37 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -364,6 +364,8 @@ dissect_rlogin(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	guint8 *Ptr;
 	rlogin_hash_entry_t *hash_info = 0;
 	conversation_t *conversation;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_rlogin, pd, offset, fd, tree);
 
 						/* Lookup this connection*/
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,

@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.22 2000/08/07 03:20:52 guy Exp $
+ * $Id: packet-nbipx.c,v 1.23 2000/08/13 14:08:30 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -116,6 +116,8 @@ void
 dissect_nbipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	int	max_data = pi.captured_len - offset;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_nbipx, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "NBIPX");

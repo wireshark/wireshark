@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.8 2000/08/07 03:20:51 guy Exp $
+ * $Id: packet-mpls.c,v 1.9 2000/08/13 14:08:29 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,6 +133,8 @@ dissect_mpls(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     proto_tree  *mpls_tree;
     proto_item  *ti;
+
+    OLD_CHECK_DISPLAY_AS_DATA(proto_mpls, pd, offset, fd, tree);
 
     if (check_col(fd, COL_PROTOCOL)) {
 	col_add_str(fd,COL_PROTOCOL, "MPLS");

@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.17 2000/06/12 08:47:34 guy Exp $
+ * $Id: packet-portmap.c,v 1.18 2000/08/13 14:07:55 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,6 +65,10 @@ int dissect_getport_call(const u_char *pd, int offset, frame_data *fd,
 {
 	guint32 proto;
 	guint32 prog;
+
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
+
 	if ( !BYTES_ARE_IN_FRAME(offset, 16)) return offset;
 
 	if ( tree )
@@ -90,6 +94,9 @@ int dissect_getport_call(const u_char *pd, int offset, frame_data *fd,
 int dissect_getport_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
+
 	if ( !BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	if ( tree )
 	{
@@ -105,6 +112,10 @@ int dissect_set_call(const u_char *pd, int offset, frame_data *fd,
 {
 	guint32 proto;
 	guint32 prog;
+
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
+
 	if ( !BYTES_ARE_IN_FRAME(offset, 16)) return offset;
 
 	if ( tree )
@@ -133,6 +144,10 @@ int dissect_unset_call(const u_char *pd, int offset, frame_data *fd,
 {
 	guint32 proto;
 	guint32 prog;
+
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
+
 	if ( !BYTES_ARE_IN_FRAME(offset, 16)) return offset;
 
 	if ( tree )
@@ -158,6 +173,9 @@ int dissect_unset_call(const u_char *pd, int offset, frame_data *fd,
 int dissect_set_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
+
 	if ( tree )
 	{
 		if ( !BYTES_ARE_IN_FRAME(offset, 4)) return offset;
@@ -174,6 +192,9 @@ dissect_dump_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 {
 	int prog, version, proto, port;
 	proto_item *ti, *subtree;
+
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
 
 	if ( ! BYTES_ARE_IN_FRAME(offset, 16) )
 	{
@@ -211,6 +232,9 @@ dissect_dump_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 int dissect_dump_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
+
 	offset = dissect_rpc_list(pd, offset, fd, tree, dissect_dump_entry);
 	return offset;
 }
@@ -296,6 +320,9 @@ dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 int dissect_rpcb3_getaddr_call(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
+
 	offset = dissect_rpcb(pd, offset, fd, tree);
 
 	return offset;
@@ -306,6 +333,9 @@ int dissect_rpcb3_getaddr_call(const u_char *pd, int offset, frame_data *fd,
 int dissect_rpcb3_getaddr_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
+
 	offset = dissect_rpc_string(pd, offset, fd, tree, hf_portmap_uaddr,NULL);
 
 	return offset;
@@ -316,6 +346,9 @@ int dissect_rpcb3_getaddr_reply(const u_char *pd, int offset, frame_data *fd,
 int dissect_rpcb3_dump_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
+	if (!proto_is_protocol_enabled(proto_portmap))
+	  return offset;
+
 	offset = dissect_rpc_list(pd, offset, fd, tree, dissect_rpcb);
 	return offset;
 }

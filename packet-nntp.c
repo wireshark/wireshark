@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.11 2000/08/07 03:20:56 guy Exp $
+ * $Id: packet-nntp.c,v 1.12 2000/08/13 14:08:31 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,6 +58,8 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	const u_char	*lineend, *eol;
 	int		linelen;
 	int		max_data = pi.captured_len - offset;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_nntp, pd, offset, fd, tree);
 
 	data = &pd[offset];
 	dataend = data + END_OF_FRAME;

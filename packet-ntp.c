@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.15 2000/08/11 13:35:09 deniel Exp $
+ * $Id: packet-ntp.c,v 1.16 2000/08/13 14:08:25 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -235,6 +235,8 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	struct ntp_packet *pkt;
 	gchar buff[NTP_TS_SIZE];
 	int i;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_ntp, pd, offset, fd, tree);
 
 	/* get at least a full packet structure */
 	if ( !BYTES_ARE_IN_FRAME(offset, 48) ) /* 48 without keyid or mac */

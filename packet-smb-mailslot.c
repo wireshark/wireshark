@@ -2,7 +2,7 @@
  * Routines for smb mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.5 2000/05/31 05:07:41 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.6 2000/08/13 14:08:49 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,12 +71,14 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
 
 /* decode the SMB mail slot protocol */
 
-
    	proto_tree      *smb_msp_tree = 0;
    	proto_item      *ti;
 
    	guint16  Temp16; 
    	const char *StrPtr;
+
+	if (!proto_is_protocol_enabled(proto_smb_msp))
+	  return 0;
    
  /* do the Op code field */
  

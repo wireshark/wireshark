@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.17 2000/08/07 03:21:10 guy Exp $
+ * $Id: packet-sna.c,v 1.18 2000/08/13 14:08:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -309,6 +309,8 @@ dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_item	*sna_ti = NULL, *th_ti = NULL, *rh_ti = NULL;
 	guint8		th_fid;
 	int		sna_header_len = 0, th_header_len = 0;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_sna, pd, offset, fd, tree);
 
 	/* SNA data should be printed in EBCDIC, not ASCII */
 	fd->flags.encoding = CHAR_EBCDIC;

@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.16 2000/08/11 13:35:08 deniel Exp $
+ * $Id: packet-pim.c,v 1.17 2000/08/13 14:08:37 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,6 +192,8 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_item *ti; 
     proto_tree *pimopt_tree = NULL;
 	proto_item *tiopt; 
+
+    OLD_CHECK_DISPLAY_AS_DATA(proto_pim, pd, offset, fd, tree);
 
     /* avoid alignment problem */
     memcpy(&pim, &pd[offset], sizeof(pim));

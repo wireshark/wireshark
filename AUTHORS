@@ -42,6 +42,7 @@ Laurent Deniel       <deniel@worldnet.fr> {
     Many display filters added
     GUI enhancements (about & help windows)
     Follow TCP stream for IPv6
+    Protocol activation/deactivation (Edit:protocols)
     Miscellaneous enhancements and fixes
 }
 

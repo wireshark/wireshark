@@ -2,7 +2,7 @@
  * Routines for ICP (internet cache protocol) packet disassembly
  * RFC 2186 && RFC 2187
  *
- * $Id: packet-icp.c,v 1.10 2000/08/07 03:20:38 guy Exp $
+ * $Id: packet-icp.c,v 1.11 2000/08/13 14:08:14 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -180,6 +180,8 @@ static void dissect_icp(const u_char *pd, int offset, frame_data *fd,
   e_icphdr icph;
 
   gchar *opcodestrval;
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_icp, pd, offset, fd, tree);
 
 /* TBD: check if this is a fragment or first part of udp packet */
   icph.opcode=pd[offset];

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.26 2000/08/07 03:20:58 guy Exp $
+ * $Id: packet-ospf.c,v 1.27 2000/08/13 14:08:36 deniel Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -97,6 +97,8 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
                                       {OSPF_LS_UPD,  "LS Update"      },
                                       {OSPF_LS_ACK,  "LS Acknowledge" },
                                       {0,             NULL            } };
+
+    OLD_CHECK_DISPLAY_AS_DATA(proto_ospf, pd, offset, fd, tree);
 
     memcpy(&ospfh, &pd[offset], sizeof(e_ospfhdr));
 

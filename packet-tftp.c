@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.12 2000/05/31 05:07:50 guy Exp $
+ * $Id: packet-tftp.c,v 1.13 2000/08/13 14:09:05 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,6 +84,8 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree	*tftp_tree;
 	proto_item	*ti;
 	u_int           i1;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_tftp, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "TFTP");

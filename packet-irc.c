@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for MSX irc packet dissection
  *
- * $Id: packet-irc.c,v 1.7 2000/08/07 03:20:45 guy Exp $
+ * $Id: packet-irc.c,v 1.8 2000/08/13 14:08:18 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,8 @@ dissect_irc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	char *tmpline;
 	int start, cur, len;
 	const u_char *i;
+
+	OLD_CHECK_DISPLAY_AS_DATA(proto_irc, pd, offset, fd, tree);
 
 	if (check_col(fd, COL_PROTOCOL))
 	col_add_str(fd, COL_PROTOCOL, "IRC");
