@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.34 1999/10/17 14:15:06 deniel Exp $
+ * $Id: dfilter-grammar.y,v 1.35 1999/10/17 20:54:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,7 +153,6 @@ dfilter *global_df = NULL;
 
 %token <string>	 	T_VAL_UNQUOTED_STRING
 %token <string>		T_VAL_BYTE_STRING
-%token <string>		T_VAL_NUMBER_STRING
 %token <byte_range>	T_VAL_BYTE_RANGE
 
 %token <operand>	TOK_AND TOK_OR TOK_NOT TOK_XOR
@@ -288,7 +287,7 @@ relation:	numeric_variable numeric_relation numeric_value
 	;
 
 
-numeric_value:	T_VAL_NUMBER_STRING
+numeric_value:	T_VAL_UNQUOTED_STRING
 	{
 		$$ = dfilter_mknode_numeric_value(string_to_value($1));
 		g_free($1);
@@ -305,7 +304,7 @@ ether_value:	T_VAL_BYTE_STRING
 	}
 	;
 
-ipxnet_value:	T_VAL_NUMBER_STRING
+ipxnet_value:	T_VAL_UNQUOTED_STRING
 	{
 		$$ = dfilter_mknode_ipxnet_value(string_to_value($1));
 		g_free($1);
@@ -360,7 +359,7 @@ bytes_value:	T_VAL_BYTE_STRING
 		g_free($1);
 	}
 
-	|	T_VAL_NUMBER_STRING
+	|	T_VAL_UNQUOTED_STRING
 	{
 		guint32		val32 = string_to_value($1);
 		guint8		val8;
