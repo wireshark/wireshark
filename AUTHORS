@@ -56,6 +56,8 @@ Guy Harris           <guy@netapp.com> {
     IP and TCP option decoding
     HTTP support
     NNTP support
+    ATM and LANE decoding
+    Q.931 decoding
     Miscellaneous enhancements and fixes
 }
 

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.133 1999/11/11 05:36:05 gram Exp $
+ * $Id: packet.h,v 1.134 1999/11/11 08:35:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -416,6 +416,7 @@ enum {
 	ETT_LAPD_ADDRESS,
 	ETT_X25,
 	ETT_XDLC_CONTROL,
+	ETT_Q931,
 	ETT_ATM,
 	ETT_ATM_LANE,
 	ETT_ATM_LANE_LC_FLAGS,
@@ -612,6 +613,7 @@ void dissect_icq(const u_char *,int, frame_data *, proto_tree *);
 void dissect_imap(const u_char *,int, frame_data *, proto_tree *);
 void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pim(const u_char *, int, frame_data *, proto_tree *);
+void dissect_q931(const u_char *, int, frame_data *, proto_tree *);
 void dissect_radius(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ripng(const u_char *, int, frame_data *, proto_tree *);

@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.1 1999/11/11 05:36:05 gram Exp $
+ * $Id: packet-lapd.c,v 1.2 1999/11/11 08:35:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,12 +54,27 @@ int hf_lapd_tei = -1;
 int hf_lapd_ea2 = -1;
 int hf_lapd_control = -1;
 
+/*
+ * Bits in the address field.
+ */
+#define	LAPD_SAPI	0xfc00	/* Service Access Point Identifier */
+#define	LAPD_SAPI_SHIFT	10
+#define	LAPD_CR		0x0200	/* Command/Response bit */
+#define	LAPD_EA1	0x0100	/* First Address Extension bit */
+#define	LAPD_TEI	0x00fe	/* Terminal Endpoint Identifier */
+#define	LAPD_EA2	0x0001	/* Second Address Extension bit */
+
+#define	LAPD_SAPI_Q931		0	/* Q.931 call control procedure */
+#define	LAPD_SAPI_PM_Q931	1	/* Packet mode Q.931 call control procedure */
+#define	LAPD_SAPI_X25		16	/* X.25 Level 3 procedures */
+#define	LAPD_SAPI_L2		63	/* Layer 2 management procedures */
+
 static const value_string lapd_sapi_vals[] = {
-	{ 0,	"Q.931 Call control procedure" },
-	{ 1,	"Packet mode Q.931 Call control procedure" },
-	{ 16,	"X.25 Level 3 procedures" },
-	{ 63,	"Layer 2 management procedures" },
-	{ 0,	NULL }
+	{ LAPD_SAPI_Q931,	"Q.931 Call control procedure" },
+	{ LAPD_SAPI_PM_Q931,	"Packet mode Q.931 Call control procedure" },
+	{ LAPD_SAPI_X25,	"X.25 Level 3 procedures" },
+	{ LAPD_SAPI_L2,		"Layer 2 management procedures" },
+	{ 0,			NULL }
 };
 
 void
@@ -67,16 +82,20 @@ dissect_lapd(const u_char *pd, frame_data *fd, proto_tree *tree)
 {
 	proto_tree	*lapd_tree, *addr_tree;
 	proto_item	*ti;
+	guint16		control;
+	int		lapd_header_len;
 
-	guint16	address, cr;
+	guint16	address, cr, sapi;
 
 	gboolean is_response;
 
 	if (check_col(fd, COL_PROTOCOL))
-	col_add_str(fd, COL_PROTOCOL, "LAPD");
+		col_add_str(fd, COL_PROTOCOL, "LAPD");
 
 	address = pntohs(&pd[0]);
-	cr = address  & 0x0200;
+	cr = address & LAPD_CR;
+	sapi = (address & LAPD_SAPI) >> LAPD_SAPI_SHIFT;
+	lapd_header_len = 2;	/* address */
 
 	if (fd->pseudo_header.lapd.from_network_to_user) {
 		is_response = cr ? FALSE : TRUE;
@@ -111,9 +130,22 @@ dissect_lapd(const u_char *pd, frame_data *fd, proto_tree *tree)
 		lapd_tree = NULL;
 	}
 
-	dissect_xdlc_control(pd, 2, fd, lapd_tree, hf_lapd_control, is_response, TRUE);
+	control = dissect_xdlc_control(pd, 2, fd, lapd_tree, hf_lapd_control, is_response, TRUE);
+	lapd_header_len += XDLC_CONTROL_LEN(control, TRUE);
 
-	/* call next protocol */
+	if (XDLC_HAS_PAYLOAD(control)) {
+		/* call next protocol */
+		switch (sapi) {
+
+		case LAPD_SAPI_Q931:
+			dissect_q931(pd, lapd_header_len, fd, tree);
+			break;
+
+		default:
+			dissect_data(pd, lapd_header_len, fd, tree);
+			break;
+		}
+	}
 }
 
 void
@@ -125,23 +157,23 @@ proto_register_lapd(void)
 	  	"" }},
 
 	{ &hf_lapd_sapi,
-	  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_sapi_vals), 0xfc00,
+	  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_sapi_vals), LAPD_SAPI,
 	  	"Service Access Point Identifier" }},
 
 	{ &hf_lapd_cr,
-	  { "C/R", "lapd.cr", FT_UINT16, BASE_DEC, NULL, 0x0200,
+	  { "C/R", "lapd.cr", FT_UINT16, BASE_DEC, NULL, LAPD_CR,
 	  	"Command/Response bit" }},
 
 	{ &hf_lapd_ea1,
-	  { "EA1", "lapd.ea1", FT_UINT16, BASE_DEC, NULL, 0x0100,
+	  { "EA1", "lapd.ea1", FT_UINT16, BASE_DEC, NULL, LAPD_EA1,
 	  	"First Address Extension bit" }},
 
 	{ &hf_lapd_tei,
-	  { "TEI", "lapd.tei", FT_UINT16, BASE_DEC, NULL, 0x00fe,
+	  { "TEI", "lapd.tei", FT_UINT16, BASE_DEC, NULL, LAPD_TEI,
 	  	"Terminal Endpoint Identifier" }},
 
 	{ &hf_lapd_ea2,
-	  { "EA2", "lapd.ea2", FT_UINT16, BASE_DEC, NULL, 0x0001,
+	  { "EA2", "lapd.ea2", FT_UINT16, BASE_DEC, NULL, LAPD_EA2,
 	  	"Second Address Extension bit" }},
 
 	{ &hf_lapd_control,
