@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.4 2000/01/03 06:59:21 guy Exp $
+ * $Id: goto_dlg.c,v 1.5 2000/03/15 08:54:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,6 +109,9 @@ goto_frame_cb(GtkWidget *w, gpointer d)
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
   gtk_object_set_data(GTK_OBJECT(goto_frame_w), E_GOTO_FNUMBER_KEY, fnumber_te);
+
+  /* Give the initial focus to the "Frame number" entry box. */
+  gtk_widget_grab_focus(fnumber_te);
 
   gtk_widget_show(goto_frame_w);
 }

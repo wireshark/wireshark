@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.6 2000/02/12 06:46:53 guy Exp $
+ * $Id: find_dlg.c,v 1.7 2000/03/15 08:54:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -131,6 +131,9 @@ find_frame_cb(GtkWidget *w, gpointer d)
   /* Attach pointers to needed widgets to the capture prefs window/object */
   gtk_object_set_data(GTK_OBJECT(find_frame_w), E_FIND_FILT_KEY, filter_te);
   gtk_object_set_data(GTK_OBJECT(find_frame_w), E_FIND_BACKWARD_KEY, backward_rb);
+
+  /* Give the initial focus to the "Filter" entry box. */
+  gtk_widget_grab_focus(filter_te);
 
   gtk_widget_show(find_frame_w);
 }
