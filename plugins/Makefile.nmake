@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.30 2003/12/17 05:16:21 guy Exp $
+# $Id: Makefile.nmake,v 1.31 2003/12/17 18:05:27 ulfl Exp $
 #
 
 include ..\config.nmake
@@ -89,6 +89,11 @@ rtnet::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+v5ua:: 
+	cd v5ua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
 clean:
 	rm -f plugin_api.obj $(PDB_FILE)
 	cd acn
@@ -116,6 +121,8 @@ clean:
 	cd ../rdm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rtnet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
@@ -145,6 +152,8 @@ distclean: clean
 	cd ../rdm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../rtnet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 
