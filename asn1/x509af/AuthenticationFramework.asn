@@ -24,9 +24,7 @@ IMPORTS
     FROM SelectedAttributeTypes selectedAttributeTypes
   certificateExactMatch, certificatePairExactMatch, certificateListExactMatch,
     GeneralNames
-    FROM CertificateExtensions certificateExtensions
-  Any
-    FROM DummyAF;
+    FROM CertificateExtensions certificateExtensions;
 
 --  basic certificate definition
 Certificate ::= SEQUENCE {
@@ -54,7 +52,7 @@ CertificateSerialNumber ::= INTEGER
 
 AlgorithmIdentifier ::= SEQUENCE {
   algorithmId OBJECT IDENTIFIER,
-  parameters  Any OPTIONAL
+  parameters  ANY OPTIONAL
 }
 
 --	Definition of the following information object set is deferred, perhaps to standardized

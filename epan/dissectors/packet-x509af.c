@@ -8,7 +8,7 @@
 /* packet-x509af.c
  * Routines for X.509 Authentication Framework packet dissection
  *
- * $Id: packet-x509af-template.c 12437 2004-10-30 02:18:44Z sahlberg $
+ * $Id: packet-x509af-template.c 12438 2004-10-30 02:36:58Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -265,6 +265,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 static int dissect_algorithmId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_T_algorithmId(FALSE, tvb, offset, pinfo, tree, hf_x509af_algorithmId);
 }
+
 
 
 static int
