@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.28 1999/12/30 23:02:38 gram Exp $
+ * $Id: prefs.c,v 1.29 2000/01/03 06:29:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,7 +51,6 @@
 #include "prefs.h"
 #include "column.h"
 #include "print.h"
-#include "ui_util.h"
 
 /* Internal functions */
 static int    set_pref(gchar*, gchar*);
@@ -454,8 +453,8 @@ set_pref(gchar *pref, gchar *value) {
   return 1;
 }
 
-void
-write_prefs(void) {
+int
+write_prefs(char **pf_path_return) {
   FILE        *pf;
   struct stat  s_buf;
   
@@ -480,10 +479,9 @@ write_prefs(void) {
 
   sprintf(pf_path, "%s/%s/%s", getenv("HOME"), PF_DIR, PF_NAME);
   if ((pf = fopen(pf_path, "w")) == NULL) {
-     simple_dialog(ESD_TYPE_WARN, NULL,
-      "Can't open preferences file\n\"%s\".", pf_path);
-   return;
- }
+    *pf_path_return = pf_path;
+    return errno;
+  }
     
   fputs("# Configuration file for Ethereal " VERSION ".\n"
     "#\n"
@@ -551,4 +549,10 @@ write_prefs(void) {
 		  gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
 
   fclose(pf);
+
+  /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
+     an error indication, or maybe write to a new preferences file and
+     rename that file on top of the old one only if there are not I/O
+     errors. */
+  return 0;
 }

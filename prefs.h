@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.13 1999/12/30 23:02:39 gram Exp $
+ * $Id: prefs.h,v 1.14 2000/01/03 06:29:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,6 @@ typedef struct _e_prefs {
 extern e_prefs prefs;
 
 e_prefs* read_prefs(char **);
-void write_prefs(void);
+int write_prefs(char **);
 
 #endif /* prefs.h */

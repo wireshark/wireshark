@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.6 1999/12/29 05:53:48 guy Exp $
+ * $Id: prefs_dlg.c,v 1.7 2000/01/03 06:29:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 #include <gtk/gtk.h>
 
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <errno.h>
 
@@ -54,6 +55,7 @@
 #include "stream_prefs.h"
 #include "gui_prefs.h"
 #include "util.h"
+#include "ui_util.h"
 
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_save_cb(GtkWidget *, gpointer);
@@ -168,11 +170,19 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 static void
 prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
 {
+  int err;
+  char *pf_path;
+
   printer_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
   column_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
-  write_prefs();
+  err = write_prefs(&pf_path);
+  if (err != 0) {
+     simple_dialog(ESD_TYPE_WARN, NULL,
+      "Can't open preferences file\n\"%s\": %s.", pf_path,
+      strerror(err));
+  }
 }
 
 static void
