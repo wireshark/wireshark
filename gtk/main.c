@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.22 1999/10/14 01:28:48 guy Exp $
+ * $Id: main.c,v 1.23 1999/10/15 20:33:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -662,7 +662,10 @@ main(int argc, char *argv[])
     cf.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
       NUM_COL_FMTS);
     get_column_format_matches(cf.cinfo.fmt_matx[i], cf.cinfo.col_fmt[i]);
-    cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+    if (cf.cinfo.col_fmt[i] == COL_INFO)
+      cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
+    else
+      cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
   if (cf.snap < 1)

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.112 1999/10/15 17:00:47 itojun Exp $
+ * $Id: packet.h,v 1.113 1999/10/15 20:32:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,6 +93,7 @@ typedef struct _column_info {
 } column_info;
 
 #define COL_MAX_LEN 256
+#define COL_MAX_INFO_LEN 4096
 
 typedef struct _packet_counts {
   gint           tcp;

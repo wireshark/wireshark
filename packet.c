@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.49 1999/10/14 07:39:44 guy Exp $
+ * $Id: packet.c,v 1.50 1999/10/15 20:32:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -650,14 +650,38 @@ col_add_fstr(frame_data *fd, gint el, gchar *format, ...) {
 void
 col_add_str(frame_data *fd, gint el, const gchar* str) {
   int i;
-  
+  size_t max_len;
+
   for (i = 0; i < fd->cinfo->num_cols; i++) {
     if (fd->cinfo->fmt_matx[i][el]) {
-      strncpy(fd->cinfo->col_data[i], str, COL_MAX_LEN);
-      fd->cinfo->col_data[i][COL_MAX_LEN - 1] = 0;
+      if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+      else
+	max_len = COL_MAX_LEN;
+      strncpy(fd->cinfo->col_data[i], str, max_len);
+      fd->cinfo->col_data[i][max_len - 1] = 0;
     }
   }
 }
+
+void
+col_append_str(frame_data *fd, gint el, gchar* str) {
+    int i;
+    size_t len, max_len;
+
+    for (i = 0; i < fd->cinfo->num_cols; i++) {
+        if (fd->cinfo->fmt_matx[i][el]) {
+	    len = strlen(fd->cinfo->col_data[i]);
+	    if (el == COL_INFO)
+		max_len = COL_MAX_LEN;
+	    else
+		max_len = COL_MAX_INFO_LEN;
+	    strncat(fd->cinfo->col_data[i], str, max_len - len);
+	    fd->cinfo->col_data[i][max_len - 1] = 0;
+        }
+    }
+}
+	
 
 /* this routine checks the frame type from the cf structure */
 void
