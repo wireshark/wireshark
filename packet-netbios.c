@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.26 2000/11/19 08:54:00 guy Exp $
+ * $Id: packet-netbios.c,v 1.27 2000/12/03 09:47:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -991,6 +991,9 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int			name_type;
 
 	int offset = 0;
+
+	CHECK_DISPLAY_AS_DATA(proto_netbios, tvb, pinfo, tree);
+
 
 					/* load the display labels 	*/
 	pinfo->current_proto = "NetBIOS";
