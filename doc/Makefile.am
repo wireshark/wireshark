@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.8 2000/07/28 20:03:59 gram Exp $
+# $Id: Makefile.am,v 1.9 2001/03/06 18:38:47 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -22,7 +22,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-../ethereal.1: ethereal.pod
+# We include dependencies on ../config.h in order to
+# capture when $(VERSION) changes.
+
+../ethereal.1: ethereal.pod ../config.h
 	pod2man ethereal.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
@@ -31,7 +34,7 @@
 ethereal.pod: ethereal.pod.template  ../ethereal
 	../ethereal -G | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal.pod.template > ethereal.pod
 
-../tethereal.1: tethereal.pod
+../tethereal.1: tethereal.pod ../config.h
 	pod2man tethereal.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
@@ -40,7 +43,7 @@ ethereal.pod: ethereal.pod.template  ../ethereal
 tethereal.pod: tethereal.pod.template  ../tethereal
 	../tethereal -G | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/tethereal.pod.template > tethereal.pod
 
-../editcap.1: editcap.pod
+../editcap.1: editcap.pod ../config.h
 	pod2man $(srcdir)/editcap.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
