@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.366 2003/08/20 10:32:23 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.367 2003/08/21 05:42:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -278,6 +278,8 @@ static int hf_smb_data_size = -1;
 static int hf_smb_alloc_size = -1;
 static int hf_smb_alloc_size64 = -1;
 static int hf_smb_max_count = -1;
+static int hf_smb_max_count_low = -1;
+static int hf_smb_max_count_high = -1;
 static int hf_smb_min_count = -1;
 static int hf_smb_timeout = -1;
 static int hf_smb_high_offset = -1;
@@ -5254,8 +5256,8 @@ static int
 dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, datalen_low, datalen_high;
-	guint32 datalen=0;
+	guint16 andxoffset=0, bc, maxcnt_low, maxcnt_high;
+	guint32 maxcnt=0;
 	guint32 ofs = 0;
 	smb_info_t *si;
 	unsigned int fid;
@@ -5295,28 +5297,46 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* data len low */
-	datalen_low = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_data_len_low, tvb, offset, 2, datalen_low);
+	/* max count low */
+	maxcnt_low = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_max_count_low, tvb, offset, 2, maxcnt_low);
 	offset += 2;
 
 	/* min count */
 	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
-	/* data length high */
-	datalen_high = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_data_len_high, tvb, offset, 2, datalen_high);
-	offset += 2;
+	/*
+	 * max count high
+	 *
+	 * XXX - we should really only do this in case we have seen
+	 * LARGE FILE being negotiated.  Unfortunately, we might not
+	 * have seen the negotiation phase in the capture....
+	 *
+	 * XXX - this is shown as a ULONG in the SNIA SMB spec, i.e.
+	 * it's 32 bits, but the description says "High 16 bits of
+	 * MaxCount if CAP_LARGE_READX".
+	 *
+	 * The SMB File Sharing Protocol Extensions Version 2.0,
+	 * Document Version 3.3 spec doesn't speak of an extra 16
+	 * bits in max count, but it does show a 32-bit timeout
+	 * after the min count field.
+	 *
+	 * Perhaps the 32-bit timeout field was hijacked as a 16-bit
+	 * high count and a 16-bit reserved field.
+	 */
+	/* Amasingly enough, this really is 4 bytes, according to the SNIA spec */
+	maxcnt_high = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_max_count_high, tvb, offset, 4, maxcnt_high);
+	offset += 4;
 
-	datalen=datalen_high;
-	datalen=(datalen<<16)|datalen_low;
+	maxcnt=maxcnt_high;
+	maxcnt=(maxcnt<<16)|maxcnt_low;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s at offset %u", datalen,
-				(datalen == 1) ? "" : "s", ofs);
+				", %u byte%s at offset %u", maxcnt,
+				(maxcnt == 1) ? "" : "s", ofs);
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
@@ -17507,6 +17527,14 @@ proto_register_smb(void)
 	{ &hf_smb_max_count,
 		{ "Max Count", "smb.maxcount", FT_UINT16, BASE_DEC,
 		NULL, 0, "Maximum Count", HFILL }},
+
+	{ &hf_smb_max_count_low,
+		{ "Max Count Low", "smb.maxcount_high", FT_UINT16, BASE_DEC,
+		NULL, 0, "Maximum Count, Low 16 bits", HFILL }},
+
+	{ &hf_smb_max_count_high,
+		{ "Max Count High (multiply with 64K)", "smb.maxcount_high", FT_UINT16, BASE_DEC,
+		NULL, 0, "Maximum Count, High 16 bits", HFILL }},
 
 	{ &hf_smb_min_count,
 		{ "Min Count", "smb.mincount", FT_UINT16, BASE_DEC,
