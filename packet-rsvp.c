@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.85 2003/11/08 00:09:00 guy Exp $
+ * $Id: packet-rsvp.c,v 1.86 2003/11/11 20:11:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4107,6 +4107,7 @@ dissect_rsvp_detour (proto_tree *ti, tvbuff_t *tvb,
 {
     proto_tree *rsvp_object_tree;
     int remaining_length, count;
+    int iter;
 
     rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_DETOUR));
     proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
@@ -4117,6 +4118,9 @@ dissect_rsvp_detour (proto_tree *ti, tvbuff_t *tvb,
     proto_item_set_text(ti, "DETOUR: ");
     switch(type) {
     case 7:
+        iter = 0;
+        proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: %u", type);
 	for (remaining_length = obj_length - 4, count = 1;
 	     remaining_length > 0; remaining_length -= 8, count++) {
 	    if (remaining_length < 8) {
@@ -4126,12 +4130,14 @@ dissect_rsvp_detour (proto_tree *ti, tvbuff_t *tvb,
 		proto_item_append_text(ti, "Invalid length");
 		break;
 	    }
-	    proto_tree_add_text(rsvp_object_tree, tvb, offset+4+remaining_length, 4,
+	    iter++;
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset+(4*iter), 4,
 				"PLR ID %d: %s", count, 
-				ip_to_str(tvb_get_ptr(tvb, offset+4+remaining_length, 4)));
-	    proto_tree_add_text(rsvp_object_tree, tvb, offset+4+remaining_length, 4,
+				ip_to_str(tvb_get_ptr(tvb, offset+(4*iter), 4)));
+	    iter++;
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset+(4*iter), 4,
 				"Avoid Node ID %d: %s", count, 
-				ip_to_str(tvb_get_ptr(tvb, offset+4+remaining_length, 4)));
+				ip_to_str(tvb_get_ptr(tvb, offset+(4*iter), 4)));
 	}
 	break;
 
