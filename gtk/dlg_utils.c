@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.37 2004/06/01 17:33:35 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.38 2004/06/03 21:17:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -383,8 +383,6 @@ file_selection_new(const gchar *title, file_selection_action_t action)
                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                     NULL);
 
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(win), "");
-
   /* If we've opened a file before, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
@@ -404,6 +402,9 @@ file_selection_new(const gchar *title, file_selection_action_t action _U_)
 #endif
   gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
 
+  /* XXX - why are we doing this?  We don't do it with the GtkFileChooser,
+     as it complains that the file name isn't being set to an absolute
+     path; does this provoke a similar complaint? */
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(win), "");
 
   /* If we've opened a file before, start out by showing the files in the directory
