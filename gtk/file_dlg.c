@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.110 2004/06/17 22:41:29 guy Exp $
+ * $Id: file_dlg.c,v 1.111 2004/06/17 22:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -486,7 +486,7 @@ file_merge_cmd(GtkWidget *w)
 #endif
   gtk_widget_show(prepend_rb);
 
-  chrono_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Sort packets chronological", accel_group);
+  chrono_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Sort packets chronologically", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chrono_rb), TRUE);
   gtk_box_pack_start(GTK_BOX(main_vb), chrono_rb, FALSE, FALSE, 0);
   gtk_widget_show(chrono_rb);
