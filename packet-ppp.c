@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.25 2000/01/23 08:55:35 guy Exp $
+ * $Id: packet-ppp.c,v 1.26 2000/01/24 03:51:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1103,7 +1103,7 @@ dissect_mp(const u_char *pd, int offset, frame_data *fd,
 
   offset += 4;
 
-  if (fd->cap_len > offset) {
+  if (IS_DATA_IN_FRAME(offset)) {
     if (tree) {
       ti = proto_tree_add_item(tree, proto_ppp, offset, 1, NULL);
       fh_tree = proto_item_add_subtree(ti, ett_ppp);

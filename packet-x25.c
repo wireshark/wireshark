@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.14 1999/12/12 12:59:01 oabad Exp $
+ * $Id: packet-x25.c,v 1.15 2000/01/24 03:51:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1259,86 +1259,86 @@ get_x25_pkt_len(const char *data, frame_data *fd, int offset)
     int length, called_len, calling_len, dte_len, dce_len;
 
     /* packet size should always be > 3 */
-    if (fd->cap_len - offset < 3) return fd->cap_len;
+    if (!BYTES_ARE_IN_FRAME(offset, 3)) return END_OF_FRAME;
 
     switch ((guint8)data[2])
     {
     case X25_CALL_REQUEST:
-	if (fd->cap_len > offset+3) /* pkt size > 3 */
+	if (BYTES_ARE_IN_FRAME(offset, 4)) /* pkt size >= 4 */
 	{
 	    called_len  = (data[3] >> 0) & 0x0F;
 	    calling_len = (data[3] >> 4) & 0x0F;
 	    length = 4 + (called_len + calling_len + 1) / 2; /* addr */
-	    if (length+offset < fd->cap_len)
+	    if (length+offset < pi.captured_len)
 		length += (1 + data[length]); /* facilities */
 	}
-	else length = fd->cap_len - offset;
-	return MIN(fd->cap_len-offset,length);
+	else length = END_OF_FRAME;
+	return MIN(END_OF_FRAME,length);
 
     case X25_CALL_ACCEPTED:
-	if (fd->cap_len > offset+3) /* pkt size > 3 */
+	if (BYTES_ARE_IN_FRAME(offset, 4)) /* pkt size >= 4 */
 	{
 	    called_len  = (data[3] >> 0) & 0x0F;
 	    calling_len = (data[3] >> 4) & 0x0F;
 	    length = 4 + (called_len + calling_len + 1) / 2; /* addr */
-	    if (length+offset < fd->cap_len)
+	    if (length+offset < pi.captured_len)
 		length += (1 + data[length]); /* facilities */
 	}
-	else length = fd->cap_len - offset;
-	return MIN(fd->cap_len-offset,length);
+	else length = END_OF_FRAME;
+	return MIN(END_OF_FRAME,length);
 
     case X25_CLEAR_REQUEST:
     case X25_RESET_REQUEST:
     case X25_RESTART_REQUEST:
-	return MIN(fd->cap_len-offset,5);
+	return MIN(END_OF_FRAME,5);
 
     case X25_DIAGNOSTIC:
-	return MIN(fd->cap_len-offset,4);
+	return MIN(END_OF_FRAME,4);
 
     case X25_CLEAR_CONFIRMATION:
     case X25_INTERRUPT:
     case X25_INTERRUPT_CONFIRMATION:
     case X25_RESET_CONFIRMATION:
     case X25_RESTART_CONFIRMATION:
-	return MIN(fd->cap_len-offset,3);
+	return MIN(END_OF_FRAME,3);
 
     case X25_REGISTRATION_REQUEST:
-	if (fd->cap_len > offset+3) /* pkt size > 3 */
+	if (BYTES_ARE_IN_FRAME(offset, 4)) /* pkt size >= 4 */
 	{
 	    dce_len  = (data[3] >> 0) & 0x0F;
 	    dte_len = (data[3] >> 4) & 0x0F;
 	    length = 4 + (dte_len + dce_len + 1) / 2; /* addr */
-	    if (length+offset < fd->cap_len)
+	    if (length+offset < pi.captured_len)
 		length += (1 + data[length]); /* registration */
 	}
-	else length = fd->cap_len-offset;
-	return MIN(fd->cap_len-offset,length);
+	else length = END_OF_FRAME;
+	return MIN(END_OF_FRAME,length);
 
     case X25_REGISTRATION_CONFIRMATION:
-	if (fd->cap_len > offset+5) /* pkt size > 5 */
+	if (BYTES_ARE_IN_FRAME(offset, 6)) /* pkt size >= 6 */
 	{
 	    dce_len  = (data[5] >> 0) & 0x0F;
 	    dte_len = (data[5] >> 4) & 0x0F;
 	    length = 6 + (dte_len + dce_len + 1) / 2; /* addr */
-	    if (length+offset < fd->cap_len)
+	    if (length+offset < pi.captured_len)
 		length += (1 + data[length]); /* registration */
 	}
-	else length = fd->cap_len-offset;
-	return MIN(fd->cap_len-offset,length);
+	else length = END_OF_FRAME;
+	return MIN(END_OF_FRAME,length);
     }
 	    
-    if ((data[2] & 0x01) == X25_DATA) return MIN(fd->cap_len-offset,3);
+    if ((data[2] & 0x01) == X25_DATA) return MIN(END_OF_FRAME,3);
 
     switch (data[2] & 0x1F)
     {
     case X25_RR:
-	return MIN(fd->cap_len-offset,3);
+	return MIN(END_OF_FRAME,3);
 
     case X25_RNR:
-	return MIN(fd->cap_len-offset,3);
+	return MIN(END_OF_FRAME,3);
 
     case X25_REJ:
-	return MIN(fd->cap_len-offset,3);
+	return MIN(END_OF_FRAME,3);
     }
 
     return 0;
@@ -1370,7 +1370,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    col_add_str(fd, COL_INFO, "Invalid/short X.25 packet");
 	if (tree)
 	    proto_tree_add_item_format(tree, (modulo == 8 ? proto_x25 : proto_ex25),
-			    localoffset, fd->cap_len - offset, NULL,
+			    localoffset, END_OF_FRAME, NULL,
 			    "Invalid/short X.25 packet");
 	return;
     }
@@ -1411,7 +1411,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (localoffset < x25_pkt_len+offset) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, &pd[localoffset]);
 
-	if (localoffset < fd->cap_len) /* user data */
+	if (IS_DATA_IN_FRAME(localoffset)) /* user data */
 	{
 	    if (pd[localoffset] == 0xCC)
 	    {
@@ -1437,8 +1437,8 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    else {
 		if (x25_tree)
 		    proto_tree_add_text(x25_tree, localoffset,
-					fd->cap_len-localoffset, "Data");
-		localoffset = fd->cap_len;
+					pi.captured_len-localoffset, "Data");
+		localoffset = pi.captured_len;
 	    }
 	}
 	break;
@@ -1464,11 +1464,11 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (localoffset < x25_pkt_len+offset) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, &pd[localoffset]);
 
-	if (localoffset < fd->cap_len) { /* user data */
+	if (IS_DATA_IN_FRAME(localoffset)) { /* user data */
 	    if (x25_tree)
 	        proto_tree_add_text(x25_tree, localoffset,
-				    fd->cap_len-localoffset, "Data");
-	    localoffset=fd->cap_len;
+				    pi.captured_len-localoffset, "Data");
+	    localoffset=pi.captured_len;
 	}
 	break;
     case X25_CLEAR_REQUEST:
@@ -1509,10 +1509,10 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 	localoffset += x25_pkt_len;
 
-	if (localoffset < fd->cap_len) /* extended clear conf format */
+	if (IS_DATA_IN_FRAME(localoffset)) /* extended clear conf format */
 	    x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
 
-	if (localoffset < fd->cap_len) /* facilities */
+	if (IS_DATA_IN_FRAME(localoffset)) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, &pd[localoffset]);
 	break;
     case X25_DIAGNOSTIC:
@@ -1636,7 +1636,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_text(x25_tree, localoffset+1,
 			pd[localoffset] & 0x7F, "Registration");
 	}
-	localoffset = fd->cap_len;
+	localoffset = pi.captured_len;
 	break;
     case X25_REGISTRATION_CONFIRMATION:
 	if(check_col(fd, COL_INFO))
@@ -1663,7 +1663,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_text(x25_tree, localoffset+1,
 			pd[localoffset] & 0x7F, "Registration");
 	}
-	localoffset = fd->cap_len;
+	localoffset = pi.captured_len;
 	break;
     default :
 	localoffset += 2;
@@ -1794,7 +1794,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	localoffset += (modulo == 8) ? 1 : 2;
     }
 
-    if (localoffset >= fd->cap_len) return;
+    if (!IS_DATA_IN_FRAME(localoffset)) return;
 
     /* search the dissector in the hash table */
     if ((dissect = x25_hash_get_dissect(fd->abs_secs, fd->abs_usecs, vc)))

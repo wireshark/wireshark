@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.12 2000/01/16 02:54:46 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.13 2000/01/24 03:51:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,7 +84,7 @@ dissect_icmpv6opt(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	return;
 
 again:
-    if (!(fd->cap_len > offset))
+    if (!IS_DATA_IN_FRAME(offset))
 	return;
 
     opt = (struct nd_opt_hdr *)&pd[offset];
