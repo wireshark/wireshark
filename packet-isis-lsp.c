@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.32 2002/08/02 23:35:51 jmayer Exp $
+ * $Id: packet-isis-lsp.c,v 1.33 2002/08/04 09:08:03 jmayer Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -30,10 +30,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-
-#ifdef HAVE_NET_INET_H
-#include <net/inet.h>
-#endif
 
 #include "epan/ipv4.h"
 #include <epan/packet.h>
