@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal help files
 #
-# $Id: Makefile.am,v 1.2 2003/12/22 08:12:10 ulfl Exp $
+# $Id: Makefile.am,v 1.3 2003/12/22 20:04:32 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -21,13 +21,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-helpfile_SOURCES =            \
+#
+# Install the help files in the "help" subdirectory of the data directory.
+#
+helpdir = $(pkgdatadir)/help
+help_DATA =            \
 	capture_filters.txt \
 	display_filters.txt \
 	faq.txt             \
 	overview.txt        \
 	well_known.txt
 
-EXTRA_DIST = $(helpfile_SOURCES) convert-include.sh Makefile.nmake
+EXTRA_DIST = $(help_DATA) convert-include.sh Makefile.nmake
 
 CLEANFILES = 
