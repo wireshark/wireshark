@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.16 2002/11/03 17:38:34 oabad Exp $
+ * $Id: summary_dlg.c,v 1.17 2002/11/11 15:39:06 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include "summary_dlg.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
+#include "compat_macros.h"
 
 #define SUM_STR_MAX 1024
 
@@ -74,13 +75,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   seconds = summary.stop_time - summary.start_time;
   sum_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(sum_open_w), "Ethereal: Summary");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(sum_open_w), "realize",
-                     GTK_SIGNAL_FUNC(window_icon_realize_cb), NULL);
-#else
-  g_signal_connect(G_OBJECT(sum_open_w), "realize",
-                   G_CALLBACK(window_icon_realize_cb), NULL);
-#endif
+  SIGNAL_CONNECT(sum_open_w, "realize", window_icon_realize_cb, NULL);
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -217,15 +212,10 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Create Close Button */
 #if GTK_MAJOR_VERSION < 2
   close_bt = gtk_button_new_with_label("Close");
-  gtk_signal_connect_object(GTK_OBJECT(close_bt), "clicked",
-                            GTK_SIGNAL_FUNC(gtk_widget_destroy),
-                            GTK_OBJECT(sum_open_w));
 #else
   close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-  g_signal_connect_swapped(G_OBJECT(close_bt), "clicked",
-                           G_CALLBACK(gtk_widget_destroy),
-                           G_OBJECT(sum_open_w));
 #endif
+  SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, sum_open_w);
   GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX(bbox), close_bt, FALSE,FALSE, 0);
   gtk_widget_grab_default(close_bt);

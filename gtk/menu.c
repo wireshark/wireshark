@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.72 2002/11/11 12:37:15 oabad Exp $
+ * $Id: menu.c,v 1.73 2002/11/11 15:39:05 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,6 +61,7 @@
 #include "rpc_progs.h"
 #include "../packet-dcerpc.h"
 #include "dcerpc_stat.h"
+#include "compat_macros.h"
 
 GtkWidget *popup_menu_object;
 
@@ -452,17 +453,20 @@ menus_init(void) {
 
     packet_list_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     gtk_item_factory_create_items_ac(packet_list_menu_factory, sizeof(packet_list_menu_items)/sizeof(packet_list_menu_items[0]), packet_list_menu_items, popup_menu_object, 2);
-    gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY, packet_list_menu_factory->widget);
+    OBJECT_SET_DATA(popup_menu_object, PM_PACKET_LIST_KEY,
+                    packet_list_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, packet_list_menu_factory);
 
     tree_view_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     gtk_item_factory_create_items_ac(tree_view_menu_factory, sizeof(tree_view_menu_items)/sizeof(tree_view_menu_items[0]), tree_view_menu_items, popup_menu_object, 2);
-    gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY, tree_view_menu_factory->widget);
+    OBJECT_SET_DATA(popup_menu_object, PM_TREE_VIEW_KEY,
+                    tree_view_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, tree_view_menu_factory);
 
     hexdump_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     gtk_item_factory_create_items_ac(hexdump_menu_factory, sizeof(hexdump_menu_items)/sizeof(hexdump_menu_items[0]), hexdump_menu_items, popup_menu_object, 2);
-    gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY, hexdump_menu_factory->widget);
+    OBJECT_SET_DATA(popup_menu_object, PM_HEXDUMP_KEY,
+                    hexdump_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, hexdump_menu_factory);
 
     factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
@@ -533,7 +537,7 @@ set_menu_object_data_meat(GtkItemFactory *ifactory, gchar *path, gchar *key, gpo
 	GtkWidget *menu = NULL;
 
 	if ((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL)
-		gtk_object_set_data(GTK_OBJECT(menu), key, data);
+		OBJECT_SET_DATA(menu, key, data);
 }
 
 void
@@ -568,16 +572,15 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 	 * as a pixmap.
 	 */
 	/* Check if we are on packet_list object */
-	if (widget == gtk_object_get_data(GTK_OBJECT(popup_menu_object),
-		E_MPACKET_LIST_KEY)) {
+	if (widget == OBJECT_GET_DATA(popup_menu_object, E_MPACKET_LIST_KEY)) {
 	  packet_list=GTK_CLIST(widget);
 	  if (gtk_clist_get_selection_info(GTK_CLIST(packet_list),
 	      ((GdkEventButton *)event)->x,
 	      ((GdkEventButton *)event)->y,&row,&column)) {
-	    gtk_object_set_data(GTK_OBJECT(popup_menu_object),
-		E_MPACKET_LIST_ROW_KEY, (gpointer *)row);
-	    gtk_object_set_data(GTK_OBJECT(popup_menu_object),
-		E_MPACKET_LIST_COL_KEY, (gpointer *)column);
+	    OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_ROW_KEY,
+                            GINT_TO_POINTER(row));
+	    OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_COL_KEY,
+                            GINT_TO_POINTER(column));
 	  }
 	}
 	menu = (GtkWidget *)data;
@@ -585,8 +588,10 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 		event_button = (GdkEventButton *) event;
 
 		if(event_button->button == 3) {
-			gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, event_button->button, event_button->time);
-			gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), "button_press_event");
+			gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
+                                       event_button->button,
+                                       event_button->time);
+			SIGNAL_EMIT_STOP_BY_NAME(widget, "button_press_event");
 			return TRUE;
 		}
 	}

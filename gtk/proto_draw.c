@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.60 2002/11/03 17:38:34 oabad Exp $
+ * $Id: proto_draw.c,v 1.61 2002/11/11 15:39:06 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@
 #include "packet_win.h"
 #include "ui_util.h"
 #include "gtkglobals.h"
+#include "compat_macros.h"
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
@@ -92,8 +93,7 @@ get_byte_view_data_and_length(GtkWidget *byte_view, guint *data_len)
   tvbuff_t *byte_view_tvb;
   const guint8 *data_ptr;
 
-  byte_view_tvb = gtk_object_get_data(GTK_OBJECT(byte_view),
-				      E_BYTE_VIEW_TVBUFF_KEY);
+  byte_view_tvb = OBJECT_GET_DATA(byte_view, E_BYTE_VIEW_TVBUFF_KEY);
   if (byte_view_tvb == NULL)
     return NULL;
 
@@ -117,7 +117,7 @@ set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb)
        (bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num)) != NULL;
        num++) {
     bv = GTK_BIN(bv_page)->child;
-    bv_tvb = gtk_object_get_data(GTK_OBJECT(bv), E_BYTE_VIEW_TVBUFF_KEY);
+    bv_tvb = OBJECT_GET_DATA(bv, E_BYTE_VIEW_TVBUFF_KEY);
     if (bv_tvb == tvb) {
       /* Found it. */
       gtk_notebook_set_page(GTK_NOTEBOOK(nb_ptr), num);
@@ -314,8 +314,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      * Get the number of digits of offset being displayed, and
      * compute the columns of various parts of the display.
      */
-    ndigits = GPOINTER_TO_UINT(gtk_object_get_data(GTK_OBJECT(bv),
-                                                   E_BYTE_VIEW_NDIGITS_KEY));
+    ndigits = GPOINTER_TO_UINT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_NDIGITS_KEY));
 
     /*
      * The column of the first hex digit in the first half.
@@ -384,7 +383,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      */
     text_end_2 = text_start_2 + BYTES_PER_LINE/2 - 1;
 
-    tree = gtk_object_get_data(GTK_OBJECT(widget), E_BYTE_VIEW_TREE_PTR);
+    tree = OBJECT_GET_DATA(widget, E_BYTE_VIEW_TREE_PTR);
     if (tree == NULL) {
         /*
          * Somebody clicked on the dummy byte view; do nothing.
@@ -392,11 +391,10 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
         return FALSE;
     }
 #if GTK_MAJOR_VERSION < 2
-    ctree = GTK_CTREE(gtk_object_get_data(GTK_OBJECT(widget),
-                                          E_BYTE_VIEW_TREE_VIEW_PTR));
+    ctree = GTK_CTREE(OBJECT_GET_DATA(widget, E_BYTE_VIEW_TREE_VIEW_PTR));
 #else
-    tree_view = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(widget),
-                                                E_BYTE_VIEW_TREE_VIEW_PTR));
+    tree_view = GTK_TREE_VIEW(OBJECT_GET_DATA(widget,
+                                              E_BYTE_VIEW_TREE_VIEW_PTR));
 #endif
 
 #if GTK_MAJOR_VERSION < 2
@@ -448,7 +446,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     byte += row * 16;
 
     /* Get the data source tvbuff */
-    tvb = gtk_object_get_data(GTK_OBJECT(widget), E_BYTE_VIEW_TVBUFF_KEY);
+    tvb = OBJECT_GET_DATA(widget, E_BYTE_VIEW_TVBUFF_KEY);
 
     /* Find the finfo that corresponds to our byte. */
     finfo = proto_find_field_from_offset(tree, byte, tvb);
@@ -551,7 +549,7 @@ create_byte_view(gint bv_size, GtkWidget *pane)
 
   gtk_paned_pack2(GTK_PANED(pane), byte_nb, FALSE, FALSE);
 #if GTK_MAJOR_VERSION < 2
-  gtk_widget_set_usize(byte_nb, -1, bv_size);
+  WIDGET_SET_SIZE(byte_nb, -1, bv_size);
 #else
   gtk_widget_set_size_request(byte_nb, -1, bv_size);
 #endif
@@ -621,8 +619,6 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
   gtk_text_set_editable(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_line_wrap(GTK_TEXT(byte_view), FALSE);
-  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY,
-		      (gpointer)tvb);
 #else
   byte_view = gtk_text_view_new();
   gtk_text_view_set_editable(GTK_TEXT_VIEW(byte_view), FALSE);
@@ -636,30 +632,16 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
                              "background-gdk", &style->base[GTK_STATE_SELECTED],
                              NULL);
   gtk_text_buffer_create_tag(buf, "bold", "font-desc", m_b_font, NULL);
-  g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY, (gpointer)tvb);
 #endif
+  OBJECT_SET_DATA(byte_view, E_BYTE_VIEW_TVBUFF_KEY, tvb);
   gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
 
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(byte_view), "show",
-		     GTK_SIGNAL_FUNC(byte_view_realize_cb), NULL);
-  gtk_signal_connect(GTK_OBJECT(byte_view), "button_press_event",
-		     GTK_SIGNAL_FUNC(byte_view_button_press_cb),
-		     gtk_object_get_data(GTK_OBJECT(popup_menu_object),
-					 PM_HEXDUMP_KEY));
-#else
-  g_signal_connect(G_OBJECT(byte_view), "show",
-                   G_CALLBACK(byte_view_realize_cb), NULL);
-  g_signal_connect(G_OBJECT(byte_view), "button_press_event",
-                   G_CALLBACK(byte_view_button_press_cb),
-                   gtk_object_get_data(GTK_OBJECT(popup_menu_object),
-                                       PM_HEXDUMP_KEY));
-#endif
+  SIGNAL_CONNECT(byte_view, "show", byte_view_realize_cb, NULL);
+  SIGNAL_CONNECT(byte_view, "button_press_event", byte_view_button_press_cb,
+                 OBJECT_GET_DATA(popup_menu_object, PM_HEXDUMP_KEY));
 
-  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TREE_PTR,
-		      tree);
-  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TREE_VIEW_PTR,
-		      tree_view);
+  OBJECT_SET_DATA(byte_view, E_BYTE_VIEW_TREE_PTR, tree);
+  OBJECT_SET_DATA(byte_view, E_BYTE_VIEW_TREE_VIEW_PTR, tree_view);
 
   gtk_widget_show(byte_view);
 
@@ -771,8 +753,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
     use_digits = 4;	/* we'll supply 4 digits */
 
   /* Record the number of digits in this text view. */
-  gtk_object_set_data(GTK_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY,
-                      GUINT_TO_POINTER(use_digits));
+  OBJECT_SET_DATA(bv, E_BYTE_VIEW_NDIGITS_KEY, GUINT_TO_POINTER(use_digits));
 
   while (i < len) {
     /* Print the line number */
@@ -1120,9 +1101,10 @@ packet_hex_print(GtkTextView *bv, const guint8 *pd, frame_data *fd,
 
   /* save the information needed to redraw the text */
   /* should we save the fd & finfo pointers instead ?? */
-  gtk_object_set_data(GTK_OBJECT(bv),  E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bend));
-  gtk_object_set_data(GTK_OBJECT(bv),  E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bstart));
-  gtk_object_set_data(GTK_OBJECT(bv),  E_BYTE_VIEW_ENCODE_KEY, GINT_TO_POINTER(fd->flags.encoding));
+  OBJECT_SET_DATA(bv, E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bend));
+  OBJECT_SET_DATA(bv, E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bstart));
+  OBJECT_SET_DATA(bv, E_BYTE_VIEW_ENCODE_KEY,
+                  GINT_TO_POINTER(fd->flags.encoding));
 
   packet_hex_print_common(bv, pd, len, bstart, bend, fd->flags.encoding);
 }
@@ -1143,14 +1125,11 @@ packet_hex_reprint(GtkTextView *bv)
   const guint8 *data;
   guint len;
 
-  start = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv),
-			  E_BYTE_VIEW_START_KEY));
-  end = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv),
-			E_BYTE_VIEW_END_KEY));
+  start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
+  end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
   data = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
   g_assert(data != NULL);
-  encoding = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv),
-			     E_BYTE_VIEW_ENCODE_KEY));
+  encoding = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_ENCODE_KEY));
 
   packet_hex_print_common(bv, data, len, start, end, encoding);
 }
@@ -1169,13 +1148,7 @@ remember_ptree_widget(GtkWidget *ptreew)
 
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(ptreew), "destroy",
-		     GTK_SIGNAL_FUNC(forget_ptree_widget), NULL);
-#else
-  g_signal_connect(G_OBJECT(ptreew), "destroy",
-                   G_CALLBACK(forget_ptree_widget), NULL);
-#endif
+  SIGNAL_CONNECT(ptreew, "destroy", forget_ptree_widget, NULL);
 }
 
 /* Remove a protocol tree widget from the list of protocol tree widgets. */
@@ -1291,21 +1264,14 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
                                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 #endif
   gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_widget_set_usize(tv_scrollw, -1, tv_size);
-#else
-  gtk_widget_set_size_request(tv_scrollw, -1, tv_size);
-#endif
+  WIDGET_SET_SIZE(tv_scrollw, -1, tv_size);
   gtk_widget_show(tv_scrollw);
 
 #if GTK_MAJOR_VERSION < 2
   tree_view = ctree_new(1, 0);
-  gtk_signal_connect( GTK_OBJECT(tree_view), "key-press-event",
-		      (GtkSignalFunc) toggle_tree, NULL );
-  gtk_signal_connect( GTK_OBJECT(tree_view), "tree-expand",
-		      (GtkSignalFunc) expand_tree, NULL );
-  gtk_signal_connect( GTK_OBJECT(tree_view), "tree-collapse",
-		      (GtkSignalFunc) collapse_tree, NULL );
+  SIGNAL_CONNECT(tree_view, "key-press-event", toggle_tree, NULL );
+  SIGNAL_CONNECT(tree_view, "tree-expand", expand_tree, NULL );
+  SIGNAL_CONNECT(tree_view, "tree-collapse", collapse_tree, NULL );
   /* I need this next line to make the widget work correctly with hidden
    * column titles and GTK_SELECTION_BROWSE */
   gtk_clist_set_column_auto_resize( GTK_CLIST(tree_view), 0, TRUE );
@@ -1322,10 +1288,8 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
                                     col_offset - 1);
   gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-  g_signal_connect(G_OBJECT(tree_view), "row-expanded",
-                   G_CALLBACK(expand_tree), NULL);
-  g_signal_connect(GTK_OBJECT(tree_view), "row-collapsed",
-                   G_CALLBACK(collapse_tree), NULL);
+  SIGNAL_CONNECT(tree_view, "row-expanded", expand_tree, NULL);
+  SIGNAL_CONNECT(tree_view, "row-collapsed", collapse_tree, NULL);
 #endif
   gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
   set_ptree_sel_browse(tree_view, prefs->gui_ptree_sel_browse);

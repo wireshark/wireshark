@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.27 2002/11/03 17:38:33 oabad Exp $
+ * $Id: help_dlg.c,v 1.28 2002/11/11 15:39:05 oabad Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -41,6 +41,7 @@
 #include "main.h"
 #include "ui_util.h"
 #include <epan/proto.h>
+#include "compat_macros.h"
 
 typedef enum {
   OVERVIEW_HELP,
@@ -93,20 +94,9 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 #endif
   gtk_widget_set_name(help_w, "Ethereal Help window" );
   gtk_window_set_title(GTK_WINDOW(help_w), "Ethereal: Help");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(help_w), "destroy",
-		     GTK_SIGNAL_FUNC(help_destroy_cb), NULL);
-  gtk_signal_connect(GTK_OBJECT (help_w), "realize",
-		     GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
-  gtk_widget_set_usize(GTK_WIDGET(help_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
-#else
-  g_signal_connect(G_OBJECT(help_w), "destroy",
-                   G_CALLBACK(help_destroy_cb), NULL);
-  g_signal_connect(G_OBJECT(help_w), "realize",
-                   G_CALLBACK(window_icon_realize_cb), NULL);
-  gtk_widget_set_size_request(GTK_WIDGET(help_w), DEF_WIDTH * 2/3,
-                              DEF_HEIGHT * 2/3);
-#endif
+  SIGNAL_CONNECT(help_w, "destroy", help_destroy_cb, NULL);
+  SIGNAL_CONNECT(help_w, "realize", window_icon_realize_cb, NULL);
+  WIDGET_SET_SIZE(help_w, DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
 
   /* Container for each row of widgets */
@@ -298,13 +288,10 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(bbox);
 #if GTK_MAJOR_VERSION < 2
   close_bt = gtk_button_new_with_label("Close");
-  gtk_signal_connect(GTK_OBJECT(close_bt), "clicked",
-		     GTK_SIGNAL_FUNC(help_close_cb), GTK_OBJECT(help_w));
 #else
   close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-  g_signal_connect(G_OBJECT(close_bt), "clicked",
-                   G_CALLBACK(help_close_cb), G_OBJECT(help_w));
 #endif
+  SIGNAL_CONNECT(close_bt, "clicked", help_close_cb, help_w);
   GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
   gtk_container_add(GTK_CONTAINER(bbox), close_bt);
   gtk_widget_grab_default(close_bt);
@@ -457,7 +444,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 
 #if GTK_MAJOR_VERSION < 2
     height = (2 + nb_lines) * m_font_height;
-    gtk_widget_set_usize(GTK_WIDGET(w), 20 + width, 20 + height);
+    WIDGET_SET_SIZE(w, 20 + width, 20 + height);
 #endif
     break;
 
@@ -518,7 +505,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     }
 #if GTK_MAJOR_VERSION < 2
     height = (1 + nb_lines) * m_font_height;
-    gtk_widget_set_usize(GTK_WIDGET(w), 20 + width, 20 + height);
+    WIDGET_SET_SIZE(w, 20 + width, 20 + height);
 #endif
     break;
   case CFILTER_HELP :

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.41 2002/11/03 17:38:34 oabad Exp $
+ * $Id: packet_win.c,v 1.42 2002/11/11 15:39:05 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@
 #include "gtkglobals.h"
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
+#include "compat_macros.h"
 
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {
@@ -157,21 +158,17 @@ void new_window_cb(GtkWidget *w _U_)
 
   /* load callback handlers */
 #if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
-                     GTK_SIGNAL_FUNC(new_tree_view_select_row_cb), DataPtr);
+  SIGNAL_CONNECT(tree_view, "tree-select-row", new_tree_view_select_row_cb,
+                 DataPtr);
 
-  gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
-                     GTK_SIGNAL_FUNC(new_tree_view_unselect_row_cb), DataPtr);
-
-  gtk_signal_connect(GTK_OBJECT(main_w), "destroy",
-                     GTK_SIGNAL_FUNC(destroy_new_window), DataPtr);
+  SIGNAL_CONNECT(tree_view, "tree-unselect-row", new_tree_view_unselect_row_cb,
+                 DataPtr);
 #else
-  g_signal_connect(G_OBJECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view))),
-                   "changed", G_CALLBACK(new_tree_view_selection_changed_cb),
-                   DataPtr);
-  g_signal_connect(G_OBJECT(main_w), "destroy",
-                   G_CALLBACK(destroy_new_window), DataPtr);
+  SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
+                 "changed", new_tree_view_selection_changed_cb, DataPtr);
 #endif
+
+  SIGNAL_CONNECT(main_w, "destroy", destroy_new_window, DataPtr);
 
   /* draw the protocol tree & print hex data */
   add_byte_views(DataPtr->edt, tree_view, DataPtr->bv_nb_ptr);

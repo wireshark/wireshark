@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.4 2002/11/06 10:53:36 sahlberg Exp $
+ * $Id: rpc_progs.c,v 1.5 2002/11/11 15:39:06 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "rpc_progs.h"
 #include "packet-rpc.h"
 #include "../globals.h"
+#include "compat_macros.h"
 
 static GtkWidget *win=NULL;
 static GtkWidget *table=NULL;
@@ -302,7 +303,7 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 
 /* When called, this function will start rpcprogs
  */
-static void
+void
 gtk_rpcprogs_init(char *optarg _U_)
 {
 	char title_string[60];
@@ -318,7 +319,7 @@ gtk_rpcprogs_init(char *optarg _U_)
 	win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	sprintf(title_string,"ONC-RPC Program Statistics");
 	gtk_window_set_title(GTK_WINDOW(win), title_string);
-	gtk_signal_connect(GTK_OBJECT(win), "destroy", GTK_SIGNAL_FUNC(win_destroy_cb), win);
+	SIGNAL_CONNECT(win, "destroy", win_destroy_cb, win);
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(win), vbox);

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.13 2002/11/03 17:38:34 oabad Exp $
+ * $Id: ui_util.c,v 1.14 2002/11/11 15:39:06 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,8 @@
 #include "prefs.h"
 #include "epan/epan.h"
 #include "../ui_util.h"
+#include "compat_macros.h"
+
 #include "image/eicon3d16.xpm"
 
 
@@ -164,13 +166,7 @@ setup_scrolled_window(GtkWidget *scrollw)
 
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(scrollw), "destroy",
-		     GTK_SIGNAL_FUNC(forget_scrolled_window), NULL);
-#else
-  g_signal_connect(G_OBJECT(scrollw), "destroy",
-                   G_CALLBACK(forget_scrolled_window), NULL);
-#endif
+  SIGNAL_CONNECT(scrollw, "destroy", forget_scrolled_window, NULL);
 }
 
 /* Remove a GtkScrolledWindow from the list of GtkScrolledWindows. */
@@ -258,13 +254,7 @@ setup_tree(GtkWidget *tree)
 
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(tree), "destroy",
-		     GTK_SIGNAL_FUNC(forget_tree), NULL);
-#else
-  g_signal_connect(G_OBJECT(tree), "destroy",
-                   G_CALLBACK(forget_tree), NULL);
-#endif
+  SIGNAL_CONNECT(tree, "destroy", forget_tree, NULL);
 }
 
 /* Remove a Tree from the list of Trees. */

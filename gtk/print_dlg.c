@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.39 2002/11/03 17:38:34 oabad Exp $
+ * $Id: print_dlg.c,v 1.40 2002/11/11 15:39:05 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include <io.h>
 #include "print_mswin.h"
 #endif
+#include "compat_macros.h"
 
 
 /* On Win32, a GUI application apparently can't use "popen()" (it
@@ -135,18 +136,14 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   print_w = dlg_window_new("Ethereal: Print");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(print_w), "destroy",
-                     GTK_SIGNAL_FUNC(print_destroy_cb), NULL);
+  SIGNAL_CONNECT(print_w, "destroy", print_destroy_cb, NULL);
 
+#if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
      Ctrl+<key> is an accelerator). */
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(print_w), accel_group);
-#else
-  g_signal_connect(G_OBJECT(print_w), "destroy",
-                   G_CALLBACK(print_destroy_cb), NULL);
 #endif
 
   /* Enclosing containers for each row of widgets */
@@ -241,13 +238,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #endif
   if (print_to_file)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(dest_rb), TRUE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(dest_rb), "toggled",
-                     GTK_SIGNAL_FUNC(print_cmd_toggle_dest), NULL);
-#else
-  g_signal_connect(G_OBJECT(dest_rb), "toggled",
-                   G_CALLBACK(print_cmd_toggle_dest), NULL);
-#endif
+  SIGNAL_CONNECT(dest_rb, "toggled", print_cmd_toggle_dest, NULL);
   gtk_box_pack_start(GTK_BOX(dest_hb), dest_rb, FALSE, FALSE, 10);
   gtk_widget_show(dest_rb);
 
@@ -256,7 +247,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #ifndef _WIN32
   cmd_lb = gtk_label_new("Command:");
 
-  gtk_object_set_data(GTK_OBJECT(dest_rb), PRINT_CMD_LB_KEY, cmd_lb);
+  OBJECT_SET_DATA(dest_rb, PRINT_CMD_LB_KEY, cmd_lb);
   gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0, 0.5);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_lb, 0, 1, 2, 3);
   gtk_widget_set_sensitive(cmd_lb, !print_to_file);
@@ -264,7 +255,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   cmd_te = gtk_entry_new();
 
-  gtk_object_set_data(GTK_OBJECT(dest_rb), PRINT_CMD_TE_KEY, cmd_te);
+  OBJECT_SET_DATA(dest_rb, PRINT_CMD_TE_KEY, cmd_te);
   if (prefs.pr_cmd)
     gtk_entry_set_text(GTK_ENTRY(cmd_te), prefs.pr_cmd);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_te, 1, 2, 2, 3);
@@ -279,27 +270,21 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(file_bt_hb);
 
   file_bt = gtk_button_new_with_label("File:");
-  gtk_object_set_data(GTK_OBJECT(dest_rb), PRINT_FILE_BT_KEY, file_bt);
+  OBJECT_SET_DATA(dest_rb, PRINT_FILE_BT_KEY, file_bt);
   gtk_box_pack_end(GTK_BOX(file_bt_hb), file_bt, FALSE, FALSE, 0);
   gtk_widget_set_sensitive(file_bt, print_to_file);
   gtk_widget_show(file_bt);
 
   file_te = gtk_entry_new();
 
-  gtk_object_set_data(GTK_OBJECT(dest_rb), PRINT_FILE_TE_KEY, file_te);
+  OBJECT_SET_DATA(dest_rb, PRINT_FILE_TE_KEY, file_te);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
   gtk_widget_set_sensitive(file_te, print_to_file);
   gtk_widget_show(file_te);
   if (print_to_file)
     gtk_widget_grab_focus(file_te);
 
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
-                     GTK_SIGNAL_FUNC(print_file_cb), GTK_OBJECT(file_te));
-#else
-  g_signal_connect(G_OBJECT(file_bt), "clicked",
-                   G_CALLBACK(print_file_cb), GTK_OBJECT(file_te));
-#endif
+  SIGNAL_CONNECT(file_bt, "clicked", print_file_cb, file_te);
 
   /* Horizontal box into which to put two vertical boxes of option
      buttons. */
@@ -338,13 +323,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
                                 GTK_RADIO_BUTTON(button), "Print _detail");
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(detail_rb), TRUE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(detail_rb), "toggled",
-                     GTK_SIGNAL_FUNC(print_cmd_toggle_detail), NULL);
-#else
-  g_signal_connect(G_OBJECT(detail_rb), "toggled",
-                   G_CALLBACK(print_cmd_toggle_detail), NULL);
-#endif
+  SIGNAL_CONNECT(detail_rb, "toggled", print_cmd_toggle_detail, NULL);
   gtk_container_add(GTK_CONTAINER(print_type_vb), detail_rb);
   gtk_widget_show(detail_rb);
 
@@ -403,12 +382,9 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(expand_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
 
-  gtk_object_set_data(GTK_OBJECT(detail_rb), PRINT_EXPAND_ALL_RB_KEY,
-			expand_all_rb);
-  gtk_object_set_data(GTK_OBJECT(detail_rb), PRINT_AS_DISPLAYED_RB_KEY,
-			as_displayed_rb);
-  gtk_object_set_data(GTK_OBJECT(detail_rb), PRINT_HEX_CB_KEY,
-			hex_cb);
+  OBJECT_SET_DATA(detail_rb, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
+  OBJECT_SET_DATA(detail_rb, PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
+  OBJECT_SET_DATA(detail_rb, PRINT_HEX_CB_KEY, hex_cb);
 
   /* Button row: OK and Cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -419,37 +395,21 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
 #if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FORMAT_RB_KEY, format_rb);
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_DEST_RB_KEY, dest_rb);
-#ifndef _WIN32
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_CMD_TE_KEY, cmd_te);
-#endif
-
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUMMARY_RB_KEY, summary_rb);
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_HEX_CB_KEY, hex_cb);
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_EXPAND_ALL_RB_KEY,
-                      expand_all_rb);
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUPPRESS_UNMARKED_CB_KEY,
-                      marked_cb);
-  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-                     GTK_SIGNAL_FUNC(print_ok_cb), GTK_OBJECT(print_w));
 #else
   ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-  g_object_set_data(G_OBJECT(ok_bt), PRINT_FORMAT_RB_KEY, format_rb);
-  g_object_set_data(G_OBJECT(ok_bt), PRINT_DEST_RB_KEY, dest_rb);
+#endif
+  OBJECT_SET_DATA(ok_bt, PRINT_FORMAT_RB_KEY, format_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_DEST_RB_KEY, dest_rb);
 #ifndef _WIN32
-  g_object_set_data(G_OBJECT(ok_bt), PRINT_CMD_TE_KEY, cmd_te);
+  OBJECT_SET_DATA(ok_bt, PRINT_CMD_TE_KEY, cmd_te);
 #endif
 
-  g_object_set_data(G_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
-  g_object_set_data(G_OBJECT(ok_bt), PRINT_SUMMARY_RB_KEY, summary_rb);
-  g_object_set_data(G_OBJECT(ok_bt), PRINT_HEX_CB_KEY, hex_cb);
-  g_object_set_data(G_OBJECT(ok_bt), PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
-  g_object_set_data(G_OBJECT(ok_bt), PRINT_SUPPRESS_UNMARKED_CB_KEY, marked_cb);
-  g_signal_connect(G_OBJECT(ok_bt), "clicked",
-                   G_CALLBACK(print_ok_cb), G_OBJECT(print_w));
-#endif
+  OBJECT_SET_DATA(ok_bt, PRINT_FILE_TE_KEY, file_te);
+  OBJECT_SET_DATA(ok_bt, PRINT_SUMMARY_RB_KEY, summary_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_HEX_CB_KEY, hex_cb);
+  OBJECT_SET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_SUPPRESS_UNMARKED_CB_KEY, marked_cb);
+  SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, print_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
@@ -457,13 +417,10 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
 #if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-                     GTK_SIGNAL_FUNC(print_close_cb), GTK_OBJECT(print_w));
 #else
   cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-  g_signal_connect(G_OBJECT(cancel_bt), "clicked",
-                   G_CALLBACK(print_close_cb), GTK_OBJECT(print_w));
 #endif
+  SIGNAL_CONNECT(cancel_bt, "clicked", print_close_cb, print_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
@@ -496,15 +453,11 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
   int            to_file;
 
 #ifndef _WIN32
-  cmd_lb = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
-    PRINT_CMD_LB_KEY));
-  cmd_te = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
-    PRINT_CMD_TE_KEY));
+  cmd_lb = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_CMD_LB_KEY));
+  cmd_te = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_CMD_TE_KEY));
 #endif
-  file_bt = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
-    PRINT_FILE_BT_KEY));
-  file_te = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
-    PRINT_FILE_TE_KEY));
+  file_bt = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_FILE_BT_KEY));
+  file_te = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_FILE_TE_KEY));
   if (GTK_TOGGLE_BUTTON (widget)->active) {
     /* They selected "Print to File" */
     to_file = TRUE;
@@ -527,12 +480,10 @@ print_cmd_toggle_detail(GtkWidget *widget, gpointer data _U_)
   GtkWidget     *expand_all_rb, *as_displayed_rb, *hex_cb;
   gboolean      print_detail;
 
-  expand_all_rb = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
-    PRINT_EXPAND_ALL_RB_KEY));
-  as_displayed_rb = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
-    PRINT_AS_DISPLAYED_RB_KEY));
-  hex_cb = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
-    PRINT_HEX_CB_KEY));
+  expand_all_rb = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_EXPAND_ALL_RB_KEY));
+  as_displayed_rb = GTK_WIDGET(OBJECT_GET_DATA(widget,
+                                               PRINT_AS_DISPLAYED_RB_KEY));
+  hex_cb = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_HEX_CB_KEY));
   if (GTK_TOGGLE_BUTTON (widget)->active) {
     /* They selected "Print detail" */
     print_detail = TRUE;
@@ -553,7 +504,7 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
 
   /* Has a file selection dialog box already been opened for that top-level
      widget? */
-  fs = gtk_object_get_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY);
+  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
 
   if (fs != NULL) {
     /* Yes.  Just re-activate that dialog box. */
@@ -568,47 +519,24 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
   if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
 
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
+  OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
 
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
-  gtk_object_set_data(GTK_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
+  OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
 
   /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
-  gtk_object_set_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
+  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, fs);
 
   /* Call a handler when the file selection box is destroyed, so we can inform
      our caller, if any, that it's been destroyed. */
-  gtk_signal_connect(GTK_OBJECT(fs), "destroy",
-                     GTK_SIGNAL_FUNC(print_fs_destroy_cb), file_te);
+  SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(print_fs_destroy_cb), file_te);
 
-  gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button), "clicked",
-                     (GtkSignalFunc) print_fs_ok_cb, fs);
-
-  /* Connect the cancel_button to destroy the widget */
-  gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button),
-                     "clicked", (GtkSignalFunc) print_fs_cancel_cb, fs);
-#else
-  g_object_set_data(G_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
-
-  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
-  g_object_set_data(G_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
-
-  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
-  g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
-
-  /* Call a handler when the file selection box is destroyed, so we can inform
-     our caller, if any, that it's been destroyed. */
-  g_signal_connect(G_OBJECT(fs), "destroy",
-                   G_CALLBACK(print_fs_destroy_cb), file_te);
-
-  g_signal_connect(G_OBJECT (GTK_FILE_SELECTION(fs)->ok_button), "clicked",
-                   G_CALLBACK(print_fs_ok_cb), fs);
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", print_fs_ok_cb,
+                 fs);
 
   /* Connect the cancel_button to destroy the widget */
-  g_signal_connect(G_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button), "clicked",
-                   G_CALLBACK(print_fs_cancel_cb), fs);
-#endif
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->cancel_button, "clicked",
+                 print_fs_cancel_cb, fs);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had
@@ -637,8 +565,8 @@ print_fs_ok_cb(GtkWidget *w _U_, gpointer data)
         return;
   }
 
-  gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
-      PRINT_FILE_TE_KEY)), f_name);
+  gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(data, PRINT_FILE_TE_KEY)),
+                     f_name);
   gtk_widget_destroy(GTK_WIDGET(data));
 
   g_free(f_name);
@@ -658,10 +586,10 @@ print_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te)
   /* Get the widget that requested that we be popped up.
      (It should arrange to destroy us if it's destroyed, so
      that we don't get a pointer to a non-existent window here.) */
-  caller = gtk_object_get_data(GTK_OBJECT(win), E_FS_CALLER_PTR_KEY);
+  caller = OBJECT_GET_DATA(win, E_FS_CALLER_PTR_KEY);
 
   /* Tell it we no longer exist. */
-  gtk_object_set_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, NULL);
+  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, NULL);
 
   /* Now nuke this window. */
   gtk_grab_remove(GTK_WIDGET(win));
@@ -699,14 +627,13 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   int win_printer_flag = FALSE;
 #endif
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
-                                              PRINT_DEST_RB_KEY);
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_DEST_RB_KEY);
   print_to_file = GTK_TOGGLE_BUTTON (button)->active;
   print_args.to_file = print_to_file;
 
   if (print_args.to_file) {
-    g_dest = gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
-      PRINT_FILE_TE_KEY)));
+    g_dest = gtk_entry_get_text(GTK_ENTRY(OBJECT_GET_DATA(ok_bt,
+                                                          PRINT_FILE_TE_KEY)));
     if (!g_dest[0]) {
       simple_dialog(ESD_TYPE_CRIT, NULL,
         "Printing to file, but no file specified.");
@@ -723,33 +650,28 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     win_printer_flag = TRUE;
     setup_mswin_print(&print_args);
 #else
-    print_args.dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(ok_bt),
+    print_args.dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(OBJECT_GET_DATA(ok_bt,
       PRINT_CMD_TE_KEY))));
 #endif
   }
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
-                                              PRINT_FORMAT_RB_KEY);
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_FORMAT_RB_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     print_format = PR_FMT_PS;
   else
     print_format = PR_FMT_TEXT;
   print_args.format = print_format;
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
-                                              PRINT_SUMMARY_RB_KEY);
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_SUMMARY_RB_KEY);
   print_args.print_summary = GTK_TOGGLE_BUTTON (button)->active;
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
-                                              PRINT_HEX_CB_KEY);
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_HEX_CB_KEY);
   print_args.print_hex = GTK_TOGGLE_BUTTON (button)->active;
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
-                                              PRINT_EXPAND_ALL_RB_KEY);
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY);
   print_args.expand_all = GTK_TOGGLE_BUTTON (button)->active;
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
-                                              PRINT_SUPPRESS_UNMARKED_CB_KEY);
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_SUPPRESS_UNMARKED_CB_KEY);
   print_args.suppress_unmarked = GTK_TOGGLE_BUTTON (button)->active;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
@@ -790,7 +712,7 @@ print_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
   /* Is there a file selection dialog associated with this
      Print File dialog? */
-  fs = gtk_object_get_data(GTK_OBJECT(win), E_FILE_SEL_DIALOG_PTR_KEY);
+  fs = OBJECT_GET_DATA(win, E_FILE_SEL_DIALOG_PTR_KEY);
 
   if (fs != NULL) {
     /* Yes.  Destroy it. */

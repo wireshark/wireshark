@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.16 2002/11/03 17:38:34 oabad Exp $
+ * $Id: progress_dlg.c,v 1.17 2002/11/11 15:39:06 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@
 #include "gtkglobals.h"
 #include "dlg_utils.h"
 #include "progress_dlg.h"
+#include "compat_macros.h"
 
 #define	PROG_BAR_KEY	"progress_bar"
 
@@ -176,7 +177,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 	/*
 	 * Attach a pointer to the progress bar widget to the top-level widget.
 	 */
-	gtk_object_set_data(GTK_OBJECT(dlg_w), PROG_BAR_KEY, prog_bar);
+	OBJECT_SET_DATA(dlg_w, PROG_BAR_KEY, prog_bar);
 
 	/*
 	 * Static and dynamic boxes are now complete
@@ -202,18 +203,8 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 	 */
 	stop_bt = gtk_button_new_with_label(stop_title);
 	gtk_box_pack_start(GTK_BOX (bbox), stop_bt, TRUE, TRUE, 0);
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(stop_bt), "clicked",
-                           GTK_SIGNAL_FUNC(stop_cb), (gpointer) stop_flag);
-	gtk_signal_connect(GTK_OBJECT(dlg_w), "delete_event",
-                           GTK_SIGNAL_FUNC(delete_event_cb),
-                           (gpointer) stop_flag);
-#else
-	g_signal_connect(G_OBJECT(stop_bt), "clicked",
-                         G_CALLBACK(stop_cb), (gpointer) stop_flag);
-	g_signal_connect(G_OBJECT(dlg_w), "delete_event",
-                         G_CALLBACK(delete_event_cb), (gpointer) stop_flag);
-#endif
+	SIGNAL_CONNECT(stop_bt, "clicked", stop_cb, stop_flag);
+	SIGNAL_CONNECT(dlg_w, "delete_event", delete_event_cb, stop_flag);
 	GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(stop_bt);
 	GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
@@ -372,7 +363,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status)
 	}
 
 	/* update progress bar */
-	prog_bar = gtk_object_get_data(GTK_OBJECT(dlg_w), PROG_BAR_KEY);
+	prog_bar = OBJECT_GET_DATA(dlg_w, PROG_BAR_KEY);
 #if GTK_MAJOR_VERSION < 2
 	gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), percentage);
 #else

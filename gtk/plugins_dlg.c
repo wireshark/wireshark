@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.27 2002/11/03 17:38:34 oabad Exp $
+ * $Id: plugins_dlg.c,v 1.28 2002/11/11 15:39:05 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #if GTK_MAJOR_VERSION >= 2
 #include "ui_util.h"
 #endif
+#include "compat_macros.h"
 
 #ifdef HAVE_PLUGINS
 
@@ -42,13 +43,6 @@ static void plugins_close_cb(GtkWidget *, gpointer);
 static void plugins_scan(GtkWidget *);
 #else
 static void plugins_scan(GtkListStore *);
-
-enum
-{
-    COLUMN_NAME,
-    COLUMN_VERSION,
-    NUM_COLUMNS
-};
 #endif
 
 void
@@ -63,9 +57,8 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     GtkWidget *frame_vbnbox;
     GtkWidget *main_hbnbox;
     GtkWidget *close_bn;
-#if GTK_MAJOR_VERSION < 2
     gchar     *titles[] = {"Name", "Version"};
-#else
+#if GTK_MAJOR_VERSION >= 2
     GtkListStore *store;
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
@@ -89,11 +82,7 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
     scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(frame_hbox), scrolledwindow, TRUE, TRUE, 0);
-#if GTK_MAJOR_VERSION < 2
-    gtk_widget_set_usize(scrolledwindow, 400, 150);
-#else
-    gtk_widget_set_size_request(scrolledwindow, 400, 150);
-#endif
+    WIDGET_SET_SIZE(scrolledwindow, 400, 150);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_widget_show(scrolledwindow);
@@ -108,22 +97,21 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     gtk_clist_set_column_auto_resize(GTK_CLIST(plugins_list), 1, TRUE);
     plugins_scan(plugins_list);
 #else
-    store = gtk_list_store_new(NUM_COLUMNS, G_TYPE_STRING, G_TYPE_STRING);
+    store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
     plugins_scan(store);
     plugins_list = tree_view_new(GTK_TREE_MODEL(store));
     gtk_tree_view_set_search_column(GTK_TREE_VIEW(plugins_list), 0);
     g_object_unref(G_OBJECT(store));
     gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Name", renderer, "text",
-                                                      COLUMN_NAME, NULL);
-    gtk_tree_view_column_set_sort_column_id(column, COLUMN_NAME);
+    column = gtk_tree_view_column_new_with_attributes(titles[0], renderer,
+                                                      "text", 0, NULL);
+    gtk_tree_view_column_set_sort_column_id(column, 0);
     gtk_tree_view_append_column(GTK_TREE_VIEW(plugins_list), column);
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Version", renderer,
-                                                      "text", COLUMN_VERSION,
-                                                      NULL);
-    gtk_tree_view_column_set_sort_column_id(column, COLUMN_VERSION);
+    column = gtk_tree_view_column_new_with_attributes(titles[1], renderer,
+                                                      "text", 1, NULL);
+    gtk_tree_view_column_set_sort_column_id(column, 1);
     gtk_tree_view_append_column(GTK_TREE_VIEW(plugins_list), column);
 #endif
     gtk_widget_show(plugins_list);
@@ -149,14 +137,7 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #endif
     gtk_container_add(GTK_CONTAINER(main_hbnbox), close_bn);
     gtk_widget_show(close_bn);
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(close_bn), "clicked",
-                       GTK_SIGNAL_FUNC(plugins_close_cb),
-                       GTK_OBJECT(plugins_window));
-#else
-    g_signal_connect(G_OBJECT(close_bn), "clicked",
-                     G_CALLBACK(plugins_close_cb), G_OBJECT(plugins_window));
-#endif
+    SIGNAL_CONNECT(close_bn, "clicked", plugins_close_cb, plugins_window);
 
     gtk_widget_show(plugins_window);
 
@@ -189,8 +170,8 @@ plugins_scan(GtkListStore *store)
 	gtk_clist_append(GTK_CLIST(list), plugent);
 #else
         gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, COLUMN_NAME, pt_plug->name,
-                           COLUMN_VERSION, pt_plug->version, -1);
+        gtk_list_store_set(store, &iter, 0, pt_plug->name, 1, pt_plug->version,
+                           -1);
 #endif
 	pt_plug = pt_plug->next;
     }

@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.54 2002/11/03 17:38:34 oabad Exp $
+ * $Id: prefs_dlg.c,v 1.55 2002/11/11 15:39:05 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
+#include "compat_macros.h"
 
 #include "prefs-int.h"
 
@@ -226,7 +227,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
   gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-  gtk_object_set_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY, cts->tooltips);
+  OBJECT_SET_DATA(main_tb, E_TOOLTIPS_KEY, cts->tooltips);
 
   /* Add items for each of the preferences */
   prefs_pref_foreach(module, pref_show, main_tb);
@@ -284,17 +285,8 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   copy_prefs(&saved_prefs, &prefs);
 
   prefs_w = dlg_window_new("Ethereal: Preferences");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(prefs_w), "delete_event",
-                     GTK_SIGNAL_FUNC(prefs_main_delete_cb), NULL);
-  gtk_signal_connect(GTK_OBJECT(prefs_w), "destroy",
-                     GTK_SIGNAL_FUNC(prefs_main_destroy_cb), NULL);
-#else
-  g_signal_connect(G_OBJECT(prefs_w), "delete_event",
-                   G_CALLBACK(prefs_main_delete_cb), NULL);
-  g_signal_connect(G_OBJECT(prefs_w), "destroy",
-                   G_CALLBACK(prefs_main_destroy_cb), NULL);
-#endif
+  SIGNAL_CONNECT(prefs_w, "delete_event", prefs_main_delete_cb, NULL);
+  SIGNAL_CONNECT(prefs_w, "destroy", prefs_main_destroy_cb, NULL);
 
   /*
    * Unfortunately, we can't arrange that a GtkTable widget wrap an event box
@@ -344,11 +336,9 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
 #if GTK_MAJOR_VERSION < 2
   gtk_clist_set_column_auto_resize(GTK_CLIST(cts.tree), 0, TRUE);
-  gtk_signal_connect(GTK_OBJECT(cts.tree), "tree-select-row",
-                     GTK_SIGNAL_FUNC(prefs_tree_select_cb), NULL);
+  SIGNAL_CONNECT(cts.tree, "tree-select-row", prefs_tree_select_cb, NULL);
 #else
-  g_signal_connect(G_OBJECT(selection), "changed",
-                   G_CALLBACK(prefs_tree_select_cb), NULL);
+  SIGNAL_CONNECT(selection, "changed", prefs_tree_select_cb, NULL);
 #endif
   gtk_widget_show(cts.tree);
 
@@ -364,7 +354,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(GTK_WIDGET(frame));
   print_pg = printer_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), print_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_PRINT_PAGE_KEY, print_pg);
+  OBJECT_SET_DATA(prefs_w, E_PRINT_PAGE_KEY, print_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Printing");
 #if GTK_MAJOR_VERSION < 2
@@ -383,7 +373,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(GTK_WIDGET(frame));
   column_pg = column_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), column_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY, column_pg);
+  OBJECT_SET_DATA(prefs_w, E_COLUMN_PAGE_KEY, column_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Columns");
 #if GTK_MAJOR_VERSION < 2
@@ -402,7 +392,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(GTK_WIDGET(frame));
   stream_pg = stream_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), stream_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY, stream_pg);
+  OBJECT_SET_DATA(prefs_w, E_STREAM_PAGE_KEY, stream_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "TCP Streams");
 #if GTK_MAJOR_VERSION < 2
@@ -421,7 +411,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(GTK_WIDGET(frame));
   gui_pg = gui_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), gui_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY, gui_pg);
+  OBJECT_SET_DATA(prefs_w, E_GUI_PAGE_KEY, gui_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "User Interface");
 #if GTK_MAJOR_VERSION < 2
@@ -445,7 +435,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(GTK_WIDGET(frame));
   capture_pg = capture_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), capture_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_CAPTURE_PAGE_KEY, capture_pg);
+  OBJECT_SET_DATA(prefs_w, E_CAPTURE_PAGE_KEY, capture_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Capture");
 #if GTK_MAJOR_VERSION < 2
@@ -468,7 +458,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(GTK_WIDGET(frame));
   nameres_pg = nameres_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), nameres_pg);
-  gtk_object_set_data(GTK_OBJECT(prefs_w), E_NAMERES_PAGE_KEY, nameres_pg);
+  OBJECT_SET_DATA(prefs_w, E_NAMERES_PAGE_KEY, nameres_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
   strcpy(label_str, "Name resolution");
 #if GTK_MAJOR_VERSION < 2
@@ -508,13 +498,10 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
 #if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
-  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-                     GTK_SIGNAL_FUNC(prefs_main_ok_cb), GTK_OBJECT(prefs_w));
 #else
   ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-  g_signal_connect(G_OBJECT(ok_bt), "clicked",
-                   G_CALLBACK(prefs_main_ok_cb), G_OBJECT(prefs_w));
 #endif
+  SIGNAL_CONNECT(ok_bt, "clicked", prefs_main_ok_cb, prefs_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
@@ -522,40 +509,30 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
 #if GTK_MAJOR_VERSION < 2
   apply_bt = gtk_button_new_with_label ("Apply");
-  gtk_signal_connect(GTK_OBJECT(apply_bt), "clicked",
-                     GTK_SIGNAL_FUNC(prefs_main_apply_cb), GTK_OBJECT(prefs_w));
 #else
   apply_bt = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-  g_signal_connect(G_OBJECT(apply_bt), "clicked",
-                   G_CALLBACK(prefs_main_apply_cb), G_OBJECT(prefs_w));
 #endif
+  SIGNAL_CONNECT(apply_bt, "clicked", prefs_main_apply_cb, prefs_w);
   GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), apply_bt, TRUE, TRUE, 0);
   gtk_widget_show(apply_bt);
 
 #if GTK_MAJOR_VERSION < 2
   save_bt = gtk_button_new_with_label ("Save");
-  gtk_signal_connect(GTK_OBJECT(save_bt), "clicked",
-                     GTK_SIGNAL_FUNC(prefs_main_save_cb), GTK_OBJECT(prefs_w));
 #else
   save_bt = gtk_button_new_from_stock(GTK_STOCK_SAVE);
-  g_signal_connect(G_OBJECT(save_bt), "clicked",
-                   G_CALLBACK(prefs_main_save_cb), G_OBJECT(prefs_w));
 #endif
+  SIGNAL_CONNECT(save_bt, "clicked", prefs_main_save_cb, prefs_w);
   GTK_WIDGET_SET_FLAGS(save_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), save_bt, TRUE, TRUE, 0);
   gtk_widget_show(save_bt);
 
 #if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-                     GTK_SIGNAL_FUNC(prefs_main_cancel_cb),
-                     GTK_OBJECT(prefs_w));
 #else
   cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-  g_signal_connect(G_OBJECT(cancel_bt), "clicked",
-                   G_CALLBACK(prefs_main_cancel_cb), G_OBJECT(prefs_w));
 #endif
+  SIGNAL_CONNECT(cancel_bt, "clicked", prefs_main_cancel_cb, prefs_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
@@ -599,7 +576,7 @@ create_preference_check_button(GtkWidget *main_tb, int table_position,
 	GtkTooltips *tooltips;
 	GtkWidget *check_box;
 
-	tooltips = gtk_object_get_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY);
+	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
 
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 	    tooltips);
@@ -626,7 +603,7 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 	const enum_val_t *enum_valp;
 	GtkWidget *event_box;
 
-	tooltips = gtk_object_get_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY);
+	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
 
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 	    tooltips);
@@ -713,7 +690,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
 	const enum_val_t *enum_valp;
 	GtkWidget *event_box;
 
-	tooltips = gtk_object_get_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY);
+	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
 
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 	    tooltips);
@@ -779,7 +756,7 @@ create_preference_entry(GtkWidget *main_tb, int table_position,
 	GtkTooltips *tooltips;
 	GtkWidget *entry;
 
-	tooltips = gtk_object_get_data(GTK_OBJECT(main_tb), E_TOOLTIPS_KEY);
+	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
 
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 	    tooltips);
@@ -922,50 +899,39 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   /* Fetch the preferences (i.e., make sure all the values set in all of
      the preferences panes have been copied to "prefs" and the registered
      preferences). */
-  printer_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_PRINT_PAGE_KEY));
-  column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_COLUMN_PAGE_KEY));
-  stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_STREAM_PAGE_KEY));
-  gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                      E_GUI_PAGE_KEY));
+  printer_prefs_fetch(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
+  column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  gui_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_CAPTURE_PAGE_KEY));
+  capture_prefs_fetch(OBJECT_GET_DATA(parent_w, E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  nameres_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_NAMERES_PAGE_KEY));
+  nameres_prefs_fetch(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
   /* Now apply those preferences. */
-  printer_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_PRINT_PAGE_KEY));
-  column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_COLUMN_PAGE_KEY));
-  stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_STREAM_PAGE_KEY));
-  gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
+  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
+  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_CAPTURE_PAGE_KEY));
+  capture_prefs_apply(OBJECT_GET_DATA(parent_w, E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_NAMERES_PAGE_KEY));
+  nameres_prefs_apply(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
   /* Now destroy the "Preferences" dialog. */
@@ -985,49 +951,39 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   /* Fetch the preferences (i.e., make sure all the values set in all of
      the preferences panes have been copied to "prefs" and the registered
      preferences). */
-  printer_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_PRINT_PAGE_KEY));
-  column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_COLUMN_PAGE_KEY));
-  stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_STREAM_PAGE_KEY));
-  gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  printer_prefs_fetch(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
+  column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  gui_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_CAPTURE_PAGE_KEY));
+  capture_prefs_fetch(OBJECT_GET_DATA(parent_w, E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  nameres_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_NAMERES_PAGE_KEY));
+  nameres_prefs_fetch(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
   /* Now apply those preferences. */
-  printer_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_PRINT_PAGE_KEY));
-  column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_COLUMN_PAGE_KEY));
-  stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_STREAM_PAGE_KEY));
-  gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
+  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
+  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_CAPTURE_PAGE_KEY));
+  capture_prefs_apply(OBJECT_GET_DATA(parent_w, E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_NAMERES_PAGE_KEY));
+  nameres_prefs_apply(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
   if (must_redissect) {
@@ -1047,26 +1003,21 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   /* Fetch the preferences (i.e., make sure all the values set in all of
      the preferences panes have been copied to "prefs" and the registered
      preferences). */
-  printer_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_PRINT_PAGE_KEY));
-  column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_COLUMN_PAGE_KEY));
-  stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_STREAM_PAGE_KEY));
-  gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  printer_prefs_fetch(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
+  column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  gui_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_CAPTURE_PAGE_KEY));
+  capture_prefs_fetch(OBJECT_GET_DATA(parent_w, E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  nameres_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_NAMERES_PAGE_KEY));
+  nameres_prefs_fetch(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
   /* Create the directory that holds personal configuration files, if
@@ -1101,26 +1052,21 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 	   "Apply" after this, we know we have to redissect;
 
 	4) we did apply the protocol preferences, at least, in the past. */
-  printer_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_PRINT_PAGE_KEY));
-  column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_COLUMN_PAGE_KEY));
-  stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_STREAM_PAGE_KEY));
-  gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
+  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
+  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_CAPTURE_PAGE_KEY));
+  capture_prefs_apply(OBJECT_GET_DATA(parent_w, E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_NAMERES_PAGE_KEY));
+  nameres_prefs_apply(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
   if (must_redissect) {
@@ -1208,15 +1154,11 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
   prefs_module_foreach(module_prefs_revert, &must_redissect);
 
   /* Now apply the reverted-to preferences. */
-  printer_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_PRINT_PAGE_KEY));
-  column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_COLUMN_PAGE_KEY));
-  stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                         E_STREAM_PAGE_KEY));
-  gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
-  nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w),
-                                          E_NAMERES_PAGE_KEY));
+  printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
+  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
+  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
+  nameres_prefs_apply(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
@@ -1242,26 +1184,21 @@ static void
 prefs_main_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
   /* Let the preference tabs clean up anything they've done. */
-  printer_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w),
-                                            E_PRINT_PAGE_KEY));
-  column_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w),
-                                           E_COLUMN_PAGE_KEY));
-  stream_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w),
-                                           E_STREAM_PAGE_KEY));
-  gui_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY));
+  printer_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_PRINT_PAGE_KEY));
+  column_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_COLUMN_PAGE_KEY));
+  stream_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_STREAM_PAGE_KEY));
+  gui_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w),
-                                            E_CAPTURE_PAGE_KEY));
+  capture_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  nameres_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w),
-                                            E_NAMERES_PAGE_KEY));
+  nameres_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_NAMERES_PAGE_KEY));
 
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */

@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.11 2002/11/03 17:38:34 oabad Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.12 2002/11/11 15:39:06 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "main.h"
+#include "compat_macros.h"
 
 #if GTK_MAJOR_VERSION < 2
 #define NUM_STAT_COLUMNS 6
@@ -260,9 +261,9 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 #if GTK_MAJOR_VERSION < 2
     height = GTK_CLIST(tree)->rows * (GTK_CLIST(tree)->row_height + 5);
     height = MIN(height, MAX_DLG_HEIGHT);
-    gtk_widget_set_usize(tree, DEF_DLG_WIDTH, height);
+    WIDGET_SET_SIZE(tree, DEF_DLG_WIDTH, height);
 #else
-    gtk_widget_set_size_request(tree, DEF_DLG_WIDTH, MAX_DLG_HEIGHT);
+    WIDGET_SET_SIZE(tree, DEF_DLG_WIDTH, MAX_DLG_HEIGHT);
 #endif
 
     gtk_container_add(GTK_CONTAINER(sw), tree);
@@ -287,13 +288,7 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	dlg = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(dlg), "Ethereal: " WNAME);
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect (GTK_OBJECT (dlg), "realize",
-                            GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
-#else
-        g_signal_connect(G_OBJECT(dlg), "realize",
-                         G_CALLBACK(window_icon_realize_cb), NULL);
-#endif
+	SIGNAL_CONNECT(dlg, "realize", window_icon_realize_cb, NULL);
 
 	vbox = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(vbox), 5);
@@ -317,15 +312,10 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* Close button */
 #if GTK_MAJOR_VERSION < 2
 	bt = gtk_button_new_with_label("Close");
-	gtk_signal_connect_object(GTK_OBJECT(bt), "clicked",
-                                  GTK_SIGNAL_FUNC(gtk_widget_destroy),
-                                  GTK_OBJECT(dlg));
 #else
         bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-	g_signal_connect_swapped(G_OBJECT(bt), "clicked",
-                                 G_CALLBACK(gtk_widget_destroy),
-                                 G_OBJECT(dlg));
 #endif
+	SIGNAL_CONNECT_OBJECT(bt, "clicked", gtk_widget_destroy, dlg);
 	gtk_container_add(GTK_CONTAINER(bbox), bt);
 	GTK_WIDGET_SET_FLAGS(bt, GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(bt);

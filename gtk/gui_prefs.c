@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.37 2002/11/03 17:38:33 oabad Exp $
+ * $Id: gui_prefs.c,v 1.38 2002/11/11 15:39:05 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include "dlg_utils.h"
 #include "proto_draw.h"
 #include "main.h"
+#include "compat_macros.h"
 
 static void font_browse_cb(GtkWidget *w, gpointer data);
 static void font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs);
@@ -173,86 +174,72 @@ gui_prefs_show(void)
 	scrollbar_om = create_preference_option_menu(main_tb, pos++,
 	    "Vertical scrollbar placement:", NULL, scrollbar_placement_vals,
 	    prefs.gui_scrollbar_on_right);
-	gtk_object_set_data(GTK_OBJECT(main_vb), SCROLLBAR_PLACEMENT_KEY,
-	    scrollbar_om);
+	OBJECT_SET_DATA(main_vb, SCROLLBAR_PLACEMENT_KEY, scrollbar_om);
 
 	/* Packet list selection browseable */
 	plist_browse_om = create_preference_option_menu(main_tb, pos++,
 	    "Packet list mouse behavior:", NULL, selection_mode_vals,
 	    prefs.gui_plist_sel_browse);
-	gtk_object_set_data(GTK_OBJECT(main_vb), PLIST_SEL_BROWSE_KEY,
-	    plist_browse_om);
+	OBJECT_SET_DATA(main_vb, PLIST_SEL_BROWSE_KEY, plist_browse_om);
 
 	/* Proto tree selection browseable */
 	ptree_browse_om = create_preference_option_menu(main_tb, pos++,
 	    "Protocol tree mouse behavior:", NULL, selection_mode_vals,
 	    prefs.gui_ptree_sel_browse);
-	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_SEL_BROWSE_KEY,
-	    ptree_browse_om);
+	OBJECT_SET_DATA(main_vb, PTREE_SEL_BROWSE_KEY, ptree_browse_om);
 
 #if GTK_MAJOR_VERSION < 2
 	/* Tree line style */
 	line_style_om = create_preference_option_menu(main_tb, pos++,
 	    "Tree line style:", NULL, line_style_vals,
 	    prefs.gui_ptree_line_style);
-	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_LINE_STYLE_KEY,
-	    line_style_om);
+	OBJECT_SET_DATA(main_vb, PTREE_LINE_STYLE_KEY, line_style_om);
 
 	/* Tree expander style */
 	expander_style_om = create_preference_option_menu(main_tb, pos++,
 	    "Tree expander style:", NULL, expander_style_vals,
 	    prefs.gui_ptree_expander_style);
-	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_EXPANDER_STYLE_KEY,
-	    expander_style_om);
+	OBJECT_SET_DATA(main_vb, PTREE_EXPANDER_STYLE_KEY, expander_style_om);
 #else
         /* Alternating row colors in list and tree views */
 	altern_colors_om = create_preference_option_menu(main_tb, pos++,
 	    "Alternating row colors in lists and trees:", NULL,
             altern_colors_vals, prefs.gui_altern_colors);
-	gtk_object_set_data(GTK_OBJECT(main_vb), ALTERN_COLORS_KEY,
-	    altern_colors_om);
+	OBJECT_SET_DATA(main_vb, ALTERN_COLORS_KEY, altern_colors_om);
 #endif
 
 	/* Hex Dump highlight style */
 	highlight_style_om = create_preference_option_menu(main_tb, pos++,
 	    "Hex display highlight style:", NULL, highlight_style_vals,
 	    prefs.gui_hex_dump_highlight_style);
-	gtk_object_set_data(GTK_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY,
-	    highlight_style_om);
+	OBJECT_SET_DATA(main_vb, HEX_DUMP_HIGHLIGHT_STYLE_KEY,
+                        highlight_style_om);
 
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb, pos++,
             "Save window position:", NULL, prefs.gui_geometry_save_position);
-	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_POSITION_KEY,
-	    save_position_cb);
+	OBJECT_SET_DATA(main_vb, GEOMETRY_POSITION_KEY, save_position_cb);
 
 	save_size_cb = create_preference_check_button(main_tb, pos++,
 	    "Save window size:", NULL, prefs.gui_geometry_save_size);
-	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_SIZE_KEY,
-	    save_size_cb);
+	OBJECT_SET_DATA(main_vb, GEOMETRY_SIZE_KEY, save_size_cb);
 
 	/* "Font..." button - click to open a font selection dialog box. */
 #if GTK_MAJOR_VERSION < 2
 	font_bt = gtk_button_new_with_label("Font...");
-	gtk_signal_connect(GTK_OBJECT(font_bt), "clicked",
-                           GTK_SIGNAL_FUNC(font_browse_cb), NULL);
 #else
         font_bt = gtk_button_new_from_stock(GTK_STOCK_SELECT_FONT);
-	g_signal_connect(G_OBJECT(font_bt), "clicked",
-                         G_CALLBACK(font_browse_cb), NULL);
 #endif
+	SIGNAL_CONNECT(font_bt, "clicked", font_browse_cb, NULL);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), font_bt, 2, 3, 0, 1 );
 
 	/* "Colors..." button - click to open a color selection dialog box. */
 #if GTK_MAJOR_VERSION < 2
 	color_bt = gtk_button_new_with_label("Colors...");
-	gtk_signal_connect(GTK_OBJECT(color_bt), "clicked",
-                           GTK_SIGNAL_FUNC(color_browse_cb), NULL);
 #else
         color_bt = gtk_button_new_from_stock(GTK_STOCK_SELECT_COLOR);
-	g_signal_connect(G_OBJECT(color_bt), "clicked",
-                         G_CALLBACK(color_browse_cb), NULL);
 #endif
+	SIGNAL_CONNECT(color_bt, "clicked", color_browse_cb, NULL);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), color_bt, 2, 3, 1, 2 );
 
 	/* Show 'em what we got */
@@ -273,8 +260,7 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 
 	/* Has a font dialog box already been opened for that top-level
 	   widget? */
-	font_browse_w = gtk_object_get_data(GTK_OBJECT(caller),
-	    FONT_DIALOG_PTR_KEY);
+	font_browse_w = OBJECT_GET_DATA(caller, FONT_DIALOG_PTR_KEY);
 
 	if (font_browse_w != NULL) {
 		/* Yes.  Just re-activate that dialog box. */
@@ -289,13 +275,7 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 
 	/* Call a handler when we're destroyed, so we can inform
 	   our caller, if any, that we've been destroyed. */
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(font_browse_w), "destroy",
-                           GTK_SIGNAL_FUNC(font_browse_destroy), NULL);
-#else
-        g_signal_connect(G_OBJECT(font_browse_w), "destroy",
-                         G_CALLBACK(font_browse_destroy), NULL);
-#endif
+	SIGNAL_CONNECT(font_browse_w, "destroy", font_browse_destroy, NULL);
 
 #if GTK_MAJOR_VERSION < 2
 	/* Set its filter to show only fixed_width fonts. */
@@ -320,46 +300,22 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 	gtk_font_selection_dialog_set_font_name(
 	    GTK_FONT_SELECTION_DIALOG(font_browse_w), prefs.gui_font_name);
 
-#if GTK_MAJOR_VERSION < 2
 	/* Set the FONT_CALLER_PTR_KEY for the new dialog to point to
 	   our caller. */
-	gtk_object_set_data(GTK_OBJECT(font_browse_w), FONT_CALLER_PTR_KEY,
-                            caller);
+	OBJECT_SET_DATA(font_browse_w, FONT_CALLER_PTR_KEY, caller);
 
 	/* Set the FONT_DIALOG_PTR_KEY for the caller to point to us */
-	gtk_object_set_data(GTK_OBJECT(caller), FONT_DIALOG_PTR_KEY,
-                            font_browse_w);
+	OBJECT_SET_DATA(caller, FONT_DIALOG_PTR_KEY, font_browse_w);
 
 	/* Connect the ok_button to font_browse_ok_cb function and pass along a
 	   pointer to the font selection box widget */
-	gtk_signal_connect(
-	    GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->ok_button),
-	    "clicked", (GtkSignalFunc)font_browse_ok_cb, font_browse_w);
+	SIGNAL_CONNECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->ok_button,
+                       "clicked", font_browse_ok_cb, font_browse_w);
 
 	/* Connect the cancel_button to destroy the widget */
-	gtk_signal_connect_object(
-	    GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button),
-	    "clicked", (GtkSignalFunc)gtk_widget_destroy,
-	    GTK_OBJECT(font_browse_w));
-#else
-	/* Set the FONT_CALLER_PTR_KEY for the new dialog to point to
-	   our caller. */
-	g_object_set_data(G_OBJECT(font_browse_w), FONT_CALLER_PTR_KEY, caller);
-
-	/* Set the FONT_DIALOG_PTR_KEY for the caller to point to us */
-	g_object_set_data(G_OBJECT(caller), FONT_DIALOG_PTR_KEY, font_browse_w);
-
-	/* Connect the ok_button to font_browse_ok_cb function and pass along a
-	   pointer to the font selection box widget */
-	g_signal_connect(
-	    G_OBJECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->ok_button),
-	    "clicked", G_CALLBACK(font_browse_ok_cb), font_browse_w);
-
-	/* Connect the cancel_button to destroy the widget */
-	g_signal_connect_swapped(
-	    G_OBJECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button),
-	    "clicked", G_CALLBACK(gtk_widget_destroy), G_OBJECT(font_browse_w));
-#endif
+	SIGNAL_CONNECT_OBJECT(
+            GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button, "clicked",
+            gtk_widget_destroy, font_browse_w);
 
 	/* Catch the "key_press_event" signal in the window, so that we can
 	   catch the ESC key being pressed and act as if the "Cancel" button
@@ -454,12 +410,11 @@ font_browse_destroy(GtkWidget *win, gpointer data _U_)
 	/* Get the widget that requested that we be popped up, if any.
 	   (It should arrange to destroy us if it's destroyed, so
 	   that we don't get a pointer to a non-existent window here.) */
-	caller = gtk_object_get_data(GTK_OBJECT(win), FONT_CALLER_PTR_KEY);
+	caller = OBJECT_GET_DATA(win, FONT_CALLER_PTR_KEY);
 
 	if (caller != NULL) {
 		/* Tell it we no longer exist. */
-		gtk_object_set_data(GTK_OBJECT(caller), FONT_DIALOG_PTR_KEY,
-		    NULL);
+		OBJECT_SET_DATA(caller, FONT_DIALOG_PTR_KEY, NULL);
 	}
 
 	/* Now nuke this window. */
@@ -477,35 +432,29 @@ void
 gui_prefs_fetch(GtkWidget *w)
 {
 	prefs.gui_scrollbar_on_right = fetch_enum_value(
-	    gtk_object_get_data(GTK_OBJECT(w), SCROLLBAR_PLACEMENT_KEY),
-	    scrollbar_placement_vals);
+	    OBJECT_GET_DATA(w, SCROLLBAR_PLACEMENT_KEY),
+            scrollbar_placement_vals);
 	prefs.gui_plist_sel_browse = fetch_enum_value(
-	    gtk_object_get_data(GTK_OBJECT(w), PLIST_SEL_BROWSE_KEY),
-	    selection_mode_vals);
+	    OBJECT_GET_DATA(w, PLIST_SEL_BROWSE_KEY), selection_mode_vals);
 	prefs.gui_ptree_sel_browse = fetch_enum_value(
-	    gtk_object_get_data(GTK_OBJECT(w), PTREE_SEL_BROWSE_KEY),
-	    selection_mode_vals);
+	    OBJECT_GET_DATA(w, PTREE_SEL_BROWSE_KEY), selection_mode_vals);
 #if GTK_MAJOR_VERSION < 2
 	prefs.gui_ptree_line_style = fetch_enum_value(
-	    gtk_object_get_data(GTK_OBJECT(w), PTREE_LINE_STYLE_KEY),
-	    line_style_vals);
+	    OBJECT_GET_DATA(w, PTREE_LINE_STYLE_KEY), line_style_vals);
 	prefs.gui_ptree_expander_style = fetch_enum_value(
-	    gtk_object_get_data(GTK_OBJECT(w), PTREE_EXPANDER_STYLE_KEY),
-	    expander_style_vals);
+	    OBJECT_GET_DATA(w, PTREE_EXPANDER_STYLE_KEY), expander_style_vals);
 #else
         prefs.gui_altern_colors = fetch_enum_value(
-	    gtk_object_get_data(GTK_OBJECT(w), ALTERN_COLORS_KEY),
-	    altern_colors_vals);
+	    OBJECT_GET_DATA(w, ALTERN_COLORS_KEY), altern_colors_vals);
 #endif
 	prefs.gui_hex_dump_highlight_style = fetch_enum_value(
-	    gtk_object_get_data(GTK_OBJECT(w), HEX_DUMP_HIGHLIGHT_STYLE_KEY),
-	    highlight_style_vals);
+	    OBJECT_GET_DATA(w, HEX_DUMP_HIGHLIGHT_STYLE_KEY),
+            highlight_style_vals);
 	prefs.gui_geometry_save_position =
-	    gtk_toggle_button_get_active(gtk_object_get_data(GTK_OBJECT(w),
+	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w,
 	    	GEOMETRY_POSITION_KEY));
 	prefs.gui_geometry_save_size =
-	    gtk_toggle_button_get_active(gtk_object_get_data(GTK_OBJECT(w),
-	    	GEOMETRY_SIZE_KEY));
+	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_SIZE_KEY));
 
 	if (font_changed) {
 		if (prefs.gui_font_name != NULL)
@@ -593,7 +542,7 @@ gui_prefs_destroy(GtkWidget *w)
 
 	/* Is there a font selection dialog associated with this
 	   Preferences dialog? */
-	fs = gtk_object_get_data(GTK_OBJECT(caller), FONT_DIALOG_PTR_KEY);
+	fs = OBJECT_GET_DATA(caller, FONT_DIALOG_PTR_KEY);
 
 	if (fs != NULL) {
 		/* Yes.  Destroy it. */
@@ -602,7 +551,7 @@ gui_prefs_destroy(GtkWidget *w)
 
 	/* Is there a color selection dialog associated with this
 	   Preferences dialog? */
-	fs = gtk_object_get_data(GTK_OBJECT(caller), COLOR_DIALOG_PTR_KEY);
+	fs = OBJECT_GET_DATA(caller, COLOR_DIALOG_PTR_KEY);
 
 	if (fs != NULL) {
 		/* Yes.  Destroy it. */
@@ -659,8 +608,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
 
   /* Has a color dialog box already been opened for that top-level
      widget? */
-  color_w = gtk_object_get_data(GTK_OBJECT(caller),
-				COLOR_DIALOG_PTR_KEY);
+  color_w = OBJECT_GET_DATA(caller, COLOR_DIALOG_PTR_KEY);
 
   if (color_w != NULL) {
     /* Yes.  Just re-activate that dialog box. */
@@ -685,23 +633,11 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
      into it. */
   color_w = dlg_window_new("Ethereal: Select Color");
 
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(color_w), "delete_event",
-    GTK_SIGNAL_FUNC(color_delete_cb), NULL);
+  SIGNAL_CONNECT(color_w, "delete_event", color_delete_cb, NULL);
 
   /* Call a handler when we're destroyed, so we can inform our caller,
      if any, that we've been destroyed. */
-  gtk_signal_connect(GTK_OBJECT(color_w), "destroy",
-		     GTK_SIGNAL_FUNC(color_destroy_cb), NULL);
-#else
-  g_signal_connect(G_OBJECT(color_w), "delete_event",
-                   G_CALLBACK(color_delete_cb), NULL);
-
-  /* Call a handler when we're destroyed, so we can inform our caller,
-     if any, that we've been destroyed. */
-  g_signal_connect(G_OBJECT(color_w), "destroy",
-                   G_CALLBACK(color_destroy_cb), NULL);
-#endif
+  SIGNAL_CONNECT(color_w, "destroy", color_destroy_cb, NULL);
 
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -721,17 +657,9 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   menu = gtk_menu_new();
   for (i = 0; i < MAX_HANDLED_COL; i++){
     menuitem = gtk_menu_item_new_with_label(color_info[i].label);
-    gtk_object_set_data(GTK_OBJECT(menuitem), COLOR_SELECTION_PTR_KEY,
-			(gpointer) colorsel);
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
-		       GTK_SIGNAL_FUNC(update_current_color),
-		       &color_info[i].color);
-#else
-    g_signal_connect(G_OBJECT(menuitem), "activate",
-                     G_CALLBACK(update_current_color),
-		       &color_info[i].color);
-#endif
+    OBJECT_SET_DATA(menuitem, COLOR_SELECTION_PTR_KEY, colorsel);
+    SIGNAL_CONNECT(menuitem, "activate", update_current_color,
+                   &color_info[i].color);
     gtk_widget_show(menuitem);
     gtk_menu_append(GTK_MENU (menu), menuitem);
   }
@@ -743,7 +671,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   sample = gtk_text_new(FALSE, FALSE);
   height = sample->style->font->ascent + sample->style->font->descent;
   width = gdk_string_width(sample->style->font, SAMPLE_MARKED_TEXT);
-  gtk_widget_set_usize(GTK_WIDGET(sample), width, height);
+  WIDGET_SET_SIZE(GTK_WIDGET(sample), width, height);
   gtk_text_set_editable(GTK_TEXT(sample), FALSE);
   gtk_text_insert(GTK_TEXT(sample), NULL,
 		  &color_info[MFG_IDX].color,
@@ -766,23 +694,17 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
 #if GTK_MAJOR_VERSION < 2
   gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel),
 				&scolor[CS_RED]);
-  gtk_object_set_data(GTK_OBJECT(colorsel), COLOR_SAMPLE_PTR_KEY,
-		      (gpointer) sample);
-  gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed",
-		     GTK_SIGNAL_FUNC(update_text_color), NULL);
 #else
   gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel),
                                         curcolor);
-  g_object_set_data(G_OBJECT(colorsel), COLOR_SAMPLE_PTR_KEY,
-                    (gpointer) sample);
-  g_signal_connect(G_OBJECT(colorsel), "color-changed",
-                   G_CALLBACK(update_text_color), NULL);
 #endif
+  OBJECT_SET_DATA(colorsel, COLOR_SAMPLE_PTR_KEY, sample);
+  SIGNAL_CONNECT(colorsel, "color-changed", update_text_color, NULL);
   gtk_widget_show(colorsel);
   gtk_widget_show(main_vb);
 
-  gtk_object_set_data(GTK_OBJECT(color_w), COLOR_CALLER_PTR_KEY, caller);
-  gtk_object_set_data(GTK_OBJECT(caller), COLOR_DIALOG_PTR_KEY, color_w);
+  OBJECT_SET_DATA(color_w, COLOR_CALLER_PTR_KEY, caller);
+  OBJECT_SET_DATA(caller, COLOR_DIALOG_PTR_KEY, color_w);
 
   /* Ok, Cancel Buttons */
   bbox = gtk_hbutton_box_new();
@@ -793,27 +715,20 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
 
 #if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
-  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		     GTK_SIGNAL_FUNC(color_ok_cb), color_w);
 #else
   ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-  g_signal_connect(G_OBJECT(ok_bt), "clicked",
-		   G_CALLBACK(color_ok_cb), color_w);
 #endif
+  SIGNAL_CONNECT(ok_bt, "clicked", color_ok_cb, color_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 #if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
-			    (GtkSignalFunc)gtk_widget_destroy,
-			    GTK_OBJECT(color_w));
 #else
   cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-  g_signal_connect_swapped(G_OBJECT(cancel_bt), "clicked",
-                           G_CALLBACK(gtk_widget_destroy), G_OBJECT(color_w));
 #endif
+  SIGNAL_CONNECT_OBJECT(cancel_bt, "clicked", gtk_widget_destroy, color_w);
   gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
   dlg_set_cancel(color_w, cancel_bt);
@@ -823,8 +738,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
 
 static void
 update_text_color(GtkWidget *w, gpointer data _U_) {
-  GtkWidget     *sample = gtk_object_get_data(GTK_OBJECT(w),
-                                              COLOR_SAMPLE_PTR_KEY);
+  GtkWidget     *sample = OBJECT_GET_DATA(w, COLOR_SAMPLE_PTR_KEY);
 #if GTK_MAJOR_VERSION < 2
   gdouble        scolor[4];
 
@@ -865,8 +779,7 @@ update_current_color(GtkWidget *w, gpointer data)
 #if GTK_MAJOR_VERSION < 2
   gdouble            scolor[4];
 
-  colorsel = GTK_COLOR_SELECTION(gtk_object_get_data(GTK_OBJECT(w),
-						     COLOR_SELECTION_PTR_KEY));
+  colorsel = GTK_COLOR_SELECTION(OBJECT_GET_DATA(w, COLOR_SELECTION_PTR_KEY));
   curcolor = (GdkColor *)data;
   scolor[CS_RED]     = (gdouble) (curcolor->red)   / 65535.0;
   scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
@@ -916,10 +829,9 @@ color_delete_cb(GtkWidget *prefs_w _U_, gpointer dummy _U_)
 static void
 color_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
-  GtkWidget *caller = gtk_object_get_data(GTK_OBJECT(w),
-					  COLOR_CALLER_PTR_KEY);
+  GtkWidget *caller = OBJECT_GET_DATA(w, COLOR_CALLER_PTR_KEY);
   if (caller != NULL) {
-    gtk_object_set_data(GTK_OBJECT(caller), COLOR_DIALOG_PTR_KEY, NULL);
+    OBJECT_SET_DATA(caller, COLOR_DIALOG_PTR_KEY, NULL);
   }
   gtk_grab_remove(GTK_WIDGET(w));
   gtk_widget_destroy(GTK_WIDGET(w));

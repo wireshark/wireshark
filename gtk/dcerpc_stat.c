@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.2 2002/11/06 10:53:36 sahlberg Exp $
+ * $Id: dcerpc_stat.c,v 1.3 2002/11/11 15:39:05 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "packet-dcerpc.h"
 #include "dcerpc_stat.h"
 #include "../globals.h"
+#include "compat_macros.h"
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
@@ -299,7 +300,7 @@ gtk_dcerpcstat_init(char *optarg)
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	sprintf(title_string,"DCE-RPC RTT Stat for %s version %d.%d", rs->prog, rs->ver&0xff,rs->ver>>8);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
-	gtk_signal_connect(GTK_OBJECT(rs->win), "destroy", GTK_SIGNAL_FUNC(win_destroy_cb), rs);
+	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
@@ -471,8 +472,8 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 
 	sprintf(vs,"%d.%d",k->ver&0xff,k->ver>>8);
 	menu_item=gtk_menu_item_new_with_label(vs);
-	gtk_signal_connect(GTK_OBJECT(menu_item), "activate", 
-			GTK_SIGNAL_FUNC(dcerpcstat_version_select), (gpointer)((int)k->ver));
+	SIGNAL_CONNECT(menu_item, "activate", dcerpcstat_version_select,
+                       ((int)k->ver));
 	gtk_widget_show(menu_item);
 	gtk_menu_append(GTK_MENU(vers_menu), menu_item);
 
@@ -508,8 +509,7 @@ dcerpcstat_list_programs(gpointer *key, gpointer *value, gpointer *user_data _U_
 	GtkWidget *menu_item;
 
 	menu_item=gtk_menu_item_new_with_label(v->name);
-	gtk_signal_connect(GTK_OBJECT(menu_item), "activate", 
-			GTK_SIGNAL_FUNC(dcerpcstat_program_select), (gpointer)k);
+	SIGNAL_CONNECT(menu_item, "activate", dcerpcstat_program_select, k);
 
 	gtk_widget_show(menu_item);
 	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
@@ -540,7 +540,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(dlg), "DCE-RPC RTT Statistics");
-	gtk_signal_connect(GTK_OBJECT(dlg), "destroy", GTK_SIGNAL_FUNC(dlg_destroy_cb), NULL);
+	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 	dlg_box=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
@@ -598,9 +598,8 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* the start button */
 	start_button=gtk_button_new_with_label("Create Stat");
-	gtk_signal_connect_object(GTK_OBJECT(start_button), "clicked", 
-			GTK_SIGNAL_FUNC(dcerpcstat_start_button_clicked),
-			NULL);
+	SIGNAL_CONNECT_OBJECT(start_button, "clicked", 
+                              dcerpcstat_start_button_clicked, NULL);
 
 	gtk_box_pack_start(GTK_BOX(dlg_box), start_button, TRUE, TRUE, 0);
 	gtk_widget_show(start_button);

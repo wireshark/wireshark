@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.14 2002/11/03 17:38:34 oabad Exp $
+ * $Id: stream_prefs.c,v 1.15 2002/11/11 15:39:06 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "keys.h"
 #include "print.h"
 #include "prefs.h"
+#include "compat_macros.h"
 
 static void update_text_color(GtkWidget *, gpointer);
 static void update_current_color(GtkWidget *, gpointer);
@@ -106,16 +107,8 @@ stream_prefs_show()
   menu = gtk_menu_new ();
   for (i = 0; i < mcount; i++){
     menuitem = gtk_menu_item_new_with_label (mt[i]);
-#if GTK_MAJOR_VERSION < 2
-    gtk_object_set_data(GTK_OBJECT(menuitem), STREAM_CS_KEY,
-                        (gpointer) colorsel);
-    gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
-                       GTK_SIGNAL_FUNC(update_current_color), &tcolors[i]);
-#else
-    g_object_set_data(G_OBJECT(menuitem), STREAM_CS_KEY, (gpointer)colorsel);
-    g_signal_connect(G_OBJECT(menuitem), "activate",
-                     G_CALLBACK(update_current_color), &tcolors[i]);
-#endif
+    OBJECT_SET_DATA(menuitem, STREAM_CS_KEY, colorsel);
+    SIGNAL_CONNECT(menuitem, "activate", update_current_color, &tcolors[i]);
     gtk_widget_show (menuitem);
     gtk_menu_append (GTK_MENU (menu), menuitem);
   }
@@ -127,7 +120,7 @@ stream_prefs_show()
   sample = gtk_text_new(FALSE, FALSE);
   height = 2 * (sample->style->font->ascent + sample->style->font->descent);
   width = gdk_string_width(sample->style->font, "Sample server text");
-  gtk_widget_set_usize(GTK_WIDGET(sample), width, height);
+  WIDGET_SET_SIZE(sample, width, height);
   gtk_text_set_editable(GTK_TEXT(sample), FALSE);
   gtk_text_insert(GTK_TEXT(sample), NULL, &tcolors[CFG_IDX], &tcolors[CBG_IDX],
                   SAMPLE_CLIENT_TEXT, -1);
@@ -139,7 +132,7 @@ stream_prefs_show()
                 gtk_style_get_font(sample->style)->descent);
   width = gdk_string_width(gtk_style_get_font(sample->style),
                            "Sample server text");
-  gtk_widget_set_size_request(GTK_WIDGET(sample), width, height);
+  WIDGET_SET_SIZE(sample, width, height);
   gtk_text_view_set_editable(GTK_TEXT_VIEW(sample), FALSE);
   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sample));
   gtk_text_buffer_get_start_iter(buf, &iter);
@@ -166,16 +159,8 @@ stream_prefs_show()
   gtk_table_attach(GTK_TABLE(main_tb), colorsel, 0, 3, 2, 3,
 		  GTK_SHRINK, GTK_SHRINK, 0, 0);
 
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(colorsel), STREAM_SAMPLE_KEY,
-                      (gpointer)sample);
-  gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed",
-                     GTK_SIGNAL_FUNC(update_text_color), NULL);
-#else
-  g_object_set_data(G_OBJECT(colorsel), STREAM_SAMPLE_KEY, (gpointer)sample);
-  g_signal_connect(G_OBJECT(colorsel), "color-changed",
-                   G_CALLBACK(update_text_color), NULL);
-#endif
+  OBJECT_SET_DATA(colorsel, STREAM_SAMPLE_KEY, sample);
+  SIGNAL_CONNECT(colorsel, "color-changed", update_text_color, NULL);
   gtk_widget_show(colorsel);
 
   gtk_widget_show(main_vb);
@@ -185,10 +170,10 @@ stream_prefs_show()
 static void
 update_text_color(GtkWidget *w, gpointer data _U_) {
 #if GTK_MAJOR_VERSION < 2
-  GtkText  *sample   = gtk_object_get_data(GTK_OBJECT(w), STREAM_SAMPLE_KEY);
+  GtkText  *sample   = OBJECT_GET_DATA(w, STREAM_SAMPLE_KEY);
   gdouble   scolor[4];
 #else
-  GtkTextView *sample = gtk_object_get_data(GTK_OBJECT(w), STREAM_SAMPLE_KEY);
+  GtkTextView *sample = OBJECT_GET_DATA(w, STREAM_SAMPLE_KEY);
   GtkTextBuffer *buf;
   GtkTextTag    *tag;
 #endif
@@ -229,8 +214,7 @@ update_current_color(GtkWidget *w, gpointer data)
   gdouble            scolor[4];
 #endif
 
-  colorsel = GTK_COLOR_SELECTION(gtk_object_get_data(GTK_OBJECT(w),
-                                                     STREAM_CS_KEY));
+  colorsel = GTK_COLOR_SELECTION(OBJECT_GET_DATA(w, STREAM_CS_KEY));
   curcolor = (GdkColor *) data;
 
 #if GTK_MAJOR_VERSION < 2

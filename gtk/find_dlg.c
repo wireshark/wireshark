@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.25 2002/11/03 17:38:33 oabad Exp $
+ * $Id: find_dlg.c,v 1.26 2002/11/11 15:39:05 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "filter_prefs.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
+#include "compat_macros.h"
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY     "find_filter_te"
@@ -84,18 +85,14 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   find_frame_w = dlg_window_new("Ethereal: Find Frame");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(find_frame_w), "destroy",
-                     GTK_SIGNAL_FUNC(find_frame_destroy_cb), NULL);
+  SIGNAL_CONNECT(find_frame_w, "destroy", find_frame_destroy_cb, NULL);
 
+#if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
      Ctrl+<key> is an accelerator). */
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(find_frame_w), accel_group);
-#else
-  g_signal_connect(G_OBJECT(find_frame_w), "destroy",
-                   G_CALLBACK(find_frame_destroy_cb), NULL);
 #endif
 
   /* Container for each row of widgets */
@@ -110,19 +107,13 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(filter_hb);
 
   filter_bt = gtk_button_new_with_label("Filter:");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-                     GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
-#else
-  g_signal_connect(G_OBJECT(filter_bt), "clicked",
-                   G_CALLBACK(display_filter_construct_cb), &args);
-#endif
+  SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
 
   filter_te = gtk_entry_new();
   if (cfile.sfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.sfilter);
-  gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
+  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
   gtk_widget_show(filter_te);
 
@@ -162,14 +153,10 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
-  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-                     GTK_SIGNAL_FUNC(find_frame_ok_cb),
-                     GTK_OBJECT(find_frame_w));
 #else
   ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-  g_signal_connect(G_OBJECT(ok_bt), "clicked",
-                   G_CALLBACK(find_frame_ok_cb), G_OBJECT(find_frame_w));
 #endif
+  SIGNAL_CONNECT(ok_bt, "clicked", find_frame_ok_cb, find_frame_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
@@ -177,21 +164,17 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-                     GTK_SIGNAL_FUNC(find_frame_close_cb),
-                     GTK_OBJECT(find_frame_w));
 #else
   cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-  g_signal_connect(G_OBJECT(cancel_bt), "clicked",
-                   G_CALLBACK(find_frame_close_cb), G_OBJECT(find_frame_w));
 #endif
+  SIGNAL_CONNECT(cancel_bt, "clicked", find_frame_close_cb, find_frame_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
-  gtk_object_set_data(GTK_OBJECT(find_frame_w), E_FIND_FILT_KEY, filter_te);
-  gtk_object_set_data(GTK_OBJECT(find_frame_w), E_FIND_BACKWARD_KEY, backward_rb);
+  OBJECT_SET_DATA(find_frame_w, E_FIND_FILT_KEY, filter_te);
+  OBJECT_SET_DATA(find_frame_w, E_FIND_BACKWARD_KEY, backward_rb);
 
   /* Catch the "activate" signal on the frame number text entry, so that
      if the user types Return there, we act as if the "OK" button
@@ -217,8 +200,8 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   gchar     *filter_text;
   dfilter_t *sfcode;
 
-  filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_FIND_FILT_KEY);
-  backward_rb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_FIND_BACKWARD_KEY);
+  filter_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILT_KEY);
+  backward_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_BACKWARD_KEY);
 
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
 
@@ -271,7 +254,7 @@ find_frame_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
   /* Is there a filter edit/selection dialog associated with this
      Find Frame dialog? */
-  find_frame_filter_w = gtk_object_get_data(GTK_OBJECT(win), E_FILT_DIALOG_PTR_KEY);
+  find_frame_filter_w = OBJECT_GET_DATA(win, E_FILT_DIALOG_PTR_KEY);
 
   if (find_frame_filter_w != NULL) {
     /* Yes.  Destroy it. */

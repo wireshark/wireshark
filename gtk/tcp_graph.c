@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.23 2002/11/03 17:38:34 oabad Exp $
+ * $Id: tcp_graph.c,v 1.24 2002/11/11 15:39:06 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "simple_dialog.h"
 #include "ui_util.h"
 #include "tcp_graph.h"
+#include "compat_macros.h"
 
 /* from <net/ethernet.h> */
 struct ether_header {
@@ -579,15 +580,9 @@ static void create_text_widget (struct graph *g)
 	debug(DBS_FENTRY) puts ("create_text_widget()");
 	streamwindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name (streamwindow, "Packet chain");
-#if GTK_MAJOR_VERSION < 2
-	gtk_widget_set_usize(GTK_WIDGET(streamwindow), TXT_WIDTH, TXT_HEIGHT);
-#else
-	gtk_widget_set_size_request(GTK_WIDGET(streamwindow), TXT_WIDTH,
-                                    TXT_HEIGHT);
-#endif
+	WIDGET_SET_SIZE(streamwindow, TXT_WIDTH, TXT_HEIGHT);
 	gtk_container_border_width (GTK_CONTAINER(streamwindow), 2);
-	gtk_signal_connect (GTK_OBJECT (streamwindow), "realize",
-		GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
+	SIGNAL_CONNECT(streamwindow, "realize", window_icon_realize_cb, NULL);
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (streamwindow), box);
@@ -701,13 +696,7 @@ static void create_drawing_area (struct graph *g)
 #endif
 	g->toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(g->toplevel), "realize",
-                           GTK_SIGNAL_FUNC(window_icon_realize_cb), NULL);
-#else
-	g_signal_connect(G_OBJECT(g->toplevel), "realize",
-                         G_CALLBACK(window_icon_realize_cb), NULL);
-#endif
+	SIGNAL_CONNECT(g->toplevel, "realize", window_icon_realize_cb, NULL);
 
 	/* Create the drawing area */
 	g->drawing_area = gtk_drawing_area_new ();
@@ -717,57 +706,27 @@ static void create_drawing_area (struct graph *g)
 					g->wp.height + g->wp.y + g->x_axis->s.height);
 	gtk_widget_show (g->drawing_area);
 
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(g->drawing_area), "expose_event",
-                           (GtkSignalFunc)expose_event, NULL);
+	SIGNAL_CONNECT(g->drawing_area, "expose_event", expose_event, NULL);
 	/* this has to be done later, after the widget has been shown */
 	/*
-	gtk_signal_connect (GTK_OBJECT(g->drawing_area),"configure_event",
-							(GtkSignalFunc )configure_event, NULL);
+	SIGNAL_CONNECT(g->drawing_area,"configure_event", configure_event,
+        NULL);
 	 */
-	gtk_signal_connect(GTK_OBJECT (g->drawing_area), "motion_notify_event",
-                           (GtkSignalFunc )motion_notify_event, NULL);
-	gtk_signal_connect(GTK_OBJECT (g->drawing_area), "button_press_event",
-                           (GtkSignalFunc )button_press_event, NULL);
-	gtk_signal_connect(GTK_OBJECT (g->drawing_area), "button_release_event",
-                           (GtkSignalFunc )button_release_event, NULL);
-	gtk_signal_connect(GTK_OBJECT (g->drawing_area), "leave_notify_event",
-                           (GtkSignalFunc )leave_notify_event, NULL);
-	gtk_signal_connect(GTK_OBJECT (g->drawing_area), "enter_notify_event",
-                           (GtkSignalFunc )enter_notify_event, NULL);
-	gtk_signal_connect(GTK_OBJECT (g->toplevel), "destroy",
-                           (GtkSignalFunc )callback_toplevel_destroy, g);
+	SIGNAL_CONNECT(g->drawing_area, "motion_notify_event",
+                       motion_notify_event, NULL);
+	SIGNAL_CONNECT(g->drawing_area, "button_press_event",
+                       button_press_event, NULL);
+	SIGNAL_CONNECT(g->drawing_area, "button_release_event",
+                       button_release_event, NULL);
+	SIGNAL_CONNECT(g->drawing_area, "leave_notify_event",
+                       leave_notify_event, NULL);
+	SIGNAL_CONNECT(g->drawing_area, "enter_notify_event",
+                       enter_notify_event, NULL);
+	SIGNAL_CONNECT(g->toplevel, "destroy", callback_toplevel_destroy, g);
 	/* why doesn't drawing area send key_press_signals? */
-	gtk_signal_connect(GTK_OBJECT (g->toplevel), "key_press_event",
-                           (GtkSignalFunc )key_press_event, NULL);
-	gtk_signal_connect(GTK_OBJECT (g->toplevel), "key_release_event",
-                           (GtkSignalFunc )key_release_event, NULL);
-#else
-	g_signal_connect(G_OBJECT(g->drawing_area), "expose_event",
-                         G_CALLBACK(expose_event), NULL);
-        /* this has to be done later, after the widget has been shown */
-	/*
-	gtk_signal_connect (GTK_OBJECT(g->drawing_area),"configure_event",
-							(GtkSignalFunc )configure_event, NULL);
-	 */
-	g_signal_connect(G_OBJECT(g->drawing_area), "motion_notify_event",
-                         G_CALLBACK(motion_notify_event), NULL);
-	g_signal_connect(G_OBJECT(g->drawing_area), "button_press_event",
-                    	 G_CALLBACK(button_press_event), NULL);
-	g_signal_connect(G_OBJECT(g->drawing_area), "button_release_event",
-                    	 G_CALLBACK(button_release_event), NULL);
-	g_signal_connect(G_OBJECT(g->drawing_area), "leave_notify_event",
-                    	 G_CALLBACK(leave_notify_event), NULL);
-	g_signal_connect(G_OBJECT(g->drawing_area), "enter_notify_event",
-                    	 G_CALLBACK(enter_notify_event), NULL);
-	g_signal_connect(G_OBJECT(g->toplevel), "destroy",
-                    	 G_CALLBACK(callback_toplevel_destroy), g);
-	/* why doesn't drawing area send key_press_signals? */
-	g_signal_connect(G_OBJECT(g->toplevel), "key_press_event",
-                    	 G_CALLBACK(key_press_event), NULL);
-	g_signal_connect(G_OBJECT(g->toplevel), "key_release_event",
-                    	 G_CALLBACK(key_release_event), NULL);
-#endif
+	SIGNAL_CONNECT(g->toplevel, "key_press_event", key_press_event, NULL);
+	SIGNAL_CONNECT(g->toplevel, "key_release_event", key_release_event,
+                       NULL);
 	gtk_widget_set_events(g->toplevel,
                               GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
 
@@ -840,13 +799,8 @@ static void create_drawing_area (struct graph *g)
 	 * !!! NEMÌLO BY TO BÝT NA KONCI graph_init_sequence()? !!!
 	 *
 	 */
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(g->drawing_area),"configure_event",
-                           (GtkSignalFunc )configure_event, NULL);
-#else
-	g_signal_connect(G_OBJECT(g->drawing_area),"configure_event",
-                         G_CALLBACK(configure_event), NULL);
-#endif
+	SIGNAL_CONNECT(g->drawing_area,"configure_event", configure_event,
+                       NULL);
 
 	/* puts ("exiting create_drawing_area()"); */
 }
@@ -891,13 +845,7 @@ static void control_panel_create (struct graph *g)
 	gtk_box_pack_start (GTK_BOX (button_box), close, TRUE, TRUE, 0);
 
 	toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(toplevel), "realize",
-                           GTK_SIGNAL_FUNC(window_icon_realize_cb), NULL);
-#else
-	g_signal_connect(G_OBJECT(toplevel), "realize",
-                         G_CALLBACK(window_icon_realize_cb), NULL);
-#endif
+	SIGNAL_CONNECT(toplevel, "realize", window_icon_realize_cb, NULL);
 
 	table = gtk_table_new (2, 1,  FALSE);
 	gtk_container_add (GTK_CONTAINER (toplevel), table);
@@ -907,17 +855,8 @@ static void control_panel_create (struct graph *g)
 	gtk_table_attach (GTK_TABLE (table), button_box, 0, 1, 1, 2,
                           GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
 
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(close), "clicked",
-                           (GtkSignalFunc)callback_close, g);
-	gtk_signal_connect(GTK_OBJECT(help), "clicked",
-                           (GtkSignalFunc)callback_create_help, g);
-#else
-        g_signal_connect(G_OBJECT(close), "clicked",
-                         G_CALLBACK(callback_close), g);
-	g_signal_connect(GTK_OBJECT(help), "clicked",
-                         G_CALLBACK(callback_create_help), g);
-#endif
+	SIGNAL_CONNECT(close, "clicked", callback_close, g);
+	SIGNAL_CONNECT(help, "clicked", callback_create_help, g);
 
 	/* gtk_widget_show_all (table); */
 	/* g->gui.control_panel = table; */
@@ -993,17 +932,8 @@ static void control_panel_add_origin_page (struct graph *g, GtkWidget *n)
 	g->gui.time_orig_conn = (GtkToggleButton * )time_orig_conn;
 	g->gui.seq_orig_isn = (GtkToggleButton * )seq_orig_isn;
 
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(time_orig_conn), "toggled",
-                           (GtkSignalFunc)callback_time_origin, g);
-	gtk_signal_connect(GTK_OBJECT(seq_orig_isn), "toggled",
-                           (GtkSignalFunc)callback_seq_origin, g);
-#else
-        g_signal_connect(G_OBJECT(time_orig_conn), "toggled",
-                         G_CALLBACK(callback_time_origin), g);
-	g_signal_connect(G_OBJECT(seq_orig_isn), "toggled",
-                         G_CALLBACK(callback_seq_origin), g);
-#endif
+	SIGNAL_CONNECT(time_orig_conn, "toggled", callback_time_origin, g);
+	SIGNAL_CONNECT(seq_orig_isn, "toggled", callback_seq_origin, g);
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 5);
@@ -1055,15 +985,8 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data)
 
 	toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(toplevel), "Help for TCP graphing");
-#if GTK_MAJOR_VERSION < 2
-	gtk_widget_set_usize (toplevel, 500, 400);
-	gtk_signal_connect(GTK_OBJECT(toplevel), "realize",
-                           GTK_SIGNAL_FUNC(window_icon_realize_cb), NULL);
-#else
-        gtk_widget_set_size_request(toplevel, 500, 400);
-	g_signal_connect(G_OBJECT(toplevel), "realize",
-                         G_CALLBACK(window_icon_realize_cb), NULL);
-#endif
+	WIDGET_SET_SIZE(toplevel, 500, 400);
+	SIGNAL_CONNECT(toplevel, "realize", window_icon_realize_cb, NULL);
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (toplevel), box);
@@ -1087,14 +1010,11 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data)
 #if GTK_MAJOR_VERSION < 2
 	close = gtk_button_new_with_label ("Close");
 	gtk_box_pack_start (GTK_BOX (box), close, FALSE, FALSE, 0);
-	gtk_signal_connect(GTK_OBJECT(close), "clicked",
-                           (GtkSignalFunc)callback_close_help, toplevel);
 #else
         close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start (GTK_BOX (box), close, FALSE, FALSE, 0);
-	g_signal_connect(G_OBJECT(close), "clicked",
-                         G_CALLBACK(callback_close_help), toplevel);
 #endif
+	SIGNAL_CONNECT(close, "clicked", callback_close_help, toplevel);
 
 	gtk_widget_show_all (toplevel);
 }
@@ -1175,25 +1095,11 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 
 	zoom_same_toggle = gtk_check_button_new_with_label("Keep them the same");
 	zoom_ratio_toggle = gtk_check_button_new_with_label("Preserve their ratio");
-#if GTK_MAJOR_VERSION < 2
-	gtk_object_set_data(GTK_OBJECT(zoom_same_toggle), "flag",
-                            (gpointer)ZOOM_STEPS_SAME);
-	gtk_object_set_data(GTK_OBJECT(zoom_ratio_toggle), "flag",
-                            (gpointer)ZOOM_STEPS_KEEP_RATIO);
-	gtk_signal_connect(GTK_OBJECT(zoom_same_toggle), "clicked",
-                           (GtkSignalFunc)callback_zoom_flags, g);
-	gtk_signal_connect(GTK_OBJECT(zoom_ratio_toggle), "clicked",
-                           (GtkSignalFunc)callback_zoom_flags, g);
-#else
-        g_object_set_data(G_OBJECT(zoom_same_toggle), "flag",
-                          (gpointer)ZOOM_STEPS_SAME);
-	g_object_set_data(G_OBJECT(zoom_ratio_toggle), "flag",
-                          (gpointer)ZOOM_STEPS_KEEP_RATIO);
-	g_signal_connect(G_OBJECT(zoom_same_toggle), "clicked",
-                         G_CALLBACK(callback_zoom_flags), g);
-	g_signal_connect(G_OBJECT(zoom_ratio_toggle), "clicked",
-                         G_CALLBACK(callback_zoom_flags), g);
-#endif
+	OBJECT_SET_DATA(zoom_same_toggle, "flag", (gpointer)ZOOM_STEPS_SAME);
+	OBJECT_SET_DATA(zoom_ratio_toggle, "flag",
+                        (gpointer)ZOOM_STEPS_KEEP_RATIO);
+	SIGNAL_CONNECT(zoom_same_toggle, "clicked", callback_zoom_flags, g);
+	SIGNAL_CONNECT(zoom_ratio_toggle, "clicked", callback_zoom_flags, g);
 
 	zoom_step_table = gtk_table_new (4, 2,  FALSE);
 	gtk_table_attach (GTK_TABLE (zoom_step_table), zoom_h_step_label, 0,1,0,1,
@@ -1218,27 +1124,12 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 	zoom_frame = gtk_frame_new ("Zoom");
 	gtk_container_add (GTK_CONTAINER (zoom_frame), zoom_box);
 
-#if GTK_MAJOR_VERSION < 2
-	gtk_object_set_data(GTK_OBJECT(zoom_h_step), "direction", (gpointer)0);
-	gtk_object_set_data(GTK_OBJECT(zoom_v_step), "direction", (gpointer)1);
+	OBJECT_SET_DATA(zoom_h_step, "direction", GINT_TO_POINTER(0));
+	OBJECT_SET_DATA(zoom_v_step, "direction", GINT_TO_POINTER(1));
 
-	gtk_signal_connect(GTK_OBJECT(zoom_in), "toggled",
-                           (GtkSignalFunc)callback_zoom_inout, g);
-	gtk_signal_connect(GTK_OBJECT(zoom_h_step), "changed",
-                           (GtkSignalFunc)callback_zoom_step, g);
-        gtk_signal_connect(GTK_OBJECT(zoom_v_step), "changed",
-                           (GtkSignalFunc)callback_zoom_step, g);
-#else
-        g_object_set_data(G_OBJECT(zoom_h_step), "direction", (gpointer)0);
-	g_object_set_data(G_OBJECT(zoom_v_step), "direction", (gpointer)1);
-
-	g_signal_connect(G_OBJECT(zoom_in), "toggled",
-                         G_CALLBACK(callback_zoom_inout), g);
-	g_signal_connect(G_OBJECT(zoom_h_step), "changed",
-                         G_CALLBACK(callback_zoom_step), g);
-	g_signal_connect(G_OBJECT(zoom_v_step), "changed",
-                         G_CALLBACK(callback_zoom_step), g);
-#endif
+	SIGNAL_CONNECT(zoom_in, "toggled", callback_zoom_inout, g);
+	SIGNAL_CONNECT(zoom_h_step, "changed", callback_zoom_step, g);
+        SIGNAL_CONNECT(zoom_v_step, "changed", callback_zoom_step, g);
 
 	g->zoom.widget.in_toggle = (GtkToggleButton * )zoom_in;
 	g->zoom.widget.out_toggle = (GtkToggleButton * )zoom_out;
@@ -1264,7 +1155,7 @@ static void callback_zoom_step (GtkWidget *spin, gpointer data)
 	GtkSpinButton *widget_this, *widget_other;
 	double old_this;
 
-	direction = (int )gtk_object_get_data (GTK_OBJECT (spin), "direction");
+	direction = (int)OBJECT_GET_DATA(spin, "direction");
 	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
@@ -1303,7 +1194,7 @@ static void callback_zoom_step (GtkWidget *spin, gpointer data)
 static void callback_zoom_flags (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
-	int flag = (int )gtk_object_get_data (GTK_OBJECT (toggle), "flag");
+	int flag = (int)OBJECT_GET_DATA(toggle, "flag");
 
 	if (GTK_TOGGLE_BUTTON (toggle)->active)
 		g->zoom.flags |= flag;
@@ -1406,55 +1297,19 @@ static GtkWidget *control_panel_create_magnify_group (struct graph *g)
 
 	g->magnify.widget.h_zoom = (GtkSpinButton * )mag_h_zoom;
 	g->magnify.widget.v_zoom = (GtkSpinButton * )mag_v_zoom;
-#if GTK_MAJOR_VERSION < 2
-	gtk_object_set_data(GTK_OBJECT(mag_h_zoom), "direction", (gpointer)0);
-	gtk_object_set_data(GTK_OBJECT(mag_v_zoom), "direction", (gpointer)1);
-	gtk_object_set_data(GTK_OBJECT(mag_zoom_same), "flag",
-                            (gpointer)MAGZOOMS_SAME);
-	gtk_object_set_data(GTK_OBJECT(mag_zoom_ratio), "flag",
-                            (gpointer)MAGZOOMS_SAME_RATIO);
+	OBJECT_SET_DATA(mag_h_zoom, "direction", GINT_TO_POINTER(0));
+	OBJECT_SET_DATA(mag_v_zoom, "direction", GINT_TO_POINTER(1));
+	OBJECT_SET_DATA(mag_zoom_same, "flag", (gpointer)MAGZOOMS_SAME);
+	OBJECT_SET_DATA(mag_zoom_ratio, "flag", (gpointer)MAGZOOMS_SAME_RATIO);
 
-	gtk_signal_connect(GTK_OBJECT(mag_width), "changed",
-                           (GtkSignalFunc)callback_mag_width, g);
-	gtk_signal_connect(GTK_OBJECT(mag_height), "changed",
-                           (GtkSignalFunc)callback_mag_height, g);
-	gtk_signal_connect(GTK_OBJECT(mag_x), "changed",
-                           (GtkSignalFunc)callback_mag_x, g);
-	gtk_signal_connect(GTK_OBJECT(mag_y), "changed",
-                           (GtkSignalFunc)callback_mag_y, g);
-	gtk_signal_connect(GTK_OBJECT(mag_h_zoom), "changed",
-                           (GtkSignalFunc)callback_mag_zoom, g);
-	gtk_signal_connect(GTK_OBJECT(mag_v_zoom), "changed",
-                           (GtkSignalFunc)callback_mag_zoom, g);
-	gtk_signal_connect(GTK_OBJECT(mag_zoom_same), "clicked",
-                           (GtkSignalFunc)callback_mag_flags, g);
-	gtk_signal_connect(GTK_OBJECT(mag_zoom_ratio), "clicked",
-                           (GtkSignalFunc)callback_mag_flags, g);
-#else
-	g_object_set_data(G_OBJECT(mag_h_zoom), "direction", (gpointer)0);
-	g_object_set_data(G_OBJECT(mag_v_zoom), "direction", (gpointer)1);
-	g_object_set_data(G_OBJECT(mag_zoom_same), "flag",
-                          (gpointer)MAGZOOMS_SAME);
-	g_object_set_data(G_OBJECT(mag_zoom_ratio), "flag",
-                          (gpointer)MAGZOOMS_SAME_RATIO);
-
-        g_signal_connect(G_OBJECT(mag_width), "changed",
-                         G_CALLBACK(callback_mag_width), g);
-	g_signal_connect(G_OBJECT(mag_height), "changed",
-                         G_CALLBACK(callback_mag_height), g);
-	g_signal_connect(G_OBJECT(mag_x), "changed",
-                         G_CALLBACK(callback_mag_x), g);
-	g_signal_connect(G_OBJECT(mag_y), "changed",
-                         G_CALLBACK(callback_mag_y), g);
-	g_signal_connect(G_OBJECT(mag_h_zoom), "changed",
-                         G_CALLBACK(callback_mag_zoom), g);
-	g_signal_connect(G_OBJECT(mag_v_zoom), "changed",
-                         G_CALLBACK(callback_mag_zoom), g);
-	g_signal_connect(G_OBJECT(mag_zoom_same), "clicked",
-                         G_CALLBACK(callback_mag_flags), g);
-	g_signal_connect(G_OBJECT(mag_zoom_ratio), "clicked",
-                         G_CALLBACK(callback_mag_flags), g);
-#endif
+	SIGNAL_CONNECT(mag_width, "changed", callback_mag_width, g);
+	SIGNAL_CONNECT(mag_height, "changed", callback_mag_height, g);
+	SIGNAL_CONNECT(mag_x, "changed", callback_mag_x, g);
+	SIGNAL_CONNECT(mag_y, "changed", callback_mag_y, g);
+	SIGNAL_CONNECT(mag_h_zoom, "changed", callback_mag_zoom, g);
+	SIGNAL_CONNECT(mag_v_zoom, "changed", callback_mag_zoom, g);
+	SIGNAL_CONNECT(mag_zoom_same, "clicked", callback_mag_flags, g);
+	SIGNAL_CONNECT(mag_zoom_ratio, "clicked", callback_mag_flags, g);
 
 	return mag_frame;
 }
@@ -1501,7 +1356,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 		g->magnify.flags &= ~MAGZOOMS_IGNORE;
 		return;
 	}
-	direction = (int )gtk_object_get_data (GTK_OBJECT (spin), "direction");
+	direction = (int)OBJECT_GET_DATA(spin, "direction");
 	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
@@ -1544,7 +1399,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 static void callback_mag_flags (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
-	int flag = (int )gtk_object_get_data (GTK_OBJECT (toggle), "flag");
+	int flag = (int)OBJECT_GET_DATA(toggle, "flag");
 
 	if (GTK_TOGGLE_BUTTON (toggle)->active)
 		g->magnify.flags |= flag;
@@ -1573,17 +1428,8 @@ static GtkWidget *control_panel_create_zoomlock_group (struct graph *g)
 	zoom_lock_frame = gtk_frame_new ("Zoom lock:");
 	gtk_container_add (GTK_CONTAINER (zoom_lock_frame), zoom_lock_box);
 
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(zoom_lock_h), "toggled",
-                           (GtkSignalFunc)callback_zoomlock_h, g);
-	gtk_signal_connect(GTK_OBJECT(zoom_lock_v), "toggled",
-                           (GtkSignalFunc)callback_zoomlock_v, g);
-#else
-        g_signal_connect(G_OBJECT(zoom_lock_h), "toggled",
-                         G_CALLBACK(callback_zoomlock_h), g);
-	g_signal_connect(G_OBJECT(zoom_lock_v), "toggled",
-                         G_CALLBACK(callback_zoomlock_v), g);
-#endif
+	SIGNAL_CONNECT(zoom_lock_h, "toggled", callback_zoomlock_h, g);
+	SIGNAL_CONNECT(zoom_lock_v, "toggled", callback_zoomlock_v, g);
 
 	return zoom_lock_frame;
 }
@@ -1627,13 +1473,7 @@ static GtkWidget *control_panel_create_cross_group (struct graph *g)
 	frame = gtk_frame_new (NULL);
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
 
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(on), "toggled",
-                           (GtkSignalFunc)callback_cross_on_off, g);
-#else
-        g_signal_connect(G_OBJECT(on), "toggled",
-                         G_CALLBACK(callback_cross_on_off), g);
-#endif
+	SIGNAL_CONNECT(on, "toggled", callback_cross_on_off, g);
 
 	g->cross.on_toggle = (GtkToggleButton * )on;
 	g->cross.off_toggle = (GtkToggleButton * )off;
@@ -1698,47 +1538,18 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	graph_frame = gtk_frame_new ("Graph type:");
 	gtk_container_add (GTK_CONTAINER (graph_frame), graph_box);
 
-#if GTK_MAJOR_VERSION < 2
-	gtk_object_set_data(GTK_OBJECT(graph_tseqstevens), "new-graph-type",
-                            (gpointer)0);
-	gtk_object_set_data(GTK_OBJECT(graph_tseqttrace), "new-graph-type",
-                            (gpointer)1);
-	gtk_object_set_data(GTK_OBJECT(graph_tput), "new-graph-type",
-                            (gpointer)2);
-	gtk_object_set_data(GTK_OBJECT(graph_rtt), "new-graph-type",
-                            (gpointer)3);
+	OBJECT_SET_DATA(graph_tseqstevens, "new-graph-type",
+                        GINT_TO_POINTER(0));
+	OBJECT_SET_DATA(graph_tseqttrace, "new-graph-type", GINT_TO_POINTER(1));
+	OBJECT_SET_DATA(graph_tput, "new-graph-type", GINT_TO_POINTER(2));
+	OBJECT_SET_DATA(graph_rtt, "new-graph-type", GINT_TO_POINTER(3));
 
-        gtk_signal_connect(GTK_OBJECT(graph_tseqttrace), "toggled",
-                           (GtkSignalFunc)callback_graph_type, g);
-        gtk_signal_connect(GTK_OBJECT(graph_tseqstevens), "toggled",
-                           (GtkSignalFunc)callback_graph_type, g);
-        gtk_signal_connect(GTK_OBJECT(graph_tput), "toggled",
-                           (GtkSignalFunc)callback_graph_type, g);
-        gtk_signal_connect(GTK_OBJECT(graph_rtt), "toggled",
-                           (GtkSignalFunc)callback_graph_type, g);
-        gtk_signal_connect(GTK_OBJECT(graph_init), "toggled",
-                           (GtkSignalFunc)callback_graph_init_on_typechg, g);
-#else
-        g_object_set_data(G_OBJECT(graph_tseqstevens), "new-graph-type",
-                          (gpointer)0);
-        g_object_set_data(G_OBJECT(graph_tseqttrace), "new-graph-type",
-                          (gpointer)1);
-        g_object_set_data(G_OBJECT(graph_tput), "new-graph-type",
-                          (gpointer)2);
-        g_object_set_data(G_OBJECT(graph_rtt), "new-graph-type",
-                          (gpointer)3);
-
-        g_signal_connect(G_OBJECT(graph_tseqttrace), "toggled",
-                         G_CALLBACK(callback_graph_type), g);
-	g_signal_connect(G_OBJECT(graph_tseqstevens), "toggled",
-                         G_CALLBACK(callback_graph_type), g);
-	g_signal_connect(G_OBJECT(graph_tput), "toggled",
-                         G_CALLBACK(callback_graph_type), g);
-	g_signal_connect(G_OBJECT(graph_rtt), "toggled",
-                         G_CALLBACK(callback_graph_type), g);
-	g_signal_connect(G_OBJECT(graph_init), "toggled",
-                         G_CALLBACK(callback_graph_init_on_typechg), g);
-#endif
+        SIGNAL_CONNECT(graph_tseqttrace, "toggled", callback_graph_type, g);
+        SIGNAL_CONNECT(graph_tseqstevens, "toggled", callback_graph_type, g);
+        SIGNAL_CONNECT(graph_tput, "toggled", callback_graph_type, g);
+        SIGNAL_CONNECT(graph_rtt, "toggled", callback_graph_type, g);
+        SIGNAL_CONNECT(graph_init, "toggled", callback_graph_init_on_typechg,
+                       g);
 
 	return graph_frame;
 }
@@ -1748,7 +1559,7 @@ static void callback_graph_type (GtkWidget *toggle, gpointer data)
 	int old_type, new_type;
 	struct graph *g = (struct graph * )data;
 
-	new_type = (int )gtk_object_get_data (GTK_OBJECT (toggle),"new-graph-type");
+	new_type = (int)OBJECT_GET_DATA(toggle,"new-graph-type");
 
 	if (!GTK_TOGGLE_BUTTON (toggle)->active)
 		return;
@@ -2809,20 +2620,9 @@ static void magnify_create (struct graph *g, int x, int y)
 	memcpy ((void * )mg, (void * )g, sizeof (struct graph));
 
 	mg->toplevel = gtk_window_new (GTK_WINDOW_POPUP);
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT(mg->toplevel), "realize",
-                           GTK_SIGNAL_FUNC(window_icon_realize_cb), NULL);
-#else
-	g_signal_connect(G_OBJECT(mg->toplevel), "realize",
-                         G_CALLBACK(window_icon_realize_cb), NULL);
-#endif
+	SIGNAL_CONNECT(mg->toplevel, "realize", window_icon_realize_cb, NULL);
 	mg->drawing_area = mg->toplevel;
-#if GTK_MAJOR_VERSION < 2
-	gtk_widget_set_usize(mg->toplevel, g->magnify.width, g->magnify.height);
-#else
-	gtk_widget_set_size_request(mg->toplevel, g->magnify.width,
-                                    g->magnify.height);
-#endif
+	WIDGET_SET_SIZE(mg->toplevel, g->magnify.width, g->magnify.height);
 	gtk_widget_set_events (mg->drawing_area, GDK_EXPOSURE_MASK
 			/*		| GDK_ENTER_NOTIFY_MASK	*/
 			/*		| GDK_ALL_EVENTS_MASK	*/

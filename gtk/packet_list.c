@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.3 2002/11/03 17:38:34 oabad Exp $
+ * $Id: packet_list.c,v 1.4 2002/11/11 15:39:05 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "color_utils.h"
 #include "column.h"
 #include "epan/column_info.h"
+#include "compat_macros.h"
 
 void
 packet_list_clear(void)
@@ -57,7 +58,7 @@ packet_list_thaw(void)
 void
 packet_list_select_row(gint row)
 {
-    gtk_signal_emit_by_name(GTK_OBJECT(packet_list), "select_row", row);
+    SIGNAL_EMIT_BY_NAME1(packet_list, "select_row", row);
 }
 
 void
