@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.83 2004/02/24 17:49:06 ulfl Exp $
+ * $Id: packet-clnp.c,v 1.84 2004/05/23 23:07:17 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -319,6 +319,12 @@ static const value_string tp_vpart_type_vals[] = {
   { 0,				NULL }
 };
 
+static int hf_cotp_vp_src_tsap = -1; 
+static int hf_cotp_vp_dst_tsap = -1;
+static int hf_cotp_vp_src_tsap_bytes = -1; 
+static int hf_cotp_vp_dst_tsap_bytes = -1;
+
+
 /* misc */
 
 #define EXTRACT_SHORT(p) 	pntohs(p)
@@ -346,15 +352,45 @@ static GHashTable *clnp_reassembled_table = NULL;
 static GHashTable *cotp_segment_table = NULL;
 static GHashTable *cotp_reassembled_table = NULL;
 
+#define TSAP_DISPLAY_AUTO	0
+#define TSAP_DISPLAY_STRING	1
+#define TSAP_DISPLAY_BYTES	2
+
+
 /* options */
 static guint tp_nsap_selector = NSEL_TP;
 static gboolean always_decode_transport = FALSE;
 static gboolean clnp_reassemble = FALSE;
 static gboolean cotp_reassemble = FALSE;
+static gint32   tsap_display = TSAP_DISPLAY_AUTO;
+
+const enum_val_t tsap_display_options[] = {
+  {"auto", TSAP_DISPLAY_AUTO},
+  {"string", TSAP_DISPLAY_STRING},
+  {"bytes", TSAP_DISPLAY_BYTES},
+  {NULL, -1}
+};
+
 
 /* function definitions */
 
 #define MAX_TSAP_LEN	32
+static gboolean is_all_printable(const guchar *stringtocheck, int length)
+{
+  gboolean allprintable;
+  int i;
+
+  allprintable=TRUE;
+  for (i=0;i<length;i++) {
+    if (!(isascii(stringtocheck[i]) && isprint(stringtocheck[i]))) {
+      allprintable=FALSE;
+      break;
+    }
+  }
+  return allprintable; 
+} /* is_all_printable */
+
+
 static gchar *print_tsap(const guchar *tsap, int length)
 {
 
@@ -362,7 +398,6 @@ static gchar *print_tsap(const guchar *tsap, int length)
   static gchar *cur;
   gchar tmp[3];
   gboolean allprintable;
-  int i;
 
   if (cur == &str[0][0]) {
     cur = &str[1][0];
@@ -377,23 +412,9 @@ static gchar *print_tsap(const guchar *tsap, int length)
   if (length <= 0 || length > MAX_TSAP_LEN)
     sprintf(cur, "<unsupported TSAP length>");
   else {
-    allprintable=TRUE;
-    for (i=0;i<length;i++) {
-	/* If any byte is not printable ASCII, display the TSAP as a
-	   series of hex byte values rather than as a string; this
-	   means that, for example, accented letters will cause it
-	   to be displayed as hex, but it also means that byte values
-	   such as 0xff and 0xfe, which *are* printable ISO 8859/x
-	   characters, won't be treated as printable - 0xfffffffe
-	   is probably binary, not text. */
-	if (!(isascii(tsap[i]) && isprint(tsap[i]))) {
-	  allprintable=FALSE;
-	  break;
-	  }
-	}
-    if (!allprintable){
+    allprintable = is_all_printable(tsap,length);
+    if (!allprintable)
       strcat(cur,"0x");
-      }
     while (length != 0) {
       if (allprintable)
 	sprintf(tmp, "%c", *tsap ++);
@@ -611,17 +632,37 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
       break;
 
     case VP_SRC_TSAP:
-      proto_tree_add_text(tree, tvb, offset, length,
-		"Calling TSAP: %s",
-		print_tsap(tvb_get_ptr(tvb, offset, length), length));
+      /* if our preference is set to STRING or the  
+	 TSAP is not printable, add as bytes and hidden as string;
+         otherwise vice-versa */
+      if (tsap_display==TSAP_DISPLAY_STRING ||
+	 (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
+     	proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length, 
+		print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        proto_tree_add_item_hidden(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, TRUE);
+      } else {
+     	proto_tree_add_string_hidden(tree, hf_cotp_vp_src_tsap, tvb, offset, length, 
+		print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, TRUE);
+      }
       offset += length;
       vp_length -= length;
       break;
 
     case VP_DST_TSAP:
-      proto_tree_add_text(tree, tvb, offset, length,
-		"Called TSAP: %s",
-		print_tsap(tvb_get_ptr(tvb, offset, length), length));
+      /* if our preference is set to STRING or the  
+	 TSAP is not printable, add as bytes and hidden as string;
+         otherwise vice-versa */      
+      if (tsap_display==TSAP_DISPLAY_STRING ||
+	 (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
+     	proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length, 
+		print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        proto_tree_add_item_hidden(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, TRUE);
+      } else {
+     	proto_tree_add_string_hidden(tree, hf_cotp_vp_dst_tsap, tvb, offset, length, 
+		print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, TRUE);
+      }
       offset += length;
       vp_length -= length;
       break;
@@ -2267,6 +2308,23 @@ void proto_register_cotp(void)
     { &hf_cotp_reassembled_in,
       { "Reassembled COTP in frame", "cotp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"This COTP packet is reassembled in this frame", HFILL }},
+/* ISO DP 8073 i13.3.4(a) Source and destination TSAPs are defined as
+   identifiers of unspecified type and length.
+   Some implementations of COTP use printable strings, others use raw bytes.
+   We always add both representations to the tree; one will always be hidden
+   depending on the tsap display preference */
+    { &hf_cotp_vp_src_tsap,
+      { "Source TSAP", "cotp.src-tsap", FT_STRING, BASE_NONE, NULL, 0x0,
+        "Calling TSAP", HFILL }},
+    { &hf_cotp_vp_src_tsap_bytes,
+      { "Source TSAP", "cotp.src-tsap-bytes", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Calling TSAP (bytes representation)", HFILL }},
+    { &hf_cotp_vp_dst_tsap,
+      { "Destination TSAP", "cotp.dst-tsap", FT_STRING, BASE_NONE, NULL, 0x0,
+	"Called TSAP", HFILL }},
+    { &hf_cotp_vp_dst_tsap_bytes,
+      { "Destination TSAP", "cotp.dst-tsap-bytes", FT_BYTES, BASE_NONE, NULL, 0x0,
+	"Called TSAP (bytes representation)", HFILL }},
 
   };
   static gint *ett[] = {
@@ -2286,6 +2344,13 @@ void proto_register_cotp(void)
 	 "Reassemble segmented COTP datagrams",
 	 "Whether segmented COTP datagrams should be reassembled",
 	&cotp_reassemble);
+
+  prefs_register_enum_preference(cotp_module, "tsap_display",
+	 "Display TSAPs as strings or bytes",
+	 "How TSAPs should be displayed",
+	&tsap_display,
+	tsap_display_options,
+	FALSE);
 
   /* subdissector code in inactive subset */
   register_heur_dissector_list("cotp_is", &cotp_is_heur_subdissector_list);
