@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.4 2002/02/12 23:52:34 guy Exp $
+ * $Id: packet-scsi.c,v 1.5 2002/02/13 01:17:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@
  * The SCSI decoder has been built right now that it is invoked directly by the
  * SCSI transport layers as compared to the standard mechanism of being invoked
  * via a dissector chain. There are multiple reasons for this:
- * - The SCSI CDB is typically embedded inside the transport alongwith other
+ * - The SCSI CDB is typically embedded inside the transport along with other
  *   header fields that have nothing to do with SCSI. So, it is required to be
  *   invoked on a embedded subset of the packet.
  * - Originally, Ethereal couldn't do filtering on protocol trees that were not
@@ -54,12 +54,16 @@
  *   guint);
  *
  * In addition to this, the other requirement made from the transport is to
- * provide a unique way to determine a SCSI task. In Fibre channel networks,
+ * provide a unique way to determine a SCSI task. In Fibre Channel networks,
  * this is the exchange ID pair alongwith the source/destination addresses; in
  * iSCSI it is the initiator task tag along with the src/dst address and port
  * numbers. This is to be provided to the SCSI decoder via the private_data
  * field in the packet_info data structure. The private_data field is treated
- * as a 32-bit field to uniquely identify a SCSI task. 
+ * as a pointer to a "scsi_task_id_t" structure, containing a conversation
+ * ID (a number uniquely identifying a conversation between a particular
+ * initiator and target, e.g. between two Fibre Channel addresses or between
+ * two TCP address/port pairs for iSCSI or NDMP) and a task ID (a number
+ * uniquely identifying a task within that conversation).
  *
  * This decoder attempts to track the type of SCSI device based on the response
  * to the Inquiry command. If the trace does not contain an Inquiry command,
@@ -1083,11 +1087,11 @@ const value_string scsi_status_val[] = {
 
 static gint scsi_def_devtype = SCSI_DEV_SBC;
 
-/* The next two structures are used to track SCSI req/rsp */ 
-typedef struct _scsi_task_key {
-    guint32 conv_idx;
-} scsi_task_key_t;
-
+/*
+ * We track SCSI requests and responses with a hash table.
+ * The key is a "scsi_task_id_t" structure; the data is a
+ * "scsi_task_data_t" structure.
+ */
 typedef struct _scsi_task_data {
     guint32 opcode;
     scsi_device_type devtype;
@@ -1121,19 +1125,19 @@ static dissector_handle_t data_handle;
 static gint
 scsi_equal(gconstpointer v, gconstpointer w)
 {
-  scsi_task_key_t *v1 = (scsi_task_key_t *)v;
-  scsi_task_key_t *v2 = (scsi_task_key_t *)w;
+  scsi_task_id_t *v1 = (scsi_task_id_t *)v;
+  scsi_task_id_t *v2 = (scsi_task_id_t *)w;
 
-  return (v1->conv_idx == v2->conv_idx);
+  return (v1->conv_id == v2->conv_id && v1->task_id == v2->task_id);
 }
 
 static guint
 scsi_hash (gconstpointer v)
 {
-	scsi_task_key_t *key = (scsi_task_key_t *)v;
+	scsi_task_id_t *key = (scsi_task_id_t *)v;
 	guint val;
 
-	val = key->conv_idx;
+	val = key->conv_id + key->task_id;
 
 	return val;
 }
@@ -1169,17 +1173,17 @@ static scsi_task_data_t *
 scsi_new_task (packet_info *pinfo)
 {
     scsi_task_data_t *cdata = NULL;
-    scsi_task_key_t ckey, *req_key;
+    scsi_task_id_t ckey, *req_key;
     conversation_t *conversation;
     
     if ((pinfo != NULL) && (pinfo->private_data)) {
-        ckey.conv_idx = (guint32)pinfo->private_data;
+        ckey = *(scsi_task_id_t *)pinfo->private_data;
 
         cdata = (scsi_task_data_t *)g_hash_table_lookup (scsi_req_hash,
                                                          &ckey);
         if (!cdata) {
             req_key = g_mem_chunk_alloc (scsi_req_keys);
-            req_key->conv_idx = (guint32 )pinfo->private_data;
+            *req_key = *(scsi_task_id_t *)pinfo->private_data;
             
             cdata = g_mem_chunk_alloc (scsi_req_vals);
             
@@ -1193,11 +1197,11 @@ static scsi_task_data_t *
 scsi_find_task (packet_info *pinfo)
 {
     scsi_task_data_t *cdata = NULL;
-    scsi_task_key_t ckey, *req_key;
+    scsi_task_id_t ckey;
     conversation_t *conversation;
 
     if ((pinfo != NULL) && (pinfo->private_data)) {
-        ckey.conv_idx = (guint32)pinfo->private_data;
+        ckey = *(scsi_task_id_t *)pinfo->private_data;
 
         cdata = (scsi_task_data_t *)g_hash_table_lookup (scsi_req_hash,
                                                          &ckey);
@@ -1209,11 +1213,11 @@ static void
 scsi_end_task (packet_info *pinfo)
 {
     scsi_task_data_t *cdata = NULL;
-    scsi_task_key_t ckey, *req_key;
+    scsi_task_id_t ckey;
     conversation_t *conversation;
 
     if ((pinfo != NULL) && (pinfo->private_data)) {
-        ckey.conv_idx = (guint32)pinfo->private_data;
+        ckey = *(scsi_task_id_t *)pinfo->private_data;
         cdata = (scsi_task_data_t *)g_hash_table_lookup (scsi_req_hash,
                                                          &ckey);
         if (cdata) {
@@ -1244,9 +1248,9 @@ scsi_init_protocol(void)
 
 	scsi_req_hash = g_hash_table_new(scsi_hash, scsi_equal);
 	scsi_req_keys = g_mem_chunk_new("scsi_req_keys",
-                                        sizeof(scsi_task_key_t),
+                                        sizeof(scsi_task_id_t),
                                         scsi_init_count *
-                                        sizeof(scsi_task_key_t),
+                                        sizeof(scsi_task_id_t),
                                         G_ALLOC_AND_FREE);
 	scsi_req_vals = g_mem_chunk_new("scsi_req_vals",
                                         sizeof(scsi_task_data_t),
@@ -2684,7 +2688,6 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gchar *valstr;
     conversation_t *conversation;
     scsi_task_data_t *cdata;
-    scsi_task_key_t ckey, *req_key;
     scsi_devtype_key_t dkey;
     scsi_devtype_data_t *devdata;
     

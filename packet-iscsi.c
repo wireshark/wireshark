@@ -6,7 +6,7 @@
  * Optionally, may be compiled for compatibility with
  * draft-ietf-ips-iscsi-08.txt by defining DRAFT08
  *
- * $Id: packet-iscsi.c,v 1.25 2002/02/02 03:27:54 guy Exp $
+ * $Id: packet-iscsi.c,v 1.26 2002/02/13 01:17:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -706,6 +706,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     conversation_t *conversation = NULL;
     iscsi_conv_data_t *cdata = NULL;
     iscsi_conv_key_t ckey, *req_key;
+    scsi_task_id_t task_key;
     int paddedDataSegmentLength = data_segment_len;
     if(paddedDataSegmentLength & 3)
 	paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
@@ -731,8 +732,14 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             
             cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_hash,
                                                               &ckey);
+
+            task_key.conv_id = ckey.conv_idx;
+            task_key.task_id = ckey.itt;
+            pinfo->private_data = &task_key;
+        } else {
+            /* no conversation, meaning we didn't see the request */
+            pinfo->private_data = NULL;
         }
-        pinfo->private_data = cdata;
         
         if (cdata) {
             del_usecs = (pinfo->fd->abs_secs - cdata->abs_secs)* 1000000 +
@@ -761,8 +768,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
              */
             cdata->abs_usecs = pinfo->fd->abs_usecs;
             cdata->abs_secs = pinfo->fd->abs_secs;
-            /* The SCSI protocol uses this as the key to detect a
-             * SCSI-level conversation. */
         }
         else {
             req_key = g_mem_chunk_alloc (iscsi_req_keys);
@@ -774,10 +779,13 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdata->abs_secs = pinfo->fd->abs_secs;
             
             g_hash_table_insert (iscsi_req_hash, req_key, cdata);
-            /* The SCSI protocol uses this as the key to detect a
-             * SCSI-level conversation. */
         }
-        pinfo->private_data = cdata;
+
+        /* The SCSI protocol uses this as the key to detect a
+         * SCSI-level conversation. */
+        task_key.conv_id = ckey.conv_idx;
+        task_key.task_id = ckey.itt;
+        pinfo->private_data = &task_key;
     }
     else {
         pinfo->private_data = NULL;
