@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.40 2000/08/07 03:20:42 guy Exp $
+ * $Id: packet-ipv6.c,v 1.41 2000/08/08 21:49:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -141,6 +141,8 @@ dissect_frag6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
     int *fragstart) {
     struct ip6_frag frag;
     int len;
+    proto_item *ti;
+    proto_tree *rthdr_tree;
 
     memcpy(&frag, (void *) &pd[offset], sizeof(frag));
     len = sizeof(frag);
@@ -150,6 +152,39 @@ dissect_frag6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	    "IPv6 fragment (nxt=%s (0x%02x) off=%u id=0x%x)",
 	    ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt,
 	    *fragstart, frag.ip6f_ident);
+    }
+    if (tree) {
+	   ti = proto_tree_add_text(tree, NullTVB, offset, len,
+			   "Fragmention Header");
+	   rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
+
+	   proto_tree_add_text(rthdr_tree, NullTVB,
+			 offset + offsetof(struct ip6_frag, ip6f_nxt), 1,
+			 "Next header: %s (0x%02x)",
+			 ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt);
+
+	#if 0
+	   proto_tree_add_text(rthdr_tree, NullTVB,
+			 offset + offsetof(struct ip6_frag, ip6f_reserved), 1,
+			 "Reserved: %u",
+			 frag.ip6f_reserved);
+	#endif
+
+	   proto_tree_add_text(rthdr_tree, NullTVB,
+			 offset + offsetof(struct ip6_frag, ip6f_offlg), 2,
+			 "Offset: %u",
+			 ntohs(frag.ip6f_offlg) & 0xfff8);
+
+	   proto_tree_add_text(rthdr_tree, NullTVB,
+			 offset + offsetof(struct ip6_frag, ip6f_offlg), 2,
+			 "More fragments: %s",
+				frag.ip6f_offlg & IP6F_MORE_FRAG ?
+				"Yes" : "No");
+
+	   proto_tree_add_text(rthdr_tree, NullTVB,
+			 offset + offsetof(struct ip6_frag, ip6f_ident), 4,
+			 "Identification: 0x%08x",
+			 frag.ip6f_ident);
     }
     return len;
 }
