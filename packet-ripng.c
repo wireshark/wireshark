@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.3 1999/10/14 03:50:31 itojun Exp $
+ * $Id: packet-ripng.c,v 1.4 1999/10/15 13:21:14 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,8 @@
 #include "packet-ripng.h"
 
 static int proto_ripng = -1;
+static int hf_ripng_cmd = -1;
+static int hf_ripng_version = -1;
 
 void 
 dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -69,10 +71,11 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	ti = proto_tree_add_item(tree, proto_ripng, offset, END_OF_FRAME, NULL);
 	ripng_tree = proto_item_add_subtree(ti, ETT_RIPNG);
 
-	proto_tree_add_text(ripng_tree, offset, 1,
+	proto_tree_add_item_format(ripng_tree, hf_ripng_cmd, offset, 1,
+	    rip6.rip6_cmd,
 	    "Command: %s (%u)", cmd, rip6.rip6_cmd); 
-	proto_tree_add_text(ripng_tree, offset + 1, 1,
-	    "Version: %d", rip6.rip6_vers);
+	proto_tree_add_item(ripng_tree, hf_ripng_version, offset + 1, 1,
+	    rip6.rip6_vers);
 
 	offset += 4;
 	while ((pi.captured_len - offset) >= sizeof(struct netinfo6)){
@@ -100,5 +103,15 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 void
 proto_register_ripng(void)
 {
-        proto_ripng = proto_register_protocol("RIPng", "ripng");
+    static hf_register_info hf[] = {
+      { &hf_ripng_cmd,
+	{ "Command",		"ripng.cmd",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { &hf_ripng_version,
+	{ "Version",		"ripng.version",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+    };
+
+    proto_ripng = proto_register_protocol("RIPng", "ripng");
+    proto_register_field_array(proto_ripng, hf, array_length(hf));
 }
