@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.70 2004/05/24 02:25:20 guy Exp $
+ * $Id: gui_prefs.c,v 1.71 2004/05/27 16:50:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -321,38 +321,8 @@ gui_prefs_show(void)
 GtkWidget *
 gui_font_prefs_show(void)
 {
-#if 0
-#if GTK_MAJOR_VERSION < 2
-	static gchar *fixedwidths[] = { "c", "m", NULL };
-#endif
-#endif
-
-	/* Now create a new widget. */
+	/* Create the font selection widget. */
 	font_browse_w = (GtkWidget *) gtk_font_selection_new();
-
-    /*gtk_font_selection_set_preview_text(GTK_FONT_SELECTION(font_browse_w), 
-        "WWWWWWWW llllllll (Tip: use a fixed width font)");*/
-
-#if 0
-    /* GTK (at least version 1.3) has an annoying bug: */
-    /* when using the font selection instead of the dialog, */
-    /* the widget seems to disconnected from the parent, */
-    /* if a filter is used! */
-#if GTK_MAJOR_VERSION < 2
-	/* Set its filter to show only fixed_width fonts. */
-	gtk_font_selection_set_filter(
-	    GTK_FONT_SELECTION(font_browse_w),
-	    GTK_FONT_FILTER_BASE, /* user can't change the filter */
-	    GTK_FONT_ALL,	  /* bitmap or scalable are fine */
-	    NULL,		  /* all foundries are OK */
-	    NULL,		  /* all weights are OK (XXX - normal only?) */
-	    NULL,		  /* all slants are OK (XXX - Roman only?) */
-	    NULL,		  /* all setwidths are OK */
-	    fixedwidths,	  /* ONLY fixed-width fonts */
-	    NULL);	/* all charsets are OK (XXX - ISO 8859/1 only?) */
-#endif
-#endif
-
 	gtk_widget_show(font_browse_w);
 
 	return font_browse_w;
@@ -507,6 +477,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 {
 
 #ifdef _WIN32
+    /* user immediately wants to see a console */
     if (prefs.gui_console_open == console_open_always) {
         create_console();
     }

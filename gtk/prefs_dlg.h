@@ -1,7 +1,7 @@
 /* prefs_dlg.h
  * Definitions for preference handling routines
  *
- * $Id: prefs_dlg.h,v 1.9 2002/08/28 21:03:49 jmayer Exp $
+ * $Id: prefs_dlg.h,v 1.10 2004/05/27 16:50:16 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,8 @@
 
 void       prefs_cb(GtkWidget *, gpointer);
 void       properties_cb(GtkWidget *, gpointer);
+
+#define E_TOOLTIPS_KEY          "tooltips"
 
 GtkWidget *create_preference_check_button(GtkWidget *, int, const gchar *,
     const gchar *, gboolean);
