@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.14 1999/11/18 07:29:53 guy Exp $
+ * $Id: packet-snmp.c,v 1.15 1999/12/05 02:32:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -28,14 +28,11 @@
 # include "config.h"
 #endif
 
-
 #if defined(HAVE_UCD_SNMP_SNMP_H)
 # define WITH_SNMP_UCD 1
 #elif defined(HAVE_SNMP_SNMP_H)
 # define WITH_SNMP_CMU 1
 #endif
-
-#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
 
 #include <stdio.h>
 #include <string.h>
@@ -54,11 +51,13 @@
 
 #include "packet-snmp.h"
 
-#define in_addr_t u_int
-
 static int proto_snmp = -1;
 
 static gint ett_snmp = -1;
+
+#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
+
+#define in_addr_t u_int
 
 #ifdef WITH_SNMP_UCD
 /* should be defined only if supported in ucd-snmp */
@@ -73,12 +72,11 @@ typedef long SNMP_INT;
 typedef unsigned  long SNMP_UINT;
 #define OID_FORMAT_STRING "%ld"
 #define OID_FORMAT_STRING1 ".%ld"
-
 #endif
+
 #ifdef WITH_SNMP_CMU
 #include <snmp/snmp.h>
 #include <snmp/snmp_impl.h>
-
 
 #ifndef MAX_NAME_LEN
 #define MAX_NAME_LEN SNMP_MAX_LEN
@@ -113,7 +111,6 @@ typedef unsigned  long SNMP_UINT;
 #else
 #define SNMP_MSG_REPORT SNMP_PDU_REPORT
 #endif
-
 
 #ifndef SNMP_VERSION_2c
 #define SNMP_VERSION_2c 1
@@ -212,13 +209,12 @@ typedef unsigned  long SNMP_UINT;
 #define SNMP_ENDOFMIBVIEW SMI_ENDOFMIBVIEW
 #endif
 
-
 typedef int SNMP_INT;
 typedef unsigned int SNMP_UINT;
 #define OID_FORMAT_STRING "%d"
 #define OID_FORMAT_STRING1 ".%d"
 
-#endif
+#endif /* WITH_SNMP_CMU */
 
 static const value_string versions[] = {
 	{ SNMP_VERSION_1,	"VERSION 1" },
@@ -283,12 +279,6 @@ dissect_snmp_error(const u_char *pd, int offset, frame_data *fd,
 		col_add_str(fd, COL_INFO, message);
 
 	dissect_data(pd, offset, fd, tree);
-}
-
-void
-dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
-{
-	dissect_snmp_pdu(pd, offset, fd, tree, "SNMP", proto_snmp, ett_snmp);
 }
 
 void
@@ -372,7 +362,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		    "Couldn't parse authentication");
 		return;
 	}
-#endif
+#endif /* WITH_SNMP_UCD */
 #ifdef WITH_SNMP_CMU
 	/* initialize length variables */
 	/* length=fd->pkt_len-offset; */
@@ -404,7 +394,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		return;
 	}
 	community[community_length] = '\0';	
-#endif 
+#endif /* WITH_SNMP_CMU */
 
 	header_length-=length;
 	/* printf("Community is %s, version is %d (header length is %d)\n", community, version, header_length); */
@@ -869,7 +859,35 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 	}
 }
 
+#else /* WITH_SNMP: CMU or UCD */
+
+/* Stub dissector, for use when there's no SNMP library. */
+void
+dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
+    proto_tree *tree, char *proto_name, int proto, gint ett)
+{
+	proto_item *item;
+	proto_tree *snmp_tree;
+
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, proto_name);
+	if (check_col(fd, COL_INFO))
+		col_add_str(fd, COL_INFO, "SNMP request or reply");
+	if (tree) {
+		item = proto_tree_add_item(tree, proto, offset, END_OF_FRAME,
+		    NULL);
+		snmp_tree = proto_item_add_subtree(item, ett);
+		dissect_data(pd, offset, fd, snmp_tree);
+	}
+}
+
 #endif /* WITH_SNMP: CMU or UCD */
+
+void
+dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
+{
+	dissect_snmp_pdu(pd, offset, fd, tree, "SNMP", proto_snmp, ett_snmp);
+}
 
 /*
  * Allow the stuff that builds "register.c" to scan "packet-snmp.c" even
@@ -886,13 +904,17 @@ proto_register_snmp(void)
                 { &variable,
                 { "Name",           "snmp.abbreviation", TYPE, VALS_POINTER }},
         };*/
+#endif /* WITH_SNMP: CMU or UCD */
 	static gint *ett[] = {
 		&ett_snmp,
 	};
 
+#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
 	init_mib();
-        proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
- /*       proto_register_field_array(proto_snmp, hf, array_length(hf));*/
-	proto_register_subtree_array(ett, array_length(ett));
 #endif /* WITH_SNMP: CMU or UCD */
+        proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
+#if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
+ /*       proto_register_field_array(proto_snmp, hf, array_length(hf));*/
+#endif /* WITH_SNMP: CMU or UCD */
+	proto_register_subtree_array(ett, array_length(ett));
 }

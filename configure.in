@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.62 1999/12/03 07:02:48 guy Exp $
+# $Id: configure.in,v 1.63 1999/12/05 02:32:40 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -148,8 +148,6 @@ AC_ARG_ENABLE(snmp,
 [  --enable-snmp           use SNMP library, if available.  [default=yes]],,enable_snmp=yes)
 
 SNMP_A=''
-SNMP_C=''
-SNMP_O=''
 AC_MSG_CHECKING(whether to use SNMP library if available)
 if test "x$enable_snmp" = "xno" ; then
 	AC_MSG_RESULT(no)
@@ -160,13 +158,9 @@ else
 	AC_CHECK_LIB(snmp, asn_parse_header,
 		[
 		SNMP_A=-lsnmp
-		SNMP_C=packet-snmp.c
-		SNMP_O=packet-snmp.o
 		], )
 fi
 AC_SUBST(SNMP_A)
-AC_SUBST(SNMP_C)
-AC_SUBST(SNMP_O)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST

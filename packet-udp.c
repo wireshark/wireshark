@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.39 1999/12/03 21:50:30 nneul Exp $
+ * $Id: packet-udp.c,v 1.40 1999/12/05 02:32:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -262,10 +262,8 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	(uh_dport >= UDP_PORT_RX_LOW && uh_dport <= UDP_PORT_RX_HIGH) ||
 	PORT_IS(UDP_PORT_RX_AFS_BACKUPS)) 
       dissect_rx(pd, offset, fd, tree); /* transarc AFS's RX protocol */
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
   else if (PORT_IS(UDP_PORT_SNMP))
       dissect_snmp(pd, offset, fd, tree);
-#endif
   else if (PORT_IS(UDP_PORT_VINES)) {
       /* FIXME: AFAIK, src and dst port must be the same */
       dissect_vines_frp(pd, offset, fd, tree);

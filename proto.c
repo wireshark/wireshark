@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.50 1999/11/21 16:32:15 gram Exp $
+ * $Id: proto.c,v 1.51 1999/12/05 02:33:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,12 +68,6 @@
 #include "packet-ipv6.h"
 
 #define cVALS(x) (const value_string*)(x)
-
-#if defined(HAVE_UCD_SNMP_SNMP_H)
-# define WITH_SNMP_UCD 1
-#elif defined(HAVE_SNMP_SNMP_H)
-# define WITH_SNMP_CMU 1
-#endif
 
 static gboolean
 proto_tree_free_node(GNode *node, gpointer data);

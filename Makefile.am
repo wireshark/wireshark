@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.124 1999/12/04 21:37:56 guy Exp $
+# $Id: Makefile.am,v 1.125 1999/12/05 02:32:39 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -125,6 +125,8 @@ DISSECTOR_SOURCES = \
 	packet-smb.c   \
 	packet-sna.c   \
 	packet-sna.h   \
+	packet-snmp.c	\
+	packet-snmp.h	\
 	packet-sscop.c \
 	packet-stat.c   \
 	packet-stat.h   \
@@ -205,8 +207,6 @@ EXTRA_ethereal_SOURCES = \
 	dfilter-grammar.c \
 	dfilter-grammar.h \
 	dfilter-scanner.c \
-	packet-snmp.c	\
-	packet-snmp.h	\
 	snprintf.c	\
 	snprintf.h	\
 	snprintf-imp.h	\
@@ -218,10 +218,10 @@ EXTRA_ethereal_SOURCES = \
 	inet_pton.c     \
 	inet_ntop.c
 
-ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ \
+ethereal_DEPENDENCIES = @SNPRINTF_O@ @STRERROR_O@ \
 @STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
 wiretap/libwiretap.a gtk/libui.a
-ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ \
+ethereal_LDADD = @SNPRINTF_O@ @STRERROR_O@ \
 @STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
 wiretap/libwiretap.a gtk/libui.a \
 @SNMP_A@
@@ -251,9 +251,9 @@ wiretap/libwiretap.a gtk/libui.a \
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-register.c: packet.c $(DISSECTOR_SOURCES) @SNMP_C@
+register.c: packet.c $(DISSECTOR_SOURCES)
 	@echo Making register.c
-	@$(srcdir)/make-reg-dotc $(srcdir) packet.c $(DISSECTOR_SOURCES) @SNMP_C@
+	@$(srcdir)/make-reg-dotc $(srcdir) packet.c $(DISSECTOR_SOURCES)
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c

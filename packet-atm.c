@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.9 1999/11/27 06:17:23 guy Exp $
+ * $Id: packet-atm.c,v 1.10 1999/12/05 02:32:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,26 +36,20 @@
 #include "packet.h"
 #include "resolv.h"
 
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 #include "packet-snmp.h"
-#endif
 
 static int proto_atm = -1;
 static int hf_atm_vpi = -1;
 static int hf_atm_vci = -1;
 static int proto_atm_lane = -1;
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 static int proto_ilmi = -1;
-#endif
 
 static gint ett_atm = -1;
 static gint ett_atm_lane = -1;
 static gint ett_atm_lane_lc_lan_dest = -1;
 static gint ett_atm_lane_lc_lan_dest_rd = -1;
 static gint ett_atm_lane_lc_flags = -1;
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 static gint ett_ilmi = -1;
-#endif
 
 /*
  * See
@@ -663,11 +657,9 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
       dissect_lane(pd, offset, fd, tree);
       break;
 
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
     case ATT_HL_ILMI:
       dissect_snmp_pdu(pd, offset, fd, tree, "ILMI", proto_ilmi, ett_ilmi);
       break;
-#endif
 
     default:
       if (tree) {
@@ -701,9 +693,7 @@ proto_register_atm(void)
 	};
 	static gint *ett[] = {
 		&ett_atm,
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 		&ett_ilmi,
-#endif
 		&ett_atm_lane,
 		&ett_atm_lane_lc_lan_dest,
 		&ett_atm_lane_lc_lan_dest_rd,
@@ -711,9 +701,7 @@ proto_register_atm(void)
 	};
 	proto_atm = proto_register_protocol("ATM", "atm");
 	proto_register_field_array(proto_atm, hf, array_length(hf));
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 	proto_ilmi = proto_register_protocol("ILMI", "ilmi");
-#endif
 	proto_atm_lane = proto_register_protocol("ATM LANE", "lane");
 	proto_register_subtree_array(ett, array_length(ett));
 }
