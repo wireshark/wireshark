@@ -5,8 +5,22 @@ LOCAL_CFLAGS=
 #################3
 CFLAGS=/DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)
 
-OBJECTS=buffer.obj file.obj iptrace.obj lanalyzer.obj libpcap.obj \
-	netmon.obj netxray.obj ngsniffer.obj radcom.obj snoop.obj \
+OBJECTS=ascend-grammar.obj \
+	ascend-scanner.obj \
+	ascend.obj \
+	buffer.obj \
+	file.obj \
+	i4btrace.obj \
+	iptrace.obj \
+	lanalyzer.obj \
+	libpcap.obj \
+	netmon.obj \
+	nettl.obj \
+	netxray.obj \
+	ngsniffer.obj \
+	radcom.obj \
+	snoop.obj \
+	toshiba.obj \
 	wtap.obj
 
 
