@@ -718,7 +718,13 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
 		if (name_type == 0) /* End of list */
 			break;
-	};
+	}
+
+	proto_tree_add_item(
+		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_unknown, tvb,
+		offset, 4, TRUE);
+
+	offset += 4;
 
 	return offset;
 }
