@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.10 2002/03/05 11:56:00 guy Exp $
+ * $Id: proto_dlg.c,v 1.11 2002/03/31 22:58:27 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -218,7 +218,7 @@ toggle_all_cb(GtkWidget *button _U_, gpointer parent_w)
 
 /* Enable/Disable All Helper */
 static void
-set_active_all(GtkWidget *button, gpointer parent_w, gboolean new_state)
+set_active_all(gpointer parent_w, gboolean new_state)
 {
 
   GSList *entry;
@@ -235,16 +235,16 @@ set_active_all(GtkWidget *button, gpointer parent_w, gboolean new_state)
 
 /* Enable All */
 static void
-enable_all_cb(GtkWidget *button, gpointer parent_w)
+enable_all_cb(GtkWidget *button _U_, gpointer parent_w)
 {
-	set_active_all(button, parent_w, TRUE);
+	set_active_all(parent_w, TRUE);
 }
 
 /* Disable All */
 static void
-disable_all_cb(GtkWidget *button, gpointer parent_w)
+disable_all_cb(GtkWidget *button _U_, gpointer parent_w)
 {
-	set_active_all(button, parent_w, FALSE);
+	set_active_all(parent_w, FALSE);
 }
 
 static void proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
