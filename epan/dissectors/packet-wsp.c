@@ -64,8 +64,6 @@
 #include "packet-wap.h"
 #include "packet-wsp.h"
 
-#define PLURALIZE(x)	( (x) == 1 ? "" : "s" )
-
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
  *
@@ -2908,7 +2906,7 @@ wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _
 
 	wkh_1_WellKnownValue;
 		val = val_id & 0x7F;
-		val_str = g_strdup_printf("%u second%s", val, PLURALIZE(val));
+		val_str = g_strdup_printf("%u second%s", val, plurality(val, "", "s"));
 		ti = proto_tree_add_string(tree, hf_hdr_age,
 				tvb, hdr_start, offset - hdr_start, val_str);
 		g_free(val_str); /* proto_XXX creates a copy */
@@ -2919,7 +2917,7 @@ wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _
 		if (val_id <= 4) { /* Length field already parsed by macro! */
 			get_long_integer(val, tvb, off, len, ok);
 			if (ok) {
-				val_str = g_strdup_printf("%u second%s", val, PLURALIZE(val));
+				val_str = g_strdup_printf("%u second%s", val, plurality(val, "", "s"));
 				ti = proto_tree_add_string(tree, hf_hdr_age,
 						tvb, hdr_start, offset - hdr_start, val_str);
 				g_free(val_str); /* proto_XXX creates a copy */
@@ -3365,7 +3363,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
 					get_delta_seconds_value(val, tvb, off, len, ok);
 					if (ok) {
 						val_str = g_strdup_printf("=%u second%s",
-								val, PLURALIZE(val));
+								val, plurality(val, "", "s"));
 						proto_item_append_string(ti, val_str);
 						g_free(val_str); /* proto_XXX creates a copy */
 					}

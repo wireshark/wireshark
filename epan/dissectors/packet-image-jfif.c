@@ -69,8 +69,6 @@
 #define DebugLog(x) ;
 #endif
 
-#define PLURALIZE(x) ((x) == 1 ? "" : "s")
-
 #define IMG_JFIF "image-jfif"
 
 /************************** Variable declarations **************************/

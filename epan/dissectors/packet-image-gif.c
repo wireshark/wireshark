@@ -66,8 +66,6 @@
 #define DebugLog(x) ;
 #endif
 
-#define PLURALIZE(x) ((x) == 1 ? "" : "s")
-
 #define IMG_GIF "image-gif"
 
 /************************** Variable declarations **************************/
@@ -227,8 +225,8 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			proto_item_append_text(ti, " (Global color table present)");
 		proto_item_append_text(ti,
 				" (%u bit%s per color) (%u bit%s per pixel)",
-				color_resolution, PLURALIZE(color_resolution),
-				image_bpp, PLURALIZE(image_bpp));
+				color_resolution, plurality(color_resolution, "", "s"),
+				image_bpp, plurality(image_bpp, "", "s"));
 		subtree = proto_item_add_subtree(ti, ett_global_flags);
 		proto_tree_add_item(subtree, hf_global_color_map_present,
 				tvb, 10, 1, TRUE);
@@ -392,8 +390,8 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 					proto_item_append_text(ti2, " (Local color table present)");
 				proto_item_append_text(ti2,
 						" (%u bit%s per color) (%u bit%s per pixel)",
-						color_resolution, PLURALIZE(color_resolution),
-						image_bpp, PLURALIZE(image_bpp));
+						color_resolution, plurality(color_resolution, "", "s"),
+						image_bpp, plurality(image_bpp, "", "s"));
 				subtree2 = proto_item_add_subtree(ti2, ett_local_flags);
 				proto_tree_add_item(subtree2, hf_local_color_map_present,
 						tvb, offset, 1, TRUE);

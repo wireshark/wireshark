@@ -148,8 +148,6 @@ static const true_false_string tfs_fqdn_n = {
   "Some server updates"
 };
 
-#define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
-
 enum field_type {
 	special,
 	none,
