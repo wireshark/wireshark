@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.115 2003/04/14 13:22:13 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.116 2003/04/15 08:04:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2187,22 +2187,24 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     save_fragmented = pinfo->fragmented;
 
-
     /* if this packet is not fragmented, just dissect it and exit */
     if(PFC_NOT_FRAGMENTED(hdr)){
-	pinfo->fragmented = !PFC_NOT_FRAGMENTED(hdr);
+	pinfo->fragmented = FALSE;
 	dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
 		tvb_new_subset (tvb, offset, length, reported_length), 
 		0, hdr->drep, di, auth_info);
-        goto end_cn_stub;
+
+	pinfo->fragmented = save_fragmented;
+	return;
     }
 
+    /* The packet is fragmented. */
+    pinfo->fragmented = TRUE;
 
     /* if we are not doing reassembly and this is the first fragment
        then just dissect it and exit
     */
     if( (!dcerpc_reassemble) && hdr->flags&PFC_FIRST_FRAG ){
-        pinfo->fragmented = !PFC_NOT_FRAGMENTED(hdr);
         dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                             tvb_new_subset (tvb, offset, length,
                                             reported_length),
