@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.41 2000/01/23 08:55:34 guy Exp $
+ * $Id: packet-llc.c,v 1.42 2000/01/24 01:45:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -354,52 +354,77 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			proto_tree_add_item(llc_tree, hf_llc_oui, offset+3, 3,
 				oui);
 		}
-		if (XDLC_HAS_PAYLOAD(control)) {
-			/*
-			 * This frame has a payload to be analyzed.
-			 */
-			switch (oui) {
+		switch (oui) {
 
-			case OUI_ENCAP_ETHER:
-			case OUI_APPLE_ATALK:
-				/* No, I have no idea why Apple used
-				   one of their own OUIs, rather than
-				   OUI_ENCAP_ETHER, and an Ethernet
-				   packet type as protocol ID, for
-				   AppleTalk data packets - but used
-				   OUI_ENCAP_ETHER and an Ethernet
-				   packet type for AARP packets. */
+		case OUI_ENCAP_ETHER:
+		case OUI_APPLE_ATALK:
+			/* No, I have no idea why Apple used
+			   one of their own OUIs, rather than
+			   OUI_ENCAP_ETHER, and an Ethernet
+			   packet type as protocol ID, for
+			   AppleTalk data packets - but used
+			   OUI_ENCAP_ETHER and an Ethernet
+			   packet type for AARP packets. */
+			if (XDLC_HAS_PAYLOAD(control)) {
+				/*
+				 * This frame has a payload to be analyzed.
+				 * XXX - I've seen a U frame (for a SNAP
+				 * protocol with OUI 00-80-5F, belonging
+				 * to Compaq, and a PID of 0002) with a
+				 * function of TEST and, apparently, with
+				 * a payload - the data in the frame
+				 * following the LLC header included the
+				 * Unicode string "NTFS", so, unless that's
+				 * crud left over from an earlier frame whose
+				 * buffer was reused for this frame, and the
+				 * length was mysteriously set to include the
+				 * leftover crud, TEST frames can have data,
+				 * just as UI frames can.
+				 */
 				ethertype(etype, offset+8, pd,
 				    fd, tree, llc_tree, hf_llc_type);
-				break;
+			}
+			break;
 
-
-			case OUI_CISCO:
-				/* So are all CDP packets LLC packets
-				   with an OUI of OUI_CISCO and a
-				   protocol ID of 0x2000, or
-				   are some of them raw or encapsulated
-				   Ethernet? */
-				if (tree) {
-					proto_tree_add_item(llc_tree,
-					    hf_llc_pid, offset+6, 2, etype);
-				}
+		case OUI_CISCO:
+			/* So are all CDP packets LLC packets
+			   with an OUI of OUI_CISCO and a
+			   protocol ID of 0x2000, or
+			   are some of them raw or encapsulated
+			   Ethernet? */
+			if (tree) {
+				proto_tree_add_item(llc_tree,
+				    hf_llc_pid, offset+6, 2, etype);
+			}
+			if (XDLC_HAS_PAYLOAD(control)) {
+				/*
+				 * This frame has a payload to be analyzed.
+				 */
 				switch (etype) {
 
 				case 0x2000:
 					dissect_cdp(pd, offset+8, fd, tree);
 					break;
-				}
-				break;
 
-			default:
-				if (tree) {
-					proto_tree_add_item(llc_tree,
-					    hf_llc_pid, offset+6, 2, etype);
+				default:
+					dissect_data(pd, offset+8, fd, tree);
+					break;
 				}
-				dissect_data(pd, offset+8, fd, tree);
-				break;
 			}
+			break;
+
+		default:
+			if (tree) {
+				proto_tree_add_item(llc_tree,
+				    hf_llc_pid, offset+6, 2, etype);
+			}
+			if (XDLC_HAS_PAYLOAD(control)) {
+				/*
+				 * This frame has a payload to be analyzed.
+				 */
+				dissect_data(pd, offset+8, fd, tree);
+			}
+			break;
 		}
 	}		
 	else {
