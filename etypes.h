@@ -43,6 +43,7 @@
  * tcpdump's ethertype.h
  * http://www.cavebear.com/CaveBear/Ethernet/
  * http://standards.ieee.org/regauth/ethertype/type-pub.html
+ * http://standards.ieee.org/regauth/ethertype/eth.txt
  */
 
 #ifndef ETHERTYPE_VINES_IP
@@ -117,7 +118,11 @@
 #endif
 
 #ifndef ETHERTYPE_ETHBRIDGE
-#define ETHERTYPE_ETHBRIDGE	0x6558	/* transparent Ethernet bridging */
+#define ETHERTYPE_ETHBRIDGE	0x6558	/* transparent Ethernet bridging Trans Ether Bridging   [RFC1701]*/
+#endif
+
+#ifndef ETHERTYPE_RAW_FR
+#define ETHERTYPE_RAW_FR	0x6559	/* Raw Frame Relay        [RFC1701] */
 #endif
 
 #ifndef ETHERTYPE_REVARP
@@ -202,6 +207,10 @@
 
 #ifndef ETHERTYPE_MS_NLB_HEARTBEAT
 #define ETHERTYPE_MS_NLB_HEARTBEAT	0x886f	/* MS Network Load Balancing heartbeat http://www.microsoft.com/technet/treeview/default.asp?url=/TechNet/prodtechnol/windows2000serv/deploy/confeat/nlbovw.asp */
+#endif
+
+#ifndef ETHERTYPE_CDMA2000_A10_UBS
+#define ETHERTYPE_CDMA2000_A10_UBS	0x8881	/* the byte stream protocol that is used for IP based micro-mobility bearer interfaces (A10) in cdma2000® based wireless networks */
 #endif
 
 #ifndef ETHERTYPE_EAPOL
