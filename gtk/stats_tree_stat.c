@@ -153,7 +153,7 @@ static void draw_gtk_tree( void *psp  ) {
 	gchar* fmt;
 	
 	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_branch_max_name_len(&st->root,0));
-	g_string_sprintfa(text,fmt,"",st->name,"value","rate","percent");
+	g_string_sprintfa(text,fmt,"",st->name,"Value","Rate","Percent");
 	g_free(fmt);
 	g_string_sprintfa(text,"-------------------------------------------------------------------\n");
 
@@ -264,7 +264,7 @@ static void init_gtk_tree(char* optarg) {
 	
 	/* the columns */
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("What", renderer,
+	column = gtk_tree_view_column_new_with_attributes ("Topic / Item", renderer,
 													   "text", TITLE_COLUMN,
 													   NULL);
 	gtk_tree_view_column_set_resizable (column,TRUE);
@@ -272,7 +272,7 @@ static void init_gtk_tree(char* optarg) {
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 	
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("count", renderer,
+	column = gtk_tree_view_column_new_with_attributes ("Count", renderer,
 													   "text", COUNT_COLUMN,
 													   NULL);
 	
@@ -281,7 +281,7 @@ static void init_gtk_tree(char* optarg) {
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 	
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("rate", renderer,
+	column = gtk_tree_view_column_new_with_attributes ("Rate", renderer,
 													   "text", RATE_COLUMN,
 													   NULL);
 	gtk_tree_view_column_set_resizable (column,TRUE);
@@ -289,7 +289,7 @@ static void init_gtk_tree(char* optarg) {
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 	
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("percent", renderer,
+	column = gtk_tree_view_column_new_with_attributes ("Percent", renderer,
 													   "text", PERCENT_COLUMN,
 													   NULL);
 	gtk_tree_view_column_set_resizable(column,TRUE);
