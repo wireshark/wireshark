@@ -394,8 +394,8 @@ static const struct file_type_info {
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETTL */
-	{ "HP-UX nettl trace", NULL,
-	  NULL, NULL },
+	{ "HP-UX nettl trace", "nettl",
+	  nettl_dump_can_write_encap, nettl_dump_open },
 
 	/* WTAP_FILE_TOSHIBA */
 	{ "Toshiba Compact ISDN Router snoop trace", NULL,

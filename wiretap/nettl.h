@@ -103,5 +103,7 @@
 #define NETTL_HDR_PDUOUT		0x10
 
 int nettl_open(wtap *wth, int *err, gchar **err_info);
+gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err);
+int nettl_dump_can_write_encap(int encap);
 
 #endif
