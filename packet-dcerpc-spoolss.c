@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.69 2003/01/10 05:41:29 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.70 2003/01/11 00:42:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3341,85 +3341,6 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 }
 
 /*
- * BUFFER_DATA
- */
-
-static gint ett_BUFFER_DATA = -1;
-static gint ett_BUFFER_DATA_BUFFER = -1;
-
-struct BUFFER_DATA {
-	proto_item *item;	/* proto_item holding proto_tree */
-	proto_tree *tree;	/* proto_tree holding buffer data */
-	tvbuff_t *tvb;
-	int offset;		/* Offset where data starts in tvb*/
-	int size;		/* Size of buffer data */
-};
-
-static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			   proto_tree *tree, GList **dp_list _U_, void **data)
-{
-	proto_item *item, *subitem;
-	proto_tree *subtree, *subsubtree;
-	guint32 size;
-	int data8_offset;
-
-	item = proto_tree_add_text(tree, tvb, offset, 0, "BUFFER_DATA");
-
-	subtree = proto_item_add_subtree(item, ett_BUFFER_DATA);
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, &size, "Size");
-
-	subitem = proto_tree_add_text(subtree, tvb, offset, size, "Data");
-
-	subsubtree = proto_item_add_subtree(subitem, ett_BUFFER_DATA_BUFFER);
-
-	offset = prs_uint8s(tvb, offset, pinfo, subsubtree, size,
-			    &data8_offset, NULL);
-
-	/* Return some info which will help the caller "cast" the buffer
-	   data and dissect it further. */
-
-	if (data) {
-		struct BUFFER_DATA *bd;
-
-		bd = (struct BUFFER_DATA *)malloc(sizeof(struct BUFFER_DATA));
-
-		bd->item = subitem;
-		bd->tree = subsubtree;
-		bd->tvb = tvb;
-		bd->offset = data8_offset;
-		bd->size = size;
-
-		*data = bd;
-	}
-
-	return offset;
-}
-
-/*
- * BUFFER
- */
-
-static int prs_BUFFER(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		      proto_tree *tree, GList **dp_list, void **data _U_)
-{
-	proto_item *item;
-	proto_tree *subtree;
-	guint32 ptr = 0;
-
-	item = proto_tree_add_text(tree, tvb, offset, 0, "BUFFER");
-
-	subtree = proto_item_add_subtree(item, ett_BUFFER);
-
-	offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "Data");
-
-	if (ptr)
-		defer_ptr(dp_list, prs_BUFFER_DATA, subtree);
-
-	return offset;
-}
-
-/*
  * SpoolssGetPrinter
  */
 
@@ -3656,7 +3577,9 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, tree, drep,
+                hf_spoolss_level, &level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -3781,15 +3704,17 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, tree, drep,
+                hf_spoolss_level, &level);
 
 	dcv->private_data = (void *)level;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_BUFFER, NULL, NULL);
+	offset = dissect_spoolss_buffer(
+		tvb, offset, pinfo, tree, drep, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_offered, NULL);
@@ -3901,55 +3826,6 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-/*
- * AddPrinterEx
- */
-#if 0
-static int SpoolssAddPrinterEx_q(tvbuff_t *tvb, int offset,
-                                 packet_info *pinfo, proto_tree *tree,
-                                 char *drep)
-{
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 ptr;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
-
-	/* Parse packet */
-
-	offset = prs_ptr(tvb, offset, pinfo, tree, &ptr, "Server name");
-
-	if (ptr) {
-		char *printer_name;
-
-		offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-						  prs_UNISTR2_dp,
-						  (void *)&printer_name, NULL);
-
-		if (printer_name)
-			dcv->private_data = printer_name;
-	}
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Level");
-
-	/* TODO: PRINTER INFO LEVEL */
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "User switch");
-
-	/* TODO: USER LEVEL */
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
-	return offset;
-}
-#endif
 static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 proto_tree *tree, char *drep _U_)
 {
@@ -4040,10 +3916,10 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 value_size;
+	guint32 value_len;
+	char *value;
 	proto_item *value_item;
 	proto_tree *value_subtree;
-	int uint16s_offset;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
@@ -4053,29 +3929,22 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 
 	value_item = proto_tree_add_text(tree, tvb, offset, 0, "Value");
 
-	value_subtree = proto_item_add_subtree(value_item, ett_printerdata_value);
+	value_subtree = proto_item_add_subtree(
+		value_item, ett_printerdata_value);
 
-	offset = prs_uint32(tvb, offset, pinfo, value_subtree, &value_size,
-			    "Value size");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, value_subtree, drep,
+		hf_spoolss_enumprinterdataex_val_len, &value_len);
 
-	offset = prs_uint16s(tvb, offset, pinfo, value_subtree, value_size,
-			     &uint16s_offset, NULL);
+	offset = dissect_spoolss_uint16uni(
+		tvb, offset, pinfo, value_subtree, drep, &value, "Value name");
 
-	if (value_size) {
-		char *text = fake_unicode(tvb, uint16s_offset, value_size);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value);
 
-		proto_tree_add_text(value_subtree, tvb, uint16s_offset,
-				    value_size * 2, "Value: %s", text);
+	g_free(value);
 
-		proto_item_append_text(value_item, ": %s", text);
-
-		if (text[0] && check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", text);
-
-		g_free(text);
-	}
-
-	proto_item_set_len(value_item, value_size * 2 + 4);
+	proto_item_set_len(value_item, value_len * 2 + 4);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_enumprinterdata_value_needed, NULL);
@@ -4757,90 +4626,6 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	return offset;
 }
-
-/*
- * JOB_INFO_2
- */
-
-static gint ett_JOB_INFO_2;
-
-#if 0
-
-static int prs_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			  proto_tree *tree, GList **dp_list, void **data)
-{
-	proto_item *item;
-	proto_tree *subtree;
-	int struct_start = offset;
-	guint32 rel_offset;
-
-	item = proto_tree_add_text(tree, tvb, offset, 0, "JOB_INFO_2");
-
-	subtree = proto_item_add_subtree(item, ett_FORM_CTR);
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Job ID");
-
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
-			    NULL, "Printer name");
-
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
-			    NULL, "Machine name");
-
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
-			    NULL, "User name");
-
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
-			    NULL, "Document");
-
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
-			    NULL, "Notify name");
-
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
-			    NULL, "Data type");
-
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
-			    NULL, "Print processor");
-
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
-			    NULL, "Parameters");
-
-	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list, struct_start,
-			    NULL, "Driver name");
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, &rel_offset, NULL);
-
-	prs_DEVMODE(tvb, struct_start + rel_offset - 4, pinfo, tree,
-		    dp_list, NULL);
-
-	/* XXX security descriptor */
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Security descriptor");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Status");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Priority");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Position");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Start time");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Until time");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Total pages");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Size");
-
-	offset = prs_struct_and_referents(tvb, offset, pinfo, subtree,
-					  prs_SYSTEM_TIME, NULL, NULL);
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Time elapsed");
-
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Pages printed");
-
-	return offset;
-}
-
-#endif
 
 /*
  * EnumJobs
@@ -8291,8 +8076,6 @@ proto_register_dcerpc_spoolss(void)
 		&ett_USER_LEVEL_CTR,
 		&ett_USER_LEVEL_1,
 		&ett_BUFFER,
-		&ett_BUFFER_DATA,
-		&ett_BUFFER_DATA_BUFFER,
 		&ett_UNISTR2,
 		&ett_SPOOL_PRINTER_INFO_LEVEL,
 		&ett_PRINTER_INFO_0,
@@ -8306,7 +8089,6 @@ proto_register_dcerpc_spoolss(void)
 		&ett_FORM_CTR,
 		&ett_FORM_1,
 		&ett_JOB_INFO_1,
-		&ett_JOB_INFO_2,
 		&ett_SEC_DESC_BUF,
 		&ett_SYSTEM_TIME,
 		&ett_DOC_INFO_1,
