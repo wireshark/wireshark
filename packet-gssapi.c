@@ -449,7 +449,7 @@ static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset,
 	return tvb_length_remaining(tvb, offset);
 }
 
-static int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, 
+int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, 
 				    packet_info *pinfo, 
 				    proto_tree *tree, guint8 *drep _U_)
 {

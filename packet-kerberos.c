@@ -3894,6 +3894,37 @@ proto_register_kerberos(void)
 #endif
 }
 
+static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
+				 proto_tree *tree, guint8 *drep _U_)
+{
+	tvbuff_t *auth_tvb;
+
+	auth_tvb = tvb_new_subset(
+		tvb, offset, tvb_length_remaining(tvb, offset),
+		tvb_length_remaining(tvb, offset));
+
+	dissect_kerberos_main(auth_tvb, pinfo, tree, FALSE, NULL);
+
+	return tvb_length_remaining(tvb, offset);
+}
+
+
+/* from packet-gssapi.c */
+extern int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, 
+				    packet_info *pinfo, 
+				    proto_tree *tree, guint8 *drep);
+
+static dcerpc_auth_subdissector_fns gss_kerb_auth_fns = {
+	wrap_dissect_gss_kerb,		        /* Bind */
+	wrap_dissect_gss_kerb,	 	        /* Bind ACK */
+	NULL,					/* AUTH3 */
+	wrap_dissect_gssapi_verf, 		/* Request verifier */
+	wrap_dissect_gssapi_verf,		/* Response verifier */
+	NULL,			                /* Request data */
+	NULL			                /* Response data */
+};
+
+
 void
 proto_reg_handoff_kerberos(void)
 {
@@ -3906,6 +3937,10 @@ proto_reg_handoff_kerberos(void)
 	proto_kerberos);
     dissector_add("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);
     dissector_add("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);
+
+    register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
+				      DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
+				      &gss_kerb_auth_fns);
 
 }
 

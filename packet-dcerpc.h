@@ -313,11 +313,23 @@ void register_dcerpc_auth_subdissector(guint8 auth_level, guint8 auth_type,
 
 /* Authentication services */
 
+/* 
+ * For MS-specific SSPs (Security Service Provider), see
+ *
+ * http://msdn.microsoft.com/library/en-us/rpc/rpc/authentication_level_constants.asp
+ */
+ 
 #define DCE_C_RPC_AUTHN_PROTOCOL_NONE		0
 #define DCE_C_RPC_AUTHN_PROTOCOL_KRB5		1
 #define DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO         9
 #define DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP	10
+#define DCE_C_RPC_AUTHN_PROTOCOL_GSS_SCHANNEL	14
+#define DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS	16
+#define DCE_C_RPC_AUTHN_PROTOCOL_DPA		17
+#define DCE_C_RPC_AUTHN_PROTOCOL_MSN		18
+#define DCE_C_RPC_AUTHN_PROTOCOL_DIGEST		21
 #define DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN       68
+#define DCE_C_RPC_AUTHN_PROTOCOL_MQ		100
 
 /* Protection levels */
 
