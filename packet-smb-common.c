@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.2 2000/02/14 04:05:53 guy Exp $
+ * $Id: packet-smb-common.c,v 1.3 2000/02/14 04:22:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -122,10 +122,24 @@ display_flags( struct flag_array_type *flag_array, int length,
 
 	guint32 flags;
 	
-	if ( length == 1) flags = GBYTE( pd, offset);
-	if ( length == 2) flags = GSHORT( pd, offset);
-	if ( length == 4) flags = GWORD( pd, offset);
-		
+	switch (length) {
+
+	case 1:
+		flags = GBYTE( pd, offset);
+		break;
+
+	case 2:
+		flags = GSHORT( pd, offset);
+		break;
+
+	case 4:
+		flags = GWORD( pd, offset);
+		break;
+
+	default:
+		g_assert_not_reached();
+		return;
+	}
 
 	while( array_ptr->mask) {
 		proto_tree_add_text( tree, offset, 2, "%s%s%s%s",
