@@ -573,7 +573,7 @@ Kent Engström <kent[AT]unit.liu.se> {
 	CDP VTP Management Domain item support
 }
 
-Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
+Ronnie Sahlberg <ronnie_sahlberg[AT]ozemail.com.au> {
 	NLM dissector enhancements
 	Mount dissector enhancements
 	Support for status monitor protocol and status monitor callback
