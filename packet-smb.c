@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.250 2002/04/27 21:23:48 guy Exp $
+ * $Id: packet-smb.c,v 1.251 2002/04/28 01:19:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2197,6 +2197,12 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		 * "DOS LANMAN 2.1" or "LANMAN2.1", but we'd either
 		 * have to see the request, or assume what dialect strings
 		 * were sent, to determine that.
+		 *
+		 * Is this something other than a primary domain if the
+		 * negotiated dialect is Windows for Workgroups 3.1a?
+		 * It appears to be 8 bytes of binary data in at least
+		 * one capture - is that an encryption key or something
+		 * such as that?
 		 */
 		dn = get_unicode_or_ascii_string(tvb, &offset,
 			pinfo, &dn_len, FALSE, FALSE, &bc);
