@@ -1232,7 +1232,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_item(tree, proto_icmpv6, tvb, offset, len, FALSE);
+	ti = proto_tree_add_item(tree, proto_icmpv6, tvb, offset, -1, FALSE);
 	icmp6_tree = proto_item_add_subtree(ti, ett_icmpv6);
 
 	proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_type, tvb,
