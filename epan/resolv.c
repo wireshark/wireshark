@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.5 2001/01/09 09:57:06 guy Exp $
+ * $Id: resolv.c,v 1.6 2001/03/31 22:53:09 hagbard Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -81,7 +81,7 @@
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
 #include "resolv.h"
-#include "util.h"
+#include "filesystem.h"
 
 #define EPATH_ETHERS 		"/etc/ethers"
 #define EPATH_IPXNETS 		"/etc/ipxnets"

@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.2 2000/10/11 07:35:01 guy Exp $
+ * $Id: filesystem.c,v 1.3 2001/03/31 22:53:09 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,7 +40,6 @@
 #endif
 
 #include "filesystem.h"
-#include "util.h"
 
 const char*
 get_home_dir(void)
