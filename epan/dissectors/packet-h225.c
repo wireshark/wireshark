@@ -124,7 +124,7 @@ static int hf_h225_setupAcknowledge = -1;         /* SetupAcknowledge_UUIE */
 static int hf_h225_notify = -1;                   /* Notify_UUIE */
 static int hf_h225_nonStandardData = -1;          /* NonStandardParameter */
 static int hf_h225_h4501SupplementaryService = -1;  /* SEQUNCE_OF_OCTET_STRING */
-static int hf_h225_h4501SupplementaryService_item = -1;  /* T_h4501SupplementaryService_item */
+static int hf_h225_h4501SupplementaryService_item = -1;  /* OCTET_STRING */
 static int hf_h225_h245Tunneling = -1;            /* BOOLEAN */
 static int hf_h225_h245Control = -1;              /* H245Control */
 static int hf_h225_nonStandardControl = -1;       /* SEQUNCE_OF_NonStandardParameter */
@@ -466,7 +466,7 @@ static int hf_h225_q957Full = -1;                 /* BOOLEAN */
 static int hf_h225_q954Info = -1;                 /* Q954Details */
 static int hf_h225_conferenceCalling = -1;        /* BOOLEAN */
 static int hf_h225_threePartyService = -1;        /* BOOLEAN */
-static int hf_h225_guid = -1;                     /* GloballyUniqueID */
+static int hf_h225_guid = -1;                     /* T_guid */
 static int hf_h225_isoAlgorithm = -1;             /* OBJECT_IDENTIFIER */
 static int hf_h225_hMAC_MD5 = -1;                 /* NULL */
 static int hf_h225_hMAC_iso10118_2_s = -1;        /* EncryptIntAlg */
@@ -2119,6 +2119,9 @@ dissect_h225_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 
   return offset;
 }
+static int dissect_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_OCTET_STRING(tvb, offset, pinfo, tree, hf_h225_h4501SupplementaryService_item);
+}
 static int dissect_messageContent_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_OCTET_STRING(tvb, offset, pinfo, tree, hf_h225_messageContent_item);
 }
@@ -2593,7 +2596,7 @@ static int dissect_privateNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static const value_string h225_PartyNumber_vals[] = {
+const value_string h225_PartyNumber_vals[] = {
   {   0, "e164Number" },
   {   1, "dataPartyNumber" },
   {   2, "telexPartyNumber" },
@@ -2611,7 +2614,7 @@ static const per_choice_t PartyNumber_choice[] = {
   { 0, NULL, 0, NULL }
 };
 
-static int
+int
 dissect_h225_PartyNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_PartyNumber, PartyNumber_choice, "PartyNumber",
@@ -3811,9 +3814,6 @@ dissect_h225_GloballyUniqueID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
   return offset;
 }
-static int dissect_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_GloballyUniqueID(tvb, offset, pinfo, tree, hf_h225_guid);
-}
 static int dissect_globalCallId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_GloballyUniqueID(tvb, offset, pinfo, tree, hf_h225_globalCallId);
 }
@@ -3939,6 +3939,20 @@ dissect_h225_CallType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 }
 static int dissect_callType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_CallType(tvb, offset, pinfo, tree, hf_h225_callType);
+}
+
+
+static int
+dissect_h225_T_guid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 guid_offset,guid_len;
+
+  offset = dissect_per_octet_string(tvb,offset,pinfo,tree,hf_index,16,16,&guid_offset,&guid_len);
+  tvb_memcpy(tvb,h225_pi.guid,guid_offset,guid_len);
+
+  return offset;
+}
+static int dissect_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_T_guid(tvb, offset, pinfo, tree, hf_h225_guid);
 }
 
 static const per_sequence_t CallIdentifier_sequence[] = {
@@ -4326,7 +4340,7 @@ static int dissect_language(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string h225_PresentationIndicator_vals[] = {
+const value_string h225_PresentationIndicator_vals[] = {
   {   0, "presentationAllowed" },
   {   1, "presentationRestricted" },
   {   2, "addressNotAvailable" },
@@ -4340,7 +4354,7 @@ static const per_choice_t PresentationIndicator_choice[] = {
   { 0, NULL, 0, NULL }
 };
 
-static int
+int
 dissect_h225_PresentationIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_PresentationIndicator, PresentationIndicator_choice, "PresentationIndicator",
@@ -4353,7 +4367,7 @@ static int dissect_presentationIndicator(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
-static const value_string h225_ScreeningIndicator_vals[] = {
+const value_string h225_ScreeningIndicator_vals[] = {
   {   0, "userProvidedNotScreened" },
   {   1, "userProvidedVerifiedAndPassed" },
   {   2, "userProvidedVerifiedAndFailed" },
@@ -4362,7 +4376,7 @@ static const value_string h225_ScreeningIndicator_vals[] = {
 };
 
 
-static int
+int
 dissect_h225_ScreeningIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            0, 3, NULL, NULL, TRUE);
@@ -5842,27 +5856,6 @@ static int dissect_h323_message_body(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static int
-dissect_h225_T_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-
-	tvbuff_t *h4501_tvb;
-	guint32 h4501_offset=0;
-	guint32 h4501_len=0;
-
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h4501_offset, &h4501_len);
-
-	if(h4501_len){
-		h4501_tvb = tvb_new_subset(tvb, h4501_offset, h4501_len, h4501_len);
-		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
-	}
-
-  return offset;
-}
-static int dissect_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_T_h4501SupplementaryService_item(tvb, offset, pinfo, tree, hf_h225_h4501SupplementaryService_item);
-}
-
-
-static int
 dissect_h225_SEQUNCE_OF_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
                                    ett_h225_SEQUNCE_OF_OCTET_STRING, dissect_h4501SupplementaryService_item);
@@ -6299,6 +6292,7 @@ static int
 dissect_h225_RequestSeqNum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            1U, 65535U, &(h225_pi.requestSeqNum), NULL, FALSE);
+
 
   return offset;
 }
@@ -9553,7 +9547,7 @@ void proto_register_h225(void) {
         "H245TransportAddress/h245ipAddress", HFILL }},
     { &hf_h225_h245ipv4,
       { "h245ipv4", "h225.h245ipv4",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_IPv4, BASE_NONE, NULL, 0,
         "H245TransportAddress/h245ipAddress/h245ipv4", HFILL }},
     { &hf_h225_h245ipv4port,
       { "h245ipv4port", "h225.h245ipv4port",
@@ -9733,11 +9727,11 @@ void proto_register_h225(void) {
         "VendorIdentifier/vendor", HFILL }},
     { &hf_h225_productId,
       { "productId", "h225.productId",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_STRING, BASE_HEX, NULL, 0,
         "VendorIdentifier/productId", HFILL }},
     { &hf_h225_versionId,
       { "versionId", "h225.versionId",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_STRING, BASE_HEX, NULL, 0,
         "VendorIdentifier/versionId", HFILL }},
     { &hf_h225_enterpriseNumber,
       { "enterpriseNumber", "h225.enterpriseNumber",
@@ -12028,6 +12022,7 @@ void proto_register_h225(void) {
   register_init_routine(&h225_init_routine);
   h225_tap = register_tap("h225");
   register_ber_oid_name("0.0.8.2250.0.2","itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 2");
+  register_ber_oid_name("0.0.8.2250.0.4","itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 4");
 
 
 }

@@ -77,8 +77,11 @@ typedef struct _h225_packet_info {
 
 ETH_VAR_IMPORT const value_string T_h323_message_body_vals[];
 ETH_VAR_IMPORT const value_string ReleaseCompleteReason_vals[];
+extern const value_string h225_PresentationIndicator_vals[];
+extern const value_string h225_ScreeningIndicator_vals[];
 ETH_VAR_IMPORT const value_string FacilityReason_vals[];
 extern const value_string AliasAddress_vals[];
+extern const value_string h225_PartyNumber_vals[];
 ETH_VAR_IMPORT const value_string RasMessage_vals[];
 ETH_VAR_IMPORT const value_string GatekeeperRejectReason_vals[];
 ETH_VAR_IMPORT const value_string RegistrationRejectReason_vals[];
@@ -90,8 +93,11 @@ ETH_VAR_IMPORT const value_string LocationRejectReason_vals[];
 ETH_VAR_IMPORT const value_string DisengageReason_vals[];
 ETH_VAR_IMPORT const value_string DisengageRejectReason_vals[];
 ETH_VAR_IMPORT const value_string InfoRequestNakReason_vals[];
+int dissect_h225_PresentationIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h225_ScreeningIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_h225_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_h225_AliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h225_PartyNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_h225_RasMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-H225-exp.h ---*/
