@@ -477,6 +477,7 @@ Mike Frisch <mfrisch@saturn.tlug.org> {
 	HCLNFSD support
 	rquota support
 	AUTH_DES support
+	Tvbuffified NFS dissector
 }
 
 Burke Lau <burke_lau@agilent.com> {
