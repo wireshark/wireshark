@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.30 2002/10/10 23:32:00 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.31 2002/10/10 23:52:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@ static const value_string nds_info_type[] = {
         { 0x00000001, "Attribute Name & Value / " },
         { 0x00000002, "Effective Privileges / " },
         { 0x00000003, "Value Information / " },
-        { 0x00000004, "Abreviated Value / " },
+        { 0x00000004, "Abbreviated Value / " },
 	{ 0,	NULL }
 };
 
@@ -1983,7 +1983,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         guint32         value3;
         guint32         value4;
         guint32         value5;
-        guint32         number_of_referals;
+        guint32         number_of_referrals;
         guint8          r;
         guint8          i;
         guint16         replica_num;
@@ -2200,18 +2200,18 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                          }
                         break;
                 case 3: /* Hinted */
-                        number_of_referals = tvb_get_letohl(tvb, ioffset);
+                        number_of_referrals = tvb_get_letohl(tvb, ioffset);
                         
-                        for (r = 1 ; r <= number_of_referals; r++ )
+                        for (r = 1 ; r <= number_of_referrals; r++ )
                         {
-		                aitem = proto_tree_add_uint_format(estree, hf_referal_record, tvb, 6, 0,
-		                r, "NDS Referal Record #%d", r);
+		                aitem = proto_tree_add_uint_format(estree, hf_referral_record, tvb, 6, 0,
+		                r, "NDS Referral Record #%d", r);
                                 atree = proto_item_add_subtree(aitem, ett_nds);
                                 
                                 value1 = tvb_get_letohl(tvb, ioffset);
                                 
-	                        proto_tree_add_uint_format(atree, hf_referal_addcount, tvb, ioffset, 4,
-        	                        value1, "Number of Addresses in Referal - %d", value1);
+	                        proto_tree_add_uint_format(atree, hf_referral_addcount, tvb, ioffset, 4,
+        	                        value1, "Number of Addresses in Referral - %d", value1);
                                      
                                 ioffset = ioffset + 4;
                                 for (i = 1 ; i <= value1; i++ ) 
@@ -2418,7 +2418,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         proto_tree      *atree;
 	proto_item      *nitem;
         proto_item      *aitem;
-        guint32         number_of_referals = 0;
+        guint32         number_of_referrals = 0;
         nw_uni_t        mval_buf;
         proto_tree      *estree;
 	proto_item      *esitem;
@@ -2923,7 +2923,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                }
                         }
                         break;
-                case 7:         /* Address Referal Request */        
+                case 7:         /* Address Referral Request */        
                         for (i = 0 ; i < values->vvalue; i++ ) 
                         {
         
@@ -2938,19 +2938,19 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                ioffset = ioffset+4;
                         }
                         break;
-                case 8:         /* Address Referal Reply */
-                        number_of_referals = values->vvalue;
+                case 8:         /* Address Referral Reply */
+                        number_of_referrals = values->vvalue;
                         
-                        for (r = 1 ; r <= number_of_referals; r++ )
+                        for (r = 1 ; r <= number_of_referrals; r++ )
                         {
-		                aitem = proto_tree_add_uint_format(ntree, hf_referal_record, tvb, 6, 0,
-		                r, "NDS Referal Record #%d", r);
+		                aitem = proto_tree_add_uint_format(ntree, hf_referral_record, tvb, 6, 0,
+		                r, "NDS Referral Record #%d", r);
                                 atree = proto_item_add_subtree(aitem, ett_nds);
                                 
                                 value1 = tvb_get_letohl(tvb, ioffset);
                                 
-	                        proto_tree_add_uint_format(atree, hf_referal_addcount, tvb, ioffset, 4,
-        	                        value1, "Number of Addresses in Referal - %d", value1);
+	                        proto_tree_add_uint_format(atree, hf_referral_addcount, tvb, ioffset, 4,
+        	                        value1, "Number of Addresses in Referral - %d", value1);
                                      
                                 ioffset = ioffset + 4;
                                 for (i = 1 ; i <= value1; i++ ) 
@@ -3003,13 +3003,13 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                         }
                 
                         break;
-                case 9:         /* Local Address Referal Reply */
-                        number_of_referals = values->vvalue;
+                case 9:         /* Local Address Referral Reply */
+                        number_of_referrals = values->vvalue;
 
-                        for (r = 1 ; r <= number_of_referals; r++ )
+                        for (r = 1 ; r <= number_of_referrals; r++ )
                         {
-		                aitem = proto_tree_add_uint_format(ntree, hf_referal_record, tvb, 6, 0,
-		                r, "NDS Referal Record #%d", r);
+		                aitem = proto_tree_add_uint_format(ntree, hf_referral_record, tvb, 6, 0,
+		                r, "NDS Referral Record #%d", r);
                                 atree = proto_item_add_subtree(aitem, ett_nds);
                                 
                                 value2 = tvb_get_letohl(tvb, ioffset);
@@ -3085,8 +3085,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                         ioffset = ioffset + 4;
                         ioffset = print_es_type(estree, tvb, values, value3, ioffset);
                         value4 = tvb_get_letohl(tvb, ioffset);
-		        aitem = proto_tree_add_uint_format(ntree, hf_referal_record, tvb, ioffset, 4,
-		                value4, "Referal Protocols - %d", value4);
+		        aitem = proto_tree_add_uint_format(ntree, hf_referral_record, tvb, ioffset, 4,
+		                value4, "Referral Protocols - %d", value4);
                         atree = proto_item_add_subtree(aitem, ett_nds);
                         ioffset += 4;               
                         for (i = 0 ; i < value4; i++ ) 
@@ -3102,7 +3102,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                ioffset = ioffset+4;
                         }
                         value6 = tvb_get_letohl(tvb, ioffset);
-		        aitem = proto_tree_add_uint_format(ntree, hf_referal_record, tvb, ioffset, 4,
+		        aitem = proto_tree_add_uint_format(ntree, hf_referral_record, tvb, ioffset, 4,
 		                value6, "Tree Walking Protocols - %d", value6);
                         atree = proto_item_add_subtree(aitem, ett_nds);
                         ioffset += 4;               
@@ -3129,8 +3129,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                         2, event_num);
                                 ioffset = ioffset + 2;
                 case 12:        /* List Partitions */
-                        number_of_referals = values->vvalue;
-                        for (i = 0; i < number_of_referals; i++)
+                        number_of_referrals = values->vvalue;
+                        for (i = 0; i < number_of_referrals; i++)
                         {        
                                 bvalue = 0x00000001;
         	
@@ -3430,8 +3430,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                         }
                         break;                
                 case 13:        /* Class Names */
-                        number_of_referals = values->vvalue;
-                        for (i = 0; i < number_of_referals; i++)
+                        number_of_referrals = values->vvalue;
+                        for (i = 0; i < number_of_referrals; i++)
                         {        
                                 ioffset += align_4(tvb, ioffset);
                                 value1 = tvb_get_letohl(tvb, ioffset);
@@ -4505,10 +4505,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 p3values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 p3values.vtype = 6; /* Multivalue Uint32 */
                                                                                 p3values.vstring = "";
-                                                                                p3values.vdesc = "Referal Records: %d";
+                                                                                p3values.vdesc = "Referral Records: %d";
                                                                                 p3values.vlength = 4;
                                                                                 p3values.voffset = nds_offset;
-                                                                                p3values.hfname = hf_nds_referals;
+                                                                                p3values.hfname = hf_nds_referrals;
                                                                                 p3values.mvtype = 9;
                                                                                 break;
                                                                         case 2:         /* Remote Entry */
@@ -4527,10 +4527,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 p3values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 p3values.vtype = 6; /* Multivalue Uint32 */
                                                                                 p3values.vstring = "";
-                                                                                p3values.vdesc = "Referal Records: %d";
+                                                                                p3values.vdesc = "Referral Records: %d";
                                                                                 p3values.vlength = 4;
                                                                                 p3values.voffset = nds_offset;
-                                                                                p3values.hfname = hf_nds_referals;
+                                                                                p3values.hfname = hf_nds_referrals;
                                                                                 p3values.mvtype = 9;
                                                                                 break;
                                                                         case 3:         /* Alias Entry */
@@ -4565,7 +4565,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 p3values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 p3values.vtype = 6; /* Multivalue Uint32 */
                                                                                 p3values.vstring = "";
-                                                                                p3values.vdesc = "Referal Records: %d";
+                                                                                p3values.vdesc = "Referral Records: %d";
                                                                                 p3values.vlength = 4;
                                                                                 p3values.voffset = nds_offset;
                                                                                 p3values.hfname = hf_nds_depth;
@@ -4594,11 +4594,11 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 p4values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 p4values.vtype = 6; /* Multivalue Uint32 */
                                                                                 p4values.vstring = "";
-                                                                                p4values.vdesc = "Referal Records: %d";
+                                                                                p4values.vdesc = "Referral Records: %d";
                                                                                 p4values.vlength = 4;
                                                                                 p4values.voffset = nds_offset;
                                                                                 p4values.mvtype = 8;
-                                                                                p4values.hfname = hf_nds_referals;
+                                                                                p4values.hfname = hf_nds_referrals;
                                                                                 break;
                                                                         default:
                                                                                 break;
@@ -4645,10 +4645,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 p4values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 p4values.vtype = 6; /* Multivalue Uint32 */
                                                                                 p4values.vstring = "";
-                                                                                p4values.vdesc = "Referal Records: %d";
+                                                                                p4values.vdesc = "Referral Records: %d";
                                                                                 p4values.vlength = 4;
                                                                                 p4values.voffset = nds_offset;
-                                                                                p4values.hfname = hf_nds_referals;
+                                                                                p4values.hfname = hf_nds_referrals;
                                                                                 p4values.mvtype = 9;
                                                                                 break;
                                                                         case 2:         /* Remote Entry */
@@ -4667,10 +4667,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 p4values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 p4values.vtype = 6; /* Multivalue Uint32 */
                                                                                 p4values.vstring = "";
-                                                                                p4values.vdesc = "Referal Records: %d";
+                                                                                p4values.vdesc = "Referral Records: %d";
                                                                                 p4values.vlength = 4;
                                                                                 p4values.voffset = nds_offset;
-                                                                                p4values.hfname = hf_nds_referals;
+                                                                                p4values.hfname = hf_nds_referrals;
                                                                                 p4values.mvtype = 9;
                                                                                 break;
                                                                         case 3:         /* Alias Entry */
@@ -4705,7 +4705,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 p4values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 p4values.vtype = 6; /* Multivalue Uint32 */
                                                                                 p4values.vstring = "";
-                                                                                p4values.vdesc = "Referal Records: %d";
+                                                                                p4values.vdesc = "Referral Records: %d";
                                                                                 p4values.vlength = 4;
                                                                                 p4values.voffset = nds_offset;
                                                                                 p4values.hfname = hf_nds_depth;
@@ -4734,11 +4734,11 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 p5values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 p5values.vtype = 6; /* Multivalue Uint32 */
                                                                                 p5values.vstring = "";
-                                                                                p5values.vdesc = "Referal Records: %d";
+                                                                                p5values.vdesc = "Referral Records: %d";
                                                                                 p5values.vlength = 4;
                                                                                 p5values.voffset = nds_offset;
                                                                                 p5values.mvtype = 8;
-                                                                                p5values.hfname = hf_nds_referals;
+                                                                                p5values.hfname = hf_nds_referrals;
                                                                                 break;
                                                                         default:
                                                                                 break;
@@ -5177,10 +5177,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 p2values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                 p2values.vtype = 6; /* Multivalue Uint32 */
                                                                 p2values.vstring = "";
-                                                                p2values.vdesc = "Referal Records: %d";
+                                                                p2values.vdesc = "Referral Records: %d";
                                                                 p2values.vlength = 4;
                                                                 p2values.voffset = nds_offset;
-                                                                p2values.hfname = hf_nds_referals;
+                                                                p2values.hfname = hf_nds_referrals;
                                                                 p2values.mvtype = 9;
                                                         }
                                                         else
@@ -5214,10 +5214,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 p3values.vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                 p3values.vtype = 6; /* Multivalue Uint32 */
                                                                 p3values.vstring = "";
-                                                                p3values.vdesc = "Referal Records: %d";
+                                                                p3values.vdesc = "Referral Records: %d";
                                                                 p3values.vlength = 4;
                                                                 p3values.voffset = nds_offset;
-                                                                p3values.hfname = hf_nds_referals;
+                                                                p3values.hfname = hf_nds_referrals;
                                                                 p3values.mvtype = 9;
                                                         }        
                                                         break;
@@ -5706,9 +5706,9 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 p2values.bit12hfname = hf_bit12nflags;
                                 p2values.bit13 = "Not Defined";
                                 p2values.bit13hfname = hf_bit13nflags;
-                                p2values.bit14 = "Prefer Referalls";
+                                p2values.bit14 = "Prefer Referrals";
                                 p2values.bit14hfname = hf_bit14nflags;
-                                p2values.bit15 = "Prefer Only Referalls";
+                                p2values.bit15 = "Prefer Only Referrals";
                                 p2values.bit15hfname = hf_bit15nflags;
                                 p2values.bit16 = "Not Defined";
                                 p2values.bit16hfname = hf_bit16nflags;

@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.37 2002/10/10 23:41:27 guy Exp $
+$Id: ncp2222.py,v 1.38 2002/10/10 23:52:50 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -5777,8 +5777,8 @@ static int hf_nds_socket = -1;
 static int hf_add_ref_ip = -1;
 static int hf_add_ref_udp = -1;                                                     
 static int hf_add_ref_tcp = -1;
-static int hf_referal_record = -1;
-static int hf_referal_addcount = -1;
+static int hf_referral_record = -1;
+static int hf_referral_addcount = -1;
 static int hf_nds_port = -1;
 static int hf_mv_string = -1;
 static int hf_nds_syntax = -1;
@@ -5797,7 +5797,7 @@ static int hf_nds_all_attr = -1;
 static int hf_nds_req_flags = -1;
 static int hf_nds_attr = -1;
 static int hf_nds_crc = -1;
-static int hf_nds_referals = -1;
+static int hf_nds_referrals = -1;
 static int hf_nds_result_flags = -1;
 static int hf_nds_tag_string = -1;
 static int hf_value_bytes = -1;
@@ -6521,10 +6521,10 @@ proto_register_ncp2222(void)
         { "Not Defined", "ncp.bit13nflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
         
         { &hf_bit14nflags, 
-        { "Prefer Referalls", "ncp.bit14nflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        { "Prefer Referrals", "ncp.bit14nflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
         
         { &hf_bit15nflags, 
-        { "Prefer Only Referalls", "ncp.bit15nflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        { "Prefer Only Referrals", "ncp.bit15nflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
         
         { &hf_bit16nflags, 
         { "Not Defined", "ncp.bit16nflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
@@ -7023,18 +7023,18 @@ proto_register_ncp2222(void)
         { "Socket",	"ncp.ndssocket", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
         
         { &hf_add_ref_ip,
-	{ "Address Referal", "ncp.ipref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Address Referral", "ncp.ipref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
         
         { &hf_add_ref_udp,
-	{ "Address Referal", "ncp.udpref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Address Referral", "ncp.udpref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
         
         { &hf_add_ref_tcp,
-	{ "Address Referal", "ncp.tcpref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Address Referral", "ncp.tcpref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
         
-        { &hf_referal_record,
-	{ "Referal Record", "ncp.ref_rec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_referral_record,
+	{ "Referral Record", "ncp.ref_rec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         
-        { &hf_referal_addcount,
+        { &hf_referral_addcount,
 	{ "Address Count", "ncp.ref_addcount", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         
 	{ &hf_nds_port,                                                                    
@@ -7121,8 +7121,8 @@ proto_register_ncp2222(void)
  	{ &hf_nds_crc,
 	{ "CRC", "ncp.nds_crc", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         
- 	{ &hf_nds_referals,
-	{ "Referals", "ncp.nds_referals", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+ 	{ &hf_nds_referrals,
+	{ "Referrals", "ncp.nds_referrals", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         
  	{ &hf_nds_result_flags,
 	{ "Result Flags", "ncp.nds_result_flags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
