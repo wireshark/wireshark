@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.16 2001/07/08 22:56:22 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.17 2001/07/08 23:20:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -180,6 +180,11 @@ display_LM_token(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			Token,
 			"LM20 Token: 0x%04x (LanMan 2.0 or higher)", Token);
 	} else {
+		/*
+		 * XXX - are all values with the lower bit set LM 2.0,
+		 * and all values with it not set LM 1.0?
+		 * What do the other bits mean, if anything?
+		 */
 		proto_tree_add_uint_format(tree, hf_lm_token, tvb, offset, 2, 
 			Token,
 			"LM10 Token: 0x%04x (WFW Networking)", Token);
@@ -203,6 +208,9 @@ display_LMNT_token(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			Token,
 			"LMNT Token: 0x%04x (Windows NT Networking)", Token);
 	} else {
+		/*
+		 * XXX - what is it if it's not 0xffff?
+		 */
 		proto_tree_add_uint_format(tree, hf_lm_token, tvb, offset, 2, 
 			Token,
 			"LMNT Token: 0x%04x (Unknown)", Token);
@@ -667,7 +675,9 @@ dissect_smb_inter_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	/* LMNT token */
 	offset = display_LMNT_token(tvb, offset, pinfo, tree);
 
-	/* XXX - no LM token? */
+	/* XXX - no LM token?  Every other packet has one after the LMNT
+	   token. */
+
 	return offset;
 }
 
