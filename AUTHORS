@@ -768,6 +768,8 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	    support in PPP dissector
 	Support for decoding additional data, for CHAP, in LCP
 	    Authentication Protocol option
+	Additional vendor (CoSine) for Radius
+	Patches to PPP for CHAP support
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {
@@ -805,12 +807,7 @@ Graeme Hewson <graeme.hewson[AT]oracle.com> {
 	Additional Ascend codes, and IETF codes, for Radius
 }
 
-Montonori Shindo <mshindo[at]mshindo.net> {
-	Additional vendor for Radius
-	Patches to ppp for chap support
-}
-
-Pasi Eronen <pasi.eronen[at]nixu.com {
+Pasi Eronen <pasi.eronen[at]nixu.com> {
 	Patches to the dcerpc dissector for data representation decoding
 }
 
