@@ -1,7 +1,7 @@
 /* tap-dcerpcstat.c
  * dcerpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-dcerpcstat.c,v 1.1 2002/10/23 03:49:10 guy Exp $
+ * $Id: tap-dcerpcstat.c,v 1.2 2002/10/25 01:02:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,10 @@ dcerpcstat_packet(rpcstat_t *rs, packet_info *pinfo, dcerpc_info *ri)
 	rpc_procedure_t *rp;
 
 	if(!ri->call_data){
+		return 0;
+	}
+	if(!ri->call_data->req_frame){
+		/* we have not seen the request so we dont know the delta*/
 		return 0;
 	}
 	if(ri->call_data->opnum>=rs->num_procedures){
