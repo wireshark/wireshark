@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.8 1999/08/12 21:16:30 guy Exp $
+ * $Id: dfilter.c,v 1.9 1999/08/13 23:47:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,15 +69,6 @@ int bytes_length = 0;
 
 YYSTYPE yylval;
 
-/* in dfilter-grammar.y */
-extern GMemChunk *gmc_dfilter_nodes; 
-extern GNode *dfilter_tree;
-extern GSList *dfilter_list_byte_arrays;
-
-/* in dfilter-scanner.l */
-void dfilter_scanner_text(char*);
-void dfilter_scanner_cleanup(void);
-
 static gboolean dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8 *pd);
 static gboolean check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd);
 static gboolean check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd);
@@ -111,42 +102,103 @@ dfilter_init(void)
 		}
 	}
 }
-/* I should eventually g_tree_destroy(dfilter_tokens), when ethereal shuts down */
+/* XXX - I should eventually g_tree_destroy(dfilter_tokens), when ethereal shuts down */
 
 /* Compiles the textual representation of the display filter into a tree
- * of operations to perform.
+ * of operations to perform. Can be called multiple times, compiling a new
+ * display filter each time, without having to clear any memory used, since
+ * dfilter_compile will take care of that automatically.
  */
 int
-dfilter_compile(char *dfilter_text, GNode **p_dfcode)
+dfilter_compile(dfilter *df, gchar *dfilter_text)
 {
 	int retval;
 
 	g_assert(dfilter_text != NULL);
-	dfilter_scanner_text(dfilter_text);
 
-	if (dfilter_tree) {
-		/* clear tree */
-		dfilter_tree = NULL;
-	}
-	/* clear the memory that the tree was using for nodes */
-	g_mem_chunk_reset(gmc_dfilter_nodes);
+	dfilter_clear_filter(df);
+	df->dftext = g_strdup(dfilter_text);
 
-	/* clear the memory that the tree was using for byte arrays */
-	if (dfilter_list_byte_arrays) {
-		g_slist_foreach(dfilter_list_byte_arrays, clear_byte_array, NULL);
-		g_slist_free(dfilter_list_byte_arrays);
-		dfilter_list_byte_arrays = NULL;
-	}
+	/* tell the scanner to use this string as input */
+	dfilter_scanner_text(df->dftext);
 
-	if (*p_dfcode != NULL)
-		g_node_destroy(*p_dfcode);
+	/* Assign global variable so yyparse knows which dfilter we're talking about */
+	global_df = df;
 
+	/* The magic happens right here. */
 	retval = yyparse();
+
+	/* clean up lex */
 	dfilter_scanner_cleanup();
-	*p_dfcode = dfilter_tree;
 
 	return retval;
 }
+
+/* clear the current filter, w/o clearing memchunk area which is where we'll
+ * put new nodes in a future filter */
+void
+dfilter_clear_filter(dfilter *df)
+{
+	if (!df)
+		return;
+
+	if (df->dftext)
+		g_free(df->dftext);
+
+	if (df->dftree != NULL)
+		g_node_destroy(df->dftree);
+
+	/* clear the memory that the tree was using for nodes */
+	if (df->node_memchunk)
+		g_mem_chunk_reset(df->node_memchunk);
+
+	/* clear the memory that the tree was using for byte arrays */
+	if (df->list_of_byte_arrays) {
+		g_slist_foreach(df->list_of_byte_arrays, clear_byte_array, NULL);
+		g_slist_free(df->list_of_byte_arrays);
+	}
+
+	df->dftext = NULL;
+	df->dftree = NULL;
+	df->list_of_byte_arrays = NULL;
+}
+
+/* Allocates new dfilter, initializes values, and returns pointer to dfilter */
+dfilter*
+dfilter_new(void)
+{
+	dfilter *df;
+
+	df = g_malloc(sizeof(dfilter));
+
+	df->dftext = NULL;
+	df->dftree = NULL;
+	df->node_memchunk = g_mem_chunk_new("df->node_memchunk",
+		sizeof(dfilter_node), 20 * sizeof(dfilter_node), G_ALLOC_ONLY);
+	df->list_of_byte_arrays = NULL;
+
+	return df;
+}
+
+/* Frees all memory used by dfilter, and frees dfilter itself */
+void
+dfilter_destroy(dfilter *df)
+{
+	if (!df)
+		return;
+
+	dfilter_clear_filter(df);
+
+	/* Git rid of memchunk */
+	if (df->node_memchunk)
+		g_mem_chunk_destroy(df->node_memchunk);
+
+	g_free(df);
+}
+
+
+
+
 
 static void
 clear_byte_array(gpointer data, gpointer user_data)
@@ -166,7 +218,7 @@ yyerror(char *s)
 void
 dfilter_yyerror(char *fmt, ...)
 {
-	dfilter_tree = NULL;
+	global_df->dftree = NULL;
 	yyerror(fmt);
 }
 
@@ -193,10 +245,10 @@ g_strcmp(gconstpointer a, gconstpointer b)
 
 
 gboolean
-dfilter_apply(GNode *dfcode, proto_tree *ptree, const guint8* pd)
+dfilter_apply(dfilter *dfcode, proto_tree *ptree, const guint8* pd)
 {
 	gboolean retval;
-	retval = dfilter_apply_node(dfcode, ptree, pd);
+	retval = dfilter_apply_node(dfcode->dftree, ptree, pd);
 	return retval;
 }
 
@@ -404,7 +456,7 @@ gboolean fill_array_bytes_variable(GNode *gnode, gpointer data)
 
 	if (fi->hfinfo->id == sinfo->target_field) {
 		barray = g_byte_array_new();
-		/*dfilter_list_byte_arrays = g_slist_append(dfilter_list_byte_arrays, barray);*/
+		/*list_of_byte_arrays = g_slist_append(list_of_byte_arrays, barray);*/
 		g_byte_array_append(barray, sinfo->packet_data + fi->start + bytes_offset, bytes_length);
 		g_array_append_val(sinfo->result_array, barray);
 	}

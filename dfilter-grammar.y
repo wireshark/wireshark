@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.8 1999/08/12 21:16:31 guy Exp $
+ * $Id: dfilter-grammar.y,v 1.9 1999/08/13 23:47:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,7 +67,6 @@
 #include "resolv.h"
 #endif
 
-void dfilter_yacc_init(void);
 static GNode* dfilter_mknode_join(GNode *n1, enum node_type ntype, int operand, GNode *n2);
 static GNode* dfilter_mknode_unary(int operand, GNode *n2);
 static GNode* dfilter_mknode_numeric_variable(gint id);
@@ -86,15 +85,10 @@ static GNode* dfilter_mknode_boolean_variable(gint id);
 
 static guint32 string_to_value(char *s);
 
-/* space for dfilter_nodes */
-GMemChunk *gmc_dfilter_nodes = NULL;
-
-/* this is how we pass display filter tree (dfcode) back to calling routine */
-GNode *dfilter_tree = NULL;
-
-/* list of byte arrays we allocate during parse. We can traverse this list
- * faster than the tree when we go back and free the byte arrays */
-GSList *dfilter_list_byte_arrays = NULL;
+/* This is the dfilter we're currently processing. It's how
+ * dfilter_compile communicates with us.
+ */
+dfilter *global_df = NULL;;
 
 %}
 
@@ -155,9 +149,9 @@ GSList *dfilter_list_byte_arrays = NULL;
 
 statement: expression
 		{
-			dfilter_tree = $1;
+			global_df->dftree = $1;
 		}
-	|	/* NULL */ { dfilter_tree = NULL; }
+	|	/* NULL */ { global_df->dftree = NULL; }
 	;
 
 expression:	'(' expression ')' { $$ = $2; }
@@ -262,7 +256,7 @@ bytes_value:	T_VAL_BYTES
 	{								/* one or 4 bytes */
 		GByteArray	*barray;
 
-		/* the next function appends to dfilter_list_byte_arrays for me */
+		/* the next function appends to list_of_byte_arrays for me */
 		barray = byte_str_to_guint8_array($1);
 		$$ = dfilter_mknode_bytes_value(barray);
 		g_free($1);
@@ -272,7 +266,7 @@ bytes_value:	T_VAL_BYTES
 	{								/* 6 bytes */
 		GByteArray	*barray = g_byte_array_new();
 
-		dfilter_list_byte_arrays = g_slist_append(dfilter_list_byte_arrays, barray);
+		global_df->list_of_byte_arrays = g_slist_append(global_df->list_of_byte_arrays, barray);
 		g_byte_array_append(barray, $1, 6);
 		$$ = dfilter_mknode_bytes_value(barray);
 	}
@@ -341,38 +335,13 @@ bytes_relation:		TOK_EQ { $$ = TOK_EQ; }
 
 %%
 
-void
-dfilter_yacc_init(void)
-{
-	if (gmc_dfilter_nodes)
-		g_mem_chunk_destroy(gmc_dfilter_nodes);
-
-	gmc_dfilter_nodes = g_mem_chunk_new("gmc_dfilter_nodes",
-		sizeof(dfilter_node), 50 * sizeof(dfilter_node),
-		G_ALLOC_ONLY);
-
-	if (dfilter_list_byte_arrays) {
-		/* clear the byte arrays */
-		g_slist_free(dfilter_list_byte_arrays);
-	}
-		
-}
-
-void
-dfilter_yacc_cleanup(void)
-{
-	if (gmc_dfilter_nodes)
-		g_mem_chunk_destroy(gmc_dfilter_nodes);
-}
-
-
 static GNode*
 dfilter_mknode_join(GNode *n1, enum node_type ntype, int operand, GNode *n2)
 {
 	dfilter_node	*node_root;
 	GNode		*gnode_root;
 
-	node_root = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node_root = g_mem_chunk_alloc(global_df->node_memchunk);
 	node_root->ntype = ntype;
 	node_root->elem_size = 0;
 	node_root->fill_array_func = NULL;
@@ -400,7 +369,7 @@ dfilter_mknode_unary(int operand, GNode *n2)
 	dfilter_node	*node_root;
 	GNode		*gnode_root;
 
-	node_root = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node_root = g_mem_chunk_alloc(global_df->node_memchunk);
 	node_root->ntype = logical;
 	node_root->value.logical = operand;
 	node_root->elem_size = 0;
@@ -420,7 +389,7 @@ dfilter_mknode_numeric_variable(gint id)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(guint32);
 	node->fill_array_func = fill_array_numeric_variable;
@@ -437,7 +406,7 @@ dfilter_mknode_ether_variable(gint id)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(guint8) * 6;
 	node->fill_array_func = fill_array_ether_variable;
@@ -454,7 +423,7 @@ dfilter_mknode_ipxnet_variable(gint id)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(guint8) * 4;
 	node->fill_array_func = fill_array_numeric_variable; /* cheating ! */
@@ -471,7 +440,7 @@ dfilter_mknode_ipv4_variable(gint id)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(guint32);
 	node->fill_array_func = fill_array_numeric_variable; /* cheating ! */
@@ -488,7 +457,7 @@ dfilter_mknode_bytes_variable(gint id, gint offset, guint length)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(GByteArray*);
 	node->fill_array_func = fill_array_bytes_variable;
@@ -507,7 +476,7 @@ dfilter_mknode_boolean_variable(gint id)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
 	node->elem_size = sizeof(guint32);
 	node->fill_array_func = fill_array_boolean_variable; /* cheating ! */
@@ -524,7 +493,7 @@ dfilter_mknode_numeric_value(guint32 val)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = numeric;
 	node->elem_size = sizeof(guint32);
 	node->fill_array_func = fill_array_numeric_value;
@@ -541,7 +510,7 @@ dfilter_mknode_ether_value(guint8 *ether_bytes)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = ether;
 	node->elem_size = sizeof(guint8) * 6;
 	node->fill_array_func = fill_array_ether_value;
@@ -559,7 +528,7 @@ dfilter_mknode_ipxnet_value(guint32 ipx_net_val)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = ipxnet;
 	node->elem_size = sizeof(guint8) * 4;
 	node->fill_array_func = fill_array_numeric_value; /* cheating ! */
@@ -576,7 +545,7 @@ dfilter_mknode_ipv4_value(char *host)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = numeric;
 	node->elem_size = sizeof(guint32);
 	node->fill_array_func = fill_array_numeric_value; /* cheating ! */
@@ -594,7 +563,7 @@ dfilter_mknode_bytes_value(GByteArray *barray)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = bytes;
 	node->elem_size = sizeof(GByteArray*);
 	node->fill_array_func = fill_array_bytes_value;
@@ -613,7 +582,7 @@ dfilter_mknode_boolean_value(gint truth_value)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = numeric;
 	node->elem_size = sizeof(guint32);
 	node->fill_array_func = fill_array_boolean_value;
@@ -642,7 +611,7 @@ dfilter_mknode_existence(gint id)
 	dfilter_node	*node;
 	GNode		*gnode;
 
-	node = g_mem_chunk_alloc(gmc_dfilter_nodes);
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = existence;
 	node->elem_size = sizeof(guint32);
 	node->fill_array_func = NULL;

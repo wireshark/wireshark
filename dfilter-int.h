@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.1 1999/08/12 21:16:31 guy Exp $
+ * $Id: dfilter-int.h,v 1.2 1999/08/13 23:47:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,9 +29,11 @@
 
 /* in dfilter-scanner.l */
 GByteArray *byte_str_to_guint8_array(const char *s);
+void dfilter_scanner_text(char*);
+void dfilter_scanner_cleanup(void);
 
 /* in dfilter-grammar.y */
-extern GSList *dfilter_list_byte_arrays;
+extern dfilter *global_df;
 
 /* Here we provide interfaces to make our scanner act and look like lex */
 int yylex(void);
@@ -52,6 +54,10 @@ gboolean fill_array_bytes_value(GNode *gnode, gpointer data);
 gboolean fill_array_bytes_variable(GNode *gnode, gpointer data);
 gboolean fill_array_boolean_value(GNode *gnode, gpointer data);
 gboolean fill_array_boolean_variable(GNode *gnode, gpointer data);
+
+#ifdef WIN32
+#define boolean truth_value
+#endif
 
 enum node_type {
 	relation,	/* eq, ne, gt, ge, lt, le */

@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.8 1999/08/10 04:13:36 guy Exp $
+ * $Id: summary.c,v 1.9 1999/08/13 23:47:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -250,10 +250,9 @@ traffic_bytes/seconds);
   }
   add_string_to_box(string_buff, capture_box);
 
-  /* Display filter. The situation where cf.dfilter="" and cf.dfcode=NULL can exist,
-	so I'll check for both */
-  if (cf.dfilter && cf.dfcode) {
-    snprintf(string_buff, SUM_STR_MAX, "Display filter: %s", cf.dfilter);
+  /* Display filter */
+  if (DFILTER_CONTAINS_FILTER(cf.dfcode)) {
+    snprintf(string_buff, SUM_STR_MAX, "Display filter: %s", cf.dfcode->dftext);
   } else {
     sprintf(string_buff, "Display filter: none");
   }

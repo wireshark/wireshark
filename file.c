@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.61 1999/08/10 07:12:52 guy Exp $
+ * $Id: file.c,v 1.62 1999/08/13 23:47:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,7 +88,7 @@ guint cap_input_id;
 static guint32 firstsec, firstusec;
 static guint32 lastsec, lastusec;
 
-static GNode *rfcode; 
+static dfilter *rfcode = NULL; 
 
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
     const u_char *);
@@ -204,12 +204,13 @@ load_cap_file(char *fname, char *rfilter, capture_file *cf) {
   else
     name_ptr++;
 
-  rfcode = NULL;
-  if (rfilter)
-    if (dfilter_compile(rfilter, &rfcode) != 0) {
+  if (rfilter) {
+    rfcode = dfilter_new();
+    if (dfilter_compile(rfcode, rfilter) != 0) {
       simple_dialog(ESD_TYPE_WARN, NULL,
         "Unable to parse filter string \"%s\".", rfilter);
       goto fail;
+    }
   }
 
   err = open_cap_file(fname, cf);
@@ -448,7 +449,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   if (check_col(fdata, COL_NUMBER))
     col_add_fstr(fdata, COL_NUMBER, "%d", cf->count);
   /* Apply the display filter */
-  if (cf->dfcode) {
+  if (DFILTER_CONTAINS_FILTER(cf->dfcode)) {
 	protocol_tree = proto_tree_create_root();
 	dissect_packet(buf, fdata, protocol_tree);
 	fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
@@ -524,11 +525,14 @@ filter_packets(capture_file *cf)
 /*  gint timeout;*/
   frame_data *fd;
 
-  if (cf->dfilter != NULL) {
+  if (cf->dfilter == NULL) {
+	dfilter_clear_filter(cf->dfcode);
+  }
+  else {
     /*
      * Compile the filter.
      */
-    if (dfilter_compile(cf->dfilter, &cf->dfcode) != 0) {
+    if (dfilter_compile(cf->dfcode, cf->dfilter) != 0) {
       simple_dialog(ESD_TYPE_WARN, NULL,
       "Unable to parse filter string \"%s\".", cf->dfilter);
       return;

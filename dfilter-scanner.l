@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.6 1999/08/12 21:16:31 guy Exp $
+ * $Id: dfilter-scanner.l,v 1.7 1999/08/13 23:47:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -327,7 +327,8 @@ byte_str_to_guint8_array(const char *s)
 	char		*p, *str;
 
 	barray = g_byte_array_new();
-	dfilter_list_byte_arrays = g_slist_append(dfilter_list_byte_arrays, barray);
+	/* XXX - don't use global_df, but pass in pointer to GSList* */
+	global_df->list_of_byte_arrays = g_slist_append(global_df->list_of_byte_arrays, barray);
 
 	byte_str = g_strdup(s);
 	str = byte_str;

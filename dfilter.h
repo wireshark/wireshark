@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.6 1999/08/12 21:16:32 guy Exp $
+ * $Id: dfilter.h,v 1.7 1999/08/13 23:47:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,12 +26,39 @@
 #ifndef __DFILTER_H__
 #define __DFILTER_H__
 
-void dfilter_init(void);
-int dfilter_compile(char* dfilter_text, GNode** p_dfcode);
-gboolean dfilter_apply(GNode *dfcode, proto_tree *ptree, const guint8* pd);
+#define DFILTER_CONTAINS_FILTER(x)	((x)->dftree)
 
-#ifdef WIN32
-#define boolean truth_value
-#endif
+typedef struct {
+
+	GNode *dftree;
+	gchar *dftext;
+
+	/* space for dfilter_nodes */
+	GMemChunk *node_memchunk;
+
+	/* list of byte arrays we allocate during parse. We can traverse this list
+	 * faster than the tree when we go back and free the byte arrays */
+	GSList *list_of_byte_arrays;
+
+} dfilter;
+
+/* Initialization of the symbol table. Called once during program startup */
+void dfilter_init(void);
+
+/* Allocate and initialize new dfilter struct. Returns pointer to new dfilter */
+dfilter* dfilter_new(void);
+
+/* Frees all memory used by dfilter, and frees dfilter itself */
+void dfilter_destroy(dfilter *df);
+
+/* Compile display filter text */
+int dfilter_compile(dfilter* df, gchar* dfilter_text);
+
+/* Apply compiled dfilter to a proto_tree */
+gboolean dfilter_apply(dfilter *df, proto_tree *ptree, const guint8* pd);
+
+/* Clears the current filter int the dfilter */
+void dfilter_clear_filter(dfilter *df);
+
 
 #endif /* ! __DFILTER_H__ */

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.82 1999/08/12 07:36:41 guy Exp $
+ * $Id: ethereal.c,v 1.83 1999/08/13 23:47:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -543,9 +543,21 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
 /* Run the current display filter on the current packet set, and
    redisplay. */
 static void
-filter_activate_cb(GtkWidget *w, gpointer data) {
-  if (cf.dfilter) g_free(cf.dfilter);
-  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(w)));
+filter_activate_cb(GtkWidget *w, gpointer data)
+{
+  char *s = gtk_entry_get_text(GTK_ENTRY(w));
+
+  if (cf.dfilter)
+	g_free(cf.dfilter);
+
+  /* simple check for empty string. XXX - need to modify to search for /^\s+$/ */
+  if (s[0] == '\0' ) {
+	cf.dfilter = NULL;
+  }
+  else {
+	cf.dfilter = g_strdup(s);
+  }
+
   filter_packets(&cf);
 }
 
@@ -1032,8 +1044,9 @@ main(int argc, char *argv[])
   cf.plist_end		= NULL;
   cf.wth		= NULL;
   cf.fh			= NULL;
+  cf.rfilter		= NULL;
   cf.dfilter		= NULL;
-  cf.dfcode		= NULL;
+  cf.dfcode		= dfilter_new();
 #ifdef HAVE_LIBPCAP
   cf.cfilter		= NULL;
 #endif

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.13 1999/08/10 20:05:40 guy Exp $
+ * $Id: proto.c,v 1.14 1999/08/13 23:47:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -242,8 +242,6 @@ proto_init(void)
 		/* ftype */	FT_TEXT_ONLY,
 		/* parent */	-1,
 		/* vals[] */	NULL );
-
-	dfilter_yacc_init();
 }
 
 /* frees the resources that the dissection a proto_tree uses */
