@@ -1441,16 +1441,20 @@ main(int argc, char *argv[])
 #endif
 
 #ifdef HAVE_LIBPCAP
+  /* Set the initial values in the capture_opts. This might be overwritten 
+     by preference settings and then again by the command line parameters. */
+  capture_opts_init(capture_opts, &cfile);
+
   command_name = get_basename(ethereal_path);
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */
   capture_opts->capture_child = (strcmp(command_name, CHILD_NAME) == 0);
-  /* We want a splash screen only if we're not a child process */
   if (capture_opts->capture_child) {
     strcat(optstring, OPTSTRING_CHILD);
-  } else
+  }
 #endif
-  {
+
+  /* We want a splash screen only if we're not a child process */
     /* We also want it only if we're not being run with "-G".
        XXX - we also don't want it if we're being run with
        "-h" or "-v", as those are options to run Ethereal and just
@@ -1462,9 +1466,12 @@ main(int argc, char *argv[])
        that means we'd have to queue up, for example, "-o" options,
        so that we apply them *after* reading the preferences, as
        they're supposed to override saved preferences. */
-    if (argc < 2 || strcmp(argv[1], "-G") != 0) {
-      splash_win = splash_new("Loading Ethereal ...");
-    }
+  if ((argc < 2 || strcmp(argv[1], "-G") != 0)
+#ifdef HAVE_LIBPCAP
+      && !capture_opts->capture_child
+#endif
+      ) {
+    splash_win = splash_new("Loading Ethereal ...");
   }
 
   splash_update(splash_win, "Registering dissectors ...");
@@ -1571,8 +1578,6 @@ main(int argc, char *argv[])
 #endif
 
 #ifdef HAVE_LIBPCAP
-  capture_opts_init(capture_opts, &cfile);
-
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
      it should do what the parent process tells it to do, and if
@@ -1587,7 +1592,7 @@ main(int argc, char *argv[])
     capture_opts->promisc_mode   = prefs->capture_prom_mode;
     capture_opts->show_info      = prefs->capture_show_info;
     capture_opts->sync_mode      = prefs->capture_real_time;
-    auto_scroll_live            = prefs->capture_auto_scroll;
+    auto_scroll_live             = prefs->capture_auto_scroll;
   }
 
 #endif /* HAVE_LIBPCAP */
@@ -1976,11 +1981,12 @@ main(int argc, char *argv[])
     arg_error = TRUE;
   }
 
-#ifndef HAVE_LIBPCAP
-  if (capture_option_specified)
-    fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
-#endif
   if (arg_error) {
+#ifndef HAVE_LIBPCAP
+    if (capture_option_specified) {
+      fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
+    }
+#endif
     print_usage(FALSE);
     exit(1);
   }
@@ -2106,6 +2112,20 @@ main(int argc, char *argv[])
     exit(0);
   }
 
+  if (capture_opts->has_snaplen) {
+    if (capture_opts->snaplen < 1)
+      capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
+    else if (capture_opts->snaplen < MIN_PACKET_SIZE)
+      capture_opts->snaplen = MIN_PACKET_SIZE;
+  }
+
+  /* Check the value range of the ringbuffer_num_files parameter */
+  if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES)
+    capture_opts->ring_num_files = RINGBUFFER_MAX_NUM_FILES;
+#if RINGBUFFER_MIN_NUM_FILES > 0
+  else if (capture_opts->num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
+#endif
 #endif
 
   /* Notify all registered modules that have had any of their preferences
@@ -2148,23 +2168,6 @@ main(int argc, char *argv[])
          cfile.cinfo.col_last[j] = i;
       }
   }
-
-#ifdef HAVE_LIBPCAP
-  if (capture_opts->has_snaplen) {
-    if (capture_opts->snaplen < 1)
-      capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
-    else if (capture_opts->snaplen < MIN_PACKET_SIZE)
-      capture_opts->snaplen = MIN_PACKET_SIZE;
-  }
-
-  /* Check the value range of the ringbuffer_num_files parameter */
-  if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES)
-    capture_opts->ring_num_files = RINGBUFFER_MAX_NUM_FILES;
-#if RINGBUFFER_MIN_NUM_FILES > 0
-  else if (capture_opts->num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
-#endif
-#endif
 
   /* read in rc file from global and personal configuration paths. */
   /* XXX - is this a good idea? */
