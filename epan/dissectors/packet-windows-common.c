@@ -133,7 +133,7 @@ const value_string DOS_errors[] = {
  *
  * From
  *
- *	http://www.wildpackets.com/elements/SMB_NT_Status_Codes.txt
+ *	http://www.wildpackets.com/elements/misc/SMB_NT_Status_Codes.txt
  */
 const value_string NT_errors[] = {
   { 0x00000000, "STATUS_SUCCESS" },
