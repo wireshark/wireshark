@@ -377,6 +377,7 @@ Michael Tuexen <Michael.Tuexen@icn.siemens.de> {
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
 	SUA Light support
+	MTP3 support
 }
 
 Bruce Korb <bkorb@sco.com> {

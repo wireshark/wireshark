@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.6 2001/04/23 18:05:19 guy Exp $
+ * $Id: packet-m3ua.c,v 1.7 2001/05/24 08:13:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -389,6 +389,8 @@ static gint ett_m3ua = -1;
 static gint ett_m3ua_parameter = -1;
 static gint ett_m3ua_affected_destination = -1;
 
+static dissector_handle_t mtp3_handle;
+
 static guint 
 nr_of_padding_bytes (guint length)
 {
@@ -457,17 +459,17 @@ dissect_m3ua_network_appearance_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 }
 
 static void
-dissect_m3ua_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_m3ua_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, protocol_data_length;
-  
-  length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  
-  protocol_data_length = length - PARAMETER_HEADER_LENGTH;
+  tvbuff_t *payload_tvb;
 
-  proto_tree_add_text(parameter_tree, parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length,
-		      "Protocol data (%u byte%s)",
-		      protocol_data_length, plurality(protocol_data_length, "", "s"));
+  length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+  protocol_data_length = length - PARAMETER_HEADER_LENGTH;
+  payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET,
+					protocol_data_length, protocol_data_length);
+  
+  call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
 
   proto_item_set_text(parameter_item, "Protocol data (SS7 message of %u byte%s)",
 		      protocol_data_length, plurality(protocol_data_length, "", "s"));
@@ -706,7 +708,7 @@ dissect_m3ua_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 }
 
 static void
-dissect_m3ua_parameter(tvbuff_t *parameter_tvb, proto_tree *m3ua_tree)
+dissect_m3ua_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
   guint16 tag, length, padding_length, total_length;
   proto_item *parameter_item;
@@ -739,7 +741,7 @@ dissect_m3ua_parameter(tvbuff_t *parameter_tvb, proto_tree *m3ua_tree)
     dissect_m3ua_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case PROTOCOL_DATA_PARAMETER_TAG:
-    dissect_m3ua_protocol_data_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_m3ua_protocol_data_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
     break;
   case INFO_PARAMETER_TAG:
     dissect_m3ua_info_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -786,7 +788,7 @@ dissect_m3ua_parameter(tvbuff_t *parameter_tvb, proto_tree *m3ua_tree)
 }
 
 static void
-dissect_m3ua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *m3ua_tree)
+dissect_m3ua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
   gint offset, length, padding_length, total_length;
   tvbuff_t *common_header_tvb, *parameter_tvb;
@@ -806,7 +808,7 @@ dissect_m3ua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *m3ua
       total_length   = length + padding_length;
       /* create a tvb for the parameter including the padding bytes */
       parameter_tvb    = tvb_new_subset(message_tvb, offset, total_length, total_length);
-      dissect_m3ua_parameter(parameter_tvb, m3ua_tree); 
+      dissect_m3ua_parameter(parameter_tvb, pinfo, tree, m3ua_tree); 
       /* get rid of the handled parameter */
       offset += total_length;
     }
@@ -833,7 +835,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
     m3ua_tree = NULL;
   };
   /* dissect the message */
-  dissect_m3ua_message(message_tvb, pinfo, m3ua_tree);
+  dissect_m3ua_message(message_tvb, pinfo, tree, m3ua_tree);
 }
 
 /* Register the protocol with Ethereal */
@@ -964,6 +966,11 @@ proto_register_m3ua(void)
 void
 proto_reg_handoff_m3ua(void)
 {
+  /*
+   * Get a handle for the MTP3 dissector.
+   */
+  mtp3_handle = find_dissector("mtp3");
+
   dissector_add("sctp.ppi",  M3UA_PAYLOAD_PROTO_ID, dissect_m3ua, proto_m3ua);
   dissector_add("sctp.port", SCTP_PORT_M3UA, dissect_m3ua, proto_m3ua);
 }
