@@ -956,7 +956,15 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.filter_toolbar_show_in_statusbar = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
 #ifdef _WIN32
-    prefs.gui_font_name1 = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
+    /* XXX - not sure, if it must be "Lucida Console" or "lucida console"
+     * for gui_font_name1. Maybe it's dependant on the windows version running?!
+     * verified on XP: "Lucida Console"
+     * unknown for other windows versions.
+     *
+     * Problem: if we have no preferences file, and the default font name is unknown, 
+     * we cannot save Preferences as an error dialog pops up "You have not selected a font".
+     */
+    prefs.gui_font_name1 = g_strdup("-*-Lucida Console-medium-r-*-*-*-100-*-*-*-*-*-*");
     prefs.gui_font_name2 = g_strdup("Lucida Console 10");
 #else
     /*
