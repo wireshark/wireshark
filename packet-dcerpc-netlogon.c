@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.10 2002/03/14 10:04:02 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.11 2002/03/17 07:43:11 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -984,8 +984,11 @@ netlogon_dissect_NETLOGON_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_num_rids, NULL);
 
+	/* XXX i am not sure about this pointer being UNIQUE, though I am
+	   pretty convinced that it is NOT PTR as the idl file suggests.
+	*/
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_PTR,
+		netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
 		"GROUP_MEMBERSHIP_ARRAY", -1, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -2802,6 +2805,7 @@ netlogon_dissect_NETLOGON_LEVEL(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_level, &level);
 
+	ALIGN_TO_4_BYTES;
 	switch(level){
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -2858,25 +2862,29 @@ netlogon_dissect_NETLOGON_VALIDATION(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_level, &level);
 
+	/* XXX i am not sure about these pointers being UNIQUE, though I am
+	   pretty convinced that they are NOT PTR as the idl file suggests.
+	*/
+	ALIGN_TO_4_BYTES;
 	switch(level){
 	case 2:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_NETLOGON_VALIDATION_SAM_INFO1, NDR_POINTER_PTR,
+			netlogon_dissect_NETLOGON_VALIDATION_SAM_INFO1, NDR_POINTER_UNIQUE,
 			"NETLOGON_VALIDATION_SAM_INFO1 pointer:", -1, 0);
 		break;
 	case 3:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_NETLOGON_VALIDATION_SAM_INFO2, NDR_POINTER_PTR,
+			netlogon_dissect_NETLOGON_VALIDATION_SAM_INFO2, NDR_POINTER_UNIQUE,
 			"NETLOGON_VALIDATION_SAM_INFO2 pointer:", -1, 0);
 		break;
 	case 4:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_pointer_STRING, NDR_POINTER_PTR,
+			netlogon_dissect_pointer_STRING, NDR_POINTER_UNIQUE,
 			"STRING pointer:", -1, 0);
 		break;
 	case 5:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_BLOB_ptr, NDR_POINTER_PTR,
+			netlogon_dissect_BLOB_ptr, NDR_POINTER_UNIQUE,
 			"BLOB pointer:", -1, 0);
 		break;
 	}
@@ -3019,6 +3027,7 @@ netlogon_dissect_NETLOGON_CONTROL_QUERY_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_level_long, &level);
 
+	ALIGN_TO_4_BYTES;
 	switch(level){
 	case 5:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3065,6 +3074,7 @@ netlogon_dissect_TYPE_44(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_level_long, &level);
 
+	ALIGN_TO_4_BYTES;
 	switch(level){
 	case 1:
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3288,6 +3298,7 @@ netlogon_dissect_NETLOGON_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_level_long, &level);
 
+	ALIGN_TO_4_BYTES;
 	switch(level){
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3334,6 +3345,7 @@ netlogon_dissect_TYPE_45(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_level_long, &level);
 
+	ALIGN_TO_4_BYTES;
 	switch(level){
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3370,6 +3382,7 @@ netlogon_dissect_TYPE_47(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_level_long, &level);
 
+	ALIGN_TO_4_BYTES;
 	switch(level){
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
