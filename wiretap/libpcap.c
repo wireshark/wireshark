@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.86 2002/12/11 22:45:24 guy Exp $
+ * $Id: libpcap.c,v 1.87 2003/01/03 06:45:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -239,7 +239,7 @@ static const struct {
 	{ 119,		WTAP_ENCAP_PRISM_HEADER }, /* Prism monitor mode hdr */
 	{ 121,		WTAP_ENCAP_HHDLC },	/* HiPath HDLC */
 	{ 122,		WTAP_ENCAP_IP_OVER_FC },   /* RFC 2625 IP-over-FC */
-	{ 123,		WTAP_ENCAP_ATM_SNIFFER },  /* SunATM */
+	{ 123,		WTAP_ENCAP_ATM_PDUS },  /* SunATM */
 	{ 127,		WTAP_ENCAP_WLAN_HEADER },  /* 802.11 plus WLAN header */
 
 	/*
@@ -888,7 +888,7 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	 * the VCI; read them and generate the pseudo-header from
 	 * them.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		if (packet_size < sizeof (struct sunatm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -927,7 +927,7 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	 * If this is ATM LANE traffic, try to guess what type of LANE
 	 * traffic it is based on the packet contents.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER &&
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
 	    wth->pseudo_header.atm.type == TRAF_LANE) {
 		atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
 		    wth->phdr.caplen, &wth->pseudo_header);
@@ -943,7 +943,7 @@ libpcap_seek_read(wtap *wth, long seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		if (!libpcap_read_atm_pseudoheader(wth->random_fh, pseudo_header,
 		    err)) {
 			/* Read error */
@@ -961,7 +961,7 @@ libpcap_seek_read(wtap *wth, long seek_off,
 	 * If this is ATM LANE traffic, try to guess what type of LANE
 	 * traffic it is based on the packet contents.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER &&
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
 	    pseudo_header->atm.type == TRAF_LANE)
 		atm_guess_lane_type(pd, length, pseudo_header);
 	return TRUE;
@@ -1258,7 +1258,7 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 	 * the VCI; read them and generate the pseudo-header from
 	 * them.
 	 */
-	if (linktype == WTAP_ENCAP_ATM_SNIFFER) {
+	if (linktype == WTAP_ENCAP_ATM_PDUS) {
 		if (whdr->caplen < sizeof (struct sunatm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -1392,7 +1392,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	struct sunatm_hdr atm_hdr;
 	int atm_hdrsize;
 
-	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER)
+	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
 		atm_hdrsize = sizeof (struct sunatm_hdr);
 	else
 		atm_hdrsize = 0;
@@ -1470,7 +1470,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	}
 	wdh->bytes_dumped += hdr_size;
 
-	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wdh->encap == WTAP_ENCAP_ATM_PDUS) {
 		/*
 		 * Write the ATM header.
 		 */

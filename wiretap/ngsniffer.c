@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.95 2002/12/20 22:30:15 guy Exp $
+ * $Id: ngsniffer.c,v 1.96 2003/01/03 06:45:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -406,7 +406,7 @@ int ngsniffer_open(wtap *wth, int *err)
 		WTAP_ENCAP_PER_PACKET,	/* Internetwork analyzer (synchronous) */
 		WTAP_ENCAP_PER_PACKET,	/* Internetwork analyzer (asynchronous) */
 		WTAP_ENCAP_FDDI_BITSWAPPED,
-		WTAP_ENCAP_ATM_SNIFFER
+		WTAP_ENCAP_ATM_PDUS
 	};
 	#define NUM_NGSNIFF_ENCAPS (sizeof sniffer_encap / sizeof sniffer_encap[0])
 	gboolean is_router;
@@ -540,7 +540,7 @@ int ngsniffer_open(wtap *wth, int *err)
 	wth->snapshot_length = 0;	/* not available in header, only in frame */
 	wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
 	wth->capture.ngsniffer->is_atm =
-	    (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER);
+	    (wth->file_encap == WTAP_ENCAP_ATM_PDUS);
 	wth->capture.ngsniffer->is_router = is_router;
 
 	/* Get capture start time */
@@ -1685,7 +1685,7 @@ static const int wtap_encap[] = {
     -1,		/* WTAP_ENCAP_ATM_RFC1483 */
     -1,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
     7,		/* WTAP_ENCAP_LAPB -> Internetwork analyzer (synchronous) */
-    -1,		/* WTAP_ENCAP_ATM_SNIFFER */
+    -1,		/* WTAP_ENCAP_ATM_PDUS */
     -1,		/* WTAP_ENCAP_NULL -> unsupported */
     -1,		/* WTAP_ENCAP_ASCEND -> unsupported */
     -1,		/* WTAP_ENCAP_ISDN -> unsupported */

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.75 2002/12/20 21:59:33 guy Exp $
+ * $Id: wtap.c,v 1.76 2003/01/03 06:45:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -95,8 +95,11 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_LAPB */
 	{ "LAPB", "lapb" },
 
-	/* WTAP_ENCAP_ATM_SNIFFER */
-	{ "ATM Sniffer", "atm-sniffer" },
+	/* WTAP_ENCAP_ATM_PDUS */
+	{ "ATM PDUs", "atm-pdus" },
+
+	/* WTAP_ENCAP_ATM_PDUS_UNTRUNCATED */
+	{ "ATM PDUs - untruncated", "atm-pdus-untruncated" },
 
 	/* WTAP_ENCAP_NULL */
 	{ "NULL", "null" },

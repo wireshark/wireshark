@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.63 2003/01/03 02:24:56 guy Exp $
+ * $Id: netxray.c,v 1.64 2003/01/03 06:45:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -177,12 +177,7 @@ int netxray_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
 		WTAP_ENCAP_UNKNOWN,	/* ARCNET raw */
 		WTAP_ENCAP_UNKNOWN,	/* ARCNET 878.2 */
-		/*
-		 * XXX - not all ATM captures have LLC-encapsulated frames
-		 * in them; there's probably something hidden in the
-		 * per-packet header giving the traffic type.
-		 */
-		WTAP_ENCAP_ATM_RFC1483,	/* ATM */
+		WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,	/* ATM */
 		WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
 					/* Wireless WAN with radio information */
 		WTAP_ENCAP_UNKNOWN	/* IrDA */
@@ -549,6 +544,23 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
 			pseudo_header->isdn.channel =
 			    hdr->hdr_2_x.xxx[13] & 0x1F;
 			break;
+
+		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
+			pseudo_header->atm.aal = AAL_5;		/* XXX */
+			pseudo_header->atm.type = TRAF_LLCMX;	/* XXX */
+			pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;	/* XXX */
+			pseudo_header->atm.vpi = hdr->hdr_2_x.xxx[11];
+			pseudo_header->atm.vci = pletohs(&hdr->hdr_2_x.xxx[12]);
+			pseudo_header->atm.channel = 0;		/* XXX */
+			pseudo_header->atm.cells = 0;
+
+			if (pseudo_header->atm.vpi == 0) {
+				if (pseudo_header->atm.vci == 5)
+					pseudo_header->atm.aal = AAL_SIGNALLING;
+				else if (pseudo_header->atm.vci == 16)
+					pseudo_header->atm.type = TRAF_ILMI;
+			}
+			break;
 		}
 	}
 }
@@ -590,7 +602,7 @@ static const int wtap_encap[] = {
     -1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
     -1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
     -1,		/* WTAP_ENCAP_LAPB -> unsupported */
-    -1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
+    -1,		/* WTAP_ENCAP_ATM_PDUS_UNTRUNCATED -> unsupported */
     -1		/* WTAP_ENCAP_NULL -> unsupported */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])

@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.61 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: netmon.c,v 1.62 2003/01/03 06:45:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -128,7 +128,7 @@ int netmon_open(wtap *wth, int *err)
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_FDDI_BITSWAPPED,
-		WTAP_ENCAP_ATM_SNIFFER,	/* NDIS WAN - this is what's used for ATM */
+		WTAP_ENCAP_ATM_PDUS,	/* NDIS WAN - this is what's used for ATM */
 		WTAP_ENCAP_UNKNOWN,	/* NDIS LocalTalk */
 		WTAP_ENCAP_UNKNOWN,	/* NDIS "DIX" - should not occur */
 		WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET raw */
@@ -392,7 +392,7 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	 * and the VPI and VCI; read them and generate the pseudo-header
 	 * from them.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		if (packet_size < sizeof (struct netmon_atm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -445,7 +445,7 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	 * Attempt to guess from the packet data, the VPI, and the VCI
 	 * information about the type of traffic.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		atm_guess_traffic_type(data_ptr, packet_size,
 		    &wth->pseudo_header);
 	}
@@ -460,7 +460,7 @@ netmon_seek_read(wtap *wth, long seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		if (!netmon_read_atm_pseudoheader(wth->random_fh, pseudo_header,
 		    err)) {
 			/* Read error */
@@ -478,7 +478,7 @@ netmon_seek_read(wtap *wth, long seek_off,
 	 * Attempt to guess from the packet data, the VPI, and the VCI
 	 * information about the type of traffic.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER)
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS)
 		atm_guess_traffic_type(pd, length, pseudo_header);
 
 	return TRUE;
@@ -567,7 +567,7 @@ static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
 	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
 	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
-	4,		/* WTAP_ENCAP_ATM_SNIFFER -> NDIS WAN (*NOT* ATM!) */
+	4,		/* WTAP_ENCAP_ATM_PDUS -> NDIS WAN (*NOT* ATM!) */
 	-1		/* WTAP_ENCAP_NULL -> unsupported */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
@@ -645,7 +645,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		netmon->got_first_record_time = TRUE;
 	}
 
-	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER)
+	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
 		atm_hdrsize = sizeof (struct netmon_atm_hdr);
 	else
 		atm_hdrsize = 0;
@@ -696,7 +696,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		return FALSE;
 	}
 
-	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wdh->encap == WTAP_ENCAP_ATM_PDUS) {
 		/*
 		 * Write the ATM header.
 		 * We supply all-zero destination and source addresses.

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.202 2003/01/01 03:51:02 guy Exp $
+ * $Id: capture.c,v 1.203 2003/01/03 06:45:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2245,7 +2245,7 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
     case WTAP_ENCAP_LOCALTALK:
       capture_llap(&ld->counts);
       break;
-    case WTAP_ENCAP_ATM_SNIFFER:
+    case WTAP_ENCAP_ATM_PDUS:
       capture_atm(&pseudo_header, pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_IP_OVER_FC:

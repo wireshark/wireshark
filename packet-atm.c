@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.49 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-atm.c,v 1.50 2003/01/03 06:45:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -782,10 +782,16 @@ capture_atm(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
 }
 
 static void
-dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean truncated)
 {
-  proto_tree   *atm_tree;
+
+  proto_tree   *atm_tree = NULL;
   proto_item   *ti;
+  tvbuff_t     *next_tvb;
+  guint        length, reported_length;
+  guint16      aal5_length;
+  int          pad_length;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
@@ -875,6 +881,14 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  		pinfo->pseudo_header->atm.channel);
       break;
     }
+  }
+
+  next_tvb = tvb;
+  if (truncated) {
+    /*
+     * The packet data does not include stuff such as the AAL5
+     * trailer.
+     */
     if (pinfo->pseudo_header->atm.cells != 0) {
       /*
        * If the cell count is 0, assume it means we don't know how
@@ -887,15 +901,51 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * some other way of indicating whether we have the AAL5 trailer
        * information.
        */
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
+      if (tree) {
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
 		pinfo->pseudo_header->atm.cells);
-      if (pinfo->pseudo_header->atm.aal == AAL_5) {
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 U2U: %u",
+        if (pinfo->pseudo_header->atm.aal == AAL_5) {
+          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 U2U: %u",
 		pinfo->pseudo_header->atm.aal5t_u2u);
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 len: %u",
+          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 len: %u",
 		pinfo->pseudo_header->atm.aal5t_len);
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 checksum: 0x%08X",
+          proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 checksum: 0x%08X",
 		pinfo->pseudo_header->atm.aal5t_chksum);
+	}
+      }
+    }
+  } else {
+    /*
+     * The packet data includes stuff such as the AAL5 trailer.
+     * If this is AAL5 or Signalling AAL traffic, process it,
+     * and then strip off the trailer.
+     */
+    if (pinfo->pseudo_header->atm.aal == AAL_5 ||
+        pinfo->pseudo_header->atm.aal == AAL_SIGNALLING) {
+      length = tvb_length(tvb);
+      reported_length = tvb_reported_length(tvb);
+      if (length >= reported_length) {
+        /*
+         * XXX - what if the packet is truncated?  Can that happen?
+         * What if you capture with Windows Sniffer on an ATM link
+	 * and tell it not to save the entire packet?  What happens
+	 * to the trailer?
+         */
+        aal5_length = tvb_get_ntohs(tvb, length - 6);
+        if (tree) {
+          pad_length = length - aal5_length - 8;
+          if (pad_length > 0) {
+            proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
+		"Padding");
+          }
+          proto_tree_add_text(atm_tree, tvb, length - 8, 2, "AAL5 U2U: %u",
+		tvb_get_ntohs(tvb, length - 8));
+          proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
+		aal5_length);
+          proto_tree_add_text(atm_tree, tvb, length - 4, 4, "AAL5 checksum: 0x%08X",
+		tvb_get_ntohl(tvb, length - 4));
+	}
+	next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
       }
     }
   }
@@ -903,7 +953,7 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (pinfo->pseudo_header->atm.aal) {
 
   case AAL_SIGNALLING:
-    call_dissector(sscop_handle, tvb, pinfo, tree);
+    call_dissector(sscop_handle, next_tvb, pinfo, tree);
     break;
 
   case AAL_5:
@@ -913,21 +963,21 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
       /* The ATM iptrace capture that we have shows LLC at this point,
        * so that's what I'm calling */
-      call_dissector(llc_handle, tvb, pinfo, tree);
+      call_dissector(llc_handle, next_tvb, pinfo, tree);
       break;
 
     case TRAF_LANE:
-      call_dissector(lane_handle, tvb, pinfo, tree);
+      call_dissector(lane_handle, next_tvb, pinfo, tree);
       break;
 
     case TRAF_ILMI:
-      call_dissector(ilmi_handle, tvb, pinfo, tree);
+      call_dissector(ilmi_handle, next_tvb, pinfo, tree);
       break;
 
     default:
       if (tree) {
         /* Dump it as raw data. */
-        call_dissector(data_handle,tvb, pinfo, tree);
+        call_dissector(data_handle, next_tvb, pinfo, tree);
         break;
       }
     }
@@ -936,10 +986,22 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     if (tree) {
       /* Dump it as raw data.  (Is this a single cell?) */
-      call_dissector(data_handle,tvb, pinfo, tree);
+      call_dissector(data_handle, next_tvb, pinfo, tree);
     }
     break;
   }
+}
+
+static void
+dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_atm_common(tvb, pinfo, tree, TRUE);
+}
+
+static void
+dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_atm_common(tvb, pinfo, tree, FALSE);
 }
 
 void
@@ -980,7 +1042,7 @@ proto_register_atm(void)
 void
 proto_reg_handoff_atm(void)
 {
-	dissector_handle_t atm_handle;
+	dissector_handle_t atm_handle, atm_untruncated_handle;
 
 	/*
 	 * Get handles for the Ethernet, Token Ring, LLC, SSCOP, LANE,
@@ -995,6 +1057,10 @@ proto_reg_handoff_atm(void)
 	data_handle = find_dissector("data");
 
 	atm_handle = create_dissector_handle(dissect_atm, proto_atm);
+	dissector_add("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
 
-	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, atm_handle);
+	atm_untruncated_handle = create_dissector_handle(dissect_atm_untruncated,
+	    proto_atm);
+	dissector_add("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
+	    atm_untruncated_handle);
 }

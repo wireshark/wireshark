@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.45 2002/11/01 20:43:11 guy Exp $
+ * $Id: iptrace.c,v 1.46 2003/01/03 06:45:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -186,7 +186,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 		return FALSE;
 	}
 
-	if (wth->phdr.pkt_encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wth->phdr.pkt_encap == WTAP_ENCAP_ATM_PDUS) {
 		get_atm_pseudo_header(data_ptr, wth->phdr.caplen,
 		    &wth->pseudo_header, header);
 	}
@@ -253,7 +253,7 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
 		return FALSE;
 
 	/* Get the ATM pseudo-header, if this is ATM traffic. */
-	if (pkt_encap == WTAP_ENCAP_ATM_SNIFFER)
+	if (pkt_encap == WTAP_ENCAP_ATM_PDUS)
 		get_atm_pseudo_header(pd, packet_size, pseudo_header, header);
 
 	return TRUE;
@@ -369,7 +369,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 		return FALSE;
 	}
 
-	if (wth->phdr.pkt_encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wth->phdr.pkt_encap == WTAP_ENCAP_ATM_PDUS) {
 		get_atm_pseudo_header(data_ptr, wth->phdr.caplen,
 		    &wth->pseudo_header, header);
 	}
@@ -436,7 +436,7 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
 		return FALSE;
 
 	/* Get the ATM pseudo-header, if this is ATM traffic. */
-	if (pkt_encap == WTAP_ENCAP_ATM_SNIFFER)
+	if (pkt_encap == WTAP_ENCAP_ATM_PDUS)
 		get_atm_pseudo_header(pd, packet_size, pseudo_header, header);
 
 	return TRUE;
@@ -582,7 +582,7 @@ wtap_encap_ift(unsigned int  ift)
 /* 0x22 */	WTAP_ENCAP_UNKNOWN,	/* IFT_PARA */
 /* 0x23 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ARCNET */
 /* 0x24 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ARCNETPLUS */
-/* 0x25 */	WTAP_ENCAP_ATM_SNIFFER,	/* IFT_ATM */
+/* 0x25 */	WTAP_ENCAP_ATM_PDUS,	/* IFT_ATM */
 	};
 	#define NUM_IFT_ENCAPS (sizeof ift_encap / sizeof ift_encap[0])
 

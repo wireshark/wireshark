@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.127 2002/12/20 05:40:52 sharpe Exp $
+ * $Id: wtap.h,v 1.128 2003/01/03 06:45:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -101,29 +101,30 @@
 #define WTAP_ENCAP_ATM_RFC1483			9
 #define WTAP_ENCAP_LINUX_ATM_CLIP		10
 #define WTAP_ENCAP_LAPB				11
-#define WTAP_ENCAP_ATM_SNIFFER			12
-#define WTAP_ENCAP_NULL				13
-#define WTAP_ENCAP_ASCEND			14
-#define WTAP_ENCAP_ISDN				15
-#define WTAP_ENCAP_IP_OVER_FC			16
-#define WTAP_ENCAP_PPP_WITH_PHDR		17
-#define WTAP_ENCAP_IEEE_802_11			18
-#define WTAP_ENCAP_IEEE_802_11_WITH_RADIO	19
-#define WTAP_ENCAP_SLL				20
-#define WTAP_ENCAP_FRELAY			21
-#define WTAP_ENCAP_CHDLC			22
-#define WTAP_ENCAP_CISCO_IOS			23
-#define WTAP_ENCAP_LOCALTALK			24
-#define WTAP_ENCAP_PRISM_HEADER			25
-#define WTAP_ENCAP_PFLOG			26
-#define WTAP_ENCAP_HHDLC			27
-#define WTAP_ENCAP_DOCSIS			28
-#define WTAP_ENCAP_COSINE			29
-#define WTAP_ENCAP_WLAN_HEADER			30
-#define WTAP_ENCAP_WFLEET_HDLC                  31
+#define WTAP_ENCAP_ATM_PDUS			12
+#define WTAP_ENCAP_ATM_PDUS_UNTRUNCATED		13
+#define WTAP_ENCAP_NULL				14
+#define WTAP_ENCAP_ASCEND			15
+#define WTAP_ENCAP_ISDN				16
+#define WTAP_ENCAP_IP_OVER_FC			17
+#define WTAP_ENCAP_PPP_WITH_PHDR		18
+#define WTAP_ENCAP_IEEE_802_11			19
+#define WTAP_ENCAP_IEEE_802_11_WITH_RADIO	20
+#define WTAP_ENCAP_SLL				21
+#define WTAP_ENCAP_FRELAY			22
+#define WTAP_ENCAP_CHDLC			23
+#define WTAP_ENCAP_CISCO_IOS			24
+#define WTAP_ENCAP_LOCALTALK			25
+#define WTAP_ENCAP_PRISM_HEADER			26
+#define WTAP_ENCAP_PFLOG			27
+#define WTAP_ENCAP_HHDLC			28
+#define WTAP_ENCAP_DOCSIS			29
+#define WTAP_ENCAP_COSINE			30
+#define WTAP_ENCAP_WLAN_HEADER			31
+#define WTAP_ENCAP_WFLEET_HDLC                  32
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			32
+#define WTAP_NUM_ENCAP_TYPES			33
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we

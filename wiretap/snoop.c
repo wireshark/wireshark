@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.58 2002/12/05 22:33:11 guy Exp $
+ * $Id: snoop.c,v 1.59 2003/01/03 06:45:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -172,7 +172,7 @@ int snoop_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* not defined in "dlpi.h" */
 		WTAP_ENCAP_IP_OVER_FC,	/* Fibre Channel */
 		WTAP_ENCAP_UNKNOWN,	/* ATM */
-		WTAP_ENCAP_ATM_SNIFFER,	/* ATM Classical IP */
+		WTAP_ENCAP_ATM_PDUS,	/* ATM Classical IP */
 		WTAP_ENCAP_UNKNOWN,	/* X.25 LAPB */
 		WTAP_ENCAP_UNKNOWN,	/* ISDN */
 		WTAP_ENCAP_UNKNOWN,	/* HIPPI */
@@ -401,7 +401,7 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	 * the VCI; read them and generate the pseudo-header from
 	 * them.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		if (packet_size < sizeof (struct snoop_atm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -441,7 +441,7 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	 * If this is ATM LANE traffic, try to guess what type of LANE
 	 * traffic it is based on the packet contents.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER &&
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
 	    wth->pseudo_header.atm.type == TRAF_LANE) {
 		atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
 		    wth->phdr.caplen, &wth->pseudo_header);
@@ -481,7 +481,7 @@ snoop_seek_read(wtap *wth, long seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		if (!snoop_read_atm_pseudoheader(wth->random_fh, pseudo_header,
 		    err)) {
 			/* Read error */
@@ -499,7 +499,7 @@ snoop_seek_read(wtap *wth, long seek_off,
 	 * If this is ATM LANE traffic, try to guess what type of LANE
 	 * traffic it is based on the packet contents.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER &&
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
 	    pseudo_header->atm.type == TRAF_LANE)
 		atm_guess_lane_type(pd, length, pseudo_header);
 	return TRUE;
@@ -627,7 +627,7 @@ static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
 	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
 	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
-	0x12,		/* WTAP_ENCAP_ATM_SNIFFER -> DL_IPATM */
+	0x12,		/* WTAP_ENCAP_ATM_PDUS -> DL_IPATM */
 	-1		/* WTAP_ENCAP_NULL -> unsupported */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
@@ -697,7 +697,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	struct snoop_atm_hdr atm_hdr;
 	int atm_hdrsize;
 
-	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER)
+	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
 		atm_hdrsize = sizeof (struct snoop_atm_hdr);
 	else
 		atm_hdrsize = 0;
@@ -724,7 +724,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
-	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER) {
+	if (wdh->encap == WTAP_ENCAP_ATM_PDUS) {
 		/*
 		 * Write the ATM header.
 		 */
