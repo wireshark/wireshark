@@ -25,11 +25,11 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.54 2003/02/19 21:47:45 guy Exp $
+$Id: ncp2222.py,v 1.55 2003/04/08 00:07:01 guy Exp $
 
 
-Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
-and Greg Morris <GMORRIS@novell.com>.
+Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
+Portions Copyright (c) Novell, Inc. 2000-2003.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -1379,6 +1379,7 @@ CCFunction			= val_string8("cc_function", "OP-Lock Flag", [
 	[ 0x01, "Clear OP-Lock" ],
 	[ 0x02, "Acknowledge Callback" ],
 	[ 0x03, "Decline Callback" ],
+    [ 0x04, "Level 2" ],
 ])
 ChangeBits			= bitfield16("change_bits", "Change Bits", [
 	bf_boolean16(0x0001, "change_bits_modify", "Modify Name"),
@@ -5496,6 +5497,9 @@ def produce_code():
 
 	print """
 /*
+ * Portions Copyright (c) Gilbert Ramirez 2000-2002
+ * Portions Copyright (c) Novell, Inc. 2000-2003
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -12002,7 +12006,7 @@ def define_ncp2222():
 		rec( 17, 1, HandleFlag ),
 		rec( 18, 1, PathCount, var="x" ),
 		rec( 19, (1,255), Path, repeat="x" ),
-	], info_str=(Path, "Delete: %s", "/%s"))
+	], info_str=(Path, "Delete a File or Subdirectory: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,  
 			     0x8701, 0x8900, 0x8a00, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
@@ -12208,7 +12212,7 @@ def define_ncp2222():
 		rec( 16, 2, ReturnInfoCount ),
 		rec( 18, 9, SearchSequence ),
 		rec( 27, (1,255), SearchPattern ),
-	], info_str=(SearchPattern, "Search for: %s", ", %s"))
+	])
 	pkt.Reply(NO_LENGTH_CHECK, [
 		rec( 8, 9, SearchSequence ),
 		rec( 17, 1, MoreFlag ),
@@ -12676,7 +12680,7 @@ def define_ncp2222():
 		rec( 14, 1, CCFunction ),
 	])
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8800])
+	pkt.CompletionCodes([0x0000, 0x8800, 0xff16])
 	# 2222/5723, 87/35
 	pkt = NCP(0x5723, "Modify DOS Attributes on a File or Subdirectory", 'file', has_length=0)
 	pkt.Request((28, 282), [
