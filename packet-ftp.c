@@ -3,10 +3,10 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.28 2001/05/11 23:24:08 guy Exp $
+ * $Id: packet-ftp.c,v 1.29 2001/06/10 09:50:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
@@ -136,13 +136,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * and dissector
 	 */
 	if (passive_port && !find_conversation(&pinfo->src, &pinfo->dst, PT_TCP,
-					       passive_port, 0, NO_DST_PORT))
+					       passive_port, 0, NO_PORT_B))
 	  {
 		conversation_t 	*conversation;
 		  
 		conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_TCP,
 						  passive_port, 0, NULL,
-						  NO_DST_PORT);
+						  NO_PORT2);
 		conversation_set_dissector(conversation, dissect_ftpdata);
 
 	  }

@@ -5,10 +5,10 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.24 2001/02/09 06:08:11 guy Exp $
+ * $Id: packet-tftp.c,v 1.25 2001/06/10 09:50:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-bootp.c
@@ -110,19 +110,23 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * and ports.
 	 *
 	 * If this packet went to the TFTP port, we check to see if
-	 * there's already a conversation with the source IP address
-	 * and port of this packet, the destination IP address of this
-	 * packet, and any destination UDP port.  If not, we create
-	 * one, with a wildcard UDP port, and give it the TFTP dissector
-	 * as a dissector.
+	 * there's already a conversation with one address/port pair
+	 * matching the source IP address and port of this packet,
+	 * the other address matching the destination IP address of this
+	 * packet, and any destination port.
+	 *
+	 * If not, we create one, with its address 1/port 1 pair being
+	 * the source address/port of this packet, its address 2 being
+	 * the destination address of this packet, and its port 2 being
+	 * wildcarded, and give it the TFTP dissector as a dissector.
 	 */
 	if (pinfo->destport == UDP_PORT_TFTP) {
 	  conversation = find_conversation(&pinfo->src, &pinfo->dst, PT_UDP,
-					   pinfo->srcport, 0, NO_DST_PORT);
+					   pinfo->srcport, 0, NO_PORT_B);
 	  if (conversation == NULL) {
 	    conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
 					    pinfo->srcport, 0, NULL,
-					    NO_DST_PORT);
+					    NO_PORT2);
 	    conversation_set_dissector(conversation, dissect_tftp);
 	  }
 	}

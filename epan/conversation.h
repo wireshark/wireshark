@@ -1,12 +1,11 @@
 /* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.h,v 1.4 2000/11/18 11:47:21 guy Exp $
+ * $Id: conversation.h,v 1.5 2001/06/10 09:50:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,22 +26,31 @@
 #define __CONVERSATION_H__
 
 /* 
-* Conversation options values 
-*/
-#define NO_DST_ADDR 0x01
-#define NO_DST_PORT 0x02
+ * Flags to pass to "conversation_new()" to indicate that the address 2
+ * and/or port 2 values for the conversation should be wildcards.
+ */
+#define NO_ADDR2 0x01
+#define NO_PORT2 0x02
+
+/* 
+ * Flags to pass to "find_conversation()" to indicate that the address B
+ * and/or port B search arguments are wildcards.
+ */
+#define NO_ADDR_B 0x01
+#define NO_PORT_B 0x02
 
 #include "packet.h"		/* for conversation dissector type */
+
 /*
  * Data structure representing a conversation.
  */
 typedef struct conversation_key {
 	struct conversation_key *next;
-	address	src;
-	address	dst;
+	address	addr1;
+	address	addr2;
 	port_type ptype;
-	guint32	port_src;
-	guint32	port_dst;
+	guint32	port1;
+	guint32	port2;
 } conversation_key;
 
 typedef struct conversation {
@@ -60,25 +68,24 @@ typedef struct conversation {
 
 extern void conversation_init(void);
 
-conversation_t *conversation_new(address *src, address *dst, port_type ptype,
-    guint32 src_port, guint32 dst_port, void *data, guint options);
+conversation_t *conversation_new(address *addr1, address *addr2,
+    port_type ptype, guint32 port1, guint32 port2, void *data, guint options);
 
-conversation_t *find_conversation(address *src, address *dst, port_type ptype,
-    guint32 src_port, guint32 dst_port, guint options);
+conversation_t *find_conversation(address *addr_a, address *addr_b,
+    port_type ptype, guint32 port_a, guint32 port_b, guint options);
 
 void old_conversation_set_dissector(conversation_t *conversation,
     old_dissector_t dissector);
 void conversation_set_dissector(conversation_t *conversation,
     dissector_t dissector);
 gboolean
-try_conversation_dissector(address *src, address *dst, port_type ptype,
-    guint32 src_port, guint32 dst_port, tvbuff_t *tvb, packet_info *pinfo,
+try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
+    guint32 port_a, guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree);
 
 /* These routines are used to set undefined values for a conversation */
 
-void conversation_set_port( conversation_t *conv, guint32 port);
-void conversation_set_address( conversation_t *conv, address *addr);
-
+void conversation_set_port2(conversation_t *conv, guint32 port);
+void conversation_set_addr2(conversation_t *conv, address *addr);
 
 #endif /* conversation.h */

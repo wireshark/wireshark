@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.9 2001/06/06 01:29:17 guy Exp $
+ * $Id: conversation.c,v 1.10 2001/06/10 09:50:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,19 +47,19 @@
 static GHashTable *conversation_hashtable_exact = NULL;
 
 /*
- * Hash table for conversations with wildcard destination address.
+ * Hash table for conversations with one wildcard address.
  */
-static GHashTable *conversation_hashtable_no_dst_addr = NULL;
+static GHashTable *conversation_hashtable_no_addr2 = NULL;
 
 /*
- * Hash table for conversations with wildcard destination port.
+ * Hash table for conversations with one wildcard port.
  */
-static GHashTable *conversation_hashtable_no_dst_port = NULL;
+static GHashTable *conversation_hashtable_no_port2 = NULL;
 
 /*
- * Hash table for conversations with wildcard destination address and port.
+ * Hash table for conversations with one wildcard address and port.
  */
-static GHashTable *conversation_hashtable_no_dst = NULL;
+static GHashTable *conversation_hashtable_no_addr2_or_port2 = NULL;
 
 static GMemChunk *conversation_key_chunk = NULL;
 static GMemChunk *conversation_chunk = NULL;
@@ -67,11 +67,11 @@ static GMemChunk *conversation_chunk = NULL;
 #ifdef __NOT_USED__ 
 typedef struct conversation_key {
 	struct conversation_key *next;
-	address	src;
-	address	dst;
+	address	addr1;
+	address	addr2;
 	port_type ptype;
-	guint32	port_src;
-	guint32	port_dst;
+	guint32	port1;
+	guint32	port2;
 } conversation_key;
 #endif
 /*
@@ -85,8 +85,8 @@ static guint32 new_index;
 static int conversation_init_count = 200;
 
 /*
- * Compute the hash value for a given set of source and destination
- * addresses and ports if the match is to be exact.
+ * Compute the hash value for two given address/port pairs if the match
+ * is to be exact.
  */
 static guint 
 conversation_hash_exact(gconstpointer v)
@@ -96,15 +96,15 @@ conversation_hash_exact(gconstpointer v)
 	int i;
 
 	hash_val = 0;
-	for (i = 0; i < key->src.len; i++)
-		hash_val += key->src.data[i];
+	for (i = 0; i < key->addr1.len; i++)
+		hash_val += key->addr1.data[i];
 
-	hash_val += key->port_src;
+	hash_val += key->port1;
 
-	for (i = 0; i < key->dst.len; i++)
-		hash_val += key->dst.data[i];
+	for (i = 0; i < key->addr2.len; i++)
+		hash_val += key->addr2.data[i];
 
-	hash_val += key->port_dst;
+	hash_val += key->port2;
 
 	return hash_val;
 }
@@ -122,15 +122,15 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 		return 0;	/* different types of port */
 
 	/*
-	 * Are the first and second source ports the same, the first and
-	 * second destination ports the same, the first and second source
-	 * addresses the same, and the first and second destination
-	 * addresses the same?
+	 * Are the first and second port 1 values the same, the first and
+	 * second port 2 values the same, the first and second address
+	 * 1 values the same, and the first and second address 2 values
+	 * the same?
 	 */
-	if (v1->port_src == v2->port_src &&
-	    v1->port_dst == v2->port_dst &&
-	    ADDRESSES_EQUAL(&v1->src, &v2->src) &&
-	    ADDRESSES_EQUAL(&v1->dst, &v2->dst)) {
+	if (v1->port1 == v2->port1 &&
+	    v1->port2 == v2->port2 &&
+	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr1) &&
+	    ADDRESSES_EQUAL(&v1->addr2, &v2->addr2)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -139,16 +139,15 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 	}
 
 	/*
-	 * Is the first destination port the same as the second source
-	 * port, the first source port the same as the second destination
-	 * port, the first destination address the same as the second
-	 * source address, and the first source address the same as the
-	 * second destination address?
+	 * Is the first port 2 the same as the second port 1, the first
+	 * port 1 the same as the second port 2, the first address 2
+	 * the same as the second address 1, and the first address 1
+	 * the same as the second address 2?
 	 */
-	if (v1->port_dst == v2->port_src &&
-	    v1->port_src == v2->port_dst &&
-	    ADDRESSES_EQUAL(&v1->dst, &v2->src) &&
-	    ADDRESSES_EQUAL(&v1->src, &v2->dst)) {
+	if (v1->port2 == v2->port1 &&
+	    v1->port1 == v2->port2 &&
+	    ADDRESSES_EQUAL(&v1->addr2, &v2->addr1) &&
+	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr2)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in opposite directions.
@@ -163,35 +162,35 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 }
 
 /*
- * Compute the hash value for a given set of source and destination
- * addresses and ports if the match has a wildcard destination address.
+ * Compute the hash value for two given address/port pairs if the match
+ * has a wildcard address 2.
  */
 static guint 
-conversation_hash_no_dst_addr(gconstpointer v)
+conversation_hash_no_addr2(gconstpointer v)
 {
 	conversation_key *key = (conversation_key *)v;
 	guint hash_val;
 	int i;
 
 	hash_val = 0;
-	for (i = 0; i < key->src.len; i++)
-		hash_val += key->src.data[i];
+	for (i = 0; i < key->addr1.len; i++)
+		hash_val += key->addr1.data[i];
 
-	hash_val += key->port_src;
+	hash_val += key->port1;
 
-	hash_val += key->port_dst;
+	hash_val += key->port2;
 
 	return hash_val;
 }
 
 /*
- * Compare two conversation keys, except for the destination address.
+ * Compare two conversation keys, except for the address 2 value.
  * We don't check both directions of the conversation - the routine
  * doing the hash lookup has to do two searches, as the hash key
  * will be different for the two directions.
  */
 static gint
-conversation_match_no_dst_addr(gconstpointer v, gconstpointer w)
+conversation_match_no_addr2(gconstpointer v, gconstpointer w)
 {
 	conversation_key *v1 = (conversation_key *)v;
 	conversation_key *v2 = (conversation_key *)w;
@@ -200,13 +199,13 @@ conversation_match_no_dst_addr(gconstpointer v, gconstpointer w)
 		return 0;	/* different types of port */
 
 	/*
-	 * Are the first and second source ports the same, the first and
-	 * second destination ports the same, and the first and second
-	 * source addresses the same?
+	 * Are the first and second port 1 values the same, the first and
+	 * second port 2 valuess the same, and the first and second
+	 * address 1 values the same?
 	 */
-	if (v1->port_src == v2->port_src &&
-	    v1->port_dst == v2->port_dst &&
-	    ADDRESSES_EQUAL(&v1->src, &v2->src)) {
+	if (v1->port1 == v2->port1 &&
+	    v1->port2 == v2->port2 &&
+	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr1)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -221,36 +220,36 @@ conversation_match_no_dst_addr(gconstpointer v, gconstpointer w)
 }
 
 /*
- * Compute the hash value for a given set of source and destination
- * addresses and ports if the match has a wildcard destination port.
+ * Compute the hash value for two given address/port pairs if the match
+ * has a wildcard port 2.
  */
 static guint 
-conversation_hash_no_dst_port(gconstpointer v)
+conversation_hash_no_port2(gconstpointer v)
 {
 	conversation_key *key = (conversation_key *)v;
 	guint hash_val;
 	int i;
 
 	hash_val = 0;
-	for (i = 0; i < key->src.len; i++)
-		hash_val += key->src.data[i];
+	for (i = 0; i < key->addr1.len; i++)
+		hash_val += key->addr1.data[i];
 
-	hash_val += key->port_src;
+	hash_val += key->port1;
 
-	for (i = 0; i < key->dst.len; i++)
-		hash_val += key->dst.data[i];
+	for (i = 0; i < key->addr2.len; i++)
+		hash_val += key->addr2.data[i];
 
 	return hash_val;
 }
 
 /*
- * Compare two conversation keys, except for the destination port.
+ * Compare two conversation keys, except for the port 2 value.
  * We don't check both directions of the conversation - the routine
  * doing the hash lookup has to do two searches, as the hash key
  * will be different for the two directions.
  */
 static gint
-conversation_match_no_dst_port(gconstpointer v, gconstpointer w)
+conversation_match_no_port2(gconstpointer v, gconstpointer w)
 {
 	conversation_key *v1 = (conversation_key *)v;
 	conversation_key *v2 = (conversation_key *)w;
@@ -259,13 +258,13 @@ conversation_match_no_dst_port(gconstpointer v, gconstpointer w)
 		return 0;	/* different types of port */
 
 	/*
-	 * Are the first and second source ports the same, the first and
-	 * second source addresses the same, and the first and second
-	 * destination addresses the same?
+	 * Are the first and second port 1 values the same, the first and
+	 * second address 1 values the same, and the first and second
+	 * address 2 values the same?
 	 */
-	if (v1->port_src == v2->port_src &&
-	    ADDRESSES_EQUAL(&v1->src, &v2->src) &&
-	    ADDRESSES_EQUAL(&v1->dst, &v2->dst)) {
+	if (v1->port1 == v2->port1 &&
+	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr1) &&
+	    ADDRESSES_EQUAL(&v1->addr2, &v2->addr2)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -280,33 +279,33 @@ conversation_match_no_dst_port(gconstpointer v, gconstpointer w)
 }
 
 /*
- * Compute the hash value for a given set of source and destination
- * addresses and ports if the match has a wildcard destination.
+ * Compute the hash value for two given address/port pairs if the match
+ * has a wildcard address 2 and port 2.
  */
 static guint 
-conversation_hash_no_dst(gconstpointer v)
+conversation_hash_no_addr2_or_port2(gconstpointer v)
 {
 	conversation_key *key = (conversation_key *)v;
 	guint hash_val;
 	int i;
 
 	hash_val = 0;
-	for (i = 0; i < key->src.len; i++)
-		hash_val += key->src.data[i];
+	for (i = 0; i < key->addr1.len; i++)
+		hash_val += key->addr1.data[i];
 
-	hash_val += key->port_src;
+	hash_val += key->port1;
 
 	return hash_val;
 }
 
 /*
- * Compare the source address and port in the two conversation keys.
+ * Compare the address 1 and port 1 in the two conversation keys.
  * We don't check both directions of the conversation - the routine
  * doing the hash lookup has to do two searches, as the hash key
  * will be different for the two directions.
  */
 static gint
-conversation_match_no_dst(gconstpointer v, gconstpointer w)
+conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 {
 	conversation_key *v1 = (conversation_key *)v;
 	conversation_key *v2 = (conversation_key *)w;
@@ -315,11 +314,11 @@ conversation_match_no_dst(gconstpointer v, gconstpointer w)
 		return 0;	/* different types of port */
 
 	/*
-	 * Are the first and second source ports the same and the first
-	 * and second source addresses the same?
+	 * Are the first and second port 1 values the same and the first
+	 * and second address 1 values the same?
 	 */
-	if (v1->port_src == v2->port_src &&
-	    ADDRESSES_EQUAL(&v1->src, &v2->src)) {
+	if (v1->port1 == v2->port1 &&
+	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr1)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -362,18 +361,18 @@ conversation_init(void)
 		 * their data mallocated, i.e. they don't point into,
 		 * say, the middle of the data for a packet.
 		 */
-		g_free((gpointer)key->src.data);
-		g_free((gpointer)key->dst.data);
+		g_free((gpointer)key->addr1.data);
+		g_free((gpointer)key->addr2.data);
 	}
 	conversation_keys = NULL;
 	if (conversation_hashtable_exact != NULL)
 		g_hash_table_destroy(conversation_hashtable_exact);
-	if (conversation_hashtable_no_dst_addr != NULL)
-		g_hash_table_destroy(conversation_hashtable_no_dst_addr);
-	if (conversation_hashtable_no_dst_port != NULL)
-		g_hash_table_destroy(conversation_hashtable_no_dst_port);
-	if (conversation_hashtable_no_dst != NULL)
-		g_hash_table_destroy(conversation_hashtable_no_dst);
+	if (conversation_hashtable_no_addr2 != NULL)
+		g_hash_table_destroy(conversation_hashtable_no_addr2);
+	if (conversation_hashtable_no_port2 != NULL)
+		g_hash_table_destroy(conversation_hashtable_no_port2);
+	if (conversation_hashtable_no_addr2_or_port2 != NULL)
+		g_hash_table_destroy(conversation_hashtable_no_addr2_or_port2);
 	if (conversation_key_chunk != NULL)
 		g_mem_chunk_destroy(conversation_key_chunk);
 	if (conversation_chunk != NULL)
@@ -382,15 +381,15 @@ conversation_init(void)
 	conversation_hashtable_exact =
 	    g_hash_table_new(conversation_hash_exact,
 	      conversation_match_exact);
-	conversation_hashtable_no_dst_addr =
-	    g_hash_table_new(conversation_hash_no_dst_addr,
-	      conversation_match_no_dst_addr);
-	conversation_hashtable_no_dst_port =
-	    g_hash_table_new(conversation_hash_no_dst_port,
-	      conversation_match_no_dst_port);
-	conversation_hashtable_no_dst =
-	    g_hash_table_new(conversation_hash_no_dst,
-	      conversation_match_no_dst);
+	conversation_hashtable_no_addr2 =
+	    g_hash_table_new(conversation_hash_no_addr2,
+	      conversation_match_no_addr2);
+	conversation_hashtable_no_port2 =
+	    g_hash_table_new(conversation_hash_no_port2,
+	      conversation_match_no_port2);
+	conversation_hashtable_no_addr2_or_port2 =
+	    g_hash_table_new(conversation_hash_no_addr2_or_port2,
+	      conversation_match_no_addr2_or_port2);
 	conversation_key_chunk = g_mem_chunk_new("conversation_key_chunk",
 	    sizeof(conversation_key),
 	    conversation_init_count * sizeof(struct conversation_key),
@@ -407,14 +406,16 @@ conversation_init(void)
 }
 
 /*
- * Given source and destination addresses and ports for a packet,
- * create a new conversation to contain packets between those address/port
- * pairs. The options field is used to flag the destination address/port 
- * are not given and any value is acceptable.
+ * Given two address/port pairs for a packet, create a new conversation
+ * to contain packets between those address/port pairs.
+ *
+ * The options field is used to specify whether the address 2 value
+ * and/or port 2 value are not given and any value is acceptable
+ * when searching for this conversation.
  */
 conversation_t *
-conversation_new(address *src, address *dst, port_type ptype,
-    guint32 src_port, guint32 dst_port, void *data, guint options)
+conversation_new(address *addr1, address *addr2, port_type ptype,
+    guint32 port1, guint32 port2, void *data, guint options)
 {
 	conversation_t *conversation;
 	conversation_key *new_key;
@@ -422,11 +423,11 @@ conversation_new(address *src, address *dst, port_type ptype,
 	new_key = g_mem_chunk_alloc(conversation_key_chunk);
 	new_key->next = conversation_keys;
 	conversation_keys = new_key;
-	COPY_ADDRESS(&new_key->src, src);
-	COPY_ADDRESS(&new_key->dst, dst);
+	COPY_ADDRESS(&new_key->addr1, addr1);
+	COPY_ADDRESS(&new_key->addr2, addr2);
 	new_key->ptype = ptype;
-	new_key->port_src = src_port;
-	new_key->port_dst = dst_port;
+	new_key->port1 = port1;
+	new_key->port2 = port2;
 
 	conversation = g_mem_chunk_alloc(conversation_chunk);
 	conversation->index = new_index;
@@ -441,17 +442,17 @@ conversation_new(address *src, address *dst, port_type ptype,
 
 	new_index++;
 
-	if (options & NO_DST_ADDR) {
-		if (options & NO_DST_PORT) {
-			g_hash_table_insert(conversation_hashtable_no_dst,
+	if (options & NO_ADDR2) {
+		if (options & NO_PORT2) {
+			g_hash_table_insert(conversation_hashtable_no_addr2_or_port2,
 			    new_key, conversation);
 		} else {
-			g_hash_table_insert(conversation_hashtable_no_dst_addr,
+			g_hash_table_insert(conversation_hashtable_no_addr2,
 			    new_key, conversation);
 		}
 	} else {
-		if (options & NO_DST_PORT) {
-			g_hash_table_insert(conversation_hashtable_no_dst_port,
+		if (options & NO_PORT2) {
+			g_hash_table_insert(conversation_hashtable_no_port2,
 			    new_key, conversation);
 		} else {
 			g_hash_table_insert(conversation_hashtable_exact,
@@ -461,29 +462,30 @@ conversation_new(address *src, address *dst, port_type ptype,
 	return conversation;
 }
 
-/* Set the destination port in a key.  Remove the original from table,
-   update the options and port values, insert the updated key.
-*/
-void conversation_set_port( conversation_t *conv, guint32 port){
-
+/*
+ * Set the port 2 value in a key.  Remove the original from table,
+ * update the options and port values, insert the updated key.
+ */
+void
+conversation_set_port2(conversation_t *conv, guint32 port)
+{
 	/*
-	 * If the destination port has already been set, don't set it
-	 * again.
+	 * If the port 2 value is wildcarded, don't set it.
 	 */
-	if (!(conv->options & NO_DST_PORT))
+	if (!(conv->options & NO_PORT2))
 		return;
 
-	if (conv->options & NO_DST_ADDR) {
-		g_hash_table_remove(conversation_hashtable_no_dst,
+	if (conv->options & NO_ADDR2) {
+		g_hash_table_remove(conversation_hashtable_no_addr2_or_port2,
 		    conv->key_ptr);
 	} else {
-		g_hash_table_remove(conversation_hashtable_no_dst_port,
+		g_hash_table_remove(conversation_hashtable_no_port2,
 		    conv->key_ptr);
 	}
-	conv->options &= ~NO_DST_PORT;
-	conv->key_ptr->port_dst  = port;
-	if (conv->options & NO_DST_ADDR) {
-		g_hash_table_insert(conversation_hashtable_no_dst_addr,
+	conv->options &= ~NO_PORT2;
+	conv->key_ptr->port2  = port;
+	if (conv->options & NO_ADDR2) {
+		g_hash_table_insert(conversation_hashtable_no_addr2,
 		    conv->key_ptr, conv);
 	} else {
 		g_hash_table_insert(conversation_hashtable_exact,
@@ -491,29 +493,30 @@ void conversation_set_port( conversation_t *conv, guint32 port){
 	}
 } 
 
-/* Set the destination address in a key.  Remove the original from
-   table, update the options and port values, insert the updated key.
-*/
-void conversation_set_addr( conversation_t *conv, address *addr){
-
+/*
+ * Set the address 2 value in a key.  Remove the original from
+ * table, update the options and port values, insert the updated key.
+ */
+void
+conversation_set_addr2(conversation_t *conv, address *addr)
+{
 	/*
-	 * If the destination address has already been set, don't set it
-	 * again.
+	 * If the address 2 value is wildcarded, don't set it.
 	 */
-	if (!(conv->options & NO_DST_ADDR))
+	if (!(conv->options & NO_ADDR2))
 		return;
 
-	if (conv->options & NO_DST_PORT) {
-		g_hash_table_remove(conversation_hashtable_no_dst,
+	if (conv->options & NO_PORT2) {
+		g_hash_table_remove(conversation_hashtable_no_addr2_or_port2,
 		    conv->key_ptr);
 	} else {
-		g_hash_table_remove(conversation_hashtable_no_dst_addr,
+		g_hash_table_remove(conversation_hashtable_no_addr2,
 		    conv->key_ptr);
 	}
-	conv->options &= ~NO_DST_ADDR;
-	COPY_ADDRESS(&conv->key_ptr->dst, addr);
-	if (conv->options & NO_DST_PORT) {
-		g_hash_table_insert(conversation_hashtable_no_dst_port,
+	conv->options &= ~NO_ADDR2;
+	COPY_ADDRESS(&conv->key_ptr->addr2, addr);
+	if (conv->options & NO_PORT2) {
+		g_hash_table_insert(conversation_hashtable_no_port2,
 		    conv->key_ptr, conv);
 	} else {
 		g_hash_table_insert(conversation_hashtable_exact,
@@ -522,8 +525,8 @@ void conversation_set_addr( conversation_t *conv, address *addr){
 }
 
 static conversation_t *
-conversation_match(GHashTable *hashtable, address *src, address *dst,
-    port_type ptype, guint32 src_port, guint32 dst_port)
+conversation_match(GHashTable *hashtable, address *addr1, address *addr2,
+    port_type ptype, guint32 port1, guint32 port2)
 {
 	conversation_key key;
 
@@ -531,90 +534,89 @@ conversation_match(GHashTable *hashtable, address *src, address *dst,
 	 * We don't make a copy of the address data, we just copy the
 	 * pointer to it, as "key" disappears when we return.
 	 */
-	key.src = *src;
-	key.dst = *dst;
+	key.addr1 = *addr1;
+	key.addr2 = *addr2;
 	key.ptype = ptype;
-	key.port_src = src_port;
-	key.port_dst = dst_port;
+	key.port1 = port1;
+	key.port2 = port2;
 	return g_hash_table_lookup(hashtable, &key);
 }
  
 /*
- * Given source and destination addresses and ports for a packet,
- * search for a conversation containing packets between those address/port
- * pairs.  Returns NULL if not found.  If the NO_DEST_ADDR and/or NO_DEST_PORT
- * flags are set in the conversation options field, that value will not
- * be used.
+ * Given two address/port pairs for a packet, search for a conversation
+ * containing packets between those address/port pairs.  Returns NULL if
+ * not found.  If the NO_ADDR_B and/or NO_PORT_B flags are set in the
+ * conversation options field, that value will not be used.
  */
 conversation_t *
-find_conversation(address *src, address *dst, port_type ptype,
-    guint32 src_port, guint32 dst_port, guint options)
+find_conversation(address *addr_a, address *addr_b, port_type ptype,
+    guint32 port_a, guint32 port_b, guint options)
 {
 	conversation_t *conversation;
 
-	if (options & NO_DST_ADDR) {
-		if (options & NO_DST_PORT) {
+	if (options & NO_ADDR_B) {
+		if (options & NO_PORT_B) {
 			/*
 			 * Wildcard the address and port - first try looking
-			 * for a conversation with the specified source
-			 * address and port, then try looking for one with a
-			 * source address and port that's the specified
-			 * *destination* address and port (this packet may be
+			 * for a conversation with the specified address 1
+			 * and port 1, then try looking for one with an
+			 * address 1 and port 1 that's the specified
+			 * address *2* and port *2* (this packet may be
 			 * going in the opposite direction from the first
 			 * packet in the conversation).
 			 */
 			conversation =
-			    conversation_match(conversation_hashtable_no_dst,
-			        src, dst, ptype, src_port, dst_port);
+			    conversation_match(conversation_hashtable_no_addr2_or_port2,
+			        addr_a, addr_b, ptype, port_a, port_b);
 			if (conversation != NULL)
 				return conversation;
-			return conversation_match(conversation_hashtable_no_dst,
-			    dst, src, ptype, dst_port, src_port);
+			return conversation_match(conversation_hashtable_no_addr2_or_port2,
+			    addr_b, addr_a, ptype, port_b, port_a);
 		} else {
 			/*
 			 * Wildcard the address - first try looking for a
-			 * conversation with the specified source address
-			 * and port and destination port, then try looking
-			 * for one with a source address and port that's
-			 * the specified *destination* address and port and
-			 * a destination port that's the specified *source*
-			 * port (this packet may be going in the opposite
-			 * direction from the first packet in the conversation).
+			 * conversation with the specified address 1 and
+			 * port 1 and the specified port 2, then try looking
+			 * for one with an address 1 and port 1 that's
+			 * the specified address *2* and port *2* and
+			 * a port 2 that's the specified port *1* (this
+			 * packet may be going in the opposite direction
+			 * from the first packet in the conversation).
 			 */
 			conversation =
-			    conversation_match(conversation_hashtable_no_dst_addr,
-			        src, dst, ptype, src_port, dst_port);
+			    conversation_match(conversation_hashtable_no_addr2,
+			        addr_a, addr_b, ptype, port_a, port_b);
 			if (conversation != NULL)
 				return conversation;
-			return conversation_match(conversation_hashtable_no_dst_addr,
-			    dst, src, ptype, dst_port, src_port);
+			return conversation_match(conversation_hashtable_no_addr2,
+			    addr_b, addr_a, ptype, port_b, port_a);
 		}
 	} else {
-		if (options & NO_DST_PORT) {
+		if (options & NO_PORT_B) {
 			/*
 			 * Wildcard the port - first try looking for a
-			 * conversation with the specified source address
-			 * and port and destination address, then try looking
-			 * for one with a source address and port that's
-			 * the specified *destination* address and port and
-			 * a destination address that's the specified *source*
-			 * address (this packet may be going in the opposite
+			 * conversation with the specified address 1 and
+			 * port 1 and the specified address 2, then try
+			 * looking for one with an address 1 and port 1
+			 * that's the specified address *2* and port *2*
+			 * and an address 2 that's the specified address
+			 * *1* (this packet may be going in the opposite
 			 * direction from the first packet in the conversation).
 			 */
 			conversation =
-			    conversation_match(conversation_hashtable_no_dst_port,
-			      src, dst, ptype, src_port, dst_port);
+			    conversation_match(conversation_hashtable_no_port2,
+			      addr_a, addr_b, ptype, port_a, port_b);
 			if (conversation != NULL)
 				return conversation;
-			return conversation_match(conversation_hashtable_no_dst_port,
-			    dst, src, ptype, dst_port, src_port);
+			return conversation_match(conversation_hashtable_no_port2,
+			    addr_b, addr_a, ptype, port_b, port_a);
 		} else {
 			/*
 			 * Search for an exact match.  That search checks both
 			 * directions.
 			 */
 			return conversation_match(conversation_hashtable_exact,
-			    src, dst, ptype, src_port, dst_port);
+			    addr_a, addr_b, ptype, port_a, port_b);
 		}
 	}
 }
@@ -639,39 +641,39 @@ conversation_set_dissector(conversation_t *conversation,
 }
 
 /*
- * Given source and destination addresses and ports for a packet,
- * search for a conversational dissector.
+ * Given two address/port pairs for a packet, search for a conversation
+ * dissector.
  * If found, call it and return TRUE, otherwise return FALSE.
  *
- * Will search for a exact match (src & dst), then search for wild
- * card matches: try to match any destination address on the specified
- * destination first, then try to match any destination port at the
- * specified destination address, then try to match any destination
- * address and any destination port.
+ * Will search for a exact match (addr_a/port_a and addr_b/port_b), then search
+ * for wild card matches: try to match any address 2 with the specified port 2
+ * first (addr_a/port_a and {any}/addr_b), then try to match any port 2 with the
+ * specified address 2 (addr_a/port_a and addr_b/{any}), then try to match any
+ * address 2 and any port 2 (addr_a/port_a and {any}/{any}).
  */
 gboolean
-try_conversation_dissector(address *src, address *dst, port_type ptype,
-    guint32 src_port, guint32 dst_port, tvbuff_t *tvb, packet_info *pinfo,
+try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
+    guint32 port_a, guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree)
 {
 	conversation_t *conversation;
 	const guint8 *pd;
 	int offset;
 
-	conversation = find_conversation(src, dst, ptype, src_port, dst_port,
+	conversation = find_conversation(addr_a, addr_b, ptype, port_a, port_b,
 	    0);
 
 	if (conversation == NULL)
-		conversation = find_conversation(src, dst, ptype, src_port,
-		    dst_port, NO_DST_ADDR);
+		conversation = find_conversation(addr_a, addr_b, ptype, port_a,
+		    port_b, NO_ADDR_B);
 
 	if (conversation == NULL)
-		conversation = find_conversation(src, dst, ptype, src_port,
-		    dst_port, NO_DST_PORT);
+		conversation = find_conversation(addr_a, addr_b, ptype, port_a,
+		    port_b, NO_PORT_B);
 
 	if (conversation == NULL)
-		conversation = find_conversation(src, dst, ptype, src_port,
-		    dst_port, NO_DST_PORT | NO_DST_ADDR);
+		conversation = find_conversation(addr_a, addr_b, ptype, port_a,
+		    port_b, NO_PORT_B | NO_ADDR_B);
 	
 	if (conversation != NULL) {
 		if (conversation->is_old_dissector) {
