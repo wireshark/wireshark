@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.21 2002/02/18 01:08:37 guy Exp $
+ * $Id: packet-wcp.c,v 1.22 2002/02/27 05:45:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -602,7 +602,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
         tvb_set_child_real_data_tvbuff( src_tvb, tvb);
 
 	/* Add new data to the data source list */
-	add_new_data_source( pinfo->fd, tvb, "Uncompressed");
+	add_new_data_source( pinfo->fd, tvb, "Uncompressed WCP");
 	return tvb;
 
 }

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.77 2002/02/18 01:08:36 guy Exp $
+ * $Id: packet-ipv6.c,v 1.78 2002/02/27 05:45:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -901,7 +901,7 @@ again:
       tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
       /* Add the defragmented data to the data source list. */
-      add_new_data_source(pinfo->fd, next_tvb, "Reassembled");
+      add_new_data_source(pinfo->fd, next_tvb, "Reassembled IPv6");
 
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;
