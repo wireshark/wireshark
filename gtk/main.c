@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.156 2000/09/09 10:26:53 guy Exp $
+ * $Id: main.c,v 1.157 2000/09/14 22:59:08 grahamb Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -818,6 +818,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
 #ifdef WIN32
   char pcap_version[] = "0.4a6";
+  WSADATA 	       wsaData; 
 #else
   extern char          pcap_version[];
 #endif
@@ -1128,6 +1129,11 @@ main(int argc, char *argv[])
     }
   }
 
+#ifdef WIN32
+  /* Start windows sockets */
+  WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+#endif
+
   /* Notify all registered modules that have had any of their preferences
      changed either from one of the preferences file or from the command
      line that its preferences have changed. */
@@ -1345,6 +1351,11 @@ main(int argc, char *argv[])
 
   dissect_cleanup();
   g_free(rc_file);
+
+#ifdef WIN32
+  /* Shutdown windows sockets */
+  WSACleanup();
+#endif
 
   gtk_exit(0);
 

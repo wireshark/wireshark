@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.123 2000/09/14 11:49:40 gram Exp $
+ * $Id: capture.c,v 1.124 2000/09/14 22:59:00 grahamb Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1394,6 +1394,11 @@ capture(void)
   else
 #endif
     pcap_close(pch);
+
+#ifdef WIN32
+  /* Shut down windows sockets */
+  WSACleanup();
+#endif
 
   gtk_grab_remove(GTK_WIDGET(cap_w));
   gtk_widget_destroy(GTK_WIDGET(cap_w));
