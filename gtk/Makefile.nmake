@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.58 2003/11/07 23:26:15 guy Exp $
+# $Id: Makefile.nmake,v 1.59 2003/11/15 08:48:14 ulfl Exp $
 
 include ..\config.nmake
 
@@ -57,6 +57,7 @@ OBJECTS = \
 	capture_combo_utils.obj \
 	capture_dlg.obj \
 	capture_prefs.obj \
+	capture_info_dlg.obj \
 	color_dlg.obj    \
 	color_filters.obj \
 	column_prefs.obj \

@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.37 2003/11/01 02:30:14 guy Exp $
+ * $Id: capture.h,v 1.38 2003/11/15 08:47:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,6 +72,39 @@ void   capture_stop(void);
 
 /* Terminate the capture child cleanly when exiting. */
 void   kill_capture_child(void);
+
+
+/* XXX: improve this macro (put something like this into epan/packet.h?) */
+#define CAPTURE_PACKET_COUNTS sizeof(packet_counts) / sizeof (gint)
+
+typedef struct {
+    /* handles */
+    gpointer        callback_data;  /* capture callback handle */
+    gpointer        ui;             /* user interfaces own handle */
+
+    /* capture info */
+    packet_counts   *counts;        /* protocol specific counters */
+    time_t          running_time;   /* running time since last update */
+    gint            new_packets;    /* packets since last update */
+} capture_info;
+
+
+/* create the capture info dialog */
+extern void capture_info_create(
+capture_info    *cinfo);
+
+/* Update the capture info counters in the dialog */
+extern void capture_info_update(
+capture_info    *cinfo);
+
+/* destroy the capture info dialog again */
+extern void capture_info_destroy(
+capture_info    *cinfo);
+
+/* ui calls this, when user wants to stop capturing */
+extern void capture_ui_stop_callback(
+gpointer 		callback_data);
+
 
 #endif /* HAVE_LIBPCAP */
 

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.214 2003/11/14 21:18:06 guy Exp $
+ * $Id: capture.c,v 1.215 2003/11/15 08:47:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -195,14 +195,11 @@ static void wait_for_child(gboolean);
 #ifndef _WIN32
 static char *signame(int);
 #endif
-static void capture_delete_cb(GtkWidget *, GdkEvent *, gpointer);
-static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
   const guchar *);
 static void get_capture_file_io_error(char *, int, const char *, int, gboolean);
 static void popup_errmsg(const char *);
 static void send_errmsg_to_parent(const char *);
-static float pct(gint, gint);
 static void stop_capture(int signo);
 
 typedef struct _loop_data {
@@ -1380,14 +1377,11 @@ static loop_data   ld;
 int
 capture(gboolean *stats_known, struct pcap_stat *stats)
 {
-  GtkWidget  *cap_w, *main_vb, *stop_bt, *counts_tb;
-  GtkWidget  *counts_fr, *running_tb, *running_label, *running_time;
   pcap_t     *pch;
   int         pcap_encap;
   int         file_snaplen;
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
-  gchar       label_str[64];
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
   const char *set_linktype_err_str;
@@ -1404,26 +1398,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   gboolean    close_ok;
   fd_set      set1;
   struct timeval timeout;
-  struct {
-      const gchar *title;
-      gint *value_ptr;
-      GtkWidget *label, *value, *percent;
-  } counts[] = {
-      { "Total", &ld.counts.total, NULL, NULL, NULL },
-      { "SCTP", &ld.counts.sctp, NULL, NULL, NULL },
-      { "TCP", &ld.counts.tcp, NULL, NULL, NULL },
-      { "UDP", &ld.counts.udp, NULL, NULL, NULL },
-      { "ICMP", &ld.counts.icmp, NULL, NULL, NULL },
-      { "ARP", &ld.counts.arp, NULL, NULL, NULL },
-      { "OSPF", &ld.counts.ospf, NULL, NULL, NULL },
-      { "GRE", &ld.counts.gre, NULL, NULL, NULL },
-      { "NetBIOS", &ld.counts.netbios, NULL, NULL, NULL },
-      { "IPX", &ld.counts.ipx, NULL, NULL, NULL },
-      { "VINES", &ld.counts.vines, NULL, NULL, NULL },
-      { "Other", &ld.counts.other, NULL, NULL, NULL }
-  };
-
-#define N_COUNTS (sizeof counts / sizeof counts[0])
+  capture_info   capture_ui;
 
 #ifdef _WIN32
   WORD        wVersionRequested;
@@ -1738,84 +1713,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     write(1, &capstart_msg, 1);
   }
 
-  cap_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title(GTK_WINDOW(cap_w), "Ethereal: Capture");
-  gtk_window_set_modal(GTK_WINDOW(cap_w), TRUE);
-
-  /* Container for capture display widgets */
-  main_vb = gtk_vbox_new(FALSE, 1);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  gtk_container_add(GTK_CONTAINER(cap_w), main_vb);
-  gtk_widget_show(main_vb);
-
-  counts_fr = gtk_frame_new("Captured Frames");
-  gtk_box_pack_start(GTK_BOX(main_vb), counts_fr, FALSE, FALSE, 3);
-  gtk_widget_show(counts_fr);
-
-  /* Individual statistic elements */
-  counts_tb = gtk_table_new(N_COUNTS, 3, TRUE);
-  gtk_container_add(GTK_CONTAINER(counts_fr), counts_tb);
-  gtk_container_border_width(GTK_CONTAINER(counts_tb), 5);
-  gtk_widget_show(counts_tb);
-
-  for (i = 0; i < N_COUNTS; i++) {
-      counts[i].label = gtk_label_new(counts[i].title);
-      gtk_misc_set_alignment(GTK_MISC(counts[i].label), 0.0f, 0.0f);
-
-      counts[i].value = gtk_label_new("0");
-      gtk_misc_set_alignment(GTK_MISC(counts[i].value), 0.0f, 0.0f);
-
-      counts[i].percent = gtk_label_new("0.0%");
-      gtk_misc_set_alignment(GTK_MISC(counts[i].percent), 0.0f, 0.0f);
-
-      gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                                counts[i].label, 0, 1, i, i + 1);
-
-      gtk_table_attach(GTK_TABLE(counts_tb),
-                       counts[i].value,
-                       1, 2, i, i + 1, 0, 0, 5, 0);
-
-      gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                                counts[i].percent, 2, 3, i, i + 1);
-
-      gtk_widget_show(counts[i].label);
-      gtk_widget_show(counts[i].value);
-      gtk_widget_show(counts[i].percent);
-  }
-
-  /* Running time */
-  running_tb = gtk_table_new(1, 3, TRUE);
-  gtk_box_pack_start(GTK_BOX(main_vb), running_tb, FALSE, FALSE, 3);
-  gtk_widget_show(running_tb);
-
-  running_label = gtk_label_new("Running");
-  gtk_misc_set_alignment(GTK_MISC(running_label), 0.0f, 0.0f);
-  gtk_widget_show(running_label);
-  gtk_table_attach_defaults(GTK_TABLE(running_tb),
-                                running_label, 0, 1, 0, 1);
-
-  running_time = gtk_label_new("00:00:00");
-  gtk_misc_set_alignment(GTK_MISC(running_time), 0.0f, 0.0f);
-  gtk_widget_show(running_time);
-  gtk_table_attach(GTK_TABLE(running_tb),
-                       running_time,
-                       1, 2, 0, 1, 0, 0, 5, 0);
-
-  /* allow user to either click a stop button, or the close button on
-	the window to stop a capture in progress. */
-  stop_bt = gtk_button_new_with_label ("Stop");
-  gtk_signal_connect(GTK_OBJECT(stop_bt), "clicked",
-    GTK_SIGNAL_FUNC(capture_stop_cb), (gpointer) &ld);
-  gtk_signal_connect(GTK_OBJECT(cap_w), "delete_event",
-	GTK_SIGNAL_FUNC(capture_delete_cb), (gpointer) &ld);
-  gtk_box_pack_start(GTK_BOX(main_vb), stop_bt, FALSE, FALSE, 3);
-  GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
-  gtk_widget_grab_default(stop_bt);
-  GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
-  gtk_widget_grab_default(stop_bt);
-  gtk_widget_show(stop_bt);
-
-  gtk_widget_show(cap_w);
+  /* start capture info dialog */
+  capture_ui.callback_data  = &ld;
+  capture_ui.counts         = &ld.counts;
+  capture_info_create(&capture_ui);
 
   start_time = time(NULL);
   upd_time = time(NULL);
@@ -1845,6 +1746,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     cnd_ring_timeout =
 	cnd_new(CND_CLASS_TIMEOUT, capture_opts.ringbuffer_duration);
 
+
+  /* WOW, everything is prepared! */
+  /* please fasten your seat belts, we will enter now the actual capture loop */
   while (ld.go) {
     while (gtk_events_pending()) gtk_main_iteration();
 
@@ -1969,28 +1873,19 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     if (cur_time > upd_time) {
       upd_time = cur_time;
 
+      /*if (pcap_stats(pch, stats) >= 0) {
+        *stats_known = TRUE;
+      }*/
+
+      	/* Let the parent process know. */
       /* calculate and display running time */
       cur_time -= start_time;
-      snprintf(label_str, sizeof(label_str), "%02ld:%02ld:%02ld", 
-               (long)(cur_time/3600), (long)((cur_time%3600)/60),
-               (long)(cur_time%60));
-      gtk_label_set(GTK_LABEL(running_time), label_str);
+      capture_ui.running_time   = cur_time;
+      capture_ui.new_packets    = ld.sync_packets;
+      capture_info_update(&capture_ui);
 
       if (ld.sync_packets) {
-
-        for (i = 0; i < N_COUNTS; i++) {
-            snprintf(label_str, sizeof(label_str), "%d",
-                     *counts[i].value_ptr);
-
-            gtk_label_set(GTK_LABEL(counts[i].value), label_str);
-
-            snprintf(label_str, sizeof(label_str), "(%.1f%%)",
-                     pct(*counts[i].value_ptr, ld.counts.total));
-
-            gtk_label_set(GTK_LABEL(counts[i].percent), label_str);
-        }
-
-        /* do sync here, too */
+        /* do sync here */
         fflush(wtap_dump_file(ld.pdh));
 
         if (capture_child) {
@@ -2104,8 +1999,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   WSACleanup();
 #endif
 
-  gtk_grab_remove(GTK_WIDGET(cap_w));
-  gtk_widget_destroy(GTK_WIDGET(cap_w));
+  capture_info_destroy(&capture_ui);
 
   return write_ok;
 
@@ -2223,32 +2117,20 @@ send_errmsg_to_parent(const char *errmsg)
     write(1, errmsg, msglen);
 }
 
-static float
-pct(gint num, gint denom) {
-  if (denom) {
-    return (float) num * 100.0 / (float) denom;
-  } else {
-    return 0.0;
-  }
-}
-
 static void
 stop_capture(int signo _U_)
 {
   ld.go = FALSE;
 }
 
-static void
-capture_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
-  capture_stop_cb(NULL, data);
-}
-
-static void
-capture_stop_cb(GtkWidget *w _U_, gpointer data) {
-  loop_data *ld = (loop_data *) data;
+void capture_ui_stop_callback(
+gpointer 		callback_data)
+{
+  loop_data *ld = (loop_data *) callback_data;
 
   ld->go = FALSE;
 }
+
 
 void
 capture_stop(void)
