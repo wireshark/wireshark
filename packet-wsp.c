@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.81 2003/11/04 19:47:29 guy Exp $
+ * $Id: packet-wsp.c,v 1.82 2003/11/07 20:07:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,6 +82,7 @@ static int hf_hdr_authorization_user_id			= HF_EMPTY; /* Subfield */
 static int hf_hdr_authorization_password		= HF_EMPTY; /* Subfield */
 static int hf_hdr_cache_control			= HF_EMPTY;
 static int hf_hdr_connection			= HF_EMPTY;
+static int hf_hdr_content_base			= HF_EMPTY;
 static int hf_hdr_content_encoding		= HF_EMPTY;
 static int hf_hdr_content_language		= HF_EMPTY;
 static int hf_hdr_content_length		= HF_EMPTY;
@@ -1279,6 +1280,8 @@ static guint32 wkh_pragma (proto_tree *tree, tvbuff_t *tvb,
 static guint32 wkh_x_wap_security (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 /* Text */
+static guint32 wkh_content_base (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
 static guint32 wkh_content_location (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_etag (proto_tree *tree, tvbuff_t *tvb,
@@ -1385,8 +1388,6 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 
 /* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-static guint32 wkh_content_base (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
 static guint32 wkh_content_range (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_range (proto_tree *tree, tvbuff_t *tvb,
@@ -1486,7 +1487,7 @@ static const hdr_parse_func_ptr WellKnownHeader[128] = {
 	/* 0x04 */	wkh_accept_ranges,		/* 0x05 */	wkh_age,
 	/* 0x06 */	wkh_allow,				/* 0x07 */	wkh_authorization,
 	/* 0x08 */	wkh_cache_control,		/* 0x09 */	wkh_connection,
-	/* 0x0A */	wkh_default,			/* 0x0B */	wkh_content_encoding,
+	/* 0x0A */	wkh_content_base,		/* 0x0B */	wkh_content_encoding,
 	/* 0x0C */	wkh_content_language,	/* 0x0D */	wkh_content_length,
 	/* 0x0E */	wkh_content_location,	/* 0x0F */	wkh_content_md5,
 	/* 0x10 */	wkh_default,			/* 0x11 */	wkh_content_type,
@@ -2518,6 +2519,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 }
 
 /* Text-only headers: */
+wkh_text_header(content_base, "Content-Base")
 wkh_text_header(content_location, "Content-Location")
 wkh_text_header(etag, "ETag")
 wkh_text_header(from, "From")
@@ -5540,6 +5542,13 @@ proto_register_wsp(void)
 				"wsp.hdr.connection",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Connection", HFILL
+			}
+		},
+		{ &hf_hdr_content_base,
+			{	"Content-Base",
+				"wsp.hdr.content_base",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP header Content-Base", HFILL
 			}
 		},
 		{ &hf_hdr_content_encoding,
