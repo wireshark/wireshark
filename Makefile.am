@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.561 2003/03/02 21:52:08 guy Exp $
+# $Id: Makefile.am,v 1.562 2003/03/02 22:11:26 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,7 @@ bin_SCRIPTS = @idl2eth_bin@
 man1_MANS = @ethereal_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @idl2eth_man@
 man_MANS =
 
-EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap mergecap dftest text2pcap
+EXTRA_PROGRAMS = ethereal tethereal editcap mergecap dftest text2pcap
 EXTRA_SCRIPTS = idl2eth
 
 #
@@ -409,6 +409,47 @@ DISSECTOR_SRC = \
 	packet-zebra.c
 
 if HAVE_PLUGINS
+plugin_libs = \
+	plugins/docsis/docsis.la \
+	plugins/giop/cosnaming.la \
+	plugins/giop/coseventcomm.la \
+	plugins/gryphon/gryphon.la \
+	plugins/megaco/megaco.la \
+	plugins/mgcp/mgcp.la \
+	plugins/pcli/pcli.la
+
+if ENABLE_STATIC
+plugin_ldadd = \
+	plugins/docsis/packet-bpkmattr-static.o \
+	plugins/docsis/packet-bpkmreq-static.o \
+	plugins/docsis/packet-bpkmrsp-static.o \
+	plugins/docsis/packet-docsis-static.o \
+	plugins/docsis/packet-dsaack-static.o \
+	plugins/docsis/packet-dsareq-static.o \
+	plugins/docsis/packet-dsarsp-static.o \
+	plugins/docsis/packet-dscack-static.o \
+	plugins/docsis/packet-dscreq-static.o \
+	plugins/docsis/packet-dscrsp-static.o \
+	plugins/docsis/packet-dsdreq-static.o \
+	plugins/docsis/packet-dsdrsp-static.o \
+	plugins/docsis/packet-macmgmt-static.o \
+	plugins/docsis/packet-map-static.o \
+	plugins/docsis/packet-regack-static.o \
+	plugins/docsis/packet-regreq-static.o \
+	plugins/docsis/packet-regrsp-static.o \
+	plugins/docsis/packet-rngreq-static.o \
+	plugins/docsis/packet-rngrsp-static.o \
+	plugins/docsis/packet-tlv-static.o \
+	plugins/docsis/packet-uccreq-static.o \
+	plugins/docsis/packet-uccrsp-static.o \
+	plugins/docsis/packet-ucd-static.o \
+	plugins/giop/packet-cosnaming-static.o \
+	plugins/giop/packet-coseventcomm-static.o \
+	plugins/gryphon/packet-gryphon-static.o \
+	plugins/megaco/packet-megaco-static.o \
+	plugins/mgcp/packet-mgcp-static.o \
+	plugins/pcli/packet-pcli-static.o
+
 plugin_src = \
 	plugins/docsis/packet-bpkmattr.c \
 	plugins/docsis/packet-bpkmreq.c \
@@ -440,46 +481,7 @@ plugin_src = \
 	plugins/mgcp/packet-mgcp.c \
 	plugins/pcli/packet-pcli.c
 
-plugin_static_ldadd = \
-	plugins/docsis/packet-bpkmattr-static.o \
-	plugins/docsis/packet-bpkmreq-static.o \
-	plugins/docsis/packet-bpkmrsp-static.o \
-	plugins/docsis/packet-docsis-static.o \
-	plugins/docsis/packet-dsaack-static.o \
-	plugins/docsis/packet-dsareq-static.o \
-	plugins/docsis/packet-dsarsp-static.o \
-	plugins/docsis/packet-dscack-static.o \
-	plugins/docsis/packet-dscreq-static.o \
-	plugins/docsis/packet-dscrsp-static.o \
-	plugins/docsis/packet-dsdreq-static.o \
-	plugins/docsis/packet-dsdrsp-static.o \
-	plugins/docsis/packet-macmgmt-static.o \
-	plugins/docsis/packet-map-static.o \
-	plugins/docsis/packet-regack-static.o \
-	plugins/docsis/packet-regreq-static.o \
-	plugins/docsis/packet-regrsp-static.o \
-	plugins/docsis/packet-rngreq-static.o \
-	plugins/docsis/packet-rngrsp-static.o \
-	plugins/docsis/packet-tlv-static.o \
-	plugins/docsis/packet-uccreq-static.o \
-	plugins/docsis/packet-uccrsp-static.o \
-	plugins/docsis/packet-ucd-static.o \
-	plugins/giop/packet-cosnaming-static.o \
-	plugins/giop/packet-coseventcomm-static.o \
-	plugins/gryphon/packet-gryphon-static.o \
-	plugins/megaco/packet-megaco-static.o \
-	plugins/mgcp/packet-mgcp-static.o \
-	plugins/pcli/packet-pcli-static.o
-
-plugin_libs = \
-	plugins/docsis/docsis.la \
-	plugins/giop/cosnaming.la \
-	plugins/giop/coseventcomm.la \
-	plugins/gryphon/gryphon.la \
-	plugins/megaco/megaco.la \
-	plugins/mgcp/mgcp.la \
-	plugins/pcli/pcli.la
-
+else		# ENABLE_STATIC
 plugin_ldadd = \
 	"-dlopen" self	\
 	"-dlopen" plugins/docsis/docsis.la \
@@ -489,15 +491,18 @@ plugin_ldadd = \
 	"-dlopen" plugins/megaco/megaco.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
 	"-dlopen" plugins/pcli/pcli.la
-else
+
 plugin_src =
 
-plugin_static_ldadd =
+endif		# ENABLE_STATIC
+
+else		# HAVE_PLUGINS
+plugin_src =
 
 plugin_libs =
 
 plugin_ldadd =
-endif
+endif		# HAVE_PLUGINS
 
 noinst_HEADERS = \
 	packet-afp.h   \
@@ -554,7 +559,7 @@ noinst_HEADERS = \
 	packet-gssapi.h \
 	packet-gtp.h    \
 	packet-hclnfsd.h  \
-	packet-hpext.h \
+	packet-hpext.h	\
 	packet-http.h  \
 	packet-ieee80211.h \
 	packet-ieee8023.h \
@@ -735,26 +740,6 @@ ethereal_SOURCES = \
 	summary.h      \
 	ui_util.h
 
-ethereal_static_SOURCES = \
-	$(DISSECTOR_SRC) \
-	$(ETHEREAL_COMMON_SRC) \
-	register-static.c     \
-	capture.c      \
-	capture.h      \
-	file.c         \
-	filters.c      \
-	filters.h      \
-	globals.h      \
-	menu.h         \
-	progress_dlg.h \
-	proto_hier_stats.h	\
-	proto_hier_stats.c	\
-	simple_dialog.h \
-	statusbar.h    \
-	summary.c      \
-	summary.h      \
-	ui_util.h
-
 EXTRA_ethereal_SOURCES = \
 	snprintf.c	\
 	snprintf.h	\
@@ -794,10 +779,6 @@ ethereal_DEPENDENCIES = \
 	$(ethereal_additional_libs)	\
 	$(plugin_libs)
 
-ethereal_static_DEPENDENCIES = \
-	$(ethereal_optional_objects)	\
-	$(ethereal_additional_libs)
-
 # This automake variable adds to the link-line for the executable.
 #
 # Note that Ethereal doesn't have to be linked with @GLIB_LIBS@, as
@@ -805,23 +786,19 @@ ethereal_static_DEPENDENCIES = \
 # @SOCKET_LIBS@ or @NSL_LIBS@, as those should also be included in
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
 # applications are X applications).
+
+if ENABLE_STATIC
+ethereal_LDFLAGS = -Wl,-static -all-static
+else
+ethereal_LDFLAGS = -export-dynamic
+endif
+
 ethereal_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
 	@PCAP_LIBS@ @GTK_LIBS@
-
-ethereal_static_LDADD = \
-	"-all-static" 			\
-	$(plugin_static_ldadd)		\
-	$(ethereal_optional_objects)	\
-	$(ethereal_additional_libs)	\
-	@SNMP_LIBS@ @SSL_LIBS@		\
-	@PCAP_LIBS@ @GTK_LIBS@
-
-ethereal_LDFLAGS = -export-dynamic
-ethereal_static_LDFLAGS = -Wl,-static
 
 TETHEREAL_TAP_SRC = \
 	tap-dcerpcstat.c	\
@@ -841,14 +818,6 @@ tethereal_SOURCES = \
 	register.c     \
 	tethereal.c
 
-tethereal_static_SOURCES = \
-	$(DISSECTOR_SRC) \
-	$(ETHEREAL_COMMON_SRC) \
-	$(TETHEREAL_TAP_SRC) \
-	tethereal-tap-register.c \
-	register-static.c     \
-	tethereal.c
-
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
 tethereal_additional_libs =		\
@@ -863,31 +832,20 @@ tethereal_DEPENDENCIES = \
 	$(tethereal_additional_libs)	\
 	$(plugin_libs)
 
-tethereal_static_DEPENDENCIES = \
-	$(ethereal_optional_objects)	\
-	$(tethereal_additional_libs)
-
 # This automake variable adds to the link-line for the executable
-tethereal_LDADD = wiretap/libwiretap.a	\
+tethereal_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(tethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
-	@GLIB_LIBS@ -lm \
+	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
-tethereal_static_LDADD = \
-	"-all-static"		\
-	$(plugin_static_ldadd)	\
-	wiretap/libwiretap.a	\
-	$(ethereal_optional_objects)	\
-	$(tethereal_additional_libs)	\
-	@SNMP_LIBS@ @SSL_LIBS@		\
-	@GLIB_LIBS@ -lm \
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
-
+if ENABLE_STATIC
+tethereal_LDFLAGS = -Wl,-static -all-static
+else
 tethereal_LDFLAGS = -export-dynamic
-tethereal_static_LDFLAGS = -Wl,-static
+endif
 
 # Optional objects that I know how to build, and that are needed by
 # text2pcap.
@@ -954,13 +912,9 @@ SUFFIXES = .sh
 # The second argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-register.c: $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
+register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
 	@echo Making register.c
-	@$(srcdir)/make-reg-dotc register.c $(srcdir) $(DISSECTOR_SRC)
-
-register-static.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
-	@echo Making register-static.c
-	@$(srcdir)/make-reg-dotc register-static.c $(srcdir) $(plugin_src) $(DISSECTOR_SRC)
+	@$(srcdir)/make-reg-dotc register.c $(srcdir) $(plugin_src) $(DISSECTOR_SRC)
 
 #
 # Build "tethereal-tap-register.c", which contains a function 
@@ -1031,7 +985,6 @@ DISTCLEANFILES =	\
 
 MAINTAINERCLEANFILES =		\
 	register.c		\
-	register-static.c	\
 	ps.c
 
 EXTRA_DIST = \
@@ -1152,7 +1105,6 @@ if SETUID_INSTALL
 install-exec-hook:
 	-chmod +s $(DESTDIR)$(bindir)/ethereal
 	-chmod +s $(DESTDIR)$(bindir)/tethereal
-	-chmod +s $(DESTDIR)$(bindir)/ethereal_static
 else
 install-exec-hook:
 endif
