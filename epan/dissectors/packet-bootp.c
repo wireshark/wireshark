@@ -135,7 +135,7 @@ static enum_val_t pkt_ccc_protocol_versions[] = {
 	{ "ccc_i05",     "PKT-SP-PROV-I05-021127", PACKETCABLE_CCC_I05 },
 	{ "ccc_draft_5", "IETF Draft 5",           PACKETCABLE_CCC_DRAFT5 },
 	{ "rfc_3495",    "RFC 3495",               PACKETCABLE_CCC_RFC_3495 },
-    { NULL, 0 }
+	{ NULL, NULL, 0 }
 };
 
 static gint pkt_ccc_protocol_version = PACKETCABLE_CCC_RFC_3495;
@@ -1610,7 +1610,7 @@ static void
 dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 {
 	guint16 raw_val;
-	long flow_val;
+	unsigned long flow_val = 0;
 	guint off = PKT_MDC_TLV_OFF + voff;
 	guint tlv_len, i;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
@@ -1698,7 +1698,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 						tvb_memcpy(tvb, flow_val_str, off + 4, 4);
 						flow_val_str[4] = '\0';
 						flow_val = strtoul(flow_val_str, NULL, 16);
-						g_string_sprintfa(tlv_str, "0x%04x", flow_val);
+						g_string_sprintfa(tlv_str, "0x%04lx", flow_val);
 						break;
 					case PKT_MDC_VENDOR_TLV:
 					default:
@@ -1727,12 +1727,11 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 static void
 dissect_packetcable_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 {
-	long raw_val;
+	unsigned long raw_val;
 	guint off = PKT_CM_TLV_OFF + voff;
 	guint tlv_len, i;
 	guint8 asc_val[3] = "  ";
 	static GString *tlv_str = NULL;
-	char *fmt_str = "%s.xxxxxxxx";
 
 	if (! tlv_str)
 		tlv_str = g_string_new("");
@@ -1800,7 +1799,7 @@ dissect_packetcable_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 					case PKT_CM_TET_LC:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
 						raw_val = strtoul(asc_val, NULL, 16);
-						g_string_sprintfa(tlv_str, "%u", raw_val);
+						g_string_sprintfa(tlv_str, "%lu", raw_val);
 						break;
 					case PKT_CM_FILT_SUP:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
@@ -1814,7 +1813,7 @@ dissect_packetcable_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 						}
 						if (! raw_val & 0x03)
 							g_string_append(tlv_str, "None");
-						g_string_sprintfa(tlv_str, " (0x%02x)", raw_val);
+						g_string_sprintfa(tlv_str, " (0x%02lx)", raw_val);
 						break;
 				}
 			}
@@ -1890,7 +1889,6 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
 	static GString *opt_str = NULL;
-	char *fmt_str = "%s.xxxxxxxx (%u bytes)";
 
 	if (! opt_str)
 		opt_str = g_string_new("");
@@ -1910,8 +1908,8 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		case PKT_CCC_I05_SEC_DNS:
 		case PKT_CCC_KRB_REALM:
 		case PKT_CCC_CMS_FQDN:
-			sprintf (fmt_str, "%%.%us (%%u byte%%s)", subopt_len);
-			g_string_sprintfa(opt_str, fmt_str,
+			g_string_sprintfa(opt_str, "%.*s (%u byte%s)",
+					subopt_len,
 					tvb_get_ptr(tvb, optp, subopt_len),
 					subopt_len,
 					plurality(subopt_len, "", "s") );
@@ -1932,7 +1930,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 
 		case PKT_CCC_PROV_TIMER:
 			timer_val = tvb_get_guint8(tvb, optp);
-			g_string_sprintfa(opt_str, "%u%s (%u byte%s)", timer_val,
+			g_string_sprintfa(opt_str, "%u%s (%u byte%s%s)", timer_val,
 					timer_val > 30 ? " [Invalid]" : "",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
@@ -1979,7 +1977,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 
 		case PKT_CCC_MTA_KRB_CLEAR:
 			ticket_ctl = tvb_get_guint8(tvb, optp);
-			g_string_sprintfa(opt_str, "%s (%u)%s (%u byte%s%s)",
+			g_string_sprintfa(opt_str, "%s (%u) (%u byte%s%s)",
 					val_to_str (ticket_ctl, pkt_i05_ccc_ticket_ctl_vals, "unknown/invalid"),
 					ticket_ctl,
 					subopt_len,
@@ -2015,7 +2013,6 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp,
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
 	static GString *opt_str = NULL;
-	char *fmt_str = "%s.xxxxxxxx (%u bytes)";
 	int max_timer_val = 255, i;
 	char dns_name[255], bit_fld[24];
 
