@@ -422,10 +422,10 @@ static void yy_parse_failed(
 ** The following code executes when a syntax error first occurs.
 */
 static void yy_syntax_error(
-  yyParser *yypParser,           /* The parser */
-  int yymajor,                   /* The major type of the error token */
+  yyParser *yypParser _U_,       /* The parser */
+  int yymajor _U_,               /* The major type of the error token */
   YYMINORTYPE yyminor            /* The minor type of the error token */
-  ParseANSIARGDECL               /* Extra arguments (if any) */
+  ParseANSIARGDECL _U_           /* Extra arguments (if any) */
 ){
 #define TOKEN (yyminor.yy0)
 %%
@@ -436,7 +436,7 @@ static void yy_syntax_error(
 */
 static void yy_accept(
   yyParser *yypParser           /* The parser */
-  ParseANSIARGDECL              /* Extra arguments (if any) */
+  ParseANSIARGDECL _U_          /* Extra arguments (if any) */
 ){
 #ifndef NDEBUG
   if( yyTraceFILE ){
