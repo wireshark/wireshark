@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.13 2003/12/21 05:29:26 jmayer Exp $
+ * $Id: packet-asn1.c,v 1.14 2004/01/13 02:36:51 guy Exp $
  *
  * A plugin for:
  *
@@ -2578,6 +2578,9 @@ read_asn1_type_table(char *filename)
 	guint size;
 	guchar *data;
 	struct stat stat;
+
+	if ((filename == 0) || (strlen(filename) == 0))
+		return;		/* no filename provided */
 
 	f = fopen(filename, "rb");
 	if (f == 0) {
