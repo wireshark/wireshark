@@ -733,9 +733,13 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 60:	/* Vendor class identifier */
+		/*
+		 * XXX - RFC 2132 says this is a string of octets;
+		 * should we check for non-printables?
+		 */
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
-			"Option %d: %s = \"%.*s\"", code, text, vlen,
-			tvb_get_ptr(tvb, voff+2, consumed-2));
+			"Option %d: %s = \"%s\"", code, text,
+			tvb_format_text(tvb, voff+2, consumed-2));
 		if (tvb_memeql(tvb, voff+2, PACKETCABLE_MTA_CAP10, strlen(PACKETCABLE_MTA_CAP10)) == 0) {
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 			dissect_packetcable_mta_cap(v_tree, tvb, voff+2, vlen);
@@ -782,36 +786,36 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			optp = dissect_netware_ip_suboption(v_tree, tvb, optp);
 		break;
 
-    case 78:	/* SLP Directory Agent Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
+	case 78:	/* SLP Directory Agent Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
 		byte = tvb_get_guint8(tvb, voff+2);
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s", code, text,
 				val_to_str(byte, slpda_vals,
 				    "Unknown (0x%02x)"));
-        if (byte == 0x80) {
-            voff++;
-            consumed--;
-        }
+		if (byte == 0x80) {
+			voff++;
+			consumed--;
+		}
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-        for (i = voff + 3; i < voff + consumed; i += 4) {
-            proto_tree_add_text(v_tree, tvb, i, 4, "SLPDA Address: %s",
-                ip_to_str(tvb_get_ptr(tvb, i, 4)));
-        }
-        if (byte == 0x80) {
-            consumed++;
-        }
+		for (i = voff + 3; i < voff + consumed; i += 4) {
+			proto_tree_add_text(v_tree, tvb, i, 4, "SLPDA Address: %s",
+			    ip_to_str(tvb_get_ptr(tvb, i, 4)));
+		}
+		if (byte == 0x80) {
+			consumed++;
+		}
 		break;
 
-    case 79:	/* SLP Service Scope Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
+	case 79:	/* SLP Service Scope Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
 		byte = tvb_get_guint8(tvb, voff+2);
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s = %s", code, text,
 				val_to_str(byte, slp_scope_vals,
 				    "Unknown (0x%02x)"));
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-        proto_tree_add_text(v_tree, tvb, voff+3, consumed-3,
-                "%s = \"%.*s\"", text, vlen-1,
-                tvb_get_ptr(tvb, voff+3, vlen-1));
+		proto_tree_add_text(v_tree, tvb, voff+3, consumed-3,
+		    "%s = \"%s\"", text,
+		    tvb_format_text(tvb, voff+3, vlen-1));
 		break;
 
 	case 82:        /* Relay Agent Information Option */
@@ -826,15 +830,13 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 85:        /* Novell Servers */
-        /* Option 85 can be sent as a string */
-        /* Added by Greg Morris (gmorris@novell.com) */
-        if (novell_string && code==85) {
-            proto_tree_add_text(bp_tree, tvb, voff, consumed,
-                    "Option %d: %s = \"%.*s\"", code, text, vlen,
-                    tvb_get_ptr(tvb, voff+2, consumed-2));
-        }
-        else
-        {
+		/* Option 85 can be sent as a string */
+		/* Added by Greg Morris (gmorris[AT]novell.com) */
+		if (novell_string) {
+			proto_tree_add_text(bp_tree, tvb, voff, consumed,
+			    "Option %d: %s = \"%s\"", code, text,
+			    tvb_format_text(tvb, voff+2, consumed-2));
+		} else {
 			if (vlen == 4) {
 				/* one IP address */
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
@@ -990,11 +992,11 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		case string:
 			/* Fix for non null-terminated string supplied by
-			 * John Lines <John.Lines@aeat.co.uk>
+			 * John Lines <John.Lines[AT]aeat.co.uk>
 			 */
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = \"%.*s\"", code, text, vlen,
-					tvb_get_ptr(tvb, voff+2, consumed-2));
+					"Option %d: %s = \"%s\"", code, text,
+					tvb_format_text(tvb, voff+2, consumed-2));
 			break;
 
 		case opaque:
@@ -1313,9 +1315,9 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 
 		case string:
 			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-				"Suboption %d: %s = \"%.*s\"", subopt,
-				o43cablelabs_opt[subopt].text, subopt_len,
-				tvb_get_ptr(tvb, optp+2, subopt_len));
+				"Suboption %d: %s = \"%s\"", subopt,
+				o43cablelabs_opt[subopt].text,
+				tvb_format_text(tvb, optp+2, subopt_len));
 			break;
 
 		case bytes:
@@ -1615,7 +1617,6 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	guint tlv_len, i;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
 	static GString *tlv_str = NULL;
-	char *fmt_str = "%s.xxxxxxxx";
 	char bit_fld[64];
 	proto_item *ti;
 	proto_tree *subtree;
@@ -1702,9 +1703,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 						break;
 					case PKT_MDC_VENDOR_TLV:
 					default:
-						sprintf (fmt_str, "%%.%us", tlv_len * 2);
-						g_string_sprintfa(tlv_str, fmt_str,
-								tvb_get_ptr(tvb, off + 4, tlv_len * 2) );
+						g_string_sprintfa(tlv_str, "%s",
+								tvb_format_text(tvb, off + 4, tlv_len * 2) );
 						break;
 				}
 			}
@@ -1908,9 +1908,8 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		case PKT_CCC_I05_SEC_DNS:
 		case PKT_CCC_KRB_REALM:
 		case PKT_CCC_CMS_FQDN:
-			g_string_sprintfa(opt_str, "%.*s (%u byte%s)",
-					subopt_len,
-					tvb_get_ptr(tvb, optp, subopt_len),
+			g_string_sprintfa(opt_str, "%s (%u byte%s)",
+					tvb_format_text(tvb, optp, subopt_len),
 					subopt_len,
 					plurality(subopt_len, "", "s") );
 			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
