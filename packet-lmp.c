@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.12 2002/08/28 21:00:20 jmayer Exp $
+ * $Id: packet-lmp.c,v 1.13 2002/10/17 01:29:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -362,6 +362,10 @@ static hf_register_info lmpf_info[] = {
 
     {&lmp_filter[LMPF_MSG_END_VERIFY],
      { "EndVerify Message", "lmp.msg.endverify", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_END_VERIFY_ACK],
+     { "EndVerifyAck Message", "lmp.msg.endverifyack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     {&lmp_filter[LMPF_MSG_TEST],
