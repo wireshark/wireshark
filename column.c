@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.28 2000/08/11 13:34:48 deniel Exp $
+ * $Id: column.c,v 1.29 2000/11/01 08:31:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,8 +52,8 @@
    string */
 gchar *
 col_format_to_string(gint fmt) {
-  gchar *slist[] = { "%m", "%t", "%Rt", "%At", "%Tt", "%s", "%rs", "%us",
-                     "%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
+  gchar *slist[] = { "%m", "%t", "%Rt", "%At", "%Yt", "%Tt", "%s", "%rs",
+                     "%us","%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
                      "%i", "%L" };
@@ -69,7 +69,8 @@ col_format_to_string(gint fmt) {
 gchar *
 col_format_desc(gint fmt) {
   gchar *dlist[] = { "Number", "Time (command line specified)",
-                     "Relative time", "Absolute time", "Delta time",
+                     "Relative time", "Absolute time",
+		     "Absolute date and time", "Delta time",
                      "Source address", "Src addr (resolved)",
                      "Src addr (unresolved)", "Hardware src addr",
                      "Hw src addr (resolved)", "Hw src addr (unresolved)",
@@ -172,11 +173,16 @@ get_column_longest_string(gint format)
     case COL_CLS_TIME:
       if (timestamp_type == ABSOLUTE)
         return "00:00:00.000000";
+      else if (timestamp_type == ABSOLUTE_WITH_DATE)
+        return "0000-00-00 00:00:00.000000";
       else
         return "0000.000000";
       break;
     case COL_ABS_TIME:
       return "00:00:00.000000";
+      break;
+    case COL_ABS_DATE_TIME:
+      return "0000-00-00 00:00:00.000000";
       break;
     case COL_REL_TIME:
     case COL_DELTA_TIME:
@@ -236,6 +242,7 @@ get_column_resize_type(gint format) {
     case COL_NUMBER:
     case COL_CLS_TIME:
     case COL_ABS_TIME:
+    case COL_ABS_DATE_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DEF_SRC_PORT:
@@ -284,10 +291,11 @@ get_column_resize_type(gint format) {
   }
 }
 
-#define TIME_DEF 0
-#define TIME_REL 1
-#define TIME_ABS 2
-#define TIME_DEL 3
+#define TIME_DEF      0
+#define TIME_REL      1
+#define TIME_ABS      2
+#define DATE_TIME_ABS 3
+#define TIME_DEL      4
 
 #define RES_DEF  0
 #define RES_DO   1
@@ -356,6 +364,9 @@ get_column_format_from_str(gchar *str) {
         break;
       case 'A':
         time_off = TIME_ABS;
+        break;
+      case 'Y':
+        time_off = DATE_TIME_ABS;
         break;
       case 'T':
         time_off = TIME_DEL;

@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.17 2000/10/19 22:59:24 guy Exp $
+ * $Id: display_opts.c,v 1.18 2000/11/01 08:31:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,6 +66,7 @@ extern GtkWidget *packet_list;
 
 /* Display callback data keys */
 #define E_DISPLAY_TIME_ABS_KEY   "display_time_abs"
+#define E_DISPLAY_DATE_TIME_ABS_KEY "display_date_time_abs"
 #define E_DISPLAY_TIME_REL_KEY   "display_time_rel"
 #define E_DISPLAY_TIME_DELTA_KEY "display_time_delta"
 #define E_DISPLAY_AUTO_SCROLL_KEY "display_auto_scroll"
@@ -135,6 +136,16 @@ display_opt_cb(GtkWidget *w, gpointer d) {
                button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   
+  gtk_widget_show(button);
+
+  button = dlg_radio_button_new_with_label_with_mnemonic(
+               gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
+               "_Date and time of day", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
+               (timestamp_type == ABSOLUTE_WITH_DATE));
+  gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_DATE_TIME_ABS_KEY,
+               button);
+  gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
   button = dlg_radio_button_new_with_label_with_mnemonic(
@@ -235,6 +246,11 @@ get_display_options(GtkWidget *parent_w)
                                               E_DISPLAY_TIME_ABS_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = ABSOLUTE;
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+                                              E_DISPLAY_DATE_TIME_ABS_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active)
+    timestamp_type = ABSOLUTE_WITH_DATE;
 
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
                                               E_DISPLAY_TIME_REL_KEY);

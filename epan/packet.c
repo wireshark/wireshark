@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.2 2000/10/06 10:11:15 gram Exp $
+ * $Id: packet.c,v 1.3 2000/11/01 08:31:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -664,6 +664,25 @@ col_set_abs_time(frame_data *fd, int col)
 }
 
 static void
+col_set_abs_date_time(frame_data *fd, int col)
+{
+  struct tm *tmp;
+  time_t then;
+
+  then = fd->abs_secs;
+  tmp = localtime(&then);
+  snprintf(fd->cinfo->col_data[col], COL_MAX_LEN,
+    "%04d-%02d-%02d %02d:%02d:%02d.%04ld",
+    tmp->tm_year + 1900,
+    tmp->tm_mon + 1,
+    tmp->tm_mday,
+    tmp->tm_hour,
+    tmp->tm_min,
+    tmp->tm_sec,
+    (long)fd->abs_usecs/100);
+}
+
+static void
 col_set_rel_time(frame_data *fd, int col)
 {
   display_signed_time(fd->cinfo->col_data[col], COL_MAX_LEN,
@@ -690,6 +709,10 @@ col_set_cls_time(frame_data *fd, int col)
   switch (timestamp_type) {
     case ABSOLUTE:
       col_set_abs_time(fd, col);
+      break;
+
+    case ABSOLUTE_WITH_DATE:
+      col_set_abs_date_time(fd, col);
       break;
 
     case RELATIVE:
@@ -828,6 +851,10 @@ fill_in_columns(frame_data *fd)
 
     case COL_ABS_TIME:
       col_set_abs_time(fd, i);
+      break;
+
+    case COL_ABS_DATE_TIME:
+      col_set_abs_date_time(fd, i);
       break;
 
     case COL_REL_TIME:

@@ -177,11 +177,13 @@ Sets the initial height of the tree view (middle) pane.
 =item -t
 
 Sets the format of the packet timestamp displayed in the packet list
-window.  The format can be one of 'r' (relative), 'a' (absolute), or 'd'
-(delta).  The relative time is the time elapsed between the first packet
-and the current packet.  The absolute time is the actual date and time the
-packet was captured.  The delta time is the time since the previous packet
-was captured.  The default is relative.
+window.  The format can be one of 'r' (relative), 'a' (absolute), 'ad'
+(absolute with date), or 'd' (delta).  The relative time is the time
+elapsed between the first packet and the current packet.  The absolute
+time is the actual time the packet was captured, with no date displayed;
+the absolute date and time is the actual time and date the packet was
+captured.  The delta time is the time since the previous packet was
+captured.  The default is relative.
 
 =item -v
 
@@ -290,10 +292,10 @@ the capture packet statistics dialog box), stops the capture.
 =item Display:Options
 
 Allows you to sets the format of the packet timestamp displayed in the
-packet list window to relative, absolute, or delta, to enable or disable
-the automatic scrolling of the packet list while a live capture is in
-progress or to enable or disable translation of addresses to names in the
-display.
+packet list window to relative, absolute, absolute date and time, or
+delta, to enable or disable the automatic scrolling of the packet list
+while a live capture is in progress or to enable or disable translation
+of addresses to names in the display.
 
 =item Display:Match Selected
 
@@ -628,14 +630,15 @@ check box.
 
 =item Display Options
 
-The I<Display Options> dialog lets you specify the format of the time stamp
-in the packet list.  You can select "Time of day" for absolute time stamps,
-"Seconds since beginning of capture" for relative time stamps, or
+The I<Display Options> dialog lets you specify the format of the time
+stamp in the packet list.  You can select "Time of day" for absolute
+time stamps, "Date and time of day" for absolute time stamps with the
+date, "Seconds since beginning of capture" for relative time stamps, or
 "Seconds since previous frame" for delta time stamps.  You can also
 specify whether, when the display is updated as packets are captured,
 the list should automatically scroll to show the most recently captured
-packets or not and whether addresses should be translated to names in the
-display.
+packets or not and whether addresses should be translated to names in
+the display.
 
 =item Plugins
 

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.2 2000/10/06 10:11:17 gram Exp $
+ * $Id: packet.h,v 1.3 2000/11/01 08:31:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -338,6 +338,7 @@ enum {
   COL_CLS_TIME,       /* Command line-specified time (default relative) */
   COL_REL_TIME,       /* Relative time */
   COL_ABS_TIME,       /* Absolute time */
+  COL_ABS_DATE_TIME,  /* Absolute date and time */
   COL_DELTA_TIME,     /* Delta time */
   COL_DEF_SRC,        /* Source address */
   COL_RES_SRC,        /* Resolved source */

@@ -1,7 +1,7 @@
 /* timestamp.h
  * Defines for packet timestamps
  *
- * $Id: timestamp.h,v 1.2 1999/07/13 02:52:59 gram Exp $
+ * $Id: timestamp.h,v 1.3 2000/11/01 08:31:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 typedef enum {
 	RELATIVE,
 	ABSOLUTE,
+	ABSOLUTE_WITH_DATE,
 	DELTA
 } ts_type;
 

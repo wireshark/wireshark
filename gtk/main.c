@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.162 2000/10/27 17:19:23 gram Exp $
+ * $Id: main.c,v 1.163 2000/11/01 08:31:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1088,13 +1088,15 @@ main(int argc, char *argv[])
           timestamp_type = RELATIVE;
         else if (strcmp(optarg, "a") == 0)
           timestamp_type = ABSOLUTE;
+        else if (strcmp(optarg, "ad") == 0)
+          timestamp_type = ABSOLUTE_WITH_DATE;
         else if (strcmp(optarg, "d") == 0)
           timestamp_type = DELTA;
         else {
           fprintf(stderr, "ethereal: Invalid time stamp type \"%s\"\n",
             optarg);
           fprintf(stderr, "It must be \"r\" for relative, \"a\" for absolute,\n");
-          fprintf(stderr, "or \"d\" for delta.\n");
+          fprintf(stderr, "\"ad\" for absolute with date, or \"d\" for delta.\n");
           exit(1);
         }
         break;

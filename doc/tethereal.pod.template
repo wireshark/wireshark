@@ -175,12 +175,14 @@ memory, or saved to disk.
 
 =item -t
 
-Sets the format of the packet timestamp printed in summary lines.
-The format can be one of 'r' (relative), 'a' (absolute), or 'd'
-(delta).  The relative time is the time elapsed between the first packet
-and the current packet.  The absolute time is the actual date and time the
-packet was captured.  The delta time is the time since the previous packet
-was captured.  The default is relative.
+Sets the format of the packet timestamp printed in summary lines.  The
+format can be one of 'r' (relative), 'a' (absolute), 'ad' (absolute with
+date), or 'd' (delta).  The relative time is the time elapsed between
+the first packet and the current packet.  The absolute time is the
+actual time the packet was captured, with no date displayed; the
+absolute date and time is the actual time and date the packet was
+captured.  The delta time is the time since the previous packet was
+captured.  The default is relative.
 
 =item -v
 
