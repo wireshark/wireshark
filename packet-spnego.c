@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.32 2002/09/08 01:43:44 guy Exp $
+ * $Id: packet-spnego.c,v 1.33 2002/09/08 02:45:26 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,10 +144,10 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	subtree = proto_item_add_subtree(item, ett_spnego_krb5);
 
 	/*
-	 * According to all the info I have, the KRB5 blob contains:
+	 * The KRB5 blob conforms to RFC1964:
 	 * APLICATION (0) {
 	 *   OID,
-	 *   BOOLEAN (0),
+	 *   USHORT (0x0001 == AP-REQ, 0x0002 == AP-REP, 0x0003 == ERROR,
 	 *   OCTET STRING } 
 	 */
 
