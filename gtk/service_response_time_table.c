@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.16 2004/03/13 15:15:25 ulfl Exp $
+ * $Id: service_response_time_table.c,v 1.17 2004/04/07 04:31:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -430,7 +430,25 @@ init_srt_table_row(srt_stat_table *rst, int index, char *procedure)
 {
 	char str[10];
 
-
+	/* we have discovered a new procedure. Extend the table accordingly */
+	if(index>=rst->num_procs){
+		int old_num_procs=rst->num_procs;
+		int i,j;
+		rst->num_procs=index+1;
+		rst->procedures=g_realloc(rst->procedures, sizeof(srt_procedure_t)*(rst->num_procs));
+		for(i=old_num_procs;i<rst->num_procs;i++){
+			rst->procedures[i].num=0;
+			rst->procedures[i].min.secs=0;
+			rst->procedures[i].min.nsecs=0;
+			rst->procedures[i].max.secs=0;
+			rst->procedures[i].max.nsecs=0;
+			rst->procedures[i].tot.secs=0;
+			rst->procedures[i].tot.nsecs=0;
+			for(j=0;j<6;j++){
+				rst->procedures[i].entries[j]=NULL;
+			}
+		}
+	}
 	g_snprintf(str, 10, "%d",index);
 	rst->procedures[index].entries[0]=g_strdup(str);
 

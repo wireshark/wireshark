@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.43 2004/03/13 15:15:25 ulfl Exp $
+ * $Id: rpc_stat.c,v 1.44 2004/04/07 04:31:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,10 +92,6 @@ rpcstat_reset(rpcstat_t *rs)
 static int
 rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
 {
-	if(ri->proc>=rs->num_procedures){
-		/* dont handle this since its outside of known table */
-		return 0;
-	}
 	/* we are only interested in reply packets */
 	if(ri->request){
 		return 0;
@@ -104,7 +100,23 @@ rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_c
 	if( (ri->prog!=rs->program) || (ri->vers!=rs->version) ){
 		return 0;
 	}
-
+	/* maybe we have discovered a new procedure? 
+	 * then we might need to extend our tables 
+	 */
+	if(ri->proc>=rs->num_procedures){
+		guint32 i;
+		if(ri->proc>256){
+			/* no program have probably ever more than this many 
+			 * procedures anyway and it prevent us from allocating
+			 * infinite memory if passed a garbage procedure id 
+			 */
+			return 0;
+		}
+		for(i=rs->num_procedures;i<=ri->proc;i++){
+			init_srt_table_row(&rs->srt_table, i, rpc_proc_name(rs->program, rs->version, i));
+		}
+		rs->num_procedures=ri->proc+1;
+	}
 	add_srt_table_data(&rs->srt_table, ri->proc, &ri->req_time, pinfo);
 
 	return 1;
