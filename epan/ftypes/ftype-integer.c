@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.4 2001/03/02 17:17:56 gram Exp $
+ * $Id: ftype-integer.c,v 1.5 2001/03/03 00:33:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,15 +63,18 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		log("\"%s\" is not a valid number.", s);
+		if (log != NULL)
+			log("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
-		if (fv->value.integer == ULONG_MAX) {
-			log("\"%s\" causes an integer overflow.", s);
-		}
-		else {
-			log("\"%s\" is not an integer.", s);
+		if (log != NULL) {
+			if (fv->value.integer == ULONG_MAX) {
+				log("\"%s\" causes an integer overflow.", s);
+			}
+			else {
+				log("\"%s\" is not an integer.", s);
+			}
 		}
 		return FALSE;
 	}
@@ -85,7 +88,12 @@ ipxnet_from_string(fvalue_t *fv, char *s, LogFunc log)
 	guint32 	val;
 	gboolean	known;
 
-	if (val_from_string(fv, s, log)) {
+	/*
+	 * Don't log a message if this fails; we'll try looking it
+	 * up as an IPX network name if it does, and if that fails,
+	 * we'll log a message.
+	 */
+	if (val_from_string(fv, s, NULL)) {
 		return TRUE;
 	}
 
@@ -95,6 +103,7 @@ ipxnet_from_string(fvalue_t *fv, char *s, LogFunc log)
 		return TRUE;
 	}
 
+	log("\"%s\" is not a valid IPX network name or address.", s);
 	return FALSE;
 }
 

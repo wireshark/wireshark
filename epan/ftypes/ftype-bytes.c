@@ -1,5 +1,5 @@
 /* 
- * $Id: ftype-bytes.c,v 1.4 2001/03/02 17:17:56 gram Exp $
+ * $Id: ftype-bytes.c,v 1.5 2001/03/03 00:33:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,10 +109,22 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 			two_digits[1] = *q;
 			two_digits[2] = '\0';
 
+			/*
+			 * Two or more hex digits in a row.
+			 * "strtoul()" will succeed, as it'll see at
+			 * least one hex digit.
+			 */
 			val = (guint8) strtoul(two_digits, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
 			punct = q + 1;
 			if (*punct) {
+				/*
+				 * Make sure the character after
+				 * the second hex digit is a byte
+				 * separator, i.e. that we don't have
+				 * more than two hex digits, or a
+				 * bogus character.
+				 */
 				if (is_byte_sep(*punct)) {
 					p = punct + 1;
 					continue;
@@ -131,6 +143,11 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 			one_digit[0] = *p;
 			one_digit[1] = '\0';
 
+			/*
+			 * Only one hex digit.
+			 * "strtoul()" will succeed, as it'll see that
+			 * hex digit.
+			 */
 			val = (guint8) strtoul(one_digit, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
 			p = q + 1;
@@ -140,6 +157,11 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 			one_digit[0] = *p;
 			one_digit[1] = '\0';
 
+			/*
+			 * Only one hex digit.
+			 * "strtoul()" will succeed, as it'll see that
+			 * hex digit.
+			 */
 			val = (guint8) strtoul(one_digit, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
 			p = q;
@@ -152,6 +174,8 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 	}
 
 	if (fail) {
+		if (log != NULL)
+			log("\"%s\" is not a valid byte string.", s);
 		g_byte_array_free(bytes, TRUE);
 		return FALSE;
 	}
@@ -167,12 +191,18 @@ ether_from_string(fvalue_t *fv, char *s, LogFunc log)
 {
 	guint8	*mac;
 
-	if (val_from_string(fv, s, log)) {
+	/*
+	 * Don't log a message if this fails; we'll try looking it
+	 * up as an Ethernet host name if it does, and if that fails,
+	 * we'll log a message.
+	 */
+	if (val_from_string(fv, s, NULL)) {
 		return TRUE;
 	}
 
 	mac = get_ether_addr(s);
 	if (!mac) {
+		log("\"%s\" is not a valid hostname or Ethernet address.", s);
 		return FALSE;
 	}
 
@@ -186,6 +216,7 @@ ipv6_from_string(fvalue_t *fv, char *s, LogFunc log)
 	guint8	buffer[16];
 
 	if (!get_host_ipaddr6(s, (struct e_in6_addr*)buffer)) {
+		log("\"%s\" is not a valid hostname or IPv6 address.", s);
 		return FALSE;
 	}
 
