@@ -60,6 +60,8 @@ static int hf_pkinit_trustedCertifiers_item = -1;  /* TrustedCA */
 static int hf_pkinit_kdcCert = -1;                /* IssuerAndSerialNumber */
 static int hf_pkinit_caName = -1;                 /* Name */
 static int hf_pkinit_issuerAndSerial = -1;        /* IssuerAndSerialNumber */
+static int hf_pkinit_dhSignedData = -1;           /* ContentInfo */
+static int hf_pkinit_encKeyPack = -1;             /* ContentInfo */
 
 /*--- End of included file: packet-pkinit-hf.c ---*/
 
@@ -71,6 +73,7 @@ static int hf_pkinit_issuerAndSerial = -1;        /* IssuerAndSerialNumber */
 static gint ett_pkinit_PaPkAsReq = -1;
 static gint ett_pkinit_SEQUNCE_OF_TrustedCA = -1;
 static gint ett_pkinit_TrustedCA = -1;
+static gint ett_pkinit_PaPkAsRep = -1;
 
 /*--- End of included file: packet-pkinit-ett.c ---*/
 
@@ -92,6 +95,12 @@ static int dissect_caName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 static int dissect_issuerAndSerial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_IssuerAndSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_pkinit_issuerAndSerial);
+}
+static int dissect_dhSignedData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_ContentInfo(FALSE, tvb, offset, pinfo, tree, hf_pkinit_dhSignedData);
+}
+static int dissect_encKeyPack(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_ContentInfo(FALSE, tvb, offset, pinfo, tree, hf_pkinit_encKeyPack);
 }
 
 
@@ -149,12 +158,39 @@ dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 }
 
 
+static const value_string PaPkAsRep_vals[] = {
+  {   0, "dhSignedData" },
+  {   1, "encKeyPack" },
+  { 0, NULL }
+};
+
+static ber_choice PaPkAsRep_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_dhSignedData },
+  {   1, BER_CLASS_CON, 1, 0, dissect_encKeyPack },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep);
+
+  return offset;
+}
+
+
 /*--- End of included file: packet-pkinit-fn.c ---*/
 
 
 int
 dissect_pkinit_PA_PK_AS_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   offset = dissect_pkinit_PaPkAsReq(FALSE, tvb, offset, pinfo, tree, -1);
+  return offset;
+}
+
+int
+dissect_pkinit_PA_PK_AS_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  offset = dissect_pkinit_PaPkAsRep(FALSE, tvb, offset, pinfo, tree, -1);
   return offset;
 }
 
@@ -191,6 +227,14 @@ void proto_register_pkinit(void) {
       { "issuerAndSerial", "pkinit.issuerAndSerial",
         FT_NONE, BASE_NONE, NULL, 0,
         "TrustedCA/issuerAndSerial", HFILL }},
+    { &hf_pkinit_dhSignedData,
+      { "dhSignedData", "pkinit.dhSignedData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PaPkAsRep/dhSignedData", HFILL }},
+    { &hf_pkinit_encKeyPack,
+      { "encKeyPack", "pkinit.encKeyPack",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PaPkAsRep/encKeyPack", HFILL }},
 
 /*--- End of included file: packet-pkinit-hfarr.c ---*/
 
@@ -204,6 +248,7 @@ void proto_register_pkinit(void) {
     &ett_pkinit_PaPkAsReq,
     &ett_pkinit_SEQUNCE_OF_TrustedCA,
     &ett_pkinit_TrustedCA,
+    &ett_pkinit_PaPkAsRep,
 
 /*--- End of included file: packet-pkinit-ettarr.c ---*/
 
