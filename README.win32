@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.20 2001/03/23 02:05:22 gram Exp $
+$Id: README.win32,v 1.21 2001/04/06 03:52:44 gram Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -82,17 +82,8 @@ Those versions are available from the respctive home pages for
 each project (the same URLs as listed above). The development
 packages contain header files and stub libaries to link against.
 
-SNMP and ZLIB are not working yet in Ethereal/Win32, but the
-libraries can be had from these locations if you want to hack:
-
-The UCD SNMP library for win32 can be had from
-
-	ftp://ftp.revelstone.com/pub/snmp/
-
-
-Zlib (or 'libz') is available for Win32 from
-
-	http://www.winimage.com/zLibDll/
+The use of an SNMP library has not been made to work
+yet in Ethereal/Win32, but an SNMP library can be had from:
 
 
 
@@ -101,6 +92,15 @@ Instructions for MS Visual C
 Modify the config.nmake file in the top directory of the Ethereal
 source tree to work for your local configuration. You should not
 have to modify any other Makefile.
+
+In order to compile, at least with the default settings, you
+also need zlib, which is provided as an archive library, not
+a DLL. The pre-compiled zlib which comes with the "extralibs"
+package from Gimp/Win32 is faulty; a working version can be
+downloaded from:
+
+http://www.ethereal.com/distribution/win32/zlib-1.1.3-fixed.zip
+
 
 Be sure that your command-line environment is set up to compile
 and link with MSVC. When installing MSVC, you can have your
@@ -118,12 +118,13 @@ to generate C source. The "special" files and their requisite tools are:
 
 Source				Output			Tool
 ------				------			----
+config.h.in			config.h		sed
 dfilter-scanner.l		*.c			Flex
 wiretap/ascend-scanner.l	*.c			Flex
 wiretap/ascend-grammar.y	*.c,*.h			Bison/Yacc
 ncp2222.py			packet-ncp2222.c	Python
 
-make-reg-dotc, packet*.c	register.c		Bash
+make-reg-dotc, packet*.c	register.c		Bash + grep + sed
 or
 make-reg-dotc.py, packet*.c	register.c		Python
 

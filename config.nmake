@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.11 2001/04/05 04:39:23 gram Exp $
+# $Id: config.nmake,v 1.12 2001/04/06 03:52:44 gram Exp $
 
 VERSION=0.8.16
 RC_VERSION=0,8,16
@@ -9,7 +9,7 @@ GLIB_VERSION=1.3
 
 GLIB_DIR=F:\gram\win32tools\src\glib
 GTK_DIR=F:\gram\win32tools\src\gtk+
-
+ZLIB_DIR=F:\gram\win32tools\src\zlib-1.1.3
 PCAP_DIR=F:\gram\win32tools\WPdpack
 
 LOCAL_CFLAGS=-Zi

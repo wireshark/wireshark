@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.18 2001/04/05 04:39:29 gram Exp $
+# $Id: Makefile.nmake,v 1.19 2001/04/06 03:52:45 gram Exp $
 #
 
 include ..\config.nmake
@@ -7,13 +7,10 @@ include <win32.mak>
 
 ############### no need to modify below this line #########
 
-CFLAGS=-DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)
-
-CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
-
+CFLAGS=-DHAVE_CONFIG_H /I$(GLIB_DIR) /I$(ZLIB_DIR) $(LOCAL_CFLAGS)
 
 {$S}.c{$O}.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) -Fd$O\ -c $<
+   $(CC) $(cvarsdll) $(CFLAGS) -Fd$O\ -c $<
 
 OBJECTS=ascend-grammar.obj \
 	ascend-scanner.obj \
@@ -39,7 +36,8 @@ OBJECTS=ascend-grammar.obj \
 
 
 wiretap_LIBS = \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib	\
+	$(ZLIB_DIR)\zlib.lib
 
 all: wiretap-$(WTAP_VERSION).dll
 
