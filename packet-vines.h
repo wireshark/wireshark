@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.5 2000/04/16 21:37:07 guy Exp $
+ * $Id: packet-vines.h,v 1.6 2000/08/25 18:46:11 deniel Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -38,8 +38,7 @@
 #ifndef __PACKETVINES_H__
 #define __PACKETVINES_H__
 
-void capture_vines(const u_char *, int, packet_counts *);
-void dissect_vines_frp(const u_char *, int, frame_data *, proto_tree *);
+#define VINES_ADDR_LEN	6
 
 /* VINES IP structs and definitions */
 
@@ -107,6 +106,9 @@ typedef struct _e_vsmb {
   guint16 vsmb_tflags;
   guint32 vsmb_ttw;
 } e_vsmb;
+
+void capture_vines(const u_char *, int, packet_counts *);
+void dissect_vines_frp(const u_char *, int, frame_data *, proto_tree *);
 
 /*
  * Routine to take a Vines address and generate a string.
