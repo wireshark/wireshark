@@ -440,9 +440,7 @@ static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset,
 {
 	tvbuff_t *auth_tvb;
 
-	auth_tvb = tvb_new_subset(
-		tvb, offset, tvb_length_remaining(tvb, offset),
-		tvb_length_remaining(tvb, offset));
+	auth_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 	dissect_gssapi(auth_tvb, pinfo, tree);
 
@@ -455,9 +453,7 @@ int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
 {
 	tvbuff_t *auth_tvb;
 
-	auth_tvb = tvb_new_subset(
-		tvb, offset, tvb_length_remaining(tvb, offset),
-		tvb_length_remaining(tvb, offset));
+	auth_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 	return dissect_gssapi_verf(auth_tvb, pinfo, tree);
 }
