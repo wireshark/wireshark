@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.43 2001/11/13 23:55:43 gram Exp $
+ * $Id: netmon.c,v 1.44 2001/12/04 23:38:55 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -254,9 +254,9 @@ int netmon_open(wtap *wth, int *err)
 	bytes_read = file_read(frame_table, 1, frame_table_length, wth->fh);
 	if ((guint32)bytes_read != frame_table_length) {
 		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		return 0;
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
 	}
 	wth->capture.netmon->frame_table_size = frame_table_size;
 	wth->capture.netmon->frame_table = frame_table;

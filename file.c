@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.248 2001/11/21 23:16:21 gram Exp $
+ * $Id: file.c,v 1.249 2001/12/04 23:38:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1895,7 +1895,7 @@ file_open_error_message(int err, gboolean for_writing)
 
   case WTAP_ERR_SHORT_READ:
     errmsg = "The file \"%s\" appears to have been cut short"
-             " in the middle of a packet.";
+             " in the middle of a packet or other data.";
     break;
 
   case WTAP_ERR_SHORT_WRITE:
