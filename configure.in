@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.55 1999/10/27 02:55:07 gram Exp $
+# $Id: configure.in,v 1.56 1999/10/27 05:34:39 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -109,6 +109,7 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h stdarg.h netdb.h)
 AC_CHECK_HEADERS(sys/stat.h sys/sockio.h sys/types.h netinet/in.h sys/socket.h net/if.h)
 AC_CHECK_HEADERS(sys/wait.h)
+AC_CHECK_HEADERS(stddef.h)
 
 dnl SNMP Check
 AC_ARG_ENABLE(snmp,
