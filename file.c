@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.305 2003/09/03 10:49:01 sahlberg Exp $
+ * $Id: file.c,v 1.306 2003/09/03 23:15:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1081,9 +1081,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
       }
     }
 
-    /* XXX - do something with "err" */
-    wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-    	cf->pd, fdata->cap_len, &err);
+    if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
+    	cf->pd, fdata->cap_len, &err)) {
+	simple_dialog(ESD_TYPE_CRIT, NULL,
+		      file_read_error_message(err), cf->filename);
+	break;
+    }
 
     row = add_packet_to_packet_list(fdata, cf, &cf->pseudo_header, cf->pd,
 					refilter);
@@ -1268,9 +1271,12 @@ print_packets(capture_file *cf, print_args_t *print_args)
      */
     if (((print_args->suppress_unmarked && fdata->flags.marked ) ||
         !(print_args->suppress_unmarked)) && fdata->flags.passed_dfilter) {
-      /* XXX - do something with "err" */
-      wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-      			cf->pd, fdata->cap_len, &err);
+      if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
+      			   cf->pd, fdata->cap_len, &err)) {
+        simple_dialog(ESD_TYPE_CRIT, NULL,
+		      file_read_error_message(err), cf->filename);
+        break;
+      }
       if (print_args->print_summary) {
         /* Fill in the column information, but don't bother creating
            the logical protocol tree. */
@@ -1881,9 +1887,12 @@ find_packet(capture_file *cf,
       /* Is this packet in the display? */
       if (fdata->flags.passed_dfilter) {
       	/* Yes.  Load its data. */
-        /* XXX - do something with "err" */
-        wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
-        		cf->pd, fdata->cap_len, &err);
+        if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
+        		cf->pd, fdata->cap_len, &err)) {
+          simple_dialog(ESD_TYPE_CRIT, NULL,
+			file_read_error_message(err), cf->filename);
+          break;
+        }
 
 	/* Does it match the search criterion? */
 	if ((*match_function)(cf, fdata, criterion)) {
@@ -1991,13 +2000,16 @@ select_packet(capture_file *cf, int row)
          fdata = cf->first_displayed;
   }
 
+  /* Get the data in that frame. */
+  if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
+  		       cf->pd, fdata->cap_len, &err)) {
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+		  file_read_error_message(err), cf->filename);
+    return;
+  }
+
   /* Record that this frame is the current frame. */
   cf->current_frame = fdata;
-
-  /* Get the data in that frame. */
-  /* XXX - do something with "err" */
-  wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-  			cf->pd, fdata->cap_len, &err);
 
   /* Create the logical protocol tree. */
   if (cf->edt != NULL) {
