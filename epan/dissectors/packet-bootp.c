@@ -794,6 +794,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	case 61:	/* Client Identifier */
 		if (vlen > 0)
 			byte = tvb_get_guint8(tvb, voff+2);
+		else
+			byte = 0;
 
 		/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
 		   guess that the first is the hwtype, and the last 6
@@ -2566,9 +2568,9 @@ proto_register_bootp(void)
       	"Server should do ddns update", HFILL }},
 
     { &hf_bootp_fqdn_o,
-      { "Serveroverrides",	"bootp.fqdn.o",		FT_BOOLEAN,
+      { "Server overrides",	"bootp.fqdn.o",		FT_BOOLEAN,
         8,			TFS(&tfs_fqdn_o),	F_FQDN_O,
-      	"Server insists on doing ddns update", HFILL }},
+      	"Server insists on doing DDNS update", HFILL }},
 
     { &hf_bootp_fqdn_e,
       { "Binary encoding",	"bootp.fqdn.e",		FT_BOOLEAN,
@@ -2578,7 +2580,7 @@ proto_register_bootp(void)
     { &hf_bootp_fqdn_n,
       { "No server ddns",	"bootp.fqdn.n",		FT_BOOLEAN,
         8,			TFS(&tfs_fqdn_n),	F_FQDN_N,
-      	"Server should not do any ddns updates", HFILL }},
+      	"Server should not do any DDNS updates", HFILL }},
 
     { &hf_bootp_fqdn_mbz,
       { "Reserved flags",	"bootp.fqdn.mbz",	FT_UINT8,
