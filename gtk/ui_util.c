@@ -167,7 +167,7 @@ window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_n
   window_geometry_t geom;
   GtkWidget *win = window_new(type, title);
 
-  OBJECT_SET_DATA(win, WINDOW_GEOM_KEY, (gpointer)geom_name);
+  OBJECT_SET_DATA(win, WINDOW_GEOM_KEY, (gpointer)g_strdup(geom_name));
 
   /* do we have a previously saved size and position of this window? */
   if(geom_name) {
@@ -527,6 +527,7 @@ window_destroy(GtkWidget *win)
       name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
       if(name) {
         window_geom_save(name, &geom);
+        g_free((gpointer)name);
       }
   }
 
