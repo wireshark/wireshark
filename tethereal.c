@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.99 2001/11/21 23:16:21 gram Exp $
+ * $Id: tethereal.c,v 1.100 2001/12/04 07:32:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,7 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -32,6 +31,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <locale.h>
 #include <limits.h>
 
@@ -104,6 +104,8 @@
 #include "reassemble.h"
 #include "plugins.h"
 #include "register.h"
+#include "conditions.h"
+#include "capture_stop_conditions.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -121,6 +123,7 @@ typedef struct _loop_data {
   gint           linktype;
   pcap_t        *pch;
   wtap_dumper   *pdh;
+  gboolean       go;
 } loop_data;
 
 static loop_data ld;
@@ -158,8 +161,11 @@ print_usage(void)
   fprintf(stderr, "This is GNU t%s %s, compiled %s\n", PACKAGE, VERSION,
 	comp_info_str->str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "t%s [ -DvVhlp ] [ -c <count> ] [ -f <capture filter> ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -F <capture file type> ] [ -i <interface> ] [ -n ] [ -N <resolving> ]\n");
+  fprintf(stderr, "t%s [ -DvVhlp ] [ -a <capture autostop condition> ] ...\n",
+	  PACKAGE);
+  fprintf(stderr, "\t[ -b <number of ring buffer files> ] [ -c <count> ]\n");
+  fprintf(stderr, "\t[ -f <capture filter> ] [ -F <capture file type> ]\n");
+  fprintf(stderr, "\t[ -i <interface> ] [ -n ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -s <snaplen> ] [ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
 #else
@@ -176,7 +182,7 @@ print_usage(void)
   fprintf(stderr, "\tdefault is libpcap\n");
 }
 
-int
+static int
 get_positive_int(const char *string, const char *name)
 {
   long number;
@@ -201,6 +207,51 @@ get_positive_int(const char *string, const char *name)
   return number;
 }
 
+/*
+ * Given a string of the form "<autostop criterion>:<value>", as might appear
+ * as an argument to a "-a" option, parse it and set the criterion in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+static gboolean
+set_autostop_criterion(const char *autostoparg)
+{
+  u_char *p, *colonp;
+
+  colonp = strchr(autostoparg, ':');
+  if (colonp == NULL)
+    return FALSE;
+
+  p = colonp;
+  *p++ = '\0';
+
+  /*
+   * Skip over any white space (there probably won't be any, but
+   * as we allow it in the preferences file, we might as well
+   * allow it here).
+   */
+  while (isspace(*p))
+    p++;
+  if (*p == '\0') {
+    /*
+     * Put the colon back, so if our caller uses, in an
+     * error message, the string they passed us, the message
+     * looks correct.
+     */
+    *colonp = ':';
+    return FALSE;
+  }
+  if (strcmp(autostoparg,"duration") == 0) {
+    cfile.autostop_duration = get_positive_int(p,"autostop duration");
+  } else if (strcmp(autostoparg,"filesize") == 0) {
+    cfile.autostop_filesize = get_positive_int(p,"autostop filesize");
+  } else {
+    return FALSE;
+  }
+  *colonp = ':';	/* put the colon back */
+  return TRUE;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -223,7 +274,7 @@ main(int argc, char *argv[])
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             capture_filter_specified = FALSE;
-  int                  packet_count = 0;
+  guint                packet_count = 0;
   GList               *if_list, *if_entry;
   gchar                err_str[PCAP_ERRBUF_SIZE];
 #else
@@ -291,6 +342,10 @@ main(int argc, char *argv[])
   cfile.save_file_fd	= -1;
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
+#ifdef HAVE_LIBPCAP
+  cfile.autostop_duration = 0;
+  cfile.autostop_filesize = 0;
+#endif
   col_init(&cfile.cinfo, prefs->num_cols);
 
   /* Assemble the compile-time options */
@@ -347,8 +402,19 @@ main(int argc, char *argv[])
 #endif
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "c:Df:F:hi:lnN:o:pr:R:s:t:vw:Vx")) != EOF) {
+  while ((opt = getopt(argc, argv, "a:c:Df:F:hi:lnN:o:pr:R:s:t:vw:Vx")) != EOF) {
     switch (opt) {
+      case 'a':        /* autostop criteria */
+#ifdef HAVE_LIBPCAP
+        if (set_autostop_criterion(optarg) == FALSE) {
+          fprintf(stderr, "ethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
+          exit(1);          
+        }
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
         packet_count = get_positive_int(optarg, "packet count");
@@ -652,6 +718,8 @@ capture(int packet_count, int out_file_type)
   void        (*oldhandler)(int);
   int         err, inpkts;
   char        errmsg[1024+1];
+  condition *cnd_stop_capturesize;
+  condition *cnd_stop_timeout;
 #ifndef _WIN32
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
@@ -787,7 +855,35 @@ capture(int packet_count, int out_file_type)
   fprintf(stderr, "Capturing on %s\n", cfile.iface);
   fflush(stderr);
 
-  inpkts = pcap_loop(ld.pch, packet_count, capture_pcap_cb, (u_char *) &ld);
+  /* initialize capture stop conditions */ 
+  init_capture_stop_conditions();
+  /* create stop conditions */ 
+  cnd_stop_capturesize = cnd_new((char*)CND_CLASS_CAPTURESIZE,
+                                 (guint32)cfile.autostop_filesize * 1000);
+  cnd_stop_timeout = cnd_new((char*)CND_CLASS_TIMEOUT,
+                             (gint32)cfile.autostop_duration);
+
+  if (packet_count == 0)
+    packet_count = -1; /* infinite capturng */
+  ld.go = TRUE;
+  while (ld.go) {
+    if (packet_count > 0)
+      packet_count--;
+    inpkts = pcap_dispatch(ld.pch, 1, capture_pcap_cb, (u_char *) &ld);
+    if (packet_count == 0) {
+      ld.go = FALSE;
+    } else if (cnd_eval(cnd_stop_timeout) == TRUE) {
+      ld.go = FALSE;
+    } else if ((cnd_eval(cnd_stop_capturesize, 
+                  (guint32)wtap_get_bytes_dumped(ld.pdh))) == TRUE){
+      /* A capture stop condition has become true. */
+      ld.go = FALSE;
+    }
+  }
+  
+  /* delete stop conditions */
+  cnd_delete(cnd_stop_capturesize);
+  cnd_delete(cnd_stop_timeout);
 
   if (cfile.save_file != NULL) {
     /* We're saving to a file, which means we're printing packet counts
@@ -812,6 +908,7 @@ capture(int packet_count, int out_file_type)
     fprintf(stderr, "tethereal: Can't get packet-drop statistics: %s\n",
 	pcap_geterr(ld.pch));
   }
+
   pcap_close(ld.pch);
 
   if (cfile.save_file != NULL) {
@@ -860,17 +957,9 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
 static void
 capture_cleanup(int signum)
 {
-  int err;
-
-  fprintf(stderr, "\n");
-  pcap_close(ld.pch);
-  if (ld.pdh != NULL) {
-    if (!wtap_dump_close(ld.pdh, &err)) {
-      show_capture_file_io_error(cfile.save_file, err, TRUE);
-      exit(2);
-    }
-  }
-  exit(0);
+  /* Just set the loop flag to false. This will initiate 
+     a proper termination. */
+  ld.go = FALSE;
 }
 #endif /* HAVE_LIBPCAP */
 

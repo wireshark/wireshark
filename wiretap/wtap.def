@@ -16,6 +16,7 @@ wtap_file_encap
 wtap_file_type
 wtap_file_type_short_string
 wtap_file_type_string
+wtap_get_bytes_dumped
 wtap_loop
 wtap_open_offline
 wtap_pcap_encap_to_wtap_encap

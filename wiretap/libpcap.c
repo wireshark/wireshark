@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.61 2001/11/30 07:14:22 guy Exp $
+ * $Id: libpcap.c,v 1.62 2001/12/04 07:32:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1022,6 +1022,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
+	wdh->bytes_dumped += sizeof magic;
 
 	/* current "libpcap" format is 2.4 */
 	file_hdr.version_major = 2;
@@ -1038,6 +1039,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
+	wdh->bytes_dumped += sizeof file_hdr;
 
 	return TRUE;
 }
@@ -1122,6 +1124,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
+	wdh->bytes_dumped += hdr_size;
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
 		if (nwritten == 0 && ferror(wdh->fh))
@@ -1130,5 +1133,6 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
+        wdh->bytes_dumped += phdr->caplen;
 	return TRUE;
 }

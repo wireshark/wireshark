@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.74 2001/11/13 23:55:43 gram Exp $
+ * $Id: file.c,v 1.75 2001/12/04 07:32:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -544,6 +544,7 @@ static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
 	wdh->file_type = filetype;
 	wdh->snaplen = snaplen;
 	wdh->encap = encap;
+	wdh->bytes_dumped = 0;
 	wdh->dump.opaque = NULL;
 	wdh->subtype_write = NULL;
 	wdh->subtype_close = NULL;
@@ -603,4 +604,9 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 		g_free(wdh->dump.opaque);
 	g_free(wdh);
 	return ret;
+}
+
+int wtap_get_bytes_dumped(wtap_dumper *wdh)
+{
+	return wdh->bytes_dumped;
 }

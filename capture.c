@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.161 2001/11/30 07:14:20 guy Exp $
+ * $Id: capture.c,v 1.162 2001/12/04 07:32:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,6 +145,8 @@
 #include "simple_dialog.h"
 #include "prefs.h"
 #include "globals.h"
+#include "conditions.h"
+#include "capture_stop_conditions.h"
 
 #include "wiretap/libpcap.h"
 #include "wiretap/wtap.h"
@@ -311,7 +313,9 @@ do_capture(char *capfile_name)
 
   if (prefs.capture_real_time) {	/* do the capture in a child process */
     char ssnap[24];
-    char scount[24];	/* need a constant for len of numbers */
+    char scount[24];			/* need a constant for len of numbers */
+    char sautostop_filesize[24];	/* need a constant for len of numbers */
+    char sautostop_duration[24];	/* need a constant for len of numbers */
     char save_file_fd[24];
     char errmsg[1024+1];
     int error;
@@ -349,6 +353,14 @@ do_capture(char *capfile_name)
     argv = add_arg(argv, &argc, "-s");
     sprintf(ssnap,"%d",cfile.snap);
     argv = add_arg(argv, &argc, ssnap);
+
+    argv = add_arg(argv, &argc, "-a");
+    sprintf(sautostop_filesize,"filesize:%u",cfile.autostop_filesize);
+    argv = add_arg(argv, &argc, sautostop_filesize);
+
+    argv = add_arg(argv, &argc, "-a");
+    sprintf(sautostop_duration,"duration:%d",cfile.autostop_duration);
+    argv = add_arg(argv, &argc, sautostop_duration);
 
     if (!prefs.capture_prom_mode)
       argv = add_arg(argv, &argc, "-p");
@@ -1217,6 +1229,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   struct bpf_program fcode;
   time_t      upd_time, cur_time;
   int         err, inpkts;
+  condition *cnd_stop_capturesize;
+  condition *cnd_stop_timeout;
   unsigned int i;
   static const char capstart_msg = SP_CAPSTART;
   char        errmsg[4096+1];
@@ -1537,6 +1551,14 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
    */
   signal(SIGUSR1, stop_capture);
 #endif
+  /* initialize capture stop conditions */ 
+  init_capture_stop_conditions();
+  /* create stop conditions */
+  cnd_stop_capturesize = 
+    cnd_new(CND_CLASS_CAPTURESIZE,(guint32)cfile.autostop_filesize * 1000); 
+  cnd_stop_timeout = 
+    cnd_new(CND_CLASS_TIMEOUT,(gint32)cfile.autostop_duration);
+
   while (ld.go) {
     while (gtk_events_pending()) gtk_main_iteration();
 
@@ -1606,6 +1628,13 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     }
     if (inpkts > 0)
       ld.sync_packets += inpkts;
+    /* check capture stop conditons */
+    if (cnd_eval(cnd_stop_timeout) == TRUE) {
+      ld.go = FALSE;
+    } else if ((cnd_eval(cnd_stop_capturesize, 
+                  (guint32)wtap_get_bytes_dumped(ld.pdh))) == TRUE){
+      ld.go = FALSE;
+    }
     /* Only update once a second so as not to overload slow displays */
     cur_time = time(NULL);
     if (cur_time > upd_time) {
@@ -1637,6 +1666,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     }
   }
     
+  /* delete stop conditions */
+  cnd_delete(cnd_stop_capturesize);
+  cnd_delete(cnd_stop_timeout);
+
   if (ld.err != 0) {
     get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, ld.err,
 			      FALSE);

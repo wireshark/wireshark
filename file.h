@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.84 2001/07/05 00:34:39 guy Exp $
+ * $Id: file.h,v 1.85 2001/12/04 07:32:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,6 +86,10 @@ typedef struct _capture_file {
   proto_tree  *protocol_tree; /* Protocol tree for currently selected packet */
   epan_dissect_t *edt; /* Protocol dissection fo rcurrently selected packet */
   FILE        *print_fh;  /* File we're printing to */
+#ifdef HAVE_LIBPCAP
+  guint32      autostop_filesize; /* Maximum capture file size */
+  gint32       autostop_duration; /* Maximum capture duration */
+#endif
 } capture_file;
 
 /* Return values from "read_cap_file()", "continue_tail_cap_file()",

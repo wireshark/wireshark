@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.48 2001/11/09 07:44:49 guy Exp $
+ * $Id: capture_dlg.c,v 1.49 2001/12/04 07:32:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,8 @@
 #define E_CAP_M_RESOLVE_KEY   "cap_m_resolve"
 #define E_CAP_N_RESOLVE_KEY   "cap_n_resolve"
 #define E_CAP_T_RESOLVE_KEY   "cap_t_resolve"
+#define E_CAP_FILESIZE_KEY    "cap_filesize"
+#define E_CAP_DURATION_KEY    "cap_duration"
 
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
@@ -119,14 +121,18 @@ capture_prep_cb(GtkWidget *w, gpointer d)
                 *count_lb, *count_cb, *main_vb,
                 *filter_bt, *filter_te,
                 *file_bt, *file_te,
+                *filesize_lb, *filesize_cb,
+                *duration_lb, *duration_cb,
                 *caplen_hb, *table,
                 *bbox, *ok_bt, *cancel_bt, *snap_lb,
                 *snap_sb, *promisc_cb, *sync_cb, *auto_scroll_cb,
-		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+                *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
   GtkAccelGroup *accel_group;
-  GtkAdjustment *adj;
-  GList         *if_list, *count_list = NULL;
-  gchar         *count_item1 = "0 (Infinite)", count_item2[16];
+  GtkAdjustment *snap_adj;
+  GList         *if_list, *count_list = NULL, *filesize_list = NULL, *duration_list = NULL;
+  gchar         *count_item1 = "0 (Infinite)", count_item2[16],
+                *filesize_item1 = "0 (Infinite)", filesize_item2[16],
+                *duration_item1 = "0 (Infinite)", duration_item2[16];
   int           err;
   char          err_str[PCAP_ERRBUF_SIZE];
 
@@ -181,8 +187,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(cap_open_w), main_vb);
   gtk_widget_show(main_vb);
   
-  /* Table : container of the first 4 rows */
-  table = gtk_table_new (4, 2, FALSE);
+  /* Table : container of the first 6 rows */
+  table = gtk_table_new (6, 2, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE (table), 5);
   gtk_table_set_col_spacings(GTK_TABLE (table), 5);
   gtk_container_add(GTK_CONTAINER(main_vb), table);
@@ -226,34 +232,74 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   while (count_list)
     count_list = g_list_remove_link(count_list, count_list);
 
+  /* Filesize row */
+  
+  filesize_lb = gtk_label_new("File size:");
+  gtk_table_attach_defaults(GTK_TABLE(table), filesize_lb, 0, 1, 2, 3);
+  gtk_widget_show(filesize_lb);
+  
+  filesize_list = g_list_append(filesize_list, filesize_item1);
+  if (cfile.autostop_filesize) {
+    snprintf(filesize_item2, 15, "%u", cfile.autostop_filesize);
+    filesize_list = g_list_append(filesize_list, filesize_item2);
+  }
+
+  filesize_cb = gtk_combo_new();
+  gtk_combo_set_popdown_strings(GTK_COMBO(filesize_cb), filesize_list);
+  gtk_table_attach_defaults(GTK_TABLE(table), filesize_cb, 1, 2, 2, 3);
+  gtk_widget_show(filesize_cb);
+
+  while (filesize_list)
+    filesize_list = g_list_remove_link(filesize_list, filesize_list);
+
+  /* Duration row */
+  
+  duration_lb = gtk_label_new("Duration:");
+  gtk_table_attach_defaults(GTK_TABLE(table), duration_lb, 0, 1, 3, 4);
+  gtk_widget_show(duration_lb);
+  
+  duration_list = g_list_append(duration_list, duration_item1);
+  if (cfile.autostop_duration) {
+    snprintf(duration_item2, 15, "%d", cfile.autostop_duration);
+    duration_list = g_list_append(duration_list, duration_item2);
+  }
+
+  duration_cb = gtk_combo_new();
+  gtk_combo_set_popdown_strings(GTK_COMBO(duration_cb), duration_list);
+  gtk_table_attach_defaults(GTK_TABLE(table), duration_cb, 1, 2, 3, 4);
+  gtk_widget_show(duration_cb);
+
+  while (duration_list)
+    duration_list = g_list_remove_link(duration_list, duration_list);
+
   /* Filter row */
   
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
     GTK_SIGNAL_FUNC(capture_filter_construct_cb), NULL);
-  gtk_table_attach_defaults(GTK_TABLE(table), filter_bt, 0, 1, 2, 3);
+  gtk_table_attach_defaults(GTK_TABLE(table), filter_bt, 0, 1, 4, 5);
   gtk_widget_show(filter_bt);
   
   filter_te = gtk_entry_new();
   if (cfile.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
-  gtk_table_attach_defaults(GTK_TABLE(table), filter_te, 1, 2, 2, 3);
+  gtk_table_attach_defaults(GTK_TABLE(table), filter_te, 1, 2, 4, 5);
   gtk_widget_show(filter_te);
   
   /* File row */
   
   file_bt = gtk_button_new_with_label("File:");
-  gtk_table_attach_defaults(GTK_TABLE(table), file_bt, 0, 1, 3, 4);
+  gtk_table_attach_defaults(GTK_TABLE(table), file_bt, 0, 1, 5, 6);
   gtk_widget_show(file_bt);
   
   file_te = gtk_entry_new();
-  gtk_table_attach_defaults(GTK_TABLE(table), file_te, 1, 2, 3, 4);
+  gtk_table_attach_defaults(GTK_TABLE(table), file_te, 1, 2, 5, 6);
   gtk_widget_show(file_te);
 
   gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
     GTK_SIGNAL_FUNC(capture_prep_file_cb), GTK_OBJECT(file_te));
 
-  /* Misc row: Capture file checkbox and snap spinbutton */
+  /* Misc row: Snap spinbutton */
   caplen_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(main_vb), caplen_hb);
   gtk_widget_show(caplen_hb);
@@ -263,9 +309,9 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_box_pack_start(GTK_BOX(caplen_hb), snap_lb, FALSE, FALSE, 6);
   gtk_widget_show(snap_lb);
 
-  adj = (GtkAdjustment *) gtk_adjustment_new((float) cfile.snap,
+  snap_adj = (GtkAdjustment *) gtk_adjustment_new((float) cfile.snap,
     MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
-  snap_sb = gtk_spin_button_new (adj, 0, 0);
+  snap_sb = gtk_spin_button_new (snap_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
   gtk_widget_set_usize (snap_sb, 80, 0);
   gtk_box_pack_start (GTK_BOX(caplen_hb), snap_sb, FALSE, FALSE, 3); 
@@ -277,6 +323,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), promisc_cb);
   gtk_widget_show(promisc_cb);
 
+  /* Misc row: Capture file checkboxes */
   sync_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"_Update list of packets in real time", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), prefs.capture_real_time);
@@ -344,6 +391,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILESIZE_KEY,  filesize_cb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_DURATION_KEY,  duration_cb);
 
   /* Catch the "activate" signal on the frame number and file name text
      entries, so that if the user types Return there, we act as if the
@@ -462,14 +511,45 @@ cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data)
   gtk_widget_destroy(GTK_WIDGET(win));
 }
 
+static int
+get_positive_int(const char *string, const char *name)
+{
+  long number;
+  char *p;
+
+  number = strtol(string, &p, 10);
+  /*
+   * XXX - we allow extra stuff after 0, so that we don't have
+   * problems with the "(Infinite)" value.
+   */
+  if (p == string || (*p != '\0' && number != 0)) {
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+        "The specified %s is not a decimal number.", name);
+    return -1;
+  }
+  if (number < 0) {
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+        "The specified %s is a negative number.", name);
+    return -1;
+  }
+  if (number > INT_MAX) {
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+        "The specified %s is too large (greater than %d).", name, INT_MAX);
+    return -1;
+  }
+  return number;
+}
+
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *snap_sb, *promisc_cb,
-            *sync_cb, *auto_scroll_cb, *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+            *sync_cb, *auto_scroll_cb, *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
+            *filesize_cb, *duration_cb;
   gchar *if_text;
   gchar *if_name;
   gchar *filter_text;
   gchar *save_file;
+  int value;
 
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
   filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILT_KEY);
@@ -482,6 +562,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   m_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_M_RESOLVE_KEY);
   n_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_N_RESOLVE_KEY);
   t_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_T_RESOLVE_KEY);
+  filesize_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILESIZE_KEY);
+  duration_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_DURATION_KEY);
 
   if_text =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
@@ -521,6 +603,18 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   }
 
   cfile.count = atoi(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry)));
+
+  value = get_positive_int(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(filesize_cb)->entry)),
+      "maximum capture file size");
+  if (value == -1)
+    return;	/* error */
+  cfile.autostop_filesize = value;
+
+  value = get_positive_int(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(duration_cb)->entry)),
+      "capture duration");
+  if (value == -1)
+    return;	/* error */
+  cfile.autostop_duration = value;
 
   cfile.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
   if (cfile.snap < 1)

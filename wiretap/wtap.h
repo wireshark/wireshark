@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.96 2001/11/30 07:14:22 guy Exp $
+ * $Id: wtap.h,v 1.97 2001/12/04 07:32:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -339,6 +339,7 @@ gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
 	const union wtap_pseudo_header *pseudo_header, const u_char *, int *err);
 FILE* wtap_dump_file(wtap_dumper *);
 gboolean wtap_dump_close(wtap_dumper *, int *);
+int wtap_get_bytes_dumped(wtap_dumper *);
 
 /* XXX - needed until "wiretap" can do live packet captures */
 int wtap_pcap_encap_to_wtap_encap(int encap);

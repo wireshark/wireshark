@@ -6,6 +6,7 @@ tethereal - Dump and analyze network traffic
 =head1 SYNOPSYS
 
 B<tethereal>
+S<[ B<-a> capture autostop condition ] ...>
 S<[ B<-c> count ]>
 S<[ B<-D> ]>
 S<[ B<-f> capture filter expression ]>
@@ -14,7 +15,7 @@ S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-l> ]>
 S<[ B<-n> ]>
-S<[ B<-N> resolving flags ] ...>
+S<[ B<-N> resolving flags ]>
 S<[ B<-o> preference setting ] ...>
 S<[ B<-p> ]>
 S<[ B<-r> infile ]>
@@ -107,6 +108,29 @@ B<-r> flag was specified).
 =head1 OPTIONS
 
 =over 4
+
+=item -a
+
+Specify a criterion that specifies when B<Tethereal> is to stop writing
+to a capture file.  The criterion is of the form I<test>B<:>I<value>,
+where I<test> is one of:
+
+=for man .RS
+
+=for html <P><DL>
+
+=item duration
+
+Stop writing to a capture file after I<value> seconds have elapsed.
+
+=item filesize
+
+Stop writing to a capture file after it reaches a size of I<value>
+kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).
+
+=for man .RE
+
+=for html </DL>
 
 =item -c
 

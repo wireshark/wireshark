@@ -805,6 +805,13 @@ Thomas Wittwer <thomas.wittwer[AT]iclip.ch> {
 	HTTP dissector registered by name
 	"prefs_register_string_preference()" made available to plugins
 	Remove unnecessary calls to "prefs_module_foreach()"
+	Support for stopping capture at specified capture file size or
+	    capture duration
+}
+
+Matthias Nyffenegger <matthias.nyffenegger[AT]iclip.ch> {
+	Support for stopping capture at specified capture file size or
+	    capture duration
 }
 
 Palle Lyckegaard <Palle[AT]lyckegaard.dk> {

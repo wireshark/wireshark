@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.213 2001/11/24 08:46:13 guy Exp $
+ * $Id: main.c,v 1.214 2001/12/04 07:32:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -792,10 +793,10 @@ print_usage(void) {
   fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled %s\n",
 	  comp_info_str->str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "%s [ -vh ] [ -klpQS ] [ -B <byte view height> ] [ -c <count> ]\n",
+  fprintf(stderr, "%s [ -vh ] [ -klpQS ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -f <capture filter> ] [ -i <interface> ] [ -m <medium font> ] \n");
-  fprintf(stderr, "\t[ -n ] [ -N <resolving> ]\n");
+  fprintf(stderr, "\t[ -B <byte view height> ] [ -c <count> ] [ -f <capture filter> ]\n");
+  fprintf(stderr, "\t[ -i <interface> ] [ -m <medium font> ] [ -n ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
   fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
@@ -820,7 +821,7 @@ show_version(void)
   printf("%s %s, %s\n", PACKAGE, VERSION, comp_info_str->str);
 }
 
-int
+static int
 get_positive_int(const char *string, const char *name)
 {
   long number;
@@ -843,6 +844,51 @@ get_positive_int(const char *string, const char *name)
     exit(1);
   }
   return number;
+}
+
+/*
+ * Given a string of the form "<autostop criterion>:<value>", as might appear
+ * as an argument to a "-a" option, parse it and set the criterion in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+static gboolean
+set_autostop_criterion(const char *autostoparg)
+{
+  u_char *p, *colonp;
+
+  colonp = strchr(autostoparg, ':');
+  if (colonp == NULL)
+    return FALSE;
+
+  p = colonp;
+  *p++ = '\0';
+
+  /*
+   * Skip over any white space (there probably won't be any, but
+   * as we allow it in the preferences file, we might as well
+   * allow it here).
+   */
+  while (isspace(*p))
+    p++;
+  if (*p == '\0') {
+    /*
+     * Put the colon back, so if our caller uses, in an
+     * error message, the string they passed us, the message
+     * looks correct.
+     */
+    *colonp = ':';
+    return FALSE;
+  }
+  if (strcmp(autostoparg,"duration") == 0) {
+    cfile.autostop_duration = get_positive_int(p,"autostop duration");
+  } else if (strcmp(autostoparg,"filesize") == 0) {
+    cfile.autostop_filesize = get_positive_int(p,"autostop filesize");
+  } else {
+    return FALSE;
+  }
+  *colonp = ':'; /* put the colon back */
+  return TRUE;
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -996,6 +1042,10 @@ main(int argc, char *argv[])
   cfile.save_file_fd	= -1;
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
+#ifdef HAVE_LIBPCAP
+  cfile.autostop_duration = 0;
+  cfile.autostop_filesize = 0;
+#endif
   col_init(&cfile.cinfo, prefs->num_cols);
 
   /* Assemble the compile-time options */
@@ -1061,8 +1111,19 @@ main(int argc, char *argv[])
 #endif
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:W:vZ:")) !=  EOF) {
+  while ((opt = getopt(argc, argv, "a:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:W:vZ:")) !=  EOF) {
     switch (opt) {
+      case 'a':        /* autostop criteria */
+#ifdef HAVE_LIBPCAP
+        if (set_autostop_criterion(optarg) == FALSE) {
+          fprintf(stderr, "ethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
+          exit(1);          
+        }
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
       case 'B':        /* Byte view pane height */
         bv_size = get_positive_int(optarg, "byte view pane height");
         break;
