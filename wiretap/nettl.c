@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.6 2000/02/17 21:08:15 oabad Exp $
+ * $Id: nettl.c,v 1.7 2000/02/19 08:06:27 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -212,6 +212,8 @@ static int nettl_read(wtap *wth, int *err)
 	wth->data_offset += length;
 	break;
     default:
+	g_message("nettl: network type %u unknown or unsupported",
+		    encap[3]);
 	*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 	return -1;
     }
