@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.84 1999/08/28 01:51:57 guy Exp $
+ * $Id: file.c,v 1.85 1999/08/28 23:47:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -489,32 +489,15 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 		fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
 	else
 		fdata->passed_dfilter = TRUE;
-	/* Apply color filters.  The debuggery can come out real soon! */
-#ifdef DEBUG_COLOR_FILTERS
-	fprintf(stderr, "Processing %d filters...\n",cf->colors->num_of_filters);
-	fflush(stderr);
-#endif
+	/* Apply color filters. */
 	color = -1;
         for(crow = 0; cf->colors->num_of_filters && 
 	      crow < cf->colors->num_of_filters; crow++) {
-#ifdef DEBUG_COLOR_FILTERS
-            fprintf(stderr, "Does it match filter %s (%d)? ",
-              get_color_filter_name(cf,crow),crow);
-            fflush(stderr);
-#endif
             if(dfilter_apply(color_filter(cf,crow)->c_colorfilter, protocol_tree,
 		 cf->pd)){
                 color = crow;
-#ifdef DEBUG_COLOR_FILTERS
-                fprintf(stderr,"yes\n");
-#endif
+		break;
             }
-#ifdef DEBUG_COLOR_FILTERS
-            else {
-                fprintf(stderr,"no\n") ;
-                fflush(stderr);
-	    }
-#endif
         }
 
 	proto_tree_free(protocol_tree);
@@ -581,11 +564,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
                    &BLACK);
 
 	}
-
-#ifdef DEBUG_COLOR_FILTERS
-        fprintf(stderr,"Now row %d\n", row+2);
-        fflush(stderr);    
-#endif
 
     /* If this was the selected packet, remember the row it's in, so
        we can re-select it.  ("selected_packet" is 0-origin, as it's

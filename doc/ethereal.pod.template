@@ -209,6 +209,23 @@ but is likely either /var/tmp or /tmp.
 Sets the format of the packet timestamp displayed in the packet list
 window to relative, absolute, or delta.
 
+=item Display:Match Selected
+
+Creates and applies a display filter based on the data that is currently
+highlighted in the protocol tree. The display filter is based on absolute
+offset within the packet, so could be unreliable if the packet contains
+protocols with variable-length headers, like source-routed token-ring.
+
+=item Display:Colorize Display
+
+Allows you to change the foreground and background colors of the packet
+information in the list of packets, based upon display filters.  The list
+of display filters is applied to each packet sequentially. After the first
+display filter matches a packet, any additional display filters in the list
+are ignored. Therefore, if you are filtering on the existence of protocols,
+you should list the higher-level protocols first, and the lower-level
+protocols last.
+
 =item Tools:Follow TCP Stream
 
 If you have a TCP packet selected, it will display the contents of the TCP

@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.5 1999/08/28 02:18:15 gram Exp $
+ * $Id: colors.c,v 1.6 1999/08/28 23:47:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -706,7 +706,8 @@ create_color_win (capture_file *cf)
   gtk_box_pack_start (GTK_BOX (vbox2), color_filt_up, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, color_filt_up, ("Move filter higher in list"), NULL);
 
-  label4 = gtk_label_new (("Move filter\nup or down\n[List is processed \nin order]"));
+  label4 = gtk_label_new (("Move filter\nup or down\n[List is processed \n"
+			  "in order until\nmatch is found]"));
   gtk_widget_ref (label4);
   gtk_object_set_data_full (GTK_OBJECT (color_win), "label4", label4,
                             (GtkDestroyNotify) gtk_widget_unref);
