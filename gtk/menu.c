@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.183 2004/04/25 22:14:17 ulfl Exp $
+ * $Id: menu.c,v 1.184 2004/05/01 17:22:08 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1552,8 +1552,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   set_menu_sensitivity(main_menu_factory, "/View/Zoom Out",
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/View/Normal Size",
-      have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/View/Coloring Rules...",
       have_captured_packets);
   set_menu_sensitivity(packet_list_menu_factory, "/Coloring Rules...",
       have_captured_packets);

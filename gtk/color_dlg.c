@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.46 2004/04/17 01:12:47 guy Exp $
+ * $Id: color_dlg.c,v 1.47 2004/05/01 17:22:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -951,6 +951,9 @@ create_new_color_filter(GtkButton *button, char *filter)
   edit_color_filter_dialog_new(color_filters, &filt_name_entry,
                                &filt_text_entry);
   
+  /* Show the (in)validity of the default filter string */
+  filter_te_syntax_check_cb(filt_text_entry);
+
 #if GTK_MAJOR_VERSION >= 2
   gtk_widget_grab_focus(color_filters);
 #endif
@@ -1268,14 +1271,15 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     gtk_widget_ref (color_filter_text);
     OBJECT_SET_DATA_FULL(edit_dialog, "color_filter_text", color_filter_text,
                          gtk_widget_unref);
+
     gtk_box_pack_start (GTK_BOX (filter_string_hbox), color_filter_text, FALSE, FALSE, 0);
 
     *colorize_filter_text = gtk_entry_new ();
     gtk_widget_ref (*colorize_filter_text);
     OBJECT_SET_DATA_FULL(edit_dialog, "*colorize_filter_text", *colorize_filter_text,
                          gtk_widget_unref);
+    SIGNAL_CONNECT(*colorize_filter_text, "changed", filter_te_syntax_check_cb, NULL);
     gtk_entry_set_text(GTK_ENTRY(*colorize_filter_text), colorf->filter_text);
-
 
 #if 0
     style = gtk_style_copy(gtk_widget_get_style(*colorize_filter_text));
