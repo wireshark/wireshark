@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.77 2004/06/19 00:07:22 guy Exp $
+dnl $Id: acinclude.m4,v 1.78 2004/06/25 07:06:46 jmayer Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ fi
 dnl
 dnl Check whether a given format can be used to print 64-bit integers
 dnl
-AC_DEFUN(AC_ETHEREAL_CHECK_64BIT_FORMAT,
+AC_DEFUN([AC_ETHEREAL_CHECK_64BIT_FORMAT],
 [
   AC_MSG_CHECKING([whether %$1x can be used to format 64-bit integers])
   AC_RUN_IFELSE(
