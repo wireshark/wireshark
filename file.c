@@ -2718,6 +2718,26 @@ goto_bottom_frame(capture_file *cf)
   return TRUE;	/* we got to that packet */
 }
 
+/*
+ * Go to frame specified by currently selected protocol tree item.
+ */
+void
+goto_framenum(capture_file *cf)
+{
+  header_field_info       *hfinfo;
+  guint32                 framenum;
+
+  if (cf->finfo_selected) {
+    hfinfo = cf->finfo_selected->hfinfo;
+    g_assert(hfinfo);
+    if (hfinfo->type == FT_FRAMENUM) {
+      framenum = fvalue_get_integer(&cf->finfo_selected->value);
+      if (framenum != 0)
+        goto_frame(cf, framenum);
+      }
+  }
+}
+
 /* Select the packet on a given row. */
 void
 select_packet(capture_file *cf, int row)

@@ -39,6 +39,7 @@ GENERATED_OBJECTS = \
 	coloring-rules-dialog.obj \
 	edit-color-filter-dialog.obj \
 	find-packet-dialog.obj \
+	goto-packet-dialog.obj \
 	packet-window.obj \
 	preferences-dialog.obj \
 	progress-dialog.obj
@@ -80,6 +81,7 @@ OBJECTS = \
 	color-util.obj \
 	find-util.obj \
 	font-util.obj \
+	goto-util.obj \
 	packet-win-util.obj \
 	prefs-dlg.obj \
 	toolbar-util.obj \

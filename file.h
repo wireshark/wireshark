@@ -81,6 +81,7 @@ gboolean find_in_gtk_data(capture_file *cf, gpointer *data, char *ascii_text, gb
 gboolean goto_frame(capture_file *cf, guint fnumber);
 gboolean goto_bottom_frame(capture_file *cf);
 gboolean goto_top_frame(capture_file *cf);
+gboolean goto_framenum(capture_file *cf);
 
 
 void select_packet(capture_file *, int);

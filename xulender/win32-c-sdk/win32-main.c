@@ -88,6 +88,7 @@
 #include "color-util.h"
 #include "find-util.h"
 #include "font-util.h"
+#include "goto-util.h"
 #include "packet-win-util.h"
 
 #include "ethereal-main.h"
@@ -96,6 +97,7 @@
 #include "coloring-rules-dialog.h"
 #include "edit-color-filter-dialog.h"
 #include "find-packet-dialog.h"
+#include "goto-packet-dialog.h"
 #include "preferences-dialog.h"
 #include "win32-file-dlg.h"
 
@@ -1568,6 +1570,22 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 		    case IDM_ETHEREAL_MAIN_VIEW_RELOAD:
 		    case IDB_MAIN_TOOLBAR_RELOAD:
 			cf_reload();
+			break;
+
+		    case IDM_ETHEREAL_MAIN_GO_TOPACKET:
+		    case IDB_MAIN_TOOLBAR_GOTO_NUM:
+			goto_dialog_init();
+			break;
+		    case IDM_ETHEREAL_MAIN_GO_CORRESPONDING:
+			goto_framenum(&cfile);
+			break;
+		    case IDM_ETHEREAL_MAIN_GO_FIRST:
+		    case IDB_MAIN_TOOLBAR_GOTO_FIRST:
+			goto_top_frame(&cfile);
+			break;
+		    case IDM_ETHEREAL_MAIN_GO_LAST:
+		    case IDB_MAIN_TOOLBAR_GOTO_LAST:
+			goto_bottom_frame(&cfile);
 			break;
 
 		    case IDM_ETHEREAL_MAIN_CAPTURE_START:

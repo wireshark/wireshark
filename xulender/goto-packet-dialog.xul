@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<dialog
+  id="goto-packet-dialog"
+  title="Ethereal: Go To Packet"
+  >
+
+  <vbox>
+    <hbox>
+      <description>Packet number:</description>
+      <textbox flex="1" id="goto-packet.number" />
+    </hbox>
+
+    <hbox>
+      <spacer flex="1" />
+      <button
+        id="goto-packet.go"
+        label="Go"
+        default="True"
+        oncommand="goto_dlg_go"
+       />
+      <button
+        id="goto-packet.cancel"
+        label="Cancel"
+        oncommand="goto_dlg_cancel"
+       />
+    </hbox>
+  </vbox>
+</dialog>
