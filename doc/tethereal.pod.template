@@ -8,6 +8,7 @@ Tethereal - Dump and analyze network traffic
 B<tethereal>
 S<[ B<-c> count ]>
 S<[ B<-f> filter expression ]>
+S<[ B<-F> file format ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-n> ]>
@@ -38,6 +39,16 @@ file you are reading; it will determine the file type by itself.
 B<Tethereal> is also capable of reading any of these file formats if
 they are compressed using gzip.  B<Tethereal> recognizes this directly
 from the file; the '.gz' extension is not required for this purpose.
+
+By default, when writing a capture file, B<Tethereal> writes capture
+file in B<libpcap> format, and writes all of the packets in the capture
+file to the output file.  The B<-F> flag can be used to specify the
+format in which to write the capture file; it can write the file in
+B<libpcap> format (standard B<libpcap> format, a modified format used by
+some patched versions of B<libpcap>, or the format used by Red Hat Linux
+6.1), B<snoop> format, uncompressed B<Sniffer> format, Microsoft
+B<Network Monitor> 1.x format, and the format used by Windows-based
+versions of the B<Sniffer> software.
 
 By default, when printing a decoded form of packets, B<Tethereal> prints
 a summary line giving a time stamp for the packet, the source and
@@ -73,6 +84,10 @@ data.
 =item -f
 
 Sets the capture filter expression.
+
+=item -F
+
+Sets the file format of the output capture file.
 
 =item -h
 

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.9 2000/01/17 07:48:57 guy Exp $
+ * $Id: tethereal.c,v 1.10 2000/01/17 08:06:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,7 +94,7 @@ typedef struct _loop_data {
 
 static loop_data ld;
 
-static int capture(int);
+static int capture(int, int);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
 static void capture_cleanup(int);
@@ -130,14 +130,23 @@ ethereal_proto_cleanup(void) {
 }
 
 static void 
-print_usage(void) {
+print_usage(void)
+{
+  int i;
 
-  fprintf(stderr, "This is GNU %s %s, compiled with %s\n", PACKAGE,
+  fprintf(stderr, "This is GNU t%s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
 
-  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -f <filter expression> ] [ -i iface ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -r infile ] [ -R <filter expression> ] [ -s snaplen ]\n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
+  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -f <filter expression> ] [ -F <capture type> ]\n", PACKAGE);
+  fprintf(stderr, "\t[ -i iface ] [ -r infile ] [ -R <filter expression> ]\n");
+  fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
+  fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
+  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+    if (wtap_dump_can_open(i))
+      fprintf(stderr, "\t%s - %s\n",
+        wtap_file_type_short_string(i), wtap_file_type_string(i));
+  }
+  fprintf(stderr, "\tdefault is libpcap\n");
 }
 
 int
@@ -158,6 +167,7 @@ main(int argc, char *argv[])
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
+  int                 out_file_type = WTAP_FILE_PCAP;
   gchar               *cf_name = NULL, *rfilter = NULL;
   dfilter             *rfcode = NULL;
   e_prefs             *prefs;
@@ -249,7 +259,7 @@ main(int argc, char *argv[])
    );
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "c:f:hi:nr:R:s:t:vw:Vx")) != EOF) {
+  while ((opt = getopt(argc, argv, "c:f:F:hi:nr:R:s:t:vw:Vx")) != EOF) {
     switch (opt) {
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
@@ -267,6 +277,14 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
 	break;
+      case 'F':
+        out_file_type = wtap_short_string_to_file_type(optarg);
+        if (out_file_type < 0) {
+          fprintf(stderr, "tethereal: \"%s\" is not a valid capture file type\n",
+			optarg);
+          exit(1);
+        }
+        break;
       case 'h':        /* Print help and exit */
 	print_usage();
 	exit(0);
@@ -312,7 +330,7 @@ main(int argc, char *argv[])
         }
         break;
       case 'v':        /* Show version and exit */
-        printf("%s %s, with %s\n", PACKAGE, VERSION, comp_info_str);
+        printf("t%s %s, with %s\n", PACKAGE, VERSION, comp_info_str);
         exit(0);
         break;
       case 'w':        /* Write to capture file xxx */
@@ -404,7 +422,7 @@ main(int argc, char *argv[])
         cf.iface = g_strdup(if_list->data);	/* first interface */
         free_interface_list(if_list);
     }
-    capture(packet_count);
+    capture(packet_count, out_file_type);
 #else
     /* No - complain. */
     fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
@@ -421,7 +439,7 @@ main(int argc, char *argv[])
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 static int
-capture(int packet_count)
+capture(int packet_count, int out_file_type)
 {
   gchar       err_str[PCAP_ERRBUF_SIZE];
   bpf_u_int32 netnum, netmask;
@@ -475,31 +493,40 @@ capture(int packet_count)
                " that Ethereal doesn't support.");
       goto error;
     }
-    ld.pdh = wtap_dump_open(cf.save_file, WTAP_FILE_PCAP,
+    ld.pdh = wtap_dump_open(cf.save_file, out_file_type,
 		ld.linktype, pcap_snapshot(ld.pch), &err);
 
     if (ld.pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
       switch (err) {
 
+      case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+        strcpy(errmsg, "Tethereal does not support writing capture files in that format.");
+        break;
+
+      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+        strcpy(errmsg, "Tethereal cannot save this capture in that format.");
+        break;
+
       case WTAP_ERR_CANT_OPEN:
-        strcpy(errmsg, "The file to which the capture would be saved"
+        strcpy(errmsg, "The file to which the capture would be written"
                  " couldn't be created for some unknown reason.");
         break;
 
       case WTAP_ERR_SHORT_WRITE:
         strcpy(errmsg, "A full header couldn't be written to the file"
-                 " to which the capture would be saved.");
+                 " to which the capture would be written.");
         break;
 
       default:
         if (err < 0) {
           sprintf(errmsg, "The file to which the capture would be"
-                       " saved (\"%s\") could not be opened: Error %d.",
+                       " written (\"%s\") could not be opened: Error %d.",
    			cf.save_file, err);
         } else {
           sprintf(errmsg, "The file to which the capture would be"
-                       " saved (\"%s\") could not be opened: %s.",
+                       " written (\"%s\") could not be opened: %s.",
  			cf.save_file, strerror(err));
         }
         break;
