@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.176 2000/04/03 08:57:17 guy Exp $
+ * $Id: file.c,v 1.177 2000/04/03 22:28:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,6 +104,10 @@ static char *file_close_error_message(int err);
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
+
+/* Number of "frame_data" structures per memory chunk.
+   XXX - is this the right number? */
+#define	FRAME_DATA_CHUNK_SIZE	1024
 
 int
 open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
@@ -302,7 +306,7 @@ read_cap_file(capture_file *cf)
   proto_tree_is_visible = FALSE;
   cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
 	sizeof(frame_data),
-	1024 * sizeof(frame_data),	/* XXX - magic number */
+	FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
 	G_ALLOC_AND_FREE);
   success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
   /* Set the file encapsulation type now; we don't know what it is until
@@ -381,6 +385,10 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   int     i;
 
   err = open_cap_file(fname, is_tempfile, cf);
+  cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
+	sizeof(frame_data),
+	FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
+	G_ALLOC_AND_FREE);
   if (err == 0) {
     /* Disable menu items that make no sense if you're currently running
        a capture. */
