@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.25 2002/09/24 00:40:42 tpot Exp $
+ * $Id: packet-ntlmssp.c,v 1.26 2002/10/25 03:40:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -530,7 +530,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
   guint32 negotiate_flags;
   gboolean unicode_strings = FALSE;
 
-  negotiate_flags = tvb_get_letohl (tvb, offset+50);
+  negotiate_flags = tvb_get_letohl (tvb, offset+48);
   if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
     unicode_strings = TRUE;
 
