@@ -1,0 +1,247 @@
+/* packet-rtp-events.c
+ *
+ * Routines for RFC 2833 RTP Events dissection
+ * Copyright 2003, Kevin A. Noll <knoll[AT]poss.com>
+ *
+ * $Id: packet-rtp-events.c,v 1.1 2003/09/19 04:16:23 guy Exp $
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+/*
+ * This dissector tries to dissect RTP Events.
+ */
+
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <glib.h>
+#include <epan/packet.h>
+#include "prefs.h"
+
+#include <stdio.h>
+#include <string.h>
+#include "packet-rtp-events.h"
+
+/*  rtp_event_payload_type_value is the value used globally
+	to set the appropriate payload type
+    saved_pt_value is a temporary place to save the value
+    	so we can properly reinitialize when the settings
+    	get changed
+*/
+static guint rtp_event_payload_type_value = 101;
+static guint saved_payload_type_value;
+
+
+/* RTP Event Fields */
+
+static int proto_rtp_events          = -1;
+
+static int hf_rtp_events_event = -1; /* one byte */
+static int hf_rtp_events_end = -1; /* one bit */
+static int hf_rtp_events_reserved = -1; /* one bit */
+static int hf_rtp_events_volume = -1; /* six bits */
+static int hf_rtp_events_duration = -1; /* sixteen bits */
+
+
+/* RTP Events fields defining a subtree */
+
+static gint ett_rtp_events           = -1;
+
+void
+proto_reg_handoff_rtp_events(void);
+
+static void
+dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	proto_item *ti            = NULL;
+	proto_tree *rtp_events_tree     = NULL;
+	unsigned int offset       = 0;
+
+	guint8      octet;
+
+	guint8      rtp_evt;
+	gboolean    rtp_end;
+	gboolean    rtp_reserved;
+	guint8      rtp_volume;
+	guint16     rtp_duration;
+
+
+	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )
+	  {
+	    col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP EVENT" );
+	  }
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+
+	/* Get event fields */
+
+	rtp_evt = tvb_get_guint8(tvb, offset );
+
+	octet = tvb_get_guint8(tvb, offset +1 );
+
+	rtp_volume = ((octet << 2) >> 2);
+
+	rtp_end = (octet >> 7);
+	rtp_reserved = ((octet << 1) >> 7 );
+
+	rtp_duration = tvb_get_ntohs(tvb, offset +2);
+
+
+	if ( check_col( pinfo->cinfo, COL_INFO) )
+	  {
+		col_add_fstr( pinfo->cinfo, COL_INFO,
+		    "Payload type=RTP Event, %s",
+		    val_to_str( rtp_evt, rtp_event_type_values, "Unknown (%u)" ));
+
+
+	  }
+
+
+	if ( tree )
+	  {
+	    ti = proto_tree_add_item( tree, proto_rtp_events, tvb, offset, -1, FALSE );
+	    rtp_events_tree = proto_item_add_subtree( ti, ett_rtp_events );
+
+	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_event, tvb, offset, 1, rtp_evt);
+	    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset, 1, rtp_end);
+	    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset, 1, rtp_reserved);
+	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset, 1, rtp_volume);
+	    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_duration, tvb, offset, 2, rtp_duration);
+	  }
+}
+
+
+void
+proto_register_rtp_events(void)
+{
+
+	module_t *rtp_events_module;
+
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_rtp_events_event,
+			{
+				"Event ID",
+				"rtp.payload_rtp_events_event",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtp_event_type_values),
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtp_events_end,
+			{
+				"End of Event",
+				"rtp.payload_rtp_events_end",
+				FT_BOOLEAN,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtp_events_reserved,
+			{
+				"Reserved",
+				"rtp.payload_rtp_events_reserved",
+				FT_BOOLEAN,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtp_events_volume,
+			{
+				"Volume",
+				"rtp.payload_rtp_events_volume",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+
+		{
+			&hf_rtp_events_duration,
+			{
+				"Event Duration",
+				"rtp.payload_rtp_events_duration",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+
+	};
+
+	static gint *ett[] =
+	{
+		&ett_rtp_events,
+	};
+
+
+	proto_rtp_events = proto_register_protocol("RFC 2833 RTP Event", "RTP Event", "rtpevent");
+	proto_register_field_array(proto_rtp_events, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+
+    /* Register preferences */
+    rtp_events_module = prefs_register_protocol (proto_rtp_events, proto_reg_handoff_rtp_events);
+    prefs_register_uint_preference (rtp_events_module,
+                                    "event_payload_type_value", "Payload Type for RFC2833 RTP Events",
+                                    "This is the value of the Payload Type field"
+                                    "that specifies RTP Events", 10,
+                                    &rtp_event_payload_type_value);
+}
+
+
+
+void
+proto_reg_handoff_rtp_events(void)
+{
+	static dissector_handle_t rtp_events_handle;
+	static int rtp_events_prefs_initialized = FALSE;
+
+  	if (!rtp_events_prefs_initialized) {
+		rtp_events_handle = create_dissector_handle(dissect_rtp_events, proto_rtp_events);
+		rtp_events_prefs_initialized = TRUE;
+	}
+	else {
+		dissector_delete("rtp.pt", saved_payload_type_value, rtp_events_handle);
+	}
+
+	saved_payload_type_value = rtp_event_payload_type_value;
+	/* rtp_event_payload_type_value is set from preferences */
+
+    	dissector_add("rtp.pt", saved_payload_type_value, rtp_events_handle);
+
+}
