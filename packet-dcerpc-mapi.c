@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.17 2003/02/03 02:14:00 tpot Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.18 2003/02/07 08:56:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,11 +37,11 @@
 
 static int proto_dcerpc_mapi = -1;
 static int hf_mapi_unknown_string = -1;
-static int hf_mapi_unknown_data = -1;
 static int hf_mapi_unknown_short = -1;
 static int hf_mapi_hnd = -1;
 static int hf_mapi_rc = -1;
 static int hf_mapi_encap_datalen = -1;
+static int hf_mapi_encrypted_data = -1;
 static int hf_mapi_decrypted_data_maxlen = -1;
 static int hf_mapi_decrypted_data_offset = -1;
 static int hf_mapi_decrypted_data_len = -1;
@@ -236,9 +236,8 @@ static int
 mapi_logon_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_wchar_array, NDR_POINTER_REF,
-			"unknown string", hf_mapi_unknown_string);
+        offset = dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
+			sizeof(guint8), hf_mapi_unknown_string, TRUE);
 
         DISSECT_UNKNOWN(tvb_length_remaining(tvb, offset));
 
@@ -257,15 +256,13 @@ mapi_logon_reply(tvbuff_t *tvb, int offset,
 
         DISSECT_UNKNOWN(20); /* this is 20 bytes, unless there are pointers */
 
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_wchar_array, NDR_POINTER_REF,
-			"unknown string", hf_mapi_unknown_string);
+        offset = dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
+			sizeof(guint8), hf_mapi_unknown_string, TRUE);
 
         DISSECT_UNKNOWN(6); /* possibly 1 or 2 bytes padding here */
 
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_wchar_array, NDR_POINTER_REF,
-			"unknown string", hf_mapi_unknown_string);
+        offset = dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
+			sizeof(guint8), hf_mapi_unknown_string, TRUE);
 
         DISSECT_UNKNOWN( tvb_length_remaining(tvb, offset)-4 );
 
@@ -286,8 +283,8 @@ mapi_unknown_02_request(tvbuff_t *tvb, int offset,
 		/* this is a unidimensional varying and conformant array of
 		   encrypted data */
        		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-				dissect_ndr_wchar_array, NDR_POINTER_REF,
-				"unknown data", hf_mapi_unknown_data);
+				dissect_ndr_byte_array, NDR_POINTER_REF,
+				"Encrypted data", hf_mapi_encrypted_data);
 	} else {
 		offset = mapi_decrypt_pdu(tvb, offset, pinfo, tree, drep);
 	}
@@ -312,8 +309,8 @@ mapi_unknown_02_reply(tvbuff_t *tvb, int offset,
 		/* this is a unidimensional varying and conformant array of
 		   encrypted data */
        		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-				dissect_ndr_wchar_array, NDR_POINTER_REF,
-				"unknown data", hf_mapi_unknown_data);
+				dissect_ndr_byte_array, NDR_POINTER_REF,
+				"Encrypted data", hf_mapi_encrypted_data);
 	} else {
 		offset = mapi_decrypt_pdu(tvb, offset, pinfo, tree, drep);
 	}
@@ -387,13 +384,13 @@ static hf_register_info hf[] = {
 		{ "Unknown short", "mapi.unknown_short", FT_UINT16, BASE_HEX,
 		NULL, 0, "Unknown short. If you know what this is, contact ethereal developers.", HFILL }},
 
-	{ &hf_mapi_unknown_data,
-		{ "unknown encrypted data", "mapi.unknown_data", FT_BYTES, BASE_HEX,
-		NULL, 0, "Unknown data. If you know what this is, contact ethereal developers.", HFILL }},
-
 	{ &hf_mapi_encap_datalen,
 		{ "Length", "mapi.encap_len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "Length of encapsulated/encrypted data", HFILL }},
+
+	{ &hf_mapi_encrypted_data,
+		{ "Encrypted data", "mapi.encrypted_data", FT_BYTES, BASE_HEX,
+		NULL, 0, "Encrypted data", HFILL }},
 
 	{ &hf_mapi_decrypted_data_maxlen,
 		{ "Max Length", "mapi.decrypted.data.maxlen", FT_UINT32, BASE_DEC,

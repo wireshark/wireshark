@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.63 2003/02/07 06:01:49 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.64 2003/02/07 08:56:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,115 +39,9 @@
  * dissectors for ethereal.
  */
 
-/* Convert a string from little-endian unicode to ascii.  At the moment we
-   fake it by taking every odd byte.  )-:  The caller must free the
-   result returned. */
-
-char *fake_unicode(tvbuff_t *tvb, int offset, int len)
-{
-	char *buffer;
-	int i;
-	guint16 character;
-
-	/* Make sure we have enough data before allocating the buffer,
-	   so we don't blow up if the length is huge.
-	   We do so by attempting to fetch the last character; it'll
-	   throw an exception if it's past the end. */
-	tvb_get_letohs(tvb, offset + 2*(len - 1));
-
-	/* We know we won't throw an exception, so we don't have to worry
-	   about leaking this buffer. */
-	buffer = g_malloc(len + 1);
-
-	for (i = 0; i < len; i++) {
-		character = tvb_get_letohs(tvb, offset);
-		buffer[i] = character & 0xff;
-		offset += 2;
-	}
-
-	buffer[len] = 0;
-
-	return buffer;
-}
-
-/* Dissect an NDR array of elements.  The length of each element is
-   given by the 'size_is' parameter.  */
-
-int hf_nt_str_len = -1;		/* FIXME: make static */
-int hf_nt_str_off = -1;
-int hf_nt_str_max_len = -1;
-static int hf_nt_str_buffer = -1;
-
-static int hf_nt_string_length = -1;
-static int hf_nt_string_size = -1;
+/* Parse some common RPC structures */
 
 gint ett_nt_unicode_string = -1; /* FIXME: make static */
-
-static int
-dissect_ndr_element_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			  proto_tree *tree, char *drep, int size_is)
-{
-	guint32 len, buffer_len;
-
-	/* NDR array header */
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			hf_nt_str_max_len, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			hf_nt_str_off, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			hf_nt_str_len, &len);
-
-	buffer_len = size_is * len;
-
-	/* Adjust offset */
-
-	if (offset % size_is)
-		offset += size_is - (offset % size_is);
-
-	if (tree && buffer_len)
-		proto_tree_add_item(
-			tree, hf_nt_str_buffer, tvb, offset, buffer_len,
-			drep[0] & 0x10);
-
-	offset += buffer_len;
-
-	return offset;
-}
-
-/* Dissect an array of wchars (wide characters).  This corresponds to
-   IDL of the form '[string] wchar *foo' */
-
-int
-dissect_ndr_wchar_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-			proto_tree *tree, char *drep)
-{
-	dcerpc_info *di = pinfo->private_data;
-
-	if (di->conformant_run)
-		return offset;
-
-	return dissect_ndr_element_array(
-		tvb, offset, pinfo, tree, drep, sizeof(guint16));
-}
-
-/* Dissect an array of wchars (wide characters).  This corresponds to
-   IDL of the form '[string] wchar *foo' */
-
-int
-dissect_ndr_char_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-		       proto_tree *tree, char *drep)
-{
-	dcerpc_info *di = pinfo->private_data;
-
-	if (di->conformant_run)
-		return offset;
-
-	return dissect_ndr_element_array(
-		tvb, offset, pinfo, tree, drep, sizeof(guint8));
-}
 
 /* Dissect a counted string as a callback to dissect_ndr_pointer_cb() */
 
@@ -796,32 +690,6 @@ void dcerpc_smb_init(int proto_dcerpc)
 
 		/* String handling */
 
-		{ &hf_nt_string_length,
-		  { "Length", "nt.string.length", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "Length of string in bytes", HFILL }},
-		
-		{ &hf_nt_string_size,
-		  { "Size", "nt.string.size", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "Size of string in bytes", HFILL }},
-		
-		{ &hf_nt_str_len,
-		  { "Length", "nt.str.len", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Length of string in short integers", HFILL }},
-		
-		{ &hf_nt_str_off,
-		  { "Offset", "nt.str.offset", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Offset into string in short integers", 
-		    HFILL }},
-		
-		{ &hf_nt_str_max_len,
-		  { "Max Length", "nt.str.max_len", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Max Length of string in short integers", 
-		    HFILL }},
-		
-		{ &hf_nt_str_buffer,
-		  { "Buffer", "nt.str.buffer", FT_BYTES, BASE_NONE,
-		    NULL, 0x0, "Buffer", HFILL }},
-		
 		{ &hf_nt_cs_size,
 		  { "Size", "nt.str.size", FT_UINT16, BASE_DEC,
 		    NULL, 0x0, "Size of string in short integers", 

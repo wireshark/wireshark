@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.26 2003/01/28 06:17:09 tpot Exp $
+ * $Id: packet-dcerpc.h,v 1.27 2003/02/07 08:56:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,7 +159,6 @@ int dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                          proto_tree *tree, char *drep,
                          int hfindex, e_ctx_hnd *pdata);
 
-
 typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *drep);
 
 typedef void (dcerpc_callback_fnct_t)(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int start_offset, int end_offset, void *callback_args);
@@ -189,7 +188,18 @@ int dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep,
                         dcerpc_dissect_fnct_t *fnct);
 
+int dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+                           proto_tree *tree, char *drep);
 
+char *fake_unicode(tvbuff_t *tvb, int offset, int len);
+
+int dissect_ndr_character_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+                               proto_tree *tree, char *drep, int size_is,
+                               int hfinfo, gboolean add_subtree);
+int dissect_ndr_char_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+                           proto_tree *tree, char *drep);
+int dissect_ndr_wchar_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+                            proto_tree *tree, char *drep);
 
 typedef struct _dcerpc_sub_dissector {
     guint16 num;

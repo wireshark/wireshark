@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.82 2003/02/07 06:04:28 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.83 2003/02/07 08:56:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4206,25 +4206,9 @@ static int dissect_FORM_CTR(tvbuff_t *tvb, int offset,
 static int dissect_form_name(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, char *drep)
 {
-	extern int hf_nt_str_len;
-	extern int hf_nt_str_off;
-	extern int hf_nt_str_max_len;
-	guint32 len;
-
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_nt_str_max_len, NULL);
-
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_nt_str_off, NULL);
-
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_nt_str_len, &len);
-
-	offset = dissect_ndr_uint16s(
-		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_form_name, len);
-
-	return offset;
+	return dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
+	                                   sizeof(guint16),
+	                                   hf_spoolss_form_name, TRUE);
 }
 
 

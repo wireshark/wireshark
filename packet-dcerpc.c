@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.100 2003/02/05 01:23:41 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.101 2003/02/07 08:56:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -387,6 +387,7 @@ static int hf_dcerpc_dg_status = -1;
 static int hf_dcerpc_array_max_count = -1;
 static int hf_dcerpc_array_offset = -1;
 static int hf_dcerpc_array_actual_count = -1;
+static int hf_dcerpc_array_buffer = -1;
 static int hf_dcerpc_op = -1;
 static int hf_dcerpc_referent_id = -1;
 static int hf_dcerpc_fragments = -1;
@@ -403,6 +404,7 @@ static gint ett_dcerpc_drep = -1;
 static gint ett_dcerpc_dg_flags1 = -1;
 static gint ett_dcerpc_dg_flags2 = -1;
 static gint ett_dcerpc_pointer_data = -1;
+static gint ett_dcerpc_string = -1;
 static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
 static gint ett_decrpc_krb5_auth_verf = -1;
@@ -910,6 +912,172 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
+/* Dissect an array of bytes.  This corresponds to
+   IDL of the form '[string] char *foo'.  Used when the bytes
+   should be shown as a big blob, rather than showing each one
+   as an individual element.
+
+   XXX - does this need to do all the conformant array stuff that
+   "dissect_ndr_ucvarray()" does?  */
+int
+dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+                            proto_tree *tree, char *drep)
+{
+    dcerpc_info *di;
+    guint32 len;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    /* NDR array header */
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+                                hf_dcerpc_array_max_count, NULL);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+                                hf_dcerpc_array_offset, NULL);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+                                hf_dcerpc_array_actual_count, &len);
+
+    if (tree && len)
+        proto_tree_add_item(tree, hf_dcerpc_array_buffer,
+                            tvb, offset, len, drep[0] & 0x10);
+
+    offset += len;
+
+    return offset;
+}
+
+/* For dissecting arrays that are to be interpreted as strings.  */
+
+/* Convert a string from little-endian unicode to ascii.  At the moment we
+   fake it by taking every odd byte.  )-:  The caller must free the
+   result returned. */
+
+char *
+fake_unicode(tvbuff_t *tvb, int offset, int len)
+{
+	char *buffer;
+	int i;
+	guint16 character;
+
+	/* Make sure we have enough data before allocating the buffer,
+	   so we don't blow up if the length is huge.
+	   We do so by attempting to fetch the last character; it'll
+	   throw an exception if it's past the end. */
+	tvb_get_letohs(tvb, offset + 2*(len - 1));
+
+	/* We know we won't throw an exception, so we don't have to worry
+	   about leaking this buffer. */
+	buffer = g_malloc(len + 1);
+
+	for (i = 0; i < len; i++) {
+		character = tvb_get_letohs(tvb, offset);
+		buffer[i] = character & 0xff;
+		offset += 2;
+	}
+
+	buffer[len] = 0;
+
+	return buffer;
+}
+
+/* Dissect an NDR array of elements, assumed to be a string.
+   The length of each element is given by the 'size_is' parameter;
+   the elements are assumed to be characters or wide characters.
+
+   XXX - does this need to do all the conformant array stuff that
+   "dissect_ndr_ucvarray()" does?  */
+int
+dissect_ndr_character_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+                            proto_tree *tree, char *drep, int size_is,
+                            int hfinfo, gboolean add_subtree)
+{
+    dcerpc_info *di;
+    proto_item *string_item;
+    proto_tree *string_tree;
+    guint32 len, buffer_len;
+    char *s;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (add_subtree) {
+        string_item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
+                                          proto_registrar_get_name(hfinfo));
+        string_tree = proto_item_add_subtree(string_item, ett_dcerpc_string);
+    } else {
+        string_item = NULL;
+        string_tree = tree;
+    }
+
+    /* NDR array header */
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+                                hf_dcerpc_array_max_count, NULL);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+                                hf_dcerpc_array_offset, NULL);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+                                hf_dcerpc_array_actual_count, &len);
+
+    buffer_len = size_is * len;
+
+    /* Adjust offset */
+    if (offset % size_is)
+        offset += size_is - (offset % size_is);
+
+    if (tree && buffer_len)
+        proto_tree_add_item(string_tree, hfinfo, tvb, offset, buffer_len,
+                            drep[0] & 0x10);
+
+    if (string_item != NULL) {
+        if (size_is == sizeof(guint16))
+            s = fake_unicode(tvb, offset, buffer_len);
+        else {
+            s = g_malloc(buffer_len + 1);
+            tvb_memcpy(tvb, s, offset, buffer_len);
+        }
+        proto_item_append_text(string_item, ": %s", s);
+        g_free(s);
+    }
+
+    offset += buffer_len;
+
+    return offset;
+}
+
+/* Dissect an array of chars.  This corresponds to
+   IDL of the form '[string] char *foo' */
+
+int
+dissect_ndr_char_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			proto_tree *tree, char *drep)
+{
+    return dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
+                                       sizeof(guint8), hf_dcerpc_array_buffer,
+                                       FALSE);
+}
+
+/* Dissect an array of wchars (wide characters).  This corresponds to
+   IDL of the form '[string] wchar *foo' */
+
+int
+dissect_ndr_wchar_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			proto_tree *tree, char *drep)
+{
+    return dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
+                                       sizeof(guint16), hf_dcerpc_array_buffer,
+                                       FALSE);
+}
 
 /* ndr pointer handling */
 /* list of pointers encountered so far */
@@ -3855,6 +4023,9 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_array_actual_count,
           { "Actual Count", "dcerpc.array.actual_count", FT_UINT32, BASE_DEC, NULL, 0x0, "Actual Count: Actual number of elements in the array", HFILL }},
 
+	{ &hf_dcerpc_array_buffer,
+	  { "Buffer", "dcerpc.array.buffer", FT_BYTES, BASE_NONE, NULL, 0x0, "Buffer: Buffer containing elements of the array", HFILL }},
+		
         { &hf_dcerpc_op,
           { "Operation", "dcerpc.op", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
@@ -3892,6 +4063,7 @@ proto_register_dcerpc (void)
         &ett_dcerpc_dg_flags1,
         &ett_dcerpc_dg_flags2,
         &ett_dcerpc_pointer_data,
+        &ett_dcerpc_string,
         &ett_dcerpc_fragments,
         &ett_dcerpc_fragment,
         &ett_decrpc_krb5_auth_verf,
