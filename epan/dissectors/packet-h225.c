@@ -89,6 +89,9 @@ static dissector_handle_t h245_handle=NULL;
 static dissector_handle_t h245dg_handle=NULL;
 static dissector_handle_t h4501_handle=NULL;
 
+static dissector_handle_t nsp_handle;
+static dissector_handle_t tp_handle;
+
 /* Initialize the protocol and registered fields */
 static int h225_tap = -1;
 static int proto_h225 = -1;
@@ -101,6 +104,7 @@ static int hf_h225_ras_rsp_frame = -1;
 static int hf_h225_ras_dup = -1;
 static int hf_h225_ras_deltatime = -1;
 static int hf_h225_fastStart_item_length = -1; 
+static int hf_h225_nsp_data = -1;
 
 
 /*--- Included file: packet-h225-hf.c ---*/
@@ -351,14 +355,14 @@ static int hf_h225_t35CountryCode = -1;           /* T_t35CountryCode */
 static int hf_h225_t35Extension = -1;             /* T_t35Extension */
 static int hf_h225_manufacturerCode = -1;         /* T_manufacturerCode */
 static int hf_h225_tunnelledProtocol_id = -1;     /* TunnelledProtocol_id */
-static int hf_h225_tunnelledProtocolObjectID = -1;  /* OBJECT_IDENTIFIER */
+static int hf_h225_tunnelledProtocolObjectID = -1;  /* T_tunnelledProtocolObjectID */
 static int hf_h225_tunnelledProtocolAlternateID = -1;  /* TunnelledProtocolAlternateIdentifier */
 static int hf_h225_subIdentifier = -1;            /* IA5String_SIZE_1_64 */
 static int hf_h225_protocolType = -1;             /* IA5String_SIZE_1_64 */
 static int hf_h225_protocolVariant = -1;          /* IA5String_SIZE_1_64 */
 static int hf_h225_nonStandardIdentifier = -1;    /* NonStandardIdentifier */
 static int hf_h225_data_oct_str = -1;             /* OCTET_STRING */
-static int hf_h225_object = -1;                   /* OBJECT_IDENTIFIER */
+static int hf_h225_object = -1;                   /* T_object */
 static int hf_h225_h221NonStandard = -1;          /* H221NonStandard */
 static int hf_h225_dialedDigits = -1;             /* DialedDigits */
 static int hf_h225_h323_ID = -1;                  /* BMPString_SIZE_1_256 */
@@ -1096,9 +1100,10 @@ static gint ett_h225_T_result = -1;
 /* Global variables */
 static guint32  ipv4_address;
 static guint32  ipv4_port;
+static char object[256];
 guint32 T38_manufacturer_code;
+static char tpID[256];
 static gboolean h225_reassembly = TRUE;
-guint32 value;
 static gboolean contains_faststart = FALSE;
 
 
@@ -1984,44 +1989,23 @@ static int dissect_h245nsap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static int
-dissect_h225_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h225_T_object(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+
   offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                         NULL);
+                                         object);
+
 
   return offset;
 }
-static int dissect_enterpriseNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_enterpriseNumber);
-}
-static int dissect_tunnelledProtocolObjectID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_tunnelledProtocolObjectID);
-}
 static int dissect_object(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_object);
-}
-static int dissect_isoAlgorithm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_isoAlgorithm);
-}
-static int dissect_hMAC_iso10118_3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_hMAC_iso10118_3);
-}
-static int dissect_iso9797(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_iso9797);
-}
-static int dissect_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_algorithmOID);
-}
-static int dissect_oid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_oid);
-}
-static int dissect_algorithmOIDs_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_algorithmOIDs_item);
+  return dissect_h225_T_object(tvb, offset, pinfo, tree, hf_h225_object);
 }
 
 
 
 static int
 dissect_h225_T_t35CountryCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
 
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            0U, 255U, &value, NULL, FALSE);
@@ -2037,6 +2021,7 @@ static int dissect_t35CountryCode(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_h225_T_t35Extension(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
 
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            0U, 255U, &value, NULL, FALSE);
@@ -2052,6 +2037,7 @@ static int dissect_t35Extension(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 static int
 dissect_h225_T_manufacturerCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
 
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            0U, 65535U, &value, NULL, FALSE);
@@ -2101,9 +2087,25 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h225_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+	guint32 value;
+
+	*object = '\0';
+	T38_manufacturer_code = 0;
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h225_NonStandardIdentifier, NonStandardIdentifier_choice, "NonStandardIdentifier",
-                              NULL);
+                              &value);
+	switch (value) {
+		case 0 :  /* object */
+			nsp_handle = dissector_get_string_handle(nsp_object_dissector_table, object);
+			break;
+		case 1 :  /* h221NonStandard */
+			nsp_handle = dissector_get_port_handle(nsp_h221_dissector_table, T38_manufacturer_code);
+			break;
+		default :
+			nsp_handle = NULL;
+    }
+
 
   return offset;
 }
@@ -2991,6 +2993,36 @@ static int dissect_versionId(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
   return dissect_h225_OCTET_STRING_SIZE_1_256(tvb, offset, pinfo, tree, hf_h225_versionId);
 }
 
+
+static int
+dissect_h225_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
+                                         NULL);
+
+  return offset;
+}
+static int dissect_enterpriseNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_enterpriseNumber);
+}
+static int dissect_isoAlgorithm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_isoAlgorithm);
+}
+static int dissect_hMAC_iso10118_3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_hMAC_iso10118_3);
+}
+static int dissect_iso9797(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_iso9797);
+}
+static int dissect_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_algorithmOID);
+}
+static int dissect_oid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_oid);
+}
+static int dissect_algorithmOIDs_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_OBJECT_IDENTIFIER(tvb, offset, pinfo, tree, hf_h225_algorithmOIDs_item);
+}
+
 static const per_sequence_t VendorIdentifier_sequence[] = {
   { "vendor"                      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_vendorIdentifier_vendor },
   { "productId"                   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_productId },
@@ -3645,6 +3677,19 @@ static int dissect_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
 static int
+dissect_h225_T_tunnelledProtocolObjectID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
+                                         tpID);
+
+
+  return offset;
+}
+static int dissect_tunnelledProtocolObjectID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_T_tunnelledProtocolObjectID(tvb, offset, pinfo, tree, hf_h225_tunnelledProtocolObjectID);
+}
+
+
+static int
 dissect_h225_IA5String_SIZE_1_64(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
                                  1, 64);
@@ -3711,9 +3756,11 @@ static const per_sequence_t TunnelledProtocol_sequence[] = {
 
 static int
 dissect_h225_TunnelledProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+	tpID[0] = '\0';
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_TunnelledProtocol, TunnelledProtocol_sequence);
 
+	tp_handle = dissector_get_string_handle(tp_dissector_table, tpID);
   return offset;
 }
 static int dissect_tunnelledProtocolID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -3958,7 +4005,7 @@ static const per_sequence_t CallIdentifier_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_h225_CallIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h225_CallIdentifier, CallIdentifier_sequence);
@@ -8760,6 +8807,25 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	return offset;
 }
+
+static int
+dissect_h225_nsp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint32 value_offset, value_len;
+	tvbuff_t *next_tvb;
+
+	offset = dissect_per_octet_string(tvb, offset, pinfo, tree,
+				hf_h225_nsp_data, -1, -1,
+				&value_offset, &value_len);
+
+	if (value_len > 0) {
+		next_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
+		call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
+	}
+
+	return offset;
+}
+
 /*--- proto_register_h225 -------------------------------------------*/
 void proto_register_h225(void) {
 
@@ -8789,6 +8855,9 @@ void proto_register_h225(void) {
 	{ &hf_h225_fastStart_item_length,
 		{ "fastStart item length", "h225.fastStart_item_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "fastStart item length", HFILL }},
+	{ &hf_h225_nsp_data,
+		{ "data", "h225.nsp_data", FT_BYTES, BASE_HEX,
+		NULL, 0, "OCTET STRING", HFILL }},
 
 
 /*--- Included file: packet-h225-hfarr.c ---*/

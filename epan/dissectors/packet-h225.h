@@ -98,6 +98,7 @@ int dissect_h225_ScreeningIndicator(tvbuff_t *tvb, int offset, packet_info *pinf
 int dissect_h225_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_h225_AliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_h225_PartyNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_h225_CallIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_h225_RasMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-h225-exp.h ---*/
