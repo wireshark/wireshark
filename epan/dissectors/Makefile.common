@@ -141,8 +141,6 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-ftserver.c	\
 	packet-dcerpc-icl_rpc.c	\
 	packet-dcerpc-initshutdown.c	\
-	packet-dcerpc-iremunkn.c	\
-	packet-dcerpc-iremunkn2.c	\
 	packet-dcerpc-krb5rpc.c	\
 	packet-dcerpc-llb.c	\
 	packet-dcerpc-lsa-ds.c	\
@@ -153,11 +151,10 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-ndr.c	\
 	packet-dcerpc-netlogon.c	\
 	packet-dcerpc-nspi.c	\
-	packet-dcerpc-oxid.c	\
+
 	packet-dcerpc-pn-io.c	\
 	packet-dcerpc-rdaclif.c	\
 	packet-dcerpc-reg.c	\
-	packet-dcerpc-remact.c	\
 	packet-dcerpc-rep_proc.c	\
 	packet-dcerpc-roverride.c	\
 	packet-dcerpc-rpriv.c	\
@@ -184,7 +181,6 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-spoolss.c	\
 	packet-dcerpc-srvsvc.c	\
 	packet-dcerpc-svcctl.c	\
-	packet-dcerpc-sysact.c	\
 	packet-dcerpc-tapi.c	\
 	packet-dcerpc-tkn4int.c	\
 	packet-dcerpc-trksvr.c	\
@@ -197,6 +193,11 @@ DISSECTOR_SRC =	\
 	packet-dcom.c \
 	packet-dcom-cba.c \
 	packet-dcom-cba-acco.c \
+	packet-dcom-dispatch.c \
+	packet-dcom-oxid.c \
+	packet-dcom-remact.c \
+	packet-dcom-remunkn.c \
+	packet-dcom-sysact.c \
 	packet-ddtp.c	\
 	packet-dec-bpdu.c	\
 	packet-dhcp-failover.c	\
