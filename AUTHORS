@@ -648,6 +648,7 @@ Charles Levert <charles[AT]comm.polymtl.ca> {
 Todd Sabin <tas[AT]webspan.net> {
 	DCE RPC support
 	Cleaned up "get_column_format_matches()"
+	Skeleton NSPI dissector
 }
 
 Eduardo Pérez Ureta <eperez[AT]dei.inf.uc3m.es> {
