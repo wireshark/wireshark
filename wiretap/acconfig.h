@@ -1,6 +1,6 @@
 /* acconfig.h
  *
- * $Id: acconfig.h,v 1.4 2000/01/22 06:22:34 guy Exp $
+ * $Id: acconfig.h,v 1.5 2000/10/17 00:09:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -24,5 +24,3 @@
 #undef PACKAGE
 
 #undef VERSION
-
-#undef HAVE_GLIB10
