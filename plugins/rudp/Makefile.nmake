@@ -1,0 +1,21 @@
+#
+# $Id: Makefile.nmake,v 1.1 2004/03/25 11:21:07 guy Exp $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+OBJECTS=packet-rudp.obj 
+
+rudp.dll rudp.exp rudp.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:rudp.dll $(OBJECTS) ..\plugin_api.obj \
+	$(GLIB_LIBS)
+
+clean:
+	rm -f $(OBJECTS) rudp.dll rudp.exp rudp.lib $(PDB_FILE)
+
+distclean: clean

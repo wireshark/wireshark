@@ -2072,6 +2072,10 @@ Jelmer Vernooij <jelmer [AT] samba.org> {
 	AIM enhancements
 }
 
+Duncan Sargeant <dunc-ethereal-dev [AT] rcpt.to> {
+	Cisco SS7 RUDP, RLM, and Session Management support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

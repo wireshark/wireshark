@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.252 2004/03/22 17:03:29 gerald Exp $
+# $Id: configure.in,v 1.253 2004/03/25 11:21:05 guy Exp $
 #
 AC_INIT(etypes.h)
 
@@ -916,6 +916,7 @@ AC_OUTPUT(
   plugins/acn/Makefile
   plugins/artnet/Makefile
   plugins/asn1/Makefile
+  plugins/ciscosm/Makefile
   plugins/docsis/Makefile
   plugins/enttec/Makefile
   plugins/giop/Makefile
@@ -926,7 +927,9 @@ AC_OUTPUT(
   plugins/mgcp/Makefile
   plugins/pcli/Makefile
   plugins/rdm/Makefile
+  plugins/rlm/Makefile
   plugins/rtnet/Makefile
+  plugins/rudp/Makefile
   plugins/v5ua/Makefile
   tools/Makefile
   tools/lemon/Makefile

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.725 2004/03/22 16:19:53 gerald Exp $
+# $Id: Makefile.am,v 1.726 2004/03/25 11:21:05 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -92,6 +92,7 @@ plugin_libs = \
 	plugins/acn/acn.la \
 	plugins/artnet/artnet.la \
 	plugins/asn1/asn1.la \
+	plugins/ciscosm/ciscosm.la \
 	plugins/docsis/docsis.la \
 	plugins/enttec/enttec.la \
 	plugins/giop/cosnaming.la \
@@ -103,7 +104,9 @@ plugin_libs = \
 	plugins/mgcp/mgcp.la \
 	plugins/pcli/pcli.la \
 	plugins/rdm/rdm.la \
+	plugins/rlm/rlm.la \
 	plugins/rtnet/rtnet.la \
+	plugins/rudp/rudp.la \
 	plugins/v5ua/v5ua.la
 
 if ENABLE_STATIC
@@ -111,6 +114,7 @@ plugin_ldadd = \
 	plugins/acn/packet-acn.o \
 	plugins/artnet/packet-artnet.o \
 	plugins/asn1/packet-asn1.o \
+	plugins/ciscosm/packet-sm.o \
 	plugins/docsis/packet-bpkmattr.o \
 	plugins/docsis/packet-bpkmreq.o \
 	plugins/docsis/packet-bpkmrsp.o \
@@ -144,7 +148,9 @@ plugin_ldadd = \
 	plugins/mgcp/packet-mgcp.o \
 	plugins/pcli/packet-pcli.o \
 	plugins/rdm/packet-rdm.o \
+	plugins/rlm/packet-rlm.o \
 	plugins/rtnet/packet-rtnet.o \
+	plugins/rudp/packet-rudp.o \
 	plugins/v5ua/packet-v5ua.o
 
 else		# ENABLE_STATIC
@@ -153,6 +159,7 @@ plugin_ldadd = \
 	"-dlopen" plugins/acn/acn.la \
 	"-dlopen" plugins/artnet/artnet.la \
 	"-dlopen" plugins/asn1/asn1.la \
+	"-dlopen" plugins/ciscosm/ciscosm.la \
 	"-dlopen" plugins/docsis/docsis.la \
 	"-dlopen" plugins/enttec/enttec.la \
 	"-dlopen" plugins/giop/cosnaming.la \
@@ -164,7 +171,9 @@ plugin_ldadd = \
 	"-dlopen" plugins/mgcp/mgcp.la \
 	"-dlopen" plugins/pcli/pcli.la \
 	"-dlopen" plugins/rdm/rdm.la \
+	"-dlopen" plugins/rlm/rlm.la \
 	"-dlopen" plugins/rtnet/rtnet.la \
+	"-dlopen" plugins/rudp/rudp.la \
 	"-dlopen" plugins/v5ua/v5ua.la
 
 endif		# ENABLE_STATIC

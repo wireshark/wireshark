@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.51 2004/03/22 22:37:41 gerald Exp $
+; $Id: ethereal.nsi,v 1.52 2004/03/25 11:21:06 guy Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -299,6 +299,7 @@ SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\acn\acn.dll"
 File "..\..\plugins\artnet\artnet.dll"
 File "..\..\plugins\asn1\asn1.dll"
+File "..\..\plugins\ciscosm\ciscosm.dll"
 File "..\..\plugins\docsis\docsis.dll"
 File "..\..\plugins\enttec\enttec.dll"
 File "..\..\plugins\giop\coseventcomm.dll"
@@ -310,7 +311,9 @@ File "..\..\plugins\megaco\megaco.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
 File "..\..\plugins\pcli\pcli.dll"
 File "..\..\plugins\rdm\rdm.dll"
+File "..\..\plugins\rlm\rlm.dll"
 File "..\..\plugins\rtnet\rtnet.dll"
+File "..\..\plugins\rudp\rudp.dll"
 File "..\..\plugins\v5ua\v5ua.dll"
 SectionEnd
 
