@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.129 1999/11/30 21:30:43 guy Exp $
+ * $Id: file.c,v 1.130 1999/12/01 20:12:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -339,7 +339,6 @@ read_cap_file(capture_file *cf)
   set_menu_sensitivity("/Display/Colorize Display...", TRUE);
   set_menu_sensitivity("/Display/Find Frame...", TRUE);
   set_menu_sensitivity("/Display/Go To Frame...", TRUE);
-  set_menu_sensitivity("/Tools/Follow TCP Stream", TRUE);
   set_menu_sensitivity("/Tools/Graph", TRUE);
   set_menu_sensitivity("/Tools/Summary", TRUE);
 
@@ -400,7 +399,6 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
     set_menu_sensitivity("/Display/Colorize Display...", TRUE);
     set_menu_sensitivity("/Display/Find Frame...", TRUE);
     set_menu_sensitivity("/Display/Go To Frame...", TRUE);
-    set_menu_sensitivity("/Tools/Follow TCP Stream", TRUE);
     set_menu_sensitivity("/Tools/Graph", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
 
@@ -1507,6 +1505,12 @@ select_packet(capture_file *cf, int row)
   set_menu_sensitivity("/File/Print Packet", TRUE);
   set_menu_sensitivity("/Display/Collapse All", TRUE);
   set_menu_sensitivity("/Display/Expand All", TRUE);
+  
+  if (pi.ipproto == 6) {
+      set_menu_sensitivity("/Tools/Follow TCP Stream", TRUE);
+  } else {
+      set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
+  }
 }
 
 /* Unselect the selected packet, if any. */
@@ -1530,6 +1534,7 @@ unselect_packet(capture_file *cf)
   set_menu_sensitivity("/File/Print Packet", FALSE);
   set_menu_sensitivity("/Display/Collapse All", FALSE);
   set_menu_sensitivity("/Display/Expand All", FALSE);
+  set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
 }
 
 static void
