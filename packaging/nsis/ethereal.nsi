@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.45 2004/02/06 18:47:44 ulfl Exp $
+; $Id: ethereal.nsi,v 1.46 2004/02/07 21:47:25 ulfl Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -281,7 +281,7 @@ CreateDirectory "$SMPROGRAMS\Ethereal"
 Delete "$SMPROGRAMS\Ethereal\Ethereal Web Site.lnk"
 WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Web Site.url" \
           "InternetShortcut" "URL" "http://www.ethereal.com/"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\${DEST}.exe"
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
@@ -290,7 +290,7 @@ SectionEnd
 
 Section "Desktop Icon" SecDesktopIcon
 ;-------------------------------------------
-CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\${DEST}.exe"
+CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe"
 SectionEnd
 
 Section "Uninstall"
