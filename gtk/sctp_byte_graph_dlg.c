@@ -99,7 +99,7 @@ struct sack_chunk_header {
   guint32  a_rwnd;
   guint16 nr_of_gaps;
   guint16 nr_of_dups;
-  guint8  tsns[0];
+  guint8  *tsns;
 };
 
 struct gaps {
