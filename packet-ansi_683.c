@@ -4,7 +4,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-ansi_683.c,v 1.1 2003/10/06 19:25:20 guy Exp $
+ * $Id: packet-ansi_683.c,v 1.2 2003/10/23 00:16:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2139,14 +2139,8 @@ proto_reg_handoff_ansi_683(void)
 
     dissector_add("ansi_map.ota", ANSI_683_FORWARD, ansi_683_handle);
     dissector_add("ansi_map.ota", ANSI_683_REVERSE, ansi_683_handle);
-
-    /*
-     * ANSI A-interface dissector will push out forward/reverse link OTA data
-     *
-     * This is for IOS or IS-634 variants.
-     */
-    /* dissector_add("ansi_a.ota", ANSI_683_FORWARD, ansi_683_handle); */
-    /* dissector_add("ansi_a.ota", ANSI_683_REVERSE, ansi_683_handle); */
+    dissector_add("ansi_a.ota", ANSI_683_FORWARD, ansi_683_handle);
+    dissector_add("ansi_a.ota", ANSI_683_REVERSE, ansi_683_handle);
 
     data_handle = find_dissector("data");
 }
