@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.11 2002/05/27 04:11:06 sharpe Exp $
+ * $Id: packet-smb-common.c,v 1.12 2002/06/16 00:39:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,13 @@
 
 /*
  * Share type values - used in LANMAN and in SRVSVC.
+ *
+ * XXX - should we dissect share type values, at least in SRVSVC, as
+ * a subtree with bitfields, as the 0x80000000 bit appears to be a
+ * hidden bit, with some number of bits at the bottom being the share
+ * type?
+ *
+ * Does LANMAN use that bit?
  */
 const value_string share_type_vals[] = {
 	{0, "Directory tree"},
@@ -76,26 +83,48 @@ int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index)
 
 int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index)
 {
+	char *str, *p;
+	int len;
+	int charoffset;
+	guint16 character;
+
 	/* display a unicode string from the tree and return new offset */
 
-	char Temp[100], *OutPtr;
-	const char *InPtr;
-	
-	/* this will crash if composite tvbuffs are used */
-	/* XXX - need tvbuff routine to extract DBCS string lengths */
-	InPtr = tvb_get_ptr(tvb, offset, 1);
-	OutPtr = Temp;			/* point to temp space */
-	
-	while ( *InPtr){		/* copy every other byte */ 
-		*OutPtr++ = *InPtr;
-		InPtr += 2;
-	} 
-	*OutPtr = 0;			/* terminate out string */	
+	/*
+	 * Get the length of the string.
+	 * XXX - is it a bug or a feature that this will throw an exception
+	 * if we don't find the '\0'?  I think it's a feature.
+	 */
+	len = 0;
+	while ((character = tvb_get_letohs(tvb, offset + len)) != '\0')
+		len += 2;
+	len += 2;	/* count the '\0' too */
+
+	/*
+	 * Allocate a buffer for the string; "len" is the length in
+	 * bytes, not the length in characters.
+	 */
+	str = g_malloc(len/2);
+
+	/*
+	 * XXX - this assumes the string is just ISO 8859-1; we need
+	 * to better handle multiple character sets in Ethereal,
+	 * including Unicode/ISO 10646, and multiple encodings of
+	 * that character set (UCS-2, UTF-8, etc.).
+	 */
+	charoffset = offset;
+	p = str;
+	while ((character = tvb_get_letohs(tvb, charoffset)) != '\0') {
+		*p++ = character;
+		charoffset += 2;
+	}
+	*p = '\0';
 	  	
-	proto_tree_add_string(tree, hf_index, tvb, 
-		offset, strlen(Temp)*2+2, Temp);
+	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
+
+	g_free(str);
 	
-	return 	offset+strlen(Temp)*2+2;
+	return 	offset+len;
 }
 
 int
