@@ -2178,6 +2178,7 @@ cfgtype2str(guint8 type)
     { 0,	NULL },
   };
 
+#if 0
   static const value_string vs_v2_cfgtype[] = {
     { 0,	"RESERVED" },
     { 1,	"CFG_REQUEST" },
@@ -2186,6 +2187,7 @@ cfgtype2str(guint8 type)
     { 4,	"CFG_ACK" },
     { 0,	NULL },
   };
+#endif
 
   if (isakmp_version == 1) {
     if (type >= 5 && type <= 127)
