@@ -2,12 +2,11 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.25 2001/09/13 08:08:53 guy Exp $
+ * $Id: packet-rip.c,v 1.26 2001/09/14 06:34:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -96,7 +95,6 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 command;
     guint8 version;
     guint16 family;
-    guint reported_length;
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
         col_set_str(pinfo->fd, COL_PROTOCOL, "RIP");
@@ -127,8 +125,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = RIP_HEADER_LENGTH;
 
         /* zero or more entries */
-	reported_length = tvb_reported_length(tvb);
-	while (offset < reported_length) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 	    family = tvb_get_ntohs(tvb, offset);
 	    switch (family) {
 	    case 2: /* IP */
@@ -208,7 +205,7 @@ proto_register_rip(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_rip_command,
-			{ "Command", "rip.command", FT_UINT8, BASE_HEX,
+			{ "Command", "rip.command", FT_UINT8, BASE_DEC,
 			VALS(command_vals), 0, "What type of RIP Command is this", HFILL }},
 
 		{ &hf_rip_version,
