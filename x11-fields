@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.12 2004/03/22 22:53:56 deniel Exp $
+# $Id: x11-fields,v 1.13 2004/03/23 07:40:23 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -285,7 +285,7 @@ keycodes	NONE	NONE
 
 keycodes-per-modifier	UINT8	DEC
 
-keys		UINT8   DEC
+keys		BYTES	NONE
 
 keysyms		NONE	NONE
 	item	NONE	NONE
