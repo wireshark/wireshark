@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.636 2003/10/06 19:25:20 guy Exp $
+# $Id: Makefile.am,v 1.637 2003/10/10 03:00:09 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -764,6 +764,8 @@ ETHEREAL_COMMON_SRC = \
 	packet-dcerpc-nt.c \
 	pcap-util.c    \
 	pcap-util.h    \
+	pcap-util-int.h \
+	pcap-util-unix.c \
 	ppptypes.h     \
 	prefs-int.h    \
 	prefs.c        \

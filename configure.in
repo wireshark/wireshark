@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.223 2003/10/01 15:09:32 jmayer Exp $
+# $Id: configure.in,v 1.224 2003/10/10 03:00:09 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -459,7 +459,6 @@ if test "x$want_pcap" = "xno" ; then
 else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_PCAP_CHECK
-	AC_ETHEREAL_PCAP_VERSION_CHECK
 fi
 
 dnl zlib check

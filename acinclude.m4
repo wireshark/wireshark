@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.56 2003/08/31 22:08:57 sharpe Exp $
+dnl $Id: acinclude.m4,v 1.57 2003/10/10 03:00:09 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -327,17 +327,13 @@ and did you also install that package?]]))
 	  ], [AC_MSG_ERROR(Library libpcap not found.)],
 	  $SOCKET_LIBS $NSL_LIBS)
 	AC_SUBST(PCAP_LIBS)
-])
 
-#
-# AC_ETHEREAL_PCAP_VERSION_CHECK
-#
-# Check whether "pcap_version" is defined by libpcap.
-#
-AC_DEFUN(AC_ETHEREAL_PCAP_VERSION_CHECK,
-[
-	AC_MSG_CHECKING(whether pcap_version is defined by libpcap)
+	#
+	# Check whether various variables and functions are defined by
+	# libpcap.
+	#
 	ac_save_LIBS="$LIBS"
+	AC_MSG_CHECKING(whether pcap_version is defined by libpcap)
 	LIBS="$PCAP_LIBS $SOCKET_LIBS $NSL_LIBS $LIBS"
 	AC_TRY_LINK(
 	   [
@@ -350,13 +346,14 @@ AC_DEFUN(AC_ETHEREAL_PCAP_VERSION_CHECK,
 	   ac_cv_pcap_version_defined=yes,
 	   ac_cv_pcap_version_defined=no,
 	   [echo $ac_n "cross compiling; assumed OK... $ac_c"])
-	LIBS="$ac_save_LIBS"
 	if test "$ac_cv_pcap_version_defined" = yes ; then
 		AC_MSG_RESULT(yes)
 		AC_DEFINE(HAVE_PCAP_VERSION, 1, [Define if libpcap version is known])
 	else
 		AC_MSG_RESULT(no)
 	fi
+	AC_CHECK_FUNCS(pcap_findalldevs)
+	LIBS="$ac_save_LIBS"
 ])
 
 #
