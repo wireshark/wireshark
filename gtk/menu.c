@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.157 2004/02/03 17:59:01 ulfl Exp $
+ * $Id: menu.c,v 1.158 2004/02/04 01:10:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -840,7 +840,7 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, 
-                ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
+                ESD_BTNS_YES_NO_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
                 "If you open a new capture file without saving, your current capture data will be discarded.");
     simple_dialog_set_cb(dialog, menu_open_recent_file_answered_cb, widget);

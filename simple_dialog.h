@@ -1,13 +1,12 @@
 /* simple_dialog.h
- * Definitions for dialog box routines with toolkit-independent APIs but
+ * Definitions for alert box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.8 2004/02/03 17:59:00 ulfl Exp $
+ * $Id: simple_dialog.h,v 1.9 2004/02/04 01:10:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,7 +30,18 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Dialog type. */
+/* Dialog type.
+
+   INFO: tells the user something they should know, but not requiring
+   any action; the only button should be "OK".
+
+   WARN: tells the user about a problem; the only button should be "OK"
+
+   QUESTION: asks the user for confirmation; there should be more than one
+   button
+   
+   ERROR: tells the user about a serious problem; the only button should be
+   "OK". */
 #define ESD_TYPE_INFO	    0x00
 #define ESD_TYPE_WARN	    0x01
 #define ESD_TYPE_QUESTION   0x02
@@ -47,6 +57,10 @@ extern "C" {
 #define ESD_BTN_YES    0x04
 #define ESD_BTN_NO     0x08
 #define ESD_BTN_CLEAR  0x10
+
+#define ESD_BTNS_OK_CANCEL	(ESD_BTN_OK|ESD_BTN_CANCEL)
+#define ESD_BTNS_YES_NO		(ESD_BTN_YES|ESD_BTN_NO)
+#define ESD_BTNS_YES_NO_CANCEL	(ESD_BTN_YES|ESD_BTN_NO|ESD_BTN_CANCEL)
 
 /* show a simple dialog */
 #if __GNUC__ >= 2
