@@ -89,7 +89,7 @@ GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
 # If you don't have Zlib, comment this line out, so that Zlib isn't
 # defined.
 #
-ZLIB_DIR=$(ETHEREAL_LIBS)\zlib121-dll
+ZLIB_DIR=$(ETHEREAL_LIBS)\zlib122-dll
 
 #
 # Set PCAP_DIR to the pathname of the directory in which the WinPcap
