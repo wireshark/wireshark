@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.14 2001/03/30 10:51:50 guy Exp $
+ * $Id: packet-fr.c,v 1.15 2001/03/30 11:14:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,8 +29,9 @@
  *
  * http://www.protocols.com/pbook/frame.htm
  * http://www.frforum.com/5000/Approved/FRF.3/FRF.3.2.pdf
- * RFC-1490 
- * RFC-2427 
+ * ITU Recommendation Q.933
+ * RFC-1490
+ * RFC-2427
  * Cisco encapsulation
  * http://www.trillium.com/whats-new/wp_frmrly.html
  *
@@ -187,7 +188,7 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (fr_ctrl == XDLC_U) {
       if (tree) {
-		proto_tree_add_text(fr_tree, tvb, offset, 0, "------- IETF Encapsulation -------");
+		proto_tree_add_text(fr_tree, tvb, offset, 0, "------- Q.933 Encapsulation -------");
 		/*
 		 * XXX - if we're going to show this as Unnumbered
 		 * Information, should we just hand it to
@@ -220,6 +221,11 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       proto_tree_add_text(fr_tree, tvb, offset, 0, "------- Cisco Encapsulation -------");
       fr_type  = tvb_get_ntohs(tvb, offset);
+      if (ti != NULL) {
+		/* Include the second byte of the Cisco HDLC type
+		   in the top-level protocol tree item. */
+		proto_item_set_len(ti, proto_item_get_len(ti) + 1);
+      }
       chdlctype(fr_type, tvb, offset+2, pinfo, tree, fr_tree, hf_fr_chdlctype);
   }
 }
