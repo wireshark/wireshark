@@ -2,12 +2,11 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.30 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-lapb.c,v 1.31 2001/12/03 03:59:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -141,10 +140,13 @@ proto_register_lapb(void)
 void
 proto_reg_handoff_lapb(void)
 {
+    dissector_handle_t lapb_handle;
+
     /*
      * Get a handle for the X.25 dissector.
      */
     x25_handle = find_dissector("x.25");
 
-    dissector_add("wtap_encap", WTAP_ENCAP_LAPB, dissect_lapb, proto_lapb);
+    lapb_handle = find_dissector("lapb");
+    dissector_add("wtap_encap", WTAP_ENCAP_LAPB, lapb_handle);
 }

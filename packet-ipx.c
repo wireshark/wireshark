@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.95 2001/11/25 22:51:13 hagbard Exp $
+ * $Id: packet-ipx.c,v 1.96 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -981,20 +981,25 @@ proto_register_ipx(void)
 void
 proto_reg_handoff_ipx(void)
 {
-	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx, proto_ipx);
-	dissector_add("ethertype", ETHERTYPE_IPX, dissect_ipx, proto_ipx);
-	dissector_add("chdlctype", ETHERTYPE_IPX, dissect_ipx, proto_ipx);
-	dissector_add("ppp.protocol", PPP_IPX, dissect_ipx, proto_ipx);
-	dissector_add("llc.dsap", SAP_NETWARE, dissect_ipx, proto_ipx);
-	dissector_add("null.type", BSD_AF_IPX, dissect_ipx, proto_ipx);
-	dissector_add("gre.proto", ETHERTYPE_IPX, dissect_ipx, proto_ipx);
-	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, dissect_spx,
-	    proto_spx);
-	dissector_add("ipx.socket", IPX_SOCKET_SAP, dissect_ipxsap,
-	    proto_sap);
-	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, dissect_ipxrip,
-	    proto_ipxrip);
-	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, dissect_ipxmsg,
-	    proto_ipxmsg);
+	dissector_handle_t ipx_handle, spx_handle;
+	dissector_handle_t ipxsap_handle, ipxrip_handle;
+	dissector_handle_t ipxmsg_handle;
+
+	ipx_handle = find_dissector("ipx");
+	dissector_add("udp.port", UDP_PORT_IPX, ipx_handle);
+	dissector_add("ethertype", ETHERTYPE_IPX, ipx_handle);
+	dissector_add("chdlctype", ETHERTYPE_IPX, ipx_handle);
+	dissector_add("ppp.protocol", PPP_IPX, ipx_handle);
+	dissector_add("llc.dsap", SAP_NETWARE, ipx_handle);
+	dissector_add("null.type", BSD_AF_IPX, ipx_handle);
+	dissector_add("gre.proto", ETHERTYPE_IPX, ipx_handle);
+	spx_handle = create_dissector_handle(dissect_spx, proto_spx);
+	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);
+	ipxsap_handle = find_dissector("ipxsap");
+	dissector_add("ipx.socket", IPX_SOCKET_SAP, ipxsap_handle);
+	ipxrip_handle = create_dissector_handle(dissect_ipxrip, proto_ipxrip);
+	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
+	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
+	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
 	data_handle = find_dissector("data");
 }

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.66 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-tr.c,v 1.67 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -674,6 +674,8 @@ proto_register_tr(void)
 void
 proto_reg_handoff_tr(void)
 {
+	dissector_handle_t tr_handle;
+
 	/*
 	 * Get handles for the TR MAC and LLC dissectors.
 	 */
@@ -681,6 +683,6 @@ proto_reg_handoff_tr(void)
 	llc_handle = find_dissector("llc");
 	data_handle = find_dissector("data");
 
-	dissector_add("wtap_encap", WTAP_ENCAP_TOKEN_RING, dissect_tr,
-	    proto_tr);
+	tr_handle = find_dissector("tr");
+	dissector_add("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_handle);
 }

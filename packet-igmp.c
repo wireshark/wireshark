@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.12 2001/07/12 07:05:33 guy Exp $
+ * $Id: packet-igmp.c,v 1.13 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1085,5 +1085,8 @@ proto_register_igmp(void)
 void
 proto_reg_handoff_igmp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_IGMP, dissect_igmp, proto_igmp);
+	dissector_handle_t igmp_handle;
+
+	igmp_handle = create_dissector_handle(dissect_igmp, proto_igmp);
+	dissector_add("ip.proto", IP_PROTO_IGMP, igmp_handle);
 }

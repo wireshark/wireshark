@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.25 2001/07/02 02:09:26 guy Exp $
+ * $Id: packet-isis.c,v 1.26 2001/12/03 03:59:36 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -22,8 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -321,5 +319,8 @@ proto_register_isis(void) {
 void
 proto_reg_handoff_isis(void)
 {
-    dissector_add("osinl", NLPID_ISO10589_ISIS, dissect_isis, proto_isis);
+    dissector_handle_t isis_handle;
+
+    isis_handle = create_dissector_handle(dissect_isis, proto_isis);
+    dissector_add("osinl", NLPID_ISO10589_ISIS, isis_handle);
 }

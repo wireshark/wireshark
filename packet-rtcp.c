@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.24 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-rtcp.c,v 1.25 2001/12/03 03:59:39 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -1223,9 +1223,12 @@ proto_register_rtcp(void)
 void
 proto_reg_handoff_rtcp(void)
 {
+	dissector_handle_t rtcp_handle;
+
 	/*
 	 * Register this dissector as one that can be assigned to a
 	 * UDP conversation.
 	 */
-	conv_dissector_add("udp", dissect_rtcp, proto_rtcp);
+	rtcp_handle = find_dissector("rtcp");
+	conv_dissector_add("udp", rtcp_handle);
 }

@@ -2,10 +2,10 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.26 2001/11/25 22:51:14 hagbard Exp $
+ * $Id: packet-pop.c,v 1.27 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -224,6 +224,9 @@ proto_register_pop(void)
 void
 proto_reg_handoff_pop(void)
 {
-  dissector_add("tcp.port", TCP_PORT_POP, dissect_pop, proto_pop);
+  dissector_handle_t pop_handle;
+
+  pop_handle = create_dissector_handle(dissect_pop, proto_pop);
+  dissector_add("tcp.port", TCP_PORT_POP, pop_handle);
   data_handle = find_dissector("data");
 }

@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.30 2001/11/27 07:41:39 guy Exp $
+ * $Id: packet-socks.c,v 1.31 2001/12/03 03:59:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1132,6 +1132,5 @@ proto_reg_handoff_socks(void) {
 
 	/* dissector install routine */ 
  
- 	dissector_add("tcp.port", TCP_PORT_SOCKS, dissect_socks,
- 	    proto_socks);
+ 	dissector_add("tcp.port", TCP_PORT_SOCKS, socks_handle);
 }

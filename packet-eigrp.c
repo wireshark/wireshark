@@ -2,12 +2,11 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.17 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-eigrp.c,v 1.18 2001/12/03 03:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -476,8 +475,11 @@ proto_register_eigrp(void)
 void
 proto_reg_handoff_eigrp(void)
 {
+    dissector_handle_t eigrp_handle;
+
     ipxsap_handle = find_dissector("ipxsap");
-    dissector_add("ip.proto", IP_PROTO_EIGRP, dissect_eigrp, proto_eigrp);
-    dissector_add("ddp.type", DDP_EIGRP, dissect_eigrp, proto_eigrp);
-    dissector_add("ipx.socket", IPX_SOCKET_EIGRP, dissect_eigrp, proto_eigrp);
+    eigrp_handle = create_dissector_handle(dissect_eigrp, proto_eigrp);
+    dissector_add("ip.proto", IP_PROTO_EIGRP, eigrp_handle);
+    dissector_add("ddp.type", DDP_EIGRP, eigrp_handle);
+    dissector_add("ipx.socket", IPX_SOCKET_EIGRP, eigrp_handle);
 }

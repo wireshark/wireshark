@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.77 2001/11/25 22:51:14 hagbard Exp $
+ * $Id: packet-ppp.c,v 1.78 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2103,16 +2103,20 @@ proto_register_ppp(void)
 void
 proto_reg_handoff_ppp(void)
 {
+  dissector_handle_t ppp_hdlc_handle, ppp_handle;
+
   /*
    * Get a handle for the CHDLC dissector.
    */
   chdlc_handle = find_dissector("chdlc");
   data_handle = find_dissector("data");
 
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp_hdlc, proto_ppp);
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp_hdlc, proto_ppp);
-  dissector_add("fr.ietf", NLPID_PPP, dissect_ppp, proto_ppp);
-  dissector_add("gre.proto", ETHERTYPE_PPP, dissect_ppp_hdlc, proto_ppp);
+  ppp_hdlc_handle = find_dissector("ppp_hdlc");
+  ppp_handle = find_dissector("ppp");
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP, ppp_hdlc_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, ppp_hdlc_handle);
+  dissector_add("fr.ietf", NLPID_PPP, ppp_handle);
+  dissector_add("gre.proto", ETHERTYPE_PPP, ppp_hdlc_handle);
 }
 
 void
@@ -2144,7 +2148,10 @@ proto_register_mp(void)
 void
 proto_reg_handoff_mp(void)
 {
-  dissector_add("ppp.protocol", PPP_MP, dissect_mp, proto_mp);
+  dissector_handle_t mp_handle;
+
+  mp_handle = create_dissector_handle(dissect_mp, proto_mp);
+  dissector_add("ppp.protocol", PPP_MP, mp_handle);
 }
 
 void
@@ -2173,7 +2180,10 @@ proto_register_lcp(void)
 void
 proto_reg_handoff_lcp(void)
 {
-  dissector_add("ppp.protocol", PPP_LCP, dissect_lcp, proto_lcp);
+  dissector_handle_t lcp_handle;
+
+  lcp_handle = create_dissector_handle(dissect_lcp, proto_lcp);
+  dissector_add("ppp.protocol", PPP_LCP, lcp_handle);
 
   /*
    * NDISWAN on Windows translates Ethernet frames from higher-level
@@ -2191,7 +2201,7 @@ proto_reg_handoff_lcp(void)
    * "ethertype" dissector table as well as the PPP protocol dissector
    * table.
    */
-  dissector_add("ethertype", PPP_LCP, dissect_lcp, proto_lcp);
+  dissector_add("ethertype", PPP_LCP, lcp_handle);
 }
 
 void
@@ -2212,13 +2222,16 @@ proto_register_ipcp(void)
 void
 proto_reg_handoff_ipcp(void)
 {
-  dissector_add("ppp.protocol", PPP_IPCP, dissect_ipcp, proto_ipcp);
+  dissector_handle_t ipcp_handle;
+
+  ipcp_handle = create_dissector_handle(dissect_ipcp, proto_ipcp);
+  dissector_add("ppp.protocol", PPP_IPCP, ipcp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_IPCP, dissect_ipcp, proto_ipcp);
+  dissector_add("ethertype", PPP_IPCP, ipcp_handle);
 }
 
 void
@@ -2240,13 +2253,16 @@ proto_register_ccp(void)
 void
 proto_reg_handoff_ccp(void)
 {
-  dissector_add("ppp.protocol", PPP_CCP, dissect_ccp, proto_ccp);
+  dissector_handle_t ccp_handle;
+
+  ccp_handle = create_dissector_handle(dissect_ccp, proto_ccp);
+  dissector_add("ppp.protocol", PPP_CCP, ccp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_CCP, dissect_ccp, proto_ccp);
+  dissector_add("ethertype", PPP_CCP, ccp_handle);
 }
 
 void
@@ -2267,13 +2283,16 @@ proto_register_cbcp(void)
 void
 proto_reg_handoff_cbcp(void)
 {
-  dissector_add("ppp.protocol", PPP_CBCP, dissect_cbcp, proto_cbcp);
+  dissector_handle_t cbcp_handle;
+
+  cbcp_handle = create_dissector_handle(dissect_cbcp, proto_cbcp);
+  dissector_add("ppp.protocol", PPP_CBCP, cbcp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_CBCP, dissect_cbcp, proto_cbcp);
+  dissector_add("ethertype", PPP_CBCP, cbcp_handle);
 }
 
 void
@@ -2291,13 +2310,17 @@ proto_register_comp_data(void)
 void
 proto_reg_handoff_comp_data(void)
 {
-  dissector_add("ppp.protocol", PPP_COMP, dissect_comp_data, proto_comp_data);
+  dissector_handle_t comp_data_handle;
+
+  comp_data_handle = create_dissector_handle(dissect_comp_data,
+					proto_comp_data);
+  dissector_add("ppp.protocol", PPP_COMP, comp_data_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_COMP, dissect_comp_data, proto_comp_data);
+  dissector_add("ethertype", PPP_COMP, comp_data_handle);
 }
 
 void
@@ -2319,13 +2342,16 @@ proto_register_pap(void)
 void
 proto_reg_handoff_pap(void)
 {
-  dissector_add("ppp.protocol", PPP_PAP, dissect_pap, proto_pap);
+  dissector_handle_t pap_handle;
+
+  pap_handle = create_dissector_handle(dissect_pap, proto_pap);
+  dissector_add("ppp.protocol", PPP_PAP, pap_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_PAP, dissect_pap, proto_pap);
+  dissector_add("ethertype", PPP_PAP, pap_handle);
 }
 
 void
@@ -2347,11 +2373,14 @@ proto_register_chap(void)
 void
 proto_reg_handoff_chap(void)
 {
-  dissector_add("ppp.protocol", PPP_CHAP, dissect_chap, proto_chap);
+  dissector_handle_t chap_handle;
+
+  chap_handle = create_dissector_handle(dissect_chap, proto_chap);
+  dissector_add("ppp.protocol", PPP_CHAP, chap_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_CHAP, dissect_chap, proto_chap);
+  dissector_add("ethertype", PPP_CHAP, chap_handle);
 }

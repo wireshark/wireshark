@@ -3,12 +3,11 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.41 2001/11/26 04:52:50 hagbard Exp $
+ * $Id: packet-http.c,v 1.42 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,8 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -59,6 +56,7 @@ static int hf_http_request = -1;
 static gint ett_http = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t http_handle;
 
 #define TCP_PORT_HTTP			80
 #define TCP_PORT_PROXY_HTTP		3128
@@ -405,6 +403,7 @@ proto_register_http(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("http", dissect_http, proto_http);
+	http_handle = find_dissector("http");
 
 	/*
 	 * Dissectors shouldn't register themselves in this table;
@@ -431,35 +430,33 @@ proto_register_http(void)
  * Called by dissectors for protocols that run atop HTTP/TCP.
  */
 void
-http_dissector_add(guint32 port, dissector_t dissector, int proto)
+http_dissector_add(guint32 port, dissector_handle_t handle)
 {
 	/*
 	 * Register ourselves as the handler for that port number
 	 * over TCP.
 	 */
-	dissector_add("tcp.port", port, dissect_http, proto_http);
+	dissector_add("tcp.port", port, http_handle);
 
 	/*
 	 * And register them in *our* table for that port.
 	 */
-	dissector_add("http.port", port, dissector, proto);
+	dissector_add("http.port", port, handle);
 }
 
 void
 proto_reg_handoff_http(void)
 {
         data_handle = find_dissector("data");
-	dissector_add("tcp.port", TCP_PORT_HTTP, dissect_http, proto_http);
-	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http, proto_http);
-	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http,
-	    proto_http);
-	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http,
-	    proto_http);
+	dissector_add("tcp.port", TCP_PORT_HTTP, http_handle);
+	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, http_handle);
+	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, http_handle);
+	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, http_handle);
 
 	/*
 	 * XXX - is there anything to dissect in the body of an SSDP
 	 * request or reply?  I.e., should there be an SSDP dissector?
 	 */
-	dissector_add("tcp.port", TCP_PORT_SSDP, dissect_http, proto_http);
-	dissector_add("udp.port", UDP_PORT_SSDP, dissect_http, proto_http);
+	dissector_add("tcp.port", TCP_PORT_SSDP, http_handle);
+	dissector_add("udp.port", UDP_PORT_SSDP, http_handle);
 }

@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.27 2001/10/29 21:13:07 guy Exp $
+ * $Id: packet-l2tp.c,v 1.28 2001/12/03 03:59:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1066,8 +1066,10 @@ proto_register_l2tp(void)
 void
 proto_reg_handoff_l2tp(void)
 {
-	dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp,
-	    proto_l2tp);
+	dissector_handle_t l2tp_handle;
+
+	l2tp_handle = create_dissector_handle(dissect_l2tp, proto_l2tp);
+	dissector_add("udp.port", UDP_PORT_L2TP, l2tp_handle);
 
 	/*
 	 * Get a handle for the PPP-in-HDLC-like-framing dissector.

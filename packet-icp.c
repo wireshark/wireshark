@@ -1,13 +1,15 @@
 /* packet-icp.c
  * Routines for ICP (internet cache protocol) packet disassembly
  * RFC 2186 && RFC 2187
- *
- * $Id: packet-icp.c,v 1.18 2001/06/18 02:17:46 guy Exp $
- *
- * Ethereal - Network traffic analyzer
  * By Peter Torvals
  * Copyright 1999 Peter Torvals
-
+ *
+ * $Id: packet-icp.c,v 1.19 2001/12/03 03:59:35 guy Exp $
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -253,5 +255,8 @@ proto_register_icp(void)
 void
 proto_reg_handoff_icp(void)
 {
-	dissector_add("udp.port", UDP_PORT_ICP, dissect_icp, proto_icp);
+	dissector_handle_t icp_handle;
+
+	icp_handle = create_dissector_handle(dissect_icp, proto_icp);
+	dissector_add("udp.port", UDP_PORT_ICP, icp_handle);
 }

@@ -4,12 +4,11 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.13 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-cops.c,v 1.14 2001/12/03 03:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -827,5 +826,8 @@ void proto_register_cops(void)
 void
 proto_reg_handoff_cops(void)
 {
-        dissector_add("tcp.port", TCP_PORT_COPS, dissect_cops, proto_cops);
+	dissector_handle_t cops_handle;
+
+	cops_handle = create_dissector_handle(dissect_cops, proto_cops);
+        dissector_add("tcp.port", TCP_PORT_COPS, cops_handle);
 }

@@ -4,7 +4,7 @@
  *
  * Copyright 2001, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-msdp.c,v 1.2 2001/07/11 17:56:31 guy Exp $
+ * $Id: packet-msdp.c,v 1.3 2001/12/03 03:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -544,10 +544,12 @@ proto_register_msdp(void)
 }
 
 void
-proto_reg_handoff_PROTOABBREV(void)
+proto_reg_handoff_msdp(void)
 {
-        dissector_add("tcp.port", 639, dissect_msdp,
-            proto_msdp);
+	dissector_handle_t msdp_handle;
+
+	msdp_handle = create_dissector_handle(dissect_msdp, proto_msdp);
+        dissector_add("tcp.port", 639, msdp_handle);
 
         ip_handle = find_dissector("ip");
 

@@ -2,7 +2,7 @@
  * Routines for cisco tacacs/xtacacs/tacacs+ packet dissection
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-tacacs.c,v 1.16 2001/11/27 22:37:20 guy Exp $
+ * $Id: packet-tacacs.c,v 1.17 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -288,8 +288,10 @@ proto_register_tacacs(void)
 void
 proto_reg_handoff_tacacs(void)
 {
-	dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs,
-	    proto_tacacs);
+	dissector_handle_t tacacs_handle;
+
+	tacacs_handle = create_dissector_handle(dissect_tacacs, proto_tacacs);
+	dissector_add("udp.port", UDP_PORT_TACACS, tacacs_handle);
 }
 
 static int proto_tacplus = -1;
@@ -464,6 +466,9 @@ proto_register_tacplus(void)
 void
 proto_reg_handoff_tacplus(void)
 {
-	dissector_add("tcp.port", TCP_PORT_TACACS, dissect_tacplus,
+	dissector_handle_t tacplus_handle;
+
+	tacplus_handle = create_dissector_handle(dissect_tacplus,
 	    proto_tacplus);
+	dissector_add("tcp.port", TCP_PORT_TACACS, tacplus_handle);
 }

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.69 2001/12/02 00:07:46 guy Exp $
+ * $Id: packet-ipv6.c,v 1.70 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1153,16 +1153,20 @@ proto_register_ipv6(void)
 void
 proto_reg_handoff_ipv6(void)
 {
+  dissector_handle_t ipv6_handle, ipv6_none_handle;
+
   data_handle = find_dissector("data");
-  dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
-  dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6, proto_ipv6);
-  dissector_add("ppp.protocol", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
-  dissector_add("gre.proto", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
-  dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6, proto_ipv6);
-  dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none, proto_ipv6);
-  dissector_add("null.type", BSD_AF_INET6_BSD, dissect_ipv6, proto_ipv6);
-  dissector_add("null.type", BSD_AF_INET6_FREEBSD, dissect_ipv6, proto_ipv6);
-  dissector_add("chdlctype", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
-  dissector_add("fr.ietf", NLPID_IP6, dissect_ipv6, proto_ipv6);
-  dissector_add("x.25.spi", NLPID_IP6, dissect_ipv6, proto_ipv6);
+  ipv6_handle = find_dissector("ipv6");
+  dissector_add("ethertype", ETHERTYPE_IPv6, ipv6_handle);
+  dissector_add("ppp.protocol", PPP_IPV6, ipv6_handle);
+  dissector_add("ppp.protocol", ETHERTYPE_IPv6, ipv6_handle);
+  dissector_add("gre.proto", ETHERTYPE_IPv6, ipv6_handle);
+  dissector_add("ip.proto", IP_PROTO_IPV6, ipv6_handle);
+  ipv6_none_handle = create_dissector_handle(dissect_ipv6_none, proto_ipv6);
+  dissector_add("ip.proto", IP_PROTO_NONE, ipv6_none_handle);
+  dissector_add("null.type", BSD_AF_INET6_BSD, ipv6_handle);
+  dissector_add("null.type", BSD_AF_INET6_FREEBSD, ipv6_handle);
+  dissector_add("chdlctype", ETHERTYPE_IPv6, ipv6_handle);
+  dissector_add("fr.ietf", NLPID_IP6, ipv6_handle);
+  dissector_add("x.25.spi", NLPID_IP6, ipv6_handle);
 }

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.17 2001/11/21 21:37:25 guy Exp $
+ * $Id: packet-gtp.c,v 1.18 2001/12/03 03:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5144,20 +5144,26 @@ void
 proto_reg_handoff_gtp(void)
 {
 	static int Initialized = FALSE;
+	static dissector_handle_t gtpv0_handle;
+	static dissector_handle_t gtpv1_handle;
 	
-	if (Initialized) {
+	if (!Initialized) {
 		
-		dissector_delete("udp.port", gtpv0_port, dissect_gtpv0);
-		dissector_delete("tcp.port", gtpv0_port, dissect_gtpv0);
-		
-		dissector_delete("udp.port", gtpv1c_port, dissect_gtpv1);
-		dissector_delete("tcp.port", gtpv1c_port, dissect_gtpv1);
-		dissector_delete("udp.port", gtpv1u_port, dissect_gtpv1);
-		dissector_delete("tcp.port", gtpv1u_port, dissect_gtpv1);
+		gtpv0_handle = find_dissector("gtpv0");
+
+		gtpv1_handle = find_dissector("gtpv1");
+
+		Initialized = TRUE;
 		
 	} else {
 		
-		Initialized = TRUE;
+		dissector_delete("udp.port", gtpv0_port, gtpv0_handle);
+		dissector_delete("tcp.port", gtpv0_port, gtpv0_handle);
+
+		dissector_delete("udp.port", gtpv1c_port, gtpv1_handle);
+		dissector_delete("tcp.port", gtpv1c_port, gtpv1_handle);
+		dissector_delete("udp.port", gtpv1u_port, gtpv1_handle);
+		dissector_delete("tcp.port", gtpv1u_port, gtpv1_handle);
 	}
 		
 	gtpv0_port = g_gtpv0_port;
@@ -5166,15 +5172,15 @@ proto_reg_handoff_gtp(void)
 	
 	/* GTP v0 */
 	
-	dissector_add("udp.port", g_gtpv0_port, dissect_gtpv0, proto_gtpv0);
-	dissector_add("tcp.port", g_gtpv0_port, dissect_gtpv0, proto_gtpv0);
+	dissector_add("udp.port", g_gtpv0_port, gtpv0_handle);
+	dissector_add("tcp.port", g_gtpv0_port, gtpv0_handle);
 
 	/* GTP v1 */
 	
-	dissector_add("udp.port", g_gtpv1c_port, dissect_gtpv1, proto_gtpv1);
-	dissector_add("tcp.port", g_gtpv1c_port, dissect_gtpv1, proto_gtpv1);
-	dissector_add("udp.port", g_gtpv1u_port, dissect_gtpv1, proto_gtpv1);
-	dissector_add("tcp.port", g_gtpv1u_port, dissect_gtpv1, proto_gtpv1);
+	dissector_add("udp.port", g_gtpv1c_port, gtpv1_handle);
+	dissector_add("tcp.port", g_gtpv1c_port, gtpv1_handle);
+	dissector_add("udp.port", g_gtpv1u_port, gtpv1_handle);
+	dissector_add("tcp.port", g_gtpv1u_port, gtpv1_handle);
 	
 	ip_handle = find_dissector("ip");
 	ppp_handle = find_dissector("ppp");

@@ -3,10 +3,10 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-time.c,v 1.14 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-time.c,v 1.15 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -92,5 +92,8 @@ proto_register_time(void)
 void
 proto_reg_handoff_time(void)
 {
-  dissector_add("udp.port", UDP_PORT_TIME, dissect_time, proto_time);
+  dissector_handle_t time_handle;
+
+  time_handle = create_dissector_handle(dissect_time, proto_time);
+  dissector_add("udp.port", UDP_PORT_TIME, time_handle);
 }

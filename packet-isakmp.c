@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.49 2001/11/14 20:02:23 gram Exp $
+ * $Id: packet-isakmp.c,v 1.50 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1341,12 +1341,15 @@ proto_register_isakmp(void)
 void
 proto_reg_handoff_isakmp(void)
 {
+  dissector_handle_t isakmp_handle;
+
   /*
    * Get handle for the AH & ESP dissectors.
    */
   esp_handle = find_dissector("esp");
   ah_handle = find_dissector("ah");
 
-  dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp, proto_isakmp);
-  dissector_add("tcp.port", TCP_PORT_ISAKMP, dissect_isakmp, proto_isakmp);
+  isakmp_handle = create_dissector_handle(dissect_isakmp, proto_isakmp);
+  dissector_add("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
+  dissector_add("tcp.port", TCP_PORT_ISAKMP, isakmp_handle);
 }

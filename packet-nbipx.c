@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-nbipx.c,v 1.42 2001/11/13 23:55:30 gram Exp $
+ * $Id: packet-nbipx.c,v 1.43 2001/12/03 03:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -536,8 +536,10 @@ proto_register_nbipx(void)
 void
 proto_reg_handoff_nbipx(void)
 {
-	dissector_add("ipx.socket", IPX_SOCKET_NETBIOS, dissect_nbipx,
-	    proto_nbipx);
+	dissector_handle_t nbipx_handle;
+
+	nbipx_handle = create_dissector_handle(dissect_nbipx, proto_nbipx);
+	dissector_add("ipx.socket", IPX_SOCKET_NETBIOS, nbipx_handle);
 }
 
 /*
@@ -794,8 +796,11 @@ proto_register_nmpi(void)
 void
 proto_reg_handoff_nmpi(void)
 {
+	dissector_handle_t nmpi_handle;
+
+	nmpi_handle = create_dissector_handle(dissect_nmpi, proto_nmpi);
 	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_NAMEQUERY,
-	    dissect_nmpi, proto_nmpi);
+	    nmpi_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_MAILSLOT,
-	    dissect_nmpi, proto_nmpi);
+	    nmpi_handle);
 }

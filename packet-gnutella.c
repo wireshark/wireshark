@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.8 2001/11/21 02:01:06 guy Exp $
+ * $Id: packet-gnutella.c,v 1.9 2001/12/03 03:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -765,8 +765,9 @@ void proto_register_gnutella(void) {
 }
 
 void proto_reg_handoff_gnutella(void) {
-	dissector_add("tcp.port",
-			GNUTELLA_TCP_PORT,
-			dissect_gnutella,
+	dissector_handle_t gnutella_handle;
+
+	gnutella_handle = create_dissector_handle(dissect_gnutella,
 			proto_gnutella);
+	dissector_add("tcp.port", GNUTELLA_TCP_PORT, gnutella_handle);
 }

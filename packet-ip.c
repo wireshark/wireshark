@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.149 2001/12/02 00:07:46 guy Exp $
+ * $Id: packet-ip.c,v 1.150 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1798,18 +1798,21 @@ proto_register_ip(void)
 void
 proto_reg_handoff_ip(void)
 {
+	dissector_handle_t ip_handle;
+
         data_handle = find_dissector("data");
-	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip, proto_ip);
-	dissector_add("ppp.protocol", PPP_IP, dissect_ip, proto_ip);
-	dissector_add("ppp.protocol", ETHERTYPE_IP, dissect_ip, proto_ip);
-	dissector_add("gre.proto", ETHERTYPE_IP, dissect_ip, proto_ip);
-	dissector_add("gre.proto", GRE_WCCP, dissect_ip, proto_ip);
-	dissector_add("llc.dsap", SAP_IP, dissect_ip, proto_ip);
-	dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip, proto_ip);
-	dissector_add("null.type", BSD_AF_INET, dissect_ip, proto_ip);
-	dissector_add("chdlctype", ETHERTYPE_IP, dissect_ip, proto_ip);
-	dissector_add("fr.ietf", NLPID_IP, dissect_ip, proto_ip);
-	dissector_add("x.25.spi", NLPID_IP, dissect_ip, proto_ip);
+        ip_handle = find_dissector("ip");
+	dissector_add("ethertype", ETHERTYPE_IP, ip_handle);
+	dissector_add("ppp.protocol", PPP_IP, ip_handle);
+	dissector_add("ppp.protocol", ETHERTYPE_IP, ip_handle);
+	dissector_add("gre.proto", ETHERTYPE_IP, ip_handle);
+	dissector_add("gre.proto", GRE_WCCP, ip_handle);
+	dissector_add("llc.dsap", SAP_IP, ip_handle);
+	dissector_add("ip.proto", IP_PROTO_IPIP, ip_handle);
+	dissector_add("null.type", BSD_AF_INET, ip_handle);
+	dissector_add("chdlctype", ETHERTYPE_IP, ip_handle);
+	dissector_add("fr.ietf", NLPID_IP, ip_handle);
+	dissector_add("x.25.spi", NLPID_IP, ip_handle);
 }
 
 void
@@ -1916,10 +1919,13 @@ proto_register_icmp(void)
 void
 proto_reg_handoff_icmp(void)
 {
+  dissector_handle_t icmp_handle;
+
   /*
    * Get handle for the IP dissector.
    */
   ip_handle = find_dissector("ip");
 
-  dissector_add("ip.proto", IP_PROTO_ICMP, dissect_icmp, proto_icmp);
+  icmp_handle = create_dissector_handle(dissect_icmp, proto_icmp);
+  dissector_add("ip.proto", IP_PROTO_ICMP, icmp_handle);
 }

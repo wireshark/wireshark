@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.35 2001/11/27 07:41:39 guy Exp $
+ * $Id: packet-diameter.c,v 1.36 2001/12/03 03:59:34 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -1606,12 +1606,18 @@ proto_reg_handoff_diameter(void)
   static int Initialized=FALSE;
   static int TcpPort=0;
   static int SctpPort=0;
+  static dissector_handle_t diameter_tcp_handle;
+  static dissector_handle_t diameter_sctp_handle;
 
-  if (Initialized) {
-	dissector_delete("tcp.port", TcpPort, dissect_diameter_tcp);
-	dissector_delete("sctp.port", SctpPort, dissect_diameter_sctp);
-  } else {
+  if (!Initialized) {
+	diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
+	    proto_diameter);
+	diameter_sctp_handle = create_dissector_handle(dissect_diameter_sctp,
+	    proto_diameter);
 	Initialized=TRUE;
+  } else {
+	dissector_delete("tcp.port", TcpPort, diameter_tcp_handle);
+	dissector_delete("sctp.port", SctpPort, diameter_sctp_handle);
   }
 
   /* set port for future deletes */
@@ -1622,10 +1628,8 @@ proto_reg_handoff_diameter(void)
 
   /* g_warning ("Diameter: Adding tcp dissector to port %d",
 	 gbl_diameterTcpPort); */
-  dissector_add("tcp.port", gbl_diameterTcpPort, dissect_diameter_tcp,
-				proto_diameter);
-  dissector_add("sctp.port", gbl_diameterSctpPort,
-				dissect_diameter_sctp, proto_diameter);
+  dissector_add("tcp.port", gbl_diameterTcpPort, diameter_tcp_handle);
+  dissector_add("sctp.port", gbl_diameterSctpPort, diameter_sctp_handle);
 }
 
 /* registration with the filtering engine */

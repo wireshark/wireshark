@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.44 2001/11/28 07:11:07 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.45 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1900,6 +1900,8 @@ proto_register_wlan (void)
 void
 proto_reg_handoff_wlan(void)
 {
+  dissector_handle_t ieee80211_handle;
+
   /*
    * Get handles for the LLC and IPX dissectors.
    */
@@ -1907,6 +1909,6 @@ proto_reg_handoff_wlan(void)
   ipx_handle = find_dissector("ipx");
   data_handle = find_dissector("data");
 
-  dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, dissect_ieee80211,
-		proto_wlan);
+  ieee80211_handle = find_dissector("wlan");
+  dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
 }

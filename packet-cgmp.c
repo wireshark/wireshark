@@ -1,12 +1,11 @@
 /* packet-cgmp.c
  * Routines for the disassembly of the Cisco Group Management Protocol
  *
- * $Id: packet-cgmp.c,v 1.10 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-cgmp.c,v 1.11 2001/12/03 03:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -140,5 +139,8 @@ proto_register_cgmp(void)
 void
 proto_reg_handoff_cgmp(void)
 {
-	dissector_add("llc.cisco_pid", 0x2001, dissect_cgmp, proto_cgmp);
+	dissector_handle_t cgmp_handle;
+
+	cgmp_handle = create_dissector_handle(dissect_cgmp, proto_cgmp);
+	dissector_add("llc.cisco_pid", 0x2001, cgmp_handle);
 }

@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.5 2001/11/05 21:41:33 guy Exp $
+ * $Id: packet-ucp.c,v 1.6 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2503,6 +2503,8 @@ proto_register_ucp(void)
 void
 proto_reg_handoff_ucp(void)
 {
+    dissector_handle_t ucp_handle;
+
     /*
      * UCP can be spoken on any port so, when not on a specific port, try this
      * one whenever TCP is spoken.
@@ -2511,5 +2513,6 @@ proto_reg_handoff_ucp(void)
     /*
      * Also register as one that can be assigned to a TCP conversation.
      */
-    conv_dissector_add("tcp", dissect_ucp, proto_ucp);
+    ucp_handle = create_dissector_handle(dissect_ucp, proto_ucp);
+    conv_dissector_add("tcp", ucp_handle);
 }

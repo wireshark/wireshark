@@ -2,13 +2,14 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.27 2001/10/31 10:40:58 guy Exp $
+ * $Id: packet-mgcp.c,v 1.28 2001/12/03 04:00:26 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1999 Gerald Combs
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -565,20 +566,22 @@ void
 proto_reg_handoff_mgcp(void)
 {
   static int mgcp_prefs_initialized = FALSE;
+  static dissector_handle_t mgcp_handle;
 
   /*
    * Get a handle for the SDP dissector.
    */
   sdp_handle = find_dissector("sdp");
 
-  if (mgcp_prefs_initialized) {
-    dissector_delete("tcp.port", gateway_tcp_port, dissect_mgcp);
-    dissector_delete("udp.port", gateway_udp_port, dissect_mgcp);
-    dissector_delete("tcp.port", callagent_tcp_port, dissect_mgcp);
-    dissector_delete("udp.port", callagent_udp_port, dissect_mgcp);
+  if (!mgcp_prefs_initialized) {
+    mgcp_handle = create_dissector_handle(dissect_mgcp, proto_mgcp);
+    mgcp_prefs_initialized = TRUE;
   }
   else {
-    mgcp_prefs_initialized = TRUE;
+    dissector_delete("tcp.port", gateway_tcp_port, mgcp_handle);
+    dissector_delete("udp.port", gateway_udp_port, mgcp_handle);
+    dissector_delete("tcp.port", callagent_tcp_port, mgcp_handle);
+    dissector_delete("udp.port", callagent_udp_port, mgcp_handle);
   }
 
   /* Set our port number for future use */
@@ -589,14 +592,10 @@ proto_reg_handoff_mgcp(void)
   callagent_tcp_port = global_mgcp_callagent_tcp_port;
   callagent_udp_port = global_mgcp_callagent_udp_port;
 
-  dissector_add("tcp.port", global_mgcp_gateway_tcp_port, dissect_mgcp,
-		proto_mgcp);
-  dissector_add("udp.port", global_mgcp_gateway_udp_port, dissect_mgcp,
-		proto_mgcp);
-  dissector_add("tcp.port", global_mgcp_callagent_tcp_port, dissect_mgcp,
-		proto_mgcp);
-  dissector_add("udp.port", global_mgcp_callagent_udp_port, dissect_mgcp,
-		proto_mgcp);
+  dissector_add("tcp.port", global_mgcp_gateway_tcp_port, mgcp_handle);
+  dissector_add("udp.port", global_mgcp_gateway_udp_port, mgcp_handle);
+  dissector_add("tcp.port", global_mgcp_callagent_tcp_port, mgcp_handle);
+  dissector_add("udp.port", global_mgcp_callagent_udp_port, mgcp_handle);
 
 }
 
@@ -1273,5 +1272,3 @@ plugin_init(plugin_address_table_t *pat){
 #endif
 
 /* End the functions we need for plugin stuff */
-
-

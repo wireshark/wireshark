@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.32 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-tftp.c,v 1.33 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -346,5 +346,5 @@ proto_register_tftp(void)
 void
 proto_reg_handoff_tftp(void)
 {
-  dissector_add("udp.port", UDP_PORT_TFTP, dissect_tftp, proto_tftp);
+  dissector_add("udp.port", UDP_PORT_TFTP, tftp_handle);
 }

@@ -2,7 +2,7 @@
  * Routines for Frame Relay Local Management Interface (LMI) disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-lmi.c,v 1.6 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-lmi.c,v 1.7 2001/12/03 03:59:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -246,5 +246,8 @@ proto_register_lmi(void)
 void
 proto_reg_handoff_lmi(void)
 {
-	dissector_add("fr.ietf", NLPID_LMI, dissect_lmi, proto_lmi);
+	dissector_handle_t lmi_handle;
+
+	lmi_handle = create_dissector_handle(dissect_lmi, proto_lmi);
+	dissector_add("fr.ietf", NLPID_LMI, lmi_handle);
 }

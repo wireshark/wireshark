@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-sna.c,v 1.34 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-sna.c,v 1.35 2001/12/03 03:59:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1199,7 +1199,9 @@ proto_register_sna(void)
 void
 proto_reg_handoff_sna(void)
 {
-	dissector_add("llc.dsap", SAP_SNA_PATHCTRL, dissect_sna,
-	    proto_sna);
+	dissector_handle_t sna_handle;
+
+	sna_handle = find_dissector("sna");
+	dissector_add("llc.dsap", SAP_SNA_PATHCTRL, sna_handle);
 	data_handle = find_dissector("data");
 }

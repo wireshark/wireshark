@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.5 2001/11/26 01:03:35 hagbard Exp $
+ * $Id: packet-bvlc.c,v 1.6 2001/12/03 03:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -395,7 +395,10 @@ proto_register_bvlc(void)
 void
 proto_reg_handoff_bvlc(void)
 {
-	dissector_add("udp.port", 0xBAC0, dissect_bvlc, proto_bvlc); /* added proto_bvlc */
+	dissector_handle_t bvlc_handle;
+
+	bvlc_handle = find_dissector("bvlc");
+	dissector_add("udp.port", 0xBAC0, bvlc_handle);
 	data_handle = find_dissector("data");
 }
 /* Taken from add-135a (BACnet-IP-standard paper):
@@ -411,4 +414,3 @@ proto_reg_handoff_bvlc(void)
  * If you changed your BACnet port locally, use the ethereal feature
  * "Decode As".
  */
-

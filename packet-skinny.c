@@ -7,7 +7,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.5 2001/11/25 22:19:25 hagbard Exp $
+ * $Id: packet-skinny.c,v 1.6 2001/12/03 03:59:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -291,6 +291,9 @@ proto_register_skinny(void)
 void
 proto_reg_handoff_skinny(void)
 {
+  dissector_handle_t skinny_handle;
+
   data_handle = find_dissector("data");
-  dissector_add("tcp.port", TCP_PORT_SKINNY, &dissect_skinny, proto_skinny);
+  skinny_handle = create_dissector_handle(dissect_skinny, proto_skinny);
+  dissector_add("tcp.port", TCP_PORT_SKINNY, skinny_handle);
 }

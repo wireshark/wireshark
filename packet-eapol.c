@@ -1,7 +1,7 @@
 /* packet-eapol.c
  * Routines for EAPOL 802.1X authentication header disassembly
  *
- * $Id: packet-eapol.c,v 1.2 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-eapol.c,v 1.3 2001/12/03 03:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,6 +137,9 @@ proto_register_eapol(void)
 void
 proto_reg_handoff_eapol(void)
 {
+  dissector_handle_t eapol_handle;
+
   data_handle = find_dissector("data");
-  dissector_add("ethertype", ETHERTYPE_EAPOL, dissect_eapol, proto_eapol);
+  eapol_handle = create_dissector_handle(dissect_eapol, proto_eapol);
+  dissector_add("ethertype", ETHERTYPE_EAPOL, eapol_handle);
 }

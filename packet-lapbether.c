@@ -3,12 +3,11 @@
  * Richard Sharpe <rsharpe@ns.aus.com> based on the lapb module by
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapbether.c,v 1.6 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-lapbether.c,v 1.7 2001/12/03 03:59:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -100,12 +99,15 @@ proto_register_lapbether(void)
 void
 proto_reg_handoff_lapbether(void)
 {
+  dissector_handle_t lapbether_handle;
 
   /*
    * Get a handle for the LAPB dissector.
    */
   lapb_handle = find_dissector("lapb");
 
-  dissector_add("ethertype", ETHERTYPE_DEC, dissect_lapbether, proto_lapbether);
+  lapbether_handle = create_dissector_handle(dissect_lapbether,
+					     proto_lapbether);
+  dissector_add("ethertype", ETHERTYPE_DEC, lapbether_handle);
 
 }

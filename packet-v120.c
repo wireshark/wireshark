@@ -2,12 +2,11 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.20 2001/11/25 22:19:25 hagbard Exp $
+ * $Id: packet-v120.c,v 1.21 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -235,7 +234,9 @@ proto_register_v120(void)
 void
 proto_reg_handoff_v120(void)
 {
-        data_handle = find_dissector("data");
-	dissector_add("wtap_encap", WTAP_ENCAP_V120, dissect_v120,
-	    proto_v120);
+    dissector_handle_t v120_handle;
+
+    data_handle = find_dissector("data");
+    v120_handle = create_dissector_handle(dissect_v120, proto_v120);
+    dissector_add("wtap_encap", WTAP_ENCAP_V120, v120_handle);
 }

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.118 2001/11/29 09:05:23 guy Exp $
+ * $Id: packet-tcp.c,v 1.119 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1230,6 +1230,9 @@ proto_register_tcp(void)
 void
 proto_reg_handoff_tcp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_TCP, dissect_tcp, proto_tcp);
+	dissector_handle_t tcp_handle;
+
+	tcp_handle = create_dissector_handle(dissect_tcp, proto_tcp);
+	dissector_add("ip.proto", IP_PROTO_TCP, tcp_handle);
 	data_handle = find_dissector("data");
 }

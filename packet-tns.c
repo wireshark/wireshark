@@ -1,10 +1,10 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.22 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-tns.c,v 1.23 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -1035,6 +1035,9 @@ void proto_register_tns(void)
 void
 proto_reg_handoff_tns(void)
 {
-	dissector_add("tcp.port", TCP_PORT_TNS, dissect_tns, proto_tns);
+	dissector_handle_t tns_handle;
+
+	tns_handle = create_dissector_handle(dissect_tns, proto_tns);
+	dissector_add("tcp.port", TCP_PORT_TNS, tns_handle);
 	data_handle = find_dissector("data");
 }

@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.5 2001/11/27 07:13:25 guy Exp $
+ * $Id: packet-dsi.c,v 1.6 2001/12/03 03:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -492,5 +492,5 @@ void
 proto_reg_handoff_dsi(void)
 {
   data_handle = find_dissector("data");
-  dissector_add("tcp.port", TCP_PORT_DSI, dissect_dsi, proto_dsi);
+  dissector_add("tcp.port", TCP_PORT_DSI, dsi_handle);
 }

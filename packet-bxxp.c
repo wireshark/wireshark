@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.21 2001/09/03 10:33:05 guy Exp $
+ * $Id: packet-bxxp.c,v 1.22 2001/12/03 03:59:33 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1239,15 +1239,18 @@ void
 proto_reg_handoff_bxxp(void)
 {
   static int bxxp_prefs_initialized = FALSE;
+  static dissector_handle_t bxxp_handle;
 
-  if (bxxp_prefs_initialized) {
+  if (!bxxp_prefs_initialized) {
 
-    dissector_delete("tcp.port", tcp_port, dissect_bxxp);
+    bxxp_handle = create_dissector_handle(dissect_bxxp, proto_bxxp);
+
+    bxxp_prefs_initialized = TRUE;
 
   }
   else {
 
-    bxxp_prefs_initialized = TRUE;
+    dissector_delete("tcp.port", tcp_port, bxxp_handle);
 
   }
 
@@ -1255,6 +1258,6 @@ proto_reg_handoff_bxxp(void)
 
   tcp_port = global_bxxp_tcp_port;
 
-  dissector_add("tcp.port", global_bxxp_tcp_port, dissect_bxxp, proto_bxxp);
+  dissector_add("tcp.port", global_bxxp_tcp_port, bxxp_handle);
 
 }

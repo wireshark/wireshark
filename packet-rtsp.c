@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.43 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-rtsp.c,v 1.44 2001/12/03 03:59:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -828,7 +828,10 @@ proto_register_rtsp(void)
 void
 proto_reg_handoff_rtsp(void)
 {
-	dissector_add("tcp.port", TCP_PORT_RTSP, dissect_rtsp, proto_rtsp);
+	dissector_handle_t rtsp_handle;
+
+	rtsp_handle = create_dissector_handle(dissect_rtsp, proto_rtsp);
+	dissector_add("tcp.port", TCP_PORT_RTSP, rtsp_handle);
 
 	sdp_handle = find_dissector("sdp");
 	rtp_handle = find_dissector("rtp");

@@ -3,7 +3,7 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.15 2001/10/26 18:28:16 gram Exp $
+ * $Id: packet-zebra.c,v 1.16 2001/12/03 03:59:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -645,5 +645,8 @@ proto_register_zebra(void)
 void
 proto_reg_handoff_zebra(void)
 {
-  dissector_add("tcp.port", TCP_PORT_ZEBRA, dissect_zebra, proto_zebra);
+  dissector_handle_t zebra_handle;
+
+  zebra_handle = create_dissector_handle(dissect_zebra, proto_zebra);
+  dissector_add("tcp.port", TCP_PORT_ZEBRA, zebra_handle);
 }

@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.32 2001/11/21 23:34:09 gram Exp $
+ * $Id: plugin_table.h,v 1.33 2001/12/03 04:00:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -37,7 +37,7 @@ typedef void (*addr_col_append_str)(frame_data*, gint, gchar*);
 typedef void (*addr_col_set_str)(frame_data*, gint, gchar*);
 
 typedef void (*addr_register_init_routine)(void (*func)(void));
-typedef void (*addr_conv_dissector_add)(const char *, dissector_t, int);
+typedef void (*addr_conv_dissector_add)(const char *, dissector_handle_t);
 typedef conversation_t *(*addr_conversation_new)(address *, address *, 
     port_type, guint32, guint32, guint);
 typedef conversation_t *(*addr_find_conversation)(address *, address *, 
@@ -49,13 +49,16 @@ typedef int (*addr_proto_register_protocol)(char*, char*, char*);
 typedef void (*addr_proto_register_field_array)(int, hf_register_info*, int);
 typedef void (*addr_proto_register_subtree_array)(int**, int);
 
-typedef void (*addr_dissector_add)(const char *, guint32, dissector_t, int);
-typedef void (*addr_dissector_delete)(const char *, guint32, dissector_t);
+typedef void (*addr_dissector_add)(const char *, guint32, dissector_handle_t);
+typedef void (*addr_dissector_delete)(const char *, guint32,
+    dissector_handle_t);
 
 typedef void (*addr_heur_dissector_add)(const char *, heur_dissector_t, int);
 
 typedef void (*addr_register_dissector)(const char *, dissector_t, int);
 typedef dissector_handle_t (*addr_find_dissector)(const char *);
+typedef dissector_handle_t (*addr_create_dissector_handle)(dissector_t dissector,
+    int proto);
 typedef void (*addr_call_dissector)(dissector_handle_t, tvbuff_t *,
     packet_info *, proto_tree *);
 

@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.35 2001/07/03 09:08:03 guy Exp $
+ * $Id: packet-icq.c,v 1.36 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2143,5 +2143,8 @@ proto_register_icq(void)
 void
 proto_reg_handoff_icq(void)
 {
-    dissector_add("udp.port", UDP_PORT_ICQ, dissect_icq, proto_icq);
+    dissector_handle_t icq_handle;
+
+    icq_handle = create_dissector_handle(dissect_icq, proto_icq);
+    dissector_add("udp.port", UDP_PORT_ICQ, icq_handle);
 }

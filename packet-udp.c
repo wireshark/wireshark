@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.96 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-udp.c,v 1.97 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,6 +283,9 @@ proto_register_udp(void)
 void
 proto_reg_handoff_udp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_UDP, dissect_udp, proto_udp);
+	dissector_handle_t udp_handle;
+
+	udp_handle = create_dissector_handle(dissect_udp, proto_udp);
+	dissector_add("ip.proto", IP_PROTO_UDP, udp_handle);
 	data_handle = find_dissector("data");
 }

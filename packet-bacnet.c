@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.5 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-bacnet.c,v 1.6 2001/12/03 03:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -599,9 +599,12 @@ proto_register_bacnet(void)
 void
 proto_reg_handoff_bacnet(void)
 {
-	dissector_add("bvlc.function", 0x04, dissect_bacnet, proto_bacnet);
-	dissector_add("bvlc.function", 0x09, dissect_bacnet, proto_bacnet);
-	dissector_add("bvlc.function", 0x0a, dissect_bacnet, proto_bacnet);
-	dissector_add("bvlc.function", 0x0b, dissect_bacnet, proto_bacnet);
+	dissector_handle_t bacnet_handle;
+
+	bacnet_handle = find_dissector("bacnet");
+	dissector_add("bvlc.function", 0x04, bacnet_handle);
+	dissector_add("bvlc.function", 0x09, bacnet_handle);
+	dissector_add("bvlc.function", 0x0a, bacnet_handle);
+	dissector_add("bvlc.function", 0x0b, bacnet_handle);
 	data_handle = find_dissector("data");
 }

@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.28 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-rtp.c,v 1.29 2001/12/03 03:59:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -775,6 +775,8 @@ proto_register_rtp(void)
 void
 proto_reg_handoff_rtp(void)
 {
+	dissector_handle_t rtp_handle;
+
 	/*
 	 * Get handles for the H.261 and MPEG-1 dissectors.
 	 */
@@ -786,5 +788,6 @@ proto_reg_handoff_rtp(void)
 	 * Register this dissector as one that can be assigned to a
 	 * UDP conversation.
 	 */
-	conv_dissector_add("udp", dissect_rtp, proto_rtp);
+	rtp_handle = find_dissector("rtp");
+	conv_dissector_add("udp", rtp_handle);
 }

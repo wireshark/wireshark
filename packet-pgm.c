@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.9 2001/11/25 22:51:14 hagbard Exp $
+ * $Id: packet-pgm.c,v 1.10 2001/12/03 03:59:37 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -57,7 +57,7 @@
 #include "proto.h"
 
 void proto_reg_handoff_pgm(void);
-void proto_rereg_pgm(void);
+static void proto_rereg_pgm(void);
 
 static int udp_encap_ucast_port = 0;
 static int udp_encap_mcast_port = 0;
@@ -1103,33 +1103,37 @@ proto_register_pgm(void)
    old_encap_mcast_port = udp_encap_mcast_port;
 }
 
+static dissector_handle_t pgm_handle;
+
 /* The registration hand-off routine */
 void
 proto_reg_handoff_pgm(void)
 {
+  pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
 
   /*
    * Set up PGM Encap dissecting, which is off by default
    */
-  dissector_add("udp.port", udp_encap_ucast_port, dissect_pgm, proto_pgm);
-  dissector_add("udp.port", udp_encap_mcast_port, dissect_pgm, proto_pgm);
+  dissector_add("udp.port", udp_encap_ucast_port, pgm_handle);
+  dissector_add("udp.port", udp_encap_mcast_port, pgm_handle);
 
-  dissector_add("ip.proto", IP_PROTO_PGM, dissect_pgm, proto_pgm);
+  dissector_add("ip.proto", IP_PROTO_PGM, pgm_handle);
   
   data_handle = find_dissector("data");
 }
-void
+
+static void
 proto_rereg_pgm(void)
 {
 	/*
 	 * Remove the old ones
 	 */
-	dissector_delete("udp.port", old_encap_ucast_port, dissect_pgm);
-	dissector_delete("udp.port", old_encap_mcast_port, dissect_pgm);
+	dissector_delete("udp.port", old_encap_ucast_port, pgm_handle);
+	dissector_delete("udp.port", old_encap_mcast_port, pgm_handle);
 
 	/*
 	 * Set the new ones
 	 */
-	dissector_add("udp.port", udp_encap_ucast_port, dissect_pgm, proto_pgm);
-	dissector_add("udp.port", udp_encap_mcast_port, dissect_pgm, proto_pgm);
+	dissector_add("udp.port", udp_encap_ucast_port, pgm_handle);
+	dissector_add("udp.port", udp_encap_mcast_port, pgm_handle);
 }

@@ -1,14 +1,13 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.28 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-bpdu.c,v 1.29 2001/12/03 03:59:33 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -338,6 +337,8 @@ proto_register_bpdu(void)
 void
 proto_reg_handoff_bpdu(void)
 {
+  dissector_handle_t bpdu_handle;
+
   /*
    * Get handle for the GVRP dissector.
    */
@@ -349,6 +350,7 @@ proto_reg_handoff_bpdu(void)
   gmrp_handle = find_dissector("gmrp");
   data_handle = find_dissector("data");
 
-  dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu, proto_bpdu);
-  dissector_add("ppp.protocol", PPP_BPDU, dissect_bpdu, proto_bpdu);
+  bpdu_handle = find_dissector("bpdu");
+  dissector_add("llc.dsap", SAP_BPDU, bpdu_handle);
+  dissector_add("ppp.protocol", PPP_BPDU, bpdu_handle);
 }

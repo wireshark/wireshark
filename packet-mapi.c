@@ -1,10 +1,10 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.16 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-mapi.c,v 1.17 2001/12/03 03:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -131,5 +131,8 @@ proto_register_mapi(void)
 void
 proto_reg_handoff_mapi(void)
 {
-	dissector_add("tcp.port", TCP_PORT_MAPI, dissect_mapi, proto_mapi);
+	dissector_handle_t mapi_handle;
+
+	mapi_handle = create_dissector_handle(dissect_mapi, proto_mapi);
+	dissector_add("tcp.port", TCP_PORT_MAPI, mapi_handle);
 }

@@ -1,9 +1,13 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.31 2001/06/18 02:17:44 guy Exp $
+ * $Id: packet-aarp.c,v 1.32 2001/12/03 03:59:33 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -288,6 +292,9 @@ proto_register_aarp(void)
 void
 proto_reg_handoff_aarp(void)
 {
-  dissector_add("ethertype", ETHERTYPE_AARP, dissect_aarp, proto_aarp);
-  dissector_add("chdlctype", ETHERTYPE_AARP, dissect_aarp, proto_aarp);
+  dissector_handle_t aarp_handle;
+
+  aarp_handle = create_dissector_handle(dissect_aarp, proto_aarp);
+  dissector_add("ethertype", ETHERTYPE_AARP, aarp_handle);
+  dissector_add("chdlctype", ETHERTYPE_AARP, aarp_handle);
 }

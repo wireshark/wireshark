@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.41 2001/11/26 04:52:50 hagbard Exp $
+ * $Id: packet-netbios.c,v 1.42 2001/12/03 03:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1141,6 +1141,10 @@ void proto_register_netbios(void)
 void
 proto_reg_handoff_netbios(void)
 {
-	dissector_add("llc.dsap", SAP_NETBIOS, dissect_netbios, proto_netbios);
+	dissector_handle_t netbios_handle;
+
+	netbios_handle = create_dissector_handle(dissect_netbios,
+	    proto_netbios);
+	dissector_add("llc.dsap", SAP_NETBIOS, netbios_handle);
 	data_handle = find_dissector("data");
 }

@@ -4,12 +4,11 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.12 2001/10/26 18:28:16 gram Exp $
+ * $Id: packet-rsh.c,v 1.13 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,8 +23,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -132,5 +129,8 @@ proto_register_rsh(void)
 void
 proto_reg_handoff_rsh(void)
 {
-	dissector_add("tcp.port", TCP_PORT_RSH, dissect_rsh, proto_rsh);
+	dissector_handle_t rsh_handle;
+
+	rsh_handle = create_dissector_handle(dissect_rsh, proto_rsh);
+	dissector_add("tcp.port", TCP_PORT_RSH, rsh_handle);
 }

@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.74 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-snmp.c,v 1.75 2001/12/03 03:59:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2296,13 +2296,14 @@ proto_register_snmp(void)
 void
 proto_reg_handoff_snmp(void)
 {
-	dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp, proto_snmp);
-	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp, proto_snmp);
-	dissector_add("tcp.port", TCP_PORT_SMUX, dissect_smux, proto_smux);
-	dissector_add("ethertype", ETHERTYPE_SNMP, dissect_snmp, proto_snmp);
-	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, dissect_snmp,
-	    proto_snmp);
-	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, dissect_snmp,
-	    proto_snmp);
+	dissector_handle_t smux_handle;
+
+	dissector_add("udp.port", UDP_PORT_SNMP, snmp_handle);
+	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
+	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
+	dissector_add("tcp.port", TCP_PORT_SMUX, smux_handle);
+	dissector_add("ethertype", ETHERTYPE_SNMP, snmp_handle);
+	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_handle);
+	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
 	data_handle = find_dissector("data");
 }

@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.65 2001/11/21 02:01:05 guy Exp $
+ * $Id: packet-nbns.c,v 1.66 2001/12/03 03:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1807,8 +1807,13 @@ proto_register_nbt(void)
 void
 proto_reg_handoff_nbt(void)
 {
-  dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns, proto_nbns);
-  dissector_add("udp.port", UDP_PORT_NBDGM, dissect_nbdgm, proto_nbdgm);
-  dissector_add("tcp.port", TCP_PORT_NBSS, dissect_nbss, proto_nbss);
-  dissector_add("tcp.port", TCP_PORT_CIFS, dissect_nbss, proto_nbss);
+  dissector_handle_t nbns_handle, nbdgm_handle, nbss_handle;
+
+  nbns_handle = create_dissector_handle(dissect_nbns, proto_nbns);
+  dissector_add("udp.port", UDP_PORT_NBNS, nbns_handle);
+  nbdgm_handle = create_dissector_handle(dissect_nbdgm, proto_nbdgm);
+  dissector_add("udp.port", UDP_PORT_NBDGM, nbdgm_handle);
+  nbss_handle = create_dissector_handle(dissect_nbss, proto_nbss);
+  dissector_add("tcp.port", TCP_PORT_NBSS, nbss_handle);
+  dissector_add("tcp.port", TCP_PORT_CIFS, nbss_handle);
 }

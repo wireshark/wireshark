@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.40 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-cdp.c,v 1.41 2001/12/03 03:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -580,7 +580,10 @@ proto_register_cdp(void)
 void
 proto_reg_handoff_cdp(void)
 {
+    dissector_handle_t cdp_handle;
+
     data_handle = find_dissector("data");
-    dissector_add("llc.cisco_pid", 0x2000, dissect_cdp, proto_cdp);
-    dissector_add("chdlctype", 0x2000, dissect_cdp, proto_cdp);
+    cdp_handle = create_dissector_handle(dissect_cdp, proto_cdp);
+    dissector_add("llc.cisco_pid", 0x2000, cdp_handle);
+    dissector_add("chdlctype", 0x2000, cdp_handle);
 }

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.22 2001/11/26 05:41:13 hagbard Exp $
+ * $Id: proto.h,v 1.23 2001/12/03 04:00:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -505,9 +505,6 @@ extern void proto_set_decoding(int proto_id, gboolean enabled);
 
 /* Disable disabling of protocol */
 extern void proto_set_cant_disable(int proto_id);
-
-gpointer proto_get_protocol_dissector(int proto_id);
-extern void proto_set_protocol_dissector(int proto_id, gpointer dissector);
 
 /* Get length of registered field according to field type.
  * 0 means undeterminable at registration time.

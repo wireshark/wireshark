@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.6 2001/11/27 07:36:22 guy Exp $
+ * $Id: packet-quake3.c,v 1.7 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -555,17 +555,20 @@ void
 proto_reg_handoff_quake3(void)
 {
 	static int initialized=FALSE;
+	static dissector_handle_t quake3_handle;
 	static int server_port;
 	static int master_port;
 	int i;
  
-	if (initialized) {
-		for (i=0;i<4;i++)
-			dissector_delete("udp.port", server_port+i, dissect_quake3);
-		for (i=0;i<4;i++)
-			dissector_delete("udp.port", master_port+i, dissect_quake3);
-	} else {
+	if (!initialized) {
+		quake3_handle = create_dissector_handle(dissect_quake3,
+				proto_quake3);
 		initialized=TRUE;
+	} else {
+		for (i=0;i<4;i++)
+			dissector_delete("udp.port", server_port+i, quake3_handle);
+		for (i=0;i<4;i++)
+			dissector_delete("udp.port", master_port+i, quake3_handle);
 	}
  
         /* set port for future deletes */
@@ -575,10 +578,10 @@ proto_reg_handoff_quake3(void)
 	/* add dissectors */
 	for (i=0;i<4;i++)
 		dissector_add("udp.port", gbl_quake3_server_port + i,
-			dissect_quake3, proto_quake3);
+			quake3_handle);
 	for (i=0;i<4;i++)
 		dissector_add("udp.port", gbl_quake3_master_port + i,
-			dissect_quake3, proto_quake3);
+			quake3_handle);
 	data_handle = find_dissector("data");
 }
 

@@ -3,12 +3,11 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.50 2001/11/13 23:55:30 gram Exp $
+ * $Id: packet-ncp.c,v 1.51 2001/12/03 03:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -399,9 +398,11 @@ proto_register_ncp(void)
 void
 proto_reg_handoff_ncp(void)
 {
-  dissector_add("tcp.port", TCP_PORT_NCP, dissect_ncp, proto_ncp);
-  dissector_add("udp.port", UDP_PORT_NCP, dissect_ncp, proto_ncp);
-  dissector_add("ipx.packet_type", IPX_PACKET_TYPE_NCP, dissect_ncp,
-		proto_ncp);
-  dissector_add("ipx.socket", IPX_SOCKET_NCP, dissect_ncp, proto_ncp);
+  dissector_handle_t ncp_handle;
+
+  ncp_handle = create_dissector_handle(dissect_ncp, proto_ncp);
+  dissector_add("tcp.port", TCP_PORT_NCP, ncp_handle);
+  dissector_add("udp.port", UDP_PORT_NCP, ncp_handle);
+  dissector_add("ipx.packet_type", IPX_PACKET_TYPE_NCP, ncp_handle);
+  dissector_add("ipx.socket", IPX_SOCKET_NCP, ncp_handle);
 }

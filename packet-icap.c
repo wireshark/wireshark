@@ -298,6 +298,9 @@ proto_register_icap(void)
 void
 proto_reg_handoff_icap(void)
 {
+	dissector_handle_t icap_handle;
+
         data_handle = find_dissector("data");
-	dissector_add("tcp.port", TCP_PORT_ICAP, dissect_icap, proto_icap);
+	icap_handle = create_dissector_handle(dissect_icap, proto_icap);
+	dissector_add("tcp.port", TCP_PORT_ICAP, icap_handle);
 }

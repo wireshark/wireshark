@@ -1,13 +1,14 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.21 2001/11/27 05:01:14 guy Exp $
+ * $Id: packet-ldp.c,v 1.22 2001/12/03 03:59:36 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1999 Gerald Combs
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -883,16 +884,20 @@ void
 proto_reg_handoff_ldp(void)
 {
   static int ldp_prefs_initialized = FALSE;
+  static dissector_handle_t ldp_tcp_handle, ldp_handle;
 
-  if (ldp_prefs_initialized) {
+  if (!ldp_prefs_initialized) {
 
-    dissector_delete("tcp.port", tcp_port, dissect_ldp);
-    dissector_delete("udp.port", udp_port, dissect_ldp);
+    ldp_tcp_handle = create_dissector_handle(dissect_ldp_tcp, proto_ldp);
+    ldp_handle = create_dissector_handle(dissect_ldp, proto_ldp);
+
+    ldp_prefs_initialized = TRUE;
 
   }
   else {
 
-    ldp_prefs_initialized = TRUE;
+    dissector_delete("tcp.port", tcp_port, ldp_tcp_handle);
+    dissector_delete("udp.port", udp_port, ldp_handle);
 
   }
 
@@ -901,7 +906,7 @@ proto_reg_handoff_ldp(void)
   tcp_port = global_ldp_tcp_port;
   udp_port = global_ldp_udp_port;
 
-  dissector_add("tcp.port", global_ldp_tcp_port, dissect_ldp_tcp, proto_ldp);
-  dissector_add("udp.port", global_ldp_udp_port, dissect_ldp, proto_ldp);
+  dissector_add("tcp.port", global_ldp_tcp_port, ldp_tcp_handle);
+  dissector_add("udp.port", global_ldp_udp_port, ldp_handle);
 
 }

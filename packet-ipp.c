@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.25 2001/11/27 07:13:25 guy Exp $
+ * $Id: packet-ipp.c,v 1.26 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,8 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -562,9 +560,12 @@ proto_register_ipp(void)
 void
 proto_reg_handoff_ipp(void)
 {
+	dissector_handle_t ipp_handle;
+
 	/*
 	 * Register ourselves as running atop HTTP and using port 631.
 	 */
+	ipp_handle = create_dissector_handle(dissect_ipp, proto_ipp);
+	http_dissector_add(631, ipp_handle);
         data_handle = find_dissector("data");
-	http_dissector_add(631, dissect_ipp, proto_ipp);
 }

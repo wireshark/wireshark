@@ -1,7 +1,7 @@
 /* packet-eap.c
  * Routines for EAP Extensible Authentication Protocol header disassembly
  *
- * $Id: packet-eap.c,v 1.2 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-eap.c,v 1.3 2001/12/03 03:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,6 +154,9 @@ proto_register_eap(void)
 void
 proto_reg_handoff_eap(void)
 {
+  dissector_handle_t eap_handle;
+
   data_handle = find_dissector("data");
-  dissector_add("ppp.protocol", PPP_EAP, dissect_eap, proto_eap);
+  eap_handle = create_dissector_handle(dissect_eap, proto_eap);
+  dissector_add("ppp.protocol", PPP_EAP, eap_handle);
 }

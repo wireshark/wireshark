@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.7 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-tpkt.c,v 1.8 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -231,6 +231,9 @@ proto_register_tpkt(void)
 void
 proto_reg_handoff_tpkt(void)
 {
+	dissector_handle_t tpkt_handle;
+
 	osi_tp_handle = find_dissector("ositp");
-	dissector_add("tcp.port", TCP_PORT_TPKT, dissect_tpkt, proto_tpkt);
+	tpkt_handle = create_dissector_handle(dissect_tpkt, proto_tpkt);
+	dissector_add("tcp.port", TCP_PORT_TPKT, tpkt_handle);
 }

@@ -3,12 +3,11 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.16 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-ddtp.c,v 1.17 2001/12/03 03:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -213,5 +212,8 @@ proto_register_ddtp(void)
 void
 proto_reg_handoff_ddtp(void)
 {
-    dissector_add("udp.port", UDP_PORT_DDTP, dissect_ddtp, proto_ddtp);
+    dissector_handle_t ddtp_handle;
+
+    ddtp_handle = create_dissector_handle(dissect_ddtp, proto_ddtp);
+    dissector_add("udp.port", UDP_PORT_DDTP, ddtp_handle);
 }

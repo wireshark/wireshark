@@ -1,11 +1,10 @@
 /* packet-http.h
  *
- * $Id: packet-http.h,v 1.5 2001/01/11 06:30:54 guy Exp $
+ * $Id: packet-http.h,v 1.6 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,6 +24,6 @@
 #ifndef __PACKET_HTTP_H__
 #define __PACKET_HTTP_H__
 
-void http_dissector_add(guint32 port, dissector_t dissector, int proto);
+void http_dissector_add(guint32 port, dissector_handle_t handle);
 
 #endif

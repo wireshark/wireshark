@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.54 2001/11/25 22:51:13 hagbard Exp $
+ * $Id: packet-icmpv6.c,v 1.55 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1454,7 +1454,10 @@ proto_register_icmpv6(void)
 void
 proto_reg_handoff_icmpv6(void)
 {
-  dissector_add("ip.proto", IP_PROTO_ICMPV6, dissect_icmpv6, proto_icmpv6);
+  dissector_handle_t icmpv6_handle;
+
+  icmpv6_handle = create_dissector_handle(dissect_icmpv6, proto_icmpv6);
+  dissector_add("ip.proto", IP_PROTO_ICMPV6, icmpv6_handle);
 
   /*
    * Get a handle for the IPv6 dissector.

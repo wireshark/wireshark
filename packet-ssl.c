@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.9 2001/11/21 01:21:08 guy Exp $
+ * $Id: packet-ssl.c,v 1.10 2001/12/03 03:59:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2538,5 +2538,8 @@ proto_register_ssl(void)
 void
 proto_reg_handoff_ssl(void)
 {
-    dissector_add("tcp.port", TCP_PORT_SSL, dissect_ssl, proto_ssl);
+    dissector_handle_t ssl_handle;
+
+    ssl_handle = create_dissector_handle(dissect_ssl, proto_ssl);
+    dissector_add("tcp.port", TCP_PORT_SSL, ssl_handle);
 }

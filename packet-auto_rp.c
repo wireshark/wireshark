@@ -4,12 +4,11 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.14 2001/06/18 02:17:44 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.15 2001/12/03 03:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -243,8 +242,11 @@ void proto_register_auto_rp(void)
 void
 proto_reg_handoff_auto_rp(void)
 {
-	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp,
+	dissector_handle_t auto_rp_handle;
+
+	auto_rp_handle = create_dissector_handle(dissect_auto_rp,
 	    proto_auto_rp);
+	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
 }
 
 /*

@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.37 2001/11/27 07:13:25 guy Exp $
+ * $Id: packet-ftp.c,v 1.38 2001/12/03 03:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -441,6 +441,10 @@ proto_register_ftp(void)
 void
 proto_reg_handoff_ftp(void)
 {
-  dissector_add("tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata, proto_ftp_data);
-  dissector_add("tcp.port", TCP_PORT_FTP, &dissect_ftp, proto_ftp);
+  dissector_handle_t ftpdata_handle, ftp_handle;
+
+  ftpdata_handle = create_dissector_handle(dissect_ftpdata, proto_ftp_data);
+  dissector_add("tcp.port", TCP_PORT_FTPDATA, ftpdata_handle);
+  ftp_handle = create_dissector_handle(dissect_ftp, proto_ftp);
+  dissector_add("tcp.port", TCP_PORT_FTP, ftp_handle);
 }

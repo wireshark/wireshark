@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.47 2001/12/03 01:35:22 guy Exp $
+ * $Id: packet.c,v 1.48 2001/12/03 04:00:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,20 +205,19 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 
 static GHashTable *dissector_tables = NULL;
 
-typedef struct {
+/*
+ * An dissector handle.
+ */
+struct dissector_handle {
+	const char	*name;		/* dissector name */
 	dissector_t	dissector;
 	int		proto_index;
-} dissector_entry_t;
-
-struct dtbl_entry {
-	dissector_entry_t initial;
-	dissector_entry_t current;
 };
 
-static void
-dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-}
+struct dtbl_entry {
+	dissector_handle_t initial;
+	dissector_handle_t current;
+};
 
 /* Finds a dissector table by field name. */
 static dissector_table_t
@@ -229,8 +228,7 @@ find_dissector_table(const char *name)
 }
 
 void
-dissector_add(const char *name, guint32 pattern, dissector_t dissector,
-    int proto)
+dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -239,10 +237,8 @@ dissector_add(const char *name, guint32 pattern, dissector_t dissector,
 	g_assert( sub_dissectors);
 
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
-	dtbl_entry->current.dissector = dissector;
-	dtbl_entry->current.proto_index = proto;
+	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
-	proto_set_protocol_dissector(proto, dissector);
 
 /* do the table insertion */
     	g_hash_table_insert( sub_dissectors, GUINT_TO_POINTER( pattern),
@@ -257,7 +253,7 @@ dissector_add(const char *name, guint32 pattern, dissector_t dissector,
 /*	If temporary dissectors are deleted, then the original dissector must */
 /*	be available. */
 void
-dissector_delete(const char *name, guint32 pattern, dissector_t dissector)
+dissector_delete(const char *name, guint32 pattern, dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -285,8 +281,7 @@ dissector_delete(const char *name, guint32 pattern, dissector_t dissector)
 }
 
 void
-dissector_change(const char *name, guint32 pattern, dissector_t dissector,
-		 int proto)
+dissector_change(const char *name, guint32 pattern, dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -300,23 +295,21 @@ dissector_change(const char *name, guint32 pattern, dissector_t dissector,
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(pattern));
 	if (dtbl_entry != NULL) {
-	  dtbl_entry->current.dissector = dissector ? dissector : dissect_null;
-	  dtbl_entry->current.proto_index = proto;
+	  dtbl_entry->current = handle;
 	  return;
 	}
 
 	/*
-	 * Don't create an entry if there is no dissector - I.E. the
+	 * Don't create an entry if there is no dissector handle - I.E. the
 	 * user said not to decode something that wasn't being decoded
 	 * in the first place.
 	 */
-	if (dissector == NULL)
+	if (handle == NULL)
 	  return;
 
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
-	dtbl_entry->initial.proto_index = -1;
-	dtbl_entry->current.dissector = dissector;
-	dtbl_entry->current.proto_index = proto;
+	dtbl_entry->initial = NULL;
+	dtbl_entry->current = handle;
 
 /* do the table insertion */
     	g_hash_table_insert( sub_dissectors, GUINT_TO_POINTER( pattern),
@@ -345,7 +338,7 @@ dissector_reset(const char *name, guint32 pattern)
 	/*
 	 * Found - is there an initial value?
 	 */
-	if (dtbl_entry->initial.dissector != NULL) {
+	if (dtbl_entry->initial != NULL) {
 		dtbl_entry->current = dtbl_entry->initial;
 	} else {
 		g_hash_table_remove(sub_dissectors, GUINT_TO_POINTER(pattern));
@@ -372,10 +365,22 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	    GUINT_TO_POINTER(port));
 	if (dtbl_entry != NULL) {
 		/*
-		 * Is this protocol enabled?
+		 * Is there currently a dissector handle for this entry?
 		 */
-		if (dtbl_entry->current.proto_index != -1 &&
-		    !proto_is_protocol_enabled(dtbl_entry->current.proto_index)) {
+		if (dtbl_entry->current == NULL) {
+			/*
+			 * No - pretend this dissector didn't exist,
+			 * so that other dissectors might have a chance
+			 * to dissect this packet.
+			 */
+			return FALSE;
+		}
+
+		/*
+		 * Yes - is its protocol enabled?
+		 */
+		if (dtbl_entry->current->proto_index != -1 &&
+		    !proto_is_protocol_enabled(dtbl_entry->current->proto_index)) {
 			/*
 			 * No - pretend this dissector didn't exist,
 			 * so that other dissectors might have a chance
@@ -401,11 +406,11 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		 */
 		pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 		pinfo->match_port = port;
-		if (dtbl_entry->current.proto_index != -1) {
+		if (dtbl_entry->current->proto_index != -1) {
 			pinfo->current_proto =
-			    proto_get_protocol_short_name(dtbl_entry->current.proto_index);
+			    proto_get_protocol_short_name(dtbl_entry->current->proto_index);
 		}
-		(*dtbl_entry->current.dissector)(tvb, pinfo, tree);
+		(*dtbl_entry->current->dissector)(tvb, pinfo, tree);
 		pinfo->current_proto = saved_proto;
 		pinfo->match_port = saved_match_port;
 		pinfo->can_desegment = saved_can_desegment;
@@ -414,18 +419,16 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	return FALSE;
 }
 
-gint
-dissector_get_proto (dtbl_entry_t *dtbl_entry)
+dissector_handle_t
+dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
 {
-	g_assert(dtbl_entry);
-	return(dtbl_entry->current.proto_index);
+	return dtbl_entry->current;
 }
 
-gint
-dissector_get_initial_proto (dtbl_entry_t *dtbl_entry)
+dissector_handle_t
+dtbl_entry_get_initial_handle (dtbl_entry_t *dtbl_entry)
 {
-	g_assert(dtbl_entry);
-	return(dtbl_entry->initial.proto_index);
+	return dtbl_entry->initial;
 }
 
 /**************************************************/
@@ -454,8 +457,16 @@ dissector_table_foreach_func (gpointer key, gpointer value, gpointer user_data)
 	g_assert(user_data);
 
 	dtbl_entry = value;
-	if (dtbl_entry->current.proto_index == -1) {
-	  return;
+	if (dtbl_entry->current == NULL ||
+	    dtbl_entry->current->proto_index == -1) {
+		/*
+		 * Either there is no dissector for this entry, or
+		 * the dissector doesn't have a protocol associated
+		 * with it.
+		 *
+		 * XXX - should the latter check be done?
+		 */
+		return;
 	}
 
 	info = user_data;
@@ -530,7 +541,7 @@ dissector_table_foreach_changed_func (gpointer key, gpointer value, gpointer use
 	g_assert(user_data);
 
 	dtbl_entry = value;
-	if (dtbl_entry->initial.proto_index == dtbl_entry->current.proto_index) {
+	if (dtbl_entry->initial == dtbl_entry->current) {
 		/*
 		 * Entry hasn't changed - don't call the function.
 		 */
@@ -695,11 +706,6 @@ register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissec
 
 static GHashTable *conv_dissector_lists = NULL;
 
-struct conv_dtbl_entry {
-	dissector_t dissector;
-	int	proto_index;
-};
-
 /* Finds a conversation dissector table by table name. */
 static conv_dissector_list_t *
 find_conv_dissector_list(const char *name)
@@ -709,21 +715,15 @@ find_conv_dissector_list(const char *name)
 }
 
 void
-conv_dissector_add(const char *name, dissector_t dissector, int proto)
+conv_dissector_add(const char *name, dissector_handle_t handle)
 {
 	conv_dissector_list_t *sub_dissectors = find_conv_dissector_list(name);
-	conv_dtbl_entry_t *dtbl_entry;
 
 	/* sanity check */
 	g_assert(sub_dissectors != NULL);
 
-	dtbl_entry = g_malloc(sizeof (conv_dtbl_entry_t));
-	dtbl_entry->dissector = dissector;
-	dtbl_entry->proto_index = proto;
-	proto_set_protocol_dissector(proto, dissector);
-
 	/* do the table insertion */
-	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
+	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)handle);
 }
 
 void
@@ -741,13 +741,6 @@ register_conv_dissector_list(const char *name, conv_dissector_list_t *sub_dissec
 	*sub_dissectors = NULL;	/* initially empty */
 	g_hash_table_insert(conv_dissector_lists, (gpointer)name,
 	    (gpointer) sub_dissectors);
-}
-
-gint
-conv_dissector_get_proto (conv_dtbl_entry_t *dtbl_entry)
-{
-	g_assert(dtbl_entry);
-	return(dtbl_entry->proto_index);
 }
 
 void
@@ -806,14 +799,12 @@ dissector_all_conv_foreach (DATFunc func,
  */
 static GHashTable *registered_dissectors = NULL;
 
-/*
- * An entry in the list of registered dissectors.
- */
-struct dissector_handle {
-	const char	*name;		/* dissector name */
-	dissector_t	dissector;
-	int		proto_index;
-};
+/* Get the short name of the protocol for a dissector handle. */
+char *
+dissector_handle_get_short_name(dissector_handle_t handle)
+{
+	return proto_get_protocol_short_name(handle->proto_index);
+}
 
 /* Find a registered dissector by name. */
 dissector_handle_t

@@ -4,10 +4,10 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.18 2001/07/12 19:42:57 guy Exp $
+ * $Id: packet-hsrp.c,v 1.19 2001/12/03 03:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-vrrp.c
@@ -240,5 +240,8 @@ void proto_register_hsrp(void)
 void
 proto_reg_handoff_hsrp(void)
 {
-	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp, proto_hsrp);
+	dissector_handle_t hsrp_handle;
+
+	hsrp_handle = create_dissector_handle(dissect_hsrp, proto_hsrp);
+	dissector_add("udp.port", UDP_PORT_HSRP, hsrp_handle);
 }

@@ -1,7 +1,7 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.15 2001/08/28 08:28:14 guy Exp $
+ * $Id: packet-vtp.c,v 1.16 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -695,5 +695,8 @@ proto_register_vtp(void)
 void
 proto_reg_handoff_vtp(void)
 {
-	dissector_add("llc.cisco_pid", 0x2003, dissect_vtp, proto_vtp);
+	dissector_handle_t vtp_handle;
+
+	vtp_handle = create_dissector_handle(dissect_vtp, proto_vtp);
+	dissector_add("llc.cisco_pid", 0x2003, vtp_handle);
 }

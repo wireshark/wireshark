@@ -1,14 +1,13 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.7 2001/03/15 09:11:00 guy Exp $
+ * $Id: packet-dec-bpdu.c,v 1.8 2001/12/03 03:59:34 guy Exp $
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  * 
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -165,10 +164,11 @@ proto_register_dec_bpdu(void)
 void
 proto_reg_handoff_dec_bpdu(void)
 {
-  dissector_add("ethertype", ETHERTYPE_DEC_LB, dissect_dec_bpdu,
-		proto_dec_bpdu); 
-  dissector_add("chdlctype", ETHERTYPE_DEC_LB, dissect_dec_bpdu,
-		proto_dec_bpdu); 
-  dissector_add("ppp.protocol", PPP_DEC_LB, dissect_dec_bpdu,
-		proto_dec_bpdu); 
+  dissector_handle_t dec_bpdu_handle;
+
+  dec_bpdu_handle = create_dissector_handle(dissect_dec_bpdu,
+					    proto_dec_bpdu);
+  dissector_add("ethertype", ETHERTYPE_DEC_LB, dec_bpdu_handle);
+  dissector_add("chdlctype", ETHERTYPE_DEC_LB, dec_bpdu_handle);
+  dissector_add("ppp.protocol", PPP_DEC_LB, dec_bpdu_handle);
 }

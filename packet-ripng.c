@@ -3,12 +3,11 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.21 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-ripng.c,v 1.22 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -158,5 +157,8 @@ proto_register_ripng(void)
 void
 proto_reg_handoff_ripng(void)
 {
-    dissector_add("udp.port", UDP_PORT_RIPNG, dissect_ripng, proto_ripng);
+    dissector_handle_t ripng_handle;
+
+    ripng_handle = create_dissector_handle(dissect_ripng, proto_ripng);
+    dissector_add("udp.port", UDP_PORT_RIPNG, ripng_handle);
 }

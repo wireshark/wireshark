@@ -1,12 +1,13 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
- *
- * $Id: packet-gryphon.c,v 1.24 2001/10/31 10:40:57 guy Exp $
- *
- * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
+ * $Id: packet-gryphon.c,v 1.25 2001/12/03 04:00:24 guy Exp $
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,8 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1873,7 +1872,10 @@ proto_register_gryphon(void)
 void
 proto_reg_handoff_gryphon(void)
 {
-    dissector_add("tcp.port", 7000, &dissect_gryphon, proto_gryphon);
+    dissector_handle_t gryphon_handle;
+
+    gryphon_handle = create_dissector_handle(dissect_gryphon, proto_gryphon);
+    dissector_add("tcp.port", 7000, gryphon_handle);
 }
 
 /* Start the functions we need for the plugin stuff */

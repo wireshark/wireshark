@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.57 2001/12/02 00:38:53 guy Exp $
+ * $Id: packet-x25.c,v 1.58 2001/12/03 03:59:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2279,6 +2279,8 @@ proto_register_x25(void)
 void
 proto_reg_handoff_x25(void)
 {
+    dissector_handle_t x25_handle;
+
     /*
      * Get handles for various dissectors.
      */
@@ -2287,5 +2289,6 @@ proto_reg_handoff_x25(void)
     qllc_handle = find_dissector("qllc");
     data_handle = find_dissector("data");
 
-    dissector_add("llc.dsap", SAP_X25, dissect_x25, proto_x25);
+    x25_handle = find_dissector("x.25");
+    dissector_add("llc.dsap", SAP_X25, x25_handle);
 }

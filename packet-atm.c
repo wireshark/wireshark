@@ -1,12 +1,11 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.37 2001/11/26 01:03:35 hagbard Exp $
+ * $Id: packet-atm.c,v 1.38 2001/12/03 03:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -798,6 +797,8 @@ proto_register_atm(void)
 void
 proto_reg_handoff_atm(void)
 {
+	dissector_handle_t atm_handle;
+
 	/*
 	 * Get handles for the Ethernet, Token Ring, LLC, SSCOP, LANE,
 	 * and ILMI dissectors.
@@ -810,6 +811,7 @@ proto_reg_handoff_atm(void)
 	ilmi_handle = find_dissector("ilmi");
 	data_handle = find_dissector("data");
 
-	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, dissect_atm,
-	    proto_atm);
+	atm_handle = create_dissector_handle(dissect_atm, proto_atm);
+
+	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, atm_handle);
 }

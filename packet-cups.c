@@ -5,8 +5,7 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id: packet-cups.c,v 1.6 2001/09/20 02:26:03 guy Exp $
-*
+* $Id: packet-cups.c,v 1.7 2001/12/03 03:59:34 guy Exp $
 * 
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -389,5 +388,8 @@ proto_register_cups(void)
 void
 proto_reg_handoff_cups(void)
 {
-	dissector_add("udp.port", UDP_PORT_CUPS, dissect_cups, proto_cups);
+	dissector_handle_t cups_handle;
+
+	cups_handle = create_dissector_handle(dissect_cups, proto_cups);
+	dissector_add("udp.port", UDP_PORT_CUPS, cups_handle);
 }

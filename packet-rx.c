@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.27 2001/11/03 00:58:49 guy Exp $
+ * $Id: packet-rx.c,v 1.28 2001/12/03 03:59:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -729,6 +729,8 @@ proto_register_rx(void)
 void
 proto_reg_handoff_rx(void)
 {
+	dissector_handle_t rx_handle;
+
 	int port;
 
 	/*
@@ -738,8 +740,8 @@ proto_reg_handoff_rx(void)
 
 	/* Ports in the range UDP_PORT_RX_LOW to UDP_PORT_RX_HIGH
 	   are all used for various AFS services. */
+	rx_handle = create_dissector_handle(dissect_rx, proto_rx);
 	for (port = UDP_PORT_RX_LOW; port <= UDP_PORT_RX_HIGH; port++)
-		dissector_add("udp.port", port, dissect_rx, proto_rx);
-	dissector_add("udp.port", UDP_PORT_RX_AFS_BACKUPS, dissect_rx,
-	    proto_rx);
+		dissector_add("udp.port", port, rx_handle);
+	dissector_add("udp.port", UDP_PORT_RX_AFS_BACKUPS, rx_handle);
 }

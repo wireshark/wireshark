@@ -1,10 +1,10 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.26 2001/06/18 02:17:44 guy Exp $
+ * $Id: packet-ascend.c,v 1.27 2001/12/03 03:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -148,10 +148,14 @@ proto_register_ascend(void)
 void
 proto_reg_handoff_ascend(void)
 {
+  dissector_handle_t ascend_handle;
+
   /*
    * Get handles for the Ethernet and PPP-in-HDLC-like-framing dissectors.
    */
   eth_handle = find_dissector("eth");
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
-  dissector_add("wtap_encap", WTAP_ENCAP_ASCEND, dissect_ascend, proto_ascend);
+
+  ascend_handle = create_dissector_handle(dissect_ascend, proto_ascend);
+  dissector_add("wtap_encap", WTAP_ENCAP_ASCEND, ascend_handle);
 }

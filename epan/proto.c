@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.45 2001/11/22 03:07:06 hagbard Exp $
+ * $Id: proto.c,v 1.46 2001/12/03 04:00:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,7 +133,6 @@ typedef struct {
 	GList	*last_field;	/* pointer to end of list of fields */
 	gboolean is_enabled;	/* TRUE if protocol is enabled */
 	gboolean can_disable;	/* TRUE if protocol can be disabled */
-	gpointer dissector;
 } protocol_t;
 
 /* List of all protocols */
@@ -1659,7 +1658,6 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
 	protocol->fields = NULL;
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
 	protocol->can_disable = TRUE;
-	protocol->dissector = NULL;
 	protocols = g_list_insert_sorted(protocols, protocol,
 	    proto_compare_name);
 
@@ -1818,32 +1816,6 @@ proto_set_cant_disable(int proto_id)
 
 	protocol = find_protocol_by_id(proto_id);
 	protocol->can_disable = FALSE;
-}
-
-gpointer
-proto_get_protocol_dissector(int proto_id)
-{
-	protocol_t *protocol;
-
-	protocol = find_protocol_by_id(proto_id);
-	if (protocol == NULL)
-		return(NULL);
-	return protocol->dissector;
-}
-
-void
-proto_set_protocol_dissector(int proto_id, gpointer dissector)
-{
-	protocol_t *protocol;
-
-	protocol = find_protocol_by_id(proto_id);
-	if (protocol != NULL) {
-		if (protocol->dissector != NULL) {
-			/* Already set */
-			return;
-		}
-		protocol->dissector = dissector;
-	}
 }
 
 /* for use with static arrays only, since we don't allocate our own copies

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.42 2001/11/27 07:13:32 guy Exp $
+ * $Id: packet.h,v 1.43 2001/12/03 04:00:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,6 +80,11 @@ typedef struct true_false_string {
 extern void packet_init(void);
 extern void packet_cleanup(void);
 
+/* Handle for dissectors you call directly or register with "dissector_add()".
+   This handle is opaque outside of "packet.c". */
+struct dissector_handle;
+typedef struct dissector_handle *dissector_handle_t;
+
 /* Hash table for matching port numbers and dissectors */
 typedef GHashTable* dissector_table_t;
 
@@ -92,8 +97,8 @@ typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value, gpoint
 /* Opaque structure - provides type checking but no access to components */
 typedef struct dtbl_entry dtbl_entry_t;
 
-extern gint dissector_get_proto (dtbl_entry_t * entry);
-extern gint dissector_get_initial_proto (dtbl_entry_t * entry);
+extern dissector_handle_t dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry);
+extern dissector_handle_t dtbl_entry_get_initial_handle (dtbl_entry_t * entry);
 extern void dissector_table_foreach_changed (char *name, DATFunc func,
     gpointer user_data);
 extern void dissector_table_foreach (char *name, DATFunc func,
@@ -107,15 +112,15 @@ extern dissector_table_t register_dissector_table(const char *name);
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to register a sub-dissector.  */
 extern void dissector_add(const char *abbrev, guint32 pattern,
-    dissector_t dissector, int proto);
+    dissector_handle_t handle);
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to de-register a sub-dissector.  */
 extern void dissector_delete(const char *name, guint32 pattern,
-    dissector_t dissector);
+    dissector_handle_t handle);
 
 extern void dissector_change(const char *abbrev, guint32 pattern,
-    dissector_t dissector, int proto);
+    dissector_handle_t handle);
 
 /* Reset a dissector in a sub-dissector table to its initial value. */
 extern void dissector_reset(const char *name, guint32 pattern);
@@ -171,25 +176,21 @@ extern void register_conv_dissector_list(const char *name,
 
 /* Add a sub-dissector to a conversation dissector list.  Called by the
    protocol routine that wants to register a sub-dissector.  */
-extern void conv_dissector_add(const char *name, dissector_t dissector,
-    int proto);
+extern void conv_dissector_add(const char *name, dissector_handle_t handle);
 
 /* Opaque structure - provides type checking but no access to components */
 typedef struct conv_dtbl_entry conv_dtbl_entry_t;
 
-extern gint conv_dissector_get_proto (conv_dtbl_entry_t * entry);
 extern void dissector_conv_foreach(char *name, DATFunc func,
     gpointer user_data);
 extern void dissector_all_conv_foreach(DATFunc func, gpointer user_data);
 
-/* Handle for dissectors you call directly.
-   This handle is opaque outside of "packet.c". */
-struct dissector_handle;
-typedef struct dissector_handle *dissector_handle_t;
-
 /* Register a dissector. */
 extern void register_dissector(const char *name, dissector_t dissector,
     int proto);
+
+/* Get the short name of the protocol for a dissector handle. */
+extern char *dissector_handle_get_short_name(dissector_handle_t handle);
 
 /* Find a dissector by name. */
 extern dissector_handle_t find_dissector(const char *name);

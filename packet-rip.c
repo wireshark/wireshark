@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.26 2001/09/14 06:34:36 guy Exp $
+ * $Id: packet-rip.c,v 1.27 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -263,5 +263,8 @@ proto_register_rip(void)
 void
 proto_reg_handoff_rip(void)
 {
-	dissector_add("udp.port", UDP_PORT_RIP, dissect_rip, proto_rip);
+	dissector_handle_t rip_handle;
+
+	rip_handle = create_dissector_handle(dissect_rip, proto_rip);
+	dissector_add("udp.port", UDP_PORT_RIP, rip_handle);
 }

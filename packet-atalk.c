@@ -1,9 +1,13 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.57 2001/11/30 07:14:20 guy Exp $
+ * $Id: packet-atalk.c,v 1.58 2001/12/03 03:59:33 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -714,13 +718,25 @@ proto_register_atalk(void)
 void
 proto_reg_handoff_atalk(void)
 {
-  dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp, proto_ddp);
-  dissector_add("chdlctype", ETHERTYPE_ATALK, dissect_ddp, proto_ddp);
-  dissector_add("ppp.protocol", PPP_AT, dissect_ddp, proto_ddp);
-  dissector_add("null.type", BSD_AF_APPLETALK, dissect_ddp, proto_ddp);
-  dissector_add("ddp.type", DDP_NBP, dissect_nbp, proto_nbp);
-  dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request, proto_rtmp);
-  dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data, proto_rtmp);
-  dissector_add("wtap_encap", WTAP_ENCAP_LOCALTALK, dissect_llap, proto_llap);
+  dissector_handle_t ddp_handle, nbp_handle, rtmp_request_handle;
+  dissector_handle_t rtmp_data_handle, llap_handle;
+
+  ddp_handle = create_dissector_handle(dissect_ddp, proto_ddp);
+  dissector_add("ethertype", ETHERTYPE_ATALK, ddp_handle);
+  dissector_add("chdlctype", ETHERTYPE_ATALK, ddp_handle);
+  dissector_add("ppp.protocol", PPP_AT, ddp_handle);
+  dissector_add("null.type", BSD_AF_APPLETALK, ddp_handle);
+
+  nbp_handle = create_dissector_handle(dissect_nbp, proto_nbp);
+  dissector_add("ddp.type", DDP_NBP, nbp_handle);
+
+  rtmp_request_handle = create_dissector_handle(dissect_rtmp_request, proto_rtmp);
+  rtmp_data_handle = create_dissector_handle(dissect_rtmp_data, proto_rtmp);
+  dissector_add("ddp.type", DDP_RTMPREQ, rtmp_request_handle);
+  dissector_add("ddp.type", DDP_RTMPDATA, rtmp_data_handle);
+
+  llap_handle = create_dissector_handle(dissect_llap, proto_llap);
+  dissector_add("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
+
   data_handle = find_dissector("data");
 }

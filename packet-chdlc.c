@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.6 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-chdlc.c,v 1.7 2001/12/03 03:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,8 +197,11 @@ proto_register_chdlc(void)
 void
 proto_reg_handoff_chdlc(void)
 {
+  dissector_handle_t chdlc_handle;
+
   data_handle = find_dissector("data");
-  dissector_add("wtap_encap", WTAP_ENCAP_CHDLC, dissect_chdlc, proto_chdlc);
+  chdlc_handle = find_dissector("chdlc");
+  dissector_add("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_handle);
 }
 
 #define SLARP_REQUEST	0
@@ -311,5 +314,8 @@ proto_register_slarp(void)
 void
 proto_reg_handoff_slarp(void)
 {
-  dissector_add("chdlctype", CISCO_SLARP, dissect_slarp, proto_slarp);
+  dissector_handle_t slarp_handle;
+
+  slarp_handle = create_dissector_handle(dissect_slarp, proto_slarp);
+  dissector_add("chdlctype", CISCO_SLARP, slarp_handle);
 }

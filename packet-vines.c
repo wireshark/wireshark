@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.35 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-vines.c,v 1.36 2001/12/03 03:59:40 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -162,18 +162,15 @@ proto_register_vines_frp(void)
 void
 proto_reg_handoff_vines_frp(void)
 {
-	/*
-	 * Get handle for the Vines dissector.
-	 */
-	vines_handle = find_dissector("vines");
+	dissector_handle_t vines_frp_handle;
 
-	dissector_add("ip.proto", IP_PROTO_VINES, dissect_vines_frp,
+	vines_frp_handle = create_dissector_handle(dissect_vines_frp,
 	    proto_vines_frp);
+	dissector_add("ip.proto", IP_PROTO_VINES, vines_frp_handle);
 
 	/* XXX: AFAIK, src and dst port must be the same; should
 	   the dissector check for that? */
-	dissector_add("udp.port", UDP_PORT_VINES, dissect_vines_frp,
-	    proto_vines_frp);
+	dissector_add("udp.port", UDP_PORT_VINES, vines_frp_handle);
 }
 
 static dissector_table_t vines_dissector_table;
@@ -342,13 +339,14 @@ proto_register_vines(void)
 	vines_dissector_table = register_dissector_table("vines.proto");
 
 	register_dissector("vines", dissect_vines, proto_vines);
+	vines_handle = find_dissector("vines");
 }
 
 void
 proto_reg_handoff_vines(void)
 {
-	dissector_add("ethertype", ETHERTYPE_VINES, dissect_vines, proto_vines);
-	dissector_add("ppp.protocol", PPP_VINES, dissect_vines, proto_vines);
+	dissector_add("ethertype", ETHERTYPE_VINES, vines_handle);
+	dissector_add("ppp.protocol", PPP_VINES, vines_handle);
 	data_handle = find_dissector("data");
 }
 
@@ -474,6 +472,9 @@ proto_register_vines_spp(void)
 void
 proto_reg_handoff_vines_spp(void)
 {
-	dissector_add("vines.proto", VIP_PROTO_SPP, dissect_vines_spp,
+	dissector_handle_t vines_spp_handle;
+
+	vines_spp_handle = create_dissector_handle(dissect_vines_spp,
 	    proto_vines_spp);
+	dissector_add("vines.proto", VIP_PROTO_SPP, vines_spp_handle);
 }

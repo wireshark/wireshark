@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.5 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-quake2.c,v 1.6 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -326,19 +326,21 @@ void
 proto_reg_handoff_quake2(void)
 {
 	static int Initialized=FALSE;
+	static dissector_handle_t quake2_handle;
 	static int ServerPort=0;
  
-	if (Initialized) {
-		dissector_delete("udp.port", ServerPort, dissect_quake2);
-	} else {
+	if (!Initialized) {
+		quake2_handle = create_dissector_handle(dissect_quake2,
+				proto_quake2);
 		Initialized=TRUE;
+	} else {
+		dissector_delete("udp.port", ServerPort, quake2_handle);
 	}
  
         /* set port for future deletes */
         ServerPort=gbl_quake2ServerPort;
  
-	dissector_add("udp.port", gbl_quake2ServerPort,
-			dissect_quake2, proto_quake2);
+	dissector_add("udp.port", gbl_quake2ServerPort, quake2_handle);
 	data_handle = find_dissector("data");
 }
 
@@ -416,4 +418,3 @@ proto_register_quake2(void)
 					"Set the UDP port for the Quake II Server",
 					10, &gbl_quake2ServerPort);
 }
-

@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.8 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-m3ua.c,v 1.9 2001/12/03 03:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -966,11 +966,14 @@ proto_register_m3ua(void)
 void
 proto_reg_handoff_m3ua(void)
 {
+  dissector_handle_t m3ua_handle;
+
   /*
    * Get a handle for the MTP3 dissector.
    */
   mtp3_handle = find_dissector("mtp3");
 
-  dissector_add("sctp.ppi",  M3UA_PAYLOAD_PROTO_ID, dissect_m3ua, proto_m3ua);
-  dissector_add("sctp.port", SCTP_PORT_M3UA, dissect_m3ua, proto_m3ua);
+  m3ua_handle = create_dissector_handle(dissect_m3ua, proto_m3ua);
+  dissector_add("sctp.ppi",  M3UA_PAYLOAD_PROTO_ID, m3ua_handle);
+  dissector_add("sctp.port", SCTP_PORT_M3UA, m3ua_handle);
 }

@@ -2,12 +2,11 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.20 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-pptp.c,v 1.21 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -830,6 +829,9 @@ proto_register_pptp(void)
 void
 proto_reg_handoff_pptp(void)
 {
-  dissector_add("tcp.port", TCP_PORT_PPTP, dissect_pptp, proto_pptp);
+  dissector_handle_t pptp_handle;
+
+  pptp_handle = create_dissector_handle(dissect_pptp, proto_pptp);
+  dissector_add("tcp.port", TCP_PORT_PPTP, pptp_handle);
   data_handle = find_dissector("data");
 }

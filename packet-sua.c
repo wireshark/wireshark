@@ -4,9 +4,9 @@
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-08.txt
  * and also supports SUA light, a trivial Siemens proprietary version.
  *
- * Copyright 2001, Michael TŸxen <Michael.Tuexen@icn.siemens.de>
+ * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sua.c,v 1.1 2001/11/04 22:19:23 guy Exp $
+ * $Id: packet-sua.c,v 1.2 2001/12/03 03:59:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2757,6 +2757,9 @@ proto_register_sua(void)
 void
 proto_reg_handoff_sua(void)
 {
-  dissector_add("sctp.ppi",  SUA_PAYLOAD_PROTO_ID, dissect_sua, proto_sua);
-  dissector_add("sctp.port", SCTP_PORT_SUA,        dissect_sua, proto_sua);
+  dissector_handle_t sua_handle;
+
+  sua_handle = create_dissector_handle(dissect_sua, proto_sua);
+  dissector_add("sctp.ppi",  SUA_PAYLOAD_PROTO_ID, sua_handle);
+  dissector_add("sctp.port", SCTP_PORT_SUA,        sua_handle);
 }

@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.34 2001/10/30 10:15:53 guy Exp $
+ * $Id: packet-pim.c,v 1.35 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1130,7 +1130,10 @@ proto_register_pim(void)
 void
 proto_reg_handoff_pim(void)
 {
-    dissector_add("ip.proto", IP_PROTO_PIM, dissect_pim, proto_pim);
+    dissector_handle_t pim_handle;
+
+    pim_handle = create_dissector_handle(dissect_pim, proto_pim);
+    dissector_add("ip.proto", IP_PROTO_PIM, pim_handle);
 
     /*
      * Get handles for the IPv4 and IPv6 dissectors.

@@ -1,10 +1,10 @@
 /* packet-irc.c
  * Routines for IRC packet dissection
  *
- * $Id: packet-irc.c,v 1.14 2001/06/18 02:17:47 guy Exp $
+ * $Id: packet-irc.c,v 1.15 2001/12/03 03:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -164,6 +164,8 @@ proto_register_irc(void)
 void
 proto_reg_handoff_irc(void)
 {
-	dissector_add("tcp.port", TCP_PORT_IRC, dissect_irc, proto_irc);
-}
+	dissector_handle_t irc_handle;
 
+	irc_handle = create_dissector_handle(dissect_irc, proto_irc);
+	dissector_add("tcp.port", TCP_PORT_IRC, irc_handle);
+}

@@ -3,12 +3,11 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.47 2001/10/26 18:28:16 gram Exp $
+ * $Id: packet-rsvp.c,v 1.48 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -2069,5 +2068,8 @@ proto_register_rsvp(void)
 void
 proto_reg_handoff_rsvp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_RSVP, dissect_rsvp, proto_rsvp);
+	dissector_handle_t rsvp_handle;
+
+	rsvp_handle = create_dissector_handle(dissect_rsvp, proto_rsvp);
+	dissector_add("ip.proto", IP_PROTO_RSVP, rsvp_handle);
 }

@@ -1,14 +1,13 @@
 /* packet-syslog.c
  * Routines for syslog message dissection
  *
- * Copyright 2000, Gerald Combs <gerald@zing.org>
+ * Copyright 2000, Gerald Combs <gerald@ethereal.com>
  *
- * $Id: packet-syslog.c,v 1.11 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-syslog.c,v 1.12 2001/12/03 03:59:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -248,5 +247,8 @@ void proto_register_syslog(void)
 void
 proto_reg_handoff_syslog(void)
 {
-  dissector_add("udp.port", UDP_PORT_SYSLOG, dissect_syslog, proto_syslog);
+  dissector_handle_t syslog_handle;
+
+  syslog_handle = create_dissector_handle(dissect_syslog, proto_syslog);
+  dissector_add("udp.port", UDP_PORT_SYSLOG, syslog_handle);
 }

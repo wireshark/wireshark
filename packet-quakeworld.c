@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.7 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-quakeworld.c,v 1.8 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -776,19 +776,21 @@ void
 proto_reg_handoff_quakeworld(void)
 {
 	static int Initialized=FALSE;
+	static dissector_handle_t quakeworld_handle;
 	static int ServerPort=0;
  
-	if (Initialized) {
-		dissector_delete("udp.port", ServerPort, dissect_quakeworld);
-	} else {
+	if (!Initialized) {
+		quakeworld_handle = create_dissector_handle(dissect_quakeworld,
+				proto_quakeworld);
 		Initialized=TRUE;
+	} else {
+		dissector_delete("udp.port", ServerPort, quakeworld_handle);
 	}
  
         /* set port for future deletes */
         ServerPort=gbl_quakeworldServerPort;
  
-	dissector_add("udp.port", gbl_quakeworldServerPort,
-			dissect_quakeworld, proto_quakeworld);
+	dissector_add("udp.port", gbl_quakeworldServerPort, quakeworld_handle);
 	data_handle = find_dissector("data");
 }
 

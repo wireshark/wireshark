@@ -1,13 +1,14 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.21 2001/11/13 04:34:38 guy Exp $
+ * $Id: packet-smtp.c,v 1.22 2001/12/03 03:59:39 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1999 Gerald Combs
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -521,21 +522,24 @@ void
 proto_reg_handoff_smtp(void)
 {
   static int smtp_prefs_initialized = FALSE;
+  static dissector_handle_t smtp_handle;
   static int tcp_port = 0;
 
-  if (smtp_prefs_initialized) {
+  if (!smtp_prefs_initialized) {
 
-    dissector_delete("tcp.port", tcp_port, dissect_smtp);
+    smtp_handle = create_dissector_handle(dissect_smtp, proto_smtp);
+
+    smtp_prefs_initialized = TRUE;
 
   }
   else {
 
-    smtp_prefs_initialized = TRUE;
+    dissector_delete("tcp.port", tcp_port, smtp_handle);
 
   }
 
   tcp_port = global_smtp_tcp_port;
 
-  dissector_add("tcp.port", global_smtp_tcp_port, dissect_smtp, proto_smtp);
+  dissector_add("tcp.port", global_smtp_tcp_port, smtp_handle);
 
 }

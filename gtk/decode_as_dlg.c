@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.13 2001/11/21 23:16:25 gram Exp $
+ * $Id: decode_as_dlg.c,v 1.14 2001/12/03 04:00:19 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -260,18 +260,19 @@ decode_build_show_list (gchar *table_name, gpointer key,
 			gpointer value, gpointer user_data)
 {
     GtkCList  *clist;
+    dissector_handle_t current, initial;
     gchar     *current_proto_name, *initial_proto_name, *text[E_CLIST_D_COLUMNS];
     gchar      string1[20];
-    gint       current_proto, initial_proto, row;
+    gint       row;
 
     g_assert(user_data);
     g_assert(value);
 
     clist = (GtkCList *)user_data;
-    current_proto = dissector_get_proto(value);
-    current_proto_name = proto_get_protocol_short_name(current_proto);
-    initial_proto = dissector_get_initial_proto(value);
-    initial_proto_name = proto_get_protocol_short_name(initial_proto);
+    current = dtbl_entry_get_handle(value);
+    current_proto_name = dissector_handle_get_short_name(current);
+    initial = dtbl_entry_get_initial_handle(value);
+    initial_proto_name = dissector_handle_get_short_name(initial);
 
     text[E_CLIST_D_TABLE] = table_name;
     sprintf(string1, "%d", GPOINTER_TO_INT(key));
@@ -479,30 +480,23 @@ decode_show_cb (GtkWidget * w, gpointer data)
 static void
 decode_change_one_dissector (gchar *table_name, gint selector, GtkCList *clist)
 {
-    dissector_t  dissector;
-    gchar       *abbrev;
-    gint         row, proto_num;
+    dissector_handle_t handle;
+    gchar              *abbrev;
+    gint               row;
 
     if (!clist->selection) {
-	proto_num = -1;
 	abbrev = "(NULL)";
-	dissector = NULL;
+	handle = NULL;
     } else {
 	row = GPOINTER_TO_INT(clist->selection->data);
-	proto_num = GPOINTER_TO_INT(gtk_clist_get_row_data(clist, row));
+	handle = gtk_clist_get_row_data(clist, row);
 	gtk_clist_get_text(clist, row, E_CLIST_S_PROTO_NAME, &abbrev);
-	dissector = proto_get_protocol_dissector(proto_num);
-	if ((proto_num != -1) && (dissector == NULL)) {
-	    simple_dialog(ESD_TYPE_CRIT, NULL,
-			  "Protocol dissector structure disappeared");
-	    return;
-	}
     }
 
     if (strcmp(abbrev, "(default)") == 0) {
 	dissector_reset(table_name, selector);
     } else {
-	dissector_change(table_name, selector, dissector, proto_num);
+	dissector_change(table_name, selector, handle);
     }
 }
 
@@ -1008,7 +1002,8 @@ decode_add_to_clist (gchar *table_name, gpointer key,
     GtkCList  *clist;
     gchar     *proto_name, *isconv;
     gchar     *text[E_CLIST_S_COLUMNS];
-    gint proto, row;
+    dissector_handle_t handle;
+    gint       row;
     decode_build_clist_info_t *info;
 
     g_assert(user_data);
@@ -1017,15 +1012,15 @@ decode_add_to_clist (gchar *table_name, gpointer key,
     info = user_data;
     clist = info->clist;
     if (info->conv) {
-	proto = conv_dissector_get_proto(value);
+	handle = value;
 	isconv = "TRUE";
     } else {
-	proto = dissector_get_proto(value);
+    	handle = dtbl_entry_get_handle(value);
 	isconv = "FALSE";
     }
-    proto_name = proto_get_protocol_short_name(proto);
+    proto_name = dissector_handle_get_short_name(handle);
 
-    row = gtk_clist_find_row_from_data(clist, GINT_TO_POINTER(proto));
+    row = gtk_clist_find_row_from_data(clist, handle);
     if (row != -1) {
 	return;
     }
@@ -1034,7 +1029,7 @@ decode_add_to_clist (gchar *table_name, gpointer key,
     text[E_CLIST_S_TABLE] = table_name;
     text[E_CLIST_S_ISCONV] = isconv;
     row = gtk_clist_prepend(clist, text);
-    gtk_clist_set_row_data(clist, row, GINT_TO_POINTER(proto));
+    gtk_clist_set_row_data(clist, row, handle);
 }
 
 

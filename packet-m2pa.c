@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-m2pa.c,v 1.1 2001/06/21 22:25:51 guy Exp $
+ * $Id: packet-m2pa.c,v 1.2 2001/12/03 03:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -391,12 +391,14 @@ proto_register_m2pa(void)
 void
 proto_reg_handoff_m2pa(void)
 {
+  dissector_handle_t m2pa_handle;
+
   /*
    *  Get a handle for the MTP3 dissector.
    */
   mtp3_handle = find_dissector("mtp3");
 
-  dissector_add("sctp.ppi",  M2PA_PAYLOAD_PROTOCOL_ID,
-		dissect_m2pa, proto_m2pa);
-  dissector_add("sctp.port", SCTP_PORT_M2PA, dissect_m2pa, proto_m2pa);
+  m2pa_handle = create_dissector_handle(dissect_m2pa, proto_m2pa);
+  dissector_add("sctp.ppi",  M2PA_PAYLOAD_PROTOCOL_ID, m2pa_handle);
+  dissector_add("sctp.port", SCTP_PORT_M2PA, m2pa_handle);
 }

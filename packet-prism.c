@@ -1,15 +1,15 @@
 /*
  *  packet-prism.c
- *	Decode packets with a prism header
+ *	Decode packets with a Prism header
  *
- * prism wlan devices have a monitoring mode that sticks
+ * Prism II-based wlan devices have a monitoring mode that sticks
  * a proprietary header on each packet with lots of good
  * information.  This file is responsible for decoding that
  * data.
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.3 2001/11/30 07:14:20 guy Exp $
+ * $Id: packet-prism.c,v 1.4 2001/12/03 03:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -202,8 +202,11 @@ proto_register_prism(void)
 void
 proto_reg_handoff_prism(void)
 {
+    dissector_handle_t prism_handle;
+
     /* handle for 802.11 dissector */
     ieee80211_handle = find_dissector("wlan");
 
-    dissector_add("wtap_encap", WTAP_ENCAP_PRISM_HEADER, dissect_prism, proto_prism);
+    prism_handle = create_dissector_handle(dissect_prism, proto_prism);
+    dissector_add("wtap_encap", WTAP_ENCAP_PRISM_HEADER, prism_handle);
 }
