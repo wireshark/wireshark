@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.74 2000/08/10 16:04:31 deniel Exp $
+ * $Id: proto.c,v 1.75 2000/08/10 19:41:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,10 +39,6 @@
 #include <string.h>
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #ifndef __G_LIB_H__
 #include <glib.h>
 #endif
@@ -64,6 +60,10 @@
 #endif
 
 #include "packet-ipv6.h"
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 #define cVALS(x) (const value_string*)(x)
 
