@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.2 2001/05/25 16:19:31 guy Exp $
+ * $Id: packet-isup.c,v 1.3 2001/05/30 08:49:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1447,7 +1447,7 @@ dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb,proto_tr
  */
 void 
 dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb,0, length, "Cause indicators (-> Q.850)"); 
   proto_item_set_text(parameter_item, "Cause indicators, see Q.850 (%u byte%s length)", length , plurality(length, "", "s"));
 }
@@ -1561,7 +1561,7 @@ dissect_isup_event_information_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
  */
 void 
 dissect_isup_user_to_user_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "User-to-user info (-> Q.931)"); 
   proto_item_set_text(parameter_item, "User-to-user information, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
 }
@@ -1586,7 +1586,7 @@ dissect_isup_call_reference_parameter(tvbuff_t *parameter_tvb, proto_tree *param
  */
 void 
 dissect_isup_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Access transport parameter field (-> Q.931)"); 
   proto_item_set_text(parameter_item, "Access transport, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
 }
@@ -1876,7 +1876,7 @@ void dissect_isup_closed_user_group_interlock_code_parameter(tvbuff_t *parameter
  */
 void 
 dissect_isup_user_service_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "User service information (-> Q.931)"); 
   proto_item_set_text(parameter_item, "User service information, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
 }
@@ -2095,7 +2095,7 @@ dissect_isup_access_delivery_information_parameter(tvbuff_t *parameter_tvb, prot
  */
 void 
 dissect_isup_network_specific_facility_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Network specific facility (refer to 3.36/Q.763 for detailed decoding)"); 
   proto_item_set_text(parameter_item, "Network specific facility (%u byte%s length)", length , plurality(length, "", "s"));
 }
@@ -2104,7 +2104,7 @@ dissect_isup_network_specific_facility_parameter(tvbuff_t *parameter_tvb, proto_
  */
 void 
 dissect_isup_user_service_information_prime_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "User service information prime (-> Q.931)"); 
   proto_item_set_text(parameter_item, "User service information prime, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
 }
@@ -2125,7 +2125,7 @@ dissect_isup_propagation_delay_counter_parameter(tvbuff_t *parameter_tvb, proto_
  */
 void 
 dissect_isup_remote_operations_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Remote operations"); 
   proto_item_set_text(parameter_item, "Remote operations (%u byte%s length)", length , plurality(length, "", "s"));
 }
@@ -2135,9 +2135,9 @@ dissect_isup_remote_operations_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 void 
 dissect_isup_service_activation_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { 
-  uint i;
+  guint i;
   guint8 feature_code;
-  uint length = tvb_length(parameter_tvb);
+  guint length = tvb_length(parameter_tvb);
   for (i=0; i< length; i++){
     feature_code = tvb_get_guint8(parameter_tvb, i);
     proto_tree_add_text(parameter_item, parameter_tvb, i, 1, "Feature Code %u: %u", i+1, feature_code); 
@@ -2193,7 +2193,7 @@ dissect_isup_echo_control_information_parameter(tvbuff_t *parameter_tvb, proto_t
  */
 void 
 dissect_isup_message_compatibility_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Message compatibility information (refer to 3.33/Q.763 for detailed decoding)"); 
   proto_item_set_text(parameter_item, "Message compatibility information (%u byte%s length)", length , plurality(length, "", "s"));
 }
@@ -2203,7 +2203,7 @@ dissect_isup_message_compatibility_information_parameter(tvbuff_t *parameter_tvb
 void 
 dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { 
- uint length = tvb_length(parameter_tvb);
+  guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Parameter compatibility information (refer to 3.41/Q.763 for detailed decoding)"); 
   proto_item_set_text(parameter_item, "Parameter compatibility information (%u byte%s length)", length , plurality(length, "", "s"));
 }
@@ -2457,7 +2457,7 @@ dissect_isup_ccss_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree,
  */
 void
 dissect_isup_forward_gvns_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Forward GVNS (refer to 3.66/Q.763 for detailed decoding)");
   proto_item_set_text(parameter_item, "Forward GVNS (%u Byte%s)", length , plurality(length, "", "s"));
 }
@@ -2466,7 +2466,7 @@ dissect_isup_forward_gvns_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
  */
 void
 dissect_isup_redirect_capability_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Redirect capability (format is a national matter)");
   proto_item_set_text(parameter_item, "Redirect Capability (%u Byte%s)", length , plurality(length, "", "s"));
 }
@@ -2498,7 +2498,7 @@ dissect_isup_network_management_controls_parameter(tvbuff_t *parameter_tvb, prot
  */
 void 
 dissect_isup_correlation_id_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Correlation ID (-> Q.1281)"); 
   proto_item_set_text(parameter_item, "Correlation ID, see Q.1281 (%u Byte%s)", length , plurality(length, "", "s"));
 }
@@ -2507,7 +2507,7 @@ dissect_isup_correlation_id_parameter(tvbuff_t *parameter_tvb, proto_tree *param
  */
 void 
 dissect_isup_scf_id_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "SCF ID (-> Q.1281)"); 
   proto_item_set_text(parameter_item, "SCF ID, see Q.1281 (%u Byte%s)", length , plurality(length, "", "s"));
 }
@@ -2589,7 +2589,7 @@ dissect_isup_call_offering_treatment_indicators_parameter(tvbuff_t *parameter_tv
  */
 void
 dissect_isup_charged_party_identification_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Charged party identification (format is national network specific)");
   proto_item_set_text(parameter_item, "Charged party identification (%u Byte%s)", length , plurality(length, "", "s"));
 }
@@ -2610,7 +2610,7 @@ dissect_isup_conference_treatment_indicators_parameter(tvbuff_t *parameter_tvb, 
  */
 void 
 dissect_isup_display_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{  uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Display information (-> Q.931)");
   proto_item_set_text(parameter_item, "Display information (%u Byte%s)", length , plurality(length, "", "s"));
 }
@@ -2641,7 +2641,7 @@ dissect_isup_uid_capability_indicators_parameter(tvbuff_t *parameter_tvb, proto_
  */
 void
 dissect_isup_redirect_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Redirect counter (format is a national matter)");
   proto_item_set_text(parameter_item, "Redirect counter (%u Byte%s)", length , plurality(length, "", "s"));
 }
@@ -2722,14 +2722,14 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *param
  */
 void
 dissect_isup_generic_digits_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_item, parameter_tvb, 0, length, "Generic digits (refer to 3.24/Q.673 for detailed decoding)");
   proto_item_set_text(parameter_item, "Generic digits (%u Byte%s)", length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------ */
 void
 dissect_isup_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ uint length = tvb_length(parameter_tvb);
+{ guint length = tvb_length(parameter_tvb);
   proto_item_set_text(parameter_item, "Parameter Type unknown/reserved (%u Byte%s)", length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------ */
