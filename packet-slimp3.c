@@ -6,7 +6,7 @@
  * Adds support for the data packet protocol for the SliMP3
  * See www.slimdevices.com for details.
  *
- * $Id: packet-slimp3.c,v 1.8 2002/08/28 21:00:31 jmayer Exp $
+ * $Id: packet-slimp3.c,v 1.9 2003/02/27 05:37:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 #endif
 
 #include <glib.h>
+#include <string.h>
 #include <epan/packet.h>
 
 static int proto_slimp3 = -1;
@@ -45,12 +46,14 @@ static int hf_slimp3_data_request = -1;
 static int hf_slimp3_data = -1;
 static int hf_slimp3_discover_request = -1;
 static int hf_slimp3_discover_response = -1;
+static int hf_slimp3_data_ack = -1;
 
 static gint ett_slimp3 = -1;
 
 static dissector_handle_t slimp3_handle;
 
-#define UDP_PORT_SLIMP3    1069
+#define UDP_PORT_SLIMP3_V1    1069
+#define UDP_PORT_SLIMP3_V2    3483
 
 #define	SLIMP3_IR	'i'
 #define	SLIMP3_CONTROL	's'
@@ -61,6 +64,7 @@ static dissector_handle_t slimp3_handle;
 #define	SLIMP3_I2C 	'2'
 #define	SLIMP3_DISC_REQ 'd'
 #define	SLIMP3_DISC_RSP 'D'
+#define SLIMP3_DATA_ACK 'a'
 
 static const value_string slimp3_opcode_vals[] = {
   { SLIMP3_IR,       "Infrared Remote Code" },
@@ -72,9 +76,54 @@ static const value_string slimp3_opcode_vals[] = {
   { SLIMP3_I2C,      "I2C" },
   { SLIMP3_DISC_REQ, "Discovery Request" },
   { SLIMP3_DISC_RSP, "Discovery Response" },
+  { SLIMP3_DATA_ACK, "Ack" },
   { 0,               NULL }
 };
 
+/* IR remote control types */
+static const value_string slimp3_ir_types[] = {
+    { 0x02, "SLIMP3" },
+    { 0xff, "JVC DVD Player" },
+
+    { 0, NULL }
+};
+
+/* IR codes for the custom SLIMP3 remote control */
+static const value_string slimp3_ir_codes_slimp3[] = {
+    { 0x76899867, "0" },
+    { 0x7689f00f, "1" },
+    { 0x768908f7, "2" },
+    { 0x76898877, "3" },
+    { 0x768948b7, "4" },
+    { 0x7689c837, "5" },
+    { 0x768928d7, "6" },
+    { 0x7689a857, "7" },
+    { 0x76896897, "8" },
+    { 0x7689e817, "9" },
+    { 0x7689b04f, "arrow_down" },
+    { 0x7689906f, "arrow_left" },
+    { 0x7689d02f, "arrow_right" },
+    { 0x7689e01f, "arrow_up" },
+    { 0x768900ff, "voldown" },
+    { 0x7689807f, "volup" },
+    { 0x768940bf, "power" },
+    { 0x7689c03f, "rew" },
+    { 0x768920df, "pause" },
+    { 0x7689a05f, "fwd" },
+    { 0x7689609f, "add" },
+    { 0x768910ef, "play" },
+    { 0x768958a7, "search" },
+    { 0x7689d827, "shuffle" },
+    { 0x768938c7, "repeat" },
+    { 0x7689b847, "sleep" },
+    { 0x76897887, "now_playing" },
+    { 0x7689f807, "size" },
+    { 0x768904fb, "brightness" },
+
+    { 0,      NULL }
+};
+
+/* IR codes for the JVC remote control */
 static const value_string slimp3_ir_codes_jvc[] = {
     { 0xf786, "One" },
     { 0xf746, "Two" },
@@ -112,7 +161,10 @@ static const value_string slimp3_ir_codes_jvc[] = {
     /* { 0xf7XX, "Mute" },  */
     { 0xf7ab, "Recall" },
     { 0xf702, "Power" },
+
+    { 0,      NULL }
 };
+
 
 static const value_string slimp3_display_commands[] = {
     {  0x1, "Clear Display"},
@@ -158,6 +210,15 @@ static const value_string slimp3_stream_control[] = {
     {   0, NULL },
 };
 
+
+static const value_string slimp3_mpg_control[] = {
+    { 0, "Go"},           /* Run the decoder */
+    { 1, "Stop"},         /* Halt decoder but don't reset rptr */
+    { 3, "Reset"},        /* Halt decoder and reset rptr */
+
+    { 0, NULL }
+};
+
 static void
 dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -168,7 +229,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16		opcode;
     char addc_str[101];
     char *addc_strp;
-
+    int			to_server = FALSE;
+    int			old_protocol = FALSE;
+    address		tmp_addr;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SliMP3");
@@ -191,40 +254,86 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(slimp3_tree, hf_slimp3_opcode, tvb,
 			    offset, 1, opcode);
     }
+
+    /* The new protocol (v1.3 and later) uses an IANA-assigned port number.
+    * It usually uses the same number for both sizes of the conversation, so
+    * the port numbers can't always be used to determine client and server.
+    * The new protocol places the clients MAC address in the packet, so that
+    * is used to identify packets originating at the client.
+    */
+    if ((pinfo->destport == UDP_PORT_SLIMP3_V2) && (pinfo->srcport == UDP_PORT_SLIMP3_V2)) {
+	SET_ADDRESS(&tmp_addr, AT_ETHER, 6, tvb_get_ptr(tvb, offset+12, 6));
+	to_server = ADDRESSES_EQUAL(&tmp_addr, &pinfo->dl_src);
+    }
+    else if (pinfo->destport == UDP_PORT_SLIMP3_V2) {
+        to_server = TRUE;
+    }
+    else if (pinfo->srcport == UDP_PORT_SLIMP3_V2) {
+        to_server = FALSE;
+    }
+    if (pinfo->destport == UDP_PORT_SLIMP3_V1) {
+        to_server = TRUE;
+	old_protocol = TRUE;
+    }
+    else if (pinfo->srcport == UDP_PORT_SLIMP3_V1) {
+        to_server = FALSE;
+	old_protocol = TRUE;
+    }
+
     switch (opcode) {
 
     case SLIMP3_IR:
+	/* IR code
+	*
+	* [0]        'i' as in "IR"
+	* [1]	     0x00
+	* [2..5]     player's time since startup in ticks @625 KHz
+	* [6]        IR code id, ff=JVC, 02=SLIMP3
+	* [7]        number of meaningful bits - 16 for JVC, 32 for SLIMP3
+	* [8..11]    the 32-bit IR code
+	* [12..17]   reserved
+	*/
 	if (tree) {
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_ir, tvb, offset+8, 4, FALSE);
 
 	    i1 = tvb_get_ntohl(tvb, offset+2);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 4, "Uptime: %u sec (%u ticks)",
 				i1/625000, i1);
+	    i1 = tvb_get_guint8(tvb, offset+6);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 1, "Code identifier: 0x%0x: %s",
-				tvb_get_guint8(tvb, offset+6),
-				tvb_get_guint8(tvb, offset+6)==0xff ? "JVC DVD Player" : "Unknown");
+				i1, val_to_str(i1, slimp3_ir_types, "Unknown"));
 	    proto_tree_add_text(slimp3_tree, tvb, offset+7, 1, "Code bits: %d",
 				tvb_get_guint8(tvb, offset+7));
 
 	    i1 = tvb_get_ntohl(tvb, offset+8);
-	    /* Is this a standard JVC remote code? */
-	    if (tvb_get_guint8(tvb, offset+6) == 0xff &&
-		tvb_get_guint8(tvb, offset+7) == 16) {
-
+	    /* Check the code to figure out which remote is being used. */
+	    if (tvb_get_guint8(tvb, offset+6) == 0x02 &&
+		tvb_get_guint8(tvb, offset+7) == 32) {
+	    	/* This is the custom SLIMP3 remote. */
 		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4,
 				    "Infrared Code: %s: 0x%0x",
-				    val_to_str(i1, slimp3_ir_codes_jvc, "Unknown"),
-				    tvb_get_ntohl(tvb, offset+8));
+				    val_to_str(i1, slimp3_ir_codes_slimp3, "Unknown"), i1);
+	    }
+	    else if (tvb_get_guint8(tvb, offset+6) == 0xff &&
+		     tvb_get_guint8(tvb, offset+7) == 16) {
+	    	/* This is a JVC DVD player remote */
+		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4,
+				    "Infrared Code: %s: 0x%0x",
+				    val_to_str(i1, slimp3_ir_codes_jvc, "Unknown"), i1);
 	    } else {
 		/* Unknown code; just write it */
-		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4, "Infrared Code: 0x%0x",
-				    tvb_get_ntohl(tvb, offset+8));
+		proto_tree_add_text(slimp3_tree, tvb, offset+8, 4, "Infrared Code: 0x%0x", i1);
 	    }
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    i1 = tvb_get_ntohl(tvb, offset+8);
-	    if (tvb_get_guint8(tvb, offset+6) == 0xff &&
-		tvb_get_guint8(tvb, offset+7) == 16) {
+	    if (tvb_get_guint8(tvb, offset+6) == 0x02 &&
+		tvb_get_guint8(tvb, offset+7) == 32) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", SLIMP3: %s",
+				val_to_str(i1, slimp3_ir_codes_slimp3, "Unknown (0x%0x)"));
+	    }
+	    else if (tvb_get_guint8(tvb, offset+6) == 0xff &&
+		     tvb_get_guint8(tvb, offset+7) == 16) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", JVC: %s",
 				val_to_str(i1, slimp3_ir_codes_jvc, "Unknown (0x%0x)"));
 	    } else {
@@ -347,7 +456,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_hello,
 				       tvb, offset+1, 1, FALSE);
-	    if (pinfo->destport == UDP_PORT_SLIMP3) {
+	    if (to_server) {
 		guint8 fw_ver = 0;
 		/* Hello response; client->server */
 		proto_tree_add_text(slimp3_tree, tvb, offset, 1, "Hello Response (Client --> Server)");
@@ -367,7 +476,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_i2c,
 				       tvb, offset, 1, FALSE);
-	    if (pinfo->destport == UDP_PORT_SLIMP3) {
+	    if (to_server) {
 		/* Hello response; client->server */
 		proto_tree_add_text(slimp3_tree, tvb, offset, -1,
 				    "I2C Response (Client --> Server)");
@@ -379,7 +488,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    if (pinfo->destport == UDP_PORT_SLIMP3) {
+	    if (to_server) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Response");
 	    } else {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Request");
@@ -403,20 +512,59 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     case SLIMP3_DATA:
+	/* MPEG data (v1.3 and later)
+	*
+	*  [0]       'm'
+	*  [1..5]    reserved
+	*  [6..7]    Write pointer (in words)
+	*  [8..9]    reserved
+	*  [10..11]  Sequence number
+	*  [12..17]  reserved
+	*  [18..]    MPEG data
+	*/
 	if (tree) {
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_data,
 				       tvb, offset, 1, FALSE);
-	    proto_tree_add_text(slimp3_tree, tvb, offset, -1,
-				"Length: %d bytes", tvb_reported_length_remaining(tvb, offset+18));
-	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 2,
-				"Buffer offset: %d bytes.",
-				tvb_get_ntohs(tvb, offset+2) * 2);
+	    if (old_protocol) {
+	        proto_tree_add_text(slimp3_tree, tvb, offset, -1,
+				    "Length: %d bytes", 
+				    tvb_reported_length_remaining(tvb, offset+18));
+	        proto_tree_add_text(slimp3_tree, tvb, offset+2, 2,
+				    "Buffer offset: %d bytes.",
+				    tvb_get_ntohs(tvb, offset+2) * 2);
+	    }
+	    else {
+	        proto_tree_add_text(slimp3_tree, tvb, offset+1, 1, "Command: %s",
+				    val_to_str(tvb_get_guint8(tvb, offset+1),
+				               slimp3_mpg_control, "Unknown (0x%0x)"));
+	        proto_tree_add_text(slimp3_tree, tvb, offset, -1,
+				    "Length: %d bytes", 
+				    tvb_reported_length_remaining(tvb, offset+18));
+	        proto_tree_add_text(slimp3_tree, tvb, offset+6, 2,
+				    "Write Pointer: %d",
+				    tvb_get_ntohs(tvb, offset+6) * 2);
+	        proto_tree_add_text(slimp3_tree, tvb, offset+10, 2,
+				    "Sequence: %d",
+				    tvb_get_ntohs(tvb, offset+10));
+	    }
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Length: %d bytes, Offset: %d bytes.",
-			    tvb_reported_length_remaining(tvb, offset+18),
-			    tvb_get_ntohs(tvb, offset+2) * 2);
+	    if (old_protocol) {
+	        col_append_fstr(pinfo->cinfo, COL_INFO, 
+	        		", Length: %d bytes, Offset: %d bytes.",
+			        tvb_reported_length_remaining(tvb, offset+18),
+			        tvb_get_ntohs(tvb, offset+2) * 2);
+	    }
+	    else {
+	        col_append_fstr(pinfo->cinfo, COL_INFO, 
+	        		", %s, %d bytes at %d, Sequence: %d",
+			        val_to_str(tvb_get_guint8(tvb, offset+1),
+				           slimp3_mpg_control, "Unknown (0x%0x)"),
+			        tvb_reported_length_remaining(tvb, offset+18),
+			        tvb_get_ntohs(tvb, offset+6) * 2,
+			        tvb_get_ntohs(tvb, offset+10));
+	    }
 	}
 	break;
 
@@ -454,6 +602,35 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Server Address: %s. Server Port: %d",
 			    ip_to_str(tvb_get_ptr(tvb, offset+2, 4)),
 			    tvb_get_ntohs(tvb, offset + 6));
+	}
+	break;
+
+    case SLIMP3_DATA_ACK:
+	/* Acknowledge MPEG data
+	*
+	*  [0]       'a'
+	*  [1..5]    
+	*  [6..7]    Write pointer (in words)
+	*  [8..9]    Read pointer (in words)
+	*  [10..11]  Sequence number
+	*  [12..17]  client MAC address (v1.3 and later)
+	*/
+	if (tree) {
+	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_data_ack,
+				       tvb, offset, 1, FALSE);
+	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 2,
+				"Write Pointer: %d",
+				tvb_get_ntohs(tvb, offset+6) * 2);
+	    proto_tree_add_text(slimp3_tree, tvb, offset+8, 2,
+				"Read Pointer: %d",
+				tvb_get_ntohs(tvb, offset+8) * 2);
+	    proto_tree_add_text(slimp3_tree, tvb, offset+10, 2,
+				"Sequence: %d",
+				tvb_get_ntohs(tvb, offset+10));
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Sequence: %d",
+			    tvb_get_ntohs(tvb, offset+10));
 	}
 	break;
 
@@ -521,6 +698,11 @@ proto_register_slimp3(void)
 	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
       	"SLIMP3 Discovery Response", HFILL }},
 
+    { &hf_slimp3_data_ack,
+      { "Data Ack",      "slimp3.data_ack",
+	FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+      	"SLIMP3 Data Ack", HFILL }},
+
   };
   static gint *ett[] = {
     &ett_slimp3,
@@ -537,5 +719,6 @@ proto_register_slimp3(void)
 void
 proto_reg_handoff_slimp3(void)
 {
-  dissector_add("udp.port", UDP_PORT_SLIMP3, slimp3_handle);
+  dissector_add("udp.port", UDP_PORT_SLIMP3_V1, slimp3_handle);
+  dissector_add("udp.port", UDP_PORT_SLIMP3_V2, slimp3_handle);
 }

@@ -1060,6 +1060,7 @@ Tim Newsham <newsham[AT]lava.net> {
 
 Tom Nisbet <Tnisbet[AT]VisualNetworks.com> {
 	Support for reading Visual Networks traffic capture files
+	SLIMP3 protocol version 2 support
 }
 
 Darren New <dnew[AT]san.rr.com> {
