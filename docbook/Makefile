@@ -60,7 +60,7 @@ svn_version.xml: FORCE
 	echo '">'   >> svn_version.xml
     
 # validate the content
-eug_validate:
+eug_validate: svn_version.xml
 	@ echo --- VALIDATING XML ---
 	$(XMLLINT) --valid --noout user-guide.xml
 
@@ -123,7 +123,7 @@ endif
 edg: edg_validate edg_html_chunked edg_pdf_a4 edg_pdf_us edg_html edg_chm 
 
 # validate the content
-edg_validate:
+edg_validate: svn_version.xml
 	@ echo --- VALIDATING XML ---
 	$(XMLLINT) --valid --noout developer-guide.xml
 
