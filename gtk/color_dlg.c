@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.44 2004/03/13 15:15:23 ulfl Exp $
+ * $Id: color_dlg.c,v 1.45 2004/04/16 19:36:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 #include "compat_macros.h"
 #include "filter_prefs.h"
 #include "file_dlg.h"
+#include "gtkglobals.h"
 
 static GtkWidget* colorize_dialog_new(char *filter);
 static void add_filter_to_list(gpointer filter_arg, gpointer list_arg);
@@ -925,6 +926,7 @@ static void
 create_new_color_filter(GtkButton *button, char *filter)
 {
   color_filter_t   *colorf;
+  GtkStyle         *style;
   GtkWidget        *color_filters;
 #if GTK_MAJOR_VERSION >= 2
   GtkTreeSelection *sel;
@@ -939,7 +941,10 @@ create_new_color_filter(GtkButton *button, char *filter)
   gtk_clist_unselect_all (GTK_CLIST(color_filters));
 #endif
 
-  colorf = new_color_filter("name", filter); /* Adds at end! */
+  /* Use the default background and foreground colors as the colors. */
+  style = gtk_widget_get_style(packet_list);
+  colorf = new_color_filter("name", filter, &style->base[GTK_STATE_NORMAL],
+                            &style->text[GTK_STATE_NORMAL]); /* Adds at end! */
 
   color_add_colorf(color_filters, colorf);
 

@@ -1,7 +1,7 @@
 /* color_filters.c
  * Routines for color filters
  *
- * $Id: color_filters.c,v 1.9 2004/04/16 19:05:05 guy Exp $
+ * $Id: color_filters.c,v 1.10 2004/04/16 19:36:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,6 @@
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
 #include "simple_dialog.h"
-#include "gtkglobals.h"
 
 static gboolean read_filters(void);
 static gboolean read_global_filters(void);
@@ -109,17 +108,17 @@ colfilter_init(void)
 /* Create a new filter */
 color_filter_t *
 new_color_filter(gchar *name,           /* The name of the filter to create */
-                 gchar *filter_string)  /* The string representing the filter */
+                 gchar *filter_string,  /* The string representing the filter */
+                 GdkColor *bg_color,    /* The background color */
+                 GdkColor *fg_color)    /* The foreground color */
 {
 	color_filter_t *colorf;
-        GtkStyle       *style;
 
 	colorf = g_malloc(sizeof (color_filter_t));
 	colorf->filter_name = g_strdup(name);
 	colorf->filter_text = g_strdup(filter_string);
-        style = gtk_widget_get_style(packet_list);
-	gdkcolor_to_color_t(&colorf->bg_color, &style->base[GTK_STATE_NORMAL]);
-	gdkcolor_to_color_t(&colorf->fg_color, &style->text[GTK_STATE_NORMAL]);
+	gdkcolor_to_color_t(&colorf->bg_color, bg_color);
+	gdkcolor_to_color_t(&colorf->fg_color, fg_color);
 	colorf->c_colorfilter = NULL;
 	colorf->edit_dialog = NULL;
 	colorf->marked = FALSE;
@@ -280,10 +279,9 @@ read_filters_file(FILE *f, gpointer arg)
 				continue;
 			}
 
-			colorf = new_color_filter(name, filter_exp);
+			colorf = new_color_filter(name, filter_exp, &bg_color,
+			    &fg_color);
 			colorf->c_colorfilter = temp_dfilter;
-			gdkcolor_to_color_t(&colorf->bg_color, &bg_color);
-			gdkcolor_to_color_t(&colorf->fg_color, &fg_color);
 
 			if (arg != NULL)
 				color_add_filter_cb (colorf, arg);
