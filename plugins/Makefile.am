@@ -25,45 +25,6 @@ SUBDIRS = acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres m
 
 plugindir = @plugindir@
 
-ADDRESS_EXPORT_FILES = \
-	Xass-list	\
-	Xplugin_api.c	\
-	Xplugin_api.h	\
-	Xplugin_api_decls.h	\
-	Xplugin_table.h
-
-$(ADDRESS_EXPORT_FILES): xyzzy plugin_gen.py plugin_api.c plugin_api_list.c
-	$(PYTHON) $(srcdir)/plugin_gen.py xyzzy
-
-xyzzy: xyzzyclean plugin_api_list.c
-	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GLIB_CFLAGS) -I$(top_srcdir) -I$(top_builddir) -c $(srcdir)/plugin_api_list.c
-
-xyzzyclean: clean 
-	rm -f xyzzy Xass-list Xplugin_api.c Xplugin_api.h Xplugin_api_decls.h Xplugin_table.h plugin_api_list.o
 
 EXTRA_DIST = \
-	plugin_api.c	\
-	plugin_api.h	\
-	plugin_api_decls.h	\
-	plugin_api_defs.h	\
-	plugin_api_list.c	\
-	plugin_gen.py	\
-	plugin_table.h	\
-	Makefile.nmake	\
-	README.interface	\
-	Xass-list	\
-	Xplugin_api.c	\
-	Xplugin_api.h	\
-	Xplugin_api_decls.h	\
-	Xplugin_table.h
-
-DISTCLEANFILES = \
-	Xass-list	\
-	Xplugin_api.c	\
-	Xplugin_api.h	\
-	Xplugin_api_decls.h	\
-	Xplugin_table.h	\
-	xyzzy
-
-CLEANFILES = \
-	plugin_api_list.o
+	Makefile.nmake

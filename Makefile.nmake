@@ -507,7 +507,3 @@ clean_setup:
     rm -r -f $(ETHEREAL_LIBS)/gtk2
     rm -r -f $(ETHEREAL_LIBS)/gtk-wimp
 
-update_plugin_api: config.h
-	cd plugins
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake xyzzy
-	cd ..
