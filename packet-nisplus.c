@@ -519,8 +519,8 @@ dissect_link_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	offset = dissect_rpc_array_tvb(tvb, pinfo, lock_tree, offset,
 			dissect_attr, hf_nisplus_attrs_array);
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree, hf_nisplus_object_name,
-			offset, NULL);
+	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree,
+			hf_nisplus_object_name,	offset, NULL);
 	
 	proto_item_set_len(lock_item, offset-old_offset);
 	return offset;
@@ -615,8 +615,8 @@ dissect_directory_obj(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_nisplus_directory);
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree, hf_nisplus_directory_name,
-			offset, NULL);
+	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree,
+			hf_nisplus_directory_name, offset, NULL);
 
 	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
 			hf_nisplus_directory_type, offset);
@@ -671,17 +671,17 @@ dissect_nisplus_object(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 	offset = dissect_nisplus_oid(tvb, offset, pinfo, lock_tree);
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree, hf_nisplus_object_name,
-			offset, NULL);
+	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree,
+			hf_nisplus_object_name,	offset, NULL);
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree, hf_nisplus_object_owner,
-			offset, NULL);
+	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree,
+			hf_nisplus_object_owner, offset, NULL);
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree, hf_nisplus_object_group,
-			offset, NULL);
+	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree,
+			hf_nisplus_object_group, offset, NULL);
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree, hf_nisplus_object_domain,
-			offset, NULL);
+	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree,
+			hf_nisplus_object_domain, offset, NULL);
 
 	offset = dissect_access_rights(tvb, offset, pinfo, lock_tree);
 
@@ -1342,7 +1342,7 @@ proto_register_nis(void)
 			NULL, 0, "NIS Time To Live For This Object" }},
 
 		{ &hf_nisplus_object_private, {
-			"private", "nisplus.object.private", FT_STRING, BASE_DEC,
+			"private", "nisplus.object.private", FT_BYTES, BASE_DEC,
 			NULL, 0, "NIS Private Object" }},
 
 		{ &hf_nisplus_directory, {
@@ -1478,7 +1478,7 @@ proto_register_nis(void)
 			VALS(key_type), 0, "Type Of Key" }},
 
 		{ &hf_nisplus_key_data, {
-			"key data", "nisplus.key.data", FT_STRING, BASE_DEC,
+			"key data", "nisplus.key.data", FT_BYTES, BASE_DEC,
 			NULL, 0, "Encryption Key" }},
 
 		{ &hf_nisplus_endpoints, {
@@ -1518,7 +1518,7 @@ proto_register_nis(void)
 			NULL, 0, "Attribute Name" }},
 
 		{ &hf_nisplus_attr_val, {
-			"val", "nisplus.attr.val", FT_STRING, BASE_HEX,
+			"val", "nisplus.attr.val", FT_BYTES, BASE_HEX,
 			NULL, 0, "Attribute Value" }},
 
 		{ &hf_nisplus_entry, {
@@ -1678,7 +1678,7 @@ proto_register_nis(void)
 			NULL, 0, "Optional First/NextBufSize" }},
 
 		{ &hf_nisplus_cookie, {
-			"cookie", "nisplus.cookie", FT_STRING, BASE_HEX,
+			"cookie", "nisplus.cookie", FT_BYTES, BASE_HEX,
 			NULL, 0, "Cookie" }},
 
 		{ &hf_nisplus_fd_dirname, {
@@ -1714,7 +1714,7 @@ proto_register_nis(void)
 			NULL, 0, "From This Timestamp" }},
 
 		{ &hf_nisplus_dummy, {
-			" ", ".nisplus.dummy", FT_STRING, BASE_NONE,
+			" ", ".nisplus.dummy", FT_BYTES, BASE_NONE,
 			NULL, 0, " " }},
 
 		{ &hf_nisplus_ping_time, {
@@ -1730,11 +1730,11 @@ proto_register_nis(void)
 			VALS(nis_error), 0, "NIS Status Code" }},
 
 		{ &hf_nisplus_dir_data, {
-			"data", "nisplus.fd.dir.data", FT_STRING, BASE_HEX,
+			"data", "nisplus.fd.dir.data", FT_BYTES, BASE_HEX,
 			NULL, 0, "Directory Data In XDR Format" }},
 
 		{ &hf_nisplus_signature, {
-			"signature", "nisplus.fd.sig", FT_STRING, BASE_HEX,
+			"signature", "nisplus.fd.sig", FT_BYTES, BASE_HEX,
 			NULL, 0, "Signature Of The Source" }},
 
 		{ &hf_nisplus_log_entries, {
