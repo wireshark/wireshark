@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.364 2001/08/31 19:46:14 guy Exp $
+# $Id: Makefile.am,v 1.365 2001/09/10 22:06:33 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,7 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
+bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @idl2eth_bin@
 man1_MANS = @ethereal_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @idl2eth_man@
 man_MANS = 
 
