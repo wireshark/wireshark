@@ -5,7 +5,7 @@
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-06.txt
  * Optionally, supports the protocol described in: draft-ietf-ips-iscsi-03.txt
  *
- * $Id: packet-iscsi.c,v 1.3 2001/05/31 19:20:41 guy Exp $
+ * $Id: packet-iscsi.c,v 1.4 2001/06/02 08:13:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -482,7 +482,7 @@ static const value_string iscsi_reject_reasons[] = {
     {0, NULL},
 };
 
-static int min(int a, int b) {
+static int iscsi_min(int a, int b) {
     return (a < b)? a : b;
 }
 
@@ -845,7 +845,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    }
 	    offset += 48;
 	    if(packet_len > 48) {
-		int text_len = min(data_segment_len, packet_len - 48);
+		int text_len = iscsi_min(data_segment_len, packet_len - 48);
 		proto_item *tf = proto_tree_add_text(ti, tvb, 48, text_len, "Key/Value Pairs");
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_KeyValues);
 		offset = addTextKeys(tt, tvb, 48, text_len);
@@ -891,7 +891,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    }
 	    offset += 48;
 	    if(packet_len > 48) {
-		int text_len = min(data_segment_len, packet_len - 48);
+		int text_len = iscsi_min(data_segment_len, packet_len - 48);
 		proto_item *tf = proto_tree_add_text(ti, tvb, 48, text_len, "Key/Value Pairs");
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_KeyValues);
 		offset = addTextKeys(tt, tvb, 48, text_len);
@@ -924,7 +924,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
 	    offset += 48;
 	    if(packet_len > 48) {
-		int text_len = min(data_segment_len, packet_len - 48);
+		int text_len = iscsi_min(data_segment_len, packet_len - 48);
 		proto_item *tf = proto_tree_add_text(ti, tvb, 48, text_len, "Key/Value Pairs");
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_KeyValues);
 		offset = addTextKeys(tt, tvb, 48, text_len);
@@ -956,7 +956,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
 	    offset += 48;
 	    if(packet_len > 48) {
-		int text_len = min(data_segment_len, packet_len - 48);
+		int text_len = iscsi_min(data_segment_len, packet_len - 48);
 		proto_item *tf = proto_tree_add_text(ti, tvb, 48, text_len, "Key/Value Pairs");
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_KeyValues);
 		offset = addTextKeys(tt, tvb, 48, text_len);
