@@ -269,41 +269,14 @@ static const value_string diameter_error_cause_attribute_vals[]= {
 	{507,"Request Initiated"},
 	{0,NULL}
 };
-
-static const value_string diameter_accounting_record_type_vals[]= {
-	{1, "Event Record"},
-	{2, "Start Record"},
-	{3, "Interim Record"},
-	{4, "Stop Record"},
-	{0,NULL}
-};
-
+/* Auth-Request-Type AVP Values (code 247) */
 static const value_string diameter_auth_request_type_vals[]= {
 	{1, "Authenticate Only"},
 	{2, "Authorize Only"},
 	{3, "Authorize Authenticate"},
 	{0,NULL}
 };
-
-static const value_string diameter_auth_session_state_vals[]= {
-	{0, "State Maintained"},
-	{1, "No State Maintained"},
-	{0,NULL}
-};
-
-static const value_string diameter_re_auth_request_type_vals[]= {
-	{0, "Authorize Only"},
-	{1, "Authorize Authenticate"},
-	{0,NULL}
-};
-
-static const value_string diameter_disconnect_cause_vals[]= {
-	{0, "Rebooting"},
-	{1, "Busy"},
-	{2, "Do Not Want To Talk To You"},
-	{0,NULL}
-};
-
+/* Redirect-Host-Usage AVP Values (code 261) */
 static const value_string diameter_redirect_host_usage_vals[]= {
 	{0, "Don't Cache"},
 	{1, "All Session"},
@@ -311,9 +284,20 @@ static const value_string diameter_redirect_host_usage_vals[]= {
 	{3, "Realm and Application"},
 	{4, "All Application"},
 	{5, "All Host"},
+	{6, "All User"},
+	{0,NULL}
+};
+/* Session-Binding AVP Values (code 270) */
+static const value_string diameter_session-binding_vals[]= {
+	{1, "RE_AUTH"},								/*[RFC3588]*/
+	{2, "STR"},									/*[RFC3588]*/
+	{3, "Unallocated 
+	{4, "ACCOUNTING"},							/*[RFC3588]*/
+  /*5-8    Unallocated (IETF Consensus) */
 	{0,NULL}
 };
 
+/* Session-Server-Failover AVP Values (code 271) */
 static const value_string diameter_session_server_failover_vals[]= {
 	{0, "Refuse Service"},
 	{1, "Try Again"},
@@ -321,28 +305,70 @@ static const value_string diameter_session_server_failover_vals[]= {
 	{3, "Try Again / Allow Service"},
 	{0,NULL}
 };
+/* Disconnect-Cause AVP Values (code 273) */
+static const value_string diameter_disconnect_cause_vals[]= {
+	{0, "Rebooting"},
+	{1, "Busy"},
+	{2, "Do Not Want To Talk To You"},
+	{0,NULL}
+};
+/* Auth-Session-State AVP Values (code 277) */
+static const value_string diameter_auth_session_state_vals[]= {
+	{0, "State Maintained"},
+	{1, "No State Maintained"},
+	{0,NULL}
+};
+/* Re-Auth-Request-Type AVP Values (code 285) */
+static const value_string diameter_re_auth_request_type_vals[]= {
+	{0, "Authorize Only"},
+	{1, "Authorize Authenticate"},
+	{0,NULL}
+};
 
+/*   Termination-Cause AVP Values (code 295) */
 static const value_string diameter_termination_cause_vals[]= {
 	{1, "Logout"},
 	{2, "Service Not Provided"},
 	{3, "Bad Answer"},
 	{4, "Administrative"},
 	{5, "Link Broken"},
+	{6, "Auth Expired"},
+	{7, "User Moved"},
+	{8, "Session Timeout"},
 	{0,NULL}
 };
-
+/*    MIP-Feature-Vector AVP (code 337) */
+static const value_string diameter_mip_feature_vector_vals[]= {
+	{1, "Mobile-Node-Home-Address-Requested"},			/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{2, "Home-Address-Allocatable-Only-in-Home-Realm"},	/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{3, "Home-Agent-Requested"},						/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{4, "Foreign-Home-Agent-Available"},				/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{5, "MN-HA-Key-Request"},							/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{6, "MN-FA-Key-Request"},							/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{7, "FA-HA-Key-Request"},							/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{8, "Home-Agent-In-Foreign-Network"},				/* RFC-ietf-aaa-diameter-mobileip-20.txt */
+	{9, "Co-Located-Mobile-Node"},						/* RFC-ietf-aaa-diameter-mobileip-20.txt */ 
+	{0,NULL}
+};
+/* MIP-Algorithm-Type AVP Values (code 345) */
 static const value_string diameter_mip_algorithm_type[] = {
-	{1, "MD5 Prefix/Suffix"},
-	{2, "HMAC-MD5"},
-	{3, "HMAC-SHA1"},
+	{2, "HMAC-SHA1"},
 	{0, NULL}
 };
-
-static const value_string diameter_mip_replay_type[] = {
+/* MIP-Replay-Mode AVP Values (code 346) */
+static const value_string diameter_mip_replay_mode[] = {
 	{1, "None"},
-	{2, "Nonce"},
-	{3, "Timestamp"},
+	{2, "Timestamp"},
+	{3, "Nonces"},
 	{0, NULL}
+};
+/* Accounting-Record-Type AVP Values (code 480) */
+static const value_string diameter_accounting_record_type_vals[]= {
+	{1, "Event Record"},
+	{2, "Start Record"},
+	{3, "Interim Record"},
+	{4, "Stop Record"},
+	{0,NULL}
 };
 
 static const value_string diameter_application_id_vals[] = {
@@ -357,8 +383,8 @@ static const value_string diameter_application_id_vals[] = {
 	{4294967295U, "Relay Application"},
 	
 	{0, NULL}
-
 };
+
 /* Diameter Session Initiation Protocol (SIP) Application value strings */
 /* Remove comment when IANA assigned values are avalable 
 static const value_string SIP_user_data_request_type[] = {
@@ -422,7 +448,7 @@ static const value_string SIP_server_assignment_type[] ={
  *    -  4xxx (Transient Failures)
  *    -  5xxx (Permanent Failure)
  */
-
+/* Result-Code AVP Values (code 268) */
 static const value_string diameter_result_code_vals[] = {
 	/* Informational
 	 * Errors that fall within this category are used to inform the
@@ -461,7 +487,7 @@ static const value_string diameter_result_code_vals[] = {
 	{4001, "DIAMETER_AUTHENTICATION_REJECTED"},
 	{4002, "DIAMETER_OUT_OF_SPACE"},
 	{4003, "ELECTION_LOST"},
-	/* draft-ietf-aaa-diameter-mobileip-16 */
+	/* draft-ietf-aaa-diameter-mobileip-20 */
 	{4005, "DIAMETER_ERROR_MIP_REPLY_FAILURE"},
 	{4006, "DIAMETER_ERROR_HA_NOT_AVAILABLE"},
 	{4007, "DIAMETER_ERROR_BAD_KEY"},
@@ -492,9 +518,7 @@ static const value_string diameter_result_code_vals[] = {
 	{5015, "DIAMETER_INVALID_MESSAGE_LENGTH"}, 
 	{5016, "DIAMETER_INVALID_AVP_BIT_COMBO"}, 
 	{5017, "DIAMETER_NO_COMMON_SECURITY"}, 
-	{5018, "DIAMETER_AVP_NOT_ALLOWED"}, 
-	{5019, "DIAMETER_AVP_OCCURS_TOO_MANY_TIMES"}, 
-	/* draft-ietf-aaa-diameter-mobileip-16 */
+	/* draft-ietf-aaa-diameter-mobileip-20 */
 	{5024, "DIAMETER_ERROR_NO_FOREIGN_HA_SERVICE"}, 
 	{5025, "DIAMETER_ERROR_END_TO_END_MIP_KEY_ENCRYPTION"}, 
 	/* draft-ietf-aaa-diameter-cc-03.txt */
@@ -656,7 +680,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 259, "Acct-Application-Id",         DIAMETER_UNSIGNED32,  diameter_application_id_vals},
     { 275, "Alternate-Peer",              DIAMETER_IDENTITY,    (value_string *)NULL},
     { 258, "Auth-Application-Id",         DIAMETER_UNSIGNED32,  diameter_application_id_vals},
-    { 274, "Auth-Request-Type",           DIAMETER_ENUMERATED,  diameter_auth_request_type_vals},
+    { 247, "Auth-Request-Type",           DIAMETER_ENUMERATED,  diameter_auth_request_type_vals},
     { 291, "Authorization-Lifetime",      DIAMETER_INTEGER32,   (value_string *)NULL},
     { 276, "Auth-Grace-Period",           DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 277, "Auth-Session-State",          DIAMETER_ENUMERATED,  diameter_auth_session_state_vals},
@@ -682,7 +706,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 268, "Result-Code",                 DIAMETER_ENUMERATED,  diameter_result_code_vals},
     { 282, "Route-Record",                DIAMETER_IDENTITY,    (value_string *)NULL},
     { 263, "Session-Id",                  DIAMETER_SESSION_ID,  (value_string *)NULL},
-    { 270, "Session-Binding",             DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 270, "Session-Binding",             DIAMETER_UNSIGNED32,  diameter_session-binding_vals},
     { 271, "Session-Server-Failover",     DIAMETER_ENUMERATED,  diameter_session_server_failover_vals},
     { 286, "Source-Route",                DIAMETER_IDENTITY,    (value_string *)NULL},
     { 265, "Supported-Vendor-Id",         DIAMETER_UNSIGNED32,  (value_string *)NULL},
@@ -698,17 +722,17 @@ static struct old_avp_info old_diameter_avps[] = {
     { 320, "MIP-Reg-Request",             DIAMETER_MIP_REG_REQ,    (value_string *)NULL},
     { 321, "MIP-Reg-Reply",               DIAMETER_OCTET_STRING,   (value_string *)NULL},
     { 322, "MIP-MN-AAA-Auth",             DIAMETER_GROUPED,        (value_string *)NULL},
-    { 325, "MIP-MN-to-FA-KEY",            DIAMETER_GROUPED,        (value_string *)NULL},
-    { 326, "MIP-FA-to-MN-KEY",            DIAMETER_GROUPED,        (value_string *)NULL},
-    { 328, "MIP-FA-to-HA-KEY",            DIAMETER_GROUPED,        (value_string *)NULL},
-    { 329, "MIP-HA-to-FA-KEY",            DIAMETER_GROUPED,        (value_string *)NULL},
-    { 330, "MIP-Foreign-Agent-Host",      DIAMETER_IDENTITY,       (value_string *)NULL},
-    { 331, "MIP-MN-to-HA-KEY",            DIAMETER_GROUPED,        (value_string *)NULL},
+    { 325, "MIP-MN-to-FA-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
+    { 326, "MIP-FA-to-MN-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
+    { 328, "MIP-FA-to-HA-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
+    { 329, "MIP-HA-to-FA-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
+    { 331, "MIP-MN-to-HA-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
+    { 332, "MIP-HA-to-MN-MSA",			  DIAMETER_GROUPED,		   (value_string *)NULL},
     { 333, "MIP-Mobile-Node-Address",     DIAMETER_IP_ADDRESS,     (value_string *)NULL},
     { 334, "MIP-Home-Agent-Address",      DIAMETER_IP_ADDRESS,     (value_string *)NULL},
-    { 335, "MIP-Key-Material",            DIAMETER_OCTET_STRING,   (value_string *)NULL},
+    { 335, "MIP-Nonce",						DIAMETER_OCTET_STRING,   (value_string *)NULL},
     { 336, "MIP-Candidate-Home-Agent-Host",		DIAMETER_IDENTITY,			(value_string *)NULL},
-    { 337, "MIP-Feature-Vector",          DIAMETER_UNSIGNED32,     (value_string *)NULL},
+    { 337, "MIP-Feature-Vector",          DIAMETER_UNSIGNED32,     diameter_mip_feature_vector_vals )NULL},
     { 338, "MIP-Auth-Input-Data-Length",  DIAMETER_UNSIGNED32,     (value_string *)NULL},
     { 339, "MIP-Authenticator-Length",    DIAMETER_UNSIGNED32,     (value_string *)NULL},
     { 340, "MIP-Authenticator-Offset",    DIAMETER_UNSIGNED32,     (value_string *)NULL},
@@ -717,7 +741,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 343, "MIP-Session-Key",             DIAMETER_OCTET_STRING,   (value_string *)NULL},
     { 344, "MIP-FA-Challenge",            DIAMETER_OCTET_STRING,   (value_string *)NULL},
     { 345, "MIP-Algorithm-Type",          DIAMETER_ENUMERATED,     diameter_mip_algorithm_type},
-    { 346, "MIP-Algorithm-Type",          DIAMETER_ENUMERATED,     diameter_mip_replay_type},
+    { 346, "MIP-Replay-Mode",	          DIAMETER_ENUMERATED,     diameter_mip_replay_mode},
     { 347, "MIP-Filter-Rule",             DIAMETER_IP_FILTER_RULE, (value_string *)NULL},
     { 348, "MIP-Home-Agent-Host",			DIAMETER_IDENTITY,			(value_string *)NULL},
     { 398, "MIP-Key-Lifetime",            DIAMETER_UNSIGNED32,    (value_string *)NULL},
