@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.48 2004/01/02 12:52:45 obiot Exp $
+ * $Id: packet-x11.c,v 1.49 2004/01/03 05:14:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4503,7 +4503,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		  const char *volatile sep, _U_ x11_conv_data_t *volatile state,
+		  const char *volatile sep, x11_conv_data_t *volatile state _U_,
 		  gboolean little_endian)
 {
 	int offset = 0, *offsetp = &offset, left;
