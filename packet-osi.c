@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.19 2000/01/26 05:04:29 guy Exp $
+ * $Id: packet-osi.c,v 1.20 2000/01/30 05:50:02 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -1594,11 +1594,19 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 
 const value_string nlpid_vals[] = {
 	{ NLPID_NULL,            "NULL" },
+	{ NLPID_T_70,            "T.70" },
+	{ NLPID_X_633,           "X.633" },
+	{ NLPID_Q_931,           "Q.931" },
+	{ NLPID_Q_2931,          "Q.2931" },
+	{ NLPID_Q_2119,          "Q.2119" },
 	{ NLPID_SNAP,            "SNAP" },
 	{ NLPID_ISO8473_CLNP,    "CLNP" },
 	{ NLPID_ISO9542_ESIS,    "ESIS" },
 	{ NLPID_ISO10589_ISIS,   "ISIS" },
+	{ NLPID_ISO10747,        "ISO 10747" },
 	{ NLPID_ISO9542X25_ESIS, "ESIS (X.25)" },
+	{ NLPID_ISO10030,        "ISO 10030" },
+	{ NLPID_ISO11577,        "ISO 11577" },
 	{ NLPID_IP,              "IP" },
 	{ NLPID_PPP,             "PPP" },
 	{ 0,                     NULL },
