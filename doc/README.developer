@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.6 2000/03/03 06:39:10 guy Exp $
+$Id: README.developer,v 1.7 2000/03/03 06:58:28 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -46,7 +46,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.6 2000/03/03 06:39:10 guy Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.7 2000/03/03 06:58:28 guy Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -55,7 +55,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.6 2000/03/03 06:39:10 guy Exp $
+ * $Id: README.developer,v 1.7 2000/03/03 06:58:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -256,7 +256,7 @@ to "PROTOABBREV":
 
 'col_add_fstr' takes a 'printf'-style format string as its third
 argument, and 'printf'-style arguments corresponding to '%' format
-values in that string as its subsequent arguments.  For example, to set
+items in that string as its subsequent arguments.  For example, to set
 the "Info" field to "<XXX> request, <N> bytes", where "reqtype" is a
 string containing the type of the request in the packet and "n" is an
 unsigned integer containing the number of bytes in the request:
@@ -608,6 +608,7 @@ Also be sure to use the handy array_length() macro found in packet.h
 to have the compiler compute the array length for you at compile time.
 
 1.5.2 Adding Items and Values to the Protocol Tree.
+
 A protocol item is added to an existing protocol tree with one of a
 handful of proto_tree_add_item*() funtions.
 
@@ -634,8 +635,8 @@ array of pointers to "gint" variables to hold the subtree type values to
 in your "register" routine, just as you register the protocol and the
 fields for that protocol.
 
-There are now 4 functions that the programmer can use to add either
-protocol or field labels to the proto_tree:
+There are 5 functions that the programmer can use to add either protocol
+or field labels to the proto_tree:
 
 	proto_item*
 	proto_tree_add_item(tree, id, start, length, value);
@@ -649,6 +650,27 @@ protocol or field labels to the proto_tree:
 
 	proto_item*
 	proto_tree_add_text(tree, start, length, format, ...);
+
+	proto_item*
+	proto_tree_add_notext(tree, start, length);
+
+The 'tree' argument is the tree to which the item is to be added.  The
+'start' argument is the offset from the beginning of the frame (not the
+offset from the beginning of the part of the packet belonging to this
+protocol, but the offset from the beginning of the frame as a whole) of
+the item being added, and the 'length' argument is the length, in bytes,
+of the item.
+
+The length of some items cannot be determined until the item has been
+dissected; to add such an item, add it with a length of 0, and, when the
+dissection is complete (or fails because the packet is too short), set
+the length with 'proto_item_set_len()':
+
+	void
+	proto_item_set_len(ti, length);
+
+The "ti" argument is the value returned by the call that added the item
+to the tree, and the "length" argument is the length of the item.
 
 proto_tree_add_item()
 ---------------------
@@ -773,6 +795,41 @@ would still decode all protocols w/o being able to filter on all
 protocols and fields.  Otherwise we would have had to cripple Ethereal's
 functionality while we converted all the old-style proto_tree calls to
 the new-style proto_tree calls.
+
+This can also be used for items with subtrees, which may not have values
+themselves - the items in the subtree are the ones with values.
+
+proto_tree_add_notext()
+-----------------------
+The fifth function, proto_tree_add_notext(), is used to add an item to
+the logical tree that will have only a label, and no value (so it is not
+searchable in the display filter process), but that doesn't yet have a
+label, either.  This is for items where the value is to be filled in
+later.  This is typically used for an item with a subtree, where the
+label is to contain a summary of the subtree, with the values of some of
+the fields in the subtree shown in the label of the item for the subtree
+as a whole; the item can be created as a placeholder, with the label
+added when the dissection is complete - and, if the dissection doesn't
+complete because the packet is too short and not all the required fields
+are present, the label could be set to something indicating this.
+
+The text is set by 'proto_item_set_text()':
+
+	void
+	proto_tree_set_text(proto_item *ti, ...);
+
+which takes as an argument the value returned by
+'proto_tree_add_notext()', a 'printf'-style format string, and a set of
+arguments corresponding to '%' format items in that string.  For
+example, early in the dissection, one might do:
+
+	ti = proto_tree_add_notext(tree, offset, length);
+
+and later do
+
+	proto_item_set_text(ti, "%s: %s", type, value);
+
+after the "type" and "value" fields have been extracted and dissected.
 
 1.6 Editing Makefile.am and Makefile.nmake to add your dissector.
 
