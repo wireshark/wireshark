@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.56 2002/04/29 00:33:30 guy Exp $
+ * $Id: packet-wsp.c,v 1.57 2002/06/15 23:23:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1692,7 +1692,7 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 		    value_buff, valueType, valueLen,
 		    hf_wsp_header_accept_charset,
 		    hf_wsp_header_accept_charset_str,
-		    vals_character_sets, "Unknown charset (%u)");
+		    vals_character_sets, "Unknown charset (0x%04x)");
 		break;
 
 	case FN_ACCEPT_LANGUAGE:	/* Accept-Language */
@@ -1700,7 +1700,7 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 		    value_buff, valueType, valueLen,
 		    hf_wsp_header_accept_language,
 		    hf_wsp_header_accept_language_str,
-		    vals_languages, "Unknown language (%u)");
+		    vals_languages, "Unknown language (0x%04x)");
 		break;
 
 	case FN_ACCEPT_RANGES:		/* Accept-Ranges */
