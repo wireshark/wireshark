@@ -266,6 +266,11 @@ typedef struct _dcerpc_info {
 } dcerpc_info;
 
 
+/* the init_protocol hooks. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT GHookList dcerpc_hooks_init_protos;
+
 /* the registered subdissectors. With MSVC and a 
  * libethereal.dll, we need a special declaration.
  */
@@ -311,13 +316,29 @@ typedef struct _dcerpc_auth_subdissector_fns {
 void register_dcerpc_auth_subdissector(guint8 auth_level, guint8 auth_type,
 				       dcerpc_auth_subdissector_fns *fns);
 
+/* all values needed to (re-)build a dcerpc binding */
+typedef struct decode_dcerpc_bind_values_s {
+    /* values of a typical conversation */
+    address addr_a;
+    address addr_b;
+    port_type ptype;
+    guint32 port_a;
+    guint32 port_b;
+    /* dcerpc conversation specific */
+    guint16 ctx_id;
+    guint16 smb_fid;
+    /* corresponding "interface" */
+    GString *ifname;
+    e_uuid_t uuid;
+    guint16 ver;
+} decode_dcerpc_bind_values_t;
+
 /* Helper for "decode as" dialog to set up a UUID/conversation binding. */
 struct _dcerpc_bind_value *
-dcerpc_add_conv_to_bind_table(conversation_t *conv,
-                              guint16 ctx_id,
-                              guint16 smb_fid,
-                              e_uuid_t uuid,
-                              guint16 ver);
+dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding);
+
+guint16 
+dcerpc_get_transport_salt (packet_info *pinfo, int transport_type);
 
 /* Authentication services */
 

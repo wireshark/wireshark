@@ -38,27 +38,13 @@
 #include "ui_util.h"
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"
-
-/* XXX - well, this is an ugly hack ... */
-#include "../epan/dissectors/packet-dcerpc.h"
+#include "decode_as_dcerpc.h"
 
 #undef DEBUG
 
 /**************************************************/
 /*                Typedefs & Enums                */
 /**************************************************/
-
-/*
- * Enum used to track which radio button is currently selected in the
- * dialog. These buttons are labeled "Decode" and "Do not decode".
- */
-enum action_type {
-    /* The "Decode" button is currently selected. */
-    E_DECODE_YES,
-
-    /* The "Do not decode" button is currently selected. */
-    E_DECODE_NO
-};
 
 /*
  * Enum used to track which transport layer port menu item is
@@ -81,30 +67,9 @@ enum srcdst_type {
 
 #define E_MENU_SRCDST "menu_src_dst"
 
-#define E_PAGE_ACTION "notebook_page_action"
 #define E_PAGE_DPORT "dport"
 #define E_PAGE_SPORT "sport"
 #define E_PAGE_PPID  "ppid"
-
-#define E_PAGE_LIST   "notebook_page_list"
-#define E_PAGE_TABLE  "notebook_page_table_name"
-#define E_PAGE_TITLE  "notebook_page_title"
-#define E_PAGE_VALUE  "notebook_page_value"
-
-#define E_PAGE_CONV   "notebook_page_conv" /* dcerpc only */
-#define E_PAGE_CTX_ID "notebook_page_ctx_id" /* dcerpc only */
-#define E_PAGE_SMB_FID "notebook_page_smb_fid" /* dcerpc only */
-
-/*
- * Columns for a "Select" list.
- * Note that most of these columns aren't displayed; they're attached
- * to the row of the table as additional information.
- */
-#define E_LIST_S_PROTO_NAME 0
-#define E_LIST_S_TABLE	    1
-/* The following is for debugging in decode_add_to_list */
-#define E_LIST_S_MAX	    E_LIST_S_TABLE
-#define E_LIST_S_COLUMNS   (E_LIST_S_MAX + 1)
 
 /*
  * Columns for a "Display" list
@@ -142,7 +107,7 @@ static GtkWidget *decode_show_w = NULL;
  * selected the "Decode" radio button.  When the "Do not decode"
  * button is selected these items should be dimmed.
  */
-static GSList *decode_dimmable = NULL;
+GSList *decode_dimmable = NULL;
 
 /*
  * Remember the "action" radio button that is currently selected in
@@ -150,10 +115,21 @@ static GSList *decode_dimmable = NULL;
  * modified in a callback routine, and read in the routine that
  * handles a click in the "OK" button for the dialog.
  */
-static enum action_type	requested_action = -1;
+enum action_type	requested_action = -1;
+
 
 /**************************************************/
-/*            Resett Changed Dissectors           */
+/*            Global Functions                    */
+/**************************************************/
+
+/* init this module */
+void decode_as_init(void) {
+
+    decode_dcerpc_init();
+}
+
+/**************************************************/
+/*            Reset Changed Dissectors            */
 /**************************************************/
 
 /*
@@ -240,6 +216,45 @@ decode_build_reset_list (gchar *table_name, ftenum_t selector_type,
 /*             Show Changed Dissectors            */
 /**************************************************/
 
+void
+decode_add_to_show_list (
+gpointer list_data, 
+gchar *table_name, 
+gchar *selector_name, 
+gchar *initial_proto_name, 
+gchar *current_proto_name)
+{
+    gchar     *text[E_LIST_D_COLUMNS];
+#if GTK_MAJOR_VERSION < 2
+    GtkCList  *clist;
+    gint       row;
+#else
+    GtkListStore *store;
+    GtkTreeIter   iter;
+#endif
+
+#if GTK_MAJOR_VERSION < 2
+    clist = (GtkCList *)list_data;
+#else
+    store = (GtkListStore *)list_data;
+#endif
+
+    text[E_LIST_D_TABLE] = table_name;
+	text[E_LIST_D_SELECTOR] = selector_name;
+    text[E_LIST_D_INITIAL] = initial_proto_name;
+    text[E_LIST_D_CURRENT] = current_proto_name;
+#if GTK_MAJOR_VERSION < 2
+    row = gtk_clist_prepend(clist, text);
+#else
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, E_LIST_D_TABLE, text[E_LIST_D_TABLE],
+                       E_LIST_D_SELECTOR, text[E_LIST_D_SELECTOR],
+                       E_LIST_D_INITIAL, text[E_LIST_D_INITIAL],
+                       E_LIST_D_CURRENT, text[E_LIST_D_CURRENT], -1);
+#endif
+}
+
+
 /*
  * This routine creates one entry in the list of protocol dissector
  * that have been changed.  It is called by the g_hash_foreach routine
@@ -263,25 +278,13 @@ static void
 decode_build_show_list (gchar *table_name, ftenum_t selector_type,
 			gpointer key, gpointer value, gpointer user_data)
 {
-#if GTK_MAJOR_VERSION < 2
-    GtkCList  *clist;
-    gint       row;
-#else
-    GtkListStore *store;
-    GtkTreeIter   iter;
-#endif
     dissector_handle_t current, initial;
-    gchar     *current_proto_name, *initial_proto_name, *text[E_LIST_D_COLUMNS];
+    gchar     *current_proto_name, *initial_proto_name, *selector_name;
     gchar      string1[20];
 
     g_assert(user_data);
     g_assert(value);
 
-#if GTK_MAJOR_VERSION < 2
-    clist = (GtkCList *)user_data;
-#else
-    store = (GtkListStore *)user_data;
-#endif
     current = dtbl_entry_get_handle(value);
     if (current == NULL)
 	current_proto_name = "(none)";
@@ -293,7 +296,6 @@ decode_build_show_list (gchar *table_name, ftenum_t selector_type,
     else
 	initial_proto_name = dissector_handle_get_short_name(initial);
 
-    text[E_LIST_D_TABLE] = get_dissector_table_ui_name(table_name);
     switch (selector_type) {
 
     case FT_UINT8:
@@ -335,29 +337,25 @@ decode_build_show_list (gchar *table_name, ftenum_t selector_type,
 	    g_snprintf(string1, sizeof(string1), "%#o", GPOINTER_TO_UINT(key));
 	    break;
 	}
-	text[E_LIST_D_SELECTOR] = string1;
+	selector_name = string1;
 	break;
 
     case FT_STRING:
     case FT_STRINGZ:
-	text[E_LIST_D_SELECTOR] = key;
+	selector_name = key;
 	break;
 
     default:
 	g_assert_not_reached();
 	break;
     }
-    text[E_LIST_D_INITIAL] = initial_proto_name;
-    text[E_LIST_D_CURRENT] = current_proto_name;
-#if GTK_MAJOR_VERSION < 2
-    row = gtk_clist_prepend(clist, text);
-#else
-    gtk_list_store_append(store, &iter);
-    gtk_list_store_set(store, &iter, E_LIST_D_TABLE, text[E_LIST_D_TABLE],
-                       E_LIST_D_SELECTOR, text[E_LIST_D_SELECTOR],
-                       E_LIST_D_INITIAL, text[E_LIST_D_INITIAL],
-                       E_LIST_D_CURRENT, text[E_LIST_D_CURRENT], -1);
-#endif
+
+    decode_add_to_show_list (
+        user_data, 
+        get_dissector_table_ui_name(table_name),
+        selector_name, 
+        initial_proto_name, 
+        current_proto_name);
 }
 
 
@@ -419,6 +417,8 @@ decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
     }
     g_slist_free(dissector_reset_list);
     dissector_reset_list = NULL;
+
+    decode_dcerpc_reset_all();
 
     redissect_packets(&cfile);
 
@@ -533,9 +533,11 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 #if GTK_MAJOR_VERSION < 2
 	dissector_all_tables_foreach_changed(decode_build_show_list, list);
 	gtk_clist_sort(list);
+    decode_dcerpc_add_show_list(list);
 #else
 	dissector_all_tables_foreach_changed(decode_build_show_list, store);
 	g_object_unref(G_OBJECT(store));
+    decode_dcerpc_add_show_list(store);
 #endif
 
 	/* Put clist into a scrolled window */
@@ -654,71 +656,6 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
 	g_free(abbrev);
 #endif
 }
-
-
-static void
-decode_dcerpc_dissector_change(gchar *table_name, conversation_t *conv, guint16 ctx_id, guint16 smb_fid, dcerpc_uuid_key *key)
-{
-
-    printf("cn_rqst: conv 0x%x ctx:%u smb:%u\n", conv, ctx_id, 0);
-    dcerpc_add_conv_to_bind_table(conv,
-                              ctx_id,
-                              smb_fid /*get_transport_salt(pinfo, pinfo->dcetransporttype)*/,
-                              key->uuid,
-                              key->ver);
-
-    redissect_packets(&cfile);
-}
-
-
-static void
-decode_change_one_dcerpc_dissector(gchar *table_name, conversation_t *conv, guint16 ctx_id, guint16 smb_fid, GtkWidget *list)
-{
-    dcerpc_uuid_key     *key;
-    gchar              *abbrev;
-#if GTK_MAJOR_VERSION < 2
-    gint               row;
-#else
-    GtkTreeSelection  *selection;
-    GtkTreeModel      *model;
-    GtkTreeIter        iter;
-#endif
-
-#if GTK_MAJOR_VERSION < 2
-    if (!GTK_CLIST(list)->selection)
-    {
-	abbrev = NULL;
-	key = NULL;
-    } else {
-	row = GPOINTER_TO_INT(GTK_CLIST(list)->selection->data);
-	key = gtk_clist_get_row_data(GTK_CLIST(list), row);
-	gtk_clist_get_text(GTK_CLIST(list), row, E_LIST_S_PROTO_NAME, &abbrev);
-    }
-#else
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
-    if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
-    {
-	abbrev = NULL;
-	key = NULL;
-    } else {
-        gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &abbrev,
-                           E_LIST_S_TABLE+1, &key, -1);
-    }
-#endif
-
-    if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
-/*	dissector_reset(table_name, selector);*/
-        /* XXX - what to do instead? */
-    } else {
-/*	dissector_change(table_name, selector, handle);*/
-        decode_dcerpc_dissector_change(table_name, conv, ctx_id, smb_fid, key);
-    }
-#if GTK_MAJOR_VERSION >= 2
-    if (abbrev != NULL)
-	g_free(abbrev);
-#endif
-}
-
 
 
 /**************************************************/
@@ -865,41 +802,6 @@ decode_transport(GtkWidget *notebook_pg)
 }
 
 
-/*
- * This routine is called when the user clicks the "OK" button in the
- * "Decode As..." dialog window and the DCE-RPC page is foremost.
- * This routine takes care of making any changes requested to the DCE-RPC 
- * dissector tables.
- *
- * @param notebook_pg A pointer to the "transport" notebook page.
- */
-static void
-decode_dcerpc(GtkWidget *notebook_pg)
-{
-    GtkWidget *list;
-    gchar *table_name;
-    guint16 ctx_id;
-    guint16 smb_fid;
-    conversation_t *conv;
-
-
-    list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
-    if (requested_action == E_DECODE_NO)
-#if GTK_MAJOR_VERSION < 2
-	gtk_clist_unselect_all(GTK_CLIST(list));
-#else
-	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
-#endif
-
-    conv = OBJECT_GET_DATA(notebook_pg, E_PAGE_CONV);
-    ctx_id = GPOINTER_TO_UINT(OBJECT_GET_DATA(notebook_pg, E_PAGE_CTX_ID));
-    smb_fid = GPOINTER_TO_UINT(OBJECT_GET_DATA(notebook_pg, E_PAGE_SMB_FID));
-
-    /*table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);*/
-    table_name = "DCE-RPC";
-    decode_change_one_dcerpc_dissector(table_name, conv, ctx_id, smb_fid, list);
-}
-
 /**************************************************/
 /*      Signals from the "Decode As..." dialog    */
 /**************************************************/
@@ -923,6 +825,7 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     GtkWidget *notebook, *notebook_pg;
     void (* func)(GtkWidget *);
     gint page_num;
+    void *binding;
 
     /* Call the right routine for the page that was currently in front. */
     notebook =  OBJECT_GET_DATA(parent_w, E_NOTEBOOK);
@@ -933,6 +836,11 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     func(notebook_pg);
 
     /* Now destroy the "Decode As" dialog. */
+    notebook_pg = OBJECT_GET_DATA(parent_w, E_PAGE_DCERPC);
+    binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
+    if(binding) {
+        decode_dcerpc_binding_free(binding);
+    }
     window_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
@@ -981,6 +889,17 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
 static void
 decode_cancel_cb (GtkWidget *cancel_bt _U_, gpointer parent_w)
 {
+    GtkWidget *notebook_pg = NULL;
+    void *binding = NULL;
+
+
+    notebook_pg = OBJECT_GET_DATA(parent_w, E_PAGE_DCERPC);
+    if(notebook_pg) {
+        binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
+    }
+    if(binding) {
+        decode_dcerpc_binding_free(binding);
+    }
     window_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
@@ -1235,7 +1154,7 @@ lookup_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
  * routine, specifying information about the dissector table and where
  * to store any information generated by this routine.
  */
-static void
+void
 decode_add_to_list (gchar *table_name, gchar *proto_name, gpointer value, gpointer user_data)
 {
     gchar     *text[E_LIST_S_COLUMNS];
@@ -1314,7 +1233,7 @@ decode_proto_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
  * @param scrolled_win_p Will be filled in with the address of a newly
  * created GtkScrolledWindow.
  */
-static void
+void
 decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
                        GtkWidget **scrolled_win_p)
 {
@@ -1382,7 +1301,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
  *
  * @param list A pointer the the List to finish.
  */
-static void
+void
 decode_list_menu_finish(GtkWidget *list)
 {
     gchar *text[E_LIST_S_COLUMNS];
@@ -1441,27 +1360,6 @@ decode_add_simple_menu (GtkWidget *page, gchar *table_name)
     return(scrolled_window);
 }
 
-
-
-void decode_dcerpc_add_to_list(gpointer key, gpointer value, gpointer user_data)
-{
-    dcerpc_uuid_key *k = key;
-    dcerpc_uuid_value *v = value;
-
-    decode_add_to_list("DCE-RPC", v->name, key, user_data);
-}
-
-static GtkWidget *
-decode_add_dcerpc_menu (GtkWidget *page, gchar *table_name)
-{
-    GtkWidget *scrolled_window;
-    GtkWidget *list;
-
-    decode_list_menu_start(page, &list, &scrolled_window);
-    g_hash_table_foreach(dcerpc_uuids, decode_dcerpc_add_to_list, list);
-    decode_list_menu_finish(list);
-    return(scrolled_window);
-}
 
 /**************************************************/
 /*                  Dialog setup                  */
@@ -1594,52 +1492,6 @@ decode_add_sctp_page (gchar *prompt, gchar *table_name)
     return(page);
 }
 
-static GtkWidget *
-decode_add_decrpc_page (packet_info *pinfo)
-{
-    GtkWidget	*page_hb, *info_vb, *label, *scrolled_window/*, *optmenu*/;
-    gchar       ls[100];
-    conversation_t *conv;
-
-    page_hb = gtk_hbox_new(FALSE, 5);
-    OBJECT_SET_DATA(page_hb, E_PAGE_ACTION, decode_dcerpc);
-    OBJECT_SET_DATA(page_hb, E_PAGE_TABLE, "DCE-RPC");
-    OBJECT_SET_DATA(page_hb, E_PAGE_TITLE, "DCE-RPC");
-    
-
-    info_vb = gtk_vbox_new(FALSE, 5);
-    gtk_box_pack_start(GTK_BOX(page_hb), info_vb, TRUE, TRUE, 0);
-
-    /* Always enabled */
-    g_snprintf(ls, sizeof(ls), "Context ID: %u", pinfo->dcectxid);
-    label = gtk_label_new(ls);
-    gtk_box_pack_start(GTK_BOX(info_vb), label, TRUE, TRUE, 0);
-
-    conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
-                              pinfo->srcport, pinfo->destport, 0);
-
-    /* beware: if the capture file is closed, we have to remove all conversation 
-     * "decode as" bindings, as the pinfo and conversations become invalid! */
-    OBJECT_SET_DATA(page_hb, E_PAGE_CONV, conv);
-    OBJECT_SET_DATA(page_hb, E_PAGE_CTX_ID, GUINT_TO_POINTER(pinfo->dcectxid));
-    OBJECT_SET_DATA(page_hb, E_PAGE_SMB_FID, GUINT_TO_POINTER(0 /*pinfo->dcecsmbfid*/));
-
-    g_snprintf(ls, sizeof(ls), "Between port: %u and %u", 
-        pinfo->srcport, pinfo->destport);
-    label = gtk_label_new(ls);
-    gtk_box_pack_start(GTK_BOX(info_vb), label, TRUE, TRUE, 0);
-
-
-    /* Conditionally enabled - only when decoding packets */
-    label = gtk_label_new("as");
-    gtk_box_pack_start(GTK_BOX(page_hb), label, TRUE, TRUE, 0);
-    decode_dimmable = g_slist_prepend(decode_dimmable, label);
-    scrolled_window = decode_add_dcerpc_menu(page_hb, "dcerpc" /*table_name*/);
-    gtk_box_pack_start(GTK_BOX(page_hb), scrolled_window, TRUE, TRUE, 0);
-    decode_dimmable = g_slist_prepend(decode_dimmable, scrolled_window);
-
-    return(page_hb);
-}
 
 /*
  * This routine indicates whether we'd actually have any pages in the
@@ -1717,13 +1569,12 @@ decode_add_notebook (GtkWidget *format_hb)
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
     }
 
-/*
     if(cfile.edt->pi.dcetransporttype != -1) {
-	    page = decode_add_decrpc_page(&cfile.edt->pi);
+	    page = decode_dcerpc_add_page(&cfile.edt->pi);
 	    label = gtk_label_new("DCE-RPC");
 	    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+        OBJECT_SET_DATA(decode_w, E_PAGE_DCERPC, page);
     }
-*/
 
     /* Select the last added page (selects first by default) */
     /* Notebook must be visible for set_page to work. */

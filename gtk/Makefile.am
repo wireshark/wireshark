@@ -43,6 +43,7 @@ noinst_HEADERS = \
 	compat_macros.h	\
 	conversations_table.h \
 	decode_as_dlg.h	\
+	decode_as_dcerpc.h \
 	dfilter_expr_dlg.h \
 	dlg_utils.h	\
 	file_dlg.h	\

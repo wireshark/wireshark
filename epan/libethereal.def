@@ -83,6 +83,8 @@ dcerpc_add_conv_to_bind_table
 dcerpc_get_proto_hf_opnum
 dcerpc_get_proto_name
 dcerpc_get_proto_sub_dissector
+dcerpc_get_transport_salt
+dcerpc_hooks_init_protos        DATA
 dcerpc_uuids                    DATA
 decode_boolean_bitfield
 decode_enumerated_bitfield

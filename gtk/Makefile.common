@@ -40,6 +40,7 @@ ETHEREAL_GTK_SRC = \
 	column_prefs.c	\
 	conversations_table.c	\
 	decode_as_dlg.c	\
+	decode_as_dcerpc.c	\
 	dfilter_expr_dlg.c	\
 	dlg_utils.c	\
 	ethereal-tap-register.c	\
