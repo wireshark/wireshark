@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.368 2004/01/23 19:53:10 guy Exp $
+ * $Id: main.c,v 1.369 2004/01/23 20:11:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2739,7 +2739,8 @@ not_xlfd:
 }
 #endif
 
-/* Given a font name, construct the name of a bigger version of that font. */
+/* Given a font name, construct the name of a version of that font with
+   the current zoom factor applied. */
 static char *
 font_zoom(char *gui_font_name)
 {
@@ -2765,10 +2766,17 @@ font_zoom(char *gui_font_name)
     char *font_charset_encoding;
 #endif
 
-#if GTK_MAJOR_VERSION >= 2
+    if (recent.gui_zoom_level == 0) {
+        /* There is no zoom factor - just return the name, so that if
+           this is GTK+ 1.2[.x] and the font name isn't an XLFD font
+           name, we don't fail. */
+        return g_strdup(gui_font_name);
+    }
+
     font_name_dup = g_strdup(gui_font_name);
     font_name_p = font_name_dup;
 
+#if GTK_MAJOR_VERSION >= 2
     /* find the start of the font_size string */
     font_name_p = strrchr(font_name_dup, ' ');
     *font_name_p = '\0';
@@ -2780,13 +2788,7 @@ font_zoom(char *gui_font_name)
 
     /* build a new font name */
     sprintf(new_font_name, "%s %u", font_name_dup, font_point_size_l);
-    g_free(font_name_dup);
-
-    return g_strdup(new_font_name);
 #else
-    font_name_dup = g_strdup(gui_font_name);
-    font_name_p = font_name_dup;
-
     minus_chars = 0;
     /* replace all '-' chars by 0 and count them */
     while ((font_name_p = strchr(font_name_p, '-')) != NULL) {
@@ -2878,10 +2880,11 @@ font_zoom(char *gui_font_name)
         font_foundry, font_family, font_weight, font_slant, font_set_width, 
         font_pixel_size, font_point_size_l, font_res_x, font_res_y,
         font_spacing, font_aver_width, font_charset_reg, font_charset_encoding);
+#endif
+
     g_free(font_name_dup);
 
     return g_strdup(new_font_name);
-#endif
 }
 
 void
@@ -2906,8 +2909,7 @@ font_apply(void) {
     	 */
         simple_dialog(ESD_TYPE_WARN, NULL,
             "Your current font isn't available in any other sizes.\n"
-            "Please update your font setting in Edit->Preferences!",
-            gui_font_name);
+            "Please update your font setting in Edit->Preferences!");
         return;
     }
 
