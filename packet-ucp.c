@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.23 2004/03/20 07:49:09 guy Exp $
+ * $Id: packet-ucp.c,v 1.24 2004/03/23 01:29:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -629,10 +629,12 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
 
     length = tvb_find_guint8(tvb, offset, -1, UCP_ETX);
     if (length == -1) {
+	/* XXX - should we have an option to request reassembly? */
 	*endpkt = tvb_reported_length_remaining(tvb, offset);
 	return UCP_SHORTENED;
     }
     if (length > (int) tvb_reported_length(tvb)) {
+	/* XXX - "cannot happen" */
 	*endpkt = 0;
 	return UCP_MALFORMED;
     }
@@ -696,11 +698,9 @@ ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
     if (idx == -1) {
-	/*
-	 * XXX - should we do reassembly here, if this isn't a short
-	 * frame?
-	 */
+	/* Force the appropriate exception to be thrown. */
 	len = tvb_length_remaining(tvb, *offset);
+	tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
 	len = idx - *offset;
     if (len > 0)
@@ -780,11 +780,9 @@ ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
     if (idx == -1) {
-	/*
-	 * XXX - should we do reassembly here, if this isn't a short
-	 * frame?
-	 */
+	/* Force the appropriate exception to be thrown. */
 	len = tvb_length_remaining(tvb, *offset);
+	tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
 	len = idx - *offset;
     strval = tvb_get_string(tvb, *offset, len);
@@ -809,11 +807,9 @@ ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
     if (idx == -1) {
-	/*
-	 * XXX - should we do reassembly here, if this isn't a short
-	 * frame?
-	 */
+	/* Force the appropriate exception to be thrown. */
 	len = tvb_length_remaining(tvb, *offset);
+	tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
 	len = idx - *offset;
     strval = tvb_get_string(tvb, *offset, len);
