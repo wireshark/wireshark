@@ -2,7 +2,7 @@
  * Routines for the Check Point High-Availability Protocol (CPHAP)
  * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il>
  *
- * $Id: packet-cpha.c,v 1.4 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-cpha.c,v 1.5 2003/01/31 03:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -515,7 +515,7 @@ proto_register_cpha(void)
     { &hf_id_num,
     { "Number of IDs reported", "cphap.id_num", FT_UINT16, BASE_DEC, NULL, 0x0, "Number of IDs reported", HFILL}},
     { &hf_report_code,
-    { "Report code", "cphap.id_num", FT_UINT16, BASE_BIN, NULL, 0x0, "Report Code", HFILL}},
+    { "Report code", "cphap.id_num", FT_UINT16, BASE_DEC, NULL, 0x0, "Report Code", HFILL}},
     { &hf_ha_mode,
     { "HA mode", "cphap.ha_mode", FT_UINT16, BASE_DEC, NULL, 0x0, "HA Mode", HFILL}},
     { &hf_ha_time_unit,

@@ -2,7 +2,7 @@
  * Routines for FC Extended Link Services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcels.c,v 1.3 2003/01/22 06:26:33 guy Exp $
+ * $Id: packet-fcels.c,v 1.4 2003/01/31 03:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1847,7 +1847,7 @@ proto_register_fcels (void)
           {"Registration Function", "fcels.scr.regn", FT_UINT8, BASE_HEX,
            VALS (fc_els_scr_reg_val), 0x0, "", HFILL}},
         { &hf_fcels_farp_matchcodept,
-          {"Match Address Code Points", "fcels.matchcp", FT_UINT8, BASE_BIN,
+          {"Match Address Code Points", "fcels.matchcp", FT_UINT8, BASE_DEC,
            NULL, 0x0, "", HFILL}},
         { &hf_fcels_farp_respaction,
           {"Responder Action", "fcels.respaction", FT_UINT8, BASE_HEX, 

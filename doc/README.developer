@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.69 2003/01/29 00:39:02 guy Exp $
+$Id: README.developer,v 1.70 2003/01/31 03:17:50 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -158,7 +158,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.69 2003/01/29 00:39:02 guy Exp $"
+The "$Id: README.developer,v 1.70 2003/01/31 03:17:50 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -168,7 +168,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.69 2003/01/29 00:39:02 guy Exp $
+ * $Id: README.developer,v 1.70 2003/01/31 03:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -370,7 +370,7 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_UINT_STRING,
 		FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
 		FT_FRAMENUM
-FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_BIN
+FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT
 FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
 FIELDDESCR	A brief description of the field.
@@ -821,12 +821,10 @@ are:
 
 	BASE_DEC,
 	BASE_HEX,
-	BASE_OCT,
-	BASE_BIN
+	BASE_OCT
 
 BASE_DEC, BASE_HEX, and BASE_OCT are decimal, hexadecimal, and octal,
-respectively.  BASE_BIN is reserved for binary, although it's currently
-treated as decimal - if you want decimal, use BASE_DEC, not BASE_BIN.
+respectively.
 
 For FT_BOOLEAN fields that are also bitfields, 'display' is used to tell
 the proto_tree how wide the parent bitfield is.  With integers this is

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.22 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-auto_rp.c,v 1.23 2003/01/31 03:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -207,7 +207,7 @@ void proto_register_auto_rp(void)
 
                 { &hf_auto_rp_mask_len,
                   {"Mask length", "auto_rp.mask_len",
-                   FT_UINT8, BASE_BIN, NULL, 0x0,
+                   FT_UINT8, BASE_DEC, NULL, 0x0,
                    "Length of group prefix", HFILL }},
 
                 { &hf_auto_rp_group_prefix,

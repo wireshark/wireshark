@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.37 2003/01/11 09:57:16 guy Exp $
+ * $Id: packet-tns.c,v 1.38 2003/01/31 03:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1018,37 +1018,37 @@ void proto_register_tns(void)
 			NULL, 0x0, "Service Options", HFILL }},
 
 		{ &hf_tns_sopt_flag_bconn, {
-			"Broken Connect Notify", "tns.so_flag.bconn", FT_UINT16, BASE_BIN,
+			"Broken Connect Notify", "tns.so_flag.bconn", FT_BOOLEAN, 16,
 			NULL, 0x2000, "Broken Connect Notify", HFILL }},
 		{ &hf_tns_sopt_flag_pc, {
-			"Packet Checksum", "tns.so_flag.pc", FT_UINT16, BASE_BIN,
+			"Packet Checksum", "tns.so_flag.pc", FT_BOOLEAN, 16,
 			NULL, 0x1000, "Packet Checksum", HFILL }},
 		{ &hf_tns_sopt_flag_hc, {
-			"Header Checksum", "tns.so_flag.hc", FT_UINT16, BASE_BIN,
+			"Header Checksum", "tns.so_flag.hc", FT_BOOLEAN, 16,
 			NULL, 0x0800, "Header Checksum", HFILL }},
 		{ &hf_tns_sopt_flag_fd, {
-			"Full Duplex", "tns.so_flag.fd", FT_UINT16, BASE_BIN,
+			"Full Duplex", "tns.so_flag.fd", FT_BOOLEAN, 16,
 			NULL, 0x0400, "Full Duplex", HFILL }},
 		{ &hf_tns_sopt_flag_hd, {
-			"Half Duplex", "tns.so_flag.hd", FT_UINT16, BASE_BIN,
+			"Half Duplex", "tns.so_flag.hd", FT_BOOLEAN, 16,
 			NULL, 0x0200, "Half Duplex", HFILL }},
 		{ &hf_tns_sopt_flag_dc1, {
-			"Don't Care", "tns.so_flag.dc1", FT_UINT16, BASE_BIN,
+			"Don't Care", "tns.so_flag.dc1", FT_BOOLEAN, 16,
 			NULL, 0x0100, "Don't Care", HFILL }},
 		{ &hf_tns_sopt_flag_dc2, {
-			"Don't Care", "tns.so_flag.dc2", FT_UINT16, BASE_BIN,
+			"Don't Care", "tns.so_flag.dc2", FT_BOOLEAN, 16,
 			NULL, 0x0080, "Don't Care", HFILL }},
 		{ &hf_tns_sopt_flag_dio, {
-			"Direct IO to Transport", "tns.so_flag.dio", FT_UINT16, BASE_BIN,
+			"Direct IO to Transport", "tns.so_flag.dio", FT_BOOLEAN, 16,
 			NULL, 0x0010, "Direct IO to Transport", HFILL }},
 		{ &hf_tns_sopt_flag_ap, {
-			"Attention Processing", "tns.so_flag.ap", FT_UINT16, BASE_BIN,
+			"Attention Processing", "tns.so_flag.ap", FT_BOOLEAN, 16,
 			NULL, 0x0008, "Attention Processing", HFILL }},
 		{ &hf_tns_sopt_flag_ra, {
-			"Can Receive Attention", "tns.so_flag.ra", FT_UINT16, BASE_BIN,
+			"Can Receive Attention", "tns.so_flag.ra", FT_BOOLEAN, 16,
 			NULL, 0x0004, "Can Receive Attention", HFILL }},
 		{ &hf_tns_sopt_flag_sa, {
-			"Can Send Attention", "tns.so_flag.sa", FT_UINT16, BASE_BIN,
+			"Can Send Attention", "tns.so_flag.sa", FT_BOOLEAN, 16,
 			NULL, 0x0002, "Can Send Attention", HFILL }},
 
 
@@ -1063,52 +1063,52 @@ void proto_register_tns(void)
 			"NT Protocol Characteristics", "tns.nt_proto_characteristics", FT_UINT16, BASE_HEX,
 			NULL, 0x0, "NT Protocol Characteristics", HFILL }},
 		{ &hf_tns_ntp_flag_hangon, {
-			"Hangon to listener connect", "tns.ntp_flag.hangon", FT_UINT16, BASE_BIN,
+			"Hangon to listener connect", "tns.ntp_flag.hangon", FT_BOOLEAN, 16,
 			NULL, 0x8000, "Hangon to listener connect", HFILL }},
 		{ &hf_tns_ntp_flag_crel, {
-			"Confirmed release", "tns.ntp_flag.crel", FT_UINT16, BASE_BIN,
+			"Confirmed release", "tns.ntp_flag.crel", FT_BOOLEAN, 16,
 			NULL, 0x4000, "Confirmed release", HFILL }},
 		{ &hf_tns_ntp_flag_tduio, {
-			"TDU based IO", "tns.ntp_flag.tduio", FT_UINT16, BASE_BIN,
+			"TDU based IO", "tns.ntp_flag.tduio", FT_BOOLEAN, 16,
 			NULL, 0x2000, "TDU based IO", HFILL }},
 		{ &hf_tns_ntp_flag_srun, {
-			"Spawner running", "tns.ntp_flag.srun", FT_UINT16, BASE_BIN,
+			"Spawner running", "tns.ntp_flag.srun", FT_BOOLEAN, 16,
 			NULL, 0x1000, "Spawner running", HFILL }},
 		{ &hf_tns_ntp_flag_dtest, {
-			"Data test", "tns.ntp_flag.dtest", FT_UINT16, BASE_BIN,
+			"Data test", "tns.ntp_flag.dtest", FT_BOOLEAN, 16,
 			NULL, 0x0800, "Data Test", HFILL }},
 		{ &hf_tns_ntp_flag_cbio, {
-			"Callback IO supported", "tns.ntp_flag.cbio", FT_UINT16, BASE_BIN,
+			"Callback IO supported", "tns.ntp_flag.cbio", FT_BOOLEAN, 16,
 			NULL, 0x0400, "Callback IO supported", HFILL }},
 		{ &hf_tns_ntp_flag_asio, {
-			"ASync IO Supported", "tns.ntp_flag.asio", FT_UINT16, BASE_BIN,
+			"ASync IO Supported", "tns.ntp_flag.asio", FT_BOOLEAN, 16,
 			NULL, 0x0200, "ASync IO Supported", HFILL }},
 		{ &hf_tns_ntp_flag_pio, {
-			"Packet oriented IO", "tns.ntp_flag.pio", FT_UINT16, BASE_BIN,
+			"Packet oriented IO", "tns.ntp_flag.pio", FT_BOOLEAN, 16,
 			NULL, 0x0100, "Packet oriented IO", HFILL }},
 		{ &hf_tns_ntp_flag_grant, {
-			"Can grant connection to another", "tns.ntp_flag.grant", FT_UINT16, BASE_BIN,
+			"Can grant connection to another", "tns.ntp_flag.grant", FT_BOOLEAN, 16,
 			NULL, 0x0080, "Can grant connection to another", HFILL }},
 		{ &hf_tns_ntp_flag_handoff, {
-			"Can handoff connection to another", "tns.ntp_flag.handoff", FT_UINT16, BASE_BIN,
+			"Can handoff connection to another", "tns.ntp_flag.handoff", FT_BOOLEAN, 16,
 			NULL, 0x0040, "Can handoff connection to another", HFILL }},
 		{ &hf_tns_ntp_flag_sigio, {
-			"Generate SIGIO signal", "tns.ntp_flag.sigio", FT_UINT16, BASE_BIN,
+			"Generate SIGIO signal", "tns.ntp_flag.sigio", FT_BOOLEAN, 16,
 			NULL, 0x0020, "Generate SIGIO signal", HFILL }},
 		{ &hf_tns_ntp_flag_sigpipe, {
-			"Generate SIGPIPE signal", "tns.ntp_flag.sigpipe", FT_UINT16, BASE_BIN,
+			"Generate SIGPIPE signal", "tns.ntp_flag.sigpipe", FT_BOOLEAN, 16,
 			NULL, 0x0010, "Generate SIGPIPE signal", HFILL }},
 		{ &hf_tns_ntp_flag_sigurg, {
-			"Generate SIGURG signal", "tns.ntp_flag.sigurg", FT_UINT16, BASE_BIN,
+			"Generate SIGURG signal", "tns.ntp_flag.sigurg", FT_BOOLEAN, 16,
 			NULL, 0x0008, "Generate SIGURG signal", HFILL }},
 		{ &hf_tns_ntp_flag_urgentio, {
-			"Urgent IO supported", "tns.ntp_flag.urgentio", FT_UINT16, BASE_BIN,
+			"Urgent IO supported", "tns.ntp_flag.urgentio", FT_BOOLEAN, 16,
 			NULL, 0x0004, "Urgent IO supported", HFILL }},
 		{ &hf_tns_ntp_flag_fdio, {
-			"Full duplex IO supported", "tns.ntp_flag.dfio", FT_UINT16, BASE_BIN,
+			"Full duplex IO supported", "tns.ntp_flag.dfio", FT_BOOLEAN, 16,
 			NULL, 0x0002, "Full duplex IO supported", HFILL }},
 		{ &hf_tns_ntp_flag_testop, {
-			"Test operation", "tns.ntp_flag.testop", FT_UINT16, BASE_BIN,
+			"Test operation", "tns.ntp_flag.testop", FT_BOOLEAN, 16,
 			NULL, 0x0001, "Test operation", HFILL }},
 
 
@@ -1142,19 +1142,19 @@ void proto_register_tns(void)
 			NULL, 0x0, "Connect Flags 1", HFILL }},
 
 		{ &hf_tns_conn_flag_nareq, {
-			"NA services required", "tns.connect_flags.nareq", FT_UINT8, BASE_BIN,
+			"NA services required", "tns.connect_flags.nareq", FT_BOOLEAN, 8,
 			NULL, 0x10, "NA services required", HFILL }},
 		{ &hf_tns_conn_flag_nalink, {
-			"NA services linked in", "tns.connect_flags.nalink", FT_UINT8, BASE_BIN,
+			"NA services linked in", "tns.connect_flags.nalink", FT_BOOLEAN, 8,
 			NULL, 0x08, "NA services linked in", HFILL }},
 		{ &hf_tns_conn_flag_enablena, {
-			"NA services enabled", "tns.connect_flags.enablena", FT_UINT8, BASE_BIN,
+			"NA services enabled", "tns.connect_flags.enablena", FT_BOOLEAN, 8,
 			NULL, 0x04, "NA services enabled", HFILL }},
 		{ &hf_tns_conn_flag_ichg, {
-			"Interchange is involved", "tns.connect_flags.ichg", FT_UINT8, BASE_BIN,
+			"Interchange is involved", "tns.connect_flags.ichg", FT_BOOLEAN, 8,
 			NULL, 0x02, "Interchange is involved", HFILL }},
 		{ &hf_tns_conn_flag_wantna, {
-			"NA services wanted", "tns.connect_flags.wantna", FT_UINT8, BASE_BIN,
+			"NA services wanted", "tns.connect_flags.wantna", FT_BOOLEAN, 8,
 			NULL, 0x01, "NA services wanted", HFILL }},
 
 
@@ -1255,31 +1255,31 @@ void proto_register_tns(void)
 			"Data Flag", "tns.data_flag", FT_UINT16, BASE_HEX,
 			NULL, 0x0, "Data Flag", HFILL }},
 		{ &hf_tns_data_flag_send, {
-			"Send Token", "tns.data_flag.send", FT_UINT16, BASE_BIN,
+			"Send Token", "tns.data_flag.send", FT_BOOLEAN, 16,
 			NULL, 0x1, "Send Token", HFILL }},
 		{ &hf_tns_data_flag_rc, {
-			"Request Confirmation", "tns.data_flag.rc", FT_UINT16, BASE_BIN,
+			"Request Confirmation", "tns.data_flag.rc", FT_BOOLEAN, 16,
 			NULL, 0x2, "Request Confirmation", HFILL }},
 		{ &hf_tns_data_flag_c, {
-			"Confirmation", "tns.data_flag.c", FT_UINT16, BASE_BIN,
+			"Confirmation", "tns.data_flag.c", FT_BOOLEAN, 16,
 			NULL, 0x4, "Confirmation", HFILL }},
 		{ &hf_tns_data_flag_reserved, {
-			"Reserved", "tns.data_flag.reserved", FT_UINT16, BASE_BIN,
+			"Reserved", "tns.data_flag.reserved", FT_BOOLEAN, 16,
 			NULL, 0x8, "Reserved", HFILL }},
 		{ &hf_tns_data_flag_more, {
-			"More Data to Come", "tns.data_flag.more", FT_UINT16, BASE_BIN,
+			"More Data to Come", "tns.data_flag.more", FT_BOOLEAN, 16,
 			NULL, 0x20, "More Data to Come", HFILL }},
 		{ &hf_tns_data_flag_eof, {
-			"End of File", "tns.data_flag.eof", FT_UINT16, BASE_BIN,
+			"End of File", "tns.data_flag.eof", FT_BOOLEAN, 16,
 			NULL, 0x40, "End of File", HFILL }},
 		{ &hf_tns_data_flag_dic, {
-			"Do Immediate Confirmation", "tns.data_flag.dic", FT_UINT16, BASE_BIN,
+			"Do Immediate Confirmation", "tns.data_flag.dic", FT_BOOLEAN, 16,
 			NULL, 0x80, "Do Immediate Confirmation", HFILL }},
 		{ &hf_tns_data_flag_rts, {
-			"Request To Send", "tns.data_flag.rts", FT_UINT16, BASE_BIN,
+			"Request To Send", "tns.data_flag.rts", FT_BOOLEAN, 16,
 			NULL, 0x100, "Request To Send", HFILL }},
 		{ &hf_tns_data_flag_sntt, {
-			"Send NT Trailer", "tns.data_flag.sntt", FT_UINT16, BASE_BIN,
+			"Send NT Trailer", "tns.data_flag.sntt", FT_BOOLEAN, 16,
 			NULL, 0x200, "Send NT Trailer", HFILL }},
 
 

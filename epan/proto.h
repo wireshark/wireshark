@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.37 2002/11/28 01:46:12 guy Exp $
+ * $Id: proto.h,v 1.38 2003/01/31 03:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,8 +61,7 @@ enum {
 	BASE_NONE,
 	BASE_DEC,
 	BASE_HEX,
-	BASE_OCT,
-	BASE_BIN
+	BASE_OCT
 };
 
 typedef struct _header_field_info header_field_info;

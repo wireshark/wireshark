@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-docsis.c,v 1.10 2002/09/10 19:07:38 guy Exp $
+ * $Id: packet-docsis.c,v 1.11 2003/01/31 03:17:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -595,22 +595,22 @@ proto_register_docsis (void)
   static hf_register_info hf[] = {
     {&hf_docsis_fctype,
      {"FCType", "docsis.fctype",
-      FT_UINT8, BASE_BIN, VALS (fctype_vals), 0xC0,
+      FT_UINT8, BASE_HEX, VALS (fctype_vals), 0xC0,
       "Frame Control Type", HFILL}
      },
     {&hf_docsis_fcparm,
      {"FCParm", "docsis.fcparm",
-      FT_UINT8, BASE_BIN, NULL, 0x3E,
+      FT_UINT8, BASE_DEC, NULL, 0x3E,
       "Parameter Field", HFILL}
      },
     {&hf_docsis_machdr_fcparm,
      {"FCParm", "docsis.fcparm",
-      FT_UINT8, BASE_BIN, VALS (fcparm_vals), 0x3E,
+      FT_UINT8, BASE_HEX, VALS (fcparm_vals), 0x3E,
       "Parameter Field", HFILL}
      },
     {&hf_docsis_ehdron,
      {"EHDRON", "docsis.ehdron",
-      FT_UINT8, BASE_BIN, VALS (ehdron_vals), 0x01,
+      FT_UINT8, BASE_HEX, VALS (ehdron_vals), 0x01,
       "Extended Header Presence", HFILL}
      },
     {&hf_docsis_macparm,

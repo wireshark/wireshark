@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.75 2003/01/11 10:03:12 guy Exp $
+ * $Id: packet-x25.c,v 1.76 2003/01/31 03:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2222,7 +2222,7 @@ proto_register_x25(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_x25_gfi,
-	  { "GFI", "x.25.gfi", FT_UINT16, BASE_BIN, NULL, 0xF000,
+	  { "GFI", "x.25.gfi", FT_UINT16, BASE_DEC, NULL, 0xF000,
 	  	"General format identifier", HFILL }},
 	{ &hf_x25_abit,
 	  { "A Bit", "x.25.a", FT_BOOLEAN, 16, NULL, 0x8000,

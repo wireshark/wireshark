@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.30 2002/11/08 01:00:04 guy Exp $
+ * $Id: packet-wcp.c,v 1.31 2003/01/31 03:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -702,7 +702,7 @@ proto_register_wcp(void)
 	  { "Compress Flag", "wcp.flag", FT_UINT8, BASE_HEX, NULL, 0,
 	  	"Compressed byte flag", HFILL }},
 	{ &hf_wcp_comp_marker,
-	  { "Compress Marker", "wcp.mark", FT_UINT8, BASE_BIN, NULL, 0,
+	  { "Compress Marker", "wcp.mark", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"Compressed marker", HFILL }},
 	{ &hf_wcp_offset,
 	  { "Source offset", "wcp.off", FT_UINT16, BASE_HEX, NULL, WCP_OFFSET_MASK,

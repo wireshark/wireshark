@@ -2,7 +2,7 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-tlv.c,v 1.9 2002/09/23 16:27:57 jmayer Exp $
+ * $Id: packet-tlv.c,v 1.10 2003/01/31 03:17:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2541,7 +2541,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_sflow_qos_param,
      {".6 QOS Parameter Set", "docsis.tlv.sflow.qos",
-      FT_UINT8, BASE_BIN, VALS (qos_param_vals), 0x0,
+      FT_UINT8, BASE_HEX, VALS (qos_param_vals), 0x0,
       "QOS Parameter Set", HFILL}
      },
     {&hf_docsis_tlv_sflow_traf_pri,

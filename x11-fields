@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.6 2002/04/17 08:33:09 guy Exp $
+# $Id: x11-fields,v 1.7 2003/01/31 03:17:47 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ bell-duration	INT16	DEC
 bell-percent	INT8	DEC
 bell-pitch	INT16	DEC
 bit-gravity	UINT8	DEC	VALS(gravity)
-bit-plane	UINT32	BIN
+bit-plane	UINT32	DEC
 blue		UINT16	DEC
 blues		UINT16	DEC
 border-pixel	UINT32	HEX
@@ -132,7 +132,7 @@ do-not-propagate-mask	UINT32	HEX
 	ButtonMotion		BOOLEAN 32	0x00002000
 	erroneous-bits		BOOLEAN 32	0xffffc0b0
 
-gc-dashes	UINT8	BIN
+gc-dashes	UINT8	DEC
 
 gc-value-mask	UINT32	HEX
 	function		BOOLEAN	32	0x00000001

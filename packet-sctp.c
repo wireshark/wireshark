@@ -11,7 +11,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.50 2003/01/20 22:46:27 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.51 2003/01/31 03:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2279,7 +2279,7 @@ proto_register_sctp(void)
     },
     { &hf_sctp_chunk_flags,
       { "Flags", "sctp.chunk_flags",
-	FT_UINT8, BASE_BIN, NULL, 0x0,
+	FT_UINT8, BASE_HEX, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_sctp_chunk_length,

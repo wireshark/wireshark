@@ -4,7 +4,7 @@
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-dccp.c,v 1.9 2003/01/27 22:44:01 deniel Exp $
+ * $Id: packet-dccp.c,v 1.10 2003/01/31 03:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -509,32 +509,32 @@ proto_register_dccp(void)
 				NULL, 0, "Trace Bits", HFILL }},
 
 			{ &hf_dccp_trace_admin, {
-				"Admin Requests", "dccp.trace.admin", FT_UINT32, BASE_BIN,
-				NULL, 0x0001, "Admin Requests", HFILL }},
+				"Admin Requests", "dccp.trace.admin", FT_BOOLEAN, 32,
+				NULL, 0x00000001, "Admin Requests", HFILL }},
 
 			{ &hf_dccp_trace_anon, {
-				"Anonymous Requests", "dccp.trace.anon", FT_UINT32, BASE_BIN,
-				NULL, 0x0002, "Anonymous Requests", HFILL }},
+				"Anonymous Requests", "dccp.trace.anon", FT_BOOLEAN, 32,
+				NULL, 0x00000002, "Anonymous Requests", HFILL }},
 
 			{ &hf_dccp_trace_client, {
-				"Authenticated Client Requests", "dccp.trace.client", FT_UINT32, BASE_BIN,
-				NULL, 0x0004, "Authenticated Client Requests", HFILL }},
+				"Authenticated Client Requests", "dccp.trace.client", FT_BOOLEAN, 32,
+				NULL, 0x00000004, "Authenticated Client Requests", HFILL }},
 
 			{ &hf_dccp_trace_rlim, {
-				"Rate-Limited Requests", "dccp.trace.rlim", FT_UINT32, BASE_BIN,
-				NULL, 0x0008, "Rate-Limited Requests", HFILL }},
+				"Rate-Limited Requests", "dccp.trace.rlim", FT_BOOLEAN, 32,
+				NULL, 0x00000008, "Rate-Limited Requests", HFILL }},
 
 			{ &hf_dccp_trace_query, {
-				"Queries and Reports", "dccp.trace.query", FT_UINT32, BASE_BIN,
-				NULL, 0x0010, "Queries and Reports", HFILL }},
+				"Queries and Reports", "dccp.trace.query", FT_BOOLEAN, 32,
+				NULL, 0x00000010, "Queries and Reports", HFILL }},
 
 			{ &hf_dccp_trace_ridc, {
-				"RID Cache Messages", "dccp.trace.ridc", FT_UINT32, BASE_BIN,
-				NULL, 0x0020, "RID Cache Messages", HFILL }},
+				"RID Cache Messages", "dccp.trace.ridc", FT_BOOLEAN, 32,
+				NULL, 0x00000020, "RID Cache Messages", HFILL }},
 
 			{ &hf_dccp_trace_flood, {
-				"Input/Output Flooding", "dccp.trace.flood", FT_UINT32, BASE_BIN,
-				NULL, 0x0040, "Input/Output Flooding", HFILL }},
+				"Input/Output Flooding", "dccp.trace.flood", FT_BOOLEAN, 32,
+				NULL, 0x00000040, "Input/Output Flooding", HFILL }},
 
 			{ &hf_dccp_floodop, {
 				"Flood Control Operation", "dccp.floodop", FT_UINT32, BASE_DEC,

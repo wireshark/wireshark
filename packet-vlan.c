@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.41 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-vlan.c,v 1.42 2003/01/31 03:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,13 +128,13 @@ proto_register_vlan(void)
 {
   static hf_register_info hf[] = {
 	{ &hf_vlan_priority, {
-		"Priority", "vlan.priority", FT_UINT16, BASE_BIN,
+		"Priority", "vlan.priority", FT_UINT16, BASE_DEC,
 		0, 0xE000, "Priority", HFILL }},
 	{ &hf_vlan_cfi, {
-		"CFI", "vlan.cfi", FT_UINT16, BASE_BIN,
+		"CFI", "vlan.cfi", FT_UINT16, BASE_DEC,
 		0, 0x1000, "CFI", HFILL }},	/* XXX - Boolean? */
 	{ &hf_vlan_id, {
-		"ID", "vlan.id", FT_UINT16, BASE_BIN,
+		"ID", "vlan.id", FT_UINT16, BASE_DEC,
 		0, 0x0FFF, "ID", HFILL }},
 	{ &hf_vlan_etype, {
 		"Type", "vlan.etype", FT_UINT16, BASE_HEX,

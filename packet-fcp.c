@@ -2,7 +2,7 @@
  * Routines for Fibre Channel Protocol for SCSI (FCP)
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcp.c,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-fcp.c,v 1.2 2003/01/31 03:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -457,7 +457,7 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                             offset, 0, cdata->fcp_lun);
         }
         proto_tree_add_uint_format (fcp_tree, hf_fcp_rspflags, tvb, offset+10,
-                                    1, flags, "Flags: 0x%x (%s)", flags,
+                                    1, flags, "Flags: 0x%02x (%s)", flags,
                                     rspflags_to_str (flags, str));
         proto_tree_add_item (fcp_tree, hf_fcp_scsistatus, tvb, offset+11, 1, 0);
         if (flags & 0xC)
@@ -624,9 +624,9 @@ proto_register_fcp (void)
           {"Additional CDB Length", "fcp.addlcdblen", FT_UINT8, BASE_DEC, NULL,
            0xFC, "", HFILL}},
         { &hf_fcp_rddata,
-          {"RDDATA", "fcp.rddata", FT_UINT8, BASE_BIN, NULL, 0x2, "", HFILL}},
+          {"RDDATA", "fcp.rddata", FT_BOOLEAN, 8, NULL, 0x02, "", HFILL}},
         { &hf_fcp_wrdata,
-          {"WRDATA", "fcp.wrdata", FT_UINT8, BASE_BIN, NULL, 0x1, "", HFILL}},
+          {"WRDATA", "fcp.wrdata", FT_BOOLEAN, 8, NULL, 0x01, "", HFILL}},
         { &hf_fcp_dl,
           {"FCP_DL", "fcp.dl", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
         { &hf_fcp_data_ro,
@@ -636,7 +636,7 @@ proto_register_fcp (void)
           {"Burst Length", "fcp.burstlen", FT_UINT32, BASE_DEC, NULL, 0x0, "",
            HFILL}},
         { &hf_fcp_rspflags,
-          {"FCP_RSP Flags", "fcp.rspflags", FT_UINT8, BASE_BIN, NULL, 0x0, "",
+          {"FCP_RSP Flags", "fcp.rspflags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},
         { &hf_fcp_resid,
           {"FCP_RESID", "fcp.resid", FT_UINT32, BASE_DEC, NULL, 0x0, "",

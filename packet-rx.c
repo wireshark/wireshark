@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.37 2002/08/28 21:00:30 jmayer Exp $
+ * $Id: packet-rx.c,v 1.38 2003/01/31 03:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,16 +55,6 @@ static const value_string rx_types[] = {
 	{ RX_PACKET_TYPE_PARAMS,	"params" },
 	{ RX_PACKET_TYPE_VERSION,	"version" },
 	{ 0,				NULL },
-};
-
-static const value_string rx_flags[] = {
-	{ RX_CLIENT_INITIATED,	"client-init" },
-	{ RX_REQUEST_ACK,	"req-ack" },
-	{ RX_LAST_PACKET,	"last-pckt" },
-	{ RX_MORE_PACKETS,	"more-pckts" },
-	{ RX_FREE_PACKET,	"free-pckt" },
-	{ RX_SLOW_START_OR_JUMBO, "slow-start/jumbogram" },
-	{ 0,                    NULL }
 };
 
 static const value_string rx_reason[] = {
@@ -437,15 +427,15 @@ dissect_rx_flags(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *parent_tree, 
 		offset, 1, flags);
 	tree = proto_item_add_subtree(item, ett_rx_flags);
 
-	proto_tree_add_uint(tree, hf_rx_flags_free_packet, tvb,
+	proto_tree_add_boolean(tree, hf_rx_flags_free_packet, tvb,
 		offset, 1, flags);
-	proto_tree_add_uint(tree, hf_rx_flags_more_packets, tvb,
+	proto_tree_add_boolean(tree, hf_rx_flags_more_packets, tvb,
 		offset, 1, flags);
-	proto_tree_add_uint(tree, hf_rx_flags_last_packet, tvb,
+	proto_tree_add_boolean(tree, hf_rx_flags_last_packet, tvb,
 		offset, 1, flags);
-	proto_tree_add_uint(tree, hf_rx_flags_request_ack, tvb,
+	proto_tree_add_boolean(tree, hf_rx_flags_request_ack, tvb,
 		offset, 1, flags);
-	proto_tree_add_uint(tree, hf_rx_flags_clientinit, tvb,
+	proto_tree_add_boolean(tree, hf_rx_flags_clientinit, tvb,
 		offset, 1, flags);
 
 	offset += 1;
@@ -617,24 +607,26 @@ proto_register_rx(void)
 			NULL, 0, "Flags", HFILL }},
 
 		{ &hf_rx_flags_clientinit, {
-			"Client Initiated", "rx.flags.client_init", FT_UINT8, BASE_BIN,
+			"Client Initiated", "rx.flags.client_init", FT_BOOLEAN, 8,
 			NULL, RX_CLIENT_INITIATED, "Client Initiated", HFILL }},
 
 		{ &hf_rx_flags_request_ack, {
-			"Request Ack", "rx.flags.request_ack", FT_UINT8, BASE_BIN,
+			"Request Ack", "rx.flags.request_ack", FT_BOOLEAN, 8,
 			NULL, RX_REQUEST_ACK, "Request Ack", HFILL }},
 
 		{ &hf_rx_flags_last_packet, {
-			"Last Packet", "rx.flags.last_packet", FT_UINT8, BASE_BIN,
+			"Last Packet", "rx.flags.last_packet", FT_BOOLEAN, 8,
 			NULL, RX_LAST_PACKET, "Last Packet", HFILL }},
 
 		{ &hf_rx_flags_more_packets, {
-			"More Packets", "rx.flags.more_packets", FT_UINT8, BASE_BIN,
+			"More Packets", "rx.flags.more_packets", FT_BOOLEAN, 8,
 			NULL, RX_MORE_PACKETS, "More Packets", HFILL }},
 
 		{ &hf_rx_flags_free_packet, {
-			"Free Packet", "rx.flags.free_packet", FT_UINT8, BASE_BIN,
+			"Free Packet", "rx.flags.free_packet", FT_BOOLEAN, 8,
 			NULL, RX_FREE_PACKET, "Free Packet", HFILL }},
+
+		/* XXX - what about RX_SLOW_START_OR_JUMBO? */
 
 		{ &hf_rx_userstatus, {
 			"User Status", "rx.userstatus", FT_UINT32, BASE_DEC,
