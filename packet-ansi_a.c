@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.2 2003/10/28 18:08:51 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.3 2003/10/30 07:00:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -359,6 +359,7 @@ static gint ett_dtap_oct_1 = -1;
 static gint ett_cm_srvc_type = -1;
 static gint ett_ansi_ms_info_rec_reserved = -1;
 static gint ett_ansi_enc_info = -1;
+static gint ett_cell_list = -1;
 
 #define	A_VARIANT_IS634		4
 #define	A_VARIANT_TSB80		5
@@ -2001,8 +2002,11 @@ static guint8
 elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint8	oct;
+    guint8	consumed;
     guint8	num_cells;
     guint32	curr_offset;
+    proto_item	*item = NULL;
+    proto_tree	*subtree = NULL;
     gchar	*str = NULL;
 
     curr_offset = offset;
@@ -2031,8 +2035,26 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     num_cells = 0;
     do
     {
-	curr_offset +=
-	    elem_cell_id_aux(tvb, tree, curr_offset, len - (curr_offset - offset), add_string, oct);
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, -1,
+		"Cell %d",
+		num_cells + 1);
+
+	subtree = proto_item_add_subtree(item, ett_cell_list);
+
+	add_string[0] = '\0';
+	consumed =
+	    elem_cell_id_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, oct);
+
+	if (add_string[0] != '\0')
+	{
+	    proto_item_append_text(item, add_string);
+	}
+
+	proto_item_set_len(item, consumed);
+
+	curr_offset += consumed;
 
 	num_cells++;
     }
@@ -2162,9 +2184,12 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 {
     guint8	oct;
     guint8	disc;
+    guint8	consumed;
     guint8	num_cells;
     guint32	value;
     guint32	curr_offset;
+    proto_item	*item = NULL;
+    proto_tree	*subtree = NULL;
     gchar	*str;
 
     curr_offset = offset;
@@ -2206,9 +2231,27 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
     do
     {
-	curr_offset +=
-	    elem_cell_id_aux(tvb, tree, curr_offset,
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, -1,
+		"Cell %d",
+		num_cells + 1);
+
+	subtree = proto_item_add_subtree(item, ett_cell_list);
+
+	add_string[0] = '\0';
+	consumed =
+	    elem_cell_id_aux(tvb, subtree, curr_offset,
 		len - (curr_offset - offset), add_string, disc);
+
+	if (add_string[0] != '\0')
+	{
+	    proto_item_append_text(item, add_string);
+	}
+
+	proto_item_set_len(item, consumed);
+
+	curr_offset += consumed;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -2298,7 +2341,10 @@ static guint8
 elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint8	oct;
+    guint8	consumed;
     guint8	num_cells;
+    proto_item	*item = NULL;
+    proto_tree	*subtree = NULL;
     guint32	curr_offset;
 
     curr_offset = offset;
@@ -2334,9 +2380,26 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     curr_offset++;
 
-    curr_offset +=
-	elem_cell_id_aux(tvb, tree, curr_offset,
+    item =
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, -1,
+	    "Cell 1");
+
+    subtree = proto_item_add_subtree(item, ett_cell_list);
+
+    add_string[0] = '\0';
+    consumed =
+	elem_cell_id_aux(tvb, subtree, curr_offset,
 	    len - (curr_offset - offset), add_string, 0x7);
+
+    if (add_string[0] != '\0')
+    {
+	proto_item_append_text(item, add_string);
+    }
+
+    proto_item_set_len(item, consumed);
+
+    curr_offset += consumed;
 
     num_cells = 1;
 
@@ -2359,9 +2422,27 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	curr_offset++;
 
-	curr_offset +=
-	    elem_cell_id_aux(tvb, tree, curr_offset,
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, -1,
+		"Cell %d",
+		num_cells);
+
+	subtree = proto_item_add_subtree(item, ett_cell_list);
+
+	add_string[0] = '\0';
+	consumed =
+	    elem_cell_id_aux(tvb, subtree, curr_offset,
 		len - (curr_offset - offset), add_string, 0x2);
+
+	if (add_string[0] != '\0')
+	{
+	    proto_item_append_text(item, add_string);
+	}
+
+	proto_item_set_len(item, consumed);
+
+	curr_offset += consumed;
     }
 
     sprintf(add_string, " - %d cell%s",
@@ -8216,6 +8297,7 @@ proto_register_ansi_a(void)
 {
     module_t		*ansi_a_module;
     guint		i;
+    gint		last_offset;
 
     /* Setup list of header fields */
 
@@ -8316,10 +8398,10 @@ proto_register_ansi_a(void)
     /* Setup protocol subtree array */
 #define	MAX_NUM_DTAP_MSG	ANSI_A_MAX(NUM_IOS401_DTAP_MSG, 0)
 #define	MAX_NUM_BSMAP_MSG	ANSI_A_MAX(NUM_IOS401_BSMAP_MSG, 0)
-#define	NUM_INDIVIDUAL_ELEMS	8
+#define	NUM_INDIVIDUAL_ELEMS	9
     static gint *ett[NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+NUM_ELEM_1+NUM_MS_INFO_REC];
 
-    memset((void *) ett, 0, sizeof(ett));
+    memset((void *) ett, -1, sizeof(ett));
 
     ett[0] = &ett_bsmap;
     ett[1] = &ett_dtap;
@@ -8329,29 +8411,28 @@ proto_register_ansi_a(void)
     ett[5] = &ett_cm_srvc_type;
     ett[6] = &ett_ansi_ms_info_rec_reserved;
     ett[7] = &ett_ansi_enc_info;
+    ett[8] = &ett_cell_list;
 
-    for (i=0; i < MAX_NUM_DTAP_MSG; i++)
+    last_offset = NUM_INDIVIDUAL_ELEMS;
+
+    for (i=0; i < MAX_NUM_DTAP_MSG; i++, last_offset++)
     {
-	ett_dtap_msg[i] = -1;
-	ett[NUM_INDIVIDUAL_ELEMS+i] = &ett_dtap_msg[i];
+	ett[last_offset] = &ett_dtap_msg[i];
     }
 
-    for (i=0; i < MAX_NUM_BSMAP_MSG; i++)
+    for (i=0; i < MAX_NUM_BSMAP_MSG; i++, last_offset++)
     {
-	ett_bsmap_msg[i] = -1;
-	ett[NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+i] = &ett_bsmap_msg[i];
+	ett[last_offset] = &ett_bsmap_msg[i];
     }
 
-    for (i=0; i < NUM_ELEM_1; i++)
+    for (i=0; i < NUM_ELEM_1; i++, last_offset++)
     {
-	ett_ansi_elem_1[i] = -1;
-	ett[NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+i] = &ett_ansi_elem_1[i];
+	ett[last_offset] = &ett_ansi_elem_1[i];
     }
 
-    for (i=0; i < NUM_MS_INFO_REC; i++)
+    for (i=0; i < NUM_MS_INFO_REC; i++, last_offset++)
     {
-	ett_ansi_ms_info_rec[i] = -1;
-	ett[NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+NUM_ELEM_1+i] = &ett_ansi_ms_info_rec[i];
+	ett[last_offset] = &ett_ansi_ms_info_rec[i];
     }
 
     /* Register the protocol name and description */

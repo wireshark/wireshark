@@ -1804,6 +1804,11 @@ Michael Lum <mlum [AT] telostech.com> {
 	IS-683-A (OTA) support
 	BSSAP (GSM 08.06)/BSAP (IOS 4.0.1) support
 	IOS 4.0.1 support
+	GSM BSSMAP (GSM 08.08) support
+	GSM DTAP (3GPP TS 24.008) support
+	GSM SMS (3GPP TS 24.011) support
+	GSM SS (3GPP TS 24.080) support
+	GSM SMS TPDU (3GPP TS 23.040) support
 }
 
 Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {

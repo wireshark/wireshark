@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.5 2003/10/28 18:08:52 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.6 2003/10/30 07:00:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12388,6 +12388,7 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
     guint saved_offset = 0;
     guint len;
     guint tag;
+    gint32 value;
     proto_tree *subtree;
     proto_item *item = NULL;
     gchar *str = NULL;
@@ -12425,10 +12426,42 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
     dissect_ansi_map_len(asn1, subtree, &def_len, &len);
     proto_item_set_len(item, (asn1->offset - saved_offset) + len);
 
-    proto_tree_add_none_format(subtree, hf_ansi_map_none, asn1->tvb,
-	asn1->offset, len, "Error Code");
+    if ((tag == TCAP_PRIV_ERR_CODE_TAG) &&
+	(len == 1))
+    {
+	saved_offset = asn1->offset;
+	asn1_int32_value_decode(asn1, 1, &value);
 
-    asn1->offset += len;
+	switch (value)
+	{
+	case 0x81: str = "Unrecognized MIN"; break;
+	case 0x82: str = "Unrecognized ESN"; break;
+	case 0x83: str = "MIN/HLR Mismatch"; break;
+	case 0x84: str = "Operation Sequence Problem"; break;
+	case 0x85: str = "Resource Shortage"; break;
+	case 0x86: str = "Operation Not Supported"; break;
+	case 0x87: str = "Trunk Unavailable"; break;
+	case 0x88: str = "Parameter Error"; break;
+	case 0x89: str = "System Failure"; break;
+	case 0x8a: str = "Unrecognized Parameter Value"; break;
+	case 0x8b: str = "Feature Inactive"; break;
+	case 0x8c: str = "Missing Parameter"; break;
+	default:
+	    if ((value >= 0xe0) && (value <= 0xff)) { str = "Reserved for protocol extension"; }
+	    else { str = "Reserved"; }
+	    break;
+	}
+
+	proto_tree_add_none_format(subtree, hf_ansi_map_none, asn1->tvb,
+	    saved_offset, 1, str);
+    }
+    else
+    {
+	proto_tree_add_none_format(subtree, hf_ansi_map_none, asn1->tvb,
+	    asn1->offset, len, "Error Code");
+
+	asn1->offset += len;
+    }
 }
 
 
