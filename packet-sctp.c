@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.37 2002/05/30 08:34:18 guy Exp $
+ * $Id: packet-sctp.c,v 1.38 2002/06/08 21:54:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1317,24 +1317,51 @@ static gboolean
 dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree *chunk_tree, guint32 ppi, guint16 payload_length, guint16 padding_length)
 {
-  /* do lookup with the subdissector table */
-  if (dissector_try_port (sctp_ppi_dissector_table, ppi,  payload_tvb, pinfo, tree) ||
-      dissector_try_port(sctp_port_dissector_table, pinfo->srcport,  payload_tvb, pinfo, tree) ||
-      dissector_try_port(sctp_port_dissector_table, pinfo->destport, payload_tvb, pinfo, tree)){
+  guint32 low_port, high_port;
+
+  /* Do lookups with the subdissector table.
+
+     When trying port numbers, we try the port number with the lower value
+     first, followed by the port number with the higher value.  This means
+     that, for packets where a dissector is registered for *both* port
+     numbers, and where there's no match on the PPI:
+
+	1) we pick the same dissector for traffic going in both directions;
+
+	2) we prefer the port number that's more likely to be the right
+	   one (as that prefers well-known ports to reserved ports);
+
+     although there is, of course, no guarantee that any such strategy
+     will always pick the right port number.
+
+     XXX - we ignore port numbers of 0, as some dissectors use a port
+     number of 0 to disable the port. */
+  if (dissector_try_port(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree))
     return TRUE;
+  if (pinfo->srcport > pinfo->destport) {
+    low_port = pinfo->destport;
+    high_port = pinfo->srcport;
+  } else {
+    low_port = pinfo->srcport;
+    high_port = pinfo->destport;
   }
-  else {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "DATA ");
-    proto_tree_add_text(chunk_tree, payload_tvb, 0, payload_length,
-			"Payload (%u byte%s)",
-			payload_length, plurality(payload_length, "", "s")); 
-    if (padding_length > 0)
-      proto_tree_add_text(chunk_tree, payload_tvb, payload_length, padding_length,
-			  "Padding: %u byte%s",
-			  padding_length, plurality(padding_length, "", "s"));
-    return FALSE;
-  }
+  if (low_port != 0 &&
+      dissector_try_port(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree))
+    return TRUE;
+  if (high_port != 0 &&
+      dissector_try_port(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree))
+    return TRUE;
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "DATA ");
+  proto_tree_add_text(chunk_tree, payload_tvb, 0, payload_length,
+		      "Payload (%u byte%s)",
+		      payload_length, plurality(payload_length, "", "s")); 
+  if (padding_length > 0)
+    proto_tree_add_text(chunk_tree, payload_tvb, payload_length, padding_length,
+			"Padding: %u byte%s",
+			padding_length, plurality(padding_length, "", "s"));
+  return FALSE;
 }
 
 static gboolean

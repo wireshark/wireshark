@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.102 2002/01/22 15:05:43 nneul Exp $
+ * $Id: packet-udp.c,v 1.103 2002/06/08 21:54:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,6 +88,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, int uh_sport, int uh_dport)
 {
   tvbuff_t *next_tvb;
+  int low_port, high_port;
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
@@ -98,9 +99,34 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		uh_sport, uh_dport, next_tvb, pinfo, tree))
     return;
 
-  /* do lookup with the subdissector table */
-  if (dissector_try_port(udp_dissector_table, uh_sport, next_tvb, pinfo, tree) ||
-      dissector_try_port(udp_dissector_table, uh_dport, next_tvb, pinfo, tree))
+  /* Do lookups with the subdissector table.
+     We try the port number with the lower value first, followed by the
+     port number with the higher value.  This means that, for packets
+     where a dissector is registered for *both* port numbers:
+
+	1) we pick the same dissector for traffic going in both directions;
+
+	2) we prefer the port number that's more likely to be the right
+	   one (as that prefers well-known ports to reserved ports);
+
+     although there is, of course, no guarantee that any such strategy
+     will always pick the right port number.
+
+     XXX - we ignore port numbers of 0, as some dissectors use a port
+     number of 0 to disable the port, and as RFC 768 says that the source
+     port in UDP datagrams is optional and is 0 if not used. */
+  if (uh_sport > uh_dport) {
+    low_port = uh_dport;
+    high_port = uh_sport;
+  } else {
+    low_port = uh_sport;
+    high_port = uh_dport;
+  }
+  if (low_port != 0 &&
+      dissector_try_port(udp_dissector_table, low_port, next_tvb, pinfo, tree))
+    return;
+  if (high_port != 0 &&
+      dissector_try_port(udp_dissector_table, high_port, next_tvb, pinfo, tree))
     return;
 
   /* do lookup with the heuristic subdissector table */

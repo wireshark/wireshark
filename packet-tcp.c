@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.143 2002/06/04 07:03:46 guy Exp $
+ * $Id: packet-tcp.c,v 1.144 2002/06/08 21:54:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1023,6 +1023,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, int src_port, int dst_port)
 {
   tvbuff_t *next_tvb;
+  int low_port, high_port;
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
@@ -1033,9 +1034,33 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		src_port, dst_port, next_tvb, pinfo, tree))
     return;
 
-  /* do lookup with the subdissector table */
-  if (dissector_try_port(subdissector_table, src_port, next_tvb, pinfo, tree) ||
-      dissector_try_port(subdissector_table, dst_port, next_tvb, pinfo, tree))
+  /* Do lookups with the subdissector table.
+     We try the port number with the lower value first, followed by the
+     port number with the higher value.  This means that, for packets
+     where a dissector is registered for *both* port numbers:
+
+	1) we pick the same dissector for traffic going in both directions;
+
+	2) we prefer the port number that's more likely to be the right
+	   one (as that prefers well-known ports to reserved ports);
+
+     although there is, of course, no guarantee that any such strategy
+     will always pick the right port number.
+
+     XXX - we ignore port numbers of 0, as some dissectors use a port
+     number of 0 to disable the port. */
+  if (src_port > dst_port) {
+    low_port = dst_port;
+    high_port = src_port;
+  } else {
+    low_port = src_port;
+    high_port = dst_port;
+  }
+  if (low_port != 0 &&
+      dissector_try_port(subdissector_table, low_port, next_tvb, pinfo, tree))
+    return;
+  if (high_port != 0 &&
+      dissector_try_port(subdissector_table, high_port, next_tvb, pinfo, tree))
     return;
 
   /* do lookup with the heuristic subdissector table */
