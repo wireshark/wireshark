@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.22 2001/08/28 08:28:19 guy Exp $
+ * $Id: plugin_table.h,v 1.23 2001/08/29 00:51:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -57,6 +57,7 @@ typedef gboolean (*addr_proto_is_protocol_enabled)(int);
 typedef int (*addr_proto_item_get_len)(proto_item*);
 typedef void (*addr_proto_item_set_len)(proto_item*, gint);
 typedef void (*addr_proto_item_set_text)(proto_item*, const char*, ...);
+typedef void (*addr_proto_item_append_text)(proto_item*, const char*, ...);
 typedef proto_tree* (*addr_proto_item_add_subtree)(proto_item*, gint);
 typedef proto_item* (*addr_proto_tree_add_item)(proto_tree*, int, tvbuff_t*, gint, gint, gboolean);
 typedef proto_item* (*addr_proto_tree_add_item_hidden)(proto_tree*, int, tvbuff_t*, gint, gint, gboolean);
@@ -207,6 +208,7 @@ typedef struct  {
 	addr_proto_item_get_len			p_proto_item_get_len;
 	addr_proto_item_set_len			p_proto_item_set_len;
 	addr_proto_item_set_text		p_proto_item_set_text;
+	addr_proto_item_append_text		p_proto_item_append_text;
 	addr_proto_item_add_subtree		p_proto_item_add_subtree;
 	addr_proto_tree_add_item		p_proto_tree_add_item;
 	addr_proto_tree_add_item_hidden		p_proto_tree_add_item_hidden;

@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.21 2001/08/28 08:28:19 guy Exp $
+ * $Id: plugin_api.h,v 1.22 2001/08/29 00:51:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -60,6 +60,7 @@
 #define proto_item_get_len		(*p_proto_item_get_len)
 #define proto_item_set_len		(*p_proto_item_set_len)
 #define proto_item_set_text		(*p_proto_item_set_text)
+#define proto_item_append_text		(*p_proto_item_append_text)
 #define	proto_item_add_subtree		(*p_proto_item_add_subtree)
 #define	proto_tree_add_item		(*p_proto_tree_add_item)
 #define	proto_tree_add_item_hidden	(*p_proto_tree_add_item_hidden)

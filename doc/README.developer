@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.33 2001/08/28 08:28:16 guy Exp $
+$Id: README.developer,v 1.34 2001/08/29 00:51:07 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -85,7 +85,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.33 2001/08/28 08:28:16 guy Exp $"
+The "$Id: README.developer,v 1.34 2001/08/29 00:51:07 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -95,7 +95,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.33 2001/08/28 08:28:16 guy Exp $
+ * $Id: README.developer,v 1.34 2001/08/29 00:51:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1119,15 +1119,23 @@ themselves - the items in the subtree are the ones with values.
 For a subtree, the label on the subtree might reflect some of the items
 in the subtree.  This means the label can't be set until at least some
 of the items in the subtree have been dissected.  To do this, use
-'proto_item_set_text()':
+'proto_item_set_text()' or 'proto_item_append_text()':
 
 	void
 	proto_tree_set_text(proto_item *ti, ...);
 
-which takes as an argument the value returned by
+	void
+	proto_tree_append_text(proto_item *ti, ...);
+
+'proto_item_set_text()' takes as an argument the value returned by
 'proto_tree_add_text()', a 'printf'-style format string, and a set of
-arguments corresponding to '%' format items in that string.  For
-example, early in the dissection, one might do:
+arguments corresponding to '%' format items in that string, and replaces
+the text for the item created by 'proto_tree_add_text()' with the result
+of applying the arguments to the format string. 
+'proto_item_append_text()' is similar, but it appends to the text for
+the item the result of applying the arguments to the format string.
+
+For example, early in the dissection, one might do:
 
 	ti = proto_tree_add_text(tree, offset, length, <label>);
 

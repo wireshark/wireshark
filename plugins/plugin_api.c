@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.21 2001/08/28 08:28:19 guy Exp $
+ * $Id: plugin_api.c,v 1.22 2001/08/29 00:51:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -58,6 +58,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_proto_item_get_len			= pat->p_proto_item_get_len;
 	p_proto_item_set_len			= pat->p_proto_item_set_len;
 	p_proto_item_set_text			= pat->p_proto_item_set_text;
+	p_proto_item_append_text		= pat->p_proto_item_append_text;
 	p_proto_item_add_subtree		= pat->p_proto_item_add_subtree;
 	p_proto_tree_add_item			= pat->p_proto_tree_add_item;
 	p_proto_tree_add_item_hidden		= pat->p_proto_tree_add_item_hidden;

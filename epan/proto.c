@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.33 2001/08/28 08:28:17 guy Exp $
+ * $Id: proto.c,v 1.34 2001/08/29 00:51:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1506,6 +1506,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 	}
 }
 
+/* Set text of proto_item after having already been created. */
 void
 proto_item_set_text(proto_item *pi, const char *format, ...)
 {
@@ -1518,6 +1519,30 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 	va_start(ap, format);
 	proto_tree_set_representation(pi, format, ap);
 	va_end(ap);
+}
+
+/* Append to text of proto_item after having already been created. */
+void
+proto_item_append_text(proto_item *pi, const char *format, ...)
+{
+	field_info *fi = (field_info*) (((GNode*)pi)->data);
+	size_t curlen;
+	va_list	ap;
+
+	if (fi->visible) {
+		va_start(ap, format);
+		/*
+		 * XXX - this will blow up if we haven't already set
+		 * "fi->representation"; that seems OK to me - you
+		 * can't append to something that doesn't exist - but
+		 * there might be cases where that's not convenient.
+		 */
+		curlen = strlen(fi->representation);
+		if (ITEM_LABEL_LENGTH > curlen)
+			vsnprintf(fi->representation + curlen,
+			    ITEM_LABEL_LENGTH - curlen, format, ap);
+		va_end(ap);
+	}
 }
 
 void

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.71 2001/08/28 08:28:14 guy Exp $
+ * $Id: packet-dns.c,v 1.72 2001/08/29 00:51:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -817,9 +817,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s", ip_to_str(addr));
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, addr %s",
-		     name, type_name, class_name,
-		     ip_to_str(addr));
+	proto_item_append_text(trr, ", addr %s", ip_to_str(addr));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Addr: %s",
 		     ip_to_str(addr));
       }
@@ -839,8 +837,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s", ns_name);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, ns %s",
-		       name, type_name, class_name, ns_name);
+	proto_item_append_text(trr, ", ns %s", ns_name);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, ns_name_len, "Name server: %s",
 			ns_name);
       }
@@ -856,8 +853,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s", cname);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, cname %s",
-		     name, type_name, class_name, cname);
+	proto_item_append_text(trr, ", cname %s", cname);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, cname_len, "Primary name: %s",
 			cname);
       }
@@ -880,8 +876,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s", mname);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, mname %s",
-		     name, type_name, class_name, mname);
+	proto_item_append_text(trr, ", mname %s", mname);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, mname_len, "Primary name server: %s",
 		       mname);
 	cur_offset += mname_len;
@@ -927,8 +922,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s", pname);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, ptr %s",
-		     name, type_name, class_name, pname);
+	proto_item_append_text(trr, ", ptr %s", pname);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, pname_len, "Domain name: %s",
 			pname);
       }
@@ -952,9 +946,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s", ip_to_str(wks_addr));
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, addr %s",
-		     name, type_name, class_name,
-		     ip_to_str(wks_addr));
+	proto_item_append_text(trr, ", addr %s", ip_to_str(wks_addr));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Addr: %s",
 		     ip_to_str(wks_addr));
 	cur_offset += 4;
@@ -1025,9 +1017,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	col_append_fstr(fd, COL_INFO, " %.*s %.*s", cpu_len, cpu,
 	    os_len, os);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr,
-		     "%s: type %s, class %s, CPU %.*s, OS %.*s",
-		     name, type_name, class_name,
+	proto_item_append_text(trr, ", CPU %.*s, OS %.*s",
 		     cpu_len, cpu, os_len, os);
 	proto_tree_add_text(rr_tree, tvb, cpu_offset, 1 + cpu_len, "CPU: %.*s",
 			cpu_len, cpu);
@@ -1049,9 +1039,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %u %s", preference, mx_name);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr,
-		       "%s: type %s, class %s, preference %u, mx %s",
-		       name, type_name, class_name, preference, mx_name);
+	proto_item_append_text(trr, ", preference %u, mx %s",
+		       preference, mx_name);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Preference: %u", preference);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 2, mx_name_len, "Mail exchange: %s",
 			mx_name);
@@ -1066,9 +1055,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int txt_len;
 
       if (dns_tree != NULL) {
-        proto_item_set_text(trr,
-		"%s: type %s, class %s", name, type_name, class_name);
-
 	txt_offset = cur_offset;
 	while (rr_len != 0) {
 	  txt_len = tvb_get_guint8(tvb, txt_offset);
@@ -1090,9 +1076,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int signer_name_len;
 
       if (dns_tree != NULL) {
-	proto_item_set_text(trr,
-		"%s: type %s, class %s", name, type_name, class_name);
-
 	type_covered = tvb_get_ntohs(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Type covered: %s (%s)",
 		dns_type_name(type_covered),
@@ -1154,9 +1137,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       proto_tree *flags_tree;
 
       if (dns_tree != NULL) {
-	proto_item_set_text(trr,
-		"%s: type %s, class %s", name, type_name, class_name);
-
         flags = tvb_get_ntohs(tvb, cur_offset);
 	tf = proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Flags: 0x%04X", flags);
 	flags_tree = proto_item_add_subtree(tf, ett_t_key_flags);
@@ -1227,8 +1207,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 			ip6_to_str((struct e_in6_addr *)addr6));
       }
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, addr %s",
-		     name, type_name, class_name,
+	proto_item_append_text(trr, ", addr %s",
 		     ip6_to_str((struct e_in6_addr *)addr6));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Addr: %s",
 		     ip6_to_str((struct e_in6_addr *)addr6));
@@ -1289,10 +1268,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
           proto_tree_add_text(rr_tree, tvb, a6_offset, pname_len, 
                               "Prefix name: %s", pname);
         }
-        proto_item_set_text(trr, "%s: type %s, class %s, addr %d %s %s",
-                            name, 
-                            type_name, 
-                            class_name, 
+        proto_item_append_text(trr, ", addr %d %s %s",
                             pre_len, 
                             ip6_to_str((struct e_in6_addr *)&suffix), 
                             pname);
@@ -1310,8 +1286,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s", dname);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, dname %s",
-			    name, type_name, class_name, dname);
+	proto_item_append_text(trr, ", dname %s", dname);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 
 			    dname_len, "Target name: %s", dname);
       }
@@ -1323,9 +1298,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint8 version;
 
       if (dns_tree != NULL) {
-	proto_item_set_text(trr,
-		"%s: type %s, class %s", name, type_name, class_name);
-
 	version = tvb_get_guint8(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Version: %u", version);
 	if (version == 0) {
@@ -1376,8 +1348,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s", next_domain_name);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, next domain name %s",
-		     name, type_name, class_name, next_domain_name);
+	proto_item_append_text(trr, ", next domain name %s",
+		     next_domain_name);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, next_domain_name_len,
 			"Next domain name: %s", next_domain_name);
 	cur_offset += next_domain_name_len;
@@ -1414,9 +1386,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %u %s", preference, kx_name);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr,
-		       "%s: type %s, class %s, preference %u, kx %s",
-		       name, type_name, class_name, preference, kx_name);
+	proto_item_append_text(trr, ", preference %u, kx %s",
+		       preference, kx_name);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Preference: %u", preference);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 2, kx_name_len, "Key exchange: %s",
 			kx_name);
@@ -1456,10 +1427,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     break;
 
   case T_OPT:
-    if (dns_tree != NULL) {
-      proto_item_set_text(trr, "%s: type %s", name, type_name);
+    if (dns_tree != NULL)
       proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
-    }
     break;
 
   case T_TKEY:
@@ -1472,14 +1441,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       static const value_string tkey_modes[] = {
 		  { TKEYMODE_SERVERASSIGNED,   "Server assigned"   },
 		  { TKEYMODE_DIFFIEHELLMAN,    "Diffie Hellman"    },
-		  { TKEYMODE_GSSAPI,           "GSSAPI "           },
+		  { TKEYMODE_GSSAPI,           "GSSAPI"            },
 		  { TKEYMODE_RESOLVERASSIGNED, "Resolver assigned" },
 		  { TKEYMODE_DELETE,           "Delete"            },
 		  { 0,                         NULL                } };
 
       if (dns_tree != NULL) {
-	proto_item_set_text(trr,
-		"%s: type %s, class %s", name, type_name, class_name);
 	tkey_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, tkey_algname, sizeof(tkey_algname));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_algname_len,
 		"Algorithm name: %s", tkey_algname);
@@ -1545,8 +1512,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int rr_len = data_len;
 
       if (dns_tree != NULL) {
-	proto_item_set_text(trr,
-		"%s: type %s, class %s", name, type_name, class_name);
 	tsig_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, tsig_algname, sizeof(tsig_algname));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, tsig_algname_len,
 		"Algorithm name: %s", tsig_algname);
@@ -1609,8 +1574,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint32 nservers;
 
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s", name, type_name,
-				class_name);
 	local_flag = tvb_get_ntohl(tvb, cur_offset);
 	if (dns_tree != NULL) {
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Local flag: %s",
@@ -1693,8 +1656,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s", dname);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr, "%s: type %s, class %s, name result domain %s",
-		     name, type_name, class_name, dname);
+	proto_item_append_text(trr, ", name result domain %s", dname);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, dname_len, "Name result domain: %s",
 			dname);
       }
@@ -1717,9 +1679,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %u %u %u %s", priority, weight, port, target);
       if (dns_tree != NULL) {
-	proto_item_set_text(trr,
-		       "%s: type %s, class %s, priority %u, weight %u, port %u, target %s",
-		       name, type_name, class_name, priority, weight, port, target);
+	proto_item_append_text(trr,
+		       ", priority %u, weight %u, port %u, target %s",
+		       priority, weight, port, target);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Priority: %u", priority);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 2, 2, "Weight: %u", weight);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 4, 2, "Port: %u", port);
@@ -1732,11 +1694,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     /* TODO: parse more record types */
 
   default:
-    if (dns_tree != NULL) {
-      proto_item_set_text(trr,
-		"%s: type %s, class %s", name, type_name, class_name);
+    if (dns_tree != NULL)
       proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
-    }
     break;
   }
   
