@@ -4,6 +4,9 @@
 # $Id: x509ce.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
 
 #.MODULE_IMPORT
+InformationFramework x509if
+
+#.INCLUDE ../x509if/x509if_exp.cnf
 
 #.EXPORTS
 

@@ -48,25 +48,25 @@ IMPORTS
 --    authorityCertIssuer        ABSENT,
 --    authorityCertSerialNumber  ABSENT
 --  })
--- 
--- KeyIdentifier ::= OCTET STRING
--- 
+
+KeyIdentifier ::= OCTET STRING
+
 -- subjectKeyIdentifier EXTENSION ::= {
 --   SYNTAX         SubjectKeyIdentifier
 --   IDENTIFIED BY  id-ce-subjectKeyIdentifier
 -- }
--- 
--- SubjectKeyIdentifier ::= KeyIdentifier
--- 
+
+SubjectKeyIdentifier ::= KeyIdentifier
+
 -- keyUsage EXTENSION ::= {SYNTAX         KeyUsage
 --                         IDENTIFIED BY  id-ce-keyUsage
 -- }
--- 
--- KeyUsage ::= BIT STRING {
---   digitalSignature(0), nonRepudiation(1), keyEncipherment(2),
---   dataEncipherment(3), keyAgreement(4), keyCertSign(5), cRLSign(6),
---   encipherOnly(7), decipherOnly(8)}
--- 
+
+KeyUsage ::= BIT STRING {
+  digitalSignature(0), nonRepudiation(1), keyEncipherment(2),
+  dataEncipherment(3), keyAgreement(4), keyCertSign(5), cRLSign(6),
+  encipherOnly(7), decipherOnly(8)}
+
 -- extKeyUsage EXTENSION ::= {
 --   SYNTAX         SEQUENCE SIZE (1..MAX) OF KeyPurposeId
 --   IDENTIFIED BY  id-ce-extKeyUsage
@@ -78,11 +78,11 @@ IMPORTS
 --   SYNTAX         PrivateKeyUsagePeriod
 --   IDENTIFIED BY  id-ce-privateKeyUsagePeriod
 -- }
--- 
--- PrivateKeyUsagePeriod ::= SEQUENCE {
---   notBefore  [0]  GeneralizedTime OPTIONAL,
---   notAfter   [1]  GeneralizedTime OPTIONAL
--- }
+
+PrivateKeyUsagePeriod ::= SEQUENCE {
+  notBefore  [0]  GeneralizedTime OPTIONAL,
+  notAfter   [1]  GeneralizedTime OPTIONAL
+}
 -- (WITH COMPONENTS {
 --    ...,
 --    notBefore  PRESENT
@@ -169,19 +169,19 @@ GeneralName ::= CHOICE {
 --   SYNTAX         AttributesSyntax
 --   IDENTIFIED BY  id-ce-subjectDirectoryAttributes
 -- }
--- 
--- AttributesSyntax ::= SEQUENCE SIZE (1..MAX) OF Attribute
--- 
+
+AttributesSyntax ::= SEQUENCE SIZE (1..MAX) OF Attribute
+
 -- basicConstraints EXTENSION ::= {
 --   SYNTAX         BasicConstraintsSyntax
 --   IDENTIFIED BY  id-ce-basicConstraints
 -- }
--- 
--- BasicConstraintsSyntax ::= SEQUENCE {
---   cA                 BOOLEAN DEFAULT FALSE,
---   pathLenConstraint  INTEGER(0..MAX) OPTIONAL
--- }
--- 
+
+BasicConstraintsSyntax ::= SEQUENCE {
+  cA                 BOOLEAN DEFAULT FALSE,
+  pathLenConstraint  INTEGER OPTIONAL
+}
+
 -- nameConstraints EXTENSION ::= {
 --   SYNTAX         NameConstraintsSyntax
 --   IDENTIFIED BY  id-ce-nameConstraints
@@ -218,19 +218,19 @@ GeneralName ::= CHOICE {
 --   SYNTAX         CRLNumber
 --   IDENTIFIED BY  id-ce-cRLNumber
 -- }
--- 
--- CRLNumber ::= INTEGER(0..MAX)
--- 
+
+CRLNumber ::= INTEGER(0..MAX)
+
 -- reasonCode EXTENSION ::= {
 --   SYNTAX         CRLReason
 --   IDENTIFIED BY  id-ce-reasonCode
 -- }
--- 
--- CRLReason ::= ENUMERATED {
---   unspecified(0), keyCompromise(1), cACompromise(2), affiliationChanged(3),
---   superseded(4), cessationOfOperation(5), certificateHold(6), removeFromCRL(8),
---   privilegeWithdrawn(9), aaCompromise(10)}
--- 
+
+CRLReason ::= ENUMERATED {
+  unspecified(0), keyCompromise(1), cACompromise(2), affiliationChanged(3),
+  superseded(4), cessationOfOperation(5), certificateHold(6), removeFromCRL(8),
+  privilegeWithdrawn(9), aaCompromise(10)}
+
 -- holdInstructionCode EXTENSION ::= {
 --   SYNTAX         HoldInstruction
 --   IDENTIFIED BY  id-ce-instructionCode
@@ -518,25 +518,24 @@ GeneralName ::= CHOICE {
 -- }
 -- 
 -- Object identifier assignments 
--- id-ce-subjectDirectoryAttributes OBJECT IDENTIFIER ::=
---   {id-ce 9}
--- 
--- id-ce-subjectKeyIdentifier OBJECT IDENTIFIER ::= {id-ce 14}
--- 
--- id-ce-keyUsage OBJECT IDENTIFIER ::= {id-ce 15}
--- 
--- id-ce-privateKeyUsagePeriod OBJECT IDENTIFIER ::= {id-ce 16}
--- 
--- id-ce-subjectAltName OBJECT IDENTIFIER ::= {id-ce 17}
--- 
--- id-ce-issuerAltName OBJECT IDENTIFIER ::= {id-ce 18}
--- 
--- id-ce-basicConstraints OBJECT IDENTIFIER ::= {id-ce 19}
--- 
--- id-ce-cRLNumber OBJECT IDENTIFIER ::= {id-ce 20}
--- 
--- id-ce-reasonCode OBJECT IDENTIFIER ::= {id-ce 21}
--- 
+id-ce-subjectDirectoryAttributes OBJECT IDENTIFIER ::=  {id-ce 9}
+ 
+id-ce-subjectKeyIdentifier OBJECT IDENTIFIER ::= {id-ce 14}
+
+id-ce-keyUsage OBJECT IDENTIFIER ::= {id-ce 15}
+
+id-ce-privateKeyUsagePeriod OBJECT IDENTIFIER ::= {id-ce 16}
+
+id-ce-subjectAltName OBJECT IDENTIFIER ::= {id-ce 17}
+
+id-ce-issuerAltName OBJECT IDENTIFIER ::= {id-ce 18}
+
+id-ce-basicConstraints OBJECT IDENTIFIER ::= {id-ce 19}
+
+id-ce-cRLNumber OBJECT IDENTIFIER ::= {id-ce 20}
+
+id-ce-reasonCode OBJECT IDENTIFIER ::= {id-ce 21}
+
 -- id-ce-instructionCode OBJECT IDENTIFIER ::= {id-ce 23}
 -- 
 -- id-ce-invalidityDate OBJECT IDENTIFIER ::= {id-ce 24}
