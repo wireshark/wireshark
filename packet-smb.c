@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.353 2003/06/12 08:33:30 guy Exp $
+ * $Id: packet-smb.c,v 1.354 2003/06/15 00:35:49 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -16081,13 +16081,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si->ct->matched, new_key, sip);
 					} else {
-						/* we have already seen another response to this one, but
-						   register it anyway so we see which request it matches
+						/* We have already seen another response to this MID.
+						   Since the MID in reality is only something like 10 bits
+						   this probably means that we just have a MID that is being
+						   reused due to the small MID space and that this is a new
+						   command we did not see the original request for.
 						*/
-						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
-						new_key->frame = pinfo->fd->num;
-						new_key->pid_mid = pid_mid;
-						g_hash_table_insert(si->ct->matched, new_key, sip);
+						sip=NULL;
 					}
 				}
 			}
