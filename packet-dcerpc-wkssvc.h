@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@richardsharpe.org>
  *
- * $Id: packet-dcerpc-wkssvc.h,v 1.6 2003/04/30 23:31:51 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.h,v 1.7 2003/05/01 17:53:22 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,10 @@
 
 /* Functions available on the WKSSVC pipe.  From Samba, include/rpc_wkssvc.h */
 
-#define WKS_NetWkstaGetInfo    0x00
-#define WKS_NetWkstaSetInfo    0x01
-#define WKS_NetWkstaEnumUsers  0x02
+#define WKS_NetWkstaGetInfo       0x00
+#define WKS_NetWkstaSetInfo       0x01
+#define WKS_NetWkstaEnumUsers     0x02
+#define WKS_NetWkstaUnkn_003      0x03
+#define WKS_NetWkstaUnkn_004      0x04
+#define WKS_NetWkstaTransportEnum 0x05
 #endif /* packet-dcerpc-wkssvc.h */
