@@ -476,7 +476,7 @@ BEGIN
          ... 
       } 
        
-      EventName ::= PkgdName 
+      EventName ::= OCTET STRING 
        
       EventParameter ::= SEQUENCE 
       { 
@@ -492,8 +492,8 @@ BEGIN
          } OPTIONAL, 
          ... 
        
-      } 
-       
+      }
+
       ServiceChangeRequest ::= SEQUENCE 
       { 
          terminationID           [0] IMPLICIT TerminationIDList, 
@@ -695,7 +695,7 @@ BEGIN
        
       RequestedEvent ::= SEQUENCE 
       { 
-         pkgdName       [0] IMPLICIT PkgdName, 
+         pkgdName       [0] IMPLICIT EventName, 
          streamID       [1] IMPLICIT StreamID OPTIONAL, 
          eventAction    [2] IMPLICIT RequestedActions OPTIONAL, 
          evParList      [3] IMPLICIT SEQUENCE OF EventParameter, 
@@ -726,7 +726,7 @@ BEGIN
        
       SecondRequestedEvent ::= SEQUENCE 
       { 
-         pkgdName          [0] IMPLICIT PkgdName, 
+         pkgdName          [0] IMPLICIT EventName, 
          streamID          [1] IMPLICIT StreamID OPTIONAL, 
          eventAction       [2] IMPLICIT SecondRequestedActions OPTIONAL, 
          evParList         [3] IMPLICIT SEQUENCE OF EventParameter, 
@@ -787,7 +787,7 @@ BEGIN
          ... 
       } 
        
-      SignalName ::= PkgdName 
+      SignalName ::= OCTET STRING 
        
       NotifyCompletion ::= BIT STRING 
       { 

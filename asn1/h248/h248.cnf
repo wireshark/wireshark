@@ -13,6 +13,8 @@
 MtpAddress
 PkgdName
 PropertyID
+SignalName
+EventName
 
 #.TYPE_RENAME
 
