@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.7 2002/08/28 21:03:48 jmayer Exp $
+ * $Id: menu.h,v 1.8 2003/04/23 03:13:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,15 @@ extern "C" {
 void get_main_menu (GtkWidget **, GtkAccelGroup **);
 void set_menu_object_data (gchar *path, gchar *key, gpointer data);
 gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
+
+/*
+ * Add a new menu item for a statistical tap.
+ * This must be called after we've created the main menu, so it can't
+ * be called from the routine that registers taps - we have to introduce
+ * another per-tap registration routine.
+ */
+extern void register_tap_menu_item(const char *name,
+    GtkItemFactoryCallback callback);
 
 extern GtkWidget           *popup_menu_object;
 

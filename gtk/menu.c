@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.89 2003/04/22 04:49:17 guy Exp $
+ * $Id: menu.c,v 1.90 2003/04/23 03:13:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -437,7 +437,7 @@ menus_init(void) {
 #endif
 
     if(!find_tap_id("mgcp")) {
-    	set_menu_sensitivity(main_menu_factory, "/Tools/Statistics/MGCP/RTD",
+    	set_menu_sensitivity(main_menu_factory, "/Tools/Statistics/MGCP",
     	    FALSE);
     }
     set_menus_for_captured_packets(FALSE);
@@ -445,6 +445,43 @@ menus_init(void) {
     set_menus_for_selected_tree_row(FALSE);
   }
 }
+
+/*
+ * Add a new menu item for a statistical tap.
+ * This must be called after we've created the main menu, so it can't
+ * be called from the routine that registers taps - we have to introduce
+ * another per-tap registration routine.
+ */
+void
+register_tap_menu_item(const char *name, GtkItemFactoryCallback callback)
+{
+	static const char statspath[] = "/Tools/Statistics/";
+	char *menupath;
+	size_t menupathlen;
+	GtkItemFactoryEntry *entry;
+
+	/*
+	 * Construct the main menu path for the menu item.
+	 *
+	 * "sizeof statspath" includes the trailing '\0', so the sum
+	 * of that and the length of "name" is enough to hold a string
+	 * containing their concatenation.
+	 */
+	menupathlen = sizeof statspath + strlen(name);
+	menupath = g_malloc(menupathlen);
+	strcpy(menupath, statspath);
+	strcat(menupath, name);
+
+	/*
+	 * Construct an item factory entry for the item, and add it to
+	 * the main menu.
+	 */
+	entry = g_malloc0(sizeof (GtkItemFactoryEntry));
+	entry->path = menupath;
+	entry->callback = callback;
+	gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+}
+
 
 /*
  * Enable/disable menu sensitivity.
