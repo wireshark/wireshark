@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.62 2001/09/04 21:04:51 guy Exp $
+ * $Id: packet-ipv6.c,v 1.63 2001/09/30 23:07:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,8 +47,6 @@
 #include "packet-ip.h"
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
-#include "packet-tcp.h"
-#include "packet-udp.h"
 #include "resolv.h"
 #include "prefs.h"
 #include "reassemble.h"
