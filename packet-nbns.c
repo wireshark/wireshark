@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.53 2001/07/02 07:11:39 guy Exp $
+ * $Id: packet-nbns.c,v 1.54 2001/08/05 10:00:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1109,43 +1109,60 @@ struct nbdgm_header {
 	guint8		error_code;
 };
 
+/*
+ * NBDS message types.
+ */
+#define NBDS_DIRECT_UNIQUE	0x10
+#define NBDS_DIRECT_GROUP	0x11
+#define NBDS_BROADCAST		0x12
+#define NBDS_ERROR		0x13
+#define NBDS_QUERY_REQUEST	0x14
+#define NBDS_POS_QUERY_RESPONSE	0x15
+#define NBDS_NEG_QUERY_RESPONSE	0x16
+
+static const value_string nbds_msgtype_vals[] = {
+	{ NBDS_DIRECT_UNIQUE,      "Direct_unique datagram" },
+	{ NBDS_DIRECT_GROUP,       "Direct_group datagram" },
+	{ NBDS_BROADCAST,          "Broadcast datagram" },
+	{ NBDS_ERROR,              "Datagram error" },
+	{ NBDS_QUERY_REQUEST,      "Datagram query request" },
+	{ NBDS_POS_QUERY_RESPONSE, "Datagram positive query response" },
+	{ NBDS_NEG_QUERY_RESPONSE, "Datagram negative query response" },
+	{ 0,                       NULL }
+};
+
+static const true_false_string yesno = {  
+	"Yes",
+	"No"
+};
+
+static const value_string node_type_vals[] = {
+	{ 0, "B node" },
+	{ 1, "P node" },
+	{ 2, "M node" },
+	{ 3, "NBDD" },
+	{ 0, NULL }
+};
+
 static void
 dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int			offset = 0;
 	proto_tree		*nbdgm_tree = NULL;
-	proto_item		*ti;
+	proto_item		*ti = NULL;
 	struct nbdgm_header	header;
+	int			msglen;
 	int			flags;
 	int			message_index;
 	int			max_data = tvb_length_remaining(tvb, offset);
+	tvbuff_t		*next_tvb;
 
-	char *message[] = {
-		"Unknown",
-		"Direct_unique datagram",
-		"Direct_group datagram",
-		"Broadcast datagram",
-		"Datagram error",
-		"Datagram query request",
-		"Datagram positive query response",
-		"Datagram negative query response"
-	};
-
-	char *node[] = {
-		"B node",
-		"P node",
-		"M node",
-		"NBDD"
-	};
-
-	static value_string error_codes[] = {
+	static const value_string error_codes[] = {
 		{ 0x82, "Destination name not present" },
 		{ 0x83, "Invalid source name format" },
 		{ 0x84, "Invalid destination name format" },
 		{ 0x00,	NULL }
 	};
-
-	char *yesno[] = { "No", "Yes" };
 
 	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
 	int name_type;
@@ -1167,13 +1184,18 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb_memcpy(tvb, (guint8 *)&header.src_ip, offset+4, 4);
 	header.src_port = tvb_get_ntohs(tvb, offset+8);
 
-	if (header.msg_type == 0x10 ||
-			header.msg_type == 0x11 || header.msg_type == 0x12) {
+	switch (header.msg_type) {
+
+	case NBDS_DIRECT_UNIQUE:
+	case NBDS_DIRECT_GROUP:
+	case NBDS_BROADCAST:
 		header.dgm_length = tvb_get_ntohs(tvb, offset+10);
 		header.pkt_offset = tvb_get_ntohs(tvb, offset+12);
-	}
-	else if (header.msg_type == 0x13) {
+		break;
+
+	case NBDS_ERROR:
 		header.error_code = tvb_get_ntohs(tvb, offset+10);
+		break;
 	}
 
 	message_index = header.msg_type - 0x0f;
@@ -1182,33 +1204,28 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->fd, COL_INFO)) {
-		col_set_str(pinfo->fd, COL_INFO, message[message_index]);
+		col_add_str(pinfo->fd, COL_INFO,
+		    val_to_str(header.msg_type, nbds_msgtype_vals,
+		      "Unknown message type (0x%02X)"));
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbdgm, tvb, offset, header.dgm_length, FALSE);
+		ti = proto_tree_add_item(tree, proto_nbdgm, tvb, offset,
+		    tvb_length_remaining(tvb, offset), FALSE);
 		nbdgm_tree = proto_item_add_subtree(ti, ett_nbdgm);
 
-		proto_tree_add_uint_format(nbdgm_tree, hf_nbdgm_type, tvb,
-					   offset, 1, 
-					   header.msg_type,   
-					   "Message Type: %s",
-					   message[message_index]);
-		proto_tree_add_boolean_format(nbdgm_tree, hf_nbdgm_fragment, tvb,
-					   offset+1, 1, 
-					   header.flags.more,
-					   "More fragments follow: %s",
-					   yesno[header.flags.more]);
-		proto_tree_add_boolean_format(nbdgm_tree, hf_nbdgm_first, tvb,
-					   offset+1, 1, 
-					   header.flags.first,
-					   "This is first fragment: %s",
-					   yesno[header.flags.first]);
-		proto_tree_add_uint_format(nbdgm_tree, hf_nbdgm_node_type, tvb,
-					   offset+1, 1, 
-					   header.flags.node_type,
-					   "Node Type: %s",
-					   node[header.flags.node_type]);
+		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_type, tvb,
+				     offset, 1, 
+				     header.msg_type);
+		proto_tree_add_boolean(nbdgm_tree, hf_nbdgm_fragment, tvb,
+				       offset+1, 1, 
+				       header.flags.more);
+		proto_tree_add_boolean(nbdgm_tree, hf_nbdgm_first, tvb,
+				       offset+1, 1, 
+				       header.flags.first);
+		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_node_type, tvb,
+				     offset+1, 1, 
+				     header.flags.node_type);
 
 		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_datagram_id, tvb,
 				    offset+2, 2, header.dgm_id);
@@ -1222,9 +1239,11 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 10;
 	max_data -= 10;
 
-	if (header.msg_type == 0x10 ||
-			header.msg_type == 0x11 || header.msg_type == 0x12) {
+	switch (header.msg_type) {
 
+	case NBDS_DIRECT_UNIQUE:
+	case NBDS_DIRECT_GROUP:
+	case NBDS_BROADCAST:
 		if (tree) {
 			proto_tree_add_text(nbdgm_tree, tvb, offset, 2,
 					"Datagram length: %d bytes", header.dgm_length);
@@ -1255,11 +1274,13 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += len;
 		max_data -= len;
 
-		  /*
-		   * Here we can pass the packet off to the next protocol.
-		   */
-		  {
-			tvbuff_t	*next_tvb;
+		/*
+		 * Here we can pass the packet off to the next protocol.
+		 * Set the length of our top-level tree item to include
+		 * only our stuff.
+		 */
+		proto_item_set_len(ti, offset);
+		{
 			const guint8	*next_pd;
 			int		next_offset;
 
@@ -1268,16 +1289,21 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			dissect_smb(next_pd, next_offset, pinfo->fd, tree,
 			    max_data);
-		  }
-	}
-	else if (header.msg_type == 0x13) {
+		}
+		break;
+
+	case NBDS_ERROR:
 		if (tree) {
 			proto_tree_add_text(nbdgm_tree, tvb, offset, 1, "Error code: %s",
 				val_to_str(header.error_code, error_codes, "Unknown (0x%x)"));
 		}
-	}
-	else if (header.msg_type == 0x14 ||
-			header.msg_type == 0x15 || header.msg_type == 0x16) {
+		offset += 1;
+		proto_item_set_len(ti, offset);
+		break;
+
+	case NBDS_QUERY_REQUEST:
+	case NBDS_POS_QUERY_RESPONSE:
+	case NBDS_NEG_QUERY_RESPONSE:
 		/* Destination name */
 		len = get_nbns_name(tvb, offset, offset, name, &name_type);
 
@@ -1285,6 +1311,9 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			add_name_and_type(nbdgm_tree, tvb, offset, len,
 			    "Destination name", name, name_type);
 		}
+		offset += len;
+		proto_item_set_len(ti, offset);
+		break;
 	}
 }
 
@@ -1341,7 +1370,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, int max_data, int is_cifs)
 {
 	proto_tree	*nbss_tree = NULL;
-	proto_item	*ti;
+	proto_item	*ti = NULL;
 	proto_tree	*field_tree;
 	proto_item	*tf;
 	guint8		msg_type;
@@ -1350,6 +1379,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		len;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
 	int		name_type;
+	tvbuff_t	*next_tvb;
 
 	msg_type = tvb_get_guint8(tvb, offset);
 
@@ -1442,9 +1472,11 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case SESSION_MESSAGE:
 	  /*
 	   * Here we can pass the packet off to the next protocol.
+	   * Set the length of our top-level tree item to include
+	   * only our stuff.
 	   */
+	  proto_item_set_len(ti, offset);
 	  {
-		tvbuff_t	*next_tvb;
 		const guint8	*next_pd;
 		int		next_offset;
 
@@ -1578,19 +1610,19 @@ proto_register_nbt(void)
   static hf_register_info hf_nbdgm[] = {
     { &hf_nbdgm_type,
       { "Message Type",		"nbdgm.type",  
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+	FT_UINT8, BASE_DEC, VALS(nbds_msgtype_vals), 0x0,
 	"NBDGM message type", HFILL }},
     { &hf_nbdgm_fragment,
-      { "Fragmented",		"nbdgm.next",  
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      { "More fragments follow",	"nbdgm.next",  
+	FT_BOOLEAN, BASE_NONE, TFS(&yesno), 0x0,
 	"TRUE if more fragments follow", HFILL }},
     { &hf_nbdgm_first,
-      { "First fragment",	"nbdgm.first",  
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      { "This is first fragment",	"nbdgm.first",  
+	FT_BOOLEAN, BASE_NONE, TFS(&yesno), 0x0,
 	"TRUE if first fragment", HFILL }},
     { &hf_nbdgm_node_type,
       { "Node Type",		"nbdgm.node_type",  
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+	FT_UINT8, BASE_DEC, VALS(node_type_vals), 0x0,
 	"Node type", HFILL }},
     { &hf_nbdgm_datagram_id,
       { "Datagram ID",		"nbdgm.dgram_id",  
