@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.35 2001/10/01 08:29:34 guy Exp $
+ * $Id: packet-clnp.c,v 1.36 2001/11/09 02:04:35 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -532,7 +532,7 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
     case VP_TPDU_SIZE:
       c1 = tvb_get_guint8(tvb, offset) & 0x0F;
       proto_tree_add_text(tree, tvb, offset, length, 
-		"TPDU size: %u", 2 << c1);
+		"TPDU size: %u", 1 << c1);
       offset += length;
       vp_length -= length;
       break;
