@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.2 2001/07/21 15:34:44 girlich Exp $
+ * $Id: packet-quakeworld.c,v 1.3 2001/07/21 19:25:59 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,7 @@ static int hf_quakeworld_game = -1;
 static int hf_quakeworld_connectionless_marker = -1;
 static int hf_quakeworld_connectionless_text = -1;
 static int hf_quakeworld_connectionless_command = -1;
+static int hf_quakeworld_connectionless_arguments = -1;
 static int hf_quakeworld_connectionless_connect_version = -1;
 static int hf_quakeworld_connectionless_connect_qport = -1;
 static int hf_quakeworld_connectionless_connect_challenge = -1;
@@ -67,6 +68,7 @@ static int hf_quakeworld_game_qport = -1;
 static gint ett_quakeworld = -1;
 static gint ett_quakeworld_connectionless = -1;
 static gint ett_quakeworld_connectionless_text = -1;
+static gint ett_quakeworld_connectionless_arguments = -1;
 static gint ett_quakeworld_connectionless_connect_infostring = -1;
 static gint ett_quakeworld_connectionless_connect_infostring_key_value = -1;
 static gint ett_quakeworld_game = -1;
@@ -241,6 +243,81 @@ Cmd_TokenizeString(char* text)
 	}
 }
 
+			
+void
+dissect_id_infostring(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, 
+	int offset, char* infostring,
+	gint ett_key_value, int hf_key_value, int hf_key, int hf_value)
+{
+	char * newpos = infostring;
+	int end_of_info = FALSE;
+
+	/* to look at all the key/value pairs, we destroy infostring */
+	while(!end_of_info) {
+		char* keypos;
+		char* valuepos;
+		int keylength;
+		char* keyvaluesep;
+		int valuelength;
+		char* valueend;
+
+		keypos = newpos;
+		if (*keypos == 0) break;
+		if (*keypos == '\\') keypos++;
+
+		for (keylength = 0
+			;
+			*(keypos + keylength) != '\\' && 
+			*(keypos + keylength) != 0
+			;
+			keylength++) ;
+		keyvaluesep = keypos + keylength;
+		if (*keyvaluesep == 0) break;
+		valuepos = keyvaluesep+1;
+		for (valuelength = 0
+			;
+			*(valuepos + valuelength) != '\\' && 
+			*(valuepos + valuelength) != 0
+			;
+			valuelength++) ;
+		valueend = valuepos + valuelength;
+		if (*valueend == 0) {
+			end_of_info = TRUE;
+		}
+		*(keyvaluesep) = '=';
+		*(valueend) = 0;
+		
+		if (tree) {
+			proto_item* sub_item = NULL;
+			proto_tree* sub_tree = NULL;
+
+			sub_item = proto_tree_add_string(tree,
+				hf_key_value,
+				tvb,
+				offset + (keypos-infostring),
+				keylength + 1 + valuelength, keypos);
+			if (sub_item) 
+				sub_tree =
+					proto_item_add_subtree(
+					sub_item,
+					ett_key_value);
+			*(keyvaluesep) = 0;
+			if (sub_tree) {
+				proto_tree_add_string(sub_tree,
+					hf_key,
+					tvb,
+					offset + (keypos-infostring),
+					keylength, keypos);
+				proto_tree_add_string(sub_tree,
+					hf_value,
+					tvb,
+					offset + (valuepos-infostring),
+					valuelength, valuepos);
+			}
+		}
+		newpos = valueend + 1;
+	}
+}
 
 
 static const value_string names_direction[] = {
@@ -345,6 +422,8 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			int qport;
 			int challenge;
 			char *infostring;
+			proto_item *argument_item = NULL;
+			proto_tree *argument_tree = NULL;
 			proto_item *info_item = NULL;
 			proto_tree *info_tree = NULL;
 			strcpy(command, "Connect");
@@ -352,31 +431,38 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			if (text_tree) {
 				proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
 					tvb, offset, command_len, command);
-					command_finished=TRUE;
+				argument_item = proto_tree_add_string(text_tree,
+					hf_quakeworld_connectionless_arguments,
+					tvb, offset + Cmd_Argv_start(1), len + 1 - Cmd_Argv_start(1), 
+					text + Cmd_Argv_start(1));
+				if (argument_item) {
+					argument_tree =
+						proto_item_add_subtree(argument_item,	
+							ett_quakeworld_connectionless_arguments);
+				}
+				command_finished=TRUE;
 			}
 			version = atoi(Cmd_Argv(1));
 			qport = atoi(Cmd_Argv(2));
 			challenge = atoi(Cmd_Argv(3));
 			infostring = Cmd_Argv(4);
-			if (text_tree) {
-				char * newpos;
-				int end_of_info;
-				proto_tree_add_uint(text_tree,
+			if (argument_tree) {
+				proto_tree_add_uint(argument_tree,
 					hf_quakeworld_connectionless_connect_version,
 					tvb,
 					offset + Cmd_Argv_start(1),
 					Cmd_Argv_length(1), version);
-				proto_tree_add_uint(text_tree,
+				proto_tree_add_uint(argument_tree,
 					hf_quakeworld_connectionless_connect_qport,
 					tvb,
 					offset + Cmd_Argv_start(2),
 					Cmd_Argv_length(2), qport);
-				proto_tree_add_int(text_tree,
+				proto_tree_add_int(argument_tree,
 					hf_quakeworld_connectionless_connect_challenge,
 					tvb,
 					offset + Cmd_Argv_start(3),
 					Cmd_Argv_length(3), challenge);
-				info_item = proto_tree_add_string(text_tree,
+				info_item = proto_tree_add_string(argument_tree,
 					hf_quakeworld_connectionless_connect_infostring,
 					tvb,
 					offset + Cmd_Argv_start(4),
@@ -384,73 +470,12 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 				if (info_item)
 					info_tree = proto_item_add_subtree(
 						info_item, ett_quakeworld_connectionless_connect_infostring);
-				/* to look at all the key/value pairs, we destroy infostring */
-				newpos = infostring;
-				end_of_info = FALSE;
-				while(!end_of_info) {
-					char* keypos;
-					char* valuepos;
-					int keylength;
-					char* keyvaluesep;
-					int valuelength;
-					char* valueend;
-
-					keypos = newpos;
-					if (*keypos == 0) break;
-					if (*keypos == '\\') keypos++;
-
-					for (keylength = 0
-						;
-						*(keypos + keylength) != '\\' && 
-						*(keypos + keylength) != 0
-						;
-						keylength++) ;
-					keyvaluesep = keypos + keylength;
-					if (*keyvaluesep == 0) break;
-					valuepos = keyvaluesep+1;
-					for (valuelength = 0
-						;
-						*(valuepos + valuelength) != '\\' && 
-						*(valuepos + valuelength) != 0
-						;
-						valuelength++) ;
-					valueend = valuepos + valuelength;
-					if (*valueend == 0) {
-						end_of_info = TRUE;
-					}
-					*(keyvaluesep) = '=';
-					*(valueend) = 0;
-					
-					if (info_tree) {
-						proto_item* sub_item = NULL;
-						proto_tree* sub_tree = NULL;
-
-						sub_item = proto_tree_add_string(info_tree,
-							hf_quakeworld_connectionless_connect_infostring_key_value,
-							tvb,
-							offset + Cmd_Argv_start(4) + (keypos-infostring),
-							keylength + 1 + valuelength, keypos);
-						if (sub_item) 
-							sub_tree =
-								proto_item_add_subtree(
-								sub_item,
-								ett_quakeworld_connectionless_connect_infostring_key_value);
-						*(keyvaluesep) = 0;
-						if (sub_tree) {
-							proto_tree_add_string(sub_tree,
-								hf_quakeworld_connectionless_connect_infostring_key,
-								tvb,
-								offset + Cmd_Argv_start(4) + (keypos-infostring),
-								keylength, keypos);
-							proto_tree_add_string(sub_tree,
-								hf_quakeworld_connectionless_connect_infostring_value,
-								tvb,
-								offset + Cmd_Argv_start(4) + (valuepos-infostring),
-								valuelength, valuepos);
-						}
-					}
-					newpos = valueend + 1;
-				}
+				dissect_id_infostring(tvb, pinfo, info_tree, offset + Cmd_Argv_start(4),
+					infostring,
+					ett_quakeworld_connectionless_connect_infostring_key_value,
+					hf_quakeworld_connectionless_connect_infostring_key_value,
+					hf_quakeworld_connectionless_connect_infostring_key,
+					hf_quakeworld_connectionless_connect_infostring_value);
 			}
 		} else if (strcmp(c,"getchallenge") == 0) {
 			strcpy(command, "Get Challenge");
@@ -459,16 +484,27 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			char* password;
 			int i;
 			char remaining[1024];
+			proto_item *argument_item = NULL;
+			proto_tree *argument_tree = NULL;
 			strcpy(command, "Remote Command");
 			command_len = Cmd_Argv_length(0);
 			if (text_tree) {
 				proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
 					tvb, offset, command_len, command);
-					command_finished=TRUE;
+				argument_item = proto_tree_add_string(text_tree,
+					hf_quakeworld_connectionless_arguments,
+					tvb, offset + Cmd_Argv_start(1), len + 1 - Cmd_Argv_start(1), 
+					text + Cmd_Argv_start(1));
+				if (argument_item) {
+					argument_tree =
+						proto_item_add_subtree(argument_item,	
+							ett_quakeworld_connectionless_arguments);
+				}
+				command_finished=TRUE;
 			}
 			password = Cmd_Argv(1);
-			if (text_tree) {
-				proto_tree_add_string(text_tree,
+			if (argument_tree) {
+				proto_tree_add_string(argument_tree,
 					hf_quakeworld_connectionless_rcon_password,
 					tvb,
 					offset + Cmd_Argv_start(1),
@@ -480,7 +516,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 				strcat (remaining, " ");
 			}
 			if (text_tree) {
-				proto_tree_add_string(text_tree,
+				proto_tree_add_string(argument_tree,
 					hf_quakeworld_connectionless_rcon_command,
 					tvb, offset + Cmd_Argv_start(2),
 					Cmd_Argv_start(Cmd_Argc()-1) + Cmd_Argv_length(Cmd_Argc()-1) -
@@ -797,6 +833,10 @@ proto_register_quakeworld(void)
 			{ "Command", "quakeworld.connectionless.command",
 			FT_STRING, BASE_DEC, NULL, 0x0,
 			"Command", HFILL }},
+		{ &hf_quakeworld_connectionless_arguments,
+			{ "Arguments", "quakeworld.connectionless.arguments",
+			FT_STRING, BASE_DEC, NULL, 0x0,
+			"Arguments", HFILL }},
 		{ &hf_quakeworld_connectionless_connect_version,
 			{ "Version", "quakeworld.connectionless.connect.version",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -858,6 +898,7 @@ proto_register_quakeworld(void)
 		&ett_quakeworld,
 		&ett_quakeworld_connectionless,
 		&ett_quakeworld_connectionless_text,
+		&ett_quakeworld_connectionless_arguments,
 		&ett_quakeworld_connectionless_connect_infostring,
 		&ett_quakeworld_connectionless_connect_infostring_key_value,
 		&ett_quakeworld_game,
