@@ -1,8 +1,8 @@
 /* packet-bpkmattr.c
  * Routines for Baseline Privacy Key Management Attributes dissection
- * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
+ * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-bpkmattr.c,v 1.4 2002/09/10 19:07:37 guy Exp $
+ * $Id: packet-bpkmattr.c,v 1.5 2003/05/28 14:52:51 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,8 +1,8 @@
 /* packet-regrsp.c
  * Routines for Registration Response Message dissection
- * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
+ * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-regrsp.c,v 1.5 2002/10/15 05:21:07 guy Exp $
+ * $Id: packet-regrsp.c,v 1.6 2003/05/28 14:52:52 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

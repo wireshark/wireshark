@@ -1,8 +1,8 @@
 /* packet-tlv.c
  * Routines to Dissect Appendix C TLV's
- * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
+ * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-tlv.c,v 1.10 2003/01/31 03:17:56 guy Exp $
+ * $Id: packet-tlv.c,v 1.11 2003/05/28 14:52:52 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

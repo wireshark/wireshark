@@ -1391,7 +1391,7 @@ Yasuhiro Shirasaki <yasuhiro[AT]gnome.gr.jp> {
 	DHCPv6 updates
 }
 
-Anand V. Narwani <anarwani[AT]cisco.com> {
+Anand V. Narwani <anand[AT]narwani.org> {
 	gtk/Makefile.am fix
 	DOCSIS support, including support for "Ethernet" captures where
 	    the raw frame is a DOCSIS frame rather than an Ethernet

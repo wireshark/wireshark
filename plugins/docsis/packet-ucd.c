@@ -1,8 +1,8 @@
 /* packet-ucd.c
  * Routines for UCD Message dissection
- * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
+ * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-ucd.c,v 1.4 2002/09/10 19:07:40 guy Exp $
+ * $Id: packet-ucd.c,v 1.5 2003/05/28 14:52:53 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,8 +1,8 @@
 /* packet-docsis.c
  * Routines for docsis dissection
- * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
+ * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-docsis.c,v 1.11 2003/01/31 03:17:56 guy Exp $
+ * $Id: packet-docsis.c,v 1.12 2003/05/28 14:52:51 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
