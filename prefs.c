@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.122 2004/01/20 18:47:22 ulfl Exp $
+ * $Id: prefs.c,v 1.123 2004/01/27 04:11:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1669,7 +1669,9 @@ set_pref(gchar *pref_name, gchar *value)
          *
          * Also, the preferences for GTP v0 and v1 were combined under
          * a single "gtp" heading, and the preferences for SMPP were
-         * moved to "smpp-gsm-sms".
+         * moved to "smpp-gsm-sms" and then moved to "gsm-sms-ud".
+         * However, SMPP now has its own preferences, so we just map
+         * "smpp-gsm-sms" to "gsm-sms-ud", and then handle SMPP below.
          */
         if (module == NULL) {
           if (strcmp(pref_name, "Diameter") == 0)
@@ -1679,8 +1681,8 @@ set_pref(gchar *pref_name, gchar *value)
           else if (strcmp(pref_name, "gtpv0") == 0 ||
                    strcmp(pref_name, "gtpv1") == 0)
             module = find_module("gtp");
-          else if (strcmp(pref_name, "smpp") == 0)
-            module = find_module("smpp-gsm-sms");
+          else if (strcmp(pref_name, "smpp-gsm-sms") == 0)
+            module = find_module("gsm-sms-ud");
         }
         *dotp = '.';		/* put the preference string back */
         dotp++;			/* skip past separator to preference name */
@@ -1843,6 +1845,13 @@ set_pref(gchar *pref_name, gchar *value)
           pref = find_preference(module, "desegment_headers");
         else if (strcmp(dotp, "desegment_http_body") == 0)
           pref = find_preference(module, "desegment_body");
+      } else if (strcmp(module->name, "smpp") == 0) {
+        /* Handle preferences that moved from SMPP. */
+        module_t *new_module = find_module("gsm-sms-ud");
+        if (strcmp(dotp, "port_number_udh_means_wsp") == 0)
+          pref = find_preference(new_module, "port_number_udh_means_wsp");
+        else if (strcmp(dotp, "try_dissect_1st_fragment") == 0)
+          pref = find_preference(new_module, "try_dissect_1st_fragment");
       }
     }
     if (pref == NULL)
