@@ -5,10 +5,10 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.6 2004/06/07 07:44:36 sahlberg Exp $
+# $Id: asn2eth.py,v 1.7 2004/06/12 01:21:02 sahlberg Exp $
 #
 
-"""ASN.1 to Ethereal PER dissector compiler"""
+"""ASN.1 to Ethereal dissector compiler"""
 
 #
 # Compiler from ASN.1 specification to the Ethereal PER dissector
@@ -812,7 +812,7 @@ class EthCtx:
         msg += " %-20s %s\n" % (t+str(x), tt)
         if not x: x = 1
         else: x += 1
-      warnings.warn(msg)
+      warnings.warn_explicit(msg, UserWarning, '', '')
     # fields
     tmplist = self.eth_hf_dupl.keys()
     tmplist.sort()
@@ -823,7 +823,7 @@ class EthCtx:
         msg += " %-20s %-20s " % (self.eth_hf_dupl[f][tt], tt)
         msg += ", ".join(self.eth_hf[self.eth_hf_dupl[f][tt]]['ref'])
         msg += "\n"
-      warnings.warn(msg)
+      warnings.warn_explicit(msg, UserWarning, '', '')
 
 #--- EthCnf -------------------------------------------------------------------
 import re
@@ -840,6 +840,8 @@ class EthCnf:
     self.tblcfg['OMIT_ASSIGNMENT'] = { 'val_nm' : 'omit',     'val_dflt' : False, 'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['TYPE_RENAME']     = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['FIELD_RENAME']    = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['IMPORT_TAG']      = { 'val_nm' : 'ttag',     'val_dflt' : (),    'chk_dup' : True, 'chk_use' : False }
+
     for k in self.tblcfg.keys() :
       self.table[k] = {}
 
@@ -1261,7 +1263,12 @@ class Type_Ref (Type):
 
   def GetTTag(self, ectx):
     if (ectx.type[self.val]['import']):
-      return ('imp', 'imp')
+      if not ectx.type[self.val].has_key('ttag'):
+        if not ectx.conform.check_item('IMPORT_TAG', self.val):
+          msg = 'Missing tag information for imported type %s from %s (%s)' % (self.val, ectx.type[self.val]['import'], ectx.type[self.val]['proto'])
+          warnings.warn_explicit(msg, UserWarning, '', '')
+        ectx.type[self.val]['ttag'] = ectx.conform.use_item('IMPORT_TAG', self.val, val_dflt=('-1 /*imported*/', '-1 /*imported*/'))
+      return ectx.type[self.val]['ttag']
     else:
       return ectx.type[self.val]['val'].GetTag(ectx)
 
