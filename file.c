@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.317 2003/09/24 02:36:33 guy Exp $
+ * $Id: file.c,v 1.318 2003/09/25 08:20:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -997,8 +997,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   gboolean    stop_flag;
   int         count;
   int         err;
-  frame_data *selected_frame;
-  int         selected_row;
+  frame_data *selected_frame, *preceding_frame, *following_frame, *prev_frame;
+  int         selected_row, prev_row, preceding_row, following_row;
+  gboolean    selected_frame_seen;
   int         row;
   float       prog_val;
   GTimeVal    start_time;
@@ -1055,6 +1056,17 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
+
+  row = -1;		/* no previous row yet */
+  prev_row = -1;
+  prev_frame = NULL;
+
+  preceding_row = -1;
+  preceding_frame = NULL;
+  following_row = -1;
+  following_frame = NULL;
+
+  selected_frame_seen = FALSE;
 
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -1120,10 +1132,33 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	break;
     }
 
+    /* If the previous frame is displayed, and we haven't yet seen the
+       selected frame, remember that frame - it's the closest one we've
+       yet seen before the selected frame. */
+    if (prev_row != -1 && !selected_frame_seen) {
+      preceding_row = prev_row;
+      preceding_frame = prev_frame;
+    }
     row = add_packet_to_packet_list(fdata, cf, &cf->pseudo_header, cf->pd,
 					refilter);
-    if (fdata == selected_frame)
+
+    /* If this frame is displayed, and this is the first frame we've
+       seen displayed after the selected frame, remember this frame -
+       it's the closest one we've yet seen at or after the selected
+       frame. */
+    if (row != -1 && selected_frame_seen && following_row == -1) {
+      following_row = row;
+      following_frame = fdata;
+    }
+    if (fdata == selected_frame) {
       selected_row = row;
+      selected_frame_seen = TRUE;
+    }
+
+    /* Remember this row/frame - it'll be the previous row/frame
+       on the next pass through the loop. */
+    prev_row = row;
+    prev_frame = fdata;
   }
 
   if (redissect) {
@@ -1153,18 +1188,49 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* Unfreeze the packet list. */
   packet_list_thaw();
 
-  if (selected_row != -1) {
-    /* The frame that was selected passed the filter; select it, make it
-       the focus row, and make it visible. */
-    packet_list_set_selected_row(selected_row);
+  if (selected_row == -1) {
+    /* The selected frame didn't pass the filter. */
+    if (selected_frame == NULL) {
+      /* That's because there *was* no selected frame.  Make the first
+         displayed frame the current frame. */
+      selected_row = 0;
+    } else {
+      /* Find the nearest displayed frame to the selected frame (whether
+         it's before or after that frame) and make that the current frame.
+         If the next and previous displayed frames are equidistant from the
+         selected frame, choose the next one. */
+      g_assert(following_frame == NULL ||
+               following_frame->num >= selected_frame->num);
+      g_assert(preceding_frame == NULL ||
+               preceding_frame->num <= selected_frame->num);
+      if (following_frame != NULL || preceding_frame != NULL) {
+        /* At least one frame was displayed; if following_frame is non-null,
+           it's the first displayed frame after the selected frame, and if
+           preceding_frame is non-null, it's the last displayed frame before
+           the selected frame. */
+        if (preceding_frame == NULL ||
+            (following_frame->num - selected_frame->num <=
+             selected_frame->num - preceding_frame->num)) {
+          /* There is no previous frame, or the next frame is closer to the
+             selected frame than the previous frame. */
+          selected_row = following_row;
+        } else {
+          /* The previous frame is closer to the selected frame than the
+             next frame. */
+          selected_row = preceding_row;
+        }
+      }
+    }
+  }
 
-    /* New dissection, so no field has been selected yet. */
-    cf->finfo_selected = NULL;
-  } else {
-    /* The selected frame didn't pass the filter; make the first frame
-       the current frame, and leave it unselected. */
+  if (selected_row == -1) {
+    /* There are no frames displayed at all. */
     unselect_packet(cf);
-    cf->current_frame = cf->first_displayed;
+  } else {
+    /* Either the frame that was selected passed the filter, or we've
+       found the nearest displayed frame to that frame.  Select it, make
+       it the focus row, and make it visible. */
+    packet_list_set_selected_row(selected_row);
   }
 }
 
