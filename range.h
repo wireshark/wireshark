@@ -1,7 +1,7 @@
 /* range.h
  * Packet range routines (save, print, ...)
  *
- * $Id: range.h,v 1.3 2003/12/29 20:53:39 ulfl Exp $
+ * $Id: range.h,v 1.4 2004/01/05 22:21:53 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -34,15 +34,19 @@
 
 extern guint32  curr_selected_frame;
 
+typedef enum {
+    range_process_all,
+    range_process_curr,
+    range_process_marked,
+    range_process_marked_range,
+    range_process_manual_range
+} packet_range_e;
+
+
 typedef struct packet_range_tag {
     /* values coming from the UI */
-    /* XXX: use an enum instead? */
-    gboolean process_all;
-    gboolean process_curr;
-    gboolean process_marked;
-    gboolean process_marked_range;
-    gboolean process_manual_range;
-    gboolean process_filtered;
+    packet_range_e  process;
+    gboolean        process_filtered;
 
     /* calculated values */
     guint32  mark_range;

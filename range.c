@@ -1,7 +1,7 @@
 /* range.c
  * Packet range routines (save, print, ...)
  *
- * $Id: range.c,v 1.3 2004/01/04 23:32:34 ulfl Exp $
+ * $Id: range.c,v 1.4 2004/01/05 22:21:53 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -113,7 +113,7 @@ void packet_range_init(packet_range_t *range) {
 
 /* do we have to process all packets? */
 gboolean packet_range_process_all(packet_range_t *range) {
-    return range->process_all && !range->process_filtered;
+    return range->process == range_process_all && !range->process_filtered;
 }
 
 /* do we have to process this packet? */
@@ -121,13 +121,13 @@ range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
 
     /* do we have to process this packet at all? */
     if (
-      (!range->process_filtered && !range->process_marked) ||
-          (range->process_filtered && fdata->flags.passed_dfilter && !range->process_marked) ||
-          (range->process_marked && fdata->flags.marked && !range->process_filtered) ||
-          (range->process_filtered && range->process_marked && fdata->flags.passed_dfilter && fdata->flags.marked) ||
-          (range->process_curr)  ||
-          (range->process_marked_range) ||
-          (range->process_manual_range) ||
+         (!range->process_filtered && range->process != range_process_marked) ||
+          (range->process_filtered && fdata->flags.passed_dfilter && range->process != range_process_marked) ||
+          (range->process_filtered && range->process == range_process_marked && fdata->flags.passed_dfilter && fdata->flags.marked) ||
+          (range->process == range_process_marked && fdata->flags.marked && !range->process_filtered) ||
+          (range->process == range_process_curr)  ||
+          (range->process == range_process_marked_range) ||
+          (range->process == range_process_manual_range) ||
           (range->range_active)
       ) {
         /* yes, we have to */
@@ -139,7 +139,7 @@ range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
      * is in any of the ranges as defined the array GLrange, see file_dlg.c
      * If a match is found, we process it, else we process the next packet.
      */
-    if (range->process_manual_range) {
+    if (range->process == range_process_manual_range) {
        if (range->process_filtered) {
           if (fdata->flags.passed_dfilter == FALSE) {
              return range_process_next;
@@ -155,7 +155,7 @@ range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
      * accepting each packet, until we find the last marker (markers count becomes zero)
      * We then reset range_active to FALSE to ignore any packet from then on.
      */
-    if (range->process_marked_range) {
+    if (range->process == range_process_marked_range) {
        if (range->markers == 0) {
           return range_processing_finished;
        }
@@ -174,7 +174,7 @@ range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
     }
 
     /* Only process the selected packet */
-    if (range->process_curr) {
+    if (range->process == range_process_curr) {
        if (range->process_curr_done) {
           return range_processing_finished;
        }

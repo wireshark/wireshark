@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.72 2004/01/02 21:48:24 ulfl Exp $
+ * $Id: file_dlg.c,v 1.73 2004/01/05 22:21:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -566,13 +566,9 @@ toggle_filtered_cb(GtkWidget *widget, gpointer data _U_)
 static void
 toggle_select_all(GtkWidget *widget, gpointer data _U_)
 {
-  gboolean new_all;
-
-  new_all = GTK_TOGGLE_BUTTON (widget)->active;
-
-  if (range.process_all != new_all) {
-    /* They changed the state of the "select-all" button. */
-    range.process_all = new_all;
+  /* is the button now active? */
+  if (GTK_TOGGLE_BUTTON (widget)->active) {
+    range.process = range_process_all;
     set_file_type_list(ft_om);
   }
 }
@@ -580,13 +576,9 @@ toggle_select_all(GtkWidget *widget, gpointer data _U_)
 static void
 toggle_select_curr(GtkWidget *widget, gpointer data _U_)
 {
-  gboolean new_curr;
-
-  new_curr = GTK_TOGGLE_BUTTON (widget)->active;
-
-  if (range.process_curr != new_curr) {
-    /* They changed the state of the "select-current" button. */
-    range.process_curr = new_curr;
+  /* is the button now active? */
+  if (GTK_TOGGLE_BUTTON (widget)->active) {
+    range.process = range_process_curr;
     set_file_type_list(ft_om);
   }
 }
@@ -594,13 +586,9 @@ toggle_select_curr(GtkWidget *widget, gpointer data _U_)
 static void
 toggle_select_marked_only(GtkWidget *widget, gpointer data _U_)
 {
-  gboolean new_marked;
-
-  new_marked = GTK_TOGGLE_BUTTON (widget)->active;
-
-  if (range.process_marked != new_marked) {
-    /* They changed the state of the "marked-only" button. */
-    range.process_marked = new_marked;
+  /* is the button now active? */
+  if (GTK_TOGGLE_BUTTON (widget)->active) {
+    range.process = range_process_marked;
     set_file_type_list(ft_om);
   }
 }
@@ -608,13 +596,9 @@ toggle_select_marked_only(GtkWidget *widget, gpointer data _U_)
 static void
 toggle_select_marked_range(GtkWidget *widget, gpointer data _U_)
 {
-  gboolean new_marked_range;
-
-  new_marked_range = GTK_TOGGLE_BUTTON (widget)->active;
-	
-  if (range.process_marked_range != new_marked_range) {
-    /* They changed the state of the "marked-range" button. */
-    range.process_marked_range = new_marked_range;
+  /* is the button now active? */
+  if (GTK_TOGGLE_BUTTON (widget)->active) {
+    range.process = range_process_marked_range;
     set_file_type_list(ft_om);
   }
 }
@@ -622,21 +606,17 @@ toggle_select_marked_range(GtkWidget *widget, gpointer data _U_)
 static void
 toggle_select_manual_range(GtkWidget *widget, gpointer data _U_)
 {
-  gboolean new_manual_range;
-
-  new_manual_range = GTK_TOGGLE_BUTTON (widget)->active;
-	
-  if (range.process_manual_range != new_manual_range) {
-    /* They changed the state of the "manual-range" button. */
-    range.process_manual_range = new_manual_range;
+  /* is the button now active? */
+  if (GTK_TOGGLE_BUTTON (widget)->active) {
+    range.process = range_process_manual_range;
     set_file_type_list(ft_om);
   }
 	
   /* Make the entry widget sensitive or insensitive */
-  gtk_widget_set_sensitive(range_specs, range.process_manual_range);	  
+  gtk_widget_set_sensitive(range_specs, range.process == range_process_manual_range);	  
 
   /* When selecting manual range, then focus on the entry */
-  if (range.process_manual_range)
+  if (range.process == range_process_manual_range)
       gtk_widget_grab_focus(range_specs);
 
 }
@@ -668,11 +648,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   /* Default to saving all packets, in the file's current format. */
-  range.process_all             = TRUE;
-  range.process_curr            = FALSE;			
-  range.process_marked          = FALSE;
-  range.process_marked_range    = FALSE;	
-  range.process_manual_range    = FALSE;		
+  range.process                 = range_process_all;
   range.process_filtered        = FALSE;
   filetype                      = cfile.cd_t;
 
@@ -914,7 +890,7 @@ file_set_save_marked_sensitive(void)
     /* Force the "Save only marked packets" toggle to "false", turn
        off the flag it controls, and update the list of types we can
        save the file as. */
-    range.process_marked = FALSE;
+    range.process = range_process_all;
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_marked_only), FALSE);
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_marked_range), FALSE);	  
     set_file_type_list(ft_om);
@@ -929,7 +905,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   gchar	*dirname;
 
   /* obtain the range specifications in case we selected manual range */
-  if (range.process_manual_range) {	
+  if (range.process == range_process_manual_range) {	
      range_entry(range_specs);
   }
 	  
