@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.97 2004/03/09 01:08:27 jmayer Exp $
+ * $Id: packet-radius.c,v 1.98 2004/03/20 18:51:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,6 +144,7 @@ typedef struct _rd_vsa_buffer {
 enum {
     RADIUS_STRING,
     RADIUS_BINSTRING,
+    RADIUS_USERPASSWORD,
     RADIUS_INTEGER4,
     RADIUS_IP_ADDRESS,
     RADIUS_IP6_ADDRESS,
@@ -485,7 +486,7 @@ static const value_string radius_nas_port_type_vals[] =
 static const radius_attr_info radius_attrib[] =
 {
   {1,	RADIUS_STRING,		"User Name", NULL},
-  {2,	RADIUS_STRING,		"User Password", NULL},
+  {2,	RADIUS_USERPASSWORD,	"User Password", NULL},
   {3,	RADIUS_BINSTRING,	"CHAP Password", NULL},
   {4,	RADIUS_IP_ADDRESS,	"NAS IP Address", NULL},
   {5,	RADIUS_INTEGER4,	"NAS Port", NULL},
@@ -2415,16 +2416,15 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
   switch(attr_info->value_type)
   {
         case( RADIUS_STRING ):
-		/* User Password, but only, if not inside vsa */
-		if ( avph->avp_type == 2 && (*vsabuffer)[0].str == 0 )  {
-		    rddecryptpass(cont,tvb,offset+2,avph->avp_length-2);
-		} else {
-		    rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
-		}
+		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
                 break;
 
         case( RADIUS_BINSTRING ):
 		rdconvertbufftobinstr(cont,tvb,offset+2,avph->avp_length-2);
+                break;
+
+        case( RADIUS_USERPASSWORD ):
+		rddecryptpass(cont,tvb,offset+2,avph->avp_length-2);
                 break;
 
         case( RADIUS_INTEGER4 ):
