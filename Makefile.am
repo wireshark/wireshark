@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.137 1999/12/22 20:10:49 guy Exp $
+# $Id: Makefile.am,v 1.138 1999/12/22 20:12:38 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -335,7 +335,7 @@ EXTRA_DIST = \
 # to be built when the first "make" is done; however, Automake insists
 # on putting *all* source into the distribution.
 #
-# We work around this by having a "disk-hook" rule that deletes
+# We work around this by having a "dist-hook" rule that deletes
 # "register.c", so that "dist" won't pick it up.
 #
 dist-hook:
