@@ -2246,7 +2246,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							{
 									guint8* sFormat = NULL;
 									sFormat = tvb_get_string(tvb, tMsgProps.iOffsetFormat, 8);
-									if (strip_trailing_blanks(sFormat, 8) == 0)	sFormat = (guint8*)"MQNONE";
+									if (strip_trailing_blanks(sFormat, 8) == 0)	sFormat = (guint8*)g_strdup("MQNONE");
 									if (check_col(pinfo->cinfo, COL_INFO)) 
 									{
 										col_append_fstr(pinfo->cinfo, COL_INFO, " Fmt=%s", sFormat);
