@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.9 2004/05/11 10:57:14 guy Exp $
+ * $Id: packet-ber.c,v 1.10 2004/05/26 11:25:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -925,17 +925,29 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	header_field_info *hfi;
 	char *sep;
 	gboolean term;
+	unsigned int i, tvb_len;
 
 	offset = dissect_ber_bitstring(implicit_tag, pinfo, parent_tree, tvb, offset, NULL, hf_id, ett_id, &tmp_tvb);
 	
 	tree = proto_item_get_subtree(ber_last_created_item);
 	if (bit_fields && tree) {
-		val = tvb_get_ntohl(tmp_tvb, 0);
+		/* tmp_tvb points to the actual bitstring (including any pad bits at the end.
+		 * note that this bitstring is not neccessarily always encoded as 4 bytes
+		 * so we have to read it byte by byte.
+		 */
+		val=0;
+		tvb_len=tvb_length(tmp_tvb);
+		for(i=0;i<4;i++){
+			val<<=8;
+			if(i<tvb_len){
+				val|=tvb_get_guint8(tmp_tvb,i);
+			}
+		}
 		bf = bit_fields;
 		sep = " (";
 		term = FALSE;
 		while (*bf) {
-			proto_tree_add_item(tree, **bf, tmp_tvb, 0, 4, FALSE);
+			proto_tree_add_boolean(tree, **bf, tmp_tvb, 0, tvb_len, val);
 			hfi = proto_registrar_get_nth(**bf);
 			if (val & hfi->bitmask) {
 				proto_item_append_text(ber_last_created_item, "%s%s", sep, hfi->name);
