@@ -1,5 +1,17 @@
 /* packet-etheric.c
  * Routines for Etheric dissection a Ericsson propriatary protocol.
+ * See
+ *
+ *	http://watersprings.org/pub/id/draft-toivanen-sccp-etheric-00.txt
+ *
+ * XXX - the version in that draft appears to use the same codes for
+ * parameters as ISUP does, although it doesn't use all of them.  Should
+ * we use the ISUP dissector's #defines and tables for them, as we do
+ * now, or should we use our own?
+ *
+ * We also use its table for message types, but have our own #defines
+ * for them; should we adopt the ISUP dissector's #defines, or have our
+ * own table?
  * 
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
