@@ -7,6 +7,7 @@
          end of this document.
 
    INDEX
+
    General Questions:
 
    1.1 Where can I get help?
@@ -68,60 +69,54 @@
    5.4 I'm entering valid capture filters, but I still get "parse error"
    errors.
 
-   5.5 I've just installed Ethereal, and the traffic on my local LAN is
+   5.5 I saved a filter and tried to use its name to filter the display,
+   but I got an "Unexpected end of filter string" error.
+
+   5.6 I've just installed Ethereal, and the traffic on my local LAN is
    boring.
 
-   5.6 When I run Ethereal on Solaris 8, it dies with a Bus Error when I
+   5.7 When I run Ethereal on Solaris 8, it dies with a Bus Error when I
    start it.
 
-   5.7 I'm running Ethereal on Linux; why do my time stamps have only
+   5.8 I'm running Ethereal on Linux; why do my time stamps have only
    100ms resolution, rather than 1us resolution?
 
-   5.8 When I try to run Ethereal on Windows, it fails to run because it
+   5.9 When I try to run Ethereal on Windows, it fails to run because it
    can't find packet.dll.
 
-   5.9 When I try to download the WinPcap driver and library, I can't get
-   to the WinPcap Web site.
+   5.10 When I try to download the WinPcap driver and library, I can't
+   get to the WinPcap Web site.
 
-   5.10 I'm running Ethereal on Windows; why doesn't my my (Token Ring,
-   PPP) network interface show up in the list of interfaces in the
-   "Interface" item in the "Capture Preferences" dialog box popped up by
-   the "Capture->Start" menu item?
-
-   5.11 I'm running Ethereal on Windows NT/2000/XP/.NET Server; my
-   machine has a PPP (dial-up POTS, ISDN, etc.) interface, and it shows
-   up in the "Interface" item in the "Capture Preferences" dialog box.
-   Why can no packets be sent on or received from that network while I'm
-   trying to capture traffic on that interface?
-
-   5.12 I'm running Ethereal on Windows 95/98/Me, on a machine with more
-   than one network adapter of the same type; Ethereal shows all of those
-   adapters with the same name, but I can't use any of those adapters
-   other than the first one.
-
-   5.13 I have an XXX network card on my machine; it doesn't show up in
+   5.11 I have an XXX network card on my machine; it doesn't show up in
    the list of interfaces in the "Interface:" field in the dialog box
    popped up by "Capture->Start", and/or Ethereal gives me an error if I
    try to capture on that interface. 
 
-   5.14 There are no interfaces in the drop-down list of interfaces in
-   the "Interface:" field in the dialog box popped up by
-   "Capture->Start". 
+   5.12 I'm running Ethereal on Windows NT/2000/XP/.NET Server; my
+   machine has a PPP (dial-up POTS, ISDN, etc.) interface, and it shows
+   up in the "Interface" item in the "Capture Options" dialog box. Why
+   can no packets be sent on or received from that network while I'm
+   trying to capture traffic on that interface?
 
-   5.15 I have an XXX network card on my machine; if I try to capture on
+   5.13 I'm running Ethereal on Windows 95/98/Me, on a machine with more
+   than one network adapter of the same type; Ethereal shows all of those
+   adapters with the same name, but I can't use any of those adapters
+   other than the first one.
+
+   5.14 I have an XXX network card on my machine; if I try to capture on
    it, my machine crashes or resets itself. 
 
-   5.16 My machine crashes or resets itself when I select "Start" from
+   5.15 My machine crashes or resets itself when I select "Start" from
    the "Capture" menu or select "Preferences" from the "Edit" menu. 
 
-   5.17 Does Ethereal work on Windows ME? 
+   5.16 Does Ethereal work on Windows ME? 
 
-   5.18 Does Ethereal work on Windows XP? 
+   5.17 Does Ethereal work on Windows XP? 
 
-   5.19 Why doesn't Ethereal correctly identify RTP packets? It shows
+   5.18 Why doesn't Ethereal correctly identify RTP packets? It shows
    them only as UDP.
 
-   5.20 Why do I get the error 
+   5.19 Why do I get the error 
 
      Gdk-ERROR **: Palettized display (256-colour) mode not supported on
      Windows.
@@ -129,23 +124,23 @@
 
    when I try to run Ethereal on Windows?
 
-   5.21 I'm capturing packets on {Windows 95, Windows 98, Windows Me};
+   5.20 I'm capturing packets on {Windows 95, Windows 98, Windows Me};
    why are the time stamps on packets wrong? 
 
-   5.22 When I capture on Windows in promiscuous mode, I can see packets
+   5.21 When I capture on Windows in promiscuous mode, I can see packets
    other than those sent to or from my machine; however, those packets
    show up with a "Short Frame" indication, unlike packets to or from my
    machine. What should I do to arrange that I see those packets in their
    entirety? 
 
-   5.23 How can I capture raw 802.11 packets, including non-data
+   5.22 How can I capture raw 802.11 packets, including non-data
    (management, beacon) packets? 
 
-   5.24 How can I capture packets with CRC errors? 
+   5.23 How can I capture packets with CRC errors? 
 
-   5.25 How can I capture entire frames, including the FCS? 
+   5.24 How can I capture entire frames, including the FCS? 
 
-   5.26 Ethereal hangs after I stop a capture. 
+   5.25 Ethereal hangs after I stop a capture. 
 
    GENERAL QUESTIONS 
    Q 1.1: Where can I get help?
@@ -156,7 +151,7 @@
 
    Q 1.2: What protocols are currently supported?
 
-   A: There are currently 280 supported protocols and media, listed
+   A: There are currently 325 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             802.1q Virtual LAN
@@ -164,6 +159,7 @@
             Address Resolution Protocol
             Ad hoc On-demand Distance Vector Routing Protocol
             Ad hoc On-demand Distance Vector Routing Protocol v6
+            AFS (4.0) Replication Server call declarations
             Aggregate Server Access Protocol
             Andrew File System (AFS)
             AOL Instant Messenger
@@ -186,6 +182,9 @@
             Border Gateway Protocol
             Building Automation and Control Network APDU
             Building Automation and Control Network NPDU
+            CDS Clerk Server Calls
+            Checkpoint FW-1
+            Check Point High Availability Protocol
             Cisco Auto-RP
             Cisco Discovery Protocol
             Cisco Group Management Protocol
@@ -193,17 +192,33 @@
             Cisco Hot Standby Router Protocol
             Cisco Interior Gateway Routing Protocol
             Cisco ISL
+            Cisco NetFlow
             Cisco SLARP
             Common Open Policy Service
             Common Unix Printing System (CUPS) Browsing Protocol
+            CoSine IPNOS L2 debug output
             Data
             Datagram Delivery Protocol
             Data Link SWitching
             Data Stream Interface
+            DCE DFS Calls
+            DCE Name Service
             DCE RPC
+            DCE/RPC BOS Server
+            DCE/RPC CDS Solicitation
             DCE/RPC Conversation Manager
             DCE/RPC Endpoint Mapper
+            DCE/RPC FLDB
+            DCE/RPC FLDB
+            DCE/RPC FLDB UBIK TRANSFER
+            DCE/RPC Kerberos V
             DCE/RPC Remote Management
+            DCE/RPC Repserver Calls
+            DCE/RPC RS_ACCT
+            DCE/RPC RS_MISC
+            DCE/RPC RS_UNIX
+            DCE/RPC TokenServer Calls
+            DCE Security ID Mapper
             DCOM OXID Resolver
             DCOM Remote Activation
             DEC Spanning Tree Protocol
@@ -211,7 +226,9 @@
             Diameter Protocol
             Distance Vector Multicast Routing Protocol
             Distributed Checksum Clearinghouse Prototocl
+            DNS Control Program Server
             Domain Name Service
+            Dummy Protocol
             Dynamic DNS Tools Protocol
             Encapsulating Security Payload
             Enhanced Interior Gateway Routing Protocol
@@ -219,13 +236,16 @@
             Extensible Authentication Protocol
             Fiber Distributed Data Interface
             File Transfer Protocol (FTP)
+            Financial Information eXchange Protocol
             Frame
             Frame Relay
             FTP Data
+            FTServer Operations
             GARP Multicast Registration Protocol
             GARP VLAN Registration Protocol
             General Inter-ORB Protocol
             Generic Routing Encapsulation
+            Generic Security Service Application Program Interface
             Gnutella Protocol
             GPRS Tunneling Protocol
             GPRS Tunnelling Protocol v0
@@ -237,6 +257,7 @@
             IEEE 802.11 wireless LAN management frame
             ILMI
             Inter-Access-Point Protocol
+            Interbase
             Internet Cache Protocol
             Internet Content Adaptation Protocol
             Internet Control Message Protocol
@@ -326,7 +347,9 @@
             NFSAUTH
             NIS+
             NIS+ Callback
+            Novell Distributed Print System
             NSPI
+            NTLM Secure Service Provider
             Null/Loopback
             OpenBSD Packet Filter log file
             Open Shortest Path First
@@ -338,11 +361,13 @@
             PPP Bandwidth Allocation Control Protocol
             PPP Bandwidth Allocation Protocol
             PPP Callback Control Protocol
+            PPP CDP Control Protocol
             PPP Challenge Handshake Authentication Protocol
             PPP Compressed Datagram
             PPP Compression Control Protocol
             PPP IP Control Protocol
             PPP Link Control Protocol
+            PPP MPLS Control Protocol
             PPP Multilink Protocol
             PPP Multiplexing
             PPPMux Control Protocol
@@ -352,6 +377,7 @@
             PPP VJ Compression
             Pragmatic General Multicast
             Prism
+            Privilege Server operations
             Protocol Independent Multicast
             Q.2931
             Q.931
@@ -366,8 +392,12 @@
             Real Time Streaming Protocol
             Real-time Transport Control Protocol
             Real-Time Transport Protocol
+            Registry server administration operations.
+            Registry Server Attributes Manipulation Interface
+            Remote Override interface
             Remote Procedure Call
             Remote Quota
+            Remote sec_login preauth interface.
             Remote Shell
             Remote Wall protocol
             Resource ReserVation Protocol (RSVP)
@@ -383,6 +413,7 @@
             SCSI
             Secure Socket Layer
             Sequenced Packet eXchange
+            Sequenced Packet eXchange
             Service Advertisement Protocol
             Service Location Protocol
             Session Announcement Protocol
@@ -390,6 +421,7 @@
             Session Initiation Protocol
             Short Message Peer to Peer
             Signalling Connection Control Part
+            Signalling Connection Control Part Management
             Simple Mail Transfer Protocol
             Simple Network Management Protocol
             Sinec H1 Protocol
@@ -402,16 +434,21 @@
             SNMP Multiplex Protocol
             Socks Protocol
             Spanning Tree Protocol
+            Spnego
+            SPNEGO-KRB5
             SPRAY
             SS7 SCCP-User Adaptation Layer
             SSCOP
             Stream Control Transmission Protocol
             Syslog message
             Systems Network Architecture
+            Tabular Data Stream
             TACACS
             TACACS+
             Telnet
             Time Protocol
+            Time Service Provider Interfacer
+            Time Service Provider Interfacer
             Time Synchronization Protocol
             Token-Ring
             Token-Ring Media Access Control
@@ -426,6 +463,7 @@
             Web Cache Coordination Protocol
             Wellfleet Compression
             Who
+            Windows 2000 DNS
             Wireless Session Protocol
             Wireless Transaction Protocol
             Wireless Transport Layer Security
@@ -433,12 +471,14 @@
             X.25
             X.25 over TCP
             X Display Manager Control Protocol
+            Xyplex
             Yahoo Messenger Protocol
             Yellow Pages Bind
             Yellow Pages Passwd
             Yellow Pages Service
             Yellow Pages Transfer
             Zebra Protocol
+            Zone Information Protocol
 
    Q 1.3: Are there any plans to support {your favorite protocol}?
 
@@ -630,13 +670,13 @@
    to a single port so that you can plug your sniffer into that single
    port to sniff all traffic. You would have to check the documentation
    for the switch to see if this is possible and, if so, to see how to do
-   this.
-
-   If your machine is not plugged into a switched network, or it is and
-   the port is set up to have all traffic replicated to it, the problem
-   might be that the network interface on which you're capturing doesn't
-   support "promiscuous" mode, or because your OS can't put the interface
-   into promiscuous mode. Normally, network interfaces supply to the host
+   this. See, for example, this documentation from Cisco on the Switched
+   Port Analyzer (SPAN) feature on Catalyst switches. If your machine is
+   not plugged into a switched network, or it is and the port is set up
+   to have all traffic replicated to it, the problem might be that the
+   network interface on which you're capturing doesn't support
+   "promiscuous" mode, or because your OS can't put the interface into
+   promiscuous mode. Normally, network interfaces supply to the host
    only:
      * packets sent to one of that host's link-layer addresses;
      * broadcast packets;
@@ -746,13 +786,24 @@
    WinPcap, you will need to un-install WinPcap and then download and
    install WinPcap 2.3.
 
-   Q 5.5: I've just installed Ethereal, and the traffic on my local LAN
+   Q 5.5: I saved a filter and tried to use its name to filter the
+   display, but I got an "Unexpected end of filter string" error.
+
+   A: You cannot use the name of a saved display filter as a filter. To
+   filter the display, you can enter a display filter expression - not
+   the name of a saved display filter - in the "Filter:" box at the
+   bottom of the display, and type the key or press the "Apply" button
+   (that does not require you to have a saved filter), or, if you want to
+   use a saved filter, you can press the "Filter:" button, select the
+   filter in the dialog box that pops up, and press the "OK" button.
+
+   Q 5.6: I've just installed Ethereal, and the traffic on my local LAN
    is boring.
 
    A: We have a collection of strange and exotic sample capture files at
    http://www.ethereal.com/sample/
 
-   Q 5.6: When I run Ethereal on Solaris 8, it dies with a Bus Error when
+   Q 5.7: When I run Ethereal on Solaris 8, it dies with a Bus Error when
    I start it.
 
    A: Some versions of the GTK+ library from www.sunfreeware.org appear
@@ -768,7 +819,7 @@
    mentioned.) Similar problems may exist with older versions of GTK+ for
    earlier versions of Solaris.
 
-   Q 5.7: I'm running Ethereal on Linux; why do my time stamps have only
+   Q 5.8: I'm running Ethereal on Linux; why do my time stamps have only
    100ms resolution, rather than 1us resolution?
 
    A: Ethereal gets time stamps from libpcap/WinPcap, and libpcap/WinPcap
@@ -794,7 +845,7 @@
    have to run a standard kernel from kernel.org in order to get
    high-resolution time stamps.
 
-   Q 5.8: When I try to run Ethereal on Windows, it fails to run because
+   Q 5.9: When I try to run Ethereal on Windows, it fails to run because
    it can't find packet.dll.
 
    A: In older versions of Ethereal, there were two binary distributions
@@ -811,7 +862,7 @@
    Web site, the local mirror of the WinPcap Web site, or the
    Wiretapped.net mirror of the WinPcap site.
 
-   Q 5.9: When I try to download the WinPcap driver and library, I can't
+   Q 5.10: When I try to download the WinPcap driver and library, I can't
    get to the WinPcap Web site.
 
    A: As is the case with all Web sites, that site won't necessarily
@@ -820,68 +871,35 @@
    the server. You should try again later, or try the local mirror or the
    Wiretapped.net mirror.
 
-   Q 5.10: I'm running Ethereal on Windows; why doesn't my my (Token
-   Ring, PPP) network interface show up in the list of interfaces in the
-   "Interface" item in the "Capture Preferences" dialog box popped up by
-   the "Capture->Start" menu item?
-
-   A: 2.02 and earlier versions of the WinPcap driver and library that
-   Ethereal uses for packet capture didn't support Token Ring interfaces;
-   the current version, 2.3, does support Token Ring, and the current
-   version of Ethereal works with (and, in fact, requires) WinPcap 2.1 or
-   later.
-
-   If you are having problems capturing on Token Ring interfaces, and you
-   have WinPcap 2.02 or an earlier version of WinPcap installed, you
-   should uninstall WinPcap, download and install the current version of
-   WinPcap, and then install the latest version of Ethereal.
-
-   WinPcap doesn't support PPP WAN interfaces on Windows NT/2000/XP/.NET
-   Server, so Ethereal cannot capture packets on those devices when
-   running on Windows NT/2000/XP/.NET Server. Regular dial-up lines, ISDN
-   lines, and various other lines such as T1/E1 lines are all PPP
-   interfaces. This may cause the interface not to show up on the list of
-   interfaces in the "Capture Preferences" dialog.
-
-   For problems seen when installing the WinPcap driver or library, or
-   seen when capturing, check the WinPcap FAQ, the local mirror of that
-   FAQ, or the Wiretapped.net mirror of that FAQ, to see if your problem
-   is mentioned there.
-
-   Q 5.11: I'm running Ethereal on Windows NT/2000/XP/.NET Server; my
-   machine has a PPP (dial-up POTS, ISDN, etc.) interface, and it shows
-   up in the "Interface" item in the "Capture Preferences" dialog box.
-   Why can no packets be sent on or received from that network while I'm
-   trying to capture traffic on that interface?
-
-   A: WinPcap doesn't support PPP WAN interfaces on Windows
-   NT/2000/XP/.NET Server; one symptom that may be seen is that attempts
-   to capture in promiscuous mode on the interface cause the interface to
-   be incapable of sending or receiving packets. You can disable
-   promiscuous mode using the -p command-line flag or the item in the
-   "Capture Preferences" dialog box, but this may mean that outgoing
-   packets, or incoming packets, won't be seen in the capture.
-
-   Q 5.12: I'm running Ethereal on Windows 95/98/Me, on a machine with
-   more than one network adapter of the same type; Ethereal shows all of
-   those adapters with the same name, but I can't use any of those
-   adapters other than the first one.
-
-   A: Unfortunately, Windows 95/98/Me gives the same name to multiple
-   instances of the type of same network adapter. Therefore, WinPcap
-   cannot distinguish between them, so a WinPcap-based application can
-   capture only on the first such interface; Ethereal is a
-   libpcap/WinPcap-based application.
-
-   Q 5.13: I have an XXX network card on my machine; it doesn't show up
+   Q 5.11: I have an XXX network card on my machine; it doesn't show up
    in the list of interfaces in the "Interface:" field in the dialog box
    popped up by "Capture->Start", and/or Ethereal gives me an error if I
    try to capture on that interface. 
 
-   A: Ethereal relies on the libpcap library, and on the facilities that
-   come with the OS on which it's running in order to do captures; on
-   Windows, it also relies on the device driver that comes with WinPcap
-   (which is a version of libpcap for Windows).
+   A: If you are running Ethereal on a UNIX-flavored platform, you may
+   need to run Ethereal from an account with sufficient privileges to
+   capture packets, such as the super-user account. Only those interfaces
+   that Ethereal can open for capturing show up in that list; if you
+   don't have sufficient privileges to capture on any interfaces, no
+   interfaces will show up in the list.
+
+   If you are running Ethereal on Windows NT 4.0, Windows 2000, Windows
+   XP, or Windows .NET Server, and this is the first time you have run a
+   WinPcap-based program (such as Ethereal, or Tethereal, or WinDump, or
+   Analyzer, or...) since the machine was rebooted, you need to run that
+   program from an account with administrator privileges; once you have
+   run such a program, you will not need administrator privileges to run
+   any such programs until you reboot.
+
+   If you are running on a UNIX-flavored platform and have sufficient
+   privileges, or if you are running on Windows 95/98/Me, or if you are
+   running on Windows NT 4.0/2000/XP/.NET Server and have administrator
+   privileges or a WinPcap program has been run with those privileges
+   since the machine rebooted, then note that Ethereal relies on the
+   libpcap library, and on the facilities that come with the OS on which
+   it's running in order to do captures; on Windows, it also relies on
+   the device driver that comes with WinPcap (which is a version of
+   libpcap for Windows).
 
    Therefore, if the OS, the libpcap library, or the WinPcap driver don't
    support capturing on a particular network interface device, Ethereal
@@ -898,6 +916,29 @@
    On DEC OSF/1, Digital UNIX, or Tru64 UNIX, note that you need to have
    packet filtering support in your kernel; the doconfig command will
    allow you to configure and build a new kernel with that option.
+
+   On Windows, note that:
+     * 2.02 and earlier versions of the WinPcap driver and library that
+       Ethereal uses for packet capture didn't support Token Ring
+       interfaces; the current version, 2.3, does support Token Ring, and
+       the current version of Ethereal works with (and, in fact,
+       requires) WinPcap 2.1 or later.
+       If you are having problems capturing on Token Ring interfaces, and
+       you have WinPcap 2.02 or an earlier version of WinPcap installed,
+       you should uninstall WinPcap, download and install the current
+       version of WinPcap, and then install the latest version of
+       Ethereal.
+     * WinPcap doesn't support PPP WAN interfaces on Windows
+       NT/2000/XP/.NET Server, so Ethereal cannot capture packets on
+       those devices when running on Windows NT/2000/XP/.NET Server.
+       Regular dial-up lines, ISDN lines, and various other lines such as
+       T1/E1 lines are all PPP interfaces. This may cause the interface
+       not to show up on the list of interfaces in the "Capture Options"
+       dialog.
+     * WinPcap currently does not support multiprocessor machines, and
+       recent versions refuse to operate if they detect that they're
+       running on a multiprocessor machine, which means that they may not
+       show any network interfaces.
 
    If you are having trouble capturing on a particular network interface,
    and you've made sure that (on platforms that require it) you've
@@ -925,8 +966,11 @@
        device driver;
 
    so:
-     * if you are using Windows, see the WinPcap support page (or the
-       local mirror of that page) - check the "Submitting bugs" section;
+     * if you are using Windows, first check the WinPcap FAQ, the local
+       mirror of that FAQ, or the Wiretapped.net mirror of that FAQ, to
+       see if your problem is mentioned there. If not, then see the
+       WinPcap support page (or the local mirror of that page) - check
+       the "Submitting bugs" section;
      * if you are using some Linux distribution, some version of BSD, or
        some other UNIX-flavored OS, you should report the problem to the
        company or organization that produces the OS (in the case of a
@@ -940,33 +984,32 @@
    details of the problem, as described above, and also indicate that the
    problem occurs with tcpdump/WinDump, not just with Ethereal.
 
-   Q 5.14: There are no interfaces in the drop-down list of interfaces in
-   the "Interface:" field in the dialog box popped up by
-   "Capture->Start". 
+   Q 5.12: I'm running Ethereal on Windows NT/2000/XP/.NET Server; my
+   machine has a PPP (dial-up POTS, ISDN, etc.) interface, and it shows
+   up in the "Interface" item in the "Capture Options" dialog box. Why
+   can no packets be sent on or received from that network while I'm
+   trying to capture traffic on that interface?
 
-   A: If you are running Ethereal on a UNIX-flavored platform, you may
-   need to run Ethereal from an account with sufficient privileges to
-   capture packets, such as the super-user account. Only those interfaces
-   that Ethereal can open for capturing show up in that list; if you
-   don't have sufficient privileges to capture on any interfaces, no
-   interfaces will show up in the list.
+   A: WinPcap doesn't support PPP WAN interfaces on Windows
+   NT/2000/XP/.NET Server; one symptom that may be seen is that attempts
+   to capture in promiscuous mode on the interface cause the interface to
+   be incapable of sending or receiving packets. You can disable
+   promiscuous mode using the -p command-line flag or the item in the
+   "Capture Preferences" dialog box, but this may mean that outgoing
+   packets, or incoming packets, won't be seen in the capture.
 
-   If you are running Ethereal on Windows NT 4.0, Windows 2000, or
-   Windows XP, and this is the first time you have run a WinPcap-based
-   program (such as Ethereal, or Tethereal, or WinDump, or Analyzer,
-   or...) since the machine was rebooted, you need to run that program
-   from an account with administrator privileges; once you have run such
-   a program, you will not need administrator privileges to run any such
-   programs until you reboot.
+   Q 5.13: I'm running Ethereal on Windows 95/98/Me, on a machine with
+   more than one network adapter of the same type; Ethereal shows all of
+   those adapters with the same name, but I can't use any of those
+   adapters other than the first one.
 
-   If you are running on a UNIX-flavored platform and have sufficient
-   privileges, or if you are running on Windows 95/98/Me, or if you are
-   running on Windows NT 4.0/2000/XP and have administrator privileges or
-   a WinPcap program has been run with those privileges since the machine
-   rebooted, this is the same problem as in the previous question; see
-   the answer to that question.
+   A: Unfortunately, Windows 95/98/Me gives the same name to multiple
+   instances of the type of same network adapter. Therefore, WinPcap
+   cannot distinguish between them, so a WinPcap-based application can
+   capture only on the first such interface; Ethereal is a
+   libpcap/WinPcap-based application.
 
-   Q 5.15: I have an XXX network card on my machine; if I try to capture
+   Q 5.14: I have an XXX network card on my machine; if I try to capture
    on it, my machine crashes or resets itself. 
 
    A: This is almost certainly a problem with one or more of:
@@ -984,7 +1027,7 @@
        Linux distribution, report the problem to whoever produces the
        distribution).
 
-   Q 5.16: My machine crashes or resets itself when I select "Start" from
+   Q 5.15: My machine crashes or resets itself when I select "Start" from
    the "Capture" menu or select "Preferences" from the "Edit" menu. 
 
    A: Both of those operations cause Ethereal to try to build a list of
@@ -993,20 +1036,20 @@
    or, for Windows, WinPcap bug that causes the system to crash when this
    happens; see the previous question.
 
-   Q 5.17: Does Ethereal work on Windows ME? 
+   Q 5.16: Does Ethereal work on Windows ME? 
 
    A: Yes, but if you want to capture packets, you will need to install
    the latest version of WinPcap, as 2.02 and earlier versions of WinPcap
    didn't support Windows ME. You should also install the latest version
    of Ethereal as well.
 
-   Q 5.18: Does Ethereal work on Windows XP? 
+   Q 5.17: Does Ethereal work on Windows XP? 
 
    A: Yes, but if you want to capture packets, you will need to install
    the latest version of WinPcap, as 2.2 and earlier versions of WinPcap
    didn't support Windows XP.
 
-   Q 5.19: Why doesn't Ethereal correctly identify RTP packets? It shows
+   Q 5.18: Why doesn't Ethereal correctly identify RTP packets? It shows
    them only as UDP.
 
    A: Ethereal can identify a UDP datagram as containing a packet of a
@@ -1039,7 +1082,7 @@
    both the source and destination ports of the packet should be
    dissected as some particular protocol.
 
-   Q 5.20: Why do I get the error 
+   Q 5.19: Why do I get the error 
 
      Gdk-ERROR **: Palettized display (256-colour) mode not supported on
      Windows.
@@ -1054,13 +1097,16 @@
    to a display mode with more colors; if it doesn't support more than
    256 colors, you will be unable to run Ethereal.
 
-   Q 5.21: I'm capturing packets on {Windows 95, Windows 98, Windows Me};
+   Q 5.20: I'm capturing packets on {Windows 95, Windows 98, Windows Me};
    why are the time stamps on packets wrong? 
 
-   A: This is due to a bug in WinPcap. A future release of WinPcap will
-   fix that bug.
+   A: This is due to a bug in WinPcap. The bug should be fixed in the
+   WinPcap 3.0 alpha release - note that it's an alpha release, so it may
+   be buggier than the current production release of WinPcap; please
+   report those bugs to the WinPcap developers, and help them try to
+   track down the problem, so that they can fix it for the final release.
 
-   Q 5.22: When I capture on Windows in promiscuous mode, I can see
+   Q 5.21: When I capture on Windows in promiscuous mode, I can see
    packets other than those sent to or from my machine; however, those
    packets show up with a "Short Frame" indication, unlike packets to or
    from my machine. What should I do to arrange that I see those packets
@@ -1070,7 +1116,7 @@
    running on the network interface on which you're capturing; turn it
    off on that interface.
 
-   Q 5.23: How can I capture raw 802.11 packets, including non-data
+   Q 5.22: How can I capture raw 802.11 packets, including non-data
    (management, beacon) packets? 
 
    A: The answer to this depends on the operating system on which you're
@@ -1170,7 +1216,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    On platforms that don't allow Ethereal to capture raw 802.11 packets,
    the 802.11 network will appear like an Ethernet to Ethereal.
 
-   Q 5.24: How can I capture packets with CRC errors? 
+   Q 5.23: How can I capture packets with CRC errors? 
 
    A: Ethereal can capture only the packets that the packet capture
    library - libpcap on UNIX-flavored OSes, and the WinPcap port to
@@ -1187,7 +1233,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    libpcap and the packet capture program you're using are necessary to
    support capturing those packets.
 
-   Q 5.25: How can I capture entire frames, including the FCS? 
+   Q 5.24: How can I capture entire frames, including the FCS? 
 
    A: Ethereal can't capture any data that the packet capture library -
    libpcap on UNIX-flavored OSes, and the WinPcap port to Windows of
@@ -1207,7 +1253,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    not support capturing the FCS of a frame on Ethernet, and probably do
    not support it on most other link-layer types.
 
-   Q 5.26: Ethereal hangs after I stop a capture. 
+   Q 5.25: Ethereal hangs after I stop a capture. 
 
    A: The most likely reason for this is that Ethereal is trying to look
    up an IP address in the capture to convert it to a name (so that, for
@@ -1282,4 +1328,4 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    list. 
    For corrections/additions/suggestions for this page, please send email
    to: ethereal-web[AT]ethereal.com
-   Last modified: Sun, August 11 2002.
+   Last modified: Sun, November 17 2002.
