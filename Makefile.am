@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.360 2001/07/26 07:25:43 guy Exp $
+# $Id: Makefile.am,v 1.361 2001/07/30 21:40:11 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -826,6 +826,10 @@ tethereal.1: tethereal doc/tethereal.pod.template
 editcap.1: doc/editcap.pod
 	(cd doc ; \
 	$(MAKE) ../editcap.1 )
+
+idl2eth.1: doc/idl2eth.pod
+	(cd doc ; \
+	$(MAKE) ../idl2eth.1 )
 
 mergecap.1: doc/mergecap.pod
 	(cd doc ; \

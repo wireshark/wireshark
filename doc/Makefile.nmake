@@ -1,11 +1,37 @@
+# Makefile.nmake
+# Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.4 2001/07/12 22:45:22 gram Exp $
+# $Id: Makefile.nmake,v 1.5 2001/07/30 21:40:13 guy Exp $
+#
+# Ethereal - Network traffic analyzer
+# By Gerald Combs <gerald@ethereal.com>
+# Copyright 1998 Gerald Combs
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+# We include dependencies on ../config.h in order to
+# capture when $(VERSION) changes.
 
 include ../config.nmake
 
-doc: ethereal.html tethereal.html editcap.html text2pcap.html \
-	mergecap.html
+doc: ethereal.html tethereal.html editcap.html idl2eth.html \
+	mergecap.html text2pcap.html
 
+#
+# XXX - can't we just use "pod2html" here?
+#
 ethereal.html : ethereal.1
 	man2html ethereal.1 > $@
 
@@ -14,6 +40,9 @@ tethereal.html : tethereal.1
 
 editcap.html : editcap.1
 	man2html editcap.1 > $@
+
+idl2eth.html : idl2eth.1
+	man2html idl2eth.1 > $@
 
 mergecap.html : mergecap.1
 	man2html mergecap.1 > $@
@@ -51,6 +80,12 @@ mergecap.1: mergecap.pod ../config.h
 	--release=$(VERSION)			 \
 	> mergecap.1
 
+idl2eth.1: idl2eth.pod ../config.h
+	$(POD2MAN) idl2eth.pod                       \
+	--center="The Ethereal Network Analyzer" \
+	--release=$(VERSION)			 \
+	> idl2eth.1
+
 text2pcap.1: text2pcap.pod ../config.h
 	$(POD2MAN) text2pcap.pod                     \
 	--center="The Ethereal Network Analyzer" \
@@ -61,3 +96,6 @@ clean:
 	rm -f ethereal.html ethereal.1 ethereal.pod
 	rm -f tethereal.html tethereal.1 tethereal.pod
 	rm -f editcap.html editcap.1
+	rm -f idl2eth.html idl2eth.1
+	rm -f mergecap.html mergecap.1
+	rm -f text2pcap.html text2pcap.1
