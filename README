@@ -27,15 +27,16 @@ Installation
 
 Ethereal is known to compile and run on the following systems:
 
-  - Linux (2.0.x, 2.1.x, 2.2.x)
+  - Linux (2.0.x, 2.1.x, 2.2.x, 2.3.x)
   - Solaris (2.5.1, 2.6, 7)
   - FreeBSD (2.2.5, 2.2.6, 3.1, 3.2, 3.3)
   - Sequent PTX v4.4.5  (Nick Williams <njw@sequent.com>)
   - Tru64 UNIX (formerly Digital UNIX) (3.2, 4.0)
   - Irix (6.5)
   - AIX (4.3.2, with a bit of work)
+  - Win32 (NT, 98; read-only, no capturing yet)
 
-It should run on other systems without too much trouble.
+It should run on other Unix-ish systems without too much trouble.
 
 NOTE: the Makefile appears to depend on GNU "make"; it doesn't appear to
 work with the "make" that comes with Solaris 7 nor the BSD "make".
