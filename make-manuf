@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: make-manuf,v 1.1 2000/11/23 18:22:00 gerald Exp $
+# $Id: make-manuf,v 1.2 2000/11/29 04:11:48 gram Exp $
 #
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at
@@ -68,6 +68,8 @@ while ($line = <TMPL>) {
     print(OUT "$line\n");
   } elsif (($oui, $manuf) = ($line =~ /^($oui_re)\s+(\S.*)$/)) {
     $inheader = 0;
+    # Ensure OUI is all upper-case
+    $oui =~ tr/a-f/A-F/;
     $oui_list{$oui} = $manuf;
     $tmpl_added++;
   }
@@ -77,6 +79,8 @@ foreach $line (split(/\n/, $cb_list)) {
   if (($oui, $manuf) = ($line =~ /^($cb_re)\s+(\S.*)$/)) {
     ($h1, $h2, $h3) = ($oui =~ /($hp)($hp)($hp)/);  # The CaveBear bytes have no separators
     $oui = "$h1:$h2:$h3";
+    # Ensure OUI is all upper-case
+    $oui =~ tr/a-f/A-F/;
     if (exists $oui_list{$oui}) {
       printf "$oui - Skipping CaveBear \"$manuf\" in favor of \"$oui_list{$oui}\"\n";
       $cb_skipped++;
@@ -90,6 +94,8 @@ foreach $line (split(/\n/, $cb_list)) {
 foreach $line (split(/\n/, $ieee_list)) {
   if (($oui, $manuf) = ($line =~ /^($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
     $oui =~ tr /-/:/;  # The IEEE bytes are separated by dashes.
+    # Ensure OUI is all upper-case
+    $oui =~ tr/a-f/A-F/;
     if (exists $oui_list{$oui}) {
       printf "$oui - Skipping IEEE \"$manuf\" in favor of \"$oui_list{$oui}\"\n";
       $ieee_skipped++;
