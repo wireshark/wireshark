@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.6 2003/12/11 21:23:36 ulfl Exp $
+ * $Id: packet-gsm_sms.c,v 1.7 2003/12/13 23:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1511,35 +1511,6 @@ char_ascii_decode(unsigned char* dest, const unsigned char* src, int len)
     return;
 }
 
-static int
-char_uni_alphabet_decode(wchar_t value, unsigned char *dest)
-{
-    int length;
-
-    switch (length = wctomb(dest, value))
-    {
-    case -1:
-	*dest = '?';
-	length = 1;
-    default:
-	return length;
-    }
-}
-
-static unsigned int
-char_unicode_decode(unsigned char* dest, const unsigned char* src, int len)
-{
-    int i, length = 0, pos = 0;
-
-    for (i = 0; i < len / 2; i++)
-    {
-	length = char_uni_alphabet_decode( (wchar_t) ((src[i * 2] << 8) | src[(i * 2) + 1]), dest);
-	dest += length;
-	pos += length;
-    }
-    *dest = 0;
-    return pos;
-}
 /*
  * END FROM GNOKII
  */
@@ -1781,7 +1752,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     guint8	oct;
     guint8	fill_bits;
     guint32	out_len;
-
+    char	*ustr;
 
     fill_bits = 0;
 
@@ -1854,28 +1825,18 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 	    bigbuf[out_len] = '\0';
 	    char_ascii_decode(bigbuf, bigbuf, out_len);
 
-	    proto_tree_add_text(subtree, tvb,
-		offset, length,
-		bigbuf);
+	    proto_tree_add_text(subtree, tvb, offset, length, "%s", bigbuf);
 	}
 	else if (eight_bit)
 	{
-	    memcpy(bigbuf,
-		(guchar*) (tvb_get_ptr(tvb, offset, length)), length);
-	    bigbuf[length] = '\0';
-
-	    proto_tree_add_text(subtree, tvb,
-		offset, length,
-		bigbuf);
+	    proto_tree_add_text(subtree, tvb, offset, length, "%.*s",
+	        (int)length, tvb_get_ptr(tvb, offset, length));
 	}
 	else if (ucs2)
 	{
-	    char_unicode_decode(bigbuf,
-		(guchar*) (tvb_get_ptr(tvb, offset, length)), length);
-
-	    proto_tree_add_text(subtree, tvb,
-		offset, length,
-		bigbuf);
+	    ustr = tvb_fake_unicode(tvb, offset, length, FALSE);
+	    proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
+	    g_free(ustr);
 	}
     }
 }
