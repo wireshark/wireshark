@@ -1,7 +1,7 @@
 /* tap_sipstat.c
  * sip message counter for ethereal
  *
- * $Id: tap-sipstat.c,v 1.1 2004/03/30 18:55:46 guy Exp $
+ * $Id: tap-sipstat.c,v 1.2 2004/05/01 21:34:24 guy Exp $
  * Copied from gtk/sip_stat.c and tap-httpstat.c
  *
  * Ethereal - Network traffic analyzer
@@ -43,6 +43,8 @@
 /* used to keep track of the statictics for an entire program interface */
 typedef struct _sip_stats_t {
 	char 		*filter;
+	guint32		packets;        /* number of sip packets, including continuations */
+	guint32		resent_packets;
 	GHashTable	*hash_responses;
 	GHashTable	*hash_requests;
 } sipstat_t;
@@ -205,6 +207,8 @@ sipstat_reset(void *psp  )
 {
 	sipstat_t *sp=psp;
 	if (sp) {
+		sp->packets = 0;
+		sp->resent_packets = 0;
 		g_hash_table_foreach( sp->hash_responses, (GHFunc)sip_reset_hash_responses, NULL);
 		g_hash_table_foreach( sp->hash_requests, (GHFunc)sip_reset_hash_requests, NULL);
 	}
@@ -217,7 +221,17 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, void 
 {
     sip_info_value_t *value=pri;
     sipstat_t *sp = (sipstat_t *)psp;
+    
+    /* Total number of packets, including continuation packets */
+    sp->packets++;
+    
+    /* Update resent count if flag set */
+    if (value->resend)
+    {
+        sp->resent_packets++;
+    }
 
+    
     /* Looking at both requests and responses */
     if (value->response_code != 0)
     {
@@ -318,6 +332,8 @@ sipstat_draw(void *psp  )
 	else
 		printf("SIP Statistics with filter %s\n", sp->filter);
 
+	printf("\nNumber of SIP messages: %d", sp->packets);
+	printf("\nNumber of resent SIP messages: %d\n", sp->resent_packets);
 	printf(	"\n* SIP Status Codes in reply packets\n");
 	g_hash_table_foreach( sp->hash_responses, (GHFunc)sip_draw_hash_responses,
 		"  SIP %3d %-15s : %5d Packets\n");
@@ -366,6 +382,8 @@ sipstat_init(char *optarg)
 		exit(1);
 	}
 
+	sp->packets = 0;
+	sp->resent_packets = 0;
 	sip_init_hash(sp);
 }
 
