@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.105 2001/08/27 04:45:39 guy Exp $
+ * $Id: packet-smb.c,v 1.106 2001/08/27 05:52:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1432,6 +1432,7 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
   guint16       LastWriteDate;
   guint16       Attributes;
   const char    *FileName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -1587,15 +1588,15 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
     /* Build display for: File Name */
 
-    FileName = pd + offset;
+    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(FileName) + 1, "File Name: %s", FileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "File Name: %s", FileName);
 
     }
 
-    offset += strlen(FileName) + 1; /* Skip File Name */
+    offset += string_len; /* Skip File Name */
 
   } else {
     /* Response(s) dissect code */
@@ -2050,6 +2051,7 @@ dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
   guint16       SearchAttributes;
   guint16       ByteCount;
   const char    *FileName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -2103,15 +2105,15 @@ dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     /* Build display for: File Name */
 
-    FileName = pd + offset;
+    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(FileName) + 1, "File Name: %s", FileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "File Name: %s", FileName);
 
     }
 
-    offset += strlen(FileName) + 1; /* Skip File Name */
+    offset += string_len; /* Skip File Name */
 
   } else {
     /* Response(s) dissect code */
@@ -2372,6 +2374,7 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
   const char    *SharePath;
   const char    *Service;
   const char    *Password;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -2414,15 +2417,15 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     /* Build display for: Share Path */
 
-    SharePath = pd + offset;
+    SharePath = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(SharePath) + 1, "Share Path: %s", SharePath);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "Share Path: %s", SharePath);
 
     }
 
-    offset += strlen(SharePath) + 1; /* Skip Share Path */
+    offset += string_len; /* Skip Share Path */
 
     /* Build display for: BufferFormat2 */
 
@@ -4365,6 +4368,7 @@ dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint8        BufferFormat;
   guint16       ByteCount;
   const char    *DirectoryName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -4407,15 +4411,15 @@ dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Directory Name */
 
-    DirectoryName = pd + offset;
+    DirectoryName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(DirectoryName) + 1, "Directory Name: %s", DirectoryName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "Directory Name: %s", DirectoryName);
 
     }
 
-    offset += strlen(DirectoryName) + 1; /* Skip Directory Name */
+    offset += string_len; /* Skip Directory Name */
 
   } else {
     /* Response(s) dissect code */
@@ -4456,6 +4460,7 @@ dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint8        BufferFormat;
   guint16       ByteCount;
   const char    *DirectoryName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -4498,15 +4503,15 @@ dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Directory Name */
 
-    DirectoryName = pd + offset;
+    DirectoryName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(DirectoryName) + 1, "Directory Name: %s", DirectoryName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "Directory Name: %s", DirectoryName);
 
     }
 
-    offset += strlen(DirectoryName) + 1; /* Skip Directory Name */
+    offset += string_len; /* Skip Directory Name */
 
   } else {
     /* Response(s) dissect code */
@@ -4548,6 +4553,7 @@ dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   guint8        BufferFormat;
   guint16       ByteCount;
   const char    *DirectoryName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -4590,15 +4596,15 @@ dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     /* Build display for: Directory Name */
 
-    DirectoryName = pd + offset;
+    DirectoryName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(DirectoryName) + 1, "Directory Name: %s", DirectoryName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "Directory Name: %s", DirectoryName);
 
     }
 
-    offset += strlen(DirectoryName) + 1; /* Skip Directory Name */
+    offset += string_len; /* Skip Directory Name */
 
   } else {
     /* Response(s) dissect code */
@@ -4733,6 +4739,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint16       AndXOffset = 0;
   guint16       Action;
   const char    *FileName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -4969,15 +4976,15 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: File Name */
 
-    FileName = pd + offset;
+    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(FileName) + 1, "File Name: %s", FileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "File Name: %s", FileName);
 
     }
 
-    offset += strlen(FileName) + 1; /* Skip File Name */
+    offset += string_len; /* Skip File Name */
 
 
     if (AndXCommand != 0xFF) {
@@ -5664,7 +5671,7 @@ dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
 	{ 3, "Reserved"},
 	{ 4, "Verify all writes"},
 	{ 0, NULL}
-};
+  };
   proto_tree    *Flags_tree;
   proto_item    *ti;
   guint8        WordCount;
@@ -5675,6 +5682,7 @@ dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
   guint16       Count;
   guint16       ByteCount;
   const char    *ErrorFileName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -5787,15 +5795,15 @@ dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
 
     /* Build display for: Error File Name */
 
-    ErrorFileName = pd + offset;
+    ErrorFileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(ErrorFileName) + 1, "Error File Name: %s", ErrorFileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "Error File Name: %s", ErrorFileName);
 
     }
 
-    offset += strlen(ErrorFileName) + 1; /* Skip Error File Name */
+    offset += string_len; /* Skip Error File Name */
 
   }
 
@@ -5812,6 +5820,7 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
   guint16       ByteCount;
   const char    *OldFileName;
   const char    *NewFileName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -5866,15 +5875,15 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     /* Build display for: Old File Name */
 
-    OldFileName = pd + offset;
+    OldFileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(OldFileName) + 1, "Old File Name: %s", OldFileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "Old File Name: %s", OldFileName);
 
     }
 
-    offset += strlen(OldFileName) + 1; /* Skip Old File Name */
+    offset += string_len; /* Skip Old File Name */
 
     /* Build display for: Buffer Format 2 */
 
@@ -5890,15 +5899,15 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     /* Build display for: New File Name */
 
-    NewFileName = pd + offset;
+    NewFileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(NewFileName) + 1, "New File Name: %s", NewFileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "New File Name: %s", NewFileName);
 
     }
 
-    offset += strlen(NewFileName) + 1; /* Skip New File Name */
+    offset += string_len; /* Skip New File Name */
 
   } else {
     /* Response(s) dissect code */
@@ -5949,6 +5958,7 @@ dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_
   guint16       FID;
   guint16       ByteCount;
   const char    *IdentifierString;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -6018,15 +6028,15 @@ dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_
 
     /* Build display for: Identifier String */
 
-    IdentifierString = pd + offset;
+    IdentifierString = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(IdentifierString) + 1, "Identifier String: %s", IdentifierString);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "Identifier String: %s", IdentifierString);
 
     }
 
-    offset += strlen(IdentifierString) + 1; /* Skip Identifier String */
+    offset += string_len; /* Skip Identifier String */
 
   } else {
     /* Response(s) dissect code */
@@ -7939,6 +7949,7 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
   guint16       ByteCount;
   guint16       Attributes;
   const char    *FileName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -7976,7 +7987,7 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
       proto_tree_add_text(Attributes_tree, NullTVB, offset, 2, "%s",
                           decode_boolean_bitfield(Attributes, 0x20, 16, " Archived", "Not archived"));
     
-}
+    }
 
     offset += 2; /* Skip Attributes */
 
@@ -8018,15 +8029,15 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     /* Build display for: File Name */
 
-    FileName = pd + offset;
+    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(FileName) + 1, "File Name: %s", FileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "File Name: %s", FileName);
 
     }
 
-    offset += strlen(FileName) + 1; /* Skip File Name */
+    offset += string_len; /* Skip File Name */
 
   } else {
     /* Response(s) dissect code */
@@ -8090,6 +8101,7 @@ dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
   guint16       Count;
   guint16       ByteCount;
   const char    *FileName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -8156,15 +8168,15 @@ dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 
     /* Build display for: File Name */
 
-    FileName = pd + offset;
+    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(FileName) + 1, "File Name: %s", FileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "File Name: %s", FileName);
 
     }
 
-    offset += strlen(FileName) + 1; /* Skip File Name */
+    offset += string_len; /* Skip File Name */
 
     /* Build display for: Buffer Format 2 */
 
@@ -8274,6 +8286,7 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
   guint16       ByteCount;
   const char    *FileName;
   const char    *DirectoryName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -8352,15 +8365,15 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 
     /* Build display for: Directory Name */
 
-    DirectoryName = pd + offset;
+    DirectoryName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(DirectoryName) + 1, "Directory Name: %s", DirectoryName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "Directory Name: %s", DirectoryName);
 
     }
 
-    offset += strlen(DirectoryName) + 1; /* Skip Directory Name */
+    offset += string_len; /* Skip Directory Name */
 
   } else {
     /* Response(s) dissect code */
@@ -8419,15 +8432,15 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 
     /* Build display for: File Name */
 
-    FileName = pd + offset;
+    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(FileName) + 1, "File Name: %s", FileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "File Name: %s", FileName);
 
     }
 
-    offset += strlen(FileName) + 1; /* Skip File Name */
+    offset += string_len; /* Skip File Name */
 
   }
 
@@ -8936,6 +8949,7 @@ dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
   guint16       ByteCount;
   guint16       Attributes;
   const char    *FileName;
+  int           string_len;
 
   if (si.request) {
     /* Request(s) dissect code */
@@ -8978,15 +8992,15 @@ dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
     /* Build display for: File Name */
 
-    FileName = pd + offset;
+    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
 
     if (tree) {
 
-      proto_tree_add_text(tree, NullTVB, offset, strlen(FileName) + 1, "File Name: %s", FileName);
+      proto_tree_add_text(tree, NullTVB, offset, string_len, "File Name: %s", FileName);
 
     }
 
-    offset += strlen(FileName) + 1; /* Skip File Name */
+    offset += string_len; /* Skip File Name */
 
   } else {
     /* Response(s) dissect code */
