@@ -4,8 +4,8 @@
 <chapter id="ChapterUserInterface">
   <title>User Interface</title>
   
-  <section id="ChUIGeneral">
-	<title>General</title>
+  <section id="ChUIIntro">
+	<title>Introduction</title>
 	<para>
 	Ethereal can be "logically" seperated into the backend (dissecting of
 	protocols, file load/save, capturing, ...) and the frontend (the user
@@ -42,7 +42,8 @@
 	This chapter is focussed on the Ethereal frontend, and especially on
 	the GTK specific things.
 	</para>
-
+  </section>
+  
 	<section id="ChUIWhatGTK">
 	<title>What is GTK?</title>
 	<para>
@@ -227,31 +228,30 @@
 	<section id="ChUIGUIDocs">
 	<title>GUI Reference documents</title>
 	<para>
-	See the following documents:
+	Although the GUI development of Ethereal is platform independant, the 
+	Ethereal development team tries to
+	follow the GNOME Human Interface Guidelines (HIG) where appropriate. 
+	This is the case, because both GNOME and Ethereal are based on the GTK+ 
+	toolkit and the GNOME HIG is excellently written and easy to understand.
+	</para>
+	<para>
+	For further reference, see the following documents:
 	<itemizedlist>
 	  <listitem><para>
-	  GNOME Human Interface Guidelines
+	  GNOME Human Interface Guidelines at:
+	  <ulink url="http://developer.gnome.org/projects/gup/hig"/>
 	  </para></listitem>
 	  <listitem><para>
-	  KDE
+	  KDE user interface related documents at:
+	  <ulink url="http://developer.kde.org/documentation/library/ui.html"/>
 	  </para></listitem>
 	  <listitem><para>
-	  Win32 ???
-	  </para></listitem>
-	  <listitem><para>
-	  Ethereal's "doc/README.developer" (basic guidelines for Ethereal
-	  development, e.g. coding styles)
+	  Win32 XXX - where are good win32 styleguides available?
 	  </para></listitem>
 	</itemizedlist>
-	Although the GUI development is platform independant, Ethereal tries to
-	follow the GNOME Human Interface Guidelines where appropriate. As GNOME
-	is
-	based on the GTK+ toolkit, and Ethereal uses this toolkit, too.
 	</para>
 	</section>
 	
-  </section>
-  
   <section id="ChUIGTKDialogs">
 	<title>Adding/Extending Dialogs</title>
 	<para>
