@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.15 2003/09/08 21:44:41 guy Exp $
+ * $Id: pcap-util.c,v 1.16 2003/09/10 05:35:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,6 +213,20 @@ search_for_if_cb(gpointer data, gpointer user_data);
 static void
 free_if_cb(gpointer data, gpointer user_data);
 
+static if_info_t *
+if_info_new(char *name, char *description)
+{
+	if_info_t *if_info;
+
+	if_info = g_malloc(sizeof (if_info_t));
+	if_info->name = g_strdup(name);
+	if (description == NULL)
+		if_info->description = NULL;
+	else
+		if_info->description = g_strdup(description);
+	return if_info;
+}
+
 #ifndef WIN32
 GList *
 get_interface_list(int *err, char *err_str)
@@ -227,6 +241,7 @@ get_interface_list(int *err, char *err_str)
 	pcap_t *pch;
 	int len, lastlen;
 	char *buf;
+	if_info_t *if_info;
 
 	if (sock < 0) {
 		sprintf(err_str, "Error opening socket: %s",
@@ -328,12 +343,12 @@ get_interface_list(int *err, char *err_str)
 		 * don't want a loopback interface to be the default capture
 		 * device unless there are no non-loopback devices.
 		 */
+		if_info = if_info_new(ifr->ifr_name, NULL);
 		if ((ifrflags.ifr_flags & IFF_LOOPBACK) ||
 		    strncmp(ifr->ifr_name, "lo", 2) == 0)
-			il = g_list_insert(il, g_strdup(ifr->ifr_name), -1);
+			il = g_list_insert(il, if_info, -1);
 		else {
-			il = g_list_insert(il, g_strdup(ifr->ifr_name),
-			    nonloopback_pos);
+			il = g_list_insert(il, if_info, nonloopback_pos);
 			/*
 			 * Insert the next non-loopback interface after this
 			 * one.
@@ -364,7 +379,9 @@ get_interface_list(int *err, char *err_str)
 		/*
 		 * It worked; we can use the "any" device.
 		 */
-		il = g_list_insert(il, g_strdup("any"), -1);
+		if_info = if_info_new("any",
+		    "Pseudo-device that captures on all interfaces");
+		il = g_list_insert(il, if_info, -1);
 		pcap_close(pch);
 	}
 #endif
@@ -393,8 +410,9 @@ static void
 search_for_if_cb(gpointer data, gpointer user_data)
 {
 	struct search_user_data *search_user_data = user_data;
+	if_info_t *if_info = data;
 
-	if (strcmp((char *)data, search_user_data->name) == 0)
+	if (strcmp(if_info->name, search_user_data->name) == 0)
 		search_user_data->found = TRUE;
 }
 #else /* Windows */
@@ -403,7 +421,8 @@ get_interface_list(int *err, char *err_str) {
   GList  *il = NULL;
   wchar_t *names;
   char *win95names;
-  char newname[MAX_WIN_IF_NAME_LEN + 1];
+  char ascii_name[MAX_WIN_IF_NAME_LEN + 1];
+  char ascii_desc[MAX_WIN_IF_NAME_LEN + 1];
   int i, j;
 
   /* On Windows pcap_lookupdev is implemented by calling
@@ -411,22 +430,36 @@ get_interface_list(int *err, char *err_str) {
    * (http://winpcap.polito.it/docs/dll.htm#PacketGetAdapterNames)
    * this means that:
    *
-   * On Windows 95x, pcap_lookupdev returns an ASCII string with the
-   * names of the adapters separated by a single ASCII "\0", a double
-   * "\0", followed by the descriptions of the adapters separated by a
-   * single ASCII "\0" . The string is terminated by a double "\0".
+   * On Windows OT (95, 98, Me), pcap_lookupdev returns a sequence of bytes
+   * consisting of:
    *
-   * On Windows NTx, pcap_lookupdev returns the names of the adapters,
-   * in UNICODE format, separated by a single UNICODE "\0" (i.e. 2
-   * ASCII "\0"), a double UNICODE "\0", followed by the descriptions
-   * of the adapters, in ASCII format, separated by a single ASCII
-   * "\0" . The string is terminated by a double ASCII "\0".
+   *	a sequence of null-terminated ASCII strings (i.e., each one is
+   *	terminated by a single 0 byte), giving the names of the interfaces;
    *
-   * We prepend the device name with a description to make it easier
-   * for users to choose the interface they want.  This requires that
-   * we split out the device name later on in tethereal.c and gtk/main.c.
-   * It might be useful to have separate structures for raw names and
-   * descriptions at some point.
+   *	an empty ASCII string (i.e., a single 0 byte);
+   *
+   *	a sequence of null-terminated ASCII strings, giving the
+   *	descriptions of the interfaces;
+   *
+   *	an empty ASCII string.
+   *
+   * On Windows NT (NT 4.0, W2K, WXP, W2K3, etc.), pcap_lookupdev returns
+   * a sequence of bytes consisting of:
+   *
+   *	a sequence of null-terminated double-byte Unicode strings (i.e.,
+   *	each one consits of a sequence of double-byte characters,
+   *	terminated by a double-byte 0), giving the names of the interfaces;
+   *
+   *	an empty Unicode string (i.e., a double 0 byte);
+   *
+   *	a sequence of null-terminated ASCII strings, giving the
+   *	descriptions of the interfaces;
+   *
+   *	an empty ASCII string.
+   *
+   * The Nth string in the first sequence is the name of the Nth adapter;
+   * the Nth string in the second sequence is the descriptio of the Nth
+   * adapter.
    */
 
   names = (wchar_t *)pcap_lookupdev(err_str);
@@ -446,53 +479,65 @@ get_interface_list(int *err, char *err_str) {
 
 		  while (names[i] != 0)
 		  {
+			/*
+			 * Copy the Unicode description to an ASCII
+			 * string.
+			 */
 			j = 0;
-			while (*desc) {
+			while (*desc != 0) {
 			    if (j < MAX_WIN_IF_NAME_LEN)
-				newname[j++] = *desc++;
+				ascii_desc[j++] = *desc;
+				desc++;
 			}
-			*desc++;
-			if (j < MAX_WIN_IF_NAME_LEN - 1) {
-			    newname[j++] = ':';
-			    newname[j++] = ' ';
-			}
+			ascii_desc[j] = '\0';
+			desc++;
+
+			/*
+			 * Copy the Unicode name to an ASCII string.
+			 */
+			j = 0;
 			while (names[i] != 0) {
 			    if (j < MAX_WIN_IF_NAME_LEN)
-				newname[j++] = names[i++];
+				ascii_name[j++] = names[i++];
 			}
+			ascii_name[j] = '\0';
 			i++;
-			newname[j] = 0;
-			il = g_list_append(il, g_strdup(newname));
+			il = g_list_append(il,
+			    if_info_new(ascii_name, ascii_description));
 		  }
 	  }
 	  else {
-		  /* Otherwise we are in Windows 95/98 and using ascii(8 bit)
-		     characters */
+		  /* Otherwise we are in Windows 95/98 and using ASCII
+		     (8 bit) characters */
 	          win95names=(char *)names;
 		  while(*(win95names+desc_pos) || *(win95names+desc_pos-1))
 		  	desc_pos++;
 		  desc_pos++;	/* Step over the extra '\0' */
 		  desc = win95names + desc_pos;
 
-		  while (win95names[i] != 0)
+		  while (win95names[i] != '\0')
 		  {
-			j = 0;
-			while (*desc) {
-			    if (j < MAX_WIN_IF_NAME_LEN)
-				newname[j++] = *desc++;
-			}
-			*desc++;
-			if (j < MAX_WIN_IF_NAME_LEN - 1) {
-			    newname[j++] = ':';
-			    newname[j++] = ' ';
-			}
-			while (win95names[i] != 0) {
-			    if (j < MAX_WIN_IF_NAME_LEN)
-				newname[j++] = win95names[i++];
-			}
+			/*
+			 * "&win95names[i]" points to the current interface
+			 * name, and "desc" points to that interface's
+			 * description.
+			 */
+			il = g_list_append(il,
+			    if_info_new(&win95names[i], desc));
+
+			/*
+			 * Skip to the next description.
+			 */
+			while (*desc != 0)
+				desc++;
+			desc++;
+
+			/*
+			 * Skip to the next name.
+			 */
+			while (win95names[i] != 0)
+			    i++;
 			i++;
-			newname[j] = 0;
-			il = g_list_append(il, g_strdup(newname));
 		  }
 	  }
   }
@@ -510,7 +555,11 @@ get_interface_list(int *err, char *err_str) {
 static void
 free_if_cb(gpointer data, gpointer user_data _U_)
 {
-	g_free(data);
+	if_info_t *if_info = data;
+
+	g_free(if_info->name);
+	if (if_info->description != NULL)
+		g_free(if_info->description);
 }
 
 void

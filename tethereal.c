@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.194 2003/09/07 00:47:55 guy Exp $
+ * $Id: tethereal.c,v 1.195 2003/09/10 05:35:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -782,6 +782,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   gboolean             capture_filter_specified = FALSE;
   GList               *if_list, *if_entry;
+  if_info_t           *if_info;
   long                 adapter_index;
   char                *p;
   gchar                err_str[PCAP_ERRBUF_SIZE];
@@ -956,8 +957,13 @@ main(int argc, char *argv[])
         }
         i = 1;  /* Interface id number */
         for (if_entry = g_list_first(if_list); if_entry != NULL;
-		if_entry = g_list_next(if_entry))
-          printf("%d. %s\n", i++, (char *)if_entry->data);
+		if_entry = g_list_next(if_entry)) {
+	  if_info = if_entry->data;
+          printf("%d. %s", i++, if_info->name);
+          if (if_info->description != NULL)
+            printf(" (%s)", if_info->description);
+          printf("\n");
+        }
         free_interface_list(if_list);
         exit(0);
 #else
@@ -1030,16 +1036,12 @@ main(int argc, char *argv[])
             }
             exit(2);
           }
-          if_text = (char *)g_list_nth_data(if_list, adapter_index - 1);
-          if (if_text == NULL) {
+          if_info = g_list_nth_data(if_list, adapter_index - 1);
+          if (if_info == NULL) {
             fprintf(stderr, "tethereal: there is no interface with that adapter index\n");
             exit(1);
           }
-#ifdef _WIN32
-          /* XXX - why is this done? */
-          if_text = strchr(if_text, '\\');
-#endif
-          cfile.iface = g_strdup(if_text);
+          cfile.iface = g_strdup(if_info->name);
           free_interface_list(if_list);
         } else
           cfile.iface = g_strdup(optarg);
@@ -1393,12 +1395,8 @@ main(int argc, char *argv[])
                 }
                 exit(2);
             }
-	    if_text = strrchr(if_list->data, ' ');	/* first interface */
-	    if (if_text == NULL) {
-            	cfile.iface = g_strdup(if_list->data);
-	    } else {
-            	cfile.iface = g_strdup(if_text + 1); /* Skip over space */
-	    }
+	    if_info = if_list->data;	/* first interface */
+	    cfile.iface = g_strdup(if_info->name);
             free_interface_list(if_list);
         }
     }

@@ -1,7 +1,7 @@
 /* pcap-util.h
  * Utility definitions for packet capture
  *
- * $Id: pcap-util.h,v 1.3 2003/09/08 21:44:41 guy Exp $
+ * $Id: pcap-util.h,v 1.4 2003/09/10 05:35:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,16 @@ extern "C" {
 int get_pcap_linktype(pcap_t *pch, char *devname);
 
 #define MAX_WIN_IF_NAME_LEN 511
+
+/*
+ * The list of interfaces returned by "get_interface_list()" is
+ * a list of these structures.
+ */
+typedef struct {
+	char	*name;
+	char	*description;
+} if_info_t;
+
 GList *get_interface_list(int *err, char *err_str);
 
 /* Error values from "get_interface_list()". */

@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.20 2003/09/09 18:27:49 guy Exp $
+ * $Id: capture_prefs.c,v 1.21 2003/09/10 05:35:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include "dlg_utils.h"
 #include "simple_dialog.h"
 #include "pcap-util.h"
+#include "capture_combo_utils.h"
 #include "main.h"
 #include "compat_macros.h"
 
@@ -72,7 +73,7 @@ static void ifopts_edit_ifunsel_cb(GtkWidget *clist, gint row, gint column,
     GdkEventButton *event, gpointer data);
 static void ifopts_old_options_add(GtkCList *clist);
 static gboolean ifopts_old_options_chk(GtkCList *clist, gchar *ifname);
-static void ifopts_new_options_add(GtkCList *clist, gchar *ifname);
+static void ifopts_new_options_add(GtkCList *clist, if_info_t *if_info);
 static void ifopts_options_free(gchar *text[]);
 static void ifopts_if_clist_add(GtkCList *clist);
 static void ifopts_write_new_descr(void);
@@ -84,7 +85,7 @@ capture_prefs_show(void)
 	GtkWidget	*main_tb, *main_vb;
 	GtkWidget	*if_cb, *if_lb, *promisc_cb, *sync_cb, *auto_scroll_cb;
 	GtkWidget	*ifopts_lb, *ifopts_bt;
-	GList		*if_list;
+	GList		*if_list, *combo_list;
 	int		err;
 	char		err_str[PCAP_ERRBUF_SIZE];
 
@@ -110,16 +111,16 @@ capture_prefs_show(void)
 	 * XXX - what if we can't get the list?
 	 */
 	if_list = get_interface_list(&err, err_str);
-	if (if_list != NULL)
-		gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), if_list);
+	combo_list = build_capture_combo_list(if_list, FALSE);
+	free_interface_list(if_list);
+	gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), combo_list);
+	free_capture_combo_list(combo_list);
 	if (prefs.capture_device)
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
 		    prefs.capture_device);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cb, 1, 2, 0, 1);
 	gtk_widget_show(if_cb);
 	OBJECT_SET_DATA(main_vb, DEVICE_KEY, if_cb);
-
-	free_interface_list(if_list);
 
 	/* Interface options */
 	ifopts_lb = gtk_label_new("Interface options:");
@@ -678,13 +679,13 @@ ifopts_old_options_chk(GtkCList *clist, gchar *ifname)
  * machine or disabled and no longer apply.
  */
 static void
-ifopts_new_options_add(GtkCList *clist, gchar *ifname)
+ifopts_new_options_add(GtkCList *clist, if_info_t *if_info)
 {
 	gchar	*p;
 	gchar	*ifnm;
 	gchar	*desc;
 	gchar	*pr_descr;
-	gchar	*text[3] = { '\0' };
+	gchar	*text[3] = { NULL, NULL, NULL };
 	
 	/* add interface descriptions and "hidden" flag */
 	if (prefs.capture_devices_descr != NULL) {
@@ -692,16 +693,16 @@ ifopts_new_options_add(GtkCList *clist, gchar *ifname)
 		pr_descr = g_strdup(prefs.capture_devices_descr);
 		
 		/* if we find a description for this interface */
-		if ((ifnm = strstr(pr_descr, ifname)) != NULL) {
+		if ((ifnm = strstr(pr_descr, if_info->name)) != NULL) {
 			p = ifnm;
 			while (*p != '\0') {
 				/* found left parenthesis, start of description */
 				if (*p == '(') {
 					/* set interface name text */
-					text[0] = g_strdup(ifname);
+					text[0] = g_strdup(if_info->name);
 					/* check if interface is "hidden" */
 					if (prefs.capture_devices_hide != NULL) {
-						if (strstr(prefs.capture_devices_hide, ifname) != NULL)
+						if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
 							text[2] = g_strdup("1");
 						else
 							text[2] = g_strdup("0");
@@ -746,12 +747,12 @@ ifopts_new_options_add(GtkCList *clist, gchar *ifname)
 		/* if there's no description for this interface */
 		else {
 			/* set interface name */
-			text[0] = g_strdup(ifname);
+			text[0] = g_strdup(if_info->name);
 			/* set empty description */
 			text[1] = g_strdup("");
 			/* check if interface is "hidden" */
 			if (prefs.capture_devices_hide != NULL) {
-				if (strstr(prefs.capture_devices_hide, ifname) != NULL)
+				if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
 					text[2] = g_strdup("1");
 				else
 					text[2] = g_strdup("0");
@@ -771,11 +772,11 @@ ifopts_new_options_add(GtkCList *clist, gchar *ifname)
 	 */
 	else if (prefs.capture_devices_hide != NULL) {
 		/* set interface name */
-		text[0] = g_strdup(ifname);
+		text[0] = g_strdup(if_info->name);
 		/* set empty description */
 		text[1] = g_strdup("");
 		/* check if interface is "hidden" */
-		if (strstr(prefs.capture_devices_hide, ifname) != NULL)
+		if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
 			text[2] = g_strdup("1");
 		else
 			text[2] = g_strdup("0");
@@ -789,7 +790,7 @@ ifopts_new_options_add(GtkCList *clist, gchar *ifname)
 	 */
 	else {
 		/* set interface name */
-		text[0] = g_strdup(ifname);
+		text[0] = g_strdup(if_info->name);
 		/* set empty description */
 		text[1] = g_strdup("");
 		/* interface is not "hidden" */
@@ -820,12 +821,13 @@ ifopts_options_free(gchar *text[])
 static void
 ifopts_if_clist_add(GtkCList *clist)
 {
-	GList	*if_list;
+	GList		*if_list;
 	int		err;
-	char	err_str[PCAP_ERRBUF_SIZE];
-	gchar	*text[1];
-	guint	i;
-	guint	nitems;
+	char		err_str[PCAP_ERRBUF_SIZE];
+	if_info_t	*if_info;
+	gchar		*text[1];
+	guint		i;
+	guint		nitems;
 	
 	if_list = get_interface_list(&err, err_str);
 	if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
@@ -840,13 +842,14 @@ ifopts_if_clist_add(GtkCList *clist)
 	
 	/* add interface name text to CList */
 	for (i=0; i < nitems; i++) {
-		text[0] = g_list_nth_data(if_list, i);
+		if_info = g_list_nth_data(if_list, i);
 		/* should never happen, but just in case */
-		if (text[0] == NULL)
+		if (if_info == NULL)
 			continue;
+		text[0] = if_info->name;
 		gtk_clist_append(GTK_CLIST(clist), text);
 		/* fill "new" options CList with previously saved values */
-		ifopts_new_options_add(GTK_CLIST(new_clist), text[0]);
+		ifopts_new_options_add(GTK_CLIST(new_clist), if_info);
 	}
 	
 	free_interface_list(if_list);

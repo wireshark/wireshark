@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.309 2003/09/03 23:32:40 guy Exp $
+ * $Id: main.c,v 1.310 2003/09/10 05:35:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1511,6 +1511,7 @@ main(int argc, char *argv[])
   gboolean             start_capture = FALSE;
   gchar               *save_file = NULL;
   GList               *if_list;
+  if_info_t           *if_info;
   gchar                err_str[PCAP_ERRBUF_SIZE];
   gboolean             stats_known;
   struct pcap_stat     stats;
@@ -2074,7 +2075,8 @@ main(int argc, char *argv[])
           }
           exit(2);
         }
-        cfile.iface = g_strdup(if_list->data);	/* first interface */
+        if_info = if_list->data;	/* first interface */
+        cfile.iface = g_strdup(if_info->name);
         free_interface_list(if_list);
       }
     }

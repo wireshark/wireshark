@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.66 2003/09/02 22:47:58 guy Exp $
+# $Id: Makefile.am,v 1.67 2003/09/10 05:35:25 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,8 @@ ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 
 if USE_GTK2
 libui_a_SOURCES = \
+	capture_combo_utils.c \
+	capture_combo_utils.h \
 	capture_dlg.c	\
 	capture_dlg.h	\
 	capture_prefs.c	\
@@ -134,6 +136,8 @@ libui_a_SOURCES = \
 	$(ETHEREAL_TAP_SRC)
 else
 libui_a_SOURCES = \
+	capture_combo_utils.c \
+	capture_combo_utils.h \
 	capture_dlg.c	\
 	capture_dlg.h	\
 	capture_prefs.c	\
