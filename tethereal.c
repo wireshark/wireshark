@@ -857,8 +857,9 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
   char                 badopt;
-  ethereal_tap_list *tli;
-
+  ethereal_tap_list *tli = NULL;
+  gboolean got_tap = FALSE;
+  
 #ifdef HAVE_LIBPCAP
   /* XXX - better use capture_opts_init instead */
   capture_opts.cfilter = g_strdup("");
@@ -1280,7 +1281,11 @@ main(int argc, char *argv[])
       case 'z':
         for(tli=tap_list;tli;tli=tli->next){
           if(!strncmp(tli->cmd,optarg,strlen(tli->cmd))){
-            (*tli->func)(optarg);
+              /* we won't call the init function for the tap this soon
+                as it would disallow mate's fields (which are registered
+                by the preferences set callback) from being used as
+                part of a tap filter */
+            got_tap = TRUE;
             break;
           }
         }
@@ -1467,6 +1472,12 @@ main(int argc, char *argv[])
      line that their preferences have changed. */
   prefs_apply_all();
 
+  /* At this point mate will have registered its field array so we can
+	  have a filter with one of mate's late registered fields as part
+	  of the tap's filter */
+  if (got_tap)
+	  (*tli->func)(optarg);
+  
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
     set_disabled_protos_list();
