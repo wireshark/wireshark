@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.62 1999/08/13 23:47:42 gram Exp $
+ * $Id: file.c,v 1.63 1999/08/14 01:27:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -691,6 +691,7 @@ change_time_formats(capture_file *cf)
        the answer isn't going to change from packet to packet, so we should
        simply skip all the "change_time_formats()" work if we're not
        changing anything. */
+    fd->cinfo = &cf->cinfo;
     if (check_col(fd, COL_CLS_TIME)) {
       /* There are columns that show the time in the "command-line-specified"
          format; update them. */
