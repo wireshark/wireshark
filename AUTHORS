@@ -673,6 +673,7 @@ Hannes Gredler <hannes[AT]juniper.net> {
 	Many IS-IS enhancements
 	Juniper Networks vendor ID in RADIUS dissector
 	HELLO message support in RSVP
+	Labeled unicast support for BGP
 }
 
 Inoue <inoue[AT]ainet.or.jp> {

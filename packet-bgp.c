@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.55 2002/02/14 05:25:52 guy Exp $
+ * $Id: packet-bgp.c,v 1.56 2002/05/15 21:40:25 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -340,6 +340,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                         case SAFNUM_UNICAST:
                         case SAFNUM_MULCAST:
                         case SAFNUM_UNIMULC:
+                        case SAFNUM_MPLS_LABEL:
                                 length = 4 ;
                                 tvb_memcpy(tvb, ip4addr, offset, 4);
 			        snprintf(buf, buflen, "%s", ip_to_str(ip4addr));
@@ -412,6 +413,30 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
                         case SAFNUM_UNIMULC:
                                 length = decode_prefix4(tvb, offset, buf, buflen) - 1 ;
                                 break;
+                        case SAFNUM_MPLS_LABEL:
+                                plen =  tvb_get_guint8(tvb,offset) ;
+                                labnum = decode_MPLS_stack(tvb, offset + 1, lab_stk, sizeof(lab_stk));
+
+                                offset += (1 + labnum * 3);
+                                plen -= (labnum * 3*8);
+                                if (plen < 0 || 32 < plen) {
+                                        length = 0 ;
+                                        break ;
+                                }
+
+                                length = (plen + 7) / 8;
+                                memset(ip4addr, 0, sizeof(ip4addr));
+                                tvb_memcpy(tvb, ip4addr, offset, length);
+                                if (plen % 8)
+                                        ip4addr[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
+
+                                snprintf(buf,buflen, "Label Stack=%s IP=%s/%d",
+                                         lab_stk,
+                                         ip_to_str(ip4addr),
+                                         plen);
+                                length += (labnum*3) ;
+                                break;
+
                         case SAFNUM_LBVPNIP:
                                 plen =  tvb_get_guint8(tvb,offset) ;
 
