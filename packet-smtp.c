@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.36 2004/01/17 12:51:00 ulfl Exp $
+ * $Id: packet-smtp.c,v 1.37 2004/05/16 18:50:40 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -302,7 +302,11 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    }
 	  } else {
-
+		if ((linelen >= 7) && line[0] == 'X' && ( (strncasecmp(line, "X-EXPS ", 7) == 0) ||
+			((linelen >=13) && (strncasecmp(line, "X-LINK2STATE ", 13) == 0)) || 
+			((linelen >= 8) && (strncasecmp(line, "XEXCH50 ", 8) == 0)) ))
+				frame_data->pdu_type = SMTP_PDU_CMD;
+		else
 	    /*
 	     * Assume it's message data.
 	     */
