@@ -3150,7 +3150,7 @@ static const radius_attr_info radius_vendor_3gpp_attrib[] =
 static const value_string the3gpp2_security_level_vals[] = {
   {1,	"IPSec for registration messages (deprecated)"},
   {2,	"IPSec for tunnels (deprecated)"},
-  {3,	"IPSec for tunnels and registration messages"}, 
+  {3,	"IPSec for tunnels and registration messages"},
   {4,	"No IPSec security"},
   {0, NULL}
 };
@@ -3242,7 +3242,7 @@ static const value_string th3gpp2_service_option_vals[] = {
 
 static const radius_attr_info radius_vendor_3gpp2_attrib[] =
 {
-   /* According to 3GPP2 X.S0011-005-C 
+   /* According to 3GPP2 X.S0011-005-C
 	* http://www.3gpp2.org/Public_html/specs/X.S0011-005-C_v1.0_110703.pdf
 	* TODO Dissect the BITSTRING AVP:s further
 	*/
@@ -4032,6 +4032,25 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
 			       attr_info ? attr_info->str : "Unknown Type",
 			       avph.avp_type, avph.avp_length);
     }
+
+    if (avph.avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {  /* Vendor-specific */
+      guint16 vendor, em_type;
+      guint8  type;
+
+      vendor = tvb_get_ntohl(tvb, offset + 2);
+      if (vendor == VENDOR_CABLELABS) {
+        type = tvb_get_guint8(tvb, offset + 6);
+        if (type == PACKETCABLE_EM_HEADER_CODE) {
+          em_type = tvb_get_ntohs(tvb, offset + 34);
+          if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo,COL_INFO," pkt-EM Msg Type=%s(%u)",
+		val_to_str(em_type, radius_vendor_packetcable_event_message_vals, "Unknown"),
+		em_type);
+	  }
+        }
+      }
+    }
+
     if (attr_info != NULL && attr_info->value_type == RADIUS_EAP_MESSAGE) {
       /* EAP Message */
       proto_tree *eap_tree = NULL;
