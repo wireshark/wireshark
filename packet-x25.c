@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.79 2003/03/01 08:50:46 guy Exp $
+ * $Id: packet-x25.c,v 1.80 2003/03/01 10:02:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1751,6 +1751,15 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     * But if it's all there is to the PDU, don't
 		     * bother dissecting it.
 		     */
+		    break;
+
+		case NLPID_SPI_X_29:
+		    /*
+		     * The first 4 bytes of the call user data are
+		     * the SPI plus 3 reserved bytes; they are not
+		     * part of the data to be dissected as X.29 data.
+		     */
+		    localoffset += 4;
 		    break;
 
 		default:
