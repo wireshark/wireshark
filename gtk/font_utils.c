@@ -31,6 +31,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <epan/packet.h>
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -44,7 +46,6 @@
 #include "font_utils.h"
 #include "simple_dialog.h"
 
-#include <epan/packet.h>
 #include "packet_list.h"
 #include "proto_draw.h"
 #include "follow_dlg.h"
