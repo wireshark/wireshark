@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.49 1999/10/11 07:38:21 guy Exp $
+# $Id: configure.in,v 1.50 1999/10/14 03:50:27 itojun Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -73,7 +73,11 @@ fi
 
 dnl zlib check
 AC_ARG_ENABLE(zlib,
-[  --enable-zlib           use zlib to read compressed data.  [default=yes]],,enable_zlib=yes)
+[  --enable-zlib           use zlib to read compressed data.  [default=yes]],, [dnl
+case "$host_os" in
+netbsd*)	enable_zlib=no;;
+*)		enable_zlib=yes;;
+esac])
 
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
 if test "x$enable_zlib" = "xno" ; then
@@ -191,6 +195,8 @@ if test "$ac_cv_func_inet_aton" = no ; then
 fi
 AC_SUBST(INET_ATON_C)
 AC_SUBST(INET_ATON_O)
+
+AC_CHECK_FUNCS(getprotobynumber)
 
 dnl blank for now, but will be used in future
 AC_SUBST(ethereal_SUBDIRS)

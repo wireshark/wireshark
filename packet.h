@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.107 1999/10/14 01:28:28 guy Exp $
+ * $Id: packet.h,v 1.108 1999/10/14 03:50:31 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -499,6 +499,7 @@ void dissect_pppoed(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pppoes(const u_char *, int, frame_data *, proto_tree *);
 void dissect_icp(const u_char *,int, frame_data *, proto_tree *);
 void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_pim(const u_char *, int, frame_data *, proto_tree *);
 void dissect_radius(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ripng(const u_char *, int, frame_data *, proto_tree *);
@@ -542,6 +543,9 @@ extern const value_string etype_vals[];
 /* These functions are in packet-arp.c */
 gchar *arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type);
 gchar *arphrdtype_to_str(guint16 hwtype, const char *fmt);
+
+/* ipproto.c */
+extern const char *ipprotostr(int proto);
 
 /*
  * All of the possible columns in summary listing.

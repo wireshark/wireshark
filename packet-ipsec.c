@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.5 1999/10/12 06:20:09 gram Exp $
+ * $Id: packet-ipsec.c,v 1.6 1999/10/14 03:50:29 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,7 +96,7 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	ah_tree = proto_item_add_subtree(ti, ETT_AH);
 
 	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_nxt), 1,
-	    "Next Header: %d", ah.ah_nxt);
+	    "Next Header: %s (0x%02x)", ipprotostr(ah.ah_nxt), ah.ah_nxt);
 	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_len), 1,
 	    "Length: %d", ah.ah_len << 2);
 	proto_tree_add_item_format(ah_tree, hf_ah_spi,

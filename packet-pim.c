@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.3 1999/10/14 01:39:47 guy Exp $
+ * $Id: packet-pim.c,v 1.4 1999/10/14 03:50:30 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -159,13 +159,29 @@ dissect_pim_addr(const u_char *bp, const u_char *ep, enum pimv2_addrtype at,
 void 
 dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     struct pim pim;
-    char *packet_type1[] = {
-	"Query", "Register", "Register-Stop", "Join/Prune", "RP-Reachable",
-	"Assert", "Graft", "Graft-Ack", "Mode"
+    static const value_string type1vals[] = {
+	{ 0, "Query" },
+	{ 1, "Register" },
+	{ 2, "Register-stop" },
+	{ 3, "Join/Prune" },
+	{ 4, "RP-Reachable" },
+	{ 5, "Assert" },
+	{ 6, "Graft" },
+	{ 7, "Graft-Ack" },
+	{ 8, "Mode" },
+	{ 0, NULL },
     };
-    char *packet_type2[] = {
-	"Hello", "Register", "Register-Stop", "Join/Prune", "Bootstrap",
-	"Assert", "Graft", "Graft-Ack", "Candidate-RP-Advertisement"
+    static const value_string type2vals[] = {
+	{ 0, "Hello" },
+	{ 1, "Register" },
+	{ 2, "Register-stop" },
+	{ 3, "Join/Prune" },
+	{ 4, "Bootstrap" },
+	{ 5, "Assert" },
+	{ 6, "Graft" },
+	{ 7, "Graft-Ack" },
+	{ 8, "Candidate-RP-Advertisement" },
+	{ 0, NULL },
     };
     char *typestr;
     proto_tree *pim_tree = NULL;
@@ -176,17 +192,15 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     /* avoid alignment problem */
     memcpy(&pim, &pd[offset], sizeof(pim));
 
-    typestr = NULL;
     switch (PIM_VER(pim.pim_typever)) {
     case 1:
-	if (PIM_TYPE(pim.pim_typever) < sizeof(packet_type1) / sizeof(packet_type1[0])) {
-	    typestr = packet_type1[PIM_TYPE(pim.pim_typever)];
-	}
+	typestr = val_to_str(PIM_TYPE(pim.pim_typever), type1vals, "Unknown");
 	break;
     case 2:
-	if (PIM_TYPE(pim.pim_typever) < sizeof(packet_type2) / sizeof(packet_type2[0])) {
-	    typestr = packet_type2[PIM_TYPE(pim.pim_typever)];
-	}
+	typestr = val_to_str(PIM_TYPE(pim.pim_typever), type2vals, "Unknown");
+	break;
+    default:
+	typestr = "Unknown";
 	break;
     }
 
@@ -194,14 +208,8 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         col_add_fstr(fd, COL_PROTOCOL, "PIM version %d",
 	    PIM_VER(pim.pim_typever));
     }
-    if (check_col(fd, COL_INFO)) {
-	if (typestr)
-	    col_add_str(fd, COL_INFO, typestr); 
-	else {
-	    col_add_fstr(fd, COL_INFO, "unknown type %d",
-		PIM_TYPE(pim.pim_typever)); 
-	}
-    }
+    if (check_col(fd, COL_INFO))
+	col_add_fstr(fd, COL_INFO, "%s", typestr); 
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_pim, offset, END_OF_FRAME, NULL);
@@ -209,13 +217,8 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree_add_text(pim_tree, offset, 1,
 	    "Version: %d", PIM_VER(pim.pim_typever)); 
-	if (typestr) {
-	    proto_tree_add_text(pim_tree, offset, 1,
-		"Type: %d (%s)", PIM_TYPE(pim.pim_typever), typestr); 
-	} else {
-	    proto_tree_add_text(pim_tree, offset, 1,
-		"Type: %d (unknown)", PIM_TYPE(pim.pim_typever)); 
-	}
+	proto_tree_add_text(pim_tree, offset, 1,
+	    "Type: %s (%u)", typestr, PIM_TYPE(pim.pim_typever)); 
 
 	proto_tree_add_text(pim_tree, offset + offsetof(struct pim, pim_cksum),
 	    sizeof(pim.pim_cksum),
@@ -224,7 +227,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	if (sizeof(struct pim) < END_OF_FRAME) {
 	    tiopt = proto_tree_add_text(pim_tree,
 		offset + sizeof(struct pim), END_OF_FRAME,
-		"PIM parameters", PIM_TYPE(pim.pim_typever), typestr);
+		"PIM parameters");
 	    pimopt_tree = proto_item_add_subtree(tiopt, ETT_PIM);
 	} else
 	    goto done;

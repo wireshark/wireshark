@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.15 1999/09/24 06:38:22 guy Exp $
+# $Id: configure.in,v 1.16 1999/10/14 03:50:51 itojun Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(wtap.c)
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
@@ -77,9 +77,15 @@ dnl
 AC_HEADER_STDC
 AC_CHECK_HEADERS(sys/time.h netinet/in.h)
 
+AC_CANONICAL_HOST
+
 dnl zlib check
 AC_ARG_ENABLE(zlib,
-[  --enable-zlib           use zlib to read compressed data.  [default=yes]],,enable_zlib=yes)
+[  --enable-zlib           use zlib to read compressed data.  [default=yes]],, [dnl
+case "$host_os" in
+netbsd*)	enable_zlib=no;;
+*)		enable_zlib=yes;;
+esac])
 
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
 if test "x$enable_zlib" = "xno" ; then

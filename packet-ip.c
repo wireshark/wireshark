@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.52 1999/10/13 06:47:44 guy Exp $
+ * $Id: packet-ip.c,v 1.53 1999/10/14 03:50:27 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -717,7 +717,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       if (check_col(fd, COL_PROTOCOL))
         col_add_str(fd, COL_PROTOCOL, "IP");
       if (check_col(fd, COL_INFO))
-        col_add_fstr(fd, COL_INFO, "Unknown IP protocol (0x%02x)", iph.ip_p);
+        col_add_fstr(fd, COL_INFO, "%s (0x%02x)",
+	    ipprotostr(iph.ip_p), iph.ip_p);
   }
 
   if (check_col(fd, COL_RES_NET_SRC))
@@ -800,7 +801,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(ip_tree, hf_ip_frag_offset, offset +  6, 2,
       iph.ip_off & IP_OFFSET);
     proto_tree_add_item(ip_tree, hf_ip_ttl, offset +  8, 1, iph.ip_ttl);
-    proto_tree_add_item(ip_tree, hf_ip_proto, offset +  9, 1, iph.ip_p);
+    proto_tree_add_item_format(ip_tree, hf_ip_proto, offset +  9, 1, iph.ip_p,
+	"Protocol: %s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
     proto_tree_add_item_format(ip_tree, hf_ip_checksum, offset + 10, 2, iph.ip_sum,
 	    "Header checksum: 0x%04x", iph.ip_sum);
 

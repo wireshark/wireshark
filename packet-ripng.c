@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.2 1999/10/13 06:47:49 guy Exp $
+ * $Id: packet-ripng.c,v 1.3 1999/10/14 03:50:31 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,33 +48,29 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     struct netinfo6 ni6;
     proto_tree *ripng_tree = NULL;
 	proto_item *ti; 
-    char *packet_type[] = { "*invalid*", "Request", "Response" };
-    char *cmd;
+    static const value_string cmdvals[] = {
+	{ RIP6_REQUEST, "Request" },
+	{ RIP6_RESPONSE, "Response" },
+	{ 0, NULL },
+    };
+    const char *cmd;
 
     /* avoid alignment problem */
     memcpy(&rip6, &pd[offset], sizeof(rip6));
   
-    switch (rip6.rip6_cmd) {
-    case RIP6_REQUEST:
-    case RIP6_RESPONSE:
-	cmd = packet_type[rip6.rip6_cmd];
-	break;
-    default:
-	cmd = packet_type[0];
-	break;
-    }
+    cmd = val_to_str(rip6.rip6_cmd, cmdvals, "Unknown");
 
     if (check_col(fd, COL_PROTOCOL))
         col_add_fstr(fd, COL_PROTOCOL, "RIPng version %d", rip6.rip6_vers);
     if (check_col(fd, COL_INFO))
-	col_add_str(fd, COL_INFO, cmd); 
+	col_add_fstr(fd, COL_INFO, "%s", cmd); 
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ripng, offset, END_OF_FRAME, NULL);
 	ripng_tree = proto_item_add_subtree(ti, ETT_RIPNG);
 
 	proto_tree_add_text(ripng_tree, offset, 1,
-	    "Command: %d (%s)", rip6.rip6_cmd, cmd); 
+	    "Command: %s (%u)", cmd, rip6.rip6_cmd); 
 	proto_tree_add_text(ripng_tree, offset + 1, 1,
 	    "Version: %d", rip6.rip6_vers);
 

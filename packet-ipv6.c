@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.18 1999/10/13 06:47:47 guy Exp $
+ * $Id: packet-ipv6.c,v 1.19 1999/10/14 03:50:29 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,7 +80,7 @@ dissect_routing6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	proto_tree_add_text(rthdr_tree,
 	    offset + offsetof(struct ip6_rthdr, ip6r_nxt), 1,
-	    "Next header: 0x%02x", rt.ip6r_nxt);
+	    "Next header: %s (0x%02x)", ipprotostr(rt.ip6r_nxt), rt.ip6r_nxt);
 	proto_tree_add_text(rthdr_tree,
 	    offset + offsetof(struct ip6_rthdr, ip6r_len), 1,
 	    "Length: %d (%d bytes)", rt.ip6r_len, len);
@@ -130,8 +130,9 @@ dissect_frag6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     if (check_col(fd, COL_INFO)) {
 	col_add_fstr(fd, COL_INFO,
-	    "IPv6 fragment (nxt=0x%02x off=0x%04x id=0x%x)",
-	    frag.ip6f_nxt, (frag.ip6f_offlg >> 3) & 0x1fff, frag.ip6f_ident);
+	    "IPv6 fragment (nxt=%s (0x%02x) off=0x%04x id=0x%x)",
+	    ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt,
+	    (frag.ip6f_offlg >> 3) & 0x1fff, frag.ip6f_ident);
     }
     return len;
 }
@@ -144,6 +145,10 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
     proto_tree *dstopt_tree;
 	proto_item *ti;
     u_char *p;
+    static const value_string rtalertvals[] = {
+	{ IP6OPT_RTALERT_MLD, "MLD" },
+	{ IP6OPT_RTALERT_RSVP, "RSVP" },
+    };
 
     memcpy(&ext, (void *) &pd[offset], sizeof(ext)); 
     len = (ext.ip6e_len + 1) << 3;
@@ -156,7 +161,7 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 	proto_tree_add_text(dstopt_tree,
 	    offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
-	    "Next header: 0x%02x", ext.ip6e_nxt);
+	    "Next header: %s (0x%02x)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
 	proto_tree_add_text(dstopt_tree,
 	    offset + offsetof(struct ip6_ext, ip6e_len), 1,
 	    "Length: %d (%d bytes)", ext.ip6e_len, len);
@@ -182,7 +187,7 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			ntohl(*(guint32 *)&p[2]), p[1] + 2);
 		} else {
 		    proto_tree_add_text(dstopt_tree, p - pd, p[1] + 2,
-			"Jumbo payload: invalid length (%d bytes)",
+			"Jumbo payload: Invalid length (%d bytes)",
 			p[1] + 2);
 		}
 		p += p[1];
@@ -193,19 +198,10 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		char *rta;
 
 		if (p[1] == 2) {
-		    switch (ntohs(*(guint16 *)&p[2])) {
-		    case IP6OPT_RTALERT_MLD:
-			rta = "MLD";
-			break;
-		    case IP6OPT_RTALERT_RSVP:
-			rta = "RSVP";
-			break;
-		    default:
-			rta = "unknown";
-			break;
-		    }
+		    rta = val_to_str(ntohs(*(guint16 *)&p[2]), rtalertvals,
+				"Unknown");
 		} else
-		    rta = "invalid length";
+		    rta = "Invalid length";
 		ti = proto_tree_add_text(dstopt_tree, p - pd, p[1] + 2,
 		    "Router alert: %s (%d bytes)", rta, p[1] + 2);
 		p += p[1];
@@ -284,7 +280,8 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_nxt), 1,
-		"Next header: 0x%02x", ipv6.ip6_nxt);
+		"Next header: %s (0x%02x)",
+		ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
 
     proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_hlim), 1,
@@ -369,8 +366,8 @@ again:
 	break;
     default:
 	if (check_col(fd, COL_INFO)) {
-	    col_add_fstr(fd, COL_INFO, "Unknown IPv6 protocol (0x%02x)",
-		ipv6.ip6_nxt);
+	    col_add_fstr(fd, COL_INFO, "%s (0x%02x)",
+		ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
 	}
 	dissect_data(pd, offset, fd, tree);
     }
