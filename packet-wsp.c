@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.82 2003/11/07 20:07:01 guy Exp $
+ * $Id: packet-wsp.c,v 1.83 2003/11/07 20:23:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,8 @@ static int hf_hdr_content_length		= HF_EMPTY;
 static int hf_hdr_content_location		= HF_EMPTY;
 static int hf_hdr_content_md5			= HF_EMPTY;
 static int hf_hdr_content_range			= HF_EMPTY;
+static int hf_hdr_content_range_first_byte_pos	= HF_EMPTY; /* Subfield */
+static int hf_hdr_content_range_entity_length	= HF_EMPTY; /* Subfield */
 static int hf_hdr_content_type			= HF_EMPTY;
 static int hf_hdr_date					= HF_EMPTY;
 static int hf_hdr_etag					= HF_EMPTY;
@@ -113,6 +115,9 @@ static int hf_hdr_proxy_authorization_user_id	= HF_EMPTY; /* Subfield */
 static int hf_hdr_proxy_authorization_password	= HF_EMPTY; /* Subfield */
 static int hf_hdr_public				= HF_EMPTY;
 static int hf_hdr_range					= HF_EMPTY;
+static int hf_hdr_range_first_byte_pos			= HF_EMPTY; /* Subfield */
+static int hf_hdr_range_last_byte_pos			= HF_EMPTY; /* Subfield */
+static int hf_hdr_range_suffix_length			= HF_EMPTY; /* Subfield */
 static int hf_hdr_referer				= HF_EMPTY;
 static int hf_hdr_retry_after			= HF_EMPTY;
 static int hf_hdr_server				= HF_EMPTY;
@@ -1268,6 +1273,8 @@ static guint32 wkh_vary (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_accept_ranges (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
+static guint32 wkh_content_disposition (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start);
 static guint32 wkh_accept_encoding (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_content_encoding (proto_tree *tree, tvbuff_t *tvb,
@@ -1387,22 +1394,21 @@ static guint32 wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb,
 static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 
-/* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+/* Content-Range and Range */
 static guint32 wkh_content_range (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_range (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
+
+
+/* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 static guint32 wkh_retry_after (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
-static guint32 wkh_content_disposition (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_profile_diff (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_expect (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
-static guint32 wkh_content_id (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
 static guint32 wkh_set_cookie (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start);
@@ -1490,7 +1496,7 @@ static const hdr_parse_func_ptr WellKnownHeader[128] = {
 	/* 0x0A */	wkh_content_base,		/* 0x0B */	wkh_content_encoding,
 	/* 0x0C */	wkh_content_language,	/* 0x0D */	wkh_content_length,
 	/* 0x0E */	wkh_content_location,	/* 0x0F */	wkh_content_md5,
-	/* 0x10 */	wkh_default,			/* 0x11 */	wkh_content_type,
+	/* 0x10 */	wkh_content_range,		/* 0x11 */	wkh_content_type,
 	/* 0x12 */	wkh_date,				/* 0x13 */	wkh_etag,
 	/* 0x14 */	wkh_expires,			/* 0x15 */	wkh_from,
 	/* 0x16 */	wkh_host,				/* 0x17 */	wkh_if_modified_since,
@@ -1499,13 +1505,13 @@ static const hdr_parse_func_ptr WellKnownHeader[128] = {
 	/* 0x1C */	wkh_location,			/* 0x1D */	wkh_last_modified,
 	/* 0x1E */	wkh_max_forwards,		/* 0x1F */	wkh_pragma,
 	/* 0x20 */	wkh_proxy_authenticate,	/* 0x21 */	wkh_proxy_authorization,
-	/* 0x22 */	wkh_public,				/* 0x23 */	wkh_default,
+	/* 0x22 */	wkh_public,				/* 0x23 */	wkh_range,
 	/* 0x24 */	wkh_referer,			/* 0x25 */	wkh_default,
 	/* 0x26 */	wkh_server,				/* 0x27 */	wkh_transfer_encoding,
 	/* 0x28 */	wkh_upgrade,			/* 0x29 */	wkh_user_agent,
 	/* 0x2A */	wkh_vary,				/* 0x2B */	wkh_via,
 	/* 0x2C */	wkh_warning,			/* 0x2D */	wkh_www_authenticate,
-	/* 0x2E */	wkh_default,			/* 0x2F */	wkh_x_wap_application_id,
+	/* 0x2E */	wkh_content_disposition,/* 0x2F */	wkh_x_wap_application_id,
 	/* 0x30 */	wkh_content_uri,		/* 0x31 */	wkh_initiator_uri,
 	/* 0x32 */	wkh_accept_application,	/* 0x33 */	wkh_bearer_indication,
 	/* 0x34 */	wkh_push_flag,			/* 0x35 */	wkh_profile,
@@ -1513,10 +1519,10 @@ static const hdr_parse_func_ptr WellKnownHeader[128] = {
 	/* 0x38 */	wkh_default,			/* 0x39 */	wkh_default,
 	/* 0x3A */	wkh_content_id,			/* 0x3B */	wkh_accept_charset,
 	/* 0x3C */	wkh_accept_encoding,	/* 0x3D */	wkh_cache_control,
-	/* 0x3E */	wkh_default,			/* 0x3F */	wkh_x_wap_tod,
+	/* 0x3E */	wkh_content_range,		/* 0x3F */	wkh_x_wap_tod,
 	/* 0x40 */	wkh_default,			/* 0x41 */	wkh_default,
 	/* 0x42 */	wkh_default,			/* 0x43 */	wkh_encoding_version,
-	/* 0x44 */	wkh_profile_warning,	/* 0x45 */	wkh_default,
+	/* 0x44 */	wkh_profile_warning,	/* 0x45 */	wkh_content_disposition,
 	/* 0x46 */	wkh_x_wap_security,		/* 0x47 */	wkh_cache_control,
 	/*******************************************************
 	 *** The following headers are not (yet) registered. ***
@@ -1876,7 +1882,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 	if (! ok) { \
 		if (ti) { /* Append to protocol tree item label */ \
 			proto_item_append_text(ti, \
-					"<Error: Invalid header value>"); \
+					" <Error: Invalid header value>"); \
 		} else if (hf > 0) { /* Create protocol tree item */ \
 			proto_tree_add_string(tree, hf, \
 					tvb, hdr_start, offset - hdr_start, \
@@ -2487,8 +2493,67 @@ wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 			off += len;
 		}
 		if (ok) {
-			/* Remember: offset == val_start + val_len */
+			/* Remember: offset == val_start + val_len_len + val_len */
 			if (off < offset) { /* Add Q-value if available */
+				parameter_tree = proto_item_add_subtree(ti, ett_header);
+				off = parameter_value_q(parameter_tree, ti, tvb, off);
+			}
+		}
+	wkh_4_End(hf_hdr_accept_encoding);
+}
+
+
+/*
+ * Content-disposition-value =
+ *	Value-length ( Short-integer | Text-string ) *( Parameter )
+ */
+static guint32
+wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 len, off;
+	guint8 peek;
+	gchar *str;
+	proto_tree *parameter_tree = NULL;
+
+	wkh_1_WellKnownValue;
+		/* Invalid */
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		off = val_start + val_len_len;
+		peek = tvb_get_guint8(tvb, off);
+		if (is_short_integer(peek)) {
+			switch (val_id) {
+				case 0x80: /* form-data */
+					ti = proto_tree_add_string(tree, hf_hdr_content_disposition,
+							tvb, hdr_start, offset - hdr_start, "form-data");
+					ok = TRUE;
+					break;
+				case 0x81: /* attachment */
+					ti = proto_tree_add_string(tree, hf_hdr_content_disposition,
+							tvb, hdr_start, offset - hdr_start, "attachment");
+					ok = TRUE;
+					break;
+				case 0x82: /* inline */
+					ti = proto_tree_add_string(tree, hf_hdr_content_disposition,
+							tvb, hdr_start, offset - hdr_start, "inline");
+					ok = TRUE;
+					break;
+			}
+			off++;
+		} else {
+			get_token_text(str, tvb, off, len, ok);
+			if (ok) {
+				ti = proto_tree_add_string(tree, hf_hdr_content_disposition,
+						tvb, hdr_start, offset - hdr_start, str);
+				g_free(str);
+			}
+			off += len;
+		}
+		if (ok) {
+			/* Remember: offset == val_start + val_len_len + val_len */
+			while (off < offset) { /* Add Q-value if available */
 				parameter_tree = proto_item_add_subtree(ti, ett_header);
 				off = parameter_value_q(parameter_tree, ti, tvb, off);
 			}
@@ -2790,7 +2855,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 						hf_hdr_ ## underscored ## _realm, \
 						tvb, off, len, str); \
 				val_str = malloc((len + 11) * sizeof(char)); \
-				sprintf(val_str, "; realm='%s'", str); \
+				sprintf(val_str, "; realm=%s", str); \
 				proto_item_append_string(ti, val_str); \
 				g_free(val_str); \
 				g_free(str); \
@@ -2814,7 +2879,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 							hf_hdr_ ## underscored ## _realm, \
 							tvb, off, len, str); \
 					val_str = malloc((len + 11) * sizeof(char)); \
-					sprintf(val_str, "; realm='%s'", str); \
+					sprintf(val_str, "; realm=%s", str); \
 					proto_item_append_string(ti, val_str); \
 					g_free(val_str); \
 					g_free(str); \
@@ -2873,7 +2938,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 						hf_hdr_ ## underscored ## _user_id, \
 						tvb, off, len, str); \
 				val_str = malloc((len + 13) * sizeof(char)); \
-				sprintf(val_str, "; user-id='%s'", str); \
+				sprintf(val_str, "; user-id=%s", str); \
 				proto_item_append_string(ti, val_str); \
 				g_free(val_str); \
 				g_free(str); \
@@ -2885,7 +2950,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 							hf_hdr_ ## underscored ## _password, \
 							tvb, off, len, str); \
 					val_str = malloc((len + 14) * sizeof(char)); \
-					sprintf(val_str, "; password='%s'", str); \
+					sprintf(val_str, "; password=%s", str); \
 					proto_item_append_string(ti, val_str); \
 					g_free(val_str); \
 					g_free(str); \
@@ -2981,7 +3046,7 @@ wkh_pragma(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 	wkh_2_TextualValue;
 		/* Invalid */
 	wkh_3_ValueWithLength;
-		off = val_start;
+		off = val_start + val_len_len;
 		ti = proto_tree_add_string(tree, hf_hdr_pragma,
 				tvb, hdr_start, off - hdr_start, "");
 		/* NULL subtree for parameter() results in no subtree
@@ -3147,7 +3212,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 					if (ok) {
 						val_str = malloc(22 * sizeof(gchar));
 						g_assert(val_str);
-						sprintf(val_str, " = %u second%s", val, PLURALIZE(val));
+						sprintf(val_str, "=%u second%s", val, PLURALIZE(val));
 						proto_item_append_string(ti, val_str);
 						g_free(val_str); /* proto_XXX creates a copy */
 					}
@@ -3232,7 +3297,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 							tvb, off, len, str);
 					val_str = g_malloc((len + 11) * sizeof(char));
 					g_assert(val_str);
-					sprintf(val_str, "; Agent = %s", str);
+					sprintf(val_str, "; agent=%s", str);
 					proto_item_append_string(ti, val_str);
 					g_free(val_str); /* proto_XXX creates a copy */
 					g_free(str);
@@ -3244,7 +3309,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 								tvb, off, len, str);
 						val_str = g_malloc((len + 10) * sizeof(char));
 						g_assert(val_str);
-						sprintf(val_str, "; Text = %s", str);
+						sprintf(val_str, "; Text=%s", str);
 						proto_item_append_string(ti, val_str);
 						g_free(val_str); /* proto_XXX creates a copy */
 						g_free(str);
@@ -3294,7 +3359,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 					off += len;
 					str = g_malloc((len+12) * sizeof(char));
 					g_assert(str);
-					sprintf(str, "; Target = %s", val_str);
+					sprintf(str, "; target=%s", val_str);
 					proto_item_append_string(ti, str);
 					g_free(str); /* proto_XXX creates a copy */
 					/* Add zero or more dates */
@@ -3308,7 +3373,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 							g_assert(val_str);
 							str = g_malloc((strlen(val_str)+10) * sizeof(char));
 							g_assert(str);
-							sprintf(str,"; Date = %s", val_str);
+							sprintf(str,"; date=%s", val_str);
 							proto_item_append_string(ti, str);
 							g_free(str); /* proto_XXX creates a copy */
 							/* BEHOLD: do NOT try to free val_str, as this
@@ -3355,7 +3420,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 		if (val & 0x80) { /* Header Code Page */
 			val_str = g_malloc(14 * sizeof(char));
 			g_assert(val_str);
-			sprintf(val_str, "Code-page %u", val & 0x7F);
+			sprintf(val_str, "code-page %u", val & 0x7F);
 			ti = proto_tree_add_string(tree, hf_hdr_encoding_version,
 					tvb, hdr_start, off - hdr_start, val_str);
 			g_free(val_str);
@@ -3375,6 +3440,127 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 		}
 
 	wkh_4_End(hf_hdr_encoding_version);
+}
+
+
+/* Content-range-value =
+ *	  Length Uintvar-integer ( 0x80 | Uintvar-integer )
+ */
+static guint32
+wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 off, val, len;
+	proto_tree *subtree = NULL;
+
+	wkh_1_WellKnownValue;
+		/* Invalid */
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		off = val_start + val_len_len;
+		get_uintvar_integer (val, tvb, off, len, ok); /* Uintvar start */
+		if (ok) {
+			val_str = g_malloc(26 * sizeof(char));
+			g_assert(val_str);
+			sprintf(val_str, "first-byte-pos=%u", val);
+			ti = proto_tree_add_string(tree, hf_hdr_content_range,
+					tvb, hdr_start, offset - hdr_start, val_str);
+			subtree = proto_item_add_subtree(ti, ett_header);
+			proto_tree_add_uint(subtree, hf_hdr_content_range_first_byte_pos,
+					tvb, off, len, val);
+			g_free(val_str);
+			off += len;
+			/* Now check next value */
+			val = tvb_get_guint8(tvb, off);
+			if (val == 0x80) { /* Unknown length */
+				proto_item_append_string(ti, "; entity-length=unknown");
+			} else { /* Uintvar entity length */
+				get_uintvar_integer (val, tvb, off, len, ok);
+				if (ok) {
+					val_str = g_malloc(27 * sizeof(char));
+					g_assert(val_str);
+					sprintf(val_str, "; entity-length=%u", val);
+					proto_item_append_string(ti, val_str);
+					proto_tree_add_uint(subtree,
+							hf_hdr_content_range_entity_length,
+							tvb, off, len, val);
+					g_free(val_str);
+				}
+			}
+		}
+
+	wkh_4_End(hf_hdr_content_range);
+}
+
+
+/* Range-value =
+ *	Length
+ *		0x80 Uintvar-integer [ Uintvar-integer ]
+ *	  | 0x81 Uintvar-integer
+ */
+static guint32
+wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+{
+	wkh_0_Declarations;
+	guint32 off, val, len;
+	proto_tree *subtree = NULL;
+
+	wkh_1_WellKnownValue;
+		/* Invalid */
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		off = val_start + val_len_len;
+		val = tvb_get_guint8(tvb, off);
+		if (val == 0x80) { /* Byte-range */
+			ti = proto_tree_add_string(tree, hf_hdr_range,
+					tvb, hdr_start, offset - hdr_start, "byte-range");
+			subtree = proto_item_add_subtree(ti, ett_header);
+			/* Get the First-byte-pos (Uintvar-integer) */
+			get_uintvar_integer (val, tvb, off, len, ok);
+			if (ok) {
+				val_str = g_malloc(28 * sizeof(char));
+				g_assert(val_str);
+				sprintf(val_str, "; first-byte-pos=%u", val);
+				proto_item_append_string(ti, val_str);
+				proto_tree_add_uint(subtree, hf_hdr_range_first_byte_pos,
+						tvb, off, len, val);
+				g_free(val_str);
+				off += len;
+				/* Get the optional Last-byte-pos (Uintvar-integer) */
+				if (off < offset) {
+					get_uintvar_integer (val, tvb, off, len, ok);
+					if (ok) {
+						val_str = g_malloc(27 * sizeof(char));
+						g_assert(val_str);
+						sprintf(val_str, "; last-byte-pos=%u", val);
+						proto_item_append_string(ti, val_str);
+						proto_tree_add_uint(subtree,
+								hf_hdr_range_last_byte_pos,
+								tvb, off, len, val);
+						g_free(val_str);
+					}
+				}
+			}
+		} else if (val == 0x81) { /* Suffix-byte-range */
+			ti = proto_tree_add_string(tree, hf_hdr_range,
+					tvb, hdr_start, offset - hdr_start, "suffix-byte-range");
+			subtree = proto_item_add_subtree(ti, ett_header);
+			/* Get the Suffix-length (Uintvar-integer) */
+			get_uintvar_integer (val, tvb, off, len, ok);
+			if (ok) {
+				val_str = g_malloc(28 * sizeof(char));
+				g_assert(val_str);
+				sprintf(val_str, "; suffix-length=%u", val);
+				proto_item_append_string(ti, val_str);
+				proto_tree_add_uint(subtree, hf_hdr_range_suffix_length,
+						tvb, off, len, val);
+				g_free(val_str);
+			}
+		}
+
+	wkh_4_End(hf_hdr_range);
 }
 
 
@@ -5593,6 +5779,20 @@ proto_register_wsp(void)
 				"WSP header Content-Range", HFILL
 			}
 		},
+		{ &hf_hdr_content_range_first_byte_pos,
+			{	"First-byte-position",
+				"wsp.hdr.content_range.first_byte_pos",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"WSP header Content-Range: position of first byte", HFILL
+			}
+		},
+		{ &hf_hdr_content_range_entity_length,
+			{	"Entity-length",
+				"wsp.hdr.content_range.entity_length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"WSP header Content-Range: length of the entity", HFILL
+			}
+		},
 		{ &hf_hdr_content_type,
 			{	"Content-Type",
 				"wsp.hdr.content_type",
@@ -5759,6 +5959,27 @@ proto_register_wsp(void)
 				"wsp.hdr.range",
 				FT_STRING, BASE_NONE, NULL, 0x00,
 				"WSP header Range", HFILL
+			}
+		},
+		{ &hf_hdr_range_first_byte_pos,
+			{	"First-byte-position",
+				"wsp.hdr.range.first_byte_pos",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"WSP header Range: position of first byte", HFILL
+			}
+		},
+		{ &hf_hdr_range_last_byte_pos,
+			{	"Last-byte-position",
+				"wsp.hdr.range.last_byte_pos",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"WSP header Range: position of last byte", HFILL
+			}
+		},
+		{ &hf_hdr_range_suffix_length,
+			{	"Suffix-length",
+				"wsp.hdr.range.suffix_length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"WSP header Range: length of the suffix", HFILL
 			}
 		},
 		{ &hf_hdr_referer,
