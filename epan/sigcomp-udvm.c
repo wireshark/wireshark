@@ -1727,6 +1727,8 @@ execute_next_instruction:
 		 *
 		 * Transfer H bit to bit_order to tell decomp dispatcher which bit order to use 
 		 */
+		input_bit_order = buff[68] << 8;
+		input_bit_order = input_bit_order | buff[69];
 		bit_order = ( input_bit_order & 0x0002 ) >> 1;
 
 		j = 1;
