@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.25 1999/10/05 07:06:07 guy Exp $
+ * $Id: ngsniffer.c,v 1.26 1999/11/27 20:46:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -260,7 +260,7 @@ int ngsniffer_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* PC Network broadband */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
 		WTAP_ENCAP_UNKNOWN,	/* Znet */
-		WTAP_ENCAP_LAPB,	/* Internetwork analyzer */
+		WTAP_ENCAP_UNKNOWN,	/* Internetwork analyzer */
 		WTAP_ENCAP_UNKNOWN,	/* type 8 not defined in Sniffer */
 		WTAP_ENCAP_FDDI_BITSWAPPED,
 		WTAP_ENCAP_ATM_SNIFFER	/* ATM */
@@ -328,9 +328,18 @@ int ngsniffer_open(wtap *wth, int *err)
 		return -1;
 	}
 
-	/* Check the data link type */
+	/* Check the data link type.
+	   If "version.network" is 7, that's "Internetwork analyzer";
+	   Sniffers appear to write out both LAPB and PPP captures
+	   (and perhaps other types of captures) in that fashion,
+	   and, so far, the only way we know of distinguishing them
+	   is to look at the first byte of the packet - if it's 0xFF,
+	   it's PPP, otherwise it's LAPB.
+	   Therefore, we treat it as WTAP_ENCAP_UNKNOWN for now, but
+	   don't treat that as an error. */
 	if (version.network >= NUM_NGSNIFF_ENCAPS
-	    || sniffer_encap[version.network] == WTAP_ENCAP_UNKNOWN) {
+	    || (sniffer_encap[version.network] == WTAP_ENCAP_UNKNOWN
+	       && version.network != 7)) {
 		g_message("ngsniffer: network type %u unknown or unsupported",
 		    version.network);
 		*err = WTAP_ERR_UNSUPPORTED;
@@ -400,6 +409,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 	double	t;
 	guint16	time_low, time_med, time_high, true_size, size;
 	int	data_offset;
+	u_char	*pd;
 
 	for (;;) {
 		/*
@@ -554,8 +564,8 @@ found:
 	buffer_assure_space(wth->frame_buffer, length);
 	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-			length, wth->fh);
+	pd = buffer_start_ptr(wth->frame_buffer);
+	bytes_read = file_read(pd, 1, length, wth->fh);
 
 	if (bytes_read != length) {
 		*err = file_error(wth->fh);
@@ -564,6 +574,25 @@ found:
 		return -1;
 	}
 	wth->data_offset += length;
+
+	if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+		/*
+		 * OK, this is from an "Internetwork analyzer"; let's
+		 * look at the first byte of the packet, and figure
+		 * out whether it's LAPB or PPP.
+		 */
+		if (pd[0] == 0xFF) {
+			/*
+			 * PPP.
+			 */
+			wth->file_encap = WTAP_ENCAP_PPP;
+		} else {
+			/*
+			 * LAPB.
+			 */
+			wth->file_encap = WTAP_ENCAP_LAPB;
+		}
+	}
 
 	t = t/1000000.0 * wth->capture.ngsniffer->timeunit; /* t = # of secs */
 	t += wth->capture.ngsniffer->start;
