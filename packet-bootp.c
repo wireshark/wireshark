@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.12 1998/11/18 23:58:54 gerald Exp $
+ * $Id: packet-bootp.c,v 1.13 1998/11/20 04:34:37 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -69,6 +69,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 	enum field_type	ftype;
 	u_char			code = pd[voff];
 	int				vlen = pd[voff+1];
+	u_char			byte;
 	int				i, consumed = 1; /* if code is unknown, consume 1 byte */
 	GtkWidget		*vti, *v_tree;
 
@@ -140,7 +141,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 		/*  52 */ { "Option Overload",						special },
 		/*  53 */ { "DHCP Message Type",					special },
 		/*  54 */ { "Server Identifier",					ipv4 },
-		/*  55 */ { "Parameter Request List",				opaque },
+		/*  55 */ { "Parameter Request List",				special },
 		/*  56 */ { "Message",								string },
 		/*  57 */ { "Maximum DHCP Message Size",			val_u_short },
 		/*  58 */ { "Renewal Time Value",					val_u_long },
@@ -200,6 +201,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 						ip_to_str((guint8*)&pd[i+4]));
 				}
 			}
+			break;
 
 		/* Static Route */
 		case 33:
@@ -224,22 +226,42 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 						ip_to_str((guint8*)&pd[i+4]));
 				}
 			}
+			break;
 
 		/* DHCP Message Type */
 		case 53:
-			if (pd[voff+2] > 0 && pd[voff+2] < 9) {
-				i = pd[voff + 2];
+			byte = pd[voff+2];
+			if (byte > 0 && byte < 9) {
+				i = byte;
 			}
 			else {
 				i = 0;
 			}
 			add_item_to_tree(bp_tree, voff, 3, "Option %d: %s = DHCP %s",
 				code, text, opt53_text[i]);
-			return vlen + 2;
+			break;
+
+		/* Parameter Request List */
+		case 55:
+			vti = add_item_to_tree(GTK_WIDGET(bp_tree), voff,
+				vlen + 2, "Option %d: %s", code, text);
+			v_tree = gtk_tree_new();
+			add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
+			for (i = 0; i < vlen; i++) {
+				byte = pd[voff+2+i];
+				if (byte < NUM_OPT_INFOS) {
+					add_item_to_tree(v_tree, voff+2+i, 1, "%d = %s",
+							byte, opt[byte].text);
+				}
+				else {
+					add_item_to_tree(vti, voff+2+i, 1,
+						"Unknown Option Code: %d", byte);
+				}
+			}
+			break;
 
 		/* Client Identifier */
 		case 61:
-			consumed = vlen + 2;
 			/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
 				guess that the first is the hwtype, and the last 6 are
 				the hw addr */
@@ -259,7 +281,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 				add_item_to_tree(bp_tree, voff, consumed,
 					"Option %d: %s (%d bytes)", code, text, vlen);
 			}
-			return consumed;
+			break;
 
 		/* End Option */
 		case 255:
@@ -279,6 +301,9 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 		ftype = opt[code].ftype;
 
 		switch (ftype) {
+			case special:
+				return consumed;
+
 			case ipv4:
 				/* one IP address */
 				if (vlen == 4) {
