@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.6 2003/12/13 17:10:21 ulfl Exp $
+ * $Id: wsp_stat.c,v 1.7 2003/12/13 22:23:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,8 +28,12 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "epan/packet_info.h"
 #include "epan/epan.h"
+#include "menu.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "tap.h"
@@ -37,7 +41,6 @@
 #include "../globals.h"
 #include "compat_macros.h"
 #include "../packet-wsp.h"
-#include <string.h>
 
 /* used to keep track of the stats for a specific PDU type*/
 typedef struct _wsp_pdu_t {
