@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.1 1999/12/07 06:09:58 guy Exp $
+ * $Id: packet-srvloc.c,v 1.2 1999/12/09 20:46:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -108,6 +108,14 @@ static const value_string srvlocfunctionvals[] = {
 /* List to resolve flag values to names */
 
 
+/* Define flag masks */
+
+#define FLAG_O		0x80
+#define FLAG_M		0x40
+#define FLAG_U		0x20
+#define FLAG_A		0x10
+#define FLAG_F		0x08
+
 /* Define Error Codes */
 
 #define SUCCESS		0
@@ -130,6 +138,32 @@ static const value_string srvloc_errs[] = {
     { CHRSET_NOT_UND, "Character set not understood" },
     { AUTH_ABSENT, "Authentication absent" },
     { AUTH_FAILED, "Authentication failed" },
+};
+
+void
+dissect_authblk(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+    struct tm *stamp;
+    time_t seconds;
+    double floatsec;
+    guint16 length;
+    
+    seconds = pntohl(&pd[offset]) - 2208988800ul;
+    stamp = gmtime(&seconds);
+    floatsec = stamp->tm_sec + pntohl(&pd[offset + 4]) / 4294967296.0;
+    proto_tree_add_text(tree, offset, 8,
+			"Timestamp: %04d-%02d-%02d %02d:%02d:%07.4f UTC",
+			stamp->tm_year + 1900, stamp->tm_mon, stamp->tm_mday,
+			stamp->tm_hour, stamp->tm_min, floatsec);
+    proto_tree_add_text(tree, offset + 8, 2, "Block Structure Desciptor: %u",
+			pntohs(&pd[offset + 8]));
+    length = pntohs(&pd[offset + 10]);
+    proto_tree_add_text(tree, offset + 10, 2, "Authenticator length: %u",
+			length);
+    offset += 12;
+    proto_tree_add_text(tree, offset, length, "Authentication block: %s",
+			format_text(&pd[offset], length));
+    offset += length;
 };
 
 /* Packet dissection routine called by tcp & udp when port 427 detected */
@@ -155,18 +189,18 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     
         if ( END_OF_FRAME > sizeof(srvloc_hdr) ) {
             memcpy( &srvloc_hdr, &pd[offset], sizeof(srvloc_hdr) );
-            srvloc_hdr.length = ntohs(srvloc_hdr.length);
-            srvloc_hdr.encoding = ntohs(srvloc_hdr.encoding);
-            srvloc_hdr.xid = ntohs(srvloc_hdr.xid);
+            srvloc_hdr.length = pntohs(&srvloc_hdr.length);
+            srvloc_hdr.encoding = pntohs(&srvloc_hdr.encoding);
+            srvloc_hdr.xid = pntohs(&srvloc_hdr.xid);
             proto_tree_add_item(srvloc_tree, hf_srvloc_version, offset, 1, srvloc_hdr.version);
             proto_tree_add_item(srvloc_tree, hf_srvloc_function, offset + 1, 1, srvloc_hdr.function);
             proto_tree_add_text(srvloc_tree, offset + 2, 2, "Length: %d",srvloc_hdr.length);
             proto_tree_add_item(srvloc_tree, hf_srvloc_flags, offset + 4, 1, srvloc_hdr.flags);
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Overflow                          %d... .xxx", (srvloc_hdr.flags & 0x80) >> 7 );
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Monolingual                       .%d.. .xxx", (srvloc_hdr.flags & 0x40) >> 6 ); 
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "URL Authentication Present        ..%d. .xxx", (srvloc_hdr.flags & 0x20) >> 5 );
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Attribute Authentication Present  ...%d .xxx", (srvloc_hdr.flags & 0x10) >> 4 );
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Fresh Service Entry               .... %dxxx", (srvloc_hdr.flags & 0x08) >> 3 );
+            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Overflow                          %d... .xxx", (srvloc_hdr.flags & FLAG_O) >> 7 );
+            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Monolingual                       .%d.. .xxx", (srvloc_hdr.flags & FLAG_M) >> 6 ); 
+            proto_tree_add_text(srvloc_tree, offset + 4, 0, "URL Authentication Present        ..%d. .xxx", (srvloc_hdr.flags & FLAG_U) >> 5 );
+            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Attribute Authentication Present  ...%d .xxx", (srvloc_hdr.flags & FLAG_A) >> 4 );
+            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Fresh Service Entry               .... %dxxx", (srvloc_hdr.flags & FLAG_F) >> 3 );
             proto_tree_add_text(srvloc_tree, offset + 5, 1, "Dialect: %d",srvloc_hdr.dialect); 
             proto_tree_add_text(srvloc_tree, offset + 6, 2, "Language: %s", format_text(srvloc_hdr.language,2));
             proto_tree_add_text(srvloc_tree, offset + 8, 2, "Encoding: %d", srvloc_hdr.encoding);
@@ -206,6 +240,8 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                         offset += 2;
                         proto_tree_add_text(srvloc_tree, offset, length, "Service URL: %s", format_text(&pd[offset], length));
                         offset += length;
+                        if ( (srvloc_hdr.flags & FLAG_U) == FLAG_U ) 
+                            dissect_authblk(pd, offset, fd, srvloc_tree);
                     };
                 break;
 
@@ -218,11 +254,15 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                     offset += 2;
                     proto_tree_add_text(srvloc_tree, offset, length, "Service URL: %s", format_text(&pd[offset], length));
                     offset += length;
+                    if ( (srvloc_hdr.flags & FLAG_U) == FLAG_U ) 
+                        dissect_authblk(pd, offset, fd, srvloc_tree);
                     length = pntohs(&pd[offset]);
                     proto_tree_add_text(srvloc_tree, offset, 2, "Attribute List length: %d", length);
                     offset += 2;
                     proto_tree_add_text(srvloc_tree, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
                     offset += length;
+                    if ( (srvloc_hdr.flags & FLAG_A) == FLAG_A ) 
+                        dissect_authblk(pd, offset, fd, srvloc_tree);
                 break;
 
                 case SRVDEREG:
@@ -232,11 +272,15 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                     offset += 2;
                     proto_tree_add_text(srvloc_tree, offset, length, "Service URL: %s", format_text(&pd[offset], length));
                     offset += length;
+                    if ( (srvloc_hdr.flags & FLAG_U) == FLAG_U ) 
+                        dissect_authblk(pd, offset, fd, srvloc_tree);
                     length = pntohs(&pd[offset]);
                     proto_tree_add_text(srvloc_tree, offset, 2, "Attribute List length: %d", length);
                     offset += 2;
                     proto_tree_add_text(srvloc_tree, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
                     offset += length;
+                    if ( (srvloc_hdr.flags & FLAG_A) == FLAG_A ) 
+                        dissect_authblk(pd, offset, fd, srvloc_tree);
                 break;
             
                 case SRVACK:
@@ -278,6 +322,8 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                     offset += 2;
                     proto_tree_add_text(srvloc_tree, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
                     offset += length;
+                    if ( (srvloc_hdr.flags & FLAG_A) == FLAG_A ) 
+                        dissect_authblk(pd, offset, fd, srvloc_tree);
                 break;
             
                 case DAADVERT:
