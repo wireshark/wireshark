@@ -38,12 +38,6 @@ extern void register_http_stat_trees(void);
 
 G_MODULE_EXPORT const gchar version[] = "0.0";
 
-G_MODULE_EXPORT void plugin_init(plugin_address_table_t *pat _U_ ) {
-	/* initialise the table of pointers needed in Win32 DLLs */
-	plugin_address_table_init(pat);
-
-}
-
 G_MODULE_EXPORT void plugin_register_tap_listener(void)
 {
 	register_pinfo_stat_trees();
