@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.9 1999/11/25 10:01:16 guy Exp $
+ * $Id: packet-q931.c,v 1.10 1999/11/25 11:00:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -793,6 +793,8 @@ l2_done:
 			    "Mode: %s",
 			    val_to_str(octet & 0x60, q931_mode_vals,
 			      "Unknown (0x%02X)"));
+			offset += 1;
+			len -= 1;
 
 			if (octet & Q931_IE_VL_EXTENSION)
 				goto l3_done;
