@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.19 2000/02/18 13:41:25 oabad Exp $
+ * $Id: packet-x25.c,v 1.20 2000/02/19 14:00:35 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1976,4 +1976,5 @@ proto_register_x25(void)
     proto_register_field_array (proto_x25, hf8, array_length(hf8));
     proto_register_field_array (proto_ex25, hf128, array_length(hf128));
     proto_register_subtree_array(ett, array_length(ett));
+    register_init_routine(&reinit_x25_hashtable);
 }

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.97 2000/02/18 13:41:23 oabad Exp $
+ * $Id: capture.c,v 1.98 2000/02/19 14:00:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,7 +102,6 @@
 #include "packet-ppp.h"
 #include "packet-raw.h"
 #include "packet-tr.h"
-#include "packet-x25.h"
 
 int sync_mode;	/* fork a child to do the capture, and sync between them */
 static int sync_pipe[2]; /* used to sync father */
@@ -164,10 +163,6 @@ do_capture(char *capfile_name)
   close_cap_file(&cf, info_bar);
   g_assert(cf.save_file == NULL);
   cf.save_file = capfile_name;
-
-  /* The hash table used by the X.25 dissector must be re-initialized
-   * before starting a new capture */
-  reinit_x25_hashtable();
 
   if (sync_mode) {	/*  use fork() for capture */
 #ifndef _WIN32
