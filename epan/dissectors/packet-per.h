@@ -27,7 +27,7 @@
 #define __PACKET_PER_H__
 
 #define PER_NOT_DECODED_YET(x) \
-proto_tree_add_text(tree, tvb, offset, 0, "something unknown here [%s]",x); \
+proto_tree_add_text(tree, tvb, 0, 0, "something unknown here [%s]",x); \
 fprintf(stderr,"Not decoded yet in packet : %d  [%s]\n", pinfo->fd->num,x); \
 if (check_col(pinfo->cinfo, COL_INFO)){ \
 	col_append_fstr(pinfo->cinfo, COL_INFO, "[UNKNOWN PER: %s]", x); \
