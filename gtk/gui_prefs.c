@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.45 2003/11/11 05:23:23 guy Exp $
+ * $Id: gui_prefs.c,v 1.46 2003/11/19 00:10:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "gtkglobals.h"
 #include "follow_dlg.h"
 #include "help_dlg.h"
+#include "supported_protos_dlg.h"
 #include "prefs.h"
 #include "prefs_dlg.h"
 #include "ui_util.h"
@@ -569,7 +570,8 @@ gui_prefs_apply(GtkWidget *w _U_)
 	   highlight style changed. */
 	redraw_hex_dump_all();
 
-	/* Redraw the help window. */
+	/* Redraw the help window(s). */
+	supported_redraw();
 	help_redraw();
 
 	/* Redraw the "Follow TCP Stream" windows, in case either the font
