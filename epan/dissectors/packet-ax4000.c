@@ -2,7 +2,7 @@
  * Routines for Spirent AX/4000 Test Block dissection
  * Copyright 2004, SEKINE Hideki <sekineh@gf7.so-net.ne.jp>
  *
- * $Id: README.developer 11418 2004-07-18 22:36:55Z jmayer $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
