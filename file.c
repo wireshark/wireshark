@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.169 2000/03/08 06:47:50 guy Exp $
+ * $Id: file.c,v 1.170 2000/03/12 03:13:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -589,8 +589,32 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 
     fill_in_columns(fdata);
 
+    /* If we haven't yet seen the first frame, this is it.
+
+       XXX - we must do this before we add the row to the display,
+       as, if the display's GtkCList's selection mode is
+       GTK_SELECTION_BROWSE, when the first entry is added to it,
+       "select_packet()" will be called, and it will fetch the row
+       data for the 0th row, and will get a null pointer rather than
+       "fdata", as "gtk_clist_append()" won't yet have returned and
+       thus "gtk_clist_set_row_data()" won't yet have been called.
+
+       We thus need to leave behind bread crumbs so that
+       "select_packet()" can find this frame.  See the comment
+       in "select_packet()". */
+    if (cf->first_displayed == NULL)
+      cf->first_displayed = fdata;
+
+    /* This is the last frame we've seen so far. */
+    cf->last_displayed = fdata;
+
     row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
     gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
+
+    /* If this was the current frame, remember the row it's in, so
+       we can arrange that it's on the screen when we're done. */
+    if (cf->current_frame == fdata)
+      cf->current_row = row;
 
     if (filter_list != NULL && (args.colorf != NULL)) {
         gtk_clist_set_background(GTK_CLIST(packet_list), row,
@@ -601,18 +625,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
         gtk_clist_set_background(GTK_CLIST(packet_list), row, &WHITE);
         gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &BLACK);
     }
-
-    /* If we haven't yet seen the first frame, this is it. */
-    if (cf->first_displayed == NULL)
-      cf->first_displayed = fdata;
-
-    /* This is the last frame we've seen so far. */
-    cf->last_displayed = fdata;
-
-    /* If this was the current frame, remember the row it's in, so
-       we can arrange that it's on the screen when we're done. */
-    if (cf->current_frame == fdata)
-      cf->current_row = row;
   }
   fdata->cinfo = NULL;
 }
@@ -1249,6 +1261,37 @@ select_packet(capture_file *cf, int row)
 
   /* Get the frame data struct pointer for this frame */
   fd = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
+
+  if (fd == NULL) {
+    /* XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when
+       the first entry is added to it by "real_insert_row()", that row
+       is selected (see "real_insert_row()", in "gtk/gtkclist.c", in both
+       our version and the vanilla GTK+ version).
+
+       This means that a "select-row" signal is emitted; this causes
+       "packet_list_select_cb()" to be called, which causes "select_packet()"
+       to be called.
+
+       "select_packet()" fetches, above, the data associated with the
+       row that was selected; however, as "gtk_clist_append()", which
+       called "real_insert_row()", hasn't yet returned, we haven't yet
+       associated any data with that row, so we get back a null pointer.
+
+       We can't assume that there's only one frame in the frame list,
+       either, as we may be filtering the display.
+
+       We therefore assume that, if "row" is 0, i.e. the first row
+       is being selected, and "cf->first_displayed" equals
+       "cf->last_displayed", i.e. there's only one frame being
+       displayed, that frame is the frame we want.
+
+       This means we have to set "cf->first_displayed" and
+       "cf->last_displayed" before adding the row to the
+       GtkCList; see the comment in "add_packet_to_packet_list()". */
+
+       if (row == 0 && cf->first_displayed == cf->last_displayed)
+         fd = cf->first_displayed;
+  }
 
   /* Record that this frame is the current frame, and that it's selected. */
   cf->current_frame = fd;
