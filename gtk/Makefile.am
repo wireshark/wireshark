@@ -49,7 +49,7 @@ noinst_HEADERS = \
 	dlg_utils.h	\
 	endpoint_talkers_table.h \
 	file_dlg.h	\
-	filter_prefs.h	\
+	filter_dlg.h	\
 	find_dlg.h	\
 	follow_dlg.h	\
 	font_utils.h	\
