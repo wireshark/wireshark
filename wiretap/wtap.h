@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.60 1999/12/14 21:59:07 nneul Exp $
+ * $Id: wtap.h,v 1.61 1999/12/15 01:34:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -360,8 +360,8 @@ typedef struct {
 
 typedef struct {
 	gboolean first_frame;
-	time_t start;
-	void *file_hdr;
+	struct timeval start;
+	guint32	nframes;
 } netxray_dump_t;
 
 typedef struct {

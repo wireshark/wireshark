@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.21 1999/12/04 09:38:38 guy Exp $
+ * $Id: netmon.c,v 1.22 1999/12/15 01:34:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -384,7 +384,7 @@ static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
 	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
 	-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
-	0		/* WTAP_ENCAP_NULL -> DLT_NULL */
+	-1		/* WTAP_ENCAP_NULL -> unsupported */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 

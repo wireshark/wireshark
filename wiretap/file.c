@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.42 1999/12/14 01:12:58 nneul Exp $
+ * $Id: file.c,v 1.43 1999/12/15 01:34:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -233,7 +233,7 @@ const static struct file_type_info {
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_1 */
-	{ "Network Associates Sniffer (Windows-based) 1.1", NULL,
+	{ "Network Associates Sniffer (Windows-based) 1.1", "ngwsniffer_1_1",
 	  netxray_dump_can_write_encap, netxray_dump_open_1_1 },
 
 	/* WTAP_FILE_NETXRAY_2_001 */
