@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.82 2003/07/07 21:08:49 guy Exp $
+ * $Id: netxray.c,v 1.83 2003/09/28 23:15:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -178,9 +178,9 @@ int netxray_open(wtap *wth, int *err)
 	struct netxray_hdr hdr;
 	guint network_type;
 	double timeunit;
-	int version_major;
+	int version_major, version_minor;
 	int file_type;
-	double t;
+	double start_timestamp;
 	static const int netxray_encap[] = {
 		WTAP_ENCAP_UNKNOWN,
 		WTAP_ENCAP_ETHERNET,
@@ -241,6 +241,7 @@ int netxray_open(wtap *wth, int *err)
 
 	if (is_old) {
 		version_major = 0;
+		version_minor = 0;
 		file_type = WTAP_FILE_NETXRAY_OLD;
 	} else {
 		/* It appears that version 1.1 files (as produced by Windows
@@ -253,15 +254,24 @@ int netxray_open(wtap *wth, int *err)
 		if (memcmp(hdr.version, vers_1_0, sizeof vers_1_0) == 0) {
 			timeunit = 1000.0;
 			version_major = 1;
+			version_minor = 0;
 			file_type = WTAP_FILE_NETXRAY_1_0;
 		} else if (memcmp(hdr.version, vers_1_1, sizeof vers_1_1) == 0) {
 			timeunit = 1000000.0;
 			version_major = 1;
+			version_minor = 1;
 			file_type = WTAP_FILE_NETXRAY_1_1;
-		} else if (memcmp(hdr.version, vers_2_000, sizeof vers_2_000) == 0
-		    || memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0
-		    || memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
+		} else if (memcmp(hdr.version, vers_2_000, sizeof vers_2_000) == 0) {
 			version_major = 2;
+			version_minor = 0;
+			file_type = WTAP_FILE_NETXRAY_2_00x;
+		} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0) {
+			version_major = 2;
+			version_minor = 1;
+			file_type = WTAP_FILE_NETXRAY_2_00x;
+		} else if (memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
+			version_major = 2;
+			version_minor = 2;
 			file_type = WTAP_FILE_NETXRAY_2_00x;
 		} else {
 			g_message("netxray: version \"%.8s\" unsupported", hdr.version);
@@ -307,8 +317,10 @@ int netxray_open(wtap *wth, int *err)
 	}
 
 	/*
-	 * Figure out the time stamp units.
+	 * Figure out the time stamp units and start time stamp.
 	 */
+	start_timestamp = (double)pletohl(&hdr.timelo)
+	    + (double)pletohl(&hdr.timehi)*4294967296.0;
 	switch (file_type) {
 
 	case WTAP_FILE_NETXRAY_OLD:
@@ -333,18 +345,39 @@ int netxray_open(wtap *wth, int *err)
 		 * higher resolution than in other captures,
 		 * possibly thanks to a high-resolution
 		 * timer on the pod.
+		 *
+		 * It also appears that the time units might differ
+		 * for gigabit pod captures between version 002.001
+		 * and 002.002.
 		 */
 		if (network_type == 1 && hdr.xxb[20] == CAPTYPE_GIGPOD) {
-			/*
-			 * It appears that the time units for these
-			 * captures are nanoseconds, unless
-			 * hdr.timeunit is 2, in which case it's
-			 * 1/31250000.0 of a second.
-			 */
-			if (hdr.timeunit == 2)
-				timeunit = 31250000.0;
-			else
-				timeunit = 1e9;
+			if (version_minor == 1) {
+				/*
+				 * It appears that the time units for
+				 * these captures are nanoseconds, unless
+				 * hdr.timeunit is 2, in which case it's
+				 * 1/31250000.0 of a second.
+				 */
+				if (hdr.timeunit == 2)
+					timeunit = 31250000.0;
+				else
+					timeunit = 1e9;
+			} else {
+				/*
+				 * These just seem to be 1000 times
+				 * the regular time stamp units, unless
+				 * hdr.timeunit is 2, in which case it's
+				 * 1/1125000 of a second.
+				 *
+				 * In addition, the start timestamp
+				 * appears to be 0.
+				 */
+				if (hdr.timeunit == 2)
+					timeunit = 1250000.0;
+				else
+					timeunit = TpS[hdr.timeunit]*1000.0;
+				start_timestamp = 0.0;
+			}
 		} else {
 			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
 				g_message("netxray: Unknown timeunit %u",
@@ -360,6 +393,7 @@ int netxray_open(wtap *wth, int *err)
 		g_assert_not_reached();
 		timeunit = 0.0;
 	}
+	start_timestamp = start_timestamp/timeunit;
 
 	if (network_type == 4) {
 		/*
@@ -443,10 +477,7 @@ int netxray_open(wtap *wth, int *err)
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->capture.netxray->start_time = pletohl(&hdr.start_time);
 	wth->capture.netxray->timeunit = timeunit;
-	t = (double)pletohl(&hdr.timelo)
-	    + (double)pletohl(&hdr.timehi)*4294967296.0;
-	t = t/timeunit;
-	wth->capture.netxray->start_timestamp = t;
+	wth->capture.netxray->start_timestamp = start_timestamp;
 	wth->capture.netxray->version_major = version_major;
 
 	/*
