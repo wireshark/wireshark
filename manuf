@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.21 2002/11/19 09:55:08 jmayer Exp $
+# $Id: manuf,v 1.22 2002/12/03 00:41:08 jmayer Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -5604,6 +5604,8 @@
 
 00:0B:AD	Pc-Pos                 # PC-PoS Inc.
 
+00:0B:AE	Vitals_Sys             # Vitals System Inc.
+
 00:0B:AF	Private
 00:0B:B0	Sysnet_Tel             # Sysnet Telematica srl
 
@@ -5679,6 +5681,61 @@
 00:0B:D4	Beijing_Wi             # Beijing Wise Technology & Science Development Co.Ltd
 
 00:0B:D5	Nvergence              # Nvergence, Inc.
+
+00:0B:D6	Paxton_Acc             # Paxton Access Ltd
+
+00:0B:D7	Mbb_Gelma              # MBB Gelma GmbH
+
+00:0B:D8	Industrial             # Industrial Scientific Corp.
+
+00:0B:D9	General_Hy             # General Hydrogen
+
+00:0B:DA	Eyecross               # EyeCross Co.,Inc.
+
+00:0B:DB	Esg_Pcba_T             # ESG PCBA Test
+
+00:0B:DC	Akcp
+00:0B:DD	Tohoku_Ric             # TOHOKU RICOH Co., LTD.
+
+00:0B:DE	Private
+00:0B:DF	Shenzhen_R             # Shenzhen RouterD Networks Limited
+
+00:0B:E0	Serconet               # SercoNet Ltd.
+
+00:0B:E1	Private
+00:0B:E2	Lumenera               # Lumenera Corporation
+
+00:0B:E3	Key_Stream             # Key Stream Co., Ltd.
+
+00:0B:E4	Hosiden                # Hosiden Corporation
+
+00:0B:E5	Hims_Korea             # HIMS Korea Co., Ltd.
+
+00:0B:E6	Datel_Elec             # Datel Electronics
+
+00:0B:E7	Comflux_Te             # COMFLUX TECHNOLOGY INC.
+
+00:0B:E8	Aoip
+00:0B:E9	Private
+00:0B:EA	Zultys_Tec             # Zultys Technologies
+
+00:0B:EB	Systegra               # Systegra AG
+
+00:0B:EC	Nippon_Ele             # NIPPON ELECTRIC INSTRUMENT, INC.
+
+00:0B:ED	Elm                    # ELM Inc.
+
+00:0B:EE	Jet                    # inc.jet, Incorporated
+
+00:0B:EF	Code                   # Code Corporation
+
+00:0B:F0	Motex_Prod             # MoTEX Products Co., Ltd.
+
+00:0B:F1	Lap_Laser              # LAP Laser Applikations
+
+00:0B:F2	Chih-Kan_T             # Chih-Kan Technology Co., Ltd.
+
+00:0B:F3	Bae                    # BAE SYSTEMS
 
 00:10:00	Cable_Tele             # CABLE TELEVISION LABORATIES, INC.
 
@@ -5853,7 +5910,7 @@
 
 00:10:5C	Quantum_De             # QUANTUM DESIGNS (H.K.) LTD.
 
-00:10:5D	Drager_Bus             # DRAGER, BUSINESS UNIT MONITORING
+00:10:5D	Draeger_Me             # Draeger Medical
 
 00:10:5E	Hekimian_L             # HEKIMIAN LABORATORIES, INC.
 
@@ -9376,7 +9433,7 @@
 
 00:90:9D	Gse                    # GSE SYSTEMS, INC.
 
-00:90:9E	Broadband              # Broadband Storage, Inc.
+00:90:9E	Critical_I             # Critical IO, LLC
 
 00:90:9F	Digi-Data              # DIGI-DATA CORPORATION
 
@@ -9470,7 +9527,7 @@
 00:90:CE	Tetra                  # TETRA GmbH
 
 00:90:CF	Nortel
-00:90:D0	Alcatel_Be             # ALCATEL BELL
+00:90:D0	Thomson_Be             # Thomson Belgium
 
 00:90:D1	Leichu_Ent             # LEICHU ENTERPRISE CO., LTD.
 
@@ -10485,7 +10542,7 @@
 
 00:C0:B5	Corporate              # CORPORATE NETWORK SYSTEMS,INC.
 
-00:C0:B6	Meridian_D             # MERIDIAN DATA, INC.
+00:C0:B6	Snap_Appli             # Snap Appliances, Inc.
 
 00:C0:B7	American_P             # AMERICAN POWER CONVERSION CORP
 
@@ -10984,7 +11041,8 @@
 
 00:D0:B4	Katsujima              # KATSUJIMA CO., LTD.
 
-00:D0:B5	Dotcom
+00:D0:B5	Ipricot_Fo             # IPricot formerly DotCom
+
 00:D0:B6	Crescent_N             # CRESCENT NETWORKS, INC.
 
 00:D0:B7	Intel                  # INTEL CORPORATION
@@ -11993,7 +12051,7 @@ EC:10:00	Enance_Sou             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.21 2002/11/19 09:55:08 jmayer Exp $
+# $Id: manuf,v 1.22 2002/12/03 00:41:08 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
