@@ -3623,7 +3623,7 @@ dissect_krb5_ERROR(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
 static struct { char *set; char *unset; } bitval = { "Set", "Not set" };
 
-static void dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo,
+static gint dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree);
 static void dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree);
@@ -3644,7 +3644,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
     return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, cb));
 }
 
-static void
+static gint
 dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Some weird kerberos implementation apparently do krb4 on the krb5 port.
@@ -3656,9 +3656,10 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     */
     if(tvb_get_guint8(tvb, 0)<=0x10){
       if(krb4_handle){ 
-	call_dissector(krb4_handle, tvb, pinfo, tree);
+	return call_dissector(krb4_handle, tvb, pinfo, tree);
+      }else{
+        return 0;
       }
-      return;
     }
 
 
@@ -3666,6 +3667,7 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 
     (void)dissect_kerberos_common(tvb, pinfo, tree, TRUE, FALSE, NULL);
+    return tvb_length(tvb);
 }
 
 static gint
@@ -4297,7 +4299,7 @@ proto_reg_handoff_kerberos(void)
 
     krb4_handle = find_dissector("krb4");
 
-    kerberos_handle_udp = create_dissector_handle(dissect_kerberos_udp,
+    kerberos_handle_udp = new_create_dissector_handle(dissect_kerberos_udp,
 	proto_kerberos);
     kerberos_handle_tcp = create_dissector_handle(dissect_kerberos_tcp,
 	proto_kerberos);
