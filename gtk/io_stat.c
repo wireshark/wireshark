@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.43 2003/10/15 08:25:29 sahlberg Exp $
+ * $Id: io_stat.c,v 1.44 2003/10/15 08:41:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,26 +164,6 @@ GdkColormap *colormap;
 
 
 static void init_io_stat_window(io_stat_t *io);
-
-/* Hash table to keep track of widget to io_stat_t mappings.
-   Did it this way since i could not find a clean way to associate private 
-   data with a widget using the API */
-static GHashTable *io_stat_widget_table=NULL;
-static guint
-io_stat_widget_hash(gconstpointer k)
-{
-	guint32 frame = (guint32)k;
-
-	return frame;
-}
-static gint
-io_stat_widget_equal(gconstpointer k1, gconstpointer k2)
-{
-	guint32 frame1 = (guint32)k1;
-	guint32 frame2 = (guint32)k2;
-
-	return frame1==frame2;
-}
 
 static void
 io_stat_set_title(io_stat_t *io)
@@ -974,10 +954,7 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 	int i;
 	io_stat_t *io;
 
-	io=g_hash_table_lookup(io_stat_widget_table, (void*)widget);
-	if(io){
-		g_hash_table_remove(io_stat_widget_table, (void*)widget);
-	}
+	io=(io_stat_t *)gtk_object_get_data(GTK_OBJECT(widget), "io_stat_t");
 
 	for(i=0;i<MAX_GRAPHS;i++){
 		if(io->graphs[i].display){
@@ -1004,7 +981,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	int i;
 	io_stat_t *io;
 
-	io=g_hash_table_lookup(io_stat_widget_table, (void*)widget);
+	io=(io_stat_t *)gtk_object_get_data(GTK_OBJECT(widget), "io_stat_t");
 	if(!io){
 		exit(10);
 	}
@@ -1076,7 +1053,8 @@ static gint
 expose_event(GtkWidget *widget, GdkEventExpose *event)
 {
 	io_stat_t *io;
-	io=g_hash_table_lookup(io_stat_widget_table, (void*)widget);
+
+	io=(io_stat_t *)gtk_object_get_data(GTK_OBJECT(widget), "io_stat_t");
 	if(!io){
 		exit(10);
 	}
@@ -1098,7 +1076,7 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 {
 	io->draw_area=gtk_drawing_area_new();
 	SIGNAL_CONNECT(io->draw_area, "destroy", quit, io);
-	g_hash_table_insert(io_stat_widget_table, (void*)io->draw_area, (void*)io);
+	gtk_object_set_data(GTK_OBJECT(io->draw_area), "io_stat_t", (gpointer)io);
 
 	WIDGET_SET_SIZE(io->draw_area, io->pixmap_width, io->pixmap_height);
 
@@ -1784,8 +1762,6 @@ gtk_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtk_iostat(void)
 {
-	io_stat_widget_table = g_hash_table_new(io_stat_widget_hash,
-			io_stat_widget_equal);
 	register_ethereal_tap("io,stat", gtk_iostat_init);
 }
 
