@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.8 1998/10/20 05:31:02 guy Exp $
+ * $Id: packet.c,v 1.9 1998/10/28 01:16:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -198,7 +198,7 @@ collapse_tree(GtkWidget *w, gpointer data) {
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
 gchar*
-val_to_str(guint32 val, value_string *vs, char *fmt) {
+val_to_str(guint32 val, const value_string *vs, const char *fmt) {
   gchar *ret;
   static gchar  str[3][64];
   static gchar *cur;
@@ -220,7 +220,7 @@ val_to_str(guint32 val, value_string *vs, char *fmt) {
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match, or NULL on failure. */
 gchar*
-match_strval(guint32 val, value_string *vs) {
+match_strval(guint32 val, const value_string *vs) {
   gint i = 0;
   
   while (vs[i].strptr) {

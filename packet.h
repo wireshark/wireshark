@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.21 1998/10/20 05:31:03 guy Exp $
+ * $Id: packet.h,v 1.22 1998/10/28 01:16:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,10 +209,11 @@ typedef struct _e_ip {
 #define IPTOS_TOS_MASK    0x1E
 #define IPTOS_TOS(tos)    ((tos) & IPTOS_TOS_MASK)
 #define IPTOS_NONE        0x00
-#define IPTOS_LOWDELAY    0x10
-#define IPTOS_THROUGHPUT  0x08
-#define IPTOS_RELIABILITY 0x04
 #define IPTOS_LOWCOST     0x02
+#define IPTOS_RELIABILITY 0x04
+#define IPTOS_THROUGHPUT  0x08
+#define IPTOS_LOWDELAY    0x10
+#define IPTOS_SECURITY    0x1E
 
 #define IPTOS_PREC_MASK		0xE0
 #define IPTOS_PREC(tos)		((tos)&IPTOS_PREC_MASK)
@@ -486,8 +487,8 @@ GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...)
 #else
 GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...);
 #endif
-gchar*     val_to_str(guint32 val, value_string *vs, char *fmt);
-gchar*     match_strval(guint32, value_string*);
+gchar*     val_to_str(guint32, const value_string *, const char *);
+gchar*     match_strval(guint32, const value_string*);
 
 /* Routines in packet.c */
 

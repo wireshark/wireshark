@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.9 1998/10/20 05:31:00 guy Exp $
+ * $Id: packet-ip.c,v 1.10 1998/10/28 01:16:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,7 +53,7 @@ dissect_ipopt_security(GtkWidget *opt_tree, const char *name,
 {
   GtkWidget *field_tree = NULL, *tf;
   guint      val;
-  static value_string secl_vals[] = {
+  static const value_string secl_vals[] = {
     {IPSEC_UNCLASSIFIED, "Unclassified"},
     {IPSEC_CONFIDENTIAL, "Confidential"},
     {IPSEC_EFTO,         "EFTO"        },
@@ -161,7 +161,7 @@ dissect_ipopt_timestamp(GtkWidget *opt_tree, const char *name, const u_char *opd
   int        ptr;
   int        optoffset = 0;
   int        flg;
-  static value_string flag_vals[] = {
+  static const value_string flag_vals[] = {
     {IPOPT_TS_TSONLY,    "Time stamps only"                      },
     {IPOPT_TS_TSANDADDR, "Time stamp and address"                },
     {IPOPT_TS_PRESPEC,   "Time stamps for prespecified addresses"},
@@ -386,12 +386,12 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   GtkWidget *ip_tree, *ti, *field_tree, *tf;
   gchar      tos_str[32];
   guint      hlen, optlen;
-  static value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
-                                       {IP_PROTO_IGMP, "IGMP"},
-                                       {IP_PROTO_TCP,  "TCP" },
-                                       {IP_PROTO_UDP,  "UDP" },
-                                       {IP_PROTO_OSPF, "OSPF"},
-                                       {0,             NULL  } };
+  static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
+                                             {IP_PROTO_IGMP, "IGMP"},
+                                             {IP_PROTO_TCP,  "TCP" },
+                                             {IP_PROTO_UDP,  "UDP" },
+                                             {IP_PROTO_OSPF, "OSPF"},
+                                             {0,             NULL  } };
 
 
   /* To do: check for runts, errs, etc. */
@@ -427,17 +427,20 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     case IPTOS_NONE:
       strcpy(tos_str, "None");
       break;
-    case IPTOS_LOWDELAY:
-      strcpy(tos_str, "Minimize delay");
-      break;
-    case IPTOS_THROUGHPUT:
-      strcpy(tos_str, "Maximize throughput");
+    case IPTOS_LOWCOST:
+      strcpy(tos_str, "Minimize cost");
       break;
     case IPTOS_RELIABILITY:
       strcpy(tos_str, "Maximize reliability");
       break;
-    case IPTOS_LOWCOST:
-      strcpy(tos_str, "Minimize cost");
+    case IPTOS_THROUGHPUT:
+      strcpy(tos_str, "Maximize throughput");
+      break;
+    case IPTOS_LOWDELAY:
+      strcpy(tos_str, "Minimize delay");
+      break;
+    case IPTOS_SECURITY:
+      strcpy(tos_str, "Maximize security");
       break;
     default:
       strcpy(tos_str, "Unknown.  Malformed?");
