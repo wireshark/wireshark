@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.22 2001/06/18 06:18:03 guy Exp $
+ * $Id: display_opts.c,v 1.23 2002/01/10 11:05:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,11 +64,13 @@
 extern capture_file  cfile;
 
 /* Display callback data keys */
-#define E_DISPLAY_TIME_ABS_KEY   "display_time_abs"
-#define E_DISPLAY_DATE_TIME_ABS_KEY "display_date_time_abs"
-#define E_DISPLAY_TIME_REL_KEY   "display_time_rel"
-#define E_DISPLAY_TIME_DELTA_KEY "display_time_delta"
-#define E_DISPLAY_AUTO_SCROLL_KEY "display_auto_scroll"
+#define E_DISPLAY_TIME_ABS_KEY          "display_time_abs"
+#define E_DISPLAY_DATE_TIME_ABS_KEY     "display_date_time_abs"
+#define E_DISPLAY_TIME_REL_KEY          "display_time_rel"
+#define E_DISPLAY_TIME_DELTA_KEY        "display_time_delta"
+#ifdef HAVE_LIBPCAP
+#define E_DISPLAY_AUTO_SCROLL_KEY       "display_auto_scroll"
+#endif
 #define E_DISPLAY_M_NAME_RESOLUTION_KEY "display_mac_name_resolution"
 #define E_DISPLAY_N_NAME_RESOLUTION_KEY "display_network_name_resolution"
 #define E_DISPLAY_T_NAME_RESOLUTION_KEY "display_transport_name_resolution"
@@ -169,13 +171,15 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
+#ifdef HAVE_LIBPCAP
   button = dlg_check_button_new_with_label_with_mnemonic(
 		"_Automatic scrolling in live capture", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), prefs.capture_auto_scroll);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), auto_scroll_live);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_AUTO_SCROLL_KEY,
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
+#endif
 
   button = dlg_check_button_new_with_label_with_mnemonic(
   		"Enable _MAC name resolution", accel_group);
@@ -282,9 +286,11 @@ get_display_options(GtkWidget *parent_w)
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = DELTA;
 
+#ifdef HAVE_LIBPCAP
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
 					     E_DISPLAY_AUTO_SCROLL_KEY);
-  prefs.capture_auto_scroll = (GTK_TOGGLE_BUTTON (button)->active);
+  auto_scroll_live = (GTK_TOGGLE_BUTTON (button)->active);
+#endif
 
   prefs.name_resolve = PREFS_RESOLV_NONE;
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),

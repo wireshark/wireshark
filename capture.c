@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.166 2002/01/08 09:32:14 guy Exp $
+ * $Id: capture.c,v 1.167 2002/01/10 11:05:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -169,6 +169,8 @@
 #include "capture-wpcap.h"
 #endif
 
+int promisc_mode; /* capture in promiscuous mode */
+int sync_mode;	/* fork a child to do the capture, and sync between them */
 static int sync_pipe[2]; /* used to sync father */
 enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
@@ -321,7 +323,7 @@ do_capture(char *capfile_name)
   g_assert(cfile.save_file == NULL);
   cfile.save_file = capfile_name;
 
-  if (prefs.capture_real_time) {	/* do the capture in a child process */
+  if (sync_mode) {	/* do the capture in a child process */
     char ssnap[24];
     char scount[24];			/* need a constant for len of numbers */
     char sautostop_filesize[24];	/* need a constant for len of numbers */
@@ -372,7 +374,7 @@ do_capture(char *capfile_name)
     sprintf(sautostop_duration,"duration:%d",cfile.autostop_duration);
     argv = add_arg(argv, &argc, sautostop_duration);
 
-    if (!prefs.capture_prom_mode)
+    if (!promisc_mode)
       argv = add_arg(argv, &argc, "-p");
 
 #ifdef _WIN32
@@ -1343,7 +1345,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
-  pch = pcap_open_live(cfile.iface, cfile.snap, prefs.capture_prom_mode,
+  pch = pcap_open_live(cfile.iface, cfile.snap, promisc_mode,
 		       CAP_READ_TIMEOUT, open_err_str);
 
   if (pch == NULL) {

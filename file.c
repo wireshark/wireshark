@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.257 2002/01/05 04:12:14 gram Exp $
+ * $Id: file.c,v 1.258 2002/01/10 11:05:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,6 +95,10 @@
 #include "epan_dissect.h"
 
 extern GtkWidget *packet_list, *byte_nb_ptr, *tree_view;
+
+#ifdef HAVE_LIBPCAP
+gboolean auto_scroll_live;
+#endif
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
@@ -502,7 +506,7 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
 
   /* XXX - this cheats and looks inside the packet list to find the final
      row number. */
-  if (prefs.capture_auto_scroll && cf->plist_end != NULL)
+  if (auto_scroll_live && cf->plist_end != NULL)
     gtk_clist_moveto(GTK_CLIST(packet_list), 
 		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
 
@@ -549,7 +553,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
   }
 
   thaw_clist(cf);
-  if (prefs.capture_auto_scroll && cf->plist_end != NULL)
+  if (auto_scroll_live && cf->plist_end != NULL)
     /* XXX - this cheats and looks inside the packet list to find the final
        row number. */
     gtk_clist_moveto(GTK_CLIST(packet_list), 

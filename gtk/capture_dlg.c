@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.53 2002/01/10 07:43:39 guy Exp $
+ * $Id: capture_dlg.c,v 1.54 2002/01/10 11:05:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -333,7 +333,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   
   promisc_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"Capture packets in _promiscuous mode", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb), prefs.capture_prom_mode);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb), promisc_mode);
   gtk_container_add(GTK_CONTAINER(main_vb), promisc_cb);
   gtk_widget_show(promisc_cb);
 
@@ -347,7 +347,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   /* Ring buffer mode is allowed only if we're not doing an "Update list of
      packets in real time" capture, so force it off if we're doing such
      a capture. */
-  if (prefs.capture_real_time)
+  if (sync_mode)
     cfile.ringbuffer_on = FALSE;
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ringbuffer_on_tb),cfile.ringbuffer_on);
   gtk_signal_connect(GTK_OBJECT(ringbuffer_on_tb), "toggled",
@@ -371,7 +371,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   /* Misc row: Capture file checkboxes */
   sync_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"_Update list of packets in real time", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), prefs.capture_real_time);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), sync_mode);
   gtk_signal_connect(GTK_OBJECT(sync_cb), "toggled",
     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity), GTK_OBJECT(cap_open_w));
   gtk_container_add(GTK_CONTAINER(main_vb), sync_cb);
@@ -379,7 +379,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
 
   auto_scroll_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"_Automatic scrolling in live capture", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), prefs.capture_auto_scroll);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
   gtk_container_add(GTK_CONTAINER(main_vb), auto_scroll_cb);
   gtk_widget_show(auto_scroll_cb);
 
@@ -682,18 +682,18 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   else if (cfile.snap < MIN_PACKET_SIZE)
     cfile.snap = MIN_PACKET_SIZE;
 
-  prefs.capture_prom_mode = GTK_TOGGLE_BUTTON (promisc_cb)->active;
+  promisc_mode = GTK_TOGGLE_BUTTON (promisc_cb)->active;
 
-  prefs.capture_real_time = GTK_TOGGLE_BUTTON (sync_cb)->active;
+  sync_mode = GTK_TOGGLE_BUTTON (sync_cb)->active;
 
-  prefs.capture_auto_scroll = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
+  auto_scroll_live = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
 
   prefs.name_resolve = PREFS_RESOLV_NONE;
   prefs.name_resolve |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? PREFS_RESOLV_MAC : PREFS_RESOLV_NONE);
   prefs.name_resolve |= (GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? PREFS_RESOLV_NETWORK : PREFS_RESOLV_NONE);
   prefs.name_resolve |= (GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? PREFS_RESOLV_TRANSPORT : PREFS_RESOLV_NONE);
 
-  cfile.ringbuffer_on = GTK_TOGGLE_BUTTON (ringbuffer_on_tb)->active && !(prefs.capture_real_time);
+  cfile.ringbuffer_on = GTK_TOGGLE_BUTTON (ringbuffer_on_tb)->active && !(sync_mode);
   if (cfile.ringbuffer_on == TRUE) {
     if (save_file == NULL) {
       simple_dialog(ESD_TYPE_CRIT, NULL,

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.224 2002/01/10 09:51:23 guy Exp $
+ * $Id: main.c,v 1.225 2002/01/10 11:05:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1062,9 +1062,20 @@ main(int argc, char *argv[])
      to the "prefs.capture_prom_mode" setting in the preferences file;
      it should do what the parent process tells it to do, and if
      the parent process wants it not to run in promiscuous mode, it'll
-     tell it so with a "-p" flag. */
+     tell it so with a "-p" flag.
+
+     Otherwise, set promiscuous mode from the preferences setting. */
   if (capture_child)
-    prefs->capture_prom_mode = TRUE;
+    promisc_mode = TRUE;
+  else
+    promisc_mode = prefs->capture_prom_mode;
+
+  /* Set "Update list of packets in real time" mode from the preferences
+     setting. */
+  sync_mode = prefs->capture_real_time;
+
+  /* And do the same for "Automatic scrolling in live capture" mode. */
+  auto_scroll_live = prefs->capture_auto_scroll;
 #endif
 
   /* Read the capture filter file. */
@@ -1226,7 +1237,12 @@ main(int argc, char *argv[])
 #endif
         break;
       case 'l':        /* Automatic scrolling in live capture mode */
-        prefs->capture_auto_scroll = TRUE;
+#ifdef HAVE_LIBPCAP
+        auto_scroll_live = TRUE;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
         break;
       case 'm':        /* Fixed-width font for the display */
         if (prefs->gui_font_name != NULL)
@@ -1264,7 +1280,7 @@ main(int argc, char *argv[])
         break;
       case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_LIBPCAP
-	prefs->capture_prom_mode = FALSE;
+	promisc_mode = FALSE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1301,7 +1317,7 @@ main(int argc, char *argv[])
         break;
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
 #ifdef HAVE_LIBPCAP
-        prefs->capture_real_time = TRUE;
+        sync_mode = TRUE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1411,15 +1427,15 @@ main(int argc, char *argv[])
   if (cfile.ringbuffer_on) {
     /* Ring buffer works only under certain conditions:
        a) ring buffer does not work with temporary files;
-       b) prefs->capture_real_time and cfile.ringbuffer_on are mutually
-          exclusive - prefs->capture_real_time takes precedence;
+       b) sync_mode and cfile.ringbuffer_on are mutually exclusive -
+          sync_mode takes precedence;
        c) it makes no sense to enable the ring buffer if the maximum
           file size is set to "infinite". */
     if (cfile.save_file == NULL) {
       fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
       cfile.ringbuffer_on = FALSE;
     }
-    if (prefs->capture_real_time == TRUE) {
+    if (sync_mode) {
       fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
       cfile.ringbuffer_on = FALSE;
     }
