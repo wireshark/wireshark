@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.105 2004/04/23 03:22:10 guy Exp $
+ * $Id: file_dlg.c,v 1.106 2004/05/26 03:49:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,8 +40,8 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "menu.h"
-#include "file_dlg.h"
 #include "dlg_utils.h"
+#include "file_dlg.h"
 #include "main.h"
 #include "compat_macros.h"
 #include "prefs.h"
@@ -65,11 +65,6 @@ static void file_color_import_ok_cb(GtkWidget *w, gpointer fs);
 static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_color_export_ok_cb(GtkWidget *w, gpointer fs);
 static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
-static void file_select_ok_cb(GtkWidget *w, gpointer data);
-static void file_select_cancel_cb(GtkWidget *w, gpointer data);
-#endif
-static void file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 
 #define E_FILE_M_RESOLVE_KEY	  "file_dlg_mac_resolve_key"
 #define E_FILE_N_RESOLVE_KEY	  "file_dlg_network_resolve_key"
@@ -85,132 +80,7 @@ static void file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te);
  */
 static GtkWidget *file_save_as_w;
 
-/*
- * A generic select_file_cb routine that is intended to be connected to
- * a Browse button on other dialog boxes. This allows the user to browse
- * for a file and select it. We fill in the text_entry that is asssociated
- * with the button that invoked us. 
- *
- * We display the window label specified in our args.
- */
-void
-select_file_cb(GtkWidget *file_bt, const char *label)
-{
-  GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
-  GtkWidget *fs, *file_te;
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  gchar     *f_name;
-#endif
 
-  /* Has a file selection dialog box already been opened for that top-level
-     widget? */
-  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
-  file_te = OBJECT_GET_DATA(file_bt, E_FILE_TE_PTR_KEY);
-  if (fs != NULL) {
-    /* Yes.  Just re-activate that dialog box. */
-    reactivate_window(fs);
-    return;
-  }
-
-  fs = file_selection_new(label, FILE_SELECTION_SAVE);
-
-  /* If we've opened a file, start out by showing the files in the directory
-     in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(fs, last_open_dir);
-
-  OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
-
-  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
-  OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
-
-  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, fs);
-
-  /* Call a handler when the file selection box is destroyed, so we can inform
-     our caller, if any, that it's been destroyed. */
-  SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(file_select_destroy_cb), 
-		 file_te);
-
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
-  {
-      f_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
-      gtk_entry_set_text(GTK_ENTRY(file_te), f_name);
-      g_free(f_name);
-  }
-  gtk_widget_destroy(fs);
-#else
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", 
-		 file_select_ok_cb, fs);
-
-  /* Connect the cancel_button to destroy the widget */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->cancel_button, "clicked",
-                 file_select_cancel_cb, fs);
-
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
-
-  gtk_widget_show(fs);
-#endif
-}
-
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
-static void
-file_select_ok_cb(GtkWidget *w _U_, gpointer data)
-{
-  gchar     *f_name;
-
-  f_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (data)));
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(f_name) == EISDIR) {
-        /* It's a directory - set the file selection box to display it. */
-        set_last_open_dir(f_name);
-        g_free(f_name);
-        gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
-                                        last_open_dir);
-        return;
-  }
-
-  gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(data, PRINT_FILE_TE_KEY)),
-                     f_name);
-  gtk_widget_destroy(GTK_WIDGET(data));
-
-  g_free(f_name);
-}
-
-static void
-file_select_cancel_cb(GtkWidget *w _U_, gpointer data)
-{
-  gtk_widget_destroy(GTK_WIDGET(data));
-}
-#endif
-
-static void
-file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te)
-{
-  GtkWidget *caller;
-
-  /* Get the widget that requested that we be popped up.
-     (It should arrange to destroy us if it's destroyed, so
-     that we don't get a pointer to a non-existent window here.) */
-  caller = OBJECT_GET_DATA(win, E_FS_CALLER_PTR_KEY);
-
-  /* Tell it we no longer exist. */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, NULL);
-
-  /* Now nuke this window. */
-  gtk_grab_remove(GTK_WIDGET(win));
-  gtk_widget_destroy(GTK_WIDGET(win));
-
-  /* Give the focus to the file text entry widget so the user can just press
-     Return to print to the file. */
-  gtk_widget_grab_focus(file_te);
-}
 
 /*
  * Keep a static pointer to the current "Open Capture File" window, if
@@ -245,7 +115,6 @@ file_open_cmd(GtkWidget *w)
 
   file_open_w = file_selection_new("Ethereal: Open Capture File",
                                    FILE_SELECTION_OPEN);
-  SIGNAL_CONNECT(file_open_w, "destroy", file_open_destroy_cb, NULL);
 
 #if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
@@ -343,6 +212,9 @@ file_open_cmd(GtkWidget *w)
 		  E_FILE_T_RESOLVE_KEY, t_resolv_cb);
 #endif
 
+
+  SIGNAL_CONNECT(file_open_w, "destroy", file_open_destroy_cb, NULL);
+
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   OBJECT_SET_DATA(file_open_w, E_DFILTER_TE_KEY,
                   OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
@@ -350,7 +222,7 @@ file_open_cmd(GtkWidget *w)
   {
     file_open_ok_cb(file_open_w, file_open_w);
   }
-  else gtk_widget_destroy(file_open_w);
+  else window_destroy(file_open_w);
 #else
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
@@ -361,16 +233,13 @@ file_open_cmd(GtkWidget *w)
                   E_DFILTER_TE_KEY, OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
 
   /* Connect the cancel_button to destroy the widget */
-  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_open_w)->cancel_button,
-                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
-                        file_open_w);
+  window_set_cancel_button(file_open_w, 
+      GTK_FILE_SELECTION(file_open_w)->cancel_button, window_cancel_button_cb);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(file_open_w, GTK_FILE_SELECTION(file_open_w)->cancel_button);
+  SIGNAL_CONNECT(file_open_w, "delete_event", window_delete_event_cb, NULL);
 
   gtk_widget_show(file_open_w);
+  window_present(file_open_w);
 #endif
 }
 
@@ -466,8 +335,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   g_resolv_flags |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)) ? RESOLV_TRANSPORT : RESOLV_NONE;
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
-  gtk_widget_hide(GTK_WIDGET (fs));
-  gtk_widget_destroy(GTK_WIDGET (fs));
+  window_destroy(GTK_WIDGET (fs));
 
   switch (cf_read(&cfile)) {
 
@@ -699,7 +567,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* build the file selection */
   file_save_as_w = file_selection_new ("Ethereal: Save Capture File As",
                                        FILE_SELECTION_SAVE);
-  SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
 
   /* as the dialog might already be gone, when using this values, we cannot
    * set data to the dialog object, but keep global values */
@@ -765,31 +632,29 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* dynamic values in the range frame */
   range_update_dynamics(range_tb);
 
+  SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
+
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  if (gtk_dialog_run(GTK_DIALOG(file_save_as_w)) == GTK_RESPONSE_ACCEPT)
-  {
+  if (gtk_dialog_run(GTK_DIALOG(file_save_as_w)) == GTK_RESPONSE_ACCEPT) {
     file_save_as_ok_cb(file_save_as_w, file_save_as_w);
+  } else {
+    window_destroy(file_save_as_w);
   }
-  else gtk_widget_destroy(file_save_as_w);
 #else
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION (file_save_as_w)->ok_button, "clicked",
                  file_save_as_ok_cb, file_save_as_w);
 
-  /* Connect the cancel_button to destroy the widget */
-  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_save_as_w)->cancel_button,
-                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
-                        file_save_as_w);
+  window_set_cancel_button(file_save_as_w, 
+      GTK_FILE_SELECTION(file_save_as_w)->cancel_button, window_cancel_button_cb);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(file_save_as_w, GTK_FILE_SELECTION(file_save_as_w)->cancel_button);
+  SIGNAL_CONNECT(file_save_as_w, "delete_event", window_delete_event_cb, NULL);
 
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w), "");
 
   gtk_widget_show(file_save_as_w);
+  window_present(file_save_as_w);
 #endif
 }
 
@@ -838,7 +703,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   /* The write succeeded; get rid of the file selection box. */
   /* cf_save might already closed our dialog! */
   if (file_save_as_w)
-    gtk_widget_destroy(GTK_WIDGET (fs));
+    window_destroy(GTK_WIDGET (fs));
 
   /* Save the directory name for future file dialogs. */
   dirname = get_dirname(cf_name);  /* Overwrites cf_name */
@@ -880,7 +745,7 @@ void
 file_save_as_destroy(void)
 {
   if (file_save_as_w)
-    gtk_widget_destroy(file_save_as_w);
+    window_destroy(file_save_as_w);
 }
 
 static void
@@ -989,7 +854,6 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
 
   file_color_import_w = file_selection_new("Ethereal: Import Color Filters",
                                            FILE_SELECTION_OPEN);
-  SIGNAL_CONNECT(file_color_import_w, "destroy", file_color_import_destroy_cb, NULL);
 
 #if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
@@ -1016,6 +880,8 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
   SIGNAL_CONNECT(cfglobal_but, "clicked", color_global_cb, file_color_import_w);
   gtk_widget_show(cfglobal_but);
 
+  SIGNAL_CONNECT(file_color_import_w, "destroy", file_color_import_destroy_cb, NULL);
+
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   OBJECT_SET_DATA(file_color_import_w, ARGUMENT_CL, data);
 
@@ -1023,7 +889,7 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
   {
       file_color_import_ok_cb(file_color_import_w, file_color_import_w);
   }
-  else gtk_widget_destroy(file_color_import_w);
+  else window_destroy(file_color_import_w);
 #else
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
@@ -1033,17 +899,14 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_color_import_w)->ok_button,
                   ARGUMENT_CL, data);
 
-  /* Connect the cancel_button to destroy the widget */
-  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_color_import_w)->cancel_button,
-                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
-                        file_color_import_w);
+  window_set_cancel_button(file_color_import_w, 
+      GTK_FILE_SELECTION(file_color_import_w)->cancel_button, window_cancel_button_cb);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(file_color_import_w, GTK_FILE_SELECTION(file_color_import_w)->cancel_button);
+  SIGNAL_CONNECT(file_color_import_w, "delete_event", window_delete_event_cb, NULL);
+
 
   gtk_widget_show(file_color_import_w);
+  window_present(file_color_import_w);
 #endif
 }
 
@@ -1082,8 +945,7 @@ file_color_import_ok_cb(GtkWidget *w, gpointer fs) {
   }
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
-  gtk_widget_hide(GTK_WIDGET (fs));
-  gtk_widget_destroy(GTK_WIDGET (fs));
+  window_destroy(GTK_WIDGET (fs));
 
   /* Save the name of the containing directory specified in the path name,
      if any; we can write over cf_name, which is a good thing, given that
@@ -1154,7 +1016,6 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 
   file_color_export_w = file_selection_new("Ethereal: Export Color Filters",
                                            FILE_SELECTION_SAVE);
-  SIGNAL_CONNECT(file_color_export_w, "destroy", file_color_export_destroy_cb, NULL);
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
@@ -1179,31 +1040,30 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   SIGNAL_CONNECT(cfglobal_but, "clicked", color_global_cb, file_color_export_w);
   gtk_widget_show(cfglobal_but);
 
+  SIGNAL_CONNECT(file_color_export_w, "destroy", file_color_export_destroy_cb, NULL);
+
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (gtk_dialog_run(GTK_DIALOG(file_color_export_w)) == GTK_RESPONSE_ACCEPT)
   {
       file_color_export_ok_cb(file_color_export_w, file_color_export_w);
   }
-  else gtk_widget_destroy(file_color_export_w);
+  else window_destroy(file_color_export_w);
 #else
   /* Connect the ok_button to file_export_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION (file_color_export_w)->ok_button, "clicked",
                  file_color_export_ok_cb, file_color_export_w);
 
-  /* Connect the cancel_button to destroy the widget */
-  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_color_export_w)->cancel_button,
-                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
-                        file_color_export_w);
+  window_set_cancel_button(file_color_export_w, 
+      GTK_FILE_SELECTION(file_color_export_w)->cancel_button, window_cancel_button_cb);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(file_color_export_w, GTK_FILE_SELECTION(file_color_export_w)->cancel_button);
+  SIGNAL_CONNECT(file_color_export_w, "delete_event", window_delete_event_cb, NULL);
+
 
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_export_w), "");
 
   gtk_widget_show(file_color_export_w);
+  window_present(file_color_export_w);
 #endif
 }
 
@@ -1243,8 +1103,7 @@ file_color_export_ok_cb(GtkWidget *w _U_, gpointer fs) {
    }
 
   /* The write succeeded; get rid of the file selection box. */
-  gtk_widget_hide(GTK_WIDGET (fs));
-  gtk_widget_destroy(GTK_WIDGET (fs));
+  window_destroy(GTK_WIDGET (fs));
 
   /* Save the directory name for future file dialogs. */
   dirname = get_dirname(cf_name);  /* Overwrites cf_name */

@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.52 2004/05/26 02:33:37 guy Exp $
+ * $Id: find_dlg.c,v 1.53 2004/05/26 03:49:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,7 +136,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   find_frame_w = dlg_window_new("Ethereal: Find Packet");
-  SIGNAL_CONNECT(find_frame_w, "destroy", find_frame_destroy_cb, NULL);
 
   tooltips = gtk_tooltips_new ();
 
@@ -334,7 +333,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_FIND);
   SIGNAL_CONNECT(ok_bt, "clicked", find_frame_ok_cb, find_frame_w);
-  gtk_widget_grab_default(ok_bt);
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", find_frame_close_cb, find_frame_w);
@@ -365,21 +363,25 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   string_selected_cb(NULL, find_frame_w);
   filter_selected_cb(NULL, find_frame_w);
+
+  window_set_cancel_button(find_frame_w, cancel_bt, window_cancel_button_cb);
+
+  gtk_widget_grab_default(ok_bt);
+
   /* Catch the "activate" signal on the filter text entry, so that
      if the user types Return there, we act as if the "OK" button
      had been selected, as happens if Return is typed if some widget
      that *doesn't* handle the Return key has the input focus. */
   dlg_set_activate(filter_text_box, ok_bt);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(find_frame_w, cancel_bt);
-
   /* Give the initial focus to the "Filter" entry box. */
   gtk_widget_grab_focus(filter_text_box);
 
+  SIGNAL_CONNECT(find_frame_w, "delete_event", window_delete_event_cb, NULL);
+  SIGNAL_CONNECT(find_frame_w, "destroy", find_frame_destroy_cb, NULL);
+
   gtk_widget_show(find_frame_w);
+  window_present(find_frame_w);
 }
 
 /* this function opens the find frame dialogue and sets the filter string */
@@ -790,14 +792,14 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       return;
     }
   }
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  window_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
 find_frame_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
   gtk_grab_remove(GTK_WIDGET(parent_w));
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  window_destroy(GTK_WIDGET(parent_w));
 }
 
 static void

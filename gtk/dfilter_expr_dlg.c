@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.55 2004/03/13 11:47:08 ulfl Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.56 2004/05/26 03:49:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,7 +67,7 @@
 #define E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY "dfilter_expr_value_list_label"
 #define E_DFILTER_EXPR_VALUE_LIST_KEY		"dfilter_expr_value_list"
 #define E_DFILTER_EXPR_VALUE_LIST_SW_KEY	"dfilter_expr_value_list_sw"
-#define E_DFILTER_EXPR_ACCEPT_BT_KEY		"dfilter_expr_accept_bt"
+#define E_DFILTER_EXPR_OK_BT_KEY		"dfilter_expr_accept_bt"
 #define E_DFILTER_EXPR_VALUE_KEY		"dfilter_expr_value"
 
 typedef struct protocol_data {
@@ -124,8 +124,8 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
                                             E_DFILTER_EXPR_VALUE_LIST_KEY);
     GtkWidget *value_list_scrolled_win = OBJECT_GET_DATA(window,
                                                          E_DFILTER_EXPR_VALUE_LIST_SW_KEY);
-    GtkWidget *accept_bt = OBJECT_GET_DATA(window,
-                                           E_DFILTER_EXPR_ACCEPT_BT_KEY);
+    GtkWidget *ok_bt = OBJECT_GET_DATA(window,
+                                           E_DFILTER_EXPR_OK_BT_KEY);
     header_field_info *hfinfo, *cur_hfinfo;
     const char *value_type;
     char value_label_string[1024+1];   /* XXX - should be large enough */
@@ -238,7 +238,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
      * XXX - in browse mode, there always has to be something
      * selected, so this should always be sensitive.
      */
-    gtk_widget_set_sensitive(accept_bt, TRUE);
+    gtk_widget_set_sensitive(ok_bt, TRUE);
 }
 
 static void
@@ -1013,7 +1013,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
      * We're done; destroy the dialog box (which is the top-level
      * widget for the "Accept" button).
      */
-    gtk_widget_destroy(window);
+    window_destroy(window);
 #if GTK_MAJOR_VERSION >= 2
     g_free(item_str);
 #endif
@@ -1025,7 +1025,7 @@ dfilter_expr_dlg_cancel_cb(GtkWidget *w _U_, gpointer parent_w)
 	/*
 	 * User pressed the cancel button; close the dialog box.
 	 */
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
+	window_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
@@ -1062,7 +1062,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkWidget *value_list_label, *value_list_scrolled_win, *value_list;
     GtkWidget *range_label, *range_entry;
 
-    GtkWidget *list_bb, *accept_bt, *close_bt;
+    GtkWidget *list_bb, *ok_bt, *cancel_bt;
     header_field_info       *hfinfo;
     int i;
     protocol_t *protocol;
@@ -1293,7 +1293,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      * we've constructed the value list and set the tree's
      * E_DFILTER_EXPR_VALUE_LIST_KEY data to point to it, and
      * constructed the "Accept" button and set the tree's
-     * E_DFILTER_EXPR_ACCEPT_BT_KEY data to point to it, so that
+     * E_DFILTER_EXPR_OK_BT_KEY data to point to it, so that
      * when the list item is "helpfully" automatically selected for us
      * we're ready to cope with the selection signal.
      */
@@ -1425,27 +1425,22 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	gtk_box_pack_start(GTK_BOX(main_vb), list_bb, FALSE, FALSE, 0);
     gtk_container_set_border_width  (GTK_CONTAINER (list_bb), 0);
 
-    accept_bt = OBJECT_GET_DATA(list_bb, GTK_STOCK_OK);
-    gtk_widget_set_sensitive(accept_bt, FALSE);
-    SIGNAL_CONNECT(accept_bt, "clicked", dfilter_expr_dlg_accept_cb, filter_te);
-    gtk_widget_grab_default(accept_bt);
+    ok_bt = OBJECT_GET_DATA(list_bb, GTK_STOCK_OK);
+    gtk_widget_set_sensitive(ok_bt, FALSE);
+    SIGNAL_CONNECT(ok_bt, "clicked", dfilter_expr_dlg_accept_cb, filter_te);
 
-    close_bt = OBJECT_GET_DATA(list_bb, GTK_STOCK_CANCEL);
-    SIGNAL_CONNECT(close_bt, "clicked", dfilter_expr_dlg_cancel_cb, window);
+    cancel_bt = OBJECT_GET_DATA(list_bb, GTK_STOCK_CANCEL);
+    window_set_cancel_button(window, cancel_bt, NULL);
+    SIGNAL_CONNECT(cancel_bt, "clicked", dfilter_expr_dlg_cancel_cb, window);
+
+    gtk_widget_grab_default(ok_bt);
 
     /* Catch the "activate" signal on the range and value text entries,
        so that if the user types Return there, we act as if the "Accept"
        button had been selected, as happens if Return is typed if some
        widget that *doesn't* handle the Return key has the input focus. */
-    dlg_set_activate(range_entry, accept_bt);
-    dlg_set_activate(value_entry, accept_bt);
-
-    /*
-     * Catch the "key_press_event" signal in the window, so that we can
-     * catch the ESC key being pressed and act as if the "Close" button
-     * had been selected.
-     */
-    dlg_set_cancel(window, close_bt);
+    dlg_set_activate(range_entry, ok_bt);
+    dlg_set_activate(value_entry, ok_bt);
 
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_RELATION_LIST_KEY, relation_list);
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_RANGE_LABEL_KEY, range_label);
@@ -1456,7 +1451,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY, value_list_label);
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_SW_KEY,
                     value_list_scrolled_win);
-    OBJECT_SET_DATA(window, E_DFILTER_EXPR_ACCEPT_BT_KEY, accept_bt);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_OK_BT_KEY, ok_bt);
 
 #if GTK_MAJOR_VERSION < 2
     /*
@@ -1467,6 +1462,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_clist_set_selection_mode (GTK_CLIST(field_tree),
                                   GTK_SELECTION_BROWSE);
 #endif
+
+    SIGNAL_CONNECT(window, "delete_event", dfilter_expr_dlg_cancel_cb, window);
 
     /*
      * Catch the "destroy" signal on our top-level window, and,
@@ -1483,4 +1480,5 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     SIGNAL_CONNECT(filter_te, "destroy", dfilter_expr_dlg_cancel_cb, window);
 
     gtk_widget_show_all(window);
+    window_present(window);
 }

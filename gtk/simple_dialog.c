@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.34 2004/05/17 21:15:28 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.35 2004/05/26 03:49:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include "gtkglobals.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
+#include "ui_util.h"
 #include "compat_macros.h"
 
 #include <epan/strutil.h>
@@ -207,20 +208,11 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   if(bt) {
       OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CANCEL));
-      SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
-    /* Catch the "key_press_event" signal in the window, so that we can catch
-       the ESC key being pressed and act as if the "OK" button had
-       been selected. */
-      dlg_set_cancel(win, bt);
-      gtk_widget_grab_default(bt);
+      window_set_cancel_button(win, bt, simple_dialog_cancel_cb);
   }
 
   if(!bt) {
-      /* Catch the "key_press_event" signal in the window, so that we can catch
-       the ESC key being pressed and act as if the "OK" button had
-       been selected. */
-    dlg_set_cancel(win, ok_bt);
-    gtk_widget_grab_default(ok_bt);
+      window_set_cancel_button(win, ok_bt, simple_dialog_cancel_cb);
   }
 
   gtk_widget_show(win);
@@ -321,7 +313,7 @@ simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
   simple_dialog_cb_t    callback_fct    = OBJECT_GET_DATA(win, CALLBACK_FCT_KEY);
   gpointer              data            = OBJECT_GET_DATA(win, CALLBACK_DATA_KEY);
 
-  gtk_widget_destroy(GTK_WIDGET(win));
+  window_destroy(GTK_WIDGET(win));
 
   if (callback_fct)
     (callback_fct) (win, button, data);

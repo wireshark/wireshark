@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.36 2004/05/20 18:23:38 ulfl Exp $
+ * $Id: plugins_dlg.c,v 1.37 2004/05/26 03:49:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,6 @@
 
 #ifdef HAVE_PLUGINS
 
-static void plugins_close_cb(GtkWidget *, gpointer);
 static void plugins_destroy_cb(GtkWidget *, gpointer);
 
 /*
@@ -105,7 +104,7 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     }
 
     plugins_window = dlg_window_new("Ethereal: Plugins");
-    SIGNAL_CONNECT(plugins_window, "destroy", plugins_destroy_cb, NULL);
+    gtk_window_set_default_size(GTK_WINDOW(plugins_window), 250, 200);
 
     main_vbox = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(plugins_window), main_vbox);
@@ -119,30 +118,20 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     gtk_container_set_border_width(GTK_CONTAINER(frame_hbox), 5);
 
     page = about_plugins_page_new();
-    WIDGET_SET_SIZE(page, 250, 200);
     gtk_box_pack_start(GTK_BOX(frame_hbox), page, TRUE, TRUE, 0);
 
+    /* button row */
     bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
     gtk_box_pack_end(GTK_BOX(main_vbox), bbox, FALSE, FALSE, 3);
 
     ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-    SIGNAL_CONNECT(ok_bt, "clicked", plugins_close_cb, plugins_window);
-    gtk_widget_grab_default(ok_bt);
+    window_set_cancel_button(plugins_window, ok_bt, window_cancel_button_cb);
 
-    /* Catch the "key_press_event" signal in the window, so that we can catch
-       the ESC key being pressed and act as if the "OK" button had
-       been selected. */
-	dlg_set_cancel(plugins_window, ok_bt);
+    SIGNAL_CONNECT(plugins_window, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(plugins_window, "destroy", plugins_destroy_cb, NULL);
 
     gtk_widget_show_all(plugins_window);
-
-}
-
-static void
-plugins_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
-{
-    gtk_grab_remove(GTK_WIDGET(parent_w));
-    gtk_widget_destroy(GTK_WIDGET(parent_w));
+    window_present(plugins_window);
 }
 
 static void
@@ -151,4 +140,6 @@ plugins_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
     /* Note that we no longer have a Plugins window. */
     plugins_window = NULL;
 }
-#endif
+
+
+#endif /* HAVE_PLUGINS */

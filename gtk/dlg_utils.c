@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.35 2004/05/24 17:41:26 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.36 2004/05/26 03:49:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,21 +29,33 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
+#include <epan/filesystem.h>
+
+#include "globals.h"
+
 #include "gtkglobals.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
+#include "keys.h"
 #include "compat_macros.h"
+#include "main.h"
 
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
 
+
+/* Keys ... */
+#define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
+
+
 static void
 dlg_activate (GtkWidget *widget, gpointer ok_button);
 
-static gint
-dlg_key_press (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button);
-
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
+static void file_selection_browse_ok_cb(GtkWidget *w, gpointer data);
+#endif
+static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 
 
 /* create a button for the button row (helper for dlg_button_row_new) */
@@ -409,6 +421,123 @@ file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra)
 #endif
 }
 
+
+/*
+ * A generic select_file routine that is intended to be connected to
+ * a Browse button on other dialog boxes. This allows the user to browse
+ * for a file and select it. We fill in the text_entry that is given to us. 
+ *
+ * We display the window label specified in our args.
+ */
+void
+file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label, file_selection_action_t action)
+{
+  GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
+  GtkWidget *fs;
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  gchar     *f_name;
+#endif
+
+  /* Has a file selection dialog box already been opened for that top-level
+     widget? */
+  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
+  if (fs != NULL) {
+    /* Yes.  Just re-activate that dialog box. */
+    reactivate_window(fs);
+    return;
+  }
+
+  fs = file_selection_new(label, action);
+
+  /* If we've opened a file, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    file_selection_set_current_folder(fs, last_open_dir);
+
+  OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
+
+  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
+  OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
+
+  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
+  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, fs);
+
+  /* Call a handler when the file selection box is destroyed, so we can inform
+     our caller, if any, that it's been destroyed. */
+  SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(file_selection_browse_destroy_cb), 
+		 file_te);
+
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
+  {
+      f_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+      gtk_entry_set_text(GTK_ENTRY(file_te), f_name);
+      g_free(f_name);
+  }
+  window_destroy(fs);
+#else
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", 
+		 file_selection_browse_ok_cb, fs);
+
+  window_set_cancel_button(fs, GTK_FILE_SELECTION(fs)->cancel_button, NULL);
+
+  SIGNAL_CONNECT(fs, "delete_event", window_delete_event_cb, fs);
+
+  gtk_widget_show(fs);
+  window_present(fs);
+#endif
+}
+
+
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
+static void
+file_selection_browse_ok_cb(GtkWidget *w _U_, gpointer data)
+{
+  gchar     *f_name;
+  GtkWidget *win = data;
+
+  f_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (data)));
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(f_name) == EISDIR) {
+        /* It's a directory - set the file selection box to display it. */
+        set_last_open_dir(f_name);
+        g_free(f_name);
+        gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
+                                        last_open_dir);
+        return;
+  }
+
+  gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(win, PRINT_FILE_TE_KEY)),
+                     f_name);
+  window_destroy(GTK_WIDGET(win));
+
+  g_free(f_name);
+}
+#endif
+
+static void
+file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* parent_te)
+{
+  GtkWidget *caller;
+
+  /* Get the widget that requested that we be popped up.
+     (It should arrange to destroy us if it's destroyed, so
+     that we don't get a pointer to a non-existent window here.) */
+  caller = OBJECT_GET_DATA(win, E_FS_CALLER_PTR_KEY);
+
+  /* Tell it we no longer exist. */
+  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, NULL);
+
+  /* Give the focus to the file text entry widget so the user can just press
+     Return to print to the file. */
+  gtk_widget_grab_focus(parent_te);
+}
+
+
+
+
 /* Set the "activate" signal for a widget to call a routine to
    activate the "OK" button for a dialog box.
 
@@ -428,37 +557,6 @@ static void
 dlg_activate (GtkWidget *widget _U_, gpointer ok_button)
 {
   gtk_widget_activate(GTK_WIDGET(ok_button));
-}
-
-/* Set the "key_press_event" signal for a top-level dialog window to
-   call a routine to activate the "Cancel" button for a dialog box if
-   the key being pressed is the <Esc> key.
-
-   XXX - there should be a GTK+ widget that'll do that for you, and
-   let you specify a "Cancel" button.  It should also not impose
-   a requirement that there be a separator in the dialog box, as
-   the GtkDialog widget does; the visual convention that there's
-   such a separator between the rest of the dialog boxes and buttons
-   such as "OK" and "Cancel" is, for better or worse, not universal
-   (not even in GTK+ - look at the GtkFileSelection dialog!). */
-void
-dlg_set_cancel(GtkWidget *widget, GtkWidget *cancel_button)
-{
-  SIGNAL_CONNECT(widget, "key_press_event", dlg_key_press, cancel_button);
-}
-
-static gint
-dlg_key_press (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button)
-{
-  g_return_val_if_fail (widget != NULL, FALSE);
-  g_return_val_if_fail (event != NULL, FALSE);
-
-  if (event->keyval == GDK_Escape) {
-    gtk_widget_activate(GTK_WIDGET(cancel_button));
-    return TRUE;
-  }
-
-  return FALSE;
 }
 
 #if GTK_MAJOR_VERSION < 2

@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.39 2004/03/13 15:15:23 ulfl Exp $
+ * $Id: decode_as_dlg.c,v 1.40 2004/05/26 03:49:22 ulfl Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -71,7 +71,7 @@ enum srcdst_type {
     E_DECODE_BPORT
 };
 
-#define E_DECODE_MIN_HEIGHT 100
+#define E_DECODE_MIN_HEIGHT 300
 #define E_NOTEBOOK "notebook"
 
 #define E_MENU_SRCDST "menu_src_dst"
@@ -360,22 +360,22 @@ decode_build_show_list (gchar *table_name, ftenum_t selector_type,
 static void
 decode_show_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
 {
-    gtk_widget_destroy(GTK_WIDGET(parent_w));
+    window_destroy(GTK_WIDGET(parent_w));
 }
 
 
 /*
- * This routine is called when the user clicks the "Reset" button in
+ * This routine is called when the user clicks the "Clear" button in
  * the "Decode As:Show..." dialog window.  This routine resets all the
  * dissector values and then destroys the dialog box and performs
  * other housekeeping functions.
  *
- * @param GtkWidget * A pointer to the "Reset" button.
+ * @param GtkWidget * A pointer to the "Clear" button.
  *
  * @param gpointer A pointer to the dialog window.
  */
 static void
-decode_show_reset_cb (GtkWidget *reset_bt _U_, gpointer parent_w)
+decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
 {
     dissector_delete_item_t *item;
     GSList *tmp;
@@ -409,7 +409,7 @@ decode_show_reset_cb (GtkWidget *reset_bt _U_, gpointer parent_w)
 
     redissect_packets(&cfile);
 
-    gtk_widget_destroy(GTK_WIDGET(parent_w));
+    window_destroy(GTK_WIDGET(parent_w));
 }
 
 
@@ -481,8 +481,8 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     }
 
     decode_show_w = dlg_window_new("Ethereal: Decode As: Show");
-    SIGNAL_CONNECT(decode_show_w, "delete_event", decode_show_delete_cb, NULL);
-    SIGNAL_CONNECT(decode_show_w, "destroy", decode_show_destroy_cb, NULL);
+	/* Provide a minimum of a couple of rows worth of data */
+    gtk_window_set_default_size(GTK_WINDOW(decode_show_w), -1, E_DECODE_MIN_HEIGHT);
 
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
@@ -537,21 +537,24 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 	gtk_container_add(GTK_CONTAINER(scrolled_window),
                           GTK_WIDGET(list));
 	gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
-	/* Provide a minimum of a couple of rows worth of data */
-	WIDGET_SET_SIZE(scrolled_window, -1, E_DECODE_MIN_HEIGHT);
     }
 
     /* Button row */
     bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
-    gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
     ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
     SIGNAL_CONNECT(ok_bt, "clicked", decode_show_ok_cb, decode_show_w);
-    gtk_widget_grab_default(ok_bt);
     
     clear_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLEAR);
-    SIGNAL_CONNECT(clear_bt, "clicked", decode_show_reset_cb, decode_show_w);
+    SIGNAL_CONNECT(clear_bt, "clicked", decode_show_clear_cb, decode_show_w);
+
+    /* set ok as default, this button won't change anything */
+    window_set_cancel_button(decode_show_w, ok_bt, NULL);
+
+    SIGNAL_CONNECT(decode_show_w, "delete_event", decode_show_delete_cb, NULL);
+    SIGNAL_CONNECT(decode_show_w, "destroy", decode_show_destroy_cb, NULL);
     
 #if GTK_MAJOR_VERSION < 2
     gtk_widget_set_sensitive(clear_bt, (list->rows != 0));
@@ -560,9 +563,8 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
                              gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter));
 #endif
 
-    dlg_set_cancel(decode_show_w, ok_bt);
-
     gtk_widget_show_all(decode_show_w);
+    window_present(decode_show_w);
 }
 
 
@@ -795,7 +797,7 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     func(notebook_pg);
 
     /* Now destroy the "Decode As" dialog. */
-    gtk_widget_destroy(GTK_WIDGET(parent_w));
+    window_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
 
@@ -843,7 +845,7 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
 static void
 decode_cancel_cb (GtkWidget *cancel_bt _U_, gpointer parent_w)
 {
-    gtk_widget_destroy(GTK_WIDGET(parent_w));
+    window_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
 }
@@ -1178,8 +1180,6 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(*scrolled_win_p), 
                                    GTK_SHADOW_IN);
 #endif
-    /* Provide a minimum of a couple of rows worth of data */
-	WIDGET_SET_SIZE(*scrolled_win_p, -1, E_DECODE_MIN_HEIGHT);
 #if GTK_MAJOR_VERSION < 2
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(*scrolled_win_p),
 					  GTK_WIDGET(list));
@@ -1467,8 +1467,8 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 
     requested_action = E_DECODE_YES;
     decode_w = dlg_window_new("Ethereal: Decode As");
-    SIGNAL_CONNECT(decode_w, "delete_event", decode_delete_cb, NULL);
-    SIGNAL_CONNECT(decode_w, "destroy", decode_destroy_cb, NULL);
+	/* Provide a minimum of a couple of rows worth of data */
+    gtk_window_set_default_size(GTK_WINDOW(decode_w), -1, E_DECODE_MIN_HEIGHT);
 
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
@@ -1493,27 +1493,26 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 
     /* Button row */
     bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
-    gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
     ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
     SIGNAL_CONNECT(ok_bt, "clicked", decode_ok_cb, decode_w);
-    gtk_widget_grab_default(ok_bt);
 
     apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
     SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
 
     cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+    window_set_cancel_button(decode_w, cancel_bt, NULL);
     SIGNAL_CONNECT(cancel_bt, "clicked", decode_cancel_cb, decode_w);
 
-    /*
-     * Catch the "key_press_event" signal in the window, so that
-     * we can catch the ESC key being pressed and act as if the
-     * "Cancel" button had been selected.
-     */
-    dlg_set_cancel(decode_w, cancel_bt);
+    gtk_widget_grab_default(ok_bt);
+
+    SIGNAL_CONNECT(decode_w, "delete_event", decode_delete_cb, NULL);
+    SIGNAL_CONNECT(decode_w, "destroy", decode_destroy_cb, NULL);
 
     gtk_widget_show_all(decode_w);
+    window_present(decode_w);
 }
 
 

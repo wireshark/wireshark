@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.100 2004/05/23 23:24:06 ulfl Exp $
+ * $Id: proto_draw.c,v 1.101 2004/05/26 03:49:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -792,6 +792,14 @@ savehex_dlg_destroy_cb(void)
         savehex_dlg = NULL;
 }
 
+static void
+savehex_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
+{
+    file_selection_browse(file_bt, file_te, 
+        "Ethereal: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
+}
+
+
 /* Forward declaration */
 static void
 savehex_save_clicked_cb(GtkWidget * w, gpointer data);
@@ -865,12 +873,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 
 	/* File Browse button */
 	file_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
-	SIGNAL_CONNECT(file_bt, "clicked", select_file_cb,
-		       "Ethereal: Export Selected Packet Bytes");
-
-	/* file entry for print dialog */
-	OBJECT_SET_DATA(file_bt, E_FILE_TE_PTR_KEY, file_entry);
-	/* file entry for print dialog */
+	SIGNAL_CONNECT(file_bt, "clicked", savehex_browse_file_cb, file_entry);
 
 	gtk_tooltips_set_tip (tooltips, file_bt, ("Browse output filename in filesystem"), NULL);
 	gtk_box_pack_start(GTK_BOX(file_box), file_bt, FALSE, TRUE, 0);
@@ -966,7 +969,7 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	}
 
 	/* Get rid of the dialog box */
-	gtk_widget_destroy(GTK_WIDGET(savehex_dlg));
+	window_destroy(GTK_WIDGET(savehex_dlg));
 }
 
 /* Update the progress bar this many times when reading a file. */

@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.32 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: proto_dlg.c,v 1.33 2004/05/26 03:49:24 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -113,9 +113,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   proto_w = dlg_window_new("Ethereal: Enabled Protocols");
-  SIGNAL_CONNECT(proto_w, "delete_event", proto_delete_cb, NULL);
-  SIGNAL_CONNECT(proto_w, "destroy", proto_destroy_cb, NULL);
-  WIDGET_SET_SIZE(proto_w, DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
+  gtk_window_set_default_size(GTK_WINDOW(proto_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
 
   /* Container for each row of widgets */
 
@@ -222,7 +220,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(button);
 
 
-  /* Ok, Apply, Cancel Buttons */
+  /* Button row */
   bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
@@ -238,13 +236,15 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   SIGNAL_CONNECT(button, "clicked", proto_save_cb, proto_w);
 
   button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-  SIGNAL_CONNECT(button, "clicked", proto_cancel_cb, proto_w);
+  window_set_cancel_button(proto_w, button, proto_cancel_cb);
 
-  dlg_set_cancel(proto_w, button);
+  SIGNAL_CONNECT(proto_w, "delete_event", proto_delete_cb, NULL);
+  SIGNAL_CONNECT(proto_w, "destroy", proto_destroy_cb, NULL);
 
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(proto_w));
-  gtk_widget_show(proto_w);
 
+  gtk_widget_show(proto_w);
+  window_present(proto_w);
 } /* proto_cb */
 
 #if GTK_MAJOR_VERSION < 2
@@ -377,7 +377,7 @@ proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
   GSList *entry;
 
   if (proto_w)
-    gtk_widget_destroy(proto_w);
+    window_destroy(proto_w);
   proto_w = NULL;
 
   /* remove protocol list */
@@ -407,7 +407,7 @@ proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   gboolean redissect;
 
   redissect = set_proto_selection(GTK_WIDGET(parent_w));
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  window_destroy(GTK_WIDGET(parent_w));
   if (redissect)
     redissect_packets(&cfile);
 }
@@ -461,7 +461,7 @@ proto_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
   gboolean redissect;
 
   redissect = revert_proto_selection();
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  window_destroy(GTK_WIDGET(parent_w));
   if (redissect)
     redissect_packets(&cfile);
 }

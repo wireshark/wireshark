@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.42 2004/05/23 23:24:06 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.43 2004/05/26 03:49:24 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -274,7 +274,7 @@ rtp_reset(void *user_data_arg)
 
 #ifdef USE_CONVERSATION_GRAPH
 	if (user_data->dlg.graph_window != NULL)
-		gtk_widget_destroy(user_data->dlg.graph_window);
+		window_destroy(user_data->dlg.graph_window);
 	
 	g_array_free(user_data->series_fwd.value_pairs, TRUE);
 	user_data->series_fwd.value_pairs = g_array_new(FALSE, FALSE, sizeof(value_pair_t));
@@ -726,12 +726,12 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 
 	/* destroy save_voice_as window if open */
 	if (user_data->dlg.save_voice_as_w != NULL)
-		gtk_widget_destroy(user_data->dlg.save_voice_as_w);
+		window_destroy(user_data->dlg.save_voice_as_w);
 
 #ifdef USE_CONVERSATION_GRAPH
 	/* destroy graph window if open */
 	if (user_data->dlg.graph_window != NULL)
-		gtk_widget_destroy(user_data->dlg.graph_window);
+		window_destroy(user_data->dlg.graph_window);
 #endif
 
 	g_free(user_data->dlg.col_arrows_fwd);
@@ -1086,7 +1086,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		}
 	}
 
-	gtk_widget_destroy(GTK_WIDGET(user_data->dlg.save_csv_as_w));
+	window_destroy(GTK_WIDGET(user_data->dlg.save_csv_as_w));
 }
 
 static void save_csv_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data _U_)
@@ -1114,8 +1114,6 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	}
 	
 	user_data->dlg.save_csv_as_w = gtk_file_selection_new("Ethereal: Save Data As CSV");
-	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "destroy",
-                       save_csv_as_destroy_cb, user_data);
 	
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -1172,21 +1170,18 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	OBJECT_SET_DATA(ok_bt, "reversed_rb", reversed_rb);
 	OBJECT_SET_DATA(ok_bt, "both_rb", both_rb);
 	OBJECT_SET_DATA(ok_bt, "user_data", user_data);
-	
-	/* Connect the cancel_button to destroy the widget */
-	SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button,
-		"clicked", (GtkSignalFunc)gtk_widget_destroy,
-		user_data->dlg.save_csv_as_w);
-	
-	/* Catch the "key_press_event" signal in the window, so that we can catch
-	the ESC key being pressed and act as if the "Cancel" button had
-	been selected. */
-	dlg_set_cancel(user_data->dlg.save_csv_as_w, GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button);
-	
 	SIGNAL_CONNECT(ok_bt, "clicked", save_csv_as_ok_cb,
                        user_data->dlg.save_csv_as_w);
+
+    window_set_cancel_button(user_data->dlg.save_csv_as_w, 
+        GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button, NULL);
 	
+    SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "destroy",
+                       save_csv_as_destroy_cb, user_data);
+    
 	gtk_widget_show(user_data->dlg.save_csv_as_w);
+    window_present(user_data->dlg.save_csv_as_w);
 }
 
 
@@ -1505,7 +1500,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		return;
 	}
 	
-	gtk_widget_destroy(GTK_WIDGET(user_data->dlg.save_voice_as_w));
+	window_destroy(GTK_WIDGET(user_data->dlg.save_voice_as_w));
 }
 
 /****************************************************************************/
@@ -1535,9 +1530,8 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		return;
 	}
 	
+    /* XXX - use file_selection from dlg_utils instead! */
 	user_data->dlg.save_voice_as_w = gtk_file_selection_new("Ethereal: Save Payload As ...");
-	SIGNAL_CONNECT(user_data->dlg.save_voice_as_w, "destroy",
-                       save_voice_as_destroy_cb, user_data);
 	
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -1633,21 +1627,19 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	OBJECT_SET_DATA(ok_bt, "reversed_rb", reversed_rb);
 	OBJECT_SET_DATA(ok_bt, "both_rb", both_rb);
 	OBJECT_SET_DATA(ok_bt, "user_data", user_data);
-	
-	/* Connect the cancel_button to destroy the widget */
-	SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->cancel_button,
-		"clicked", (GtkSignalFunc)gtk_widget_destroy,
-		user_data->dlg.save_voice_as_w);
-	
-		/* Catch the "key_press_event" signal in the window, so that we can catch
-		the ESC key being pressed and act as if the "Cancel" button had
-	been selected. */
-	dlg_set_cancel(user_data->dlg.save_voice_as_w, GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->cancel_button);
-	
 	SIGNAL_CONNECT(ok_bt, "clicked", save_voice_as_ok_cb,
                        user_data->dlg.save_voice_as_w);
-	
+
+    window_set_cancel_button(user_data->dlg.save_voice_as_w, 
+      GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->cancel_button, window_cancel_button_cb);
+
+    SIGNAL_CONNECT(user_data->dlg.save_voice_as_w, "delete_event", 
+                        window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(user_data->dlg.save_voice_as_w, "destroy",
+                        save_voice_as_destroy_cb, user_data);
+
 	gtk_widget_show(user_data->dlg.save_voice_as_w);
+    window_present(user_data->dlg.save_voice_as_w);
 }
 
 

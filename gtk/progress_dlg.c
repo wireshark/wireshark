@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.22 2004/02/01 13:12:10 ulfl Exp $
+ * $Id: progress_dlg.c,v 1.23 2004/05/26 03:49:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 #include <gtk/gtk.h>
 #include "gtkglobals.h"
 #include "dlg_utils.h"
+#include "ui_util.h"
 #include "progress_dlg.h"
 #include "compat_macros.h"
 
@@ -400,7 +401,7 @@ destroy_progress_dlg(progdlg_t *dlg)
 {
 	GtkWidget *dlg_w = dlg->dlg_w;
 
-	gtk_widget_destroy(GTK_WIDGET(dlg_w));
+	window_destroy(GTK_WIDGET(dlg_w));
     g_free(dlg->title);
 	g_free(dlg);
 }

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.25 2004/05/24 09:00:52 guy Exp $
+ * $Id: ui_util.c,v 1.26 2004/05/26 03:49:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #include "gtkglobals.h"
 #include "ui_util.h"
@@ -147,7 +148,7 @@ window_new(GtkWindowType type, const gchar *title)
   return win;
 }
 
-/* Present the created window. */
+/* Present the created window on the screen. */
 void
 window_present(GtkWidget *win)
 {
@@ -169,18 +170,48 @@ window_present(GtkWidget *win)
 }
 
 
-/* set the actions needed for the cancel "Close"/"Ok"/"Cancel button that closes the window */
+static gint
+window_key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button)
+{
+  g_return_val_if_fail (widget != NULL, FALSE);
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  if (event->keyval == GDK_Escape) {
+    gtk_widget_activate(GTK_WIDGET(cancel_button));
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+
+/* Set the "key_press_event" signal for a top-level dialog window to
+   call a routine to activate the "Cancel" button for a dialog box if
+   the key being pressed is the <Esc> key.
+
+   XXX - there should be a GTK+ widget that'll do that for you, and
+   let you specify a "Cancel" button.  It should also not impose
+   a requirement that there be a separator in the dialog box, as
+   the GtkDialog widget does; the visual convention that there's
+   such a separator between the rest of the dialog boxes and buttons
+   such as "OK" and "Cancel" is, for better or worse, not universal
+   (not even in GTK+ - look at the GtkFileSelection dialog!). */
+static void
+window_set_cancel(GtkWidget *widget, GtkWidget *cancel_button)
+{
+  SIGNAL_CONNECT(widget, "key_press_event", window_key_press_cb, cancel_button);
+}
+
+
+/* set the actions needed for the cancel "Close"/"Ok"/"Cancel" button that closes the window */
 void window_set_cancel_button(GtkWidget *win, GtkWidget *bt, window_cancel_button_fct cb)
 {
-/*  SIGNAL_CONNECT_OBJECT(bt, "clicked", cb, win);*/
-  SIGNAL_CONNECT(bt, "clicked", cb, win);
+  if(cb)
+    SIGNAL_CONNECT(bt, "clicked", cb, win);
 
   gtk_widget_grab_default(bt);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(win, bt);
+  window_set_cancel(win, bt);
 }
 
 

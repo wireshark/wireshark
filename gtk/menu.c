@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.197 2004/05/21 08:44:45 guy Exp $
+ * $Id: menu.c,v 1.198 2004/05/26 03:49:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "capture_dlg.h"
 #include "color_dlg.h"
 #include "filter_prefs.h"
+#include "dlg_utils.h"
 #include "file_dlg.h"
 #include "find_dlg.h"
 #include "goto_dlg.h"

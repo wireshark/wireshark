@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.130 2004/04/28 20:47:43 guy Exp $
+ * $Id: capture_dlg.c,v 1.131 2004/05/26 03:49:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,9 +98,6 @@
 
 #define E_CAP_OM_LT_VALUE_KEY       "cap_om_lt_value"
 
-#define E_FS_CALLER_PTR_KEY         "fs_caller_ptr"
-#define E_FILE_SEL_DIALOG_PTR_KEY   "file_sel_dialog_ptr"
-
 static void
 capture_prep_file_cb(GtkWidget *w, gpointer te);
 
@@ -110,9 +107,6 @@ select_link_type_cb(GtkWidget *w, gpointer data);
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
 static void
 cap_prep_fs_ok_cb(GtkWidget *w, gpointer data);
-
-static void
-cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data);
 #endif
 
 static void
@@ -123,9 +117,6 @@ capture_prep_adjust_sensitivity(GtkWidget *tb, gpointer parent_w);
 
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
-
-static void
-capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w);
 
 static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
@@ -537,7 +528,6 @@ capture_prep(void)
   }
 
   cap_open_w = dlg_window_new("Ethereal: Capture Options");
-  SIGNAL_CONNECT(cap_open_w, "destroy", capture_prep_destroy_cb, NULL);
 
   tooltips = gtk_tooltips_new();
 
@@ -994,17 +984,18 @@ capture_prep(void)
   SIGNAL_CONNECT(ok_bt, "clicked", capture_prep_ok_cb, cap_open_w);
   gtk_tooltips_set_tip(tooltips, ok_bt, 
     "Start the capture process.", NULL);
-  gtk_widget_grab_default(ok_bt);
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   gtk_tooltips_set_tip(tooltips, cancel_bt, 
     "Cancel and exit dialog.", NULL);
-  SIGNAL_CONNECT(cancel_bt, "clicked", capture_prep_close_cb, cap_open_w);
+  window_set_cancel_button(cap_open_w, cancel_bt, window_cancel_button_cb);
 
   help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
   gtk_tooltips_set_tip(tooltips, help_bt, 
     "Show help about capturing.", NULL);
   SIGNAL_CONNECT(help_bt, "clicked", help_topic_cb, "Capturing");
+
+  gtk_widget_grab_default(ok_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
   OBJECT_SET_DATA(cap_open_w, E_CAP_IFACE_KEY, if_cb);
@@ -1057,11 +1048,6 @@ capture_prep(void)
   dlg_set_activate(filter_te, ok_bt);
   dlg_set_activate(file_te, ok_bt);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(cap_open_w, cancel_bt);
-
   /* XXX - why does not
 
      gtk_widget_grab_focus(if_cb);
@@ -1085,7 +1071,11 @@ capture_prep(void)
     in it; and it now appears that you simply *can't* make a combo box
     get the initial focus, at least not in the obvious fashion. Sigh.... */
 
+  SIGNAL_CONNECT(cap_open_w, "delete_event", window_delete_event_cb, NULL);
+  SIGNAL_CONNECT(cap_open_w, "destroy", capture_prep_destroy_cb, NULL);
+
   gtk_widget_show_all(cap_open_w);
+  window_present(cap_open_w);
 }
 
 static void 
@@ -1135,121 +1125,11 @@ select_link_type_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-capture_prep_file_cb(GtkWidget *w, gpointer file_te)
+capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
-  GtkWidget *caller = gtk_widget_get_toplevel(w);
-  GtkWidget *fs;
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  gchar     *cf_name;
-#endif
-
-  /* Has a file selection dialog box already been opened for that top-level
-     widget? */
-  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
-
-  if (fs != NULL) {
-    /* Yes.  Just re-activate that dialog box. */
-    reactivate_window(fs);
-    return;
-  }
-
-  fs = file_selection_new("Ethereal: Capture File", FILE_SELECTION_SAVE);
-
-  /* If we've opened a file, start out by showing the files in the directory
-     in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(fs, last_open_dir);
-
-  OBJECT_SET_DATA(fs, E_CAP_FILE_TE_KEY, file_te);
-
-  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
-  OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
-
-  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, fs);
-
-  /* Call a handler when the file selection box is destroyed, so we can inform
-     our caller, if any, that it's been destroyed. */
-  SIGNAL_CONNECT(fs, "destroy", cap_prep_fs_destroy_cb, file_te);
-
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
-  {
-      cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
-      gtk_entry_set_text(GTK_ENTRY(file_te), cf_name);
-      g_free(cf_name);
-  }
-  gtk_widget_destroy(fs);
-#else
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", cap_prep_fs_ok_cb, fs);
-
-  /* Connect the cancel_button to destroy the widget */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->cancel_button, "clicked", cap_prep_fs_cancel_cb,
-                 fs);
-
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
-
-  gtk_widget_show_all(fs);
-#endif
+    file_selection_browse(file_bt, file_te, "Ethereal: Specify a Capture File", FILE_SELECTION_OPEN);
 }
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
-static void
-cap_prep_fs_ok_cb(GtkWidget *w _U_, gpointer data)
-{
-  gchar     *cf_name;
-
-  cf_name = g_strdup(gtk_file_selection_get_filename(
-    GTK_FILE_SELECTION (data)));
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(cf_name) == EISDIR) {
-        /* It's a directory - set the file selection box to display it. */
-        set_last_open_dir(cf_name);
-        g_free(cf_name);
-        gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
-                                        last_open_dir);
-        return;
-  }
-
-  gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(data, E_CAP_FILE_TE_KEY)), cf_name);
-
-  gtk_widget_destroy(GTK_WIDGET(data));
-  g_free(cf_name);
-}
-
-static void
-cap_prep_fs_cancel_cb(GtkWidget *w _U_, gpointer data)
-{
-  gtk_widget_destroy(GTK_WIDGET(data));
-}
-#endif
-
-static void
-cap_prep_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te)
-{
-  GtkWidget *caller;
-
-  /* Get the widget that requested that we be popped up.
-     (It should arrange to destroy us if it's destroyed, so
-     that we don't get a pointer to a non-existent window here.) */
-  caller = OBJECT_GET_DATA(win, E_FS_CALLER_PTR_KEY);
-
-  /* Tell it we no longer exist. */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, NULL);
-
-  /* Now nuke this window. */
-  gtk_grab_remove(GTK_WIDGET(win));
-  gtk_widget_destroy(GTK_WIDGET(win));
-
-  /* Give the focus to the file text entry widget so the user can just press
-     Return to start the capture. */
-  gtk_widget_grab_focus(file_te);
-}
 
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
@@ -1485,18 +1365,11 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     capture_opts.autostop_files =
       gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_files_sb));
 
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  window_destroy(GTK_WIDGET(parent_w));
 
   do_capture(save_file);
   if (save_file != NULL)
     g_free(save_file);
-}
-
-static void
-capture_prep_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
-{
-  gtk_grab_remove(GTK_WIDGET(parent_w));
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
@@ -1510,7 +1383,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
   if (fs != NULL) {
     /* Yes.  Destroy it. */
-    gtk_widget_destroy(fs);
+    window_destroy(fs);
   }
 
   /* Note that we no longer have a "Capture Options" dialog box. */

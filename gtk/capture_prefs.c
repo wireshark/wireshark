@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.32 2004/04/17 01:10:09 guy Exp $
+ * $Id: capture_prefs.c,v 1.33 2004/05/26 03:49:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,6 @@ static gint ifrow;						/* current interface row selected */
 
 static void ifopts_edit_cb(GtkWidget *w, gpointer data);
 static void ifopts_edit_ok_cb(GtkWidget *w, gpointer parent_w);
-static void ifopts_edit_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void ifopts_edit_destroy_cb(GtkWidget *win, gpointer data);
 static void ifopts_edit_ifsel_cb(GtkWidget *clist, gint row, gint column,
     GdkEventButton *event, gpointer data);
@@ -207,7 +206,7 @@ capture_prefs_destroy(GtkWidget *w)
 
 	if (dlg != NULL) {
 		/* Yes.  Destroy it. */
-		gtk_widget_destroy(dlg);
+		window_destroy(dlg);
 	}
 }
 
@@ -238,8 +237,8 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	
 	/* create a new dialog */
 	ifopts_edit_dlg = dlg_window_new("Ethereal: Preferences: Interface Options");
-	SIGNAL_CONNECT(ifopts_edit_dlg, "destroy", ifopts_edit_destroy_cb, NULL);
-	main_vb = gtk_vbox_new(FALSE, 1);
+
+    main_vb = gtk_vbox_new(FALSE, 1);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(ifopts_edit_dlg), main_vb);
 	gtk_widget_show(main_vb);
@@ -339,12 +338,15 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(bbox);
 
 	ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-	gtk_widget_grab_default(ok_bt);
 	SIGNAL_CONNECT(ok_bt, "clicked", ifopts_edit_ok_cb, ifopts_edit_dlg);
 
 	cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(cancel_bt, "clicked", ifopts_edit_close_cb, ifopts_edit_dlg);
+    window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
 
+	gtk_widget_grab_default(ok_bt);
+
+    SIGNAL_CONNECT(ifopts_edit_dlg, "delete_event", window_delete_event_cb,
+                 NULL);
 	/* Call a handler when we're destroyed, so we can inform
 	   our caller, if any, that we've been destroyed. */
 	SIGNAL_CONNECT(ifopts_edit_dlg, "destroy", ifopts_edit_destroy_cb, NULL);
@@ -354,12 +356,8 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* Set the key for the caller to point to us */
 	OBJECT_SET_DATA(caller, IFOPTS_DIALOG_PTR_KEY, ifopts_edit_dlg);
 	
-	/* Catch the "key_press_event" signal in the window, so that we can
-	   catch the ESC key being pressed and act as if the "Cancel" button
-	   had been selected. */
-	dlg_set_cancel(ifopts_edit_dlg, cancel_bt);
-	
 	gtk_widget_show(ifopts_edit_dlg);
+    window_present(ifopts_edit_dlg);
 }
 
 /*
@@ -378,14 +376,7 @@ ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 	
 	/* Now nuke this window. */
 	gtk_grab_remove(GTK_WIDGET(parent_w));
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
-}
-
-static void
-ifopts_edit_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
-{
-	gtk_grab_remove(GTK_WIDGET(parent_w));
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
+	window_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
@@ -405,7 +396,7 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 
 	/* Now nuke this window. */
 	gtk_grab_remove(GTK_WIDGET(win));
-	gtk_widget_destroy(GTK_WIDGET(win));
+	window_destroy(GTK_WIDGET(win));
 }
 
 /*

@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.62 2004/02/28 04:21:49 guy Exp $
+ * $Id: filter_prefs.c,v 1.63 2004/05/26 03:49:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,7 +74,6 @@ static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer dummy);
 static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy);
 static void filter_apply(GtkWidget *main_w, gboolean destroy);
 static void filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w);
-static void filter_dlg_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void filter_dlg_destroy_cb(GtkWidget *win, gpointer data);
 
 static gint filter_sel_list_button_cb(GtkWidget *, GdkEventButton *,
@@ -180,7 +179,7 @@ filter_button_destroy_cb(GtkWidget *button, gpointer user_data _U_)
 	if (filter_w != NULL) {
 		/* Yes.  Break the association, and destroy the dialog. */
 		OBJECT_SET_DATA(button, E_FILT_DIALOG_PTR_KEY, NULL);
-		gtk_widget_destroy(filter_w);
+		window_destroy(filter_w);
 	}
 }
 
@@ -363,10 +362,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     main_w = dlg_window_new(construct_args->title);
     OBJECT_SET_DATA(main_w, E_FILT_CONSTRUCT_ARGS_KEY, construct_args);
-
-    /* Call a handler when we're destroyed, so we can detach ourselves
-       from the button. */
-    SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy_cb, filter_list_type_p);
 
     main_vb = gtk_vbox_new(FALSE, 0);
     gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -586,6 +581,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
     gtk_widget_show(bbox);
 
+    ok_bt = NULL;
     if (parent_filter_te != NULL) {
         /*
          * We have a filter text entry that we can fill in if
@@ -593,7 +589,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
          */
         ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
         SIGNAL_CONNECT(ok_bt, "clicked", filter_dlg_ok_cb, NULL);
-        gtk_widget_grab_default(ok_bt);
         gtk_tooltips_set_tip (tooltips, ok_bt, ("Apply the filters and close this dialog"), NULL);
 
         /* Catch the "activate" signal on the filter name and filter
@@ -616,7 +611,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_tooltips_set_tip (tooltips, save_bt, ("Save the filters permanently and keep this dialog open"), NULL);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    SIGNAL_CONNECT(close_bt, "clicked", filter_dlg_close_cb, main_w);
     gtk_tooltips_set_tip (tooltips, close_bt, ("Close this dialog but don't apply the filter changes"), NULL);
     if (parent_filter_te == NULL)
         gtk_widget_grab_default(close_bt);
@@ -629,16 +623,18 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     }
     gtk_tooltips_set_tip (tooltips, help_bt, ("Show topic specific help"), NULL);
 
-    /*
-     * Catch the "key_press_event" signal in the window, so that we can
-     * catch the ESC key being pressed and act as if the "Close" button
-     * had been selected.
-     */
-    dlg_set_cancel(main_w, close_bt);
+    window_set_cancel_button(main_w, close_bt, window_cancel_button_cb);
+
+    if(ok_bt) {
+        gtk_widget_grab_default(ok_bt);
+    }
 
     remember_filter_dialog(main_w, filter_dialogs);
 
-    gtk_widget_show(main_w);
+    SIGNAL_CONNECT(main_w, "delete_event", window_delete_event_cb, NULL);
+    /* Call a handler when we're destroyed, so we can detach ourselves
+       from the button. */
+    SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy_cb, filter_list_type_p);
 
     if (button != NULL) {
 	/* This dialog box was created by a "Filter" button.
@@ -667,6 +663,9 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
     }
 #endif
+
+    gtk_widget_show(main_w);
+    window_present(main_w);
 
     return main_w;
 }
@@ -733,7 +732,7 @@ filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg, gpointer activate)
         }
     }
 
-    gtk_widget_destroy(main_w);
+    window_destroy(main_w);
 }
 
 static void
@@ -781,7 +780,7 @@ filter_apply(GtkWidget *main_w, gboolean destroy)
 		/*
 		 * Destroy the filter dialog box.
 		 */
-		gtk_widget_destroy(main_w);
+		window_destroy(main_w);
 	}
 
 	if (parent_filter_te != NULL) {
@@ -855,12 +854,6 @@ filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 }
 
 static void
-filter_dlg_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
-{
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
-}
-
-static void
 filter_dlg_destroy_cb(GtkWidget *win, gpointer data)
 {
 	filter_list_type_t list = *(filter_list_type_t *)data;
@@ -896,7 +889,7 @@ filter_dlg_destroy_cb(GtkWidget *win, gpointer data)
 
 	/* Now nuke this window. */
 	gtk_grab_remove(GTK_WIDGET(win));
-	gtk_widget_destroy(GTK_WIDGET(win));
+	window_destroy(GTK_WIDGET(win));
 }
 
 #if GTK_MAJOR_VERSION < 2

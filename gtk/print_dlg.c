@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.76 2004/04/25 22:34:06 ulfl Exp $
+ * $Id: print_dlg.c,v 1.77 2004/05/26 03:49:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,7 +74,6 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args);
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
 static void print_cmd_toggle_detail(GtkWidget *widget, gpointer data);
 static void print_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
-static void print_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void print_destroy_cb(GtkWidget *win, gpointer user_data);
 
 
@@ -96,6 +95,7 @@ static void print_destroy_cb(GtkWidget *win, gpointer user_data);
 
 #define PRINT_BT_KEY              "printer_button"
 
+#define PRINT_TE_PTR_KEY          "printer_file_te_ptr"
 
 
 /*
@@ -318,6 +318,13 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 }
 
 
+static void
+print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
+{
+    file_selection_browse(file_bt, file_te, "Ethereal: Print to File", FILE_SELECTION_SAVE);
+}
+
+
 
 /* Open the print dialog */
 static GtkWidget *
@@ -459,7 +466,7 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
   /* "Browse" button */
   file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
   OBJECT_SET_DATA(dest_cb, PRINT_FILE_BT_KEY, file_bt);
-  OBJECT_SET_DATA(file_bt, E_FILE_TE_PTR_KEY, file_te);
+  OBJECT_SET_DATA(file_bt, PRINT_TE_PTR_KEY, file_te);
   gtk_tooltips_set_tip (tooltips, file_bt, "Browse output filename in filesystem", NULL);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), file_bt, 2, 3, 0, 1);
   gtk_widget_set_sensitive(file_bt, args->to_file);
@@ -486,7 +493,7 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
 #endif
 
   SIGNAL_CONNECT(dest_cb, "toggled", print_cmd_toggle_dest, NULL);
-  SIGNAL_CONNECT(file_bt, "clicked", select_file_cb, "Ethereal: Print to File");
+  SIGNAL_CONNECT(file_bt, "clicked", print_browse_file_cb, file_te);
 
   if(action == output_action_export_ps) {
     export_format_lb = gtk_label_new("(PostScript files can be easily converted to PDF files using ghostscript's ps2pdf)");
@@ -641,29 +648,27 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
   OBJECT_SET_DATA(ok_bt, PRINT_FORMFEED_CB_KEY, formfeed_cb);
   SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, main_win);
   gtk_tooltips_set_tip (tooltips, ok_bt, "Start output", NULL);
-  gtk_widget_grab_default(ok_bt);
 
   cancel_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-  SIGNAL_CONNECT(cancel_bt, "clicked", print_close_cb, main_win);
+  window_set_cancel_button(main_win, cancel_bt, window_cancel_button_cb);
   gtk_tooltips_set_tip (tooltips, cancel_bt, "Cancel and exit dialog", NULL);
+
+  gtk_widget_grab_default(ok_bt);
 
   /* Catch the "activate" signal on the "Command" and "File" text entries,
      so that if the user types Return there, we act as if the "OK" button
      had been selected, as happens if Return is typed if some widget
      that *doesn't* handle the Return key has the input focus. */
-
 #ifndef _WIN32
   dlg_set_activate(cmd_te, ok_bt);
 #endif
   if(action != output_action_print)
     dlg_set_activate(file_te, ok_bt);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(main_win, cancel_bt);
+  SIGNAL_CONNECT(main_win, "delete_event", window_delete_event_cb, NULL);
 
   gtk_widget_show(main_win);
+  window_present(main_win);
 
   return main_win;
 }
@@ -812,7 +817,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   args->print_formfeed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
 
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  window_destroy(GTK_WIDGET(parent_w));
 
   /* Now print the packets */
   switch (print_packets(&cfile, args)) {
@@ -848,13 +853,6 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 }
 
 static void
-print_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
-{
-  gtk_grab_remove(GTK_WIDGET(parent_w));
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
-}
-
-static void
 print_destroy_cb(GtkWidget *win, gpointer user_data)
 {
   GtkWidget     *fs;
@@ -865,7 +863,7 @@ print_destroy_cb(GtkWidget *win, gpointer user_data)
 
   if (fs != NULL) {
     /* Yes.  Destroy it. */
-    gtk_widget_destroy(fs);
+    window_destroy(fs);
   }
 
   /* Note that we no longer have a "Print" dialog box. */

@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to packet" window
  *
- * $Id: goto_dlg.c,v 1.25 2004/01/31 03:22:40 guy Exp $
+ * $Id: goto_dlg.c,v 1.26 2004/05/26 03:49:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,15 +36,13 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
+#include "ui_util.h"
 
 /* Capture callback data keys */
 #define E_GOTO_FNUMBER_KEY     "goto_fnumber_te"
 
 static void
 goto_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
-
-static void
-goto_frame_close_cb(GtkWidget *close_bt, gpointer parent_w);
 
 void
 goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -80,13 +78,11 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_JUMP_TO);
   SIGNAL_CONNECT(ok_bt, "clicked", goto_frame_ok_cb, goto_frame_w);
-  gtk_widget_grab_default(ok_bt);
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-  SIGNAL_CONNECT(cancel_bt, "clicked", goto_frame_close_cb, goto_frame_w);
+  window_set_cancel_button(goto_frame_w, cancel_bt, window_cancel_button_cb);
 
-  /* Attach pointers to needed widgets to the capture prefs window/object */
-  OBJECT_SET_DATA(goto_frame_w, E_GOTO_FNUMBER_KEY, fnumber_te);
+  gtk_widget_grab_default(ok_bt);
 
   /* Catch the "activate" signal on the frame number text entry, so that
      if the user types Return there, we act as if the "OK" button
@@ -94,15 +90,16 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
      that *doesn't* handle the Return key has the input focus. */
   dlg_set_activate(fnumber_te, ok_bt);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(goto_frame_w, cancel_bt);
-
   /* Give the initial focus to the "Packet number" entry box. */
   gtk_widget_grab_focus(fnumber_te);
 
+  /* Attach pointers to needed widgets to the capture prefs window/object */
+  OBJECT_SET_DATA(goto_frame_w, E_GOTO_FNUMBER_KEY, fnumber_te);
+
+  SIGNAL_CONNECT(goto_frame_w, "delete_event", window_delete_event_cb, NULL);
+
   gtk_widget_show(goto_frame_w);
+  window_present(goto_frame_w);
 }
 
 static void
@@ -129,13 +126,7 @@ goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
   if (goto_frame(&cfile, fnumber)) {
     /* We succeeded in going to that frame; we're done. */
-    gtk_widget_destroy(GTK_WIDGET(parent_w));
+    window_destroy(GTK_WIDGET(parent_w));
   }
 }
 
-static void
-goto_frame_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
-{
-  gtk_grab_remove(GTK_WIDGET(parent_w));
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
-}

@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.82 2004/05/24 02:25:21 guy Exp $
+ * $Id: prefs_dlg.c,v 1.83 2004/05/26 03:49:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -375,8 +375,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   copy_prefs(&saved_prefs, &prefs);
 
   prefs_w = dlg_window_new("Ethereal: Preferences");
-  SIGNAL_CONNECT(prefs_w, "delete_event", prefs_main_delete_cb, NULL);
-  SIGNAL_CONNECT(prefs_w, "destroy", prefs_main_destroy_cb, NULL);
 
   /*
    * Unfortunately, we can't arrange that a GtkTable widget wrap an event box
@@ -651,7 +649,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", prefs_main_ok_cb, prefs_w);
-  gtk_widget_grab_default(ok_bt);
 
   apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
   SIGNAL_CONNECT(apply_bt, "clicked", prefs_main_apply_cb, prefs_w);
@@ -661,13 +658,15 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", prefs_main_cancel_cb, prefs_w);
+  window_set_cancel_button(prefs_w, cancel_bt, NULL);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(prefs_w, cancel_bt);
+  gtk_widget_grab_default(ok_bt);
+
+  SIGNAL_CONNECT(prefs_w, "delete_event", prefs_main_delete_cb, NULL);
+  SIGNAL_CONNECT(prefs_w, "destroy", prefs_main_destroy_cb, NULL);
 
   gtk_widget_show(prefs_w);
+  window_present(prefs_w);
 
 #if GTK_MAJOR_VERSION >= 2
   g_object_unref(G_OBJECT(store));
@@ -1070,7 +1069,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   prefs_apply_all();
 
   /* Now destroy the "Preferences" dialog. */
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  window_destroy(GTK_WIDGET(parent_w));
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
@@ -1298,7 +1297,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
   nameres_prefs_apply(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  window_destroy(GTK_WIDGET(parent_w));
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */

@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.14 2004/05/23 17:37:36 ulfl Exp $
+ * $Id: dlg_utils.h,v 1.15 2004/05/26 03:49:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,7 @@
 
 /* Create a dialog box window that belongs to Ethereal's main window,
  * see wíndow_new() for usage */
-extern GtkWidget *dlg_window_new(const gchar *);
+extern GtkWidget *dlg_window_new(const gchar *title);
 
 /* Create a file selection dialog box window that belongs to Ethereal's
    main window. */
@@ -35,14 +35,19 @@ typedef enum {
 	FILE_SELECTION_OPEN,
 	FILE_SELECTION_SAVE
 } file_selection_action_t;
-extern GtkWidget *file_selection_new(const gchar *, file_selection_action_t);
+extern GtkWidget *file_selection_new(const gchar *title, file_selection_action_t action);
 
 /* Set the current folder for a file selection dialog. */
-extern gboolean file_selection_set_current_folder(GtkWidget *, const gchar *);
+extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *filename);
 
 /* Set the "extra" widget for a file selection dialog, with user-supplied
    options. */
-extern void file_selection_set_extra_widget(GtkWidget *, GtkWidget *);
+extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
+
+#define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
+
+extern void
+file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label, file_selection_action_t action);
 
 /* Create a button row for a dialog */
 /* the button widgets will be available by OBJECT_GET_DATA(stock_id) */
@@ -51,11 +56,6 @@ extern GtkWidget *dlg_button_row_new(gchar *stock_id_first, ...);
 /* Set the "activate" signal for a widget to call a routine to
    activate the "OK" button for a dialog box. */
 extern void dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button);
-
-/* Set the "key_press_event" signal for a top-level dialog window to
-   call a routine to activate the "Cancel" button for a dialog box if
-   the key being pressed is the <Esc> key. */
-extern void dlg_set_cancel(GtkWidget *widget, GtkWidget *cancel_button);
 
 
 /* used by compat_macros.h only */

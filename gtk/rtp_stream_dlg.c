@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.20 2004/04/12 18:01:27 ulfl Exp $
+ * $Id: rtp_stream_dlg.c,v 1.21 2004/05/26 03:49:24 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -171,7 +171,7 @@ static void save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 	if (!rtpstream_save(selected_stream_fwd, g_dest))
 		return;
 
-	gtk_widget_destroy(GTK_WIDGET(rtpstream_save_dlg));
+	window_destroy(GTK_WIDGET(rtpstream_save_dlg));
 }
 
 
@@ -187,7 +187,7 @@ rtpstream_on_destroy                      (GtkObject       *object _U_,
 
 	/* Is there a save voice window open? */
 	if (rtpstream_save_dlg != NULL)
-		gtk_widget_destroy(rtpstream_save_dlg);
+		window_destroy(rtpstream_save_dlg);
 
 	/* Clean up memory used by stream tap */
 	rtpstream_reset((rtpstream_tapinfo_t*) rtpstream_get_info());
@@ -310,9 +310,8 @@ rtpstream_on_save                      (GtkButton       *button _U_,
 		return;
 	}
 
+    /* XXX - use file_selection from dlg_utils instead! */
 	rtpstream_save_dlg = gtk_file_selection_new("Ethereal: Save selected stream in rtpdump ('-F dump') format");
-	SIGNAL_CONNECT(rtpstream_save_dlg, "destroy", save_stream_destroy_cb,
-                       NULL);
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
@@ -322,20 +321,17 @@ rtpstream_on_save                      (GtkButton       *button _U_,
 	gtk_widget_show (vertb);
 
 	ok_bt = GTK_FILE_SELECTION(rtpstream_save_dlg)->ok_button;
-
-	/* Connect the cancel_button to destroy the widget */
-	SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(rtpstream_save_dlg)->cancel_button,
-		"clicked", (GtkSignalFunc)gtk_widget_destroy,
-		rtpstream_save_dlg);
-
-	/* Catch the "key_press_event" signal in the window, so that we can catch
-	the ESC key being pressed and act as if the "Cancel" button had
-	been selected. */
-	dlg_set_cancel(rtpstream_save_dlg, GTK_FILE_SELECTION(rtpstream_save_dlg)->cancel_button);
-
 	SIGNAL_CONNECT(ok_bt, "clicked", save_stream_ok_cb, tapinfo);
 
+    window_set_cancel_button(rtpstream_save_dlg, 
+      GTK_FILE_SELECTION(rtpstream_save_dlg)->cancel_button, window_cancel_button_cb);
+
+    SIGNAL_CONNECT(rtpstream_save_dlg, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(rtpstream_save_dlg, "destroy", save_stream_destroy_cb,
+                       NULL);
+
 	gtk_widget_show(rtpstream_save_dlg);
+    window_present(rtpstream_save_dlg);
 }
 
 
@@ -400,16 +396,6 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 	main_filter_packets(&cfile, filter_string, FALSE);
 	rtpstream_dlg_update(rtpstream_get_info()->strinfo_list);
 */
-}
-
-
-/****************************************************************************/
-static void
-rtpstream_on_close                     (GtkButton        *button _U_,
-                                        gpointer         user_data _U_)
-{
-	gtk_grab_remove(rtp_stream_dlg);
-	gtk_widget_destroy(rtp_stream_dlg);
 }
 
 
@@ -588,12 +574,10 @@ rtpstream_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 static void rtpstream_dlg_create (void)
 {
 	GtkWidget *rtpstream_dlg_w;
-	GtkWidget *dialog_vbox1;
-	GtkWidget *vbox1;
-	GtkWidget *label10;
-	GtkWidget *scrolledwindow1;
-	GtkWidget *dialog_action_area1;
-	GtkWidget *hbuttonbox2;
+	GtkWidget *main_vb;
+	GtkWidget *label;
+	GtkWidget *scrolledwindow;
+	GtkWidget *hbuttonbox;
 /*	GtkWidget *bt_goto;*/
 	GtkWidget *bt_unselect;
 	GtkWidget *bt_findrev;
@@ -605,35 +589,24 @@ static void rtpstream_dlg_create (void)
 
 	gchar *titles[8] =  {"Src IP addr", "Src port",  "Dest IP addr", "Dest port", "SSRC", "Payload", "Packets", "Comment"};
 	column_arrows *col_arrows;
-	GdkBitmap *ascend_bm, *descend_bm;
-	GdkPixmap *ascend_pm, *descend_pm;
-	GtkStyle *win_style;
 	GtkWidget *column_lb;
 	int i;
 
-	rtpstream_dlg_w = gtk_dialog_new();
-	gtk_window_set_title (GTK_WINDOW (rtpstream_dlg_w), "Ethereal: RTP Streams");
+	rtpstream_dlg_w = dlg_window_new("Ethereal: RTP Streams");
+	gtk_window_set_default_size(GTK_WINDOW(rtpstream_dlg_w), 620, 200);
 	
-	dialog_vbox1 = GTK_DIALOG (rtpstream_dlg_w)->vbox;
-	gtk_widget_show (dialog_vbox1);
+	main_vb = gtk_vbox_new (FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(rtpstream_dlg_w), main_vb);
+	gtk_container_set_border_width (GTK_CONTAINER (main_vb), 12);
 	
-	vbox1 = gtk_vbox_new (FALSE, 0);
-	gtk_widget_show (vbox1);
-	gtk_box_pack_start (GTK_BOX (dialog_vbox1), vbox1, TRUE, TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox1), 8);
+	label = gtk_label_new ("Detected RTP streams. Choose one for forward and reverse direction for analysis");
+	gtk_box_pack_start (GTK_BOX (main_vb), label, FALSE, FALSE, 8);
 	
-	label10 = gtk_label_new ("Detected RTP streams. Choose one for forward and reverse direction for analysis");
-	gtk_widget_show (label10);
-	gtk_box_pack_start (GTK_BOX (vbox1), label10, FALSE, FALSE, 8);
-	
-	scrolledwindow1 = scrolled_window_new (NULL, NULL);
-	gtk_widget_show (scrolledwindow1);
-	gtk_box_pack_start (GTK_BOX (vbox1), scrolledwindow1, TRUE, TRUE, 0);
+	scrolledwindow = scrolled_window_new (NULL, NULL);
+	gtk_box_pack_start (GTK_BOX (main_vb), scrolledwindow, TRUE, TRUE, 0);
 	
 	clist = gtk_clist_new (NUM_COLS);
-	gtk_widget_show (clist);
-	gtk_container_add (GTK_CONTAINER (scrolledwindow1), clist);
-	WIDGET_SET_SIZE(clist, 620, 200);
+	gtk_container_add (GTK_CONTAINER (scrolledwindow), clist);
 
 	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 100);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 50);
@@ -663,15 +636,6 @@ static void rtpstream_dlg_create (void)
 
 	/* sort by column feature */
 	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
-	win_style = gtk_widget_get_style(scrolledwindow1);
-	ascend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
-			&ascend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_ascend_xpm);
-	descend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
-			&descend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_descend_xpm);
 
 	for (i=0; i<NUM_COLS; i++) {
 		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
@@ -680,9 +644,9 @@ static void rtpstream_dlg_create (void)
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		gtk_widget_show(column_lb);
 
-		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
+		col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+		col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		/* make src-ip be the default sort order */
 		if (i == 0) {
@@ -695,61 +659,41 @@ static void rtpstream_dlg_create (void)
 	SIGNAL_CONNECT(clist, "click-column", rtpstream_click_column_cb, col_arrows);
 
 	label_fwd = gtk_label_new (FWD_LABEL_TEXT);
-	gtk_widget_show (label_fwd);
-	gtk_box_pack_start (GTK_BOX (vbox1), label_fwd, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
 	
 	label_rev = gtk_label_new (REV_LABEL_TEXT);
-	gtk_widget_show (label_rev);
-	gtk_box_pack_start (GTK_BOX (vbox1), label_rev, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (main_vb), label_rev, FALSE, FALSE, 0);
 	
-	dialog_action_area1 = GTK_DIALOG (rtpstream_dlg_w)->action_area;
-	gtk_widget_show (dialog_action_area1);
-	gtk_container_set_border_width (GTK_CONTAINER (dialog_action_area1), 10);
-	
-	hbuttonbox2 = gtk_hbutton_box_new ();
-	gtk_widget_show (hbuttonbox2);
-	gtk_box_pack_start (GTK_BOX (dialog_action_area1), hbuttonbox2, FALSE, FALSE, 0);
-	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox2), GTK_BUTTONBOX_END);
-	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox2), 0);
+    /* button row */
+	hbuttonbox = gtk_hbutton_box_new ();
+	gtk_box_pack_start (GTK_BOX (main_vb), hbuttonbox, FALSE, FALSE, 0);
+	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_END);
+	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 0);
 	
 	bt_unselect = gtk_button_new_with_label ("Unselect");
-	gtk_widget_show (bt_unselect);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_unselect);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
 
 	bt_findrev = gtk_button_new_with_label ("Find Reverse");
-	gtk_widget_show (bt_findrev);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_findrev);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_findrev);
 /*	
 	bt_goto = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
-	gtk_widget_show (bt_goto);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_goto);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_goto);
 */	
 	bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
-	gtk_widget_show (bt_save);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_save);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_save);
 	
 	bt_frames = gtk_button_new_with_label ("Mark frames");
-	gtk_widget_show (bt_frames);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_frames);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_frames);
 	
 	bt_filter = gtk_button_new_with_label ("Set filter");
-	gtk_widget_show (bt_filter);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_filter);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
 	
 	bt_analyse = gtk_button_new_with_label ("Analyse");
-	gtk_widget_show (bt_analyse);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_analyse);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyse);
 	
     bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
-	gtk_widget_show (bt_close);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(rtpstream_dlg_w, bt_close);
-    
-	SIGNAL_CONNECT(rtpstream_dlg_w, "destroy", rtpstream_on_destroy, NULL);
 	SIGNAL_CONNECT(clist, "select_row", rtpstream_on_select_row, NULL);
 	SIGNAL_CONNECT(bt_unselect, "clicked", rtpstream_on_unselect, NULL);
 	SIGNAL_CONNECT(bt_findrev, "clicked", rtpstream_on_findrev, NULL);
@@ -760,8 +704,15 @@ static void rtpstream_dlg_create (void)
 	SIGNAL_CONNECT(bt_frames, "clicked", rtpstream_on_mark, NULL);
 	SIGNAL_CONNECT(bt_filter, "clicked", rtpstream_on_filter, NULL);
 	SIGNAL_CONNECT(bt_analyse, "clicked", rtpstream_on_analyse, NULL);
-	SIGNAL_CONNECT(bt_close, "clicked", rtpstream_on_close, NULL);
-	
+
+    window_set_cancel_button(rtpstream_dlg_w, bt_close, window_cancel_button_cb);
+
+    SIGNAL_CONNECT(rtpstream_dlg_w, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(rtpstream_dlg_w, "destroy", rtpstream_on_destroy, NULL);
+
+    gtk_widget_show_all(rtpstream_dlg_w);
+    window_present(rtpstream_dlg_w);
+    
 	rtpstream_on_unselect(NULL, NULL);
 
 	rtp_stream_dlg = rtpstream_dlg_w;

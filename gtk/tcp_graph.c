@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.61 2004/05/23 23:24:06 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.62 2004/05/26 03:49:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -900,14 +900,10 @@ static void control_panel_create (struct graph *g)
 	SIGNAL_CONNECT(help_bt, "clicked", callback_create_help, g);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(toplevel, close_bt, NULL);
 	SIGNAL_CONNECT(close_bt, "clicked", callback_close, g);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(toplevel, close_bt);
-
+    SIGNAL_CONNECT(toplevel, "delete_event", callback_close, g);
 	SIGNAL_CONNECT(toplevel, "destroy", callback_toplevel_destroy, g);
 
 	/* gtk_widget_show_all (table); */

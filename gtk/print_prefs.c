@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.20 2004/05/24 02:25:21 guy Exp $
+ * $Id: print_prefs.c,v 1.21 2004/05/26 03:49:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,18 +38,12 @@
 #include "util.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
+#include "file_dlg.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"
 
-static void printer_opts_file_cb(GtkWidget *w, gpointer te);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
-static void printer_opts_fs_ok_cb(GtkWidget *w, gpointer data);
-static void printer_opts_fs_cancel_cb(GtkWidget *w, gpointer data);
-#endif
-static void printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data);
+static void printer_browse_file_cb(GtkWidget *w, gpointer te);
 
-#define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
-#define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
 #define E_PRINT_FORMAT_KEY        "print_format"
 #define E_PRINT_DESTINATION_KEY   "print_destination"
 
@@ -130,7 +124,7 @@ GtkWidget * printer_prefs_show(void)
 	gtk_box_pack_start(GTK_BOX(file_bt_hb), file_te, TRUE, TRUE, 0);
 	gtk_widget_show(file_te);
 
-	SIGNAL_CONNECT(file_bt, "clicked", printer_opts_file_cb, file_te);
+	SIGNAL_CONNECT(file_bt, "clicked", printer_browse_file_cb, file_te);
 
 	gtk_widget_show(main_vb);
 	return(main_vb);
@@ -138,93 +132,11 @@ GtkWidget * printer_prefs_show(void)
 
 
 static void
-printer_opts_file_cb(GtkWidget *file_bt, gpointer file_te) {
-  GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
-  GtkWidget *fs;
-
-  /* Has a file selection dialog box already been opened for that top-level
-     widget? */
-  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
-
-  if (fs != NULL) {
-    /* Yes.  Just re-activate that dialog box. */
-    reactivate_window(fs);
-    return;
-  }
-
-  fs = file_selection_new("Ethereal: Print to a File",
-                          FILE_SELECTION_SAVE);
-#if GTK_MAJOR_VERSION < 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4)
-  OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
-#endif
-
-  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
-  OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
-
-  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, fs);
-
-  /* Call a handler when the file selection box is destroyed, so we can inform
-     our caller, if any, that it's been destroyed. */
-  SIGNAL_CONNECT(fs, "destroy", printer_opts_fs_destroy_cb, NULL);
-
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
-  {
-      gtk_entry_set_text(GTK_ENTRY(file_te),
-                         gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
-  }
-  gtk_widget_destroy(fs);
-#else
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked",
-                 printer_opts_fs_ok_cb, fs);
-
-  /* Connect the cancel_button to destroy the widget */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->cancel_button, "clicked",
-                 printer_opts_fs_cancel_cb, fs);
-
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
-
-  gtk_widget_show(fs);
-#endif
-}
-
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
-static void
-printer_opts_fs_ok_cb(GtkWidget *w, gpointer data) {
-
-	gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(data, PRINT_FILE_TE_KEY)),
-		gtk_file_selection_get_filename(GTK_FILE_SELECTION(data)));
-	printer_opts_fs_cancel_cb(w, data);
-}
-
-static void
-printer_opts_fs_cancel_cb(GtkWidget *w _U_, gpointer data) {
-
-	gtk_widget_destroy(GTK_WIDGET(data));
-}
-#endif
-
-static void
-printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data _U_)
+printer_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
-  GtkWidget *caller;
-
-  /* Get the widget that requested that we be popped up.
-     (It should arrange to destroy us if it's destroyed, so
-     that we don't get a pointer to a non-existent window here.) */
-  caller = OBJECT_GET_DATA(win, E_FS_CALLER_PTR_KEY);
-
-  /* Tell it we no longer exist. */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, NULL);
-
-  /* Now nuke this window. */
-  gtk_grab_remove(GTK_WIDGET(win));
-  gtk_widget_destroy(GTK_WIDGET(win));
+    file_selection_browse(file_bt, file_te, "Ethereal: Print to a File", FILE_SELECTION_SAVE);
 }
+
 
 void
 printer_prefs_fetch(GtkWidget *w)
@@ -265,6 +177,6 @@ printer_prefs_destroy(GtkWidget *w)
 
   if (fs != NULL) {
     /* Yes.  Destroy it. */
-    gtk_widget_destroy(fs);
+    window_destroy(fs);
   }
 }

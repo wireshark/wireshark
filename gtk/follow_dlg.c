@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.59 2004/05/22 19:56:18 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.60 2004/05/26 03:49:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -253,9 +253,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	follow_info->streamwindow = streamwindow;
 
 	gtk_widget_set_name(streamwindow, "TCP stream window");
-
-	SIGNAL_CONNECT(streamwindow, "destroy", follow_destroy_cb, NULL);
-	WIDGET_SET_SIZE(streamwindow, DEF_WIDTH, DEF_HEIGHT);
+    gtk_window_set_default_size(GTK_WINDOW(streamwindow), DEF_WIDTH, DEF_HEIGHT);
 	gtk_container_border_width(GTK_CONTAINER(streamwindow), 2);
 
 	/* setup the container */
@@ -430,17 +428,12 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* Create Close Button */
     button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(button, "clicked", gtk_widget_destroy,
-                              streamwindow);
     gtk_tooltips_set_tip (tooltips, button,
         "Close the dialog and keep the current display filter", NULL);
 	gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
+    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 
-	/* Catch the "key_press_event" signal in the window, so that we can catch
-	the ESC key being pressed and act as if the "Cancel" button had
-	been selected. */
-	dlg_set_cancel(streamwindow, button);
-
+    window_set_cancel_button(streamwindow, button, window_cancel_button_cb);
 
 	/* Tuck away the follow_info object into the window */
 	OBJECT_SET_DATA(streamwindow, E_FOLLOW_INFO_KEY, follow_info);
@@ -450,11 +443,16 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	data_out_file = NULL;
 
+    SIGNAL_CONNECT(streamwindow, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(streamwindow, "destroy", follow_destroy_cb, NULL);
+
 	/* Make sure this widget gets destroyed if we quit the main loop,
 	   so that if we exit, we clean up any temporary files we have
 	   for "Follow TCP Stream" windows. */
 	gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(streamwindow));
+
 	gtk_widget_show_all(streamwindow);
+	window_present(streamwindow);
 }
 
 /* The destroy call back has the responsibility of
@@ -468,7 +466,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	follow_info = OBJECT_GET_DATA(w, E_FOLLOW_INFO_KEY);
 	unlink(follow_info->data_out_filename);
 	g_free(follow_info->filter_out_filter);
-	gtk_widget_destroy(w);
+	window_destroy(w);
 	forget_follow_info(follow_info);
 	g_free(follow_info);
 }
@@ -759,7 +757,7 @@ follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
     main_filter_packets(&cfile, follow_info->filter_out_filter, FALSE);
 
     /* we force a subsequent close */
-    gtk_widget_destroy(follow_info->streamwindow);
+    window_destroy(follow_info->streamwindow);
 
     return;
 }
@@ -934,9 +932,6 @@ follow_load_text(follow_info_t *follow_info)
 static void
 follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
-#if GTK_MAJOR_VERSION < 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4)
-    GtkWidget		*ok_bt;
-#endif
     GtkWidget		*new_win;
     follow_info_t	*follow_info = data;
 
@@ -949,7 +944,6 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     new_win = file_selection_new("Ethereal: Save TCP Follow Stream As",
                                  FILE_SELECTION_SAVE);
     follow_info->follow_save_as_w = new_win;
-    SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb, follow_info);
 
     /* Tuck away the follow_info object into the window */
     OBJECT_SET_DATA(new_win, E_FOLLOW_INFO_KEY, follow_info);
@@ -964,25 +958,23 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     {
         follow_save_as_ok_cb(new_win, new_win);
     }
-    else gtk_widget_destroy(new_win);
+    else window_destroy(new_win);
 #else
     /* Connect the ok_button to file_save_as_ok_cb function and pass along a
        pointer to the file selection box widget */
-    ok_bt = GTK_FILE_SELECTION(new_win)->ok_button;
-    SIGNAL_CONNECT(ok_bt, "clicked", follow_save_as_ok_cb, new_win);
+    SIGNAL_CONNECT(GTK_FILE_SELECTION(new_win)->ok_button, 
+        "clicked", follow_save_as_ok_cb, new_win);
 
-    /* Connect the cancel_button to destroy the widget */
-    SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(new_win)->cancel_button, "clicked",
-                          gtk_widget_destroy, new_win);
-
-    /* Catch the "key_press_event" signal in the window, so that we can catch
-       the ESC key being pressed and act as if the "Cancel" button had
-       been selected. */
-    dlg_set_cancel(new_win,
-		   GTK_FILE_SELECTION(new_win)->cancel_button);
+    window_set_cancel_button(new_win, 
+        GTK_FILE_SELECTION(new_win)->cancel_button, window_cancel_button_cb);
 
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win), "");
+
+    SIGNAL_CONNECT(new_win, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb, follow_info);
+
     gtk_widget_show_all(new_win);
+    window_present(new_win);
 #endif
 }
 
@@ -1021,7 +1013,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 
     gtk_widget_hide(GTK_WIDGET(fs));
     follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
-    gtk_widget_destroy(GTK_WIDGET(fs));
+    window_destroy(GTK_WIDGET(fs));
 
     switch (follow_read_stream(follow_info, follow_print_text, fh)) {
 

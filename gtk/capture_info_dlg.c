@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.15 2004/04/14 05:46:34 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.16 2004/05/26 03:49:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "globals.h"
 #include "capture_combo_utils.h"
 #include "dlg_utils.h"
+#include "ui_util.h"
 
 /* a single capture counter value (with title, pointer to value and GtkWidgets) */
 /* as the packet_counts is a struct, not an array, keep a pointer to the */
@@ -67,13 +68,6 @@ pct(gint num, gint denom) {
     return 0.0;
   }
 }
-
-/* stop button (or ESC key) was pressed */
-static void
-capture_info_stop_cb(GtkWidget *w _U_, gpointer data _U_) {
-  capture_stop();
-}
-
 
 static void
 capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_) {
@@ -212,18 +206,14 @@ gchar           *iface)
   gtk_widget_show(bbox);
 
   stop_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_STOP);
-  gtk_widget_grab_default(stop_bt);
-  SIGNAL_CONNECT(stop_bt, "clicked", capture_info_stop_cb,
-                 NULL);
+  window_set_cancel_button(info->cap_w, stop_bt, NULL);
+  SIGNAL_CONNECT(stop_bt, "clicked", capture_info_delete_cb, NULL);
+
   SIGNAL_CONNECT(info->cap_w, "delete_event", capture_info_delete_cb,
                  NULL);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Stop" button had
-     been selected. */
-  dlg_set_cancel(info->cap_w, stop_bt);
-
   gtk_widget_show(info->cap_w);
+  window_present(info->cap_w);
 
   cinfo->ui = info;
 }
@@ -275,7 +265,7 @@ capture_info    *cinfo)
   capture_info_ui_t *info = cinfo->ui;
 
   gtk_grab_remove(GTK_WIDGET(info->cap_w));
-  gtk_widget_destroy(GTK_WIDGET(info->cap_w));
+  window_destroy(GTK_WIDGET(info->cap_w));
   g_free(info);
 }
 

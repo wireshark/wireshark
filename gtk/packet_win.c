@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.44 2004/02/13 00:53:35 guy Exp $
+ * $Id: packet_win.c,v 1.45 2004/05/26 03:49:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,7 +313,7 @@ destroy_packet_wins(void)
 	   we destroy the first window on the list. */
 	while (detail_windows != NULL) {
 		DataPtr = (struct PacketWinData *)(detail_windows->data);
-		gtk_widget_destroy(DataPtr->main);
+		window_destroy(DataPtr->main);
 	}
 }
 
