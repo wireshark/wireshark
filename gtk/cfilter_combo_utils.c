@@ -1,7 +1,7 @@
 /* cfilter_combo_utils.c
  * Capture filter combo box routines
  *
- * $Id: cfilter_combo_utils.c 12115 2004-09-27 22:55:15Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,6 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <string.h>
 #include <gtk/gtk.h>
 #include "compat_macros.h"
 #include "main.h"

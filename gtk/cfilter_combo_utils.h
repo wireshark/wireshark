@@ -1,7 +1,7 @@
 /* cfilter_combo_utils.h
  * Capture filter combo box routines
  *
- * $Id: cfilter_combo_utils.h 12115 2004-09-27 22:55:15Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,7 @@
 
 extern void cfilter_combo_recent_write_all(FILE *rf);
 extern gboolean cfilter_combo_add_recent(gchar *s);
+
 /** Check the syntax of a capture filter string. This is done by calling pcap_open_live().
  *
  * @param interface_name The interface name to be opened by pcap_open_live().
