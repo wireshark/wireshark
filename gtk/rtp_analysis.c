@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.17 2004/01/03 18:05:57 sharpe Exp $
+ * $Id: rtp_analysis.c,v 1.18 2004/01/13 22:49:15 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -787,7 +787,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 {
 	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_fwd));
 	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_rev));
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 	draw_stat(user_data);
 }
 
@@ -1895,7 +1895,7 @@ void rtp_analysis(
 	user_data->series_rev.value_pairs = NULL;
 #endif
 
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 
 	draw_stat(user_data);
 }

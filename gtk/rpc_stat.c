@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.31 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: rpc_stat.c,v 1.32 2004/01/13 22:49:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -278,7 +278,7 @@ gtk_rpcstat_init(char *optarg)
 
 
 	gtk_widget_show_all(rs->win);
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 

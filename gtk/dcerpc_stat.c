@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.38 2004/01/10 16:27:40 ulfl Exp $
+ * $Id: dcerpc_stat.c,v 1.39 2004/01/13 22:49:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -304,7 +304,7 @@ gtk_dcerpcstat_init(char *optarg)
 
 
 	gtk_widget_show_all(rs->win);
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 

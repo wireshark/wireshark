@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.13 2004/01/10 16:27:41 ulfl Exp $
+ * $Id: http_stat.c,v 1.14 2004/01/13 22:49:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -498,7 +498,7 @@ gtk_httpstat_init(char *optarg)
 
 	gtk_widget_show_all( sp->win );
 	http_init_hash(sp);
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 

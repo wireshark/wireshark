@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.29 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: smb_stat.c,v 1.30 2004/01/13 22:49:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,7 +226,7 @@ gtk_smbstat_init(char *optarg)
 	}
 
 	gtk_widget_show_all(ss->win);
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 

@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.22 2004/01/03 18:05:56 sharpe Exp $
+ * $Id: mgcp_stat.c,v 1.23 2004/01/13 22:49:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -298,7 +298,7 @@ gtk_mgcpstat_init(char *optarg)
 	}
 
 	gtk_widget_show_all(ms->win);
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 tap_dfilter_dlg mgcp_srt_dlg = {"MGCP Service Response Time (SRT) Statistics", "mgcp,srt", gtk_mgcpstat_init, -1};

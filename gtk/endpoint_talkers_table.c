@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.26 2003/12/16 05:04:11 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.27 2004/01/13 22:49:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1047,7 +1047,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	talkers->num_endpoints=0;
 	talkers->endpoints=NULL;
 
-	/* hide srcport and dstport if we dont use ports */
+	/* hide srcport and dstport if we don't use ports */
 	if(hide_ports){
 		gtk_clist_set_column_visibility(talkers->table, 1, FALSE);
 		gtk_clist_set_column_visibility(talkers->table, 3, FALSE);
@@ -1057,7 +1057,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	ett_create_popup_menu(talkers);
 
 
-	/* register the tap and resissect the packet list */
+	/* register the tap and rerun the taps on the packet list */
 	error_string=register_tap_listener(tap_name, talkers, filter, (void *)reset_ett_table_data, packet_func, (void *)draw_ett_table_data);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
@@ -1067,7 +1067,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	}
 
 	gtk_widget_show_all(talkers->win);
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 
 }
 

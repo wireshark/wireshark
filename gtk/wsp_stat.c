@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.11 2004/01/10 16:27:43 ulfl Exp $
+ * $Id: wsp_stat.c,v 1.12 2004/01/13 22:49:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -402,7 +402,7 @@ gtk_wspstat_init(char *optarg)
 		return ;
 	}
 	gtk_widget_show_all( sp->win );
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 

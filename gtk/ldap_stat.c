@@ -1,7 +1,7 @@
 /* ldap_stat.c
  * ldap_stat   2003 Ronnie Sahlberg
  *
- * $Id: ldap_stat.c,v 1.6 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: ldap_stat.c,v 1.7 2004/01/13 22:49:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -221,7 +221,7 @@ gtk_ldapstat_init(char *optarg)
 	}
 
 	gtk_widget_show_all(ldap->win);
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 

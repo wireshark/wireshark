@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.18 2004/01/10 16:27:41 ulfl Exp $
+ * $Id: fc_stat.c,v 1.19 2004/01/13 22:49:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,7 +186,7 @@ gtk_fcstat_init(char *optarg)
 	}
 
 	gtk_widget_show_all(fc->win);
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 

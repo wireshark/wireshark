@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.4 2003/11/21 19:24:00 guy Exp $
+ * $Id: rtp_stream.c,v 1.5 2004/01/13 22:49:15 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -266,7 +266,7 @@ void rtpstream_scan()
 		register_tap_listener_rtp_stream();
 
 	the_tapinfo_struct.mode = TAP_ANALYSE;
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 
 	if (!was_registered)
 		remove_tap_listener_rtp_stream();
@@ -291,7 +291,7 @@ void rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 
 	the_tapinfo_struct.mode = TAP_SAVE;
 	the_tapinfo_struct.filter_stream_fwd = stream;
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 	the_tapinfo_struct.mode = TAP_ANALYSE;
 
 	if (!was_registered)
@@ -313,7 +313,7 @@ void rtpstream_mark(rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev
 	the_tapinfo_struct.mode = TAP_MARK;
 	the_tapinfo_struct.filter_stream_fwd = stream_fwd;
 	the_tapinfo_struct.filter_stream_rev = stream_rev;
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 	the_tapinfo_struct.mode = TAP_ANALYSE;
 
 	if (!was_registered)
