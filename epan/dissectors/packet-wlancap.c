@@ -10,6 +10,10 @@
  *
  *  See
  *
+ *	http://web.archive.org/web/20040209004121/http://www.shaftnet.org/~pizza/software/capturefrm.txt
+ *
+ *  or, if the site is restored,
+ *
  *	http://www.shaftnet.org/~pizza/software/capturefrm.txt
  * 
  * By Solomon Peachy
