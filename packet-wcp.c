@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.15 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-wcp.c,v 1.16 2001/11/27 07:36:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -278,7 +278,7 @@ dissect_wcp_reset( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 
-void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo){
+static void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo){
 
 	wcp_window_t *buf_ptr = 0;
 	int len; 
@@ -302,15 +302,13 @@ void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo){
 }
 
 
-void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	proto_tree	*wcp_tree;
 	proto_item	*ti;
 	int		wcp_header_len;
 	guint16		temp, cmd, ext_cmd, seq;
 	tvbuff_t	*next_tvb;
-
-	pinfo->current_proto = "WCP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "WCP");

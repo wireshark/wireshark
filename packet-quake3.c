@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.5 2001/11/25 22:19:24 hagbard Exp $
+ * $Id: packet-quake3.c,v 1.6 2001/11/27 07:36:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -495,8 +495,6 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	direction = DIR_UNKNOWN;
 
-	pinfo->current_proto = "QUAKE3";
-
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "QUAKE3");
 
@@ -672,4 +670,3 @@ proto_register_quake3(void)
 					"Set the UDP base port for the Quake III Arena Master Server",
 					10, &gbl_quake3_master_port);
 }
-
