@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.84 2001/03/30 10:51:50 guy Exp $
+ * $Id: packet-llc.c,v 1.85 2001/06/01 23:04:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,11 +166,12 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 */
 	{ OUI_CISCO,       "Cisco" },
 	{ OUI_CISCO_90,    "Cisco IOS 9.0 Compatible" },
+	{ OUI_CISCO_WLANB, "Cisco 802.11 bridge" },
 	{ OUI_BRIDGED,     "Frame Relay or ATM bridged frames" },
 				/* RFC 2427, RFC 2684 */
 	{ OUI_ATM_FORUM,   "ATM Forum" },
-	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
 	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
+	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
 	{ 0,               NULL }
 };
 
@@ -230,6 +231,7 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 			switch (oui) {
 
 			case OUI_ENCAP_ETHER:
+			case OUI_CISCO_WLANB:
 			case OUI_APPLE_ATALK:
 				/* No, I have no idea why Apple used
 				   one of their own OUIs, rather than
@@ -237,7 +239,11 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 				   packet type as protocol ID, for
 				   AppleTalk data packets - but used
 				   OUI_ENCAP_ETHER and an Ethernet
-				   packet type for AARP packets. */
+				   packet type for AARP packets.
+
+				   Also, apparently, some Cisco 802.11
+				   bridges change the OUI of packets
+				   from 000000 to 000078. */
 				capture_ethertype(etype, offset+8, pd,
 				    ld);
 				break;
@@ -383,6 +389,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	switch (oui) {
 
 	case OUI_ENCAP_ETHER:
+	case OUI_CISCO_WLANB:
 	case OUI_APPLE_ATALK:
 		/* No, I have no idea why Apple used
 		   one of their own OUIs, rather than
@@ -390,7 +397,11 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		   packet type as protocol ID, for
 		   AppleTalk data packets - but used
 		   OUI_ENCAP_ETHER and an Ethernet
-		   packet type for AARP packets. */
+		   packet type for AARP packets.
+
+		   Also, apparently, some Cisco 802.11
+		   bridges change the OUI of packets
+		   from 000000 to 000078. */
 		if (XDLC_IS_INFORMATION(control)) {
 			ethertype(etype, tvb, offset+5,
 			    pinfo, tree, snap_tree, hf_type, -1);
