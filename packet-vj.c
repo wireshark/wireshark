@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.1 2001/12/19 21:14:49 guy Exp $
+ * $Id: packet-vj.c,v 1.2 2001/12/19 22:39:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,8 +115,8 @@
 #define CRC_LEN         sizeof(guint16) 
 
 /* VJ Mem Chunk defines */
-#define VJ_ATOM_SIZE  129 /* Max IP hdr(64)+Max TCP hdr(64)+offset byte */
-#define VJ_ATOM_COUNT 250 /* Number of Atoms per block                  */ 
+#define VJ_DATA_SIZE  128 /* Max IP hdr(64)+Max TCP hdr(64) */
+#define VJ_ATOM_COUNT 250 /* Number of Atoms per block      */ 
 
 /* IP and TCP header types */
 typedef struct {
@@ -204,7 +204,11 @@ static slcompress *rx_tx_state[RX_TX_STATE_COUNT] = {NULL, NULL};
  
 /* Mem Chunks for storing decompressed headers */
 static GMemChunk *vj_header_memchunk = NULL;
-
+typedef struct {
+	guint32	offset;
+	guint8	data[VJ_DATA_SIZE];
+} vj_header_t;
+	
 /* Function prototypes */
 static void decodes(tvbuff_t *tvb, guint32 *offset, gint16 *val);
 static void decodel(tvbuff_t *tvb, guint32 *offset, gint32 *val);
@@ -373,9 +377,9 @@ vj_init(void)
 
   if(vj_header_memchunk != NULL)
     g_mem_chunk_destroy(vj_header_memchunk);
-  vj_header_memchunk = g_mem_chunk_new("vj header store", VJ_ATOM_SIZE, 
-                                       VJ_ATOM_SIZE * VJ_ATOM_COUNT,
-                                       G_ALLOC_AND_FREE);
+  vj_header_memchunk = g_mem_chunk_new("vj header store", sizeof (vj_header_t), 
+                                       sizeof (vj_header_t) * VJ_ATOM_COUNT,
+                                       G_ALLOC_ONLY);
   for(i=0; i< RX_TX_STATE_COUNT; i++){
     if((pslc = rx_tx_state[i]) != NULL){
       if((pstate = pslc->rstate) != NULL)
@@ -419,12 +423,13 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
               tvbuff_t **dst_tvb, 
 	      frame_data * fd)
 {
-  tvbuff_t *orig_tvb    = NULL;
-  guint8   *hdr_buf     = NULL;
-  guint8   *pbuf        = NULL;
-  gint      hdr_len     = ZERO;
-  gint      buf_len     = ZERO;
-  guint8    offset      = ZERO;
+  tvbuff_t    *orig_tvb    = NULL;
+  vj_header_t *hdr_buf;
+  guint8      *data_ptr;
+  guint8      *pbuf        = NULL;
+  gint         hdr_len     = ZERO;
+  gint         buf_len     = ZERO;
+  guint8       offset      = ZERO;
 
   g_assert(src_tvb);
 
@@ -433,15 +438,16 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   if(hdr_buf == NULL) 
     return VJ_ERROR;
 
-  /* First byte contains data offset in the tvbuff */
-  offset  = *hdr_buf++;
+  /* Get the data offset in the tvbuff */
+  offset  = hdr_buf->offset;
 
   /* Copy header and form tvb */
-  hdr_len  = ((iphdr_type *)hdr_buf)->ihl * 4;
-  hdr_len += ((tcphdr_type *)(hdr_buf + hdr_len))->doff * 4;
+  data_ptr = hdr_buf->data;
+  hdr_len  = ((iphdr_type *)data_ptr)->ihl * 4;
+  hdr_len += ((tcphdr_type *)(data_ptr + hdr_len))->doff * 4;
   buf_len  = tvb_length(src_tvb) + hdr_len - offset;
   pbuf     = g_malloc(buf_len); 
-  memcpy(pbuf, hdr_buf, hdr_len);
+  memcpy(pbuf, data_ptr, hdr_len);
   tvb_memcpy(src_tvb, pbuf + hdr_len, offset, buf_len - hdr_len);
   *dst_tvb = tvb_new_real_data(pbuf, buf_len, buf_len, "VJ Decompressed");
   return VJ_OK;
@@ -451,7 +457,8 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
 static gint 
 vjc_update_state(tvbuff_t *src_tvb,  slcompress *comp, frame_data *fd)
 {
-  guint8        *buf_hdr = NULL;
+  vj_header_t   *buf_hdr;
+  guint8        *data_ptr;
   cstate        *cs      = &comp->rstate[comp->recv_current];
   tcphdr_type   *thp     = &cs->cs_tcp;
   iphdr_type    *ip      = &cs->cs_ip;
@@ -514,24 +521,24 @@ vjc_update_state(tvbuff_t *src_tvb,  slcompress *comp, frame_data *fd)
   }
   len += hdrlen;
   ip->tot_len = htons(len);
+  /* Compute IP check sum */
   ip->cksum = ZERO;
+  ip->cksum = ip_csum((guint8 *)ip, ip->ihl * 4);
 
   /* Store the reconstructed header in frame data area */
   buf_hdr = g_mem_chunk_alloc(vj_header_memchunk);
-  buf_hdr[0] = offset;  /* Offset in tvbuff is also stored */
-  memcpy((buf_hdr + sizeof(guint8)), ip, IP_HDR_LEN);
-  /* Compute IP check sum */
-  ((iphdr_type *)(buf_hdr + sizeof(guint8)))->cksum = 
-                      ip_csum((buf_hdr + sizeof(guint8)), ip->ihl * 4);
-  if(ip->ihl > 5)
-    memcpy((buf_hdr + sizeof(guint8) + IP_HDR_LEN), 
-            cs->cs_ipopt, 
-           (ip->ihl - 5) * 4);
-  memcpy((buf_hdr + sizeof(guint8) + (ip->ihl * 4)), thp, TCP_HDR_LEN);
+  buf_hdr->offset = offset;  /* Offset in tvbuff is also stored */
+  data_ptr = buf_hdr->data;
+  memcpy(data_ptr, ip, IP_HDR_LEN);
+  data_ptr += IP_HDR_LEN;
+  if(ip->ihl > 5) {
+    memcpy(data_ptr, cs->cs_ipopt, (ip->ihl - 5) * 4);
+    data_ptr += (ip->ihl - 5) * 4;
+  }
+  memcpy(data_ptr, thp, TCP_HDR_LEN);
+  data_ptr += TCP_HDR_LEN;
   if(thp->doff > 5)
-    memcpy((buf_hdr + sizeof(guint8) + (ip->ihl *4) + TCP_HDR_LEN), 
-            cs->cs_tcpopt, 
-           (thp->doff - 5) * 4);
+    memcpy(data_ptr, cs->cs_tcpopt, (thp->doff - 5) * 4);
   p_add_proto_data(fd, proto_vj, buf_hdr);
 
   return VJ_OK;
