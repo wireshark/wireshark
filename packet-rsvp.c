@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.80 2003/01/28 23:56:40 guy Exp $
+ * $Id: packet-rsvp.c,v 1.81 2003/04/22 05:35:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -299,7 +299,40 @@ enum rsvp_error_types {
     RSVP_ERROR_NOTIFY
 };
 
-static value_string rsvp_error_vals[] = {
+enum {
+    RSVP_AC_ERROR_DELAY_BOUND_ERROR = 1,
+    RSVP_AC_ERROR_BANDWITH_UNAVAILABLE,
+    RSVP_AC_ERROR_LARGE_MTU
+};
+
+enum {
+    RSVP_TRAFFIC_CONTROL_ERROR_SERVICE_CONFLICT = 1,
+    RSVP_TRAFFIC_CONTROL_ERROR_SERVIEC_UNSUPPORTED,
+    RSVP_TRAFFIC_CONTROL_ERROR_BAD_FLOWSPEC,
+    RSVP_TRAFFIC_CONTROL_ERROR_BAD_TSPEC,
+    RSVP_TRAFFIC_CONTROL_ERROR_BAD_ADSPEC
+};
+
+enum {
+    RSVP_ROUTING_ERROR_BAD_ERO = 1,
+    RSVP_ROUTING_ERROR_BAD_STRICT,
+    RSVP_ROUTING_ERROR_BAD_LOOSE,
+    RSVP_ROUTING_ERROR_BAD_INITIAL_SUBOBJ,
+    RSVP_ROUTING_ERROR_NO_ROUTE,
+    RSVP_ROUTING_ERROR_UNACCEPTABLE_LABEL,
+    RSVP_ROUTING_ERROR_RRO_LOOP,
+    RSVP_ROUTING_ERROR_NON_RSVP_CAPABLE_ROUTER,
+    RSVP_ROUTING_ERROR_LABEL_ALLOC_FAIL,
+    RSVP_ROUTING_ERROR_UNSUPPORTED_L3PID
+};
+
+enum {
+    RSVP_NOTIFY_ERROR_RRO_TOO_LARGE = 1,
+    RSVP_NOTIFY_ERROR_RRO_NOTIFICATION,
+    RSVP_NOTIFY_ERROR_RRO_TUNNEL_LOCAL_REPAIRED
+};
+
+static value_string rsvp_error_codes[] = {
     {RSVP_ERROR_CONFIRM, "Confirmation"},
     {RSVP_ERROR_ADMISSION, "Admission Control Failure "},
     {RSVP_ERROR_POLICY, "Policy Control Failure"},
@@ -319,6 +352,44 @@ static value_string rsvp_error_vals[] = {
     {RSVP_ERROR_NOTIFY, "RSVP Notify Error"},
     {0, NULL}
 };
+
+static value_string rsvp_admission_control_error_vals[] = {
+    {RSVP_AC_ERROR_DELAY_BOUND_ERROR, "Delay bound cannot be met"},
+    {RSVP_AC_ERROR_BANDWITH_UNAVAILABLE, "Requested bandwidth unavailable"},
+    {RSVP_AC_ERROR_LARGE_MTU, "MTU in flowspec larger than interface MTU"},
+    {0, NULL}
+};
+
+static value_string rsvp_traffic_control_error_vals[] = { 
+    {RSVP_TRAFFIC_CONTROL_ERROR_SERVICE_CONFLICT, "Service conflict"},
+    {RSVP_TRAFFIC_CONTROL_ERROR_SERVIEC_UNSUPPORTED, "Service unsupported"},
+    {RSVP_TRAFFIC_CONTROL_ERROR_BAD_FLOWSPEC, "Bad Flowspec value"},
+    {RSVP_TRAFFIC_CONTROL_ERROR_BAD_TSPEC, "Bad Tspec value"},
+    {RSVP_TRAFFIC_CONTROL_ERROR_BAD_ADSPEC, "Bad Adspec value"},
+    {0, NULL}
+};
+
+static value_string rsvp_routing_error_vals[] = {
+    {RSVP_ROUTING_ERROR_BAD_ERO, "Bad EXPLICIT_ROUTE object"},
+    {RSVP_ROUTING_ERROR_BAD_STRICT, "Bad strict node"},
+    {RSVP_ROUTING_ERROR_BAD_LOOSE, "Bad loose node"},
+    {RSVP_ROUTING_ERROR_BAD_INITIAL_SUBOBJ, "Bad initial subobject"},
+    {RSVP_ROUTING_ERROR_NO_ROUTE, "No route available toward destination"},
+    {RSVP_ROUTING_ERROR_UNACCEPTABLE_LABEL, "Unacceptable label value"},
+    {RSVP_ROUTING_ERROR_RRO_LOOP, "RRO indicated routing loops"},
+    {RSVP_ROUTING_ERROR_NON_RSVP_CAPABLE_ROUTER, "non-RSVP-capable router stands in the path"},
+    {RSVP_ROUTING_ERROR_LABEL_ALLOC_FAIL, "MPLS label allocation failure"},
+    {RSVP_ROUTING_ERROR_UNSUPPORTED_L3PID, "Unsupported L3PID"},
+    {0, NULL}
+};
+
+static value_string rsvp_notify_error_vals[] = {
+    {RSVP_NOTIFY_ERROR_RRO_TOO_LARGE, "RRO too large for MTU"},
+    {RSVP_NOTIFY_ERROR_RRO_NOTIFICATION, "RRO Notification"},
+    {RSVP_NOTIFY_ERROR_RRO_TUNNEL_LOCAL_REPAIRED, "Tunnel locally repaired"},
+    {0, NULL}
+};
+
 
 /*
  * Defines the reservation style plus style-specific information that
@@ -1319,6 +1390,48 @@ dissect_rsvp_time_values (proto_tree *ti, tvbuff_t *tvb,
 }
 
 /*------------------------------------------------------------------------------
+ * Error value field in ERROR object
+ *------------------------------------------------------------------------------*/
+static guint16
+dissect_rsvp_error_value (proto_tree *ti, tvbuff_t *tvb,
+                          int offset, guint8 error_code)
+{
+    guint16 error_val;
+    value_string *rsvp_error_vals = NULL;
+
+    error_val = tvb_get_ntohs(tvb, offset);
+    switch (error_code) {
+    case RSVP_ERROR_ADMISSION:
+	rsvp_error_vals = rsvp_admission_control_error_vals;
+	break;
+    case RSVP_ERROR_TRAFFIC:
+	rsvp_error_vals = rsvp_traffic_control_error_vals;
+	break;
+    case RSVP_ERROR_ROUTING:
+	rsvp_error_vals = rsvp_routing_error_vals;
+	break;
+    case RSVP_ERROR_NOTIFY:
+	rsvp_error_vals = rsvp_notify_error_vals;
+    }
+    switch (error_code) {
+    case RSVP_ERROR_ADMISSION:
+    case RSVP_ERROR_TRAFFIC:
+    case RSVP_ERROR_NOTIFY:
+    case RSVP_ERROR_ROUTING:
+	if ((error_val & 0xc0) == 0) {
+	    proto_tree_add_text(ti, tvb, offset, 2,
+		"Error value: %u - %s", error_val,
+		val_to_str(error_val, rsvp_error_vals, "Unknown (%d)"));
+	    break;
+	}
+    default:
+	proto_tree_add_text(ti, tvb, offset, 2,
+	    "Error value: %u", error_val);
+    }
+    return error_val;
+}
+
+/*------------------------------------------------------------------------------
  * ERROR
  *------------------------------------------------------------------------------*/
 static void
@@ -1339,6 +1452,7 @@ dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb,
     switch(type) {
     case 1: {
 	guint8 error_code;
+	guint16 error_val;
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 1 - IPv4");
@@ -1351,19 +1465,17 @@ dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb,
 	error_code = tvb_get_guint8(tvb, offset2+5);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
 			    "Error code: %u - %s", error_code,
-			    val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"));
-	proto_tree_add_text(rsvp_object_tree, tvb, offset2+6, 2,
-			    "Error value: %u",
-			    tvb_get_ntohs(tvb, offset2+6));
+			    val_to_str(error_code, rsvp_error_codes, "Unknown (%d)"));
+	error_val = dissect_rsvp_error_value(rsvp_object_tree, tvb, offset2+6, error_code);
 	proto_item_set_text(ti, "ERROR: IPv4, Error code: %s, Value: %d, Error Node: %s",
-			    val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"),
-			    tvb_get_ntohs(tvb, offset2+6),
-			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+			    val_to_str(error_code, rsvp_error_codes, "Unknown (%d)"),
+			    error_val, ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
 	break;
     }
 
     case 2: {
 	guint8 error_code;
+	guint16 error_val;
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 2 - IPv6");
@@ -1375,17 +1487,16 @@ dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb,
 			    tvb_get_guint8(tvb, offset2+16));
 	error_code = tvb_get_guint8(tvb, offset2+17);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+17, 1,
-			    "Error code: %u - %s", error_code,
-			    val_to_str(error_code, rsvp_error_vals, "Unknown"));
-	proto_tree_add_text(rsvp_object_tree, tvb, offset2+18, 2,
-			    "Error value: %u",
-			    tvb_get_ntohs(tvb, offset2+18));
+			    "Error code: %u - %s",
+			    error_code = tvb_get_guint8(tvb, offset2+17),
+			    val_to_str(error_code, rsvp_error_codes, "Unknown"));
+	error_val = dissect_rsvp_error_value(ti, tvb, offset2+18, error_code);
 	break;
     }
 
-    case 3:
-{
+    case 3: {
 	guint8 error_code;
+	guint16 error_val;
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 3 - IPv4 IF-ID");
@@ -1398,19 +1509,13 @@ dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb,
 	error_code = tvb_get_guint8(tvb, offset2+5);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
 			    "Error code: %u - %s", error_code,
-			    val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"));
-	proto_tree_add_text(rsvp_object_tree, tvb, offset2+6, 2,
-			    "Error value: %u",
-			    tvb_get_ntohs(tvb, offset2+6));
-
+			    val_to_str(error_code, rsvp_error_codes, "Unknown (%d)"));
+	error_val = dissect_rsvp_error_value(ti, tvb, offset2+6, error_code);
 	proto_item_set_text(ti, "ERROR: IPv4 IF-ID, Error code: %s, Value: %d, Control Node: %s. ",
-			    val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"),
-			    tvb_get_ntohs(tvb, offset2+6),
-			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-
+			    val_to_str(error_code, rsvp_error_codes, "Unknown (%d)"),
+			    error_val, ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
 	dissect_rsvp_ifid_tlv(ti, rsvp_object_tree, tvb, offset+12, obj_length, 
 			      TREE(TT_ERROR_SUBOBJ));
-			      
 	break;
     }
 
@@ -2721,7 +2826,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				 tvbuff_t *tvb,
 				 int offset, int obj_length, int class)
 {
-    int i, j, k, l;
+    int i, j, k, l, flags;
     proto_tree *ti2, *rsvp_ro_subtree, *rsvp_rro_flags_subtree;
     int tree_type;
 
@@ -2744,10 +2849,10 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    k = tvb_get_guint8(tvb, offset+l) & 0x80;
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 				      offset+l, 8,
-				      "IPv4 Subobject - %s, %s",
+				      "IPv4 Subobject - %s%s",
 				      ip_to_str(tvb_get_ptr(tvb, offset+l+2, 4)),
 				      class == RSVP_CLASS_EXPLICIT_ROUTE ? 
-				      (k ? "Loose" : "Strict") : "");
+				      (k ? ", Loose" : ", Strict") : "");
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
 	    if (class == RSVP_CLASS_EXPLICIT_ROUTE) 
@@ -2764,36 +2869,45 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+6, 1,
 				"Prefix length: %u",
 				tvb_get_guint8(tvb, offset+l+6));
-	    if (class == RSVP_CLASS_RECORD_ROUTE) {
-		if (k&0x01) proto_item_append_text(ti2, ", Local Protection Available");
-		if (k&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
-		if (k&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
-		if (k&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
-		ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+7, 1,
-					  "Flags: 0x%08x", k);
-		rsvp_rro_flags_subtree = 
-		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS)); 
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
-				    decode_boolean_bitfield(k, 0x01, 8, 
-							    "Local Protection Available",
-							    "Local Protection Not Available"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
-				    decode_boolean_bitfield(k, 0x02, 8, 
-							    "Local Protection In Use",
-							    "Local Protection Not In Use"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
-				    decode_boolean_bitfield(k, 0x04, 8, 
-							    "Bandwidth Protection Available",
-							    "Bandwidth Protection Not Available"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
-				    decode_boolean_bitfield(k, 0x08, 8, 
-							    "Node Protection Available",
-							    "Node Protection Not Available"));
-	    }
 	    if (i < 4) {
 		proto_item_append_text(ti, "IPv4 %s%s",
 				       ip_to_str(tvb_get_ptr(tvb, offset+l+2, 4)),
-				       k ? " [L]":"");
+				       k ? " [L]" : "");
+	    }
+	    if (class == RSVP_CLASS_RECORD_ROUTE) {
+		flags = tvb_get_guint8(tvb, offset+l+7);
+		if (flags&0x10) {
+		    proto_item_append_text(ti,  " (Node-id)");
+		    proto_item_append_text(ti2, " (Node-id)");
+		}
+		if (flags&0x01) proto_item_append_text(ti2, ", Local Protection Available");
+		if (flags&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
+		if (flags&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
+		if (flags&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
+		ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+7, 1,
+					  "Flags: 0x%02x", flags);
+		rsvp_rro_flags_subtree = 
+		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS)); 
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+				    decode_boolean_bitfield(flags, 0x01, 8, 
+							    "Local Protection Available",
+							    "Local Protection Not Available"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+				    decode_boolean_bitfield(flags, 0x02, 8, 
+							    "Local Protection In Use",
+							    "Local Protection Not In Use"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+				    decode_boolean_bitfield(flags, 0x04, 8, 
+							    "Bandwidth Protection Available",
+							    "Bandwidth Protection Not Available"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+				    decode_boolean_bitfield(flags, 0x08, 8, 
+							    "Node Protection Available",
+							    "Node Protection Not Available"));
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+				    decode_boolean_bitfield(flags, 0x10, 8,
+							    "Address Specifies a Node-id Address",
+							    "Address Doesn't Specify a Node-id Address"));
 	    }
 
 	    break;
@@ -2819,34 +2933,43 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+18, 1,
 				"Prefix length: %u",
 				tvb_get_guint8(tvb, offset+l+18));
+	    if (i < 4) {
+		proto_item_append_text(ti, "IPv6 [...]%s", k ? " [L]":"");
+	    }
 	    if (class == RSVP_CLASS_RECORD_ROUTE) {
-		if (k&0x01) proto_item_append_text(ti2, ", Local Protection Available");
-		if (k&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
-		if (k&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
-		if (k&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
+		flags = tvb_get_guint8(tvb, offset+l+19);
+		if (flags&0x10) {
+		    proto_item_append_text(ti,  " (Node-id)");
+		    proto_item_append_text(ti2, " (Node-id)");
+		}
+		if (flags&0x01) proto_item_append_text(ti2, ", Local Protection Available");
+		if (flags&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
+		if (flags&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
+		if (flags&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
 		ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+19, 1,
-					  "Flags: 0x%08x", k);
+					  "Flags: 0x%02x", flags);
 		rsvp_rro_flags_subtree = 
 		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS)); 
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
-				    decode_boolean_bitfield(k, 0x01, 8, 
+				    decode_boolean_bitfield(flags, 0x01, 8, 
 							    "Local Protection Available",
 							    "Local Protection Not Available"));
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
-				    decode_boolean_bitfield(k, 0x02, 8, 
+				    decode_boolean_bitfield(flags, 0x02, 8, 
 							    "Local Protection In Use",
 							    "Local Protection Not In Use"));
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
-				    decode_boolean_bitfield(k, 0x04, 8, 
+				    decode_boolean_bitfield(flags, 0x04, 8, 
 							    "Backup Tunnel Has Bandwidth",
 							    "Backup Tunnel Does Not Have Bandwidth"));
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
-				    decode_boolean_bitfield(k, 0x08, 8, 
+				    decode_boolean_bitfield(flags, 0x08, 8, 
 							    "Backup Tunnel Goes To Next-Next-Hop",
 							    "Backup Tunnel Goes To Next-Hop"));
-	    }
-	    if (i < 4) {
-		proto_item_append_text(ti, "IPv6 [...]%s", k ? " [L]":"");
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+				    decode_boolean_bitfield(flags, 0x10, 8,
+							    "Address Specifies a Node-id Address",
+							    "Address Doesn't Specify a Node-id Address"));
 	    }
 
 	    break;
@@ -2870,28 +2993,29 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				"Length: %u",
 				tvb_get_guint8(tvb, offset+l+1));
 	    if (class == RSVP_CLASS_RECORD_ROUTE) {
-		if (k&0x01) proto_item_append_text(ti2, ", Local Protection Available");
-		if (k&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
-		if (k&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
-		if (k&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
+		flags = tvb_get_guint8(tvb, offset+l+2);
+		if (flags&0x01) proto_item_append_text(ti2, ", Local Protection Available");
+		if (flags&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
+		if (flags&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
+		if (flags&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
 		ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 1,
-					  "Flags: 0x%08x", k);
+					  "Flags: 0x%02x", flags);
 		rsvp_rro_flags_subtree = 
 		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS)); 
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
-				    decode_boolean_bitfield(k, 0x01, 8, 
+				    decode_boolean_bitfield(flags, 0x01, 8, 
 							    "Local Protection Available",
 							    "Local Protection Not Available"));
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
-				    decode_boolean_bitfield(k, 0x02, 8, 
+				    decode_boolean_bitfield(flags, 0x02, 8, 
 							    "Local Protection In Use",
 							    "Local Protection Not In Use"));
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
-				    decode_boolean_bitfield(k, 0x04, 8, 
+				    decode_boolean_bitfield(flags, 0x04, 8, 
 							    "Backup Tunnel Has Bandwidth",
 							    "Backup Tunnel Does Not Have Bandwidth"));
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
-				    decode_boolean_bitfield(k, 0x08, 8, 
+				    decode_boolean_bitfield(flags, 0x08, 8, 
 							    "Backup Tunnel Goes To Next-Next-Hop",
 							    "Backup Tunnel Goes To Next-Hop"));
 	    }
@@ -2928,28 +3052,29 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				"Length: %u",
 				tvb_get_guint8(tvb, offset+l+1));
 	    if (class == RSVP_CLASS_RECORD_ROUTE) {
-		if (k&0x01) proto_item_append_text(ti2, ", Local Protection Available");
-		if (k&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
-		if (k&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
-		if (k&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
+		flags = tvb_get_guint8(tvb, offset+l+2);
+		if (flags&0x01) proto_item_append_text(ti2, ", Local Protection Available");
+		if (flags&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
+		if (flags&0x04) proto_item_append_text(ti2, ", Backup BW Avail");
+		if (flags&0x08) proto_item_append_text(ti2, ", Backup is Next-Next-Hop");
 		ti2 = proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 1,
-					  "Flags: 0x%08x", k);
+					  "Flags: 0x%02x", flags);
 		rsvp_rro_flags_subtree = 
 		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS)); 
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
-				    decode_boolean_bitfield(k, 0x01, 8, 
+				    decode_boolean_bitfield(flags, 0x01, 8, 
 							    "Local Protection Available",
 							    "Local Protection Not Available"));
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
-				    decode_boolean_bitfield(k, 0x02, 8, 
+				    decode_boolean_bitfield(flags, 0x02, 8, 
 							    "Local Protection In Use",
 							    "Local Protection Not In Use"));
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
-				    decode_boolean_bitfield(k, 0x04, 8, 
+				    decode_boolean_bitfield(flags, 0x04, 8, 
 							    "Backup Tunnel Has Bandwidth",
 							    "Backup Tunnel Does Not Have Bandwidth"));
 		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
-				    decode_boolean_bitfield(k, 0x08, 8, 
+				    decode_boolean_bitfield(flags, 0x08, 8, 
 							    "Backup Tunnel Goes To Next-Next-Hop",
 							    "Backup Tunnel Goes To Next-Hop"));
 	    }

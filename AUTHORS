@@ -945,6 +945,8 @@ Akira Endoh <endoh[AT]netmarks.co.jp> {
 	BGP support for draft-ietf-idr-as4bytes-06.txt and
 	    draft-ietf-idr-dynamic-cap-03.txt
 	Wellfleet Breath of Life support
+	RSVP support for draft-ietf-mpls-nodeid-subobject-00.txt, and
+	    other bug fixes and enhancements
 }
 
 Graeme Hewson <graeme.hewson[AT]oracle.com> {
