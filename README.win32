@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.63 2004/02/22 16:28:47 ulfl Exp $
+$Id: README.win32,v 1.64 2004/02/24 18:44:06 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -174,7 +174,6 @@ package is as follows:
 
     Package                               Default Location
     -------                               ----------------
-    adns-1.0-win32-01.zip                 C:\ethereal-win32-libs
     glib-2.2.3-20040116.zip               C:\ethereal-win32-libs\glib
     glib-dev-2.2.3-20040116.zip           C:\ethereal-win32-libs\glib
     gtk+-1.3.0-20030717.zip               C:\ethereal-win32-libs\gtk+
@@ -182,8 +181,12 @@ package is as follows:
     libiconv-1.9.1.bin.woe32.zip          C:\ethereal-win32-libs\libiconv-1.9.1.bin.woe32
     gettext-runtime-0.13.1.zip            C:\ethereal-win32-libs\gettext-runtime-0.13.1
     net-snmp-5.1.zip                      C:\ethereal-win32-libs
-    pcre-4.4.zip                          C:\ethereal-win32-libs
     wpdpack_3_0.zip                       C:\ethereal-win32-libs
+
+and optional:
+
+    adns-1.0-win32-01.zip                 C:\ethereal-win32-libs
+    pcre-4.4.zip                          C:\ethereal-win32-libs
     zlib121-dll.zip                       C:\ethereal-win32-libs\zlib121-dll
 
 (to use the default locations, the directories in question should be
@@ -201,14 +204,18 @@ GLib 2.2.3.
 
 
 Compiling the Ethereal distribution using GTK+2
-===============================================
+-----------------------------------------------
 
 The more recent version 2 of the GTK+ can be used to compile 
-Ethereal with, but is still considered experimental.
+Ethereal with, but is still considered beta.
 
 GTK+2 will look better and nicer in some ways, especially for WIN32 users.
 
 You can get the required libraries from:
+
+http://www.ethereal.com/distribution/win32/development/gtk2
+
+or:
 
 http://www.gimp.org/~tml/gimp/win32/downloads.html
 
@@ -222,6 +229,10 @@ If you want to try a build with GTK+2.x these Extra libraries are needed
     pango-dev-1.2.5-20040124.zip          C:\ethereal-win32-libs\gtk2
     atk-1.4.0.zip                         C:\ethereal-win32-libs\gtk2	
     atk-dev-1.4.0.zip                     C:\ethereal-win32-libs\gtk2
+
+and optional:
+
+    gtk-wimp-0.5.3-bin.zip                C:\ethereal-win32-libs\gtk-wimp
 
 Be sure to set GTK2_DIR in config.nmake correct, to be able to compile.
 
@@ -338,22 +349,27 @@ Cygwin package:
 After installing them, you will probably have to modify the config.nmake
 file to specify where the Cygwin binaries are installed.
 
-Python for Win32 is available from
+Python for Win32 is available from:
 
 	http://www.python.org/
 
 
-If you want to build an installer you need to get NSIS from:
+Build an (NSIS based) installer
+-------------------------------
+
+If you want to build your own installer, you need to get NSIS from:
 
 http://nsis.sourceforge.net/home/
 
 After installing it, you will probably have to modify the config.nmake
-file to specify where the binaries are installed and wether to use the modern UI or not.
+file to specify where the NSIS binaries are installed and wether to use the modern UI or not.
 You will need NSIS version 2 or higher, to build an installer with the modern user interface,
 and for a much smaller installer (using the lzma compression).
 
 In the ethereal directory, type "nmake -f makefile.nmake packaging" to build the installer. 
+Please be patient while the compression is done, it will take some time even on fast machines.
 
+You will hopefully now see something like ethereal-setup-0.10.2.exe in the dir packaging/nsis.
 
 Instructions for Cygwin
 -----------------------
