@@ -2,7 +2,7 @@
  * Routines for ppp packet disassembly
  * RFC 1661, RFC 1662
  *
- * $Id: packet-ppp.c,v 1.112 2003/06/12 08:33:29 guy Exp $
+ * $Id: packet-ppp.c,v 1.113 2003/06/13 04:07:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2119,9 +2119,7 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     addr_len = tvb_strsize(tvb, offset);
     proto_tree_add_text(addr_tree, tvb, offset, addr_len,
 			"Address: %s",
-			addr_len == 1 ?
-			  "" :
-			  tvb_format_text(tvb, offset, addr_len - 1));
+			tvb_format_text(tvb, offset, addr_len - 1));
     offset += (addr_len + 1);
     length -= (addr_len + 1);
   }
