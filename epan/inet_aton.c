@@ -43,6 +43,14 @@ static char sccsid[] = "@(#)inet_addr.c	8.1 (Berkeley) 6/17/93";
 #include <sys/param.h>
 #endif
 
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
@@ -63,12 +71,12 @@ inet_aton(cp_arg, addr)
 	const char *cp_arg;
 	struct in_addr *addr;
 {
-	register const guchar *cp = cp_arg;
-	register gulong val;
+	register const u_char *cp = cp_arg;
+	register u_long val;
 	register int base, n;
-	register guchar c;
-	guint parts[4];
-	register guint *pp = parts;
+	register u_char c;
+	u_int parts[4];
+	register u_int *pp = parts;
 
 	for (;;) {
 		/*
@@ -144,6 +152,6 @@ inet_aton(cp_arg, addr)
 		break;
 	}
 	if (addr)
-		addr->s_addr = g_htonl(val);
+		addr->s_addr = htonl(val);
 	return (1);
 }

@@ -20,11 +20,15 @@
 #endif
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_ntop.c,v 1.4 2002/08/02 21:29:39 jmayer Exp $";
+static char rcsid[] = "$Id: inet_ntop.c,v 1.5 2002/08/04 00:45:59 jmayer Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
@@ -34,6 +38,10 @@ static char rcsid[] = "$Id: inet_ntop.c,v 1.4 2002/08/02 21:29:39 jmayer Exp $";
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
 #define EAFNOSUPPORT    WSAEAFNOSUPPORT
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 
 #ifdef HAVE_ARPA_INET_H
@@ -69,8 +77,8 @@ static char rcsid[] = "$Id: inet_ntop.c,v 1.4 2002/08/02 21:29:39 jmayer Exp $";
  * sizeof(int) < 4.  sizeof(int) > 4 is fine; all the world's not a VAX.
  */
 
-static const char *inet_ntop4 __P((const guchar *src, char *dst, size_t size));
-static const char *inet_ntop6 __P((const guchar *src, char *dst, size_t size));
+static const char *inet_ntop4 __P((const u_char *src, char *dst, size_t size));
+static const char *inet_ntop6 __P((const u_char *src, char *dst, size_t size));
 
 /* char *
  * inet_ntop(af, src, dst, size)
@@ -106,13 +114,13 @@ inet_ntop(af, src, dst, size)
  *	`dst' (as a const)
  * notes:
  *	(1) uses no statics
- *	(2) takes a guchar* not an in_addr as input
+ *	(2) takes a u_char* not an in_addr as input
  * author:
  *	Paul Vixie, 1996.
  */
 static const char *
 inet_ntop4(src, dst, size)
-	const guchar *src;
+	const u_char *src;
 	char *dst;
 	size_t size;
 {
@@ -139,7 +147,7 @@ inet_ntop4(src, dst, size)
  */
 static const char *
 inet_ntop6(src, dst, size)
-	const guchar *src;
+	const u_char *src;
 	char *dst;
 	size_t size;
 {
@@ -152,7 +160,7 @@ inet_ntop6(src, dst, size)
 	 */
 	char tmp[sizeof "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"], *tp;
 	struct { int base, len; } best, cur;
-	guint words[NS_IN6ADDRSZ / NS_INT16SZ];
+	u_int words[NS_IN6ADDRSZ / NS_INT16SZ];
 	int i;
 
 	/*
