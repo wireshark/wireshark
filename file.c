@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.51 1999/07/28 20:39:42 guy Exp $
+ * $Id: file.c,v 1.52 1999/07/28 20:53:40 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,24 +78,18 @@
 
 #include "packet-ncp.h"
 
-#define TAIL_TIMEOUT	2000  /* msec */
-
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
 extern int	  sync_mode;
 extern int        sync_pipe[];
 
-guint cap_input_id, tail_timeout_id;
+guint cap_input_id;
 
 static guint32 firstsec, firstusec;
 static guint32 lastsec, lastusec;
 
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
     const u_char *);
-
-#ifdef HAVE_LIBPCAP
-static gint tail_timeout_cb(gpointer);
-#endif
 
 static void freeze_clist(capture_file *cf);
 static void thaw_clist(capture_file *cf);
@@ -269,23 +263,6 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
 
   /* avoid reentrancy problems and stack overflow */
   gtk_input_remove(cap_input_id);
-  if (tail_timeout_id != -1) gtk_timeout_remove(tail_timeout_id);
-
-  /* In the BSD standard I/O library, there's a flag in a FILE structure
-     that's set whenever we encounter an EOF; if that flag is set,
-     all subsequent reads return an EOF indication.  I.e., end-of-file
-     is sticky.
-
-     This means that the stuff to continue reading a capture file, if we're
-     updating the display as the capture progresses, doesn't work - it gets
-     stuck at the point where the first read finished.
-
-     To clear that flag, we must do an "fseek()"; we do one that doesn't
-     move the seek pointer.
-
-     XXX - figure out with the configure script whether we need this,
-     and do it only if we have to? */
-  fseek(cf->wth->fh, 0, SEEK_CUR);
 
   if ((nread = read(sync_pipe[0], buffer, 256)) <= 0) {
 
@@ -344,36 +321,6 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
 				     NULL,
 				     (gpointer) cf,
 				     NULL);
-
-#if 0
-  /* XXX tail_timeout feature to be removed */
-  /* only useful in case of low amount of captured data */
-  tail_timeout_id = gtk_timeout_add(TAIL_TIMEOUT, tail_timeout_cb, (gpointer) cf);
-#endif
-}
-
-gint
-tail_timeout_cb(gpointer data) {
-
-  capture_file *cf = (capture_file *)data;
-
-  /* avoid reentrancy problems and stack overflow */
-  gtk_input_remove(cap_input_id);
-
-  gtk_clist_freeze(GTK_CLIST(packet_list));
-  wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
-
-  gtk_clist_thaw(GTK_CLIST(packet_list));
-
-  /* restore pipe handler */
-  cap_input_id = gtk_input_add_full (sync_pipe[0],
-				     GDK_INPUT_READ,
-				     cap_file_input_cb,
-				     NULL,
-				     (gpointer) cf,
-				     NULL);
-
-  return TRUE;
 }
 
 int
@@ -406,7 +353,7 @@ tail_cap_file(char *fname, capture_file *cf) {
     }
 
     cf->fh = fopen(fname, "r");
-    tail_timeout_id = -1;
+
     cap_input_id = gtk_input_add_full (sync_pipe[0],
 				       GDK_INPUT_READ,
 				       cap_file_input_cb,
