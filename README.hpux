@@ -1,3 +1,11 @@
+Contents :
+
+1 - Building ethereal
+2 - "libpcap" on HP-UX
+3 - nettl support
+
+1 - Building ethereal
+
 The Software Porting And Archive Centre for HP-UX, at
 
 	http://hpux.csc.liv.ac.uk/
@@ -15,6 +23,8 @@ it should be able to compile, perhaps with those changes.
 They appear to have used HP-UX's "cc" compiler, with the options "-Ae
 -O"; there's a comment "Add -Dhpux_9 if building under 9.X".  It may
 also build with GCC.
+
+2 - "libpcap" on HP-UX
 
 If you want to use Ethereal to capture packets, you will have to install
 "libpcap"; the INSTALL file for "libpcap" has several comments about
@@ -541,3 +551,21 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   			return (ifnet.if_index);
   	}
   
+
+
+3 - nettl support
+
+nettl is used on HP-UX to trace various streams based subsystems.  Ethereal
+can read nettl files containing IP frames (NS_LS_IP subsystem) and LAPB
+frames (SX25L2 subsystem).
+It has been tested with files generated on HP-UX 9.04 and 10.20.
+
+Use the following commands to generate a trace (cf. nettl(1M)):
+
+# IP capture. 0x30000000 means PDU in and PDU out :
+nettl -tn 0x30000000 -e NS_LS_IP -f tracefile
+# X25 capture. You must specify an interface :
+nettl -tn 0x30000000 -e SX25l2 -d /dev/x25_0 -f tracefile
+# stop capture. subsystem is NS_LS_IP or SX25L2 :
+nettl -tf -e subsystem
+
