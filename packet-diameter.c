@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.11 2001/01/09 06:31:35 guy Exp $
+ * $Id: packet-diameter.c,v 1.12 2001/02/05 02:47:31 guy Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -150,7 +150,7 @@ static guint32 match_numval(guint32 val, const value_value_pair *vs)
   return(0);
 }
 
-static gchar *rdconvertbufftostr(gchar *dest,guint8 length,const guint8 *pd)
+static gchar *rdconvertbufftostr(gchar *dest,int length,const guint8 *pd)
 {
 /*converts the raw buffer into printable text */
 guint32 i;

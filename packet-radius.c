@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.24 2001/01/22 08:54:06 guy Exp $
+ * $Id: packet-radius.c,v 1.25 2001/02/05 02:47:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -480,7 +480,7 @@ guint32 match_numval(guint32 val, const value_value_pair *vs)
 
 static gchar textbuffer[2000];
 
-gchar *rdconvertbufftostr(gchar *dest,guint8 length,const guint8 *pd)
+gchar *rdconvertbufftostr(gchar *dest,int length,const guint8 *pd)
 {
 /*converts the raw buffer into printable text */
 guint32 i;

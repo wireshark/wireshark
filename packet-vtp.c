@@ -1,7 +1,7 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.11 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-vtp.c,v 1.12 2001/02/05 02:47:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -269,7 +269,7 @@ dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 	int vlan_info_left;
 	guint8 status;
 	guint8 vlan_name_len;
-	guint16 type;
+	guint8 type;
 	int length;
 	char *type_str;
 	proto_tree *tlv_tree;
