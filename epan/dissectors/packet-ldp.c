@@ -44,6 +44,7 @@
 
 #include "packet-frame.h"
 #include "packet-diffserv-mpls-common.h"
+#include "packet-ldp.h"
 
 #define TCP_PORT_LDP 646
 #define UDP_PORT_LDP 646
