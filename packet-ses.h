@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id: packet-ses.h,v 1.1 2003/11/11 08:29:33 guy Exp $
+* $Id: packet-ses.h,v 1.2 2003/12/12 22:19:45 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -65,7 +65,7 @@
 #define SES_EXCEPTION_REPORT			0x2000
 /*define SES_EXCEPTION_REPORT			0    */
 #define SES_DATA_TRANSFER			1
-#define SES_GIVE_TOKEN				1
+#define SES_GIVE_TOKENS				1
 #define SES_PLEASE_TOKENS			2
 #define SES_EXPEDITED				5
 #define SES_PREPARE				7
@@ -127,6 +127,9 @@ reason code
 #define versions_not_supported		128+4
 #define SPM_reason_not_specified	128+5
 #define SPM_implementation_restriction	128+6
+
+#define		NON_TOKENS_SPDU			FALSE
+#define		TOKENS_SPDU			TRUE
 
 #define		TWO_BYTE_LEN			0xff
 

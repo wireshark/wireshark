@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id: packet-ses.c,v 1.4 2003/12/02 05:53:26 guy Exp $
+* $Id: packet-ses.c,v 1.5 2003/12/12 22:19:45 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -44,6 +44,7 @@
 /* ses header fields             */
 static int proto_ses          = -1;
 static int hf_ses_type        = -1;
+static int hf_ses_type_0      = -1;
 static int hf_ses_length      = -1;
 static int hf_ses_version     = -1;
 static int hf_ses_reserved    = -1;
@@ -195,6 +196,14 @@ static const value_string ses_vals[] =
   {SES_CAPABILITY_DATA_ACK,    "Capability data ACK PDU"   },
   {0,             NULL           }
 };
+
+static const value_string ses_category0_vals[] =
+{
+  {SES_PLEASE_TOKENS,    "Please tokens PDU"   },
+  {SES_GIVE_TOKENS,    "Give tokens PDU"   },
+  {0,             NULL           }
+};
+
 
 static const value_string param_vals[] =
 {
@@ -914,9 +923,10 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
  * Dissect an SPDU.
  */
 static int
-dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+    gboolean tokens)
 {
-	gboolean has_user_information;
+	gboolean has_user_information = FALSE;
 	guint8 type;
 	proto_item *ti = NULL;
 	proto_tree *ses_tree = NULL;
@@ -928,34 +938,43 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	 * Get SPDU type.
 	 */
 	type = tvb_get_guint8(tvb, offset);
-  	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
 
-	if (tree)
-	{
-		ti = proto_tree_add_item(tree, proto_ses, tvb, offset, -1,
-		    FALSE);
-		ses_tree = proto_item_add_subtree(ti, ett_ses);
-		proto_tree_add_uint(ses_tree, hf_ses_type, tvb, offset, 1, type);
+	if (tokens) {
+	  	if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_str(pinfo->cinfo, COL_INFO,
+			    val_to_str(type, ses_category0_vals, "Unknown SPDU type (0x%02x)"));
+		if (tree) {
+			ti = proto_tree_add_item(tree, proto_ses, tvb, offset,
+			    -1, FALSE);
+			ses_tree = proto_item_add_subtree(ti, ett_ses);
+			proto_tree_add_uint(ses_tree, hf_ses_type_0, tvb,
+			    offset, 1, type);
+		}
+	} else {
+	  	if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_str(pinfo->cinfo, COL_INFO,
+			    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
+		if (tree) {
+			ti = proto_tree_add_item(tree, proto_ses, tvb, offset,
+			    -1, FALSE);
+			ses_tree = proto_item_add_subtree(ti, ett_ses);
+			proto_tree_add_uint(ses_tree, hf_ses_type, tvb,
+			    offset, 1, type);
+		}
+
+		/*
+		 * Might this SPDU have a User Information field?
+		 */
+		switch (type) {
+
+		case SES_DATA_TRANSFER:
+		case SES_EXPEDITED:
+		case SES_TYPED_DATA:
+			has_user_information = TRUE;
+			break;
+		}
 	}
 	offset++;
-
-	/*
-	 * Might this SPDU have a User Information field?
-	 */
-	switch (type) {
-
-	case SES_DATA_TRANSFER:
-	case SES_EXPEDITED:
-	case SES_TYPED_DATA:
-		has_user_information = TRUE;
-		break;
-
-	default:
-		has_user_information = FALSE;
-		break;
-	}
 
 	/* get length of SPDU parameter field */
 	parameters_len = get_item_len(tvb, offset, &len_len);
@@ -1006,14 +1025,27 @@ static void
 dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
+	guint8 type;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SES");
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_clear(pinfo->cinfo, COL_INFO);
 
+	/*
+	 * Do we have a category 0 SPDU (GIVE_TOKENS/PLEASE_TOKENS) as
+	 * the first SPDU?
+	 *
+	 * If so, dissect it as such (GIVE_TOKENS and DATA_TRANSFER have
+	 * the smae SPDU type value).
+	 */
+	type = tvb_get_guint8(tvb, offset);
+	if (type == SES_PLEASE_TOKENS || type == SES_GIVE_TOKENS)
+		offset = dissect_spdu(tvb, offset, pinfo, tree, TOKENS_SPDU);
+
+	/* Dissect the remaining SPDUs. */
 	while (tvb_reported_length_remaining(tvb, offset) > 0)
-		offset = dissect_spdu(tvb, offset, pinfo, tree);
+		offset = dissect_spdu(tvb, offset, pinfo, tree, NON_TOKENS_SPDU);
 }
 
 void
@@ -1029,6 +1061,18 @@ proto_register_ses(void)
 				FT_UINT8,
 				BASE_DEC,
 				VALS(ses_vals),
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_ses_type_0,
+			{
+				"SPDU Type",
+				"ses.type",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(ses_category0_vals),
 				0x0,
 				"", HFILL
 			}
@@ -1657,8 +1701,7 @@ proto_register_ses(void)
 /*
 	prefs_register_bool_preference(ses_module, "desegment",
 	    "Desegment all session packets ",
-	    "Whether the ses dissector should desegment all messages spanning 
-multiple SES segments",
+	    "Whether the session dissector should desegment all messages spanning multiple SES segments",
 	    &ses_desegment);  */
 
 	/*
