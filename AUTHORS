@@ -484,6 +484,10 @@ Kent Engström <kent@unit.liu.se> {
 	CDP VTP Management Domain item support
 }
 
+Ronnie Sahlberg <rsahlber@bigpond.net.au> {
+	NLM dissector enhancements
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
