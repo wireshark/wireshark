@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.39 1999/11/02 05:03:02 guy Exp $
+ * $Id: packet-tcp.c,v 1.40 1999/11/02 07:04:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,7 +66,7 @@ static int hf_tcp_dstport = -1;
 static int hf_tcp_port = -1;
 static int hf_tcp_seq = -1;
 static int hf_tcp_ack = -1;
-static int hf_tcp_hlen = -1;
+static int hf_tcp_hdr_len = -1;
 static int hf_tcp_flags = -1;
 static int hf_tcp_flags_urg = -1;
 static int hf_tcp_flags_ack = -1;
@@ -426,7 +426,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(tcp_tree, hf_tcp_seq, offset + 4, 4, th.th_seq);
     if (th.th_flags & TH_ACK)
       proto_tree_add_item(tcp_tree, hf_tcp_ack, offset + 8, 4, th.th_ack);
-    proto_tree_add_item(tcp_tree, hf_tcp_hlen, offset + 12, 1, hlen);
+    proto_tree_add_item_format(tcp_tree, hf_tcp_hdr_len, offset + 12, 1, hlen,
+	"Header length: %u bytes", hlen);
     tf = proto_tree_add_item_format(tcp_tree, hf_tcp_flags, offset + 13, 1,
 	th.th_flags, "Flags: 0x%04x (%s)", th.th_flags, flags);
     field_tree = proto_item_add_subtree(tf, ETT_TCP_FLAGS);
@@ -559,8 +560,8 @@ proto_register_tcp(void)
 		{ "Acknowledgement number",	"tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"" }},
 
-		{ &hf_tcp_hlen,
-		{ "Header length",		"tcp.hlen", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ &hf_tcp_hdr_len,
+		{ "Header Length",		"tcp.hdr_len", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"" }},
 
 		{ &hf_tcp_flags,
