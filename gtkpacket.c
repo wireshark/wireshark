@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: gtkpacket.c,v 1.3 1999/03/23 19:41:51 gram Exp $
+ * $Id: gtkpacket.c,v 1.4 1999/04/16 18:39:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,7 @@
 #endif
 
 #define BYTE_VIEW_WIDTH    16
+#define BYTE_VIEW_SEP      8
 
 extern GtkWidget    *byte_view;
 extern GdkFont      *m_r_font, *m_b_font;
@@ -78,6 +79,8 @@ packet_hex_print(GtkText *bv, guchar *pd, gint len, gint bstart, gint blen) {
       }
       line[cur++] = ' ';
       i++;
+      /* insert a space every BYTE_VIEW_SEP bytes */
+      if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
       /* Did we cross a bold/plain boundary? */
       new_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
       if (cur_font != new_font) {
@@ -99,6 +102,8 @@ packet_hex_print(GtkText *bv, guchar *pd, gint len, gint bstart, gint blen) {
         line[cur++] = ' ';
       }
       i++;
+      /* insert a space every BYTE_VIEW_SEP bytes */
+      if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
       /* Did we cross a bold/plain boundary? */
       new_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
       if (cur_font != new_font) {
