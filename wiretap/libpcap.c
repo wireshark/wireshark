@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.84 2002/11/16 20:20:30 guy Exp $
+ * $Id: libpcap.c,v 1.85 2002/11/27 22:23:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1268,7 +1268,7 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 			*err = WTAP_ERR_BAD_RECORD;
 			return NULL;
 		}
-		libpcap_get_atm_pseudoheader((struct sunatm_hdr *)pd,
+		libpcap_get_atm_pseudoheader((const struct sunatm_hdr *)pd,
 		    pseudo_header);
 
 		/*
