@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.46 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-icq.c,v 1.47 2002/08/03 19:47:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,10 +35,6 @@
 
 #ifdef HAVE_STDDEF_H
 #include <stddef.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
 #endif
 
 #include <stdio.h>
