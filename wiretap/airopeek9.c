@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening EtherPeek and AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.7 2004/02/06 03:12:21 guy Exp $
+ * $Id: airopeek9.c,v 1.8 2004/02/06 04:27:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -65,13 +65,11 @@ typedef struct airopeek_section_header {
 #define TAG_AIROPEEK_V9_UNKNOWN_0x000D		0x000D
 #define TAG_AIROPEEK_V9_SLICE_LENGTH		0xffff
 
-/* 64-bit time in nano seconds from the (Mac) epoch */
+/* 64-bit time in nanoseconds from the (Windows FILETIME) epoch */
 typedef struct airopeek_utime {
 	guint32 upper;
 	guint32 lower;
 } airopeek_utime;
-
-static const unsigned int mac2unix = 2082844800u;
 
 static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     long *data_offset);
@@ -193,7 +191,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
      * XXX - we should get the length of the "\177ver" section, check
      * that it's followed by a little-endian 0x00000200, and then,
      * when reading the XML, make sure we don't go past the end of
-     * that section, and skip to the end of tha section when
+     * that section, and skip to the end of that section when
      * we have the file version (and possibly check to make sure all
      * tags are properly opened and closed).
      */
@@ -212,7 +210,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 
     /* If we got this far, we assume it's an AiroPeek V9 file. */
     if (fileVersion != 9) {
-	/* We only support version 9 and later. */
+	/* We only support version 9. */
 	*err = WTAP_ERR_UNSUPPORTED;
 	*err_info = g_strdup_printf("airopeekv9: version %u unsupported",
 	    fileVersion);
@@ -285,7 +283,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 	return 0;
 
     /*
-     * This is an AiroPeek V9 file.
+     * This is an EtherPeek or AiroPeek V9 file.
      */
 
     wth->data_offset = file_tell (wth->fh);
@@ -409,6 +407,16 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err)
     return header_len;
 }
 
+/*
+ * Time stamps appear to be in nanoseconds since the Windows epoch
+ * as used in FILETIMEs, i.e. midnight, January 1, 1601.
+ *
+ * This magic number came from "nt_time_to_nstime()" in "packet-smb.c".
+ * 1970-1601 is 369; I'm not sure what the extra 3 days and 6 hours are
+ 8 that are being subtracted.
+ */
+#define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
+
 static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info _U_,
     long *data_offset)
 {
@@ -454,11 +462,10 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info _U_,
     t =  (double) hdr_info.timestamp.lower +
 	 (double) hdr_info.timestamp.upper * 4294967296.0;
 
-    t = t / 1000.0;	/* nano seconds -> micro seconds */
-    t -= (double) mac2unix * 1000000.0;
-    wth->phdr.ts.tv_sec  = (time_t)  (t/1000000.0);
-    wth->phdr.ts.tv_usec = (guint32) (t - (double) wth->phdr.ts.tv_sec *
-						   1000000.0);
+    t *= 1.0e-9;
+    t -= TIME_FIXUP_CONSTANT;
+    wth->phdr.ts.tv_sec  = (time_t) t;
+    wth->phdr.ts.tv_usec = (guint32) ((t - wth->phdr.ts.tv_sec)*1000000);
 
     switch (wth->file_encap) {
 
