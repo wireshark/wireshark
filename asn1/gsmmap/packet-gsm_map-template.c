@@ -126,7 +126,7 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	length = length - offset;
 	digit_str = g_malloc(length+1);
 
-	while ( offset < length ){
+	while ( offset <= length ){
 
 		octet = tvb_get_guint8(tvb,offset);
 		digit_str[i] = ((octet & 0x0f) + 0x30);
@@ -961,8 +961,9 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tap_rec.invoke = TRUE;
 	tap_rec.opr_code_idx = op_idx;
 	tap_rec.size = gsm_map_pdu_size;
+	/*
 	tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
-	
+	*/
 
 
 }
