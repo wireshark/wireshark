@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.51 2001/07/14 09:30:01 oabad Exp $
+ * $Id: packet-x25.c,v 1.52 2001/07/16 20:57:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -548,7 +548,7 @@ static char *clear_diag(unsigned char code)
     if (code == 144)
 	return "Timer expired or retransmission count surpassed";
     if (code == 145)
-	return "Ti6er expired or retransmission count surpassed for INTERRUPT";
+	return "Timer expired or retransmission count surpassed for INTERRUPT";
     if (code == 146)
 	return "Timer expired or retransmission count surpassed for DATA "
 	       "packet transmission";
