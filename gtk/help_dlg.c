@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.38 2003/11/27 23:25:55 ulfl Exp $
+ * $Id: help_dlg.c,v 1.39 2003/12/22 08:01:01 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -31,29 +31,33 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "epan/filesystem.h"
 #include "help_dlg.h"
 #include "prefs.h"
 #include "gtkglobals.h"
 #include "ui_util.h"
 #include "compat_macros.h"
 #include "dlg_utils.h"
-
-
-/* include texts from converted ascii ".txt" files */
-#include "../help/overview.h"
-#include "../help/capture_filters.h"
-#include "../help/display_filters.h"
-#include "../help/well_known.h"
-#include "../help/faq.h"
-
+#include "simple_dialog.h"
 
 typedef enum {
   OVERVIEW_HELP,
   CFILTER_HELP,
   DFILTER_HELP,
   WELL_KNOWN_HELP,
-  FAQ_HELP
+  FAQ_HELP,
+  NUM_HELP_TYPES
 } help_type_t;
+
+#define HELP_DIR	"help"
+
+static const char *helpfile_names[NUM_HELP_TYPES] = {
+  HELP_DIR G_DIR_SEPARATOR_S "overview.txt",
+  HELP_DIR G_DIR_SEPARATOR_S "capture_filters.txt",
+  HELP_DIR G_DIR_SEPARATOR_S "display_filters.txt",
+  HELP_DIR G_DIR_SEPARATOR_S "well_known.txt",
+  HELP_DIR G_DIR_SEPARATOR_S "faq.txt"
+};
 
 static void help_close_cb(GtkWidget *w, gpointer data);
 static void help_destroy_cb(GtkWidget *w, gpointer data);
@@ -110,7 +114,9 @@ static GtkWidget * help_page(help_type_t page_type, GtkWidget **page_text)
 }
 
 
-
+/*
+ * Create and show help dialog.
+ */
 void help_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 
@@ -200,17 +206,29 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 
 } /* help_cb */
 
+
+/*
+ * Close help dialog.
+ */
 static void help_close_cb(GtkWidget *w _U_, gpointer data)
 {
   gtk_widget_destroy(GTK_WIDGET(data));
 }
 
+
+/*
+ * Help dialog is closed now.
+ */
 static void help_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   /* Note that we no longer have a Help window. */
   help_w = NULL;
 }
 
+
+/*
+ * Insert some text to a help page.
+ */
 static void insert_text(GtkWidget *w, const char *buffer, int nchars)
 {
 #if GTK_MAJOR_VERSION < 2
@@ -228,59 +246,55 @@ static void insert_text(GtkWidget *w, const char *buffer, int nchars)
 }
 
 
+/*
+ * Put the complete help text into a help page.
+ */
 static void set_help_text(GtkWidget *w, help_type_t type)
 {
-  int i;
 #ifndef HAVE_LIBPCAP
   char *tmp;
 #endif
+  char *help_file_path;
+  FILE *help_file;
+  char line[4096+1];	/* XXX - size? */
 
+  g_assert(type < NUM_HELP_TYPES);
 
 #if GTK_MAJOR_VERSION < 2
   gtk_text_freeze(GTK_TEXT(w));
 #endif
 
-  switch(type) {
-
-  case OVERVIEW_HELP :
-    for (i=0; i<OVERVIEW_PARTS; i++) {
-      insert_text(w, overview_part[i], strlen(overview_part[i]));
-    }
-    break;
-  case CFILTER_HELP :
 #ifndef HAVE_LIBPCAP
+  if (type == CFILTER_HELP) {
     tmp = "NOTE: packet capturing is not enabled in this version!\n \n";
     insert_text(w, tmp, strlen(tmp));
+  } else
 #endif
-    for (i=0; i<CAPTURE_FILTERS_PARTS; i++) {
-      insert_text(w, capture_filters_part[i], strlen(capture_filters_part[i]));
+  {
+    help_file_path = get_datafile_path(helpfile_names[type]);
+    help_file = fopen(help_file_path, "r");
+    if (help_file != NULL) {
+      while (fgets(line, sizeof line, help_file) != NULL) {
+        insert_text(w, line, strlen(line));
+      }
+      if(ferror(help_file)) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Could not read file: \"%s\"", help_file_path);
+      }
+      fclose(help_file);
+    } else {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Could not open file: \"%s\"", help_file_path);
     }
-    break;
-  case DFILTER_HELP :
-    for (i=0; i<DISPLAY_FILTERS_PARTS; i++) {
-      insert_text(w, display_filters_part[i], strlen(display_filters_part[i]));
-    }
-    break;
-  case WELL_KNOWN_HELP :
-    for (i=0; i<WELL_KNOWN_PARTS; i++) {
-      insert_text(w, well_known_part[i], strlen(well_known_part[i]));
-    }
-    break;
-  case FAQ_HELP :
-    for (i=0; i<FAQ_PARTS; i++) {
-      insert_text(w, faq_part[i], strlen(faq_part[i]));
-    }
-    break;
-  default :
-    g_assert_not_reached();
-    break;
-  } /* switch(type) */
+    g_free(help_file_path);
+  }
 #if GTK_MAJOR_VERSION < 2
   gtk_text_thaw(GTK_TEXT(w));
 #endif
 } /* set_help_text */
 
 
+/*
+ * Clear the help text from the help page.
+ */
 static void clear_help_text(GtkWidget *w)
 {
 #if GTK_MAJOR_VERSION < 2
@@ -301,45 +315,32 @@ static void clear_help_text(GtkWidget *w)
 }
 
 
-/* Redraw all the text widgets, to use a new font. */
+/*
+ * Redraw a single help page.
+ */
+void help_redraw_page(GtkWidget *page, help_type_t page_type)
+{
+#if GTK_MAJOR_VERSION < 2
+    gtk_text_freeze(GTK_TEXT(page));
+#endif
+    clear_help_text(page);
+    set_help_text(page, page_type);
+#if GTK_MAJOR_VERSION < 2
+    gtk_text_thaw(GTK_TEXT(page));
+#endif
+}
+
+
+/*
+ * Redraw all help pages, to use a new font.
+ */
 void help_redraw(void)
 {
   if (help_w != NULL) {
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_freeze(GTK_TEXT(overview_text));
-#endif
-    clear_help_text(overview_text);
-    set_help_text(overview_text, OVERVIEW_HELP);
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_thaw(GTK_TEXT(overview_text));
-
-    gtk_text_freeze(GTK_TEXT(cfilter_text));
-#endif
-    clear_help_text(cfilter_text);
-    set_help_text(cfilter_text, CFILTER_HELP);
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_thaw(GTK_TEXT(cfilter_text));
-
-    gtk_text_freeze(GTK_TEXT(dfilter_text));
-#endif
-    clear_help_text(dfilter_text);
-    set_help_text(dfilter_text, DFILTER_HELP);
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_thaw(GTK_TEXT(dfilter_text));
-
-    gtk_text_freeze(GTK_TEXT(well_known_text));
-#endif
-    clear_help_text(well_known_text);
-    set_help_text(well_known_text, WELL_KNOWN_HELP);
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_thaw(GTK_TEXT(well_known_text));
-
-    gtk_text_freeze(GTK_TEXT(faq_text));
-#endif
-    clear_help_text(faq_text);
-    set_help_text(faq_text, FAQ_HELP);
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_thaw(GTK_TEXT(faq_text));
-#endif
+    help_redraw_page(overview_text, OVERVIEW_HELP);
+    help_redraw_page(cfilter_text, CFILTER_HELP);
+    help_redraw_page(dfilter_text, DFILTER_HELP);
+    help_redraw_page(well_known_text, WELL_KNOWN_HELP);
+    help_redraw_page(faq_text, FAQ_HELP);
   }
 }
