@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.68 2004/06/04 01:56:25 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.69 2004/06/04 11:35:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1357,7 +1357,7 @@ dissect_krb5_PA_PAC_REQUEST(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 
 static int
-dissect_krb5_SignedData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_krb5_SignedData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset)
 {
 /*qqq*/
 	return offset;

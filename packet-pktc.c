@@ -8,7 +8,7 @@
  * Ronnie Sahlberg 2004
  * Thomas Anders 2004
  *
- * $Id: packet-pktc.c,v 1.6 2004/06/04 01:56:25 sahlberg Exp $
+ * $Id: packet-pktc.c,v 1.7 2004/06/04 11:32:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -436,7 +436,7 @@ dissect_pktc_error_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 }
 
 static int
-dissect_pktc_appspecificdata(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree)
+dissect_pktc_appspecificdata(packet_info *pinfo _U_, tvbuff_t *tvb _U_, proto_tree *tree _U_)
 {
 	int offset=0;
 	/*XXX add dissection of the app specific data here */
