@@ -4,7 +4,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim-messaging.c,v 1.7 2004/05/23 01:10:00 guy Exp $
+ * $Id: packet-aim-messaging.c,v 1.8 2004/05/23 01:53:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,6 +143,7 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
 {
   guint8 buddyname_length = 0;
   char buddyname[MAX_BUDDYNAME_LENGTH + 1];
+  gint msg_length;
   guchar msg[1000];
   int offset = 0;
   struct aiminfo *aiminfo = pinfo->private_data;
@@ -168,25 +169,32 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
       offset += 10;
 
       buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
+      
+      if (check_col(pinfo->cinfo, COL_INFO))
+	col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s", buddyname);
 
-      /* Buddyname length */
-      offset += 1;
+      if(msg_tree) {
+	proto_tree_add_text(msg_tree, tvb, offset, buddyname_length + 1,
+			    "Screen Name: %s", buddyname);
+      }
+
+      /* Buddyname length and buddyname */
+      offset += buddyname_length + 1;
 
       /* djh - My test suggest that this is broken.  Need to give this a
 	 closer look @@@@@@@@@ */
-      aim_get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) - 36
-		   - buddyname_length );
+      msg_length = tvb_ensure_length_remaining(tvb, offset);
+      aim_get_message( msg, tvb, offset, msg_length );
       
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s", buddyname);
+      if (check_col(pinfo->cinfo, COL_INFO))
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-      }
       
-      if(msg_tree) {
-	proto_tree_add_text(msg_tree, tvb, 27, buddyname_length, 
-			    "Screen Name: %s", buddyname);
-      }
-      
+      /* XXX - put the message into the protocol tree?
+         In at least one capture, there's a bunch of bytes before the
+         "<HTML>" tag for the message.  "aim_get_message()" skips them,
+         looking for the "<HTML>" tag - are they part of the message,
+         or are they some other unknown field? */
+
       return offset;
       
     case FAMILY_MESSAGING_INCOMING:
