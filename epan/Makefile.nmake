@@ -2,10 +2,12 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/MT /DHAVE_CONFIG_H /I. /I.. /I../wiretap \
+CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../wiretap \
 	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
+
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
 # For use when making ethereal.dll
 libethereal_LIBS = \
@@ -14,9 +16,10 @@ libethereal_LIBS = \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
 {$S}.c{$O}.obj::
-   $(CC) $(CFLAGS) -Fd$O\ -c $<
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd$O\ -c $<
 
-OBJECTS=bitswap.obj	\
+OBJECTS=atalk-utils.obj	\
+	bitswap.obj	\
 	conversation.obj \
 	epan.obj         \
 	except.obj       \
@@ -29,6 +32,7 @@ OBJECTS=bitswap.obj	\
 	plugins.obj      \
 	proto.obj        \
 	resolv.obj       \
+	sna-utils.obj	\
 	strutil.obj      \
 	tvbuff.obj       \
 

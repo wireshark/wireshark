@@ -1,9 +1,10 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.88 2001/03/22 23:54:44 gram Exp $
+# $Id: Makefile.nmake,v 1.89 2001/03/23 02:05:22 gram Exp $
 
 include config.nmake
+include <win32.mak>
 
 ############### no need to modify below this line #########
 
@@ -12,12 +13,14 @@ LINK= link
 
 LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
-CFLAGS=/MT -DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule \
+CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule \
 	/I$(GTK_DIR) /Iepan /Iwiretap /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)/include
 
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
+
 {$S}.c{$O}.obj::
-   $(CC) $(CFLAGS) -Fd$O\ -c $<
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd$O\ -c $<
 
 DISSECTOR_SOURCES = \
 	packet-aarp.c  \
@@ -221,27 +224,30 @@ dftest_OBJECTS = \
 	dftest.obj
 
 EXTRA_OBJECTS = \
-	snprintf.obj	\
-	strerror.obj	\
+#	snprintf.obj	\
+#	strerror.obj	\
 	mkstemp.obj
 
-ethereal_LIBS= wiretap\libwtap.lib gtk\libui.lib epan\ethereal.lib \
+ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	gtk\libui.lib epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
 	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
-	$(PCAP_DIR)\lib\libpcap.lib
+	$(PCAP_DIR)\lib\wpcap.lib
 
-tethereal_LIBS= wiretap\libwtap.lib epan\ethereal.lib \
+tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
-	$(PCAP_DIR)\lib\libpcap.lib
+	$(PCAP_DIR)\lib\wpcap.lib
 
-editcap_LIBS= wiretap\libwtap.lib wsock32.lib user32.lib \
+editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
@@ -250,7 +256,7 @@ dftest_LIBS= epan\ethereal.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
-	$(PCAP_DIR)\lib\libpcap.lib
+	$(PCAP_DIR)\lib\wpcap.lib
 
 EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
 
@@ -258,27 +264,27 @@ RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res
 
 all: tools wiretap gtk epan $(EXECUTABLES) $(RESOURCES)
 
-ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap\libwtap.lib gtk\libui.lib plugins
+ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap\wiretap-$(WTAP_VERSION).lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:ethereal.exe $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
+		/OUT:ethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
 <<
 
-tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res wiretap\libwtap.lib plugins
+tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tethereal.exe $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
+		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
 <<
 
-editcap.exe	: config.h editcap.obj getopt.obj wiretap\libwtap.lib image\editcap.res
+editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:editcap.exe $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
+		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
 <<
 
 dftest.exe	: $(dftest_OBJECTS) $(EXTRA_OBJECTS)
 	$(LINK) @<<
-		/OUT:dftest.exe $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS) $(EXTRA_OBJECTS)
+		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS) $(EXTRA_OBJECTS)
 <<
 
 config.h	: config.h.win32

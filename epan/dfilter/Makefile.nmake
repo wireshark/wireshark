@@ -4,14 +4,15 @@ include ..\..\config.nmake
 
 LEMON=..\..\tools\lemon
 
-CFLAGS=/MT /DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
+CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
 	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)\gmodule \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
 
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
 {$S}.c{$O}.obj::
-   $(CC) $(CFLAGS) -Fd$O\ -c $<
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd$O\ -c $<
 
 
 OBJECTS = \

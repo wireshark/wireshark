@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.19 2001/03/05 22:53:36 gram Exp $
+$Id: README.win32,v 1.20 2001/03/23 02:05:22 gram Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -55,7 +55,7 @@ Remember, if using the the Win32 Binary distribution, available from
 
 there are two separate packages, one with non-capturing tools, and
 one with capturing tools. Install the appropriate package. The
-capturing version requires WinPcap, the non-capturing version does not.
+capturing version requires WinPcap 2.1, the non-capturing version does not.
 
 In order to capture with Win32, you need to install the NDIS
 packet capture driver for your particular Win32 OS; drivers for Windows
@@ -65,7 +65,7 @@ WinPcap home page:
 	http://netgroup-serv.polito.it/winpcap/
 
 If Ethereal is not capturing packets, you can test your WinPcap
-installatino by installing WinDump (TCPdump for Windows) ported by the
+installation by installing WinDump (TCPdump for Windows) ported by the
 same folks who make WinPcap. It's at:
 
 	http://netgroup-serv.polito.it/windump/
@@ -120,6 +120,7 @@ Source				Output			Tool
 ------				------			----
 dfilter-scanner.l		*.c			Flex
 wiretap/ascend-scanner.l	*.c			Flex
+wiretap/ascend-grammar.y	*.c,*.h			Bison/Yacc
 ncp2222.py			packet-ncp2222.c	Python
 
 make-reg-dotc, packet*.c	register.c		Bash

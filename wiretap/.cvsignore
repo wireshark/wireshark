@@ -16,3 +16,5 @@ config.cache
 *.obj
 *.lib
 *.pdb
+*.dll
+*.exp

@@ -1,15 +1,19 @@
 #
-# $Id: Makefile.nmake,v 1.16 2001/02/22 22:03:31 guy Exp $
+# $Id: Makefile.nmake,v 1.17 2001/03/23 02:05:29 gram Exp $
 #
 
 include ..\config.nmake
+include <win32.mak>
 
 ############### no need to modify below this line #########
 
-CFLAGS=/MT /DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)
+CFLAGS=-DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)
+
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
+
 
 {$S}.c{$O}.obj::
-   $(CC) $(CFLAGS) -Fd$O\ -c $<
+   $(CC) $(CVARSDLL) $(CFLAGS) -Fd$O\ -c $<
 
 OBJECTS=ascend-grammar.obj \
 	ascend-scanner.obj \
@@ -33,8 +37,23 @@ OBJECTS=ascend-grammar.obj \
 	toshiba.obj \
 	wtap.obj
 
-libwtap.lib	: config.h $(OBJECTS)
-	lib /out:libwtap.lib $(OBJECTS)
+
+wiretap_LIBS = \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+
+all: wiretap-$(WTAP_VERSION).dll
+
+wiretap-$(WTAP_VERSION).lib: wiretap-$(WTAP_VERSION).dll
+wiretap-$(WTAP_VERSION).exp: wiretap-$(WTAP_VERSION).dll
+
+wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def
+	$(link) $(dlllflags) $(conlibsdll) \
+		$(LOCAL_LDFLAGS) \
+		/DEF:wtap.def /OUT:wiretap-$(WTAP_VERSION).dll \
+		/IMPLIB:wiretap-$(WTAP_VERSION).lib \
+		$(OBJECTS) $(wiretap_LIBS)
+
+$(OBJECTS): config.h
 
 ascend-grammar.c ascend-grammar.h : ascend-grammar.y
 	$(YACC) $(YACC_OPTS) -d -p ascend ascend-grammar.y -o ascend-grammar.c
@@ -49,4 +68,7 @@ config.h	: config.h.win32
 	copy config.h.win32 $@
 
 clean :
-	rm -f $(OBJECTS) libwtap.lib ascend-grammar.c ascend-grammar.h ascend-scanner.c
+	rm -f $(OBJECTS) ascend-grammar.c ascend-grammar.h ascend-scanner.c \
+		wiretap-$(WTAP_VERSION).lib \
+		wiretap-$(WTAP_VERSION).exp \
+		wiretap-$(WTAP_VERSION).dll
