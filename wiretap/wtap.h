@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.41 1999/09/24 05:49:53 guy Exp $
+ * $Id: wtap.h,v 1.42 1999/10/05 07:06:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -392,6 +392,17 @@ int wtap_pcap_encap_to_wtap_encap(int encap);
 	/* We read an invalid record */
 #define	WTAP_ERR_SHORT_WRITE			-12
 	/* An attempt to write wrote less data than it should have */
+
+/* Errors from zlib; zlib error Z_xxx turns into Wiretap error
+   WTAP_ERR_ZLIB + Z_xxx.
+
+   WTAP_ERR_ZLIB_MIN and WTAP_ERR_ZLIB_MAX bound the range of zlib
+   errors; we leave room for 100 positive and 100 negative error
+   codes. */
+
+#define	WTAP_ERR_ZLIB				-200
+#define	WTAP_ERR_ZLIB_MAX			-100
+#define	WTAP_ERR_ZLIB_MIN			-300
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.

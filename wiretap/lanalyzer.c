@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.16 1999/09/24 05:49:51 guy Exp $
+ * $Id: lanalyzer.c,v 1.17 1999/10/05 07:06:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -67,10 +67,9 @@ int lanalyzer_open(wtap *wth, int *err)
 	bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
 	bytes_read += file_read(LE_record_length, 1, 2, wth->fh);
 	if (bytes_read != 4) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		return 0;
 	}
 	wth->data_offset += 4;
@@ -97,8 +96,8 @@ int lanalyzer_open(wtap *wth, int *err)
 		bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
 		bytes_read += file_read(LE_record_length, 1, 2, wth->fh);
 		if (bytes_read != 4) {
-			if (file_error(wth->fh)) {
-				*err = errno;
+			*err = file_error(wth->fh);
+			if (*err != 0) {
 				free(wth->capture.lanalyzer);
 				return -1;
 			}
@@ -118,8 +117,8 @@ int lanalyzer_open(wtap *wth, int *err)
 				bytes_read = file_read(summary, 1, sizeof summary,
 				    wth->fh);
 				if (bytes_read != sizeof summary) {
-					if (file_error(wth->fh)) {
-						*err = errno;
+					*err = file_error(wth->fh);
+					if (*err != 0) {
 						g_free(wth->capture.lanalyzer);
 						return -1;
 					}
@@ -214,10 +213,9 @@ static int lanalyzer_read(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
 	if (bytes_read != 2) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		if (bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 			return -1;
@@ -227,9 +225,8 @@ static int lanalyzer_read(wtap *wth, int *err)
 	wth->data_offset += 2;
 	bytes_read = file_read(LE_record_length, 1, 2, wth->fh);
 	if (bytes_read != 2) {
-		if (file_error(wth->fh))
-			*err = errno;
-		else
+		*err = file_error(wth->fh);
+		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
@@ -255,9 +252,8 @@ static int lanalyzer_read(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(descriptor, 1, DESCRIPTOR_LEN, wth->fh);
 	if (bytes_read != DESCRIPTOR_LEN) {
-		if (file_error(wth->fh))
-			*err = errno;
-		else
+		*err = file_error(wth->fh);
+		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
@@ -271,9 +267,8 @@ static int lanalyzer_read(wtap *wth, int *err)
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (file_error(wth->fh))
-			*err = errno;
-		else
+		*err = file_error(wth->fh);
+		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}

@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.12 1999/09/24 05:49:50 guy Exp $
+ * $Id: iptrace.c,v 1.13 1999/10/05 07:06:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -44,10 +44,9 @@ int iptrace_open(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(name, 1, 11, wth->fh);
 	if (bytes_read != 11) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		return 0;
 	}
 	wth->data_offset += 11;
@@ -74,10 +73,9 @@ static int iptrace_read(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(header, 1, 40, wth->fh);
 	if (bytes_read != 40) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		if (bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 			return -1;
@@ -96,9 +94,8 @@ static int iptrace_read(wtap *wth, int *err)
 		packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (file_error(wth->fh))
-			*err = errno;
-		else
+		*err = file_error(wth->fh);
+		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}

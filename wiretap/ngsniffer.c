@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.24 1999/09/30 20:34:26 guy Exp $
+ * $Id: ngsniffer.c,v 1.25 1999/10/05 07:06:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -274,10 +274,9 @@ int ngsniffer_open(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, 1, 17, wth->fh);
 	if (bytes_read != 17) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		return 0;
 	}
 	wth->data_offset += 17;
@@ -296,10 +295,9 @@ int ngsniffer_open(wtap *wth, int *err)
 	bytes_read = file_read(record_type, 1, 2, wth->fh);
 	bytes_read += file_read(record_length, 1, 4, wth->fh);
 	if (bytes_read != 6) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		return 0;
 	}
 	wth->data_offset += 6;
@@ -316,10 +314,9 @@ int ngsniffer_open(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&version, 1, sizeof version, wth->fh);
 	if (bytes_read != sizeof version) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		return 0;
 	}
 	wth->data_offset += sizeof version;
@@ -411,10 +408,9 @@ static int ngsniffer_read(wtap *wth, int *err)
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(record_type, 1, 2, wth->fh);
 		if (bytes_read != 2) {
-			if (file_error(wth->fh)) {
-				*err = errno;
+			*err = file_error(wth->fh);
+			if (*err != 0)
 				return -1;
-			}
 			if (bytes_read != 0) {
 				*err = WTAP_ERR_SHORT_READ;
 				return -1;
@@ -425,9 +421,8 @@ static int ngsniffer_read(wtap *wth, int *err)
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(record_length, 1, 4, wth->fh);
 		if (bytes_read != 4) {
-			if (file_error(wth->fh))
-				*err = errno;
-			else
+			*err = file_error(wth->fh);
+			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
 			return -1;
 		}
@@ -453,9 +448,8 @@ static int ngsniffer_read(wtap *wth, int *err)
 			errno = WTAP_ERR_CANT_READ;
 			bytes_read = file_read(&frame2, 1, sizeof frame2, wth->fh);
 			if (bytes_read != sizeof frame2) {
-				if (file_error(wth->fh))
-					*err = errno;
-				else
+				*err = file_error(wth->fh);
+				if (*err == 0)
 					*err = WTAP_ERR_SHORT_READ;
 				return -1;
 			}
@@ -490,9 +484,8 @@ static int ngsniffer_read(wtap *wth, int *err)
 			errno = WTAP_ERR_CANT_READ;
 			bytes_read = file_read(&frame4, 1, sizeof frame4, wth->fh);
 			if (bytes_read != sizeof frame4) {
-				if (file_error(wth->fh))
-					*err = errno;
-				else
+				*err = file_error(wth->fh);
+				if (*err == 0)
 					*err = WTAP_ERR_SHORT_READ;
 				return -1;
 			}
@@ -565,9 +558,8 @@ found:
 			length, wth->fh);
 
 	if (bytes_read != length) {
-		if (file_error(wth->fh))
-			*err = errno;
-		else
+		*err = file_error(wth->fh);
+		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.22 1999/09/24 05:49:53 guy Exp $
+ * $Id: wtap.c,v 1.23 1999/10/05 07:06:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -123,7 +123,15 @@ const char *wtap_strerror(int err)
 	if (err < 0) {
 		wtap_errlist_index = -1 - err;
 		if (wtap_errlist_index >= WTAP_ERRLIST_SIZE) {
-			sprintf(errbuf, "Error %d", err);
+#ifdef HAVE_ZLIB
+			if (err >= WTAP_ERR_ZLIB_MIN
+			    && err <= WTAP_ERR_ZLIB_MAX) {
+				/* Assume it's a zlib error. */
+				sprintf(errbuf, "Zlib error: %s",
+				    zError(err));
+			} else
+#endif
+				sprintf(errbuf, "Error %d", err);
 			return errbuf;
 		}
 		if (wtap_errlist[wtap_errlist_index] == NULL)

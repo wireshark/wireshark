@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.13 1999/09/28 01:19:01 guy Exp $
+ * $Id: snoop.c,v 1.14 1999/10/05 07:06:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -82,10 +82,9 @@ int snoop_open(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		return 0;
 	}
 	wth->data_offset += sizeof magic;
@@ -98,10 +97,9 @@ int snoop_open(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		return 0;
 	}
 	wth->data_offset += sizeof hdr;
@@ -145,10 +143,9 @@ static int snoop_read(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		if (bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 			return -1;
@@ -175,9 +172,8 @@ static int snoop_read(wtap *wth, int *err)
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (file_error(wth->fh))
-			*err = errno;
-		else
+		*err = file_error(wth->fh);
+		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
@@ -204,9 +200,8 @@ static int snoop_read(wtap *wth, int *err)
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(padbuf, 1, bytes_to_read, wth->fh);
 		if (bytes_read != bytes_to_read) {
-			if (file_error(wth->fh))
-				*err = errno;
-			else
+			*err = file_error(wth->fh);
+			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
 			return -1;
 		}

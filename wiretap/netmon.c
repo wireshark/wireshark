@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.15 1999/09/24 05:49:51 guy Exp $
+ * $Id: netmon.c,v 1.16 1999/10/05 07:06:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -122,10 +122,9 @@ int netmon_open(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		return 0;
 	}
 
@@ -138,10 +137,9 @@ int netmon_open(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		return 0;
 	}
 
@@ -254,10 +252,9 @@ static int netmon_read(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, 1, hdr_size, wth->fh);
 	if (bytes_read != hdr_size) {
-		if (file_error(wth->fh)) {
-			*err = errno;
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
-		}
 		if (bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 			return -1;
@@ -293,9 +290,8 @@ static int netmon_read(wtap *wth, int *err)
 			packet_size, wth->fh);
 
 	if (bytes_read != packet_size) {
-		if (file_error(wth->fh))
-			*err = errno;
-		else
+		*err = file_error(wth->fh);
+		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
