@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.9 2000/09/08 10:59:09 guy Exp $
+ * $Id: follow_dlg.c,v 1.10 2000/09/12 06:28:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,10 @@
 
 #ifdef HAVE_IO_H
 #include <io.h>			/* open/close on win32 */
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
 #endif
 
 #ifdef NEED_SNPRINTF_H
