@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.50 2001/12/03 08:47:30 guy Exp $
+ * $Id: packet.c,v 1.51 2001/12/03 09:00:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -543,16 +543,16 @@ dissector_table_foreach_func (gpointer key, gpointer value, gpointer user_data)
 static void
 dissector_all_tables_foreach_func (gpointer key, gpointer value, gpointer user_data)
 {
-	GHashTable   *hash_table;
+	dissector_table_t sub_dissectors;
 	dissector_foreach_info_t *info;
 
 	g_assert(value);
 	g_assert(user_data);
 
-	hash_table = value;
+	sub_dissectors = value;
 	info = user_data;
 	info->table_name = (gchar*) key;
-	g_hash_table_foreach(hash_table, info->next_func, info);
+	g_hash_table_foreach(sub_dissectors->hash_table, info->next_func, info);
 }
 
 /*
