@@ -37,15 +37,16 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-, root, root)
 %doc AUTHORS COPYING ChangeLog FAQ INSTALL NEWS README*
-%config /etc/*
 %prefix/X11R6/bin/*
 %prefix/X11R6/man/*/*
 %prefix/bin/*
 %prefix/lib/*
+%prefix/share/ethereal/*
+%prefix/share/ethereal/*/*
 %prefix/man/*/*
 
 %changelog
-* Sun Jul 17 2004 Joerg Mayer
+* Tue Jul 20 2004 Joerg Mayer
 - Redo install and files section to actually work with normal bulids
 
 * Sat Feb 07 2004 Joerg Mayer
