@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.56 2004/03/22 16:05:48 gerald Exp $
+ * $Id: packet-isup.c,v 1.57 2004/03/31 20:23:05 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * References:
+ * ISUP:
+ * http://www.itu.int/rec/recommendation.asp?type=products&lang=e&parent=T-REC-Q
+ * Q.763-199912, Q.763-200212Amd2 
  */
 
 #ifdef HAVE_CONFIG_H
@@ -567,6 +571,8 @@ static const value_string isup_calling_partys_category_value[] = {
   { CALLING_SUBSCRIBER_WITH_PRIORITY,   "calling subscriber with priority"},
   { DATA_CALL,                          "data call (voice band data)"},
   { TEST_CALL,                          "test call"},
+  /* q.763-200212Amd2 */
+  { 14,									"IEPS call marking for preferential call set up"},
   { PAYPHONE,                           "payphone"},
   { 0,                                 NULL}};
 
@@ -1140,6 +1146,7 @@ static const true_false_string isup_Sequence_ind_value = {
 #define BA_8BIT_MASK 0x03
 #define CB_8BIT_MASK 0x06
 #define DC_8BIT_MASK 0x0C
+#define ED_8BIT_MASK 0x18
 #define FE_8BIT_MASK 0x30
 #define GF_8BIT_MASK 0x60
 #define HG_8BIT_MASK 0xC0
@@ -1289,33 +1296,41 @@ static int hf_isup_network_identification_plan = -1;
 
 static int hf_isup_map_type = -1;
 
-static int hf_isup_automatic_congestion_level = -1;
+static int hf_isup_automatic_congestion_level				= -1;
 
-static int hf_isup_inband_information_ind = -1;
-static int hf_isup_call_diversion_may_occur_ind = -1;
-static int hf_isup_mlpp_user_ind = -1;
+static int hf_isup_inband_information_ind					= -1;
+static int hf_isup_call_diversion_may_occur_ind				= -1;
+static int hf_isup_mlpp_user_ind							= -1;
 
-static int hf_isup_access_delivery_ind = -1;
+static int hf_isup_UUI_type									= -1;
+static int hf_isup_UUI_req_service1							= -1;
+static int hf_isup_UUI_req_service2							= -1;
+static int hf_isup_UUI_req_service3							= -1;
+static int hf_isup_UUI_res_service1							= -1;
+static int hf_isup_UUI_res_service2							= -1;
+static int hf_isup_UUI_res_service3							= -1;
+static int hf_isup_UUI_network_discard_ind					= -1;
+static int hf_isup_access_delivery_ind						= -1;
 
-static int hf_isup_transmission_medium_requirement_prime = -1;
+static int hf_isup_transmission_medium_requirement_prime	= -1;
 
-static int hf_isup_loop_prevention_response_ind = -1;
+static int hf_isup_loop_prevention_response_ind				= -1;
 
-static int hf_isup_temporary_alternative_routing_ind = -1;
-static int hf_isup_extension_ind = -1;
+static int hf_isup_temporary_alternative_routing_ind		= -1;
+static int hf_isup_extension_ind							= -1;
 
-static int hf_isup_call_to_be_diverted_ind 			= -1;
+static int hf_isup_call_to_be_diverted_ind 					= -1;
 
-static int hf_isup_call_to_be_offered_ind 			= -1;
+static int hf_isup_call_to_be_offered_ind 					= -1;
 
-static int hf_isup_conference_acceptance_ind			= -1;
+static int hf_isup_conference_acceptance_ind				= -1;
 
 static int hf_isup_transit_at_intermediate_exchange_ind 	= -1;
-static int hf_isup_Release_call_ind 				= -1;
-static int hf_isup_Send_notification_ind 			= -1;
-static int hf_isup_Discard_message_ind_value			= -1;
-static int hf_isup_Discard_parameter_ind			= -1;
-static int hf_isup_Pass_on_not_possible_indicator		= -1;
+static int hf_isup_Release_call_ind 						= -1;
+static int hf_isup_Send_notification_ind 					= -1;
+static int hf_isup_Discard_message_ind_value				= -1;
+static int hf_isup_Discard_parameter_ind					= -1;
+static int hf_isup_Pass_on_not_possible_indicator			= -1;
 static int hf_isup_pass_on_not_possible_indicator2			= -1;
 static int hf_isup_Broadband_narrowband_interworking_ind	= -1;
 static int hf_isup_Broadband_narrowband_interworking_ind2	= -1;
@@ -3318,13 +3333,53 @@ dissect_isup_optional_backward_call_indicators_parameter(tvbuff_t *parameter_tvb
 /* ------------------------------------------------------------------
   Dissector Parameter User-to-user indicators
  */
+static const true_false_string isup_UUI_type_value = {
+  "Response",
+  "Request"
+};
+static const value_string isup_UUI_request_service_values[] = {
+  { 0,	"No information"},
+  { 1,	"Spare"},
+  { 2,	"Request, not essential"},
+  { 3,	"Request,essential"},
+  { 0,	NULL}
+};
+
+static const value_string isup_UUI_response_service_values[] = {
+  { 0,	"No information"},
+  { 1,	"Not provided"},
+  { 2,	"Provided"},
+  { 3,	"Spare"},
+  { 0,	NULL}
+};
+static const true_false_string isup_UUI_network_discard_ind_value= {
+  "User-to-user information discarded by the network",
+  "No information"
+};
+
 static void
-dissect_isup_user_to_user_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_isup_user_to_user_indicators_parameter(tvbuff_t *parameter_tvb, 
+											   proto_tree *parameter_tree, 
+											   proto_item *parameter_item)
 {
   guint8 indicators;
 
   indicators = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, USER_TO_USER_IND_LENGTH, "User-to-user indicators: 0x%x (refer to 3.60/Q.763 for detailed decoding)", indicators );
+  proto_tree_add_boolean(parameter_tree, hf_isup_UUI_type, parameter_tvb, 0, 1, indicators);
+  if ( (indicators & 0x01) == 0 ){	
+	  /* Request */
+	  proto_tree_add_uint(parameter_tree, hf_isup_UUI_req_service1, parameter_tvb, 0, 1, indicators);
+	  proto_tree_add_uint(parameter_tree, hf_isup_UUI_req_service2, parameter_tvb, 0, 1, indicators);
+	  proto_tree_add_uint(parameter_tree, hf_isup_UUI_req_service3, parameter_tvb, 0, 1, indicators);
+  }
+  else {
+	  /* Response */
+  	  proto_tree_add_uint(parameter_tree, hf_isup_UUI_res_service1, parameter_tvb, 0, 1, indicators);
+	  proto_tree_add_uint(parameter_tree, hf_isup_UUI_res_service2, parameter_tvb, 0, 1, indicators);
+	  proto_tree_add_uint(parameter_tree, hf_isup_UUI_res_service3, parameter_tvb, 0, 1, indicators);
+	  proto_tree_add_boolean(parameter_tree, hf_isup_UUI_network_discard_ind, parameter_tvb, 0, 1, indicators);
+	
+  }  
   proto_item_set_text(parameter_item,"User-to-user indicators: 0x%x", indicators );
 }
 /* ------------------------------------------------------------------
@@ -5905,6 +5960,47 @@ proto_register_isup(void)
 		{ &hf_isup_mlpp_user_ind,
 			{ "MLPP user indicator",  "isup.mlpp_user",
 			FT_BOOLEAN, 8, TFS(&isup_MLPP_user_ind_value), D_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_UUI_type,
+			{ "User-to-User indicator type",  "isup.UUI_type",
+			FT_BOOLEAN, 8, TFS(&isup_UUI_type_value), A_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_UUI_req_service1,
+			{ "User-to-User indicator request service 1",  "isup.UUI_req_service1",
+			FT_UINT8, BASE_DEC, VALS(isup_UUI_request_service_values), CB_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_UUI_req_service2,
+			{ "User-to-User indicator request service 2",  "isup.UUI_req_service2",
+			FT_UINT8, BASE_DEC, VALS(isup_UUI_request_service_values), ED_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_UUI_req_service3,
+			{ "User-to-User indicator request service 3",  "isup.UUI_req_service3",
+			FT_UINT8, BASE_DEC, VALS(isup_UUI_request_service_values), GF_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_UUI_res_service1,
+			{ "User-to-User indicator response service 1",  "isup.UUI_res_service1",
+			FT_UINT8, BASE_DEC, VALS(isup_UUI_response_service_values), CB_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_UUI_res_service2,
+			{ "User-to-User indicator response service 2",  "isup.UUI_res_service2",
+			FT_UINT8, BASE_DEC, VALS(isup_UUI_response_service_values), ED_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_UUI_network_discard_ind,
+			{ "User-to-User indicator network discard indicator",  "isup.UUI_network_discard_ind",
+			FT_BOOLEAN, 8, TFS(&isup_MLPP_user_ind_value), H_8BIT_MASK,
+			"", HFILL }},
+
+
+		{ &hf_isup_UUI_res_service3,
+			{ "User-to-User response service 3",  "isup.UUI_res_service3",
+			FT_UINT8, BASE_DEC, VALS(isup_UUI_response_service_values), GF_8BIT_MASK,
 			"", HFILL }},
 
 		{ &hf_isup_access_delivery_ind,
