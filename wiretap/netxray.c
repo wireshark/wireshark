@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.60 2002/10/22 18:48:15 guy Exp $
+ * $Id: netxray.c,v 1.61 2002/10/29 06:12:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -55,14 +55,13 @@ struct netxray_hdr {
 	guint32	end_offset;	/* offset after last packet in capture */
 	guint32 xxy[3];		/* unknown */
 	guint16	network;	/* datalink type */
-	guint8	xxz[2];
+	guint8	xxz[2];		/* XXX - is this the upper 2 bytes of the datalink type? */
 	guint8	timeunit;	/* encodes length of a tick */
-	guint8	xxa[3];
+	guint8	xxa[3];		/* XXX - is this the upper 3 bytes of the time units? */
 	guint32	timelo;		/* lower 32 bits of time stamp of capture start */
 	guint32	timehi;		/* upper 32 bits of time stamp of capture start */
-	/*
-	 * XXX - other stuff.
-	 */
+	guint32 linespeed;	/* speed of network, in bits/second */
+	guint32	xxb[16];	/* other stuff */
 };
 
 /*
@@ -266,7 +265,26 @@ int netxray_open(wtap *wth, int *err)
 	wth->subtype_read = netxray_read;
 	wth->subtype_seek_read = netxray_seek_read;
 	wth->subtype_close = netxray_close;
-	wth->file_encap = netxray_encap[hdr.network];
+	if (hdr.network == 3) {
+		/*
+		 * In version 0 and 1, we assume, for now, that all
+		 * WAN captures have frames that look like Ethernet
+		 * frames (as a result, presumably, of having passed
+		 * through NDISWAN).
+		 *
+		 * In version 2, there's probably something in the "xxb"
+		 * words of the file header to specify what particular
+		 * type of WAN capture we have; however, the only version
+		 * 2 WAN captures we've seen are ISDN captures, so we
+		 * assume they're ISDN, for now - with PPP on the
+		 * B channels.
+		 */
+		if (version_major == 2)
+			wth->file_encap = WTAP_ENCAP_PER_PACKET;
+		else
+			wth->file_encap = WTAP_ENCAP_ETHERNET;
+	} else
+		wth->file_encap = netxray_encap[hdr.network];
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->capture.netxray->start_time = pletohl(&hdr.start_time);
 	wth->capture.netxray->timeunit = timeunit;
@@ -405,7 +423,41 @@ reread:
 		wth->phdr.caplen = packet_size - wth->capture.netxray->padding;
 		wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - wth->capture.netxray->padding;
 	}
-	wth->phdr.pkt_encap = wth->file_encap;
+	if (wth->file_encap == WTAP_ENCAP_PER_PACKET) {
+		/*
+		 * ISDN capture.
+		 * It appears that the two low-order bits of byte 13 of
+		 * "hdr.hdr_2_x.xxx" indicates whether this is a
+		 * B-channel (1 or 2) or a D-channel (0).
+		 *
+		 * XXX - or is it just a channel number?  PRI has more
+		 * channels; let's assume that the bottom 5 bits are
+		 * the channel number, which is enough for European
+		 * PRI.  (XXX - maybe the whole byte is the channel
+		 * number?)
+		 *
+		 * XXX - we should supply an ISDN pseudo-header with
+		 * a channel number and a direction, and there should
+		 * be an ISDN dissector displaying that.
+		 */
+		switch (hdr.hdr_2_x.xxx[13] & 0x1F) {
+
+		case 0:
+			/*
+			 * D-channel - it's LAPD.
+			 */
+			wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;
+			break;
+
+		default:
+			/*
+			 * B-channel - assume it's PPP.
+			 */
+			wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+			break;
+		}
+	} else
+		wth->phdr.pkt_encap = wth->file_encap;
 
 	return TRUE;
 }
@@ -489,13 +541,30 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
     union netxrayrec_hdr *hdr)
 {
 	/*
-	 * If this is 802.11, set the pseudo-header.
+	 * If this is 802.11, or ISDN, set the pseudo-header.
 	 */
-	if (wth->capture.netxray->version_major == 2 &&
-	    wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
-		pseudo_header->ieee_802_11.channel = hdr->hdr_2_x.xxx[12];
-		pseudo_header->ieee_802_11.data_rate = hdr->hdr_2_x.xxx[13];
-		pseudo_header->ieee_802_11.signal_level = hdr->hdr_2_x.xxx[14];
+	if (wth->capture.netxray->version_major == 2) {
+		switch (wth->file_encap) {
+
+		case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+			pseudo_header->ieee_802_11.channel =
+			    hdr->hdr_2_x.xxx[12];
+			pseudo_header->ieee_802_11.data_rate =
+			    hdr->hdr_2_x.xxx[13];
+			pseudo_header->ieee_802_11.signal_level =
+			    hdr->hdr_2_x.xxx[14];
+			break;
+
+		case WTAP_ENCAP_PER_PACKET:
+			/*
+			 * ISDN.
+			 * It appears that the high-order bit of byte
+			 * 10 is a direction flag.
+			 */
+			pseudo_header->p2p.sent =
+			    (hdr->hdr_2_x.xxx[10] & 0x80) ? TRUE: FALSE;
+			break;
+		}
 	}
 }
 
