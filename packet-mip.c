@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.15 2001/02/14 20:03:05 guy Exp $
+ * $Id: packet-mip.c,v 1.16 2001/02/27 00:27:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -57,6 +57,7 @@ static int hf_mip_d = -1;
 static int hf_mip_m = -1;
 static int hf_mip_g = -1;
 static int hf_mip_v = -1;
+static int hf_mip_t = -1;
 static int hf_mip_code = -1;
 static int hf_mip_life = -1;
 static int hf_mip_homeaddr = -1;
@@ -96,6 +97,10 @@ static const value_string mip_reply_codes[]= {
   {71, "Reg Deny (FA)- Poorly Formed Reply"},
   {72, "Reg Deny (FA)- Requested Encapsulation Unavailable"},
   {73, "Reg Deny (FA)- VJ Compression Unavailable"},
+  {74, "Reg Deny (FA)- Requested Reverse Tunnel Unavailable"},
+  {75, "Reg Deny (FA)- Reverse Tunnel is Mandatory and 'T' Bit Not Set"},
+  {76, "Reg Deny (FA)- Mobile Node Too Distant"},
+  {79, "Reg Deny (FA)- Delivery Style Not Supported"},
   {80, "Reg Deny (FA)- Home Network Unreachable"},
   {81, "Reg Deny (FA)- HA Host Unreachable"},
   {82, "Reg Deny (FA)- HA Port Unreachable"},
@@ -113,6 +118,9 @@ static const value_string mip_reply_codes[]= {
   {134, "Reg Deny (HA)- Poorly Formed Request"},
   {135, "Reg Deny (HA)- Too Many Simultaneous Bindings"},
   {136, "Reg Deny (HA)- Unknown HA Address"},
+  {137, "Reg Deny (HA)- Requested Reverse Tunnel Unavailable"},
+  {138, "Reg Deny (HA)- Reverse Tunnel is Mandatory and 'T' Bit Not Set"},
+  {139, "Reg Deny (HA)- Requested Encapsulation Unavailable"},
   {0, NULL},
 };
 
@@ -163,6 +171,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 proto_tree_add_boolean(mip_tree, hf_mip_m, tvb, 1, 1, code);
 		 proto_tree_add_boolean(mip_tree, hf_mip_g, tvb, 1, 1, code);
 		 proto_tree_add_boolean(mip_tree, hf_mip_v, tvb, 1, 1, code);
+		 proto_tree_add_boolean(mip_tree, hf_mip_t, tvb, 1, 1, code);
 		 
 		 proto_tree_add_item(mip_tree, hf_mip_life, tvb, 2, 2, FALSE);
 		 proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, 4, 4, FALSE);
@@ -302,6 +311,11 @@ void proto_register_mip(void)
 		 { "Van Jacobson",           "mip.v",
 		   FT_BOOLEAN, 8, NULL, 4,          
 		   "Van Jacobson" }
+	  },
+	  { &hf_mip_t,
+		 { "Reverse Tunneling",           "mip.t",
+		   FT_BOOLEAN, 8, NULL, 2,          
+		   "Reverse tunneling requested" }
 	  },
 	  { &hf_mip_code,
 		 { "Reply Code",           "mip.code",
