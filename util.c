@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.79 2004/05/10 22:20:24 obiot Exp $
+ * $Id: util.c,v 1.80 2004/05/22 07:50:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,14 +114,14 @@ setup_tmpdir(char *dir)
 	int len = strlen(dir);
 	char *newdir;
 
-	/* Append slash if necessary */
-	if (dir[len - 1] == '/') {
+	/* Append path separator if necessary */
+	if (dir[len - 1] == G_DIR_SEPARATOR) {
 		newdir = dir;
 	}
 	else {
 		newdir = g_malloc(len + 2);
 		strcpy(newdir, dir);
-		strcat(newdir, "/");
+		strcat(newdir, G_DIR_SEPARATOR_S);
 	}
 	return newdir;
 }
