@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id: packet-ses.c,v 1.5 2003/12/12 22:19:45 guy Exp $
+* $Id: packet-ses.c,v 1.6 2004/01/09 23:18:16 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -161,7 +161,7 @@ static int hf_large_initial_serial_number = -1;
 /* large second initial serial number */
 static int hf_large_second_initial_serial_number = -1;
 
-static const value_string ses_vals[] =
+const value_string ses_vals[] =
 {
   {SES_CONNECTION_REQUEST,  "Connection request PDU" },
   {SES_CONNECTION_ACCEPT,    "Connection accept PDU"   },
@@ -267,8 +267,11 @@ static dissector_handle_t data_handle;
 
 static void
 call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
-    packet_info *pinfo, proto_tree *tree, proto_tree *param_tree)
+    packet_info *pinfo, proto_tree *tree, proto_tree *param_tree,
+    struct SESSION_DATA_STRUCTURE *session)
 {
+	void *saved_private_data;
+
 	/* do we have OSI presentation packet dissector ? */
 	if(!pres_handle)
 	{
@@ -287,7 +290,11 @@ call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 		next_tvb = tvb_new_subset(tvb, offset, param_len, param_len);
 		TRY
 		{
+			/*   save type of session pdu. We'll need it in the presentation dissector  */
+			saved_private_data = pinfo->private_data;
+			pinfo->private_data = &session;
 			call_dissector(pres_handle, next_tvb, pinfo, tree);
+			pinfo->private_data = saved_private_data;
 		}
 		CATCH_ALL
 		{
@@ -318,7 +325,7 @@ get_item_len(tvbuff_t *tvb, int offset, int *len_len)
 static gboolean
 dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree *param_tree, packet_info *pinfo, guint8 param_type,
-    guint16 param_len)
+    guint16 param_len, struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
 	guint16       flags;
@@ -426,6 +433,11 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			{
 				proto_tree_add_text(param_tree, tvb, offset, 1,
 				    "user abort");
+				session->abort_type = SESSION_USER_ABORT;
+			}
+			else
+			{
+				session->abort_type = SESSION_PROVIDER_ABORT;
 			}
 
 			if(flags & protocol_error )
@@ -685,7 +697,7 @@ PICS.    */
 		if (param_len != 0)
 		{
 			call_pres_dissector(tvb, offset, param_len,
-			    pinfo, tree, param_tree);
+			    pinfo, tree, param_tree, session);
 		}
 		break;
 
@@ -763,7 +775,8 @@ PICS.    */
 
 static gboolean
 dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
-    proto_tree *pg_tree, packet_info *pinfo, guint16 pg_len)
+    proto_tree *pg_tree, packet_info *pinfo, guint16 pg_len,
+    struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
 	proto_item *ti;
@@ -823,7 +836,8 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 			default:
 				if (!dissect_parameter(tvb, offset, tree,
-				    param_tree, pinfo, param_type, param_len))
+				    param_tree, pinfo, param_type, param_len,
+				    session))
 					has_user_information = FALSE;
 				break;
 			}
@@ -840,7 +854,8 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
  */
 static gboolean
 dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
-    proto_tree *ses_tree, packet_info *pinfo)
+    proto_tree *ses_tree, packet_info *pinfo,
+    struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
 	proto_item *ti;
@@ -892,7 +907,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 
 			case User_Data:
 				call_pres_dissector(tvb, offset, param_len,
-				    pinfo, tree, param_tree);
+				    pinfo, tree, param_tree, session);
 				break;
 
 			/* handle PGI's  */
@@ -901,14 +916,15 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 			case Linking_Information:
 				/* Yes. */
 				if (!dissect_parameter_group(tvb, offset, tree,
-				    param_tree, pinfo, param_len))
+				    param_tree, pinfo, param_len, session))
 					has_user_information = FALSE;
 				break;
 
 			/* everything else is a PI */
 			default:
 				if (!dissect_parameter(tvb, offset, tree,
-				    param_tree, pinfo, param_type, param_len))
+				    param_tree, pinfo, param_type, param_len,
+				    session))
 					has_user_information = FALSE;
 				break;
 			}
@@ -933,11 +949,15 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	int len_len;
 	guint16 parameters_len;
 	tvbuff_t *next_tvb;
+	void *save_private_data;
+	struct SESSION_DATA_STRUCTURE session;
 
 	/*
 	 * Get SPDU type.
 	 */
 	type = tvb_get_guint8(tvb, offset);
+	session.spdu_type = type;
+	session.abort_type = SESSION_NO_ABORT;
 
 	if (tokens) {
 	  	if (check_col(pinfo->cinfo, COL_INFO))
@@ -985,7 +1005,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	/* Dissect parameters. */
 	if (!dissect_parameters(tvb, offset, parameters_len, tree, ses_tree,
-	    pinfo))
+	    pinfo, &session))
 		has_user_information = FALSE;
 	offset += parameters_len;
 	
@@ -999,8 +1019,12 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			/* do we have OSI presentation packet dissector ? */
 			if(!pres_handle)
 			{
+				/*   save type of session pdu. We'll need it in the presentation dissector  */
+				save_private_data = pinfo->private_data;
+				pinfo->private_data = &session;
 				call_dissector(data_handle, next_tvb, pinfo,
 				    tree);
+				pinfo->private_data = save_private_data;
 			}
 			else
 			{
@@ -1037,7 +1061,7 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * the first SPDU?
 	 *
 	 * If so, dissect it as such (GIVE_TOKENS and DATA_TRANSFER have
-	 * the smae SPDU type value).
+	 * the same SPDU type value).
 	 */
 	type = tvb_get_guint8(tvb, offset);
 	if (type == SES_PLEASE_TOKENS || type == SES_GIVE_TOKENS)
@@ -1726,7 +1750,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (!tvb_bytes_exist(tvb, 0, 4))
 		return FALSE;	/* no */
 
-	/* can we regognize session PDU ? Return FALSE if  not */
+	/* can we recognize session PDU ? Return FALSE if  not */
 	/*   get SPDU type */
 	type = tvb_get_guint8(tvb, offset);
 	/* check SPDU type */
@@ -1737,7 +1761,9 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/*  OK,let's check SPDU length  */
 	/*  get length of SPDU */
-	len = get_item_len(tvb, offset, &len_len);
+	len = get_item_len(tvb, offset+1, &len_len);
+	/*  add header length     */
+	len+=len_len;
 	/* do we have enough bytes ? */
 	if (!tvb_bytes_exist(tvb, 0, len))
 		return FALSE;	/* no */

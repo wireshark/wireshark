@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id: packet-ses.h,v 1.2 2003/12/12 22:19:45 guy Exp $
+* $Id: packet-ses.h,v 1.3 2004/01/09 23:18:17 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -183,4 +183,16 @@ reason code
 #define		user_abort				0x02
 #define		protocol_error				0x04
 #define		no_reason				0x08
+
+
+#define		SESSION_NO_ABORT		0
+#define		SESSION_USER_ABORT		1
+#define		SESSION_PROVIDER_ABORT		2
+
+/* data for presentation selector      */
+struct SESSION_DATA_STRUCTURE
+{
+	guint8  spdu_type;
+	guint8  abort_type;
+};
 #define		implementation_restriction		0x10
