@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: prefs_dlg.c,v 1.3 2002/09/10 19:39:00 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1221,8 +1221,10 @@ prefs_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
   GtkTreeModel *model;
   GtkTreeIter   iter;
 
-  gtk_tree_selection_get_selected(sel, &model, &iter);
-  gtk_tree_model_get(model, &iter, 1, &page, -1);
-  if (page >= 0)
-    gtk_notebook_set_page(GTK_NOTEBOOK(notebook), page);
+  if (gtk_tree_selection_get_selected(sel, &model, &iter))
+  {
+    gtk_tree_model_get(model, &iter, 1, &page, -1);
+    if (page >= 0)
+      gtk_notebook_set_page(GTK_NOTEBOOK(notebook), page);
+  }
 }
