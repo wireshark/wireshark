@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.11 2002/08/30 10:05:26 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.12 2002/08/31 20:25:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 
 #include "packet-smb-common.h"
 #include "packet-gssapi.h"
+#include "packet-frame.h"
 
 /* Message types */
 
@@ -566,57 +567,70 @@ static void
 dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   guint32 ntlmssp_message_type;
-  int offset = 0;
-  int payloadsize = 0;
-  proto_tree *ntlmssp_tree = NULL;
+  volatile int offset = 0;
+  proto_tree *volatile ntlmssp_tree = NULL;
   proto_item *tf = NULL;
-
-  /* Compute the total size of the data to be parsed */
-  payloadsize = tvb_length_remaining(tvb, 0);
 
   /* Setup a new tree for the NTLMSSP payload */
   if (tree) {
     tf = proto_tree_add_item (tree,
 			      hf_ntlmssp,
-			      tvb, offset, payloadsize, FALSE);
+			      tvb, offset, -1, FALSE);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
 					   ett_ntlmssp);
   }
 
-  /* NTLMSSP constant */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth,
-		       tvb, offset, 8, FALSE);
-  offset += 8;
+  /*
+   * Catch the ReportedBoundsError exception; the stuff we've been
+   * handed doesn't necessarily run to the end of the packet, it's
+   * an item inside a packet, so if it happens to be malformed (or
+   * we, or a dissector we call, has a bug), so that an exception
+   * is thrown, we want to report the error, but return and let
+   * our caller dissect the rest of the packet.
+   *
+   * If it gets a BoundsError, we can stop, as there's nothing more
+   * in the packet after our blob to see, so we just re-throw the
+   * exception.
+   */
+  TRY {
+    /* NTLMSSP constant */
+    proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth,
+			 tvb, offset, 8, FALSE);
+    offset += 8;
 
-  /* NTLMSSP Message Type */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_message_type,
-		       tvb, offset, 4, TRUE);
-  ntlmssp_message_type = tvb_get_letohl (tvb, offset);
-  offset += 4;
+    /* NTLMSSP Message Type */
+    proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_message_type,
+			 tvb, offset, 4, TRUE);
+    ntlmssp_message_type = tvb_get_letohl (tvb, offset);
+    offset += 4;
 
-  /* Call the appropriate dissector based on the Message Type */
-  switch (ntlmssp_message_type) {
+    /* Call the appropriate dissector based on the Message Type */
+    switch (ntlmssp_message_type) {
 
-  case NTLMSSP_NEGOTIATE:
-    offset = dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree);
-    break;
+    case NTLMSSP_NEGOTIATE:
+      offset = dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree);
+      break;
 
-  case NTLMSSP_CHALLENGE:
-    offset = dissect_ntlmssp_challenge (tvb, offset, ntlmssp_tree);
-    break;
+    case NTLMSSP_CHALLENGE:
+      offset = dissect_ntlmssp_challenge (tvb, offset, ntlmssp_tree);
+      break;
 
-  case NTLMSSP_AUTH:
-    offset = dissect_ntlmssp_auth (tvb, offset, ntlmssp_tree);
-    break;
+    case NTLMSSP_AUTH:
+      offset = dissect_ntlmssp_auth (tvb, offset, ntlmssp_tree);
+      break;
 
-  default:
-    /* Unrecognized message type */
-    proto_tree_add_text (ntlmssp_tree, tvb, offset,
-			 (payloadsize - 12),
-			 "Unrecognized NTLMSSP Message");
-    break;
-  }
+    default:
+      /* Unrecognized message type */
+      proto_tree_add_text (ntlmssp_tree, tvb, offset, -1,
+			   "Unrecognized NTLMSSP Message");
+      break;
+    }
+  } CATCH(BoundsError) {
+    RETHROW;
+  } CATCH(ReportedBoundsError) {
+    show_reported_bounds_error(tvb, pinfo, tree);
+  } ENDTRY;
 }
 
 void
