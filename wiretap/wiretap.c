@@ -3,7 +3,10 @@
 #include <glib.h>
 #include "wtap.h"
 #include "bpf-engine.h"
+
+#ifdef HAVE_GLIB10
 #include "glib-new.h"
+#endif
 
 void bpf_dump(wtap *wth);
 char *bpf_image(struct bpf_instruction *p, int n);
