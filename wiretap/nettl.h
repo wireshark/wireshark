@@ -1,6 +1,6 @@
 /* nettl.h
  *
- * $Id: nettl.h,v 1.5 2000/08/11 13:32:34 deniel Exp $
+ * $Id: nettl.h,v 1.6 2000/11/13 23:02:24 oabad Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -67,6 +67,11 @@
 #define NETTL_SUBSYS_CM			0x7A
 #define NETTL_SUBSYS_ULA_UTILS		0x7B
 #define NETTL_SUBSYS_EM			0x7C
+
+/* Ethernet cards */
+#define NETTL_SUBSYS_BASE100		0xAD
+#define NETTL_SUBSYS_GSC100BT		0xB2
+
 
 int nettl_open(wtap *wth, int *err);
 

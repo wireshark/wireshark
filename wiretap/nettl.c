@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.16 2000/09/07 05:34:13 gram Exp $
+ * $Id: nettl.c,v 1.17 2000/11/13 23:02:24 oabad Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -52,6 +52,7 @@ struct nettlrec_sx25l2_hdr {
 };
 
 /* HP nettl record header for the NS_LS_IP subsystem */
+/* This also works for BASE100 and GSC100BT */
 struct nettlrec_ns_ls_ip_hdr {
     guint8	xxa[28];
     guint8	length[4];
@@ -60,6 +61,7 @@ struct nettlrec_ns_ls_ip_hdr {
     guint8	usec[4];
     guint8	xxb[16];
 };
+
 
 /* header is followed by data and once again the total length (2 bytes) ! */
 
@@ -198,26 +200,18 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     offset += 4;
 
     switch (encap[3]) {
-    case NETTL_SUBSYS_NS_LS_IP :
-	phdr->pkt_encap = WTAP_ENCAP_RAW_IP;
-	bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
-	if (bytes_read != sizeof ip_hdr) {
-	    *err = file_error(fh);
-	    if (*err != 0)
-		return -1;
-	    if (bytes_read != 0) {
-		*err = WTAP_ERR_SHORT_READ;
-		return -1;
+	case NETTL_SUBSYS_BASE100 :
+	case NETTL_SUBSYS_GSC100BT :
+	case NETTL_SUBSYS_NS_LS_IP :
+	    if (encap[3] == NETTL_SUBSYS_NS_LS_IP) {
+		phdr->pkt_encap = WTAP_ENCAP_RAW_IP; 
+	    } else {
+		wth->file_encap = WTAP_ENCAP_ETHERNET;
+		phdr->pkt_encap = WTAP_ENCAP_ETHERNET; 
 	    }
-	    return 0;
-	}
-	offset += sizeof ip_hdr;
 
-	/* The packet header in HP-UX 11 nettl traces is 4 octets longer than
-	 * HP-UX 9 and 10 */
-	if (wth->capture.nettl->is_hpux_11) {
-	    bytes_read = file_read(dummy, 1, 4, fh);
-	    if (bytes_read != 4) {
+	    bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
+	    if (bytes_read != sizeof ip_hdr) {
 		*err = file_error(fh);
 		if (*err != 0)
 		    return -1;
@@ -227,35 +221,37 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		}
 		return 0;
 	    }
-	    offset += 4;
-	}
+	    offset += sizeof ip_hdr;
 
-	length = pntohl(&ip_hdr.length);
-	if (length <= 0) return 0;
-	phdr->len = length;
-	phdr->caplen = length;
-
-	phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
-	phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
-	break;
-    case NETTL_SUBSYS_SX25L2 :
-	phdr->pkt_encap = WTAP_ENCAP_LAPB;
-	bytes_read = file_read(&lapb_hdr, 1, sizeof lapb_hdr, fh);
-	if (bytes_read != sizeof lapb_hdr) {
-	    *err = file_error(fh);
-	    if (*err != 0)
-		return -1;
-	    if (bytes_read != 0) {
-		*err = WTAP_ERR_SHORT_READ;
-		return -1;
+	    /* The packet header in HP-UX 11 nettl traces is 4 octets longer than
+	     * HP-UX 9 and 10 */
+	    if (wth->capture.nettl->is_hpux_11) {
+		bytes_read = file_read(dummy, 1, 4, fh);
+		if (bytes_read != 4) {
+		    *err = file_error(fh);
+		    if (*err != 0)
+			return -1;
+		    if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		    }
+		    return 0;
+		}
+		offset += 4;
 	    }
-	    return 0;
-	}
-	offset += sizeof lapb_hdr;
 
-	if (wth->capture.nettl->is_hpux_11) {
-	    bytes_read = file_read(dummy, 1, 4, fh);
-	    if (bytes_read != 4) {
+	    length = pntohl(&ip_hdr.length);
+	    if (length <= 0) return 0;
+	    phdr->len = length;
+	    phdr->caplen = length;
+
+	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
+	    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+	    break;
+	case NETTL_SUBSYS_SX25L2 :
+	    phdr->pkt_encap = WTAP_ENCAP_LAPB;
+	    bytes_read = file_read(&lapb_hdr, 1, sizeof lapb_hdr, fh);
+	    if (bytes_read != sizeof lapb_hdr) {
 		*err = file_error(fh);
 		if (*err != 0)
 		    return -1;
@@ -265,23 +261,37 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		}
 		return 0;
 	    }
-	    offset += 4;
-	}
+	    offset += sizeof lapb_hdr;
 
-	length = pntohs(&lapb_hdr.length);
-	if (length <= 0) return 0;
-	phdr->len = length;
-	phdr->caplen = length;
+	    if (wth->capture.nettl->is_hpux_11) {
+		bytes_read = file_read(dummy, 1, 4, fh);
+		if (bytes_read != 4) {
+		    *err = file_error(fh);
+		    if (*err != 0)
+			return -1;
+		    if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		    }
+		    return 0;
+		}
+		offset += 4;
+	    }
 
-	phdr->ts.tv_sec = pntohl(&lapb_hdr.sec);
-	phdr->ts.tv_usec = pntohl(&lapb_hdr.usec);
-	pseudo_header->x25.flags = (lapb_hdr.from_dce & 0x20 ? 0x80 : 0x00);
-	break;
-    default:
-	g_message("nettl: network type %u unknown or unsupported",
+	    length = pntohs(&lapb_hdr.length);
+	    if (length <= 0) return 0;
+	    phdr->len = length;
+	    phdr->caplen = length;
+
+	    phdr->ts.tv_sec = pntohl(&lapb_hdr.sec);
+	    phdr->ts.tv_usec = pntohl(&lapb_hdr.usec);
+	    pseudo_header->x25.flags = (lapb_hdr.from_dce & 0x20 ? 0x80 : 0x00);
+	    break;
+	default:
+	    g_message("nettl: network type %u unknown or unsupported",
 		    encap[3]);
-	*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-	return -1;
+	    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+	    return -1;
     }
     return offset;
 }
