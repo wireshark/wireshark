@@ -70,6 +70,8 @@ ethereal_SOURCES = \
 	packet-rip.h   \
 	packet-rsvp.c  \
 	packet-rsvp.h  \
+	packet-rtsp.c  \
+	packet-sdp.c   \
 	packet-smb.c   \
 	packet-tcp.c   \
 	packet-telnet.c\

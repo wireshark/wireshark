@@ -82,7 +82,7 @@ man_MANS = ethereal.1
 
 sysconf_DATA = manuf
 
-ethereal_SOURCES =  	alignment.h    	capture.c      	capture.h      	column.c       	column.h       	config.h       	display.c      	display.h      	ethereal.c     	ethereal.h     	ethertype.c    	etypes.h       	file.c         	file.h         	filter.c       	filter.h       	follow.c       	follow.h       	gtkpacket.c    	gtkpacket.h    	menu.c         	menu.h         	packet-aarp.c  	packet-arp.c   	packet-atalk.c 	packet-bootp.c 	packet-cdp.c   	packet-data.c  	packet-dns.c   	packet-dns.h   	packet-eth.c   	packet-fddi.c  	packet-ftp.c   	packet-giop.c  	packet-gre.c   	packet-http.c  	packet-icmpv6.c 	packet-ip.c    	packet-ip.h    	packet-ipsec.c 	packet-ipv6.c  	packet-ipv6.h  	packet-ipx.c   	packet-ipx.h   	packet-isakmp.c 	packet-llc.c   	packet-lpd.c   	packet-nbipx.c 	packet-nbns.c  	packet-ncp.c   	packet-ncp.h   	packet-nntp.c  	packet-null.c  	packet-osi.c   	packet-ospf.c  	packet-ospf.h  	packet-pop.c   	packet-ppp.c   	packet-pppoe.c 	packet-pptp.c  	packet-raw.c   	packet-rip.c   	packet-rip.h   	packet-rsvp.c  	packet-rsvp.h  	packet-smb.c   	packet-tcp.c   	packet-telnet.c 	packet-tftp.c  	packet-tr.c    	packet-trmac.c 	packet-udp.c   	packet-vines.c 	packet-vines.h 	packet.c       	packet.h       	prefs.c        	prefs.h        	print.c        	print.h        	ps.c           	ps.h           	resolv.c       	resolv.h       	smb.h                  summary.h              summary.c      	timestamp.h    	util.c         	util.h
+ethereal_SOURCES =  	alignment.h    	capture.c      	capture.h      	column.c       	column.h       	config.h       	display.c      	display.h      	ethereal.c     	ethereal.h     	ethertype.c    	etypes.h       	file.c         	file.h         	filter.c       	filter.h       	follow.c       	follow.h       	gtkpacket.c    	gtkpacket.h    	menu.c         	menu.h         	packet-aarp.c  	packet-arp.c   	packet-atalk.c 	packet-bootp.c 	packet-cdp.c   	packet-data.c  	packet-dns.c   	packet-dns.h   	packet-eth.c   	packet-fddi.c  	packet-ftp.c   	packet-giop.c  	packet-gre.c   	packet-http.c  	packet-icmpv6.c 	packet-ip.c    	packet-ip.h    	packet-ipsec.c 	packet-ipv6.c  	packet-ipv6.h  	packet-ipx.c   	packet-ipx.h   	packet-isakmp.c 	packet-llc.c   	packet-lpd.c   	packet-nbipx.c 	packet-nbns.c  	packet-ncp.c   	packet-ncp.h   	packet-nntp.c  	packet-null.c  	packet-osi.c   	packet-ospf.c  	packet-ospf.h  	packet-pop.c   	packet-ppp.c   	packet-pppoe.c 	packet-pptp.c  	packet-raw.c   	packet-rip.c   	packet-rip.h   	packet-rsvp.c  	packet-rsvp.h  	packet-rtsp.c  	packet-sdp.c   	packet-smb.c   	packet-tcp.c   	packet-telnet.c 	packet-tftp.c  	packet-tr.c    	packet-trmac.c 	packet-udp.c   	packet-vines.c 	packet-vines.h 	packet.c       	packet.h       	prefs.c        	prefs.h        	print.c        	print.h        	ps.c           	ps.h           	resolv.c       	resolv.h       	smb.h                  summary.h              summary.c      	timestamp.h    	util.c         	util.h
 
 
 EXTRA_ethereal_SOURCES =  	packet-snmp.c		snprintf.c		snprintf.h		snprintf-imp.h		strerror.c		strerror.h
@@ -117,9 +117,10 @@ packet-http.o packet-icmpv6.o packet-ip.o packet-ipsec.o packet-ipv6.o \
 packet-ipx.o packet-isakmp.o packet-llc.o packet-lpd.o packet-nbipx.o \
 packet-nbns.o packet-ncp.o packet-nntp.o packet-null.o packet-osi.o \
 packet-ospf.o packet-pop.o packet-ppp.o packet-pppoe.o packet-pptp.o \
-packet-raw.o packet-rip.o packet-rsvp.o packet-smb.o packet-tcp.o \
-packet-telnet.o packet-tftp.o packet-tr.o packet-trmac.o packet-udp.o \
-packet-vines.o packet.o prefs.o print.o ps.o resolv.o summary.o util.o
+packet-raw.o packet-rip.o packet-rsvp.o packet-rtsp.o packet-sdp.o \
+packet-smb.o packet-tcp.o packet-telnet.o packet-tftp.o packet-tr.o \
+packet-trmac.o packet-udp.o packet-vines.o packet.o prefs.o print.o \
+ps.o resolv.o summary.o util.o
 ethereal_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -155,12 +156,12 @@ DEP_FILES =  .deps/capture.P .deps/column.P .deps/display.P \
 .deps/packet-null.P .deps/packet-osi.P .deps/packet-ospf.P \
 .deps/packet-pop.P .deps/packet-ppp.P .deps/packet-pppoe.P \
 .deps/packet-pptp.P .deps/packet-raw.P .deps/packet-rip.P \
-.deps/packet-rsvp.P .deps/packet-smb.P .deps/packet-snmp.P \
-.deps/packet-tcp.P .deps/packet-telnet.P .deps/packet-tftp.P \
-.deps/packet-tr.P .deps/packet-trmac.P .deps/packet-udp.P \
-.deps/packet-vines.P .deps/packet.P .deps/prefs.P .deps/print.P \
-.deps/ps.P .deps/resolv.P .deps/snprintf.P .deps/strerror.P \
-.deps/summary.P .deps/util.P
+.deps/packet-rsvp.P .deps/packet-rtsp.P .deps/packet-sdp.P \
+.deps/packet-smb.P .deps/packet-snmp.P .deps/packet-tcp.P \
+.deps/packet-telnet.P .deps/packet-tftp.P .deps/packet-tr.P \
+.deps/packet-trmac.P .deps/packet-udp.P .deps/packet-vines.P \
+.deps/packet.P .deps/prefs.P .deps/print.P .deps/ps.P .deps/resolv.P \
+.deps/snprintf.P .deps/strerror.P .deps/summary.P .deps/util.P
 SOURCES = $(ethereal_SOURCES) $(EXTRA_ethereal_SOURCES)
 OBJECTS = $(ethereal_OBJECTS)
 

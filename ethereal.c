@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.46 1999/06/25 06:49:46 guy Exp $
+ * $Id: ethereal.c,v 1.47 1999/07/07 00:34:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -147,6 +147,7 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Brad Robel-Forrest       <bradr@watchguard.com>\n"
 		"Ashok Narayanan          <ashokn@cisco.com>\n"
 		"Aaron Hillegass          <aaron@classmax.com>\n"
+		"Jason Lango              <jal@netapp.com>\n"
 
 		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);

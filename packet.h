@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.63 1999/07/01 04:04:38 sharpe Exp $
+ * $Id: packet.h,v 1.64 1999/07/07 00:34:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -273,6 +273,8 @@ enum {
         ETT_RSVP_ADSPEC_SUBTREE1,
         ETT_RSVP_ADSPEC_SUBTREE2,
         ETT_RSVP_ADSPEC_SUBTREE3,
+	ETT_RTSP,
+	ETT_SDP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -417,6 +419,8 @@ void dissect_pppoes(const u_char *, int, frame_data *, proto_tree *);
 void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rsvp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_rtsp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_sdp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_snmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tftp(const u_char *, int, frame_data *, proto_tree *);
