@@ -1,6 +1,8 @@
 /* packet-h261.c
  *
  * Routines for ITU-T Recommendation H.261 dissection
+ *
+ * $Id: packet-h261.c,v 1.7 2001/06/12 06:31:14 guy Exp $
  * 
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
@@ -8,7 +10,6 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -7,10 +7,11 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
- * Copyright 1998 Gerald Combs
+ * $Id: packet-tpkt.c,v 1.6 2001/06/12 06:31:14 guy Exp $
  *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

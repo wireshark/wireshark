@@ -6,10 +6,11 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
+ * $Id: packet-rtp.c,v 1.15 2001/06/12 06:31:14 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

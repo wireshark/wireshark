@@ -5,10 +5,11 @@
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
- * Copyright 1998 Gerald Combs
+ * $Id: packet-tpkt.h,v 1.4 2001/06/12 06:31:14 guy Exp $
  *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
