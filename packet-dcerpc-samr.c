@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.48 2002/06/24 00:03:17 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.49 2002/07/02 02:33:07 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -353,7 +353,7 @@ samr_dissect_open_user_reply(tvbuff_t *tvb, int offset,
 			     char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, TRUE, FALSE);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, NULL);
@@ -919,9 +919,6 @@ samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree, 
                              char *drep)
 {
-	/*
-	 * XXX - does this open the handle?
-	 */
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, TRUE, FALSE);
 
@@ -953,9 +950,6 @@ samr_dissect_connect_anon_reply(tvbuff_t *tvb, int offset,
 				packet_info *pinfo, proto_tree *tree, 
 				char *drep)
 {
-	/*
-	 * XXX - does this open the handle?
-	 */
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, TRUE, FALSE);
 
@@ -1086,7 +1080,7 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
                              char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, TRUE, FALSE);
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_samr_rc, NULL);
@@ -1187,7 +1181,7 @@ samr_dissect_create_alias_in_domain_reply(tvbuff_t *tvb, int offset,
                              char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, TRUE, FALSE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
@@ -1476,7 +1470,7 @@ samr_dissect_create_user2_in_domain_reply(tvbuff_t *tvb, int offset,
                              char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, TRUE, FALSE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_unknown_long, NULL);
@@ -1744,7 +1738,7 @@ samr_dissect_get_domain_password_information_reply(tvbuff_t *tvb, int offset,
 	 * "samr_dissect_get_usrdom_pwinfo_reply()"?
 	 */
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, TRUE, FALSE);
 
 	return offset;
 }
@@ -3934,7 +3928,7 @@ samr_dissect_open_group_reply(tvbuff_t *tvb, int offset,
 			      char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, TRUE, FALSE);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, NULL);
@@ -3973,7 +3967,7 @@ samr_dissect_open_alias_reply(tvbuff_t *tvb, int offset,
 			      char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, TRUE, FALSE);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, NULL);
@@ -4031,7 +4025,7 @@ samr_dissect_create_group_in_domain_reply(tvbuff_t *tvb, int offset,
 					  char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, TRUE, FALSE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
