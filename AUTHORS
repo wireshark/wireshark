@@ -1764,6 +1764,10 @@ Thierry Martin <thierry.martin [AT] accellent-group.com> {
 	Support for reading files from Accellent 5Views LAN agents
 }
 
+Oleg Terletsky <oleg.terletsky [AT] comverse.com> {
+	LWRES support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

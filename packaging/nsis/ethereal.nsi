@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.17 2003/07/22 22:00:38 gerald Exp $
+; $Id: ethereal.nsi,v 1.18 2003/08/05 05:05:59 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -179,6 +179,7 @@ File "..\..\plugins\docsis\docsis.dll"
 File "..\..\plugins\giop\coseventcomm.dll"
 File "..\..\plugins\giop\cosnaming.dll"
 File "..\..\plugins\gryphon\gryphon.dll"
+File "..\..\plugins\lwres\lwres.dll"
 File "..\..\plugins\megaco\megaco.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
 File "..\..\plugins\pcli\pcli.dll"

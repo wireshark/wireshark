@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.21 2003/07/18 03:01:33 guy Exp $
+# $Id: Makefile.nmake,v 1.22 2003/08/05 05:03:29 guy Exp $
 #
 
 include ..\config.nmake
@@ -11,7 +11,7 @@ CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap /I. $(GLIB_CFLAGS) \
 
 OBJECTS=plugin_api.obj 
 
-all: $(OBJECTS) artnet docsis giop gryphon megaco mgcp pcli rtnet
+all: $(OBJECTS) artnet docsis giop gryphon lwres megaco mgcp pcli rtnet
 
 Xplugin_api.c: xyzzy plugin_gen.py plugin_api.c
 	$(PYTHON) plugin_gen.py xyzzy
@@ -38,6 +38,11 @@ giop::
 
 gryphon::
 	cd gryphon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+lwres::
+	cd lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
@@ -70,6 +75,8 @@ clean:
 	cd ../giop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../gryphon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../megaco
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
