@@ -4,6 +4,7 @@ Makefile.in
 stamp-h.in
 config.status
 aclocal.m4
+ethereal-tap-register.c
 *.obj
 *.lib
 *.pdb
