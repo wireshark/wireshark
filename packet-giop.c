@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.40 2001/07/03 02:27:29 guy Exp $
+ * $Id: packet-giop.c,v 1.41 2001/07/03 23:30:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -469,6 +469,9 @@ static gint ett_giop_cancel_request = -1;
 static gint ett_giop_locate_request = -1;
 static gint ett_giop_locate_reply = -1;
 static gint ett_giop_fragment = -1;
+
+static gint ett_giop_scl = -1;	/* ServiceContextList */
+static gint ett_giop_ior = -1;	/* IOR  */
 
 
 /* GIOP endianess */
@@ -4197,7 +4200,10 @@ proto_register_giop (void)
     &ett_giop_cancel_request,
     &ett_giop_locate_request,
     &ett_giop_locate_reply,
-    &ett_giop_fragment
+    &ett_giop_fragment,
+    &ett_giop_scl,
+    &ett_giop_ior
+
   };
   proto_giop = proto_register_protocol("General Inter-ORB Protocol", "GIOP",
 				       "giop");
@@ -4277,16 +4283,27 @@ module IOP{
 
 */
 
-void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
+void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
 		guint32 boundary, gboolean stream_is_big_endian) {
 
 
   guint32 seqlen_p;		/* sequence length of profiles */
   guint32 u_octet4;
 
+  proto_tree *tree = NULL;	/* IOR tree */
+  proto_item *tf;
+
   gchar *repobuf = NULL;	/* for repository ID */
 
   guint32 i;
+
+  /* create a subtree */
+
+  if (ptree) {
+    tf = proto_tree_add_text (ptree, tvb, *offset, tvb_length (tvb), "IOR");
+    tree = proto_item_add_subtree (tf, ett_giop_ior);
+  }
+
 
   /* Get type_id  == Repository ID */
 
@@ -4633,11 +4650,14 @@ void dissect_SID_BI_DIR_IIOP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 
 
-void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
+void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
 			       gboolean stream_is_be, guint32 boundary) {
 
   guint32 seqlen;		/* sequence length  */
   guint32 seqlen_cd;		/* sequence length, context_data  */
+
+  proto_tree *tree = NULL;	/* ServiceContext tree */
+  proto_item *tf;
 
   guint32 context_id;
   gchar *context_data = NULL;
@@ -4647,6 +4667,12 @@ void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   guint32 vscid;		/* Vendor Service context id */
   guint32 scid;
 
+  /* create a subtree */
+
+  if (ptree) {
+    tf = proto_tree_add_text (ptree, tvb, *offset, tvb_length (tvb), "ServiceContextList");
+    tree = proto_item_add_subtree (tf, ett_giop_scl);
+  }
 
   /* Get sequence length (number of elements) */
   
