@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_be.py,v 1.3 2001/07/27 18:35:22 guy Exp $
+# $Id: ethereal_be.py,v 1.4 2001/08/30 19:31:53 oabad Exp $
 #
 #    File      : ethereal_be.py
 #
@@ -59,6 +59,7 @@
 
 from omniidl import idlast, idltype, idlvisitor, idlutil, output
 import sys, string
+from os import path
 from ethereal_gen import ethereal_gen_C
 
 #
@@ -139,7 +140,8 @@ def run(tree, args):
     # Assumption: Name is of the form   abcdefg.xyz  (eg: CosNaming.idl)
     #
 
-    nl = string.split(tree.file(),".")[0] # split name of main IDL file using "." as separator
+    fname = path.basename(tree.file())    # grab basename only, dont care about path
+    nl = string.split(fname,".")[0]       # split name of main IDL file using "." as separator
                                           # and grab first field (eg: CosNaming)
 
     # create a C generator object
