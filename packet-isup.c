@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.59 2004/04/01 20:34:51 etxrab Exp $
+ * $Id: packet-isup.c,v 1.60 2004/04/02 05:19:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6345,4 +6345,3 @@ proto_reg_handoff_bicc(void)
   dissector_add("mtp3.service_indicator", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
   dissector_add("m3ua.protocol_data_si", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
 }
-=
