@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.13 2000/04/08 07:07:16 guy Exp $
+ * $Id: packet-ftp.c,v 1.14 2000/04/15 02:26:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -150,14 +150,15 @@ dissect_ftpdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (check_col(fd, COL_INFO)) {
 
-	  col_add_fstr(fd, COL_INFO, "FTP Data ...");
+	  col_add_fstr(fd, COL_INFO, "FTP Data: %u bytes", pi.captured_len - offset);
 
 	}
 
 	if (tree) {
 
 	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-				"File Transfer Protocol Data");
+				   "FTP Data: %s", 
+				   format_text(&pd[offset], pi.captured_len - offset));
 
 	}
 }
