@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.24 2001/06/19 23:08:55 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.25 2001/06/20 06:15:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,32 +79,32 @@
 /*  Define some very useful macros that are used to analyze frame types etc. */
 /* ************************************************************************* */
 #define COMPOSE_FRAME_TYPE(x) (((x & 0x0C)<< 2)+((x & 0xF0) >> 4))	/* Create key to (sub)type */
-#define COOK_PROT_VERSION(x)  ((x & 0x3))
-#define COOK_FRAME_TYPE(x)    ((x & 0xC) >> 2)
-#define COOK_FRAME_SUBTYPE(x) ((x & 0xF0) >> 4)
-#define COOK_ADDR_SELECTOR(x) (((x & 0x200)) && ((x & 0x100)))
-#define COOK_ASSOC_ID(x)      ((x & 0x3FFF))
-#define COOK_FRAGMENT_NUMBER(x) (x & 0x000F)
-#define COOK_SEQUENCE_NUMBER(x) ((x & 0xFFF0) >> 4)
-#define COOK_FLAGS(x)           ((x & 0xFF00) >> 8)
-#define COOK_DS_STATUS(x)       (x & 0x3)
-#define COOK_WEP_IV(x)        (x & 0xFFFFFF)
-#define COOK_WEP_KEY(x)       ((x & 0xC0000000) >> 30)
+#define COOK_PROT_VERSION(x)  ((x) & 0x3)
+#define COOK_FRAME_TYPE(x)    (((x) & 0xC) >> 2)
+#define COOK_FRAME_SUBTYPE(x) (((x) & 0xF0) >> 4)
+#define COOK_ADDR_SELECTOR(x) ((x) & 0x300)
+#define COOK_ASSOC_ID(x)      ((x) & 0x3FFF)
+#define COOK_FRAGMENT_NUMBER(x) ((x) & 0x000F)
+#define COOK_SEQUENCE_NUMBER(x) (((x) & 0xFFF0) >> 4)
+#define COOK_FLAGS(x)           (((x) & 0xFF00) >> 8)
+#define COOK_DS_STATUS(x)       ((x) & 0x3)
+#define COOK_WEP_IV(x)        ((x) & 0xFFFFFF)
+#define COOK_WEP_KEY(x)       (((x) & 0xC0000000) >> 30)
 #define COL_SHOW_INFO(fd,info) if (check_col(fd,COL_INFO)) \
-col_add_str(fd,COL_INFO,info);
+				col_add_str(fd,COL_INFO,info);
 #define COL_SHOW_INFO_CONST(fd,info) if (check_col(fd,COL_INFO)) \
-col_set_str(fd,COL_INFO,info);
+				col_set_str(fd,COL_INFO,info);
 
-#define IS_TO_DS(x)            ((x & 0x1))
-#define IS_FROM_DS(x)          ((x & 0x2))
-#define HAVE_FRAGMENTS(x)      ((x & 0x4))
-#define IS_RETRY(x)            ((x & 0x8))
-#define POWER_MGT_STATUS(x)    ((x & 0x10))
-#define HAS_MORE_DATA(x)       ((x & 0x20))
-#define IS_WEP(x)              ((x & 0x40))
-#define IS_STRICTLY_ORDERED(x) ((x & 0x80))
+#define IS_TO_DS(x)            ((x) & 0x01)
+#define IS_FROM_DS(x)          ((x) & 0x02)
+#define HAVE_FRAGMENTS(x)      ((x) & 0x04)
+#define IS_RETRY(x)            ((x) & 0x08)
+#define POWER_MGT_STATUS(x)    ((x) & 0x10)
+#define HAS_MORE_DATA(x)       ((x) & 0x20)
+#define IS_WEP(x)              ((x) & 0x40)
+#define IS_STRICTLY_ORDERED(x) ((x) & 0x80)
 
-#define MGT_RESERVED_RANGE(x) (((x>=0x06)&&(x<=0x07))||((x>=0x0D)&&(x<=0x0F)))
+#define MGT_RESERVED_RANGE(x)  (((x>=0x06)&&(x<=0x07))||((x>=0x0D)&&(x<=0x0F)))
 #define CTRL_RESERVED_RANGE(x) ((x>=0x10)&&(x<=0x19))
 #define DATA_RESERVED_RANGE(x) ((x>=0x28)&&(x<=0x2f))
 #define SPEC_RESERVED_RANGE(x) ((x>=0x30)&&(x<=0x3f))
@@ -158,8 +158,8 @@ col_set_str(fd,COL_INFO,info);
 /* ************************************************************************* */
 /*          Macros used to extract information about fixed fields            */
 /* ************************************************************************* */
-#define ESS_SET(x) ((x & 0x0001))
-#define IBSS_SET(x) ((x & 0x0002))
+#define ESS_SET(x) ((x) & 0x0001)
+#define IBSS_SET(x) ((x) & 0x0002)
 
 
 
@@ -301,13 +301,9 @@ static dissector_handle_t llc_handle;
 /*            Return the length of the current header (in bytes)             */
 /* ************************************************************************* */
 int
-find_header_length (const u_char * pd, int offset)
+find_header_length (guint16 fcf)
 {
-  guint16 frame_control;
-
-  frame_control = pntohs (pd);
-  return ((IS_FROM_DS(frame_control))
-	  && (IS_TO_DS(frame_control))) ? 30 : 24;
+  return (COOK_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? 30 : 24;
 }
 
 
@@ -321,9 +317,6 @@ capture_ieee80211 (const u_char * pd, int offset, packet_counts * ld)
 
   fcf = pletohs (&pd[0]);
 
-
-  hdr_length = MGT_FRAME_HDR_LEN;	/* Set the header length of the frame */
-
   if (IS_WEP(COOK_FLAGS(fcf)))
     {
       ld->other++;
@@ -334,22 +327,22 @@ capture_ieee80211 (const u_char * pd, int offset, packet_counts * ld)
     {
 
     case DATA:			/* We got a data frame */
-      hdr_length = find_header_length (pd, offset);
+      hdr_length = find_header_length (fcf);
       capture_llc (pd, offset + hdr_length, ld);
       break;
 
     case DATA_CF_ACK:		/* Data with ACK */
-      hdr_length = find_header_length (pd, offset);
+      hdr_length = find_header_length (fcf);
       capture_llc (pd, offset + hdr_length, ld);
       break;
 
     case DATA_CF_POLL:
-      hdr_length = find_header_length (pd, offset);
+      hdr_length = find_header_length (fcf);
       capture_llc (pd, offset + hdr_length, ld);
       break;
 
     case DATA_CF_ACK_POLL:
-      hdr_length = find_header_length (pd, offset);
+      hdr_length = find_header_length (fcf);
       capture_llc (pd, offset + hdr_length, ld);
       break;
 
@@ -799,11 +792,11 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   cap_len = tvb_length(tvb);
   fcf = tvb_get_letohs (tvb, 0);
+  hdr_len = find_header_length (fcf);
 
   /* Add the FC to the current tree */
   if (tree)
     {
-      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
       ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
 					   "IEEE 802.11 Header");
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
@@ -904,7 +897,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     case DATA_FRAME:
       addr_type = COOK_ADDR_SELECTOR (fcf);
-      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 
       /* In order to show src/dst address we must always do the following */
       switch (addr_type)
@@ -1399,7 +1391,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     case DATA:
       COL_SHOW_INFO_CONST (pinfo->fd, "Data");
-      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
 
@@ -1423,7 +1414,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     case DATA_CF_ACK:
       COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Acknowledgement");
-      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
 
@@ -1447,7 +1437,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     case DATA_CF_POLL:
       COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Poll");
-      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
 
       if (IS_WEP(COOK_FLAGS(fcf)))
@@ -1470,7 +1459,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     case DATA_CF_ACK_POLL:
       COL_SHOW_INFO_CONST (pinfo->fd, "Data + CF-Acknowledgement/Poll");
-      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
 
       if (IS_WEP(COOK_FLAGS(fcf)))
@@ -1693,7 +1681,7 @@ proto_register_wlan (void)
       "Protocol flags", HFILL }},
 
     {&hf_fc_data_ds,
-     {"DS status", "wlan.fc.ds", FT_UINT8, BASE_HEX, TFS (&tofrom_ds), 0,
+     {"DS status", "wlan.fc.ds", FT_UINT8, BASE_HEX, VALS (&tofrom_ds), 0,
       "Data-frame DS-traversal status", HFILL }},	/* 3 */
 
     {&hf_fc_to_ds,
