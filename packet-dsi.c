@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.14 2002/04/28 21:53:31 guy Exp $
+ * $Id: packet-dsi.c,v 1.15 2002/04/28 22:10:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,7 @@ static int proto_dsi = -1;
 static int hf_dsi_flags = -1;
 static int hf_dsi_command = -1;
 static int hf_dsi_requestid = -1;
-static int hf_dsi_code = -1;
+static int hf_dsi_offset = -1;
 static int hf_dsi_error = -1;
 static int hf_dsi_length = -1;
 static int hf_dsi_reserved = -1;
@@ -162,13 +162,17 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			1, 1, dsi_command);
 		proto_tree_add_uint(dsi_tree, hf_dsi_requestid, tvb,
 			2, 2, dsi_requestid);
-		if (dsi_code < 0) {
+		switch (dsi_flags) {
+
+		case DSIFL_REQUEST:
+			proto_tree_add_int(dsi_tree, hf_dsi_offset, tvb,
+				4, 4, dsi_code);
+			break;
+
+		case DSIFL_REPLY:
 			proto_tree_add_int(dsi_tree, hf_dsi_error, tvb,
 				4, 4, dsi_code);
-		}
-		else {
-			proto_tree_add_int(dsi_tree, hf_dsi_code, tvb,
-				4, 4, dsi_code);
+			break;
 		}
 		proto_tree_add_uint_format(dsi_tree, hf_dsi_length, tvb,
 			8, 4, dsi_length,
@@ -330,10 +334,10 @@ proto_register_dsi(void)
 	FT_UINT16, BASE_DEC, NULL, 0x0,
       	"Keeps track of which request this is.  Replies must match a Request.  IDs must be generated in sequential order.", HFILL }},
 
-    { &hf_dsi_code,
+    { &hf_dsi_offset,
       { "Data offset",      "dsi.data_offset",
 	FT_INT32, BASE_DEC, NULL, 0x0,
-      	"Data offset.", HFILL }},
+      	"Data offset", HFILL }},
 
     { &hf_dsi_error,
       { "Error code",       "dsi.error_code",
