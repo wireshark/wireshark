@@ -27,6 +27,8 @@ RequestedInfo/subscriberState      subscriberStateFlag
     /*
      * dissect the embedded TPDU message
      */
+ if (!tpdu_tvb)
+	return offset;
 
     dissector_try_port(sms_dissector_table, 0, tpdu_tvb, pinfo, top_tree);
 #.END
@@ -43,7 +45,7 @@ RequestedInfo/subscriberState      subscriberStateFlag
 
  digit_str = unpack_digits(parameter_tvb, 0);
 
- proto_tree_add_string(tree, hf_gsm_map_imsi_digits, parameter_tvb, 1, -1, digit_str);
+ proto_tree_add_string(tree, hf_gsm_map_imsi_digits, parameter_tvb, 0, -1, digit_str);
  g_free(digit_str);
 
 
@@ -56,6 +58,8 @@ RequestedInfo/subscriberState      subscriberStateFlag
 
  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
+ if (!parameter_tvb)
+	return offset;
 
  proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
  proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
@@ -77,6 +81,9 @@ RequestedInfo/subscriberState      subscriberStateFlag
  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
 
+ if (!parameter_tvb)
+	return offset;
+
  proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
  proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
  proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
@@ -89,6 +96,54 @@ RequestedInfo/subscriberState      subscriberStateFlag
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_BODY Gmsc-Address
+
+ tvbuff_t	*parameter_tvb;
+ char		*digit_str;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+
+ proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+
+ digit_str = unpack_digits(parameter_tvb, 1);
+
+ proto_tree_add_string(tree, hf_gsm_map_map_gmsc_address_digits, parameter_tvb, 1, -1, digit_str);
+ g_free(digit_str);
+
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY RoamingNumber
+
+ tvbuff_t	*parameter_tvb;
+ char		*digit_str;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+
+ proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+
+ digit_str = unpack_digits(parameter_tvb, 1);
+
+ proto_tree_add_string(tree, hf_gsm_map_map_RoamingNumber_digits, parameter_tvb, 1, -1, digit_str);
+ g_free(digit_str);
+
+
+#.END
+
+
+#----------------------------------------------------------------------------------------
 #.FN_BODY Ss-Status
 
  tvbuff_t	*parameter_tvb;
@@ -96,6 +151,8 @@ RequestedInfo/subscriberState      subscriberStateFlag
 
  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
+ if (!parameter_tvb)
+	return offset;
 
  octet = tvb_get_guint8(parameter_tvb,0);
 
@@ -109,6 +166,43 @@ RequestedInfo/subscriberState      subscriberStateFlag
 
 
 #.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY ProtocolId
+
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &protocolId);
+
+#----------------------------------------------------------------------------------------
+#.FN_BODY SignalInfo
+
+ tvbuff_t	*parameter_tvb;
+ guint8		octet;
+ guint8		length;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+ if (!parameter_tvb)
+	return offset;
+ switch (protocolId){
+	/* gsm-0408 */
+	case 1:
+		break;
+ 	/* gsm-0806 */
+	case 2:
+		break;
+	/* gsm-BSSMAP */
+	case 3:
+		break;
+	/* ets-300102-1 (~Q.931 ) */
+	case 4:
+		octet = tvb_get_guint8(parameter_tvb,0);
+		length = tvb_get_guint8(parameter_tvb,1);
+		if ( octet == 4 )
+			dissect_q931_bearer_capability_ie(parameter_tvb, 2, length, tree);
+		break;
+	default:
+		break;
+}
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 Ss-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)

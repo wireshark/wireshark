@@ -41,6 +41,7 @@
 #include <string.h>
 
 #include "packet-ber.h"
+#include "packet-q931.h"
 #include "packet-gsm_map.h"
 
 #define PNAME  "GSM_MobileAPplication"
@@ -56,6 +57,7 @@ static int hf_gsm_map_invokeId = -1;              /* InvokeId */
 static int hf_gsm_map_invoke = -1;                /* InvokePDU */
 static int hf_gsm_map_returnResult = -1;          /* InvokePDU */
 static int hf_gsm_map_returnResult_result = -1;
+static int hf_gsm_map_SendAuthenticationInfoArg = -1;
 static int hf_gsm_map_getPassword = -1;  
 static int hf_gsm_map_currentPassword = -1;
 static int hf_gsm_map_extension = -1;
@@ -64,6 +66,8 @@ static int hf_gsm_map_number_plan = -1;
 static int hf_gsm_map_misdn_digits = -1;
 static int hf_gsm_map_servicecentreaddress_digits = -1;
 static int hf_gsm_map_imsi_digits = -1;
+static int hf_gsm_map_map_gmsc_address_digits = -1;
+static int hf_gsm_map_map_RoamingNumber_digits = -1;
 static int hf_gsm_map_Ss_Status_unused = -1;
 static int hf_gsm_map_Ss_Status_q_bit = -1;
 static int hf_gsm_map_Ss_Status_p_bit = -1;
@@ -95,6 +99,8 @@ static guint global_tcap_itu_ssn4 = 9;
 
 /* Global variables */
 static proto_tree *top_tree;
+int application_context_version;
+gint protocolId;
 
 static char*
 unpack_digits(tvbuff_t *tvb, int offset){
@@ -105,7 +111,8 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	char *digit_str;
 
 	length = tvb_length(tvb);
-	digit_str = g_malloc(length-offset+1);
+	length = length - offset;
+	digit_str = g_malloc(length+1);
 
 	while ( offset < length ){
 
@@ -334,7 +341,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_GetPasswordArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_getPassword);
     break;
   case 22: /*sendRoutingInfo*/
-    offset=dissect_gsm_map_SendRoutingInfoForGprsArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SendRoutingInfoArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 23: /*updateGprsLocation*/
     offset=dissect_gsm_map_UpdateGprsLocationArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -403,7 +410,11 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_Tmsi(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
-	offset=dissect_gsm_map_SendAuthenticationInfoArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imsi);
+	  if (application_context_version < 3 ){
+		  offset=dissect_gsm_map_SendAuthenticationInfoArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imsi);
+	  }else{
+		  offset=dissect_gsm_map_SendAuthenticationInfoArgV3(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoArg);
+	  }
 	break;
   case 57: /*restoreData*/
 	offset=dissect_gsm_map_RestoreDataArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -525,7 +536,9 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_CurrentPassword(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_currentPassword);
     break;
   case 22: /*sendRoutingInfo*/
-    offset=dissect_gsm_map_SendRoutingInfoForGprsRes(FALSE, tvb, offset, pinfo, tree, -1);
+	  /* This is done to get around a problem with IMPLICIT tag:s */
+    offset = offset +2;
+    offset=dissect_gsm_map_SendRoutingInfoRes(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 23: /*updateGprsLocation*/
     offset=dissect_gsm_map_UpdateGprsLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -753,7 +766,16 @@ static guint8 gsmmap_pdu_type = 0;
 static guint8 gsm_map_pdu_size = 0;
 
 static int
-dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index) {
+
+	char *version_ptr, *version_str;
+
+	application_context_version = 0;
+	if (pinfo->private_data != NULL){
+		version_ptr = strrchr(pinfo->private_data,'.');
+		version_str = g_strdup(version_ptr+1);
+		application_context_version = atoi(version_str);
+	}
 
   gsmmap_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
   /* Get the length and add 2 */
@@ -974,6 +996,10 @@ void proto_register_gsm_map(void) {
       { "invokeId", "gsm_map.invokeId",
         FT_UINT32, BASE_DEC, VALS(InvokeId_vals), 0,
         "InvokePDU/invokeId", HFILL }},
+	{ &hf_gsm_map_SendAuthenticationInfoArg,
+      { "SendAuthenticationInfoArg", "gsm_map.SendAuthenticationInfoArg",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "SendAuthenticationInfoArg", HFILL }},
     { &hf_gsm_map_currentPassword,
       { "currentPassword", "gsm_map.currentPassword",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1010,10 +1036,18 @@ void proto_register_gsm_map(void) {
       { "ServiceCentreAddress digits", "gsm_map.servicecentreaddress_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "ServiceCentreAddress digits", HFILL }},
+	{ &hf_gsm_map_map_gmsc_address_digits,
+      { "Gmsc Address digits digits", "gsm_map.gmsc_address_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Gmsc Address digits", HFILL }},
 	{ &hf_gsm_map_imsi_digits,
       { "Imsi digits", "gsm_map.imsi_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "Imsi digits", HFILL }},
+	{&hf_gsm_map_map_RoamingNumber_digits,
+      { "RoamingNumber digits", "gsm_map.RoamingNumber_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "RoamingNumber digits", HFILL }},
 	{ &hf_gsm_map_Ss_Status_unused,
       { "Unused", "gsm_map.unused",
         FT_UINT8, BASE_HEX, NULL, 0xf0,
@@ -1065,6 +1099,7 @@ void proto_register_gsm_map(void) {
 	register_ber_oid_name("0.4.0.0.1.0.2.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.3.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.3.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version1(1)" );
+	register_ber_oid_name("0.4.0.0.1.0.5.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.5.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.5.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.10.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) reset(10) version2(2)" );

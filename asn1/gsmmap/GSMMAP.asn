@@ -11,13 +11,15 @@ BEGIN
 
 Bss-APDU ::=        SEQUENCE {
             protocolId  ProtocolId,
-            signalInfo           OCTET STRING ( SIZE( 1 .. 200 ) ), 
+            signalInfo           SignalInfo, 
             extensionContainer   ExtensionContainer OPTIONAL, 
             ... } 
 
 SupportedCamelPhases ::= BIT STRING {
   phase1  (0 ), 
   phase2  (1 )}
+
+SignalInfo ::= OCTET STRING ( SIZE( 1 .. 200 ) )
 
 Vlr-Capability ::= SEQUENCE {
             supportedCamelPhases    [0] IMPLICIT SupportedCamelPhases OPTIONAL, 
@@ -150,7 +152,7 @@ PrepareHO-Res ::= SEQUENCE {
 -- noHandoverNumberAvailable   localValue : 25}
 -- ::= localValue : 68
 -- Ethereal adaptation --
-ProtocolId  ::=         ENUMERATED {
+ProtocolId ::=         ENUMERATED {
                gsm-0408        ( 1 ), 
                gsm-0806        ( 2 ), 
                gsm-BSSMAP      ( 3 ), 
@@ -817,9 +819,12 @@ AdditionalSignalInfo ::= SEQUENCE {
             ext-ProtocolId       ENUMERATED {
                ets-300356    ( 1 ), 
                ...  }, 
-            signalInfo           OCTET STRING ( SIZE( 1 .. 200 ) ), 
+            signalInfo           ExtSignalInfo, 
             extensionContainer   ExtensionContainer OPTIONAL,
             ... }
+
+ExtSignalInfo ::= OCTET STRING ( SIZE( 1 .. 200 ) )
+
 Cug-CheckInfo ::= SEQUENCE {
             cug-Interlock        OCTET STRING ( SIZE( 4 ) ), 
             cug-OutgoingAccess   NULL OPTIONAL, 
