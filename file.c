@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.98 1999/09/24 05:22:28 gram Exp $
+ * $Id: file.c,v 1.99 1999/09/29 14:41:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -522,6 +522,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 	color = -1;
         for(crow = 0; cf->colors->num_of_filters && 
 	      crow < cf->colors->num_of_filters; crow++) {
+
+            if(color_filter(cf,crow)->c_colorfilter == NULL) {
+		continue;
+	    }
             if(dfilter_apply(color_filter(cf,crow)->c_colorfilter, protocol_tree,
 		 cf->pd)){
                 color = crow;

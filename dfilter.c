@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.19 1999/08/30 16:01:42 gram Exp $
+ * $Id: dfilter.c,v 1.20 1999/09/29 14:41:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -329,6 +329,8 @@ gboolean
 dfilter_apply(dfilter *dfcode, proto_tree *ptree, const guint8* pd)
 {
 	gboolean retval;
+	if (dfcode == NULL)
+		return FALSE;
 	retval = dfilter_apply_node(dfcode->dftree, ptree, pd);
 	return retval;
 }
