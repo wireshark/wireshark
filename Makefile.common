@@ -67,7 +67,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	smb.h	\
 	t35.h	\
 	tap.h	\
-	util.h	\
 	x264_prt_id.h	\
 	xdlc.h	\
 	xmlstub.h
@@ -91,6 +90,7 @@ ETHEREAL_COMMON_SRC =	\
 	ps.c	\
 	ringbuffer.c	\
 	timestats.c	\
+	util.c	\
 	version_info.c
 
 # corresponding headers
@@ -112,6 +112,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 	register.h	\
 	ringbuffer.h	\
 	timestats.h	\
+	util.h	\
 	version_info.h
 
 # sources for Tethereal taps
@@ -209,7 +210,8 @@ editcap_SOURCES = \
 
 # dftest specifics
 dftest_SOURCES =	\
-	dftest.c
+	dftest.c	\
+	util.c
 
 # randpkt specifics
 randpkt_SOURCES = \

@@ -111,7 +111,6 @@ DISSECTOR_SUPPORT_SRC =	\
 	../sha1.c	\
 	../t35.c	\
 	../tap.c	\
-	../util.c	\
 	../xdlc.c	\
 	../xmlstub.c
 
