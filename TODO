@@ -1,4 +1,4 @@
-$Id: TODO,v 1.3 1999/12/07 15:38:19 nneul Exp $
+$Id: TODO,v 1.4 1999/12/08 17:54:41 gram Exp $
 
 Things to do:
 =============
@@ -54,3 +54,5 @@ it under?)
 18. Krb5 dissector - from scratch, need to use ASN.1 code (nneul)
 
 19. IRC dissector
+
+20. Make lines in GTK Tree (proto_tree GUI) user-selectable
