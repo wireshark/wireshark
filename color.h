@@ -1,7 +1,7 @@
 /* color.h
  * Definitions for "toolkit-independent" colors
  *
- * $Id: color.h,v 1.4 2003/08/18 21:27:07 sahlberg Exp $
+ * $Id: color.h,v 1.5 2004/01/09 20:19:34 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,6 +58,7 @@ typedef struct _color_filter {
 
 /* List of all color filters. */
 extern GSList *filter_list;
+extern GSList *removed_filter_list;
 
 void
 filter_list_prime_edt(epan_dissect_t *edt);

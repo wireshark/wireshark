@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.29 2004/01/02 00:19:59 sharpe Exp $
+ * $Id: color_dlg.c,v 1.30 2004/01/09 20:20:41 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1045,7 +1045,7 @@ color_delete(gint row, GtkWidget  *color_filters)
     gtk_widget_destroy(colorf->edit_dialog);
     
     /* Remove the color filter from the list of color filters. */
-    delete_color_filter(colorf);
+    remove_color_filter(colorf);
     
     /* If we grab the focus after updating the selection, the first
     * row is always selected, so we do it before */
@@ -1063,7 +1063,7 @@ color_delete(gint row, GtkWidget  *color_filters)
         gtk_widget_destroy(colorf->edit_dialog);
 
     /* Remove the color filter from the list of color filters. */
-    delete_color_filter(colorf);
+    remove_color_filter(colorf);
 
 #endif
 }

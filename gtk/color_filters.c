@@ -1,7 +1,7 @@
 /* color_filters.c
  * Routines for color filters
  *
- * $Id: color_filters.c,v 1.4 2003/08/27 22:55:51 guy Exp $
+ * $Id: color_filters.c,v 1.5 2004/01/09 20:20:42 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,20 @@ static gboolean read_filters(void);
 static gboolean read_global_filters(void);
 
 GSList *filter_list;
+GSList *removed_filter_list;
+
+/* Remove the specified filter from the list of existing color filters,
+ * and add it to the list of removed color filters.
+ * This way, unmarking and marking a packet which matches a now removed
+ * color filter will still be colored correctly as the color filter is
+ * still reachable. */
+void remove_color_filter(color_filter_t *colorf)
+{
+	/* Remove colorf from the list of color filters */
+	filter_list = g_slist_remove(filter_list, colorf);
+	/* Add colorf to the list of removed color filters */
+	removed_filter_list = g_slist_prepend(removed_filter_list, colorf);
+}
 
 /* delete the specified filter */
 void
@@ -79,6 +93,7 @@ static void
 delete_all_color_filters (void)
 {
         g_slist_foreach(filter_list, delete_color_filter_it, NULL);
+        g_slist_foreach(removed_filter_list, delete_color_filter_it, NULL);
 }
 
 /* Initialize the filter structures (reading from file) for general running, including app startup */
