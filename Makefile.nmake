@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.250 2002/11/01 05:29:34 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.251 2002/11/01 10:01:21 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -545,7 +545,7 @@ register.c: $(DISSECTOR_SRC)
 	@$(PYTHON) make-reg-dotc.py . $(DISSECTOR_SRC)
 !ELSE
 	@echo Making register.c (using sh)
-	@sh make-reg-dotc register.c . $(DISSECTOR_SRC)
+	@$(SH) make-reg-dotc register.c . $(DISSECTOR_SRC)
 !ENDIF
 
 #
@@ -565,7 +565,7 @@ register.c: $(DISSECTOR_SRC)
 #
 tethereal-tap-register.c: $(TETHEREAL_TAP_SRC)
 	@echo Making tethereal-tap-register.c
-	@sh make-tapreg-dotc tethereal-tap-register.c . $(TETHEREAL_TAP_SRC)
+	@$(SH) make-tapreg-dotc tethereal-tap-register.c . $(TETHEREAL_TAP_SRC)
 
 text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
