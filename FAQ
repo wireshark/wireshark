@@ -48,15 +48,12 @@
 
    when I try to build Ethereal from CVS or a CVS snapshot?
 
-   4.3 The link failed because of an undefined reference to
-   snmp_set_full_objid.
-
-   4.4 The link fails with a number of "Output line too long." messages
+   4.3 The link fails with a number of "Output line too long." messages
    followed by linker errors. 
 
-   4.5 The link fails on Solaris because plugin_list is undefined. 
+   4.4 The link fails on Solaris because plugin_list is undefined. 
 
-   4.6 The build fails on Windows because of conflicts between winsock.h
+   4.5 The build fails on Windows because of conflicts between winsock.h
    and winsock2.h. 
 
    Using Ethereal:
@@ -69,65 +66,69 @@
    machine, even though another sniffer on the network sees those
    packets.
 
-   5.3 I can set a display filter just fine, but capture filters don't
+   5.3 I'm only seeing ARP packets when I try to capture traffic.
+
+   5.4 How do I put an interface into promiscuous mode?
+
+   5.5 I can set a display filter just fine, but capture filters don't
    work.
 
-   5.4 I'm entering valid capture filters, but I still get "parse error"
+   5.6 I'm entering valid capture filters, but I still get "parse error"
    errors.
 
-   5.5 I saved a filter and tried to use its name to filter the display,
+   5.7 I saved a filter and tried to use its name to filter the display,
    but I got an "Unexpected end of filter string" error.
 
-   5.6 Why am I seeing lots of packets with incorrect TCP checksums?
+   5.8 Why am I seeing lots of packets with incorrect TCP checksums?
 
-   5.7 I've just installed Ethereal, and the traffic on my local LAN is
+   5.9 I've just installed Ethereal, and the traffic on my local LAN is
    boring.
 
-   5.8 When I run Ethereal on Solaris 8, it dies with a Bus Error when I
+   5.10 When I run Ethereal on Solaris 8, it dies with a Bus Error when I
    start it.
 
-   5.9 I'm running Ethereal on Linux; why do my time stamps have only
+   5.11 I'm running Ethereal on Linux; why do my time stamps have only
    100ms resolution, rather than 1us resolution?
 
-   5.10 I'm capturing packets on {Windows 95, Windows 98, Windows Me};
+   5.12 I'm capturing packets on {Windows 95, Windows 98, Windows Me};
    why are the time stamps on packets wrong? 
 
-   5.11 When I try to run Ethereal on Windows, it fails to run because it
+   5.13 When I try to run Ethereal on Windows, it fails to run because it
    can't find packet.dll.
 
-   5.12 Why does some network interface on my machine not show up in the
+   5.14 Why does some network interface on my machine not show up in the
    list of interfaces in the "Interface:" field in the dialog box popped
    up by "Capture->Start", and/or why does Ethereal give me an error if I
    try to capture on that interface? 
 
-   5.13 I'm running Ethereal on Windows NT/2000/XP/Server; my machine has
+   5.15 I'm running Ethereal on Windows NT/2000/XP/Server; my machine has
    a PPP (dial-up POTS, ISDN, etc.) interface, and it shows up in the
    "Interface" item in the "Capture Options" dialog box. Why can no
    packets be sent on or received from that network while I'm trying to
    capture traffic on that interface?
 
-   5.14 I'm running Ethereal on Windows 95/98/Me, on a machine with more
+   5.16 I'm running Ethereal on Windows 95/98/Me, on a machine with more
    than one network adapter of the same type; Ethereal shows all of those
    adapters with the same name, but I can't use any of those adapters
    other than the first one.
 
-   5.15 I have an XXX network card on my machine; if I try to capture on
+   5.17 I have an XXX network card on my machine; if I try to capture on
    it, my machine crashes or resets itself. 
 
-   5.16 My machine crashes or resets itself when I select "Start" from
+   5.18 My machine crashes or resets itself when I select "Start" from
    the "Capture" menu or select "Preferences" from the "Edit" menu. 
 
-   5.17 Does Ethereal work on Windows ME? 
+   5.19 Does Ethereal work on Windows ME? 
 
-   5.18 Does Ethereal work on Windows XP? 
+   5.20 Does Ethereal work on Windows XP? 
 
-   5.19 Why doesn't Ethereal correctly identify RTP packets? It shows
+   5.21 Why doesn't Ethereal correctly identify RTP packets? It shows
    them only as UDP.
 
-   5.20 Why doesn't Ethereal show Yahoo Messenger packets in captures
+   5.22 Why doesn't Ethereal show Yahoo Messenger packets in captures
    that contain Yahoo Messenger traffic?
 
-   5.21 Why do I get the error 
+   5.23 Why do I get the error 
 
      Gdk-ERROR **: Palettized display (256-colour) mode not supported on
      Windows.
@@ -135,22 +136,22 @@
 
    when I try to run Ethereal on Windows?
 
-   5.22 When I capture on Windows in promiscuous mode, I can see packets
+   5.24 When I capture on Windows in promiscuous mode, I can see packets
    other than those sent to or from my machine; however, those packets
    show up with a "Short Frame" indication, unlike packets to or from my
    machine. What should I do to arrange that I see those packets in their
    entirety? 
 
-   5.23 How can I capture raw 802.11 packets, including non-data
+   5.25 How can I capture raw 802.11 packets, including non-data
    (management, beacon) packets? 
 
-   5.24 How can I capture packets with CRC errors? 
+   5.26 How can I capture packets with CRC errors? 
 
-   5.25 How can I capture entire frames, including the FCS? 
+   5.27 How can I capture entire frames, including the FCS? 
 
-   5.26 Ethereal hangs after I stop a capture. 
+   5.28 Ethereal hangs after I stop a capture. 
 
-   5.27 How can I search for, or filter, packets that have a particular
+   5.29 How can I search for, or filter, packets that have a particular
    string anywhere in them? 
 
    GENERAL QUESTIONS 
@@ -162,7 +163,7 @@
 
    Q 1.2: What protocols are currently supported?
 
-   A: There are currently 355 supported protocols and media, listed
+   A: There are currently 366 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             802.1q Virtual LAN
@@ -249,11 +250,11 @@
             Distance Vector Multicast Routing Protocol
             Distributed Checksum Clearinghouse Prototocl
             Domain Name Service
-            Dummy Protocol
             Dynamic DNS Tools Protocol
             Encapsulating Security Payload
             Enhanced Interior Gateway Routing Protocol
             Ethernet
+            Ethernet over IP
             Extensible Authentication Protocol
             FC Extended Link Svc
             FC Fabric Configuration Server
@@ -280,6 +281,8 @@
             Generic Routing Encapsulation
             Generic Security Service Application Program Interface
             Gnutella Protocol
+            HP Extended Local-Link Control
+            HP Remote Maintenance Protocol
             Hummingbird NFS Daemon
             HyperSCSI
             Hypertext Transfer Protocol
@@ -335,6 +338,7 @@
             MDS Header
             MMS Message Encapsulation
             MS Proxy Protocol
+            MSN Messenger Service
             MSNIP: Multicast Source Notification of Interest Protocol
             MTP 2 Transparent Proxy
             MTP 2 User Adaptation Layer
@@ -358,6 +362,7 @@
             Microsoft Windows Logon Protocol
             Microsoft Workstation Service
             Mobile IP
+            Mobile IPv6
             Modbus/TCP
             Mount Service
             MultiProtocol Label Switching Header
@@ -388,6 +393,7 @@
             Novell Distributed Print System
             Null/Loopback
             Open Shortest Path First
+            OpenBSD Encapsulating device
             OpenBSD Packet Filter log file
             PC NFS
             PPP Bandwidth Allocation Control Protocol
@@ -427,6 +433,7 @@
             RIPng
             RPC Browser
             RSTAT
+            RSYNC File Synchroniser
             RX Protocol
             Radio Access Network Application Part
             Radius Protocol
@@ -459,6 +466,7 @@
             SPRAY
             SS7 SCCP-User Adaptation Layer
             SSCOP
+            SSH Protocol
             Secure Socket Layer
             Sequenced Packet eXchange
             Service Advertisement Protocol
@@ -481,6 +489,7 @@
             Synchronous Data Link Control (SDLC)
             Syslog message
             Systems Network Architecture
+            Systems Network Architecture XID
             TACACS
             TACACS+
             TPKT
@@ -498,7 +507,9 @@
             User Datagram Protocol
             Virtual Router Redundancy Protocol
             Virtual Trunking Protocol
+            WAP Binary XML
             Web Cache Coordination Protocol
+            Wellfleet Breath of Life
             Wellfleet Compression
             Wellfleet HDLC
             Who
@@ -513,6 +524,7 @@
             X11
             Xyplex
             Yahoo Messenger Protocol
+            Yahoo YMSG Messenger Protocol
             Yellow Pages Bind
             Yellow Pages Passwd
             Yellow Pages Service
@@ -668,28 +680,7 @@
    machine). There is a bug in that version of automake that causes this
    problem; upgrade to a later version of automake (1.6 or later).
 
-   Q 4.3: The link failed because of an undefined reference to
-   snmp_set_full_objid.
-
-   A: You probably have the shared library for UCD SNMP 4.1.1 installed
-   (so that snmp_set_full_objid is a macro, rather than a routine in the
-   SNMP shared library), but the `development' package for an earlier or
-   later UCD SNMP library (so that snmp_set_full_objid is not defined as
-   a macro, causing Ethereal to attempt to call it as a routine).
-
-   If you are on a Linux system that uses RPMs, and the UCD SNMP packages
-   are installed as RPMs, the command rpm -qa | grep snmp will report the
-   versions of the SNMP packages you have installed; they should all have
-   the same version number, such as 4.0.1 or 4.1.1 or 4.1.2. If they
-   don't, remove the RPM for the development package (which will probably
-   have a name beginning with ucd-snmp-devel) and install the version of
-   the development package with the same version number as the other
-   ucd-snmp packages have.
-
-   After installing the 4.1.1 version of the UCD SNMP header files, do a
-   make clean and then rebuild Ethereal.
-
-   Q 4.4: The link fails with a number of "Output line too long."
+   Q 4.3: The link fails with a number of "Output line too long."
    messages followed by linker errors. 
 
    A: The version of the sed command on your system is incapable of
@@ -704,7 +695,7 @@
    searching the directory with the version of sed that came with the OS
    should make the problem go away.
 
-   Q 4.5: The link fails on Solaris because plugin_list is undefined. 
+   Q 4.4: The link fails on Solaris because plugin_list is undefined. 
 
    A: This appears to be due to a problem with some versions of the GTK+
    and GLib packages from www.sunfreeware.org; un-install those packages,
@@ -717,7 +708,7 @@
    persists, un-install them and try installing one of the other versions
    mentioned.)
 
-   Q 4.6: The build fails on Windows because of conflicts between
+   Q 4.5: The build fails on Windows because of conflicts between
    winsock.h and winsock2.h. 
 
    A: As of Ethereal 0.9.5, you must install WinPcap 2.3 or later, and
@@ -761,9 +752,9 @@
    this. See, for example:
      * this documentation from Cisco on the Switched Port Analyzer (SPAN)
        feature on Catalyst switches;
-     * documentation from HP on how to set `monitoring'/`mirroring' on
+     * documentation from HP on how to set "monitoring"/"mirroring" on
        ports on the console for HP Advancestack Switch 208 and 224;
-     * the `Network Monitoring Port Features' section of chapter 6 of
+     * the "Network Monitoring Port Features" section of chapter 6 of
        documentation from HP for HP ProCurve Switches 1600M, 2424M,
        4000M, and 8000M.
 
@@ -815,7 +806,10 @@
    In the case of token ring interfaces, the drivers for some of them, on
    Windows, may require you to enable promiscuous mode in order to
    capture in promiscuous mode. Ask the vendor of the card how to do
-   this.
+   this, or see, for example, this information on promiscuous mode on
+   some Madge token ring adapters (note that those cards can have
+   promiscuous mode disabled permanently, in which case you can't enable
+   it).
 
    In the case of wireless LAN interfaces, it appears that, when those
    interfaces are promiscuously sniffing, they're running in a
@@ -846,10 +840,42 @@
    traffic, it's a problem with unicast traffic, as you also won't see
    all UDP traffic between other machines.
 
-   I.e., this is probably the same problem discussed in the previous
-   question; see the response to that question.
+   I.e., this is probably the same question as this earlier one; see the
+   response to that question.
 
-   Q 5.3: I can set a display filter just fine, but capture filters don't
+   Q 5.3: I'm only seeing ARP packets when I try to capture traffic.
+
+   A: You're probably on a switched network, and running Ethereal on a
+   machine that's not sending traffic to the switch and not being sent
+   any traffic from other machines on the switch. ARP packets are often
+   broadcast packets, which are sent to all switch ports.
+
+   I.e., this is probably the same question as this earlier one; see the
+   response to that question.
+
+   Q 5.4: How do I put an interface into promiscuous mode?
+
+   A: By not disabling promiscuous mode when running Ethereal or
+   Tethereal.
+
+   Note, however, that:
+     * the form of promiscuous mode that libpcap (the library that
+       programs such as tcpdump, Ethereal, etc. use to do packet capture)
+       turns on will not necessarily be shown if you run ifconfig on the
+       interface on a UNIX system;
+     * some network interfaces might not support promiscuous mode, and
+       some drivers might not allow promiscuous mode to be turned on -
+       see this earlier question for more information on that;
+     * the fact that you're not seeing any traffic, or are only seeing
+       broadcast traffic, or aren't seeing any non-broadcast traffic
+       other than traffic to or from the machine running Ethereal, does
+       not mean that promiscuous mode isn't on - see this earlier
+       question for more information on that.
+
+   I.e., this is probably the same question as this earlier one; see the
+   response to that question.
+
+   Q 5.5: I can set a display filter just fine, but capture filters don't
    work.
 
    A: Capture filters currently use a different syntax than display
@@ -869,7 +895,7 @@
    The capture filter syntax used by libpcap can be found in the
    tcpdump(8) man page.
 
-   Q 5.4: I'm entering valid capture filters, but I still get "parse
+   Q 5.6: I'm entering valid capture filters, but I still get "parse
    error" errors.
 
    A: There is a bug in some versions of libpcap/WinPcap that cause it to
@@ -901,7 +927,7 @@
    WinPcap, you will need to un-install WinPcap and then download and
    install WinPcap 2.3.
 
-   Q 5.5: I saved a filter and tried to use its name to filter the
+   Q 5.7: I saved a filter and tried to use its name to filter the
    display, but I got an "Unexpected end of filter string" error.
 
    A: You cannot use the name of a saved display filter as a filter. To
@@ -912,7 +938,7 @@
    use a saved filter, you can press the "Filter:" button, select the
    filter in the dialog box that pops up, and press the "OK" button.
 
-   Q 5.6: Why am I seeing lots of packets with incorrect TCP checksums?
+   Q 5.8: Why am I seeing lots of packets with incorrect TCP checksums?
 
    A: If the packets that have incorrect TCP checksums are all being sent
    by the machine on which Ethereal is running, this is probably because
@@ -944,14 +970,14 @@
    tcp.check_checksum:false command-line flag, or manually set in your
    preferences file by adding a tcp.check_checksum:false line.
 
-   Q 5.7: I've just installed Ethereal, and the traffic on my local LAN
+   Q 5.9: I've just installed Ethereal, and the traffic on my local LAN
    is boring.
 
    A: We have a collection of strange and exotic sample capture files at
    http://www.ethereal.com/sample/
 
-   Q 5.8: When I run Ethereal on Solaris 8, it dies with a Bus Error when
-   I start it.
+   Q 5.10: When I run Ethereal on Solaris 8, it dies with a Bus Error
+   when I start it.
 
    A: Some versions of the GTK+ library from www.sunfreeware.org appear
    to be buggy, causing Ethereal to drop core with a Bus Error.
@@ -968,7 +994,7 @@
    Similar problems may exist with older versions of GTK+ for earlier
    versions of Solaris.
 
-   Q 5.9: I'm running Ethereal on Linux; why do my time stamps have only
+   Q 5.11: I'm running Ethereal on Linux; why do my time stamps have only
    100ms resolution, rather than 1us resolution?
 
    A: Ethereal gets time stamps from libpcap/WinPcap, and libpcap/WinPcap
@@ -994,16 +1020,16 @@
    have to run a standard kernel from kernel.org in order to get
    high-resolution time stamps.
 
-   Q 5.10: I'm capturing packets on {Windows 95, Windows 98, Windows Me};
+   Q 5.12: I'm capturing packets on {Windows 95, Windows 98, Windows Me};
    why are the time stamps on packets wrong? 
 
    A: This is due to a bug in WinPcap. The bug should be fixed in the
-   WinPcap 3.0 alpha release - note that it's an alpha release, so it may
+   WinPcap 3.0 beta release - note that it's an beta release, so it may
    be buggier than the current production release of WinPcap; please
    report those bugs to the WinPcap developers, and help them try to
    track down the problem, so that they can fix it for the final release.
 
-   Q 5.11: When I try to run Ethereal on Windows, it fails to run because
+   Q 5.13: When I try to run Ethereal on Windows, it fails to run because
    it can't find packet.dll.
 
    A: In older versions of Ethereal, there were two binary distributions
@@ -1020,7 +1046,7 @@
    Web site, the local mirror of the WinPcap Web site, or the
    Wiretapped.net mirror of the WinPcap site.
 
-   Q 5.12: Why does some network interface on my machine not show up in
+   Q 5.14: Why does some network interface on my machine not show up in
    the list of interfaces in the "Interface:" field in the dialog box
    popped up by "Capture->Start", and/or why does Ethereal give me an
    error if I try to capture on that interface? 
@@ -1145,7 +1171,7 @@
    details of the problem, as described above, and also indicate that the
    problem occurs with tcpdump/WinDump, not just with Ethereal.
 
-   Q 5.13: I'm running Ethereal on Windows NT/2000/XP/Server; my machine
+   Q 5.15: I'm running Ethereal on Windows NT/2000/XP/Server; my machine
    has a PPP (dial-up POTS, ISDN, etc.) interface, and it shows up in the
    "Interface" item in the "Capture Options" dialog box. Why can no
    packets be sent on or received from that network while I'm trying to
@@ -1159,7 +1185,7 @@
    Preferences" dialog box, but this may mean that outgoing packets, or
    incoming packets, won't be seen in the capture.
 
-   Q 5.14: I'm running Ethereal on Windows 95/98/Me, on a machine with
+   Q 5.16: I'm running Ethereal on Windows 95/98/Me, on a machine with
    more than one network adapter of the same type; Ethereal shows all of
    those adapters with the same name, but I can't use any of those
    adapters other than the first one.
@@ -1170,7 +1196,7 @@
    capture only on the first such interface; Ethereal is a
    libpcap/WinPcap-based application.
 
-   Q 5.15: I have an XXX network card on my machine; if I try to capture
+   Q 5.17: I have an XXX network card on my machine; if I try to capture
    on it, my machine crashes or resets itself. 
 
    A: This is almost certainly a problem with one or more of:
@@ -1188,7 +1214,7 @@
        Linux distribution, report the problem to whoever produces the
        distribution).
 
-   Q 5.16: My machine crashes or resets itself when I select "Start" from
+   Q 5.18: My machine crashes or resets itself when I select "Start" from
    the "Capture" menu or select "Preferences" from the "Edit" menu. 
 
    A: Both of those operations cause Ethereal to try to build a list of
@@ -1197,20 +1223,20 @@
    or, for Windows, WinPcap bug that causes the system to crash when this
    happens; see the previous question.
 
-   Q 5.17: Does Ethereal work on Windows ME? 
+   Q 5.19: Does Ethereal work on Windows ME? 
 
    A: Yes, but if you want to capture packets, you will need to install
    the latest version of WinPcap, as 2.02 and earlier versions of WinPcap
    didn't support Windows ME. You should also install the latest version
    of Ethereal as well.
 
-   Q 5.18: Does Ethereal work on Windows XP? 
+   Q 5.20: Does Ethereal work on Windows XP? 
 
    A: Yes, but if you want to capture packets, you will need to install
    the latest version of WinPcap, as 2.2 and earlier versions of WinPcap
    didn't support Windows XP.
 
-   Q 5.19: Why doesn't Ethereal correctly identify RTP packets? It shows
+   Q 5.21: Why doesn't Ethereal correctly identify RTP packets? It shows
    them only as UDP.
 
    A: Ethereal can identify a UDP datagram as containing a packet of a
@@ -1243,20 +1269,17 @@
    both the source and destination ports of the packet should be
    dissected as some particular protocol.
 
-   Q 5.20: Why doesn't Ethereal show Yahoo Messenger packets in captures
+   Q 5.22: Why doesn't Ethereal show Yahoo Messenger packets in captures
    that contain Yahoo Messenger traffic?
 
    A: Ethereal only recognizes as Yahoo Messenger traffic packets to or
-   from TCP port 3050 that begin with "YPNS" or "YHOO". This means that
-    1. TCP segments that start with the middle of a Yahoo Messenger
-       packet that takes more than one TCP segment will not be recognized
-       as Yahoo Messenger packets (even if the TCP segment also contains
-       the beginning of another Yahoo Messenger packet);
-    2. Yahoo Messenger packets that begin with "YMSG", as packets for
-       some versions of the protocol apparently do, will not be
-       recognized as Yahoo Messenger packets.
+   from TCP port 3050 that begin with "YPNS", "YHOO", or "YMSG". TCP
+   segments that start with the middle of a Yahoo Messenger packet that
+   takes more than one TCP segment will not be recognized as Yahoo
+   Messenger packets (even if the TCP segment also contains the beginning
+   of another Yahoo Messenger packet).
 
-   Q 5.21: Why do I get the error 
+   Q 5.23: Why do I get the error 
 
      Gdk-ERROR **: Palettized display (256-colour) mode not supported on
      Windows.
@@ -1271,7 +1294,7 @@
    to a display mode with more colors; if it doesn't support more than
    256 colors, you will be unable to run Ethereal.
 
-   Q 5.22: When I capture on Windows in promiscuous mode, I can see
+   Q 5.24: When I capture on Windows in promiscuous mode, I can see
    packets other than those sent to or from my machine; however, those
    packets show up with a "Short Frame" indication, unlike packets to or
    from my machine. What should I do to arrange that I see those packets
@@ -1281,11 +1304,13 @@
    running on the network interface on which you're capturing; turn it
    off on that interface.
 
-   Q 5.23: How can I capture raw 802.11 packets, including non-data
+   Q 5.25: How can I capture raw 802.11 packets, including non-data
    (management, beacon) packets? 
 
-   A: The answer to this depends on the operating system on which you're
-   running and the 802.11 interface you're using.
+   A: That would require that your 802.11 interface run in the mode
+   called "monitor mode" or "RFMON mode". Not all operating systems
+   support that and, even on operating systems that do support it, not
+   all drivers, and thus not all cards, support it.
 
    Cisco Aironet cards:
 
@@ -1299,7 +1324,8 @@
    On FreeBSD, the ancontrol utility must be used; do not enable the full
    Aironet header via BPF, as Ethereal doesn't currently support that.
 
-   On Linux, you will need to do
+   On Linux with the driver in the 2.4.6 through 2.4.19 kernel, you will
+   need to do
 
 echo "Mode: rfmon" >/proc/driver/aironet/ethN/Config
 
@@ -1311,60 +1337,88 @@ echo "Mode: y" >/proc/driver/aironet/ethN/Config
 
 echo "Mode: ess" >/proc/driver/aironet/ethN/Config
 
-   In either case, Ethereal would have to be linked with libpcap 0.7.1 or
-   later; this means that most Ethereal binary packages won't work unless
-   they're statically linked with libpcap 0.7.1 or later, or they're
-   dynamically linked with libpcap and your system has a libpcap 0.7.1 or
-   later shared library installed (note that libpcap source package from
-   tcpdump.org does not build shared libraries).
+   On Linux with the driver in the 2.4.20 kernel, or with the CVS drivers
+   from the airo-linux SourceForge site, you will have to capture on the
+   wifiN interface if your Aironet card is ethN, after running the
+   commands listed above.
+
+   In all of those cases, Ethereal would have to be linked with libpcap
+   0.7.1 or later; this means that most Ethereal binary packages won't
+   work unless they're statically linked with libpcap 0.7.1 or later, or
+   they're dynamically linked with libpcap and your system has a libpcap
+   0.7.1 or later shared library installed (note that libpcap source
+   package from tcpdump.org does not build shared libraries). Some binary
+   packaging mechanisms might make it difficult to install Ethereal
+   binary packages built to depend on older libpcap binary packages if
+   you have a newer libpcap binary package installed; the installer
+   programs for those packaging mechanisms might support disabling
+   dependency checking so that they will install Ethereal even though a
+   newer version of libpcap is installed.
 
    Cards using the Prism II chip set (see this page of Linux 802.11
    information for details on wireless cards, including information on
    the chips they use):
 
    You can capture raw 802.11 packets with Prism II cards on Linux
-   systems with the 0.1.14-pre1 or later version of the linux-wlan-ng
+   systems with the 0.1.14-pre6 or later version of the linux-wlan-ng
    drivers (see the linux-wlan page, and the linux-wlan-ng tarball
-   directory), or with Solomon Peachy's patches to the linux-wlan-ng
-   0.1.13 drivers (see the `0132-packet-v71.diff' link on his software
-   page; the patch speaks of 0.1.13-pre2, but appears to apply to 0.1.13
-   as well). If you are using the 0.1.13 drivers, you might also want his
-   `0132-promisc-v23.diff' patch as well; if you are using the
-   0.1.14-pre1 drivers, you might also want his
-   `014p1-promiscfixes-v1.diff' patches - both of those are already in
-   0.1.14-pre2.
+   directory).
 
-   Those require either Solomon's patch to libpcap 0.7.1 (see his
-   `libpcap-0.7.1-prism.diff' file, or his RPMs of that version of
+   Those require either Solomon Peachy's patch to libpcap 0.7.1 (see his
+   libpcap-0.7.1-prism.diff file, or his RPMs of that version of
    libpcap), or the current CVS version of libpcap, which includes his
-   patch (download it from the `Current Tar files' section of the
-   tcpdump.org Web site).
+   patch (download it from the "Current Tar files" section of the
+   tcpdump.org Web site). If you apply his patches to libpcap 0.7.1 and
+   rebuild and install libpcap, or if you build and install the current
+   CVS version of libpcap, you would have to rebuild Ethereal from
+   source, linking it with that new version of libpcap; an Ethereal
+   binary package would not work. Ethereal binary packages might work if
+   you install the libpcap-0.7.1-1prism.i386.rpm RPM, as it might install
+   a libpcap shared library in place of the one on your system.
 
    You may have to run a command to put the interface into monitor mode,
-   or to change other interface settings.
-   Earlier versions of the linux-wlan-ng drivers don't allow Ethereal to
-   directly capture raw 802.11 packets on Prism II cards; however, on
-   Linux systems with the linux-wlan-ng drivers version 0.1.6, the
-   Prismdump utility can be used to capture packets; it saves packets in
-   a form that Ethereal can read. Prismdump can be downloaded from this
-   page on the developer.axis.com Web site.
+   or to change other interface settings, and you might have to capture
+   on a wlanN interface rather than a ethN interface, in order to capture
+   raw 802.11 packets. The interface settings are available in your
+   wlan-ng.conf file. See the wlan-ng FAQ for additional information.
 
    On other platforms, capturing raw 802.11 packets on Prism II cards is
    not currently supported.
 
    Orinoco Silver and Gold cards:
 
-   On Linux systems, when using either the orinoco_cs-0.09b driver or the
-   driver in at least some versions of the Linux kernel, the
-   `orinoco-09b-packet-1.diff' patch on the Orinoco Monitor Mode Patch
-   Page should allow you to do capture raw 802.11 packets.
+   On Linux systems, there are patches on the Orinoco Monitor Mode Patch
+   Page that should allow you to do capture raw 802.11 packets. You will
+   have to determine which version of the driver you have, and select the
+   appropriate patch.
 
-   The patch appears to apply to the driver in the 2.4.18 kernel, but we
-   don't know whether it works; the directions on that page are for the
-   pcmcia-cs drivers, not for the driver in the kernel itself.
    Note that the page indicates that not all versions of the Orinoco
-   firmware support this patch. The Orinoco patches require Solomon
-   Peachy's libpcap patches.
+   firmware support this patch. It says, for some versions of the patch,
+   "This patch should allow monitor mode with v8.10 firmware (untested w/
+   8.42);" if you have version 8.10 or later firmware on your Orinoco
+   cards, you might have to use those patches, with the corresponding
+   versions of the Orinoco driver, in order to run in monitor mode.
+
+   That patch is written for the drivers included with the pcmcia-cs
+   drivers, but works equally well for the Orinoco drivers provided with
+   Linux kernels up to 2.4.20. To apply a patch to your kernel drivers,
+   simply copy the orinoco-09b-patch.diff file to the
+   /usr/src/linux/drivers/net directory and patch according to the
+   directions on the Orinoco Monitor Mode Patch Page. You can double-
+   check the version of the Orinoco drivers that shipped with your kernel
+   by examining the first few lines of the orinoco.c file.
+
+   Te Orinoco patches require either Solomon Peachy's patch to libpcap
+   0.7.1 (see his libpcap-0.7.1-prism.diff file, or his RPMs of that
+   version of libpcap), or the current CVS version of libpcap, which
+   includes his patch (download it from the "Current Tar files" section
+   of the tcpdump.org Web site). If you apply his patches to libpcap
+   0.7.1 and rebuild and install libpcap, or if you build and install the
+   current CVS version of libpcap, you would have to rebuild Ethereal
+   from source, linking it with that new version of libpcap; an Ethereal
+   binary package would not work. Ethereal binary packages might work if
+   you install the libpcap-0.7.1-1prism.i386.rpm RPM, as it might install
+   a libpcap shared library in place of the one on your system.
 
    On other platforms, capturing raw 802.11 packets on Orinoco cards is
    not currently supported.
@@ -1373,15 +1427,15 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
 
    With other 802.11 interfaces, no platform allows Ethereal to capture
    raw 802.11 packets, as far as we know. If you know of other 802.11
-   interfaces that are supported (note that there are many `Prism II
-   cards', so your card might be a Prism II card), please let us know,
+   interfaces that are supported (note that there are many "Prism II
+   cards", so your card might be a Prism II card), please let us know,
    and include URLs for sites containing any necessary patches to add
    this support.
 
    On platforms that don't allow Ethereal to capture raw 802.11 packets,
    the 802.11 network will appear like an Ethernet to Ethereal.
 
-   Q 5.24: How can I capture packets with CRC errors? 
+   Q 5.26: How can I capture packets with CRC errors? 
 
    A: Ethereal can capture only the packets that the packet capture
    library - libpcap on UNIX-flavored OSes, and the WinPcap port to
@@ -1398,7 +1452,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    libpcap and the packet capture program you're using are necessary to
    support capturing those packets.
 
-   Q 5.25: How can I capture entire frames, including the FCS? 
+   Q 5.27: How can I capture entire frames, including the FCS? 
 
    A: Ethereal can't capture any data that the packet capture library -
    libpcap on UNIX-flavored OSes, and the WinPcap port to Windows of
@@ -1418,7 +1472,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    not support capturing the FCS of a frame on Ethernet, and probably do
    not support it on most other link-layer types.
 
-   Q 5.26: Ethereal hangs after I stop a capture. 
+   Q 5.28: Ethereal hangs after I stop a capture. 
 
    A: The most likely reason for this is that Ethereal is trying to look
    up an IP address in the capture to convert it to a name (so that, for
@@ -1449,12 +1503,12 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    lookup to take a long time.
 
    If you disable network address-to-name translation - for example, by
-   turning off the `Enable network name resolution' option in the `Name
-   resolution' options in the dialog box you get by selecting
-   `Preferences' from the `Edit' menu - the lookups of the address won't
+   turning off the "Enable network name resolution" option in the "Name
+   resolution" options in the dialog box you get by selecting
+   "Preferences" from the "Edit" menu - the lookups of the address won't
    be done, which may speed up the process of reading the capture file
    after the capture is stopped. You can make that setting the default by
-   using the `Save' button in that dialog box; note that this will save
+   using the "Save" button in that dialog box; note that this will save
    all your current preference settings.
 
    If Ethereal hangs when reading a capture even with network name
@@ -1488,7 +1542,7 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    contains sensitive information (e.g., passwords), then please do not
    send it.
 
-   Q 5.27: How can I search for, or filter, packets that have a
+   Q 5.29: How can I search for, or filter, packets that have a
    particular string anywhere in them? 
 
    A: Currently, you can't.
@@ -1510,4 +1564,4 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    list. 
    For corrections/additions/suggestions for this page, please send email
    to: ethereal-web[AT]ethereal.com
-   Last modified: Wed, March 05 2003.
+   Last modified: Thu, March 20 2003.
