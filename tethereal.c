@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.15 2000/01/24 05:13:45 guy Exp $
+ * $Id: tethereal.c,v 1.16 2000/01/26 05:30:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -457,6 +457,12 @@ capture(int packet_count, int out_file_type)
   void        (*oldhandler)(int);
   int         err, inpkts;
   char        errmsg[1024+1];
+
+  /* Initialize the table of conversations. */
+  conversation_init();
+
+  /* Initialize protocol-specific variables */
+  init_all_protocols();
 
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
   ld.pdh            = NULL;
