@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* With MSVC and a libethereal.dll this file needs to import some variables 
-   in a special way. Therefore _NEED_VAR_IMPORT_ is defined. */  
+/* With MSVC and a libethereal.dll this file needs to import some variables
+   in a special way. Therefore _NEED_VAR_IMPORT_ is defined. */
 #define _NEED_VAR_IMPORT_
 
 #ifdef HAVE_CONFIG_H
@@ -51,7 +51,7 @@ capture_dev_descr_find(const gchar *if_name)
 	char	*descr = NULL;
 	int		lp = 0;
 	int		ct = 0;
-	
+
 	if (prefs.capture_devices_descr == NULL) {
 		/* There are no descriptions. */
 		return NULL;
@@ -61,7 +61,7 @@ capture_dev_descr_find(const gchar *if_name)
 		/* There are, but there isn't one for this interface. */
 		return NULL;
 	}
-	
+
 	while (*p != '\0') {
 		/* error: ran into next interface description */
 		if (*p == ',')
@@ -85,7 +85,7 @@ capture_dev_descr_find(const gchar *if_name)
 			ct++;
 		}
 	}
-	
+
 	if ((lp == 1) && (ct > 0) && (p2 != NULL)) {
 		/* Allocate enough space to return the string,
 		   which runs from p2 to p, plus a terminating
@@ -161,5 +161,88 @@ free_capture_combo_list(GList *combo_list)
     g_list_free(combo_list);
   }
 }
+
+/*
+ * Given text that contains an interface name possibly prefixed by an
+ * interface description, extract the interface name.
+ */
+char *
+get_if_name(char *if_text)
+{
+  char *if_name;
+
+#ifdef WIN32
+  /*
+   * We cannot assume that the interface name doesn't contain a space;
+   * some names on Windows OT do.
+   *
+   * We also can't assume it begins with "\Device\", either, as, on
+   * Windows OT, WinPcap doesn't put "\Device\" in front of the name.
+   *
+   * As I remember, we can't assume that the interface description
+   * doesn't contain a colon, either; I think some do.
+   *
+   * We can probably assume that the interface *name* doesn't contain
+   * a colon, however; if any interface name does contain a colon on
+   * Windows, it'll be time to just get rid of the damn interface
+   * descriptions in the drop-down list, have just the names in the
+   * drop-down list, and have a "Browse..." button to browse for interfaces,
+   * with names, descriptions, IP addresses, blah blah blah available when
+   * possible.
+   *
+   * So we search backwards for a colon.  If we don't find it, just
+   * return the entire string; otherwise, skip the colon and any blanks
+   * after it, and return that string.
+   */
+   if_name = if_text + strlen(if_text);
+   for (;;) {
+     if (if_name == if_text) {
+       /* We're at the beginning of the string; return it. */
+       break;
+     }
+     if_name--;
+     if (*if_name == ':') {
+       /*
+        * We've found a colon.
+        * Unfortunately, a colon is used in the string "rpcap://",
+        * which is used in case of a remote capture.
+        * So we'll check to make sure the colon isn't followed by "//";
+        * it'll be followed by a blank if it separates the description
+        * and the interface name.  (We don't wire in "rpcap", in case we
+        * support other protocols in the same syntax.)
+        */
+       if (strncmp(if_name, "://", 3) != 0) {
+         /*
+          * OK, we've found a colon not followed by "//".  Skip blanks
+          * following it.
+          */
+         if_name++;
+         while (*if_name == ' ')
+           if_name++;
+         break;
+       }
+     }
+     /* Keep looking for a colon not followed by "//". */
+   }
+#else
+  /*
+   * There's a space between the interface description and name, and
+   * the interface name shouldn't have a space in it (it doesn't, on
+   * UNIX systems); look backwards in the string for a space.
+   *
+   * (An interface name might, however, contain a colon in it, which
+   * is why we don't use the colon search on UNIX.)
+   */
+  if_name = strrchr(if_text, ' ');
+  if (if_name == NULL) {
+    if_name = if_text;
+  } else {
+    if_name++;
+  }
+#endif
+  return if_name;
+}
+
+
 
 #endif /* HAVE_LIBPCAP */

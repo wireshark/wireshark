@@ -125,87 +125,6 @@ capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 /*
- * Given text that contains an interface name possibly prefixed by an
- * interface description, extract the interface name.
- */
-static char *
-get_if_name(char *if_text)
-{
-  char *if_name;
-
-#ifdef WIN32
-  /*
-   * We cannot assume that the interface name doesn't contain a space;
-   * some names on Windows OT do.
-   *
-   * We also can't assume it begins with "\Device\", either, as, on
-   * Windows OT, WinPcap doesn't put "\Device\" in front of the name.
-   *
-   * As I remember, we can't assume that the interface description
-   * doesn't contain a colon, either; I think some do.
-   *
-   * We can probably assume that the interface *name* doesn't contain
-   * a colon, however; if any interface name does contain a colon on
-   * Windows, it'll be time to just get rid of the damn interface
-   * descriptions in the drop-down list, have just the names in the
-   * drop-down list, and have a "Browse..." button to browse for interfaces,
-   * with names, descriptions, IP addresses, blah blah blah available when
-   * possible.
-   *
-   * So we search backwards for a colon.  If we don't find it, just
-   * return the entire string; otherwise, skip the colon and any blanks
-   * after it, and return that string.
-   */
-   if_name = if_text + strlen(if_text);
-   for (;;) {
-     if (if_name == if_text) {
-       /* We're at the beginning of the string; return it. */
-       break;
-     }
-     if_name--;
-     if (*if_name == ':') {
-       /*
-        * We've found a colon.
-        * Unfortunately, a colon is used in the string "rpcap://",
-        * which is used in case of a remote capture.
-        * So we'll check to make sure the colon isn't followed by "//";
-        * it'll be followed by a blank if it separates the description
-        * and the interface name.  (We don't wire in "rpcap", in case we
-        * support other protocols in the same syntax.)
-        */
-       if (strncmp(if_name, "://", 3) != 0) {
-         /*
-          * OK, we've found a colon not followed by "//".  Skip blanks
-          * following it.
-          */
-         if_name++;
-         while (*if_name == ' ')
-           if_name++;
-         break;
-       }
-     }
-     /* Keep looking for a colon not followed by "//". */
-   }
-#else
-  /*
-   * There's a space between the interface description and name, and
-   * the interface name shouldn't have a space in it (it doesn't, on
-   * UNIX systems); look backwards in the string for a space.
-   *
-   * (An interface name might, however, contain a colon in it, which
-   * is why we don't use the colon search on UNIX.)
-   */
-  if_name = strrchr(if_text, ' ');
-  if (if_name == NULL) {
-    if_name = if_text;
-  } else {
-    if_name++;
-  }
-#endif
-  return if_name;
-}
-
-/*
  * Keep a static pointer to the current "Capture Options" window, if
  * any, so that if somebody tries to do "Capture:Start" while there's
  * already a "Capture Options" window up, we just pop up the existing
@@ -363,7 +282,7 @@ static GtkWidget *time_unit_option_menu_new(guint32 value) {
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
 
-    /* the selected menu item can't be changed, once the option_menu 
+    /* the selected menu item can't be changed, once the option_menu
        is created, so set the matching menu item now */
     /* days */
     if(value >= 60 * 60 * 24) {
@@ -416,7 +335,7 @@ guint32 value)
 {
 	GtkWidget *menu, *menu_item;
     int unit;
-        
+
     menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(unit_om));
     menu_item = gtk_menu_get_active(GTK_MENU(menu));
     unit = GPOINTER_TO_INT(OBJECT_GET_DATA(menu_item, "time_unit"));
@@ -466,7 +385,7 @@ static GtkWidget *size_unit_option_menu_new(guint32 value) {
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
 
-    /* the selected menu item can't be changed, once the option_menu 
+    /* the selected menu item can't be changed, once the option_menu
        is created, so set the matching menu item now */
     /* gigabytes */
     if(value >= 1024 * 1024 * 1024) {
@@ -485,7 +404,7 @@ static GtkWidget *size_unit_option_menu_new(guint32 value) {
             }
         }
     }
-        
+
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(unit_om), menu);
 
     return unit_om;
@@ -519,7 +438,7 @@ guint32 value)
 {
 	GtkWidget *menu, *menu_item;
     int unit;
-        
+
     menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(unit_om));
     menu_item = gtk_menu_get_active(GTK_MENU(menu));
     unit = GPOINTER_TO_INT(OBJECT_GET_DATA(menu_item, "size_unit"));
@@ -573,10 +492,10 @@ capture_prep(void)
 
                 *file_fr, *file_vb,
                 *file_hb, *file_bt, *file_lb, *file_te,
-                *multi_tb, *multi_files_on_cb, 
+                *multi_tb, *multi_files_on_cb,
                 *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_om,
                 *file_duration_cb, *file_duration_sb, *file_duration_om,
-                *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb, 
+                *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb,
                 *stop_files_cb, *stop_files_sb, *stop_files_lb,
 
                 *limit_fr, *limit_vb, *limit_tb,
@@ -695,7 +614,7 @@ capture_prep(void)
   }
   free_capture_combo_list(combo_list);
   free_interface_list(if_list);
-  gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry, 
+  gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry,
     "Choose which interface (network card) will be used to capture packets from. "
     "Be sure to select the correct one, as it's a common mistake to select the wrong interface.", NULL);
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, TRUE, TRUE, 6);
@@ -734,7 +653,7 @@ capture_prep(void)
    *
    * We leave it as "multiple link-layer types" for now.
    */
-  gtk_tooltips_set_tip(tooltips, linktype_om, 
+  gtk_tooltips_set_tip(tooltips, linktype_om,
     "The selected interface supports multiple link-layer types; select the desired one.", NULL);
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_om, FALSE, FALSE, 0);
   SIGNAL_CONNECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
@@ -750,7 +669,7 @@ capture_prep(void)
   gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) capture_opts.buffer_size);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (buffer_size_sb), TRUE);
   WIDGET_SET_SIZE(buffer_size_sb, 80, -1);
-  gtk_tooltips_set_tip(tooltips, buffer_size_sb, 
+  gtk_tooltips_set_tip(tooltips, buffer_size_sb,
     "The memory buffer size used while capturing. If you notice packet drops, you can try to increase this size.", NULL);
   gtk_box_pack_start (GTK_BOX(linktype_hb), buffer_size_sb, FALSE, FALSE, 0);
 
@@ -763,7 +682,7 @@ capture_prep(void)
       "Capture packets in _promiscuous mode", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb),
 		capture_opts.promisc_mode);
-  gtk_tooltips_set_tip(tooltips, promisc_cb, 
+  gtk_tooltips_set_tip(tooltips, promisc_cb,
     "Usually a network card will only capture the traffic sent to its own network address. "
     "If you want to capture all traffic that the network card can \"see\", mark this option. "
     "See the FAQ for some more details of capturing packets from a switched network.", NULL);
@@ -777,7 +696,7 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(snap_cb),
 		capture_opts.has_snaplen);
   SIGNAL_CONNECT(snap_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, snap_cb, 
+  gtk_tooltips_set_tip(tooltips, snap_cb,
     "Limit the maximum number of bytes to be captured from each packet. This size includes the "
     "link-layer header and all subsequent headers. ", NULL);
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_cb, FALSE, FALSE, 0);
@@ -800,18 +719,18 @@ capture_prep(void)
   filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY);
   SIGNAL_CONNECT(filter_bt, "clicked", capture_filter_construct_cb, NULL);
   SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
-  gtk_tooltips_set_tip(tooltips, filter_bt, 
+  gtk_tooltips_set_tip(tooltips, filter_bt,
     "Select a capture filter to reduce the amount of packets to be captured. "
-    "See \"Capture Filters\" in the online help for further information how to use it.", 
+    "See \"Capture Filters\" in the online help for further information how to use it.",
     NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
 
   filter_te = gtk_entry_new();
   if (cfile.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
-  gtk_tooltips_set_tip(tooltips, filter_te, 
+  gtk_tooltips_set_tip(tooltips, filter_te,
     "Enter a capture filter to reduce the amount of packets to be captured. "
-    "See \"Capture Filters\" in the online help for further information how to use it.", 
+    "See \"Capture Filters\" in the online help for further information how to use it.",
     NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 3);
 
@@ -844,14 +763,14 @@ capture_prep(void)
   gtk_box_pack_start(GTK_BOX(file_hb), file_lb, FALSE, FALSE, 3);
 
   file_te = gtk_entry_new();
-  gtk_tooltips_set_tip(tooltips, file_te, 
+  gtk_tooltips_set_tip(tooltips, file_te,
     "Enter the file name to which captured data will be written. "
     "If you don't enter something here, a temporary file will be used.",
     NULL);
   gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
 
   file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
-  gtk_tooltips_set_tip(tooltips, file_bt, 
+  gtk_tooltips_set_tip(tooltips, file_bt,
     "Select a file to which captured data will be written, "
     "instead of entering the file name directly. ",
     NULL);
@@ -872,7 +791,7 @@ capture_prep(void)
 		capture_opts.multi_files_on);
   SIGNAL_CONNECT(multi_files_on_cb, "toggled", capture_prep_adjust_sensitivity,
                  cap_open_w);
-  gtk_tooltips_set_tip(tooltips, multi_files_on_cb, 
+  gtk_tooltips_set_tip(tooltips, multi_files_on_cb,
     "Instead of using a single capture file, multiple files will be created. "
     "The generated file names will contain an incrementing number and the start time of the capture.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), multi_files_on_cb, 0, 1, row, row+1);
@@ -883,7 +802,7 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_filesize_cb),
 		capture_opts.has_autostop_filesize);
   SIGNAL_CONNECT(ring_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, ring_filesize_cb, 
+  gtk_tooltips_set_tip(tooltips, ring_filesize_cb,
     "If the selected file size is exceeded, capturing switches to the next file.",
     NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_cb, 0, 1, row, row+1);
@@ -907,9 +826,9 @@ capture_prep(void)
   file_duration_cb = gtk_check_button_new_with_label("Next file every");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(file_duration_cb),
 			      capture_opts.has_file_duration);
-  SIGNAL_CONNECT(file_duration_cb, "toggled", 
+  SIGNAL_CONNECT(file_duration_cb, "toggled",
 		 capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, file_duration_cb, 
+  gtk_tooltips_set_tip(tooltips, file_duration_cb,
     "If the selected duration is exceeded, capturing switches to the next file.",
     NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_cb, 0, 1, row, row+1);
@@ -933,7 +852,7 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb),
 		capture_opts.has_ring_num_files);
   SIGNAL_CONNECT(ringbuffer_nbf_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, ringbuffer_nbf_cb, 
+  gtk_tooltips_set_tip(tooltips, ringbuffer_nbf_cb,
     "After capturing has switched to the next file and the given number of files has exceeded, "
     "the oldest file will be removed.",
     NULL);
@@ -957,7 +876,7 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_files_cb),
 		capture_opts.has_autostop_files);
   SIGNAL_CONNECT(stop_files_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, stop_files_cb, 
+  gtk_tooltips_set_tip(tooltips, stop_files_cb,
     "Stop capturing after the given number of \"file switches\" have been done.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_cb, 0, 1, row, row+1);
 
@@ -993,7 +912,7 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_packets_cb),
 		capture_opts.has_autostop_packets);
   SIGNAL_CONNECT(stop_packets_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, stop_packets_cb, 
+  gtk_tooltips_set_tip(tooltips, stop_packets_cb,
     "Stop capturing after the given number of packets have been captured.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_cb, 0, 1, row, row+1);
 
@@ -1014,7 +933,7 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_filesize_cb),
 		capture_opts.has_autostop_filesize);
   SIGNAL_CONNECT(stop_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, stop_filesize_cb, 
+  gtk_tooltips_set_tip(tooltips, stop_filesize_cb,
     "Stop capturing after the given amount of capture data has been captured.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_cb, 0, 1, row, row+1);
 
@@ -1038,7 +957,7 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_duration_cb),
 		capture_opts.has_autostop_duration);
   SIGNAL_CONNECT(stop_duration_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, stop_duration_cb, 
+  gtk_tooltips_set_tip(tooltips, stop_duration_cb,
     "Stop capturing after the given time is exceeded.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_cb, 0, 1, row, row+1);
 
@@ -1070,7 +989,7 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb),
 		capture_opts.sync_mode);
   SIGNAL_CONNECT(sync_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, sync_cb, 
+  gtk_tooltips_set_tip(tooltips, sync_cb,
     "Using this option will show the captured packets immediately on the main screen. "
     "Please note: this will slow down capturing, so increased packet drops might appear.", NULL);
   gtk_container_add(GTK_CONTAINER(display_vb), sync_cb);
@@ -1079,7 +998,7 @@ capture_prep(void)
   auto_scroll_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"_Automatic scrolling in live capture", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
-  gtk_tooltips_set_tip(tooltips, auto_scroll_cb, 
+  gtk_tooltips_set_tip(tooltips, auto_scroll_cb,
     "This will scroll the \"Packet List\" automatically to the latest captured packet, "
     "when the \"Update List of packets in real time\" option is used.", NULL);
   gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
@@ -1088,7 +1007,7 @@ capture_prep(void)
   hide_info_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"_Hide capture info dialog", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hide_info_cb), !capture_opts.show_info);
-  gtk_tooltips_set_tip(tooltips, hide_info_cb, 
+  gtk_tooltips_set_tip(tooltips, hide_info_cb,
     "Hide the capture info dialog while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(display_vb), hide_info_cb);
 
@@ -1104,7 +1023,7 @@ capture_prep(void)
 		"Enable _MAC name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
 		g_resolv_flags & RESOLV_MAC);
-  gtk_tooltips_set_tip(tooltips, m_resolv_cb, 
+  gtk_tooltips_set_tip(tooltips, m_resolv_cb,
     "Perform MAC layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), m_resolv_cb);
 
@@ -1112,7 +1031,7 @@ capture_prep(void)
 		"Enable _network name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
 		g_resolv_flags & RESOLV_NETWORK);
-  gtk_tooltips_set_tip(tooltips, n_resolv_cb, 
+  gtk_tooltips_set_tip(tooltips, n_resolv_cb,
     "Perform network layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
 
@@ -1120,7 +1039,7 @@ capture_prep(void)
 		"Enable _transport name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
 		g_resolv_flags & RESOLV_TRANSPORT);
-  gtk_tooltips_set_tip(tooltips, t_resolv_cb, 
+  gtk_tooltips_set_tip(tooltips, t_resolv_cb,
     "Perform transport layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
 
@@ -1130,16 +1049,16 @@ capture_prep(void)
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", capture_prep_ok_cb, cap_open_w);
-  gtk_tooltips_set_tip(tooltips, ok_bt, 
+  gtk_tooltips_set_tip(tooltips, ok_bt,
     "Start the capture process.", NULL);
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-  gtk_tooltips_set_tip(tooltips, cancel_bt, 
+  gtk_tooltips_set_tip(tooltips, cancel_bt,
     "Cancel and exit dialog.", NULL);
   window_set_cancel_button(cap_open_w, cancel_bt, window_cancel_button_cb);
 
   help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
-  gtk_tooltips_set_tip(tooltips, help_bt, 
+  gtk_tooltips_set_tip(tooltips, help_bt,
     "Show help about capturing.", NULL);
   SIGNAL_CONNECT(help_bt, "clicked", help_topic_cb, "Capturing");
 
@@ -1227,7 +1146,7 @@ capture_prep(void)
   window_present(cap_open_w);
 }
 
-static void 
+static void
 capture_prep_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     switch(btn) {
@@ -1360,7 +1279,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
       GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
 
 #ifdef _WIN32
-  capture_opts.buffer_size = 
+  capture_opts.buffer_size =
     gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(buffer_size_sb));
 #endif
 
@@ -1439,7 +1358,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     g_resolv_flags |= RESOLV_TRANSPORT;
 
   capture_opts.has_ring_num_files =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb));  
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb));
 
   capture_opts.ring_num_files =
     gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(ringbuffer_nbf_sb));
@@ -1469,7 +1388,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
           PRIMARY_TEXT_START "Multiple files: Requested filesize too large!\n\n" PRIMARY_TEXT_END
           "The setting \"Next file every x byte(s)\" can't be greater than %u bytes (2GB).", G_MAXINT);
         return;
-      }        
+      }
     }
 
     /* test if the settings are ok for a ringbuffer */
@@ -1499,7 +1418,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
           PRIMARY_TEXT_START "Stop Capture: Requested filesize too large!\n\n" PRIMARY_TEXT_END
           "The setting \"... after x byte(s)\" can't be greater than %u bytes (2GB).", G_MAXINT);
         return;
-      }        
+      }
     }
   }
 
@@ -1663,7 +1582,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
     gtk_widget_set_sensitive(GTK_WIDGET(stop_filesize_om), FALSE);
 
     gtk_widget_set_sensitive(GTK_WIDGET(stop_files_cb), TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(stop_files_sb), 
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_files_sb),
           gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_files_cb)));
     gtk_widget_set_sensitive(GTK_WIDGET(stop_files_lb),
           gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_files_cb)));
