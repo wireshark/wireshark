@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.30 2002/03/05 11:55:59 guy Exp $
+ * $Id: print_dlg.c,v 1.31 2002/03/31 20:57:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -631,7 +631,7 @@ file_print_packet_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
   print_args.print_hex = FALSE;
   print_args.expand_all = TRUE;
   print_args.suppress_unmarked = FALSE;
-  proto_tree_print(TRUE, &print_args, (GNode*) cfile.edt->tree,
+  proto_tree_print(&print_args, (GNode*) cfile.edt->tree,
 		cfile.current_frame, fh);
   print_finale(fh, prefs.pr_format);
   close_print_dest(print_args.to_file, fh);

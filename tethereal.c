@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.134 2002/03/23 00:20:17 guy Exp $
+ * $Id: tethereal.c,v 1.135 2002/03/31 20:56:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1090,7 +1090,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
 }
 
 static void
-capture_cleanup(int signum)
+capture_cleanup(int signum _U_)
 {
   /* Longjmp back to the starting point; "pcap_dispatch()", on many
      platforms, just keeps looping if it gets EINTR, so if we set
@@ -1222,8 +1222,7 @@ out:
 
 static void
 fill_in_fdata(frame_data *fdata, capture_file *cf,
-	const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header, long offset)
+	const struct wtap_pkthdr *phdr, long offset)
 {
   fdata->next = NULL;
   fdata->prev = NULL;
@@ -1302,7 +1301,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
 
   cf->count++;
   if (cf->rfcode) {
-    fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
+    fill_in_fdata(&fdata, cf, phdr, offset);
     edt = epan_dissect_new(TRUE, FALSE);
     epan_dissect_prime_dfilter(edt, cf->rfcode);
     epan_dissect_run(edt, pseudo_header, buf, &fdata, NULL);
@@ -1397,7 +1396,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
 
   cf->count++;
 
-  fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
+  fill_in_fdata(&fdata, cf, phdr, offset);
 
   passed = TRUE;
   if (cf->rfcode || verbose)
@@ -1427,7 +1426,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
       print_args.print_hex = print_hex;
       print_args.expand_all = TRUE;
       print_args.suppress_unmarked = FALSE;
-      proto_tree_print(FALSE, &print_args, (GNode *)edt->tree,
+      proto_tree_print(&print_args, (GNode *)edt->tree,
 			&fdata, stdout);
       if (!print_hex) {
         /* "print_hex_data()" will put out a leading blank line, as well

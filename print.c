@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.42 2002/03/14 05:41:59 guy Exp $
+ * $Id: print.c,v 1.43 2002/03/31 20:56:59 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -96,7 +96,7 @@ void print_finale(FILE *fh, gint format)
 		print_ps_finale(fh);
 }
 
-void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
+void proto_tree_print(print_args_t *print_args,
     GNode *protocol_tree, frame_data *fd, FILE *fh)
 {
 	print_data data;
