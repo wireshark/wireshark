@@ -737,7 +737,8 @@ capture_prep(void)
   filter_te = GTK_COMBO(filter_cm)->entry;
 
   gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
-  gtk_entry_set_text(GTK_ENTRY(filter_te), ""); /* Default capture filter is empty */
+  if (cfile.cfilter)
+    gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
   gtk_tooltips_set_tip(tooltips, filter_te,
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it.",
