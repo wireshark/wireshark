@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.105 1999/10/12 23:12:03 guy Exp $
+ * $Id: packet.h,v 1.106 1999/10/13 06:47:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -212,6 +212,8 @@ enum {
 	ETT_ISAKMP_PAYLOAD,
 	ETT_RIP,
 	ETT_RIP_VEC,
+	ETT_RIPNG,
+	ETT_PIM,
 	ETT_OSPF,
 	ETT_OSPF_HDR,
 	ETT_OSPF_HELLO,
@@ -490,6 +492,7 @@ void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *);
 void dissect_osi(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);
+void dissect_pim(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pop(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pppoed(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pppoes(const u_char *, int, frame_data *, proto_tree *);
