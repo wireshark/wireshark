@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.25 2002/06/28 20:15:31 gerald Exp $
+# $Id: configure.in,v 1.26 2002/08/14 14:42:39 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -24,7 +24,7 @@ AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_YACC
 AM_PROG_LEX
-AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 AC_PATH_PROG(LEX, flex)
 
 AC_SUBST(FLEX_PATH)
