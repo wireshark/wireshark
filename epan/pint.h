@@ -2,7 +2,7 @@
  * Definitions for extracting and translating integers safely and portably
  * via pointers.
  *
- * $Id: pint.h,v 1.7 2002/11/27 22:41:00 guy Exp $
+ * $Id: pint.h,v 1.8 2003/07/29 20:50:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,18 +74,7 @@
 	  (((x)&0x00FF)<<8))
 
 /* Turn host-byte-order values into little-endian values. */
-#ifdef WORDS_BIGENDIAN
-#define htoles(s) ((guint16)                       \
-                    ((guint16)((s) & 0x00FF)<<8|  \
-                     (guint16)((s) & 0xFF00)>>8))
-
-#define htolel(l) ((guint32)((l) & 0x000000FF)<<24|  \
-                   (guint32)((l) & 0x0000FF00)<<8|  \
-                   (guint32)((l) & 0x00FF0000)>>8|   \
-                   (guint32)((l) & 0xFF000000)>>24)
-#else
-#define htoles(s)	(s)
-#define htolel(l)	(l)
-#endif
+#define htoles(s) GUINT16_TO_LE(s)
+#define htolel(l) GUINT32_TO_LE(l)
 
 #endif /* PINT_H */
