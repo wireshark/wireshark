@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.13 2000/08/13 14:09:05 deniel Exp $
+ * $Id: packet-tftp.c,v 1.14 2000/10/21 09:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,12 +42,15 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "conversation.h"
 
 static int proto_tftp = -1;
 static int hf_tftp_type = -1;
 static int hf_tftp_error_code = -1;
 
 static gint ett_tftp = -1;
+
+#define UDP_PORT_TFTP    69
 
 #define	RRQ	1
 #define	WRQ	2
@@ -78,14 +81,40 @@ char *tftp_errors[8] = {
   "No such user"
 };
 
-void
+static void
 dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree	*tftp_tree;
 	proto_item	*ti;
 	u_int           i1;
+	conversation_t  *conversation;
 
 	OLD_CHECK_DISPLAY_AS_DATA(proto_tftp, pd, offset, fd, tree);
+
+	/*
+	 * The first TFTP packet goes to the TFTP port; the second one
+	 * comes from some *other* port, but goes back to the same
+	 * IP address and port as the ones from which the first packet
+	 * came; all subsequent packets go between those two IP addresses
+	 * and ports.
+	 *
+	 * If this packet went to the TFTP port, we check to see if
+	 * there's already a conversation with the source IP address
+	 * and port of this packet, the destination IP address of this
+	 * packet, and any destination UDP port.  If not, we create
+	 * one, with a wildcard UDP port, and give it the TFTP dissector
+	 * as a dissector.
+	 */
+	if (pi.destport == UDP_PORT_TFTP) {
+	  conversation = find_conversation(&pi.src, &pi.dst, PT_UDP,
+					   pi.srcport, 0, NO_DST_PORT);
+	  if (conversation == NULL) {
+	    conversation = conversation_new(&pi.src, &pi.dst, PT_UDP,
+					    pi.srcport, 0, NULL,
+					    NO_DST_PORT);
+	    old_conversation_set_dissector(conversation, dissect_tftp);
+	  }
+	}
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "TFTP");
@@ -192,7 +221,6 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_tftp(void)
 {
-
   static hf_register_info hf[] = {
     { &hf_tftp_type,
       { "Type",		      "tftp.type",
@@ -211,4 +239,10 @@ proto_register_tftp(void)
   proto_tftp = proto_register_protocol("Trivial File Transfer Protocol", "tftp");
   proto_register_field_array(proto_tftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_tftp(void)
+{
+  old_dissector_add("udp.port", UDP_PORT_TFTP, dissect_tftp);
 }

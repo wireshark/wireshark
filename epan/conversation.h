@@ -1,7 +1,7 @@
 /* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.h,v 1.2 2000/10/21 05:52:28 guy Exp $
+ * $Id: conversation.h,v 1.3 2000/10/21 09:54:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,6 @@ typedef struct conversation_key {
 	port_type ptype;
 	guint32	port_src;
 	guint32	port_dst;
-	guint	options;
 } conversation_key;
 
 typedef struct conversation {
@@ -55,7 +54,7 @@ typedef struct conversation {
 		old_dissector_t	old_d;
 		dissector_t	new_d;
 	} dissector; 			/* protocol dissector client can associate with conversation */
-
+	guint	options;		/* wildcard flags */
 	conversation_key *key_ptr;	/* pointer to the key for this conversation */
 } conversation_t;
 
