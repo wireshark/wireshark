@@ -1,7 +1,7 @@
 /* packet-dvmrp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/DVMRP packet disassembly
  *
- * $Id: packet-dvmrp.c,v 1.9 2002/04/02 05:12:12 guy Exp $
+ * $Id: packet-dvmrp.c,v 1.10 2002/05/02 09:34:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,7 +222,7 @@ static const true_false_string tfs_cap_netmask = {
 };
 
 int
-dissect_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint8 m0,m1,m2,m3;
 	guint8 s0,s1,s2,s3;
@@ -376,7 +376,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		}
 		break;
 	case DVMRP_V3_REPORT:
-		offset = dissect_v3_report(tvb, pinfo, parent_tree, offset);
+		offset = dissect_v3_report(tvb, parent_tree, offset);
 		break;
 	case DVMRP_V3_PRUNE:
 		/* source address */
