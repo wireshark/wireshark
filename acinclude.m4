@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.36 2002/01/03 20:09:55 guy Exp $
+dnl $Id: acinclude.m4,v 1.37 2002/01/18 08:28:22 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -364,9 +364,45 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 		# some older versions of zlib don't have it.  It appears
 		# from the zlib ChangeLog that any released version of zlib
 		# with "gzseek()" should have the other routines we
-		# depend on, such as "gztell()" and "zError()".
+		# depend on, such as "gztell()", and "zError()".
+		# (I think they may also get "gzgets()", in which case
+		# we can get rid of our own private "gzgets()"
+		# implementation, as any zlib that's adequate for our
+		# purposes will have "gzgets()".)
 		#
 		AC_CHECK_LIB(z, gzseek,,enable_zlib=no)
+	fi
+
+	if test x$enable_zlib != xno
+	then
+		#
+		# Well, we at least have the zlib header file and a zlib
+		# with "gzseek()".
+		#
+		# Now check for "gzseek()" in zlib when linking with the
+		# linker flags for GTK+ applications; people often grab
+		# XFree86 source and build and install it on their systems,
+		# and they appear sometimes to misconfigure XFree86 so that,
+		# even on systems with zlib, it assumes there is no zlib,
+		# so the XFree86 build process builds and installs its
+		# own zlib in the X11 library directory.
+		#
+		# The XFree86 zlib is an older version that lacks
+		# "gzseek()", and that's the zlib with which Ethereal
+		# gets linked, so the build of Ethereal fails.
+		#
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
+		CFLAGS="$CFLAGS $GTK_CFLAGS"
+		LIBS="$GTK_LIBS -lz $LIBS"
+		AC_MSG_CHECKING([for gzseek missing when linking with X11])
+	        AC_TRY_LINK_FUNC(gzseek, AC_MSG_RESULT(no),
+		  [
+		    AC_MSG_RESULT(yes)
+		    AC_MSG_ERROR(old XFree86 zlib found - rebuild XFree86 using system zlib or configure Ethereal without compressed file support.)
+		  ])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
 	fi
 ])
 
@@ -452,9 +488,7 @@ AC_DEFUN(AC_ETHEREAL_SSL_CHECK,
 		    SSL_LIBS=-lcrypto
 		  ],,
 		)
-
 	else
 		AC_MSG_RESULT(not required)
 	fi
-
 ])
