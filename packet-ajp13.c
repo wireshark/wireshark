@@ -2,7 +2,7 @@
  * Routines for AJP13 dissection
  * Copyright 2002, Christopher K. St. John <cks@distributopia.com>
  *
- * $Id: packet-ajp13.c,v 1.8 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-ajp13.c,v 1.9 2003/01/27 22:19:10 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -242,9 +242,8 @@ get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf, size_t cbuflen)
   guint16 len;
   guint16 copylen;
 
-  /*printf("ajp13:get_nstring()\n");*/
   len = tvb_get_ntohs(tvb, offset);
-  /*printf("ajp13:get_nstring():len=%d\n", len);*/
+
   if (len == 0xffff) {
     cbuf[0] = '\0';
     len = 0;
@@ -272,8 +271,6 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
   char mcode_buf[1024];
   int i;
 
-  /*printf("ajp13:dissect_ajp13():SC->WS\n");*/
-
   /* MAGIC
    */
   if (ajp13_tree)
@@ -299,8 +296,6 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
     col_append_str(pinfo->cinfo, COL_INFO, msg_code);
 
   if (mcode == 5) {
-
-    guint8 len = tvb_get_guint8(tvb, pos);
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_reusep, tvb, pos, 1, 0);
     pos+=1;
@@ -357,36 +352,30 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
       /* HEADER CODE/NAME
        */
       hcd = tvb_get_guint8(tvb, pos);
-      /*printf("ajp13:dissect_ajp13():%d:hcd=%d\n", i, hcd);*/
+
       if (hcd == 0xA0) {
         pos+=1;
         hid = tvb_get_guint8(tvb, pos);
         pos+=1;
-        /*printf("ajp13:dissect_ajp13():hid=%d\n", hid);*/
+
         hname = val_to_str(hid, rsp_header_codes, "UNKNOWN");
         /* Content-Length header (encoded by 0x08) is special */
         if (hid == 0x08)
           cl = 1;
       } else {
         int hname_len = get_nstring(tvb, pos, hname_bytes, sizeof hname_bytes);
-        /*printf("ajp13:dissect_ajp13():hname_len=%d\n", hname_len);*/
+
         pos+=hname_len+2;
         hname = (gchar*)hname_bytes; /* VERY EVIL */
       }
 
-      /*printf("ajp13:dissect_ajp13():hname=%s\n", hname);*/
       dp = pos-orig_pos;
-      /*printf("ajp13:dissect_ajp13():name:dp=%d\n", dp);*/
-
-      /*if (ajp13_tree)
-       * proto_tree_add_string(ajp13_tree, hf_ajp13_hname, tvb, orig_pos, dp, hname);
-       */
 
       /* HEADER VALUE
        */
       orig_pos = pos;
       hval_len = get_nstring(tvb, pos, hval, sizeof hval);
-      /*printf("ajp13:dissect_ajp13():hval_len=%d\n", hval_len);*/
+
       pos+=hval_len+2;
       dp = pos - orig_pos;
       if (ajp13_tree) {
@@ -396,7 +385,6 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
     }
 
   } else if (mcode == 6) {
-    guint16 len = tvb_get_ntohs(tvb, pos);
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_rlen, tvb, pos, 2, 0);
     pos+=2;
@@ -474,8 +462,6 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   guint16 srv_len;
   guint nhdr;
   guint i;
-
-  /*printf("ajp13:display_req_forward()\n");*/
 
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, 0);
@@ -573,7 +559,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   /* NUM HEADERS
    */
   nhdr = tvb_get_ntohs(tvb, pos);
-  /*printf("ajp13:dissect_ajp13():nhdr=%d\n", nhdr);*/
+
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_nhdr, tvb, pos, 2, 0);
   pos+=2;
@@ -596,46 +582,38 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     /* HEADER CODE/NAME
      */
     hcd = tvb_get_guint8(tvb, pos);
-    /*printf("ajp13:dissect_ajp13():%d:hcd=%d\n", i, hcd);*/
+
     if (hcd == 0xA0) {
       pos+=1;
       hid = tvb_get_guint8(tvb, pos);
       pos+=1;
-      /*printf("ajp13:dissect_ajp13():hid=%d\n", hid);*/
+
       hname = val_to_str(hid, req_header_codes, "UNKNOWN");
       if (hid == 0x08)
         cl = 1;
     } else {
       int hname_len = get_nstring(tvb, pos, hname_bytes, sizeof hname_bytes);
-      /*printf("ajp13:dissect_ajp13():hname_len=%d\n", hname_len);*/
+
       pos+=hname_len+2;
       hname = (gchar*)hname_bytes; /* VERY EVIL */
     }
-    /*printf("ajp13:dissect_ajp13():hname=%s\n", hname);*/
-    dp = pos-orig_pos;
-    /*printf("ajp13:dissect_ajp13():name:dp=%d\n", dp);*/
 
-    /*if (ajp13_tree)
-     * proto_tree_add_string(ajp13_tree, hf_ajp13_hname, tvb, orig_pos,
-     * dp, hname);
-     */
+    dp = pos-orig_pos;
 
     /* HEADER VALUE
      */
     orig_pos = pos;
     hval_len = get_nstring(tvb, pos, hval, sizeof hval);
-    /*printf("ajp13:dissect_ajp13():hval_len=%d\n", hval_len);*/
+
     pos+=hval_len+2;
     dp = pos - orig_pos;
     if (ajp13_tree) {
-      /*sprintf(hname_value, "%s : %s", hname, hval);*/
       proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval,
                                    tvb, orig_pos, dp, hname,
                                    "%s: %s", hname, hval);
     }
     if (cl) {
       cl = atoi(hval);
-      /*printf("ajp13:dissect_ajp13():CONTENT_LENGTH=%d\n", cl);*/
       cd->content_length = cl;
     }
   }
@@ -656,15 +634,12 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ajp13_tree = NULL;
   ajp13_frame_data* fd = NULL;
 
-  /*printf("ajp13:dissect_ajp13_common()\n");*/
-
   /* conversational state really only does us good during the first
    * in-order traversal
    */
   conv = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
                            pinfo->srcport, pinfo->destport, 0);
   if (!conv) {
-    /*printf("ajp13:dissect_ajp13():no conv\n");*/
     conv = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
                             pinfo->srcport, pinfo->destport, 0);
     cd = (ajp13_conv_data*)malloc(sizeof(ajp13_conv_data));
@@ -672,11 +647,8 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     cd->was_get_body_chunk = 0;
     conversation_add_proto_data(conv, proto_ajp13, cd);
   } else {
-    /*printf("ajp13:dissect_ajp13():found conv\n");*/
     cd = (ajp13_conv_data*)conversation_get_proto_data(conv, proto_ajp13);
   }
-  /*printf("ajp13:dissect_ajp13():cd->content_length=%d\n", cd->content_length);*/
-
 
   /* we use the per segment user data to record the conversational
    * state for use later on when we're called out of order (see
@@ -699,7 +671,6 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * no GET_BODY_CHUNK from the container.
        */
       fd->is_request_body = 1;
-      /*printf("ajp13:dissect_ajp13_common():we are a request body");*/
     }
   }
 
@@ -755,8 +726,6 @@ get_ajp13_pdu_len(tvbuff_t *tvb, int offset)
   magic = tvb_get_ntohs(tvb, offset);
   plen = tvb_get_ntohs(tvb, offset+2);
   plen += 4;
-  /*printf("ajp13:get_ajp13_pdu_len():magic=%x\n", magic);*/
-  /*printf("ajp13:get_ajp13_pdu_len()=%d\n", plen);*/
   return plen;
 }
 
@@ -769,8 +738,6 @@ dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* Set up structures needed to add the protocol subtree and manage it
    */
-  /*printf("ajp13:dissect_ajp13()\n");*/
-
   tcp_dissect_pdus(tvb, pinfo, tree,
                    TRUE,                   /* desegment or not   */
                    4,                      /* magic + length */
@@ -866,9 +833,6 @@ proto_register_ajp13(void)
     &ett_ajp13,
   };
 
-  /*printf("ajp13:proto_register_ajp13()\n");*/
-  /*fflush(stdout);*/
-
   /* Register the protocol name and description
    */
   proto_ajp13 = proto_register_protocol("Apache JServ Protocol v1.3", "AJP13", "ajp13");
@@ -883,7 +847,6 @@ void
 proto_reg_handoff_ajp13(void)
 {
   dissector_handle_t ajp13_handle;
-  /*printf("ajp13.proto_reg_handoff_ajp13()\n");*/
   ajp13_handle = create_dissector_handle(dissect_ajp13, proto_ajp13);
   dissector_add("tcp.port", 8009, ajp13_handle);
 }
