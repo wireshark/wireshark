@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.2 2000/04/01 09:16:49 guy Exp $
+ * $Id: summary_dlg.c,v 1.3 2000/04/13 09:17:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -183,7 +183,7 @@ summary_open_cb(GtkWidget *w, gpointer d)
 
 #ifdef HAVE_LIBPCAP
   /* Capture filter */
-  if (summary.cfilter) {
+  if (summary.cfilter && summary.cfilter[0] != '\0') {
     snprintf(string_buff, SUM_STR_MAX, "Capture filter: %s", summary.cfilter);
   } else {
     sprintf(string_buff, "Capture filter: none");
