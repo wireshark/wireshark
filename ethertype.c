@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.27 2000/02/15 21:01:56 gram Exp $
+ * $Id: ethertype.c,v 1.28 2000/03/09 18:31:50 ashokn Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -48,6 +48,7 @@
 #include "packet-vines.h"
 #include "packet-vlan.h"
 #include "packet-x25.h"
+#include "packet-mpls.h"
 
 const value_string etype_vals[] = {
     {ETHERTYPE_IP,     "IP"             },
@@ -64,6 +65,8 @@ const value_string etype_vals[] = {
     {ETHERTYPE_PPPOED, "PPPoE Discovery"}, 
     {ETHERTYPE_PPPOES, "PPPoE Session"  }, 
     {ETHERTYPE_VLAN,   "802.1Q Virtual LAN" },
+    {ETHERTYPE_MPLS,   "MPLS label switched packet" },
+    {ETHERTYPE_MPLS_MULTI,   "MPLS multicast label switched packet" },
     {0,                 NULL            } };
 
 void
@@ -140,6 +143,9 @@ ethertype(guint16 etype, int offset,
       break;
     case ETHERTYPE_SNMP:
       dissect_snmp(pd, offset, fd, tree);
+      break;
+    case ETHERTYPE_MPLS:
+      dissect_mpls(pd, offset, fd, tree);
       break;
     default:
       dissect_data(pd, offset, fd, tree);

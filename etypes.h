@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.12 2000/01/13 17:59:13 guy Exp $
+ * $Id: etypes.h,v 1.13 2000/03/09 18:31:50 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,6 +104,14 @@
 
 #ifndef ETHERTYPE_SNMP
 #define ETHERTYPE_SNMP 0x814c /* SNMP over Ethernet, RFC 1089 */
+#endif
+
+#ifndef ETHERTYPE_MPLS
+#define ETHERTYPE_MPLS 0x8847 /* MPLS unicast packet */
+#endif
+
+#ifndef ETHERTYPE_MPLS_MULTI
+#define ETHERTYPE_MPLS_MULTI 0x8848 /* MPLS multicast packet */
 #endif
 
 #endif /* etypes.h */

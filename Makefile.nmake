@@ -66,6 +66,7 @@ DISSECTOR_OBJECTS = \
 	packet-lpd.obj   \
 	packet-mapi.obj  \
 	packet-mount.obj \
+	packet-mpls.obj \
 	packet-nbipx.obj \
 	packet-nbns.obj  \
 	packet-ncp.obj   \

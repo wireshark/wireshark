@@ -1,6 +1,6 @@
 /* packet-ospf.h (c) 1998 Hannes Boehm */
 
-/* $Id: packet-ospf.h,v 1.6 2000/02/15 21:02:49 gram Exp $ */
+/* $Id: packet-ospf.h,v 1.7 2000/03/09 18:31:51 ashokn Exp $ */
 
 #define OSPF_HEADER_LENGTH	24
 
@@ -32,12 +32,20 @@
 #define OSPF_LSTYPE_ASBR	4
 #define OSPF_LSTYPE_ASEXT	5
 
+/* Opaque LSA types */
+#define OSPF_LSTYPE_OP_LINKLOCAL 9
+#define OSPF_LSTYPE_OP_AREALOCAL 10
+#define OSPF_LSTYPE_OP_ASWIDE    11
+
 #define OSPF_LINK_PTP		1
 #define OSPF_LINK_TRANSIT	2
 #define OSPF_LINK_STUB		3
 #define OSPF_LINK_VIRTUAL	4
 
 #define OSPF_LSA_HEADER_LENGTH	20
+
+/* Known opaque LSAs */
+#define OSPF_LSA_MPLS_TE        1
 
 typedef struct _e_ospfhdr {
     guint8  version;

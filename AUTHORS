@@ -112,6 +112,8 @@ Brad Robel-Forrest <bradr@watchguard.com> {
 Ashok Narayanan <ashokn@cisco.com> {
 	RSVP
 	Match Selected functionality
+	Support for reading compressed capture files
+	MPLS
 }
 
 Aaron Hillegass <aaron@classmax.com> {

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.19 2000/03/07 05:21:54 guy Exp $
+ * $Id: packet-ospf.c,v 1.20 2000/03/09 18:31:51 ashokn Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -49,6 +49,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-ospf.h"
+#include "ieee-float.h"
 
 static int proto_ospf = -1;
 
@@ -59,6 +60,12 @@ static gint ett_ospf_desc = -1;
 static gint ett_ospf_lsr = -1;
 static gint ett_ospf_lsa = -1;
 static gint ett_ospf_lsa_upd = -1;
+
+/* Trees for opaque LSAs */
+static gint ett_ospf_lsa_mpls = -1;
+static gint ett_ospf_lsa_mpls_router = -1;
+static gint ett_ospf_lsa_mpls_link = -1;
+static gint ett_ospf_lsa_mpls_link_stlv = -1;
 
 void 
 dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -400,6 +407,224 @@ dissect_ospf_ls_ack(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 }
 
+/*
+ * Returns if an LSA is opaque, i.e. requires special treatment 
+ */
+int is_opaque(int lsa_type)
+{
+    return (lsa_type >= 9 && lsa_type <= 11);
+}
+
+/* MPLS/TE TLV types */
+#define MPLS_TLV_ROUTER    1
+#define MPLS_TLV_LINK      2
+
+/* MPLS/TE Link STLV types */
+enum {
+    MPLS_LINK_TYPE       = 1,
+    MPLS_LINK_ID,
+    MPLS_LINK_LOCAL_IF,
+    MPLS_LINK_REMOTE_IF,
+    MPLS_LINK_TE_METRIC,
+    MPLS_LINK_MAX_BW,
+    MPLS_LINK_MAX_RES_BW,
+    MPLS_LINK_UNRES_BW,
+    MPLS_LINK_COLOR,
+};
+
+static value_string mpls_link_stlv_str[] = {
+    {MPLS_LINK_TYPE, "Link Type"},
+    {MPLS_LINK_ID, "Link ID"},
+    {MPLS_LINK_LOCAL_IF, "Local Interface IP Address"},
+    {MPLS_LINK_REMOTE_IF, "Remote Interface IP Address"},
+    {MPLS_LINK_TE_METRIC, "Traffic Engineering Metric"},
+    {MPLS_LINK_MAX_BW, "Maximum Bandwidth"},
+    {MPLS_LINK_MAX_RES_BW, "Maximum Reservable Bandwidth"},
+    {MPLS_LINK_UNRES_BW, "Unreserved Bandwidth"},
+    {MPLS_LINK_COLOR, "Resource Class/Color"},
+};
+
+/* 
+ * Dissect MPLS/TE opaque LSA 
+ */
+
+void dissect_ospf_lsa_mpls(const u_char *pd, 
+			  int offset, 
+			  frame_data *fd, 
+			  proto_tree *tree,
+			  e_ospf_lsa_hdr *lsa_hdr) {
+    proto_item *ti; 
+    proto_tree *mpls_tree;
+    proto_tree *tlv_tree;
+    proto_tree *stlv_tree;
+
+    int length;
+    int tlv_type;
+    int tlv_length;
+
+    int link_len;
+    int stlv_type, stlv_len;
+    char *stlv_name;
+    int i;
+
+    ti = proto_tree_add_text(tree, offset, ntohs(lsa_hdr->length) - 20,
+			     "MPLS Traffic Engineering LSA");
+    mpls_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls);
+
+    for (length = 0; length < ntohs(lsa_hdr->length) - 20; length += 4) {
+	tlv_type = pntohs(pd+offset+length);
+	tlv_length = pntohs(pd+offset+length + 2);
+
+	switch(tlv_type) {
+	case MPLS_TLV_ROUTER:
+	    ti = proto_tree_add_text(mpls_tree, offset+length, tlv_length+4, 
+				     "Router Address: %s", 
+				     ip_to_str((pd+offset+length+4)));
+	    tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_router);
+	    proto_tree_add_text(tlv_tree, offset+length, 2, "TLV Type: 1 - Router Address");
+	    proto_tree_add_text(tlv_tree, offset+length+2, 2, "TLV Length: %d", tlv_length);
+	    proto_tree_add_text(tlv_tree, offset+length+4, 4, "Router Address: %s", 
+				ip_to_str((pd+offset+length+4)));
+	    break;
+	case MPLS_TLV_LINK:
+	    ti = proto_tree_add_text(mpls_tree, offset+length, tlv_length+4, 
+				     "Link Information");
+	    tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link);
+	    proto_tree_add_text(tlv_tree, offset+length, 2, "TLV Type: 2 - Link Information");
+	    proto_tree_add_text(tlv_tree, offset+length+2, 2, "TLV Length: %d", tlv_length);
+
+	    /* Walk down the sub-TLVs for link information */
+	    for (link_len = length + 4; link_len < length + 4 + tlv_length; link_len += 4) {
+		stlv_type = pntohs(pd+offset+link_len);
+		stlv_len = pntohs(pd+offset+link_len + 2);
+		stlv_name = val_to_str(stlv_type, mpls_link_stlv_str, "Unknown sub-TLV");
+		switch(stlv_type) {
+
+		case MPLS_LINK_TYPE:
+		    ti = proto_tree_add_text(tlv_tree, offset+link_len, stlv_len+4, 
+					     "%s: %d", stlv_name,
+					     *((guint8 *)pd + offset + link_len + 4));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, offset+link_len, 2, 
+					"TLV Type: %d: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, offset+link_len+2, 2, "TLV Length: %d", stlv_len);
+		    proto_tree_add_text(stlv_tree, offset+link_len+4, 1, "%s: %d", stlv_name,
+					*((guint8 *)pd + offset + link_len + 4));
+		    break;
+		    
+		case MPLS_LINK_ID:
+		    ti = proto_tree_add_text(tlv_tree, offset+link_len, stlv_len+4, 
+					     "%s: %s (%x)", stlv_name, 
+					     ip_to_str(pd + offset + link_len + 4),
+					     pntohl(pd + offset + link_len + 4));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, offset+link_len, 2, 
+					"TLV Type: %d: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, offset+link_len+2, 2, "TLV Length: %d", stlv_len);
+		    proto_tree_add_text(stlv_tree, offset+link_len+4, 4, "%s: %s (%x)", stlv_name, 
+					ip_to_str(pd + offset + link_len + 4),
+					pntohl(pd + offset + link_len + 4));
+		    break;
+		    
+		case MPLS_LINK_LOCAL_IF:
+		case MPLS_LINK_REMOTE_IF:
+		    ti = proto_tree_add_text(tlv_tree, offset+link_len, stlv_len+4, 
+					     "%s: %s", stlv_name, 
+					     ip_to_str(pd+offset+link_len+4));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, offset+link_len, 2, 
+					"TLV Type: %d: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, offset+link_len+2, 2, "TLV Length: %d", stlv_len);
+		    proto_tree_add_text(stlv_tree, offset+link_len+4, 4, "%s: %s", stlv_name, 
+					ip_to_str(pd+offset+link_len+4));
+
+		    break;
+
+		case MPLS_LINK_TE_METRIC:
+		case MPLS_LINK_COLOR:
+		    ti = proto_tree_add_text(tlv_tree, offset+link_len, stlv_len+4, 
+					     "%s: %d", stlv_name, 
+					     pntohl(pd + offset + link_len + 4));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, offset+link_len, 2, 
+					"TLV Type: %d: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, offset+link_len+2, 2, "TLV Length: %d", stlv_len);
+		    proto_tree_add_text(stlv_tree, offset+link_len+4, 4, "%s: %d", stlv_name, 
+					pntohl(pd + offset + link_len + 4));
+		    break;
+		    
+		case MPLS_LINK_MAX_BW:
+		case MPLS_LINK_MAX_RES_BW:
+		    ti = proto_tree_add_text(tlv_tree, offset+link_len, stlv_len+4, 
+					     "%s: %d", stlv_name, 
+					     pieee_to_long(pd + offset + link_len + 4));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, offset+link_len, 2, 
+					"TLV Type: %d: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, offset+link_len+2, 2, "TLV Length: %d", stlv_len);
+		    proto_tree_add_text(stlv_tree, offset+link_len+4, 4, "%s: %d", stlv_name, 
+					pieee_to_long(pd + offset + link_len + 4));
+		    break;
+		    
+		case MPLS_LINK_UNRES_BW:
+		    ti = proto_tree_add_text(tlv_tree, offset+link_len, stlv_len+4, 
+					     "%s", stlv_name);
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, offset+link_len, 2, 
+					"TLV Type: %d: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, offset+link_len+2, 2, "TLV Length: %d", stlv_len);
+		    for (i=0; i<8; i++) 
+			proto_tree_add_text(stlv_tree, offset+link_len+4+(i*4), 4, 
+					    "Pri %d: %d", i,
+					    pieee_to_long(pd + offset + link_len + 4 + i*4));
+		    break;
+		    
+		default:
+		    proto_tree_add_text(tlv_tree, offset+link_len, stlv_len+4, 
+					"Unknown Link sub-TLV: %d", stlv_type);
+		}
+		link_len += ((stlv_len+3)/4)*4;
+	    }
+
+	    break;
+
+	default:
+	    ti = proto_tree_add_text(mpls_tree, offset+length, tlv_length+4, 
+				     "Unknown LSA: %d", tlv_type);
+	    tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link);
+	    proto_tree_add_text(tlv_tree, offset+length, 2, "TLV Type: %d - Unknown", tlv_type);
+	    proto_tree_add_text(tlv_tree, offset+length+2, 2, "TLV Length: %d", tlv_length);
+	    proto_tree_add_text(tlv_tree, offset+length+4, tlv_length, "TLV Data");
+	    break;
+	}
+
+	length += tlv_length;
+
+    }
+}
+
+/*
+ * Dissect opaque LSAs
+ */
+void dissect_ospf_lsa_opaque(const u_char *pd, 
+			    int offset, 
+			    frame_data *fd, 
+			    proto_tree *tree,
+			    e_ospf_lsa_hdr *lsa_hdr) {
+    guint8 opaque_id = *((guint8 *) &(lsa_hdr->ls_id));
+
+    switch(opaque_id) {
+
+    case OSPF_LSA_MPLS_TE:
+	dissect_ospf_lsa_mpls(pd, offset, fd, tree, lsa_hdr);
+	break;
+
+    default:
+	proto_tree_add_text(tree, offset, END_OF_FRAME, "Unknown LSA Type");
+	break;
+    } /* switch on opaque LSA id */
+}
+
 int
 dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int disassemble_body) {
     e_ospf_lsa_hdr 	 lsa_hdr;
@@ -426,6 +651,9 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
     e_ospf_asexternal_lsa       asext_lsa;
     guint32                   asext_metric;
 
+    /* data structures for opaque LSA */
+    guint32                     ls_id;
+
     proto_tree *ospf_lsa_tree;
 	proto_item *ti; 
 
@@ -449,6 +677,15 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
         case OSPF_LSTYPE_ASEXT:
 	    lsa_type="AS-external-LSA";
             break;
+        case OSPF_LSTYPE_OP_LINKLOCAL:
+	    lsa_type="Opaque LSA, Link-local scope";
+            break;
+        case OSPF_LSTYPE_OP_AREALOCAL:
+	    lsa_type="Opaque LSA, Area-local scope";
+            break;
+        case OSPF_LSTYPE_OP_ASWIDE:
+	    lsa_type="Opaque LSA, AS-wide scope";
+            break;
         default:
 	    lsa_type="unknown";
     }
@@ -467,8 +704,15 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
         proto_tree_add_text(ospf_lsa_tree, offset + 2, 1, "Options: %d ", lsa_hdr.options);
         proto_tree_add_text(ospf_lsa_tree, offset + 3, 1, "LSA Type: %d (%s)", lsa_hdr.ls_type, lsa_type);
 
-        proto_tree_add_text(ospf_lsa_tree, offset + 4, 4, "Link State ID: %s ", 
-	                                             ip_to_str((guint8 *) &(lsa_hdr.ls_id)));
+	if (is_opaque(lsa_hdr.ls_type)) {
+	    ls_id = ntohl(lsa_hdr.ls_id);
+	    proto_tree_add_text(ospf_lsa_tree, offset + 4, 1, "Link State ID Opaque Type: %u ", 
+				(ls_id >> 24) & 0xff);
+	    proto_tree_add_text(ospf_lsa_tree, offset + 5, 3, "Link State ID Opaque ID: %u ", 
+				ls_id & 0xffffff);
+	} else
+	    proto_tree_add_text(ospf_lsa_tree, offset + 4, 4, "Link State ID: %s ", 
+				ip_to_str((guint8 *) &(lsa_hdr.ls_id)));
 
         proto_tree_add_text(ospf_lsa_tree, offset + 8, 4, "Advertising Router: %s ", 
 	                                             ip_to_str((guint8 *) &(lsa_hdr.adv_router)));
@@ -599,7 +843,14 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
                 proto_tree_add_text(ospf_lsa_tree, offset + 12, 4,"External Route Tag: %ld", (long)ntohl(asext_lsa.external_tag)); 
                     
                 break;
-            default:
+
+        case OSPF_LSTYPE_OP_LINKLOCAL:
+        case OSPF_LSTYPE_OP_AREALOCAL:
+        case OSPF_LSTYPE_OP_ASWIDE:
+	    dissect_ospf_lsa_opaque(pd, offset, fd, ospf_lsa_tree, &lsa_hdr);
+            break;
+
+	default:
                /* unknown LSA type */
 	        proto_tree_add_text(ospf_lsa_tree, offset, END_OF_FRAME, "Unknown LSA Type");
         }
@@ -623,6 +874,10 @@ proto_register_ospf(void)
 		&ett_ospf_lsr,
 		&ett_ospf_lsa,
 		&ett_ospf_lsa_upd,
+		&ett_ospf_lsa_mpls,
+		&ett_ospf_lsa_mpls_router,
+		&ett_ospf_lsa_mpls_link,
+		&ett_ospf_lsa_mpls_link_stlv
 	};
 
         proto_ospf = proto_register_protocol("Open Shortest Path First", "ospf");
