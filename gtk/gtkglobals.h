@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.14 2001/04/10 12:07:39 gram Exp $
+ * $Id: gtkglobals.h,v 1.15 2001/04/25 06:33:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,9 +51,16 @@ void set_plist_font(GdkFont *font);
  * MSVCRT's isprint() returns true on values like 0xd2,
  * which cause the GtkTextWidget to go wacko.
  *
+ * (I.e., whilst non-ASCII characters are considered printable
+ * in the locale in which Ethereal is running - which they might
+ * well be, if, for example, the locale supports ISO Latin 1 -
+ * GTK+'s text widget on Windows doesn't seem to handle them
+ * correctly.)
+ *
  * This is a quick fix for the symptom, not the
  * underlying problem.
  */
+#undef isprint
 #define isprint(c) (c >= 0x20 && c <= 0x7f)
 #endif
 
