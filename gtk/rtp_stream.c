@@ -51,18 +51,9 @@
 #endif
 
 #include <string.h>
+#include <epan/addr_resolv.h>
 
 
-gchar* address_to_str_w_none(address *addr){
-	
-	if(addr->type==AT_NONE){
-		return "NONE";
-	}
-	else{
-		return(address_to_str(addr));
-	}
-}
-	
 /****************************************************************************/
 /* the one and only global rtpstream_tapinfo_t structure */
 static rtpstream_tapinfo_t the_tapinfo_struct =
@@ -165,7 +156,7 @@ static void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	guint16 padding;       /* 2 padding bytes */
 	
 	fprintf(file, "#!rtpplay%s %s/%u\n", RTPFILE_VERSION,
-		address_to_str_w_none(&(strinfo->dest_addr)),
+		get_addr_name(&(strinfo->dest_addr)),
 		strinfo->dest_port);
 
 	start_sec = g_htonl(strinfo->start_sec);

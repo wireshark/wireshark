@@ -57,6 +57,7 @@
 #include <epan/dissectors/packet-rtp.h>
 #include "g711.h"
 #include "rtp_pt.h"
+#include <epan/addr_resolv.h>
 
 /* in /gtk ... */
 #include <gtk/gtk.h>
@@ -1055,16 +1056,16 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	user_data->series_rev.yvalue = -0.5;
 
 	g_snprintf(title1, 80, "Forward: %s:%u to %s:%u (SSRC=%u)",
-		address_to_str_w_none(&(user_data->ip_src_fwd)), 
+		get_addr_name(&(user_data->ip_src_fwd)), 
 		user_data->port_src_fwd,
-		address_to_str_w_none(&(user_data->ip_dst_fwd)),
+		get_addr_name(&(user_data->ip_dst_fwd)),
 		user_data->port_dst_fwd,
 		user_data->ssrc_fwd);
 
 	g_snprintf(title2, 80, "Reverse: %s:%u to %s:%u (SSRC=%u)",
-		address_to_str_w_none(&(user_data->ip_src_rev)),
+		get_addr_name(&(user_data->ip_src_rev)),
 		user_data->port_src_rev,
-		address_to_str_w_none(&(user_data->ip_dst_rev)),
+		get_addr_name(&(user_data->ip_dst_rev)),
 		user_data->port_dst_rev,
 		user_data->ssrc_rev);
 
@@ -1083,13 +1084,13 @@ static void dialog_graph_set_title(user_data_t* user_data)
 		return;
 	}
 	title = g_strdup_printf("RTP Graph Analysis Forward: %s:%u to %s:%u   Reverse: %s:%u to %s:%u",
-			address_to_str_w_none(&(user_data->ip_src_fwd)),
+			get_addr_name(&(user_data->ip_src_fwd)),
 			user_data->port_src_fwd,
-			address_to_str_w_none(&(user_data->ip_dst_fwd)),
+			get_addr_name(&(user_data->ip_dst_fwd)),
 			user_data->port_dst_fwd,
-			address_to_str_w_none(&(user_data->ip_src_rev)),
+			get_addr_name(&(user_data->ip_src_rev)),
 			user_data->port_src_rev,
-			address_to_str_w_none(&(user_data->ip_dst_rev)),
+			get_addr_name(&(user_data->ip_dst_rev)),
 			user_data->port_dst_rev);
 
 	gtk_window_set_title(GTK_WINDOW(user_data->dlg.dialog_graph.window), title);
@@ -1122,18 +1123,18 @@ static void dialog_graph_reset(user_data_t* user_data)
 		if (i<2){
        			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=%u)",
 			graph_descr[i],
-                	address_to_str_w_none(&(user_data->ip_src_fwd)),
+                	get_addr_name(&(user_data->ip_src_fwd)),
                 	user_data->port_src_fwd,
-                	address_to_str_w_none(&(user_data->ip_dst_fwd)),
+                	get_addr_name(&(user_data->ip_dst_fwd)),
                 	user_data->port_dst_fwd,
                 	user_data->ssrc_fwd);
 		/* it is reverse */
 		} else {
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=%u)",
 			graph_descr[i],
-                	address_to_str_w_none(&(user_data->ip_src_rev)),
+                	get_addr_name(&(user_data->ip_src_rev)),
                 	user_data->port_src_rev,
-                	address_to_str_w_none(&(user_data->ip_dst_rev)),
+                	get_addr_name(&(user_data->ip_dst_rev)),
                 	user_data->port_dst_rev,
                 	user_data->ssrc_rev);
 		}
@@ -2149,16 +2150,16 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 			g_snprintf(filter_text,sizeof(filter_text),
 				"rtp && (( ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u ) || ( ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u ))",
 				ip_version,
-				address_to_str_w_none(&(user_data->ip_src_fwd)),
+				address_to_str(&(user_data->ip_src_fwd)),
 				user_data->port_src_fwd,
 				ip_version,
-				address_to_str_w_none(&(user_data->ip_dst_fwd)),
+				address_to_str(&(user_data->ip_dst_fwd)),
 				user_data->port_dst_fwd,
 				ip_version,
-				address_to_str_w_none(&(user_data->ip_src_rev)),
+				address_to_str(&(user_data->ip_src_rev)),
 				user_data->port_src_rev,
 				ip_version,
-				address_to_str_w_none(&(user_data->ip_dst_rev)),
+				address_to_str(&(user_data->ip_dst_rev)),
 				user_data->port_dst_rev
 				);
 		}
@@ -2166,22 +2167,22 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 			g_snprintf(filter_text,sizeof(filter_text),
 				"rtp && (ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u )",
 				ip_version,
-				address_to_str_w_none(&(user_data->ip_src_fwd)),
+				address_to_str(&(user_data->ip_src_fwd)),
 				user_data->port_src_fwd,
 				ip_version,
-				address_to_str_w_none(&(user_data->ip_dst_fwd)),
+				address_to_str(&(user_data->ip_dst_fwd)),
 				user_data->port_dst_fwd
 				);
 			}
 	}
-	else{
+	else if (user_data->ip_src_rev.type!=AT_NONE){
 		g_snprintf(filter_text,sizeof(filter_text),
 			"rtp && ( ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u )",
 			ip_version,
-			address_to_str_w_none(&(user_data->ip_src_rev)),
+			address_to_str(&(user_data->ip_src_rev)),
 			user_data->port_src_rev,
 			ip_version,
-			address_to_str_w_none(&(user_data->ip_dst_rev)),
+			address_to_str(&(user_data->ip_dst_rev)),
 			user_data->port_dst_rev
 			);
 	}		
@@ -3220,16 +3221,16 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(main_vb);
 
 	/* Notebooks... */
-	strcpy(str_ip_src, address_to_str_w_none(&(user_data->ip_src_fwd)));
-	strcpy(str_ip_dst, address_to_str_w_none(&(user_data->ip_dst_fwd)));
+	strcpy(str_ip_src, get_addr_name(&(user_data->ip_src_fwd)));
+	strcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_fwd)));
 
 	g_snprintf(label_forward, 149, 
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u", 
 		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 
-	strcpy(str_ip_src, address_to_str_w_none(&(user_data->ip_src_rev)));
-	strcpy(str_ip_dst, address_to_str_w_none(&(user_data->ip_dst_rev)));
+	strcpy(str_ip_src, get_addr_name(&(user_data->ip_src_rev)));
+	strcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_rev)));
 
 	g_snprintf(label_reverse, 149,
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u", 
@@ -3446,7 +3447,6 @@ void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
 
 /****************************************************************************/
-/* XXX only handles RTP over IPv4, should add IPv6 support */
 void rtp_analysis(
 		address *ip_src_fwd,
 		guint16 port_src_fwd,

@@ -107,8 +107,6 @@ typedef struct _rtpstream_tapinfo {
 	gboolean is_registered; /* if the tap listener is currently registered or not */
 } rtpstream_tapinfo_t;
 
-gchar* address_to_str_w_none(address *addr);
-
 /****************************************************************************/
 /* INTERFACE */
 
