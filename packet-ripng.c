@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.19 2001/04/23 18:19:03 guy Exp $
+ * $Id: packet-ripng.c,v 1.20 2001/04/24 02:50:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,72 +60,69 @@ static const value_string cmdvals[] = {
 };
 
 static void 
-dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    int offset = 0;
     struct rip6 rip6;
     struct netinfo6 ni6;
     proto_tree *ripng_tree = NULL;
     proto_tree *subtree = NULL;
     proto_item *ti; 
 
-    if (check_col(fd, COL_PROTOCOL))
-        col_set_str(fd, COL_PROTOCOL, "RIPng");
-    if (check_col(fd, COL_INFO))
-        col_clear(fd, COL_INFO);
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+        col_set_str(pinfo->fd, COL_PROTOCOL, "RIPng");
+    if (check_col(pinfo->fd, COL_INFO))
+        col_clear(pinfo->fd, COL_INFO);
 
     /* avoid alignment problem */
-    memcpy(&rip6, &pd[offset], sizeof(rip6));
+    tvb_memcpy(tvb, (guint8 *)&rip6, offset, sizeof(rip6));
   
-    if (check_col(fd, COL_PROTOCOL))
-        col_add_fstr(fd, COL_PROTOCOL, "RIPng version %u", rip6.rip6_vers);
-    if (check_col(fd, COL_INFO))
-	col_add_str(fd, COL_INFO,
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+        col_add_fstr(pinfo->fd, COL_PROTOCOL, "RIPng version %u", rip6.rip6_vers);
+    if (check_col(pinfo->fd, COL_INFO))
+	col_add_str(pinfo->fd, COL_INFO,
 	    val_to_str(rip6.rip6_cmd, cmdvals, "Unknown command (%u)")); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_ripng, NullTVB, offset, END_OF_FRAME, FALSE);
+	ti = proto_tree_add_item(tree, proto_ripng, tvb, offset,
+	    tvb_length_remaining(tvb, offset), FALSE);
 	ripng_tree = proto_item_add_subtree(ti, ett_ripng);
 
-	proto_tree_add_uint(ripng_tree, hf_ripng_cmd, NullTVB, offset, 1,
+	proto_tree_add_uint(ripng_tree, hf_ripng_cmd, tvb, offset, 1,
 	    rip6.rip6_cmd);
-	proto_tree_add_uint(ripng_tree, hf_ripng_version, NullTVB, offset + 1, 1,
+	proto_tree_add_uint(ripng_tree, hf_ripng_version, tvb, offset + 1, 1,
 	    rip6.rip6_vers);
 
 	offset += 4;
-	while ((pi.captured_len - offset) >= sizeof(struct netinfo6)){
-		    if (! BYTES_ARE_IN_FRAME(offset, sizeof(ni6))) {
-		       proto_tree_add_text(ripng_tree, NullTVB, offset, sizeof(ni6), "No IP Address information");
-		       break;
-	            }
-
-		    memcpy(&ni6, &pd[offset], sizeof(ni6));
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		    tvb_memcpy(tvb, (guint8 *)&ni6, offset, sizeof(ni6));
 		    if (ni6.rip6_tag) {
-			ti = proto_tree_add_text(ripng_tree, NullTVB, offset,
+			ti = proto_tree_add_text(ripng_tree, tvb, offset,
 					sizeof(ni6), "IP Address: %s/%u, Metric: %u, tag: 0x%04x",
 					ip6_to_str(&ni6.rip6_dest),
 					ni6.rip6_plen,
 					ni6.rip6_metric,
 					ntohs(ni6.rip6_tag));
 		    } else {
-			ti = proto_tree_add_text(ripng_tree, NullTVB, offset,
+			ti = proto_tree_add_text(ripng_tree, tvb, offset,
 					sizeof(ni6), "IP Address: %s/%u, Metric: %u",
 					ip6_to_str(&ni6.rip6_dest),
 					ni6.rip6_plen,
 					ni6.rip6_metric);
 		    }
 		    subtree = proto_item_add_subtree(ti, ett_ripng_addr);
-		    proto_tree_add_text(subtree, NullTVB,
+		    proto_tree_add_text(subtree, tvb,
 				offset + offsetof(struct netinfo6, rip6_dest),
 				sizeof(ni6.rip6_dest), "IP Address: %s",
 				ip6_to_str(&ni6.rip6_dest));
-		    proto_tree_add_text(subtree, NullTVB,
+		    proto_tree_add_text(subtree, tvb,
 				offset + offsetof(struct netinfo6, rip6_tag),
 				sizeof(ni6.rip6_tag), "Tag: 0x%04x",
 				ntohs(ni6.rip6_tag));
-		    proto_tree_add_text(subtree, NullTVB,
+		    proto_tree_add_text(subtree, tvb,
 				offset + offsetof(struct netinfo6, rip6_plen),
 				sizeof(ni6.rip6_plen), "Prefix length: %u",
 				ni6.rip6_plen);
-		    proto_tree_add_text(subtree, NullTVB,
+		    proto_tree_add_text(subtree, tvb,
 				offset + offsetof(struct netinfo6, rip6_metric),
 				sizeof(ni6.rip6_metric), "Metric: %u",
 				ni6.rip6_metric);
@@ -161,5 +158,5 @@ proto_register_ripng(void)
 void
 proto_reg_handoff_ripng(void)
 {
-    old_dissector_add("udp.port", UDP_PORT_RIPNG, dissect_ripng, proto_ripng);
+    dissector_add("udp.port", UDP_PORT_RIPNG, dissect_ripng, proto_ripng);
 }
