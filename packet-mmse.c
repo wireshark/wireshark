@@ -3,7 +3,7 @@
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  * Copyright 2004, Olivier Biot
  *
- * $Id: packet-mmse.c,v 1.34 2004/04/20 23:54:19 obiot Exp $
+ * $Id: packet-mmse.c,v 1.35 2004/05/05 03:05:52 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -467,7 +467,7 @@ get_text_string(tvbuff_t *tvb, guint offset, char **strval)
     guint	 len;
 
     DebugLog(("get_text_string(tvb = %p, offset = %u, **strval) - start\n", 
-		vb, offset));
+		tvb, offset));
     len = tvb_strsize(tvb, offset);
     DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
     if (tvb_get_guint8(tvb, offset) == MM_QUOTE)
@@ -532,8 +532,12 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, char **strval)
 
     if (field < 32) {
 	length = get_value_length(tvb, offset, &count);
-	/* \todo	Something with "Char-set", skip for now	*/
-	*strval = (char *)tvb_get_string(tvb, offset + count + 1, length - 1);
+	if (length < 2) {
+	    *strval = g_strdup("");
+	} else {
+	    /* \todo	Something with "Char-set", skip for now	*/
+	    *strval = (char *)tvb_get_string(tvb, offset + count + 1, length - 1);
+	}
 	return count + length;
     } else
 	return get_text_string(tvb, offset, strval);
