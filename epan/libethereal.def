@@ -288,6 +288,7 @@ g_resolv_flags                  DATA
 T_h323_message_body_vals          DATA
 have_tap_listeners
 heur_dissector_add
+hex_str_to_bytes
 hf_frame_arrival_time           DATA
 hf_frame_capture_len            DATA
 hf_frame_number                 DATA
