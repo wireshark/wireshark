@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.23 2002/05/24 11:38:22 gram Exp $
+$Id: ncp2222.py,v 1.24 2002/05/24 11:45:51 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1238,10 +1238,10 @@ AddNameSpaceAndVol              = stringz("add_nm_spc_and_vol", "Add Name Space 
 AFPEntryID			= uint32("afp_entry_id", "AFP Entry ID", BE)
 AFPEntryID.Display("BASE_HEX")
 AllocAvailByte			= uint32("alloc_avail_byte", "Bytes Available for Allocation")
-AllocateMode			= val_string8("allocate_mode", "Allocate Mode", [
-	[ 0x00, "Permanent Directory Handle" ],
-	[ 0x01, "Temporary Directory Handle" ],
-	[ 0x02, "Special Temporary Directory Handle" ],
+AllocateMode			= val_string16("allocate_mode", "Allocate Mode", [
+	[ 0x0000, "Permanent Directory Handle" ],
+	[ 0x0001, "Temporary Directory Handle" ],
+	[ 0x0002, "Special Temporary Directory Handle" ],
 ])
 AllocationBlockSize		= uint32("allocation_block_size", "Allocation Block Size")
 AllocFreeCount			= uint32("alloc_free_count", "Reclaimable Free Bytes")
