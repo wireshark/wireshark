@@ -1,6 +1,11 @@
-Ethereal for DEBIAN
+Ethereal for Debian
 -------------------
 
-This software is beta but really usable.
+Q. Why isn't ethereal linked against libssl ?
+A. Because it can't be linked against libssl.
+   See http://www.openssl.org/support/faq.html#LEGAL2
+ 
+Q. Why isn't ethereal linked against libsnmp ?
+A. Because it would also need to be linked against libssl
 
-Frederic Peters <fpeters@debian.org>, Mon,  3 Aug 1998 13:13:03 +0200
+Frederic Peters <fpeters@debian.org>, Tue, 21 May 2002 08:37:52 +0200

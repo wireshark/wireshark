@@ -1,0 +1,5 @@
+/usr/bin/editcap
+/usr/bin/mergecap
+/usr/bin/text2pcap
+/usr/lib/ethereal/*
+/usr/share/ethereal/*

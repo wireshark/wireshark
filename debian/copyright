@@ -3,8 +3,12 @@ Sun, 13 Sep 1998 23:05:47 +0200
 
 It was downloaded from http://www.ethereal.com/distribution/
 
+Upstream Authors:
+  Gerald Combs <gerald@ethereal.com>
+  (as well as many contributors)
+
 Copyright:
 
 GPL, as evidenced by existence of GPL license file "COPYING".
-(the GNU GPL may be viewed on Debian systems in /usr/share/common-licences/GPL)
+(the GNU GPL may be viewed on Debian systems in /usr/share/common-licenses/GPL)
 

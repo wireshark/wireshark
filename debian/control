@@ -2,14 +2,56 @@ Source: ethereal
 Section: net
 Priority: optional
 Maintainer: Frederic Peters <fpeters@debian.org>
-Standards-Version: 3.1.0
-Build-Depends: libgtk1.2-dev, libpcap-dev, libsnmp4.1-dev, flex, libz-dev, debhelper
+Standards-Version: 3.5.6
+Build-Depends: libgtk1.2-dev, libgtk2.0-dev, libpcap-dev, flex, libz-dev, debhelper, libtool, python, automake, autoconf
+
+Package: ethereal-common
+Architecture: any
+Depends: ${shlibs:Depends}
+Recommends: ethereal (>= 0.9.1-3) | tethereal (>= 0.9.1-3)
+Conflicts: ethereal (<< 0.9.1-3), tethereal (<< 0.9.1-3)
+Description: Network traffic analyser (common files)
+ Ethereal is a network traffic analyzer, or "sniffer", for Unix and
+ Unix-like operating systems. A sniffer is a tool used to capture
+ packets off the wire. Ethereal decodes numerous protocols (too many
+ to list).
+ .
+ This package provides files common to both ethereal (the GTK+ version)
+ and tethereal (the console version).
 
 Package: ethereal
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ethereal-common
 Description: Network traffic analyzer
  Ethereal is a network traffic analyzer, or "sniffer", for Unix and
- Unix-like operating systems.  It uses GTK+, a graphical user interface
- library, and libpcap, a packet capture and filtering library.
+ Unix-like operating systems. A sniffer is a tool used to capture
+ packets off the wire. Ethereal decodes numerous protocols (too many
+ to list).
+ .
+ This package provides ethereal (the GTK+ version)
+
+Package: tethereal
+Architecture: any
+Depends: ${shlibs:Depends}, ethereal-common
+Description: Network traffic analyzer (console)
+ Ethereal is a network traffic analyzer, or "sniffer", for Unix and
+ Unix-like operating systems. A sniffer is a tool used to capture
+ packets off the wire. Ethereal decodes numerous protocols (too many
+ to list).
+ .
+ This package provides the console version of ethereal, named
+ "tethereal".
+
+Package: ethereal-dev
+Architecture: any
+Section: devel
+Depends: ${shlibs:Depends}, ethereal-common, omniidl-python, libpcap-dev, libtool, python (>= 2.2), python (<< 2.3)
+Description: Network traffic analyser (development tools)
+ Ethereal is a network traffic analyzer, or "sniffer", for Unix and
+ Unix-like operating systems. A sniffer is a tool used to capture
+ packets off the wire. Ethereal decodes numerous protocols (too many
+ to list).
+ .
+ This package provides idl2eth and other necessary files to develop
+ new packet dissectors.
 

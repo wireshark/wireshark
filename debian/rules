@@ -6,29 +6,37 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-build: build-stamp
-build-stamp:
+export DH_COMPAT=3
+
+configure: configure-stamp
+configure-stamp:
 	dh_testdir
 
+	#libtoolize --force --copy
+	-mkdir aclocal-missing
 	(if [ -x ./autogen.sh ]; then \
-	   ./autogen.sh --prefix=/usr --sysconfdir=/etc --disable-static ; \
+	   ./autogen.sh --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp; \
 	else \
-	   ./configure --prefix=/usr --sysconfdir=/etc --disable-static ; \
+	   ./configure --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp; \
 	fi)
-	# Add here commands to compile the package.
-	make
-	make ethereal.1
+
+	touch configure-stamp
+
+build: build-stamp
+build-stamp: configure-stamp
+	$(MAKE)
 
 	touch build-stamp
 
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp
+	rm -f build-stamp configure-stamp
 
-	# Add here commands to clean up after the build process.
 	-$(MAKE) distclean
-	rm -f rdps
+	rm -f rdps ethereal.1 tethereal.1 doc/ethereal.pod doc/tethereal.pod
+	rm -f conftest conftest.c
+
 	dh_clean
 
 # Build architecture-independent files here.
@@ -44,31 +52,28 @@ binary-arch: build
 
 	# Add here commands to install the files into debian/tmp
 	$(MAKE) install DESTDIR=`pwd`/debian/tmp
+	mkdir -p `pwd`/debian/tmp/usr/lib/python2.2/site-packages/
+	cp `pwd`/ethereal_be.py `pwd`/ethereal_gen.py \
+			`pwd`/debian/tmp/usr/lib/python2.2/site-packages/
+	mkdir -p `pwd`/debian/tmp/usr/include/ethereal/
+	for F in `cat debian/ethereal-dev.header-files`; do \
+		cp --parents $$F `pwd`/debian/tmp/usr/include/ethereal; \
+	done
+	cp `pwd`/wiretap/libwiretap.a `pwd`/debian/tmp/usr/lib/
 	-rm -rf `pwd`/debian/tmp/usr/man
+	dh_installman
 
+	dh_movefiles
 	dh_installdocs
-#	dh_installexamples
 	dh_installmenu
-#	dh_installinit
-#	dh_installcron
-	dh_installmanpages 
 	dh_installchangelogs NEWS
 	dh_strip
 	dh_compress
 	dh_fixperms
 
-# debhelper isn't yet updated to support policy 3.0.0 so I have to play
-# with directories to comply with fhs 
-#	test -d debian/tmp/usr/share || mkdir debian/tmp/usr/share
-#	test -d debian/tmp/usr/doc && \
-#		mv debian/tmp/usr/doc debian/tmp/usr/share/
-#	test -d debian/tmp/usr/man && \
-#		mv debian/tmp/usr/man debian/tmp/usr/share/
-#	dh_suidregister
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
-#	dh_makeshlibs
 	dh_md5sums
 	dh_builddeb
 

@@ -1,7 +1,4 @@
 #! /bin/sh
 
-# Automatically added by dh_installdocs
-if [ \( "$1" = "upgrade" -o "$1" = "remove" \) -a -L /usr/doc/ethereal ]; then
-	rm -f /usr/doc/ethereal
-fi
-# End automatically added section
+#DEBHELPER#
+
