@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.20 1999/09/10 03:16:08 gram Exp $
+ * $Id: packet-fddi.c,v 1.21 1999/09/10 04:53:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -242,7 +242,7 @@ fddifc_to_str(int fc)
       break;
 
     default:
-      return "";
+      return "Unknown frame type";
     }
   }
 }
@@ -292,8 +292,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
 
   if (tree) {
 	ti = proto_tree_add_item_format(tree, proto_fddi, 0, offset, NULL,
-		"Fiber Distributed Data Interface, %s",
-		(fc_str == NULL) ? "Unknown frame type" : fc_str);
+		"Fiber Distributed Data Interface, %s", fc_str);
 
       swap_mac_addr(dst_swapped, (u_char*)&pd[FDDI_P_DHOST]);
       swap_mac_addr(src_swapped, (u_char*)&pd[FDDI_P_SHOST]);
