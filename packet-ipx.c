@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.88 2001/07/03 04:56:45 guy Exp $
+ * $Id: packet-ipx.c,v 1.89 2001/10/08 18:20:01 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,6 +143,12 @@ static const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_ADSM,			"ADSM" },
 	{ IPX_SOCKET_EIGRP,			"Cisco EIGRP for IPX" },
 	{ IPX_SOCKET_WIDE_AREA_ROUTER,		"Wide Area Router" },
+	{ 0xE885,				"NT Server-RPC/GW" },
+	{ 0x400C,				"HP LaserJet/QuickSilver" },
+	{ 0x907B,				"SMS Testing and Development" },
+	{ 0x8F83,				"Powerchute UPS Monitoring" },
+	{ 0x4006,				"Netware Directory Server" },
+	{ 0x8104,				"Netware 386" },
 	{ 0x0000,				NULL }
 };
 
