@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.30 2004/06/28 22:41:10 etxrab Exp $
+# $Id: Makefile.common,v 1.31 2004/07/01 06:28:27 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -214,6 +214,7 @@ DISSECTOR_SRC =	\
 	../packet-ftam.c	\
 	../packet-ftp.c	\
 	../packet-fw1.c	\
+	../packet-gift.c	\
 	../packet-giop.c	\
 	../packet-gmrp.c	\
 	../packet-gnutella.c	\
