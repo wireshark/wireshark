@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.13 2003/12/21 21:04:56 guy Exp $
+ * $Id: scanner.l,v 1.14 2004/01/07 05:24:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,7 +131,16 @@ GString* quoted_string = NULL;
 	http://www.gnu.org/manual/flex-2.5.4/html_node/flex_11.html */
 
 	BEGIN(DQUOTE);
-	g_assert(!quoted_string);
+	/* A previous filter that failed to compile due to
+	a missing end quote will have left quoted_string set
+	to something. Clear it now that we are starting
+	a new quoted string. */
+	if (quoted_string) {
+		g_string_free(quoted_string, TRUE);
+		/* Don't set quoted_string to NULL, as we
+		do in other quoted_string-cleanup code, as we're
+		about to set it in the next line. */
+	}
 	quoted_string = g_string_new("");
 }
 
