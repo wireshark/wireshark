@@ -1,0 +1,39 @@
+# x509.cnf
+# X509 conformation file
+
+# $Id: x509.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+
+#.MODULE_IMPORT
+InformationFramework x509if
+CertificateExtensions x509ce
+SelectedAttributeTypes x509sat
+
+#.INCLUDE ../x509if/x509if_exp.cnf
+
+#.EXPORTS
+
+Certificate
+CertificateList
+CertificateSerialNumber
+AttributeCertificate
+
+#.NO_EMIT
+
+AlgorithmIdentifier
+
+#.TYPE_RENAME
+AttributeCertificateInfo/subject	InfoSubject
+AttributeCertificateAssertion/subject	AssertionSubject
+
+#.FIELD_RENAME
+AttributeCertificateInfo/subject info_subject
+AttributeCertificateAssertion/subject assertion_subject
+
+AttributeCertificateAssertion/issuer assertionIssuer
+
+AttributeCertificateInfo/subject/subjectName      infoSubjectName
+AttributeCertificateAssertion/subject/subjectName assertionSubjectName
+
+#.END
+
+
