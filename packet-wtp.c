@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.42 2002/12/19 11:22:38 sahlberg Exp $
+ * $Id: packet-wtp.c,v 1.43 2003/03/05 07:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -595,15 +595,16 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Any remaining data ought to be WSP data (if not WTP ACK, NACK
      * or ABORT pdu), so hand off (defragmented) to the WSP dissector
      */
-    if ((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) > 0) &&
+    if ((tvb_reported_length_remaining(tvb, offCur + cbHeader + vHeader) > 0) &&
 	! ((pdut==ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)))
     {
 	int	dataOffset = offCur + cbHeader + vHeader;
-	guint32 dataLen = tvb_length_remaining(tvb, offCur + cbHeader + vHeader);
+	gint    dataLen = tvb_reported_length_remaining(tvb, dataOffset);
 	gboolean save_fragmented;
 
-	if ((pdut == SEGMENTED_INVOKE) || (pdut == SEGMENTED_RESULT) ||
-	    (((pdut == INVOKE) || (pdut == RESULT)) && (!fTTR)))
+	if (((pdut == SEGMENTED_INVOKE) || (pdut == SEGMENTED_RESULT) ||
+	    (((pdut == INVOKE) || (pdut == RESULT)) && (!fTTR))) &&
+	    tvb_bytes_exist(tvb, dataOffset, dataLen))
 	{					/* 1st part of segment	*/
 	    save_fragmented = pinfo->fragmented;
 	    pinfo->fragmented = TRUE;
@@ -632,9 +633,13 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    pinfo->fragmented = save_fragmented;
 	}
-	else			/* Normal packet, call next dissector	*/
+	else
 	{
-	    wsp_tvb = tvb_new_subset(tvb, dataOffset, -1, dataLen);
+	    /*
+	     * Normal packet, or not all the fragment data is available;
+	     * call next dissector.
+	     */
+	    wsp_tvb = tvb_new_subset(tvb, dataOffset, -1, -1);
 	    call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
 	}
     }

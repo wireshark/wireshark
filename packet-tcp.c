@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.185 2003/03/04 04:36:44 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.186 2003/03/05 07:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1829,7 +1829,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint      bpos;
   guint      optlen;
   guint32    nxtseq;
-  guint      len;
   guint      reported_len;
   vec_t      cksum_vec[4];
   guint32    phdr[2];
@@ -1896,7 +1895,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
 
   reported_len = tvb_reported_length(tvb);
-  len = tvb_length(tvb);
 
   /* Compute the length of data in this segment. */
   tcph->th_seglen = reported_len - tcph->th_hlen;
@@ -2000,7 +1998,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   pinfo->can_desegment = 0;
   th_sum = tvb_get_ntohs(tvb, offset + 16);
-  if (!pinfo->fragmented && len >= reported_len) {
+  if (!pinfo->fragmented && tvb_bytes_exist(tvb, 0, reported_len)) {
     /* The packet isn't part of an un-reassembled fragmented datagram
        and isn't truncated.  This means we have all the data, and thus
        can checksum it and, unless it's being returned in an error
@@ -2034,7 +2032,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_assert_not_reached();
         break;
       }
-      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, len);
+      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, reported_len);
       cksum_vec[3].len = reported_len;
       computed_cksum = in_cksum(&cksum_vec[0], 4);
       if (computed_cksum == 0) {

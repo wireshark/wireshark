@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-sna.c,v 1.45 2003/03/02 21:47:45 guy Exp $
+ * $Id: packet-sna.c,v 1.46 2003/03/05 07:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1681,6 +1681,7 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 	int frag_number = -1;
 	int more_frags = TRUE;
 	tvbuff_t *rh_tvb = NULL;
+	gint frag_len;
 
 	/* Determine frag_number and more_frags */
 	switch(mpf) {
@@ -1703,34 +1704,39 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 
 	/* If sna_defragment is on, and this is a fragment.. */
 	if (frag_number > -1) {
-
 		/* XXX - check length ??? */
-		fd_head = fragment_add_seq(tvb, offset, pinfo, id,
-		    sna_fragment_table, frag_number,
-		    tvb_length_remaining(tvb, offset), more_frags);
-
-	/* We added the LAST segment and reassembly didn't complete. Insert
-	 * a zero-length MIDDLE segment to turn a 2-frame BIU-fragmentation
-         * into a 3-frame BIU-fragmentation (empty middle frag).
-         * See above long comment about this trickery. */
-
-		if (mpf == MPF_LAST_SEGMENT && !fd_head) {
+		frag_len = tvb_reported_length_remaining(tvb, offset);
+		if (tvb_bytes_exist(tvb, offset, frag_len)) {
 			fd_head = fragment_add_seq(tvb, offset, pinfo, id,
-			    sna_fragment_table, MIDDLE_FRAG_NUMBER, 0, TRUE);
-		}
+			    sna_fragment_table, frag_number, frag_len,
+			    more_frags);
 
-		if (fd_head != NULL) {
-			/* We have the complete reassembled payload. */
-			rh_tvb = tvb_new_real_data(fd_head->data,
-			    fd_head->len, fd_head->len);
+			/* We added the LAST segment and reassembly didn't
+			 * complete. Insert a zero-length MIDDLE segment to
+			 * turn a 2-frame BIU-fragmentation into a 3-frame
+			 * BIU-fragmentation (empty middle frag).
+		         * See above long comment about this trickery. */
 
-			/* Add the tvbuff to the chain of tvbuffs so that
-			 * it will get cleaned up too. */
-			tvb_set_child_real_data_tvbuff(tvb, rh_tvb);
+			if (mpf == MPF_LAST_SEGMENT && !fd_head) {
+				fd_head = fragment_add_seq(tvb, offset, pinfo,
+				    id, sna_fragment_table,
+				    MIDDLE_FRAG_NUMBER, 0, TRUE);
+			}
 
-			/* Add the defragmented data to the data source list. */
-			add_new_data_source(pinfo, rh_tvb,
-			    "Reassembled SNA BIU");
+			if (fd_head != NULL) {
+				/* We have the complete reassembled payload. */
+				rh_tvb = tvb_new_real_data(fd_head->data,
+				    fd_head->len, fd_head->len);
+
+				/* Add the tvbuff to the chain of tvbuffs
+				 * so that it will get cleaned up too. */
+				tvb_set_child_real_data_tvbuff(tvb, rh_tvb);
+
+				/* Add the defragmented data to the data
+				 * source list. */
+				add_new_data_source(pinfo, rh_tvb,
+				    "Reassembled SNA BIU");
+			}
 		}
 	}
 	return rh_tvb;

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.110 2003/02/24 01:22:20 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.111 2003/03/05 07:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2182,7 +2182,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
        the data in the fragment, just call the handoff directly if
        this is the first fragment or the PDU isn't fragmented. */
     if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ||
-		stub_length > length ){
+		!tvb_bytes_exist(tvb, offset, stub_length) ){
 	if(hdr->flags&PFC_FIRST_FRAG){
 	    /* First fragment, possibly the only fragment */
             pinfo->fragmented = !PFC_NOT_FRAGMENTED(hdr);
@@ -2197,10 +2197,10 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		                " [DCE/RPC fragment]");
 	    }
 	    if (dcerpc_tree) {
-		if (length > 0) {
-		    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-				"Fragment data (%d byte%s)", length,
-				plurality(length, "", "s"));
+		if (stub_length > 0) {
+		    proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
+					 "Fragment data (%d byte%s)", stub_length,
+					 plurality(stub_length, "", "s"));
 		}
 	    }
 	}
@@ -2210,10 +2210,10 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   of those mean we should attempt reassembly, and the
 	   third means we can attempt reassembly. */
 	if (dcerpc_tree) {
-	    if (length > 0) {
-		proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-				"Fragment data (%d byte%s)", length,
-				plurality(length, "", "s"));
+	    if (stub_length > 0) {
+		proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
+				     "Fragment data (%d byte%s)", stub_length,
+				     plurality(stub_length, "", "s"));
 	    }
 	}
 	if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
@@ -2221,7 +2221,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		fragment_add(tvb, offset, pinfo, frame,
 			     dcerpc_co_reassemble_table,
 			     0,
-			     length,
+			     stub_length,
 			     TRUE);
 		fragment_set_tot_len(pinfo, frame,
 			     dcerpc_co_reassemble_table, alloc_hint);
@@ -2241,7 +2241,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		     frame,
 		     dcerpc_co_reassemble_table,
 		     tot_len-alloc_hint,
-		     length,
+		     stub_length,
 		     TRUE);
 
 		if(fd_head){
@@ -2274,7 +2274,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		fragment_add(tvb, offset, pinfo, frame,
 			     dcerpc_co_reassemble_table,
 			     tot_len-alloc_hint,
-			     length,
+			     stub_length,
 			     TRUE);
 	    }
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -2346,9 +2346,9 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
-        length = tvb_length_remaining (tvb, offset);
+        length = tvb_reported_length_remaining (tvb, offset);
         if (length > 0) {
-            proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+            proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
                                  "Stub data (%d byte%s)", length,
                                  plurality(length, "", "s"));
         }
@@ -2423,9 +2423,9 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				    hdr, &di, &auth_info, alloc_hint,
 				    value->req_frame);
 	} else {
-            length = tvb_length_remaining (tvb, offset);
+            length = tvb_reported_length_remaining (tvb, offset);
             if (length > 0) {
-                proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+                proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
                                      "Stub data (%d byte%s)", length,
                                      plurality(length, "", "s"));
             }
@@ -2472,9 +2472,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
         /* no point in creating one here, really */
-        length = tvb_length_remaining (tvb, offset);
+        length = tvb_reported_length_remaining (tvb, offset);
         if (length > 0) {
-            proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+            proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
                                  "Stub data (%d byte%s)", length,
                                  plurality(length, "", "s"));
         }
@@ -2532,9 +2532,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				    hdr, &di, &auth_info, alloc_hint,
 				    value->rep_frame);
         } else {
-            length = tvb_length_remaining (tvb, offset);
+            length = tvb_reported_length_remaining (tvb, offset);
             if (length > 0) {
-                proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+                proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
                                      "Stub data (%d byte%s)", length,
                                      plurality(length, "", "s"));
             }
@@ -2650,12 +2650,11 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	      reported_length = stub_length;
 
 	    /* If we don't have reassembly enabled, or this packet contains
-	       the entire PDU, or if this is a short frame (or a frame
-	       not reassembled at a lower layer) that doesn't include all
-	       the data in the fragment, just call the handoff directly if
-	       this is the first fragment or the PDU isn't fragmented. */
+	       the entire PDU, or if we don't have all the data in this
+	       fragment, just call the handoff directly if this is the
+	       first fragment or the PDU isn't fragmented. */
 	    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ||
-			stub_length > length ){
+			!tvb_bytes_exist(tvb, offset, stub_length) ){
 		if(hdr->flags&PFC_FIRST_FRAG){
 		    /* First fragment, possibly the only fragment */
 		    /*
@@ -2669,10 +2668,11 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		     * as well, as that might be protocol-specific.
 		     */
 		    if (dcerpc_tree) {
-			if (length > 0) {
-			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fault stub data (%d byte%s)", length,
-					plurality(length, "", "s"));
+			if (stub_length > 0) {
+			    proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
+						 "Fault stub data (%d byte%s)",
+						 stub_length,
+						 plurality(stub_length, "", "s"));
 			}
 		    }
 		} else {
@@ -2682,10 +2682,11 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			                " [DCE/RPC fragment]");
 		    }
 		    if (dcerpc_tree) {
-			if (length > 0) {
-			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fragment data (%d byte%s)", length,
-					plurality(length, "", "s"));
+			if (stub_length > 0) {
+			    proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
+						 "Fragment data (%d byte%s)",
+						 stub_length,
+						 plurality(stub_length, "", "s"));
 			}
 		    }
 		}
@@ -2696,9 +2697,10 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		   third means we can attempt reassembly. */
 		if (dcerpc_tree) {
 		    if (length > 0) {
-			proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fragment data (%d byte%s)", length,
-					plurality(length, "", "s"));
+			proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
+					     "Fragment data (%d byte%s)",
+					     stub_length,
+					     plurality(stub_length, "", "s"));
 		    }
 		}
 	        if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
@@ -2706,7 +2708,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			fragment_add(tvb, offset, pinfo, value->rep_frame,
 			     dcerpc_co_reassemble_table,
 			     0,
-			     length,
+			     stub_length,
 			     TRUE);
 			fragment_set_tot_len(pinfo, value->rep_frame,
 			     dcerpc_co_reassemble_table, alloc_hint);
@@ -2726,7 +2728,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			     value->rep_frame,
 			     dcerpc_co_reassemble_table,
 			     tot_len-alloc_hint,
-			     length,
+			     stub_length,
 			     TRUE);
 
 			if(fd_head){
@@ -2751,9 +2753,10 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			     */
 			    if (dcerpc_tree) {
 				if (length > 0) {
-				    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-						"Fault stub data (%d byte%s)", length,
-						plurality(length, "", "s"));
+				     proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
+							  "Fault stub data (%d byte%s)",
+							  stub_length,
+							  plurality(stub_length, "", "s"));
 				}
 			    }
 			} else {
@@ -2773,7 +2776,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			fragment_add(tvb, offset, pinfo, value->rep_frame,
 			     dcerpc_co_reassemble_table,
 			     tot_len-alloc_hint,
-			     length,
+			     stub_length,
 			     TRUE);
 		    }
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -2852,7 +2855,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset += 4;
 
     if (can_desegment && pinfo->can_desegment
-        && hdr.frag_len > tvb_length_remaining (tvb, start_offset)) {
+        && !tvb_bytes_exist(tvb, start_offset, hdr.frag_len)) {
         pinfo->desegment_offset = start_offset;
         pinfo->desegment_len = hdr.frag_len - tvb_length_remaining (tvb, start_offset);
         return 0;	/* desegmentation required */
@@ -3239,7 +3242,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
        the data in the fragment, just call the handoff directly if
        this is the first fragment or the PDU isn't fragmented. */
     if( (!dcerpc_reassemble) || !(hdr->flags1 & PFCL1_FRAG) ||
-		stub_length > length ) {
+		!tvb_bytes_exist(tvb, offset, stub_length) ){
 	if(hdr->frag_num == 0) {
 	    /* First fragment, possibly the only fragment */
 
@@ -3258,10 +3261,11 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    }
 	    if (dcerpc_tree) {
 		if (length > 0) {
-		    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					 "Fragment data (%d byte%s)", length,
-					 plurality(length, "", "s"));
-	        }
+		    proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
+					 "Fragment data (%d byte%s)",
+					 stub_length,
+					 plurality(stub_length, "", "s"));
+		}
 	    }
         }
     } else {
@@ -3271,15 +3275,16 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   third means we can attempt reassembly. */
 	if (dcerpc_tree) {
 	    if (length > 0) {
-		proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-				     "Fragment data (%d byte%s)", length,
-				     plurality(length, "", "s"));
+		proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
+				     "Fragment data (%d byte%s)", stub_length,
+				     plurality(stub_length, "", "s"));
 	    }
 	}
 
 	fd_head = fragment_add_seq(tvb, offset, pinfo,
 			hdr->seqnum, dcerpc_cl_reassemble_table,
-			hdr->frag_num, length, !(hdr->flags1 & PFCL1_LASTFRAG));
+			hdr->frag_num, stub_length,
+			!(hdr->flags1 & PFCL1_LASTFRAG));
 	if (fd_head != NULL) {
 	    /* We completed reassembly */
 	    tvbuff_t *next_tvb;

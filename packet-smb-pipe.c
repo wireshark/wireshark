@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.88 2003/02/28 03:00:59 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.89 2003/03/05 07:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3203,6 +3203,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	smb_info_t *smb_priv = (smb_info_t *)pinfo->private_data;
 	gboolean result;
 	gboolean save_fragmented;
+	guint reported_len;
 
 	dcerpc_priv.transport_type = DCERPC_TRANSPORT_SMB;
 	dcerpc_priv.data.smb.fid = fid;
@@ -3210,15 +3211,14 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	pinfo->private_data = &dcerpc_priv;
 
 	/*
-	 * Offer desegmentation service to DCERPC if this packet
-	 * isn't fragmented or short.  Otherwise, reassembly is
-	 * (probably) impossible.
+	 * Offer desegmentation service to DCERPC if we have all the
+	 * data.  Otherwise, reassembly is (probably) impossible.
 	 */
 	pinfo->can_desegment=0;
 	pinfo->desegment_offset = 0;
 	pinfo->desegment_len = 0;
-	if(smb_dcerpc_reassembly && !pinfo->fragmented &&
-	    tvb_length(d_tvb) >= tvb_reported_length(d_tvb)){
+	reported_len = tvb_reported_length(d_tvb);
+	if(smb_dcerpc_reassembly && tvb_bytes_exist(d_tvb, 0, reported_len)){
 		pinfo->can_desegment=2;
 	}
 
@@ -3255,10 +3255,10 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited && pinfo->desegment_len){
 		fragment_add(d_tvb, 0, pinfo, pinfo->fd->num,
 			dcerpc_fragment_table,
-			0, tvb_length(d_tvb), TRUE);
+			0, reported_len, TRUE);
 		fragment_set_tot_len(pinfo, pinfo->fd->num,
 			dcerpc_fragment_table,
-			pinfo->desegment_len+tvb_length(d_tvb));
+			pinfo->desegment_len+reported_len);
 		/* since the other fragments are in normal ReadAndX and WriteAndX calls
 		   we must make sure we can map FID values to this defragmentation
 		   session */
