@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.71 2003/12/18 18:18:50 guy Exp $
+ * $Id: packet-ldap.c,v 1.72 2004/01/19 10:54:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,15 @@
  * Ronald W. Henderson
  * ronald.henderson@cognicaseusa.com
  */
+
+/*
+ * 20-JAN-2004 - added decoding of MS-CLDAP netlogon RPC
+ *               using information from the SNIA 2003 conference paper :
+ *               Active Directory Domain Controller Location Service
+ *                    by Anthony Liguori
+ * ronnie sahlberg
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -119,6 +128,20 @@ static int hf_ldap_message_modify_delete = -1;
 
 static int hf_ldap_message_abandon_msgid = -1;
 
+static int hf_mscldap_netlogon_type = -1;
+static int hf_mscldap_netlogon_flags = -1;
+static int hf_mscldap_domain_guid = -1;
+static int hf_mscldap_forest = -1;
+static int hf_mscldap_domain = -1;
+static int hf_mscldap_hostname = -1;
+static int hf_mscldap_nb_domain = -1;
+static int hf_mscldap_nb_hostname = -1;
+static int hf_mscldap_username = -1;
+static int hf_mscldap_sitename = -1;
+static int hf_mscldap_clientsitename = -1;
+static int hf_mscldap_netlogon_version = -1;
+static int hf_mscldap_netlogon_lm_token = -1;
+static int hf_mscldap_netlogon_nt_token = -1;
 
 static gint ett_ldap = -1;
 static gint ett_ldap_gssapi_token = -1;
@@ -136,6 +159,11 @@ static gboolean ldap_desegment = TRUE;
 
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
+
+
+/* different types of rpc calls ontop of ms cldap */
+#define	MSCLDAP_RPC_NETLOGON 	1
+
 
 /*
  * Data structure attached to a conversation, giving authentication
@@ -480,15 +508,16 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
 }
 
 static int read_string(ASN1_SCK *a, proto_tree *tree, int hf_id,
-	proto_item **new_item, char **s, guint expected_cls, guint expected_tag)
+	proto_item **new_item, char **s, guint *length,
+	guint expected_cls, guint expected_tag)
 {
   guint cls, con, tag;
   gboolean def;
-  guint length;
+  guint tmplen;
   int start = a->offset;
   int ret;
 
-  ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
+  ret = asn1_header_decode(a, &cls, &con, &tag, &def, &tmplen);
   if (ret == ASN1_ERR_NOERROR) {
     if (cls != expected_cls || con != ASN1_PRI || tag != expected_tag)
       ret = ASN1_ERR_WRONG_TYPE;
@@ -502,7 +531,10 @@ static int read_string(ASN1_SCK *a, proto_tree *tree, int hf_id,
     return ret;
   }
 
-  return read_string_value(a, tree, hf_id, new_item, s, start, length);
+  if(length){
+     *length=tmplen;
+  }
+  return read_string_value(a, tree, hf_id, new_item, s, start, tmplen);
 }
 
 static int read_bytestring_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
@@ -895,9 +927,9 @@ static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree, packet_info *pinf
 					     "Unknown (%u)"));
   }
 
-  if (read_string(a, tree, hf_ldap_message_result_matcheddn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_result_matcheddn, 0, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
-  if (read_string(a, tree, hf_ldap_message_result_errormsg, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_result_errormsg, 0, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
 
   if (resultCode == 10)		/* Referral */
@@ -922,7 +954,7 @@ static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree, packet_info *pinf
 
     end = a->offset + length;
     while (a->offset < end) {
-      if (read_string(a, referralTree, hf_ldap_message_result_referral, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+      if (read_string(a, referralTree, hf_ldap_message_result_referral, 0, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
         return;
     }
   }
@@ -946,7 +978,7 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
 
   if (read_integer(a, tree, hf_ldap_message_bind_version, 0, 0, ASN1_INT) != ASN1_ERR_NOERROR)
     return;
-  if (read_string(a, tree, hf_ldap_message_bind_dn, 0, &s, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_bind_dn, 0, &s, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
 
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -984,7 +1016,7 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
    case LDAP_AUTH_SASL:
     mechanism = NULL;
     if (read_string(a, tree, hf_ldap_message_bind_auth_mechanism, NULL,
-                    &mechanism, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+                    &mechanism, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
       return;
 
     /*
@@ -1235,7 +1267,7 @@ static void dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree, packet_in
   int ret;
   char *s = NULL;
 
-  if (read_string(a, tree, hf_ldap_message_search_base, 0, &s, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_search_base, 0, &s, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
 
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -1265,19 +1297,168 @@ static void dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree, packet_in
   }
   end = a->offset + seq_length;
   while (a->offset < end) {
-    if (read_string(a, tree, hf_ldap_message_attribute, 0, 0, ASN1_UNI,
+    if (read_string(a, tree, hf_ldap_message_attribute, 0, 0, 0, ASN1_UNI,
                     ASN1_OTS) != ASN1_ERR_NOERROR)
       return;
   }
 }
 
-static void dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
+static int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxlen, gboolean prepend_dot)
+{
+  guint8 len;
+
+  len=tvb_get_guint8(tvb, offset);
+  offset+=1;
+  *str=0;
+
+  while(len){
+    /* add potential field separation dot */
+    if(prepend_dot){
+      if(!maxlen){
+        *str=0;
+        return offset;
+      }
+      maxlen--;
+      *str++='.';
+      *str=0;
+    }
+
+    if(len==0xc0){
+      int new_offset;
+      /* ops its a mscldap compressed string */
+
+      new_offset=tvb_get_guint8(tvb, offset);
+      offset+=1;
+
+      dissect_mscldap_string(tvb, new_offset, str, maxlen, FALSE);
+
+      return offset;
+    }
+
+    prepend_dot=TRUE;
+
+    if(maxlen<=len){
+      if(maxlen>3){
+        *str++='.';
+        *str++='.';
+        *str++='.';
+      }
+      *str=0;
+      return offset; /* will mess up offset in caller, is unlikely */
+    }
+    tvb_memcpy(tvb, str, offset, len);
+    str+=len;
+    *str=0;
+    maxlen-=len;
+    offset+=len;
+
+
+    len=tvb_get_guint8(tvb, offset);
+    offset+=1;
+  }
+  *str=0;
+  return offset;
+}
+
+static void dissect_mscldap_response_netlogon(proto_tree *tree, tvbuff_t *tvb)
+{
+  int old_offset, offset=0;
+  char str[256];
+
+/*qqq*/
+
+  /* Type */
+  /*XXX someone that knows what the type means should add that knowledge here*/
+  proto_tree_add_item(tree, hf_mscldap_netlogon_type, tvb, offset, 4, TRUE);
+  offset += 4;
+
+  /* Flags */
+  /*XXX someone that knows what these flags are should add that knowledge here*/
+  proto_tree_add_item(tree, hf_mscldap_netlogon_flags, tvb, offset, 4, TRUE);
+  offset += 4;
+
+  /* Domain GUID */
+  proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, TRUE);
+  offset += 16;
+
+  /* Forest */
+  old_offset=offset;
+  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+  proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
+  
+  /* Domain */
+  old_offset=offset;
+  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+  proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
+  
+  /* Hostname */
+  old_offset=offset;
+  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+  proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
+  
+  /* NetBios Domain */
+  old_offset=offset;
+  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+  proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
+  
+  /* NetBios Hostname */
+  old_offset=offset;
+  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+  proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
+  
+  /* User */
+  old_offset=offset;
+  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+  proto_tree_add_string(tree, hf_mscldap_username, tvb, old_offset, offset-old_offset, str);
+  
+  /* Site */
+  old_offset=offset;
+  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+  proto_tree_add_string(tree, hf_mscldap_sitename, tvb, old_offset, offset-old_offset, str);
+  
+  /* Client Site */
+  old_offset=offset;
+  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+  proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
+  
+  /* Version */
+  proto_tree_add_item(tree, hf_mscldap_netlogon_version, tvb, offset, 4, TRUE);
+  offset += 4;
+
+  /* LM Token */
+  proto_tree_add_item(tree, hf_mscldap_netlogon_lm_token, tvb, offset, 2, TRUE);
+  offset += 2;
+
+  /* NT Token */
+  proto_tree_add_item(tree, hf_mscldap_netlogon_nt_token, tvb, offset, 2, TRUE);
+  offset += 2;
+
+}
+
+static void dissect_mscldap_response(proto_tree *tree, tvbuff_t *tvb, guint32 rpc)
+{
+  switch(rpc){
+  case MSCLDAP_RPC_NETLOGON:
+    dissect_mscldap_response_netlogon(tree, tvb);
+    break;
+  default:
+    proto_tree_add_text(tree, tvb, 0, tvb_length(tvb),
+      "ERROR: Unknown type of MS-CLDAP RPC call");
+  }
+}
+
+
+static void dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree,
+		gboolean is_mscldap)
 {
   guint seq_length;
   int end_of_sequence;
   int ret;
+  char *str=NULL;
+  guint32 len;
+  guint32 mscldap_rpc;
 
-  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
   ret = read_sequence(a, &seq_length);
   if (ret != ASN1_ERR_NOERROR) {
@@ -1306,8 +1487,19 @@ static void dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
       }
       return;
     }
-    if (read_string(a, tree, hf_ldap_message_attribute, &ti, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+    if (read_string(a, tree, hf_ldap_message_attribute, &ti, &str, &len, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
       return;
+
+    mscldap_rpc=0;
+    if(is_mscldap){
+	if(!strncmp(str, "netlogon", 8)){
+		mscldap_rpc=MSCLDAP_RPC_NETLOGON;
+	}
+    }
+    g_free(str);
+    str=NULL;
+
+
     attr_tree = proto_item_add_subtree(ti, ett_ldap_attribute);
 
     ret = read_set(a, &set_length);
@@ -1321,16 +1513,44 @@ static void dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
     }
     end_of_set = a->offset + set_length;
     while (a->offset < end_of_set) {
-      if (read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI,
-                      ASN1_OTS) != ASN1_ERR_NOERROR)
-        return;
+      if(!is_mscldap){
+        if (read_string(a, attr_tree, hf_ldap_message_value, 0, 0, 0, ASN1_UNI,
+                        ASN1_OTS) != ASN1_ERR_NOERROR){
+          return;
+        }
+      } else {
+        guint cls, con, tag;
+        gboolean def;
+        guint len;
+        int start = a->offset;
+        int ret;
+        tvbuff_t *mscldap_tvb=NULL;
+
+        ret = asn1_header_decode(a, &cls, &con, &tag, &def, &len);
+        if (ret == ASN1_ERR_NOERROR) {
+          if (cls != ASN1_UNI || con != ASN1_PRI || tag != ASN1_OTS)
+            ret = ASN1_ERR_WRONG_TYPE;
+        }
+        if (ret != ASN1_ERR_NOERROR) {
+          if (tree) {
+            proto_tree_add_text(tree, a->tvb, start, 0,
+              "%s: ERROR: Couldn't parse header: %s",
+            proto_registrar_get_name(hf_ldap_message_value), asn1_err_to_str(ret));
+          }
+          return;
+        }
+        mscldap_tvb=tvb_new_subset(a->tvb, a->offset, len, len);
+        dissect_mscldap_response(attr_tree, mscldap_tvb, mscldap_rpc);
+        a->offset+=len;
+      }
+
     }
   }
 }
 
 static void dissect_ldap_response_search_ref(ASN1_SCK *a, proto_tree *tree)
 {
-  read_string(a, tree, hf_ldap_message_search_reference, 0, 0, ASN1_UNI, ASN1_OTS);
+  read_string(a, tree, hf_ldap_message_search_reference, 0, 0, 0, ASN1_UNI, ASN1_OTS);
 }
 
 static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree, packet_info *pinfo)
@@ -1340,7 +1560,7 @@ static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree, packet_info 
   int ret;
   char *s = NULL;
 
-  if (read_string(a, tree, hf_ldap_message_dn, 0, &s, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_dn, 0, &s, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
 
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -1374,7 +1594,7 @@ static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree, packet_info 
       }
       return;
     }
-    if (read_string(a, tree, hf_ldap_message_attribute, &ti, 0, ASN1_UNI,
+    if (read_string(a, tree, hf_ldap_message_attribute, &ti, 0, 0, ASN1_UNI,
                     ASN1_OTS) != ASN1_ERR_NOERROR)
       return;
     attr_tree = proto_item_add_subtree(ti, ett_ldap_attribute);
@@ -1390,7 +1610,7 @@ static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree, packet_info 
     }
     end_of_set = a->offset + set_length;
     while (a->offset < end_of_set) {
-      if (read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+      if (read_string(a, attr_tree, hf_ldap_message_value, 0, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
         return;
     }
   }
@@ -1407,9 +1627,9 @@ static void dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
 {
   int start = a->offset;
 
-  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
-  if (read_string(a, tree, hf_ldap_message_modrdn_name, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_modrdn_name, 0, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
   if (read_boolean(a, tree, hf_ldap_message_modrdn_delete, 0, 0) != ASN1_ERR_NOERROR)
     return;
@@ -1417,7 +1637,7 @@ static void dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
   if (a->offset < (int) (start + length)) {
     /* LDAP V3 Modify DN operation, with newSuperior */
     /*      "newSuperior     [0] LDAPDN OPTIONAL" (0x80) */
-    if (read_string(a, tree, hf_ldap_message_modrdn_superior, 0, 0, ASN1_CTX, 0) != ASN1_ERR_NOERROR)
+    if (read_string(a, tree, hf_ldap_message_modrdn_superior, 0, 0, 0, ASN1_CTX, 0) != ASN1_ERR_NOERROR)
       return;
   }
 }
@@ -1432,7 +1652,7 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   char *compare;
   int ret;
 
-  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
   ret = read_sequence(a, 0);
   if (ret != ASN1_ERR_NOERROR) {
@@ -1445,7 +1665,7 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   }
 
   start = a->offset;
-  ret = read_string(a, 0, -1, 0, &string1, ASN1_UNI, ASN1_OTS);
+  ret = read_string(a, 0, -1, 0, &string1, 0, ASN1_UNI, ASN1_OTS);
   if (ret != ASN1_ERR_NOERROR) {
     if (tree) {
       proto_tree_add_text(tree, a->tvb, start, 0,
@@ -1453,7 +1673,7 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
     }
     return;
   }
-  ret = read_string(a, 0, -1, 0, &string2, ASN1_UNI, ASN1_OTS);
+  ret = read_string(a, 0, -1, 0, &string2, 0, ASN1_UNI, ASN1_OTS);
   if (ret != ASN1_ERR_NOERROR) {
     if (tree) {
       proto_tree_add_text(tree, a->tvb, start, 0,
@@ -1483,7 +1703,7 @@ static void dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
   int end_of_sequence;
   int ret;
 
-  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+  if (read_string(a, tree, hf_ldap_message_dn, 0, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
   ret = read_sequence(a, &seq_length);
   if (ret != ASN1_ERR_NOERROR) {
@@ -1534,19 +1754,19 @@ static void dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
     switch (operation)
     {
      case LDAP_MOD_ADD:
-      if (read_string(a, tree, hf_ldap_message_modify_add, &ti, 0, ASN1_UNI,
+      if (read_string(a, tree, hf_ldap_message_modify_add, &ti, 0, 0, ASN1_UNI,
                       ASN1_OTS) != ASN1_ERR_NOERROR)
         return;
       break;
 
      case LDAP_MOD_REPLACE:
-      if (read_string(a, tree, hf_ldap_message_modify_replace, &ti, 0,
+      if (read_string(a, tree, hf_ldap_message_modify_replace, &ti, 0, 0,
                       ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
         return;
       break;
 
      case LDAP_MOD_DELETE:
-      if (read_string(a, tree, hf_ldap_message_modify_delete, &ti, 0,
+      if (read_string(a, tree, hf_ldap_message_modify_delete, &ti, 0, 0,
                       ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
         return;
       break;
@@ -1569,7 +1789,7 @@ static void dissect_ldap_request_modify(ASN1_SCK *a, proto_tree *tree)
     }
     end_of_set = a->offset + set_length;
     while (a->offset < end_of_set) {
-      if (read_string(a, attr_tree, hf_ldap_message_value, 0, 0, ASN1_UNI,
+      if (read_string(a, attr_tree, hf_ldap_message_value, 0, 0, 0, ASN1_UNI,
                       ASN1_OTS) != ASN1_ERR_NOERROR)
         return;
     }
@@ -1699,7 +1919,9 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ld
 
 static void
 dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                     proto_tree *ldap_tree, proto_item *ldap_item, gboolean first_time, ldap_conv_info_t *ldap_info)
+		proto_tree *ldap_tree, proto_item *ldap_item, 
+		gboolean first_time, ldap_conv_info_t *ldap_info,
+		gboolean is_mscldap)
 {
   int message_id_start;
   int message_id_length;
@@ -1842,7 +2064,7 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    }
 
 	    *num_results += 1;
-	    dissect_ldap_response_search_entry(&a, ldap_tree);
+	    dissect_ldap_response_search_entry(&a, ldap_tree, is_mscldap);
 
 	    break;
      }
@@ -1890,8 +2112,9 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
   asn1_close(&a, &next_offset);	/* XXX - use the new value of next_offset? */
 }
 
+
 static void
-dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_mscldap)
 {
   int offset = 0;
   gboolean first_time = TRUE;
@@ -2130,7 +2353,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           /*
            * Now dissect the LDAP message.
            */
-          dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, ti, first_time, ldap_info);
+          dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, ti, first_time, ldap_info, is_mscldap);
       } else {
         /*
          * We don't know how to handle other authentication mechanisms
@@ -2268,13 +2491,29 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ldap_tree = proto_item_add_subtree(ti, ett_ldap);
       } else
         ldap_tree = NULL;
-      dissect_ldap_message(next_tvb, 0, pinfo, ldap_tree, ti, first_time, ldap_info);
+      dissect_ldap_message(next_tvb, 0, pinfo, ldap_tree, ti, first_time, ldap_info, is_mscldap);
 
       offset += messageLength;
     }
 
     first_time = FALSE;
   }
+}
+
+
+
+static void
+dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_ldap_pdu(tvb, pinfo, tree, FALSE);
+	return;
+}
+
+static void
+dissect_mscldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_ldap_pdu(tvb, pinfo, tree, TRUE);
+	return;
 }
 
 static void
@@ -2516,6 +2755,77 @@ proto_register_ldap(void)
       { "Abandon Msg Id",	"ldap.abandon.msgid",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Abandon Msg Id", HFILL }},
+
+    { &hf_mscldap_netlogon_type,
+      { "Type", "mscldap.netlogon.type",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Type of <please tell ethereal developers what this type is>", HFILL }},
+
+    { &hf_mscldap_netlogon_version,
+      { "Version", "mscldap.netlogon.version",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Version of <please tell ethereal developers what this type is>", HFILL }},
+
+    { &hf_mscldap_netlogon_lm_token,
+      { "LM Token", "mscldap.netlogon.lm_token",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "LM Token", HFILL }},
+
+    { &hf_mscldap_netlogon_nt_token,
+      { "NT Token", "mscldap.netlogon.nt_token",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "NT Token", HFILL }},
+
+    { &hf_mscldap_netlogon_flags,
+      { "Flags", "mscldap.netlogon.flags",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        "Flags <please tell ethereal developers what these flags are>", HFILL }},
+
+    { &hf_mscldap_domain_guid,
+      { "Domain GUID", "mscldap.domain.guid",
+        FT_BYTES, BASE_HEX, NULL, 0x0,
+        "Domain GUID", HFILL }},
+
+    { &hf_mscldap_forest,
+      { "Forest", "mscldap.forest",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Forest", HFILL }},
+
+    { &hf_mscldap_domain,
+      { "Domain", "mscldap.domain",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Domainname", HFILL }},
+
+    { &hf_mscldap_hostname,
+      { "Hostname", "mscldap.hostname",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Hostname", HFILL }},
+
+    { &hf_mscldap_nb_domain,
+      { "NetBios Domain", "mscldap.nb_domain",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "NetBios Domainname", HFILL }},
+
+    { &hf_mscldap_nb_hostname,
+      { "NetBios Hostname", "mscldap.nb_hostname",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "NetBios Hostname", HFILL }},
+
+    { &hf_mscldap_username,
+      { "User", "mscldap.username",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "User name", HFILL }},
+
+    { &hf_mscldap_sitename,
+      { "Site", "mscldap.sitename",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Site name", HFILL }},
+
+    { &hf_mscldap_clientsitename,
+      { "Client Site", "mscldap.clientsitename",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Client Site name", HFILL }},
+
   };
 
   static gint *ett[] = {
@@ -2554,7 +2864,7 @@ proto_reg_handoff_ldap(void)
   dissector_add("tcp.port", TCP_PORT_LDAP, ldap_handle);
   dissector_add("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
 
-  cldap_handle = create_dissector_handle(dissect_ldap, proto_cldap);
+  cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
   dissector_add("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
   gssapi_handle = find_dissector("gssapi");
