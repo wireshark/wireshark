@@ -480,7 +480,7 @@ header_field_info*
 proto_registrar_get_byname(const char *field_name)
 {
 	g_assert(field_name != NULL);
-	return g_tree_lookup(gpa_name_tree, field_name);
+	return g_tree_lookup(gpa_name_tree, (gpointer)field_name);
 }
 
 /* Add a text-only node, leaving it to our caller to fill the text in */
