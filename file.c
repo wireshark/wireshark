@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.179 2000/04/06 06:04:24 guy Exp $
+ * $Id: file.c,v 1.180 2000/04/07 07:48:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1138,6 +1138,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
   guint32 progbar_nextstep;
   int count;
   proto_tree *protocol_tree;
+  gboolean frame_matched;
   int row;
 
   start_fd = cf->current_frame;
@@ -1207,7 +1208,9 @@ find_packet(capture_file *cf, dfilter *sfcode)
         protocol_tree = proto_tree_create_root();
         wtap_seek_read(cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
         dissect_packet(cf->pd, fd, protocol_tree);
-        if (dfilter_apply(sfcode, protocol_tree, cf->pd)) {
+        frame_matched = dfilter_apply(sfcode, protocol_tree, cf->pd);
+        proto_tree_free(protocol_tree);
+        if (frame_matched) {
           new_fd = fd;
           break;	/* found it! */
         }
