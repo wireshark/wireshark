@@ -1,6 +1,6 @@
 /* packet-http.h
  *
- * $Id: packet-http.h,v 1.8 2003/09/02 22:47:57 guy Exp $
+ * $Id: packet-http.h,v 1.9 2003/09/02 23:09:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,13 +23,15 @@
 
 #ifndef __PACKET_HTTP_H__
 #define __PACKET_HTTP_H__
+
 #include <epan/packet.h>
 
 void http_dissector_add(guint32 port, dissector_handle_t handle);
 
 typedef struct _http_info_value_t
 {
-	guint	 response_method;
 	gchar	*request_method;	
-} http_info_value_t ;
+	guint	 response_code;
+} http_info_value_t;
+
 #endif

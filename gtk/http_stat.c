@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.1 2003/09/02 22:47:59 guy Exp $
+ * $Id: http_stat.c,v 1.2 2003/09/02 23:09:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,14 +59,15 @@ typedef struct _http_stats_t {
 /* used to keep track of the stats for a specific response code
  * for example it can be { 3, 404, "Not Found" ,...}
  * which means we captured 3 reply http/1.1 404 Not Found */
-typedef struct _http_response_methode_t {
+typedef struct _http_response_code_t {
 	guint32 	 packets;		/* 3 */
-	guint	 	 response_method;	/* 404 */
+	guint	 	 response_code;		/* 404 */
 	gchar		*name;			/* Not Found */
 	GtkWidget	*widget;		/* Label where we display it */
 	GtkWidget	*table;			/* Table in which we put it, e.g. client_error_box */
 	httpstat_t	*sp;
-} http_response_methode_t;
+} http_response_code_t;
+
 /* used to keep track of the stats for a specific request string */
 typedef struct _http_request_methode_t {
 	gchar		*response;	/* eg. : GET */
@@ -142,10 +143,10 @@ http_init_hash( httpstat_t *sp)
 	for (i=0 ; vals_status_code[i].strptr ; i++ )
 	{
 		gint *key = g_malloc (sizeof(gint));
-		http_response_methode_t *sc = g_malloc (sizeof(http_response_methode_t));
+		http_response_code_t *sc = g_malloc (sizeof(http_response_code_t));
 		*key = vals_status_code[i].value;
 		sc->packets=0;
-		sc->response_method =  *key;
+		sc->response_code =  *key;
 		sc->name=vals_status_code[i].strptr;
 		sc->widget=NULL;
 		sc->table=NULL;
@@ -172,17 +173,17 @@ http_draw_hash_requests( gchar *key _U_ , http_request_methode_t *data, gchar * 
 		
 
 static void
-http_draw_hash_responses( gint * key _U_ , http_response_methode_t *data, gchar * string_buff)
+http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, gchar * string_buff)
 {
 	if (data==NULL)
 		g_warning("C'est quoi ce borderl key=%d\n", *key);
 	if (data->packets==0)
 		return;
-	/*sprintf(string_buff, "%d packets %d:%s", data->packets, data->response_method, data->name); */
+	/*sprintf(string_buff, "%d packets %d:%s", data->packets, data->response_code, data->name); */
 	if (data->widget==NULL){	/* create an entry in the relevant box of the window */
 		guint16 x;
 		GtkWidget *tmp;
-		guint i = data->response_method;
+		guint i = data->response_code;
 
 		if ( (i<100)||(i>=600) ) 
 			return;
@@ -198,7 +199,7 @@ http_draw_hash_responses( gint * key _U_ , http_response_methode_t *data, gchar 
 			data->table = data->sp->server_errors_table;
 		x=GTK_TABLE( data->table)->nrows;
 		
-		sprintf(string_buff, "HTTP %3d %s ", data->response_method, data->name ); 
+		sprintf(string_buff, "HTTP %3d %s ", data->response_code, data->name ); 
 		tmp = gtk_label_new( string_buff );
 		
 		gtk_table_attach_defaults( GTK_TABLE(data->table), tmp,  0,1, x, x+1);
@@ -230,7 +231,7 @@ http_free_hash( gpointer key, gpointer value, gpointer user_data _U_ )
 	g_free(value);
 }
 static void
-http_reset_hash_responses(gchar *key _U_ , http_response_methode_t *data, gpointer ptr _U_ ) 
+http_reset_hash_responses(gchar *key _U_ , http_response_code_t *data, gpointer ptr _U_ ) 
 {	
 	data->packets = 0;
 }
@@ -261,11 +262,11 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, voi
 
 	/* We are only interested in reply packets with a status code */
 	/* Request or reply packets ? */
-	if (value->response_method!=0) {
+	if (value->response_code!=0) {
 		guint *key=g_malloc( sizeof(guint) );
-		http_response_methode_t *sc;
+		http_response_code_t *sc;
 		
-		*key=value->response_method ;
+		*key=value->response_code;
 		sc =  g_hash_table_lookup( 
 				sp->hash_responses, 
 				key);
@@ -273,7 +274,7 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, voi
 			/* non standard status code ; we classify it as others
 			 * in the relevant category (Informational,Success,Redirection,Client Error,Server Error)
 			 */
-			int i = value->response_method;
+			int i = value->response_code;
 			if ((i<100) || (i>=600)) {
 				return 0;
 			}
