@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.173 2004/05/15 00:48:46 ulfl Exp $
+ * $Id: packet-dcerpc.c,v 1.174 2004/05/15 10:02:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3809,7 +3809,6 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	        pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
 				    tvb, 0, 0, fd_head->reassembled_in);
             PROTO_ITEM_SET_GENERATED(pi);
-            PROTO_ITEM_SET_LINK(pi);
 	        if (check_col(pinfo->cinfo, COL_INFO)) {
 		    col_append_fstr(pinfo->cinfo, COL_INFO,
 			    " [DCE/RPC fragment, reas: #%u]", fd_head->reassembled_in);
