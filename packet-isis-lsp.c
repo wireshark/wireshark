@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.43 2003/05/15 06:35:02 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.44 2003/05/28 22:39:14 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -45,6 +45,7 @@ static int hf_isis_lsp_pdu_length = -1;
 static int hf_isis_lsp_remaining_life = -1;
 static int hf_isis_lsp_sequence_number = -1;
 static int hf_isis_lsp_checksum = -1;
+static int hf_isis_lsp_checksum_bad = -1;
 static int hf_isis_lsp_clv_ipv4_int_addr = -1;
 static int hf_isis_lsp_clv_ipv6_int_addr = -1;
 static int hf_isis_lsp_clv_te_router_id = -1;
@@ -55,15 +56,14 @@ static int hf_isis_lsp_hippity = -1;
 static int hf_isis_lsp_is_type = -1;
 
 static gint ett_isis_lsp = -1;
-static gint ett_isis_lsp_checksum = -1;
 static gint ett_isis_lsp_info = -1;
 static gint ett_isis_lsp_att = -1;
 static gint ett_isis_lsp_clv_area_addr = -1;
 static gint ett_isis_lsp_clv_is_neighbors = -1;
 static gint ett_isis_lsp_clv_ext_is_reachability = -1; /* CLV 22 */
-	static gint ett_isis_lsp_part_of_clv_ext_is_reachability = -1;
-	static gint ett_isis_lsp_subclv_admin_group = -1;
-	static gint ett_isis_lsp_subclv_unrsv_bw = -1;
+static gint ett_isis_lsp_part_of_clv_ext_is_reachability = -1;
+static gint ett_isis_lsp_subclv_admin_group = -1;
+static gint ett_isis_lsp_subclv_unrsv_bw = -1;
 static gint ett_isis_lsp_clv_unknown = -1;
 static gint ett_isis_lsp_clv_partition_dis = -1;
 static gint ett_isis_lsp_clv_prefix_neighbors = -1;
@@ -76,9 +76,9 @@ static gint ett_isis_lsp_clv_ipv6_int_addr = -1; /* CLV 232 */
 static gint ett_isis_lsp_clv_ip_reachability = -1;
 static gint ett_isis_lsp_clv_ip_reach_subclv = -1;
 static gint ett_isis_lsp_clv_ext_ip_reachability = -1; /* CLV 135 */
-	static gint ett_isis_lsp_part_of_clv_ext_ip_reachability = -1;
+static gint ett_isis_lsp_part_of_clv_ext_ip_reachability = -1;
 static gint ett_isis_lsp_clv_ipv6_reachability = -1; /* CLV 236 */
-	static gint ett_isis_lsp_part_of_clv_ipv6_reachability = -1;
+static gint ett_isis_lsp_part_of_clv_ipv6_reachability = -1;
 static gint ett_isis_lsp_clv_mt = -1;
 static gint ett_isis_lsp_clv_mt_is = -1;
 static gint ett_isis_lsp_part_of_clv_mt_is = -1;
@@ -1763,8 +1763,8 @@ void
 isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	int lsp_type, int header_length, int id_length)
 {
-	proto_item	*ti, *to, *ta, *tc;
-	proto_tree	*lsp_tree = NULL, *info_tree, *att_tree, *check_tree;
+	proto_item	*ti, *to, *ta;
+	proto_tree	*lsp_tree = NULL, *info_tree, *att_tree;
 	guint16		pdu_length, checksum, cacl_checksum=0;
 	guint8		lsp_info, lsp_att;
 	int		len, offset_checksum;
@@ -1815,31 +1815,35 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	offset += 4;
 
 	if (tree) {
-		checksum = tvb_get_ntohs(tvb, offset);
-		tc = proto_tree_add_uint(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-		check_tree = proto_item_add_subtree(tc, ett_isis_lsp_checksum);
+    		checksum = tvb_get_ntohs(tvb, offset);    		
+		switch (check_and_get_checksum(tvb, offset_checksum, pdu_length-12, checksum, offset, &cacl_checksum))
+		{
 
-		switch (check_and_get_checksum(tvb, offset_checksum, pdu_length-12, checksum, offset, &cacl_checksum)) {
-		case NO_CKSUM :
-			proto_tree_add_text(check_tree, tvb, offset, 2,
-				"Checksum control disabled");
-	 		break;
-		case DATA_MISSING :
-			isis_dissect_unknown(tvb, tree, offset,
-				"packet length %d went beyond packet",
-				tvb_length_remaining(tvb, offset_checksum));
-			break;
-		case CKSUM_NOT_OK :
-			proto_tree_add_text(check_tree, tvb, offset, 2,
-				"Checksum error: 0x%04x expected", cacl_checksum);
-			break;
-		case CKSUM_OK :
-			proto_tree_add_text(check_tree, tvb, offset, 2,
-				"Checksum OK");
-			break;
-		default :
-			g_message("'check_and_get_checksum' returned an invalid value");
-		}
+        		case NO_CKSUM :
+	      			proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
+					"Checksum: 0x%04x (unused)", checksum);
+       	 		break;
+        		case DATA_MISSING :
+          			isis_dissect_unknown(tvb, tree, offset,
+		    			"packet length %d went beyond packet",
+      			 		tvb_length_remaining(tvb, offset_checksum));
+        		break;
+        		case CKSUM_NOT_OK :
+					proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
+						"Checksum: 0x%04x (incorrect, should be 0x%04x)",
+						checksum, cacl_checksum);
+					proto_tree_add_boolean_hidden(lsp_tree, hf_isis_lsp_checksum_bad,
+						tvb, offset, 2, TRUE);
+        		break;
+	        	case CKSUM_OK :
+	        			proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
+						"Checksum: 0x%04x (correct)", checksum);
+					proto_tree_add_boolean_hidden(lsp_tree, hf_isis_lsp_checksum_bad,
+						tvb, offset, 2, FALSE);
+        		break;
+        		default :
+          			g_message("'check_and_get_checksum' returned an invalid value");
+    		}
 	}
 	offset += 2;
 
@@ -1926,6 +1930,10 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_checksum,
 		{ "Checksum",		"isis.lsp.checksum",FT_UINT16,
 		  BASE_HEX, NULL, 0x0, "", HFILL }},
+		  
+		{ &hf_isis_lsp_checksum_bad,
+		{ "Bad Checksum", "isis.lsp.checksum_bad", FT_BOOLEAN, BASE_NONE,
+			NULL, 0, "Bad IS-IS LSP Checksum", HFILL }},
 
 		{ &hf_isis_lsp_clv_ipv4_int_addr,
 		{ "IPv4 interface address", "isis.lsp.clv_ipv4_int_addr", FT_IPv4,
@@ -1965,7 +1973,6 @@ isis_register_lsp(int proto_isis) {
 	};
 	static gint *ett[] = {
 		&ett_isis_lsp,
-		&ett_isis_lsp_checksum,
 		&ett_isis_lsp_info,
 		&ett_isis_lsp_att,
 		&ett_isis_lsp_clv_area_addr,
