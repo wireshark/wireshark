@@ -566,6 +566,16 @@ independently.  For example, if the selected packet is a TCP packet to
 port 12345, using this dialog you can instruct Ethereal to decode all
 packets to or from that TCP port as HTTP packets.
 
+=item Tools:Go To Corresponding Frame
+
+If a field in the protocol tree pane containing a frame number is
+selected, go to the frame number specified by that field.  (This works
+only if the dissector that put that entry into the protocol tree put it
+into the tree as a filterable field rather than just as text.)  This can
+be used, for example, to go to the frame for the request corresponding
+to a reply, or the reply corresponding to a request, if that frame
+number has been put into the protocol tree.
+
 =item Tools:Protocol Hierarchy Statistics
 
 Show the number of packets, and the number of bytes in those packets,
