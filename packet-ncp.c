@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.3 1998/10/15 21:12:16 gram Exp $
+ * $Id: packet-ncp.c,v 1.4 1998/10/22 04:50:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -57,74 +57,41 @@
 */
 
 
-struct req_info {
-	u_short	req;
-	char	*text;
+
+static value_string request_reply_values[] = {
+	{ 0x1111,	"Create a service connection" },
+	{ 0x2222, "Service request" },
+	{ 0x3333, "Service reply" },
+	{ 0x5555, "Destroy service connection" },
+	{ 0x7777, "Burst mode transfer" },
+	{ 0x9999, "Request being processed" },
+	{ 0x0000, NULL }
 };
 
 
-/* ================================================================= */
-/* NCP                                                               */
-/* ================================================================= */
-static char*
-req_text(u_short req) {
-	int i=0;
-
-	static struct req_info	reqs[] = {
-		{ 0x1111,	"Create a service connection" },
-		{ 0x2222, "Service request" },
-		{ 0x3333, "Service reply" },
-		{ 0x5555, "Destroy service connection" },
-		{ 0x7777, "Burst mode transfer" },
-		{ 0x9999, "Request being processed" },
-		{ 0x0000, NULL }
-	};
-
-	while (reqs[i].text != NULL) {
-		if (reqs[i].req == req) {
-			return reqs[i].text;
-		}
-		i++;
-	}
-	return "Unknown";
-}
-
-static char*
-ncp2222_func(u_short func) {
-	int i=0;
-
-	static struct req_info	ncp[] = {
-		{ 17,	"Print and Queue Services" },
-		{ 21,	"Message Services" },
-		{ 22,	"File and Directory Services" },
-		{ 23,	"Binding and Rights Services" },
-		{ 34,	"Transaction Tacking Services" },
-		{ 35,	"Apple File Services" },
-		{ 72,	"File Services" }, /* guess */
-		{ 86,	"Extended Attributes Services" },
-		{ 87,	"File and Directory Services" },
-		{ 88,	"Auditing Services" },
-		{ 104,	"Netware Directory Services" },
-		{ 123,	"Netware 4.x Statistical Information Services" },
-		{ 0,	NULL }
-	};
-
-	while (ncp[i].text != NULL) {
-		if (ncp[i].req == func) {
-			return ncp[i].text;
-		}
-		i++;
-	}
-	return "Unknown";
-}
+static value_string ncp2222_func[] = {
+	{ 17,	"Print and Queue Services" },
+	{ 21,	"Message Services" },
+	{ 22,	"File and Directory Services" },
+	{ 23,	"Binding and Rights Services" },
+	{ 34,	"Transaction Tacking Services" },
+	{ 35,	"Apple File Services" },
+	{ 72,	"File Services" }, /* guess */
+	{ 86,	"Extended Attributes Services" },
+	{ 87,	"File and Directory Services" },
+	{ 88,	"Auditing Services" },
+	{ 104,	"Netware Directory Services" },
+	{ 123,	"Netware 4.x Statistical Information Services" },
+	{ 0,	NULL }
+};
 
 static char*
 ncp2222_subfunc(u_short func, u_short subfunc) {
 	int i=0;
-	struct req_info	*info_ptr = NULL;
+	value_string	*info_ptr = NULL;
 
 	/* Accounting Services */
-	static struct req_info	ncp_23[] = {
+	static value_string	ncp_23[] = {
 		{ 150,	"Get Current Account Status" },
 		{ 151,	"Submit Account Charge" },
 		{ 152,	"Submit Account Hold" },
@@ -133,7 +100,7 @@ ncp2222_subfunc(u_short func, u_short subfunc) {
 	};
 
 	/* Apple File Services */
-	static struct req_info	ncp_35[] = {
+	static value_string	ncp_35[] = {
 		{ 1,	"AFP Create Directory" },
 		{ 2,	"AFP Create File" },
 		{ 3,	"AFP Delete" },
@@ -157,13 +124,13 @@ ncp2222_subfunc(u_short func, u_short subfunc) {
 	};
 
 	/* File services */ /* guess */
-	static struct req_info ncp_72[] = {
+	static value_string ncp_72[] = {
 		{ 0xbb,	"Read" },
 		{ 0,	NULL }
 	};
 
 	/* Auditing Services */
-	static struct req_info	ncp_88[] = {
+	static value_string	ncp_88[] = {
 		{ 1,	"Query Volume Audit Status" },
 		{ 2,	"Add Audit Property" },
 		{ 3,	"Add Auditor Access" },
@@ -188,16 +155,31 @@ ncp2222_subfunc(u_short func, u_short subfunc) {
 			return "Unknown function";
 	}
 
-
-	while (info_ptr[i].text != NULL) {
-		if (info_ptr[i].req == subfunc) {
-			return info_ptr[i].text;
-		}
-		i++;
-	}
-	return "Unknown";
+	return val_to_str(subfunc, info_ptr, "Unknown");
 }
 
+
+void
+ncp_read(GtkWidget *tree, const u_char *pd, int offset)
+{
+	struct ncp_read_header header;
+
+	memcpy(header.handle, &pd[offset], 6);
+	header.offset = pntohl(&pd[offset+6]);
+	header.bytes = pntohs(&pd[offset+10]);
+
+	add_item_to_tree(tree, offset,    6,
+			"File Handle: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X ",
+			header.handle[0], header.handle[1], header.handle[2],
+			header.handle[3], header.handle[4], header.handle[5]);
+	
+	add_item_to_tree(tree, offset+6,    4,
+			"Starting Offset: %d", header.offset);
+
+	add_item_to_tree(tree, offset+10,    2,
+			"Bytes to Read: %d", header.bytes);
+
+}
 
 void
 dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
@@ -208,7 +190,8 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	struct ncp_common_header	header;
 	struct ncp_request_header	request;
 	struct ncp_reply_header		reply;
-	char						*ncp_type_text[] = { "Request", "Reply" };
+	char						*ncp_type_text[] = { "Unknown",
+		"Request", "Reply" };
 
 	ncp_type = pntohs(&pd[offset]);
 	header.type = ncp_type;
@@ -228,14 +211,14 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		reply.connection_state = pd[offset+7];
 	}
 	else {
-		ncp_hdr = 1; /* ? */
+		ncp_hdr = 6; /* in order to get ncp_type_text[0] */
 	}
 
 	if (fd->win_info[COL_NUM]) {
 		strcpy(fd->win_info[COL_PROTOCOL], "NCP");
 		/* I take advantage of the ncp_hdr length to use as an index into
 		 * ncp_type_text[]. Ugly hack, but quick.  */
-		sprintf(fd->win_info[COL_INFO], "%s", ncp_type_text[ncp_hdr - 7]);
+		sprintf(fd->win_info[COL_INFO], "%s", ncp_type_text[ncp_hdr - 6]);
 	}
 
 
@@ -246,7 +229,8 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		add_subtree(ti, ncp_tree, ETT_NCP);
 
 		add_item_to_tree(ncp_tree, offset,      2,
-			"Type: %s", req_text( header.type ));
+			"Type: %s", val_to_str( header.type, request_reply_values,
+					"Unknown (%04X)"));
 
 		add_item_to_tree(ncp_tree, offset+2,    1,
 			"Sequence Number: %d", header.sequence);
@@ -270,19 +254,26 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		else {
 			add_item_to_tree(ncp_tree, offset+6,		1,
 				"Function Code: %s (%d)",
-				ncp2222_func(request.function), request.function);
+				match_strval(request.function, ncp2222_func));
 		}
 
 		offset += ncp_hdr;
 
 		if (ncp_type == 0x2222) {
 			/* my offset is different now */
-			add_item_to_tree(ncp_tree, offset+1,	1,
+			add_item_to_tree(ncp_tree, offset,	1,
 				"Subfunction Code: %s (%d)",
 				ncp2222_subfunc(pd[offset-1], pd[offset]), pd[offset]);
 
+			if (request.function == 0x48) {
+				ncp_read(ncp_tree, pd, offset+1);
+			}
+			else {
+				dissect_data(pd, offset, fd, tree);
+			}
 		}
-
-		dissect_data(pd, offset, fd, tree);
+		else {
+			dissect_data(pd, offset, fd, tree);
+		}
 	}
 }

@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.h,v 1.2 1998/10/15 21:12:17 gram Exp $
+ * $Id: packet-ncp.h,v 1.3 1998/10/22 04:50:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -327,4 +327,9 @@ struct print_job_record {
     char  Path[80]                         ;
 };
 
-
+/* ethereal additions */
+struct ncp_read_header {
+	guint8	handle[6];
+	guint32	offset;
+	guint16	bytes;
+};
