@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.106 2003/01/28 23:56:40 guy Exp $
+ * $Id: packet-udp.c,v 1.107 2003/03/03 23:46:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,9 @@
 
 #include "packet-ip.h"
 #include <epan/conversation.h>
+#include "tap.h"
+
+static int udp_tap = -1;
 
 static int proto_udp = -1;
 static int hf_udp_srcport = -1;
@@ -57,15 +60,6 @@ static gint ett_udp = -1;
 
 /* Place UDP summary in proto tree */
 static gboolean udp_summary_in_tree = TRUE;
-
-/* UDP structs and definitions */
-
-typedef struct _e_udphdr {
-  guint16 uh_sport;
-  guint16 uh_dport;
-  guint16 uh_ulen;
-  guint16 uh_sum;
-} e_udphdr;
 
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -132,8 +126,6 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  e_udphdr  uh;
-  guint16    uh_sport, uh_dport, uh_ulen, uh_sum;
   proto_tree *udp_tree;
   proto_item *ti;
   guint      len;
@@ -142,49 +134,57 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32    phdr[2];
   guint16    computed_cksum;
   int        offset = 0;
+  static e_udphdr udphstruct[4], *udph;
+  static int udph_count=0;
+
+  udph_count++;
+  if(udph_count>=4){
+     udph_count=0;
+  }
+  udph=&udphstruct[udph_count];
+  udph->ip_header=pinfo->private_data;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
-  /* Avoids alignment problems on many architectures. */
-  tvb_memcpy(tvb, (guint8 *)&uh, offset, sizeof(e_udphdr));
-  uh_sport = g_ntohs(uh.uh_sport);
-  uh_dport = g_ntohs(uh.uh_dport);
-  uh_ulen  = g_ntohs(uh.uh_ulen);
-  uh_sum   = g_ntohs(uh.uh_sum);
+  udph->uh_sport=tvb_get_ntohs(tvb, offset);
+  udph->uh_dport=tvb_get_ntohs(tvb, offset+2);
+  udph->uh_ulen=tvb_get_ntohs(tvb, offset+4);
+  udph->uh_sum=tvb_get_ntohs(tvb, offset+6);
+
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "Source port: %s  Destination port: %s",
-	    get_udp_port(uh_sport), get_udp_port(uh_dport));
+	    get_udp_port(udph->uh_sport), get_udp_port(udph->uh_dport));
 
   if (tree) {
     if (udp_summary_in_tree) {
       ti = proto_tree_add_protocol_format(tree, proto_udp, tvb, offset, 8,
       "User Datagram Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-      get_udp_port(uh_sport), uh_sport, get_udp_port(uh_dport), uh_dport);
+      get_udp_port(udph->uh_sport), udph->uh_sport, get_udp_port(udph->uh_dport), udph->uh_dport);
     } else {
       ti = proto_tree_add_item(tree, proto_udp, tvb, offset, 8, FALSE);
     }
     udp_tree = proto_item_add_subtree(ti, ett_udp);
 
-    proto_tree_add_uint_format(udp_tree, hf_udp_srcport, tvb, offset, 2, uh_sport,
-	"Source port: %s (%u)", get_udp_port(uh_sport), uh_sport);
-    proto_tree_add_uint_format(udp_tree, hf_udp_dstport, tvb, offset + 2, 2, uh_dport,
-	"Destination port: %s (%u)", get_udp_port(uh_dport), uh_dport);
+    proto_tree_add_uint_format(udp_tree, hf_udp_srcport, tvb, offset, 2, udph->uh_sport,
+	"Source port: %s (%u)", get_udp_port(udph->uh_sport), udph->uh_sport);
+    proto_tree_add_uint_format(udp_tree, hf_udp_dstport, tvb, offset + 2, 2, udph->uh_dport,
+	"Destination port: %s (%u)", get_udp_port(udph->uh_dport), udph->uh_dport);
 
-    proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset, 2, uh_sport);
-    proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset+2, 2, uh_dport);
+    proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset, 2, udph->uh_sport);
+    proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset+2, 2, udph->uh_dport);
 
-    proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2,  uh_ulen);
+    proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
     reported_len = tvb_reported_length(tvb);
     len = tvb_length(tvb);
-    if (uh_sum == 0) {
+    if (udph->uh_sum == 0) {
       /* No checksum supplied in the packet. */
       proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-        offset + 6, 2, uh_sum, "Checksum: 0x%04x (none)", uh_sum);
-    } else if (!pinfo->fragmented && len >= reported_len && len >= uh_ulen) {
+        offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x (none)", udph->uh_sum);
+    } else if (!pinfo->fragmented && len >= reported_len && len >= udph->uh_ulen) {
       /* The packet isn't part of a fragmented datagram and isn't
          truncated, so we can checksum it.
 	 XXX - make a bigger scatter-gather list once we do fragment
@@ -219,18 +219,18 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       computed_cksum = in_cksum(&cksum_vec[0], 4);
       if (computed_cksum == 0) {
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-          offset + 6, 2, uh_sum, "Checksum: 0x%04x (correct)", uh_sum);
+          offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x (correct)", udph->uh_sum);
       } else {
 	proto_tree_add_boolean_hidden(udp_tree, hf_udp_checksum_bad, tvb,
 	   offset + 6, 2, TRUE);
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-          offset + 6, 2, uh_sum,
-	  "Checksum: 0x%04x (incorrect, should be 0x%04x)", uh_sum,
-	   in_cksum_shouldbe(uh_sum, computed_cksum));
+          offset + 6, 2, udph->uh_sum,
+	  "Checksum: 0x%04x (incorrect, should be 0x%04x)", udph->uh_sum,
+	   in_cksum_shouldbe(udph->uh_sum, computed_cksum));
       }
     } else {
       proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-        offset + 6, 2, uh_sum, "Checksum: 0x%04x", uh_sum);
+        offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x", udph->uh_sum);
     }
   }
 
@@ -238,12 +238,12 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 8;
 
   pinfo->ptype = PT_UDP;
-  pinfo->srcport = uh_sport;
-  pinfo->destport = uh_dport;
+  pinfo->srcport = udph->uh_sport;
+  pinfo->destport = udph->uh_dport;
 
 /* call sub-dissectors */
-  decode_udp_ports( tvb, offset, pinfo, tree, uh_sport, uh_dport);
-
+  decode_udp_ports( tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport);
+  tap_queue_packet(udp_tap, pinfo, udph);
 }
 
 void
@@ -305,4 +305,5 @@ proto_reg_handoff_udp(void)
 	udp_handle = create_dissector_handle(dissect_udp, proto_udp);
 	dissector_add("ip.proto", IP_PROTO_UDP, udp_handle);
 	data_handle = find_dissector("data");
+	udp_tap = register_tap("udp");
 }

@@ -1,6 +1,6 @@
 /* packet-udp.h
  *
- * $Id: packet-udp.h,v 1.6 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-udp.h,v 1.7 2003/03/03 23:46:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,6 +24,18 @@
 
 #ifndef __PACKET_UDP_H__
 #define __PACKET_UDP_H__
+
+/* UDP structs and definitions */
+typedef struct _e_udphdr {
+  guint16 uh_sport;
+  guint16 uh_dport;
+  guint16 uh_ulen;
+  guint16 uh_sum;
+  /* This can be either a ipv4 or a ipv6 header struct so make sure you know
+     what you try to dereference */
+  void *ip_header;
+} e_udphdr;
+
 
 extern void decode_udp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int);

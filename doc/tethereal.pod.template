@@ -365,6 +365,7 @@ statistics for, currently the supported ones are
   "ip"    IP addresses
   "tcpip" TCP/IP socketpairs
   "tr"    TokenRing
+  "udpip" UDP/IP socketpairs
 
 If the optional filter string is specified, only those packets that match the
 filter will be used in the calculations.
