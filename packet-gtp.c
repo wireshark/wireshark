@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.40 2002/10/26 06:30:41 guy Exp $
+ * $Id: packet-gtp.c,v 1.41 2002/11/01 05:30:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3053,7 +3053,7 @@ decode_gtp_ms_reason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 }
 
 
-/* GPRS:	12.15
+/* GPRS:	12.15 v7.6.0, chapter 7.3.3, page 45
  * UMTS:	33.015
  */
 static int
@@ -3061,7 +3061,7 @@ decode_gtp_tr_comm(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 
 	guint8	tr_command;
 
-	tr_command = tvb_get_ntohl(tvb, offset+1);
+	tr_command = tvb_get_guint8(tvb, offset+1);
 
 	proto_tree_add_uint(tree, gtp_version ? hf_gtpv1_tr_comm : hf_gtpv0_tr_comm, tvb, offset, 2, tr_command);
 
