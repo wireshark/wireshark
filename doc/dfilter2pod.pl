@@ -9,7 +9,7 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod.pl,v 1.4 2002/12/19 02:58:45 guy Exp $
+# $Id: dfilter2pod.pl,v 1.5 2004/04/28 17:50:02 obiot Exp $
 
 %ftenum_names = (
 	'FT_NONE',		'No value',
@@ -44,7 +44,9 @@ while (<STDIN>) {
 	next unless (/^([PF])/);
 
 	$record_type = $1;
-	chomp($_);
+	# Strip the line from its line-end sequence
+	# chomp($_) won't work on Win32/CygWin as it leaves the '\r' character.
+	$_ =~ s/[\r\n]//g;
 
 	# Store protocol information
 	if ($record_type eq 'P') {
