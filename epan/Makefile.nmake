@@ -34,6 +34,7 @@ DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
 OBJECTS=addr_and_mask.obj \
+	addr_resolv.obj   \
 	atalk-utils.obj	\
 	bitswap.obj	\
 	circuit.obj     \
@@ -52,7 +53,6 @@ OBJECTS=addr_and_mask.obj \
 	packet.obj       \
 	plugins.obj      \
 	proto.obj        \
-	resolv.obj       \
 	sna-utils.obj	\
 	strutil.obj      \
 	timestamp.obj \
