@@ -1,0 +1,30 @@
+$Id: README.vmware,v 1.1 2000/01/06 19:50:38 gram Exp $
+
+If you are a registered user of VMware on Linux, you can contact their
+support staff via e-mail and ask for a libpcap patch which will allow
+you to sniff the virtual NIC of your virtual machine.
+
+vmware configures 4 devices, /dev/vmnet[0-3]. 
+
+/dev/vmnet0 is your ethernet bridge, giving your virtual machine its
+own MAC address on your physical ethernet LAN.
+
+/dev/vmnet1 is for host-only networking. Your host OS will be routing IP
+packets between the physical LAN and the guest OS. When up and running,
+you'll see a 'vmnet1' interface from 'ifconfig'. 
+
+/dev/vmnet2 and /dev/vmnet3 act as hubs for virtual machines, but are
+not connected to anything else. That is, the VM's that are connected
+to these devices can talk to each other (if connected to the same
+virtual "hub"), but not to the outside world, or to your host OS
+(as far as I understand).
+
+With the patch from VMware, you can sniff the packets on these
+network devices. Note the distinction between "network device", where a
+device driver file exists in /dev, and "interface", which is a namespace
+private to the kernel (not on the filesystem). You have to supply the
+full pathname  of the device to Ethereal (i.e., "/dev/vmnetN").
+When vmnet1 is up, you will be able to select it from the list of
+interfaces, since it will have both a device name (/dev/vmnet1) and
+an interface name "vmnet1"
+
