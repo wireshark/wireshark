@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.135 2001/11/07 08:05:04 guy Exp $
+ * $Id: packet-smb.c,v 1.136 2001/11/07 20:30:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8253,7 +8253,7 @@ static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, pro
   dissect_unknown_smb,      /* unknown SMB 0xbe */
   dissect_unknown_smb,      /* unknown SMB 0xbf */
 
-  dissect_unknown_smb,      /* SMBsplopen open a print spool file */
+  dissect_open_print_file_smb,/* SMBsplopen open a print spool file */
   dissect_write_print_file_smb,/* SMBsplwr write to a print spool file */
   dissect_unknown_smb,
   dissect_get_print_queue_smb, /* SMBsplretq return print queue */
