@@ -6,28 +6,23 @@
   <section id="ChToolsIntro">
     <title>Introduction</title>
 	<para>
-	This chapter will provide you with information how to install and use 
+	This chapter will provide you with information how to install 
 	the various tools needed for Ethereal development.
 	</para>
 	<para>
 	None of the tools mentioned in this chapter is needed to run Ethereal,
-	they are only needed to build Ethereal.
+	they are only needed to build it.
 	</para>
 	<para>
-	In the next chapters you will find explanations of the tool
-	usage for some of the specific development tasks.
-	</para>
-	<para>
-	Several different tools are needed to build Ethereal. These tools have
+	These tools have
 	their roots on unix like platforms, but win32 ports are also
-	available. Therefore the tools are available in three different 
-	"flavours":
+	available. Therefore the tools are available in different "flavours":
 	<itemizedlist>
   	<listitem>
 	<para>
 	Unix: as described above, the tools should be commonly available on the
-	supported unix platforms, and through the cygwin unix emulation also for 
-	win32 platforms
+	supported unix platforms, and for win32 platforms by the cygwin unix 
+	emulation
 	</para>
   	</listitem>
   	<listitem>
@@ -36,16 +31,28 @@
 	</para>
   	</listitem>
 	</itemizedlist>
-	Don't expect a lot of documentation regarding these tools in this
-	document. If you need further documentation of a specific tool, you
-	should find lot's of useful information elsewhere, as these tools are
-	commonly used. The following will only do a very brief description of 
+	</para>
+	<para>
+	The following sections will only do a very brief description of 
 	what the particular tool is doing, how it is used in the Ethereal project 
 	and how it can be installed and (rudimentary) tested.
 	</para>
 	<para>
-	At the end of this chapter, some recommendations are given, for the
-	easiest way to get your development platform up and running.
+	Don't expect a lot of documentation regarding these tools in this
+	document. If you need further documentation of a specific tool, you
+	should find lot's of useful information on the web, as these tools are
+	commonly used. As all of the tools are command line tools, you can try 
+	to get help with <userinput>toolname --help</userinput> or read
+	the manpage <userinput>man toolname</userinput>.
+	</para>
+	<para>
+	You will find explanations of the tool usage for some of the specific 
+	development tasks in <xref linkend="ChapterSources"/>.
+	</para>
+	<para>
+	At the end of this chapter, some recommendations are given for the
+	easiest way to get a win32 development platform up and running, see 
+	<xref linkend="ChToolsWin32"/>.
 	</para>
   </section>
   
@@ -156,7 +163,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</section>
 	 
 	<section>
-	<title>Win32 native: Microsoft Visual C compiler</title>
+	<title>Win32 native: Microsoft Visual Studio version 6 C compiler</title>
 	<para>
 	<note><title>Note!</title>
 	<para>
@@ -164,15 +171,6 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	This is a tool you have to buy before you use it!
 	</para>
 	</note>
-	</para>
-	<para>
-	<warning><title>Warning!</title>
-	<para>
-	There are problems reported with the more recent "Visual
-	Studio .net" version 7, as it requires to ship a XXX.dll together with the
-	compiled exe, which might make it incompatible with the GPL.
-	</para>
-	</warning>
 	</para>
 	<para>
 	The mainline for generating Ethereal on the windows platform, is using
@@ -195,6 +193,61 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	</programlisting>
 	However, the version string may vary.
 	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: Microsoft Visual Studio .NET (and alike) C compilers
+	</title>
+	<para>
+	<warning><title>Warning!</title>
+	<para>
+	The more recent "Microsoft Visual Studio .NET" C compiler currently cannot 
+	be used to compile Ethereal!!!
+	</para>
+	</warning>
+	</para>
+	<para>
+	The following is a problem summary for:
+	<itemizedlist>
+	<listitem><para>
+	Microsoft Visual Studio .NET
+	</para></listitem>
+	<listitem><para>
+	Microsoft Visual C++ .NET
+	</para></listitem>
+	<listitem><para>
+	Microsoft Visual C++ Toolkit 2003, freely available at: <ulink url="http://msdn.microsoft.com/visualc/vctoolkit2003/"/>
+	</para></listitem>
+	</itemizedlist>
+	All containing version 7 or later C compiler.
+	</para>
+	<para>
+	It is reported that this compiler requires to ship a MSVCRT70.dll together 
+	with the compiled exe, which contains the C runtime library. This 
+	conflicts, as all required libraries currently compiled with (and uses) 
+	MSVCRT.dll (the older version 6 one). 
+	</para>
+	<para>
+	Example why this hurts: A dependant library might try to open a file using 
+	functions in MSVCRT.dll which creates a file handle and internally keeps 
+	information about that file. When Ethereal tries to read data from that 
+	file, it uses the functions from MSVCRT70.dll, which doesn't know about
+	that previously opened file and returns an error code.
+	</para>
+	<para>
+	There where also attempts to bring the compiler to use only the old 
+	MSVCRT.dll but they seemed to fail :-(
+	</para>
+	<para>
+	It's also still unsure, if shipping the MSVCRT70.dll together with Ethereal
+	is compatible with the GPL license at all.	
+	</para>
+	<note><title>Note!</title>
+	<para>
+	This isn't an Ethereal specific problem. Any software project trying to use
+	the new C compiler will have the problems described above!
+	</para>
+	</note>
 	</section>
 
 	</section>
@@ -509,26 +562,27 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<section id="ChToolsSubversion">
 	<title>Subversion (SVN) client (optional)</title>
 	<para>
-	The Ethereal project uses a subversion (or short SVN) server to keep 
-	track of all the changes done to the source code. The homepage of the 
-	subversion project is: <ulink url="http://subversion.tigris.org/"/>.
-	</para>
-	<para>
-	There is a book on subversion available at:
-	<ulink url="http://svnbook.red-bean.com/"/>
+	The Ethereal project uses it's own subversion (or short SVN) server to keep 
+	track of all the changes done to the source code. Details about the usage
+	of subversion in the Ethereal project can be found in <xref 
+	linkend="ChSrcSVNServer"/>.
 	</para>
 	<para>	
 	If you want to work with the source code and planning to commit your
-	changes back Ethereal, it is recommended to use a SVN client to get the
-	latest source files. For detailed information about the different ways 
-	to obtain the sources, see <xref linkend="ChSrcObtaining"/>.
+	changes back to the Ethereal community, it is recommended to use a SVN 
+	client to get the latest source files. For detailed information about the 
+	different ways to obtain the Ethereal sources, see 
+	<xref linkend="ChSrcObtaining"/>.
 	</para>
 	<para>
 	Along with the traditional command-line client, several GUI clients are 
 	available for a number of platforms, see
-	<ulink url="subversion.tigris.org/project_links.html"/>.
+	<ulink url="http://subversion.tigris.org/project_links.html"/>.
 	</para>
-
+	<para>
+	You will find more instructions in <xref linkend="ChSrcAnon"/> how to 
+	use the subversion client.
+	</para>
 
 	<section>
 	<title>Unix: svn</title>
@@ -563,7 +617,7 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	<para>
 	A good subversion client for Win32 can be found at: 
 	<ulink url="http://tortoisesvn.tigris.org/"/>. It will nicely integrate 
-	into the Explorer window.
+	into the windows Explorer window.
 	</para>
 	</section>
 
@@ -639,6 +693,10 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	source tree, you won't need the patch tool installed.
 	</para>
 	</tip>
+	<para>
+	You will find more instructions in <xref linkend="ChSrcPatchApply"/> how 
+	to use the patch tool.
+	</para>
 
 	<section>
 	<title>Unix: patch</title>
@@ -709,6 +767,10 @@ written by Larry Wall and Paul Eggert]]>
 	final) from <ulink url="http://nsis.sourceforge.net"/>
 	and start the downloaded installer. You will need NSIS version 2 final 
 	or higher.
+	</para>
+	<para>
+	You will find more instructions in <xref linkend="ChSrcNSIS"/> how to 
+	use the NSIS tool.
 	</para>
 	</section>
 

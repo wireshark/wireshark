@@ -55,8 +55,9 @@
 	</para>
 	</tip>
 	<para>
-	For further reference about subversion, there is a book about it available 
-	at: <ulink url="http://svnbook.red-bean.com/"/>.
+	For further reference about subversion, have a look at the homepage of the 
+	subversion project: <ulink url="http://subversion.tigris.org/"/>. There 
+	is a book about it available at: <ulink url="http://svnbook.red-bean.com/"/>.
 	</para>
   </section>
 	
@@ -477,11 +478,6 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	<filename>config.nmake</filename> file.
 	</para>
 	<para>
-	The diff tool has several options, you will get a complete list with:
-	</para>
-	<para>
-	<userinput>diff --help</userinput>
-
 	<table frame='all'><title>Some useful diff options</title>
 	<tgroup cols='2' align='left' colsep='1' rowsep='1'>
 	<colspec colname='c1'/>
@@ -515,7 +511,12 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	</tbody>
 	</tgroup>
 	</table>
-	
+	</para>
+	<para>
+	The diff tool has a lot options, you will get a list with:
+	</para>
+	<para>
+	<userinput>diff --help</userinput>	
 	</para>
 	</section>
 
@@ -649,6 +650,10 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	list, or you want to check your own patch before submitting.
 	</para>
 	<para>
+	XXX - the following is a collection of material and needs some 
+	clarification.
+	</para>
+	<para>
 	Given the file "new.diff" containing a unified diff, the right way to 
 	call the patch tool depends on what the pathnames in "new.diff" look like.
 	If they're relative to the top-level source directory - for example, if a 
@@ -691,6 +696,46 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	It is preferred that people <command>NOT</command> submit patches like 
 	that - especially if they're only patching files that exist in multiple 
 	directories, such as "Makefile.am".
+	</para>
+	<para>
+	One other thing to note - "cvs diff" produces output that at least some
+	versions of "patch" can't handle; you'd get something such as
+	<programlisting>
+<![CDATA[
+Index: missing/dlnames.c
+===================================================================
+RCS file: /tcpdump/master/tcpdump/missing/dlnames.c,v
+retrieving revision 1.5
+diff -c -r1.5 dlnames.c
+*** missing/dlnames.c   18 Nov 2003 23:09:43 -0000      1.5
+--- missing/dlnames.c   31 Aug 2004 21:45:16 -0000
+***************
+]]>
+	</programlisting>
+	from "cvs diff -c", and something similar from "cvs diff -u", and "patch",
+	unfortunately, would use the "diff -c" or "diff -u" line and try to patch
+	"dlnames.c" in the directory you're in, rather than in the "missing"
+	subdirectory.
+	</para>
+	<para>
+	For "cvs diff -c" or "cvs diff -u" diffs, there's a Python script
+	"cvsdiff-fix.py" in the "tools" directory in the Ethereal source tree; it
+	will fix up those lines in "cvs diff" output.  It reads its standard input
+	by default, or can be given a file name on the command line, and writes to
+	the standard output, so if you're typing at a command interpreter that
+	does piping, you could do something such as
+	</para>
+	<para>
+    <userinput>python tools/cvsdiff.py patchfile | patch -p0 -</userinput>
+	</para>
+	<para>
+	to use "patchfile".  (You might be able to leave the "python" out of the
+	command line on many UN*Xes.)
+	</para>
+	<para>
+	"svn diff" doesn't produce a "diff -c" or "diff -u" line, so its output
+	doesn't have that problem.  Regular "diff -c" or "diff -u" output also
+	shouldn't have that problem.
 	</para>
 	<para>
 	XXX - add some more details and do some cleanup.
