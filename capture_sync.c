@@ -535,6 +535,9 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   int  err;
 
 
+  /* we are a capture parent */
+  g_assert(!capture_opts->capture_child);
+
   if ((nread = read(source, buffer, BUFSIZE)) <= 0) {
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
@@ -651,11 +654,16 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         msglen -= chars_to_copy;
       }
       *r = '\0';
-      /*simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);*/
-      /* XXX - save the current filename?! */
-      if(capture_opts->sync_mode) {
 
+      /* currently, both filenames must be equal */
+      /* (this will change, when multiple files together with sync_mode are captured) */
+      g_assert(strcmp(capture_opts->save_file, msg) == 0);
+
+      /* save the new filename */
+      if(capture_opts->save_file != NULL) {
+        g_free(capture_opts->save_file);
       }
+      capture_opts->save_file = g_strdup(msg);
       g_free(msg);
       break;
     default :
