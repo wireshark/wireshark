@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.2 2004/02/20 09:27:24 guy Exp $
+ * $Id: hostlist_table.c,v 1.3 2004/02/23 05:35:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,7 +144,7 @@ reset_hostlist_table_data(hostlist_table *hosts)
 	guint32 i;
 	char title[256];
 
-	snprintf(title, 255, "%s Hosts: %s", hosts->name, cf_get_display_name(&cfile));
+	snprintf(title, 255, "%s: %s", hosts->name, cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(hosts->win), title);
 
 	/* remove all entries from the clist */
@@ -478,7 +478,7 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 	hosttable->name=table_name;
 	hosttable->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
-	snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
+	snprintf(title, 255, "%s: %s", table_name, cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(hosttable->win), title);
 
 	SIGNAL_CONNECT(hosttable->win, "destroy", hostlist_win_destroy_cb, hosttable);
@@ -488,8 +488,7 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
-	snprintf(title, 255, "%s Conversations", table_name);
-	label=gtk_label_new(title);
+	label=gtk_label_new(table_name);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);
 

@@ -1,7 +1,7 @@
 /* hostlist_udpip.c   2004 Ian Schorr
  * modified from endpoint_talkers_udpip.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_udpip.c,v 1.3 2004/02/22 23:42:51 ulfl Exp $
+ * $Id: hostlist_udpip.c,v 1.4 2004/02/23 05:35:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,13 +62,13 @@ gtk_udpip_hostlist_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,udp,",9)){
-		filter=optarg+9;
+	if(!strncmp(optarg,"endpoints,udp,",14)){
+		filter=optarg+14;
 	} else {
 		filter=NULL;
 	}
 
-	init_hostlist_table(FALSE, "UDP", "udp", filter, (void *)udpip_hostlist_packet);
+	init_hostlist_table(FALSE, "UDP Endpoints", "udp", filter, (void *)udpip_hostlist_packet);
 
 }
 
@@ -76,14 +76,14 @@ gtk_udpip_hostlist_init(char *optarg)
 static void
 gtk_udpip_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_udpip_hostlist_init("conv,udp");
+	gtk_udpip_hostlist_init("endpoints,udp");
 }
 
 
 void
 register_tap_listener_udpip_hostlist(void)
 {
-	register_ethereal_tap("conv,udp", gtk_udpip_hostlist_init);
+	register_ethereal_tap("endpoints,udp", gtk_udpip_hostlist_init);
 
 	register_tap_menu_item("UDP/Endpoint List (IPv4 & IPv6)", REGISTER_TAP_LAYER_TRANSPORT,
 	    gtk_udpip_hostlist_cb, NULL, NULL, NULL);

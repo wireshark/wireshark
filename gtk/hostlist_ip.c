@@ -1,7 +1,7 @@
 /* hostlist_ip.c   2004 Ian Schorr
  * modified from endpoint_talkers_ip.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_ip.c,v 1.2 2004/02/22 18:44:01 ulfl Exp $
+ * $Id: hostlist_ip.c,v 1.3 2004/02/23 05:35:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,13 +61,13 @@ gtk_ip_hostlist_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,ip,",8)){
-		filter=optarg+8;
+	if(!strncmp(optarg,"hosts,ip,",9)){
+		filter=optarg+9;
 	} else {
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "IPv4", "ip", filter, (void *)ip_hostlist_packet);
+	init_hostlist_table(TRUE, "IPv4 Hosts", "ip", filter, (void *)ip_hostlist_packet);
 
 }
 
@@ -75,14 +75,14 @@ gtk_ip_hostlist_init(char *optarg)
 static void
 gtk_ip_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_ip_hostlist_init("conv,ip");
+	gtk_ip_hostlist_init("hosts,ip");
 }
 
 
 void
 register_tap_listener_ip_hostlist(void)
 {
-	register_ethereal_tap("conv,ip", gtk_ip_hostlist_init);
+	register_ethereal_tap("hosts,ip", gtk_ip_hostlist_init);
 
 	register_tap_menu_item("IP/Host List (IPv4)", REGISTER_TAP_LAYER_NETWORK,
 		gtk_ip_hostlist_cb, NULL, NULL, NULL);

@@ -1,7 +1,7 @@
 /* hostlist_eth.c   2004 Ian Schorr
  * modified from endpoint_talkers_eth.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_eth.c,v 1.2 2004/02/22 18:44:01 ulfl Exp $
+ * $Id: hostlist_eth.c,v 1.3 2004/02/23 05:35:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,13 +62,13 @@ gtk_eth_hostlist_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,eth,",9)){
-		filter=optarg+9;
+	if(!strncmp(optarg,"hosts,eth,",10)){
+		filter=optarg+10;
 	} else {
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "Ethernet", "eth", filter, (void *)eth_hostlist_packet);
+	init_hostlist_table(TRUE, "Ethernet Hosts", "eth", filter, (void *)eth_hostlist_packet);
 
 }
 
@@ -76,14 +76,14 @@ gtk_eth_hostlist_init(char *optarg)
 static void
 gtk_eth_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_eth_hostlist_init("conv,eth");
+	gtk_eth_hostlist_init("hosts,eth");
 }
 
 
 void
 register_tap_listener_eth_hostlist(void)
 {
-	register_ethereal_tap("conv,eth", gtk_eth_hostlist_init);
+	register_ethereal_tap("hosts,eth", gtk_eth_hostlist_init);
 
 	register_tap_menu_item("Ethernet/Host List", REGISTER_TAP_LAYER_DATA_LINK,
 	    gtk_eth_hostlist_cb, NULL, NULL, NULL);
