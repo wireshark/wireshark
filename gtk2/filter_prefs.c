@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.3 2002/09/07 21:21:14 oabad Exp $
+ * $Id: filter_prefs.c,v 1.4 2002/09/10 20:49:07 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -654,8 +654,8 @@ filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg, gpointer activate)
                     /*
                      * Yes - do so.
                      */
-                    gtk_signal_emit_by_name(GTK_OBJECT(parent_filter_te),
-                                            "activate");
+                    g_signal_emit_by_name(G_OBJECT(parent_filter_te),
+                                          "activate");
                 }
             }
         }
@@ -733,8 +733,7 @@ filter_apply(GtkWidget *main_w, gboolean destroy)
          * to destroy it.
          */
         if (construct_args->activate_on_ok) {
-            gtk_signal_emit_by_name(GTK_OBJECT(parent_filter_te),
-                                    "activate");
+            g_signal_emit_by_name(G_OBJECT(parent_filter_te), "activate");
         }
     }
 }
