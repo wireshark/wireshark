@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.6 2001/07/16 20:44:28 oabad Exp $
+# $Id: ethereal_gen.py,v 1.7 2001/07/20 09:50:08 guy Exp $
 #
 #                           
 # ethereal_gen.py (part of idl2eth)           
@@ -1257,11 +1257,13 @@ void proto_register_giop_@dissector_name@(void) {
 
    /* setup list of header fields */
 
+#if 0
    static hf_register_info hf[] = {
 
       /* no fields yet */
       
    };
+#endif
 
    /* setup protocol subtree array */
 
@@ -1273,7 +1275,9 @@ void proto_register_giop_@dissector_name@(void) {
    
    proto_@dissector_name@ = proto_register_protocol(\"@description@\" , \"@protocol_name@\", \"giop-@dissector_name@\" );
 
+#if 0
    proto_register_field_array(proto_@dissector_name@, hf, array_length(hf));
+#endif
    proto_register_subtree_array(ett,array_length(ett));
    
 }
