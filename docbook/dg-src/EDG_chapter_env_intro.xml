@@ -373,13 +373,20 @@
     </para>
 	</section>
 	
-	<section><title>Reporting Problems</title>
+	<section id="ChIntroReportProblems"><title>Reporting Problems</title>
 	<note><title>Note!</title>
 	<para>
 	Before reporting any problems, please make sure you have installed the 
 	latest version of Ethereal.
 	</para>
 	</note>
+    <para>
+	If you report problems, provide as much 
+	information as possible. In general, just think about what 
+	you would need to find that problem, if someone else sends you such a 
+	problem report. Also keep in mind, that people uses a lot of different 
+	platforms to compile/run Ethereal on. 
+    </para>
     <para>
       When reporting problems with Ethereal, it is helpful if you supply the 
       following information:
@@ -401,6 +408,15 @@
 	    A detailed description of your problem.
 	  </para>
 	</listitem>
+	<listitem>
+	  <para>
+		If you get an error/warning message, copy the text of that message (and 
+		also a few lines before and after it, if there are some), so others may 
+		find the build step where things go wrong. 
+		Please don't give something like: "I get a warning when comiling x" 
+		as this won't give any direction to look at.
+	  </para>
+	</listitem>
       </orderedlist>
     </para>
 	<note><title>Don't send large files!</title>
@@ -420,11 +436,11 @@
 	</note>
   </section>
   
-	<section><title>Reporting Crashes on UNIX/Linux platforms</title>
+  <section><title>Reporting Crashes on UNIX/Linux platforms</title>
     <para>
       When reporting crashes with Ethereal, it is helpful if you supply the 
-      traceback information (besides the information mentioned in "Reporting 
-	  Problems").
+      traceback information (besides the information mentioned in 
+	  <xref linkend="ChIntroReportProblems"/>).
     </para>
 	  <para>
 	    You can obtain this traceback information with the following commands:
@@ -468,12 +484,13 @@ $
 	  </para>
   </section>
   
-	<section><title>Reporting Crashes on Windows platforms</title>
+  <section><title>Reporting Crashes on Windows platforms</title>
     <para>
 	The Windows distributions don't contain the symbol files (.pdb), because 
 	they are very large. For this reason it's not possible to create 
 	a meaningful backtrace file from it. You should report your crash just
-	like other problems, using the mechanism described above.
+	like other problems, using the mechanism from
+	<xref linkend="ChIntroReportProblems"/>.
     </para>
   </section>
   </section>
