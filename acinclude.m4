@@ -789,6 +789,12 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		for extras in "" "-L/usr/kerberos/lib -ldes425" "-lkstat"
 		do
 			LIBS="-lsnmp $extras $SOCKET_LIBS $NSL_LIBS $SSL_LIBS"
+			if test -z "$extras"
+			then
+				AC_MSG_CHECKING([whether UCD SNMP includes sprint_realloc_objid])
+			else
+				AC_MSG_CHECKING([whether UCD SNMP includes sprint_realloc_objid (linking with $extras)])
+			fi
 			AC_TRY_LINK(
 			    [
 			    ],
@@ -801,6 +807,7 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 				# and required the libraries in
 				# extras as well.
 				#
+				AC_MSG_RESULT(yes)
 				SNMP_LIBS="-lsnmp $extras"; break;
 				found_sprint_realloc_objid=yes
 				break
@@ -813,6 +820,7 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 				# tell them they'll need to specify
 				# --want-ssl.
 				#
+				AC_MSG_RESULT(no)
 				if test "x$want_ssl" = "xno"
 				then
 					LIBS="$LIBS -lcrypto"
