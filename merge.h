@@ -2,7 +2,7 @@
  * Definitions for menu routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: merge.h,v 1.2 2004/06/18 12:04:49 jmayer Exp $
+ * $Id: merge.h,v 1.3 2004/06/21 16:45:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,17 +142,17 @@ merge_append_files(int in_file_count, merge_in_file_t in_files[], merge_out_file
 
 
 /*
- * Convenience function: merge two files into one.
+ * Convenience function: merge any number of input files into one.
  *
  * @param out_filename the output filename
- * @param in_file0 first input filename
- * @param in_file1 second input filename
+ * @param in_file_count number of input files
+ * @param in_filenames array of input filenames
  * @param do_append TRUE to append, FALSE to merge chronologically
  * @param err wiretap error, if failed
  * @return TRUE if function succeeded
  */
 extern gboolean
-merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean do_append, int *err);
+merge_n_files(char *out_filename, int in_file_count, char **in_filenames, gboolean do_append, int *err);
 
 
 #ifdef __cplusplus

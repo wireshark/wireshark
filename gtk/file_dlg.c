@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.120 2004/06/21 05:48:15 ulfl Exp $
+ * $Id: file_dlg.c,v 1.121 2004/06/21 16:45:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@
 #include "capture_dlg.h"
 #include "range_utils.h"
 #endif
+#include "merge.h"
 
 
 static void file_open_ok_cb(GtkWidget *w, gpointer fs);
@@ -921,9 +922,6 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 }
 
 
-extern gboolean
-merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean append, int *err);
-
 static void
 file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   gchar     *cf_name, *rfilter, *s;
@@ -932,6 +930,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   dfilter_t *rfcode = NULL;
   int        err;
   gboolean   merge_ok;
+  char      *in_filenames[2];
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -964,15 +963,21 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   rb = OBJECT_GET_DATA(w, E_MERGE_CHRONO_KEY);
   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
       /* chonological order */
-      merge_ok = merge_two_files(cf_merged_name, cfile.filename, cf_name, FALSE, &err);
+      in_filenames[0] = cfile.filename;
+      in_filenames[1] = cf_name;
+      merge_ok = merge_n_files(cf_merged_name, 2, in_filenames, FALSE, &err);
   } else {
       rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
-          merge_ok = merge_two_files(cf_merged_name, cfile.filename, cf_name, TRUE, &err);
+          in_filenames[0] = cfile.filename;
+          in_filenames[1] = cf_name;
+          merge_ok = merge_n_files(cf_merged_name, 2, in_filenames, TRUE, &err);
       } else {
           /* append file */
-          merge_ok = merge_two_files(cf_merged_name, cf_name, cfile.filename, TRUE, &err);
+          in_filenames[0] = cf_name;
+          in_filenames[1] = cfile.filename;
+          merge_ok = merge_n_files(cf_merged_name, 2, in_filenames, TRUE, &err);
       }
   }
 

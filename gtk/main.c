@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.445 2004/06/20 15:57:11 ulfl Exp $
+ * $Id: main.c,v 1.446 2004/06/21 16:45:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,6 +131,7 @@
 #include "recent.h"
 #include "follow_dlg.h"
 #include "font_utils.h"
+#include "merge.h"
 
 
 /*
@@ -1209,43 +1210,7 @@ register_ethereal_tap(char *cmd, void (*func)(char *arg))
 
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
 
-void
-dnd_open_file_cmd(gpointer cf_name)
-{
-	int       err;
-
-    
-    /* open and read the capture file (this will close an existing file) */
-	if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
-		cf_read(&cfile);
-        add_menu_recent_capture_file(cf_name);
-	} else {
-		/* the capture file couldn't be read (doesn't exist, file format unknown, ...) */
-	}
-
-    g_free(cf_name);
-}
-
-static void 
-dnd_open_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
-{
-    switch(btn) {
-    case(ESD_BTN_YES):
-        /* save file first */
-        file_save_as_cmd(after_save_open_dnd_file, data);
-        break;
-    case(ESD_BTN_NO):
-        cf_close(&cfile);
-        dnd_open_file_cmd(data);
-        break;
-    case(ESD_BTN_CANCEL):
-        g_free(data);
-        break;
-    default:
-        g_assert_not_reached();
-    }
-}
-
+/* convert drag and drop URI to a local filename */
 static gchar *
 dnd_uri2filename(gchar *cf_name)
 {
@@ -1268,13 +1233,13 @@ dnd_uri2filename(gchar *cf_name)
      * we have to remove the file: to get a valid filename.
      */ 
     if (strncmp("file:////", cf_name, 9) == 0) {
-        /* now becoming: //servername/sharename/dir1/dir2/capture-file.cap */
+        /* win32 UNC: now becoming: //servername/sharename/dir1/dir2/capture-file.cap */
         cf_name += 7;
     } else if (strncmp("file:///", cf_name, 8) == 0) {
-        /* now becoming: d:/dir1/dir2/capture-file.cap */
+        /* win32 local: now becoming: d:/dir1/dir2/capture-file.cap */
         cf_name += 8;
     } else if (strncmp("file:", cf_name, 5) == 0) {
-        /* now becoming: /dir1/dir2/capture-file.cap */
+        /* unix local: now becoming: /dir1/dir2/capture-file.cap */
         cf_name += 5;
     }
 
@@ -1326,39 +1291,181 @@ dnd_uri2filename(gchar *cf_name)
     return cf_name;
 }
 
+static void
+dnd_merge_files(int in_file_count, char **in_filenames)
+{
+    gchar *cf_merged_name;
+    gboolean merge_ok;
+    int err;
+
+
+    /*XXX should use temp file stuff in util routines? */
+    cf_merged_name = g_strdup(tmpnam(NULL));
+
+    /* merge the files in chonological order */
+    merge_ok = merge_n_files(cf_merged_name, in_file_count, in_filenames, FALSE, &err);
+
+  if(!merge_ok) {
+    /* merge failed */
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		  "An error occurred while merging the files: \"%s\".",
+		  wtap_strerror(err));
+    g_free(cf_merged_name);
+    return;
+  }
+
+  cf_close(&cfile);
+
+  /* Try to open the merged capture file. */
+  if ((err = cf_open(cf_merged_name, TRUE /* temporary file */, &cfile)) != 0) {
+    /* We couldn't open it; don't dismiss the open dialog box,
+       just leave it around so that the user can, after they
+       dismiss the alert box popped up for the open error,
+       try again. */
+    g_free(cf_merged_name);
+    return;
+  }
+
+  switch (cf_read(&cfile)) {
+
+  case READ_SUCCESS:
+  case READ_ERROR:
+    /* Just because we got an error, that doesn't mean we were unable
+       to read any of the file; we handle what we could get from the
+       file. */
+    break;
+
+  case READ_ABORTED:
+    /* The user bailed out of re-reading the capture file; the
+       capture file has been closed - just free the capture file name
+       string and return (without changing the last containing
+       directory). */
+    g_free(cf_merged_name);
+    return;
+  }
+
+  gtk_widget_grab_focus(packet_list);
+
+  g_free(cf_merged_name);
+}
+
+/* open/merge the dnd file */
+void
+dnd_open_file_cmd(GtkSelectionData *selection_data)
+{
+	int       err;
+    gchar     *cf_name, *cf_name_freeme;
+    int       in_files;
+    gpointer  dialog;
+    GString   *dialog_text;
+    int       files_work;
+    char      **in_filenames;
+
+    
+    /* DND_TARGET_URL on Win32:
+     * The selection_data->data is a single string, containing one or more URI's,
+     * seperated by CR/NL chars. The length of the whole field can be found 
+     * in the selection_data->length field. If it contains one file, simply open it,
+     * If it contains more than one file, ask to merge these files. */
+
+    /* the data string is not zero terminated -> make a zero terminated "copy" of it */
+    cf_name_freeme = g_malloc(selection_data->length + 1);
+    memcpy(cf_name_freeme, selection_data->data, selection_data->length);
+    cf_name_freeme[selection_data->length] = '\0';
+
+    /* count the number of input files */
+    cf_name = cf_name_freeme;
+    for(in_files = 0; (cf_name = strstr(cf_name, "\r\n")) != NULL; ) {
+        cf_name += 2;
+        in_files++;
+    }
+
+    in_filenames = g_malloc(sizeof(char*) * in_files);
+
+    /* store the starts of the file entries in a gchar array */
+    cf_name = cf_name_freeme;
+    in_filenames[0] = cf_name;
+    for(files_work = 1; (cf_name = strstr(cf_name, "\r\n")) != NULL && files_work < in_files; ) {
+        cf_name += 2;
+        in_filenames[files_work] = cf_name;
+        files_work++;
+    }
+
+    /* replace trailing CR NL simply with zeroes (in place), so we get valid terminated strings */
+    cf_name = cf_name_freeme;
+    g_strdelimit(cf_name, "\r\n", '\0');
+
+    /* convert all filenames from URI to local filename (in place) */
+    for(files_work = 0; files_work < in_files; files_work++) {
+        in_filenames[files_work] = dnd_uri2filename(in_filenames[files_work]);
+    }
+
+    switch(in_files) {
+    case(0):
+        /* shouldn't happen */
+        break;
+    case(1):
+        /* open and read the capture file (this will close an existing file) */
+	    if ((err = cf_open(in_filenames[0], FALSE, &cfile)) == 0) {
+		    cf_read(&cfile);
+            add_menu_recent_capture_file(in_filenames[0]);
+	    } else {
+		    /* the capture file couldn't be read (doesn't exist, file format unknown, ...) */
+	    }
+        break;
+    default:
+        /* build and show the info dialog */
+        dialog_text = g_string_sized_new(200);
+        g_string_append(dialog_text, PRIMARY_TEXT_START 
+            "Merging the following files:" PRIMARY_TEXT_END "\n\n");
+        for(files_work = 0; files_work < in_files; files_work++) {
+            g_string_append(dialog_text, in_filenames[files_work]);
+            g_string_append(dialog_text, "\n");
+        }
+        g_string_append(dialog_text, "\nThe packets in these files will be merged chronologically into a new temporary file.");
+        dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
+                    ESD_BTN_OK,
+                    dialog_text->str);
+        g_string_free(dialog_text, TRUE);
+
+        /* actually merge the files now */
+        dnd_merge_files(in_files, in_filenames);
+    }
+
+    g_free(in_filenames);
+    g_free(cf_name_freeme);
+}
+
+/* ask the user to save current unsaved file, before opening the dnd file */
+static void 
+dnd_save_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+{
+    switch(btn) {
+    case(ESD_BTN_YES):
+        /* save file first */
+        file_save_as_cmd(after_save_open_dnd_file, data);
+        break;
+    case(ESD_BTN_NO):
+        cf_close(&cfile);
+        dnd_open_file_cmd(data);
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+
+/* we have received some drag and drop data */
+/* (as we only registered to "text/uri-list", we will only get a file list here) */
 static void 
 dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gint y _U_, 
 GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 {
-    gchar     *cf_name, *cf_name_ori;
     gpointer  dialog;
 
     if (info == DND_TARGET_URL) {
-        /* DND_TARGET_URL on Win32:
-         * The selection_data->data is a single string, containing one or more URI's,
-         * seperated by CR/NL chars. The length of the whole field can be found 
-         * in the selection_data->length field. As we can't handle more than one 
-         * capture file at a time, we only try to load the first one. */
-
-        /* XXX: how does this string look like on other platforms? */
-
-        /* XXX: if more than one file is in the string, we might want to have 
-         * a dialog box asking to merge these files together? */
-
-        /* the name might not be zero terminated -> make a copy of it */
-        cf_name_ori = g_strndup((gchar *)selection_data->data, selection_data->length);
-        cf_name = cf_name_ori;
-
-        /* replace trailing CR NL simply with zeroes */
-        g_strdelimit(cf_name, "\r\n", '\0');
-
-        /* convert the URI to a local filename */
-        cf_name = dnd_uri2filename(cf_name);
-
-        /* we need a clean name for later call to g_free() */
-        cf_name = strdup(cf_name);
-        g_free(cf_name_ori);
-
         /* ask the user to save it's current capture file first */
         if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
             /* user didn't saved his current file, ask him */
@@ -1366,14 +1473,15 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
                         ESD_BTNS_YES_NO_CANCEL,
                         PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
                         "If you open a new capture file without saving, your current capture data will be discarded.");
-            simple_dialog_set_cb(dialog, dnd_open_file_answered_cb, cf_name);
+            simple_dialog_set_cb(dialog, dnd_save_file_answered_cb, selection_data);
         } else {
             /* unchanged file */
-            dnd_open_file_cmd(cf_name);
+            dnd_open_file_cmd(selection_data);
         }
     }
 }
 
+/* init the drag and drop functionality */
 static void 
 dnd_init(GtkWidget *w)
 {

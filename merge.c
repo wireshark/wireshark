@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: merge.c,v 1.4 2004/06/18 12:04:49 jmayer Exp $
+ * $Id: merge.c,v 1.5 2004/06/21 16:45:06 ulfl Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -379,12 +379,10 @@ merge_open_in_files(int in_file_count, char *in_file_names[], merge_in_file_t *i
  * Convenience function: merge two files into one.
  */
 gboolean
-merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean do_append, int *err)
+merge_n_files(char *out_filename, int in_file_count, char **in_filenames, gboolean do_append, int *err)
 {
   extern char *optarg;
   extern int   optind;
-  int          in_file_count = 0;
-  char        *in_filenames[2];
   merge_in_file_t   *in_files      = NULL;
   merge_out_file_t   out_file;
   gboolean     ret;
@@ -396,14 +394,6 @@ merge_two_files(char *out_filename, char *in_file0, char *in_file1, gboolean do_
   out_file.frame_type = -2;                /* leave type alone */
   out_file.snaplen    = 0;                 /* no limit */
   out_file.count      = 1;                 /* frames output */
-
-  /* check for proper args; at a minimum, must have an output
-   * filename and one input file
-   */
-  in_file_count = 2;
-
-  in_filenames[0] = in_file0;
-  in_filenames[1] = in_file1;
 
   /* open the input files */
   in_file_count = merge_open_in_files(in_file_count, in_filenames, &in_files, err);
