@@ -33,6 +33,7 @@ asn1_uint32_decode
 asn1_uint32_value_decode
 BandRejectReason_vals           DATA
 build_follow_filter
+bytes_to_str_punct
 call_dissector
 capture_ap1394
 capture_arcnet
