@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.18 2001/05/30 19:17:31 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.19 2001/06/01 01:15:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,12 +81,14 @@
 #define COOK_PROT_VERSION(x)  ((x & 0x3))
 #define COOK_FRAME_TYPE(x)    ((x & 0xC) >> 2)
 #define COOK_FRAME_SUBTYPE(x) ((x & 0xF0) >> 4)
-#define COOK_ADDR_SELECTOR(x) (((x & 0x2)) && ((x & 0x1)))
+#define COOK_ADDR_SELECTOR(x) (((x & 0x200)) && ((x & 0x100)))
 #define COOK_ASSOC_ID(x)      ((x & 0x3FFF))
 #define COOK_FRAGMENT_NUMBER(x) (x & 0x000F)
 #define COOK_SEQUENCE_NUMBER(x) ((x & 0xFFF0) >> 4)
 #define COOK_FLAGS(x)           ((x & 0xFF00) >> 8)
 #define COOK_DS_STATUS(x)       (x & 0x3)
+#define COOK_WEP_IV(x)        (x & 0xFFFFFF)
+#define COOK_WEP_KEY(x)       ((x & 0xC0000000) >> 30)
 #define COL_SHOW_INFO(fd,info) if (check_col(fd,COL_INFO)) \
 col_add_str(fd,COL_INFO,info);
 
@@ -144,10 +146,10 @@ col_add_str(fd,COL_INFO,info);
 #define DATA_CF_POLL_NOD     0x26       /* Data - Data + CF poll (No data)         */
 #define DATA_CF_ACK_POLL_NOD 0x27	/* Data - CF ack + CF poll (no data)       */
 
-#define DATA_ADDR_T1         0x00
-#define DATA_ADDR_T2         0x01
-#define DATA_ADDR_T3         0x02
-#define DATA_ADDR_T4         0x03
+#define DATA_ADDR_T1         0x0000
+#define DATA_ADDR_T2         0x0100
+#define DATA_ADDR_T3         0x0200
+#define DATA_ADDR_T4         0x0300
 
 
 /* ************************************************************************* */
@@ -259,6 +261,9 @@ static int ff_cf_ap_poll = -1;	/* CF pollable status for an AP            */
 static int ff_cf_ess = -1;
 static int ff_cf_ibss = -1;
 static int ff_cf_privacy = -1;
+static int ff_cf_preamble = -1;
+static int ff_cf_pbcc = -1;
+static int ff_cf_agility = -1;
 
 /* ************************************************************************* */
 /*                       Tagged value format fields                          */
@@ -271,6 +276,10 @@ static int tag_interpretation = -1;
 
 static int hf_fixed_parameters = -1;	/* Protocol payload for management frames */
 static int hf_tagged_parameters = -1;	/* Fixed payload item */
+static int hf_wep_parameters = -1;
+static int hf_wep_iv = -1;
+static int hf_wep_key = -1;
+static int hf_wep_crc = -1;
 
 /* ************************************************************************* */
 /*                               Protocol trees                              */
@@ -281,6 +290,7 @@ static gint ett_cap_tree = -1;
 static gint ett_fc_tree = -1;
 static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
+static gint ett_wep_parameters = -1;
 
 static dissector_handle_t llc_handle;
 
@@ -310,6 +320,12 @@ capture_ieee80211 (const u_char * pd, int offset, packet_counts * ld)
 
 
   hdr_length = MGT_FRAME_HDR_LEN;	/* Set the header length of the frame */
+
+  if (IS_WEP(COOK_FLAGS(fcf)))
+    {
+      ld->other++;
+      return;
+    }
 
   switch (COMPOSE_FRAME_TYPE (fcf))
     {
@@ -378,6 +394,30 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
 }
 
 
+/* ************************************************************************* */
+/*            Add the subtree used to store WEP parameters                   */
+/* ************************************************************************* */
+void
+get_wep_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size)
+{
+  proto_item *wep_fields;
+  proto_tree *wep_tree;
+  int crc_offset = size - 4;
+
+  wep_fields = proto_tree_add_string_format(tree, hf_wep_parameters, tvb,
+					    0, 4, 0, "WEP parameters");
+
+  wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
+  proto_tree_add_uint (wep_tree, hf_wep_iv, tvb, start, 3,
+		       COOK_WEP_IV (tvb_get_letohl (tvb, start)));
+
+  proto_tree_add_uint (wep_tree, hf_wep_key, tvb, start + 3, 1,
+		       COOK_WEP_KEY (tvb_get_letohl (tvb, start)));
+
+  if (tvb_bytes_exist(tvb, start + crc_offset, 4))
+    proto_tree_add_uint (wep_tree, hf_wep_crc, tvb, start + crc_offset, 4,
+			 tvb_get_ntohl (tvb, start + crc_offset));
+}
 
 /* ************************************************************************* */
 /*              Dissect and add fixed mgmt fields to protocol tree           */
@@ -427,23 +467,29 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
       cap_item = proto_tree_add_uint_format (tree, ff_capture, 
 					     tvb, offset, 2,
-					     pntohs (temp16),
+					     pletohs (temp16),
 					     "Capability Information: %04X",
-					     pntohs (temp16));
+					     pletohs (temp16));
       cap_tree = proto_item_add_subtree (cap_item, ett_cap_tree);
       proto_tree_add_boolean (cap_tree, ff_cf_ess, tvb, offset, 1,
-			      pntohs (temp16));
+			      pletohs (temp16));
       proto_tree_add_boolean (cap_tree, ff_cf_ibss, tvb, offset, 1,
-			      pntohs (temp16));
+			      pletohs (temp16));
       proto_tree_add_boolean (cap_tree, ff_cf_privacy, tvb, offset, 1,
-			      pntohs (temp16));
-      if (ESS_SET (pntohs (temp16)) != 0)	/* This is an AP */
+			      pletohs (temp16));
+      proto_tree_add_boolean (cap_tree, ff_cf_preamble, tvb, offset, 1,
+			      pletohs (temp16));
+      proto_tree_add_boolean (cap_tree, ff_cf_pbcc, tvb, offset, 1,
+			      pletohs (temp16));
+      proto_tree_add_boolean (cap_tree, ff_cf_agility, tvb, offset, 1,
+			      pletohs (temp16));
+      if (ESS_SET (pletohs (temp16)) != 0)	/* This is an AP */
 	proto_tree_add_uint (cap_tree, ff_cf_ap_poll, tvb, offset, 2,
-			     ((pntohs (temp16) & 0xC) >> 2));
+			     ((pletohs (temp16) & 0xC) >> 2));
 
       else			/* This is a STA */
 	proto_tree_add_uint (cap_tree, ff_cf_sta_poll, tvb, offset, 2,
-			     ((pntohs (temp16) & 0xC) >> 2));
+			     ((pletohs (temp16) & 0xC) >> 2));
       break;
 
 
@@ -451,7 +497,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       dataptr = tvb_get_ptr (tvb, offset, 2);
       temp16 =(guint16 *) dataptr;
       proto_tree_add_uint (tree, ff_auth_alg, tvb, offset, 2,
-			   pntohs (temp16));
+			   pletohs (temp16));
       break;
 
 
@@ -459,7 +505,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       dataptr = tvb_get_ptr (tvb, offset, 2);
       temp16 = (guint16 *)dataptr;
       proto_tree_add_uint (tree, ff_auth_seq, tvb, offset, 2,
-			   pntohs (temp16));
+			   pletohs (temp16));
       break;
 
 
@@ -473,28 +519,28 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       dataptr = tvb_get_ptr (tvb, offset, 2);
       temp16 = (guint16 *) dataptr;
       proto_tree_add_uint (tree, ff_listen_ival, tvb, offset, 2,
-			   pntohs (temp16));
+			   pletohs (temp16));
       break;
 
 
     case FIELD_REASON_CODE:
       dataptr = tvb_get_ptr (tvb, offset, 2);
       temp16 = (guint16 *) dataptr;
-      proto_tree_add_uint (tree, ff_reason, tvb, offset, 2, pntohs (temp16));
+      proto_tree_add_uint (tree, ff_reason, tvb, offset, 2, pletohs (temp16));
       break;
 
 
     case FIELD_ASSOC_ID:
       dataptr = tvb_get_ptr (tvb, offset, 2);
       temp16 = (guint16 *) dataptr;
-      proto_tree_add_uint (tree, ff_assoc_id, tvb, offset, 2, pntohs (temp16));
+      proto_tree_add_uint (tree, ff_assoc_id, tvb, offset, 2, pletohs (temp16));
       break;
 
     case FIELD_STATUS_CODE:
       dataptr = tvb_get_ptr (tvb, offset, 2);
       temp16 = (guint16 *) dataptr;
       proto_tree_add_uint (tree, ff_status_code, tvb, offset, 2,
-			   pntohs (temp16));
+			   pletohs (temp16));
       break;
     }
 }
@@ -529,7 +575,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, "Not interpreted");
-      return (int) tag_len;
+      return (int) tag_len + 2;
     }
 
   /* Next See if tag is reserved - if true, skip it! */
@@ -544,7 +590,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, "Not interpreted");
-      return (int) tag_len;
+      return (int) tag_len + 2;
     }
 
 
@@ -604,7 +650,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
       snprintf (out_buff, SHORT_STR,
 		"Dwell time 0x%04X, Hop Set %2d, Hop Pattern %2d, "
-		"Hop Index %2d", pntohs (tag_data_ptr), tag_data_ptr[2],
+		"Hop Index %2d", pletohs (tag_data_ptr), tag_data_ptr[2],
 		tag_data_ptr[3], tag_data_ptr[4]);
 
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -638,7 +684,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       snprintf (out_buff, SHORT_STR,
 		"CFP count %u, CFP period %u, CFP max duration %u, "
 		"CFP Remaining %u", tag_data_ptr[0], tag_data_ptr[1],
-		pntohs (tag_data_ptr + 2), pntohs (tag_data_ptr + 4));
+		pletohs (tag_data_ptr + 2), pletohs (tag_data_ptr + 4));
 
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
@@ -670,7 +716,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
       snprintf (out_buff, SHORT_STR, "ATIM window 0x%X",
-		pntohs (tag_data_ptr));
+		pletohs (tag_data_ptr));
 
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
@@ -783,11 +829,11 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if ((COMPOSE_FRAME_TYPE(fcf))==CTRL_PS_POLL) 
 	proto_tree_add_uint(hdr_tree, hf_assoc_id,tvb,2,2,
-			    COOK_ASSOC_ID(tvb_get_ntohs(tvb,2)));
+			    COOK_ASSOC_ID(tvb_get_letohs(tvb,2)));
      
       else
 	  proto_tree_add_uint (hdr_tree, hf_did_duration, tvb, 2, 2,
-			       tvb_get_ntohs (tvb, 2));
+			       tvb_get_letohs (tvb, 2));
     }
 
   /* Perform tasks which are common to a certain frame type */
@@ -894,10 +940,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-				   COOK_FRAGMENT_NUMBER (tvb_get_ntohs
+				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-				   COOK_SEQUENCE_NUMBER (tvb_get_ntohs
+				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      break;
 	      
@@ -910,10 +956,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-				   COOK_FRAGMENT_NUMBER (tvb_get_ntohs
+				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-				   COOK_SEQUENCE_NUMBER (tvb_get_ntohs
+				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      break;
    
@@ -926,10 +972,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-				   COOK_FRAGMENT_NUMBER (tvb_get_ntohs
+				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-				   COOK_SEQUENCE_NUMBER (tvb_get_ntohs
+				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      break;
 	      
@@ -942,10 +988,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-				   COOK_FRAGMENT_NUMBER (tvb_get_ntohs
+				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-				   COOK_SEQUENCE_NUMBER (tvb_get_ntohs
+				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 24, 6,
 				    tvb_get_ptr (tvb, 24, 6));
@@ -1167,30 +1213,44 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       COL_SHOW_INFO (pinfo->fd, "Authentication");
       if (tree)
 	{
-	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 6);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_AUTH_ALG);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
-			   FIELD_AUTH_TRANS_SEQ);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 4,
-			   FIELD_STATUS_CODE);
-
-	  next_idx = MGT_FRAME_LEN + 6;	/* Size of fixed fields */
-
-	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  if (tagged_parameter_tree_len != 0)
+	  if (IS_WEP(COOK_FLAGS(fcf)))
 	    {
-	      tagged_tree = get_tagged_parameter_tree (tree,
-						       tvb,
-						       next_idx,
-						       tagged_parameter_tree_len);
+	      int pkt_len = tvb_reported_length (tvb);
+	      int cap_len = tvb_length (tvb);
 
-	      while (tagged_parameter_tree_len > 0) {
-		if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
-		  break;
-		next_idx +=next_len;
-		tagged_parameter_tree_len -= next_len;
-	      }
+	      get_wep_parameter_tree (tree, tvb, MGT_FRAME_LEN, pkt_len);
+	      pkt_len = MAX (pkt_len - 8 - MGT_FRAME_LEN, 0);
+	      cap_len = MIN (pkt_len, MAX (cap_len - 8 - MGT_FRAME_LEN, 0));
+	      next_tvb = tvb_new_subset (tvb, MGT_FRAME_LEN + 4, cap_len, pkt_len);
+	      dissect_data (next_tvb, 0, pinfo, tree);
+	    }
+	  else
+	    {
+	      fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 6);
+	      add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_AUTH_ALG);
+	      add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
+			       FIELD_AUTH_TRANS_SEQ);
+	      add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 4,
+			       FIELD_STATUS_CODE);
+
+	      next_idx = MGT_FRAME_LEN + 6;	/* Size of fixed fields */
+
+	      tagged_parameter_tree_len =
+		  tvb_reported_length_remaining(tvb, next_idx + 4);
+	      if (tagged_parameter_tree_len != 0)
+		{
+		  tagged_tree = get_tagged_parameter_tree (tree,
+							   tvb,
+							   next_idx,
+							   tagged_parameter_tree_len);
+
+		  while (tagged_parameter_tree_len > 0) {
+		    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+		      break;
+		    next_idx +=next_len;
+		    tagged_parameter_tree_len -= next_len;
+		  }
+		}
 	    }
 	}
       break;
@@ -1361,7 +1421,20 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 
 	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-	  call_dissector (llc_handle, next_tvb, pinfo, tree);
+
+	  if (IS_WEP(COOK_FLAGS(fcf)))
+	    {
+	      int pkt_len = tvb_reported_length (next_tvb);
+	      int cap_len = tvb_length (next_tvb);
+
+	      get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
+	      pkt_len = MAX (pkt_len - 8, 0);
+	      cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
+	      next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
+	      dissect_data (next_tvb, 0, pinfo, tree);
+	    }
+	  else
+	    call_dissector (llc_handle, next_tvb, pinfo, tree);
 	}
       break;
 
@@ -1374,7 +1447,20 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 
 	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-	  call_dissector (llc_handle, next_tvb, pinfo, tree);
+
+	  if (IS_WEP(COOK_FLAGS(fcf)))
+	    {
+	      int pkt_len = tvb_reported_length (next_tvb);
+	      int cap_len = tvb_length (next_tvb);
+
+	      get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
+	      pkt_len = MAX (pkt_len - 8, 0);
+	      cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
+	      next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
+	      dissect_data (next_tvb, 0, pinfo, tree);
+	    }
+	  else
+	    call_dissector (llc_handle, next_tvb, pinfo, tree);
 	}
       break;
 
@@ -1386,7 +1472,20 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-	  call_dissector (llc_handle, next_tvb, pinfo, tree);
+
+	  if (IS_WEP(COOK_FLAGS(fcf)))
+	    {
+	      int pkt_len = tvb_reported_length (next_tvb);
+	      int cap_len = tvb_length (next_tvb);
+
+	      get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
+	      pkt_len = MAX (pkt_len - 8, 0);
+	      cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
+	      next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
+	      dissect_data (next_tvb, 0, pinfo, tree);
+	    }
+	  else
+	    call_dissector (llc_handle, next_tvb, pinfo, tree);
 	}
       break;
 
@@ -1398,7 +1497,20 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 	  hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 	  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-	  call_dissector (llc_handle, next_tvb, pinfo, tree);
+
+	  if (IS_WEP(COOK_FLAGS(fcf)))
+	    {
+	      int pkt_len = tvb_reported_length (next_tvb);
+	      int cap_len = tvb_length (next_tvb);
+
+	      get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
+	      pkt_len = MAX (pkt_len - 8, 0);
+	      cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
+	      next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
+	      dissect_data (next_tvb, 0, pinfo, tree);
+	    }
+	  else
+	    call_dissector (llc_handle, next_tvb, pinfo, tree);
 	}
       break;
 
@@ -1492,6 +1604,21 @@ proto_register_wlan (void)
   static const true_false_string cf_privacy_flags = {
     "AP/STA can support WEP",
     "AP/STA cannot support WEP"
+  };
+
+  static const true_false_string cf_preamble_flags = {
+    "Short preamble allowed",
+    "Short preamble not allowed"
+  };
+
+  static const true_false_string cf_pbcc_flags = {
+    "PBCC modulation allowed",
+    "PBCC modulation not allowed"
+  };
+
+  static const true_false_string cf_agility_flags = {
+    "Channel agility in use",
+    "Channel agility not in use"
   };
 
 
@@ -1686,6 +1813,22 @@ proto_register_wlan (void)
      {"Tagged parameters", "wlan.tagged.all", FT_UINT16, BASE_DEC, NULL, 0,
       ""}},
 
+    {&hf_wep_parameters,
+     {"WEP parameters", "wlan.wep.all", FT_STRING, BASE_NONE, NULL, 0,
+      ""}},
+
+    {&hf_wep_iv,
+     {"Initialization Vector", "wlan.wep.iv", FT_UINT32, BASE_HEX, NULL, 0,
+      "Initialization Vector"}},
+
+    {&hf_wep_key,
+     {"Key", "wlan.wep.key", FT_UINT32, BASE_DEC, NULL, 0,
+      "Key"}},
+
+    {&hf_wep_crc,
+     {"WEP CRC (not verified)", "wlan.wep.crc", FT_UINT32, BASE_HEX, NULL, 0,
+      "WEP CRC"}},
+
     {&ff_capture,
      {"Capabilities", "wlan.fixed.capabilities", FT_UINT16, BASE_HEX, NULL, 0,
       "Capability information"}},
@@ -1702,16 +1845,28 @@ proto_register_wlan (void)
 
     {&ff_cf_ess,
      {"ESS capabilities", "wlan.fixed.capabilities.ess",
-      FT_BOOLEAN, 1, TFS (&cf_ess_flags), 0x0001, "ESS capabilities"}},
+      FT_BOOLEAN, 8, TFS (&cf_ess_flags), 0x0001, "ESS capabilities"}},
 
 
     {&ff_cf_ibss,
      {"IBSS status", "wlan.fixed.capabilities.ibss",
-      FT_BOOLEAN, 1, TFS (&cf_ibss_flags), 0x0002, "IBSS participation"}},
+      FT_BOOLEAN, 8, TFS (&cf_ibss_flags), 0x0002, "IBSS participation"}},
 
     {&ff_cf_privacy,
      {"Privacy", "wlan.fixed.capabilities.privacy",
-      FT_BOOLEAN, 1, TFS (&cf_privacy_flags), 0x0010, "WEP support"}},
+      FT_BOOLEAN, 8, TFS (&cf_privacy_flags), 0x0010, "WEP support"}},
+
+    {&ff_cf_preamble,
+     {"Short Preamble", "wlan.fixed.capabilities.preamble",
+      FT_BOOLEAN, 8, TFS (&cf_preamble_flags), 0x0020, "Short Preamble"}},
+
+    {&ff_cf_pbcc,
+     {"PBCC", "wlan.fixed.capabilities.pbcc",
+      FT_BOOLEAN, 8, TFS (&cf_pbcc_flags), 0x0040, "PBCC Modulation"}},
+
+    {&ff_cf_agility,
+     {"Channel Agility", "wlan.fixed.capabilities.agility",
+      FT_BOOLEAN, 8, TFS (&cf_agility_flags), 0x0080, "Channel Agility"}},
 
 
     {&ff_auth_seq,
@@ -1762,6 +1917,7 @@ proto_register_wlan (void)
     &ett_proto_flags,
     &ett_fixed_parameters,
     &ett_tagged_parameters,
+    &ett_wep_parameters,
     &ett_cap_tree,
   };
 
