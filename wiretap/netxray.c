@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.87 2004/01/25 21:55:16 guy Exp $
+ * $Id: netxray.c,v 1.88 2004/01/25 23:50:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -824,15 +824,23 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 					/*
 					 * FCS.
 					 */
+#if 0
 					pseudo_header->eth.fcs_len = 4;
+#else
+					padding = 4;
+#endif
 				} else {
 					/*
 					 * Junk.
 					 */
 					padding = 4;
 				}
+#if 0
 			} else
 				pseudo_header->eth.fcs_len = 0;
+#else
+			}
+#endif
 			break;
 
 		case WTAP_ENCAP_ISDN:
