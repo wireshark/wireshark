@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.12 2002/02/25 23:28:32 guy Exp $
+ * $Id: packet-eap.c,v 1.13 2002/02/25 23:55:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,10 +170,8 @@ dissect_eap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	  if (size>0) {
 	    tvbuff_t   *next_tvb;
-	    proto_tree_add_text(eap_tree, tvb, offset, size, 
-				"Data (%i)",size);
 	    next_tvb = tvb_new_subset(tvb, offset, size, size);
-	    call_dissector(ssl_handle, next_tvb, pinfo, tree);
+	    call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
 	  }
 	  }
 	  break;
