@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.75 2003/12/10 10:47:24 guy Exp $
+ * $Id: packet-isakmp.c,v 1.76 2003/12/10 19:21:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -522,8 +522,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (hdr.length < sizeof(hdr)) {
         proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.length),
-			    "Length: (bogus, length is %u, should be at least %u)",
-			    hdr.length, sizeof(hdr));
+			    "Length: (bogus, length is %u, should be at least %lu)",
+			    hdr.length, (unsigned long)sizeof(hdr));
         return;
     }
 
