@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.8 2003/06/05 11:13:41 sahlberg Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.9 2003/06/09 10:08:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,11 +51,7 @@ static int hf_samr_level = -1;
 
 
 
-static GHashTable *sid_name_table = NULL;
-typedef struct _sid_name {
-	char *sid;
-	char *name;
-} sid_name;
+GHashTable *sid_name_table = NULL;
 static GMemChunk *sid_name_chunk = NULL;
 static int sid_name_init_count = 200;
 
@@ -173,7 +169,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, vo
 		return 0;
 	}
 
-	if (!dcerpc_smb_fetch_pol(old_ctx, &pol_name, NULL, NULL, NULL)) {
+	if (!dcerpc_smb_fetch_pol(old_ctx, &pol_name, NULL, NULL, ri->call_data->req_frame)) {
 		return 0;
 	}
 

@@ -539,6 +539,20 @@ on those calls that match that filter.
 Example: use B<-z "smb,rtt,ip.addr==1.2.3.4"> to only collect stats for
 SMB packets echanged by the host at IP address 1.2.3.4 .
 
+B<-z> smb,sids
+
+When this feature is used tethereal will print a report with all the discovered
+SID and account name mappings.
+Only those SIDs where the account name is known will be presented in the
+table.
+
+For this feature to work you will need to either to enable "Edit/Preferences/Protocols/SMB/Snoop SID to name mappings" in the preferences or
+you can override the preferences by specifying -o "smb.sid_name_snooping:TRUE"
+on the tethereal command line.
+
+The current methods used by tethereal to find the SID->name mapping is 
+relatively restricted but is hoped to be expanded in the future.
+
 B<-z> mgcp,rtd[I<,filter>]
 
 Collect requests/response RTD (Response Time Delay) data for MGCP. 

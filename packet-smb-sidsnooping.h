@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.h,v 1.1 2003/03/25 09:41:41 sahlberg Exp $
+ * $Id: packet-smb-sidsnooping.h,v 1.2 2003/06/09 10:08:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,12 @@
 
 #ifndef _PACKET_SMB_SID_SNOOPING_H_
 #define _PACKET_SMB_SID_SNOOPING_H_
+
+extern GHashTable *sid_name_table;
+typedef struct _sid_name {
+	char *sid;
+	char *name;
+} sid_name;
 
 char *find_sid_name(char *sid);
 
