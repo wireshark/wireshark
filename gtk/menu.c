@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.124 2003/12/13 18:01:30 ulfl Exp $
+ * $Id: menu.c,v 1.125 2003/12/15 06:38:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -673,6 +673,21 @@ static guint recent_files_count_max = 10;
 
 #define MENU_RECENT_FILES_PATH "/File/Open Recent"
 
+/* remove the capture filename from the "Recent Files" menu */
+void
+remove_menu_recent_capture_file(gpointer data_item) {
+    GtkWidget *submenu_recent_files;
+
+
+	/* get the submenu container item */
+	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+
+	/* XXX: is this all we need to do, to destroy the menu item and its label? */
+	gtk_container_remove(GTK_CONTAINER(submenu_recent_files), data_item);
+	gtk_widget_destroy(data_item);
+}
+
+
 /* callback, if the user pushed a recent file submenu item */
 void
 menu_open_recent_file_cmd_cb(GtkWidget *w, gpointer data _U_)
@@ -689,6 +704,10 @@ menu_open_recent_file_cmd_cb(GtkWidget *w, gpointer data _U_)
 	/* open and read the capture file (this will close an existing file) */
     if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
 		cf_read(&cfile, &err);
+    } else {
+        /* the capture file isn't existing any longer, remove menu item */
+        /* XXX: ask user to remove item, it's maybe only a temporary problem */
+        remove_menu_recent_capture_file(w);
 	}
 }
 
@@ -722,9 +741,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 		 * this element is above maximum count (too old), remove it */
 		if (strncmp(widget_cf_name, cf_name, 1000) == 0 ||
 				cnt >= recent_files_count_max) {
-			/* XXX: is this all we need to do, to destroy the menu item and its label? */
-			gtk_container_remove(GTK_CONTAINER(submenu_recent_files), li->data);
-			gtk_widget_destroy(li->data);
+            remove_menu_recent_capture_file(li->data);
 			cnt--;
 		}
 	}
