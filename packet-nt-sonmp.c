@@ -2,7 +2,7 @@
 * Routines for the disassembly of the "Nortel Networks / SynOptics Network Management Protocol"
 * (c) Copyright Giles Scott <gscott2@nortelnetworks.com> 
 *
-* $Id: packet-nt-sonmp.c,v 1.1 2003/08/28 00:11:32 guy Exp $
+* $Id: packet-nt-sonmp.c,v 1.2 2003/09/30 20:51:19 guy Exp $
 *
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,7 @@
 
   
 /* chassis types */
-/* From  synro179.mib - SnpxChassisType */
+/* From  synro193.mib - SnpxChassisType */
 static value_string sonmp_chassis_val[] =
 {
 	{2, "m3000"},
@@ -139,6 +139,22 @@ static value_string sonmp_chassis_val[] =
 	{88, "Alteon AD3"},
 	{89, "Alteon 184"},
 	{90, "Alteon AD4"},
+	{91, "Passport 1424 L3 switch"},
+	{92, "Passport 1648 L3 switch"},
+	{93, "Passport 1612 L3 switch"},
+	{94, "Passport 1624 L3 switch"},
+	{95, "BayStack 380-24F Fiber 1000 switch"},
+	{96, "BayStack 4700 24T switch"},
+	{97, "BayStack 4700 48T switch"},
+	{98, "BayStack 5510 24-port"},
+	{99, "BayStack 2200 Wireless LAN AP"},
+	{100, "passport RBS 2402 L3 switch"},
+	{101, "Alteon AAS 2424"},
+	{102, "Alteon AAS 2224"},
+	{103, "Alteon AAS 2208"},
+	{104, "Alteon AAS 2216"},
+	{105, "Alteon AAS 3408"},
+	{106, "Alteon AAS 3416"}, 
 	{0, NULL}
 };
 
