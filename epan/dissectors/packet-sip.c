@@ -714,6 +714,10 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 gint header_len;
                 gint hf_index;
                 gint value_offset;
+                gint comma_offset;
+                gint comma_next_offset;
+                gint sip_offset;
+                gint con_offset;
                 guchar c;
 		size_t value_len;
                 char *value;
@@ -1081,10 +1085,30 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					break;
 
 				case POS_CONTACT :
-					contacts++;
-					if (strcmp(value, "*") == 0)
-					{
-						contact_is_star = 1;
+					comma_offset = tvb_find_guint8(tvb, value_offset,value_len, ',');
+					if (comma_offset != -1) {
+						con_offset = value_offset + 1;
+						while (comma_offset != -1) {
+							sip_offset = tvb_find_guint8(tvb, con_offset, (comma_offset - con_offset), 's');
+							if (sip_offset != -1 && tvb_get_guint8(tvb, sip_offset+1) == 'i' && tvb_get_guint8(tvb, sip_offset+2) == 'p')
+								contacts++;
+							comma_next_offset = tvb_find_guint8(tvb, comma_offset + 1, value_len - (comma_offset - value_offset), ',');
+							if (comma_next_offset == -1)
+								con_offset = comma_offset + 1;
+							else
+								con_offset = comma_next_offset + 1;
+							comma_offset = comma_next_offset;
+						}
+						sip_offset = tvb_find_guint8(tvb, con_offset, value_len - (con_offset - value_offset), 's');
+						if (sip_offset != -1 && tvb_get_guint8(tvb, sip_offset+1) == 'i' && tvb_get_guint8(tvb, sip_offset+2) == 'p')
+							contacts++;
+					}
+					else {
+						contacts++;
+						if (strcmp(value, "*") == 0)
+						{
+							contact_is_star = 1;
+						}
 					}
 					/* Fall through to default case to add string to tree */
 
