@@ -1,6 +1,6 @@
 /* buffer.h
  *
- * $Id: buffer.h,v 1.9 2002/06/23 10:32:36 guy Exp $
+ * $Id: buffer.h,v 1.10 2002/07/29 06:09:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -26,12 +26,8 @@
 
 #define SOME_FUNCTIONS_ARE_DEFINES
 
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>        /* to define u_char */
-#endif
-
 typedef struct Buffer {
-	u_char		*data;
+	guchar		*data;
 	unsigned int	allocated;
 	unsigned int	start;
 	unsigned int	first_free;
@@ -40,7 +36,7 @@ typedef struct Buffer {
 void buffer_init(Buffer* buffer, unsigned int space);
 void buffer_free(Buffer* buffer);
 void buffer_assure_space(Buffer* buffer, unsigned int space);
-void buffer_append(Buffer* buffer, u_char *from, unsigned int bytes);
+void buffer_append(Buffer* buffer, guchar *from, unsigned int bytes);
 void buffer_remove_start(Buffer* buffer, unsigned int bytes);
 
 #ifdef SOME_FUNCTIONS_ARE_DEFINES
@@ -51,8 +47,8 @@ void buffer_remove_start(Buffer* buffer, unsigned int bytes);
 #else
  void buffer_increase_length(Buffer* buffer, unsigned int bytes);
  unsigned int buffer_length(Buffer* buffer);
- u_char* buffer_start_ptr(Buffer* buffer);
- u_char* buffer_end_ptr(Buffer* buffer);
+ guchar* buffer_start_ptr(Buffer* buffer);
+ guchar* buffer_end_ptr(Buffer* buffer);
 #endif
 
 #endif

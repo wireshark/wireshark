@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.41 2002/06/07 07:27:34 guy Exp $
+ * $Id: iptrace.c,v 1.42 2002/07/29 06:09:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -34,12 +34,12 @@
 
 static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset);
 static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err);
 
 static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset);
 static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err);
 
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
@@ -166,7 +166,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 }
 
 static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err)
 {
 	int			ret;
@@ -287,7 +287,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 }
 
 static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err)
 {
 	int			ret;

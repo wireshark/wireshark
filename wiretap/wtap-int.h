@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.25 2002/06/23 10:32:36 guy Exp $
+ * $Id: wtap-int.h,v 1.26 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -23,16 +23,8 @@
 #ifndef __WTAP_INT_H__
 #define __WTAP_INT_H__
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
 #endif
 
 #include <glib.h>
@@ -163,7 +155,7 @@ struct wtap_dumper;
 
 typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
 		const struct wtap_pkthdr*, const union wtap_pseudo_header*,
-		const u_char*, int*);
+		const guchar*, int*);
 typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
 
 typedef struct {

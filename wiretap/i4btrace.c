@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.21 2002/06/07 07:27:34 guy Exp $
+ * $Id: i4btrace.c,v 1.22 2002/07/29 06:09:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -34,10 +34,10 @@
 
 static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset);
 static gboolean i4btrace_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
-static gboolean i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
+static gboolean i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err);
 static void i4b_set_pseudo_header(wtap *wth, i4b_trace_hdr_t *hdr,
     union wtap_pseudo_header *pseudo_header);
 static void i4btrace_close(wtap *wth);
@@ -223,7 +223,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 i4btrace_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
 	int	ret;
 	i4b_trace_hdr_t hdr;
@@ -290,7 +290,7 @@ i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr)
 }
 
 static gboolean
-i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
+i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
 

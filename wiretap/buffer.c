@@ -1,6 +1,6 @@
 /* buffer.c
  *
- * $Id: buffer.c,v 1.12 2001/11/13 23:55:43 gram Exp $
+ * $Id: buffer.c,v 1.13 2002/07/29 06:09:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -29,16 +29,12 @@
 #include <string.h>
 #include <glib.h>
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #include "buffer.h"
 
 /* Initializes a buffer with a certain amount of allocated space */
 void buffer_init(Buffer* buffer, unsigned int space)
 {
-	buffer->data = (u_char*)g_malloc(space);
+	buffer->data = (guchar*)g_malloc(space);
 	buffer->allocated = space;
 	buffer->start = 0;
 	buffer->first_free = 0;
@@ -88,10 +84,10 @@ void buffer_assure_space(Buffer* buffer, unsigned int space)
 
 	/* We'll allocate more space */
 	buffer->allocated += space + 1024;
-	buffer->data = (u_char*)g_realloc(buffer->data, buffer->allocated);
+	buffer->data = (guchar*)g_realloc(buffer->data, buffer->allocated);
 }
 
-void buffer_append(Buffer* buffer, u_char *from, unsigned int bytes)
+void buffer_append(Buffer* buffer, guchar *from, unsigned int bytes)
 {
 	buffer_assure_space(buffer, bytes);
 	memcpy(buffer->data + buffer->first_free, from, bytes);
@@ -129,14 +125,14 @@ unsigned int buffer_length(Buffer* buffer)
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-u_char* buffer_start_ptr(Buffer* buffer)
+guchar* buffer_start_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->start;
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-u_char* buffer_end_ptr(Buffer* buffer)
+guchar* buffer_end_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->first_free;
 }

@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.9 2002/07/16 07:15:09 guy Exp $
+ * $Id: visual.c,v 1.10 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -115,10 +115,10 @@ struct visual_write_info
 static gboolean visual_read(wtap *wth, int *err, long *data_offset);
 static void visual_close(wtap *wth);
 static gboolean visual_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err);
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean visual_dump_close(wtap_dumper *wdh, int *err);
 static void visual_dump_free(wtap_dumper *wdh);
 
@@ -451,7 +451,7 @@ gboolean visual_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 /* Write a packet to a Visual dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
     struct visual_write_info * visual = wdh->dump.opaque;
     struct visual_pkt_hdr vpkt_hdr;

@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.29 2002/06/07 07:27:35 guy Exp $
+ * $Id: nettl.c,v 1.30 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -32,10 +32,10 @@
 #include "buffer.h"
 #include "nettl.h"
 
-static u_char nettl_magic_hpux9[12] = {
+static guchar nettl_magic_hpux9[12] = {
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD0, 0x00
 };
-static u_char nettl_magic_hpux10[12] = {
+static guchar nettl_magic_hpux10[12] = {
     0x54, 0x52, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80
 };
 
@@ -125,12 +125,12 @@ struct nettlrec_ns_ls_drv_eth_hdr {
 
 static gboolean nettl_read(wtap *wth, int *err, long *data_offset);
 static gboolean nettl_seek_read(wtap *wth, long seek_off,
-		union wtap_pseudo_header *pseudo_header, u_char *pd,
+		union wtap_pseudo_header *pseudo_header, guchar *pd,
 		int length, int *err);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
 		int *err);
-static gboolean nettl_read_rec_data(FILE_T fh, u_char *pd, int length,
+static gboolean nettl_read_rec_data(FILE_T fh, guchar *pd, int length,
 		int *err);
 static void nettl_close(wtap *wth);
 
@@ -212,7 +212,7 @@ static gboolean nettl_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 nettl_seek_read(wtap *wth, long seek_off,
-		union wtap_pseudo_header *pseudo_header, u_char *pd,
+		union wtap_pseudo_header *pseudo_header, guchar *pd,
 		int length, int *err)
 {
     int ret;
@@ -443,7 +443,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 }
 
 static gboolean
-nettl_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
+nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
     int bytes_read;
 

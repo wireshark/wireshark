@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.37 2002/06/07 07:27:35 guy Exp $
+ * $Id: radcom.c,v 1.38 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -69,11 +69,11 @@ struct radcomrec_hdr {
 
 static gboolean radcom_read(wtap *wth, int *err, long *data_offset);
 static gboolean radcom_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, u_char *pd, int length,
+	union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
 	int *err);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
 	int *err);
-static gboolean radcom_read_rec_data(FILE_T fh, u_char *pd, int length,
+static gboolean radcom_read_rec_data(FILE_T fh, guchar *pd, int length,
 	int *err);
 
 int radcom_open(wtap *wth, int *err)
@@ -297,7 +297,7 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 radcom_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
 	int	ret;
 	struct radcomrec_hdr hdr;
@@ -345,7 +345,7 @@ radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr, int *err)
 }
 
 static gboolean
-radcom_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
+radcom_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
 

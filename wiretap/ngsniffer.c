@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.83 2002/07/16 07:15:09 guy Exp $
+ * $Id: ngsniffer.c,v 1.84 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -286,7 +286,7 @@ static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 static int skip_header_records(wtap *wth, int *err, gint16 version);
 static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err);
 static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
     guint16 *typep, guint16 *lengthp, int *err);
@@ -303,13 +303,13 @@ static gboolean ngsniffer_read_frame6(wtap *wth, gboolean is_random,
 static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
     struct frame6_rec *frame6);
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
-    u_char *pd, int length, int *err);
+    guchar *pd, int length, int *err);
 static void fix_pseudo_header(wtap *wth,
     union wtap_pseudo_header *pseudo_header);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
+	const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
         unsigned char * outbuf, size_t outlen, int *err );
@@ -659,7 +659,7 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 	struct frame6_rec frame6;
 	double	t;
 	guint16	time_low, time_med, time_high, true_size, size;
-	u_char	*pd;
+	guchar	*pd;
 
 	for (;;) {
 		/*
@@ -870,7 +870,7 @@ found:
 }
 
 static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err)
 {
 	int	ret;
@@ -1309,7 +1309,7 @@ static void set_pseudo_header_frame6(
 }
 
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
-    u_char *pd, int length, int *err)
+    guchar *pd, int length, int *err)
 {
 	int	bytes_read;
 
@@ -1438,7 +1438,7 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
     ngsniffer_dump_t *priv = wdh->dump.ngsniffer;
     struct frame2_rec rec_hdr;

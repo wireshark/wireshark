@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.53 2002/07/16 07:15:09 guy Exp $
+ * $Id: snoop.c,v 1.54 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -30,10 +30,6 @@
 #include "buffer.h"
 #include "atm.h"
 #include "snoop.h"
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
 /* See RFC 1761 for a description of the "snoop" file format. */
 
 /* Magic number in "snoop" files. */
@@ -68,13 +64,13 @@ struct snoop_atm_hdr {
 
 static gboolean snoop_read(wtap *wth, int *err, long *data_offset);
 static gboolean snoop_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
-static gboolean snoop_read_rec_data(FILE_T fh, u_char *pd, int length,
+static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 
 /*
  * See
@@ -260,8 +256,8 @@ int snoop_open(wtap *wth, int *err)
 	 * only for padding, but if there's more, it's probably a Shomiti
 	 * tool, which uses the padding for additional information.
 	 */
-	hdr.version = ntohl(hdr.version);
-	hdr.network = ntohl(hdr.network);
+	hdr.version = g_ntohl(hdr.version);
+	hdr.network = g_ntohl(hdr.network);
 	switch (hdr.version) {
 
 	case 2:		/* Solaris 2.x and later snoop, and Shomiti
@@ -328,9 +324,9 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	}
 	wth->data_offset += sizeof hdr;
 
-	rec_size = ntohl(hdr.rec_len);
-	orig_size = ntohl(hdr.orig_len);
-	packet_size = ntohl(hdr.incl_len);
+	rec_size = g_ntohl(hdr.rec_len);
+	orig_size = g_ntohl(hdr.orig_len);
+	packet_size = g_ntohl(hdr.incl_len);
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
@@ -380,8 +376,8 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
-	wth->phdr.ts.tv_sec = ntohl(hdr.ts_sec);
-	wth->phdr.ts.tv_usec = ntohl(hdr.ts_usec);
+	wth->phdr.ts.tv_sec = g_ntohl(hdr.ts_sec);
+	wth->phdr.ts.tv_usec = g_ntohl(hdr.ts_usec);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 	wth->phdr.pkt_encap = wth->file_encap;
@@ -425,7 +421,7 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 snoop_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -547,7 +543,7 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 }
 
 static gboolean
-snoop_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
+snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
 
@@ -617,8 +613,8 @@ gboolean snoop_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	}
 
 	/* current "snoop" format is 2 */
-	file_hdr.version = htonl(2);
-	file_hdr.network = htonl(wtap_encap[wdh->encap]);
+	file_hdr.version = g_htonl(2);
+	file_hdr.network = g_htonl(wtap_encap[wdh->encap]);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
 		if (nwritten == 0 && ferror(wdh->fh))
@@ -636,7 +632,7 @@ gboolean snoop_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 static gboolean snoop_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header _U_,
-	const u_char *pd, int *err)
+	const guchar *pd, int *err)
 {
 	struct snooprec_hdr rec_hdr;
 	size_t nwritten;
@@ -658,12 +654,12 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	padlen = ((reclen + 3) & ~3) - reclen;
 	reclen += padlen;
 
-	rec_hdr.orig_len = htonl(phdr->len + atm_hdrsize);
-	rec_hdr.incl_len = htonl(phdr->caplen + atm_hdrsize);
-	rec_hdr.rec_len = htonl(reclen);
+	rec_hdr.orig_len = g_htonl(phdr->len + atm_hdrsize);
+	rec_hdr.incl_len = g_htonl(phdr->caplen + atm_hdrsize);
+	rec_hdr.rec_len = g_htonl(reclen);
 	rec_hdr.cum_drops = 0;
-	rec_hdr.ts_sec = htonl(phdr->ts.tv_sec);
-	rec_hdr.ts_usec = htonl(phdr->ts.tv_usec);
+	rec_hdr.ts_sec = g_htonl(phdr->ts.tv_sec);
+	rec_hdr.ts_usec = g_htonl(phdr->ts.tv_usec);
 	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
 	if (nwritten != sizeof rec_hdr) {
 		if (nwritten == 0 && ferror(wdh->fh))
@@ -707,7 +703,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 			break;
 		}
 		atm_hdr.vpi = pseudo_header->atm.vpi;
-		atm_hdr.vci = htons(pseudo_header->atm.vci);
+		atm_hdr.vci = g_htons(pseudo_header->atm.vci);
 		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
 		if (nwritten != sizeof atm_hdr) {
 			if (nwritten == 0 && ferror(wdh->fh))

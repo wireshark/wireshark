@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.67 2002/07/16 07:15:09 guy Exp $
+ * $Id: wtap.c,v 1.68 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -291,7 +291,7 @@ wtap_buf_ptr(wtap *wth)
 }
 
 gboolean
-wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user, int *err)
+wtap_loop(wtap *wth, int count, wtap_handler callback, guchar* user, int *err)
 {
 	long		data_offset;
 	int		loop = 0;

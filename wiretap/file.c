@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.94 2002/07/16 07:15:08 guy Exp $
+ * $Id: file.c,v 1.95 2002/07/29 06:09:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -646,7 +646,7 @@ FILE* wtap_dump_file(wtap_dumper *wdh)
 }
 
 gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
 	return (wdh->subtype_write)(wdh, phdr, pseudo_header, pd, err);
 }

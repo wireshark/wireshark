@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.79 2002/07/16 07:15:08 guy Exp $
+ * $Id: libpcap.c,v 1.80 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -23,6 +23,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
 #include <stdlib.h>
 #include <errno.h>
 #include "wtap-int.h"
@@ -31,6 +32,9 @@
 #include "libpcap.h"
 
 #ifdef HAVE_PCAP_H
+# ifdef HAVE_SYS_TYPES_H
+#   include <sys/types.h>
+# endif
 #include <pcap.h>
 #include "wtap-capture.h"
 #endif
@@ -62,7 +66,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err);
 
 static gboolean libpcap_read(wtap *wth, int *err, long *data_offset);
 static gboolean libpcap_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static int libpcap_read_header(wtap *wth, int *err,
     struct pcaprec_ss990915_hdr *hdr, gboolean silent);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
@@ -70,11 +74,11 @@ static void libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
-static gboolean libpcap_read_rec_data(FILE_T fh, u_char *pd, int length,
+static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static void libpcap_close(wtap *wth);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 
 /*
  * Either LBL NRG wasn't an adequate central registry (e.g., because of
@@ -898,7 +902,7 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 libpcap_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -1138,7 +1142,7 @@ libpcap_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header
 }
 
 static gboolean
-libpcap_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
+libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
 
@@ -1187,9 +1191,9 @@ static int wtap_wtap_encap_to_pcap_encap(int encap)
  * fill in the Wiretap packet header, and return a pointer to the
  * beginning of the non-pseudo-header data in the packet.
  */
-const u_char *
+const guchar *
 wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
-    const u_char *pd, union wtap_pseudo_header *pseudo_header,
+    const guchar *pd, union wtap_pseudo_header *pseudo_header,
     struct wtap_pkthdr *whdr, int *err)
 {
 	/* "phdr->ts" may not necessarily be a "struct timeval" - it may
@@ -1327,7 +1331,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 static gboolean libpcap_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header _U_,
-	const u_char *pd, int *err)
+	const guchar *pd, int *err)
 {
 	struct pcaprec_ss990915_hdr rec_hdr;
 	size_t hdr_size;

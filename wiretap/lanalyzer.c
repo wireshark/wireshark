@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.35 2002/07/16 07:15:08 guy Exp $
+ * $Id: lanalyzer.c,v 1.36 2002/07/29 06:09:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -487,7 +487,7 @@ static void my_timersub(const struct timeval *a,
 static gboolean lanalyzer_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header _U_,
-	const u_char *pd, int *err)
+	const guchar *pd, int *err)
 {
       double x;
       int    i;

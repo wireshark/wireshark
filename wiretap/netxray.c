@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.57 2002/07/16 07:15:09 guy Exp $
+ * $Id: netxray.c,v 1.58 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -130,7 +130,7 @@ union netxrayrec_hdr {
 
 static gboolean netxray_read(wtap *wth, int *err, long *data_offset);
 static gboolean netxray_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static int netxray_read_rec_header(wtap *wth, FILE_T fh,
     union netxrayrec_hdr *hdr, int *err);
 static void netxray_set_pseudo_header(wtap *wth,
@@ -140,11 +140,11 @@ static gboolean netxray_read_rec_data(FILE_T fh, guint8 *data_ptr,
 static void netxray_close(wtap *wth);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
 static gboolean netxray_dump_2_0(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
 
 int netxray_open(wtap *wth, int *err)
@@ -404,7 +404,7 @@ reread:
 
 static gboolean
 netxray_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
 	union netxrayrec_hdr hdr;
 
@@ -585,7 +585,7 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, gboolean cant_seek, int *err)
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header _U_,
-	const u_char *pd, int *err)
+	const guchar *pd, int *err)
 {
     netxray_dump_t *netxray = wdh->dump.netxray;
     guint32 timestamp;
@@ -732,7 +732,7 @@ gboolean netxray_dump_open_2_0(wtap_dumper *wdh, gboolean cant_seek, int *err)
 static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header _U_,
-	const u_char *pd, int *err)
+	const guchar *pd, int *err)
 {
     netxray_dump_t *netxray = wdh->dump.netxray;
     guint32 timestamp;

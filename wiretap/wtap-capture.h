@@ -1,6 +1,6 @@
 /* wtap_capture.h
  *
- * $Id: wtap-capture.h,v 1.1 2002/06/07 21:11:24 guy Exp $
+ * $Id: wtap-capture.h,v 1.2 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -25,8 +25,8 @@
 
 /* XXX - needed until "wiretap" can do live packet captures */
 int wtap_pcap_encap_to_wtap_encap(int encap);
-const u_char *wtap_process_pcap_packet(gint linktype,
-    const struct pcap_pkthdr *phdr, const u_char *pd,
+const guchar *wtap_process_pcap_packet(gint linktype,
+    const struct pcap_pkthdr *phdr, const guchar *pd,
     union wtap_pseudo_header *pseudo_header, struct wtap_pkthdr *whdr,
     int *err);
 

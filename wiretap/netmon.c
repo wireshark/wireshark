@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.57 2002/07/16 07:15:08 guy Exp $
+ * $Id: netmon.c,v 1.58 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -29,10 +29,6 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "netmon.h"
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
 /* The file at
  *
  *	ftp://ftp.microsoft.com/developr/drg/cifs/cifs/Bhfile.zip
@@ -108,15 +104,15 @@ struct netmon_atm_hdr {
 
 static gboolean netmon_read(wtap *wth, int *err, long *data_offset);
 static gboolean netmon_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
-static gboolean netmon_read_rec_data(FILE_T fh, u_char *pd, int length,
+static gboolean netmon_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static void netmon_sequential_close(wtap *wth);
 static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
 
 int netmon_open(wtap *wth, int *err)
@@ -447,7 +443,7 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 netmon_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -483,8 +479,8 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		return FALSE;
 	}
 
-	vpi = ntohs(atm_phdr.vpi);
-	vci = ntohs(atm_phdr.vci);
+	vpi = g_ntohs(atm_phdr.vpi);
+	vci = g_ntohs(atm_phdr.vci);
 
 	/*
 	 * Assume it's AAL5, unless it's VPI 0 and VCI 5, in which case
@@ -511,7 +507,7 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 }
 
 static gboolean
-netmon_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
+netmon_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
 
@@ -616,7 +612,7 @@ gboolean netmon_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
 	netmon_dump_t *netmon = wdh->dump.netmon;
 	struct netmonrec_1_x_hdr rec_1_x_hdr;
@@ -696,8 +692,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		 */
 		memset(&atm_hdr.dest, 0, sizeof atm_hdr.dest);
 		memset(&atm_hdr.src, 0, sizeof atm_hdr.src);
-		atm_hdr.vpi = htons(pseudo_header->atm.vpi);
-		atm_hdr.vci = htons(pseudo_header->atm.vci);
+		atm_hdr.vpi = g_htons(pseudo_header->atm.vpi);
+		atm_hdr.vci = g_htons(pseudo_header->atm.vci);
 		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
 		if (nwritten != sizeof atm_hdr) {
 			if (nwritten == 0 && ferror(wdh->fh))

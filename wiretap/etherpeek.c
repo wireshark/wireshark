@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.20 2002/06/07 07:27:34 guy Exp $
+ * $Id: etherpeek.c,v 1.21 2002/07/29 06:09:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -31,10 +31,6 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "etherpeek.h"
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
 /* CREDITS
  *
  * This file decoder could not have been writen without examining how
@@ -142,7 +138,7 @@ static const etherpeek_encap_lookup_t etherpeek_encap[] = {
 
 static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset);
 static gboolean etherpeek_seek_read_v7(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset);
 static void etherpeek_close(wtap *wth);
 
@@ -195,9 +191,9 @@ int etherpeek_open(wtap *wth, int *err)
 		 * we can get.
 		 */
 		ep_hdr.secondary.v567.mediaType =
-		    ntohl(ep_hdr.secondary.v567.mediaType);
+		    g_ntohl(ep_hdr.secondary.v567.mediaType);
 		ep_hdr.secondary.v567.physMedium =
-		    ntohl(ep_hdr.secondary.v567.physMedium);
+		    g_ntohl(ep_hdr.secondary.v567.physMedium);
 
 		switch (ep_hdr.secondary.v567.physMedium) {
 
@@ -265,19 +261,19 @@ int etherpeek_open(wtap *wth, int *err)
 		 * uncompressed, but it might be compressed.
 		 */
 		ep_hdr.secondary.v567.filelength =
-		    ntohl(ep_hdr.secondary.v567.filelength);
+		    g_ntohl(ep_hdr.secondary.v567.filelength);
 		ep_hdr.secondary.v567.numPackets =
-		    ntohl(ep_hdr.secondary.v567.numPackets);
+		    g_ntohl(ep_hdr.secondary.v567.numPackets);
 		ep_hdr.secondary.v567.timeDate =
-		    ntohl(ep_hdr.secondary.v567.timeDate);
+		    g_ntohl(ep_hdr.secondary.v567.timeDate);
 		ep_hdr.secondary.v567.timeStart =
-		    ntohl(ep_hdr.secondary.v567.timeStart);
+		    g_ntohl(ep_hdr.secondary.v567.timeStart);
 		ep_hdr.secondary.v567.timeStop =
-		    ntohl(ep_hdr.secondary.v567.timeStop);
+		    g_ntohl(ep_hdr.secondary.v567.timeStop);
 		ep_hdr.secondary.v567.appVers =
-		    ntohl(ep_hdr.secondary.v567.appVers);
+		    g_ntohl(ep_hdr.secondary.v567.appVers);
 		ep_hdr.secondary.v567.linkSpeed =
-		    ntohl(ep_hdr.secondary.v567.linkSpeed);
+		    g_ntohl(ep_hdr.secondary.v567.linkSpeed);
 
 		/* Get the reference time as a "struct timeval" */
 		reference_time.tv_sec  =
@@ -442,7 +438,7 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 
 static gboolean
 etherpeek_seek_read_v7(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
 	airopeek_radio_hdr_t radio_hdr;
 

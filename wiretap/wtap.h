@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.117 2002/07/16 07:15:09 guy Exp $
+ * $Id: wtap.h,v 1.118 2002/07/29 06:09:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -22,6 +22,13 @@
 
 #ifndef __WTAP_H__
 #define __WTAP_H__
+
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
+#include <glib.h>
+#include <stdio.h>
 
 /* Encapsulation types. Choose names that truly reflect
  * what is contained in the packet trace file.
@@ -154,21 +161,6 @@
  * Maximum packet size we'll support.
  */
 #define	WTAP_MAX_PACKET_SIZE			65535
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
-
-#include <glib.h>
-#include <stdio.h>
 
 /*
  * "Pseudo-headers" are used to supply to the clients of wiretap
@@ -314,8 +306,8 @@ struct wtap_pkthdr {
 	int pkt_encap;
 };
 
-typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,
-		long, union wtap_pseudo_header *pseudo_header, const u_char *);
+typedef void (*wtap_handler)(guchar*, const struct wtap_pkthdr*,
+		long, union wtap_pseudo_header *pseudo_header, const guchar *);
 
 struct wtap;
 struct Buffer;
@@ -336,7 +328,7 @@ struct wtap* wtap_open_offline(const char *filename, int *err, gboolean do_rando
 
 /* Returns TRUE if entire loop-reading was successful. If read failure
  * happened, FALSE is returned and err is set. */
-gboolean wtap_loop(wtap *wth, int, wtap_handler, u_char*, int *err);
+gboolean wtap_loop(wtap *wth, int, wtap_handler, guchar*, int *err);
 
 /* Returns TRUE if read was successful. FALSE if failure. data_offset is
  * set the the offset in the file where the data for the read packet is
@@ -375,7 +367,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	int *err);
 gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
-	const union wtap_pseudo_header *pseudo_header, const u_char *, int *err);
+	const union wtap_pseudo_header *pseudo_header, const guchar *, int *err);
 FILE* wtap_dump_file(wtap_dumper *);
 gboolean wtap_dump_close(wtap_dumper *, int *);
 long wtap_get_bytes_dumped(wtap_dumper *);
