@@ -2,7 +2,7 @@
  * Routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.21 2001/03/22 00:50:44 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.22 2001/08/01 03:51:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -568,7 +568,7 @@ typedef struct {
 
 static GMemChunk  *lanman_proto_data;
 
-gboolean
+static gboolean
 dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *parent, proto_tree *tree, struct smb_info si,
 	int max_data, int SMB_offset, int errcode, int dirn,
