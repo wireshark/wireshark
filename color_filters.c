@@ -24,10 +24,6 @@
 /*
  * Updated 1 Dec 10 jjm
  */
-
-/* With MSVC and a libethereal.dll this file needs to import some variables 
-   in a special way. Therefore _NEED_VAR_IMPORT_ is defined. */  
-#define _NEED_VAR_IMPORT_ 
  
 #ifdef HAVE_CONFIG_H
 # include "config.h"

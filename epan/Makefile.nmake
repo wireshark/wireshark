@@ -39,8 +39,8 @@ EXTRA_OBJECTS = \
 	inet_aton.obj	\
 	inet_pton.obj	\
 	inet_ntop.obj	\
-	../mkstemp.obj	\
-	../strptime.obj
+	mkstemp.obj	\
+	strptime.obj
 
 
 !IFDEF ENABLE_LIBETHEREAL
@@ -84,7 +84,7 @@ clean:
 	cd ..
 
 distclean: clean
-	rm -f config.h register.c
+	rm -f config.h register.c mkstemp.c strptime.c
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../dfilter
@@ -118,4 +118,16 @@ doxygen-run:
 !ENDIF
 
 doxygen: doxygen.cfg doxygen-run
+
+
+# (Windows only) Copy some sources from /trunk to /trunk/epan.
+# It is a cleaner to compile these sources seperately with this makefile than
+# using the object code compiled by the makefile in /trunk for both dynamically
+# and statically linking
+
+mkstemp.c: ..\mkstemp.c
+	xcopy ..\mkstemp.c . /d /y
+
+strptime.c: ..\strptime.c
+	xcopy ..\strptime.c . /d /y
 
