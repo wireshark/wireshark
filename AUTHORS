@@ -493,6 +493,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	Mount dissector enhancements
 	Support for status monitor protocol and status monitor callback
 	    protocol
+	YPSERV dissector enhancements
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
