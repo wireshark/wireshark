@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.34 1999/12/13 23:39:59 guy Exp $
+ * $Id: packet-llc.c,v 1.35 1999/12/14 07:22:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -78,10 +78,6 @@ struct sap_info {
  *	have the low order bit of the SSAP address set to one.
  *
  * and a page I've seen seems to imply that's part of 802.2.)
- *
- * XXX - that page also implies that LLC Type 2 always uses
- * extended operation, so we don't need to determine whether
- * it's basic or extended operation; is that the case?
  */
 #define	SSAP_CR_BIT	0x01
 
@@ -92,7 +88,10 @@ struct sap_info {
 
 /*
  * These are for SSAP and DSAP, wth last bit always zero.
- * XXX - what about 0xFF, "Global LSAP"?
+ * XXX - some DSAPs come in separate "individual" and "group" versions,
+ * with the last bit 0 and 1, respectively (e.g., LLC Sub-layer Management,
+ * IBM SNA Path Control, IBM Net Management), and, whilst 0xFE is
+ * the ISO Network Layer Protocol, 0xFF is the Global LSAP.
  */
 static const value_string sap_vals[] = {
 	{ 0x00, "NULL LSAP" },
