@@ -52,8 +52,37 @@ SubtreeSpecification
 #.NO_EMIT
 
 #.TYPE_RENAME
+AttributeTypeAndDistinguishedValue/valuesWithContext	T_valWithContext
+AttributeTypeAndDistinguishedValue/valuesWithContext/_item	T_valWithContext_item
+ChopSpecification/specificExclusions			T_chopSpecificExclusions
+ChopSpecification/specificExclusions/_item		T_chopSpecificExclusions_item
 
 #.FIELD_RENAME
+AttributeTypeAssertion/assertedContexts		ata_assertedContexts
+AttributeTypeAndDistinguishedValue/value		atadv_value
+AttributeTypeAndDistinguishedValue/valuesWithContext	valueswithContext
+AttributeTypeAndDistinguishedValue/valuesWithContext/_item	valueswithContext_item
+ChopSpecification/specificExclusions			chopSpecificExclusions
+ChopSpecification/specificExclusions/_item		chopSpecificExclusions_item
+Refinement/and			refinement_and
+Refinement/and/_item		refinement_and_item
+Refinement/not			refinement_not
+Refinement/or			refinement_or
+Refinement/or/_item		refinement_or_item
+ContextAssertion/contextType		ca_contextType
+ContextAssertion/contextValues		ca_contextValues
+ContextAssertion/contextValues/_item	ca_contextValues_item
+ContextCombination/not		contextcombination_not
+ContextCombination/and		contextcombination_and
+ContextCombination/and/_item	contextcombination_and_item
+ContextCombination/or		contextcombination_or
+ContextCombination/or/_item	contextcombination_or_item
+RelaxationPolicy/maximum	maximum_relaxation
+RelaxationPolicy/minimum	minimum_relaxation
+RequestAttribute/defaultValues/_item/values		ra_values
+RequestAttribute/defaultValues/_item/values/_item	ra_values_item
+RequestAttribute/selectedValues				ra_selectedValues
+RequestAttribute/selectedValues/_item			ra_selectedValues_item
 
 #.FN_BODY ContextId
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
