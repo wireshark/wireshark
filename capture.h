@@ -1,12 +1,11 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.35 2003/05/15 13:33:53 deniel Exp $
+ * $Id: capture.h,v 1.36 2003/09/15 23:15:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,8 +58,9 @@ extern int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 extern gboolean capture_child;	/* if this is the child for "-S" */
 
 /* Open a specified file, or create a temporary file, and start a capture
-   to the file in question. */
-void   do_capture(const char *save_file);
+   to the file in question.  Returns TRUE if the capture starts
+   successfully, FALSE otherwise. */
+gboolean do_capture(const char *save_file);
 
 /* Do the low-level work of a capture. */
 int    capture(gboolean *stats_known, struct pcap_stat *stats);

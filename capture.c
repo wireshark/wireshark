@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.209 2003/09/15 22:48:41 guy Exp $
+ * $Id: capture.c,v 1.210 2003/09/15 23:15:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -287,8 +287,9 @@ quote_encapsulate(const char *string)
 #endif
 
 /* Open a specified file, or create a temporary file, and start a capture
-   to the file in question. */
-void
+   to the file in question.  Returns TRUE if the capture starts
+   successfully, FALSE otherwise. */
+gboolean
 do_capture(const char *save_file)
 {
   char tmpname[128+1];
@@ -338,7 +339,7 @@ do_capture(const char *save_file)
 	file_open_error_message(errno, TRUE, WTAP_FILE_PCAP), capfile_name);
     }
     g_free(capfile_name);
-    return;
+    return FALSE;
   }
   cf_close(&cfile);
   g_assert(cfile.save_file == NULL);
@@ -419,7 +420,7 @@ do_capture(const char *save_file)
       cfile.save_file = NULL;
       simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't create sync pipe: %s",
                         strerror(error));
-      return;
+      return FALSE;
     }
 
     /* Convert font name to a quote-encapsulated string and pass to child */
@@ -457,7 +458,7 @@ do_capture(const char *save_file)
       cfile.save_file = NULL;
       simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't create sync pipe: %s",
 			strerror(error));
-      return;
+      return FALSE;
     }
 
     argv = add_arg(argv, &argc, "-m");
@@ -521,7 +522,7 @@ do_capture(const char *save_file)
       cfile.save_file = NULL;
       simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't create child process: %s",
 			strerror(error));
-      return;
+      return FALSE;
     }
 
     /* Read a byte count from "sync_pipe[READ]", terminated with a
@@ -541,7 +542,7 @@ do_capture(const char *save_file)
 	g_free(cfile.save_file);
 	cfile.save_file = NULL;
 	wait_for_child(TRUE);
-	return;
+	return FALSE;
       }
       if (c == SP_CAPSTART || c == SP_ERROR_MSG)
 	break;
@@ -555,7 +556,7 @@ do_capture(const char *save_file)
 	cfile.save_file = NULL;
 	simple_dialog(ESD_TYPE_WARN, NULL,
 			"Capture child process sent us a bad message");
-	return;
+	return FALSE;
       }
       byte_count = byte_count*10 + c - '0';
     }
@@ -688,7 +689,7 @@ do_capture(const char *save_file)
              we registered get called. */
           if (gtk_main_level() > 0)
             gtk_main_quit();
-          return;
+          return FALSE;
         }
       }
     }
@@ -701,6 +702,7 @@ do_capture(const char *save_file)
     }
     cfile.save_file = NULL;
   }
+  return TRUE;
 }
 
 #ifdef _WIN32

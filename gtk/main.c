@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.313 2003/09/15 22:48:42 guy Exp $
+ * $Id: main.c,v 1.314 2003/09/15 23:15:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2078,7 +2078,7 @@ main(int argc, char *argv[])
        a capture file to read? */
     if (cf_name) {
       /* Yes - that's bogus. */
-      fprintf(stderr, "ethereal: both live capture (-k) and capture file specified\n");
+      fprintf(stderr, "ethereal: You cannot specify both a live capture and a capture file to read.\n");
       exit(2);
     }
        
@@ -2253,12 +2253,6 @@ main(int argc, char *argv[])
     register_all_tap_menus();
     set_menus_for_capture_file(FALSE);
 
-    /* open tap windows after creating the main window to avoid GTK warnings */
-    if (tap_opt && tli) {
-      (*tli->func)(tap_opt);
-      g_free(tap_opt);
-    }
-
     colors_init();
     colfilter_init();
 
@@ -2281,6 +2275,16 @@ main(int argc, char *argv[])
 	     capture file, and thus destroyed any previous read filter
 	     attached to "cf". */
           cfile.rfcode = rfcode;
+
+          /* Open tap windows; we do so after creating the main window,
+             to avoid GTK warnings, and after successfully opening the
+             capture file, so we know we have something to tap. */
+          if (tap_opt && tli) {
+            (*tli->func)(tap_opt);
+            g_free(tap_opt);
+          }
+
+          /* Read the capture file. */
           switch (cf_read(&cfile, &err)) {
 
           case READ_SUCCESS:
@@ -2403,7 +2407,15 @@ main(int argc, char *argv[])
   } else {
     if (start_capture) {
       /* "-k" was specified; start a capture. */
-      do_capture(save_file);
+      if (do_capture(save_file)) {
+        /* The capture started.  Open tap windows; we do so after creating
+           the main window, to avoid GTK warnings, and after starting the
+           capture, so we know we have something to tap. */
+        if (tap_opt && tli) {
+          (*tli->func)(tap_opt);
+          g_free(tap_opt);
+        }
+      }
       if (save_file != NULL) {
         /* Save the directory name for future file dialogs. */
         s = get_dirname(save_file);  /* Overwrites save_file */
