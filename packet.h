@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.139 1999/11/14 02:42:03 sharpe Exp $
+ * $Id: packet.h,v 1.140 1999/11/14 20:44:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -654,7 +654,15 @@ void dissect_smb(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_pptp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_gre(const u_char *, int, frame_data *, proto_tree *);
 
-void dissect_rpc(const u_char *, int, frame_data *, proto_tree *, guint32, void*);
+/*
+ * Routines in packet-*.c
+ * Routines should take four args: packet data *, offset, frame_data *,
+ * tree *
+ * They should never modify the packet data.
+ * They should return TRUE if the packet is of the type the routine would
+ * dissect, FALSE otherwise.
+ */
+gboolean dissect_rpc(const u_char *, int, frame_data *, proto_tree *);
 
 void init_dissect_rpc(void);
 void init_dissect_udp(void);

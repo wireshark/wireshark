@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.33 1999/10/29 01:04:18 guy Exp $
+ * $Id: packet-udp.c,v 1.34 1999/11/14 20:44:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
-#include "packet-rpc.h"
 
 int proto_udp = -1;		
 int hf_udp_srcport = -1;
@@ -223,53 +222,11 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   pi.srcport = uh_sport;
   pi.destport = uh_dport;
 
-  /* RPC */
-  if (BYTES_ARE_IN_FRAME(offset,8)) {
-    guint32		rpc_msgtype;
-
-    /* both directions need at least this */
-    rpc_msgtype = EXTRACT_UINT(pd,offset+4);
-
-    /* check for RPC reply */
-    if (rpc_msgtype == RPC_REPLY) {
-      rpc_call_info	rpc_key;
-      rpc_call_info	*rpc_value;
-      conversation_t	*conversation;
-
-      conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
-        pi.srcport, pi.destport);
-      if (conversation) {
-        /* It makes only sense to look for the corresponding RPC request,
-           if there was a conversation. */
-        rpc_key.xid = EXTRACT_UINT(pd,offset+0);
-        rpc_key.conversation = conversation;
-        if ((rpc_value=rpc_call_lookup(&rpc_key)) != NULL) {
-            dissect_rpc(pd,offset,fd,tree,rpc_msgtype,(void*)rpc_value);
-          return;
-        }
-      }
-    }
-
-    /* check for RPC call */
-    if (BYTES_ARE_IN_FRAME(offset,16)) {
-      guint32 rpc_vers;
-      rpc_prog_info_key rpc_prog_key;
-      rpc_prog_info_value *rpc_prog_info;
-
-      /* xid can be anything, we dont check it */
-      /* msgtype is already defined */
-      rpc_vers = EXTRACT_UINT(pd,offset+8);
-      rpc_prog_key.prog = EXTRACT_UINT(pd,offset+12);
-      if (rpc_msgtype == RPC_CALL &&
-          rpc_vers == 2 &&
-          ((rpc_prog_info = g_hash_table_lookup(rpc_progs, &rpc_prog_key)) != NULL))
-      {
-        dissect_rpc(pd,offset,fd,tree,rpc_msgtype,(void*)rpc_prog_info);
-        return;
-      }
-    }
-  }
-  /* end of RPC */
+  /* ONC RPC.  We can't base this on anything in the UDP header; we have
+     to look at the payload.  If "dissect_rpc()" returns TRUE, it was
+     an RPC packet, otherwise it's some other type of packet. */
+  if (dissect_rpc(pd, offset, fd, tree))
+    return;
 
   /* XXX - we should do all of this through the table of ports. */
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)

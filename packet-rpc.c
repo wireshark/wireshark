@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.9 1999/11/12 15:12:23 nneul Exp $
+ * $Id: packet-rpc.c,v 1.10 1999/11/14 20:44:52 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -593,10 +593,15 @@ dissect_rpc_verf( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 }
 
 
-void
-dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-		guint32	msg_type, void* info)
+gboolean
+dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
+	guint32	msg_type;
+	rpc_call_info rpc_key;
+	rpc_call_info *rpc_call = NULL;
+	rpc_prog_info_value *rpc_prog = NULL;
+	rpc_prog_info_key rpc_prog_key;
+
 	unsigned int xid;
 	unsigned int rpcvers;
 	unsigned int prog;
@@ -631,12 +636,67 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	rpc_proc_info_value	*value = NULL;
 	conversation_t* conversation;
 
-	/* the last parameter can be either of these two types */
-	rpc_call_info	*rpc_call;
-	rpc_prog_info_key	rpc_prog_key;
-	rpc_prog_info_value	*rpc_prog;
-
 	dissect_function_t *dissect_function = NULL;
+
+	/*
+	 * Check to see whether this looks like an RPC call or reply.
+	 */
+	if (!BYTES_ARE_IN_FRAME(offset,8)) {
+		/* Captured data in packet isn't enough to let us tell. */
+		return FALSE;
+	}
+
+	/* both directions need at least this */
+	msg_type = EXTRACT_UINT(pd,offset+4);
+
+	switch (msg_type) {
+
+	case RPC_CALL:
+		/* check for RPC call */
+		if (!BYTES_ARE_IN_FRAME(offset,16)) {
+			/* Captured data in packet isn't enough to let us
+			   tell. */
+			return FALSE;
+		}
+
+		/* XID can be anything, we don't check it.
+		   We already have the message type.
+		   Check whether an RPC version number of 2 is in the
+		   location where it would be, and that an RPC program
+		   number we know about is in the locaton where it would be. */
+		rpc_prog_key.prog = EXTRACT_UINT(pd,offset+12);
+		if (EXTRACT_UINT(pd,offset+8) != 2 ||
+		    ((rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key))
+		       == NULL)) {
+			/* They're not, so it's probably not an RPC call. */
+			return FALSE;
+		}
+		break;
+
+	case RPC_REPLY:
+		/* check for RPC reply */
+		conversation = find_conversation(&pi.src, &pi.dst,
+		    pi.ptype, pi.srcport, pi.destport);
+		if (conversation == NULL) {
+			/* We haven't seen an RPC call for that conversation,
+			   so we can't check for a reply to that call. */
+			return FALSE;
+		}
+		rpc_key.xid = EXTRACT_UINT(pd,offset+0);
+		rpc_key.conversation = conversation;
+		if ((rpc_call = rpc_call_lookup(&rpc_key)) == NULL) {
+			/* The XID doesn't match a call from that
+			   conversation, so it's probably not an RPC reply. */
+			return FALSE;
+		}
+		break;
+
+	default:
+		/* The putative message type field contains neither
+		   RPC_CALL nor RPC_REPLY, so it's not an RPC call or
+		   reply. */
+		return FALSE;
+	}
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "RPC");
@@ -654,8 +714,6 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			"XID: 0x%x (%u)", xid, xid);
 	}
 
-	/* we should better compare this with the argument?! */
-	msg_type = EXTRACT_UINT(pd,offset+4);
 	msg_type_name = val_to_str(msg_type,rpc_msg_type,"%u");
 	if (rpc_tree) {
 		proto_tree_add_text(rpc_tree,offset+4,4,
@@ -666,8 +724,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	offset += 8;
 
 	if (msg_type==RPC_CALL) {
-		/* we know already the proto-entry and the ETT-const */
-		rpc_prog = (rpc_prog_info_value*)info;
+		/* we know already the proto-entry, the ETT-const,
+		   and "rpc_prog" */
 		proto = rpc_prog->proto;
 		ett = rpc_prog->ett;
 		progname = rpc_prog->progname;
@@ -691,14 +749,16 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			col_add_fstr(fd, COL_PROTOCOL, "%s", progname);
 		}
 
-		if (!BYTES_ARE_IN_FRAME(offset+8,4)) return;
+		if (!BYTES_ARE_IN_FRAME(offset+8,4))
+			return TRUE;
 		vers = EXTRACT_UINT(pd,offset+8);
 		if (rpc_tree) {
 			proto_tree_add_text(rpc_tree,offset+8,4,
 				"Program Version: %u",vers);
 		}
 
-		if (!BYTES_ARE_IN_FRAME(offset+12,4)) return;
+		if (!BYTES_ARE_IN_FRAME(offset+12,4))
+			return TRUE;
 		proc = EXTRACT_UINT(pd,offset+12);
 
 		key.prog = prog;
@@ -771,8 +831,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	} /* end of RPC call */
 	else if (msg_type == RPC_REPLY)
 	{
-		/* we know already the type from the calling routine */
-		rpc_call = (rpc_call_info*)info;
+		/* we know already the type from the calling routine,
+		   and we already have "rpc_call" set above. */
 		prog = rpc_call->prog;
 		vers = rpc_call->vers;
 		proc = rpc_call->proc;
@@ -836,7 +896,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			}
 		}
 
-		if (!BYTES_ARE_IN_FRAME(offset,4)) return;
+		if (!BYTES_ARE_IN_FRAME(offset,4))
+			return TRUE;
 		reply_state = EXTRACT_UINT(pd,offset+0);
 		if (rpc_tree) {
 			proto_tree_add_text(rpc_tree,offset+0, 4,
@@ -848,7 +909,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 		if (reply_state == MSG_ACCEPTED) {
 			offset = dissect_rpc_verf(pd, offset, fd, rpc_tree);
-			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
+			if (!BYTES_ARE_IN_FRAME(offset,4))
+				return TRUE;
 			accept_state = EXTRACT_UINT(pd,offset+0);
 			if (rpc_tree) {
 				proto_tree_add_text(rpc_tree,offset+0, 4,
@@ -863,7 +925,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 					goto dissect_rpc_prog;
 				break;
 				case PROG_MISMATCH:
-					if (!BYTES_ARE_IN_FRAME(offset,8)) return;
+					if (!BYTES_ARE_IN_FRAME(offset,8))
+						return TRUE;
 					vers_low = EXTRACT_UINT(pd,offset+0);
 					vers_high = EXTRACT_UINT(pd,offset+4);
 					if (rpc_tree) {
@@ -883,7 +946,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				break;
 			}
 		} else if (reply_state == MSG_DENIED) {
-			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
+			if (!BYTES_ARE_IN_FRAME(offset,4))
+				return TRUE;
 			reject_state = EXTRACT_UINT(pd,offset+0);
 			if (rpc_tree) {
 				proto_tree_add_text(rpc_tree, offset+0, 4,
@@ -894,7 +958,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			offset += 4;
 
 			if (reject_state==RPC_MISMATCH) {
-				if (!BYTES_ARE_IN_FRAME(offset,8)) return;
+				if (!BYTES_ARE_IN_FRAME(offset,8))
+					return TRUE;
 				vers_low = EXTRACT_UINT(pd,offset+0);
 				vers_high = EXTRACT_UINT(pd,offset+4);
 				if (rpc_tree) {
@@ -909,7 +974,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				}
 				offset += 8;
 			} else if (reject_state==AUTH_ERROR) {
-				if (!BYTES_ARE_IN_FRAME(offset,4)) return;
+				if (!BYTES_ARE_IN_FRAME(offset,4))
+					return TRUE;
 				auth_state = EXTRACT_UINT(pd,offset+0);
 				if (rpc_tree) {
 					proto_tree_add_text(rpc_tree,
@@ -946,6 +1012,8 @@ dissect_rpc_prog:
 	/* dissect any remaining bytes (incomplete dissection) as pure data in
 	   the ptree */
 	dissect_data(pd, offset, fd, ptree);
+
+	return TRUE;
 }
 
 /* will be called from file.c on every new file open */
@@ -966,4 +1034,3 @@ proto_register_rpc(void)
 	/* please remove this, if all specific dissectors are ready */
 	init_incomplete_dissect();
 }
-
