@@ -29,6 +29,13 @@
 #include "ftypes-int.h"
 #include <epan/resolv.h>
 
+/*
+ * GLib 1.2[.x] doesn't define G_MAXUINT32; if it's not defined, we define
+ * it as the maximum 32-bit unsigned number.
+ */
+#ifndef G_MAXUINT32
+#define G_MAXUINT32	((guint32)0xFFFFFFFF)
+#endif
 
 static void
 int_fvalue_new(fvalue_t *fv)
