@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.33 2004/05/23 23:24:06 ulfl Exp $
+ * $Id: summary_dlg.c,v 1.34 2004/06/18 14:11:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 #include <gtk/gtk.h>
 
 #include <wtap.h>
+#include <time.h>
 
 #include "summary.h"
 #include "summary_dlg.h"
@@ -101,6 +102,9 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gchar        *str_dup;
   gchar        *str_work;
 
+  time_t        ti_time;
+  struct tm    *ti_tm;
+  unsigned long elapsed_time;
 
   /* initial computations */
   summary_fill_in(&summary);
@@ -133,10 +137,6 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   g_snprintf(string_buff, SUM_STR_MAX, "%lu bytes", summary.file_length);
   add_string_to_table(table, &row, "Length:", string_buff);
 
-  /* seconds */
-  g_snprintf(string_buff, SUM_STR_MAX, "%.3f sec", summary.elapsed_time);
-  add_string_to_table(table, &row, "Elapsed time:", string_buff);
-
   /* format */
   g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_file_type_string(summary.encap_type));
   add_string_to_table(table, &row, "Format:", string_buff);
@@ -146,6 +146,48 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     g_snprintf(string_buff, SUM_STR_MAX, "%u bytes", summary.snap);
     add_string_to_table(table, &row, "Packet size limit:", string_buff);
   }
+
+
+  /* Time */
+  add_string_to_table(table, &row, "", "");
+  add_string_to_table(table, &row, "Time", "");
+
+  /* start time */
+  ti_time = (long)summary.start_time;
+  ti_tm = localtime( &ti_time );
+  g_snprintf(string_buff, SUM_STR_MAX,
+             "%04d-%02d-%02d %02d:%02d:%02d",
+             ti_tm->tm_year + 1900,
+             ti_tm->tm_mon + 1,
+             ti_tm->tm_mday,
+             ti_tm->tm_hour,
+             ti_tm->tm_min,
+             ti_tm->tm_sec);
+  add_string_to_table(table, &row, "First packet:", string_buff);
+
+  /* stop time */
+  ti_time = (long)summary.stop_time;
+  ti_tm = localtime( &ti_time );
+  g_snprintf(string_buff, SUM_STR_MAX,
+             "%04d-%02d-%02d %02d:%02d:%02d",
+             ti_tm->tm_year + 1900,
+             ti_tm->tm_mon + 1,
+             ti_tm->tm_mday,
+             ti_tm->tm_hour,
+             ti_tm->tm_min,
+             ti_tm->tm_sec);
+  add_string_to_table(table, &row, "Last packet:", string_buff);
+
+  /* elapsed seconds */
+  elapsed_time = (long)summary.elapsed_time;
+  if(elapsed_time/86400) {
+      g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u", 
+        elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+  } else {
+      g_snprintf(string_buff, SUM_STR_MAX, "%02u:%02u:%02u", 
+        elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+  }
+  add_string_to_table(table, &row, "Elapsed:", string_buff);
 
 
   /* Capture */
@@ -173,7 +215,11 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if (summary.cfilter && summary.cfilter[0] != '\0') {
     g_snprintf(string_buff, SUM_STR_MAX, "%s", summary.cfilter);
   } else {
-    g_snprintf(string_buff, SUM_STR_MAX, "none");
+    if(summary.iface) {
+      g_snprintf(string_buff, SUM_STR_MAX, "none");
+    } else {
+      g_snprintf(string_buff, SUM_STR_MAX, "unknown");
+    }
   }
   add_string_to_table_sensitive(table, &row, "Capture filter:", string_buff, (gboolean) summary.iface);
 #endif
