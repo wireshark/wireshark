@@ -1,7 +1,7 @@
 /* conversations_wlan.c 2004 Giles Scott
- * conversations_eth   2003 Ronnie Sahlberg
+ * modified from conversations_eth.c   2003 Ronnie Sahlberg
  *
- * $Id $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

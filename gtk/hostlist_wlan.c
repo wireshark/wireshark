@@ -1,7 +1,7 @@
 /* hostlist_wlan.c   2004 Giles Scott 
  * modified from endpoint_talkers_eth.c   2003 Ronnie Sahlberg
  *
- * $Id $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,7 +66,7 @@ gtk_wlan_hostlist_init(char *optarg)
                 filter=NULL;
         }
 
-        init_hostlist_table(TRUE, "Wlan Hosts", "wlan", filter, (void *)wlan_hostlist_packet);
+        init_hostlist_table(TRUE, "WLAN Hosts", "wlan", filter, (void *)wlan_hostlist_packet);
 
 }
 
@@ -83,7 +83,7 @@ register_tap_listener_wlan_hostlist(void)
 {
         register_ethereal_tap("hosts,wlan", gtk_wlan_hostlist_init);
 
-        register_tap_menu_item("Wlan", REGISTER_TAP_GROUP_ENDPOINT_LIST,
+        register_tap_menu_item("WLAN", REGISTER_TAP_GROUP_ENDPOINT_LIST,
             gtk_wlan_hostlist_cb, NULL, NULL, NULL);
 
         register_hostlist_table(TRUE, "WLAN", "wlan", NULL /*filter*/, (void *)wlan_hostlist_packet);
