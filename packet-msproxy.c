@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.12 2000/10/21 05:52:21 guy Exp $
+ * $Id: packet-msproxy.c,v 1.13 2000/11/18 10:38:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -220,6 +220,7 @@ static void msproxy_sub_dissector( const u_char *pd, int offset, frame_data *fd,
 	conversation_t *conversation;
 	proto_tree      *msp_tree;
 	proto_item      *ti;
+	tvbuff_t        *tvb;
 	
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
 		pi.srcport, pi.destport, 0);
@@ -259,10 +260,11 @@ static void msproxy_sub_dissector( const u_char *pd, int offset, frame_data *fd,
 
         *ptr = redirect_info->remote_port;
    	
+	tvb = tvb_create_from_top(0);
 	if ( redirect_info->proto == PT_TCP)
-		decode_tcp_ports( pd, offset, fd, tree, pi.srcport, pi.destport);
+		decode_tcp_ports( tvb, offset, &pi, tree, pi.srcport, pi.destport);
 	else
-		decode_udp_ports( pd, offset, fd, tree, pi.srcport, pi.destport);
+		decode_udp_ports( tvb, offset, &pi, tree, pi.srcport, pi.destport);
  
         *ptr = redirect_info->server_int_port;
 }

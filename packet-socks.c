@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.13 2000/10/21 05:52:23 guy Exp $
+ * $Id: packet-socks.c,v 1.14 2000/11/18 10:38:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -366,6 +366,7 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 	conversation_t *conversation;
 	proto_tree      *socks_tree;
 	proto_item      *ti;
+	tvbuff_t        *tvb;
 	
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
 		pi.srcport, pi.destport, 0);
@@ -420,7 +421,8 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 
         *ptr = hash_info->udp_remote_port;
    	
-	decode_udp_ports( pd, offset, fd, tree, pi.srcport, pi.destport);
+	tvb = tvb_create_from_top(0);
+	decode_udp_ports( tvb, offset, &pi, tree, pi.srcport, pi.destport);
  
         *ptr = hash_info->udp_port;
 
@@ -923,6 +925,7 @@ static void call_next_dissector( const u_char *pd, int offset, frame_data *fd,
 /* payload, and restore the pi port after that is done.		     	*/
 
 	guint32 *ptr;
+	tvbuff_t *tvb;
  
  	if (( hash_info->command  == PING_COMMAND) ||
  	    ( hash_info->command  == TRACERT_COMMAND))
@@ -939,7 +942,8 @@ static void call_next_dissector( const u_char *pd, int offset, frame_data *fd,
         		ptr = &pi.srcport;
 
 	        *ptr = hash_info->port;
-		decode_tcp_ports( pd, offset, fd, tree, pi.srcport, pi.destport);
+		tvb = tvb_create_from_top(0);
+		decode_tcp_ports( tvb, offset, &pi, tree, pi.srcport, pi.destport);
 	        *ptr = TCP_PORT_SOCKS;
 	}
 }                

@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.14 2000/05/26 21:54:50 guy Exp $
+ * $Id: packet-ip.h,v 1.15 2000/11/18 10:38:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,7 @@
 #define __PACKET_IP_H__
 
 void capture_ip(const u_char *, int, packet_counts *);
-void dissect_ip(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ip(tvbuff_t *, packet_info *, proto_tree *);
 
 #define IP_PROTO_IP		0		/* dummy for IP */
 #define IP_PROTO_HOPOPTS	0		/* IP6 hop-by-hop options */
@@ -76,12 +76,12 @@ typedef struct ip_tcp_opt {
   int   *subtree_index;	/* pointer to subtree index for option */
   opt_len_type len_type; /* type of option length field */
   int	optlen;		/* value length should be (minimum if VARIABLE) */
-  void	(*dissect)(const struct ip_tcp_opt *, const u_char *, int, guint, proto_tree *);
+  void	(*dissect)(const struct ip_tcp_opt *, tvbuff_t *, int, guint, proto_tree *);
 			/* routine to dissect option */
 } ip_tcp_opt;
 
 /* Routine to dissect IP or TCP options. */
-void       dissect_ip_tcp_options(const u_char *, int, guint,
+void       dissect_ip_tcp_options(tvbuff_t *, int, guint,
     const ip_tcp_opt *, int, int, proto_tree *);
 
 /* Dissector table for "ip.proto"; used by IPv6 as well as IPv4 */

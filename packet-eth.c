@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.46 2000/11/13 05:28:00 guy Exp $
+ * $Id: packet-eth.c,v 1.47 2000/11/18 10:38:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,6 +153,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t		*volatile next_tvb;
   tvbuff_t		*volatile trailer_tvb;
   proto_tree		*volatile fh_tree;
+  guint			length_before;
 
   CHECK_DISPLAY_AS_DATA(proto_eth, tvb, pinfo, tree);
 
@@ -235,10 +236,10 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        and set the payload and captured-payload lengths to the minima
        of the total length and the frame lengths. */
     length += eth_offset + ETH_HEADER_SIZE;
-    if (pi.len > length)
-      pi.len = length;
-    if (pi.captured_len > length)
-      pi.captured_len = length;
+    if (pinfo->len > length)
+      pinfo->len = length;
+    if (pinfo->captured_len > length)
+      pinfo->captured_len = length;
   } else {
     ethhdr_type = ETHERNET_II;
     if (check_col(pinfo->fd, COL_INFO))
@@ -259,32 +260,32 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   eth_offset += ETH_HEADER_SIZE;
 
-  /* Give the next dissector only 'length' number of bytes */
   if (etype <= IEEE_802_3_MAX_LEN) {
+	  /* Give the next dissector only 'length' number of bytes */
 	  TRY {
-	     next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, etype, etype);
-	     trailer_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE + etype, -1, -1);
+	    next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, etype, etype);
+	    trailer_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE + etype, -1, -1);
 	  }
 	  CATCH2(BoundsError, ReportedBoundsError) {
-	     /* Either:
+	    /* Either:
 
-		  the packet doesn't have "etype" bytes worth of
-		  captured data left in it - or it may not even have
-		  "etype" bytes worth of data in it, period -
-		  so the "tvb_new_subset()" creating "next_tvb"
-		  threw an exception
+		 the packet doesn't have "etype" bytes worth of
+		 captured data left in it - or it may not even have
+		 "etype" bytes worth of data in it, period -
+		 so the "tvb_new_subset()" creating "next_tvb"
+		 threw an exception
 
-		or
+	       or
 
-		  the packet has exactly "etype" bytes worth of
-		  captured data left in it, so the "tvb_new_subset()"
-		  creating "trailer_tvb" threw an exception.
+		 the packet has exactly "etype" bytes worth of
+		 captured data left in it, so the "tvb_new_subset()"
+		 creating "trailer_tvb" threw an exception.
 
-		In either case, this means that all the data in the frame
-		is within the length value, so we give all the data to the
-		next protocol and have no trailer. */
-	     next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, -1, etype);
-	     trailer_tvb = NULL;
+	      In either case, this means that all the data in the frame
+	      is within the length value, so we give all the data to the
+	      next protocol and have no trailer. */
+	    next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, -1, etype);
+	    trailer_tvb = NULL;
 	  }
 	  ENDTRY;
   }
@@ -301,20 +302,34 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_llc(next_tvb, pinfo, tree);
       break;
     case ETHERNET_II:
-      ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_eth_type);
+      length_before = tvb_reported_length(tvb);
+      length = ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
+          hf_eth_type) + ETH_HEADER_SIZE;
+      if (length < length_before) {
+	/*
+	 * Create a tvbuff for the padding.
+	 */
+	TRY {
+	  trailer_tvb = tvb_new_subset(tvb, length, -1, -1);
+	}
+	CATCH2(BoundsError, ReportedBoundsError) {
+	  /* The packet doesn't have "length" bytes worth of captured
+	     data left in it.  No trailer to display. */
+	  trailer_tvb = NULL;
+	}
+	ENDTRY;
+      }
       break;
   }
 
   /* If there's some bytes left over, mark them. */
   if (trailer_tvb && tree) {
-	  int             trailer_length;
-	  const guint8    *ptr;
+	  guint           trailer_length;
 
 	  trailer_length = tvb_length(trailer_tvb);
-	  if (trailer_length > 0) {
-		  ptr = tvb_get_ptr(trailer_tvb, 0, trailer_length);
-		  proto_tree_add_bytes(fh_tree, hf_eth_trailer, tvb, ETH_HEADER_SIZE + etype,
-			  trailer_length, ptr);
+	  if (trailer_length != 0) {
+		  proto_tree_add_item(fh_tree, hf_eth_trailer, trailer_tvb, 0,
+			  trailer_length, FALSE);
 	  }
   }
 

@@ -1,6 +1,6 @@
 /* packet-udp.h
  *
- * $Id: packet-udp.h,v 1.4 2000/08/11 13:33:58 deniel Exp $
+ * $Id: packet-udp.h,v 1.5 2000/11/18 10:38:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,7 +25,7 @@
 #ifndef __PACKET_UDP_H__
 #define __PACKET_UDP_H__
 
-extern void decode_udp_ports(const u_char *, int, frame_data *,
+extern void decode_udp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int);
 
 #endif

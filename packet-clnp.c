@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.13 2000/08/13 14:08:05 deniel Exp $
+ * $Id: packet-clnp.c,v 1.14 2000/11/18 10:38:24 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -88,18 +88,6 @@ static int hf_clnp_src         = -1;
 
 /* Fixed part */
 
-struct clnp_header {
-  u_char	cnf_proto_id;	/* network layer protocol identifier */
-  u_char	cnf_hdr_len;	/* length indicator (octets) */
-  u_char	cnf_vers;	/* version/protocol identifier extension */
-  u_char	cnf_ttl;      	/* lifetime (500 milliseconds) */
-  u_char	cnf_type;      	/* type code */
-  u_char	cnf_seglen_msb;	/* pdu segment length (octets) high byte */
-  u_char	cnf_seglen_lsb;	/* pdu segment length (octets) low byte */
-  u_char	cnf_cksum_msb;	/* checksum high byte */
-  u_char	cnf_cksum_lsb;	/* checksum low byte */
-};
-
 #define CNF_TYPE		0x1f
 #define CNF_ERR_OK		0x20
 #define CNF_MORE_SEGS		0x40
@@ -122,7 +110,14 @@ static const value_string npdu_type_vals[] = {
 
 /* field position */
 
-#define P_ADDRESS_PART		9
+#define P_CLNP_PROTO_ID		0
+#define P_CLNP_HDR_LEN		1
+#define P_CLNP_VERS		2
+#define P_CLNP_TTL		3
+#define P_CLNP_TYPE		4
+#define P_CLNP_SEGLEN		5
+#define P_CLNP_CKSUM		7
+#define P_CLNP_ADDRESS_PART	9
 
 /* Segmentation part */
 
@@ -314,7 +309,7 @@ static gchar *print_tsap(const u_char *tsap, int length)
 
 } /* print_tsap */
 
-static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
+static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
 				      int vp_length, int class_option,
 				      proto_tree *tree)
 {
@@ -325,10 +320,8 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
   guint32 pref_max_tpdu_size;
 
   while (vp_length != 0) {
-    if (!BYTES_ARE_IN_FRAME(offset, 1))
-      return FALSE;
-    code = pd[offset];
-    proto_tree_add_text(tree, NullTVB, offset, 1,
+    code = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 1,
 		"Parameter code:   0x%02x (%s)",
 			    code,
 			    val_to_str(code, tp_vpart_type_vals, "Unknown"));
@@ -337,10 +330,8 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
 
     if (vp_length == 0)
       break;
-    if (!BYTES_ARE_IN_FRAME(offset, 1))
-      return FALSE;
-    length = pd[offset];
-    proto_tree_add_text(tree, NullTVB, offset, 1,
+    length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 1,
 		"Parameter length: %u", length);
     offset += 1;
     vp_length -= 1;
@@ -348,29 +339,32 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
     switch (code) {
 
     case VP_ACK_TIME:
-      s = EXTRACT_SHORT(&pd[offset]);
-      proto_tree_add_text(tree, NullTVB, offset, length, 
+      s = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, length, 
 			      "Ack time (ms): %u", s);
       offset += length;
       vp_length -= length;
       break;
 
     case VP_RES_ERROR:
-      proto_tree_add_text(tree, NullTVB, offset, 1,
-		"Residual error rate, target value: 10^%u", pd[offset]);
+      proto_tree_add_text(tree, tvb, offset, 1,
+		"Residual error rate, target value: 10^%u",
+		tvb_get_guint8(tvb, offset));
       offset += 1;
       length -= 1;
       vp_length -= 1;
 
-      proto_tree_add_text(tree, NullTVB, offset, 1,
-		"Residual error rate, minimum acceptable: 10^%u", pd[offset]);
+      proto_tree_add_text(tree, tvb, offset, 1,
+		"Residual error rate, minimum acceptable: 10^%u",
+		tvb_get_guint8(tvb, offset));
       offset += 1;
       length -= 1;
       vp_length -= 1;
 
 
-      proto_tree_add_text(tree, NullTVB, offset, 1,
-		"Residual error rate, TSDU size of interest: %u", 1<<pd[offset]);
+      proto_tree_add_text(tree, tvb, offset, 1,
+		"Residual error rate, TSDU size of interest: %u",
+		1<<tvb_get_guint8(tvb, offset));
       offset += 1;
       length -= 1;
       vp_length -= 1;
@@ -378,37 +372,37 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
       break;
 
     case VP_PRIORITY:
-      s = EXTRACT_SHORT(&pd[offset]);
-      proto_tree_add_text(tree, NullTVB, offset, length,
+      s = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, length,
 		"Priority: %u", s);
       offset += length;
       vp_length -= length;
       break;
 	
     case VP_TRANSIT_DEL:
-      s1 = EXTRACT_SHORT(&pd[offset]);
-      proto_tree_add_text(tree, NullTVB, offset, 2,
+      s1 = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, 2,
 		"Transit delay, target value, calling-called: %u ms", s1);
       offset += 2;
       length -= 2;
       vp_length -= 2;
 
-      s2 = EXTRACT_SHORT(&pd[offset]);
-      proto_tree_add_text(tree, NullTVB, offset, 2,
+      s2 = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, 2,
 		"Transit delay, maximum acceptable, calling-called: %u ms", s2);
       offset += 2;
       length -= 2;
       vp_length -= 2;
 
-      s3 = EXTRACT_SHORT(&pd[offset]);
-      proto_tree_add_text(tree, NullTVB, offset, 2,
+      s3 = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, 2,
 		"Transit delay, target value, called-calling: %u ms", s3);
       offset += 2;
       length -= 2;
       vp_length -= 2;
 
-      s4 = EXTRACT_SHORT(&pd[offset]);
-      proto_tree_add_text(tree, NullTVB, offset, 2,
+      s4 = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, 2,
 		"Transit delay, maximum acceptable, called-calling: %u ms", s4);
       offset += 2;
       length -= 2;
@@ -416,58 +410,58 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
       break;
 
     case VP_THROUGHPUT:
-      t1 = pd[offset+0] << 16 | pd[offset+1] << 8 | pd[offset+2];
-      proto_tree_add_text(tree, NullTVB, offset, 3,
+      t1 = tvb_get_ntoh24(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, 3,
 		"Maximum throughput, target value, calling-called:       %u o/s", t1);
       offset += 3;
       length -= 3;
       vp_length -= 3;
 
-      t2 = pd[offset+0] << 16 | pd[offset+1] << 8 | pd[offset+2];
-      proto_tree_add_text(tree, NullTVB, offset, 3,
+      t2 = tvb_get_ntoh24(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, 3,
 		"Maximum throughput, minimum acceptable, calling-called: %u o/s", t2);
       offset += 3;
       length -= 3;
       vp_length -= 3;
 
-      t3 = pd[offset+0] << 16 | pd[offset+1] << 8 | pd[offset+2];
-      proto_tree_add_text(tree, NullTVB, offset, 3,
+      t3 = tvb_get_ntoh24(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, 3,
 		"Maximum throughput, target value, called-calling:       %u o/s", t3);
       offset += 3;
       length -= 3;
       vp_length -= 3;
 
-      t4 = pd[offset+0] << 16 | pd[offset+1] << 8 | pd[offset+2];
-      proto_tree_add_text(tree, NullTVB, offset, 3,
+      t4 = tvb_get_ntoh24(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, 3,
 		"Maximum throughput, minimum acceptable, called-calling: %u o/s", t4);
       offset += 3;
       length -= 3;
       vp_length -= 3;
 
       if (length != 0) {	/* XXX - should be 0 or 12 */
-	t1 = pd[offset+0] << 16 | pd[offset+1] << 8 | pd[offset+2];
-	proto_tree_add_text(tree, NullTVB, offset, 3,
+	t1 = tvb_get_ntoh24(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 3,
 		"Average throughput, target value, calling-called:       %u o/s", t1);
 	offset += 3;
 	length -= 3;
 	vp_length -= 3;
 
-	t2 = pd[offset+0] << 16 | pd[offset+1] << 8 | pd[offset+2];
-	proto_tree_add_text(tree, NullTVB, offset, 3,
+	t2 = tvb_get_ntoh24(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 3,
 		"Average throughput, minimum acceptable, calling-called: %u o/s", t2);
 	offset += 3;
 	length -= 3;
 	vp_length -= 3;
 
-	t3 = pd[offset+0] << 16 | pd[offset+1] << 8 | pd[offset+2];
-	proto_tree_add_text(tree, NullTVB, offset, 3,
+	t3 = tvb_get_ntoh24(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 3,
 		"Average throughput, target value, called-calling:       %u o/s", t3);
 	offset += 3;
 	length -= 3;
 	vp_length -= 3;
 
-	t4 = pd[offset+0] << 16 | pd[offset+1] << 8 | pd[offset+2];
-	proto_tree_add_text(tree, NullTVB, offset, 3,
+	t4 = tvb_get_ntoh24(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 3,
 		"Average throughput, minimum acceptable, called-calling: %u o/s", t4);
 	offset += 3;
 	length -= 3;
@@ -476,34 +470,34 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
       break;
 
     case VP_SEQ_NR:
-      proto_tree_add_text(tree, NullTVB, offset, 2,
-		"Sequence number: 0x%04x", EXTRACT_SHORT(&pd[offset]));
+      proto_tree_add_text(tree, tvb, offset, 2,
+		"Sequence number: 0x%04x", tvb_get_ntohs(tvb, offset));
       offset += length;
       vp_length -= length;
       break;
 
     case VP_REASSIGNMENT: 
-      proto_tree_add_text(tree, NullTVB, offset, 2,
-		"Reassignment time: %u secs", EXTRACT_SHORT(&pd[offset]));
+      proto_tree_add_text(tree, tvb, offset, 2,
+		"Reassignment time: %u secs", tvb_get_ntohs(tvb, offset));
       offset += length;
       vp_length -= length;
       break;
 
     case VP_FLOW_CNTL:
-      proto_tree_add_text(tree, NullTVB, offset, 4,
-		"Lower window edge: 0x%08x", EXTRACT_LONG(&pd[offset]));
+      proto_tree_add_text(tree, tvb, offset, 4,
+		"Lower window edge: 0x%08x", tvb_get_ntohl(tvb, offset));
       offset += 4;
       length -= 4;
       vp_length -= 4;
 
-      proto_tree_add_text(tree, NullTVB, offset, 2,
-		"Sequence number: 0x%04x", EXTRACT_SHORT(&pd[offset]));
+      proto_tree_add_text(tree, tvb, offset, 2,
+		"Sequence number: 0x%04x", tvb_get_ntohs(tvb, offset));
       offset += 2;
       length -= 2;
       vp_length -= 2;
 
-      proto_tree_add_text(tree, NullTVB, offset, 2,
-		"Credit: 0x%04x", EXTRACT_SHORT(&pd[offset]));
+      proto_tree_add_text(tree, tvb, offset, 2,
+		"Credit: 0x%04x", tvb_get_ntohs(tvb, offset));
       offset += 2;
       length -= 2;
       vp_length -= 2;
@@ -511,75 +505,77 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
       break;
 
     case VP_TPDU_SIZE:
-      c1 = pd[offset] & 0x0F;
-      proto_tree_add_text(tree, NullTVB, offset, length, 
+      c1 = tvb_get_guint8(tvb, offset) & 0x0F;
+      proto_tree_add_text(tree, tvb, offset, length, 
 		"TPDU size: %u", 2 << c1);
       offset += length;
       vp_length -= length;
       break;
 
     case VP_SRC_TSAP:
-      proto_tree_add_text(tree, NullTVB, offset, length,
-		"Calling TSAP: %s", print_tsap(&pd[offset], length));
+      proto_tree_add_text(tree, tvb, offset, length,
+		"Calling TSAP: %s",
+		print_tsap(tvb_get_ptr(tvb, offset, length), length));
       offset += length;
       vp_length -= length;
       break;
 
     case VP_DST_TSAP:
-      proto_tree_add_text(tree, NullTVB, offset, length,
-		"Called TSAP: %s", print_tsap(&pd[offset], length));
+      proto_tree_add_text(tree, tvb, offset, length,
+		"Called TSAP: %s",
+		print_tsap(tvb_get_ptr(tvb, offset, length), length));
       offset += length;
       vp_length -= length;
       break;
 
     case VP_CHECKSUM:
-      proto_tree_add_text(tree, NullTVB, offset, length,
-		"Checksum: 0x%04x", EXTRACT_SHORT(&pd[offset]));
+      proto_tree_add_text(tree, tvb, offset, length,
+		"Checksum: 0x%04x", tvb_get_ntohs(tvb, offset));
       offset += length;
       vp_length -= length;
       break;
 
     case VP_VERSION_NR:
-      c1 = pd[offset];
-      proto_tree_add_text(tree, NullTVB, offset, length,
+      c1 = tvb_get_guint8(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, length,
 		"Version: %u", c1);
       offset += length;
       vp_length -= length;
       break;
 
     case VP_OPT_SEL:
-      c1 = pd[offset] & 0x0F;
+      c1 = tvb_get_guint8(tvb, offset) & 0x0F;
       switch (class_option) {
 
       case 1:
 	if (c1 & 0x8)
-	  proto_tree_add_text(tree, NullTVB, offset, 1,
+	  proto_tree_add_text(tree, tvb, offset, 1,
 				  "Use of network expedited data");
 	else
-	  proto_tree_add_text(tree, NullTVB, offset, 1,
+	  proto_tree_add_text(tree, tvb, offset, 1,
 				  "Non use of network expedited data");
 	if (c1 & 0x4)
-	  proto_tree_add_text(tree, NullTVB, offset, 1,
+	  proto_tree_add_text(tree, tvb, offset, 1,
 				  "Use of Receipt confirmation");
 	else
-	  proto_tree_add_text(tree, NullTVB, offset, 1,
+	  proto_tree_add_text(tree, tvb, offset, 1,
 				  "Use of explicit AK variant");
 	break;
 
       case 4:
 	if (c1 & 0x2)
-	  proto_tree_add_text(tree, NullTVB, offset, 1,
+	  proto_tree_add_text(tree, tvb, offset, 1,
 				  "Non-use 16 bit checksum in class 4");
 	else
-	  proto_tree_add_text(tree, NullTVB, offset, 1,
+	  proto_tree_add_text(tree, tvb, offset, 1,
 				  "Use 16 bit checksum ");
 	break;
       }
       if (c1 & 0x1)
-	proto_tree_add_text(tree, NullTVB, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1,
 				"Use of transport expedited data transfer\n");
       else
-	proto_tree_add_text(tree, NullTVB, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1,
 				"Non-use of transport expedited data transfer");
       offset += length;
       vp_length -= length;
@@ -589,36 +585,36 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
       switch (length) {
 
       case 1:
-        pref_max_tpdu_size = pd[offset];
+        pref_max_tpdu_size = tvb_get_guint8(tvb, offset);
         break;
 
       case 2:
-        pref_max_tpdu_size = EXTRACT_SHORT(&pd[offset]);
+        pref_max_tpdu_size = tvb_get_ntohs(tvb, offset);
         break;
 
       case 3:
-	pref_max_tpdu_size = pd[offset+0] << 16 | pd[offset+1] << 8 | pd[offset+2];
+	pref_max_tpdu_size = tvb_get_ntoh24(tvb, offset);
 	break;
 
       case 4:
-        pref_max_tpdu_size = EXTRACT_LONG(&pd[offset]);
+        pref_max_tpdu_size = tvb_get_ntohl(tvb, offset);
         break;
 
       default:
-        proto_tree_add_text(tree, NullTVB, offset, length,
+        proto_tree_add_text(tree, tvb, offset, length,
 		"Preferred maximum TPDU size: bogus length %u (not 1, 2, 3, or 4)",
 		length);
 	return FALSE;
       }
-      proto_tree_add_text(tree, NullTVB, offset, length,
+      proto_tree_add_text(tree, tvb, offset, length,
 		"Preferred maximum TPDU size: %u", pref_max_tpdu_size*128);
       offset += length;
       vp_length -= length;
       break; 
 
     case VP_INACTIVITY_TIMER:
-      proto_tree_add_text(tree, NullTVB, offset, length,
-		"Inactivity timer: %u ms", EXTRACT_LONG(&pd[offset]));
+      proto_tree_add_text(tree, tvb, offset, length,
+		"Inactivity timer: %u ms", tvb_get_ntohl(tvb, offset));
       offset += length;
       vp_length -= length;
       break;
@@ -626,7 +622,7 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
     case VP_PROTECTION:           /* user-defined */
     case VP_PROTO_CLASS:          /* todo */
     default:			  /* unknown, no decoding */
-      proto_tree_add_text(tree, NullTVB, offset, length,
+      proto_tree_add_text(tree, tvb, offset, length,
 			      "Parameter value: <not shown>");
       offset += length;
       vp_length -= length;
@@ -637,8 +633,8 @@ static gboolean osi_decode_tp_var_part(const u_char *pd, int offset,
   return TRUE;
 }
 
-static int osi_decode_DR(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree) 
+static int osi_decode_DR(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree) 
 {
   proto_tree *cotp_tree;
   proto_item *ti;
@@ -649,8 +645,8 @@ static int osi_decode_DR(const u_char *pd, int offset,
   if (li < LI_MIN_DR) 
     return -1;
   
-  src_ref = EXTRACT_SHORT(&pd[offset + P_SRC_REF]);
-  reason  = pd[offset + P_REASON_IN_DR];
+  src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
+  reason  = tvb_get_guint8(tvb, offset + P_REASON_IN_DR);
 
   switch(reason) {
     case (128+0): str = "Normal Disconnect"; break;
@@ -671,36 +667,41 @@ static int osi_decode_DR(const u_char *pd, int offset,
       break;
   }
 
-  if (check_col(fd, COL_INFO))
-    col_append_fstr(fd, COL_INFO, "DR TPDU src-ref: 0x%04x dst-ref: 0x%04x",
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_fstr(pinfo->fd, COL_INFO,
+		"DR TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 src_ref, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
+    proto_tree_add_text(cotp_tree, tvb, offset,      1,
 			"Length indicator: %u", li);
-    proto_tree_add_text(cotp_tree, NullTVB, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  1, 1, 
 			"TPDU code: 0x%x (DR)", tpdu); 
-    proto_tree_add_text(cotp_tree, NullTVB, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  2, 2, 
 			"Destination reference: 0x%04x", dst_ref);
-    proto_tree_add_text(cotp_tree, NullTVB, offset +  4, 2, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  4, 2, 
 			"Source reference: 0x%04x", src_ref);
-    proto_tree_add_text(cotp_tree, NullTVB, offset +  6, 1, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  6, 1, 
 			"Cause: %s", str);
   }
 
   offset += li + 1;
-  old_dissect_data(pd, offset, fd, tree);
 
-  return pi.captured_len;	/* we dissected all of the containing PDU */
+  /* User data */
+  dissect_data(tvb, offset, pinfo, tree);
+  offset += tvb_length_remaining(tvb, offset);
+     /* we dissected all of the containing PDU */
+
+  return offset;
 
 } /* osi_decode_DR */
 
-/* Returns TRUE if we called a sub-dissector, FALSE if not. */
-static gboolean osi_decode_DT(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree,
-			 gboolean uses_inactive_subset)
+static int osi_decode_DT(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree,
+			 gboolean uses_inactive_subset,
+			 gboolean *subdissector_found)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
@@ -708,6 +709,7 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
   gboolean is_class_234;
   u_int    tpdu_nr ;
   u_int    fragment = 0;
+  tvbuff_t *next_tvb;
     
   /* VP_CHECKSUM is the only parameter allowed in the variable part.
      (This means we may misdissect this if the packet is bad and
@@ -715,12 +717,12 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
   switch (li) {
 
     case LI_NORMAL_DT_WITH_CHECKSUM      :
-      if (pd[offset + P_VAR_PART_NDT] != VP_CHECKSUM)
+      if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
 	return -1;
       /* FALLTHROUGH */
 
     case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-      tpdu_nr = pd[offset + P_TPDU_NR_234];
+      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
       if ( tpdu_nr & 0x80 )
 	tpdu_nr = tpdu_nr & 0x7F;
       else
@@ -730,12 +732,12 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
       break;
 
     case LI_EXTENDED_DT_WITH_CHECKSUM    :
-      if (pd[offset + P_VAR_PART_EDT] != VP_CHECKSUM)
+      if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
 	return -1;
       /* FALLTHROUGH */
 
     case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
-      tpdu_nr = EXTRACT_LONG(&pd[offset + P_TPDU_NR_234]);
+      tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
       if ( tpdu_nr & 0x80000000 )
 	tpdu_nr = tpdu_nr & 0x7FFFFFFF;
       else
@@ -745,7 +747,7 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
       break;
 
     case LI_NORMAL_DT_CLASS_01           :
-      tpdu_nr = pd[offset + P_TPDU_NR_0_1];
+      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_0_1);
       if ( tpdu_nr & 0x80 )
 	tpdu_nr = tpdu_nr & 0x7F;
       else
@@ -760,22 +762,22 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
       break;
   }
 
-  if (check_col(fd, COL_INFO))
-    col_append_fstr(fd, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s", 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_fstr(pinfo->fd, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s", 
 		 tpdu_nr,
 		 dst_ref,
 		 (fragment)? "(fragment)" : "");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"Length indicator: %u", li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"TPDU code: 0x%x (DT)", tpdu); 
 
   }
@@ -784,7 +786,7 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
 
   if (is_class_234) {
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+      proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			  "Destination reference: 0x%04x", dst_ref);
     }
     offset += 2;
@@ -793,7 +795,7 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
 
   if (is_extended) {
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 4, 
+      proto_tree_add_text(cotp_tree, tvb, offset, 4, 
 			    "TPDU number: 0x%08x (%s)", 
 			    tpdu_nr,
 			    (fragment)? "fragment":"complete");
@@ -802,7 +804,7 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
     li -= 4;
   } else {
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+      proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			    "TPDU number: 0x%02x (%s)", 
 			    tpdu_nr,
 			    (fragment)? "fragment":"complete");
@@ -812,31 +814,35 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
   }
 
   if (tree)
-    osi_decode_tp_var_part(pd, offset, li, 4, cotp_tree);
+    osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
+  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
   if (uses_inactive_subset){
-	if (old_dissector_try_heuristic(cotp_is_heur_subdissector_list, pd, offset,
-					fd, tree)) {
-		return TRUE;
-		}
-	/* Fill in other Dissectors using inactive subset here */
-	old_dissect_data(pd, offset, fd, tree);
-	return FALSE;
+	if (dissector_try_heuristic(cotp_is_heur_subdissector_list, next_tvb,
+					pinfo, tree)) {
+		*subdissector_found = TRUE;
+	} else {
+	  /* Fill in other Dissectors using inactive subset here */
+	  dissect_data(next_tvb, 0, pinfo, tree);
 	}
-  else {
-	old_dissect_data(pd, offset, fd, tree);
-	return FALSE;
-	}
+  } else
+	dissect_data(next_tvb, 0, pinfo, tree);
+  offset += tvb_length_remaining(tvb, offset);
+     /* we dissected all of the containing PDU */
+
+  return offset;
+
 } /* osi_decode_DT */
 
-static int osi_decode_ED(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree)
+static int osi_decode_ED(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
   gboolean is_extended;
   u_int    tpdu_nr ;
+  tvbuff_t *next_tvb;
 
   /* ED TPDUs are never fragmented */
 
@@ -846,12 +852,12 @@ static int osi_decode_ED(const u_char *pd, int offset,
   switch (li) {
 
     case LI_NORMAL_DT_WITH_CHECKSUM      :
-      if (pd[offset + P_VAR_PART_NDT] != VP_CHECKSUM)
+      if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
 	return -1;
       /* FALLTHROUGH */
 
     case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-      tpdu_nr = pd[offset + P_TPDU_NR_234];
+      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
       if ( tpdu_nr & 0x80 )
 	tpdu_nr = tpdu_nr & 0x7F;
       else
@@ -860,12 +866,12 @@ static int osi_decode_ED(const u_char *pd, int offset,
       break;
 
     case LI_EXTENDED_DT_WITH_CHECKSUM    :
-      if (pd[offset + P_VAR_PART_EDT] != VP_CHECKSUM)
+      if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
 	return -1;
       /* FALLTHROUGH */
 
     case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
-      tpdu_nr = EXTRACT_LONG(&pd[offset + P_TPDU_NR_234]);
+      tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
       if ( tpdu_nr & 0x80000000 )
 	tpdu_nr = tpdu_nr & 0x7FFFFFFF;
       else
@@ -879,27 +885,27 @@ static int osi_decode_ED(const u_char *pd, int offset,
       break;
   } /* li */
 
-  if (check_col(fd, COL_INFO))
-    col_append_fstr(fd, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x", 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_fstr(pinfo->fd, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x", 
 		 tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"Length indicator: %u", li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1, 
+    proto_tree_add_text(cotp_tree, tvb, offset, 1, 
 			"TPDU code: 0x%x (ED)", tpdu);
   }
   offset += 1;
   li -= 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+    proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			"Destination reference: 0x%04x", dst_ref);
   }
   offset += 2;
@@ -907,14 +913,14 @@ static int osi_decode_ED(const u_char *pd, int offset,
 
   if (is_extended) {
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 4,
+      proto_tree_add_text(cotp_tree, tvb, offset, 4,
 			    "TPDU number: 0x%02x", tpdu_nr);
     }
     offset += 4;
     li -= 4;
   } else {
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+      proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			    "TPDU number: 0x%02x", tpdu_nr);	
     }
     offset += 1;
@@ -922,17 +928,21 @@ static int osi_decode_ED(const u_char *pd, int offset,
   }
 
   if (tree)
-    osi_decode_tp_var_part(pd, offset, li, 4, cotp_tree);
+    osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
-  old_dissect_data(pd, offset, fd, tree);
+  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  dissect_data(next_tvb, 0, pinfo, tree);
 
-  return pi.captured_len;	/* we dissected all of the containing PDU */
+  offset += tvb_length_remaining(tvb, offset);
+     /* we dissected all of the containing PDU */
+
+  return offset;
 
 } /* osi_decode_ED */
 
-static int osi_decode_RJ(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree)
+static int osi_decode_RJ(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
   proto_item *ti;
@@ -941,11 +951,11 @@ static int osi_decode_RJ(const u_char *pd, int offset,
 
   switch(li) {
     case LI_NORMAL_RJ   :
-      tpdu_nr = pd[offset + P_TPDU_NR_234];
+      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
       break;
     case LI_EXTENDED_RJ :
-      tpdu_nr = EXTRACT_LONG(&pd[offset + P_TPDU_NR_234]);
-      credit = EXTRACT_SHORT(&pd[offset + P_CDT_IN_RJ]);
+      tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+      credit = tvb_get_ntohs(tvb, offset + P_CDT_IN_RJ);
       break;
     default :
       return -1;
@@ -953,29 +963,29 @@ static int osi_decode_RJ(const u_char *pd, int offset,
       break;
   }
 
-  if (check_col(fd, COL_INFO))
-    col_append_fstr(fd, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x", 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_fstr(pinfo->fd, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x", 
 		 tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
+    proto_tree_add_text(cotp_tree, tvb, offset,      1,
 			"Length indicator: %u", li);
-    proto_tree_add_text(cotp_tree, NullTVB, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  1, 1, 
 			"TPDU code: 0x%x (RJ)", tpdu); 
     if (li == LI_NORMAL_RJ)
-      proto_tree_add_text(cotp_tree, NullTVB, offset +  1, 1, 
+      proto_tree_add_text(cotp_tree, tvb, offset +  1, 1, 
 			  "Credit: %u", cdt);
-    proto_tree_add_text(cotp_tree, NullTVB, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  2, 2, 
 			"Destination reference: 0x%04x", dst_ref);
     if (li == LI_NORMAL_RJ)
-      proto_tree_add_text(cotp_tree, NullTVB, offset +  4, 1, 
+      proto_tree_add_text(cotp_tree, tvb, offset +  4, 1, 
 			  "Your TPDU number: 0x%02x", tpdu_nr);
     else {
-      proto_tree_add_text(cotp_tree, NullTVB, offset +  4, 4, 
+      proto_tree_add_text(cotp_tree, tvb, offset +  4, 4, 
 			  "Your TPDU number: 0x%02x", tpdu_nr);
-      proto_tree_add_text(cotp_tree, NullTVB, offset +  8, 2, 
+      proto_tree_add_text(cotp_tree, tvb, offset +  8, 2, 
 			  "Credit: 0x%02x", credit);
     }
   }
@@ -986,8 +996,8 @@ static int osi_decode_RJ(const u_char *pd, int offset,
 
 } /* osi_decode_RJ */
 
-static int osi_decode_CC(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree)
+static int osi_decode_CC(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree)
 {
 
   /* CC & CR decoding in the same function */
@@ -997,27 +1007,28 @@ static int osi_decode_CC(const u_char *pd, int offset,
   u_short src_ref;
   u_char  class_option;
 
-  src_ref = EXTRACT_SHORT(&pd[offset + P_SRC_REF]);
-  class_option = (pd[offset + P_CLASS_OPTION] >> 4 ) & 0x0F;
+  src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
+  class_option = (tvb_get_guint8(tvb, offset + P_CLASS_OPTION) >> 4 ) & 0x0F;
   if (class_option > 4)
     return -1;
 
-  if (check_col(fd, COL_INFO))
-    col_append_fstr(fd, COL_INFO, "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_fstr(pinfo->fd, COL_INFO,
+		 "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 (tpdu == CR_TPDU) ? "CR" : "CC",
 		 src_ref,
 		 dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"Length indicator: %u", li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"TPDU code: 0x%x (%s)", tpdu,
 			(tpdu == CR_TPDU) ? "CR" : "CC");
   }
@@ -1025,38 +1036,41 @@ static int osi_decode_CC(const u_char *pd, int offset,
   li -= 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+    proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			"Destination reference: 0x%04x", dst_ref);
   }
   offset += 2;
   li -= 2;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+    proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			"Source reference: 0x%04x", src_ref);
   }
   offset += 2;
   li -= 2;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"Class option: 0x%02x", class_option);
   }
   offset += 1;
   li -= 1;
 
   if (tree)
-    osi_decode_tp_var_part(pd, offset, li, class_option, cotp_tree);
+    osi_decode_tp_var_part(tvb, offset, li, class_option, cotp_tree);
   offset += li;
 
-  old_dissect_data(pd, offset, fd, tree);
+  /* User data */
+  dissect_data(tvb, offset, pinfo, tree);
+  offset += tvb_length_remaining(tvb, offset);
+     /* we dissected all of the containing PDU */
 
-  return pi.captured_len;	/* we dissected all of the containing PDU */
+  return offset;
 
 } /* osi_decode_CC */
 
-static int osi_decode_DC(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree)
+static int osi_decode_DC(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
@@ -1065,52 +1079,53 @@ static int osi_decode_DC(const u_char *pd, int offset,
   if (li > LI_MAX_DC) 
     return -1;
 
-  src_ref = EXTRACT_SHORT(&pd[offset + P_SRC_REF]);
+  src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
-  if (check_col(fd, COL_INFO))
-    col_append_fstr(fd, COL_INFO, "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_fstr(pinfo->fd, COL_INFO,
+		 "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", 
 		 src_ref,
 		 dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"Length indicator: %u", li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"TPDU code: 0x%x (DC)", tpdu);
   }
   offset += 1;
   li -= 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+    proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			"Destination reference: 0x%04x", dst_ref);
   }
   offset += 2;
   li -= 2;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+    proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			"Source reference: 0x%04x", src_ref);
   }
   offset += 2;
   li -= 2;
 
   if (tree)
-    osi_decode_tp_var_part(pd, offset, li, 4, cotp_tree);
+    osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
   return offset;
 
 } /* osi_decode_DC */
 
-static int osi_decode_AK(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree)
+static int osi_decode_AK(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
@@ -1122,94 +1137,94 @@ static int osi_decode_AK(const u_char *pd, int offset,
 
   if (is_LI_NORMAL_AK(li)) {
 
-    tpdu_nr = pd[offset + P_TPDU_NR_234];
+    tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 
-    if (check_col(fd, COL_INFO))
-      col_append_fstr(fd, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
+    if (check_col(pinfo->fd, COL_INFO))
+      col_append_fstr(pinfo->fd, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
 		   tpdu_nr, dst_ref);
 
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+      ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
       cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+      proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			  "Length indicator: %u", li);
     }
     offset += 1;
 
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+      proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			  "TPDU code: 0x%x (AK)", tpdu);
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+      proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			  "Credit: %u", cdt);
     }
     offset += 1;
     li -= 1;
 
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+      proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			  "Destination reference: 0x%04x", dst_ref);
     }
     offset += 2;
     li -= 2;
 
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+      proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			  "Your TPDU number: 0x%02x", tpdu_nr);
     }
     offset += 1;
     li -= 1;
 
     if (tree)
-      osi_decode_tp_var_part(pd, offset, li, 4, cotp_tree);
+      osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
     offset += li;
 
   } else { /* extended format */
     
-    tpdu_nr   = EXTRACT_LONG(&pd[offset + P_TPDU_NR_234]);
-    cdt_in_ak = EXTRACT_SHORT(&pd[offset + P_CDT_IN_AK]);
+    tpdu_nr   = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
+    cdt_in_ak = tvb_get_ntohs(tvb, offset + P_CDT_IN_AK);
 
-    if (check_col(fd, COL_INFO))
-      col_append_fstr(fd, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
+    if (check_col(pinfo->fd, COL_INFO))
+      col_append_fstr(pinfo->fd, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
 		   tpdu_nr, dst_ref);
     
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+      ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
       cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+      proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			  "Length indicator: %u", li);
     }
     offset += 1;
 
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+      proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			  "TPDU code: 0x%x (AK)", tpdu);
     }
     offset += 1;
     li -= 1;
 
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+      proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			  "Destination reference: 0x%04x", dst_ref);
     }
     offset += 2;
     li -= 2;
 
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 4,
+      proto_tree_add_text(cotp_tree, tvb, offset, 4,
 			  "Your TPDU number: 0x%08x", tpdu_nr);
     }
     offset += 4;
     li -= 4;
 
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+      proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			  "Credit: 0x%04x", cdt_in_ak);
     }
     offset += 2;
     li -= 2;
     
     if (tree)
-      osi_decode_tp_var_part(pd, offset, li, 4, cotp_tree);
+      osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
     offset += li;
 
   } /* is_LI_NORMAL_AK */
@@ -1218,8 +1233,8 @@ static int osi_decode_AK(const u_char *pd, int offset,
 
 } /* osi_decode_AK */
 
-static int osi_decode_EA(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree)
+static int osi_decode_EA(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
@@ -1235,24 +1250,24 @@ static int osi_decode_EA(const u_char *pd, int offset,
   switch (li) {
 
     case LI_NORMAL_EA_WITH_CHECKSUM      :
-      if (pd[offset + P_VAR_PART_NDT] != VP_CHECKSUM ||
-		pd[offset + P_VAR_PART_NDT + 1] != 2)
+      if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM ||
+		tvb_get_guint8(tvb, offset + P_VAR_PART_NDT + 1) != 2)
 	return -1;
       /* FALLTHROUGH */
 
     case LI_NORMAL_EA_WITHOUT_CHECKSUM   :
-      tpdu_nr = pd[offset + P_TPDU_NR_234];
+      tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
       is_extended = FALSE;
       break;
 
     case LI_EXTENDED_EA_WITH_CHECKSUM    :
-      if (pd[offset + P_VAR_PART_EDT] != VP_CHECKSUM ||
-		pd[offset + P_VAR_PART_EDT + 1] != 2)
+      if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ||
+		tvb_get_guint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
 	return -1;
       /* FALLTHROUGH */
 
     case LI_EXTENDED_EA_WITHOUT_CHECKSUM :
-      tpdu_nr = EXTRACT_LONG(&pd[offset + P_TPDU_NR_234]);
+      tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
       is_extended = TRUE;
       break;
 
@@ -1262,27 +1277,27 @@ static int osi_decode_EA(const u_char *pd, int offset,
       break;
   } /* li */
 
-  if (check_col(fd, COL_INFO))
-    col_append_fstr(fd, COL_INFO, 
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_fstr(pinfo->fd, COL_INFO, 
 		 "EA TPDU (%u) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"Length indicator: %u", li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			"TPDU code: 0x%x (EA)", tpdu);
   }
   offset += 1;
   li -= 1;
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, NullTVB, offset, 2,
+    proto_tree_add_text(cotp_tree, tvb, offset, 2,
 			"Destination reference: 0x%04x", dst_ref);
   }
   offset += 2;
@@ -1290,14 +1305,14 @@ static int osi_decode_EA(const u_char *pd, int offset,
 
   if (is_extended) {
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 4,
+      proto_tree_add_text(cotp_tree, tvb, offset, 4,
 			    "Your TPDU number: 0x%08x", tpdu_nr);
     }
     offset += 4;
     li -= 4;
   } else {
     if (tree) {
-      proto_tree_add_text(cotp_tree, NullTVB, offset, 1,
+      proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			    "Your TPDU number: 0x%02x", tpdu_nr);
     }
     offset += 1;
@@ -1305,15 +1320,15 @@ static int osi_decode_EA(const u_char *pd, int offset,
   }
 
   if (tree)
-    osi_decode_tp_var_part(pd, offset, li, 4, cotp_tree);
+    osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
   return offset;
 
 } /* osi_decode_EA */
 
-static int osi_decode_ER(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree)
+static int osi_decode_ER(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
   proto_item *ti;
@@ -1322,7 +1337,7 @@ static int osi_decode_ER(const u_char *pd, int offset,
   if (li > LI_MAX_ER) 
     return -1;
 
-  switch(pd[offset + P_REJECT_ER]) {
+  switch(tvb_get_guint8(tvb, offset + P_REJECT_ER)) {
     case 0 :
       str = "Reason not specified";
       break;
@@ -1341,19 +1356,19 @@ static int osi_decode_ER(const u_char *pd, int offset,
       break;
   }
 
-  if (check_col(fd, COL_INFO))
-    col_append_fstr(fd, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_fstr(pinfo->fd, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
+    proto_tree_add_text(cotp_tree, tvb, offset,      1,
 			"Length indicator: %u", li);
-    proto_tree_add_text(cotp_tree, NullTVB, offset +  1, 1, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  1, 1, 
 			"TPDU code: 0x%x (ER)", tpdu); 
-    proto_tree_add_text(cotp_tree, NullTVB, offset +  2, 2, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  2, 2, 
 			"Destination reference: 0x%04x", dst_ref);
-    proto_tree_add_text(cotp_tree, NullTVB, offset +  4, 1, 
+    proto_tree_add_text(cotp_tree, tvb, offset +  4, 1, 
 			"Reject cause: %s", str);
   }
 
@@ -1363,37 +1378,43 @@ static int osi_decode_ER(const u_char *pd, int offset,
 
 } /* osi_decode_ER */
 
-/* Returns TRUE if we called a sub-dissector, FALSE if not. */
-static gboolean osi_decode_UD(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree)
+static int osi_decode_UD(tvbuff_t *tvb, int offset, 
+			 packet_info *pinfo, proto_tree *tree,
+			 gboolean *subdissector_found)
 {
   proto_item *ti;
   proto_tree *cltp_tree = NULL;
+  tvbuff_t   *next_tvb;
 
-  if (check_col(fd, COL_INFO))
-    col_append_str(fd, COL_INFO, "UD TPDU");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_str(pinfo->fd, COL_INFO, "UD TPDU");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cltp, NullTVB, offset, li + 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cltp, tvb, offset, li + 1, FALSE);
     cltp_tree = proto_item_add_subtree(ti, ett_cltp);
-    proto_tree_add_text(cltp_tree, NullTVB, offset, 1,
+    proto_tree_add_text(cltp_tree, tvb, offset, 1,
 			"Length indicator: %u", li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_text(cltp_tree, NullTVB, offset, 1, 
+    proto_tree_add_text(cltp_tree, tvb, offset, 1, 
 			"TPDU code: 0x%x (UD)", tpdu);
   }
   offset += 1;
   li -= 1;
 
   if (tree)
-    osi_decode_tp_var_part(pd, offset, li, 0, cltp_tree);
+    osi_decode_tp_var_part(tvb, offset, li, 0, cltp_tree);
   offset += li;
 
-  old_dissect_data(pd, offset, fd, tree);
-  return FALSE;
+  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  dissect_data(next_tvb, 0, pinfo, tree);
+  offset += tvb_length_remaining(tvb, offset);
+     /* we dissected all of the containing PDU */
+
+  return offset;
+
 } /* osi_decode_UD */
 
 /* Returns TRUE if we found at least one valid COTP or CLTP PDU, FALSE
@@ -1404,100 +1425,99 @@ static gboolean osi_decode_UD(const u_char *pd, int offset,
    protocols' headers mean the same thing - length and PDU type - and the
    only valid CLTP PDU type is not a valid COTP PDU type, so we'll handle
    both of them here. */
-static gboolean dissect_ositp_internal(const u_char *pd, int offset,
-		  frame_data *fd, proto_tree *tree,
-		  gboolean uses_inactive_subset) 
+static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
+		  proto_tree *tree, gboolean uses_inactive_subset) 
 {
+  int offset = 0;
   gboolean first_tpdu = TRUE;
   int new_offset;
   gboolean found_ositp = FALSE;
   gboolean is_cltp = FALSE;
   gboolean subdissector_found = FALSE;
 
+  if (!proto_is_protocol_enabled(proto_cotp))
+    return FALSE;	/* COTP has been disabled */
+  /* XXX - what about CLTP? */
+
+  pinfo->current_proto = "COTP";
+
   /* Initialize the COL_INFO field; each of the TPDUs will have its
      information appended. */
-  if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, "");
 
-  while (IS_DATA_IN_FRAME(offset)) {
+  while (tvb_offset_exists(tvb, offset)) {
     if (!first_tpdu) {
-      if (check_col(fd, COL_INFO))
-        col_append_str(fd, COL_INFO, ", ");
+      if (check_col(pinfo->fd, COL_INFO))
+        col_append_str(pinfo->fd, COL_INFO, ", ");
     }
-    if ((li = pd[offset + P_LI]) == 0) {
-      if (check_col(fd, COL_INFO))
-        col_append_str(fd, COL_INFO, "Length indicator is zero");
+    if ((li = tvb_get_guint8(tvb, offset + P_LI)) == 0) {
+      if (check_col(pinfo->fd, COL_INFO))
+        col_append_str(pinfo->fd, COL_INFO, "Length indicator is zero");
       if (!first_tpdu)
-        old_dissect_data(pd, offset, fd, tree);
-      return found_ositp;
-    }
-    if (!BYTES_ARE_IN_FRAME(offset, P_LI + li + 1)) {
-      if (check_col(fd, COL_INFO))
-        col_append_str(fd, COL_INFO, "Captured data in frame doesn't include entire frame");
-      if (!first_tpdu)
-        old_dissect_data(pd, offset, fd, tree);
+        dissect_data(tvb, offset, pinfo, tree);
       return found_ositp;
     }
 
-    tpdu    = (pd[offset + P_TPDU] >> 4) & 0x0F;
-    cdt     = pd[offset + P_CDT] & 0x0F;
-    dst_ref = EXTRACT_SHORT(&pd[offset + P_DST_REF]);
+    tpdu    = (tvb_get_guint8(tvb, offset + P_TPDU) >> 4) & 0x0F;
+    if (tpdu == UD_TPDU)
+      pinfo->current_proto = "CLTP";	/* connectionless transport */
+    cdt     = tvb_get_guint8(tvb, offset + P_CDT) & 0x0F;
+    dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
 
     switch (tpdu) {
       case CC_TPDU :
       case CR_TPDU :
-        new_offset = osi_decode_CC(pd, offset, fd, tree);
+        new_offset = osi_decode_CC(tvb, offset, pinfo, tree);
         break;
       case DR_TPDU :
-        new_offset = osi_decode_DR(pd, offset, fd, tree);
+        new_offset = osi_decode_DR(tvb, offset, pinfo, tree);
         break;
       case DT_TPDU :
-        if (osi_decode_DT(pd, offset, fd, tree, uses_inactive_subset))
-          subdissector_found = TRUE;
-        new_offset = pi.captured_len;	/* DT PDUs run to the end of the packet */
+        new_offset = osi_decode_DT(tvb, offset, pinfo, tree,
+				   uses_inactive_subset, &subdissector_found);
         break;
       case ED_TPDU :
-        new_offset = osi_decode_ED(pd, offset, fd, tree);
+        new_offset = osi_decode_ED(tvb, offset, pinfo, tree);
         break;
       case RJ_TPDU :
-        new_offset = osi_decode_RJ(pd, offset, fd, tree);
+        new_offset = osi_decode_RJ(tvb, offset, pinfo, tree);
         break;
       case DC_TPDU :
-        new_offset = osi_decode_DC(pd, offset, fd, tree);
+        new_offset = osi_decode_DC(tvb, offset, pinfo, tree);
         break;
       case AK_TPDU :
-        new_offset = osi_decode_AK(pd, offset, fd, tree);
+        new_offset = osi_decode_AK(tvb, offset, pinfo, tree);
         break;
       case EA_TPDU :
-        new_offset = osi_decode_EA(pd, offset, fd, tree);
+        new_offset = osi_decode_EA(tvb, offset, pinfo, tree);
         break;
       case ER_TPDU :
-        new_offset = osi_decode_ER(pd, offset, fd, tree);
+        new_offset = osi_decode_ER(tvb, offset, pinfo, tree);
         break;
       case UD_TPDU :
-        if (osi_decode_UD(pd, offset, fd, tree))
-          subdissector_found = TRUE;
-        new_offset = pi.captured_len;	/* UD PDUs run to the end of the packet */
+        new_offset = osi_decode_UD(tvb, offset, pinfo, tree,
+				   &subdissector_found);
         is_cltp = TRUE;
         break;
       default      :
-        if (first_tpdu && check_col(fd, COL_INFO))
-          col_append_fstr(fd, COL_INFO, "Unknown TPDU type (0x%x)", tpdu);
+        if (first_tpdu && check_col(pinfo->fd, COL_INFO))
+          col_append_fstr(pinfo->fd, COL_INFO, "Unknown TPDU type (0x%x)", tpdu);
         new_offset = -1;	/* bad PDU type */
         break;
     }
 
     if (new_offset == -1) { /* incorrect TPDU */
       if (!first_tpdu)
-        old_dissect_data(pd, offset, fd, tree);
+        dissect_data(tvb, offset, pinfo, tree);
       break;
     }
 
     if (first_tpdu) {
       /* Well, we found at least one valid COTP or CLTP PDU, so I guess this
          is either COTP or CLTP. */
-      if (!subdissector_found && check_col(fd, COL_PROTOCOL))
-        col_add_str(fd, COL_PROTOCOL, is_cltp ? "CLTP" : "COTP");
+      if (!subdissector_found && check_col(pinfo->fd, COL_PROTOCOL))
+        col_add_str(pinfo->fd, COL_PROTOCOL, is_cltp ? "CLTP" : "COTP");
       found_ositp = TRUE;
     }
 
@@ -1507,12 +1527,10 @@ static gboolean dissect_ositp_internal(const u_char *pd, int offset,
   return found_ositp;
 } /* dissect_ositp_internal */
 
-void dissect_ositp(const u_char *pd, int offset, frame_data *fd,
-		  proto_tree *tree) 
+void dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
-  OLD_CHECK_DISPLAY_AS_DATA(proto_cotp, pd, offset, fd, tree);
-  if (!dissect_ositp_internal(pd, offset, fd, tree, FALSE))
-    old_dissect_data(pd, offset, fd, tree);
+  if (!dissect_ositp_internal(tvb, pinfo, tree, FALSE))
+    dissect_data(tvb, 0, pinfo, tree);
 }
 
 
@@ -1520,155 +1538,168 @@ void dissect_ositp(const u_char *pd, int offset, frame_data *fd,
  *  CLNP part / main entry point 
 */
 
-static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
-		  proto_tree *tree) 
+static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
-  struct clnp_header clnp;
   proto_tree *clnp_tree = NULL;
   proto_item *ti;
+  guint8      cnf_proto_id;
+  guint8      cnf_hdr_len;
+  guint8      cnf_vers;
+  guint8      cnf_ttl;
+  guint8      cnf_type;
+  char        flag_string[6+1];
+  char       *pdu_type_string;
+  guint16     segment_length;
+  guint16     segment_offset = 0;
+  guint16     cnf_cksum;
+  int         offset;
   u_char      src_len, dst_len, nsel, opt_len = 0;
-  u_int       first_offset = offset;
-  char flag_string[6+1];
-  char *pdu_type_string;
-  guint16 segment_length;
-  guint16 segment_offset = 0;
-  guint len;
+  guint8     *dst_addr, *src_addr;
+  guint       len;
+  tvbuff_t   *next_tvb;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_clnp, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_clnp, tvb, pinfo, tree);
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "CLNP");
+  pinfo->current_proto = "CLNP";
 
-  /* avoid alignment problem */
-  memcpy(&clnp, &pd[offset], sizeof(clnp));
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "CLNP");
 
-  if (clnp.cnf_proto_id == NLPID_NULL) {
-    if (check_col(fd, COL_INFO))
-      col_add_str(fd, COL_INFO, "Inactive subset");
+  cnf_proto_id = tvb_get_guint8(tvb, P_CLNP_PROTO_ID);
+  if (cnf_proto_id == NLPID_NULL) {
+    if (check_col(pinfo->fd, COL_INFO))
+      col_add_str(pinfo->fd, COL_INFO, "Inactive subset");
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_clnp, NullTVB, offset, 1, FALSE);
+      ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, FALSE);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);
-      proto_tree_add_uint_format(clnp_tree, hf_clnp_id, NullTVB, offset, 1, 
-				 clnp.cnf_proto_id,
+      proto_tree_add_uint_format(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1, 
+				 cnf_proto_id,
 				 "Inactive subset");
     } 
-    dissect_ositp_internal(pd, offset+1, fd, tree, TRUE);
+    next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+    dissect_ositp_internal(next_tvb, pinfo, tree, TRUE);
     return;
   } 
  
-  if (!BYTES_ARE_IN_FRAME(offset, sizeof(clnp))) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
-
   /* return if version not known */
-  if (clnp.cnf_vers != ISO8473_V1) {
-    old_dissect_data(pd, offset, fd, tree);
+  cnf_vers = tvb_get_guint8(tvb, P_CLNP_VERS);
+  if (cnf_vers != ISO8473_V1) {
+    dissect_data(tvb, 0, pinfo, tree);
     return;
   }
 
   /* fixed part decoding */
-  opt_len = clnp.cnf_hdr_len;
+  cnf_hdr_len = tvb_get_guint8(tvb, P_CLNP_HDR_LEN);
+  opt_len = cnf_hdr_len;
 
-  segment_length = EXTRACT_SHORT(&clnp.cnf_seglen_msb);
-  flag_string[0] = '\0';
-  if (clnp.cnf_type & CNF_SEG_OK)
-    strcat(flag_string, "S ");
-  if (clnp.cnf_type & CNF_MORE_SEGS)
-    strcat(flag_string, "M ");
-  if (clnp.cnf_type & CNF_ERR_OK)
-    strcat(flag_string, "E ");
-  pdu_type_string = val_to_str(clnp.cnf_type & CNF_TYPE, npdu_type_vals,
-				"Unknown (0x%02x)");
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_clnp, NullTVB, offset, clnp.cnf_hdr_len, FALSE);
+    ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, FALSE);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
-    proto_tree_add_uint(clnp_tree, hf_clnp_id, NullTVB, offset, 1, 
-			       clnp.cnf_proto_id);
-    proto_tree_add_uint(clnp_tree, hf_clnp_length, NullTVB, offset +  1, 1, 
-			clnp.cnf_hdr_len); 
-    proto_tree_add_uint(clnp_tree, hf_clnp_version, NullTVB, offset +  2, 1, 
-			clnp.cnf_vers);
-    proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, NullTVB, offset +  3, 1, 
-			       clnp.cnf_ttl,
+    proto_tree_add_uint(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1, 
+			       cnf_proto_id);
+    proto_tree_add_uint(clnp_tree, hf_clnp_length, tvb, P_CLNP_HDR_LEN, 1, 
+			cnf_hdr_len); 
+    proto_tree_add_uint(clnp_tree, hf_clnp_version, tvb, P_CLNP_VERS, 1, 
+			cnf_vers);
+    cnf_ttl = tvb_get_guint8(tvb, P_CLNP_TTL);
+    proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, tvb, P_CLNP_TTL, 1, 
+			       cnf_ttl,
 			       "Holding Time : %u (%u secs)", 
-			       clnp.cnf_ttl, clnp.cnf_ttl / 2);
-    proto_tree_add_uint_format(clnp_tree, hf_clnp_type, NullTVB, offset +  4, 1, 
-			       clnp.cnf_type,
+			       cnf_ttl, cnf_ttl / 2);
+  }
+
+  cnf_type = tvb_get_guint8(tvb, P_CLNP_TYPE);
+  pdu_type_string = val_to_str(cnf_type & CNF_TYPE, npdu_type_vals,
+				"Unknown (0x%02x)");
+  flag_string[0] = '\0';
+  if (cnf_type & CNF_SEG_OK)
+    strcat(flag_string, "S ");
+  if (cnf_type & CNF_MORE_SEGS)
+    strcat(flag_string, "M ");
+  if (cnf_type & CNF_ERR_OK)
+    strcat(flag_string, "E ");
+  if (tree) {
+    proto_tree_add_uint_format(clnp_tree, hf_clnp_type, tvb, P_CLNP_TYPE, 1,
+			       cnf_type,
 			       "PDU Type     : 0x%02x (%s%s)",
-			       clnp.cnf_type,
+			       cnf_type,
 			       flag_string,
 			       pdu_type_string);
-    proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, NullTVB, offset +  5, 2, 
+  }
+
+  /* If we don't have the full header - i.e., not enough to see the
+     segmentation part and determine whether this datagram is segmented
+     or not - set the Info column now; we'll get an exception before
+     we set it otherwise. */
+
+  if (!tvb_bytes_exist(tvb, 0, cnf_hdr_len)) {
+    if (check_col(pinfo->fd, COL_INFO))
+      col_add_fstr(pinfo->fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+  }
+
+  segment_length = tvb_get_ntohs(tvb, P_CLNP_SEGLEN);
+  if (tree) {
+    proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, tvb, P_CLNP_SEGLEN, 2,
 			segment_length);
-    proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, NullTVB, offset +  7, 2,
-			       EXTRACT_SHORT(&clnp.cnf_cksum_msb),
+    cnf_cksum = tvb_get_ntohs(tvb, P_CLNP_CKSUM);
+    proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb, P_CLNP_CKSUM, 2,
+			       cnf_cksum,
 			       "Checksum     : 0x%04x",
-			       EXTRACT_SHORT(&clnp.cnf_cksum_msb));
+			       cnf_cksum);
     opt_len -= 9; /* Fixed part of Hesder */
   } /* tree */
 
-  /* stop here if header is not complete */
-
-  if (!BYTES_ARE_IN_FRAME(offset, clnp.cnf_hdr_len)) {
-    if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
-
   /* address part */
   
-  offset += P_ADDRESS_PART;
-  dst_len = pd[offset];
-  nsel    = pd[offset + dst_len];
-  src_len = pd[offset + dst_len + 1];
+  offset = P_CLNP_ADDRESS_PART;
+  dst_len  = tvb_get_guint8(tvb, offset);
+  dst_addr = tvb_get_ptr(tvb, offset + 1, dst_len);
+  nsel     = tvb_get_guint8(tvb, offset + dst_len);
+  src_len  = tvb_get_guint8(tvb, offset + dst_len + 1);
+  src_addr = tvb_get_ptr(tvb, offset + dst_len + 2, src_len);
 
   if (tree) {
-    proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, NullTVB, offset, 1, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, tvb, offset, 1, 
 			dst_len);
-    proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, NullTVB, offset + 1 , dst_len, 
-			       &pd[offset + 1],
+    proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset + 1 , dst_len, 
+			       dst_addr,
 			       " DA : %s", 
-			       print_nsap_net(&pd[offset + 1], dst_len));
-    proto_tree_add_uint(clnp_tree, hf_clnp_src_length, NullTVB, 
+			       print_nsap_net(dst_addr, dst_len));
+    proto_tree_add_uint(clnp_tree, hf_clnp_src_length, tvb, 
 			offset + 1 + dst_len, 1, src_len);
-    proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, NullTVB, 
+    proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, tvb, 
 			       offset + dst_len + 2, src_len,
-			       &pd[offset + dst_len + 2],
+			       src_addr,
 			       " SA : %s", 
-			       print_nsap_net(&pd[offset + dst_len + 2], src_len));
+			       print_nsap_net(src_addr, src_len));
 
     opt_len -= dst_len + src_len +2;
   }
 
-  if (check_col(fd, COL_RES_NET_SRC))
-    col_add_fstr(fd, COL_RES_NET_SRC, "%s", 
-		 print_nsap_net(&pd[offset + dst_len + 2], src_len));
-  if (check_col(fd, COL_RES_NET_DST))
-    col_add_fstr(fd, COL_RES_NET_DST, "%s", 
-		 print_nsap_net(&pd[offset + 1], dst_len));
+  if (check_col(pinfo->fd, COL_RES_NET_SRC))
+    col_add_fstr(pinfo->fd, COL_RES_NET_SRC, "%s", print_nsap_net(src_addr, src_len));
+  if (check_col(pinfo->fd, COL_RES_NET_DST))
+    col_add_fstr(pinfo->fd, COL_RES_NET_DST, "%s", print_nsap_net(dst_addr, dst_len));
 
   /* Segmentation Part */
 
   offset += dst_len + src_len + 2;
 
-  if (clnp.cnf_type & CNF_SEG_OK) {
+  if (cnf_type & CNF_SEG_OK) {
     struct clnp_segment seg;			/* XXX - not used */
-    memcpy(&seg, &pd[offset], sizeof(seg));	/* XXX - not used */
+    tvb_memcpy(tvb, (guint8 *)&seg, offset, sizeof(seg));	/* XXX - not used */
     
-    segment_offset = EXTRACT_SHORT(&pd[offset + 2]);
+    segment_offset = tvb_get_ntohs(tvb, offset + 2);
     if (tree) {
-      proto_tree_add_text(clnp_tree, NullTVB, offset, 2, 
+      proto_tree_add_text(clnp_tree, tvb, offset, 2, 
 			"Data unit identifier: %06u",
-			EXTRACT_SHORT(&pd[offset]));
-      proto_tree_add_text(clnp_tree, NullTVB, offset + 2 , 2,
+			tvb_get_ntohs(tvb, offset));
+      proto_tree_add_text(clnp_tree, tvb, offset + 2 , 2,
 			"Segment offset      : %6u", 
 			segment_offset);
-      proto_tree_add_text(clnp_tree, NullTVB, offset + 4 , 2,
+      proto_tree_add_text(clnp_tree, tvb, offset + 4 , 2,
 			"Total length        : %6u", 
-			EXTRACT_SHORT(&pd[offset + 4]));
+			tvb_get_ntohs(tvb, offset + 4));
     }
     
     offset  += 6;
@@ -1678,29 +1709,29 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   if (tree) {
     /* To do : decode options  */
 /*
-    proto_tree_add_text(clnp_tree, NullTVB, offset, 
-			clnp.cnf_hdr_len + first_offset - offset,
+    proto_tree_add_text(clnp_tree, tvb, offset, 
+			cnf_hdr_len - offset,
 			"Options/Data: <not shown>");
 */
 /* QUICK HACK Option Len:= PDU_Hd_length-( FixedPart+AddresPart+SegmentPart )*/
 
     dissect_osi_options( 0xff, 
                          opt_len,
-                         pd, offset, fd, clnp_tree ); 
+                         tvb, offset, pinfo, clnp_tree ); 
   }
 
   /* Length of CLNP datagram plus headers above it. */
-  len = segment_length + first_offset;
+  len = segment_length;
 
   /* Set the payload and captured-payload lengths to the minima of (the
      datagram length plus the length of the headers above it) and the
      frame lengths. */
-  if (pi.len > len)
-    pi.len = len;
-  if (pi.captured_len > len)
-    pi.captured_len = len;
+  if (pinfo->len > len)
+    pinfo->len = len;
+  if (pinfo->captured_len > len)
+    pinfo->captured_len = len;
 
-  offset = first_offset + clnp.cnf_hdr_len;
+  offset = cnf_hdr_len;
 
   /* For now, dissect the payload of segments other than the initial
      segment as data, rather than handing them off to the transport
@@ -1708,16 +1739,16 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
      fragment in a fragmented IP datagram; in the future, we will
      probably reassemble fragments for IP, and may reassemble segments
      for CLNP. */
-  if ((clnp.cnf_type & CNF_SEG_OK) && segment_offset != 0) {
-    if (check_col(fd, COL_INFO))
-      col_add_fstr(fd, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
+  if ((cnf_type & CNF_SEG_OK) && segment_offset != 0) {
+    if (check_col(pinfo->fd, COL_INFO))
+      col_add_fstr(pinfo->fd, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
 		pdu_type_string, flag_string, segment_offset);
-    old_dissect_data(pd, offset, fd, tree);
+    dissect_data(tvb, offset, pinfo, tree);
     return;
   }
 
-  if (IS_DATA_IN_FRAME(offset)) {
-    switch (clnp.cnf_type & CNF_TYPE) {
+  if (tvb_offset_exists(tvb, offset)) {
+    switch (cnf_type & CNF_TYPE) {
 
     case DT_NPDU:
     case MD_NPDU:
@@ -1726,7 +1757,8 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
          PDU, skip that? */
 
       if (nsel == (char)tp_nsap_selector || always_decode_transport) { 
-        if (dissect_ositp_internal(pd, offset, fd, tree, FALSE))
+        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        if (dissect_ositp_internal(next_tvb, pinfo, tree, FALSE))
           return;	/* yes, it appears to be COTP or CLTP */
       }
       break;
@@ -1745,9 +1777,10 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
       break;
     }
   }
-  if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-  old_dissect_data(pd, offset, fd, tree);
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_fstr(pinfo->fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  dissect_data(next_tvb, 0, pinfo, tree);
 
 } /* dissect_clnp */
 
@@ -1847,6 +1880,6 @@ void proto_register_cltp(void)
 void
 proto_reg_handoff_clnp(void)
 {
-	old_dissector_add("osinl", NLPID_ISO8473_CLNP, dissect_clnp);
-	old_dissector_add("osinl", NLPID_NULL, dissect_clnp);	/* Inactive subset */
+	dissector_add("osinl", NLPID_ISO8473_CLNP, dissect_clnp);
+	dissector_add("osinl", NLPID_NULL, dissect_clnp);	/* Inactive subset */
 }

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.35 2000/11/17 06:02:21 guy Exp $
+ * $Id: packet-osi.c,v 1.36 2000/11/18 10:38:24 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -176,25 +176,29 @@ gchar *print_nsap_net( const u_char *buffer, int length)
 } /* print_nsap */
 
 
-gchar *calc_checksum( const u_char *buffer, u_int len, u_int checksum) {
+gchar *calc_checksum( tvbuff_t *tvb, int offset, u_int len, u_int checksum) {
   u_int   calc_sum = 0;
   u_int   count    = 0;
+  const gchar *buffer;
+  guint   available_len;
 
-  static char *checksum_string[] = { "Not Used", 
-                                     "Is good",
-                                     "Is wrong" }; 
   if ( 0 == checksum )
-    return( checksum_string[0] );
+    return( "Not Used" );
 
+  available_len = tvb_length_remaining( tvb, offset );
+  if ( available_len < len )
+    return( "Not checkable - not all of packet was captured" );
+
+  buffer = tvb_get_ptr( tvb, offset, len );
   for ( count = 0; count < len; count++ ) {
     calc_sum += (u_int) buffer[count];
   }
   calc_sum %= 255;  /* modulo 255 divison */
   
   if ( 0 == calc_sum )
-    return( checksum_string[1] );
+    return( "Is good" );
   else
-    return( checksum_string[2] );
+    return( "Is wrong" );	/* XXX - what should the checksum be? */
 }
 
 
@@ -222,37 +226,42 @@ const value_string nlpid_vals[] = {
 
 static dissector_table_t subdissector_table;
 
-void dissect_osi(const u_char *pd, int offset, frame_data *fd, 
-		 proto_tree *tree) 
+void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
+  guint8 nlpid;
+
+  pinfo->current_proto = "OSI";
+
+  nlpid = tvb_get_guint8(tvb, 0);
+
   /* do lookup with the subdissector table */
-  if (old_dissector_try_port(subdissector_table, pd[offset], pd, offset, fd, tree))
+  if (dissector_try_port(subdissector_table, nlpid, tvb, pinfo, tree))
       return;
 
-  switch (pd[offset]) {
+  switch (nlpid) {
 
     /* ESIS (X.25) is not currently decoded */
 
     case NLPID_ISO9542X25_ESIS:
-      if (check_col(fd, COL_PROTOCOL)) {
-	col_add_str(fd, COL_PROTOCOL, "ESIS (X.25)");
+      if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	col_add_str(pinfo->fd, COL_PROTOCOL, "ESIS (X.25)");
       }
-      old_dissect_data(pd, offset, fd, tree);
+      dissect_data(tvb, 0, pinfo, tree);
       break;
     case NLPID_ISO10747_IDRP:
-      if (check_col(fd, COL_PROTOCOL)) {
-        col_add_str(fd, COL_PROTOCOL, "IDRP");
+      if (check_col(pinfo->fd, COL_PROTOCOL)) {
+        col_add_str(pinfo->fd, COL_PROTOCOL, "IDRP");
       }
-      old_dissect_data(pd, offset, fd, tree);
+      dissect_data(tvb, 0, pinfo, tree);
       break;
     default:
-      if (check_col(fd, COL_PROTOCOL)) {
-	col_add_str(fd, COL_PROTOCOL, "ISO");
+      if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	col_add_str(pinfo->fd, COL_PROTOCOL, "ISO");
       }
-      if (check_col(fd, COL_INFO)) {
-	col_add_fstr(fd, COL_INFO, "Unknown ISO protocol (%02x)", pd[offset]);
+      if (check_col(pinfo->fd, COL_INFO)) {
+	col_add_fstr(pinfo->fd, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);
       }
-      old_dissect_data(pd, offset, fd, tree);
+      dissect_data(tvb, 0, pinfo, tree);
       break;
   }
 } /* dissect_osi */
@@ -269,6 +278,6 @@ proto_register_osi(void)
 void
 proto_reg_handoff_osi(void)
 {
-	old_dissector_add("llc.dsap", SAP_OSINL, dissect_osi);
-	old_dissector_add("null.type", BSD_AF_ISO, dissect_osi);
+	dissector_add("llc.dsap", SAP_OSINL, dissect_osi);
+	dissector_add("null.type", BSD_AF_ISO, dissect_osi);
 }

@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.26 2000/11/16 07:35:37 guy Exp $
+ * $Id: packet-gre.c,v 1.27 2000/11/18 10:38:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,6 +73,8 @@ static const value_string typevals[] = {
 	{ GRE_IPX,  "IPX"},
 	{ 0,        NULL  }
 };
+
+static dissector_handle_t ip_handle;
 
 static void
 dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -212,14 +214,14 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         dissect_ppp(next_tvb, &pi, tree);
  	break;
       case GRE_IP:
-        dissect_ip(pd, offset, fd, tree);
+        old_call_dissector(ip_handle, pd, offset, fd, tree);
         break;
       case GRE_WCCP:
         if (is_wccp2) {
           proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(guint32), "WCCPv2 Data");
           offset += 4;
         }
-        dissect_ip(pd, offset, fd, tree);
+        old_call_dissector(ip_handle, pd, offset, fd, tree);
         break;
       case GRE_IPX:
 	next_tvb = tvb_create_from_top(offset);
@@ -304,4 +306,9 @@ void
 proto_reg_handoff_gre(void)
 {
 	old_dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre);
+
+	/*
+	 * Get a handle for the IP dissector.
+	 */
+	ip_handle = find_dissector("ip");
 }

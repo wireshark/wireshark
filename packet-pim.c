@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.18 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-pim.c,v 1.19 2000/11/18 10:38:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,6 +69,8 @@ static int hf_pim_type = -1;
 static int hf_pim_cksum = -1;
 
 static gint ett_pim = -1;
+
+static dissector_handle_t ip_handle;
 
 static const char *
 dissect_pim_addr(const u_char *bp, const u_char *ep, enum pimv2_addrtype at,
@@ -284,9 +286,9 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    switch((*ip & 0xf0) >> 4) {
 	    case 4:	/* IPv4 */
 #if 0
-		    dissect_ip(pd, ip - pd, fd, tree);
+		    old_call_dissector(ip_handle, pd, ip - pd, fd, tree);
 #else
-		    dissect_ip(pd, ip - pd, fd, pimopt_tree);
+		    old_call_dissector(ip_handle, pd, ip - pd, fd, pimopt_tree);
 #endif
 		    break;
 	    case 6:	/* IPv6 */
@@ -607,5 +609,9 @@ void
 proto_reg_handoff_pim(void)
 {
     old_dissector_add("ip.proto", IP_PROTO_PIM, dissect_pim);
-}
 
+    /*
+     * Get a handle for the IP dissector.
+     */
+    ip_handle = find_dissector("ip");
+}

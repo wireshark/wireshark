@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.19 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-raw.c,v 1.20 2000/11/18 10:38:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,8 @@ static gint ett_raw = -1;
 
 static const char zeroes[10];
 
+static dissector_handle_t ip_handle;
+
 void
 capture_raw(const u_char *pd, packet_counts *ld)
 {
@@ -82,8 +84,6 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree	*fh_tree;
   proto_item	*ti;
   tvbuff_t	*next_tvb;
-  const guint8	*next_pd;
-  int		next_offset;
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
@@ -132,13 +132,13 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */
   else if (memcmp(tvb_get_ptr(tvb, 0, 10), zeroes, 10) == 0) {
-	tvb_compat(tvb, &next_pd, &next_offset);
-	dissect_ip(next_pd, next_offset + 10, pinfo->fd, tree);
+	next_tvb = tvb_new_subset(tvb, 10, -1, -1);
+	call_dissector(ip_handle, next_tvb, pinfo, tree);
 	return;
   }
   else {
-	tvb_compat(tvb, &next_pd, &next_offset);
-	dissect_ip(next_pd, next_offset, pinfo->fd, tree);
+	next_tvb = tvb_new_subset(tvb, 0, -1, -1);
+	call_dissector(ip_handle, next_tvb, pinfo, tree);
 	return;
   }
   g_assert_not_reached();
@@ -152,4 +152,13 @@ proto_register_raw(void)
   };
 
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_raw(void)
+{
+  /*
+   * Get a handle for the IP dissector.
+   */
+  ip_handle = find_dissector("ip");
 }

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.8 2000/11/16 07:35:37 guy Exp $
+ * $Id: packet-ethertype.c,v 1.9 2000/11/18 10:38:24 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -95,7 +95,7 @@ capture_ethertype(guint16 etype, int offset,
   }
 }
 
-void
+guint
 ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pinfo,
 		proto_tree *tree, proto_tree *fh_tree, int item_id)
 {
@@ -107,6 +107,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pin
 		proto_tree_add_uint(fh_tree, item_id, tvb, offset_after_etype - 2, 2, etype);
 	}
 
+	/* Tvbuff for the payload after the Ethernet type. */
 	next_tvb = tvb_new_subset(tvb, offset_after_etype, -1, -1);
 
 	/* Look for sub-dissector */
@@ -137,6 +138,11 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pin
 			}
 		}
 	}
+
+	/* Return the length of that tvbuff; the subdissector may have
+	   reduced the length to a value specified by a length field
+	   in its header, meaning what remains is padding. */
+	return tvb_reported_length(next_tvb);
 }
 
 

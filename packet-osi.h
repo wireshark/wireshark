@@ -1,6 +1,6 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.4 2000/07/01 08:55:28 guy Exp $
+ * $Id: packet-osi.h,v 1.5 2000/11/18 10:38:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,11 +102,11 @@
  * published API functions
  */
 
-extern void   dissect_osi( const u_char *, int, frame_data *, proto_tree *);
+extern void   dissect_osi( tvbuff_t *, packet_info *, proto_tree *);
 extern gchar *print_nsap_net ( const u_char *, int );
 extern gchar *print_area     ( const u_char *, int );
 extern gchar *print_system_id( const u_char *, int );
-extern gchar *calc_checksum  ( const u_char *, u_int, u_int );
+extern gchar *calc_checksum  ( tvbuff_t *, int, u_int, u_int );
 
 #endif /* _PACKET_OSI_H */
 

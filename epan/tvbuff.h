@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.7 2000/11/14 04:33:34 gram Exp $
+ * $Id: tvbuff.h,v 1.8 2000/11/18 10:38:33 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -200,6 +200,14 @@ gboolean tvb_offset_exists(tvbuff_t*, gint offset);
 
 /* Get reported length of buffer */
 guint tvb_reported_length(tvbuff_t*);
+
+/* Set the reported length of a tvbuff to a given value; used for protocols
+   whose headers contain an explicit length and where the calling
+   dissector's payload may include padding as well as the packet for
+   this protocol.
+
+   Also adjusts the data length. */
+void tvb_set_reported_length(tvbuff_t*, guint);
 
 /* Returns the offset from the first byte of real data. This is
  * the same value as 'offset' in tvb_compat() */

@@ -1,7 +1,7 @@
 /* packet-osi-options.h
  * Defines for OSI options part decode 
  *
- * $Id: packet-osi-options.h,v 1.1 2000/04/15 22:11:12 guy Exp $
+ * $Id: packet-osi-options.h,v 1.2 2000/11/18 10:38:24 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -32,8 +32,8 @@
 /*
  * published API functions
  */ 
-extern void dissect_osi_options( u_char, u_char, const u_char *, int,
-                                 frame_data *, proto_tree *);
+extern void dissect_osi_options( u_char, u_char, tvbuff_t *, int,
+                                 packet_info *, proto_tree *);
 extern void proto_register_osi_options(void);
 
 #endif /* _PACKET_OSI_OPTIONS_H */

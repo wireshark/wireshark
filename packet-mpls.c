@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.9 2000/08/13 14:08:29 deniel Exp $
+ * $Id: packet-mpls.c,v 1.10 2000/11/18 10:38:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,6 @@
 #include <glib.h>
 #include "etypes.h"
 #include "packet.h"
-#include "packet-ip.h"
 
 static gint proto_mpls = -1;
 
@@ -107,6 +106,8 @@ static hf_register_info mplsf_info[] = {
      {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0, 
       "" }},
 };
+
+static dissector_handle_t ip_handle;
 
 /*
  * Given a 4-byte MPLS label starting at "start", decode this.
@@ -177,7 +178,7 @@ dissect_mpls(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	offset += 4;
 	if (bos) break;
     }
-    dissect_ip(pd, offset, fd, tree);
+    old_call_dissector(ip_handle, pd, offset, fd, tree);
 }
 
 void
@@ -196,4 +197,9 @@ void
 proto_reg_handoff_mpls(void)
 {
 	old_dissector_add("ethertype", ETHERTYPE_MPLS, dissect_mpls);
+
+	/*
+	 * Get a handle for the IP dissector.
+	 */
+	ip_handle = find_dissector("ip");
 }

@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.23 2000/11/13 05:22:58 guy Exp $
+ * $Id: packet-vlan.c,v 1.24 2000/11/18 10:38:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,6 +79,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *volatile next_tvb;
   tvbuff_t *volatile trailer_tvb;
   proto_tree *volatile vlan_tree;
+  guint	length_before, length;
 
   CHECK_DISPLAY_AS_DATA(proto_vlan, tvb, pinfo, tree);
 
@@ -107,7 +108,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
-    /* Give the next dissector only 'length' number of bytes */
+    /* Give the next dissector only 'encap_proto' number of bytes */
     proto_tree_add_uint(vlan_tree, hf_vlan_len, tvb, 2, 2, encap_proto);
     TRY {
        next_tvb = tvb_new_subset(tvb, 4, encap_proto, encap_proto);
@@ -160,21 +161,40 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
       dissect_ipx(next_tvb, pinfo, tree);
     }
-
-    /* If there's some bytes left over, mark them. */
-    if (trailer_tvb && tree) {
-      int trailer_length;
-      const guint8    *ptr;
-
-      trailer_length = tvb_length(trailer_tvb);
-      if (trailer_length > 0) {
-        ptr = tvb_get_ptr(trailer_tvb, 0, trailer_length);
-	proto_tree_add_bytes(vlan_tree, hf_vlan_trailer, tvb, 4 + encap_proto,
-			  trailer_length, ptr);
-      }
-    }
   } else {
-    ethertype(encap_proto, tvb, 4, pinfo, tree, vlan_tree, hf_vlan_etype);
+    length_before = tvb_reported_length(tvb);
+    length = ethertype(encap_proto, tvb, 4, pinfo, tree, vlan_tree,
+		       hf_vlan_etype) + 4;
+    if (length < length_before) {
+      /*
+       * Create a tvbuff for the padding.
+       */
+      TRY {
+	trailer_tvb = tvb_new_subset(tvb, length, -1, -1);
+      }
+      CATCH2(BoundsError, ReportedBoundsError) {
+	/* The packet doesn't have "length" bytes worth of captured
+	   data left in it.  No trailer to display. */
+	trailer_tvb = NULL;
+      }
+      ENDTRY;
+    } else {
+      /* No padding. */
+      trailer_tvb = NULL;
+    }
+  }
+
+  /* If there's some bytes left over, mark them. */
+  if (trailer_tvb && tree) {
+    int trailer_length;
+    const guint8    *ptr;
+
+    trailer_length = tvb_length(trailer_tvb);
+    if (trailer_length > 0) {
+      ptr = tvb_get_ptr(trailer_tvb, 0, trailer_length);
+      proto_tree_add_bytes(vlan_tree, hf_vlan_trailer, trailer_tvb, 0,
+			   trailer_length, ptr);
+    }
   }
 }
 

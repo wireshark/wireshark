@@ -5,7 +5,7 @@
  * ISO 10589 ISIS (Intradomain Routeing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routeing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.2 2000/05/11 08:15:31 gram Exp $
+ * $Id: packet-osi-options.c,v 1.3 2000/11/18 10:38:24 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -171,7 +171,7 @@ static const value_string osi_opt_rfd_reassembly[] = {
 
 void
 dissect_option_qos( const u_char type, const u_char sub_type, u_char offset,
-                    u_char len, const u_char *pd, proto_tree *tree ) {
+                    u_char len, tvbuff_t *tvb, proto_tree *tree ) {
 
   u_char      tmp_type = 0;
   proto_item *ti;
@@ -221,7 +221,7 @@ dissect_option_qos( const u_char type, const u_char sub_type, u_char offset,
 };
 void
 dissect_option_route( u_char parm_type, u_char offset, u_char parm_len, 
-                      const u_char *pd, proto_tree *tree ) {
+                      tvbuff_t *tvb, proto_tree *tree ) {
 
   u_char      next_hop = 0;
   u_char      this_hop = 0;
@@ -238,23 +238,25 @@ dissect_option_route( u_char parm_type, u_char offset, u_char parm_len,
         { 0,    NULL} };
 
   if ( parm_type == OSI_OPT_SOURCE_ROUTING ) {
-    next_hop = pd[offset + 1 ];
-    netl     = pd[next_hop + 2 ];
+    next_hop = tvb_get_guint8(tvb, offset + 1 );
+    netl     = tvb_get_guint8(tvb, next_hop + 2 );
     this_hop = offset + 3;         /* points to first netl */
 
-    ti = proto_tree_add_text( tree, NullTVB, offset + next_hop, netl, 
+    ti = proto_tree_add_text( tree, tvb, offset + next_hop, netl, 
             "Source Routing: %s   ( Next Hop Highlighted In Data Buffer )",
-            (pd[offset] == 0) ? "Partial Source Routeing" :
-                                "Complete Source Routeing"  ); 
+            (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routeing" :
+                                                 "Complete Source Routeing"  ); 
   }
   else {
-    last_hop = pd[offset + 1 ];  /* points to the end of the list */
-    netl     = pd[ last_hop ];   /* mis-used to highlight buffer */
+    last_hop = tvb_get_guint8(tvb, offset + 1 );
+        /* points to the end of the list */
+    netl     = tvb_get_guint8(tvb, last_hop );
+        /* mis-used to highlight buffer */
 
-    ti = proto_tree_add_text( tree, NullTVB, offset + next_hop, netl,
+    ti = proto_tree_add_text( tree, tvb, offset + next_hop, netl,
             "Record of Route: %s : %s",
-            (pd[offset] == 0) ? "Partial Source Routeing" :
-                                "Complete Source Routeing" ,
+            (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routeing" :
+                                                 "Complete Source Routeing" ,
             val_to_str( last_hop, osi_opt_route, "Unknown (0x%x" ) );
     if ( 255 == last_hop ) 
       this_hop = parm_len + 1;   /* recording terminated, nothing to show */
@@ -264,12 +266,12 @@ dissect_option_route( u_char parm_type, u_char offset, u_char parm_len,
   osi_route_tree = proto_item_add_subtree( ti, ott_osi_route );
   
   while ( this_hop < parm_len ) {
-    netl = pd[this_hop + 1];
-    proto_tree_add_text( osi_route_tree, NullTVB, offset + this_hop, netl,
+    netl = tvb_get_guint8(tvb, this_hop + 1);
+    proto_tree_add_text( osi_route_tree, tvb, offset + this_hop, netl,
                   "Hop #%3u NETL: %2u, NET: %s",
                   cnt_hops++,
                   netl,
-                  print_nsap_net( &pd[this_hop + 1], netl ) );
+                  print_nsap_net( tvb_get_ptr(tvb, this_hop + 1, netl), netl ) );
     this_hop += 1 + netl;
   }
 };
@@ -280,7 +282,7 @@ dissect_option_route( u_char parm_type, u_char offset, u_char parm_len,
 
 void
 dissect_option_rfd( const u_char error, const u_char field, u_char offset,
-                          u_char len, const u_char *pd, proto_tree *tree ) {
+                          u_char len, tvbuff_t *tvb, proto_tree *tree ) {
   u_char error_class = 0;
   char   *format_string[] = 
              { "Reason for discard {General}        : %s, in field %u",
@@ -294,37 +296,37 @@ dissect_option_rfd( const u_char error, const u_char field, u_char offset,
   error_class = error & OSI_OPT_RFD_MASK;
 
   if ( OSI_OPT_RFD_GENERAL == error_class ) {
-    proto_tree_add_text( tree, NullTVB, offset + field, 1, format_string[0],
+    proto_tree_add_text( tree, tvb, offset + field, 1, format_string[0],
                          val_to_str( error & OSI_OPT_RFD_SUB_MASK,
                                osi_opt_rfd_general, "Unknown (0x%x)"), field );
   }
   else if ( OSI_OPT_RFD_ADDRESS == error_class ) {
-    proto_tree_add_text( tree, NullTVB, offset + field, 1, format_string[1],
+    proto_tree_add_text( tree, tvb, offset + field, 1, format_string[1],
                          val_to_str( error & OSI_OPT_RFD_SUB_MASK,
                                osi_opt_rfd_address, "Unknown (0x%x)"), field );
   }
   else if ( OSI_OPT_RFD_SOURCE_ROUTEING == error_class ) {
-    proto_tree_add_text( tree, NullTVB, offset + field, 1, format_string[2],
+    proto_tree_add_text( tree, tvb, offset + field, 1, format_string[2],
                          val_to_str( error & OSI_OPT_RFD_SUB_MASK,
                              osi_opt_rfd_src_route, "Unknown (0x%x)"), field );
   }
   else if ( OSI_OPT_RFD_LIFETIME == error_class ) {
-    proto_tree_add_text( tree, NullTVB, offset + field, 1, format_string[3],
+    proto_tree_add_text( tree, tvb, offset + field, 1, format_string[3],
                          val_to_str( error & OSI_OPT_RFD_SUB_MASK,
                               osi_opt_rfd_lifetime, "Unknown (0x%x)"), field );
   }
   else if ( OSI_OPT_RFD_PDU_DISCARDED == error_class ) {
-    proto_tree_add_text( tree, NullTVB, offset + field, 1, format_string[4],
+    proto_tree_add_text( tree, tvb, offset + field, 1, format_string[4],
                          val_to_str( error & OSI_OPT_RFD_SUB_MASK,
                              osi_opt_rfd_discarded, "Unknown (0x%x)"), field );
   }
   else if ( OSI_OPT_RFD_REASSEMBLY == error_class ) {
-    proto_tree_add_text( tree, NullTVB, offset + field, 1, format_string[5],
+    proto_tree_add_text( tree, tvb, offset + field, 1, format_string[5],
                          val_to_str( error & OSI_OPT_RFD_SUB_MASK,
                             osi_opt_rfd_reassembly, "Unknown (0x%x)"), field );
   }
   else {
-    proto_tree_add_text( tree, NullTVB, offset, len,
+    proto_tree_add_text( tree, tvb, offset, len,
                          "Reason for discard: UNKNOWN Error Class" );
   } 
 };
@@ -351,82 +353,90 @@ dissect_option_rfd( const u_char error, const u_char field, u_char offset,
  *   void, but we will add to the proto_tree if it is not NULL.
  */
 void
-dissect_osi_options( u_char pdu_type, u_char opt_len, const u_char *pd, 
-                     int offset, frame_data *fd, proto_tree *tree) {
+dissect_osi_options( u_char pdu_type, u_char opt_len, tvbuff_t *tvb, 
+                     int offset, packet_info *pinfo, proto_tree *tree) {
    proto_item *ti;
    proto_tree *osi_option_tree = NULL;
    u_char      parm_len        = 0;
    u_char      parm_type       = 0;
+   guint8      octet;
 
    if (tree) {
      if ( 0 == opt_len ) {
-       proto_tree_add_text( tree, NullTVB, offset, 0, 
+       proto_tree_add_text( tree, tvb, offset, 0, 
                             "### No Options for this PDU ###" );
        return;
      }
      
      if ( opt_len > END_OF_FRAME ) {
-       proto_tree_add_text( tree, NullTVB, offset, END_OF_FRAME, 
+       proto_tree_add_text( tree, tvb, offset, END_OF_FRAME, 
            "### Options go past the end of the captured data in this PDU ###" );
        return;
      }
 
-     ti = proto_tree_add_text( tree, NullTVB, offset, opt_len,
+     ti = proto_tree_add_text( tree, tvb, offset, opt_len,
                                "### Option Section ###" );
      osi_option_tree = proto_item_add_subtree( ti, ott_osi_options );
 
      while ( 0 < opt_len ) {
-        parm_type   = (int) pd[offset++];
-        parm_len    = (int) pd[offset++];
+        parm_type   = (int) tvb_get_guint8(tvb, offset);
+        offset++;
+        parm_len    = (int) tvb_get_guint8(tvb, offset);
+        offset++;
          
         switch ( parm_type ) {
           case   OSI_OPT_QOS_MAINTANANCE:
-                 dissect_option_qos( pd[offset]&OSI_OPT_QOS_MASK,
-                                     pd[offset]&OSI_OPT_QOS_SUB_MASK,
-                                     offset, parm_len, pd, osi_option_tree );
+                 octet = tvb_get_guint8(tvb, offset);
+                 dissect_option_qos( octet&OSI_OPT_QOS_MASK,
+                                     octet&OSI_OPT_QOS_SUB_MASK,
+                                     offset, parm_len, tvb, osi_option_tree );
           break;
           case   OSI_OPT_SECURITY:
-                 proto_tree_add_text( osi_option_tree, NullTVB, offset, parm_len,
+                 octet = tvb_get_guint8(tvb, offset);
+                 proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
                   "Security type: %s",
-                  val_to_str( pd[offset]&OSI_OPT_SEC_MASK,
+                  val_to_str( octet&OSI_OPT_SEC_MASK,
                               osi_opt_sec_vals, "Unknown (0x%x)")  );
           break;
           case   OSI_OPT_PRIORITY:
-                 if ( OSI_OPT_MAX_PRIORITY >= pd[offset] ) { 
-                   proto_tree_add_text( osi_option_tree, NullTVB, offset, parm_len,
-                                        "Priority    : %u", pd[offset] );
+                 octet = tvb_get_guint8(tvb, offset);
+                 if ( OSI_OPT_MAX_PRIORITY >= octet ) { 
+                   proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
+                                        "Priority    : %u", octet );
                  }
                  else {
-                   proto_tree_add_text( osi_option_tree, NullTVB, offset, parm_len,
+                   proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
                                         "Priority    : %u ( Invalid )", 
-                                        pd[offset] );
+                                        octet );
                  } 
           break;
           case   OSI_OPT_ADDRESS_MASK:
-                 proto_tree_add_text( osi_option_tree, NullTVB, offset, parm_len,
-                  "Address Mask: %s", print_area( &pd[offset], parm_len ) );
+                 proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
+                  "Address Mask: %s",
+		  print_area( tvb_get_ptr(tvb, offset, parm_len), parm_len ) );
           break;
           case   OSI_OPT_SNPA_MASK:
-                 proto_tree_add_text( osi_option_tree, NullTVB, offset, parm_len,
-                  "SNPA Mask   : %s", print_system_id( &pd[offset], parm_len ));
+                 proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
+                  "SNPA Mask   : %s",
+		  print_system_id( tvb_get_ptr(tvb, offset, parm_len), parm_len ));
           break;
           case   OSI_OPT_ES_CONFIG_TIMER:
-                 proto_tree_add_text( osi_option_tree, NullTVB, offset, parm_len,
-                  "ESCT     : %u seconds", pntohs( &pd[offset] ) ); 
+                 proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
+                  "ESCT     : %u seconds", tvb_get_ntohs( tvb, offset ) ); 
           break;
           case   OSI_OPT_PADDING:
-                 proto_tree_add_text( osi_option_tree, NullTVB, offset, parm_len,
+                 proto_tree_add_text( osi_option_tree, tvb, offset, parm_len,
                   "Padding  : %u Octets", parm_len ) ;
           break;
           case   OSI_OPT_SOURCE_ROUTING:
           case   OSI_OPT_RECORD_OF_ROUTE:
                  dissect_option_route( parm_type,
-                                       offset, parm_len, pd, osi_option_tree );
+                                       offset, parm_len, tvb, osi_option_tree );
           break;
           case   OSI_OPT_REASON_OF_DISCARD:
-                 dissect_option_rfd( pd[offset],
-                                     pd[offset + 1],
-                                     offset, parm_len, pd, osi_option_tree );
+                 dissect_option_rfd( tvb_get_guint8(tvb, offset),
+                                     tvb_get_guint8(tvb, offset + 1),
+                                     offset, parm_len, tvb, osi_option_tree );
           break;
         }
         opt_len -= parm_len + 2;

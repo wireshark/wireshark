@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.9 2000/11/14 04:33:34 gram Exp $
+ * $Id: tvbuff.c,v 1.10 2000/11/18 10:38:33 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -632,7 +632,22 @@ tvb_reported_length(tvbuff_t* tvb)
 	return tvb->reported_length;
 }
 
+/* Set the reported length of a tvbuff to a given value; used for protocols
+   whose headers contain an explicit length and where the calling
+   dissector's payload may include padding as well as the packet for
+   this protocol.
 
+   Also adjusts the data length. */
+void
+tvb_set_reported_length(tvbuff_t* tvb, guint reported_length)
+{
+	g_assert(tvb->initialized);
+	g_assert(reported_length <= tvb->reported_length);
+
+	tvb->reported_length = reported_length;
+	if (reported_length < tvb->length)
+		tvb->length = reported_length;
+}
 
 
 static guint8*

@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.10 2000/05/25 18:32:06 oabad Exp $
+ * $Id: packet-clip.c,v 1.11 2000/11/18 10:38:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,8 @@
 
 static gint ett_clip = -1;
 
+static dissector_handle_t ip_handle;
+
 void
 capture_clip( const u_char *pd, packet_counts *ld ) {
 
@@ -51,8 +53,6 @@ dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree	*fh_tree;
   proto_item	*ti;
-  const guint8	*this_pd;
-  int		this_offset;
 
   pinfo->current_proto = "CLIP";
 
@@ -82,8 +82,7 @@ dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fh_tree = proto_item_add_subtree(ti, ett_clip);
     proto_tree_add_text(fh_tree, tvb, 0, 0, "No link information available");
   }
-  tvb_compat(tvb, &this_pd, &this_offset);
-  dissect_ip(this_pd, this_offset, pinfo->fd, tree);
+  call_dissector(ip_handle, tvb, pinfo, tree);
 }
 
 void
@@ -94,4 +93,13 @@ proto_register_clip(void)
   };
 
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_clip(void)
+{
+  /*
+   * Get a handle for the IP dissector.
+   */
+  ip_handle = find_dissector("ip");
 }

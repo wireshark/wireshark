@@ -1,7 +1,7 @@
 /* packet-esis.h
  * Defines and such for ESIS protocol decode.
  *
- * $Id: packet-esis.h,v 1.2 2000/04/17 01:36:30 guy Exp $
+ * $Id: packet-esis.h,v 1.3 2000/11/18 10:38:24 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -56,11 +56,5 @@ typedef struct {
   guint8 esis_holdtime[2];    /* Maximum time (sec) this PDU is valid */
   guint8 esis_checksum[2];    /* Computed on whole PDU Header, 0 means ignore */
 } esis_hdr_t;
-
-/*
- * published API functions
- */ 
-extern void esis_dissect_unknown(int offset,guint length, proto_tree *tree,
-                                 frame_data *fd, char *fmat, ...);
 
 #endif /* _PACKET_ESIS_H */

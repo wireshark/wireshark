@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.36 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-x25.c,v 1.37 2000/11/18 10:38:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -173,7 +173,7 @@ static const value_string vals_x25_type[] = {
 typedef struct _vc_info {
 	guint32 first_frame_secs, first_frame_usecs;
 	guint32 last_frame_secs, last_frame_usecs;
-	void (*dissect)(const u_char *, int, frame_data *, proto_tree *);
+	dissector_t dissect;
 	struct _vc_info *next;
 } vc_info;
 
@@ -191,7 +191,7 @@ typedef struct _global_vc_info {
 
 static global_vc_info *hash_table[64];
 
-void
+static void
 free_vc_info(vc_info *pt)
 {
   vc_info *vci = pt;
@@ -225,10 +225,9 @@ reinit_x25_hashtable(void)
   }
 }
 
-void
+static void
 x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
-		         void (*dissect)(const u_char *, int, frame_data *,
-				       proto_tree *))
+		         dissector_t dissect)
 {
   int idx = vc % 64;
   global_vc_info *hash_ent;
@@ -308,7 +307,7 @@ x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
   }
 }
 
-void
+static void
 x25_hash_add_proto_end(guint16 vc, guint32 frame_secs, guint32 frame_usecs)
 {
   global_vc_info *hash_ent = hash_table[vc%64];
@@ -324,7 +323,8 @@ x25_hash_add_proto_end(guint16 vc, guint32 frame_secs, guint32 frame_usecs)
   vci->last_frame_usecs = frame_usecs;
 }
 
-void (*x25_hash_get_dissect(guint32 frame_secs, guint32 frame_usecs, guint16 vc))(const u_char *, int, frame_data *, proto_tree *)
+static dissector_t
+x25_hash_get_dissect(guint32 frame_secs, guint32 frame_usecs, guint16 vc)
 {
   global_vc_info *hash_ent = hash_table[vc%64];
   vc_info *vci;
@@ -621,7 +621,7 @@ static char *registration_code(unsigned char code)
     return buffer;
 }
 
-void
+static void
 dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 {
     guint8 fac, byte1, byte2, byte3;
@@ -1200,7 +1200,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
     }
 }
 
-void
+static void
 x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 	 frame_data *fd, gboolean toa)
 {
@@ -1289,7 +1289,7 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     (*offset) += ((len1 + len2 + 1) / 2);
 }
 
-int
+static int
 get_x25_pkt_len(tvbuff_t *tvb)
 {
     int length, called_len, calling_len, dte_len, dce_len;
@@ -1394,13 +1394,11 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int x25_pkt_len;
     int modulo;
     guint16 vc;
-    void (*dissect)(const u_char *, int, frame_data *, proto_tree *);
+    dissector_t dissect;
     gboolean toa;         /* TOA/NPI address format */
     guint16 bytes0_1;
     guint8 pkt_type;
     tvbuff_t *next_tvb;
-    const guint8 *next_pd;
-    int next_offset;
 
     pinfo->current_proto = "X.25";
 
@@ -1921,16 +1919,15 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (localoffset >= tvb_reported_length(tvb)) return;
 
     next_tvb = tvb_new_subset(tvb, localoffset, -1, -1);
-    tvb_compat(next_tvb, &next_pd, &next_offset);
     /* search the dissector in the hash table */
     if ((dissect = x25_hash_get_dissect(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc)))
-	(*dissect)(next_pd, next_offset, pinfo->fd, tree);
+	(*dissect)(next_tvb, pinfo, tree);
     else {
 	/* If the Call Req. has not been captured, assume these packets carry IP */
 	if (tvb_get_guint8(tvb, localoffset) == 0x45) {
 	    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
 		    pinfo->fd->abs_usecs, dissect_ip);
-	    dissect_ip(next_pd, next_offset, pinfo->fd, tree);
+	    dissect_ip(next_tvb, pinfo, tree);
 	}
 	else {
 	    dissect_data(next_tvb, 0, pinfo, tree);
