@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.9 1999/11/22 03:32:55 nneul Exp $
+ * $Id: packet-portmap.c,v 1.10 1999/11/26 12:55:34 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -202,16 +202,18 @@ int dissect_dump_reply(const u_char *pd, int offset, frame_data *fd,
 
 			if ( tree )
 			{
-				ti = proto_tree_add_text(tree, offset, 16, "Map Entry: %s (%d) V%d",
+				ti = proto_tree_add_text(tree, offset, 16, "Map Entry: %s (%u) V%d",
 					rpc_prog_name(prog), prog, version);
 				subtree = proto_item_add_subtree(ti, ett_portmap_entry);
 
-				proto_tree_add_item(subtree, hf_portmap_prog,
-					offset+0, 4, prog);
+				proto_tree_add_item_format(subtree, hf_portmap_prog,
+					offset+0, 4, prog,
+					"Program: %s (%u)", rpc_prog_name(prog), prog);
 				proto_tree_add_item(subtree, hf_portmap_version,
 					offset+4, 4, version);
-				proto_tree_add_item(subtree, hf_portmap_proto,
-					offset+8, 4, proto);
+				proto_tree_add_item_format(subtree, hf_portmap_proto,
+					offset+8, 4, proto, 
+					"Protocol: %s (0x%02x)", ipprotostr(proto), proto);
 				proto_tree_add_item(subtree, hf_portmap_port,
 					offset+12, 4, port);
 			}
