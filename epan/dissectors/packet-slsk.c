@@ -11,7 +11,6 @@
  *
  * $Id$
  *
- *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -45,6 +44,7 @@
 #include <epan/tvbuff.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>
+#include <epan/strutil.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_slsk = -1;
@@ -304,6 +304,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	int offset, i, j;
 	guint32 msg_len, msg_code;
 	gchar *message_type;
+	guint8 *str;
 
 	int comprlen = 0;
 	int uncomprlen = 0;
@@ -470,7 +471,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						tvbuff_t *uncompr_tvb = tvb_uncompress(tvb, offset, comprlen);
 			
 						if (uncompr_tvb == NULL) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"[zlib compressed packet]");
 							offset += tvb_length_remaining(tvb, offset);
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, 0, 0, 0,
@@ -480,63 +481,94 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, FALSE);
 							proto_tree *slsk_compr_packet_tree = proto_item_add_subtree(ti2, ett_slsk_compr_packet);
 							
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"(  compressed packet length: %d)", comprlen);
-							uncomprlen = tvb_length_remaining(uncompr_tvb, 0);
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+							uncomprlen = tvb_reported_length_remaining(uncompr_tvb, 0);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"(uncompressed packet length: %d)", uncomprlen);
 							
 							/* Dissects the uncompressed tvbuffer */
+							tvb_set_child_real_data_tvbuff(tvb, uncompr_tvb);
+							add_new_data_source(pinfo, uncompr_tvb,
+							    "Uncompressed SoulSeek data");
 							uncompr_tvb_offset = 0;
 							if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "i*")) {
-								i=0; j = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-									"Number of directories: %d", tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+								i=0;
+								j = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, uncompr_tvb_offset, 4, j,
+									"Number of directories: %u", j);
 								uncompr_tvb_offset += 4;
 								while (i<j){
 									if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "si*")) {
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"Directory #%d String Length: %d", i+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"Directory #%d Name: %s", i+1, tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-										uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+										guint32 len;
+
+										len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb,
+											uncompr_tvb_offset, 4, len,
+											"Directory #%d String Length: %u", i+1, len);
+										proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
+											"Directory #%d Name: %s", i+1,
+											tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+										uncompr_tvb_offset += 4+len;
 										i2=0; 
 										j2 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"Directory #%d Number of files: %d", i+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb,
+											uncompr_tvb_offset, 4, j2,
+											"Directory #%d Number of files: %u", i+1, j2);
 										uncompr_tvb_offset += 4;
 										while (i2<j2){
 											if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_byte, uncompr_tvb, 0, 0, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset),
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_byte, uncompr_tvb,
+													uncompr_tvb_offset, 1, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset),
 													"Dir #%d File #%d Code: %d", i+1, i2+1, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset));
 												uncompr_tvb_offset += 1;
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d String Length: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d Filename: %s", i+1, i2+1, tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-												uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d Size1: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+												len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
+													uncompr_tvb, uncompr_tvb_offset, 4, len,
+													"Dir #%d File #%d String Length: %u", i+1, i2+1, len);
+												proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb,
+													uncompr_tvb_offset+4, len,
+													"Dir #%d File #%d Filename: %s", i+1, i2+1,
+													tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+												uncompr_tvb_offset += 4+len;
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
+													uncompr_tvb, uncompr_tvb_offset, 4,
+													tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+													"Dir #%d File #%d Size1: %u", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 												uncompr_tvb_offset += 4;
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
+													uncompr_tvb, uncompr_tvb_offset, 4,
+													tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 													"Dir #%d File #%d Size2: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 												uncompr_tvb_offset += 4;
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d String Length: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d ext: %s", i+1, i2+1, tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-												uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+												len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
+													uncompr_tvb, uncompr_tvb_offset, 4, len,
+													"Dir #%d File #%d String Length: %u", i+1, i2+1, len);
+												proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb,
+													uncompr_tvb_offset+4, len,
+													"Dir #%d File #%d ext: %s", i+1, i2+1,
+													tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+												uncompr_tvb_offset += 4+len;
 												i3=0; 
 												j3 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
+													uncompr_tvb, uncompr_tvb_offset, 4,
+													tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 													"Dir #%d File #%d Number of attributes: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 												uncompr_tvb_offset += 4;
 												while (i3<j3){
 													if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
-														proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+														proto_tree_add_uint_format(slsk_compr_packet_tree,
+															hf_slsk_integer, uncompr_tvb,
+															uncompr_tvb_offset, 4,
+															tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 															"Dir #%d File #%d Attr #%d type: %s (Code: %d)", i+1, i2+1, i3+1, val_to_str(tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset), slsk_attr_type, "Unknown"), tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 														uncompr_tvb_offset += 4;
-														proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+														proto_tree_add_uint_format(slsk_compr_packet_tree,
+															hf_slsk_integer, uncompr_tvb,
+															uncompr_tvb_offset, 4,
+															tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 															"Dir #%d File #%d Attr #%d value: %d", i+1, i2+1, i3+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 														uncompr_tvb_offset += 4;
 														i3++;
@@ -551,9 +583,9 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							}
 						}
 					}else {
-						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 							"[zlib compressed packet]");
-						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 0, 0,
 							"(  compressed packet length: %d)", comprlen);
 						offset += tvb_length_remaining(tvb, offset);
 					}
@@ -612,57 +644,73 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, FALSE);
 							proto_tree *slsk_compr_packet_tree = proto_item_add_subtree(ti2, ett_slsk_compr_packet);
 							
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"(  compressed packet length: %d)", comprlen);
 							uncomprlen = tvb_length_remaining(uncompr_tvb, 0);
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"(uncompressed packet length: %d)", uncomprlen);
 							
 							/* Dissects the uncompressed tvbuffer */
+							tvb_set_child_real_data_tvbuff(tvb, uncompr_tvb);
+							add_new_data_source(pinfo, uncompr_tvb,
+							    "Uncompressed SoulSeek data");
 							uncompr_tvb_offset = 0;
 							if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "sii*")) {
-								proto_tree_add_uint(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
-								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-									"Username: %s", tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-								uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-								proto_tree_add_uint(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+								guint32 len;
+
+								len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+								proto_tree_add_uint(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, uncompr_tvb_offset, 4, len);
+								proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_username, uncompr_tvb, uncompr_tvb_offset+4, len, TRUE);
+								uncompr_tvb_offset += 4+len;
+								proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, TRUE);
 								uncompr_tvb_offset += 4;
 								i=0; j = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-									"Number of files: %d", tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, uncompr_tvb_offset, 4, j,
+									"Number of files: %d", j);
 								uncompr_tvb_offset += 4;
 								while (i<j){
 									if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
 										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_byte, uncompr_tvb, 0, 0, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset),
 											"File #%d Code: %d", i+1, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset));
 										uncompr_tvb_offset += 1;
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"File #%d String Length: %d", i+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"File #%d Filename: %s", i+1, tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-										uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+										len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb,
+											uncompr_tvb_offset, 4, len,
+											"File #%d String Length: %u", i+1, len);
+										proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
+											"File #%d Filename: %s", i+1,
+											tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+										uncompr_tvb_offset += 4+len;
+										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb,
+											uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 											"File #%d Size1: %d", i+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 										uncompr_tvb_offset += 4;
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb,
+											uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 											"File #%d Size2: %d", i+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 										uncompr_tvb_offset += 4;
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"File #%d String Length: %d", i+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"File #%d ext: %s", i+1, tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-										uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+										len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb,
+											uncompr_tvb_offset, 4, len,
+											"File #%d String Length: %d", i+1, len);
+										proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
+											"File #%d ext: %s", i+1,
+											tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+										uncompr_tvb_offset += 4+len;
 										i2=0; 
 										j2 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"File #%d Number of attributes: %d", i+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb,
+											uncompr_tvb_offset, 4, j,
+											"File #%d Number of attributes: %d", i+1, j);
 										uncompr_tvb_offset += 4;
 										while (i2<j2){
 											if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
+													uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 													"File #%d Attr #%d type: %s (Code: %d)", i+1, i2+1, val_to_str(tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset), slsk_attr_type, "Unknown"), tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 												uncompr_tvb_offset += 4;
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
+													uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 													"File #%d Attr #%d value: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 												uncompr_tvb_offset += 4;
 											}
@@ -671,21 +719,21 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 									}
 									i++;
 								}
-								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_byte, uncompr_tvb, 0, 0, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset),
+								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_byte, uncompr_tvb, uncompr_tvb_offset, 1, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset),
 									"Free upload slots: %s (Byte: %d)", val_to_str(tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset), slsk_yes_no, "Unknown"), tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset));
 								uncompr_tvb_offset += 1;
-								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 									"Upload speed: %d", tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 								uncompr_tvb_offset += 4;
-								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 									"In Queue: %d", tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 								uncompr_tvb_offset += 4;
 							}
 						}
 					}else {
-						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 							"[zlib compressed packet]");
-						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 							"(  compressed packet length: %d)", comprlen);
 						offset += tvb_length_remaining(tvb, offset);
 					}
@@ -749,11 +797,14 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "s*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"User #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"User #%d: %s", i+1, tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 						}
 						i++;
 					}
@@ -907,38 +958,52 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			case 18:
 				if (check_slsk_format(tvb, offset, "iiss")) {
 					/* Client-to-Server */
+					guint32 len;
+
 					message_type = "Connect To Peer";
 					proto_tree_add_uint_format(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
 							       "Message Type: %s (Code: %02d)", message_type, msg_code);
 					offset += 4;
-					proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
+					proto_tree_add_item(slsk_tree, hf_slsk_token, tvb, offset, 4, TRUE);
 					offset += 4;
-					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-					proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
-					offset += 4+tvb_get_letohl(tvb, offset);
-					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-					proto_tree_add_string_format(slsk_tree, hf_slsk_connection_type, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)),
-							       "Connection Type: %s (Char: %s)", connection_type(tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset))), tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-					offset += 4+tvb_get_letohl(tvb, offset);
+					len = tvb_get_letohl(tvb, offset);
+					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
+					proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, len, FALSE);
+					offset += 4+len;
+					len = tvb_get_letohl(tvb, offset);
+					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
+					str = tvb_get_string(tvb, offset+4, len);
+					proto_tree_add_string_format(slsk_tree, hf_slsk_connection_type, tvb, offset+4, len, str,
+						"Connection Type: %s (Char: %s)", connection_type(str),
+						format_text(str, len));
+					g_free(str);
+					offset += 4+len;
 				}
 				else if (check_slsk_format(tvb, offset, "issiii")) {
 					/* Server-to-Client */
+					guint32 len;
+
 					message_type = "Connect To Peer";
 					proto_tree_add_uint_format(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
 							       "Message Type: %s (Code: %02d)", message_type, msg_code);
 					offset += 4;
-					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-					proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
-					offset += 4+tvb_get_letohl(tvb, offset);
-					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-					proto_tree_add_string_format(slsk_tree, hf_slsk_connection_type, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)),
-							       "Connection Type: %s (Char: %s)", connection_type(tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset))), tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-					offset += 4+tvb_get_letohl(tvb, offset);
-					proto_tree_add_ipv4(slsk_tree, hf_slsk_ip, tvb, offset, 4, tvb_get_ntohl(tvb, offset));	
+					len = tvb_get_letohl(tvb, offset);
+					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
+					proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, len, FALSE);
+					offset += 4+len;
+					len = tvb_get_letohl(tvb, offset);
+					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
+					str = tvb_get_string(tvb, offset+4, len);
+					proto_tree_add_string_format(slsk_tree, hf_slsk_connection_type, tvb, offset+4, len, str,
+						"Connection Type: %s (Char: %s)", connection_type(str),
+						format_text(str, len));
+					g_free(str);
+					offset += 4+len;
+					proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, FALSE);
 					offset += 4;
-					proto_tree_add_uint(slsk_tree, hf_slsk_port, tvb, offset, 4, tvb_get_letohl(tvb, offset));
+					proto_tree_add_item(slsk_tree, hf_slsk_port, tvb, offset, 4, TRUE);
 					offset += 4;
-					proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
+					proto_tree_add_item(slsk_tree, hf_slsk_token, tvb, offset, 4, TRUE);
 					offset += 4;
 				}
 			break;
@@ -1117,7 +1182,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						tvbuff_t *uncompr_tvb = tvb_uncompress(tvb, offset, comprlen);
 			
 						if (uncompr_tvb == NULL) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"[zlib compressed packet]");
 							offset += tvb_length_remaining(tvb, offset);
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, 0, 0, 0,
@@ -1127,68 +1192,101 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, FALSE);
 							proto_tree *slsk_compr_packet_tree = proto_item_add_subtree(ti2, ett_slsk_compr_packet);
 							
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"(  compressed packet length: %d)", comprlen);
 							uncomprlen = tvb_length_remaining(uncompr_tvb, 0);
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 								"(uncompressed packet length: %d)", uncomprlen);
 							
 							/* Dissects the uncompressed tvbuffer */
+							tvb_set_child_real_data_tvbuff(tvb, uncompr_tvb);
+							add_new_data_source(pinfo, uncompr_tvb,
+							    "Uncompressed SoulSeek data");
 							uncompr_tvb_offset = 0;
 							if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "isi*")) {
-								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+								guint32 len;
+
+								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb,
+									uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 									"Token: %d", tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 								uncompr_tvb_offset += 4;
-								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-									"Directory Name: %s", tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-								uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+								len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
+									uncompr_tvb, uncompr_tvb_offset, 4, len,
+									"Directory Name String Length: %u", len);
+								proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
+									"Directory Name: %s", tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+								uncompr_tvb_offset += 4+len;
 		
 								i=0; j = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-									"Number of directories: %d", tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+								proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb,
+									uncompr_tvb_offset, 4, j,
+									"Number of directories: %d", j);
 								uncompr_tvb_offset += 4;
 								while (i<j){
 									if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "si*")) {
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"Directory #%d Name: %s", i+1, tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-										uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+										len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
+											uncompr_tvb, uncompr_tvb_offset, 4, len,
+											"Directory #%d Name String Length: %u", i+1, len);
+										proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset+4, len,
+											"Directory #%d Name: %s", i+1,
+											tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+										uncompr_tvb_offset += 4+len;
 										i2 = 0; 
 										j2 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-											"Directory #%d Number of files: %d", i+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+										proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb,
+											uncompr_tvb_offset, 4, j2,
+											"Directory #%d Number of files: %d", i+1, j2);
 										uncompr_tvb_offset += 4;
 										while (i2<j2){
 											if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_byte, uncompr_tvb, 0, 0, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset),
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_byte,
+													uncompr_tvb, uncompr_tvb_offset, 1, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset),
 													"Dir #%d File #%d Code: %d", i+1, i2+1, tvb_get_guint8(uncompr_tvb, uncompr_tvb_offset));
 												uncompr_tvb_offset += 1;
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d String Length: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d Filename: %s", i+1, i2+1, tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-												uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+												len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
+													uncompr_tvb, uncompr_tvb_offset, 4, len,
+													"Dir #%d File #%d String Length: %d", i+1, i2+1, len);
+												proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb,
+													uncompr_tvb_offset+4, len,
+													"Dir #%d File #%d Filename: %s", i+1, i2+1,
+													tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+												uncompr_tvb_offset += 4+len;
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
+													uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 													"Dir #%d File #%d Size1: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 												uncompr_tvb_offset += 4;
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer,
+													uncompr_tvb, uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 													"Dir #%d File #%d Size2: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 												uncompr_tvb_offset += 4;
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d String Length: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d ext: %s", i+1, i2+1, tvb_get_string(uncompr_tvb, uncompr_tvb_offset+4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset)));
-												uncompr_tvb_offset += 4+tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+												len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_string_length,
+													uncompr_tvb, uncompr_tvb_offset, 4, len,
+													"Dir #%d File #%d String Length: %d", i+1, i2+1, len);
+												proto_tree_add_text(slsk_compr_packet_tree, uncompr_tvb,
+													uncompr_tvb_offset+4, len,
+													"Dir #%d File #%d ext: %s", i+1, i2+1,
+													tvb_format_text(uncompr_tvb, uncompr_tvb_offset+4, len));
+												uncompr_tvb_offset += 4+len;
 												i3 = 0; 
 												j3 = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
-												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
-													"Dir #%d File #%d Number of attributes: %d", i+1, i2+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
+												proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb,
+													uncompr_tvb_offset, 4, j3,
+													"Dir #%d File #%d Number of attributes: %d", i+1, i2+1, j3);
 												uncompr_tvb_offset += 4;
 												while (i3<j3){
 													if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
-														proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+														proto_tree_add_uint_format(slsk_compr_packet_tree,
+															hf_slsk_integer, uncompr_tvb,
+															uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 															"Dir #%d File #%d Attr #%d type: %s (Code: %d)", i+1, i2+1, i3+1, val_to_str(tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset), slsk_attr_type, "Unknown"), tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 														uncompr_tvb_offset += 4;
-														proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, 0, 0, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
+														proto_tree_add_uint_format(slsk_compr_packet_tree,
+															hf_slsk_integer, uncompr_tvb,
+															uncompr_tvb_offset, 4, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset),
 															"Dir #%d File #%d Attr #%d value: %d", i+1, i2+1, i3+1, tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset));
 														uncompr_tvb_offset += 4;
 													}
@@ -1203,9 +1301,9 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							}
 						}
 					}else {
-						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 							"[zlib compressed packet]");
-						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
+						proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
 							"(  compressed packet length: %d)", comprlen);
 						offset += tvb_length_remaining(tvb, offset);
 					}
@@ -1417,11 +1515,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "si*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"Recommendation #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"Recommendation #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_ranking, tvb, offset, 4, tvb_get_letohl(tvb, offset),
 								"Ranking #%d: %d", i+1, tvb_get_letohl(tvb, offset));
 							offset += 4;
@@ -1461,11 +1563,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "si*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"Recommendation #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"Recommendation #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_ranking, tvb, offset, 4, tvb_get_letohl(tvb, offset),
 								"Ranking #%d: %d", i+1, tvb_get_letohl(tvb, offset));
 							offset += 4;
@@ -1501,11 +1607,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "s*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"Recommendation #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"Recommendation #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 						}
 						i++;
 					}
@@ -1528,11 +1638,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "s*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"String #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"String #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 						}
 						i++;
 					}
@@ -1601,11 +1715,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "s*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"Room #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"Room #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 						}
 						i++;
 					}
@@ -1702,17 +1820,21 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "s*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"User #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"User #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 						}
 						i++;
 					}
 					if (check_slsk_format(tvb, offset, "i*")) {
 						i=0; j = tvb_get_letohl(tvb, offset);
-						proto_tree_add_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, tvb_get_letohl(tvb, offset));
+						proto_tree_add_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, j);
 						offset += 4;
 						while (i<j){
 							if (check_slsk_format(tvb, offset, "i*")) {
@@ -1808,11 +1930,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "s*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"User #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"User #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 						}
 						i++;
 					}
@@ -1999,12 +2125,16 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "sii*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"User #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
-							proto_tree_add_ipv4(slsk_tree, hf_slsk_ip, tvb, offset, 4, tvb_get_ntohl(tvb, offset));	
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"User #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
+							proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, FALSE);	
 							offset += 4;
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_port, tvb, offset, 4, tvb_get_letohl(tvb, offset),
 								"Port Number #%d: %d", i+1, tvb_get_letohl(tvb, offset));
@@ -2062,11 +2192,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "si*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"User #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"User #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
 								"Same Recommendations #%d: %d", i+1, tvb_get_letohl(tvb, offset));
 							offset += 4;
@@ -2102,11 +2236,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "si*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"Recommendation #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"Recommendation #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_ranking, tvb, offset, 4, tvb_get_letohl(tvb, offset),
 								"Ranking #%d: %d", i+1, tvb_get_letohl(tvb, offset));
 							offset += 4;
@@ -2142,11 +2280,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4;
 					while (i<j){
 						if (check_slsk_format(tvb, offset, "s*")) {
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
-								"String #%d Length: %d", i+1, tvb_get_letohl(tvb, offset));
-							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_letohl(tvb, offset),
-								"Username #%d: %s", i+1, tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-							offset += 4+tvb_get_letohl(tvb, offset);
+							guint32 len;
+
+							len = tvb_get_letohl(tvb, offset);
+							proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len,
+								"String #%d Length: %d", i+1, len);
+							proto_tree_add_text(slsk_tree, tvb, offset+4, len,
+								"Username #%d: %s", i+1,
+								tvb_format_text(tvb, offset+4, len));
+							offset += 4+len;
 						}
 						i++;
 					}
@@ -2200,17 +2342,24 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				else if (check_slsk_format(tvb, offset, "bssi")) {
 					if ( tvb_get_guint8(tvb, offset) == 1 ){
 						/* Client-to-Client */
+						guint32 len;
+
 						message_type = "Peer Init";
 						proto_tree_add_uint_format(slsk_tree, hf_slsk_message_code, tvb, offset, 1, msg_code,
 								       "Message Type: %s (Byte: %d)", message_type, 1);
 						offset += 1;
-						proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-						proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
-						offset += 4+tvb_get_letohl(tvb, offset);
-						proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-						proto_tree_add_string_format(slsk_tree, hf_slsk_connection_type, tvb, offset+4, tvb_get_letohl(tvb, offset), tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)),
-								       "Connection Type: %s (Char: %s)", connection_type(tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset))), tvb_get_string(tvb, offset+4, tvb_get_letohl(tvb, offset)));
-						offset += 4+tvb_get_letohl(tvb, offset);
+						len = tvb_get_letohl(tvb, offset);
+						proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
+						proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, len, FALSE);
+						offset += 4+len;
+						len = tvb_get_letohl(tvb, offset);
+						proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
+						str = tvb_get_string(tvb, offset+4, len);
+						proto_tree_add_string_format(slsk_tree, hf_slsk_connection_type, tvb, offset+4, len, str,
+							"Connection Type: %s (Char: %s)", connection_type(str),
+							format_text(str, len));
+						g_free(str);
+						offset += 4+len;
 						proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
 						offset += 4;
 					}
