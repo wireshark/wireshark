@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.46 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: help_dlg.c,v 1.47 2004/02/13 00:56:30 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -157,7 +157,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
-  help_w = dlg_window_new("Ethereal: Help");
+  help_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Help");
   SIGNAL_CONNECT(help_w, "destroy", help_destroy_cb, NULL);
   /* XXX: improve this, e.g. remember the last window size in a file */
   WIDGET_SET_SIZE(help_w, DEF_WIDTH, DEF_HEIGHT);
