@@ -362,6 +362,13 @@
 make 
 	</programlisting>
 	</para>
+	<para>
+	If you need to build with a GTK 1.x version, you have to use:
+	<programlisting>
+./configure --disable-gtk2
+	</programlisting>
+	instead of just ./configure.
+	</para>
 	</section>
 	
 	<section>
