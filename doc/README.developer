@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.49 2002/03/02 07:56:16 guy Exp $
+$Id: README.developer,v 1.50 2002/03/16 20:22:14 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -105,7 +105,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.49 2002/03/02 07:56:16 guy Exp $"
+The "$Id: README.developer,v 1.50 2002/03/16 20:22:14 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -115,7 +115,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.49 2002/03/02 07:56:16 guy Exp $
+ * $Id: README.developer,v 1.50 2002/03/16 20:22:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -698,12 +698,12 @@ The type of value this field holds. The current field types are:
 	FT_INT24		A 24-bit signed integer.
 	FT_INT32		A 32-bit signed integer.
 	FT_DOUBLE		A floating point number.
-	FT_ABSOLUTE_TIME	Seconds (4 bytes) and microseconds (4 bytes)
+	FT_ABSOLUTE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
 				of time displayed as month name, month day,
-				year, hours, minutes, and seconds with 4
+				year, hours, minutes, and seconds with 9
 				digits after the decimal point.
-	FT_RELATIVE_TIME	Seconds (4 bytes) and microseconds (4 bytes)
-				of time displayed as seconds and 6 digits
+	FT_RELATIVE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
+				of time displayed as seconds and 9 digits
 				after the decimal point.
 	FT_STRING		A string of characters, not necessarily
 				NUL-terminated, but possibly NUL-padded.
@@ -928,52 +928,132 @@ There are several functions that the programmer can use to add either
 protocol or field labels to the proto_tree:
 
 	proto_item*
-	proto_tree_add_item(tree, id, start, length, value);
+	proto_tree_add_item(tree, id, start, length, little_endian);
 
 	proto_item*
-	proto_tree_add_item_hidden(tree, id, start, length, value);
+	proto_tree_add_item_hidden(tree, id, start, length, little_endian);
+
+	proto_item*
+	proto_tree_add_none_format(tree, id, start, length, format, ...);
 
 	proto_item*
 	proto_tree_add_protocol_format(tree, id, start, length, format, ...);
+
+	proto_item *
+	proto_tree_add_bytes(tree, id, start, length, start_ptr);
+
+	proto_item *
+	proto_tree_add_bytes_hidden(tree, id, start, length, start_ptr);
 
 	proto_item *
 	proto_tree_add_bytes_format(tree, id, start, length, start_ptr,
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_time(tree, id, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_time_hidden(tree, id, start, length, value_ptr);
+
+	proto_item *
 	proto_tree_add_time_format(tree, id, start, length, value_ptr,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_ipxnet(tree, id, start, length, value);
+
+	proto_item *
+	proto_tree_add_ipxnet_hidden(tree, id, start, length, value);
 
 	proto_item *
 	proto_tree_add_ipxnet_format(tree, id, start, length, value,
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_ipv4(tree, id, start, length, value);
+
+	proto_item *
+	proto_tree_add_ipv4_hidden(tree, id, start, length, value);
+
+	proto_item *
 	proto_tree_add_ipv4_format(tree, id, start, length, value,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_ipv6(tree, id, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_ipv6_hidden(tree, id, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_ipv6_format(tree, id, start, length, value_ptr,
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_ether(tree, id, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_ether_hidden(tree, id, start, length, value_ptr);
+
+	proto_item *
 	proto_tree_add_ether_format(tree, id, start, length, value_ptr,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_string(tree, id, start, length, value_ptr);
+
+	proto_item *
+	proto_tree_add_string_hidden(tree, id, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_string_format(tree, id, start, length, value_ptr,
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_boolean(tree, id, start, length, value);
+
+	proto_item *
+	proto_tree_add_boolean_hidden(tree, id, start, length, value);
+
+	proto_item *
 	proto_tree_add_boolean_format(tree, id, start, length, value,
 	    format, ...);
+
+	proto_item *
+	proto_tree_add_double(tree, id, start, length, value);
+
+	proto_item *
+	proto_tree_add_double_hidden(tree, id, start, length, value);
+
+	proto_item *
+	proto_tree_add_double_format(tree, id, start, length, value,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_uint(tree, id, start, length, value);
+
+	proto_item *
+	proto_tree_add_uint_hidden(tree, id, start, length, value);
 
 	proto_item *
 	proto_tree_add_uint_format(tree, id, start, length, value,
 	    format, ...);
 
+	proto_item *
+	proto_tree_add_int(tree, id, start, length, value);
+
+	proto_item *
+	proto_tree_add_int_hidden(tree, id, start, length, value);
+
+	proto_item *
+	proto_tree_add_int_format(tree, id, start, length, value,
+	    format, ...);
+
 	proto_item*
 	proto_tree_add_text(tree, start, length, format, ...);
+
+	proto_item*
+	proto_tree_add_text_valist(tree, start, length, format, ap);
 
 The 'tree' argument is the tree to which the item is to be added.  The
 'start' argument is the offset from the beginning of the frame (not the
@@ -996,9 +1076,11 @@ proto_tree_add_item()
 ---------------------
 proto_tree_add_item is used when you wish to do no special formatting. 
 The item added to the GUI tree will contain the name (as passed in the
-proto_register_*() function) and any value.  If your field does have a
-value, it is passed after the length variable (notice the ellipsis in
-the function prototype).
+proto_register_*() function) and a value.  The value will be fetched
+from the tvbuff by proto_tree_add_item(), based on the type of the field
+and, for integral and Boolean fields, the byte order of the value; the
+byte order is specified by the 'little_endian' argument, which is TRUE
+if the value is little-endian and FALSE if it is big-endian.
 
 Now that the proto_tree has detailed information about bitfield fields,
 you can use proto_tree_add_item() with no extra processing to add bitfield
@@ -1107,6 +1189,86 @@ arguments are a "printf"-style format and any arguments for that format.
 The caller must include the name of the protocol in the format; it is
 not added automatically as in proto_tree_add_item().
 
+proto_tree_add_none_format()
+----------------------------
+proto_tree_add_none_format is used to add an item of type FT_NONE.
+The caller must include the name of the field in the format; it is
+not added automatically as in proto_tree_add_item().
+
+proto_tree_add_bytes()
+proto_tree_add_time()
+proto_tree_add_ipxnet()
+proto_tree_add_ipv4()
+proto_tree_add_ipv6()
+proto_tree_add_ether()
+proto_tree_add_string()
+proto_tree_add_boolean()
+proto_tree_add_double()
+proto_tree_add_uint()
+proto_tree_add_int()
+----------------------------
+These routines are used to add items to the protocol tree if either:
+
+	the value of the item to be added isn't just extracted from the
+	packet data, but is computed from data in the packet;
+
+	the value was fetched into a variable.
+
+The 'value' argument has the value to be added to the tree.
+
+For proto_tree_add_bytes(), the 'value_ptr' argument is a pointer to a
+sequence of bytes.
+
+For proto_tree_add_time(), the 'value_ptr' argument is a pointer to an
+"nstime_t", which is a structure containing the time to be added; it has
+'secs' and 'nsecs' members, giving the integral part and the fractional
+part of a time in units of seconds, with 'nsecs' being the number of
+nanoseconds.  For absolute times, "secs" is a UNIX-style seconds since
+January 1, 1970, 00:00:00 GMT value.
+
+For proto_tree_add_ipxnet(), the 'value' argument is a 32-bit IPX
+network address.
+
+For proto_tree_add_ipv4(), the 'value' argument is a 32-bit IPv4
+address, in network byte order.
+
+For proto_tree_add_ipv6(), the 'value_ptr' argument is a pointer to a
+128-bit IPv6 address.
+
+For proto_tree_add_ether(), the 'value_ptr' argument is a pointer to a
+48-bit MAC address.
+
+For proto_tree_add_string(), the 'value_ptr' argument is a pointer to a
+text string.
+
+For proto_tree_add_boolean(), the 'value' argument is a 32-bit integer;
+zero means "false", and non-zero means "true".
+
+For proto_tree_add_double(), the 'value' argument is a 'double' in the
+host's floating-point format.
+
+For proto_tree_add_uint(), the 'value' argument is a 32-bit unsigned
+integer value, in host byte order.
+
+For proto_tree_add_int(), the 'value' argument is a 32-bit signed
+integer value, in host byte order.
+
+proto_tree_add_bytes_hidden()
+proto_tree_add_time_hidden()
+proto_tree_add_ipxnet_hidden()
+proto_tree_add_ipv4_hidden()
+proto_tree_add_ipv6_hidden()
+proto_tree_add_ether_hidden()
+proto_tree_add_string_hidden()
+proto_tree_add_boolean_hidden()
+proto_tree_add_double_hidden()
+proto_tree_add_uint_hidden()
+proto_tree_add_int_hidden()
+----------------------------
+These routines add fields and values to a tree, but don't show them in
+the GUI tree.  They are used for the same reason that
+proto_tree_add_item() is used.
+
 proto_tree_add_bytes_format()
 proto_tree_add_time_format()
 proto_tree_add_ipxnet_format()
@@ -1115,29 +1277,17 @@ proto_tree_add_ipv6_format()
 proto_tree_add_ether_format()
 proto_tree_add_string_format()
 proto_tree_add_boolean_format()
+proto_tree_add_double_format()
 proto_tree_add_uint_format()
+proto_tree_add_int_format()
 ----------------------------
-
-The other "proto_tree_add_XXX_format" routines are used to add items to
-the protocol tree when the dissector routines wants complete control
-over how the field and value will be represented on the GUI tree.
-
-For "proto_tree_add_time_format", the "value_ptr" argument is a pointer
-to an "nstime_t", which is a structure containing the time to be added;
-it has "secs" and "nsecs" members, giving the integral part and the
-fractional part of a time in seconds, with "nsecs" being the number of
-nanoseconds.  For absolute times, "secs" is a UNIX-style seconds since
-January 1, 1970, 00:00:00 GMT value.
-
-For the other functions that take a "value_ptr" argument, that argument
-is a pointer to the first byte of the value to be added.
-
-For the other functions, the "value" argument is a 32-bit integral value
-to be added.
-
-The rest of the arguments are a "printf"-style format and any arguments
-for that format.  The caller must include the name of the field in the
-format; it is not added automatically as in proto_tree_add_item().
+These routines are used to add items to the protocol tree when the
+dissector routines wants complete control over how the field and value
+will be represented on the GUI tree.  The argument giving the value is
+the same as the corresponding proto_tree_add_XXX() function; the rest of
+the arguments are a "printf"-style format and any arguments for that
+format.  The caller must include the name of the field in the format; it
+is not added automatically as in the proto_tree_add_XXX() functions.
 
 proto_tree_add_text()
 ---------------------
@@ -1190,6 +1340,13 @@ the items used to set the label, if not all the bytes of the item are
 available.  Thus, one should create the item with text that is as
 meaningful as possible, and set it or append additional information to
 it as the values needed to supply that information is extracted.
+
+proto_tree_add_text_valist()
+---------------------
+This is like proto_tree_add_text(), but takes, as the last argument, a
+'va_list'; it is used to allow routines that take a printf-like
+variable-length list of arguments to add a text item to the protocol
+tree.
 
 1.7 Utility routines
 
