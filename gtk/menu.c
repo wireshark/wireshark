@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.29 2000/05/02 03:21:41 guy Exp $
+ * $Id: menu.c,v 1.30 2000/05/02 07:44:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -271,6 +271,13 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event)
 		return;
 	}
 	
+	/*
+	 * If we ever want to make the menu differ based on what row
+	 * and/or column we're above, we'd use "gtk_clist_get_selection_info()"
+	 * to find the row and column number for the coordinates; a CTree is,
+	 * I guess, like a CList with one column(?) and the expander widget
+	 * as a pixmap.
+	 */
 	menu = widget;
 	if(event->type == GDK_BUTTON_PRESS) {
 		event_button = (GdkEventButton *) event;
