@@ -1933,7 +1933,7 @@ B<http://www.ethereal.com>.
   Kari Tiirikainen         <kari.tiirikainen[AT]nokia.com>
   John Mackenzie           <John.A.Mackenzie[AT]t-online.de>
   Peter Valchev            <pvalchev[AT]openbsd.org>
-  Alex Ruzin               <alexr[AT]nbase.co.il>
+  Alex Rozin               <Arozin[AT]mrv.com>
   Jouni Malinen            <jkmaline[AT]cc.hut.fi>
   Paul E. Erkkila          <pee[AT]erkkila.org>
   Jakob Schlyter           <jakob[AT]openbsd.org>
