@@ -2,7 +2,7 @@
  * Routines for Digital Audio Access Protocol dissection
  * Copyright 2004, Kelly Byrd <kbyrd@memcpy.com>
  *
- * $Id: README.developer 11475 2004-07-23 01:37:35Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
