@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.189 2004/05/04 20:04:26 guy Exp $
+ * $Id: menu.c,v 1.190 2004/05/04 20:49:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1155,7 +1155,7 @@ packet_list_show_cb(GtkWidget *w _U_, gpointer d _U_)
     /* save current setting in recent */
     recent.packet_list_show = GTK_CHECK_MENU_ITEM(w)->active;
 
-    main_widgets_rearrange();
+    main_widgets_show_or_hide();
 }
 
 
@@ -1166,7 +1166,7 @@ tree_view_show_cb(GtkWidget *w _U_, gpointer d _U_)
     /* save current setting in recent */
     recent.tree_view_show = GTK_CHECK_MENU_ITEM(w)->active;
 
-    main_widgets_rearrange();
+    main_widgets_show_or_hide();
 }
 
 
@@ -1177,7 +1177,7 @@ byte_view_show_cb(GtkWidget *w _U_, gpointer d _U_)
     /* save current setting in recent */
     recent.byte_view_show = GTK_CHECK_MENU_ITEM(w)->active;
 
-    main_widgets_rearrange();
+    main_widgets_show_or_hide();
 }
 
 

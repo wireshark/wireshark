@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.429 2004/05/04 20:40:08 guy Exp $
+ * $Id: main.c,v 1.430 2004/05/04 20:49:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3661,29 +3661,7 @@ void main_widgets_rearrange(void) {
 
     /* hide widgets on users recent settings */
     /* XXX - do we still need this? */
-    if (recent.packet_list_show) {
-        gtk_widget_show(pkt_scrollw);
-    } else {
-        gtk_widget_hide(pkt_scrollw);
-    }
-
-    if (recent.tree_view_show) {
-        gtk_widget_show(tv_scrollw);
-    } else {
-        gtk_widget_hide(tv_scrollw);
-    }
-
-    if (recent.byte_view_show) {
-        gtk_widget_show(byte_nb_ptr);
-    } else {
-        gtk_widget_hide(byte_nb_ptr);
-    }
-    if (GTK_WIDGET_VISIBLE(pane_content[1]) ||
-        GTK_WIDGET_VISIBLE(pane_content[2])) {
-        gtk_widget_show(main_second_pane);
-    } else {
-        gtk_widget_hide(main_second_pane);
-    }
+    main_widgets_show_or_hide();
 
     /* statusbar hbox */
     if ((recent.filter_toolbar_show && filter_toolbar_show_in_statusbar) || recent.statusbar_show) {
@@ -3705,6 +3683,53 @@ void main_widgets_rearrange(void) {
     gtk_widget_show(main_vbox);
 }
 
+static void
+is_widget_visible(GtkWidget *widget, gpointer data)
+{
+    gboolean *is_visible = data;
+
+    if (!*is_visible) {
+        if (GTK_WIDGET_VISIBLE(widget))
+            *is_visible = TRUE;
+    }
+}
+
+void
+main_widgets_show_or_hide(void)
+{
+    gboolean main_second_pane_show;
+
+    if (recent.packet_list_show) {
+        gtk_widget_show(pkt_scrollw);
+    } else {
+        gtk_widget_hide(pkt_scrollw);
+    }
+
+    if (recent.tree_view_show) {
+        gtk_widget_show(tv_scrollw);
+    } else {
+        gtk_widget_hide(tv_scrollw);
+    }
+
+    if (recent.byte_view_show) {
+        gtk_widget_show(byte_nb_ptr);
+    } else {
+        gtk_widget_hide(byte_nb_ptr);
+    }
+
+    /*
+     * Is anything in "main_second_pane" visible?
+     * If so, show it, otherwise hide it.
+     */
+    main_second_pane_show = FALSE;
+    gtk_container_foreach(GTK_CONTAINER(main_second_pane), is_widget_visible,
+                          &main_second_pane_show);
+    if (main_second_pane_show) {
+        gtk_widget_show(main_second_pane);
+    } else {
+        gtk_widget_hide(main_second_pane);
+    }
+}
 
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
