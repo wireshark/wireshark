@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.16 2002/01/21 07:36:42 guy Exp $
+ * $Id: packet-sll.c,v 1.17 2002/04/24 06:03:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,7 +121,7 @@ capture_sll(const u_char *pd, int len, packet_counts *ld)
 			 * Novell IPX inside 802.3 with no 802.2 LLC
 			 * header.
 			 */
-			capture_ipx(pd, len, SLL_HEADER_SIZE, ld);
+			capture_ipx(ld);
 			break;
 
 		default:

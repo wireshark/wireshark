@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.172 2002/04/08 09:09:47 guy Exp $
+ * $Id: capture.c,v 1.173 2002/04/24 06:03:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1242,7 +1242,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
       capture_chdlc(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_LOCALTALK:
-      capture_llap(pd, whdr.caplen, &ld->counts);
+      capture_llap(&ld->counts);
       break;
     /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
        with LLC header following; we should implement it at some
@@ -2064,7 +2064,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
       capture_clip(pd, phdr->len, &ld->counts);
       break;
     case WTAP_ENCAP_LOCALTALK:
-      capture_llap(pd, phdr->len, &ld->counts);
+      capture_llap(&ld->counts);
       break;
     /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
        with LLC header following; we should implement it at some

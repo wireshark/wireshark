@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.11 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-vines.h,v 1.12 2002/04/24 06:03:34 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -108,6 +108,6 @@ typedef struct _e_vsmb {
   guint32 vsmb_ttw;
 } e_vsmb;
 
-void capture_vines(const u_char *, int, int, packet_counts *);
+void capture_vines(packet_counts *);
 
 #endif /* packet-vines.h */

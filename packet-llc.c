@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.96 2002/03/31 21:09:00 guy Exp $
+ * $Id: packet-llc.c,v 1.97 2002/04/24 06:03:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,17 +66,6 @@ static dissector_handle_t eth_handle;
 static dissector_handle_t fddi_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t data_handle;
-
-typedef void (capture_func_t)(const u_char *, int, int, packet_counts *);
-
-/* The SAP info is split into two tables, one value_string table and one
- * table of sap_info. This is so that the value_string can be used in the
- * header field registration.
- */
-struct sap_info {
-	guint8	sap;
-	capture_func_t *capture_func;
-};
 
 /*
  * Group/Individual bit, in the DSAP.
@@ -145,13 +134,6 @@ static const value_string sap_vals[] = {
 	{ 0x00,               NULL }
 };
 
-static struct sap_info	saps[] = {
-	{ SAP_IP,			capture_ip },
-	{ SAP_NETWARE,			capture_ipx },
-	{ SAP_NETBIOS,			capture_netbios },
-	{ 0x00,				NULL}
-};
-
 /*
  * See
  *
@@ -174,22 +156,6 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ 0,               NULL }
 };
 
-static capture_func_t *
-sap_capture_func(u_char sap) {
-	int i=0;
-
-	/* look for the second record where sap == 0, which should
-	 * be the last record
-	 */
-	while (saps[i].sap > 0 || i == 0) {
-		if (saps[i].sap == sap) {
-			return saps[i].capture_func;
-		}
-		i++;
-	}
-	return NULL;
-}
-
 void
 capture_llc(const u_char *pd, int offset, int len, packet_counts *ld) {
 
@@ -198,7 +164,6 @@ capture_llc(const u_char *pd, int offset, int len, packet_counts *ld) {
 	int		llc_header_len;
 	guint32		oui;
 	guint16		etype;
-	capture_func_t	*capture;
 
 	if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
 		ld->other++;
@@ -252,17 +217,26 @@ capture_llc(const u_char *pd, int offset, int len, packet_counts *ld) {
 		}
 	}		
 	else {
+		/* non-SNAP */
 		if (XDLC_IS_INFORMATION(control)) {
-			capture = sap_capture_func(pd[offset]);
+			switch (pd[offset]) {
 
-			/* non-SNAP */
-			offset += llc_header_len;
+			case SAP_IP:
+				capture_ip(pd, offset + llc_header_len, len,
+				    ld);
+				break;
 
-			if (capture) {
-				capture(pd, offset, len, ld);
-			}
-			else {
+			case SAP_NETWARE:
+				capture_ipx(ld);
+				break;
+
+			case SAP_NETBIOS:
+				capture_netbios(ld);
+				break;
+
+			default:
 				ld->other++;
+				break;
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.72 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-eth.c,v 1.73 2002/04/24 06:03:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -125,7 +125,7 @@ capture_eth(const u_char *pd, int offset, int len, packet_counts *ld)
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      capture_ipx(pd, offset, len, ld);
+      capture_ipx(ld);
       break;
     case ETHERNET_802_2:
       capture_llc(pd, offset, len, ld);

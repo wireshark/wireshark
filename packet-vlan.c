@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.38 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-vlan.c,v 1.39 2002/04/24 06:03:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@ capture_vlan(const u_char *pd, int offset, int len, packet_counts *ld ) {
   encap_proto = pntohs( &pd[offset+2] );
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
     if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
-      capture_ipx(pd,offset+4,len,ld);
+      capture_ipx(ld);
     } else {
       capture_llc(pd,offset+4,len,ld);
     }

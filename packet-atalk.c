@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.62 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-atalk.c,v 1.63 2002/04/24 06:03:33 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -503,7 +503,7 @@ static const value_string llap_type_vals[] = {
 };
 
 void
-capture_llap(const u_char *pd, int len, packet_counts *ld)
+capture_llap(packet_counts *ld)
 {
   ld->other++;
 }

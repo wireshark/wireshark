@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.44 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-netbios.c,v 1.45 2002/04/24 06:03:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,7 +220,7 @@ static const true_false_string netb_version_str = {
 };
 
 
-void capture_netbios(const u_char *pd, int offset, int len, packet_counts *ld)
+void capture_netbios(packet_counts *ld)
 {
 	ld->netbios++;
 }

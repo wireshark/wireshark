@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.59 2002/04/22 08:14:12 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.60 2002/04/24 06:03:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -451,7 +451,7 @@ capture_ieee80211_common (const u_char * pd, int offset, int len,
         return;
       }
       if (pd[offset+hdr_length] == 0xff && pd[offset+hdr_length+1] == 0xff) {
-        capture_ipx (pd, offset + hdr_length, len, ld);
+        capture_ipx (ld);
       }
       else {
         capture_llc (pd, offset + hdr_length, len, ld);

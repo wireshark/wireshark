@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.27 2002/03/23 22:02:20 guy Exp $
+ * $Id: packet-ethertype.c,v 1.28 2002/04/24 06:03:33 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -111,13 +111,13 @@ capture_ethertype(guint16 etype, const u_char *pd, int offset, int len,
       capture_ip(pd, offset, len, ld);
       break;
     case ETHERTYPE_IPX:
-      capture_ipx(pd, offset, len, ld);
+      capture_ipx(ld);
       break;
     case ETHERTYPE_VLAN:
       capture_vlan(pd, offset, len, ld);
       break;
     case ETHERTYPE_VINES:
-      capture_vines(pd, offset, len, ld);
+      capture_vines(ld);
       break;
     default:
       ld->other++;
