@@ -2,7 +2,7 @@
  *
  * tvbtest : tvbtest.o tvbuff.o except.o
  *
- * $Id: tvbtest.c,v 1.1 2000/05/11 08:16:00 gram Exp $
+ * $Id: tvbtest.c,v 1.2 2000/06/22 06:36:45 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -79,6 +79,23 @@ test(tvbuff_t *tvb, gchar* name,
 	if (!ex_thrown) {
 		printf("Failed TVB=%s No BoundsError when retrieving %u bytes\n",
 				name, length + 1);
+		return FALSE;
+	}
+
+	/* Test boundary case with one more byte. A ReportedBoundsError
+	   exception should be thrown. */
+	ex_thrown = FALSE;
+	TRY {
+		ptr = tvb_get_ptr(tvb, 0, length + 2);
+	}
+	CATCH(ReportedBoundsError) {
+		ex_thrown = TRUE;
+	}
+	ENDTRY;
+
+	if (!ex_thrown) {
+		printf("Failed TVB=%s No ReportedBoundsError when retrieving %u bytes\n",
+				name, length + 2);
 		return FALSE;
 	}
 
@@ -241,7 +258,7 @@ run_tests(void)
 			small[i][j] = temp + j;
 		}
 
-		tvb_small[i] = tvb_new_real_data(small[i], 16);
+		tvb_small[i] = tvb_new_real_data(small[i], 16, 17);
 	}
 
 	for (i = 0; i < 3; i++) {
@@ -252,7 +269,7 @@ run_tests(void)
 			large[i][j] = temp + j;
 		}
 
-		tvb_large[i] = tvb_new_real_data(large[i], 19);
+		tvb_large[i] = tvb_new_real_data(large[i], 19, 20);
 	}
 
 	/* Test the TVBUFF_REAL_DATA objects. */
@@ -264,27 +281,27 @@ run_tests(void)
 	test(tvb_large[1], "Large 1", large[1], 19);
 	test(tvb_large[2], "Large 2", large[2], 19);
 
-	tvb_subset[0]		= tvb_new_subset(tvb_small[0], 0, 8);
+	tvb_subset[0]		= tvb_new_subset(tvb_small[0], 0, 8, 9);
 	subset[0]		= &small[0][0];
 	subset_length[0]	= 8;
 
-	tvb_subset[1]		= tvb_new_subset(tvb_large[0], -10, 10);
+	tvb_subset[1]		= tvb_new_subset(tvb_large[0], -10, 10, 11);
 	subset[1]		= &large[0][9];
 	subset_length[1]	= 10;
 
-	tvb_subset[2]		= tvb_new_subset(tvb_small[1], -16, -1);
+	tvb_subset[2]		= tvb_new_subset(tvb_small[1], -16, -1, 17);
 	subset[2]		= &small[1][0];
 	subset_length[2]	= 16;
 
-	tvb_subset[3]		= tvb_new_subset(tvb_subset[0], 0, 3);
+	tvb_subset[3]		= tvb_new_subset(tvb_subset[0], 0, 3, 4);
 	subset[3]		= &small[0][0];
 	subset_length[3]	= 3;
 
-	tvb_subset[4]		= tvb_new_subset(tvb_subset[1], -5, 5);
+	tvb_subset[4]		= tvb_new_subset(tvb_subset[1], -5, 5, 6);
 	subset[4]		= &large[0][14];
 	subset_length[4]	= 5;
 
-	tvb_subset[5]		= tvb_new_subset(tvb_subset[2], 4, 8);
+	tvb_subset[5]		= tvb_new_subset(tvb_subset[2], 4, 8, 9);
 	subset[5]		= &small[1][4];
 	subset_length[5]	= 8;
 
@@ -388,5 +405,3 @@ main(void)
 	except_deinit();
 	exit(0);
 }
-
-
