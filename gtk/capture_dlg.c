@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.97 2004/01/26 09:05:59 guy Exp $
+ * $Id: capture_dlg.c,v 1.98 2004/01/29 23:11:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@
 #include "ringbuffer.h"
 #include <epan/filesystem.h>
 #include "compat_macros.h"
+#include "file_dlg.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -260,7 +261,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 }
 
 void
-capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
+capture_prep(void)
 {
   GtkWidget     *main_vb,
                 *capture_fr, *capture_vb,
@@ -757,6 +758,42 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     get the initial focus, at least not in the obvious fashion. Sigh.... */
 
   gtk_widget_show(cap_open_w);
+}
+
+static void 
+capture_prep_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
+{
+    switch(btn) {
+    case(ESD_BTN_YES):
+        /* save file first */
+        file_save_as_cmd(after_save_capture_dialog, data);
+        break;
+    case(ESD_BTN_NO):
+        capture_prep();
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+void
+capture_prep_cb(GtkWidget *w, gpointer d _U_)
+{
+  gpointer  dialog;
+
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+    /* user didn't saved his current file, ask him */
+    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+                ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
+                "Save packets to \"%s\" before capturing?",
+                cf_get_display_name(&cfile));
+    simple_dialog_set_cb(dialog, capture_prep_answered_cb, NULL);
+  } else {
+    /* unchanged file, just capture a new one */
+    capture_prep();
+  }
 }
 
 static void

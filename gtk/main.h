@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.39 2004/01/25 18:51:25 ulfl Exp $
+ * $Id: main.h,v 1.40 2004/01/29 23:11:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,6 +105,7 @@ extern gboolean dfilter_combo_add_recent(gchar *s);
 extern void dfilter_combo_add_empty(void);
 extern void dfilter_recent_combo_write_all(FILE *rf);
 
+extern gboolean main_do_quit(void);
 extern void main_widgets_rearrange(void);
 extern int main_filter_packets(capture_file *cf, const gchar *dftext);
 

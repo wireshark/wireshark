@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.84 2004/01/25 21:55:10 guy Exp $
+ * $Id: file_dlg.c,v 1.85 2004/01/29 23:11:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,10 @@
 #include "../ui_util.h"
 #include "gtk/color_filters.h"
 #include "gtk/color_dlg.h"
+#ifdef HAVE_LIBPCAP
+#include "capture_dlg.h"
+#endif
+
 
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
@@ -200,7 +204,7 @@ static GtkWidget *file_open_w;
 
 /* Open a file */
 void
-file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
+file_open_cmd(GtkWidget *w)
 {
   GtkWidget	*main_vb, *filter_hbox, *filter_bt, *filter_te,
   		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
@@ -334,6 +338,39 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   gtk_widget_show(file_open_w);
 }
 
+void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+{
+    switch(btn) {
+    case(ESD_BTN_YES):
+        /* save file first */
+        file_save_as_cmd(after_save_open_dialog, data);
+        break;
+    case(ESD_BTN_NO):
+        file_open_cmd(data);
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+void
+file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
+  gpointer  dialog;
+
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+    /* user didn't saved his current file, ask him */
+    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+                ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
+                "Save your capture file before open a new one?");
+    simple_dialog_set_cb(dialog, file_open_answered_cb, widget);
+  } else {
+    /* unchanged file, just open a new one */
+    file_open_cmd(widget);
+  }
+}
+
 static void
 file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gchar     *cf_name, *rfilter, *s;
@@ -426,10 +463,38 @@ file_open_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   file_open_w = NULL;
 }
 
+void file_close_confirmed_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+{
+    switch(btn) {
+    case(ESD_BTN_YES):
+        /* save file first */
+        file_save_as_cmd(after_save_close_file, NULL);
+        break;
+    case(ESD_BTN_NO):
+        cf_close(&cfile);
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
 /* Close a file */
 void
 file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
-  cf_close(&cfile);
+  gpointer  dialog;
+
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+    /* user didn't saved his current file, ask him */
+    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+                ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
+                "Save your capture file before closing it?");
+    simple_dialog_set_cb(dialog, file_close_confirmed_cb, NULL);
+  } else {
+    /* unchanged file, just close it */
+    cf_close(&cfile);
+  }
 }
 
 void
@@ -739,8 +804,12 @@ file_set_save_marked_sensitive(void)
   }
 }
 
+action_after_save_e action_after_save_g;
+gpointer            action_after_save_data_g;
+
+
 void
-file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
+file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
 {
   GtkWidget     *ok_bt, *main_vb, *ft_hb, *ft_lb, *range_fr, *range_tb;
   GtkTooltips   *tooltips;
@@ -767,6 +836,11 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   /* build the file selection */
   file_save_as_w = file_selection_new ("Ethereal: Save Capture File As");
   SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
+
+  /* as the dialog might already be gone, when using this values, we cannot
+   * set data to the dialog object, but keep global values */
+  action_after_save_g       = action_after_save;
+  action_after_save_data_g  = action_after_save_data;
 
 #if GTK_MAJOR_VERSION < 2
   accel_group = gtk_accel_group_new();
@@ -949,6 +1023,12 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(file_save_as_w);
 }
 
+void
+file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+  file_save_as_cmd(after_save_no_action, NULL);
+}
+
 static void
 file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   gchar	*cf_name;
@@ -983,12 +1063,41 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   }
 
   /* The write succeeded; get rid of the file selection box. */
-  gtk_widget_destroy(GTK_WIDGET (fs));
+  /* cf_save might already closed our dialog! */
+  if (file_save_as_w)
+    gtk_widget_destroy(GTK_WIDGET (fs));
 
   /* Save the directory name for future file dialogs. */
   dirname = get_dirname(cf_name);  /* Overwrites cf_name */
   set_last_open_dir(dirname);
   g_free(cf_name);
+
+  /* we have finished saving, do we have pending things to do? */
+  switch(action_after_save_g) {
+  case(after_save_no_action):
+      break;
+  case(after_save_open_dialog):
+      file_open_cmd(action_after_save_data_g);
+      break;
+  case(after_save_open_recent_file):
+      menu_open_recent_file_cmd(action_after_save_data_g);
+      break;
+#ifdef HAVE_LIBPCAP
+  case(after_save_capture_dialog):
+      capture_prep();
+      break;
+#endif
+  case(after_save_close_file):
+      cf_close(&cfile);
+      break;
+  case(after_save_exit):
+      main_do_quit();
+      break;
+  default:
+      g_assert_not_reached();
+  }
+
+  action_after_save_g = after_save_no_action;
 }
 
 void

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.378 2004/01/28 09:10:50 guy Exp $
+ * $Id: main.c,v 1.379 2004/01/29 23:11:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,6 +172,7 @@ static gboolean list_link_layer_types;
 #endif
 
 static void create_main_window(gint, gint, gint, e_prefs*);
+static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_);
 #ifdef WIN32
 #if GTK_MAJOR_VERSION >= 2
 static void try_to_get_windows_font_gtk2 (void);
@@ -1096,8 +1097,8 @@ statusbar_pop_field_msg(void)
 	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
 }
 
-static gboolean
-do_quit(void)
+gboolean
+main_do_quit(void)
 {
 	gchar *rec_path;
 
@@ -1175,8 +1176,21 @@ do_quit(void)
 static gboolean
 main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data _U_)
 {
-	/* "do_quit()" indicates whether the main window should be deleted. */
-	return do_quit();
+  gpointer dialog;
+
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+    /* user didn't saved his current file, ask him */
+    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+                ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
+                "Save packets to \"%s\" before quit?",
+                cf_get_display_name(&cfile));
+    simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
+    return TRUE;
+  } else {
+    /* unchanged file, just exit */
+	/* "main_do_quit()" indicates whether the main window should be deleted. */
+	return main_do_quit();
+  }
 }
 
 static gboolean
@@ -1218,10 +1232,39 @@ main_window_configure_event_cb(GtkWidget *widget, GdkEvent *event _U_, gpointer 
 	return FALSE;
 }
 
-void
-file_quit_cmd_cb (GtkWidget *widget _U_, gpointer data _U_)
+static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
-	do_quit();
+    switch(btn) {
+    case(ESD_BTN_YES):
+        /* save file first */
+        file_save_as_cmd(after_save_exit, NULL);
+        break;
+    case(ESD_BTN_NO):
+    	main_do_quit();
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+void
+file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  gpointer dialog;
+
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+    /* user didn't saved his current file, ask him */
+    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+                ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
+                "Save packets to \"%s\" before quit?",
+                cf_get_display_name(&cfile));
+    simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
+  } else {
+    /* unchanged file, just exit */
+	main_do_quit();
+  }
 }
 
 static void

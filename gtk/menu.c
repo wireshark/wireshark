@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.151 2004/01/27 20:58:18 ulfl Exp $
+ * $Id: menu.c,v 1.152 2004/01/29 23:11:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@
 #include "recent.h"
 #include "../ui_util.h"
 #include "proto_draw.h"
+#include "simple_dialog.h"
 
 GtkWidget *popup_menu_object;
 
@@ -767,7 +768,7 @@ clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
 
 /* callback, if the user pushed a recent file submenu item */
 void
-menu_open_recent_file_cmd_cb(GtkWidget *w, gpointer unused _U_)
+menu_open_recent_file_cmd(GtkWidget *w)
 {
 	GtkWidget *submenu_recent_files;
 	GtkWidget *menu_item_child;
@@ -792,6 +793,40 @@ menu_open_recent_file_cmd_cb(GtkWidget *w, gpointer unused _U_)
 	update_menu_recent_capture_file(submenu_recent_files);
 }
 
+static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+{
+    switch(btn) {
+    case(ESD_BTN_YES):
+        /* save file first */
+        file_save_as_cmd(after_save_open_recent_file, data);
+        break;
+    case(ESD_BTN_NO):
+        menu_open_recent_file_cmd(data);
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+void
+menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
+  gpointer  dialog;
+
+
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+    /* user didn't saved his current file, ask him */
+    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+                ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
+                "Save packets to \"%s\" before opening a new capture file?", 
+                cf_get_display_name(&cfile));
+    simple_dialog_set_cb(dialog, menu_open_recent_file_answered_cb, widget);
+  } else {
+    /* unchanged file */
+    menu_open_recent_file_cmd(widget);
+  }
+}
 
 /* add the capture filename (with an absolute path) to the "Recent Files" menu */
 void

@@ -1,7 +1,7 @@
 /* file_dlg.h
  * Definitions for dialog boxes for handling files
  *
- * $Id: file_dlg.h,v 1.7 2003/12/01 02:01:56 guy Exp $
+ * $Id: file_dlg.h,v 1.8 2004/01/29 23:11:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,18 @@
 
 #ifndef __FILE_DLG_H__
 #define __FILE_DLG_H__
+
+typedef enum {
+    after_save_no_action,
+    after_save_close_file,
+    after_save_open_dialog,
+    after_save_open_recent_file,
+    after_save_capture_dialog,
+    after_save_exit
+} action_after_save_e;
+
+void file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data);
+
 
 void file_open_cmd_cb(GtkWidget *, gpointer);
 void file_save_cmd_cb(GtkWidget *, gpointer);
