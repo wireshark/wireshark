@@ -831,6 +831,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   static e_ip eip_arr[4];
   static int eip_current=0;
   e_ip *iph;
+  const guchar		*src_addr, *dst_addr;
 
   eip_current++;
   if(eip_current==4){
@@ -974,10 +975,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree)
       proto_tree_add_uint(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum);
   }
-
-  SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
-  SET_ADDRESS(&pinfo->src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
-  SET_ADDRESS(&iph->ip_src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
+  src_addr = tvb_get_ptr(tvb, offset + IPH_SRC, 4);
+  SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, src_addr);
+  SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src_addr);
+  SET_ADDRESS(&iph->ip_src, AT_IPv4, 4, src_addr);
   if (tree) {
     memcpy(&addr, iph->ip_src.data, 4);
     if (ip_summary_in_tree) {
@@ -987,10 +988,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
     proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
   }
-
-  SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_DST, 4));
-  SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_DST, 4));
-  SET_ADDRESS(&iph->ip_dst, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_DST, 4));
+  dst_addr = tvb_get_ptr(tvb, offset + IPH_DST, 4);
+  SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, dst_addr);
+  SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, dst_addr);
+  SET_ADDRESS(&iph->ip_dst, AT_IPv4, 4, dst_addr);
 
   if (tree) {
     memcpy(&addr, iph->ip_dst.data, 4);
