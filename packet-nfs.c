@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.16 1999/12/14 11:53:19 girlich Exp $
+ * $Id: packet-nfs.c,v 1.17 1999/12/16 08:38:12 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -988,6 +988,28 @@ dissect_fileid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 char* name)
 {
 	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"fileid3");
+	return offset;
+}
+
+
+/* RFC 1813, Page 15 */
+int
+dissect_cookie3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
+char* name)
+{
+	offset = dissect_rpc_uint64(pd,offset,fd,tree,name,"cookie3");
+	return offset;
+}
+
+
+/* RFC 1813, Page 15 */
+int
+dissect_cookieverf3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
+	proto_tree_add_text(tree, offset, NFS3_COOKIEVERFSIZE,
+		"Verifier: Opaque Data");
+	offset += NFS3_COOKIEVERFSIZE;
 	return offset;
 }
 
@@ -2428,6 +2450,91 @@ dissect_nfs3_link_reply(const u_char* pd, int offset, frame_data* fd, proto_tree
 }
 
 
+/* RFC 1813, Page 76..80 */
+int
+dissect_nfs3_readdir_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_nfs_fh3    (pd, offset, fd, tree, "dir");
+	offset = dissect_cookie3    (pd, offset, fd, tree, "cookie");
+	offset = dissect_cookieverf3(pd, offset, fd, tree);
+	offset = dissect_count3     (pd, offset, fd, tree, "count");
+	
+	return offset;
+}
+
+
+/* RFC 1813, Page 76..80 */
+int
+dissect_readdir_entry3(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	proto_item* entry_item = NULL;
+	proto_tree* entry_tree = NULL;
+	int old_offset = offset;
+
+	if (tree) {
+		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry,
+			offset+0, END_OF_FRAME, NULL);
+		if (entry_item)
+			entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
+	}
+
+	offset = dissect_fileid3(pd, offset, fd, entry_tree, "fileid");
+
+	offset = dissect_filename3(pd, offset, fd, entry_tree, hf_nfs_readdir_entry_name);
+	
+	offset = dissect_cookie3(pd, offset, fd, entry_tree, "cookie");
+
+	/* now we know, that a readdir entry is shorter */
+	if (entry_item) {
+		proto_item_set_len(entry_item, offset - old_offset);
+	}
+
+	return offset;
+}
+
+
+/* RFC 1813, Page 76..80 */
+int
+dissect_nfs3_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+	guint32 value_follows;
+	guint32 eof_value;
+
+	offset = dissect_stat(pd, offset, fd, tree, &status);
+	switch (status) {
+		case 0:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "dir_attributes");
+			offset = dissect_cookieverf3(pd, offset, fd, tree);
+			while (1) {
+				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
+				value_follows = EXTRACT_UINT(pd, offset+0);
+				proto_tree_add_item(tree,hf_nfs_readdir_value_follows,
+					offset+0, 4, value_follows);
+				offset += 4;
+				if (value_follows == 1) {
+					offset = dissect_readdir_entry3(pd, offset, fd, tree);
+				}
+				else {
+					break;
+				}
+			}
+			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+			eof_value = EXTRACT_UINT(pd, offset+0);
+			if (tree)
+				proto_tree_add_item(tree, hf_nfs_readdir_eof,
+					offset+ 0, 4, eof_value);
+			offset += 4;
+		break;
+		default:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "dir_attributes");
+		break;
+	}
+
+	return offset;
+}
+
+
 /* RFC 1813, Page 84..86 */
 int
 dissect_nfs3_fsstat_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
@@ -2619,7 +2726,7 @@ dissect_nfs3_pathconf_reply(const u_char* pd, int offset, frame_data* fd, proto_
 }
 
 
-/* 7 missing functions */
+/* 5 missing functions */
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
@@ -2657,8 +2764,8 @@ const vsff nfs3_proc[] = {
 	dissect_nfs3_rename_call,	dissect_nfs3_rename_reply },
 	{ 15,	"LINK",		/* OK */
 	dissect_nfs3_link_call,		dissect_nfs3_link_reply },
-	{ 16,	"READDIR",	/* todo: call, reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 16,	"READDIR",	/* OK */
+	dissect_nfs3_readdir_call,	dissect_nfs3_readdir_reply },
 	{ 17,	"READDIRPLUS",	/* todo: call, reply */
 	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
 	{ 18,	"FSSTAT",	/* OK */
