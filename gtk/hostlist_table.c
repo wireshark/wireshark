@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.17 2004/06/03 21:46:27 guy Exp $
+ * $Id: hostlist_table.c,v 1.18 2004/07/10 11:53:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -550,7 +550,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     GString *error_string;
     GtkWidget *label;
     char title[256];
-    char *default_titles[] = { "Address", "Port", "Frames", "Bytes", "Tx Frames", "Tx Bytes", "Rx Frames", "Rx Bytes" };
+    char *default_titles[] = { "Address", "Port", "Packets", "Bytes", "Tx Packets", "Tx Bytes", "Rx Packets", "Rx Bytes" };
 
 
     g_snprintf(title, 255, "%s Endpoints", table_name);
