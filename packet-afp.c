@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.18 2002/07/17 00:42:40 guy Exp $
+ * $Id: packet-afp.c,v 1.19 2002/07/29 06:35:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,7 @@
 #define AFP_GETFLDRPARAM	34
 #define AFP_SETFLDRPARAM	35
 #define AFP_CHANGEPW    	36
+#define AFP_GETUSERINFO		37
 #define AFP_GETSRVRMSG		38
 #define AFP_CREATEID		39
 #define AFP_DELETEID		40
@@ -341,6 +342,7 @@ static const value_string CommandCode_vals[] = {
   {AFP_GETFLDRPARAM,	"FPGetFileDirParms" },
   {AFP_SETFLDRPARAM,	"FPSetFileDirParms" },
   {AFP_CHANGEPW,	"FPChangePassword" },
+  {AFP_GETUSERINFO,     "FPGetUserInfo" },
   {AFP_GETSRVRMSG,	"FPGetSrvrMsg" },
   {AFP_CREATEID,	"FPCreateID" },
   {AFP_DELETEID,	"FPDeleteID" },
@@ -581,6 +583,20 @@ static int hf_afp_dir_ar_u_read   = -1;
 static int hf_afp_dir_ar_u_write  = -1;
 static int hf_afp_dir_ar_blank    = -1;
 static int hf_afp_dir_ar_u_own    = -1;
+
+static int hf_afp_user_flag       = -1;
+static int hf_afp_user_ID         = -1;
+static int hf_afp_group_ID        = -1;
+static int hf_afp_user_bitmap     = -1;
+static int hf_afp_user_bitmap_UID = -1;
+static int hf_afp_user_bitmap_GID = -1;
+
+static gint ett_afp_user_bitmap   = -1;
+
+static const value_string user_flag_vals[] = {
+  {0,	"Use user ID" },
+  {1,	"Default user" },
+  {0,	NULL } };
 
 /*
   file bitmap AFP3.0.pdf 
@@ -2665,6 +2681,62 @@ int len;
 }
 
 /* ************************** */
+static gint
+dissect_query_afp_get_user_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+  	proto_tree *sub_tree = NULL;
+  	proto_item *item;
+	guint16  bitmap;
+
+
+	proto_tree_add_item(tree, hf_afp_user_flag, tvb, offset, 1,FALSE);
+	offset++;
+
+	proto_tree_add_item(tree, hf_afp_user_ID, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	bitmap = tvb_get_ntohs(tvb, offset);
+	if (tree) {
+		item = proto_tree_add_item(tree, hf_afp_user_bitmap, tvb, offset, 2,FALSE);
+		sub_tree = proto_item_add_subtree(item, ett_afp_user_bitmap);
+		proto_tree_add_item(sub_tree, hf_afp_user_bitmap_UID, tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_user_bitmap_GID, tvb, offset, 2,FALSE);
+	}
+	offset += 2;
+
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_get_user_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+  	proto_tree *sub_tree = NULL;
+  	proto_item *item;
+	guint16  bitmap;
+
+	bitmap = tvb_get_ntohs(tvb, offset);
+	if (tree) {
+		item = proto_tree_add_item(tree, hf_afp_user_bitmap, tvb, offset, 2,FALSE);
+		sub_tree = proto_item_add_subtree(item, ett_afp_user_bitmap);
+		proto_tree_add_item(sub_tree, hf_afp_user_bitmap_UID, tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_user_bitmap_GID, tvb, offset, 2,FALSE);
+	}
+
+	offset += 2;
+	if ((bitmap & 1)) {
+		proto_tree_add_item(tree, hf_afp_user_ID, tvb, offset, 4,FALSE);
+		offset += 4;
+	}
+
+	if ((bitmap & 2)) {
+		proto_tree_add_item(tree, hf_afp_group_ID, tvb, offset, 4,FALSE);
+		offset += 4;
+	}
+	return offset;
+}
+
+/* ************************** */
 static void
 dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2768,6 +2840,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_get_fork_param(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETSESSTOKEN:
 			offset = dissect_query_afp_get_session_token(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_GETUSERINFO:
+			offset = dissect_query_afp_get_user_info(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETSRVINFO:
 			/* offset = dissect_query_afp_get_server_info(tvb, pinfo, afp_tree, offset);break; */
 		case AFP_GETSRVPARAM:
@@ -2871,6 +2945,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFP_RESOLVEID:
 		case AFP_GETFORKPARAM:
 			offset =dissect_reply_afp_get_fork_param(tvb, pinfo, afp_tree, offset);break;
+		case AFP_GETUSERINFO:
+			offset = dissect_reply_afp_get_user_info(tvb, pinfo, afp_tree, offset);break;
 		case AFP_GETSRVPARAM:
 			offset = dissect_reply_afp_get_server_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_CREATEDIR:
@@ -3874,6 +3950,35 @@ proto_register_afp(void)
 		FT_BYTES, BASE_HEX, NULL, 0x0,
       	"Session token", HFILL }},
 
+    { &hf_afp_user_flag,
+      { "Flag",         "afp.user_flag",
+		FT_UINT8, BASE_HEX, VALS(user_flag_vals), 0x01,
+      	"User Info flag", HFILL }},
+
+    { &hf_afp_user_ID,
+      { "User ID",         "afp.user_ID",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"User ID", HFILL }},
+
+    { &hf_afp_group_ID,
+      { "Group ID",         "afp.group_ID",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"Group ID", HFILL }},
+
+    { &hf_afp_user_bitmap,
+      { "Bitmap",         "afp.user_bitmap",
+		FT_UINT16, BASE_HEX, NULL, 0,
+      	"User Info bitmap", HFILL }},
+
+    { &hf_afp_user_bitmap_UID,
+      { "User ID",         "afp.user_bitmap.UID",
+		FT_BOOLEAN, 16, NULL, 0x01,
+      	"User ID", HFILL }},
+
+    { &hf_afp_user_bitmap_GID,
+      { "Primary group ID",         "afp.user_bitmap.GID",
+		FT_BOOLEAN, 16, NULL, 0x02,
+      	"Primary group ID", HFILL }},
   };
 
   static gint *ett[] = {
@@ -3898,6 +4003,7 @@ proto_register_afp(void)
 	&ett_afp_cat_r_bitmap,
 	&ett_afp_cat_spec,
 	&ett_afp_vol_did,
+	&ett_afp_user_bitmap,
   };
 
   proto_afp = proto_register_protocol("AppleTalk Filing Protocol", "AFP", "afp");
