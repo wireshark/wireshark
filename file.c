@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.20 1999/03/01 18:57:01 gram Exp $
+ * $Id: file.c,v 1.21 1999/03/20 04:38:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,8 @@
 #include "packet.h"
 #include "file.h"
 #include "util.h"
+
+#include "packet-ncp.h"
 
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
@@ -237,7 +239,9 @@ load_cap_file(char *fname, capture_file *cf) {
   int     err;
 
   close_cap_file(cf, info_bar, file_ctx);
-  
+
+  ncp_init_protocol();
+
   if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
     name_ptr = fname;
   else

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.16 1999/03/05 06:09:39 gram Exp $
+ * $Id: packet-ipx.c,v 1.17 1999/03/20 04:38:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -39,6 +39,7 @@
 #include "ethereal.h"
 #include "packet.h"
 #include "packet-ipx.h"
+#include "packet-ncp.h"
 
 /* The information in this module (IPX, SPX, NCP) comes from:
 	NetWare LAN Analysis, Second Edition
@@ -183,59 +184,68 @@ void
 dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	GtkWidget	*ipx_tree, *ti;
-	u_char		ipx_type;
+	guint8		ipx_type, ipx_hops;
+	guint16		ipx_checksum, ipx_length;
+	guint8		*ipx_snode, *ipx_dnode, *ipx_snet, *ipx_dnet;
 
-	char		*dnet, *snet;
-	guint16		dsocket, ssocket;
+	gchar		*str_dnet, *str_snet;
+	guint16		ipx_dsocket, ipx_ssocket;
 	void		(*dissect) (const u_char *, int, frame_data *, GtkTree *);
 
 	/* Calculate here for use in pinfo and in tree */
-	dnet = ipxnet_to_string((guint8*)&pd[offset+6]);
-	snet = ipxnet_to_string((guint8*)&pd[offset+18]);
-	dsocket = pntohs(&pd[offset+16]);
-	ssocket = pntohs(&pd[offset+28]);
+	ipx_dnet = (guint8*)&pd[offset+6];
+	ipx_snet = (guint8*)&pd[offset+18];
+	str_dnet = ipxnet_to_string(ipx_dnet);
+	str_snet = ipxnet_to_string(ipx_snet);
+	ipx_dsocket = pntohs(&pd[offset+16]);
+	ipx_ssocket = pntohs(&pd[offset+28]);
+	ipx_dnode = (guint8*)&pd[offset+10];
+	ipx_snode = (guint8*)&pd[offset+22];
+	ipx_type = pd[offset+5];
 
 	if (check_col(fd, COL_RES_DL_DST))
 		col_add_str(fd, COL_RES_DL_DST,
-				ipx_addr_to_str(pntohl(&pd[offset+6]),
-					(guint8*)&pd[offset+10]));
+				ipx_addr_to_str(pntohl(ipx_dnet), ipx_dnode));
 	if (check_col(fd, COL_RES_DL_SRC))
 		col_add_str(fd, COL_RES_DL_SRC,
-				ipx_addr_to_str(pntohl(&pd[offset+18]),
-					(guint8*)&pd[offset+22]));
+				ipx_addr_to_str(pntohl(ipx_snet), ipx_snode));
+
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "IPX");
 	if (check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO, "%s (0x%04X)", port_text(dsocket), dsocket);
-
-	ipx_type = pd[offset+5];
+		col_add_fstr(fd, COL_INFO, "%s (0x%04X)", port_text(ipx_dsocket),
+				ipx_dsocket);
 
 	if (tree) {
+		ipx_checksum = pntohs(&pd[offset]);
+		ipx_length = pntohs(&pd[offset+2]);
+		ipx_hops = pd[offset+4];
+
 		ti = add_item_to_tree(GTK_WIDGET(tree), offset, 30,
 			"Internetwork Packet Exchange");
 		ipx_tree = gtk_tree_new();
 		add_subtree(ti, ipx_tree, ETT_IPX);
 		add_item_to_tree(ipx_tree, offset,      2, "Checksum: 0x%04x",
-			(pd[offset] << 8) | pd[offset+1]);
+				ipx_checksum);
 		add_item_to_tree(ipx_tree, offset+2,    2, "Length: %d bytes",
-			(pd[offset+2] << 8) | pd[offset+3]);
+				ipx_length);
 		add_item_to_tree(ipx_tree, offset+4,    1, "Transport Control: %d hops",
-			pd[offset+4]);
+				ipx_hops);
 		add_item_to_tree(ipx_tree, offset+5,    1, "Packet Type: %s",
 			ipx_packet_type(ipx_type));
 		add_item_to_tree(ipx_tree, offset+6,    4, "Destination Network: %s",
-			dnet);
+			str_dnet);
 		add_item_to_tree(ipx_tree, offset+10,   6, "Destination Node: %s",
-			ether_to_str((guint8*)&pd[offset+10]));
-		/*dsocket = ntohs(*((guint16*)&pd[offset+16]));*/
+			ether_to_str(ipx_dnode));
 		add_item_to_tree(ipx_tree, offset+16,   2,
-			"Destination Socket: %s (0x%04X)", port_text(dsocket), dsocket);
+			"Destination Socket: %s (0x%04X)", port_text(ipx_dsocket),
+			ipx_dsocket);
 		add_item_to_tree(ipx_tree, offset+18,   4, "Source Network: %s",
-			snet);
+			str_snet);
 		add_item_to_tree(ipx_tree, offset+22,   6, "Source Node: %s",
-			ether_to_str((guint8*)&pd[offset+22]));
+			ether_to_str(ipx_snode));
 		add_item_to_tree(ipx_tree, offset+28,   2,
-			"Source Socket: %s (0x%04X)", port_text(ssocket), ssocket);
+			"Source Socket: %s (0x%04X)", port_text(ipx_ssocket), ipx_ssocket);
 	}
 	offset += 30;
 
@@ -245,11 +255,18 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			break;
 
 		case 17: /* NCP */
+			if (pntohl(ipx_dnode) == 0 && pntohs(ipx_dnode + 4) == 1)
+				nw_server_address = pntohl(ipx_dnet);
+			else if (pntohl(ipx_snode) == 0 && pntohs(ipx_snode + 4) == 1)
+				nw_server_address = pntohl(ipx_snet);
+			else
+				nw_server_address = 0;
+
 			dissect_ncp(pd, offset, fd, tree);
 			break;
 
 		case 20: /* NetBIOS */
-			if (dsocket == 0x0455) {
+			if (ipx_dsocket == 0x0455) {
 				dissect_nbipx_ns(pd, offset, fd, tree);
 				break;
 			}
@@ -257,12 +274,12 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 		case 0: /* IPX, fall through to default */
 		default:
-			dissect = port_func(dsocket);
+			dissect = port_func(ipx_dsocket);
 			if (dissect) {
 				dissect(pd, offset, fd, tree);
 			}
 			else {
-				dissect = port_func(ssocket);
+				dissect = port_func(ipx_ssocket);
 				if (dissect) {
 					dissect(pd, offset, fd, tree);
 				}
