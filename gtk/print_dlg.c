@@ -1,12 +1,11 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.22 2000/11/21 23:54:10 guy Exp $
+ * $Id: print_dlg.c,v 1.23 2001/06/08 08:50:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -576,7 +575,7 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
   print_args.print_summary = FALSE;
   print_args.print_hex = FALSE;
   print_args.expand_all = TRUE;
-  proto_tree_print(TRUE, &print_args, (GNode*) cfile.protocol_tree, cfile.pd,
+  proto_tree_print(TRUE, &print_args, (GNode*) cfile.protocol_tree,
 		cfile.current_frame, fh);
   print_finale(fh, prefs.pr_format);
   close_print_dest(print_args.to_file, fh);

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.85 2001/06/08 06:27:16 guy Exp $
+ * $Id: tethereal.c,v 1.86 2001/06/08 08:50:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1169,7 +1169,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
       print_args.print_hex = print_hex;
       print_args.expand_all = TRUE;
       proto_tree_print(FALSE, &print_args, (GNode *)protocol_tree,
-			buf, &fdata, stdout);
+			&fdata, stdout);
       if (!print_hex) {
         /* "print_hex_data()" will put out a leading blank line, as well
 	   as a trailing one; print one here, to separate the packets,

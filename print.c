@@ -1,14 +1,13 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.33 2001/05/16 21:32:04 ashokn Exp $
+ * $Id: print.c,v 1.34 2001/06/08 08:50:49 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -40,6 +39,7 @@
 #include "print.h"
 #include "ps.h"
 #include "util.h"
+#include "tvbuff.h"
 
 static void proto_tree_print_node_text(GNode *node, gpointer data);
 static void proto_tree_print_node_ps(GNode *node, gpointer data);
@@ -56,7 +56,7 @@ extern int proto_data; /* in packet-data.c */
 typedef struct {
 	int		level;
 	FILE		*fh;
-	const guint8	*pd;
+	GSList		*src_list;
 	gboolean	print_all_levels;
 	gboolean	print_hex_for_data;
 	char_enc	encoding;
@@ -97,14 +97,14 @@ void print_finale(FILE *fh, gint format)
 }
 
 void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
-    GNode *protocol_tree, const u_char *pd, frame_data *fd, FILE *fh)
+    GNode *protocol_tree, frame_data *fd, FILE *fh)
 {
 	print_data data;
 
 	/* Create the output */
 	data.level = 0;
 	data.fh = fh;
-	data.pd = pd;
+	data.src_list = fd->data_src;
 	data.encoding = fd->flags.encoding;
 	data.print_all_levels = print_args->expand_all;
 	data.print_hex_for_data = !print_args->print_hex;
@@ -120,6 +120,30 @@ void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
 	}
 }
 
+/*
+ * Find the data source tvbuff with a specified name, and return a
+ * pointer to the data in it.
+ */
+static const guint8 *
+find_data_source(GSList *src_list, gchar *ds_name)
+{
+	GSList *src;
+	tvbuff_t *src_tvb;
+	guint src_tvb_len;
+
+	for (src = src_list; src != NULL; src = g_slist_next(src)) {
+		src_tvb = src->data;
+		if (strcmp(ds_name, tvb_get_name(src_tvb)) == 0) {
+			/*
+			 * Found it.
+			 */
+			src_tvb_len = tvb_length(src_tvb);
+			return tvb_get_ptr(src_tvb, 0, src_tvb_len);
+		}
+	}
+	return NULL;	/* not found */
+}
+
 /* Print a tree's data, and any child nodes, in plain text */
 static
 void proto_tree_print_node_text(GNode *node, gpointer data)
@@ -129,6 +153,7 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	int		i;
 	int		num_spaces;
 	char		space[41];
+	const guint8	*pd;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
 
@@ -161,9 +186,14 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
-	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data)
-		print_hex_data_text(pdata->fh, &pdata->pd[fi->start],
+	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data) {
+		/*
+		 * Find the data source tvbuff for this field.
+		 */
+		pd = find_data_source(pdata->src_list, fi->ds_name);
+		print_hex_data_text(pdata->fh, &pd[fi->start],
 				fi->length, pdata->encoding);
+	}
 
 	/* If we're printing all levels, or if this level is expanded,
 	   recurse into the subtree, if it exists. */
@@ -264,6 +294,7 @@ void proto_tree_print_node_ps(GNode *node, gpointer data)
 	print_data	*pdata = (print_data*) data;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
+	const guint8	*pd;
 	char		psbuffer[MAX_LINE_LENGTH]; /* static sized buffer! */
 
 	if (!fi->visible)
@@ -285,7 +316,11 @@ void proto_tree_print_node_ps(GNode *node, gpointer data)
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
 	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data) {
-		print_hex_data_ps(pdata->fh, &pdata->pd[fi->start], fi->length,
+		/*
+		 * Find the data source tvbuff for this field.
+		 */
+		pd = find_data_source(pdata->src_list, fi->ds_name);
+		print_hex_data_ps(pdata->fh, &pd[fi->start], fi->length,
 				pdata->encoding);
 	}
 

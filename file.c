@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.239 2001/06/08 06:27:15 guy Exp $
+ * $Id: file.c,v 1.240 2001/06/08 08:50:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1236,7 +1236,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
         /* Print the information in that tree. */
         proto_tree_print(FALSE, print_args, (GNode *)protocol_tree,
-			cf->pd, fdata, cf->print_fh);
+			fdata, cf->print_fh);
 
         proto_tree_free(protocol_tree);
 

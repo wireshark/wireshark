@@ -1,14 +1,13 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.21 2001/03/23 18:44:20 jfoster Exp $
+ * $Id: print.h,v 1.22 2001/06/08 08:50:49 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -53,7 +52,7 @@ void close_print_dest(int to_file, FILE *fh);
 void print_preamble(FILE *fh, gint format);
 void print_finale(FILE *fh, gint format);
 void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
-    GNode *protocol_tree, const u_char *pd, frame_data *fd, FILE *fh);
+    GNode *protocol_tree, frame_data *fd, FILE *fh);
 void print_hex_data(FILE *fh, gint format, frame_data *fd);
 void print_line(FILE *fh, gint format, char *line);
 
