@@ -3,7 +3,7 @@
  * disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.h,v 1.7 2002/08/28 21:00:26 jmayer Exp $
+ * $Id: packet-q931.h,v 1.8 2003/02/28 23:16:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,10 +30,13 @@
 extern void dissect_q931_bearer_capability_ie(tvbuff_t *, int, int,
     proto_tree *);
 
-extern void dissect_q931_high_layer_compat_ie(tvbuff_t *, int, int,
-    proto_tree *);
+extern void dissect_q931_cause_ie(tvbuff_t *, int, int,
+    proto_tree *, int);
 
 extern void dissect_q931_progress_indicator_ie(tvbuff_t *, int, int,
+    proto_tree *);
+
+extern void dissect_q931_high_layer_compat_ie(tvbuff_t *, int, int,
     proto_tree *);
 
 extern const value_string q931_cause_location_vals[];

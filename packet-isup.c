@@ -1,8 +1,8 @@
-/* packet-ISUP.c
+/* packet-isup.c
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.15 2002/08/28 21:00:19 jmayer Exp $
+ * $Id: packet-isup.c,v 1.16 2003/02/28 23:16:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "packet-ip.h"
+#include "packet-q931.h"
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
 #define ASCII_NUMBER_DELTA              0x30
@@ -1123,6 +1123,8 @@ static int hf_isup_backw_call_isdn_access_ind = -1;
 static int hf_isup_backw_call_echo_control_device_ind = -1;
 static int hf_isup_backw_call_sccp_method_ind = -1;
 
+static int hf_isup_cause_indicator = -1;
+
 static int hf_isup_suspend_resume_indicator = -1;
 
 static int hf_isup_range_indicator = -1;
@@ -1439,10 +1441,99 @@ dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb,proto_tr
 /* ------------------------------------------------------------------
   Dissector Parameter Cause Indicators - no detailed dissection since defined in Rec. Q.850
  */
+
+/*
+ * Cause codes for Cause.
+ * The decoding of cause indicators parameter field are defined in ITU-T
+ * Recommendation Q.850; those are different from the ones in the Q.931
+ * dissector, as that has some values not specified by the standard but
+ * that appear to be used for purposes other than the ones in Q.850.
+ */
+static const value_string q850_cause_code_vals[] = {
+	{ 0x00,	"Valid cause code not yet received" },
+	{ 0x01,	"Unallocated (unassigned) number" },
+	{ 0x02,	"No route to specified transit network" },
+	{ 0x03,	"No route to destination" },
+	{ 0x04,	"Send special information tone" },
+	{ 0x05,	"Misdialled trunk prefix" },
+	{ 0x06,	"Channel unacceptable" },
+	{ 0x07,	"Call awarded and being delivered in an established channel" },
+	{ 0x08,	"Preemption" },
+	{ 0x09,	"Preemption - circuit reserved for reuse" },
+	{ 0x0E,	"QoR: ported number" },
+	{ 0x10,	"Normal call clearing" },
+	{ 0x11,	"User busy" },
+	{ 0x12,	"No user responding" },
+	{ 0x13,	"No answer from user (user alerted)" },
+	{ 0x14,	"Subscriber absent" },
+	{ 0x15,	"Call rejected" },
+	{ 0x16,	"Number changed" },
+	{ 0x17,	"Redirection to new destination" },
+	{ 0x18,	"Call rejected due to feature at the destination" },
+	{ 0x19,	"Exchange routing error" },
+	{ 0x1A,	"Non-selected user clearing" },
+	{ 0x1B,	"Destination out of order" },
+	{ 0x1C,	"Invalid number format (address incomplete)" },
+	{ 0x1D,	"Facility rejected" },
+	{ 0x1E,	"Response to STATUS ENQUIRY" },
+	{ 0x1F,	"Normal unspecified" },
+	{ 0x21,	"Circuit out of order" },
+	{ 0x22,	"No circuit/channel available" },
+	{ 0x26,	"Network out of order" },
+	{ 0x27,	"Permanent frame mode connection out of service" },
+	{ 0x28,	"Permanent frame mode connection operational" },
+	{ 0x29,	"Temporary failure" },
+	{ 0x2A,	"Switching equipment congestion" },
+	{ 0x2B,	"Access information discarded" },
+	{ 0x2C,	"Requested circuit/channel not available" },
+	{ 0x2E,	"Precedence call blocked" },
+	{ 0x2F,	"Resources unavailable, unspecified" },
+	{ 0x31,	"Quality of service unavailable" },
+	{ 0x32,	"Requested facility not subscribed" },
+	{ 0x35,	"Outgoing calls barred within CUG" },
+	{ 0x37,	"Incoming calls barred within CUG" },
+	{ 0x38,	"Call waiting not subscribed" },
+	{ 0x39,	"Bearer capability not authorized" },
+	{ 0x3A,	"Bearer capability not presently available" },
+	{ 0x3E,	"Inconsistency in designated outgoing access information and subscriber class" },
+	{ 0x3F,	"Service or option not available, unspecified" },
+	{ 0x41,	"Bearer capability not implemented" },
+	{ 0x42,	"Channel type not implemented" },
+	{ 0x45,	"Requested facility not implemented" },
+	{ 0x46,	"Only restricted digital information bearer capability is available" },
+	{ 0x4F,	"Service or option not implemented, unspecified" },
+	{ 0x51,	"Invalid call reference value" },
+	{ 0x52,	"Identified channel does not exist" },
+	{ 0x53,	"Call identity does not exist for suspended call" },
+	{ 0x54,	"Call identity in use" },
+	{ 0x55,	"No call suspended" },
+	{ 0x56,	"Call having the requested call identity has been cleared" },
+	{ 0x57,	"Called user not member of CUG" },
+	{ 0x58,	"Incompatible destination" },
+	{ 0x5A,	"Non-existing CUG" },
+	{ 0x5B,	"Invalid transit network selection (national use)" },
+	{ 0x5F,	"Invalid message, unspecified" },
+	{ 0x60,	"Mandatory information element is missing" },
+	{ 0x61,	"Message type non-existent or not implemented" },
+	{ 0x62,	"Message not compatible with call state or message type non-existent or not implemented" },
+	{ 0x63,	"Information element nonexistant or not implemented" },
+	{ 0x64,	"Invalid information element contents" },
+	{ 0x65,	"Message not compatible with call state" },
+	{ 0x66,	"Recovery on timer expiry" },
+	{ 0x67,	"Parameter non-existent or not implemented - passed on" },
+	{ 0x6E,	"Message with unrecognized parameter discarded" },
+	{ 0x6F,	"Protocol error, unspecified" },
+	{ 0x7F,	"Internetworking, unspecified" },
+	{ 0,	NULL }
+};
+
 static void
 dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_tree, parameter_tvb,0, length, "Cause indicators (-> Q.850)");
+  dissect_q931_cause_ie(parameter_tvb,0,length,
+					    parameter_tree,
+					    hf_isup_cause_indicator);
   proto_item_set_text(parameter_item, "Cause indicators, see Q.850 (%u byte%s length)", length , plurality(length, "", "s"));
 }
 
@@ -4188,6 +4279,11 @@ proto_register_isup(void)
 		{ &hf_isup_backw_call_sccp_method_ind,
 			{ "SCCP method indicator",  "isup.backw_call_sccp_method_indicator",
 			FT_UINT16, BASE_HEX, VALS(isup_SCCP_method_ind_value), PO_16BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_cause_indicator,
+			{ "Cause indicator",  "isup.cause_indicator",
+			FT_UINT8, BASE_DEC, VALS(q850_cause_code_vals), 0x0,
 			"", HFILL }},
 
 		{ &hf_isup_suspend_resume_indicator,

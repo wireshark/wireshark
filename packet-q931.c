@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.50 2003/02/28 22:43:56 guy Exp $
+ * $Id: packet-q931.c,v 1.51 2003/02/28 23:16:15 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -1020,9 +1020,9 @@ const value_string q931_cause_code_vals[] = {
 	{ 0,	NULL }
 };
 
-static void
+void
 dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+    proto_tree *tree, int hf_cause_value)
 {
 	guint8 octet;
 	guint8 coding_standard;
@@ -1066,7 +1066,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_q931_cause_value, tvb, 0, 1, octet & 0x7F);
+	proto_tree_add_uint(tree, hf_cause_value, tvb, 0, 1, octet & 0x7F);
 	offset += 1;
 	len -= 1;
 
@@ -2346,7 +2346,8 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				case Q931_IE_CAUSE:
 					dissect_q931_cause_ie(tvb,
 					    offset + 2, info_element_len,
-					    ie_tree);
+					    ie_tree,
+					    hf_q931_cause_value);
 					break;
 
 				case Q931_IE_CALL_STATE:
