@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.41 2000/06/29 09:37:02 guy Exp $
+ * $Id: packet-snmp.c,v 1.42 2000/07/02 07:10:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -191,6 +191,13 @@
 #include "asn1.h"
 
 #include "packet-snmp.h"
+
+/* Null string of type "guchar[]". */
+static const guchar nullstring[] = "";
+
+/* Take a pointer that may be null and return a pointer that's not null
+   by turning null pointers into pointers to the above null string. */
+#define	SAFE_STRING(s)	(((s) != NULL) ? (s) : nullstring)
 
 static int proto_snmp = -1;
 static int proto_smux = -1;
@@ -1321,7 +1328,8 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		if (tree) {
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
-			    "Community: %.*s", community_length, community);
+			    "Community: %.*s", community_length,
+			    SAFE_STRING(community));
 		}
 		g_free(community);
 		offset += length;
@@ -1421,7 +1429,8 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			if (snmp_tree) {
 				proto_tree_add_text(snmp_tree, NullTVB, offset,
 				    length, "Message Security Parameters: %.*s",
-				    secparm_length, secparm);
+				    secparm_length,
+				    SAFE_STRING(secparm));
 			}
 			g_free(secparm);
 			offset += length;
@@ -1506,7 +1515,8 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			if (secur_tree) {
 				proto_tree_add_text(secur_tree, NullTVB, offset,
 				    length, "User Name: %.*s", 
-				    username_length, username);
+				    username_length,
+				    SAFE_STRING(username));
 			}
 			g_free(username);
 			offset += length;
@@ -1603,7 +1613,8 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
-			    "Context Name: %.*s", cname_length, cname);
+			    "Context Name: %.*s", cname_length,
+			    SAFE_STRING(cname));
 		}
 		g_free(cname);
 		offset += length;
@@ -1738,7 +1749,7 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 		if (tree) {
 			proto_tree_add_text(smux_tree, NullTVB, offset, length,
 			    "Application: %.*s", application_length,
-			     application);
+			     SAFE_STRING(application));
 		}
 		g_free(application);
 		offset += length;
@@ -1752,7 +1763,8 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		if (tree) {
 			proto_tree_add_text(smux_tree, NullTVB, offset, length,
-			    "Password: %.*s", password_length, password);
+			    "Password: %.*s", password_length,
+			    SAFE_STRING(password));
 		}
 		g_free(password);
 		offset += length;
