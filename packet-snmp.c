@@ -2,7 +2,13 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.57 2001/01/09 06:31:43 guy Exp $
+ * See RFC 1157 for SNMPv1.
+ *
+ * See RFCs 1901, 1905, and 1906 for SNMPv2c.
+ *
+ * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
+ *
+ * $Id: packet-snmp.c,v 1.58 2001/01/30 02:13:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -206,6 +212,8 @@ static int proto_smux = -1;
 
 static gint ett_snmp = -1;
 static gint ett_smux = -1;
+static gint ett_parameters = -1;
+static gint ett_parameters_qos = -1;
 static gint ett_global = -1;
 static gint ett_flags = -1;
 static gint ett_secur = -1;
@@ -1230,6 +1238,135 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 	}
 }
 
+static const value_string qos_vals[] = {
+	{ 0x0,	"No authentication or privacy" },
+	{ 0x1,	"Authentication, no privacy" },
+	{ 0x2,	"Authentication and privacy" },
+	{ 0x3,	"Authentication and privacy" },
+	{ 0,	NULL },
+};
+
+static void
+dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
+    guchar *parameters, int parameters_length)
+{
+	proto_item *item;
+	proto_tree *parameters_tree;
+	proto_tree *qos_tree;
+	guint8 model;
+	guint8 qos;
+	guint8 len;
+
+	item = proto_tree_add_text(tree, NullTVB, offset, length,
+	    "Parameters");
+	parameters_tree = proto_item_add_subtree(item, ett_parameters);
+	offset += length - parameters_length;
+
+	if (parameters_length < 1)
+		return;
+	model = *parameters;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, 1,
+	    "model: %u", model);
+	offset += 1;
+	parameters += 1;
+	parameters_length -= 1;
+	if (model != 1) {
+		/* Unknown model. */
+		proto_tree_add_text(parameters_tree, NullTVB, offset,
+		    parameters_length, "parameters: %s",
+		    bytes_to_str(parameters, parameters_length));
+		return;
+	}
+
+	if (parameters_length < 1)
+		return;
+	qos = *parameters;
+	item = proto_tree_add_text(parameters_tree, NullTVB, offset, 1,
+	    "qoS: 0x%x", qos);
+	qos_tree = proto_item_add_subtree(item, ett_parameters_qos);
+	proto_tree_add_text(qos_tree, NullTVB, offset, 1, "%s",
+	    decode_boolean_bitfield(qos, 0x04,
+		8, "Generation of report PDU allowed",
+		   "Generation of report PDU not allowed"));
+	proto_tree_add_text(qos_tree, NullTVB, offset, 1, "%s",
+	    decode_enumerated_bitfield(qos, 0x03,
+		8, qos_vals, "%s"));
+	offset += 1;
+	parameters += 1;
+	parameters_length -= 1;
+
+	if (parameters_length < 12)
+		return;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, 12,
+	    "agentID: %s", bytes_to_str(parameters, 12));
+	offset += 12;
+	parameters += 12;
+	parameters_length -= 12;
+
+	if (parameters_length < 4)
+		return;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, 4,
+	    "agentBoots: %u", pntohl(parameters));
+	offset += 4;
+	parameters += 4;
+	parameters_length -= 4;
+
+	if (parameters_length < 4)
+		return;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, 4,
+	    "agentTime: %u", pntohl(parameters));
+	offset += 4;
+	parameters += 4;
+	parameters_length -= 4;
+
+	if (parameters_length < 2)
+		return;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, 2,
+	    "maxSize: %u", pntohs(parameters));
+	offset += 2;
+	parameters += 2;
+	parameters_length -= 2;
+
+	if (parameters_length < 1)
+		return;
+	len = *parameters;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, 1,
+	    "userLen: %u", len);
+	offset += 1;
+	parameters += 1;
+	parameters_length -= 1;
+
+	if (parameters_length < len)
+		return;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, len,
+	    "userName: %.*s", len, parameters);
+	offset += len;
+	parameters += len;
+	parameters_length -= len;
+
+	if (parameters_length < 1)
+		return;
+	len = *parameters;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, 1,
+	    "authLen: %u", len);
+	offset += 1;
+	parameters += 1;
+	parameters_length -= 1;
+
+	if (parameters_length < len)
+		return;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, len,
+	    "authDigest: %s", bytes_to_str(parameters, len));
+	offset += len;
+	parameters += len;
+	parameters_length -= len;
+
+	if (parameters_length < 1)
+		return;
+	proto_tree_add_text(parameters_tree, NullTVB, offset, parameters_length,
+	    "contextSelector: %s", bytes_to_str(parameters, parameters_length));
+}
+
 void
 dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree, char *proto_name, int proto, gint ett)
@@ -1337,7 +1474,14 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		offset += length;
 		break;
 	case SNMP_VERSION_2u:
-		/* FIXME */
+		ret = asn1_octet_string_decode (&asn1, &community, 
+		    &community_length, &length);
+		if (tree) {
+			dissect_snmp2u_parameters(snmp_tree, offset, length,
+			    community, community_length);
+		}
+		g_free(community);
+		offset += length;
 		break;
 	case SNMP_VERSION_3:
 		ret = asn1_sequence_decode(&asn1, &global_length, &length);
@@ -1961,6 +2105,8 @@ proto_register_snmp(void)
 	static gint *ett[] = {
 		&ett_snmp,
 		&ett_smux,
+		&ett_parameters,
+		&ett_parameters_qos,
 		&ett_global,
 		&ett_flags,
 		&ett_secur,
