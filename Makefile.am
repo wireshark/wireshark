@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.506 2002/10/03 02:56:54 hagbard Exp $
+# $Id: Makefile.am,v 1.507 2002/10/09 00:48:10 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -21,8 +21,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#topdir = .
-ACLOCAL_AMFLAGS = "`./aclocal-flags`"
+ACLOCAL_AMFLAGS = `./aclocal-flags`
 
 #
 # This is a hideous hack.
