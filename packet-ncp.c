@@ -9,7 +9,7 @@
  * Portions Copyright (c) by James Coe 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp.c,v 1.74 2003/09/03 20:58:09 guy Exp $
+ * $Id: packet-ncp.c,v 1.75 2003/10/23 07:52:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,10 +177,10 @@ static value_string ncp_type_vals[] = {
 	{ NCP_SERVICE_REPLY,	"Service reply" },
 	{ NCP_WATCHDOG,		"Watchdog" },
 	{ NCP_DEALLOCATE_SLOT,	"Destroy service connection" },
-    { NCP_BROADCAST_SLOT,   "Server Broadcast" },
+	{ NCP_BROADCAST_SLOT,   "Server Broadcast" },
 	{ NCP_BURST_MODE_XFER,	"Burst mode transfer" },
 	{ NCP_POSITIVE_ACK,	"Request being processed" },
-    { NCP_LIP_ECHO, "Large Internet Packet Echo" },
+	{ NCP_LIP_ECHO,		"Large Internet Packet Echo" },
 	{ 0,			NULL }
 };
 
@@ -221,76 +221,71 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-    hdr_offset = 0;
+	hdr_offset = 0;
 
 	if (is_tcp) {
-        if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
-        {
-            hdr_offset += 1;
-        }
+        	if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST &&
+        	    tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
+			hdr_offset += 1;
 		ncpiph.signature	= tvb_get_ntohl(tvb, hdr_offset);
 		ncpiph.length		= tvb_get_ntohl(tvb, hdr_offset+4);
 		hdr_offset += 8;
-		if ( ncpiph.signature == NCPIP_RQST ) {
+		if (ncpiph.signature == NCPIP_RQST) {
 			ncpiphrq.version	= tvb_get_ntohl(tvb, hdr_offset);
 			hdr_offset += 4;
 			ncpiphrq.rplybufsize	= tvb_get_ntohl(tvb, hdr_offset);
 			hdr_offset += 4;
 		}
-		if (ncpiph.length & 0x80000000 || ncpiph.signature == NCPIP_RPLY) 
-        {
-            if (!pinfo->fd->flags.visited)
-            {
-    			/*
-    			 * This appears to indicate that this packet
-    			 * is signed; the signature is 8 bytes long.
-    			 *
-    			 * XXX - that bit does *not* appear to be set
-    			 * in signed replies, and we can't dissect the
-    			 * reply enough to find the matching request
-    			 * without knowing whether the reply is
-    			 * signed.
-    			 *
-    			 * XXX - what about NCP-over-IPX signed
-    			 * messages?
-    			 */
-                if (ncpiph.signature == NCPIP_RQST) {
-                    is_signed = TRUE;
-                    hdr_offset += 8;
-                    ncpiph.length &= 0x7fffffff;
-                }
-                else
-                {
-                    if (is_signed) 
-                    {
-                        hdr_offset += 8;
-                        ncpiph.length &= 0x7fffffff;
-                    }
-                    else
-                    {
-                        is_signed = FALSE;
-                    }
-                }
-            }
-            else
-            {
-                if(is_signed)
-                {
-                    hdr_offset += 8;
-                    ncpiph.length &= 0x7fffffff;
-                }
-            }
-		}
-        else
-        {
-            is_signed = FALSE;
-        }
+		if (ncpiph.length & 0x80000000 ||
+		    ncpiph.signature == NCPIP_RPLY) {
+			if (!pinfo->fd->flags.visited) {
+				/*
+				 * This appears to indicate that this packet
+				 * is signed; the signature is 8 bytes long.
+				 *
+				 * XXX - that bit does *not* appear to be set
+				 * in signed replies, and we can't dissect the
+				 * reply enough to find the matching request
+				 * without knowing whether the reply is
+				 * signed.
+				 *
+				 * XXX - what about NCP-over-IPX signed
+				 * messages?
+				 *
+				 * XXX - you can't use a global here;
+				 * you have to store the "signed"
+				 * flag somewhere so that the reply
+				 * can be identified as signed,
+				 * otherwise, in Ethereal, replies are
+				 * dissected as signed iff whatever
+				 * packet Ethereal dissected just before
+				 * the reply was signed.
+				 */
+				if (ncpiph.signature == NCPIP_RQST) {
+					is_signed = TRUE;
+					hdr_offset += 8;
+					ncpiph.length &= 0x7fffffff;
+				} else {
+					if (is_signed) {
+						hdr_offset += 8;
+						ncpiph.length &= 0x7fffffff;
+					} else
+						is_signed = FALSE;
+				}
+			} else {
+				if (is_signed) {
+					hdr_offset += 8;
+					ncpiph.length &= 0x7fffffff;
+				}
+			}
+		} else
+			is_signed = FALSE;
 	}
 
 	/* Record the offset where the NCP common header starts */
 	commhdr = hdr_offset;
 
-	header.type		    = tvb_get_ntohs(tvb, commhdr);
+	header.type		= tvb_get_ntohs(tvb, commhdr);
 	header.sequence		= tvb_get_guint8(tvb, commhdr+2);
 	header.conn_low		= tvb_get_guint8(tvb, commhdr+3);
 	header.conn_high	= tvb_get_guint8(tvb, commhdr+5);
@@ -314,14 +309,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (ncpiph.signature == NCPIP_RQST) {
 				proto_tree_add_uint(ncp_tree, hf_ncp_ip_ver, tvb, 8, 4, ncpiphrq.version);
 				proto_tree_add_uint(ncp_tree, hf_ncp_ip_rplybufsize, tvb, 12, 4, ncpiphrq.rplybufsize);
-                if (is_signed)
-                    proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, 16, 8, FALSE);
+				if (is_signed)
+					proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, 16, 8, FALSE);
+			} else {
+				if (is_signed)
+					proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, 8, 8, FALSE);
 			}
-            else
-            {
-                if (is_signed)
-                    proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, 8, 8, FALSE);
-            }
 		}
 		proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr + 0, 2, header.type);
 	}
@@ -467,10 +460,6 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	switch (header.type) {
 
-	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-		proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
-		    "Destroy Service Connection");
-		break;
 	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
 		length_remaining = tvb_length_remaining(tvb, commhdr + 4);
 		if (length_remaining > 4) {
@@ -483,6 +472,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
 	case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
@@ -516,7 +506,8 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
 	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
-        nds_defrag(next_tvb, pinfo, nw_connection, header.sequence, header.type, ncp_tree);
+        	nds_defrag(next_tvb, pinfo, nw_connection, header.sequence,
+        	    header.type, ncp_tree);
 		break;
 
 	case NCP_WATCHDOG:		/* Watchdog Packet */
