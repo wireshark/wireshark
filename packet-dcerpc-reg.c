@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.15 2003/02/03 02:14:00 tpot Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.16 2003/04/21 01:13:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,13 +95,6 @@ static int
 RegOpenHKLM_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
-
 	/* Parse packet */
 
 	offset = dissect_ndr_pointer(
@@ -118,13 +111,7 @@ static int
 RegOpenHKLM_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
-
-	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -150,13 +137,6 @@ static int
 RegOpenHKU_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
-
 	/* Parse packet */
 
 	offset = dissect_ndr_pointer(
@@ -173,13 +153,7 @@ static int
 RegOpenHKU_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
-
-	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -205,13 +179,6 @@ static int
 RegOpenHKCR_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
-
 	/* Parse packet */
 
 	offset = dissect_ndr_pointer(
@@ -228,13 +195,7 @@ static int
 RegOpenHKCR_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
-
-	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -260,13 +221,6 @@ static int
 RegClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
-
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -282,13 +236,6 @@ static int
 RegClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %u", dcv->req_frame);
-
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -311,13 +258,6 @@ static int
 RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
-
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -336,13 +276,6 @@ static int
 RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %u", dcv->req_frame);
-
 	/* Parse packet */
 
 	offset = dissect_ndr_counted_string(
@@ -395,13 +328,6 @@ static int
 RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
-
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -428,13 +354,7 @@ static int
 RegOpenEntry_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
-
-	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -460,13 +380,6 @@ static int
 RegUnknown1A_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
-
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -482,13 +395,6 @@ static int
 RegUnknown1A_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %u", dcv->req_frame);
-
 	/* Parse packet */
 
 	offset = dissect_ndr_uint32(
@@ -511,13 +417,6 @@ static int
 RegEnumKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
-
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
@@ -533,13 +432,6 @@ static int
 RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %u", dcv->req_frame);
-
 	/* Parse packet */
 
 	offset = dissect_ntstatus(
@@ -563,11 +455,6 @@ RegFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->rep_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Reply in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -581,11 +468,6 @@ RegFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
-	if (dcv->req_frame != 0)
-		proto_tree_add_text(tree, tvb, offset, 0,
-				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
