@@ -2590,18 +2590,18 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
       /* We're writing to a capture file; write this packet. */
       if (!wtap_dump(pdh, whdr, pseudo_header, pd, err))
         return FALSE;
+#ifdef HAVE_LIBPCAP
       /* Report packet capture count if not quiet */
       if (!quiet && !print_packet_info) {
       	/* Don't print a packet count if we were asked not to with "-q"
       	   or if we're also printing packet info. */
-#ifdef HAVE_LIBPCAP
         if (ld.packet_count != 0) {
           fprintf(stderr, "\r%u ", ld.packet_count);
           /* stderr could be line buffered */
           fflush(stderr);
         }
-#endif
       }
+#endif
     }
     if (print_packet_info) {
       /* We're printing packet information; print the information for
