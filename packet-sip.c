@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.40 2003/07/31 18:14:02 guy Exp $
+ * $Id: packet-sip.c,v 1.41 2003/08/04 23:13:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -955,9 +955,6 @@ void proto_register_sip(void)
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_sip, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
-
-        /* Register the dissector so it can be called from other protocols */
-        register_dissector("sip", dissect_sip, proto_sip);
 }
 
 void
@@ -971,6 +968,7 @@ proto_reg_handoff_sip(void)
 
         heur_dissector_add( "udp", dissect_sip_heur, proto_sip );
         heur_dissector_add( "tcp", dissect_sip_heur, proto_sip );
+        heur_dissector_add( "sctp", dissect_sip_heur, proto_sip );
 
         /*
          * Get a handle for the SDP dissector.
