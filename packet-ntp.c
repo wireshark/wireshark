@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.3 1999/10/25 01:55:45 guy Exp $
+ * $Id: packet-ntp.c,v 1.4 1999/10/25 20:48:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,6 +43,16 @@
 #include <time.h>
 #include <math.h>
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
+#endif
+
 #include "packet.h"
 #include "resolv.h"
 #include "packet-ntp.h"
