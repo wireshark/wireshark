@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.24 2003/05/01 19:51:37 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.25 2003/05/15 05:24:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,8 +100,6 @@ static int hf_wkssvc_transport_name = -1;
 static int hf_wkssvc_transport_address = -1;
 static int hf_wkssvc_wan_ish = -1;
 static gint ett_dcerpc_wkssvc = -1;
-
-extern const value_string platform_id_vals[];
 
 static e_uuid_t uuid_dcerpc_wkssvc = {
         0x6bffd098, 0xa112, 0x3610,

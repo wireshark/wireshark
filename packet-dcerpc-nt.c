@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.73 2003/05/09 01:43:59 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.74 2003/05/15 05:24:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,18 @@
  * This file contains helper routines that are used by the DCERPC over SMB
  * dissectors for ethereal.
  */
+
+/*
+ * Used by several dissectors.
+ */
+const value_string platform_id_vals[] = {
+	{ 300, "DOS" },
+	{ 400, "OS/2" },
+	{ 500, "Windows NT" },
+	{ 600, "OSF" },
+	{ 700, "VMS" },
+	{ 0,   NULL }
+};
 
 /* Parse some common RPC structures */
 

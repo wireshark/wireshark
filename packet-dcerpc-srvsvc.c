@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.55 2003/04/27 00:49:14 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.56 2003/05/15 05:24:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6787,18 +6787,6 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 		srvsvc_dissect_netrserversetservicebits2_rqst,
 		srvsvc_dissect_netrserversetservicebits2_reply},
 	{0, NULL, NULL, NULL}
-};
-
-/*
- * Other code needs this ...
- */
-const value_string platform_id_vals[] = {
-	{ 300, "DOS" },
-	{ 400, "OS/2" },
-	{ 500, "Windows NT" },
-	{ 600, "OSF" },
-	{ 700, "VMS" },
-	{ 0,   NULL }
 };
 
 static const value_string srvsvc_opnum_vals[] = {

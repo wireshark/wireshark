@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.43 2003/05/09 01:43:59 tpot Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.44 2003/05/15 05:24:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,11 @@
  * ett_ value for Unicode strings.
  */
 extern gint ett_nt_unicode_string;
+
+/*
+ * Platform ID values, used by several dissectors.
+ */
+extern const value_string platform_id_vals[];
 
 /* Routines for handling deferral of referants in NDR */
 
