@@ -75,6 +75,7 @@ References:
 #define EAP_TYPE_LEAP	17
 #define EAP_TYPE_SIM	18
 #define EAP_TYPE_TTLS	21
+#define EAP_TYPE_AKA	23
 #define EAP_TYPE_PEAP	25
 #define EAP_TYPE_MSCHAPV2 26
 
@@ -101,7 +102,7 @@ static const value_string eap_type_vals[] = {
   { 20,          "SRP-SHA1 Part 2 [Carlson]" },
   {EAP_TYPE_TTLS,"EAP-TTLS [Funk]" },
   { 22,          "Remote Access Service [Fields]" },
-  { 23,          "UMTS Authentication and Key Agreement [Haverinen]" },
+  {EAP_TYPE_AKA, "UMTS Authentication and Key Agreement [Haverinen]" },
   { 24,          "EAP-3Com Wireless [Young]" },
   {EAP_TYPE_PEAP,"PEAP [Palekar]" },
   {EAP_TYPE_MSCHAPV2,"MS-EAP-Authentication [Palekar]" },
@@ -217,6 +218,7 @@ static int   hf_eaptls_fragment_error = -1;
 static gint ett_eaptls_fragment  = -1;
 static gint ett_eaptls_fragments = -1;
 static gint ett_eap_sim_attr = -1;
+static gint ett_eap_aka_attr = -1;
 
 static const fragment_items eaptls_frag_items = {
 	&ett_eaptls_fragment,
@@ -427,14 +429,15 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 		{ 15, "AT_VERSION_LIST" },
 		{ 16, "AT_SELECTED_VERSION" },
 		{ 17, "AT_FULLAUTH_ID_REQ" },
-		{ 18, "AT_COUNTER" },
-		{ 19, "AT_COUNTER_TOO_SMALL" },
-		{ 20, "AT_NONCE_S" },
-		{ 21, "AT_CLIENT_ERROR_CODE" },
+		{ 19, "AT_COUNTER" },
+		{ 20, "AT_COUNTER_TOO_SMALL" },
+		{ 21, "AT_NONCE_S" },
+		{ 22, "AT_CLIENT_ERROR_CODE" },
 		{ 129, "AT_IV" },
 		{ 130, "AT_ENCR_DATA" },
 		{ 132, "AT_NEXT_PSEUDONYM" },
 		{ 133, "AT_NEXT_REAUTH_ID" },
+		{ 135, "AT_RESULT_IND" },
 		{ 0, NULL }
 	};
 
@@ -470,6 +473,107 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 					 val_to_str(type, attributes,
 						    "Unknown %u"));
 		attr_tree = proto_item_add_subtree(pi, ett_eap_sim_attr);
+		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
+				    "Type: %u", type);
+		aoffset++;
+		aleft--;
+
+		if (aleft <= 0)
+			break;
+		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
+				    "Length: %d (%d bytes)",
+				    length, 4 * length);
+		aoffset++;
+		aleft--;
+		proto_tree_add_text(attr_tree, tvb, aoffset, aleft,
+				    "Value: %s",
+				    tvb_bytes_to_str(tvb, aoffset, aleft));
+
+		offset += 4 * length;
+		left -= 4 * length;
+	}
+}
+
+static void
+dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
+{
+	gint left = size;
+	enum {
+		AKA_CHALLENGE = 1,
+		AKA_AUTHENTICATION_REJECT = 2,
+		AKA_SYNCHRONIZATION_FAILURE = 4,
+		AKA_IDENTITY = 5,
+		AKA_NOTIFICATION = 12,
+		AKA_REAUTHENTICATION = 13,
+		AKA_CLIENT_ERROR = 14
+	} subtype;
+	static const value_string subtypes[] = {
+		{ AKA_CHALLENGE, "AKA-Challenge" },
+		{ AKA_AUTHENTICATION_REJECT, "AKA-Authentication-Reject" },
+		{ AKA_SYNCHRONIZATION_FAILURE, "AKA-Synchronization-Failure" },
+		{ AKA_IDENTITY, "AKA-Identity" },
+		{ AKA_NOTIFICATION, "Notification" },
+		{ AKA_REAUTHENTICATION, "Re-authentication" },
+		{ AKA_CLIENT_ERROR, "Client-Error" },
+		{ 0, NULL }
+	};
+	static const value_string attributes[] = {
+		{ 1, "AT_RAND" },
+		{ 2, "AT_AUTN" },
+		{ 3, "AT_RES" },
+		{ 4, "AT_AUTS" },
+		{ 6, "AT_PADDING" },
+		{ 10, "AT_PERMANENT_ID_REQ" },
+		{ 11, "AT_MAC" },
+		{ 12, "AT_NOTIFICATION" },
+		{ 13, "AT_ANY_ID_REQ" },
+		{ 14, "AT_IDENTITY" },
+		{ 17, "AT_FULLAUTH_ID_REQ" },
+		{ 19, "AT_COUNTER" },
+		{ 20, "AT_COUNTER_TOO_SMALL" },
+		{ 21, "AT_NONCE_S" },
+		{ 22, "AT_CLIENT_ERROR_CODE" },
+		{ 129, "AT_IV" },
+		{ 130, "AT_ENCR_DATA" },
+		{ 132, "AT_NEXT_PSEUDONYM" },
+		{ 133, "AT_NEXT_REAUTH_ID" },
+		{ 134, "AT_CHECKCODE" },
+		{ 135, "AT_RESULT_IND" },
+		{ 0, NULL }
+	};
+
+	subtype = tvb_get_guint8(tvb, offset);
+	proto_tree_add_text(eap_tree, tvb, offset, 1,
+			    "subtype: %d (%s)", 
+			    subtype, val_to_str(subtype, subtypes, "Unknown"));
+
+	offset++;
+	left--;
+
+	if (left < 2)
+		return;
+	proto_tree_add_text(eap_tree, tvb, offset, 2, "Reserved: %d",
+			    tvb_get_ntohs(tvb, offset));
+	offset += 2;
+	left -= 2;
+
+	/* Rest of EAP-AKA data is in Type-Len-Value format. */
+	while (left >= 2) {
+		guint8 type, length;
+		proto_item *pi;
+		proto_tree *attr_tree;
+		int aoffset;
+		gint aleft;
+		aoffset = offset;
+		type = tvb_get_guint8(tvb, aoffset);
+		length = tvb_get_guint8(tvb, aoffset + 1);
+		aleft = 4 * length;
+
+		pi = proto_tree_add_text(eap_tree, tvb, aoffset, aleft,
+					 "Attribute: %s", 
+					 val_to_str(type, attributes,
+						    "Unknown %u"));
+		attr_tree = proto_item_add_subtree(pi, ett_eap_aka_attr);
 		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
 				    "Type: %u", type);
 		aoffset++;
@@ -1046,12 +1150,19 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  dissect_eap_mschapv2(eap_tree, tvb, offset, size);
 	break; /* EAP_TYPE_MSCHAPV2 */
       /*********************************************************************
-              EAP-SIM - draft-haverinen-pppext-eap-sim-12.txt
+              EAP-SIM - draft-haverinen-pppext-eap-sim-13.txt
       **********************************************************************/
       case EAP_TYPE_SIM:
 	if (tree)
 	  dissect_eap_sim(eap_tree, tvb, offset, size);
 	break; /* EAP_TYPE_SIM */
+      /*********************************************************************
+              EAP-AKA - draft-arkko-pppext-eap-aka-12.txt
+      **********************************************************************/
+      case EAP_TYPE_AKA:
+	if (tree)
+	  dissect_eap_aka(eap_tree, tvb, offset, size);
+	break; /* EAP_TYPE_AKA */
       /*********************************************************************
       **********************************************************************/
       default:
@@ -1138,6 +1249,7 @@ proto_register_eap(void)
 	&ett_eaptls_fragment,
 	&ett_eaptls_fragments,
 	&ett_eap_sim_attr,
+	&ett_eap_aka_attr,
   };
 
   proto_eap = proto_register_protocol("Extensible Authentication Protocol",
