@@ -2,7 +2,7 @@
  * Routines for Vendor Specific Encodings dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-vendor.c,v 1.4 2003/12/11 21:23:37 ulfl Exp $
+ * $Id: packet-vendor.c,v 1.5 2003/12/13 02:45:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,7 @@
 
 /* Notes to Adding dissectors for Vendor specific TLV's:
  * 1. Create a dissect_<vendorname> function with the following prototype:
- *   dissect_foovendor(tvbuff_t *tvb, proto_tree *tree, guint8 vsif_len)
+ *   dissect_foovendor(tvbuff_t *tvb, proto_tree *tree, gint vsif_len)
  * 2. vsif_len will be the *entire* length of the vsif TLV (including the 
  *   Vendor Id TLV, which is 5 bytes long).
  * 3. Create a new 'case' statement in dissect_vsif, for your specific Vendor
@@ -97,7 +97,7 @@ static const value_string vendorid_vals[] = {
 
 /* Forward Declarations for vendor specific dissectors */
 static void dissect_cisco (tvbuff_t * tvb, proto_tree * tree,
-			   guint8 vsif_len);
+			   gint vsif_len);
 
 /* Code to actually dissect the packets */
 static void
@@ -108,7 +108,7 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
   guint8 type;
   guint8 length;
   guint32 value;
-  guint16 vsif_len;
+  gint vsif_len;
 
 /* get the total length of the VSIF TLV */
   vsif_len = tvb_length_remaining (tvb, 0);
@@ -144,7 +144,7 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 	{
 	case VENDOR_CISCO:
 	  proto_item_append_text (it, " (Cisco)");
-	  dissect_cisco (tvb, vsif_tree, (guint8) vsif_len);
+	  dissect_cisco (tvb, vsif_tree, vsif_len);
 	  break;
 	default:
 	  proto_item_append_text (it, " (Unknown)");
@@ -168,14 +168,14 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 #define IP_PREC_BW  0x02
 
 static void
-dissect_cisco (tvbuff_t * tvb, proto_tree * tree, guint8 vsif_len)
+dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
 {
   /* Start at pos = 5, since tvb includes the Vendor ID field */
-  guint16 pos = 5;
+  int pos = 5;
   guint8 type, length;
   proto_item *ipprec_it;
   proto_tree *ipprec_tree;
-  guint16 templen;
+  int templen;
 
   while (pos < vsif_len)
     {
