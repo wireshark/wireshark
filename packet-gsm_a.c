@@ -38,7 +38,7 @@
  *   Formats and coding
  *   (3GPP TS 24.080 version 4.3.0 Release 4)
  *
- * $Id: packet-gsm_a.c,v 1.3 2003/10/30 19:39:33 guy Exp $
+ * $Id: packet-gsm_a.c,v 1.4 2003/11/02 23:24:48 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -701,6 +701,20 @@ static gint ett_cm_srvc_type = -1;
 static gint ett_gsm_enc_info = -1;
 static gint ett_cell_list = -1;
 static gint ett_dlci = -1;
+static gint ett_bc_oct_3a = -1;
+static gint ett_bc_oct_4 = -1;
+static gint ett_bc_oct_5 = -1;
+static gint ett_bc_oct_5a = -1;
+static gint ett_bc_oct_5b = -1;
+static gint ett_bc_oct_6 = -1;
+static gint ett_bc_oct_6a = -1;
+static gint ett_bc_oct_6b = -1;
+static gint ett_bc_oct_6c = -1;
+static gint ett_bc_oct_6d = -1;
+static gint ett_bc_oct_6e = -1;
+static gint ett_bc_oct_6f = -1;
+static gint ett_bc_oct_6g = -1;
+static gint ett_bc_oct_7 = -1;
 
 static char a_bigbuf[1024];
 static gchar a_add_string[1024];
@@ -4140,6 +4154,1109 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 }
 
 /*
+ * [3] 10.5.4.5
+ */
+static guint8
+de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint8	itc;
+    gboolean	extended;
+    guint32	curr_offset;
+    guint32	saved_offset;
+    proto_tree	*subtree;
+    proto_item	*item;
+    gchar	*str;
+
+#define	DE_BC_ITC_SPEECH	0x00
+#define	DE_BC_ITC_UDI		0x01
+#define	DE_BC_ITC_EX_PLMN	0x02
+#define	DE_BC_ITC_FASC_G3	0x03
+#define	DE_BC_ITC_OTHER_ITC	0x05
+#define	DE_BC_ITC_RSVD_NET	0x07
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    /* octet 3 */
+
+    /*
+     * warning, bearer cap uses extended values that
+     * are reversed from other parameters!
+     */
+    extended = (oct & 0x80) ? FALSE : TRUE;
+    itc = oct & 0x07;
+
+    my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Extension: %s",
+	a_bigbuf,
+	extended ? "extended" : "not extended");
+
+    switch (is_uplink)
+    {
+    case IS_UPLINK_FALSE:
+	str = "Spare";
+	break;
+
+    case IS_UPLINK_TRUE:
+	/*
+	 * depends on Information transfer capability
+	 */
+	switch (itc)
+	{
+	case DE_BC_ITC_SPEECH:
+	    if (extended)
+	    {
+		switch ((oct & 0x60) >> 5)
+		{
+		case 1: str = "MS supports at least full rate speech version 1 but does not support half rate speech version 1"; break;
+		case 2: str = "MS supports at least full rate speech version 1 and half rate speech version 1. MS has a greater preference for half rate speech version 1 than for full rate speech version 1"; break;
+		case 3: str = "MS supports at least full rate speech version 1 and half rate speech version 1. MS has a greater preference for full rate speech version 1 than for half rate speech version 1"; break;
+		default:
+		    str = "Reserved";
+		    break;
+		}
+		break;
+	    }
+	    else
+	    {
+		switch ((oct & 0x60) >> 5)
+		{
+		case 1: str = "Full rate support only MS/fullrate speech version 1 supported"; break;
+		case 2: str = "Dual rate support MS/half rate speech version 1 preferred, full rate speech version 1 also supported"; break;
+		case 3: str = "Dual rate support MS/full rate speech version 1 preferred, half rate speech version 1 also supported"; break;
+		default:
+		    str = "Reserved";
+		    break;
+		}
+		break;
+	    }
+	    break;
+
+	default:
+	    switch ((oct & 0x60) >> 5)
+	    {
+	    case 1: str = "Full rate support only MS"; break;
+	    case 2: str = "Dual rate support MS/half rate preferred"; break;
+	    case 3: str = "Dual rate support MS/full rate preferred"; break;
+	    default:
+		str = "Reserved";
+		break;
+	    }
+	    break;
+	}
+	break;
+
+    default:
+	str = "(dissect problem)";
+	break;
+    }
+
+    my_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Radio channel requirement: %s",
+	a_bigbuf,
+	str);
+
+    my_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Coding standard: %s",
+	a_bigbuf,
+	(oct & 0x10) ? "reserved" : "GSM standardized coding");
+
+    my_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Transfer mode: %s",
+	a_bigbuf,
+	(oct & 0x08) ? "packet" : "circuit");
+
+    switch (itc)
+    {
+    case DE_BC_ITC_SPEECH: str = "Speech"; break;
+    case DE_BC_ITC_UDI: str = "Unrestricted digital information"; break;
+    case DE_BC_ITC_EX_PLMN: str = "3.1 kHz audio, ex PLMN"; break;
+    case DE_BC_ITC_FASC_G3: str = "Facsimile group 3"; break;
+    case DE_BC_ITC_OTHER_ITC: str = "Other ITC (See Octet 5a)"; break;
+    case DE_BC_ITC_RSVD_NET: str = "Reserved, to be used in the network"; break;
+    default:
+	str = "Reserved";
+	break;
+    }
+
+    my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Information transfer capability: %s",
+	a_bigbuf,
+	str);
+
+    sprintf(add_string, " - (%s)", str);
+
+    curr_offset++;
+
+    NO_MORE_DATA_CHECK(len);
+
+    switch (itc)
+    {
+    case DE_BC_ITC_SPEECH:
+	/* octets 3a */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, -1,
+		"Octets 3a - Speech Versions");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_3a);
+
+	saved_offset = curr_offset;
+
+	do
+	{
+	    oct = tvb_get_guint8(tvb, curr_offset);
+
+	    extended = (oct & 0x80) ? FALSE : TRUE;
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Extension: %s",
+		a_bigbuf,
+		extended ? "extended" : "not extended");
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Coding: octet used for %s",
+		a_bigbuf,
+		(oct & 0x40) ? "other extension of octet 3" :
+		    "extension of information transfer capability");
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x30, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
+
+	    switch (oct & 0x0f)
+	    {
+	    case 0: str = "GSM full rate speech version 1"; break;
+	    case 2: str = "GSM full rate speech version 2"; break;
+	    case 4: str = "GSM full rate speech version 3"; break;
+	    case 1: str = "GSM half rate speech version 1"; break;
+	    case 5: str = "GSM half rate speech version 3"; break;
+	    default:
+		str = "Speech version TBD";
+		break;
+	    }
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Speech version indication: %s",
+		a_bigbuf,
+		str);
+
+	    curr_offset++;
+	}
+	while (extended &&
+	    ((len - (curr_offset - offset)) > 0));
+
+	proto_item_set_len(item, curr_offset - saved_offset);
+	break;
+
+    default:
+	/* octet 4 */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 4");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_4);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Compression: data compression %s%s",
+	    a_bigbuf,
+	    (oct & 0x40) ? "" : "not ",
+	    is_uplink ? "allowed" : "possible");
+
+	switch ((oct & 0x30) >> 4)
+	{
+	case 0x00: str = "Service data unit integrity"; break;
+	case 0x03: str = "Unstructured"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x30, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Structure: %s",
+	    a_bigbuf,
+	    str);
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Duplex mode: %s",
+	    a_bigbuf,
+	    (oct & 0x08) ? "Full" : "Half");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Configuration: %s",
+	    a_bigbuf,
+	    (oct & 0x04) ? "Reserved" : "Point-to-point");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  NIRR: %s",
+	    a_bigbuf,
+	    (oct & 0x02) ?
+		"Data up to and including 4.8 kb/s, full rate, non-transparent, 6 kb/s radio interface rate is requested" :
+		"No meaning is associated with this value");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Establishment: %s",
+	    a_bigbuf,
+	    (oct & 0x01) ? "Reserved" : "Demand");
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	/* octet 5 */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 5");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_5);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Access Identity: %s",
+	    a_bigbuf,
+	    (oct & 0x60) ? "Reserved" : "Octet identifier");
+
+	switch ((oct & 0x18) >> 3)
+	{
+	case 0x00: str = "No rate adaption"; break;
+	case 0x01: str = "V.110, I.460/X.30 rate adaptation"; break;
+	case 0x02: str = "ITU-T X.31 flag stuffing"; break;
+	default:
+	    str = "Other rate adaption (see octet 5a)"; break;
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x18, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Rate Adaption: %s",
+	    a_bigbuf,
+	    str);
+
+	switch (oct & 0x07)
+	{
+	case 0x01: str = "I.440/450"; break;
+	case 0x02: str = "Reserved: was allocated in earlier phases of the protocol"; break;
+	case 0x03: str = "Reserved: was allocated in earlier phases of the protocol"; break;
+	case 0x04: str = "Reserved: was allocated in earlier phases of the protocol"; break;
+	case 0x05: str = "Reserved: was allocated in earlier phases of the protocol"; break;
+	case 0x06: str = "Reserved: was allocated in earlier phases of the protocol"; break;
+	default:
+	    str = "Reserved"; break;
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Signalling Access Protocol: %s",
+	    a_bigbuf,
+	    str);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (!extended) goto bc_octet_6;
+
+	/* octet 5a */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 5a");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_5a);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Other ITC: %s",
+	    a_bigbuf,
+	    (oct & 0x60) ? "Reserved" : "Restricted digital information");
+
+	switch ((oct & 0x18) >> 3)
+	{
+	case 0x00: str = "V.120"; break;
+	case 0x01: str = "H.223 & H.245"; break;
+	case 0x02: str = "PIAFS"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x18, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Other Rate Adaption: %s",
+	    a_bigbuf,
+	    str);
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Spare",
+	    a_bigbuf);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (!extended) goto bc_octet_6;
+
+	/* octet 5b */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 5b");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_5b);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Rate Adaption Header: %sincluded",
+	    a_bigbuf,
+	    (oct & 0x40) ? "" : "not ");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Multiple frame establishment support in data link: %s",
+	    a_bigbuf,
+	    (oct & 0x20) ? "Supported" : "Not supported, only UI frames allowed");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Mode of operation: %s",
+	    a_bigbuf,
+	    (oct & 0x10) ? "Protocol sensitive" : "Bit transparent");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Logical link identifier negotiation: %s",
+	    a_bigbuf,
+	    (oct & 0x08) ? "Full protocol negotiation" : "Default, LLI=256 only");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Assignor/Assignee: Message originator is '%s'",
+	    a_bigbuf,
+	    (oct & 0x04) ? "assignor only" : "default assignee");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  In band/Out of band negotiation: Negotiation is done %s",
+	    a_bigbuf,
+	    (oct & 0x02) ?
+		"with USER INFORMATION messages on a temporary signalling connection" :
+		"in-band using logical link zero");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Spare",
+	    a_bigbuf);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+bc_octet_6:
+
+	/* octet 6 */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 6");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_6);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Layer 1 Identity: %s",
+	    a_bigbuf,
+	    ((oct & 0x60) == 0x20) ? "Octet identifier" : "Reserved");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x1e, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  User information layer 1 protocol: %s",
+	    a_bigbuf,
+	    (oct & 0x1e) ? "Reserved" : "Default layer 1 protocol");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Synchronous/asynchronous: %s",
+	    a_bigbuf,
+	    (oct & 0x01) ? "Asynchronous" : "Synchronous");
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (!extended) goto bc_octet_7;
+
+	/* octet 6a */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 6a");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_6a);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Number of Stop Bits: %s",
+	    a_bigbuf,
+	    (oct & 0x40) ? "2" : "1");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Negotiation: %s",
+	    a_bigbuf,
+	    (oct & 0x20) ? "Reserved" : "In-band negotiation not possible");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Number of data bits excluding parity bit if present: %s",
+	    a_bigbuf,
+	    (oct & 0x10) ? "8" : "7");
+
+	switch (oct & 0x0f)
+	{
+	case 0x01: str = "0.3 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x02: str = "1.2 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x03: str = "2.4 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x04: str = "4.8 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x05: str = "9.6 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x06: str = "12.0 kbit/s transparent (non compliance with X.1 and V.110)"; break;
+	case 0x07: str = "Reserved: was allocated in earlier phases of the protocol"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  User rate: %s",
+	    a_bigbuf,
+	    str);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (!extended) goto bc_octet_7;
+
+	/* octet 6b */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 6b");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_6b);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	switch ((oct & 0x60) >> 5)
+	{
+	case 0x02: str = "8 kbit/s"; break;
+	case 0x03: str = "16 kbit/s"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  V.110/X.30 rate adaptation Intermediate rate: %s",
+	    a_bigbuf,
+	    str);
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Network independent clock (NIC) on transmission (Tx): %s to send data with network independent clock",
+	    a_bigbuf,
+	    (oct & 0x10) ? "requires" : "does not require");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Network independent clock (NIC) on reception (Rx): %s accept data with network independent clock",
+	    a_bigbuf,
+	    (oct & 0x08) ? "can" : "cannot");
+
+	switch (oct & 0x07)
+	{
+	case 0x00: str = "Odd"; break;
+	case 0x02: str = "Even"; break;
+	case 0x03: str = "None"; break;
+	case 0x04: str = "Forced to 0"; break;
+	case 0x05: str = "Forced to 1"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Parity information: %s",
+	    a_bigbuf,
+	    str);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (!extended) goto bc_octet_7;
+
+	/* octet 6c */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 6c");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_6c);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	switch ((oct & 0x60) >> 5)
+	{
+	case 0x01: str = "Non transparent (RLP)"; break;
+	case 0x02: str = "Both, transparent preferred"; break;
+	case 0x03: str = "Both, non transparent preferred"; break;
+	default:
+	    str = "Transparent";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Connection element: %s",
+	    a_bigbuf,
+	    str);
+
+	switch (oct & 0x1f)
+	{
+	case 0x00: str = "None"; break;
+	case 0x01: str = "V.21"; break;
+	case 0x02: str = "V.22"; break;
+	case 0x03: str = "V.22 bis"; break;
+	case 0x04: str = "Reserved: was allocated in earlier phases of the protocol"; break;
+	case 0x05: str = "V.26 ter"; break;
+	case 0x06: str = "V.32"; break;
+	case 0x07: str = "Modem for undefined interface"; break;
+	case 0x08: str = "Autobauding type 1"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Modem type: %s",
+	    a_bigbuf,
+	    str);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (!extended) goto bc_octet_7;
+
+	/* octet 6d */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 6d");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_6d);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	switch ((oct & 0x60) >> 5)
+	{
+	case 0x00: str = "No other modem type specified in this field"; break;
+	case 0x02: str = "V.34"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Other modem type: %s",
+	    a_bigbuf,
+	    str);
+
+	switch (oct & 0x1f)
+	{
+	case 0x00: str = "Fixed network user rate not applicable/No meaning is associated with this value"; break;
+	case 0x01: str = "9.6 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x02: str = "14.4 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x03: str = "19.2 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x04: str = "28.8 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x05: str = "38.4 kbit/s Recommendation X.1 and V.110"; break;
+	case 0x06: str = "48.0 kbit/s Recommendation X.1 and V.110(synch)"; break;
+	case 0x07: str = "56.0 kbit/s Recommendation X.1 and V.110(synch) /bit transparent"; break;
+	case 0x08: str = "64.0 kbit/s bit transparent"; break;
+	case 0x09: str = "33.6 kbit/s bit transparent"; break;
+	case 0x0a: str = "32.0 kbit/s Recommendation I.460"; break;
+	case 0x0b: str = "31.2 kbit/s Recommendation V.34"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Fixed network user rate: %s",
+	    a_bigbuf,
+	    str);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (!extended) goto bc_octet_7;
+
+	/* octet 6e */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 6e");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_6e);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	if (is_uplink == IS_UPLINK_TRUE)
+	{
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Acceptable channel codings: TCH/F14.4 %sacceptable",
+		a_bigbuf,
+		(oct & 0x40) ? "" : "not ");
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Acceptable channel codings: Spare",
+		a_bigbuf);
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Acceptable channel codings: TCH/F9.6 %sacceptable",
+		a_bigbuf,
+		(oct & 0x10) ? "" : "not ");
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Acceptable channel codings: TCH/F4.8 %sacceptable",
+		a_bigbuf,
+		(oct & 0x08) ? "" : "not ");
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Maximum number of traffic channels: %d TCH",
+		a_bigbuf,
+		(oct & 0x07) + 1);
+	}
+	else
+	{
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x78, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Acceptable channel codings: Spare",
+		a_bigbuf);
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Maximum number of traffic channels: Spare",
+		a_bigbuf);
+	}
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (!extended) goto bc_octet_7;
+
+	/* octet 6f */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 6f");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_6f);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	switch ((oct & 0x70) >> 4)
+	{
+	case 0x00: str = "not allowed/required/applicable"; break;
+	case 0x01: str = "up to 1 TCH/F allowed/may be requested"; break;
+	case 0x02: str = "up to 2 TCH/F allowed/may be requested"; break;
+	case 0x03: str = "up to 3 TCH/F allowed/may be requested"; break;
+	case 0x04: str = "up to 4 TCH/F allowed/may be requested"; break;
+	default:
+	    str = "up to 4 TCH/F may be requested";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  UIMI, User initiated modification indication: %s",
+	    a_bigbuf,
+	    str);
+
+	if (is_uplink == IS_UPLINK_TRUE)
+	{
+	    switch (oct & 0x0f)
+	    {
+	    case 0x00: str = "Air interface user rate not applicable/No meaning associated with this value"; break;
+	    case 0x01: str = "9.6 kbit/s"; break;
+	    case 0x02: str = "14.4 kbit/s"; break;
+	    case 0x03: str = "19.2 kbit/s"; break;
+	    case 0x05: str = "28.8 kbit/s"; break;
+	    case 0x06: str = "38.4 kbit/s"; break;
+	    case 0x07: str = "43.2 kbit/s"; break;
+	    case 0x08: str = "57.6 kbit/s"; break;
+	    case 0x09: str = "interpreted by the network as 38.4 kbit/s in this version of the protocol"; break;
+	    case 0x0a: str = "interpreted by the network as 38.4 kbit/s in this version of the protocol"; break;
+	    case 0x0b: str = "interpreted by the network as 38.4 kbit/s in this version of the protocol"; break;
+	    case 0x0c: str = "interpreted by the network as 38.4 kbit/s in this version of the protocol"; break;
+	    default:
+		str = "Reserved";
+		break;
+	    }
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Wanted air interface user rate: %s",
+		a_bigbuf,
+		str);
+	}
+	else
+	{
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Wanted air interface user rate: Spare",
+		a_bigbuf);
+	}
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (!extended) goto bc_octet_7;
+
+	/* octet 6g */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 6g");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_6g);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	if (is_uplink == IS_UPLINK_TRUE)
+	{
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Acceptable channel codings extended: TCH/F28.8 %sacceptable",
+		a_bigbuf,
+		(oct & 0x40) ? "" : "not ");
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Acceptable channel codings extended: TCH/F32.0 %sacceptable",
+		a_bigbuf,
+		(oct & 0x20) ? "" : "not ");
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Acceptable channel codings extended: TCH/F43.2 %sacceptable",
+		a_bigbuf,
+		(oct & 0x10) ? "" : "not ");
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Acceptable channel codings extended: TCH/F43.2 %sacceptable",
+		a_bigbuf,
+		(oct & 0x10) ? "" : "not ");
+
+	    switch ((oct & 0x0c) >> 2)
+	    {
+	    case 0: str = "Channel coding symmetry preferred"; break;
+	    case 2: str = "Downlink biased channel coding asymmetry is preferred"; break;
+	    case 1: str = "Uplink biased channel coding asymmetry is preferred"; break;
+	    default:
+		str = "Unused, treat as Channel coding symmetry preferred";
+		break;
+	    }
+
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x0c, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Channel Coding Asymmetry Indication: %s",
+		a_bigbuf,
+		str);
+	}
+	else
+	{
+	    my_decode_bitfield_value(a_bigbuf, oct, 0x7c, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  EDGE Channel Codings: Spare",
+		a_bigbuf);
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Spare",
+	    a_bigbuf);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+bc_octet_7:
+
+	/* octet 7 */
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Octet 7");
+
+	subtree = proto_item_add_subtree(item, ett_bc_oct_7);
+
+	extended = (oct & 0x80) ? FALSE : TRUE;
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Extension: %s",
+	    a_bigbuf,
+	    extended ? "extended" : "not extended");
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Layer 2 Identity: %s",
+	    a_bigbuf,
+	    ((oct & 0x60) == 0x40) ? "Octet identifier" : "Reserved");
+
+	switch (oct & 0x1f)
+	{
+	case 0x06: str = "Reserved: was allocated in earlier phases of the protocol"; break;
+	case 0x08: str = "ISO 6429, codeset 0 (DC1/DC3)"; break;
+	case 0x09: str = "Reserved: was allocated but never used in earlier phases of the protocol"; break;
+	case 0x0a: str = "Videotex profile 1"; break;
+	case 0x0c: str = "COPnoFlCt (Character oriented Protocol with no Flow Control mechanism)"; break;
+	case 0x0d: str = "Reserved: was allocated in earlier phases of the protocol"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	my_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  User information layer 2 protocol: %s",
+	    a_bigbuf,
+	    str);
+	break;
+    }
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
  * [3] 10.5.4.5a
  */
 static guint8
@@ -5336,7 +6453,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_day_saving_time,	/* Daylight Saving Time */
     /* Call Control Information Elements 10.5.4 */
     de_aux_states,	/* Auxiliary States */
-    NULL,	/* Bearer Capability */
+    de_bearer_cap,	/* Bearer Capability */
     de_cc_cap,	/* Call Control Capabilities */
     de_call_state,	/* Call State */
     de_cld_party_bcd_num,	/* Called Party BCD Number */
@@ -9665,7 +10782,7 @@ proto_register_gsm_a(void)
     };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	10
+#define	NUM_INDIVIDUAL_ELEMS	24
     static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_MSG +
 			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_RR + NUM_GSM_DTAP_MSG_CC +
 			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SMS +
@@ -9684,6 +10801,20 @@ proto_register_gsm_a(void)
     ett[7] = &ett_gsm_enc_info;
     ett[8] = &ett_cell_list;
     ett[9] = &ett_dlci;
+    ett[10] = &ett_bc_oct_3a;
+    ett[11] = &ett_bc_oct_4;
+    ett[12] = &ett_bc_oct_5;
+    ett[13] = &ett_bc_oct_5a;
+    ett[14] = &ett_bc_oct_5b;
+    ett[15] = &ett_bc_oct_6;
+    ett[16] = &ett_bc_oct_6a;
+    ett[17] = &ett_bc_oct_6b;
+    ett[18] = &ett_bc_oct_6c;
+    ett[19] = &ett_bc_oct_6d;
+    ett[20] = &ett_bc_oct_6e;
+    ett[21] = &ett_bc_oct_6f;
+    ett[22] = &ett_bc_oct_6g;
+    ett[23] = &ett_bc_oct_7;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
