@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.105 2003/11/21 14:58:49 sahlberg Exp $
+ * $Id: proto.c,v 1.106 2003/11/22 04:41:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -381,12 +381,18 @@ proto_tree_set_visible(proto_tree *tree, gboolean visible)
 	PTREE_DATA(tree)->visible = visible;
 }
 
+#define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
+	g_assert((guint)hfindex < gpa_hfinfo.len); \
+	hfinfo=gpa_hfinfo.hfi[hfindex];		
+
 /* Finds a record in the hf_info_records array by id. */
 header_field_info*
 proto_registrar_get_nth(guint hfindex)
 {
-	g_assert(hfindex < gpa_hfinfo.len);
-	return gpa_hfinfo.hfi[hfindex];		
+	register header_field_info	*hfinfo;
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	return hfinfo;
 }
 
 /* Finds a record in the hf_info_records array by name.
@@ -781,7 +787,7 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_NONE);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, NULL);
@@ -814,7 +820,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gin
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_PROTOCOL);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -845,7 +851,7 @@ proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_BYTES);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -920,7 +926,7 @@ proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_ABSOLUTE_TIME ||
 				hfinfo->type == FT_RELATIVE_TIME);
 
@@ -984,7 +990,7 @@ proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_IPXNET);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -1047,7 +1053,7 @@ proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_IPv4);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -1110,7 +1116,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_IPv6);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -1202,7 +1208,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -1305,7 +1311,7 @@ proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_ETHER);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -1374,7 +1380,7 @@ proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_BOOLEAN);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -1437,7 +1443,7 @@ proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_FLOAT);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -1500,7 +1506,7 @@ proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	g_assert(hfinfo->type == FT_DOUBLE);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -1563,7 +1569,7 @@ proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	switch(hfinfo->type) {
 		case FT_UINT8:
 		case FT_UINT16:
@@ -1651,7 +1657,7 @@ proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gin
 	if (!tree)
 		return (NULL);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	switch(hfinfo->type) {
 		case FT_INT8:
 		case FT_INT16:
@@ -1807,7 +1813,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	 */
 	g_assert(tvb != NULL || *length == 0);
 
-	hfinfo = proto_registrar_get_nth(hfindex);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	if (*length == -1) {
 		/*
@@ -3123,11 +3129,8 @@ proto_registrar_get_name(int n)
 {
 	header_field_info *hfinfo;
 
-	hfinfo = proto_registrar_get_nth(n);
-	if (hfinfo)
-		return hfinfo->name;
-	else
-		return NULL;
+	PROTO_REGISTRAR_GET_NTH(n, hfinfo);
+	return hfinfo->name;
 }
 
 char*
@@ -3135,11 +3138,8 @@ proto_registrar_get_abbrev(int n)
 {
 	header_field_info *hfinfo;
 
-	hfinfo = proto_registrar_get_nth(n);
-	if (hfinfo)
-		return hfinfo->abbrev;
-	else
-		return NULL;
+	PROTO_REGISTRAR_GET_NTH(n, hfinfo);
+	return hfinfo->abbrev;
 }
 
 int
@@ -3147,11 +3147,8 @@ proto_registrar_get_ftype(int n)
 {
 	header_field_info *hfinfo;
 
-	hfinfo = proto_registrar_get_nth(n);
-	if (hfinfo)
-		return hfinfo->type;
-	else
-		return -1;
+	PROTO_REGISTRAR_GET_NTH(n, hfinfo);
+	return hfinfo->type;
 }
 
 int
@@ -3159,11 +3156,8 @@ proto_registrar_get_parent(int n)
 {
 	header_field_info *hfinfo;
 
-	hfinfo = proto_registrar_get_nth(n);
-	if (hfinfo)
-		return hfinfo->parent;
-	else
-		return -2;
+	PROTO_REGISTRAR_GET_NTH(n, hfinfo);
+	return hfinfo->parent;
 }
 
 gboolean
@@ -3171,11 +3165,8 @@ proto_registrar_is_protocol(int n)
 {
 	header_field_info *hfinfo;
 
-	hfinfo = proto_registrar_get_nth(n);
-	if (hfinfo)
-		return (hfinfo->parent == -1 ? TRUE : FALSE);
-	else
-		return FALSE;
+	PROTO_REGISTRAR_GET_NTH(n, hfinfo);
+	return (hfinfo->parent == -1 ? TRUE : FALSE);
 }
 
 /* Returns length of field in packet (not necessarily the length
@@ -3187,10 +3178,7 @@ proto_registrar_get_length(int n)
 {
 	header_field_info *hfinfo;
 
-	hfinfo = proto_registrar_get_nth(n);
-	if (!hfinfo)
-		return -1;
-
+	PROTO_REGISTRAR_GET_NTH(n, hfinfo);
 	return ftype_length(hfinfo->type);
 }
 
@@ -3329,7 +3317,7 @@ proto_registrar_dump_fields(void)
 
 	len = gpa_hfinfo.len;
 	for (i = 0; i < len ; i++) {
-		hfinfo = proto_registrar_get_nth(i);
+		PROTO_REGISTRAR_GET_NTH(i, hfinfo);
 
 		/*
 		 * Skip fields with zero-length names or abbreviations;
@@ -3372,8 +3360,7 @@ proto_registrar_dump_fields(void)
 			if (hfinfo->same_name_prev != NULL)
 				continue;
 
-			parent_hfinfo = proto_registrar_get_nth(hfinfo->parent);
-			g_assert(parent_hfinfo);
+			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
 
 			enum_name = ftype_name(hfinfo->type);
 			printf("F\t%s\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
