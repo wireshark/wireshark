@@ -106,10 +106,7 @@
   </section>
   </section>
   
-  <section id="ChAdvReassemblySection"><title>Packet Reassembling/Desegmenting</title>
-    <para>
-	XXX - rework this chapter, as it's still a bit confusing.
-	</para>
+  <section id="ChAdvReassemblySection"><title>Packet Reassembling</title>
     <section><title>What is it?</title>
     <para>
 	Often network protocols needs to transport large chunks of data, which are 
@@ -123,13 +120,12 @@
 	(if required) spreading the data over multiple packets. It also needs a 
 	mechanism to find back the chunk boundaries on the receiving side.
     </para>
-    <note><title>Reassembling vs. Desegmenting!</title>
+	<tip><title>Tip!</title>
     <para>
-	Desegmenting is a slightly different mechanism compared to reassembling, 
-	but doing the same thing. Both mechanisms combine traffic back together,
-	in this chapter only the term reassembling will be used.
+	Ethereal calls this mechanism reassembling, although a specific protocol  
+	specification might use a different term for this.
 	</para>
-	</note>
+	</tip>
     </section>
     <section><title>How Ethereal handles it</title>
     <para>
@@ -151,24 +147,10 @@
 	</para>
     </note>
     <para>
-	Some examples:
-	<itemizedlist>
-	<listitem>
-	  <para>
+	An example:
 		In a <command>HTTP</command> GET response, the requested data (e.g. a 
 		HTML page) is returned. Ethereal will show the hex dump of the data in 
 		a new tab "Uncompressed entity body" in the "Packet Bytes" pane.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-		A <command>DCE-RPC</command> (Remote Procedure Call) client send a 
-		request to the server and expects a response back from it. Both the 
-		request and the response is a complete chunk of data and will be 
-		shown as a new tab "Reassembled DCE/RPC" in the "Packet Bytes" pane.
-	  </para>
-	</listitem>
-	</itemizedlist>
     </para>
     </section>
 	
@@ -183,7 +165,7 @@
 	<listitem>
     <para>
 	the lower level protocol (e.g., TCP) must support
-	reassembly. Often this reassembly can be enabled or disabled at will
+	reassembly. Often this reassembly can be enabled or disabled 
 	via the protocol preferences.
     </para>
 	</listitem>
@@ -197,16 +179,8 @@
 	</orderedlist>
     </para>
     <para>
-	As a result, if reassembly of protocol Y on top of protocol X 
-	must be enabled, it is wise to take a look at the protocol preferences for
-	both protocols. Check whether protocol X allows subdissectors to
-	reassemble, and check whether protocol Y supports reassembly 
-	and has it enabled.
-    </para>
-    <para>
-	For example: if you have HTTP on top of TCP, you have to enable the TCP 
-	preference "Allow subdissectors to reassemble" and enable the HTTP 
-	preference "Reassemble".
+	The tooltip of the higher level protocol setting will note you if and 
+	which lower level protocol setting has to be considered too.
     </para>
     </section>
   </section>
