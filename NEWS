@@ -1,3 +1,5 @@
+$Id: NEWS,v 1.117 2002/12/07 23:14:09 gerald Exp $
+
 == December 7, 2002
 
 Ethereal 0.9.8 has been released.
@@ -48,15 +50,16 @@ New Protocols
 Updated Protocols
 
   AFP, AFS, BACNet, BGP, DCERPC, DCERPC EPM, DCERPC LSA, DCERPC NDR,
-  DCERPC NT, DCERPC SAMR, DCERPC UPDATE, GTP, HTTP, IPv6CP, IPX, iSCSI,
-  ISDN, LAPD, LDAP, M2PA, NDPS, NDS, NetBIOS, NFS, NTLMSSP, OSPF, PPP,
-  PPPoE, Q.931, RPC, RSVP, SCSI, SCTP, SMB, SNMP, Spanning Tree, SPNEGO,
-  SPOOLSS, SPX, SRVLOC, TCP, Telnet, V.120, WEP, YPSERV
+  DCERPC NT, DCERPC SAMR, DCERPC UPDATE, GRE, GTP, HTTP, IPv6CP, IPX,
+  iSCSI, ISDN, IUA, LAPD, LDAP, M2PA, NDPS, NDS, NetBIOS, NFS, NTLMSSP,
+  OSPF, PPP, PPPoE, Q.2931, Q.931, RPC, RSVP, SCSI, SCTP, SMB, SNMP,
+  Spanning Tree, SPNEGO, SPOOLSS, SPX, SRVLOC, TCP, Telnet, V.120, WEP,
+  YPSERV
 
 
 Updated Capture File Support
 
-  AIX tcpdump, NetXRay, Sniffer, snoop
+  AIX iptrace and tcpdump, NetXRay, Sniffer, snoop
 
 
 == September 28, 2002

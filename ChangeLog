@@ -1,3 +1,5 @@
+$Id: ChangeLog,v 1.11 2002/12/07 23:14:09 gerald Exp $
+
 Overview of changes in Ethereal 0.9.8:
 * Display AFS KAUTH information (Loic Tortay)
 * Windows uninstall deletion improvements (Gerald)
@@ -175,7 +177,218 @@ Overview of changes in Ethereal 0.9.8:
 * Add a protocol hierarchy statistics tap to tethereal (Ronnie)
 * Properly fetch GTP Packet Transfer Command IE value (Fritz Budiyanto)
 * Tweak direction display in ISDN (Guy)
-* 
+* Remove a newline from a string in CLNP (Guy)
+* Fix up the handling of WAN captures somewhat (Guy)
+* Get rid of some trailing blanks in strings in GTP (Guy)
+* Use strchr() instead of index() in tap-iostat.c (Guy)
+* Add str*chr() portablility note to README.developer (Guy)
+* Make Makefile.nmake use bash (Guy)
+* Add make-tapreg-dotc note to README.win32 (Guy)
+* Add duplicate ACK detection to TCP analysis (Ronnie)
+* Add zero window checks to TCP analysis (Ronnie)
+* Allow the same field to be used more than once in a display filter
+  (Gilbert)
+* Handle AIX iptrace FDDI padding, #define magic numbers (Guy)
+* Fixed small bug in TCP seq/ack analysis (Ronnie)
+* Update DCERPC UUID tree display (Jean-Baptiste Marchand)
+* Support for the RPL (Remote Program Load) protocol
+  (Jochen Friedrich)
+* Register DCERPC LSA DS ett_ values (Guy)
+* Fix for Netlogon function 0x22 (Ronnie)
+* Add references to 'tethereal -D' in the '-i' section of the man page
+  (Gerald)
+* Merge gtk and gtk2 directories (Olivier)
+* RPL tree display and MAC address updates (Jochen)
+* Fix a typo in README.developer (Jean-Baptiste)
+* Use the full name of the "hf_dcerpc_obj_id" field when formatting the
+  protocol tree item for it (Guy)
+* Don't use the result of "proto_registrar_get_name()" as the field value
+  in DCERPC NDR (Guy)
+* Register (and initialize) PPP ett_mplscp_options and ett_cdpcp_options
+  (Gerald)
+* Bugfix for DSROLE_PRIMARY_DOMAIN_INFO (Ronnie)
+* New tap extension to tethereal: ProtoColInfo (Ronnie)
+* Support BGP v6 NLRIs and fix a v4 nexthop display bug (Hannes)
+* A small fix to SMB's NtCreat&X (Jim McDonough)
+* DCERPC/GSS-API authenitcation data fixes (Guy)
+* Show the SAP values in RPL packets symbolically if possible (Guy)
+* Initial TAP registration code (Ronnie)
+* Support for new "wlancap" 802.11 extra-information header
+  (Solomon Peachy)
+* Replace/improve handling of PPP over GTPv1 and v0 (Andreas Trauer)
+* Store GSS-API negotiation info per-frame (Guy)
+* Add "ethereal-tap-register.c" to the gtk ".cvsignore" file (Guy)
+* Fix the message printed when making "ethereal-tap-register.c" (Guy)
+* Add a Makefile.nmake rule for "ethereal-tap-register.c"
+  (Jason House, Guy)
+* NTLMSSP NEGOTIATE, CHALLENGE, and AUTH fixes (Guy)
+* hf_index update for TCP (Ronnie)
+* Use the proper proto_tree_add_... call for FT_NONE in TCP (Ronnie)
+* Many SPOOLSS updates and fixes (Jim McDonough)
+* Show GRE type value for OSI protocols symbolically (Hannes)
+* Allow more than one circuit with the same circuit ID, add a circuit ID
+  for X.25 (Guy)
+* Better NTLMSSP_NEGOTIATE_UNICODE handling (Guy)
+* Remove an unused variable and fix a field name in NTLMSSP (Guy)
+* Call the NTLMSSP subdissector regardless of whether we're building a
+  protocol tree or not in HTTP (Guy)
+* Use the same ett_ value for all security blobs in SMB (Guy)
+* Better NEGOTIATE and CHALLENGE session key handling in NTLMSSP (Guy)
+* Get rid of carriage returns and execute permissions in source files (Guy)
+* Eliminate a compiler warning, and handle overflows in SPOOLSS (Guy)
+* Add support for SIGINFO to tethereal (Guy)
+* Attempt to handle REC_HEADER2 records in major version 2 DOS Sniffer
+  captures (Guy)
+* Properly parse the fs field in ISDN packets (Guy)
+* Display the call reference flag in Q.931 (Guy)
+* Put in a note about "ntoh[ls]()" and "hton[ls]()" vs. the GLib versions
+  of same in README.developer (Guy)
+* Added support for version 2 of the M2PA ID (Jeff Morriss, Michael)
+* Add a bunch of GTK1.2/2.0 compatibility macros (Olivier)
+* Dissect NTLMSSP authentication verifiers, as per lkcl's "DCE/RPC over
+  SMB" book (Guy)
+* Bugfixes for two SAMR dissectors (Ronnie)
+* Open the main window before opening the tap window (Olivier)
+* Remove redundant tap_list search (Olivier)
+* Show proper field names for SAMR UnicodeChangePassword2 (Devin)
+* Display the Q.2931 call reference flag (Guy)
+* Update comments to reflect some information inferred from the Sniffer
+  documentation (Guy)
+* Clean tap objects in Makefile.nmake, centralize Windows MIBDIRS code
+  (Gerald)
+* Convert getprinter info 0, 1, 2, 3 to dissect_ndr routines in SPOOLSS
+  (Tim)
+* Replace gtk_rpcprogs_init with gtk_rpcprogs_cb in the gtk2 menu entry
+  (Olivier)
+* Fix "gtk_quit_add_destroy()" cast in proto_dlg.c (Guy)
+* Fix #if/#ifdef boolean checking in packet-snmp.c (Guy)
+* Correct typos and remove obsoleted code in GTP (Andreas)
+* In the gtk2 port, make double click in the tree view expand or collapse
+  a row (Olivier)
+* Various GTP and PPP fixes (Guy)
+* Handle Sequence Of header being split across TCP segments in LDAP
+  (Ronald Henderson)
+* Typo and display fixes in GTP (Andreas)
+* Add a new "dissect_rpc_bytes()" routine (Brian Ginsbach)
+* Support for additional snoop file encapsulations in UNICOS/mp (Brian)
+* Typo fixes in packet-mount.c (Brian)
+* Add dissection of DsRoleGetPrimaryDomainInfo to the dcerpc-lsa-ds
+  dissector (Richard)
+* Add HyperSCSI support. SCSI over ethernet (Richard)
+* Fix "ethereal-tap-register.c" building (Didier)
+* More "tethereal-tap-register.c" and "ethereal-tap-register.c" fixes (Guy)
+* Make the list of Makefile.nmake dissectors match the one for UNIX builds
+  (Guy)
+* GTK2 version of IO-STAT (Ronnie)
+* Export more routines to plugins (Tomas Kukosa)
+* Fix an iSCSI typo (Andrew Esh)
+* Only display errors in SMB headers in the COL_INFO field (Tim)
+* Export "find_dissector_table()" and add
+  "dissector_handle_get_protocol_index()" (Chris Waters)
+* Added constants for devicemode fields in SPOOLSS (Tim)
+* Update to LSA_DS (Jim)
+* Add a GTKv1.2 version of io-stat (Ronnie)
+* Clean up GTK1.2 menu items (Guy)
+* Fix OSPF display formatting (Taisuke Sasaki)
+* GTK2 font fixes (Guy)
+* Stub dissector for ClearCase NFS protocol (Ronnie)
+* Fill in more of HyperSCSI (Richard)
+* Support BACNET over 802.2 (Dave Richards)
+* Handle misssing parameter descriptors in SMB PIPE (Guy)
+* Make io-stat intervals adjustable (Ronnie)
+* Handle AIX tcpdump FDDI padding (Guy)
+* Fix inclusion in plugins.c (Guy)
+* Fix inet_v6defs.h/winsock2.h inclusion in packet.c (Guy)
+* Fix inclusion issues in io_stat.c (Guy)
+* Add a scrollbar to the io-stat window (Ronnie)
+* Signedness and data size fixes for TDS (Gerald)
+* Add better formatting to make-manuf (Joerg)
+* Fix data storage in dissect_rpc_opaque_data() (Martin Regner, Uwe)
+* Fix dissection of SPOOLSS printer info levels 0-3, convert routines to
+  NDR (Tim)
+* More SPOOLSS NDR conversions (Tim)
+* Fixed typo in dsrole basic domain info tree (Tim)
+* Put nice io-stat title on the io-stat window (Ronnie)
+* Reduce label length to 10 in make-manuf (Joerg)
+* Create new manuf file (Joerg)
+* Fix lsa-ds DSROLE_BASIC_INFO dissection (Jim)
+* Adjust the pointer into the line buffer if the line buffer gets
+  reallocated in file.c (Tomas)
+* Fix the display of the nickname in an ONC RPC AUTH_DH
+  header (Mike Frisch)
+* Note that the verifiers are GSS_Wrap tokens in GSS-API (Guy)
+* Clean up comments and lots of code in TDS (Guy)
+* SPOOLSS display update (Guy)
+* Fix decoding of the newSuperior attribute of an LDAPv3 modrdn request
+  (Jason Greene)
+* Fix masking in Spanning Tree (Joerg)
+* Update to match what a Sniffer document says about TDS (Guy)
+* Check whether we got an overflow for the PDU length *before* we check
+  whether we have that much data in TCP (Guy)
+* Try to handle LDAP messages encapsulated inside a SASL security layer
+  (Guy)
+* Improve Router-LSA display in OSPF LS Update packets (Andreas)
+* Fix constification all over the code base, and add const-checking
+  compilation options (Guy)
+* Handle GSS_Wrap header information as well as context-level tokens (Guy)
+* Don't dissect SASL stuff as GSS_Wrapped unless we're actually using
+  GSS-SPNEGO (Guy)
+* Fix a tap comment (Marco Molteni)
+* Fix a typo in README.tapping and give it an RCS ID (Marco)
+* Dissect the packet inside an LCP Protocol Reject message (Pasi Eronen)
+* Get rid of the "pdata" argument to "dissect_dcerpc_uint16s()" and
+  "dissect_ndr_uint16s()" (Guy)
+* Fix "addr_ip6_to_str" to reflect the fact that "ip6_to_str()" now takes
+  a const pointer as its argument (Guy)
+* Properly flag error packets in PPP (Guy)
+* Calculate delta and rel time earlier and unconditionally of whether the
+  packet passed the displayfilter or not (Ronnie)
+* Updte for io-stat to make it more powerful (Luke H.)
+* Update to DCERPC NETLOGON GetDomainInfo (Ronnie)
+* DSROLEGETPRIMARYDOMAININFO is actually ENUMERATETRUSTEDDOMAINS in
+  NETLOGON (Luke)
+* Added some flags and value_Strings for netlogon (Ronnie)
+* Make the protocol selection dialog use a CList (Gerald)
+* Enable/disable protocols with a single click (Gerald)
+* Allow keyboard-only navigation of the Protocols dialog (Gerald)
+* Remove gtk_tree_view_set_search_column() from plugins_dlg.c (Olivier)
+* Updated the handling of padding bytes in IUA (Michael)
+* Make the new protocol list work with GTK2 (Olivier)
+* Put back the "width" local variable in proto_cb() in proto_dlg.c (Oliver)
+* Add break statements needed for MSVC++ (Jason House)
+* Get rid of a no-longer-used variable in packet-dcerpc-nt.c (Guy)
+* Show the packet sequence number and the "Missing Packets" value in the
+  WTP header in decimal (Olivier Biot)
+* Get rid of some no-longer-used DCERPC NT routines (Guy)
+* Add MD4 and RC4 support, and use it in NT password decryption (Devin)
+* Manuf file updates (Joerg)
+* FAQ updates (Joerg)
+* Silence a gcc warning in packet-hyperscsi.c (Joerg)
+* Endianness and NT password fixes for SAMR (Guy)
+* Add compat_macros.h to the tarball (Joerg)
+* Include packet-wlancap.h into the tarball (Joerg)
+* Show all 6 digits of precision in the time stamp column when displaying
+  absolute time stamps (Guy)
+* Fix constness, fragment/segment naming and a typo in NetBIOS (Guy)
+* Major code cleanup in TDS (Guy)
+* Update M2UA to RFC 3331, improve padding handling, other fixes (Michael)
+* Add RFC 3331 indication to the protocol column entry in M2UA (Michael)
+* Include <string.h> in packet-md4.c (Gerald)
+* Decode SPOOLSS getprinter level 7 (Tim)
+* Some constant for getprinter level 7 decoding (Tim)
+* Added support for the Implementers Guide to SCTP (Michael)
+* Fixed a bug regarding the handling of SCTP correlation ids (Michael)
+* Display the DCERPC AUTH3 PDU with more conviction (Guy)
+* Fix for DCERPC detection when carried ontop of SMB (Ronnie)
+* Fix two compiler warnings in io_stat.c (Ronnie)
+* Add a missing g_ntohs() for flow_label in the gtpv0 decoder (Fritz
+  Budiyanto)
+* Add Shomiti Surveyor vs UNICOS/mp snoop file checking (Guy)
+* Improve RPC retransmission handling (Ronnie)
+* Don't pass a null string pointer to proto_tree_add_text() in TDS (Gerald)
+* Add SNMP MIBS to Windows installer
+* Add make-tapreg-dotc to the distribution
+* Add RCS IDs to ChangeLog and NEWS
 
 
 Overview of changes in Ethereal 0.9.7:
