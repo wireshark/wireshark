@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.11 2000/05/11 08:15:55 gram Exp $
+ * $Id: packet-vlan.c,v 1.12 2000/05/11 22:04:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,6 +72,7 @@ static void
 dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *ti, *vlan_tree = NULL;
   guint16 tci,encap_proto;
+  tvbuff_t *next_tvb;
 
   if (!BYTES_ARE_IN_FRAME(offset, 2*sizeof(guint16))) {
     return;
@@ -97,11 +98,12 @@ dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(vlan_tree, hf_vlan_id, NullTVB, offset, 2, tci);
   }
 
+  next_tvb = tvb_new_subset(pi.compat_top_tvb, offset+4, -1);
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
     if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
       dissect_ipx(pd,offset+4,fd,tree);
 	} else {
-      dissect_llc(pd,offset+4,fd,tree);
+      dissect_llc(next_tvb, &pi, tree);
     }
   } else {
     ethertype(encap_proto, offset+4, pd, fd, tree, vlan_tree, hf_vlan_etype);

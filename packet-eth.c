@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.33 2000/05/11 08:15:08 gram Exp $
+ * $Id: packet-eth.c,v 1.34 2000/05/11 22:04:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,6 +144,7 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   proto_tree *fh_tree = NULL;
   proto_item *ti;
   int        ethhdr_type;	/* the type of ethernet frame */
+  tvbuff_t   *next_tvb;
 
   if (!BYTES_ARE_IN_FRAME(offset, ETH_HEADER_SIZE)) {
     dissect_data(pd, offset, fd, tree);
@@ -245,7 +246,8 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       dissect_ipx(pd, offset, fd, tree);
       break;
     case ETHERNET_802_2:
-      dissect_llc(pd, offset, fd, tree);
+      next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
+      dissect_llc(next_tvb, &pi, tree);
       break;
     case ETHERNET_II:
       ethertype(etype, offset, pd, fd, tree, fh_tree, hf_eth_type);

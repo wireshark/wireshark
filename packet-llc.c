@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.56 2000/05/11 08:15:22 gram Exp $
+ * $Id: packet-llc.c,v 1.57 2000/05/11 22:04:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -264,8 +264,8 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 }
 
 void
-dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
+dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
 	proto_tree	*llc_tree = NULL;
 	proto_item	*ti = NULL;
 	int		is_snap;
@@ -273,30 +273,34 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	int		llc_header_len;
 	guint32		oui;
 	guint16		etype;
-	guint8		dsap;
+	guint8		dsap, ssap;
+	tvbuff_t	*next_tvb;
+	const guint8	*pd;
+	int		offset;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2)) {
-		dissect_data(pd, offset, fd, tree);
-		return;
+	pinfo->current_proto = "LLC";
+
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_add_str(pinfo->fd, COL_PROTOCOL, "LLC");
 	}
-	is_snap = (pd[offset] == SAP_SNAP) && (pd[offset+1] == SAP_SNAP);
+
+	dsap = tvb_get_guint8(tvb, 0);
+	ssap = tvb_get_guint8(tvb, 1);
+
+	is_snap = (dsap == SAP_SNAP) && (ssap == SAP_SNAP);
 	llc_header_len = 2;	/* DSAP + SSAP */
 
-	if (check_col(fd, COL_PROTOCOL)) {
-		col_add_str(fd, COL_PROTOCOL, "LLC");
-	}
-
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_llc, NullTVB, offset, 0, NULL);
+		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, 0, NULL);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
-		proto_tree_add_item(llc_tree, hf_llc_dsap, NullTVB, offset, 
-			1, pd[offset] & SAP_MASK);
-		proto_tree_add_item(llc_tree, hf_llc_dsap_ig, NullTVB, offset, 
-			1, pd[offset] & DSAP_GI_BIT);
-		proto_tree_add_item(llc_tree, hf_llc_ssap, NullTVB, offset+1, 
-			1, pd[offset+1] & SAP_MASK);
-		proto_tree_add_item(llc_tree, hf_llc_ssap_cr, NullTVB, offset+1, 
-			1, pd[offset+1] & SSAP_CR_BIT);
+		proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 
+			1, dsap & SAP_MASK);
+		proto_tree_add_item(llc_tree, hf_llc_dsap_ig, tvb, 0, 
+			1, dsap & DSAP_GI_BIT);
+		proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 
+			1, ssap & SAP_MASK);
+		proto_tree_add_item(llc_tree, hf_llc_ssap_cr, tvb, 1, 
+			1, ssap & SSAP_CR_BIT);
 	} else
 		llc_tree = NULL;
 
@@ -306,16 +310,14 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	 * uses extended operation, so we don't need to determine
 	 * whether it's basic or extended operation; is that the case?
 	 */
-	control = dissect_xdlc_control(pd, offset+2, fd, llc_tree,
+	tvb_compat(tvb, &pd, &offset);
+	control = dissect_xdlc_control(pd, offset+2, pinfo->fd, llc_tree,
 				hf_llc_ctrl, ett_llc_ctrl,
 				pd[offset+1] & SSAP_CR_BIT, TRUE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
-	if (!BYTES_ARE_IN_FRAME(offset, llc_header_len)) {
-		dissect_data(pd, offset, fd, tree);
-		return;
-	}
+
 	if (tree)
 		proto_item_set_len(ti, llc_header_len);
 
@@ -325,17 +327,24 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	 * than overwriting it?
 	 */
 	if (is_snap) {
-		oui = pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5];
-		etype = pntohs(&pd[offset+6]);
-		if (check_col(fd, COL_INFO)) {
-			col_add_fstr(fd, COL_INFO, "SNAP, OUI 0x%06X (%s), PID 0x%04X",
+		oui =	tvb_get_guint8(tvb, 3) << 16 |
+			tvb_get_guint8(tvb, 4) << 8  |
+			tvb_get_guint8(tvb, 5);
+		etype = tvb_get_ntohs(tvb, 6);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO, "SNAP, OUI 0x%06X (%s), PID 0x%04X",
 			    oui, val_to_str(oui, oui_vals, "Unknown"),
 			    etype);
 		}
 		if (tree) {
-			proto_tree_add_item(llc_tree, hf_llc_oui, NullTVB, offset+3, 3,
+			proto_tree_add_item(llc_tree, hf_llc_oui, tvb, 3, 3,
 				oui);
 		}
+
+		next_tvb = tvb_new_subset(tvb, 8, -1);
+		tvb_compat(next_tvb, &pd, &offset);
+
 		switch (oui) {
 
 		case OUI_ENCAP_ETHER:
@@ -349,9 +358,9 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			   packet type for AARP packets. */
 			if (XDLC_IS_INFORMATION(control)) {
 				ethertype(etype, offset+8, pd,
-				    fd, tree, llc_tree, hf_llc_type);
+				    pinfo->fd, tree, llc_tree, hf_llc_type);
 			} else
-				dissect_data(pd, offset+8, fd, tree);
+				dissect_data_tvb(next_tvb, pinfo, tree);
 			break;
 
 		case OUI_CISCO:
@@ -362,80 +371,80 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			   Ethernet? */
 			if (tree) {
 				proto_tree_add_item(llc_tree,
-				    hf_llc_pid, NullTVB, offset+6, 2, etype);
+				    hf_llc_pid, tvb, 6, 2, etype);
 			}
 			if (XDLC_IS_INFORMATION(control)) {
 				switch (etype) {
 
 #if 0
 				case 0x0102:
-					dissect_drip(pd, offset+8, fd, tree);
+					dissect_drip(pd, offset+8, pinfo->fd, tree);
 					break;
 #endif
 
 				case 0x2000:
-					dissect_cdp(pd, offset+8, fd, tree);
+					dissect_cdp(pd, offset+8, pinfo->fd, tree);
 					break;
 
 				case 0x2001:
-					dissect_cgmp(pd, offset+8, fd, tree);
+					dissect_cgmp(pd, offset+8, pinfo->fd, tree);
 					break;
 
 				case 0x2003:
-					dissect_vtp(pd, offset+8, fd, tree);
+					dissect_vtp(pd, offset+8, pinfo->fd, tree);
 					break;
 
 				default:
-					dissect_data(pd, offset+8, fd, tree);
+					dissect_data_tvb(tvb, pinfo, tree);
 					break;
 				}
 			} else
-				dissect_data(pd, offset+8, fd, tree);
+				dissect_data_tvb(tvb, pinfo, tree);
 			break;
 
 		case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
 			if (tree) {
 				proto_tree_add_item(llc_tree,
-				hf_llc_pid, NullTVB, offset+6, 2, etype);
+				hf_llc_pid, tvb, 6, 2, etype);
 			}
-			dissect_bpdu(pd, offset+8, fd, tree);
+			dissect_bpdu(pd, offset+8, pinfo->fd, tree);
 			break;
 
 		default:
 			if (tree) {
 				proto_tree_add_item(llc_tree,
-				    hf_llc_pid, NullTVB, offset+6, 2, etype);
+				    hf_llc_pid, tvb, 6, 2, etype);
 			}
-			dissect_data(pd, offset+8, fd, tree);
+			dissect_data_tvb(tvb, pinfo, tree);
 			break;
 		}
-	}		
+	}
 	else {
-		if (check_col(fd, COL_INFO)) {
-			col_add_fstr(fd, COL_INFO, 
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO, 
 			    "DSAP %s %s, SSAP %s %s",
-			    val_to_str(pd[offset] & SAP_MASK, sap_vals, "%02x"),
-			    pd[offset] & DSAP_GI_BIT ?
+			    val_to_str(dsap & SAP_MASK, sap_vals, "%02x"),
+			    dsap & DSAP_GI_BIT ?
 			      "Group" : "Individual",
-			    val_to_str(pd[offset+1] & SAP_MASK, sap_vals, "%02x"),
-			    pd[offset+1] & SSAP_CR_BIT ?
+			    val_to_str(ssap & SAP_MASK, sap_vals, "%02x"),
+			    ssap & SSAP_CR_BIT ?
 			      "Response" : "Command"
 			);
 		}
 
 		if (XDLC_IS_INFORMATION(control)) {
+			tvb_compat(tvb, &pd, &offset);
 			/* non-SNAP */
-			dsap = pd[offset];
 			offset += llc_header_len;
 
 			/* do lookup with the subdissector table */
 			if (!dissector_try_port(subdissector_table, dsap,
-			    pd, offset, fd, tree)) {
-				dissect_data(pd, offset, fd, tree);
+			    pd, offset, pinfo->fd, tree)) {
+				dissect_data_tvb(tvb, pinfo, tree);
 			}
 		} else {
-			offset += llc_header_len;
-			dissect_data(pd, offset, fd, tree);
+			next_tvb = tvb_new_subset(tvb, llc_header_len, -1);
+			dissect_data_tvb(tvb, pinfo, tree);
 		}
 	}
 }

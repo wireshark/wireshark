@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.38 2000/05/11 08:15:53 gram Exp $
+ * $Id: packet-tr.c,v 1.39 2000/05/11 22:04:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -280,6 +280,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	int		frame_type;
 	guint8		trn_rif_bytes;
 	guint8		actual_rif_bytes;
+	tvbuff_t	*next_tvb;
 
 	/* The trn_hdr struct, as separate variables */
 	guint8			trn_ac;		/* access control field */
@@ -479,6 +480,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	offset += 14 + actual_rif_bytes + fixoffset;
 
 	if (IS_DATA_IN_FRAME(offset)) {
+		next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
 		/* The package is either MAC or LLC */
 		switch (frame_type) {
 			/* MAC */
@@ -486,11 +488,11 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				dissect_trmac(pd, offset, fd, tree);
 				break;
 			case 1:
-				dissect_llc(pd, offset, fd, tree);
+			        dissect_llc(next_tvb, &pi, tree);
 				break;
 			default:
 				/* non-MAC, non-LLC, i.e., "Reserved" */
-				dissect_data(pd, offset, fd, tree);
+				dissect_data_tvb(next_tvb, &pi, tree);
 				break;
 		}
 	}

@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.14 2000/05/11 08:14:56 gram Exp $
+ * $Id: packet-atm.c,v 1.15 2000/05/11 22:04:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -549,6 +549,7 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
   proto_item *ti;
   guint       aal_type;
   guint       hl_type;
+  tvbuff_t*   next_tvb;
 
   aal_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_AALTYPE;
   hl_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_HLTYPE;
@@ -712,7 +713,8 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
       /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
       /* The ATM iptrace capture that we have hows LLC at this point,
        * so that's what I'm calling */
-      dissect_llc(pd, offset, fd, tree);
+      next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
+      dissect_llc(next_tvb, &pi, tree);
       break;
 
     case ATT_HL_LANE:

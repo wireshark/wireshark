@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.80 2000/05/11 08:15:58 gram Exp $
+ * $Id: packet.c,v 1.81 2000/05/11 22:04:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1214,7 +1214,7 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 		}
 	}
 	CATCH(BoundsError) {
-		proto_tree_add_text(tree, NullTVB, 0, 0, "Short Frame: [%s]", pi.current_proto );
+		proto_tree_add_text(tree, NullTVB, 0, 0, "[Short Frame: %s]", pi.current_proto );
 	}
 	ENDTRY;
 

@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-data.c,v 1.16 2000/05/11 08:15:05 gram Exp $
+ * $Id: packet-data.c,v 1.17 2000/05/11 22:04:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,20 @@ dissect_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_protocol_format(tree, proto_data, NullTVB, offset,
 			END_OF_FRAME, "Data (%d byte%s)", END_OF_FRAME,
 			plurality(END_OF_FRAME, "", "s"));
+	}
+}
+
+/* This will become dissect_data() once all dissectors are converted to use tvbuffs */
+void
+dissect_data_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int bytes;
+
+	if (tree) {
+		bytes = tvb_length(tvb);
+		proto_tree_add_protocol_format(tree, proto_data, tvb, 0,
+			bytes, "Data (%d byte%s)", bytes,
+			plurality(bytes, "", "s"));
 	}
 }
 

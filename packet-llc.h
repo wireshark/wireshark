@@ -1,6 +1,6 @@
 /* packet-llc.h
  *
- * $Id: packet-llc.h,v 1.1 2000/02/15 21:02:34 gram Exp $
+ * $Id: packet-llc.h,v 1.2 2000/05/11 22:04:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,4 +23,4 @@
  */
 
 void capture_llc(const u_char *, int, packet_counts *);
-void dissect_llc(const u_char *, int, frame_data *, proto_tree *);
+void dissect_llc(tvbuff_t *, packet_info *, proto_tree *);

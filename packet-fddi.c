@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.31 2000/05/11 16:52:15 gram Exp $
+ * $Id: packet-fddi.c,v 1.32 2000/05/11 22:04:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -256,16 +256,15 @@ void
 dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gboolean bitswapped)
 {
-  int        offset = 0, fc;
+  int        fc;
   proto_tree *fh_tree;
   proto_item *ti;
   gchar      *fc_str;
   static u_char src[6], dst[6];
   u_char     src_swapped[6], dst_swapped[6];
-  const u_char *pd;
   tvbuff_t   *next_tvb;
 
-  pinfo->current_proto = "fddi";
+  pinfo->current_proto = "FDDI";
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_add_str(pinfo->fd, COL_PROTOCOL, "FDDI");
 
@@ -292,10 +291,8 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &dst[0]);
   SET_ADDRESS(&pi.dst, AT_ETHER, 6, &dst[0]);
 
-  offset = FDDI_HEADER_SIZE;
-
   if (tree) {
-	ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, offset,
+	ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, FDDI_HEADER_SIZE,
 		"Fiber Distributed Data Interface, %s", fc_str);
 
       swap_mac_addr(dst_swapped, (u_char*) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
@@ -317,7 +314,6 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE, -1);
-  tvb_compat(next_tvb, &pd, &offset);
 
   switch (fc) {
 
@@ -339,11 +335,11 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case FDDI_FC_LLC_ASYNC + 13 :
     case FDDI_FC_LLC_ASYNC + 14 :
     case FDDI_FC_LLC_ASYNC + 15 :
-      dissect_llc(pd, offset, pinfo->fd, tree);
+      dissect_llc(next_tvb, pinfo, tree);
       return;
       
     default :
-      dissect_data(pd, offset, pinfo->fd, tree);
+      dissect_data_tvb(next_tvb, pinfo, tree);
       return;
 
   } /* fc */
