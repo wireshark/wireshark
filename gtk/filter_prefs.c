@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.23 2001/01/21 03:30:24 guy Exp $
+ * $Id: filter_prefs.c,v 1.24 2001/01/28 04:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,27 +31,11 @@
 
 #include <gtk/gtk.h>
 
-#include <stdlib.h>
-#include <string.h>
-
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <ctype.h>
-#ifdef HAVE_DIRECT_H
-#include <direct.h>
-#endif
-
 #include <epan.h>
+
+#include "filters.h"
 #include "gtk/main.h"
 #include "filter_prefs.h"
-#include "packet.h"
-#include "file.h"
-#include "util.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "prefs_dlg.h"
@@ -70,20 +54,11 @@
 #define E_FILT_DBLFUNC_KEY          "filter_dblfunc"
 #define E_FILT_DBLARG_KEY           "filter_dblarg"
 
-typedef struct _filter_def {
-  char *name;
-  char *strval;
-} filter_def;
-
 typedef struct _filter_cb_data {
   GList     *fl;
   GtkWidget *win;
 } filter_cb_data;
 
-
-static GList       *fl = NULL;
-
-static void get_filter_list(void);
 static GtkWidget *filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te,
     construct_args_t *construct_args, gboolean wants_add_expression_button);
 static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg);
@@ -108,64 +83,6 @@ static void       filter_del_bt_destroy_cb(GtkWidget *, gpointer);
 static void       filter_expr_cb(GtkWidget *, gpointer);
 static void       filter_name_te_destroy_cb(GtkWidget *, gpointer);
 static void       filter_filter_te_destroy_cb(GtkWidget *, gpointer);
-static void       filter_prefs_save(void);
-
-#define	FILTER_LINE_SIZE	2048
-
-static void
-get_filter_list(void)
-{
-  filter_def *filt;
-  FILE       *ff;
-  gchar      *ff_path, *ff_name = PF_DIR "/filters", f_buf[FILTER_LINE_SIZE];
-  gchar      *name_begin, *name_end, *filt_begin;
-  int         len, line = 0;
-
-  if (fl) return;
-  
-  /* To do: generalize this */
-  ff_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(ff_name) +  4);
-  sprintf(ff_path, "%s/%s", get_home_dir(), ff_name);
-
-  if ((ff = fopen(ff_path, "r")) == NULL) {
-    g_free(ff_path);
-    return;
-  }
-
-  while (fgets(f_buf, FILTER_LINE_SIZE, ff)) {
-    line++;
-    len = strlen(f_buf);
-    if (f_buf[len - 1] == '\n') {
-      len--;
-      f_buf[len] = '\0';
-    }
-    name_begin = strchr(f_buf, '"');
-    /* Empty line */
-    if (name_begin == NULL)
-      continue;
-    name_end = strchr(name_begin + 1, '"');
-    /* No terminating quote */
-    if (name_end == NULL) {
-      g_warning("Malformed filter in '%s' line %d.", ff_path, line);
-      continue;
-    }
-    name_begin++;
-    name_end[0] = '\0';
-    filt_begin  = name_end + 1;
-    while(isspace((guchar)filt_begin[0])) filt_begin++;
-    /* No filter string */
-    if (filt_begin[0] == '\0') {
-      g_warning("Malformed filter in '%s' line %d.", ff_path, line);
-      continue;
-    }
-    filt         = (filter_def *) g_malloc(sizeof(filter_def));
-    filt->name   = g_strdup(name_begin);
-    filt->strval = g_strdup(filt_begin);
-    fl = g_list_append(fl, filt);
-  }
-  fclose(ff);
-  g_free(ff_path);
-}
 
 /* XXX - we can have one global dialog box for editing, and a bunch
    of dialog boxes associated with browse buttons; we want the dialog
@@ -671,7 +588,7 @@ filter_apply(GtkWidget *main_w)
 static void
 filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w)
 {
-	filter_prefs_save();
+	save_filter_list();
 }
 
 static void
@@ -1050,39 +967,4 @@ filter_filter_te_destroy_cb(GtkWidget *filter_te, gpointer data)
   GtkWidget  *main_w = gtk_widget_get_toplevel(filter_te);
 
   gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_FILTER_TE_KEY, NULL);
-}
-
-static void
-filter_prefs_save(void)
-{
-  GList       *flp;
-  filter_def  *filt;
-  gchar       *ff_path, *ff_dir = PF_DIR, *ff_name = "filters";
-  FILE        *ff;
-  struct stat  s_buf;
-  
-  ff_path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(ff_dir) +  
-    strlen(ff_name) + 4);
-  sprintf(ff_path, "%s/%s", get_home_dir(), ff_dir);
-
-  if (stat(ff_path, &s_buf) != 0)
-#ifdef WIN32
-    mkdir(ff_path);
-#else
-    mkdir(ff_path, 0755);
-#endif
-    
-  sprintf(ff_path, "%s/%s/%s", get_home_dir(), ff_dir, ff_name);
-
-  if ((ff = fopen(ff_path, "w")) != NULL) {
-    flp = g_list_first(fl);
-    while (flp) {
-      filt = (filter_def *) flp->data;
-      fprintf(ff, "\"%s\" %s\n", filt->name, filt->strval);
-      flp = flp->next;
-    }
-    fclose(ff);
-  }
-
-  g_free(ff_path);
 }

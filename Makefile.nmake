@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.76 2001/01/27 20:33:00 guy Exp $
+# $Id: Makefile.nmake,v 1.77 2001/01/28 04:43:24 guy Exp $
 
 include config.nmake
 
@@ -198,6 +198,7 @@ ethereal_OBJECTS = \
 	$(ETHEREAL_COMMON_OBJECTS) \
 	capture.obj      \
 	file.obj         \
+	filters.obj      \
 	summary.obj      \
 
 tethereal_OBJECTS = \
