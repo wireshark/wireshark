@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.32 2002/06/05 04:15:30 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.33 2002/06/05 07:15:47 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,6 +148,11 @@ static int hf_spoolss_notify_info_data_buffer_len = -1;
 static int hf_spoolss_notify_info_data_buffer_data = -1;
 
 static int hf_spoolss_notify_field = -1;
+
+static int hf_spoolss_rrpcn_changelow = -1;
+static int hf_spoolss_rrpcn_changehigh = -1;
+static int hf_spoolss_rrpcn_unk0 = -1;
+static int hf_spoolss_rrpcn_unk1 = -1;
 
 /* 
  * Routines to dissect a spoolss BUFFER 
@@ -1624,7 +1629,7 @@ dissect_NOTIFY_OPTION_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (di->conformant_run)
 		return offset;
 
-	type = *((guint16 *)di->private_data);
+	type = di->levels;
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, 
@@ -1644,42 +1649,47 @@ static const value_string printer_notify_types[] =
 	{ 0, NULL }
 };
 
+static gint ett_NOTIFY_OPTION = -1;
+
 static int 
 dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		      proto_tree *tree, char *drep) 
 {
-	dcerpc_info *di = pinfo->private_data;
+	proto_item *item;
+	proto_tree *subtree;
 	guint16 type;
 
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+	item = proto_tree_add_text(tree, tvb, offset, 0, "NOTIFY_OPTION");
+
+	subtree = proto_item_add_subtree(item, ett_NOTIFY_OPTION);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_notify_option_type, &type);
 
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_notify_option_reserved1, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_notify_option_reserved2, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_notify_option_reserved3, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_notify_option_count, NULL);
 
-	di->private_data = &type;
-
 	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, tree, drep, 
+		tvb, offset, pinfo, subtree, drep, 
 		dissect_NOTIFY_OPTION_DATA, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTION_DATA", -1, 0);
+		"NOTIFY_OPTION_DATA", -1, type);
 
 	return offset;
 }
 
 static int
-dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset, 
-			    packet_info *pinfo, proto_tree *tree, 
-			    char *drep)
+dissect_NOTIFY_OPTIONS_ARRAY(tvbuff_t *tvb, int offset, 
+			     packet_info *pinfo, proto_tree *tree, 
+			     char *drep)
 {
 	/* Why is a check for di->conformant_run not required here? */
 
@@ -1708,7 +1718,7 @@ dissect_notify_options_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    hf_spoolss_notify_options_flags,
 				    &flags);
 
-	item = proto_tree_add_text(tree, tvb, offset, 4,
+	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
 				   "Flags: 0x%08x", flags);
 
 	subtree = proto_item_add_subtree(item, ett_notify_options_flags);
@@ -1721,9 +1731,9 @@ dissect_notify_options_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_NOTIFY_OPTIONS_ARRAY(tvbuff_t *tvb, int offset, 
-			    packet_info *pinfo, proto_tree *tree, 
-			    char *drep)
+dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset, 
+				 packet_info *pinfo, proto_tree *tree, 
+				 char *drep)
 {
 	dcerpc_info *di = pinfo->private_data;
 
@@ -1740,8 +1750,8 @@ dissect_NOTIFY_OPTIONS_ARRAY(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
-		dissect_NOTIFY_OPTIONS_ARRAY_CTR, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTION_CTR", -1, 0);
+		dissect_NOTIFY_OPTIONS_ARRAY, NDR_POINTER_UNIQUE,
+		"NOTIFY_OPTIONS", -1, 0);
 
 	return offset;
 }
@@ -1833,8 +1843,8 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
-		dissect_NOTIFY_OPTIONS_ARRAY, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTIONS", -1, 0);
+		dissect_NOTIFY_OPTIONS_ARRAY_CTR, NDR_POINTER_UNIQUE,
+		"NOTIFY_OPTIONS_CTR", -1, 0);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -1882,7 +1892,7 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 					  prs_UNISTR2_dp, NULL, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Printer");
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Printerlocal");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_printerdata_type, NULL);
@@ -4660,6 +4670,73 @@ static int SpoolssRFNPCNEX_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }	
 
+/*
+ * RRPCN
+ */
+
+static int SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			  proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_rrpcn_changelow, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_rrpcn_changehigh, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_rrpcn_unk0, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_rrpcn_unk1, NULL);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_NOTIFY_INFO, NDR_POINTER_UNIQUE,
+		"NOTIFY_INFO", -1, 0);
+
+	/* Notify info */
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssRRPCN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			  proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_rrpcn_unk0, NULL);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -4849,7 +4926,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
         { SPOOLSS_RFFPCNEX, "RFFPCNEX", 
 	  SpoolssRFFPCNEX_q, SpoolssRFFPCNEX_r },
         { SPOOLSS_RRPCN, "RRPCN", 
-	  NULL, SpoolssGeneric_r },
+	  SpoolssRRPCN_q, SpoolssRRPCN_r },
         { SPOOLSS_RFNPCNEX, "RFNPCNEX", 
 	  SpoolssRFNPCNEX_q, SpoolssRFNPCNEX_r },
         { SPOOLSS_OPENPRINTEREX, "OpenPrinterEx", 
@@ -5194,6 +5271,19 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_notify_info_data_buffer_data,
 		  { "Buffer data", "spoolss.notify_info_data.buffer.data", FT_BYTES, BASE_HEX,
 		    NULL, 0, "Buffer data", HFILL }},		
+
+		{ &hf_spoolss_rrpcn_changelow,
+		  { "Change low", "spoolss.rrpcn.changelow", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Change low", HFILL }},		
+		{ &hf_spoolss_rrpcn_changehigh,
+		  { "Change high", "spoolss.rrpcn.changehigh", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Change high", HFILL }},		
+		{ &hf_spoolss_rrpcn_unk0,
+		  { "Unknown 0", "spoolss.rrpcn.unk0", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Unknown 0", HFILL }},		
+		{ &hf_spoolss_rrpcn_unk1,
+		  { "Unknown 1", "spoolss.rrpcn.unk1", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Unknown 1", HFILL }},		
 	};
 
         static gint *ett[] = {
@@ -5233,6 +5323,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_rffpcnex_flags,
 		&ett_notify_options_flags,
 		&ett_NOTIFY_INFO_DATA,
+		&ett_NOTIFY_OPTION,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
