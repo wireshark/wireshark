@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.54 2004/01/07 19:49:45 obiot Exp $
+ * $Id: packet-sip.c,v 1.55 2004/01/18 23:21:20 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -408,6 +408,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;	
 	char csec_method[16] = "";
 	char *media_type_str = NULL;
+	char *media_type_str_lower_case = NULL;
 	char *content_type_parameter_str = NULL;
 
         /*
@@ -701,6 +702,13 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 								content_type_parameter_str_len);
 					}
 					media_type_str = tvb_get_string(tvb, value_offset, content_type_len);
+#if GLIB_MAJOR_VERSION < 2
+					media_type_str_lower_case = g_strdup(media_type_str);
+					g_strdown(media_type_str_lower_case);
+#else
+					media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
+#endif
+					g_free(media_type_str);
 					break;
 
 				case POS_CONTACT :
@@ -742,13 +750,16 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* give the content type parameters to sub dissectors */
 		
 		if ( media_type_str != NULL ) {
+			void *save_private_data = pinfo->private_data;
 			pinfo->private_data = content_type_parameter_str;
 			found_match = dissector_try_string(media_type_dissector_table,
-							   media_type_str,
+							   media_type_str_lower_case,
 							   next_tvb, pinfo,
 							   message_body_tree);
 			g_free(media_type_str);
+			g_free(media_type_str_lower_case);
 			g_free(content_type_parameter_str);
+			pinfo->private_data = save_private_data;
 			/* If no match dump as text */
 		}
 		if ( found_match != TRUE )
