@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.1 2001/03/09 03:43:58 gram Exp $
+# $Id: Makefile.nmake,v 1.2 2001/04/12 18:07:19 gram Exp $
 
 include ../config.nmake
 
@@ -37,3 +37,8 @@ editcap.1: editcap.pod ../config.h
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> editcap.1
+
+clean:
+	rm -f ethereal.html ethereal.1 ethereal.pod
+	rm -f tethereal.html tethereal.1 tethereal.pod
+	rm -f editcap.html editcap.1

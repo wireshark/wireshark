@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.4 2001/04/05 05:36:47 gram Exp $
+# $Id: Makefile.nmake,v 1.5 2001/04/12 18:07:21 gram Exp $
 #
 #
 # NSIS is a free packager/installer/uninstaller program for Win32.
@@ -33,3 +33,6 @@ ethereal.nsi : ethereal.nsi.in
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@WTAP_VERSION@/$(WTAP_VERSION)/ \
 		< ethereal.nsi.in > ethereal.nsi
+
+clean:
+	rm -f ethereal.nsi ethereal-setup.exe

@@ -56,7 +56,7 @@ config.h	: config.h.win32
 	sed -e s/@VERSION@/$(VERSION)/ < config.h.win32 > $@
 
 clean:
-	rm -f $(OBJECTS) ethereal.lib
+	rm -f $(OBJECTS) ethereal.lib config.h
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dfilter

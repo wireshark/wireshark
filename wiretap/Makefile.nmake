@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.19 2001/04/06 03:52:45 gram Exp $
+# $Id: Makefile.nmake,v 1.20 2001/04/12 18:07:22 gram Exp $
 #
 
 include ..\config.nmake
@@ -69,4 +69,5 @@ clean :
 	rm -f $(OBJECTS) ascend-grammar.c ascend-grammar.h ascend-scanner.c \
 		wiretap-$(WTAP_VERSION).lib \
 		wiretap-$(WTAP_VERSION).exp \
-		wiretap-$(WTAP_VERSION).dll
+		wiretap-$(WTAP_VERSION).dll \
+		config.h
