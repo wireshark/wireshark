@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.162 2004/02/21 09:57:15 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.163 2004/03/03 22:47:17 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -418,6 +418,38 @@ static const fragment_items dcerpc_frag_items = {
 };
 
 
+
+#ifdef WIN32
+int ResolveWin32UUID(e_uuid_t if_id, char *UUID_NAME, int UUID_NAME_MAX_LEN)
+{
+	char REG_UUID_NAME[MAX_PATH];
+	HKEY hKey = NULL;
+	DWORD UUID_MAX_SIZE = MAX_PATH;
+	char REG_UUID_STR[MAX_PATH];
+	
+	if(UUID_NAME_MAX_LEN < 2)
+		return 0;
+	REG_UUID_NAME[0] = '\0';
+	snprintf(REG_UUID_STR, MAX_PATH, "SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
+			if_id.Data1, if_id.Data2, if_id.Data3,
+			if_id.Data4[0], if_id.Data4[1],
+			if_id.Data4[2], if_id.Data4[3],
+			if_id.Data4[4], if_id.Data4[5],
+			if_id.Data4[6], if_id.Data4[7]);
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, (LPCSTR)REG_UUID_STR, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+	{
+		if (RegQueryValueEx(hKey, NULL, NULL, NULL, (LPBYTE)REG_UUID_NAME, &UUID_MAX_SIZE) == ERROR_SUCCESS && UUID_MAX_SIZE <= MAX_PATH)
+			{
+			snprintf(UUID_NAME, UUID_NAME_MAX_LEN, "%s", REG_UUID_NAME);
+			RegCloseKey(hKey);
+			return strlen(REG_UUID_NAME);
+		}
+		RegCloseKey(hKey);
+	}
+	return 0; /* we didn't find anything anyhow. Please don't use the string! */
+	
+}
+#endif
 
 static dcerpc_info *
 get_next_di(void)
@@ -2143,6 +2175,9 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
     dcerpc_auth_info auth_info;
+#ifdef WIN32
+    char UUID_NAME[MAX_PATH];
+#endif
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_max_xmit, NULL);
@@ -2193,7 +2228,12 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	  if (uuid_str_len >= DCERPC_UUID_STR_LEN)
 		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
-
+#ifdef WIN32
+	  if(ResolveWin32UUID(if_id, UUID_NAME, MAX_PATH))
+		  iface_item = proto_tree_add_string_format (ctx_tree, hf_dcerpc_cn_bind_if_id, tvb,
+                                        offset, 16, uuid_str, "Interface [%s] UUID: %s", UUID_NAME, uuid_str);
+	  else
+#endif
           iface_item = proto_tree_add_string_format (ctx_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                         offset, 16, uuid_str, "Interface UUID: %s", uuid_str);
 	  iface_tree = proto_item_add_subtree(iface_item, ett_dcerpc_cn_iface);
@@ -2260,7 +2300,18 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	  if ((value = g_hash_table_lookup(dcerpc_uuids, &key)))
 		  col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %s", value->name);
 	  else
-		  col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
+#ifdef WIN32
+		if(ResolveWin32UUID(if_id, UUID_NAME, MAX_PATH))
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
+                           UUID_NAME, if_id.Data1, if_id.Data2, if_id.Data3,
+                           if_id.Data4[0], if_id.Data4[1],
+                           if_id.Data4[2], if_id.Data4[3],
+                           if_id.Data4[4], if_id.Data4[5],
+                           if_id.Data4[6], if_id.Data4[7],
+                           if_ver, if_ver_minor);
+	  else
+#endif
+			col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
                            if_id.Data1, if_id.Data2, if_id.Data3,
                            if_id.Data4[0], if_id.Data4[1],
                            if_id.Data4[2], if_id.Data4[3],
