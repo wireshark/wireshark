@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.106 2003/01/10 09:04:44 guy Exp $
+ * $Id: ngsniffer.c,v 1.107 2003/01/11 05:54:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1694,11 +1694,35 @@ static int fix_pseudo_header(int encap, const guint8 *pd, int len,
 		 * If the Windows Sniffer writes out one of its ATM
 		 * capture files in DOS Sniffer format, it doesn't
 		 * distinguish between LE Control and LANE encapsulated
-		 * LAN frames, so we fix that up here.
+		 * LAN frames, it just marks them as LAN frames,
+		 * so we fix that up here.
+		 *
+		 * I've also seen DOS Sniffer captures claiming that
+		 * LANE packets that *don't* start with FF 00 are
+		 * marked as LE Control frames, so we fix that up
+		 * as well.
 		 */
-		if (pseudo_header->atm.type == TRAF_LANE && len >= 2 &&
-		    pd[0] == 0xff && pd[1] == 0x00)
-			pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
+		if (pseudo_header->atm.type == TRAF_LANE && len >= 2) {
+			if (pd[0] == 0xff && pd[1] == 0x00) {
+				/*
+				 * This must be LE Control.
+				 */
+				pseudo_header->atm.subtype =
+				    TRAF_ST_LANE_LE_CTRL;
+			} else {
+				/*
+				 * This can't be LE Control.
+				 */
+				if (pseudo_header->atm.subtype ==
+				    TRAF_ST_LANE_LE_CTRL) {
+					/*
+					 * XXX - Ethernet or Token Ring?
+					 */
+					pseudo_header->atm.subtype =
+					    TRAF_ST_LANE_802_3;
+				}
+			}
+		}
 		break;
 	}
 	return encap;
