@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.28 1999/12/15 02:25:50 guy Exp $
+ * $Id: libpcap.c,v 1.29 2000/01/09 07:55:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -139,10 +139,22 @@ static const int pcap_encap[] = {
 				   on OpenBSD and BSD/OS, DLT_RAW */
 	WTAP_ENCAP_UNKNOWN,	/* In OpenBSD and BSD/OS, BSD/OS SLIP,
 				   but the BSD/OS header says "internal
-				   to libpcap", whatever that means */
+				   to libpcap", whatever that means;
+				   in Linux with the ISDN4Linux patches
+				   applied to libpcap, DLT_I4L_RAWIP,
+				   which looks just like DLT_RAW but
+				   is given a different DLT_ code for
+				   no obvious good reason */
 	WTAP_ENCAP_UNKNOWN,	/* In OpenBSD and BSD/OS, BSD/OS PPP,
 				   but the BSD/OS header says "internal
-				   to libpcap", whatever that means */
+				   to libpcap", whatever that means;
+				   in Linux with the ISDN4Linux patches
+				   applied to libpcap, DLT_I4L_IP,
+				   which provides only a 2-octet
+				   Ethernet type as a link-layer header,
+				   with a type of 0xFFFF meaning
+				   ETH_P_802_3, a "Dummy type for 802.3
+				   frames" */
 	WTAP_ENCAP_UNKNOWN,
 	WTAP_ENCAP_UNKNOWN,
 	WTAP_ENCAP_LINUX_ATM_CLIP
