@@ -237,7 +237,7 @@ udp
 	    <para>
 	      Each line in these files consists of one hardware address and 
 	      name separated by whitespace. The digits of hardware 
-	      addressses are separated by colons (:), dashes (-) or 
+	      addresses are separated by colons (:), dashes (-) or 
 	      periods(.). The following are some examples:
 	      <programlisting>
 ff-ff-ff-ff-ff-ff    Broadcast

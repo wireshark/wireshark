@@ -720,7 +720,7 @@ ethereal -i eth0 -k
     </para>
     <para>
       A capture filter takes the form of a series of primitive expressions 
-      connected by conjuctions (<command>and/or</command>) and optionally 
+      connected by conjunctions (<command>and/or</command>) and optionally 
       preceded by <command>not</command>:
       <programlisting>
 [not] <command>primitive</command> [and|or [not] <command>primitive</command> ...]
