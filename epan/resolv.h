@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.17 2004/05/09 10:03:40 guy Exp $
+ * $Id: resolv.h,v 1.18 2004/06/25 07:00:54 jmayer Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -130,5 +130,12 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp);
  * return FALSE if we fail.
  */
 gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
+
+/*
+ * Find out whether a hostname resolves to an ip or ipv6 address
+ * Return "ip6" if it is IPv6, "ip" otherwise (including the case
+ * that we don't know)
+ */
+const char* host_ip_af(const char *host);
 
 #endif /* __RESOLV_H__ */

@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.80 2004/05/22 07:50:15 guy Exp $
+ * $Id: util.c,v 1.81 2004/06/25 07:00:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,8 @@
 typedef int mode_t;	/* for win32 */
 #endif /* __MINGW32__ */
 #endif /* HAVE_IO_H */
+
+#include <epan/resolv.h>
 
 /*
  * This has to come after the include of <pcap.h>, as the include of
@@ -419,21 +421,21 @@ gchar *get_conn_cfilter(void) {
 	if ((env = getenv("SSH_CONNECTION")) != NULL) {
 		tokens = g_strsplit(env, " ", 4);
 		if (tokens[3]) {
-			g_string_sprintf(filter_str, "not (tcp port %s and ip host %s "
-				"and tcp port %s and ip host %s)", tokens[1], tokens[0],
-				tokens[3], tokens[2]);
+			g_string_sprintf(filter_str, "not (tcp port %s and %s host %s "
+							 "and tcp port %s and %s host %s)", tokens[1], host_ip_af(tokens[0]), tokens[0],
+				tokens[3], host_ip_af(tokens[2]), tokens[2]);
 			return filter_str->str;
 		}
 	} else if ((env = getenv("SSH_CLIENT")) != NULL) {
 		tokens = g_strsplit(env, " ", 3);
-		g_string_sprintf(filter_str, "not (tcp port %s and ip host %s "
-			"and tcp port %s)", tokens[1], tokens[0], tokens[2]);
+		g_string_sprintf(filter_str, "not (tcp port %s and %s host %s "
+			"and tcp port %s)", tokens[1], host_ip_af(tokens[0]), tokens[0], tokens[2]);
 		return filter_str->str;
 	} else if ((env = getenv("REMOTEHOST")) != NULL) {
 		if (strcasecmp(env, "localhost") == 0 || strcmp(env, "127.0.0.1") == 0) {
 			return "";
 		}
-		g_string_sprintf(filter_str, "not ip host %s", env);
+		g_string_sprintf(filter_str, "not %s host %s", host_ip_af(env), env);
 		return filter_str->str;
 	} else if ((env = getenv("DISPLAY")) != NULL) {
 		tokens = g_strsplit(env, ":", 2);
@@ -442,13 +444,13 @@ gchar *get_conn_cfilter(void) {
 					strcmp(tokens[0], "127.0.0.1") == 0) {
 				return "";
 			}
-			g_string_sprintf(filter_str, "not ip host %s",
-				tokens[0]);
+			g_string_sprintf(filter_str, "not %s host %s",
+				host_ip_af(tokens[0]), tokens[0]);
 			return filter_str->str;
 		}
 	} else if ((env = getenv("CLIENTNAME")) != NULL) {
 		if (g_strcasecmp("console", env) != 0) {
-			g_string_sprintf(filter_str, "not ip host %s", env);
+			g_string_sprintf(filter_str, "not %s host %s", host_ip_af(env), env);
 			return filter_str->str;
 		}
 	}

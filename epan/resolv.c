@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.43 2004/05/20 13:43:14 ulfl Exp $
+ * $Id: resolv.c,v 1.44 2004/06/25 07:00:54 jmayer Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -1897,4 +1897,19 @@ gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
 	}
 
 	return FALSE;
+}
+
+/*
+ * Find out whether a hostname resolves to an ip or ipv6 address
+ * Return "ip6" if it is IPv6, "ip" otherwise (including the case
+ * that we don't know)
+ */
+const char* host_ip_af(const char *host)
+{
+#ifdef HAVE_GETHOSTBYNAME2
+	struct hostent *h;
+	return (h = gethostbyname2(host, AF_INET6)) && h->h_addrtype == AF_INET6 ? "ip6" : "ip";
+#else
+	return "ip";
+#endif
 }
