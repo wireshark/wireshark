@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.94 2002/08/30 15:17:12 jmayer Exp $
+ * $Id: packet-dns.c,v 1.95 2002/12/01 20:50:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,6 +143,7 @@ static gboolean dns_desegment = TRUE;
 #define C_HS		4		/* Hesiod */
 #define	C_NONE		254		/* none */
 #define	C_ANY		255		/* any */
+#define C_FLUSH         (1<<15)         /* High bit is set for MDNS cache flush */
 
 /* Bit fields in the flags */
 #define F_RESPONSE      (1<<15)         /* packet is response */
@@ -460,6 +461,9 @@ dns_class_name(int class)
   switch (class) {
   case C_IN:
     class_name = "inet";
+    break;
+  case ( C_IN | C_FLUSH ):
+    class_name = "inet (data flush)";
     break;
   case C_CS:
     class_name = "csnet";
@@ -925,7 +929,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Addr: %s",
 		     ip_to_str(addr));
       }
-      if (class == C_IN) {
+      if ((class & 0x7f) == C_IN) {
 	memcpy(&addr_int, addr, sizeof(addr_int));
 	add_host_name(addr_int, name);
       }
@@ -1026,7 +1030,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", pname);
       if (dns_tree != NULL) {
-	proto_item_append_text(trr, ", ptr %s", pname);
+	proto_item_append_text(trr, ", %s", pname);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, pname_len, "Domain name: %s",
 			pname);
       }
@@ -1871,8 +1875,6 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   dns_data_offset = offset;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -2015,8 +2017,21 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
+
   dissect_dns_common(tvb, pinfo, tree, FALSE);
 }
+
+static void
+dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDNS");
+
+  dissect_dns_common(tvb, pinfo, tree, FALSE);
+}
+
 
 static guint
 get_dns_pdu_len(tvbuff_t *tvb, int offset)
@@ -2037,6 +2052,9 @@ get_dns_pdu_len(tvbuff_t *tvb, int offset)
 static void
 dissect_dns_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
+
   dissect_dns_common(tvb, pinfo, tree, TRUE);
 }
 
@@ -2143,11 +2161,14 @@ proto_reg_handoff_dns(void)
 {
   dissector_handle_t dns_udp_handle;
   dissector_handle_t dns_tcp_handle;
+  dissector_handle_t mdns_udp_handle;
 
   dns_udp_handle = create_dissector_handle(dissect_dns_udp, proto_dns);
   dns_tcp_handle = create_dissector_handle(dissect_dns_tcp, proto_dns);
+  mdns_udp_handle = create_dissector_handle(dissect_mdns_udp, proto_dns);
+
   dissector_add("udp.port", UDP_PORT_DNS, dns_udp_handle);
   dissector_add("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
-  dissector_add("udp.port", UDP_PORT_MDNS, dns_udp_handle);
+  dissector_add("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
   dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
 }

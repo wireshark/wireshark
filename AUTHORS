@@ -1462,6 +1462,9 @@ Steve Langasek <vorlon [AT] netexpress.net> {
 
 Brad Hards <bhards[AT]bigpond.net.au> {
 	Support for SRVLOC v2
+	Support for mDNS/LLMNR "cache flush" bit
+	Label mDNS and DNS differently in the Protocol column
+	Clean up summary line for PTR records
 }
 
 cjs 2895 <cjs2895[AT]hotmail.com> {
