@@ -2,7 +2,7 @@
 * Routines for megaco packet disassembly
 * RFC 3015
 *
-* $Id: packet-megaco.c,v 1.8 2003/07/26 04:51:08 sahlberg Exp $
+* $Id: packet-megaco.c,v 1.9 2003/07/30 06:28:55 guy Exp $
 *
 * Christian Falckenberg, 2002/10/17
 * Copyright (c) 2002 by Christian Falckenberg
@@ -282,6 +282,17 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_find_guint8(tvb, tvb_offset, tvb_len, 'E') != -1 && tvb_find_guint8(tvb, tvb_offset, tvb_len, 'E') < tvb_current_offset) 
 		tvb_previous_offset = tvb_find_guint8(tvb, tvb_offset, tvb_len, 'E');
 	
+	if (tvb_current_offset == -1) {
+		ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
+		megaco_tree = proto_item_add_subtree(ti, ett_megaco);
+		proto_tree_add_text(megaco_tree, tvb, 0, -1,
+		    "Sorry, no \"=\" in this packet, I can't parse it");
+		return;
+	}
+	/*
+	 * "tvb_previous_offset" will only be set if the corresponding
+	 * "tvb_find_guint8()" didn't return -1, so it's not -1.
+	 */
 	len = tvb_current_offset - tvb_previous_offset;
 	
 	tvb_get_nstringz0(tvb,tvb_previous_offset,len+1,transaction);	
@@ -290,6 +301,13 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	tvb_current_offset  = tvb_find_guint8(tvb, tvb_offset,
 		tvb_len, '{');
+	if (tvb_current_offset == -1) {
+		ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
+		megaco_tree = proto_item_add_subtree(ti, ett_megaco);
+		proto_tree_add_text(megaco_tree, tvb, 0, -1,
+		    "Sorry, no \"{\" in this packet, I can't parse it");
+		return;
+	}
 	
 	len = tvb_current_offset - tvb_offset;
 	
@@ -333,9 +351,19 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Find version */
 		tvb_previous_offset = tvb_find_guint8(tvb, 0,
 			tvb_len, '/') + 1;
+		if (tvb_previous_offset == -1) {
+			proto_tree_add_text(megaco_tree, tvb, 0, -1,
+			    "Sorry, no \"/\" in the MEGACO header, I can't parse this packet");
+			return;
+		}
 		
 		tvb_current_offset  = tvb_find_guint8(tvb, tvb_previous_offset,
 			tvb_len, ' ');
+		if (tvb_previous_offset == -1) {
+			proto_tree_add_text(megaco_tree, tvb, 0, -1,
+			    "Sorry, no \" \" after the \"/\" in the MEGACO header, I can't parse this packet");
+			return;
+		}
 		
 		tokenlen = tvb_current_offset - tvb_previous_offset;
 		
@@ -348,15 +376,20 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Find transaction */
 		tvb_offset = tvb_find_guint8(tvb, 0,
 			tvb_len, ':');
-		tvb_current_offset = tvb_find_guint8(tvb, 0,
-			tvb_len, '=');
 		
 		/* Transaction / TransactionResponseAck */
 		
+		/* We did this earlier, so we know it doesn't fail */
 		tvb_current_offset = tvb_find_guint8(tvb, 0,
 			tvb_len, '=');
 		
 		tvb_previous_offset = tvb_find_guint8(tvb, tvb_offset, tvb_len, transaction[0]);
+		if (tvb_previous_offset == -1) {
+			proto_tree_add_text(megaco_tree, tvb, 0, -1,
+			    "Sorry, no \"%c\" past the \":\" in this packet, I can't parse it",
+			    transaction[0]);
+			return;
+		}
 		
 		tokenlen = tvb_current_offset - tvb_previous_offset;
 		
