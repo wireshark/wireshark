@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.54 2003/04/29 17:56:47 guy Exp $
+ * $Id: packet-gtp.c,v 1.55 2003/07/09 07:12:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1121,19 +1121,31 @@ static const value_string mm_sec_modep[] = {
 	{ 0,	NULL }
 };
 
+#define MM_PROTO_GROUP_CALL_CONTROL	0x00
+#define MM_PROTO_BROADCAST_CALL_CONTROL	0x01
+#define MM_PROTO_PDSS1			0x02
+#define MM_PROTO_CALL_CONTROL		0x03
+#define MM_PROTO_PDSS2			0x04
+#define MM_PROTO_MM_NON_GPRS		0x05
+#define MM_PROTO_RR_MGMT		0x06
+#define MM_PROTO_MM_GPRS		0x08
+#define MM_PROTO_SMS			0x09
+#define MM_PROTO_SESSION_MGMT		0x0A
+#define MM_PROTO_NON_CALL_RELATED	0x0B
+
 static const value_string mm_proto_disc[] = {
-	{ 0x00, "Group call control" },
-	{ 0x01, "Broadcast call control" },
-	{ 0x02, "PDSS1" },
-	{ 0x03, "Call control; call related SS messages" },
-	{ 0x04, "PDSS2" },
-	{ 0x05, "Mobility Management messages for non-GPRS services" },
-	{ 0x06, "Radio Resource management messages" },
-	{ 0x08, "Mobility Management messages for GPRS services" },
-	{ 0x09, "SMS" },
-	{ 0x0A, "Session Management messages" },
-	{ 0x0B, "Non-call related SS messages" },
-	{ 0, NULL }
+	{ MM_PROTO_GROUP_CALL_CONTROL,		"Group call control" },
+	{ MM_PROTO_BROADCAST_CALL_CONTROL,	"Broadcast call control" },
+	{ MM_PROTO_PDSS1,			"PDSS1" },
+	{ MM_PROTO_CALL_CONTROL,		"Call control; call related SS messages" },
+	{ MM_PROTO_PDSS2,			"PDSS2" },
+	{ MM_PROTO_MM_NON_GPRS,			"Mobility Management messages for non-GPRS services" },
+	{ MM_PROTO_RR_MGMT,			"Radio Resource management messages" },
+	{ MM_PROTO_MM_GPRS,			"Mobility Management messages for GPRS services" },
+	{ MM_PROTO_SMS,				"SMS" },
+	{ MM_PROTO_SESSION_MGMT,		"Session Management messages" },
+	{ MM_PROTO_NON_CALL_RELATED,		"Non-call related SS messages" },
+	{ 0,					NULL }
 };
 
 static const value_string mm_rr_mess[] = {
@@ -3230,7 +3242,8 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	proto_tree_add_text(ext_tree_mm, tvb, offset+1, 2, "Length: %x", length);
 	proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Ciphering Key Sequence Number: %u", cksn);
 	if (gtp_version != 0) {
-		proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Security type: %u", sec_mode);
+		proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Security type: %u (%s)", sec_mode,
+		                    val_to_str(sec_mode, mm_sec_modep, "Unknown"));
 	} else {
 		sec_mode = 1;
 	}
@@ -3313,8 +3326,40 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 	if (con_len > 0) {
 		trans_id = (tvb_get_guint8(tvb, offset+6) >> 4) & 0x0F;
+		proto_tree_add_text(ext_tree_mm, tvb, offset+6, 1, "Transaction identifier: 0x%x", trans_id);
 		proto_disc = tvb_get_guint8(tvb, offset+6) & 0x0F;
+		proto_tree_add_text(ext_tree_mm, tvb, offset+6, 1, "Protocol discriminator: 0x%x (%s)", proto_disc,
+		                    val_to_str(proto_disc, mm_proto_disc, "Unknown"));
 		message = tvb_get_guint8(tvb, offset+7);
+		switch (message) {
+
+		case MM_PROTO_RR_MGMT:
+			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x (%s)", message,
+					    val_to_str(message, mm_rr_mess, "Unknown"));
+			break;
+
+		case MM_PROTO_MM_NON_GPRS:
+			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x (%s)", message,
+					    val_to_str(message, mm_mm_mess, "Unknown"));
+			break;
+
+		case MM_PROTO_CALL_CONTROL:
+		case MM_PROTO_GROUP_CALL_CONTROL:
+		case MM_PROTO_BROADCAST_CALL_CONTROL:
+			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x (%s)", message,
+					    val_to_str(message, mm_cc_mess, "Unknown"));
+			break;
+
+		case MM_PROTO_MM_GPRS:
+			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x (%s)", message,
+					    val_to_str(message, mm_gprs_mess, "Unknown"));
+			break;
+
+		default:
+			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x", message);
+			break;
+		}
+		/* XXX - dissect additional IEs from GSM L3 message */
 	}
 
 	return 3+length;
