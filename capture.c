@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.247 2004/03/23 01:02:40 guy Exp $
+ * $Id: capture.c,v 1.248 2004/03/23 06:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -146,6 +146,7 @@
 #include "wiretap/wtap.h"
 #include "wiretap/wtap-capture.h"
 
+#include "packet-ap1394.h"
 #include "packet-atalk.h"
 #include "packet-atm.h"
 #include "packet-clip.h"
