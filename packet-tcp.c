@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.205 2003/09/08 10:19:06 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.206 2003/09/12 05:52:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,6 +218,7 @@ static int tcp_rel_seq_count = 10000; /* one for each segment in the capture */
 struct tcp_rel_seq {
 	guint32 seq_base;
 	guint32 ack_base;
+	gint16  win_scale;
 };
 static GHashTable *tcp_rel_seq_table = NULL;
 
@@ -241,6 +242,8 @@ struct tcp_analysis {
 	guint32 base_seq1;
 	struct tcp_unacked *ual2;	/* UnAcked List 2*/
 	guint32 base_seq2;
+	gint16 win_scale1;
+	gint16 win_scale2;
 
 	/* these two lists are used to track when PDUs may start
 	   inside a segment.
@@ -278,8 +281,10 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd=g_mem_chunk_alloc(tcp_analysis_chunk);
 		tcpd->ual1=NULL;
 		tcpd->base_seq1=0;
+		tcpd->win_scale1=-1;
 		tcpd->ual2=NULL;
 		tcpd->base_seq2=0;
+		tcpd->win_scale2=-1;
 
 		tcpd->pdu_seq1=NULL;
 		tcpd->pdu_seq2=NULL;
@@ -434,8 +439,32 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 nxtpdu)
 	*/
 }
 
+/* if we saw a window scaling option, store it for future reference 
+*/
 static void
-tcp_get_relative_seq_ack(guint32 frame, guint32 *seq, guint32 *ack)
+pdu_store_window_scale_option(packet_info *pinfo, guint8 ws)
+{
+	struct tcp_analysis *tcpd=NULL;
+	int direction;
+
+	/* find(or create if needed) the conversation for this tcp session */
+	tcpd=get_tcp_conversation_data(pinfo);
+
+	/* check direction and get pdu start list */
+	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+	/* if the addresses are equal, match the ports instead */
+	if(direction==0) {
+		direction= (pinfo->srcport > pinfo->destport)*2-1;
+	}
+	if(direction>=0){
+		tcpd->win_scale1=ws;
+	} else {
+		tcpd->win_scale2=ws;
+	}
+}
+
+static void
+tcp_get_relative_seq_ack(guint32 frame, guint32 *seq, guint32 *ack, guint32 *win)
 {
 	struct tcp_rel_seq *trs;
 
@@ -446,6 +475,9 @@ tcp_get_relative_seq_ack(guint32 frame, guint32 *seq, guint32 *ack)
 
 	(*seq) -= trs->seq_base;
 	(*ack) -= trs->ack_base;
+	if(trs->win_scale!=-1){
+		(*win)<<=trs->win_scale;
+	}
 }
 
 static struct tcp_acked *
@@ -477,6 +509,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	struct tcp_unacked *ual=NULL;
 	guint32 base_seq=0;
 	guint32 base_ack=0;
+	gint16  win_scale=-1;
 	struct tcp_next_pdu **tnp=NULL;
 
 	/* find(or create if needed) the conversation for this tcp session */
@@ -493,12 +526,14 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual2=tcpd->ual2;
 		tnp=&tcpd->pdu_seq2;
 		base_seq=tcpd->base_seq1;
+		win_scale=tcpd->win_scale1;
 		base_ack=tcpd->base_seq2;
 	} else {
 		ual1=tcpd->ual2;
 		ual2=tcpd->ual1;
 		tnp=&tcpd->pdu_seq1;
 		base_seq=tcpd->base_seq2;
+		win_scale=tcpd->win_scale2;
 		base_ack=tcpd->base_seq1;
 	}
 
@@ -897,6 +932,7 @@ ack_finished:
 		trs=g_mem_chunk_alloc(tcp_rel_seq_chunk);
 		trs->seq_base=base_seq;
 		trs->ack_base=base_ack;
+		trs->win_scale=win_scale;
 		g_hash_table_insert(tcp_rel_seq_table, (void *)pinfo->fd->num, trs);
 	}
 }
@@ -1829,6 +1865,9 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			     offset, optlen, ws, "%s: %u (multiply by %u)", 
 			     optp->name, ws, 1 << ws);
   tcp_info_append_uint(pinfo, "WS", ws);
+  if(!pinfo->fd->flags.visited){
+    pdu_store_window_scale_option(pinfo, ws);
+  }
 }
 
 static void
@@ -2233,7 +2272,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win);
           }
           if(tcp_relative_seq){
-              tcp_get_relative_seq_ack(pinfo->fd->num, &(tcph->th_seq), &(tcph->th_ack));
+              tcp_get_relative_seq_ack(pinfo->fd->num, &(tcph->th_seq), &(tcph->th_ack), &(tcph->th_win));
           }
       }
 
@@ -2585,8 +2624,9 @@ proto_register_tcp(void)
 		{ "Fin",			"tcp.flags.fin", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_FIN,
 			"", HFILL }},
 
+		/* 32 bits so we can present some values adjusted to window scaling */
 		{ &hf_tcp_window_size,
-		{ "Window size",		"tcp.window_size", FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ "Window size",		"tcp.window_size", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_tcp_checksum,
@@ -2799,8 +2839,8 @@ proto_register_tcp(void)
 	    "Make the TCP dissector analyze TCP sequence numbers to find and flag segment retransmissions, missing segments and RTT",
 	    &tcp_analyze_seq);
 	prefs_register_bool_preference(tcp_module, "relative_sequence_numbers",
-	    "Use relative sequence numbers",
-	    "Make the TCP dissector use relative sequence numbers instead of absolute ones. To use this option you must also enable \"Analyze TCP sequence numbers\".",
+	    "Relative Seq nums and Window Scaling",
+	    "Make the TCP dissector use relative sequence numbers instead of absolute ones. To use this option you must also enable \"Analyze TCP sequence numbers\". This option will also try to track and adjust the window field according to any seen tcp window scaling options.",
 	    &tcp_relative_seq);
 	prefs_register_bool_preference(tcp_module, "try_heuristic_first",
 	    "Try heuristic sub-dissectors first",
