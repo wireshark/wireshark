@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.1 2001/10/19 20:18:48 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.2 2002/01/08 22:30:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -153,7 +153,7 @@ int dbs_etherwatch_open(wtap *wth, int *err)
 	}
 
 	wth->data_offset = 0;
-	wth->file_encap = WTAP_ENCAP_PER_PACKET;
+	wth->file_encap = WTAP_ENCAP_RAW_IP;
 	wth->file_type = WTAP_FILE_DBS_ETHERWATCH;
 	wth->snapshot_length = 16384; /* just guessing */
 	wth->subtype_read = dbs_etherwatch_read;
