@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.83 2001/12/20 06:22:24 guy Exp $
+ * $Id: packet-ppp.c,v 1.84 2002/01/03 20:30:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,6 +111,20 @@ static int proto_comp_data = -1;
 
 static gint ett_comp_data = -1;
 
+static int proto_pppmuxcp = -1;
+
+static gint ett_pppmuxcp = -1;
+static gint ett_pppmuxcp_options = -1;
+static gint ett_pppmuxcp_def_pid_opt = -1;
+
+static int proto_pppmux = -1;
+
+static gint ett_pppmux = -1;
+static gint ett_pppmux_subframe = -1;
+static gint ett_pppmux_subframe_hdr = -1;
+static gint ett_pppmux_subframe_flags = -1;
+static gint ett_pppmux_subframe_info = -1;
+
 static int proto_mp = -1;
 static int hf_mp_frag_first = -1;
 static int hf_mp_frag_last = -1;
@@ -143,6 +157,14 @@ static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
 #define FCS_16 1
 #define FCS_32 2
 gboolean ppp_vj_decomp = TRUE; /* Default to VJ header decompression */
+				
+/*
+ * For Default Protocol ID negotiated with PPPMuxCP. We need to
+ * this ID so that if the first subframe doesn't have protocol
+ * ID, we can use it
+ */
+
+static guint pppmux_def_prot_id = 0;
 
 /* PPP definitions */
 
@@ -157,6 +179,7 @@ static const value_string ppp_vals[] = {
 	{PPP_VINES,     "Vines"          },
         {PPP_MP,	"Multilink"},
 	{PPP_IPV6,      "IPv6"           },
+        {PPP_MUX,       "PPP Multiplexing"},
 	{PPP_COMP,	"compressed packet" },
 	{PPP_DEC_LB,	"DEC LANBridge100 Spanning Tree"},
 	{PPP_MPLS_UNI,  "MPLS Unicast"},
@@ -165,6 +188,7 @@ static const value_string ppp_vals[] = {
 	{PPP_OSICP,     "OSI Control Protocol" },
 	{PPP_ATCP,	"AppleTalk Control Protocol" },
 	{PPP_IPXCP,	"IPX Control Protocol" },
+	{PPP_MUXCP,     "PPPMux Control Protocol"},
 	{PPP_CCP,	"Compression Control Protocol" },
 	{PPP_LCP,	"Link Control Protocol" },
 	{PPP_PAP,	"Password Authentication Protocol"  },
@@ -1096,6 +1120,35 @@ static const value_string chap_vals[] = {
 
 static void dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+static const value_string pppmuxcp_vals[] = {
+	{CONFREQ,    "Configuration Request" },
+	{CONFACK,    "Configuration Ack" },
+	{0,          NULL}
+};
+
+/*
+ * PPPMuxCP options
+ */
+
+#define CI_DEFAULT_PID   1
+
+static void dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo, proto_tree *tree);
+
+
+static const ip_tcp_opt pppmuxcp_opts[] = {
+	{
+		CI_DEFAULT_PID,
+		"Default Protocol ID",
+		&ett_pppmuxcp_def_pid_opt,
+		FIXED_LENGTH,
+		4,
+		dissect_pppmuxcp_def_pid_opt
+	}
+};
+
+#define N_PPPMUXCP_OPTS (sizeof pppmuxcp_opts / sizeof pppmuxcp_opts[0])
+
 const unsigned int fcstab_32[256] =
       {
       0x00000000, 0x77073096, 0xee0e612c, 0x990951ba,
@@ -1649,6 +1702,15 @@ static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)));
 }
 
+static void dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, packet_info *pinfo, proto_tree *tree)
+{ 
+  pppmux_def_prot_id = tvb_get_ntohs(tvb, offset + 2);
+  proto_tree_add_text(tree, tvb, offset + 2, length - 2, "%s: %s (0x%02x)",optp->name,
+		      val_to_str(pppmux_def_prot_id, ppp_vals, "Unknown"), pppmux_def_prot_id);
+}
+
+
 static void
 dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			int offset, guint length, packet_info *pinfo,
@@ -2192,6 +2254,116 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+static void
+dissect_pppmuxcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb,proto_pppmuxcp,ett_pppmuxcp,pppmuxcp_vals,
+	     ett_pppmuxcp_options,pppmuxcp_opts,N_PPPMUXCP_OPTS,pinfo,tree);
+}
+
+#define PPPMUX_FLAGS_MASK          0xc0
+#define PPPMUX_PFF_BIT_SET         0x80
+#define PPPMUX_LXT_BIT_SET         0x40
+
+static void 
+dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_tree *mux_tree, *hdr_tree, *sub_tree, *flag_tree;
+  proto_tree *info_tree;
+  proto_item *ti = NULL,*sub_ti = NULL;
+  guint8 flags, byte;
+  guint16 length;
+  static guint16 pid;
+  tvbuff_t *next_tvb;    
+  int offset = 0, length_remaining;
+  int length_field = 0, pid_field = 0,hdr_length = 0;
+  dissector_handle_t prot_handle; 
+  
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPP PPPMux");
+	
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_set_str(pinfo->cinfo, COL_INFO, "PPP Multiplexing");
+	
+  length_remaining = tvb_length(tvb);
+  
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_pppmux, tvb, 0, length_remaining,
+			     FALSE);
+    mux_tree = proto_item_add_subtree(ti,ett_pppmux);
+    
+    while (length_remaining > 0) {
+	
+      flags = tvb_get_guint8(tvb,offset) & PPPMUX_FLAGS_MASK;
+      
+      if (flags && PPPMUX_LXT_BIT_SET ) {
+	length = tvb_get_ntohs(tvb,offset) & 0x3fff;
+	length_field = 2;
+      } else {
+	length = tvb_get_guint8(tvb,offset) & 0x3f;
+	length_field = 1;
+      }
+      
+      if (flags && PPPMUX_PFF_BIT_SET) {
+	byte = tvb_get_guint8(tvb,offset + length_field);
+	if (byte && PFC_BIT) {		  /* Compressed PID field*/
+	  pid = byte;
+	  pid_field = 1;
+	} else {		  /*PID field is 2 bytes*/
+	  pid = tvb_get_ntohs(tvb,offset + length_field);
+	  pid_field = 2;
+	}
+      } else {
+	if (!pid){	 /*No Last PID, hence use the default */
+	  if (pppmux_def_prot_id) 
+	    pid = pppmux_def_prot_id;
+	}
+      }
+      
+      hdr_length = length_field + pid_field;
+      
+      ti = proto_tree_add_text(mux_tree, tvb, offset, length + length_field,
+			       "PPPMux Sub-frame");
+      sub_tree = proto_item_add_subtree(ti,ett_pppmux_subframe);
+      sub_ti = proto_tree_add_text(sub_tree, tvb, offset,
+				   hdr_length,"Header field");
+      
+      hdr_tree = proto_item_add_subtree(sub_ti,ett_pppmux_subframe_hdr);
+      ti = proto_tree_add_text(hdr_tree, tvb, offset, length_field, "PFF/LXT: 0x%02X",
+			       flags);
+      
+      flag_tree = proto_item_add_subtree(ti,ett_pppmux_subframe_flags);
+      proto_tree_add_text(flag_tree,tvb,offset,length_field,"%s",
+			  decode_boolean_bitfield(flags,0x80,8,"PID Present","PID not present"));
+      proto_tree_add_text(flag_tree,tvb,offset,length_field,"%s",
+			  decode_boolean_bitfield(flags,0x40,8,"2 bytes ength field ","1 byte length field"));
+      
+      ti = proto_tree_add_text(hdr_tree,tvb,offset,length_field,"Sub-frame Length = %u",length);
+      
+      if (flags && PPPMUX_PFF_BIT_SET)
+	proto_tree_add_text(hdr_tree,tvb,offset + length_field,pid_field,"%s: %s(0x%02x)",
+			    "Protocol ID",val_to_str(pid,ppp_vals,"Unknown"), pid);
+      
+      offset += hdr_length;
+      length_remaining -= hdr_length;
+      length -= pid_field;
+      
+      sub_ti = proto_tree_add_text(sub_tree,tvb,offset,length,"Information Field");
+      info_tree = proto_item_add_subtree(sub_ti,ett_pppmux_subframe_info);
+      
+      next_tvb = tvb_new_subset(tvb,offset,length,-1); 
+      
+      if (!dissector_try_port(subdissector_table, pid, next_tvb, pinfo, info_tree)) {
+	call_dissector(data_handle, next_tvb, pinfo, info_tree);
+      }
+      offset += length;
+      length_remaining -= length;
+    }  /* While length_remaining */
+    pid = 0; 
+  } /* if tree */  
+}
+
+
 #define MP_FRAG_MASK     0xC0
 #define MP_FRAG(bits)    ((bits) & MP_FRAG_MASK)
 #define MP_FRAG_FIRST    0x80
@@ -2608,6 +2780,11 @@ proto_register_ppp(void)
     "PPP Van Jacobson Compression",
     "Whether Van Jacobson-compressed PPP frames should be decompressed",
     &ppp_vj_decomp);
+
+  prefs_register_uint_preference(ppp_module, "default_proto_id",
+				 "PPPMuxCP Default PID",
+				 "Default Protocol ID to be used",
+				 16, &pppmux_def_prot_id);
 }
 
 void
@@ -2956,3 +3133,68 @@ proto_reg_handoff_chap(void)
    */
   dissector_add("ethertype", PPP_CHAP, chap_handle);
 }
+
+void
+proto_register_pppmuxcp(void)
+{
+  static gint *ett[] = {
+    &ett_pppmuxcp,
+    &ett_pppmuxcp_options,
+    &ett_pppmuxcp_def_pid_opt,
+  };
+
+  proto_pppmuxcp = proto_register_protocol("PPPMux Control Protocol", 
+				       "PPP PPPMuxCP",
+				      "pppmuxcp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+
+void
+proto_reg_handoff_pppmuxcp(void)
+{ 
+  dissector_handle_t muxcp_handle; 
+ 
+  muxcp_handle = create_dissector_handle(dissect_pppmuxcp, proto_pppmuxcp);
+  dissector_add("ppp.protocol", PPP_MUXCP, muxcp_handle);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_MUXCP, muxcp_handle);
+}
+
+
+void 
+proto_register_pppmux(void) 
+{ 
+  static gint *ett[] = { 
+    &ett_pppmux, 
+    &ett_pppmux_subframe, 
+    &ett_pppmux_subframe_hdr, 
+    &ett_pppmux_subframe_flags, 
+    &ett_pppmux_subframe_info, 
+  }; 
+ 
+  proto_pppmux = proto_register_protocol("PPP Multiplexing",  
+				       "PPP PPPMux", 
+				      "pppmux"); 
+  proto_register_subtree_array(ett, array_length(ett)); 
+} 
+ 
+void 
+proto_reg_handoff_pppmux(void) 
+{ 
+  dissector_handle_t pppmux_handle; 
+ 
+  pppmux_handle = create_dissector_handle(dissect_pppmux, proto_pppmux); 
+  dissector_add("ppp.protocol", PPP_MUX, pppmux_handle); 
+ 
+  /* 
+   * See above comment about NDISWAN for an explanation of why we're 
+   * registering with the "ethertype" dissector table. 
+   */ 
+  dissector_add("ethertype", PPP_MUX, pppmux_handle); 
+} 
+

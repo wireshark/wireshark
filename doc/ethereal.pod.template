@@ -1276,6 +1276,7 @@ B<http://www.ethereal.com>.
   Bernd Becker             <bb[AT]bernd-becker.de>
   Heinz Prantner           <Heinz.Prantner[AT]radisys.com>
   Irfan Khan               <ikhan[AT]qualcomm.com>
+  Jayaram V.R              <vjayar[AT]cisco.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

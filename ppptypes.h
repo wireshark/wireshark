@@ -1,7 +1,7 @@
 /* ppptypes.h
  * Defines PPP packet types.
  *
- * $Id: ppptypes.h,v 1.10 2001/12/08 01:03:19 guy Exp $
+ * $Id: ppptypes.h,v 1.11 2002/01/03 20:30:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 #define	PPP_VINES	0x35	/* Banyan Vines */
 #define PPP_MP		0x3d	/* Multilink PPP */
 #define PPP_IPV6	0x57	/* Internet Protocol Version 6 */
+#define PPP_MUX         0x59    /* PPP Multiplexing */
 #define PPP_COMP	0xfd	/* compressed packet */
 #define PPP_DEC_LB	0x0205	/* DEC LANBridge100 Spanning Tree */
 #define PPP_MPLS_UNI	0x0281	/* MPLS Unicast */
@@ -49,6 +50,7 @@
 #define PPP_OSICP	0x8023  /* OSI Control Protocol */
 #define PPP_ATCP	0x8029	/* AppleTalk Control Protocol */
 #define PPP_IPXCP	0x802b	/* IPX Control Protocol */
+#define PPP_MUXCP       0x8059  /* PPPMux Control Protocol */ 
 #define PPP_CCP		0x80fd	/* Compression Control Protocol */
 #define PPP_LCP		0xc021	/* Link Control Protocol */
 #define PPP_PAP		0xc023	/* Password Authentication Protocol */

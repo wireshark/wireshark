@@ -973,6 +973,10 @@ Irfan Khan <ikhan[AT]qualcomm.com> {
 	Van Jacobson decompression support for PPP
 }
 
+Jayaram V.R <vjayar[AT]cisco.com> {
+	PPP multiplexing support
+}
+	
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
