@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.227 2002/03/17 12:16:11 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.228 2002/03/18 08:34:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -538,6 +538,7 @@ static int hf_smb_fs_attr_fc = -1;
 static int hf_smb_fs_attr_vq = -1;
 static int hf_smb_fs_attr_dim = -1;
 static int hf_smb_fs_attr_vic = -1;
+static int hf_smb_quota_flags_enabled = -1;
 static int hf_smb_quota_flags_deny_disk = -1;
 static int hf_smb_quota_flags_log_limit = -1;
 static int hf_smb_quota_flags_log_warning = -1;
@@ -9783,6 +9784,10 @@ static const true_false_string tfs_quota_flags_log_warning = {
 	"LOG EVENT when a user exceeds their WARNING LEVEL",
 	"Do NOT log event when a user exceeds their warning level"
 };
+static const true_false_string tfs_quota_flags_enabled = {
+	"Quotas are ENABLED of this fs",
+	"Quotas are NOT enabled on this fs"
+};
 static void
 dissect_quota_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
@@ -9794,7 +9799,8 @@ dissect_quota_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-			"Quota Flags: 0x%02x", mask);
+			"Quota Flags: 0x%02x %s", mask,
+			mask?"Enabled":"Disabled");
 		tree = proto_item_add_subtree(item, ett_smb_quotaflags);
 	}
 
@@ -9804,6 +9810,15 @@ dissect_quota_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		tvb, offset, 1, mask);
 	proto_tree_add_boolean(tree, hf_smb_quota_flags_deny_disk,
 		tvb, offset, 1, mask);
+
+	if(mask && (!(mask&0x01))){
+		proto_tree_add_boolean_hidden(tree, hf_smb_quota_flags_enabled,
+			tvb, offset, 1, 0x01);
+	} else {
+		proto_tree_add_boolean(tree, hf_smb_quota_flags_enabled,
+			tvb, offset, 1, mask);
+	}
+
 }
 
 static int
@@ -16321,6 +16336,10 @@ proto_register_smb(void)
 	{ &hf_smb_quota_flags_log_warning,
 		{ "Log Warning", "smb.quota.flags.log_warning", FT_BOOLEAN, 8,
 		TFS(&tfs_quota_flags_log_warning), 0x10, "Should the server log an event when the warning level is exceeded?", HFILL }},
+
+	{ &hf_smb_quota_flags_enabled,
+		{ "Enabled", "smb.quota.flags.enabled", FT_BOOLEAN, 8,
+		TFS(&tfs_quota_flags_enabled), 0x01, "Is quotas enabled of this FS?", HFILL }},
 
 	};
 	static gint *ett[] = {
