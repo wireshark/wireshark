@@ -2,7 +2,7 @@
  * Routines for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.c,v 1.8 2003/05/24 19:51:48 gerald Exp $
+ * $Id: packet-rmi.c,v 1.9 2003/05/26 21:44:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -210,7 +210,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    strncpy(epid_hostname,
 			    "<string too long>", sizeof(epid_hostname));
 		}
-		epid_hostname[sizeof(epid_hostname)] = '\0';
+		epid_hostname[sizeof(epid_hostname)-1] = '\0';
 		proto_tree_add_string(rmi_tree, hf_rmi_epid_hostname,
 				      tvb, offset + 3, strlen(epid_hostname),
 				      epid_hostname);
