@@ -517,13 +517,17 @@ window_destroy(GtkWidget *win)
   window_geometry_t geom;
   const gchar *name;
 
-  /* this must be done *before* destroy is running, as the window geometry */
-  /* cannot be retrieved at destroy time (so don't use event "destroy" for this) */
-  window_get_geometry(win, &geom);
+  /* get_geometry must be done *before* destroy is running, as the window geometry
+   * cannot be retrieved at destroy time (so don't use event "destroy" for this) */
+  /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the 
+   * GtkWidget is hidden) */
+  if(!GTK_WIDGET_NO_WINDOW(win)) {
+      window_get_geometry(win, &geom);
 
-  name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
-  if(name) {
-    window_geom_save(name, &geom);
+      name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
+      if(name) {
+        window_geom_save(name, &geom);
+      }
   }
 
   gtk_widget_destroy(win);
