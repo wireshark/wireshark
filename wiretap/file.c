@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.47 2000/01/24 19:16:39 gram Exp $
+ * $Id: file.c,v 1.48 2000/02/03 06:29:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -337,7 +337,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
-	fh = fopen(filename, "w");
+	fh = fopen(filename, "wb");
 	if (fh == NULL) {
 		*err = errno;
 		return NULL;	/* can't create file */
@@ -353,7 +353,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
-	fh = fdopen(fd, "w");
+	fh = fdopen(fd, "wb");
 	if (fh == NULL) {
 		*err = errno;
 		return NULL;	/* can't create standard I/O stream */
