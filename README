@@ -1,4 +1,4 @@
-$Id: README,v 1.58 2002/05/29 19:16:40 guy Exp $
+$Id: README,v 1.59 2002/07/31 19:27:39 guy Exp $
 
 General Information
 ------- -----------
@@ -107,6 +107,7 @@ pppd logs (pppdump-format files)
 VMS's TCPIPtrace utility
 DBS Etherwatch for VMS
 Traffic captures from Visual Networks' Visual UpTime
+CoSine L2 debug output
 
 In addition, it can read gzipped versions of any of these files
 automatically, if you have the zlib library available when compiling
@@ -147,9 +148,15 @@ Ethereal can also read dump trace output from the Toshiba "Compact Router"
 line of ISDN routers (TR-600 and TR-650). You can telnet to the router
 and start a dump session with "snoop dump".
 
-To use the Lucent/Ascend and Toshiba traces with Ethereal, you must capture
-the trace output to a file on disk.  The trace is happening inside the router
-and the router has no way of saving the trace to a file for you.
+CoSine L2 debug output can also be read by Ethereal. To get the L2
+debug output, get in the diags mode first and then use
+"create-pkt-log-profile" and "apply-pkt-log-profile" commands under
+layer-2 category. For more detail how to use these commands, you
+should examine the help command by "layer-2 create ?" or "layer-2 apply ?".
+
+To use the Lucent/Ascend, Toshiba and CoSine traces with Ethereal, you must 
+capture the trace output to a file on disk.  The trace is happening inside 
+the router and the router has no way of saving the trace to a file for you.
 An easy way of doing this under Unix is to run "telnet <ascend> | tee <outfile>".
 Or, if your system has the "script" command installed, you can save
 a shell session, including telnet to a file. For example, to a file named

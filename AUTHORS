@@ -862,6 +862,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	    Windows binary distribution
 	Delete installed data files on a Windows uninstallation
 	OSPF fixes
+	Support for reading CoSine L2 debug output
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

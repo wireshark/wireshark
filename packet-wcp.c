@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.25 2002/06/06 22:42:27 gerald Exp $
+ * $Id: packet-wcp.c,v 1.26 2002/07/31 19:27:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -174,7 +174,7 @@ static int hf_wcp_offset = -1;
 static gint ett_wcp = -1;
 static gint ett_wcp_field = -1;
 
-static dissector_handle_t fr_handle;
+static dissector_handle_t fr_uncompressed_handle;
 
 /*
  * Bits in the address field.
@@ -397,7 +397,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			tvb_reported_length( tvb)-1, 1,
 		 	tvb_get_guint8( tvb, tvb_reported_length(tvb)-1));
 
-	call_dissector(fr_handle, next_tvb, pinfo, tree);
+	call_dissector(fr_uncompressed_handle, next_tvb, pinfo, tree);
 
 	return;
 }
@@ -740,7 +740,7 @@ proto_reg_handoff_wcp(void) {
     /*
      * Get handle for the Frame Relay (uncompressed) dissector.
      */
-    fr_handle = find_dissector("fr");
+    fr_uncompressed_handle = find_dissector("fr_uncompressed");
 
     wcp_handle = create_dissector_handle(dissect_wcp, proto_wcp);
     dissector_add("fr.ietf", NLPID_COMPRESSED, wcp_handle);

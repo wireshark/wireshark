@@ -1,0 +1,207 @@
+/* packet-cosine.c
+ * Routines for decoding CoSine IPNOS L2 debug output
+ *
+ * $Id: packet-cosine.c,v 1.1 2002/07/31 19:27:39 guy Exp $
+ *
+ * Motonori Shindo <mshindo@mshindo.net>
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+/*
+ * XXX TODO:
+ *    o PPoATM and PPoFR encapsulation needs more test.
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#include <glib.h>
+#include <string.h>
+#include <epan/packet.h>
+
+static int proto_cosine = -1;
+static int hf_pro = -1;
+static int hf_off = -1;
+static int hf_pri = -1;
+static int hf_rm = -1;
+static int hf_err = -1;
+static int hf_code1 = -1;
+static int hf_code2 = -1;
+
+static gint ett_raw = -1;
+
+static dissector_handle_t eth_handle;
+static dissector_handle_t ppp_hdlc_handle;
+static dissector_handle_t llc_handle;
+static dissector_handle_t chdlc_handle;
+static dissector_handle_t fr_handle;
+static dissector_handle_t data_handle;
+
+static void
+dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_tree			*fh_tree;
+  proto_item			*ti;
+  union wtap_pseudo_header	*pseudo_header = pinfo->pseudo_header;
+
+  /* load the top pane info. This should be overwritten by
+     the next protocol in the stack */
+  if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A" );
+  if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A" );
+  if(check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A" );
+  if(check_col(pinfo->cinfo, COL_INFO))
+    col_set_str(pinfo->cinfo, COL_INFO, "CoSine IPNOS L2 debug output" );
+
+  /* populate a tree in the second pane with the status of the link
+     layer (ie none) */
+  if(tree) {
+    ti = proto_tree_add_protocol_format(tree, proto_cosine, tvb, 0, 4,
+					"CoSine IPNOS L2 debug output (%s)",
+					pseudo_header->cosine.if_name);
+    fh_tree = proto_item_add_subtree(ti, ett_raw);
+    proto_tree_add_uint(fh_tree, hf_pro, tvb, 0, 0, pseudo_header->cosine.pro);
+    proto_tree_add_uint(fh_tree, hf_off, tvb, 0, 0, pseudo_header->cosine.off);
+    proto_tree_add_uint(fh_tree, hf_pri, tvb, 0, 0, pseudo_header->cosine.pri);
+    proto_tree_add_uint(fh_tree, hf_rm,  tvb, 0, 0, pseudo_header->cosine.rm);
+    proto_tree_add_uint(fh_tree, hf_err, tvb, 0, 0, pseudo_header->cosine.err);
+    proto_tree_add_uint(fh_tree, hf_code1, tvb, 0, 0, 
+			pseudo_header->cosine.code1);
+    proto_tree_add_uint(fh_tree, hf_code2, tvb, 0, 0, 
+			pseudo_header->cosine.code2);
+    
+    switch (pseudo_header->cosine.encap) {
+    case COSINE_ENCAP_ETH:
+	    break;
+    case COSINE_ENCAP_ATM:
+    case COSINE_ENCAP_PPoATM:
+	    proto_tree_add_text(fh_tree, tvb, 0, 16, "SAR header");
+	    break;
+    case COSINE_ENCAP_PPP:
+    case COSINE_ENCAP_FR:
+    case COSINE_ENCAP_PPoFR:
+	    proto_tree_add_text(fh_tree, tvb, 0, 4, "Channel handle ID");
+	    break;
+    case COSINE_ENCAP_HDLC:
+	    if (pseudo_header->cosine.direction == COSINE_DIR_TX) {
+		    proto_tree_add_text(fh_tree, tvb, 0, 2, 
+					"Channel handle ID");
+	    } else if (pseudo_header->cosine.direction == COSINE_DIR_RX) {
+		    proto_tree_add_text(fh_tree, tvb, 0, 4, 
+					"Channel handle ID");
+	    }
+	    break;
+    default:
+	    break;
+    }
+  }
+
+  switch (pseudo_header->cosine.encap) {
+  case COSINE_ENCAP_ETH:
+    	  call_dissector(eth_handle, tvb_new_subset(tvb, 0, -1, -1), 
+			 pinfo, tree);
+	  break;
+  case COSINE_ENCAP_ATM:
+  case COSINE_ENCAP_PPoATM:
+    	  call_dissector(llc_handle, tvb_new_subset(tvb, 16, -1, -1), 
+			 pinfo, tree);
+	  break;
+  case COSINE_ENCAP_PPP:
+	  call_dissector(ppp_hdlc_handle, tvb_new_subset(tvb, 4, -1, -1), 
+			 pinfo, tree);
+	  break;
+  case COSINE_ENCAP_HDLC:
+	  if (pseudo_header->cosine.direction == COSINE_DIR_TX) {
+		  call_dissector(chdlc_handle, tvb_new_subset(tvb, 2, -1, -1), 
+				 pinfo, tree);
+	  } else if (pseudo_header->cosine.direction == COSINE_DIR_RX) {
+		  call_dissector(chdlc_handle, tvb_new_subset(tvb, 4, -1, -1), 
+			 pinfo, tree);
+	  }
+	  break;
+  case COSINE_ENCAP_FR:
+  case COSINE_ENCAP_PPoFR:
+	  call_dissector(fr_handle, tvb_new_subset(tvb, 4, -1, -1), 
+			 pinfo, tree);
+	  break;
+  case COSINE_ENCAP_TEST:
+  case COSINE_ENCAP_UNKNOWN:
+	  call_dissector(data_handle, tvb, pinfo, tree);
+	  break;
+  default:
+	  break;
+  }
+}
+
+void
+proto_register_cosine(void)
+{
+  static hf_register_info hf[] = {
+    { &hf_pro, 
+      { "Pro",	"cosine.pro", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_off, 
+      { "Pro",	"cosine.off", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_pri, 
+      { "Pri",	"cosine.pri", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_rm, 
+      { "RM",	"cosine.rm",  FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_err, 
+      { "Err",	"cosine.err", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_code1, 
+      { "Code1", "cosine.code1", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+    { &hf_code2, 
+      { "Code2", "cosine.code2", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+  };
+
+  static gint *ett[] = {
+    &ett_raw,
+  };
+
+  proto_cosine = proto_register_protocol("CoSine IPNOS L2 debug output",
+					 "CoSine", "cosine");
+  proto_register_field_array(proto_cosine, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_cosine(void)
+{
+  dissector_handle_t cosine_handle;
+
+  /*
+   * Get handles for dissectors.
+   */
+  eth_handle = find_dissector("eth");
+  ppp_hdlc_handle = find_dissector("ppp_hdlc");
+  llc_handle = find_dissector("llc");
+  chdlc_handle = find_dissector("chdlc");
+  fr_handle = find_dissector("fr");
+  data_handle = find_dissector("data");
+
+  cosine_handle = create_dissector_handle(dissect_cosine, proto_cosine);
+  dissector_add("wtap_encap", WTAP_ENCAP_COSINE, cosine_handle);
+}

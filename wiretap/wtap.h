@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.118 2002/07/29 06:09:59 guy Exp $
+ * $Id: wtap.h,v 1.119 2002/07/31 19:27:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -114,9 +114,10 @@
 #define WTAP_ENCAP_PFLOG			26
 #define WTAP_ENCAP_HHDLC			27
 #define WTAP_ENCAP_DOCSIS			28
+#define WTAP_ENCAP_COSINE			29
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			29
+#define WTAP_NUM_ENCAP_TYPES			30
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -153,9 +154,10 @@
 #define WTAP_FILE_VMS				29
 #define WTAP_FILE_DBS_ETHERWATCH		30
 #define WTAP_FILE_VISUAL_NETWORKS		31
+#define WTAP_FILE_COSINE			32
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			32
+#define WTAP_NUM_FILE_TYPES			33
 
 /*
  * Maximum packet size we'll support.
@@ -291,12 +293,45 @@ struct ieee_802_11_phdr {
 	guint8	signal_level;	/* percentage */
 };
 
+/* Packet "pseudo-header" for the output from CoSine L2 debug output. */
+
+/* XXX */
+#define COSINE_MAX_IF_NAME_LEN	128
+
+#define COSINE_ENCAP_TEST	1
+#define COSINE_ENCAP_PPoATM	2
+#define COSINE_ENCAP_PPoFR	3
+#define COSINE_ENCAP_ATM	4
+#define COSINE_ENCAP_FR		5
+#define COSINE_ENCAP_HDLC	6
+#define COSINE_ENCAP_PPP	7
+#define COSINE_ENCAP_ETH	8
+#define COSINE_ENCAP_UNKNOWN	99
+
+#define COSINE_DIR_TX 1
+#define COSINE_DIR_RX 2
+
+/* XXX */
+struct cosine_phdr {
+	guint8 encap;		/* COSINE_ENCAP_* as defined above */
+	guint8 direction;	/* COSINE_DIR_*, as defined above */
+	char if_name[COSINE_MAX_IF_NAME_LEN];
+	guint16 pro;		/*   */
+	guint16 off;		/*   */
+	guint16 pri;		/*   */
+	guint16 rm;		/*   */
+	guint16 err;		/*   */
+	guint16 code1;		/*   */
+	guint16 code2;		/*   */
+};
+
 union wtap_pseudo_header {
 	struct x25_phdr		x25;
 	struct atm_phdr		atm;
 	struct ascend_phdr	ascend;
 	struct p2p_phdr		p2p;
 	struct ieee_802_11_phdr	ieee_802_11;
+	struct cosine_phdr	cosine;
 };
 
 struct wtap_pkthdr {

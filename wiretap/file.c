@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.95 2002/07/29 06:09:58 guy Exp $
+ * $Id: file.c,v 1.96 2002/07/31 19:27:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -67,6 +67,7 @@
 #include "vms.h"
 #include "dbs-etherwatch.h"
 #include "visual.h"
+#include "cosine.h"
 
 /* The open_file_* routines should return:
  *
@@ -119,6 +120,7 @@ static int (*open_routines[])(wtap *, int *) = {
 	csids_open,
 	vms_open,
 	dbs_etherwatch_open,
+	cosine_open,
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
@@ -437,6 +439,10 @@ static const struct file_type_info {
 	/* WTAP_FILE_VISUAL_NETWORKS */
 	{ "Visual Networks traffic capture", "visual",
 	  visual_dump_can_write_encap, visual_dump_open },
+
+	/* WTAP_FILE_COSINE */
+	{ "CoSine IPSX L2 capture", "cosine",
+	  NULL, NULL },
 };
 
 /* Name that should be somewhat descriptive. */
