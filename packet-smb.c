@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.219 2002/03/15 19:47:03 sharpe Exp $
+ * $Id: packet-smb.c,v 1.220 2002/03/16 04:39:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3114,8 +3114,9 @@ static int
 dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint32 ofs=0;
-	guint16 cnt=0, bc, fid;
+	guint16 cnt=0, bc, fid=0;
 	guint8 wc;
+	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 
 	WORD_COUNT;
 
@@ -3156,8 +3157,16 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	COUNT_BYTES(2);
 
 	if (bc != 0) {
-		/* file data */
-		offset = dissect_file_data(tvb, pinfo, tree, offset, bc, bc);
+		if( (si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
+			tvbuff_t *dcerpc_tvb;
+			/* dcerpc call */
+			dcerpc_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), bc);
+			dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree,
+				tree, fid);
+		} else {
+			/* ordinary file data */
+			offset = dissect_file_data(tvb, pinfo, tree, offset, bc, bc);
+		}
 		bc = 0;
 	}
 
@@ -4775,6 +4784,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc, datalen=0, dataoffset=0;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
+	int fid=0;
 
 	WORD_COUNT;
 
@@ -4799,7 +4809,8 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* If we have seen the request, then print which FID this refers to */
 	/* first check if we have seen the request */
 	if(si->sip != NULL && si->sip->frame_req>0){
-		add_fid(tvb, pinfo, tree, 0, 0, (int)si->sip->extra_info);
+		fid=(int)si->sip->extra_info;
+		add_fid(tvb, pinfo, tree, 0, 0, fid);
 	}
 
 	/* remaining */
@@ -4876,9 +4887,21 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		}
 	}
 
-	/* file data */
-	offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
-	bc = 0;
+	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
+	   read write */
+	if(bc){
+		if(si->sip->flags&SMB_SIF_TID_IS_IPC){
+			tvbuff_t *dcerpc_tvb;
+			/* dcerpc call */
+			dcerpc_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), bc);
+			dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree,
+				tree, fid);
+		} else {
+			/* ordinary file data */
+			offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
+		}
+		bc = 0;
+	}
 
 	END_OF_SMB
 
@@ -5712,6 +5735,22 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_string(tree, hf_smb_service, tvb,
 		offset, an_len, an);
 	COUNT_BYTES(an_len);
+
+	/* Now when we know the service type, store it so that we know it for later commands down
+	   this tree */
+	if(!pinfo->fd->flags.visited){
+		smb_info_t *si = (smb_info_t *)pinfo->private_data;
+		/* Remove any previous entry for this TID */
+		if(g_hash_table_lookup(si->ct->tid_service, (void *)si->tid)){
+			g_hash_table_remove(si->ct->tid_service, (void *)si->tid);
+		}
+		if(!strcmp(an,"IPC")){
+			g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_IPC);
+		} else {
+			g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_NORMAL);
+		}
+	}
+
 
 	if(wc==3){
 		if (bc != 0) {
@@ -12430,6 +12469,8 @@ free_hash_tables(gpointer ctarg, gpointer user_data)
 		g_hash_table_destroy(ct->matched);
 	if (ct->dcerpc_fid_to_frame)
 		g_hash_table_destroy(ct->dcerpc_fid_to_frame);
+	if (ct->tid_service)
+		g_hash_table_destroy(ct->tid_service);
 }
 
 static void
@@ -13928,7 +13969,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         guint32 nt_status = 0;
         guint8 errclass = 0;
         guint16 errcode = 0;
-	guint16 uid, pid, tid, mid;
 	guint32 pid_mid;
 	conversation_t *conversation;
 
@@ -13963,11 +14003,11 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	} else {
 		si.unicode = FALSE;
 	}
-	tid = tvb_get_letohs(tvb, offset+24);
-	pid = tvb_get_letohs(tvb, offset+26);
-	uid = tvb_get_letohs(tvb, offset+28);
-	mid = tvb_get_letohs(tvb, offset+30);
-	pid_mid = (pid << 16) | mid;
+	si.tid = tvb_get_letohs(tvb, offset+24);
+	si.pid = tvb_get_letohs(tvb, offset+26);
+	si.uid = tvb_get_letohs(tvb, offset+28);
+	si.mid = tvb_get_letohs(tvb, offset+30);
+	pid_mid = (si.pid << 16) | si.mid;
 	si.info_level = -1;
 	si.info_count = -1;
 
@@ -14007,14 +14047,17 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		si.ct->dcerpc_fid_to_frame=g_hash_table_new(
 			smb_saved_info_hash_unmatched, 
 			smb_saved_info_equal_unmatched);
+		si.ct->tid_service=g_hash_table_new(
+			smb_saved_info_hash_unmatched, 
+			smb_saved_info_equal_unmatched);
 		conversation_add_proto_data(conversation, proto_smb, si.ct);
 	}
 
 	if( (si.request)
-	    &&  (mid==0)
-	    &&  (uid==0)
-	    &&  (pid==0)
-	    &&  (tid==0) ){
+	    &&  (si.mid==0)
+	    &&  (si.uid==0)
+	    &&  (si.pid==0)
+	    &&  (si.tid==0) ){
 		/* this is a broadcast SMB packet, there will not be a reply.
 		   We dont need to do anything 
 		*/
@@ -14192,6 +14235,10 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip = g_mem_chunk_alloc(smb_saved_info_chunk);
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
+				sip->flags = 0;
+				if(g_hash_table_lookup(si.ct->tid_service, (void *)si.tid)){
+					sip->flags |= SMB_SIF_TID_IS_IPC;
+				}
 				sip->cmd = si.cmd;
 				sip->extra_info = NULL;
 				g_hash_table_insert(si.ct->unmatched, (void *)pid_mid, sip);
@@ -14307,19 +14354,19 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 12;
 
 	/* TID */
-	proto_tree_add_uint(htree, hf_smb_tid, tvb, offset, 2, tid);
+	proto_tree_add_uint(htree, hf_smb_tid, tvb, offset, 2, si.tid);
 	offset += 2;
 
 	/* PID */
-	proto_tree_add_uint(htree, hf_smb_pid, tvb, offset, 2, pid);
+	proto_tree_add_uint(htree, hf_smb_pid, tvb, offset, 2, si.pid);
 	offset += 2;
 
 	/* UID */
-	proto_tree_add_uint(htree, hf_smb_uid, tvb, offset, 2, uid);
+	proto_tree_add_uint(htree, hf_smb_uid, tvb, offset, 2, si.uid);
 	offset += 2;
 
 	/* MID */
-	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2, mid);
+	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2, si.mid);
 	offset += 2;
 
 	pinfo->private_data = &si;

@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.35 2002/03/15 08:59:53 sahlberg Exp $
+ * $Id: smb.h,v 1.36 2002/03/16 04:39:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -225,8 +225,10 @@
  * The information we need to save about a request in order to show the
  * frame number of the request in the dissection of the reply.
  */
+#define SMB_SIF_TID_IS_IPC	0x0001
 typedef struct {
 	guint32 frame_req, frame_res;
+	guint16 flags;
 	int cmd;
 	void *extra_info;
 } smb_saved_info_t;
@@ -256,6 +258,11 @@ typedef struct {
 #define TRANSACTION_PIPE	0
 #define TRANSACTION_MAILSLOT	1
 
+/* these are defines used to represent different types of TIDs.
+   dont use the value 0 for any of these */
+#define TID_NORMAL	1
+#define TID_IPC		2
+
 /* this is the structure which is associated with each conversation */
 typedef struct conv_tables {
 	/* these two tables are used to match requests with responses */
@@ -263,10 +270,13 @@ typedef struct conv_tables {
 	GHashTable *matched;
 	/* this tables is used by DCERPC over SMB reassembly*/
 	GHashTable *dcerpc_fid_to_frame;
+	/* This table is used to track TID->services for a conversation */
+	GHashTable *tid_service;
 } conv_tables_t;
 
 typedef struct smb_info {
   int cmd;
+  int tid, pid, uid, mid;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
   gboolean unidir;
