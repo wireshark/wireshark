@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.33 2003/08/18 18:41:25 guy Exp $
+ * $Id: tcp_graph.c,v 1.34 2003/09/03 23:32:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1791,8 +1791,13 @@ static void graph_segment_list_get (struct graph *g)
 
 	for (ptr=cfile.plist; ptr; ptr=ptr->next) {
 		/* XXX - do something with "err" */
-		wtap_seek_read (cfile.wth, ptr->file_off, &pseudo_header,
-							pd, ptr->cap_len, &err);
+		if (!wtap_seek_read (cfile.wth, ptr->file_off, &pseudo_header,
+							pd, ptr->cap_len, &err)) {
+			simple_dialog(ESD_TYPE_CRIT, NULL,
+						file_read_error_message(err),
+						cfile.filename);
+			break;
+		}
 		if (!segment)
 			segment = (struct segment * )malloc (sizeof (struct segment));
 			if (!segment)

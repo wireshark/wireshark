@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.16 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: proto_hier_stats.c,v 1.17 2003/09/03 23:32:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@
 #include "globals.h"
 #include "proto_hier_stats.h"
 #include "progress_dlg.h"
+#include "simple_dialog.h"
 #include <epan/epan_dissect.h>
 #include <wtap.h>
 
@@ -120,7 +121,7 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
 	process_node(ptree_node, ps->stats_tree, ps, pkt_len);
 }
 
-static void
+static gboolean
 process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 {
 	epan_dissect_t			*edt;
@@ -129,9 +130,12 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	int				err;
 
 	/* Load the frame from the capture file */
-	/* XX - do something with "err" */
-	wtap_seek_read(cfile.wth, frame->file_off, &phdr,
-			pd, frame->cap_len, &err);
+	if (!wtap_seek_read(cfile.wth, frame->file_off, &phdr, pd,
+	    frame->cap_len, &err)) {
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		    file_read_error_message(err), cfile.filename);
+		return FALSE;	/* failure */
+	}
 
 	/* Dissect the frame */
 	edt = epan_dissect_new(TRUE, FALSE);
@@ -142,6 +146,8 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 
 	/* Free our memory. */
 	epan_dissect_free(edt);
+
+	return TRUE;	/* success */
 }
 
 
@@ -221,7 +227,15 @@ ph_stats_new(void)
 		   probably do so for other loops (see "file.c") that
 		   look only at those packets. */
 		if (frame->flags.passed_dfilter) {
-			process_frame(frame, &cfile.cinfo, ps);
+			if (!process_frame(frame, &cfile.cinfo, ps)) {
+				/*
+				 * Give up, and set "stop_flag" so we
+				 * just abort rather than popping up
+				 * the statistics window.
+				 */
+				stop_flag = TRUE;
+				break;
+			}
 
 			tot_packets++;
 			tot_bytes += frame->pkt_len;

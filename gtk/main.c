@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.308 2003/09/03 10:49:03 sahlberg Exp $
+ * $Id: main.c,v 1.309 2003/09/03 23:32:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -470,9 +470,12 @@ get_text_from_packet_list(gpointer data)
     int         err;
 
     if (fdata != NULL) {
-	/* XXX - do something with "err" */
-	wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
-		       cfile.pd, fdata->cap_len, &err);
+	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
+		       cfile.pd, fdata->cap_len, &err)) {
+	    simple_dialog(ESD_TYPE_CRIT, NULL,
+		          file_read_error_message(err), cfile.filename);
+	    return NULL;
+	}
 
 	edt = epan_dissect_new(FALSE, FALSE);
 	epan_dissect_run(edt, &cfile.pseudo_header, cfile.pd, fdata,

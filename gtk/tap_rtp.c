@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.13 2003/05/28 01:09:57 gerald Exp $
+ * $Id: tap_rtp.c,v 1.14 2003/09/03 23:32:40 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -1239,7 +1239,11 @@ static void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_)
 
   /* XXX instead of looking for RTP protocol like this, we could do the process_node() staff */
   /* dissect the current frame */
-  wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header, cf->pd, fdata->cap_len, &err);
+  if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header, cf->pd, fdata->cap_len, &err)) {
+	simple_dialog(ESD_TYPE_CRIT, NULL,
+		      file_read_error_message(err), cf->filename);
+	return;
+  }
   edt = epan_dissect_new(TRUE, FALSE);
   epan_dissect_prime_dfilter(edt, sfcode);
   epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, &cf->cinfo);
