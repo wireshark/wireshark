@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.21 1999/12/04 09:38:37 guy Exp $
+ * $Id: snoop.c,v 1.22 1999/12/04 11:19:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -403,8 +403,8 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 	}
 
 	/* current "snoop" format is 2 */
-	file_hdr.version = 2;
-	file_hdr.network = wtap_encap[wdh->encap];
+	file_hdr.version = htonl(2);
+	file_hdr.network = htonl(wtap_encap[wdh->encap]);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
 		if (nwritten < 0)
