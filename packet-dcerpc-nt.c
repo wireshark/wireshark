@@ -1,8 +1,8 @@
 /* packet-dcerpc-nt.c
  * Routines for DCERPC over SMB packet disassembly
- * Copyright 2001, Tim Potter <tpot@samba.org>
+ * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.53 2003/01/11 08:22:39 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.54 2003/01/16 22:40:48 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,7 +115,7 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
-	guint32 len, off, max_len;
+	guint32 len;
 	dcerpc_info *di;
 	char *text;
 
@@ -126,9 +126,9 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_nt_str_max_len, &max_len);
+			hf_nt_str_max_len, NULL);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_nt_str_off, &off);
+			hf_nt_str_off, NULL);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_nt_str_len, &len);
 
@@ -496,7 +496,7 @@ void dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, char *name)
 	if (name)
 		value->name = strdup(name);
 	else
-		value->name = strdup("UNKNOWN");
+		value->name = strdup("<UNKNOWN>");
 
 	g_hash_table_insert(pol_hash, key, value);
 }
@@ -1007,7 +1007,7 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hfindex, &status);
 
-	if (tree && status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str(status, NT_errors,
 					   "Unknown error 0x%08x"));
@@ -1029,7 +1029,7 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hfindex, &status);
 
-	if (tree && status != 0 && check_col(pinfo->cinfo, COL_INFO))
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str(status, DOS_errors,
 					   "Unknown error 0x%08x"));
