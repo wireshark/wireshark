@@ -43,6 +43,7 @@ scanner.c : scanner.l
 
 scanner.obj : scanner.c grammar.h
 
-grammar.c grammar.h : grammar.lemon
+grammar.c : grammar.h
+grammar.h : grammar.lemon
 	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c grammar.lemon 
 

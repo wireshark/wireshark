@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.3 2001/02/02 04:03:40 gram Exp $
+# $Id: Makefile.am,v 1.4 2001/02/16 19:44:16 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -74,7 +74,8 @@ scanner.o : scanner.c grammar.h
 
 LEMON=../../tools/lemon
 
-grammar.c grammar.h : grammar.lemon
+grammar.c : grammar.h
+grammar.h : grammar.lemon
 	$(LEMON)/lemon t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
 
