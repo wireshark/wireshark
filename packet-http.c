@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.70 2003/11/06 08:54:31 guy Exp $
+ * $Id: packet-http.c,v 1.71 2003/11/07 03:47:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,7 @@ static int hf_http_authorization = -1;
 static int hf_http_proxy_authenticate = -1;
 static int hf_http_proxy_authorization = -1;
 static int hf_http_www_authenticate = -1;
+static int hf_http_content_type = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -750,12 +751,14 @@ typedef struct {
 #define EH_NO_SPECIAL		0
 #define EH_AUTHORIZATION	1
 #define EH_AUTHENTICATE		2
+#define EH_CONTENT_TYPE		3
 
 static const entity_header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, EH_AUTHORIZATION },
 	{ "Proxy-Authorization", &hf_http_proxy_authorization, EH_AUTHORIZATION },
 	{ "Proxy-Authenticate", &hf_http_proxy_authenticate, EH_AUTHENTICATE },
 	{ "WWW-Authenticate", &hf_http_www_authenticate, EH_AUTHENTICATE },
+	{ "Content-Type", &hf_http_content_type, EH_CONTENT_TYPE },
 };
 
 static void
@@ -971,6 +974,10 @@ proto_register_http(void)
 	      { "WWW-Authenticate",	"http.www_authenticate",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP WWW-Authenticate header", HFILL }},
+	    { &hf_http_content_type,
+	      { "Content-Type",	"http.content_type",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Content-Type header", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
