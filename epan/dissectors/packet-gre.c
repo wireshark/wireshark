@@ -81,7 +81,7 @@ static const value_string typevals[] = {
 	{ ETHERTYPE_RAW_FR,    "Frame Relay"},
 	{ ETHERTYPE_IPv6,      "IPv6" },
 	{ ETHERTYPE_MPLS,      "MPLS label switched packet" },
-	{ ETHERTYPE_CDMA2000_A10_UBS,"CDMA200 A10 Unstructured byte stream" },
+	{ ETHERTYPE_CDMA2000_A10_UBS,"CDMA2000 A10 Unstructured byte stream" },
 	{ 0,                   NULL }
 };
 
