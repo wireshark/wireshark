@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.4 2000/03/20 22:52:42 gram Exp $
+ * $Id: packet-isis-hello.c,v 1.5 2000/03/28 06:12:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -362,7 +362,7 @@ dissect_hello_is_neighbors_clv(const u_char *pd, int offset,
 			proto_tree_add_text ( tree, offset, 6, 
 				"IS Neighbor: %02x%02x.%02x%02x.%02x%02x",
 				pd[offset], pd[offset+1], pd[offset+2],
-				pd[offset+3], pd[offset+3], pd[offset+4] );
+				pd[offset+3], pd[offset+4], pd[offset+5] );
 		}
 		offset += 6;
 		length -= 6;
