@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.56 2001/07/22 21:56:25 guy Exp $
+ * $Id: prefs.c,v 1.57 2001/07/22 22:34:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,8 @@
 /* Internal functions */
 static int    set_pref(gchar*, gchar*);
 static GList *get_string_list(gchar *);
+static gchar *put_string_list(GList *);
+static void   put_string_from_list(gchar *, int *, int *, gchar *);
 static void   clear_string_list(GList *);
 static void   free_col_info(e_prefs *);
 
@@ -373,8 +375,11 @@ prefs_register_modules(void)
 static GList *
 get_string_list(gchar *str)
 {
+  enum { PRE_STRING, IN_QUOT, NOT_IN_QUOT };
+
   gint      i = 0, j = 0;
-  gboolean  in_quot = FALSE, backslash = FALSE;
+  gint      state = PRE_STRING;
+  gboolean  backslash = FALSE;
   gchar     cur_c, *slstr = NULL;
   GList    *sl = NULL;
 
@@ -387,7 +392,7 @@ get_string_list(gchar *str)
     if (cur_c == '\0') {
       /* It's the end of the input, so it's the end of the string we
          were working on, and there's no more input. */
-      if (in_quot || backslash) {
+      if (state == IN_QUOT || backslash) {
         /* We were in the middle of a quoted string or backslash escape,
            and ran out of characters; that's an error.  */
         g_free(slstr);
@@ -399,20 +404,34 @@ get_string_list(gchar *str)
       break;
     }
     if (cur_c == '"' && ! backslash) {
-      if (!in_quot) {
-        /* We're not in the middle of a quoted string, and we saw a
-           quotation mark; we're now quoting.  */
-        in_quot = TRUE;
-      } else {
-        /* We're in the middle of a quoted string, and we saw a quotation
-           mark; we're no longer quoting.   */
-        in_quot = FALSE;
+      switch (state) {
+      	case PRE_STRING:
+      	  /* We hadn't yet started processing a string; this starts the
+      	     string, and we're now quoting.  */
+      	  state = IN_QUOT;
+      	  break;
+        case IN_QUOT:
+          /* We're in the middle of a quoted string, and we saw a quotation
+             mark; we're no longer quoting.   */
+          state = NOT_IN_QUOT;
+          break;
+      	case NOT_IN_QUOT:
+      	  /* We're working on a string, but haven't seen a quote; we're
+      	     now quoting.  */
+      	  state = IN_QUOT;
+      	  break;
+        default:
+          break;
       }
     } else if (cur_c == '\\' && ! backslash) {
       /* We saw a backslash, and the previous character wasn't a
-         backslash; escape the next character.  */
+         backslash; escape the next character.
+
+         This also means we've started a new string. */
       backslash = TRUE;
-    } else if (cur_c == ',' && ! in_quot && ! backslash) {
+      if (state == PRE_STRING)
+        state = NOT_IN_QUOT;
+    } else if (cur_c == ',' && state != IN_QUOT && ! backslash) {
       /* We saw a comma, and we're not in the middle of a quoted string
          and it wasn't preceded by a backslash; it's the end of
          the string we were working on...  */
@@ -420,10 +439,16 @@ get_string_list(gchar *str)
       sl = g_list_append(sl, slstr);
 
       /* ...and the beginning of a new string.  */
+      state = PRE_STRING;
       slstr = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
       j = 0;
-    } else {
-      /* It's a character to be put into a string; do so if there's room.  */
+    } else if (!isspace(cur_c) || state != PRE_STRING) {
+      /* Either this isn't a white-space character, or we've started a
+         string (i.e., already seen a non-white-space character for that
+         string and put it into the string).
+
+         The character is to be put into the string; do so if there's
+         room.  */
       if (j < COL_MAX_LEN) {
         slstr[j] = cur_c;
         j++;
@@ -437,8 +462,6 @@ get_string_list(gchar *str)
   return(sl);
 }
 
-/* XXX - needs to handle quote marks inside the quoted string, by
-   backslash-escaping them.  */
 #define MAX_FMT_PREF_LEN      1024
 #define MAX_FMT_PREF_LINE_LEN   60
 static gchar *
@@ -447,48 +470,72 @@ put_string_list(GList *sl)
   static gchar  pref_str[MAX_FMT_PREF_LEN] = "";
   GList        *clp = g_list_first(sl);
   fmt_data     *cfmt;
-  int           cur_pos = 0, cur_len = 0, fmt_len;
+  int          cur_pos = 0, cur_len = 0;
   
   while (clp) {
     cfmt = (fmt_data *) clp->data;
-    
-    fmt_len = strlen(cfmt->title) + 4;
-    if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
-      if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
-        cur_len--;
-        cur_pos = 0;
-	        pref_str[cur_len] = '\n'; cur_len++;
-        pref_str[cur_len] = '\t'; cur_len++;
-      }
-      sprintf(&pref_str[cur_len], "\"%s\", ", cfmt->title);
-      cur_len += fmt_len;
-      cur_pos += fmt_len;
-    }
-
-    fmt_len = strlen(cfmt->fmt) + 4;
-    if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
-      if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
-        cur_len--;
-        cur_pos = 0;
-        pref_str[cur_len] = '\n'; cur_len++;
-        pref_str[cur_len] = '\t'; cur_len++;
-      }
-      sprintf(&pref_str[cur_len], "\"%s\", ", cfmt->fmt);
-      cur_len += fmt_len;
-      cur_pos += fmt_len;
-    }
-    
+    put_string_from_list(pref_str, &cur_pos, &cur_len, cfmt->title);
+    put_string_from_list(pref_str, &cur_pos, &cur_len, cfmt->fmt);
     clp = clp->next;
   }
-  
-  if (cur_len > 2)
+
+  /* If the string is at least two characters long, the last two characters
+     are ", ", and should be discarded, as there are no more items in the
+     string.  */
+  if (cur_len >= 2)
     pref_str[cur_len - 2] = '\0';
 
   return(pref_str);
 }    
 
-void
-clear_string_list(GList *sl) {
+static void
+put_string_from_list(gchar *pref_str, int *cur_posp, int *cur_lenp, gchar *str)
+{
+  int cur_pos = *cur_posp;
+  int cur_len = *cur_lenp;
+  gchar *quoted_str;
+  int str_len;
+  gchar *strp, *quoted_strp, c;
+  int fmt_len;
+
+  /* Allocate a buffer big enough to hold the entire string, with each
+     character quoted (that's the worst case).  */
+  str_len = strlen(str);
+  quoted_str = g_malloc(str_len*2 + 1);
+
+  /* Now quote any " or \ characters in it. */
+  strp = str;
+  quoted_strp = quoted_str;
+  while ((c = *strp++) != '\0') {
+    if (c == '"' || c == '\\') {
+      /* It has to be backslash-quoted.  */
+      *quoted_strp++ = '\\';
+    }
+    *quoted_strp++ = c;
+  }
+  *quoted_strp = '\0';
+
+  fmt_len = strlen(quoted_str) + 4;
+  if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
+    if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
+      /* Wrap the line.  */
+      cur_len--;
+      cur_pos = 0;
+      pref_str[cur_len] = '\n'; cur_len++;
+      pref_str[cur_len] = '\t'; cur_len++;
+    }
+    sprintf(&pref_str[cur_len], "\"%s\", ", quoted_str);
+    cur_pos += fmt_len;
+    cur_len += fmt_len;
+  }
+  g_free(quoted_str);
+  *cur_posp = cur_pos;
+  *cur_lenp = cur_len;
+}
+
+static void
+clear_string_list(GList *sl)
+{
   GList *l = sl;
   
   while (l) {
