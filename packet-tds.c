@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.19 2003/08/28 04:19:29 guy Exp $
+ * $Id: packet-tds.c,v 1.20 2003/12/27 02:17:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -993,13 +993,18 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Deal with fragmentation.
 	 */
 	save_fragmented = pinfo->fragmented;
-	if (tds_defragment) {
+	if (tds_defragment &&
+	    (packet_number != 1 || status == STATUS_NOT_LAST_BUFFER)) {
 		if (status == STATUS_NOT_LAST_BUFFER) {
 			if (check_col(pinfo->cinfo, COL_INFO))
 				col_append_str(pinfo->cinfo, COL_INFO,
 				    " (Not last buffer)");
 		}
 		len = tvb_reported_length_remaining(tvb, offset);
+		/*
+		 * XXX - I've seen captures that start with a login
+		 * packet with a sequence number of 2.
+		 */
 		fd_head = fragment_add_seq_check(tvb, offset, pinfo, channel,
 		    tds_fragment_table, tds_reassembled_table,
 		    packet_number - 1, len, status == STATUS_NOT_LAST_BUFFER);
