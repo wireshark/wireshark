@@ -1,8 +1,8 @@
 /* packet-ncp.h
  * Routines for NetWare Core Protocol
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ncp.h,v 1.7 2000/01/07 22:05:33 guy Exp $
+ * $Id: packet-ncp.h,v 1.8 2000/01/22 06:22:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

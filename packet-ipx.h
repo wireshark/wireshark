@@ -1,8 +1,8 @@
 /* packet-ipx.h
  * Routines for NetWare's IPX
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.h,v 1.4 2000/01/07 22:05:31 guy Exp $
+ * $Id: packet-ipx.h,v 1.5 2000/01/22 06:22:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,9 +1,9 @@
 /* packet-ncp.c
  * Routines for NetWare Core Protocol
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.29 2000/01/07 22:05:33 guy Exp $
+ * $Id: packet-ncp.c,v 1.30 2000/01/22 06:22:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,9 +1,9 @@
 /* nettl.h
  *
- * $Id: nettl.h,v 1.2 1999/10/31 19:35:32 guy Exp $
+ * $Id: nettl.h,v 1.3 2000/01/22 06:22:40 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -1,9 +1,9 @@
 /* packet-http.c
  * Routines for HTTP packet disassembly
  *
- * Guy Harris <guy@netapp.com>
+ * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.12 1999/12/06 20:27:19 guy Exp $
+ * $Id: packet-http.c,v 1.13 2000/01/22 06:22:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,10 +1,10 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.11 2000/01/13 07:18:50 guy Exp $
+ * $Id: ascend-scanner.l,v 1.12 2000/01/22 06:22:35 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -2,9 +2,9 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.24 2000/01/20 21:34:16 guy Exp $
+ * $Id: ethertype.c,v 1.25 2000/01/22 06:22:12 guy Exp $
  *
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Gilbert Ramirez <gram@xiexie.org>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

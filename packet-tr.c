@@ -1,8 +1,8 @@
 /* packet-tr.c
  * Routines for Token-Ring packet disassembly
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.32 2000/01/07 22:05:41 guy Exp $
+ * $Id: packet-tr.c,v 1.33 2000/01/22 06:22:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,9 +1,9 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.17 2000/01/07 00:36:25 guy Exp $
+ * $Id: print.h,v 1.18 2000/01/22 06:22:19 guy Exp $
  *
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Gilbert Ramirez <gram@xiexie.org>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

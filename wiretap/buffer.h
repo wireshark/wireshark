@@ -1,9 +1,9 @@
 /* buffer.h
  *
- * $Id: buffer.h,v 1.3 1999/09/12 14:34:36 deniel Exp $
+ * $Id: buffer.h,v 1.4 2000/01/22 06:22:36 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

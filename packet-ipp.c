@@ -1,9 +1,9 @@
 /* packet-ipp.c
  * Routines for IPP packet disassembly
  *
- * Guy Harris <guy@netapp.com>
+ * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.3 1999/11/16 11:42:35 guy Exp $
+ * $Id: packet-ipp.c,v 1.4 2000/01/22 06:22:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -2,9 +2,9 @@
  * Routines for SDP packet disassembly (RFC 2327)
  *
  * Jason Lango <jal@netapp.com>
- * Liberally copied from packet-http.c, by Guy Harris <guy@netapp.com>
+ * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.5 2000/01/13 03:18:34 guy Exp $
+ * $Id: packet-sdp.c,v 1.6 2000/01/22 06:22:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,8 +1,8 @@
 /* packet-nbipx.c
  * Routines for NetBIOS over IPX packet disassembly
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.16 1999/11/30 07:45:41 guy Exp $
+ * $Id: packet-nbipx.c,v 1.17 2000/01/22 06:22:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

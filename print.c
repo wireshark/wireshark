@@ -1,9 +1,9 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.27 2000/01/07 00:36:25 guy Exp $
+ * $Id: print.c,v 1.28 2000/01/22 06:22:18 guy Exp $
  *
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Gilbert Ramirez <gram@xiexie.org>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,9 +1,9 @@
 /* radcom.h
  *
- * $Id: radcom.h,v 1.3 1999/09/23 05:25:14 guy Exp $
+ * $Id: radcom.h,v 1.4 2000/01/22 06:22:43 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

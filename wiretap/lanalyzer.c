@@ -1,9 +1,9 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.19 2000/01/13 07:09:16 guy Exp $
+ * $Id: lanalyzer.c,v 1.20 2000/01/22 06:22:38 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -1,10 +1,10 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.9 2000/01/10 17:33:16 gram Exp $
+ * $Id: ascend-grammar.y,v 1.10 2000/01/22 06:22:35 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

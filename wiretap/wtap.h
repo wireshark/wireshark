@@ -1,9 +1,9 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.62 1999/12/15 02:25:50 guy Exp $
+ * $Id: wtap.h,v 1.63 2000/01/22 06:22:44 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -1,9 +1,9 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.34 2000/01/13 07:09:18 guy Exp $
+ * $Id: ngsniffer.c,v 1.35 2000/01/22 06:22:41 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -1,9 +1,9 @@
 /* netmon.h
  *
- * $Id: netmon.h,v 1.5 1999/12/04 09:38:38 guy Exp $
+ * $Id: netmon.h,v 1.6 2000/01/22 06:22:40 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
