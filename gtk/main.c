@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.40 1999/11/19 23:01:26 gram Exp $
+ * $Id: main.c,v 1.41 1999/11/21 15:06:07 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -673,6 +673,19 @@ filter_activate_cb(GtkWidget *w, gpointer data)
   filter_packets(&cf, g_strdup(s));
 }
 
+/* redisplay with no display filter */
+static void
+filter_reset_cb(GtkWidget *w, gpointer data)
+{
+  GtkWidget *filter_te = NULL;
+
+  if ((filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY))) {
+    gtk_entry_set_text(GTK_ENTRY(filter_te), "");
+  }
+
+  filter_packets(&cf, NULL);
+}
+
 /* What to do when a list item is selected/unselected */
 void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
@@ -792,7 +805,7 @@ main(int argc, char *argv[])
 #endif
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
-                      *tv_scrollw, *filter_bt, *filter_te;
+                      *tv_scrollw, *filter_bt, *filter_te, *filter_reset;
   GtkStyle            *pl_style;
   GtkAccelGroup       *accel;
   GtkWidget	      *packet_sw;
@@ -1172,6 +1185,13 @@ main(int argc, char *argv[])
   gtk_signal_connect(GTK_OBJECT(filter_te), "activate",
     GTK_SIGNAL_FUNC(filter_activate_cb), (gpointer) NULL);
   gtk_widget_show(filter_te);
+
+  filter_reset = gtk_button_new_with_label("Reset");
+  gtk_object_set_data(GTK_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
+  gtk_signal_connect(GTK_OBJECT(filter_reset), "clicked",
+		     GTK_SIGNAL_FUNC(filter_reset_cb), (gpointer) NULL);
+  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_reset, FALSE, TRUE, 1);
+  gtk_widget_show(filter_reset);
 
   /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
    * of any widget that ends up calling a callback which needs
