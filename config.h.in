@@ -29,9 +29,6 @@
 /* Define if you have the <stdarg.h> header file.  */
 #undef HAVE_STDARG_H
 
-/* Define if you have the <strings.h> header file.  */
-#undef HAVE_STRINGS_H
-
 /* Define if you have the <sys/ioctl.h> header file.  */
 #undef HAVE_SYS_IOCTL_H
 

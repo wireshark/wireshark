@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.20 1999/03/28 18:31:58 gram Exp $
+# $Id: configure.in,v 1.21 1999/04/05 22:51:43 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -114,7 +114,7 @@ fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h strings.h sys/ioctl.h sys/time.h unistd.h stdarg.h)
+AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h stdarg.h)
 
 AC_CHECK_HEADERS(sys/sockio.h sys/types.h netinet/in.h)
 
