@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.34 2002/04/30 09:40:41 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.35 2002/04/30 09:46:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2957,6 +2957,42 @@ lsa_dissect_lsaquerytrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsaopentrusteddomainbyname_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE handle */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LSA_UNICODE_STRING *name */
+	/* domain */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_domain, 0);
+
+	/* [in] ACCESS_MASK access */
+	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaopentrusteddomainbyname_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out] LSA_HANDLE handle */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
 
 static int
 lsa_dissect_lsaquerytrusteddomaininfo_reply(tvbuff_t *tvb, int offset,
@@ -3213,11 +3249,8 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsasetdomaininformationpolicy_reply },
 #endif
 	{ LSA_LSAOPENTRUSTEDDOMAINBYNAME, "LSAOPENTRUSTEDDOMAINBYNAME",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaopentrusteddomainbyname_rqst,
 		lsa_dissect_lsaopentrusteddomainbyname_reply },
-#endif
 	{ LSA_LSAFUNCTION_38, "LSAFUNCTION_38",
 		NULL, NULL },
 #ifdef REMOVED
