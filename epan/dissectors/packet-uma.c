@@ -24,7 +24,7 @@
  *
  * References:
  * http://www.umatechnology.org/ 
- * UMA Protocols (Stage 3) R1.0.2 (2004-11-05)
+ * UMA Protocols (Stage 3) R1.0.3 (2005-02-26)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -73,6 +73,7 @@ static int hf_uma_urr_lac				= -1;
 static int hf_uma_urr_gci				= -1;
 static int hf_uma_urr_tura				= -1;
 static int hf_uma_urr_tlra				= -1;
+static int hf_uma_urr_rrs				= -1;
 static int hf_uma_urr_location_estimate = -1;
 static int hf_uma_urr_IP_Address_type	= -1;
 static int hf_uma_urr_FQDN				= -1;
@@ -92,6 +93,7 @@ static int hf_uma_urr_SGSNR				= -1;
 static int hf_uma_urr_ECMP				= -1;
 static int hf_uma_urr_RE				= -1;
 static int hf_uma_urr_PFCFM				= -1;
+static int hf_uma_urr_3GECS				= -1;
 static int hf_uma_urr_cell_id_disc		= -1;
 static int hf_uma_urr_RNC_ID			= -1;
 static int hf_uma_urr_ci				= -1;
@@ -106,6 +108,7 @@ static int hf_uma_urr_register_reject_cause = -1;
 static int hf_uma_urr_TU3906_timer		= -1;
 static int hf_uma_urr_TU3910_timer		= -1;
 static int hf_uma_urr_TU3902_timer		= -1;
+static int hf_uma_urr_communication_port = -1;
 static int hf_uma_urr_L3_Message		= -1;
 static int hf_uma_urr_channel_mode		= -1;
 static int hf_uma_urr_MSC2_rev			= -1;
@@ -130,6 +133,9 @@ static int hf_uma_urr_sc				= -1;
 static int hf_uma_urr_algorithm_id		= -1;
 static int hf_uma_urr_GPRS_resumption	= -1;
 static int hf_uma_urr_ULQI				= -1;
+static int hf_uma_urr_TLLI				= -1;
+static int hf_uma_urr_packet_flow_id	= -1;
+static int hf_uma_urr_suspension_cause	= -1;
 static int hf_uma_urr_TU3920_timer		= -1;
 static int hf_uma_urr_URLCcause			= -1;
 static int hf_uma_urr_udr				= -1;
@@ -145,6 +151,11 @@ static int hf_uma_urr_sample_size		= -1;
 static int hf_uma_urr_payload_type		= -1;
 static int hf_uma_urr_LBLI				= -1;
 static int hf_uma_urr_TU4003_timer		= -1;
+static int hf_uma_urr_ap_service_name_type = -1;
+static int hf_uma_urr_ap_Service_name_value = -1;
+static int hf_uma_urr_uma_service_zone_icon_ind = -1;
+static int hf_uma_urr_uma_service_zone_str_len = -1;
+static int hf_uma_urr_uma_service_zone_str = -1;
 static int hf_uma_urr_unc_ipv4			= -1;
 static int hf_uma_unc_FQDN				= -1;
 static int hf_uma_urr_GPRS_user_data_transport_ipv4 = -1;
@@ -263,6 +274,7 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 22,		"TU3906 Timer"},
 	{ 23,		"TU3910 Timer"},
 	{ 24,		"TU3902 Timer"},
+	{ 25,		"Communication Port Identity"},
 	{ 26,		"L3 Message"},
 	{ 27,		"Channel Mode"},
 	{ 28,		"Mobile Station Classmark 2"},
@@ -298,6 +310,16 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 58,		"Location Black List indicator"},
 	{ 59,		"Reset Indicator"},
 	{ 60,		"TU4003 Timer"},
+	{ 61,		"AP Service Name"},
+	{ 62,		"UMA Service Zone Information"},
+	{ 63,		"RTP Redundancy Configuration"},
+	{ 64,		"UTRAN Classmark"},
+	{ 65,		"Classmark Enquiry Mask"},
+	{ 66,		"UTRAN Cell Identifier List"},
+	{ 67,		"Serving UNC table indicator"},
+	{ 68,		"Registration indicators"},
+	{ 69,		"UMA PLMN List"},
+	{ 70,		"Received Signal Level List"},
 	{ 96,		"MS Radio Identity"},
 	{ 97,		"UNC IP Address"},
 	{ 98,		"UNC Fully Qualified Domain/Host Name"},
@@ -306,6 +328,8 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 103,		"UNC TCP port"},
 	{ 104,		"RTP UDP port"},
 	{ 105,		"RTCP UDP port"},
+	{ 106,		"GERAN Received Signal Level List"},
+	{ 107,		"UTRAN Received Signal Level List"},
 	{ 0,	NULL }
 };
 
@@ -348,10 +372,28 @@ static const value_string tura_vals[] = {
 
 /*TLRA, Type of Licensed Radio (octet 3)*/
 static const value_string tlra_vals[] = {
-	{ 0,		"none"},
+	{ 0,		"None"},
 	{ 1,		"GERAN"},
 	{ 0,	NULL }
 };
+/*RRS, RTP Redundancy Support (octet 4)*/
+static const value_string rrs_vals[] = {
+	{ 0,		"RTP Redundancy not supported"},
+	{ 1,		"RTP Redundancy supported"},
+	{ 0,	NULL }
+};
+/* TS 23 032 Table 2a: Coding of Type of Shape */
+static const value_string type_of_shape_vals[] = {
+	{ 0,		"Ellipsoid Point"},
+	{ 1,		"Ellipsoid point with uncertainty Circle"},
+	{ 2,		"Ellipsoid point with uncertainty Ellipse"},
+	{ 5,		"Polygon"},
+	{ 8,		"Ellipsoid point with altitude"},
+	{ 9,		"Ellipsoid point with altitude and uncertainty Ellipsoid"},
+	{ 10,		"Ellipsoid Arc"},
+	{ 0,	NULL }
+};
+
 
 /*IP address type number value (octet 3)*/
 static const value_string IP_address_type_vals[] = {
@@ -433,7 +475,14 @@ static const value_string RE_vals[] = {
 /* PFCFM, PFC_FEATURE_MODE (octet 6) */
 static const value_string PFCFM_vals[] = {
 	{ 0,		"The network does not support packet flow context procedures"},
-	{ 1,		"he network supports packet flow context procedures"},
+	{ 1,		"The network supports packet flow context procedures"},
+	{ 0,	NULL }
+};
+
+/* 3GECS, 3G Early Classmark Sending Restriction (octet 6) */
+static const value_string Three_GECS_vals[] = {
+	{ 0,		"UTRAN classmark change message shall be sent with the Early classmark sending"},
+	{ 1,		"The sending of UTRAN Classmark Sending messages is controlled by the Early Classmark Sending Control parameter"},
 	{ 0,	NULL }
 };
 /* Cell identification discriminator */
@@ -523,6 +572,7 @@ static const value_string register_reject_cause_vals[] = {
 	{ 8,		"EAP_SIM authentication failed"},
 	{ 9,		"TCP establishment failed"},
 	{ 10,		"Redirection"},
+	{ 11,		"EAP-AKA authentication failed"},
 	{ 0,	NULL }
 };
 	
@@ -692,7 +742,25 @@ static const value_string ULQI_vals[] = {
 	{ 0,	NULL }
 };
 
-
+/* Packet Flow Identifier value (octet 3) */
+static const value_string packet_flow_id_vals[] = {
+	{ 0,		"Best Effort"},
+	{ 1,		"Signaling"},
+	{ 2,		"SMS"},
+	{ 3,		"TOM8"},
+	{ 0,	NULL }
+};
+/*Suspension cause value (octet 2)*/
+static const value_string suspension_cause_vals[] = {
+	{ 0,		"Emergency call, mobile originating call or call re-establishment"},
+	{ 0,		"Location Area Update"},
+	{ 0,		"MO Short message service"},
+	{ 0,		"Other procedure which can be completed with an SDCCH"},
+	{ 0,		"MO Voice broadcast or group call"},
+	{ 0,		"Mobile terminating CS connection"},
+	{ 0,		"DTM not supported in the cell"},
+	{ 0,	NULL }
+};
 /*URLC Cause (octet 3) */
 static const value_string URLC_cause_vals[] = {
 	{ 0,		"success"},
@@ -739,7 +807,18 @@ static const value_string LBLI_vals[] = {
 	{ 2,		"MCC, MNC and LAC"},
 	{ 0,	NULL }
 };
+/* AP Service Name type */
+static const value_string ap_service_name_type_vals[] = {
+	{ 0,		"SSID"},
+	{ 1,		"PAN Service Name"},
+	{ 0,	NULL }
+};
 
+/* UMA Service Zone Icon Indicator, octet 3 */
+static const value_string uma_service_zone_icon_ind_vals[] = {
+	{ 1,		"Unlimited Calls"},
+	{ 0,	NULL }
+};
 /*Establishment Cause (octet 3)*/
 static const value_string establishment_cause_vals[] = {
 	{ 0xa0,		"Emergency"},
@@ -749,7 +828,7 @@ static const value_string establishment_cause_vals[] = {
 /* note: Paging response for SDCCH needed is using codepoint  0001 0000 */
 	{ 0x20,		"Paging response (TCH/F needed)"},
 	{ 0x30,		"Paging response (TCH/F or TCH/H needed)"},
-	{ 0x80,		"Paging response (“any channel” needed)"},
+	{ 0x80,		"Paging response (any channel needed)"},
 	{ 0x40,		"Originating speech call from dual-rate mobile station when TCH/H is sufficient"},
 	{ 0x50,		"Originating data call from dual-rate mobile station when TCH/H is sufficient"},
 	{ 0xe0,		"Originating speech call and TCH/F is needed"},
@@ -823,10 +902,11 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	guint16		bcch_arfcn;
 	const guint8	*haddr;
 	char		*string;
-	guint16		GPRS_user_data_transport_UDP_port,UNC_tcp_port,RTP_UDP_port,RTCP_UDP_port;
+	guint16		GPRS_user_data_transport_UDP_port,UNC_tcp_port,RTP_UDP_port,RTCP_UDP_port, communication_port;
 	guint32		udr;
 	conversation_t* conversation;
 	address dst_addr, null_addr;
+	guint8		str_len;
 
 	ie_value = tvb_get_guint8(tvb,offset);
 	urr_ie_item = proto_tree_add_text(tree,tvb,offset,-1,"%s",
@@ -934,10 +1014,16 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* UMA Classmark */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_tura, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_tlra, tvb, ie_offset, 1, FALSE);
+		/* UMA Protocols (Stage 3) R1.0.3 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rrs, tvb, ie_offset, 1, FALSE);
 		break;
 	case 8:			
-		/* Geographical Location */
+		/* Geographical Location 
+		 * The Location Estimate field is composed of 1 or more octets with an internal structure 
+		 * according to section 7 in [23.032].
+		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_location_estimate, tvb, ie_offset, ie_len, FALSE);
+		/* TODO:Add further dissecton here ? */
 		break;
 	case 9:			
 		/* UNC SGW IP Address 
@@ -1001,6 +1087,7 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMP, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RE, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_PFCFM, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_3GECS, tvb, ie_offset, 1, FALSE);
 		ie_offset++;
 		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,2,"Access Control Class N");
 		break;
@@ -1086,6 +1173,12 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 24:		/* TU3902 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3902_timer, tvb, ie_offset, 2, FALSE);
 		break;
+	case 25:
+		/* Communication Port Identity */
+		communication_port = tvb_get_ntohs(tvb,ie_offset);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_communication_port, tvb, ie_offset, 2, FALSE);
+		break;
+
 	case 26:		/* L3 Message */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, FALSE);
 		break;
@@ -1163,7 +1256,9 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 32:		
 		/* Handover From UMAN Command 
 		 * If the target RAT is GERAN, the rest of the IE is coded as HANDOVER COMMAND message in [TS 44.018]
-		 * The value part of the Handover To UTRAN Command IE is coded as defined in 3GPP TS 25.331
+		 *
+		 * If the target RAT is UTRAN, the rest of the IE is coded as
+		 * HANDOVER TO UTRAN COMMAND message in [TS 25.331].
 		 */
 		break;
 	case 33:		/* UL Quality Indication */
@@ -1172,15 +1267,22 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 34:		
 		/* TLLI 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present.
+		 * [TS 44.018]:
+		 * The TLLI is encoded as a binary number with a length of 4 octets. TLLI is defined in 3GPP TS 23.003
 		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TLLI, tvb, ie_offset, 1, FALSE);
+		break;
 	case 35:		
 		/* Packet Flow Identifier 
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present.
 		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_packet_flow_id, tvb, ie_offset, 1, FALSE);
+		break;
 	case 36:		
 		/* Suspension Cause 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present.
-		 */
+		 */		
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_suspension_cause, tvb, ie_offset, 1, FALSE);
 		break;
 	case 37:		/* TU3920 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3920_timer, tvb, ie_offset, 2, FALSE);
@@ -1264,6 +1366,41 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 60:		/* TU4003 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU4003_timer, tvb, ie_offset, 2, FALSE);
 		break;
+	case 61:
+		/* AP Service Name */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_service_name_type, tvb, ie_offset, 1, FALSE);
+		ie_offset++;
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_Service_name_value, tvb, ie_offset, ie_len -1, FALSE);
+		break;
+	case 62:
+		/* UMA Service Zone Information 
+		 * UMA Service Zone Icon Indicator, octet 3
+		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_icon_ind, tvb, ie_offset, 1, FALSE);
+		ie_offset++;
+		/* Length of UMA Service Zone string */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str_len, tvb, ie_offset, 1, FALSE);
+		str_len = tvb_get_guint8(tvb,ie_offset);
+		ie_offset++;
+		/* UMA Service Zone string, 1st character */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str, tvb, ie_offset, str_len, FALSE);
+		break;
+	case 63:
+		/* RTP Redundancy Configuration */
+	case 64:
+		/* UTRAN Classmark */
+	case 65:
+		/* Classmark Enquiry Mask */
+	case 66:
+		/* UTRAN Cell Identifier List */
+	case 67:
+		/* Serving UNC table indicator */
+	case 68:
+		/* Registration indicators */
+	case 69:
+		/* UMA PLMN List */
+	case 70:
+		/* Received Signal Level List */
 	case 96:		/* MS Radio Identity */
 		proto_tree_add_text(urr_ie_tree,tvb,offset+1,ie_len,"DATA");
 		break;
@@ -1583,9 +1720,14 @@ proto_register_uma(void)
 			FT_UINT8,BASE_DEC, VALS(tlra_vals), 0xc,          
 			"TLRA, Type of Licensed Radio", HFILL }
 		},
+		{ &hf_uma_urr_rrs,
+			{ "RTP Redundancy Support(RRS)","uma.urr.rrs",
+			FT_UINT8,BASE_DEC, VALS(rrs_vals), 0xc,          
+			"RTP Redundancy Support(RRS)", HFILL }
+		},
 		{ &hf_uma_urr_location_estimate,
 			{ "Location estimate","uma.urr.location_estimate",
-			FT_UINT8,BASE_DEC, VALS(tlra_vals), 0xc,          
+			FT_UINT8,BASE_DEC, VALS(type_of_shape_vals), 0xf,          
 			"Location estimate", HFILL }
 		},
 		{ &hf_uma_urr_IP_Address_type,
@@ -1678,6 +1820,11 @@ proto_register_uma(void)
 			FT_UINT8,BASE_DEC,  VALS(PFCFM_vals), 0x08,          
 			"PFCFM, PFC_FEATURE_MODE", HFILL }
 		},
+		{ &hf_uma_urr_3GECS,
+			{ "3GECS, 3G Early Classmark Sending Restriction","uma.urr.3GECS",
+			FT_UINT8,BASE_DEC,  VALS(Three_GECS_vals), 0x10,          
+			"3GECS, 3G Early Classmark Sending Restriction", HFILL }
+		},
 		{ &hf_uma_urr_cell_id_disc,
 			{ "Cell identification discriminator","uma.urr.cell_id_disc",
 			FT_UINT8,BASE_DEC,  VALS(cell_id_disc_vals), 0x0f,          
@@ -1747,6 +1894,11 @@ proto_register_uma(void)
 			{ "TU3902 Timer value(seconds)","uma.urr.tu3902",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,          
 			"TU3902 Timer value(seconds)", HFILL }
+		},
+		{ &hf_uma_urr_communication_port,
+			{ "Communication Port","uma.urr.communication_port",
+			FT_UINT16,BASE_DEC,  NULL, 0x0,          
+			"Communication Portt", HFILL }
 		},
 		{ &hf_uma_urr_L3_Message,
 			{ "L3 message contents","uma.urr.l3",
@@ -1868,6 +2020,21 @@ proto_register_uma(void)
 			FT_UINT8,BASE_DEC,  VALS(ULQI_vals), 0x0f,          
 			"ULQI, UL Quality Indication", HFILL }
 		},
+		{ &hf_uma_urr_TLLI,
+			{ "Temporary Logical Link Identifier","uma.urr.tlli",
+			FT_BYTES,BASE_DEC,  NULL, 0x0,          
+			"Temporary Logical Link Identifier", HFILL }
+		},
+		{ &hf_uma_urr_packet_flow_id,
+			{ "Packet Flow Identifier value","uma.urr.packet_flow_id",
+			FT_UINT8,BASE_DEC,  VALS(packet_flow_id_vals), 0x7f,          
+			"Packet Flow Identifier value", HFILL }
+		},
+		{ &hf_uma_urr_suspension_cause,
+			{ "Suspension cause value","uma.urr.suspension_cause",
+			FT_UINT8,BASE_DEC,  VALS(suspension_cause_vals), 0x0,          
+			"Suspension cause value", HFILL }
+		},
 		{ &hf_uma_urr_TU3920_timer,
 			{ "TU3920 Timer value(seconds)","uma.urr.tu3920",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,          
@@ -1943,6 +2110,31 @@ proto_register_uma(void)
 			{ "TU4003 Timer value(seconds)","uma.urr.tu4003",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,          
 			"TU4003 Timer value(seconds)", HFILL }
+		},
+		{ &hf_uma_urr_ap_service_name_type,
+			{ "AP Service Name type","uma.urr.ap_service_name_type",
+			FT_UINT8,BASE_DEC,  VALS(ap_service_name_type_vals), 0x0,          
+			"AP Service Name type", HFILL }
+		},
+		{ &hf_uma_urr_ap_Service_name_value,
+			{ "AP Service Name Value","uma.urr.ap_service_name_value",
+			FT_STRING,BASE_NONE,  NULL, 0x0,          
+			"AP Service Name Value", HFILL }
+		},
+		{ &hf_uma_urr_uma_service_zone_icon_ind,
+			{ "UMA Service Zone Icon Indicator","uma.urr.uma_service_zone_icon_ind",
+			FT_UINT8,BASE_DEC,  VALS(uma_service_zone_icon_ind_vals), 0x0,          
+			"UMA Service Zone Icon Indicator", HFILL }
+		},
+		{ &hf_uma_urr_uma_service_zone_str_len,
+			{ "Length of UMA Service Zone string","uma.urr.service_zone_str_len",
+			FT_UINT8,BASE_DEC,  NULL, 0x0,          
+			"Length of UMA Service Zone string", HFILL }
+		},
+		{ &hf_uma_urr_uma_service_zone_str,
+			{ "UMA Service Zone string,","uma.urr.uma_service_zone_str",
+			FT_STRING,BASE_NONE,  NULL, 0x0,          
+			"UMA Service Zone string,", HFILL }
 		},
 		{ &hf_uma_urr_unc_ipv4,
 			{ "UNC IPv4 address","uma.urr.uncipv4",
