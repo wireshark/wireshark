@@ -79,6 +79,7 @@
 #include <math.h>
 #include <fcntl.h>
 #include <string.h>
+#include <locale.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -2995,6 +2996,7 @@ static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
 	guint added_row;
 	gchar *data[9];
 	gchar field[9][32];
+	char *savelocale;
 
 	data[0]=&field[0][0];
 	data[1]=&field[1][0];
@@ -3006,6 +3008,11 @@ static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
 	data[7]=&field[7][0];
 	data[8]=&field[8][0];
 
+	/* save the current locale */
+	savelocale = setlocale(LC_NUMERIC, NULL);
+	/* switch to "C" locale to avoid problems with localized decimal separators
+		in g_snprintf("%f") functions */
+	setlocale(LC_NUMERIC, "C");
 	g_snprintf(field[0], 20, "%u", number);
 	g_snprintf(field[1], 20, "%u", seq_num);
 	g_snprintf(field[2], 20, "%.2f", delta);
@@ -3015,6 +3022,9 @@ static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
 	g_snprintf(field[6], 40, "%s", status);
 	g_snprintf(field[7], 32, "%s", timeStr);
 	g_snprintf(field[8], 20, "%u", pkt_len);
+	/* restore previous locale setting */
+	setlocale(LC_NUMERIC, savelocale);
+
 	added_row = gtk_clist_append(GTK_CLIST(clist), data);
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, GUINT_TO_POINTER(number));
 	gtk_clist_set_background(GTK_CLIST(clist), added_row, color);

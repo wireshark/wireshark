@@ -50,6 +50,7 @@
 #include <epan/address.h>
 
 #include <string.h>
+#include <locale.h>
 #include <epan/addr_resolv.h>
 
 
@@ -74,6 +75,7 @@ static GList *last_list = NULL;
 static guint32 streams_nb = 0;     /* number of displayed streams */
 
 #define NUM_COLS 12
+static const gchar *titles[NUM_COLS] =  {"Src IP addr", "Src port",  "Dest IP addr", "Dest port", "SSRC", "Payload", "Packets", "Lost", "Max Delta (ms)", "Max Jitter (ms)", "Mean Jitter (ms)", "Pb?"};
 
 /****************************************************************************/
 /* append a line to clist */
@@ -86,6 +88,13 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	gint32 lost;
 	double perc;
 	int i;
+	char *savelocale;
+
+	/* save the current locale */
+	savelocale = setlocale(LC_NUMERIC, NULL);
+	/* switch to "C" locale to avoid problems with localized decimal separators
+		in g_snprintf("%f") functions */
+	setlocale(LC_NUMERIC, "C");
 
 	data[0] = g_strdup(get_addr_name(&(strinfo->src_addr)));
 	data[1] = g_strdup_printf("%u", strinfo->src_port);
@@ -112,6 +121,9 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 		data[11] = g_strdup("X");
 	else
 		data[11] = g_strdup("");
+
+	/* restore previous locale setting */
+	setlocale(LC_NUMERIC, savelocale);
 
 	added_row = gtk_clist_append(GTK_CLIST(clist), data);
 	for (i = 0; i < NUM_COLS; i++)
@@ -408,6 +420,41 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 
 
 /****************************************************************************/
+#if (GTK_MAJOR_VERSION >= 2)
+static void
+rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
+{
+	int             i,j;
+	gchar           *table_entry;
+	GString         *CSV_str;
+	GtkClipboard    *cb;
+
+	CSV_str = g_string_sized_new(240*(GTK_CLIST(clist)->rows+1));
+	/* Add the column headers to the CSV data */
+	for (j=0; j<NUM_COLS; j++) {
+		g_string_append(CSV_str, titles[j]);
+		g_string_append(CSV_str, ",");
+	}
+	g_string_append(CSV_str,"\n");
+
+	/* Add the column values to the CSV data */
+	for (i=0; i<GTK_CLIST(clist)->rows; i++) {
+		for (j=0; j<NUM_COLS; j++) {
+			gtk_clist_get_text(GTK_CLIST(clist),i,j,&table_entry);
+			g_string_append(CSV_str,table_entry);
+			g_string_append(CSV_str,",");
+		} 
+		g_string_append(CSV_str,"\n");
+	}
+
+	/* Now that we have the CSV data, copy it into the default clipboard */
+	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+	gtk_clipboard_set_text(cb, CSV_str->str, CSV_str->len);
+	g_string_free(CSV_str, TRUE);
+}
+#endif
+
+/****************************************************************************/
 static void
 rtpstream_on_analyse                   (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
@@ -593,165 +640,179 @@ rtpstream_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 
 static void rtpstream_dlg_create (void)
 {
-	GtkWidget *rtpstream_dlg_w;
-	GtkWidget *main_vb;
-	GtkWidget *scrolledwindow;
-	GtkWidget *hbuttonbox;
-/*	GtkWidget *bt_goto;*/
-	GtkWidget *bt_unselect;
-	GtkWidget *bt_findrev;
-	GtkWidget *bt_save;
-	GtkWidget *bt_mark;
-	GtkWidget *bt_filter;
-	GtkWidget *bt_analyze;
-	GtkWidget *bt_close;
+    GtkWidget *rtpstream_dlg_w;
+    GtkWidget *main_vb;
+    GtkWidget *scrolledwindow;
+    GtkWidget *hbuttonbox;
+/*    GtkWidget *bt_goto;*/
+    GtkWidget *bt_unselect;
+    GtkWidget *bt_findrev;
+    GtkWidget *bt_save;
+    GtkWidget *bt_mark;
+    GtkWidget *bt_filter;
+    GtkWidget *bt_analyze;
+    GtkWidget *bt_close;
+#if (GTK_MAJOR_VERSION >= 2)
+    GtkWidget *bt_copy;
+#endif           
     GtkTooltips *tooltips = gtk_tooltips_new();
 
-	gchar *titles[NUM_COLS] =  {"Src IP addr", "Src port",  "Dest IP addr", "Dest port", "SSRC", "Payload", "Packets", "Lost", "Max Delta (ms)", "Max Jitter (ms)", "Mean Jitter (ms)", "Pb?"};
-	column_arrows *col_arrows;
-	GtkWidget *column_lb;
-	int i;
+    column_arrows *col_arrows;
+    GtkWidget *column_lb;
+    int i;
 
-	rtpstream_dlg_w = dlg_window_new("Ethereal: RTP Streams");
-	gtk_window_set_default_size(GTK_WINDOW(rtpstream_dlg_w), 620, 200);
+    rtpstream_dlg_w = dlg_window_new("Ethereal: RTP Streams");
+    gtk_window_set_default_size(GTK_WINDOW(rtpstream_dlg_w), 620, 200);
 
-	main_vb = gtk_vbox_new (FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(rtpstream_dlg_w), main_vb);
-	gtk_container_set_border_width (GTK_CONTAINER (main_vb), 12);
+    main_vb = gtk_vbox_new (FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(rtpstream_dlg_w), main_vb);
+    gtk_container_set_border_width (GTK_CONTAINER (main_vb), 12);
 
-	top_label = gtk_label_new ("Detected 0 RTP streams. Choose one for forward and reverse direction for analysis");
-	gtk_box_pack_start (GTK_BOX (main_vb), top_label, FALSE, FALSE, 8);
+    top_label = gtk_label_new ("Detected 0 RTP streams. Choose one for forward and reverse direction for analysis");
+    gtk_box_pack_start (GTK_BOX (main_vb), top_label, FALSE, FALSE, 8);
 
-	scrolledwindow = scrolled_window_new (NULL, NULL);
-	gtk_box_pack_start (GTK_BOX (main_vb), scrolledwindow, TRUE, TRUE, 0);
+    scrolledwindow = scrolled_window_new (NULL, NULL);
+    gtk_box_pack_start (GTK_BOX (main_vb), scrolledwindow, TRUE, TRUE, 0);
 
-	clist = gtk_clist_new (NUM_COLS);
-	gtk_container_add (GTK_CONTAINER (scrolledwindow), clist);
+    clist = gtk_clist_new (NUM_COLS);
+    gtk_container_add (GTK_CONTAINER (scrolledwindow), clist);
 
-	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 88);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 44);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 2, 88);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 3, 44);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 4, 64);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 5, 96);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 6, 50);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 7, 50);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 8, 80);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 9, 80);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 10, 80);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 11, 40);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 0, 88);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 1, 44);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 2, 88);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 3, 44);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 4, 64);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 5, 96);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 6, 50);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 7, 50);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 8, 80);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 9, 80);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 10, 80);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 11, 40);
 
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 0, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 1, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 2, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 3, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 4, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 5, GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 6, GTK_JUSTIFY_RIGHT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 7, GTK_JUSTIFY_RIGHT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 8, GTK_JUSTIFY_RIGHT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 9, GTK_JUSTIFY_RIGHT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 10, GTK_JUSTIFY_RIGHT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 11, GTK_JUSTIFY_LEFT);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 0, GTK_JUSTIFY_CENTER);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 1, GTK_JUSTIFY_CENTER);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 2, GTK_JUSTIFY_CENTER);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 3, GTK_JUSTIFY_CENTER);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 4, GTK_JUSTIFY_CENTER);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 5, GTK_JUSTIFY_LEFT);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 6, GTK_JUSTIFY_RIGHT);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 7, GTK_JUSTIFY_RIGHT);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 8, GTK_JUSTIFY_RIGHT);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 9, GTK_JUSTIFY_RIGHT);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 10, GTK_JUSTIFY_RIGHT);
+    gtk_clist_set_column_justification(GTK_CLIST(clist), 11, GTK_JUSTIFY_LEFT);
 
-	gtk_clist_column_titles_show (GTK_CLIST (clist));
+    gtk_clist_column_titles_show (GTK_CLIST (clist));
 
-	gtk_clist_set_compare_func(GTK_CLIST(clist), rtpstream_sort_column);
-	gtk_clist_set_sort_column(GTK_CLIST(clist), 0);
-	gtk_clist_set_sort_type(GTK_CLIST(clist), GTK_SORT_ASCENDING);
+    gtk_clist_set_compare_func(GTK_CLIST(clist), rtpstream_sort_column);
+    gtk_clist_set_sort_column(GTK_CLIST(clist), 0);
+    gtk_clist_set_sort_type(GTK_CLIST(clist), GTK_SORT_ASCENDING);
 
-	gtk_widget_show(rtpstream_dlg_w);
+    gtk_widget_show(rtpstream_dlg_w);
 
-	/* sort by column feature */
-	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
+    /* sort by column feature */
+    col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
 
-	for (i=0; i<NUM_COLS; i++) {
-		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-		column_lb = gtk_label_new(titles[i]);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		gtk_widget_show(column_lb);
+    for (i=0; i<NUM_COLS; i++) {
+        col_arrows[i].table = gtk_table_new(2, 2, FALSE);
+        gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
+        column_lb = gtk_label_new(titles[i]);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        gtk_widget_show(column_lb);
 
-		col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		/* make src-ip be the default sort order */
-		if (i == 0) {
-			gtk_widget_show(col_arrows[i].ascend_pm);
-		}
-		gtk_clist_set_column_widget(GTK_CLIST(clist), i, col_arrows[i].table);
-		gtk_widget_show(col_arrows[i].table);
-	}
+        col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        /* make src-ip be the default sort order */
+        if (i == 0) {
+            gtk_widget_show(col_arrows[i].ascend_pm);
+        }
+        gtk_clist_set_column_widget(GTK_CLIST(clist), i, col_arrows[i].table);
+        gtk_widget_show(col_arrows[i].table);
+    }
 
-	SIGNAL_CONNECT(clist, "click-column", rtpstream_click_column_cb, col_arrows);
+    SIGNAL_CONNECT(clist, "click-column", rtpstream_click_column_cb, col_arrows);
 
-	label_fwd = gtk_label_new (FWD_LABEL_TEXT);
-	gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
+    label_fwd = gtk_label_new (FWD_LABEL_TEXT);
+    gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
 
-	label_rev = gtk_label_new (REV_LABEL_TEXT);
-	gtk_box_pack_start (GTK_BOX (main_vb), label_rev, FALSE, FALSE, 0);
+    label_rev = gtk_label_new (REV_LABEL_TEXT);
+    gtk_box_pack_start (GTK_BOX (main_vb), label_rev, FALSE, FALSE, 0);
 
     /* button row */
-	hbuttonbox = gtk_hbutton_box_new ();
-	gtk_box_pack_start (GTK_BOX (main_vb), hbuttonbox, FALSE, FALSE, 0);
-	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_END);
-	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 0);
+    hbuttonbox = gtk_hbutton_box_new ();
+    gtk_box_pack_start (GTK_BOX (main_vb), hbuttonbox, FALSE, FALSE, 0);
+    gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_END);
+    gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 0);
 
-	bt_unselect = gtk_button_new_with_label ("Unselect");
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
+    bt_unselect = gtk_button_new_with_label ("Unselect");
+    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
     gtk_tooltips_set_tip (tooltips, bt_unselect, "Undo stream selection", NULL);
 
-	bt_findrev = gtk_button_new_with_label ("Find Reverse");
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_findrev);
+    bt_findrev = gtk_button_new_with_label ("Find Reverse");
+    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_findrev);
     gtk_tooltips_set_tip (tooltips, bt_findrev, "Find the reverse stream matching the selected forward stream", NULL);
 /*
-	bt_goto = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_goto);
+    bt_goto = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
+    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_goto);
 */
-	bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_save);
+    bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
+    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_save);
     gtk_tooltips_set_tip (tooltips, bt_save, "Save stream payload in rtpdump format", NULL);
 
-	bt_mark = gtk_button_new_with_label ("Mark Packets");
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_mark);
+    bt_mark = gtk_button_new_with_label ("Mark Packets");
+    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_mark);
     gtk_tooltips_set_tip (tooltips, bt_mark, "Mark packets of the selected stream(s)", NULL);
 
-	bt_filter = gtk_button_new_with_label ("Prepare Filter");
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
+    bt_filter = gtk_button_new_with_label ("Prepare Filter");
+    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
     gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream(s)", NULL);
 
-	bt_analyze = gtk_button_new_with_label ("Analyze");
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
+#if (GTK_MAJOR_VERSION >= 2)
+    /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
+    /*bt_copy = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
+    bt_copy = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
+    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_copy);
+    gtk_tooltips_set_tip(tooltips, bt_copy, 
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
+#endif                 
+
+    bt_analyze = gtk_button_new_with_label ("Analyze");
+    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
     gtk_tooltips_set_tip (tooltips, bt_analyze, "Open an analyze window of the selected stream(s)", NULL);
 
-	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
+    bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
     gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
-	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
+    GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 
-	SIGNAL_CONNECT(clist, "select_row", rtpstream_on_select_row, NULL);
-	SIGNAL_CONNECT(bt_unselect, "clicked", rtpstream_on_unselect, NULL);
-	SIGNAL_CONNECT(bt_findrev, "clicked", rtpstream_on_findrev, NULL);
+    SIGNAL_CONNECT(clist, "select_row", rtpstream_on_select_row, NULL);
+    SIGNAL_CONNECT(bt_unselect, "clicked", rtpstream_on_unselect, NULL);
+    SIGNAL_CONNECT(bt_findrev, "clicked", rtpstream_on_findrev, NULL);
 /*
-	SIGNAL_CONNECT(bt_goto, "clicked", rtpstream_on_goto, NULL);
+    SIGNAL_CONNECT(bt_goto, "clicked", rtpstream_on_goto, NULL);
 */
-	SIGNAL_CONNECT(bt_save, "clicked", rtpstream_on_save, NULL);
-	SIGNAL_CONNECT(bt_mark, "clicked", rtpstream_on_mark, NULL);
-	SIGNAL_CONNECT(bt_filter, "clicked", rtpstream_on_filter, NULL);
-	SIGNAL_CONNECT(bt_analyze, "clicked", rtpstream_on_analyse, NULL);
+    SIGNAL_CONNECT(bt_save, "clicked", rtpstream_on_save, NULL);
+    SIGNAL_CONNECT(bt_mark, "clicked", rtpstream_on_mark, NULL);
+    SIGNAL_CONNECT(bt_filter, "clicked", rtpstream_on_filter, NULL);
+#if (GTK_MAJOR_VERSION >= 2)
+    SIGNAL_CONNECT(bt_copy, "clicked", rtpstream_on_copy_as_csv, NULL);
+#endif
+    SIGNAL_CONNECT(bt_analyze, "clicked", rtpstream_on_analyse, NULL);
 
-	window_set_cancel_button(rtpstream_dlg_w, bt_close, window_cancel_button_cb);
+    window_set_cancel_button(rtpstream_dlg_w, bt_close, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(rtpstream_dlg_w, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(rtpstream_dlg_w, "destroy", rtpstream_on_destroy, NULL);
+    SIGNAL_CONNECT(rtpstream_dlg_w, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(rtpstream_dlg_w, "destroy", rtpstream_on_destroy, NULL);
 
-	gtk_widget_show_all(rtpstream_dlg_w);
-	window_present(rtpstream_dlg_w);
+    gtk_widget_show_all(rtpstream_dlg_w);
+    window_present(rtpstream_dlg_w);
 
-	rtpstream_on_unselect(NULL, NULL);
+    rtpstream_on_unselect(NULL, NULL);
 
-	rtp_stream_dlg = rtpstream_dlg_w;
+    rtp_stream_dlg = rtpstream_dlg_w;
 }
 
 
