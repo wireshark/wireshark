@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.38 2004/05/24 02:25:19 guy Exp $
+ * $Id: packet-scsi.c,v 1.39 2004/06/11 08:33:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3324,7 +3324,8 @@ dissect_scsi_readcapacity (tvbuff_t *tvb, packet_info *pinfo _U_,
                            gboolean iscdb)
 {
     guint8 flags;
-    guint len;
+    guint32 len, block_len, tot_len;
+    char *un;
 
     if (!tree)
         return;
@@ -3349,10 +3350,17 @@ dissect_scsi_readcapacity (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
     else if (!iscdb) {
         len = tvb_get_ntohl (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 4, "LBA: %u (%u MB)",
-                             len, len/(1024*1024));
+        block_len = tvb_get_ntohl (tvb, offset+4);
+        tot_len=((len/1024)*block_len)/1024; /*MB*/
+        un="MB";
+        if(tot_len>20000){
+            tot_len/=1024;
+            un="GB";
+        }
+        proto_tree_add_text (tree, tvb, offset, 4, "LBA: %u (%u %s)",
+                             len, tot_len, un);
         proto_tree_add_text (tree, tvb, offset+4, 4, "Block Length: %u bytes",
-                             tvb_get_ntohl (tvb, offset+4));
+                             block_len);
     }
 }
 
