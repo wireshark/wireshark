@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.7 2003/01/31 03:17:47 guy Exp $
+# $Id: x11-fields,v 1.8 2003/01/31 05:15:23 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ bell-duration	INT16	DEC
 bell-percent	INT8	DEC
 bell-pitch	INT16	DEC
 bit-gravity	UINT8	DEC	VALS(gravity)
-bit-plane	UINT32	DEC
+bit-plane	UINT32	HEX
 blue		UINT16	DEC
 blues		UINT16	DEC
 border-pixel	UINT32	HEX
