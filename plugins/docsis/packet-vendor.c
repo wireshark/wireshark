@@ -2,7 +2,7 @@
  * Routines for Vendor Specific Encodings dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-vendor.c,v 1.2 2003/05/28 14:52:53 gerald Exp $
+ * $Id: packet-vendor.c,v 1.3 2003/07/19 02:11:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -316,7 +316,6 @@ proto_reg_handoff_docsis_vsif (void)
   dissector_handle_t docsis_vsif_handle;
 
   docsis_vsif_handle = find_dissector ("docsis_vsif");
-  assert (docsis_vsif_handle);
   dissector_add ("docsis", 0xFD, docsis_vsif_handle);
 
 }
