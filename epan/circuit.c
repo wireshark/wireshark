@@ -1,7 +1,7 @@
 /* circuit.c
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.c,v 1.3 2002/10/31 07:12:38 guy Exp $
+ * $Id: circuit.c,v 1.4 2002/11/08 01:00:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,9 +133,9 @@ circuit_init(void)
  * to contain packets for that circuit.
  */
 circuit_t *
-circuit_new(circuit_type ctype, guint32 circuit_id)
+circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame)
 {
-	circuit_t *circuit;
+	circuit_t *circuit, *old_circuit;
 	circuit_key *new_key;
 
 	new_key = g_mem_chunk_alloc(circuit_key_chunk);
@@ -143,34 +143,94 @@ circuit_new(circuit_type ctype, guint32 circuit_id)
 	new_key->circuit_id = circuit_id;
 
 	circuit = g_mem_chunk_alloc(circuit_chunk);
+	circuit->next = NULL;
+	circuit->first_frame = first_frame;
+	circuit->last_frame = 0;	/* not known yet */
 	circuit->index = new_index;
 	circuit->data_list = NULL;
-
-/* clear dissector handle */
 	circuit->dissector_handle = NULL;
-
-/* set the options and key pointer */
 	circuit->key_ptr = new_key;
 
 	new_index++;
 
-	g_hash_table_insert(circuit_hashtable, new_key, circuit);
+	/*
+	 * Is there already a circuit with this circuit ID?
+	 */
+	old_circuit = g_hash_table_lookup(circuit_hashtable, new_key);
+	if (old_circuit != NULL) {
+		/*
+		 * Yes.  Find the last circuit in the list of circuits
+		 * with this circuit ID, and if its last frame isn't
+		 * know, make it be the previous frame to this one.
+		 */
+		while (old_circuit->next != NULL)
+			old_circuit = old_circuit->next;
+		if (old_circuit->last_frame == 0)
+			old_circuit->last_frame = first_frame - 1;
+
+		/*
+		 * Now put the new circuit after the last one in the
+		 * list.
+		 */
+		old_circuit->next = circuit;
+	} else {
+		/*
+		 * No.  This is the first one with this circuit ID; add
+		 * it to the hash table.
+		 */
+		g_hash_table_insert(circuit_hashtable, new_key, circuit);
+	}
 
 	return circuit;
 }
 
 /*
- * Given a circuit type and ID, search for the corresponding circuit.
+ * Given a circuit type and ID, and a frame number, search for a circuit with
+ * that type and ID whose range of frames includes that frame number.
  * Returns NULL if not found.
  */
 circuit_t *
-find_circuit(circuit_type ctype, guint32 circuit_id)
+find_circuit(circuit_type ctype, guint32 circuit_id, guint32 frame)
 {
 	circuit_key key;
+	circuit_t *circuit;
 
 	key.ctype = ctype;
 	key.circuit_id = circuit_id;
-	return g_hash_table_lookup(circuit_hashtable, &key);
+
+	/*
+	 * OK, search the list of circuits with that type and ID for
+	 * a circuit whose range of frames includes that frame number.
+	 */
+	for (circuit = g_hash_table_lookup(circuit_hashtable, &key);
+	    circuit != NULL; circuit = circuit->next) {
+		/*
+		 * The frame includes that frame number if:
+		 *
+		 *	the circuit's first frame is unknown or is at or
+		 *	before that frame
+		 *
+		 * and
+		 *
+		 *	the circuit's last frame is unknown or is at or
+		 *	after that frame.
+		 */
+		if ((circuit->first_frame == 0 || circuit->first_frame <= frame)
+		    && (circuit->last_frame == 0 || circuit->last_frame >= frame))
+			break;
+	}
+	return circuit;
+}
+
+/*
+ * Set the last frame of a circuit, if it's not already known,
+ * "closing" the circuit.
+ */
+void
+close_circuit(circuit_t *circuit, guint32 last_frame)
+{
+	if (circuit->last_frame == 0)
+		circuit->last_frame = last_frame;
 }
 
 static gint
@@ -252,12 +312,12 @@ circuit_get_dissector(circuit_t *circuit)
  * call that dissector and return TRUE, otherwise return FALSE.
  */
 gboolean
-try_circuit_dissector(circuit_type ctype, guint32 circuit_id, tvbuff_t *tvb,
-    packet_info *pinfo, proto_tree *tree)
+try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame,
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	circuit_t *circuit;
 
-	circuit = find_circuit(ctype, circuit_id);
+	circuit = find_circuit(ctype, circuit_id, frame);
 
 	if (circuit != NULL) {
 		if (circuit->dissector_handle == NULL)

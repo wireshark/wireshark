@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.24 2002/10/31 07:12:38 guy Exp $
+ * $Id: packet_info.h,v 1.25 2002/11/08 01:00:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -103,8 +103,9 @@ typedef enum {
 typedef enum {
   CT_NONE,		/* no port number */
   CT_DLCI,		/* Frame Relay DLCI */
-  CT_ISDN		/* ISDN channel number */
-  /* Could also have X.25 logical channel and ATM VPI/VCI pairs */
+  CT_ISDN,		/* ISDN channel number */
+  CT_X25		/* X.25 logical channel number */
+  /* Could also have ATM VPI/VCI pairs */
 } circuit_type;
 
 #define P2P_DIR_UNKNOWN	-1

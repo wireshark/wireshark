@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.70 2002/09/01 14:30:30 oabad Exp $
+ * $Id: packet-x25.c,v 1.71 2002/11/08 01:00:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include <string.h>
 #include "llcsaps.h"
 #include <epan/packet.h>
+#include <epan/circuit.h>
 #include "prefs.h"
 #include "nlpid.h"
 #include "x264_prt_id.h"
@@ -170,219 +171,48 @@ static gboolean non_q_bit_is_sna = FALSE;
 static dissector_table_t x25_subdissector_table;
 static heur_dissector_list_t x25_heur_subdissector_list;
 
-/*
- * each vc_info node contains :
- *   the time of the first frame using this dissector (secs and usecs)
- *   the time of the last frame using this dissector (0 if it is unknown)
- *   a handle for the dissector
- *
- * the "time of first frame" is initialized when a Call Req. is received
- * the "time of last frame" is initialized when a Clear, Reset, or Restart
- * is received
- */
-typedef struct _vc_info {
-	guint32 first_frame_secs, first_frame_usecs;
-	guint32 last_frame_secs, last_frame_usecs;
-	dissector_handle_t dissect;
-	struct _vc_info *next;
-} vc_info;
-
-/*
- * the hash table will contain linked lists of global_vc_info
- * each global_vc_info struct contains :
- *   the VC number (the hash table is indexed with VC % 64)
- *   a linked list of vc_info
- */
-typedef struct _global_vc_info {
-	int vc_num;
-	vc_info *info;
-	struct _global_vc_info *next;
-} global_vc_info;
-
-static global_vc_info *hash_table[64];
-
 static void
-free_vc_info(vc_info *pt)
+x25_hash_add_proto_start(guint16 vc, guint32 frame, dissector_handle_t dissect)
 {
-  vc_info *vci = pt;
+  circuit_t *circuit;
 
-  while (pt) {
-    vci = pt;
-    pt = pt->next;
-    g_free(vci);
+  /*
+   * Is there already a circuit with this VC number?
+   */
+  circuit = find_circuit(CT_X25, vc, frame);
+  if (circuit != NULL) {
+    /*
+     * Yes - close it, as we're creating a new one.
+     */
+    close_circuit(circuit, frame - 1);
   }
+
+  /*
+   * Set up a new circuit.
+   */
+  circuit = circuit_new(CT_X25, vc, frame);
+
+  /*
+   * Set its dissector.
+   */
+  circuit_set_dissector(circuit, dissect);
 }
 
 static void
-reinit_x25_hashtable(void)
+x25_hash_add_proto_end(guint16 vc, guint32 frame)
 {
-  int i;
+  circuit_t *circuit;
 
-  for (i=0; i<64; i++) {
-    if (hash_table[i]) /* not NULL ==> free */
-    {
-      global_vc_info *hash_ent, *hash_ent2;
-      hash_ent2 = hash_ent = hash_table[i];
-      while (hash_ent)
-      {
-        hash_ent2 = hash_ent;
-	hash_ent = hash_ent->next;
-	free_vc_info(hash_ent2->info);
-	g_free(hash_ent2);
-      }
-      hash_table[i]=0;
-    }
-  }
-}
+  /*
+   * Try to find the circuit.
+   */
+  circuit = find_circuit(CT_X25, vc, frame);
 
-static void
-x25_hash_add_proto_start(guint16 vc, guint32 frame_secs, guint32 frame_usecs,
-		         dissector_handle_t dissect)
-{
-  int idx = vc % 64;
-  global_vc_info *hash_ent;
-  global_vc_info *hash_ent2;
-
-  if (hash_table[idx] == 0)
-  {
-    hash_ent = (global_vc_info *)g_malloc(sizeof(global_vc_info));
-    if (!hash_ent) {
-      fprintf(stderr, "Could not allocate space for hash structure in dissect_x25\n");
-      exit(1);
-    }
-    hash_ent->vc_num = vc;
-    hash_ent->next=0;
-    hash_ent->info = (vc_info *)g_malloc(sizeof(vc_info));
-    if (!hash_ent->info) {
-      fprintf(stderr, "Could not allocate space for hash structure in dissect_x25\n");
-      exit(1);
-    }
-    hash_ent->info->first_frame_secs = frame_secs;
-    hash_ent->info->first_frame_usecs = frame_usecs;
-    hash_ent->info->last_frame_secs = 0;
-    hash_ent->info->last_frame_usecs = 0;
-    hash_ent->info->dissect = dissect;
-    hash_ent->info->next = 0;
-    hash_table[idx] = hash_ent;
-  }
-  else
-  {
-    hash_ent2 = hash_ent = hash_table[idx];
-    /* search an entry with the same VC number */
-    while (hash_ent != NULL && hash_ent->vc_num != vc) {
-      hash_ent2 = hash_ent;
-      hash_ent = hash_ent->next;
-    }
-    if (hash_ent != NULL) /* hash_ent->vc_num == vc */
-    {
-      vc_info *vci = hash_ent->info;
-      while (vci->next) vci = vci->next; /* last element */
-      if (vci->dissect == dissect) {
-	vci->last_frame_secs = 0;
-	vci->last_frame_usecs = 0;
-      }
-      else {
-        vci->next = (vc_info *)g_malloc(sizeof(vc_info));
-	if (vci->next == 0) {
-	  fprintf(stderr, "Could not allocate space for hash structure in dissect_x25\n");
-	  exit(1);
-	}
-	vci->next->first_frame_secs = frame_secs;
-	vci->next->first_frame_usecs = frame_usecs;
-	vci->next->last_frame_secs = 0;
-	vci->next->last_frame_usecs = 0;
-	vci->next->dissect = dissect;
-	vci->next->next = 0;
-      }
-    }
-    else /* new vc number */
-    {
-      hash_ent2->next = (global_vc_info *)g_malloc(sizeof(global_vc_info));
-      if (!hash_ent2->next) {
-        fprintf(stderr, "Could not allocate space for hash structure in dissect_x25\n");
-        exit(1);
-      }
-      hash_ent2->next->info = (vc_info *)g_malloc(sizeof(vc_info));
-      if (!hash_ent2->next->info) {
-        fprintf(stderr, "Could not allocate space for hash structure in dissect_x25\n");
-        exit(1);
-      }
-      hash_ent2->next->info->first_frame_secs = frame_secs;
-      hash_ent2->next->info->first_frame_usecs = frame_usecs;
-      hash_ent2->next->info->last_frame_secs = 0;
-      hash_ent2->next->info->last_frame_usecs = 0;
-      hash_ent2->next->info->dissect = dissect;
-      hash_ent2->next->info->next = 0;
-    }
-  }
-}
-
-static void
-x25_hash_add_proto_end(guint16 vc, guint32 frame_secs, guint32 frame_usecs)
-{
-  global_vc_info *hash_ent = hash_table[vc%64];
-  vc_info *vci;
-
-  if (!hash_ent) return;
-  while(hash_ent->vc_num != vc) hash_ent = hash_ent->next;
-  if (!hash_ent) return;
-
-  vci = hash_ent->info;
-  while (vci->next) vci = vci->next;
-  vci->last_frame_secs = frame_secs;
-  vci->last_frame_usecs = frame_usecs;
-}
-
-static dissector_handle_t
-x25_hash_get_dissect(guint32 frame_secs, guint32 frame_usecs, guint16 vc)
-{
-  global_vc_info *hash_ent = hash_table[vc%64];
-  vc_info *vci;
-  vc_info *vci2;
-
-  if (!hash_ent)
-    return NULL;
-
-  while (hash_ent && hash_ent->vc_num != vc)
-    hash_ent = hash_ent->next;
-  if (!hash_ent)
-    return NULL;
-
-  /* a hash_ent was found for this VC number */
-  vci2 = vci = hash_ent->info;
-
-  /* looking for an entry matching our frame time */
-  while (vci && (vci->last_frame_secs < frame_secs ||
-		 (vci->last_frame_secs == frame_secs &&
-		  vci->last_frame_usecs < frame_usecs))) {
-    vci2 = vci;
-    vci = vci->next;
-  }
-  /* we reached last record, and previous record has a non zero
-   * last frame time ==> no dissector */
-  if (!vci && (vci2->last_frame_secs || vci2->last_frame_usecs))
-    return NULL;
-
-  /* we reached last record, and previous record has a zero last frame time
-   * ==> dissector for previous frame has not been "stopped" by a Clear, etc */
-  if (!vci) {
-    /* if the start time for vci2 is greater than our frame time
-     * ==> no dissector */
-    if (frame_secs < vci2->first_frame_secs ||
-        (frame_secs == vci2->first_frame_secs &&
-         frame_usecs < vci2->first_frame_usecs))
-      return NULL;
-    else
-      return vci2->dissect;
-  }
-
-  /* our frame time is before vci's end. Check if it is after vci's start */
-  if (frame_secs < vci->first_frame_secs ||
-      (frame_secs == vci->first_frame_secs &&
-       frame_usecs < vci->first_frame_usecs))
-    return NULL;
-  else
-    return vci->dissect;
+  /*
+   * If we succeeded, close it.
+   */
+  if (circuit != NULL)
+    close_circuit(circuit, frame);
 }
 
 static char *clear_code(unsigned char code)
@@ -1585,6 +1415,9 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     modulo = ((bytes0_1 & 0x2000) ? 128 : 8);
     vc     = (int)(bytes0_1 & 0x0FFF);
 
+    pinfo->ctype = CT_X25;
+    pinfo->circuit_id = vc;
+
     if (bytes0_1 & 0x8000) toa = TRUE;
     else toa = FALSE;
 
@@ -1842,18 +1675,14 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		case PRT_ID_ISO_8073:
 		    /* ISO 8073 COTP */
-		    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-					     pinfo->fd->abs_usecs,
-					     ositp_handle);
+		    x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
 		    /* XXX - disssect the rest of the user data as COTP?
 		       That needs support for NCM TPDUs, etc. */
 		    break;
 
 		case PRT_ID_ISO_8602:
 		    /* ISO 8602 CLTP */
-		    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-					     pinfo->fd->abs_usecs,
-					     ositp_handle);
+		    x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
 		    break;
 		}
 	    } else if (is_x_264 == 0) {
@@ -1872,8 +1701,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * What's the dissector handle for this SPI?
 		 */
 		dissect = dissector_get_port_handle(x25_subdissector_table, spi);
-		x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-					 pinfo->fd->abs_usecs, dissect);
+		x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
 	    }
 	    if (localoffset < tvb_length(tvb)) {
 		if (userdata_tree) {
@@ -1950,7 +1778,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    vc, clear_code(tvb_get_guint8(tvb, 3)),
 		    clear_diag(tvb_get_guint8(tvb, 4)));
 	}
-	x25_hash_add_proto_end(vc, pinfo->fd->abs_secs, pinfo->fd->abs_usecs);
+	x25_hash_add_proto_end(vc, pinfo->fd->num);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb,
@@ -2038,7 +1866,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    short_name, vc, reset_code(tvb_get_guint8(tvb, 3)),
 		    (int)tvb_get_guint8(tvb, 4));
 	}
-	x25_hash_add_proto_end(vc, pinfo->fd->abs_secs, pinfo->fd->abs_usecs);
+	x25_hash_add_proto_end(vc, pinfo->fd->num);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
@@ -2296,18 +2124,14 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return;
     }
 
-    /* search the dissector in the hash table */
-    if ((dissect = x25_hash_get_dissect(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc))) {
-        /* Found it in the hash table; use it. */
-        call_dissector(dissect, next_tvb, pinfo, tree);
-        return;
-    }
+    /* See if there's already a dissector for this circuit. */
+    if (try_circuit_dissector(CT_X25, vc, pinfo->fd->num, next_tvb, pinfo, tree))
+        return;	/* found it and dissected it */
 
     /* Did the user suggest SNA-over-X.25? */
     if (non_q_bit_is_sna) {
         /* Yes - dissect it as SNA. */
-	x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-				 pinfo->fd->abs_usecs, sna_handle);
+	x25_hash_add_proto_start(vc, pinfo->fd->num, sna_handle);
 	call_dissector(sna_handle, next_tvb, pinfo, tree);
 	return;
     }
@@ -2316,8 +2140,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        with what appears to be an IP header, assume these packets carry
        IP */
     if (tvb_get_guint8(tvb, localoffset) == 0x45) {
-	x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-				 pinfo->fd->abs_usecs, ip_handle);
+	x25_hash_add_proto_start(vc, pinfo->fd->num, ip_handle);
 	call_dissector(ip_handle, next_tvb, pinfo, tree);
 	return;
     }
@@ -2431,7 +2254,6 @@ proto_register_x25(void)
     proto_x25 = proto_register_protocol ("X.25", "X.25", "x.25");
     proto_register_field_array (proto_x25, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_init_routine(&reinit_x25_hashtable);
 
     x25_subdissector_table = register_dissector_table("x.25.spi",
 	"X.25 secondary protocol identifier", FT_UINT8, BASE_HEX);

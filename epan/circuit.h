@@ -1,7 +1,7 @@
 /* circuit.h
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.h,v 1.2 2002/10/31 07:12:38 guy Exp $
+ * $Id: circuit.h,v 1.3 2002/11/08 01:00:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,20 +36,26 @@ typedef struct circuit_key {
 } circuit_key;
 
 typedef struct circuit {
-	struct circuit *next;		/* pointer to next circuit on hash chain */
+	struct circuit *next;		/* pointer to next circuit with given circuit ID */
+	guint32 first_frame;		/* # of first frame for that circuit */
+	guint32 last_frame;		/* # of last frame for that circuit */
 	guint32	index;			/* unique ID for circuit */
 	GSList *data_list;		/* list of data associated with circuit */
 	dissector_handle_t dissector_handle;
 					/* handle for protocol dissector client associated with circuit */
 	guint	options;		/* wildcard flags */
-	circuit_key *key_ptr;	/* pointer to the key for this circuit */
+	circuit_key *key_ptr;		/* pointer to the key for this circuit */
 } circuit_t;
 
 extern void circuit_init(void);
 
-extern circuit_t *circuit_new(circuit_type ctype, guint32 circuit_id);
+extern circuit_t *circuit_new(circuit_type ctype, guint32 circuit_id,
+    guint32 first_frame);
 
-extern circuit_t *find_circuit(circuit_type ctype, guint32 circuit_id);
+extern circuit_t *find_circuit(circuit_type ctype, guint32 circuit_id,
+    guint32 frame);
+
+extern void close_circuit(circuit_t *circuit, guint32 last_frame);
 
 extern void circuit_add_proto_data(circuit_t *conv, int proto,
     void *proto_data);
@@ -60,8 +66,8 @@ extern void circuit_set_dissector(circuit_t *circuit,
     dissector_handle_t handle);
 extern dissector_handle_t circuit_get_dissector(circuit_t *circuit);
 extern gboolean
-try_circuit_dissector(circuit_type ctype, guint32 circuit_id, tvbuff_t *tvb,
-    packet_info *pinfo, proto_tree *tree);
+try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame,
+   tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree);
 
 #endif /* circuit.h */
 

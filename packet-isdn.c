@@ -1,7 +1,7 @@
 /* packet-isdn.c
  * Routines for ISDN packet disassembly
  *
- * $Id: packet-isdn.c,v 1.2 2002/11/01 05:39:36 guy Exp $
+ * $Id: packet-isdn.c,v 1.3 2002/11/08 01:00:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,9 +114,10 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Set up a circuit for this channel, and assign it a dissector.
 	 */
-	circuit = find_circuit(pinfo->ctype, pinfo->circuit_id);
+	circuit = find_circuit(pinfo->ctype, pinfo->circuit_id, pinfo->fd->num);
 	if (circuit == NULL)
-		circuit = circuit_new(pinfo->ctype, pinfo->circuit_id);
+		circuit = circuit_new(pinfo->ctype, pinfo->circuit_id,
+		    pinfo->fd->num);
 
 	if (circuit_get_dissector(circuit) == NULL) {
 		/*
@@ -178,7 +179,7 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (!try_circuit_dissector(pinfo->ctype, pinfo->circuit_id,
-	    tvb, pinfo, tree))
+	    pinfo->fd->num, tvb, pinfo, tree))
 		call_dissector(data_handle, tvb, pinfo, tree);
 }
 

@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.29 2002/10/22 08:22:02 guy Exp $
+ * $Id: packet-wcp.c,v 1.30 2002/11/08 01:00:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -458,9 +458,11 @@ wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 	circuit_t *circuit;
 	wcp_circuit_data_t *wcp_circuit_data;
 
-	circuit = find_circuit( pinfo->ctype, pinfo->circuit_id);
+	circuit = find_circuit( pinfo->ctype, pinfo->circuit_id,
+	    pinfo->fd->num);
 	if ( !circuit){
-		circuit = circuit_new( pinfo->ctype, pinfo->circuit_id);
+		circuit = circuit_new( pinfo->ctype, pinfo->circuit_id,
+		    pinfo->fd->num);
 	}
 	wcp_circuit_data = circuit_get_proto_data(circuit, proto_wcp);
 	if ( !wcp_circuit_data){
