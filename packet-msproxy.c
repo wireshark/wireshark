@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.18 2001/03/22 08:39:08 guy Exp $
+ * $Id: packet-msproxy.c,v 1.19 2001/04/09 15:54:17 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -856,7 +856,7 @@ static void dissect_connect_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	if ( tree){
 		proto_tree_add_item( tree, hf_msproxy_server_int_addr, tvb,
-			offset, 2, FALSE);
+			offset, 4, FALSE);
 		offset += 14;
 
  		proto_tree_add_item( tree, hf_msproxy_server_ext_port, tvb,
