@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.3 2003/10/06 19:25:21 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.4 2003/10/16 18:14:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4854,6 +4854,7 @@ param_network_tmsi(ASN1_SCK *asn1, proto_tree *tree, guint len)
     bigbuf[0] = first_dig;
 
     my_dgt_tbcd_unpack(bigbuf+1, poctets, (len-5), &Dgt_tbcd);
+    g_free(poctets);
 
     proto_tree_add_none_format(tree, hf_ansi_map_none, asn1->tvb,
 	saved_offset - 1, (len-5)+1,
@@ -6242,6 +6243,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len)
 	    asn1_string_value_decode(asn1, (value+1)/2, &poctets);
 
 	    my_dgt_tbcd_unpack(bigbuf, poctets, (value+1)/2, &Dgt_tbcd);
+	    g_free(poctets);
 
 	    proto_tree_add_none_format(tree, hf_ansi_map_none, asn1->tvb,
 		saved_offset, (value+1)/2,
@@ -8124,6 +8126,7 @@ param_trn(ASN1_SCK *asn1, proto_tree *tree, guint len)
     asn1_string_value_decode(asn1, len, &poctets);
 
     my_dgt_tbcd_unpack(bigbuf, poctets, len, &Dgt_msid);
+    g_free(poctets);
 
     proto_tree_add_none_format(tree, hf_ansi_map_none, asn1->tvb,
 	saved_offset, len, "TRN %s", bigbuf);
@@ -8264,6 +8267,7 @@ param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len)
     asn1_string_value_decode(asn1, len, &poctets);
 
     my_dgt_tbcd_unpack(bigbuf, poctets, len, &Dgt_msid);
+    g_free(poctets);
 
     proto_tree_add_none_format(tree, hf_ansi_map_none, asn1->tvb,
 	saved_offset, len,
@@ -8283,6 +8287,7 @@ param_min(ASN1_SCK *asn1, proto_tree *tree, guint len)
     asn1_string_value_decode(asn1, len, &poctets);
 
     my_dgt_tbcd_unpack(bigbuf, poctets, len, &Dgt_msid);
+    g_free(poctets);
 
     proto_tree_add_none_format(tree, hf_ansi_map_none, asn1->tvb,
 	saved_offset, len,
