@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.68 2004/02/18 09:58:17 guy Exp $
+ * $Id: packet-q931.c,v 1.69 2004/02/18 20:43:37 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -64,6 +64,7 @@ static int hf_q931_call_ref_len 			= -1;
 static int hf_q931_call_ref_flag 			= -1;
 static int hf_q931_call_ref 				= -1;
 static int hf_q931_message_type 			= -1;
+static int hf_q931_segment_type 			= -1;
 static int hf_q931_cause_value 				= -1;
 static int hf_q931_number_type				= -1;
 static int hf_q931_numbering_plan			= -1;
@@ -423,8 +424,7 @@ dissect_q931_segmented_message_ie(tvbuff_t *tvb, int offset, int len,
 		    "Not first segment: %u segments remaining",
 		    tvb_get_guint8(tvb, offset) & 0x7F);
 	}
-	proto_tree_add_text(tree, tvb, offset + 1, 1,
-	    "Segmented message type: %u", tvb_get_guint8(tvb, offset + 1));
+	proto_tree_add_item(tree, hf_q931_segment_type, tvb, offset + 1, 1, FALSE);
 }
 
 /*
@@ -2350,11 +2350,12 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8		info_element;
 	guint16		info_element_len;
 	int		codeset, locked_codeset;
-	gboolean	non_locking_shift;
+	gboolean	non_locking_shift, first_segment;
 	tvbuff_t	*h225_tvb, *next_tvb;
 
 	codeset = locked_codeset = 0;	/* start out in codeset 0 */
 	non_locking_shift = TRUE;
+	first_segment = FALSE;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		info_element = tvb_get_guint8(tvb, offset);
 
@@ -2527,6 +2528,11 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		} else {
 			info_element_len = tvb_get_guint8(tvb, offset + 1);
 
+			if (first_segment && (tvb_reported_length_remaining(tvb, offset + 2) < info_element_len)) {  /* incomplete IE at the end of the 1st segment */
+				proto_tree_add_text(q931_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "Incomplete IE in the 1st segment");
+				break;
+			}
+
 			/*
 			 * Check for subdissectors for this IE or
 			 * for all IEs in this codeset.
@@ -2542,26 +2548,27 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 			}
 
-			if (q931_tree != NULL) {
-				ti = proto_tree_add_text(q931_tree, tvb, offset,
-				    1+1+info_element_len, "%s",
-				    val_to_str(info_element, q931_info_element_vals[codeset],
-				      "Unknown information element (0x%02X)"));
-					ie_tree = proto_item_add_subtree(ti, ett_q931_ie);
-				proto_tree_add_text(ie_tree, tvb, offset, 1,
-				    "Information element: %s",
-				    val_to_str(info_element, q931_info_element_vals[codeset],
-				      "Unknown (0x%02X)"));
-				proto_tree_add_text(ie_tree, tvb, offset + 1, 1,
-				    "Length: %u", info_element_len);
+			ti = proto_tree_add_text(q931_tree, tvb, offset, 1+1+info_element_len, "%s",
+				    val_to_str(info_element, q931_info_element_vals[codeset], "Unknown information element (0x%02X)"));
+			ie_tree = proto_item_add_subtree(ti, ett_q931_ie);
+			proto_tree_add_text(ie_tree, tvb, offset, 1, "Information element: %s",
+				    val_to_str(info_element, q931_info_element_vals[codeset], "Unknown (0x%02X)"));
+			proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);
 
+			if (((codeset << 8) | info_element) == (CS0 | Q931_IE_SEGMENTED_MESSAGE)) {
+				dissect_q931_segmented_message_ie(tvb, offset + 2, info_element_len, ie_tree);
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
+					    val_to_str(tvb_get_guint8(tvb, offset + 3), q931_message_type_vals, "Unknown message type (0x%02X)"));
+				}
+				if (tvb_get_guint8(tvb, offset + 2) & 0x80) {  /* the 1st segment */
+					first_segment = TRUE;
+				} else {  /* not the 1st segment */
+					proto_tree_add_text(q931_tree, tvb, offset + 4, tvb_reported_length_remaining(tvb, offset + 4), "Message segment");
+					info_element_len += tvb_reported_length_remaining(tvb, offset + 4);
+				}
+			} else if (q931_tree != NULL) {
 				switch ((codeset << 8) | info_element) {
-
-				case CS0 | Q931_IE_SEGMENTED_MESSAGE:
-					dissect_q931_segmented_message_ie(tvb,
-					    offset + 2, info_element_len,
-					    ie_tree);
-					break;
 
 				case CS0 | Q931_IE_BEARER_CAPABILITY:
 				case CS0 | Q931_IE_LOW_LAYER_COMPAT:
@@ -2843,6 +2850,10 @@ proto_register_q931(void)
 		  { "Protocol discriminator", "q931.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_q931_call_ref_len,
+		  { "Call reference value length", "q931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
 		{ &hf_q931_call_ref_flag,
 		  { "Call reference flag", "q931.call_ref_flag", FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
 			"", HFILL }},
@@ -2851,6 +2862,13 @@ proto_register_q931(void)
 		  { "Call reference value", "q931.call_ref", FT_BYTES, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_q931_message_type,
+		  { "Message type", "q931.message_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
+			"", HFILL }},
+
+		{ &hf_q931_segment_type,
+		  { "Segmented message type", "q931.segment_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
+			"", HFILL }},
 
 		{ &hf_q931_coding_standard,
 		  { "Coding standard", "q931.coding_standard", FT_UINT8, BASE_HEX,
@@ -2871,14 +2889,6 @@ proto_register_q931(void)
 		{ &hf_q931_uil1,
 		  { "User information layer 1 protocol", "q931.uil1", FT_UINT8, BASE_HEX,
 			 VALS(q931_uil1_vals), 0x1f,"", HFILL }},
-
-		{ &hf_q931_call_ref_len,
-		  { "Call reference value length", "q931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
-
-		{ &hf_q931_message_type,
-		  { "Message type", "q931.message_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
-			"", HFILL }},
 
 		{ &hf_q931_cause_value,
 		  { "Cause value", "q931.cause_value", FT_UINT8, BASE_DEC, VALS(q931_cause_code_vals), 0x0,
