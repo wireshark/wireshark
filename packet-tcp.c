@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.157 2002/08/28 21:00:35 jmayer Exp $
+ * $Id: packet-tcp.c,v 1.158 2002/09/11 09:08:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -246,18 +246,11 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 
 	/* check direction and get ua lists */
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
-	if(direction==0)
-		direction=pinfo->srcport - pinfo->destport;
+	/* if the addresses are equal, match the ports instead */
+	if(direction==0) {
+		direction= (pinfo->srcport > pinfo->destport);
+	}
 	if(direction>=0){
-		/*
-		 * XXX - if direction == 0, that'll be true for packets
-		 * from both sides of the connection, so this won't
-		 * work.
-		 *
-		 * That'd be a connection from a given port on a machine
-		 * to that same port on the same machine; does that ever
-		 * happen?
-		 */
 		ual1=tcpd->ual1;
 		ual2=tcpd->ual2;
 		base_seq=tcpd->base_seq1;
