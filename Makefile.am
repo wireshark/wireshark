@@ -153,6 +153,7 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	manuf                   \
 	print.ps                \
+	README.linux		\
 	README.tru64		\
 	README.win32		\
 	rdps.c

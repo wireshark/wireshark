@@ -1,0 +1,16 @@
+$Id: README.linux,v 1.1 1999/08/31 06:09:25 gram Exp $
+
+The standard libpcap compiled for Linux has a timeout problem.
+If you use Ethereal with this libpcap on a not-so-busy network, at
+times you will see that the Ethereal GUI freezes. It will freeze until
+one more packet is received.
+
+As of version 0.4 of libpcap this problem still exists. This is the
+version of libpcap that comes with the standard Linux distributions.
+If the freezing really annoys you, you can apply a patch to the libpcap
+source code.
+
+Libpcap can be obtained from ftp://ftp.ee.lbl.gov
+
+You can download the Linux patch at http://ethereal.zing.org/~gerald/
+
