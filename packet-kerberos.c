@@ -15,13 +15,13 @@
  *
  * and
  *
- *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
+ *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-05.txt
  *
  * and
  *
  *      http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-referrals-03.txt
  *
- * $Id: packet-kerberos.c,v 1.53 2004/04/01 09:15:24 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.54 2004/04/05 00:28:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -480,12 +480,15 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_PA_PAC_REQUEST            128
 
 /* Principal name-type */
-#define KRB5_NT_UNKNOWN     0
-#define KRB5_NT_PRINCIPAL   1
-#define KRB5_NT_SRV_INST    2	
-#define KRB5_NT_SRV_HST     3
-#define KRB5_NT_SRV_XHST    4
-#define KRB5_NT_UID     5
+#define KRB5_NT_UNKNOWN        0
+#define KRB5_NT_PRINCIPAL      1
+#define KRB5_NT_SRV_INST       2	
+#define KRB5_NT_SRV_HST        3
+#define KRB5_NT_SRV_XHST       4
+#define KRB5_NT_UID            5
+#define KRB5_NT_X500_PRINCIPAL 6
+#define KRB5_NT_SMTP_NAME      7
+#define KRB5_NT_ENTERPRISE    10
 
 /* error table constants */
 /* I prefixed the krb5_err.et constant names with KRB5_ET_ for these */
@@ -656,6 +659,9 @@ static const value_string krb5_princ_types[] = {
     { KRB5_NT_SRV_HST              , "Service and Host" },
     { KRB5_NT_SRV_XHST             , "Service and Host Components" },
     { KRB5_NT_UID                  , "Unique ID" },
+    { KRB5_NT_X500_PRINCIPAL       , "Encoded X.509 Distinguished Name" },
+    { KRB5_NT_SMTP_NAME            , "SMTP Name" },
+    { KRB5_NT_ENTERPRISE           , "Enterprise Name" },
     { 0                            , NULL },
 };
 
