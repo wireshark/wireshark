@@ -2269,6 +2269,9 @@ Kevin Johnson		<kjohnson [AT] secureideas.net> {
 	Correctly handle time stamps in some Windows Sniffer files
 }
 
+Mike Duigou		<bondolo [AT] jxta.org> {
+	Dissector for JXTA protocol
+}
 
 And assorted fixes and enhancements by the people listed above
 and by:
@@ -2355,7 +2358,6 @@ Marc Poulhiès		<marc.poulhies [AT] epfl.ch>
 Tomasz Mrugalski	<thomson [AT] klub.com.pl>
 Brett Kuskie		<mstrprgmmr [AT] chek.com>
 Brian Caswell		<bmc [AT] sourcefire.com>
-Mike Duigou		<mike [AT] duigou.org>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

@@ -316,6 +316,7 @@ DISSECTOR_SRC =	\
 	packet-isup.c	\
 	packet-iua.c	\
 	packet-jabber.c	\
+	packet-jxta.c	\
 	packet-kadm5.c	\
 	packet-kerberos.c	\
 	packet-kerberos4.c	\
