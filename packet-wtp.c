@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.56 2003/12/21 12:21:37 jmayer Exp $
+ * $Id: packet-wtp.c,v 1.57 2003/12/22 11:55:10 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -195,6 +195,7 @@ static int hf_wtp_fragment_overlap_conflict	= HF_EMPTY;
 static int hf_wtp_fragment_multiple_tails	= HF_EMPTY;
 static int hf_wtp_fragment_too_long_fragment	= HF_EMPTY;
 static int hf_wtp_fragment_error		= HF_EMPTY;
+static int hf_wtp_reassembled_in		= HF_EMPTY;
 
 /* Initialize the subtree pointers */
 static gint ett_wtp 				= ETT_EMPTY;
@@ -214,7 +215,7 @@ static const fragment_items wtp_frag_items = {
     &hf_wtp_fragment_multiple_tails,
     &hf_wtp_fragment_too_long_fragment,
     &hf_wtp_fragment_error,
-    NULL,
+    &hf_wtp_reassembled_in,
     "fragments"
 };
 
@@ -323,7 +324,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int 		abortType  	= 0;
 
     /* Set up structures we'll need to add the protocol subtree and manage it */
-    proto_item		*ti;
+    proto_item		*ti = NULL;
     proto_tree		*wtp_tree = NULL;
 
     char		pdut;
@@ -427,44 +428,14 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (fRID) {
 	g_string_append( szInfo, " R" );
     };
-    if (fCon) {				/* Scan variable part (TPI's),	*/
-					/* determine length of it	*/
-	unsigned char	tCon;
-	unsigned char	tByte;
-
-	do {
-	    tByte = tvb_get_guint8(tvb, offCur + cbHeader + vHeader);
-	    tCon = tByte & 0x80;
-	    if (tByte & 0x04)	/* Long format	*/
-		vHeader = vHeader + tvb_get_guint8(tvb,
-					offCur + cbHeader + vHeader + 1) + 2;
-	    else
-		vHeader = vHeader + (tByte & 0x03) + 1;
-	} while (tCon);
-    }
-
-#ifdef DEBUG
-    fprintf( stderr, "dissect_wtp: cbHeader = %d\n", cbHeader );
-#endif
-
-    /* Only update "Info" column when no data in this PDU will
-     * be handed off to a subsequent dissector.
-     */
-    if (check_col(pinfo->cinfo, COL_INFO) &&
-	((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) <= 0) ||
-	 (pdut == ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)) ) {
-#ifdef DEBUG
-	fprintf(stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo->str);
-#endif
-	col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
-    };
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */
     if (tree) {
 #ifdef DEBUG
 	fprintf(stderr, "dissect_wtp: cbHeader = %d\n", cbHeader);
 #endif
-	ti = proto_tree_add_item(tree, proto_wtp, tvb, offCur, cbHeader + vHeader, bo_little_endian);
+	/* NOTE - Length will be set when we process the TPI */
+	ti = proto_tree_add_item(tree, proto_wtp, tvb, offCur, 0, bo_little_endian);
 #ifdef DEBUG
 	fprintf(stderr, "dissect_wtp: (7) Returned from proto_tree_add_item\n");
 #endif
@@ -565,6 +536,12 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    default:
 		break;
 	};
+    } else { /* Tree = closed */
+#ifdef DEBUG
+	fprintf(stderr, "dissect_wtp: (4) tree was %p\n", tree);
+#endif
+    }
+	/* Process the varialbe part */
 	if (fCon) {			/* Now, analyze variable part	*/
 	    unsigned char	 tCon;
 	    unsigned char	 tByte;
@@ -581,20 +558,40 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    offCur + cbHeader + vHeader + 1);
 		else
 		    tpiLen = 1 + (tByte & 0x03);
+		if (tree)
+		{
 		tmp_tvb = tvb_new_subset(tvb, offCur + cbHeader + vHeader,
 					tpiLen, tpiLen);
 		wtp_handle_tpi(wtp_tree, tmp_tvb);
+		}
 		vHeader += tpiLen;
 	    } while (tCon);
 	} else {
 		/* There is no variable part */
 	}	/* End of variable part of header */
-    } else {
+
+	/* Set the length of the WTP protocol part now we know the length of the
+	 * fixed and variable WTP headers */
+	if (tree)
+	proto_item_set_len(ti, cbHeader + vHeader);
+
 #ifdef DEBUG
-	fprintf(stderr, "dissect_wtp: (4) tree was %p\n", tree);
+    fprintf( stderr, "dissect_wtp: cbHeader = %d\n", cbHeader );
 #endif
-    }
-    /*
+
+    /* Only update "Info" column when no data in this PDU will
+     * be handed off to a subsequent dissector.
+     */
+    if (check_col(pinfo->cinfo, COL_INFO) &&
+	((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) <= 0) ||
+	 (pdut == ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)) ) {
+#ifdef DEBUG
+	fprintf(stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo->str);
+#endif
+	col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
+    };
+
+	/*
      * Any remaining data ought to be WSP data (if not WTP ACK, NACK
      * or ABORT pdu), so hand off (defragmented) to the WSP dissector.
      * Note that the last packet of a fragmented WTP message needn't
@@ -632,12 +629,25 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		show_fragment_seq_tree(fd_head, &wtp_frag_items,
 					wtp_tree, pinfo, wsp_tvb);
 
-		call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
+		if (pinfo->fd->num == fd_head->reassembled_in) {
+			/* Reassembled in this packet */
+			call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
+		} else {
+			/* Reassembled in another packet */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				/* Won't call WSP so display */
+		    	col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
+			if (tree != NULL)
+			    proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+			proto_tree_add_uint(wtp_tree, hf_wtp_reassembled_in,
+					tvb, 0, 0, fd_head->reassembled_in);
+		}
 	    }
 	    else
 	    {
 		/* Reassembly isn't complete; just show the fragment */
-		if (check_col(pinfo->cinfo, COL_INFO))		/* Won't call WSP so display */
+		if (check_col(pinfo->cinfo, COL_INFO))
+			/* Won't call WSP so display */
 		    col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
 		if (tree != NULL)
 		    proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
@@ -927,6 +937,13 @@ proto_register_wtp(void)
 		"wtp.fragment.error",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"Defragmentation error due to illegal fragments", HFILL
+	    }
+	},
+	{ &hf_wtp_reassembled_in,
+	    {	"Reassembled in",
+		"wtp.reassembled.in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		"WTP fragments are reassembled in the given packet", HFILL
 	    }
 	},
 	{ &hf_wtp_fragment,
