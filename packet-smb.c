@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.169 2001/11/26 10:05:27 guy Exp $
+ * $Id: packet-smb.c,v 1.170 2001/11/26 10:24:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -686,6 +686,17 @@ smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 	tvbuff_t *next_tvb;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (si->sip == NULL) {
+		/*
+		 * We don't have the frame number of the request.
+		 *
+		 * XXX - is there truly nothing we can do here?
+		 * Can we not separately keep track of the original
+		 * transaction and its continuations, as we did
+		 * at one time?
+		 */
+		return NULL;
+	}
 
 	if(!pinfo->fd->flags.visited){
 		/* we start a new reassembly if this is the first fragment */
