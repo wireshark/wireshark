@@ -1,6 +1,6 @@
 /* packet-tzsp.c
  *
- * $Id: packet-tzsp.c,v 1.4 2003/11/12 21:22:37 guy Exp $
+ * $Id: packet-tzsp.c,v 1.5 2003/12/15 00:08:57 guy Exp $
  *
  * Copyright 2002, Tazmen Technologies Inc
  *
@@ -168,7 +168,7 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 		case WLAN_RADIO_HDR_RATE:
 			length = tvb_get_guint8(tvb, pos++);
 			if (tree)
-				proto_tree_add_int (tree, hf_rate, tvb, pos-2, 3,
+				proto_tree_add_uint (tree, hf_rate, tvb, pos-2, 3,
 							tvb_get_guint8(tvb, pos));
 			pos += length;
 			break;
