@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.76 2004/01/11 22:17:42 guy Exp $
+ * $Id: util.c,v 1.77 2004/02/07 04:25:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,7 +205,7 @@ create_tempfile(char *namebuf, int namebuflen, const char *pfx)
 	if (fd != -1)
 		return fd;
 
-	return try_tempfile(namebuf, namebuflen, "/tmp", pfx);
+	return try_tempfile(namebuf, namebuflen, G_DIR_SEPARATOR_S "tmp", pfx);
 }
 
 /* ASCII/EBCDIC conversion tables from
