@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.75 2004/01/18 16:15:25 jmayer Exp $
+ * $Id: packet-icmpv6.c,v 1.76 2004/01/29 03:59:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,7 @@ static int hf_icmpv6_type = -1;
 static int hf_icmpv6_code = -1;
 static int hf_icmpv6_checksum = -1;
 static int hf_icmpv6_checksum_bad = -1;
+static int hf_icmpv6_haad_ha_addrs = -1;
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
@@ -1486,7 +1487,18 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + 6, 2, "Reserved: %d",
 		tvb_get_ntohs(tvb, offset + 6));
-	    /* TODO Show all Home Agent Addresses */
+	    /* Show all Home Agent Addresses */
+	    {
+		int i, suboffset;
+		int ha_num = (length - 8)/16;
+
+		for (i = 0; i < ha_num; i++) {
+		    suboffset = 16 * i;
+		    proto_tree_add_ipv6(icmp6_tree, hf_icmpv6_haad_ha_addrs,
+			tvb, offset + 8 + suboffset, 16,
+			tvb_get_ptr(tvb, offset + 8 + suboffset, 16));
+		}
+	    }
 	    break;
 	case ICMP6_MIP6_MPS:
 	    proto_tree_add_text(icmp6_tree, tvb,
@@ -1503,18 +1515,22 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvb_get_ntohs(tvb, offset + 4),
 		tvb_get_ntohs(tvb, offset + 4));
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + 6, 2,
+		offset + 6, 1,
 		decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 6),
-		    0x8000, 16,
+		    0x80, 8,
 		    "Managed Address Configuration",
 		    "No Managed Address Configuration"));
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + 6, 2,
+		offset + 6, 1,
 		decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 6),
-		    0x4000, 16,
+		    0x40, 8,
 		    "Other Stateful Configuration",
 		    "No Other Stateful Configuration"));
-	    /* TODO Show all options */
+	    proto_tree_add_text(icmp6_tree, tvb,
+		offset + 7, 1, "Reserved: %d",
+		tvb_get_guint8(tvb, offset + 7));
+	    /* Show all options */
+	    dissect_icmpv6opt(tvb, offset + 8, pinfo, icmp6_tree);
 	    break;
 	default:
 	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
@@ -1540,6 +1556,10 @@ proto_register_icmpv6(void)
     { &hf_icmpv6_checksum_bad,
       { "Bad Checksum",   "icmpv6.checksum_bad", FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
 	"", HFILL }},
+    { &hf_icmpv6_haad_ha_addrs,
+      { "Home Agent Addresses", "icmpv6.haad.ha_addrs",
+       FT_IPv6, BASE_HEX, NULL, 0x0,
+       "", HFILL }},
   };
   static gint *ett[] = {
     &ett_icmpv6,
