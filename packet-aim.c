@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.1 2000/11/06 00:07:04 guy Exp $
+ * $Id: packet-aim.c,v 1.2 2000/11/12 09:29:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -123,7 +123,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   CHECK_DISPLAY_AS_DATA(proto_aim, tvb, pinfo, tree);
 
 /* load the display labels  */
-  pinfo->current_proto = "aim";            
+  pinfo->current_proto = "AIM";            
 
 /* check, if this is really an AIM packet, they start with 0x2a */
 
