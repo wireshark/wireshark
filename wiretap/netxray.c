@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.5 1999/03/22 15:02:25 gram Exp $
+ * $Id: netxray.c,v 1.6 1999/03/25 06:34:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -118,12 +118,12 @@ int netxray_open(wtap *wth)
 	}
 
 	/* It appears that version 1.1 files (as produced by Windows
-	 * Sniffer Pro) have the time stamp in microseconds, rather
-	 * than the milliseconds version 1.0 files appear to have.
+	 * Sniffer Pro 2.0.01) have the time stamp in microseconds,
+	 * rather than the milliseconds version 1.0 files appear to have.
 	 *
 	 * It also appears that version 2.001 files (as produced by
-	 * Sniffer Basic 2.0?) have per-packet headers with some extra
-	 * fields. */
+	 * Windows(?) Sniffer Pro 2.50.05) have per-packet headers with
+	 * some extra fields. */
 	if (memcmp(hdr.version, vers_1_0, sizeof vers_1_0) == 0) {
 		timeunit = 1000.0;
 		version_major = 1;
