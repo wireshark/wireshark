@@ -116,6 +116,7 @@ DISSECTOR_OBJECTS = \
 	packet-vines.obj \
 	packet-vlan.obj \
 	packet-vrrp.obj \
+	packet-vtp.obj  \
 	packet-wccp.obj\
 	packet-who.obj\
 	packet-x25.obj   \
