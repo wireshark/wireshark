@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.24 2004/03/13 15:15:22 ulfl Exp $
+ * $Id: bootp_stat.c,v 1.25 2004/03/27 11:13:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,8 @@
 #include "../register.h"
 #include "../globals.h"
 #include "compat_macros.h"
+#include "../tap_dfilter_dlg.h"
+#include "tap_dfilter_dlg.h"
 
 typedef const char* bootp_info_value_t;
 
@@ -59,9 +61,6 @@ typedef struct _dhcp_message_type_t {
 	GtkWidget	*widget;/* label in which we print the number of packets */
 	dhcpstat_t	*sp;	/* entire program interface */
 } dhcp_message_type_t;
-
-static GtkWidget *dlg=NULL;
-static GtkWidget *filter_entry;
 
 static void
 dhcp_free_hash( gpointer key _U_ , gpointer value, gpointer user_data _U_ )
@@ -201,7 +200,7 @@ gtk_dhcpstat_init(char *optarg)
 	GString		*error_string;
 	GtkWidget	*message_type_fr;
 	
-	if (!strncmp (optarg, "bootp,stat,", 11)){
+	if (strncmp (optarg, "bootp,stat,", 11) == 0){
 		filter=optarg+11;
 	} else {
 		filter=NULL;
@@ -249,115 +248,22 @@ gtk_dhcpstat_init(char *optarg)
 		g_string_free(error_string, TRUE);
 		return ;
 	}
-	if (dlg){
-		gtk_widget_destroy( dlg );
-	}
 	gtk_widget_show_all( sp->win );
 	retap_packets(&cfile);
 }
 
-
-
-static void
-dhcp_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
-{
-	GString *str;
-	char *filter;
-
-	str = g_string_new("dhcp,stat,");
-	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
-	str = g_string_append(str, filter);
-	gtk_dhcpstat_init(str->str);
-	g_string_free(str, TRUE);
-}
-
-static void
-dlg_destroy_cb(void)
-{
-	dlg=NULL;
-}
-
-static void
-dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
-{
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
-}
-
-static void
-gtk_dhcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	GtkWidget *dlg_box;
-	GtkWidget *filter_box, *filter_label;
-	GtkWidget *bbox, *start_button, *cancel_button;
-
-	/* if the window is already open, bring it to front */
-	if(dlg){
-		gdk_window_raise(dlg->window);
-		return;
-	}
-
-	dlg=dlg_window_new("Ethereal: Compute DHCP statistics");
-	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
-
-	dlg_box=gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
-	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
-	gtk_widget_show(dlg_box);
-
-	/* Filter box */
-	filter_box=gtk_hbox_new(FALSE, 3);
-
-	/* Filter label */
-	filter_label=gtk_label_new("Filter:");
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_label, FALSE, FALSE, 0);
-	gtk_widget_show(filter_label);
-
-	/* Filter entry */
-	filter_entry=gtk_entry_new();
-	WIDGET_SET_SIZE(filter_entry, 300, -1);
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
-	gtk_widget_show(filter_entry);
-	
-	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
-	gtk_widget_show(filter_box);
-
-	/* button box */
-    bbox = dlg_button_row_new(ETHEREAL_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
-	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
-
-    start_button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CREATE_STAT);
-    gtk_widget_grab_default(start_button );
-    SIGNAL_CONNECT_OBJECT(start_button, "clicked",
-                              dhcp_start_button_clicked, NULL);
-
-    cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);    
-
-	/* Catch the "activate" signal on the filter text entry, so that
-	   if the user types Return there, we act as if the "Create Stat"
-	   button had been selected, as happens if Return is typed if
-	   some widget that *doesn't* handle the Return key has the input
-	   focus. */
-	dlg_set_activate(filter_entry, start_button);
-
-	/* Catch the "key_press_event" signal in the window, so that we can
-	   catch the ESC key being pressed and act as if the "Cancel" button
-	   had been selected. */
-	dlg_set_cancel(dlg, cancel_button);
-
-	/* Give the initial focus to the "Filter" entry box. */
-	gtk_widget_grab_focus(filter_entry);
-
-	gtk_widget_show_all(dlg);
-}
-
+static tap_dfilter_dlg dhcp_stat_dlg = {
+	"BOOTP-DHCP Packet Counter",
+	"bootp,stat",
+	gtk_dhcpstat_init,
+	-1
+};
 
 void
 register_tap_listener_gtkdhcpstat(void)
 {
-	register_ethereal_tap("bootp,stat,", gtk_dhcpstat_init);
+	register_ethereal_tap("bootp,stat", gtk_dhcpstat_init);
 
 	register_tap_menu_item("BOOTP-DHCP", REGISTER_TAP_GROUP_NONE,
-	    gtk_dhcpstat_cb, NULL, NULL, NULL);
+	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(dhcp_stat_dlg));
 }

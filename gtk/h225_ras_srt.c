@@ -2,7 +2,7 @@
  * h225 RAS Service Response Time statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_ras_srt.c,v 1.14 2004/03/13 14:07:13 ulfl Exp $
+ * $Id: h225_ras_srt.c,v 1.15 2004/03/27 11:13:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,9 +57,14 @@
 
 extern GtkWidget *main_display_filter_widget;
 
-void gtk_h225rassrt_init(char *optarg);
+static void gtk_h225rassrt_init(char *optarg);
 
-tap_dfilter_dlg h225_rassrt_dlg = {"H.225 RAS Service Response Time", "h225,srt", gtk_h225rassrt_init, -1};
+static tap_dfilter_dlg h225_rassrt_dlg = {
+	"H.225 RAS Service Response Time",
+	"h225,srt",
+	gtk_h225rassrt_init,
+	-1
+};
 
 /* following values represent the size of their valuestring arrays */
 #define NUM_RAS_STATS 7
@@ -277,7 +282,7 @@ static gchar *titles[]={"RAS-Type",
 			"Repeated Requests",
 			"Repeated Responses" };
 
-void
+static void
 gtk_h225rassrt_init(char *optarg)
 {
 	h225rassrt_t *hs;

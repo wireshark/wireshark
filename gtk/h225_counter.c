@@ -2,7 +2,7 @@
  * h225 message counter for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_counter.c,v 1.16 2004/03/13 14:07:13 ulfl Exp $
+ * $Id: h225_counter.c,v 1.17 2004/03/27 11:13:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,9 +56,14 @@
 
 extern GtkWidget *main_display_filter_widget;
 
-void gtk_h225counter_init(char *optarg);
+static void gtk_h225counter_init(char *optarg);
 
-tap_dfilter_dlg h225_counter_dlg = {"H.225 Messages and Message Reasons", "h225,counter", gtk_h225counter_init, -1};
+static tap_dfilter_dlg h225_counter_dlg = {
+	"H.225 Messages and Message Reasons",
+	"h225,counter",
+	gtk_h225counter_init,
+	-1
+};
 
 /* following values represent the size of their valuestring arrays */
 
@@ -497,7 +502,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static gchar *titles[]={"Message Type or Reason",
 			"Count" };
 
-void
+static void
 gtk_h225counter_init(char *optarg)
 {
 	h225counter_t *hs;
