@@ -145,6 +145,7 @@ Nathan Neulinger <nneul@umr.edu> {
 	NTP (Network Time Protocol) support
 	RX protocol support
 	Andrew File System protocol support
+	802.1q VLAN support
 }
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to

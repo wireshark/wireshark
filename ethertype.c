@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.16 1999/07/07 22:51:38 gram Exp $
+ * $Id: ethertype.c,v 1.17 1999/10/20 22:41:11 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -52,6 +52,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_LOOP,   "Loopback"       }, /* Ethernet Loopback */
     {ETHERTYPE_PPPOED, "PPPoE Discovery"}, 
     {ETHERTYPE_PPPOES, "PPPoE Session"  }, 
+    {ETHERTYPE_VLAN,   "802.1Q Virtual LAN" },
     {0,                 NULL            } };
 
 void
@@ -113,6 +114,9 @@ ethertype(guint16 etype, int offset,
       break;
     case ETHERTYPE_PPPOES:
       dissect_pppoes(pd, offset, fd, tree);
+      break;
+    case ETHERTYPE_VLAN:
+      dissect_vlan(pd, offset, fd, tree);
       break;
     default:
       dissect_data(pd, offset, fd, tree);

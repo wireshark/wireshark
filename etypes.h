@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.8 1999/08/22 01:35:34 guy Exp $
+ * $Id: etypes.h,v 1.9 1999/10/20 22:41:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,6 +96,10 @@
 
 #ifndef ETHERTYPE_PPPOES
 #define ETHERTYPE_PPPOES 0x8864 /* PPPoE Session Protocol */
+#endif
+
+#ifndef ETHERTYPE_VLAN
+#define ETHERTYPE_VLAN 0x8100 /* 802.1Q Virtual LAN */
 #endif
 
 

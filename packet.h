@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.115 1999/10/20 16:41:20 gram Exp $
+ * $Id: packet.h,v 1.116 1999/10/20 22:41:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -239,6 +239,7 @@ enum {
 	ETT_VINES_IPC,
 	ETT_VINES_RTP,
 	ETT_VINES_SPP,
+	ETT_VLAN,
 	ETT_IPXRIP,
 	ETT_IPXSAP,
 	ETT_IPXSAP_SERVER,
@@ -543,6 +544,7 @@ void dissect_vines_icp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_ipc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_rtp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vlan(const u_char *, int, frame_data *, proto_tree *);
 void dissect_payload_ppp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_x25(const u_char *, int, frame_data *, proto_tree *);
 void dissect_yhoo(const u_char *, int, frame_data *, proto_tree *);
