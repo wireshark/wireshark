@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.79 2001/04/15 03:37:13 guy Exp $
+ * $Id: tethereal.c,v 1.80 2001/04/18 05:45:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <locale.h>
+#include <limits.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -166,6 +167,31 @@ print_usage(void)
         wtap_file_type_short_string(i), wtap_file_type_string(i));
   }
   fprintf(stderr, "\tdefault is libpcap\n");
+}
+
+int
+get_positive_int(const char *string, const char *name)
+{
+  long number;
+  char *p;
+
+  number = strtol(string, &p, 10);
+  if (p == string || *p != '\0') {
+    fprintf(stderr, "tethereal: The specified %s \"%s\" is not a decimal number\n",
+	    name, string);
+    exit(1);
+  }
+  if (number < 0) {
+    fprintf(stderr, "tethereal: The specified %s \"%s\" is a negative number\n",
+	    name, string);
+    exit(1);
+  }
+  if (number > INT_MAX) {
+    fprintf(stderr, "tethereal: The specified %s \"%s\" is too large (greater than %d)\n",
+	    name, string, INT_MAX);
+    exit(1);
+  }
+  return number;
 }
 
 int
@@ -314,7 +340,7 @@ main(int argc, char *argv[])
     switch (opt) {
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
-        packet_count = atoi(optarg);
+        packet_count = get_positive_int(optarg, "packet count");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -424,7 +450,7 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
 #ifdef HAVE_LIBPCAP
-        cfile.snap = atoi(optarg);
+        cfile.snap = get_positive_int(optarg, "snapshot length");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;

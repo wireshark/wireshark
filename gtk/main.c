@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.193 2001/04/15 03:37:16 guy Exp $
+ * $Id: main.c,v 1.194 2001/04/18 05:45:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -736,6 +736,31 @@ show_version(void)
   printf("%s %s, %s\n", PACKAGE, VERSION, comp_info_str->str);
 }
 
+int
+get_positive_int(const char *string, const char *name)
+{
+  long number;
+  char *p;
+
+  number = strtol(string, &p, 10);
+  if (p == string || *p != '\0') {
+    fprintf(stderr, "ethereal: The specified %s \"%s\" is not a decimal number\n",
+	    name, string);
+    exit(1);
+  }
+  if (number < 0) {
+    fprintf(stderr, "ethereal: The specified %s \"%s\" is a negative number\n",
+	    name, string);
+    exit(1);
+  }
+  if (number > INT_MAX) {
+    fprintf(stderr, "ethereal: The specified %s \"%s\" is too large (greater than %d)\n",
+	    name, string, INT_MAX);
+    exit(1);
+  }
+  return number;
+}
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -942,11 +967,11 @@ main(int argc, char *argv[])
   while ((opt = getopt(argc, argv, "B:c:f:hi:km:no:pP:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
     switch (opt) {
       case 'B':        /* Byte view pane height */
-        bv_size = atoi(optarg);
+        bv_size = get_positive_int(optarg, "byte view pane height");
         break;
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
-        cfile.count = atoi(optarg);
+        cfile.count = get_positive_int(optarg, "packet count");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1014,7 +1039,7 @@ main(int argc, char *argv[])
 #endif
 	break;
       case 'P':        /* Packet list pane height */
-        pl_size = atoi(optarg);
+        pl_size = get_positive_int(optarg, "packet list pane height");
         break;
       case 'Q':        /* Quit after capture (just capture to file) */
 #ifdef HAVE_LIBPCAP
@@ -1036,7 +1061,7 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
 #ifdef HAVE_LIBPCAP
-        cfile.snap = atoi(optarg);
+        cfile.snap = get_positive_int(optarg, "snapshot length");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1068,7 +1093,7 @@ main(int argc, char *argv[])
         }
         break;
       case 'T':        /* Tree view pane height */
-        tv_size = atoi(optarg);
+        tv_size = get_positive_int(optarg, "tree view pane height");
         break;
       case 'v':        /* Show version and exit */
         show_version();
