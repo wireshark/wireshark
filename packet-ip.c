@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.36 1999/08/14 23:47:18 guy Exp $
+ * $Id: packet-ip.c,v 1.37 1999/08/17 03:09:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,6 +58,11 @@ static int hf_ip_id = -1;
 static int hf_ip_dst = -1;
 static int hf_ip_src = -1;
 static int hf_ip_addr = -1;
+static int hf_ip_flags = -1;
+static int hf_ip_frag_offset = -1;
+static int hf_ip_ttl = -1;
+static int hf_ip_proto = -1;
+static int hf_ip_checksum = -1;
 
 static int proto_igmp = -1;
 static int hf_igmp_version = -1;
@@ -623,6 +628,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *ti, *tf;
   gchar      tos_str[32];
   guint      hlen, optlen;
+  guint16    flags;
   int advance;
   guint8 nxt;
 
@@ -721,8 +727,9 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item_format(ip_tree, hf_ip_id, offset +  4, 2, iph.ip_id, "Identification: 0x%04x",
       iph.ip_id);
 
-    tf = proto_tree_add_text(ip_tree, offset +  6, 2, "Flags: 0x%x",
-      (iph.ip_off & (IP_DF|IP_MF)) >> 12);
+    flags = (iph.ip_off & (IP_DF|IP_MF)) >> 12;
+    tf = proto_tree_add_item_format(ip_tree, hf_ip_flags, offset +  6, 2, flags,
+		   "Flags: 0x%x", flags);
     field_tree = proto_item_add_subtree(tf, ETT_IP_OFF);
     proto_tree_add_text(field_tree, offset + 6, 2, "%s",
       decode_boolean_bitfield(iph.ip_off >> 8, IP_DF >> 8, 8, "don't fragment",
@@ -730,14 +737,13 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_text(field_tree, offset + 6, 2, "%s",
       decode_boolean_bitfield(iph.ip_off >> 8, IP_MF >> 8, 8, "more fragments",
                                            "last fragment"));
-    proto_tree_add_text(ip_tree, offset +  6, 2, "Fragment offset: %d",
+
+    proto_tree_add_item(ip_tree, hf_ip_frag_offset, offset +  6, 2,
       iph.ip_off & IP_OFFSET);
-    proto_tree_add_text(ip_tree, offset +  8, 1, "Time to live: %d",
-      iph.ip_ttl);
-    proto_tree_add_text(ip_tree, offset +  9, 1, "Protocol: %s",
-      val_to_str(iph.ip_p, proto_vals, "Unknown (0x%x)"));
-    proto_tree_add_text(ip_tree, offset + 10, 2, "Header checksum: 0x%04x",
-      iph.ip_sum);
+    proto_tree_add_item(ip_tree, hf_ip_ttl, offset +  8, 1, iph.ip_ttl);
+    proto_tree_add_item(ip_tree, hf_ip_proto, offset +  9, 1, iph.ip_p);
+    proto_tree_add_item_format(ip_tree, hf_ip_checksum, offset + 10, 2, iph.ip_sum,
+	    "Header checksum: 0x%04x", iph.ip_sum);
 
     proto_tree_add_item(ip_tree, hf_ip_src, offset + 12, 4, iph.ip_src);
     proto_tree_add_item(ip_tree, hf_ip_dst, offset + 16, 4, iph.ip_dst);
@@ -1167,7 +1173,22 @@ proto_register_ip(void)
 		{ "Source",		"ip.src", FT_IPv4, NULL }},
 
 		{ &hf_ip_addr,
-		{ "Source or Destination Address", "ip.addr", FT_IPv4, NULL }}
+		{ "Source or Destination Address", "ip.addr", FT_IPv4, NULL }},
+
+		{ &hf_ip_flags,
+		{ "Flags",		"ip.flags", FT_UINT16, NULL }},
+
+		{ &hf_ip_frag_offset,
+		{ "Fragment offset",	"ip.frag_offset", FT_UINT16, NULL }},
+
+		{ &hf_ip_ttl,
+		{ "Time to live",	"ip.ttl", FT_UINT8, NULL }},
+
+		{ &hf_ip_proto,
+		{ "Protocol",		"ip.proto", FT_VALS_UINT8, VALS(proto_vals) }},
+
+		{ &hf_ip_checksum,
+		{ "Header checksum",	"ip.checksum", FT_UINT16, NULL }}
 	};
 
 	proto_ip = proto_register_protocol ("Internet Protocol", "ip");
