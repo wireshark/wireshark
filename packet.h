@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.72 1999/07/22 16:03:52 gram Exp $
+ * $Id: packet.h,v 1.73 1999/07/22 21:14:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,10 +84,8 @@
 
 typedef struct _column_info {
   gint       num_cols; /* Number of columns */
-  gchar    **col_title;/* Column title */
   gboolean **fmt_matx; /* Specifies which formats apply to a column */
   gchar    **col_data; /* Column data */
-  gint     *col_width; /* Column width */
 } column_info;
 
 #define COL_MAX_LEN 256

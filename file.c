@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.39 1999/07/20 05:13:24 guy Exp $
+ * $Id: file.c,v 1.40 1999/07/22 21:14:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,7 +78,6 @@
 #define TAIL_TIMEOUT	2000  /* msec */
 
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
-extern GtkStyle  *pl_style;
 extern guint      file_ctx;
 extern int	  sync_mode;
 extern int        sync_pipe[];
@@ -90,9 +89,6 @@ static guint32 lastsec, lastusec;
 
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
     const u_char *);
-
-static void init_col_widths(capture_file *);
-static void set_col_widths(capture_file *);
 
 #ifdef HAVE_LIBPCAP
 static gint tail_timeout_cb(gpointer);
@@ -210,13 +206,10 @@ load_cap_file(char *fname, capture_file *cf) {
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
     gtk_clist_freeze(GTK_CLIST(packet_list));
-    init_col_widths(cf);
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
     wtap_close(cf->wth);
     cf->wth = NULL;
     cf->fh = fopen(fname, "r");
-
-    set_col_widths(cf);
     gtk_clist_thaw(GTK_CLIST(packet_list));
   }
   
@@ -292,7 +285,6 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
 
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 
-    set_col_widths(cf);
     gtk_clist_thaw(GTK_CLIST(packet_list));
 
     wtap_close(cf->wth);
@@ -311,7 +303,6 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   gtk_clist_freeze(GTK_CLIST(packet_list));
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 
-  set_col_widths(cf);
   gtk_clist_thaw(GTK_CLIST(packet_list));
 
   /* restore pipe handler */
@@ -338,7 +329,6 @@ tail_timeout_cb(gpointer data) {
   gtk_clist_freeze(GTK_CLIST(packet_list));
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 
-  set_col_widths(cf);
   gtk_clist_thaw(GTK_CLIST(packet_list));
 
   /* restore pipe handler */
@@ -363,7 +353,6 @@ tail_cap_file(char *fname, capture_file *cf) {
 
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
-    init_col_widths(cf);
 
     set_menu_sensitivity("/File/Open...", FALSE);
     set_menu_sensitivity("/File/Close", FALSE);
@@ -436,45 +425,9 @@ compute_time_stamps(frame_data *fdata, capture_file *cf)
 }
 
 static void
-change_time_format_in_packet_list(frame_data *fdata, capture_file *cf)
-{
-  gint          i, col_width;
-
-  /* XXX - there really should be a way of checking "cf->cinfo" for this;
-     the answer isn't going to change from packet to packet, so we should
-     simply skip all the "change_time_formats()" work if we're not
-     changing anything. */
-  fdata->cinfo = &cf->cinfo;
-  if (!check_col(fdata, COL_CLS_TIME)) {
-    /* There are no columns that show the time in the "command-line-specified"
-       format, so there's nothing we need to do. */
-    return;
-  }
-
-  compute_time_stamps(fdata, cf);
-
-  for (i = 0; i < fdata->cinfo->num_cols; i++) {
-    fdata->cinfo->col_data[i][0] = '\0';
-  }
-  col_add_cls_time(fdata);
-  for (i = 0; i < fdata->cinfo->num_cols; i++) {
-    if (fdata->cinfo->fmt_matx[i][COL_CLS_TIME]) {
-      /* This is one of the columns that shows the time in
-         "command-line-specified" format; update it. */
-      col_width = gdk_string_width(pl_style->font, fdata->cinfo->col_data[i]);
-      if (col_width > fdata->cinfo->col_width[i])
-        fdata->cinfo->col_width[i] = col_width;
-      gtk_clist_set_text(GTK_CLIST(packet_list), cf->count - 1, i,
-			  fdata->cinfo->col_data[i]);
-    }
-  }
-  fdata->cinfo = NULL;
-}
-
-static void
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
 {
-  gint          i, col_width, row;
+  gint          i, row;
   proto_tree   *protocol_tree;
 
   compute_time_stamps(fdata, cf);
@@ -494,11 +447,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   else {
 	dissect_packet(buf, fdata, NULL);
 	fdata->passed_dfilter = TRUE;
-  }
-  for (i = 0; i < fdata->cinfo->num_cols; i++) {
-    col_width = gdk_string_width(pl_style->font, fdata->cinfo->col_data[i]);
-    if (col_width > fdata->cinfo->col_width[i])
-      fdata->cinfo->col_width[i] = col_width;
   }
   if (fdata->passed_dfilter) {
 	row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
@@ -591,11 +539,37 @@ change_time_formats_cb(gpointer data, gpointer user_data)
 {
   frame_data *fd = data;
   capture_file *cf = user_data;
+  gint          i;
 
   cf->cur = fd;
   cf->count++;
 
-  change_time_format_in_packet_list(fd, cf);
+  /* XXX - there really should be a way of checking "cf->cinfo" for this;
+     the answer isn't going to change from packet to packet, so we should
+     simply skip all the "change_time_formats()" work if we're not
+     changing anything. */
+  fd->cinfo = &cf->cinfo;
+  if (!check_col(fd, COL_CLS_TIME)) {
+    /* There are no columns that show the time in the "command-line-specified"
+       format, so there's nothing we need to do. */
+    return;
+  }
+
+  compute_time_stamps(fd, cf);
+
+  for (i = 0; i < fd->cinfo->num_cols; i++) {
+    fd->cinfo->col_data[i][0] = '\0';
+  }
+  col_add_cls_time(fd);
+  for (i = 0; i < fd->cinfo->num_cols; i++) {
+    if (fd->cinfo->fmt_matx[i][COL_CLS_TIME]) {
+      /* This is one of the columns that shows the time in
+         "command-line-specified" format; update it. */
+      gtk_clist_set_text(GTK_CLIST(packet_list), cf->count - 1, i,
+			  fd->cinfo->col_data[i]);
+    }
+  }
+  fd->cinfo = NULL;
 }
 
 /* Scan through the packet list and change all columns that use the
@@ -605,13 +579,11 @@ void
 change_time_formats(capture_file *cf)
 {
   int i;
+  GtkStyle  *pl_style;
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
   gtk_clist_freeze(GTK_CLIST(packet_list));
-
-  /* Zero out the column widths. */
-  init_col_widths(cf);
 
   /*
    * Iterate through the list of packets, calling a routine
@@ -627,46 +599,16 @@ change_time_formats(capture_file *cf)
 
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
+  pl_style = gtk_widget_get_style(packet_list);
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
       gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-        cf->cinfo.col_width[i]);
+        get_column_width(COL_CLS_TIME, pl_style->font));
     }
   }
 
   /* Unfreeze the packet list. */
   gtk_clist_thaw(GTK_CLIST(packet_list));
-}
-
-/* Initialize the maximum widths of the columns to the widths of their
-   titles. */
-static void
-init_col_widths(capture_file *cf)
-{
-  int i;
-
-  /* XXX - this should use the column *title* font, not the font for
-     the items in the list.
-
-     Unfortunately, it's not clear how to get that font - it'd be
-     the font used for buttons; there doesn't seem to be a way to get
-     that from a clist, or to get one of the buttons in that clist from
-     the clist in order to get its font. */
-  for (i = 0; i < cf->cinfo.num_cols; i++)
-    cf->cinfo.col_width[i] = gdk_string_width(pl_style->font,
-                                               cf->cinfo.col_title[i]);
-}
-
-/* Set the widths of the columns to the maximum widths we found. */
-static void
-set_col_widths(capture_file *cf)
-{
-  int i;
-
-  for (i = 0; i < cf->cinfo.num_cols; i++) {
-    gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-      cf->cinfo.col_width[i]);
-  }
 }
 
 /* Tries to mv a file. If unsuccessful, tries to cp the file.
@@ -830,3 +772,4 @@ file_write_error_message(int err)
   }
   return errmsg;
 }
+

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.57 1999/07/15 15:32:39 gram Exp $
+ * $Id: ethereal.c,v 1.58 1999/07/22 21:14:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,7 +108,6 @@ proto_tree	*protocol_tree = NULL;
 GtkWidget   *file_sel, *packet_list, *tree_view, *byte_view, *prog_bar,
             *info_bar;
 GdkFont     *m_r_font, *m_b_font;
-GtkStyle    *pl_style;
 guint        main_ctx, file_ctx;
 frame_data  *fd;
 gint         start_capture = 0;
@@ -691,12 +690,14 @@ main(int argc, char *argv[])
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
                       *tv_scrollw, *filter_bt, *filter_te;
+  GtkStyle            *pl_style;
   GtkAccelGroup *accel;
   GtkWidget	*packet_sw;
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL;
   e_prefs             *prefs;
   gint                *col_fmt;
+  gchar              **col_title;
 
   ethereal_path = argv[0];
 
@@ -727,10 +728,8 @@ main(int argc, char *argv[])
   cf.snap		= MAX_PACKET_SIZE;
   cf.count		= 0;
   cf.cinfo.num_cols	= prefs->num_cols;
-  cf.cinfo.col_title    = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
   cf.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cf.cinfo.num_cols);
   cf.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
-  cf.cinfo.col_width	= (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
 
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
@@ -861,15 +860,15 @@ main(int argc, char *argv[])
 
   /* Build the column format array */  
   col_fmt   = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
+  col_title = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
   
   for (i = 0; i < cf.cinfo.num_cols; i++) {
     col_fmt[i]   = get_column_format(i);
-    cf.cinfo.col_title[i] = g_strdup(get_column_title(i));
+    col_title[i] = g_strdup(get_column_title(i));
     cf.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
       NUM_COL_FMTS);
     get_column_format_matches(cf.cinfo.fmt_matx[i], col_fmt[i]);
     cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-    cf.cinfo.col_width[i] = 0;
   }
 
   if (cf.snap < 1)
@@ -927,8 +926,7 @@ main(int argc, char *argv[])
   gtk_widget_show(l_pane);
 
   /* Packet list */
-  packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols,
-    cf.cinfo.col_title);
+  packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, col_title);
   gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
   packet_sw = gtk_scrolled_window_new(NULL, NULL);
   gtk_widget_show(packet_sw);
@@ -944,7 +942,7 @@ main(int argc, char *argv[])
     GTK_SIGNAL_FUNC(packet_list_unselect_cb), NULL);
   for (i = 0; i < cf.cinfo.num_cols; i++) {
     gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-      gdk_string_width(pl_style->font, cf.cinfo.col_title[i]));
+      get_column_width(get_column_format(i), pl_style->font));
     if (col_fmt[i] == COL_NUMBER)
       gtk_clist_set_column_justification(GTK_CLIST(packet_list), i, 
         GTK_JUSTIFY_RIGHT);
