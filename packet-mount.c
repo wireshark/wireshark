@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.29 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-mount.c,v 1.30 2002/04/03 13:24:12 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,7 +95,7 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	gint32 status;
 
 	status=tvb_get_ntohl(tvb,offset);
-	offset = dissect_rpc_uint32(tvb,pinfo,tree,hf_mount3_status,offset);
+	offset = dissect_rpc_uint32(tvb,tree,hf_mount3_status,offset);
 
 	switch (status) {
 		case 0:
@@ -111,7 +111,7 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 
 static int
-dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
 		rpc_call_info_value *civ=pinfo->private_data;
@@ -133,7 +133,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 	if ( tree )
 	{
-		offset = dissect_rpc_string(tvb,pinfo,tree,hf_mount_path,offset,NULL);
+		offset = dissect_rpc_string(tvb,tree,hf_mount_path,offset,NULL);
 	}
 	
 	return offset;
@@ -154,7 +154,7 @@ dissect_mount1_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
@@ -169,9 +169,9 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 			lock_tree = proto_item_add_subtree(lock_item, ett_mount_mountlist);
 	}
 
-	offset = dissect_rpc_string(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_string(tvb, lock_tree, 
 			hf_mount_mountlist_hostname, offset, &hostname);
-	offset = dissect_rpc_string(tvb, pinfo, lock_tree,
+	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_mount_mountlist_directory, offset, &directory);
 
 	if (lock_item) {
@@ -202,7 +202,7 @@ dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int len,str_len;
 	len=tvb_get_ntohl(tvb,offset);
@@ -218,7 +218,7 @@ dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	}
 	group_name_list[group_names_len]=0;
 
-	offset = dissect_rpc_string(tvb, pinfo, tree, 
+	offset = dissect_rpc_string(tvb, tree, 
 			hf_mount_groups_group, offset, NULL);
 
 	return offset;
@@ -247,7 +247,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
 	}
 
-	offset = dissect_rpc_string(tvb, pinfo, exportlist_tree,
+	offset = dissect_rpc_string(tvb, exportlist_tree,
 			hf_mount_exportlist_directory, offset, &directory);
 	groups_offset = offset;
 
@@ -357,7 +357,7 @@ static const true_false_string tos_error_vdisable = {
 
 
 static int
-dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int saved_offset;
 	guint32 pc_mask;
@@ -372,7 +372,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	pc_mask = tvb_get_ntohl(tvb, offset+OFFS_MASK) & 0xffff;
 	if (!(pc_mask & (PC_ERROR_LINK_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			dissect_rpc_uint32(tvb,pinfo,tree,hf_mount_pathconf_link_max,offset);
+			dissect_rpc_uint32(tvb,tree,hf_mount_pathconf_link_max,offset);
 		}
 	}
 	offset += 4;
@@ -485,13 +485,13 @@ static const value_string mount3_mountstat3[] =
 
 /* RFC 1813, Page 107 */
 static int
-dissect_mountstat3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hfindex, guint32 *status)
+dissect_mountstat3(tvbuff_t *tvb, proto_tree *tree, int offset, int hfindex, guint32 *status)
 {
 	guint32 mountstat3;
 
 	mountstat3 = tvb_get_ntohl(tvb, offset);
 
-	offset = dissect_rpc_uint32(tvb,pinfo,tree,hfindex,offset);
+	offset = dissect_rpc_uint32(tvb,tree,hfindex,offset);
 	*status = mountstat3;
 	return offset;
 }
@@ -505,7 +505,7 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	guint32 auth_flavor;
 	guint32 auth_flavor_i;
 	
-	offset = dissect_mountstat3(tvb,pinfo,tree,offset,hf_mount3_status,&status);
+	offset = dissect_mountstat3(tvb,tree,offset,hf_mount3_status,&status);
 
 	switch (status) {
 		case 0:

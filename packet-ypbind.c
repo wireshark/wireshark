@@ -1,7 +1,7 @@
 /* packet-ypbind.c
  * Routines for ypbind dissection
  *
- * $Id: packet-ypbind.c,v 1.10 2002/04/02 01:32:46 guy Exp $
+ * $Id: packet-ypbind.c,v 1.11 2002/04/03 13:24:13 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,10 +51,10 @@ static gint ett_ypbind = -1;
 
 
 static int
-dissect_ypbind_domain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_ypbind_domain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* domain */
-	offset = dissect_rpc_string(tvb, pinfo, tree, 
+	offset = dissect_rpc_string(tvb, tree, 
 			hf_ypbind_domain, offset, NULL);
 
 	return offset;
@@ -79,13 +79,13 @@ static const value_string error_vals[] = {
 };
 
 static int
-dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint32 type;
 
 	/* response type */
 	type=tvb_get_ntohl(tvb, offset);
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_ypbind_resp_type, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_ypbind_resp_type, offset);
 
 	switch(type){
 	case YPBIND_RESP_TYPE_SUCC_VAL:
@@ -95,13 +95,13 @@ dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 		offset += 4;
 
 		/* port */
-		offset = dissect_rpc_uint32(tvb, pinfo, tree, 
+		offset = dissect_rpc_uint32(tvb, tree, 
 				hf_ypbind_port, offset);
 		
 		break;
 	case YPBIND_RESP_TYPE_FAIL_VAL:
 		/* error */
-		offset = dissect_rpc_uint32(tvb, pinfo, tree, 
+		offset = dissect_rpc_uint32(tvb, tree, 
 				hf_ypbind_resp_type, offset);
 		break;
 	}
@@ -110,10 +110,10 @@ dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 static int
-dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* domain */
-	offset = dissect_rpc_string(tvb, pinfo, tree, 
+	offset = dissect_rpc_string(tvb, tree, 
 			hf_ypbind_domain, offset, NULL);
 
 	/* ip address */
@@ -122,11 +122,11 @@ dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinf
 	offset += 4;
 
 	/* port */
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, 
+	offset = dissect_rpc_uint32(tvb, tree, 
 			hf_ypbind_port, offset);
 		
 	/* version */
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, 
+	offset = dissect_rpc_uint32(tvb, tree, 
 			hf_ypbind_setdom_version, offset);
 		
 	return offset;

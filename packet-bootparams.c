@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.19 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-bootparams.c,v 1.20 2002/04/03 13:24:12 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,7 +61,7 @@ static const value_string addr_type[] =
 };
 
 static int
-dissect_bp_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hfindex)
+dissect_bp_address(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
 {
 	guint32 type;
 	guint32 ipaddr;
@@ -69,7 +69,7 @@ dissect_bp_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	type = tvb_get_ntohl(tvb, offset);
 	
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_bootparams_addresstype, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_bootparams_addresstype, offset);
 
 	switch(type){
 	case 1:
@@ -91,49 +91,49 @@ dissect_bp_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 
 static int
-dissect_getfile_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_getfile_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
-		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_fileid, offset, NULL);
+		offset = dissect_rpc_string(tvb, tree, hf_bootparams_host, offset, NULL);
+		offset = dissect_rpc_string(tvb, tree, hf_bootparams_fileid, offset, NULL);
 	}
 	
 	return offset;
 }
 
 static int
-dissect_getfile_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_getfile_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
-		offset = dissect_bp_address(tvb, offset, pinfo, tree, hf_bootparams_hostaddr);
-		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_filepath, offset, NULL);
+		offset = dissect_rpc_string(tvb, tree, hf_bootparams_host, offset, NULL);
+		offset = dissect_bp_address(tvb, offset, tree, hf_bootparams_hostaddr);
+		offset = dissect_rpc_string(tvb, tree, hf_bootparams_filepath, offset, NULL);
 	}
 	
 	return offset;
 }
 
 static int
-dissect_whoami_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_whoami_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if ( tree )
 	{
-		offset = dissect_bp_address(tvb, offset, pinfo, tree, hf_bootparams_hostaddr);
+		offset = dissect_bp_address(tvb, offset, tree, hf_bootparams_hostaddr);
 	}
 	
 	return offset;
 }
 
 static int
-dissect_whoami_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_whoami_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
-		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_domain, offset, NULL);
-		offset = dissect_bp_address(tvb, offset, pinfo, tree, hf_bootparams_routeraddr);
+		offset = dissect_rpc_string(tvb, tree, hf_bootparams_host, offset, NULL);
+		offset = dissect_rpc_string(tvb, tree, hf_bootparams_domain, offset, NULL);
+		offset = dissect_bp_address(tvb, offset, tree, hf_bootparams_routeraddr);
 	}
 	
 	return offset;

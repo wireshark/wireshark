@@ -2,7 +2,7 @@
  * Routines for async NSM stat callback dissection
  * 2001 Ronnie Sahlberg <See AUTHORS for email>
  *
- * $Id: packet-stat-notify.c,v 1.8 2001/12/23 21:36:57 guy Exp $
+ * $Id: packet-stat-notify.c,v 1.9 2002/04/03 13:24:13 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,12 +44,12 @@ static gint ett_statnotify = -1;
 
 
 static int
-dissect_statnotify_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_statnotify_mon(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 
-	offset = dissect_rpc_string(tvb,pinfo,tree,hf_statnotify_name,offset,NULL);
+	offset = dissect_rpc_string(tvb,tree,hf_statnotify_name,offset,NULL);
 
-	offset = dissect_rpc_uint32(tvb,pinfo,tree,hf_statnotify_state,offset);
+	offset = dissect_rpc_uint32(tvb,tree,hf_statnotify_state,offset);
 
 	proto_tree_add_item(tree,hf_statnotify_priv,tvb,offset,16,FALSE);
 	offset += 16;

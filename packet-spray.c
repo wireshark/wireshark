@@ -1,7 +1,7 @@
 /* packet-spray.c
  * 2001  Ronnie Sahlberg   <See AUTHORS for email>
  *
- * $Id: packet-spray.c,v 1.7 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-spray.c,v 1.8 2002/04/03 13:24:13 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,12 +47,12 @@ static gint ett_spray_clock = -1;
 
 
 static int
-dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
 
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, 
+	offset = dissect_rpc_uint32(tvb, tree, 
 			hf_spray_counter, offset);
 
 	lock_item = proto_tree_add_item(tree, hf_spray_clock, tvb,
@@ -60,19 +60,19 @@ dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_spray_clock);
 
-	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, lock_tree, 
 			hf_spray_sec, offset);
 
-	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, lock_tree, 
 			hf_spray_usec, offset);
 
 	return offset;
 }
 
 static int
-dissect_spray_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_spray_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	offset = dissect_rpc_data(tvb, pinfo, tree, 
+	offset = dissect_rpc_data(tvb, tree, 
 			hf_spray_sprayarr, offset);
 
 	return offset;

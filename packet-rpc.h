@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.34 2002/04/02 00:18:53 guy Exp $
+ * $Id: packet-rpc.h,v 1.35 2002/04/03 13:24:13 girlich Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -113,20 +113,20 @@ extern char *rpc_prog_name(guint32 prog);
 extern char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
 
 extern unsigned int rpc_roundup(unsigned int a);
-extern int dissect_rpc_bool(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_bool(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
-extern int dissect_rpc_string(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_string(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset, char **string_buffer_ret);
-extern int dissect_rpc_data(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_data(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
 extern int dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, dissect_function_t *rpc_list_dissector);
 extern int dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, dissect_function_t *rpc_array_dissector,
 	int hfindex);
-extern int dissect_rpc_uint32(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_uint32(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
-extern int dissect_rpc_uint64(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_uint64(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
 
 extern int dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo,

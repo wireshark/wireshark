@@ -1,7 +1,7 @@
 /* packet-pcnfsd.c
  * Routines for PCNFSD dissection
  *
- * $Id: packet-pcnfsd.c,v 1.5 2002/01/30 23:08:26 guy Exp $
+ * $Id: packet-pcnfsd.c,v 1.6 2002/04/03 13:24:12 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,7 +77,7 @@ pcnfsd_decode_obscure(char* data, int len)
 
 /* "NFS Illustrated" 14.7.13 */
 int
-dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
 	int	newoffset;
@@ -88,7 +88,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item	*password_item = NULL;
 	proto_tree	*password_tree = NULL;
 
-	offset = dissect_rpc_string(tvb, pinfo, tree,
+	offset = dissect_rpc_string(tvb, tree,
 		hf_pcnfsd_auth_client, offset, NULL);
 
 	if (tree) {
@@ -98,7 +98,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ident_tree = proto_item_add_subtree(
 				ident_item, ett_pcnfsd_auth_ident);
 	}
-	newoffset = dissect_rpc_string(tvb, pinfo, ident_tree,
+	newoffset = dissect_rpc_string(tvb, ident_tree,
 		hf_pcnfsd_auth_ident_obscure, offset, &ident);
 	if (ident_item) {
 		proto_item_set_len(ident_item, newoffset-offset);
@@ -129,7 +129,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			password_tree = proto_item_add_subtree(
 				password_item, ett_pcnfsd_auth_password);
 	}
-	newoffset = dissect_rpc_string(tvb, pinfo, password_tree,
+	newoffset = dissect_rpc_string(tvb, password_tree,
 		hf_pcnfsd_auth_password_obscure, offset, &password);
 	if (password_item) {
 		proto_item_set_len(password_item, newoffset-offset);
@@ -153,7 +153,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = newoffset;
 
-	offset = dissect_rpc_string(tvb, pinfo, tree,
+	offset = dissect_rpc_string(tvb, tree,
 		hf_pcnfsd_comment, offset, NULL);
 
 	return offset;
@@ -162,7 +162,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* "NFS Illustrated" 14.7.13 */
 int
-dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
 	int	gids_count;
@@ -170,9 +170,9 @@ dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree	*gtree = NULL;
 	int	gids_i;
 
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_pcnfsd_status, offset);
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_pcnfsd_uid, offset);
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_pcnfsd_gid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_status, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_uid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_gid, offset);
 	gids_count = tvb_get_ntohl(tvb,offset+0);
 	if (tree) {
 		gitem = proto_tree_add_text(tree, tvb,
@@ -184,14 +184,14 @@ dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	offset += 4;
 	for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {
-		offset = dissect_rpc_uint32(tvb, pinfo, gtree,
+		offset = dissect_rpc_uint32(tvb, gtree,
 				hf_pcnfsd_gid, offset);
 	}
-	offset = dissect_rpc_string(tvb, pinfo, tree,
+	offset = dissect_rpc_string(tvb, tree,
                 hf_pcnfsd_homedir, offset, NULL);
 	/* should be signed int32 */
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_pcnfsd_def_umask, offset);
-	offset = dissect_rpc_string(tvb, pinfo, tree,
+	offset = dissect_rpc_uint32(tvb, tree, hf_pcnfsd_def_umask, offset);
+	offset = dissect_rpc_string(tvb, tree,
                 hf_pcnfsd_comment, offset, NULL);
 
 	return offset;
