@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.7 2001/06/29 18:55:49 guy Exp $
+ * $Id: packet-igmp.c,v 1.8 2001/07/02 09:23:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,6 +95,7 @@
 #include "ipproto.h"
 #include "in_cksum.h"
 #include "packet-dvmrp.h"
+#include "packet-pim.h"
 #include "packet-mrdisc.h"
 #include "packet-msnip.h"
 
@@ -512,51 +513,6 @@ dissect_igmp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	return offset;
 }
 
-/*
- * Dissector for V1 PIM messages.
- *
- * XXX - are these just PIM V1 messages (which we don't dissect in the PIM
- * dissector)?  Where is PIM V1 documented?  I'm inferring some of this
- * from the tcpdump IGMP dissector.
- */
-#define PIMV1_QUERY		0
-#define PIMV1_REGISTER		1
-#define PIMV1_REGISTER_STOP	2
-#define PIMV1_JOIN_PRUNE	3
-#define PIMV1_RP_REACHABLE	4
-#define PIMV1_ASSERT		5
-#define PIMV1_GRAFT		6
-#define PIMV1_GRAFT_ACK		7
-#define PIMV1_MODE		8
-
-static const value_string pim_routing_type[] = {
-	{ PIMV1_QUERY,		"Query" },
-	{ PIMV1_REGISTER,	"Register" },
-	{ PIMV1_REGISTER_STOP,	"Register-Stop" },
-	{ PIMV1_JOIN_PRUNE,	"Join/Prune" },
-	{ PIMV1_RP_REACHABLE,	"RP-reachable" },
-	{ PIMV1_ASSERT,		"Assert" },
-	{ PIMV1_GRAFT,		"Graft" },
-	{ PIMV1_GRAFT_ACK,	"Graft-ACK" },
-	{ PIMV1_MODE,		"Mode" },
-	{ 0,			NULL }
-};
-
-static int
-dissect_igmp_v1_pim_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, int offset)
-{
-	guint8 pimv1_type;
-
-	PRINT_IGMP_VERSION(1);
-
-	pimv1_type = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s",
-	    val_to_str(pimv1_type, pim_routing_type, "Unknown (%u)"));
-
-	/* XXX - dissect the rest of it */
-	return offset;
-}
-
 /* dissector for version 0, rfc988 */
 static int
 dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, int offset)
@@ -657,7 +613,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 
 	case IGMP_V1_PIM_ROUTING_MESSAGE:
-		offset = dissect_igmp_v1_pim_routing(tvb, pinfo, tree, type, offset);
+		offset = dissect_pimv1(tvb, pinfo, parent_tree, offset);
 		break;
 
 	case IGMP_V2_MEMBERSHIP_REPORT:
@@ -686,12 +642,14 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case IGMP_V3_MEMBERSHIP_REPORT:
 		offset = dissect_igmp_v3_response(tvb, pinfo, tree, type, offset);
 		break;
+
 	case IGMP_TYPE_0x23:
 		dst = htonl(MC_ALL_IGMPV3_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
 			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
 		}
 		break;
+
 	case IGMP_TYPE_0x24:
 		dst = htonl(MC_ALL_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
@@ -702,6 +660,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
 		}
 		break;
+
 	case IGMP_TYPE_0x25:
 		if ( (pinfo->iplen-pinfo->iphdrlen*4)>=8 ) {
 			/* if len of igmp packet>=8 we assume it is MSNIP */
@@ -714,6 +673,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		}
 		break;
+
 	case IGMP_TYPE_0x26:
 		dst = htonl(MC_ALL_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
