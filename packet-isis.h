@@ -1,13 +1,12 @@
 /* packet-isis.h
  * Defines and such for core isis protcol decode.
  *
- * $Id: packet-isis.h,v 1.6 2001/07/02 01:46:22 guy Exp $
+ * $Id: packet-isis.h,v 1.7 2001/07/02 02:09:26 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -51,21 +50,6 @@
 #define ISIS_R8_MASK	    0x80
 #define ISIS_R7_MASK	    0x40
 #define ISIS_R6_MASK	    0x20
-
-/*
- * The common first 8 octets of the ISIS protocol header.
- */
-typedef struct {
-  guint8 isis_irpd;  /* Intradomain Routing Protocol Descriminator: 0x83 */
-  guint8 isis_header_length;  /* header length in octets */
-  guint8 isis_version;        /* isis version, must be 0x01 */
-  guint8 isis_system_id_len;  /* length of the system ID fields */
-  guint8 isis_type_reserved;  /* packet type & reserved */
-  guint8 isis_version2;	      /* another version(?!), must be 0x01 */
-  guint8 isis_reserved;	      /* reserved, must be 0 */
-  guint8 isis_max_area_adr;   /* Maximum Number of AREA Addresses permitted */
-} isis_hdr_t;                 /* for this AREA. Value of 0 allows 3 Addresses */
-
 
 /*
  * published API functions
