@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.33 2002/04/12 01:18:45 guy Exp $
+ * $Id: packet-x11.c,v 1.34 2002/04/13 20:16:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -604,7 +604,6 @@ static const value_string zero_is_none_vals[] = {
  ***                                                                  ***
  ************************************************************************/
 
-static int cur_offset;         /* The current offset in the frame */
 static int next_offset = 0; /* Offset of the next request in the frame */    
 static gboolean little_endian = TRUE;
 
@@ -625,21 +624,21 @@ static struct maskStruct {
 #define VALUE16(tvb, offset) (little_endian ? tvb_get_letohs(tvb, offset) : tvb_get_ntohs(tvb, offset))
 #define VALUE32(tvb, offset) (little_endian ? tvb_get_letohl(tvb, offset) : tvb_get_ntohl(tvb, offset))
 
-#define FIELD8(name)  (field8(tvb, t, hf_x11_##name))
-#define FIELD16(name) (field16(tvb, t, hf_x11_##name))
-#define FIELD32(name) (field32(tvb, t, hf_x11_##name))
+#define FIELD8(name)  (field8(tvb, offsetp, t, hf_x11_##name))
+#define FIELD16(name) (field16(tvb, offsetp, t, hf_x11_##name))
+#define FIELD32(name) (field32(tvb, offsetp, t, hf_x11_##name))
 
 #define BITFIELD(TYPE, position, name) {\
   if (lastMask._value & proto_registrar_get_nth(hf_x11_##position##_##name) -> bitmask) {\
        int unused;\
-       int save = cur_offset;\
+       int save = *offsetp;\
        proto_tree_add_item(lastMask._tree, hf_x11_##position##_##name, tvb, lastMask._offset, \
                            lastMask._zone, little_endian); \
        TYPE(name);\
-       unused = save + 4 - cur_offset;\
+       unused = save + 4 - *offsetp;\
        if (unused)\
-           proto_tree_add_item(t, hf_x11_unused, tvb, cur_offset, unused, little_endian);\
-       cur_offset = save + 4;\
+           proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, unused, little_endian);\
+       *offsetp = save + 4;\
  }\
 }
 
@@ -647,17 +646,17 @@ static struct maskStruct {
   if (lastMask._value & proto_registrar_get_nth(hf_x11_##position##_mask##_##name) -> bitmask)\
        proto_tree_add_boolean(lastMask._tree, hf_x11_##position##_mask##_##name, tvb, lastMask._offset, lastMask._zone, lastMask._value); }
 
-#define ATOM(name)     { atom(tvb, t, hf_x11_##name); }
-#define BITGRAVITY(name) { gravity(tvb, t, #name, hf_x11_##name, "Forget"); }
-#define BITMASK8(name) { bitmask(tvb, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 1); }
-#define BITMASK16(name) { bitmask(tvb, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 2); }
-#define BITMASK32(name)  { bitmask(tvb, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 4); }
-#define BOOL(name)     (add_boolean(tvb, t, hf_x11_##name))
+#define ATOM(name)     { atom(tvb, offsetp, t, hf_x11_##name); }
+#define BITGRAVITY(name) { gravity(tvb, offsetp, t, #name, hf_x11_##name, "Forget"); }
+#define BITMASK8(name) { bitmask(tvb, offsetp, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 1); }
+#define BITMASK16(name) { bitmask(tvb, offsetp, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 2); }
+#define BITMASK32(name)  { bitmask(tvb, offsetp, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 4); }
+#define BOOL(name)     (add_boolean(tvb, offsetp, t, hf_x11_##name))
 #define BUTTON(name)   { FIELD8(name); }
 #define CARD8(name)    { FIELD8(name); }
 #define CARD16(name)   (FIELD16(name))
 #define CARD32(name)   (FIELD32(name))
-#define COLOR_FLAGS(name) { colorFlags(tvb, t); }
+#define COLOR_FLAGS(name) { colorFlags(tvb, offsetp, t); }
 #define COLORMAP(name) { FIELD32(name); }
 #define CURSOR(name)   { FIELD32(name); }
 #define DRAWABLE(name) { FIELD32(name); }
@@ -669,40 +668,40 @@ static struct maskStruct {
 #define INT8(name)     { FIELD8(name); }
 #define INT16(name)    { FIELD16(name); }
 #define KEYCODE(name)  { FIELD8(name); }
-#define LISTofARC(name) { listOfArc(tvb, t, hf_x11_##name, (next_offset - cur_offset) / 12); }
-#define LISTofATOM(name, length) { listOfAtom(tvb, t, hf_x11_##name, (length) / 4); }
-#define LISTofBYTE(name, length) { listOfByte(tvb, t, hf_x11_##name, (length)); }
-#define LISTofCARD8(name, length) { listOfByte(tvb, t, hf_x11_##name, (length)); }
-#define LISTofCARD32(name, length) { listOfCard32(tvb, t, hf_x11_##name, hf_x11_##name##_item, (length) / 4); }
-#define LISTofCOLORITEM(name, length) { listOfColorItem(tvb, t, hf_x11_##name, (length) / 12); }
-#define LISTofKEYCODE(name, length) { listOfKeycode(tvb, t, hf_x11_##name, (length)); }
+#define LISTofARC(name) { listOfArc(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 12); }
+#define LISTofATOM(name, length) { listOfAtom(tvb, offsetp, t, hf_x11_##name, (length) / 4); }
+#define LISTofBYTE(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length)); }
+#define LISTofCARD8(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length)); }
+#define LISTofCARD32(name, length) { listOfCard32(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, (length) / 4); }
+#define LISTofCOLORITEM(name, length) { listOfColorItem(tvb, offsetp, t, hf_x11_##name, (length) / 12); }
+#define LISTofKEYCODE(name, length) { listOfKeycode(tvb, offsetp, t, hf_x11_##name, (length)); }
 #define LISTofKEYSYM(name, keycode_count, keysyms_per_keycode) { \
-      listOfKeysyms(tvb, t, hf_x11_##name, hf_x11_##name##_item, (keycode_count), (keysyms_per_keycode)); }
-#define LISTofPOINT(name, length) { listOfPoint(tvb, t, hf_x11_##name, (length) / 4); }
-#define LISTofRECTANGLE(name) { listOfRectangle(tvb, t, hf_x11_##name, (next_offset - cur_offset) / 8); }
-#define LISTofSEGMENT(name) { listOfSegment(tvb, t, hf_x11_##name, (next_offset - cur_offset) / 8); }
-#define LISTofSTRING8(name, length) { listOfString8(tvb, t, hf_x11_##name, hf_x11_##name##_string, (length)); }
-#define LISTofTEXTITEM8(name) { listOfTextItem(tvb, t, hf_x11_##name, FALSE); }
-#define LISTofTEXTITEM16(name) { listOfTextItem(tvb, t, hf_x11_##name, TRUE); }
+      listOfKeysyms(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, (keycode_count), (keysyms_per_keycode)); }
+#define LISTofPOINT(name, length) { listOfPoint(tvb, offsetp, t, hf_x11_##name, (length) / 4); }
+#define LISTofRECTANGLE(name) { listOfRectangle(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8); }
+#define LISTofSEGMENT(name) { listOfSegment(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8); }
+#define LISTofSTRING8(name, length) { listOfString8(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_string, (length)); }
+#define LISTofTEXTITEM8(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, FALSE); }
+#define LISTofTEXTITEM16(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, TRUE); }
 #define OPCODE()       { opcode = FIELD8(opcode); }
 #define PIXMAP(name)   { FIELD32(name); }
-#define REQUEST_LENGTH() (requestLength(tvb, t))
-#define SETofEVENT(name) { setOfEvent(tvb, t); }
-#define SETofDEVICEEVENT(name) { setOfDeviceEvent(tvb, t);}
-#define SETofKEYMASK(name) { setOfKeyMask(tvb, t); }
-#define SETofPOINTEREVENT(name) { setOfPointerEvent(tvb, t); }
-#define STRING8(name, length)  { string8(tvb, t, #name, hf_x11_##name, length); }
-#define STRING16(name, length)  { string16(tvb, t, hf_x11_##name, hf_x11_##name##_bytes, length); }
-#define TIMESTAMP(name){ timestamp(tvb, t, #name, hf_x11_##name); }
-#define UNDECODED(x)   { proto_tree_add_item(t, hf_x11_undecoded, tvb, cur_offset,  x, little_endian); p += x; }
-#define UNUSED(x)      { proto_tree_add_item(t, hf_x11_unused, tvb, cur_offset,  x, little_endian); cur_offset += x; }
-#define PAD()          { if (next_offset - cur_offset > 0) proto_tree_add_item(t, hf_x11_unused, tvb, cur_offset, next_offset - cur_offset, little_endian); cur_offset = next_offset; }
+#define REQUEST_LENGTH() (requestLength(tvb, offsetp, t))
+#define SETofEVENT(name) { setOfEvent(tvb, offsetp, t); }
+#define SETofDEVICEEVENT(name) { setOfDeviceEvent(tvb, offsetp, t);}
+#define SETofKEYMASK(name) { setOfKeyMask(tvb, offsetp, t); }
+#define SETofPOINTEREVENT(name) { setOfPointerEvent(tvb, offsetp, t); }
+#define STRING8(name, length)  { string8(tvb, offsetp, t, #name, hf_x11_##name, length); }
+#define STRING16(name, length)  { string16(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_bytes, length); }
+#define TIMESTAMP(name){ timestamp(tvb, offsetp, t, #name, hf_x11_##name); }
+#define UNDECODED(x)   { proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp,  x, little_endian); *offsetp += x; }
+#define UNUSED(x)      { proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp,  x, little_endian); *offsetp += x; }
+#define PAD()          { if (next_offset - *offsetp > 0) proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, next_offset - *offsetp, little_endian); *offsetp = next_offset; }
 #define WINDOW(name)   { FIELD32(name); }
-#define WINGRAVITY(name) { gravity(tvb, t, #name, hf_x11_##name, "Unmap"); }
+#define WINGRAVITY(name) { gravity(tvb, offsetp, t, #name, hf_x11_##name, "Unmap"); }
 
-#define VISUALID(name) { gint32 v = VALUE32(tvb, cur_offset); \
-    proto_tree_add_uint_format(t, hf_x11_##name, tvb, cur_offset, 4, v, "Visualid: 0x%08x%s", v, \
-			       v ? "" : " (CopyFromParent)"); cur_offset += 4; }
+#define VISUALID(name) { gint32 v = VALUE32(tvb, *offsetp); \
+    proto_tree_add_uint_format(t, hf_x11_##name, tvb, *offsetp, 4, v, "Visualid: 0x%08x%s", v, \
+			       v ? "" : " (CopyFromParent)"); *offsetp += 4; }
 
 /************************************************************************
  ***                                                                  ***
@@ -710,11 +709,11 @@ static struct maskStruct {
  ***                                                                  ***
  ************************************************************************/
 
-static void atom(tvbuff_t *tvb, proto_tree *t, int hf)
+static void atom(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
 {
       const char *interpretation = NULL;
 
-      guint32 v = VALUE32(tvb, cur_offset);
+      guint32 v = VALUE32(tvb, *offsetp);
       if (v >= 1 && v < array_length(atom_predefined_interpretation))
 	    interpretation = atom_predefined_interpretation[v];
       else if (v)
@@ -725,34 +724,35 @@ static void atom(tvbuff_t *tvb, proto_tree *t, int hf)
 		  interpretation = match_strval(v, cVALS(hfi -> strings));
       }
       if (!interpretation) interpretation = "error in Xlib client program ?";
-      proto_tree_add_uint_format(t, hf, tvb, cur_offset, 4, v, "%s: %u (%s)", 
+      proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, "%s: %u (%s)", 
 				 proto_registrar_get_nth(hf) -> name, v, interpretation);
-      cur_offset += 4;
+      *offsetp += 4;
 }
 
-static void bitmask(tvbuff_t *tvb, proto_tree *t, int hf, int ett, int size)
+static void bitmask(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf, int ett,
+    int size)
 {
       proto_item *ti;
 
-      lastMask._value = size == 2 ? VALUE16(tvb, cur_offset) : VALUE32(tvb, cur_offset);
-      lastMask._offset = cur_offset;
+      lastMask._value = size == 2 ? VALUE16(tvb, *offsetp) : VALUE32(tvb, *offsetp);
+      lastMask._offset = *offsetp;
       lastMask._zone = size;
-      ti = proto_tree_add_uint(t, hf, tvb, cur_offset, size, lastMask._value);
+      ti = proto_tree_add_uint(t, hf, tvb, *offsetp, size, lastMask._value);
       lastMask._tree = proto_item_add_subtree(ti, ett);
-      cur_offset += size; 
+      *offsetp += size; 
 }
 
-static guint32 add_boolean(tvbuff_t *tvb, proto_tree *t, int hf)
+static guint32 add_boolean(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
 {
-      guint32 v = VALUE8(tvb, cur_offset);
-      proto_tree_add_boolean(t, hf, tvb, cur_offset, 1, v);
-      cur_offset += 1;
+      guint32 v = VALUE8(tvb, *offsetp);
+      proto_tree_add_boolean(t, hf, tvb, *offsetp, 1, v);
+      *offsetp += 1;
       return v;
 }
 
-static void colorFlags(tvbuff_t *tvb, proto_tree *t)
+static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
-      unsigned do_red_green_blue = VALUE8(tvb, cur_offset);
+      unsigned do_red_green_blue = VALUE8(tvb, *offsetp);
       proto_item *ti;
       proto_tree *tt;
       
@@ -783,107 +783,117 @@ static void colorFlags(tvbuff_t *tvb, proto_tree *t)
 		  sprintf(bp, "trash");
 	    }
 
-	    ti = proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, cur_offset, 1, do_red_green_blue,
+	    ti = proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, *offsetp, 1, do_red_green_blue,
 					    "%s", buffer);
 	    tt = proto_item_add_subtree(ti, ett_x11_color_flags);
 	    if (do_red_green_blue & 0x1)
-		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_red, tvb, cur_offset, 1, 
+		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_red, tvb, *offsetp, 1, 
 					 do_red_green_blue & 0x1);
 	    if (do_red_green_blue & 0x2)
-		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_green, tvb, cur_offset, 1, 
+		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_green, tvb, *offsetp, 1, 
 					 do_red_green_blue & 0x2);
 	    if (do_red_green_blue & 0x4)
-		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_blue, tvb, cur_offset, 1, 
+		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_do_blue, tvb, *offsetp, 1, 
 					 do_red_green_blue & 0x4);
 	    if (do_red_green_blue & 0xf8)
-		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_unused, tvb, cur_offset, 1, 
+		  proto_tree_add_boolean(tt, hf_x11_coloritem_flags_unused, tvb, *offsetp, 1, 
 					 do_red_green_blue & 0xf8);
       } else
-	    proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, cur_offset, 1, do_red_green_blue,
+	    proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, *offsetp, 1, do_red_green_blue,
 				       "flags: none");
-      cur_offset++;
+      *offsetp += 1;
 }
 
-static void gravity(tvbuff_t *tvb, proto_tree *t, const char *nameAsChar,
-    int hf, const char *nullInterpretation)
+static void gravity(tvbuff_t *tvb, int *offsetp, proto_tree *t,
+    const char *nameAsChar, int hf, const char *nullInterpretation)
 {
-      guint8 v = VALUE8(tvb, cur_offset);
+      guint8 v = VALUE8(tvb, *offsetp);
       if (!v)
-	    proto_tree_add_uint_format(t, hf, tvb, cur_offset, 1, v, "%s: 0 (%s)", nameAsChar, 
+	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 1, v, "%s: 0 (%s)", nameAsChar, 
 				       nullInterpretation);
       else
-	    proto_tree_add_uint(t, hf, tvb, cur_offset, 1, v);
-      cur_offset += 1;
+	    proto_tree_add_uint(t, hf, tvb, *offsetp, 1, v);
+      *offsetp += 1;
 }
 
-static void listOfArc(tvbuff_t *tvb, proto_tree *t, int hf, int length)
+static void listOfArc(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int length)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_arc);
       while(length--) {
-	    gint16 x = VALUE16(tvb, cur_offset);
-	    gint16 y = VALUE16(tvb, cur_offset + 2);
-	    guint16 width = VALUE16(tvb, cur_offset + 4);
-	    guint16 height = VALUE16(tvb, cur_offset + 6);
-	    gint16 angle1 = VALUE16(tvb, cur_offset + 8);
-	    gint16 angle2 = VALUE16(tvb, cur_offset + 10);
+	    gint16 x = VALUE16(tvb, *offsetp);
+	    gint16 y = VALUE16(tvb, *offsetp + 2);
+	    guint16 width = VALUE16(tvb, *offsetp + 4);
+	    guint16 height = VALUE16(tvb, *offsetp + 6);
+	    gint16 angle1 = VALUE16(tvb, *offsetp + 8);
+	    gint16 angle2 = VALUE16(tvb, *offsetp + 10);
 
-	    proto_item *tti = proto_tree_add_none_format(tt, hf_x11_arc, tvb, cur_offset, 12, 
+	    proto_item *tti = proto_tree_add_none_format(tt, hf_x11_arc, tvb, *offsetp, 12, 
 							     "arc: %dx%d+%d+%d, angle %d -> %d (%f degrees -> %f degrees)",
 							     width, height, x, y, angle1, angle2,
 							     angle1 / 64.0, angle2 / 64.0);
 	    proto_tree *ttt = proto_item_add_subtree(tti, ett_x11_arc);
-	    proto_tree_add_int(ttt, hf_x11_arc_x, tvb, cur_offset, 2, x); cur_offset += 2;
-	    proto_tree_add_int(ttt, hf_x11_arc_y, tvb, cur_offset, 2, y); cur_offset += 2;
-	    proto_tree_add_uint(ttt, hf_x11_arc_width, tvb, cur_offset, 2, y); cur_offset += 2;
-	    proto_tree_add_uint(ttt, hf_x11_arc_height, tvb, cur_offset, 2, y); cur_offset += 2;
-	    proto_tree_add_int(ttt, hf_x11_arc_angle1, tvb, cur_offset, 2, y); cur_offset += 2;
-	    proto_tree_add_int(ttt, hf_x11_arc_angle2, tvb, cur_offset, 2, y); cur_offset += 2;
+	    proto_tree_add_int(ttt, hf_x11_arc_x, tvb, *offsetp, 2, x);
+	    *offsetp += 2;
+	    proto_tree_add_int(ttt, hf_x11_arc_y, tvb, *offsetp, 2, y);
+	    *offsetp += 2;
+	    proto_tree_add_uint(ttt, hf_x11_arc_width, tvb, *offsetp, 2, y);
+	    *offsetp += 2;
+	    proto_tree_add_uint(ttt, hf_x11_arc_height, tvb, *offsetp, 2, y);
+	    *offsetp += 2;
+	    proto_tree_add_int(ttt, hf_x11_arc_angle1, tvb, *offsetp, 2, y);
+	    *offsetp += 2;
+	    proto_tree_add_int(ttt, hf_x11_arc_angle2, tvb, *offsetp, 2, y);
+	    *offsetp += 2;
       }
 }
 
-static void listOfAtom(tvbuff_t *tvb, proto_tree *t, int hf, int length)
-{
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 4, little_endian);
-      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_atom);
-      while(length--) {
-	    if (cur_offset + 4 > next_offset) {
-		/* List runs past end of message. */
-		return;
-	    }
-	    atom(tvb, tt, hf_x11_properties_item);
-      }
-}
-
-static void listOfByte(tvbuff_t *tvb, proto_tree *t, int hf, int length)
-{
-      if (cur_offset + length > next_offset) {
-	    /* List runs past end of message. */
-	    length = next_offset -  cur_offset;
-      }
-      if (length <= 0) length = 1;
-      proto_tree_add_item(t, hf, tvb, cur_offset, length, little_endian);
-      cur_offset += length;
-}
-
-static void listOfCard32(tvbuff_t *tvb, proto_tree *t, int hf, int hf_item,
+static void listOfAtom(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
     int length)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 4, little_endian);
-      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_atom);
       while(length--) {
-	    if (cur_offset + 4 > next_offset) {
+	    if (*offsetp + 4 > next_offset) {
 		/* List runs past end of message. */
 		return;
 	    }
-	    proto_tree_add_uint(tt, hf_item, tvb, cur_offset, 4, VALUE32(tvb, cur_offset));
-	    cur_offset += 4;
+	    atom(tvb, offsetp, tt, hf_x11_properties_item);
       }
 }
 
-static void listOfColorItem(tvbuff_t *tvb, proto_tree *t, int hf, int length)
+static void listOfByte(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int length)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      if (*offsetp + length > next_offset) {
+	    /* List runs past end of message. */
+	    length = next_offset -  *offsetp;
+      }
+      if (length <= 0) length = 1;
+      proto_tree_add_item(t, hf, tvb, *offsetp, length, little_endian);
+      *offsetp += length;
+}
+
+static void listOfCard32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int hf_item, int length)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
+      while(length--) {
+	    if (*offsetp + 4 > next_offset) {
+		/* List runs past end of message. */
+		return;
+	    }
+	    proto_tree_add_uint(tt, hf_item, tvb, *offsetp, 4, VALUE32(tvb, *offsetp));
+	    *offsetp += 4;
+      }
+}
+
+static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int length)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_color_item);
       while(length--) {
 	    proto_item *tti;
@@ -894,29 +904,41 @@ static void listOfColorItem(tvbuff_t *tvb, proto_tree *t, int hf, int length)
 	    char *bp;
 	    const char *sep;
 
-	    if (cur_offset + 12 > next_offset) {
+	    if (*offsetp + 12 > next_offset) {
 		/* List runs past end of message. */
 		return;
 	    }
-	    red = VALUE16(tvb, cur_offset + 4);
-	    green = VALUE16(tvb, cur_offset + 6);
-	    blue = VALUE16(tvb, cur_offset + 8);
-	    do_red_green_blue = VALUE8(tvb, cur_offset + 10);
+	    red = VALUE16(tvb, *offsetp + 4);
+	    green = VALUE16(tvb, *offsetp + 6);
+	    blue = VALUE16(tvb, *offsetp + 8);
+	    do_red_green_blue = VALUE8(tvb, *offsetp + 10);
 
 	    bp = buffer + sprintf(buffer, "colorItem: ");
 	    sep = "";
-	    if (do_red_green_blue & 0x1) { bp += sprintf(bp, "red = %d", red); sep = ", "; }
-	    if (do_red_green_blue & 0x2) { bp += sprintf(bp, "%sgreen = %d", sep, green); sep = ", "; }
-	    if (do_red_green_blue & 0x4) bp += sprintf(bp, "%sblue = %d", sep, blue);
+	    if (do_red_green_blue & 0x1) {
+		bp += sprintf(bp, "red = %d", red);
+		sep = ", ";
+	    }
+	    if (do_red_green_blue & 0x2) {
+		bp += sprintf(bp, "%sgreen = %d", sep, green);
+		sep = ", ";
+	    }
+	    if (do_red_green_blue & 0x4)
+		bp += sprintf(bp, "%sblue = %d", sep, blue);
 
-	    tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, cur_offset, 12, "%s", buffer);
+	    tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, *offsetp, 12, "%s", buffer);
 	    ttt = proto_item_add_subtree(tti, ett_x11_color_item);
-	    proto_tree_add_item(ttt, hf_x11_coloritem_pixel, tvb, cur_offset, 4, little_endian); cur_offset += 4;
-	    proto_tree_add_item(ttt, hf_x11_coloritem_red, tvb, cur_offset, 2, little_endian); cur_offset += 2;
-	    proto_tree_add_item(ttt, hf_x11_coloritem_green, tvb, cur_offset, 2, little_endian); cur_offset += 2;
-	    proto_tree_add_item(ttt, hf_x11_coloritem_blue, tvb, cur_offset, 2, little_endian); cur_offset += 2;
-	    colorFlags(tvb, ttt);
-	    proto_tree_add_item(ttt, hf_x11_coloritem_unused, tvb, cur_offset, 1, little_endian); cur_offset++;
+	    proto_tree_add_item(ttt, hf_x11_coloritem_pixel, tvb, *offsetp, 4, little_endian);
+	    *offsetp += 4;
+	    proto_tree_add_item(ttt, hf_x11_coloritem_red, tvb, *offsetp, 2, little_endian);
+	    *offsetp += 2;
+	    proto_tree_add_item(ttt, hf_x11_coloritem_green, tvb, *offsetp, 2, little_endian);
+	    *offsetp += 2;
+	    proto_tree_add_item(ttt, hf_x11_coloritem_blue, tvb, *offsetp, 2, little_endian);
+	    *offsetp += 2;
+	    colorFlags(tvb, offsetp, ttt);
+	    proto_tree_add_item(ttt, hf_x11_coloritem_unused, tvb, *offsetp, 1, little_endian);
+	    *offsetp += 1;
       }
 }
 
@@ -945,10 +967,11 @@ static const char *keysymString(guint32 v)
 
 static const char *modifiers[] = { "Shift", "Lock", "Control", "Mod1", "Mod2", "Mod3", "Mod4", "Mod5" };
 
-static void listOfKeycode(tvbuff_t *tvb, proto_tree *t, int hf, int length)
+static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int length)
 {
       char buffer[1024];
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keycode);
 
       while(length--) {
@@ -956,24 +979,25 @@ static void listOfKeycode(tvbuff_t *tvb, proto_tree *t, int hf, int length)
 	    const char **m;
 	    int i;
 
-	    if (cur_offset + 8 > next_offset) {
+	    if (*offsetp + 8 > next_offset) {
 		/* List runs past end of message. */
 		return;
 	    }
 	    for(i = 8, m = modifiers; i; i--, m++) {
-		  u_char c = tvb_get_guint8(tvb, cur_offset);
-		  cur_offset++;
-		  if (c) bp += sprintf(bp, "  %s=%d", *m, c);
+		u_char c = tvb_get_guint8(tvb, *offsetp);
+		*offsetp += 1;
+		if (c)
+		    bp += sprintf(bp, "  %s=%d", *m, c);
 	    }
 
-	    proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb, cur_offset - 8, 8, tvb_get_ptr(tvb, cur_offset - 8, 8),	"item: %s", buffer);
+	    proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb, *offsetp - 8, 8, tvb_get_ptr(tvb, *offsetp - 8, 8),	"item: %s", buffer);
       }
 }
 
-static void listOfKeysyms(tvbuff_t *tvb, proto_tree *t, int hf, int hf_item,
-    int keycode_count, int keysyms_per_keycode)
+static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int hf_item, int keycode_count, int keysyms_per_keycode)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, keycode_count * keysyms_per_keycode * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, keycode_count * keysyms_per_keycode * 4, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keysyms);
       proto_item *tti;
       proto_tree *ttt;
@@ -982,53 +1006,56 @@ static void listOfKeysyms(tvbuff_t *tvb, proto_tree *t, int hf, int hf_item,
       char *bp;
 
       while(keycode_count--) {
-	    if (cur_offset + keysyms_per_keycode * 4 > next_offset) {
+	    if (*offsetp + keysyms_per_keycode * 4 > next_offset) {
 		/* List runs past end of message. */
 		return;
 	    }
 	    bp = buffer + sprintf(buffer, "keysyms:");
 	    for(i = 0; i < keysyms_per_keycode; i++) {
-		  bp += sprintf(bp, " %s", keysymString(VALUE32(tvb, cur_offset + i * 4)));
+		  bp += sprintf(bp, " %s", keysymString(VALUE32(tvb, *offsetp + i * 4)));
 	    }
 	    *bp = '\0';
-	    tti = proto_tree_add_none_format(tt, hf_item, tvb, cur_offset, keysyms_per_keycode * 4,
+	    tti = proto_tree_add_none_format(tt, hf_item, tvb, *offsetp, keysyms_per_keycode * 4,
 						 "%s", buffer);
 	    ttt = proto_item_add_subtree(tti, ett_x11_keysym);
 	    for(i = keysyms_per_keycode; i; i--) {
-		  guint32 v = VALUE32(tvb, cur_offset);
-		  proto_tree_add_uint_format(ttt, hf_x11_keysyms_item_keysym, tvb, cur_offset, 4, v,
+		  guint32 v = VALUE32(tvb, *offsetp);
+		  proto_tree_add_uint_format(ttt, hf_x11_keysyms_item_keysym, tvb, *offsetp, 4, v,
 					     "keysym: 0x%08x (%s)", v, keysymString(v));
-		  cur_offset += 4;
+		  *offsetp += 4;
 	    }
       }
 }
 
-static void listOfPoint(tvbuff_t *tvb, proto_tree *t, int hf, int length)
+static void listOfPoint(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf, int length)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_point);
       while(length--) {
 	    gint16 x, y;
 	    proto_item *tti;
 	    proto_tree *ttt;
 
-	    if (cur_offset + 4 > next_offset) {
+	    if (*offsetp + 4 > next_offset) {
 		/* List runs past end of message. */
 		return;
 	    }
-	    x = VALUE16(tvb, cur_offset);
-	    y = VALUE16(tvb, cur_offset + 2);
+	    x = VALUE16(tvb, *offsetp);
+	    y = VALUE16(tvb, *offsetp + 2);
 
-	    tti = proto_tree_add_none_format(tt, hf_x11_point, tvb, cur_offset, 4, "point: (%d,%d)", x, y);
+	    tti = proto_tree_add_none_format(tt, hf_x11_point, tvb, *offsetp, 4, "point: (%d,%d)", x, y);
 	    ttt = proto_item_add_subtree(tti, ett_x11_point);
-	    proto_tree_add_int(ttt, hf_x11_point_x, tvb, cur_offset, 2, x); cur_offset += 2;
-	    proto_tree_add_int(ttt, hf_x11_point_y, tvb, cur_offset, 2, y); cur_offset += 2;
+	    proto_tree_add_int(ttt, hf_x11_point_x, tvb, *offsetp, 2, x);
+	    *offsetp += 2;
+	    proto_tree_add_int(ttt, hf_x11_point_y, tvb, *offsetp, 2, y);
+	    *offsetp += 2;
       }
 }
 
-static void listOfRectangle(tvbuff_t *tvb, proto_tree *t, int hf, int length)
+static void listOfRectangle(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int length)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_rectangle);
       while(length--) {
 	    gint16 x, y;
@@ -1036,50 +1063,59 @@ static void listOfRectangle(tvbuff_t *tvb, proto_tree *t, int hf, int length)
 	    proto_item *tti;
 	    proto_tree *ttt;
 
-	    if (cur_offset + 8 > next_offset) {
+	    if (*offsetp + 8 > next_offset) {
 		/* List runs past end of message. */
 		return;
 	    }
-	    x = VALUE16(tvb, cur_offset);
-	    y = VALUE16(tvb, cur_offset + 2);
-	    width = VALUE16(tvb, cur_offset + 4);
-	    height = VALUE16(tvb, cur_offset + 6);
+	    x = VALUE16(tvb, *offsetp);
+	    y = VALUE16(tvb, *offsetp + 2);
+	    width = VALUE16(tvb, *offsetp + 4);
+	    height = VALUE16(tvb, *offsetp + 6);
 
-	    tti = proto_tree_add_none_format(tt, hf_x11_rectangle, tvb, cur_offset, 8, 
+	    tti = proto_tree_add_none_format(tt, hf_x11_rectangle, tvb, *offsetp, 8, 
 						 "rectangle: %dx%d+%d+%d", width, height, x, y);
 	    ttt = proto_item_add_subtree(tti, ett_x11_rectangle);
-	    proto_tree_add_int(ttt, hf_x11_rectangle_x, tvb, cur_offset, 2, x); cur_offset += 2;
-	    proto_tree_add_int(ttt, hf_x11_rectangle_y, tvb, cur_offset, 2, y); cur_offset += 2;
-	    proto_tree_add_uint(ttt, hf_x11_rectangle_width, tvb, cur_offset, 2, width); cur_offset += 2;
-	    proto_tree_add_uint(ttt, hf_x11_rectangle_height, tvb, cur_offset, 2, height); cur_offset += 2;
+	    proto_tree_add_int(ttt, hf_x11_rectangle_x, tvb, *offsetp, 2, x);
+	    *offsetp += 2;
+	    proto_tree_add_int(ttt, hf_x11_rectangle_y, tvb, *offsetp, 2, y);
+	    *offsetp += 2;
+	    proto_tree_add_uint(ttt, hf_x11_rectangle_width, tvb, *offsetp, 2, width);
+	    *offsetp += 2;
+	    proto_tree_add_uint(ttt, hf_x11_rectangle_height, tvb, *offsetp, 2, height);
+	    *offsetp += 2;
       }
 }
 
-static void listOfSegment(tvbuff_t *tvb, proto_tree *t, int hf, int length)
+static void listOfSegment(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int length)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, cur_offset, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_segment);
       while(length--) {
 	    gint16 x1, y1, x2, y2;
 	    proto_item *tti;
 	    proto_tree *ttt;
 
-	    if (cur_offset + 8 > next_offset) {
+	    if (*offsetp + 8 > next_offset) {
 		/* List runs past end of message. */
 		return;
 	    }
-	    x1 = VALUE16(tvb, cur_offset);
-	    y1 = VALUE16(tvb, cur_offset + 2);
-	    x2 = VALUE16(tvb, cur_offset + 4);
-	    y2 = VALUE16(tvb, cur_offset + 6);
+	    x1 = VALUE16(tvb, *offsetp);
+	    y1 = VALUE16(tvb, *offsetp + 2);
+	    x2 = VALUE16(tvb, *offsetp + 4);
+	    y2 = VALUE16(tvb, *offsetp + 6);
 
-	    tti = proto_tree_add_none_format(tt, hf_x11_segment, tvb, cur_offset, 8, 
+	    tti = proto_tree_add_none_format(tt, hf_x11_segment, tvb, *offsetp, 8, 
 						 "segment: (%d,%d)-(%d,%d)", x1, y1, x2, y2);
 	    ttt = proto_item_add_subtree(tti, ett_x11_segment);
-	    proto_tree_add_item(ttt, hf_x11_segment_x1, tvb, cur_offset, 2, little_endian); cur_offset += 2;
-	    proto_tree_add_item(ttt, hf_x11_segment_y1, tvb, cur_offset, 2, little_endian); cur_offset += 2;
-	    proto_tree_add_item(ttt, hf_x11_segment_x2, tvb, cur_offset, 2, little_endian); cur_offset += 2;
-	    proto_tree_add_item(ttt, hf_x11_segment_y2, tvb, cur_offset, 2, little_endian); cur_offset += 2;
+	    proto_tree_add_item(ttt, hf_x11_segment_x1, tvb, *offsetp, 2, little_endian);
+	    *offsetp += 2;
+	    proto_tree_add_item(ttt, hf_x11_segment_y1, tvb, *offsetp, 2, little_endian);
+	    *offsetp += 2;
+	    proto_tree_add_item(ttt, hf_x11_segment_x2, tvb, *offsetp, 2, little_endian);
+	    *offsetp += 2;
+	    proto_tree_add_item(ttt, hf_x11_segment_y2, tvb, *offsetp, 2, little_endian);
+	    *offsetp += 2;
       }
 }
 
@@ -1096,8 +1132,8 @@ static void stringCopy(char *dest, const char *source, int length)
       *dest++ = '\0';
 }
 
-static void listOfString8(tvbuff_t *tvb, proto_tree *t, int hf, int hf_item,
-    int length)
+static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int hf_item, int length)
 {
       char *s = NULL;
       guint allocated = 0;
@@ -1107,27 +1143,27 @@ static void listOfString8(tvbuff_t *tvb, proto_tree *t, int hf, int hf_item,
 
       /* Compute total length */
       
-      int scanning_offset = cur_offset; /* Scanning pointer */
+      int scanning_offset = *offsetp; /* Scanning pointer */
       int l;
       for(i = length; i; i--) {
 	    l = tvb_get_guint8(tvb, scanning_offset);
 	    scanning_offset += 1 + l;
       }
 
-      ti = proto_tree_add_item(t, hf, tvb, cur_offset, scanning_offset - cur_offset, little_endian);
+      ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, little_endian);
       tt = proto_item_add_subtree(ti, ett_x11_list_of_string8);
 
       while(length--) {
-	    unsigned l = VALUE8(tvb, cur_offset);
+	    unsigned l = VALUE8(tvb, *offsetp);
 	    if (allocated < (l + 1)) {
 		  /* g_realloc doesn't work ??? */
 		  g_free(s);
 		  s = g_malloc(l + 1);
 		  allocated = l + 1;
 	    }
-	    stringCopy(s, tvb_get_ptr(tvb, cur_offset + 1, l), l); /* Nothing better for now. We need a better string handling API. */
-	    proto_tree_add_string_format(tt, hf_item, tvb, cur_offset, l + 1, s, "\"%s\"", s);
-	    cur_offset += l + 1;
+	    stringCopy(s, tvb_get_ptr(tvb, *offsetp + 1, l), l); /* Nothing better for now. We need a better string handling API. */
+	    proto_tree_add_string_format(tt, hf_item, tvb, *offsetp, l + 1, s, "\"%s\"", s);
+	    *offsetp += l + 1;
       }
       g_free(s);
 }
@@ -1137,8 +1173,8 @@ static void listOfString8(tvbuff_t *tvb, proto_tree *t, int hf, int hf_item,
 static int stringIsActuallyAn8BitString(tvbuff_t *tvb, int offset, unsigned length)
 {
       if (length > STRING16_MAX_DISPLAYED_LENGTH) length = STRING16_MAX_DISPLAYED_LENGTH;
-      for(; length > 0; cur_offset += 2, length--) {
-	    if (tvb_get_guint8(tvb, cur_offset))
+      for(; length > 0; offset += 2, length--) {
+	    if (tvb_get_guint8(tvb, offset))
 		return FALSE;
       }
       return TRUE;
@@ -1189,7 +1225,8 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
 
 }
 
-static void listOfTextItem(tvbuff_t *tvb, proto_tree *t, int hf, int sizeIs16)
+static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int sizeIs16)
 {
       int allocated = 0;
       char *s = NULL;
@@ -1199,7 +1236,7 @@ static void listOfTextItem(tvbuff_t *tvb, proto_tree *t, int hf, int sizeIs16)
 
       /* Compute total length */
       
-      int scanning_offset = cur_offset; /* Scanning pointer */
+      int scanning_offset = *offsetp; /* Scanning pointer */
       int l;                            /* Length of an individual item */
       int n = 0;                        /* Number of items */
 
@@ -1211,19 +1248,19 @@ static void listOfTextItem(tvbuff_t *tvb, proto_tree *t, int hf, int sizeIs16)
 	    scanning_offset += l == 255 ? 4 : l + (sizeIs16 ? l : 0) + 1;
       }
 
-      ti = proto_tree_add_item(t, hf, tvb, cur_offset, scanning_offset - cur_offset, little_endian);
+      ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, little_endian);
       tt = proto_item_add_subtree(ti, ett_x11_list_of_text_item);
 
       while(n--) {
-	    unsigned l = VALUE8(tvb, cur_offset);
+	    unsigned l = VALUE8(tvb, *offsetp);
 	    if (l == 255) { /* Item is a font */
-		  fid = tvb_get_ntohl(tvb, cur_offset + 1);
-		  proto_tree_add_uint(tt, hf_x11_textitem_font, tvb, cur_offset, 5, fid);
-		  cur_offset += 5;
+		  fid = tvb_get_ntohl(tvb, *offsetp + 1);
+		  proto_tree_add_uint(tt, hf_x11_textitem_font, tvb, *offsetp, 5, fid);
+		  *offsetp += 5;
 	    } else { /* Item is a string */
 		  proto_item *tti;
 		  proto_tree *ttt;
-		  gint8 delta = VALUE8(tvb, cur_offset + 1);
+		  gint8 delta = VALUE8(tvb, *offsetp + 1);
 		  if (sizeIs16) l += l;
 		  if ((unsigned) allocated < l + 1) {
 			/* g_realloc doesn't work ??? */
@@ -1231,29 +1268,29 @@ static void listOfTextItem(tvbuff_t *tvb, proto_tree *t, int hf, int sizeIs16)
 			s = g_malloc(l + 1);
 			allocated = l + 1;
 		  }
-		  stringCopy(s, tvb_get_ptr(tvb, cur_offset + 2, l), l);
-		  tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, cur_offset, l + 2,
+		  stringCopy(s, tvb_get_ptr(tvb, *offsetp + 2, l), l);
+		  tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l + 2,
 						       "textitem (string): delta = %d, \"%s\"",
 						       delta, s);
 		  ttt = proto_item_add_subtree(tti, ett_x11_text_item);
-		  proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, cur_offset + 1, 1, little_endian);
+		  proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, little_endian);
 		  if (sizeIs16)
 			string16_with_buffer_preallocated(tvb, ttt, hf_x11_textitem_string_string16, 
 							  hf_x11_textitem_string_string16_bytes,
-							  cur_offset + 2, l,
+							  *offsetp + 2, l,
 							   &s, &allocated);
 		  else
 			proto_tree_add_string_format(ttt, hf_x11_textitem_string_string8, tvb, 
-						     cur_offset + 2, l, s, "\"%s\"", s);
-		  cur_offset += l + 2;
+						     *offsetp + 2, l, s, "\"%s\"", s);
+		  *offsetp += l + 2;
 	    }
       }
       g_free(s);
 }
 
-static guint32 field8(tvbuff_t *tvb, proto_tree *t, int hf)
+static guint32 field8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
 {
-      guint32 v = VALUE8(tvb, cur_offset);
+      guint32 v = VALUE8(tvb, *offsetp);
       header_field_info *hfi = proto_registrar_get_nth(hf);
       gchar *enumValue = NULL;
       gchar *nameAsChar = hfi -> name;
@@ -1261,24 +1298,24 @@ static guint32 field8(tvbuff_t *tvb, proto_tree *t, int hf)
       if (hfi -> strings)
 	    enumValue = match_strval(v, cVALS(hfi -> strings));
       if (enumValue)
-	    proto_tree_add_uint_format(t, hf, tvb, cur_offset, 1, v, "%s: %u (%s)", nameAsChar, v, enumValue);
+	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 1, v, "%s: %u (%s)", nameAsChar, v, enumValue);
       else
-	    proto_tree_add_item(t, hf, tvb, cur_offset, 1, little_endian);
-      cur_offset += 1;
+	    proto_tree_add_item(t, hf, tvb, *offsetp, 1, little_endian);
+      *offsetp += 1;
       return v;
 }
 
-static guint32 field16(tvbuff_t *tvb, proto_tree *t, int hf)
+static guint32 field16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
 {
-      guint32 v = VALUE16(tvb, cur_offset);
-      proto_tree_add_item(t, hf, tvb, cur_offset, 2, little_endian);
-      cur_offset += 2;
+      guint32 v = VALUE16(tvb, *offsetp);
+      proto_tree_add_item(t, hf, tvb, *offsetp, 2, little_endian);
+      *offsetp += 2;
       return v;
 }
 
-static guint32 field32(tvbuff_t *tvb, proto_tree *t, int hf)
+static guint32 field32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
 {
-      guint32 v = VALUE32(tvb, cur_offset);
+      guint32 v = VALUE32(tvb, *offsetp);
       header_field_info *hfi = proto_registrar_get_nth(hf);
       gchar *enumValue = NULL;
       gchar *nameAsChar = hfi -> name;
@@ -1286,16 +1323,16 @@ static guint32 field32(tvbuff_t *tvb, proto_tree *t, int hf)
       if (hfi -> strings)
 	    enumValue = match_strval(v, cVALS(hfi -> strings));
       if (enumValue)
-	    proto_tree_add_uint_format(t, hf, tvb, cur_offset, 4, v, "%s: 0x%08x (%s)", nameAsChar, v, enumValue);
+	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, "%s: 0x%08x (%s)", nameAsChar, v, enumValue);
       else
-	    proto_tree_add_uint_format(t, hf, tvb, cur_offset, 4, v, 
+	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, 
 				       hfi -> display == BASE_DEC ? "%s: %u" : "%s: 0x%08x",
 				       nameAsChar, v);
-      cur_offset += 4;
+      *offsetp += 4;
       return v;
 }
 
-static void gcAttributes(tvbuff_t *tvb, proto_tree *t)
+static void gcAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
       BITMASK32(gc_value);
       BITFIELD(ENUM8,  gc_value_mask, function);
@@ -1323,7 +1360,7 @@ static void gcAttributes(tvbuff_t *tvb, proto_tree *t)
       BITFIELD(ENUM8,  gc_value_mask, arc_mode);
 }
 
-static void gcMask(tvbuff_t *tvb, proto_tree *t)
+static void gcMask(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
       BITMASK32(gc_value);
       FLAG(gc_value, function);
@@ -1351,15 +1388,15 @@ static void gcMask(tvbuff_t *tvb, proto_tree *t)
       FLAG(gc_value, arc_mode);
 }
 
-static guint32 requestLength(tvbuff_t *tvb, proto_tree *t)
+static guint32 requestLength(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
-      guint32 res = VALUE16(tvb, cur_offset) * 4;
-      proto_tree_add_uint(t, hf_x11_request_length, tvb, cur_offset, 2, res);
-      cur_offset += 2;
+      guint32 res = VALUE16(tvb, *offsetp) * 4;
+      proto_tree_add_uint(t, hf_x11_request_length, tvb, *offsetp, 2, res);
+      *offsetp += 2;
       return res;
 }
 
-static void setOfEvent(tvbuff_t *tvb, proto_tree *t)
+static void setOfEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
       struct maskStruct save = lastMask;
       BITMASK32(event);
@@ -1392,7 +1429,7 @@ static void setOfEvent(tvbuff_t *tvb, proto_tree *t)
       lastMask = save;
 }
 
-static void setOfDeviceEvent(tvbuff_t *tvb, proto_tree *t)
+static void setOfDeviceEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
       struct maskStruct save = lastMask;
       BITMASK32(do_not_propagate);
@@ -1411,19 +1448,19 @@ static void setOfDeviceEvent(tvbuff_t *tvb, proto_tree *t)
       lastMask = save;
 }
 
-static void setOfKeyMask(tvbuff_t *tvb, proto_tree *t)
+static void setOfKeyMask(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
       struct maskStruct save = lastMask;
       proto_item *ti;
 
-      lastMask._value = VALUE16(tvb, cur_offset);
-      lastMask._offset = cur_offset;
+      lastMask._value = VALUE16(tvb, *offsetp);
+      lastMask._offset = *offsetp;
       lastMask._zone = 2;
       if (lastMask._value == 0x8000)
-	    proto_tree_add_uint_format(t, hf_x11_modifiers_mask_AnyModifier, tvb, cur_offset, 2, 0x8000,
+	    proto_tree_add_uint_format(t, hf_x11_modifiers_mask_AnyModifier, tvb, *offsetp, 2, 0x8000,
 				       "modifiers-masks: 0x8000 (AnyModifier)");
       else {
-	    ti = proto_tree_add_uint(t, hf_x11_modifiers_mask, tvb, cur_offset, 2, 
+	    ti = proto_tree_add_uint(t, hf_x11_modifiers_mask, tvb, *offsetp, 2, 
 						 lastMask._value);
 	    lastMask._tree = proto_item_add_subtree(ti, ett_x11_set_of_key_mask);
 	    FLAG(modifiers, Shift);
@@ -1437,10 +1474,10 @@ static void setOfKeyMask(tvbuff_t *tvb, proto_tree *t)
 	    FLAG(modifiers, erroneous_bits);
       }
       lastMask = save;
-      cur_offset += 2; 
+      *offsetp += 2; 
 }
 
-static void setOfPointerEvent(tvbuff_t *tvb, proto_tree *t)
+static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
       struct maskStruct save = lastMask;
       BITMASK16(pointer_event);
@@ -1461,41 +1498,43 @@ static void setOfPointerEvent(tvbuff_t *tvb, proto_tree *t)
       lastMask = save;
 }
 
-static void string8(tvbuff_t *tvb, proto_tree *t, const char *nameAsChar,
-    int hf, unsigned length)
+static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
+    const char *nameAsChar, int hf, unsigned length)
 {
       char *s = g_malloc(length + 1);
-      stringCopy(s, tvb_get_ptr(tvb, cur_offset, length), length);
-      proto_tree_add_string_format(t, hf, tvb, cur_offset, length, s, "%s: %s", nameAsChar, s);
+
+      stringCopy(s, tvb_get_ptr(tvb, *offsetp, length), length);
+      proto_tree_add_string_format(t, hf, tvb, *offsetp, length, s, "%s: %s", nameAsChar, s);
       g_free(s);
-      cur_offset += length;
+      *offsetp += length;
 }
 
 /* The length is the length of the _byte_zone_ (twice the length of the string) */
 
-static void string16(tvbuff_t *tvb, proto_tree *t, int hf, int hf_bytes,
-    unsigned length)
+static void string16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+    int hf_bytes, unsigned length)
 {
       char *s = NULL;
       unsigned l = 0;
+
       length += length;
-      string16_with_buffer_preallocated(tvb, t, hf, hf_bytes, cur_offset, length, &s, &l);
+      string16_with_buffer_preallocated(tvb, t, hf, hf_bytes, *offsetp, length, &s, &l);
       g_free(s);
-      cur_offset += length;
+      *offsetp += length;
 }
 
-static void timestamp(tvbuff_t *tvb, proto_tree *t, const char *nameAsChar,
-    int hf)
+static void timestamp(tvbuff_t *tvb, int *offsetp, proto_tree *t,
+    const char *nameAsChar, int hf)
 {
-      guint32 v = VALUE32(tvb, cur_offset);
+      guint32 v = VALUE32(tvb, *offsetp);
       if (!v)
-	    proto_tree_add_uint_format(t, hf, tvb, cur_offset, 4, 0, "%s: 0 (CurrentTime)", nameAsChar);
+	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, 0, "%s: 0 (CurrentTime)", nameAsChar);
       else
-	    proto_tree_add_uint(t, hf, tvb, cur_offset, 4, v);
-      cur_offset += 4;
+	    proto_tree_add_uint(t, hf, tvb, *offsetp, 4, v);
+      *offsetp += 4;
 }
 
-static void windowAttributes(tvbuff_t *tvb, proto_tree *t)
+static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
       BITMASK32(window_value);
       BITFIELD(PIXMAP, window_value_mask, background_pixmap);
@@ -1521,7 +1560,7 @@ static void windowAttributes(tvbuff_t *tvb, proto_tree *t)
  ***                                                                  ***
  ************************************************************************/
 
-static int dissect_x11_request_loop(tvbuff_t *tvb, proto_tree *root)
+static int dissect_x11_request_loop(tvbuff_t *tvb, int *offsetp, proto_tree *root)
 {
       int left = tvb_reported_length(tvb), nextLeft;
       proto_item *ti;
@@ -1544,13 +1583,13 @@ static int dissect_x11_request_loop(tvbuff_t *tvb, proto_tree *root)
       for(;;) {
 	    int length, opcode;
 	    
-	    /* fprintf(stderr, "Starting loop, left = %d, cur_offset = %d\n", left, cur_offset); */
+	    /* fprintf(stderr, "Starting loop, left = %d, *offsetp = %d\n", left, *offsetp); */
 	    if (left < 4) {
 		/* We ran out of data - we don't have enough data in
 		   the frame to get the length of this request. */
 		break;
 	    }
-	    length = VALUE16(tvb, cur_offset + 2) * 4;
+	    length = VALUE16(tvb, *offsetp + 2) * 4;
 	    /*	    fprintf(stderr, "length = %d\n", length);*/
 	    if (left < length) {
 		/* We ran out of data - we don't have enough data in
@@ -1562,10 +1601,10 @@ static int dissect_x11_request_loop(tvbuff_t *tvb, proto_tree *root)
 		break;
 	    }
 
-	    next_offset = cur_offset + length;
+	    next_offset = *offsetp + length;
 	    nextLeft = left - length;
 
-	    ti = proto_tree_add_uint(root, hf_x11_request, tvb, cur_offset, length, tvb_get_guint8(tvb, cur_offset));
+	    ti = proto_tree_add_uint(root, hf_x11_request, tvb, *offsetp, length, tvb_get_guint8(tvb, *offsetp));
 	    t = proto_item_add_subtree(ti, ett_x11_request);
 
 	    OPCODE();
@@ -1583,14 +1622,14 @@ static int dissect_x11_request_loop(tvbuff_t *tvb, proto_tree *root)
 		  CARD16(border_width);
 		  ENUM16(window_class);
 		  VISUALID(visual);
-		  windowAttributes(tvb, t);
+		  windowAttributes(tvb, offsetp, t);
 		  break;
 
 		case 2: /* ChangeWindowAttributes */
 		  UNUSED(1);
 		  REQUEST_LENGTH();
 		  WINDOW(window);
-		  windowAttributes(tvb, t);
+		  windowAttributes(tvb, offsetp, t);
 		  break;
 
 		case 3: /* GetWindowAttributes */
@@ -1908,7 +1947,7 @@ static int dissect_x11_request_loop(tvbuff_t *tvb, proto_tree *root)
 		  v8 = BOOL(odd_length);
 		  REQUEST_LENGTH();
 		  FONTABLE(font);
-		  STRING16(string16, (next_offset - cur_offset - (v8 ? 2 : 0)) / 2);
+		  STRING16(string16, (next_offset - *offsetp - (v8 ? 2 : 0)) / 2);
 		  PAD();
 		  break;
 
@@ -1964,14 +2003,14 @@ static int dissect_x11_request_loop(tvbuff_t *tvb, proto_tree *root)
 		  REQUEST_LENGTH();
 		  GCONTEXT(cid);
 		  DRAWABLE(drawable);
-		  gcAttributes(tvb, t);
+		  gcAttributes(tvb, offsetp, t);
 		  break;
 
 		case 56: /* ChangeGC */
 		  UNUSED(1);
 		  REQUEST_LENGTH();
 		  GCONTEXT(gc);
-		  gcAttributes(tvb, t);
+		  gcAttributes(tvb, offsetp, t);
 		  break;
 
 		case 57: /* CopyGC */
@@ -1979,7 +2018,7 @@ static int dissect_x11_request_loop(tvbuff_t *tvb, proto_tree *root)
 		  REQUEST_LENGTH();
 		  GCONTEXT(src_gc);
 		  GCONTEXT(dst_gc);
-		  gcMask(tvb, t);
+		  gcMask(tvb, offsetp, t);
 		  break;
 
 		case 58: /* SetDashes */
@@ -2519,9 +2558,9 @@ static int dissect_x11_request_loop(tvbuff_t *tvb, proto_tree *root)
 		  REQUEST_LENGTH();
 		  break;
 	    }
-	    if (cur_offset < next_offset)
-		  proto_tree_add_item(t, hf_x11_undecoded, tvb, cur_offset, next_offset - cur_offset, little_endian);
-	    cur_offset = next_offset;
+	    if (*offsetp < next_offset)
+		  proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp, next_offset - *offsetp, little_endian);
+	    *offsetp = next_offset;
 	    left = nextLeft;
       }
 
@@ -2855,11 +2894,11 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo)
 	       right one.
 	    */
 	    if (!tvb_bytes_exist(tvb, 0, 4))
-			  /* Not even a way to get the length. We're biased
-			     toward little endianness here (essentially the
-			     x86 world right now). Decoding won't go very far
-			     anyway.
-			  */
+		  /* Not even a way to get the length. We're biased
+		     toward little endianness here (essentially the
+		     x86 world right now). Decoding won't go very far
+		     anyway.
+		  */
 		  decision = TRUE;
 	    else
 		  decision = tvb_get_letohs(tvb, 2) <= tvb_get_ntohs(tvb, 2);
@@ -2910,6 +2949,7 @@ dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Set up structures we will need to add the protocol subtree and manage it */
       proto_item *ti;
       proto_tree *x11_tree;
+      int offset;
       int left;
 	
 /* This field shows up as the "Info" column in the display; you should make
@@ -2924,11 +2964,11 @@ dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
       x11_tree = proto_item_add_subtree(ti, ett_x11);
 
-      cur_offset = 0;
+      offset = 0;
       little_endian = guess_byte_ordering(tvb, pinfo);
-      left = dissect_x11_request_loop(tvb, x11_tree);
+      left = dissect_x11_request_loop(tvb, &offset, x11_tree);
       if (left)
-	    call_dissector(data_handle,tvb_new_subset(tvb, cur_offset,-1, tvb_reported_length_remaining(tvb,cur_offset)), pinfo, x11_tree);
+	    call_dissector(data_handle, tvb_new_subset(tvb, offset,-1, tvb_reported_length_remaining(tvb, offset)), pinfo, x11_tree);
 }
 
 static void
