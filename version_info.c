@@ -1,7 +1,7 @@
 /* version_info.c
  * Routines to report version information for stuff used by Ethereal
  *
- * $Id: version_info.c,v 1.1 2004/01/11 22:17:43 guy Exp $
+ * $Id: version_info.c,v 1.2 2004/02/03 22:30:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,8 +188,8 @@ get_compiled_version_info(GString *str)
 #ifndef HAVE_LIBPCRE
 	break_point = str->len - 1;
 	g_string_append(str,
-			"\nNOTE: this build does not support the \"matches\" operator"
-			"\nfor Ethereal filter syntax.\n");
+			"\nNOTE: this build does not support the \"matches\" operator for Ethereal filter"
+			"\nsyntax.\n");
 	do_word_wrap(str, break_point);
 #endif	/* HAVE_LIBPCRE */
 }
