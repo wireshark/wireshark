@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.3 1999/11/13 01:32:31 guy Exp $
+ * $Id: packet-q931.c,v 1.4 1999/11/13 02:07:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,7 @@
  * http://www.protocols.com/pbook/isdn.htm
  * http://freesoft.org/CIE/Topics/126.htm
  * http://noc.comstar.ru/miscdocs/ascend-faq-cause-codes.html
+ * http://www.andrews-arnold.co.uk/isdn/q931cause.html
  */
 
 int proto_q931 = -1;
@@ -294,6 +295,7 @@ static const value_string q931_cause_code_vals[] = {
 	{ 17,	"User busy" },
 	{ 18,	"No user responding" },
 	{ 19,	"No answer from user" },
+	{ 20,	"Subscriber absent" },
 	{ 21,	"Call rejected" },
 	{ 22,	"Number changed" },
 	{ 23,	"Reverse charging rejected" },
@@ -329,6 +331,7 @@ static const value_string q931_cause_code_vals[] = {
 	{ 56,	"Call waiting not subscribed" },
 	{ 57,	"Bearer capability not authorized" },
 	{ 58,	"Bearer capability not presently available" },
+	{ 62,	"Inconsistency in designated outgoing access information and subscriber class" },
 	{ 63,	"Service or option not available, unspecified" },
 	{ 65,	"Bearer service not implemented" },
 	{ 66,	"Channel type not implemented" },
@@ -359,7 +362,8 @@ static const value_string q931_cause_code_vals[] = {
 	{ 101,	"Message not compatible with call state" },
 	{ 102,	"Recovery on timer expiry" },
 	{ 103,	"Parameter non-existent or not implemented - passed on" },
-	{ 111,	"Protocol error unspecified" },
+	{ 110,	"Message with unrecognized parameter discarded" },
+	{ 111,	"Protocol error, unspecified" },
 	{ 127,	"Internetworking, unspecified" },
 	{ 0,	NULL }
 };
