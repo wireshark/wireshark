@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.43 2001/09/25 18:27:35 guy Exp $
+ * $Id: packet-isakmp.c,v 1.44 2001/10/22 20:45:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,7 +283,12 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
     
   encap_hdr = (struct udp_encap_hdr *)tvb_get_ptr(tvb, 0, sizeof(struct udp_encap_hdr));
- 
+  
+  if (encap_hdr->non_ike_marker[0] == 0xFF) {
+    if (check_col(pinfo->fd, COL_INFO)) 
+      col_add_str(pinfo->fd, COL_INFO, "UDP encapsulated IPSec - NAT Keepalive");
+    return;
+  }
   if (memcmp(encap_hdr->non_ike_marker,non_ike_marker,8) == 0) {
     if (check_col(pinfo->fd, COL_INFO)) {
       if (encap_hdr->esp_SPI != 0)
