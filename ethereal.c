@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.68 1999/07/31 11:21:04 deniel Exp $
+ * $Id: ethereal.c,v 1.69 1999/07/31 13:10:18 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -229,13 +229,18 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 	    gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
     /* reload so it goes in effect. Also we set data_out_file which 
        tells the tcp code to output the data */
-    close_cap_file( &cf, info_bar, file_ctx);
     strcpy( filename1, tmpnam(NULL) );
     data_out_file = fopen( filename1, "a" );
     if( data_out_file == NULL ) {
       fprintf( stderr, "Could not open tmp file %s\n", filename1 );
     }
     reset_tcp_reassembly();
+    /* Compile the filter */
+    if (dfilter_compile(cf.dfilter, &cf.dfcode) != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Unable to parse filter string \"%s\".", cf.dfilter);
+      return;
+    }
     err = load_cap_file( cf.filename, &cf );
     if (err != 0) {
       simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
