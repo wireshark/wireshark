@@ -462,9 +462,9 @@ int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
 tvbuff_t *
 wrap_dissect_gssapi_payload(tvbuff_t *data_tvb, 
 			tvbuff_t *auth_tvb,
-			int offset,
+			int offset _U_,
 			packet_info *pinfo, 
-			dcerpc_auth_info *auth_info)
+			dcerpc_auth_info *auth_info _U_)
 {
 	tvbuff_t *result;
 

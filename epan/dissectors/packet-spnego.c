@@ -547,8 +547,7 @@ decrypt_arcfour(packet_info *pinfo,
     char cksum_data[8];
     int cmp;
     int conf_flag;
-    size_t padlen;
-
+    size_t padlen = 0;
 
     datalen = tvb_length(pinfo->gssapi_encrypted_tvb);
 
@@ -557,11 +556,11 @@ decrypt_arcfour(packet_info *pinfo,
     } else if (tvb_get_ntohs(pinfo->gssapi_wrap_tvb, 4)==0xffff){
 	conf_flag=0;
     } else {
-	return 3;
+	return -3;
     }
 
     if(tvb_get_ntohs(pinfo->gssapi_wrap_tvb, 6)!=0xffff){
-	return 4;
+	return -4;
     }
 
     ret = arcfour_mic_key(key_value, key_size, key_type,
@@ -569,7 +568,7 @@ decrypt_arcfour(packet_info *pinfo,
 			  8, /* SGN_CKSUM */
 			  k6_data);
     if (ret) {
-	return 5;
+	return -5;
     }
 
     {
@@ -590,7 +589,7 @@ decrypt_arcfour(packet_info *pinfo,
     }
 
     if (cmp != 0) {
-	return 6;
+	return -6;
     }
 
     {
@@ -604,7 +603,7 @@ decrypt_arcfour(packet_info *pinfo,
 			  k6_data);
     memset(Klocaldata, 0, sizeof(Klocaldata));
     if (ret) {
-	return 7;
+	return -7;
     }
 
     if(conf_flag) {
@@ -629,13 +628,10 @@ decrypt_arcfour(packet_info *pinfo,
     if(pinfo->decrypt_gssapi_tvb==DECRYPT_GSSAPI_NORMAL){
 	ret = gssapi_verify_pad(output_message_buffer,datalen,datalen, &padlen);
     	if (ret) {
-	    return 9;
+	    return -9;
 	}
-    } else {
-	padlen=0;
+	datalen -= padlen;
     }
-
-    datalen -= padlen;
 
     /* dont know what the checksum looks like for dce style gssapi */
     if(pinfo->decrypt_gssapi_tvb==DECRYPT_GSSAPI_NORMAL){
@@ -647,18 +643,18 @@ decrypt_arcfour(packet_info *pinfo,
 			    output_message_buffer, 
 			    datalen + padlen);
 	if (ret) {
-	    return 10;
+	    return -10;
 	}
 
 	cmp = memcmp(cksum_data, 
 	    tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
 	    8); /* SGN_CKSUM */
 	if (cmp) {
-	    return 11;
+	    return -11;
 	}
     }
 
-    return 0;
+    return datalen;
 }
 
 
@@ -678,7 +674,6 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 	static guint8 *omb_arr[4]={NULL,NULL,NULL,NULL};
 	static guint8 *cryptocopy=NULL; /* workaround for pre-0.6.1 heimdal bug */
 	guint8 *output_message_buffer;
-
 
 	omb_index++;
 	if(omb_index>=4){
@@ -730,11 +725,11 @@ decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tv
 				ek->key.keyblock.keyvalue.length,
 				ek->key.keyblock.keytype
 					    );
-		if (ret == 0) {
+		if (ret >= 0) {
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			pinfo->gssapi_decrypted_tvb=tvb_new_real_data(
 				output_message_buffer,
-				length, length);
+				ret, ret);
 			tvb_set_child_real_data_tvbuff(tvb, pinfo->gssapi_decrypted_tvb);
 			add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
 			return;

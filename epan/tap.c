@@ -177,6 +177,9 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 
 	/* get a free tap_packet structure, this is CHEAP */
 	tpt=tap_packet_list_free;
+	if (!tpt) {
+	    return;
+	}
 	tap_packet_list_free=tpt->next;
 	tpt->next=tap_packet_list_queue;
 	tap_packet_list_queue=tpt;
