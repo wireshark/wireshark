@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.48 2003/12/29 00:48:56 sharpe Exp $
+ * $Id: gui_prefs.c,v 1.49 2004/01/01 13:16:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,15 +275,6 @@ gui_prefs_show(void)
 	    "File Open dialog behavior:", NULL, gui_fileopen_vals,
 	    prefs.gui_fileopen_style);
 
-	/* Number of entries in the recent_files list ... */
-
-	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
-	    "Recent Files Count Max:", "Maximum number of recent files", recent_files_count_max_str);
-	sprintf(current_val_str, "%d", prefs.gui_recent_files_count_max);
-	gtk_entry_set_text(GTK_ENTRY(recent_files_count_max_te), current_val_str);
-	OBJECT_SET_DATA(main_vb, GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
-	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);
-
 	/* Directory to default File Open dialog to */
 	fileopen_dir_te = create_preference_entry(main_tb, pos++, "Directory:",
 	    NULL, prefs.gui_fileopen_dir);
@@ -292,6 +283,14 @@ gui_prefs_show(void)
 	SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
         SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event",
                        fileopen_dir_changed_cb, main_vb);
+
+	/* Number of entries in the recent_files list ... */
+	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
+	    "Recent Files Count Max:", "Maximum number of recent files", recent_files_count_max_str);
+	sprintf(current_val_str, "%d", prefs.gui_recent_files_count_max);
+	gtk_entry_set_text(GTK_ENTRY(recent_files_count_max_te), current_val_str);
+	OBJECT_SET_DATA(main_vb, GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
+	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);
 
 	/* "Font..." button - click to open a font selection dialog box. */
 #if GTK_MAJOR_VERSION < 2
