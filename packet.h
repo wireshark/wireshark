@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.101 1999/10/03 01:14:33 sharpe Exp $
+ * $Id: packet.h,v 1.102 1999/10/08 20:50:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -172,6 +172,7 @@ enum {
 	ETT_TR_MAC,
 	ETT_PPP,
 	ETT_ARP,
+	ETT_BPDU,
 	ETT_FDDI,
 	ETT_NULL,
 	ETT_IP,
@@ -437,6 +438,7 @@ int dissect_ah(const u_char *, int, frame_data *, proto_tree *);
 void dissect_aarp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_arp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_bootp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_bpdu(const u_char *, int, frame_data *, proto_tree *);
 void dissect_cdp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_cotp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_data(const u_char *, int, frame_data *, proto_tree *);

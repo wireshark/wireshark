@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.31 1999/10/04 18:09:05 gram Exp $
+ * $Id: proto.c,v 1.32 1999/10/08 20:50:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,6 +91,7 @@ void proto_register_ascend(void);
 void proto_register_atalk(void);
 void proto_register_atm(void);
 void proto_register_bootp(void);
+void proto_register_bpdu(void);
 void proto_register_cdp(void);
 void proto_register_clnp(void);
 void proto_register_cotp(void);
@@ -198,6 +199,7 @@ proto_init(void)
 	proto_register_atalk();
 	proto_register_atm();
 	proto_register_bootp();
+	proto_register_bpdu();
 	proto_register_cdp();
 	proto_register_clnp();
 	proto_register_cotp();
