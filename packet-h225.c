@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.37 2004/04/09 03:32:17 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.38 2004/04/09 03:51:30 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -546,8 +546,11 @@ static int hf_h235_AuthenticationMechanism = -1;
 static int hf_h235_CryptoToken = -1;
 static int hf_h235_cryptoEncryptedToken = -1;
 static int hf_h235_HASHED = -1;
+static int hf_h235_ENCRYPTED = -1;
 static int hf_h235_Params = -1;
 static int hf_h235_ranInt = -1;
+static int hf_h235_hash = -1;
+static int hf_h235_encryptedData = -1;
 /*aaa*/
 
 static gint ett_h225 = -1;
@@ -825,6 +828,7 @@ static gint ett_h235_CryptoToken = -1;
 static gint ett_h235_cryptoEncryptedToken = -1;
 static gint ett_h235_HASHED = -1;
 static gint ett_h235_Params = -1;
+static gint ett_h235_ENCRYPTED = -1;
 /*bbb*/
 
 /* Subdissector tables */
@@ -3030,6 +3034,8 @@ dissect_h225_CallLinkage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 
+static int dissect_h235_ENCRYPTED(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
 static int
 dissect_h235_tokenOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -3212,7 +3218,8 @@ dissect_h235_AuthenticationMechanism_sequence_of(tvbuff_t *tvb, int offset, pack
 static int
 dissect_h235_ENCRYPTED_EncodedGeneralToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("ENCRYPTED_EncodedGeneralToken");
+	offset = dissect_h235_ENCRYPTED(tvb, offset, pinfo, tree);
+
 	return offset;
 }
 static per_sequence_t cryptoEncryptedToken_sequence[] = {
@@ -3347,8 +3354,8 @@ dissect_h235_Params(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 dissect_h235_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("H235 hash");
-/*offset = dissect_per_bit_string(tvb, offset, pinfo, tree, int hf_index, int min_len, int max_len);*/
+	offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_h235_hash, -1, -1);
+
 	return offset;
 }
 
@@ -3371,6 +3378,35 @@ dissect_h235_HASHED(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 	return offset;
 }
+
+static int
+dissect_h235_encryptedData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h235_encryptedData, -1, -1, NULL, NULL);
+
+	return offset;
+}
+static per_sequence_t ENCRYPTED_sequence[] = {
+	{ "algorithmOID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h225_algorithmOID },
+	{ "paramS", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h235_Params },
+	{ "encryptedData", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h235_encryptedData },
+	{ NULL, 0, 0, NULL }
+};
+static int
+dissect_h235_ENCRYPTED(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	/* XXX maybe this function should take a callback so that we can decrypt and dissect the data */
+
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree,
+				hf_h235_ENCRYPTED,
+				ett_h235_ENCRYPTED, ENCRYPTED_sequence);
+
+	return offset;
+}
+
 
 static int
 dissect_h225_tokens(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -10464,6 +10500,10 @@ proto_register_h225(void)
   	{ &hf_h225_ras_deltatime,
       		{ "RAS Service Response Time", "h225.ras.timedelta", FT_RELATIVE_TIME, BASE_NONE,
       		NULL, 0, "Timedelta between RAS-Request and RAS-Response", HFILL }},
+	{ &hf_h235_encryptedData,
+		{ "encryptedData", "h235.encryptedData", FT_BYTES, BASE_HEX,
+		NULL, 0, "h235 EncryptedData", HFILL }},
+
 	{ &hf_h235_ClearToken,
 		{ "ClearToken", "h235.ClearToken", FT_NONE, BASE_NONE,
 		NULL, 0, "ClearToken SEQUENCE", HFILL }},
@@ -10512,6 +10552,10 @@ proto_register_h225(void)
 		{ "HASHED", "h235.HASHED", FT_NONE, BASE_NONE,
 		NULL, 0, "HASHED SEQUENCE", HFILL }},
 
+	{ &hf_h235_ENCRYPTED,
+		{ "ENCRYPTED", "h235.ENCRYPTED", FT_NONE, BASE_NONE,
+		NULL, 0, "ENCRYPTED SEQUENCE", HFILL }},
+
 	{ &hf_h235_Params,
 		{ "Params", "h235.Params", FT_NONE, BASE_NONE,
 		NULL, 0, "H235 Params sequence", HFILL }},
@@ -10519,6 +10563,10 @@ proto_register_h225(void)
 	{ &hf_h235_ranInt,
 		{ "ranInt", "h235.ranInt", FT_UINT32, BASE_DEC,
 		NULL, 0, "A random integer", HFILL }},
+
+	{ &hf_h235_hash,
+		{ "hash", "h235.hash", FT_BYTES, BASE_HEX,
+		NULL, 0, "The hash value", HFILL }},
 /*ddd*/
 	};
 
@@ -10798,6 +10846,7 @@ proto_register_h225(void)
 		&ett_h235_CryptoToken,
 		&ett_h235_cryptoEncryptedToken,
 		&ett_h235_HASHED,
+		&ett_h235_ENCRYPTED,
 		&ett_h235_Params,
 /*eee*/
 	};
