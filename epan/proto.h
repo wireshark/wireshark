@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.6 2001/02/01 20:21:16 gram Exp $
+ * $Id: proto.h,v 1.7 2001/02/13 18:34:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,7 +99,8 @@ struct _header_field_info {
 	int				id;		/* Field ID */
 	int				parent;		/* parent protocol */
 	int				bitshift;	/* bits to shift */
-	header_field_info		*same_name;	/* Link to next hfinfo with same abbrev*/
+	header_field_info		*same_name_next; /* Link to next hfinfo with same abbrev*/
+	header_field_info		*same_name_prev; /* Link to previous hfinfo with same abbrev*/
 };
 
 

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.3 2001/02/12 10:06:50 guy Exp $
+ * $Id: dfilter.c,v 1.4 2001/02/13 18:34:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,7 +86,7 @@ dfilter_init(void)
 {
 	int 			id, num_symbols;
 	char 			*abbrev;
-	header_field_info	*hfinfo, *same_name_hfinfo;
+	header_field_info	*hfinfo, *same_name_hfinfo, *same_name_next_hfinfo;
 
 	num_symbols = proto_registrar_n();
 
@@ -98,7 +98,8 @@ dfilter_init(void)
 		/* Make sure the hfinfo->same_name links are broken */
 		for (id = 0; id < num_symbols; id++) {
 			hfinfo = proto_registrar_get_nth(id);
-			hfinfo->same_name = NULL;
+			hfinfo->same_name_next = NULL;
+			hfinfo->same_name_prev = NULL;
 		}
 	}
 	dfilter_tokens = g_tree_new(g_strcmp);
@@ -125,13 +126,22 @@ dfilter_init(void)
 		 * are modulo-8 or modulo-128 packets. */
 		same_name_hfinfo = g_tree_lookup(dfilter_tokens, abbrev);
 		if (same_name_hfinfo) {
-			/* Set the "same_name" pointer in the hfinfo, then
-			 * allow the code after this if{} block to replace the
-			 * old hfinfo with the new hfinfo in the GTree. Thus,
+			/* There's already a field with this name.
+			 * Put it after that field in the list of
+			 * fields with this name, then allow the code
+			 * after this if{} block to replace the old
+			 * hfinfo with the new hfinfo in the GTree. Thus,
 			 * we end up with a linked-list of same-named hfinfo's,
 			 * with the root of the list being the hfinfo in the GTree */
-			hfinfo->same_name = same_name_hfinfo;
+			same_name_next_hfinfo =
+			    same_name_hfinfo->same_name_next;
 
+			hfinfo->same_name_next = same_name_next_hfinfo;
+			if (same_name_next_hfinfo)
+				same_name_next_hfinfo->same_name_prev = hfinfo;
+
+			same_name_hfinfo->same_name_next = hfinfo;
+			hfinfo->same_name_prev = same_name_hfinfo;
 		}
 		g_tree_insert(dfilter_tokens, abbrev, hfinfo);
 	}

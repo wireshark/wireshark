@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.9 2001/02/12 10:06:48 guy Exp $
+ * $Id: proto.c,v 1.10 2001/02/13 18:34:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1776,7 +1776,8 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	}
 
 	hfinfo->parent = parent;
-	hfinfo->same_name = NULL;
+	hfinfo->same_name_next = NULL;
+	hfinfo->same_name_prev = NULL;
 
 	/* if we always add and never delete, then id == len - 1 is correct */
 	g_ptr_array_add(gpa_hfinfo, hfinfo);
@@ -2405,7 +2406,7 @@ proto_registrar_get_length(int n)
 /* =================================================================== */
 /* used when calling proto search functions */
 typedef struct {
-	int			target;
+	header_field_info	*target;
 	int			parent;
 	const guint8		*packet_data;
 	guint			packet_len;
@@ -2422,7 +2423,7 @@ typedef struct {
  * that is found, the callback function is called.
  */
 static void
-proto_find_protocol_multi(proto_tree* tree, int target, GNodeTraverseFunc callback,
+proto_find_protocol_multi(proto_tree* tree, GNodeTraverseFunc callback,
 			proto_tree_search_info *sinfo)
 {
 	g_assert(callback != NULL);
@@ -2455,11 +2456,17 @@ check_for_protocol_or_field_id(GNode *node, gpointer data)
 {
 	field_info		*fi = (field_info*) (node->data);
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*) data;
+	header_field_info	*hfinfo;
 
 	if (fi) { /* !fi == the top most container node which holds nothing */
-		if (fi->hfinfo->id == sinfo->target) {
-			sinfo->result.node = node;
-			return TRUE; /* halt traversal */
+		/* Is this field one of the fields in the specified list
+		 * of fields? */
+		for (hfinfo = sinfo->target; hfinfo != NULL;
+		    hfinfo = hfinfo->same_name_next) {
+			if (fi->hfinfo == hfinfo) {
+				sinfo->result.node = node;
+				return TRUE; /* halt traversal */
+			}
 		}
 	}
 	return FALSE; /* keep traversing */
@@ -2471,8 +2478,16 @@ gboolean
 proto_check_for_protocol_or_field(proto_tree* tree, int id)
 {
 	proto_tree_search_info	sinfo;
+	header_field_info	*hfinfo;
 
-	sinfo.target		= id;
+	hfinfo = proto_registrar_get_nth(id);
+
+	/* Find the first entry on the list of fields with the same
+	 * name as this field. */
+	while (hfinfo->same_name_prev != NULL)
+		hfinfo = hfinfo->same_name_prev;
+
+	sinfo.target		= hfinfo;
 	sinfo.result.node	= NULL;
 	sinfo.parent		= -1;
 	sinfo.traverse_func	= check_for_protocol_or_field_id;
@@ -2480,7 +2495,7 @@ proto_check_for_protocol_or_field(proto_tree* tree, int id)
 
 	/* do a quicker check if target is a protocol */
 	if (proto_registrar_is_protocol(id) == TRUE) {
-		proto_find_protocol_multi(tree, id, check_for_protocol_or_field_id, &sinfo);
+		proto_find_protocol_multi(tree, check_for_protocol_or_field_id, &sinfo);
 	}
 	else {
 		/* find the field's parent protocol */
@@ -2509,15 +2524,21 @@ get_finfo_ptr_array(GNode *node, gpointer data)
 {
 	field_info		*fi = (field_info*) (node->data);
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*) data;
+	header_field_info	*hfinfo;
 
 	if (fi) { /* !fi == the top most container node which holds nothing */
-		if (fi->hfinfo->id == sinfo->target) {
-			if (!sinfo->result.ptr_array) {
-				sinfo->result.ptr_array = g_ptr_array_new();
+		/* Is this field one of the fields in the specified list
+		 * of fields? */
+		for (hfinfo = sinfo->target; hfinfo != NULL;
+		    hfinfo = hfinfo->same_name_next) {
+			if (fi->hfinfo == hfinfo) {
+				if (!sinfo->result.ptr_array) {
+					sinfo->result.ptr_array = g_ptr_array_new();
+				}
+				g_ptr_array_add(sinfo->result.ptr_array,
+						(gpointer)fi);
+				return FALSE; /* keep traversing */
 			}
-			g_ptr_array_add(sinfo->result.ptr_array,
-					(gpointer)fi);
-			return FALSE; /* keep traversing */
 		}
 	}
 	return FALSE; /* keep traversing */
@@ -2529,8 +2550,16 @@ GPtrArray*
 proto_get_finfo_ptr_array(proto_tree *tree, int id)
 {
 	proto_tree_search_info	sinfo;
+	header_field_info	*hfinfo;
 
-	sinfo.target		= id;
+	hfinfo = proto_registrar_get_nth(id);
+
+	/* Find the first entry on the list of fields with the same
+	 * name as this field. */
+	while (hfinfo->same_name_prev != NULL)
+		hfinfo = hfinfo->same_name_prev;
+
+	sinfo.target		= hfinfo;
 	sinfo.result.ptr_array	= NULL;
 	sinfo.parent		= -1;
 	sinfo.traverse_func	= get_finfo_ptr_array;
@@ -2538,7 +2567,7 @@ proto_get_finfo_ptr_array(proto_tree *tree, int id)
 
 	/* do a quicker check if target is a protocol */
 	if (proto_registrar_is_protocol(id) == TRUE) {
-		proto_find_protocol_multi(tree, id, get_finfo_ptr_array, &sinfo);
+		proto_find_protocol_multi(tree, get_finfo_ptr_array, &sinfo);
 	}
 	else {
 		/* find the field's parent protocol */
@@ -2597,18 +2626,18 @@ proto_registrar_dump(void)
 		/* format for header fields */
 		else {
 			/*
-			 * If there's another field with the same name as
-			 * this one, skip this field - all fields with the
-			 * same name are really just versions of the
-			 * same field stored in different bits, and should
-			 * have the same type/radix/value list, and just
-			 * differ in their bit masks.  (If a field isn't
+			 * If this field isn't at the head of the list of
+			 * fields with this name, skip this field - all
+			 * fields with the same name are really just versions
+			 * of the same field stored in different bits, and
+			 * should have the same type/radix/value list, and
+			 * just differ in their bit masks.  (If a field isn't
 			 * a bitfield, but can be, say, 1 or 2 bytes long,
 			 * it can just be made FT_UINT16, meaning the
 			 * *maximum* length is 2 bytes, and be used
 			 * for all lengths.)
 			 */
-			if (hfinfo->same_name != NULL)
+			if (hfinfo->same_name_prev != NULL)
 				continue;
 
 			parent_hfinfo = proto_registrar_get_nth(hfinfo->parent);

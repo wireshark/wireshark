@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.12 2001/02/12 10:06:51 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.13 2001/02/13 18:34:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1012,17 +1012,18 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 		hfinfo = proto_registrar_get_nth(i);
 
 		/*
-		 * If there's another field with the same name as this
-		 * one, skip this field - all fields with the same name
-		 * are really just versions of the same field stored in
-		 * different bits, and should have the same type/radix/
-		 * value list, and just differ in their bit masks.
-		 * (If a field isn't a bitfield, but can be, say, 1 or 2
-		 * bytes long, it can just be made FT_UINT16, meaning the
-		 * *maximum* length is 2 bytes, and be used for all
-		 * lengths.)
+		 * If this field isn't at the head of the list of
+		 * fields with this name, skip this field - all
+		 * fields with the same name are really just versions
+		 * of the same field stored in different bits, and
+		 * should have the same type/radix/value list, and
+		 * just differ in their bit masks.  (If a field isn't
+		 * a bitfield, but can be, say, 1 or 2 bytes long,
+		 * it can just be made FT_UINT16, meaning the
+		 * *maximum* length is 2 bytes, and be used
+		 * for all lengths.)
 		 */
-		if (hfinfo->same_name != NULL)
+		if (hfinfo->same_name_prev != NULL)
 			continue;
 
 		/* Create a node for the item, and put it
