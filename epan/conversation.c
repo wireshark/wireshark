@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.10 2001/06/10 09:50:20 guy Exp $
+ * $Id: conversation.c,v 1.11 2001/09/03 00:26:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -524,8 +524,12 @@ conversation_set_addr2(conversation_t *conv, address *addr)
 	}
 }
 
+/*
+ * Search a particular hash table for a conversaton with the specified
+ * addr1, port1, addr2, and port2.
+ */
 static conversation_t *
-conversation_match(GHashTable *hashtable, address *addr1, address *addr2,
+conversation_lookup_hashtable(GHashTable *hashtable, address *addr1, address *addr2,
     port_type ptype, guint32 port1, guint32 port2)
 {
 	conversation_key key;
@@ -542,11 +546,42 @@ conversation_match(GHashTable *hashtable, address *addr1, address *addr2,
 	return g_hash_table_lookup(hashtable, &key);
 }
  
+
 /*
  * Given two address/port pairs for a packet, search for a conversation
  * containing packets between those address/port pairs.  Returns NULL if
- * not found.  If the NO_ADDR_B and/or NO_PORT_B flags are set in the
- * conversation options field, that value will not be used.
+ * not found.
+ *
+ * We try to find the most exact match that we can, and then proceed to
+ * try wildcard matches on the "addr_b" and/or "port_b" argument if a more
+ * exact match failed.
+ *
+ * Either or both of the "addr_b" and "port_b" arguments may be specified as
+ * a wildcard by setting the NO_ADDR_B or NO_PORT_B flags in the "options"
+ * argument.  We do only wildcard matches on addresses and ports specified
+ * as wildcards.
+ *
+ * I.e.:
+ *
+ *	if neither "addr_b" nor "port_b" were specified as wildcards, we
+ *	do an exact match (addr_a/port_a and addr_b/port_b) and, if that
+ *	succeeds, we return a pointer to the matched conversation;
+ *
+ *	otherwise, if "port_b" wasn't specified as a wildcard, we try to
+ *	match any address 2 with the specified port 2 (addr_a/port_a and
+ *	{any}/addr_b) and, if that succeeds, we return a pointer to the
+ *	matched conversation;
+ *
+ *	otherwise, if "addr_b" wasn't specified as a wildcard, we try to
+ *	match any port 2 with the specified address 2 (addr_a/port_a and
+ *	addr_b/{any}) and, if that succeeds, we return a pointer to the
+ *	matched conversation;
+ *
+ *	otherwise, we try to match any address 2 and any port 2
+ *	(addr_a/port_a and {any}/{any}) and, if that succeeds, we return
+ *	a pointer to the matched conversation;
+ *
+ *	otherwise, we found no matching conversation, and return NULL.
  */
 conversation_t *
 find_conversation(address *addr_a, address *addr_b, port_type ptype,
@@ -554,71 +589,88 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 {
 	conversation_t *conversation;
 
-	if (options & NO_ADDR_B) {
-		if (options & NO_PORT_B) {
-			/*
-			 * Wildcard the address and port - first try looking
-			 * for a conversation with the specified address 1
-			 * and port 1, then try looking for one with an
-			 * address 1 and port 1 that's the specified
-			 * address *2* and port *2* (this packet may be
-			 * going in the opposite direction from the first
-			 * packet in the conversation).
-			 */
-			conversation =
-			    conversation_match(conversation_hashtable_no_addr2_or_port2,
-			        addr_a, addr_b, ptype, port_a, port_b);
-			if (conversation != NULL)
-				return conversation;
-			return conversation_match(conversation_hashtable_no_addr2_or_port2,
-			    addr_b, addr_a, ptype, port_b, port_a);
-		} else {
-			/*
-			 * Wildcard the address - first try looking for a
-			 * conversation with the specified address 1 and
-			 * port 1 and the specified port 2, then try looking
-			 * for one with an address 1 and port 1 that's
-			 * the specified address *2* and port *2* and
-			 * a port 2 that's the specified port *1* (this
-			 * packet may be going in the opposite direction
-			 * from the first packet in the conversation).
-			 */
-			conversation =
-			    conversation_match(conversation_hashtable_no_addr2,
-			        addr_a, addr_b, ptype, port_a, port_b);
-			if (conversation != NULL)
-				return conversation;
-			return conversation_match(conversation_hashtable_no_addr2,
-			    addr_b, addr_a, ptype, port_b, port_a);
-		}
-	} else {
-		if (options & NO_PORT_B) {
-			/*
-			 * Wildcard the port - first try looking for a
-			 * conversation with the specified address 1 and
-			 * port 1 and the specified address 2, then try
-			 * looking for one with an address 1 and port 1
-			 * that's the specified address *2* and port *2*
-			 * and an address 2 that's the specified address
-			 * *1* (this packet may be going in the opposite
-			 * direction from the first packet in the conversation).
-			 */
-			conversation =
-			    conversation_match(conversation_hashtable_no_port2,
-			      addr_a, addr_b, ptype, port_a, port_b);
-			if (conversation != NULL)
-				return conversation;
-			return conversation_match(conversation_hashtable_no_port2,
-			    addr_b, addr_a, ptype, port_b, port_a);
-		} else {
-			/*
-			 * Search for an exact match.  That search checks both
-			 * directions.
-			 */
-			return conversation_match(conversation_hashtable_exact,
-			    addr_a, addr_b, ptype, port_a, port_b);
-		}
+	if (!(options & (NO_ADDR_B|NO_PORT_B))) {
+		/*
+		 * Neither the second search address nor the second search
+		 * port are wildcarded; start out with an exact match.
+		 * Exact matches check both directions.
+		 */
+		conversation =
+		    conversation_lookup_hashtable(conversation_hashtable_exact,
+		      addr_a, addr_b, ptype, port_a, port_b);
+		if (conversation != NULL)
+			return conversation;
 	}
+
+	if (!(options & NO_PORT_B)) {
+		/*
+		 * The second search port isn't wildcarded.  Try doing a
+		 * wildcard match on the second search address and an
+		 * exact match on the second search port.
+		 *
+		 * First try looking for a conversation with the specified
+		 * address 1 and port 1 and the specified port 2, then try
+		 * looking for one with an address 1 and port 1 that's the
+		 * specified address *2* and port *2* and a port 2 that's
+		 * the specified port *1* (this packet may be going in the
+		 * opposite direction from the first packet in the
+		 * conversation).
+		 */
+		conversation =
+		    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+		        addr_a, addr_b, ptype, port_a, port_b);
+		if (conversation != NULL)
+			return conversation;
+		conversation =
+		    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+		    addr_b, addr_a, ptype, port_b, port_a);
+		if (conversation != NULL)
+			return conversation;
+	}
+
+	if (!(options & NO_ADDR_B)) {
+		/*
+		 * The second search address isn't wildcarded.  Try doing
+		 * an exact match on the second search address and a
+		 * wildcard match on the second search port.
+		 *
+		 * First try looking for a conversation with the specified
+		 * address 1 and port 1 and the specified address 2, then
+		 * try looking for one with an address 1 and port 1 that's
+		 * the specified address *2* and port *2* and an address 2
+		 * that's the specified address *1* (this packet may be
+		 * going in the opposite direction from the first packet
+		 * in the conversation).
+		 */
+		conversation =
+		    conversation_lookup_hashtable(conversation_hashtable_no_port2,
+		      addr_a, addr_b, ptype, port_a, port_b);
+		if (conversation != NULL)
+			return conversation;
+		conversation =
+		    conversation_lookup_hashtable(conversation_hashtable_no_port2,
+		      addr_b, addr_a, ptype, port_b, port_a);
+		if (conversation != NULL)
+			return conversation;
+	}
+
+	/*
+	 * Now try doing a wildcard match on the second search address and
+	 * port.
+	 *
+	 * First try looking for a conversation with the specified address 1
+	 * and port 1, then try looking for one with an address 1 and port 1
+	 * that's the specified address *2* and port *2* (this packet may be
+	 * going in the opposite direction from the first packet in the
+	 * conversation).
+	 */
+	conversation =
+	    conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+	        addr_a, addr_b, ptype, port_a, port_b);
+	if (conversation != NULL)
+		return conversation;
+	return conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+	    addr_b, addr_a, ptype, port_b, port_a);
 }
 
 /*
@@ -641,15 +693,9 @@ conversation_set_dissector(conversation_t *conversation,
 }
 
 /*
- * Given two address/port pairs for a packet, search for a conversation
- * dissector.
- * If found, call it and return TRUE, otherwise return FALSE.
- *
- * Will search for a exact match (addr_a/port_a and addr_b/port_b), then search
- * for wild card matches: try to match any address 2 with the specified port 2
- * first (addr_a/port_a and {any}/addr_b), then try to match any port 2 with the
- * specified address 2 (addr_a/port_a and addr_b/{any}), then try to match any
- * address 2 and any port 2 (addr_a/port_a and {any}/{any}).
+ * Given two address/port pairs for a packet, search for a matching
+ * conversation and, if found and it has a conversation dissector,
+ * call that dissector and return TRUE, otherwise return FALSE.
  */
 gboolean
 try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
@@ -660,20 +706,8 @@ try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
 	const guint8 *pd;
 	int offset;
 
-	conversation = find_conversation(addr_a, addr_b, ptype, port_a, port_b,
-	    0);
-
-	if (conversation == NULL)
-		conversation = find_conversation(addr_a, addr_b, ptype, port_a,
-		    port_b, NO_ADDR_B);
-
-	if (conversation == NULL)
-		conversation = find_conversation(addr_a, addr_b, ptype, port_a,
-		    port_b, NO_PORT_B);
-
-	if (conversation == NULL)
-		conversation = find_conversation(addr_a, addr_b, ptype, port_a,
-		    port_b, NO_PORT_B | NO_ADDR_B);
+	conversation = find_conversation(addr_a, addr_b, ptype, port_a,
+	    port_b, 0);
 	
 	if (conversation != NULL) {
 		if (conversation->is_old_dissector) {
