@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.50 2002/02/21 23:34:33 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.51 2002/02/22 07:16:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1290,9 +1290,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
 
     case DATA:
+    case DATA_NULL_FUNCTION:
     case DATA_CF_ACK:
+    case DATA_CF_ACK_NOD:
     case DATA_CF_POLL:
+    case DATA_CF_POLL_NOD:
     case DATA_CF_ACK_POLL:
+    case DATA_CF_ACK_POLL_NOD:
       addr_type = COOK_ADDR_SELECTOR (fcf);
 
       /* In order to show src/dst address we must always do the following */
@@ -1423,8 +1427,22 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     {
 
     case MGT_FRAME:
-    case DATA_FRAME:
       break;
+
+    case DATA_FRAME:
+      /*
+       * No-data frames don't have a body.
+       */
+      switch (frame_type_subtype)
+	{
+
+	case DATA_NULL_FUNCTION:
+	case DATA_CF_ACK_NOD:
+	case DATA_CF_POLL_NOD:
+	case DATA_CF_ACK_POLL_NOD:
+	  return;
+	}
+	break;
 
     default:
       return;
