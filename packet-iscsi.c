@@ -2,9 +2,11 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
+ * Conforms to the protocol described in: draft-ietf-ips-iscsi-09.txt
+ * Optionally, may be compiled for compatibility with
+ * draft-ietf-ips-iscsi-08.txt by defining DRAFT08
  *
- * $Id: packet-iscsi.c,v 1.22 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-iscsi.c,v 1.23 2002/01/21 22:23:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,7 +92,9 @@ static int hf_iscsi_HeaderDigest = -1;
 static int hf_iscsi_HeaderDigest32 = -1;
 static int hf_iscsi_DataDigest = -1;
 static int hf_iscsi_DataDigest32 = -1;
+#ifdef DRAFT08
 static int hf_iscsi_X = -1;
+#endif
 static int hf_iscsi_I = -1;
 static int hf_iscsi_SCSICommand_F = -1;
 static int hf_iscsi_SCSICommand_R = -1;
@@ -116,6 +120,7 @@ static int hf_iscsi_SCSIResponse_BidiReadResidualCount = -1;
 static int hf_iscsi_SCSIResponse_ResidualCount = -1;
 static int hf_iscsi_SCSIResponse_Response = -1;
 static int hf_iscsi_SCSIResponse_Status = -1;
+static int hf_iscsi_SenseLength = -1;
 static int hf_iscsi_SCSIData_F = -1;
 static int hf_iscsi_SCSIData_S = -1;
 static int hf_iscsi_SCSIData_O = -1;
@@ -129,9 +134,17 @@ static int hf_iscsi_VersionMax = -1;
 static int hf_iscsi_VersionActive = -1;
 static int hf_iscsi_CID = -1;
 static int hf_iscsi_ISID = -1;
+#ifndef DRAFT08
+static int hf_iscsi_ISIDType = -1;
+static int hf_iscsi_ISIDNamingAuthority = -1;
+static int hf_iscsi_ISIDQualifier = -1;
+#endif
 static int hf_iscsi_TSID = -1;
 static int hf_iscsi_InitStatSN = -1;
 static int hf_iscsi_InitCmdSN = -1;
+#ifndef DRAFT08
+static int hf_iscsi_Login_X = -1;
+#endif
 static int hf_iscsi_Login_T = -1;
 static int hf_iscsi_Login_CSG = -1;
 static int hf_iscsi_Login_NSG = -1;
@@ -164,6 +177,9 @@ static int hf_iscsi_RunLength = -1;
 static gint ett_iscsi_KeyValues = -1;
 static gint ett_iscsi_CDB = -1;
 static gint ett_iscsi_Flags = -1;
+#ifndef DRAFT08
+static gint ett_iscsi_ISID = -1;
+#endif
 
 typedef struct _iscsi_conv_key {
     guint32 conv_idx;
@@ -181,7 +197,9 @@ static GMemChunk *iscsi_req_keys = NULL;
 static GMemChunk *iscsi_req_vals = NULL;
 static guint32 iscsi_init_count = 25;
 
+#ifdef DRAFT08
 #define X_BIT 0x80
+#endif
 #define I_BIT 0x40
 
 #define TARGET_OPCODE_BIT 0x20
@@ -195,16 +213,16 @@ static guint32 iscsi_init_count = 25;
 #define ISCSI_OPCODE_LOGOUT_COMMAND           0x06
 #define ISCSI_OPCODE_SNACK_REQUEST            0x10
 
-#define ISCSI_OPCODE_NOP_IN                            (0x20 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_SCSI_RESPONSE                     (0x21 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE (0x22 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_LOGIN_RESPONSE                    (0x23 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_TEXT_RESPONSE                     (0x24 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_SCSI_DATA_IN                      (0x25 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_LOGOUT_RESPONSE                   (0x26 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_R2T                               (0x31 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_ASYNC_MESSAGE                     (0x32 | X_BIT | I_BIT)
-#define ISCSI_OPCODE_REJECT                            (0x3f | X_BIT | I_BIT)
+#define ISCSI_OPCODE_NOP_IN                            0x20
+#define ISCSI_OPCODE_SCSI_RESPONSE                     0x21
+#define ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE 0x22
+#define ISCSI_OPCODE_LOGIN_RESPONSE                    0x23
+#define ISCSI_OPCODE_TEXT_RESPONSE                     0x24
+#define ISCSI_OPCODE_SCSI_DATA_IN                      0x25
+#define ISCSI_OPCODE_LOGOUT_RESPONSE                   0x26
+#define ISCSI_OPCODE_R2T                               0x31
+#define ISCSI_OPCODE_ASYNC_MESSAGE                     0x32
+#define ISCSI_OPCODE_REJECT                            0x3f
 
 #define CSG_SHIFT 2
 #define CSG_MASK  (0x03 << CSG_SHIFT)
@@ -236,10 +254,17 @@ static const value_string iscsi_opcodes[] = {
   {0, NULL},
 };
 
+#ifdef DRAFT08
 static const true_false_string iscsi_meaning_X = {
     "Retry",
     "Not retry"
 };
+#else
+static const true_false_string iscsi_meaning_login_X = {
+    "Reinstate failed connection",
+    "New connection"
+};
+#endif
 
 static const true_false_string iscsi_meaning_I = {
     "Immediate delivery",
@@ -354,6 +379,15 @@ static const value_string iscsi_login_stage[] = {
     {3, "Full feature phase"},
     {0, NULL},
 };
+
+#ifndef DRAFT08
+static const value_string iscsi_isid_type[] = {
+    {0x00, "IEEE OUI"},
+    {0x01, "IANA Enterprise Number"},
+    {0x02, "Random"},
+    {0, NULL},
+};
+#endif
 
 static const value_string iscsi_logout_reasons[] = {
     {0, "Close session"},
@@ -660,7 +694,7 @@ static void
 dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len) {
 
     guint original_offset = offset;
-    proto_item *ti;
+    proto_item *ti = NULL;
     char *scsi_command_name = NULL;
     guint8 scsi_status = 0;
     guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
@@ -770,11 +804,14 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	if((opcode & TARGET_OPCODE_BIT) == 0) {
 	    /* initiator -> target */
 	    gint b = tvb_get_guint8(tvb, offset + 0);
+#ifdef DRAFT08
 	    if(opcode != ISCSI_OPCODE_SCSI_DATA_OUT &&
 	       opcode != ISCSI_OPCODE_LOGOUT_COMMAND &&
 	       opcode != ISCSI_OPCODE_SNACK_REQUEST)
 		proto_tree_add_boolean(ti, hf_iscsi_X, tvb, offset + 0, 1, b);
-	    if(opcode != ISCSI_OPCODE_SCSI_DATA_OUT)
+#endif
+	    if(opcode != ISCSI_OPCODE_SCSI_DATA_OUT &&
+	       opcode != ISCSI_OPCODE_LOGIN_COMMAND)
 		proto_tree_add_boolean(ti, hf_iscsi_I, tvb, offset + 0, 1, b);
 	}
 
@@ -904,16 +941,32 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 #endif
 		
 		proto_tree_add_boolean(ti, hf_iscsi_Login_T, tvb, offset + 1, 1, b);
+#ifndef DRAFT08
+		proto_tree_add_boolean(ti, hf_iscsi_Login_X, tvb, offset + 1, 1, b);
+#endif
 		proto_tree_add_item(ti, hf_iscsi_Login_CSG, tvb, offset + 1, 1, FALSE);
 		proto_tree_add_item(ti, hf_iscsi_Login_NSG, tvb, offset + 1, 1, FALSE);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_VersionMax, tvb, offset + 2, 1, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_VersionMin, tvb, offset + 3, 1, FALSE);
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
+#ifdef DRAFT08
 	    proto_tree_add_item(ti, hf_iscsi_CID, tvb, offset + 8, 2, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 12, 2, FALSE);
+#else
+	    {
+		proto_item *tf = proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 8, 6, FALSE);
+		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_ISID);
+		proto_tree_add_item(tt, hf_iscsi_ISIDType, tvb, offset + 8, 1, FALSE);
+		proto_tree_add_item(tt, hf_iscsi_ISIDNamingAuthority, tvb, offset + 9, 3, FALSE);
+		proto_tree_add_item(tt, hf_iscsi_ISIDQualifier, tvb, offset + 12, 2, FALSE);
+	    }
+#endif
 	    proto_tree_add_item(ti, hf_iscsi_TSID, tvb, offset + 14, 2, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+#ifndef DRAFT08
+	    proto_tree_add_item(ti, hf_iscsi_CID, tvb, offset + 20, 2, FALSE);
+#endif
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    if(digestsActive)
@@ -944,7 +997,17 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_VersionMax, tvb, offset + 2, 1, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_VersionActive, tvb, offset + 3, 1, FALSE);
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
+#ifdef DRAFT08
 	    proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 12, 2, FALSE);
+#else
+	    {
+		proto_item *tf = proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 8, 6, FALSE);
+		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_ISID);
+		proto_tree_add_item(tt, hf_iscsi_ISIDType, tvb, offset + 8, 1, FALSE);
+		proto_tree_add_item(tt, hf_iscsi_ISIDNamingAuthority, tvb, offset + 9, 3, FALSE);
+		proto_tree_add_item(tt, hf_iscsi_ISIDQualifier, tvb, offset + 12, 2, FALSE);
+	    }
+#endif
 	    proto_tree_add_item(ti, hf_iscsi_TSID, tvb, offset + 14, 2, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
@@ -1044,6 +1107,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_CID, tvb, offset + 8, 2, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_Logout_Reason, tvb, offset + 11, 1, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
 	}
@@ -1051,6 +1115,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    /* Logout Response */
 	    proto_tree_add_item(ti, hf_iscsi_Logout_Response, tvb, offset + 2, 1, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_Time2Wait, tvb, offset + 40, 2, FALSE);
@@ -1115,7 +1180,12 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
 	proto_item_set_len(ti, offset - original_offset);
     }
-    if((opcode & ~(X_BIT | I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
+#ifdef DRAFT08
+    if((opcode & ~(X_BIT | I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND)
+#else
+    if((opcode & ~I_BIT) == ISCSI_OPCODE_SCSI_COMMAND)
+#endif
+    {
         /* SCSI Command */
         dissect_scsi_cdb (tvb, pinfo, tree, cdb_offset, 16);
     }
@@ -1123,9 +1193,16 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         if (scsi_status == 0x2) {
             /* A SCSI response with Check Condition contains sense data */
             /* offset is setup correctly by the iscsi code for response above */
-            dissect_scsi_snsinfo (tvb, pinfo, tree, offset,
-                                  iscsi_min (data_segment_len,
-                                             end_offset-offset));
+	    if((end_offset - offset) >= 2) {
+		int senseLen = tvb_get_ntohs(tvb, offset);
+		if(ti != NULL)
+		    proto_tree_add_item(ti, hf_iscsi_SenseLength, tvb, offset, 2, FALSE);
+		offset += 2;
+		if(senseLen > 0)
+		    dissect_scsi_snsinfo (tvb, pinfo, tree, offset,
+					  iscsi_min (senseLen,
+						     end_offset-offset));
+	    }
         }
         else {
             dissect_scsi_rsp (tvb, pinfo, tree);
@@ -1172,11 +1249,14 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	guint8 secondPduByte = tvb_get_guint8(tvb, offset + 1);
 	int badPdu = FALSE;
 
-	if((opcode & TARGET_OPCODE_BIT) == 0) {
-	    /* initiator -> target */
-	    /* mask out X and I bits */
-	    opcode &= ~(X_BIT | I_BIT);
-	}
+#ifdef DRAFT08
+	/* mask out X and I bits */
+	opcode &= ~(X_BIT | I_BIT);
+#else
+	/* mask out I bit */
+	opcode &= ~I_BIT;
+#endif
+
 	opcode_str = match_strval(opcode, iscsi_opcodes);
 	if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION ||
 	   opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE ||
@@ -1371,11 +1451,13 @@ proto_register_iscsi(void)
 	    FT_UINT8, BASE_HEX, VALS(iscsi_opcodes), 0,          
 	    "Opcode", HFILL }
 	},
+#ifdef DRAFT08
 	{ &hf_iscsi_X,
 	  { "X", "iscsi.X",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_X), 0x80,          
 	    "Command Retry", HFILL }
 	},
+#endif
 	{ &hf_iscsi_I,
 	  { "I", "iscsi.I",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_I), 0x40,          
@@ -1506,6 +1588,11 @@ proto_register_iscsi(void)
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    "Bi-directional read residual count", HFILL }
 	},
+	{ &hf_iscsi_SenseLength,
+	  { "SenseLength", "iscsi.scsiresponse.senselength",
+	    FT_UINT16, BASE_HEX, NULL, 0,
+	    "Sense data length", HFILL }
+	},
 	{ &hf_iscsi_SCSIData_F,
 	  { "F", "iscsi.scsidata.F",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
@@ -1566,11 +1653,34 @@ proto_register_iscsi(void)
 	    FT_UINT16, BASE_HEX, NULL, 0,
 	    "Connection identifier", HFILL }
 	},
+#ifdef DRAFT08
 	{ &hf_iscsi_ISID,
 	  { "ISID", "iscsi.isid",
 	    FT_UINT16, BASE_HEX, NULL, 0,
 	    "Initiator part of session identifier", HFILL }
 	},
+#else
+	{ &hf_iscsi_ISID,
+	  { "ISID", "iscsi.isid",
+	    FT_BYTES, BASE_HEX, NULL, 0,
+	    "Initiator part of session identifier", HFILL }
+	},
+	{ &hf_iscsi_ISIDType,
+	  { "ISIDType", "iscsi.isid.type",
+	    FT_UINT8, BASE_HEX, VALS(iscsi_isid_type), 0,
+	    "Initiator part of session identifier - type", HFILL }
+	},
+	{ &hf_iscsi_ISIDNamingAuthority,
+	  { "ISIDNamingAuthority", "iscsi.isid.namingauthority",
+	    FT_UINT24, BASE_HEX, NULL, 0,
+	    "Initiator part of session identifier - naming authority", HFILL }
+	},
+	{ &hf_iscsi_ISIDQualifier,
+	  { "ISIDQualifier", "iscsi.isid.qualifier",
+	    FT_UINT8, BASE_HEX, NULL, 0,
+	    "Initiator part of session identifier - qualifier", HFILL }
+	},
+#endif
 	{ &hf_iscsi_TSID,
 	  { "TSID", "iscsi.tsid",
 	    FT_UINT16, BASE_HEX, NULL, 0,
@@ -1591,6 +1701,13 @@ proto_register_iscsi(void)
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_T), 0x80,          
 	    "Transit to next login stage",  HFILL }
 	},
+#ifndef DRAFT08
+	{ &hf_iscsi_Login_X,
+	  { "X", "iscsi.login.X",
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_login_X), 0x40,
+	    "Restart Connection",  HFILL }
+	},
+#endif
 	{ &hf_iscsi_Login_CSG,
 	  { "CSG", "iscsi.login.csg",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_login_stage), CSG_MASK,          
@@ -1723,6 +1840,9 @@ proto_register_iscsi(void)
 	&ett_iscsi_KeyValues,
 	&ett_iscsi_CDB,
 	&ett_iscsi_Flags,
+#ifndef DRAFT08
+	&ett_iscsi_ISID,
+#endif
     };
 
     /* Register the protocol name and description */
