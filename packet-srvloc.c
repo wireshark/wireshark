@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.19 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-srvloc.c,v 1.20 2001/01/13 08:57:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -146,30 +146,68 @@ static const value_string srvloc_errs[] = {
     { 0, NULL }
 };
 
+/*
+ * Character encodings.
+ * This is a small subset of what's in
+ *
+ *	http://www.isi.edu/in-notes/iana/assignments/character-sets
+ *
+ * XXX - we should do something useful with this, i.e. properly
+ * handle strings based on the character set they're in.
+ *
+ * XXX - what does "properly handle strings" mean?  How do we know
+ * what character set the terminal can handle (for tty-based code)
+ * or the GUI can handle (for GUI code)?
+ *
+ * XXX - the Ethereal core really should be what does all the
+ * character set handling for strings, and it should be stuck with
+ * the task of figuring out how to properly handle them.
+ */
+#define CHARSET_ASCII		3
+#define CHARSET_ISO_10646_UTF_1	27
+#define CHARSET_ISO_646_BASIC	28
+#define CHARSET_ISO_646_IRV	30
+#define CHARSET_ISO_8859_1	4
+#define CHARSET_ISO_10646_UCS_2	1000	/* a/k/a Unicode */
+#define CHARSET_UTF_7		1012
+#define CHARSET_UTF_8		106
+
+static const value_string charsets[] = {
+	{ CHARSET_ASCII, "US-ASCII" },
+	{ CHARSET_ISO_10646_UTF_1, "ISO 10646 UTF-1" },
+	{ CHARSET_ISO_646_BASIC, "ISO 646 basic:1983" },
+	{ CHARSET_ISO_646_IRV, "ISO 646 IRV:1983" },
+	{ CHARSET_ISO_8859_1, "ISO 8859-1" },
+	{ CHARSET_ISO_10646_UCS_2, "Unicode" },
+	{ CHARSET_UTF_7, "UTF-7" },
+	{ CHARSET_UTF_8, "UTF-8" },
+	{ 0, NULL }
+};
+
 static int
-dissect_authblk(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     struct tm *stamp;
     time_t seconds;
     double floatsec;
     guint16 length;
     
-    seconds = pntohl(&pd[offset]) - 2208988800ul;
+    seconds = tvb_get_ntohl(tvb, offset) - 2208988800ul;
     stamp = gmtime(&seconds);
-    floatsec = stamp->tm_sec + pntohl(&pd[offset + 4]) / 4294967296.0;
-    proto_tree_add_text(tree, NullTVB, offset, 8,
+    floatsec = stamp->tm_sec + tvb_get_ntohl(tvb, offset + 4) / 4294967296.0;
+    proto_tree_add_text(tree, tvb, offset, 8,
 			"Timestamp: %04d-%02d-%02d %02d:%02d:%07.4f UTC",
 			stamp->tm_year + 1900, stamp->tm_mon + 1,
 			stamp->tm_mday, stamp->tm_hour, stamp->tm_min,
 			floatsec);
-    proto_tree_add_text(tree, NullTVB, offset + 8, 2, "Block Structure Desciptor: %u",
-			pntohs(&pd[offset + 8]));
-    length = pntohs(&pd[offset + 10]);
-    proto_tree_add_text(tree, NullTVB, offset + 10, 2, "Authenticator length: %u",
+    proto_tree_add_text(tree, tvb, offset + 8, 2, "Block Structure Desciptor: %u",
+			tvb_get_ntohs(tvb, offset + 8));
+    length = tvb_get_ntohs(tvb, offset + 10);
+    proto_tree_add_text(tree, tvb, offset + 10, 2, "Authenticator length: %u",
 			length);
     offset += 12;
-    proto_tree_add_text(tree, NullTVB, offset, length, "Authentication block: %s",
-			format_text(&pd[offset], length));
+    proto_tree_add_text(tree, tvb, offset, length, "Authentication block: %s",
+			tvb_format_text(tvb, offset, length));
     offset += length;
     return offset;
 };
@@ -177,315 +215,280 @@ dissect_authblk(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 /* Packet dissection routine called by tcp & udp when port 427 detected */
 
 static void
-dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    int offset = 0;
     proto_item *ti, *tf;
     proto_tree *srvloc_tree, *srvloc_flags;
-    struct srvloc_hdr srvloc_hdr;
+    guint8 version;
+    guint8 function;
+    guint16 encoding;
+    guint16 length;
+    guint8 flags;
     guint32 count;
-    guint32 length;
 
-    OLD_CHECK_DISPLAY_AS_DATA(proto_srvloc, pd, offset, fd, tree);
+    CHECK_DISPLAY_AS_DATA(proto_srvloc, tvb, pinfo, tree);
     
-    if (check_col(fd, COL_PROTOCOL))
-        col_set_str(fd, COL_PROTOCOL, "SRVLOC");
+    pinfo->current_proto = "SRVLOC";
+
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+        col_set_str(pinfo->fd, COL_PROTOCOL, "SRVLOC");
     
-    if (check_col(fd, COL_INFO))
-        col_add_str(fd, COL_INFO, val_to_str(pd[offset + 1], srvloc_functions, "Unknown Function (%d)"));
+    if (check_col(pinfo->fd, COL_INFO))
+        col_clear(pinfo->fd, COL_INFO);
+
+    version = tvb_get_guint8(tvb, offset);
+    function = tvb_get_guint8(tvb, offset + 1);
+
+    if (check_col(pinfo->fd, COL_INFO))
+        col_add_str(pinfo->fd, COL_INFO,
+            val_to_str(function, srvloc_functions, "Unknown Function (%u)"));
         
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_srvloc, NullTVB, offset, END_OF_FRAME, FALSE);
+        ti = proto_tree_add_item(tree, proto_srvloc, tvb, offset,
+                                 tvb_length(tvb), FALSE);
         srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
     
-        if ( END_OF_FRAME > sizeof(srvloc_hdr) ) {
-            memcpy( &srvloc_hdr, &pd[offset], sizeof(srvloc_hdr) );
-            srvloc_hdr.length = pntohs(&srvloc_hdr.length);
-            srvloc_hdr.encoding = pntohs(&srvloc_hdr.encoding);
-            srvloc_hdr.xid = pntohs(&srvloc_hdr.xid);
-            proto_tree_add_uint(srvloc_tree, hf_srvloc_version, NullTVB, offset, 1, srvloc_hdr.version);
-            proto_tree_add_uint(srvloc_tree, hf_srvloc_function, NullTVB, offset + 1, 1, srvloc_hdr.function);
-            proto_tree_add_text(srvloc_tree, NullTVB, offset + 2, 2, "Length: %d",srvloc_hdr.length);
-            tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags, NullTVB, offset + 4, 1, srvloc_hdr.flags);
-            srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
-            proto_tree_add_text(srvloc_flags, NullTVB, offset + 4, 0, "Overflow                          %d... .xxx", (srvloc_hdr.flags & FLAG_O) >> 7 );
-            proto_tree_add_text(srvloc_flags, NullTVB, offset + 4, 0, "Monolingual                       .%d.. .xxx", (srvloc_hdr.flags & FLAG_M) >> 6 ); 
-            proto_tree_add_text(srvloc_flags, NullTVB, offset + 4, 0, "URL Authentication Present        ..%d. .xxx", (srvloc_hdr.flags & FLAG_U) >> 5 );
-            proto_tree_add_text(srvloc_flags, NullTVB, offset + 4, 0, "Attribute Authentication Present  ...%d .xxx", (srvloc_hdr.flags & FLAG_A) >> 4 );
-            proto_tree_add_text(srvloc_flags, NullTVB, offset + 4, 0, "Fresh Service Entry               .... %dxxx", (srvloc_hdr.flags & FLAG_F) >> 3 );
-            proto_tree_add_text(srvloc_tree, NullTVB, offset + 5, 1, "Dialect: %d",srvloc_hdr.dialect); 
-            proto_tree_add_text(srvloc_tree, NullTVB, offset + 6, 2, "Language: %s", format_text(srvloc_hdr.language,2));
-            proto_tree_add_text(srvloc_tree, NullTVB, offset + 8, 2, "Encoding: %d", srvloc_hdr.encoding);
-            proto_tree_add_text(srvloc_tree, NullTVB, offset + 10, 2, "Transaction ID: %d", srvloc_hdr.xid);
-            offset += 12;
-        } else {
-        proto_tree_add_text(srvloc_tree, NullTVB, offset, END_OF_FRAME, "Invalid Packet: Length less than header.");
-        };
+        proto_tree_add_uint(srvloc_tree, hf_srvloc_version, tvb, offset, 1,
+                            version);
+        proto_tree_add_uint(srvloc_tree, hf_srvloc_function, tvb, offset + 1, 1,
+                            function);
+        length = tvb_get_ntohs(tvb, offset + 2);
+        proto_tree_add_text(srvloc_tree, tvb, offset + 2, 2, "Length: %u",
+                            length);
+        flags = tvb_get_guint8(tvb, offset + 4);
+        tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags, tvb, offset + 4, 1,
+                                 flags);
+        srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
+        proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "Overflow                          %d... .xxx", (flags & FLAG_O) >> 7 );
+        proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "Monolingual                       .%d.. .xxx", (flags & FLAG_M) >> 6 );
+        proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "URL Authentication Present        ..%d. .xxx", (flags & FLAG_U) >> 5 );
+        proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "Attribute Authentication Present  ...%d .xxx", (flags & FLAG_A) >> 4 );
+        proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "Fresh Service Entry               .... %dxxx", (flags & FLAG_F) >> 3 );
+        proto_tree_add_text(srvloc_tree, tvb, offset + 5, 1, "Dialect: %u",
+                            tvb_get_guint8(tvb, offset + 5));
+        proto_tree_add_text(srvloc_tree, tvb, offset + 6, 2, "Language: %s",
+                            tvb_format_text(tvb, offset + 6, 2));
+        encoding = tvb_get_ntohs(tvb, offset + 8);
+        proto_tree_add_text(srvloc_tree, tvb, offset + 8, 2, "Encoding: %u (%s)",
+                            encoding,
+                            val_to_str(encoding, charsets, "Unknown"));
+        proto_tree_add_text(srvloc_tree, tvb, offset + 10, 2, "Transaction ID: %u",
+                            tvb_get_ntohs(tvb, offset + 10));
+        offset += 12;
         
-        if (( srvloc_hdr.length - 12 ) == END_OF_FRAME ) {
-            switch (srvloc_hdr.function) {
-                case SRVREQ:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Request");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Previous Response List Length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Previous Response List: %s", format_text(&pd[offset], length)); 
-                    offset += length;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Predicate length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Predicate: %s", format_text(&pd[offset], length));
-                    offset += length;
-                break;
+        switch (function) {
+            case SRVREQ:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Request");
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Previous Response List Length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Previous Response List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Predicate length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Predicate: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+            break;
             
-                case SRVRPLY:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Reply");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
+            case SRVRPLY:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Reply");
+                proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                offset += 2;
+                count = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "URL Count: %u",
+                                    count);
+                offset += 2;
+                while (count > 0) {
+                    proto_tree_add_text(srvloc_tree, tvb, offset, 2, "URL lifetime: %u",
+                                        tvb_get_ntohs(tvb, offset));
                     offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-		    count = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL Count: %u", count);
+                    length = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_text(srvloc_tree, tvb, offset, 2, "URL length: %u",
+                                        length);
                     offset += 2;
-                    while (count > 0) {
-			if (!BYTES_ARE_IN_FRAME(offset, 2))
-			    break;
-                        proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL lifetime: %d", pntohs(&pd[offset]));
-                        offset += 2;
-			if (!BYTES_ARE_IN_FRAME(offset, 2))
-			    break;
-                        length = pntohs(&pd[offset]);
-                        proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
-                        offset += 2;
-			if (!BYTES_ARE_IN_FRAME(offset, length))
-			    break;
-                        proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
-                        offset += length;
-                        if ( (srvloc_hdr.flags & FLAG_U) == FLAG_U ) 
-                            offset = dissect_authblk(pd, offset, fd, srvloc_tree);
-			count--;
-                    };
-                break;
+                    proto_tree_add_text(srvloc_tree, tvb, offset, length, "Service URL: %s",
+                                        tvb_format_text(tvb, offset, length));
+                    offset += length;
+                    if ( (flags & FLAG_U) == FLAG_U ) 
+                        offset = dissect_authblk(tvb, offset, srvloc_tree);
+                    count--;
+                };
+            break;
 
-                case SRVREG:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Registration");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL lifetime: %d", pntohs(&pd[offset]));
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
-                    offset += length;
-                    if ( (srvloc_hdr.flags & FLAG_U) == FLAG_U ) 
-                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
-                    offset += length;
-                    if ( (srvloc_hdr.flags & FLAG_A) == FLAG_A ) 
-                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
-                break;
+            case SRVREG:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Registration");
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "URL lifetime: %u",
+                                    tvb_get_ntohs(tvb, offset));
+                offset += 2;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "URL length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Service URL: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                if ( (flags & FLAG_U) == FLAG_U ) 
+                    offset = dissect_authblk(tvb, offset, srvloc_tree);
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Attribute List length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Attribute List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                if ( (flags & FLAG_A) == FLAG_A ) 
+                    offset = dissect_authblk(tvb, offset, srvloc_tree);
+            break;
 
-                case SRVDEREG:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Deregister");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
-                    offset += 2;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    offset += length;
-                    if ( (srvloc_hdr.flags & FLAG_U) == FLAG_U ) 
-                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
-                    offset += length;
-                    if ( (srvloc_hdr.flags & FLAG_A) == FLAG_A ) 
-                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
-                break;
+            case SRVDEREG:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Deregister");
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "URL length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Service URL: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                if ( (flags & FLAG_U) == FLAG_U ) 
+                    offset = dissect_authblk(tvb, offset, srvloc_tree);
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Attribute List length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Attribute List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                if ( (flags & FLAG_A) == FLAG_A ) 
+                    offset = dissect_authblk(tvb, offset, srvloc_tree);
+            break;
             
-                case SRVACK:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Acknowledge");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
-                    offset += 2;
-                break;
+            case SRVACK:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Acknowledge");
+                proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                offset += 2;
+            break;
 
-                case ATTRRQST:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Attribute Request");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Previous Response List Length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Previous Response List: %s", format_text(&pd[offset], length)); 
-                    offset += length;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
-                    offset += length;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Scope List Length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Scope Response List: %s", format_text(&pd[offset], length)); 
-                    offset += length;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
-                    offset += length;
-                break;
+            case ATTRRQST:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Attribute Request");
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Previous Response List Length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Previous Response List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "URL length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Service URL: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Scope List Length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Scope Response List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Attribute List length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Attribute List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+            break;
             
-                case ATTRRPLY:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Attribute Reply");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Attribute List: %s", format_text(&pd[offset], length));
-                    offset += length;
-                    if ( (srvloc_hdr.flags & FLAG_A) == FLAG_A ) 
-                        offset = dissect_authblk(pd, offset, fd, srvloc_tree);
-                break;
+            case ATTRRPLY:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Attribute Reply");
+                proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                offset += 2;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Attribute List length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Attribute List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                if ( (flags & FLAG_A) == FLAG_A ) 
+                    offset = dissect_authblk(tvb, offset, srvloc_tree);
+            break;
             
-                case DAADVERT:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "DA Advertisement");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service URL: %s", format_text(&pd[offset], length));
-                    offset += length;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Scope List Length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Scope Response List: %s", format_text(&pd[offset], length)); 
-                    offset += length;
-                break;
+            case DAADVERT:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "DA Advertisement");
+                proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                offset += 2;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "URL length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Service URL: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Scope List Length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Scope Response List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+            break;
 
-                case SRVTYPERQST:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Type Request");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Previous Response List Length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Previous Response List: %s", format_text(&pd[offset], length)); 
-                    offset += length;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Naming Authority List length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Naming Authority List: %s", format_text(&pd[offset], length)); 
-                    offset += length;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    length = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Scope List Length: %u", length);
-                    offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, length))
-			break;
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Scope Response List: %s", format_text(&pd[offset], length)); 
-                    offset += length;
-                break;
+            case SRVTYPERQST:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Type Request");
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Previous Response List Length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Previous Response List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Naming Authority List length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Naming Authority List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+                length = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Scope List Length: %u",
+                                    length);
+                offset += 2;
+                proto_tree_add_text(srvloc_tree, tvb, offset, length, "Scope Response List: %s",
+                                    tvb_format_text(tvb, offset, length));
+                offset += length;
+            break;
 
-                case SRVTYPERPLY:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Type Reply");
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pntohs(&pd[offset]));
+            case SRVTYPERPLY:
+                proto_tree_add_text(srvloc_tree, tvb, offset, 0, "Service Type Reply");
+                proto_tree_add_item(srvloc_tree, hf_srvloc_error, tvb, offset, 2, FALSE);
+                offset += 2;
+                count = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Service Type Count: %u",
+                                    count);
+                offset += 2;
+                while (count > 0) {
+                    length = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Service Type List length: %u",
+                                        length);
                     offset += 2;
-		    if (!BYTES_ARE_IN_FRAME(offset, 2))
-			break;
-		    count = pntohs(&pd[offset]);
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Service Type Count: %u", count);
-                    offset += 2;
-                    while (count > 0) {
-			if (!BYTES_ARE_IN_FRAME(offset, 2))
-			    break;
-                        length = pntohs(&pd[offset]);
-                        proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Service Type List length: %u", length);
-                        offset += 2;
-			if (!BYTES_ARE_IN_FRAME(offset, length))
-			    break;
-                        proto_tree_add_text(srvloc_tree, NullTVB, offset, length, "Service Type List: %s", format_text(&pd[offset], length));
-                        offset += length;
-                        count--;
-                    };
-                break;
+                    proto_tree_add_text(srvloc_tree, tvb, offset, length, "Service Type List: %s",
+                                        tvb_format_text(tvb, offset, length));
+                    offset += length;
+                    count--;
+                };
+            break;
 
-                default:
-                    proto_tree_add_text(srvloc_tree, NullTVB, offset, END_OF_FRAME, "Unknown Function Type");
-            };
-        } else { proto_tree_add_text(srvloc_tree, NullTVB, offset, END_OF_FRAME,"Invalid packet: Bad length value");
-        };        
+            default:
+                proto_tree_add_text(srvloc_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Unknown Function Type");
+        };
     };
 };
 
@@ -534,9 +537,7 @@ proto_register_srvloc(void)
 void
 proto_reg_handoff_srvloc(void)
 {
-    old_dissector_add("tcp.port", TCP_PORT_SRVLOC, dissect_srvloc,
-		      proto_srvloc);
-    old_dissector_add("udp.port", UDP_PORT_SRVLOC, dissect_srvloc,
-		      proto_srvloc);
+    dissector_add("tcp.port", TCP_PORT_SRVLOC, dissect_srvloc, proto_srvloc);
+    dissector_add("udp.port", UDP_PORT_SRVLOC, dissect_srvloc, proto_srvloc);
 }
 
