@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.33 2002/04/02 00:04:18 guy Exp $
+ * $Id: packet-rpc.h,v 1.34 2002/04/02 00:18:53 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -30,8 +30,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-
-#define EXTRACT_UINT(p,o)    pntohl(&p[o])
 
 #define RPC_CALL 0
 #define RPC_REPLY 1
