@@ -1,7 +1,7 @@
 /* tap-mgcpstat.c
  * mgcpstat   2003 Lars Roland
  *
- * $Id: tap-mgcpstat.c,v 1.2 2003/03/06 22:32:36 guy Exp $
+ * $Id: tap-mgcpstat.c,v 1.3 2003/03/12 00:36:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,10 +186,10 @@ mgcpstat_draw(void *pms)
         printf("Open requests: %ld\n",ms->open_req_num);
         printf("Discarded responses: %ld\n",ms->disc_rsp_num);
         printf("Messages   |     Min RTD     |     Max RTD     |     Avg RTD \n");
-        printf("%7ld    |  %5d.%03d msec |  %5d.%03d msec | %5d.%03d msec\n",
+        printf("%7ld    |  %5d.%03d msec |  %5d.%03d msec | %5d.%02d0 msec\n",
         	ms->rtd.num,
 		(int)((ms->rtd.min.secs*1000)+(ms->rtd.min.nsecs/1000000)),(ms->rtd.min.nsecs%1000000)/1000,
-		(int)((ms->rtd.max.secs*1000)+(ms->rtd.max.nsecs/1000000)),(ms->rtd.min.nsecs%1000000)/1000,
+		(int)((ms->rtd.max.secs*1000)+(ms->rtd.max.nsecs/1000000)),(ms->rtd.max.nsecs%1000000)/1000,
 		avg/100, avg%100
 	);
         printf("===================================================================\n");
