@@ -1319,53 +1319,51 @@ dnd_merge_files(int in_file_count, char **in_filenames)
     out_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
 
     /* merge the files in chonological order */
-    merge_ok = merge_n_files(out_fd, in_file_count, in_filenames, WTAP_FILE_PCAP, FALSE, &err);
+    merge_ok = cf_merge_files(tmpname, out_fd, in_file_count, in_filenames,
+                              WTAP_FILE_PCAP, FALSE);
 
-  if(!merge_ok) {
-    /* merge failed */
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "An error occurred while merging the files: \"%s\".",
-		  wtap_strerror(err));
-    close(out_fd);
-    return;
-  }
+    if (!merge_ok) {
+        /* merge failed */
+	close(out_fd);	/* XXX - isn't it already closed? */
+	return;
+    }
 
-  cf_close(&cfile);
+    cf_close(&cfile);
 
-  /* Try to open the merged capture file. */
-  if ((err = cf_open(tmpname, TRUE /* temporary file */, &cfile)) != 0) {
-    /* We couldn't open it; don't dismiss the open dialog box,
-       just leave it around so that the user can, after they
-       dismiss the alert box popped up for the open error,
-       try again. */
-    return;
-  }
+    /* Try to open the merged capture file. */
+    if ((err = cf_open(tmpname, TRUE /* temporary file */, &cfile)) != 0) {
+	/* We couldn't open it; don't dismiss the open dialog box,
+	   just leave it around so that the user can, after they
+	   dismiss the alert box popped up for the open error,
+	   try again. */
+	return;
+    }
 
-  switch (cf_read(&cfile)) {
+    switch (cf_read(&cfile)) {
 
-  case READ_SUCCESS:
-  case READ_ERROR:
-    /* Just because we got an error, that doesn't mean we were unable
-       to read any of the file; we handle what we could get from the
-       file. */
-    break;
+    case READ_SUCCESS:
+    case READ_ERROR:
+	/* Just because we got an error, that doesn't mean we were unable
+	   to read any of the file; we handle what we could get from the
+	   file. */
+	break;
 
-  case READ_ABORTED:
-    /* The user bailed out of re-reading the capture file; the
-       capture file has been closed - just free the capture file name
-       string and return (without changing the last containing
-       directory). */
-    return;
-  }
+    case READ_ABORTED:
+	/* The user bailed out of re-reading the capture file; the
+	   capture file has been closed - just free the capture file name
+	   string and return (without changing the last containing
+	   directory). */
+	return;
+    }
 
-  gtk_widget_grab_focus(packet_list);
+    gtk_widget_grab_focus(packet_list);
 }
 
 /* open/merge the dnd file */
 void
 dnd_open_file_cmd(GtkSelectionData *selection_data)
 {
-	int       err;
+    int       err;
     gchar     *cf_name, *cf_name_freeme;
     int       in_files;
     gpointer  dialog;

@@ -53,6 +53,10 @@ read_status_t cf_finish_tail(capture_file *, int *);
 gboolean cf_save(char *fname, capture_file * cf, packet_range_t *range, guint save_format);
 gchar *cf_get_display_name(capture_file *);
 
+gboolean
+cf_merge_files(const char *out_file, int out_fd, int in_file_count,
+               char *const *in_filenames, int filetype, gboolean do_append);
+
 gboolean filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
 void reftime_packets(capture_file *);
 void colorize_packets(capture_file *);

@@ -1,6 +1,5 @@
 /* merge.h
- * Definitions for menu routines with toolkit-independent APIs but
- * toolkit-dependent implementations.
+ * Definitions for routines for merging files.
  *
  * $Id$
  *
@@ -46,10 +45,7 @@ typedef struct merge_in_file_s {
  * Structures to manage our output file.
  */
 typedef struct merge_out_file_s {
-  int          fd;
   wtap_dumper *pdh;
-  int          file_type;
-  int          frame_type;
   unsigned int snaplen;
   int          count;
 } merge_out_file_t;
@@ -69,11 +65,15 @@ extern int merge_verbose;
  * @param in_file_count number of entries in in_file_names and in_files
  * @param in_file_names filenames of the input files
  * @param in_files input file array to be filled (>= sizeof(merge_in_file_t) * in_file_count)
- * @param err wiretap error, if failed
+ * @param err wiretap error, if failed and VERBOSE_NONE
+ * @param err_info wiretap error string, if failed and VERBOSE_NONE
+ * @param err_fileno file on which open failed, if VERBOSE_NONE
  * @return number of opened input files
  */
 extern int
-merge_open_in_files(int in_file_count, char *in_file_names[], merge_in_file_t *in_files[], int *err);
+merge_open_in_files(int in_file_count, char *const *in_file_names,
+                    merge_in_file_t **in_files, int *err, gchar **err_info,
+                    int *err_fileno);
 
 /** Close the input files again.
  * 
@@ -85,20 +85,26 @@ merge_close_in_files(int in_file_count, merge_in_file_t in_files[]);
 
 /** Open the output file.
  * 
- * @param out_file the prefilled output file array
+ * @param out_file the output file array, which we fill in
+ * @param fd the file descriptor to use for the output file
+ * @param file_type the file type to write
+ * @param frame_type the frame type to write
  * @param snapshot_len the snapshot length of the output file
  * @param err wiretap error, if failed
  * @return TRUE, if the output file could be opened
  */
 extern gboolean
-merge_open_outfile(merge_out_file_t *out_file, int snapshot_len, int *err);
+merge_open_outfile(merge_out_file_t *out_file, int fd, int file_type,
+                   int frame_type, int snapshot_len, int *err);
 
 /** Close the output file again.
  * 
  * @param out_file the output file array
+ * @param err wiretap error, if failed
+ * @return TRUE if the close succeeded, FALSE otherwise
  */
-extern void
-merge_close_outfile(merge_out_file_t *out_file);
+extern gboolean
+merge_close_outfile(merge_out_file_t *out_file, int *err);
 
 /** Try to get the frame type from the input files.
  * 
@@ -124,7 +130,7 @@ merge_max_snapshot_length(int in_file_count, merge_in_file_t in_files[]);
  * @param in_files input file array
  * @param out_file the output file array
  * @param err wiretap error, if failed
- * @return TRUE if function succeeded
+ * @return TRUE on success or read failure, FALSE on write failure
  */
 extern gboolean
 merge_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out_file, int *err);
@@ -135,11 +141,18 @@ merge_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out
  * @param in_files input file array
  * @param out_file the output file array
  * @param err wiretap error, if failed
- * @return TRUE if function succeeded
+ * @return TRUE on success or read failure, FALSE on write failure
  */
 extern gboolean
 merge_append_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out_file, int *err);
 
+/** Return status from merge_n_files */
+typedef enum {
+    MERGE_SUCCESS,
+    MERGE_OPEN_INPUT_FAILED,
+    MERGE_OPEN_OUTPUT_FAILED,
+    MERGE_WRITE_FAILED
+} merge_status_e;
 
 /*
  * Convenience function: merge any number of input files into one.
@@ -148,11 +161,15 @@ merge_append_files(int in_file_count, merge_in_file_t in_files[], merge_out_file
  * @param in_file_count number of input files
  * @param in_filenames array of input filenames
  * @param do_append TRUE to append, FALSE to merge chronologically
- * @param err wiretap error, if failed
- * @return TRUE if function succeeded
+ * @param err wiretap error, if failed and VERBOSE_NONE
+ * @param err_info wiretap error string, if failed and VERBOSE_NONE
+ * @param err_fileno file on which open failed, if VERBOSE_NONE
+ * @return merge_status_e
  */
-extern gboolean
-merge_n_files(int out_fd, int in_file_count, char **in_filenames, int filetype, gboolean do_append, int *err);
+extern merge_status_e
+merge_n_files(int out_fd, int in_file_count, char *const *in_filenames,
+              int filetype, gboolean do_append, int *err, gchar **err_info,
+              int *err_fileno);
 
 
 #ifdef __cplusplus

@@ -47,6 +47,47 @@
 #define O_BINARY 	0
 #endif
 
+static int
+get_natural_int(const char *string, const char *name)
+{
+  long number;
+  char *p;
+
+  number = strtol(string, &p, 10);
+  if (p == string || *p != '\0') {
+    fprintf(stderr, "mergecap: The specified %s \"%s\" is not a decimal number\n",
+	    name, string);
+    exit(1);
+  }
+  if (number < 0) {
+    fprintf(stderr, "mergecap: The specified %s is a negative number\n",
+	    name);
+    exit(1);
+  }
+  if (number > INT_MAX) {
+    fprintf(stderr, "mergecap: The specified %s is too large (greater than %d)\n",
+	    name, INT_MAX);
+    exit(1);
+  }
+  return number;
+}
+
+static int
+get_positive_int(const char *string, const char *name)
+{
+  long number;
+
+  number = get_natural_int(string, name);
+
+  if (number == 0) {
+    fprintf(stderr, "mergecap: The specified %s is zero\n",
+	    name);
+    exit(1);
+  }
+
+  return number;
+}
+
 /*
  * Show the usage
  */
@@ -89,21 +130,18 @@ main(int argc, char *argv[])
   extern char *optarg;
   extern int   optind;
   int          opt;
-  char        *p;
   gboolean     do_append     = FALSE;
   int          in_file_count = 0;
+  int          snaplen = 0;
+  int          file_type = WTAP_FILE_PCAP;	/* default to libpcap format */
+  int          frame_type = -2;
+  int          out_fd;
   merge_in_file_t   *in_files      = NULL;
   merge_out_file_t   out_file;
   int          err;
+  gchar       *err_info;
+  int          err_fileno;
   char        *out_filename = NULL;
-
-  /* initialize out_file */
-  out_file.fd         = 0;
-  out_file.pdh        = NULL;              /* wiretap dumpfile */
-  out_file.file_type  = WTAP_FILE_PCAP;    /* default to "libpcap" */
-  out_file.frame_type = -2;                /* leave type alone */
-  out_file.snaplen    = 0;                 /* no limit */
-  out_file.count      = 1;                 /* frames output */
 
   merge_verbose = VERBOSE_ERRORS;
 
@@ -120,8 +158,8 @@ main(int argc, char *argv[])
       break;
 
     case 'T':
-      out_file.frame_type = wtap_short_string_to_encap(optarg);
-      if (out_file.frame_type < 0) {
+      frame_type = wtap_short_string_to_encap(optarg);
+      if (frame_type < 0) {
       	fprintf(stderr, "mergecap: \"%s\" is not a valid encapsulation type\n",
       	    optarg);
       	exit(1);
@@ -129,8 +167,8 @@ main(int argc, char *argv[])
       break;
 
     case 'F':
-      out_file.file_type = wtap_short_string_to_file_type(optarg);
-      if (out_file.file_type < 0) {
+      file_type = wtap_short_string_to_file_type(optarg);
+      if (file_type < 0) {
       	fprintf(stderr, "mergecap: \"%s\" is not a valid capture file type\n",
       	    optarg);
       	exit(1);
@@ -142,12 +180,7 @@ main(int argc, char *argv[])
       break;
 
     case 's':
-      out_file.snaplen = strtol(optarg, &p, 10);
-      if (p == optarg || *p != '\0') {
-      	fprintf(stderr, "mergecap: \"%s\" is not a valid snapshot length\n",
-      	    optarg);
-      	exit(1);
-      }
+      snaplen = get_positive_int(optarg, "snapshot length");
       break;
 
     case 'h':
@@ -184,32 +217,46 @@ main(int argc, char *argv[])
   }
 
   /* open the input files */
-  in_file_count = merge_open_in_files(in_file_count, &argv[optind], &in_files, &err);
+  in_file_count = merge_open_in_files(in_file_count, &argv[optind], &in_files,
+                                      &err, &err_info, &err_fileno);
   if (in_file_count < 1) {
     fprintf(stderr, "mergecap: No valid input files\n");
     exit(1);
   }
 
+  if (snaplen == 0) {
+    /*
+     * Snapshot length not specified - default to the maximum of the
+     * snapshot lengths of the input files.
+     */
+    snaplen = merge_max_snapshot_length(in_file_count, in_files);
+  }
+
   /* set the outfile frame type */
-  if (out_file.frame_type == -2)
-    out_file.frame_type = merge_select_frame_type(in_file_count, in_files);
+  if (frame_type == -2) {
+    /*
+     * Default to the appropriate frame type for the input files.
+     */
+    frame_type = merge_select_frame_type(in_file_count, in_files);
+  }
 
   /* open the outfile */
   if (strncmp(out_filename, "-", 2) == 0) {  
     /* use stdout as the outfile */
-    out_file.fd = 1 /*stdout*/;
+    out_fd = 1 /*stdout*/;
   } else {
     /* open the outfile */
-    out_file.fd = open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
-  }
-  if (out_file.fd == -1) {
-    fprintf(stderr, "mergecap: Couldn't open output file %s: %s\n",
-            out_filename, strerror(errno));
-    exit(1);
+    out_fd = open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+    if (out_fd == -1) {
+      fprintf(stderr, "mergecap: Couldn't open output file %s: %s\n",
+              out_filename, strerror(errno));
+      exit(1);
+    }
   }  
     
   /* prepare the outfile */
-  if (!merge_open_outfile(&out_file, merge_max_snapshot_length(in_file_count, in_files), &err)) {
+  if (!merge_open_outfile(&out_file, out_fd, file_type, frame_type, snaplen,
+                          &err)) {
     merge_close_in_files(in_file_count, in_files);
     exit(1);
   }
@@ -221,7 +268,7 @@ main(int argc, char *argv[])
     merge_files(in_file_count, in_files, &out_file, &err);
 
   merge_close_in_files(in_file_count, in_files);
-  merge_close_outfile(&out_file);
+  merge_close_outfile(&out_file, &err);
 
   free(in_files);
 

@@ -75,6 +75,7 @@
 #include "file.h"
 #include "menu.h"
 #include "util.h"
+#include "merge.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "progress_dlg.h"
@@ -965,6 +966,40 @@ read_packet(capture_file *cf, long offset)
        seem to save a noticeable amount of time or space. */
     g_mem_chunk_free(cf->plist_chunk, fdata);
   }
+}
+
+gboolean
+cf_merge_files(const char *out_file, int out_fd, int in_file_count,
+               char *const *in_filenames, int filetype, gboolean do_append)
+{
+  merge_status_e  merge_status;
+  int             err;
+  gchar          *err_info;
+  int             err_fileno; 
+
+  merge_status = merge_n_files(out_fd, in_file_count, in_filenames, filetype,
+                               do_append, &err, &err_info, &err_fileno);
+
+  switch (merge_status) {
+
+  case MERGE_SUCCESS:
+    return TRUE;
+
+  case MERGE_OPEN_INPUT_FAILED:
+    cf_open_failure_alert_box(in_filenames[err_fileno], err, err_info, FALSE, 0);
+    return FALSE;
+
+  case MERGE_OPEN_OUTPUT_FAILED:
+    cf_open_failure_alert_box(out_file, err, err_info, TRUE, filetype);
+    return FALSE;
+
+  /* XXX - what about read failures? */
+
+  case MERGE_WRITE_FAILED:
+    cf_write_failure_alert_box(out_file, err);
+    return FALSE;
+  }
+  return TRUE;
 }
 
 gboolean

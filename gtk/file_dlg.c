@@ -998,8 +998,8 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   int        err;
   gboolean   merge_ok;
   char      *in_filenames[2];
-  int       out_fd;
-  char      tmpname[128+1];
+  int        out_fd;
+  char       tmpname[128+1];
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -1030,33 +1030,32 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   /* merge or append the two files */
   rb = OBJECT_GET_DATA(w, E_MERGE_CHRONO_KEY);
   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
-      /* chonological order */
+      /* chronological order */
       in_filenames[0] = cfile.filename;
       in_filenames[1] = cf_name;
-      merge_ok = merge_n_files(out_fd, 2, in_filenames, filetype, FALSE, &err);
+      merge_ok = cf_merge_files(tmpname, out_fd, 2, in_filenames,
+                                filetype, FALSE);
   } else {
       rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
           in_filenames[0] = cfile.filename;
           in_filenames[1] = cf_name;
-          merge_ok = merge_n_files(out_fd, 2, in_filenames, filetype, TRUE, &err);
+          merge_ok = cf_merge_files(tmpname, out_fd, 2, in_filenames,
+                                    filetype, TRUE);
       } else {
           /* append file */
           in_filenames[0] = cf_name;
           in_filenames[1] = cfile.filename;
-          merge_ok = merge_n_files(out_fd, 2, in_filenames, filetype, TRUE, &err);
+          merge_ok = cf_merge_files(tmpname, out_fd, 2, in_filenames,
+                                    filetype, TRUE);
       }
   }
 
   g_free(cf_name);
   
-  if(!merge_ok) {
-    /* merge failed */
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "An error occurred while merging the files: %s.",
-		  wtap_strerror(err));
-    close(out_fd);
+  if (!merge_ok) {
+    close(out_fd);	/* XXX - it's already closed, right? */
     if (rfcode != NULL)
       dfilter_free(rfcode);
     return;

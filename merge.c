@@ -183,7 +183,7 @@ merge_files(int count, merge_in_file_t in_files[], merge_out_file_t *out_file, i
      * input file
      */
     if(!write_frame(in_files[i].wth, out_file, err))
-                return FALSE;
+        return FALSE;
     in_files[i].ok = wtap_read(in_files[i].wth, &(in_files[i].err),
                                &(in_files[i].err_info),
                                &(in_files[i].data_offset));
@@ -242,15 +242,16 @@ merge_select_frame_type(int count, merge_in_file_t files[])
 /*
  * Close the output file
  */
-void
-merge_close_outfile(merge_out_file_t *out_file)
+gboolean
+merge_close_outfile(merge_out_file_t *out_file, int *err)
 {
-  int err;
-  if (!wtap_dump_close(out_file->pdh, &err)) {
+  if (!wtap_dump_close(out_file->pdh, err)) {
     if (merge_verbose == VERBOSE_ERRORS)
         fprintf(stderr, "mergecap: Error closing output file: %s\n",
-            wtap_strerror(err));
+            wtap_strerror(*err));
+    return FALSE;
   }
+  return TRUE;
 }
 
 
@@ -260,7 +261,8 @@ merge_close_outfile(merge_out_file_t *out_file)
  * Return FALSE if file cannot be opened (so caller can clean up)
  */
 gboolean
-merge_open_outfile(merge_out_file_t *out_file, int snapshot_len, int *err)
+merge_open_outfile(merge_out_file_t *out_file, int fd, int file_type,
+                   int frame_type, int snapshot_len, int *err)
 {
 
   if (!out_file) {
@@ -269,9 +271,8 @@ merge_open_outfile(merge_out_file_t *out_file, int snapshot_len, int *err)
     return FALSE;
   }
 
-
-  out_file->pdh = wtap_dump_fdopen(out_file->fd, out_file->file_type,
-                                 out_file->frame_type, snapshot_len, err);
+  out_file->pdh = wtap_dump_fdopen(fd, file_type, frame_type, snapshot_len,
+                                   err);
   if (!out_file->pdh) {
     if (merge_verbose == VERBOSE_ERRORS) {
         fprintf(stderr, "mergecap: Can't open/create output file:\n");
@@ -279,6 +280,9 @@ merge_open_outfile(merge_out_file_t *out_file, int snapshot_len, int *err)
     }
     return FALSE;
   }
+
+  out_file->snaplen = snapshot_len;
+  out_file->count = 1;
   return TRUE;
 }
 
@@ -323,26 +327,26 @@ merge_close_in_files(int count, merge_in_file_t in_files[])
  * Scan through the arguments and open the input files
  */
 int
-merge_open_in_files(int in_file_count, char *in_file_names[], merge_in_file_t *in_files[], int *err)
+merge_open_in_files(int in_file_count, char *const *in_file_names,
+                    merge_in_file_t **in_files, int *err, gchar **err_info,
+                    int *err_fileno)
 {
   int i;
   int count = 0;
-  gchar *err_info;
   int files_size = in_file_count * sizeof(merge_in_file_t);
   merge_in_file_t *files;
-
 
   files = g_malloc(files_size);
   *in_files = files;
 
   for (i = 0; i < in_file_count; i++) {
     files[count].filename    = in_file_names[i];
-    files[count].wth         = wtap_open_offline(in_file_names[i], err, &err_info, FALSE);
+    files[count].wth         = wtap_open_offline(in_file_names[i], err, err_info, FALSE);
     files[count].err         = 0;
     files[count].data_offset = 0;
     files[count].ok          = TRUE;
     if (!files[count].wth) {
-      if (merge_verbose == VERBOSE_ERRORS) {
+      if (merge_verbose >= VERBOSE_ERRORS) {
         fprintf(stderr, "mergecap: skipping %s: %s\n", in_file_names[i],
               wtap_strerror(*err));
         switch (*err) {
@@ -350,10 +354,17 @@ merge_open_in_files(int in_file_count, char *in_file_names[], merge_in_file_t *i
         case WTAP_ERR_UNSUPPORTED:
         case WTAP_ERR_UNSUPPORTED_ENCAP:
         case WTAP_ERR_BAD_RECORD:
-          fprintf(stderr, "(%s)\n", err_info);
-          g_free(err_info);
+          fprintf(stderr, "(%s)\n", *err_info);
+          g_free(*err_info);
           break;
         }
+      } else {
+        /*
+         * We aren't reporting the errors, so return immediately so our
+         * caller can report the error.
+         */
+        *err_fileno = count;
+        return 0;
       }
     } else {
       if (merge_verbose == VERBOSE_ALL) {
@@ -372,41 +383,34 @@ merge_open_in_files(int in_file_count, char *in_file_names[], merge_in_file_t *i
 
 
 /*
- * Convenience function: merge two files into one.
+ * Convenience function: merge two or more files into one.
  */
-gboolean
-merge_n_files(int out_fd, int in_file_count, char **in_filenames, int filetype, gboolean do_append, int *err)
+merge_status_e
+merge_n_files(int out_fd, int in_file_count, char *const *in_filenames,
+              int file_type, gboolean do_append, int *err, gchar **err_info,
+              int *err_fileno)
 {
-  extern char *optarg;
-  extern int   optind;
-  merge_in_file_t   *in_files      = NULL;
-  merge_out_file_t   out_file;
-  gboolean     ret;
-
-  /* initialize out_file */
-  out_file.fd         = out_fd;
-  out_file.pdh        = NULL;              /* wiretap dumpfile */
-  out_file.file_type  = filetype;
-  out_file.frame_type = -2;                /* leave type alone */
-  out_file.snaplen    = 0;                 /* no limit */
-  out_file.count      = 1;                 /* frames output */
+  merge_in_file_t  *in_files      = NULL;
+  merge_out_file_t  out_file;
+  gboolean          ret;
+  int               close_err;
 
   /* open the input files */
-  in_file_count = merge_open_in_files(in_file_count, in_filenames, &in_files, err);
+  in_file_count = merge_open_in_files(in_file_count, in_filenames, &in_files,
+                                      err, err_info, err_fileno);
   if (in_file_count < 2) {
     if (merge_verbose == VERBOSE_ALL)
         fprintf(stderr, "mergecap: Not all input files valid\n");
-    return FALSE;
+    free(in_files);
+    return MERGE_OPEN_INPUT_FAILED;
   }
 
-  /* set the outfile frame type */
-  if (out_file.frame_type == -2)
-    out_file.frame_type = merge_select_frame_type(in_file_count, in_files);
-
-  /* open the outfile */
-  if (!merge_open_outfile(&out_file, merge_max_snapshot_length(in_file_count, in_files), err)) {
+  if (!merge_open_outfile(&out_file, out_fd, file_type,
+      merge_select_frame_type(in_file_count, in_files),
+      merge_max_snapshot_length(in_file_count, in_files), err)) {
     merge_close_in_files(in_file_count, in_files);
-    return FALSE;
+    free(in_files);
+    return MERGE_OPEN_OUTPUT_FAILED;
   }
 
   /* do the merge (or append) */
@@ -416,9 +420,12 @@ merge_n_files(int out_fd, int in_file_count, char **in_filenames, int filetype, 
     ret = merge_files(in_file_count, in_files, &out_file, err);
 
   merge_close_in_files(in_file_count, in_files);
-  merge_close_outfile(&out_file);
+  if (ret)
+      ret = merge_close_outfile(&out_file, err);
+  else
+      merge_close_outfile(&out_file, &close_err);
 
   free(in_files);
 
-  return ret;
+  return ret ? MERGE_SUCCESS : MERGE_WRITE_FAILED;
 }
