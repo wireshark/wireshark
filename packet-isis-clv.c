@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.18 2002/04/07 22:36:55 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.19 2002/04/07 23:39:00 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -225,51 +225,51 @@ void
 isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
 	int tree_id)
 {	
-  guint16 mt_block;
-  char mt_desc[60];
+	guint16 mt_block;
+	char mt_desc[60];
 
-	while (length>1) {
-	  /* length can only be a multiple of 2, otherwise there is 
-	     something broken -> so decode down until length is 1 */
-	  if (length!=1)
-	    {
-	      /* fetch two bytes */
-	      mt_block=tvb_get_ntohs(tvb, offset);
+	while (length>0) {
+	    /* length can only be a multiple of 2, otherwise there is 
+	       something broken -> so decode down until length is 1 */
+	    if (length!=1) {
+		/* fetch two bytes */
+		mt_block=tvb_get_ntohs(tvb, offset);
 
-	      /* mask out the lower 12 bits */
-	      switch(mt_block&0x0fff) {
-	        case 0:
-		  strcpy(mt_desc,"IPv4 unicast");
-		  break;
-	        case 1:
-		  strcpy(mt_desc,"In-Band Management");
-		  break;
-	        case 2:
-		  strcpy(mt_desc,"IPv6 unicast");
-		  break;
-	        case 3:
-		  strcpy(mt_desc,"Multicast");
-		  break;
-	        case 4095:
-		  strcpy(mt_desc,"Development, Experimental or Proprietary");
-		  break;
-	        default:
-		  strcpy(mt_desc,"Reserved for IETF Consensus");
-	      }
-	        proto_tree_add_text ( tree, tvb, offset, 2 ,
-                        "%s Topology (0x%03x)%s%s",
+		/* mask out the lower 12 bits */
+		switch(mt_block&0x0fff) {
+		case 0:
+		    strcpy(mt_desc,"IPv4 unicast");
+		    break;
+		case 1:
+		    strcpy(mt_desc,"In-Band Management");
+		    break;
+		case 2:
+		    strcpy(mt_desc,"IPv6 unicast");
+		    break;
+		case 3:
+		    strcpy(mt_desc,"Multicast");
+		    break;
+		case 4095:
+		    strcpy(mt_desc,"Development, Experimental or Proprietary");
+		    break;
+		default:
+		    strcpy(mt_desc,"Reserved for IETF Consensus");
+		    break;
+		}
+		proto_tree_add_uint_format ( tree, tree_id, tvb, offset, 2,
+			mt_block,
+			"%s Topology (0x%03x)%s%s",
 				      mt_desc,
 				      mt_block&0xfff,
 				      (mt_block&0x8000) ? "" : ", no sub-TLVs present",
 				      (mt_block&0x4000) ? ", ATT bit set" : "" );
+	    } else {
+		proto_tree_add_text ( tree, tvb, offset, 1,
+			"malformed MT-ID");
+		break;
 	    }
-	  else {
-	    proto_tree_add_text ( tree, tvb, offset, 2 ,
-                        "malformed MT-ID");
-	    break;
-	  }
-	  length=length-2;
-	  offset=offset+2;
+	    length=length-2;
+	    offset=offset+2;
 	}
 }
 

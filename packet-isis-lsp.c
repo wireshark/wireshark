@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.27 2002/04/07 22:36:55 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.28 2002/04/07 23:39:00 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -1681,6 +1681,10 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_clv_te_router_id,
 		{ "Traffic Engineering Router ID", "isis.lsp.clv_te_router_id", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "", HFILL }},
+
+		{ &hf_isis_lsp_clv_mt,
+		{ "MT-ID                     ", "isis.lsp.clv_mt",
+			FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_isis_lsp,
