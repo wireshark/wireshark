@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.14 2002/02/14 05:56:48 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.15 2002/02/26 12:06:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,8 @@ static int hf_samr_entries = -1;
 static int hf_samr_pref_maxsize = -1;
 static int hf_samr_total_size = -1;
 static int hf_samr_ret_size = -1;
+static int hf_samr_alias_name = -1;
+static int hf_samr_group_name = -1;
 static int hf_samr_acct_name = -1;
 static int hf_samr_full_name = -1;
 static int hf_samr_acct_desc = -1;
@@ -2454,7 +2456,7 @@ samr_dissect_enum_dom_groups_reply(tvbuff_t *tvb, int offset,
 			"", hf_samr_resume_hnd, 0);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_IDX_AND_NAME_ARRAY_ptr, NDR_POINTER_REF,
-			"", hf_samr_group, 0);
+			"", hf_samr_group_name, 0);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_long, NDR_POINTER_REF,
 			"", hf_samr_entries, 0);
@@ -2473,7 +2475,7 @@ samr_dissect_enum_dom_alias_reply(tvbuff_t *tvb, int offset,
 			"", hf_samr_resume_hnd, 0);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_IDX_AND_NAME_ARRAY_ptr, NDR_POINTER_REF,
-			"", hf_samr_alias, 0);
+			"", hf_samr_alias_name, 0);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_long, NDR_POINTER_REF,
 			"", hf_samr_entries, 0);
@@ -3795,6 +3797,14 @@ proto_register_dcerpc_samr(void)
 
         { &hf_samr_count,
           { "Count", "samr.count", FT_UINT32, BASE_DEC, NULL, 0x0, "Number of elements in following array", HFILL }},
+
+	{ &hf_samr_alias_name,
+		{ "Alias Name", "samr.alias_name", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of Alias", HFILL }},
+
+	{ &hf_samr_group_name,
+		{ "Group Name", "samr.group_name", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of Group", HFILL }},
 
 	{ &hf_samr_acct_name,
 		{ "Account Name", "samr.acct_name", FT_STRING, BASE_NONE,
