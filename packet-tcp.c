@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.162 2002/11/01 10:25:35 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.163 2002/11/01 11:05:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,6 +90,9 @@ static int hf_tcp_analysis_lost_packet = -1;
 static int hf_tcp_analysis_ack_lost_packet = -1;
 static int hf_tcp_analysis_keep_alive = -1;
 static int hf_tcp_analysis_duplicate_ack = -1;
+static int hf_tcp_analysis_zero_window = -1;
+static int hf_tcp_analysis_zero_window_probe = -1;
+static int hf_tcp_analysis_zero_window_violation = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
@@ -137,6 +140,9 @@ struct tcp_unacked {
 	guint32 ack_frame;
 	guint32 ack;
 	guint32 num_acks;
+
+	/* this is to keep track of zero window and zero window probe */
+	guint32 window;
 };
 
 /* Idea for gt: either x > y, or y is much bigger (assume wrap) */
@@ -148,11 +154,14 @@ struct tcp_unacked {
 
 static GMemChunk *tcp_acked_chunk = NULL;
 static int tcp_acked_count = 5000;	/* one for almost every other segment in the capture */
-#define TCP_A_RETRANSMISSION	0x01
-#define TCP_A_LOST_PACKET	0x02
-#define TCP_A_ACK_LOST_PACKET	0x04
-#define TCP_A_KEEP_ALIVE	0x08
-#define TCP_A_DUPLICATE_ACK	0x10
+#define TCP_A_RETRANSMISSION		0x01
+#define TCP_A_LOST_PACKET		0x02
+#define TCP_A_ACK_LOST_PACKET		0x04
+#define TCP_A_KEEP_ALIVE		0x08
+#define TCP_A_DUPLICATE_ACK		0x10
+#define TCP_A_ZERO_WINDOW		0x20
+#define TCP_A_ZERO_WINDOW_PROBE		0x40
+#define TCP_A_ZERO_WINDOW_VIOLATION	0x80
 struct tcp_acked {
 	guint32 frame_acked;
 	nstime_t ts;
@@ -222,7 +231,7 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag)
 }
 
 static void
-tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags)
+tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags, guint16 window)
 {
 	conversation_t *conv=NULL;
 	struct tcp_analysis *tcpd=NULL;
@@ -294,6 +303,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1->nextseq=seq+1;
 		ual1->ts.secs=pinfo->fd->abs_secs;
 		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		ual1->window=window;
 		base_seq=seq;
 		base_ack=ack;
 		goto seq_finished;
@@ -311,6 +321,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1->nextseq=seq+seglen;
 		ual1->ts.secs=pinfo->fd->abs_secs;
 		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		ual1->window=window;
 		base_seq=seq;
 		goto seq_finished;
 	}
@@ -342,6 +353,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual->nextseq=seq+seglen;
 		ual->ts.secs=pinfo->fd->abs_secs;
 		ual->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		ual->window=window;
 		ual1=ual;
 		goto seq_finished;
 	}
@@ -393,6 +405,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	ual->nextseq=seq+seglen;
 	ual->ts.secs=pinfo->fd->abs_secs;
 	ual->ts.nsecs=pinfo->fd->abs_usecs*1000;
+	ual->window=window;
 	ual1=ual;
 
 seq_finished:
@@ -508,16 +521,16 @@ ack_finished:
 		ual2->nextseq=ack;
 		ual2->ts.secs=0;
 		ual2->ts.nsecs=0;
+		ual2->window=window;
 	}
 
 	/* update the ACK counter and check for
 	   duplicate ACKs*/
+	/* go to the oldest segment in the list of segments 
+	   in the other direction */
+	for(ual=ual2;ual->next;ual=ual->next)
+		;
 	if(ual2){
-		/* go to the oldest segment in the list of segments 
-		   in the other direction */
-		for(ual=ual2;ual->next;ual=ual->next)
-			;
-
 		/* we only consider this being a potential duplicate ack
 		   if the segment length is 0 (ack only segment)
 		   and if it acks something previous to oldest segment
@@ -548,6 +561,42 @@ ack_finished:
 			}
 		}		
 
+	}
+
+
+	/* check for zero window probes 
+	   a zero window probe is when a TCP tries to write 1 byte segments
+	   where the remote side has advertised a window of 0 bytes.
+	   We only do this check if we actually have seen anything from the
+	   other side of this connection.
+
+	   We also assume ual still points to the last entry in the ual2
+	   list from the section above.
+
+	   At the same time, check for violations, i.e. attempts to write >1
+	   byte to a zero-window.
+	*/
+	/* XXX we should not need to do the ual->frame check here?
+	   might be a bug somewhere. look for it later .
+	*/
+	if(ual2&&(ual->frame)){
+		if((seglen==1)&&(ual->window==0)){
+			struct tcp_acked *ta;
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+			ta->flags|=TCP_A_ZERO_WINDOW_PROBE;
+		}
+		if((seglen>1)&&(ual->window==0)){
+			struct tcp_acked *ta;
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+			ta->flags|=TCP_A_ZERO_WINDOW_VIOLATION;
+		}
+	}
+
+	/* check for zero window */
+	if(!window){
+		struct tcp_acked *ta;
+		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		ta->flags|=TCP_A_ZERO_WINDOW;
 	}
 
 
@@ -642,6 +691,24 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_duplicate_ack, tvb, 0, 0, TRUE, "This is a TCP duplicate ack");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Duplicate ACK] ");
+			}
+		}
+		if( ta->flags&TCP_A_ZERO_WINDOW_PROBE ){
+			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_zero_window_probe, tvb, 0, 0, TRUE, "This is a TCP zero-window-probe");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowProbe] ");
+			}
+		}
+		if( ta->flags&TCP_A_ZERO_WINDOW ){
+			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_zero_window, tvb, 0, 0, TRUE, "This is a ZeroWindow segment");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindow] ");
+			}
+		}
+		if( ta->flags&TCP_A_ZERO_WINDOW_VIOLATION ){
+			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_zero_window_violation, tvb, 0, 0, TRUE, "This is a ZeroWindow violation, attempts to write >1 byte of data to a zero-window");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowViolation] ");
 			}
 		}
 	}
@@ -1798,7 +1865,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* handle TCP seq# analysis parse all new segments we see */
   if(tcp_analyze_seq){
       if(!(pinfo->fd->flags.visited)){
-          tcp_analyze_sequence_number(pinfo, th_seq, th_ack, seglen, th_flags);
+          tcp_analyze_sequence_number(pinfo, th_seq, th_ack, seglen, th_flags, th_win);
       }
       if(tcp_relative_seq){
           tcp_get_relative_seq_ack(pinfo->fd->num, &th_seq, &th_ack);
@@ -2167,6 +2234,18 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_duplicate_ack,
 		{ "",		"tcp.analysis.duplicate_ack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"This is a duplicate ACK", HFILL }},
+
+		{ &hf_tcp_analysis_zero_window_violation,
+		{ "",		"tcp.analysis.zero_window_violation", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"This is a zero-window violation, an attempt to write >1 byte to a zero-window", HFILL }},
+
+		{ &hf_tcp_analysis_zero_window_probe,
+		{ "",		"tcp.analysis.zero_window_probe", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"This is a zero-window-probe", HFILL }},
+
+		{ &hf_tcp_analysis_zero_window,
+		{ "",		"tcp.analysis.zero_window", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"This is a Zero-Window", HFILL }},
 
 		{ &hf_tcp_len,
 		  { "TCP Segment Len",            "tcp.len", FT_UINT32, BASE_DEC, NULL, 0x0,
