@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.358 2003/08/13 00:05:00 tpot Exp $
+ * $Id: packet-smb.c,v 1.359 2003/08/13 04:03:11 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9524,12 +9524,12 @@ const value_string trans2_cmd_vals[] = {
 	{ 0x00,		"OPEN2" },
 	{ 0x01,		"FIND_FIRST2" },
 	{ 0x02,		"FIND_NEXT2" },
-	{ 0x03,		"QUERY_FS_INFORMATION" },
+	{ 0x03,		"QUERY_FS_INFO" },
 	{ 0x04,		"SET_FS_QUOTA" },
-	{ 0x05,		"QUERY_PATH_INFORMATION" },
-	{ 0x06,		"SET_PATH_INFORMATION" },
-	{ 0x07,		"QUERY_FILE_INFORMATION" },
-	{ 0x08,		"SET_FILE_INFORMATION" },
+	{ 0x05,		"QUERY_PATH_INFO" },
+	{ 0x06,		"SET_PATH_INFO" },
+	{ 0x07,		"QUERY_FILE_INFO" },
+	{ 0x08,		"SET_FILE_INFO" },
 	{ 0x09,		"FSCTL" },
 	{ 0x0A,		"IOCTL2" },
 	{ 0x0B,		"FIND_NOTIFY_FIRST" },
@@ -10073,6 +10073,13 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(
+				pinfo->cinfo, COL_INFO, ", %s", 
+				val_to_str(si->info_level, qpi_loi_vals, 
+					   "Unknown (%u)"));
+		}
+
 		/* 4 reserved bytes */
 		CHECK_BYTE_COUNT_TRANS(4);
 		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
@@ -10134,6 +10141,13 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
+
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(
+				pinfo->cinfo, COL_INFO, ", %s", 
+				val_to_str(si->info_level, qpi_loi_vals, 
+					   "Unknown (%u)"));
+		}
 
 		break;
 	}
@@ -14554,8 +14568,8 @@ const value_string smb_cmd_vals[] = {
   { 0x22, "Set Information2" },
   { 0x23, "Query Information2" },
   { 0x24, "Locking AndX" },
-  { 0x25, "Transaction" },
-  { 0x26, "Transaction Secondary" },
+  { 0x25, "Trans" },
+  { 0x26, "Trans Secondary" },
   { 0x27, "IOCTL" },
   { 0x28, "IOCTL Secondary" },
   { 0x29, "Copy" },
@@ -14567,8 +14581,8 @@ const value_string smb_cmd_vals[] = {
   { 0x2F, "Write AndX" },
   { 0x30, "unknown-0x30" },
   { 0x31, "Close And Tree Disconnect" },
-  { 0x32, "Transaction2" },
-  { 0x33, "Transaction2 Secondary" },
+  { 0x32, "Trans2" },
+  { 0x33, "Trans2 Secondary" },
   { 0x34, "Find Close2" },
   { 0x35, "Find Notify Close" },
   { 0x36, "unknown-0x36" },
@@ -14677,8 +14691,8 @@ const value_string smb_cmd_vals[] = {
   { 0x9D, "unknown-0x9D" },
   { 0x9E, "unknown-0x9E" },
   { 0x9F, "unknown-0x9F" },
-  { 0xA0, "NT Transact" },
-  { 0xA1, "NT Transact Secondary" },
+  { 0xA0, "NT Trans" },
+  { 0xA1, "NT Trans Secondary" },
   { 0xA2, "NT Create AndX" },
   { 0xA3, "unknown-0xA3" },
   { 0xA4, "NT Cancel" },
