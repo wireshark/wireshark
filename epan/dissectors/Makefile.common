@@ -550,6 +550,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bootparams.h	\
 	packet-bssap.h	\
 	packet-chdlc.h	\
+	packet-cip.h	\
 	packet-clearcase.h	\
 	packet-clip.h	\
 	packet-cms.h	\
