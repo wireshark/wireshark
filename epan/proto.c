@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.134 2004/07/04 02:29:43 guy Exp $
+ * $Id: proto.c,v 1.135 2004/07/05 16:42:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3891,8 +3891,8 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			/*
 			 * Don't go past the end of that tvbuff.
 			 */
-			if ((guint)length > tvb_length(finfo->ds_tvb))
-				length = tvb_length(finfo->ds_tvb);
+			if ((gint)length > tvb_length_remaining(finfo->ds_tvb, finfo->start))
+				length = tvb_length_remaining(finfo->ds_tvb, finfo->start);
 			if (length <= 0)
 				return NULL;
 			
@@ -3903,7 +3903,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			sprintf(ptr, "frame[%d:%d] == ", finfo->start, length);
 			ptr = buf+strlen(buf);
 
-			for (i=0;i<length; i++) {
+			for (i=0;i<length-finfo->start; i++) {
 				c = tvb_get_guint8(finfo->ds_tvb, start);
 				start++;
 				if (i == 0 ) {

@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.82 2004/05/01 21:04:27 obiot Exp $
+ * $Id: print.c,v 1.83 2004/07/05 16:39:20 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -287,6 +287,12 @@ print_field_hex_value(print_data *pdata, field_info *fi)
 {
 	int i;
 	const guint8 *pd;
+
+
+    if(fi->length > tvb_length_remaining(fi->ds_tvb, fi->start)) {
+        fprintf(pdata->fh, "field length invalid!");
+        return;
+    }
 
 	/* Find the data for this field. */
 	pd = get_field_data(pdata->src_list, fi);
