@@ -1,3 +1,4 @@
+/*XXX fix   all the IA5String types */
 /*
 Alternative H245 dissector.
 This is an alternative dissector for the H.245 protocol.  The aim
@@ -94,7 +95,7 @@ proper helper routines
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.13 2003/07/09 10:21:45 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.14 2003/07/09 11:02:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,6 +134,7 @@ static dissector_handle_t MultimediaSystemControlMessage_handle;
 
 static int proto_h245 = -1;
 static int hf_h245_pdu_type = -1;
+static int hf_h245_domainBased = -1;
 static int hf_h245_GeneralString_length = -1;
 static int hf_h245_extension_bit = -1;
 static int hf_h245_extension_present_bit = -1;
@@ -518,6 +520,7 @@ static int hf_h245_H2250LogicalChannelParameters_mediaPacketization = -1;
 static int hf_h245_CRCLength = -1;
 static int hf_h245_open_type_length = -1;
 static int hf_h245_sequence_of_length = -1;
+static int hf_h245_IA5String_length = -1;
 static int hf_h245_octet_string_length = -1;
 static int hf_h245_V76LogicalChannelParameters_mode_eRM_recovery = -1;
 static int hf_h245_V76LogicalChannelParameters_mode = -1;
@@ -1780,6 +1783,41 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 	return offset;
 }
 
+
+/* dissect a constrained IA5String that consists of the full ASCII set,
+   i.e. no FROM stuff limiting the alphabet 
+*/
+guint32
+dissect_per_constrained_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+{
+	guint32 length;
+	proto_tree *etr=NULL;
+
+	if(display_internal_per_fields){
+		etr=tree;
+	}
+
+
+DEBUG_ENTRY("dissect_per_constrained_IA5String");
+
+	/* guesswork,   i dont know how IA5String is declared  but this might 
+	   be a constrained integer 
+	*/
+	offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
+		etr, hf_h245_IA5String_length, min_len, max_len, 
+		&length, NULL);
+
+	/* these ACSII chars are byte aligned ?*/
+	if(offset&0x07){
+		offset=(offset&0xfffffff8)+8;
+	}
+	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
+	offset+=8*length;
+
+	return offset;
+}
+
+
 /* this function dissects a constrained sequence of */
 guint32
 dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *), int min_len, int max_len)
@@ -1980,9 +2018,9 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tre
 	/* 12.2.6 b */
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, -1, &length);
 	/* gassert here? */
-	if(length>8){
+	if(length>4){
 NOT_DECODED_YET("too long integer");
-		length=8;
+		length=4;
 	}
 
 	val=0;
@@ -14411,6 +14449,16 @@ dissect_h245_UserInputCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 
+static int
+dissect_h245_domainBased(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_constrained_IA5String(tvb, offset, pinfo, tree, hf_h245_domainBased, 1, 64);
+
+	return offset;
+}
+
+
+
 
 static const value_string CapabilityIdentifier_vals[] = {
 	{  0, "standard" },
@@ -14426,7 +14474,8 @@ static per_choice_t CapabilityIdentifier_choice[] = {
 		dissect_h245_NonStandardParameter },
 	{  2, "uuid", EXTENSION_ROOT,
 		dissect_h245_uuid },
-	{  3, "domainBased", EXTENSION_ROOT, NULL },
+	{  3, "domainBased", EXTENSION_ROOT,
+		dissect_h245_domainBased },
 	{  0, NULL, 0, NULL }
 };
 static int
@@ -14454,7 +14503,8 @@ static per_choice_t ParameterIdentifier_choice[] = {
 		dissect_h245_NonStandardParameter },
 	{  2, "uuid", EXTENSION_ROOT,
 		dissect_h245_uuid },
-	{  3, "domainBased", EXTENSION_ROOT, NULL },
+	{  3, "domainBased", EXTENSION_ROOT,
+		dissect_h245_domainBased },
 	{  0, NULL, 0, NULL }
 };
 static int
@@ -14464,8 +14514,6 @@ dissect_h245_ParameterIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 	return offset;
 }
-
-
 
 
 static const value_string H223LogicalChannelParameters_adaptationLayerType_vals[] = {
@@ -21210,6 +21258,9 @@ proto_register_h245(void)
 	{ &hf_h245_sequence_of_length,
 		{ "Sequence-Of Length", "h245.sequence_of_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of items in the Sequence Of", HFILL }},
+	{ &hf_h245_IA5String_length,
+		{ "IA5String Length", "h245.ia5string_length", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of characters in the IA5String", HFILL }},
 	{ &hf_h245_octet_string_length,
 		{ "Octet String Length", "h245.octet_string_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes in the Octet String", HFILL }},
@@ -22863,6 +22914,9 @@ proto_register_h245(void)
 	{ &hf_h245_alphanumeric,
 		{ "alphanumeric", "h245.alphanumeric", FT_STRING, FT_NONE,
 		NULL, 0, "alphanumeric string", HFILL }},
+	{ &hf_h245_domainBased,
+		{ "domainBased", "h245.domainBased", FT_STRING, FT_NONE,
+		NULL, 0, "String for domainBased", HFILL }},
 
 	};
 
