@@ -92,7 +92,7 @@ proper helper routines
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h245.c,v 1.6 2003/07/08 10:08:22 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.7 2003/07/08 10:22:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1611,8 +1611,8 @@ static const true_false_string tfs_small_number_bit = {
 	"The number is large, >63"
 };
 static const true_false_string tfs_optional_field_bit = {
-	"This optional field is present",
-	"This optional field is absent"
+	"",
+	""
 };
 
 
@@ -2319,6 +2319,21 @@ printf("new_offset:%d  offset:%d  length*8:%d\n",new_offset,offset,length*8);
 }
 
 
+static char *
+index_get_optional_name(per_sequence_t *sequence, int index)
+{
+	int i;
+
+	for(i=0;sequence[i].name;i++){
+		if((sequence[i].extension!=NOT_EXTENSION_ROOT)&&(sequence[i].optional==OPTIONAL)){
+			if(index==0){
+				return sequence[i].name;
+			}
+			index--;
+		}
+	}
+	return "<unknown type>";
+}
 
 /* this functions decodes a SEQUENCE
    it can only handle SEQUENCES with at most 32 DEFAULT or OPTIONAL fields
@@ -2374,14 +2389,21 @@ DEBUG_ENTRY("dissect_per_sequence");
 	}
 	optional_mask=0;
 	for(i=0;i<num_opts;i++){
+		proto_item *it=NULL;
 		proto_tree *etr=NULL;
 		if(display_internal_per_fields){
 			etr=tree;
 		}
-		offset=dissect_per_boolean(tvb, offset, pinfo, etr, hf_h245_optional_field_bit, &optional_field_flag, NULL);
+		offset=dissect_per_boolean(tvb, offset, pinfo, etr, hf_h245_optional_field_bit, &optional_field_flag, &it);
 		optional_mask<<=1;
 		if(optional_field_flag){
 			optional_mask|=0x01;
+		}
+		if(it){
+			proto_item_append_text(it, " (%s %s present)",
+				index_get_optional_name(sequence, i),
+				optional_field_flag?"is":"is NOT"
+				);
 		}
 	}
 
