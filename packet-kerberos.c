@@ -21,7 +21,7 @@
  *
  *      http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-referrals-03.txt
  *
- * $Id: packet-kerberos.c,v 1.57 2004/04/15 08:34:21 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.58 2004/05/11 07:30:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1022,7 +1022,7 @@ dissect_krb5_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 	if(tree){
 		proto_item_append_text(tree, " %s", 
 			val_to_str(etype, krb5_encryption_types,
-			"%#x"));
+			"%d"));
 	}
 	return offset;
 }
@@ -3121,7 +3121,7 @@ proto_register_kerberos(void)
 	    "Data", "kerberos.IF_RELEVANT.value", FT_BYTES, BASE_HEX,
 	    NULL, 0, "IF_RELEVANT Data", HFILL }},
 	{ &hf_krb_etype, {
-	    "Encryption type", "kerberos.etype", FT_UINT32, BASE_DEC,
+	    "Encryption type", "kerberos.etype", FT_INT32, BASE_DEC,
 	    VALS(krb5_encryption_types), 0, "Encryption Type", HFILL }},
 	{ &hf_krb_addr_type, {
 	    "Addr-type", "kerberos.addr_type", FT_UINT32, BASE_DEC,
