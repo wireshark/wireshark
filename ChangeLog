@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.31 2003/11/03 02:50:10 gerald Exp $
+$Id: ChangeLog,v 1.32 2003/11/03 23:28:01 gerald Exp $
 
 NOTE:  The format of this file has changed from previous versions.  
 
@@ -4004,4 +4004,97 @@ NOTE:  The format of this file has changed from previous versions.
 	  Xplugin_api_decls.h, Xplugin_table.h:
 
 	  Export get_tempfile_path() to the plugins.
+
+2003-11-03 10:15  guy
+
+	* AUTHORS, packet-wsp.c, packet-wsp.h:
+
+	  From Olivier Biot:
+
+		  * Use function reference arrays for header parse function
+	  lookup
+		    (avoids switch())
+
+		  * Use macros for the common parts of the header parse
+	  functions
+
+		  * Use macros for identical header dissection functions
+
+		  * Implement many missing header parse functions
+
+		  * Automatic header parse error notification
+
+		  * Some minor edits
+
+		  * Add HTTP equivalents to WSP status codes
+
+2003-11-03 10:36  guy
+
+	* gtk/capture_combo_utils.c:
+
+	  "g_list_first()" takes an arbitrary list entry as an argument;
+	  you don't need to call it if you already have a pointer to the
+	  first entry in the list, which is what "a pointer to the list"
+	  is.
+
+2003-11-03 10:40  guy
+
+	* gtk/capture_dlg.c:
+
+	  Don't try to get the list of link-layer header types for an
+	  interface if the interface isn't in the list of known (local)
+	  interfaces - that way we don't try to get entries if the user's
+	  in the middle of changing the "Interface:" text, or if the
+	  interface is an rpcap: URL (getting the link-layer header type
+	  list for a remote interface is currently impossible, and even
+	  just getting its *default* interface type could hang for a long
+	  time if the remote machine isn't responding).
+
+	  Free the link-layer header type list when we're done with it.
+
+	  Label the option menu for that list "Link-layer header type", as
+	  it doesn't control the data link type of the interface in the
+	  only case I know of where it's settable, namely 802.11 interfaces
+	  - it just controls whether the packets you get from the interface
+	  have a fake Ethernet header or a real 802.11 header.
+
+2003-11-03 20:45  guy
+
+	* gtk/rtp_analysis.c:
+
+	  From Lars Ruoff: fix a problem with wrong maximum delay
+	  calculation - first or marked packets are now ignored when
+	  calculating maximum delay.
+
+2003-11-03 20:49  guy
+
+	* packet-q931.c:
+
+	  Fro Anders Broman: fix the meaning of the extension bit, and add
+	  some more bitfields.
+
+2003-11-03 20:57  guy
+
+	* packet-q933.c:
+
+	  Apply Anders Broman's changes to the Q.931 dissector to the Q.933
+	  dissector:
+
+		  fix the meaning of the extension bit, and add some more
+		  bitfields.
+
+2003-11-03 21:00  guy
+
+	* gtk/proto_draw.c:
+
+	  From Olivier Abad: Insert the GTK+ 2.2.4
+	  "gtk_tree_view_expand_to_path()" when building with GTK+ 2.0[.x],
+	  so that we can build with 2.0[.x].
+
+2003-11-03 22:32  guy
+
+	* epan/filesystem.c:
+
+	  Use "g_get_tmp_dir()" to get the pathname of the temporary file
+	  directory.
 
