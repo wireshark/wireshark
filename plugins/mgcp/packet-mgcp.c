@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.23 2001/07/04 22:01:22 hagbard Exp $
+ * $Id: packet-mgcp.c,v 1.24 2001/07/05 04:27:10 hagbard Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -840,9 +840,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
       tvb_current_offset++;
       tvb_current_offset = tvb_skip_wsp(tvb,tvb_current_offset,
 					(len - tvb_current_offset + offset));
-      if(len > tvb_current_offset - offset){
-	returnvalue = tvb_current_offset;
-      }
+      returnvalue = tvb_current_offset;
     }
     else {
       *hf = &hf_mgcp_param_invalid;
