@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.8 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-smb-common.c,v 1.9 2002/04/30 11:03:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,7 @@
 
 #include "packet-smb-common.h"
 
-int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index)
+int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index)
 {
 	char *str;
 	int len;
@@ -59,7 +59,7 @@ int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 }
 
 
-int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index)
+int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index)
 {
 	/* display a unicode string from the tree and return new offset */
 
@@ -84,7 +84,7 @@ int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 int
-dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	/* display data as unknown */
 

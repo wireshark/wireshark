@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.28 2002/04/22 09:43:02 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.29 2002/04/30 11:03:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -643,8 +643,7 @@ dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 
 	ALIGN_TO_4_BYTES;
 
-	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		 hf_index);
+	offset = dissect_smb_64bit_time(tvb, tree, offset, hf_index);
 	return offset;
 }
 

@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.21 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.22 2002/04/30 11:03:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -356,7 +356,7 @@ static const true_false_string tfs_os_nts = {
 };
 
 static void
-dissect_election_criterion_os(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_election_criterion_os(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	proto_tree *tree = NULL;
 	proto_item *item = NULL;
@@ -379,7 +379,7 @@ dissect_election_criterion_os(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 }
 
 static void
-dissect_election_criterion_desire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_election_criterion_desire(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	proto_tree *tree = NULL;
 	proto_item *item = NULL;
@@ -408,7 +408,7 @@ dissect_election_criterion_desire(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static void
-dissect_election_criterion(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_election_criterion(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	proto_tree *tree = NULL;
 	proto_item *item = NULL;
@@ -422,7 +422,7 @@ dissect_election_criterion(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
 	}
 
 	/* election desire */
-	dissect_election_criterion_desire(tvb, pinfo, tree, offset);
+	dissect_election_criterion_desire(tvb, tree, offset);
 	offset += 1;
 
 	/* browser protocol major version */
@@ -434,7 +434,7 @@ dissect_election_criterion(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
 	offset += 1;
 
 	/* election os */
-	dissect_election_criterion_os(tvb, pinfo, tree, offset);
+	dissect_election_criterion_os(tvb, tree, offset);
 	offset += 1;
 
 }
@@ -665,7 +665,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 1;
 
 		/* criterion */
-		dissect_election_criterion(tvb, pinfo, tree, offset);
+		dissect_election_criterion(tvb, tree, offset);
 		offset += 4;
 
 		/* server uptime */

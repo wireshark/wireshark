@@ -2,7 +2,7 @@
  * Routines for SMB packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.9 2002/02/21 18:39:49 tpot Exp $
+ * $Id: packet-smb-common.h,v 1.10 2002/04/30 11:03:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,14 +53,13 @@
 
 int dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
-int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo,
-		proto_tree *tree, int offset, int hf_index);
+int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index);
 
-int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index);
+int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index);
 
-int dissect_smb_64bit_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_date);
+int dissect_smb_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date);
 
-int dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, char *name);
+int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name);
 
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len);

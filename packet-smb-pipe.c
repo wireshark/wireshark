@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.75 2002/04/29 22:43:21 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.76 2002/04/30 11:03:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -232,8 +232,8 @@ static const value_string weekday_vals[] = {
 };
 
 static int
-add_word_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_word_param(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
 	guint16 WParam;
 
@@ -249,8 +249,8 @@ add_word_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_dword_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_dword_param(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
 	guint32 LParam;
 
@@ -266,8 +266,8 @@ add_dword_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
+    proto_tree *tree, int convert _U_, int hf_index)
 {
 	guint8 BParam;
 
@@ -290,8 +290,8 @@ add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_pad_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_pad_param(tvbuff_t *tvb _U_, int offset, int count, packet_info *pinfo _U_,
+    proto_tree *tree _U_, int convert _U_, int hf_index _U_)
 {
 	/*
 	 * This is for parameters that have descriptor entries but that
@@ -302,8 +302,8 @@ add_pad_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static void
-add_null_pointer_param(tvbuff_t *tvb, int offset, int count,
-    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+add_null_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
 	if (hf_index != -1) {
 		proto_tree_add_text(tree, tvb, offset, 0,
@@ -316,8 +316,8 @@ add_null_pointer_param(tvbuff_t *tvb, int offset, int count,
 }
 
 static int
-add_string_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_string_param(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
 	guint string_len;
 
@@ -356,8 +356,8 @@ get_stringz_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp,
 }
 
 static int
-add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count,
-    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo _U_, proto_tree *tree, int convert, int hf_index)
 {
 	int cptr;
 	const char *string;
@@ -392,7 +392,7 @@ add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count,
 
 static int
 add_bytes_pointer_param(tvbuff_t *tvb, int offset, int count,
-    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+    packet_info *pinfo _U_, proto_tree *tree, int convert, int hf_index)
 {
 	int cptr;
 
@@ -425,8 +425,8 @@ add_bytes_pointer_param(tvbuff_t *tvb, int offset, int count,
 }
 
 static int
-add_detail_level(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_detail_level(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo,
+    proto_tree *tree, int convert _U_, int hf_index)
 {
 	struct smb_info *smb_info = pinfo->private_data;
 	smb_transact_info_t *trp = smb_info->sip->extra_info;
@@ -441,8 +441,8 @@ add_detail_level(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_max_uses(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_max_uses(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
+    proto_tree *tree, int convert _U_, int hf_index)
 {
 	guint16 WParam;
 
@@ -461,8 +461,8 @@ add_max_uses(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_server_type(tvbuff_t *tvb, int offset, int count,
-    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+add_server_type(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo, proto_tree *tree, int convert _U_, int hf_index _U_)
 {
 	dissect_smb_server_type_flags(tvb, pinfo, tree, offset, FALSE);
 	offset += 4;
@@ -470,8 +470,8 @@ add_server_type(tvbuff_t *tvb, int offset, int count,
 }
 
 static int
-add_server_type_info(tvbuff_t *tvb, int offset, int count,
-    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+add_server_type_info(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo, proto_tree *tree, int convert _U_, int hf_index _U_)
 {
 	dissect_smb_server_type_flags(tvb, pinfo, tree, offset, TRUE);
 	offset += 4;
@@ -479,8 +479,8 @@ add_server_type_info(tvbuff_t *tvb, int offset, int count,
 }
 
 static int
-add_reltime(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_reltime(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
+    proto_tree *tree, int convert _U_, int hf_index)
 {
 	nstime_t nstime;
 
@@ -498,8 +498,7 @@ add_reltime(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
  * it's-local-time-not-UTC time.
  */
 static int
-add_abstime_common(tvbuff_t *tvb, int offset, int count,
-    packet_info *pinfo, proto_tree *tree, int convert, int hf_index,
+add_abstime_common(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_index,
     const char *absent_name)
 {
 	nstime_t nstime;
@@ -533,24 +532,22 @@ add_abstime_common(tvbuff_t *tvb, int offset, int count,
 }
 
 static int
-add_abstime_absent_never(tvbuff_t *tvb, int offset, int count,
-    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+add_abstime_absent_never(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
-	return add_abstime_common(tvb, offset, count, pinfo, tree,
-	    convert, hf_index, "Never");
+	return add_abstime_common(tvb, offset, tree, hf_index, "Never");
 }
 
 static int
-add_abstime_absent_unknown(tvbuff_t *tvb, int offset, int count,
-    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+add_abstime_absent_unknown(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
-	return add_abstime_common(tvb, offset, count, pinfo, tree,
-	    convert, hf_index, "Unknown");
+	return add_abstime_common(tvb, offset, tree, hf_index, "Unknown");
 }
 
 static int
-add_nlogons(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_nlogons(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
+    proto_tree *tree, int convert _U_, int hf_index)
 {
 	guint16 nlogons;
 
@@ -567,8 +564,8 @@ add_nlogons(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_max_storage(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_max_storage(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
 	guint32 max_storage;
 
@@ -585,7 +582,7 @@ add_max_storage(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
+add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
     proto_tree *tree, int convert, int hf_index)
 {
 	int cptr;
@@ -622,8 +619,8 @@ add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_tzoffset(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_tzoffset(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
+    proto_tree *tree, int convert _U_, int hf_index)
 {
 	gint16 tzoffset;
 
@@ -648,8 +645,8 @@ add_tzoffset(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_timeinterval(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_timeinterval(tvbuff_t *tvb, int offset, int count _U_,
+    packet_info *pinfo _U_, proto_tree *tree, int convert _U_, int hf_index)
 {
 	guint16 timeinterval;
 
@@ -662,8 +659,8 @@ add_timeinterval(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static int
-add_logon_args(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_logon_args(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
+    proto_tree *tree, int convert _U_, int hf_index _U_)
 {
 	if (count != 54) {
 		proto_tree_add_text(tree, tvb, offset, count,
@@ -753,8 +750,8 @@ struct lanman_desc {
 	const item_t	*resp;
 	const gchar	*resp_data_entry_list_label;
 	gint		*ett_data_entry_list;
-	proto_item	*(*resp_data_element_item)(tvbuff_t *, packet_info *,
-						   proto_tree *, int);
+	proto_item	*(*resp_data_element_item)(tvbuff_t *, proto_tree *,
+						   int);
 	gint		*ett_resp_data_element_item;
 	const item_list_t *resp_data_list;
 	const item_t	*resp_aux_data;
@@ -777,8 +774,7 @@ static const item_t lm_params_resp_netshareenum[] = {
  * Create a subtree for a share.
  */
 static proto_item *
-netshareenum_share_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset)
+netshareenum_share_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	if (tree) {
 		return proto_tree_add_text(tree, tvb, offset, -1,
@@ -978,8 +974,7 @@ static const item_t lm_params_req_netserverenum2[] = {
  * Create a subtree for a server.
  */
 static proto_item *
-netserverenum2_server_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset)
+netserverenum2_server_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	if (tree) {
 		return proto_tree_add_text(tree, tvb, offset, -1,
@@ -2516,7 +2511,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 				 */
 				entry_item =
 				    (*lanman->resp_data_element_item)
-				      (tvb, pinfo, data_tree, offset);
+				      (tvb, data_tree, offset);
 				entry_tree = proto_item_add_subtree(
 				    entry_item,
 				    *lanman->ett_resp_data_element_item);
@@ -3514,8 +3509,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		if (!smb_info->request) {
 			if (p_tvb == NULL)
 				return FALSE;
-			offset = dissect_ipc_state(p_tvb, pinfo, pipe_tree, 0,
-			    FALSE);
+			offset = dissect_ipc_state(p_tvb, pipe_tree, 0, FALSE);
 		}
 		break;
 
@@ -3526,8 +3520,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		if (smb_info->request) {
 			if (p_tvb == NULL)
 				return FALSE;
-			offset = dissect_ipc_state(p_tvb, pinfo, pipe_tree, 0,
-			    TRUE);
+			offset = dissect_ipc_state(p_tvb, pipe_tree, 0, TRUE);
 		}
 		break;
 
@@ -3593,7 +3586,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (d_tvb == NULL)
 				return FALSE;
 
-			offset = dissect_file_data(d_tvb, pinfo, pipe_tree, 0,
+			offset = dissect_file_data(d_tvb, pipe_tree, 0,
 			    tvb_reported_length(d_tvb),
 			    tvb_reported_length(d_tvb));
 		}
@@ -3605,7 +3598,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (d_tvb == NULL)
 				return FALSE;
 
-			offset = dissect_file_data(d_tvb, pinfo, pipe_tree,
+			offset = dissect_file_data(d_tvb, pipe_tree,
 			    offset, tvb_reported_length(d_tvb),
 			    tvb_reported_length(d_tvb));
 		} else {

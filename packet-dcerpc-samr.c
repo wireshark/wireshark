@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.37 2002/04/30 01:44:34 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.38 2002/04/30 11:03:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,8 +35,7 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-samr.h"
 #include "smb.h"	/* for "NT_errors[]" */
-
-int dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, char *name);
+#include "packet-smb-common.h"
 
 static int proto_dcerpc_samr = -1;
 
@@ -212,7 +211,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_count, NULL);
 
-	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Domain");
+	offset = dissect_nt_sid(tvb, offset, tree, "Domain");
 	return offset;
 }
 
