@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.71 2001/11/08 02:54:31 gram Exp $
+ * $Id: prefs.c,v 1.72 2001/11/09 08:36:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,8 +123,8 @@ prefs_register_module(const char *name, const char *title,
 	module->prefs_changed = FALSE;
 
 	/*
-	 * Make sure that only lower-case ASCII letters, numbers, and
-	 * underscores appear in the module name.
+	 * Make sure that only lower-case ASCII letters, numbers,
+	 * underscores, and dots appear in the module name.
 	 *
 	 * Crash if there is, as that's an error in the code;
 	 * you can make the title a nice string with capitalization,
@@ -258,7 +258,7 @@ register_preference(module_t *module, const char *name, const char *title,
 	 * you can make the title and description nice strings
 	 * with capitalization, white space, punctuation, etc.,
 	 * but the name can be used on the command line,
-	 * and shouldn't require quoting, Shifting, etc.
+	 * and shouldn't require quoting, shifting, etc.
 	 */
 	for (p = name; *p != '\0'; p++)
 		g_assert(isascii(*p) &&
