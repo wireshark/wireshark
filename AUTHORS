@@ -500,6 +500,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	RWALL support
 	HCLNFSD dissector enhancements
 	IP fragment reassembly
+	YPPASSWD support
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
