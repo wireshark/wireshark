@@ -1,8 +1,9 @@
 /* packet-aim.c
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
+ * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.c,v 1.31 2003/12/21 11:40:45 jmayer Exp $
+ * $Id: packet-aim.c,v 1.32 2004/03/20 06:14:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +57,7 @@ typedef struct _aim_tlv {
 #define CHANNEL_SNAC_DATA   0x02
 #define CHANNEL_FLAP_ERR    0x03
 #define CHANNEL_CLOSE_CONN  0x04
+#define CHANNEL_KEEP_ALIVE  0x05
 
 /* SNAC families */
 #define FAMILY_GENERIC    0x0001
@@ -72,16 +74,22 @@ typedef struct _aim_tlv {
 #define FAMILY_TRANSLATE  0x000C
 #define FAMILY_CHAT_NAV   0x000D
 #define FAMILY_CHAT       0x000E
+#define FAMILY_DIRECTORY  0x000F
 #define FAMILY_SSI        0x0013
 #define FAMILY_ICQ        0x0015
 #define FAMILY_SIGNON     0x0017
 #define FAMILY_OFT        0xfffe
 
 /* Family Signon */
+#define FAMILY_SIGNON_ERROR          0x0001
 #define FAMILY_SIGNON_LOGON          0x0002
 #define FAMILY_SIGNON_LOGON_REPLY    0x0003
+#define FAMILY_SIGNON_UIN_REQ        0x0004
+#define FAMILY_SIGNON_UIN_REPL       0x0005
 #define FAMILY_SIGNON_SIGNON         0x0006
 #define FAMILY_SIGNON_SIGNON_REPLY   0x0007
+#define FAMILY_SIGNON_S_SECUREID_REQ 0x000a
+#define FAMILY_SIGNON_C_SECUREID_REP 0x000b
 
 /* Family Generic */
 #define FAMILY_GENERIC_ERROR          0x0001
@@ -95,6 +103,7 @@ typedef struct _aim_tlv {
 #define FAMILY_GENERIC_UNKNOWNx09     0x0009
 #define FAMILY_GENERIC_RATECHANGE     0x000a
 #define FAMILY_GENERIC_SERVERPAUSE    0x000b
+#define FAMILY_GENERIC_CLIENTPAUSEACK 0x000c
 #define FAMILY_GENERIC_SERVERRESUME   0x000d
 #define FAMILY_GENERIC_REQSELFINFO    0x000e
 #define FAMILY_GENERIC_SELFINFO       0x000f
@@ -105,6 +114,11 @@ typedef struct _aim_tlv {
 #define FAMILY_GENERIC_SETPRIVFLAGS   0x0014
 #define FAMILY_GENERIC_WELLKNOWNURL   0x0015
 #define FAMILY_GENERIC_NOP            0x0016
+#define FAMILY_GENERIC_CAPABILITIES   0x0017
+#define FAMILY_GENERIC_CAPACK         0x0018
+#define FAMILY_GENERIC_SETSTATUS      0x001e
+#define FAMILY_GENERIC_CLIENTVERREQ   0x001f
+#define FAMILY_GENERIC_CLIENTVERREPL  0x0020
 #define FAMILY_GENERIC_DEFAULT        0xffff
 
 /* Family Location Services */
@@ -131,6 +145,9 @@ typedef struct _aim_tlv {
 
 /* Family Messaging Service */
 #define FAMILY_MESSAGING_ERROR          0x0001
+#define FAMILY_MESSAGING_SETICBMPARAM   0x0002
+#define FAMILY_MESSAGING_RESETICBMPARAM 0x0003
+#define FAMILY_MESSAGING_REQPARAMINFO   0x0004
 #define FAMILY_MESSAGING_PARAMINFO      0x0005
 #define FAMILY_MESSAGING_OUTGOING       0x0006
 #define FAMILY_MESSAGING_INCOMING       0x0007
@@ -138,6 +155,7 @@ typedef struct _aim_tlv {
 #define FAMILY_MESSAGING_MISSEDCALL     0x000a
 #define FAMILY_MESSAGING_CLIENTAUTORESP 0x000b
 #define FAMILY_MESSAGING_ACK            0x000c
+#define FAMILY_MESSAGING_MINITYPING     0x0014
 #define FAMILY_MESSAGING_DEFAULT        0xffff
 
 /* Family Advertising */
@@ -148,21 +166,34 @@ typedef struct _aim_tlv {
 
 /* Family Invitation */
 #define FAMILY_INVITATION_ERROR       0x0001
+#define FAMILY_INVITATION_FRIEND_REQ  0x0002
+#define FAMILY_INVITATION_FRIEND_REPL 0x0003
 #define FAMILY_INVITATION_DEFAULT     0xffff
 
 /* Family Admin */
 #define FAMILY_ADMIN_ERROR            0x0001
+#define FAMILY_ADMIN_ACCNT_INFO_REQ   0x0002
+#define FAMILY_ADMIN_ACCNT_INFO_REPL  0x0003
+#define FAMILY_ADMIN_INFOCHANGEREQ    0x0004
 #define FAMILY_ADMIN_INFOCHANGEREPLY  0x0005
+#define FAMILY_ADMIN_ACCT_CFRM_REQ    0x0006
+#define FAMILY_ADMIN_ACCT_CFRM_REPL   0x0007
 #define FAMILY_ADMIN_DEFAULT          0xffff
 
 /* Family Popup */
 #define FAMILY_POPUP_ERROR            0x0001
+#define FAMILY_POPUP_COMMAND          0x0002
 #define FAMILY_POPUP_DEFAULT          0xffff
 
 /* Family BOS (Misc) */
 #define FAMILY_BOS_ERROR              0x0001
 #define FAMILY_BOS_RIGHTSQUERY        0x0002
 #define FAMILY_BOS_RIGHTS             0x0003
+#define FAMILY_BOS_SET_GROUP_PERM     0x0004
+#define FAMILY_BOS_ADD_TO_VISIBLE     0x0005
+#define FAMILY_BOS_DEL_FROM_VISIBLE   0x0006
+#define FAMILY_BOS_ADD_TO_INVISIBLE   0x0007
+#define FAMILY_BOS_DEL_FROM_INVISIBLE 0x0008
 #define FAMILY_BOS_DEFAULT            0xffff
 
 /* Family User Lookup */
@@ -174,17 +205,26 @@ typedef struct _aim_tlv {
 /* Family User Stats */
 #define FAMILY_STATS_ERROR             0x0001
 #define FAMILY_STATS_SETREPORTINTERVAL 0x0002
+#define FAMILY_STATS_REPORTREQ         0x0003
 #define FAMILY_STATS_REPORTACK         0x0004
 #define FAMILY_STATS_DEFAULT           0xffff
 
 /* Family Translation */
 #define FAMILY_TRANSLATE_ERROR        0x0001
+#define FAMILY_TRANSLATE_REQ          0x0002
+#define FAMILY_TRANSLATE_REPL         0x0003
 #define FAMILY_TRANSLATE_DEFAULT      0xffff
 
 /* Family Chat Navigation */
 #define FAMILY_CHATNAV_ERROR          0x0001
-#define FAMILY_CHATNAV_CREATE         0x0008
-#define FAMILY_CHATNAV_INFO           0x0009
+#define FAMILY_CHATNAV_LIMITS_REQ     0x0002
+#define FAMILY_CHATNAV_EXCHANGE_REQ   0x0003
+#define FAMILY_CHATNAV_ROOM_INFO_REQ  0x0004
+#define FAMILY_CHATNAV_ROOMIF_EXT_REQ 0x0005
+#define FAMILY_CHATNAV_MEMBERLIST_REQ 0x0006
+#define FAMILY_CHATNAV_SEARCH_ROOM    0x0007
+#define FAMILY_CHATNAV_CREATE_ROOM    0x0008
+#define FAMILY_CHATNAV_INFO_REPLY     0x0009
 #define FAMILY_CHATNAV_DEFAULT        0xffff
 
 /* Family Chat */
@@ -194,12 +234,15 @@ typedef struct _aim_tlv {
 #define FAMILY_CHAT_USERLEAVE         0x0004
 #define FAMILY_CHAT_OUTGOINGMSG       0x0005
 #define FAMILY_CHAT_INCOMINGMSG       0x0006
+#define FAMILY_CHAT_EVIL_REQ          0x0007
+#define FAMILY_CHAT_EVIL_REPLY        0x0008
 #define FAMILY_CHAT_DEFAULT           0xffff
 
 /* Family Server-Stored Buddy Lists */
 #define FAMILY_SSI_ERROR              0x0001
 #define FAMILY_SSI_REQRIGHTS          0x0002
 #define FAMILY_SSI_RIGHTSINFO         0x0003
+#define FAMILY_SSI_REQLIST_FIRSTTIME  0x0004
 #define FAMILY_SSI_REQLIST            0x0005
 #define FAMILY_SSI_LIST               0x0006
 #define FAMILY_SSI_ACTIVATE           0x0007
@@ -210,6 +253,13 @@ typedef struct _aim_tlv {
 #define FAMILY_SSI_NOLIST             0x000f
 #define FAMILY_SSI_EDITSTART          0x0011
 #define FAMILY_SSI_EDITSTOP           0x0012
+#define FAMILY_SSI_GRANT_FUTURE_AUTH  0x0014
+#define FAMILY_SSI_FUTUR_AUTH_GRANTED 0x0015
+#define FAMILY_SSI_SEND_AUTH_REQ      0x0018
+#define FAMILY_SSI_AUTH_REQ           0x0019
+#define FAMILY_SSI_SEND_AUTH_REPLY    0x001a
+#define FAMILY_SSI_AUTH_REPLY         0x001b
+#define FAMILY_SSI_WAS_ADDED          0x001c
 
 /* Family ICQ */
 #define FAMILY_ICQ_ERROR              0x0001
@@ -231,6 +281,7 @@ static const value_string aim_fnac_family_ids[] = {
   { FAMILY_USERLOOKUP, "User Lookup" },
   { FAMILY_STATS, "Stats" },
   { FAMILY_TRANSLATE, "Translate" },
+  { FAMILY_DIRECTORY, "Directory User Search" },
   { FAMILY_CHAT_NAV, "Chat Nav" },
   { FAMILY_CHAT, "Chat" },
   { FAMILY_SSI, "Server Stored Info" },
@@ -243,8 +294,12 @@ static const value_string aim_fnac_family_ids[] = {
 static const value_string aim_fnac_family_signon[] = {
   { FAMILY_SIGNON_LOGON, "Logon" },
   { FAMILY_SIGNON_LOGON_REPLY, "Logon Reply" },
+  { FAMILY_SIGNON_UIN_REQ, "Request UIN" },
+  { FAMILY_SIGNON_UIN_REPL, "New UIN response" },
   { FAMILY_SIGNON_SIGNON, "Sign-on" },
   { FAMILY_SIGNON_SIGNON_REPLY, "Sign-on Reply" },
+  { FAMILY_SIGNON_S_SECUREID_REQ, "Server SecureID Request" },
+  { FAMILY_SIGNON_C_SECUREID_REP, "Client SecureID Reply" },
   { 0, NULL }
 };
 
@@ -260,6 +315,7 @@ static const value_string aim_fnac_family_generic[] = {
   { FAMILY_GENERIC_UNKNOWNx09, "Unknown" },
   { FAMILY_GENERIC_RATECHANGE, "Rate Change" },
   { FAMILY_GENERIC_SERVERPAUSE, "Server Pause" },
+  { FAMILY_GENERIC_CLIENTPAUSEACK, "Client Pause Ack" },
   { FAMILY_GENERIC_SERVERRESUME, "Server Resume" },
   { FAMILY_GENERIC_REQSELFINFO, "Self Info Req" },
   { FAMILY_GENERIC_SELFINFO, "Self Info" },
@@ -270,6 +326,11 @@ static const value_string aim_fnac_family_generic[] = {
   { FAMILY_GENERIC_SETPRIVFLAGS, "Set Privilege Flags" },
   { FAMILY_GENERIC_WELLKNOWNURL, "Well Known URL" },
   { FAMILY_GENERIC_NOP, "noop" },
+  { FAMILY_GENERIC_CAPABILITIES, "Capabilities (ICQ specific)" },
+  { FAMILY_GENERIC_CAPACK, "Capabilities Ack (ICQ specific)" },
+  { FAMILY_GENERIC_SETSTATUS, "Set Status (ICQ specific)" },
+  { FAMILY_GENERIC_CLIENTVERREQ, "Client Verification Requst" },
+  { FAMILY_GENERIC_CLIENTVERREPL, "Client Verification Reply" },
   { FAMILY_GENERIC_DEFAULT, "Generic Default" },
   { 0, NULL }
 };
@@ -302,12 +363,16 @@ static const value_string aim_fnac_family_buddylist[] = {
 
 static const value_string aim_fnac_family_messaging[] = {
   { FAMILY_MESSAGING_ERROR, "Error" },
+  { FAMILY_MESSAGING_SETICBMPARAM, "Set ICBM Parameter" },
+  { FAMILY_MESSAGING_RESETICBMPARAM, "Reset ICBM Parameter" },
+  { FAMILY_MESSAGING_REQPARAMINFO, "Request Parameter Info" },
   { FAMILY_MESSAGING_PARAMINFO, "Parameter Info" },
   { FAMILY_MESSAGING_INCOMING, "Incoming" },
   { FAMILY_MESSAGING_EVIL, "Evil" },
   { FAMILY_MESSAGING_MISSEDCALL, "Missed Call" },
   { FAMILY_MESSAGING_CLIENTAUTORESP, "Client Auto Response" },
   { FAMILY_MESSAGING_ACK, "Acknowledge" },
+  { FAMILY_MESSAGING_MINITYPING, "Mini Typing Notifications (MTN)" },
   { FAMILY_MESSAGING_DEFAULT, "Messaging Default" },
   { 0, NULL }
 };
@@ -322,19 +387,27 @@ static const value_string aim_fnac_family_adverts[] = {
 
 static const value_string aim_fnac_family_invitation[] = {
   { FAMILY_INVITATION_ERROR, "Error" },
+  { FAMILY_INVITATION_FRIEND_REQ, "Invite a friend to join AIM" },
+  { FAMILY_INVITATION_FRIEND_REPL, "Invitation Ack" },
   { FAMILY_INVITATION_DEFAULT, "Invitation Default" },
   { 0, NULL }
 };
 
 static const value_string aim_fnac_family_admin[] = {
   { FAMILY_ADMIN_ERROR, "Error" },
-  { FAMILY_ADMIN_INFOCHANGEREPLY, "Infochange reply" },
+  { FAMILY_ADMIN_ACCNT_INFO_REQ, "Request Account Information" },
+  { FAMILY_ADMIN_ACCNT_INFO_REPL, "Requested Account Information" },
+  { FAMILY_ADMIN_INFOCHANGEREQ, "Infochange Request" },
+  { FAMILY_ADMIN_INFOCHANGEREPLY, "Infochange Reply" },
+  { FAMILY_ADMIN_ACCT_CFRM_REQ, "Account Confirm Request" },
+  { FAMILY_ADMIN_ACCT_CFRM_REPL, "Account Confirm Reply" },
   { FAMILY_ADMIN_DEFAULT, "Adminstrative Default" },
   { 0, NULL }
 };
 
 static const value_string aim_fnac_family_popup[] = {
   { FAMILY_POPUP_ERROR, "Error" },
+  { FAMILY_POPUP_COMMAND, "Display Popup Message Server Command" },
   { FAMILY_POPUP_DEFAULT, "Popup Default" },
   { 0, NULL }
 };
@@ -343,6 +416,11 @@ static const value_string aim_fnac_family_bos[] = {
   { FAMILY_BOS_ERROR, "Error" },
   { FAMILY_BOS_RIGHTSQUERY, "Rights Query" },
   { FAMILY_BOS_RIGHTS, "Rights" },
+  { FAMILY_BOS_SET_GROUP_PERM, "Set Group Permissions Mask" },
+  { FAMILY_BOS_ADD_TO_VISIBLE, "Add To Visible List" },
+  { FAMILY_BOS_DEL_FROM_VISIBLE, "Delete From Visible List" },
+  { FAMILY_BOS_ADD_TO_INVISIBLE, "Add To Invisible List" },
+  { FAMILY_BOS_DEL_FROM_INVISIBLE, "Delete From Invisible List" },
   { FAMILY_BOS_DEFAULT, "BOS Default" },
   { 0, NULL }
 };
@@ -356,6 +434,7 @@ static const value_string aim_fnac_family_userlookup[] = {
 static const value_string aim_fnac_family_stats[] = {
   { FAMILY_STATS_ERROR, "Error" },
   { FAMILY_STATS_SETREPORTINTERVAL, "Set Report Interval" },
+  { FAMILY_STATS_REPORTREQ, "Report Request" },
   { FAMILY_STATS_REPORTACK, "Report Ack" },
   { FAMILY_STATS_DEFAULT, "Stats Default" },
   { 0, NULL }
@@ -363,24 +442,35 @@ static const value_string aim_fnac_family_stats[] = {
 
 static const value_string aim_fnac_family_translate[] = {
   { FAMILY_TRANSLATE_ERROR, "Error" },
+  { FAMILY_TRANSLATE_REQ, "Translate Request" },
+  { FAMILY_TRANSLATE_REPL, "Translate Reply" },
   { FAMILY_TRANSLATE_DEFAULT, "Translate Default" },
   { 0, NULL }
 };
 
 static const value_string aim_fnac_family_chatnav[] = {
   { FAMILY_CHATNAV_ERROR, "Error" },
-  { FAMILY_CHATNAV_CREATE, "Create" },
-  { FAMILY_CHATNAV_INFO, "Info" },
+  { FAMILY_CHATNAV_LIMITS_REQ, "Request Limits" },
+  { FAMILY_CHATNAV_EXCHANGE_REQ, "Request Exchange" },
+  { FAMILY_CHATNAV_ROOM_INFO_REQ, "Request Room Information" },
+  { FAMILY_CHATNAV_ROOMIF_EXT_REQ, "Request Extended Room Information" },
+  { FAMILY_CHATNAV_MEMBERLIST_REQ, "Request Member List" },
+  { FAMILY_CHATNAV_SEARCH_ROOM, "Search Room" },
+  { FAMILY_CHATNAV_CREATE_ROOM, "Create" },
+  { FAMILY_CHATNAV_INFO_REPLY, "Info" },
   { FAMILY_CHATNAV_DEFAULT, "ChatNav Default" },
   { 0, NULL }
 };
 
 static const value_string aim_fnac_family_chat[] = {
   { FAMILY_CHAT_ERROR, "Error" },
+  { FAMILY_CHAT_ROOMINFOUPDATE, "Room Info Update" },
   { FAMILY_CHAT_USERJOIN, "User Join" },
   { FAMILY_CHAT_USERLEAVE, "User Leave" },
   { FAMILY_CHAT_OUTGOINGMSG, "Outgoing Message" },
   { FAMILY_CHAT_INCOMINGMSG, "Incoming Message" },
+  { FAMILY_CHAT_EVIL_REQ, "Evil Request" },
+  { FAMILY_CHAT_EVIL_REPLY, "Evil Reply" },
   { FAMILY_CHAT_DEFAULT, "Chat Default" },
   { 0, NULL }
 };
@@ -389,6 +479,7 @@ static const value_string aim_fnac_family_ssi[] = {
   { FAMILY_SSI_ERROR, "Error" },
   { FAMILY_SSI_REQRIGHTS, "Request Rights" },
   { FAMILY_SSI_RIGHTSINFO, "Rights Info" },
+  { FAMILY_SSI_REQLIST_FIRSTTIME, "Request List (first time)" },
   { FAMILY_SSI_REQLIST, "Request List" },
   { FAMILY_SSI_LIST, "List" },
   { FAMILY_SSI_ACTIVATE, "Activate" },
@@ -399,6 +490,13 @@ static const value_string aim_fnac_family_ssi[] = {
   { FAMILY_SSI_NOLIST, "No List" },
   { FAMILY_SSI_EDITSTART, "Edit Start" },
   { FAMILY_SSI_EDITSTOP, "Edit Stop" },
+  { FAMILY_SSI_GRANT_FUTURE_AUTH, "Grant Future Authorization to Client" },
+  { FAMILY_SSI_FUTUR_AUTH_GRANTED, "Future Authorization Granted" },
+  { FAMILY_SSI_SEND_AUTH_REQ, "Send Authentication Request" },
+  { FAMILY_SSI_AUTH_REQ, "Authentication Request" },
+  { FAMILY_SSI_SEND_AUTH_REPLY, "Send Authentication Reply" },
+  { FAMILY_SSI_AUTH_REPLY, "Authentication Reply" },
+  { FAMILY_SSI_WAS_ADDED, "Remote User Added Client To List" },
   { 0, NULL }
 };
 
@@ -593,6 +691,8 @@ static void dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_,
 				      guint16 subtype _U_);
 static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo, 
 				 int offset, proto_tree *tree);
+static void dissect_aim_keep_alive(tvbuff_t *tvb, packet_info *pinfo, 
+				   int offset, proto_tree *tree);
 static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo, 
 				   int offset, proto_tree *tree);
 static void dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo, 
@@ -745,6 +845,9 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case CHANNEL_CLOSE_CONN:
       dissect_aim_close_conn(tvb, pinfo, offset, aim_tree);
       break;
+    case CHANNEL_KEEP_ALIVE:
+     dissect_aim_keep_alive(tvb, pinfo, offset, aim_tree);
+     break;
     default:
       dissect_aim_unknown_channel(tvb, pinfo, offset, aim_tree);
       break;
@@ -1667,6 +1770,18 @@ static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo,
 {
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "FLAP error");
+  }
+
+  /* Show the undissected payload */
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
+}
+
+static void dissect_aim_keep_alive(tvbuff_t *tvb, packet_info *pinfo, 
+				   int offset, proto_tree *tree)
+{
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Keep Alive");
   }
 
   /* Show the undissected payload */
