@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-camel.c                                                           */
+/* ./packet-camel.c                                                           */
 /* ../../tools/asn2eth.py -X -b -e -p camel -c camel.cnf -s packet-camel-template camel.asn */
 
 /* Input file: packet-camel-template.c */
@@ -617,7 +617,7 @@ dissector_handle_t  camel_handle;
 
 /* Global variables */
 
-int application_context_version;
+static int application_context_version;
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 

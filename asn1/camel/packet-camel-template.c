@@ -86,7 +86,7 @@ dissector_handle_t  camel_handle;
 
 /* Global variables */
 
-int application_context_version;
+static int application_context_version;
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 

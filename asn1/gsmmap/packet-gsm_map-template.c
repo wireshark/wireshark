@@ -108,7 +108,7 @@ dissector_handle_t	map_handle;
 /* Global variables */
 
 static proto_tree *top_tree;
-int application_context_version;
+static int application_context_version;
 gint protocolId;
 static int gsm_map_tap = -1;
 
@@ -928,15 +928,15 @@ static guint8 gsm_map_pdu_size = 0;
 static int
 dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index) {
 
-	char *version_ptr, *version_str;
+  char *version_ptr, *version_str;
 
-	opcode = 0;
-	application_context_version = 0;
-	if (pinfo->private_data != NULL){
-		version_ptr = strrchr(pinfo->private_data,'.');
-		version_str = g_strdup(version_ptr+1);
-		application_context_version = atoi(version_str);
-	}
+  opcode = 0;
+  application_context_version = 0;
+  if (pinfo->private_data != NULL){
+    version_ptr = strrchr(pinfo->private_data,'.');
+    version_str = g_strdup(version_ptr+1);
+    application_context_version = atoi(version_str);
+  }
 
   gsmmap_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
   /* Get the length and add 2 */
