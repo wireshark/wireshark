@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.16 2003/05/21 06:28:03 guy Exp $
+ * $Id: packet-tcp.h,v 1.17 2003/08/23 09:09:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,9 +46,8 @@ struct tcpheader {
 	guint16 th_dport;
 	guint8  th_hlen;
 	guint8  th_flags;
-	/* this can either be ipv4 or ipv6, make sure you know which
-	   one you get. */
-	void *ip_header;
+	address ip_src;
+	address ip_dst;
 };
 
 /*

@@ -1,7 +1,8 @@
+/* should be almost trivial to fix tcp and udp to also handle ipv6 */
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.7 2003/05/19 11:16:29 sahlberg Exp $
+ * $Id: tap-iousers.c,v 1.8 2003/08/23 09:09:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,8 +56,8 @@ typedef struct _io_users_item_t {
 	struct _io_users_item_t *next;
 	char *name1;
 	char *name2;
-	void *addr1;
-	void *addr2; 
+	address addr1;
+	address addr2; 
 	guint32 frames1;
 	guint32 frames2;
 	guint32 bytes1;
@@ -73,19 +74,17 @@ iousers_udpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 	e_udphdr *udph=vudph;
 	char name1[256],name2[256];
 	io_users_item_t *iui;
-	e_ip *ipv4_header;
 	int direction=0;
 
-	ipv4_header=udph->ip_header;
-	switch(ipv4_header->ip_v_hl>>4){
-	case 4:
-		if(ipv4_header->ip_src>ipv4_header->ip_dst){
-			snprintf(name1,256,"%s:%s",get_hostname(ipv4_header->ip_src),get_udp_port(udph->uh_sport));
-			snprintf(name2,256,"%s:%s",get_hostname(ipv4_header->ip_dst),get_udp_port(udph->uh_dport));
+	switch(udph->ip_src.type){
+	case AT_IPv4:
+		if(CMP_ADDRESS(&udph->ip_src, &udph->ip_dst)>0){
+			snprintf(name1,256,"%s:%s",get_hostname((guint)(*((guint *)udph->ip_src.data))),get_udp_port(udph->uh_sport));
+			snprintf(name2,256,"%s:%s",get_hostname((guint)(*((guint *)udph->ip_dst.data))),get_udp_port(udph->uh_dport));
 		} else {
 			direction=1;
-			snprintf(name2,256,"%s:%s",get_hostname(ipv4_header->ip_src),get_udp_port(udph->uh_sport));
-			snprintf(name1,256,"%s:%s",get_hostname(ipv4_header->ip_dst),get_udp_port(udph->uh_dport));
+			snprintf(name2,256,"%s:%s",get_hostname((guint)(*((guint *)udph->ip_src.data))),get_udp_port(udph->uh_sport));
+			snprintf(name1,256,"%s:%s",get_hostname((guint)(*((guint *)udph->ip_dst.data))),get_udp_port(udph->uh_dport));
 		}
 		break;
 	default:
@@ -103,9 +102,9 @@ iousers_udpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 		iui=g_malloc(sizeof(io_users_item_t));
 		iui->next=iu->items;
 		iu->items=iui;
-		iui->addr1=NULL;
+/*		iui->addr1=NULL;*/
 		iui->name1=strdup(name1);
-		iui->addr2=NULL;
+/*		iui->addr2=NULL;*/
 		iui->name2=strdup(name2);
 		iui->frames1=0;
 		iui->frames2=0;
@@ -124,6 +123,7 @@ iousers_udpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 	return 1;
 }
 
+
 /* XXX for now we only handle ipv4 as transport for tcp.
    should extend in the future to also handle ipv6
 */
@@ -133,19 +133,17 @@ iousers_tcpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 	struct tcpheader *tcph=vtcph;
 	char name1[256],name2[256];
 	io_users_item_t *iui;
-	e_ip *ipv4_header;
 	int direction=0;
 
-	ipv4_header=tcph->ip_header;
-	switch(ipv4_header->ip_v_hl>>4){
-	case 4:
-		if(ipv4_header->ip_src>ipv4_header->ip_dst){
-			snprintf(name1,256,"%s:%s",get_hostname(ipv4_header->ip_src),get_tcp_port(tcph->th_sport));
-			snprintf(name2,256,"%s:%s",get_hostname(ipv4_header->ip_dst),get_tcp_port(tcph->th_dport));
+	switch(tcph->ip_src.type){
+	case AT_IPv4:
+		if(CMP_ADDRESS(&tcph->ip_src, &tcph->ip_dst)>0){
+			snprintf(name1,256,"%s:%s",get_hostname((guint)(*((guint *)tcph->ip_src.data))),get_tcp_port(tcph->th_sport));
+			snprintf(name2,256,"%s:%s",get_hostname((guint)(*((guint *)tcph->ip_dst.data))),get_tcp_port(tcph->th_dport));
 		} else {
 			direction=1;
-			snprintf(name2,256,"%s:%s",get_hostname(ipv4_header->ip_src),get_tcp_port(tcph->th_sport));
-			snprintf(name1,256,"%s:%s",get_hostname(ipv4_header->ip_dst),get_tcp_port(tcph->th_dport));
+			snprintf(name2,256,"%s:%s",get_hostname((guint)(*((guint *)tcph->ip_src.data))),get_tcp_port(tcph->th_sport));
+			snprintf(name1,256,"%s:%s",get_hostname((guint)(*((guint *)tcph->ip_dst.data))),get_tcp_port(tcph->th_dport));
 		}
 		break;
 	default:
@@ -163,9 +161,9 @@ iousers_tcpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 		iui=g_malloc(sizeof(io_users_item_t));
 		iui->next=iu->items;
 		iu->items=iui;
-		iui->addr1=NULL;
+/*		iui->addr1=NULL;*/
 		iui->name1=strdup(name1);
-		iui->addr2=NULL;
+/*		iui->addr2=NULL;*/
 		iui->name2=strdup(name2);
 		iui->frames1=0;
 		iui->frames2=0;
@@ -189,20 +187,20 @@ static int
 iousers_ip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
 	e_ip *iph=vip;
-	guint32 addr1, addr2;
+	address *addr1, *addr2;
 	io_users_item_t *iui;
 
-	if(iph->ip_src>iph->ip_dst){
-		addr1=iph->ip_src;
-		addr2=iph->ip_dst;
+	if(CMP_ADDRESS(&iph->ip_src, &iph->ip_dst)>0){
+		addr1=&iph->ip_src;
+		addr2=&iph->ip_dst;
 	} else {
-		addr2=iph->ip_src;
-		addr1=iph->ip_dst;
+		addr2=&iph->ip_src;
+		addr1=&iph->ip_dst;
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
-		if((!memcmp(iui->addr1, &addr1, 4))
-		&&(!memcmp(iui->addr2, &addr2, 4)) ){
+		if((!CMP_ADDRESS(&iui->addr1, addr1))
+		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
 			break;
 		}
 	}
@@ -211,19 +209,17 @@ iousers_ip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 		iui=g_malloc(sizeof(io_users_item_t));
 		iui->next=iu->items;
 		iu->items=iui;
-		iui->addr1=g_malloc(4);
-		memcpy(iui->addr1, &addr1, 4);
-		iui->name1=strdup(get_hostname(addr1));
-		iui->addr2=g_malloc(4);
-		memcpy(iui->addr2, &addr2, 4);
-		iui->name2=strdup(get_hostname(addr2));
+		COPY_ADDRESS(&iui->addr1, addr1);
+		iui->name1=strdup(get_hostname((guint)(*((guint *)addr1->data))));
+		COPY_ADDRESS(&iui->addr2, addr2);
+		iui->name2=strdup(get_hostname((guint)(*((guint *)addr2->data))));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
 		iui->bytes2=0;
 	}
 
-	if(!memcmp(&iph->ip_dst,iui->addr1,4)){
+	if(!CMP_ADDRESS(&iph->ip_dst, &iui->addr1)){
 		iui->frames1++;
 		iui->bytes1+=pinfo->fd->pkt_len;
 	} else {
@@ -238,20 +234,20 @@ static int
 iousers_eth_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *veth)
 {
 	eth_hdr *ehdr=veth;
-	gchar *addr1, *addr2;
+	address *addr1, *addr2;
 	io_users_item_t *iui;
 
-	if(memcmp(ehdr->src, ehdr->dst, 6)<0){
-		addr1=ehdr->src;
-		addr2=ehdr->dst;
+	if(CMP_ADDRESS(&ehdr->src, &ehdr->dst)<0){
+		addr1=&ehdr->src;
+		addr2=&ehdr->dst;
 	} else {
-		addr2=ehdr->src;
-		addr1=ehdr->dst;
+		addr2=&ehdr->src;
+		addr1=&ehdr->dst;
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
-		if((!memcmp(iui->addr1, addr1, 6))
-		&&(!memcmp(iui->addr2, addr2, 6)) ){
+		if((!CMP_ADDRESS(&iui->addr1, addr1))
+		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
 			break;
 		}
 	}
@@ -260,19 +256,17 @@ iousers_eth_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, 
 		iui=g_malloc(sizeof(io_users_item_t));
 		iui->next=iu->items;
 		iu->items=iui;
-		iui->addr1=g_malloc(6);
-		memcpy(iui->addr1, addr1, 6);
-		iui->name1=strdup(ether_to_str(addr1));
-		iui->addr2=g_malloc(6);
-		memcpy(iui->addr2, addr2, 6);
-		iui->name2=strdup(ether_to_str(addr2));
+		COPY_ADDRESS(&iui->addr1, addr1);
+		iui->name1=strdup(ether_to_str(addr1->data));
+		COPY_ADDRESS(&iui->addr2, addr2);
+		iui->name2=strdup(ether_to_str(addr2->data));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
 		iui->bytes2=0;
 	}
 
-	if(!memcmp(ehdr->dst,iui->addr1,6)){
+	if(!CMP_ADDRESS(&ehdr->dst,&iui->addr1)){
 		iui->frames1++;
 		iui->bytes1+=pinfo->fd->pkt_len;
 	} else {
@@ -283,25 +277,24 @@ iousers_eth_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, 
 	return 1;
 }
 
-
 static int
 iousers_tr_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vtr)
 {
 	tr_hdr *trhdr=vtr;
-	gchar *addr1, *addr2;
+	address *addr1, *addr2;
 	io_users_item_t *iui;
 
-	if(memcmp(trhdr->src, trhdr->dst, 6)<0){
-		addr1=trhdr->src;
-		addr2=trhdr->dst;
+	if(CMP_ADDRESS(&trhdr->src, &trhdr->dst)<0){
+		addr1=&trhdr->src;
+		addr2=&trhdr->dst;
 	} else {
-		addr2=trhdr->src;
-		addr1=trhdr->dst;
+		addr2=&trhdr->src;
+		addr1=&trhdr->dst;
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
-		if((!memcmp(iui->addr1, addr1, 6))
-		&&(!memcmp(iui->addr2, addr2, 6)) ){
+		if((!CMP_ADDRESS(&iui->addr1, addr1))
+		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
 			break;
 		}
 	}
@@ -310,19 +303,17 @@ iousers_tr_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 		iui=g_malloc(sizeof(io_users_item_t));
 		iui->next=iu->items;
 		iu->items=iui;
-		iui->addr1=g_malloc(6);
-		memcpy(iui->addr1, addr1, 6);
-		iui->name1=strdup(ether_to_str(addr1));
-		iui->addr2=g_malloc(6);
-		memcpy(iui->addr2, addr2, 6);
-		iui->name2=strdup(ether_to_str(addr2));
+		COPY_ADDRESS(&iui->addr1, addr1);
+		iui->name1=strdup(ether_to_str(addr1->data));
+		COPY_ADDRESS(&iui->addr2, addr2);
+		iui->name2=strdup(ether_to_str(addr2->data));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
 		iui->bytes2=0;
 	}
 
-	if(!memcmp(trhdr->dst,iui->addr1,6)){
+	if(!CMP_ADDRESS(&trhdr->dst,&iui->addr1)){
 		iui->frames1++;
 		iui->bytes1+=pinfo->fd->pkt_len;
 	} else {

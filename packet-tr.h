@@ -1,6 +1,6 @@
 /* packet-tr.h
  *
- * $Id: packet-tr.h,v 1.8 2003/01/22 01:17:01 sahlberg Exp $
+ * $Id: packet-tr.h,v 1.9 2003/08/23 09:09:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,8 +27,8 @@
 typedef struct _tr_hdr {
 	guint8 ac;
 	guint8 fc;
-	guint8 dst[6];
-	guint8 src[6];
+	address dst;
+	address src;
 } tr_hdr;
 
 void capture_tr(const guchar *, int, int, packet_counts *);

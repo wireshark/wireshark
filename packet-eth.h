@@ -1,6 +1,6 @@
 /* packet-eth.h
  *
- * $Id: packet-eth.h,v 1.11 2003/08/21 21:05:29 guy Exp $
+ * $Id: packet-eth.h,v 1.12 2003/08/23 09:09:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,8 @@
 #define __PACKET_ETH_H__
 
 typedef struct _eth_hdr {
-	gchar dst[6];
-	gchar src[6];
+	address dst;
+	address src;
 	guint16 type;
 } eth_hdr;
 

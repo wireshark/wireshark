@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.109 2003/07/24 21:11:20 guy Exp $
+ * $Id: packet-udp.c,v 1.110 2003/08/23 09:09:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,7 +152,8 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      udph_count=0;
   }
   udph=&udphstruct[udph_count];
-  udph->ip_header=pinfo->private_data;
+  SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
+  SET_ADDRESS(&udph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDP");

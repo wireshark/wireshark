@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.200 2003/07/24 21:11:19 guy Exp $
+ * $Id: packet-tcp.c,v 1.201 2003/08/23 09:09:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2106,8 +2106,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      tcph_count=0;
   }
   tcph=&tcphstruct[tcph_count];
-  /* XXX add to ipv6 so this works for that protocol as well */
-  tcph->ip_header=pinfo->private_data;
+  SET_ADDRESS(&tcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
+  SET_ADDRESS(&tcph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");

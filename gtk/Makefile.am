@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.61 2003/06/25 11:15:34 sahlberg Exp $
+# $Id: Makefile.am,v 1.62 2003/08/23 09:09:35 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,11 @@ CLEANFILES = \
 
 ETHEREAL_TAP_SRC = \
 	dcerpc_stat.c	\
+	endpoint_talkers_eth.c	\
+	endpoint_talkers_ip.c	\
+	endpoint_talkers_tcpip.c	\
+	endpoint_talkers_tr.c	\
+	endpoint_talkers_udpip.c	\
 	fc_stat.c	\
 	io_stat.c	\
 	mgcp_stat.c	\
@@ -40,7 +45,6 @@ ETHEREAL_TAP_SRC = \
 ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 	@echo Making ethereal-tap-register.c
 	@$(top_srcdir)/make-tapreg-dotc ethereal-tap-register.c $(srcdir) $(ETHEREAL_TAP_SRC)
-	
 
 if USE_GTK2
 libui_a_SOURCES = \
@@ -59,14 +63,16 @@ libui_a_SOURCES = \
 	column_prefs.c	\
 	column_prefs.h	\
 	compat_macros.h	\
- 	decode_as_dlg.c	\
- 	decode_as_dlg.h	\
+	decode_as_dlg.c	\
+	decode_as_dlg.h	\
 	dfilter_expr_dlg.c \
 	dfilter_expr_dlg.h \
 	display_opts.c	\
 	display_opts.h	\
 	dlg_utils.c	\
 	dlg_utils.h	\
+	endpoint_talkers_table.c \
+	endpoint_talkers_table.h \
 	ethereal-tap-register.c \
 	file_dlg.c	\
 	file_dlg.h	\
@@ -136,14 +142,16 @@ libui_a_SOURCES = \
 	colors.h	\
 	column_prefs.c	\
 	column_prefs.h	\
- 	decode_as_dlg.c	\
- 	decode_as_dlg.h	\
+	decode_as_dlg.c	\
+	decode_as_dlg.h	\
 	dfilter_expr_dlg.c \
 	dfilter_expr_dlg.h \
 	display_opts.c	\
 	display_opts.h	\
 	dlg_utils.c	\
 	dlg_utils.h	\
+	endpoint_talkers_table.c \
+	endpoint_talkers_table.h \
 	ethereal-tap-register.c \
 	file_dlg.c	\
 	file_dlg.h	\

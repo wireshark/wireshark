@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.28 2003/07/11 09:30:48 guy Exp $
+ * $Id: packet-ip.h,v 1.29 2003/08/23 09:09:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,8 +36,8 @@ typedef struct _e_ip
     guint8  ip_ttl;
     guint8  ip_p;
     guint16 ip_sum;
-    guint32 ip_src;
-    guint32 ip_dst;
+    address ip_src;
+    address ip_dst;
 } e_ip;
 
 void capture_ip(const guchar *, int, int, packet_counts *);

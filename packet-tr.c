@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.76 2003/02/08 05:31:05 guy Exp $
+ * $Id: packet-tr.c,v 1.77 2003/08/23 09:09:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -374,10 +374,10 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Get the data */
 	trh->fc		= tvb_get_guint8(tr_tvb, 1);
-	tvb_memcpy(tr_tvb, trh->dst, 2, 6);
-	tvb_memcpy(tr_tvb, trh->src, 8, 6);
+	SET_ADDRESS(&trh->src,	AT_ETHER, 6, tvb_get_ptr(tr_tvb, 8, 6));
+	SET_ADDRESS(&trh->dst,	AT_ETHER, 6, tvb_get_ptr(tr_tvb, 2, 6));
 
-	memcpy(trn_shost_nonsr, trh->src, 6);
+	memcpy(trn_shost_nonsr, trh->src.data, 6);
 	trn_shost_nonsr[0] &= 127;
 	frame_type = (trh->fc & 192) >> 6;
 
@@ -386,7 +386,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* if the high bit on the first byte of src hwaddr is 1, then
 		this packet is source-routed */
-	source_routed = trh->src[0] & 128;
+	source_routed = trh->src.data[0] & 128;
 
 	trn_rif_bytes = tvb_get_guint8(tr_tvb, 14) & 31;
 
@@ -492,8 +492,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   just making "trn_shost_nonsr" static? */
 	SET_ADDRESS(&pinfo->dl_src,	AT_ETHER, 6, trn_shost_nonsr);
 	SET_ADDRESS(&pinfo->src,	AT_ETHER, 6, trn_shost_nonsr);
-	SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, trh->dst);
-	SET_ADDRESS(&pinfo->dst,	AT_ETHER, 6, trh->dst);
+	SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, trh->dst.data);
+	SET_ADDRESS(&pinfo->dst,	AT_ETHER, 6, trh->dst.data);
 
 	/* protocol analysis tree */
 	if (tree) {
@@ -517,10 +517,10 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_uint(bf_tree, hf_tr_fc_type, tr_tvb, 1, 1, trh->fc);
 		proto_tree_add_uint(bf_tree, hf_tr_fc_pcf, tr_tvb,  1, 1, trh->fc);
-		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, trh->dst);
-		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, trh->src);
-		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 2, 6, trh->dst);
-		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 8, 6, trh->src);
+		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, trh->dst.data);
+		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, trh->src.data);
+		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 2, 6, trh->dst.data);
+		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 8, 6, trh->src.data);
 
 		proto_tree_add_boolean(tr_tree, hf_tr_sr, tr_tvb, 8, 1, source_routed);
 

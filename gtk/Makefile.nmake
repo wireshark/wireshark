@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.46 2003/06/25 11:15:34 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.47 2003/08/23 09:09:35 sahlberg Exp $
 
 include ..\config.nmake
 
@@ -21,6 +21,11 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
 ETHEREAL_TAP_SRC = \
 	dcerpc_stat.c	\
+	endpoint_talkers_eth.c	\
+	endpoint_talkers_ip.c	\
+	endpoint_talkers_tcpip.c	\
+	endpoint_talkers_tr.c	\
+	endpoint_talkers_udpip.c	\
 	fc_stat.c	\
 	io_stat.c	\
 	mgcp_stat.c	\
@@ -46,6 +51,7 @@ OBJECTS=capture_dlg.obj \
 	dfilter_expr_dlg.obj \
 	display_opts.obj \
 	dlg_utils.obj	\
+	endpoint_talkers_table.obj \
 	ethereal-tap-register.obj \
 	file_dlg.obj \
 	filter_prefs.obj \

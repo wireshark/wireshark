@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.80 2003/08/21 21:05:29 guy Exp $
+ * $Id: packet-eth.c,v 1.81 2003/08/23 09:09:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,21 +159,33 @@ static void
 dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item		*ti;
-  static eth_hdr 	ehdr;
+  eth_hdr 		*ehdr;
   volatile gboolean	is_802_2;
   proto_tree		*volatile fh_tree = NULL;
+  char			*src_addr, *dst_addr;
+  static eth_hdr 	ehdrs[4];
+  static int		ehdr_num=0;
+
+  ehdr_num++;
+  if(ehdr_num>=4){
+     ehdr_num=0;
+  }
+  ehdr=&ehdrs[ehdr_num];
+
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Ethernet");
 
-  tvb_memcpy(tvb, ehdr.src, 6, 6);
-  tvb_memcpy(tvb, ehdr.dst, 0, 6);
-  SET_ADDRESS(&pinfo->dl_src,	AT_ETHER, 6, ehdr.src);
-  SET_ADDRESS(&pinfo->src,	AT_ETHER, 6, ehdr.src);
-  SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, ehdr.dst);
-  SET_ADDRESS(&pinfo->dst,	AT_ETHER, 6, ehdr.dst);
+  src_addr=tvb_get_ptr(tvb, 6, 6);
+  SET_ADDRESS(&pinfo->dl_src,	AT_ETHER, 6, src_addr);
+  SET_ADDRESS(&pinfo->src,	AT_ETHER, 6, src_addr);
+  SET_ADDRESS(&ehdr->src, 	AT_ETHER, 6, src_addr);
+  dst_addr=tvb_get_ptr(tvb, 0, 6);
+  SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, dst_addr);
+  SET_ADDRESS(&pinfo->dst,	AT_ETHER, 6, dst_addr);
+  SET_ADDRESS(&ehdr->dst, 	AT_ETHER, 6, dst_addr);
 
-  ehdr.type = tvb_get_ntohs(tvb, 12);
+  ehdr->type = tvb_get_ntohs(tvb, 12);
 
   /*
    * If the type/length field is <= the maximum 802.3 length,
@@ -191,7 +203,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * frame; the dissector for those frames registers itself with
    * an ethernet type of ETHERTYPE_UNK.
    */
-  if (ehdr.type <= IEEE_802_3_MAX_LEN && ehdr.type != ETHERTYPE_UNK) {
+  if (ehdr->type <= IEEE_802_3_MAX_LEN && ehdr->type != ETHERTYPE_UNK) {
     /* Oh, yuck.  Cisco ISL frames require special interpretation of the
        destination address field; fortunately, they can be recognized by
        checking the first 5 octets of the destination address, which are
@@ -232,16 +244,16 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"IEEE 802.3 Ethernet %s", (is_802_2 ? "" : "Raw "));
 
       fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
-
-      proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, ehdr.dst);
-      proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, ehdr.src);
-
-/* add items for eth.addr filter */
-      proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, ehdr.dst);
-      proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, ehdr.src);
     }
 
-    dissect_802_3(ehdr.type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
+    proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
+    proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
+
+/* add items for eth.addr filter */
+    proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
+    proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src_addr);
+
+    dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
 		  hf_eth_len, hf_eth_trailer);
   } else {
     if (eth_interpret_as_fw1_monitor) {
@@ -254,23 +266,23 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
 		"Ethernet II, Src: %s, Dst: %s",
-		ether_to_str(ehdr.src), ether_to_str(ehdr.dst));
+		ether_to_str(src_addr), ether_to_str(dst_addr));
 
       fh_tree = proto_item_add_subtree(ti, ett_ether2);
-
-      proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, ehdr.dst);
-      proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, ehdr.src);
-/* add items for eth.addr filter */
-      proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, ehdr.dst);
-      proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, ehdr.src);
     }
 
-    ethertype(ehdr.type, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_eth_type,
+    proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
+    proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
+/* add items for eth.addr filter */
+    proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
+    proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src_addr);
+
+    ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_eth_type,
           hf_eth_trailer);
   }
 
 end_of_eth:
-  tap_queue_packet(eth_tap, pinfo, &ehdr);
+  tap_queue_packet(eth_tap, pinfo, ehdr);
   return;
 }
 

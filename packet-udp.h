@@ -1,6 +1,6 @@
 /* packet-udp.h
  *
- * $Id: packet-udp.h,v 1.7 2003/03/03 23:46:48 sahlberg Exp $
+ * $Id: packet-udp.h,v 1.8 2003/08/23 09:09:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,9 +31,8 @@ typedef struct _e_udphdr {
   guint16 uh_dport;
   guint16 uh_ulen;
   guint16 uh_sum;
-  /* This can be either a ipv4 or a ipv6 header struct so make sure you know
-     what you try to dereference */
-  void *ip_header;
+  address ip_src;
+  address ip_dst;
 } e_udphdr;
 
 
