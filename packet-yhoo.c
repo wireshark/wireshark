@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.17 2001/07/03 04:56:46 guy Exp $
+ * $Id: packet-yhoo.c,v 1.18 2001/07/16 06:09:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,44 +154,44 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb_length_remaining(tvb, offset), FALSE);
 		yhoo_tree = proto_item_add_subtree(ti, ett_yhoo);
 
-		proto_tree_add_string(yhoo_tree, hf_yhoo_version, tvb, 
-			offset, 8, tvb_get_ptr(tvb, offset, 8));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_version, tvb, 
+			offset, 8, TRUE);
 		offset += 8;
 
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_len, tvb, 
-			offset, 4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_len, tvb, 
+			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_service, tvb, 
-			offset, 4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_service, tvb, 
+			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_connection_id, tvb, 
-			offset, 4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_connection_id, tvb, 
+			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_magic_id, tvb, 
-			offset, 4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_magic_id, tvb, 
+			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_unknown1, tvb, 
-			offset, 4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_unknown1, tvb, 
+			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_uint(yhoo_tree, hf_yhoo_msgtype, tvb, 
-			offset, 4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_msgtype, tvb, 
+			offset, 4, TRUE);
 		offset += 4;
 
-		proto_tree_add_string(yhoo_tree, hf_yhoo_nick1, tvb, 
-			offset, 36, tvb_get_ptr(tvb, offset, 36));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_nick1, tvb, 
+			offset, 36, TRUE);
 		offset += 36;
 
-		proto_tree_add_string(yhoo_tree, hf_yhoo_nick2, tvb, 
-			offset, 36, tvb_get_ptr(tvb, offset, 36));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_nick2, tvb, 
+			offset, 36, TRUE);
 		offset += 36;
 
-		proto_tree_add_string(yhoo_tree, hf_yhoo_content, tvb, 
-			offset, length, tvb_get_ptr(tvb, offset, length-offset));
+		proto_tree_add_item(yhoo_tree, hf_yhoo_content, tvb, 
+			offset, length-offset, TRUE);
 	}
 
 	return TRUE;

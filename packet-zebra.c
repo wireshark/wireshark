@@ -3,12 +3,11 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.13 2001/06/18 02:17:58 guy Exp $
+ * $Id: packet-zebra.c,v 1.14 2001/07/16 06:09:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,8 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -214,9 +211,8 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			if (request) break;
 			/* Request just subscribes to messages */
 
-			proto_tree_add_string(tree, hf_zebra_interface, 
-				tvb, offset, INTERFACE_NAMSIZ, 
-				tvb_get_ptr(tvb, offset, INTERFACE_NAMSIZ));
+			proto_tree_add_item(tree, hf_zebra_interface, 
+				tvb, offset, INTERFACE_NAMSIZ, FALSE);
 			offset += INTERFACE_NAMSIZ;
 
 			proto_tree_add_item(tree, hf_zebra_index, tvb,
@@ -241,9 +237,8 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 
 			break;
 		case ZEBRA_INTERFACE_DELETE:
-			proto_tree_add_string(tree, hf_zebra_interface,
-				tvb, offset, INTERFACE_NAMSIZ,
-				tvb_get_ptr(tvb, offset, INTERFACE_NAMSIZ));
+			proto_tree_add_item(tree, hf_zebra_interface,
+				tvb, offset, INTERFACE_NAMSIZ, FALSE);
 			offset += INTERFACE_NAMSIZ;
 
 			proto_tree_add_item(tree, hf_zebra_index, tvb,
