@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.6 2001/10/26 02:09:01 gram Exp $
+ * $Id: packet-gnutella.c,v 1.7 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,7 +94,7 @@ static int hf_gnutella_push_port = -1;
 
 static gint ett_gnutella = -1;
 
-static void dissect_gnutella_pong(tvbuff_t *tvb, int offset, proto_tree *tree, int size) {
+static void dissect_gnutella_pong(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
 
 	if(offset + size > tvb_length(tvb)) {
 		proto_tree_add_item(tree,
@@ -136,7 +136,7 @@ static void dissect_gnutella_pong(tvbuff_t *tvb, int offset, proto_tree *tree, i
 
 }
 
-static void dissect_gnutella_query(tvbuff_t *tvb, int offset, proto_tree *tree, int size) {
+static void dissect_gnutella_query(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
 
 	if(offset + size > tvb_length(tvb)) {
 		proto_tree_add_item(tree,
@@ -172,7 +172,7 @@ static void dissect_gnutella_query(tvbuff_t *tvb, int offset, proto_tree *tree, 
     }
 }
 
-static void dissect_gnutella_queryhit(tvbuff_t *tvb, int offset, proto_tree *tree, int size) {
+static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
 
 	proto_tree *qhi, *hit_tree;
 	int hit_count, i;
@@ -329,7 +329,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, int offset, proto_tree *tre
 
 }
 
-static void dissect_gnutella_push(tvbuff_t *tvb, int offset, proto_tree *tree, int size) {
+static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
 
 	if(offset + size > tvb_length(tvb)) {
 		proto_tree_add_item(tree,

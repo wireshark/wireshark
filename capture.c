@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.155 2001/10/25 08:06:15 guy Exp $
+ * $Id: capture.c,v 1.156 2001/10/26 18:28:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1058,7 +1058,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld, char *ebuf)
     close(fd);
     return -1;
   }
-  while (bytes_read < sizeof(struct pcap_hdr))
+  while ((unsigned) bytes_read < sizeof(struct pcap_hdr))
   {
     b = read(fd, ((char *)&hdr)+bytes_read, sizeof(struct pcap_hdr) - bytes_read);
     if (b <= 0) {
@@ -1125,7 +1125,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
     ld->go = FALSE;
     return 0;
   }
-  while (bytes_read < rechdr.hdr.incl_len)
+  while ((unsigned) bytes_read < rechdr.hdr.incl_len)
   {
     b = read(fd, pd+bytes_read, rechdr.hdr.incl_len - bytes_read);
     if (b <= 0) {

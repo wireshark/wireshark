@@ -3,7 +3,7 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.14 2001/07/16 06:09:02 guy Exp $
+ * $Id: packet-zebra.c,v 1.15 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -315,7 +315,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			prefix = tvb_get_ptr(tvb, offset, PSIZE(prefixlen));
 			prefix4 = 0;
 			memcpy(&prefix4, prefix,
-			    MIN(PSIZE(prefixlen), sizeof prefix4));
+			    MIN((unsigned) PSIZE(prefixlen), sizeof prefix4));
 			proto_tree_add_ipv4(tree, hf_zebra_prefix4,
 				tvb, offset, PSIZE(prefixlen), prefix4);
 			offset += PSIZE(prefixlen);
@@ -393,7 +393,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			prefix = tvb_get_ptr(tvb, offset, PSIZE(prefixlen));
 			memset(buffer6, '\0', sizeof buffer6);
 			memcpy(buffer6, prefix,
-			    MIN(PSIZE(prefixlen), sizeof buffer6));
+			    MIN((unsigned) PSIZE(prefixlen), sizeof buffer6));
 			proto_tree_add_ipv6(tree, hf_zebra_prefix6,
 				tvb, offset, PSIZE(prefixlen), buffer6);
 			offset += PSIZE(prefixlen);

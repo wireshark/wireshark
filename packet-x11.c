@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.23 2001/10/04 00:30:23 guy Exp $
+ * $Id: packet-x11.c,v 1.24 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1043,7 +1043,7 @@ static void stringCopy(char *dest, const char *source, int length)
 static void listOfString8(tvbuff_t *tvb, int hf, int hf_item, int length)
 {
       char *s = NULL;
-      int allocated = 0;
+      guint allocated = 0;
       proto_tree *tt;
       int i;
 
@@ -1060,7 +1060,7 @@ static void listOfString8(tvbuff_t *tvb, int hf, int hf_item, int length)
 
       while(length--) {
 	    unsigned l = VALUE8(tvb, cur_offset);
-	    if (allocated < l + 1) {
+	    if (allocated < (l + 1)) {
 		  /* g_realloc doesn't work ??? */
 		  g_free(s);
 		  s = g_malloc(l + 1);
@@ -1103,7 +1103,7 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
 		  truncated = TRUE;
 		  l = STRING16_MAX_DISPLAYED_LENGTH;
 	    }
-	    if (*sLength < l + 3) {
+	    if (*sLength < (int) l + 3) {
 		  g_free(*s);
 		  *s = g_malloc(l + 3);
 		  *sLength = l + 3;
@@ -1163,7 +1163,7 @@ static void listOfTextItem(tvbuff_t *tvb, int hf, int sizeIs16)
 		  proto_tree *ttt;
 		  gint8 delta = VALUE8(tvb, cur_offset + 1);
 		  if (sizeIs16) l += l;
-		  if (allocated < l + 1) {
+		  if ((unsigned) allocated < l + 1) {
 			/* g_realloc doesn't work ??? */
 			g_free(s);
 			s = g_malloc(l + 1);

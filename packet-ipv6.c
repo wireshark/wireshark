@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.63 2001/09/30 23:07:12 guy Exp $
+ * $Id: packet-ipv6.c,v 1.64 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,7 +126,7 @@ ipv6_reassemble_init(void)
 static int
 dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
     struct ip6_rthdr rt;
-    int len;
+    guint len;
     proto_tree *rthdr_tree;
 	proto_item *ti;
     char buf[sizeof(struct ip6_rthdr0) + sizeof(struct e_in6_addr) * 23];

@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.11 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-rsh.c,v 1.12 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,7 +68,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * the captured data in the packet, so we don't throw
 		 * an exception in the "tvb_get_ptr()" call.
 		 */
-		if (linelen > tvb_length(tvb))
+		if (linelen > (int) tvb_length(tvb))
 			linelen = tvb_length(tvb);
 		col_add_str(pinfo->fd, COL_INFO,
 		    tvb_format_text(tvb, offset, linelen));

@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.23 2001/09/03 10:33:07 guy Exp $
+ * $Id: packet-socks.c,v 1.24 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -297,8 +297,8 @@ static int display_address( const u_char *pd, int offset,
 
 	proto_tree_add_text( tree, NullTVB, offset, 1,
 			"Address Type: %d (%s)", a_type, 
-			address_type_table[ MAX( 0, MIN( a_type,
-				array_length( address_type_table)-1))]);
+			address_type_table[ MIN( (guint) a_type,
+				array_length( address_type_table)-1) ]);
 
 	++offset;
 
@@ -416,7 +416,7 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 
 /* set pi src/dst port and call the udp sub-dissector lookup */
 
-	if ( pi.srcport == hash_info->port) 		
+	if ( pi.srcport == (guint32) hash_info->port) 		
        		ptr = &pi.destport;
    	else
     		ptr = &pi.srcport;
@@ -562,7 +562,7 @@ void display_socks_v5( const u_char *pd, int offset, frame_data *fd,
 				"Count: %u ", temp);
 		++offset;
 
-		CHECK_PACKET_LENGTH( temp);
+		CHECK_PACKET_LENGTH( (int)temp);
 
 		for( i = 0; i  < temp; ++i) {
 

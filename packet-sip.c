@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.16 2001/08/23 00:18:56 guy Exp $
+ * $Id: packet-sip.c,v 1.17 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,7 +135,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 
                 /* - 2 since we have a CRLF separating the message-body */
-                while (msg_offset - 2 > offset) {
+                while (msg_offset - 2 > (int) offset) {
                         eol = tvb_find_line_end(tvb, offset, -1, &next_offset);
                         proto_tree_add_text(hdr_tree, tvb, offset, next_offset - offset, "%s",
                                             tvb_format_text(tvb, offset, eol));

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.46 2001/06/26 20:50:30 guy Exp $
+ * $Id: packet-rsvp.c,v 1.47 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -700,7 +700,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				   offset+1, 1, 1);
 	}
 	cksum = tvb_get_ntohs(tvb, offset+2);
-	if (!pinfo->fragmented && tvb_length(tvb) >= msg_length) {
+	if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
 	    /* The packet isn't part of a fragmented datagram and isn't
 	       truncated, so we can checksum it. */
 	    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);

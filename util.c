@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.52 2001/08/21 06:39:15 guy Exp $
+ * $Id: util.c,v 1.53 2001/10/26 18:28:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -401,7 +401,7 @@ get_interface_list(int *err, char *err_str)
 				goto fail;
 			}
 		} else {
-			if (ifc.ifc_len < sizeof(struct ifreq)) {
+			if ((unsigned) ifc.ifc_len < sizeof(struct ifreq)) {
 				sprintf(err_str,
 					"SIOCGIFCONF ioctl gave too small return buffer");
 				goto fail;

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.94 2001/10/25 06:41:48 guy Exp $
+ * $Id: tethereal.c,v 1.95 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1031,8 +1031,8 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   /* If it's greater than the current elapsed time, set the elapsed time
      to it (we check for "greater than" so as not to be confused by
      time moving backwards). */
-  if (cf->esec < fdata->rel_secs
-	|| (cf->esec == fdata->rel_secs && cf->eusec < fdata->rel_usecs)) {
+  if ((gint32)cf->esec < fdata->rel_secs
+	|| ((gint32)cf->esec == fdata->rel_secs && (gint32)cf->eusec < fdata->rel_usecs)) {
     cf->esec = fdata->rel_secs;
     cf->eusec = fdata->rel_usecs;
   }

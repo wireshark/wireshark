@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.16 2001/04/15 08:50:37 guy Exp $
+ * $Id: packet-kerberos.c,v 1.17 2001/10/26 18:28:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -548,10 +548,11 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ASN1_SCK asn1, *asn1p = &asn1;
     proto_item *item = NULL;
 
-    guint length;
+    gint length;
     guint cls, con, tag;
     gboolean def;
-    guint item_len, total_len;
+    gint item_len;
+    guint total_len;
     int start, end, message_end, sequence_end;
 
     int ret;
@@ -1263,11 +1264,12 @@ dissect_Ticket(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
 
     int start;
     guint cls, con, tag;
-    guint header_len, item_len, total_len;
+    guint header_len, total_len;
+    gint item_len;
     int ret;
 
     proto_item *item = NULL;
-    guint length;
+    gint length;
     gboolean def;
     guint32 val;
 
