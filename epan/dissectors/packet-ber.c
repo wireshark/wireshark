@@ -674,6 +674,7 @@ ber_sequence_try_again:
  */
 		if( (seq->class==BER_CLASS_CON) && (!(seq->flags&BER_FLAGS_NOOWNTAG)) ){
 		  if( (seq->class!=BER_CLASS_ANY) 
+		  &&  (seq->tag!=-1)  
 		  &&( (seq->class!=class)
 		    ||(seq->tag!=tag) ) ){
 			/* it was not,  move to the enxt one and try again */
@@ -683,13 +684,14 @@ ber_sequence_try_again:
 				goto ber_sequence_try_again;
 			}
 
-			proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SEQUENCE");
+			proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SEQUENCE  expected class:%d tag:%d but found class:%d tag:%d",seq->class,seq->tag,class,tag);
 			seq++;
 			offset=eoffset;
 			continue;
 		  }
 	        } else if (!(seq->flags & BER_FLAGS_NOTCHKTAG)) {
 		  if( (seq->class!=BER_CLASS_ANY) 
+		  &&  (seq->tag!=-1)  
 		  &&( (seq->class!=class)
 		    ||(seq->tag!=tag) ) ){
 			/* it was not,  move to the enxt one and try again */
@@ -699,7 +701,7 @@ ber_sequence_try_again:
 				goto ber_sequence_try_again;
 			}
 
-			proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SEQUENCE");
+			proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%d tag:%d but found class:%d tag:%d",seq->class,seq->tag,class,tag);
 			seq++;
 			offset=eoffset;
 			continue;
