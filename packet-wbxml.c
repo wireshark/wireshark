@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.37 2004/05/14 16:32:49 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.38 2004/06/27 22:21:28 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -2746,6 +2746,397 @@ static const wbxml_decoding decode_nokiaprovc_70 = {
 
 
 
+/* UAProf [WAP-248]
+ * 
+ * User-Agent Profile (used in profile-diff WSP header)
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+
+/*****         Tag tokens          *****/
+/* CodePage	0	RDF */
+static const value_string  wbxml_uaprof_tags_cp0[] = {
+	{0x05, "rdf:RDF"},
+	{0x06, "rdf:Description"},
+	{0x07, "rdf:Alt"},
+	{0x08, "rdf:Bag"},
+	{0x09, "rdf:Seq"},
+	{0x0A, "rdf:li"},
+	{0x0B, "rdf:type"},
+	{0x0C, "rdf:value"},
+	{0x0D, "rdf:subject"},
+	{0x0E, "rdf:predicate"},
+	{0x0F, "rdf:object"},
+
+	{ 0x00, NULL }
+};
+
+/* CodePage	1	Core Vocabulary */
+static const value_string  wbxml_uaprof_tags_cp1[] = {
+	{0x06, "rdf:Description"},
+	{0x07, "rdf:Alt"},
+	{0x08, "rdf:Bag"},
+	{0x09, "rdf:Seq"},
+	{0x0A, "rdf:li"},
+	{0x0B, "rdf:type"},
+	{0x0C, "prf:component"},
+	{0x0D, "prf:defaults"},
+	{0x0E, "prf:BitsPerPixel"},
+	{0x0F, "prf:ColorCapable"},
+	{0x10, "prf:CPU"},
+	{0x11, "prf:ImageCapable"},
+	{0x12, "prf:InputCharSet"},
+	{0x13, "prf:Keyboard"},
+	{0x15, "prf:Model"},
+	{0x16, "prf:OutputCharSet"},
+	{0x17, "prf:PointingResolution"},
+	{0x18, "prf:ScreenSize"},
+	{0x19, "prf:ScreenSizeChar"},
+	{0x1A, "prf:NumberOfSoftKeys"},
+	{0x1B, "prf:SoundOutputCapable"},
+	{0x1C, "prf:TextInputCapable"},
+	{0x1D, "prf:Vendor"},
+	{0x1E, "prf:VoiceInputCapable"},
+	{0x1F, "prf:AcceptDownloadableSoftware"},
+	{0x20, "prf:AudioInputEncoder"},
+	{0x21, "prf:DownloadableSoftwareSupport"},
+	{0x22, "prf:JavaEnabled"},
+	{0x23, "prf:JVMVersion"},
+	{0x24, "prf:MexeClassmark"},
+	{0x25, "prf:MexeSpec"},
+	{0x26, "prf:OSName"},
+	{0x27, "prf:OSVendor"},
+	{0x28, "prf:OSVersion"},
+	{0x29, "prf:RecipientAppAgent"},
+	{0x2A, "prf:SoftwareNumber"},
+	{0x2B, "prf:VideoInputEncoder"},
+	{0x2C, "prf:CurrentBearerService"},
+	{0x2D, "prf:SecuritySupport"},
+	{0x2E, "prf:SupportedBearers"},
+	{0x2F, "prf:WapDeviceClass"},
+	{0x30, "prf:WapPushMsgPriority"}, /* Deprecated */
+	{0x31, "prf:WapPushMsgSize"}, /* Deprecated */
+	{0x32, "prf:WapVersion"},
+	{0x33, "prf:WmlDeckSize"},
+	{0x34, "prf:WmlScriptLibraries"},
+	{0x35, "prf:WmlScriptVersion"},
+	{0x36, "prf:WmlVersion"},
+	{0x37, "prf:WtaiLibraries"},
+	{0x38, "prf:WtaVersion"},
+	{0x39, "prf:PixelAspectRatio"},
+	{0x3A, "prf:StandardFontProportional"},
+	{0x3B, "prf:WapSupportedApplications"}, /* Deprecated */
+	{0x3C, "prf:BluetoothProfile"},
+	{0x3D, "prf:MexeClassmarks"},
+	{0x3E, "prf:MexeSecureDomains"},
+
+	{ 0x00, NULL }
+};
+
+/* CodePage	4	Core Vocabulary (continued) */
+static const value_string  wbxml_uaprof_tags_cp4[] = {
+	{0x10, "prf:SupportedBluetoothVersion"},
+	{0x11, "prf:SupportedPictogramSet"},
+	{0x12, "prf:CcppAccept"},
+	{0x13, "prf:CcppAccept-Charset"},
+	{0x14, "prf:CcppAccept-Encoding"},
+	{0x15, "prf:CcppAccept-Language"},
+
+	{ 0x00, NULL }
+};
+
+/* CodePage	2	BrowserUA */
+static const value_string  wbxml_uaprof_tags_cp2[] = {
+	{0x05, "rdf:Description"},
+	{0x06, "rdf:Alt"},
+	{0x07, "rdf:Bag"},
+	{0x08, "rdf:Seq"},
+	{0x09, "rdf:li"},
+	{0x0A, "rdf:type"},
+	{0x0B, "prf:component"},
+	{0x0C, "prf:defaults"},
+	{0x0D, "prf:BrowserName"},
+	{0x0E, "prf:BrowserVersion"},
+	{0x0F, "prf:CcppAccept"}, /* Deprecated */
+	{0x10, "prf:CcppAccept-Charset"}, /* Deprecated */
+	{0x11, "prf:CcppAccept-Encoding"}, /* Deprecated */
+	{0x12, "prf:CcppAccept-Language"}, /* Deprecated */
+	{0x13, "prf:DownloadableBrowserApps"},
+	{0x14, "prf:FramesCapable"},
+	{0x15, "prf:HtmlVersion"},
+	{0x16, "prf:JavaAppletEnabled"},
+	{0x17, "prf:JavaScriptEnabled"},
+	{0x18, "prf:JavaScriptVersion"},
+	{0x19, "prf:PreferenceForFrames"},
+	{0x1A, "prf:TablesCapable"},
+	{0x1B, "Prf:XhtmlVersion"},
+	{0x1C, "prf:XhtmlModules"},
+
+	{ 0x00, NULL }
+};
+
+/* CodePage	3	PushCharacteristics */
+static const value_string  wbxml_uaprof_tags_cp3[] = {
+	{0x05, "rdf:Description"},
+	{0x06, "rdf:Alt"},
+	{0x07, "rdf:Bag"},
+	{0x08, "rdf:Seq"},
+	{0x09, "rdf:li"},
+	{0x0A, "rdf:type"},
+	{0x0B, "prf:component"},
+	{0x0C, "prf:defaults"},
+	{0x0D, "prf:Push-Accept"},
+	{0x0E, "prf:Push-Accept-Charset"},
+	{0x0F, "prf:Push-Accept-Encoding"},
+	{0x10, "prf:Push-Accept-Language"},
+	{0x11, "prf:Push-Accept-AppID"},
+	{0x12, "prf:Push-MsgSize"},
+	{0x13, "prf:Push-MaxPushReq"},
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Start tokens   *****/
+/* CodePage	0	RDF */
+static const value_string  wbxml_uaprof_attrStart_cp0[] = {
+	{0x05, "ID"},
+	{0x06, "rdf:about"},
+	{0x07, "rdf:aboutEach"},
+	{0x08, "rdf:aboutEachPrefix"},
+	{0x09, "rdf:bagID"},
+	{0x0A, "rdf:type"},
+	{0x0B, "rdf:resource"},
+	{0x0C, "rdf:parseType='Literal'"},
+	{0x0D, "rdf:parseType='Resource'"},
+	{0x0E, "xml:lang"},
+	{0x0F, "xmlns:prf"},
+	{0x10, "xmlns:rdf"},
+
+	{ 0x00, NULL }
+};
+
+/* CodePage	1	Core Vocabulary */
+static const value_string  wbxml_uaprof_attrStart_cp1[] = {
+	{0x05, "rdf:resource"},
+	{0x06, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
+		"ccppschema-20010430#HardwarePlatform'"},
+	{0x07, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
+		"ccppschema-20010430#SoftwarePlatform'"},
+	{0x08, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
+		"ccppschema-20010430#NetworkCharacteristics'"},
+	{0x09, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
+		"ccppschema-20010430#WapCharacteristics'"},
+	{0x0A, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
+		"ccppschema-20010430#BrowserUA'"},
+	{0x0B, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
+		"ccppschema-20010430#PushCharacteristics'"},
+	{0x10, "prf:BitsPerPixel"},
+	{0x11, "prf:ColorCapable='Yes'"},
+	{0x12, "prf:ColorCapable='No'"},
+	{0x13, "prf:CPU"},
+	{0x14, "prf:ImageCapable='Yes'"},
+	{0x15, "prf:ImageCapable='No'"},
+	{0x16, "prf:InputCharSet"},
+	{0x17, "prf:Keyboard"},
+	{0x19, "prf:Model"},
+	{0x1A, "prf:OutputCharSet"},
+	{0x1B, "prf:PointingResolution"},
+	{0x1C, "prf:ScreenSize"},
+	{0x1D, "prf:ScreenSizeChar"},
+	{0x1E, "prf:NumberOfSoftKeys='Yes'"},
+	{0x20, "prf:SoundOutputCapable='Yes'"},
+	{0x21, "prf:SoundOutputCapable='No'"},
+	{0x22, "prf:TextInputCapable='Yes'"},
+	{0x23, "prf:TextInputCapable='No'"},
+	{0x24, "prf:Vendor"},
+	{0x25, "prf:VoiceInputCapable='Yes'"},
+	{0x26, "prf:VoiceInputCapable='No'"},
+	{0x27, "prf:PixelAspectRatio"},
+	{0x28, "prf:StandardFontProportional='Yes'"},
+	{0x29, "prf:StandardFontProportional='No'"},
+	{0x30, "prf:AcceptDownloadableSoftware='Yes'"},
+	{0x31, "prf:AcceptDownloadableSoftware='No'"},
+	{0x32, "prf:AudioInputEncoder"},
+	{0x33, "prf:DownloadableSoftwareSupport"},
+	{0x35, "prf:JavaEnabled='Yes'"},
+	{0x36, "prf:JavaEnabled='No'"},
+	{0x37, "prf:JVMVersion"},
+	{0x38, "prf:MexeClassmark"},
+	{0x39, "prf:MexeSpec"},
+	{0x3A, "prf:OSName"},
+	{0x3B, "prf:OSVendor"},
+	{0x3C, "prf:OSVersion"},
+	{0x3D, "prf:RecipientAppAgent"},
+	{0x3E, "prf:SoftwareNumber"},
+	{0x21, "prf:SoundOutputCapable='No'"},
+	{0x22, "prf:TextInputCapable='Yes'"},
+	{0x23, "prf:TextInputCapable='No'"},
+	{0x24, "prf:Vendor"},
+	{0x25, "prf:VoiceInputCapable='Yes'"},
+	{0x26, "prf:VoiceInputCapable='No'"},
+	{0x27, "prf:PixelAspectRatio"},
+	{0x28, "prf:StandardFontProportional='Yes'"},
+	{0x29, "prf:StandardFontProportional='No'"},
+	{0x30, "prf:AcceptDownloadableSoftware='Yes'"},
+	{0x31, "prf:AcceptDownloadableSoftware='No'"},
+	{0x32, "prf:AudioInputEncoder"},
+	{0x33, "prf:DownloadableSoftwareSupport"},
+	{0x35, "prf:JavaEnabled='Yes'"},
+	{0x36, "prf:JavaEnabled='No'"},
+	{0x37, "prf:JVMVersion"},
+	{0x38, "prf:MexeClassmark"},
+	{0x39, "prf:MexeSpec"},
+	{0x3A, "prf:OSName"},
+	{0x3B, "prf:OSVendor"},
+	{0x3C, "prf:OSVersion"},
+	{0x3D, "prf:RecipientAppAgent"},
+	{0x3E, "prf:SoftwareNumber"},
+	{0x3F, "prf:VideoInputEncoder"},
+	{0x50, "prf:CurrentBearerService"},
+	{0x51, "prf:SecuritySupport"},
+	{0x52, "prf:SupportedBearers"},
+	{0x60, "prf:WapDeviceClass"},
+	{0x61, "prf:WapPushMsgPriority"}, /* Deprecated */
+	{0x62, "prf:WapPushMsgSize"}, /* Deprecated */
+	{0x63, "prf:WapVersion"},
+	{0x64, "prf:WmlDeckSize"},
+	{0x65, "prf:WmlScriptLibraries"},
+	{0x66, "prf:WmlScriptVersion"},
+	{0x67, "prf:WmlVersion"},
+	{0x68, "prf:WtaiLibraries"},
+	{0x69, "prf:WtaVersion"},
+	{0x70, "prf:WapSupportedApplications"}, /* Deprecated */
+	{0x71, "prf:BluetoothProfile"},
+	{0x72, "prf:MexeClassmarks"},
+	{0x73, "prf:MexeSecureDomains='YES'"},
+	{0x74, "prf:MexeSecureDomains='NO'"},
+	{0x75, "prf:SupportedBluetoothVersion"},
+	{0x76, "prf:SupportedPictogramSet"},
+	{0x77, "prf:CcppAccept"},
+	{0x78, "prf:CcppAccept-Charset"},
+	{0x79, "prf:CcppAccept-Encoding"},
+	{0x7F, "prf:CcppAccept-Language"},
+
+	{ 0x00, NULL }
+};
+
+/* CodePage	2	BrowserUA */
+static const value_string  wbxml_uaprof_attrStart_cp2[] = {
+	{0x05, "prf:CcppAccept"}, /* Deprecated */
+	{0x06, "prf:CcppAccept-Charset"}, /* Deprecated */
+	{0x07, "prf:CcppAccept-Encoding"}, /* Deprecated */
+	{0x08, "prf:CcppAccept-Language"}, /* Deprecated */
+	{0x09, "prf:DownloadableBrowserApps"},
+	{0x0A, "prf:FramesCapable='Yes'"},
+	{0x0B, "prf:FramesCapable='No'"},
+	{0x0C, "prf:HtmlVersion='3.2'"},
+	{0x0D, "prf:HtmlVersion='4.0'"},
+	{0x0E, "prf:JavaAppletEnabled='Yes'"},
+	{0x0F, "prf:JavaAppletEnabled='No'"},
+	{0x10, "prf:JavaScriptEnabled='Yes'"},
+	{0x11, "prf:JavaScriptEnabled='No'"},
+	{0x12, "prf:JavaScriptVersion"},
+	{0x13, "prf:PreferenceForFrames='Yes'"},
+	{0x14, "prf:PreferenceForFrames='No'"},
+	{0x15, "prf:TablesCapable='Yes'"},
+	{0x16, "prf:TablesCapable='No'"},
+	{0x17, "prf:XhtmlVersion"},
+	{0x18, "prf:XhtmlModules"},
+	{0x19, "prf:BrowserName"},
+	{0x1A, "prf:BrowserVersion"},
+
+	{ 0x00, NULL }
+};
+
+/* CodePage	3	PushCharacteristics */
+static const value_string  wbxml_uaprof_attrStart_cp3[] = {
+	{0x05, "prf:Push-Accept"},
+	{0x06, "prf:Push-Accept-Charset"},
+	{0x07, "prf:Push-Accept-Encoding"},
+	{0x08, "prf:Push-Accept-Language"},
+	{0x09, "prf:Push-Accept-AppID"},
+	{0x0A, "prf:Push-MsgSize"},
+	{0x0B, "prf:Push-MaxPushReq"},
+
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Value tokens   *****/
+/* CodePage	0	RDF */
+static const value_string  wbxml_uaprof_attrValue_cp0[] = {
+	{0x85, "rdf:Statement"},
+	{0x86, "http://"},
+	{0x87, "http://www."},
+	{0x88, "https://"},
+	{0x89, "https://www."},
+	{0x8A, "www."},
+	{0x8B, ".com/"},
+	{0x8C, ".edu/"},
+	{0x8D, ".net/"},
+	{0x8E, ".org/"},
+
+	{ 0x00, NULL }
+};
+
+/* CodePage	1	CoreVocabularyAttrValue */
+static const value_string  wbxml_uaprof_attrValue_cp1[] = {
+	{0x85, "No"},
+	{0x86, "Yes"},
+
+	{ 0x00, NULL }
+};
+
+/* CodePage	2	BrowserUAAttrValue */
+static const value_string  wbxml_uaprof_attrValue_cp2[] = {
+	{0x85, "No"},
+	{0x86, "Yes"},
+
+	{ 0x00, NULL }
+};
+
+/***** Token code page aggregation *****/
+static const value_valuestring wbxml_uaprof_tags[] = {
+	{ 0, wbxml_uaprof_tags_cp0 },
+	{ 1, wbxml_uaprof_tags_cp1 },
+	{ 2, wbxml_uaprof_tags_cp2 },
+	{ 3, wbxml_uaprof_tags_cp3 },
+	{ 4, wbxml_uaprof_tags_cp4 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_uaprof_attrStart[] = {
+	{ 0, wbxml_uaprof_attrStart_cp0 },
+	{ 1, wbxml_uaprof_attrStart_cp1 },
+	{ 2, wbxml_uaprof_attrStart_cp2 },
+	{ 3, wbxml_uaprof_attrStart_cp3 },
+	{ 0, NULL }
+};
+
+static const value_valuestring wbxml_uaprof_attrValue[] = {
+	{ 0, wbxml_uaprof_attrValue_cp0 },
+	{ 1, wbxml_uaprof_attrValue_cp1 },
+	{ 2, wbxml_uaprof_attrValue_cp2 },
+	{ 0, NULL }
+};
+
+static const wbxml_decoding decode_uaprof_wap_248 = {
+    "User-Agent Profile (WAP-174, WAP-248)",
+    "UAProf (WAP-174, WAP-248)",
+    { NULL, NULL, NULL },
+	default_opaque_binary_tag,
+	default_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
+    NULL,
+    wbxml_uaprof_tags,
+    wbxml_uaprof_attrStart,
+    wbxml_uaprof_attrValue
+};
+
+
+
+
+
 /* WV-CSP 1.0
  * 
  * Wireless Village Client Server Protocol
@@ -4573,6 +4964,13 @@ map_token (const value_valuestring *token_map, guint8 codepage, guint8 token) {
 static void
 dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+static void
+dissect_uaprof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static void
+dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		const wbxml_decoding *override_content_map);
+
 void
 proto_register_wbxml(void);
 
@@ -4609,9 +5007,22 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 /****************** WBXML protocol dissection functions ******************/
 
 
-/* Code to actually dissect the packets */
 static void
 dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_wbxml_common(tvb, pinfo, tree, NULL);
+}
+
+static void
+dissect_uaprof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_wbxml_common(tvb, pinfo, tree, &decode_uaprof_wap_248);
+}
+
+/* Code to actually dissect the packets */
+static void
+dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		const wbxml_decoding *override_content_map)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -4776,22 +5187,30 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * means that there is a different processing for the global token
 		 * RESERVED_2 (WBXML 1.0) or OPAQUE (WBXML 1.x with x > 0).  */
 		if (wbxml_tree) { /* Show only if visible */
-		    /* Retrieve the content token mapping if available */
-		    content_map = get_wbxml_decoding_from_public_id (publicid);
-		    if (! content_map) {
-			content_map = get_wbxml_decoding_from_content_type (pinfo->match_string, tvb, offset);
-			if (! content_map) {
-			    proto_tree_add_text (wbxml_content_tree,
-				    tvb, offset, -1,
-				    "[Rendering of this content type"
-				    " not (yet) supported]");
+			if (override_content_map != NULL) {
+				content_map = override_content_map;
+				proto_item_append_text(ti,
+						" is based on: %s",
+						content_map->name);
 			} else {
-			    proto_item_append_text(ti,
-				    " is based on Content-Type: %s "
-				    "(chosen decoding: %s)",
-				    pinfo->match_string, content_map->name);
+				/* Retrieve the content token mapping if available */
+				content_map = get_wbxml_decoding_from_public_id (publicid);
+				if (! content_map) {
+					content_map = get_wbxml_decoding_from_content_type(
+							pinfo->match_string, tvb, offset);
+					if (! content_map) {
+						proto_tree_add_text (wbxml_content_tree,
+								tvb, offset, -1,
+								"[Rendering of this content type"
+								" not (yet) supported]");
+					} else {
+						proto_item_append_text(ti,
+								" is based on Content-Type: %s "
+								"(chosen decoding: %s)",
+								pinfo->match_string, content_map->name);
+					}
+				}
 			}
-		    }
 		    if (content_map && skip_wbxml_token_mapping) {
 			proto_tree_add_text (wbxml_content_tree,
 				tvb, offset, -1,
@@ -6231,6 +6650,7 @@ proto_register_wbxml(void)
 			&disable_wbxml_token_parsing);
 
 	register_dissector("wbxml", dissect_wbxml, proto_wbxml);
+	register_dissector("wbxml-uaprof", dissect_uaprof, proto_wbxml);
 }
 
 
@@ -6308,5 +6728,4 @@ proto_reg_handoff_wbxml(void)
 	/* Same as application/vnd.nokia.syncset+wbxml */
 	dissector_add_string("media_type",
 			"application/x-prov.syncset+wbxml", wbxml_handle);
-	
 }

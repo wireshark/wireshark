@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.115 2004/04/30 17:07:20 obiot Exp $
+ * $Id: packet-wsp.c,v 1.116 2004/06/27 22:21:28 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -358,6 +358,9 @@ static dissector_handle_t wtp_fromudp_handle;
 
 /* Handle for generic media dissector */
 static dissector_handle_t media_handle;
+
+/* Handle for WBXML-encoded UAPROF dissector */
+static dissector_handle_t wbxml_uaprof_handle;
 
 const value_string vals_pdu_type[] = {
 	{ 0x00, "Reserved" },
@@ -1226,7 +1229,7 @@ static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type);
  * Dissect the WSP header part.
  * This function calls wkh_XXX functions that dissect well-known headers.
  */
-static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf);
+static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo);
 
 /* The following macros define WSP basic data structures as found
  * in the ABNF notation of WSP headers.
@@ -1319,238 +1322,240 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start);
 /* WSP well-known header parsing function prototypes;
  * will be listed in the function lookup table WellKnownHeaders[] */
 static guint32 wkh_default (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_accept (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_content_type (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_accept_charset (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_accept_language (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_connection (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_push_flag (proto_tree *tree, tvbuff_t *tvb,
-		guint32 header_start);
+		guint32 header_start, packet_info *pinfo _U_);
 static guint32 wkh_vary (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_accept_ranges (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_content_disposition (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_accept_encoding (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_content_encoding (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_transfer_encoding (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_pragma (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Single short-integer value */
 static guint32 wkh_x_wap_security (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Text */
 static guint32 wkh_content_base (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_content_location (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_etag (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_from (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_host (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_if_match (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_if_none_match (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_location (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_referer (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_server (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_user_agent (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_upgrade (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_via (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_content_uri (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_initiator_uri (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_profile (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_content_id (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Date-value or text */
 static guint32 wkh_if_range (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Date-value */
 static guint32 wkh_date (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_expires (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_if_modified_since (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_if_unmodified_since (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_last_modified (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Date-value with special meaning */
 static guint32 wkh_x_wap_tod (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Delta-seconds-value */
 static guint32 wkh_age (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Challenge */
 static guint32 wkh_proxy_authenticate (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_www_authenticate (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Credentials */
 static guint32 wkh_authorization (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_proxy_authorization (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Pragma */
 static guint32 wkh_pragma (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Integer-value */
 static guint32 wkh_content_length (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_max_forwards (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 
 /* Integer lookup value */
 static guint32 wkh_bearer_indication (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 
 /* WAP application ID value */
 static guint32 wkh_x_wap_application_id (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_accept_application (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_content_language (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 
 /* Allow and Public */
-static guint32 wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start);
-static guint32 wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start);
+static guint32 wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
+static guint32 wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 
 /* Cache-control */
 static guint32 wkh_cache_control (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Warning */
 static guint32 wkh_warning (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Profile-warning */
 static guint32 wkh_profile_warning (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 
 /* Content-MD5 */
 static guint32 wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 
 /* WSP encoding version */
 static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 
 /* Content-Range and Range */
 static guint32 wkh_content_range (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_range (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 
 /* TE */
 static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 
 /* Header value */
 static guint32 wkh_trailer (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
+
+/* Profile-Diff with WBXML UAPROF document */
+static guint32 wkh_profile_diff_wbxml (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start, packet_info *pinfo);
 
 /* TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 static guint32 wkh_retry_after (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
-static guint32 wkh_profile_diff (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_expect (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_set_cookie (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_cookie (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 */
 
 
 /* WSP well-known Openwave header parsing function prototypes;
  * will be listed in the function lookup table WellKnownOpenwaveHeaders[] */
 static guint32 wkh_openwave_default (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start);
+		guint32 hdr_start, packet_info *pinfo _U_);
 /* Textual headers */
 static guint32 wkh_openwave_x_up_proxy_operator_domain(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_home_page(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_uplink_version(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_ba_realm(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_request_uri(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_bookmark(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 /* Integer headers */
 static guint32 wkh_openwave_x_up_proxy_push_seq(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_notify(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_net_ask(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_tod (proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_ba_enable(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_redirect_enable(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_redirect_status(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_linger(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_enable_trust(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_trust(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_devcap_has_color(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_devcap_num_softkeys(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_devcap_softkey_size(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_devcap_screen_chars(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_devcap_screen_pixels(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_devcap_em_size(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_devcap_screen_depth(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_devcap_immed_alert(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_devcap_gui(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 
 static guint32 wkh_openwave_x_up_proxy_trans_charset(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_openwave_x_up_proxy_push_accept(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
+		tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_);
 
 
 /* Define a pointer to function data type for the well-known header
  * lookup table below */
-typedef guint32 (*hdr_parse_func_ptr) (proto_tree *, tvbuff_t *, guint32);
+typedef guint32 (*hdr_parse_func_ptr) (proto_tree *, tvbuff_t *, guint32, packet_info *);
 
 /* Lookup table for well-known header parsing functions */
 static const hdr_parse_func_ptr WellKnownHeader[128] = {
@@ -1581,7 +1586,7 @@ static const hdr_parse_func_ptr WellKnownHeader[128] = {
 	/* 0x30 */	wkh_content_uri,		/* 0x31 */	wkh_initiator_uri,
 	/* 0x32 */	wkh_accept_application,	/* 0x33 */	wkh_bearer_indication,
 	/* 0x34 */	wkh_push_flag,			/* 0x35 */	wkh_profile,
-	/* 0x36 */	wkh_default,			/* 0x37 */	wkh_profile_warning,
+	/* 0x36 */	wkh_profile_diff_wbxml,	/* 0x37 */	wkh_profile_warning,
 	/* 0x38 */	wkh_default,			/* 0x39 */	wkh_te,
 	/* 0x3A */	wkh_trailer,			/* 0x3B */	wkh_accept_charset,
 	/* 0x3C */	wkh_accept_encoding,	/* 0x3D */	wkh_cache_control,
@@ -1735,7 +1740,7 @@ static const hdr_parse_func_ptr WellKnownOpenwaveHeader[128] = {
  *         2nd byte: 0x80 -- 0xFF: <Binary value (7-bit encoded ID)>
  */
 static void
-add_headers (proto_tree *tree, tvbuff_t *tvb, int hf)
+add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 {
 	guint8 hdr_id, val_id, codepage = 1;
 	gint32 tvb_len = tvb_length(tvb);
@@ -1769,14 +1774,14 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf)
 				DebugLog(("add_headers(code page 0): %s\n",
 							match_strval (hdr_id & 0x7f, vals_field_names)));
 				offset = WellKnownHeader[hdr_id & 0x7F](wsp_headers, tvb,
-						hdr_start);
+						hdr_start, pinfo);
 			} else { /* Openwave header code page */
 				/* Here I'm delibarately assuming that Openwave is the only
 				 * company that defines a WSP header code page. */
 				DebugLog(("add_headers(code page 0x%02x - assumed to be x-up-1): %s\n",
 							codepage, match_strval (hdr_id & 0x7f, vals_openwave_field_names)));
 				offset = WellKnownOpenwaveHeader[hdr_id & 0x7F](wsp_headers,
-						tvb, hdr_start);
+						tvb, hdr_start, pinfo);
 			}
 		} else if (hdr_id == 0x7F) { /* HCP shift sequence */
 			codepage = tvb_get_guint8(tvb, offset+1);
@@ -1855,7 +1860,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf)
  * Define a wkh_XXX() function as follows:
  *
  * static guint32
- * wkh_XXX (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+ * wkh_XXX (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
  * {
  * 		wkh_0_Declarations;
  *		<< add other required declarations here >>
@@ -1966,7 +1971,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf)
  */
 static guint32
 wkh_default(proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start)
+		guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -1996,7 +2001,7 @@ wkh_default(proto_tree *tree, tvbuff_t *tvb,
 /* Content-type processing uses the following common core: */
 #define wkh_content_type_header(underscored,Text) \
 static guint32 \
-wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint32 off, val = 0, len; \
@@ -2190,7 +2195,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
  */
 #define wkh_accept_x_q_header(underscored,Text,valueString,valueName) \
 static guint32 \
-wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint32 off, val = 0, len; \
@@ -2257,7 +2262,7 @@ wkh_accept_x_q_header(accept_language, "Accept-Language",
  * Push-flag-value = Short-integer
  */
 static guint32
-wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	proto_tree *subtree = NULL;
@@ -2291,11 +2296,39 @@ wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 
 
 /*
+ * Profile-Diff (with WBXML): Profile-diff-value =
+ *		Value-length <WBXML-Content>
+ */
+static guint32 wkh_profile_diff_wbxml (proto_tree *tree, tvbuff_t *tvb,
+		guint32 hdr_start, packet_info *pinfo)
+{
+	wkh_0_Declarations;
+	tvbuff_t *tmp_tvb;
+	proto_tree *subtree;
+
+	ok = TRUE; /* Bypass error checking as we don't parse the values! */
+
+	wkh_1_WellKnownValue;
+		/* Invalid */
+	wkh_2_TextualValue;
+		/* Invalid */
+	wkh_3_ValueWithLength;
+		ti = proto_tree_add_string(tree, hf_hdr_profile_diff, tvb, hdr_start, offset - hdr_start,
+				"(Profile-Diff value as WBXML)");
+		subtree = proto_item_add_subtree(ti, ett_header);
+		tmp_tvb = tvb_new_subset(tvb, val_start + val_len_len, val_len, val_len); /* TODO: fix 2nd length */
+		call_dissector(wbxml_uaprof_handle, tmp_tvb, pinfo, subtree);
+		ok = TRUE;
+	wkh_4_End(hf_hdr_profile_diff);
+}
+
+
+/*
  * Allow-value =
  *     Short-integer
  */
 static guint32
-wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2321,7 +2354,7 @@ wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  *     Token-text | Short-integer
  */
 static guint32
-wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2349,7 +2382,7 @@ wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  *     Token-text | Short-integer
  */
 static guint32
-wkh_vary(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_vary(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2374,7 +2407,7 @@ wkh_vary(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  * X-wap-security-value = 0x80
  */
 static guint32
-wkh_x_wap_security(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_x_wap_security(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2396,7 +2429,7 @@ wkh_x_wap_security(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  * Connection-value = 0x80 | Token-text
  */
 static guint32
-wkh_connection(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_connection(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2420,7 +2453,7 @@ wkh_connection(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  * Transfer-encoding-value = 0x80 | Token-text
  */
 static guint32
-wkh_transfer_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_transfer_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2444,7 +2477,7 @@ wkh_transfer_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  * Accept-range-value = 0x80 | 0x81 | Token-text
  */
 static guint32
-wkh_accept_ranges(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_accept_ranges(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2475,7 +2508,7 @@ wkh_accept_ranges(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  * Content-encoding-value = 0x80 | 0x81 | 0x82 | Token-text
  */
 static guint32
-wkh_content_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_content_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2514,7 +2547,7 @@ wkh_content_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  *	| ( Value-length ( Short-integer | Text-string ) [ Q-value ] )
  */
 static guint32
-wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 len, off;
@@ -2601,7 +2634,7 @@ wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  *	Value-length ( Short-integer | Text-string ) *( Parameter )
  */
 static guint32
-wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 len, off;
@@ -2661,7 +2694,7 @@ wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  */
 #define wkh_text_header(underscored,Text) \
 static guint32 \
-wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	\
@@ -2699,7 +2732,7 @@ wkh_text_header(profile, "Profile")
  */
 #define wkh_quoted_string_header(underscored,Text) \
 static guint32 \
-wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	gchar *str; \
@@ -2738,7 +2771,7 @@ wkh_quoted_string_header(content_id, "Content-ID")
  */
 #define wkh_text_or_date_value_header(underscored,Text) \
 static guint32 \
-wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint32 val = 0, off = val_start, len; \
@@ -2779,7 +2812,7 @@ wkh_text_or_date_value_header(if_range,"If-Range")
  */
 #define wkh_date_value_header(underscored,Text) \
 static guint32 \
-wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint32 val = 0, off = val_start, len; \
@@ -2819,7 +2852,7 @@ wkh_date_value_header(last_modified, "Last-Modified")
 /* Date-value with special interpretation of zero value */
 #define wkh_tod_value_header(underscored,Text) \
 static guint32 \
-wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint32 val = 0, off = val_start, len; \
@@ -2868,7 +2901,7 @@ wkh_tod_value_header(x_wap_tod, "X-Wap-Tod")
  * Age-value: Delta-seconds-value
  */
 static guint32
-wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 val = 0, off = val_start, len;
@@ -2901,7 +2934,7 @@ wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  */
 #define wkh_integer_lookup_or_text_value(underscored,Text,valueString,valueName) \
 static guint32 \
-wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint32 val = 0, off = val_start, len; \
@@ -2955,7 +2988,7 @@ wkh_integer_lookup_or_text_value(trailer, "Trailer",
 #define wkh_challenge_value_header(underscored,Text) \
 static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
-		guint32 hdr_start) \
+		guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint8 peek; \
@@ -3036,7 +3069,7 @@ wkh_challenge_value_header(proxy_authenticate, "Proxy-Authenticate")
 #define wkh_credentials_value_header(underscored,Text) \
 static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
-		guint32 hdr_start) \
+		guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint8 peek; \
@@ -3110,7 +3143,7 @@ wkh_credentials_value_header(proxy_authorization, "Proxy-Authorization")
  * Content-md5-value = 16*16 OCTET
  */
 static guint32
-wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 off;
@@ -3155,7 +3188,7 @@ wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  * Pragma-value = 0x80 | Length Parameter
  */
 static guint32
-wkh_pragma(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_pragma(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 off;
@@ -3186,7 +3219,7 @@ wkh_pragma(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  */
 #define wkh_integer_value_header(underscored,Text) \
 static guint32 \
-wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint32 val = 0, off = val_start, len; \
@@ -3219,7 +3252,7 @@ wkh_integer_value_header(max_forwards, "Max-Forwards")
 
 #define wkh_integer_lookup_value_header(underscored,Text,valueString,valueName) \
 static guint32 \
-wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
+wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
 	guint32 val = 0, off = val_start, len; \
@@ -3264,7 +3297,7 @@ wkh_integer_lookup_value_header(bearer_indication, "Bearer-Indication",
  * Cache-control-value
  */
 static guint32
-wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 off, len, val = 0;
@@ -3385,7 +3418,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  *	| ( Value-length Short-integer Text-string Text-string )
  */
 static guint32
-wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 off, len, val;
@@ -3457,7 +3490,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  *	| ( Value-length Short-integer Text-string *( Date-value ) )
  */
 static guint32
-wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 off, len, val = 0;
@@ -3520,7 +3553,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  *	| Length Short-integer [ Short-integer | text-string ]
  */
 static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
-		guint32 hdr_start)
+		guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 off, val, len;
@@ -3566,7 +3599,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
  *	  Length Uintvar-integer ( 0x80 | Uintvar-integer )
  */
 static guint32
-wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 off, val, len;
@@ -3615,7 +3648,7 @@ wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  *	  | 0x81 Uintvar-integer
  */
 static guint32
-wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 off, val, len;
@@ -3677,7 +3710,7 @@ wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
  *	  0x81
  *	| Value-length (0x82--0x86 | Token-text) [ Q-token Q-value ]
  */
-static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 	guint32 off, val, len;
@@ -3769,7 +3802,7 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 
 /* Dissect the Openwave header value (generic) */
 static guint32
-wkh_openwave_default(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
+wkh_openwave_default(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -4733,7 +4766,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 1 + len;
 	/* Application-Id headers */
 	tmp_tvb = tvb_new_subset(tvb, offset, val_len, val_len);
-	add_headers (subtree, tmp_tvb, hf_sir_app_id_list);
+	add_headers (subtree, tmp_tvb, hf_sir_app_id_list, pinfo);
 	offset += val_len;
 
 	/* Length of WSP contact points list */
@@ -4948,7 +4981,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				{
 					tmp_tvb = tvb_new_subset (tvb, offset,
 							headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
+					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
 				}
 			} /* if (tree) */
 
@@ -4983,7 +5016,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				offset += value + count; /* VERIFY */
 				tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
-				add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
+				add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
 			}
 			break;
 
@@ -5031,7 +5064,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				{
 					tmp_tvb = tvb_new_subset (tvb, nextOffset,
 							headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
+					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
 				}
 				/* XXX - offset is no longer used after this point */
 				offset = nextOffset+headerLength;
@@ -5130,7 +5163,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				{
 					tmp_tvb = tvb_new_subset (tvb, nextOffset,
 							headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
+					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
 				}
 				/* XXX - offset is no longer used after this point */
 				offset += count+headersLength+1;
@@ -5210,7 +5243,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				{
 					tmp_tvb = tvb_new_subset (tvb, nextOffset,
 							headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
+					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
 				}
 				/* XXX - offset is no longer used after this point */
 				offset += headersLength;
@@ -5836,7 +5869,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 		if (HeadersLen > 0)
 		{
 			tmp_tvb = tvb_new_subset (tvb, nextOffset, HeadersLen, HeadersLen);
-			add_headers (mpart_tree, tmp_tvb, hf_wsp_headers_section);
+			add_headers (mpart_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
 		}
 		offset = nextOffset + HeadersLen;
 		/*
@@ -7222,6 +7255,7 @@ proto_reg_handoff_wsp(void)
 	 */
 	wtp_fromudp_handle = find_dissector("wtp-udp");
 	media_handle = find_dissector("media");
+	wbxml_uaprof_handle = find_dissector("wbxml-uaprof");
 
 	/* Only connection-less WSP has no previous handler */
 	dissector_add("udp.port", UDP_PORT_WSP, wsp_fromudp_handle);
