@@ -1173,6 +1173,7 @@ static void new_attr_hfri(mate_cfg_item* cfg, guint8* name) {
 
 	hf_register_info hfri;
 
+	memset(&hfri, 0, sizeof hfri);
 	hfri.p_id = p_id;
 	hfri.hfinfo.name = g_strdup_printf("%s",name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.%s",cfg->name,name);
@@ -1181,7 +1182,6 @@ static void new_attr_hfri(mate_cfg_item* cfg, guint8* name) {
 	hfri.hfinfo.strings = NULL;
 	hfri.hfinfo.bitmask = 0;
 	hfri.hfinfo.blurb = g_strdup_printf("%s attribute of %s",name,cfg->name);
-	hfri.hfinfo.id = HFILL;
 
 	*p_id = -1;
 	g_hash_table_insert(cfg->my_hfids,name,p_id);
