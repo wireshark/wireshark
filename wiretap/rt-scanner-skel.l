@@ -146,9 +146,8 @@ void wtap_error(char *string)
 	exit(0);
 }
 
-/* from libpcap */
 void
-lex_init(char *buf)
+wtap_lex_init(char *buf)
 {
 	in_buffer = buf;
 }

@@ -72,7 +72,7 @@ int wtap_offline_filter_compile(wtap *wth, int encap_type)
 {
 	comp_encap_type = encap_type;
 	filter_parsed = 0;
-	lex_init(wth->filter_text);
+	wtap_lex_init(wth->filter_text);
 	wtap_parse();
 
 	if (!filter_parsed)
