@@ -327,10 +327,6 @@ Mark Burton <markb@ordern.com> {
 	Assorted SMB fixes and enhancements
 }
 
-Michael Tuexen <Michael.Tuexen@icn.siemens.de> {
-	SCTP support in "ipprotostr()" and in the capture dialog
-}
-
 Stefan Raab <stefan.raab@nextel.com> {
 	Mobile IP
 }
