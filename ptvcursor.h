@@ -3,7 +3,7 @@
  * Proto Tree TVBuff cursor
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ptvcursor.h,v 1.3 2001/11/13 23:55:30 gram Exp $
+ * $Id: ptvcursor.h,v 1.4 2002/01/10 04:44:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,8 +48,22 @@ ptvcursor_new(proto_tree*, tvbuff_t*, gint);
 proto_item*
 ptvcursor_add(ptvcursor_t*, int hf, gint length, gboolean endianness);
 
+
+/* Gets data from tvbuff, adds it to proto_tree, *DOES NOT* increment
+ * offset, and returns proto_item* */
+proto_item*
+ptvcursor_add_no_advance(ptvcursor_t*, int hf, gint length, gboolean endianness);
+
 /* Frees memory for ptvcursor_t, but nothing deeper than that. */
 void
 ptvcursor_free(ptvcursor_t*);
+
+/* Returns tvbuff. */
+tvbuff_t*
+ptvcursor_tvbuff(ptvcursor_t*);
+
+/* Returns current offset. */
+gint
+ptvcursor_current_offset(ptvcursor_t*);
 
 #endif /* __PTVCURSOR_H__ */

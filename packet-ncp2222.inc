@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.7 2002/01/05 04:12:14 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8 2002/01/10 04:44:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,13 +82,59 @@ ncp_record_find(guint8 func, guint8 subfunc)
 	return NULL;
 }
 
-/* Run through the table of ptv_record's and add info to the tree */
+/* Add a value for a ptvc_record, and process the sub-ptvc_record
+ * that it points to. */
+static void
+process_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
+{
+	proto_item		*item;
+	proto_tree		*sub_tree;
+	const ptvc_record	*sub_rec;
+	int			current_offset;
+	gint			ett;
+	ptvcursor_t		*sub_ptvc;
+
+	/* Save the current offset */
+	current_offset = ptvcursor_current_offset(ptvc);
+
+	/* Add the item */
+	item = ptvcursor_add(ptvc, *rec->hf_ptr, rec->length,
+			rec->endianness);
+
+	ett = *rec->sub_ptvc_rec->ett;
+
+	/* Make a new protocol sub-tree */
+	sub_tree = proto_item_add_subtree(item, ett);
+
+	/* Make a new ptvcursor */
+	sub_ptvc = ptvcursor_new(sub_tree, ptvcursor_tvbuff(ptvc),
+			current_offset);
+
+	/* Use it */
+	sub_rec = rec->sub_ptvc_rec->ptvc_rec;
+	while(sub_rec->hf_ptr != NULL) {
+		g_assert(!sub_rec->sub_ptvc_rec);
+		ptvcursor_add_no_advance(sub_ptvc, *sub_rec->hf_ptr,
+				sub_rec->length, sub_rec->endianness);
+		sub_rec++;
+	}
+
+	/* Free it. */
+	ptvcursor_free(sub_ptvc);
+}
+
+/* Run through the table of ptvc_record's and add info to the tree */
 static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
 	while(rec->hf_ptr != NULL) {
-		ptvcursor_add(ptvc, *rec->hf_ptr, rec->length,
+		if (rec->sub_ptvc_rec) {
+			process_sub_ptvc_record(ptvc, rec);
+		}
+		else {
+			ptvcursor_add(ptvc, *rec->hf_ptr, rec->length,
 				rec->endianness);
+		}
 		rec++;
 	}
 }

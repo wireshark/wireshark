@@ -20,7 +20,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.11 2001/11/13 23:55:29 gram Exp $
+$Id: ncp2222.py,v 1.12 2002/01/10 04:44:34 gram Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
 
@@ -89,7 +89,10 @@ class UniqueCollection:
 		return 0
 
 
-
+# This list needs to be defined before the NCP types are defined,
+# because the NCP types are defined in the global scope, not inside
+# a function's scope.
+ptvc_lists	= UniqueCollection('PTVC Lists')
 
 ##############################################################################
 
@@ -144,22 +147,34 @@ class PTVC(NamedList):
 
 	def __init__(self, name, records):
 		"Constructor"
-		self.list = []
-		NamedList.__init__(self, name, self.list)
+		NamedList.__init__(self, name, [])
 
 		expected_offset = None
 
 		# Make a PTVCRecord object for each list in 'records'
 		for record in records:
-			ptvc_rec = PTVCRecord(record)
+			offset	= record[0]
+			length	= record[1]
+			field	= record[2]
+
+			# Check if an endianness override is given
+			try:
+				endianness = record[3]
+
+			# If no endianness was given in the record, then
+			# use the field's default endianness.
+			except IndexError:
+				endianness = field.Endianness()
+
+			ptvc_rec = PTVCRecord(field, length, endianness)
 
 			if expected_offset == None:
-				expected_offset = ptvc_rec.Offset()
+				expected_offset = offset
 
 			elif expected_offset == -1:
 				pass
 
-			elif expected_offset != ptvc_rec.Offset():
+			elif expected_offset != offset:
 				sys.stderr.write("Expected offset in %s to be %d\n" % (name,
 					expected_offset))
 				sys.exit(1)
@@ -180,33 +195,47 @@ class PTVC(NamedList):
 
 			self.list.append(ptvc_rec)
 
+	def __str__(self):
+		x =  "static const ptvc_record %s[] = {\n" % (self.Name())
+		for ptvc_rec in self.list:
+			x = x +  "\t%s,\n" % (ptvc_rec)
+		x = x + "\t{ NULL, 0, 0, NULL }\n"
+		x = x + "};\n"
+		return x
+
+
+class PTVCBitfield(PTVC):
+	def __init__(self, name, vars):
+		NamedList.__init__(self, name, [])
+
+		for var in vars:
+			ptvc_rec = PTVCRecord(var, var.Length(), var.Endianness())
+			self.list.append(ptvc_rec)
+
+	def ETTName(self):
+		return "ett_%s" % (self.Name(),)
+	def __str__(self):
+		ett_name = self.ETTName()
+		x = "static gint %s;\n" % (ett_name,)
+
+		x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.Name())
+		for ptvc_rec in self.list:
+			x = x +  "\t%s,\n" % (ptvc_rec)
+		x = x + "\t{ NULL, 0, 0, NULL }\n"
+		x = x + "};\n"
+
+		x = x + "static const sub_ptvc_record %s = {\n" % (self.Name(),)
+		x = x + "\t&%s,\n" % (ett_name,)
+		x = x + "\tptvc_%s,\n" % (self.Name(),)
+		x = x + "};\n"
+		return x
+
 class PTVCRecord:
-	def __init__(self, record):
+	def __init__(self, field, length, endianness):
 		"Constructor"
-		self.offset	= record[0]
-		self.length	= record[1]
-		self.field	= record[2]
-
-		# Small sanity check
-		field_length = self.field.Length()
-
-#		if type(field_length) != type(self.length):
-#			sys.stderr.write("Length types do not match")
-#			sys.exit(1)
-
-#		if type(field_length) == type(0) and field_length > 0:
-#			if field_length != self.length:
-#				sys.stderr.write("Length %d does not match field length %d for field %s\n" % (self.length, field_length, self.field.Abbreviation()))
-#				sys.exit(1)
-
-		# Check if an endianness override is given
-		try:
-			self.endianness = record[3]
-
-		# If no endianness was given in the record, then
-		# use the field's default endianness.
-		except IndexError:
-			self.endianness = self.field.Endianness()
+		self.field	= field
+		self.length	= length
+		self.endianness	= endianness
 
 	def __cmp__(self, other):
 		"Comparison operator"
@@ -222,13 +251,14 @@ class PTVCRecord:
 		else:
 			return 0
 
-	def __repr__(self):
+	def __str__(self):
 		"String representation"
 		endianness = 'FALSE'
 		if self.endianness == LE:
 			endianness = 'TRUE'
 
-		length = -1
+		# Default the length to this value
+		length = "PTVC_VARIABLE_LENGTH"
 
 		if type(self.length) == type(0):
 			length = self.length
@@ -237,13 +267,12 @@ class PTVCRecord:
 			if var_length > 0:
 				length = var_length
 
-		if length > -1:
-			return "{ &%s, %d, %s }" % (self.field.HFName(),
-					length, endianness)
-		else:
-			length = "PTVC_VARIABLE_LENGTH"
-			return "{ &%s, %s, %s }" % (self.field.HFName(),
-					length, endianness)
+		sub_ptvc_name = self.field.PTVCName()
+		if sub_ptvc_name != "NULL":
+			sub_ptvc_name = "&%s" % (sub_ptvc_name,)
+
+		return "{ &%s, %s, %s, %s }" % (self.field.HFName(),
+				length, endianness, sub_ptvc_name)
 
 	def Offset(self):
 		return self.offset
@@ -253,7 +282,6 @@ class PTVCRecord:
 
 	def Field(self):
 		return self.field
-
 
 ##############################################################################
 
@@ -398,10 +426,18 @@ class NCP:
 				var = record[2]
 				variables[var] = 1
 
+				sub_vars = var.SubVariables()
+				for sv in sub_vars:
+					variables[sv] = 1
+
 		if self.reply_records:
 			for record in self.reply_records:
 				var = record[2]
 				variables[var] = 1
+
+				sub_vars = var.SubVariables()
+				for sv in sub_vars:
+					variables[sv] = 1
 
 		return variables.keys()
 
@@ -503,6 +539,12 @@ class Type:
 	def Endianness(self):
 		return self.endianness
 
+	def SubVariables(self):
+		return []
+
+	def PTVCName(self):
+		return "NULL"
+
 class byte(Type):
 	type	= "byte"
 	ftype	= "FT_UINT8"
@@ -513,8 +555,13 @@ class byte(Type):
 class uint8(Type):
 	type	= "uint8"
 	ftype	= "FT_UINT8"
+	bytes	= 1
 	def __init__(self, abbrev, descr):
 		Type.__init__(self, abbrev, descr, 1)
+
+class boolean8(uint8):
+	type	= "boolean8"
+	ftype	= "FT_BOOLEAN"
 
 class uint16(Type):
 	type	= "uint16"
@@ -608,6 +655,62 @@ class bytes(Type):
 
 	def __init__(self, abbrev, descr, bytes):
 		Type.__init__(self, abbrev, descr, bytes, NA)
+
+
+class bitfield(Type):
+	type	= "bitfield"
+	disp	= 'BASE_HEX'
+
+	def __init__(self, vars):
+		var_hash = {}
+		for var in vars:
+			var_hash[var.bitmask] = var
+
+		bitmasks = var_hash.keys()
+		bitmasks.sort()
+		bitmasks.reverse()
+
+		ordered_vars = []
+		for bitmask in bitmasks:
+			var = var_hash[bitmask]
+			ordered_vars.append(var)
+
+		self.vars = ordered_vars
+		self.sub_ptvc = PTVCBitfield(self.PTVCName(), self.vars)
+
+	def SubVariables(self):
+		return self.vars
+
+	def SubVariablesPTVC(self):
+		return self.sub_ptvc
+
+	def PTVCName(self):
+		return "ncp_%s_bitfield" % (self.abbrev,)
+
+class bitfield8(bitfield, uint8):
+	type	= "bitfield8"
+	ftype	= "FT_UINT8"
+
+	def __init__(self, abbrev, descr, vars):
+		uint8.__init__(self, abbrev, descr)
+		bitfield.__init__(self, vars)
+
+class bf_uint(Type):
+	type	= "bf_uint"
+	disp	= 'BASE_HEX'
+
+	def __init__(self, bitmask, abbrev, descr):
+		self.bitmask = bitmask
+		self.abbrev = abbrev
+		self.descr = descr
+
+	def Mask(self):
+		return self.bitmask
+
+class bf_boolean8(bf_uint, boolean8):
+	type	= "bf_boolean8"
+	ftype	= "FT_BOOLEAN"
+	disp	= "8"
 
 #class data(Type):
 #	type	= "data"
@@ -1136,46 +1239,9 @@ static int hf_ncp_connection_status = -1;
 
 	# Print the value_string's
 	for var in variables_used_hash.keys():
-		if var.type == "val_string8" or var.type == "val_string16":
+		if isinstance(var, val_string):
 			print ""
 			print `var`
-
-
-	print """
-void
-proto_register_ncp2222(void)
-{
-
-	static hf_register_info hf[] = {
-	{ &hf_ncp_func,
-	{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-
-	{ &hf_ncp_length,
-	{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-
-	{ &hf_ncp_subfunc,
-	{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-
-	{ &hf_ncp_completion_code,
-	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-
-	{ &hf_ncp_connection_status,
-	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
-	"""
-
-	# Print the registration code for the hf variables
-	for var in variables_used_hash.keys():
-		print "\t{ &%s," % (var.HFName())
-		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\", HFILL }},\n" % \
-			(var.Description(), var.DFilter(),
-			var.EtherealFType(), var.Display(), var.ValuesName(),
-			var.Mask())
-
-	print """\t};
-
-		proto_register_field_array(proto_ncp, hf, array_length(hf));
-	}
-	"""
 
 
 	# Determine which error codes are not used
@@ -1233,16 +1299,21 @@ proto_register_ncp2222(void)
 		print "#define NCP_GROUP_%s\t%d" % (name, groups_used_hash[group])
 	print "\n"
 
-	# Print PTVC's
+	# Print PTVC's for bitfields
+	ett_list = []
+	print "/* PTVC records for bit-fields. */"
+	for var in variables_used_hash.keys():
+		if isinstance(var, bitfield):
+			sub_vars_ptvc = var.SubVariablesPTVC()
+			print "/* %s */" % (sub_vars_ptvc.Name())
+			print sub_vars_ptvc
+			ett_list.append(sub_vars_ptvc.ETTName())
+
+	# Print PTVC's not already printed for bitfields
 	print "/* PTVC records. These are re-used to save space. */"
 	for ptvc in ptvc_lists.Members():
 		if not ptvc.Null() and not ptvc.Empty():
-			print "static const ptvc_record %s[] = {" % (ptvc.Name())
-			records = ptvc.Records()
-			for ptvc_rec in records:
-				print "\t%s," % (ptvc_rec)
-			print "\t{ NULL, 0, 0 }"
-			print "};\n"
+			print ptvc
 
 	# Print error_equivalency tables
 	print "/* Error-Equivalency Tables. These are re-used to save space. */"
@@ -1320,7 +1391,7 @@ proto_register_ncp2222(void)
 	print "};\n"
 
 
-	print "/* ncp funs that have no length parameter */"
+	print "/* ncp funcs that have no length parameter */"
 	print "static const guint8 ncp_func_has_no_length_parameter[] = {"
 	funcs = funcs_without_length.keys()
 	funcs.sort()
@@ -1328,8 +1399,57 @@ proto_register_ncp2222(void)
 		print "\t0x%02x," % (func,)
 	print "\t0"
 	print "};\n"
-	
 
+	# proto_register_ncp2222()
+	print """
+void
+proto_register_ncp2222(void)
+{
+
+	static hf_register_info hf[] = {
+	{ &hf_ncp_func,
+	{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ncp_length,
+	{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ncp_subfunc,
+	{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ncp_completion_code,
+	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ncp_connection_status,
+	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+	"""
+
+	# Print the registration code for the hf variables
+	for var in variables_used_hash.keys():
+		print "\t{ &%s," % (var.HFName())
+		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\", HFILL }},\n" % \
+			(var.Description(), var.DFilter(),
+			var.EtherealFType(), var.Display(), var.ValuesName(),
+			var.Mask())
+
+	print """
+	};
+
+	static gint *ett[] = {
+	"""
+
+	for ett in ett_list:
+		print "\t\t&%s," % (ett,)
+
+	print """
+	};
+
+	proto_register_field_array(proto_ncp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+	"""
+
+
+	print ""
 	print '#include "packet-ncp2222.inc"'
 
 
@@ -1340,7 +1460,6 @@ def main():
 
 	packets		= UniqueCollection('NCP Packet Descriptions')
 	compcode_lists	= UniqueCollection('Completion Code Lists')
-	ptvc_lists	= UniqueCollection('PTVC Lists')
 
 	define_errors()
 	define_groups()
