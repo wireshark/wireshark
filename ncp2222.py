@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.4 2002/02/18 19:20:10 gram Exp $
+$Id: ncp2222.py,v 1.14.2.5 2002/02/20 16:51:15 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -240,12 +240,13 @@ class PTVC(NamedList):
 				if isinstance(ptvc_rec.Field(), nstring8):
 					expected_offset = -1
 					pass
+				elif isinstance(ptvc_rec.Field(), struct):
+					expected_offset = -1
+					pass
 				else:
 					field = ptvc_rec.Field()
-# 					assert 0, "Cannot make PTVC from %s, type %s" % \
-#						(field.HFName(), field)
-					self.list = None
-					return
+ 					assert 0, "Cannot make PTVC from %s, type %s" % \
+						(field.HFName(), field)
 
 			elif expected_offset > -1:
 				if ptvc_rec.Length() < 0:
@@ -3530,7 +3531,10 @@ UserInformation			= struct("user_info", [
 			HeldBytesRead,
 			HeldBytesWritten,
 ])
-
+VolumeStruct                = struct("volume_struct", [
+        VolumeNumberLong,
+        VolumeNameLen,
+])
 
 ##############################################################################
 # NCP Groups
@@ -5444,12 +5448,10 @@ def define_ncp2222():
 		rec( 14, 4, VolumeRequestFlags, LE ),
 		rec( 18, 4, SrcNameSpace, LE ),
 	])
-	pkt.Reply( 20, [
-		rec( 8, 4, ItemsInPacket, LE ),
+	pkt.Reply( 34, [
+		rec( 8, 4, ItemsInPacket, LE, var="x" ),
 		rec( 12, 4, NextVolumeNumber, LE ),
-		#If the request flag indicates return name then the next attrib
-		#would be followed with 20, (1,128), VolumeName.
-		rec( 16, 4, VolumeNumberLong, LE ),
+		rec( 16, 18, VolumeStruct, repeat="x"),
 	])
 	pkt.CompletionCodes([0x0000])
 	# 2222/1700, 23/00

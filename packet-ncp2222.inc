@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.8.2.2 2002/02/16 20:41:04 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.8.2.3 2002/02/20 16:51:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,15 +149,29 @@ static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
 	proto_item *item;
-	guint i, repeat_index;
+	guint i, repeat_count;
 
 	while(rec->hf_ptr != NULL) {
 		if (rec->sub_ptvc_rec) {
-			if (rec->hf_ptr == PTVC_STRUCT) {
-				process_struct_sub_ptvc_record(ptvc, rec);
+			/* Repeat this? */
+			if (rec->repeat_index == NO_REPEAT) {
+				if (rec->hf_ptr == PTVC_STRUCT) {
+					process_struct_sub_ptvc_record(ptvc, rec);
+				}
+				else {
+					process_bitfield_sub_ptvc_record(ptvc, rec);
+				}
 			}
 			else {
-				process_bitfield_sub_ptvc_record(ptvc, rec);
+				repeat_count = repeat_vars[rec->repeat_index];
+				for (i = 0; i < repeat_count; i++ ) {
+					if (rec->hf_ptr == PTVC_STRUCT) {
+						process_struct_sub_ptvc_record(ptvc, rec);
+					}
+					else {
+						process_bitfield_sub_ptvc_record(ptvc, rec);
+					}
+				}
 			}
 		}
 		else {
@@ -174,8 +188,8 @@ process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec)
 			}
 			else {
 				/* We do repeat this field. */
-				repeat_index = repeat_vars[rec->repeat_index];
-				for (i = 0; i < repeat_index; i++ ) {
+				repeat_count = repeat_vars[rec->repeat_index];
+				for (i = 0; i < repeat_count; i++ ) {
 					ptvcursor_add(ptvc, *rec->hf_ptr,
 						rec->length, rec->endianness);
 				}
