@@ -2,7 +2,7 @@
  * Routines for MSN Messenger Service packet dissection
  * Copyright 2003, Chris Waters <chris@waters.co.nz>
  *
- * $Id: packet-msn-messenger.c,v 1.1 2003/01/30 18:49:47 guy Exp $
+ * $Id: packet-msn-messenger.c,v 1.2 2003/01/30 19:00:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,27 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+
+/*
+ * The now-expired Internet-Draft for the MSN Messenger 1.0 protocol
+ * can, as of the time of the writing of this comment, be found at:
+ *
+ *	http://praya.sourceforge.net/draft-movva-msn-messenger-protocol-00.txt
+ *
+ *	http://mono.es.gnome.org/imsharp/tutoriales/msn/appendixa.html
+ *
+ *	http://www.hypothetic.org/docs/msn/ietf_draft.php
+ *
+ *	http://babble.wundsam.net/docs/protocol-msn-im.txt
+ *
+ * Note that it's Yet Another FTP-Like Command/Response Protocol,
+ * so it arguably should be dissected as such, although you do have
+ * to worry about the MSG command, as only the first line of it
+ * should be parsed as a command, the rest should be parsed as the
+ * message body.  We therefore leave "hf_msnms_command", "tokenlen",
+ * and "next_token", even though they're unused, as reminders that
+ * this should be done.
+ */
 
 static int proto_msnms = -1;
 static int hf_msnms_command = -1;
