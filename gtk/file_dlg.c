@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.6 1999/10/02 19:57:31 guy Exp $
+ * $Id: file_dlg.c,v 1.7 1999/10/02 20:25:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,10 +57,6 @@
 #include "menu.h"
 #endif
 
-#ifdef HAVE_LIBPCAP
-#include "capture.h"
-#endif
-
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
@@ -107,15 +103,6 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
     (file_sel)->cancel_button), "clicked", (GtkSignalFunc)
     gtk_widget_destroy, GTK_OBJECT (file_sel));
-
-#ifdef HAVE_LIBPCAP
-  if (sync_mode && (cf.save_file != NULL))
-#else
-  if (cf.save_file != NULL)
-#endif
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), cf.save_file);
-  else
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), "");
 
   gtk_widget_show(file_sel);
 }
