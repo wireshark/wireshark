@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.9 2001/01/09 06:31:36 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.10 2001/01/10 23:28:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -302,7 +302,7 @@ capture_ieee80211 (const u_char * pd, int offset, packet_counts * ld)
 {
   guint16 fcf, hdr_length;
 
-  fcf = pntohs (*((guint *) pd));
+  fcf = pletohs (&pd[0]);
 
 
   hdr_length = MGT_FRAME_HDR_LEN;	/* Set the header length of the frame */
