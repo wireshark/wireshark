@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.8 2002/02/24 20:42:40 gram Exp $
+$Id: ncp2222.py,v 1.14.2.9 2002/02/26 19:44:52 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -988,12 +988,13 @@ AccessRightsMask 		= bitfield8("access_rights_mask", "Access Rights", [
 	bf_boolean8(0x80, "acc_rights_modify", "Modify Rights"),
 ])
 AccountBalance			= uint32("account_balance", "Account Balance")
-AcctVersion			= uint8("acct_version", "Acct Version")
+AccountVersion			= uint8("acct_version", "Acct Version")
 ActionFlag 			= bitfield8("action_flag", "Action Flag", [
 	bf_boolean8(0x01, "act_flag_open", "Open"),
 	bf_boolean8(0x02, "act_flag_replace", "Replace"),
 	bf_boolean8(0x10, "act_flag_create", "Create"),
 ])
+ActiveConnBitList		= fw_string("active_conn_bit_list", "Active Connection List", 512)
 ActiveIndexedFiles		= uint16("active_indexed_files", "Active Indexed Files")
 ActualMaxBinderyObjects 	= uint16("actual_max_bindery_objects", "Actual Max Bindery Objects")
 ActualMaxIndexedFiles		= uint16("actual_max_indexed_files", "Actual Max Indexed Files")
@@ -1002,14 +1003,17 @@ ActualMaxSimultaneousTransactions = uint16("actual_max_sim_trans", "Actual Max S
 ActualMaxUsedDirectoryEntries 	= uint16("actual_max_used_directory_entries", "Actual Max Used Directory Entries")
 ActualMaxUsedRoutingBuffers 	= uint16("actual_max_used_routing_buffers", "Actual Max Used Routing Buffers")
 ActualResponseCount 		= uint16("actual_response_count", "Actual Response Count")
+AddNameSpaceAndVol              = stringz("add_nm_spc_and_vol", "Add Name Space and Volume")
 AFPEntryID			= uint32("afp_entry_id", "AFP Entry ID")
 AFPEntryID.Display("BASE_HEX")
+AllocAvailByte			= uint32("alloc_avail_byte", "Bytes Available for Allocation", LE)
 AllocateMode			= val_string8("allocate_mode", "Allocate Mode", [
 	[ 0x00, "Permanent Directory Handle" ],
 	[ 0x01, "Temporary Directory Handle" ],
 	[ 0x02, "Special Temporary Directory Handle" ],
 ])
 AllocationBlockSize		= uint32("allocation_block_size", "Allocation Block Size")
+AllocFreeCount			= uint32("alloc_free_count", "Reclaimable Free Bytes", LE)
 ApplicationNumber		= uint16("application_number", "Application Number")
 ArchivedTime			= uint16("archived_time", "Archived Time", LE)
 ArchivedTime.Display("BASE_HEX")
@@ -1070,10 +1074,14 @@ BaseDirectoryID			= uint32("base_directory_id", "Base Directory ID")
 BaseDirectoryID.Display("BASE_HEX")
 binderyContext			= nstring8("bindery_context", "Bindery Context")
 BitMap				= bytes("bit_map", "Bit Map", 512)
+BlockNumber                     = uint32("block_number", "Block Number")
 BlockSize 			= uint16("block_size", "Block Size")
 BlockSizeInSectors		= uint32("block_size_in_sectors", "Block Size in Sectors")
 BoardInstalled 			= uint8("board_installed", "Board Installed")
+BoardNumber                     = uint32("board_number", "Board Number", LE)
+BoardNumbers                    = uint32("board_numbers", "Board Numbers", LE)
 BufferSize			= uint16("buffer_size", "Buffer Size")
+BusString			= stringz("bus_string", "Bus String")
 BusType				= val_string8("bus_type", "Bus Type", [
 	[0x00, "ISA"],
 	[0x01, "Micro Channel" ],
@@ -1081,6 +1089,7 @@ BusType				= val_string8("bus_type", "Bus Type", [
 	[0x04, "PCI"],
 	[0x08, "PCMCIA"],
 	[0x10, "ISA"],
+        [0x14, "ISA"],
 ])
 BytesActuallyTransferred	= uint32("bytes_actually_transferred", "Bytes Actually Transferred")
 BytesRead 			= fw_string("bytes_read", "Bytes Read", 6)
@@ -1099,6 +1108,7 @@ CacheMisses 			= uint32("cache_misses", "Cache Misses")
 CachePartialWriteRequests	= uint32("cache_partial_write_requests", "Cache Partial Write Requests")
 CacheReadRequests 		= uint32("cache_read_requests", "Cache Read Requests")
 CacheWriteRequests 		= uint32("cache_write_requests", "Cache Write Requests")
+CategoryName                    = stringz("category_name", "Category Name")
 CCFileHandle			= bytes("cc_file_handle", "File Handle", 4)
 CCFunction			= val_string8("cc_function", "OP-Lock Flag", [
 	[ 0x01, "Clear OP-Lock" ],
@@ -1158,21 +1168,27 @@ ClientRecordArea		= fw_string("client_record_area", "Client Record Area", 152)
 ClientStation			= uint32("client_station", "Client Station")
 ClientTaskNumber		= uint32("client_task_number", "Client Task Number")
 ClusterCount			= uint16("cluster_count", "Cluster Count")
-ClustersUsedByDirectories	= uint32("clusters_used_by_directories", "Clusters Used by Directories")
-ClustersUsedByExtendedDirectories = uint32("clusters_used_by_extended_dirs", "Clusters Used by Extended Directories")
-ClustersUsedByFAT		= uint32("clusters_used_by_fat", "Clusters Used by FAT")
+ClustersUsedByDirectories	= uint32("clusters_used_by_directories", "Clusters Used by Directories", LE)
+ClustersUsedByExtendedDirectories = uint32("clusters_used_by_extended_dirs", "Clusters Used by Extended Directories", LE)
+ClustersUsedByFAT		= uint32("clusters_used_by_fat", "Clusters Used by FAT", LE)
+ComCnts                         = uint16("com_cnts", "Communication Counters", LE)
 Comment				= nstring8("comment", "Comment")
 CommentType			= uint16("comment_type", "Comment Type")
 CompletionCode			= uint32("ncompletion_code", "Completion Code")
-CompressedDataStreamsCount	= uint32("compressed_data_streams_count", "Compressed Data Streams Count")
-CompressedLimboDataStreamsCount	= uint32("compressed_limbo_data_streams_count", "Compressed Limbo Data Streams Count")
-CompressedSectors		= uint32("compressed_sectors", "Compressed Sectors")
+CompressedDataStreamsCount	= uint32("compressed_data_streams_count", "Compressed Data Streams Count", LE)
+CompressedLimboDataStreamsCount	= uint32("compressed_limbo_data_streams_count", "Compressed Limbo Data Streams Count", LE)
+CompressedSectors		= uint32("compressed_sectors", "Compressed Sectors", LE)
+compressionStage                = uint32("compression_stage", "Compression Stage", LE)
+compressVolume                  = uint32("compress_volume", "Volume Compression", LE)
+ConfigMajorVN                   = uint8("config_major_vn", "Configuration Major Version Number")
+ConfigMinorVN                   = uint8("config_minor_vn", "Configuration Minor Version Number")
 ConfigurationDescription	= fw_string("configuration_description", "Configuration Description", 80)
 ConfigurationText		= fw_string("configuration_text", "Configuration Text", 160)
 ConfiguredMaxBinderyObjects	= uint16("configured_max_bindery_objects", "Configured Max Bindery Objects")
 ConfiguredMaxOpenFiles		= uint16("configured_max_open_files", "Configured Max Open Files")
 ConfiguredMaxRoutingBuffers	= uint16("configured_max_routing_buffers", "Configured Max Routing Buffers")
 ConfiguredMaxSimultaneousTransactions = uint16("cfg_max_simultaneous_transactions", "Configured Max Simultaneous Transactions")
+ConnectedLAN                    = uint32("connected_lan", "LAN Adapter")
 ConnectionControlBits 		= bitfield8("conn_ctrl_bits", "Connection Control", [
 	bf_boolean8(0x01, "enable_brdcasts", "Enable Broadcasts"),
 	bf_boolean8(0x02, "enable_personal_brdcasts", "Enable Personal Broadcasts"),
@@ -1182,21 +1198,21 @@ ConnectionControlBits 		= bitfield8("conn_ctrl_bits", "Connection Control", [
 	bf_boolean8(0x40, "disable_wdog_messages", "Disable Watchdog Message"),
 ])
 ConnectionListCount 		= uint32("conn_list_count", "Connection List Count")
-ConnectionList			= uint32("conn_list", "Connection List")
+ConnectionList			= uint32("connection_list", "Connection List")
 ConnectionNumber		= uint32("connection_number", "Connection Number", LE)
 ConnectionNumberList		= nstring8("connection_number_list", "Connection Number List")
 ConnectionNumberWord		= uint16("conn_number_word", "Connection Number")
 ConnectionNumberByte		= uint8("conn_number_byte", "Connection Number")
 ConnectionServiceType 		= val_string8("connection_service_type","Connection Service Type",[
-				[ 0x01, "CLIB backward Compatibility" ],
-				[ 0x02, "NCP Connection" ],
-				[ 0x03, "NLM Connection" ],
-				[ 0x04, "AFP Connection" ],
-				[ 0x05, "FTAM Connection" ],
-				[ 0x06, "ANCP Connection" ],
-				[ 0x07, "ACP Connection" ],
-				[ 0x08, "SMB Connection" ],
-				[ 0x09, "Winsock Connection" ],
+	[ 0x01, "CLIB backward Compatibility" ],
+	[ 0x02, "NCP Connection" ],
+	[ 0x03, "NLM Connection" ],
+	[ 0x04, "AFP Connection" ],
+	[ 0x05, "FTAM Connection" ],
+	[ 0x06, "ANCP Connection" ],
+	[ 0x07, "ACP Connection" ],
+	[ 0x08, "SMB Connection" ],
+	[ 0x09, "Winsock Connection" ],
 ])
 ConnectionsInUse		= uint16("connections_in_use", "Connections In Use")
 ConnectionsMaxUsed		= uint16("connections_max_used", "Connections Max Used")
@@ -1207,6 +1223,8 @@ ConnectionType			= val_string8("connection_type", "Connection Type", [
 	[ 0x11, "UDP (for IP)" ],
 ])
 ConnListLen			= uint8("conn_list_len", "Connection List Length")
+Copyright			= nstring8("copyright", "Copyright")
+connList                        = uint32("conn_list", "Connection List", LE)
 ControlFlags			= val_string8("control_flags", "Control Flags", [
 	[ 0x00, "Forced Record Locking is Off" ],
 	[ 0x01, "Forced Record Locking is On" ],
@@ -1218,9 +1236,19 @@ Cookie1 			= uint32("cookie_1", "Cookie 1")
 Cookie2 			= uint32("cookie_2", "Cookie 2")
 Copies				= uint8( "copies", "Copies" )
 CoprocessorFlag			= uint32("co_processor_flag", "CoProcessor Present Flag", LE)
+CoProcessorString		= stringz("co_proc_string", "CoProcessor String")
+CounterMask                     = val_string8("counter_mask", "Counter Mask", [
+        [ 0x00, "Counter is Valid" ],
+        [ 0x01, "Counter is not Valid" ],
+])        
 CPUNumber			= uint32("cpu_number", "CPU Number", LE)
 CPUString			= stringz("cpu_string", "CPU String")
-CPUType				= uint32("cpu_type", "CPU Type", LE)
+CPUType				= val_string8("cpu_type", "CPU Type", [
+        [ 0x00, "80386" ],
+        [ 0x01, "80486" ],
+        [ 0x02, "Pentium" ],
+        [ 0x03, "Pentium Pro" ],
+])    
 CreationDate 			= uint16("creation_date", "Creation Date", LE)
 CreationDate.Display("BASE_HEX")
 CreationDateAndTime		= uint32("creation_date_and_time", "Creation Date & Time")
@@ -1239,6 +1267,11 @@ CtrlFlags			= val_string16("ctrl_flags", "Control Flags", [
 	[ 0x0000, "Do Not Return File Name" ],
 	[ 0x0001, "Return File Name" ],
 ])	
+curCompBlks                     = uint32("cur_comp_blks", "Current Compression Blocks", LE)
+curInitialBlks                  = uint32("cur_initial_blks", "Current Initial Blocks", LE)
+curIntermediateBlks             = uint32("cur_inter_blks", "Current Intermediate Blocks", LE)
+CurNumOfRTags                   = uint32("cur_num_of_r_tags", "Current Number of Resource Tags")
+CurrentBlockBeingDecompressed   = uint32("cur_blk_being_dcompress", "Current Block Being Decompressed", LE)
 CurrentChangedFATs		= uint16("current_changed_fats", "Current Changed FAT Entries")
 CurrentEntries			= uint32("current_entries", "Current Entries")
 CurrentFormType			= uint8( "current_form_type", "Current Form Type" )
@@ -1251,6 +1284,11 @@ CurrentSpace			= uint32("current_space", "Current Space")
 CurrentTransactionCount		= uint32("current_trans_count", "Current Transaction Count")
 CurrentUsedBinderyObjects 	= uint16("current_used_bindery_objects", "Current Used Bindery Objects")
 CurrentUsedDynamicSpace 	= uint32("current_used_dynamic_space", "Current Used Dynamic Space")
+CustomCnts                      = uint32("custom_cnts", "Custom Counters", LE)
+CustomCount                     = uint32("custom_count", "Custom Count", LE)
+CustomCounters                  = uint32("custom_counters", "Custom Counters", LE)
+CustomString                    = nstring8("custom_string", "Custom String")
+CustomVariableValue             = uint32("custom_var_value", "Custom Variable Value", LE)
 
 Data 				= nstring8("data", "Data")
 DataForkFirstFAT		= uint32("data_fork_first_fat", "Data Fork First FAT Entry")
@@ -1263,7 +1301,7 @@ DataStream			= val_string8("data_stream", "Data Stream", [
 ])
 DataStreamName			= nstring8("data_stream_name", "Data Stream Name")
 DataStreamNumber		= uint8("data_stream_number", "Data Stream Number")
-DataStreamsCount		= uint32("data_streams_count", "Data Streams Count")
+DataStreamsCount		= uint32("data_streams_count", "Data Streams Count", LE)
 DataStreamSize			= uint32("data_stream_size", "Size", LE)
 DataStreamSpaceAlloc 		= uint32( "data_stream_space_alloc", "Space Allocated for Data Stream", LE )
 Day 				= uint8("s_day", "Day")
@@ -1329,7 +1367,7 @@ DirectoryID.Display("BASE_HEX")
 DirectoryNumber			= uint32("directory_number", "Directory Number")
 DirectoryNumber.Display("BASE_HEX")
 DirectoryPath			= fw_string("directory_path", "Directory Path", 16)
-DirectoryServicesObjectID	= uint32("directory_services_object_id", "Directory Services Object ID")
+DirectoryServicesObjectID	= uint32("directory_services_object_id", "Directory Services Object ID", LE)
 DirectoryServicesObjectID.Display("BASE_HEX")
 DirtyCacheBuffers 		= uint16("dirty_cache_buffers", "Dirty Cache Buffers")
 DiskChannelNumber		= uint8("disk_channel_number", "Disk Channel Number")
@@ -1372,107 +1410,110 @@ DriveDefinitionString 		= fw_string("drive_definition_string", "Drive Definition
 DriveHeads 			= uint8("drive_heads", "Drive Heads")
 DriveMappingTable		= bytes("drive_mapping_table", "Drive Mapping Table", 32)
 DriveMirrorTable 		= bytes("drive_mirror_table", "Drive Mirror Table", 32)
+DriverBoardName                 = stringz("driver_board_name", "Driver Board Name")
 DriveRemovableFlag 		= val_string8("drive_removable_flag", "Drive Removable Flag", [
 	[ 0x00, "Nonremovable" ],
 	[ 0xff, "Removable" ],
 ])
+DriverLogicalName               = stringz("driver_log_name", "Driver Logical Name")
+DriverShortName                 = stringz("driver_short_name", "Driver Short Name")
 DriveSize 			= uint32("drive_size", "Drive Size")
 DstEAFlags			= val_string16("dst_ea_flags", "Destination EA Flags", [
-	[ 0x0000, "Return EAHandle/Reserved,Information Level 0" ],
-	[ 0x0001, "Return NetWareHandle/Reserved,Information Level 0" ],
+	[ 0x0000, "Return EAHandle,Information Level 0" ],
+	[ 0x0001, "Return NetWareHandle,Information Level 0" ],
 	[ 0x0002, "Return Volume/Directory Number,Information Level 0" ],
-	[ 0x0004, "Return EAHandle/Reserved,Close Handle on Error,Information Level 0" ],
-	[ 0x0005, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 0" ],
+	[ 0x0004, "Return EAHandle,Close Handle on Error,Information Level 0" ],
+	[ 0x0005, "Return NetWareHandle,Close Handle on Error,Information Level 0" ],
 	[ 0x0006, "Return Volume/Directory Number,Close Handle on Error,Information Level 0" ],
-	[ 0x0010, "Return EAHandle/Reserved,Information Level 1" ],
-	[ 0x0011, "Return NetWareHandle/Reserved,Information Level 1" ],
+	[ 0x0010, "Return EAHandle,Information Level 1" ],
+	[ 0x0011, "Return NetWareHandle,Information Level 1" ],
 	[ 0x0012, "Return Volume/Directory Number,Information Level 1" ],
-	[ 0x0014, "Return EAHandle/Reserved,Close Handle on Error,Information Level 1" ],
-	[ 0x0015, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 1" ],
+	[ 0x0014, "Return EAHandle,Close Handle on Error,Information Level 1" ],
+	[ 0x0015, "Return NetWareHandle,Close Handle on Error,Information Level 1" ],
 	[ 0x0016, "Return Volume/Directory Number,Close Handle on Error,Information Level 1" ],
-	[ 0x0020, "Return EAHandle/Reserved,Information Level 2" ],
-	[ 0x0021, "Return NetWareHandle/Reserved,Information Level 2" ],
+	[ 0x0020, "Return EAHandle,Information Level 2" ],
+	[ 0x0021, "Return NetWareHandle,Information Level 2" ],
 	[ 0x0022, "Return Volume/Directory Number,Information Level 2" ],
-	[ 0x0024, "Return EAHandle/Reserved,Close Handle on Error,Information Level 2" ],
-	[ 0x0025, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 2" ],
+	[ 0x0024, "Return EAHandle,Close Handle on Error,Information Level 2" ],
+	[ 0x0025, "Return NetWareHandle,Close Handle on Error,Information Level 2" ],
 	[ 0x0026, "Return Volume/Directory Number,Close Handle on Error,Information Level 2" ],
-	[ 0x0030, "Return EAHandle/Reserved,Information Level 3" ],
-	[ 0x0031, "Return NetWareHandle/Reserved,Information Level 3" ],
+	[ 0x0030, "Return EAHandle,Information Level 3" ],
+	[ 0x0031, "Return NetWareHandle,Information Level 3" ],
 	[ 0x0032, "Return Volume/Directory Number,Information Level 3" ],
-	[ 0x0034, "Return EAHandle/Reserved,Close Handle on Error,Information Level 3" ],
-	[ 0x0035, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 3" ],
+	[ 0x0034, "Return EAHandle,Close Handle on Error,Information Level 3" ],
+	[ 0x0035, "Return NetWareHandle,Close Handle on Error,Information Level 3" ],
 	[ 0x0036, "Return Volume/Directory Number,Close Handle on Error,Information Level 3" ],
-	[ 0x0040, "Return EAHandle/Reserved,Information Level 4" ],
-	[ 0x0041, "Return NetWareHandle/Reserved,Information Level 4" ],
+	[ 0x0040, "Return EAHandle,Information Level 4" ],
+	[ 0x0041, "Return NetWareHandle,Information Level 4" ],
 	[ 0x0042, "Return Volume/Directory Number,Information Level 4" ],
-	[ 0x0044, "Return EAHandle/Reserved,Close Handle on Error,Information Level 4" ],
-	[ 0x0045, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 4" ],
+	[ 0x0044, "Return EAHandle,Close Handle on Error,Information Level 4" ],
+	[ 0x0045, "Return NetWareHandle,Close Handle on Error,Information Level 4" ],
 	[ 0x0046, "Return Volume/Directory Number,Close Handle on Error,Information Level 4" ],
-	[ 0x0050, "Return EAHandle/Reserved,Information Level 5" ],
-	[ 0x0051, "Return NetWareHandle/Reserved,Information Level 5" ],
+	[ 0x0050, "Return EAHandle,Information Level 5" ],
+	[ 0x0051, "Return NetWareHandle,Information Level 5" ],
 	[ 0x0052, "Return Volume/Directory Number,Information Level 5" ],
-	[ 0x0054, "Return EAHandle/Reserved,Close Handle on Error,Information Level 5" ],
-	[ 0x0055, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 5" ],
+	[ 0x0054, "Return EAHandle,Close Handle on Error,Information Level 5" ],
+	[ 0x0055, "Return NetWareHandle,Close Handle on Error,Information Level 5" ],
 	[ 0x0056, "Return Volume/Directory Number,Close Handle on Error,Information Level 5" ],
-	[ 0x0060, "Return EAHandle/Reserved,Information Level 6" ],
-	[ 0x0061, "Return NetWareHandle/Reserved,Information Level 6" ],
+	[ 0x0060, "Return EAHandle,Information Level 6" ],
+	[ 0x0061, "Return NetWareHandle,Information Level 6" ],
 	[ 0x0062, "Return Volume/Directory Number,Information Level 6" ],
-	[ 0x0064, "Return EAHandle/Reserved,Close Handle on Error,Information Level 6" ],
-	[ 0x0065, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 6" ],
+	[ 0x0064, "Return EAHandle,Close Handle on Error,Information Level 6" ],
+	[ 0x0065, "Return NetWareHandle,Close Handle on Error,Information Level 6" ],
 	[ 0x0066, "Return Volume/Directory Number,Close Handle on Error,Information Level 6" ],
-	[ 0x0070, "Return EAHandle/Reserved,Information Level 7" ],
-	[ 0x0071, "Return NetWareHandle/Reserved,Information Level 7" ],
+	[ 0x0070, "Return EAHandle,Information Level 7" ],
+	[ 0x0071, "Return NetWareHandle,Information Level 7" ],
 	[ 0x0072, "Return Volume/Directory Number,Information Level 7" ],
-	[ 0x0074, "Return EAHandle/Reserved,Close Handle on Error,Information Level 7" ],
-	[ 0x0075, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 7" ],
+	[ 0x0074, "Return EAHandle,Close Handle on Error,Information Level 7" ],
+	[ 0x0075, "Return NetWareHandle,Close Handle on Error,Information Level 7" ],
 	[ 0x0076, "Return Volume/Directory Number,Close Handle on Error,Information Level 7" ],
-	[ 0x0080, "Return EAHandle/Reserved,Information Level 0,Immediate Close Handle" ],
-	[ 0x0081, "Return NetWareHandle/Reserved,Information Level 0,Immediate Close Handle" ],
+	[ 0x0080, "Return EAHandle,Information Level 0,Immediate Close Handle" ],
+	[ 0x0081, "Return NetWareHandle,Information Level 0,Immediate Close Handle" ],
 	[ 0x0082, "Return Volume/Directory Number,Information Level 0,Immediate Close Handle" ],
-	[ 0x0084, "Return EAHandle/Reserved,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
-	[ 0x0085, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
+	[ 0x0084, "Return EAHandle,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
+	[ 0x0085, "Return NetWareHandle,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
 	[ 0x0086, "Return Volume/Directory Number,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
-	[ 0x0090, "Return EAHandle/Reserved,Information Level 1,Immediate Close Handle" ],
-	[ 0x0091, "Return NetWareHandle/Reserved,Information Level 1,Immediate Close Handle" ],
+	[ 0x0090, "Return EAHandle,Information Level 1,Immediate Close Handle" ],
+	[ 0x0091, "Return NetWareHandle,Information Level 1,Immediate Close Handle" ],
 	[ 0x0092, "Return Volume/Directory Number,Information Level 1,Immediate Close Handle" ],
-	[ 0x0094, "Return EAHandle/Reserved,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
-	[ 0x0095, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
+	[ 0x0094, "Return EAHandle,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
+	[ 0x0095, "Return NetWareHandle,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
 	[ 0x0096, "Return Volume/Directory Number,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
-	[ 0x00a0, "Return EAHandle/Reserved,Information Level 2,Immediate Close Handle" ],
-	[ 0x00a1, "Return NetWareHandle/Reserved,Information Level 2,Immediate Close Handle" ],
+	[ 0x00a0, "Return EAHandle,Information Level 2,Immediate Close Handle" ],
+	[ 0x00a1, "Return NetWareHandle,Information Level 2,Immediate Close Handle" ],
 	[ 0x00a2, "Return Volume/Directory Number,Information Level 2,Immediate Close Handle" ],
-	[ 0x00a4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
-	[ 0x00a5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
+	[ 0x00a4, "Return EAHandle,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
+	[ 0x00a5, "Return NetWareHandle,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
 	[ 0x00a6, "Return Volume/Directory Number,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
-	[ 0x00b0, "Return EAHandle/Reserved,Information Level 3,Immediate Close Handle" ],
-	[ 0x00b1, "Return NetWareHandle/Reserved,Information Level 3,Immediate Close Handle" ],
+	[ 0x00b0, "Return EAHandle,Information Level 3,Immediate Close Handle" ],
+	[ 0x00b1, "Return NetWareHandle,Information Level 3,Immediate Close Handle" ],
 	[ 0x00b2, "Return Volume/Directory Number,Information Level 3,Immediate Close Handle" ],
-	[ 0x00b4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
-	[ 0x00b5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
+	[ 0x00b4, "Return EAHandle,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
+	[ 0x00b5, "Return NetWareHandle,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
 	[ 0x00b6, "Return Volume/Directory Number,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
-	[ 0x00c0, "Return EAHandle/Reserved,Information Level 4,Immediate Close Handle" ],
-	[ 0x00c1, "Return NetWareHandle/Reserved,Information Level 4,Immediate Close Handle" ],
+	[ 0x00c0, "Return EAHandle,Information Level 4,Immediate Close Handle" ],
+	[ 0x00c1, "Return NetWareHandle,Information Level 4,Immediate Close Handle" ],
 	[ 0x00c2, "Return Volume/Directory Number,Information Level 4,Immediate Close Handle" ],
-	[ 0x00c4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
-	[ 0x00c5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
+	[ 0x00c4, "Return EAHandle,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
+	[ 0x00c5, "Return NetWareHandle,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
 	[ 0x00c6, "Return Volume/Directory Number,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
-	[ 0x00d0, "Return EAHandle/Reserved,Information Level 5,Immediate Close Handle" ],
-	[ 0x00d1, "Return NetWareHandle/Reserved,Information Level 5,Immediate Close Handle" ],
+	[ 0x00d0, "Return EAHandle,Information Level 5,Immediate Close Handle" ],
+	[ 0x00d1, "Return NetWareHandle,Information Level 5,Immediate Close Handle" ],
 	[ 0x00d2, "Return Volume/Directory Number,Information Level 5,Immediate Close Handle" ],
-	[ 0x00d4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
-	[ 0x00d5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
+	[ 0x00d4, "Return EAHandle,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
+	[ 0x00d5, "Return NetWareHandle,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
 	[ 0x00d6, "Return Volume/Directory Number,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
-	[ 0x00e0, "Return EAHandle/Reserved,Information Level 6,Immediate Close Handle" ],
-	[ 0x00e1, "Return NetWareHandle/Reserved,Information Level 6,Immediate Close Handle" ],
+	[ 0x00e0, "Return EAHandle,Information Level 6,Immediate Close Handle" ],
+	[ 0x00e1, "Return NetWareHandle,Information Level 6,Immediate Close Handle" ],
 	[ 0x00e2, "Return Volume/Directory Number,Information Level 6,Immediate Close Handle" ],
-	[ 0x00e4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
-	[ 0x00e5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
+	[ 0x00e4, "Return EAHandle,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
+	[ 0x00e5, "Return NetWareHandle,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
 	[ 0x00e6, "Return Volume/Directory Number,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
-	[ 0x00f0, "Return EAHandle/Reserved,Information Level 7,Immediate Close Handle" ],
-	[ 0x00f1, "Return NetWareHandle/Reserved,Information Level 7,Immediate Close Handle" ],
+	[ 0x00f0, "Return EAHandle,Information Level 7,Immediate Close Handle" ],
+	[ 0x00f1, "Return NetWareHandle,Information Level 7,Immediate Close Handle" ],
 	[ 0x00f2, "Return Volume/Directory Number,Information Level 7,Immediate Close Handle" ],
-	[ 0x00f4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
-	[ 0x00f5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
+	[ 0x00f4, "Return EAHandle,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
+	[ 0x00f5, "Return NetWareHandle,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
 	[ 0x00f6, "Return Volume/Directory Number,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
 ])
 dstNSIndicator			= val_string16("dst_ns_indicator", "Destination Name Space Indicator", [
@@ -1515,101 +1556,101 @@ EAErrorCodes			= val_string16("ea_error_codes", "EA Error Codes", [
 	[ 0x00dd, "ERR_TALLY_CORRUPT" ],
 ])
 EAFlags				= val_string16("ea_flags", "EA Flags", [
-	[ 0x0000, "Return EAHandle/Reserved,Information Level 0" ],
-	[ 0x0001, "Return NetWareHandle/Reserved,Information Level 0" ],
+	[ 0x0000, "Return EAHandle,Information Level 0" ],
+	[ 0x0001, "Return NetWareHandle,Information Level 0" ],
 	[ 0x0002, "Return Volume/Directory Number,Information Level 0" ],
-	[ 0x0004, "Return EAHandle/Reserved,Close Handle on Error,Information Level 0" ],
-	[ 0x0005, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 0" ],
+	[ 0x0004, "Return EAHandle,Close Handle on Error,Information Level 0" ],
+	[ 0x0005, "Return NetWareHandle,Close Handle on Error,Information Level 0" ],
 	[ 0x0006, "Return Volume/Directory Number,Close Handle on Error,Information Level 0" ],
-	[ 0x0010, "Return EAHandle/Reserved,Information Level 1" ],
-	[ 0x0011, "Return NetWareHandle/Reserved,Information Level 1" ],
+	[ 0x0010, "Return EAHandle,Information Level 1" ],
+	[ 0x0011, "Return NetWareHandle,Information Level 1" ],
 	[ 0x0012, "Return Volume/Directory Number,Information Level 1" ],
-	[ 0x0014, "Return EAHandle/Reserved,Close Handle on Error,Information Level 1" ],
-	[ 0x0015, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 1" ],
+	[ 0x0014, "Return EAHandle,Close Handle on Error,Information Level 1" ],
+	[ 0x0015, "Return NetWareHandle,Close Handle on Error,Information Level 1" ],
 	[ 0x0016, "Return Volume/Directory Number,Close Handle on Error,Information Level 1" ],
-	[ 0x0020, "Return EAHandle/Reserved,Information Level 2" ],
-	[ 0x0021, "Return NetWareHandle/Reserved,Information Level 2" ],
+	[ 0x0020, "Return EAHandle,Information Level 2" ],
+	[ 0x0021, "Return NetWareHandle,Information Level 2" ],
 	[ 0x0022, "Return Volume/Directory Number,Information Level 2" ],
-	[ 0x0024, "Return EAHandle/Reserved,Close Handle on Error,Information Level 2" ],
-	[ 0x0025, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 2" ],
+	[ 0x0024, "Return EAHandle,Close Handle on Error,Information Level 2" ],
+	[ 0x0025, "Return NetWareHandle,Close Handle on Error,Information Level 2" ],
 	[ 0x0026, "Return Volume/Directory Number,Close Handle on Error,Information Level 2" ],
-	[ 0x0030, "Return EAHandle/Reserved,Information Level 3" ],
-	[ 0x0031, "Return NetWareHandle/Reserved,Information Level 3" ],
+	[ 0x0030, "Return EAHandle,Information Level 3" ],
+	[ 0x0031, "Return NetWareHandle,Information Level 3" ],
 	[ 0x0032, "Return Volume/Directory Number,Information Level 3" ],
-	[ 0x0034, "Return EAHandle/Reserved,Close Handle on Error,Information Level 3" ],
-	[ 0x0035, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 3" ],
+	[ 0x0034, "Return EAHandle,Close Handle on Error,Information Level 3" ],
+	[ 0x0035, "Return NetWareHandle,Close Handle on Error,Information Level 3" ],
 	[ 0x0036, "Return Volume/Directory Number,Close Handle on Error,Information Level 3" ],
-	[ 0x0040, "Return EAHandle/Reserved,Information Level 4" ],
-	[ 0x0041, "Return NetWareHandle/Reserved,Information Level 4" ],
+	[ 0x0040, "Return EAHandle,Information Level 4" ],
+	[ 0x0041, "Return NetWareHandle,Information Level 4" ],
 	[ 0x0042, "Return Volume/Directory Number,Information Level 4" ],
-	[ 0x0044, "Return EAHandle/Reserved,Close Handle on Error,Information Level 4" ],
-	[ 0x0045, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 4" ],
+	[ 0x0044, "Return EAHandle,Close Handle on Error,Information Level 4" ],
+	[ 0x0045, "Return NetWareHandle,Close Handle on Error,Information Level 4" ],
 	[ 0x0046, "Return Volume/Directory Number,Close Handle on Error,Information Level 4" ],
-	[ 0x0050, "Return EAHandle/Reserved,Information Level 5" ],
-	[ 0x0051, "Return NetWareHandle/Reserved,Information Level 5" ],
+	[ 0x0050, "Return EAHandle,Information Level 5" ],
+	[ 0x0051, "Return NetWareHandle,Information Level 5" ],
 	[ 0x0052, "Return Volume/Directory Number,Information Level 5" ],
-	[ 0x0054, "Return EAHandle/Reserved,Close Handle on Error,Information Level 5" ],
-	[ 0x0055, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 5" ],
+	[ 0x0054, "Return EAHandle,Close Handle on Error,Information Level 5" ],
+	[ 0x0055, "Return NetWareHandle,Close Handle on Error,Information Level 5" ],
 	[ 0x0056, "Return Volume/Directory Number,Close Handle on Error,Information Level 5" ],
-	[ 0x0060, "Return EAHandle/Reserved,Information Level 6" ],
-	[ 0x0061, "Return NetWareHandle/Reserved,Information Level 6" ],
+	[ 0x0060, "Return EAHandle,Information Level 6" ],
+	[ 0x0061, "Return NetWareHandle,Information Level 6" ],
 	[ 0x0062, "Return Volume/Directory Number,Information Level 6" ],
-	[ 0x0064, "Return EAHandle/Reserved,Close Handle on Error,Information Level 6" ],
-	[ 0x0065, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 6" ],
+	[ 0x0064, "Return EAHandle,Close Handle on Error,Information Level 6" ],
+	[ 0x0065, "Return NetWareHandle,Close Handle on Error,Information Level 6" ],
 	[ 0x0066, "Return Volume/Directory Number,Close Handle on Error,Information Level 6" ],
-	[ 0x0070, "Return EAHandle/Reserved,Information Level 7" ],
-	[ 0x0071, "Return NetWareHandle/Reserved,Information Level 7" ],
+	[ 0x0070, "Return EAHandle,Information Level 7" ],
+	[ 0x0071, "Return NetWareHandle,Information Level 7" ],
 	[ 0x0072, "Return Volume/Directory Number,Information Level 7" ],
-	[ 0x0074, "Return EAHandle/Reserved,Close Handle on Error,Information Level 7" ],
-	[ 0x0075, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 7" ],
+	[ 0x0074, "Return EAHandle,Close Handle on Error,Information Level 7" ],
+	[ 0x0075, "Return NetWareHandle,Close Handle on Error,Information Level 7" ],
 	[ 0x0076, "Return Volume/Directory Number,Close Handle on Error,Information Level 7" ],
-	[ 0x0080, "Return EAHandle/Reserved,Information Level 0,Immediate Close Handle" ],
-	[ 0x0081, "Return NetWareHandle/Reserved,Information Level 0,Immediate Close Handle" ],
+	[ 0x0080, "Return EAHandle,Information Level 0,Immediate Close Handle" ],
+	[ 0x0081, "Return NetWareHandle,Information Level 0,Immediate Close Handle" ],
 	[ 0x0082, "Return Volume/Directory Number,Information Level 0,Immediate Close Handle" ],
-	[ 0x0084, "Return EAHandle/Reserved,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
-	[ 0x0085, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
+	[ 0x0084, "Return EAHandle,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
+	[ 0x0085, "Return NetWareHandle,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
 	[ 0x0086, "Return Volume/Directory Number,Close Handle on Error,Information Level 0,Immediate Close Handle" ],
-	[ 0x0090, "Return EAHandle/Reserved,Information Level 1,Immediate Close Handle" ],
-	[ 0x0091, "Return NetWareHandle/Reserved,Information Level 1,Immediate Close Handle" ],
+	[ 0x0090, "Return EAHandle,Information Level 1,Immediate Close Handle" ],
+	[ 0x0091, "Return NetWareHandle,Information Level 1,Immediate Close Handle" ],
 	[ 0x0092, "Return Volume/Directory Number,Information Level 1,Immediate Close Handle" ],
-	[ 0x0094, "Return EAHandle/Reserved,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
-	[ 0x0095, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
+	[ 0x0094, "Return EAHandle,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
+	[ 0x0095, "Return NetWareHandle,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
 	[ 0x0096, "Return Volume/Directory Number,Close Handle on Error,Information Level 1,Immediate Close Handle" ],
-	[ 0x00a0, "Return EAHandle/Reserved,Information Level 2,Immediate Close Handle" ],
-	[ 0x00a1, "Return NetWareHandle/Reserved,Information Level 2,Immediate Close Handle" ],
+	[ 0x00a0, "Return EAHandle,Information Level 2,Immediate Close Handle" ],
+	[ 0x00a1, "Return NetWareHandle,Information Level 2,Immediate Close Handle" ],
 	[ 0x00a2, "Return Volume/Directory Number,Information Level 2,Immediate Close Handle" ],
-	[ 0x00a4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
-	[ 0x00a5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
+	[ 0x00a4, "Return EAHandle,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
+	[ 0x00a5, "Return NetWareHandle,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
 	[ 0x00a6, "Return Volume/Directory Number,Close Handle on Error,Information Level 2,Immediate Close Handle" ],
-	[ 0x00b0, "Return EAHandle/Reserved,Information Level 3,Immediate Close Handle" ],
-	[ 0x00b1, "Return NetWareHandle/Reserved,Information Level 3,Immediate Close Handle" ],
+	[ 0x00b0, "Return EAHandle,Information Level 3,Immediate Close Handle" ],
+	[ 0x00b1, "Return NetWareHandle,Information Level 3,Immediate Close Handle" ],
 	[ 0x00b2, "Return Volume/Directory Number,Information Level 3,Immediate Close Handle" ],
-	[ 0x00b4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
-	[ 0x00b5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
+	[ 0x00b4, "Return EAHandle,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
+	[ 0x00b5, "Return NetWareHandle,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
 	[ 0x00b6, "Return Volume/Directory Number,Close Handle on Error,Information Level 3,Immediate Close Handle" ],
-	[ 0x00c0, "Return EAHandle/Reserved,Information Level 4,Immediate Close Handle" ],
-	[ 0x00c1, "Return NetWareHandle/Reserved,Information Level 4,Immediate Close Handle" ],
+	[ 0x00c0, "Return EAHandle,Information Level 4,Immediate Close Handle" ],
+	[ 0x00c1, "Return NetWareHandle,Information Level 4,Immediate Close Handle" ],
 	[ 0x00c2, "Return Volume/Directory Number,Information Level 4,Immediate Close Handle" ],
-	[ 0x00c4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
-	[ 0x00c5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
+	[ 0x00c4, "Return EAHandle,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
+	[ 0x00c5, "Return NetWareHandle,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
 	[ 0x00c6, "Return Volume/Directory Number,Close Handle on Error,Information Level 4,Immediate Close Handle" ],
-	[ 0x00d0, "Return EAHandle/Reserved,Information Level 5,Immediate Close Handle" ],
-	[ 0x00d1, "Return NetWareHandle/Reserved,Information Level 5,Immediate Close Handle" ],
+	[ 0x00d0, "Return EAHandle,Information Level 5,Immediate Close Handle" ],
+	[ 0x00d1, "Return NetWareHandle,Information Level 5,Immediate Close Handle" ],
 	[ 0x00d2, "Return Volume/Directory Number,Information Level 5,Immediate Close Handle" ],
-	[ 0x00d4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
-	[ 0x00d5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
+	[ 0x00d4, "Return EAHandle,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
+	[ 0x00d5, "Return NetWareHandle,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
 	[ 0x00d6, "Return Volume/Directory Number,Close Handle on Error,Information Level 5,Immediate Close Handle" ],
-	[ 0x00e0, "Return EAHandle/Reserved,Information Level 6,Immediate Close Handle" ],
-	[ 0x00e1, "Return NetWareHandle/Reserved,Information Level 6,Immediate Close Handle" ],
+	[ 0x00e0, "Return EAHandle,Information Level 6,Immediate Close Handle" ],
+	[ 0x00e1, "Return NetWareHandle,Information Level 6,Immediate Close Handle" ],
 	[ 0x00e2, "Return Volume/Directory Number,Information Level 6,Immediate Close Handle" ],
-	[ 0x00e4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
-	[ 0x00e5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
+	[ 0x00e4, "Return EAHandle,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
+	[ 0x00e5, "Return NetWareHandle,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
 	[ 0x00e6, "Return Volume/Directory Number,Close Handle on Error,Information Level 6,Immediate Close Handle" ],
-	[ 0x00f0, "Return EAHandle/Reserved,Information Level 7,Immediate Close Handle" ],
-	[ 0x00f1, "Return NetWareHandle/Reserved,Information Level 7,Immediate Close Handle" ],
+	[ 0x00f0, "Return EAHandle,Information Level 7,Immediate Close Handle" ],
+	[ 0x00f1, "Return NetWareHandle,Information Level 7,Immediate Close Handle" ],
 	[ 0x00f2, "Return Volume/Directory Number,Information Level 7,Immediate Close Handle" ],
-	[ 0x00f4, "Return EAHandle/Reserved,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
-	[ 0x00f5, "Return NetWareHandle/Reserved,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
+	[ 0x00f4, "Return EAHandle,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
+	[ 0x00f5, "Return NetWareHandle,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
 	[ 0x00f6, "Return Volume/Directory Number,Close Handle on Error,Information Level 7,Immediate Close Handle" ],
 ])
 EAHandle			= uint32("ea_handle", "EA Handle")
@@ -1630,6 +1671,17 @@ EffectiveRights 		= bitfield8("effective_rights", "Effective Rights", [
 	bf_boolean8(0x40, "effective_rights_search", "Search Rights"),
 	bf_boolean8(0x80, "effective_rights_modify", "Modify Rights"),
 ])
+EnumInfoMask  		        = bitfield8("enum_info_mask", "Return Information Mask", [
+	bf_boolean8(0x01, "enum_info_transport", "Transport Information"),
+	bf_boolean8(0x02, "enum_info_time", "Time Information"),
+	bf_boolean8(0x04, "enum_info_name", "Name Information"),
+	bf_boolean8(0x08, "enum_info_lock", "Lock Information"),
+	bf_boolean8(0x10, "enum_info_print", "Print Information"),
+	bf_boolean8(0x20, "enum_info_stats", "Statistical Information"),
+	bf_boolean8(0x40, "enum_info_account", "Accounting Information"),
+	bf_boolean8(0x80, "enum_info_auth", "Authentication Information"),
+])
+
 eventOffset 			= bytes("event_offset", "Event Offset", 8)
 eventOffset.Display("BASE_HEX")
 eventTime 			= uint32("event_time", "Event Time")
@@ -1639,8 +1691,8 @@ ExpirationTime.Display('BASE_HEX')
 ExtAttrDataSize 		= uint32("ext_attr_data_size", "Extended Attributes Data Size")
 ExtAttrCount			= uint32("ext_attr_count", "Extended Attributes Count")
 ExtAttrKeySize			= uint32("ext_attr_key_size", "Extended Attributes Key Size")
-ExtendedAttributesDefined	= uint32("extended_attributes_defined", "Extended Attributes Defined")
-ExtendedAttributeExtantsUsed	= uint32("extended_attribute_extants_used", "Extended Attribute Extants Used")
+ExtendedAttributesDefined	= uint32("extended_attributes_defined", "Extended Attributes Defined", LE)
+ExtendedAttributeExtantsUsed	= uint32("extended_attribute_extants_used", "Extended Attribute Extants Used", LE)
 ExtendedInfoHigh	 	= bitfield8("ext_info_high", "Extended Information", [
 	bf_boolean8(0x01, "ext_info_l_access", "Last Access"),
 	bf_boolean8(0x80, "ext_info_newstyle", "New Style"),
@@ -1655,6 +1707,7 @@ ExtendedInfoLow  		= bitfield8("ext_info_low", "Extended Information", [
 	bf_boolean8(0x40, "ext_info_l_effective", "Effective"),
 	bf_boolean8(0x80, "ext_info_l_mac_date", "MAC Date"),
 ])
+ExtRouterActiveFlag             = boolean8("ext_router_active_flag", "External Router Active Flag")
 
 FailedAllocReqCnt		= uint32("failed_alloc_req", "Failed Alloc Request Count")
 FatalFATWriteErrors		= uint16("fatal_fat_write_errors", "Fatal FAT Write Errors")
@@ -1680,125 +1733,126 @@ FileExtendedAttributes 		= val_string8("file_ext_attr", "File Extended Attribute
 	[ 0x0a, "Shell Default Search Mode/Indexed" ],
 	[ 0x0b, "Search On All Opens With No Path/Indexed" ],
 	[ 0x0c, "Do Not Search/Indexed" ],
-	[ 0x0d, "Reserved/Indexed" ],
+	[ 0x0d, "Indexed" ],
 	[ 0x0e, "Search On All Opens/Indexed" ],
-	[ 0x0f, "Reserved/Indexed" ],
+	[ 0x0f, "Indexed" ],
 	[ 0x10, "Search On All Read Only Opens/Transactional" ],
 	[ 0x11, "Search On Read Only Opens With No Path/Transactional" ],
 	[ 0x12, "Shell Default Search Mode/Transactional" ],
 	[ 0x13, "Search On All Opens With No Path/Transactional" ],
 	[ 0x14, "Do Not Search/Transactional" ],
-	[ 0x15, "Reserved/Transactional" ],
+	[ 0x15, "Transactional" ],
 	[ 0x16, "Search On All Opens/Transactional" ],
-	[ 0x17, "Reserved/Transactional" ],
+	[ 0x17, "Transactional" ],
 	[ 0x18, "Search On All Read Only Opens/Indexed/Transactional" ],
 	[ 0x19, "Search On Read Only Opens With No Path/Indexed/Transactional" ],
 	[ 0x1a, "Shell Default Search Mode/Indexed/Transactional" ],
 	[ 0x1b, "Search On All Opens With No Path/Indexed/Transactional" ],
 	[ 0x1c, "Do Not Search/Indexed/Transactional" ],
-	[ 0x1d, "Reserved/Indexed/Transactional" ],
+	[ 0x1d, "Indexed/Transactional" ],
 	[ 0x1e, "Search On All Opens/Indexed/Transactional" ],
-	[ 0x1f, "Reserved/Indexed/Transactional" ],
+	[ 0x1f, "Indexed/Transactional" ],
 	[ 0x40, "Search On All Read Only Opens/Read Audit" ],
 	[ 0x41, "Search On Read Only Opens With No Path/Read Audit" ],
 	[ 0x42, "Shell Default Search Mode/Read Audit" ],
 	[ 0x43, "Search On All Opens With No Path/Read Audit" ],
 	[ 0x44, "Do Not Search/Read Audit" ],
-	[ 0x45, "Reserved/Read Audit" ],
+	[ 0x45, "Read Audit" ],
 	[ 0x46, "Search On All Opens/Read Audit" ],
-	[ 0x47, "Reserved/Read Audit" ],
+	[ 0x47, "Read Audit" ],
 	[ 0x48, "Search On All Read Only Opens/Indexed/Read Audit" ],
 	[ 0x49, "Search On Read Only Opens With No Path/Indexed/Read Audit" ],
 	[ 0x4a, "Shell Default Search Mode/Indexed/Read Audit" ],
 	[ 0x4b, "Search On All Opens With No Path/Indexed/Read Audit" ],
 	[ 0x4c, "Do Not Search/Indexed/Read Audit" ],
-	[ 0x4d, "Reserved/Indexed/Read Audit" ],
+	[ 0x4d, "Indexed/Read Audit" ],
 	[ 0x4e, "Search On All Opens/Indexed/Read Audit" ],
-	[ 0x4f, "Reserved/Indexed/Read Audit" ],
+	[ 0x4f, "Indexed/Read Audit" ],
 	[ 0x50, "Search On All Read Only Opens/Transactional/Read Audit" ],
 	[ 0x51, "Search On Read Only Opens With No Path/Transactional/Read Audit" ],
 	[ 0x52, "Shell Default Search Mode/Transactional/Read Audit" ],
 	[ 0x53, "Search On All Opens With No Path/Transactional/Read Audit" ],
 	[ 0x54, "Do Not Search/Transactional/Read Audit" ],
-	[ 0x55, "Reserved/Transactional/Read Audit" ],
+	[ 0x55, "Transactional/Read Audit" ],
 	[ 0x56, "Search On All Opens/Transactional/Read Audit" ],
-	[ 0x57, "Reserved/Transactional/Read Audit" ],
+	[ 0x57, "Transactional/Read Audit" ],
 	[ 0x58, "Search On All Read Only Opens/Indexed/Transactional/Read Audit" ],
 	[ 0x59, "Search On Read Only Opens With No Path/Indexed/Transactional/Read Audit" ],
 	[ 0x5a, "Shell Default Search Mode/Indexed/Transactional/Read Audit" ],
 	[ 0x5b, "Search On All Opens With No Path/Indexed/Transactional/Read Audit" ],
 	[ 0x5c, "Do Not Search/Indexed/Transactional/Read Audit" ],
-	[ 0x5d, "Reserved/Indexed/Transactional/Read Audit" ],
+	[ 0x5d, "Indexed/Transactional/Read Audit" ],
 	[ 0x5e, "Search On All Opens/Indexed/Transactional/Read Audit" ],
-	[ 0x5f, "Reserved/Indexed/Transactional/Read Audit" ],
+	[ 0x5f, "Indexed/Transactional/Read Audit" ],
 	[ 0x80, "Search On All Read Only Opens/Write Audit" ],
 	[ 0x81, "Search On Read Only Opens With No Path/Write Audit" ],
 	[ 0x82, "Shell Default Search Mode/Write Audit" ],
 	[ 0x83, "Search On All Opens With No Path/Write Audit" ],
 	[ 0x84, "Do Not Search/Write Audit" ],
-	[ 0x85, "Reserved/Write Audit" ],
+	[ 0x85, "Write Audit" ],
 	[ 0x86, "Search On All Opens/Write Audit" ],
-	[ 0x87, "Reserved/Write Audit" ],
+	[ 0x87, "Write Audit" ],
 	[ 0x88, "Search On All Read Only Opens/Indexed/Write Audit" ],
 	[ 0x89, "Search On Read Only Opens With No Path/Indexed/Write Audit" ],
 	[ 0x8a, "Shell Default Search Mode/Indexed/Write Audit" ],
 	[ 0x8b, "Search On All Opens With No Path/Indexed/Write Audit" ],
 	[ 0x8c, "Do Not Search/Indexed/Write Audit" ],
-	[ 0x8d, "Reserved/Indexed/Write Audit" ],
+	[ 0x8d, "Indexed/Write Audit" ],
 	[ 0x8e, "Search On All Opens/Indexed/Write Audit" ],
-	[ 0x8f, "Reserved/Indexed/Write Audit" ],
+	[ 0x8f, "Indexed/Write Audit" ],
 	[ 0x90, "Search On All Read Only Opens/Transactional/Write Audit" ],
 	[ 0x91, "Search On Read Only Opens With No Path/Transactional/Write Audit" ],
 	[ 0x92, "Shell Default Search Mode/Transactional/Write Audit" ],
 	[ 0x93, "Search On All Opens With No Path/Transactional/Write Audit" ],
 	[ 0x94, "Do Not Search/Transactional/Write Audit" ],
-	[ 0x95, "Reserved/Transactional/Write Audit" ],
+	[ 0x95, "Transactional/Write Audit" ],
 	[ 0x96, "Search On All Opens/Transactional/Write Audit" ],
-	[ 0x97, "Reserved/Transactional/Write Audit" ],
+	[ 0x97, "Transactional/Write Audit" ],
 	[ 0x98, "Search On All Read Only Opens/Indexed/Transactional/Write Audit" ],
 	[ 0x99, "Search On Read Only Opens With No Path/Indexed/Transactional/Write Audit" ],
 	[ 0x9a, "Shell Default Search Mode/Indexed/Transactional/Write Audit" ],
 	[ 0x9b, "Search On All Opens With No Path/Indexed/Transactional/Write Audit" ],
 	[ 0x9c, "Do Not Search/Indexed/Transactional/Write Audit" ],
-	[ 0x9d, "Reserved/Indexed/Transactional/Write Audit" ],
+	[ 0x9d, "Indexed/Transactional/Write Audit" ],
 	[ 0x9e, "Search On All Opens/Indexed/Transactional/Write Audit" ],
-	[ 0x9f, "Reserved/Indexed/Transactional/Write Audit" ],
+	[ 0x9f, "Indexed/Transactional/Write Audit" ],
 	[ 0xa0, "Search On All Read Only Opens/Read Audit/Write Audit" ],
 	[ 0xa1, "Search On Read Only Opens With No Path/Read Audit/Write Audit" ],
 	[ 0xa2, "Shell Default Search Mode/Read Audit/Write Audit" ],
 	[ 0xa3, "Search On All Opens With No Path/Read Audit/Write Audit" ],
 	[ 0xa4, "Do Not Search/Read Audit/Write Audit" ],
-	[ 0xa5, "Reserved/Read Audit/Write Audit" ],
+	[ 0xa5, "Read Audit/Write Audit" ],
 	[ 0xa6, "Search On All Opens/Read Audit/Write Audit" ],
-	[ 0xa7, "Reserved/Read Audit/Write Audit" ],
+	[ 0xa7, "Read Audit/Write Audit" ],
 	[ 0xa8, "Search On All Read Only Opens/Indexed/Read Audit/Write Audit" ],
 	[ 0xa9, "Search On Read Only Opens With No Path/Indexed/Read Audit/Write Audit" ],
 	[ 0xaa, "Shell Default Search Mode/Indexed/Read Audit/Write Audit" ],
 	[ 0xab, "Search On All Opens With No Path/Indexed/Read Audit/Write Audit" ],
 	[ 0xac, "Do Not Search/Indexed/Read Audit/Write Audit" ],
-	[ 0xad, "Reserved/Indexed/Read Audit/Write Audit" ],
+	[ 0xad, "Indexed/Read Audit/Write Audit" ],
 	[ 0xae, "Search On All Opens/Indexed/Read Audit/Write Audit" ],
-	[ 0xaf, "Reserved/Indexed/Read Audit/Write Audit" ],
+	[ 0xaf, "Indexed/Read Audit/Write Audit" ],
 	[ 0xb0, "Search On All Read Only Opens/Transactional/Read Audit/Write Audit" ],
 	[ 0xb1, "Search On Read Only Opens With No Path/Transactional/Read Audit/Write Audit" ],
 	[ 0xb2, "Shell Default Search Mode/Transactional/Read Audit/Write Audit" ],
 	[ 0xb3, "Search On All Opens With No Path/Transactional/Read Audit/Write Audit" ],
 	[ 0xb4, "Do Not Search/Transactional/Read Audit/Write Audit" ],
-	[ 0xb5, "Reserved/Transactional/Read Audit/Write Audit" ],
+	[ 0xb5, "Transactional/Read Audit/Write Audit" ],
 	[ 0xb6, "Search On All Opens/Transactional/Read Audit/Write Audit" ],
-	[ 0xb7, "Reserved/Transactional/Read Audit/Write Audit" ],
+	[ 0xb7, "Transactional/Read Audit/Write Audit" ],
 	[ 0xb8, "Search On All Read Only Opens/Indexed/Transactional/Read Audit/Write Audit" ],
 	[ 0xb9, "Search On Read Only Opens With No Path/Indexed/Transactional/Read Audit/Write Audit" ],
 	[ 0xba, "Shell Default Search Mode/Indexed/Transactional/Read Audit/Write Audit" ],
 	[ 0xbb, "Search On All Opens With No Path/Indexed/Transactional/Read Audit/Write Audit" ],
 	[ 0xbc, "Do Not Search/Indexed/Transactional/Read Audit/Write Audit" ],
-	[ 0xbd, "Reserved/Indexed/Transactional/Read Audit/Write Audit" ],
+	[ 0xbd, "Indexed/Transactional/Read Audit/Write Audit" ],
 	[ 0xbe, "Search On All Opens/Indexed/Transactional/Read Audit/Write Audit" ],
-	[ 0xbf, "Reserved/Indexed/Transactional/Read Audit/Write Audit" ],
+	[ 0xbf, "Indexed/Transactional/Read Audit/Write Audit" ],
 ])
-
+fileFlags                       = uint32("file_flags", "File Flags", LE)
 FileHandle			= bytes("file_handle", "File Handle", 6)
 FileLimbo 			= uint32("file_limbo", "File Limbo")
+FileListCount                   = uint32("file_list_count", "File List Count", LE)
 FileLock			= val_string8("file_lock", "File Lock", [
 	[ 0x00, "Not Locked" ],
 	[ 0xfe, "Locked by file lock" ],
@@ -1816,13 +1870,13 @@ FileSize			= uint32("file_size", "File Size")
 FileSystemID			= uint8("file_system_id", "File System ID")
 FileTime			= uint16("file_time", "File Time")
 FileWriteFlags			= val_string8("file_write_flags", "File Write Flags", [
-				[ 0x01, "Writing" ],
-				[ 0x02, "Write aborted" ],
+	[ 0x01, "Writing" ],
+	[ 0x02, "Write aborted" ],
 ])
 FileWriteState			= val_string8("file_write_state", "File Write State", [
-				[ 0x00, "Not Writing" ],
-				[ 0x01, "Write in Progress" ],
-				[ 0x02, "Write Being Stopped" ],
+	[ 0x00, "Not Writing" ],
+	[ 0x01, "Write in Progress" ],
+	[ 0x02, "Write Being Stopped" ],
 ])
 Filler				= uint8("filler", "Filler")
 FinderAttrHigh			= bitfield8("finder_attr_high", "Finder Info Attributes (byte 2)", [
@@ -1857,9 +1911,9 @@ FraggerHandle			= uint32("fragger_handle", "Fragment Handle")
 FraggerHandle.Display('BASE_HEX')
 FragmentWriteOccurred		= uint16("fragment_write_occurred", "Fragment Write Occurred")
 FragSize			= uint32("frag_size", "Fragment Size")
-FreeableLimboSectors		= uint32("freeable_limbo_sectors", "Freeable Limbo Sectors")
+FreeableLimboSectors		= uint32("freeable_limbo_sectors", "Freeable Limbo Sectors", LE)
 FreeBlocks			= uint32("free_blocks", "Free Blocks")
-FreedClusters			= uint32("freed_clusters", "Freed Clusters")
+FreedClusters			= uint32("freed_clusters", "Freed Clusters", LE)
 FreeDirectoryEntries 		= uint16("free_directory_entries", "Free Directory Entries")
 FSEngineFlag			= boolean8("fs_engine_flag", "FS Engine Flag")
 FullName			= fw_string("full_name", "Full Name", 39)
@@ -1886,11 +1940,14 @@ HandleInfoLevel			= val_string8("handle_info_level", "Handle Info Level", [
 ])
 HeldBytesRead 			= bytes("held_bytes_read", "Held Bytes Read", 6)
 HeldBytesWritten		= bytes("held_bytes_write", "Held Bytes Written", 6)
+HeldConnectTimeInMinutes        = uint32("held_conn_time", "Held Connect Time in Minutes", LE)
 HeldRequests			= uint32("user_info_held_req", "Held Requests", LE)
 HoldAmount			= uint32("hold_amount", "Hold Amount")
 HoldCancelAmount		= uint32("hold_cancel_amount", "Hold Cancel Amount")
 HolderID			= uint32("holder_id", "Holder ID")
 HolderID.Display("BASE_HEX")
+HoldTime                        = uint32("hold_time", "Hold Time", LE)
+HopsToNet                       = uint16("hops_to_net", "Hop Count", LE)
 HorizLocation			= uint16("horiz_location", "Horizontal Location")
 HostAddress			= bytes("host_address", "Host Address", 6)
 HotFixBlocksAvailable 		= uint16("hot_fix_blocks_available", "Hot Fix Blocks Available")
@@ -1907,6 +1964,8 @@ HugeData			= nstring8("huge_data", "Huge Data")
 HugeDataUsed			= uint32("huge_data_used", "Huge Data Used")
 HugeStateInfo			= bytes("huge_state_info", "Huge State Info", 16)
 
+IdentificationNumber		= uint32("identification_number", "Identification Number", LE)
+IgnoredRxPkts                   = uint32("ignored_rx_pkts", "Ignored Receive Packets", LE)
 IncomingPacketDiscardedNoDGroup = uint16("incoming_packet_discarded_no_dgroup", "Incoming Packet Discarded No DGroup")
 InfoCount			= uint16("info_count", "Info Count")
 InfoFlagsLow			= fw_string("info_flags_low", "Not Used", 3)
@@ -1916,6 +1975,10 @@ InfoFlagsHigh			= bitfield8("info_flags_high", "Info Flags", [
 	bf_boolean8(0x40, "info_flags_type", "Return Object Type"),
 	bf_boolean8(0x80, "info_flags_name", "Return Object Name"),
 ])
+InfoLevelNumber                 = val_string8("info_level_num", "Information Level Number", [
+        [ 0x01, "Volume Information Definition" ],
+        [ 0x02, "Volume Information 2 Definition" ],
+])        
 InfoMaskHigh			= bitfield8("info_mask_high", "Information Mask (byte 4)", [
 	bf_boolean8(0x20, "info_mask_dosname", "DOS Name"),
 	bf_boolean8(0x40, "info_mask_c_name_space", "Creator Name Space & Name"),
@@ -1983,7 +2046,8 @@ IPXNotMyNetwork 		= uint16("ipx_not_my_network", "IPX Not My Network")
 ItemsChanged 			= uint32("items_changed", "Items Changed")
 ItemsChecked 			= uint32("items_checked", "Items Checked")
 ItemsCount			= uint32("items_count", "Items Count")
-ItemsInPacket			= uint32("items_in_packet", "Items in Packet")
+itemsInList                     = uint32("items_in_list", "Items in List", LE)
+ItemsInPacket			= uint32("items_in_packet", "Items in Packet", LE)
 
 JobControlFlags			= bitfield8("job_control_flags", "Job Control Flags", [
 	bf_boolean8(0x08, "job_control_job_recovery", "Job Recovery"),
@@ -2002,9 +2066,180 @@ JobNumber			= uint32("job_number", "Job Number")
 JobNumberList			= uint32("job_number_list", "Job Number List")
 JobType				= uint16("job_type", "Job Type")
 
+LANCustomVariablesCount         = uint32("lan_cust_var_count", "LAN Custom Variables Count", LE)
+LANdriverBoardInstance          = uint16("lan_drv_bd_inst", "LAN Driver Board Instance", LE)
+LANdriverBoardNumber            = uint16("lan_drv_bd_num", "LAN Driver Board Number", LE)
+LANdriverCardID                 = uint16("lan_drv_card_id", "LAN Driver Card ID", LE)
+LANdriverCardName               = fw_string("lan_drv_card_name", "LAN Driver Card Name", 28)
+LANdriverCFG_MajorVersion       = uint8("lan_dvr_cfg_major_vrs", "LAN Driver Config - Major Version")
+LANdriverCFG_MinorVersion       = uint8("lan_dvr_cfg_minor_vrs", "LAN Driver Config - Minor Version")
+LANdriverDMAUsage1              = uint8("lan_drv_dma_usage1", "Primary DMA Channel")
+LANdriverDMAUsage2              = uint8("lan_drv_dma_usage2", "Secondary DMA Channel")
+LANdriverFlags                  = uint16("lan_drv_flags", "LAN Driver Flags", LE)
+LANdriverFlags.Display("BASE_HEX")        
+LANdriverInterrupt1             = uint8("lan_drv_interrupt1", "Primary Interrupt Vector")
+LANdriverInterrupt2             = uint8("lan_drv_interrupt2", "Secondary Interrupt Vector")
+LANdriverIOPortsAndRanges1      = uint16("lan_drv_io_ports_and_ranges_1", "Primary Base I/O Port", LE)
+LANdriverIOPortsAndRanges2      = uint16("lan_drv_io_ports_and_ranges_2", "Number of I/O Ports", LE)
+LANdriverIOPortsAndRanges3      = uint16("lan_drv_io_ports_and_ranges_3", "Secondary Base I/O Port", LE)
+LANdriverIOPortsAndRanges4      = uint16("lan_drv_io_ports_and_ranges_4", "Number of I/O Ports", LE)
+LANdriverIOReserved             = bytes("lan_drv_io_reserved", "LAN Driver IO Reserved", 14)
+LANdriverLineSpeed              = uint16("lan_drv_line_speed", "LAN Driver Line Speed", LE)
+LANdriverLink                   = uint32("lan_drv_link", "LAN Driver Link", LE)
+LANdriverLogicalName            = bytes("lan_drv_log_name", "LAN Driver Logical Name", 18)
+LANdriverMajorVersion           = uint8("lan_drv_major_ver", "LAN Driver Major Version")
+LANdriverMaximumSize            = uint32("lan_drv_max_size", "LAN Driver Maximum Size", LE)
+LANdriverMaxRecvSize            = uint32("lan_drv_max_rcv_size", "LAN Driver Maximum Receive Size", LE)
+LANdriverMediaID                = uint16("lan_drv_media_id", "LAN Driver Media ID", LE)
+LANdriverMediaType              = fw_string("lan_drv_media_type", "LAN Driver Media Type", 40)
+LANdriverMemoryDecode0          = uint32("lan_drv_mem_decode_0", "LAN Driver Memory Decode 0", LE)
+LANdriverMemoryDecode1          = uint32("lan_drv_mem_decode_1", "LAN Driver Memory Decode 1", LE)
+LANdriverMemoryLength0          = uint16("lan_drv_mem_length_0", "LAN Driver Memory Length 0", LE)
+LANdriverMemoryLength1          = uint16("lan_drv_mem_length_1", "LAN Driver Memory Length 1", LE)
+LANdriverMinorVersion           = uint8("lan_drv_minor_ver", "LAN Driver Minor Version")
+LANdriverModeFlags		= val_string8("lan_dvr_mode_flags", "LAN Driver Mode Flags", [
+        [0x80, "Canonical Address" ],
+        [0x81, "Canonical Address" ],
+        [0x82, "Canonical Address" ],
+        [0x83, "Canonical Address" ],
+        [0x84, "Canonical Address" ],
+        [0x85, "Canonical Address" ],
+        [0x86, "Canonical Address" ],
+        [0x87, "Canonical Address" ],
+        [0x88, "Canonical Address" ],
+        [0x89, "Canonical Address" ],
+        [0x8a, "Canonical Address" ],
+        [0x8b, "Canonical Address" ],
+        [0x8c, "Canonical Address" ],
+        [0x8d, "Canonical Address" ],
+        [0x8e, "Canonical Address" ],
+        [0x8f, "Canonical Address" ],
+        [0x90, "Canonical Address" ],
+        [0x91, "Canonical Address" ],
+        [0x92, "Canonical Address" ],
+        [0x93, "Canonical Address" ],
+        [0x94, "Canonical Address" ],
+        [0x95, "Canonical Address" ],
+        [0x96, "Canonical Address" ],
+        [0x97, "Canonical Address" ],
+        [0x98, "Canonical Address" ],
+        [0x99, "Canonical Address" ],
+        [0x9a, "Canonical Address" ],
+        [0x9b, "Canonical Address" ],
+        [0x9c, "Canonical Address" ],
+        [0x9d, "Canonical Address" ],
+        [0x9e, "Canonical Address" ],
+        [0x9f, "Canonical Address" ],
+        [0xa0, "Canonical Address" ],
+        [0xa1, "Canonical Address" ],
+        [0xa2, "Canonical Address" ],
+        [0xa3, "Canonical Address" ],
+        [0xa4, "Canonical Address" ],
+        [0xa5, "Canonical Address" ],
+        [0xa6, "Canonical Address" ],
+        [0xa7, "Canonical Address" ],
+        [0xa8, "Canonical Address" ],
+        [0xa9, "Canonical Address" ],
+        [0xaa, "Canonical Address" ],
+        [0xab, "Canonical Address" ],
+        [0xac, "Canonical Address" ],
+        [0xad, "Canonical Address" ],
+        [0xae, "Canonical Address" ],
+        [0xaf, "Canonical Address" ],
+        [0xb0, "Canonical Address" ],
+        [0xb1, "Canonical Address" ],
+        [0xb2, "Canonical Address" ],
+        [0xb3, "Canonical Address" ],
+        [0xb4, "Canonical Address" ],
+        [0xb5, "Canonical Address" ],
+        [0xb6, "Canonical Address" ],
+        [0xb7, "Canonical Address" ],
+        [0xb8, "Canonical Address" ],
+        [0xb9, "Canonical Address" ],
+        [0xba, "Canonical Address" ],
+        [0xbb, "Canonical Address" ],
+        [0xbc, "Canonical Address" ],
+        [0xbd, "Canonical Address" ],
+        [0xbe, "Canonical Address" ],
+        [0xbf, "Canonical Address" ],
+        [0xc0, "Non-Canonical Address" ],
+        [0xc1, "Non-Canonical Address" ],
+        [0xc2, "Non-Canonical Address" ],
+        [0xc3, "Non-Canonical Address" ],
+        [0xc4, "Non-Canonical Address" ],
+        [0xc5, "Non-Canonical Address" ],
+        [0xc6, "Non-Canonical Address" ],
+        [0xc7, "Non-Canonical Address" ],
+        [0xc8, "Non-Canonical Address" ],
+        [0xc9, "Non-Canonical Address" ],
+        [0xca, "Non-Canonical Address" ],
+        [0xcb, "Non-Canonical Address" ],
+        [0xcc, "Non-Canonical Address" ],
+        [0xcd, "Non-Canonical Address" ],
+        [0xce, "Non-Canonical Address" ],
+        [0xcf, "Non-Canonical Address" ],
+        [0xd0, "Non-Canonical Address" ],
+        [0xd1, "Non-Canonical Address" ],
+        [0xd2, "Non-Canonical Address" ],
+        [0xd3, "Non-Canonical Address" ],
+        [0xd4, "Non-Canonical Address" ],
+        [0xd5, "Non-Canonical Address" ],
+        [0xd6, "Non-Canonical Address" ],
+        [0xd7, "Non-Canonical Address" ],
+        [0xd8, "Non-Canonical Address" ],
+        [0xd9, "Non-Canonical Address" ],
+        [0xda, "Non-Canonical Address" ],
+        [0xdb, "Non-Canonical Address" ],
+        [0xdc, "Non-Canonical Address" ],
+        [0xdd, "Non-Canonical Address" ],
+        [0xde, "Non-Canonical Address" ],
+        [0xdf, "Non-Canonical Address" ],
+        [0xe0, "Non-Canonical Address" ],
+        [0xe1, "Non-Canonical Address" ],
+        [0xe2, "Non-Canonical Address" ],
+        [0xe3, "Non-Canonical Address" ],
+        [0xe4, "Non-Canonical Address" ],
+        [0xe5, "Non-Canonical Address" ],
+        [0xe6, "Non-Canonical Address" ],
+        [0xe7, "Non-Canonical Address" ],
+        [0xe8, "Non-Canonical Address" ],
+        [0xe9, "Non-Canonical Address" ],
+        [0xea, "Non-Canonical Address" ],
+        [0xeb, "Non-Canonical Address" ],
+        [0xec, "Non-Canonical Address" ],
+        [0xed, "Non-Canonical Address" ],
+        [0xee, "Non-Canonical Address" ],
+        [0xef, "Non-Canonical Address" ],
+        [0xf0, "Non-Canonical Address" ],
+        [0xf1, "Non-Canonical Address" ],
+        [0xf2, "Non-Canonical Address" ],
+        [0xf3, "Non-Canonical Address" ],
+        [0xf4, "Non-Canonical Address" ],
+        [0xf5, "Non-Canonical Address" ],
+        [0xf6, "Non-Canonical Address" ],
+        [0xf7, "Non-Canonical Address" ],
+        [0xf8, "Non-Canonical Address" ],
+        [0xf9, "Non-Canonical Address" ],
+        [0xfa, "Non-Canonical Address" ],
+        [0xfb, "Non-Canonical Address" ],
+        [0xfc, "Non-Canonical Address" ],
+        [0xfd, "Non-Canonical Address" ],
+        [0xfe, "Non-Canonical Address" ],
+        [0xff, "Non-Canonical Address" ],
+])        
 LANDriverNumber			= uint8("lan_driver_number", "LAN Driver Number")
+LANdriverNodeAddress            = bytes("lan_dvr_node_addr", "LAN Driver Node Address", 6)
+LANdriverRecvSize               = uint32("lan_drv_rcv_size", "LAN Driver Receive Size", LE)
+LANdriverReserved               = uint16("lan_drv_reserved", "LAN Driver Reserved", LE)
+LANdriverSendRetries            = uint16("lan_drv_snd_retries", "LAN Driver Send Retries", LE)
+LANdriverSharingFlags           = uint16("lan_drv_share", "LAN Driver Sharing Flags", LE)
+LANdriverShortName              = fw_string("lan_drv_short_name", "LAN Driver Short Name", 40)
+LANdriverSlot                   = uint16("lan_drv_slot", "LAN Driver Slot", LE)
+LANdriverSrcRouting             = uint32("lan_drv_src_route", "LAN Driver Source Routing", LE)
+LANdriverTransportTime          = uint16("lan_drv_trans_time", "LAN Driver Transport Time", LE)
 LastAccessedDate 		= uint16("last_access_date", "Last Access Date", LE)
 LastAccessedDate.Display("BASE_HEX")
+LastGarbCollect			= uint32("last_garbage_collect", "Last Garbage Collection", LE)
 LastInstance			= uint32("last_instance", "Last Instance")
 LastRecordSeen			= uint16("last_record_seen", "Last Record Seen")
 LastSearchIndex			= uint16("last_search_index", "Search Index")
@@ -2012,7 +2247,7 @@ LastSeen			= uint32("last_seen", "Last Seen")
 LastSequenceNumber		= uint16("last_sequence_number", "Sequence Number")
 Level				= uint8("level", "Level")
 LFSCounters			= uint32("lfs_counters", "LFS Counters", LE)
-LimboDataStreamsCount		= uint32("limbo_data_streams_count", "Limbo Data Streams Count")
+LimboDataStreamsCount		= uint32("limbo_data_streams_count", "Limbo Data Streams Count", LE)
 limbCount			= uint32("limb_count", "Limb Count")
 LimboUsed			= uint32("limbo_used", "Limbo Used")
 LocalConnectionID 		= uint32("local_connection_id", "Local Connection ID")
@@ -2069,6 +2304,8 @@ LogicalLockThreshold		= uint8("logical_lock_threshold", "LogicalLockThreshold")
 LogicalRecordName		= nstring8("logical_record_name", "Logical Record Name")
 LoginKey			= bytes("login_key", "Login Key", 8)
 LogLockType			= uint8("log_lock_type", "Log Lock Type")
+LogTtlRxPkts                    = uint32("log_ttl_rx_pkts", "Total Received Packets", LE)
+LogTtlTxPkts                    = uint32("log_ttl_tx_pkts", "Total Transmitted Packets", LE)
 LongName 			= fw_string("long_name", "Long Name", 32)
 LRUBlockWasDirty		= uint16("lru_block_was_dirty", "LRU Block Was Dirty")
 
@@ -2100,10 +2337,42 @@ MacLastSeenID			= uint32("mac_last_seen_id", "Mac Last Seen ID")
 MacLastSeenID.Display("BASE_HEX")
 MacSourceBaseID			= uint32("mac_source_base_id", "Mac Source Base ID")
 MacSourceBaseID.Display("BASE_HEX")
+MajorVersion			= uint32("major_version", "Major Version", LE)
 MaxBytes			= uint16("max_bytes", "Maximum Number of Bytes")
+MaxDataStreams			= uint32("max_data_streams", "Maximum Data Streams")
+MaxDirDepth			= uint32("max_dir_depth", "Maximum Directory Depth", LE)
 MaximumSpace			= uint16("max_space", "Maximum Space")
+MaxNumOfConn			= uint32("max_num_of_conn", "Maximum Number of Connections", LE)
+MaxNumOfLANS			= uint32("max_num_of_lans", "Maximum Number Of LAN's", LE)
+MaxNumOfMedias			= uint32("max_num_of_medias", "Maximum Number Of Media's", LE)
+MaxNumOfNmeSps			= uint32("max_num_of_nme_sps", "Maximum Number Of Name Spaces", LE)
+MaxNumOfSpoolPr			= uint32("max_num_of_spool_pr", "Maximum Number Of Spool Printers", LE)
+MaxNumOfStacks			= uint32("max_num_of_stacks", "Maximum Number Of Stacks", LE)
+MaxNumOfUsers			= uint32("max_num_of_users", "Maximum Number Of Users", LE)
+MaxNumOfVol			= uint32("max_num_of_vol", "Maximum Number of Volumes", LE)
 MaxSpace			= uint32("maxspace", "Maximum Space")
 MaxUsedDynamicSpace 		= uint32("max_used_dynamic_space", "Max Used Dynamic Space")
+MediaList                       = uint32("media_list", "Media List", LE)
+MediaListCount                  = uint32("media_list_count", "Media List Count", LE)
+MediaName                       = nstring8("media_name", "Media Name")
+MediaNumber                     = uint32("media_number", "Media Number")
+MediaObjectType                 = val_string8("media_object_type", "Object Type", [
+        [ 0x00, "Adapter" ],
+        [ 0x01, "Changer" ],
+        [ 0x02, "Removable Device" ],
+        [ 0x03, "Device" ],
+        [ 0x04, "Removable Media" ],
+        [ 0x05, "Partition" ],
+        [ 0x06, "Slot" ],
+        [ 0x07, "Hotfix" ],
+        [ 0x08, "Mirror" ],
+        [ 0x09, "Parity" ],
+        [ 0x0a, "Volume Segment" ],
+        [ 0x0b, "Volume" ],
+        [ 0x0c, "Clone" ],
+        [ 0x0d, "Fixed Media" ],
+        [ 0x0e, "Unknown" ],
+])        
 MemberName			= nstring8("member_name", "Member Name")
 MemberType			= val_string8("member_type", "Member Type", [
 	[ 0x0000,	"Unknown" ],
@@ -2122,8 +2391,10 @@ MemberType			= val_string8("member_type", "Member Type", [
 	[ 0x0026,	"Remote bridge server" ],
 	[ 0x0027,	"TCP/IP gateway" ],
 ])
-MigratedFiles			= uint32("migrated_files", "Migrated Files")
-MigratedSectors			= uint32("migrated_sectors", "Migrated Sectors")
+MessageLanguage			= uint32("message_language", "NLM Language", LE)
+MigratedFiles			= uint32("migrated_files", "Migrated Files", LE)
+MigratedSectors			= uint32("migrated_sectors", "Migrated Sectors", LE)
+MinorVersion			= uint32("minor_version", "Minor Version", LE)
 Minute				= uint8("s_minute", "Minutes")
 MixedModePathFlag		= uint8("mixed_mode_path_flag", "Mixed Mode Path Flag")
 ModifiedDate			= uint16("modified_date", "Modified Date", LE)
@@ -2173,6 +2444,7 @@ MoreProperties			= val_string8("more_properties", "More Properties", [
 	[ 0xff, "More Properties Available" ],
 ])
 
+Name				= nstring8("name", "Name")
 Name12				= fw_string("name12", "Name", 12)
 NameLen				= uint8("name_len", "Name Space Length")
 NameList			= uint32("name_list", "Name List")
@@ -2357,9 +2629,13 @@ NDSCRC.Display('BASE_HEX')
 NDSBuildVersion			= uint32("nds_build_version", "NDS Build Version")
 NDSStatus			= uint32("nds_status", "NDS Status")
 NetBIOSBroadcastWasPropogated	= uint32("netbios_broadcast_was_propogated", "NetBIOS Broadcast Was Propogated")
+NetIDNumber                     = uint32("net_id_number", "Net ID Number")
+NetIDNumber.Display("BASE_HEX")
+NetStatus                       = uint16("net_status", "Network Status", LE)
 NetWareAccessHandle		= bytes("netware_access_handle", "NetWare Access Handle", 6)
 NetworkAddress			= uint32("network_address", "Network Address")
 NetworkNodeAddress		= bytes("network_node_address", "Network Node Address", 6)
+NetworkNumber                   = uint32("network_number", "Network Number")
 NetworkSocket			= uint16("network_socket", "Network Socket")
 NewAccessRightsHigh 		= bitfield8("new_access_rights_high", "New Access Rights (byte 2)", [
 	bf_boolean8(0x01, "new_access_rights_supervisor", "Supervisor"),
@@ -2374,7 +2650,6 @@ NewAccessRights 		= bitfield8("new_access_rights_mask", "New Access Rights", [
 	bf_boolean8(0x40, "new_access_rights_search", "Search"),
 	bf_boolean8(0x80, "new_access_rights_modify", "Modify"),
 ])
-
 NewDirectoryID			= uint32("new_directory_id", "New Directory ID")
 NewDirectoryID.Display("BASE_HEX")
 NewEAHandle			= uint32("new_ea_handle", "New EA Handle")
@@ -2386,6 +2661,7 @@ NewPassword			= nstring8("new_password", "New Password")
 NewPath 			= nstring8("new_path", "New Path")
 NewPosition			= uint8("new_position", "New Position")
 NewObjectName			= nstring8("new_object_name", "New Object Name")
+NextCntBlock                    = uint32("next_cnt_block", "Next Count Block")
 NextHugeStateInfo		= bytes("next_huge_state_info", "Next Huge State Info", 16)
 nextLimbScanNum			= uint32("next_limb_scan_num", "Next Limb Scan Number")
 NextObjectID			= uint32("next_object_id", "Next Object ID")
@@ -2394,19 +2670,52 @@ NextRecord			= uint32("next_record", "Next Record")
 NextRequestRecord 		= uint16("next_request_record", "Next Request Record")
 NextSearchIndex			= uint16("next_search_index", "Next Search Index")
 NextSearchNumber		= uint16("next_search_number", "Next Search Number")
+NextSearchNum                   = uint32("nxt_search_num", "Next Search Number")
 nextStartingNumber 		= uint32("next_starting_number", "Next Starting Number")
 NextTrusteeEntry		= uint32("next_trustee_entry", "Next Trustee Entry")
 NextVolumeNumber		= uint32("next_volume_number", "Next Volume Number")
+NLMBuffer                       = nstring8("nlm_buffer", "Buffer")
 NLMcount			= uint32("nlm_count", "NLM Count", LE)
+NLMFlags			= bitfield8("nlm_flags", "Flags", [
+	bf_boolean8(0x01, "nlm_flags_reentrant", "ReEntrant"),
+	bf_boolean8(0x02, "nlm_flags_multiple", "Can Load Multiple Times"),
+	bf_boolean8(0x04, "nlm_flags_synchronize", "Synchronize Start"),
+	bf_boolean8(0x08, "nlm_flags_pseudo", "PseudoPreemption"),
+])
+NLMLoadOptions                  = uint32("nlm_load_options", "NLM Load Options")
+NLMName                         = stringz("nlm_name_stringz", "NLM Name")
+NLMNumber			= uint32("nlm_number", "NLM Number", LE)
 NLMNumbers			= uint32("nlm_numbers", "NLM Numbers", LE)
 NLMsInList			= uint32("nlms_in_list", "NLM's in List", LE)
+NLMStartNumber                  = uint32("nlm_start_num", "NLM Start Number", LE)
+NLMType				= val_string8("nlm_type", "NLM Type", [
+        [ 0x00, "Generic NLM (.NLM)" ],
+	[ 0x01, "LAN Driver (.LAN)" ],
+	[ 0x02, "Disk Driver (.DSK)" ],
+	[ 0x03, "Name Space Support Module (.NAM)" ],
+	[ 0x04, "Utility or Support Program (.NLM)" ],
+	[ 0x05, "Mirrored Server Link (.MSL)" ],
+	[ 0x06, "OS NLM (.NLM)" ],
+	[ 0x07, "Paged High OS NLM (.NLM)" ],
+	[ 0x08, "Host Adapter Module (.HAM)" ],
+	[ 0x09, "Custom Device Module (.CDM)" ],
+	[ 0x0a, "File System Engine (.NLM)" ],
+	[ 0x0b, "Real Mode NLM (.NLM)" ],
+	[ 0x0c, "Hidden NLM (.NLM)" ],
+        [ 0x15, "NICI Support (.NLM)" ],
+        [ 0x16, "NICI Support (.NLM)" ],
+        [ 0x17, "Cryptography (.NLM)" ],
+        [ 0x18, "Encryption (.NLM)" ],
+        [ 0x19, "NICI Support (.NLM)" ],
+        [ 0x1c, "NICI Support (.NLM)" ],
+])	  
 nodeFlags 			= uint32("node_flags", "Node Flags")
 nodeFlags.Display("BASE_HEX")
 NoMoreMemAvlCnt			= uint32("no_more_mem_avail", "No More Memory Available Count")
 NonDedFlag			= boolean8("non_ded_flag", "Non Dedicated Flag")
-NonFreeableAvailableSubAllocSectors = uint32("non_freeable_avail_sub_alloc_sectors", "Non Freeable Available Sub Alloc Sectors")
-NonFreeableLimboSectors		= uint32("non_freeable_limbo_sectors", "Non Freeable Limbo Sectors")
-NotUsableSubAllocSectors	= uint32("not_usable_sub_alloc_sectors", "Not Usable Sub Alloc Sectors")
+NonFreeableAvailableSubAllocSectors = uint32("non_freeable_avail_sub_alloc_sectors", "Non Freeable Available Sub Alloc Sectors", LE)
+NonFreeableLimboSectors		= uint32("non_freeable_limbo_sectors", "Non Freeable Limbo Sectors", LE)
+NotUsableSubAllocSectors	= uint32("not_usable_sub_alloc_sectors", "Not Usable Sub Alloc Sectors", LE)
 NotYetPurgeableBlocks		= uint32("not_yet_purgeable_blocks", "Not Yet Purgeable Blocks")
 NSInfoBitMask			= uint32("ns_info_bit_mask", "Name Space Info Bit Mask")
 NSSpecificInfo			= fw_string("ns_specific_info", "Name Space Specific Info", 512)					 
@@ -2420,16 +2729,23 @@ NumberOfLocks			= uint8("number_of_locks", "Number of Locks")
 NumberOfMinutesToDelay		= uint32("number_of_minutes_to_delay", "Number of Minutes to Delay")
 NumberOfNCPExtensions		= uint32("number_of_ncp_extensions", "Number Of NCP Extensions")
 NumberOfNSLoaded		= uint16("number_of_ns_loaded", "Number Of Name Spaces Loaded")
+NumberOfProtocols               = uint8("number_of_protocols", "Number of Protocols")
 NumberOfRecords			= uint16("number_of_records", "Number of Records")
+NumberOfReferencedPublics	= uint32("num_of_ref_publics", "Number of Referenced Public Symbols", LE) 
 NumberOfSemaphores		= uint16("number_of_semaphores", "Number Of Semaphores")
 NumberOfServiceProcesses 	= uint8("number_of_service_processes", "Number Of Service Processes")
+NumberOfSetCategories           = uint32("number_of_set_categories", "Number Of Set Categories", LE)
 NumberOfStations		= uint8("number_of_stations", "Number of Stations")
 NumBytes			= uint16("num_bytes", "Number of Bytes")
+NumOfCCinPkt                    = uint32("num_of_cc_in_pkt", "Number of Custom Counters in Packet")
 NumOfChecks			= uint32("num_of_checks", "Number of Checks")
+NumOfEntries			= uint32("num_of_entries", "Number of Entries")
 NumOfFilesMigrated 		= uint32("num_of_files_migrated", "Number Of Files Migrated")
 NumOfGarbageColl		= uint32("num_of_garb_coll", "Number of Garbage Collections")
 NumOfNCPReqs			= uint32("num_of_ncp_reqs", "Number of NCP Requests since Server was brought up")
+NumOfSegments                   = uint32("num_of_segments", "Number of Segments", LE)
 
+ObjectCount                     = uint32("object_count", "Object Count", LE)
 ObjectFlags			= val_string8("object_flags", "Object Flags", [
 	[ 0x00, "Dynamic object" ],
 	[ 0x01, "Static object" ],
@@ -2445,6 +2761,7 @@ ObjectIDInfo			= uint32("object_id_info", "Object Information")
 ObjectInfoReturnCount		= uint32("object_info_rtn_count", "Object Information Count")
 ObjectName			= nstring8("object_name", "Object Name")
 ObjectNameLen			= fw_string("object_name_len", "Object Name", 48)
+ObjectNumber                    = uint32("object_number", "Object Number")
 ObjectSecurity			= val_string8("object_security", "Object Security", [
 	[ 0x00, "Object Read (Anyone) / Object Write (Anyone)" ],
 	[ 0x01, "Object Read (Logged in) / Object Write (Anyone)" ],
@@ -2493,7 +2810,7 @@ OCRetFlags			= val_string8("o_c_ret_flags", "Open Create Return Flags", [
 	[ 0x00, "No CallBack has been registered (No Op-Lock)" ],
 	[ 0x01, "Request has been registered for CallBack (Op-Lock)" ],
 ])
-OldestDeletedFileAgeInTicks	= uint32("oldest_deleted_file_age_in_ticks", "Oldest Deleted File Age in Ticks")
+OldestDeletedFileAgeInTicks	= uint32("oldest_deleted_file_age_in_ticks", "Oldest Deleted File Age in Ticks", LE)
 OldFileName			= bytes("old_file_name", "Old File Name", 15)
 OldFileSize			= uint32("old_file_size", "Old File Size")
 OpenCount 			= uint16("open_count", "Open Count")
@@ -2521,6 +2838,7 @@ OpenRights			= bitfield8("open_rights", "Open Rights", [
 	bf_boolean8(0x40, "open_rights_write_thru", "Write Through"),
 ])
 OptionNumber			= uint8("option_number", "Option Number")
+originalSize                    = uint32("original_size", "Original Size", LE)
 OSLanguageID			= uint8("os_language_id", "OS Language ID")
 OSMajorVersion			= uint8("os_major_version", "OS Major Version")
 OSMinorVersion			= uint8("os_minor_version", "OS Minor Version")
@@ -2538,6 +2856,8 @@ PacketsWithBadSequenceNumber 	= uint16("packets_with_bad_sequence_number", "Pack
 PageTableOwnerFlag		= uint32("page_table_owner_flag", "Page Table Owner", LE)
 ParentID			= uint32("parent_id", "Parent ID")
 ParentID.Display("BASE_HEX")
+ParentObjectNumber              = uint32("parent_object_number", "Parent Object Number", LE)
+ParentObjectNumber.Display("BASE_HEX")
 Password			= nstring8("password", "Password")
 PathBase			= uint8("path_base", "Path Base")
 PathComponentCount 		= uint16("path_component_count", "Path Component Count")
@@ -2548,17 +2868,19 @@ PathCookieFlags			= val_string16("path_cookie_flags", "Path Cookie Flags", [
 ])
 PathCount 			= uint8("path_count", "Path Count")
 Path 				= nstring8("path", "Path")
+PathAndName                     = stringz("path_and_name", "Path and Name")
 PendingIOCommands 		= uint16("pending_io_commands", "Pending IO Commands")
 PhysicalDiskNumber		= uint8("physical_disk_number", "Physical Disk Number")
 PhysicalDriveCount		= uint8("physical_drive_count", "Physical Drive Count")
 PhysicalLockThreshold		= uint8("physical_lock_threshold", "Physical Lock Threshold")
 PingVersion			= uint16("ping_version", "Ping Version")
 PositiveAcknowledgesSent 	= uint16("positive_acknowledges_sent", "Positive Acknowledges Sent")
-PreCompressedSectors		= uint32("pre_compressed_sectors", "Precompressed Sectors")
+PreCompressedSectors		= uint32("pre_compressed_sectors", "Precompressed Sectors", LE)
 PreviousRecord			= uint32("previous_record", "Previous Record")
 PrimaryEntry			= uint32("primary_entry", "Primary Entry")
 PrintFlags			= bitfield8("print_flags", "Print Flags", [
 	bf_boolean8(0x08, "print_flags_ff", "Suppress Form Feeds"),
+        bf_boolean8(0x10, "print_flags_cr", "Create"),
 	bf_boolean8(0x20, "print_flags_del_spool", "Delete Spool File after Printing"),
 	bf_boolean8(0x40, "print_flags_exp_tabs", "Expand Tabs in the File"),
 	bf_boolean8(0x80, "print_flags_banner", "Print Banner Page"),
@@ -2573,6 +2895,7 @@ PrinterOffLine			= val_string8( "printer_offline", "Printer Off-Line", [
 ])
 PrintServerVersion		= uint8("print_server_version", "Print Server Version")
 Priority			= uint32("priority", "Priority")
+Privileges                      = uint32("privileges", "Login Privileges")
 ProcessorType 			= val_string8("processor_type", "Processor Type", [
 	[ 0x00, "Motorola 68000" ],
 	[ 0x01, "Intel 8088 or 8086" ],
@@ -2582,6 +2905,7 @@ ProDOSInfo			= bytes("pro_dos_info", "Pro DOS Info", 6)
 ProductMajorVersion		= uint16("product_major_version", "Product Major Version")
 ProductMinorVersion		= uint16("product_minor_version", "Product Minor Version")
 ProductRevisionVersion		= uint8("product_revision_version", "Product Revision Version")
+projectedCompSize               = uint32("projected_comp_size", "Projected Compression Size", LE)
 PropertyHasMoreSegments		= val_string8("property_has_more_segments",
 	"Property Has More Segments", [
 	[ 0x00,	"Is last segment" ],
@@ -2602,11 +2926,14 @@ ProposedMaxSize			= uint16("proposed_max_size", "Proposed Max Size")
 protocolFlags 			= uint32("protocol_flags", "Protocol Flags")
 protocolFlags.Display("BASE_HEX")
 PurgeableBlocks			= uint32("purgeable_blocks", "Purgeable Blocks")
+PurgeCcode                      = uint32("purge_c_code", "Purge Completion Code", LE)
 PurgeCount			= uint32("purge_count", "Purge Count")
 PurgeFlags			= val_string16("purge_flags", "Purge Flags", [
 	[ 0x0000, "Do not Purge All" ],
 	[ 0x0001, "Purge All" ],
+        [ 0xffff, "Do not Purge All" ],
 ])
+PurgeList                       = uint32("purge_list", "Purge List", LE)
 PhysicalDiskChannel		= uint8("physical_disk_channel", "Physical Disk Channel")
 PhysicalDriveType 		= val_string8("physical_drive_type", "Physical Drive Type", [
 	[ 0x01, "XT" ],
@@ -2621,6 +2948,7 @@ PhysicalReadErrors		= uint16("physical_read_errors", "Physical Read Errors")
 PhysicalReadRequests 		= uint32("physical_read_requests", "Physical Read Requests")
 PhysicalWriteErrors 		= uint16("physical_write_errors", "Physical Write Errors")
 PhysicalWriteRequests 		= uint32("physical_write_requests", "Physical Write Requests")
+PrintToFileFlag                 = boolean8("print_to_file_flag", "Print to File Flag")
 
 QueueID				= uint32("queue_id", "Queue ID")
 QueueID.Display("BASE_HEX")
@@ -2632,7 +2960,7 @@ QueueStatus			= bitfield8("queue_status", "Queue Status", [
 	bf_boolean8(0x04, "queue_status_svc_jobs", "Operator does not want servers to service jobs"),
 ])
 QueueType			= uint16("queue_type", "Queue Type")
-QMSVersion			= uint8("qms_version", "QMS Version")
+QueueingVersion			= uint8("qms_version", "QMS Version")
 
 ReadBeyondWrite			= uint16("read_beyond_write", "Read Beyond Write")
 RecordLockCount			= uint16("rec_lock_count", "Record Lock Count", LE)
@@ -2698,7 +3026,9 @@ Reserved			= uint8( "reserved", "Reserved" )
 Reserved2			= bytes("reserved2", "Reserved", 2)
 Reserved3			= bytes("reserved3", "Reserved", 3)
 Reserved4			= bytes("reserved4", "Reserved", 4)
+Reserved12			= bytes("reserved12", "Reserved", 12)
 Reserved16			= bytes("reserved16", "Reserved", 16)
+Reserved20			= bytes("reserved20", "Reserved", 20)
 Reserved28			= bytes("reserved28", "Reserved", 28)
 Reserved36			= bytes("reserved36", "Reserved", 36)
 Reserved44			= bytes("reserved44", "Reserved", 44)
@@ -2708,7 +3038,10 @@ Reserved56			= bytes("reserved56", "Reserved", 56)
 Reserved64			= bytes("reserved64", "Reserved", 64)
 Reserved120			= bytes("reserved120", "Reserved", 120)					 
 ReservedOrDirectoryNumber	= uint32("reserved_or_directory_number", "Reserved or Directory Number (see EAFlags)")
+ResourceCount                   = uint32("resource_count", "Resource Count", LE)
 ResourceForkSize		= uint32("resource_fork_size", "Resource Fork Size")
+ResourceName                    = stringz("resource_name", "Resource Name")
+ResourceSignature               = fw_string("resource_sig", "Resource Signature", 4)
 RestoreTime 			= uint32("restore_time", "Restore Time")
 Restriction			= uint32("restriction", "Disk Space Restriction")
 RestrictionsEnforced 		= val_string8("restrictions_enforced", "Disk Restrictions Enforce Flag", [
@@ -2737,6 +3070,7 @@ ReturnInfoMaskLow 		= bitfield8("ret_info_mask_low", "Return Information", [
 	bf_boolean8(0x80, "ret_info_mask_mod", "Return Modify Information"),
 ])
 ReturnedListCount		= uint32("returned_list_count", "Returned List Count")
+Revision			= uint32("revision", "Revision", LE)
 RevisionNumber			= uint8("revision_number", "Revision")
 RevQueryFlag			= val_string8("rev_query_flag", "Revoke Rights Query Flag", [
 	[ 0x00, "Do not query the locks engine for access rights" ],
@@ -2762,8 +3096,20 @@ RightsRevokeMask 		= bitfield8("rights_revoke_mask", "Revoke Rights", [
 	bf_boolean8(0x40, "rights_revoke_mask_search", "Search"),
 	bf_boolean8(0x80, "rights_revoke_mask_mod", "Modify"),
 ])
+RIPSocketNumber                 = uint16("rip_socket_num", "RIP Socket Number")
+RIPSocketNumber.Display("BASE_HEX")
+RouterDownFlag                  = boolean8("router_dn_flag", "Router Down Flag")
+RPCccode                        = val_string16("rpc_c_code", "RPC Completion Code", [
+        [ 0x0000, "Successful" ],
+])        
+RTagNumber                      = uint32("r_tag_num", "Resource Tag Number", LE)
+RTagNumber.Display("BASE_HEX")
+RpyNearestSrvFlag               = boolean8("rpy_nearest_srv_flag", "Reply to Nearest Server Flag")
+
 SalvageableFileEntryNumber	= uint32("salvageable_file_entry_number", "Salvageable File Entry Number")
 SalvageableFileEntryNumber.Display("BASE_HEX")
+SAPSocketNumber                 = uint16("sap_socket_number", "SAP Socket Number")
+SAPSocketNumber.Display("BASE_HEX")
 ScanItems			= uint32("scan_items", "Number of Items returned from Scan")
 SearchAttributes		= bitfield8("search_attr", "Search Attributes", [
 	bf_boolean8(0x01, "search_attr_hid", "Hidden"),
@@ -2791,6 +3137,7 @@ SearchBitMap				= bitfield8("search_bit_map", "Search Bit Map", [
 ])	
 SearchConnNumber			= uint32("search_conn_number", "Search Connection Number")
 SearchInstance				= uint32("search_instance", "Search Instance")
+SearchNumber                            = uint32("search_number", "Search Number", LE)
 SearchPattern				= nstring8("search_pattern", "Search Pattern")
 SearchSequence				= bytes("search_sequence", "Search Sequence", 9)
 Second					= uint8("s_second", "Seconds")
@@ -2805,8 +3152,9 @@ SecurityFlag				= bitfield8("security_flag", "Security Flag", [
 SecurityRestrictionVersion		= uint8("security_restriction_version", "Security Restriction Version")
 SectorsPerBlock				= uint8("sectors_per_block", "Sectors Per Block")
 SectorsPerCluster			= uint16("sectors_per_cluster", "Sectors Per Cluster" )
+SectorsPerClusterLong			= uint32("sectors_per_cluster_long", "Sectors Per Cluster", LE )
 SectorsPerTrack 			= uint8("sectors_per_track", "Sectors Per Track")
-SectorSize				= uint32("sector_size", "Sector Size")
+SectorSize				= uint32("sector_size", "Sector Size", LE)
 SemaphoreHandle				= uint32("semaphore_handle", "Semaphore Handle")
 SemaphoreName				= nstring8("semaphore_name", "Semaphore Name")
 SemaphoreNameLen 			= uint8("semaphore_name_len", "Semaphore Name Len")
@@ -2827,19 +3175,29 @@ SendStatus				= val_string8("send_status", "Send Status", [
 SequenceByte			= uint8("sequence_byte", "Sequence")
 SequenceNumber			= uint32("sequence_number", "Sequence Number")
 SequenceNumber.Display("BASE_HEX")
+ServerAddress                   = bytes("server_address", "Server Address", 12)
+ServerAppNumber			= uint16("server_app_num", "Server App Number", LE)
 ServerIDList			= uint32("server_id_list", "Server ID List")
 ServerID			= uint32("server_id_number", "Server ID")
 ServerID.Display("BASE_HEX")
+ServerInfoFlags                 = val_string16("server_info_flags", "Server Information Flags", [
+        [ 0x0000, "This server is not a member of a Cluster" ],
+        [ 0x0001, "This server is a member of a Cluster" ],
+])
 serverListFlags			= uint32("server_list_flags", "Server List Flags")
 ServerName			= fw_string("server_name", "Server Name", 48)
 serverName50 			= fw_string("server_name50", "Server Name", 50)
 ServerNameLen			= nstring8("server_name_len", "Server Name")
+ServerNameStringz               = stringz("server_name_stringz", "Server Name")
 ServerNetworkAddress		= bytes("server_network_address", "Server Network Address", 10)
-ServerSerialNumber		= uint32("server_serial_number", "Server Serial Number")
+ServerNode                      = bytes("server_node", "Server Node", 6)
+ServerSerialNumber		= uint32("server_serial_number", "Server Serial Number", LE)
 ServerStation			= uint32("server_station", "Server Station")
 ServerStationList		= uint8("server_station_list", "Server Station List")
 ServerStatusRecord		= fw_string("server_status_record", "Server Status Record", 64)
 ServerTaskNumber		= uint32("server_task_number", "Server Task Number")
+ServerType                      = uint16("server_type", "Server Type", LE)
+ServerType.Display("BASE_HEX")
 ServerUtilization		= uint32("server_utilization", "Server Utilization")
 ServerUtilizationPercentage 	= uint8("server_utilization_percentage", "Server Utilization Percentage")
 ServiceType			= val_string16("Service_type", "Service Type", [
@@ -2859,6 +3217,43 @@ ServiceType			= val_string16("Service_type", "Service Type", [
 	[ 0x0026,	"Remote bridge server" ],
 	[ 0x0027,	"TCP/IP gateway" ],
 ])
+SetCmdCategory                  = val_string8("set_cmd_catagory", "Set Command Catagory", [
+        [ 0x00, "Communications" ],
+        [ 0x01, "Memory" ],
+        [ 0x02, "File Cache" ],
+        [ 0x03, "Directory Cache" ],
+        [ 0x04, "File System" ],
+        [ 0x05, "Locks" ],
+        [ 0x06, "Transaction Tracking" ],
+        [ 0x07, "Disk" ],
+        [ 0x08, "Time" ],
+        [ 0x09, "NCP" ],
+        [ 0x0a, "Miscellaneous" ],
+        [ 0x0b, "Error Handling" ],
+        [ 0x0c, "Directory Services" ],
+        [ 0x0d, "MultiProcessor" ],
+        [ 0x0e, "Service Location Protocol" ],
+        [ 0x0f, "Licensing Services" ],
+])        
+SetCmdFlags				= bitfield8("set_cmd_flags", "Set Command Flags", [
+	bf_boolean8(0x01, "cmd_flags_startup_only", "Startup.ncf Only"),
+	bf_boolean8(0x02, "cmd_flags_hidden", "Hidden"),
+	bf_boolean8(0x04, "cmd_flags_advanced", "Advanced"),
+	bf_boolean8(0x08, "cmd_flags_later", "Restart Server Required to Take Effect"),
+	bf_boolean8(0x80, "cmd_flags_secure", "Console Secured"),
+])
+SetCmdName                      = stringz("set_cmd_name", "Set Command Name")
+SetCmdType                      = val_string8("set_cmd_type", "Set Command Type", [
+        [ 0x00, "Numeric Value" ],
+        [ 0x01, "Boolean Value" ],
+        [ 0x02, "Ticks Value" ],
+        [ 0x04, "Time Value" ],
+        [ 0x05, "String Value" ],
+        [ 0x06, "Trigger Value" ],
+        [ 0x07, "Numeric Value" ],
+])        
+SetCmdValue                     = uint32("set_cmd_value", "Set Command Value", LE)
+SetParmName                     = stringz("set_parm_name", "Set Parameter Name")
 SFTErrorTable 			= bytes("sft_error_table", "SFT Error Table", 60)
 SFTSupportLevel			= val_string8("sft_support_level", "SFT Support Level", [
 	[ 0x01, "Server Offers Hot Disk Error Fixing" ],
@@ -2868,6 +3263,7 @@ SFTSupportLevel			= val_string8("sft_support_level", "SFT Support Level", [
 ShareableLockCount		= uint16("shareable_lock_count", "Shareable Lock Count")
 SharedMemoryAddresses 		= bytes("shared_memory_addresses", "Shared Memory Addresses", 10)
 ShortName 			= fw_string("short_name", "Short Name", 12)
+ShortStkName                    = fw_string("short_stack_name", "Short Stack Name", 16)
 SoftwareDescription 		= fw_string("software_description", "Software Description", 65)
 SoftwareDriverType 		= uint8("software_driver_type", "Software Driver Type")
 SoftwareMajorVersionNumber	= uint8("software_major_version_number", "Software Major Version Number")
@@ -2888,6 +3284,12 @@ SrcNameSpace 			= val_string8("src_name_space", "Source Name Space", [
 	[ 0x04, "Long Name Space" ],
 ])
 SupModID			= uint32("sup_mod_id", "Sup Mod ID")
+StackCount                      = uint32("stack_count", "Stack Count", LE)
+StackFullNameStr                = nstring8("stack_full_name_str", "Stack Full Name")
+StackMajorVN                    = uint8("stack_major_vn", "Stack Major Version Number")
+StackMinorVN                    = uint8("stack_minor_vn", "Stack Minor Version Number")
+StackNumber                     = uint32("stack_number", "Stack Number", LE)
+StartConnNumber			= uint32("start_conn_num", "Starting Connection Number", LE)
 StartingBlock 			= uint16("starting_block", "Starting Block")
 StartingNumber 			= uint32("starting_number", "Starting Number")
 StartingSearchNumber		= uint16("start_search_number", "Start Search Number")
@@ -2896,16 +3298,24 @@ startNumberFlag 		= uint16("start_number_flag", "Start Number Flag")
 StartVolumeNumber		= uint32("start_volume_number", "Starting Volume Number")
 StationList			= uint32("station_list", "Station List")
 StationNumber			= bytes("station_number", "Station Number", 3)
+StatMajorVersion                = uint8("stat_major_version", "Statistics Table Major Version")
+StatMinorVersion                = uint8("stat_minor_version", "Statistics Table Minor Version")
 Status				= bitfield8("status", "Status", [
-				bf_boolean8(0x01, "user_info_logged_in", "Logged In"),
-				bf_boolean8(0x02, "user_info_being_abort", "Being Aborted"),
-				bf_boolean8(0x04, "user_info_audited", "Audited"),
-				bf_boolean8(0x08, "user_info_need_sec", "Needs Security Change"),
-				bf_boolean8(0x10, "user_info_mac_station", "MAC Station"),
-				bf_boolean8(0x20, "user_info_temp_authen", "Temporary Authenticated"),
-				bf_boolean8(0x40, "user_info_audit_conn", "Audit Connection Recorded"),
-				bf_boolean8(0x80, "user_info_dsaudit_conn", "DS Audit Connection Recorded"),
+	bf_boolean8(0x01, "user_info_logged_in", "Logged In"),
+	bf_boolean8(0x02, "user_info_being_abort", "Being Aborted"),
+	bf_boolean8(0x04, "user_info_audited", "Audited"),
+	bf_boolean8(0x08, "user_info_need_sec", "Needs Security Change"),
+	bf_boolean8(0x10, "user_info_mac_station", "MAC Station"),
+	bf_boolean8(0x20, "user_info_temp_authen", "Temporary Authenticated"),
+	bf_boolean8(0x40, "user_info_audit_conn", "Audit Connection Recorded"),
+	bf_boolean8(0x80, "user_info_dsaudit_conn", "DS Audit Connection Recorded"),
 ])
+Status2				= bitfield8("status2", "Status Byte 2", [
+	bf_boolean8(0x01, "user_info_logout", "Logout in Progress"),
+	bf_boolean8(0x02, "user_info_int_login", "Internal Login"),
+	bf_boolean8(0x04, "user_info_bindery", "Bindery Connection"),
+])
+
 StatusFlagBitsHigh		= val_string16("status_flag_bits_high", "Status Flag (byte 2)", [
 	[ 0x0000, "Traditional Volume" ],
 	[ 0x8000, "NSS Volume" ],
@@ -2918,8 +3328,8 @@ StatusFlagBitsLow		= bitfield8("status_flag_bits_low", "Status Flag", [
 	bf_boolean8(0x10, "status_flag_bits_ro", "Read Only"),
 	bf_boolean8(0x20, "status_flag_bits_im_purge", "Immediate Purge"),
 ])
-SubAllocClusters		= uint32("sub_alloc_clusters", "Sub Alloc Clusters")
-SubAllocFreeableClusters 	= uint32("sub_alloc_freeable_clusters", "Sub Alloc Freeable Clusters")
+SubAllocClusters		= uint32("sub_alloc_clusters", "Sub Alloc Clusters", LE)
+SubAllocFreeableClusters 	= uint32("sub_alloc_freeable_clusters", "Sub Alloc Freeable Clusters", LE)
 Subdirectory			= uint32("sub_directory", "Subdirectory")
 Subdirectory.Display("BASE_HEX")
 SuggestedFileSize		= uint32("suggested_file_size", "Suggested File Size")
@@ -2951,16 +3361,20 @@ TaskNumberWord			= uint16("task_number_word", "Task Number")
 TextJobDescription		= fw_string("text_job_description", "Text Job Description", 50)
 ThrashingCount			= uint16("thrashing_count", "Thrashing Count")
 TimeoutLimit			= uint16("timeout_limit", "Timeout Limit")
+TimeToNet                       = uint16("time_to_net", "Time To Net", LE)
 TotalBlocks			= uint32("total_blocks", "Total Blocks")	
+TotalBlocksToDecompress         = uint32("total_blks_to_dcompress", "Total Blocks To Decompress", LE)
 TotalBytesRead			= bytes("user_info_ttl_bytes_rd", "Total Bytes Read", 6)
 TotalBytesWritten		= bytes("user_info_ttl_bytes_wrt", "Total Bytes Written", 6)
 TotalCacheWrites 		= uint32("total_cache_writes", "Total Cache Writes")
 TotalChangedFATs		= uint32("total_changed_fats", "Total Changed FAT Entries")
+TotalCommonCnts                 = uint32("total_common_cnts", "Total Common Counts", LE)
+TotalCntBlocks                  = uint32("total_cnt_blocks", "Total Count Blocks", LE)
 TotalDataStreamDiskSpaceAlloc	= uint32("total_stream_size_struct_space_alloc", "Total Data Stream Disk Space Alloc",LE)
 TotalDirectorySlots		= uint16("total_directory_slots", "Total Directory Slots")
-TotalDirectoryEntries		= uint32("total_dir_entries", "Total Directory Entries")
+TotalDirectoryEntries		= uint32("total_dir_entries", "Total Directory Entries", LE)
 TotalDynamicSpace 		= uint32("total_dynamic_space", "Total Dynamic Space")
-TotalExtendedDirectoryExtants	= uint32("total_extended_directory_extants", "Total Extended Directory Extants")
+TotalExtendedDirectoryExtants	= uint32("total_extended_directory_extants", "Total Extended Directory Extants", LE)
 TotalFileServicePackets		= uint32("total_file_service_packets", "Total File Service Packets")
 TotalFilesOpened		= uint32("total_files_opened", "Total Files Opened")
 TotalLFSCounters		= uint32("total_lfs_counters", "Total LFS Counters", LE)
@@ -2971,13 +3385,16 @@ TotalReadRequests		= uint32("total_read_requests", "Total Read Requests")
 TotalRequest			= uint32("total_request", "Total Requests", LE)
 TotalRequestPackets		= uint32("total_request_packets", "Total Request Packets")
 TotalRoutedPackets 		= uint32("total_routed_packets", "Total Routed Packets")
+TotalRxPkts                     = uint32("total_rx_pkts", "Total Receive Packets", LE)
 TotalServerMemory 		= uint16("total_server_memory", "Total Server Memory")
 TotalTransactionsBackedOut	= uint32("total_trans_backed_out", "Total Transactions Backed Out")
 TotalTransactionsPerformed	= uint32("total_trans_performed", "Total Transactions Performed")
+TotalTxPkts                     = uint32("total_tx_pkts", "Total Transmit Packets", LE)
 TotalUnfilledBackoutRequests    = uint16("total_unfilled_backout_requests", "Total Unfilled Backout Requests")
 TotalVolumeClusters		= uint16("total_volume_clusters", "Total Volume Clusters")
 TotalWriteRequests		= uint32("total_write_requests", "Total Write Requests")
 TotalWriteTransactionsPerformed = uint32("total_write_trans_performed", "Total Write Transactions Performed")
+TrackOnFlag                     = boolean8("track_on_flag", "Track On Flag")
 TransactionDiskSpace		= uint16("transaction_disk_space", "Transaction Disk Space")
 TransactionFATAllocations	= uint32("transaction_fat_allocations", "Transaction FAT Allocations")
 TransactionFileSizeChanges	= uint32("transaction_file_size_changes", "Transaction File Size Changes")
@@ -2987,6 +3404,11 @@ TransactionTrackingEnabled	= uint8("transaction_tracking_enabled", "Transaction 
 TransactionTrackingFlag		= uint16("tts_flag", "Transaction Tracking Flag", LE)
 TransactionTrackingSupported	= uint8("transaction_tracking_supported", "Transaction Tracking Supported")
 TransactionVolumeNumber		= uint16("transaction_volume_number", "Transaction Volume Number")
+TransportType                   = val_string8("transport_type", "Communications Type", [
+        [ 0x01, "Internet Packet Exchange (IPX)" ],
+        [ 0x05, "User Datagram Protocol (UDP)" ],
+        [ 0x06, "Transmission Control Protocol (TCP)" ],
+])
 TreeLength			= uint32("tree_length", "Tree Length")
 TreeName			= fw_string("tree_name", "Tree Name", 48)
 TrusteeRightsHigh		= bitfield8("trustee_rights_high", "Trustee Rights (byte 2)", [
@@ -3006,16 +3428,21 @@ TTSLevel			= uint8("tts_level", "TTS Level")
 TrusteeSetNumber 		= uint8("trustee_set_number", "Trustee Set Number")
 TrusteeID			= uint32("trustee_id_set", "Trustee ID")
 TrusteeID.Display("BASE_HEX")
+ttlCompBlks                     = uint32("ttl_comp_blks", "Total Compression Blocks", LE)
 TtlDSDskSpaceAlloc 		= uint32("ttl_ds_disk_space_alloc", "Total Streams Space Allocated")
 TtlEAs				= uint32("ttl_eas", "Total EA's")
 TtlEAsDataSize			= uint32("ttl_eas_data_size", "Total EA's Data Size")
 TtlEAsKeySize			= uint32("ttl_eas_key_size", "Total EA's Key Size")
+ttlIntermediateBlks             = uint32("ttl_inter_blks", "Total Intermediate Blocks", LE)
 TtlMigratedSize 		= uint32("ttl_migrated_size", "Total Migrated Size")
+TtlNumOfRTags                   = uint32("ttl_num_of_r_tags", "Total Number of Resource Tags", LE)
+TtlNumOfSetCmds                 = uint32("ttl_num_of_set_cmds", "Total Number of Set Commands", LE)
 TtlValuesLength 		= uint32("ttl_values_length", "Total Values Length")
 TtlWriteDataSize		= uint32("ttl_write_data_size", "Total Write Data Size")
 TurboUsedForFileService 	= uint16("turbo_used_for_file_service", "Turbo Used For File Service")
 
-UnCompressableDataStreamsCount	= uint32("un_compressable_data_streams_count", "Uncompressable Data Streams Count")
+UnclaimedPkts                   = uint32("un_claimed_packets", "Unclaimed Packets", LE)
+UnCompressableDataStreamsCount	= uint32("un_compressable_data_streams_count", "Uncompressable Data Streams Count", LE)
 Undefined8			= bytes("undefined_8", "Undefined", 8)
 Undefined28			= bytes("undefined_28", "Undefined", 28)
 UndefinedWord			= uint16("undefined_word", "Undefined")
@@ -3023,15 +3450,15 @@ UniqueID			= uint8("unique_id", "Unique ID")
 UnknownByte			= uint8("unknown_byte", "Unknown Byte")
 Unused				= uint8("un_used", "Unused")
 UnusedBlocks			= uint32("unused_blocks", "Unused Blocks")
-UnUsedDirectoryEntries		= uint32("un_used_directory_entries", "Unused Directory Entries")
+UnUsedDirectoryEntries		= uint32("un_used_directory_entries", "Unused Directory Entries", LE)
 UnusedDiskBlocks		= uint32("unused_disk_blocks", "Unused Disk Blocks")
-UnUsedExtendedDirectoryExtants	= uint32("un_used_extended_directory_extants", "Unused Extended Directory Extants")
+UnUsedExtendedDirectoryExtants	= uint32("un_used_extended_directory_extants", "Unused Extended Directory Extants", LE)
 UpdateDateAndTime		= uint32("update_date_and_time", "Update Date & Time")
 UpdateID			= uint32("update_id", "Update ID")
 UpdateID.Display("BASE_HEX")
 UseCount 			= val_string16("user_info_use_count", "Use Count", [
-				[ 0x0000, "Connection is not in use" ],
-				[ 0x0001, "Connection is in use" ],
+	[ 0x0000, "Connection is not in use" ],
+	[ 0x0001, "Connection is in use" ],
 ])
 UsedBlocks			= uint32("used_blocks", "Used Blocks")
 UserID				= uint32("user_id", "User ID")
@@ -3072,13 +3499,14 @@ VolumeHashedFlag 		= val_string8("volume_hashed_flag", "Volume Hashed Flag", [
 	[ 0x00, "Volume is Not Hashed" ],
 	[ 0xff, "Volume is Hashed" ],
 ])	
-VolumeLastModifiedDateAndTime	= uint32("volume_last_modified_date_and_time", "Volume Last Modified Date and Time")
+VolumeLastModifiedDateAndTime	= uint32("volume_last_modified_date_and_time", "Volume Last Modified Date and Time", LE)
 VolumeMountedFlag 		= val_string8("volume_mounted_flag", "Volume Mounted Flag", [
 	[ 0x00, "Volume is Not Mounted" ],
 	[ 0xff, "Volume is Mounted" ],
 ])
 VolumeName			= fw_string("volume_name", "Volume Name", 16)
 VolumeNameLen			= nstring8("volume_name_len", "Volume Name")
+VolumeNameStringz               = stringz("volume_name_stringz", "Volume Name")
 VolumeNumber 			= uint8("volume_number", "Volume Number")
 VolumeNumberLong		= uint32("volume_number_long", "Volume Number", LE)
 VolumeRemovableFlag 		= val_string8("volume_removable_flag", "Volume Removable Flag", [
@@ -3089,7 +3517,7 @@ VolumeRequestFlags		= val_string16("volume_request_flags", "Volume Request Flags
 	[ 0x0000, "Return name with volume number" ],
 	[ 0x0001, "Do not return name with volume number" ],
 ])
-VolumeSizeInClusters		= uint32("volume_size_in_clusters", "Volume Size in Clusters")
+VolumeSizeInClusters		= uint32("volume_size_in_clusters", "Volume Size in Clusters", LE)
 VolumesSupportedMax		= uint16("volumes_supported_max", "Volumes Supported Max")
 VolumeType			= val_string16("volume_type", "Volume Type", [
 	[ 0x0000, "NetWare 386" ],
@@ -3101,20 +3529,100 @@ WastedServerMemory 		= uint16("wasted_server_memory", "Wasted Server Memory")
 WaitTime			= uint32("wait_time", "Wait Time")
 
 Year				=val_string8("year", "Year",[
-		[ 0x62, "1998" ],
-		[ 0x63, "1999" ],
-		[ 0x64, "2000" ],
-		[ 0x65, "2001" ],
-		[ 0x66, "2002" ],
-		[ 0x67, "2003" ],
-		[ 0x68, "2004" ],
-		[ 0x69, "2005" ],
-		[ 0x6a, "2006" ],
+	[ 0x50, "1980" ],
+	[ 0x51, "1981" ],
+	[ 0x52, "1982" ],
+	[ 0x53, "1983" ],
+	[ 0x54, "1984" ],
+	[ 0x55, "1985" ],
+	[ 0x56, "1986" ],
+	[ 0x57, "1987" ],
+	[ 0x58, "1988" ],
+	[ 0x59, "1989" ],
+	[ 0x5a, "1990" ],
+	[ 0x5b, "1991" ],
+	[ 0x5c, "1992" ],
+	[ 0x5d, "1993" ],
+	[ 0x5e, "1994" ],
+	[ 0x5f, "1995" ],
+	[ 0x60, "1996" ],
+	[ 0x61, "1997" ],
+	[ 0x62, "1998" ],
+	[ 0x63, "1999" ],
+	[ 0x64, "2000" ],
+	[ 0x65, "2001" ],
+	[ 0x66, "2002" ],
+	[ 0x67, "2003" ],
+	[ 0x68, "2004" ],
+	[ 0x69, "2005" ],
+	[ 0x6a, "2006" ],
+	[ 0x6b, "2007" ],
+	[ 0x6c, "2008" ],
+	[ 0x6d, "2009" ],
+	[ 0x6e, "2010" ],
+	[ 0x6f, "2011" ],
+	[ 0x70, "2012" ],
+	[ 0x71, "2013" ],
+	[ 0x72, "2014" ],
+	[ 0x73, "2015" ],
+	[ 0x74, "2016" ],
+	[ 0x75, "2017" ],
+	[ 0x76, "2018" ],
+	[ 0x77, "2019" ],
+	[ 0x78, "2020" ],
+	[ 0x79, "2021" ],
+	[ 0x7a, "2022" ],
+	[ 0x7b, "2023" ],
+	[ 0x7c, "2024" ],
+	[ 0x7d, "2025" ],
+	[ 0x7e, "2026" ],
+	[ 0x7f, "2027" ],
+        [ 0xc0, "1984" ],
+        [ 0xc1, "1985" ],
+        [ 0xc2, "1986" ],
+        [ 0xc3, "1987" ],
+        [ 0xc4, "1988" ],
+        [ 0xc5, "1989" ],
+        [ 0xc6, "1990" ],
+        [ 0xc7, "1991" ],
+        [ 0xc8, "1992" ],
+        [ 0xc9, "1993" ],
+        [ 0xca, "1994" ],
+        [ 0xcb, "1995" ],
+        [ 0xcc, "1996" ],
+        [ 0xcd, "1997" ],
+        [ 0xce, "1998" ],
+        [ 0xcf, "1999" ],
+        [ 0xd0, "2000" ],
+        [ 0xd1, "2001" ],
+        [ 0xd2, "2002" ],
+        [ 0xd3, "2003" ],
+        [ 0xd4, "2004" ],
+        [ 0xd5, "2005" ],
+        [ 0xd6, "2006" ],
+        [ 0xd7, "2007" ],
+        [ 0xd8, "2008" ],
+        [ 0xd9, "2009" ],
+        [ 0xda, "2010" ],
+        [ 0xdb, "2011" ],
+        [ 0xdc, "2012" ],
+        [ 0xdd, "2013" ],
+        [ 0xde, "2014" ],
+        [ 0xdf, "2015" ],
 ])
 ##############################################################################
 # Structs
 ##############################################################################
 
+acctngInfo                      = struct("acctng_info_struct", [
+        HoldTime,
+        HoldAmount,
+        ChargeAmount,
+        HeldConnectTimeInMinutes,
+        HeldRequests,
+        HeldBytesRead,
+        HeldBytesWritten,
+])        
 ArchiveInfoStruct		= struct("archive_info_struct", [
 	ArchivedTime,
 	ArchivedDate,
@@ -3127,69 +3635,112 @@ AttributesStruct		= struct("attributes_struct", [
 	Reserved,
 	FlagsDef,
 ])
-CacheInfo			= struct("cache_info", [
-			uint32("max_byte_cnt", "Maximum Byte Count", LE),
-			uint32("min_num_of_cache_buff", "Minimum Number Of Cache Buffers", LE),
-			uint32("min_cache_report_thresh", "Minimum Cache Report Threshold", LE),
-			uint32("alloc_waiting", "Allocate Waiting Count", LE),
-			uint32("ndirty_blocks", "Number of Dirty Blocks", LE),
-			uint32("cache_dirty_wait_time", "Cache Dirty Wait Time", LE),
-			uint32("cache_max_concur_writes", "Cache Maximum Concurrent Writes", LE),
-			uint32("max_dirty_time", "Maximum Dirty Time", LE),
-			uint32("num_dir_cache_buff", "Number Of Directory Cache Buffers", LE),
-			uint32("cache_byte_to_block", "Cache Byte To Block Shift Factor", LE),
+authInfo                        = struct("auth_info_struct", [
+        Status,
+        Status2,
+        Reserved2,
+        Privileges,
 ])
+BoardNameStruct                 = struct("board_name_struct", [
+        DriverBoardName,
+        DriverShortName,
+        DriverLogicalName,
+])        
+CacheInfo			= struct("cache_info", [
+	uint32("max_byte_cnt", "Maximum Byte Count", LE),
+	uint32("min_num_of_cache_buff", "Minimum Number Of Cache Buffers", LE),
+	uint32("min_cache_report_thresh", "Minimum Cache Report Threshold", LE),
+	uint32("alloc_waiting", "Allocate Waiting Count", LE),
+	uint32("ndirty_blocks", "Number of Dirty Blocks", LE),
+	uint32("cache_dirty_wait_time", "Cache Dirty Wait Time", LE),
+	uint32("cache_max_concur_writes", "Cache Maximum Concurrent Writes", LE),
+	uint32("max_dirty_time", "Maximum Dirty Time", LE),
+	uint32("num_dir_cache_buff", "Number Of Directory Cache Buffers", LE),
+	uint32("cache_byte_to_block", "Cache Byte To Block Shift Factor", LE),
+])
+CommonLanStruc                  = struct("common_lan_struct", [
+        boolean8("not_supported_mask", "Bit Counter Supported"),
+        Reserved3,
+        uint32("total_tx_packet_count", "Total Transmit Packet Count", LE),
+        uint32("total_rx_packet_count", "Total Receive Packet Count", LE),
+        uint32("no_ecb_available_count", "No ECB Available Count", LE),
+        uint32("packet_tx_too_big_count", "Transmit Packet Too Big Count", LE),
+        uint32("packet_tx_too_small_count", "Transmit Packet Too Small Count", LE),
+        uint32("packet_rx_overflow_count", "Receive Packet Overflow Count", LE),
+        uint32("packet_rx_too_big_count", "Receive Packet Too Big Count", LE),
+        uint32("packet_rs_too_small_count", "Receive Packet Too Small Count", LE),
+        uint32("packet_tx_misc_error_count", "Transmit Packet Misc Error Count", LE),
+        uint32("packet_rx_misc_error_count", "Receive Packet Misc Error Count", LE),
+        uint32("retry_tx_count", "Transmit Retry Count", LE),
+        uint32("checksum_error_count", "Checksum Error Count", LE),
+        uint32("hardware_rx_mismatch_count", "Hardware Receive Mismatch Count", LE),
+])
+CompDeCompStat                  = struct("comp_d_comp_stat", [
+        uint32("cmphitickhigh", "Compress High Tick", LE),        
+        uint32("cmphitickcnt", "Compress High Tick Count", LE),        
+        uint32("cmpbyteincount", "Compress Byte In Count", LE),        
+        uint32("cmpbyteoutcnt", "Compress Byte Out Count", LE),        
+        uint32("cmphibyteincnt", "Compress High Byte In Count", LE),        
+        uint32("cmphibyteoutcnt", "Compress High Byte Out Count", LE),        
+        uint32("decphitickhigh", "DeCompress High Tick", LE),        
+        uint32("decphitickcnt", "DeCompress High Tick Count", LE),        
+        uint32("decpbyteincount", "DeCompress Byte In Count", LE),        
+        uint32("decpbyteoutcnt", "DeCompress Byte Out Count", LE),        
+        uint32("decphibyteincnt", "DeCompress High Byte In Count", LE),        
+        uint32("decphibyteoutcnt", "DeCompress High Byte Out Count", LE),
+])                
 ConnFileStruct			= struct("conn_file_struct", [
-		ConnectionNumberWord,
-		TaskNumByte,
-		LockType,
-		AccessControl,
-		LockFlag,
+	ConnectionNumberWord,
+	TaskNumByte,
+	LockType,
+	AccessControl,
+	LockFlag,
 ])
 ConnStruct			= struct("conn_struct", [
-		TaskNumByte,
-		LockType,
-		AccessControl,
-		LockFlag,
-		VolumeNumber,
-		DirectoryEntryNumberWord,
-		FileName14,
+	TaskNumByte,
+	LockType,
+	AccessControl,
+	LockFlag,
+	VolumeNumber,
+	DirectoryEntryNumberWord,
+	FileName14,
 ])
 ConnTaskStruct		= struct("conn_task_struct", [
 	ConnectionNumberByte,
 	TaskNumByte,
 ])
 Counters			= struct("counters_struct", [
-		uint32("read_exist_blck", "Read Existing Block Count", LE),
-		uint32("read_exist_write_wait", "Read Existing Write Wait Count", LE),
-		uint32("read_exist_part_read", "Read Existing Partial Read Count", LE),
-		uint32("read_exist_read_err", "Read Existing Read Error Count", LE),
-		uint32("wrt_blck_cnt", "Write Block Count", LE),
-		uint32("wrt_entire_blck", "Write Entire Block Count", LE),
-		uint32("internl_dsk_get", "Internal Disk Get Count", LE),
-		uint32("internl_dsk_get_need_to_alloc", "Internal Disk Get Need To Allocate Count", LE),
-		uint32("internl_dsk_get_someone_beat", "Internal Disk Get Someone Beat My Count", LE),
-		uint32("internl_dsk_get_part_read", "Internal Disk Get Partial Read Count", LE),
-		uint32("internl_dsk_get_read_err", "Internal Disk Get Read Error Count", LE),
-		uint32("async_internl_dsk_get", "Async Internal Disk Get Count", LE),
-		uint32("async_internl_dsk_get_need_to_alloc", "Async Internal Disk Get Need To Alloc", LE),
-		uint32("async_internl_dsk_get_someone_beat", "Async Internal Disk Get Someone Beat Me", LE),
-		uint32("err_doing_async_read", "Error Doing Async Read Count", LE),
-		uint32("internl_dsk_get_no_read", "Internal Disk Get No Read Count", LE),
-		uint32("internl_dsk_get_no_read_alloc", "Internal Disk Get No Read Allocate Count", LE),
-		uint32("internl_dsk_get_no_read_someone_beat", "Internal Disk Get No Read Someone Beat Me Count", LE),
-		uint32("internl_dsk_write", "Internal Disk Write Count", LE),
-		uint32("internl_dsk_write_alloc", "Internal Disk Write Allocate Count", LE),
-		uint32("internl_dsk_write_someone_beat", "Internal Disk Write Someone Beat Me Count", LE),
-		uint32("write_err", "Write Error Count", LE),
-		uint32("wait_on_sema", "Wait On Semaphore Count", LE),
-		uint32("alloc_blck_i_had_to_wait_for", "Allocate Block I Had To Wait For Someone Count", LE),
-		uint32("alloc_blck", "Allocate Block Count", LE),
-		uint32("alloc_blck_i_had_to_wait", "Allocate Block I Had To Wait Count", LE),
+	uint32("read_exist_blck", "Read Existing Block Count", LE),
+	uint32("read_exist_write_wait", "Read Existing Write Wait Count", LE),
+	uint32("read_exist_part_read", "Read Existing Partial Read Count", LE),
+	uint32("read_exist_read_err", "Read Existing Read Error Count", LE),
+	uint32("wrt_blck_cnt", "Write Block Count", LE),
+	uint32("wrt_entire_blck", "Write Entire Block Count", LE),
+	uint32("internl_dsk_get", "Internal Disk Get Count", LE),
+	uint32("internl_dsk_get_need_to_alloc", "Internal Disk Get Need To Allocate Count", LE),
+	uint32("internl_dsk_get_someone_beat", "Internal Disk Get Someone Beat My Count", LE),
+	uint32("internl_dsk_get_part_read", "Internal Disk Get Partial Read Count", LE),
+	uint32("internl_dsk_get_read_err", "Internal Disk Get Read Error Count", LE),
+	uint32("async_internl_dsk_get", "Async Internal Disk Get Count", LE),
+	uint32("async_internl_dsk_get_need_to_alloc", "Async Internal Disk Get Need To Alloc", LE),
+	uint32("async_internl_dsk_get_someone_beat", "Async Internal Disk Get Someone Beat Me", LE),
+	uint32("err_doing_async_read", "Error Doing Async Read Count", LE),
+	uint32("internl_dsk_get_no_read", "Internal Disk Get No Read Count", LE),
+	uint32("internl_dsk_get_no_read_alloc", "Internal Disk Get No Read Allocate Count", LE),
+	uint32("internl_dsk_get_no_read_someone_beat", "Internal Disk Get No Read Someone Beat Me Count", LE),
+	uint32("internl_dsk_write", "Internal Disk Write Count", LE),
+	uint32("internl_dsk_write_alloc", "Internal Disk Write Allocate Count", LE),
+	uint32("internl_dsk_write_someone_beat", "Internal Disk Write Someone Beat Me Count", LE),
+	uint32("write_err", "Write Error Count", LE),
+	uint32("wait_on_sema", "Wait On Semaphore Count", LE),
+	uint32("alloc_blck_i_had_to_wait_for", "Allocate Block I Had To Wait For Someone Count", LE),
+	uint32("alloc_blck", "Allocate Block Count", LE),
+	uint32("alloc_blck_i_had_to_wait", "Allocate Block I Had To Wait Count", LE),
 ])
 CPUInformation			= struct("cpu_information", [
 	PageTableOwnerFlag,
 	CPUType,
+        Reserved3,
 	CoprocessorFlag,
 	BusType,
 	Reserved3,
@@ -3200,14 +3751,36 @@ CPUInformation			= struct("cpu_information", [
 	NonDedFlag,
 	Reserved3,
 	CPUString,
+        CoProcessorString,
+        BusString,
 ])
 CreationInfoStruct		= struct("creation_info_struct", [
 	CreationTime,
 	CreationDate,
 	CreatorID,
 ])
+CustomCntsInfo                  = struct("custom_cnts_info", [
+        CustomVariableValue,
+        CustomString,
+])        
 DataStreamSizeStruct		= struct("data_stream_size_struct", [
 	DataStreamSize,
+])
+DirCacheInfo			= struct("dir_cache_info", [
+	uint32("min_time_since_file_delete", "Minimum Time Since File Delete", LE),
+	uint32("abs_min_time_since_file_delete", "Absolute Minimum Time Since File Delete", LE),
+	uint32("min_num_of_dir_cache_buff", "Minimum Number Of Directory Cache Buffers", LE),
+	uint32("max_num_of_dir_cache_buff", "Maximum Number Of Directory Cache Buffers", LE),
+	uint32("num_of_dir_cache_buff", "Number Of Directory Cache Buffers", LE),
+	uint32("dc_min_non_ref_time", "DC Minimum Non-Referenced Time", LE),
+	uint32("dc_wait_time_before_new_buff", "DC Wait Time Before New Buffer", LE),
+	uint32("dc_max_concurrent_writes", "DC Maximum Concurrent Writes", LE),
+	uint32("dc_dirty_wait_time", "DC Dirty Wait Time", LE),
+	uint32("dc_double_read_flag", "DC Double Read Flag", LE),
+	uint32("map_hash_node_count", "Map Hash Node Count", LE),
+	uint32("space_restriction_node_count", "Space Restriction Node Count", LE),
+	uint32("trustee_list_node_count", "Trustee List Node Count", LE),
+	uint32("percent_of_vol_used_by_dirs", "Percent Of Volume Used By Directories", LE),
 ])
 DirEntryStruct			= struct("dir_entry_struct", [
 	DirectoryEntryNumber,
@@ -3218,9 +3791,9 @@ DSSpaceAllocateStruct		= struct("ds_space_alloc_struct", [
 	DataStreamSpaceAlloc,
 ])
 DynMemStruct			= struct("dyn_mem_struct", [
-			uint32("dyn_mem_struct_total", "Total Dynamic Space" ),
-			uint32("dyn_mem_struct_max", "Max Used Dynamic Space" ),
-			uint32("dyn_mem_struct_cur", "Current Used Dynamic Space" ),
+	uint32("dyn_mem_struct_total", "Total Dynamic Space" ),
+	uint32("dyn_mem_struct_max", "Max Used Dynamic Space" ),
+	uint32("dyn_mem_struct_cur", "Current Used Dynamic Space" ),
 ])
 EAInfoStruct			= struct("ea_info_struct", [
 	EADataSize,
@@ -3228,55 +3801,83 @@ EAInfoStruct			= struct("ea_info_struct", [
 	EAKeySize,
 ])
 ExtraCacheCntrs			= struct("extra_cache_cntrs", [
-		uint32("internl_dsk_get_no_wait", "Internal Disk Get No Wait Count", LE),
-		uint32("internl_dsk_get_no_wait_need", "Internal Disk Get No Wait Need To Allocate Count", LE),
-		uint32("internl_dsk_get_no_wait_no_blk", "Internal Disk Get No Wait No Block Count", LE),
-		uint32("id_get_no_read_no_wait", "ID Get No Read No Wait Count", LE),
-		uint32("id_get_no_read_no_wait_sema", "ID Get No Read No Wait Semaphored Count", LE),
-		uint32("id_get_no_read_no_wait_buffer", "ID Get No Read No Wait No Buffer Count", LE),
-		uint32("id_get_no_read_no_wait_alloc", "ID Get No Read No Wait Allocate Count", LE),
-		uint32("id_get_no_read_no_wait_no_alloc", "ID Get No Read No Wait No Alloc Count", LE),
-		uint32("id_get_no_read_no_wait_no_alloc_sema", "ID Get No Read No Wait No Alloc Semaphored Count", LE),
-		uint32("id_get_no_read_no_wait_no_alloc_alloc", "ID Get No Read No Wait No Alloc Allocate Count", LE),
-])			       
+	uint32("internl_dsk_get_no_wait", "Internal Disk Get No Wait Count", LE),
+	uint32("internl_dsk_get_no_wait_need", "Internal Disk Get No Wait Need To Allocate Count", LE),
+	uint32("internl_dsk_get_no_wait_no_blk", "Internal Disk Get No Wait No Block Count", LE),
+	uint32("id_get_no_read_no_wait", "ID Get No Read No Wait Count", LE),
+	uint32("id_get_no_read_no_wait_sema", "ID Get No Read No Wait Semaphored Count", LE),
+	uint32("id_get_no_read_no_wait_buffer", "ID Get No Read No Wait No Buffer Count", LE),
+	uint32("id_get_no_read_no_wait_alloc", "ID Get No Read No Wait Allocate Count", LE),
+	uint32("id_get_no_read_no_wait_no_alloc", "ID Get No Read No Wait No Alloc Count", LE),
+	uint32("id_get_no_read_no_wait_no_alloc_sema", "ID Get No Read No Wait No Alloc Semaphored Count", LE),
+	uint32("id_get_no_read_no_wait_no_alloc_alloc", "ID Get No Read No Wait No Alloc Allocate Count", LE),
+])
+FileInfoStruct                  = struct("file_info_struct", [
+        ParentID,
+        DirectoryEntryNumber,
+        TotalBlocksToDecompress,
+        CurrentBlockBeingDecompressed,
+])        			       
 FileServerCounters		= struct("file_server_counters", [
-			uint32("too_many_hops", "Too Many Hops", LE),
-			uint32("unknown_network", "Unknown Network", LE),
-			uint32("no_space_for_service", "No Space For Service", LE),
-			uint32("no_receive_buff", "No Receive Buffers", LE),
-			uint32("not_my_network", "Not My Network", LE),
-			uint32("netbios_progated", "NetBIOS Propagated Count", LE),
-			uint32("ttl_pckts_srvcd", "Total Packets Serviced", LE),
-			uint32("ttl_pckts_routed", "Total Packets Routed", LE),
+	uint16("too_many_hops", "Too Many Hops", LE),
+	uint16("unknown_network", "Unknown Network", LE),
+	uint16("no_space_for_service", "No Space For Service", LE),
+	uint16("no_receive_buff", "No Receive Buffers", LE),
+	uint16("not_my_network", "Not My Network", LE),
+	uint32("netbios_progated", "NetBIOS Propagated Count", LE),
+	uint32("ttl_pckts_srvcd", "Total Packets Serviced", LE),
+	uint32("ttl_pckts_routed", "Total Packets Routed", LE),
 ])
 FileSystemInfo			= struct("file_system_info", [
-			uint32("fat_moved", "Number of times the OS has move the location of FAT", LE),
-			uint32("fat_write_err", "Number of write errors in both original and mirrored copies of FAT", LE),
-			uint32("someone_else_did_it_0", "Someone Else Did It Count 0", LE),
-			uint32("someone_else_did_it_1", "Someone Else Did It Count 1", LE),
-			uint32("someone_else_did_it_2", "Someone Else Did It Count 2", LE),
-			uint32("i_ran_out_someone_else_did_it_0", "I Ran Out Someone Else Did It Count 0", LE),
-			uint32("i_ran_out_someone_else_did_it_1", "I Ran Out Someone Else Did It Count 1", LE),
-			uint32("i_ran_out_someone_else_did_it_2", "I Ran Out Someone Else Did It Count 2", LE),
-			uint32("turbo_fat_build_failed", "Turbo FAT Build Failed Count", LE),
-			uint32("extra_use_count_node_count", "Errors allocating a use count node for TTS", LE),
-			uint32("extra_extra_use_count_node_count", "Errors allocating an additional use count node for TTS", LE),
-			uint32("error_read_last_fat", "Error Reading Last FAT Count", LE),
-			uint32("someone_else_using_this_file", "Someone Else Using This File Count", LE),
+	uint32("fat_moved", "Number of times the OS has move the location of FAT", LE),
+	uint32("fat_write_err", "Number of write errors in both original and mirrored copies of FAT", LE),
+	uint32("someone_else_did_it_0", "Someone Else Did It Count 0", LE),
+	uint32("someone_else_did_it_1", "Someone Else Did It Count 1", LE),
+	uint32("someone_else_did_it_2", "Someone Else Did It Count 2", LE),
+	uint32("i_ran_out_someone_else_did_it_0", "I Ran Out Someone Else Did It Count 0", LE),
+	uint32("i_ran_out_someone_else_did_it_1", "I Ran Out Someone Else Did It Count 1", LE),
+	uint32("i_ran_out_someone_else_did_it_2", "I Ran Out Someone Else Did It Count 2", LE),
+	uint32("turbo_fat_build_failed", "Turbo FAT Build Failed Count", LE),
+	uint32("extra_use_count_node_count", "Errors allocating a use count node for TTS", LE),
+	uint32("extra_extra_use_count_node_count", "Errors allocating an additional use count node for TTS", LE),
+	uint32("error_read_last_fat", "Error Reading Last FAT Count", LE),
+	uint32("someone_else_using_this_file", "Someone Else Using This File Count", LE),
 ])
+GenericInfoDef                  = struct("generic_info_def", [
+        fw_string("generic_label", "Label", 64),
+        uint32("generic_ident_type", "Identification Type", LE),
+        uint32("generic_ident_time", "Identification Time", LE),
+        uint32("generic_media_type", "Media Type", LE),
+        uint32("generic_cartridge_type", "Cartridge Type", LE),
+        uint32("generic_unit_size", "Unit Size", LE),
+        uint32("generic_block_size", "Block Size", LE),
+        uint32("generic_capacity", "Capacity", LE),
+        uint32("generic_pref_unit_size", "Preferred Unit Size", LE),
+        fw_string("generic_name", "Name",64),
+        uint32("generic_type", "Type", LE),
+        uint32("generic_status", "Status", LE),
+        uint32("generic_func_mask", "Function Mask", LE),
+        uint32("generic_ctl_mask", "Control Mask", LE),
+        uint32("generic_parent_count", "Parent Count", LE),
+        uint32("generic_sib_count", "Sibling Count", LE),
+        uint32("generic_child_count", "Child Count", LE),
+        uint32("generic_spec_info_sz", "Specific Information Size", LE),
+        uint32("generic_object_uniq_id", "Unique Object ID"),
+        uint32("generic_media_slot", "Media Slot", LE),
+])        
 IPXInformation			= struct("ipx_information", [
-		uint32("ipx_send_pkt", "IPX Send Packet Count", LE),
-		uint16("ipx_malform_pkt", "IPX Malformed Packet Count", LE),
-		uint32("ipx_get_ecb_req", "IPX Get ECB Request Count", LE),
-		uint32("ipx_get_ecb_fail", "IPX Get ECB Fail Count", LE),
-		uint32("ipx_aes_event", "IPX AES Event Count", LE),
-		uint16("ipx_postponed_aes", "IPX Postponed AES Count", LE),
-		uint16("ipx_max_conf_sock", "IPX Max Configured Socket Count", LE),
-		uint16("ipx_max_open_sock", "IPX Max Open Socket Count", LE),
-		uint16("ipx_open_sock_fail", "IPX Open Socket Fail Count", LE),
-		uint32("ipx_listen_ecb", "IPX Listen ECB Count", LE),
-		uint32("ipx_ecb_cancel_fail", "IPX ECB Cancel Fail Count", LE),
-		uint16("ipx_get_lcl_targ_fail", "IPX Get Local Target Fail Count", LE),
+	uint32("ipx_send_pkt", "IPX Send Packet Count", LE),
+	uint16("ipx_malform_pkt", "IPX Malformed Packet Count", LE),
+	uint32("ipx_get_ecb_req", "IPX Get ECB Request Count", LE),
+	uint32("ipx_get_ecb_fail", "IPX Get ECB Fail Count", LE),
+	uint32("ipx_aes_event", "IPX AES Event Count", LE),
+	uint16("ipx_postponed_aes", "IPX Postponed AES Count", LE),
+	uint16("ipx_max_conf_sock", "IPX Max Configured Socket Count", LE),
+	uint16("ipx_max_open_sock", "IPX Max Open Socket Count", LE),
+	uint16("ipx_open_sock_fail", "IPX Open Socket Fail Count", LE),
+	uint32("ipx_listen_ecb", "IPX Listen ECB Count", LE),
+	uint16("ipx_ecb_cancel_fail", "IPX ECB Cancel Fail Count", LE),
+	uint16("ipx_get_lcl_targ_fail", "IPX Get Local Target Fail Count", LE),
 ])
 JobEntryTime			= struct("job_entry_time", [
 	Year,
@@ -3286,13 +3887,73 @@ JobEntryTime			= struct("job_entry_time", [
 	Minute,
 	Second,
 ])
-LockStruct			= struct("lock_struct", [
-		TaskNumByte,
-		LockType,
-		RecordStart,
-		RecordEnd,
+KnownRoutes                     = struct("known_routes", [
+        NetIDNumber,
+        HopsToNet,
+        NetStatus,
+        TimeToNet,
 ])
-LoginTime = struct("login_time", [
+KnownServStruc                  = struct("known_server_struct", [
+        ServerAddress,
+        HopsToNet,
+        ServerNameStringz,
+])                
+LANConfigInfo                   = struct("lan_cfg_info", [
+        LANdriverCFG_MajorVersion,
+        LANdriverCFG_MinorVersion,
+        LANdriverNodeAddress,
+        Reserved,
+        LANdriverModeFlags,
+        LANdriverBoardNumber,
+        LANdriverBoardInstance,
+        LANdriverMaximumSize,
+        LANdriverMaxRecvSize,
+        LANdriverRecvSize,
+        LANdriverCardID,
+        LANdriverMediaID,
+        LANdriverTransportTime,
+        LANdriverSrcRouting,
+        LANdriverLineSpeed,
+        LANdriverReserved,
+        LANdriverMajorVersion,
+        LANdriverMinorVersion,
+        LANdriverFlags,
+        LANdriverSendRetries,
+        LANdriverLink,
+        LANdriverSharingFlags,
+        LANdriverSlot,
+        LANdriverIOPortsAndRanges1,
+        LANdriverIOPortsAndRanges2,
+        LANdriverIOPortsAndRanges3,
+        LANdriverIOPortsAndRanges4,
+        LANdriverMemoryDecode0,
+        LANdriverMemoryLength0,
+        LANdriverMemoryDecode1,
+        LANdriverMemoryLength1,
+        LANdriverInterrupt1,
+        LANdriverInterrupt2,
+        LANdriverDMAUsage1,
+        LANdriverDMAUsage2,
+        LANdriverLogicalName,
+        LANdriverIOReserved,
+        LANdriverCardName,
+#        LANdriverShortName,
+#        LANdriverMediaType,
+#        LANCustomVariablesCount,
+])
+lockInfo                        = struct("lock_info_struct", [
+        LogicalLockThreshold,
+        PhysicalLockThreshold,
+        FileLockCount,
+        RecordLockCount,
+])
+LockStruct			= struct("lock_struct", [
+	TaskNumByte,
+	LockType,
+	RecordStart,
+	RecordEnd,
+])
+LoginTime                       = struct("login_time", [
 	Year,
 	Month,
 	Day,
@@ -3302,32 +3963,76 @@ LoginTime = struct("login_time", [
 	DayOfWeek,
 ])
 LogLockStruct			= struct("log_lock_struct", [
-		TaskNumByte,
-		LockStatus,
-		LockName,
+	TaskNumByte,
+	LockStatus,
+	LockName,
 ])
 LogRecStruct			= struct("log_rec_struct", [
-		ConnectionNumberWord,
-		TaskNumByte,
-		LockStatus,
+	ConnectionNumberWord,
+	TaskNumByte,
+	LockStatus,
 ])
+LSLInformation                  = struct("lsl_information", [
+        uint32("rx_buffers", "Receive Buffers", LE),
+        uint32("rx_buffers_75", "Receive Buffers Warning Level", LE),
+        uint32("rx_buffers_checked_out", "Receive Buffers Checked Out Count", LE),
+        uint32("rx_buffer_size", "Receive Buffer Size", LE),
+        uint32("max_phy_packet_size", "Maximum Physical Packet Size", LE),
+        uint32("last_time_rx_buff_was_alloc", "Last Time a Receive Buffer was Allocated", LE),
+        uint32("max_num_of_protocols", "Maximum Number of Protocols", LE),
+        uint32("max_num_of_media_types", "Maximum Number of Media Types", LE),
+        uint32("total_tx_packets", "Total Transmit Packets", LE),
+        uint32("get_ecb_buf", "Get ECB Buffers", LE),
+        uint32("get_ecb_fails", "Get ECB Failures", LE),
+        uint32("aes_event_count", "AES Event Count", LE),
+        uint32("post_poned_events", "Postponed Events", LE),
+        uint32("ecb_cxl_fails", "ECB Cancel Failures", LE),
+        uint32("valid_bfrs_reused", "Valid Buffers Reused", LE),
+        uint32("enqueued_send_cnt", "Enqueued Send Count", LE),
+        uint32("total_rx_packets", "Total Receive Packets", LE),
+        uint32("unclaimed_packets", "Unclaimed Packets", LE),
+        uint8("stat_table_major_version", "Statistics Table Major Version"),
+        uint8("stat_table_minor_version", "Statistics Table Minor Version"),
+])        
 MemoryCounters			= struct("memory_counters", [
-		uint32("orig_num_cache_buff", "Original Number Of Cache Buffers", LE),
-		uint32("curr_num_cache_buff", "Current Number Of Cache Buffers", LE),
-		uint32("cache_dirty_block_thresh", "Cache Dirty Block Threshold", LE),
-		uint32("wait_node", "Wait Node Count", LE),
-		uint32("wait_node_alloc_fail", "Wait Node Alloc Failure Count", LE),
-		uint32("move_cache_node", "Move Cache Node Count", LE),
-		uint32("move_cache_node_from_avai", "Move Cache Node From Avail Count", LE),
-		uint32("accel_cache_node_write", "Accelerate Cache Node Write Count", LE),
-		uint32("rem_cache_node", "Remove Cache Node Count", LE),
-		uint32("rem_cache_node_from_avail", "Remove Cache Node From Avail Count", LE),
-])		
+	uint32("orig_num_cache_buff", "Original Number Of Cache Buffers", LE),
+	uint32("curr_num_cache_buff", "Current Number Of Cache Buffers", LE),
+	uint32("cache_dirty_block_thresh", "Cache Dirty Block Threshold", LE),
+	uint32("wait_node", "Wait Node Count", LE),
+	uint32("wait_node_alloc_fail", "Wait Node Alloc Failure Count", LE),
+	uint32("move_cache_node", "Move Cache Node Count", LE),
+	uint32("move_cache_node_from_avai", "Move Cache Node From Avail Count", LE),
+	uint32("accel_cache_node_write", "Accelerate Cache Node Write Count", LE),
+	uint32("rem_cache_node", "Remove Cache Node Count", LE),
+	uint32("rem_cache_node_from_avail", "Remove Cache Node From Avail Count", LE),
+])
+MLIDBoardInfo                   = struct("mlid_board_info", [		
+        uint32("protocol_board_num", "Protocol Board Number", LE),
+        uint16("protocol_number", "Protocol Number", LE),
+        bytes("protocol_id", "Protocol ID", 6),
+        nstring8("protocol_name", "Protocol Name"),
+])        
 ModifyInfoStruct		= struct("modify_info_struct", [
 	ModifiedTime,
 	ModifiedDate,
 	ModifierID,
 	LastAccessedDate,
+])
+nameInfo                        = struct("name_info_struct", [
+        ObjectType,
+        nstring8("login_name", "Login Name"),
+])
+NCPNetworkAddress                  = struct("ncp_network_address_struct", [
+        uint32("address_type", "Address Type", LE),
+        uint32("address_len", "Address Length", LE),
+        #Need nstring32 - just like nstring8 but with long as count field
+        #nstring32("address", "Address"),
+])
+netAddr                         = struct("net_addr_struct", [
+        TransportType,
+        nstring8("transport_addr", "Transport Address"),
+        #Need nstring32 - just like nstring8 but with long as count field
+        #nstring32("transport_addr", "Transport Address"),
 ])
 NetWareInformationStruct	= struct("netware_information_struct", [
 	DataStreamSpaceAlloc, 		# (Data Stream Alloc Bit)
@@ -3360,6 +4065,28 @@ NetWareInformationStruct	= struct("netware_information_struct", [
 	CreatorNameSpaceNumber,		# (Name Space Bit)
 	Reserved3,
 ])
+NLMInformation			= struct("nlm_information", [
+	IdentificationNumber,
+	NLMFlags,
+	Reserved3,
+	NLMType,
+	Reserved3,
+	ParentID,
+	MajorVersion,
+	MinorVersion,
+	Revision,
+	Year,
+	Reserved3,
+	Month,
+	Reserved3,
+	Day,
+	Reserved3,
+	AllocAvailByte,
+	AllocFreeCount,
+	LastGarbCollect,
+	MessageLanguage,
+	NumberOfReferencedPublics,
+])
 NSInfoStruct			= struct("ns_info_struct", [
 	CreatorNameSpaceNumber,
 	Reserved3,
@@ -3384,196 +4111,286 @@ ObjectIDStruct			= struct("object_id_struct", [
 	Restriction,
 ])
 OpnFilesStruct			= struct("opn_files_struct", [
-		TaskNumberWord,
-		LockType,
-		AccessControl,
-		LockFlag,
-		VolumeNumber,
-		DOSParentDirectoryEntry,
-		DOSDirectoryEntry,
-		ForkCount,
-		NameSpace,
-		FileName,
+	TaskNumberWord,
+	LockType,
+	AccessControl,
+	LockFlag,
+	VolumeNumber,
+	DOSParentDirectoryEntry,
+	DOSDirectoryEntry,
+	ForkCount,
+	NameSpace,
+	FileName,
 ])
 PacketBurstInformation		= struct("packet_burst_information", [
-			uint32("big_invalid_slot", "Big Invalid Slot Count", LE),
-			uint32("big_forged_packet", "Big Forged Packet Count", LE),
-			uint32("big_invalid_packet", "Big Invalid Packet Count", LE),
-			uint32("big_still_transmitting", "Big Still Transmitting Count", LE),
-			uint32("still_doing_the_last_req", "Still Doing The Last Request Count", LE),
-			uint32("invalid_control_req", "Invalid Control Request Count", LE),
-			uint32("control_invalid_message_number", "Control Invalid Message Number Count", LE),
-			uint32("control_being_torn_down", "Control Being Torn Down Count", LE),
-			uint32("big_repeat_the_file_read", "Big Repeat the File Read Count", LE),
-			uint32("big_send_extra_cc_count", "Big Send Extra CC Count", LE),
-			uint32("big_return_abort_mess", "Big Return Abort Message Count", LE),
-			uint32("big_read_invalid_mess", "Big Read Invalid Message Number Count", LE),
-			uint32("big_read_do_it_over", "Big Read Do It Over Count", LE),
-			uint32("big_read_being_torn_down", "Big Read Being Torn Down Count", LE),
-			uint32("previous_control_packet", "Previous Control Packet Count", LE),
-			uint32("send_hold_off_message", "Send Hold Off Message Count", LE),
-			uint32("big_read_no_data_avail", "Big Read No Data Available Count", LE),
-			uint32("big_read_trying_to_read", "Big Read Trying To Read Too Much Count", LE),
-			uint32("async_read_error", "Async Read Error Count", LE),
-			uint32("big_read_phy_read_err", "Big Read Physical Read Error Count", LE),
-			uint32("ctl_bad_ack_frag_list", "Control Bad ACK Fragment List Count", LE),
-			uint32("ctl_no_data_read", "Control No Data Read Count", LE),
-			uint32("write_dup_req", "Write Duplicate Request Count", LE),
-			uint32("shouldnt_be_ack_here", "Shouldn't Be ACKing Here Count", LE),
-			uint32("write_incon_packet_len", "Write Inconsistent Packet Lengths Count", LE),
-			uint32("first_packet_isnt_a_write", "First Packet Isn't A Write Count", LE),
-			uint32("write_trash_dup_req", "Write Trashed Duplicate Request Count", LE),
-			uint32("big_write_inv_message_num", "Big Write Invalid Message Number Count", LE),
-			uint32("big_write_being_torn_down", "Big Write Being Torn Down Count", LE),
-			uint32("big_write_being_abort", "Big Write Being Aborted Count", LE),
-			uint32("zero_ack_frag", "Zero ACK Fragment Count", LE),
-			uint32("write_curr_trans", "Write Currently Transmitting Count", LE),
-			uint32("try_to_write_too_much", "Trying To Write Too Much Count", LE),
-			uint32("write_out_of_mem_for_ctl_nodes", "Write Out Of Memory For Control Nodes Count", LE),
-			uint32("write_didnt_need_this_frag", "Write Didn't Need This Fragment Count", LE),
-			uint32("write_too_many_buf_check", "Write Too Many Buffers Checked Out Count", LE),
-			uint32("write_timeout", "Write Time Out Count", LE),
-			uint32("write_got_an_ack0", "Write Got An ACK Count 0", LE),
-			uint32("write_got_an_ack1", "Write Got An ACK Count 1", LE),
-			uint32("poll_abort_conn", "Poller Aborted The Connnection Count", LE),
-			uint32("may_had_out_of_order", "Maybe Had Out Of Order Writes Count", LE),
-			uint32("had_an_out_of_order", "Had An Out Of Order Write Count", LE),
-			uint32("moved_the_ack_bit_dn", "Moved The ACK Bit Down Count", LE),
-			uint32("bumped_out_of_order", "Bumped Out Of Order Write Count", LE),
-			uint32("poll_rem_old_out_of_order", "Poller Removed Old Out Of Order Count", LE),
-			uint32("write_didnt_need_but_req_ack", "Write Didn't Need But Requested ACK Count", LE),
-			uint32("write_trash_packet", "Write Trashed Packet Count", LE),
-			uint32("too_many_ack_frag", "Too Many ACK Fragments Count", LE),
-			uint32("saved_an_out_of_order_packet", "Saved An Out Of Order Packet Count", LE),
-			uint32("conn_being_aborted", "Connection Being Aborted Count", LE),
+	uint32("big_invalid_slot", "Big Invalid Slot Count", LE),
+	uint32("big_forged_packet", "Big Forged Packet Count", LE),
+	uint32("big_invalid_packet", "Big Invalid Packet Count", LE),
+	uint32("big_still_transmitting", "Big Still Transmitting Count", LE),
+	uint32("still_doing_the_last_req", "Still Doing The Last Request Count", LE),
+	uint32("invalid_control_req", "Invalid Control Request Count", LE),
+	uint32("control_invalid_message_number", "Control Invalid Message Number Count", LE),
+	uint32("control_being_torn_down", "Control Being Torn Down Count", LE),
+	uint32("big_repeat_the_file_read", "Big Repeat the File Read Count", LE),
+	uint32("big_send_extra_cc_count", "Big Send Extra CC Count", LE),
+	uint32("big_return_abort_mess", "Big Return Abort Message Count", LE),
+	uint32("big_read_invalid_mess", "Big Read Invalid Message Number Count", LE),
+	uint32("big_read_do_it_over", "Big Read Do It Over Count", LE),
+	uint32("big_read_being_torn_down", "Big Read Being Torn Down Count", LE),
+	uint32("previous_control_packet", "Previous Control Packet Count", LE),
+	uint32("send_hold_off_message", "Send Hold Off Message Count", LE),
+	uint32("big_read_no_data_avail", "Big Read No Data Available Count", LE),
+	uint32("big_read_trying_to_read", "Big Read Trying To Read Too Much Count", LE),
+	uint32("async_read_error", "Async Read Error Count", LE),
+	uint32("big_read_phy_read_err", "Big Read Physical Read Error Count", LE),
+	uint32("ctl_bad_ack_frag_list", "Control Bad ACK Fragment List Count", LE),
+	uint32("ctl_no_data_read", "Control No Data Read Count", LE),
+	uint32("write_dup_req", "Write Duplicate Request Count", LE),
+	uint32("shouldnt_be_ack_here", "Shouldn't Be ACKing Here Count", LE),
+	uint32("write_incon_packet_len", "Write Inconsistent Packet Lengths Count", LE),
+	uint32("first_packet_isnt_a_write", "First Packet Isn't A Write Count", LE),
+	uint32("write_trash_dup_req", "Write Trashed Duplicate Request Count", LE),
+	uint32("big_write_inv_message_num", "Big Write Invalid Message Number Count", LE),
+	uint32("big_write_being_torn_down", "Big Write Being Torn Down Count", LE),
+	uint32("big_write_being_abort", "Big Write Being Aborted Count", LE),
+	uint32("zero_ack_frag", "Zero ACK Fragment Count", LE),
+	uint32("write_curr_trans", "Write Currently Transmitting Count", LE),
+	uint32("try_to_write_too_much", "Trying To Write Too Much Count", LE),
+	uint32("write_out_of_mem_for_ctl_nodes", "Write Out Of Memory For Control Nodes Count", LE),
+	uint32("write_didnt_need_this_frag", "Write Didn't Need This Fragment Count", LE),
+	uint32("write_too_many_buf_check", "Write Too Many Buffers Checked Out Count", LE),
+	uint32("write_timeout", "Write Time Out Count", LE),
+	uint32("write_got_an_ack0", "Write Got An ACK Count 0", LE),
+	uint32("write_got_an_ack1", "Write Got An ACK Count 1", LE),
+	uint32("poll_abort_conn", "Poller Aborted The Connnection Count", LE),
+	uint32("may_had_out_of_order", "Maybe Had Out Of Order Writes Count", LE),
+	uint32("had_an_out_of_order", "Had An Out Of Order Write Count", LE),
+	uint32("moved_the_ack_bit_dn", "Moved The ACK Bit Down Count", LE),
+	uint32("bumped_out_of_order", "Bumped Out Of Order Write Count", LE),
+	uint32("poll_rem_old_out_of_order", "Poller Removed Old Out Of Order Count", LE),
+	uint32("write_didnt_need_but_req_ack", "Write Didn't Need But Requested ACK Count", LE),
+	uint32("write_trash_packet", "Write Trashed Packet Count", LE),
+	uint32("too_many_ack_frag", "Too Many ACK Fragments Count", LE),
+	uint32("saved_an_out_of_order_packet", "Saved An Out Of Order Packet Count", LE),
+	uint32("conn_being_aborted", "Connection Being Aborted Count", LE),
 ])
 PhyLockStruct			= struct("phy_lock_struct", [
-		LoggedCount,
-		ShareableLockCount,
-		RecordStart,
-		RecordEnd,
-		LogicalConnectionNumber,
-		TaskNumByte,
-		LockType,
+	LoggedCount,
+	ShareableLockCount,
+	RecordStart,
+	RecordEnd,
+	LogicalConnectionNumber,
+	TaskNumByte,
+	LockType,
+])
+printInfo                       = struct("print_info_struct", [
+        PrintFlags,
+        TabSize,
+        Copies,
+        PrintToFileFlag,
+        BannerName,
+        TargetPrinter,
+        FormType,
 ])
 RightsInfoStruct		= struct("rights_info_struct", [
 	InheritedRightsMaskLow,
 	InheritedRightsMaskHigh,
 ])
+RoutersInfo                     = struct("routers_info", [
+        bytes("node", "Node", 6),
+        ConnectedLAN,
+        uint16("route_hops", "Hop Count", LE),
+        uint16("route_time", "Route Time", LE),
+])        
+RTagStructure                   = struct("r_tag_struct", [
+        RTagNumber,
+        ResourceSignature,
+        ResourceCount,
+        ResourceName,
+])
+Segments                                = struct("segments", [
+        uint32("volume_segment_dev_num", "Volume Segment Device Number", LE),
+        uint32("volume_segment_offset", "Volume Segment Offset", LE),
+        uint32("volume_segment_size", "Volume Segment Size", LE),
+])            
 SemaInfoStruct				= struct("sema_info_struct", [
-			LogicalConnectionNumber,
-			TaskNumByte,
+	LogicalConnectionNumber,
+	TaskNumByte,
 ])
 SemaStruct				= struct("sema_struct", [
-		OpenCount,
-		SemaphoreValue,
-		TaskNumByte,
-		SemaphoreName,
+	OpenCount,
+	SemaphoreValue,
+	TaskNumByte,
+	SemaphoreName,
 ])
 ServerInfo			= struct("server_info", [
-			uint32("reply_canceled", "Reply Canceled Count", LE),
-			uint32("write_held_off", "Write Held Off Count", LE),
-			uint32("write_held_off_with_dup", "Write Held Off With Duplicate Request", LE),
-			uint32("invalid_req_type", "Invalid Request Type Count", LE),
-			uint32("being_aborted", "Being Aborted Count", LE),
-			uint32("already_doing_realloc", "Already Doing Re-Allocate Count", LE),
-			uint32("dealloc_invalid_slot", "De-Allocate Invalid Slot Count", LE),
-			uint32("dealloc_being_proc", "De-Allocate Being Processed Count", LE),
-			uint32("dealloc_forged_packet", "De-Allocate Forged Packet Count", LE),
-			uint32("dealloc_still_transmit", "De-Allocate Still Transmitting Count", LE),
-			uint32("start_station_error", "Start Station Error Count", LE),
-			uint32("invalid_slot", "Invalid Slot Count", LE),
-			uint32("being_processed", "Being Processed Count", LE),
-			uint32("forged_packet", "Forged Packet Count", LE),
-			uint32("still_transmitting", "Still Transmitting Count", LE),
-			uint32("reexecute_request", "Re-Execute Request Count", LE),
-			uint32("invalid_sequence_number", "Invalid Sequence Number Count", LE),
-			uint32("dup_is_being_sent", "Duplicate Is Being Sent Already Count", LE),
-			uint32("sent_pos_ack", "Sent Positive Acknowledge Count", LE),
-			uint32("sent_a_dup_reply", "Sent A Duplicate Reply Count", LE),
-			uint32("no_mem_for_station", "No Memory For Station Control Count", LE),
-			uint32("no_avail_conns", "No Available Connections Count", LE),
-			uint32("realloc_slot", "Re-Allocate Slot Count", LE),
-			uint32("realloc_slot_came_too_soon", "Re-Allocate Slot Came Too Soon Count", LE),
+	uint32("reply_canceled", "Reply Canceled Count", LE),
+	uint32("write_held_off", "Write Held Off Count", LE),
+	uint32("write_held_off_with_dup", "Write Held Off With Duplicate Request", LE),
+	uint32("invalid_req_type", "Invalid Request Type Count", LE),
+	uint32("being_aborted", "Being Aborted Count", LE),
+	uint32("already_doing_realloc", "Already Doing Re-Allocate Count", LE),
+	uint32("dealloc_invalid_slot", "De-Allocate Invalid Slot Count", LE),
+	uint32("dealloc_being_proc", "De-Allocate Being Processed Count", LE),
+	uint32("dealloc_forged_packet", "De-Allocate Forged Packet Count", LE),
+	uint32("dealloc_still_transmit", "De-Allocate Still Transmitting Count", LE),
+	uint32("start_station_error", "Start Station Error Count", LE),
+	uint32("invalid_slot", "Invalid Slot Count", LE),
+	uint32("being_processed", "Being Processed Count", LE),
+	uint32("forged_packet", "Forged Packet Count", LE),
+	uint32("still_transmitting", "Still Transmitting Count", LE),
+	uint32("reexecute_request", "Re-Execute Request Count", LE),
+	uint32("invalid_sequence_number", "Invalid Sequence Number Count", LE),
+	uint32("dup_is_being_sent", "Duplicate Is Being Sent Already Count", LE),
+	uint32("sent_pos_ack", "Sent Positive Acknowledge Count", LE),
+	uint32("sent_a_dup_reply", "Sent A Duplicate Reply Count", LE),
+	uint32("no_mem_for_station", "No Memory For Station Control Count", LE),
+	uint32("no_avail_conns", "No Available Connections Count", LE),
+	uint32("realloc_slot", "Re-Allocate Slot Count", LE),
+	uint32("realloc_slot_came_too_soon", "Re-Allocate Slot Came Too Soon Count", LE),
 ])
+ServersSrcInfo                  = struct("servers_src_info", [
+        ServerNode,
+        ConnectedLAN,
+        HopsToNet,
+])        
 SPXInformation			= struct("spx_information", [
-		uint16("spx_max_conn", "SPX Max Connections Count", LE),
-		uint16("spx_max_used_conn", "SPX Max Used Connections", LE),
-		uint16("spx_est_conn_req", "SPX Establish Connection Requests", LE),
-		uint16("spx_est_conn_fail", "SPX Establish Connection Fail", LE),
-		uint16("spx_listen_con_req", "SPX Listen Connect Request", LE),
-		uint16("spx_listen_con_fail", "SPX Listen Connect Fail", LE),
-		uint32("spx_send", "SPX Send Count", LE),
-		uint32("spx_window_choke", "SPX Window Choke Count", LE),
-		uint16("spx_bad_send", "SPX Bad Send Count", LE),
-		uint16("spx_send_fail", "SPX Send Fail Count", LE),
-		uint16("spx_abort_conn", "SPX Aborted Connection", LE),
-		uint32("spx_listen_pkt", "SPX Listen Packet Count", LE),
-		uint16("spx_bad_listen", "SPX Bad Listen Count", LE),
-		uint32("spx_incoming_pkt", "SPX Incoming Packet Count", LE),
-		uint16("spx_bad_in_pkt", "SPX Bad In Packet Count", LE),
-		uint16("spx_supp_pkt", "SPX Suppressed Packet Count", LE),
-		uint16("spx_no_ses_listen", "SPX No Session Listen ECB Count", LE),
-		uint16("spx_watch_dog", "SPX Watch Dog Destination Session Count", LE),
+	uint16("spx_max_conn", "SPX Max Connections Count", LE),
+	uint16("spx_max_used_conn", "SPX Max Used Connections", LE),
+	uint16("spx_est_conn_req", "SPX Establish Connection Requests", LE),
+	uint16("spx_est_conn_fail", "SPX Establish Connection Fail", LE),
+	uint16("spx_listen_con_req", "SPX Listen Connect Request", LE),
+	uint16("spx_listen_con_fail", "SPX Listen Connect Fail", LE),
+	uint32("spx_send", "SPX Send Count", LE),
+	uint32("spx_window_choke", "SPX Window Choke Count", LE),
+	uint16("spx_bad_send", "SPX Bad Send Count", LE),
+	uint16("spx_send_fail", "SPX Send Fail Count", LE),
+	uint16("spx_abort_conn", "SPX Aborted Connection", LE),
+	uint32("spx_listen_pkt", "SPX Listen Packet Count", LE),
+	uint16("spx_bad_listen", "SPX Bad Listen Count", LE),
+	uint32("spx_incoming_pkt", "SPX Incoming Packet Count", LE),
+	uint16("spx_bad_in_pkt", "SPX Bad In Packet Count", LE),
+	uint16("spx_supp_pkt", "SPX Suppressed Packet Count", LE),
+	uint16("spx_no_ses_listen", "SPX No Session Listen ECB Count", LE),
+	uint16("spx_watch_dog", "SPX Watch Dog Destination Session Count", LE),
+])
+StackInfo                       = struct("stack_info", [
+        StackNumber,
+        fw_string("stack_short_name", "Stack Short Name", 16),
+])        
+statsInfo                       = struct("stats_info_struct", [
+        TotalBytesRead,
+        TotalBytesWritten,
+        TotalRequest,
+])
+timeInfo                        = struct("time_info", [
+       	Year,
+	Month,
+	Day,
+	Hour,
+	Minute,
+	Second,
+	DayOfWeek,
+        uint32("login_expiration_time", "Login Expiration Time"),
 ])		
 TotalStreamSizeStruct		= struct("total_stream_size_struct", [
 	TotalDataStreamDiskSpaceAlloc,
 	NumberOfDataStreams,
 ])
 TrendCounters			= struct("trend_counters", [
-			uint32("num_of_cache_checks", "Number Of Cache Checks", LE),
-			uint32("num_of_cache_hits", "Number Of Cache Hits", LE),
-			uint32("num_of_dirty_cache_checks", "Number Of Dirty Cache Checks", LE),
-			uint32("num_of_cache_dirty_checks", "Number Of Cache Dirty Checks", LE),
-			uint32("cache_used_while_check", "Cache Used While Checking", LE),
-			uint32("wait_till_dirty_blcks_dec", "Wait Till Dirty Blocks Decrease Count", LE),
-			uint32("alloc_blck_frm_avail", "Allocate Block From Available Count", LE),
-			uint32("alloc_blck_frm_lru", "Allocate Block From LRU Count", LE),
-			uint32("alloc_blck_already_wait", "Allocate Block Already Waiting", LE),
-			uint32("lru_sit_time", "LRU Sitting Time", LE),
-			uint32("num_of_cache_check_no_wait", "Number Of Cache Check No Wait", LE),
-			uint32("num_of_cache_hits_no_wait", "Number Of Cache Hits No Wait", LE),
+	uint32("num_of_cache_checks", "Number Of Cache Checks", LE),
+	uint32("num_of_cache_hits", "Number Of Cache Hits", LE),
+	uint32("num_of_dirty_cache_checks", "Number Of Dirty Cache Checks", LE),
+	uint32("num_of_cache_dirty_checks", "Number Of Cache Dirty Checks", LE),
+	uint32("cache_used_while_check", "Cache Used While Checking", LE),
+	uint32("wait_till_dirty_blcks_dec", "Wait Till Dirty Blocks Decrease Count", LE),
+	uint32("alloc_blck_frm_avail", "Allocate Block From Available Count", LE),
+	uint32("alloc_blck_frm_lru", "Allocate Block From LRU Count", LE),
+	uint32("alloc_blck_already_wait", "Allocate Block Already Waiting", LE),
+	uint32("lru_sit_time", "LRU Sitting Time", LE),
+	uint32("num_of_cache_check_no_wait", "Number Of Cache Check No Wait", LE),
+	uint32("num_of_cache_hits_no_wait", "Number Of Cache Hits No Wait", LE),
 ])
 TrusteeStruct			= struct("trustee_struct", [
-			ObjectID,
-			AccessRightsMask,
-			AccessRightsHigh,
+	ObjectID,
+	AccessRightsMask,
+	AccessRightsHigh,
 ])
 UserInformation			= struct("user_info", [
-			ConnectionNumber,
-			UseCount,
-			Reserved2,
-			ConnectionServiceType,
-			Year,
-			Month,
-			Day,
-			Hour,
-			Minute,
-			Second,
-			DayOfWeek,
-			Status,
-			Reserved3,
-			ExpirationTime,
-			ObjectType,
-			Reserved2,
-			TransactionTrackingFlag,
-			LogicalLockThreshold,
-			FileWriteFlags,
-			FileWriteState,
-			Reserved,
-			FileLockCount,
-			RecordLockCount,
-			TotalBytesRead,
-			TotalBytesWritten,
-			TotalRequest,
-			HeldRequests,
-			HeldBytesRead,
-			HeldBytesWritten,
+	ConnectionNumber,
+	UseCount,
+	Reserved2,
+	ConnectionServiceType,
+	Year,
+	Month,
+	Day,
+	Hour,
+	Minute,
+	Second,
+	DayOfWeek,
+	Status,
+        Status2,
+	Reserved2,
+	ExpirationTime,
+	ObjectType,
+	Reserved2,
+	TransactionTrackingFlag,
+	LogicalLockThreshold,
+	FileWriteFlags,
+	FileWriteState,
+	Reserved,
+	FileLockCount,
+	RecordLockCount,
+	TotalBytesRead,
+	TotalBytesWritten,
+	TotalRequest,
+	HeldRequests,
+	HeldBytesRead,
+	HeldBytesWritten,
+])
+VolInfoStructure                = struct("vol_info_struct", [
+        VolumeType,
+        Reserved2,
+	StatusFlagBitsLow,
+        Reserved,
+	StatusFlagBitsHigh,
+        SectorSize,
+        SectorsPerClusterLong,
+        VolumeSizeInClusters,
+        FreedClusters,
+        SubAllocFreeableClusters,
+        FreeableLimboSectors,
+        NonFreeableLimboSectors,
+        NonFreeableAvailableSubAllocSectors,
+        NotUsableSubAllocSectors,
+        SubAllocClusters,
+        DataStreamsCount,
+        LimboDataStreamsCount,
+        OldestDeletedFileAgeInTicks,
+        CompressedDataStreamsCount,
+        CompressedLimboDataStreamsCount,
+        UnCompressableDataStreamsCount,
+        PreCompressedSectors,
+        CompressedSectors,
+        MigratedFiles,
+        MigratedSectors,
+        ClustersUsedByFAT,
+        ClustersUsedByDirectories,
+        ClustersUsedByExtendedDirectories,
+        TotalDirectoryEntries,
+        UnUsedDirectoryEntries,
+        TotalExtendedDirectoryExtants,
+        UnUsedExtendedDirectoryExtants,
+        ExtendedAttributesDefined,
+        ExtendedAttributeExtantsUsed,
+        DirectoryServicesObjectID,
+        VolumeLastModifiedDateAndTime,
 ])
 VolumeStruct                = struct("volume_struct", [
         VolumeNumberLong,
         VolumeNameLen,
 ])
+
 
 ##############################################################################
 # NCP Groups
@@ -3619,6 +4436,7 @@ def define_errors():
 	errors[0x0105] = "Semaphore overflow"
 	errors[0x0106] = "Invalid Parameter"
 	errors[0x0107] = "Invalid Number of Minutes to Delay"
+        errors[0x0108] = "Invalid Start or Network Number"
 
 	errors[0x0200] = "One or more clients in the send list are not logged in"
 	errors[0x0201] = "Queue server cannot attach"
@@ -3629,6 +4447,7 @@ def define_errors():
 	errors[0x0401] = "Queue server cannot service job"
 
 	errors[0x7300] = "Revoke Handle Rights Not Found"
+        errors[0x7900] = "Invalid Parameter in Request Packet"
 	errors[0x7a00] = "Connection Already Temporary"
 	errors[0x7b00] = "Connection Already Logged in"
 	errors[0x7c00] = "Connection Not Authenticated"
@@ -3870,6 +4689,7 @@ def define_errors():
 	errors[0xfb04] = "NDS NCP not available"
 	errors[0xfb05] = "Bad Directory Handle"
 	errors[0xfb06] = "Unknown Request"
+        errors[0xfb07] = "Invalid Subfunction Request"
 
 	errors[0xfc00] = "The message queue cannot accept another message"
 	errors[0xfc01] = "The trustee associated with ObjectId does not exist"
@@ -3982,8 +4802,8 @@ def produce_code():
 #endif
 
 #include <glib.h>
-#include <epan/packet.h>
-#include <epan/conversation.h>
+#include "epan/packet.h"
+#include "epan/conversation.h"
 #include "ptvcursor.h"
 #include "packet-ncp-int.h"
 
@@ -5197,7 +6017,6 @@ def define_ncp2222():
 	])
 	pkt.Reply(18, [
 		rec( 8, 1, NumberOfEntries ),
-		#Number of entries tells how many are in this packet?????
 		rec( 9, 1, Level ),
 		rec( 10, 4, MaxSpace, LE ),
 		rec( 14, 4, CurrentSpace, LE ),
@@ -5520,43 +6339,10 @@ def define_ncp2222():
 	pkt.Request( 11, [
 		rec( 10, 1, VolumeNumber ),
 	])
-	pkt.Reply( (143,270), [
+	pkt.Reply( (139,266), [
 		rec( 8, 2, VolInfoReplyLen, LE ),
-		rec( 10, 4, VolumeType, LE ),
-		rec( 14, 2, StatusFlagBitsLow ),
-		rec( 16, 2, StatusFlagBitsHigh ),
-		rec( 18, 4, SectorSize, LE ),
-		rec( 22, 4, SectorsPerCluster, LE ),
-		rec( 26, 4, VolumeSizeInClusters, LE ),
-		rec( 30, 4, FreedClusters, LE ),
-		rec( 34, 4, SubAllocFreeableClusters, LE ),
-		rec( 38, 4, FreeableLimboSectors,LE ),
-		rec( 42, 4, NonFreeableLimboSectors, LE ),
-		rec( 46, 4, NonFreeableAvailableSubAllocSectors, LE ),
-		rec( 50, 4, NotUsableSubAllocSectors, LE ),
-		rec( 54, 4, SubAllocClusters, LE ),
-		rec( 58, 4, DataStreamsCount, LE ),
-		rec( 62, 4, LimboDataStreamsCount, LE ),
-		rec( 66, 4, OldestDeletedFileAgeInTicks, LE ),
-		rec( 70, 4, CompressedDataStreamsCount, LE ),
-		rec( 74, 4, CompressedLimboDataStreamsCount , LE),
-		rec( 78, 4, UnCompressableDataStreamsCount, LE ),
-		rec( 82, 4, PreCompressedSectors, LE ),
-		rec( 86, 4, CompressedSectors, LE ),
-		rec( 90, 4, MigratedFiles, LE ),
-		rec( 94, 4, MigratedSectors, LE ),
-		rec( 98, 4, ClustersUsedByFAT, LE ),
-		rec( 102, 4, ClustersUsedByDirectories, LE ),
-		rec( 106, 4, ClustersUsedByExtendedDirectories, LE ),
-		rec( 110, 4, TotalDirectoryEntries, LE ),
-		rec( 114, 4, UnUsedDirectoryEntries, LE ),
-		rec( 118, 4, TotalExtendedDirectoryExtants, LE ),
-		rec( 122, 4, UnUsedExtendedDirectoryExtants, LE ),
-		rec( 126, 4, ExtendedAttributesDefined, LE ),
-		rec( 130, 4, ExtendedAttributeExtantsUsed, LE ),
-		rec( 134, 4, DirectoryServicesObjectID, LE ),
-		rec( 138, 4, VolumeLastModifiedDateAndTime, LE ),
-		rec( 142, (1,128), VolumeNameLen ),
+		rec( 10, 128, VolInfoStructure),
+		rec( 138, (1,128), VolumeNameLen ),
 	])
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x9804, 0xff00])
 	# 2222/1634, 22/52
@@ -5570,7 +6356,7 @@ def define_ncp2222():
 		rec( 8, 4, ItemsInPacket, LE, var="x" ),
 		rec( 12, 4, NextVolumeNumber, LE ),
 		rec( 16, 18, VolumeStruct, repeat="x"),
-	])
+        ])
 	pkt.CompletionCodes([0x0000])
 	# 2222/1700, 23/00
 	pkt = NCP(0x1700, "Login User (old)", 'file')
@@ -5727,9 +6513,9 @@ def define_ncp2222():
 		rec( 65, 1, SFTSupportLevel ),
 		rec( 66, 1, TTSLevel ),
 		rec( 67, 2, ConnectionsMaxUsed ),
-		rec( 69, 1, AcctVersion ),
+		rec( 69, 1, AccountVersion ),
 		rec( 70, 1, VAPVersion ),
-		rec( 71, 1, QMSVersion ),
+		rec( 71, 1, QueueingVersion ),
 		rec( 72, 1, PrintServerVersion ),
 		rec( 73, 1, VirtualConsoleVersion ),
 		rec( 74, 1, SecurityRestrictionVersion ),
@@ -9703,19 +10489,19 @@ def define_ncp2222():
 			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
 	# 2222/572A, 87/42
 	pkt = NCP(0x572A, "Purge Salvageable File List", 'file', has_length=0)
-	pkt.Request(24, [
+	pkt.Request(28, [
 		rec( 8, 1, NameSpace ),
 		rec( 9, 1, Reserved ),
 		rec( 10, 2, PurgeFlags, LE ),
 		rec( 12, 4, VolumeNumberLong ),
 		rec( 16, 4, DirectoryBase, LE ),
-		rec( 20, 4, PurgeCount, LE ),
-		#Next attribute PurgeList is based on PurgeCount value
+		rec( 20, 4, PurgeCount, LE, var="x" ),
+                rec( 24, 4, PurgeList, LE, repeat="x" ),
 	])
-	pkt.Reply(12, [
-		rec( 8, 4, PurgeCount, LE ),
-		#Next attribute PurgeCcode is based on PurgeCount value
-	])
+	pkt.Reply(16, [
+		rec( 8, 4, PurgeCount, LE, var="x" ),
+                rec( 12, 4, PurgeCcode, LE, repeat="x" ),
+        ])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
@@ -10537,7 +11323,7 @@ def define_ncp2222():
 		rec(200, 48, TrendCounters ),
 		rec(248, 40, CacheInfo ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xff00])
 	# 2222/7B02, 123/02
 	pkt = NCP(0x7B02, "Get File Server Information", 'stats')
 	pkt.Request(10)
@@ -10553,7 +11339,7 @@ def define_ncp2222():
 		rec(32, 96, ServerInfo ),
 		rec(128, 22, FileServerCounters ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B03, 123/03
 	pkt = NCP(0x7B03, "NetWare File Systems Information", 'stats')
 	pkt.Request(11, [
@@ -10566,7 +11352,7 @@ def define_ncp2222():
 		rec(14, 2, Reserved2 ),
 		rec(16, 52, FileSystemInfo ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B04, 123/04
 	pkt = NCP(0x7B04, "User Information", 'stats')
 	pkt.Request(14, [
@@ -10580,7 +11366,7 @@ def define_ncp2222():
 		rec(16, 68, UserInformation ),
 		rec(84, (1, 48), UserName ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B05, 123/05
 	pkt = NCP(0x7B05, "Packet Burst Information", 'stats')
 	pkt.Request(10)
@@ -10591,7 +11377,7 @@ def define_ncp2222():
 		rec(14, 2, Reserved2 ),
 		rec(16, 200, PacketBurstInformation ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B06, 123/06
 	pkt = NCP(0x7B06, "IPX SPX Information", 'stats')
 	pkt.Request(10)
@@ -10603,7 +11389,7 @@ def define_ncp2222():
 		rec(16, 34, IPXInformation ),
 		rec(50, 44, SPXInformation ),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B07, 123/07
 	pkt = NCP(0x7B07, "Garbage Collection Information", 'stats')
 	pkt.Request(10)
@@ -10619,21 +11405,21 @@ def define_ncp2222():
 		rec(32, 4, FoundSomeMem, LE),
 		rec(36, 4, NumOfChecks, LE),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B08, 123/08
 	pkt = NCP(0x7B08, "CPU Information", 'stats')
 	pkt.Request(14, [
 		rec(10, 4, CPUNumber, LE),
 	])
-	pkt.Reply(58, [
+	pkt.Reply(51, [
 		rec(8, 4, CurrentServerTime, LE),
 		rec(12, 1, VConsoleVersion ),
 		rec(13, 1, VConsoleRevision ),
 		rec(14, 2, Reserved2 ),
 		rec(16, 4, NumberOfCPUs, LE),
-		rec(20, 38, CPUInformation),
+		rec(20, 31, CPUInformation),
 	])	
-	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B09, 123/09
 	pkt = NCP(0x7B09, "Volume Switch Information", 'stats')
 	pkt.Request(14, [
@@ -10648,7 +11434,7 @@ def define_ncp2222():
 		rec(20, 4, CurrentLFSCounters, LE, var="x"),
 		rec(24, 4, LFSCounters, LE, repeat="x"),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B0A, 123/10
 	pkt = NCP(0x7B0A, "Get NLM Loaded List", 'stats')
 	pkt.Request(14, [
@@ -10663,411 +11449,738 @@ def define_ncp2222():
 		rec(20, 4, NLMsInList, LE, var="x"),
 		rec(24, 4, NLMNumbers, LE, repeat="x"),
 	])
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B0B, 123/11
 	pkt = NCP(0x7B0B, "NLM Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+		rec(10, 4, NLMNumber, LE),
+                #rec(14, (1,45), NLMBuffer),
+                #This parameter specifies the number of buffers in the request.. If this is set to 
+                #anything but 0 then add 8 bytes per value to be included right after NLMInformation
+                #in the reply packet. I do not know what these bytes indicate. For example if the 
+                #buffer == 0x01 then add 8 bytes. If buffer == 0x02 then add 16 bytes.
+        ])
+	pkt.Reply((79,841), [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+		rec(16, 60, NLMInformation ),
+		rec(76, (1,255), FileName ),
+		rec(-1, (1,255), Name ),
+		rec(-1, (1,255), Copyright ),
+	])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B0C, 123/12
 	pkt = NCP(0x7B0C, "Get Directory Cache Information", 'stats')
 	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Reply(72, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+		rec(16, 56, DirCacheInfo ),
+	])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B0D, 123/13
 	pkt = NCP(0x7B0D, "Get Operating System Version Information", 'stats')
 	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Reply(70, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+		rec(16, 1, OSMajorVersion ),
+		rec(17, 1, OSMinorVersion ),
+		rec(18, 1, OSRevision ),
+		rec(19, 1, AccountVersion ),
+		rec(20, 1, VAPVersion ),
+		rec(21, 1, QueueingVersion ),
+		rec(22, 1, SecurityRestrictionVersion ),
+		rec(23, 1, InternetBridgeVersion ),
+		rec(24, 4, MaxNumOfVol, LE),
+		rec(28, 4, MaxNumOfConn, LE),
+		rec(32, 4, MaxNumOfUsers, LE),
+		rec(36, 4, MaxNumOfNmeSps, LE),
+		rec(40, 4, MaxNumOfLANS, LE),
+		rec(44, 4, MaxNumOfMedias, LE),
+		rec(48, 4, MaxNumOfStacks, LE),
+		rec(52, 4, MaxDirDepth, LE),
+		rec(56, 4, MaxDataStreams, LE),
+		rec(60, 4, MaxNumOfSpoolPr, LE),
+		rec(64, 4, ServerSerialNumber, LE),
+		rec(68, 2, ServerAppNumber, LE),
+	])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B0E, 123/14
 	pkt = NCP(0x7B0E, "Get Active Connection List by Type", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(15, [
+		rec(10, 4, StartConnNumber, LE),
+		rec(14, 1, ConnectionType ),
+	])
+	pkt.Reply(528, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+		rec(16, 512, ActiveConnBitList),
+	])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfd01, 0xff00])
 	# 2222/7B0F, 123/15
 	pkt = NCP(0x7B0F, "Get NLM Resource Tag List", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(18, [
+                rec(10, 4, NLMNumber, LE),
+                rec(14, 4, NLMStartNumber, LE),
+        ])
+	pkt.Reply(37, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, TtlNumOfRTags, LE),
+                rec(20, 4, CurNumOfRTags, LE),
+                rec(24, 13, RTagStructure),
+        ])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B10, 123/16
 	pkt = NCP(0x7B10, "Enumerate Connection Information from Connection List", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(22, [
+                rec(10, 1, EnumInfoMask),
+                rec(11, 3, Reserved3),
+                rec(14, 4, itemsInList, LE, var="x"),
+                rec(18, 4, connList, LE, repeat="x"),
+        ])
+	pkt.Reply(20, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, ItemsInPacket, LE),
+                #The next parameter depends on the info mask of the request packet
+                # could be one of following structs netAddr, timeInfo, nameInfo
+                #lockInfo, printInfo, statsInfo, acctngInfo, authInfo.
+        ])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B11, 123/17
 	pkt = NCP(0x7B11, "Enumerate NCP Service Network Addresses", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, SearchNumber, LE),
+        ])                
+	pkt.Reply(60, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, ServerInfoFlags ),
+                rec(16, 16, GUID ),
+                rec(32, 4, NextSearchNum, LE),
+                rec(36, 4, ItemsInPacket, LE, var="x"), 
+                rec(40, 20, NCPNetworkAddress, repeat="x" ),
+                #look at structure NCPNetworkAddress, The address field can't be displayed due
+                #to needing nstring32 value.
+        ])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B14, 123/20
 	pkt = NCP(0x7B14, "Active LAN Board List", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, StartNumber, LE),
+        ])               
+	pkt.Reply(28, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, MaxNumOfLANS, LE),
+                rec(20, 4, ItemsInPacket, LE, var="x"),
+                rec(24, 4, BoardNumbers, LE, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B15, 123/21
 	pkt = NCP(0x7B15, "LAN Configuration Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, BoardNumber, LE),
+        ])                
+	pkt.Reply(152, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16,136, LANConfigInfo ),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B16, 123/22
 	pkt = NCP(0x7B16, "LAN Common Counters Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(18, [
+                rec(10, 4, BoardNumber, LE),
+                rec(14, 4, BlockNumber, LE),
+        ])                
+	pkt.Reply(86, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 1, StatMajorVersion ),
+                rec(15, 1, StatMinorVersion ),
+                rec(16, 4, TotalCommonCnts, LE),
+                rec(20, 4, TotalCntBlocks, LE),
+                rec(24, 4, CustomCounters, LE),
+                rec(28, 4, NextCntBlock, LE),
+                rec(32, 54, CommonLanStruc ),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B17, 123/23
 	pkt = NCP(0x7B17, "LAN Custom Counters Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(18, [
+                rec(10, 4, BoardNumber, LE),
+                rec(14, 4, StartNumber, LE),
+        ])                
+	pkt.Reply(25, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, NumOfCCinPkt, LE, var="x"),
+                rec(20, 5, CustomCntsInfo, repeat="x"),
+])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B18, 123/24
 	pkt = NCP(0x7B18, "LAN Name Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, BoardNumber, LE),
+        ])                
+	pkt.Reply(19, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 3, BoardNameStruct ),
+        ])
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B19, 123/25
 	pkt = NCP(0x7B19, "LSL Information", 'stats')
 	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Reply(90, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 74, LSLInformation),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B1A, 123/26
 	pkt = NCP(0x7B1A, "LSL Logical Board Statistics", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, BoardNumber, LE),
+        ])                
+	pkt.Reply(28, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, LogTtlTxPkts, LE),
+                rec(20, 4, LogTtlRxPkts, LE),
+                rec(24, 4, UnclaimedPkts, LE),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B1B, 123/27
 	pkt = NCP(0x7B1B, "MLID Board Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, BoardNumber, LE),
+        ])                
+	pkt.Reply(44, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 1, Reserved ),
+                rec(15, 1, NumberOfProtocols),
+                rec(16, 28, MLIDBoardInfo),
+        ])                        
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B1E, 123/30
 	pkt = NCP(0x7B1E, "Get Media Manager Object Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, ObjectNumber, LE),
+        ])                
+	pkt.Reply(212, [
+        	rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 196, GenericInfoDef ),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B1F, 123/31
 	pkt = NCP(0x7B1F, "Get Media Manager Objects List", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(15, [
+                rec(10, 4, StartNumber, LE),
+                rec(14, 1, MediaObjectType ),
+        ])                
+	pkt.Reply(28, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, nextStartingNumber, LE),
+                rec(20, 4, ObjectCount, LE, var="x"),
+                rec(24, 4, ObjectID, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B20, 123/32
-	pkt = NCP(0x7B20, "Get Media Manager Object Children’s List", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt = NCP(0x7B20, "Get Media Manager Object Childrens List", 'stats')
+	pkt.Request(22, [
+                rec(10, 4, StartNumber, LE),
+                rec(14, 1, MediaObjectType),
+                rec(15, 3, Reserved3),
+                rec(18, 4, ParentObjectNumber, LE),
+        ])                
+	pkt.Reply(28, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, nextStartingNumber, LE),
+                rec(20, 4, ObjectCount, LE, var="x"),
+                rec(24, 4, ObjectID, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B21, 123/33
 	pkt = NCP(0x7B21, "Get Volume Segment List", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, VolumeNumberLong, LE),
+        ])                
+	pkt.Reply(32, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, NumOfSegments, LE, var="x"),
+                rec(20, 12, Segments, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B22, 123/34
 	pkt = NCP(0x7B22, "Get Volume Information by Level", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(18, [
+                rec(10, 4, VolumeNumberLong, LE),
+                rec(14, 4, InfoLevelNumber, LE),
+        ])                
+	pkt.Reply(148, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, InfoLevelNumber, LE),
+                #VolumeInfoStuct is based on InfoLevelNumber... If 2 then different struct returned
+                rec(20, 128, VolInfoStructure),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B28, 123/40
 	pkt = NCP(0x7B28, "Active Protocol Stacks", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, StartNumber, LE),
+        ])                
+	pkt.Reply(48, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, MaxNumOfLANS, LE),
+                rec(20, 4, StackCount, LE, var="x"),
+                rec(24, 4, nextStartingNumber, LE),
+                rec(28, 20, StackInfo, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B29, 123/41
 	pkt = NCP(0x7B29, "Get Protocol Stack Configuration Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, StackNumber, LE),
+        ])                
+	pkt.Reply((37,164), [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 1, ConfigMajorVN),
+                rec(17, 1, ConfigMinorVN),
+                rec(18, 1, StackMajorVN),
+                rec(19, 1, StackMinorVN),
+                rec(20, 16, ShortStkName),
+                rec(36, (1,128), StackFullNameStr),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B2A, 123/42
 	pkt = NCP(0x7B2A, "Get Protocol Stack Statistics Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, StackNumber, LE),
+        ])                
+	pkt.Reply(38, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 1, StatMajorVersion),
+                rec(17, 1, StatMinorVersion),
+                rec(18, 2, ComCnts, LE),
+                rec(20, 4, CounterMask, LE),
+                rec(24, 4, TotalTxPkts, LE),
+                rec(28, 4, TotalRxPkts, LE),
+                rec(32, 4, IgnoredRxPkts, LE),
+                rec(36, 2, CustomCnts, LE),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B2B, 123/43
 	pkt = NCP(0x7B2B, "Get Protocol Stack Custom Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(18, [
+                rec(10, 4, StackNumber, LE),
+                rec(14, 4, StartNumber, LE),
+        ])                
+	pkt.Reply(25, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, CustomCount, LE, var="x"),
+                rec(20, 5, CustomCntsInfo, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B2C, 123/44
 	pkt = NCP(0x7B2C, "Get Protocol Stack Numbers by Media Number", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, MediaNumber, LE),
+        ])                
+	pkt.Reply(24, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, StackCount, LE, var="x"),
+                rec(20, 4, StackNumber, LE, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B2D, 123/45
 	pkt = NCP(0x7B2D, "Get Protocol Stack Numbers by LAN Board Number", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, BoardNumber, LE),
+        ])                
+	pkt.Reply(24, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, StackCount, LE, var="x"),
+                rec(20, 4, StackNumber, LE, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B2E, 123/46
 	pkt = NCP(0x7B2E, "Get Media Name by Media Number", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, MediaNumber, LE),
+        ])                
+	pkt.Reply((17,144), [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, (1,128), MediaName),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B2F, 123/47
 	pkt = NCP(0x7B2F, "Get Loaded Media Number", 'stats')
 	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Reply(28, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, MaxNumOfMedias, LE),
+                rec(20, 4, MediaListCount, LE, var="x"),
+                rec(24, 4, MediaList, LE, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B32, 123/50
 	pkt = NCP(0x7B32, "Get General Router and SAP Information", 'stats')
 	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Reply(37, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 2, RIPSocketNumber),
+                rec(18, 2, Reserved2),
+                rec(20, 1, RouterDownFlag),
+                rec(21, 3, Reserved3),
+                rec(24, 1, TrackOnFlag),
+                rec(25, 3, Reserved3),
+                rec(28, 1, ExtRouterActiveFlag),
+                rec(29, 3, Reserved3),
+                rec(32, 2, SAPSocketNumber),
+                rec(34, 2, Reserved2),
+                rec(36, 1, RpyNearestSrvFlag, LE),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B33, 123/51
 	pkt = NCP(0x7B33, "Get Network Router Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, NetworkNumber, LE),
+        ])                
+	pkt.Reply(26, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 10, KnownRoutes ),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x0108, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B34, 123/52
 	pkt = NCP(0x7B34, "Get Network Routers Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(18, [
+                rec(10, 4, NetworkNumber),
+                rec(14, 4, StartNumber, LE),
+        ])                
+	pkt.Reply(34, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, NumOfEntries, LE, var="x"),
+                rec(20, 14, RoutersInfo, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x0108, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B35, 123/53
 	pkt = NCP(0x7B35, "Get Known Networks Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, StartNumber, LE),
+        ])                
+	pkt.Reply(30, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, NumOfEntries, LE, var="x"),
+                rec(20, 10, KnownRoutes, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B36, 123/54
 	pkt = NCP(0x7B36, "Get Server Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request((15,64), [
+                rec(10, 2, ServerType),
+                rec(12, 2, Reserved2),
+                rec(14, (1,50), ServerNameLen),
+        ])
+	pkt.Reply(30, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 12, ServerAddress),
+                rec(28, 2, HopsToNet),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B37, 123/55
 	pkt = NCP(0x7B37, "Get Server Sources Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request((19,68), [
+                rec(10, 4, StartNumber, LE),
+                rec(14, 2, ServerType),
+                rec(16, 2, Reserved2),
+                rec(18, (1,50), ServerNameLen),
+        ])                
+	pkt.Reply(32, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, NumOfEntries, LE, var="x"),
+                rec(20, 12, ServersSrcInfo, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x0108, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B38, 123/56
 	pkt = NCP(0x7B38, "Get Known Servers Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(16, [
+                rec(10, 4, StartNumber, LE),
+                rec(14, 2, ServerType),
+        ])                
+	pkt.Reply(35, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, NumOfEntries, LE, var="x"),
+                rec(20, 15, KnownServStruc, repeat="x"),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x0108, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B3C, 123/60
 	pkt = NCP(0x7B3C, "Get Server Set Commands Information", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, StartNumber, LE),
+        ])                
+	pkt.Reply(140, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, TtlNumOfSetCmds, LE),
+                rec(20, 4, nextStartingNumber, LE),
+                rec(24, 1, SetCmdType, LE),
+                rec(25, 3, Reserved3),
+                rec(28, 1, SetCmdCategory),
+                rec(29, 3, Reserved3),
+                rec(32, 1, SetCmdFlags),
+                rec(33, 3, Reserved3),
+                rec(36, 100, SetCmdName),
+                #The next return value is either a string or long depending on SetCmdType value.
+                rec(-1, 4, SetCmdValue, LE),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B3D, 123/61
 	pkt = NCP(0x7B3D, "Get Server Set Categories", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(14, [
+                rec(10, 4, StartNumber, LE),
+        ])                
+	pkt.Reply(124, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, NumberOfSetCategories, LE),
+                rec(20, 4, nextStartingNumber, LE),
+                rec(24, 100, CategoryName),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B3E, 123/62
 	pkt = NCP(0x7B3E, "Get Server Set Commands Information By Name", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(110, [
+                rec(10, 100, SetParmName),
+        ])                
+	pkt.Reply(140, [
+		rec(8, 4, CurrentServerTime, LE),
+		rec(12, 1, VConsoleVersion ),
+		rec(13, 1, VConsoleRevision ),
+		rec(14, 2, Reserved2 ),
+                rec(16, 4, TtlNumOfSetCmds, LE),
+                rec(20, 4, nextStartingNumber, LE),
+                rec(24, 1, SetCmdType, LE),
+                rec(25, 3, Reserved3),
+                rec(28, 1, SetCmdCategory),
+                rec(29, 3, Reserved3),
+                rec(32, 1, SetCmdFlags),
+                rec(33, 3, Reserved3),
+                rec(36, 100, SetCmdName),
+                #The next return value type depends on SetCmdType value.
+                rec(-1, 4, SetCmdValue, LE),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B46, 123/70
 	pkt = NCP(0x7B46, "Get Current Compressing File", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
+	pkt.Request(14, [
+                rec(10, 4, VolumeNumberLong, LE),
+        ])                
+	pkt.Reply(56, [
+                rec(8, 4, ParentID, LE),
+		rec(12, 4, DirectoryEntryNumber, LE),
+		rec(16, 4, compressionStage, LE),
+		rec(20, 4, ttlIntermediateBlks, LE),
+                rec(24, 4, ttlCompBlks, LE),
+                rec(28, 4, curIntermediateBlks, LE),
+                rec(32, 4, curCompBlks, LE),
+                rec(36, 4, curInitialBlks, LE),
+                rec(40, 4, fileFlags, LE),
+                rec(44, 4, projectedCompSize, LE),
+                rec(48, 4, originalSize, LE),
+                rec(52, 4, compressVolume, LE),
+        ])                
 	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
 	# 2222/7B47, 123/71
 	pkt = NCP(0x7B47, "Get Current DeCompressing File Info List", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
+	pkt.Request(14, [
+                rec(10, 4, VolumeNumberLong, LE),
+        ])                
+	pkt.Reply(28, [
+		rec(8, 4, FileListCount, LE),
+		rec(12, 16, FileInfoStruct),
+        ])                
 	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
 	# 2222/7B48, 123/72
 	pkt = NCP(0x7B48, "Get Compression and Decompression Time and Counts", 'stats')
-	pkt.Request(10)
-	pkt.Reply(8)
-#		rec(8, 4, CurrentServerTime, LE),
-#		rec(12, 1, VConsoleVersion ),
-#		rec(13, 1, VConsoleRevision ),
-#		rec(14, 2, Reserved2 ),
+	pkt.Request(14, [
+                rec(10, 4, VolumeNumberLong, LE),
+        ])                
+	pkt.Reply(64, [
+		rec(8, 56, CompDeCompStat),
+        ])
 	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
 	# 2222/8301, 131/01
 	pkt = NCP(0x8301, "RPC Load an NLM", 'fileserver')
-	pkt.Request(10)
-	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(285, [
+                rec(10, 4, NLMLoadOptions, LE),
+                rec(14, 16, Reserved16),
+                rec(30, 255, PathAndName),
+        ])                
+	pkt.Reply(12, [
+                rec(8, 4, RPCccode),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
 	# 2222/8302, 131/02
 	pkt = NCP(0x8302, "RPC Unload an NLM", 'fileserver')
-	pkt.Request(10)
-	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(100, [
+                rec(10, 20, Reserved20),
+                rec(30, 70, NLMName),
+        ])                
+	pkt.Reply(12, [
+                rec(8, 4, RPCccode),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
 	# 2222/8303, 131/03
 	pkt = NCP(0x8303, "RPC Mount Volume", 'fileserver')
-	pkt.Request(10)
-	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(100, [
+                rec(10, 20, Reserved20),
+                rec(30, 70, VolumeNameStringz),
+        ])                
+	pkt.Reply(32, [
+                rec(8, 4, RPCccode),
+                rec(12, 16, Reserved16),
+                rec(28, 4, VolumeNumberLong, LE),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
 	# 2222/8304, 131/04
 	pkt = NCP(0x8304, "RPC Dismount Volume", 'fileserver')
-	pkt.Request(10)
-	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(100, [
+                rec(10, 20, Reserved20),
+                rec(30, 70, VolumeNameStringz),
+        ])                
+	pkt.Reply(12, [
+                rec(8, 4, RPCccode),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
 	# 2222/8305, 131/05
 	pkt = NCP(0x8305, "RPC Add Name Space To Volume", 'fileserver')
-	pkt.Request(10)
-	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(100, [
+                rec(10, 20, Reserved20),
+                rec(30, 70, AddNameSpaceAndVol),
+        ])                
+	pkt.Reply(12, [
+                rec(8, 4, RPCccode),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
 	# 2222/8306, 131/06
 	pkt = NCP(0x8306, "RPC Set Set Command Value", 'fileserver')
-	pkt.Request(10)
-	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(100, [
+                rec(10, 1, SetCmdType),
+                rec(11, 3, Reserved3),
+                rec(14, 4, SetCmdValue, LE),
+                rec(18, 12, Reserved12),
+                rec(30, 70, SetCmdName),
+        ])                
+	pkt.Reply(12, [
+                rec(8, 4, RPCccode),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
 	# 2222/8307, 131/07
 	pkt = NCP(0x8307, "RPC Execute NCF File", 'fileserver')
-	pkt.Request(10)
-	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
+	pkt.Request(285, [
+                rec(10, 20, Reserved20),
+                rec(30, 255, PathAndName),
+        ])                
+	pkt.Reply(12, [
+                rec(8, 4, RPCccode),
+        ])                
+	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb07, 0xff00])
 
 if __name__ == '__main__':
 	main()
