@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.74 2003/01/22 01:17:01 sahlberg Exp $
+ * $Id: packet-tr.c,v 1.75 2003/01/31 07:16:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,6 +137,9 @@ static dissector_handle_t data_handle;
  * Linux 2.0.x frame so the beginning of the real frame is x bytes in.
  * (And this real frame x bytes in looks like a proper TR frame that goes on the wire
  * with none of the Linux idiosyncrasies).
+ *
+ * XXX - there should perhaps be a preference setting to turn this off,
+ * as sometimes it can, and does, get a false hit.
  */
 static
 int check_for_old_linux_tvb(tvbuff_t *tvb)
@@ -351,8 +354,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Get the data */
 	trh->fc		= tvb_get_guint8(tr_tvb, 1);
-	tvb_memcpy(tvb, trh->dst, 2, 6);
-	tvb_memcpy(tvb, trh->src, 8, 6);
+	tvb_memcpy(tr_tvb, trh->dst, 2, 6);
+	tvb_memcpy(tr_tvb, trh->src, 8, 6);
 
 	memcpy(trn_shost_nonsr, trh->src, 6);
 	trn_shost_nonsr[0] &= 127;
