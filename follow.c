@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.28 2002/01/21 07:36:31 guy Exp $
+ * $Id: follow.c,v 1.29 2002/02/28 19:35:08 gram Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -43,7 +43,7 @@
 #include <epan/packet.h>
 #include "follow.h"
 
-FILE* data_out_file;
+FILE* data_out_file = NULL;
 
 gboolean incomplete_tcp_stream = FALSE;
 

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.128 2002/02/27 08:57:14 guy Exp $
+ * $Id: tethereal.c,v 1.129 2002/02/28 19:35:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,7 +150,6 @@ static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const u_char *);
 
 capture_file cfile;
-FILE        *data_out_file = NULL;
 ts_type timestamp_type = RELATIVE;
 #ifdef HAVE_LIBPCAP
 typedef struct {

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.20 2002/01/21 07:37:41 guy Exp $
+ * $Id: follow_dlg.c,v 1.21 2002/02/28 19:35:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,7 +111,7 @@ static void follow_stream_om_client(GtkWidget * w, gpointer data);
 static void follow_stream_om_server(GtkWidget * w, gpointer data);
 
 
-FILE *data_out_file = NULL;
+extern FILE *data_out_file;
 
 
 #define E_FOLLOW_INFO_KEY "follow_info_key"
