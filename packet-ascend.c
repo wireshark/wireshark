@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.6 1999/10/16 08:54:25 deniel Exp $
+ * $Id: packet-ascend.c,v 1.7 1999/10/16 14:04:22 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,7 +34,9 @@
 #include "packet.h"
 
 static int proto_ascend  = -1;
+static int hf_link_type  = -1;
 static int hf_session_id = -1;
+static int hf_called_number = -1;
 static int hf_chunk      = -1;
 static int hf_task       = -1;
 static int hf_user_name  = -1;
@@ -66,23 +68,17 @@ dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   if(tree) {
     ti = proto_tree_add_text(tree, 0, 0, "Lucent/Ascend packet trace" );
     fh_tree = proto_item_add_subtree(ti, ETT_RAW);
-
-    /* XXX - should these be added with "proto_tree_add_item_format()"
-       (see "dissect_packet()" for an example of how to add items
-       that aren't in the packet data in that fashion) so that we
-       can filter on them? */
-    proto_tree_add_text(fh_tree, 0, 0, "Link type: %s",
-      val_to_str(fd->pseudo_header.ascend.type, encaps_vals, "Unknown (%d)"));
+    proto_tree_add_item(fh_tree, hf_link_type, 0, 0, 
+			fd->pseudo_header.ascend.type);
     if (fd->pseudo_header.ascend.type == ASCEND_PFX_WDD) {
-      proto_tree_add_text(fh_tree, 0, 0, "Called number: %s",
+      proto_tree_add_item(fh_tree, hf_called_number, 0, 0, 
 			  fd->pseudo_header.ascend.call_num);
       proto_tree_add_item(fh_tree, hf_chunk, 0, 0,
 			  fd->pseudo_header.ascend.chunk);
       proto_tree_add_item_hidden(fh_tree, hf_session_id, 0, 0, 0);
     } else {  /* It's wandsession data */
-      proto_tree_add_item_format(fh_tree, hf_user_name, 0, 0, 
-				 "Username: %s",
-				 fd->pseudo_header.ascend.user);
+      proto_tree_add_item(fh_tree, hf_user_name, 0, 0, 
+			  fd->pseudo_header.ascend.user);
       proto_tree_add_item(fh_tree, hf_session_id, 0, 0,
 			  fd->pseudo_header.ascend.sess);
       proto_tree_add_item_hidden(fh_tree, hf_chunk, 0, 0, 0);
@@ -107,21 +103,29 @@ void
 proto_register_ascend(void)
 {
   static hf_register_info hf[] = {
+    { &hf_link_type,
+    { "Link type",	"ascend.type",	FT_UINT32, BASE_DEC,	VALS(encaps_vals),	0x0,
+      "" }},
+
     { &hf_session_id,
     { "Session ID",	"ascend.sess",	FT_UINT32, BASE_DEC,	NULL, 0x0,
-    	"" }},
+      "" }},
+
+    { &hf_called_number,
+    { "Called number",	"ascend.number", FT_STRING, BASE_NONE,	NULL, 0x0,
+      "" }},
 
     { &hf_chunk,
     { "WDD Chunk",	"ascend.chunk",	FT_UINT32, BASE_HEX,	NULL, 0x0,
-    	"" }},
+      "" }},
 
     { &hf_task,
     { "Task",		"ascend.task",	FT_UINT32, BASE_HEX,	NULL, 0x0,
-    	"" }},
+      "" }},
 
     { &hf_user_name,
     { "User name",     	"ascend.user",	FT_STRING, BASE_NONE,	NULL, 0x0,
-    	"" }},
+      "" }},
   };
 
   proto_ascend = proto_register_protocol("Lucent/Ascend debug output", "ascend");
