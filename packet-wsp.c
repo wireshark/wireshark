@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.102 2003/12/23 12:07:13 obiot Exp $
+ * $Id: packet-wsp.c,v 1.103 2004/01/04 02:55:03 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -14,6 +14,7 @@
  * Openwave header support by Dermot Bradley <dermot.bradley@openwave.com>
  * Code optimizations, header value dissection simplification with parse error
  * notification and macros, extra missing headers, WBXML registration,
+ * summary line of WSP PDUs,
  * Session Initiation Request dissection
  * by Olivier Biot <olivier.biot(ad)siemens.com>.
  *
@@ -1203,10 +1204,10 @@ enum {
 static dissector_table_t media_type_table;
 static heur_dissector_list_t heur_subdissector_list;
 
-static void add_uri (proto_tree *, packet_info *, tvbuff_t *, guint, guint);
+static void add_uri (proto_tree *, packet_info *, tvbuff_t *, guint, guint, proto_item *);
 
 static void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
-static void add_multipart_data (proto_tree *, tvbuff_t *);
+static void add_multipart_data (proto_tree *, tvbuff_t *, packet_info *pinfo);
 
 static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type);
 
@@ -4252,13 +4253,17 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
  * WSP redirect
  */
 
+/* Dissect a WSP redirect PDU.
+ * Looks up or builds conversations, so parts of the code must always run,
+ * even if tree is NULL.
+ */
 static void
 dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, dissector_handle_t dissector_handle)
 {
 	guint8 flags;
 	proto_item *ti;
-	proto_tree *addresses_tree;
+	proto_tree *addresses_tree = NULL;
 	proto_tree *addr_tree = NULL;
 	proto_tree *flags_tree;
 	guint8 bearer_type;
@@ -4290,8 +4295,11 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/*
 	 * Redirect addresses.
 	 */
-	ti = proto_tree_add_item(tree, hf_redirect_addresses, tvb, 0, -1, bo_little_endian);
-	addresses_tree = proto_item_add_subtree(ti, ett_addresses);
+	if (tree) {
+		ti = proto_tree_add_item(tree, hf_redirect_addresses,
+				tvb, 0, -1, bo_little_endian);
+		addresses_tree = proto_item_add_subtree(ti, ett_addresses);
+	}
 
 	while (tvb_reported_length_remaining (tvb, offset) > 0) {
 		index++;
@@ -4396,12 +4404,14 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			redir_address.type = AT_IPv4;
 			redir_address.len = 4;
 			redir_address.data = (const guint8 *)&address_ipv4;
+			/* Find a conversation based on redir_address and pinfo->dst */
 			conv = find_conversation(&redir_address, &pinfo->dst,
 			    PT_UDP, port_num, 0, NO_PORT_B);
-			if (conv == NULL) {
+			if (conv == NULL) { /* This conversation does not exist yet */
 				conv = conversation_new(&redir_address,
 				    &pinfo->dst, PT_UDP, port_num, 0, NO_PORT2);
 			}
+			/* Apply WSP dissection to the conversation */
 			conversation_set_dissector(conv, dissector_handle);
 			break;
 
@@ -4430,12 +4440,14 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			redir_address.type = AT_IPv6;
 			redir_address.len = 16;
 			redir_address.data = (const guint8 *)&address_ipv4;
+			/* Find a conversation based on redir_address and pinfo->dst */
 			conv = find_conversation(&redir_address, &pinfo->dst,
 			    PT_UDP, port_num, 0, NO_PORT_B);
-			if (conv == NULL) {
+			if (conv == NULL) { /* This conversation does not exist yet */
 				conv = conversation_new(&redir_address,
 				    &pinfo->dst, PT_UDP, port_num, 0, NO_PORT2);
 			}
+			/* Apply WSP dissection to the conversation */
 			conversation_set_dissector(conv, dissector_handle);
 			break;
 
@@ -4453,6 +4465,9 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	} /* while */
 }
 
+/* Add addresses to the protocol tree.
+ * This is a display-only function, so return if tree is NULL
+ */
 static void
 add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
 {
@@ -4605,8 +4620,7 @@ static const value_string vals_sir_protocol_options[] = {
 	{ 0x00, NULL }
 };
 
-/*
- * Dissect a Session Initiation Request.
+/* Dissect a Session Initiation Request.
  *
  * Arguably this should be a separate dissector, but SIR does not make sense
  * outside of WSP anyway.
@@ -4629,6 +4643,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				": WAP Session Initiation Request");
 	}
 
+	/* The remainder of the code adds items to the protocol tree */
 	if (! tree)
 		return;
 
@@ -4743,6 +4758,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Set up structures we will need to add the protocol subtree and manage it */
 	proto_item *ti;
+	proto_item *proto_ti = NULL; /* for the proto entry */
 	proto_tree *wsp_tree = NULL;
 
 	wsp_info_value_t *stat_info;
@@ -4772,9 +4788,11 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
 	 * necessary to generate protocol tree items. */
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_wsp,
+		proto_ti = proto_tree_add_item(tree, proto_wsp,
 				tvb, 0, -1, bo_little_endian);
-		wsp_tree = proto_item_add_subtree(ti, ett_wsp);
+		wsp_tree = proto_item_add_subtree(proto_ti, ett_wsp);
+		proto_item_append_text(proto_ti, ", method: %s",
+				val_to_str (pdut, vals_pdu_type, "Unknown (0x%02x)"));
 
 		/* Add common items: only TID and PDU Type */
 
@@ -4808,6 +4826,11 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							tvb, offset, 1, bo_little_endian);
 					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,
 							tvb, offset, 1, bo_little_endian);
+					{
+						guint8 ver = tvb_get_guint8(tvb, offset);
+						proto_item_append_text(proto_ti, ", version: %u.%u",
+								ver >> 4, ver & 0x0F);
+					}
 					offset++;
 				} else {
 					count = 0;	/* Initialise count */
@@ -4815,6 +4838,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					ti = proto_tree_add_uint (wsp_tree,
 							hf_wsp_server_session_id,
 							tvb, offset, count, value);
+					proto_item_append_text(proto_ti, ", session ID: %u", value);
 					offset += count;
 				}
 				capabilityStart = offset;
@@ -4855,7 +4879,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
 				}
-			}
+			} /* if (tree) */
 
 			break;
 
@@ -4871,6 +4895,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ti = proto_tree_add_uint (wsp_tree,
 						hf_wsp_server_session_id,
 						tvb, offset, count, value);
+				proto_item_append_text(proto_ti, ", session ID: %u", value);
 			}
 			break;
 
@@ -4879,7 +4904,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* Length of URI and size of URILen field */
 			value = tvb_get_guintvar (tvb, offset, &count);
 			nextOffset = offset + count;
-			add_uri (wsp_tree, pinfo, tvb, offset, nextOffset);
+			add_uri (wsp_tree, pinfo, tvb, offset, nextOffset, proto_ti);
 			if (tree) {
 				offset += value + count; /* VERIFY */
 				tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
@@ -4896,13 +4921,15 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			headersLength = tvb_get_guintvar (tvb, headerStart, &count);
 			offset = headerStart + count;
 
-			add_uri (wsp_tree, pinfo, tvb, uriStart, offset);
+			add_uri (wsp_tree, pinfo, tvb, uriStart, offset, proto_ti);
 			offset += uriLength;
 
 			if (tree)
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
 						tvb, headerStart, count, headersLength);
 
+			/* Stop processing POST PDU if length of headers is zero;
+			 * this should not happen as we expect at least Content-Type. */
 			if (headersLength == 0)
 				break;
 
@@ -4911,6 +4938,15 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					tvb, offset, &contentType, &contentTypeStr);
 
 			if (tree) {
+				/* Add content type to protocol summary line */
+				if (contentTypeStr) {
+					proto_item_append_text(proto_ti, ", content-type: %s",
+							contentTypeStr);
+				} else {
+					proto_item_append_text(proto_ti, ", content-type: 0x%X",
+							contentType);
+				}
+
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for
 				 * headersLength - (length of content-type field) */
@@ -4921,6 +4957,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
 				}
+				/* XXX - offset is no longer used after this point */
 				offset = nextOffset+headerLength;
 			}
 			/* WSP_PDU_POST data - First check whether a subdissector exists
@@ -4948,7 +4985,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 								tmp_tvb, pinfo, tree))
 						if (tree) /* Only display if needed */
 							add_post_data (wsp_tree, tmp_tvb,
-									contentType, contentTypeStr);
+									contentType, contentTypeStr, pinfo);
 				}
 			}
 			break;
@@ -4961,7 +4998,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree)
 				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,
 						tvb, offset, 1, bo_little_endian);
- 			stat_info->status_code = (gint) tvb_get_guint8(tvb, offset);				
+ 			stat_info->status_code = (gint) reply_status;
 			if (check_col(pinfo->cinfo, COL_INFO))
 			{ /* Append status code to INFO column */
 				col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -4982,6 +5019,15 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					nextOffset, &contentType, &contentTypeStr);
 
 			if (tree) {
+				/* Add content type to protocol summary line */
+				if (contentTypeStr) {
+					proto_item_append_text(proto_ti, ", content-type: %s",
+							contentTypeStr);
+				} else {
+					proto_item_append_text(proto_ti, ", content-type: 0x%X",
+							contentType);
+				}
+
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for
 				 * headersLength - (length of content-type field) */
@@ -4992,6 +5038,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
 				}
+				/* XXX - offset is no longer used after this point */
 				offset += count+headersLength+1;
 			}
 			/* WSP_PDU_REPLY data - First check whether a subdissector exists
@@ -5043,6 +5090,15 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					tvb, offset, &contentType, &contentTypeStr);
 
 			if (tree) {
+				/* Add content type to protocol summary line */
+				if (contentTypeStr) {
+					proto_item_append_text(proto_ti, ", content-type: %s",
+							contentTypeStr);
+				} else {
+					proto_item_append_text(proto_ti, ", content-type: 0x%X",
+							contentType);
+				}
+
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for
 				 * headersLength-(length of content-type field) */
@@ -5053,6 +5109,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
 				}
+				/* XXX - offset is no longer used after this point */
 				offset += headersLength;
 			}
 			/* WSP_PDU_PUSH data - First check whether a subdissector exists
@@ -5148,12 +5205,13 @@ dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-		guint URILenOffset, guint URIOffset)
+		guint URILenOffset, guint URIOffset, proto_item *proto_ti)
 {
 	proto_item *ti;
 
 	guint count = 0;
 	guint uriLen = tvb_get_guintvar (tvb, URILenOffset, &count);
+	char *str = NULL;
 
 	if (tree)
 		ti = proto_tree_add_uint (tree, hf_wsp_header_uri_len,
@@ -5163,10 +5221,16 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 	if (tree)
 		ti = proto_tree_add_item (tree, hf_wsp_header_uri,
 				tvb, URIOffset, uriLen, bo_little_endian);
+
+	str = tvb_format_text (tvb, URIOffset, uriLen);
+	/* XXX - tvb_format_text() returns a pointer to a static text string
+	 * so please DO NOT attempt at g_free()ing it!
+	 */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    tvb_format_text (tvb, URIOffset, uriLen));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", str);
 	}
+	if (proto_ti)
+		proto_item_append_text(proto_ti, ", URI: %s", str);
 }
 
 
@@ -5492,7 +5556,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
 
 void
 add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
-    const char *contentTypeStr)
+    const char *contentTypeStr, packet_info *pinfo)
 {
 	guint offset = 0;
 	guint variableStart = 0;
@@ -5501,53 +5565,59 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 	guint valueEnd = 0;
 	guint8 peek = 0;
 	proto_item *ti;
-	proto_tree *sub_tree;
+	proto_tree *sub_tree = NULL;
 
 	DebugLog(("add_post_data() - START\n"));
 
 	/* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian); */
-	ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian);
-	sub_tree = proto_item_add_subtree(ti, ett_post);
+	if (tree) {
+		ti = proto_tree_add_item (tree, hf_wsp_post_data,
+				tvb, offset, -1, bo_little_endian);
+		sub_tree = proto_item_add_subtree(ti, ett_post);
+	}
 
 	if ( (contentTypeStr == NULL && contentType == 0x12) 
 			|| (contentTypeStr && (strcasecmp(contentTypeStr,
 						"application/x-www-form-urlencoded") == 0)) )
 	{
-		/*
-		 * URL Encoded data.
-		 * Iterate through post data.
-		 */
-		for (offset = 0; offset < tvb_reported_length (tvb); offset++)
-		{
-			peek = tvb_get_guint8 (tvb, offset);
-			if (peek == '=')
+		if (tree) {
+			/*
+			 * URL Encoded data.
+			 * Iterate through post data.
+			 */
+			for (offset = 0; offset < tvb_reported_length (tvb); offset++)
 			{
-				variableEnd = offset;
-				valueStart = offset+1;
-			}
-			else if (peek == '&')
-			{
-				if (variableEnd > 0)
+				peek = tvb_get_guint8 (tvb, offset);
+				if (peek == '=')
 				{
-					add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
+					variableEnd = offset;
+					valueStart = offset+1;
 				}
-				variableStart = offset+1;
-				variableEnd = 0;
-				valueStart = 0;
-				valueEnd = 0;
+				else if (peek == '&')
+				{
+					if (variableEnd > 0)
+					{
+						add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
+					}
+					variableStart = offset+1;
+					variableEnd = 0;
+					valueStart = 0;
+					valueEnd = 0;
+				}
 			}
-		}
 
-		/* See if there's outstanding data */
-		if (variableEnd > 0)
-		{
-			add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
-		}
+			/* See if there's outstanding data */
+			if (variableEnd > 0)
+			{
+				add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
+			}
+		} /* if (tree) */
 	}
 	else if ((contentType == 0x22) || (contentType == 0x23) || (contentType == 0x24) ||
 		 (contentType == 0x25) || (contentType == 0x26) || (contentType == 0x33))
 	{
-		add_multipart_data(sub_tree, tvb);
+		/* add_multipart_data takes also care of subdissection */
+		add_multipart_data(sub_tree, tvb, pinfo);
 	}
 	DebugLog(("add_post_data() - END\n"));
 }
@@ -5593,7 +5663,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 }
 
 static void
-add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
+add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 	int		 offset = 0;
 	guint		 nextOffset;
@@ -5606,10 +5676,11 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
 	tvbuff_t	*tmp_tvb;
 	int		 partnr = 1;
 	int		 part_start;
+	gboolean found_match = FALSE;
 
-	proto_item	*sub_tree = NULL,
-			*ti;
-	proto_tree	*mpart_tree;
+	proto_item	*sub_tree = NULL;
+	proto_item	*ti = NULL;
+	proto_tree	*mpart_tree = NULL;
 
 	DebugLog(("add_multipart_data(): offset = %u, byte = 0x%02x: ",
 				offset, tvb_get_guint8(tvb,offset)));
@@ -5632,10 +5703,25 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
 		offset += count;
 		DataLen = tvb_get_guintvar (tvb, offset, &count);
 		offset += count;
-		ti = proto_tree_add_uint(sub_tree, hf_wsp_mpart, tvb, part_start,
+		if (tree) {
+			ti = proto_tree_add_uint(sub_tree, hf_wsp_mpart, tvb, part_start,
 					HeadersLen + DataLen + (offset - part_start), partnr);
-		mpart_tree = proto_item_add_subtree(ti, ett_multiparts);
-		nextOffset = add_content_type (mpart_tree, tvb, offset, &contentType, &contentTypeStr);
+			mpart_tree = proto_item_add_subtree(ti, ett_multiparts);
+		}
+		nextOffset = add_content_type (mpart_tree, tvb, offset,
+				&contentType, &contentTypeStr);
+
+		if (tree) {
+			/* Add content type to protocol summary line */
+			if (contentTypeStr) {
+				proto_item_append_text(ti, ", content-type: %s",
+						contentTypeStr);
+			} else {
+				proto_item_append_text(ti, ", content-type: 0x%X",
+						contentType);
+			}
+		}
+
 		HeadersLen -= (nextOffset - offset);
 		if (HeadersLen > 0)
 		{
@@ -5643,8 +5729,32 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
 			add_headers (mpart_tree, tmp_tvb, hf_wsp_headers_section);
 		}
 		offset = nextOffset + HeadersLen;
-		/* TODO - Try the dissectors of the multipart content */
-		proto_tree_add_item (mpart_tree, hf_wsp_multipart_data, tvb, offset, DataLen, bo_little_endian);
+		/*
+		 * Try the dissectors of the multipart content.
+		 *
+		 * TODO - handle nested multipart documents.
+		 */
+		tmp_tvb = tvb_new_subset(tvb, offset, DataLen, DataLen);
+		/*
+		 * Try finding a dissector for the content
+		 * first, then fallback.
+		 */
+		found_match = FALSE;
+		if (contentTypeStr) {
+			/*
+			 * Content type is a string.
+			 */
+			found_match = dissector_try_string(media_type_table,
+					contentTypeStr, tmp_tvb, pinfo, mpart_tree);
+		}
+		if (! found_match) {
+			if (! dissector_try_heuristic(heur_subdissector_list,
+						tmp_tvb, pinfo, mpart_tree))
+				if (tree) /* Only display if needed */
+					proto_tree_add_item (mpart_tree, hf_wsp_multipart_data,
+							tvb, offset, DataLen, bo_little_endian);
+		}
+
 		offset += DataLen;
 		partnr++;
 	}

@@ -2,7 +2,7 @@
  *
  * Declarations for disassembly of WSP component of WAP traffic.
  *
- * $Id: packet-wsp.h,v 1.9 2003/11/03 10:16:00 guy Exp $
+ * $Id: packet-wsp.h,v 1.10 2004/01/04 02:55:03 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,8 @@ extern const value_string vals_status[];
 /*
  * exported functionality
  */
-void add_post_data (proto_tree *, tvbuff_t *, guint, const char *);
+void add_post_data (proto_tree *, tvbuff_t *, guint, const char *,
+		packet_info *);
 guint32 add_content_type (proto_tree *tree, tvbuff_t *tvb,
 		guint32 val_start,
 		guint32 *well_known_content, const char **textual_content);

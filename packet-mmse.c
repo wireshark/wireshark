@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.29 2003/12/21 18:12:33 obiot Exp $
+ * $Id: packet-mmse.c,v 1.30 2004/01/04 02:55:03 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -703,7 +703,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		DebugLog(("Generating new TVB subset (offset = %u)\n", offset));
 	    tmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		DebugLog(("Add POST data\n"));
-	    add_post_data(mmse_tree, tmp_tvb, type, type_str);
+	    add_post_data(mmse_tree, tmp_tvb, type, type_str, pinfo);
 		DebugLog(("Done!\n"));
 	}
     } else {
