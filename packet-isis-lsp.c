@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.28 2002/04/07 23:39:00 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.29 2002/04/24 20:25:02 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -1126,11 +1126,9 @@ dissect_subclv_admin_group (tvbuff_t *tvb, proto_tree *tree, int offset) {
 static void
 dissect_subclv_max_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	guint32 ui;
 	gfloat  bw;
 
-	ui = tvb_get_ntohl(tvb, offset);
-	memcpy (&bw, &ui, 4);
+	bw = tvb_get_ntohieee_float(tvb, offset);
 	proto_tree_add_text (tree, tvb, offset-2, 6,
 		"Maximum link bandwidth : %.2f Mbps", bw*8/1000000 );
 }
@@ -1154,11 +1152,9 @@ dissect_subclv_max_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 static void
 dissect_subclv_rsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	guint32 ui;
 	gfloat  bw;
 
-	ui = tvb_get_ntohl(tvb, offset);
-	memcpy (&bw, &ui, 4);
+	bw = tvb_get_ntohieee_float(tvb, offset);
 	proto_tree_add_text (tree, tvb, offset-2, 6,
 		"Reservable link bandwidth: %.2f Mbps", bw*8/1000000 );
 }
@@ -1184,7 +1180,6 @@ dissect_subclv_unrsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *ntree;
-	guint32    ui;
 	gfloat     bw;
 	int        i;
 
@@ -1192,8 +1187,7 @@ dissect_subclv_unrsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 	ntree = proto_item_add_subtree (ti, ett_isis_lsp_subclv_unrsv_bw);
 
 	for (i = 0 ; i < 8 ; i++) {
-		ui = tvb_get_ntohl(tvb, offset);;
-		memcpy (&bw, &ui, 4);
+		bw = tvb_get_ntohieee_float(tvb, offset);;
 		proto_tree_add_text (ntree, tvb, offset+4*i, 4,
 			"priority level %d: %.2f Mbps", i, bw*8/1000000 );
 	}
