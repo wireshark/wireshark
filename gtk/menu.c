@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.39 2000/08/16 19:15:11 deniel Exp $
+ * $Id: menu.c,v 1.40 2000/08/20 21:55:57 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,11 +166,17 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
 	{"/Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL}
 };
 
+static GtkItemFactoryEntry hexdump_menu_items[] =
+{
+	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
+	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL}
+};
 
 static int initialize = TRUE;
 static GtkItemFactory *factory = NULL;
 static GtkItemFactory *packet_list_menu_factory = NULL;
 static GtkItemFactory *tree_view_menu_factory = NULL;
+static GtkItemFactory *hexdump_menu_factory = NULL;
 
 static GSList *popup_menu_list = NULL;
 
@@ -210,6 +216,11 @@ menus_init(void) {
     gtk_item_factory_create_items_ac(tree_view_menu_factory, sizeof(tree_view_menu_items)/sizeof(tree_view_menu_items[0]), tree_view_menu_items, NULL, 2);
     gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY, tree_view_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, tree_view_menu_factory);
+
+    hexdump_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+    gtk_item_factory_create_items_ac(hexdump_menu_factory, sizeof(hexdump_menu_items)/sizeof(hexdump_menu_items[0]), hexdump_menu_items, NULL, 2);
+    gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY, hexdump_menu_factory->widget);
+    popup_menu_list = g_slist_append((GSList *)popup_menu_list, hexdump_menu_factory);
     
     factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(factory, nmenu_items, menu_items, NULL,2);

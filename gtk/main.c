@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.140 2000/08/20 15:38:50 deniel Exp $
+ * $Id: main.c,v 1.141 2000/08/20 21:55:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1484,6 +1484,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   /* Byte view. */
   create_byte_view(bv_size, l_pane, &byte_view, &bv_scrollw,
 			prefs->gui_scrollbar_on_right);
+  gtk_signal_connect_object(GTK_OBJECT(byte_view), "button_press_event",
+			    GTK_SIGNAL_FUNC(popup_menu_handler), 
+			    gtk_object_get_data(GTK_OBJECT(popup_menu_object),
+						PM_HEXDUMP_KEY));
 
   /* Filter/info box */
   stat_hbox = gtk_hbox_new(FALSE, 1);
