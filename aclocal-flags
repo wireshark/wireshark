@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# This script returns the flags to be fed to "aclocal" to ensure that
+# it finds GTK+'s aclocal macros.
+#
+# aclocal will search, by default, only in a directory in the same
+# tree where it was installed - e.g., if installed in "/usr/bin", it'll
+# search only in "/usr/share/aclocal", and if installed in "/usr/local/bin",
+# it'll search only in "/usr/local/share/aclocal".
+#
+# However, there is no guarantee that GTK+ has been installed there; if
+# it's not, it won't find the GTK+ autoconf macros, and will complain
+# bitterly.
+#
+# So, if the "share/local" directory under the directory reported by
+# "gtk-config --prefix" isn't the same directory as the directory
+# reported by "aclocal --print-ac-dir", we return a "-I" flag with
+# the first of those directories as the argument.
+#
+# (If they *are* the same directory, and we supply that "-I" flag,
+# "aclocal" will look in that directory twice, and get well and truly
+# confused, reporting a ton of duplicate macro definitions.)
+#
+# $Id: aclocal-flags,v 1.1 2000/07/26 08:03:40 guy Exp $
+#
+
+#
+# OK, where will aclocal look by default?
+#
+aclocal_dir=`aclocal --print-ac-dir`
+
+#
+# And where do we want to make sure it looks?
+#
+gtk_aclocal_dir=`gtk-config --prefix`/share/aclocal
+
+#
+# If there's no "aclocal", the former will be empty; if there's no
+# "gtk-config", the latter will be empty.
+#
+# Add the "-I" flag only if neither of those strings are empty, and
+# they're different.
+#
+if [ ! -z "$aclocal_dir" -a ! -z "$gtk_aclocal_dir" \
+    -a "$aclocal_dir" != "$gtk_aclocal_dir" ]
+then
+	echo "-I $gtk_aclocal_dir"
+fi
+exit 0

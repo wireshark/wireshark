@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.28 2000/06/06 16:21:26 gram Exp $
+# $Id: Makefile.am,v 1.29 2000/07/26 08:03:57 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -21,6 +21,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 noinst_LIBRARIES = libwiretap.a
 

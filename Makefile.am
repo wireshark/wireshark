@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.213 2000/07/26 03:38:26 gerald Exp $
+# $Id: Makefile.am,v 1.214 2000/07/26 08:03:38 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -21,6 +21,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+ACLOCAL_AMFLAGS = `./aclocal-flags`
 
 EXTRA_PROGRAMS = ethereal_static
 bin_PROGRAMS = ethereal editcap tethereal
@@ -464,6 +466,7 @@ DISTCLEANFILES =	\
 	*~
 
 EXTRA_DIST = \
+	aclocal-flags		\
 	config.h.win32		\
 	config.nmake		\
 	debian/README.debian	\
