@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.29 2002/03/16 02:09:28 guy Exp $
+ * $Id: packet-ldp.c,v 1.30 2002/03/16 23:15:45 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -131,7 +131,17 @@ static int hf_ldp_tlv_sess_fr_maxdlci = -1;
 static int hf_ldp_tlv_lbl_req_msg_id = -1;
 static int hf_ldp_tlv_vendor_id = -1;
 static int hf_ldp_tlv_experiment_id = -1;
-
+static int hf_ldp_tlv_fec_vc_controlword = -1;
+static int hf_ldp_tlv_fec_vc_vctype = -1;
+static int hf_ldp_tlv_fec_vc_infolength = -1;
+static int hf_ldp_tlv_fec_vc_groupid = -1;
+static int hf_ldp_tlv_fec_vc_vcid = -1; 
+static int hf_ldp_tlv_fec_vc_intparam_length = -1;
+static int hf_ldp_tlv_fec_vc_intparam_mtu = -1;
+static int hf_ldp_tlv_fec_vc_intparam_id = -1;
+static int hf_ldp_tlv_fec_vc_intparam_maxcatmcells = -1;
+static int hf_ldp_tlv_fec_vc_intparam_desc = -1;
+static int hf_ldp_tlv_fec_vc_intparam_cembytes = -1;
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
 static int ett_ldp_ldpid = -1;
@@ -139,6 +149,7 @@ static int ett_ldp_message = -1;
 static int ett_ldp_tlv = -1;
 static int ett_ldp_tlv_val = -1;
 static int ett_ldp_fec = -1;
+static int ett_ldp_fec_vc_interfaceparam = -1;
 
 static int tcp_port = 0;
 static int udp_port = 0;
@@ -263,13 +274,53 @@ static const value_string tlv_unknown_vals[] = {
 #define	WILDCARD_FEC	1
 #define	PREFIX_FEC	2
 #define	HOST_FEC	3
+#define VC_FEC          0x80	/* draft-martini-l2circuit-trans-mpls */
 
 static const value_string fec_types[] = {
   {WILDCARD_FEC, "Wildcard FEC"},
   {PREFIX_FEC, "Prefix FEC"},
   {HOST_FEC, "Host Address FEC"},
+  {VC_FEC, "Virtual Circuit FEC"},
   {0, NULL}
 };
+
+
+static const value_string fec_vc_types_vals[] = {
+  {0x0001, "Frame Relay DLCI"},
+  {0x0002, "ATM VCC transport"},
+  {0x0003, "ATM VPC transport"},
+  {0x0004, "Ethernet VLAN"},
+  {0x0005, "Ethernet"},
+  {0x0006, "HDLC"},
+  {0x0007, "PPP"},
+  {0x0009, "ATM VCC cell transport"},
+  {0x8008, "CEM"},
+  {0x000A, "ATM VPC cell transport"},
+  {0, NULL}
+};
+
+
+#define FEC_VC_INTERFACEPARAM_MTU          0x01
+#define FEC_VC_INTERFACEPARAM_MAXCATMCELLS 0x02
+#define FEC_VC_INTERFACEPARAM_DESCRIPTION  0x03
+#define FEC_VC_INTERFACEPARAM_CEMBYTES     0x04
+#define FEC_VC_INTERFACEPARAM_CEMOPTIONS   0x05
+
+
+static const value_string fec_vc_interfaceparm[] = {
+  {FEC_VC_INTERFACEPARAM_MTU, "MTU"},
+  {FEC_VC_INTERFACEPARAM_MAXCATMCELLS, "Max Concatenated ATM cells"},
+  {FEC_VC_INTERFACEPARAM_DESCRIPTION, "Interface Description"},
+  {FEC_VC_INTERFACEPARAM_CEMBYTES, "CEM Payload Bytes"},
+  {FEC_VC_INTERFACEPARAM_CEMOPTIONS, "CEM options"}
+};
+
+static const true_false_string fec_vc_cbit = {
+  "Contorl Word Present",
+  "Control Word NOT Present"
+};
+
+
 
 static const value_string tlv_atm_merge_vals[] = {
   {0, "Merge not supported"},
@@ -360,6 +411,21 @@ static const value_string tlv_status_data[] = {
   {23, "Unsoported Address Family"},
   {24, "Session Rejected / Bad KeepAlive Time"},
   {25, "Internal Error"},
+  {0x01000001,"Unexpected Diff-Serv TLV"},
+  {0x01000002,"Unsupported PHB"},
+  {0x01000003,"Invalid EXP<->PHB Mapping"},
+  {0x01000004,"Unsupported PSC"},
+  {0x01000005,"Per-LSP context allocation failure"},
+  {0x04000001,"Bad Explicit Routing TLV Error"},
+  {0x04000002,"Bad Strict Node Error"},
+  {0x04000003,"Bad Strict Node Error"},
+  {0x04000004,"Bad Initial ER-Hop Error"},
+  {0x04000005,"Resource Unavailable"},
+  {0x04000006,"Traffic Parameters Unavailable"},
+  {0x04000007,"LSP Preempted"},
+  {0x04000008,"Modify Request Not Supported"},
+  {0x20000001,"Illegal C-Bit"},
+  {0x20000002,"Wrong C-Bit"},
   {0, NULL}
 };
 
@@ -368,9 +434,10 @@ static const value_string tlv_status_data[] = {
 void
 dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
-	proto_tree *ti=NULL, *val_tree=NULL, *fec_tree=NULL;
+	proto_tree *ti=NULL, *val_tree=NULL, *fec_tree=NULL, *vcintparam_tree=NULL;
 	guint16	family, ix=1, ax;
-	guint8	addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len;
+	guint8	addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
+	guint8  intparam_len;
 	void *str_handler=NULL;
 	char *str;
 
@@ -550,6 +617,79 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				rem -= 4+host_len;
 				g_free(addr);
 				break;
+
+			case VC_FEC:
+			  if( rem < 8 ){/*not enough bytes for a minimal VC_FEC*/
+			    proto_tree_add_text(val_tree, tvb, offset, rem, "Error in FEC Element %u", ix);
+			    return;
+			  }
+			  vc_len = tvb_get_guint8 (tvb, offset+3);
+
+
+			  ti = proto_tree_add_text(val_tree, tvb, offset, 8+vc_len, "FEC Element %u", ix);
+			  fec_tree = proto_item_add_subtree(ti, ett_ldp_fec);
+			  if(fec_tree == NULL) return;
+			  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, FALSE);
+			  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_controlword, tvb, offset+1, 1, FALSE);
+			  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_vctype, tvb, offset+1, 2, FALSE);
+			  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_infolength, tvb, offset+3,1,FALSE);
+			  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_groupid,tvb, offset +4, 4, FALSE);
+			  rem -=8;
+			  offset +=8;
+			  
+			  if ( (vc_len > 3) && ( rem > 3 ) ) { /* there is enough room for vcid */
+			    proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_vcid,tvb, offset, 4, FALSE);
+			    proto_item_append_text (ti," VCID: %u",tvb_get_ntohl(tvb,offset));
+
+			  } else {                 
+			    proto_tree_add_text(val_tree,tvb,offset +4, 8 +vc_len, "VC FEC size format error");
+			    return;
+			  }
+			  rem -= 4;
+			  vc_len -= 4;
+			  offset += 4;
+
+			  while ( (vc_len > 1) && (rem > 1) ) {	/* enough to include id and length */
+			    intparam_len = tvb_get_guint8(tvb, offset+1);
+			    ti = proto_tree_add_text(fec_tree, tvb, offset, 4, "Interface Paramameter");
+			    vcintparam_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam);
+			    if(vcintparam_tree == NULL) return;
+			    proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_id,tvb,offset,1,FALSE);
+			    proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_length,tvb, offset+1, 1, FALSE);
+			    if ( (vc_len -intparam_len) <0 && (rem -intparam_len) <0 ) { /* error condition */
+			      proto_tree_add_text(vcintparam_tree, tvb, offset +2, MIN(vc_len,rem), "malformed data");
+ 			      return;
+			    }
+			    switch (tvb_get_guint8(tvb, offset)) {
+			    case FEC_VC_INTERFACEPARAM_MTU:
+			      proto_item_append_text(ti,": MTU %u", tvb_get_ntohs(tvb,offset+2));
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_mtu,tvb, offset+2, 2, FALSE);
+			      break;
+			    case FEC_VC_INTERFACEPARAM_MAXCATMCELLS:
+			      proto_item_append_text(ti,": Max ATM Concat Cells %u", tvb_get_ntohs(tvb,offset+2));
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_maxcatmcells,tvb, offset+2, 2, FALSE);
+			      break;
+			    case FEC_VC_INTERFACEPARAM_DESCRIPTION:
+			      proto_item_append_text(ti,": Description");
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_desc,tvb, offset+2, (intparam_len -2), FALSE);
+			      break;
+			    case FEC_VC_INTERFACEPARAM_CEMBYTES:
+			      proto_item_append_text(ti,": CEM Payload Bytes %u", tvb_get_ntohs(tvb,offset+2));
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_cembytes,tvb, offset+2, 2, FALSE);
+			      break;
+			    case FEC_VC_INTERFACEPARAM_CEMOPTIONS:
+				/* draft-malis-sonet-ces-mpls CEM options still undefined */
+			    default: /* unknown */
+			      proto_item_append_text(ti," unknown");
+			      proto_tree_add_text(vcintparam_tree,tvb, offset+2, (intparam_len -2), "Unknown data");
+
+			      return;
+			    }
+			    rem -= intparam_len;
+			    vc_len -= intparam_len;
+			    offset += intparam_len;
+			  }
+			  break;
 
 			default:  /* Unknown */
 			/* XXX - do all FEC's have a length that's a multiple of 4? */
@@ -827,8 +967,8 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, in
 		val_tree=tree;
 #endif
 		proto_tree_add_item(val_tree, hf_ldp_tlv_val_hold, tvb, offset, 2, FALSE);
-		proto_tree_add_item(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 2, FALSE);
-		proto_tree_add_item(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 2, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 1, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 1, FALSE);
 		proto_tree_add_item(val_tree, hf_ldp_tlv_val_res, tvb, offset + 2, 2, FALSE);
 	}
 }
@@ -1638,7 +1778,40 @@ proto_register_ldp(void)
       { "Returned Message Length", "ldp.msg.tlv.returned.msg.len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Message Length (excluding message type and len)", HFILL }},
 
     { &hf_ldp_tlv_returned_msg_id, 
-      { "Returned Message ID", "ldp.msg.tlv.returned.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Message ID", HFILL }}
+      { "Returned Message ID", "ldp.msg.tlv.returned.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Message ID", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_controlword,
+     {"C-bit", "ldp.msg.tlv.fec.vc.controlword", FT_BOOLEAN, 8, TFS(&fec_vc_cbit), 0x80, "Control Word Present", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_vctype,
+     {"VC Type", "ldp.msg.tlv.fec.vc.vctype", FT_UINT16, BASE_HEX, VALS(fec_vc_types_vals), 0x7FFF, "Virtual Circuit Type", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_infolength,
+     {"VC Info Length", "ldp.msg.tlv.fec.vc.infolength", FT_UINT8, BASE_DEC, NULL, 0x0, "VC FEC Info Length", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_groupid,
+     {"Group ID", "ldp.msg.tlv.fec.vc.groupid", FT_UINT32, BASE_DEC, NULL, 0x0, "VC FEC Group ID", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_vcid,
+     {"VC ID", "ldp.msg.tlv.fec.vc.vcid", FT_UINT32, BASE_DEC, NULL, 0x0, "VC FEC VCID", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_length,
+     {"Length", "ldp.msg.tlv.fec.vc.intparam.length", FT_UINT8, BASE_DEC, NULL, 0x0, "VC FEC Interface Paramater Length", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_mtu,
+     {"MTU", "ldp.msg.tlv.fec.vc.intparam.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Paramater MTU", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_id,
+     {"ID", "ldp.msg.tlv.fec.vc.intparam.id", FT_UINT8, BASE_HEX, VALS(fec_vc_interfaceparm), 0x0, "VC FEC Interface Paramater ID", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_maxcatmcells,
+     {"Number of Cells", "ldp.msg.tlv.fec.vc.intparam.maxatm", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param Max ATM Concat Cells", HFILL }},
+
+    { &hf_ldp_tlv_fec_vc_intparam_desc,
+      { "Description", "ldp.msg.tlv.fec.vc.intparam.desc", FT_STRING, BASE_DEC, NULL, 0, "VC FEC Interface Description", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_cembytes,
+     {"Payload Bytes", "ldp.msg.tlv.fec.vc.intparam.cembytes", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param CEM Payload Bytes", HFILL }},
 
   };
 
@@ -1650,6 +1823,7 @@ proto_register_ldp(void)
     &ett_ldp_tlv,
     &ett_ldp_tlv_val,
     &ett_ldp_fec,
+    &ett_ldp_fec_vc_interfaceparam
   };
   module_t *ldp_module; 
 

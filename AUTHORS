@@ -777,6 +777,8 @@ Jeff Morriss <jeff.morriss[AT]ulticom.com> {
 Aamer Akhter <aakhter[AT]cisco.com> {
 	Support for draft-rosen-vpn-ospf-bgp-mpls
 	Support for additional BGP extended communities
+	LDP support for draft-martini-l2circuit-trans-mpls, LDP status
+	    code updates, and small LDP cleanups
 }
 
 Pekka Savola <pekkas[AT]netcore.fi> {
