@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.68 2003/08/18 18:41:24 guy Exp $
+ * $Id: util.c,v 1.69 2003/10/10 06:05:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,9 +62,6 @@ typedef int mode_t;	/* for win32 */
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
-#ifdef WIN32
-#include "capture-wpcap.h"
-#endif /* WIN32 */
 #endif /* HAVE_LIBPCAP */
 
 #ifdef HAVE_SOME_SNMP
@@ -84,6 +81,7 @@ typedef int mode_t;	/* for win32 */
 #endif
 
 #include "util.h"
+#include "pcap-util.h"
 
 /*
  * See whether the last line in the string goes past column 80; if so,
@@ -112,11 +110,6 @@ do_word_wrap(GString *str, gint point)
 void
 get_compiled_version_info(GString *str)
 {
-#ifdef HAVE_LIBPCAP
-#ifdef HAVE_PCAP_VERSION
-	extern char pcap_version[];
-#endif /* HAVE_PCAP_VERSION */
-#endif /* HAVE_LIBPCAP */
 	gint break_point;
 
 	g_string_append(str, "with ");
@@ -128,29 +121,11 @@ get_compiled_version_info(GString *str)
 	    "GLib (version unknown),");
 #endif
 
-#ifdef HAVE_LIBPCAP
 	g_string_append(str, " ");
 	break_point = str->len - 1;
-#ifdef WIN32
-	g_string_append(str, "with WinPcap (version unknown)");
-#else /* WIN32 */
-#ifdef HAVE_PCAP_VERSION
-	g_string_sprintfa(str, "with libpcap %s,", pcap_version);
-#else /* HAVE_PCAP_VERSION */
-	g_string_append(str, "with libpcap (version unknown)");
-#endif /* HAVE_PCAP_VERSION */
+	get_compiled_pcap_version(str);
+	g_string_append(str, ",");
 	do_word_wrap(str, break_point);
-#endif /* WIN32 */
-#else /* HAVE_LIBPCAP */
-	g_string_append(str, " ");
-	break_point = str->len - 1;
-#ifdef WIN32
-	g_string_append(str, "without WinPcap,");
-#else /* WIN32 */
-	g_string_append(str, "without libpcap,");
-#endif /* WIN32 */
-	do_word_wrap(str, break_point);
-#endif /* HAVE_LIBPCAP */
 
 	g_string_append(str, " ");
 	break_point = str->len - 1;
@@ -212,23 +187,7 @@ get_runtime_version_info(GString *str)
 	struct utsname name;
 #endif
 
-#ifdef HAVE_LIBPCAP
-#ifdef WIN32
-	/*
-	 * On Windows, we might have been compiled with WinPcap but
-	 * might not have it loaded; indicate whether we have it or
-	 * not.
-	 *
-	 * XXX - when versions of libcap and WinPcap with
-	 * "pcap_lib_version()" are released, we should use it
-	 * here if available.
-	 */
-	if (has_wpcap)
-		g_string_sprintfa(str, "with WinPcap ");
-	else
-		g_string_append(str, "without WinPcap ");
-#endif /* WIN32 */
-#endif /* HAVE_LIBPCAP */
+	get_runtime_pcap_version(str);
 
 	g_string_append(str, "on ");
 #if defined(WIN32)

@@ -1,7 +1,7 @@
 /* pcap-util.h
  * Utility definitions for packet capture
  *
- * $Id: pcap-util.h,v 1.4 2003/09/10 05:35:24 guy Exp $
+ * $Id: pcap-util.h,v 1.5 2003/10/10 06:05:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,5 +57,20 @@ void free_interface_list(GList *if_list);
 #endif /* __cplusplus */
 
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Append to a GString an indication of the version of libpcap/WinPcap
+ * with which we were compiled, if we were, or an indication that we
+ * weren't compiled with libpcap/WinPcap, if we weren't.
+ */
+extern void get_compiled_pcap_version(GString *str);
+
+/*
+ * Append to a GString an indication of the version of libpcap/WinPcap
+ * with which we're running, or an indication that we're not running
+ * with libpcap/WinPcap, if we were compiled with libpcap/WinPcap,
+ * or nothing, if we weren't compiled with libpcap/WinPcap.
+ */
+extern void get_runtime_pcap_version(GString *str);
 
 #endif /* __PCAP_UTIL_H__ */

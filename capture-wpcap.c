@@ -3,7 +3,7 @@
  * time, so that we only need one Ethereal binary and one Tethereal binary
  * for Windows, regardless of whether WinPcap is installed or not.
  *
- * $Id: capture-wpcap.c,v 1.4 2003/10/10 03:00:09 guy Exp $
+ * $Id: capture-wpcap.c,v 1.5 2003/10/10 06:05:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,8 @@ static int     (*p_pcap_lookupnet) (char *, bpf_u_int32 *, bpf_u_int32 *,
 			char *);
 static pcap_t* (*p_pcap_open_live) (char *, int, int, int, char *);
 static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, guchar *);
+static int     (*p_pcap_findalldevs) (pcap_if_t **, char *);
+static const char *(*p_pcap_lib_version) (void);
 
 typedef struct {
 	const char	*name;
@@ -87,6 +89,7 @@ load_wpcap(void)
 		SYM(pcap_open_live, FALSE),
 		SYM(pcap_loop, FALSE),
 		SYM(pcap_findalldevs, TRUE),
+		SYM(pcap_lib_version, TRUE),
 		{ NULL, NULL, FALSE }
 	};
 
@@ -372,12 +375,62 @@ get_interface_list(int *err, char *err_str)
 	return il;
 }
 
+/*
+ * Append the version of WinPcap with which we were compiled to a GString.
+ */
+void
+get_compiled_pcap_version(GString *str)
+{
+	g_string_append(str, "with WinPcap (version unknown)");
+}
+
+/*
+ * Append the version of WinPcap with which we we're running to a GString.
+ */
+void
+get_runtime_pcap_version(GString *str)
+{
+	/*
+	 * On Windows, we might have been compiled with WinPcap but
+	 * might not have it loaded; indicate whether we have it or
+	 * not and, if we have it and we have "pcap_lib_version()",
+	 * what version we have.
+	 */
+	if (has_wpcap) {
+		g_string_sprintfa(str, "with ");
+		if (p_pcap_lib_version != NULL)
+			g_string_sprintfa(str, p_pcap_lib_version());
+		else
+			g_string_append(str, "WinPcap (version unknown)");
+	} else
+		g_string_append(str, "without WinPcap");
+	g_string_append(str, " ");
+}
+
 #else /* HAVE_LIBPCAP */
 
 void
 load_wpcap(void)
 {
 	return;
+}
+
+/*
+ * Append an indication that we were not compiled with WinPcap
+ * to a GString.
+ */
+void
+get_compiled_pcap_version(GString *str)
+{
+	g_string_append(str, "without WinPcap");
+}
+
+/*
+ * Don't append anything, as we weren't even compiled to use WinPcap.
+ */
+void
+get_runtime_pcap_version(GString *str _U_)
+{
 }
 
 #endif /* HAVE_LIBPCAP */

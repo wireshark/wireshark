@@ -1,7 +1,7 @@
 /* pcap-util-unix.c
  * UN*X-specific utility routines for packet capture
  *
- * $Id: pcap-util-unix.c,v 1.1 2003/10/10 03:00:10 guy Exp $
+ * $Id: pcap-util-unix.c,v 1.2 2003/10/10 06:05:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,9 +26,9 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_LIBPCAP
-
 #include <glib.h>
+
+#ifdef HAVE_LIBPCAP
 
 #include <stdlib.h>
 #include <string.h>
@@ -269,5 +269,55 @@ search_for_if_cb(gpointer data, gpointer user_data)
 		search_user_data->found = TRUE;
 }
 #endif /* HAVE_PCAP_FINDALLDEVS */
+
+/*
+ * Append the version of libpcap with which we were compiled to a GString.
+ */
+void
+get_compiled_pcap_version(GString *str)
+{
+#ifdef HAVE_PCAP_VERSION
+	extern char pcap_version[];
+
+	g_string_sprintfa(str, "with libpcap %s", pcap_version);
+#else
+	g_string_append(str, "with libpcap (version unknown)");
+#endif
+}
+
+/*
+ * Append the version of libpcap with which we we're running to a GString.
+ */
+void
+get_runtime_pcap_version(GString *str)
+{
+	g_string_sprintfa(str, "with ");
+#ifdef HAVE_PCAP_LIB_VERSION
+	g_string_sprintfa(str, pcap_lib_version());
+#else
+	g_string_append(str, "libpcap (version unknown)");
+#endif
+	g_string_append(str, " ");
+}
+
+#else /* HAVE_LIBPCAP */
+
+/*
+ * Append an indication that we were not compiled with libpcap
+ * to a GString.
+ */
+void
+get_compiled_pcap_version(GString *str)
+{
+	g_string_append(str, "without libpcap");
+}
+
+/*
+ * Don't append anything, as we weren't even compiled to use WinPcap.
+ */
+void
+get_runtime_pcap_version(GString *str _U_)
+{
+}
 
 #endif /* HAVE_LIBPCAP */
