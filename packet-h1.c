@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.3 2000/03/02 08:59:36 guy Exp $
+ * $Id: packet-h1.c,v 1.4 2000/04/13 06:26:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -290,7 +290,7 @@ proto_register_h1 (void)
      {"Response value", "h1.resvalue", FT_UINT8, BASE_DEC,
       VALS (returncode_vals), 0x0, ""}},
     {&hf_h1_empty,
-     {"Emtpy field", "h1.empty", FT_UINT8, BASE_HEX, NULL, 0x0,
+     {"Empty field", "h1.empty", FT_UINT8, BASE_HEX, NULL, 0x0,
       ""}},
     {&hf_h1_empty_len,
      {"Empty field length", "h1.empty_len", FT_UINT8, BASE_DEC, NULL, 0x0,
