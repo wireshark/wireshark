@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.47 1999/09/14 08:18:24 guy Exp $
+ * $Id: packet-ip.c,v 1.48 1999/09/23 19:05:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1094,12 +1094,10 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       case ICMP_TSTAMPREPLY:
 	proto_tree_add_text(icmp_tree, offset +  8, 4, "Originate timestamp: %u",
 	  pntohl(&pd[offset +  8]));
-	proto_tree_add_text(icmp_tree, offset + 12, 4, "Originate timestamp: %u",
+	proto_tree_add_text(icmp_tree, offset + 12, 4, "Receive timestamp: %u",
 	  pntohl(&pd[offset + 12]));
-	proto_tree_add_text(icmp_tree, offset + 16, 4, "Receive timestamp: %u",
+	proto_tree_add_text(icmp_tree, offset + 16, 4, "Transmit timestamp: %u",
 	  pntohl(&pd[offset + 16]));
-	proto_tree_add_text(icmp_tree, offset + 20, 4, "Transmit timestamp: %u",
-	  pntohl(&pd[offset + 20]));
 	break;
 
     case ICMP_MASKREQ:
