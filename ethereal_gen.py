@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.24 2002/05/04 10:29:25 guy Exp $
+# $Id: ethereal_gen.py,v 1.25 2002/05/06 21:41:07 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -1077,7 +1077,7 @@ class ethereal_gen_C:
 
     def get_CDR_enum(self,pn,type):
         #self.st.out(self.template_get_CDR_enum, varname=pn)
-        sname = self.namespace(type, "_")
+        sname = self.namespace(type.unalias(), "_")
         self.st.out(self.template_get_CDR_enum_symbolic, valstringarray=sname)
 
 
