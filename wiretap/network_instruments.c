@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.c,v 1.7 2004/01/25 21:55:16 guy Exp $
+ * $Id: network_instruments.c,v 1.8 2004/02/09 00:05:35 guy Exp $
  */
 
 /***************************************************************************
@@ -420,12 +420,12 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	size_t nwritten;
 	guint64 capture_nanoseconds = 0;
 
-	if(phdr->ts.tv_sec<(long)seconds1970to2000)
+	if(phdr->ts.tv_sec<(long)seconds1970to2000) {
 		if(phdr->ts.tv_sec<0)
 			capture_nanoseconds = 0;
 		else
 			capture_nanoseconds = phdr->ts.tv_sec;
-	else
+	} else
 		capture_nanoseconds = phdr->ts.tv_sec - seconds1970to2000;
 	capture_nanoseconds = ((capture_nanoseconds*1000000) + (guint64)phdr->ts.tv_usec)*1000;
 
