@@ -241,6 +241,14 @@ dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_i
   return offset;
 }
 
+static int
+dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
 
 static int 
 dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {

@@ -600,7 +600,7 @@ BEGIN
       PropertyParm ::= SEQUENCE 
       { 
          propertyName [0] IMPLICIT PkgdName, 
-         value       [1] IMPLICIT SEQUENCE OF OCTET STRING, 
+         value       [1] IMPLICIT SEQUENCE OF PropertyID, 
          extraInfo   [2] CHOICE 
          { 
             relation    [0] IMPLICIT Relation, 
@@ -623,6 +623,7 @@ BEGIN
       -- Wildcarding of Package Name is permitted only if Property, 
       -- Event, Signal, or Statistics ID are 
       -- also wildcarded. 
+      PropertyID ::= OCTET STRING 
        
       Relation ::= ENUMERATED 
       { 

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h248.h                                                            */
+/* ./packet-h248.h                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn */
 
 /* Input file: packet-h248-template.h */
@@ -9,7 +9,7 @@
  * Routines for H.248/MEGACO packet dissection
  * Ronnie Sahlberg 2004
  *
- * $Id: packet-h248-template.h,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id: packet-h248-template.h 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

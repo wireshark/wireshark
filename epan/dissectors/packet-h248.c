@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h248.c                                                            */
+/* ./packet-h248.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn */
 
 /* Input file: packet-h248-template.c */
@@ -234,8 +234,8 @@ static int hf_h248_reserveGroup1 = -1;            /* BOOLEAN */
 static int hf_h248_propertyParms1 = -1;           /* SEQUNCE_OF_PropertyParm */
 static int hf_h248_propertyParms_item1 = -1;      /* PropertyParm */
 static int hf_h248_propertyName = -1;             /* PkgdName */
-static int hf_h248_value1 = -1;                   /* SEQUNCE_OF_OCTET_STRING */
-static int hf_h248_value_item = -1;               /* OCTET_STRING */
+static int hf_h248_value1 = -1;                   /* SEQUNCE_OF_PropertyID */
+static int hf_h248_value_item = -1;               /* PropertyID */
 static int hf_h248_extraInfo1 = -1;               /* T_extraInfo1 */
 static int hf_h248_propGrps1 = -1;                /* SEQUNCE_OF_PropertyGroup */
 static int hf_h248_propGrps_item = -1;            /* PropertyGroup */
@@ -419,7 +419,7 @@ static gint ett_h248_StreamParms = -1;
 static gint ett_h248_LocalControlDescriptor = -1;
 static gint ett_h248_SEQUNCE_OF_PropertyParm = -1;
 static gint ett_h248_PropertyParm = -1;
-static gint ett_h248_SEQUNCE_OF_OCTET_STRING = -1;
+static gint ett_h248_SEQUNCE_OF_PropertyID = -1;
 static gint ett_h248_T_extraInfo1 = -1;
 static gint ett_h248_LocalRemoteDescriptor = -1;
 static gint ett_h248_SEQUNCE_OF_PropertyGroup = -1;
@@ -651,6 +651,14 @@ dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_i
 
   return offset;
 }
+
+static int
+dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
 
 
 static int 
@@ -1311,37 +1319,23 @@ static int dissect_propertyName_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_propertyName);
 }
 
-
-static int
-dissect_h248_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
-
-  return offset;
-}
 static int dissect_value_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_h248_value_item);
-}
-static int dissect_data_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_h248_data);
-}
-static int dissect_Value_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_h248_Value_item);
+  return dissect_h248_PropertyID(FALSE, tvb, offset, pinfo, tree, hf_h248_value_item);
 }
 
-static ber_sequence SEQUNCE_OF_OCTET_STRING_sequence_of[1] = {
+static ber_sequence SEQUNCE_OF_PropertyID_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_value_item },
 };
 
 static int
-dissect_h248_SEQUNCE_OF_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h248_SEQUNCE_OF_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_OCTET_STRING_sequence_of, hf_index, ett_h248_SEQUNCE_OF_OCTET_STRING);
+                                   SEQUNCE_OF_PropertyID_sequence_of, hf_index, ett_h248_SEQUNCE_OF_PropertyID);
 
   return offset;
 }
 static int dissect_value1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_SEQUNCE_OF_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_h248_value1);
+  return dissect_h248_SEQUNCE_OF_PropertyID(TRUE, tvb, offset, pinfo, tree, hf_h248_value1);
 }
 
 
@@ -1801,6 +1795,21 @@ dissect_h248_NonStandardIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 }
 static int dissect_nonStandardIdentifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_NonStandardIdentifier(FALSE, tvb, offset, pinfo, tree, hf_h248_nonStandardIdentifier);
+}
+
+
+static int
+dissect_h248_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_data_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_h248_data);
+}
+static int dissect_Value_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_h248_Value_item);
 }
 
 static ber_sequence NonStandardData_sequence[] = {
@@ -5127,7 +5136,7 @@ void proto_register_h248(void) {
     &ett_h248_LocalControlDescriptor,
     &ett_h248_SEQUNCE_OF_PropertyParm,
     &ett_h248_PropertyParm,
-    &ett_h248_SEQUNCE_OF_OCTET_STRING,
+    &ett_h248_SEQUNCE_OF_PropertyID,
     &ett_h248_T_extraInfo1,
     &ett_h248_LocalRemoteDescriptor,
     &ett_h248_SEQUNCE_OF_PropertyGroup,
