@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.22 2002/06/17 10:39:41 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.23 2002/06/17 13:04:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,8 +49,19 @@ typedef struct _srvsvc_info {
 
 static int proto_dcerpc_srvsvc = -1;
 static int hf_srvsvc_server = -1;
+static int hf_srvsvc_qualifier = -1;
 static int hf_srvsvc_computer = -1;
 static int hf_srvsvc_user = -1;
+static int hf_srvsvc_path = -1;
+static int hf_srvsvc_netname = -1;
+static int hf_srvsvc_file_id = -1;
+static int hf_srvsvc_file_perm = -1;
+static int hf_srvsvc_file_num_locks = -1;
+static int hf_srvsvc_con_id = -1;
+static int hf_srvsvc_con_time = -1;
+static int hf_srvsvc_con_type = -1;
+static int hf_srvsvc_con_num_opens = -1;
+static int hf_srvsvc_con_num_users = -1;
 static int hf_srvsvc_chrqpri = -1;
 static int hf_srvsvc_chrqnumusers = -1;
 static int hf_srvsvc_chrqnumahead = -1;
@@ -788,6 +799,503 @@ srvsvc_dissect_netrchardevqpurgeself_rqst(tvbuff_t *tvb, int offset,
 
 
 
+/*
+ * IDL typedef struct {
+ * IDL   long con_id;
+ * IDL } CONNECT_INFO_0;
+ */
+static int
+srvsvc_dissect_CONNECT_INFO_0(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_con_id, NULL);
+	
+	return offset;
+}
+static int
+srvsvc_dissect_CONNECT_INFO_0_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CONNECT_INFO_0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] CONNECT_INFO_0 *cons;
+ * IDL } CONNECT_INFO_0_CONTAINER;
+ */
+static int
+srvsvc_dissect_CONNECT_INFO_0_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_CONNECT_INFO_0_array, NDR_POINTER_UNIQUE,
+		"CONNECT_INFO_0 array:", -1, 0);
+
+	return offset;
+}
+
+
+/*
+ * IDL typedef struct {
+ * IDL   long conid;
+ * IDL   long type;
+ * IDL   long num_opens;
+ * IDL   long num_users;
+ * IDL   long time;
+ * IDL   [string] [unique] wchar_t *username;
+ * IDL   [string] [unique] wchar_t *netname;
+ * IDL } CONNECT_INFO_1;
+ */
+static int
+srvsvc_dissect_CONNECT_INFO_1(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_con_id, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_con_type, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_con_num_opens, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_con_num_users, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_con_time, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "User",
+		hf_srvsvc_user, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "NetName",
+		hf_srvsvc_netname, 0);
+
+	return offset;
+}
+static int
+srvsvc_dissect_CONNECT_INFO_1_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CONNECT_INFO_1);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] CONNECT_INFO_0 *cons;
+ * IDL } CONNECT_INFO_1_CONTAINER;
+ */
+static int
+srvsvc_dissect_CONNECT_INFO_1_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_CONNECT_INFO_1_array, NDR_POINTER_UNIQUE,
+		"CONNECT_INFO_1 array:", -1, 0);
+
+	return offset;
+}
+
+
+/*
+ * IDL typedef [switch_type(long)] union {
+ * IDL   [case(0)] [unique] CONNECT_INFO_0_CONTAINER *con0;
+ * IDL   [case(1)] [unique] CONNECT_INFO_1_CONTAINER *con1;
+ * IDL } CONNECT_ENUM_UNION;
+ */
+static int
+srvsvc_dissect_CONNECT_ENUM_UNION(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	guint32 level;
+
+	ALIGN_TO_4_BYTES;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_info_level, &level);
+
+	switch(level){
+	case 0:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CONNECT_INFO_0_CONTAINER,
+			NDR_POINTER_UNIQUE, "CONNECT_INFO_0_CONTAINER:",
+			-1, 0);
+		break;
+	case 1:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CONNECT_INFO_1_CONTAINER,
+			NDR_POINTER_UNIQUE, "CONNECT_INFO_1_CONTAINER:",
+			-1, 0);
+		break;
+	}
+
+	return offset;
+}
+
+
+/*
+ * IDL typedef struct {
+ * IDL   long Level;
+ * IDL   CONNECT_ENUM_UNION devs;
+ * IDL } CONNECT_ENUM_STRUCT;
+ */
+static int
+srvsvc_dissect_CONNECT_ENUM_STRUCT(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	offset = srvsvc_dissect_CONNECT_ENUM_UNION(tvb, offset, pinfo, tree, drep);
+
+	return offset;
+}
+
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrConnectionEnum(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [unique] wchar_t *Qualifier,
+ * IDL      [in] [ref] CONNECT_ENUM_STRUCT *con,
+ * IDL      [in] long MaxLen,
+ * IDL      [in] [unique] long *ResumeHandle
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrconnectionenum_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Qualifier",
+		hf_srvsvc_qualifier, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_CONNECT_ENUM_STRUCT,
+		NDR_POINTER_REF, "CONNECT_ENUM_STRUCT:",
+		-1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_preferred_len, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_ENUM_HANDLE,
+		NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
+
+	return offset;
+}
+
+
+/*
+ * IDL typedef struct {
+ * IDL   long fileid;
+ * IDL } FILE_INFO_2;
+ */
+static int
+srvsvc_dissect_FILE_INFO_2(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_file_id, NULL);
+	
+	return offset;
+}
+static int
+srvsvc_dissect_FILE_INFO_2_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_FILE_INFO_2);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] FILE_INFO_2 *files;
+ * IDL } FILE_INFO_2_CONTAINER;
+ */
+static int
+srvsvc_dissect_FILE_INFO_2_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_FILE_INFO_2_array, NDR_POINTER_UNIQUE,
+		"FILE_INFO_2 array:", -1, 0);
+
+	return offset;
+}
+
+
+/*
+ * IDL typedef struct {
+ * IDL   long file_id;
+ * IDL   long permissions;
+ * IDL   long num_locks;
+ * IDL   [string] [unique] wchar_t *pathname;
+ * IDL   [string] [unique] wchar_t *username;
+ * IDL } FILE_INFO_3;
+ */
+static int
+srvsvc_dissect_FILE_INFO_3(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_file_id, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_file_perm, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_file_num_locks, NULL);
+	
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Path",
+		hf_srvsvc_path, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "User",
+		hf_srvsvc_user, 0);
+
+	return offset;
+}
+static int
+srvsvc_dissect_FILE_INFO_3_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_FILE_INFO_3);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] FILE_INFO_3 *files;
+ * IDL } FILE_INFO_3_CONTAINER;
+ */
+static int
+srvsvc_dissect_FILE_INFO_3_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_FILE_INFO_3_array, NDR_POINTER_UNIQUE,
+		"CHARDEV_INFO_3 array:", -1, 0);
+
+	return offset;
+}
+
+
+/*
+ * IDL typedef [switch_type(long)] union {
+ * IDL   [case(2)] [unique] FILE_INFO_2_CONTAINER *file0;
+ * IDL   [case(3)] [unique] FILE_INFO_3_CONTAINER *file1;
+ * IDL } FILE_ENUM_UNION;
+ */
+static int
+srvsvc_dissect_FILE_ENUM_UNION(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	guint32 level;
+
+	ALIGN_TO_4_BYTES;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_info_level, &level);
+
+	switch(level){
+	case 2:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_FILE_INFO_2_CONTAINER,
+			NDR_POINTER_UNIQUE, "FILE_INFO_2_CONTAINER:",
+			-1, 0);
+		break;
+	case 3:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_FILE_INFO_3_CONTAINER,
+			NDR_POINTER_UNIQUE, "FILE_INFO_3_CONTAINER:",
+			-1, 0);
+		break;
+	}
+
+	return offset;
+}
+
+
+/*
+ * IDL typedef struct {
+ * IDL   long Level;
+ * IDL   FILE_ENUM_UNION files;
+ * IDL } FILE_ENUM_STRUCT;
+ */
+static int
+srvsvc_dissect_FILE_ENUM_STRUCT(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	offset = srvsvc_dissect_FILE_ENUM_UNION(tvb, offset, pinfo, tree, drep);
+
+	return offset;
+}
+
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrFileEnum(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [unique] wchar_t *Path,
+ * IDL      [in] [string] [unique] wchar_t *UserName,
+ * IDL      [in] [ref] FILE_ENUM_STRUCT *file,
+ * IDL      [in] long MaxLen,
+ * IDL      [in] [unique] long *ResumeHandle
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrfileenum_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Path",
+		hf_srvsvc_path, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "User",
+		hf_srvsvc_user, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_FILE_ENUM_STRUCT,
+		NDR_POINTER_REF, "FILE_ENUM_STRUCT:",
+		-1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_preferred_len, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_ENUM_HANDLE,
+		NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
+
+	return offset;
+}
+
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrFileGetInfo(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long fileid,
+ * IDL      [in] long level,
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrfilegetinfo_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_file_id, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	return offset;
+}
+
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrFileClose(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long fileid,
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrfileclose_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_file_id, NULL);
+
+	return offset;
+}
+
+
+
+
+
+
+
 
 /* new functions in order and with idl above this line */
 
@@ -1417,10 +1925,18 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{SRV_NETRCHARDEVQPURGESELF,	"NetrCharDevQPurgeSelf",
 		srvsvc_dissect_netrchardevqpurgeself_rqst,
 		NULL},
-	{SRV_NETRCONNECTIONENUM,	"NetrConnectionEnum", NULL, NULL},
-	{SRV_NETRFILEENUM,		"NetrFileEnum", NULL, NULL},
-	{SRV_NETRFILEGETINFO,		"NetrFileGetInfo", NULL, NULL},
-	{SRV_NETRFILECLOSE,		"NetrFileClose", NULL, NULL},
+	{SRV_NETRCONNECTIONENUM,	"NetrConnectionEnum",
+		srvsvc_dissect_netrconnectionenum_rqst,
+		NULL},
+	{SRV_NETRFILEENUM,		"NetrFileEnum",
+		srvsvc_dissect_netrfileenum_rqst,
+		NULL},
+	{SRV_NETRFILEGETINFO,		"NetrFileGetInfo",
+		srvsvc_dissect_netrfilegetinfo_rqst,
+		NULL},
+	{SRV_NETRFILECLOSE,		"NetrFileClose",
+		srvsvc_dissect_netrfileclose_rqst,
+		NULL},
 	{SRV_NETRSESSIONENUM,		"NetrSessionEnum", NULL, NULL},
 	{SRV_NETRSESSIONDEL,		"NetrSessionDel", NULL, NULL},
 	{SRV_NETRSHAREADD,		"NetrShareAdd", NULL, NULL},
@@ -1477,6 +1993,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_server,
 	    { "Server", "srvsvc.server", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Server Name", HFILL}},
+	  { &hf_srvsvc_qualifier,
+	    { "Qualifier", "srvsvc.qualifier", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Connection Qualifier", HFILL}},
 	  { &hf_srvsvc_computer,
 	    { "Computer", "srvsvc.computer", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Computer Name", HFILL}},
@@ -1489,6 +2008,12 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_user,
 	    { "User", "srvsvc.user", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "User Name", HFILL}},
+	  { &hf_srvsvc_path,
+	    { "Path", "srvsvc.path", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Path", HFILL}},
+	  { &hf_srvsvc_netname,
+	    { "NetName", "srvsvc.netname", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "NetName", HFILL}},
 	  { &hf_srvsvc_chrdev_status,
 	    { "Status", "srvsvc.chrdev_status", FT_UINT32, BASE_HEX,
 	    NULL, 0x0, "Char Device Status", HFILL}},
@@ -1566,6 +2091,30 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_switch_value,
 	    { "Switch Value", "srvsvc.switch_val", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Switch Value", HFILL}},
+	  { &hf_srvsvc_file_id,
+	    { "File ID", "srvsvc.file_id", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "File ID", HFILL}},
+	  { &hf_srvsvc_file_perm,
+	    { "Permissions", "srvsvc.file_perm", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "File Permissions", HFILL}},
+	  { &hf_srvsvc_file_num_locks,
+	    { "Num Locks", "srvsvc.file_num_locks", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of locks for file", HFILL}},
+	  { &hf_srvsvc_con_id,
+	    { "Connection ID", "srvsvc.con_id", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Connection ID", HFILL}},
+	  { &hf_srvsvc_con_num_opens,
+	    { "Num Opens", "srvsvc.con_num_opens", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Num Opens", HFILL}},
+	  { &hf_srvsvc_con_num_users,
+	    { "Num Users", "srvsvc.con_num_users", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Num Users", HFILL}},
+	  { &hf_srvsvc_con_type,
+	    { "Connection Type", "srvsvc.con_type", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Connection Type", HFILL}},
+	  { &hf_srvsvc_con_time,
+	    { "Connection Time", "srvsvc.con_time", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Connection Time", HFILL}},
 	  { &hf_srvsvc_num_entries,
 	    { "Number of entries", "srvsvc.share.num_entries", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Number of Entries", HFILL}},
