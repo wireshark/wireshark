@@ -3,7 +3,7 @@
  * (From IEEE Draft P802.1X/D11; is there a later draft, or a
  * final standard?  If so, check it.)
  *
- * $Id: packet-eapol.c,v 1.16 2003/11/13 23:38:32 guy Exp $
+ * $Id: packet-eapol.c,v 1.17 2004/03/28 00:26:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@ static int hf_eapol_wpa_keydes_keyinfo_key_mic = -1;
 static int hf_eapol_wpa_keydes_keyinfo_secure = -1;
 static int hf_eapol_wpa_keydes_keyinfo_error = -1;
 static int hf_eapol_wpa_keydes_keyinfo_request = -1;
+static int hf_eapol_wpa_keydes_keyinfo_encr_key_data = -1;
 static int hf_eapol_wpa_keydes_nonce = -1;
 static int hf_eapol_wpa_keydes_rsc = -1;
 static int hf_eapol_wpa_keydes_id = -1;
@@ -105,6 +106,7 @@ static const value_string eapol_keydes_type_vals[] = {
 #define KEY_INFO_SECURE_MASK		0x0200
 #define KEY_INFO_ERROR_MASK		0x0400
 #define KEY_INFO_REQUEST_MASK		0x0800
+#define KEY_INFO_ENCR_KEY_DATA_MASK	0x1000
 
 static const true_false_string keytype_tfs =
 	{ "Unicast", "Broadcast" };
@@ -194,6 +196,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_boolean(keyinfo_tree, hf_eapol_wpa_keydes_keyinfo_secure, tvb, offset, 2, keyinfo);
 	proto_tree_add_boolean(keyinfo_tree, hf_eapol_wpa_keydes_keyinfo_error, tvb, offset, 2, keyinfo);
 	proto_tree_add_boolean(keyinfo_tree, hf_eapol_wpa_keydes_keyinfo_request, tvb, offset, 2, keyinfo);
+	proto_tree_add_boolean(keyinfo_tree, hf_eapol_wpa_keydes_keyinfo_encr_key_data, tvb, offset, 2, keyinfo);
 
         offset += 2;
         proto_tree_add_uint(eapol_tree, hf_eapol_keydes_keylen, tvb, offset,
@@ -224,9 +227,16 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (eapol_data_len != 0) {
           ti = proto_tree_add_item(eapol_tree, hf_eapol_wpa_keydes_data,
           	tvb, offset, eapol_data_len, FALSE);
-          keydes_tree = proto_item_add_subtree(ti, ett_eapol_keydes_data);
-          ieee_80211_add_tagged_parameters(tvb, offset, keydes_tree,
-                eapol_data_len);
+	  if ((keyinfo & KEY_INFO_ENCR_KEY_DATA_MASK) ||
+	      !(keyinfo & KEY_INFO_KEY_TYPE_MASK)) {
+	    /* RSN: EAPOL-Key Key Data is encrypted.
+	     * WPA: Group Keys use encrypted Key Data.
+	     * Cannot parse this without knowing the key. */
+	  } else {
+	    keydes_tree = proto_item_add_subtree(ti, ett_eapol_keydes_data);
+	    ieee_80211_add_tagged_parameters(tvb, offset, keydes_tree,
+					     eapol_data_len);
+	  }
         }
       }
       else {
@@ -327,7 +337,7 @@ proto_register_eapol(void)
 		"eapol.keydes.key_info.key_index", 
 		FT_UINT16, BASE_DEC, NULL, 
 		KEY_INFO_KEY_INDEX_MASK, 
-		"Key Index (0-3)", HFILL }},
+		"Key Index (0-3) (RSN: Reserved)", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_install, {
 		"Install flag", 
 		"eapol.keydes.key_info.install", 
@@ -364,6 +374,12 @@ proto_register_eapol(void)
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), 
 		KEY_INFO_REQUEST_MASK, 
 		"Request flag", HFILL }},
+	{ &hf_eapol_wpa_keydes_keyinfo_encr_key_data, {
+		"Encrypted Key Data flag", 
+		"eapol.keydes.key_info.encr_key_data", 
+		FT_BOOLEAN, 16, TFS(&flags_set_truth), 
+		KEY_INFO_ENCR_KEY_DATA_MASK, 
+		"Encrypted Key Data flag", HFILL }},
 	{ &hf_eapol_wpa_keydes_nonce, {
 		"Nonce", "eapol.keydes.nonce", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "WPA Key Nonce", HFILL }},
@@ -372,7 +388,7 @@ proto_register_eapol(void)
 		0x0, "WPA Key Receive Sequence Counter", HFILL }},
 	{ &hf_eapol_wpa_keydes_id, {
 		"WPA Key ID", "eapol.keydes.id", FT_BYTES, BASE_NONE, NULL,
-		0x0, "WPA Key ID", HFILL }},
+		0x0, "WPA Key ID(RSN Reserved)", HFILL }},
 	{ &hf_eapol_wpa_keydes_mic, {
 		"WPA Key MIC", "eapol.keydes.mic", FT_BYTES, BASE_NONE, NULL,
 		0x0, "WPA Key Message Integrity Check", HFILL }},
