@@ -2533,7 +2533,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			switch (prov_type) {
 				case 0:
 					/* XXX - check suboption length */
-					get_dns_name(tvb, optoff, suboptoff, dns_name,
+					get_dns_name(tvb, suboptoff, suboptoff, dns_name,
 						sizeof(dns_name));
 					g_string_sprintfa(opt_str, "%s (%u byte%s)", dns_name,
 							subopt_len - 1, plurality(subopt_len, "", "s") );
@@ -2613,7 +2613,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 		case PKT_CCC_KRB_REALM: /* String values */
 			/* XXX - check suboption length */
-			get_dns_name(tvb, optoff, suboptoff, dns_name, sizeof(dns_name));
+			get_dns_name(tvb, suboptoff, suboptoff, dns_name, sizeof(dns_name));
 			g_string_sprintfa(opt_str, "%s (%u byte%s)", dns_name,
 					subopt_len, plurality(subopt_len, "", "s") );
 			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
