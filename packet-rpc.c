@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.58 2001/05/21 08:52:17 guy Exp $
+ * $Id: packet-rpc.c,v 1.59 2001/05/25 20:13:04 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -125,6 +125,11 @@ static const value_string rpc_auth_state[] = {
 	{ 0, NULL }
 };
 
+static const value_string rpc_authdes_namekind[] = {
+	{ AUTHDES_NAMEKIND_FULLNAME, "ADN_FULLNAME" },
+	{ AUTHDES_NAMEKIND_NICKNAME, "ADN_NICKNAME" },
+	{ 0, NULL }
+};
 
 /* the protocol number */
 static int proto_rpc = -1;
@@ -158,6 +163,14 @@ static int hf_rpc_authgss_token = -1;
 static int hf_rpc_authgss_data_length = -1;
 static int hf_rpc_authgss_data = -1;
 static int hf_rpc_authgss_checksum = -1;
+static int hf_rpc_authdes_namekind = -1;
+static int hf_rpc_authdes_netname = -1;
+static int hf_rpc_authdes_convkey = -1;
+static int hf_rpc_authdes_window = -1;
+static int hf_rpc_authdes_nickname = -1;
+static int hf_rpc_authdes_timestamp = -1;
+static int hf_rpc_authdes_windowverf = -1;
+static int hf_rpc_authdes_timeverf = -1;
 static int hf_rpc_state_accept = -1;
 static int hf_rpc_state_reply = -1;
 static int hf_rpc_state_reject = -1;
@@ -936,6 +949,64 @@ dissect_rpc_authgss_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
 	return offset;
 }
 
+int
+dissect_rpc_authdes_desblock_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+int hfindex, int offset)
+{
+	guint32 value_low;
+	guint32 value_high;
+
+	value_high = tvb_get_ntohl(tvb, offset + 0);
+	value_low  = tvb_get_ntohl(tvb, offset + 4);
+
+	if (tree) {
+		proto_tree_add_text(tree, tvb, offset, 8,
+			"%s: 0x%x%08x", proto_registrar_get_name(hfindex), value_high, 
+			value_low);
+	}
+
+	return offset + 8;
+}
+
+static int
+dissect_rpc_authdes_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
+{
+	guint adc_namekind;
+	guint window = 0;
+	guint nickname = 0;
+
+	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
+
+	adc_namekind = tvb_get_ntohl(tvb, offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_authdes_namekind,
+				    tvb, offset+0, 4, adc_namekind);
+	offset += 4;
+
+	switch(adc_namekind)
+	{
+	case AUTHDES_NAMEKIND_FULLNAME:
+		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, 
+			hf_rpc_authdes_netname, offset, NULL);
+		offset = dissect_rpc_authdes_desblock_tvb(tvb, pinfo, tree,
+			hf_rpc_authdes_convkey, offset);
+		window = tvb_get_ntohl(tvb, offset+0);
+		proto_tree_add_uint(tree, hf_rpc_authdes_window, tvb, offset+0, 4,
+			window);
+		offset += 4;
+		break;
+
+	case AUTHDES_NAMEKIND_NICKNAME:
+		nickname = tvb_get_ntohl(tvb, offset+0);
+		proto_tree_add_uint(tree, hf_rpc_authdes_nickname, tvb, offset+0, 4,
+			window);
+		offset += 4;
+		break;
+	}
+
+	return offset;
+}
+
 static int
 dissect_rpc_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
 {
@@ -969,13 +1040,10 @@ dissect_rpc_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
 
 		break;
 		*/
-		/* I have no tcpdump file with such a packet to verify the
-			info from the RFC 1050 */
-		/*
 		case AUTH_DES:
-
-		break;
-		*/
+			dissect_rpc_authdes_cred(tvb, pinfo, ctree, offset+8);
+			break;
+			
 		case RPCSEC_GSS:
 			dissect_rpc_authgss_cred(tvb, pinfo, ctree, offset+8);
 			break;
@@ -991,8 +1059,11 @@ dissect_rpc_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
 	return offset;
 }
 
+/* AUTH_DES verifiers are asymmetrical, so we need to know what type of
+ * verifier we're decoding (CALL or REPLY).
+ */
 static int
-dissect_rpc_verf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
+dissect_rpc_verf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, int msg_type)
 {
 	guint flavor;
 	guint length;
@@ -1018,6 +1089,32 @@ dissect_rpc_verf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
 			proto_tree_add_uint(vtree, hf_rpc_auth_length, tvb,
 					    offset+4, 4, length);
 			dissect_rpc_authunix_cred(tvb, pinfo, vtree, offset+8);
+			break;
+		case AUTH_DES:
+			proto_tree_add_uint(vtree, hf_rpc_auth_length, tvb,
+				offset+4, 4, length);
+
+			if (msg_type == RPC_CALL)
+			{
+				guint window;
+
+				dissect_rpc_authdes_desblock_tvb(tvb, pinfo, vtree,
+					hf_rpc_authdes_timestamp, offset+8);
+				window = tvb_get_ntohl(tvb, offset+16);
+				proto_tree_add_uint(vtree, hf_rpc_authdes_windowverf, tvb, 
+					offset+16, 4, window);
+			}
+			else
+			{
+				/* must be an RPC_REPLY */
+				guint nickname;
+
+				dissect_rpc_authdes_desblock_tvb(tvb, pinfo, vtree,
+					hf_rpc_authdes_timeverf, offset+8);
+				nickname = tvb_get_ntohl(tvb, offset+16);
+				proto_tree_add_uint(vtree, hf_rpc_authdes_nickname, tvb, 
+				 	offset+16, 4, nickname);
+			}
 			break;
 		case RPCSEC_GSS:
 			dissect_rpc_data_tvb(tvb, pinfo, vtree,
@@ -1698,7 +1795,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 16;
 
 		offset = dissect_rpc_cred(tvb, pinfo, rpc_tree, offset);
-		offset = dissect_rpc_verf(tvb, pinfo, rpc_tree, offset);
+		offset = dissect_rpc_verf(tvb, pinfo, rpc_tree, offset, msg_type);
 
 		/* go to the next dissector */
 
@@ -1811,7 +1908,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 4;
 
 		if (reply_state == MSG_ACCEPTED) {
-			offset = dissect_rpc_verf(tvb, pinfo, rpc_tree, offset);
+			offset = dissect_rpc_verf(tvb, pinfo, rpc_tree, offset, msg_type);
 			if (!tvb_bytes_exist(tvb, offset,4))
 				return TRUE;
 			accept_state = tvb_get_ntohl(tvb,offset+0);
@@ -2098,6 +2195,30 @@ proto_register_rpc(void)
 		{ &hf_rpc_authgss_checksum, {
 			"GSS Checksum", "rpc.authgss.checksum", FT_BYTES,
 			BASE_HEX, NULL, 0, "GSS Checksum" }},
+		{ &hf_rpc_authdes_namekind, {
+			"Namekind", "rpc.authdes.namekind", FT_UINT32, BASE_DEC,
+			VALS(rpc_authdes_namekind), 0, "Namekind" }},
+		{ &hf_rpc_authdes_netname, {
+			"Netname", "rpc.authdes.netname", FT_STRING,
+			BASE_DEC, NULL, 0, "Netname" }},
+		{ &hf_rpc_authdes_convkey, {
+			"Conversation Key (encrypted)", "rpc.authdes.convkey", FT_UINT32,
+			BASE_HEX, NULL, 0, "Conversation Key (encrypted)" }},
+		{ &hf_rpc_authdes_window, {
+			"Window (encrypted)", "rpc.authdes.window", FT_UINT32,
+			BASE_HEX, NULL, 0, "Windows (encrypted)" }},
+		{ &hf_rpc_authdes_nickname, {
+			"Nickname", "rpc.authdes.nickname", FT_UINT32, 
+			BASE_HEX, NULL, 0, "Nickname" }},
+		{ &hf_rpc_authdes_timestamp, {
+			"Timestamp (encrypted)", "rpc.authdes.timestamp", FT_UINT32,
+			BASE_HEX, NULL, 0, "Timestamp (encrypted)" }},
+		{ &hf_rpc_authdes_windowverf, {
+			"Window verifier (encrypted)", "rpc.authdes.windowverf", FT_UINT32,
+			BASE_HEX, NULL, 0, "Window verifier (encrypted)" }},
+		{ &hf_rpc_authdes_timeverf, {
+			"Timestamp verifier (encrypted)", "rpc.authdes.timeverf", FT_UINT32,
+			BASE_HEX, NULL, 0, "Timestamp verifier (encrypted)" }},
 		{ &hf_rpc_auth_machinename, {
 			"Machine Name", "rpc.auth.machinename", FT_STRING, 
 			BASE_DEC, NULL, 0, "Machine Name" }},

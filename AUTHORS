@@ -476,6 +476,7 @@ Mike Frisch <mfrisch@saturn.tlug.org> {
 	NFSv4 support
 	HCLNFSD support
 	rquota support
+	AUTH_DES support
 }
 
 Burke Lau <burke_lau@agilent.com> {

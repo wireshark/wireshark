@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.27 2001/05/07 20:36:39 guy Exp $
+ * $Id: packet-rpc.h,v 1.28 2001/05/25 20:13:04 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -70,6 +70,9 @@
 #define RPCSEC_GSS_SVC_NONE 1
 #define RPCSEC_GSS_SVC_INTEGRITY 2
 #define RPCSEC_GSS_SVC_PRIVACY 3
+
+#define AUTHDES_NAMEKIND_FULLNAME 0
+#define AUTHDES_NAMEKIND_NICKNAME 1
 
 typedef int (old_dissect_function_t)(const u_char* pd, int offset, frame_data* fd, proto_tree* tree);
 typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree);
