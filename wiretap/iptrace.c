@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.19 1999/11/19 05:48:21 gram Exp $
+ * $Id: iptrace.c,v 1.20 1999/11/22 15:55:08 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -141,14 +141,8 @@ static int iptrace_read(wtap *wth, int *err)
 		if_name1 = header[12];
 		if_name2 = header[13];
 
-		if (if_name1 == 'l' && if_name2 == 'o') {
-			wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
-		}
-		else if (if_name1 == 'f' && if_name2 == 'd') {
+		if (if_name1 == 'f' && if_name2 == 'd') {
 			wth->phdr.pkt_encap = WTAP_ENCAP_FDDI_BITSWAPPED;
-		}
-		else if (if_name1 == 'x' && if_name2 == 'd') { /* X.25 */
-			wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
 		}
 		else {
 			g_message("iptrace: interface type %c%c (IFT=0x%02x) unknown or unsupported",
@@ -250,10 +244,7 @@ wtap_encap_ift(unsigned int  ift)
 /* 0x1 */	WTAP_ENCAP_UNKNOWN,	/* IFT_OTHER */
 /* 0x2 */	WTAP_ENCAP_UNKNOWN,	/* IFT_1822 */
 /* 0x3 */	WTAP_ENCAP_UNKNOWN,	/* IFT_HDH1822 */
-/* 0x4 */	WTAP_ENCAP_UNKNOWN,	/* IFT_X25DDN */
-#if 0
-	/* 0x5 */	WTAP_ENCAP_RAW_IP,	/* IFT_X25 */
-#endif
+/* 0x4 */	WTAP_ENCAP_RAW_IP,	/* IFT_X25DDN */
 /* 0x5 */	WTAP_ENCAP_UNKNOWN,	/* IFT_X25 */
 /* 0x6 */	WTAP_ENCAP_ETHERNET,	/* IFT_ETHER */
 /* 0x7 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ISO88023 */
@@ -276,10 +267,7 @@ wtap_encap_ift(unsigned int  ift)
 /* 0x15 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ISDNPRIMARY */
 /* 0x16 */	WTAP_ENCAP_UNKNOWN,	/* IFT_PTPSERIAL */
 /* 0x17 */	WTAP_ENCAP_UNKNOWN,	/* IFT_PPP */
-#if 0
-	/* 0x18 */	WTAP_ENCAP_RAW_IP,	/* IFT_LOOP */
-#endif
-/* 0x18 */	WTAP_ENCAP_UNKNOWN,	/* IFT_LOOP */
+/* 0x18 */	WTAP_ENCAP_RAW_IP,	/* IFT_LOOP */
 /* 0x19 */	WTAP_ENCAP_UNKNOWN,	/* IFT_EON */
 /* 0x1a */	WTAP_ENCAP_UNKNOWN,	/* IFT_XETHER */
 /* 0x1b */	WTAP_ENCAP_UNKNOWN,	/* IFT_NSIP */
