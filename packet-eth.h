@@ -1,6 +1,6 @@
 /* packet-eth.h
  *
- * $Id: packet-eth.h,v 1.10 2003/05/11 01:12:33 guy Exp $
+ * $Id: packet-eth.h,v 1.11 2003/08/21 21:05:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,5 +31,8 @@ typedef struct _eth_hdr {
 } eth_hdr;
 
 void capture_eth(const guchar *, int, int, packet_counts *);
+
+void add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
+			  tvbuff_t *trailer_tvb);
 
 #endif

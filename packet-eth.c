@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.79 2003/01/22 06:26:33 guy Exp $
+ * $Id: packet-eth.c,v 1.80 2003/08/21 21:05:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -272,6 +272,41 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 end_of_eth:
   tap_queue_packet(eth_tap, pinfo, &ehdr);
   return;
+}
+
+/*
+ * Add an Ethernet trailer - which, for some captures, might be the FCS
+ * rather than a pad-to-60-bytes trailer.
+ */
+void
+add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
+		     tvbuff_t *trailer_tvb)
+{
+  /* If there're some bytes left over, show those bytes as a trailer.
+
+     However, if the Ethernet frame was claimed to have had 64 or more
+     bytes - i.e., it was at least an FCS worth of data longer than
+     the minimum payload size - assume the last 4 bytes of the trailer
+     are an FCS. */
+  if (trailer_tvb && fh_tree) {
+    guint trailer_length;
+    gboolean has_fcs = FALSE;
+
+    trailer_length = tvb_length(trailer_tvb);
+    if (tvb_reported_length(tvb) >= 64 && trailer_length >= 4) {
+      trailer_length -= 4;
+      has_fcs = TRUE;
+    }
+    if (trailer_length != 0) {
+      proto_tree_add_item(fh_tree, trailer_id, trailer_tvb, 0,
+			  trailer_length, FALSE);
+    }
+    if (has_fcs) {
+      proto_tree_add_text(fh_tree, trailer_tvb, trailer_length, 4,
+			  "FCS: 0x%08x",
+			  tvb_get_ntohl(trailer_tvb, trailer_length));
+    }
+  }
 }
 
 void

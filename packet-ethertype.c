@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.36 2003/06/11 09:17:00 guy Exp $
+ * $Id: packet-ethertype.c,v 1.37 2003/08/21 21:05:29 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include "packet-eth.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
@@ -101,7 +102,7 @@ const value_string etype_vals[] = {
     {PPP_CCP,			"PPP Compression Control Protocol" },
     {0,				NULL				} };
 
-static void add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
+static void add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
     tvbuff_t *next_tvb, int offset_after_etype, guint length_before);
 
 void
@@ -143,8 +144,9 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	tvbuff_t		*next_tvb;
 	guint			length_before;
 	volatile gboolean	dissector_found;
+	const char		*saved_proto, *exception_proto;
 
-	/* Add to proto_tree */
+	/* Add the Ethernet type to the protocol tree */
 	if (tree) {
 		proto_tree_add_uint(fh_tree, etype_id, tvb,
 		    offset_after_etype - 2, 2, etype);
@@ -163,6 +165,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	   reported length of "next_tvb" was reduced by some dissector
 	   before an exception was thrown, we can still put in an item
 	   for the trailer. */
+	saved_proto = pinfo->current_proto;
 	TRY {
 		dissector_found = dissector_try_port(ethertype_dissector_table,
 		    etype, next_tvb, pinfo, tree);
@@ -174,12 +177,24 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		   columns. */
 		dissector_found = TRUE;
 
+		/* Save the protocol for which the exception was
+		   thrown, and restore pinfo->current_proto to the
+		   one for us, so if we throw an exception adding
+		   the trailer (e.g., if we get an FCS when capturing,
+		   but the snapshot length cut off the FCS), the
+		   exception will reflect the appropriate protocol. */
+		exception_proto = pinfo->current_proto;
+		pinfo->current_proto = saved_proto;
+
 		/* Add the trailer, if appropriate. */
-		add_trailer(fh_tree, trailer_id, tvb, next_tvb,
+		add_dix_trailer(fh_tree, trailer_id, tvb, next_tvb,
 		    offset_after_etype, length_before);
 
-		/* Rrethrow the exception, so the "Short Frame" or "Mangled
-		   Frame" indication can be put into the tree. */
+		/* Put back the protocol for which the exception is
+		   thrown, and rethrow the exception, so the
+		   appropriate indication for the exception can be
+		   put into the tree. */
+		pinfo->current_proto = exception_proto;
 		RETHROW;
 
 		/* XXX - RETHROW shouldn't return. */
@@ -217,12 +232,12 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		}
 	}
 
-	add_trailer(fh_tree, trailer_id, tvb, next_tvb, offset_after_etype,
+	add_dix_trailer(fh_tree, trailer_id, tvb, next_tvb, offset_after_etype,
 	    length_before);
 }
 
 static void
-add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
+add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
     tvbuff_t *next_tvb, int offset_after_etype, guint length_before)
 {
 	guint		length;
@@ -256,17 +271,7 @@ add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
 	} else
 		trailer_tvb = NULL;	/* no trailer */
 
-	/* If there's some bytes left over, and we were given an item ID
-	   for a trailer, mark those bytes as a trailer. */
-	if (trailer_tvb) {
-		guint	trailer_length;
-
-		trailer_length = tvb_length(trailer_tvb);
-		if (trailer_length != 0) {
-			proto_tree_add_item(fh_tree, trailer_id, trailer_tvb, 0,
-			    trailer_length, FALSE);
-		}
-	}
+	add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb);
 }
 
 

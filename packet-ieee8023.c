@@ -1,7 +1,7 @@
 /* packet-ieee8023.c
  * Routine for dissecting 802.3 (as opposed to D/I/X Ethernet) packets.
  *
- * $Id: packet-ieee8023.c,v 1.4 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-ieee8023.c,v 1.5 2003/08/21 21:05:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,12 +29,10 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ieee8023.h"
+#include "packet-eth.h"
 
 static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
-
-static void add_trailer(proto_tree *fh_tree, int trailer_id,
-    tvbuff_t *trailer_tvb);
 
 void
 dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
@@ -89,7 +87,7 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
   }
   CATCH2(BoundsError, ReportedBoundsError) {
     /* Well, somebody threw an exception.  Add the trailer, if appropriate. */
-    add_trailer(fh_tree, trailer_id, trailer_tvb);
+    add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb);
 
     /* Rethrow the exception, so the "Short Frame" or "Mangled Frame"
        indication can be put into the tree. */
@@ -100,30 +98,15 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
   }
   ENDTRY;
 
-  add_trailer(fh_tree, trailer_id, trailer_tvb);
-}
-
-static void
-add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *trailer_tvb)
-{
-  /* If there's some bytes left over, mark them. */
-  if (trailer_tvb && fh_tree) {
-    guint trailer_length;
-
-    trailer_length = tvb_length(trailer_tvb);
-    if (trailer_length != 0) {
-      proto_tree_add_item(fh_tree, trailer_id, trailer_tvb, 0,
-			  trailer_length, FALSE);
-    }
-  }
+  add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb);
 }
 
 void
 proto_reg_handoff_ieee802_3(void)
 {
-	/*
-	 * Get handles for the IPX and LLC dissectors.
-	 */
-	ipx_handle = find_dissector("ipx");
-	llc_handle = find_dissector("llc");
+  /*
+   * Get handles for the IPX and LLC dissectors.
+   */
+  ipx_handle = find_dissector("ipx");
+  llc_handle = find_dissector("llc");
 }
