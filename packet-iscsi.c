@@ -6,7 +6,7 @@
  * Optionally, may be compiled for compatibility with
  * draft-ietf-ips-iscsi-08.txt by defining DRAFT08
  *
- * $Id: packet-iscsi.c,v 1.24 2002/01/31 00:44:36 guy Exp $
+ * $Id: packet-iscsi.c,v 1.25 2002/02/02 03:27:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -228,6 +228,11 @@ static guint32 iscsi_init_count = 25;
 #define ISCSI_CSG_OPERATIONAL_NEGOTIATION (1 << CSG_SHIFT)
 #define ISCSI_CSG_FULL_FEATURE_PHASE      (3 << CSG_SHIFT)
 
+#define ISCSI_SCSI_DATA_FLAG_S 0x01
+#define ISCSI_SCSI_DATA_FLAG_U 0x02
+#define ISCSI_SCSI_DATA_FLAG_O 0x04
+#define ISCSI_SCSI_DATA_FLAG_F 0x80
+
 static const value_string iscsi_opcodes[] = {
   { ISCSI_OPCODE_NOP_OUT,                           "NOP Out" },
   { ISCSI_OPCODE_SCSI_COMMAND,                      "SCSI Command" },
@@ -328,13 +333,14 @@ static const value_string iscsi_scsicommand_taskattrs[] = {
     {0, NULL},
 };
 
-static const value_string iscsi_task_responses[] = {
+static const value_string iscsi_task_management_responses[] = {
     {0, "Function complete"},
     {1, "Task not in task set"},
     {2, "LUN does not exist"},
     {3, "Task still allegiant"},
     {4, "Task failover not supported"},
     {5, "Task management function not supported"},
+    {6, "Authorisation failed"},
     {255, "Function rejected"},
     {0, NULL},
 };
@@ -519,6 +525,14 @@ static guint32 crc32Table[256] = {
 
 #define CRC32C_PRELOAD 0xffffffff
 
+static guint32
+calculateCRC32(const void *buf, int len, guint32 crc) {
+    guint8 *p = (guint8 *)buf;
+    while(len-- > 0)
+        crc = crc32Table[(crc ^ *p++) & 0xff] ^ (crc >> 8);
+    return crc;
+}
+
 /*
  * Hash Functions
  */
@@ -564,14 +578,6 @@ iscsi_init_protocol(void)
                                    sizeof(iscsi_conv_data_t),
                                    iscsi_init_count * sizeof(iscsi_conv_data_t),
                                    G_ALLOC_AND_FREE);
-}
-
-static guint32
-calculateCRC32(const void *buf, int len, guint32 crc) {
-    guint8 *p = (guint8 *)buf;
-    while(len-- > 0)
-        crc = crc32Table[(crc ^ *p++) & 0xff] ^ (crc >> 8);
-    return crc;
 }
 
 static int
@@ -708,7 +714,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSCSI");
 
-    if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
+    if (opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
+	opcode == ISCSI_OPCODE_SCSI_DATA_IN) {
         scsi_status = tvb_get_guint8 (tvb, offset+3);
     }
 
@@ -782,7 +789,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
             col_append_str(pinfo->cinfo, COL_INFO, (char *)opcode_str);
 
-	    if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
+	    if (opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
+		(opcode == ISCSI_OPCODE_SCSI_DATA_IN &&
+		 (tvb_get_guint8(tvb, offset + 1) & ISCSI_SCSI_DATA_FLAG_S))) {
 		col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
 				 val_to_str (scsi_status, scsi_status_val, "0x%x"));
 	    }
@@ -792,6 +801,16 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		    col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
 				     val_to_str (login_status, iscsi_login_status, "0x%x"));
 		}
+	    }
+	    else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION) {
+		guint8 tmf = tvb_get_guint8(tvb, offset + 1);
+		col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+				 val_to_str (tmf, iscsi_task_management_functions, "0x%x"));
+	    }
+	    else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE) {
+		guint8 resp = tvb_get_guint8(tvb, offset + 2);
+		col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+				 val_to_str (resp, iscsi_task_management_responses, "0x%x"));
 	    }
 	}
     }
@@ -1596,22 +1615,22 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_SCSIData_F,
 	  { "F", "iscsi.scsidata.F",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), ISCSI_SCSI_DATA_FLAG_F,
 	    "Final PDU", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_S,
 	  { "S", "iscsi.scsidata.S",
-	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_S), 0x01,          
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_S), ISCSI_SCSI_DATA_FLAG_S,
 	    "PDU Contains SCSI command status", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_U,
 	  { "U", "iscsi.scsidata.U",
-	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_U), 0x02,          
+	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_U), ISCSI_SCSI_DATA_FLAG_U,
 	    "Residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_O,
 	  { "O", "iscsi.scsidata.O",
-	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_O), 0x04,          
+	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_O), ISCSI_SCSI_DATA_FLAG_O,
 	    "Residual overflow", HFILL }
 	},
 	{ &hf_iscsi_TargetTransferTag,
@@ -1746,13 +1765,13 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_TaskManagementFunction_Response,
 	  { "Response", "iscsi.taskmanfun.response",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_task_responses), 0,
+	    FT_UINT8, BASE_HEX, VALS(iscsi_task_management_responses), 0,
 	    "Response", HFILL }
 	},
 	{ &hf_iscsi_TaskManagementFunction_ReferencedTaskTag,
-	  { "InitiatorTaskTag", "iscsi.taskmanfun.referencedtasktag",
+	  { "ReferencedTaskTag", "iscsi.taskmanfun.referencedtasktag",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Task's initiator task tag", HFILL }
+	    "Referenced task tag", HFILL }
 	},
 	{ &hf_iscsi_RefCmdSN,
 	  { "RefCmdSN", "iscsi.refcmdsn",
