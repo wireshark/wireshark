@@ -289,9 +289,9 @@ static const value_string sctp_payload_proto_id_values[] = {
 #define SCTP_CHECKSUM_AUTOMATIC 3
 
 /* default values for preferences */
-static gboolean show_port_numbers          = FALSE;
+static gboolean show_port_numbers          = TRUE;
 /* FIXME
-static gboolean show_chunk_types           = FALSE;
+static gboolean show_chunk_types           = TRUE;
 */
 static gboolean show_always_control_chunks = TRUE;
 static gint sctp_checksum                  = SCTP_CHECKSUM_CRC32C;
