@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.13 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-mpls.c,v 1.14 2001/01/06 05:09:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,23 +113,29 @@ static hf_register_info mplsf_info[] = {
 static dissector_handle_t ip_handle;
 
 /*
- * Given a 4-byte MPLS label starting at "start", decode this.
+ * Given a 4-byte MPLS label starting at offset "offset", in tvbuff "tvb",
+ * decode it.
  * Return the label in "label", EXP bits in "exp",
  * bottom_of_stack in "bos", and TTL in "ttl"
  */
-void decode_mpls_label(const unsigned char *start,  
+void decode_mpls_label(tvbuff_t *tvb, int offset,
 		       guint32 *label, guint8 *exp,
 		       guint8 *bos, guint8 *ttl)
 {
-    *label = (start[0] << 12) + (start[1] << 4) + ((start[2] >> 4) & 0xff);
-    *exp = (start[2] >> 1) & 0x7;
-    *bos = (start[2] & 0x1);
-    *ttl = start[3];
+    guint8 octet0 = tvb_get_guint8(tvb, offset+0);
+    guint8 octet1 = tvb_get_guint8(tvb, offset+1);
+    guint8 octet2 = tvb_get_guint8(tvb, offset+2);
+
+    *label = (octet0 << 12) + (octet1 << 4) + ((octet2 >> 4) & 0xff);
+    *exp = (octet2 >> 1) & 0x7;
+    *bos = (octet2 & 0x1);
+    *ttl = tvb_get_guint8(tvb, offset+3);
 }
 
 static void
-dissect_mpls(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
+dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
+    int offset = 0;
     guint32 label;
     guint8 exp;
     guint8 bos;
@@ -137,51 +143,48 @@ dissect_mpls(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     proto_tree  *mpls_tree;
     proto_item  *ti;
+    tvbuff_t *next_tvb;
 
-    OLD_CHECK_DISPLAY_AS_DATA(proto_mpls, pd, offset, fd, tree);
+    CHECK_DISPLAY_AS_DATA(proto_mpls, tvb, pinfo, tree);
 
-    if (check_col(fd, COL_PROTOCOL)) {
-	col_set_str(fd,COL_PROTOCOL, "MPLS");
+    if (check_col(pinfo->fd, COL_PROTOCOL)) {
+	col_set_str(pinfo->fd,COL_PROTOCOL, "MPLS");
     }
     
-    if (check_col(fd,COL_INFO)) {
-	col_add_fstr(fd,COL_INFO,"MPLS Label Switched Packet");
+    if (check_col(pinfo->fd,COL_INFO)) {
+	col_add_fstr(pinfo->fd,COL_INFO,"MPLS Label Switched Packet");
     }
 
     /* Start Decoding Here. */
-    while (1) {
-	if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-	    old_dissect_data(pd, offset, fd, tree);
-	    return;
-	}
-
-	decode_mpls_label(pd+offset, &label, &exp, &bos, &ttl);
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+	decode_mpls_label(tvb, offset, &label, &exp, &bos, &ttl);
 
 	if (tree) {
 
-	    ti = proto_tree_add_item(tree, proto_mpls, NullTVB, offset, 4, FALSE);
+	    ti = proto_tree_add_item(tree, proto_mpls, tvb, offset, 4, FALSE);
 	    mpls_tree = proto_item_add_subtree(ti, ett_mpls);
 
 	    if (label <= MAX_RESERVED)
-		proto_tree_add_uint_format(mpls_tree, mpls_filter[MPLSF_LABEL], NullTVB,
-				    offset, 3, label, "Label: %d (%s)", 
+		proto_tree_add_uint_format(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
+				    offset, 3, label, "Label: %u (%s)", 
 				    label, val_to_str(label, special_labels, 
 						      "Reserved - Unknown"));
 	    else
-		proto_tree_add_uint(mpls_tree, mpls_filter[MPLSF_LABEL], NullTVB,
+		proto_tree_add_uint(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
 				    offset, 3, label);
 
-	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_EXP], NullTVB, 
+	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_EXP], tvb, 
 				offset+2,1, exp);
-	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_BOTTOM_OF_STACK], NullTVB, 
+	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_BOTTOM_OF_STACK], tvb, 
 				offset+2,1, bos);
-	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_TTL], NullTVB, 
+	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_TTL], tvb, 
 				offset+3,1, ttl);
 	}
 	offset += 4;
 	if (bos) break;
     }
-    old_call_dissector(ip_handle, pd, offset, fd, tree);
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    call_dissector(ip_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -200,11 +203,11 @@ proto_register_mpls(void)
 void
 proto_reg_handoff_mpls(void)
 {
-	old_dissector_add("ethertype", ETHERTYPE_MPLS, dissect_mpls);
-	old_dissector_add("ppp.protocol", PPP_MPLS_UNI, dissect_mpls);
-
 	/*
 	 * Get a handle for the IP dissector.
 	 */
 	ip_handle = find_dissector("ip");
+
+	dissector_add("ethertype", ETHERTYPE_MPLS, dissect_mpls);
+	dissector_add("ppp.protocol", PPP_MPLS_UNI, dissect_mpls);
 }
