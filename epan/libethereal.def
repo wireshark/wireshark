@@ -287,6 +287,7 @@ hf_frame_capture_len            DATA
 hf_frame_number                 DATA
 hf_frame_packet_len             DATA
 hf_text_only                    DATA
+host_ip_af
 host_name_lookup_process
 incomplete_tcp_stream           DATA
 InfoRequestNakReason_vals       DATA
