@@ -1,8 +1,9 @@
 /* packet-x11.c
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
+ * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.47 2003/09/21 20:06:01 gerald Exp $
+ * $Id: packet-x11.c,v 1.48 2004/01/02 12:52:45 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,8 +66,80 @@
 
 #include "prefs.h"
 #include "packet-frame.h"
+#include "packet-x11-keysymdef.h"
 
 #define cVALS(x) (const value_string*)(x)
+
+/*
+ * Data structure associated with a conversation; keeps track of the
+ * request for which we're expecting a reply, the frame number of
+ * the initial connection request, and the byte order of the connection.
+ *
+ * An opcode of -3 means we haven't yet seen any requests yet.
+ * An opcode of -2 means we're not expecting a reply.
+ * An opcode of -1 means means we're waiting for a reply to the initial
+ * connection request.
+ * Other values are the opcode of the request for which we're expecting
+ * a reply.
+ *
+ */
+#define NOTHING_SEEN		-3
+#define NOTHING_EXPECTED	-2
+#define INITIAL_CONN		-1
+
+#define BYTE_ORDER_BE		0
+#define BYTE_ORDER_LE		1
+#define BYTE_ORDER_UNKNOWN	-1
+
+static const char *modifiers[] = {
+    "Shift",
+    "Lock",
+    "Control",
+    "Mod1",
+    "Mod2",
+    "Mod3",
+    "Mod4",
+    "Mod5"
+};
+
+/* Keymasks.  From <X11/X.h>. */
+#define ShiftMask		(1<<0)
+#define LockMask		(1<<1)
+#define ControlMask		(1<<2)
+#define Mod1Mask		(1<<3)
+#define Mod2Mask		(1<<4)
+#define Mod3Mask		(1<<5)
+#define Mod4Mask		(1<<6)
+#define Mod5Mask		(1<<7)
+
+static const int modifiermask[] = { ShiftMask, LockMask, ControlMask,
+Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask };
+
+/* from <X11/X.h> */
+#define NoSymbol             0L /* special KeySym */
+
+typedef struct {
+      GHashTable *seqtable;	/* hashtable of sequncenumber <-> opcode.  */	
+      int	sequencenumber;	/* sequencenumber of current packet.	   */
+      guint32	iconn_frame;	/* frame # of initial connection request   */
+      guint32	iconn_reply;	/* frame # of initial connection reply     */
+      int	byte_order;	/* byte order of connection */
+
+      int 	*keycodemap[256]; /* keycode to keysymvalue map. */
+      int	keysyms_per_keycode;
+      int 	first_keycode;
+      int 	*modifiermap[array_length(modifiers)];/* modifier to keycode. */
+      int	keycodes_per_modifier;
+
+      union {
+	struct {
+		int	first_keycode;
+	} GetKeyboardMapping;
+      } request;
+} x11_conv_data_t;
+
+static GMemChunk *x11_state_chunk = NULL;
+
 
 /* Initialize the protocol and registered fields */
 static int proto_x11 = -1;
@@ -126,6 +199,12 @@ static dissector_handle_t data_handle;
 static const value_string byte_order_vals[] = {
      { 'B', "Big-endian" },
      { 'l', "Little-endian" },
+     { 0,   NULL }
+};
+
+static const value_string image_byte_order_vals[] = {
+     { 0, "LSBFirst" },
+     { 1, "MSBFirst" },
      { 0,   NULL }
 };
 
@@ -412,128 +491,378 @@ static const value_string on_off_vals[] = {
       { 0, NULL }
 };
 
-static const value_string opcode_vals[] = {
-      {   1, "CreateWindow" },
-      {   2, "ChangeWindowAttributes" },
-      {   3, "GetWindowAttributes" },
-      {   4, "DestroyWindow" },
-      {   5, "DestroySubwindows" },
-      {   6, "ChangeSaveSet" },
-      {   7, "ReparentWindow" },
-      {   8, "MapWindow" },
-      {   9, "MapSubwindows" },
-      {  10, "UnmapWindow" },
-      {  11, "UnmapSubwindows" },
-      {  12, "ConfigureWindow" },
-      {  13, "CirculateWindow" },
-      {  14, "GetGeometry" },
-      {  15, "QueryTree" },
-      {  16, "InternAtom" },
-      {  17, "GetAtomName" },
-      {  18, "ChangeProperty" },
-      {  19, "DeleteProperty" },
-      {  20, "GetProperty" },
-      {  21, "ListProperties" },
-      {  22, "SetSelectionOwner" },
-      {  23, "GetSelectionOwner" },
-      {  24, "ConvertSelection" },
+/* Requestcodes.  From <X11/Xproto.h>. */
+#define X_CreateWindow                  1              
+#define X_ChangeWindowAttributes        2        
+#define X_GetWindowAttributes           3     
+#define X_DestroyWindow                 4
+#define X_DestroySubwindows             5   
+#define X_ChangeSaveSet                 6
+#define X_ReparentWindow                7
+#define X_MapWindow                     8
+#define X_MapSubwindows                 9
+#define X_UnmapWindow                  10
+#define X_UnmapSubwindows              11  
+#define X_ConfigureWindow              12  
+#define X_CirculateWindow              13  
+#define X_GetGeometry                  14
+#define X_QueryTree                    15
+#define X_InternAtom                   16
+#define X_GetAtomName                  17
+#define X_ChangeProperty               18 
+#define X_DeleteProperty               19 
+#define X_GetProperty                  20
+#define X_ListProperties               21 
+#define X_SetSelectionOwner            22    
+#define X_GetSelectionOwner            23    
+#define X_ConvertSelection             24   
+#define X_SendEvent                    25
+#define X_GrabPointer                  26
+#define X_UngrabPointer                27
+#define X_GrabButton                   28
+#define X_UngrabButton                 29
+#define X_ChangeActivePointerGrab      30          
+#define X_GrabKeyboard                 31
+#define X_UngrabKeyboard               32 
+#define X_GrabKey                      33
+#define X_UngrabKey                    34
+#define X_AllowEvents                  35       
+#define X_GrabServer                   36      
+#define X_UngrabServer                 37        
+#define X_QueryPointer                 38        
+#define X_GetMotionEvents              39           
+#define X_TranslateCoords              40                
+#define X_WarpPointer                  41       
+#define X_SetInputFocus                42         
+#define X_GetInputFocus                43         
+#define X_QueryKeymap                  44       
+#define X_OpenFont                     45    
+#define X_CloseFont                    46     
+#define X_QueryFont                    47
+#define X_QueryTextExtents             48     
+#define X_ListFonts                    49  
+#define X_ListFontsWithInfo            50 
+#define X_SetFontPath                  51 
+#define X_GetFontPath                  52 
+#define X_CreatePixmap                 53        
+#define X_FreePixmap                   54      
+#define X_CreateGC                     55    
+#define X_ChangeGC                     56    
+#define X_CopyGC                       57  
+#define X_SetDashes                    58     
+#define X_SetClipRectangles            59             
+#define X_FreeGC                       60  
+#define X_ClearArea                    61             
+#define X_CopyArea                     62    
+#define X_CopyPlane                    63     
+#define X_PolyPoint                    64     
+#define X_PolyLine                     65    
+#define X_PolySegment                  66       
+#define X_PolyRectangle                67         
+#define X_PolyArc                      68   
+#define X_FillPoly                     69    
+#define X_PolyFillRectangle            70             
+#define X_PolyFillArc                  71       
+#define X_PutImage                     72    
+#define X_GetImage                     73 
+#define X_PolyText8                    74     
+#define X_PolyText16                   75      
+#define X_ImageText8                   76      
+#define X_ImageText16                  77       
+#define X_CreateColormap               78          
+#define X_FreeColormap                 79        
+#define X_CopyColormapAndFree          80               
+#define X_InstallColormap              81           
+#define X_UninstallColormap            82             
+#define X_ListInstalledColormaps       83                  
+#define X_AllocColor                   84      
+#define X_AllocNamedColor              85           
+#define X_AllocColorCells              86           
+#define X_AllocColorPlanes             87            
+#define X_FreeColors                   88      
+#define X_StoreColors                  89       
+#define X_StoreNamedColor              90           
+#define X_QueryColors                  91       
+#define X_LookupColor                  92       
+#define X_CreateCursor                 93        
+#define X_CreateGlyphCursor            94             
+#define X_FreeCursor                   95      
+#define X_RecolorCursor                96         
+#define X_QueryBestSize                97         
+#define X_QueryExtension               98          
+#define X_ListExtensions               99          
+#define X_ChangeKeyboardMapping        100
+#define X_GetKeyboardMapping           101
+#define X_ChangeKeyboardControl        102                
+#define X_GetKeyboardControl           103             
+#define X_Bell                         104
+#define X_ChangePointerControl         105
+#define X_GetPointerControl            106
+#define X_SetScreenSaver               107          
+#define X_GetScreenSaver               108          
+#define X_ChangeHosts                  109       
+#define X_ListHosts                    110     
+#define X_SetAccessControl             111               
+#define X_SetCloseDownMode             112
+#define X_KillClient                   113 
+#define X_RotateProperties             114
+#define X_ForceScreenSaver             115
+#define X_SetPointerMapping            116
+#define X_GetPointerMapping            117
+#define X_SetModifierMapping           118
+#define X_GetModifierMapping           119
+#define X_NoOperation                  127
 
-      {  26, "GrabPointer" },
-      {  27, "UngrabPointer" },
-      {  28, "GrabButton" },
-      {  29, "UngrabButton" },
-      {  30, "ChangeActivePointerGrab" },
-      {  31, "GrabKeyboard" },
-      {  32, "UngrabKeyboard" },
-      {  33, "GrabKey" },
-      {  34, "UngrabKey" },
-      {  35, "AllowEvents" },
-      {  36, "GrabServer" },
-      {  37, "UngrabServer" },
-      {  38, "QueryPointer" },
-      {  39, "GetMotionEvents" },
-      {  40, "TranslateCoordinates" },
-      {  41, "WarpPointer" },
-      {  42, "SetInputFocus" },
-      {  43, "GetInputFocus" },
-      {  44, "QueryKeymap" },
-      {  45, "OpenFont" },
-      {  46, "CloseFont" },
-      {  47, "QueryFont" },
-      {  48, "QueryTextExtents" },
-      {  49, "ListFonts" },
-      {  50, "ListFontsWithInfo" },
-      {  51, "SetFontPath" },
-      {  52, "GetFontPath" },
-      {  53, "CreatePixmap" },
-      {  54, "FreePixmap" },
-      {  55, "CreateGC" },
-      {  56, "ChangeGC" },
-      {  57, "CopyGC" },
-      {  58, "SetDashes" },
-      {  59, "SetClipRectangles" },
-      {  60, "FreeGC" },
-      {  61, "ClearArea" },
-      {  62, "CopyArea" },
-      {  63, "CopyPlane" },
-      {  64, "PolyPoint" },
-      {  65, "PolyLine" },
-      {  66, "PolySegment" },
-      {  67, "PolyRectangle" },
-      {  68, "PolyArc" },
-      {  69, "FillPoly" },
-      {  70, "PolyFillRectangle" },
-      {  71, "PolyFillArc" },
-      {  72, "PutImage" },
-      {  73, "GetImage" },
-      {  74, "PolyText8" },
-      {  75, "PolyText16" },
-      {  76, "ImageText8" },
-      {  77, "ImageText16" },
-      {  78, "CreateColormap" },
-      {  79, "FreeColormap" },
-      {  80, "CopyColormapAndFree" },
-      {  81, "InstallColormap" },
-      {  82, "UninstallColormap" },
-      {  83, "ListInstalledColormaps" },
-      {  84, "AllocColor" },
-      {  85, "AllocNamedColor" },
-      {  86, "AllocColorCells" },
-      {  87, "AllocColorPlanes" },
-      {  88, "FreeColors" },
-      {  89, "StoreColors" },
-      {  90, "StoreNamedColor" },
-      {  91, "QueryColors" },
-      {  92, "LookupColor" },
-      {  93, "CreateCursor" },
-      {  94, "CreateGlyphCursor" },
-      {  95, "FreeCursor" },
-      {  96, "RecolorCursor" },
-      {  97, "QueryBestSize" },
-      {  98, "QueryExtension" },
-      {  99, "ListExtensions" },
-      { 100, "ChangeKeyboardMapping" },
-      { 101, "GetKeyboardMapping" },
-      { 102, "ChangeKeyboardControl" },
-      { 103, "GetKeyboardControl" },
-      { 104, "Bell" },
-      { 105, "ChangePointerControl" },
-      { 106, "GetPointerControl" },
-      { 107, "SetScreenSaver" },
-      { 108, "GetScreenSaver" },
-      { 109, "ChangeHosts" },
-      { 110, "ListHosts" },
-      { 111, "SetAccessControl" },
-      { 112, "SetCloseDownMode" },
-      { 113, "KillClient" },
-      { 114, "RotateProperties" },
-      { 115, "ForceScreenSaver" },
-      { 116, "SetPointerMapping" },
-      { 117, "GetPointerMapping" },
-      { 118, "SetModifierMapping" },
-      { 119, "GetModifierMapping" },
-      { 127, "NoOperation" },
-      { 0, NULL }
+static const value_string opcode_vals[] = {
+      { INITIAL_CONN,                   "Initial connection request" },
+      { X_CreateWindow,                 "CreateWindow" },
+      { X_ChangeWindowAttributes,       "ChangeWindowAttributes" },
+      { X_GetWindowAttributes,          "GetWindowAttributes" },
+      { X_DestroyWindow,                "DestroyWindow" },
+      { X_DestroySubwindows,            "DestroySubwindows" },
+      { X_ChangeSaveSet,                "ChangeSaveSet" },
+      { X_ReparentWindow,               "ReparentWindow" },
+      { X_MapWindow,                    "MapWindow" },
+      { X_MapSubwindows,                "MapSubwindows" },
+      { X_UnmapWindow,                  "UnmapWindow" },
+      { X_UnmapSubwindows,              "UnmapSubwindows" },
+      { X_ConfigureWindow,              "ConfigureWindow" },
+      { X_CirculateWindow,              "CirculateWindow" },
+      { X_GetGeometry,                  "GetGeometry" },
+      { X_QueryTree,                    "QueryTree" },
+      { X_InternAtom,                   "InternAtom" },
+      { X_GetAtomName,                  "GetAtomName" },
+      { X_ChangeProperty,               "ChangeProperty" },
+      { X_DeleteProperty,               "DeleteProperty" },
+      { X_GetProperty,                  "GetProperty" },
+      { X_ListProperties,               "ListProperties" },
+      { X_SetSelectionOwner,            "SetSelectionOwner" },
+      { X_GetSelectionOwner,            "GetSelectionOwner" },
+      { X_ConvertSelection,             "ConvertSelection" },
+      /* { X_SendEvent,                   "SendEvent" }, */
+      { X_GrabPointer,                  "GrabPointer" },
+      { X_UngrabPointer,                "UngrabPointer" },
+      { X_GrabButton,                   "GrabButton" },
+      { X_UngrabButton,                 "UngrabButton" },
+      { X_ChangeActivePointerGrab,      "ChangeActivePointerGrab" },
+      { X_GrabKeyboard,                 "GrabKeyboard" },
+      { X_UngrabKeyboard,               "UngrabKeyboard" },
+      { X_GrabKey,                      "GrabKey" },
+      { X_UngrabKey,                    "UngrabKey" },
+      { X_AllowEvents,                  "AllowEvents" },
+      { X_GrabServer,                   "GrabServer" },
+      { X_UngrabServer,                 "UngrabServer" },
+      { X_QueryPointer,                 "QueryPointer" },
+      { X_GetMotionEvents,              "GetMotionEvents" },
+      { X_TranslateCoords,              "TranslateCoordinates" },
+      { X_WarpPointer,                  "WarpPointer" },
+      { X_SetInputFocus,                "SetInputFocus" },
+      { X_GetInputFocus,                "GetInputFocus" },
+      { X_QueryKeymap,                  "QueryKeymap" },
+      { X_OpenFont,                     "OpenFont" },
+      { X_CloseFont,                    "CloseFont" },
+      { X_QueryFont,                    "QueryFont" },
+      { X_QueryTextExtents,             "QueryTextExtents" },
+      { X_ListFonts,                    "ListFonts" },
+      { X_ListFontsWithInfo,            "ListFontsWithInfo" },
+      { X_SetFontPath,                  "SetFontPath" },
+      { X_GetFontPath,                  "GetFontPath" },
+      { X_CreatePixmap,                 "CreatePixmap" },
+      { X_FreePixmap,                   "FreePixmap" },
+      { X_CreateGC,                     "CreateGC" },
+      { X_ChangeGC,                     "ChangeGC" },
+      { X_CopyGC,                       "CopyGC" },
+      { X_SetDashes,                    "SetDashes" },
+      { X_SetClipRectangles,            "SetClipRectangles" },
+      { X_FreeGC,                       "FreeGC" },
+      { X_ClearArea,                    "ClearArea" },
+      { X_CopyArea,                     "CopyArea" },
+      { X_CopyPlane,                    "CopyPlane" },
+      { X_PolyPoint,                    "PolyPoint" },
+      { X_PolyLine,                     "PolyLine" },
+      { X_PolySegment,                  "PolySegment" },
+      { X_PolyRectangle,                "PolyRectangle" },
+      { X_PolyArc,                      "PolyArc" },
+      { X_FillPoly,                     "FillPoly" },
+      { X_PolyFillRectangle,            "PolyFillRectangle" },
+      { X_PolyFillArc,                  "PolyFillArc" },
+      { X_PutImage,                     "PutImage" },
+      { X_GetImage,                     "GetImage" },
+      { X_PolyText8,                    "PolyText8" },
+      { X_PolyText16,                   "PolyText16" },
+      { X_ImageText8,                   "ImageText8" },
+      { X_ImageText16,                  "ImageText16" },
+      { X_CreateColormap,               "CreateColormap" },
+      { X_FreeColormap,                 "FreeColormap" },
+      { X_CopyColormapAndFree,          "CopyColormapAndFree" },
+      { X_InstallColormap,              "InstallColormap" },
+      { X_UninstallColormap,            "UninstallColormap" },
+      { X_ListInstalledColormaps,       "ListInstalledColormaps" },
+      { X_AllocColor,                   "AllocColor" },
+      { X_AllocNamedColor,              "AllocNamedColor" },
+      { X_AllocColorCells,              "AllocColorCells" },
+      { X_AllocColorPlanes,             "AllocColorPlanes" },
+      { X_FreeColors,                   "FreeColors" },
+      { X_StoreColors,                  "StoreColors" },
+      { X_StoreNamedColor,              "StoreNamedColor" },
+      { X_QueryColors,                  "QueryColors" },
+      { X_LookupColor,                  "LookupColor" },
+      { X_CreateCursor,                 "CreateCursor" },
+      { X_CreateGlyphCursor,            "CreateGlyphCursor" },
+      { X_FreeCursor,                   "FreeCursor" },
+      { X_RecolorCursor,                "RecolorCursor" },
+      { X_QueryBestSize,                "QueryBestSize" },
+      { X_QueryExtension,               "QueryExtension" },
+      { X_ListExtensions,               "ListExtensions" },
+      { X_ChangeKeyboardMapping,        "ChangeKeyboardMapping" },
+      { X_GetKeyboardMapping,           "GetKeyboardMapping" },
+      { X_ChangeKeyboardControl,        "ChangeKeyboardControl" },
+      { X_GetKeyboardControl,           "GetKeyboardControl" },
+      { X_Bell,                         "Bell" },
+      { X_ChangePointerControl,         "ChangePointerControl" },
+      { X_GetPointerControl,            "GetPointerControl" },
+      { X_SetScreenSaver,               "SetScreenSaver" },
+      { X_GetScreenSaver,               "GetScreenSaver" },
+      { X_ChangeHosts,                  "ChangeHosts" },
+      { X_ListHosts,                    "ListHosts" },
+      { X_SetAccessControl,             "SetAccessControl" },
+      { X_SetCloseDownMode,             "SetCloseDownMode" },
+      { X_KillClient,                   "KillClient" },
+      { X_RotateProperties,             "RotateProperties" },
+      { X_ForceScreenSaver,             "ForceScreenSaver" },
+      { X_SetPointerMapping,            "SetPointerMapping" },
+      { X_GetPointerMapping,            "GetPointerMapping" },
+      { X_SetModifierMapping,           "SetModifierMapping" },
+      { X_GetModifierMapping,           "GetModifierMapping" },
+      { X_NoOperation,                  "NoOperation" },
+      { 0,                              NULL }
+};
+
+/* Eventscodes.  From <X11/X.h>. */
+#define KeyPress		2
+#define KeyRelease		3
+#define ButtonPress		4
+#define ButtonRelease		5
+#define MotionNotify		6
+#define EnterNotify		7
+#define LeaveNotify		8
+#define FocusIn			9
+#define FocusOut		10
+#define KeymapNotify		11
+#define Expose			12
+#define GraphicsExpose		13
+#define NoExpose		14
+#define VisibilityNotify	15
+#define CreateNotify		16
+#define DestroyNotify		17
+#define UnmapNotify		18
+#define MapNotify		19
+#define MapRequest		20
+#define ReparentNotify		21
+#define ConfigureNotify		22
+#define ConfigureRequest	23
+#define GravityNotify		24
+#define ResizeRequest		25
+#define CirculateNotify		26
+#define CirculateRequest	27
+#define PropertyNotify		28
+#define SelectionClear		29
+#define SelectionRequest	30
+#define SelectionNotify		31
+#define ColormapNotify		32
+#define ClientMessage		33
+#define MappingNotify		34
+
+static const value_string eventcode_vals[] = {
+	{ KeyPress,          "KeyPress" },
+	{ KeyRelease,        "KeyRelease" },
+	{ ButtonPress,       "ButtonPress" },
+	{ ButtonRelease,     "ButtonRelease" },
+	{ MotionNotify,      "MotionNotify" },
+	{ EnterNotify,       "EnterNotify" },
+	{ LeaveNotify,       "LeaveNotify" },
+	{ FocusIn,           "FocusIn" },
+	{ FocusOut,          "FocusOut" },
+	{ KeymapNotify,      "KeymapNotify" },
+	{ Expose,            "Expose" },
+	{ GraphicsExpose,    "GraphicsExpose" },
+	{ NoExpose,          "NoExpose" },
+	{ VisibilityNotify,  "VisibilityNotify" },
+	{ CreateNotify,      "CreateNotify" },
+	{ DestroyNotify,     "DestroyNotify" },
+	{ UnmapNotify,       "UnmapNotify" },
+	{ MapNotify,         "MapNotify" },
+	{ MapRequest,        "MapRequest" },
+	{ ReparentNotify,    "ReparentNotify" },
+	{ ConfigureNotify,   "ConfigureNotify" },
+	{ ConfigureRequest,  "ConfigureRequest" },
+	{ GravityNotify,     "GravityNotify" },
+	{ ResizeRequest,     "ResizeRequest" },
+	{ CirculateNotify,   "CirculateNotify" },
+	{ CirculateRequest,  "CirculateRequest" },
+	{ PropertyNotify,    "PropertyNotify" },
+	{ SelectionClear,    "SelectionClear" },
+	{ SelectionRequest,  "SelectionRequest" },
+	{ SelectionNotify,   "SelectionNotify" },
+	{ ColormapNotify,    "ColormapNotify" },
+	{ ClientMessage,     "ClientMessage" },
+	{ MappingNotify,     "MappingNotify" },
+	{ 0,                 NULL }
+};
+
+/* Errorcodes.  From <X11/X.h> */
+#define Success		   	0	/* everything's okay */
+#define BadRequest	   	1	/* bad request code */
+#define BadValue	   	2	/* int parameter out of range */
+#define BadWindow	   	3	/* parameter not a Window */
+#define BadPixmap	   	4	/* parameter not a Pixmap */
+#define BadAtom		   	5	/* parameter not an Atom */
+#define BadCursor	   	6	/* parameter not a Cursor */
+#define BadFont		   	7	/* parameter not a Font */
+#define BadMatch	   	8	/* parameter mismatch */
+#define BadDrawable	   	9	/* parameter not a Pixmap or Window */
+#define BadAccess	  	10	/* depending on context:
+					 - key/button already grabbed
+					 - attempt to free an illegal 
+					   cmap entry 
+					- attempt to store into a read-only 
+					   color map entry.
+ 					- attempt to modify the access control
+					   list from other than the local host.
+					*/
+#define BadAlloc	  	11	/* insufficient resources */
+#define BadColor	  	12	/* no such colormap */
+#define BadGC		  	13	/* parameter not a GC */
+#define BadIDChoice	  	14	/* choice not in range or already used */
+#define BadName		  	15	/* font or color name doesn't exist */
+#define BadLength	  	16	/* Request length incorrect */
+#define BadImplementation 	17	/* server is defective */
+
+#define FirstExtensionError	128
+#define LastExtensionError	255
+
+static const value_string errorcode_vals[] = {
+	{ Success,               "Success" },
+	{ BadRequest,            "BadRequest" },
+	{ BadValue,              "BadValue" },
+	{ BadWindow,             "BadWindow" },
+	{ BadPixmap,             "BadPixmap" },
+	{ BadAtom,               "BadAtom" },
+	{ BadCursor,             "BadCursor" },
+	{ BadFont,               "BadFont" },
+	{ BadMatch,              "BadMatch" },
+	{ BadDrawable,           "BadDrawable" },
+	{ BadAccess,             "BadAccess" },
+	{ BadAlloc,              "BadAlloc" },
+	{ BadColor,              "BadColor" },
+	{ BadGC,                 "BadGC" },
+	{ BadIDChoice,           "BadIDChoice" },
+	{ BadName,               "BadName" },
+	{ BadLength,             "BadLength" },
+	{ BadImplementation,     "BadImplementation" },
+	{ FirstExtensionError,   "FirstExtensionError" },
+	{ LastExtensionError,    "LastExtensionError" },
+	{ 0,                     NULL }
 };
 
 static const value_string ordering_vals[] = {
@@ -620,6 +949,10 @@ static const value_string zero_is_none_vals[] = {
       { 0, NULL }
 };
 
+/* we have not seen packet before. */
+#define PACKET_IS_NEW(pinfo) \
+	(!((pinfo)->fd->flags.visited))
+
 /************************************************************************
  ***                                                                  ***
  ***           F I E L D   D E C O D I N G   M A C R O S              ***
@@ -651,9 +984,9 @@ static const value_string zero_is_none_vals[] = {
 #define FLAG(position, name) {\
        proto_tree_add_boolean(bitmask_tree, hf_x11_##position##_mask##_##name, tvb, bitmask_offset, bitmask_size, bitmask_value); }
 
-#define FLAG_IF_NONZERO(position, name) {\
+#define FLAG_IF_NONZERO(position, name) do {\
   if (bitmask_value & proto_registrar_get_nth(hf_x11_##position##_mask##_##name) -> bitmask)\
-       proto_tree_add_boolean(bitmask_tree, hf_x11_##position##_mask##_##name, tvb, bitmask_offset, bitmask_size, bitmask_value); }
+       proto_tree_add_boolean(bitmask_tree, hf_x11_##position##_mask##_##name, tvb, bitmask_offset, bitmask_size, bitmask_value); } while (0)
 
 #define ATOM(name)     { atom(tvb, offsetp, t, hf_x11_##name, little_endian); }
 #define BITGRAVITY(name) { gravity(tvb, offsetp, t, hf_x11_##name, "Forget"); }
@@ -676,31 +1009,43 @@ static const value_string zero_is_none_vals[] = {
 #define BITMASK16(name)	BITMASK(name, 2);
 #define BITMASK32(name) BITMASK(name, 4);
 #define BOOL(name)     (add_boolean(tvb, offsetp, t, hf_x11_##name))
-#define BUTTON(name)   { FIELD8(name); }
-#define CARD8(name)    { FIELD8(name); }
+#define BUTTON(name)   FIELD8(name)
+#define CARD8(name)    FIELD8(name)
 #define CARD16(name)   (FIELD16(name))
 #define CARD32(name)   (FIELD32(name))
-#define COLOR_FLAGS(name) { colorFlags(tvb, offsetp, t); }
-#define COLORMAP(name) { FIELD32(name); }
-#define CURSOR(name)   { FIELD32(name); }
-#define DRAWABLE(name) { FIELD32(name); }
+#define COLOR_FLAGS(name) colorFlags(tvb, offsetp, t)
+#define COLORMAP(name) FIELD32(name)
+#define CURSOR(name)   FIELD32(name)
+#define DRAWABLE(name) FIELD32(name)
 #define ENUM8(name)    (FIELD8(name))
-#define ENUM16(name)   { FIELD16(name); }
-#define FONT(name)     { FIELD32(name); }
-#define FONTABLE(name) { FIELD32(name); }
-#define GCONTEXT(name) { FIELD32(name); }
-#define INT8(name)     { FIELD8(name); }
-#define INT16(name)    { FIELD16(name); }
-#define KEYCODE(name)  { FIELD8(name); }
+#define ENUM16(name)   FIELD16(name)
+#define FONT(name)     FIELD32(name)
+#define FONTABLE(name) FIELD32(name)
+#define GCONTEXT(name) FIELD32(name)
+#define INT8(name)     FIELD8(name)
+#define INT16(name)    FIELD16(name)
+#define INT32(name)    FIELD32(name)
+#define KEYCODE(name)  FIELD8(name)
+#define KEYCODE_DECODED(name, keycode, mask)  do {			\
+	proto_tree_add_uint_format(t, hf_x11_##name, tvb, offset, 1, 	\
+	keycode, "keycode: %d (%s)",				\
+	keycode,  keycode2keysymString(state->keycodemap, 		\
+	state->first_keycode, state->keysyms_per_keycode,		\
+	state->modifiermap, state->keycodes_per_modifier,		\
+	keycode, mask));						\
+	++offset;							\
+} while (0)
+
 #define LISTofARC(name) { listOfArc(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 12, little_endian); }
 #define LISTofATOM(name, length) { listOfAtom(tvb, offsetp, t, hf_x11_##name, (length) / 4, little_endian); }
 #define LISTofBYTE(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length), little_endian); }
 #define LISTofCARD8(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length), little_endian); }
 #define LISTofCARD32(name, length) { listOfCard32(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, (length) / 4, little_endian); }
 #define LISTofCOLORITEM(name, length) { listOfColorItem(tvb, offsetp, t, hf_x11_##name, (length) / 12, little_endian); }
-#define LISTofKEYCODE(name, length) { listOfKeycode(tvb, offsetp, t, hf_x11_##name, (length), little_endian); }
-#define LISTofKEYSYM(name, keycode_count, keysyms_per_keycode) { \
-      listOfKeysyms(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, (keycode_count), (keysyms_per_keycode), little_endian); }
+#define LISTofKEYCODE(map, name, length) { listOfKeycode(tvb, offsetp, t, hf_x11_##name, map, (length), little_endian); }
+#define LISTofKEYSYM(name, map, keycode_first, keycode_count, \
+keysyms_per_keycode) {\
+      listOfKeysyms(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, map, (keycode_first), (keycode_count), (keysyms_per_keycode), little_endian); }
 #define LISTofPOINT(name, length) { listOfPoint(tvb, offsetp, t, hf_x11_##name, (length) / 4, little_endian); }
 #define LISTofRECTANGLE(name) { listOfRectangle(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8, little_endian); }
 #define LISTofSEGMENT(name) { listOfSegment(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8, little_endian); }
@@ -712,7 +1057,7 @@ static const value_string zero_is_none_vals[] = {
 #define REQUEST_LENGTH() (requestLength(tvb, offsetp, t, little_endian))
 #define SETofEVENT(name) { setOfEvent(tvb, offsetp, t, little_endian); }
 #define SETofDEVICEEVENT(name) { setOfDeviceEvent(tvb, offsetp, t, little_endian);}
-#define SETofKEYMASK(name) { setOfKeyMask(tvb, offsetp, t, little_endian); }
+#define SETofKEYMASK(name) { setOfKeyButMask(tvb, offsetp, t, little_endian, 0); }
 #define SETofPOINTEREVENT(name) { setOfPointerEvent(tvb, offsetp, t, little_endian); }
 #define STRING8(name, length)  { string8(tvb, offsetp, t, hf_x11_##name, length); }
 #define STRING16(name, length)  { string16(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_bytes, length, little_endian); }
@@ -726,6 +1071,107 @@ static const value_string zero_is_none_vals[] = {
 #define VISUALID(name) { gint32 v = VALUE32(tvb, *offsetp); \
     proto_tree_add_uint_format(t, hf_x11_##name, tvb, *offsetp, 4, v, "Visualid: 0x%08x%s", v, \
 			       v ? "" : " (CopyFromParent)"); *offsetp += 4; }
+#define REPLY(name)       FIELD8(name);
+#define REPLYLENGTH(name) FIELD32(name);
+
+#define EVENTCONTENTS_COMMON() do { 					     \
+			TIMESTAMP(time); 				     \
+			WINDOW(rootwindow);				     \
+			WINDOW(eventwindow);				     \
+			WINDOW(childwindow);				     \
+			INT16(root_x);					     \
+			INT16(root_y);					     \
+			INT16(event_x);					     \
+			INT16(event_y);					     \
+			setOfKeyButMask(tvb, offsetp, t, little_endian, 1);  \
+} while (0)
+
+#define SEQUENCENUMBER_REPLY(name) do {					\
+	guint16 seqno;                                                  \
+                                                                       	\
+	seqno = VALUE16(tvb, *offsetp);                                 \
+	proto_tree_add_uint_format(t, hf_x11_reply_##name, tvb,         \
+	*offsetp, sizeof(seqno), seqno,                                 \
+	"sequencenumber: %d (%s)",                             		\
+	(int)seqno,                                                     \
+	val_to_str(opcode, opcode_vals, "<Unknown opcode %d>"));		\
+	*offsetp += sizeof(seqno);                                      \
+} while (0) 
+
+#define REPLYCONTENTS_COMMON() do { 					\
+	REPLY(reply);							\
+	proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, 		\
+	1, little_endian);						\
+	++offset;							\
+	SEQUENCENUMBER_REPLY(sequencenumber);				\
+	REPLYLENGTH(replylength);					\
+	proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, 		\
+	tvb_reported_length_remaining(tvb, offset), little_endian);	\
+	offset += tvb_reported_length_remaining(tvb, offset);		\
+} while (0)
+
+
+#define HANDLE_REPLY(plen, length_remaining, str, func) do {		\
+	if (length_remaining < plen) {					\
+		if (x11_desegment && pinfo->can_desegment) {		\
+			pinfo->desegment_offset = offset;		\
+			pinfo->desegment_len    = plen - length_remaining;\
+			return;						\
+		} else {						\
+			; /* XXX yes, what then?  Need to skip/join. */ \
+		}							\
+	}								\
+	if (length_remaining > plen)					\
+		length_remaining = plen;				\
+	next_tvb = tvb_new_subset(tvb, offset, length_remaining, plen);	\
+									\
+	if (sep == NULL) {						\
+	   if (check_col(pinfo->cinfo, COL_INFO))			\
+		   col_add_str(pinfo->cinfo, COL_INFO, str);		\
+	   sep = ":";							\
+	}								\
+									\
+	TRY {								\
+		func(next_tvb, pinfo, tree, sep, state, little_endian);	\
+	}								\
+									\
+	CATCH(BoundsError) {						\
+		RETHROW;						\
+	}								\
+	CATCH(ReportedBoundsError) {					\
+		show_reported_bounds_error(next_tvb, pinfo, tree);	\
+	}								\
+	ENDTRY;								\
+									\
+	sep = ",";							\
+} while (0)	
+
+static void
+dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  const char *sep, x11_conv_data_t *volatile state, gboolean
+		  little_endian);
+
+static void
+dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  const char *sep, x11_conv_data_t *volatile state, gboolean
+		  little_endian);
+
+static void
+dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  const char *sep, x11_conv_data_t *volatile state,
+		  gboolean little_endian);
+
+static void
+dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  const char *sep, x11_conv_data_t *volatile state,
+		  gboolean little_endian);
+
+static void
+x11_stateinit(x11_conv_data_t **state, conversation_t *conversation);
+
+static const char *
+keysymString(guint32 v);
+
 
 /************************************************************************
  ***                                                                  ***
@@ -946,6 +1392,186 @@ static gint compareGuint32(gconstpointer a, gconstpointer b)
       return GPOINTER_TO_INT(b) - GPOINTER_TO_INT(a);
 }
 
+static const char *
+keycode2keysymString(int *keycodemap[256], int first_keycode,
+		     int keysyms_per_keycode, 
+		     int *modifiermap[array_length(modifiers)],
+		     int keycodes_per_modifier,
+		     guint32 keycode, guint32 bitmask)
+{
+	static char buf[32];
+	int *syms;
+	int groupmodkc, numlockkc, numlockmod, groupmod;
+	int lockmod_is_capslock = 0, lockmod_is_shiftlock = 0;
+	int lockmod_is_nosymbol = 1;
+	int modifier, kc, keysym;
+
+	if ((syms = keycodemap[keycode]) == NULL)
+		return "<Unknown>";
+
+	for (kc = first_keycode, groupmodkc = numlockkc = -1; kc < 256; ++kc)
+		for (keysym = 0; keysym < keysyms_per_keycode; ++keysym)
+			switch (keycodemap[kc][keysym]) {
+				case 0xff7e:
+					groupmodkc = kc;
+					break;
+
+				case 0xff7f:
+					numlockkc = kc;
+					break;
+
+				case 0xffe5:
+					lockmod_is_capslock = kc;
+					break;
+
+				case 0xffe6:
+					lockmod_is_shiftlock = kc;
+					break;
+			}
+
+
+	/*
+	 * If we have not seen the modifiermap we don't know what the
+	 * keycode translates to, but we do know it's one of the keys 
+	 * in syms (give or take a case-conversion), so we could in 
+	 * theory list them all.
+	 */
+	if (modifiermap[array_length(modifiers) - 1] == NULL) /* all or none */
+		return "<Unknown>";
+
+	/* find out what the numlockmodifer and groupmodifier is. */
+	for (modifier = 0, numlockmod = groupmod = -1;
+	modifier < (int)array_length(modifiers) && numlockmod == -1;
+	++modifier)
+		for (kc = 0; kc < keycodes_per_modifier; ++kc)
+			if (modifiermap[modifier][kc] == numlockkc)
+				numlockmod = modifier;
+			else if (modifiermap[modifier][kc] == groupmodkc)
+				groupmod = modifier;
+
+	/*
+	 * ... and what the lockmodifier is interpreted as.
+	 * (X11v4r6 ref, keyboard and pointers section.)
+	 */
+	for (kc = 0; kc < keycodes_per_modifier; ++kc)
+		if (modifiermap[1][kc] == lockmod_is_capslock) {
+			lockmod_is_shiftlock = lockmod_is_nosymbol = 0;
+			break;
+		}
+		else if (modifiermap[0][kc] == lockmod_is_shiftlock) {
+			lockmod_is_capslock = lockmod_is_nosymbol = 0;
+			break;
+		}
+
+#if 0 
+	/* 
+	 * This is (how I understand) the X11v4R6 protocol description given
+	 * in A. Nye's book.  It is quite different from the
+	 * code in _XTranslateKey() in the file 
+	 * "$XConsortium: KeyBind.c /main/55 1996/02/02 14:08:55 kaleb $"
+	 * as shipped with XFree, and doesn't work correctly, nor do I see
+	 * how it could (e.g. the case of lower/uppercase-letters).
+	 * -- Michael Shuldman
+	 */
+
+	if (numlockmod >= 0 && (bitmask & modifiermask[numlockmod])
+	&& ((keycodemap[keycode][1] >= 0xff80
+	 && keycodemap[keycode][1] <= 0xffbd)
+	 || (keycodemap[keycode][1] >= 0x11000000
+	 && keycodemap[keycode][1] <= 0x1100ffff))) {
+		if ((bitmask & ShiftMask) || lockmod_is_shiftlock)
+			return keysymString(keycodemap[keycode][groupmod + 0]);
+		else
+			if (keycodemap[keycode][groupmod + 1] == NoSymbol)
+				return keysymString(keycodemap[keycode]
+				[groupmod + 0]);
+			else
+				return keysymString(keycodemap[keycode]
+				[groupmod + 1]);
+	}
+	else if (!(bitmask & ShiftMask) && !(bitmask & LockMask))
+		return keysymString(keycodemap[keycode][groupmod + 0]);
+	else if (!(bitmask & ShiftMask)
+	&& ((bitmask & LockMask) && lockmod_is_capslock))
+		if (islower(keycodemap[keycode][groupmod + 0]))
+/*			return toupper(keysymString(keycodemap[keycode][groupmod + 0])); */
+			return "Uppercase"; /* XXX */
+		else
+			return keysymString(keycodemap[keycode][groupmod + 0]);
+
+	else if ((bitmask & ShiftMask) 
+	&& ((bitmask & LockMask) && lockmod_is_capslock))
+		if (islower(keycodemap[keycode][groupmod + 1]))
+/*			return toupper(keysymString(keycodemap[keycode][groupmod + 1])); */
+			return "Uppercase"; /* XXX */
+		else
+			return keysymString(keycodemap[keycode][groupmod + 1]);
+
+	else if ((bitmask & ShiftMask) 
+	||  ((bitmask & LockMask) && lockmod_is_shiftlock))
+			return keysymString(keycodemap[keycode][groupmod + 1]);
+#else /* _XTranslateKey() based code. */
+
+	while (keysyms_per_keycode > 2
+	&& keycodemap[keysyms_per_keycode - 1] == NoSymbol)
+		--keysyms_per_keycode;
+	if (keysyms_per_keycode > 2
+	&& (groupmod >= 0 && (modifiermask[groupmod] & bitmask))) {
+		syms += 2;
+		keysyms_per_keycode -= 2;
+	}
+	
+	if (numlockmod >= 0 && (bitmask & modifiermask[numlockmod])
+	&& keysyms_per_keycode > 1 && ((syms[1] >= 0xff80 && syms[1] <= 0xffbd)
+	 || (syms[1] >= 0x11000000 && syms[1] <= 0x1100ffff))) {
+		if ((bitmask & ShiftMask)
+		|| (bitmask & LockMask && lockmod_is_shiftlock))
+			keysym = syms[0];
+		else
+			keysym = syms[1];
+	}
+	else if (!(bitmask & ShiftMask)
+	&& (!(bitmask & LockMask) || lockmod_is_nosymbol)) {
+		if (keysyms_per_keycode == 1
+		|| (keysyms_per_keycode > 1 && syms[1] == NoSymbol)) {
+			int usym;
+
+			XConvertCase(syms[0], &keysym, &usym);
+		}
+		else
+			keysym = syms[0];
+	}
+	else if (!(bitmask & LockMask) || !lockmod_is_capslock) {
+		int lsym, usym;
+
+		if (keysyms_per_keycode == 1
+		|| (keysyms_per_keycode > 1 && (usym = syms[1]) == NoSymbol))
+			XConvertCase(syms[0], &lsym, &usym);
+		keysym = usym;
+	}
+	else {
+		int lsym, usym;
+
+		if (keysyms_per_keycode == 1
+		|| (keysyms_per_keycode > 1 && syms[1] == NoSymbol))
+			keysym = syms[0];
+
+		XConvertCase(keysym, &lsym, &usym);
+
+		if (!(bitmask & ShiftMask) && keysym != syms[0]
+		&& ((keysym != usym) || (lsym == usym)))
+			XConvertCase(syms[0], &lsym, &usym);
+		keysym = usym;
+	}
+	
+	if (keysym == XK_VoidSymbol)
+		keysym = NoSymbol;
+
+	sprintf(buf, "%d, \"%s\"", keysym, keysymString(keysym));
+	return buf;
+#endif
+}
+
 static const char *keysymString(guint32 v)
 {
       gpointer res;
@@ -959,54 +1585,109 @@ static const char *keysymString(guint32 v)
 		  g_tree_insert(keysymTable, GINT_TO_POINTER(p -> value), p -> strptr);
       }
       res = g_tree_lookup(keysymTable, GINT_TO_POINTER(v));
-      return res ? res : "Unknown";
+      return res ? res : "<Unknown>";
 }
 
-static const char *modifiers[] = { "Shift", "Lock", "Control", "Mod1", "Mod2", "Mod3", "Mod4", "Mod5" };
-
 static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-			  int length, gboolean little_endian)
+			  int *modifiermap[], int keycodes_per_modifier,
+			  gboolean little_endian)
 {
       char buffer[1024];
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
-      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keycode);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp,
+      array_length(modifiers) * keycodes_per_modifier, little_endian);
 
-      while(length--) {
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keycode);
+      size_t m;
+
+      for (m = 0; m < array_length(modifiers);
+      ++m, *offsetp += keycodes_per_modifier) {
 	    char *bp = buffer;
-	    const char **m;
 	    int i;
 
-	    for(i = 8, m = modifiers; i; i--, m++) {
-		guchar c = tvb_get_guint8(tvb, *offsetp);
-		*offsetp += 1;
+            modifiermap[m] = g_malloc(keycodes_per_modifier);
+
+	    for(i = 0; i < keycodes_per_modifier; ++i) {
+		guchar c = tvb_get_guint8(tvb, *offsetp + i);
+
 		if (c)
-		    bp += sprintf(bp, "  %s=%d", *m, c);
+		    bp += sprintf(bp, " %s=%d", modifiers[m], c);
+
+		modifiermap[m][i] = c;
 	    }
 
-	    proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb, *offsetp - 8, 8, tvb_get_ptr(tvb, *offsetp - 8, 8),	"item: %s", buffer);
+	    proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb,
+	    *offsetp, keycodes_per_modifier,
+	    tvb_get_ptr(tvb, *offsetp, keycodes_per_modifier),
+	    "item: %s", buffer);
       }
 }
 
 static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-			  int hf_item, int keycode_count,
+			  int hf_item, int *keycodemap[256],
+			  int keycode_first, int keycode_count,
 			  int keysyms_per_keycode, gboolean little_endian)
 {
       proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, keycode_count * keysyms_per_keycode * 4, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keysyms);
       proto_item *tti;
       proto_tree *ttt;
-      int i;
+      int i, keycode;
 
-      while(keycode_count--) {
-	    tti = proto_tree_add_none_format(tt, hf_item, tvb, *offsetp, keysyms_per_keycode * 4,
-						 "keysyms:");
+      g_assert(keycode_first >= 0);
+      g_assert(keycode_count >= 0);
+      g_assert((size_t)(keycode_first + keycode_count) <= 256);
+
+
+      for (keycode = keycode_first; keycode_count > 0;
+      ++keycode, --keycode_count) {
+	    tti = proto_tree_add_none_format(tt, hf_item, tvb, *offsetp,
+	    keysyms_per_keycode * 4, "keysyms (keycode %d):", keycode);
+
 	    ttt = proto_item_add_subtree(tti, ett_x11_keysym);
-	    for(i = keysyms_per_keycode; i; i--) {
+
+	    keycodemap[keycode]
+	    = g_malloc(sizeof(*keycodemap[keycode]) * keysyms_per_keycode);
+
+	    for(i = 0; i < keysyms_per_keycode; ++i) {
+		  /* keysymvalue = byte3 * 256 + byte4. */
 		  guint32 v = VALUE32(tvb, *offsetp);
+
 		  proto_item_append_text(tti, " %s", keysymString(v));
-		  proto_tree_add_uint_format(ttt, hf_x11_keysyms_item_keysym, tvb, *offsetp, 4, v,
-					     "keysym: 0x%08x (%s)", v, keysymString(v));
+		  proto_tree_add_uint_format(ttt, hf_x11_keysyms_item_keysym,
+		  tvb, *offsetp, 4, v,
+		  "keysym (keycode %d): 0x%08x (%s)",
+		  keycode, v, keysymString(v));
+
+		  keycodemap[keycode][i] = v;
 		  *offsetp += 4;
+	    }
+	
+	    for (i = 1; i < keysyms_per_keycode; ++i)
+		if (keycodemap[keycode][i] != NoSymbol)
+			break;
+
+	    if (i == keysyms_per_keycode) {
+	        /* all but (possibly) first were NoSymbol. */
+		if (keysyms_per_keycode == 4) {
+			keycodemap[keycode][1] = NoSymbol;
+			keycodemap[keycode][2] = keycodemap[keycode][0];
+			keycodemap[keycode][3] = NoSymbol;
+		}
+
+		continue;
+	    }
+
+	    for (i = 2; i < keysyms_per_keycode; ++i)
+		if (keycodemap[keycode][i] != NoSymbol)
+			break;
+	    if (i == keysyms_per_keycode) {
+	        /* all but (possibly) first two were NoSymbol. */
+		if (keysyms_per_keycode == 4) {
+			keycodemap[keycode][2] = keycodemap[keycode][0];
+			keycodemap[keycode][3] =  keycodemap[keycode][1];
+		}
+
+		continue;
 	    }
       }
 }
@@ -1294,8 +1975,8 @@ static guint32 field8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    enumValue = match_strval(v, cVALS(hfi -> strings));
       if (enumValue)
 	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 1, v,
-				       hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%02x (%s)",
-				       hfi -> name, v, enumValue);
+            hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%02x (%s)",
+	    hfi -> name, v, enumValue);
       else
 	    proto_tree_add_item(t, hf, tvb, *offsetp, 1, little_endian);
       *offsetp += 1;
@@ -1306,7 +1987,17 @@ static guint32 field16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 		       gboolean little_endian)
 {
       guint32 v = VALUE16(tvb, *offsetp);
-      proto_tree_add_item(t, hf, tvb, *offsetp, 2, little_endian);
+      header_field_info *hfi = proto_registrar_get_nth(hf);
+      gchar *enumValue = NULL;
+
+      if (hfi -> strings)
+	    enumValue = match_strval(v, cVALS(hfi -> strings));
+      if (enumValue)
+	    proto_tree_add_uint_format(t, hf, tvb, *offsetp, 2, v,
+       	    hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%02x (%s)",
+	    hfi -> name, v, enumValue);
+      else
+	    proto_tree_add_item(t, hf, tvb, *offsetp, 2, little_endian);
       *offsetp += 2;
       return v;
 }
@@ -1396,10 +2087,10 @@ static void gcMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static guint32 requestLength(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 			     gboolean little_endian)
 {
-      guint32 res = VALUE16(tvb, *offsetp) * 4;
+      guint32 res = VALUE16(tvb, *offsetp);
       proto_tree_add_uint(t, hf_x11_request_length, tvb, *offsetp, 2, res);
       *offsetp += 2;
-      return res;
+      return res * 4;
 }
 
 static void setOfEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
@@ -1454,8 +2145,9 @@ static void setOfDeviceEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
       ENDBITMASK;
 }
 
-static void setOfKeyMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
-			 gboolean little_endian)
+
+static void setOfKeyButMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
+			 gboolean little_endian, gboolean butmask)
 {
       proto_item *ti;
       guint32 bitmask_value;
@@ -1466,7 +2158,8 @@ static void setOfKeyMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
       bitmask_value = VALUE16(tvb, *offsetp);
       bitmask_offset = *offsetp;
       bitmask_size = 2;
-      if (bitmask_value == 0x8000)
+
+      if (!butmask && bitmask_value == 0x8000)
 	    proto_tree_add_uint_format(t, hf_x11_modifiers_mask_AnyModifier, tvb, *offsetp, 2, 0x8000,
 				       "modifiers-masks: 0x8000 (AnyModifier)");
       else {
@@ -1481,10 +2174,23 @@ static void setOfKeyMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 	    FLAG(modifiers, Mod3);
 	    FLAG(modifiers, Mod4);
 	    FLAG(modifiers, Mod5);
-	    FLAG_IF_NONZERO(modifiers, erroneous_bits);
+
+	    if (butmask) {
+		    FLAG(modifiers, Button1);
+		    FLAG(modifiers, Button2);
+		    FLAG(modifiers, Button3);
+		    FLAG(modifiers, Button4);
+		    FLAG(modifiers, Button5);
+	    }
+
+	    if (butmask)
+		    FLAG_IF_NONZERO(keybut, erroneous_bits);
+	    else
+		    FLAG_IF_NONZERO(modifiers, erroneous_bits);
       }
       *offsetp += 2;
 }
+
 
 static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 			      gboolean little_endian)
@@ -1590,37 +2296,6 @@ static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t,
       ENDBITMASK;
 }
 
-/*
- * Data structure associated with a conversation; keeps track of the
- * request for which we're expecting a reply, the frame number of
- * the initial connection request, and the byte order of the connection.
- *
- * An opcode of -3 means we haven't yet seen any requests yet.
- * An opcode of -2 means we're not expecting a reply.
- * An opcode of -1 means means we're waiting for a reply to the initial
- * connection request.
- * Other values are the opcode of the request for which we're expecting
- * a reply.
- *
- * XXX - assumes only one outstanding request is awaiting a reply,
- * which should always be the case.
- */
-#define NOTHING_SEEN		-3
-#define NOTHING_EXPECTED	-2
-#define INITIAL_CONN		-1
-
-#define BYTE_ORDER_BE		0
-#define BYTE_ORDER_LE		1
-#define BYTE_ORDER_UNKNOWN	-1
-
-typedef struct {
-      int	opcode;		/* opcode for which we're awaiting a reply */
-      guint32	iconn_frame;	/* frame # of initial connection request */
-      int	byte_order;	/* byte order of connection */
-} x11_conv_data_t;
-
-static GMemChunk *x11_state_chunk = NULL;
-
 static void x11_init_protocol(void)
 {
       if (x11_state_chunk != NULL)
@@ -1690,67 +2365,67 @@ static int rounded4(int n)
 static gboolean consistentWithOrder(int length, tvbuff_t *tvb, int offset, guint16 (*v16)(tvbuff_t *, gint))
 {
       switch(tvb_get_guint8(tvb, offset)) {
-	  case 1: /* CreateWindow */
+	  case X_CreateWindow:
 	    return !tvb_bytes_exist(tvb, offset, 32) || length == 8 + numberOfBitSet(tvb, offset + 7 * 4, 4);
 
-	  case 2: /* ChangeWindowAttributes */
-	  case 56: /* ChangeGC */
+	  case X_ChangeWindowAttributes:
+	  case X_ChangeGC:
 	    return !tvb_bytes_exist(tvb, offset, 12) || length == 3 + numberOfBitSet(tvb, offset + 8, 4);
 
-	  case 3: /* GetWindowAttributes */
-	  case 4: /* DestroyWindow */
-	  case 5: /* DestroySubwindows */
-	  case 6: /* ChangeSaveSet */
-	  case 8: /* MapWindow */
-	  case 9: /* MapSubWindow */
-	  case 10: /* UnmapWindow */
-	  case 11: /* UnmapSubwindows */
-	  case 13: /* CirculateWindow */
-	  case 14: /* GetGeometry */
-	  case 15: /* QueryTree */
-	  case 17: /* GetAtomName */
-	  case 21: /* ListProperties */
-	  case 23: /* GetSelectionOwner */
-	  case 27: /* UngrabPointer */
-	  case 32: /* UngrabKeyboard */
-	  case 35: /* AllowEvents */
-	  case 38: /* QueryPointer */
-	  case 46: /* CloseFont */
-	  case 47: /* QueryFont */
-	  case 54: /* FreePixmap */
-	  case 60: /* FreeGC */
-	  case 79: /* FreeColormap */
-	  case 81: /* InstallColormap */
-	  case 82: /* UninstallColormap */
-	  case 83: /* ListInstalledColormaps */
-	  case 95: /* FreeCursor */
-	  case 101: /* GetKeyboardMapping */
-	  case 113: /* KillClient */
+	  case X_GetWindowAttributes:
+	  case X_DestroyWindow:
+	  case X_DestroySubwindows:
+	  case X_ChangeSaveSet:
+	  case X_MapWindow:
+	  case X_MapSubwindows:
+	  case X_UnmapWindow:
+	  case X_UnmapSubwindows:
+	  case X_CirculateWindow:
+	  case X_GetGeometry:
+	  case X_QueryTree:
+	  case X_GetAtomName:
+	  case X_ListProperties:
+	  case X_GetSelectionOwner:
+	  case X_UngrabPointer:
+	  case X_UngrabKeyboard:
+	  case X_AllowEvents:
+	  case X_QueryPointer:
+	  case X_CloseFont:
+	  case X_QueryFont:
+	  case X_FreePixmap:
+	  case X_FreeGC:
+	  case X_FreeColormap:
+	  case X_InstallColormap:
+	  case X_UninstallColormap:
+	  case X_ListInstalledColormaps:
+	  case X_FreeCursor:
+	  case X_GetKeyboardMapping:
+	  case X_KillClient:
 	    return length == 2;
 
-	  case 7: /* ReparentWindow */
-	  case 22: /* SetSelectionOwner */
-	  case 30: /* ChangeActivePointerGrab */
-	  case 31: /* GrabKeyboard */
-	  case 33: /* GrabKey */
-	  case 39: /* GetMotionEvents */
-	  case 40: /* TranslateCoordinates */
-	  case 53: /* CreatePixmap */
-	  case 57: /* CopyGC */
-	  case 61: /* ClearArea */
-	  case 78: /* CreateColormap */
-	  case 84: /* AllocColor */
-	  case 87: /* AllocColorPlanes */
+	  case X_ReparentWindow:
+	  case X_SetSelectionOwner:
+	  case X_ChangeActivePointerGrab:
+	  case X_GrabKeyboard:
+	  case X_GrabKey:
+	  case X_GetMotionEvents:
+	  case X_TranslateCoords:
+	  case X_CreatePixmap:
+	  case X_CopyGC:
+	  case X_ClearArea:
+	  case X_CreateColormap:
+	  case X_AllocColor:
+	  case X_AllocColorPlanes:
 	    return length == 4;
 
-	  case 12: /* ConfigureWindow */
+	  case X_ConfigureWindow:
 	    return !tvb_bytes_exist(tvb, offset, 10) || length == 3 + numberOfBitSet(tvb, offset + 8, 2);
 
-	  case 16: /* InternAtom */
-	  case 98: /* QueryExtension */
+	  case X_InternAtom:
+	  case X_QueryExtension:
 	    return !tvb_bytes_exist(tvb, offset, 6) || length == 2 + rounded4(v16(tvb, offset + 4));
 
-	  case 18: /* ChangeProperty */
+	  case X_ChangeProperty:
 	    {
 		  int multiplier, type;
 		  if (!tvb_bytes_exist(tvb, offset, 17)) return TRUE;
@@ -1761,139 +2436,139 @@ static gboolean consistentWithOrder(int length, tvbuff_t *tvb, int offset, guint
 		  return length == 6 + rounded4((v16 == tvb_get_letohs ? tvb_get_letohl : tvb_get_ntohl)(tvb, offset + 20) * multiplier);
 	    }
 
-	  case 19: /* DeleteProperty */
-	  case 29: /* UngrabButton */
-	  case 34: /* UngrabKey */
-	  case 42: /* SetInputFocus */
-	  case 80: /* CopyColormapAndFree */
-	  case 86: /* AllocColorCells */
-	  case 97: /* QueryBestSize */
-	  case 105: /* ChangePointerControl */
-	  case 107: /* SetScreenSaver */
+	  case X_DeleteProperty:
+	  case X_UngrabButton:
+	  case X_UngrabKey:
+	  case X_SetInputFocus:
+	  case X_CopyColormapAndFree:
+	  case X_AllocColorCells:
+	  case X_QueryBestSize:
+	  case X_ChangePointerControl:
+	  case X_SetScreenSaver:
 	    return length == 3;
 
-	  case 20: /* GetProperty */
-	  case 24: /* ConvertSelection */
-	  case 26: /* GrabPointer */
-	  case 28: /* GrabButton */
-	  case 41: /* WarpPointer */
+	  case X_GetProperty:
+	  case X_ConvertSelection:
+	  case X_GrabPointer:
+	  case X_GrabButton:
+	  case X_WarpPointer:
 	    return length == 6;
 
-	  case 25: /* SendEvent */
+	  case X_SendEvent:
 	    return length == 11;
 
-	  case 36: /* GrabServer */
-	  case 37: /* UngrabServer */
-	  case 43: /* GetInputFocus */
-	  case 44: /* QueryKeymap */
-	  case 52: /* GetFontPath */
-	  case 99: /* ListExtensions */
-	  case 103: /* GetKeyboardControl */
-	  case 104: /* Bell */
-	  case 106: /* GetPointerControl */
-	  case 108: /* GetScreenSaver */
-	  case 110: /* ListHosts */
-	  case 111: /* SetAccessControl */
-	  case 112: /* SetCloseDownMode */
-	  case 115: /* ForceScreenSaver */
-	  case 117: /* GetPointerMapping */
-	  case 119: /* GetModifierMapping */
+	  case X_GrabServer:
+	  case X_UngrabServer:
+	  case X_GetInputFocus:
+	  case X_QueryKeymap:
+	  case X_GetFontPath:
+	  case X_ListExtensions:
+	  case X_GetKeyboardControl:
+	  case X_Bell:
+	  case X_GetPointerControl:
+	  case X_GetScreenSaver:
+	  case X_ListHosts:
+	  case X_SetAccessControl:
+	  case X_SetCloseDownMode:
+	  case X_ForceScreenSaver:
+	  case X_GetPointerMapping:
+	  case X_GetModifierMapping:
 	    return length == 1;
 
-	  case 45: /* OpenFont */
-	  case 85: /* AllocNamedColor */
-	  case 92: /* LookupColor */
+	  case X_OpenFont:
+	  case X_AllocNamedColor:
+	  case X_LookupColor:
 	    return !tvb_bytes_exist(tvb, offset, 10) || length == 3 + rounded4(v16(tvb, offset + 8));
 
-	  case 48: /* QueryTextExtents */
+	  case X_QueryTextExtents:
 	    return length >= 2;
 
-	  case 49: /* ListFonts */
-	  case 50: /* ListFontsWithInfo */
-	  case 109: /* ChangeHosts */
+	  case X_ListFonts:
+	  case X_ListFontsWithInfo:
+	  case X_ChangeHosts:
 	    return !tvb_bytes_exist(tvb, offset, 8) || length == 2 + rounded4(v16(tvb, offset + 6));
 
-	  case 51: /* SetFontPath */
+	  case X_SetFontPath:
 	    if (length < 2) return FALSE;
 	    if (!tvb_bytes_exist(tvb, offset, 8)) return TRUE;
 	    return listOfStringLengthConsistent(tvb, offset + 8, (length - 2) * 4, v16(tvb, offset + 4));
 
-	  case 55: /* CreateGC */
+	  case X_CreateGC:
 	    return !tvb_bytes_exist(tvb, offset, 16) || length == 4 + numberOfBitSet(tvb, offset + 12, 4);
 
-	  case 58: /* SetDashes */
+	  case X_SetDashes:
 	    return !tvb_bytes_exist(tvb, offset, 12) || length == 3 + rounded4(v16(tvb, offset + 10));
 
-	  case 59: /* SetClipRectangles */
-	  case 66: /* PolySegment */
-	  case 67: /* PolyRectangle */
-	  case 70: /* PolyFillRectangle */
+	  case X_SetClipRectangles:
+	  case X_PolySegment:
+	  case X_PolyRectangle:
+	  case X_PolyFillRectangle:
 	    return length >= 3 && (length - 3) % 2 == 0;
 
-	  case 62: /* CopyArea */
+	  case X_CopyArea:
 	    return length == 7;
 
-	  case 63: /* CopyPlane */
-	  case 93: /* CreateCursor */
-	  case 94: /* CreateGlyphCursor */
+	  case X_CopyPlane:
+	  case X_CreateCursor:
+	  case X_CreateGlyphCursor:
 	    return length == 8;
 
-	  case 64: /* PolyPoint */
-	  case 65: /* PolyLine */
-	  case 88: /* FreeColors */
+	  case X_PolyPoint:
+	  case X_PolyLine:
+	  case X_FreeColors:
 	    return length >= 3;
 
-	  case 68: /* PolyArc */
-	  case 71: /* PolyFillArc */
+	  case X_PolyArc:
+	  case X_PolyFillArc:
 	    return length >= 3 && (length - 3) % 3 == 0;
 
-	  case 69: /* FillPoly */
-	  case 76: /* ImageText8 */
+	  case X_FillPoly:
+	  case X_ImageText8:
 	    return length >= 4;
 
-	  case 72: /* PutImage */
+	  case X_PutImage:
 	    return length >= 6;
 
-	  case 73: /* GetImage */
-	  case 96: /* RecolorCursor */
+	  case X_GetImage:
+	  case X_RecolorCursor:
 	    return length == 5;
 
-	  case 74: /* PolyText8 */
+	  case X_PolyText8:
 	    if (length < 4) return FALSE;
 	    return TRUE; /* We don't perform many controls on this one */
 
-	  case 75: /* PolyText16 */
+	  case X_PolyText16:
 	    if (length < 4) return FALSE;
 	    return TRUE; /* We don't perform many controls on this one */
 
-	  case 77: /* ImageText16 */
+	  case X_ImageText16:
 	    return length >= 4;
 
-	  case 89: /* StoreColors */
+	  case X_StoreColors:
 	    return length > 2 && (length - 2) % 3 == 0;
 
-	  case 90: /* StoreNamedColor */
+	  case X_StoreNamedColor:
 	    return !tvb_bytes_exist(tvb, offset, 14) || length == 4 + rounded4(v16(tvb, offset + 12));
 
-	  case 91: /* QueryColors */
+	  case X_QueryColors:
 	    return length >= 2;
 
-	  case 100: /* ChangeKeyboardMapping */
+	  case X_ChangeKeyboardMapping:
 	    return !tvb_bytes_exist(tvb, offset, 6) || length == 2 + tvb_get_guint8(tvb, 1) * tvb_get_guint8(tvb, 5);
 
-	  case 102: /* ChangeKeyboardControl */
+	  case X_ChangeKeyboardControl:
 	    return !tvb_bytes_exist(tvb, offset, 6) || length == 2 + numberOfBitSet(tvb, offset + 4, 2);
 
-	  case 114: /* RotateProperties */
+	  case X_RotateProperties:
 	    return !tvb_bytes_exist(tvb, offset, 10) || length == 3 + v16(tvb, offset + 8);
 
-	  case 116: /* SetPointerMapping */
+	  case X_SetPointerMapping:
 	    return length == 1 + rounded4(tvb_get_guint8(tvb, 1));
 
-	  case 118: /* SetModifierMapping */
+	  case X_SetModifierMapping:
 	    return length == 1 + tvb_get_guint8(tvb, 1) * 2;
 
-	  case 127: /* NoOperation */
+	  case X_NoOperation:
 	    return length >= 1;
 
 	  default:
@@ -1921,16 +2596,16 @@ static int x_endian_match(tvbuff_t *tvb, guint16 (*v16)(tvbuff_t *, gint))
 
 static gboolean
 guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo,
-		    x11_conv_data_t *state_info)
+		    x11_conv_data_t *state)
 {
       /* With X the client gives the byte ordering for the protocol,
 	 and the port on the server tells us we're speaking X. */
 
       int le, be, decision, decisionToCache;
 
-      if (state_info->byte_order == BYTE_ORDER_BE)
+      if (state->byte_order == BYTE_ORDER_BE)
 	    return FALSE;	/* known to be big-endian */
-      else if (state_info->byte_order == BYTE_ORDER_LE)
+      else if (state->byte_order == BYTE_ORDER_LE)
 	    return TRUE;	/* known to be little-endian */
 
       if (pinfo->srcport == pinfo->match_port) {
@@ -1967,7 +2642,7 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo,
 	    /*
 	     * Remember the decision.
 	     */
-	    state_info->byte_order = decision ? BYTE_ORDER_LE : BYTE_ORDER_BE;
+	    state->byte_order = decision ? BYTE_ORDER_LE : BYTE_ORDER_BE;
       }
 
       /*
@@ -1987,7 +2662,7 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo,
  * Decode an initial connection request.
  */
 static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, x11_conv_data_t *state_info, gboolean little_endian)
+    proto_tree *tree, x11_conv_data_t *state, gboolean little_endian)
 {
       int offset = 0;
       int *offsetp = &offset;
@@ -1997,6 +2672,7 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
       gint left;
 
       ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+      proto_item_append_text(ti, ", Request, Initial connection request");
       t = proto_item_add_subtree(ti, ett_x11);
 
       CARD8(byte_order);
@@ -2006,31 +2682,84 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
       auth_proto_name_length = CARD16(authorization_protocol_name_length);
       auth_proto_data_length = CARD16(authorization_protocol_data_length);
       UNUSED(2);
+
       if (auth_proto_name_length != 0) {
 	    STRING8(authorization_protocol_name, auth_proto_name_length);
 	    offset = ROUND_LENGTH(offset);
       }
+
       if (auth_proto_data_length != 0) {
 	    STRING8(authorization_protocol_data, auth_proto_data_length);
 	    offset = ROUND_LENGTH(offset);
       }
-      left = tvb_length_remaining(tvb, offset);
-      if (left)
-	    proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, left, little_endian);
+
+      if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
+	   	proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, left,
+	   	little_endian);
 
       /*
        * This is the initial connection request...
        */
-      state_info->iconn_frame = pinfo->fd->num;
+      state->iconn_frame = pinfo->fd->num;
 
       /*
        * ...and we're expecting a reply to it.
        */
-      state_info->opcode = INITIAL_CONN;
+      state->sequencenumber = 0;
+      g_hash_table_insert(state->seqtable, (int *)state->sequencenumber,
+      (int *)INITIAL_CONN);
+}
+
+static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, const char _U_ *sep, x11_conv_data_t *state,
+    gboolean little_endian)
+{
+      	int offset = 0, *offsetp = &offset, left;
+	unsigned char success;
+	int length_of_vendor;
+	proto_item *ti;
+	proto_tree *t;
+
+	ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+	proto_item_append_text(ti, ", Reply, Initial connection reply");
+	t = proto_item_add_subtree(ti, ett_x11);
+
+	state->iconn_reply = pinfo->fd->num;
+	success = INT8(success);
+	if (success == 0) {
+		UNDECODED(1);
+	}
+	else {
+		UNUSED(1);
+	}
+
+	INT16(protocol_major_version);
+	INT16(protocol_minor_version);
+	INT16(replylength);
+	INT32(release_number);
+	INT32(resource_id_base);
+	INT32(resource_id_mask);
+	INT32(motion_buffer_size);
+	length_of_vendor = INT16(length_of_vendor);
+	INT16(maximum_request_length);
+	INT8(number_of_screens_in_roots);
+	INT8(number_of_formats_in_pixmap_formats);
+	INT8(image_byte_order);
+	INT8(bitmap_format_bit_order);
+	INT8(bitmap_format_scanline_unit);
+	INT8(bitmap_format_scanline_pad);
+	INT8(min_keycode);
+	INT8(max_keycode);
+	UNUSED(4);
+	STRING8(vendor, length_of_vendor);
+
+      	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
+	    UNDECODED(left);
+
 }
 
 static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, const char *sep, x11_conv_data_t *state_info,
+    proto_tree *tree, const char *sep, x11_conv_data_t *state,
     gboolean little_endian)
 {
       int offset = 0;
@@ -2039,10 +2768,11 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       proto_item *ti;
       proto_tree *t;
       int length, opcode;
-      guint8 v8, v8_2;
+      guint8 v8, v8_2, v8_3;
       guint16 v16;
       guint32 v32;
       gint left;
+      char *str;
 
       length = VALUE16(tvb, 2) * 4;
 
@@ -2056,70 +2786,88 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
       t = proto_item_add_subtree(ti, ett_x11);
 
+      if (PACKET_IS_NEW(pinfo))
+            ++state->sequencenumber;
+
       OPCODE();
 
       if (check_col(pinfo->cinfo, COL_INFO))
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", sep,
-			  val_to_str(opcode, opcode_vals, "Unknown (%u)"));
+			  val_to_str(opcode, opcode_vals, "<Unknown opcode %d>"));
+
+      str = g_strdup_printf(", Request, opcode: %d (%s)", 
+                            opcode, val_to_str(opcode, opcode_vals,
+                            "<Unknown opcode %d>"));
+
+      proto_item_append_text(ti, str);
+      g_free(str);
 
       /*
        * Does this request expect a reply?
        */
       switch(opcode) {
+      case X_AllocColor:
+      case X_AllocColorCells:
+      case X_AllocColorPlanes:
+      case X_AllocNamedColor:
+      case X_GetAtomName:
+      case X_GetFontPath:
+      case X_GetGeometry:
+      case X_GetImage:
+      case X_GetInputFocus:
+      case X_GetKeyboardControl:
+      case X_GetKeyboardMapping:
+      case X_GetModifierMapping:
+      case X_GetMotionEvents:
+      case X_GetPointerControl:
+      case X_GetPointerMapping:
+      case X_GetProperty:
+      case X_GetScreenSaver:
+      case X_GetSelectionOwner:
+      case X_GetWindowAttributes:
+      case X_GrabKeyboard:
+      case X_GrabPointer:
+      case X_InternAtom:
+      case X_ListExtensions:
+      case X_ListFonts:
+      case X_ListFontsWithInfo:
+      case X_ListHosts:
+      case X_ListInstalledColormaps:
+      case X_ListProperties:
+      case X_LookupColor:
+      case X_QueryBestSize:
+      case X_QueryColors:
+      case X_QueryExtension:
+      case X_QueryFont:
+      case X_QueryKeymap:
+      case X_QueryPointer:
+      case X_QueryTextExtents:
+      case X_QueryTree:
+      case X_SetModifierMapping:
+      case X_SetPointerMapping:
+      case X_TranslateCoords:
+	    	/*
+	     	 * Those requests expect a reply.
+	     	 */
 
-      case 3: /* GetWindowAttributes */
-      case 14: /* GetGeometry */
-      case 15: /* QueryTree */
-      case 16: /* InternAtom */
-      case 17: /* GetAtomName */
-      case 20: /* GetProperty */
-      case 21: /* ListProperties */
-      case 23: /* GetSelectionOwner */
-      case 26: /* GrabPointer */
-      case 31: /* GrabKeyboard */
-      case 38: /* QueryPointer */
-      case 39: /* GetMotionEvents */
-      case 40: /* TranslateCoordinates */
-      case 44: /* QueryKeymap */
-      case 47: /* QueryFont */
-      case 48: /* QueryTextExtents */
-      case 49: /* ListFonts */
-      case 73: /* GetImage */
-      case 83: /* ListInstalledColormaps */
-      case 84: /* AllocColor */
-      case 91: /* QueryColors */
-      case 92: /* LookupColor */
-      case 97: /* QueryBestSize */
-      case 98: /* QueryExtension */
-      case 99: /* ListExtensions */
-      case 101: /* GetKeyboardMapping */
-      case 103: /* GetKeyboardControl */
-      case 106: /* GetPointerControl */
-      case 108: /* GetScreenSaver */
-      case 110: /* ListHosts */
-      case 116: /* SetPointerMapping */
-      case 117: /* GetPointerMapping */
-      case 118: /* SetModifierMapping */
-      case 119: /* GetModifierMapping */
-	    /*
-	     * Those requests expect a reply.
-	     */
-	    state_info->opcode = opcode;
-	    break;
+		g_hash_table_insert(state->seqtable,
+		(int *)state->sequencenumber, (int *)opcode);
+
+	    	break;
 
       default:
-	    /*
-	     * No reply is expected from any other request.
-	     */
-	    state_info->opcode = NOTHING_EXPECTED;
-	    break;
+		/*
+		 * No reply is expected from any other request.
+		 */
+		break;
       }
 
-      if (!tree) return;
+      if (tree == NULL)
+     	 return; 
 
       switch(opcode) {
 
-      case 1: /* CreateWindow */
+      case X_CreateWindow:
 	    CARD8(depth);
 	    REQUEST_LENGTH();
 	    WINDOW(wid);
@@ -2134,28 +2882,28 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    windowAttributes(tvb, offsetp, t, little_endian);
 	    break;
 
-      case 2: /* ChangeWindowAttributes */
+      case X_ChangeWindowAttributes:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    windowAttributes(tvb, offsetp, t, little_endian);
 	    break;
 
-      case 3: /* GetWindowAttributes */
-      case 4: /* DestroyWindow */
-      case 5: /* DestroySubwindows */
+      case X_GetWindowAttributes:
+      case X_DestroyWindow:
+      case X_DestroySubwindows:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    break;
 
-      case 6: /* ChangeSaveSet */
+      case X_ChangeSaveSet:
 	    ENUM8(save_set_mode);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    break;
 
-      case 7: /* ReparentWindow */
+      case X_ReparentWindow:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
@@ -2164,16 +2912,16 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    INT16(y);
 	    break;
 
-      case 8: /* MapWindow */
-      case 9: /* MapSubWindow */
-      case 10: /* UnmapWindow */
-      case 11: /* UnmapSubwindows */
+      case X_MapWindow:
+      case X_MapSubwindows:
+      case X_UnmapWindow:
+      case X_UnmapSubwindows:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    break;
 
-      case 12: /* ConfigureWindow */
+      case X_ConfigureWindow:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
@@ -2190,20 +2938,20 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 13: /* CirculateWindow */
+      case X_CirculateWindow:
 	    ENUM8(direction);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    break;
 
-      case 14: /* GetGeometry */
-      case 15: /* QueryTree */
+      case X_GetGeometry:
+      case X_QueryTree:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
 	    break;
 
-      case 16: /* InternAtom */
+      case X_InternAtom:
 	    BOOL(only_if_exists);
 	    REQUEST_LENGTH();
 	    v16 = FIELD16(name_length);
@@ -2212,13 +2960,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 17: /* GetAtomName */
+      case X_GetAtomName:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    ATOM(atom);
 	    break;
 
-      case 18: /* ChangeProperty */
+      case X_ChangeProperty:
 	    ENUM8(mode);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
@@ -2231,14 +2979,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 19: /* DeleteProperty */
+      case X_DeleteProperty:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    ATOM(property);
 	    break;
 
-      case 20: /* GetProperty */
+      case X_GetProperty:
 	    BOOL(delete);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
@@ -2248,13 +2996,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD32(long_length);
 	    break;
 
-      case 21: /* ListProperties */
+      case X_ListProperties:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    break;
 
-      case 22: /* SetSelectionOwner */
+      case X_SetSelectionOwner:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(owner);
@@ -2262,13 +3010,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    TIMESTAMP(time);
 	    break;
 
-      case 23: /* GetSelectionOwner */
+      case X_GetSelectionOwner:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    ATOM(selection);
 	    break;
 
-      case 24: /* ConvertSelection */
+      case X_ConvertSelection:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(requestor);
@@ -2278,7 +3026,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    TIMESTAMP(time);
 	    break;
 
-      case 26: /* GrabPointer */
+      case X_GrabPointer:
 	    BOOL(owner_events);
 	    REQUEST_LENGTH();
 	    WINDOW(grab_window);
@@ -2290,13 +3038,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    TIMESTAMP(time);
 	    break;
 
-      case 27: /* UngrabPointer */
+      case X_UngrabPointer:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    TIMESTAMP(time);
 	    break;
 
-      case 28: /* GrabButton */
+      case X_GrabButton:
 	    BOOL(owner_events);
 	    REQUEST_LENGTH();
 	    WINDOW(grab_window);
@@ -2310,7 +3058,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    SETofKEYMASK(modifiers);
 	    break;
 
-      case 29: /* UngrabButton */
+      case X_UngrabButton:
 	    BUTTON(button);
 	    REQUEST_LENGTH();
 	    WINDOW(grab_window);
@@ -2318,7 +3066,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    UNUSED(2);
 	    break;
 
-      case 30: /* ChangeActivePointerGrab */
+      case X_ChangeActivePointerGrab:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    CURSOR(cursor);
@@ -2327,7 +3075,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    UNUSED(2);
 	    break;
 
-      case 31: /* GrabKeyboard */
+      case X_GrabKeyboard:
 	    BOOL(owner_events);
 	    REQUEST_LENGTH();
 	    WINDOW(grab_window);
@@ -2337,13 +3085,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    UNUSED(2);
 	    break;
 
-      case 32: /* UngrabKeyboard */
+      case X_UngrabKeyboard:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    TIMESTAMP(time);
 	    break;
 
-      case 33: /* GrabKey */
+      case X_GrabKey:
 	    BOOL(owner_events);
 	    REQUEST_LENGTH();
 	    WINDOW(grab_window);
@@ -2354,7 +3102,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    UNUSED(3);
 	    break;
 
-      case 34: /* UngrabKey */
+      case X_UngrabKey:
 	    KEYCODE(key);
 	    REQUEST_LENGTH();
 	    WINDOW(grab_window);
@@ -2362,29 +3110,29 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    UNUSED(2);
 	    break;
 
-      case 35: /* AllowEvents */
+      case X_AllowEvents:
 	    ENUM8(allow_events_mode);
 	    REQUEST_LENGTH();
 	    TIMESTAMP(time);
 	    break;
 
-      case 36: /* GrabServer */
+      case X_GrabServer:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 37: /* UngrabServer */
+      case X_UngrabServer:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 38: /* QueryPointer */
+      case X_QueryPointer:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    break;
 
-      case 39: /* GetMotionEvents */
+      case X_GetMotionEvents:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
@@ -2392,7 +3140,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    TIMESTAMP(stop);
 	    break;
 
-      case 40: /* TranslateCoordinates */
+      case X_TranslateCoords:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(src_window);
@@ -2401,7 +3149,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    INT16(src_y);
 	    break;
 
-      case 41: /* WarpPointer */
+      case X_WarpPointer:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(warp_pointer_src_window);
@@ -2414,24 +3162,24 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    INT16(dst_y);
 	    break;
 
-      case 42: /* SetInputFocus */
+      case X_SetInputFocus:
 	    ENUM8(revert_to);
 	    REQUEST_LENGTH();
 	    WINDOW(focus);
 	    TIMESTAMP(time);
 	    break;
 
-      case 43: /* GetInputFocus */
+      case X_GetInputFocus:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 44: /* QueryKeymap */
+      case X_QueryKeymap:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 45: /* OpenFont */
+      case X_OpenFont:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    FONT(fid);
@@ -2441,19 +3189,19 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 46: /* CloseFont */
+      case X_CloseFont:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    FONT(font);
 	    break;
 
-      case 47: /* QueryFont */
+      case X_QueryFont:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    FONTABLE(font);
 	    break;
 
-      case 48: /* QueryTextExtents */
+      case X_QueryTextExtents:
 	    v8 = BOOL(odd_length);
 	    REQUEST_LENGTH();
 	    FONTABLE(font);
@@ -2461,7 +3209,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 49: /* ListFonts */
+      case X_ListFonts:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    CARD16(max_names);
@@ -2470,7 +3218,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 50: /* ListFontsWithInfo */
+      case X_ListFontsWithInfo:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    CARD16(max_names);
@@ -2479,7 +3227,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 51: /* SetFontPath */
+      case X_SetFontPath:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    v16 = CARD16(str_number_in_path);
@@ -2488,12 +3236,12 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 52: /* GetFontPath */
+      case X_GetFontPath:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 53: /* CreatePixmap */
+      case X_CreatePixmap:
 	    CARD8(depth);
 	    REQUEST_LENGTH();
 	    PIXMAP(pid);
@@ -2502,13 +3250,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD16(height);
 	    break;
 
-      case 54: /* FreePixmap */
+      case X_FreePixmap:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    PIXMAP(pixmap);
 	    break;
 
-      case 55: /* CreateGC */
+      case X_CreateGC:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    GCONTEXT(cid);
@@ -2516,14 +3264,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    gcAttributes(tvb, offsetp, t, little_endian);
 	    break;
 
-      case 56: /* ChangeGC */
+      case X_ChangeGC:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    GCONTEXT(gc);
 	    gcAttributes(tvb, offsetp, t, little_endian);
 	    break;
 
-      case 57: /* CopyGC */
+      case X_CopyGC:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    GCONTEXT(src_gc);
@@ -2531,7 +3279,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    gcMask(tvb, offsetp, t, little_endian);
 	    break;
 
-      case 58: /* SetDashes */
+      case X_SetDashes:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    GCONTEXT(gc);
@@ -2541,7 +3289,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 59: /* SetClipRectangles */
+      case X_SetClipRectangles:
 	    ENUM8(ordering);
 	    REQUEST_LENGTH();
 	    GCONTEXT(gc);
@@ -2550,13 +3298,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofRECTANGLE(rectangles);
 	    break;
 
-      case 60: /* FreeGC */
+      case X_FreeGC:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    GCONTEXT(gc);
 	    break;
 
-      case 61: /* ClearArea */
+      case X_ClearArea:
 	    BOOL(exposures);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
@@ -2566,7 +3314,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD16(height);
 	    break;
 
-      case 62: /* CopyArea */
+      case X_CopyArea:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    DRAWABLE(src_drawable);
@@ -2580,7 +3328,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD16(height);
 	    break;
 
-      case 63: /* CopyPlane */
+      case X_CopyPlane:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    DRAWABLE(src_drawable);
@@ -2595,7 +3343,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD32(bit_plane);
 	    break;
 
-      case 64: /* PolyPoint */
+      case X_PolyPoint:
 	    ENUM8(coordinate_mode);
 	    v16 = REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2603,7 +3351,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofPOINT(points, v16 - 12);
 	    break;
 
-      case 65: /* PolyLine */
+      case X_PolyLine:
 	    ENUM8(coordinate_mode);
 	    v16 = REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2611,7 +3359,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofPOINT(points, v16 - 12);
 	    break;
 
-      case 66: /* PolySegment */
+      case X_PolySegment:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2619,7 +3367,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofSEGMENT(segments);
 	    break;
 
-      case 67: /* PolyRectangle */
+      case X_PolyRectangle:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2627,7 +3375,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofRECTANGLE(rectangles);
 	    break;
 
-      case 68: /* PolyArc */
+      case X_PolyArc:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2635,7 +3383,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofARC(arcs);
 	    break;
 
-      case 69: /* FillPoly */
+      case X_FillPoly:
 	    UNUSED(1);
 	    v16 = REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2646,7 +3394,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofPOINT(points, v16 - 16);
 	    break;
 
-      case 70: /* PolyFillRectangle */
+      case X_PolyFillRectangle:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2654,7 +3402,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofRECTANGLE(rectangles);
 	    break;
 
-      case 71: /* PolyFillArc */
+      case X_PolyFillArc:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2662,7 +3410,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofARC(arcs);
 	    break;
 
-      case 72: /* PutImage */
+      case X_PutImage:
 	    ENUM8(image_format);
 	    v16 = REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2678,7 +3426,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 73: /* GetImage */
+      case X_GetImage:
 	    ENUM8(image_pixmap_format);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2689,7 +3437,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD32(plane_mask);
 	    break;
 
-      case 74: /* PolyText8 */
+      case X_PolyText8:
 	    UNUSED(1);
 	    v16 = REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2700,7 +3448,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 75: /* PolyText16 */
+      case X_PolyText16:
 	    UNUSED(1);
 	    v16 = REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2711,7 +3459,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 76: /* ImageText8 */
+      case X_ImageText8:
 	    v8 = FIELD8(string_length);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2722,7 +3470,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 77: /* ImageText16 */
+      case X_ImageText16:
 	    v8 = FIELD8(string_length);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2733,7 +3481,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 78: /* CreateColormap */
+      case X_CreateColormap:
 	    ENUM8(alloc);
 	    REQUEST_LENGTH();
 	    COLORMAP(mid);
@@ -2741,38 +3489,38 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    VISUALID(visual);
 	    break;
 
-      case 79: /* FreeColormap */
+      case X_FreeColormap:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
 	    break;
 
-      case 80: /* CopyColormapAndFree */
+      case X_CopyColormapAndFree:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    COLORMAP(mid);
 	    COLORMAP(src_cmap);
 	    break;
 
-      case 81: /* InstallColormap */
+      case X_InstallColormap:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
 	    break;
 
-      case 82: /* UninstallColormap */
+      case X_UninstallColormap:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
 	    break;
 
-      case 83: /* ListInstalledColormaps */
+      case X_ListInstalledColormaps:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    WINDOW(window);
 	    break;
 
-      case 84: /* AllocColor */
+      case X_AllocColor:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
@@ -2782,7 +3530,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    UNUSED(2);
 	    break;
 
-      case 85: /* AllocNamedColor */
+      case X_AllocNamedColor:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
@@ -2792,7 +3540,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 86: /* AllocColorCells */
+      case X_AllocColorCells:
 	    BOOL(contiguous);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
@@ -2800,7 +3548,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD16(planes);
 	    break;
 
-      case 87: /* AllocColorPlanes */
+      case X_AllocColorPlanes:
 	    BOOL(contiguous);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
@@ -2810,7 +3558,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD16(blues);
 	    break;
 
-      case 88: /* FreeColors */
+      case X_FreeColors:
 	    UNUSED(1);
 	    v16 = REQUEST_LENGTH();
 	    COLORMAP(cmap);
@@ -2818,14 +3566,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofCARD32(pixels, v16 - 12);
 	    break;
 
-      case 89: /* StoreColors */
+      case X_StoreColors:
 	    UNUSED(1);
 	    v16 = REQUEST_LENGTH();
 	    COLORMAP(cmap);
 	    LISTofCOLORITEM(color_items, v16 - 8);
 	    break;
 
-      case 90: /* StoreNamedColor */
+      case X_StoreNamedColor:
 	    COLOR_FLAGS(color);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
@@ -2836,14 +3584,14 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 91: /* QueryColors */
+      case X_QueryColors:
 	    UNUSED(1);
 	    v16 = REQUEST_LENGTH();
 	    COLORMAP(cmap);
 	    LISTofCARD32(pixels, v16 - 8);
 	    break;
 
-      case 92: /* LookupColor */
+      case X_LookupColor:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    COLORMAP(cmap);
@@ -2853,7 +3601,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 93: /* CreateCursor */
+      case X_CreateCursor:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    CURSOR(cid);
@@ -2869,7 +3617,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD16(y);
 	    break;
 
-      case 94: /* CreateGlyphCursor */
+      case X_CreateGlyphCursor:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    CURSOR(cid);
@@ -2885,13 +3633,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD16(back_blue);
 	    break;
 
-      case 95: /* FreeCursor */
+      case X_FreeCursor:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    CURSOR(cursor);
 	    break;
 
-      case 96: /* RecolorCursor */
+      case X_RecolorCursor:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    CURSOR(cursor);
@@ -2903,7 +3651,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD16(back_blue);
 	    break;
 
-      case 97: /* QueryBestSize */
+      case X_QueryBestSize:
 	    ENUM8(class);
 	    REQUEST_LENGTH();
 	    DRAWABLE(drawable);
@@ -2911,7 +3659,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    CARD16(height);
 	    break;
 
-      case 98: /* QueryExtension */
+      case X_QueryExtension:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    v16 = FIELD16(name_length);
@@ -2920,29 +3668,30 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    PAD();
 	    break;
 
-      case 99: /* ListExtensions */
+      case X_ListExtensions:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 100: /* ChangeKeyboardMapping */
+      case X_ChangeKeyboardMapping:
 	    v8 = FIELD8(keycode_count);
 	    REQUEST_LENGTH();
-	    KEYCODE(first_keycode);
-	    v8_2 = FIELD8(keysyms_per_keycode);
+	    v8_2 = KEYCODE(first_keycode);
+	    v8_3 = FIELD8(keysyms_per_keycode);
 	    UNUSED(2);
-	    LISTofKEYSYM(keysyms, v8, v8_2);
+	    LISTofKEYSYM(keysyms, state->keycodemap, v8_2, v8, v8_3);
 	    break;
 
-      case 101: /* GetKeyboardMapping */
+      case X_GetKeyboardMapping:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
-	    KEYCODE(first_keycode);
+	    state->request.GetKeyboardMapping.first_keycode
+	    = KEYCODE(first_keycode);
 	    FIELD8(count);
 	    UNUSED(2);
 	    break;
 
-      case 102: /* ChangeKeyboardControl */
+      case X_ChangeKeyboardControl:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    BITMASK32(keyboard_value);
@@ -2957,17 +3706,17 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    ENDBITMASK;
 	    break;
 
-      case 103: /* GetKeyboardControl */
+      case X_GetKeyboardControl:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 104: /* Bell */
+      case X_Bell:
 	    INT8(percent);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 105: /* ChangePointerControl */
+      case X_ChangePointerControl:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    INT16(acceleration_numerator);
@@ -2977,12 +3726,12 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    BOOL(do_threshold);
 	    break;
 
-      case 106: /* GetPointerControl */
+      case X_GetPointerControl:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 107: /* SetScreenSaver */
+      case X_SetScreenSaver:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    INT16(timeout);
@@ -2992,12 +3741,12 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    UNUSED(2);
 	    break;
 
-      case 108: /* GetScreenSaver */
+      case X_GetScreenSaver:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 109: /* ChangeHosts */
+      case X_ChangeHosts:
 	    ENUM8(change_host_mode);
 	    REQUEST_LENGTH();
 	    v8 = ENUM8(family);
@@ -3014,28 +3763,28 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 		  LISTofCARD8(address, v16);
 	    break;
 
-      case 110: /* ListHosts */
+      case X_ListHosts:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 111: /* SetAccessControl */
+      case X_SetAccessControl:
 	    ENUM8(access_mode);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 112: /* SetCloseDownMode */
+      case X_SetCloseDownMode:
 	    ENUM8(close_down_mode);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 113: /* KillClient */
+      case X_KillClient:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    CARD32(resource);
 	    break;
 
-      case 114: /* RotateProperties */
+      case X_RotateProperties:
 	    UNUSED(1);
 	    v16 = REQUEST_LENGTH();
 	    WINDOW(window);
@@ -3044,42 +3793,42 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    LISTofATOM(properties, (v16 - 12));
 	    break;
 
-      case 115: /* ForceScreenSaver */
+      case X_ForceScreenSaver:
 	    ENUM8(screen_saver_mode);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 116: /* SetPointerMapping */
+      case X_SetPointerMapping:
 	    v8 = FIELD8(map_length);
 	    REQUEST_LENGTH();
 	    LISTofCARD8(map, v8);
 	    PAD();
 	    break;
 
-      case 117: /* GetPointerMapping */
+      case X_GetPointerMapping:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 118: /* SetModifierMapping */
+      case X_SetModifierMapping:
 	    v8 = FIELD8(keycodes_per_modifier);
 	    REQUEST_LENGTH();
-	    LISTofKEYCODE(keycodes, v8);
+	    LISTofKEYCODE(state->modifiermap, keycodes, v8);
 	    break;
 
-      case 119: /* GetModifierMapping */
+      case X_GetModifierMapping:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
 
-      case 127: /* NoOperation */
+      case X_NoOperation:
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
       }
-      left = tvb_length_remaining(tvb, offset);
-      if (left)
-	    proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, left, little_endian);
+
+      if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
+	    UNDECODED(left);
 }
 
 static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
@@ -3096,13 +3845,12 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
       guint16 auth_proto_len, auth_data_len;
       const char *volatile sep = NULL;
       conversation_t *conversation;
-      x11_conv_data_t *volatile state_info;
+      x11_conv_data_t *state;
       int length;
       tvbuff_t *next_tvb;
 
-      while (tvb_reported_length_remaining(tvb, offset) != 0) {
-	    length_remaining = tvb_length_remaining(tvb, offset);
-
+      while ((length_remaining = tvb_reported_length_remaining(tvb, offset))
+      > 0) {
 	    /*
 	     * Can we do reassembly?
 	     */
@@ -3142,23 +3890,14 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 	    /*
 	     * Is there state attached to this conversation?
 	     */
-	    state_info = conversation_get_proto_data(conversation, proto_x11);
-	    if (state_info == NULL) {
-		  /*
-		   * No - create a state structure and attach it.
-		   */
-		  state_info = g_mem_chunk_alloc(x11_state_chunk);
-		  state_info->opcode = NOTHING_SEEN;	/* nothing seen yet */
-		  state_info->iconn_frame = 0;	/* don't know it yet */
-		  state_info->byte_order = BYTE_ORDER_UNKNOWN;	/* don't know it yet */
-		  conversation_add_proto_data(conversation, proto_x11,
-			state_info);
-	    }
+	    if ((state = conversation_get_proto_data(conversation, proto_x11))
+	    == NULL)
+		x11_stateinit(&state, conversation);
 
 	    /*
 	     * Guess the byte order if we don't already know it.
 	     */
-	    little_endian = guess_byte_ordering(tvb, pinfo, state_info);
+	    little_endian = guess_byte_ordering(tvb, pinfo, state);
 
 	    /*
 	     * Get the opcode and length of the putative X11 request.
@@ -3173,14 +3912,17 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 		   * helped.
 		   * Give up.
 		   */
-		  ti = proto_tree_add_item(tree, proto_x11, tvb, offset, -1, FALSE);
+		  ti = proto_tree_add_item(tree, proto_x11, tvb, offset, -1,
+		  FALSE);
 		  t = proto_item_add_subtree(ti, ett_x11);
-		  proto_tree_add_text(t, tvb, offset, -1, "Bogus request length (0)");
+		  proto_tree_add_text(t, tvb, offset, -1,
+		  "Bogus request length (0)");
 		  return;
 	    }
 
-	    if (state_info->iconn_frame == pinfo->fd->num ||
-		(state_info->opcode == NOTHING_SEEN &&
+	    if (state->iconn_frame == pinfo->fd->num ||
+		(g_hash_table_lookup(state->seqtable,
+		(int *)state->sequencenumber) == (int *)NOTHING_SEEN &&
 	         (opcode == 'B' || opcode == 'l') &&
 	         (plen == 11 || plen == 2816))) {
 		  /*
@@ -3213,18 +3955,18 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 		  /*
 		   * We now know the byte order.  Override the guess.
 		   */
-		  if (state_info->byte_order == BYTE_ORDER_UNKNOWN) {
+		  if (state->byte_order == BYTE_ORDER_UNKNOWN) {
 		  	if (opcode == 'B') {
 			      /*
 			       * Big-endian.
 			       */
-			      state_info->byte_order = BYTE_ORDER_BE;
+			      state->byte_order = BYTE_ORDER_BE;
 			      little_endian = FALSE;
 			} else {
 			      /*
 			       * Little-endian.
 			       */
-			      state_info->byte_order = BYTE_ORDER_LE;
+			      state->byte_order = BYTE_ORDER_LE;
 			      little_endian = TRUE;
 			}
 		  }
@@ -3316,7 +4058,8 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 	     */
 	    if (is_initial_creq) {
 		  if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Initial connection request");
+			col_set_str(pinfo->cinfo, COL_INFO,
+			"Initial connection request");
 	    } else {
 		  if (sep == NULL) {
 			/*
@@ -3347,10 +4090,10 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 	    TRY {
 		  if (is_initial_creq) {
 			dissect_x11_initial_conn(next_tvb, pinfo, tree,
-			    state_info, little_endian);
+			    state, little_endian);
 		  } else {
 			dissect_x11_request(next_tvb, pinfo, tree, sep,
-			    state_info, little_endian);
+			    state, little_endian);
 		  }
 	    }
 	    CATCH(BoundsError) {
@@ -3371,29 +4114,453 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
+x11_stateinit(x11_conv_data_t **state, conversation_t *conversation)
+{
+
+	/*
+	 * No - create a state structure and attach it.
+	*/
+	static x11_conv_data_t stateinit;
+
+	*state = g_mem_chunk_alloc(x11_state_chunk);
+	**state = stateinit; 
+
+	(*state)->seqtable = g_hash_table_new(g_direct_hash, g_direct_equal);
+      	g_hash_table_insert((*state)->seqtable, (int *)0, (int *)NOTHING_SEEN);
+	(*state)->byte_order = BYTE_ORDER_UNKNOWN; /* don't know yet*/
+	conversation_add_proto_data(conversation, proto_x11, *state);
+}
+
+
+static void
 dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 /* Set up structures we will need to add the protocol subtree and manage it */
-      proto_item *ti;
-      proto_tree *x11_tree;
+	volatile int offset, plen;
+	tvbuff_t * volatile next_tvb;
+	conversation_t *conversation;
+	x11_conv_data_t *state;
+	gboolean little_endian;
+	int length_remaining;
+	const char *volatile sep = NULL;
 
-/* This field shows up as the "Info" column in the display; you should make
-   it, if possible, summarize what's in the packet, so that a user looking
-   at the list of packets can tell what type of packet it is. */
-      if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, "Replies/events");
 
-/* In the interest of speed, if "tree" is NULL, don't do any work not
-   necessary to generate protocol tree items. */
-      if (!tree) return;
-      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
-      x11_tree = proto_item_add_subtree(ti, ett_x11);
+	/*
+	* Get the state for this conversation; create the conversation
+	* if we don't have one, and create the state if we don't have
+	* any.
+	*/
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL) {
+		/*
+	   	 * No - create one.
+	   	*/
+		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
 
-      /*
-       * XXX - dissect these in a loop, like the requests.
-       */
-      call_dissector(data_handle,tvb, pinfo, x11_tree);
+	/*
+	 * Is there state attached to this conversation?
+	*/
+	if ((state = conversation_get_proto_data(conversation, proto_x11))
+	== NULL)
+		x11_stateinit(&state, conversation);
+
+	/*
+	 * Guess the byte order if we don't already know it.
+	 */
+	little_endian = guess_byte_ordering(tvb, pinfo, state);
+
+	offset = 0;
+	while ((length_remaining = tvb_reported_length_remaining(tvb, offset))
+	> 0) {
+	    	/*
+	     	* Can we do reassembly?
+	     	*/
+	    	if (x11_desegment && pinfo->can_desegment) {
+			  /*
+			   * Yes - is the X11 reply header split across
+			   * segment boundaries?
+			   */
+			  if (length_remaining < 8) {
+				/*
+				 * Yes.  Tell the TCP dissector where the data
+				 * for this message starts in the data it handed
+				 * us, and how many more bytes we need, and
+				 * return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len = 4 - length_remaining;
+				return;
+		  	}
+	    	}
+
+		/*
+		 * Find out what kind of a reply it is.
+		 * There are three possible:
+		 *	- errorreply (a request generated an error)
+		 * 	- requestreply (reply to a request)
+		 *	- eventreply (some event occured)
+		 */
+
+		switch (tvb_get_guint8(tvb, offset)) {
+		       case 0:
+			       	plen = 32;
+			       	HANDLE_REPLY(plen, length_remaining,
+			       	"Error", dissect_x11_error); 
+				break;
+
+			case 1:
+				/* replylength is in units of four. */
+				if (g_hash_table_lookup(state->seqtable,
+				(int *)state->sequencenumber)
+				== (int *)INITIAL_CONN 
+	    			|| (state->iconn_reply == pinfo->fd->num)) {
+					/*
+					 * ref. by A. Nye. says all
+					 * replies are 32 + "additional bytes".
+					 * Initial serverreply seems to be
+					 * the exception, it's 8 + "additional
+					 * bytes".
+					 */
+					plen = 8 + VALUE16(tvb, offset + 6) * 4;
+
+					HANDLE_REPLY(plen, length_remaining,
+					"Initial connection reply", 
+					dissect_x11_initial_reply); 
+				}
+				else {
+					plen
+					= 32 + VALUE32(tvb, offset + 4) * 4;
+
+					HANDLE_REPLY(plen, length_remaining,
+					"Reply", dissect_x11_reply); 
+				}
+				break;
+
+		       	default:
+				plen = 32;
+				HANDLE_REPLY(plen, length_remaining,
+				"Event", dissect_x11_event);
+				break;
+	       }
+
+		offset += plen;
+	}
+
+	return;
 }
+
+static void
+dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  const char *volatile sep, x11_conv_data_t *volatile state,
+		  gboolean little_endian)
+{
+	int offset = 0, *offsetp = &offset, length, left, opcode;
+	proto_item *ti;
+	proto_tree *t;
+	char *str;
+	
+	ti = proto_tree_add_item(tree, proto_x11, tvb, 0,
+	                         tvb_reported_length_remaining(tvb, offset),
+	                         FALSE);
+	t = proto_item_add_subtree(ti, ett_x11);
+
+
+	opcode = (int)g_hash_table_lookup(state->seqtable,
+	(int *)VALUE16(tvb, offset + 2));
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		  	     	sep,
+				/* 
+				 * don't print opcode value since if it's
+				 * unknown, we didn't know to save the
+				 * request opcode.
+				 */
+		  	     	val_to_str(opcode, opcode_vals, "<Unknown opcode %d>"));
+
+        str = g_strdup_printf(", Reply, opcode: %d (%s)", 
+                              opcode, val_to_str(opcode, opcode_vals,
+                              "<Unknown opcode %d>"));
+
+        proto_item_append_text(ti, str);
+        g_free(str);
+
+  	if (tree == NULL)
+  	 	return; 
+
+	switch (opcode) {
+      		/*
+       		 * Requests that expect a reply.
+      		*/
+
+		case X_GetWindowAttributes:
+		case X_GetGeometry:
+		case X_QueryTree:
+		case X_InternAtom:
+		case X_GetAtomName:
+			REPLYCONTENTS_COMMON();
+			break; 
+
+		case X_GetProperty:
+			REPLY(reply);
+			CARD8(format);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			length = REPLYLENGTH(replylength);
+			ATOM(get_property_type);
+			CARD32(bytes_after);
+			CARD32(valuelength);
+			UNUSED(12);
+			break;
+
+		case X_ListProperties:
+		case X_GetSelectionOwner:
+		case X_GrabPointer:
+		case X_GrabKeyboard:
+		case X_QueryPointer:
+		case X_GetMotionEvents:
+		case X_TranslateCoords:
+			REPLYCONTENTS_COMMON();
+			break; 
+
+		case X_QueryKeymap:
+		case X_QueryFont:
+		case X_QueryTextExtents:
+		case X_ListFonts:
+		case X_GetImage:
+		case X_ListInstalledColormaps:
+		case X_AllocColor:
+		case X_QueryColors:
+		case X_LookupColor:
+		case X_QueryBestSize:
+		case X_QueryExtension:
+		case X_ListExtensions:
+			REPLYCONTENTS_COMMON();
+			break; 
+
+		case X_GetKeyboardMapping:
+			state->first_keycode
+			= state->request.GetKeyboardMapping.first_keycode, 
+			REPLY(reply);
+			state->keysyms_per_keycode
+			= FIELD8(keysyms_per_keycode);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			length = REPLYLENGTH(replylength);
+			UNUSED(24);
+			LISTofKEYSYM(keysyms, state->keycodemap,
+			state->request.GetKeyboardMapping.first_keycode, 
+			length / state->keysyms_per_keycode,
+			state->keysyms_per_keycode);
+			break; 
+
+		case X_GetKeyboardControl:
+		case X_GetPointerControl:
+		case X_GetScreenSaver:
+		case X_ListHosts:
+		case X_SetPointerMapping:
+		case X_GetPointerMapping:
+		case X_SetModifierMapping:
+			REPLYCONTENTS_COMMON();
+			break; 
+
+		case X_GetModifierMapping:
+			REPLY(reply);
+			state->keycodes_per_modifier
+			= FIELD8(keycodes_per_modifier);
+			SEQUENCENUMBER_REPLY(sequencenumber);
+			REPLYLENGTH(replylength);
+			UNUSED(24);
+			LISTofKEYCODE(state->modifiermap, keycodes,
+			state->keycodes_per_modifier);
+			break; 
+
+		default:
+			REPLYCONTENTS_COMMON();
+	}
+
+      	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
+	    UNDECODED(left);
+}
+
+static void
+dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  const char *volatile sep, x11_conv_data_t *volatile state,
+		  gboolean little_endian)
+{
+	int offset = 0, *offsetp = &offset, left;
+	unsigned char eventcode;
+	char *str;
+	proto_item *ti;
+	proto_tree *t;
+
+	ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+	t = proto_item_add_subtree(ti, ett_x11);
+
+	eventcode = tvb_get_guint8(tvb, offset);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+			  	sep, val_to_str(eventcode, eventcode_vals,
+			  	"<Unknown eventcode %u>"));
+
+	proto_tree_add_uint_format(t, hf_x11_eventcode, tvb, offset, 1,
+				   eventcode, 
+				   "eventcode: %d (%s)",
+				   eventcode, 
+				   val_to_str(eventcode, eventcode_vals,
+				   "<Unknown eventcode %u>"));
+	++offset;
+
+	str = g_strdup_printf(", Event, eventcode: %d (%s)", 
+			      eventcode, val_to_str(eventcode, eventcode_vals,
+			      "<Unknown eventcode %u>"));
+
+	proto_item_append_text(ti, str);
+	g_free(str);
+
+  	if (tree == NULL)
+  	 	return; 
+
+	switch (eventcode) {
+		case KeyPress:
+		case KeyRelease: {
+			int code, mask;
+
+			/* need to do some prefetching here ... */
+			code = VALUE8(tvb, offset);
+			mask = VALUE16(tvb, 28);
+
+			KEYCODE_DECODED(keycode, code, mask);
+			CARD16(event_sequencenumber);
+			EVENTCONTENTS_COMMON();
+			BOOL(same_screen);
+			UNUSED(1);
+			break;
+		}
+
+		case ButtonPress:
+		case ButtonRelease:
+			BUTTON(eventbutton);
+			CARD16(event_sequencenumber);
+			EVENTCONTENTS_COMMON();
+			BOOL(same_screen);
+			UNUSED(1);
+			break;
+
+		case MotionNotify:
+			CARD8(detail);
+			CARD16(event_sequencenumber);
+			EVENTCONTENTS_COMMON();
+			BOOL(same_screen);
+			UNUSED(1);
+			break;
+
+		case EnterNotify:
+		case LeaveNotify:
+			CARD8(detail);
+			CARD16(event_sequencenumber);
+			EVENTCONTENTS_COMMON();
+			CARD8(same_screen);
+			break;
+
+		case FocusIn:
+		case FocusOut:
+		case KeymapNotify:
+		case Expose:
+		case GraphicsExpose:
+		case NoExpose:
+		case VisibilityNotify:
+		case CreateNotify:
+		case DestroyNotify:
+		case UnmapNotify:
+		case MapNotify:
+		case MapRequest:
+		case ReparentNotify:
+		case ConfigureNotify:
+		case ConfigureRequest:
+		case GravityNotify:
+		case ResizeRequest:
+		case CirculateNotify:
+		case CirculateRequest:
+		case PropertyNotify:
+		case SelectionClear:
+		case SelectionRequest:
+		case SelectionNotify:
+		case ColormapNotify:
+		case ClientMessage:
+		case MappingNotify:
+		default:
+			break;
+	}
+
+      	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0) 
+	    UNDECODED(left);
+
+	return;
+}
+
+static void
+dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		  const char *volatile sep, _U_ x11_conv_data_t *volatile state,
+		  gboolean little_endian)
+{
+	int offset = 0, *offsetp = &offset, left;
+	unsigned char errorcode, error;
+	proto_item *ti;
+	proto_tree *t;
+	char *str;
+
+
+	ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+	t = proto_item_add_subtree(ti, ett_x11);
+
+	error = tvb_get_guint8(tvb, offset);
+	CARD8(error);
+
+	errorcode = tvb_get_guint8(tvb, offset);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+	  	sep, val_to_str(errorcode, errorcode_vals, "<Unknown errorcode %u>"));
+
+	proto_tree_add_uint_format(t, hf_x11_errorcode, tvb, offset, 1,
+				   errorcode, 
+				   "errorcode: %d (%s)",
+				   errorcode, 
+				   val_to_str(errorcode, errorcode_vals,
+				   "<Unknown errocode %u>"));
+	++offset;
+
+        str = g_strdup_printf(", Error, errorcode: %d (%s)", 
+                              errorcode, val_to_str(errorcode, errorcode_vals,
+                              "<Unknown errorcode %u>"));
+
+        proto_item_append_text(ti, str);
+        g_free(str);
+
+  	if (tree == NULL)
+  	 	return; 
+
+	CARD16(error_sequencenumber);
+
+	switch (errorcode) {
+		case BadValue:
+			CARD32(error_badvalue);
+			break;
+
+		default:
+			UNDECODED(4);
+	}
+
+	CARD16(minor_opcode);
+	CARD8(major_opcode);
+
+      	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
+	    UNDECODED(left);
+}
+
+			
 
 /************************************************************************
  ***                                                                  ***
@@ -3404,13 +4571,13 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-      if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "X11");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "X11");
 
-      if (pinfo->match_port == pinfo->destport)
-	    dissect_x11_requests(tvb, pinfo, tree);
-      else
-	    dissect_x11_replies(tvb, pinfo, tree);
+	if (pinfo->match_port == pinfo->srcport)
+		dissect_x11_replies(tvb, pinfo, tree);
+	else
+		dissect_x11_requests(tvb, pinfo, tree);
 }
 
 /* Register the protocol with Ethereal */
@@ -3489,3 +4656,4 @@ proto_reg_handoff_x11(void)
   dissector_add("tcp.port", TCP_PORT_X11_3, x11_handle);
   data_handle = find_dissector("data");
 }
+

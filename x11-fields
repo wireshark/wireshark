@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.9 2003/07/09 05:23:50 guy Exp $
+# $Id: x11-fields,v 1.10 2004/01/02 12:52:45 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,11 @@ authorization-protocol-name	STRING	HEX
 authorization-protocol-data-length	UINT16	DEC
 authorization-protocol-data	STRING	HEX
 auto-repeat-mode	UINT8	DEC	VALS
+
+bitmap-format-bit-order	UINT8	HEX	VALS(image_byte_order)
+bitmap-format-scanline-pad	UINT8	DEC	bitmap format scanline-pad
+bitmap-format-scanline-unit	UINT8	DEC	bitmap format scanline unit
+bytes-after	UINT32	DEC	bytes after
 back-blue	UINT16	DEC		Background blue value for a cursor
 back-green	UINT16	DEC		Background green value for a cursor
 back-red	UINT16	DEC		Background red value for a cursor
@@ -71,6 +76,8 @@ border-pixmap	UINT32	HEX	VALS
 border-width	UINT16	DEC
 button		UINT8	DEC	VALS
 byte-order	UINT8	HEX	VALS
+
+childwindow	UINT32	DEC	childwindow
 cap-style	UINT8	DEC	VALS
 change-host-mode	UINT8	DEC	VALS(insert_delete)
 cid		UINT32	HEX
@@ -118,6 +125,7 @@ dashes-length	UINT16	DEC
 do-acceleration	BOOLEAN	NONE
 do-threshold	BOOLEAN	NONE
 
+detail	UINT8	DEC	detail
 do-not-propagate-mask	UINT32	HEX
 	KeyPress		BOOLEAN 32	0x00000001
 	KeyRelease		BOOLEAN 32	0x00000002
@@ -131,6 +139,17 @@ do-not-propagate-mask	UINT32	HEX
 	Button5Motion		BOOLEAN 32	0x00001000
 	ButtonMotion		BOOLEAN 32	0x00002000
 	erroneous-bits		BOOLEAN 32	0xffffc0b0
+
+event-sequencenumber	UINT16	DEC	event sequencenumber
+error	UINT8	DEC	error
+error-badvalue	UINT32	DEC	error badvalue
+error_sequencenumber	UINT16	DEC	error sequencenumber
+errorcode	UINT8	DEC	VALS	errrorcode
+event-x	UINT16	DEC	event x
+event-y	UINT16	DEC	event y
+eventbutton	UINT8	DEC	eventbutton
+eventcode	UINT8	DEC	VALS	eventcode
+eventwindow	UINT32	DEC	eventwindow
 
 gc-dashes	UINT8	DEC
 
@@ -221,6 +240,8 @@ get-property-type	UINT32	HEX	VALS(zero_is_any_property_type)
 grab_window	UINT32	HEX
 graphics-exposures	BOOLEAN	NONE
 height		UINT16	DEC
+image-byte-order	UINT8	HEX	VALS
+initial-connection	NONE	NONE	undecoded
 image-format	UINT8	DEC	VALS
 image-pixmap-format	UINT8	DEC	VALS
 interval	INT16	DEC
@@ -230,6 +251,8 @@ key		UINT8	DEC	VALS
 key-click-percent	INT8	DEC
 keyboard-key	UINT8	DEC
 keyboard-mode	UINT8	DEC	VALS(pointer_keyboard_mode)
+keybut-mask-erroneous-bits	BOOLEAN	16	0xe000	keybut mask erroneous bits
+keycode	UINT8	HEX	keycode
 
 keyboard-value-mask	UINT32	HEX
 	key-click-percent	BOOLEAN	32	0x0001
@@ -253,6 +276,7 @@ keysyms		NONE	NONE
 		keysym	UINT32	HEX
 
 keysyms-per-keycode	UINT8	DEC
+length-of-vendor	UINT16	DEC	length of vendor
 led		UINT8	DEC
 led-mode	UINT8	DEC	VALS(on_off)
 left-pad	UINT8	DEC
@@ -268,8 +292,18 @@ mask-font	UINT32	HEX	VALS(zero_is_none)
 max-names	UINT16	DEC
 mid		UINT32	HEX
 mode		UINT8	DEC	VALS
+major-opcode	UINT16	DEC	major opcode
+max-keycode	UINT8	DEC	max keycode
+maximum-request-length	UINT16	DEC	maximum request length
+min-keycode	UINT8	DEC	min keycode
+minor-opcode	UINT16	DEC	minor opcode
 
 modifiers-mask		UINT16	HEX
+	Button1		BOOLEAN	16	0x0100
+	Button2		BOOLEAN	16	0x0200
+	Button3		BOOLEAN	16	0x0300
+	Button4		BOOLEAN	16	0x0400
+	Button5		BOOLEAN	16	0x0500
 	Shift			BOOLEAN	16	0x0001
 	Lock			BOOLEAN	16	0x0002
 	Control			BOOLEAN	16	0x0004
@@ -280,6 +314,11 @@ modifiers-mask		UINT16	HEX
 	Mod5			BOOLEAN	16	0x0080
 	AnyModifier		UINT16	HEX	0x8000
 	erroneous-bits		BOOLEAN	16	0xff00
+
+motion-buffer-size	UINT16	DEC	motion buffer size
+
+number-of-formats-in-pixmap-formats	UINT8	DEC	number of formats in pixmap formats
+number-of-screens-in-roots	UINT8	DEC	number of screens in roots
 
 name		STRING	HEX
 name-length	UINT16	DEC
@@ -349,6 +388,19 @@ requestor	UINT32	HEX
 request-length	UINT16	DEC		Request length
 resource	UINT32	HEX	VALS(all_temporary)
 revert-to	UINT8	DEC	VALS
+release-number	UINT32	DEC	release number
+reply	UINT8	DEC	reply
+reply-sequencenumber	UINT16	DEC	VALS(opcode)
+replylength	UINT32	DEC	replylength
+replyopcode	UINT8	DEC	VALS(opcode)
+resource-id-base	UINT32	HEX	resource id base
+resource-id-mask	UINT32	HEX	resource id mask
+root-x	UINT16	DEC	root x
+root-y	UINT16	DEC	root y
+rootwindow	UINT32	DEC	rootwindow
+
+same-screen	BOOLEAN	NONE	same screen
+success	UINT8	DEC	success
 save-set-mode	UINT8	DEC	VALS(insert_delete)
 save-under	BOOLEAN	NONE
 screen-saver-mode	UINT8	DEC	VALS
@@ -403,6 +455,8 @@ timeout		INT16	DEC
 type		UINT32	HEX
 undecoded	NONE	NONE		Yet undecoded by dissector
 unused		NONE	NONE
+valuelength	UINT32	DEC	valuelength
+vendor	STRING	HEX	vendor
 visual		UINT32	HEX
 visualid	UINT32	HEX
 warp-pointer-dst-window	UINT32	HEX	VALS(zero_is_none)
