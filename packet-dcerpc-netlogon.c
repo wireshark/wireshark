@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.104 2004/04/23 23:56:58 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.105 2004/05/01 00:34:28 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3193,8 +3193,11 @@ netlogon_dissect_MODIFIED_COUNT(tvbuff_t *tvb, int offset,
 #define DT_DELTA_ALIAS_MEMBER		12
 #define DT_DELTA_POLICY			13
 #define DT_DELTA_TRUSTED_DOMAINS	14
+#define DT_DELTA_DELETE_TRUST		15
 #define DT_DELTA_ACCOUNTS		16
+#define DT_DELTA_DELETE_ACCOUNT		17
 #define DT_DELTA_SECRET			18
+#define DT_DELTA_DELETE_SECRET		19
 #define DT_DELTA_DELETE_GROUP2		20
 #define DT_DELTA_DELETE_USER2		21
 #define DT_MODIFIED_COUNT		22
@@ -3213,8 +3216,11 @@ static const value_string delta_type_vals[] = {
 	{ DT_DELTA_ALIAS_MEMBER,	"Alias Member" },
 	{ DT_DELTA_POLICY,		"Policy" },
 	{ DT_DELTA_TRUSTED_DOMAINS,	"Trusted Domains" },
+	{ DT_DELTA_DELETE_TRUST,	"Delete Trust" },
 	{ DT_DELTA_ACCOUNTS,		"Accounts" },
+	{ DT_DELTA_DELETE_ACCOUNT,	"Delete Account" },
 	{ DT_DELTA_SECRET,		"Secret" },
+	{ DT_DELTA_DELETE_SECRET,	"Delete Secret" },
 	{ DT_DELTA_DELETE_GROUP2,	"Delete Group2" },
 	{ DT_DELTA_DELETE_USER2,	"Delete User2" },
 	{ DT_MODIFIED_COUNT,		"Modified Count" },
@@ -3236,8 +3242,11 @@ static const value_string delta_type_vals[] = {
  * IDL   [case(12)][unique] DELTA_ALIAS_MEMBER *alias_member;
  * IDL   [case(13)][unique] DELTA_POLICY *policy;
  * IDL   [case(14)][unique] DELTA_TRUSTED_DOMAINS *trusted_domains;
+ * IDL   [case(15)][unique] PSID ;
  * IDL   [case(16)][unique] DELTA_ACCOUNTS *accounts;
+ * IDL   [case(17)][unique] PSID ;
  * IDL   [case(18)][unique] DELTA_SECRET *secret;
+ * IDL   [case(19)][unique] string;
  * IDL   [case(20)][unique] DELTA_DELETE_GROUP2 *delete_group;
  * IDL   [case(21)][unique] DELTA_DELETE_USER2 *delete_user;
  * IDL   [case(22)][unique] MODIFIED_COUNT *modified_count;
