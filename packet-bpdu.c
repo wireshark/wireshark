@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.19 2001/01/09 06:31:34 guy Exp $
+ * $Id: packet-bpdu.c,v 1.20 2001/01/14 08:25:14 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -42,6 +42,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "llcsaps.h"
+#include "ppptypes.h"
 #include "resolv.h"
 
 /* Include this for GVRP dissector */
@@ -326,4 +327,5 @@ void
 proto_reg_handoff_bpdu(void)
 {
   dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu, proto_bpdu);
+  dissector_add("ppp.protocol", PPP_BPDU, dissect_bpdu, proto_bpdu);
 }

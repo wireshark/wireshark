@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.53 2001/01/13 07:47:49 guy Exp $
+ * $Id: packet-ppp.c,v 1.54 2001/01/14 08:25:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,11 +94,15 @@ static const value_string ppp_vals[] = {
 	{PPP_AT,        "Appletalk"      },
 	{PPP_IPX,       "Netware IPX/SPX"},
 	{PPP_VJC_COMP,	"VJ compressed TCP"},
-	{PPP_VJC_UNCOMP,"VJ uncompressed TCP"}, 
+	{PPP_VJC_UNCOMP,"VJ uncompressed TCP"},
+	{PPP_BPDU,      "Bridging PDU"},
 	{PPP_VINES,     "Vines"          },
         {PPP_MP,	"Multilink"},
 	{PPP_IPV6,      "IPv6"           },
 	{PPP_COMP,	"compressed packet" },
+	{PPP_DEC_LB,	"DEC LANBridge100 Spanning Tree"},
+	{PPP_MPLS_UNI,  "MPLS Unicast"},
+	{PPP_MPLS_MULTI, "MPLS Multicast"},
 	{PPP_IPCP,	"IP Control Protocol" },
 	{PPP_ATCP,	"AppleTalk Control Protocol" },
 	{PPP_IPXCP,	"IPX Control Protocol" },
@@ -108,8 +112,6 @@ static const value_string ppp_vals[] = {
 	{PPP_LQR,	"Link Quality Report protocol" },
 	{PPP_CHAP,	"Cryptographic Handshake Auth. Protocol" },
 	{PPP_CBCP,	"Callback Control Protocol" },
-	{PPP_MPLS_UNI,  "MPLS Uni-cast"},
-	{PPP_MPLS_MULTI, "MPLS Multi-cast"},
 	{ETHERTYPE_IP,  "Cisco HDLC IP"},
 	{CISCO_SLARP,   "Cisco HDLC SLARP"},
 	{0,             NULL            }
