@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.92 2002/05/11 18:55:22 guy Exp $
+ * $Id: packet-rpc.c,v 1.93 2002/05/15 23:01:51 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1432,6 +1432,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	nstime_t ns;
 
 	dissect_function_t *dissect_function = NULL;
+	gboolean dissect_rpc = TRUE;
 
 	/*
 	 * Check to see whether this looks like an RPC call or reply.
@@ -1913,7 +1914,9 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 		}
 
-		if (reply_state == MSG_ACCEPTED) {
+		switch (reply_state) {
+
+		case MSG_ACCEPTED:
 			offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type);
 			accept_state = tvb_get_ntohl(tvb,offset+0);
 			if (rpc_tree) {
@@ -1939,13 +1942,25 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						tvb, offset+4, 4, vers_high);
 				}
 				offset += 8;
+
+				/*
+				 * There's no protocol reply, so don't
+				 * try to dissect it.
+				 */
+				dissect_rpc = FALSE;
 				break;
 
 			default:
-				/* void */
+				/*
+				 * There's no protocol reply, so don't
+				 * try to dissect it.
+				 */
+				dissect_rpc = FALSE;
 				break;
 			}
-		} else if (reply_state == MSG_DENIED) {
+			break;
+
+		case MSG_DENIED:
 			reject_state = tvb_get_ntohl(tvb,offset+0);
 			if (rpc_tree) {
 				proto_tree_add_uint(rpc_tree,
@@ -1975,6 +1990,22 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				offset += 4;
 			}
+
+			/*
+			 * There's no protocol reply, so don't
+			 * try to dissect it.
+			 */
+			dissect_rpc = FALSE;
+			break;
+
+		default:
+			/*
+			 * This isn't a valid reply state, so we have
+			 * no clue what's going on; don't try to dissect
+			 * the protocol reply.
+			 */
+			dissect_rpc = FALSE;
+			break;
 		} 
 		break; /* end of RPC reply */
 
@@ -1989,6 +2020,16 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* now we know, that RPC was shorter */
 	if (rpc_item) {
 		proto_item_set_len(rpc_item, offset - offset_old);
+	}
+
+	if (!dissect_rpc) {
+		/*
+		 * There's no RPC call or reply here; just dissect
+		 * whatever's left as data.
+		 */
+		call_dissector(data_handle,
+		    tvb_new_subset(tvb, offset, -1, -1), pinfo, rpc_tree);
+		return TRUE;
 	}
 
 	/* create here the program specific sub-tree */
@@ -2090,7 +2131,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* dissect any remaining bytes (incomplete dissection) as pure data in
 	   the ptree */
-	call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, ptree);
+	call_dissector(data_handle,
+	    tvb_new_subset(tvb, offset, -1, -1), pinfo, ptree);
 
 	return TRUE;
 }
