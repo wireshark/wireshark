@@ -928,7 +928,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
                              tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
 	  transport_info->media_pt[transport_info->media_pt_count] = atol(media_format);
-	  if (transport_info->media_pt_count < SDP_MAX_RTP_PAYLOAD_TYPES)
+	  if (transport_info->media_pt_count < SDP_MAX_RTP_PAYLOAD_TYPES - 1)
 		  transport_info->media_pt_count++;
       g_free(media_format);
     } else {
