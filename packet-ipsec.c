@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.28 2001/04/17 06:29:12 guy Exp $
+ * $Id: packet-ipsec.c,v 1.29 2001/04/23 03:37:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,22 +106,6 @@ static const value_string cpi2val[] = {
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
 #endif
 
-static int dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, guint8 *nxt_p, proto_tree **next_tree_p);
-
-int
-dissect_ah_old(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-    tvbuff_t *tvb;
-    int advance;
-
-    tvb = tvb_create_from_top(offset);
-    advance = dissect_ah_header(tvb, &pi, tree, NULL, NULL);
-
-    /* start of the new header (could be a extension header) */
-    return advance;
-}
-
 static void
 dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -143,7 +127,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-static int
+int
 dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  guint8 *nxt_p, proto_tree **next_tree_p)
 {

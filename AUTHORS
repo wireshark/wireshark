@@ -216,6 +216,7 @@ Heikki Vatiainen <hessu@cs.tut.fi> {
 	COPS
 	SIP (Session Initiation Protocol)
 	BGP tvbuffification
+	IPv6 and ICMPv6 tvbuffification
 }
 
 Greg Hankins <gregh@twoguys.org> {

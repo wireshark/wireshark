@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.24 2001/02/08 08:38:58 guy Exp $
+ * $Id: packet-pim.c,v 1.25 2001/04/23 03:37:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -345,8 +345,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    guint32 flags;
 	    guint8 v_hl;
 	    tvbuff_t *next_tvb;
-	    const guint8 *next_pd;
-	    int next_offset;
 	    proto_tree *flag_tree = NULL;
 	    proto_item *tiflag; 
 
@@ -380,11 +378,10 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 #endif
 		    break;
 	    case 6:	/* IPv6 */
-	    	    tvb_compat(next_tvb, &next_pd, &next_offset);
 #if 0
-		    dissect_ipv6(next_pd, next_offset, pinfo->fd, tree);
+		    dissect_ipv6(next_tvb, pinfo, tree);
 #else
-		    dissect_ipv6(next_pd, next_offset, pinfo->fd, pimopt_tree);
+		    dissect_ipv6(next_tvb, pinfo, pimopt_tree);
 #endif
 		    break;
 	    default:

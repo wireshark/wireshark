@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.38 2001/03/28 21:24:15 oabad Exp $
+ * $Id: packet-icmpv6.c,v 1.39 2001/04/23 03:37:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,11 +96,11 @@ static const value_string names_rrenum_matchcode[] = {
 };
 
 static void
-dissect_icmpv6opt(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_icmpv6opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6opt_tree, *field_tree;
 	proto_item *ti, *tf;
-    struct nd_opt_hdr *opt;
+    struct nd_opt_hdr nd_opt_hdr, *opt;
     int len;
     char *typename;
 
@@ -108,14 +108,15 @@ dissect_icmpv6opt(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	return;
 
 again:
-    if (!IS_DATA_IN_FRAME(offset))
-	return;
+    if ((int)tvb_reported_length(tvb) <= offset)
+            return; /* No more options left */
 
-    opt = (struct nd_opt_hdr *)&pd[offset];
+    opt = &nd_opt_hdr;
+    tvb_memcpy(tvb, (guint8 *)opt, offset, sizeof *opt);
     len = opt->nd_opt_len << 3;
 
     /* !!! specify length */
-    ti = proto_tree_add_text(tree, NullTVB, offset, len, "ICMPv6 options");
+    ti = proto_tree_add_text(tree, tvb, offset, len, "ICMPv6 options");
     icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
 
     switch (opt->nd_opt_type) {
@@ -146,12 +147,12 @@ again:
 	break;
     }
 
-    proto_tree_add_text(icmp6opt_tree, NullTVB,
+    proto_tree_add_text(icmp6opt_tree, tvb,
 	offset + offsetof(struct nd_opt_hdr, nd_opt_type), 1,
-	"Type: 0x%02x (%s)", opt->nd_opt_type, typename);
-    proto_tree_add_text(icmp6opt_tree, NullTVB,
+	"Type: %u (%s)", opt->nd_opt_type, typename);
+    proto_tree_add_text(icmp6opt_tree, tvb,
 	offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-	"Length: %d bytes (0x%02x)", opt->nd_opt_len << 3, opt->nd_opt_len);
+	"Length: %u bytes (%u)", opt->nd_opt_len << 3, opt->nd_opt_len);
 
     /* decode... */
     switch (opt->nd_opt_type) {
@@ -159,91 +160,88 @@ again:
     case ND_OPT_TARGET_LINKADDR:
       {
 	char *t;
-	const char *p;
-	int len, i;
+	int len, i, p;
 	len = (opt->nd_opt_len << 3) - sizeof(*opt);
 	t = (char *)malloc(len * 3);
 	memset(t, 0, len * 3);
-	p = &pd[offset + sizeof(*opt)];
+	p = offset + sizeof(*opt);
 	for (i = 0; i < len; i++) {
 	    if (i)
 		t[i * 3 - 1] = ':';
-	    sprintf(&t[i * 3], "%02x", p[i] & 0xff);
+	    sprintf(&t[i * 3], "%02x", tvb_get_guint8(tvb, p + i) & 0xff);
 	}
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + sizeof(*opt), len, "Link-layer address: %s", t);
 	break;
       }
     case ND_OPT_PREFIX_INFORMATION:
       {
-	struct nd_opt_prefix_info *pi = (struct nd_opt_prefix_info *)opt;
+	struct nd_opt_prefix_info nd_opt_prefix_info, *pi;
 	int flagoff;
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
-	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_prefix_len),
-	    1, "Prefix length: %d", pi->nd_opt_pi_prefix_len);
 
-	flagoff = offsetof(struct nd_opt_prefix_info, nd_opt_pi_flags_reserved);
-	tf = proto_tree_add_text(icmp6opt_tree, NullTVB, flagoff, 1, "Flags: 0x%02x",
-	    pntohl(&pi->nd_opt_pi_flags_reserved));
+	pi = &nd_opt_prefix_info;
+	tvb_memcpy(tvb, (guint8 *)pi, offset, sizeof *pi);
+	proto_tree_add_text(icmp6opt_tree, tvb,
+	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_prefix_len),
+	    1, "Prefix length: %u", pi->nd_opt_pi_prefix_len);
+
+	flagoff = offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_flags_reserved);
+	tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1, "Flags: 0x%02x",
+	    tvb_get_guint8(tvb, offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_flags_reserved)));
 	field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-	proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
 		    0x80, 8, "Onlink", "Not onlink"));
-	proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
 		    0x40, 8, "Auto", "Not auto"));
   /* BT INSERT BEGIN */
-	proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
 		    0x20, 8, "Router Address", "Not router address"));
   /* BT INSERT END */
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_valid_time),
 	    4, "Valid lifetime: 0x%08x",
 	    pntohl(&pi->nd_opt_pi_valid_time));
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_preferred_time),
 	    4, "Preferred lifetime: 0x%08x",
 	    pntohl(&pi->nd_opt_pi_preferred_time));
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_prefix),
 	    16, "Prefix: %s", ip6_to_str(&pi->nd_opt_pi_prefix));
 	break;
       }
     case ND_OPT_REDIRECTED_HEADER:
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + 8, (opt->nd_opt_len << 3) - 8, "Redirected packet");
 	/* tiny sanity check */
-	if ((pd[offset + 8] & 0xf0) == 0x60)
-	    dissect_ipv6(pd, offset + 8, fd, icmp6opt_tree);
+	if ((tvb_get_guint8(tvb, offset + 8) & 0xf0) == 0x60)
+	    dissect_ipv6(tvb_new_subset(tvb, offset + 8, -1, -1), pinfo, icmp6opt_tree);
 	else
-	    old_dissect_data(pd, offset + 8, fd, icmp6opt_tree);
+	    dissect_data(tvb_new_subset(tvb, offset + 8, -1, -1), 0, pinfo, icmp6opt_tree);
 	break;
     case ND_OPT_MTU:
-      {
-	struct nd_opt_mtu *pi = (struct nd_opt_mtu *)opt;
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu), 4,
-	    "MTU: %d", pntohl(&pi->nd_opt_mtu_mtu));
+	    "MTU: %u", tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu)));
 	break;
-      }
 	/* BT INSERT BEGIN */
     case ND_OPT_ADVERTISEMENT_INTERVAL:
-      {
-	struct nd_opt_adv_int *pi = (struct nd_opt_adv_int *)opt;
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint), 4,
-	    "Advertisement Interval: %d", pntohl(&pi->nd_opt_adv_int_advint));
+	    "Advertisement Interval: %d",
+	    tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint)));
 	break;
-      }
     case ND_OPT_HOME_AGENT_INFORMATION:
       {
 	struct nd_opt_ha_info *pi = (struct nd_opt_ha_info *)opt;
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_pref),
 	    2, "Home Agent Preference: %d",
 	    pntohs(&pi->nd_opt_ha_info_ha_pref));
-	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_life),
 	    2, "Home Agent Lifetime: %d",
 	    pntohs(&pi->nd_opt_ha_info_ha_life));
@@ -253,9 +251,9 @@ again:
     }
 
     if (opt->nd_opt_len == 0) {
-        proto_tree_add_text(icmp6opt_tree, NullTVB,
+        proto_tree_add_text(icmp6opt_tree, tvb,
                             offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-                            "Invalid option length: %d",
+                            "Invalid option length: %u",
                             opt->nd_opt_len);
         return;
     }
@@ -265,7 +263,7 @@ again:
 }
 
 /*
- * draft-ietf-ipngwg-icmp-name-lookups-06.txt
+ * draft-ietf-ipngwg-icmp-name-lookups-07.txt
  * Note that the packet format was changed several times in the past.
  */
 
@@ -330,7 +328,7 @@ bitrange0(v, s, buf, buflen)
 }
 
 static const char *
-bitrange(u_char *p, int l, int s)
+bitrange(tvbuff_t *tvb, int offset, int l, int s)
 {
     static char buf[1024];
     char *q, *eq;
@@ -340,7 +338,7 @@ bitrange(u_char *p, int l, int s)
     q = buf;
     eq = buf + sizeof(buf) - 1;
     for (i = 0; i < l; i++) {
-	if (bitrange0(pntohl(p + i * 4), s + i * 4, q, eq - q) == NULL) {
+	if (bitrange0(tvb_get_ntohl(tvb, offset + i * 4), s + i * 4, q, eq - q) == NULL) {
 	    if (q != buf && q + 5 < buf + sizeof(buf))
 		strncpy(q, ",...", 5);
 	    return buf;
@@ -351,36 +349,38 @@ bitrange(u_char *p, int l, int s)
 }
 
 static void
-dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *field_tree;
 	proto_item *tf;
-    struct icmp6_nodeinfo *ni;
+    struct icmp6_nodeinfo icmp6_nodeinfo, *ni;
     int off;
-    int i, n, l;
+    int i, n, l, p;
     guint16 flags;
-    u_char *p;
     char dname[MAXDNAME];
+    guint8 ipaddr[4];
+    const u_char *pd;
+    int top_level_offset;
 
-    ni = (struct icmp6_nodeinfo *)&pd[offset];
-
+    ni = &icmp6_nodeinfo;
+    tvb_memcpy(tvb, (guint8 *)ni, offset, sizeof *ni);
     /* flags */
     flags = pntohs(&ni->ni_flags);
-    tf = proto_tree_add_text(tree, NullTVB,
+    tf = proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	sizeof(ni->ni_flags), "Flags: 0x%04x", flags);
     field_tree = proto_item_add_subtree(tf, ett_nodeinfo_flag);
     switch (pntohs(&ni->ni_qtype)) {
     case NI_QTYPE_SUPTYPES:
 	if (ni->ni_type == ICMP6_NI_QUERY) {
-	    proto_tree_add_text(field_tree, NullTVB,
+	    proto_tree_add_text(field_tree, tvb,
 		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 		sizeof(ni->ni_flags), "%s",
 		decode_boolean_bitfield(flags, NI_SUPTYPE_FLAG_COMPRESS, sizeof(flags) * 8,
 		    "Compressed reply supported",
 		    "No compressed reply support"));
 	} else {
-	    proto_tree_add_text(field_tree, NullTVB,
+	    proto_tree_add_text(field_tree, tvb,
 		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 		sizeof(ni->ni_flags), "%s",
 		decode_boolean_bitfield(flags, NI_SUPTYPE_FLAG_COMPRESS, sizeof(flags) * 8,
@@ -389,7 +389,7 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	break;
     case NI_QTYPE_DNSNAME:
 	if (ni->ni_type == ICMP6_NI_REPLY) {
-	    proto_tree_add_text(field_tree, NullTVB,
+	    proto_tree_add_text(field_tree, tvb,
 		offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 		sizeof(ni->ni_flags), "%s",
 		decode_boolean_bitfield(flags, NI_FQDN_FLAG_VALIDTTL, sizeof(flags) * 8,
@@ -397,25 +397,25 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 	break;
     case NI_QTYPE_NODEADDR:
-	proto_tree_add_text(field_tree, NullTVB,
+	proto_tree_add_text(field_tree, tvb,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_GLOBAL, sizeof(flags) * 8,
 		"Global address",
 		"Not global address"));
-	proto_tree_add_text(field_tree, NullTVB,
+	proto_tree_add_text(field_tree, tvb,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_SITELOCAL, sizeof(flags) * 8,
 		"Site-local address",
 		"Not site-local address"));
-	proto_tree_add_text(field_tree, NullTVB,
+	proto_tree_add_text(field_tree, tvb,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_LINKLOCAL, sizeof(flags) * 8,
 		"Link-local address",
 		"Not link-local address"));
-	proto_tree_add_text(field_tree, NullTVB,
+	proto_tree_add_text(field_tree, tvb,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_COMPAT, sizeof(flags) * 8,
@@ -423,13 +423,13 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		"Not IPv4 compatible/mapped address"));
 	/* fall through */
     case NI_QTYPE_IPV4ADDR:
-	proto_tree_add_text(field_tree, NullTVB,
+	proto_tree_add_text(field_tree, tvb,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_ALL, sizeof(flags) * 8,
 		"All unicast address",
 		"Unicast addresses on the queried interface"));
-	proto_tree_add_text(field_tree, NullTVB,
+	proto_tree_add_text(field_tree, tvb,
 	    offset + offsetof(struct icmp6_nodeinfo, ni_flags),
 	    sizeof(ni->ni_flags), "%s",
 	    decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_TRUNCATE, sizeof(flags) * 8,
@@ -438,7 +438,7 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
 
     /* nonce */
-    proto_tree_add_text(tree, NullTVB,
+    proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct icmp6_nodeinfo, icmp6_ni_nonce[0]),
 	sizeof(ni->icmp6_ni_nonce), "Nonce: 0x%08x%08x",
 	pntohl(&ni->icmp6_ni_nonce[0]), pntohl(&ni->icmp6_ni_nonce[4]));
@@ -447,52 +447,58 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     off = sizeof(*ni);
 
     /* rest of data */
-    if (!IS_DATA_IN_FRAME(offset + sizeof(*ni)))
+    if (!tvb_bytes_exist(tvb, offset, sizeof(*ni)))
 	goto nodata;
     if (ni->ni_type == ICMP6_NI_QUERY) {
 	switch (ni->ni_code) {
 	case ICMP6_NI_SUBJ_IPV6:
-	    n = pi.captured_len - (offset + sizeof(*ni));
+	    n = tvb_length_remaining(tvb, offset + sizeof(*ni));
 	    n /= sizeof(struct e_in6_addr);
-	    tf = proto_tree_add_text(tree, NullTVB,
-		offset + sizeof(*ni), END_OF_FRAME, "IPv6 subject addresses");
+	    tf = proto_tree_add_text(tree, tvb,
+		offset + sizeof(*ni), tvb_length_remaining(tvb, offset), "IPv6 subject addresses");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject6);
-	    p = (u_char *)(ni + 1);
+	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {
-		proto_tree_add_text(field_tree, NullTVB,
-		    p - pd, sizeof(struct e_in6_addr),
-		    "%s", ip6_to_str((struct e_in6_addr *)p));
+		struct e_in6_addr e_in6_addr;
+		tvb_memcpy(tvb, (guint8 *)&e_in6_addr, p, sizeof e_in6_addr);
+		proto_tree_add_text(field_tree, tvb,
+		    p, sizeof(struct e_in6_addr),
+		    "%s", ip6_to_str(&e_in6_addr));
 		p += sizeof(struct e_in6_addr);
 	    }
-	    off = pi.captured_len - offset;
+	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	case ICMP6_NI_SUBJ_FQDN:
-	    l = get_dns_name(pd, offset + sizeof(*ni), offset + sizeof(*ni),
+	    /* XXXX - clean this up when packet-dns.c has been tvbuffified */
+	    tvb_compat(tvb, &pd, &top_level_offset);
+	    l = get_dns_name(pd, top_level_offset + offset + sizeof(*ni),
+	    	top_level_offset + offset + sizeof(*ni),
 		dname, sizeof(dname));
-	    if (IS_DATA_IN_FRAME(offset + sizeof(*ni) + l) &&
-	        pd[offset + sizeof(*ni) + l] == 0) {
+	    if (tvb_bytes_exist(tvb, offset + sizeof(*ni) + l, 1) &&
+	        tvb_get_guint8(tvb, offset + sizeof(*ni) + l) == 0) {
 		l++;
-		proto_tree_add_text(tree, NullTVB, offset + sizeof(*ni), l,
+		proto_tree_add_text(tree, tvb, offset + sizeof(*ni), l,
 		    "DNS label: %s (truncated)", dname);
 	    } else {
-		proto_tree_add_text(tree, NullTVB, offset + sizeof(*ni), l,
+		proto_tree_add_text(tree, tvb, offset + sizeof(*ni), l,
 		    "DNS label: %s", dname);
 	    }
-	    off = offset + sizeof(*ni) + l;
+	    off = tvb_length_remaining(tvb, offset + sizeof(*ni) + l);
 	    break;
 	case ICMP6_NI_SUBJ_IPV4:
-	    n = pi.captured_len - (offset + sizeof(*ni));
+	    n = tvb_length_remaining(tvb, offset + sizeof(*ni));
 	    n /= sizeof(guint32);
-	    tf = proto_tree_add_text(tree, NullTVB,
-		offset + sizeof(*ni), END_OF_FRAME, "IPv4 subject addresses");
+	    tf = proto_tree_add_text(tree, tvb,
+		offset + sizeof(*ni), tvb_length_remaining(tvb, offset), "IPv4 subject addresses");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject4);
-	    p = (u_char *)(ni + 1);
+	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {
-		proto_tree_add_text(field_tree, NullTVB,
-		    p - pd, sizeof(guint32), "%s", ip_to_str(p));
+		tvb_memcpy(tvb, ipaddr, p, 4);                    
+		proto_tree_add_text(field_tree, tvb,
+		    p, sizeof(guint32), "%s", ip_to_str(ipaddr));
 		p += sizeof(guint32);
 	    }
-	    off = pi.captured_len - offset;
+	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	}
     } else {
@@ -500,251 +506,266 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	case NI_QTYPE_NOOP:
 	    break;
 	case NI_QTYPE_SUPTYPES:
-	    p = (u_char *)(ni + 1);
-	    tf = proto_tree_add_text(tree, NullTVB,
-		offset + sizeof(*ni), END_OF_FRAME,
+	    p = offset + sizeof *ni;
+	    tf = proto_tree_add_text(tree, tvb,
+		offset + sizeof(*ni), tvb_length_remaining(tvb, p),
 		"Supported type bitmap%s",
 		(flags & 0x0001) ? ", compressed" : "");
 	    field_tree = proto_item_add_subtree(tf,
 		ett_nodeinfo_nodebitmap);
 	    n = 0;
-	    while (IS_DATA_IN_FRAME(p - pd)) {
+	    while (tvb_bytes_exist(tvb, p, sizeof(guint32))) { /* XXXX Check what? */
 		if ((flags & 0x0001) == 0) {
-		    l = pi.captured_len - (offset + sizeof(*ni));
+		    l = tvb_length_remaining(tvb, offset + sizeof(*ni));
 		    l /= sizeof(guint32);
 		    i = 0;
 		} else {
-		    if (!IS_DATA_IN_FRAME(p + sizeof(guint32) - 1 - pd))
-			break;
-		    l = pntohs(p);
-		    i = pntohs(p + sizeof(guint16));	/*skip*/
+		    l = tvb_get_ntohs(tvb, p);
+		    i = tvb_get_ntohs(tvb, p + sizeof(guint16));	/*skip*/
 		}
 		if (n + l * 32 > (1 << 16))
 		    break;
 		if (n + (l + i) * 32 > (1 << 16))
 		    break;
 		if ((flags & 0x0001) == 0) {
-		    proto_tree_add_text(field_tree, NullTVB, p - pd,
+		    proto_tree_add_text(field_tree, tvb, p,
 			l * 4, "Bitmap (%d to %d): %s", n, n + l * 32 - 1,
-			bitrange(p, l, n));
+			bitrange(tvb, p, l, n));
 		    p += l * 4;
 		} else {
-		    proto_tree_add_text(field_tree, NullTVB, p - pd,
+		    proto_tree_add_text(field_tree, tvb, p,
 			4 + l * 4, "Bitmap (%d to %d): %s", n, n + l * 32 - 1,
-			bitrange(p + 4, l, n));
+			bitrange(tvb, p + 4, l, n));
 		    p += (4 + l * 4);
 		}
 		n += l * 32 + i * 32;
 	    }
-	    off = pi.captured_len - offset;
+	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	case NI_QTYPE_DNSNAME:
-	    proto_tree_add_text(tree, NullTVB, offset + sizeof(*ni),
-		sizeof(gint32), "TTL: %d", (gint32)pntohl(ni + 1));
-	    tf = proto_tree_add_text(tree, NullTVB,
-		offset + sizeof(*ni) + sizeof(guint32), END_OF_FRAME,
+	    proto_tree_add_text(tree, tvb, offset + sizeof(*ni),
+		sizeof(gint32), "TTL: %d", (gint32)tvb_get_ntohl(tvb, offset + sizeof *ni));
+	    tf = proto_tree_add_text(tree, tvb,
+		offset + sizeof(*ni) + sizeof(guint32),
+		tvb_length_remaining(tvb, offset),
 		"DNS labels");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_nodedns);
-	    n = pi.captured_len;
-	    i = offset + sizeof(*ni) + sizeof(guint32);
-	    while (i < pi.captured_len) {
-		l = get_dns_name(pd, i, offset + sizeof(*ni), dname,
-		    sizeof(dname));
-		if (IS_DATA_IN_FRAME(i + l) && pd[i + l] == 0) {
+	    /* XXXX - clean this up when packet-dns.c has been tvbuffified */
+	    tvb_compat(tvb, &pd, &top_level_offset);
+	    i = offset + sizeof (*ni) + sizeof(guint32);
+	    while (i < tvb_length(tvb)) {
+		l = get_dns_name(pd, top_level_offset + i,
+		   top_level_offset + offset + sizeof (*ni) + sizeof(guint32),
+		   dname,sizeof(dname));
+		if (tvb_bytes_exist(tvb, top_level_offset + i + l, 1) &&
+		    tvb_get_guint8(tvb, top_level_offset + i + l) == 0) {
 		    l++;
-		    proto_tree_add_text(field_tree, NullTVB, i, l,
+		    proto_tree_add_text(field_tree, tvb, i, l,
 			"DNS label: %s (truncated)", dname);
 		} else {
-		    proto_tree_add_text(field_tree, NullTVB, i, l,
+		    proto_tree_add_text(field_tree, tvb, i, l,
 			"DNS label: %s", dname);
 		}
 		i += l;
 	    }
-	    off = pi.captured_len - offset;
+	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	case NI_QTYPE_NODEADDR:
-	    n = pi.captured_len - (offset + sizeof(*ni));
-	    n /= sizeof(struct e_in6_addr) + sizeof(gint32);;
-	    tf = proto_tree_add_text(tree, NullTVB,
-		offset + sizeof(*ni), END_OF_FRAME, "IPv6 node addresses");
+	    n = tvb_length_remaining(tvb, offset + sizeof(*ni));
+	    n /= sizeof(gint32) + sizeof(struct e_in6_addr);
+	    tf = proto_tree_add_text(tree, tvb,
+		offset + sizeof(*ni), tvb_length_remaining(tvb, offset), "IPv6 node addresses");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node6);
-	    p = (u_char *)(ni + 1);
+	    p = offset + sizeof (*ni);
 	    for (i = 0; i < n; i++) {
-		proto_tree_add_text(field_tree, NullTVB,
-		    p - pd, sizeof(struct e_in6_addr) + sizeof(gint32),
-		    "%s (TTL %d)", ip6_to_str((struct e_in6_addr *)p),
-		    (gint32)pntohl(p + sizeof(struct e_in6_addr)));
+		struct e_in6_addr e_in6_addr;
+		gint32 ttl;
+		ttl = (gint32)tvb_get_ntohl(tvb, p);
+		tvb_memcpy(tvb, (guint8 *)&e_in6_addr, p + sizeof ttl, sizeof e_in6_addr);
+		proto_tree_add_text(field_tree, tvb,
+		    p, sizeof(struct e_in6_addr) + sizeof(gint32),
+		    "%s (TTL %d)", ip6_to_str(&e_in6_addr), ttl);
 		p += sizeof(struct e_in6_addr) + sizeof(gint32);
 	    }
-	    off = pi.captured_len - offset;
+	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	case NI_QTYPE_IPV4ADDR:
-	    n = pi.captured_len - (offset + sizeof(*ni));
-	    n /= sizeof(guint32);
-	    tf = proto_tree_add_text(tree, NullTVB,
-		offset + sizeof(*ni), END_OF_FRAME, "IPv4 node addresses");
+	    n = tvb_length_remaining(tvb, offset + sizeof(*ni));
+	    n /= sizeof(gint32) + sizeof(guint32);
+	    tf = proto_tree_add_text(tree, tvb,
+		offset + sizeof(*ni), tvb_length_remaining(tvb, offset), "IPv4 node addresses");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node4);
-	    p = (u_char *)(ni + 1);
+	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {
-		proto_tree_add_text(field_tree, NullTVB,
-		    p - pd, sizeof(guint32), "%s", ip_to_str(p));
-		p += sizeof(guint32);
+		tvb_memcpy(tvb, ipaddr, sizeof(gint32) + p, 4);
+		proto_tree_add_text(field_tree, tvb,
+		    p, sizeof(guint32), "%s (TTL %d)", ip_to_str(ipaddr), tvb_get_ntohl(tvb, p));
+		p += sizeof(gint32) + sizeof(guint32);
 	    }
-	    off = pi.captured_len - offset;
+	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	}
     }
 nodata:;
 
     /* the rest of data */
-    old_dissect_data(pd, offset + off, fd, tree);
+    dissect_data(tvb_new_subset(tvb, offset + off, -1, -1), 0, pinfo, tree);
 }
 
 static void
-dissect_rrenum(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *field_tree, *opt_tree;
 	proto_item *tf;
-    struct icmp6_router_renum *rr = (struct icmp6_router_renum *)&pd[offset];
-    struct rr_pco_match *match;
-    struct rr_pco_use *use;
+    struct icmp6_router_renum icmp6_router_renum, *rr;
+    struct rr_pco_match rr_pco_match, *match;
+    struct rr_pco_use rr_pco_use, *use;
     int flagoff, off, l;
+    guint8 flags;
 
-    proto_tree_add_text(tree, NullTVB,
+    rr = &icmp6_router_renum;
+    tvb_memcpy(tvb, (guint8 *)rr, offset, sizeof *rr);
+    proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct icmp6_router_renum, rr_seqnum), 4,
 	"Sequence number: 0x%08x", pntohl(&rr->rr_seqnum));
-    proto_tree_add_text(tree, NullTVB,
+    proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct icmp6_router_renum, rr_segnum), 1,
 	"Segment number: 0x%02x", rr->rr_segnum);
 
     flagoff = offset + offsetof(struct icmp6_router_renum, rr_flags);
-    tf = proto_tree_add_text(tree, NullTVB, flagoff, 1,
-	"Flags: 0x%02x", pd[flagoff]);
+    flags = tvb_get_guint8(tvb, flagoff);
+    tf = proto_tree_add_text(tree, tvb, flagoff, 1,
+	"Flags: 0x%02x", flags);
     field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-	decode_boolean_bitfield(pd[flagoff], 0x80, 8,
+    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	decode_boolean_bitfield(flags, 0x80, 8,
 	    "Test command", "Not test command"));
-    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-	decode_boolean_bitfield(pd[flagoff], 0x40, 8,
+    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	decode_boolean_bitfield(flags, 0x40, 8,
 	    "Result requested", "Result not requested"));
-    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-	decode_boolean_bitfield(pd[flagoff], 0x20, 8,
+    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	decode_boolean_bitfield(flags, 0x20, 8,
 	    "All interfaces", "Not all interfaces"));
-    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-	decode_boolean_bitfield(pd[flagoff], 0x10, 8,
+    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	decode_boolean_bitfield(flags, 0x10, 8,
 	    "Site specific", "Not site specific"));
-    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-	decode_boolean_bitfield(pd[flagoff], 0x08, 8,
+    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	decode_boolean_bitfield(flags, 0x08, 8,
 	    "Processed previously", "Complete result"));
 
-    proto_tree_add_text(tree, NullTVB,
+    proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct icmp6_router_renum, rr_maxdelay), 2,
 	"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
-    old_dissect_data(pd, offset + sizeof(*rr), fd, tree);	/*XXX*/
+    dissect_data(tvb_new_subset(tvb, offset + sizeof(*rr), -1, -1), 0, pinfo, tree);	/*XXX*/
 
     if (rr->rr_code == ICMP6_ROUTER_RENUMBERING_COMMAND) {
 	off = offset + sizeof(*rr);
-	match = (struct rr_pco_match *)&pd[off];
-	tf = proto_tree_add_text(tree, NullTVB, off, sizeof(*match),
+	match = &rr_pco_match;
+	tvb_memcpy(tvb, (guint8 *)match, off, sizeof *match);
+	tf = proto_tree_add_text(tree, tvb, off, sizeof(*match),
 	    "Match-Prefix: %s/%u (%u-%u)", ip6_to_str(&match->rpm_prefix),
 	    match->rpm_matchlen, match->rpm_minlen, match->rpm_maxlen);
 	opt_tree = proto_item_add_subtree(tf, ett_icmpv6opt);
-	proto_tree_add_text(opt_tree, NullTVB,
+	proto_tree_add_text(opt_tree, tvb,
 	    off + offsetof(struct rr_pco_match, rpm_code),
 	    sizeof(match->rpm_code), "OpCode: %s (%u)",
 	    val_to_str(match->rpm_code, names_rrenum_matchcode, "Unknown"), 
 	    match->rpm_code);
-	proto_tree_add_text(opt_tree, NullTVB,
+	proto_tree_add_text(opt_tree, tvb,
 	    off + offsetof(struct rr_pco_match, rpm_len),
 	    sizeof(match->rpm_len), "OpLength: %u (%u octets)",
 	    match->rpm_len, match->rpm_len * 8);
-	proto_tree_add_text(opt_tree, NullTVB,
+	proto_tree_add_text(opt_tree, tvb,
 	    off + offsetof(struct rr_pco_match, rpm_ordinal),
 	    sizeof(match->rpm_ordinal), "Ordinal: %u", match->rpm_ordinal);
-	proto_tree_add_text(opt_tree, NullTVB,
+	proto_tree_add_text(opt_tree, tvb,
 	    off + offsetof(struct rr_pco_match, rpm_matchlen),
 	    sizeof(match->rpm_matchlen), "MatchLen: %u", match->rpm_matchlen);
-	proto_tree_add_text(opt_tree, NullTVB,
+	proto_tree_add_text(opt_tree, tvb,
 	    off + offsetof(struct rr_pco_match, rpm_minlen),
 	    sizeof(match->rpm_minlen), "MinLen: %u", match->rpm_minlen);
-	proto_tree_add_text(opt_tree, NullTVB,
+	proto_tree_add_text(opt_tree, tvb,
 	    off + offsetof(struct rr_pco_match, rpm_maxlen),
 	    sizeof(match->rpm_maxlen), "MaxLen: %u", match->rpm_maxlen);
-	proto_tree_add_text(opt_tree, NullTVB,
+	proto_tree_add_text(opt_tree, tvb,
 	    off + offsetof(struct rr_pco_match, rpm_prefix),
 	    sizeof(match->rpm_prefix), "MatchPrefix: %s",
 	    ip6_to_str(&match->rpm_prefix));
 
 	off += sizeof(*match);
-	use = (struct rr_pco_use *)&pd[off];
+	use = &rr_pco_use;
 	for (l = match->rpm_len * 8 - sizeof(*match);
 	     l >= sizeof(*use); l -= sizeof(*use), off += sizeof(*use)) {
-	    tf = proto_tree_add_text(tree, NullTVB, off, sizeof(*use),
+	    tvb_memcpy(tvb, (guint8 *)use, off, sizeof *use);
+	    tf = proto_tree_add_text(tree, tvb, off, sizeof(*use),
 		"Use-Prefix: %s/%u (keep %u)", ip6_to_str(&use->rpu_prefix),
 		use->rpu_uselen, use->rpu_keeplen);
 	    opt_tree = proto_item_add_subtree(tf, ett_icmpv6opt);
-	    proto_tree_add_text(opt_tree, NullTVB,
+	    proto_tree_add_text(opt_tree, tvb,
 		off + offsetof(struct rr_pco_use, rpu_uselen),
 		sizeof(use->rpu_uselen), "UseLen: %u", use->rpu_uselen);
-	    proto_tree_add_text(opt_tree, NullTVB,
+	    proto_tree_add_text(opt_tree, tvb,
 		off + offsetof(struct rr_pco_use, rpu_keeplen),
 		sizeof(use->rpu_keeplen), "KeepLen: %u", use->rpu_keeplen);
-	    tf = proto_tree_add_text(opt_tree, NullTVB,
+	    tf = proto_tree_add_text(opt_tree, tvb,
 		flagoff = off + offsetof(struct rr_pco_use, rpu_ramask),
 		sizeof(use->rpu_ramask), "FlagMask: 0x%x", use->rpu_ramask);
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff],
+	    flags = tvb_get_guint8(tvb, flagoff);
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+		decode_boolean_bitfield(flags,
 		    ICMP6_RR_PCOUSE_RAFLAGS_ONLINK, 8,
 		    "Onlink", "Not onlink"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff],
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+		decode_boolean_bitfield(flags,
 		    ICMP6_RR_PCOUSE_RAFLAGS_AUTO, 8,
 		    "Auto", "Not auto"));
-	    tf = proto_tree_add_text(opt_tree, NullTVB,
+	    tf = proto_tree_add_text(opt_tree, tvb,
 		flagoff = off + offsetof(struct rr_pco_use, rpu_raflags),
 		sizeof(use->rpu_raflags), "RAFlags: 0x%x", use->rpu_raflags);
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff],
+	    flags = tvb_get_guint8(tvb, flagoff);
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+		decode_boolean_bitfield(flags,
 		    ICMP6_RR_PCOUSE_RAFLAGS_ONLINK, 8,
 		    "Onlink", "Not onlink"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff],
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+		decode_boolean_bitfield(flags,
 		    ICMP6_RR_PCOUSE_RAFLAGS_AUTO, 8, "Auto", "Not auto"));
 	    if (pntohl(&use->rpu_vltime) == 0xffffffff)
-		proto_tree_add_text(opt_tree, NullTVB,
+		proto_tree_add_text(opt_tree, tvb,
 		    off + offsetof(struct rr_pco_use, rpu_vltime),
 		    sizeof(use->rpu_vltime), "Valid Lifetime: infinity");
 	    else
-		proto_tree_add_text(opt_tree, NullTVB,
+		proto_tree_add_text(opt_tree, tvb,
 		    off + offsetof(struct rr_pco_use, rpu_vltime),
 		    sizeof(use->rpu_vltime), "Valid Lifetime: %u",
 		    pntohl(&use->rpu_vltime));
 	    if (pntohl(&use->rpu_pltime) == 0xffffffff)
-		proto_tree_add_text(opt_tree, NullTVB,
+		proto_tree_add_text(opt_tree, tvb,
 		    off + offsetof(struct rr_pco_use, rpu_pltime),
 		    sizeof(use->rpu_pltime), "Preferred Lifetime: infinity");
 	    else
-		proto_tree_add_text(opt_tree, NullTVB,
+		proto_tree_add_text(opt_tree, tvb,
 		    off + offsetof(struct rr_pco_use, rpu_pltime),
 		    sizeof(use->rpu_pltime), "Preferred Lifetime: %u",
 		    pntohl(&use->rpu_pltime));
-	    tf = proto_tree_add_text(opt_tree, NullTVB,
+	    tf = proto_tree_add_text(opt_tree, tvb,
 		flagoff = off + offsetof(struct rr_pco_use, rpu_flags),
 		sizeof(use->rpu_flags), "Flags: 0x%08x",
 		pntohl(&use->rpu_flags));
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
-		decode_boolean_bitfield(pd[flagoff],
+	    flags = tvb_get_guint8(tvb, flagoff);
+	    proto_tree_add_text(field_tree, tvb, flagoff, 4, "%s",
+		decode_boolean_bitfield(flags,
 		    ICMP6_RR_PCOUSE_FLAGS_DECRVLTIME, 32,
 		    "Decrement valid lifetime", "No decrement valid lifetime"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
-		decode_boolean_bitfield(pd[flagoff],
+	    proto_tree_add_text(field_tree, tvb, flagoff, 4, "%s",
+		decode_boolean_bitfield(flags,
 		    ICMP6_RR_PCOUSE_FLAGS_DECRPLTIME, 32,
 		    "Decrement preferred lifetime",
 		    "No decrement preferred lifetime"));
-	    proto_tree_add_text(opt_tree, NullTVB,
+	    proto_tree_add_text(opt_tree, tvb,
 		off + offsetof(struct rr_pco_use, rpu_prefix),
 		sizeof(use->rpu_prefix), "UsePrefix: %s",
 		ip6_to_str(&use->rpu_prefix));
@@ -754,11 +775,11 @@ dissect_rrenum(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 }
 
 static void
-dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6_tree, *field_tree;
     proto_item *ti, *tf = NULL;
-    struct icmp6_hdr *dp;
+    struct icmp6_hdr icmp6_hdr, *dp;
     struct icmp6_nodeinfo *ni = NULL;
     char *codename, *typename;
     char *colcodename, *coltypename;
@@ -767,8 +788,12 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     vec_t cksum_vec[4];
     guint32 phdr[2];
     guint16 cksum, computed_cksum;
+    int offset;
+    tvbuff_t *next_tvb;
 
-    dp = (struct icmp6_hdr *)&pd[offset];
+    offset = 0;
+    tvb_memcpy(tvb, (guint8 *)&icmp6_hdr, offset, sizeof icmp6_hdr);
+    dp = &icmp6_hdr;
     codename = typename = colcodename = coltypename = "Unknown";
     len = sizeof(*dp);
     switch (dp->icmp6_type) {
@@ -891,7 +916,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		codename = "Query subject = IPv6 addresses";
 		break;
 	    case ICMP6_NI_SUBJ_FQDN:
-		if (IS_DATA_IN_FRAME(offset + sizeof(*ni)))
+		if (tvb_bytes_exist(tvb, offset, sizeof(*ni)))
 		    codename = "Query subject = DNS name";
 		else
 		    codename = "Query subject = empty";
@@ -920,9 +945,9 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	break;
     }
 
-    if (check_col(fd, COL_PROTOCOL))
-	col_set_str(fd, COL_PROTOCOL, "ICMPv6");
-    if (check_col(fd, COL_INFO)) {
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+	col_set_str(pinfo->fd, COL_PROTOCOL, "ICMPv6");
+    if (check_col(pinfo->fd, COL_INFO)) {
 	char typebuf[256], codebuf[256];
 
 	if (coltypename && strcmp(coltypename, "Unknown") == 0) {
@@ -936,175 +961,180 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    colcodename = codebuf;
 	}
 	if (colcodename) {
-	    col_add_fstr(fd, COL_INFO, "%s (%s)", coltypename, colcodename);
+	    col_add_fstr(pinfo->fd, COL_INFO, "%s (%s)", coltypename, colcodename);
 	} else {
-	    col_add_fstr(fd, COL_INFO, "%s", coltypename);
+	    col_add_fstr(pinfo->fd, COL_INFO, "%s", coltypename);
 	}
     }
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_item(tree, proto_icmpv6, NullTVB, offset, len, FALSE);
+	ti = proto_tree_add_item(tree, proto_icmpv6, tvb, offset, len, FALSE);
 	icmp6_tree = proto_item_add_subtree(ti, ett_icmpv6);
 
-	proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_type, NullTVB,
+	proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_type, tvb,
 	    offset + offsetof(struct icmp6_hdr, icmp6_type), 1,
 	    dp->icmp6_type,
-	    "Type: 0x%02x (%s)", dp->icmp6_type, typename);
+	    "Type: %u (%s)", dp->icmp6_type, typename);
 	if (codename) {
-	    proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_code, NullTVB,
+	    proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_code, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_code), 1,
 		dp->icmp6_code,
-		"Code: 0x%02x (%s)", dp->icmp6_code, codename);
+		"Code: %u (%s)", dp->icmp6_code, codename);
 	} else {
-	    proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_code, NullTVB,
+	    proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_code, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_code), 1,
 		dp->icmp6_code,
-		"Code: 0x%02x", dp->icmp6_code);
+		"Code: %u", dp->icmp6_code);
 	}
 	cksum = (guint16)htons(dp->icmp6_cksum);
-	length = pi.captured_len - offset;
-	reported_length = pi.len - offset;
-	if (!pi.fragmented && length >= reported_length) {
+	length = tvb_length(tvb);
+	reported_length = tvb_reported_length(tvb);
+	if (!pinfo->fragmented && length >= reported_length) {
 	    /* The packet isn't part of a fragmented datagram and isn't
 	       truncated, so we can checksum it. */
 
 	    /* Set up the fields of the pseudo-header. */
-	    cksum_vec[0].ptr = pi.src.data;
-	    cksum_vec[0].len = pi.src.len;
-	    cksum_vec[1].ptr = pi.dst.data;
-	    cksum_vec[1].len = pi.dst.len;
+	    cksum_vec[0].ptr = pinfo->src.data;
+	    cksum_vec[0].len = pinfo->src.len;
+	    cksum_vec[1].ptr = pinfo->dst.data;
+	    cksum_vec[1].len = pinfo->dst.len;
 	    cksum_vec[2].ptr = (const guint8 *)&phdr;
-	    phdr[0] = htonl(reported_length);
+	    phdr[0] = htonl(tvb_reported_length(tvb));
 	    phdr[1] = htonl(IP_PROTO_ICMPV6);
 	    cksum_vec[2].len = 8;
-	    cksum_vec[3].ptr = &pd[offset];
-	    cksum_vec[3].len = reported_length;
+	    cksum_vec[3].len = tvb_reported_length(tvb);
+	    cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, cksum_vec[3].len);
 	    computed_cksum = in_cksum(cksum_vec, 4);
 	    if (computed_cksum == 0) {
 		proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_checksum,
-			NullTVB,
+			tvb,
 			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
 			cksum,
 			"Checksum: 0x%04x (correct)", cksum);
 	    } else {
 		proto_tree_add_boolean_hidden(icmp6_tree, hf_icmpv6_checksum_bad,
-			NullTVB,
+			tvb,
 			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
 			TRUE);
 		proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_checksum,
-			NullTVB,
+			tvb,
 			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
 			cksum,
 			"Checksum: 0x%04x (incorrect, should be 0x%04x)",
 			cksum, in_cksum_shouldbe(cksum, computed_cksum));
 	    }
 	} else {
-	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_checksum, NullTVB,
+	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_checksum, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
 		cksum);
 	}
 
 	/* decode... */
+	next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
 	switch (dp->icmp6_type) {
 	case ICMP6_DST_UNREACH:
 	case ICMP6_TIME_EXCEEDED:
 	    /* tiny sanity check */
-	    if ((pd[offset + sizeof(*dp)] & 0xf0) == 0x60) {
-		dissect_ipv6(pd, offset + sizeof(*dp), fd, icmp6_tree);
+	    if ((tvb_get_guint8(tvb, offset + sizeof(*dp)) & 0xf0) == 0x60) {
+		dissect_ipv6(next_tvb, pinfo, icmp6_tree);
 	    } else {
-		old_dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
+		dissect_data(next_tvb, 0, pinfo, icmp6_tree);
 	    }
 	    break;
 	case ICMP6_PACKET_TOO_BIG:
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_mtu), 4,
-		"MTU: %d", pntohl(&dp->icmp6_mtu));
+		"MTU: %u", pntohl(&dp->icmp6_mtu));
 	    /* tiny sanity check */
-	    if ((pd[offset + sizeof(*dp)] & 0xf0) == 0x60) {
-		dissect_ipv6(pd, offset + sizeof(*dp), fd, icmp6_tree);
+	    if ((tvb_get_guint8(tvb, offset + sizeof(*dp)) & 0xf0) == 0x60) {
+		dissect_ipv6(next_tvb, pinfo, icmp6_tree);
 	    } else {
-		old_dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
+		dissect_data(next_tvb, 0, pinfo, icmp6_tree);
 	    }
 	    break;
 	case ICMP6_PARAM_PROB:
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_pptr), 4,
 		"Problem pointer: 0x%04x", pntohl(&dp->icmp6_pptr));
 	    /* tiny sanity check */
-	    if ((pd[offset + sizeof(*dp)] & 0xf0) == 0x60) {
-		dissect_ipv6(pd, offset + sizeof(*dp), fd, icmp6_tree);
+	    if ((tvb_get_guint8(tvb, offset + sizeof(*dp)) & 0xf0) == 0x60) {
+		dissect_ipv6(next_tvb, pinfo, icmp6_tree);
 	    } else {
-		old_dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
+		dissect_data(next_tvb, 0, pinfo, icmp6_tree);
 	    }
 	    break;
 	case ICMP6_ECHO_REQUEST:
 	case ICMP6_ECHO_REPLY:
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_id), 2,
 		"ID: 0x%04x", (guint16)ntohs(dp->icmp6_id));
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_seq), 2,
 		"Sequence: 0x%04x", (guint16)ntohs(dp->icmp6_seq));
-	    old_dissect_data(pd, offset + sizeof(*dp), fd, icmp6_tree);
+	    dissect_data(next_tvb, 0, pinfo, icmp6_tree);
 	    break;
 	case ICMP6_MEMBERSHIP_QUERY:
 	case ICMP6_MEMBERSHIP_REPORT:
 	case ICMP6_MEMBERSHIP_REDUCTION:
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_maxdelay), 2,
-		"Maximum response delay: %d",
+		"Maximum response delay: %u",
 		(guint16)ntohs(dp->icmp6_maxdelay));
-	    proto_tree_add_text(icmp6_tree, NullTVB, offset + sizeof(*dp), 16,
+	    proto_tree_add_text(icmp6_tree, tvb, offset + sizeof(*dp), 16,
 		"Multicast Address: %s",
-		ip6_to_str((struct e_in6_addr *)(dp + 1)));
+		ip6_to_str((struct e_in6_addr *)(tvb_get_ptr(tvb, offset + sizeof *dp, sizeof (struct e_in6_addr)))));
 	    break;
 	case ND_ROUTER_SOLICIT:
-	    dissect_icmpv6opt(pd, offset + sizeof(*dp), fd, icmp6_tree);
+	    dissect_icmpv6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
 	    break;
 	case ND_ROUTER_ADVERT:
 	  {
-	    struct nd_router_advert *ra = (struct nd_router_advert *)dp;
+	    struct nd_router_advert nd_router_advert, *ra;
 	    int flagoff;
 	    guint32 ra_flags;
 
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    ra = &nd_router_advert;
+	    tvb_memcpy(tvb, (guint8 *)ra, offset, sizeof *ra);
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_curhoplimit),
-		1, "Cur hop limit: %d", ra->nd_ra_curhoplimit);
+		1, "Cur hop limit: %u", ra->nd_ra_curhoplimit);
 
 	    flagoff = offset + offsetof(struct nd_router_advert, nd_ra_flags_reserved);
-	    ra_flags = pntohl(&pd[flagoff]);
-	    tf = proto_tree_add_text(icmp6_tree, NullTVB, flagoff, 4, "Flags: 0x%08x", ra_flags);
+	    ra_flags = tvb_get_guint8(tvb, flagoff);
+	    tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 1, "Flags: 0x%02x", ra_flags);
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_boolean_bitfield(ra_flags,
-			0x80000000, 32, "Managed", "Not managed"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
+			0x80, 8, "Managed", "Not managed"));
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_boolean_bitfield(ra_flags,
-			0x40000000, 32, "Other", "Not other"));
+			0x40, 8, "Other", "Not other"));
     /* BT INSERT BEGIN */
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_boolean_bitfield(ra_flags,
-			0x20000000, 32, "Home Agent", "Not Home Agent"));		
+			0x20, 8, "Home Agent", "Not Home Agent"));		
     /* BT INSERT END */
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_router_lifetime),
-		2, "Router lifetime: %d",
+		2, "Router lifetime: %u",
 		(guint16)ntohs(ra->nd_ra_router_lifetime));
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_reachable), 4,
-		"Reachable time: %d", pntohl(&ra->nd_ra_reachable));
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+		"Reachable time: %u", pntohl(&ra->nd_ra_reachable));
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_retransmit), 4,
-		"Retrans time: %d", pntohl(&ra->nd_ra_retransmit));
-	    dissect_icmpv6opt(pd, offset + sizeof(struct nd_router_advert), fd, icmp6_tree);
+		"Retrans time: %u", pntohl(&ra->nd_ra_retransmit));
+	    dissect_icmpv6opt(tvb, offset + sizeof(struct nd_router_advert), pinfo, icmp6_tree);
 	    break;
 	  }
 	case ND_NEIGHBOR_SOLICIT:
 	  {
-	    struct nd_neighbor_solicit *ns = (struct nd_neighbor_solicit *)dp;
+	    struct nd_neighbor_solicit nd_neighbor_solicit, *ns;
 
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    ns = &nd_neighbor_solicit;
+	    tvb_memcpy(tvb, (guint8 *)ns, offset, sizeof *ns);
+	    proto_tree_add_text(icmp6_tree, tvb,
 			offset + offsetof(struct nd_neighbor_solicit, nd_ns_target), 16,
 #ifdef INET6
 			"Target: %s (%s)",
@@ -1114,49 +1144,51 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #endif
 			ip6_to_str(&ns->nd_ns_target));
 
-	    dissect_icmpv6opt(pd, offset + sizeof(*ns), fd, icmp6_tree);
+	    dissect_icmpv6opt(tvb, offset + sizeof(*ns), pinfo, icmp6_tree);
 	    break;
 	  }
 	case ND_NEIGHBOR_ADVERT:
 	  {
 	    int flagoff, targetoff;
 	    guint32 na_flags;
-		struct e_in6_addr *na_target_p;
+	    struct e_in6_addr na_target;
 
 	    flagoff = offset + offsetof(struct nd_neighbor_advert, nd_na_flags_reserved);
-	    na_flags = pntohl(&pd[flagoff]);
+	    na_flags = tvb_get_ntohl(tvb, flagoff);
 
-	    tf = proto_tree_add_text(icmp6_tree, NullTVB, flagoff, 4, "Flags: 0x%08x", na_flags);
+	    tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 4, "Flags: 0x%08x", na_flags);
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
+	    proto_tree_add_text(field_tree, tvb, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
 			ND_NA_FLAG_ROUTER, 32, "Router", "Not router"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
+	    proto_tree_add_text(field_tree, tvb, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
 			ND_NA_FLAG_SOLICITED, 32, "Solicited", "Not adverted"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
+	    proto_tree_add_text(field_tree, tvb, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
 			ND_NA_FLAG_OVERRIDE, 32, "Override", "Not override"));
 
-		targetoff = offset + offsetof(struct nd_neighbor_advert, nd_na_target);
-	    na_target_p = (struct e_in6_addr*) &pd[targetoff];
-	    proto_tree_add_text(icmp6_tree, NullTVB, targetoff, 16,
+	    targetoff = offset + offsetof(struct nd_neighbor_advert, nd_na_target);
+	    tvb_memcpy(tvb, (guint8 *)&na_target, targetoff, sizeof na_target);
+	    proto_tree_add_text(icmp6_tree, tvb, targetoff, 16,
 #ifdef INET6
 			"Target: %s (%s)",
-			get_hostname6(na_target_p),
+			get_hostname6(&na_target),
 #else
 			"Target: %s",
 #endif
-			ip6_to_str(na_target_p));
+			ip6_to_str(&na_target));
 
-	    dissect_icmpv6opt(pd, offset + sizeof(struct nd_neighbor_advert), fd, icmp6_tree);
+	    dissect_icmpv6opt(tvb, offset + sizeof(struct nd_neighbor_advert), pinfo, icmp6_tree);
 	    break;
 	  }
 	case ND_REDIRECT:
 	  {
-	    struct nd_redirect *rd = (struct nd_redirect *)dp;
+	    struct nd_redirect nd_redirect, *rd;
 
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    rd = &nd_redirect;
+	    tvb_memcpy(tvb, (guint8 *)rd, offset, sizeof *rd);
+	    proto_tree_add_text(icmp6_tree, tvb,
 			offset + offsetof(struct nd_redirect, nd_rd_target), 16,
 #ifdef INET6
 			"Target: %s (%s)",
@@ -1166,7 +1198,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #endif
 			ip6_to_str(&rd->nd_rd_target));
 
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    proto_tree_add_text(icmp6_tree, tvb,
 			offset + offsetof(struct nd_redirect, nd_rd_dst), 16,
 #ifdef INET6
 			"Destination: %s (%s)",
@@ -1176,25 +1208,25 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #endif
 			ip6_to_str(&rd->nd_rd_dst));
 
-	    dissect_icmpv6opt(pd, offset + sizeof(*rd), fd, icmp6_tree);
+	    dissect_icmpv6opt(tvb, offset + sizeof(*rd), pinfo, icmp6_tree);
 	    break;
 	  }
 	case ICMP6_ROUTER_RENUMBERING:
-	    dissect_rrenum(pd, offset, fd, icmp6_tree);
+	    dissect_rrenum(tvb, offset, pinfo, icmp6_tree);
 	    break;
 	case ICMP6_NI_QUERY:
 	case ICMP6_NI_REPLY:
 	    ni = (struct icmp6_nodeinfo *)dp;
-	    proto_tree_add_text(icmp6_tree, NullTVB,
+	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_nodeinfo, ni_qtype),
 		sizeof(ni->ni_qtype),
 		"Query type: 0x%04x (%s)", pntohs(&ni->ni_qtype),
 		val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype,
 		"Unknown"));
-	    dissect_nodeinfo(pd, offset, fd, icmp6_tree);
+	    dissect_nodeinfo(tvb, offset, pinfo, icmp6_tree);
 	    break;
 	default:
-	    old_dissect_data(pd, offset + sizeof(*dp), fd, tree);
+	    dissect_data(next_tvb, 0, pinfo, tree);
 	    break;
 	}
     }
@@ -1205,10 +1237,10 @@ proto_register_icmpv6(void)
 {
   static hf_register_info hf[] = {
     { &hf_icmpv6_type,
-      { "Type",           "icmpv6.type",	FT_UINT8,  BASE_HEX, NULL, 0x0,
+      { "Type",           "icmpv6.type",	FT_UINT8,  BASE_DEC, NULL, 0x0,
       	"" }},
     { &hf_icmpv6_code,
-      { "Code",           "icmpv6.code",	FT_UINT8,  BASE_HEX, NULL, 0x0,
+      { "Code",           "icmpv6.code",	FT_UINT8,  BASE_DEC, NULL, 0x0,
       	"" }},
     { &hf_icmpv6_checksum,
       { "Checksum",       "icmpv6.checksum",	FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -1239,5 +1271,5 @@ proto_register_icmpv6(void)
 void
 proto_reg_handoff_icmpv6(void)
 {
-  old_dissector_add("ip.proto", IP_PROTO_ICMPV6, dissect_icmpv6, proto_icmpv6);
+  dissector_add("ip.proto", IP_PROTO_ICMPV6, dissect_icmpv6, proto_icmpv6);
 }
