@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.63 2004/05/09 10:03:40 guy Exp $
+ * $Id: proto.h,v 1.64 2004/05/10 08:29:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -252,6 +252,12 @@ extern proto_item* proto_tree_get_parent(proto_tree *tree);
 
 
 
+#if __GNUC__ >= 2
+	#define GNUC_FORMAT_CHECK(archetype, string_index, first_to_check) __attribute__((format (archetype, string_index, first_to_check)))
+#else
+	#define GNUC_FORMAT_CHECK(archetype, string_index, first_to_check)
+#endif
+
 
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
@@ -264,16 +270,9 @@ proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian);
 
 /* Add a FT_NONE to a proto_tree */
-#if __GNUC__ >= 2
 extern proto_item *
 proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char *format, ...)
-	__attribute__((format (printf, 6, 7)));
-#else
-extern proto_item *
-proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char *format, ...);
-#endif
+	gint length, const char *format, ...) GNUC_FORMAT_CHECK(printf,6,7);
 
 /* Add a FT_PROTOCOL to a proto_tree */
 #if __GNUC__ >= 2
