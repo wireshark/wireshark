@@ -9,6 +9,12 @@ still unknown.
 This is NOT the intention to write a file importer in
 the forseeable future.
 
+From looking at a picture in the user guide, it seems that
+the following information should be stored somewhere:
+- Channel (perhaps with crc error status?)
+- Speed
+- Signalstrength
+
 Unknown stuff:
 Header: 0000 0002 1545 5198 3b93 d886
 Frame1: 0000 0002 15a5 2fb4 0206 6401 | da9d
