@@ -2,7 +2,7 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002, Alfred Koebler <ak@icon-sult.de>
  *
- * $Id: packet-fw1.c,v 1.6 2002/12/10 00:12:58 guy Exp $
+ * $Id: packet-fw1.c,v 1.7 2003/06/12 07:37:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ak@icon-sult.de>
@@ -110,7 +110,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item    *ti;
   proto_tree    *volatile fh_tree = NULL;
   char		direction[3];
-  char		interface_name[20];
+  char		interface_name[10+1];
   guint16	etype;
   char		header[1000];
   char		*p_header;
@@ -146,7 +146,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* fetch info to local variable */
   direction[0] = tvb_get_guint8(tvb, 0);
   direction[1] = 0;
-  tvb_get_nstringz0(tvb, 2, 10, interface_name);
+  tvb_get_nstringz0(tvb, 2, sizeof interface_name, interface_name);
 
   /* Known interface name - if not, remember it */
   found=1;
