@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.19 2004/01/05 19:31:44 ulfl Exp $
+ * $Id: packet-smb-common.c,v 1.20 2004/04/03 03:50:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,7 +141,7 @@ unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
   guint16       uchar;
   int           len;
   int           us_len;
-  int           overflow = 0;
+  gboolean      overflow = FALSE;
 
   if (cur == &str[0][0]) {
     cur = &str[1][0];
@@ -174,7 +174,7 @@ unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
         *p++ = '?';	/* not 8859-1 */
       len--;
     } else
-      overflow = 1;
+      overflow = TRUE;
     offset += 2;
     bc -= 2;
     us_len += 2;
@@ -209,7 +209,8 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
   static gchar *cur;
   const gchar *string;
   int string_len;
-  unsigned int copylen;
+  int copylen;
+  gboolean overflow = FALSE;
 
   if (*bcp == 0) {
     /* Not enough data in buffer */
@@ -232,6 +233,12 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
     }
     if(exactlen){
       string_len = *len;
+      if (string_len < 0) {
+        /* This probably means it's a very large unsigned number; just set
+           it to the largest signed number, so that we throw the appropriate
+           exception. */
+        string_len = INT_MAX;
+      }
     }
     string = unicode_to_str(tvb, *offsetp, &string_len, exactlen, *bcp);
   } else {
@@ -247,11 +254,20 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
         cur = &str[0][0];
       }
       copylen = *len;
-      if (copylen > MAX_UNICODE_STR_LEN)
+      if (copylen < 0) {
+        /* This probably means it's a very large unsigned number; just set
+           it to the largest signed number, so that we throw the appropriate
+           exception. */
+        copylen = INT_MAX;
+      }
+      tvb_ensure_bytes_exist(tvb, *offsetp, copylen);
+      if (copylen > MAX_UNICODE_STR_LEN) {
         copylen = MAX_UNICODE_STR_LEN;
+        overflow = TRUE;
+      }
       tvb_memcpy(tvb, (guint8 *)cur, *offsetp, copylen);
       cur[copylen] = '\0';
-      if (copylen > MAX_UNICODE_STR_LEN)
+      if (overflow)
         strcat(cur, "...");
       string_len = *len;
       string = cur;
