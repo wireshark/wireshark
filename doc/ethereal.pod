@@ -15,6 +15,7 @@ S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-k> ]>
 S<[ B<-l> ]>
+S<[ B<-L> ]>
 S<[ B<-m> font ]>
 S<[ B<-n> ]>
 S<[ B<-N> resolving flags ] >
@@ -30,6 +31,7 @@ S<[ B<-T> tree view height ]>
 S<[ B<-t> time stamp format ]>
 S<[ B<-v> ]>
 S<[ B<-w> savefile]>
+S<[ B<-y> link type ]>
 S<[ B<-z> statistics-string ]>
 S<[ infile ]>
 
@@ -182,6 +184,10 @@ Turn on automatic scrolling if the packet display is being updated
 automatically as packets arrive during a capture (as specified by the
 B<-S> flag).
 
+=item -L
+
+List the data link types supported by the interface and exit.
+
 =item -m
 
 Set the name of the font used by B<Ethereal> for most text. 
@@ -275,6 +281,12 @@ Print the version and exit.
 =item -w
 
 Set the default capture file name.
+
+=item -y
+
+If a capture is started from the command line with B<-k>, set the data
+link type to use while capturing packets.  The values reported by B<-L>
+are the values that can be used.
 
 =item -z
 
@@ -1266,13 +1278,31 @@ live packet data; these are used the first time a capture is started.
 
 The I<Interface:> combo box lets you specify the interface from which to
 capture packet data, or the name of a FIFO from which to get the packet
-data.  You can specify whether the interface is to be put in promiscuous
-mode or not with the I<Capture packets in promiscuous mode> check box,
-can specify that the display should be updated as packets are captured
-with the I<Update list of packets in real time> check box, and can
-specify whether in such a capture the packet list pane should scroll to
-show the most recently captured packets with the I<Automatic scrolling
-in live capture> check box.
+data.
+
+The I<Data link type:> option menu lets you, for some interfaces, select
+the data link header you want to see on the packets you capture.  For
+example, in some OSes and with some versions of libpcap, you can choose,
+on an 802.11 interface, whether the packets should appear as Ethernet
+packets (with a fake Ethernet header) or as 802.11 packets.
+
+The I<Limit each packet to ... bytes> check box lets you set the
+snapshot length to use when capturing live data; turn on the check box,
+and then set the number of bytes to use as the snapshot length.
+
+The I<Filter:> text entry lets you set a capture filter expression to be
+used when capturing.
+
+The I<Capture packets in promiscuous mode> check box lets you specify
+whether to put the interface in promiscuous mode when capturing.
+
+The I<Update list of packets in real time> check box lets you specify
+that the display should be updated as packets are seen.
+
+The I<Automatic scrolling in live capture> check box lets you specify
+whether, in an "Update list of packets in real time" capture, the packet
+list pane should automatically scroll to show the most recently captured
+packets.
 
 =item Protocol Preferences
 
@@ -1951,6 +1981,7 @@ B<http://www.ethereal.com>.
   Loïc Minier              <lool [AT] dooz.org>
   Marcel Holtmann          <marcel [AT] holtmann.org>
   Scott Emberley           <scotte [AT] netinst.com>
+  Brian Fundakowski Feldman <bfeldman [AT] fla.fujitsu.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>

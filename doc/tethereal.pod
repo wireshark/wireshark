@@ -16,6 +16,7 @@ S<[ B<-F> file format ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-l> ]>
+S<[ B<-L> ]>
 S<[ B<-n> ]>
 S<[ B<-N> resolving flags ]>
 S<[ B<-o> preference setting ] ...>
@@ -30,6 +31,7 @@ S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> savefile ]>
 S<[ B<-x> ]>
+S<[ B<-y> link type ]>
 S<[ B<-z> statistics-string ]>
 S<[ filter expression ]>
 
@@ -276,6 +278,10 @@ see the dissected data for a packet as soon as B<Tethereal> sees the
 packet and generates that output, rather than seeing it only when the
 standard output buffer containing that data fills up.
 
+=item -L
+
+List the data link types supported by the interface and exit.
+
 =item -n
 
 Disable network object name resolution (such as hostname, TCP and UDP port
@@ -366,6 +372,11 @@ I<savefile> is "-".
 
 Cause B<Tethereal> to print a hex and ASCII dump of the packet data
 after printing the summary or protocol tree.
+
+=item -y
+
+Set the data link type to use while capturing packets.  The values
+reported by B<-L> are the values that can be used.
 
 =item -z
 

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.84 2003/09/24 08:43:34 guy Exp $
+ * $Id: capture_dlg.c,v 1.85 2003/11/01 02:30:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,8 @@
 /* Capture callback data keys */
 #define E_CAP_IFACE_KEY       "cap_iface"
 #define E_CAP_SNAP_CB_KEY     "cap_snap_cb"
+#define E_CAP_LT_OM_KEY       "cap_lt_om"
+#define E_CAP_LT_OM_LABEL_KEY "cap_lt_om_label"
 #define E_CAP_SNAP_SB_KEY     "cap_snap_sb"
 #define E_CAP_PROMISC_KEY     "cap_promisc"
 #define E_CAP_FILT_KEY        "cap_filter_te"
@@ -78,11 +80,16 @@
 #define E_CAP_N_RESOLVE_KEY   "cap_n_resolve"
 #define E_CAP_T_RESOLVE_KEY   "cap_t_resolve"
 
+#define E_CAP_OM_LT_VALUE_KEY "cap_om_lt_value"
+
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
 
 static void
 capture_prep_file_cb(GtkWidget *w, gpointer te);
+
+static void
+select_link_type_cb(GtkWidget *w, gpointer data);
 
 static void
 cap_prep_fs_ok_cb(GtkWidget *w, gpointer data);
@@ -105,6 +112,9 @@ capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
 
+static void
+capture_prep_interface_changed_cb(GtkWidget *entry, gpointer parent_w);
+
 void
 capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -119,12 +129,68 @@ capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
  */
 static GtkWidget *cap_open_w;
 
+static void
+set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
+{
+  gchar *entry_text;
+  gchar *if_text;
+  gchar *if_name;
+  GList *lt_list;
+  char err_buf[PCAP_ERRBUF_SIZE];
+  GtkWidget *lt_menu, *lt_menu_item;
+  GList *lt_entry;
+  data_link_info_t *data_link_info;
+  gchar *linktype_menu_label;
+  guint num_supported_link_types;
+  GtkWidget *linktype_lb = OBJECT_GET_DATA(linktype_om, E_CAP_LT_OM_LABEL_KEY);
+
+  lt_menu = gtk_menu_new();
+  entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
+  if_text = g_strstrip(entry_text);
+  if_name = strrchr(if_text, ' ');
+  if (if_name == NULL) {
+    if_name = if_text;
+  } else {
+    if_name++;
+  }
+
+  if (*if_name != '\0')
+    lt_list = get_pcap_linktype_list(if_name, err_buf);
+  else
+    lt_list = NULL;
+  g_free(entry_text);
+  num_supported_link_types = 0;
+  for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+    data_link_info = lt_entry->data;
+    if (data_link_info->description != NULL) {
+      lt_menu_item = gtk_menu_item_new_with_label(data_link_info->description);
+      OBJECT_SET_DATA(lt_menu_item, E_CAP_LT_OM_KEY, linktype_om);
+      SIGNAL_CONNECT(lt_menu_item, "activate", select_link_type_cb,
+                     GINT_TO_POINTER(data_link_info->dlt));
+      num_supported_link_types++;
+    } else {
+      /* Not supported - tell them about it but don't let them select it. */
+      linktype_menu_label = g_strdup_printf("%s (not supported)",
+                                            data_link_info->name);
+      lt_menu_item = gtk_menu_item_new_with_label(linktype_menu_label);
+      g_free(linktype_menu_label);
+      gtk_widget_set_sensitive(lt_menu_item, FALSE);
+    }
+    gtk_menu_append(GTK_MENU(lt_menu), lt_menu_item);
+    gtk_widget_show(lt_menu_item);
+  }
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(linktype_om), lt_menu);
+  gtk_widget_set_sensitive(linktype_lb, num_supported_link_types != 0);
+  gtk_widget_set_sensitive(linktype_om, num_supported_link_types != 0);
+}
+
 void
 capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget     *main_vb,
                 *capture_fr, *capture_vb,
                 *if_hb, *if_cb, *if_lb,
+                *linktype_hb, *linktype_lb, *linktype_om,
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
                 *filter_hb, *filter_bt, *filter_te,
@@ -241,6 +307,25 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   free_interface_list(if_list);
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, TRUE, TRUE, 6);
   gtk_widget_show(if_cb);
+
+  /* Linktype row */
+  linktype_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(capture_vb), linktype_hb);
+  gtk_widget_show(linktype_hb);
+
+  linktype_lb = gtk_label_new("Data link type:");
+  gtk_box_pack_start(GTK_BOX(linktype_hb), linktype_lb, FALSE, FALSE, 6);
+  gtk_widget_show(linktype_lb);
+
+  linktype_om = gtk_option_menu_new();
+  OBJECT_SET_DATA(linktype_om, E_CAP_LT_OM_LABEL_KEY, linktype_lb);
+  /* Default to "use the default" */
+  OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
+  set_link_type_list(linktype_om, GTK_COMBO(if_cb)->entry);
+  gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_om, FALSE, FALSE, 0);
+  gtk_widget_show(linktype_om);
+  SIGNAL_CONNECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
+                 capture_prep_interface_changed_cb, linktype_om);
 
   /* Capture length row */
   snap_hb = gtk_hbox_new(FALSE, 3);
@@ -587,6 +672,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(cap_open_w, E_CAP_IFACE_KEY, if_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_CB_KEY, snap_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_SB_KEY, snap_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_LT_OM_KEY, linktype_om);
   OBJECT_SET_DATA(cap_open_w, E_CAP_PROMISC_KEY, promisc_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_FILT_KEY,  filter_te);
   OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_TE_KEY,  file_te);
@@ -648,6 +734,17 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     get the initial focus, at least not in the obvious fashion. Sigh.... */
 
   gtk_widget_show(cap_open_w);
+}
+
+static void
+select_link_type_cb(GtkWidget *w, gpointer data)
+{
+  int new_linktype = GPOINTER_TO_INT(data);
+  GtkWidget *linktype_om = OBJECT_GET_DATA(w, E_CAP_LT_OM_KEY);
+  int old_linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
+
+  if (old_linktype != new_linktype)
+    OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(new_linktype));
 }
 
 static void
@@ -756,12 +853,13 @@ static void
 capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te,
             *file_te, *ringbuffer_on_tb, *ringbuffer_nbf_sb,
-            *sync_cb, *auto_scroll_cb,
+            *linktype_om, *sync_cb, *auto_scroll_cb,
             *count_cb, *count_sb,
             *filesize_cb, *filesize_sb,
             *duration_cb, *duration_sb,
             *ring_duration_cb, *ring_duration_sb,
             *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+  gchar *entry_text;
   gchar *if_text;
   gchar *if_name;
   gchar *filter_text;
@@ -772,6 +870,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   if_cb     = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFACE_KEY);
   snap_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
   snap_sb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_SB_KEY);
+  linktype_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_LT_OM_KEY);
   promisc_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_PROMISC_KEY);
   filter_te = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILT_KEY);
   file_te   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_TE_KEY);
@@ -791,27 +890,32 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   n_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_N_RESOLVE_KEY);
   t_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_T_RESOLVE_KEY);
 
-  if_text =
+  entry_text =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
-  /* Remove interface description. Also, Windows combo entries have a 
-     description followed by the interface name. These two cases are
-     OK as long as they're in front. */
+  if_text = g_strstrip(entry_text);
+  /* Remove interface description; if it's present, it comes before
+     the interface name, and there's a space between them, and the
+     interface name is assumed to contain no space, so we look backwards
+     in the string for a space. */
   if_name = strrchr(if_text, ' ');
   if (if_name == NULL) {
     if_name = if_text;
   } else {
     if_name++;
   }
-  if (if_name == NULL) {
+  if (*if_name == '\0') {
     simple_dialog(ESD_TYPE_CRIT, NULL,
       "You didn't specify an interface on which to capture packets.");
-    g_free(if_text);
+    g_free(entry_text);
     return;
   }
   if (cfile.iface)
     g_free(cfile.iface);
   cfile.iface = g_strdup(if_name);
-  g_free(if_text);
+  g_free(entry_text);
+
+  capture_opts.linktype =
+      GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
 
   capture_opts.has_snaplen =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
@@ -951,6 +1055,14 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
   cap_open_w = NULL;
 }
 
+static void
+capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp)
+{
+  GtkWidget *linktype_om = argp;
+
+  set_link_type_list(linktype_om, entry);
+}
+
 /*
  * Adjust the sensitivity of various widgets as per the current setting
  * of other widgets.
@@ -958,7 +1070,8 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 static void
 capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 {
-  GtkWidget *snap_cb, *snap_sb,
+  GtkWidget *if_cb,
+            *snap_cb, *snap_sb,
             *ringbuffer_on_tb, *ringbuffer_nbf_lb, *ringbuffer_nbf_sb,
             *sync_cb, *auto_scroll_cb,
             *count_cb, *count_sb,
@@ -966,6 +1079,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 	    *duration_cb, *duration_sb,
 	    *ring_duration_cb, *ring_duration_sb;
 
+  if_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFACE_KEY);
   snap_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
   snap_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_SB_KEY);
   ringbuffer_on_tb  = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_ON_TB_KEY);
@@ -1060,7 +1174,6 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
      after N seconds" checkbox is on. */
   gtk_widget_set_sensitive(GTK_WIDGET(ring_duration_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_duration_cb)));
-
 }
 
 #endif /* HAVE_LIBPCAP */

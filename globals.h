@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.31 2003/09/24 00:47:36 guy Exp $
+ * $Id: globals.h,v 1.32 2003/11/01 02:30:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,8 +27,6 @@
 
 #include "file.h"
 #include <epan/timestamp.h>
-
-#define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
 
 extern capture_file cfile;
 extern gchar       *ethereal_path;

@@ -1904,6 +1904,10 @@ Scott Emberley <scotte [AT] netinst.com> {
 	Support for reading Network Instruments version 9 capture files
 }
 
+Brian Fundakowski Feldman <bfeldman [AT] fla.fujitsu.com> {
+	Support for setting link-layer type when capturing
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

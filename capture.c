@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.212 2003/10/11 21:49:56 jmayer Exp $
+ * $Id: capture.c,v 1.213 2003/11/01 02:30:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -392,6 +392,12 @@ do_capture(const char *save_file)
     if (capture_opts.has_snaplen) {
       argv = add_arg(argv, &argc, "-s");
       sprintf(ssnap,"%d",capture_opts.snaplen);
+      argv = add_arg(argv, &argc, ssnap);
+    }
+
+    if (capture_opts.linktype != -1) {
+      argv = add_arg(argv, &argc, "-y");
+      sprintf(ssnap,"%d",capture_opts.linktype);
       argv = add_arg(argv, &argc, ssnap);
     }
 
@@ -1387,6 +1393,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   gchar       label_str[64];
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
+  const char *set_linktype_err_str;
   time_t      upd_time, cur_time;
   time_t      start_time;
   int         err, inpkts;
@@ -1525,7 +1532,18 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 		       capture_opts.promisc_mode, CAP_READ_TIMEOUT,
 		       open_err_str);
 
-  if (pch == NULL) {
+  if (pch != NULL) {
+    /* setting the data link type only works on real interfaces */
+    if (capture_opts.linktype != -1) {
+      set_linktype_err_str = set_pcap_linktype(pch, cfile.iface,
+	capture_opts.linktype);
+      if (set_linktype_err_str != NULL) {
+	snprintf(errmsg, sizeof errmsg, "Unable to set data link type (%s).",
+	  set_linktype_err_str);
+	goto error;
+      }
+    }
+  } else {
     /* We couldn't open "cfile.iface" as a network device. */
 #ifdef _WIN32
     /* On Windows, we don't support capturing on pipes, so we give up.

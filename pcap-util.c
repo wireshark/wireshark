@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.18 2003/10/10 03:00:10 guy Exp $
+ * $Id: pcap-util.c,v 1.19 2003/11/01 02:30:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 #include <glib.h>
 
 #include <stdlib.h>
+#include <limits.h>
 #include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H
@@ -42,6 +43,9 @@
 #endif
 
 #include <pcap.h>
+
+#include <wtap.h>
+#include <wtap-capture.h>
 
 #include "pcap-util.h"
 #include "pcap-util-int.h"
@@ -229,6 +233,127 @@ free_interface_list(GList *if_list)
 {
 	g_list_foreach(if_list, free_if_cb, NULL);
 	g_list_free(if_list);
+}
+
+/*
+ * Get the data-link types available for a libpcap device.
+ */
+static data_link_info_t *
+create_data_link_info(int dlt)
+{
+	data_link_info_t *data_link_info;
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
+	const char *typename;
+#endif
+	int wtap_encap;
+
+	data_link_info = g_malloc(sizeof (data_link_info_t));
+	data_link_info->dlt = dlt;
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
+	typename = pcap_datalink_val_to_name(dlt);
+	if (typename != NULL)
+		data_link_info->name = g_strdup(typename);
+	else
+#endif
+		data_link_info->name = g_strdup_printf("DLT %d", dlt);
+	wtap_encap = wtap_pcap_encap_to_wtap_encap(dlt);
+	if (wtap_encap == WTAP_ENCAP_UNKNOWN) {
+		/*
+		 * We don't support this in Wiretap.
+		 * However, we should, so you can capture on it.
+		 * Put in an entry for it, with no description.
+		 */
+		data_link_info->description = NULL;
+	} else {
+		/*
+		 * If this is null, that's a bug in
+		 * "wtap_pcap_encap_to_wtap_encap()" - it should always
+		 * return a valid encapsulation type - so we assume it's
+		 * not null.
+		 */
+		data_link_info->description =
+		    g_strdup(wtap_encap_string(wtap_encap));
+	}
+	return data_link_info;
+}
+
+GList *
+get_pcap_linktype_list(char *devname, char *err_buf)
+{
+	GList *linktype_list = NULL;
+	pcap_t *pch;
+	int deflt;
+#ifdef HAVE_PCAP_SET_DATALINK
+	int *linktypes;
+	int i, nlt;
+#endif
+	data_link_info_t *data_link_info;
+
+	pch = pcap_open_live(devname, MIN_PACKET_SIZE, 0, 0, err_buf);
+	if (pch == NULL)
+		return NULL;
+	err_buf[0] = '\0';	/* an empty list doesn't mean an error */
+	deflt = get_pcap_linktype(pch, devname);
+#ifdef HAVE_PCAP_LIST_DATALINKS
+	nlt = pcap_list_datalinks(pch, &linktypes);
+	if (nlt == 0 || linktypes == NULL)
+		return NULL;
+	for (i = 0; i < nlt; i++) {
+		data_link_info = create_data_link_info(linktypes[i]);
+
+		/*
+		 * XXX - for 802.11, make the most detailed 802.11
+		 * version the default, rather than the one the
+		 * device has as the default?
+		 */
+		if (linktypes[i] == deflt)
+			linktype_list = g_list_prepend(linktype_list,
+			    data_link_info);
+		else
+			linktype_list = g_list_append(linktype_list,
+			    data_link_info);
+	}
+	free(linktypes);
+#else
+	data_link_info = create_data_link_info(deflt);
+	linktype_list = g_list_append(linktype_list, data_link_info);
+#endif
+
+	pcap_close(pch);
+	return linktype_list;
+}
+
+static void
+free_linktype_cb(gpointer data, gpointer user_data _U_)
+{
+	data_link_info_t *linktype_info = data;
+
+	g_free(linktype_info->name);
+	if (linktype_info->description != NULL)
+		g_free(linktype_info->description);
+}
+
+void
+free_pcap_linktype_list(GList *linktype_list)
+{
+	g_list_foreach(linktype_list, free_linktype_cb, NULL);
+	g_list_free(linktype_list);
+}
+
+/* Set the data link type on a pcap. */
+const char *
+set_pcap_linktype(pcap_t *pch, char *devname, int dlt)
+{
+#ifdef HAVE_PCAP_SET_DATALINK
+	if (pcap_set_datalink(pch, dlt) == 0)
+		return NULL;	/* no error */
+	return pcap_geterr(pch);
+#else
+	/* Let them set it to the type it is; reject any other request. */
+	if (get_pcap_linktype(pch, devname) == dlt)
+		return NULL;	/* no error */
+	return "That DLT is not one of the DLTs supported by this device";
+#endif
 }
 
 #endif /* HAVE_LIBPCAP */

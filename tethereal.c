@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.203 2003/10/30 19:56:47 guy Exp $
+ * $Id: tethereal.c,v 1.204 2003/11/01 02:30:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -194,6 +194,8 @@ typedef struct {
 	guint32 ringbuffer_num_files;	/* Number of ring buffer files */
 	gboolean has_ring_duration;	/* TRUE if ring duration specified */
 	gint32 ringbuffer_duration;     /* Switch file after n seconds */
+	int linktype;			/* Data link type to use, or -1 for
+					   "use default" */
 } capture_options;
 
 static capture_options capture_opts = {
@@ -212,8 +214,11 @@ static capture_options capture_opts = {
 	RINGBUFFER_MIN_NUM_FILES,	/* default number of ring buffer
 					   files */
 	FALSE,				/* Switch ring file after some */
-	0				/* specified time is off by default */
+	0,				/* specified time is off by default */
+	-1				/* Default to not change link type */
 };
+
+static gboolean list_link_layer_types;
 
 #ifdef SIGINFO
 static gboolean infodelay;	/* if TRUE, don't print capture info in SIGINFO handler */
@@ -231,14 +236,14 @@ print_usage(gboolean print_ver)
 	comp_info_str->str, runtime_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "\nt%s [ -vh ] [ -DlnpqSVx ] [ -a <capture autostop condition> ] ...\n",
+  fprintf(stderr, "\nt%s [ -vh ] [ -DlLnpqSVx ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -b <number of ring buffer files>[:<duration>] ] [ -c <count> ]\n");
   fprintf(stderr, "\t[ -d %s ] ...\n", decode_as_arg_template);
   fprintf(stderr, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <interface> ]\n");
   fprintf(stderr, "\t[ -N <resolving> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
   fprintf(stderr, "\t[ -R <read filter> ] [ -s <snaplen> ] [ -t <time stamp format> ]\n");
-  fprintf(stderr, "\t[ -w <savefile> ] [ -Z <statistics string> ]\n");
+  fprintf(stderr, "\t[ -w <savefile> ] [ -y <link type> ] [ -Z <statistics string> ]\n");
 #else
   fprintf(stderr, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
   fprintf(stderr, "\t[ -d %s ] ...\n", decode_as_arg_template);
@@ -793,6 +798,8 @@ main(int argc, char *argv[])
   gchar               *cf_name = NULL, *rfilter = NULL;
 #ifdef HAVE_LIBPCAP
   gchar               *if_text;
+  GList               *lt_list, *lt_entry;
+  data_link_info_t    *data_link_info;
 #endif
 #ifdef HAVE_PCAP_COMPILE_NOPCAP
   struct bpf_program   fcode;
@@ -903,7 +910,7 @@ main(int argc, char *argv[])
   get_runtime_version_info(runtime_info_str);
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:c:d:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vxz:")) != -1) {
+  while ((opt = getopt(argc, argv, "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:vw:Vxy:z:")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
@@ -1057,7 +1064,9 @@ main(int argc, char *argv[])
 	/* This isn't line-buffering, strictly speaking, it's just
 	   flushing the standard output after the information for
 	   each packet is printed; however, that should be good
-	   enough for all the purposes to which "-l" is put.
+	   enough for all the purposes to which "-l" is put (and
+	   is probably actually better for "-V", as it does fewer
+	   writes).
 
 	   See the comment in "wtap_dispatch_cb_print()" for an
 	   explanation of why we do that, and why we don't just
@@ -1067,6 +1076,15 @@ main(int argc, char *argv[])
 	   when it fills up). */
 	line_buffered = TRUE;
 	break;
+      case 'L':        /* Print list of link-layer types and exit */
+#ifdef HAVE_LIBPCAP
+        list_link_layer_types = TRUE;
+        break;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
       case 'n':        /* No name resolution */
         g_resolv_flags = RESOLV_NONE;
         break;
@@ -1155,6 +1173,24 @@ main(int argc, char *argv[])
       case 'x':        /* Print packet data in hex (and ASCII) */
         print_hex = TRUE;
         break;
+      case 'y':        /* Set the pcap data link type */
+#ifdef HAVE_LIBPCAP
+#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
+        capture_opts.linktype = pcap_datalink_name_to_val(optarg);
+        if (capture_opts.linktype == -1) {
+          fprintf(stderr, "tethereal: The specified data link type \"%s\" is not valid\n",
+                  optarg);
+          exit(1);
+        }
+#else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
+        /* XXX - just treat it as a number */
+        capture_opts.linktype = get_natural_int(optarg, "data link type");
+#endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
       case 'z':
         for(tli=tap_list;tli;tli=tli->next){
           if(!strncmp(tli->cmd,optarg,strlen(tli->cmd))){
@@ -1241,42 +1277,66 @@ main(int argc, char *argv[])
 #endif
   }
 
-#ifdef HAVE_LIBPCAP
-  /* If they didn't specify a "-w" flag, but specified a maximum capture
-     file size, tell them that this doesn't work, and exit. */
-  if (capture_opts.has_autostop_filesize && cfile.save_file == NULL) {
-    fprintf(stderr, "tethereal: Maximum capture file size specified, but "
-      "capture isn't being saved to a file.\n");
-    exit(2);
+#ifndef HAVE_LIBPCAP
+  if (capture_option_specified)
+    fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
+#endif
+  if (arg_error) {
+    print_usage(FALSE);
+    exit(1);
   }
 
-  if (capture_opts.ringbuffer_on) {
-    /* Ring buffer works only under certain conditions:
-       a) ring buffer does not work if you're not saving the capture to
-          a file;
-       b) ring buffer only works if you're saving in libpcap format;
-       c) it makes no sense to enable the ring buffer if the maximum
-          file size is set to "infinite";
-       d) file must not be a pipe. */
-    if (cfile.save_file == NULL) {
-      fprintf(stderr, "tethereal: Ring buffer requested, but "
+#ifdef HAVE_LIBPCAP
+  if (list_link_layer_types) {
+    /* We're supposed to list the link-layer types for an interface;
+       did the user also specify a capture file to be read? */
+    if (cf_name) {
+      /* Yes - that's bogus. */
+      fprintf(stderr, "tethereal: You cannot specify -L and a capture file to be read.\n");
+      exit(1);
+    }
+    /* No - did they specify a ring buffer option? */
+    if (capture_opts.ringbuffer_on) {
+      fprintf(stderr, "tethereal: Ring buffer requested, but a capture is not being done.\n");
+      exit(1);
+    }
+  } else {
+    /* If they didn't specify a "-w" flag, but specified a maximum capture
+       file size, tell them that this doesn't work, and exit. */
+    if (capture_opts.has_autostop_filesize && cfile.save_file == NULL) {
+      fprintf(stderr, "tethereal: Maximum capture file size specified, but "
         "capture isn't being saved to a file.\n");
-      exit(2);
+      exit(1);
     }
-    if (out_file_type != WTAP_FILE_PCAP) {
-      fprintf(stderr, "tethereal: Ring buffer requested, but "
-        "capture isn't being saved in libpcap format.\n");
-      exit(2);
-    }
-    if (!capture_opts.has_autostop_filesize) {
-      fprintf(stderr, "tethereal: Ring buffer requested, but "
-        "no maximum capture file size was specified.\n");
-      exit(2);
-    }
-    if (ld.output_to_pipe) {
-      fprintf(stderr, "tethereal: Ring buffer requested, but "
-        "capture file is a pipe.\n");
-      exit(2);
+
+    if (capture_opts.ringbuffer_on) {
+      /* Ring buffer works only under certain conditions:
+	 a) ring buffer does not work if you're not saving the capture to
+	    a file;
+	 b) ring buffer only works if you're saving in libpcap format;
+	 c) it makes no sense to enable the ring buffer if the maximum
+	    file size is set to "infinite";
+	 d) file must not be a pipe. */
+      if (cfile.save_file == NULL) {
+	fprintf(stderr, "tethereal: Ring buffer requested, but "
+	  "capture isn't being saved to a file.\n");
+	exit(1);
+      }
+      if (out_file_type != WTAP_FILE_PCAP) {
+	fprintf(stderr, "tethereal: Ring buffer requested, but "
+	  "capture isn't being saved in libpcap format.\n");
+	exit(2);
+      }
+      if (!capture_opts.has_autostop_filesize) {
+	fprintf(stderr, "tethereal: Ring buffer requested, but "
+	  "no maximum capture file size was specified.\n");
+	exit(2);
+      }
+      if (ld.output_to_pipe) {
+	fprintf(stderr, "tethereal: Ring buffer requested, but "
+	  "capture file is a pipe.\n");
+	exit(2);
+      }
     }
   }
 #endif
@@ -1294,15 +1354,6 @@ main(int argc, char *argv[])
   /* disabled protocols as per configuration file */
   if (dp_path == NULL) {
     set_disabled_protos_list();
-  }
-
-#ifndef HAVE_LIBPCAP
-  if (capture_option_specified)
-    fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
-#endif
-  if (arg_error) {
-    print_usage(FALSE);
-    exit(1);
   }
 
   /* Build the column format array */
@@ -1380,7 +1431,8 @@ main(int argc, char *argv[])
     }
     cf_name[0] = '\0';
   } else {
-    /* No capture file specified, so we're supposed to do a live capture;
+    /* No capture file specified, so we're supposed to do a live capture
+       (or get a list of link-layer types for a live capture device);
        do we have support for live captures? */
 #ifdef HAVE_LIBPCAP
 
@@ -1424,6 +1476,35 @@ main(int argc, char *argv[])
             free_interface_list(if_list);
         }
     }
+
+    if (list_link_layer_types) {
+      /* We were asked to list the link-layer types for an interface.
+         Get the list of link-layer types for the capture device. */
+      lt_list = get_pcap_linktype_list(cfile.iface, err_str);
+      if (lt_list == NULL) {
+	if (err_str[0] != '\0') {
+	  fprintf(stderr, "tethereal: The list of data link types for the capture device could not be obtained (%s).\n"
+	    "Please check to make sure you have sufficient permissions, and that\n"
+	    "you have the proper interface or pipe specified.\n", err_str);
+	} else
+	  fprintf(stderr, "tethereal: The capture device has no data link types.\n");
+	exit(2);
+      }
+      fprintf(stderr, "Data link types (use option -y to set):\n");
+      for (lt_entry = lt_list; lt_entry != NULL;
+	   lt_entry = g_list_next(lt_entry)) {
+	data_link_info = lt_entry->data;
+	fprintf(stderr, "  %s", data_link_info->name);
+	if (data_link_info->description != NULL)
+	  fprintf(stderr, " (%s)", data_link_info->description);
+	else
+	  fprintf(stderr, " (not supported)");
+	putchar('\n');
+      }
+      free_pcap_linktype_list(lt_list);
+      exit(0);
+    }
+
     capture(out_file_type);
 
     if (capture_opts.ringbuffer_on) {
@@ -1457,6 +1538,7 @@ capture(int out_file_type)
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
+  const char *set_linktype_err_str;
   void        (*oldhandler)(int);
   int         err = 0;
   int         volatile volatile_err = 0;
@@ -1478,7 +1560,6 @@ capture(int out_file_type)
   gboolean    dump_ok;
   dfilter_t   *rfcode = NULL;
 
-
   /* Initialize all data structures used for dissection. */
   init_dissection();
 
@@ -1493,7 +1574,18 @@ capture(int out_file_type)
   ld.pch = pcap_open_live(cfile.iface, capture_opts.snaplen,
 			  capture_opts.promisc_mode, 1000, open_err_str);
 
-  if (ld.pch == NULL) {
+  if (ld.pch != NULL) {
+    /* setting the data link type only works on real interfaces */
+    if (capture_opts.linktype != -1) {
+      set_linktype_err_str = set_pcap_linktype(ld.pch, cfile.iface,
+	capture_opts.linktype);
+      if (set_linktype_err_str != NULL) {
+	snprintf(errmsg, sizeof errmsg, "Unable to set data link type (%s).",
+	  set_linktype_err_str);
+	goto error;
+      }
+    }
+  } else {
     /* We couldn't open "cfile.iface" as a network device. */
 #ifdef _WIN32
     /* On Windows, we don't support capturing on pipes, so we give up. */

@@ -1,7 +1,7 @@
 /* pcap-util.h
  * Utility definitions for packet capture
  *
- * $Id: pcap-util.h,v 1.5 2003/10/10 06:05:48 guy Exp $
+ * $Id: pcap-util.h,v 1.6 2003/11/01 02:30:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
-int get_pcap_linktype(pcap_t *pch, char *devname);
+/*
+ * XXX - this is also the traditional default snapshot size in
+ * tcpdump - but, if IPv6 is enabled, it defaults to 96, to get an
+ * IPv6 header + TCP + 22 extra bytes.
+ *
+ * Some libpcap versions for particular capture devices might happen
+ * to impose a minimum, but it's not always 68.
+ */
+#define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
 
 #define MAX_WIN_IF_NAME_LEN 511
 
@@ -51,6 +59,21 @@ GList *get_interface_list(int *err, char *err_str);
 #define	NO_INTERFACES_FOUND	1	/* list is empty */
 
 void free_interface_list(GList *if_list);
+
+/*
+ * The list of data link types returned by "get_pcap_linktype_list()" is
+ * a list of these structures.
+ */
+typedef struct {
+	int	dlt;
+	char	*name;
+	char	*description;
+} data_link_info_t;
+
+int get_pcap_linktype(pcap_t *pch, char *devname);
+GList *get_pcap_linktype_list(char *devname, char *err_buf);
+void free_pcap_linktype_list(GList *linktype_list);
+const char *set_pcap_linktype(pcap_t *pch, char *devname, int dlt);
 
 #ifdef __cplusplus
 }

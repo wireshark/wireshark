@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.326 2003/10/20 22:28:22 guy Exp $
+ * $Id: main.c,v 1.327 2003/11/01 02:30:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,6 +164,8 @@ static void destroy_console(void);
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
 #endif
+
+static gboolean list_link_layer_types;
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 
@@ -1294,7 +1296,7 @@ print_usage(gboolean print_ver) {
 	  comp_info_str->str, runtime_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "\n%s [ -vh ] [ -klnpQS ] [ -a <capture autostop condition> ] ...\n",
+  fprintf(stderr, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -b <number of ringbuffer files>[:<duration>] ]\n");
   fprintf(stderr, "\t[ -B <byte view height> ] [ -c <count> ] [ -f <capture filter> ]\n");
@@ -1302,7 +1304,7 @@ print_usage(gboolean print_ver) {
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
   fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
-  fprintf(stderr, "\t[ -w <savefile> ] [ <infile> ]\n");
+  fprintf(stderr, "\t[ -w <savefile> ] [ -y <link type> ] [ <infile> ]\n");
 #else
   fprintf(stderr, "\n%s [ -vh ] [ -n ] [ -B <byte view height> ] [ -m <medium font> ]\n",
 	  PACKAGE);
@@ -1572,6 +1574,8 @@ main(int argc, char *argv[])
   gchar               *save_file = NULL;
   GList               *if_list;
   if_info_t           *if_info;
+  GList               *lt_list, *lt_entry;
+  data_link_info_t    *data_link_info;
   gchar                err_str[PCAP_ERRBUF_SIZE];
   gboolean             stats_known;
   struct pcap_stat     stats;
@@ -1591,7 +1595,7 @@ main(int argc, char *argv[])
   ethereal_tap_list   *tli = NULL;
   gchar               *tap_opt = NULL;
 
-#define OPTSTRING_INIT "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:vz:"
+#define OPTSTRING_INIT "a:b:B:c:f:hi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
 
 #ifdef HAVE_LIBPCAP
 #ifdef WIN32
@@ -1735,6 +1739,7 @@ main(int argc, char *argv[])
   capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
   capture_opts.has_ring_duration = FALSE;
   capture_opts.ringbuffer_duration = 1;
+  capture_opts.linktype = -1;
 
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
@@ -1872,6 +1877,15 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
+      case 'L':        /* Print list of link-layer types and exit */
+#ifdef HAVE_LIBPCAP
+        list_link_layer_types = TRUE;
+        break;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
       case 'm':        /* Fixed-width font for the display */
         if (prefs->gui_font_name != NULL)
           g_free(prefs->gui_font_name);
@@ -1988,6 +2002,24 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
 	break;
+      case 'y':        /* Set the pcap data link type */
+#ifdef HAVE_LIBPCAP
+#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
+        capture_opts.linktype = pcap_datalink_name_to_val(optarg);
+        if (capture_opts.linktype == -1) {
+          fprintf(stderr, "ethereal: The specified data link type \"%s\" is not valid\n",
+                  optarg);
+          exit(1);
+        }
+#else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
+        /* XXX - just treat it as a number */
+        capture_opts.linktype = get_natural_int(optarg, "data link type");
+#endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
+#else /* HAVE_LIBPCAP */
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif /* HAVE_LIBPCAP */
+        break;
 #ifdef HAVE_LIBPCAP
       /* This is a hidden option supporting Sync mode, so we don't set
        * the error flags for the user in the non-libpcap case.
@@ -2066,59 +2098,71 @@ main(int argc, char *argv[])
     fprintf(stderr, "Invalid argument: %s\n", argv[0]);
     arg_error = TRUE;
   }
+
+#ifndef HAVE_LIBPCAP
+  if (capture_option_specified)
+    fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
+#endif
   if (arg_error) {
     print_usage(FALSE);
     exit(1);
   }
 
 #ifdef HAVE_LIBPCAP
-  if (capture_opts.ringbuffer_on) {
-    /* Ring buffer works only under certain conditions:
-       a) ring buffer does not work with temporary files;
-       b) sync_mode and capture_opts.ringbuffer_on are mutually exclusive -
-          sync_mode takes precedence;
-       c) it makes no sense to enable the ring buffer if the maximum
-          file size is set to "infinite". */
-    if (save_file == NULL) {
-      fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
-      capture_opts.ringbuffer_on = FALSE;
-    }
-    if (capture_opts.sync_mode) {
-      fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
-      capture_opts.ringbuffer_on = FALSE;
-    }
-    if (!capture_opts.has_autostop_filesize) {
-      fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
-      capture_opts.ringbuffer_on = FALSE;
-    }
-  }
-#endif
-
-  /* Notify all registered modules that have had any of their preferences
-     changed either from one of the preferences file or from the command
-     line that their preferences have changed. */
-  prefs_apply_all();
-
-  /* disabled protocols as per configuration file */
-  if (dp_path == NULL) {
-    set_disabled_protos_list();
+  if (start_capture && list_link_layer_types) {
+    /* Specifying *both* is bogus. */
+    fprintf(stderr, "ethereal: You cannot specify both -L and a live capture.\n");
+    exit(1);
   }
 
-#ifndef HAVE_LIBPCAP
-  if (capture_option_specified)
-    fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
-#endif
-#ifdef HAVE_LIBPCAP
-  if (start_capture) {
+  if (list_link_layer_types) {
+    /* We're supposed to list the link-layer types for an interface;
+       did the user also specify a capture file to be read? */
+    if (cf_name) {
+      /* Yes - that's bogus. */
+      fprintf(stderr, "ethereal: You cannot specify -L and a capture file to be read.\n");
+      exit(1);
+    }
+    /* No - did they specify a ring buffer option? */
+    if (capture_opts.ringbuffer_on) {
+      fprintf(stderr, "ethereal: Ring buffer requested, but a capture is not being done.\n");
+      exit(1);
+    }
+  } else {
     /* We're supposed to do a live capture; did the user also specify
        a capture file to be read? */
     if (cf_name) {
       /* Yes - that's bogus. */
       fprintf(stderr, "ethereal: You cannot specify both a live capture and a capture file to be read.\n");
-      exit(2);
+      exit(1);
     }
-       
-    /* No - did the user specify an interface to use? */
+
+    /* No - was the ring buffer option specified and, if so, does it make
+       sense? */
+    if (capture_opts.ringbuffer_on) {
+      /* Ring buffer works only under certain conditions:
+	 a) ring buffer does not work with temporary files;
+	 b) sync_mode and capture_opts.ringbuffer_on are mutually exclusive -
+	    sync_mode takes precedence;
+	 c) it makes no sense to enable the ring buffer if the maximum
+	    file size is set to "infinite". */
+      if (save_file == NULL) {
+	fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
+	capture_opts.ringbuffer_on = FALSE;
+      }
+      if (capture_opts.sync_mode) {
+	fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
+	capture_opts.ringbuffer_on = FALSE;
+      }
+      if (!capture_opts.has_autostop_filesize) {
+	fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
+	capture_opts.ringbuffer_on = FALSE;
+      }
+    }
+  }
+
+  if (start_capture || list_link_layer_types) {
+    /* Did the user specify an interface to use? */
     if (cfile.iface == NULL) {
       /* No - is a default specified in the preferences file? */
       if (prefs->capture_device != NULL) {
@@ -2147,15 +2191,53 @@ main(int argc, char *argv[])
       }
     }
   }
+
   if (capture_child) {
     if (cfile.save_file_fd == -1) {
       /* XXX - send this to the standard output as something our parent
-         should put in an error message box? */
+	 should put in an error message box? */
       fprintf(stderr, "%s: \"-W\" flag not specified\n", CHILD_NAME);
       exit(1);
     }
   }
+
+  if (list_link_layer_types) {
+    /* Get the list of link-layer types for the capture device. */
+    lt_list = get_pcap_linktype_list(cfile.iface, err_str);
+    if (lt_list == NULL) {
+      if (err_str[0] != '\0') {
+	fprintf(stderr, "ethereal: The list of data link types for the capture device could not be obtained (%s).\n"
+	  "Please check to make sure you have sufficient permissions, and that\n"
+	  "you have the proper interface or pipe specified.\n", err_str);
+      } else
+	fprintf(stderr, "ethereal: The capture device has no data link types.\n");
+      exit(2);
+    }
+    fprintf(stderr, "Data link types (use option -y to set):\n");
+    for (lt_entry = lt_list; lt_entry != NULL;
+         lt_entry = g_list_next(lt_entry)) {
+      data_link_info = lt_entry->data;
+      fprintf(stderr, "  %s", data_link_info->name);
+      if (data_link_info->description != NULL)
+	fprintf(stderr, " (%s)", data_link_info->description);
+      else
+	fprintf(stderr, " (not supported)");
+      putchar('\n');
+    }
+    free_pcap_linktype_list(lt_list);
+    exit(0);
+  }
 #endif
+
+  /* Notify all registered modules that have had any of their preferences
+     changed either from one of the preferences file or from the command
+     line that their preferences have changed. */
+  prefs_apply_all();
+
+  /* disabled protocols as per configuration file */
+  if (dp_path == NULL) {
+    set_disabled_protos_list();
+  }
 
   /* Build the column format array */
   col_setup(&cfile.cinfo, prefs->num_cols);
