@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.63 2002/11/29 23:20:40 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.64 2002/11/30 08:34:28 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,6 +158,12 @@ static int hf_netlogon_flags = -1;
 static int hf_netlogon_trust_attribs = -1;
 static int hf_netlogon_trust_type = -1;
 static int hf_netlogon_trust_flags = -1;
+static int hf_netlogon_trust_flags_inbound = -1;
+static int hf_netlogon_trust_flags_outbound = -1;
+static int hf_netlogon_trust_flags_in_forest = -1;
+static int hf_netlogon_trust_flags_native_mode = -1;
+static int hf_netlogon_trust_flags_primary = -1;
+static int hf_netlogon_trust_flags_tree_root = -1;
 static int hf_netlogon_trust_parent_index = -1;
 static int hf_netlogon_user_flags = -1;
 static int hf_netlogon_auth_flags = -1;
@@ -185,6 +191,38 @@ static int hf_netlogon_authoritative = -1;
 static int hf_netlogon_secure_channel_type = -1;
 static int hf_netlogon_logonsrv_handle = -1;
 static int hf_netlogon_delta_type = -1;
+static int hf_netlogon_get_dcname_request_flags = -1;
+static int hf_netlogon_get_dcname_request_flags_force_rediscovery = -1;
+static int hf_netlogon_get_dcname_request_flags_directory_service_required = -1;
+static int hf_netlogon_get_dcname_request_flags_directory_service_preferred = -1;
+static int hf_netlogon_get_dcname_request_flags_gc_server_required = -1;
+static int hf_netlogon_get_dcname_request_flags_pdc_required = -1;
+static int hf_netlogon_get_dcname_request_flags_background_only = -1;
+static int hf_netlogon_get_dcname_request_flags_ip_required = -1;
+static int hf_netlogon_get_dcname_request_flags_kdc_required = -1;
+static int hf_netlogon_get_dcname_request_flags_timeserv_required = -1;
+static int hf_netlogon_get_dcname_request_flags_writable_required = -1;
+static int hf_netlogon_get_dcname_request_flags_good_timeserv_preferred = -1;
+static int hf_netlogon_get_dcname_request_flags_avoid_self = -1;
+static int hf_netlogon_get_dcname_request_flags_only_ldap_needed = -1;
+static int hf_netlogon_get_dcname_request_flags_is_flat_name = -1;
+static int hf_netlogon_get_dcname_request_flags_is_dns_name = -1;
+static int hf_netlogon_get_dcname_request_flags_return_dns_name = -1;
+static int hf_netlogon_get_dcname_request_flags_return_flat_name = -1;
+static int hf_netlogon_dc_flags = -1;
+static int hf_netlogon_dc_flags_pdc_flag = -1;
+static int hf_netlogon_dc_flags_gc_flag = -1;
+static int hf_netlogon_dc_flags_ldap_flag = -1;
+static int hf_netlogon_dc_flags_ds_flag = -1;
+static int hf_netlogon_dc_flags_kdc_flag = -1;
+static int hf_netlogon_dc_flags_timeserv_flag = -1;
+static int hf_netlogon_dc_flags_closest_flag = -1;
+static int hf_netlogon_dc_flags_writable_flag = -1;
+static int hf_netlogon_dc_flags_good_timeserv_flag = -1;
+static int hf_netlogon_dc_flags_ndnc_flag = -1;
+static int hf_netlogon_dc_flags_dns_controller_flag = -1;
+static int hf_netlogon_dc_flags_dns_domain_flag = -1;
+static int hf_netlogon_dc_flags_dns_forest_flag = -1;
 
 static gint ett_dcerpc_netlogon = -1;
 static gint ett_QUOTA_LIMITS = -1;
@@ -205,6 +243,9 @@ static gint ett_GROUP_MEMBERSHIP = -1;
 static gint ett_BLOB = -1;
 static gint ett_DS_DOMAIN_TRUSTS = -1;
 static gint ett_DOMAIN_TRUST_INFO = -1;
+static gint ett_trust_flags = -1;
+static gint ett_get_dcname_request_flags = -1;
+static gint ett_dc_flags = -1;
 
 static e_uuid_t uuid_dcerpc_netlogon = {
         0x12345678, 0x1234, 0xabcd,
@@ -4002,8 +4043,361 @@ netlogon_dissect_function_12_reply(tvbuff_t *tvb, int offset,
 /*qqq*/
 /* Updated above this line */
 
+static const value_string trust_type_vals[] = {
+	{ 1,				"DOWNLEVEL" },
+	{ 2,				"UPLEVEL" },
+	{ 3,				"MIT" },
+	{ 4,				"DCE" },
+	{ 0, NULL }
+};
+
+#define DS_INET_ADDRESS		1
+#define DS_NETBIOS_ADDRESS	2
+static const value_string dc_address_types[] = {
+	{ DS_INET_ADDRESS,		"IP/DNS name" },
+	{ DS_NETBIOS_ADDRESS,		"NetBIOS name" },
+	{ 0, NULL}
+};
 
 
+#define DS_DOMAIN_IN_FOREST		0x0001
+#define DS_DOMAIN_DIRECT_OUTBOUND	0x0002
+#define DS_DOMAIN_TREE_ROOT		0x0004
+#define DS_DOMAIN_PRIMARY		0x0008
+#define DS_DOMAIN_NATIVE_MODE		0x0010
+#define DS_DOMAIN_DIRECT_INBOUND	0x0020
+static const true_false_string trust_inbound = {
+	"There is a DIRECT INBOUND trust for the servers domain",
+	"There is NO direct inbound trust for the servers domain"
+};
+static const true_false_string trust_outbound = {
+	"There is a DIRECT OUTBOUND trust for this domain",
+	"There is NO direct outbound trust for this domain"
+};
+static const true_false_string trust_in_forest = {
+	"The domain is a member IN the same FOREST as the queried server",
+	"The domain is NOT a member of the queried servers domain"
+};
+static const true_false_string trust_native_mode = {
+	"The primary domain is a NATIVE MODE w2k domain",
+	"The primary is NOT a native mode w2k domain"
+};
+static const true_false_string trust_primary = {
+	"The domain is the PRIMARY domain of the queried server",
+	"The domain is NOT the primary domain of the queried server"
+};
+static const true_false_string trust_tree_root = {
+	"The domain is the ROOT of a domain TREE",
+	"The domain is NOT a root of a domain tree"
+};
+static int
+netlogon_dissect_DOMAIN_TRUST_FLAGS(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+			hf_netlogon_trust_flags, &mask);
+
+	if(parent_tree){
+		item = proto_tree_add_uint(parent_tree, hf_netlogon_trust_flags,
+			tvb, offset-4, 4, mask);
+		tree = proto_item_add_subtree(item, ett_trust_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_netlogon_trust_flags_inbound,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_flags_native_mode,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_flags_primary,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_flags_tree_root,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_flags_outbound,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_trust_flags_in_forest,
+		tvb, offset-4, 4, mask);
+
+	return offset;
+}
+
+
+#define DS_FORCE_REDISCOVERY		0x00000001
+#define DS_DIRECTORY_SERVICE_REQUIRED	0x00000010
+#define DS_DIRECTORY_SERVICE_PREFERRED	0x00000020
+#define DS_GC_SERVER_REQUIRED		0x00000040
+#define DS_PDC_REQUIRED			0x00000080
+#define DS_BACKGROUND_ONLY		0x00000100
+#define DS_IP_REQUIRED			0x00000200
+#define DS_KDC_REQUIRED			0x00000400
+#define DS_TIMESERV_REQUIRED		0x00000800
+#define DS_WRITABLE_REQUIRED		0x00001000
+#define DS_GOOD_TIMESERV_PREFERRED	0x00002000
+#define DS_AVOID_SELF			0x00004000
+#define DS_ONLY_LDAP_NEEDED		0x00008000
+#define DS_IS_FLAT_NAME			0x00010000
+#define DS_IS_DNS_NAME			0x00020000
+#define DS_RETURN_DNS_NAME		0x40000000
+#define DS_RETURN_FLAT_NAME		0x80000000
+static const true_false_string get_dcname_request_flags_force_rediscovery = {
+	"FORCE REDISCOVERY of any cached data",
+	"You may return cached data"
+};
+static const true_false_string get_dcname_request_flags_directory_service_required = {
+	"DIRECRTORY SERVICE is REQUIRED on the server",
+	"We do NOT require directory service servers"
+};
+static const true_false_string get_dcname_request_flags_directory_service_preferred = {
+	"DIRECTORY SERVICE servers are PREFERRED",
+	"We do NOT have a preference for directory service servers"
+};
+static const true_false_string get_dcname_request_flags_gc_server_required = {
+	"GC SERVER is REQUIRED",
+	"gc server is NOT required"
+};
+static const true_false_string get_dcname_request_flags_pdc_required = {
+	"PDC SERVER is REQUIRED",
+	"pdc server is NOT required"
+};
+static const true_false_string get_dcname_request_flags_background_only = {
+	"Only returned cahced data, even if it has expired",
+	"Return cached data unless it has expired"
+};
+static const true_false_string get_dcname_request_flags_ip_required = {
+	"IP address is REQUIRED",
+	"ip address is NOT required"
+};
+static const true_false_string get_dcname_request_flags_kdc_required = {
+	"KDC server is REQUIRED",
+	"kdc server is NOT required"
+};
+static const true_false_string get_dcname_request_flags_timeserv_required = {
+	"TIMESERV service is REQUIRED",
+	"timeserv service is NOT required"
+};
+static const true_false_string get_dcname_request_flags_writable_required = {
+	"the requrned dc MUST be WRITEABLE",
+	"a read-only dc may be returned"
+};
+static const true_false_string get_dcname_request_flags_good_timeserv_preferred = {
+	"GOOD TIMESERV servers are PREFERRED",
+	"we do NOT have a preference for good timeserv servers"
+};
+static const true_false_string get_dcname_request_flags_avoid_self = {
+	"do NOT return self as dc, return someone else",
+	"you may return yourSELF as the dc"
+};
+static const true_false_string get_dcname_request_flags_only_ldap_needed = {
+	"we ONLY NEED LDAP, you dont have to return a dc",
+	"we need a normal dc, an ldap only server will not do"
+};
+static const true_false_string get_dcname_request_flags_is_flat_name = {
+	"the name we specify is a NetBIOS name",
+	"the name we specify is NOT a NetBIOS name"
+};
+static const true_false_string get_dcname_request_flags_is_dns_name = {
+	"the name we specify is a DNS name",
+	"ther name we specify is NOT a dns name"
+};
+static const true_false_string get_dcname_request_flags_return_dns_name = {
+	"return a DNS name",
+	"you may return a NON-dns name"
+};
+static const true_false_string get_dcname_request_flags_return_flat_name = {
+	"return a NetBIOS name",
+	"you may return a NON-NetBIOS name"
+};
+static int
+netlogon_dissect_GET_DCNAME_REQUEST_FLAGS(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+			hf_netlogon_get_dcname_request_flags, &mask);
+
+	if(parent_tree){
+		item = proto_tree_add_uint(parent_tree, hf_netlogon_get_dcname_request_flags,
+			tvb, offset-4, 4, mask);
+		tree = proto_item_add_subtree(item, ett_get_dcname_request_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_return_flat_name,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_return_dns_name,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_is_flat_name,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_is_dns_name,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_only_ldap_needed,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_avoid_self,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_good_timeserv_preferred,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_writable_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_timeserv_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_kdc_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_ip_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_background_only,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_pdc_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_gc_server_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_directory_service_preferred,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_directory_service_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_force_rediscovery,
+		tvb, offset-4, 4, mask);
+	
+	return offset;
+}
+
+
+
+#define DS_PDC_FLAG		0x00000001
+#define DS_GC_FLAG		0x00000004
+#define DS_LDAP_FLAG		0x00000008
+#define DS_DS_FLAG		0x00000010
+#define DS_KDC_FLAG		0x00000020
+#define DS_TIMESERV_FLAG	0x00000040
+#define DS_CLOSEST_FLAG		0x00000080
+#define DS_WRITABLE_FLAG	0x00000100
+#define DS_GOOD_TIMESERV_FLAG	0x00000200
+#define DS_NDNC_FLAG		0x00000400
+#define DS_DNS_CONTROLLER_FLAG	0x20000000
+#define DS_DNS_DOMAIN_FLAG	0x40000000
+#define DS_DNS_FOREST_FLAG	0x80000000
+static const true_false_string dc_flags_pdc_flag = {
+	"this is the PDC of the domain",
+	"this is NOT the pdc of the domain"
+};
+static const true_false_string dc_flags_gc_flag = {
+	"this is the GC of the forest",
+	"this is NOT the gc of the forest"
+};
+static const true_false_string dc_flags_ldap_flag = {
+	"this is an LDAP server",
+	"this is NOT an ldap server"
+};
+static const true_false_string dc_flags_ds_flag = {
+	"this is a DS server",
+	"this is NOT a ds server"
+};
+static const true_false_string dc_flags_kdc_flag = {
+	"this is a KDC server",
+	"this is NOT a kdc server"
+};
+static const true_false_string dc_flags_timeserv_flag = {
+	"this is a TIMESERV server",
+	"this is NOT a timeserv server"
+};
+static const true_false_string dc_flags_closest_flag = {
+	"this is the CLOSEST server",
+	"this is NOT the closest server"
+};
+static const true_false_string dc_flags_writable_flag = {
+	"this server has a WRITABLE ds database",
+	"this server has a READ-ONLY ds database"
+};
+static const true_false_string dc_flags_good_timeserv_flag = {
+	"this server is a GOOD TIMESERV server",
+	"this is NOT a good timeserv server"
+};
+static const true_false_string dc_flags_ndnc_flag = {
+	"NDNC is set",
+	"ndnc is NOT set"
+};
+static const true_false_string dc_flags_dns_controller_flag = {
+	"DomainControllerName is a DNS name",
+	"DomainControllerName is NOT a dns name"
+};
+static const true_false_string dc_flags_dns_domain_flag = {
+	"DomainName is a DNS name",
+	"DomainName is NOT a dns name"
+};
+static const true_false_string dc_flags_dns_forest_flag = {
+	"DnsForestName is a DNS name",
+	"DnsForestName is NOT a dns name"
+};
+static int
+netlogon_dissect_DC_FLAGS(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+			hf_netlogon_dc_flags, &mask);
+
+	if(parent_tree){
+		item = proto_tree_add_uint_format(parent_tree, hf_netlogon_dc_flags,
+				tvb, offset-4, 4, mask, "Domain Controller Flags: 0x%08x%s", mask, (mask==0x0000ffff)?"  PING (mask==0x0000ffff)":"");
+		tree = proto_item_add_subtree(item, ett_dc_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_dns_forest_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_dns_domain_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_dns_controller_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_ndnc_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_good_timeserv_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_writable_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_closest_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_timeserv_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_kdc_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_ds_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_ldap_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_gc_flag,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_dc_flags_pdc_flag,
+		tvb, offset-4, 4, mask);
+
+	return offset;
+}
 
 
 
@@ -4161,8 +4555,7 @@ netlogon_dissect_DOMAIN_CONTROLLER_INFO(tvbuff_t *tvb, int offset,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
 		"DNS Forest", hf_netlogon_dns_forest_name, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_flags, NULL);
+	offset = netlogon_dissect_DC_FLAGS(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
@@ -4526,8 +4919,7 @@ netlogon_dissect_DS_DOMAIN_TRUSTS(tvbuff_t *tvb, int offset,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
 		"DNS Domain Name", hf_netlogon_dns_domain_name, 1);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_trust_flags, &tmp);
+	offset = netlogon_dissect_DOMAIN_TRUST_FLAGS(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_trust_parent_index, &tmp);
@@ -5021,8 +5413,7 @@ netlogon_dissect_dsrgetdcname_rqst(tvbuff_t *tvb, int offset,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
 		"Site Name", hf_netlogon_site_name, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_flags, NULL);
+	offset = netlogon_dissect_GET_DCNAME_REQUEST_FLAGS(tvb, offset, pinfo, tree, drep);
 
 	return offset;
 }
@@ -5489,22 +5880,22 @@ netlogon_dissect_logonsamlogonex_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+
 static int
-netlogon_dissect_enumeratetrusteddomains_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_dsenumeratetrusteddomains_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
 		pinfo, tree, drep);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
+	offset = netlogon_dissect_DOMAIN_TRUST_FLAGS(tvb, offset, pinfo, tree, drep);
 
 	return offset;
 }
 
 
 static int
-netlogon_dissect_enumeratetrusteddomains_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_dsenumeratetrusteddomains_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -5680,9 +6071,9 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_LOGONSAMLOGONEX, "LogonSamLogonEx",
 		netlogon_dissect_logonsamlogonex_rqst,
 		netlogon_dissect_logonsamlogonex_reply },
-	{ NETLOGON_ENUMERATETRUSTEDDOMAINS, "EnumerateTrustedDomains",
-		netlogon_dissect_enumeratetrusteddomains_rqst,
-		netlogon_dissect_enumeratetrusteddomains_reply },
+	{ NETLOGON_DSENUMERATETRUSTEDDOMAINS, "DSEnumerateTrustedDomains",
+		netlogon_dissect_dsenumeratetrusteddomains_rqst,
+		netlogon_dissect_dsenumeratetrusteddomains_reply },
 	{ NETLOGON_DSRDEREGISTERDNSHOSTRECORDS, "DsrDeregisterDNSHostRecords",
 		netlogon_dissect_dsrderegisterdnshostrecords_rqst,
 		netlogon_dissect_dsrderegisterdnshostrecords_reply },
@@ -5730,7 +6121,7 @@ static const value_string netlogon_opnum_vals[] = {
 	{ NETLOGON_FUNCTION_25, "Function_0x25" },
 	{ NETLOGON_FUNCTION_26, "Function_0x26" },
 	{ NETLOGON_LOGONSAMLOGONEX, "LogonSamLogonEx" },
-	{ NETLOGON_ENUMERATETRUSTEDDOMAINS, "EnumerateTrustedDomains" },
+	{ NETLOGON_DSENUMERATETRUSTEDDOMAINS, "DSEnumerateTrustedDomains" },
 	{ NETLOGON_DSRDEREGISTERDNSHOSTRECORDS, "DsrDeregisterDNSHostRecords" },
 	{ 0, NULL }
 };
@@ -6003,7 +6394,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_dc_address_type,
 		{ "DC Address Type", "netlogon.dc.address_type", FT_UINT32, BASE_DEC,
-		NULL, 0, "DC Address Type", HFILL }},
+		VALS(dc_address_types), 0, "DC Address Type", HFILL }},
 
 	{ &hf_netlogon_client_site_name,
 		{ "Client Site Name", "netlogon.client.site_name", FT_STRING, BASE_NONE,
@@ -6249,17 +6640,205 @@ static hf_register_info hf[] = {
 		{ "Neg Flags", "netlogon.neg_flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Negotiation Flags", HFILL }},
 
+	{ &hf_netlogon_dc_flags,
+		{ "Flags", "netlogon.dc.flags", FT_UINT32, BASE_HEX,
+		NULL, 0x0, "Domain Controller Flags", HFILL }},
+
+	{ &hf_netlogon_dc_flags_pdc_flag,
+	        { "PDC", "netlogon.dc.flags.pdc",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_pdc_flag), DS_PDC_FLAG,
+		  "If this server is a PDC", HFILL }},
+
+	{ &hf_netlogon_dc_flags_gc_flag,
+	        { "GC", "netlogon.dc.flags.gc",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_gc_flag), DS_GC_FLAG,
+		  "If this server is a GC", HFILL }},
+
+	{ &hf_netlogon_dc_flags_ldap_flag,
+	        { "LDAP", "netlogon.dc.flags.ldap",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_ldap_flag), DS_LDAP_FLAG,
+		  "If this is an LDAP server", HFILL }},
+
+	{ &hf_netlogon_dc_flags_ds_flag,
+	        { "DS", "netlogon.dc.flags.ds",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_ds_flag), DS_DS_FLAG,
+		  "If this server is a DS", HFILL }},
+
+	{ &hf_netlogon_dc_flags_kdc_flag,
+	        { "KDC", "netlogon.dc.flags.kdc",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_kdc_flag), DS_KDC_FLAG,
+		  "If this is a KDC", HFILL }},
+
+	{ &hf_netlogon_dc_flags_timeserv_flag,
+	        { "Timeserv", "netlogon.dc.flags.timeserv",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_timeserv_flag), DS_TIMESERV_FLAG,
+		  "If this server is a TimeServer", HFILL }},
+
+	{ &hf_netlogon_dc_flags_closest_flag,
+	        { "Closest", "netlogon.dc.flags.closest",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_closest_flag), DS_CLOSEST_FLAG,
+		  "If this is the closest server", HFILL }},
+
+	{ &hf_netlogon_dc_flags_writable_flag,
+	        { "Writable", "netlogon.dc.flags.writable",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_writable_flag), DS_WRITABLE_FLAG,
+		  "If this server can do updates to the database", HFILL }},
+
+	{ &hf_netlogon_dc_flags_good_timeserv_flag,
+	        { "Good Timeserv", "netlogon.dc.flags.good_timeserv",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_good_timeserv_flag), DS_GOOD_TIMESERV_FLAG,
+		  "If this is a Good TimeServer", HFILL }},
+
+	{ &hf_netlogon_dc_flags_ndnc_flag,
+	        { "NDNC", "netlogon.dc.flags.ndnc",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_ndnc_flag), DS_NDNC_FLAG,
+		  "If this is an NDNC server", HFILL }},
+
+	{ &hf_netlogon_dc_flags_dns_controller_flag,
+	        { "DNS Controller", "netlogon.dc.flags.dns_controller",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_dns_controller_flag), DS_DNS_CONTROLLER_FLAG,
+		  "If this server is a DNS Controller", HFILL }},
+
+	{ &hf_netlogon_dc_flags_dns_domain_flag,
+	        { "DNS Domain", "netlogon.dc.flags.dns_domain",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_dns_domain_flag), DS_DNS_DOMAIN_FLAG,
+		  "", HFILL }},
+
+	{ &hf_netlogon_dc_flags_dns_forest_flag,
+	        { "DNS Forest", "netlogon.dc.flags.dns_forest",
+		  FT_BOOLEAN, 32, TFS(&dc_flags_dns_forest_flag), DS_DNS_FOREST_FLAG,
+		  "", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags,
+		{ "Flags", "netlogon.get_dcname.request.flags", FT_UINT32, BASE_HEX,
+		NULL, 0x0, "Flags for DSGetDCName request", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_force_rediscovery,
+	        { "Force Rediscovery", "netlogon.get_dcname.request.flags.force_rediscovery",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_force_rediscovery), DS_FORCE_REDISCOVERY,
+		  "Whether to allow the server to returned cached information or not", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_directory_service_required,
+	        { "DS Required", "netlogon.get_dcname.request.flags.ds_required",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_directory_service_required), DS_DIRECTORY_SERVICE_REQUIRED,
+		  "Whether we require that the returned DC supports w2k or not", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_directory_service_preferred,
+	        { "DS Preferred", "netlogon.get_dcname.request.flags.ds_preferred",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_directory_service_preferred), DS_DIRECTORY_SERVICE_PREFERRED,
+		  "Whether we prefer the call to return a w2k server (if available)", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_gc_server_required,
+	        { "GC Required", "netlogon.get_dcname.request.flags.gc_server_required",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_gc_server_required), DS_GC_SERVER_REQUIRED,
+		  "Whether we require that the returned DC is a Global Catalog server", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_pdc_required,
+	        { "PDC Required", "netlogon.get_dcname.request.flags.pdc_required",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_pdc_required), DS_PDC_REQUIRED,
+		  "Whether we require the returned DC to be the PDC", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_background_only,
+	        { "Background Only", "netlogon.get_dcname.request.flags.background_only",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_background_only), DS_BACKGROUND_ONLY,
+		  "If we want cached data, even if it may have expired", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_ip_required,
+	        { "IP Required", "netlogon.get_dcname.request.flags.ip_required",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_ip_required), DS_IP_REQUIRED,
+		  "If we requre the IP of the DC in the reply", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_kdc_required,
+	        { "KDC Required", "netlogon.get_dcname.request.flags.kdc_required",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_kdc_required), DS_KDC_REQUIRED,
+		  "If we require that the returned server is a KDC", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_timeserv_required,
+	        { "Timeserv Required", "netlogon.get_dcname.request.flags.timeserv_required",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_timeserv_required), DS_TIMESERV_REQUIRED,
+		  "If we require the retruned server to be a NTP serveruns WindowsTimeServicer", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_writable_required,
+	        { "Writable Required", "netlogon.get_dcname.request.flags.writable_required",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_writable_required), DS_WRITABLE_REQUIRED,
+		  "If we require that the return server is writable", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_good_timeserv_preferred,
+	        { "Timeserv Preferred", "netlogon.get_dcname.request.flags.good_timeserv_preferred",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_good_timeserv_preferred), DS_GOOD_TIMESERV_PREFERRED,
+		  "If we prefer Windows Time Servers", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_avoid_self,
+	        { "Avoid Self", "netlogon.get_dcname.request.flags.avoid_self",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_avoid_self), DS_AVOID_SELF,
+		  "Return another DC than the one we ask", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_only_ldap_needed,
+	        { "Only LDAP Needed", "netlogon.get_dcname.request.flags.only_ldap_needed",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_only_ldap_needed), DS_ONLY_LDAP_NEEDED,
+		  "We just want an LDAP server, it does not have to be a DC", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_is_flat_name,
+	        { "Is Flat Name", "netlogon.get_dcname.request.flags.is_flat_name",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_is_flat_name), DS_IS_FLAT_NAME,
+		  "If the specified domain name is a NetBIOS name", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_is_dns_name,
+	        { "Is DNS Name", "netlogon.get_dcname.request.flags.is_dns_name",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_is_dns_name), DS_IS_DNS_NAME,
+		  "If the specified domain name is a DNS name", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_return_dns_name,
+	        { "Return DNS Name", "netlogon.get_dcname.request.flags.return_dns_name",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_return_dns_name), DS_RETURN_DNS_NAME,
+		  "Only return a DNS name (or an error)", HFILL }},
+
+	{ &hf_netlogon_get_dcname_request_flags_return_flat_name,
+	        { "Return Flat Name", "netlogon.get_dcname.request.flags.return_flat_name",
+		  FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_return_flat_name), DS_RETURN_FLAT_NAME,
+		  "Only return a NetBIOS name (or an error)", HFILL }},
+
 	{ &hf_netlogon_trust_attribs,
 		{ "Trust Attributes", "netlogon.trust_attribs", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Trust Attributes", HFILL }},
 
 	{ &hf_netlogon_trust_type,
 		{ "Trust Type", "netlogon.trust_type", FT_UINT32, BASE_DEC,
-		NULL, 0x0, "Trust Type", HFILL }},
+		VALS(trust_type_vals), 0x0, "Trust Type", HFILL }},
 
 	{ &hf_netlogon_trust_flags,
 		{ "Trust Flags", "netlogon.trust_flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Trust Flags", HFILL }},
+
+	{ &hf_netlogon_trust_flags_inbound,
+	        { "Inbound Trust", "netlogon.trust.flags.inbound",
+		  FT_BOOLEAN, 32, TFS(&trust_inbound), DS_DOMAIN_DIRECT_INBOUND,
+		  "Inbound trust. Whether the domain directly trusts the queried servers domain", HFILL }},
+
+	{ &hf_netlogon_trust_flags_outbound,
+	        { "Outbound Trust", "netlogon.trust.flags.outbound",
+		  FT_BOOLEAN, 32, TFS(&trust_outbound), DS_DOMAIN_DIRECT_OUTBOUND,
+		  "Outbound Trust. Whether the domain is directly trusted by the servers domain", HFILL }},
+
+	{ &hf_netlogon_trust_flags_in_forest,
+	        { "In Forest", "netlogon.trust.flags.in_forest",
+		  FT_BOOLEAN, 32, TFS(&trust_in_forest), DS_DOMAIN_IN_FOREST,
+		  "Whether this domain is a member of the same forest as the servers domain", HFILL }},
+
+	{ &hf_netlogon_trust_flags_native_mode,
+	        { "Native Mode", "netlogon.trust.flags.native_mode",
+		  FT_BOOLEAN, 32, TFS(&trust_native_mode), DS_DOMAIN_NATIVE_MODE,
+		  "Whether the domain is a w2k native mode domain or not", HFILL }},
+
+	{ &hf_netlogon_trust_flags_primary,
+	        { "Primary", "netlogon.trust.flags.primary",
+		  FT_BOOLEAN, 32, TFS(&trust_primary), DS_DOMAIN_PRIMARY,
+		  "Whether the domain is the primary domain for the queried server or not", HFILL }},
+
+	{ &hf_netlogon_trust_flags_tree_root,
+	        { "Tree Root", "netlogon.trust.flags.tree_root",
+		  FT_BOOLEAN, 32, TFS(&trust_tree_root), DS_DOMAIN_TREE_ROOT,
+		  "Whether the domain is the root of the tree for the queried server", HFILL }},
 
 	{ &hf_netlogon_trust_parent_index,
 		{ "Parent Index", "netlogon.parent_index", FT_UINT32, BASE_HEX,
@@ -6346,7 +6925,10 @@ static hf_register_info hf[] = {
 		&ett_GROUP_MEMBERSHIP,
 		&ett_DS_DOMAIN_TRUSTS,
 		&ett_BLOB,
-		&ett_DOMAIN_TRUST_INFO
+		&ett_DOMAIN_TRUST_INFO,
+		&ett_trust_flags,
+		&ett_get_dcname_request_flags,
+		&ett_dc_flags
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(
