@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.8 2002/05/26 10:51:06 sahlberg Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.9 2002/05/28 11:45:56 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,9 +58,13 @@ static int hf_epm_tower_data = -1;
 static int hf_epm_max_towers = -1;
 static int hf_epm_num_towers = -1;
 static int hf_epm_rc = -1;
+static int hf_epm_tower_num_floors = -1;
+static int hf_epm_tower_rhs_len = -1;
+static int hf_epm_tower_lhs_len = -1;
+static int hf_epm_tower_proto_id = -1;
 
 static gint ett_epm = -1;
-
+static gint ett_epm_tower_floor = -1;
 
 static e_uuid_t uuid_epm = { 0xe1af8308, 0x5d1f, 0x11c9, { 0x91, 0xa4, 0x08, 0x00, 0x2b, 0x14, 0xa0, 0xfa } };
 static guint16  ver_epm = 3;
@@ -130,6 +134,119 @@ epm_dissect_uuid (tvbuff_t *tvb, int offset,
 }
 #endif
 
+
+
+static const value_string proto_id_vals[] = {
+	{ 0x00,	"OSI OID"},
+	{ 0x0d,	"UUID"},
+	{ 0x05,	"OSI TP4"},
+	{ 0x06,	"OSI CLNS or DNA Routing"},
+	{ 0x07,	"DOD TCP"},
+	{ 0x08,	"DOD UDP"},
+	{ 0x09,	"DOD IP"},
+	{ 0x0a,	"RPC connectionless protocol"},
+	{ 0x0b,	"RPC connection-oriented protocol"},
+	{ 0x02,	"DNA Session Control"},
+	{ 0x03,	"DNA Session Control V3"},
+	{ 0x04,	"DNA NSP Transport"},
+	{ 0x10,	"Named Pipes"},
+	{ 0x11,	"NetBIOS"},
+	{ 0x12,	"NetBEUI"},
+	{ 0x13,	"Netware SPX"},
+	{ 0x14,	"Netware IPX"},
+	{ 0x16,	"Appletalk Stream"},
+	{ 0x17,	"Appletalk Datagram"},
+	{ 0x18,	"Appletalk"},
+	{ 0x19,	"NetBIOS"},
+	{ 0x1a,	"Vines SPP"},
+	{ 0x1b,	"Vines IPC"},
+	{ 0x1c,	"StreetTalk"},
+	{ 0x20,	"Unix Domain Socket"},
+	{ 0x21,	"null"},
+	{ 0x22,	"NetBIOS"},
+	{ 0, NULL},
+};
+
+
+/* XXX this function assumes LE encoding. can not use the NDR routines
+   since they assume padding.
+*/ 
+static int
+epm_dissect_tower_data (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+    guint16 num_floors, i;
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+        return offset;
+    }
+
+    num_floors = tvb_get_letohs(tvb, offset);
+    proto_tree_add_uint(tree, hf_epm_tower_num_floors, tvb, offset, 2, num_floors);
+    offset += 2;
+
+    for(i=1;i<=num_floors;i++){
+        proto_item *it = NULL;
+        proto_tree *tr = NULL;
+	int old_offset = offset;
+        guint16 len;
+	guint8 proto_id;
+        e_uuid_t uuid;
+
+        it = proto_tree_add_text(tree, tvb, offset, 0, "Floor %d", i);
+        tr = proto_item_add_subtree(it, ett_epm_tower_floor);
+
+        len = tvb_get_letohs(tvb, offset);
+        proto_tree_add_uint(tr, hf_epm_tower_lhs_len, tvb, offset, 2, len);
+        offset += 2;
+
+        proto_id = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(tr, hf_epm_tower_proto_id, tvb, offset, 1, proto_id);
+        
+        switch(proto_id){
+        case 0x0d: /* UUID */
+            dcerpc_tvb_get_uuid (tvb, offset, drep, &uuid);
+            proto_tree_add_string_format (tr, hf_epm_uuid, tvb, offset, 16, "",
+                          "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                          uuid.Data1, uuid.Data2, uuid.Data3,
+                          uuid.Data4[0], uuid.Data4[1],
+                          uuid.Data4[2], uuid.Data4[3],
+                          uuid.Data4[4], uuid.Data4[5],
+                          uuid.Data4[6], uuid.Data4[7]);
+            proto_tree_add_text(tr, tvb, offset+16, 2, "Version %d.%d", tvb_get_guint8(tvb, offset+17), tvb_get_guint8(tvb, offset+16));
+            break;
+        }
+        offset += len;
+      
+        len = tvb_get_letohs(tvb, offset);
+        proto_tree_add_uint(tr, hf_epm_tower_rhs_len, tvb, offset, 2, len);
+        offset += 2;
+
+        switch(proto_id){
+        case 0x07: /* TCP this one is always big endian */
+            proto_tree_add_text(tr, tvb, offset, 2, "TCP Port: %d", tvb_get_ntohs(tvb, offset));
+            break;
+        case 0x08: /* UDP this one is always big endian */
+            proto_tree_add_text(tr, tvb, offset, 2, "UDP Port: %d", tvb_get_ntohs(tvb, offset));
+            break;
+        case 0x09: /* IP this one is always big endian */
+            proto_tree_add_text(tr, tvb, offset, 4, "IP address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+            break;
+        default:
+            if(len){
+                proto_tree_add_text(tr, tvb, offset, len, "not decoded yet");
+            }
+        }
+        offset += len;
+
+        proto_item_set_len(it, offset-old_offset);
+    }
+    return offset;
+}
+
 /* typedef struct {
       unsigned int tower_len,
       [size_is(tower_len)] char tower[];
@@ -154,8 +271,7 @@ epm_dissect_tower (tvbuff_t *tvb, int offset,
                                  hf_epm_tower_length, &len);
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_tower_length, NULL);
-    proto_tree_add_item(tree, hf_epm_tower_data, tvb, offset, len, FALSE);
-    offset += len;
+    offset = epm_dissect_tower_data(tvb, offset, pinfo, tree, drep);
 
     return offset;
 }
@@ -293,10 +409,19 @@ proto_register_epm (void)
           { "Num Towers", "epm.num_towers", FT_UINT32, BASE_DEC, NULL, 0x0, "Number number of towers to return", HFILL }},
         { &hf_epm_rc,
           { "Return code", "epm.rc", FT_UINT32, BASE_HEX, NULL, 0x0, "EPM return value", HFILL }},
+        { &hf_epm_tower_num_floors,
+          { "Number of floors", "epm.tower.num_floors", FT_UINT16, BASE_DEC, NULL, 0x0, "Number of floors in tower", HFILL }},
+        { &hf_epm_tower_rhs_len,
+          { "RHS Length", "epm.tower.rhs.len", FT_UINT16, BASE_DEC, NULL, 0x0, "Length of RHS data", HFILL }},
+        { &hf_epm_tower_lhs_len,
+          { "LHS Length", "epm.tower.lhs.len", FT_UINT16, BASE_DEC, NULL, 0x0, "Length of LHS data", HFILL }},
+        { &hf_epm_tower_proto_id,
+          { "Protocol", "epm.tower.proto_id", FT_UINT8, BASE_HEX, VALS(proto_id_vals), 0x0, "Protocol identifier", HFILL }},
     };
 
 	static gint *ett[] = {
 		&ett_epm,
+		&ett_epm_tower_floor,
 	};
 	proto_epm = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
 	proto_register_field_array (proto_epm, hf, array_length (hf));
