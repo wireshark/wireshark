@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.104 2003/11/20 05:20:17 guy Exp $
+ * $Id: proto.c,v 1.105 2003/11/21 14:58:49 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -163,7 +163,12 @@ static GMemChunk *gmc_proto_node = NULL;
 static GMemChunk *gmc_item_labels = NULL;
 
 /* List which stores protocols and fields that have been registered */
-static GPtrArray *gpa_hfinfo = NULL;
+typedef struct _gpa_hfinfo_t {
+	guint32 len;
+	guint32 allocated_len;
+	header_field_info **hfi;
+} gpa_hfinfo_t;
+gpa_hfinfo_t gpa_hfinfo;
 
 /* Balanced tree of abbreviations and IDs */
 static GTree *gpa_name_tree = NULL;
@@ -214,7 +219,9 @@ proto_init(const char *plugin_dir
         INITIAL_NUM_ITEM_LABEL* ITEM_LABEL_LENGTH,
 		G_ALLOC_AND_FREE);
 
-	gpa_hfinfo = g_ptr_array_new();
+	gpa_hfinfo.len=0;
+	gpa_hfinfo.allocated_len=0;
+	gpa_hfinfo.hfi=NULL;
 	gpa_name_tree = g_tree_new(g_strcmp);
 
 	/* Initialize the ftype subsystem */
@@ -278,8 +285,12 @@ proto_cleanup(void)
 		g_mem_chunk_destroy(gmc_proto_node);
 	if (gmc_item_labels)
 		g_mem_chunk_destroy(gmc_item_labels);
-	if (gpa_hfinfo)
-		g_ptr_array_free(gpa_hfinfo, TRUE);
+	if(gpa_hfinfo.allocated_len){
+		gpa_hfinfo.len=0;
+		gpa_hfinfo.allocated_len=0;
+		g_free(gpa_hfinfo.hfi);
+		gpa_hfinfo.hfi=NULL;
+	}
 	if (tree_is_expanded != NULL)
 		g_free(tree_is_expanded);
 
@@ -372,10 +383,10 @@ proto_tree_set_visible(proto_tree *tree, gboolean visible)
 
 /* Finds a record in the hf_info_records array by id. */
 header_field_info*
-proto_registrar_get_nth(int hfindex)
+proto_registrar_get_nth(guint hfindex)
 {
-	g_assert(hfindex >= 0 && (guint) hfindex < gpa_hfinfo->len);
-	return g_ptr_array_index(gpa_hfinfo, hfindex);
+	g_assert(hfindex < gpa_hfinfo.len);
+	return gpa_hfinfo.hfi[hfindex];		
 }
 
 /* Finds a record in the hf_info_records array by name.
@@ -1796,9 +1807,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	 */
 	g_assert(tvb != NULL || *length == 0);
 
-	g_assert(hfindex >= 0 && (guint) hfindex < gpa_hfinfo->len);
 	hfinfo = proto_registrar_get_nth(hfindex);
-	g_assert(hfinfo != NULL);
 
 	if (*length == -1) {
 		/*
@@ -2384,8 +2393,18 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	hfinfo->same_name_prev = NULL;
 
 	/* if we always add and never delete, then id == len - 1 is correct */
-	g_ptr_array_add(gpa_hfinfo, hfinfo);
-	hfinfo->id = gpa_hfinfo->len - 1;
+	if(gpa_hfinfo.len>=gpa_hfinfo.allocated_len){
+		if(!gpa_hfinfo.hfi){
+			gpa_hfinfo.allocated_len=1000;
+			gpa_hfinfo.hfi=g_malloc(sizeof(header_field_info *)*1000);
+		} else {
+			gpa_hfinfo.allocated_len+=1000;
+			gpa_hfinfo.hfi=g_realloc(gpa_hfinfo.hfi, sizeof(header_field_info *)*gpa_hfinfo.allocated_len);
+		}
+	}
+	gpa_hfinfo.hfi[gpa_hfinfo.len]=hfinfo;
+	gpa_hfinfo.len++;
+	hfinfo->id = gpa_hfinfo.len - 1;
 
 	/* if we have real names, enter this field in the name tree */
 	if ((hfinfo->name[0] != 0) && (hfinfo->abbrev[0] != 0 )) {
@@ -3096,7 +3115,7 @@ hfinfo_int_format(header_field_info *hfinfo)
 int
 proto_registrar_n(void)
 {
-	return gpa_hfinfo->len;
+	return gpa_hfinfo.len;
 }
 
 char*
@@ -3308,7 +3327,7 @@ proto_registrar_dump_fields(void)
 	int			i, len;
 	const char 		*enum_name;
 
-	len = gpa_hfinfo->len;
+	len = gpa_hfinfo.len;
 	for (i = 0; i < len ; i++) {
 		hfinfo = proto_registrar_get_nth(i);
 

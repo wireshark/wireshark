@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.43 2003/11/16 23:17:25 guy Exp $
+ * $Id: proto.h,v 1.44 2003/11/21 14:58:49 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -526,7 +526,7 @@ extern char* proto_registrar_get_name(int n);
 extern char* proto_registrar_get_abbrev(int n);
 
 /* get the header field information based upon a field or protocol id */
-extern header_field_info* proto_registrar_get_nth(int hfindex);
+extern header_field_info* proto_registrar_get_nth(guint hfindex);
 
 /* get the header field information based upon a field name */
 extern header_field_info* proto_registrar_get_byname(char *field_name);
