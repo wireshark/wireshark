@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.61 2000/05/19 04:54:33 gram Exp $
+ * $Id: packet-llc.c,v 1.62 2000/05/28 21:21:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -327,9 +327,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * than overwriting it?
 	 */
 	if (is_snap) {
-		oui =	tvb_get_guint8(tvb, 3) << 16 |
-			tvb_get_guint8(tvb, 4) << 8  |
-			tvb_get_guint8(tvb, 5);
+		oui =	tvb_get_ntoh24(tvb, 3);
 		etype = tvb_get_ntohs(tvb, 6);
 
 		if (check_col(pinfo->fd, COL_INFO)) {
