@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.16 2001/07/12 08:16:44 guy Exp $
+ * $Id: editcap.c,v 1.17 2001/07/13 07:55:13 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -216,21 +216,38 @@ set_time_adjustment(char *optarg)
   if (!optarg)
     return;
 
-  /* first collect the whole seconds */
-  val = strtol(optarg, &frac, 10);
-  if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
-    fprintf(stderr, "editcap: \"%s\" is not a valid time adjustment\n",
-            optarg);
-    exit(1);
+  /* skip leading whitespace */
+  while (*optarg == ' ' || *optarg == '\t') {
+      optarg++;
   }
-  if (val < 0) {
-    time_adj.is_negative = 1;
-    val = -val;
+
+  /* check for a negative adjustment */
+  if (*optarg == '-') {
+      time_adj.is_negative = 1;
+      optarg++;
+  }
+
+  /* collect whole number of seconds, if any */
+  if (*optarg == '.') {         /* only fractional (i.e., .5 is ok) */
+      val  = 0;
+      frac = optarg;
+  } else {
+      val = strtol(optarg, &frac, 10);
+      if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
+          fprintf(stderr, "editcap: \"%s\" is not a valid time adjustment\n",
+                  optarg);
+          exit(1);
+      }
+      if (val < 0) {            /* implies '--' since we caught '-' above  */
+          fprintf(stderr, "editcap: \"%s\" is not a valid time adjustment\n",
+                  optarg);
+          exit(1);
+      }
   }
   time_adj.tv.tv_sec = val;
 
   /* now collect the partial seconds, if any */
-  if (*frac != '\0') {             /* have more to string, so more to */
+  if (*frac != '\0') {             /* chars left, so get fractional part */
     val = strtol(&(frac[1]), &end, 10);
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
@@ -261,7 +278,8 @@ void usage()
   const char *string;
 
   fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-F <capture type>]\n");
-  fprintf(stderr, "               [-s <snaplen>] <infile> <outfile> [ <record#>[-<record#>] ... ]\n");
+  fprintf(stderr, "               [-s <snaplen>] [-t <time adjustment\n");
+  fprintf(stderr, "               <infile> <outfile> [ <record#>[-<record#>] ... ]\n");
   fprintf(stderr, "  where\t-r specifies that the records specified should be kept, not deleted, \n");
   fprintf(stderr, "                           default is to delete\n");
   fprintf(stderr, "       \t-v specifies verbose operation, default is silent\n");
