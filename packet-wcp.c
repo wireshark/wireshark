@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.1 2001/03/23 19:22:02 jfoster Exp $
+ * $Id: packet-wcp.c,v 1.2 2001/03/23 20:47:17 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -530,24 +530,28 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 					dst = decompressed_entry( src, dst, &len, buf_start, buf_end);
 				}
 				if ((*src & 0xf0) == 0x10){
-					ti = proto_tree_add_item( tree, hf_wcp_long_run, src_tvb,
+					if ( tree) {
+						ti = proto_tree_add_item( tree, hf_wcp_long_run, src_tvb,
 							 offset-1, 3, 0);
-					sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
-					proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
+						sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
+						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
 							 offset-1, 2, pntohs(src));
 
-					proto_tree_add_item( sub_tree, hf_wcp_long_len, src_tvb,
+						proto_tree_add_item( sub_tree, hf_wcp_long_len, src_tvb,
 							 offset+1, 1, pntohs(src));
+					}
 					src += 3;
 					offset += 2;
 				}else{
-					ti = proto_tree_add_item( tree, hf_wcp_short_run, src_tvb,
+					if ( tree) {
+						ti = proto_tree_add_item( tree, hf_wcp_short_run, src_tvb,
 							 offset - 1, 2, *src);
-					sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
-					proto_tree_add_item( sub_tree, hf_wcp_short_len, src_tvb,
+						sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
+						proto_tree_add_item( sub_tree, hf_wcp_short_len, src_tvb,
 							 offset-1, 1, *src);
-					proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
+						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
 							 offset-1, 2, pntohs(src));
+					}
 					src += 2;
 					offset += 1;
 				}
@@ -571,7 +575,9 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		}else {	/* compressed data flag */
 
 			comp_flag_bits = *src++;
-			proto_tree_add_uint( tree, hf_wcp_comp_bits,  src_tvb, offset-1, 1, comp_flag_bits);
+			if (tree)
+				proto_tree_add_uint( tree, hf_wcp_comp_bits,  src_tvb, offset-1, 1,
+					comp_flag_bits);
 				
 			i = 8;
 		}
