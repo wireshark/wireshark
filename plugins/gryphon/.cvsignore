@@ -11,3 +11,8 @@ configure
 gryphon.la
 packet-gryphon.lo
 stamp-h
+*.obj
+*.dll
+*.exp
+*.lib
+*.pdb

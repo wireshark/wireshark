@@ -13,3 +13,6 @@ ascend-grammar.c
 ascend-grammar.h
 ascend-scanner.c
 config.cache
+*.obj
+*.lib
+*.pdb

@@ -38,3 +38,9 @@ tethereal.1
 .*.swp
 etherXXXX*
 *.tgz
+*.obj
+*.exe
+*.lib
+*.pdb
+*.ilk
+*.opt
