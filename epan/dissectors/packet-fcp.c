@@ -245,6 +245,7 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fcp_conv_data_t *cdata;
     fcp_conv_key_t ckey, *req_key;
     scsi_task_id_t task_key;
+    guint16 lun=0xffff;
 
     /* Determine the length of the FCP part of the packet */
     flags = tvb_get_guint8 (tvb, offset+10);
@@ -299,47 +300,53 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_hash_table_insert (fcp_req_hash, req_key, cdata);
     }
     
+    /* XXX this one is redundant  right?  ronnie
     dissect_scsi_cdb (tvb, pinfo, fcp_tree, offset+12, 16+add_len,
-                      SCSI_DEV_UNKNOWN);
+                      SCSI_DEV_UNKNOWN, lun);
+    */
 
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_fcp, tvb, 0, len,
                                              "FCP_CMND");
         fcp_tree = proto_item_add_subtree (ti, ett_fcp);
-        proto_tree_add_uint_hidden (fcp_tree, hf_fcp_type, tvb, offset, 0, 0);
-                                    
-        lun0 = tvb_get_guint8 (tvb, offset);
-
-        /* Display single-level LUNs in decimal for clarity */
-        /* I'm taking a shortcut here by assuming that if the first byte of the
-         * LUN field is 0, it is a single-level LUN. This is not true. For a
-         * real single-level LUN, all 8 bytes except byte 1 must be 0.
-         */
-        if (lun0) {
-            cdata->fcp_lun = -1;
-            proto_tree_add_item (fcp_tree, hf_fcp_multilun, tvb, offset, 8, 0);
-        }
-        else {
-            cdata->fcp_lun = tvb_get_guint8 (tvb, offset+1);
-            proto_tree_add_item (fcp_tree, hf_fcp_singlelun, tvb, offset+1,
-                                 1, 0);
-        }
-
-        proto_tree_add_item (fcp_tree, hf_fcp_crn, tvb, offset+8, 1, 0);
-        proto_tree_add_item (fcp_tree, hf_fcp_taskattr, tvb, offset+9, 1, 0);
-        proto_tree_add_uint_format (fcp_tree, hf_fcp_taskmgmt, tvb, offset+10,
-                                    1, flags,
-                                    "Task Management Flags: 0x%x (%s)",
-                                    flags,
-                                    task_mgmt_flags_to_str (flags, str));
-        proto_tree_add_item (fcp_tree, hf_fcp_addlcdblen, tvb, offset+11, 1, 0);
-        proto_tree_add_item (fcp_tree, hf_fcp_rddata, tvb, offset+11, 1, 0);
-        proto_tree_add_item (fcp_tree, hf_fcp_wrdata, tvb, offset+11, 1, 0);
-        dissect_scsi_cdb (tvb, pinfo, tree, offset+12, 16+add_len,
-                          SCSI_DEV_UNKNOWN);
-        proto_tree_add_item (fcp_tree, hf_fcp_dl, tvb, offset+12+16+add_len,
-                             4, 0);
+    }    
+    proto_tree_add_uint_hidden (fcp_tree, hf_fcp_type, tvb, offset, 0, 0);
+    
+    lun0 = tvb_get_guint8 (tvb, offset);
+    
+    /* Display single-level LUNs in decimal for clarity */
+    /* I'm taking a shortcut here by assuming that if the first byte of the
+     * LUN field is 0, it is a single-level LUN. This is not true. For a
+     * real single-level LUN, all 8 bytes except byte 1 must be 0.
+     */
+    if (lun0) {
+      cdata->fcp_lun = -1;
+      proto_tree_add_item (fcp_tree, hf_fcp_multilun, tvb, offset, 8, 0);
+      lun=tvb_get_guint8(tvb, offset)&0x3f;
+      lun<<=8;
+      lun|=tvb_get_guint8(tvb, offset+1);
     }
+    else {
+      cdata->fcp_lun = tvb_get_guint8 (tvb, offset+1);
+      proto_tree_add_item (fcp_tree, hf_fcp_singlelun, tvb, offset+1,
+			   1, 0);
+      lun=tvb_get_guint8(tvb, offset+1);
+    }
+
+    proto_tree_add_item (fcp_tree, hf_fcp_crn, tvb, offset+8, 1, 0);
+    proto_tree_add_item (fcp_tree, hf_fcp_taskattr, tvb, offset+9, 1, 0);
+    proto_tree_add_uint_format (fcp_tree, hf_fcp_taskmgmt, tvb, offset+10,
+				1, flags,
+				"Task Management Flags: 0x%x (%s)",
+				flags,
+				task_mgmt_flags_to_str (flags, str));
+    proto_tree_add_item (fcp_tree, hf_fcp_addlcdblen, tvb, offset+11, 1, 0);
+    proto_tree_add_item (fcp_tree, hf_fcp_rddata, tvb, offset+11, 1, 0);
+    proto_tree_add_item (fcp_tree, hf_fcp_wrdata, tvb, offset+11, 1, 0);
+    dissect_scsi_cdb (tvb, pinfo, tree, offset+12, 16+add_len,
+		      SCSI_DEV_UNKNOWN, lun);
+    proto_tree_add_item (fcp_tree, hf_fcp_dl, tvb, offset+12+16+add_len,
+			 4, 0);
 }
 
 static void
@@ -377,10 +384,10 @@ dissect_fcp_data (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint_hidden (fcp_tree, hf_fcp_singlelun, tvb,
                                         0, 0, cdata->fcp_lun);
 
-        dissect_scsi_payload (tvb, pinfo, tree, 0, FALSE, cdata->fcp_dl);
+        dissect_scsi_payload (tvb, pinfo, tree, 0, FALSE, cdata->fcp_dl, cdata->fcp_lun);
     }
     else {
-        dissect_scsi_payload (tvb, pinfo, tree, 0, FALSE, 0);
+        dissect_scsi_payload (tvb, pinfo, tree, 0, FALSE, 0, 0xffff);
     }
 }
 
@@ -472,7 +479,8 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         if (flags & 0x2) {
             dissect_scsi_snsinfo (tvb, pinfo, tree, offset+24+rsplen,
-                                  tvb_get_ntohl (tvb, offset+16));
+                                  tvb_get_ntohl (tvb, offset+16), 
+				  cdata?cdata->fcp_lun:0xffff);
         }
         if (cdata) {
             g_mem_chunk_free (fcp_req_vals, cdata);

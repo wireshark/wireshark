@@ -38,20 +38,21 @@
  * There are four main routines that are provided:
  * o dissect_scsi_cdb - invoked on receiving a SCSI Command
  *   void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *, guint,
- *   guint);
+ *   guint, guint16);
  * o dissect_scsi_payload - invoked to decode SCSI responses
  *   void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *, guint,
- *                              gboolean, guint32);
+ *                              gboolean, guint32, guint16);
  *   The final parameter is the length of the response field that is negotiated
  *   as part of the SCSI transport layer. If this is not tracked by the
  *   transport, it can be set to 0.
  * o dissect_scsi_rsp - invoked to destroy the data structures associated with a
  *                      SCSI task.
- *   void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *);
+ *   void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *, guint16, 
+ *                          guint8);
  * o dissect_scsi_snsinfo - invoked to decode the sense data provided in case of
  *                          an error.
  *   void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint,
- *   guint);
+ *   guint, guint16);
  *
  * In addition to this, the other requirement made from the transport is to
  * provide a unique way to determine a SCSI task. In Fibre Channel networks,
@@ -87,6 +88,8 @@
 #include "packet-scsi.h"
 
 static int proto_scsi                    = -1;
+static int hf_scsi_lun                   = -1;
+static int hf_scsi_status                = -1;
 static int hf_scsi_spcopcode             = -1;
 static int hf_scsi_sbcopcode             = -1;
 static int hf_scsi_sscopcode             = -1;
@@ -4250,23 +4253,38 @@ dissect_scsi_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 void
-dissect_scsi_rsp (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
-                  proto_tree *tree _U_)
+dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo _U_,
+                  proto_tree *tree, guint16 lun, guint8 scsi_status)
 {
-    /* Nothing to do here, just blow up the data structures for this SCSI
-     * transaction
-    if (tree)
-        scsi_end_task (pinfo);
+    proto_item *ti;
+    proto_tree *scsi_tree = NULL;
+
+    /* Nothing really to do here, just print some stuff passed to us
+     * and blow up the data structures for this SCSI task.
      */
+    if (tree) {
+        ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, 0,
+                                             0, "SCSI Response");
+        scsi_tree = proto_item_add_subtree (ti, ett_scsi);
+
+	ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
+	PROTO_ITEM_SET_GENERATED(ti);
+	ti=proto_tree_add_uint(scsi_tree, hf_scsi_status, tvb, 0, 0, scsi_status);
+	PROTO_ITEM_SET_GENERATED(ti);
+    }
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+         col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: Response LUN:0x%02x (%s)", lun, val_to_str(scsi_status, scsi_status_val, "Unknown (0x%08x)"));
+     }
+
 }
 
 void
 dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      guint offset, guint snslen)
+                      guint offset, guint snslen, guint16 lun)
 {
     guint8 flags;
     proto_item *ti;
-    proto_tree *sns_tree;
+    proto_tree *sns_tree=NULL;
 
     scsi_end_task (pinfo);
 
@@ -4274,37 +4292,45 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
                                              snslen, "SCSI: SNS Info");
         sns_tree = proto_item_add_subtree (ti, ett_scsi);
+    }
 
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (sns_tree, tvb, offset, 1, "Valid: %u",
-                             (flags & 0x80) >> 7);
-        proto_tree_add_item (sns_tree, hf_scsi_sns_errtype, tvb, offset, 1, 0);
-        flags = tvb_get_guint8 (tvb, offset+2);
-        proto_tree_add_text (sns_tree, tvb, offset+2, 1,
+
+    ti=proto_tree_add_uint(sns_tree, hf_scsi_lun, tvb, 0, 0, lun);
+    PROTO_ITEM_SET_GENERATED(ti);
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+         col_append_fstr (pinfo->cinfo, COL_INFO, " LUN:0x%02x ", lun);
+    }
+
+
+    flags = tvb_get_guint8 (tvb, offset);
+    proto_tree_add_text (sns_tree, tvb, offset, 1, "Valid: %u",
+                         (flags & 0x80) >> 7);
+    proto_tree_add_item (sns_tree, hf_scsi_sns_errtype, tvb, offset, 1, 0);
+    flags = tvb_get_guint8 (tvb, offset+2);
+    proto_tree_add_text (sns_tree, tvb, offset+2, 1,
                              "Filemark: %u, EOM: %u, ILI: %u",
                              (flags & 0x80) >> 7, (flags & 0x40) >> 6,
                              (flags & 0x20) >> 5);
-        proto_tree_add_item (sns_tree, hf_scsi_snskey, tvb, offset+2, 1, 0);
-        proto_tree_add_item (sns_tree, hf_scsi_snsinfo, tvb, offset+3, 4, 0);
-        proto_tree_add_item (sns_tree, hf_scsi_addlsnslen, tvb, offset+7, 1, 0);
-        proto_tree_add_text (sns_tree, tvb, offset+8, 4,
+    proto_tree_add_item (sns_tree, hf_scsi_snskey, tvb, offset+2, 1, 0);
+    proto_tree_add_item (sns_tree, hf_scsi_snsinfo, tvb, offset+3, 4, 0);
+    proto_tree_add_item (sns_tree, hf_scsi_addlsnslen, tvb, offset+7, 1, 0);
+    proto_tree_add_text (sns_tree, tvb, offset+8, 4,
                              "Command-Specific Information: %s",
                              tvb_bytes_to_str (tvb, offset+8, 4));
-        proto_tree_add_item (sns_tree, hf_scsi_ascascq, tvb, offset+12, 2, 0);
-        proto_tree_add_item_hidden (sns_tree, hf_scsi_asc, tvb, offset+12, 1, 0);
-        proto_tree_add_item_hidden (sns_tree, hf_scsi_ascq, tvb, offset+13,
+    proto_tree_add_item (sns_tree, hf_scsi_ascascq, tvb, offset+12, 2, 0);
+    proto_tree_add_item_hidden (sns_tree, hf_scsi_asc, tvb, offset+12, 1, 0);
+    proto_tree_add_item_hidden (sns_tree, hf_scsi_ascq, tvb, offset+13,
                                     1, 0);
-        proto_tree_add_item (sns_tree, hf_scsi_fru, tvb, offset+14, 1, 0);
-        proto_tree_add_item (sns_tree, hf_scsi_sksv, tvb, offset+15, 1, 0);
-        proto_tree_add_text (sns_tree, tvb, offset+15, 3,
+    proto_tree_add_item (sns_tree, hf_scsi_fru, tvb, offset+14, 1, 0);
+    proto_tree_add_item (sns_tree, hf_scsi_sksv, tvb, offset+15, 1, 0);
+    proto_tree_add_text (sns_tree, tvb, offset+15, 3,
                              "Sense Key Specific: %s",
                              tvb_bytes_to_str (tvb, offset+15, 3));
-    }
 }
 
 void
 dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  guint start, guint cdblen, gint devtype_arg)
+                  guint start, guint cdblen, gint devtype_arg, guint16 lun)
 {
     int offset = start;
     proto_item *ti;
@@ -4380,12 +4406,12 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (valstr != NULL) {
         if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: %s", valstr);
+            col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: %s LUN:0x%02x ", valstr, lun);
         }
     }
     else {
         if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI Command: 0x%02x", opcode);
+            col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI Command: 0x%02x LUN:0x%02x ", opcode, lun);
         }
     }
 
@@ -4401,6 +4427,10 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, start,
                                              cdblen, "SCSI CDB");
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
+
+	ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
+	PROTO_ITEM_SET_GENERATED(ti);
+	
 
         if (valstr != NULL) {
             if (cmd == SCSI_CMND_SPC2) {
@@ -4707,7 +4737,8 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 void
 dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      guint offset, gboolean isreq, guint32 payload_len)
+                      guint offset, gboolean isreq, guint32 payload_len,
+		      guint16 lun)
 {
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
@@ -4739,6 +4770,14 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                              scsi_spc2_val,
                                                              "0x%02x"),
                                                  isreq ? "Request" : "Response");
+	    if (check_col (pinfo->cinfo, COL_INFO)) {
+	      col_add_fstr (pinfo->cinfo, COL_INFO, 
+			    "SCSI: Data %s LUN:0x%02x (%s %s) ", 
+			    isreq ? "Out" : "In", 
+			    lun, 
+			    val_to_str (opcode, scsi_spc2_val, "0x%02x"),
+			    isreq ? "Request" : "Response");
+	    }
             break;
 
         case SCSI_CMND_SBC2:
@@ -4749,6 +4788,14 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                              scsi_sbc2_val,
                                                              "0x%02x"),
                                                  isreq ? "Request" : "Response");
+	    if (check_col (pinfo->cinfo, COL_INFO)) {
+	      col_add_fstr (pinfo->cinfo, COL_INFO, 
+			    "SCSI: Data %s LUN:0x%02x (%s %s) ", 
+			    isreq ? "Out" : "In", 
+			    lun, 
+			    val_to_str (opcode, scsi_sbc2_val, "0x%02x"),
+			    isreq ? "Request" : "Response");
+	    }
             break;
 
         case SCSI_CMND_SSC2:
@@ -4759,6 +4806,14 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                              scsi_ssc2_val,
                                                              "0x%02x"),
                                                  isreq ? "Request" : "Response");
+	    if (check_col (pinfo->cinfo, COL_INFO)) {
+	      col_add_fstr (pinfo->cinfo, COL_INFO, 
+			    "SCSI: Data %s LUN:0x%02x (%s %s) ", 
+			    isreq ? "Out" : "In", 
+			    lun, 
+			    val_to_str (opcode, scsi_ssc2_val, "0x%02x"),
+			    isreq ? "Request" : "Response");
+	    }
             break;
 
         case SCSI_CMND_SMC2:
@@ -4769,6 +4824,14 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                              scsi_smc2_val,
                                                              "0x%02x"),
                                                  isreq ? "Request" : "Response");
+	    if (check_col (pinfo->cinfo, COL_INFO)) {
+	      col_add_fstr (pinfo->cinfo, COL_INFO, 
+			    "SCSI: Data %s LUN:0x%02x (%s %s) ", 
+			    isreq ? "Out" : "In", 
+			    lun, 
+			    val_to_str (opcode, scsi_smc2_val, "0x%02x"),
+			    isreq ? "Request" : "Response");
+	    }
             break;
 
         default:
@@ -4781,6 +4844,11 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
+    }
+
+    if(tree){
+	ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
+	PROTO_ITEM_SET_GENERATED(ti);
     }
 
     if (tree == NULL) {
@@ -5051,6 +5119,14 @@ proto_register_scsi (void)
 {
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
+	/*16 bit to print something useful for weirdo 
+		volume set addressing hosts*/
+       { &hf_scsi_lun,	
+          {"LUN", "scsi.lun", FT_UINT16, BASE_HEX, 
+           NULL, 0x0, "LUN", HFILL}},
+	{ &hf_scsi_status,
+	  { "Status", "scsi.status", FT_UINT8, BASE_HEX, 
+	   VALS(scsi_status_val), 0, "SCSI command status value", HFILL }},
         { &hf_scsi_spcopcode,
           {"SPC-2 Opcode", "scsi.spc.opcode", FT_UINT8, BASE_HEX,
            VALS (scsi_spc2_val), 0x0, "", HFILL}},

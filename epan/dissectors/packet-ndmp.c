@@ -1,3 +1,6 @@
+/* TODO: fixup LUN tracking so we can pass the proper LUN across to
+   dissect_scsi_xxx()
+*/
 /* packet-ndmp.c
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
@@ -1099,7 +1102,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset += 4;
 
 	if (cdb_len != 0) {
-		dissect_scsi_cdb(tvb, pinfo, tree, offset, cdb_len, devtype);
+		dissect_scsi_cdb(tvb, pinfo, tree, offset, cdb_len, devtype, 0xffff);
 		offset += cdb_len_full;
 	}
 
@@ -1131,7 +1134,7 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 	if (payload_len != 0) {
 		dissect_scsi_payload(tvb, pinfo, tree, offset, isreq,
-		    payload_len);
+		    payload_len, 0xffff);
 		offset += payload_len_full;
 	}
 
@@ -1235,7 +1238,7 @@ dissect_execute_cdb_sns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	offset += 4;
 
 	if (sns_len != 0) {
-		dissect_scsi_snsinfo(tvb, pinfo, tree, offset, sns_len);
+		dissect_scsi_snsinfo(tvb, pinfo, tree, offset, sns_len, 0xffff);
 		offset += sns_len_full;
 	}
 

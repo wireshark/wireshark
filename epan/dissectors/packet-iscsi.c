@@ -859,6 +859,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     iscsi_conv_data_t *cdata = NULL;
     scsi_task_id_t task_key;
     int paddedDataSegmentLength = data_segment_len;
+    guint16 lun=0xffff;
+
     if(paddedDataSegmentLength & 3)
 	paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
 
@@ -1067,6 +1069,22 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_boolean(ti, hf_iscsi_I, tvb, offset + 0, 1, b);
     }
 
+    /* we need the LUN value for some of the commands so we can pass it
+       across to the SCSI dissector.
+       Not correct but simple  and probably accurate enough :
+       If bit 6 of first bit is 0   then just take second byte as the LUN
+       If bit 6 of first bit is 1, then take 6 bits from first byte
+           and all of second byte and pretend it is the lun value
+	   people that care can add host specific dissection of vsa later.
+    */
+    if(tvb_get_guint8(tvb, offset+8)&0x40){
+      /* volume set addressing */
+      lun=tvb_get_guint8(tvb,offset+8)&0x3f;
+      lun<<=8;
+      lun|=tvb_get_guint8(tvb,offset+9);
+    } else {
+      lun=tvb_get_guint8(tvb,offset+9);
+    }
 
     if(opcode == ISCSI_OPCODE_NOP_OUT) {
 	    /* NOP Out */
@@ -1653,7 +1671,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		  ~(X_BIT | I_BIT) :
 		  ~I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
         /* SCSI Command */
-        dissect_scsi_cdb (tvb, pinfo, tree, cdb_offset, 16, SCSI_DEV_UNKNOWN);
+        dissect_scsi_cdb (tvb, pinfo, tree, cdb_offset, 16, SCSI_DEV_UNKNOWN, lun);
     }
     else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
         if (scsi_status == 0x2) {
@@ -1667,18 +1685,21 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		if(senseLen > 0)
 		    dissect_scsi_snsinfo (tvb, pinfo, tree, offset,
 					  iscsi_min (senseLen,
-						     end_offset-offset));
+						     end_offset-offset),
+					  lun);
 	    }
         }
         else {
-            dissect_scsi_rsp (tvb, pinfo, tree);
+            dissect_scsi_rsp (tvb, pinfo, tree, lun, scsi_status);
         }
     }
     else if ((opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
              (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
         /* offset is setup correctly by the iscsi code for response above */
-        dissect_scsi_payload (tvb, pinfo, tree, offset, FALSE,
-                              iscsi_min (data_segment_len, end_offset-offset));
+        dissect_scsi_payload (tvb, pinfo, tree, offset, 
+			      (opcode==ISCSI_OPCODE_SCSI_DATA_OUT),
+                              iscsi_min (data_segment_len, end_offset-offset),
+			      lun);
     }
 }
 
