@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.98 2002/10/23 18:24:04 guy Exp $
+ * $Id: packet-snmp.c,v 1.99 2002/10/24 06:39:09 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,7 @@
 # include <net-snmp/net-snmp-config.h>
 # include <net-snmp/mib_api.h>
 # include <net-snmp/library/default_store.h>
-#else
+#elif defined(HAVE_UCD_SNMP)
 # include <ucd-snmp/ucd-snmp-config.h>
 # include <ucd-snmp/asn1.h>
 # include <ucd-snmp/snmp_api.h>
