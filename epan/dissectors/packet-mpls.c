@@ -268,6 +268,7 @@ proto_register_mpls(void)
 	    "MPLS", "mpls");
 	proto_register_field_array(proto_mpls, mplsf_info, array_length(mplsf_info));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("mpls", dissect_mpls, proto_mpls);
 }
 
 void

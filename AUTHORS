@@ -2150,6 +2150,8 @@ Carlos Pignataro        <cpignata [AT] cisco.com> {
 	MP-BGP Updates
 	BGPv4 SAFI-Specific Attribute support
 	Tunnel SAFI support for BGP
+	Layer Two Tunneling Protocol version 3
+	    [L2TPv3] updates and enhancements
 }
 
 Thomas Anders           <thomas.anders [AT] blue-cable.de> {
