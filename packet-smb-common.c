@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.5 2001/07/08 11:32:02 guy Exp $
+ * $Id: packet-smb-common.c,v 1.6 2001/07/08 19:26:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,12 +34,27 @@ int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
 	/* display a string from the tree and return the new offset */
 
-	/* XXX - should use tvbuff routines to extract string length */
-	str = tvb_get_ptr(tvb, offset, 1);
-	len = strlen(str);
+	len = tvb_strnlen(tvb, offset, -1);
+	if (len == -1) {
+		/*
+		 * XXX - throw an exception?
+		 */
+		len = tvb_length_remaining(tvb, offset);
+	}
+	str = g_malloc(len+1);
+	tvb_memcpy(tvb, (guint8 *)str, offset, len);
+	str[len] = '\0';
   	
-	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
+	proto_tree_add_string(tree, hf_index, tvb, offset, len+1, str);
 	
+	/*
+	 * XXX - "proto_tree_add_string()" mallocates a copy; it'd
+	 * be nice not to have it copy the string, but just to
+	 * make it the value, avoiding both the copy and the free
+	 * on the next line.
+	 */
+	g_free(str);
+
 	return 	offset+len+1;
 }
 
