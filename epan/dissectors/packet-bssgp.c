@@ -1194,7 +1194,8 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 ODD = 1;
   proto_item *ti = NULL, *pi;
   proto_tree *tf = NULL;
-  guint8 data, odd_even, type, num_digits, i, hf_id;
+  guint8 data, odd_even, type, num_digits, i;
+  int hf_id;
   guint32 tmsi;
   guint8 digits[MAX_NUM_IMSI_DIGITS];
   char digits_str[MAX_NUM_IMSI_DIGITS + 1];
@@ -1279,7 +1280,9 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
         hf_id = -1;
         break;
       }
+	  /* This does not work ??
       proto_tree_add_string(tf, hf_id, bi->tvb, 0, num_digits, digits_str);
+	  */
     } 
     if (check_col(bi->pinfo->cinfo, COL_INFO)) {
       col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "%s %s", 
@@ -2484,6 +2487,7 @@ decode_iei_ms_radio_access_capability(bssgp_ie_t *ie, build_info_t *bi, int ie_s
   tf = proto_item_add_subtree(ti, ett_bssgp_ms_radio_access_capability);
   
   decode_msrac_value_part(tf, bi->tvb, bi->offset * 8);
+  bi->offset += ie->value_length;
 }
 
 static void 
