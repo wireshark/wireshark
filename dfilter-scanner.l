@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.27 2000/01/10 17:32:50 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.28 2000/02/05 06:07:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -194,6 +194,9 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 		case FT_UINT16:
 			retval = T_FT_UINT16;
 			break;
+		case FT_UINT24:
+			retval = T_FT_UINT24;
+			break;
 		case FT_UINT32:
 			retval = T_FT_UINT32;
 			break;
@@ -202,6 +205,9 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			break;
 		case FT_INT16:
 			retval = T_FT_INT16;
+			break;
+		case FT_INT24:
+			retval = T_FT_INT24;
 			break;
 		case FT_INT32:
 			retval = T_FT_INT32;
