@@ -9,4 +9,4 @@ CFLAGS=$(LOCAL_CFLAGS)
 all : lemon.exe
 
 clean:
-	rm -f lemon.exe
+	rm -f lemon.obj lemon.exe
