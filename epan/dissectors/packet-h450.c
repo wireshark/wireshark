@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h450.c                                                            */
+/* ./packet-h450.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
 
 /* Input file: packet-h450-template.c */
@@ -2447,19 +2447,17 @@ dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	return offset;
 
 }
-static int
+static void
 dissect_h4501(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree)
 {
    proto_item *it;
    proto_tree *tr;
    guint32 offset=0;
 
-   it=proto_tree_add_protocol_format(tree, proto_h4501, tvb, 0, tvb_length(tvb), "H.450.1");
+   it=proto_tree_add_protocol_format(tree, proto_h4501, tvb, 0, -1, "H.450.1");
    tr=proto_item_add_subtree(it, ett_h4501);
 
    dissect_h450_H4501SupplementaryService(tvb, offset, pinfo, tr, hf_h4501);
-   return offset;
-
 }
 
 /*--- proto_register_h450 -------------------------------------------*/
@@ -3035,7 +3033,3 @@ proto_reg_handoff_h4501(void)
 	h4501_handle = find_dissector("h4501");
 
 }
-
-
-
-
