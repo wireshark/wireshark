@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.7 1998/10/16 01:18:26 gerald Exp $
+ * $Id: ethereal.c,v 1.8 1998/10/16 06:44:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,7 +95,8 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Bobo Rajec          <bobo@bsp-consulting.sk>\n"
 		"Laurent Deniel      <deniel@worldnet.fr>\n"
 		"Don Lafontaine      <lafont02@cn.ca>\n"
-		"Guy Harris          <guy@netapp.com>\n\n"
+		"Guy Harris          <guy@netapp.com>\n"
+		"Simon Wilkinson     <sxw@dcs.ed.ac.uk>\n\n"
 		"See http://ethereal.zing.org for more information", VERSION);
 }
 
