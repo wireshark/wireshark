@@ -411,7 +411,8 @@ static char *yy_last_accepting_cpos;
 char *yytext;
 #line 1 "xml_lexer.l"
 #define INITIAL 0
-#line 3 "xml_lexer.l"
+#define YY_NO_UNPUT 1
+#line 4 "xml_lexer.l"
 
 	/* xml_lexer.l
 	* an XML dissector for ethereal 
@@ -453,7 +454,7 @@ char *yytext;
 #define YY_INPUT(buff,result,max_size) ( (result) = tvb_yyinput((buff),(max_size)) )
 #define ECHO {add_xml_item(XML_GARBLED,XML_CTX_OUT, yyleng, yytext); return 0;} 
 	
-	static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint len, guint8* text);
+	static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint len, gchar* text);
 	static int tvb_yyinput(char* buff, guint max_len);
 	
 #define COMMENT 1
@@ -462,7 +463,7 @@ char *yytext;
 #define META_TAG 4
 #define OUT 5
 
-#line 466 "xml_lexer.c"
+#line 467 "xml_lexer.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -613,9 +614,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 63 "xml_lexer.l"
+#line 64 "xml_lexer.l"
 
-#line 619 "xml_lexer.c"
+#line 620 "xml_lexer.c"
 
 	if ( yy_init )
 		{
@@ -700,135 +701,135 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 64 "xml_lexer.l"
+#line 65 "xml_lexer.l"
 { add_xml_item(XML_COMMENT_START, XML_CTX_COMMENT, yyleng, yytext); BEGIN COMMENT;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 65 "xml_lexer.l"
+#line 66 "xml_lexer.l"
 { add_xml_item(XML_COMMENT_END, XML_CTX_COMMENT, yyleng, yytext); BEGIN OUT; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 66 "xml_lexer.l"
+#line 67 "xml_lexer.l"
 add_xml_item(XML_TEXT, XML_CTX_COMMENT, yyleng, yytext);
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 67 "xml_lexer.l"
+#line 68 "xml_lexer.l"
 add_xml_item(XML_TEXT, XML_CTX_COMMENT, yyleng, yytext);
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 69 "xml_lexer.l"
+#line 70 "xml_lexer.l"
 { add_xml_item(XML_CLOSE_TAG_START, XML_CTX_CLOSETAG, yyleng, yytext); BEGIN CLOSE_TAG; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 70 "xml_lexer.l"
+#line 71 "xml_lexer.l"
 add_xml_item(XML_NAME, XML_CTX_CLOSETAG, yyleng, yytext);
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 71 "xml_lexer.l"
+#line 72 "xml_lexer.l"
 add_xml_item(XML_WHITESPACE, XML_CTX_CLOSETAG, yyleng,yytext);
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 72 "xml_lexer.l"
+#line 73 "xml_lexer.l"
 { add_xml_item(XML_TAG_END, XML_CTX_CLOSETAG, yyleng, yytext); BEGIN OUT; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 74 "xml_lexer.l"
+#line 75 "xml_lexer.l"
 { add_xml_item(XML_METATAG_START, XML_CTX_METATAG, yyleng, yytext); BEGIN META_TAG; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 75 "xml_lexer.l"
+#line 76 "xml_lexer.l"
 add_xml_item(XML_PROPERTY, XML_CTX_METATAG, yyleng, yytext);
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 76 "xml_lexer.l"
+#line 77 "xml_lexer.l"
 add_xml_item(XML_PROPERTY, XML_CTX_METATAG, yyleng, yytext);
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 77 "xml_lexer.l"
+#line 78 "xml_lexer.l"
 add_xml_item(XML_PROPERTY, XML_CTX_METATAG, yyleng, yytext);
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 78 "xml_lexer.l"
+#line 79 "xml_lexer.l"
 add_xml_item(XML_WHITESPACE,  XML_CTX_METATAG, yyleng, yytext);
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 79 "xml_lexer.l"
+#line 80 "xml_lexer.l"
 add_xml_item(XML_NAME,  XML_CTX_METATAG, yyleng, yytext);
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 80 "xml_lexer.l"
+#line 81 "xml_lexer.l"
 { add_xml_item(XML_METATAG_END,  XML_CTX_METATAG, yyleng,yytext); BEGIN OUT; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 82 "xml_lexer.l"
+#line 83 "xml_lexer.l"
 { add_xml_item(XML_TAG_START, XML_CTX_TAG, yyleng, yytext); BEGIN TAG; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 83 "xml_lexer.l"
+#line 84 "xml_lexer.l"
 add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 84 "xml_lexer.l"
+#line 85 "xml_lexer.l"
 add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 85 "xml_lexer.l"
+#line 86 "xml_lexer.l"
 add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 86 "xml_lexer.l"
+#line 87 "xml_lexer.l"
 add_xml_item(XML_NAME, XML_CTX_TAG, yyleng, yytext);
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 87 "xml_lexer.l"
+#line 88 "xml_lexer.l"
 add_xml_item(XML_WHITESPACE, XML_CTX_TAG, yyleng, yytext);
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 88 "xml_lexer.l"
+#line 89 "xml_lexer.l"
 {add_xml_item(XML_CLOSE_TAG_END, XML_CTX_TAG, yyleng, yytext); BEGIN OUT; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 89 "xml_lexer.l"
+#line 90 "xml_lexer.l"
 {add_xml_item(XML_TAG_END,  XML_CTX_TAG, yyleng, yytext); BEGIN OUT; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 91 "xml_lexer.l"
+#line 92 "xml_lexer.l"
 add_xml_item(XML_WHITESPACE,  XML_CTX_OUT, yyleng, yytext);
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 92 "xml_lexer.l"
+#line 93 "xml_lexer.l"
 add_xml_item(XML_TEXT,  XML_CTX_OUT, yyleng, yytext); 
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 93 "xml_lexer.l"
+#line 94 "xml_lexer.l"
 ECHO;
 	YY_BREAK
-#line 832 "xml_lexer.c"
+#line 833 "xml_lexer.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 case YY_STATE_EOF(TAG):
@@ -1719,10 +1720,10 @@ int main()
 	return 0;
 	}
 #endif
-#line 93 "xml_lexer.l"
+#line 94 "xml_lexer.l"
 
 
-static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint the_len, guint8* text) {
+static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint the_len, gchar* text) {
 	xml_token_t* xi = g_malloc(sizeof(xml_token_t));
 	
 	xi->type = type;

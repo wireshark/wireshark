@@ -1,4 +1,5 @@
 %option noyywrap
+%option nounput 
 %{
 
 	/* xml_lexer.l
@@ -41,7 +42,7 @@
 #define YY_INPUT(buff,result,max_size) ( (result) = tvb_yyinput((buff),(max_size)) )
 #define ECHO {add_xml_item(XML_GARBLED,XML_CTX_OUT, yyleng, yytext); return 0;} 
 	
-	static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint len, guint8* text);
+	static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint len, gchar* text);
 	static int tvb_yyinput(char* buff, guint max_len);
 	
 %}
@@ -92,7 +93,7 @@ text [^<]*
 <OUT>{text}					add_xml_item(XML_TEXT,  XML_CTX_OUT, yyleng, yytext); 
 %%
 
-static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint the_len, guint8* text) {
+static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint the_len, gchar* text) {
 	xml_token_t* xi = g_malloc(sizeof(xml_token_t));
 	
 	xi->type = type;
