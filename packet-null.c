@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.61 2003/11/11 20:49:45 guy Exp $
+ * $Id: packet-null.c,v 1.62 2003/11/14 10:11:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,8 +75,61 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
   /*
    * BSD drivers that use DLT_NULL - including the FreeBSD 3.2 ISDN-for-BSD
    * drivers, as well as the 4.4-Lite and FreeBSD loopback drivers -
-   * appear to stuff the AF_ value for the protocol, in *host* byte
-   * order, in the first four bytes.
+   * stuff the AF_ value for the protocol, in *host* byte order, in the
+   * first four bytes.  (BSD drivers that use DLT_LOOP, such as recent
+   * OpenBSD loopback drivers, stuff it in *network* byte order in the
+   * first four bytes.)
+   *
+   * However, the IRIX and UNICOS/mp snoop socket mechanism supplies,
+   * on loopback devices, a 4-byte header that has a 2 byte (big-endian)
+   * AF_ value and 2 bytes of 0, so it's
+   *
+   *	0000AAAA
+   *
+   * when read on a little-endian machine and
+   *
+   *	AAAA0000
+   *
+   * when read on a big-endian machine.  The current CVS version of libpcap
+   * compensates for this by converting it to standard 4-byte format before
+   * processing the packet, but snoop captures from IRIX or UNICOS/mp
+   * have the 2-byte+2-byte header, as might tcpdump or libpcap captures
+   * with older versions of libpcap.
+   *
+   * AF_ values are small integers, and probably fit in 8 bits (current
+   * values on the BSDs do), and have their upper 24 bits zero.
+   * This means that, in practice, if you look at the header as a 32-bit
+   * integer in host byte order:
+   *
+   *	on a little-endian machine:
+   *
+   *		a little-endian DLT_NULL header looks like
+   *
+   *			000000AA
+   *
+   *		a big-endian DLT_NULL header, or a DLT_LOOP header, looks
+   *		like
+   *
+   *			AA000000
+   *
+   *		an IRIX or UNICOS/mp DLT_NULL header looks like
+   *
+   *			0000AA00
+   *
+   *	on a big-endian machine:
+   *
+   *		a big-endian DLT_NULL header, or a DLT_LOOP header, looks
+   *		like
+   *
+   *			000000AA
+   *
+   *		a little-endian DLT_NULL header looks like
+   *
+   *			AA000000
+   *
+   *		an IRIX or UNICOS/mp DLT_NULL header looks like
+   *
+   *			00AA0000
    *
    * However, according to Gerald Combs, a FreeBSD ISDN PPP dump that
    * Andreas Klemm sent to ethereal-dev has a packet type of DLT_NULL,
@@ -91,71 +144,117 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    *	high-order byte of a PPP protocol field
    *	low-order byte of a PPP protocol field
    *
-   * when reading it on a little-endian machine; that means it's
-   * PPPP03FF, where PPPP is a byte-swapped PPP protocol field.
+   * If we treat that as a 32-bit host-byte-order value, it looks like
    *
-   * "libpcap" for Linux uses DLT_NULL only for the loopback device.
-   * The loopback driver in Linux 2.0.36, at least, puts an *Ethernet*
-   * header at the beginning of loopback packets; however, "libpcap"
-   * for Linux compensates for this by skipping the source and
+   *	PPPP03FF
+   *
+   * where PPPP is a byte-swapped PPP protocol type if we read it on
+   * a little-endian machine and
+   *
+   *	FF03PPPP
+   *
+   * where PPPP is a PPP protocol type if we read it on a big-endian
+   * machine.  0x0000 does not appear to be a valid PPP protocol type
+   * value, so at least one of those hex digits is guaranteed not to
+   * be 0.
+   *
+   * Old versions of libpcap for Linux used DLT_NULL for loopback devices,
+   * but not any other devices.  (Current versions use DLT_EN10MB for it.)
+   * The Linux loopback driver puts an *Ethernet* header at the beginning
+   * of loopback packets, with fake source and destination addresses and
+   * the appropriate Ethernet type value; however, those older versions of
+   * libpcap for Linux compensated for this by skipping the source and
    * destination MAC addresses, replacing them with 2 bytes of 0.
    * This means that if we're reading the capture on a little-endian
    * machine, the header, treated as a 32-bit integer, looks like
    *
-   *	EEEEEEEEEEEEEEEE0000000000000000
+   *	EEEE0000
    *
-   * where "EEEEEEEEEEEEEEEE" is the Ethernet type, and if we're reading
-   * it on a big-endian machine, it looks like
+   * where EEEE is a byte-swapped Ethernet type, and if we're reading it
+   * on a big-endian machine, it looks like
    *
-   *	0000000000000000EEEEEEEEEEEEEEEE
+   *	0000EEEE
    *
-   * The Ethernet type might or might not be byte-swapped; I haven't
-   * bothered thinking about that yet.
+   * where EEEE is an Ethernet type.
    *
-   * AF_ values are (relatively) small integers, and shouldn't have their
-   * upper 16 bits zero; Ethernet types have to fit in 16 bits and
-   * thus must have their upper 16 bits zero.  Therefore, if the upper
-   * 16 bits of the field aren't zero, it's in the wrong byte order.
+   * If the first 2 bytes of the header are FF 03:
    *
-   * Ethernet types are bigger than 1536, and AF_ values are smaller
-   * than 1536, so we needn't worry about one being mistaken for
-   * the other.  (There may be a problem if the 16-bit Ethernet
-   * type is byte-swapped as a 16-bit quantity, but if when treated
-   * as a 32-bit quantity its upper 16 bits are zero, but I'll think
-   * about that one later.)
+   *	it can't be a big-endian BSD DLT_NULL header, or a DLT_LOOP
+   *	header, as AF_ values are small so the first 2 bytes of the
+   *	header would be 0;
    *
-   * As for the PPP protocol field values:
+   *	it can't be a little-endian BSD DLT_NULL header, as the
+   *	resulting AF_ value would be >= 0x03FF, which is too big
+   *	for an AF_ value;
    *
-   * 0x0000 does not appear to be a valid PPP protocol field value,
-   * so the upper 16 bits will be non-zero, and we'll byte swap it.
-   * It'll then be
+   *	it can't be an IRIX or UNICOS/mp DLT_NULL header, as the
+   *	resulting AF_ value with be 0x03FF.
    *
-   *	0xFF03PPPP
+   * So the first thing we do is check the first two bytes of the
+   * header; if it's FF 03, we treat the packet as a PPP frame.
    *
-   * where PPPP is a non-byte-swapped PPP protocol field; we'll
-   * check for the upper 16 bits of the byte-swapped field being
-   * non-zero and, if so, assume the lower 16 bits are a PPP
-   * protocol field (AF_ and Ethernet protocol fields should leave
-   * the upper 16 bits zero - unless somebody stuff something else
-   * there; see below).
+   * Otherwise, if the upper 16 bits are non-zero, either:
    *
-   * So, to compensate for this mess, we:
+   *	it's a BSD DLT_NULL or DLT_LOOP header whose AF_ value
+   *	is not in our byte order;
    *
-   *	check if the first two octets are 0xFF and 0x03 and, if so,
-   *	treat it as a PPP frame;
+   *	it's an IRIX or UNICOS/mp DLT_NULL header being read on
+   *	a big-endian machine;
    *
-   *	otherwise, byte-swap the value if its upper 16 bits aren't zero,
-   *	and compare the lower 16 bits of the value against Ethernet
-   *	and AF_ types.
+   *	it's a Linux DLT_NULL header being read on a little-endian
+   *	machine.
    *
-   * If, as implied by an earlier version of the "e_nullhdr" structure,
-   * the family is only 16 bits, and there are "next" and "len" fields
-   * before it, that all goes completely to hell.  (Note that, for
-   * the BSD header, we could byte-swap it if the capture was written
-   * on a machine with the opposite byte-order to ours - the "libpcap"
-   * header lets us determine that - but it's more of a mess for Linux,
-   * given that the effect of inserting the two 0 bytes depends only
-   * on the byte order of the machine reading the file.)
+   * In all those cases except for the IRIX or UNICOS/mp DLT_NULL header,
+   * we should byte-swap it (if it's a Linux DLT_NULL header, that'll
+   * put the Ethernet type in the right byte order).  In the case
+   * of the IRIX or UNICOS/mp DLT_NULL header, we should just get
+   * the upper 16 bits as an AF_ value.
+   *
+   * If it's a BSD DLT_NULL or DLT_LOOP header whose AF_ value is not
+   * in our byte order, then the upper 2 hex digits would be non-zero
+   * and the next 2 hex digits down would be zero, as AF_ values fit in
+   * 8 bits, and the upper 2 hex digits are the *lower* 8 bits of the value.
+   *
+   * If it's an IRIX or UNICOS/mp DLT_NULL header, the upper 2 hex digits
+   * would be zero and the next 2 hex digits down would be non-zero, as
+   * the upper 16 bits are a big-endian AF_ value.  Furthermore, the
+   * next 2 hex digits down are likely to be < 0x60, as 0x60 is 96,
+   * and, so far, we're far from requiring AF_ values that high.
+   *
+   * If it's a Linux DLT_NULL header, the third hex digit from the top
+   * will be >= 6, as Ethernet types are >= 1536, or 0x0600, and
+   * it's byte-swapped, so the second 2 hex digits from the top are
+   * >= 0x60.
+   *
+   * So, if the upper 16 bits are non-zero:
+   *
+   *	if the upper 2 hex digits are 0 and the next 2 hex digits are
+   *	in the range 0x00-0x5F, we treat it as a big-endian IRIX or
+   *	UNICOS/mp DLT_NULL header;
+   *
+   *	otherwise, we byte-swap it and do the next stage.
+   *
+   * If the upper 16 bits are zero, either:
+   *
+   *	it's a BSD DLT_NULLor DLT_LOOP header whose AF_ value is in
+   *	our byte order;
+   *
+   *	it's an IRIX or UNICOS/mp DLT_NULL header being read on
+   *	a little-endian machine;
+   *
+   *	it's a Linux DLT_NULL header being read on a big-endian
+   *	machine.
+   *
+   * In all of those cases except for the IRIX or UNICOS/mp DLT_NULL header,
+   * we should *not* byte-swap it.  In the case of the IRIX or UNICOS/mp
+   * DLT_NULL header, we should extract the AF_ value and byte-swap it.
+   *
+   * If it's a BSD DLT_NULL or DLT_LOOP header whose AF_ value is
+   * in our byte order, the upper 6 hex digits would all be zero.
+   *
+   * If it's an IRIX or UNICOS/mp DLT_NULL header, the upper 4 hex
+   * digits would be zero and the next 2 hex digits would not be zero.
+   * Furthermore, the third hex digit from the bottom would be < 
    */
   if (!BYTES_ARE_IN_FRAME(0, len, 2)) {
     ld->other++;
@@ -177,20 +276,37 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
     memcpy((char *)&null_header, (const char *)&pd[0], sizeof(null_header));
 
     if ((null_header & 0xFFFF0000) != 0) {
-      /* Byte-swap it. */
-      null_header = BSWAP32(null_header);
-
       /*
        * It is possible that the AF_ type was only a 16 bit value.
        * IRIX and UNICOS/mp loopback snoop use a 4 byte header with
        * AF_ type in the first 2 bytes!
        * BSD AF_ types will always have the upper 8 bits as 0.
        */
-      if ((null_header & 0x0000FF00) != 0) {
-        guint16 aftype;
-
-        memcpy((char *)&aftype, (const char *)&pd[0], sizeof(aftype));
-        null_header = g_ntohl(aftype);
+      if ((null_header & 0xFF000000) == 0 &&
+          (null_header & 0x00FF0000) < 0x00060000) {
+        /*
+         * Looks like a IRIX or UNICOS/mp loopback header, in the
+         * correct byte order.  Set the null header value to the
+         * AF_ type, which is in the upper 16 bits of "null_header".
+         */
+        null_header >>= 16;
+      } else {
+        /* Byte-swap it. */
+        null_header = BSWAP32(null_header);
+      }
+    } else {
+      /*
+       * Check for an IRIX or UNICOS/mp snoop header.
+       */
+      if ((null_header & 0x000000FF) == 0 &&
+          (null_header & 0x0000FF00) < 0x00000600) {
+        /*
+         * Looks like a IRIX or UNICOS/mp loopback header, in the
+         * wrong byte order.  Set the null header value to the AF_
+         * type; that's in the lower 16 bits of "null_header", but
+         * is byte-swapped.
+         */
+        null_header = BSWAP16(null_header & 0xFFFF);
       }
     }
 
@@ -258,19 +374,37 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_memcpy(tvb, (guint8 *)&null_header, 0, sizeof(null_header));
 
     if ((null_header & 0xFFFF0000) != 0) {
-      /* Byte-swap it. */
-      null_header = BSWAP32(null_header);
       /*
        * It is possible that the AF_ type was only a 16 bit value.
        * IRIX and UNICOS/mp loopback snoop use a 4 byte header with
        * AF_ type in the first 2 bytes!
        * BSD AF_ types will always have the upper 8 bits as 0.
        */
-      if ((null_header & 0x0000FF00) != 0) {
-        guint16 aftype;
-
-        tvb_memcpy(tvb, (guint8 *)&aftype, 0, sizeof(aftype));
-        null_header = g_ntohl(aftype);
+      if ((null_header & 0xFF000000) == 0 &&
+          (null_header & 0x00FF0000) < 0x00060000) {
+        /*
+         * Looks like a IRIX or UNICOS/mp loopback header, in the
+         * correct byte order.  Set the null header value to the
+         * AF_ type, which is in the upper 16 bits of "null_header".
+         */
+        null_header >>= 16;
+      } else {
+        /* Byte-swap it. */
+        null_header = BSWAP32(null_header);
+      }
+    } else {
+      /*
+       * Check for an IRIX or UNICOS/mp snoop header.
+       */
+      if ((null_header & 0x000000FF) == 0 &&
+          (null_header & 0x0000FF00) < 0x00000600) {
+        /*
+         * Looks like a IRIX or UNICOS/mp loopback header, in the
+         * wrong byte order.  Set the null header value to the AF_
+         * type; that's in the lower 16 bits of "null_header", but
+         * is byte-swapped.
+         */
+        null_header = BSWAP16(null_header & 0xFFFF);
       }
     }
 
