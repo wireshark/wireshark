@@ -11,7 +11,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.44 2002/12/04 17:07:26 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.45 2002/12/05 10:19:13 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -825,7 +825,7 @@ dissect_add_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
 
   length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameter_value_length = length - PARAMETER_HEADER_LENGTH - CORRELATION_ID_LENGTH;
-  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  correlation_id         = tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
   address_tvb            =  tvb_new_subset(parameter_tvb, ADDRESS_PARAMETER_OFFSET, parameter_value_length, parameter_value_length);
   dissect_parameter(address_tvb, pinfo, parameter_tree);
@@ -842,7 +842,7 @@ dissect_del_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
 
   length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameter_value_length = length - PARAMETER_HEADER_LENGTH - CORRELATION_ID_LENGTH;
-  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  correlation_id         = tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
   address_tvb            =  tvb_new_subset(parameter_tvb, ADDRESS_PARAMETER_OFFSET, parameter_value_length, parameter_value_length);
   dissect_parameter(address_tvb, pinfo, parameter_tree);
@@ -858,7 +858,7 @@ dissect_error_cause_indication_parameter(tvbuff_t *parameter_tvb, packet_info *p
   gint offset;
   tvbuff_t *error_cause_tvb;
 
-  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  correlation_id         = tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
 
   offset = PARAMETER_VALUE_OFFSET + CORRELATION_ID_LENGTH;
@@ -885,7 +885,7 @@ dissect_set_primary_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
   length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameter_value_length = length - PARAMETER_HEADER_LENGTH - CORRELATION_ID_LENGTH;
 
-  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  correlation_id         = tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
   address_tvb            =  tvb_new_subset(parameter_tvb, ADDRESS_PARAMETER_OFFSET, parameter_value_length, parameter_value_length);
   dissect_parameter(address_tvb, pinfo, parameter_tree);
@@ -898,7 +898,7 @@ dissect_success_report_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 {
   guint32 correlation_id;
 
-  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  correlation_id         = tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET);
   proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
 
   proto_item_set_text(parameter_item, "Success report parameter");
