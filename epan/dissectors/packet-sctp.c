@@ -4,9 +4,10 @@
  * - RFC 2960
  * - RFC 3309
  * - RFC 3758
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-09.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-11.txt
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-09.txt
-* - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-00.txt
+ * - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-01.txt
+ * - http://www.ietf.org/internet-drafts/draft-tuexen-sctp-auth-chunk-01.txt
  *
  * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Still to do (so stay tuned)
@@ -198,11 +199,12 @@ static dissector_handle_t data_handle;
 #define SCTP_ECNE_CHUNK_ID              12
 #define SCTP_CWR_CHUNK_ID               13
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
-#define SCTP_FORWARD_TSN_CHUNK_ID      192
+#define SCTP_AUTH_CHUNK_ID            0x16
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
-#define SCTP_PKTDROP_CHUNK_ID         0X81
-#define SCTP_ASCONF_CHUNK_ID          0XC1
-#define SCTP_IETF_EXT                  255
+#define SCTP_PKTDROP_CHUNK_ID         0x81
+#define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
+#define SCTP_ASCONF_CHUNK_ID          0xC1
+#define SCTP_IETF_EXT                 0xFF
 
 static const value_string chunk_type_values[] = {
   { SCTP_DATA_CHUNK_ID,              "DATA" },
@@ -220,6 +222,7 @@ static const value_string chunk_type_values[] = {
   { SCTP_ECNE_CHUNK_ID,              "ECNE" },
   { SCTP_CWR_CHUNK_ID,               "CWR" },
   { SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
+  { SCTP_AUTH_CHUNK_ID,              "AUTH" },
   { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD TSN" },
   { SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
   { SCTP_PKTDROP_CHUNK_ID,           "PKTDROP" },
@@ -1571,7 +1574,7 @@ dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_t
 {
   guint16 causes_length;
   tvbuff_t *causes_tvb;
-	proto_tree *flags_tree;
+  proto_tree *flags_tree;
 	
   if (chunk_tree) {
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_abort_chunk_flags);
@@ -1660,8 +1663,8 @@ dissect_cwr_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk
 
 
 static const true_false_string sctp_shutdown_complete_chunk_t_bit_value = {
-  "No TCB destroyed",
-  "TCB destroyed"
+  "Tag reflected",
+  "Tag not reflected"
 };
 
 
