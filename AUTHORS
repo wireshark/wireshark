@@ -869,6 +869,7 @@ Gordon McKinney <gordon[AT]night-ray.com> {
 	Enhanced Ethereal icon for Windows
 	Support for time stamping packets in text2pcap
 	Fix to text2pcap to handle colons after offset field
+	Make IP-over-PPP work with the TCP graph code
 }
 
 Pavel Novotny <Pavel.Novotny[AT]icn.siemens.de> {

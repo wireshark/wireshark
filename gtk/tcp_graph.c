@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.2 2001/12/08 09:39:23 guy Exp $
+ * $Id: tcp_graph.c,v 1.3 2001/12/09 01:20:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,13 @@ struct ether_header {
 	guint16 ether_type;	/* packet type ID field */
 };
 #define ETHERTYPE_IP	0x0800
+
+
+/* reverse engineered from capture file, not too difficult :) */
+struct ppp_header {
+	guint8 ppp_type;	/* Protocol on PPP connection */
+};
+#define PPPTYPE_IP 0x21
 
 
 #undef BITFIELDS
@@ -567,8 +574,8 @@ void tcp_graph_cb (GtkWidget *w, gpointer data, guint graph_type)
 
 	g->type = graph_type;
 	if (!get_headers (cfile.pd, &current)) {
-		/* currently selected packet is neither TCP over IP over Ethernet II
-		 * nor TCP over IP alone (= IP over PPP) - should display some
+		/* currently selected packet is neither TCP over IP over Ethernet II/PPP
+		 * nor TCP over IP alone - should display some
 		 * kind of warning dialog */
 		printf ("packet selected is not a TCP segment\n");
 		return;
@@ -1800,14 +1807,19 @@ static void graph_segment_list_get (struct graph *g)
 static int get_headers (char *pd, struct segment *hdrs)
 {
 	struct ether_header *e;
+	struct ppp_header   *p;
 	struct iphdr *ip;
 	struct tcphdr *tcp;
 
 	e = (struct ether_header * )pd;
+	p = (struct ppp_header * )pd;
 	if (ntohs (e->ether_type) == ETHERTYPE_IP) {
 		ip = (struct iphdr * )((struct ether_header * )pd + 1);
 	} else if (((struct iphdr *)e)->protocol == IPPROTO_TCP) {
 		ip = (struct iphdr *)e;
+	} else if ( (p->ppp_type == PPPTYPE_IP) && 							/* IP Protocol over PPP */
+				(((struct iphdr *)(p+1))->protocol == IPPROTO_TCP) ) {  /* TCP Protocol over IP */
+		ip = (struct iphdr *)(p+1);
 	} else {
 		/* printf ("not IP over Ethernet II or PPP\n"); */
 		return FALSE;
