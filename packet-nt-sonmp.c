@@ -2,7 +2,7 @@
 * Routines for the disassembly of the "Nortel Networks / SynOptics Network Management Protocol"
 * (c) Copyright Giles Scott <gscott2@nortelnetworks.com> 
 *
-* $Id: packet-nt-sonmp.c,v 1.2 2003/09/30 20:51:19 guy Exp $
+* $Id: packet-nt-sonmp.c,v 1.3 2003/12/06 19:26:04 oabad Exp $
 *
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>
@@ -222,6 +222,7 @@ dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "SONMP - %s Hello",
+                pinfo->dl_dst.data == NULL ? "" :
 		pinfo->dl_dst.data[5] == 0 ? "Segment" :
 		pinfo->dl_dst.data[5] == 1 ? "FlatNet" : "");
 	
