@@ -292,6 +292,25 @@ Overview of changes in Ethereal 0.9.5:
 * Support for writing LANalyzer files (Markus)
 * Cleaned up NT policy handle hashing a bit (Tim)
 * Improve capture device prefs white space/empty string handling (Guy)
+* Remove unused DCERPC NT variable (Tim)
+* Use the native Windows mechanism for catching ^C (Guy)
+* Add in some missing header files to Makefile.am (Guy)
+* Move AppleTalk address to a different column, add hidden fields for
+  source and destination addresses (Didier)
+* Update section in README.developer on adding source files, add a note on
+  adding header files (Guy)
+* Add Apache JServ 1.3 dissector (Christopher K. St. John)
+* Clean up warnings, fix buffer overrun in AJP1.3 (Guy)
+* Update SCTP to match the latest I-Ds for two extensions (Michael)
+* Fix display of OSI system IDs to use a dot rather than a dash before the
+  PSN byte (Hannes Gredler)
+* Fix display of one-byte NETs in ISIS dissector (Hannes)
+* There are no "ipx.src" or "ipx.dst" filterable fields (Guy)
+* Fix plugin-vs-static header inclusion in AJPv1.3 (Gerald)
+* Give AJPv1.3, GMRP, and ICAP dissectors RCS IDs (Guy)
+* Remove packet-ajp13.h (Guy)
+* Put in a note about casting the result of "tvb_get_ptr()" to a structure
+  pointer and using that pointer in README.developer (Guy)
 
 Overview of changes in Ethereal 0.9.4:
 * Get rid of unused variables, fix a device typing bug in packet-iscsi.c
