@@ -382,6 +382,10 @@ static void h323conversations_dlg_create (void)
 	GtkWidget *column_lb;
 	int i;
 
+    /* don't use a window here (but a dialog), because otherwise a parent
+     * analysis window will hide this one and show the main window :-( */
+	/*h323conversations_dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, 
+        "Ethereal: H.323 VoIP Conversations", "H323-conversations");*/
 	h323conversations_dlg_w = dlg_window_new("Ethereal: H.323 VoIP Conversations");
 	gtk_window_set_default_size(GTK_WINDOW(h323conversations_dlg_w), 700, 300);
 

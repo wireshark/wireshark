@@ -437,6 +437,8 @@ void create_h225_dialog(user_data_t* user_data)
         gchar str_ip_src[16];
         gchar str_ip_dst[16];
 
+        /* as multiple analysis windows can be opened, 
+         * don't use window_new_with_geom(), as that will place them on top of each other! */
 	window = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: H.323 VoIP Analysis");
         gtk_window_set_default_size(GTK_WINDOW(window), 700, 350);
 
