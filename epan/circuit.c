@@ -205,7 +205,7 @@ find_circuit(circuit_type ctype, guint32 circuit_id, guint32 frame)
 	for (circuit = g_hash_table_lookup(circuit_hashtable, &key);
 	    circuit != NULL; circuit = circuit->next) {
 		/*
-		 * The frame includes that frame number if:
+		 * The circuit includes that frame number if:
 		 *
 		 *	the circuit's first frame is unknown or is at or
 		 *	before that frame
