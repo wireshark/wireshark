@@ -95,7 +95,7 @@ static int hf_x509af_thisUpdate = -1;             /* Time */
 static int hf_x509af_nextUpdate = -1;             /* Time */
 static int hf_x509af_revokedCertificates = -1;    /* T_revokedCertificates */
 static int hf_x509af_revokedCertificates_item = -1;  /* T_revokedCertificates_item */
-static int hf_x509af_userCertificate1 = -1;       /* CertificateSerialNumber */
+static int hf_x509af_revokedUserCertificate = -1;  /* CertificateSerialNumber */
 static int hf_x509af_revocationDate = -1;         /* Time */
 static int hf_x509af_crlEntryExtensions = -1;     /* Extensions */
 static int hf_x509af_crlExtensions = -1;          /* Extensions */
@@ -107,7 +107,7 @@ static int hf_x509af_signedAttributeCertificateInfo = -1;  /* AttributeCertifica
 static int hf_x509af_info_subject = -1;           /* InfoSubject */
 static int hf_x509af_baseCertificateID = -1;      /* IssuerSerial */
 static int hf_x509af_infoSubjectName = -1;        /* GeneralNames */
-static int hf_x509af_issuer1 = -1;                /* GeneralNames */
+static int hf_x509af_issuerName = -1;             /* GeneralNames */
 static int hf_x509af_attCertValidityPeriod = -1;  /* AttCertValidityPeriod */
 static int hf_x509af_attributes = -1;             /* SEQUNCE_OF_Attribute */
 static int hf_x509af_attributes_item = -1;        /* Attribute */
@@ -259,8 +259,8 @@ static int dissect_subjectUniqueIdentifier_impl(packet_info *pinfo, proto_tree *
 static int dissect_infoSubjectName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_GeneralNames(FALSE, tvb, offset, pinfo, tree, hf_x509af_infoSubjectName);
 }
-static int dissect_issuer1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509ce_GeneralNames(FALSE, tvb, offset, pinfo, tree, hf_x509af_issuer1);
+static int dissect_issuerName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_GeneralNames(FALSE, tvb, offset, pinfo, tree, hf_x509af_issuerName);
 }
 static int dissect_attributes_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_x509af_attributes_item);
@@ -311,8 +311,8 @@ dissect_x509af_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb,
 static int dissect_serialNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_CertificateSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_x509af_serialNumber);
 }
-static int dissect_userCertificate1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509af_CertificateSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_x509af_userCertificate1);
+static int dissect_revokedUserCertificate(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_CertificateSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_x509af_revokedUserCertificate);
 }
 static int dissect_serial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_CertificateSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_x509af_serial);
@@ -618,7 +618,7 @@ dissect_x509af_CertificationPath(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 }
 
 static const ber_sequence T_revokedCertificates_item_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_userCertificate1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_revokedUserCertificate },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_revocationDate },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_crlEntryExtensions },
   { 0, 0, 0, NULL }
@@ -688,7 +688,7 @@ dissect_x509af_CertificateList(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 }
 
 static const ber_sequence IssuerSerial_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuer1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerName },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serial },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_issuerUID },
   { 0, 0, 0, NULL }
@@ -764,7 +764,7 @@ static int dissect_attributes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 static const ber_sequence AttributeCertificateInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_info_subject },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuer1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerName },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signature },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attCertValidityPeriod },
@@ -1092,7 +1092,7 @@ void proto_register_x509af(void) {
       { "Item", "x509af.revokedCertificates_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificateList/signedCertificateList/revokedCertificates/_item", HFILL }},
-    { &hf_x509af_userCertificate1,
+    { &hf_x509af_revokedUserCertificate,
       { "userCertificate", "x509af.userCertificate",
         FT_INT32, BASE_DEC, NULL, 0,
         "CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate", HFILL }},
@@ -1140,7 +1140,7 @@ void proto_register_x509af(void) {
       { "subjectName", "x509af.subjectName",
         FT_NONE, BASE_NONE, NULL, 0,
         "AttributeCertificateInfo/subject/subjectName", HFILL }},
-    { &hf_x509af_issuer1,
+    { &hf_x509af_issuerName,
       { "issuer", "x509af.issuer",
         FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},

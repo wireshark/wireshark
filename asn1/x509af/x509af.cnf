@@ -40,6 +40,7 @@ AttributeCertificateInfo/subject	InfoSubject
 AttributeCertificateAssertion/subject	AssertionSubject
 
 #.FIELD_RENAME
+AttributeCertificateInfo/issuer		issuerName	
 AttributeCertificateInfo/subject info_subject
 AttributeCertificateAssertion/subject assertion_subject
 
@@ -47,7 +48,8 @@ AttributeCertificateAssertion/issuer assertionIssuer
 
 AttributeCertificateInfo/subject/subjectName      infoSubjectName
 AttributeCertificateAssertion/subject/subjectName assertionSubjectName
-
+IssuerSerial/issuer			issuerName	
+CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate		revokedUserCertificate
 #.END
 
 
