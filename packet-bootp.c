@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.13 1998/11/20 04:34:37 gram Exp $
+ * $Id: packet-bootp.c,v 1.14 1998/11/20 17:47:33 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -326,8 +326,11 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 				break;
 
 			case string:
+				/* Fix for non null-terminated string supplied by
+				 * John Lines <John.Lines@aeat.co.uk>
+				 */
 				add_item_to_tree(bp_tree, voff, consumed,
-						"Option %d: %s = %.*s", code, text, pd[voff+2], &pd[voff+2]);
+						"Option %d: %s = %.*s", code, text, vlen, &pd[voff+2]);
 				break;
 
 			case opaque:
