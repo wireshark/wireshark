@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.2 2001/04/02 02:30:06 guy Exp $
+ * $Id: column-utils.c,v 1.3 2001/04/02 10:38:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -326,7 +326,7 @@ col_set_cls_time(frame_data *fd, int col)
 static void
 col_set_addr(frame_data *fd, int col, address *addr, gboolean is_res)
 {
-  u_int ipv4_addr;
+  guint32 ipv4_addr;
   struct e_in6_addr ipv6_addr;
   struct atalk_ddp_addr ddp_addr;
   struct sna_fid_type_4_addr sna_fid_type_4_addr;
