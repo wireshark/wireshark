@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.44 1999/03/31 08:20:27 guy Exp $
+ * $Id: packet.h,v 1.45 1999/04/05 21:54:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -111,8 +111,10 @@ typedef struct _packet_info {
   int ipproto;
   int srcport;
   int destport;
+  int match_port;
   int iplen;
   int iphdrlen;
+  int payload;
 } packet_info;
 
 /* Struct for the match_strval function */
@@ -125,7 +127,11 @@ typedef struct _value_string {
 /* Many of the structs and definitions below and in packet-*.c files
  * were taken from include files in the Linux distribution. */
 
-
+typedef struct tcp_extra_data {
+  int match_port;
+  int sport;
+  int dport;
+} tcp_extra_data;
 
 /* Tree types.  Each dissect_* routine should have one for each
    add_subtree() call. */
@@ -212,6 +218,10 @@ enum {
  	ETT_ICMPv6,
  	ETT_ICMPv6OPT,
  	ETT_ICMPv6FLAG,
+	ETT_POP,
+	ETT_FTP,
+	ETT_TELNET,
+	ETT_TELNET_SUBOPT,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -327,6 +337,8 @@ void dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ddp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_dns(const u_char *, int, frame_data *, proto_tree *);
 void dissect_esp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ftp(const u_char *, int, frame_data *, proto_tree *, int);
+void dissect_ftpdata(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_giop(const u_char *, int, frame_data *, proto_tree *);
 void dissect_http(const u_char *, int, frame_data *, proto_tree *);
 void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
@@ -345,8 +357,10 @@ void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *);
 void dissect_osi(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);
+void dissect_pop(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_telnet(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_tftp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_trmac(const u_char *, int, frame_data *, proto_tree *);
 void dissect_udp(const u_char *, int, frame_data *, proto_tree *);

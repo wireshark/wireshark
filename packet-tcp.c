@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.18 1999/03/23 20:25:50 deniel Exp $
+ * $Id: packet-tcp.c,v 1.19 1999/04/05 21:54:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,7 +63,12 @@ static int   info_len;
 
 /* TCP Ports */
 
+#define TCP_PORT_FTPDATA  20
+#define TCP_PORT_FTP      21
+#define TCP_PORT_TELNET   23
+#define TCP_PORT_SMTP     25
 #define TCP_PORT_HTTP     80
+#define TCP_PORT_POP      110
 #define TCP_PORT_PRINTER  515
 #define TCP_ALT_PORT_HTTP 8080
 
@@ -320,6 +325,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint      bpos;
   guint      hlen;
   guint      optlen;
+  guint      packet_max = pi.payload + offset;
+  guint      payload;
 
   /* To do: Check for {cap len,pkt len} < struct len */
   /* Avoids alignment problems on many architectures. */
@@ -350,6 +357,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   hlen = hi_nibble(th.th_off_x2) * 4;  /* TCP header length, in bytes */
+
+  payload = pi.payload - hlen;
 
   if (check_col(fd, COL_RES_SRC_PORT))
     col_add_str(fd, COL_RES_SRC_PORT, get_tcp_port(th.th_sport));
@@ -439,13 +448,39 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   /* Skip over header + options */
   offset += hlen;
 
+  pi.srcport = th.th_sport;
+  pi.destport = th.th_dport;
+  
   /* Check the packet length to see if there's more data
      (it could be an ACK-only packet) */
-  if (fd->cap_len > offset) {
+  if (packet_max > offset) {
     switch(MIN(th.th_sport, th.th_dport)) {
-      case TCP_PORT_PRINTER:
-        dissect_lpd(pd, offset, fd, tree);
-        break;
+
+    case TCP_PORT_PRINTER:
+      dissect_lpd(pd, offset, fd, tree);
+      break;
+
+    case TCP_PORT_TELNET:
+      pi.match_port = TCP_PORT_TELNET;
+      dissect_telnet(pd, offset, fd, tree, payload);
+      break;
+
+    case TCP_PORT_FTPDATA:
+      pi.match_port = TCP_PORT_FTPDATA;
+      dissect_ftpdata(pd, offset, fd, tree, payload);
+      break;
+
+    case TCP_PORT_FTP:
+      pi.match_port = TCP_PORT_FTP;
+      dissect_ftp(pd, offset, fd, tree, payload);
+      break;
+
+    case TCP_PORT_POP:
+      pi.match_port = TCP_PORT_POP;
+      dissect_pop(pd, offset, fd, tree, payload);
+      break;
+	
+	
       case TCP_PORT_HTTP:
       case TCP_ALT_PORT_HTTP:
         dissect_http(pd, offset, fd, tree);
@@ -462,9 +497,6 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }
   }
  
-  pi.srcport = th.th_sport;
-  pi.destport = th.th_dport;
-  
   if( data_out_file ) {
     reassemble_tcp( th.th_seq, /* sequence number */
         ( pi.iplen -( pi.iphdrlen * 4 )-( hi_nibble(th.th_off_x2) * 4 ) ), /* length */

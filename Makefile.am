@@ -23,6 +23,7 @@ ethereal_SOURCES = \
 	packet-data.c  \
 	packet-dns.c   \
 	packet-eth.c   \
+	packet-ftp.c   \
 	packet-fddi.c  \
 	packet-giop.c  \
 	packet-http.c  \
@@ -39,10 +40,12 @@ ethereal_SOURCES = \
 	packet-null.c  \
 	packet-osi.c   \
 	packet-ospf.c  \
+	packet-pop.c   \
 	packet-ppp.c   \
 	packet-raw.c   \
 	packet-rip.c   \
 	packet-tcp.c   \
+	packet-telnet.c \
 	packet-tftp.c  \
 	packet-tr.c    \
 	packet-trmac.c \
