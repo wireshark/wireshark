@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.28 1999/10/03 01:19:25 sharpe Exp $
+ * $Id: packet-nbns.c,v 1.29 1999/10/07 07:44:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,8 +148,8 @@ nbns_type_name (int type)
 }
 
 static int
-get_nbns_name(const u_char *nbns_data_ptr, const u_char *pd,
-    int offset, char *name_ret, int *name_type_ret)
+get_nbns_name(const u_char *pd, int offset, int nbns_data_offset,
+    char *name_ret, int *name_type_ret)
 {
 	int name_len;
 	char name[MAXDNAME];
@@ -157,8 +157,16 @@ get_nbns_name(const u_char *nbns_data_ptr, const u_char *pd,
 	char *pname, *pnbname, cname, cnbname;
 	int name_type;
 
-	name_len = get_dns_name(nbns_data_ptr, pd + offset, name, sizeof(name));
-	
+	name_len = get_dns_name(pd, offset, nbns_data_offset, name,
+	    sizeof(name));
+	if (name_len < 0) {
+		/* We ran past the end of the captured data in the packet. */
+		strcpy(name_ret, name);
+		if (name_type_ret != NULL)
+			*name_type_ret = -1;
+		return -1;
+	}
+
 	/* OK, now undo the first-level encoding. */
 	pname = &name[0];
 	pnbname = &nbname[0];
@@ -240,16 +248,20 @@ bad:
 
 
 static int
-get_nbns_name_type_class(const u_char *nbns_data_ptr, const u_char *pd,
-    int offset, char *name_ret, int *name_len_ret, int *name_type_ret,
-    int *type_ret, int *class_ret)
+get_nbns_name_type_class(const u_char *pd, int offset, int nbns_data_offset,
+    char *name_ret, int *name_len_ret, int *name_type_ret, int *type_ret,
+    int *class_ret)
 {
 	int name_len;
 	int type;
 	int class;
 
-	name_len = get_nbns_name(nbns_data_ptr, pd, offset, name_ret,
+	name_len = get_nbns_name(pd, offset, nbns_data_offset, name_ret,
 	   name_type_ret);
+	if (name_len < 0) {
+		/* We ran past the end of the captured data in the packet. */
+		return -1;
+	}
 	offset += name_len;
 	
 	type = pntohs(&pd[offset]);
@@ -277,7 +289,7 @@ add_name_and_type(proto_tree *tree, int offset, int len, char *tag,
 }
 
 static int
-dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
+dissect_nbns_query(const u_char *pd, int offset, int nbns_data_offset,
     proto_tree *nbns_tree)
 {
 	int len;
@@ -295,8 +307,12 @@ dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 
 	data_start = dptr = pd + offset;
 
-	len = get_nbns_name_type_class(nbns_data_ptr, pd, offset, name,
+	len = get_nbns_name_type_class(pd, offset, nbns_data_offset, name,
 	    &name_len, &name_type, &type, &class);
+	if (len < 0) {
+		/* We ran past the end of the data in the packet. */
+		return 0;
+	}
 	dptr += len;
 
 	type_name = nbns_type_name(type);
@@ -490,7 +506,7 @@ nbns_add_name_flags(proto_tree *rr_tree, int offset, u_short flags)
 }
 
 static int
-dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
+dissect_nbns_answer(const u_char *pd, int offset, int nbns_data_offset,
     proto_tree *nbns_tree, int opcode)
 {
 	int len;
@@ -502,6 +518,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	char *class_name;
 	char *type_name;
 	const u_char *dptr;
+	int cur_offset;
 	const u_char *data_start;
 	u_int ttl;
 	u_short data_len;
@@ -511,19 +528,35 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	char name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
 
 	data_start = dptr = pd + offset;
+	cur_offset = offset;
 
-	len = get_nbns_name_type_class(nbns_data_ptr, pd, offset, name,
+	len = get_nbns_name_type_class(pd, offset, nbns_data_offset, name,
 	    &name_len, &name_type, &type, &class);
+	if (len < 0) {
+		/* We ran past the end of the data in the packet. */
+		return 0;
+	}
 	dptr += len;
+	cur_offset += len;
 
 	type_name = nbns_type_name(type);
 	class_name = dns_class_name(class);
 
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+		/* We ran past the end of the captured data in the packet. */
+		return 0;
+	}
 	ttl = pntohl(dptr);
 	dptr += 4;
+	cur_offset += 4;
 
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+		/* We ran past the end of the captured data in the packet. */
+		return 0;
+	}
 	data_len = pntohs(dptr);
 	dptr += 2;
+	cur_offset += 2;
 
 	switch (type) {
 	case T_NB: 		/* "NB" record */
@@ -536,44 +569,59 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 		strcat(name, ")");
 		rr_tree = add_rr_to_tree(trr, ETT_NBNS_RR, offset, name,
 		    name_len, type_name, class_name, ttl, data_len);
-		offset += (dptr - data_start);
 		while (data_len > 0) {
 			if (opcode == OPCODE_WACK) {
 				/* WACK response.  This doesn't contain the
 				 * same type of RR data as other T_NB
 				 * responses.  */
+				if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+					/* We ran past the end of the captured
+					   data in the packet. */
+					return 0;
+				}
 				if (data_len < 2) {
-					proto_tree_add_text(rr_tree, offset,
+					proto_tree_add_text(rr_tree, cur_offset,
 					    data_len, "(incomplete entry)");
 					break;
 				}
 				flags = pntohs(dptr);
 				dptr += 2;
-				nbns_add_nbns_flags(rr_tree, offset, flags, 1);
-				offset += 2;
+				nbns_add_nbns_flags(rr_tree, cur_offset,
+				    flags, 1);
+				cur_offset += 2;
 				data_len -= 2;
 			} else {
+				if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+					/* We ran past the end of the captured
+					   data in the packet. */
+					return 0;
+				}
 				if (data_len < 2) {
-					proto_tree_add_text(rr_tree, offset,
+					proto_tree_add_text(rr_tree, cur_offset,
 					    data_len, "(incomplete entry)");
 					break;
 				}
 				flags = pntohs(dptr);
 				dptr += 2;
-				nbns_add_nb_flags(rr_tree, offset, flags);
-				offset += 2;
+				nbns_add_nb_flags(rr_tree, cur_offset, flags);
+				cur_offset += 2;
 				data_len -= 2;
 
+				if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+					/* We ran past the end of the captured
+					   data in the packet. */
+					return 0;
+				}
 				if (data_len < 4) {
-					proto_tree_add_text(rr_tree, offset,
+					proto_tree_add_text(rr_tree, cur_offset,
 					    data_len, "(incomplete entry)");
 					break;
 				}
-				proto_tree_add_text(rr_tree, offset, 4,
+				proto_tree_add_text(rr_tree, cur_offset, 4,
 				    "Addr: %s",
 				    ip_to_str((guint8 *)dptr));
 				dptr += 4;
-				offset += 4;
+				cur_offset += 4;
 				data_len -= 4;
 			}
 		}
@@ -591,21 +639,30 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			    name, type_name, class_name);
 			rr_tree = add_rr_to_tree(trr, ETT_NBNS_RR, offset, name,
 			    name_len, type_name, class_name, ttl, data_len);
-			offset += (dptr - data_start);
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 1) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
 			num_names = *dptr;
 			dptr += 1;
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Number of names: %u", num_names);
-			offset += 1;
+			cur_offset += 1;
 
 			while (num_names != 0) {
+				if (!BYTES_ARE_IN_FRAME(cur_offset, NETBIOS_NAME_LEN)) {
+					/* We ran past the end of the captured
+					   data in the packet. */
+					return 0;
+				}
 				if (data_len < NETBIOS_NAME_LEN) {
-					proto_tree_add_text(rr_tree, offset,
+					proto_tree_add_text(rr_tree, cur_offset,
 					    data_len, "(incomplete entry)");
 					goto out;
 				}
@@ -613,218 +670,318 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				dptr += NETBIOS_NAME_LEN;
 				name_type = process_netbios_name(nbname,
 				    name_str);
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    NETBIOS_NAME_LEN, "Name: %s<%02x> (%s)",
 				    name_str, name_type,
 				    netbios_name_type_descr(name_type));
-				offset += NETBIOS_NAME_LEN;
+				cur_offset += NETBIOS_NAME_LEN;
 				data_len -= NETBIOS_NAME_LEN;
 
+				if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+					/* We ran past the end of the captured
+					   data in the packet. */
+					return 0;
+				}
 				if (data_len < 2) {
-					proto_tree_add_text(rr_tree, offset,
+					proto_tree_add_text(rr_tree, cur_offset,
 					    data_len, "(incomplete entry)");
 					goto out;
 				}
 				name_flags = pntohs(dptr);
 				dptr += 2;
-				nbns_add_name_flags(rr_tree, offset, name_flags);
-				offset += 2;
+				nbns_add_name_flags(rr_tree, cur_offset, name_flags);
+				cur_offset += 2;
 				data_len -= 2;
 
 				num_names--;
 			}
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 6)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 6) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 6,
+			proto_tree_add_text(rr_tree, cur_offset, 6,
 			    "Unit ID: %s",
 			    ether_to_str((guint8 *)dptr));
 			dptr += 6;
-			offset += 6;
+			cur_offset += 6;
 			data_len -= 6;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 1) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 1,
+			proto_tree_add_text(rr_tree, cur_offset, 1,
 			    "Jumpers: 0x%x", *dptr);
 			dptr += 1;
-			offset += 1;
+			cur_offset += 1;
 			data_len -= 1;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 1) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 1,
+			proto_tree_add_text(rr_tree, cur_offset, 1,
 			    "Test result: 0x%x", *dptr);
 			dptr += 1;
-			offset += 1;
+			cur_offset += 1;
 			data_len -= 1;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Version number: 0x%x", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Period of statistics: 0x%x", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Number of CRCs: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Number of alignment errors: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Number of collisions: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Number of send aborts: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 4) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 4,
+			proto_tree_add_text(rr_tree, cur_offset, 4,
 			    "Number of good sends: %u", pntohl(dptr));
 			dptr += 4;
-			offset += 4;
+			cur_offset += 4;
 			data_len -= 4;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 4) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 4,
+			proto_tree_add_text(rr_tree, cur_offset, 4,
 			    "Number of good receives: %u", pntohl(dptr));
 			dptr += 4;
-			offset += 4;
+			cur_offset += 4;
 			data_len -= 4;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Number of retransmits: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Number of no resource conditions: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Number of command blocks: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Number of pending sessions: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Max number of pending sessions: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 
-			proto_tree_add_text(rr_tree, offset, 2,
-			    "Max total sessions possible: %u", pntohs(dptr));
-			dptr += 2;
-			offset += 2;
-			data_len -= 2;
-
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
 			if (data_len < 2) {
-				proto_tree_add_text(rr_tree, offset,
+				proto_tree_add_text(rr_tree, cur_offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			proto_tree_add_text(rr_tree, offset, 2,
+			proto_tree_add_text(rr_tree, cur_offset, 2,
+			    "Max total sessions possible: %u", pntohs(dptr));
+			dptr += 2;
+			cur_offset += 2;
+			data_len -= 2;
+
+			if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
+				/* We ran past the end of the captured
+				   data in the packet. */
+				return 0;
+			}
+			if (data_len < 2) {
+				proto_tree_add_text(rr_tree, cur_offset,
+				    data_len, "(incomplete entry)");
+				break;
+			}
+			proto_tree_add_text(rr_tree, cur_offset, 2,
 			    "Session data packet size: %u", pntohs(dptr));
 			dptr += 2;
-			offset += 2;
+			cur_offset += 2;
 			data_len -= 2;
 		}
 	out:
@@ -837,8 +994,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 		    name, type_name, class_name);
 		rr_tree = add_rr_to_tree(trr, ETT_NBNS_RR, offset, name,
 		    name_len, type_name, class_name, ttl, data_len);
-		offset += (dptr - data_start);
-		proto_tree_add_text(rr_tree, offset, data_len, "Data");
+		proto_tree_add_text(rr_tree, cur_offset, data_len, "Data");
 		break;
 	}
 	dptr += data_len;
@@ -847,18 +1003,26 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 }
 
 static int
-dissect_query_records(const u_char *nbns_data_ptr, int count, const u_char *pd, 
-    int cur_off, proto_tree *nbns_tree)
+dissect_query_records(const u_char *pd, int cur_off, int nbns_data_offset,
+    int count, proto_tree *nbns_tree)
 {
-	int start_off;
+	int start_off, add_off;
 	proto_tree *qatree;
 	proto_item *ti;
 	
 	start_off = cur_off;
 	ti = proto_tree_add_text(nbns_tree, start_off, 0, "Queries");
 	qatree = proto_item_add_subtree(ti, ETT_NBNS_QRY);
-	while (count-- > 0)
-		cur_off += dissect_nbns_query(nbns_data_ptr, pd, cur_off, qatree);
+	while (count-- > 0) {
+		add_off = dissect_nbns_query(pd, cur_off, nbns_data_offset,
+		    qatree);
+		if (add_off <= 0) {
+			/* We ran past the end of the captured data in the
+			   packet. */
+			break;
+		}
+		cur_off += add_off;
+	}
 	proto_item_set_len(ti, cur_off - start_off);
 
 	return cur_off - start_off;
@@ -867,19 +1031,26 @@ dissect_query_records(const u_char *nbns_data_ptr, int count, const u_char *pd,
 
 
 static int
-dissect_answer_records(const u_char *nbns_data_ptr, int count,
-    const u_char *pd, int cur_off, proto_tree *nbns_tree, int opcode, char *name)
+dissect_answer_records(const u_char *pd, int cur_off, int nbns_data_offset,
+    int count, proto_tree *nbns_tree, int opcode, char *name)
 {
-	int start_off;
+	int start_off, add_off;
 	proto_tree *qatree;
 	proto_item *ti;
 	
 	start_off = cur_off;
 	ti = proto_tree_add_text(nbns_tree, start_off, 0, name);
 	qatree = proto_item_add_subtree(ti, ETT_NBNS_ANS);
-	while (count-- > 0)
-		cur_off += dissect_nbns_answer(nbns_data_ptr, pd, cur_off,
+	while (count-- > 0) {
+		add_off = dissect_nbns_answer(pd, cur_off, nbns_data_offset,
 					qatree, opcode);
+		if (add_off <= 0) {
+			/* We ran past the end of the captured data in the
+			   packet. */
+			break;
+		}
+		cur_off += add_off;
+	}
 	proto_item_set_len(ti, cur_off - start_off);
 	return cur_off - start_off;
 }
@@ -887,13 +1058,22 @@ dissect_answer_records(const u_char *nbns_data_ptr, int count,
 void
 dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	const u_char		*nbns_data_ptr;
+	int			nbns_data_offset;
 	proto_tree		*nbns_tree;
 	proto_item		*ti;
 	guint16			id, flags, quest, ans, auth, add;
 	int			cur_off;
 
-	nbns_data_ptr = &pd[offset];
+	nbns_data_offset = offset;
+
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "NBNS (UDP)");
+
+	if (pi.captured_len < NBNS_HDRLEN) {
+		col_add_str(fd, COL_INFO, "Short NBNS packet");
+		dissect_data(pd, offset, fd, tree);
+		return;
+	}
 
 	/* To do: check for runts, errs, etc. */
 	id    = pntohs(&pd[offset + NBNS_ID]);
@@ -903,8 +1083,6 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	auth  = pntohs(&pd[offset + NBNS_AUTH]);
 	add   = pntohs(&pd[offset + NBNS_ADD]);
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NBNS (UDP)");
 	if (check_col(fd, COL_INFO)) {
 		col_add_fstr(fd, COL_INFO, "%s%s",
 		    val_to_str(flags & F_OPCODE, opcode_vals,
@@ -936,24 +1114,27 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		cur_off = offset + NBNS_HDRLEN;
     
 		if (quest > 0)
-			cur_off += dissect_query_records(nbns_data_ptr,
-					quest, pd, cur_off, nbns_tree);
+			cur_off += dissect_query_records(pd, cur_off,
+					nbns_data_offset, quest, nbns_tree);
 
 		if (ans > 0)
-			cur_off += dissect_answer_records(nbns_data_ptr,
-					ans, pd, cur_off, nbns_tree,
+			cur_off += dissect_answer_records(pd, cur_off,
+					nbns_data_offset,
+					ans, nbns_tree,
 					flags & F_OPCODE,
 					"Answers");
 
 		if (auth > 0)
-			cur_off += dissect_answer_records(nbns_data_ptr,
-					auth, pd, cur_off, nbns_tree, 
+			cur_off += dissect_answer_records(pd, cur_off,
+					nbns_data_offset,
+					auth, nbns_tree, 
 					flags & F_OPCODE,
 					"Authoritative nameservers");
 
 		if (add > 0)
-			cur_off += dissect_answer_records(nbns_data_ptr,
-					add, pd, cur_off, nbns_tree, 
+			cur_off += dissect_answer_records(pd, cur_off,
+					nbns_data_offset,
+					add, nbns_tree, 
 					flags & F_OPCODE,
 					"Additional records");
 	}
@@ -1089,7 +1270,12 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		max_data -= 4;
 
 		/* Source name */
-		len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
+		len = get_nbns_name(pd, offset, offset, name, &name_type);
+		if (len < 0) {
+			/* We ran past the end of the captured data in the
+			   packet. */
+			return;
+		}
 
 		if (tree) {
 			add_name_and_type(nbdgm_tree, offset, len,
@@ -1099,7 +1285,12 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		max_data -= len;
 
 		/* Destination name */
-		len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
+		len = get_nbns_name(pd, offset, offset, name, &name_type);
+		if (len < 0) {
+			/* We ran past the end of the captured data in the
+			   packet. */
+			return;
+		}
 
 		if (tree) {
 			add_name_and_type(nbdgm_tree, offset, len,
@@ -1120,7 +1311,12 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	else if (header.msg_type == 0x14 ||
 			header.msg_type == 0x15 || header.msg_type == 0x16) {
 		/* Destination name */
-		len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
+		len = get_nbns_name(pd, offset, offset, name, &name_type);
+		if (len < 0) {
+			/* We ran past the end of the captured data in the
+			   packet. */
+			return;
+		}
 
 		if (tree) {
 			add_name_and_type(nbdgm_tree, offset, len,
@@ -1219,13 +1415,21 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	switch (msg_type) {
 
 	case SESSION_REQUEST:
-	  len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
+	  len = get_nbns_name(pd, offset, offset, name, &name_type);
+	  if (len < 0) {
+	    /* We ran past the end of the captured data in the packet. */
+	    break;
+	  }
 	  if (tree)
 	    add_name_and_type(nbss_tree, offset, len,
 				"Called name", name, name_type);
 	  offset += len;
 
-	  len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
+	  len = get_nbns_name(pd, offset, offset, name, &name_type);
+	  if (len < 0) {
+	    /* We ran past the end of the captured data in the packet. */
+	    break;
+	  }
 	  
 	  if (tree)
 	    add_name_and_type(nbss_tree, offset, len,
