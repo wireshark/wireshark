@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.37 2003/10/14 00:40:14 guy Exp $
+ * $Id: resolv.c,v 1.38 2003/11/20 05:04:57 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -33,7 +33,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef WIN32
+/*
+ * Win32 doesn't have SIGALRM.
+ *
+ * Mac OS X does, but if you longjmp() out of a name resolution call in
+ * a signal handler, you might crash, because the state of the resolution
+ * code that sends messages to lookupd might be inconsistent if you jump
+ * out of it in middle of a call.
+ *
+ * There's no guarantee that longjmp()ing out of name resolution calls
+ * will work on *any* platform; OpenBSD got rid of the alarm/longjmp
+ * code in tcpdump, to avoid those sorts of problems, and that was
+ * picked up by tcpdump.org tcpdump.
+ */
+#if !defined(WIN32) && !defined(__APPLE__)
 #ifndef AVOID_DNS_TIMEOUT
 #define AVOID_DNS_TIMEOUT
 #endif
