@@ -34,11 +34,14 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include "packet-tcp.h"
 
 static int proto_dlsw = -1;
 
 static gint ett_dlsw = -1;
 static gint ett_dlsw_header = -1;
+static gint ett_dlsw_fc = -1;
+static gint ett_dlsw_sspflags = -1;
 static gint ett_dlsw_data = -1;
 static gint ett_dlsw_vector = -1;
 
@@ -114,6 +117,27 @@ static const value_string dlsw_version_vals[] = {
         { 0x3F        , "Vendor Specific" },
         { 0x4B        , "Pre 1 (RFC 1434)" },
         { 0x00        , NULL }
+};
+
+static const value_string dlsw_fc_cmd_vals[] = {
+	{ 0x00        , "Repeat Window" },
+	{ 0x01        , "Increment Window" },
+	{ 0x02        , "Decrement Window" },
+	{ 0x03        , "Reset Window" },
+	{ 0x04        , "Halve Window" },
+	{ 0x00        , NULL }
+};
+
+static const value_string dlsw_capex_type_vals[] = {
+	{ 0x01        , "Capabilities request" },
+	{ 0x02        , "Capabilities response" },
+	{ 0x00        , NULL }
+};
+
+static const value_string dlsw_frame_direction_vals[] = {
+	{ 0x01        , "Origin DLSw to target DLSw" },
+	{ 0x02        , "Target DLSw to origin DLSw" },
+	{ 0x00        , NULL }
 };
 
 static const value_string dlsw_vector_vals[] = {
@@ -194,11 +218,11 @@ static void
 dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti);
 
 static void
-dissect_dlsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
- guint version,hlen = 0,mlen = 0,mtype,dlchlen = 0,direction;
+ guint version,hlen = 0,mlen = 0,mtype,dlchlen = 0,direction,flags;
  proto_tree      *dlsw_tree = NULL, *ti,*ti2, *dlsw_header_tree = NULL;
- proto_tree      *dlsw_data_tree;
+ proto_tree      *dlsw_flags_tree,*dlsw_data_tree;
 
  if (check_col(pinfo->cinfo, COL_PROTOCOL))
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DLSw");
@@ -234,42 +258,83 @@ dissect_dlsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str(mtype , dlsw_type_vals, "Unknown message Type"));
   if (tree)
   {
-   proto_tree_add_text (dlsw_header_tree,tvb,14,1,"Message Type   = %s (%d)",
+   proto_tree_add_text (dlsw_header_tree,tvb,14,1,"Message Type   = %s (0x%02x)",
     val_to_str(mtype , dlsw_type_vals, "Unknown Type"),mtype);
-   proto_tree_add_text (dlsw_header_tree, tvb, 15,1,"Flow ctrl byte = %d",tvb_get_guint8(tvb,15));
-
+   if (mtype==CAP_EXCHANGE)
+    {
+     proto_tree_add_text (dlsw_header_tree,tvb, 15,1,"Not used for CapEx") ;
+    }
+   else
+    {
+    flags = tvb_get_guint8(tvb,15);
+    ti2 = proto_tree_add_text (dlsw_header_tree, tvb, 15,1,"Flow ctrl byte = 0x%02x",flags);
+    dlsw_flags_tree = proto_item_add_subtree(ti2, ett_dlsw_fc);
+    proto_tree_add_text (dlsw_flags_tree, tvb, 15, 1, "%s",
+	decode_boolean_bitfield(flags, 0x80, 8,
+				"Flow Control Indication: yes",
+				"Flow Control Indication: no"));
+    if (flags & 0x80)
+     {
+     proto_tree_add_text (dlsw_flags_tree, tvb, 15, 1, "%s",
+	decode_boolean_bitfield(flags, 0x40, 8,
+				"Flow Control Acknowledgment: yes",
+				"Flow Control Acknowledgment: no"));
+     proto_tree_add_text (dlsw_flags_tree, tvb, 15, 1, "%s",
+	decode_enumerated_bitfield(flags, 0x07, 8,
+           dlsw_fc_cmd_vals, "Flow Control Operator: %s"));
+     }
+    }
    if (hlen != DLSW_INFO_HEADER)
     {
-    proto_tree_add_text (dlsw_header_tree,tvb, 16,1,"Protocol ID    = %d",tvb_get_guint8(tvb,16)) ;
-    proto_tree_add_text (dlsw_header_tree,tvb, 17,1,"Header Number  = %d",tvb_get_guint8(tvb,17)) ;
-    proto_tree_add_text (dlsw_header_tree,tvb, 18,2,"Reserved") ;
-    proto_tree_add_text (dlsw_header_tree,tvb, 20,1,"Largest Frame size  = %d",tvb_get_guint8(tvb,20)) ;
-    proto_tree_add_text (dlsw_header_tree,tvb, 21,1,"SSP Flags      = %d",tvb_get_guint8(tvb,21)) ;
-    proto_tree_add_text (dlsw_header_tree,tvb, 22,1,"Circuit priority = %s",
-     match_strval((tvb_get_guint8(tvb,22)&7),dlsw_pri_vals)) ;
-    proto_tree_add_text (dlsw_header_tree,tvb, 23,1,"Old message type = %s (%d)",
-     val_to_str(tvb_get_guint8(tvb,23) , dlsw_type_vals, "Unknown Type"),tvb_get_guint8(tvb,23));
     if (mtype==CAP_EXCHANGE)
      {
-     proto_tree_add_text (dlsw_header_tree,tvb, 24 ,14,"Not used for CapEx") ;
-     proto_tree_add_text (dlsw_header_tree,tvb, 38,1,"Frame direction   =  %s",
-      tvb_get_guint8(tvb,38)==1?"Capabilities request":"Capabilities response") ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 16,1,"Protocol ID    = 0x%02x",tvb_get_guint8(tvb,16)) ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 17,1,"Header Number  = 0x%02x",tvb_get_guint8(tvb,17)) ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 18,5,"Not used for CapEx") ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 23,1,"Old message type = %s (0x%02x)",
+     val_to_str(tvb_get_guint8(tvb,23) , dlsw_type_vals, "Unknown Type"),
+     tvb_get_guint8(tvb,23));
+     direction=tvb_get_guint8(tvb,38);
+     proto_tree_add_text (dlsw_header_tree,tvb, 24,14,"Not used for CapEx") ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 38,1,"Frame direction   =  %s (0x%02x)",
+      val_to_str(direction , dlsw_capex_type_vals, "Unknown Direction"),
+      direction);
      proto_tree_add_text (dlsw_header_tree,tvb, 39,33,"Not used for CapEx") ;
      }
     else
      {
+     proto_tree_add_text (dlsw_header_tree,tvb, 16,1,"Protocol ID    = 0x%02x",tvb_get_guint8(tvb,16)) ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 17,1,"Header Number  = 0x%02x",tvb_get_guint8(tvb,17)) ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 18,2,"Reserved") ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 20,1,"Largest Frame size  = %u",tvb_get_guint8(tvb,20)) ;
+     flags = tvb_get_guint8(tvb,21);
+     ti2 = proto_tree_add_text (dlsw_header_tree,tvb, 21,1,"SSP Flags      = 0x%02x",flags) ;
+     dlsw_flags_tree = proto_item_add_subtree(ti2, ett_dlsw_sspflags);
+     proto_tree_add_text (dlsw_flags_tree, tvb, 21, 1, "%s",
+	decode_boolean_bitfield(flags, 0x80, 8,
+				"Explorer message: yes",
+				"Explorer message: no"));
+     proto_tree_add_text (dlsw_header_tree,tvb, 22,1,"Circuit priority = %s",
+      match_strval((tvb_get_guint8(tvb,22)&7),dlsw_pri_vals)) ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 23,1,"Old message type = %s (0x%02x)",
+     val_to_str(tvb_get_guint8(tvb,23) , dlsw_type_vals, "Unknown Type"),
+     tvb_get_guint8(tvb,23));
      proto_tree_add_text (dlsw_header_tree,tvb, 24,6,"Target MAC Address  = %s",tvb_bytes_to_str(tvb,24,6)) ;
      proto_tree_add_text (dlsw_header_tree,tvb, 30,6,"Origin MAC Address  = %s",tvb_bytes_to_str(tvb,30,6)) ;
-     proto_tree_add_text (dlsw_header_tree,tvb, 36,1,"Origin Link SAP     = %02x",tvb_get_guint8(tvb,36)) ;
-     proto_tree_add_text (dlsw_header_tree,tvb, 37,1,"Target Link SAP     = %02x",tvb_get_guint8(tvb,37)) ;
-     proto_tree_add_text (dlsw_header_tree,tvb, 38,1,"Frame direction   = %d",tvb_get_guint8(tvb,38)) ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 36,1,"Origin Link SAP     = 0x%02x",tvb_get_guint8(tvb,36)) ;
+     proto_tree_add_text (dlsw_header_tree,tvb, 37,1,"Target Link SAP     = 0x%02x",tvb_get_guint8(tvb,37)) ;
+     direction=tvb_get_guint8(tvb,38);
+     proto_tree_add_text (dlsw_header_tree,tvb, 38,1,"Frame direction   =  %s (0x%02x)",
+      val_to_str(direction , dlsw_frame_direction_vals, "Unknown Direction"),
+      direction);
      proto_tree_add_text (dlsw_header_tree,tvb, 39,3,"Reserved") ;
      dlchlen=tvb_get_ntohs(tvb,42);
-     proto_tree_add_text (dlsw_header_tree,tvb, 42,2,"DLC Header Length = %d",dlchlen) ;
-	 if ( dlchlen > mlen ){
-		proto_tree_add_text (dlsw_header_tree,tvb, 42,2,"dlchlen > mlen, corrupt packet or not a dlsw packet");
-		return;
-	 }
+     if ( dlchlen > mlen )
+      {
+      proto_tree_add_text (dlsw_header_tree,tvb, 42,2,"DLC Header Length = %u (bogus, must be <= message length %u)",dlchlen, mlen) ;
+      return;
+      }
+     proto_tree_add_text (dlsw_header_tree,tvb, 42,2,"DLC Header Length = %u",dlchlen) ;
      proto_tree_add_text (dlsw_header_tree,tvb, 44,4,"Origin DLC Port ID     = %u",tvb_get_ntohl(tvb,44)) ;
      proto_tree_add_text (dlsw_header_tree,tvb, 48,4,"Origin DLC             = %u",tvb_get_ntohl(tvb,48)) ;
      proto_tree_add_text (dlsw_header_tree,tvb, 52,4,"Origin Transport ID    = %u",tvb_get_ntohl(tvb,52)) ;
@@ -278,7 +343,6 @@ dissect_dlsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      proto_tree_add_text (dlsw_header_tree,tvb, 64,4,"Target Transport ID    = %u",tvb_get_ntohl(tvb,64)) ;
      proto_tree_add_text (dlsw_header_tree,tvb, 68,4,"Reserved") ;
      }
-    direction=tvb_get_guint8(tvb,38);
     }
 
 /* end of header dissector */
@@ -413,27 +477,79 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
 
 }
 
+static int
+dissect_dlsw_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+ if (match_strval(tvb_get_guint8(tvb, 0), dlsw_version_vals) == NULL)
+ {
+   /* Probably not a DLSw packet. */
+   return 0;
+ }
+
+ dissect_dlsw_pdu(tvb, pinfo, tree);
+ return tvb_length(tvb);
+}
+
+static guint
+get_dlsw_pdu_len(tvbuff_t *tvb, int offset)
+{
+  guint hlen, mlen;
+
+  /*
+   * Get the length of the DLSw header.
+   */
+  hlen=tvb_get_guint8(tvb,offset+1);
+
+  /*
+   * Get the length of the DLSw message.
+   */
+  mlen = tvb_get_ntohs(tvb,offset+2);
+
+  /*
+   * The total length is the sum of those.
+   */
+  return hlen + mlen;
+}
+
+static int
+dissect_dlsw_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+ if (match_strval(tvb_get_guint8(tvb, 0), dlsw_version_vals) == NULL)
+ {
+   /* Probably not a DLSw packet. */
+   return 0;
+ }
+
+ tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_dlsw_pdu_len,
+	dissect_dlsw_pdu);
+ return tvb_length(tvb);
+}
+
 void
 proto_register_dlsw(void)
 {
-	static gint *ett[] = {
-		&ett_dlsw,
-		&ett_dlsw_header,
-		&ett_dlsw_data,
-		&ett_dlsw_vector,
-	};
-	proto_dlsw = proto_register_protocol("Data Link SWitching", "DLSw", "dlsw");
-/*	proto_register_field_array(proto_dlsw, hf, array_length(hf)); */
-	proto_register_subtree_array(ett, array_length(ett));
+  static gint *ett[] = {
+    &ett_dlsw,
+    &ett_dlsw_header,
+    &ett_dlsw_fc,
+    &ett_dlsw_sspflags,
+    &ett_dlsw_data,
+    &ett_dlsw_vector,
+  };
+
+  proto_dlsw = proto_register_protocol("Data Link SWitching", "DLSw", "dlsw");
+/* proto_register_field_array(proto_dlsw, hf, array_length(hf)); */
+  proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_dlsw(void)
 {
-	dissector_handle_t dlsw_handle;
+  dissector_handle_t dlsw_udp_handle, dlsw_tcp_handle;
 
-	dlsw_handle = create_dissector_handle(dissect_dlsw, proto_dlsw);
+  dlsw_udp_handle = new_create_dissector_handle(dissect_dlsw_udp, proto_dlsw);
+  dissector_add("udp.port", UDP_PORT_DLSW, dlsw_udp_handle);
 
-	dissector_add("tcp.port", TCP_PORT_DLSW, dlsw_handle);
-	dissector_add("udp.port", UDP_PORT_DLSW, dlsw_handle);
+  dlsw_tcp_handle = new_create_dissector_handle(dissect_dlsw_tcp, proto_dlsw);
+  dissector_add("tcp.port", TCP_PORT_DLSW, dlsw_tcp_handle);
 }
