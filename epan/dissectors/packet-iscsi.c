@@ -771,7 +771,6 @@ handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb
 		proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Good CRC32)", sent);
 	    } else {
 		proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Bad CRC32, should be 0x%08x)", sent, crc);
-printf("bad digest\n");
 	    }
 	}
 	return offset + headerLen + 4;
@@ -860,6 +859,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     iscsi_conv_data_t *cdata = NULL;
     scsi_task_id_t task_key;
     int paddedDataSegmentLength = data_segment_len;
+    guint16 lun=0xffff;
 
     if(paddedDataSegmentLength & 3)
 	paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
@@ -937,6 +937,26 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         }
 
     } else if (opcode == ISCSI_OPCODE_SCSI_COMMAND) {
+        /*we need the LUN value for some of the commands so we can pass it
+          across to the SCSI dissector.
+          Not correct but simple  and probably accurate enough :
+          If bit 6 of first bit is 0   then just take second byte as the LUN
+          If bit 6 of first bit is 1, then take 6 bits from first byte
+          and all of second byte and pretend it is the lun value
+	  people that care can add host specific dissection of vsa later.
+
+          We need to keep track of this on a per transaction basis since
+          for error recoverylevel 0 and when the A bit is clear in a 
+          Data-In PDU, there will not be a LUN field in teh iscsi layer.
+        */
+        if(tvb_get_guint8(tvb, offset+8)&0x40){
+          /* volume set addressing */
+          lun=tvb_get_guint8(tvb,offset+8)&0x3f;
+          lun<<=8;
+          lun|=tvb_get_guint8(tvb,offset+9);
+        } else {
+          lun=tvb_get_guint8(tvb,offset+9);
+        }
         if (!pinfo->fd->flags.visited){
             iscsi_conv_data_t ckey;
 
@@ -953,26 +973,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdata = g_mem_chunk_alloc (iscsi_req_vals);
             cdata->conv_idx = iscsi_session->conv_idx;
             cdata->itt = tvb_get_ntohl (tvb, offset+16);
-            /* we need the LUN value for some of the commands so we can pass it
-              across to the SCSI dissector.
-              Not correct but simple  and probably accurate enough :
-              If bit 6 of first bit is 0   then just take second byte as the LUN
-              If bit 6 of first bit is 1, then take 6 bits from first byte
-              and all of second byte and pretend it is the lun value
-	      people that care can add host specific dissection of vsa later.
-
-              We need to keep track of this on a per transaction basis since
-              for error recoverylevel 0 and when the A bit is clear in a 
-              Data-In PDU, there will not be a LUN field in teh iscsi layer.
-            */
-            if(tvb_get_guint8(tvb, offset+8)&0x40){
-              /* volume set addressing */
-              cdata->lun=tvb_get_guint8(tvb,offset+8)&0x3f;
-              cdata->lun<<=8;
-              cdata->lun|=tvb_get_guint8(tvb,offset+9);
-            } else {
-              cdata->lun=tvb_get_guint8(tvb,offset+9);
-            }
+            cdata->lun=lun;
             cdata->request_frame=pinfo->fd->num;
             cdata->data_in_frame=0;
             cdata->data_out_frame=0;
@@ -1675,7 +1676,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		  ~I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
         /* SCSI Command */
         dissect_scsi_cdb (tvb, pinfo, tree, cdb_offset, 16, SCSI_DEV_UNKNOWN, 
-		(guint16) (cdata?cdata->lun:0xffff) );
+		lun);
     }
     else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
         if (scsi_status == 0x2) {
