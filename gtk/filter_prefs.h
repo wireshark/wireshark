@@ -1,7 +1,7 @@
-/* filter.h
- * Definitions for packet filter window
+/* filter_prefs.h
+ * Definitions for packet filter preferences window
  *
- * $Id: filter_prefs.h,v 1.1 1999/09/09 03:35:32 gram Exp $
+ * $Id: filter_prefs.h,v 1.2 1999/09/09 04:25:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

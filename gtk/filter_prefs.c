@@ -1,7 +1,7 @@
-/* filter.c
- * Routines for managing filter sets
+/* filter_prefs.c
+ * Dialog boxes for preferences for filter sets
  *
- * $Id: filter_prefs.c,v 1.1 1999/09/09 03:35:31 gram Exp $
+ * $Id: filter_prefs.c,v 1.2 1999/09/09 04:25:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
