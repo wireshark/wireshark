@@ -12,6 +12,8 @@ CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap \
 # some functions that have disappeared in gtk+-1.3. I might
 # get around to #ifdef'ing them out in our gtkclist.c.
 OBJECTS=capture_dlg.obj \
+	colors.obj       \
+	color_dlg.obj    \
 	column_prefs.obj \
 	display_opts.obj \
 	file_dlg.obj \

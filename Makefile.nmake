@@ -147,7 +147,6 @@ ethereal_OBJECTS = \
 	$(DISSECTOR_OBJECTS) \
 	$(ETHEREAL_COMMON_OBJECTS) \
 	capture.obj      \
-	colors.obj       \
 	file.obj         \
 	summary.obj      \
 
@@ -158,7 +157,6 @@ EXTRA_ethereal_OBJECTS = \
 	inet_aton.obj     \
 	inet_pton.obj     \
 	inet_ntop.obj
-
 
 LIBS= wiretap\libwtap.lib gtk\libui.lib wsock32.lib user32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
