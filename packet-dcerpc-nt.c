@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.24 2002/03/29 04:35:48 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.25 2002/04/16 02:02:04 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -888,4 +888,26 @@ void dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset,
 					"[Long frame (%d bytes): SPOOLSS]",
 					tvb_length_remaining(tvb, offset));
 	}
+}
+
+/* Dissect a NT status code */
+
+int
+dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		 proto_tree *tree, char *drep, 
+		 int hfindex, guint32 *pdata)
+{
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hfindex, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str(status, NT_errors, 
+					   "Unknown error"));
+	if (pdata)
+		*pdata = status;
+
+	return offset;
 }
