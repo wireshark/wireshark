@@ -918,19 +918,15 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_dhcpfo(void)
 {
-/*
- *	FIXME: I tried to make the port configurable but it just dumps core [JMayer]
- *	static int initialized = FALSE;
- *	static int port = 0;
- *
- *	if (initialized) {
- *		dissector_delete("tcp.port", port, dhcpfo_handle);
- *	} else {
- *		initialized = TRUE;
- *	}
- *	port = tcp_port_pref;
- */
+	static gboolean initialized = FALSE;
+	static unsigned int port = 0;
 
+	if (initialized) {
+		dissector_delete("tcp.port", port, dhcpfo_handle);
+	} else {
+		initialized = TRUE;
+	}
+	port = tcp_port_pref;
 	dissector_add("tcp.port", tcp_port_pref, dhcpfo_handle);
 }
 
@@ -1159,8 +1155,8 @@ proto_register_dhcpfo(void)
 	module_t *dhcpfo_module;
 
 /* Register the protocol name and description */
-	proto_dhcpfo = proto_register_protocol("DHCP FAILOVER",
-	    "DHCP_Failover", "DHCPFAILOVER");
+	proto_dhcpfo = proto_register_protocol("DHCP Failover", "DHCPFO",
+	    "dhcpfo");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_dhcpfo, hf, array_length(hf));
@@ -1168,12 +1164,8 @@ proto_register_dhcpfo(void)
 
 	dhcpfo_handle = create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
 
-/*
- *	FIXME: I tried to make the port configurable but it just dumps core [JMayer]
- *	dhcpfo_module = prefs_register_protocol(proto_dhcpfo, proto_reg_handoff_dhcpfo);
- *	prefs_register_uint_preference(dhcpfo_module, "tcp.port",
- *		"DHCPFO TCP Port", "Set the port for DHCP failover communications if other than default of TCP_PORT_DHCPFO",
- *		10, &tcp_port_pref);
- */
+	dhcpfo_module = prefs_register_protocol(proto_dhcpfo, proto_reg_handoff_dhcpfo);
+	prefs_register_uint_preference(dhcpfo_module, "tcp_port",
+		"DHCPFO TCP Port", "Set the port for DHCP failover communications if other than default of TCP_PORT_DHCPFO",
+		10, &tcp_port_pref);
 }
-
