@@ -1,4 +1,4 @@
-$Id: proto_tree,v 1.5 1999/10/12 06:21:15 gram Exp $
+$Id: proto_tree,v 1.6 1999/10/20 06:40:44 guy Exp $
 
 The Ethereal Protocol Tree
 ==========================
@@ -60,6 +60,43 @@ That one file would have gotten very large; one small change would have
 required a re-compilation of the entire file. Also, by allowing
 registration of protocols and fields at run-time, loadable modules of
 protocol dissectors (perhaps even user-supplied) is feasible.
+
+To do this, each protocol should have a register routine, which will be
+called when Ethereal starts.  The code to call the register routines is
+generated automatically; to arrange that a protocol's register routine
+be called at startup:
+
+	the file containing a dissector's "register" routine must be
+	added to "DISSECTOR_SOURCES" in "Makefile.am";
+ 
+	the "register" routine must have a name of the form
+	"proto_register_XXX";
+  
+	the "register" routine must take no argument, and return no
+	value;
+ 
+	the "register" routine's name must appear in the source file
+	either at the beginning of the line, or preceded only by "void "
+	at the beginning of the line (that'd typically be the
+	definition) - other white space shouldn't cause a problem, e.g.:
+ 
+void proto_register_XXX(void) {
+ 
+	...
+ 
+}
+ 
+and
+ 
+void
+proto_register_XXX( void )
+{
+ 
+	...
+ 
+}
+ 
+	and so on should work.
 
 For every protocol or field that a dissector wants to register, a variable of
 type int needs to be used to keep track of the protocol. The IDs are
@@ -301,7 +338,7 @@ the ellipsis in the function prototype).
 Now that the proto_tree has detailed information about bitfield fields,
 you an use proto_tree_add_item() with no extra processing to add bitfield
 values to your tree.  Here's an example. Take the Format Identifer (FID)
-field in the Tranmission Header (TH)  portion of the SNA protocol. The
+field in the Transmission Header (TH)  portion of the SNA protocol. The
 FID is the high nibble of the first byte of the TH. The FID would be
 registered like this:
 
