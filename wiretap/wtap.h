@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.25 1999/08/18 04:41:20 guy Exp $
+ * $Id: wtap.h,v 1.26 1999/08/18 17:08:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -37,7 +37,11 @@
  * WTAP_ENCAP_PER_PACKET is a value passed to "wtap_dump_open()" or
  * "wtap_dump_fdopen()" to indicate that there is no single encapsulation
  * type for all packets in the file; this may cause those routines to
- * fail if the capture file format being written can't support that. */
+ * fail if the capture file format being written can't support that.
+ *
+ * WTAP_ENCAP_UNKNOWN is returned by "wtap_pcap_encap_to_wtap_encap()"
+ * if it's handed an unknown encapsulation. */
+#define WTAP_ENCAP_UNKNOWN			-2
 #define WTAP_ENCAP_PER_PACKET			-1
 #define WTAP_ENCAP_NONE				0
 #define WTAP_ENCAP_ETHERNET			1

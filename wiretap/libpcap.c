@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.8 1999/08/18 04:41:19 guy Exp $
+ * $Id: libpcap.c,v 1.9 1999/08/18 17:08:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -232,7 +232,7 @@ static int libpcap_read(wtap *wth)
 int wtap_pcap_encap_to_wtap_encap(int encap)
 {
 	if (encap < 0 || encap >= NUM_PCAP_ENCAPS)
-		return WTAP_FILE_UNKNOWN;
+		return WTAP_ENCAP_UNKNOWN;
 	return pcap_encap[encap];
 }
 
