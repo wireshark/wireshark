@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.18 2001/11/13 23:55:44 gram Exp $
+ * $Id: toshiba.c,v 1.19 2001/12/08 07:46:54 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -146,7 +146,7 @@ static gboolean toshiba_check_file_type(wtap *wth)
 {
 	char	buf[TOSHIBA_LINE_LENGTH];
 	guint	i, reclen, level, line;
-    char    byte;
+	char	byte;
 
 	buf[TOSHIBA_LINE_LENGTH-1] = 0;
 
