@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.62 2002/08/28 21:00:37 jmayer Exp $
+ * $Id: packet-wsp.c,v 1.63 2002/09/25 00:01:18 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3986,10 +3986,10 @@ proto_register_wsp(void)
 /* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_wsp_header_tid,
-			{ 	"Transmission ID",
+			{ 	"Transaction ID",
 				"wsp.TID",
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Transmission ID", HFILL
+				"Transaction ID", HFILL
 			}
 		},
 		{ &hf_wsp_header_pdu_type,
