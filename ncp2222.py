@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.40 2002/12/02 23:43:25 guy Exp $
+$Id: ncp2222.py,v 1.41 2003/01/06 02:10:54 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -7266,7 +7266,7 @@ proto_register_ncp2222(void)
 	{ "Class Filter", "ncp.nds_class_filter", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_time_filter,
-	{ "Time Filter", "ncp.nds_time_filter", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Time Filter", "ncp.nds_time_filter", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_partition_root_id,
 	{ "Partition Root ID", "ncp.nds_partition_root_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
