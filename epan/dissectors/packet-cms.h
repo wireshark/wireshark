@@ -1,10 +1,9 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-cms.h                                                               */
-/* ../../tools/asn2eth.py -X -b -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
+/* ./packet-cms.h                                                             */
+/* ../../tools/asn2eth.py -e -X -b -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.h */
-/* Include files: packet-cms-exp.h, packet-cms-valexp.h */
 
 /* packet-cms.h
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
@@ -33,15 +32,13 @@
 #ifndef PACKET_CMS_H
 #define PACKET_CMS_H
 
+int dissect_cms_ContentInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index);
+
 
 /*--- Included file: packet-cms-exp.h ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-cms-exp.h                                                           */
-/* ../../tools/asn2eth.py -X -b -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
-
 int dissect_cms_SignedData(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_cms_IssuerAndSerialNumber(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_cms_Countersignature(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-cms-exp.h ---*/
