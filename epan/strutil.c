@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.15 2003/12/29 19:53:52 guy Exp $
+ * $Id: strutil.c,v 1.16 2004/01/25 16:58:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -312,7 +312,7 @@ is_byte_sep(guint8 c)
  * is_byte_sep() into a byte array.
  */
 gboolean
-hex_str_to_bytes(const guchar *hex_str, GByteArray *bytes) {
+hex_str_to_bytes(const char *hex_str, GByteArray *bytes) {
 	guint8		val;
 	guchar		*p, *q, *punct;
 	char		two_digits[3];

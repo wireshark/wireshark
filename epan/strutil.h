@@ -1,7 +1,7 @@
 /* strutil.h
  * String utility definitions
  *
- * $Id: strutil.h,v 1.13 2003/12/29 19:53:52 guy Exp $
+ * $Id: strutil.h,v 1.14 2004/01/25 16:58:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,7 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
 gchar*     format_text(const guchar *line, int len);
 gchar*     bytes_to_str(const guint8 *, int);
 gchar*     bytes_to_str_punct(const guint8 *, int, gchar punct);
-gboolean   hex_str_to_bytes(const guchar *hex_str, GByteArray *bytes);
+gboolean   hex_str_to_bytes(const char *hex_str, GByteArray *bytes);
 
 const guint8 * epan_memmem(const guint8 *haystack, guint haystack_len,
 		const guint8 *needle, guint needle_len);
