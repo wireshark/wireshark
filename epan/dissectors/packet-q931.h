@@ -46,4 +46,6 @@ extern const value_string q931_cause_location_vals[];
 
 extern const value_string q931_cause_code_vals[];
 
+extern const value_string q931_protocol_discriminator_vals[];
+
 #endif

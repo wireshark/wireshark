@@ -2276,7 +2276,7 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 #define	Q931_PROTOCOL_DISCRIMINATOR_IA5		0x04
 #define Q931_PROTOCOL_DISCRIMINATOR_ASN1	0x05
 
-static const value_string q931_protocol_discriminator_vals[] = {
+const value_string q931_protocol_discriminator_vals[] = {
 	{ 0x00,					"User-specific protocol" },
 	{ 0x01,					"OSI high layer protocols" },
 	{ 0x02,					"X.244" },
