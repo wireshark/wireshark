@@ -2,7 +2,7 @@
  * Routines for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.c,v 1.5 2002/08/28 21:00:29 jmayer Exp $
+ * $Id: packet-rmi.c,v 1.6 2003/02/05 06:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,12 @@
 
 #include "packet-rmi.h"
 
+static void
+dissect_ser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static rmi_type
+get_rmi_type(const guchar *data, int datalen);
+
 /* Initialize the protocol and registered fields */
 static int proto_rmi             = -1;
 static int proto_ser             = -1;
@@ -57,7 +63,6 @@ static int hf_ser_version        = -1;
 static gint ett_rmi               = -1;
 static gint ett_rmi_magic         = -1;
 static gint ett_rmi_version       = -1;
-static gint ett_rmi_protocol      = -1;
 static gint ett_rmi_inputmessage  = -1;
 static gint ett_rmi_outputmessage = -1;
 static gint ett_rmi_epid_length   = -1;
@@ -65,10 +70,42 @@ static gint ett_rmi_epid_hostname = -1;
 static gint ett_rmi_epid_port     = -1;
 
 static gint ett_ser               = -1;
-static gint ett_ser_magic         = -1;
-static gint ett_ser_version       = -1;
+
+/*
+ * See
+ *
+ *	http://java.sun.com/products/jdk/1.2/docs/guide/rmi/spec/rmi-protocol.doc1.html
+ *
+ * for RMI, and
+ *
+ *	http://java.sun.com/products/jdk/1.2/docs/guide/serialization/spec/protocol.doc.html
+ *
+ * for the serialization protocol.
+ */
 
 #define TCP_PORT_RMI	1099
+
+static const value_string rmi_protocol_str[] = {
+    {RMI_OUTPUTSTREAM_PROTOCOL_STREAM,    "StreamProtocol"},
+    {RMI_OUTPUTSTREAM_PROTOCOL_SINGLEOP,  "SingleOpProtocol"},
+    {RMI_OUTPUTSTREAM_PROTOCOL_MULTIPLEX, "MultiPlexProtocol"},
+    {0, NULL}
+};
+
+static const value_string rmi_output_message_str[] = {
+    {RMI_OUTPUTSTREAM_MESSAGE_CALL,       "Call"},
+    {RMI_OUTPUTSTREAM_MESSAGE_PING,       "Ping"},
+    {RMI_OUTPUTSTREAM_MESSAGE_DGCACK,     "DgcAck"},
+    {0, NULL}
+};
+
+static const value_string rmi_input_message_str[] = {
+    {RMI_INPUTSTREAM_MESSAGE_ACK,          "ProtocolAck"},
+    {RMI_INPUTSTREAM_MESSAGE_NOTSUPPORTED, "ProtocolNotSupported"},
+    {RMI_INPUTSTREAM_MESSAGE_RETURNDATA,   "ReturnData"},
+    {RMI_INPUTSTREAM_MESSAGE_PINGACK,      "PingAck"},
+    {0, NULL}
+};
 
 static void
 dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -146,23 +183,18 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rmi_tree = proto_item_add_subtree(ti, ett_rmi);
 	switch(rmitype) {
 	case RMI_OUTPUTSTREAM:
+	    /* XXX - uint, or string? */
 	    proto_tree_add_uint(rmi_tree, hf_rmi_magic,
 				tvb, offset,     4, tvb_get_ntohl(tvb,0));
-	    proto_tree_add_uint(rmi_tree, hf_rmi_version,
-				tvb, offset + 4, 2, tvb_get_ntohs(tvb,4));
-	    proto_tree_add_string(rmi_tree, hf_rmi_protocol,
-				  tvb, offset + 6, 1,
-				  val_to_str(tvb_get_guint8(tvb, 6),
-					     rmi_protocol_str,
-					     "Unknown Protocol"));
+	    proto_tree_add_item(rmi_tree, hf_rmi_version,
+				tvb, offset + 4, 2, FALSE);
+	    proto_tree_add_item(rmi_tree, hf_rmi_protocol,
+				  tvb, offset + 6, 1, FALSE);
 	    break;
 	case RMI_INPUTSTREAM:
 	    message = tvb_get_guint8(tvb, 0);
-	    proto_tree_add_string(rmi_tree, hf_rmi_inputmessage,
-				  tvb, offset, 1,
-				  val_to_str(message,
-					     rmi_input_message_str,
-					     "Unknown Message"));
+	    proto_tree_add_uint(rmi_tree, hf_rmi_inputmessage,
+				  tvb, offset, 1, message);
 	    if(message == RMI_INPUTSTREAM_MESSAGE_ACK) {
 		proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
 				    "EndPointIdentifier");
@@ -195,11 +227,8 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	case RMI_OUTPUTMESSAGE:
 	    message = tvb_get_guint8(tvb, 0);
-	    proto_tree_add_string(rmi_tree, hf_rmi_outputmessage,
-				  tvb, offset, 1,
-				  val_to_str(message,
-					     rmi_output_message_str,
-					     "Unknown Message"));
+	    proto_tree_add_uint(rmi_tree, hf_rmi_outputmessage,
+				  tvb, offset, 1, message);
 	    if(message == RMI_OUTPUTSTREAM_MESSAGE_CALL) {
 		proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
 				    "Serialization Data");
@@ -234,10 +263,10 @@ dissect_ser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(tree) {
 	ti = proto_tree_add_item(tree, proto_ser, tvb, 0, -1, FALSE);
 	ser_tree = proto_item_add_subtree(ti, ett_ser);
-	proto_tree_add_uint(ser_tree, hf_ser_magic,
-			    tvb, offset,     2, tvb_get_ntohs(tvb,0));
-	proto_tree_add_uint(ser_tree, hf_ser_version,
-			    tvb, offset + 2, 2, tvb_get_ntohs(tvb,2));
+	proto_tree_add_item(ser_tree, hf_ser_magic,
+			    tvb, offset,     2, FALSE);
+	proto_tree_add_item(ser_tree, hf_ser_version,
+			    tvb, offset + 2, 2, FALSE);
 
     }
 }
@@ -254,7 +283,7 @@ get_rmi_type(const guchar *data, int datalen)
 	}
     }
     if (datalen >= 4) {
-	if(strncmp(data, "JRMI", 4) == 0) {
+	if(strncmp(data, RMI_MAGIC, 4) == 0) {
 	    return RMI_OUTPUTSTREAM;
 	}
     }
@@ -291,15 +320,15 @@ proto_register_rmi(void)
 	    "RMI Protocol Version", HFILL }},
 	{ &hf_rmi_protocol,
 	  { "Protocol","rmi.protocol",
-	    FT_STRING, BASE_HEX, NULL, 0x0,
+	    FT_UINT8, BASE_HEX, VALS(rmi_protocol_str), 0x0,
 	    "RMI Protocol Type", HFILL }},
 	{ &hf_rmi_inputmessage,
 	  { "Input Stream Message", "rmi.inputstream.message",
-	    FT_STRING, BASE_HEX, NULL, 0x0,
+	    FT_UINT8, BASE_HEX, VALS(rmi_input_message_str), 0x0,
 	    "RMI Inputstream Message Token", HFILL }},
 	{ &hf_rmi_outputmessage,
 	  { "Output Stream Message", "rmi.outputstream.message",
-	    FT_STRING, BASE_HEX, NULL, 0x0,
+	    FT_UINT8, BASE_HEX, VALS(rmi_output_message_str), 0x0,
 	    "RMI Outputstream Message token", HFILL }},
 	{ &hf_rmi_epid_length,
 	  { "Length", "rmi.endpoint_id.length",

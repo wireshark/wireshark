@@ -2,7 +2,7 @@
  * header file for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.h,v 1.3 2002/08/28 21:00:29 jmayer Exp $
+ * $Id: packet-rmi.h,v 1.4 2003/02/05 06:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,36 +65,5 @@ typedef enum {
     RMI_INPUTSTREAM     = 16,
     SERIALIZATION_DATA  = 128,
 } rmi_type;
-
-static const value_string rmi_protocol_str[] = {
-    {RMI_OUTPUTSTREAM_PROTOCOL_STREAM,    "StreamProtocol"},
-    {RMI_OUTPUTSTREAM_PROTOCOL_SINGLEOP,  "SingleOpProtocol"},
-    {RMI_OUTPUTSTREAM_PROTOCOL_MULTIPLEX, "MultiPlexProtocol"},
-    {0, NULL}
-};
-
-static const value_string rmi_output_message_str[] = {
-    {RMI_OUTPUTSTREAM_MESSAGE_CALL,       "Call"},
-    {RMI_OUTPUTSTREAM_MESSAGE_PING,       "Ping"},
-    {RMI_OUTPUTSTREAM_MESSAGE_DGCACK,     "DgcAck"},
-    {0, NULL}
-};
-
-static const value_string rmi_input_message_str[] = {
-    {RMI_INPUTSTREAM_MESSAGE_ACK,          "ProtocolAck"},
-    {RMI_INPUTSTREAM_MESSAGE_NOTSUPPORTED, "ProtocolNotSupported"},
-    {RMI_INPUTSTREAM_MESSAGE_RETURNDATA,   "ReturnData"},
-    {RMI_INPUTSTREAM_MESSAGE_PINGACK,      "PingAck"},
-    {0, NULL}
-};
-
-static void
-dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-static void
-dissect_ser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-static rmi_type
-get_rmi_type(const guchar *data, int datalen);
 
 #endif
