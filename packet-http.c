@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.53 2002/08/13 09:10:02 guy Exp $
+ * $Id: packet-http.c,v 1.54 2002/08/14 00:40:14 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,17 +137,19 @@ base64_to_tvb(char *base64)
 	len = base64_decode(data);
 	tvb = tvb_new_real_data(data, len, len);
 
-	/* XXX: need to set free function */
+	tvb_set_free_cb(tvb, g_free);
 
 	return tvb;
 }
 
 static void
-dissect_http_ntlmssp(packet_info *pinfo, proto_tree *tree, char *line)
+dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, char *line)
 {
 	tvbuff_t *ntlmssp_tvb;
 
 	ntlmssp_tvb = base64_to_tvb(line);
+	tvb_set_child_real_data_tvbuff(tvb, ntlmssp_tvb);
+	add_new_data_source(pinfo, ntlmssp_tvb, "NTLMSSP Data");
 
 	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
 
@@ -312,14 +314,14 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				hdr_tree = proto_item_add_subtree(
 					hdr_item, ett_http_ntlmssp);
 				text += strlen(NTLMSSP_AUTH);
-				dissect_http_ntlmssp(pinfo, hdr_tree, text);
+				dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
 			}
 
 			if (strncmp(text, NTLMSSP_WWWAUTH, strlen(NTLMSSP_WWWAUTH)) == 0) {
 				hdr_tree = proto_item_add_subtree(
 					hdr_item, ett_http_ntlmssp);
 				text += strlen(NTLMSSP_WWWAUTH);
-				dissect_http_ntlmssp(pinfo, hdr_tree, text);
+				dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
 			}
 		}
 		offset = next_offset;
