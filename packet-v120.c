@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.31 2003/09/02 19:18:52 guy Exp $
+ * $Id: packet-v120.c,v 1.32 2004/01/03 03:49:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,18 @@
 static int proto_v120 = -1;
 static int hf_v120_address = -1;
 static int hf_v120_control = -1;
+static int hf_v120_n_r = -1;
+static int hf_v120_n_s = -1;
+static int hf_v120_p = -1;
+static int hf_v120_p_ext = -1;
+static int hf_v120_f = -1;
+static int hf_v120_f_ext = -1;
+static int hf_v120_s_ftype = -1;
+static int hf_v120_u_modifier_cmd = -1;
+static int hf_v120_u_modifier_resp = -1;
+static int hf_v120_ftype_i = -1;
+static int hf_v120_ftype_s_u = -1;
+static int hf_v120_ftype_s_u_ext = -1;
 static int hf_v120_header = -1;
 
 static gint ett_v120 = -1;
@@ -46,6 +58,32 @@ static gint ett_v120_header = -1;
 static dissector_handle_t data_handle;
 
 static int dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree);
+
+/* Used only for U frames */
+static const xdlc_cf_items v120_cf_items = {
+	NULL,
+	NULL,
+	&hf_v120_p,
+	&hf_v120_f,
+	NULL,
+	&hf_v120_u_modifier_cmd,
+	&hf_v120_u_modifier_resp,
+	NULL,
+	&hf_v120_ftype_s_u
+};
+
+/* Used only for I and S frames */
+static const xdlc_cf_items v120_cf_items_ext = {
+	&hf_v120_n_r,
+	&hf_v120_n_s,
+	&hf_v120_p_ext,
+	&hf_v120_f_ext,
+	&hf_v120_s_ftype,
+	NULL,
+	NULL,
+	&hf_v120_ftype_i,
+	&hf_v120_ftype_s_u_ext
+};
 
 static void
 dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -126,7 +164,8 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = NULL;
     }
     control = dissect_xdlc_control(tvb, 2, pinfo, v120_tree, hf_v120_control,
-	    ett_v120_control, is_response, TRUE, FALSE);
+	    ett_v120_control, &v120_cf_items, &v120_cf_items_ext,
+	    is_response, TRUE, FALSE);
     if (tree) {
 	v120len = 2 + XDLC_CONTROL_LEN(control, TRUE);
 	if (tvb_bytes_exist(tvb, v120len, 1))
@@ -204,6 +243,42 @@ proto_register_v120(void)
 	{ &hf_v120_control,
 	  { "Control Field", "v120.control", FT_UINT16, BASE_HEX, NULL, 0x0,
 	  	"", HFILL }},
+	{ &hf_v120_n_r,
+	    { "N(R)", "v120.control.n_r", FT_UINT16, BASE_DEC,
+		NULL, XDLC_N_R_EXT_MASK, "", HFILL }},
+	{ &hf_v120_n_s,
+	    { "N(S)", "v120.control.n_s", FT_UINT16, BASE_DEC,
+		NULL, XDLC_N_S_EXT_MASK, "", HFILL }},
+	{ &hf_v120_p,
+	    { "Poll", "v120.control.p", FT_BOOLEAN, 8,
+		TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+	{ &hf_v120_p_ext,
+	    { "Poll", "v120.control.p", FT_BOOLEAN, 16,
+		TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+	{ &hf_v120_f,
+	    { "Final", "v120.control.f", FT_BOOLEAN, 8,
+		TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+	{ &hf_v120_f_ext,
+	    { "Final", "v120.control.f", FT_BOOLEAN, 16,
+		TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+	{ &hf_v120_s_ftype,
+	    { "Supervisory frame type", "v120.control.s_ftype", FT_UINT16, BASE_HEX,
+		VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+	{ &hf_v120_u_modifier_cmd,
+	    { "Command", "v120.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+		VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+	{ &hf_v120_u_modifier_resp,
+	    { "Response", "v120.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+		VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+	{ &hf_v120_ftype_i,
+	    { "Frame type", "v120.control.ftype", FT_UINT16, BASE_HEX,
+		VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+	{ &hf_v120_ftype_s_u,
+	    { "Frame type", "v120.control.ftype", FT_UINT8, BASE_HEX,
+		VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+	{ &hf_v120_ftype_s_u_ext,
+	    { "Frame type", "v120.control.ftype", FT_UINT16, BASE_HEX,
+		VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
 	{ &hf_v120_header,
 	  { "Header Field", "v120.header", FT_STRING, BASE_NONE, NULL, 0x0,
 	  	"", HFILL }},

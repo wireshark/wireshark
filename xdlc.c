@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.21 2003/09/02 19:18:52 guy Exp $
+ * $Id: xdlc.c,v 1.22 2004/01/03 03:49:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,39 +34,19 @@
 #include <epan/packet.h>
 #include "xdlc.h"
 
-/*
- * N(S) and N(R) fields, in basic and extended operation.
- */
-#define XDLC_N_R_MASK		0xE0	/* basic */
-#define XDLC_N_R_SHIFT		5
-#define XDLC_N_R_EXT_MASK	0xFE00	/* extended */
-#define XDLC_N_R_EXT_SHIFT	9
-#define XDLC_N_S_MASK		0x0E	/* basic */
-#define XDLC_N_S_SHIFT		1
-#define XDLC_N_S_EXT_MASK	0x00FE	/* extended */
-#define XDLC_N_S_EXT_SHIFT	1
+const value_string ftype_vals[] = {
+    { XDLC_I, "Information frame" },
+    { XDLC_S, "Supervisory frame" },
+    { XDLC_U, "Unnumbered frame" },
+    { 0,      NULL }
+};
 
-/*
- * Poll/Final bit, in basic and extended operation.
- */
-#define XDLC_P_F	0x10	/* basic */
-#define XDLC_P_F_EXT	0x0100	/* extended */
-
-/*
- * S-format frame types.
- */
-#define XDLC_S_FTYPE_MASK	0x0C
-#define XDLC_RR			0x00	/* Receiver ready */
-#define XDLC_RNR		0x04	/* Receiver not ready */
-#define XDLC_REJ		0x08	/* Reject */
-#define XDLC_SREJ		0x0C	/* Selective reject */
-
-static const value_string stype_vals[] = {
-    { XDLC_RR,   "Receiver ready" },
-    { XDLC_RNR,  "Receiver not ready" },
-    { XDLC_REJ,  "Reject" },
-    { XDLC_SREJ, "Selective reject" },
-    { 0,         NULL }
+const value_string stype_vals[] = {
+    { XDLC_RR>>2,   "Receiver ready" },
+    { XDLC_RNR>>2,  "Receiver not ready" },
+    { XDLC_REJ>>2,  "Reject" },
+    { XDLC_SREJ>>2, "Selective reject" },
+    { 0,            NULL }
 };
 
 static const value_string modifier_short_vals_cmd[] = {
@@ -91,25 +71,25 @@ static const value_string modifier_short_vals_cmd[] = {
     { 0,          NULL }
 };
 
-static const value_string modifier_vals_cmd[] = {
-    { XDLC_UI,    "Unnumbered Information" },
-    { XDLC_UP,    "Unnumbered Poll" },
-    { XDLC_DISC,  "Disconnect" },
-    { XDLC_UA,    "Unnumbered Acknowledge" },
-    { XDLC_SNRM,  "Set Normal Response Mode" },
-    { XDLC_TEST,  "Test" },
-    { XDLC_SIM,   "Set Initialization Mode" },
-    { XDLC_FRMR,  "Frame reject" },
-    { XDLC_CFGR,  "Configure" },
-    { XDLC_SARM,  "Set Asynchronous Response Mode" },
-    { XDLC_SABM,  "Set Asynchronous Balanced Mode" },
-    { XDLC_SARME, "Set Asynchronous Response Mode Extended" },
-    { XDLC_SABME, "Set Asynchronous Balanced Mode Extended" },
-    { XDLC_RESET, "Reset" },
-    { XDLC_XID,   "Exchange identification" },
-    { XDLC_SNRME, "Set Normal Response Mode Extended" },
-    { XDLC_BCN,   "Beacon" },
-    { 0,          NULL }
+const value_string modifier_vals_cmd[] = {
+    { XDLC_UI>>2,    "Unnumbered Information" },
+    { XDLC_UP>>2,    "Unnumbered Poll" },
+    { XDLC_DISC>>2,  "Disconnect" },
+    { XDLC_UA>>2,    "Unnumbered Acknowledge" },
+    { XDLC_SNRM>>2,  "Set Normal Response Mode" },
+    { XDLC_TEST>>2,  "Test" },
+    { XDLC_SIM>>2,   "Set Initialization Mode" },
+    { XDLC_FRMR>>2,  "Frame reject" },
+    { XDLC_CFGR>>2,  "Configure" },
+    { XDLC_SARM>>2,  "Set Asynchronous Response Mode" },
+    { XDLC_SABM>>2,  "Set Asynchronous Balanced Mode" },
+    { XDLC_SARME>>2, "Set Asynchronous Response Mode Extended" },
+    { XDLC_SABME>>2, "Set Asynchronous Balanced Mode Extended" },
+    { XDLC_RESET>>2, "Reset" },
+    { XDLC_XID>>2,   "Exchange identification" },
+    { XDLC_SNRME>>2, "Set Normal Response Mode Extended" },
+    { XDLC_BCN>>2,   "Beacon" },
+    { 0,             NULL }
 };
 
 static const value_string modifier_short_vals_resp[] = {
@@ -133,25 +113,25 @@ static const value_string modifier_short_vals_resp[] = {
     { 0,          NULL }
 };
 
-static const value_string modifier_vals_resp[] = {
-    { XDLC_UI,    "Unnumbered Information" },
-    { XDLC_UP,    "Unnumbered Poll" },
-    { XDLC_RD,    "Request Disconnect" },
-    { XDLC_UA,    "Unnumbered Acknowledge" },
-    { XDLC_SNRM,  "Set Normal Response Mode" },
-    { XDLC_TEST,  "Test" },
-    { XDLC_RIM,   "Request Initialization Mode" },
-    { XDLC_FRMR,  "Frame reject" },
-    { XDLC_CFGR,  "Configure" },
-    { XDLC_DM,    "Disconnected mode" },
-    { XDLC_SABM,  "Set Asynchronous Balanced Mode" },
-    { XDLC_SARME, "Set Asynchronous Response Mode Extended" },
-    { XDLC_SABME, "Set Asynchronous Balanced Mode Extended" },
-    { XDLC_RESET, "Reset" },
-    { XDLC_XID,   "Exchange identification" },
-    { XDLC_SNRME, "Set Normal Response Mode Extended" },
-    { XDLC_BCN,   "Beacon" },
-    { 0,          NULL }
+const value_string modifier_vals_resp[] = {
+    { XDLC_UI>>2,    "Unnumbered Information" },
+    { XDLC_UP>>2,    "Unnumbered Poll" },
+    { XDLC_RD>>2,    "Request Disconnect" },
+    { XDLC_UA>>2,    "Unnumbered Acknowledge" },
+    { XDLC_SNRM>>2,  "Set Normal Response Mode" },
+    { XDLC_TEST>>2,  "Test" },
+    { XDLC_RIM>>2,   "Request Initialization Mode" },
+    { XDLC_FRMR>>2,  "Frame reject" },
+    { XDLC_CFGR>>2,  "Configure" },
+    { XDLC_DM>>2,    "Disconnected mode" },
+    { XDLC_SABM>>2,  "Set Asynchronous Balanced Mode" },
+    { XDLC_SARME>>2, "Set Asynchronous Response Mode Extended" },
+    { XDLC_SABME>>2, "Set Asynchronous Balanced Mode Extended" },
+    { XDLC_RESET>>2, "Reset" },
+    { XDLC_XID>>2,   "Exchange identification" },
+    { XDLC_SNRME>>2, "Set Normal Response Mode Extended" },
+    { XDLC_BCN>>2,   "Beacon" },
+    { 0,             NULL }
 };
 
 int
@@ -192,9 +172,14 @@ get_xdlc_control(const guchar *pd, int offset, int is_extended)
 int
 dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
+  const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
   int is_response, int is_extended, int append_info)
 {
     guint16 control;
+    int control_len;
+    const xdlc_cf_items *cf_items;
+    char *control_format;
+    guint16 poll_final;
     char info[80];
     proto_tree *tc, *control_tree;
     gchar *frame_type = NULL;
@@ -203,13 +188,20 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     switch (tvb_get_guint8(tvb, offset) & 0x03) {
 
     case XDLC_S:
+	if (is_extended) {
+	    control = tvb_get_letohs(tvb, offset);
+	    control_len = 2;
+	    cf_items = cf_items_ext;
+	    control_format = "Control field: %s (0x%04X)";
+	} else {
+	    control = tvb_get_guint8(tvb, offset);
+	    control_len = 1;
+	    cf_items = cf_items_nonext;
+	    control_format = "Control field: %s (0x%02X)";
+	}
         /*
 	 * Supervisory frame.
 	 */
-	if (is_extended)
-		control = tvb_get_letohs(tvb, offset);
-	else
-		control = tvb_get_guint8(tvb, offset);
 	switch (control & XDLC_S_FTYPE_MASK) {
 	case XDLC_RR:
 	    frame_type = "RR";
@@ -228,14 +220,16 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    break;
 	}
 	if (is_extended) {
+	    poll_final = (control & XDLC_P_F_EXT);
 	    sprintf(info, "S%s, %sN(R) = %u", frame_type,
-		 	((control & XDLC_P_F_EXT) ?
+		 	(poll_final ?
 		 	    (is_response ? "func = F, " : "func = P, ") :
 		 	    ""),
 			(control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT);
 	} else {
+	    poll_final = (control & XDLC_P_F);
 	    sprintf(info, "S%s, %sN(R) = %u", frame_type,
-		 	((control & XDLC_P_F) ?
+		 	(poll_final ?
 		 	    (is_response ? "func = F, " : "func = P, ") :
 		 	    ""),
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT);
@@ -248,49 +242,22 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_add_str(pinfo->cinfo, COL_INFO, info);
 	}
 	if (xdlc_tree) {
-	    if (is_extended) {
-		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
-			offset, 2,
-			control,
-			"Control field: %s (0x%04X)", info, control);
-		control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
-		proto_tree_add_text(control_tree, tvb, offset, 2,
-		    decode_numeric_bitfield(control, XDLC_N_R_EXT_MASK, 2*8,
-			"N(R) = %u"));
-		if (control & XDLC_P_F_EXT) {
-		    proto_tree_add_text(control_tree, tvb, offset, 2,
-			decode_boolean_bitfield(control, XDLC_P_F_EXT, 2*8,
-		  	    (is_response ? "Final" : "Poll"), NULL));
-		}
-		proto_tree_add_text(control_tree, tvb, offset, 2,
-		    decode_enumerated_bitfield(control, XDLC_S_FTYPE_MASK, 2*8,
-			stype_vals, "Supervisory frame - %s"));
-		/* This will always say it's a supervisory frame */
-		proto_tree_add_text(control_tree, tvb, offset, 2,
-		    decode_boolean_bitfield(control, 0x03, 2*8,
-			"Supervisory frame", NULL));
-	    } else {
-		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
-			offset, 1,
-			control,
-			"Control field: %s (0x%02X)", info, control);
-		control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
-		proto_tree_add_text(control_tree, tvb, offset, 1,
-		    decode_numeric_bitfield(control, XDLC_N_R_MASK, 1*8,
-			"N(R) = %u"));
-		if (control & XDLC_P_F) {
-		    proto_tree_add_text(control_tree, tvb, offset, 1,
-			decode_boolean_bitfield(control, XDLC_P_F, 1*8,
-		  	    (is_response ? "Final" : "Poll"), NULL));
-		}
-		proto_tree_add_text(control_tree, tvb, offset, 1,
-		    decode_enumerated_bitfield(control, XDLC_S_FTYPE_MASK, 1*8,
-			stype_vals, "%s"));
-		/* This will always say it's a supervisory frame */
-		proto_tree_add_text(control_tree, tvb, offset, 1,
-		    decode_boolean_bitfield(control, 0x03, 1*8,
-			"Supervisory frame", NULL));
+	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
+		offset, control_len, control, control_format, info, control);
+	    control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
+	    proto_tree_add_uint(control_tree, *cf_items->hf_xdlc_n_r,
+		tvb, offset, control_len, control);
+	    if (poll_final) {
+		proto_tree_add_boolean(control_tree,
+			(is_response ? *cf_items->hf_xdlc_f :
+				       *cf_items->hf_xdlc_p),
+			tvb, offset, control_len, control);
 	    }
+	    proto_tree_add_uint(control_tree, *cf_items->hf_xdlc_s_ftype,
+		tvb, offset, control_len, control);
+	    /* This will always say it's a supervisory frame */
+	    proto_tree_add_uint(control_tree, *cf_items->hf_xdlc_ftype_s_u,
+		tvb, offset, control_len, control);
 	}
 	break;
 
@@ -306,6 +273,9 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * need for it to be 2 bytes in extended operation.
 	 */
 	control = tvb_get_guint8(tvb, offset);
+	control_len = 1;
+	cf_items = cf_items_nonext;
+	control_format = "Control field: %s (0x%02X)";
 	if (is_response) {
 		modifier = match_strval(control & XDLC_U_MODIFIER_MASK,
 			modifier_short_vals_resp);
@@ -315,8 +285,9 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	if (modifier == NULL)
 		modifier = "Unknown";
+	poll_final = (control & XDLC_P_F);
 	sprintf(info, "U%s, func = %s",
-		((control & XDLC_P_F) ?
+		(poll_final ?
 		    (is_response ? " F" : " P") :
 		    ""),
 		modifier);
@@ -328,24 +299,22 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_add_str(pinfo->cinfo, COL_INFO, info);
 	}
 	if (xdlc_tree) {
-	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
-			offset, 1,
-			control,
-			"Control field: %s (0x%02X)", info, control);
+	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control,	tvb,
+		offset, control_len, control, control_format, info, control);
 	    control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
-	    if (control & XDLC_P_F) {
-		proto_tree_add_text(control_tree, tvb, offset, 2,
-		    decode_boolean_bitfield(control, XDLC_P_F, 1*8,
-			(is_response ? "Final" : "Poll"), NULL));
+	    if (poll_final) {
+		proto_tree_add_boolean(control_tree,
+			(is_response ? *cf_items->hf_xdlc_f:
+				       *cf_items->hf_xdlc_p),
+			tvb, offset, control_len, control);
 	    }
-	    proto_tree_add_text(control_tree, tvb, offset, 1,
-		decode_enumerated_bitfield(control, XDLC_U_MODIFIER_MASK, 1*8,
-		    (is_response ? modifier_vals_resp : modifier_vals_cmd),
-		    "%s"));
+	    proto_tree_add_uint(control_tree,
+		(is_response ? *cf_items->hf_xdlc_u_modifier_resp :
+			       *cf_items->hf_xdlc_u_modifier_cmd),
+	    	tvb, offset, control_len, control);
 	    /* This will always say it's an unnumbered frame */
-	    proto_tree_add_text(control_tree, tvb, offset, 1,
-		decode_boolean_bitfield(control, 0x03, 1*8,
-		    "Unnumbered frame", NULL));
+	    proto_tree_add_uint(control_tree, *cf_items->hf_xdlc_ftype_s_u,
+		tvb, offset, control_len, control);
 	}
 	break;
 
@@ -353,16 +322,22 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/*
 	 * Information frame.
 	 */
-	if (is_extended)
-		control = tvb_get_letohs(tvb, offset);
-	else
-		control = tvb_get_guint8(tvb, offset);
 	if (is_extended) {
+	    control = tvb_get_letohs(tvb, offset);
+	    control_len = 2;
+	    cf_items = cf_items_ext;
+	    control_format = "Control field: %s (0x%04X)";
+	    poll_final = (control & XDLC_P_F_EXT);
 	    sprintf(info, "I%s, N(R) = %u, N(S) = %u",
 			((control & XDLC_P_F_EXT) ? " P" : ""),
 			(control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT,
 			(control & XDLC_N_S_EXT_MASK) >> XDLC_N_S_EXT_SHIFT);
 	} else {
+	    control = tvb_get_guint8(tvb, offset);
+	    control_len = 1;
+	    cf_items = cf_items_nonext;
+	    control_format = "Control field: %s (0x%02X)";
+	    poll_final = (control & XDLC_P_F);
 	    sprintf(info, "I%s, N(R) = %u, N(S) = %u",
 			((control & XDLC_P_F) ? " P" : ""),
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT,
@@ -377,46 +352,21 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	if (xdlc_tree) {
 	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
-			offset, (is_extended) ? 2 : 1,
-			control,
-			(is_extended) ? "Control field: %s (0x%04X)"
-			              : "Control field: %s (0x%02X)",
-			info, control);
+		offset, control_len, control, control_format, info, control);
 	    control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
-	    if (is_extended) {
-		proto_tree_add_text(control_tree, tvb, offset, 2,
-		    decode_numeric_bitfield(control, XDLC_N_R_EXT_MASK, 2*8,
-		  		"N(R) = %u"));
-		proto_tree_add_text(control_tree, tvb, offset, 2,
-		    decode_numeric_bitfield(control, XDLC_N_S_EXT_MASK, 2*8,
-		  		"N(S) = %u"));
-		if (control & XDLC_P_F_EXT) {
-		    proto_tree_add_text(control_tree, tvb, offset, 2,
-			decode_boolean_bitfield(control, XDLC_P_F_EXT, 2*8,
-		  		"Poll", NULL));
-		}
-		/* This will always say it's an information frame */
-		proto_tree_add_text(control_tree, tvb, offset, 2,
-		    decode_boolean_bitfield(control, 0x01, 2*8,
-			NULL, "Information frame"));
-	    } else {
-		proto_tree_add_text(control_tree, tvb, offset, 1,
-		    decode_numeric_bitfield(control, XDLC_N_R_MASK, 1*8,
-		  		"N(R) = %u"));
-		proto_tree_add_text(control_tree, tvb, offset, 1,
-		    decode_numeric_bitfield(control, XDLC_N_S_MASK, 1*8,
-		  		"N(S) = %u"));
-		if (control & XDLC_P_F) {
-		    proto_tree_add_text(control_tree, tvb, offset, 1,
-			decode_boolean_bitfield(control, XDLC_P_F, 1*8,
-		  		"Poll", NULL));
-		}
-		/* This will always say it's an information frame */
-		proto_tree_add_text(control_tree, tvb, offset, 1,
-		    decode_boolean_bitfield(control, 0x01, 1*8,
-			NULL, "Information frame"));
+	    proto_tree_add_uint(control_tree, *cf_items->hf_xdlc_n_r,
+		tvb, offset, control_len, control);
+	    proto_tree_add_uint(control_tree, *cf_items->hf_xdlc_n_s,
+		tvb, offset, control_len, control);
+	    if (poll_final) {
+		proto_tree_add_boolean(control_tree, *cf_items->hf_xdlc_p,
+		    	tvb, offset, control_len, control);
 	    }
+	    /* This will always say it's an information frame */
+	    proto_tree_add_uint(control_tree, *cf_items->hf_xdlc_ftype_i,
+		tvb, offset, control_len, control);
 	}
+	break;
     }
     return control;
 }

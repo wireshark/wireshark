@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.19 2003/12/01 23:41:45 guy Exp $
+ * $Id: plugin_api_list.c,v 1.20 2004/01/03 03:50:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "packet-tcp.h"
 #include "tap.h"
 #include "asn1.h"
+#include "xdlc.h"
 #include "epan/except.h"
 
 gint check_col(column_info*, gint);
@@ -393,3 +394,8 @@ void col_set_writable(column_info *, gboolean);
 
 const char *decode_enumerated_bitfield_shifted(guint32, guint32, int,
     const value_string *, const char *);
+
+int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
+  proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
+  const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
+  int is_response, int extended, int append_info);

@@ -2,12 +2,11 @@
  * Define *DLC frame types, and routine to dissect the control field of
  * a *DLC frame.
  *
- * $Id: xdlc.h,v 1.18 2003/09/02 19:18:52 guy Exp $
+ * $Id: xdlc.h,v 1.19 2004/01/03 03:49:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,9 +30,38 @@
  * Low-order bits of first (extended) or only (basic) octet of control
  * field, specifying the frame type.
  */
-#define XDLC_I		0x00	/* Information frames */
-#define XDLC_S		0x01	/* Supervisory frames */
-#define XDLC_U		0x03	/* Unnumbered frames */
+#define XDLC_I_MASK		0x01	/* Mask to test for I or not I */
+#define XDLC_I			0x00	/* Information frames */
+#define XDLC_S_U_MASK		0x03	/* Mask to test for S or U */
+#define XDLC_S			0x01	/* Supervisory frames */
+#define XDLC_U			0x03	/* Unnumbered frames */
+
+/*
+ * N(S) and N(R) fields, in basic and extended operation.
+ */
+#define XDLC_N_R_MASK		0xE0	/* basic */
+#define XDLC_N_R_SHIFT		5
+#define XDLC_N_R_EXT_MASK	0xFE00	/* extended */
+#define XDLC_N_R_EXT_SHIFT	9
+#define XDLC_N_S_MASK		0x0E	/* basic */
+#define XDLC_N_S_SHIFT		1
+#define XDLC_N_S_EXT_MASK	0x00FE	/* extended */
+#define XDLC_N_S_EXT_SHIFT	1
+
+/*
+ * Poll/Final bit, in basic and extended operation.
+ */
+#define XDLC_P_F	0x10	/* basic */
+#define XDLC_P_F_EXT	0x0100	/* extended */
+
+/*
+ * S-format frame types.
+ */
+#define XDLC_S_FTYPE_MASK	0x0C
+#define XDLC_RR			0x00	/* Receiver ready */
+#define XDLC_RNR		0x04	/* Receiver not ready */
+#define XDLC_REJ		0x08	/* Reject */
+#define XDLC_SREJ		0x0C	/* Selective reject */
 
 /*
  * U-format modifiers.
@@ -68,7 +96,7 @@
  * e.g. TEST frames.
  */
 #define XDLC_IS_INFORMATION(control) \
-	(((control) & 0x1) == XDLC_I || (control) == (XDLC_UI|XDLC_U))
+	(((control) & XDLC_I_MASK) == XDLC_I || (control) == (XDLC_UI|XDLC_U))
 
 /*
  * This macro takes the control field of an xDLC frame, and a flag saying
@@ -77,13 +105,34 @@
  * in extended mode, it's 1 byte long, otherwise it's 2 bytes long).
  */
 #define XDLC_CONTROL_LEN(control, is_extended) \
-	((((control) & 0x3) == XDLC_U || !(is_extended)) ? 1 : 2)
+	((((control) & XDLC_S_U_MASK) == XDLC_U || !(is_extended)) ? 1 : 2)
 
-int get_xdlc_control(const guchar *pd, int offset,
-  int extended);
+/*
+ * Structure containing pointers to hf_ values for various subfields of
+ * the control field.
+ */
+typedef struct {
+	int	*hf_xdlc_n_r;
+	int	*hf_xdlc_n_s;
+	int	*hf_xdlc_p;
+	int	*hf_xdlc_f;
+	int	*hf_xdlc_s_ftype;
+	int	*hf_xdlc_u_modifier_cmd;
+	int	*hf_xdlc_u_modifier_resp;
+	int	*hf_xdlc_ftype_i;
+	int	*hf_xdlc_ftype_s_u;
+} xdlc_cf_items;
 
-int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern const value_string ftype_vals[];
+extern const value_string stype_vals[];
+extern const value_string modifier_vals_cmd[];
+extern const value_string modifier_vals_resp[];
+
+extern int get_xdlc_control(const guchar *pd, int offset, int extended);
+
+extern int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
+  const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
   int is_response, int extended, int append_info);
 
 #endif

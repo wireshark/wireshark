@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lapd.c,v 1.35 2003/09/02 19:18:52 guy Exp $
+ * $Id: packet-lapd.c,v 1.36 2004/01/03 03:49:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,18 @@ static int hf_lapd_ea1 = -1;
 static int hf_lapd_tei = -1;
 static int hf_lapd_ea2 = -1;
 static int hf_lapd_control = -1;
+static int hf_lapd_n_r = -1;
+static int hf_lapd_n_s = -1;
+static int hf_lapd_p = -1;
+static int hf_lapd_p_ext = -1;
+static int hf_lapd_f = -1;
+static int hf_lapd_f_ext = -1;
+static int hf_lapd_s_ftype = -1;
+static int hf_lapd_u_modifier_cmd = -1;
+static int hf_lapd_u_modifier_resp = -1;
+static int hf_lapd_ftype_i = -1;
+static int hf_lapd_ftype_s_u = -1;
+static int hf_lapd_ftype_s_u_ext = -1;
 
 static gint ett_lapd = -1;
 static gint ett_lapd_address = -1;
@@ -77,6 +89,32 @@ static const value_string lapd_sapi_vals[] = {
 	{ LAPD_SAPI_X25,	"X.25 Level 3 procedures" },
 	{ LAPD_SAPI_L2,		"Layer 2 management procedures" },
 	{ 0,			NULL }
+};
+
+/* Used only for U frames */
+static const xdlc_cf_items lapd_cf_items = {
+	NULL,
+	NULL,
+	&hf_lapd_p,
+	&hf_lapd_f,
+	NULL,
+	&hf_lapd_u_modifier_cmd,
+	&hf_lapd_u_modifier_resp,
+	NULL,
+	&hf_lapd_ftype_s_u
+};
+
+/* Used only for I and S frames */
+static const xdlc_cf_items lapd_cf_items_ext = {
+	&hf_lapd_n_r,
+	&hf_lapd_n_s,
+	&hf_lapd_p_ext,
+	&hf_lapd_f_ext,
+	&hf_lapd_s_ftype,
+	NULL,
+	NULL,
+	&hf_lapd_ftype_i,
+	&hf_lapd_ftype_s_u_ext
 };
 
 static void
@@ -137,7 +175,8 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	control = dissect_xdlc_control(tvb, 2, pinfo, lapd_tree, hf_lapd_control,
-	    ett_lapd_control, is_response, TRUE, FALSE);
+	    ett_lapd_control, &lapd_cf_items, &lapd_cf_items_ext, is_response,
+	    TRUE, FALSE);
 	lapd_header_len += XDLC_CONTROL_LEN(control, TRUE);
 
 	if (tree)
@@ -195,6 +234,54 @@ proto_register_lapd(void)
 	{ &hf_lapd_control,
 	  { "Control Field", "lapd.control", FT_UINT16, BASE_HEX, NULL, 0x0,
 	  	"Control field", HFILL }},
+
+	{ &hf_lapd_n_r,
+	    { "N(R)", "lapd.control.n_r", FT_UINT16, BASE_DEC,
+		NULL, XDLC_N_R_EXT_MASK, "", HFILL }},
+
+	{ &hf_lapd_n_s,
+	    { "N(S)", "lapd.control.n_s", FT_UINT16, BASE_DEC,
+		NULL, XDLC_N_S_EXT_MASK, "", HFILL }},
+
+	{ &hf_lapd_p,
+	    { "Poll", "lapd.control.p", FT_BOOLEAN, 8,
+		TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+
+	{ &hf_lapd_p_ext,
+	    { "Poll", "lapd.control.p", FT_BOOLEAN, 16,
+		TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+
+	{ &hf_lapd_f,
+	    { "Final", "lapd.control.f", FT_BOOLEAN, 8,
+		TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+
+	{ &hf_lapd_f_ext,
+	    { "Final", "lapd.control.f", FT_BOOLEAN, 16,
+		TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+
+	{ &hf_lapd_s_ftype,
+	    { "Supervisory frame type", "lapd.control.s_ftype", FT_UINT16, BASE_HEX,
+		VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+
+	{ &hf_lapd_u_modifier_cmd,
+	    { "Command", "lapd.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+		VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+
+	{ &hf_lapd_u_modifier_resp,
+	    { "Response", "lapd.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+		VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+
+	{ &hf_lapd_ftype_i,
+	    { "Frame type", "lapd.control.ftype", FT_UINT16, BASE_HEX,
+		VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+
+	{ &hf_lapd_ftype_s_u,
+	    { "Frame type", "lapd.control.ftype", FT_UINT8, BASE_HEX,
+		VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+
+	{ &hf_lapd_ftype_s_u_ext,
+	    { "Frame type", "lapd.control.ftype", FT_UINT16, BASE_HEX,
+		VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
     };
     static gint *ett[] = {
         &ett_lapd,

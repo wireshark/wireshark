@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.45 2003/10/17 23:43:21 guy Exp $
+ * $Id: packet-fr.c,v 1.46 2004/01/03 03:49:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,6 +91,18 @@ static gint hf_fr_lower_dlci = -1;
 static gint hf_fr_dc    = -1;
 static gint hf_fr_dlci  = -1;
 static gint hf_fr_control = -1;
+static gint hf_fr_n_r = -1;
+static gint hf_fr_n_s = -1;
+static gint hf_fr_p = -1;
+static gint hf_fr_p_ext = -1;
+static gint hf_fr_f = -1;
+static gint hf_fr_f_ext = -1;
+static gint hf_fr_s_ftype = -1;
+static gint hf_fr_u_modifier_cmd = -1;
+static gint hf_fr_u_modifier_resp = -1;
+static gint hf_fr_ftype_i = -1;
+static gint hf_fr_ftype_s_u = -1;
+static gint hf_fr_ftype_s_u_ext = -1;
 static gint hf_fr_nlpid = -1;
 static gint hf_fr_oui   = -1;
 static gint hf_fr_pid   = -1;
@@ -161,6 +173,32 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *fr_tree, guint8 fr_ctrl);
 static void dissect_lapf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Used only for U frames */
+static const xdlc_cf_items fr_cf_items = {
+	NULL,
+	NULL,
+	&hf_fr_p,
+	&hf_fr_f,
+	NULL,
+	&hf_fr_u_modifier_cmd,
+	&hf_fr_u_modifier_resp,
+	NULL,
+	&hf_fr_ftype_s_u
+};
+
+/* Used only for I and S frames */
+static const xdlc_cf_items fr_cf_items_ext = {
+	&hf_fr_n_r,
+	&hf_fr_n_s,
+	&hf_fr_p_ext,
+	&hf_fr_f_ext,
+	&hf_fr_s_ftype,
+	NULL,
+	NULL,
+	&hf_fr_ftype_i,
+	&hf_fr_ftype_s_u_ext
+};
 
 static void
 dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -331,7 +369,8 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     fr_ctrl = tvb_get_guint8(tvb, offset);
     if (fr_ctrl == XDLC_U) {
       dissect_xdlc_control(tvb, offset, pinfo, fr_tree, hf_fr_control,
- 			   ett_fr_control, is_response, TRUE, TRUE);
+ 			   ett_fr_control, &fr_cf_items, &fr_cf_items_ext,
+ 			   is_response, TRUE, TRUE);
       offset++;
 
       /*
@@ -355,6 +394,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
 				     hf_fr_control, ett_fr_control,
+				     &fr_cf_items, &fr_cf_items_ext,
 				     is_response, TRUE, TRUE);
 		dissect_lapf(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
 		return;
@@ -362,6 +402,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       if (fr_ctrl == (XDLC_U|XDLC_XID)) {
 		dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
 				     hf_fr_control, ett_fr_control,
+				     &fr_cf_items, &fr_cf_items_ext,
 				     is_response, TRUE, TRUE);
 		dissect_fr_xid(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
 		return;
@@ -593,6 +634,42 @@ void proto_register_fr(void)
 	{ &hf_fr_control, {
           "Control Field", "fr.control", FT_UINT8, BASE_HEX,
           NULL, 0x0, "Control field", HFILL }},
+	{ &hf_fr_n_r, {
+	  "N(R)", "fr.control.n_r", FT_UINT16, BASE_DEC,
+	  NULL, XDLC_N_R_EXT_MASK, "", HFILL }},
+	{ &hf_fr_n_s, {
+	  "N(S)", "fr.control.n_s", FT_UINT16, BASE_DEC,
+	  NULL, XDLC_N_S_EXT_MASK, "", HFILL }},
+	{ &hf_fr_p, {
+	  "Poll", "fr.control.p", FT_BOOLEAN, 8,
+	  TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+	{ &hf_fr_p_ext, {
+	  "Poll", "fr.control.p", FT_BOOLEAN, 16,
+	  TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+	{ &hf_fr_f, {
+	  "Final", "fr.control.f", FT_BOOLEAN, 8,
+	  TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+	{ &hf_fr_f_ext, {
+	  "Final", "fr.control.f", FT_BOOLEAN, 16,
+	  TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+	{ &hf_fr_s_ftype, {
+	  "Supervisory frame type", "fr.control.s_ftype", FT_UINT16, BASE_HEX,
+	  VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+	{ &hf_fr_u_modifier_cmd, {
+	  "Command", "lapd.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+	  VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+	{ &hf_fr_u_modifier_resp, {
+	  "Response", "lapd.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+	    VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+	{ &hf_fr_ftype_i, {
+	  "Frame type", "fr.control.ftype", FT_UINT16, BASE_HEX,
+	  VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+	{ &hf_fr_ftype_s_u, {
+	  "Frame type", "fr.control.ftype", FT_UINT8, BASE_HEX,
+	  VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+	{ &hf_fr_ftype_s_u_ext, {
+	  "Frame type", "fr.control.ftype", FT_UINT16, BASE_HEX,
+	  VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
         { &hf_fr_nlpid, {
            "NLPID", "fr.nlpid", FT_UINT8, BASE_HEX,
             VALS(fr_nlpid_vals), 0x0, "Frame Relay Encapsulated Protocol NLPID", HFILL }},

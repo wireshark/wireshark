@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.116 2003/10/01 07:11:44 guy Exp $
+ * $Id: packet-llc.c,v 1.117 2004/01/03 03:49:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,18 @@ static int hf_llc_ssap = -1;
 static int hf_llc_dsap_ig = -1;
 static int hf_llc_ssap_cr = -1;
 static int hf_llc_ctrl = -1;
+static int hf_llc_n_r = -1;
+static int hf_llc_n_s = -1;
+static int hf_llc_p = -1;
+static int hf_llc_p_ext = -1;
+static int hf_llc_f = -1;
+static int hf_llc_f_ext = -1;
+static int hf_llc_s_ftype = -1;
+static int hf_llc_u_modifier_cmd = -1;
+static int hf_llc_u_modifier_resp = -1;
+static int hf_llc_ftype_i = -1;
+static int hf_llc_ftype_s_u = -1;
+static int hf_llc_ftype_s_u_ext = -1;
 static int hf_llc_type = -1;
 static int hf_llc_oui = -1;
 static int hf_llc_pid = -1;
@@ -298,6 +310,32 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
 	}
 }
 
+/* Used only for U frames */
+static const xdlc_cf_items llc_cf_items = {
+	NULL,
+	NULL,
+	&hf_llc_p,
+	&hf_llc_f,
+	NULL,
+	&hf_llc_u_modifier_cmd,
+	&hf_llc_u_modifier_resp,
+	NULL,
+	&hf_llc_ftype_s_u
+};
+
+/* Used only for I and S frames */
+static const xdlc_cf_items llc_cf_items_ext = {
+	&hf_llc_n_r,
+	&hf_llc_n_s,
+	&hf_llc_p_ext,
+	&hf_llc_f_ext,
+	&hf_llc_s_ftype,
+	NULL,
+	NULL,
+	&hf_llc_ftype_i,
+	&hf_llc_ftype_s_u_ext
+};
+
 static void
 dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -347,6 +385,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	control = dissect_xdlc_control(tvb, 2, pinfo, llc_tree,
 				hf_llc_ctrl, ett_llc_ctrl,
+				&llc_cf_items, &llc_cf_items_ext,
 				ssap & SSAP_CR_BIT, TRUE, FALSE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
@@ -582,6 +621,54 @@ proto_register_llc(void)
 		{ &hf_llc_ctrl,
 		{ "Control", "llc.control", FT_UINT16, BASE_HEX,
 			NULL, 0x0, "", HFILL }},
+
+		{ &hf_llc_n_r,
+		{ "N(R)", "llc.control.n_r", FT_UINT16, BASE_DEC,
+			NULL, XDLC_N_R_EXT_MASK, "", HFILL }},
+
+		{ &hf_llc_n_s,
+		{ "N(S)", "llc.control.n_s", FT_UINT16, BASE_DEC,
+			NULL, XDLC_N_S_EXT_MASK, "", HFILL }},
+
+		{ &hf_llc_p,
+		{ "Poll", "llc.control.p", FT_BOOLEAN, 8,
+			TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+
+		{ &hf_llc_p_ext,
+		{ "Poll", "llc.control.p", FT_BOOLEAN, 16,
+			TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+
+		{ &hf_llc_f,
+		{ "Final", "llc.control.f", FT_BOOLEAN, 8,
+			TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+
+		{ &hf_llc_f_ext,
+		{ "Final", "llc.control.f", FT_BOOLEAN, 16,
+			TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+
+		{ &hf_llc_s_ftype,
+		{ "Supervisory frame type", "llc.control.s_ftype", FT_UINT16, BASE_HEX,
+			VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+
+		{ &hf_llc_u_modifier_cmd,
+		{ "Command", "llc.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+			VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+
+		{ &hf_llc_u_modifier_resp,
+		{ "Response", "llc.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+			VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+
+		{ &hf_llc_ftype_i,
+		{ "Frame type", "llc.control.ftype", FT_UINT16, BASE_HEX,
+			VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+
+		{ &hf_llc_ftype_s_u,
+		{ "Frame type", "llc.control.ftype", FT_UINT8, BASE_HEX,
+			VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+
+		{ &hf_llc_ftype_s_u_ext,
+		{ "Frame type", "llc.control.ftype", FT_UINT16, BASE_HEX,
+			VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
 
 		/* registered here but handled in ethertype.c */
 		{ &hf_llc_type,

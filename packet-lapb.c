@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-lapb.c,v 1.40 2003/09/26 08:19:55 guy Exp $
+ * $Id: packet-lapb.c,v 1.41 2004/01/03 03:49:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,12 +36,33 @@
 static int proto_lapb = -1;
 static int hf_lapb_address = -1;
 static int hf_lapb_control = -1;
+static int hf_lapb_n_r = -1;
+static int hf_lapb_n_s = -1;
+static int hf_lapb_p = -1;
+static int hf_lapb_f = -1;
+static int hf_lapb_s_ftype = -1;
+static int hf_lapb_u_modifier_cmd = -1;
+static int hf_lapb_u_modifier_resp = -1;
+static int hf_lapb_ftype_i = -1;
+static int hf_lapb_ftype_s_u = -1;
 
 static gint ett_lapb = -1;
 static gint ett_lapb_control = -1;
 
 static dissector_handle_t x25_dir_handle;
 static dissector_handle_t x25_handle;
+
+static const xdlc_cf_items lapb_cf_items = {
+	&hf_lapb_n_r,
+	&hf_lapb_n_s,
+	&hf_lapb_p,
+	&hf_lapb_f,
+	&hf_lapb_s_ftype,
+	&hf_lapb_u_modifier_cmd,
+	&hf_lapb_u_modifier_resp,
+	&hf_lapb_ftype_i,
+	&hf_lapb_ftype_s_u
+};
 
 static void
 dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -130,7 +151,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         lapb_tree = NULL;
 
     dissect_xdlc_control(tvb, 1, pinfo, lapb_tree, hf_lapb_control,
-	    ett_lapb_control, is_response, FALSE, FALSE);
+	    ett_lapb_control, &lapb_cf_items, NULL, is_response, FALSE, FALSE);
 
     /* not end of frame ==> X.25 */
     if (tvb_reported_length(tvb) > 2) {
@@ -160,6 +181,42 @@ proto_register_lapb(void)
 	{ &hf_lapb_control,
 	  { "Control Field", "lapb.control", FT_UINT8, BASE_HEX, NULL, 0x0,
 	  	"Control field", HFILL }},
+
+	{ &hf_lapb_n_r,
+	    { "N(R)", "lapb.control.n_r", FT_UINT8, BASE_DEC,
+	      NULL, XDLC_N_R_MASK, "", HFILL }},
+
+	{ &hf_lapb_n_s,
+	    { "N(S)", "lapb.control.n_s", FT_UINT8, BASE_DEC,
+	      NULL, XDLC_N_S_MASK, "", HFILL }},
+
+	{ &hf_lapb_p,
+	    { "Poll", "lapb.control.p", FT_BOOLEAN, 8,
+	      TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+
+	{ &hf_lapb_f,
+	    { "Final", "lapb.control.f", FT_BOOLEAN, 8,
+	      TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+
+	{ &hf_lapb_s_ftype,
+	    { "Supervisory frame type", "lapb.control.s_ftype", FT_UINT8, BASE_HEX,
+	      VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+
+	{ &hf_lapb_u_modifier_cmd,
+	    { "Command", "lapb.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+	      VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+
+	{ &hf_lapb_u_modifier_resp,
+	    { "Response", "lapb.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+	      VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+
+	{ &hf_lapb_ftype_i,
+	    { "Frame type", "lapb.control.ftype", FT_UINT8, BASE_HEX,
+	      VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+
+	{ &hf_lapb_ftype_s_u,
+	    { "Frame type", "lapb.control.ftype", FT_UINT8, BASE_HEX,
+	      VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
     };
     static gint *ett[] = {
         &ett_lapb,

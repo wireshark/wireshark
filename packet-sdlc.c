@@ -1,7 +1,7 @@
 /* packet-sdlc.c
  * Routines for SDLC frame disassembly
  *
- * $Id: packet-sdlc.c,v 1.2 2003/09/02 19:18:52 guy Exp $
+ * $Id: packet-sdlc.c,v 1.3 2004/01/03 03:49:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,12 +41,33 @@
 static int proto_sdlc = -1;
 static int hf_sdlc_address = -1;
 static int hf_sdlc_control = -1;
+static int hf_sdlc_n_r = -1;
+static int hf_sdlc_n_s = -1;
+static int hf_sdlc_p = -1;
+static int hf_sdlc_f = -1;
+static int hf_sdlc_s_ftype = -1;
+static int hf_sdlc_u_modifier_cmd = -1;
+static int hf_sdlc_u_modifier_resp = -1;
+static int hf_sdlc_ftype_i = -1;
+static int hf_sdlc_ftype_s_u = -1;
 
 static gint ett_sdlc = -1;
 static gint ett_sdlc_control = -1;
 
 static dissector_handle_t sna_handle;
 static dissector_handle_t data_handle;
+
+static const xdlc_cf_items sdlc_cf_items = {
+	&hf_sdlc_n_r,
+	&hf_sdlc_n_s,
+	&hf_sdlc_p,
+	&hf_sdlc_f,
+	&hf_sdlc_s_ftype,
+	&hf_sdlc_u_modifier_cmd,
+	&hf_sdlc_u_modifier_resp,
+	&hf_sdlc_ftype_i,
+	&hf_sdlc_ftype_s_u
+};
 
 static void
 dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -107,7 +128,7 @@ dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * to control what to use.
 	 */
 	control = dissect_xdlc_control(tvb, 1, pinfo, sdlc_tree, hf_sdlc_control,
-	    ett_sdlc_control, is_response, FALSE, FALSE);
+	    ett_sdlc_control, &sdlc_cf_items, NULL, is_response, FALSE, FALSE);
 	sdlc_header_len += XDLC_CONTROL_LEN(control, FALSE);
 
 	if (tree)
@@ -136,6 +157,42 @@ proto_register_sdlc(void)
 		{ &hf_sdlc_control,
 		  { "Control Field", "sdlc.control", FT_UINT16, BASE_HEX,
 		    NULL, 0x0, "Control field", HFILL }},
+
+		{ &hf_sdlc_n_r,
+		    { "N(R)", "sdlc.control.n_r", FT_UINT8, BASE_DEC,
+		      NULL, XDLC_N_R_MASK, "", HFILL }},
+
+		{ &hf_sdlc_n_s,
+		    { "N(S)", "sdlc.control.n_s", FT_UINT8, BASE_DEC,
+		      NULL, XDLC_N_S_MASK, "", HFILL }},
+
+		{ &hf_sdlc_p,
+		    { "Poll", "sdlc.control.p", FT_BOOLEAN, 8,
+		      TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+
+		{ &hf_sdlc_f,
+		    { "Final", "sdlc.control.f", FT_BOOLEAN, 8,
+		      TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+
+		{ &hf_sdlc_s_ftype,
+		    { "Supervisory frame type", "sdlc.control.s_ftype", FT_UINT8, BASE_HEX,
+		      VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+
+		{ &hf_sdlc_u_modifier_cmd,
+		    { "Command", "sdlc.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+		      VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+
+		{ &hf_sdlc_u_modifier_resp,
+		    { "Response", "sdlc.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+		      VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+
+		{ &hf_sdlc_ftype_i,
+		    { "Frame type", "sdlc.control.ftype", FT_UINT8, BASE_HEX,
+		      VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+
+		{ &hf_sdlc_ftype_s_u,
+		    { "Frame type", "sdlc.control.ftype", FT_UINT8, BASE_HEX,
+		      VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_sdlc,
