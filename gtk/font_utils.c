@@ -710,7 +710,11 @@ static void try_to_get_windows_font_gtk2(void)
 #endif /* _WIN32 */
 
 
-void font_init(gboolean capture_child)
+void font_init(gboolean capture_child
+#ifndef HAVE_LIBPCAP
+	_U_
+#endif
+)
 {
 #if GTK_MAJOR_VERSION < 2
   gchar *bold_font_name;

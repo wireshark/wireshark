@@ -1347,6 +1347,7 @@ main_cf_cb_file_read_finished(capture_file *cf)
     main_set_for_capture_file(TRUE);
 }
 
+#ifdef HAVE_LIBPCAP
 static void
 main_cf_cb_live_capture_started(capture_options *capture_opts)
 {
@@ -1395,6 +1396,7 @@ main_cf_cb_live_capture_finished(capture_file *cf)
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
 }
+#endif
 
 static void
 main_cf_cb_packet_selected(gpointer data)
@@ -1474,12 +1476,14 @@ void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_file_read_finished):
         main_cf_cb_file_read_finished(data);
         break;
+#ifdef HAVE_LIBPCAP
     case(cf_cb_live_capture_started):
         main_cf_cb_live_capture_started(data);
         break;
     case(cf_cb_live_capture_finished):
         main_cf_cb_live_capture_finished(data);
         break;
+#endif
     case(cf_cb_packet_selected):
         main_cf_cb_packet_selected(data);
         break;
@@ -2792,11 +2796,13 @@ welcome_new(void)
     gtk_box_pack_start(GTK_BOX(welcome_vb), w, FALSE, FALSE, 10);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
 
+#ifdef HAVE_LIBPCAP
     item_hb = welcome_item(ETHEREAL_STOCK_CAPTURE_START, 
         "Capture",
         "Capture live data from your network", 
         GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
     gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+#endif
 
     item_hb = welcome_item(GTK_STOCK_OPEN, 
         "Open",

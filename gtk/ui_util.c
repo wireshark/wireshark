@@ -580,13 +580,13 @@ set_main_window_name(gchar *window_name)
 }
 
 
-#ifdef HAVE_LIBPCAP
-
 /* update the main window */
 void main_window_update(void)
 {
   while (gtk_events_pending()) gtk_main_iteration();
 }
+
+#ifdef HAVE_LIBPCAP
 
 /* exit the main window */
 void main_window_exit(void)

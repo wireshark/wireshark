@@ -858,9 +858,10 @@ main(int argc, char *argv[])
   char                 badopt;
   ethereal_tap_list *tli;
 
-
+#ifdef HAVE_LIBPCAP
   /* XXX - better use capture_opts_init instead */
   capture_opts.cfilter = g_strdup("");
+#endif
 
   set_timestamp_setting(TS_RELATIVE);
 
@@ -2772,6 +2773,7 @@ print_columns(capture_file *cf)
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     switch (cf->cinfo.col_fmt[i]) {
     case COL_NUMBER:
+#ifdef HAVE_LIBPCAP
       /*
        * Don't print this if we're doing a live capture from a network
        * interface - if we're doing a live capture, you won't be
@@ -2785,6 +2787,7 @@ print_columns(capture_file *cf)
        */
       if (capture_opts.iface != NULL)
         continue;
+#endif
       column_len = strlen(cf->cinfo.col_data[i]);
       if (column_len < 3)
         column_len = 3;
