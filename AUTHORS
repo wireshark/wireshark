@@ -687,6 +687,7 @@ Hannes Gredler <hannes[AT]juniper.net> {
 	BGP bug fixes
 	Fix display of OSI system IDs to use a dot rather than a dash
 	    before the PSN byte
+	Fix display of one-byte NETs in ISIS dissector
 }
 
 Inoue <inoue[AT]ainet.or.jp> {

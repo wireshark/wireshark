@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.19 2002/04/07 23:39:00 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.20 2002/06/28 22:46:36 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -66,37 +66,52 @@ void
 isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length)
 {	
-	char 		*sbuf;
-	int		mylen;
+	/* allocate space for the following string
+	 * xx.xxxx.xxxx.xxxx.xxxx.xxxx.xxxx
+	 * 32 bytes plus one termination byte */
+	static char	net[33];
+	char		*sbuf = net;
+	int		arealen,area_idx;
 
 	while ( length > 0 ) {
-		mylen = tvb_get_guint8(tvb, offset);
+		arealen = tvb_get_guint8(tvb, offset);
 		length--;
 		if (length<=0) {
 			isis_dissect_unknown(tvb, tree, offset,
 				"short address (no length for payload)");
 			return;
 		}
-		if ( mylen > length) {
+		if ( arealen > length) {
 			isis_dissect_unknown(tvb, tree, offset,
 				"short address, packet say %d, we have %d left",
-				mylen, length );
+				arealen, length );
 			return;
 		}
 
 		/* 
 		 * Lets turn the area address into "standard" 0000.0000.etc
 		 * format string.  
+                 * this is a private routine as the print_nsap_net in epan/osi_utils.c
+                 * is incomplete and we need only a subset -
+                 * actually some nice placing of dots ....
 		 */
-/*		sbuf = isis_address_to_string ( tvb, offset + 1, mylen );*/
-      sbuf = print_nsap_net( tvb_get_ptr(tvb, offset + 1, mylen), mylen );
+ 
+                sbuf = net;
+                for (area_idx = 0; area_idx < arealen; area_idx++) {
+                    sbuf+=sprintf(sbuf, "%02x", tvb_get_guint8(tvb, offset+area_idx+1));
+                    if (((area_idx & 1) == 0) && (area_idx + 1 < arealen)) {
+			sbuf+=sprintf(sbuf, ".");
+                    }
+                }
+                *(sbuf) = '\0';
+
 		/* and spit it out */
 		if ( tree ) {
-			proto_tree_add_text ( tree, tvb, offset, mylen + 1,  
-				"Area address (%d): %s", mylen, sbuf );
+			proto_tree_add_text ( tree, tvb, offset, arealen + 1,  
+				"Area address (%d): %s", arealen, net );
 		}
-		offset += mylen + 1;
-		length -= mylen;	/* length already adjusted for len fld*/
+		offset += arealen + 1;
+		length -= arealen;	/* length already adjusted for len fld*/
 	}
 }
 
@@ -304,7 +319,7 @@ isis_dissect_ip_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	while ( length > 0 ) {
 		if ( length < 4 ) {
 			isis_dissect_unknown(tvb, tree, offset,
-				"Short ip interface address (%d vs 4)",length );
+				"Short IP interface address (%d vs 4)",length );
 			return;
 		}
 
@@ -528,4 +543,3 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 		offset += length;
 	}
 }
-
