@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.43 2001/12/03 04:00:14 guy Exp $
+ * $Id: plugins.c,v 1.44 2001/12/03 10:00:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -293,7 +293,6 @@ init_plugins(const char *plugin_dir)
 	patable.p_col_set_str			= col_set_str;
 
 	patable.p_register_init_routine		= register_init_routine;
-	patable.p_conv_dissector_add		= conv_dissector_add;
 	patable.p_conversation_new		= conversation_new;
 	patable.p_find_conversation		= find_conversation;
 	patable.p_match_strval			= match_strval;
@@ -305,6 +304,7 @@ init_plugins(const char *plugin_dir)
 
 	patable.p_dissector_add			= dissector_add;
 	patable.p_dissector_delete		= dissector_delete;
+	patable.p_dissector_add_handle		= dissector_add_handle;
 
 	patable.p_heur_dissector_add		= heur_dissector_add;
 

@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.31 2001/12/03 04:00:22 guy Exp $
+ * $Id: plugin_api.c,v 1.32 2001/12/03 10:00:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -42,7 +42,6 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_col_append_str			= pat->p_col_append_str;
 	p_col_set_str				= pat->p_col_set_str;
 	p_register_init_routine			= pat->p_register_init_routine;
-	p_conv_dissector_add			= pat->p_conv_dissector_add;
 	p_conversation_new			= pat->p_conversation_new;
 	p_find_conversation			= pat->p_find_conversation;
 	p_match_strval				= pat->p_match_strval;
@@ -52,6 +51,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_proto_register_subtree_array		= pat->p_proto_register_subtree_array;
 	p_dissector_add				= pat->p_dissector_add;
 	p_dissector_delete			= pat->p_dissector_delete;
+	p_dissector_add_handle			= pat->p_dissector_add_handle;
 	p_heur_dissector_add			= pat->p_heur_dissector_add;
 	p_register_dissector			= pat->p_register_dissector;
 	p_find_dissector			= pat->p_find_dissector;

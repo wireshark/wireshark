@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.33 2001/12/03 04:00:22 guy Exp $
+ * $Id: plugin_table.h,v 1.34 2001/12/03 10:00:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -37,7 +37,6 @@ typedef void (*addr_col_append_str)(frame_data*, gint, gchar*);
 typedef void (*addr_col_set_str)(frame_data*, gint, gchar*);
 
 typedef void (*addr_register_init_routine)(void (*func)(void));
-typedef void (*addr_conv_dissector_add)(const char *, dissector_handle_t);
 typedef conversation_t *(*addr_conversation_new)(address *, address *, 
     port_type, guint32, guint32, guint);
 typedef conversation_t *(*addr_find_conversation)(address *, address *, 
@@ -51,6 +50,8 @@ typedef void (*addr_proto_register_subtree_array)(int**, int);
 
 typedef void (*addr_dissector_add)(const char *, guint32, dissector_handle_t);
 typedef void (*addr_dissector_delete)(const char *, guint32,
+    dissector_handle_t);
+typedef void (*addr_dissector_add_handle)(const char *,
     dissector_handle_t);
 
 typedef void (*addr_heur_dissector_add)(const char *, heur_dissector_t, int);
@@ -218,7 +219,6 @@ typedef struct  {
 	addr_col_set_str			p_col_set_str;
 
 	addr_register_init_routine		p_register_init_routine;
-	addr_conv_dissector_add			p_conv_dissector_add;
 	addr_conversation_new			p_conversation_new;
 	addr_find_conversation			p_find_conversation;
 	addr_match_strval			p_match_strval;
@@ -230,11 +230,13 @@ typedef struct  {
 
 	addr_dissector_add			p_dissector_add;
 	addr_dissector_delete			p_dissector_delete;
+	addr_dissector_add_handle		p_dissector_add_handle;
 
 	addr_heur_dissector_add			p_heur_dissector_add;
 
 	addr_register_dissector			p_register_dissector;
 	addr_find_dissector			p_find_dissector;
+	addr_create_dissector_handle		p_create_dissector_handle;
 	addr_call_dissector			p_call_dissector;
 
 	addr_dissect_data			p_dissect_data;
