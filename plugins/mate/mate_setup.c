@@ -1133,7 +1133,7 @@ static void print_pdu_config(mate_cfg_pdu* cfg) {
 
 	*(s->str + s->len - 1) = ';';
 
-	if (cfg->payload_ranges->len) {
+	if (cfg->payload_ranges) {
 		g_string_sprintfa(s, " Payload=");
 		
 		for (i = 0; i < cfg->payload_ranges->len; i++) {
