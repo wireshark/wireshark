@@ -1,4 +1,4 @@
-$Id: proto_tree,v 1.3 1999/07/15 15:33:09 gram Exp $
+$Id: proto_tree,v 1.4 1999/08/27 19:27:22 gram Exp $
 
 The Ethereal Protocol Tree
 ==========================
@@ -154,6 +154,7 @@ enum ftenum {
         FT_UINT8,
         FT_UINT16,
         FT_UINT32,
+	FT_BOOLEAN,
         FT_ABSOLUTE_TIME,
         FT_RELATIVE_TIME,
         FT_STRING,

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.22 1999/08/27 19:15:38 gram Exp $
+ * $Id: packet-tr.c,v 1.23 1999/08/27 19:27:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -434,7 +434,9 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 		proto_tree_add_item(tr_tree, hf_tr_dst, offset + 2, 6, trn_dhost);
 		proto_tree_add_item(tr_tree, hf_tr_src, offset + 8, 6, trn_shost);
-		proto_tree_add_item_hidden(tr_tree, hf_tr_sr, offset + 8, 1, source_routed);
+
+		if (source_routed)
+			proto_tree_add_item_hidden(tr_tree, hf_tr_sr, offset + 8, 1, source_routed);
 
 		/* non-source-routed version of src addr */
 		proto_tree_add_item_hidden(tr_tree, hf_tr_src, offset + 8, 6, trn_shost_nonsr);

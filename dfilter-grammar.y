@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.15 1999/08/26 06:20:48 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.16 1999/08/27 19:27:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,8 +87,6 @@ static GNode* dfilter_mknode_ipv4_variable(gint id);
 static GNode* dfilter_mknode_existence(gint id);
 static GNode* dfilter_mknode_bytes_value(GByteArray *barray);
 static GNode* dfilter_mknode_bytes_variable(gint id, gint offset, guint length);
-static GNode* dfilter_mknode_boolean_value(gint truth_value);
-static GNode* dfilter_mknode_boolean_variable(gint id);
 
 static guint32 string_to_value(char *s);
 static int ether_str_to_guint8_array(const char *s, guint8 *mac);
@@ -125,7 +123,6 @@ GSList *gnode_slist = NULL;
 %type <node>	ipv4_value ipv4_variable
 %type <node>	variable_name
 %type <node>	bytes_value bytes_variable
-%type <node>	boolean_value boolean_variable
 
 %type <operand>	numeric_relation
 %type <operand>	equality_relation
@@ -222,15 +219,6 @@ relation:	numeric_variable numeric_relation numeric_value
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 
-	|	boolean_variable equality_relation boolean_value
-		{
-			$$ = dfilter_mknode_join($1, relation, $2, $3);
-		}
-	|	boolean_variable equality_relation boolean_variable
-		{
-			$$ = dfilter_mknode_join($1, relation, $2, $3);
-		}
-
 	;
 
 
@@ -283,11 +271,6 @@ bytes_value:	T_VAL_BYTE_STRING
 	;
 
 
-boolean_value:	TOK_TRUE		{ $$ = dfilter_mknode_boolean_value($1); }
-	|	TOK_FALSE		{ $$ = dfilter_mknode_boolean_value($1); }
-	;
-
-
 numeric_variable:	T_FT_UINT8	{ $$ = dfilter_mknode_numeric_variable($1); }
 	|		T_FT_UINT16	{ $$ = dfilter_mknode_numeric_variable($1); }
 	|		T_FT_UINT32	{ $$ = dfilter_mknode_numeric_variable($1); }
@@ -309,9 +292,6 @@ bytes_variable:		any_variable_type T_VAL_BYTE_RANGE
 		{
 			$$ = dfilter_mknode_bytes_variable($1, $2.offset, $2.length);
 		}
-	;
-
-boolean_variable:	T_FT_BOOLEAN	{ $$ = dfilter_mknode_boolean_variable($1); }
 	;
 
 any_variable_type:	T_FT_UINT8 { $$ = $1; }
@@ -488,24 +468,6 @@ dfilter_mknode_bytes_variable(gint id, gint offset, guint length)
 }
 
 static GNode*
-dfilter_mknode_boolean_variable(gint id)
-{
-	dfilter_node	*node;
-	GNode		*gnode;
-
-	node = g_mem_chunk_alloc(global_df->node_memchunk);
-	node->ntype = variable;
-	node->elem_size = sizeof(guint32);
-	node->fill_array_func = fill_array_boolean_variable; /* cheating ! */
-	node->check_relation_func = check_relation_boolean; /* cheating ! */
-	node->value.variable = id;
-	gnode = g_node_new(node);
-
-	gnode_slist = g_slist_append(gnode_slist, gnode);
-	return gnode;
-}
-
-static GNode*
 dfilter_mknode_numeric_value(guint32 val)
 {
 	dfilter_node	*node;
@@ -602,24 +564,6 @@ dfilter_mknode_bytes_value(GByteArray *barray)
 	node->value.bytes = barray;
 	node->offset = G_MAXINT;
 	node->length = barray->len;
-	gnode = g_node_new(node);
-
-	gnode_slist = g_slist_append(gnode_slist, gnode);
-	return gnode;
-}
-
-static GNode*
-dfilter_mknode_boolean_value(gint truth_value)
-{
-	dfilter_node	*node;
-	GNode		*gnode;
-
-	node = g_mem_chunk_alloc(global_df->node_memchunk);
-	node->ntype = numeric;
-	node->elem_size = sizeof(guint32);
-	node->fill_array_func = fill_array_boolean_value;
-	node->check_relation_func = check_relation_boolean;
-	node->value.boolean = truth_value == TOK_TRUE ? TRUE : FALSE;
 	gnode = g_node_new(node);
 
 	gnode_slist = g_slist_append(gnode_slist, gnode);

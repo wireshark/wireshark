@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.10 1999/08/20 21:19:27 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.11 1999/08/27 19:27:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,9 +104,6 @@ gt|\>		{ dfilter_lval.operand = TOK_GT; return TOK_GT; }
 ge|\>\=		{ dfilter_lval.operand = TOK_GE; return TOK_GE; }
 lt|\<		{ dfilter_lval.operand = TOK_LT; return TOK_LT; }
 le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
-
-true		{ dfilter_lval.operand = TOK_TRUE; return TOK_TRUE; }
-false		{ dfilter_lval.operand = TOK_FALSE; return TOK_FALSE; }
 
 \[{whitespace}*-?[0-9]+{whitespace}*:{whitespace}*[0-9]+{whitespace}*\] { /* range [ x : y ] */
 
