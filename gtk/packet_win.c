@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.37 2002/06/04 07:03:56 guy Exp $
+ * $Id: packet_win.c,v 1.38 2002/06/04 07:48:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,7 +120,7 @@ void new_window_cb(GtkWidget *w _U_)
    * frame was dissected.
    */
   for (i = 0; i < cfile.cinfo.num_cols; ++i) {
-    TextPtr = cfile.cinfo.col_data[i];					
+    TextPtr = cfile.cinfo.col_data[i];
     if ((strlen(Title) + strlen(TextPtr)) < NewWinTitleLen - 1) {
       strcat(Title, TextPtr);
       strcat(Title, " ");
