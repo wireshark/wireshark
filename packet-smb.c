@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.84 2001/06/18 02:17:52 guy Exp $
+ * $Id: packet-smb.c,v 1.85 2001/06/20 01:58:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -3489,38 +3489,71 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     offset += 2;
 
-    if (enckeylen) { /* only if non-zero key len */
+    if (caps & 0x80000000) {
+      /* Extended security */
 
-      /* Encryption challenge key */
+      /* GUID */
+
+      if (tree) {
+
+	/* XXX - show it in GUID form, with dashes or whatever */
+	proto_tree_add_text(tree, NullTVB, offset, 16, "GUID: %s",
+				bytes_to_str(&pd[offset], 16));
+
+      }
+
+      offset += 16;
+
+      /* Security blob */
+      /* XXX - is this ASN.1-encoded?  Is it a Kerberos data structure,
+	 at least in NT 5.0-and-later server replies? */
+
+      if (bcc > 16) {
+	bcc -= 16;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, NullTVB, offset, bcc, "Security blob: %s",
+				bytes_to_str(&pd[offset], bcc));
+
+	}
+      }
+    } else {
+      /* Non-extended security */
+
+      if (enckeylen) { /* only if non-zero key len */
+
+	/* Encryption challenge key */
+
+	str = pd + offset;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, NullTVB, offset, enckeylen, "Challenge encryption key: %s",
+				bytes_to_str(str, enckeylen));
+
+	}
+
+	offset += enckeylen;
+
+      }
+
+      /* The domain, a null terminated string; Unicode if "caps" has
+	 the 0x0004 bit set, ASCII (OEM character set) otherwise.
+	XXX - for now, we just handle the ISO 8859-1 subset of Unicode. */
 
       str = pd + offset;
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, offset, enckeylen, "Challenge encryption key: %s",
-				bytes_to_str(str, enckeylen));
+	if (caps & 0x0004) {
+	  ustr = unicode_to_str(str, &ustr_len);
+	  proto_tree_add_text(tree, NullTVB, offset, ustr_len+2, "OEM domain name: %s", ustr);
+	} else {
+	  proto_tree_add_text(tree, NullTVB, offset, strlen(str)+1, "OEM domain name: %s", str);
+	}
 
       }
-
-      offset += enckeylen;
-
-    }
-
-    /* The domain, a null terminated string; Unicode if "caps" has
-       the 0x0004 bit set, ASCII (OEM character set) otherwise.
-       XXX - for now, we just handle the ISO 8859-1 subset of Unicode. */
-
-    str = pd + offset;
-
-    if (tree) {
-
-      if (caps & 0x0004) {
-      	ustr = unicode_to_str(str, &ustr_len);
-	proto_tree_add_text(tree, NullTVB, offset, ustr_len+2, "OEM domain name: %s", ustr);
-      } else {
-	proto_tree_add_text(tree, NullTVB, offset, strlen(str)+1, "OEM domain name: %s", str);
-      }
-
     }
 
     break;
