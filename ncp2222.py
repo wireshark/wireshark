@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.25 2002/05/25 11:18:15 guy Exp $
+$Id: ncp2222.py,v 1.26 2002/05/25 13:57:19 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1093,11 +1093,12 @@ class bitfield(Type):
 	def __init__(self, vars):
 		var_hash = {}
 		for var in vars:
-		    if isinstance(var, bf_boolean):
-			if not isinstance(var, self.bf_type):
-				print "%s must be of type %s" % \
-					(var.Abbreviation(), self.bf_type)
-				sys.exit(1)
+			if isinstance(var, bf_boolean):
+				if not isinstance(var, self.bf_type):
+					print "%s must be of type %s" % \
+						(var.Abbreviation(),
+						self.bf_type)
+					sys.exit(1)
 			var_hash[var.bitmask] = var
 
 		bitmasks = var_hash.keys()
