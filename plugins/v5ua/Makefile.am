@@ -1,5 +1,7 @@
 # Makefile.am
-# Automake file for Megaco Ethereal plugin
+# Automake file for V5UA plugin
+#
+# $Id: Makefile.am,v 1.2 2003/12/17 07:02:12 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -32,11 +34,6 @@ v5ua_la_LDFLAGS = -module -avoid-version
 # If your module needs to be linked against any particular libraries,
 # add them here.
 LIBS =
-
-v5ua_la_DEPENDENCIES = packet-v5ua-static.o
-
-packet-v5ua-static.o:	packet-v5ua.c moduleinfo.h
-	$(LTCOMPILE) -c -o packet-v5ua-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-v5ua.c 
 
 CLEANFILES = \
 	v5ua \
