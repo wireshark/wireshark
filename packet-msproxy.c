@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.17 2001/03/22 06:55:58 guy Exp $
+ * $Id: packet-msproxy.c,v 1.18 2001/03/22 08:39:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,7 +24,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  *
- * This was derived from the dante socks implimentation source code. 
+ * This was derived from the dante socks implementation source code. 
  * Most of the information came from common.h and msproxy_clientprotocol.c
  *
  * See http://www.inet.no/dante for more information 
@@ -72,9 +72,6 @@
 
 #include "packet-tcp.h"
 #include "packet-udp.h"
-
-#define CHECK_PACKET_LENGTH(X) if (!BYTES_ARE_IN_FRAME(offset, X)){  \
- 	proto_tree_add_text(tree, NullTVB, offset, 0, "****FRAME TOO SHORT***"); return;}
 
 extern void udp_hash_add(guint16 proto,
         void (*dissect)(const u_char *, int, frame_data *, proto_tree *));
@@ -208,7 +205,7 @@ static GMemChunk *redirect_vals = NULL;
 
 static guint32 last_row= 0;	/* used to see if packet is new */
 
-static void msproxy_sub_dissector( const u_char *pd, int offset, frame_data *fd,
+static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *tree) {
 
 /* Conversation dissector called from TCP or UDP dissector. Decode and	*/
@@ -220,58 +217,59 @@ static void msproxy_sub_dissector( const u_char *pd, int offset, frame_data *fd,
 	conversation_t *conversation;
 	proto_tree      *msp_tree;
 	proto_item      *ti;
-	tvbuff_t        *tvb;
 	
-	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
-		pi.srcport, pi.destport, 0);
+	conversation = find_conversation( &pinfo->src, &pinfo->dst,
+		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 	g_assert( conversation);	/* should always find a conversation */
 
 	redirect_info = (redirect_entry_t*)conversation->data;
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "MS Proxy");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "MS Proxy");
 
-	if (check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO, "%s", 
+	if (check_col(pinfo->fd, COL_INFO))
+		col_set_str(pinfo->fd, COL_INFO,
 			(( redirect_info->proto == PT_TCP) ? "TCP stream" :
 			 "UDP packets"));
 
 	if ( tree) {
-    		ti = proto_tree_add_item( tree, proto_msproxy, NullTVB, offset, 0,
+    		ti = proto_tree_add_item( tree, proto_msproxy, tvb, 0, 0,
     			FALSE );
 
 		msp_tree = proto_item_add_subtree(ti, ett_msproxy);
 
-		proto_tree_add_uint( msp_tree, hf_msproxy_dstport, NullTVB,
-			offset, 0, redirect_info->remote_port);
+		proto_tree_add_uint( msp_tree, hf_msproxy_dstport, tvb, 0, 0,
+			redirect_info->remote_port);
 
-		proto_tree_add_ipv4( msp_tree, hf_msproxy_dstaddr, NullTVB, offset, 0,
+		proto_tree_add_ipv4( msp_tree, hf_msproxy_dstaddr, tvb, 0, 0,
 			redirect_info->remote_addr);
 			
 	}
 
-/* set pi src/dst port and call the udp sub-dissector lookup */
+/* set pinfo->{src/dst port} and call the UDP sub-dissector lookup */
 
-	if ( pi.srcport == redirect_info->clnt_port) 		
-       		ptr = &pi.destport;
+	if ( pinfo->srcport == redirect_info->clnt_port) 		
+       		ptr = &pinfo->destport;
    	else
-    		ptr = &pi.srcport;
+    		ptr = &pinfo->srcport;
 
         *ptr = redirect_info->remote_port;
    	
-	tvb = tvb_create_from_top(0);
 	if ( redirect_info->proto == PT_TCP)
-		decode_tcp_ports( tvb, offset, &pi, tree, pi.srcport, pi.destport);
+		decode_tcp_ports( tvb, 0, pinfo, tree, pinfo->srcport,
+			pinfo->destport);
 	else
-		decode_udp_ports( tvb, offset, &pi, tree, pi.srcport, pi.destport);
+		decode_udp_ports( tvb, 0, pinfo, tree, pinfo->srcport,
+			pinfo->destport);
  
         *ptr = redirect_info->server_int_port;
 }
 
 
 
-static void add_msproxy_conversation( hash_entry_t *hash_info){
+static void add_msproxy_conversation( packet_info *pinfo,
+	hash_entry_t *hash_info){
 
 /* check to see if a conversation already exists, if it does assume 	*/
 /* it's our conversation and quit. Otherwise create a new conversation.	*/
@@ -280,23 +278,23 @@ static void add_msproxy_conversation( hash_entry_t *hash_info){
 /* UDP port decoder.							*/
 
 /* NOTE: Currently this assume that the conversation will be created 	*/
-/* 	during a packet from the server.  If that changes, the pi.src	*/
-/*	and pi.dst will not be correct and this routine will have to 	*/
-/*	change.								*/
+/* 	during a packet from the server.  If that changes, pinfo->src	*/
+/*	and pinfo->dst will not be correct and this routine will have	*/
+/*	to change.							*/
 
 	redirect_entry_t *new_conv_info;
 	
-	conversation_t *conversation = find_conversation( &pi.src, &pi.dst, 
-		hash_info->proto, hash_info->server_int_port,
+	conversation_t *conversation = find_conversation( &pinfo->src,
+		&pinfo->dst, hash_info->proto, hash_info->server_int_port,
 		hash_info->clnt_port, 0);
 
 	if ( conversation)
 		return;
 
 	new_conv_info = g_mem_chunk_alloc(redirect_vals);
-	conversation = conversation_new( &pi.src, &pi.dst, hash_info->proto,
-		hash_info->server_int_port, hash_info->clnt_port,
-		new_conv_info, 0);
+	conversation = conversation_new( &pinfo->src, &pinfo->dst,
+		hash_info->proto, hash_info->server_int_port,
+		hash_info->clnt_port, new_conv_info, 0);
 
 	g_assert( new_conv_info);
 	g_assert( conversation);
@@ -307,31 +305,25 @@ static void add_msproxy_conversation( hash_entry_t *hash_info){
 	new_conv_info->server_int_port = hash_info->server_int_port;
 	new_conv_info->proto = hash_info->proto;
 	
-	old_conversation_set_dissector(conversation, msproxy_sub_dissector);
+	conversation_set_dissector(conversation, msproxy_sub_dissector);
 }
 
 
 
-static int display_application_name(const u_char *pd, int offset,
-	frame_data *fd, proto_tree *tree) {
+static int display_application_name(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree) {
 	
 /* display the application name in the proto tree.   			*/
 
 /* NOTE: this routine assumes that the tree pointer is valid (not NULL) */	
 
-	char temp[255+1];
-	
-	if (!IS_DATA_IN_FRAME(offset)){ 
- 		proto_tree_add_text(tree, NullTVB, offset, 0, "****FRAME TOO SHORT***");
- 		return 0;
- 	}
-	
-	strncpy( temp, &pd[ offset], MIN( 255, END_OF_FRAME));
-	temp[ MIN( 255, END_OF_FRAME)] = 0;			
-	proto_tree_add_text( tree, NullTVB, offset, strlen(temp), "Application: %s", temp);
+	int length;
 
-	return strlen(temp);
+	length = tvb_strnlen( tvb, offset, 255);
+	proto_tree_add_text( tree, tvb, offset, length, "Application: %.*s",
+		length, tvb_get_ptr( tvb, offset, length));
 
+	return length;
 }
 
 
@@ -378,117 +370,110 @@ static char *get_msproxy_cmd_name( int cmd, int direction) {
 
 
 
-static void dissect_user_info_2(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+static void dissect_user_info_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree) {
 
 /* decode the user, application, computer name  */
 
 
-	char str[ 255+1];
+	int length;
 
-	if ( tree) {	
-		CHECK_PACKET_LENGTH(1);
-		strncpy( str, &pd[ offset], MIN( 255, END_OF_FRAME));
-		str[ MIN( 255, END_OF_FRAME)] = 0;			
+	if ( tree) {
+		length = tvb_strnlen( tvb, offset, 255);
+		if (length == -1)
+			return;
+		proto_tree_add_text( tree, tvb, offset, length + 1,
+			"User name: %.*s", length,
+			tvb_get_ptr( tvb, offset, length));
+		offset += length + 2;
 	
-		proto_tree_add_text( tree, NullTVB, offset, strlen( str) + 1,
-			"User name: %s", str); 
-		offset += strlen( str) + 2;
+		length = tvb_strnlen( tvb, offset, 255);
+		if (length == -1)
+			return;
+		proto_tree_add_text( tree, tvb, offset, length + 1,
+			"Application name: %.*s", length,
+			tvb_get_ptr( tvb, offset, length));
+		offset += length + 1;
 	
-		CHECK_PACKET_LENGTH(1);
-		strncpy( str, &pd[ offset], MIN( 255, END_OF_FRAME));
-		str[ MIN( 255, END_OF_FRAME)] = 0;			
-	
-		proto_tree_add_text( tree, NullTVB, offset, strlen( str) + 1,
-			"Application name: %s", str); 
-		offset += strlen( str) + 1;
-	
-		CHECK_PACKET_LENGTH(1);
-		strncpy( str, &pd[ offset], MIN( 255, END_OF_FRAME));
-		str[ MIN( 255, END_OF_FRAME)] = 0;			
-	
-		proto_tree_add_text( tree, NullTVB, offset, strlen( str) + 1,
-			"Client computer name: %s", str); 
+		length = tvb_strnlen( tvb, offset, 255);
+		if (length == -1)
+			return;
+		proto_tree_add_text( tree, tvb, offset, length + 1,
+			"Client computer name: %.*s", length,
+			tvb_get_ptr( tvb, offset, length));
 	}
 }
 
 
 
-static void dissect_msproxy_request_1(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+static void dissect_msproxy_request_1(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree) {
 
 /* decode the request _1 structure  */
 
 
-	offset += 180;
+	offset += 182;
 
-	dissect_user_info_2( pd, 262, fd, tree);	
+	dissect_user_info_2( tvb, offset, pinfo, tree);
 
 }
 
 
 
-static void dissect_bind(const u_char *pd, int offset, frame_data *fd,
+static void dissect_bind(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the bind request   */
 
 	offset += 18;
 
-	CHECK_PACKET_LENGTH( 4);
 	if ( tree)
-		proto_tree_add_ipv4( tree, hf_msproxy_bindaddr, NullTVB, offset, 4,
-			GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_bindaddr, tvb, offset, 4,
+			FALSE);
 	offset += 4;
 
-	CHECK_PACKET_LENGTH( 2);
 	if ( tree)
-		proto_tree_add_uint( tree, hf_msproxy_bindport, NullTVB, offset, 2,
-			 pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_bindport, tvb, offset, 2,
+			 FALSE);
 	offset += 6;
 			
-	CHECK_PACKET_LENGTH( 2);
 	if ( tree)
-		proto_tree_add_uint( tree, hf_msproxy_clntport, NullTVB, offset, 2,
-			 pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_clntport, tvb, offset, 2,
+			 FALSE);
 	offset += 2;
 			
-	conv_info->clnt_port = pntohs( &pd[ offset]); 
+	conv_info->clnt_port = tvb_get_ntohs( tvb, offset);
 	offset += 6;
 
 	if ( tree){
-		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_uint( tree, hf_msproxy_boundport, NullTVB, offset, 2,
-			pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_boundport, tvb, offset, 2,
+			FALSE);
 
 		offset += 82;
-		display_application_name( pd, offset, fd, tree);
+		display_application_name( tvb, offset, pinfo, tree);
 	}
 }
 
 
 
-static void dissect_auth(const u_char *pd, int offset,
-	frame_data *fd, proto_tree *tree) {
+static void dissect_auth(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree) {
 
 /* decode the authorization request  */
-
-	char temp[255+1];
 
 	if ( tree) {
 		offset += 134;
 
-		CHECK_PACKET_LENGTH(7);
-		strncpy( temp, &pd[ offset], 7);
-		temp[ 7] = 0;			
-		proto_tree_add_text( tree, NullTVB, offset, 7, "NTLMSSP signature: %s",
-			temp);
+		proto_tree_add_text( tree, tvb, offset, 7, "NTLMSSP signature: %.7s",
+			tvb_get_ptr( tvb, offset, 7));
 		offset += 7;
 	}
 }
 
 
 
-static void dissect_tcp_bind(const u_char *pd, int offset,
-	frame_data *fd, proto_tree *tree, hash_entry_t *conv_info) {
+static void dissect_tcp_bind(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the bind packet. Set the protocol type in the conversation 	*/
 /* information so the bind_info can use it to create the payload	*/
@@ -500,22 +485,21 @@ static void dissect_tcp_bind(const u_char *pd, int offset,
 	if ( tree) {
 		offset += 6;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_uint( tree, hf_msproxy_bind_id, NullTVB, offset, 4, pntohl( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_bind_id, tvb, offset, 4,
+			FALSE);
 		offset += 16;
 
-		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_uint( tree, hf_msproxy_boundport, NullTVB, offset, 2,
-			pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_boundport, tvb, offset, 2,
+			FALSE);
 
 		offset += 96;
-		display_application_name( pd, offset, fd, tree);
+		display_application_name( tvb, offset, pinfo, tree);
 	}
 }
 
 
-static void dissect_request_connect(const u_char *pd, int offset, frame_data *fd,
-		proto_tree *tree, hash_entry_t *conv_info) {
+static void dissect_request_connect(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the connect request, display  */
 
@@ -523,38 +507,35 @@ static void dissect_request_connect(const u_char *pd, int offset, frame_data *fd
 
 	offset += 20;
 
-	CHECK_PACKET_LENGTH( 2);
 	if ( tree)
-		proto_tree_add_uint( tree, hf_msproxy_dstport, NullTVB, offset, 2,
-			pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_dstport, tvb, offset, 2,
+			FALSE);
 		
-	conv_info->dst_port = pntohs( &pd[ offset]);
+	conv_info->dst_port = tvb_get_ntohs( tvb, offset);
 	offset += 2;
 
-	CHECK_PACKET_LENGTH( 4);
 	if ( tree)
-		proto_tree_add_ipv4( tree, hf_msproxy_dstaddr, NullTVB, offset, 4,
-			GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
+			FALSE);
 			
-	memcpy( &conv_info->dst_addr, &pd[ offset], sizeof( guint32));
+	tvb_memcpy( tvb, (guint8 *)&conv_info->dst_addr, offset, sizeof( guint32));
 
 	offset += 12;
 
-	CHECK_PACKET_LENGTH( 2);
-	conv_info->clnt_port = pntohs( &pd[ offset]);
+	conv_info->clnt_port = tvb_get_ntohs( tvb, offset);
 
 	if ( tree){
-		proto_tree_add_uint( tree, hf_msproxy_clntport, NullTVB, offset, 2,
-			pntohs( &pd[ offset]));
+		proto_tree_add_uint( tree, hf_msproxy_clntport, tvb, offset, 2,
+			conv_info->clnt_port);
 	
 		offset += 84;
 
-		display_application_name( pd, offset, fd, tree);
+		display_application_name( tvb, offset, pinfo, tree);
 	}
 }
 
 
-static void dissect_bind_info_ack(const u_char *pd, int offset, frame_data *fd,
+static void dissect_bind_info_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the client bind info ack  */
@@ -563,42 +544,37 @@ static void dissect_bind_info_ack(const u_char *pd, int offset, frame_data *fd,
 	if ( tree){
 		offset += 6;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_uint( tree, hf_msproxy_bind_id, NullTVB, offset, 4, pntohl( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_bind_id, tvb, offset, 4,
+			FALSE);
 		offset += 14;
 
-		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_uint( tree, hf_msproxy_dstport, NullTVB, offset, 2,
-			pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_dstport, tvb, offset, 2,
+			FALSE);
 		offset += 2;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_ipv4( tree, hf_msproxy_dstaddr, NullTVB, offset, 4,
-			GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
+			FALSE);
 		offset += 12;
 
-		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_uint( tree, hf_msproxy_server_int_port, NullTVB, offset,
-			2, pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_server_int_port, tvb,
+			offset, 2, FALSE);
 		offset += 4;
 
-		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_uint( tree, hf_msproxy_server_ext_port, NullTVB, offset,
-			2, pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_server_ext_port, tvb,
+			offset, 2, FALSE);
 		offset += 2;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_ipv4( tree, hf_msproxy_server_ext_addr, NullTVB, offset,
-			4, GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
+			offset, 4, FALSE);
 
 		offset += 78;
-		display_application_name( pd, offset, fd, tree);
+		display_application_name( tvb, offset, pinfo, tree);
 	}
 }
 
 
-static void dissect_request_resolve(const u_char *pd, int offset,
-	frame_data *fd, proto_tree *tree) {
+static void dissect_request_resolve(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree) {
 
 /* dissect the request resolve structure */
 /* display a string with a length, characters encoding */
@@ -608,33 +584,30 @@ static void dissect_request_resolve(const u_char *pd, int offset,
 	proto_tree      *name_tree;
 	proto_item      *ti;
 
-	char temp[ 255+1];
-	int length = GBYTE( pd, offset);
+	int length = tvb_get_guint8( tvb, offset);
 
 	if ( tree){
-		CHECK_PACKET_LENGTH(length);
-		strncpy( temp, &pd[ offset + 18], length);
-		temp[ length ] = 0;
-  
-  	 	ti = proto_tree_add_text(tree, NullTVB, offset, length + 1,
-   		 	"Host Name: %s", temp);
+  	 	ti = proto_tree_add_text(tree, tvb, offset, length + 1,
+   		 	"Host Name: %.*s", length,
+   		 	tvb_get_ptr( tvb, offset + 18, length));
 
 		name_tree = proto_item_add_subtree(ti, ett_msproxy_name);
 
-		proto_tree_add_text( name_tree, NullTVB, offset, 1, "Length: %d", length);
+		proto_tree_add_text( name_tree, tvb, offset, 1, "Length: %d",
+			length);
 
 		++offset;
 		offset += 17;
 
-		proto_tree_add_text( name_tree, NullTVB, offset, length, "String: %s",
-			temp);
+		proto_tree_add_text( name_tree, tvb, offset, length, "String: %s",
+   		 	tvb_get_ptr( tvb, offset, length));
 	}
 }	
 
 
 
-static void dissect_udp_bind(const u_char *pd, int offset,
-	frame_data *fd, proto_tree *tree, hash_entry_t *conv_info) {
+static void dissect_udp_bind(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, hash_entry_t *conv_info) {
 
 /* Dissect the udp bind request.  Load the protocol id (PT_UDP) and the	*/
 /* remote address so bind_info can use it to create conversation 	*/
@@ -645,32 +618,30 @@ static void dissect_udp_bind(const u_char *pd, int offset,
 
 	offset += 8;
 
-	CHECK_PACKET_LENGTH( 4);
 	if ( tree)
-		proto_tree_add_uint( tree, hf_msproxy_bind_id, NullTVB, offset, 4, pntohl( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_bind_id, tvb, offset, 4,
+			FALSE);
 	offset += 12;
 
 
-	CHECK_PACKET_LENGTH( 2);
 	if ( tree)
-		proto_tree_add_uint( tree, hf_msproxy_dstport, NullTVB, offset, 2,
-			pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_dstport, tvb, offset, 2,
+			FALSE);
 	offset += 2;
 
-	CHECK_PACKET_LENGTH( 4);
 	if ( tree) 
-		proto_tree_add_ipv4( tree, hf_msproxy_dstaddr, NullTVB, offset, 4,
-			GWORD( pd, offset));
+		proto_tree_add_ipv4( tree, hf_msproxy_dstaddr, tvb, offset, 4,
+			FALSE);
 
 	offset += 96;
 	
 	if ( tree)
-		display_application_name( pd, offset, fd, tree);
+		display_application_name( tvb, offset, pinfo, tree);
 }	
  
 
-static void dissect_udp_assoc(const u_char *pd, int offset,
-	frame_data *fd, proto_tree *tree, hash_entry_t *conv_info) {
+static void dissect_udp_assoc(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, hash_entry_t *conv_info) {
 
 /* dissect the udp associate request. And load client port into 	*/
 /* conversation data structure for later.				*/
@@ -678,68 +649,57 @@ static void dissect_udp_assoc(const u_char *pd, int offset,
 
 	offset += 28;
 
-	CHECK_PACKET_LENGTH( 2);
 	if ( tree) 
-		proto_tree_add_uint( tree, hf_msproxy_clntport, NullTVB, offset, 2,
-			pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_clntport, tvb, offset, 2,
+			FALSE);
 
-	conv_info->clnt_port = pntohs( &pd[ offset]); 
+	conv_info->clnt_port = tvb_get_ntohs( tvb, offset);
 
 	offset += 90;
 
 	if ( tree) 
-		display_application_name( pd, offset, fd, tree);
-	
-
+		display_application_name( tvb, offset, pinfo, tree);
 }	
  
 
-static void dissect_msproxy_request(const u_char *pd, int offset, frame_data *fd,
+static void dissect_msproxy_request(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, hash_entry_t *conv_info) {
 
+	int offset = 0;
 	int cmd;
-	char temp[ 255+1];
 
 	if ( tree) {
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_text( tree, NullTVB, offset, 4, "Client id: 0x%0x", 
-			GWORD( pd, offset));
+		proto_tree_add_text( tree, tvb, offset, 4, "Client id: 0x%0x", 
+			tvb_get_letohl( tvb, offset));
 		offset += 4;
 	
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_text( tree, NullTVB, offset, 4, "Version: 0x%04x", 
-			GWORD( pd, offset));
+		proto_tree_add_text( tree, tvb, offset, 4, "Version: 0x%04x", 
+			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_text( tree, NullTVB, offset, 4, "Server id: 0x%0x", 
-			GWORD( pd, offset));
+		proto_tree_add_text( tree, tvb, offset, 4, "Server id: 0x%0x", 
+			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_text( tree, NullTVB, offset, 1, "Server ack: %u", 
-			GBYTE( pd, offset));
+		proto_tree_add_text( tree, tvb, offset, 1, "Server ack: %u", 
+			tvb_get_guint8( tvb, offset));
 		offset += 4;
 
-		CHECK_PACKET_LENGTH( 1);
-		proto_tree_add_text( tree, NullTVB, offset, 1, "Sequence Number: %u", 
-			GBYTE( pd, offset));
+		proto_tree_add_text( tree, tvb, offset, 1, "Sequence Number: %u", 
+			tvb_get_guint8( tvb, offset));
 		offset += 8;
 
-		CHECK_PACKET_LENGTH( 4);
-		strncpy( temp, &pd[ offset], 4);
-		temp[ 4] = 0;			
-		proto_tree_add_text( tree, NullTVB, offset, 4, "RWSP signature: %s", temp);
+		proto_tree_add_text( tree, tvb, offset, 4, "RWSP signature: %.4s",
+			tvb_get_ptr( tvb, offset, 4));
 		offset += 12;
 	} 
 	else 			/* no tree */
 		offset += 36;
 
-	CHECK_PACKET_LENGTH( 1);
-	cmd = pntohs( &pd[offset]);
+	cmd = tvb_get_ntohs( tvb, offset);
 
 	if ( tree)
-		proto_tree_add_uint_format( tree, hf_msproxy_cmd, NullTVB, offset, 2,
+		proto_tree_add_uint_format( tree, hf_msproxy_cmd, tvb, offset, 2,
 			cmd, "Command: 0x%02x (%s)", cmd, 
 			get_msproxy_cmd_name( cmd, FROM_CLIENT));
 
@@ -747,54 +707,55 @@ static void dissect_msproxy_request(const u_char *pd, int offset, frame_data *fd
 
 	switch (cmd){ 
 		case MSPROXY_AUTH:
-			dissect_auth( pd, offset, fd, tree);
+			dissect_auth( tvb, offset, pinfo, tree);
 			break;
 			
 		case MSPROXY_BIND:
-			dissect_bind( pd, offset, fd, tree, conv_info);
-
+			dissect_bind( tvb, offset, pinfo, tree, conv_info);
 			break;
-		case  MSPROXY_UDP_BIND_REQ:
-			dissect_udp_bind( pd, offset, fd, tree, conv_info);
+
+		case MSPROXY_UDP_BIND_REQ:
+			dissect_udp_bind( tvb, offset, pinfo, tree, conv_info);
 			break;
 	
 		case MSPROXY_AUTH_2:	/*$$ this is probably wrong place for this */
 		case MSPROXY_TCP_BIND:
-			dissect_tcp_bind( pd, offset, fd, tree,	conv_info);
+			dissect_tcp_bind( tvb, offset, pinfo, tree, conv_info);
 			break;
 	
 		case MSPROXY_RESOLVE:
-			dissect_request_resolve( pd, offset, fd, tree);
+			dissect_request_resolve( tvb, offset, pinfo, tree);
 			break;
 	
 		case MSPROXY_CONNECT:
 		case MSPROXY_LISTEN:
-			dissect_request_connect( pd, offset, fd, tree,
+			dissect_request_connect( tvb, offset, pinfo, tree,
 				conv_info);
 			break;
 	
 		case MSPROXY_BINDINFO_ACK:
-			dissect_bind_info_ack( pd, offset, fd, tree, conv_info);
+			dissect_bind_info_ack( tvb, offset, pinfo, tree,
+				conv_info);
 			break;
 
 		case MSPROXY_HELLO:
 		case MSPROXY_HELLO_2:
-			dissect_msproxy_request_1( pd, offset, fd, tree);
+			dissect_msproxy_request_1( tvb, offset, pinfo, tree);
 			break;
 
 		case  MSPROXY_UDPASSOCIATE:
-			dissect_udp_assoc( pd, offset, fd, tree, conv_info);
+			dissect_udp_assoc( tvb, offset, pinfo, tree, conv_info);
 			break;
 		default:
 			if ( tree)
-				proto_tree_add_text( tree, NullTVB, offset, 0,
+				proto_tree_add_text( tree, tvb, offset, 0,
 					"Unhandled request command (report this, please)");
 	}
 }
 
 
 
-static void dissect_hello_ack(const u_char *pd, int offset, frame_data *fd,
+static void dissect_hello_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the hello acknowledge packet  */
@@ -802,22 +763,20 @@ static void dissect_hello_ack(const u_char *pd, int offset, frame_data *fd,
 	offset += 60;
 
 	if ( tree) {
-		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_uint( tree, hf_msproxy_serverport, NullTVB, offset, 2,
-			 pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_serverport, tvb, offset, 2,
+			 FALSE);
 		offset += 2;
 	
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_ipv4( tree, hf_msproxy_serveraddr, NullTVB, offset, 4,
-			GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_serveraddr, tvb, offset, 4,
+			FALSE);
 		offset += 4;
 	}
 }
 
 
 
-static void dissect_user_info_ack(const u_char *pd, int offset,
-	frame_data *fd, proto_tree *tree) {
+static void dissect_user_info_ack(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree) {
 
 /* decode the  response _2 structure  */
 
@@ -829,56 +788,49 @@ static void dissect_user_info_ack(const u_char *pd, int offset,
 
 
 
-static void dissect_udpassociate_ack( const u_char *pd, int offset, 
-	frame_data *fd, proto_tree *tree) {
-
+static void dissect_udpassociate_ack(tvbuff_t *tvb, int offset, 
+	packet_info *pinfo, proto_tree *tree) {
 
 	offset += 6;
 
 	if ( tree) {
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_uint( tree, hf_msproxy_bind_id, NullTVB, offset, 4, pntohl( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_bind_id, tvb, offset, 4,
+			FALSE);
 		offset += 14;
 
-		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_uint( tree, hf_msproxy_server_ext_port, NullTVB, offset, 2, pntohs( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_server_ext_port, tvb,
+			offset, 2, FALSE);
 		offset += 2;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_ipv4( tree, hf_msproxy_server_ext_addr, NullTVB, offset, 4, GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
+			offset, 4, FALSE);
 
 		offset += 96;
-		display_application_name( pd, offset, fd, tree);
+		display_application_name( tvb, offset, pinfo, tree);
 	}
 }
 
 
 
-static void dissect_auth_1_ack(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-
-	char temp[ 255+1];
+static void dissect_auth_1_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree) {
 
 	offset += 134;
 	if ( tree) {
-
-		CHECK_PACKET_LENGTH( 7);
-		strncpy( temp, &pd[ offset], 7);
-		temp[ 7] = 0;			
-		proto_tree_add_text( tree, NullTVB, offset, 7, "NTLMSSP signature: %s", temp);
+		proto_tree_add_text( tree, tvb, offset, 7, "NTLMSSP signature: %.7s",
+			tvb_get_ptr( tvb, offset, 7));
 		offset += 48;
 
-		strncpy( temp, &pd[ offset], MIN( 255, END_OF_FRAME));
-		temp[ MIN( 255, END_OF_FRAME)] = 0;			
-		proto_tree_add_text( tree, NullTVB, offset, 255, "NT domain: %s", temp);
-		offset += 7;
+		/* XXX - always 255? */
+		proto_tree_add_text( tree, tvb, offset, 255, "NT domain: %.255s",
+			tvb_get_ptr( tvb, offset, 255));
 	}
 }
 
 
 
-static void dissect_msproxy_response_4( const u_char *pd, int offset,
-	frame_data *fd, proto_tree *tree) {
+static void dissect_msproxy_response_4( tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree) {
 
 /* decode the response _4 structure  */
 
@@ -887,44 +839,43 @@ static void dissect_msproxy_response_4( const u_char *pd, int offset,
 
 
 
-static void dissect_connect_ack( const u_char *pd, int offset, frame_data *fd,
+static void dissect_connect_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the connect ack packet  */
 	offset += 20;
 
-	CHECK_PACKET_LENGTH( 2);
-
 	if ( tree)
- 		proto_tree_add_uint( tree, hf_msproxy_server_int_port, NullTVB, offset, 2, pntohs( &pd[ offset]));
+ 		proto_tree_add_item( tree, hf_msproxy_server_int_port, tvb,
+ 			offset, 2, FALSE);
 
 
 	conv_info->proto = PT_TCP;
-	conv_info->server_int_port = pntohs( &pd[ offset]);
+	conv_info->server_int_port = tvb_get_ntohs( tvb, offset);
 	offset += 2;
 	
 	if ( tree){
-		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_ipv4( tree, hf_msproxy_server_int_addr, NullTVB, offset, 2, GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_server_int_addr, tvb,
+			offset, 2, FALSE);
 		offset += 14;
 
-		CHECK_PACKET_LENGTH( 2);
- 		proto_tree_add_uint( tree, hf_msproxy_server_ext_port, NullTVB, offset, 2, pntohs( &pd[ offset]));
+ 		proto_tree_add_item( tree, hf_msproxy_server_ext_port, tvb,
+ 			offset, 2, FALSE);
 		offset += 2;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_ipv4( tree, hf_msproxy_server_ext_addr, NullTVB, offset, 4, GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
+			offset, 4, FALSE);
 		offset += 80;
 
-		display_application_name( pd, offset, fd, tree);
+		display_application_name( tvb, offset, pinfo, tree);
 	}
 
-	add_msproxy_conversation( conv_info);
+	add_msproxy_conversation( pinfo, conv_info);
 }
 
 
 
-static void dissect_tcp_bind_ack( const u_char *pd, int offset, frame_data *fd,
+static void dissect_tcp_bind_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree) {
 
 /* decode the tcp bind */
@@ -932,90 +883,79 @@ static void dissect_tcp_bind_ack( const u_char *pd, int offset, frame_data *fd,
 	if ( tree) {
 		offset += 6;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_uint( tree, hf_msproxy_bind_id, NullTVB, offset, 4, pntohl( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_bind_id, tvb, offset, 4,
+			FALSE);
 		offset += 16;
 
-		CHECK_PACKET_LENGTH( 2);
- 		proto_tree_add_uint( tree, hf_msproxy_server_int_port, NullTVB, offset,
- 			2, pntohs( &pd[ offset]));
+ 		proto_tree_add_uint( tree, hf_msproxy_server_int_port, tvb,
+ 			offset, 2, FALSE);
 		offset += 6;
 
-		CHECK_PACKET_LENGTH( 2);
- 		proto_tree_add_uint( tree, hf_msproxy_server_ext_port, NullTVB, offset,
- 			2, pntohs( &pd[ offset]));
+ 		proto_tree_add_item( tree, hf_msproxy_server_ext_port, tvb,
+ 			offset, 2, FALSE);
 		offset += 2;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_ipv4( tree, hf_msproxy_server_ext_addr, NullTVB, offset,
-			4, GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
+			offset, 4, FALSE);
 
 		offset += 88;
 
-		display_application_name( pd, offset, fd, tree);
+		display_application_name( tvb, offset, pinfo, tree);
 	}
 }
 
 
 
-static void dissect_bind_info( const u_char *pd, int offset, frame_data *fd,
+static void dissect_bind_info( tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, hash_entry_t *conv_info) {
 
 /* decode the Bind info response from server */
 
 	offset += 6;
 
-	CHECK_PACKET_LENGTH( 4);
 	if ( tree) 
-		proto_tree_add_uint( tree, hf_msproxy_bind_id, NullTVB, offset, 4, pntohl( &pd[ offset]));
+		proto_tree_add_item( tree, hf_msproxy_bind_id, tvb, offset, 4,
+			FALSE);
 	offset += 14;
 
 
-	CHECK_PACKET_LENGTH( 2);
+	conv_info->dst_port = tvb_get_ntohs( tvb, offset);
 	if ( tree) 
- 		proto_tree_add_uint( tree, hf_msproxy_dstport, NullTVB, offset, 2,
- 			pntohs( &pd[ offset]));
-	conv_info->dst_port = pntohs( &pd[ offset]);
+ 		proto_tree_add_uint( tree, hf_msproxy_dstport, tvb, offset, 2,
+ 			conv_info->dst_port);
 	offset += 2;
 
-	CHECK_PACKET_LENGTH( 4);
+	tvb_memcpy( tvb, (guint8 *)&conv_info->dst_addr, offset, sizeof( guint32));
 	if ( tree)
-		proto_tree_add_ipv4( tree, hf_msproxy_dstaddr, NullTVB, offset, 4,
-			GWORD( pd, offset));
-
-	memcpy( &conv_info->dst_addr, &pd[ offset], sizeof( guint32));
-	
+		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
+			FALSE);
 	offset += 12;
 
-	CHECK_PACKET_LENGTH( 2);
+	conv_info->server_int_port = tvb_get_ntohs( tvb, offset);
 	if ( tree) 
- 		proto_tree_add_uint( tree, hf_msproxy_server_int_port, NullTVB, offset,
- 			2, pntohs( &pd[ offset]));
-	conv_info->server_int_port = pntohs( &pd[ offset]);
+ 		proto_tree_add_uint( tree, hf_msproxy_server_int_port, tvb,
+ 			offset, 2, conv_info->server_int_port);
 	offset += 4;
 	
 	if ( tree) {
-
-		CHECK_PACKET_LENGTH( 2);
- 		proto_tree_add_uint( tree, hf_msproxy_server_ext_port, NullTVB, offset,
- 			2, pntohs( &pd[ offset]));
+ 		proto_tree_add_item( tree, hf_msproxy_server_ext_port, tvb,
+ 			offset, 2, FALSE);
 		offset += 2;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_ipv4( tree, hf_msproxy_server_ext_addr, NullTVB, offset,
-			4, GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
+			offset, 4, FALSE);
 
 		offset += 78;
-		display_application_name( pd, offset, fd, tree);
+		display_application_name( tvb, offset, pinfo, tree);
 		
 	}
 	
-	add_msproxy_conversation( conv_info);
+	add_msproxy_conversation( pinfo, conv_info);
 }
 
 
 
-static void dissect_resolve(const u_char *pd, int offset, frame_data *fd,
+static void dissect_resolve(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree) {
 
 /* dissect the  response resolve structure */
@@ -1026,10 +966,9 @@ static void dissect_resolve(const u_char *pd, int offset, frame_data *fd,
 	if ( tree) {
 		int addr_offset;
 
-		CHECK_PACKET_LENGTH(1);
-		addr_offset = GBYTE( pd, offset); 
+		addr_offset = tvb_get_guint8( tvb, offset); 
   	
-		proto_tree_add_text( tree, NullTVB, offset, 1, "Address offset: %d",
+		proto_tree_add_text( tree, tvb, offset, 1, "Address offset: %d",
 			addr_offset);
 
 		++offset;
@@ -1038,110 +977,101 @@ static void dissect_resolve(const u_char *pd, int offset, frame_data *fd,
 
 		offset += addr_offset; 
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_ipv4( tree, hf_msproxy_resolvaddr, NullTVB, offset, 4,
-			GWORD( pd, offset));
+		proto_tree_add_item( tree, hf_msproxy_resolvaddr, tvb, offset, 4,
+			FALSE);
 	}
 }	
 
 
 
-static void dissect_msproxy_response(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, hash_entry_t *conv_info) {
+static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
+		proto_tree *tree, hash_entry_t *conv_info) {
 
-	char temp[ 255+1];
+	int offset = 0;
 	int cmd;
 
-
 	if ( tree) {
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_text( tree, NullTVB, offset, 4, "Client id: 0x%0x", 
-			GWORD( pd, offset));
+		proto_tree_add_text( tree, tvb, offset, 4, "Client id: 0x%0x", 
+			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_text( tree, NullTVB, offset, 4, "Version: 0x%04x", 
-			GWORD( pd, offset));
+		proto_tree_add_text( tree, tvb, offset, 4, "Version: 0x%04x", 
+			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		CHECK_PACKET_LENGTH( 4);
-		proto_tree_add_text( tree, NullTVB, offset, 4, "Server id: 0x%04x", 
-			GWORD( pd, offset));
+		proto_tree_add_text( tree, tvb, offset, 4, "Server id: 0x%04x", 
+			tvb_get_letohl( tvb, offset));
 		offset += 4;
 
-		CHECK_PACKET_LENGTH( 1);
-		proto_tree_add_text( tree, NullTVB, offset, 1, "Client ack: 0x%02x", 
-			GBYTE( pd, offset));
-
+		proto_tree_add_text( tree, tvb, offset, 1, "Client ack: 0x%02x", 
+			tvb_get_guint8( tvb, offset));
 		offset += 4;
 
-		CHECK_PACKET_LENGTH( 1);
-		proto_tree_add_text( tree, NullTVB, offset, 1, "Sequence Number: 0x%02x", 
-			GBYTE( pd, offset));
+		proto_tree_add_text( tree, tvb, offset, 1, "Sequence Number: 0x%02x", 
+			tvb_get_guint8( tvb, offset));
 	
 		offset += 8;
 
-		CHECK_PACKET_LENGTH( 4);
-		strncpy( temp, &pd[ offset], 4);
-		temp[ 4] = 0;			
-		proto_tree_add_text( tree, NullTVB, offset, 4, "RWSP signature: %s", temp);
+		proto_tree_add_text( tree, tvb, offset, 4, "RWSP signature: %.4s",
+			tvb_get_ptr( tvb, offset, 4));
 
 		offset += 12;
 	}
 	else
 		offset += 36;
 
-	CHECK_PACKET_LENGTH( 2);
-	cmd = pntohs( &pd[offset]);
+	cmd = tvb_get_ntohs( tvb, offset);
 	
 	if ( tree)
-		proto_tree_add_uint_format( tree, hf_msproxy_cmd, NullTVB, offset, 2,
+		proto_tree_add_uint_format( tree, hf_msproxy_cmd, tvb, offset, 2,
 			cmd, "Command: 0x%02x (%s)", cmd, 
 			get_msproxy_cmd_name( cmd, FROM_SERVER));
 	offset += 2;
 	
 	switch (cmd) {
 		case MSPROXY_HELLO_ACK:
-			dissect_hello_ack( pd, offset, fd, tree, conv_info);
+			dissect_hello_ack( tvb, offset, pinfo, tree, conv_info);
 			break;
 	
 		case MSPROXY_USERINFO_ACK:
-			dissect_user_info_ack( pd, offset, fd, tree);
+			dissect_user_info_ack( tvb, offset, pinfo, tree);
 			break;
 			
 		case MSPROXY_AUTH_1_ACK:
-			dissect_auth_1_ack( pd, offset, fd, tree);
+			dissect_auth_1_ack( tvb, offset, pinfo, tree);
 			break;
 
 /* this also handle the MSPROXY_BIND_ACK ??? check this */
 
 		case MSPROXY_UDPASSOCIATE_ACK:			
-			dissect_udpassociate_ack( pd, offset, fd, tree);
+			dissect_udpassociate_ack( tvb, offset, pinfo, tree);
 			break;
 		
 		case MSPROXY_AUTH_2_ACK:
 		case MSPROXY_AUTH_2_ACK2:
-			dissect_msproxy_response_4( pd, offset, fd, tree);
+			dissect_msproxy_response_4( tvb, offset, pinfo, tree);
 			break;
 
 		case MSPROXY_TCP_BIND_ACK:
-			dissect_tcp_bind_ack( pd, offset, fd, tree);
+			dissect_tcp_bind_ack( tvb, offset, pinfo, tree);
 			break;
 
 		case MSPROXY_CONNECT_ACK:
-			dissect_connect_ack( pd, offset, fd, tree, conv_info);
+			dissect_connect_ack( tvb, offset, pinfo, tree,
+				conv_info);
 			break;
 
 		case MSPROXY_BINDINFO:
-			dissect_bind_info( pd, offset, fd, tree, conv_info);
+			dissect_bind_info( tvb, offset, pinfo, tree, conv_info);
 			break;
 	
 		case MSPROXY_RESOLVE_ACK:
-			dissect_resolve( pd, offset, fd, tree);
+			dissect_resolve( tvb, offset, pinfo, tree);
 			break;
 		
 		case MSPROXY_CONNECT_AUTHFAILED:
 		case MSPROXY_BIND_AUTHFAILED:
-			proto_tree_add_text( tree, NullTVB, offset, 0, "No know information (help wanted)");
+			proto_tree_add_text( tree, tvb, offset, 0, "No know information (help wanted)");
 			break;
 
 		default:
@@ -1149,11 +1079,11 @@ static void dissect_msproxy_response(const u_char *pd, int offset, frame_data *f
 			if (tree &&
 			   (((cmd >> 8) ==  MSPROXY_CONNREFUSED) ||
 			    ((cmd >> 12) ==  MSPROXY_CONNREFUSED)))
-				proto_tree_add_text( tree, NullTVB, offset, 0,
+				proto_tree_add_text( tree, tvb, offset, 0,
 					"No know information (help wanted)");
 	
 			else if ( tree)
-				proto_tree_add_text( tree, NullTVB, offset, 0,
+				proto_tree_add_text( tree, tvb, offset, 0,
 					"Unhandled response command (report this, please)");
 	}
 	
@@ -1162,7 +1092,7 @@ static void dissect_msproxy_response(const u_char *pd, int offset, frame_data *f
 
 
 
-static void dissect_msproxy(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
 	proto_tree      *msproxy_tree = NULL;
@@ -1173,10 +1103,13 @@ static void dissect_msproxy(const u_char *pd, int offset, frame_data *fd, proto_
 	hash_entry_t *hash_info;
 	conversation_t *conversation;
 	
-	OLD_CHECK_DISPLAY_AS_DATA(proto_msproxy, pd, offset, fd, tree);
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "MSproxy");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
-	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
-		pi.srcport, pi.destport, 0);
+	conversation = find_conversation( &pinfo->src, &pinfo->dst,
+		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 	if ( conversation)			/* conversation found */
 		hash_info = conversation->data;
@@ -1185,39 +1118,34 @@ static void dissect_msproxy(const u_char *pd, int offset, frame_data *fd, proto_
 	else {				
     		hash_info = g_mem_chunk_alloc(vals);
 
-		conversation_new( &pi.src, &pi.dst, pi.ptype,
-			pi.srcport, pi.destport, hash_info, 0);
+		conversation_new( &pinfo->src, &pinfo->dst, pinfo->ptype,
+			pinfo->srcport, pinfo->destport, hash_info, 0);
 	}
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "MSproxy");
-
-
-						/* display packet info */
-	if (check_col(fd, COL_INFO)){
+	if (check_col(pinfo->fd, COL_INFO)){
 	
-		cmd = pntohs( &pd[offset + 36]);
+		cmd = tvb_get_ntohs( tvb, 36);
 		
-		if ( pi.srcport == UDP_PORT_MSPROXY)
-			col_add_fstr( fd, COL_INFO, "Server message: %s",
+		if ( pinfo->srcport == UDP_PORT_MSPROXY)
+			col_add_fstr( pinfo->fd, COL_INFO, "Server message: %s",
 				get_msproxy_cmd_name( cmd, FROM_SERVER));
 		else
-			col_add_fstr(fd, COL_INFO, "Client message: %s",
+			col_add_fstr(pinfo->fd, COL_INFO, "Client message: %s",
 				get_msproxy_cmd_name( cmd, FROM_CLIENT));
 		
 	}
 
 	if (tree) {				/* if proto tree, decode data */
-    		ti = proto_tree_add_item( tree, proto_msproxy, NullTVB, offset,
-    				END_OF_FRAME, FALSE );
+    		ti = proto_tree_add_item( tree, proto_msproxy, tvb, 0,
+    				tvb_length(tvb), FALSE );
 
 		msproxy_tree = proto_item_add_subtree(ti, ett_msproxy);
 	}
 
-	if ( pi.srcport == UDP_PORT_MSPROXY)
-		dissect_msproxy_response( pd, offset, fd, msproxy_tree, hash_info);
+	if ( pinfo->srcport == UDP_PORT_MSPROXY)
+		dissect_msproxy_response( tvb, pinfo, msproxy_tree, hash_info);
 	else
-		dissect_msproxy_request( pd, offset, fd, msproxy_tree, hash_info);
+		dissect_msproxy_request( tvb, pinfo, msproxy_tree, hash_info);
 }
 
 
@@ -1361,6 +1289,6 @@ proto_reg_handoff_msproxy(void) {
 
 	/* dissector install routine */ 
  
- 	old_dissector_add("udp.port", UDP_PORT_MSPROXY, dissect_msproxy,
- 	    proto_msproxy);
+	dissector_add("udp.port", UDP_PORT_MSPROXY, dissect_msproxy,
+	    proto_msproxy);
 }
