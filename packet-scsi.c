@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.20 2002/08/28 21:00:30 jmayer Exp $
+ * $Id: packet-scsi.c,v 1.21 2002/10/08 19:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1537,7 +1537,7 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  1, 0);
         }
 
-        proto_tree_add_uint (tree, hf_scsi_alloclen, tvb, offset+3, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, 0);
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,

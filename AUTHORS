@@ -1457,6 +1457,10 @@ Lutz Jaenicke <Lutz.Jaenicke [AT] aet.TU-Cottbus.DE> {
 	Fix an "htonl()" to use "g_htonl()"
 }
 
+Senthil Kumar Nagappan <sknagappan [AT] yahoo.com> {
+	Small SCSI dissector fix
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

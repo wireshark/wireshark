@@ -1542,6 +1542,7 @@ B<http://www.ethereal.com>.
   Brad Hards               <bhards[AT]bigpond.net.au>
   cjs 2895                 <cjs2895[AT]hotmail.com>
   Lutz Jaenicke            <Lutz.Jaenicke [AT] aet.TU-Cottbus.DE>
+  Senthil Kumar Nagappan   <sknagappan [AT] yahoo.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
