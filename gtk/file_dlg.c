@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.114 2004/06/19 10:48:06 ulfl Exp $
+ * $Id: file_dlg.c,v 1.115 2004/06/20 03:05:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,16 +119,15 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     int         err;
     gchar      *err_info;
     struct stat cf_stat;
-	long		data_offset;
+    long        data_offset;
     gchar       string_buff[SUM_STR_MAX];
-    long        packet = 0;
-    double	    start_time;	/* seconds, with msec resolution */
-    double	    stop_time;	/* seconds, with msec resolution */
+    unsigned int packet = 0;
+    double      start_time = 0;	/* seconds, with msec resolution */
+    double      stop_time = 0;	/* seconds, with msec resolution */
     double      cur_time;
     time_t      ti_time;
     struct tm  *ti_tm;
-    long        elapsed_time;
-
+    unsigned int elapsed_time;
 
     label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
     gtk_label_set_text(GTK_LABEL(label), get_basename((char *)cf_name));
@@ -149,7 +148,6 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
         return FALSE;
     }
 
-
     wth = wtap_open_offline(cf_name, &err, &err_info, TRUE);
     if (wth == NULL) {
         label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
@@ -168,7 +166,8 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     }
 
     /* size */
-    g_snprintf(string_buff, SUM_STR_MAX, "%u bytes", cf_stat.st_size);
+    g_snprintf(string_buff, SUM_STR_MAX, "%" PRIu64 " bytes",
+               (guint64)cf_stat.st_size);
     label = OBJECT_GET_DATA(prev, PREVIEW_SIZE_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
@@ -177,7 +176,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
-	while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
+    while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
         phdr = wtap_phdr(wth);        
         cur_time = secs_usecs(phdr->ts.tv_sec, phdr->ts.tv_usec);
         if(packet == 0) {
@@ -191,7 +190,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
             stop_time = cur_time;
         }
         packet++;
-	}
+    }
 
     if(err != 0) {
         g_snprintf(string_buff, SUM_STR_MAX, "error after reading %u packets", packet);
@@ -221,7 +220,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     /* elapsed time */
-    elapsed_time = (long)(stop_time-start_time);
+    elapsed_time = (unsigned int)(stop_time-start_time);
     if(elapsed_time/86400) {
       g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u", 
         elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
@@ -262,13 +261,11 @@ update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
 
 /* the text entry changed */
 static void
-file_open_entry_changed(GtkWidget *w, gpointer file_sel)
+file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 {
     GtkWidget *prev = OBJECT_GET_DATA(file_sel, PREVIEW_TABLE_KEY);
-    G_CONST_RETURN gchar* cf_name;
-    long packet = 0;
+    gchar* cf_name;
     gboolean have_preview;
-
 
     /* get the filename */
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
