@@ -1,22 +1,22 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.1 2002/08/31 09:55:20 oabad Exp $
+ * $Id: capture_dlg.c,v 1.2 2002/08/31 10:46:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -189,7 +189,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     simple_dialog(ESD_TYPE_WARN, NULL, "Can't get list of interfaces: %s",
 			err_str);
   }
-  
+
   cap_open_w = dlg_window_new("Ethereal: Capture Options");
   g_signal_connect(G_OBJECT(cap_open_w), "destroy",
                    G_CALLBACK(capture_prep_destroy_cb), NULL);
@@ -199,12 +199,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
      Ctrl+<key> is an accelerator). */
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(cap_open_w), accel_group);
-  
+
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(cap_open_w), main_vb);
   gtk_widget_show(main_vb);
-  
+
   /* Capture-related options frame */
   capture_fr = gtk_frame_new("Capture");
   gtk_container_add(GTK_CONTAINER(main_vb), capture_fr);
@@ -222,7 +222,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   if_lb = gtk_label_new("Interface:");
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb, FALSE, FALSE, 6);
   gtk_widget_show(if_lb);
-  
+
   if_cb = gtk_combo_new();
   if (if_list != NULL)
     gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), if_list);
@@ -238,7 +238,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), if_list->data);
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, TRUE, TRUE, 6);
   gtk_widget_show(if_cb);
-  
+
   free_interface_list(if_list);
 
   /* Capture length row */
@@ -261,9 +261,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   snap_sb = gtk_spin_button_new (snap_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
   gtk_widget_set_size_request(snap_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(snap_hb), snap_sb, FALSE, FALSE, 0); 
+  gtk_box_pack_start (GTK_BOX(snap_hb), snap_sb, FALSE, FALSE, 0);
   gtk_widget_show(snap_sb);
-  
+
   snap_lb = gtk_label_new("bytes");
   gtk_misc_set_alignment(GTK_MISC(snap_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_lb, FALSE, FALSE, 0);
@@ -285,15 +285,15 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   filter_bt = gtk_button_new_with_label("Filter:");
   g_signal_connect(G_OBJECT(filter_bt), "clicked",
                    G_CALLBACK(capture_filter_construct_cb), NULL);
-  gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3); 
+  gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
   gtk_widget_show(filter_bt);
-  
+
   filter_te = gtk_entry_new();
   if (cfile.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
-  gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 3); 
+  gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 3);
   gtk_widget_show(filter_te);
-  
+
   /* Capture file-related options frame */
   file_fr = gtk_frame_new("Capture file(s)");
   gtk_container_add(GTK_CONTAINER(main_vb), file_fr);
@@ -309,11 +309,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(file_hb);
 
   file_bt = gtk_button_new_with_label("File:");
-  gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3); 
+  gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3);
   gtk_widget_show(file_bt);
-  
+
   file_te = gtk_entry_new();
-  gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3); 
+  gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
   gtk_widget_show(file_te);
 
   g_signal_connect(G_OBJECT(file_bt), "clicked",
@@ -338,7 +338,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                    GTK_OBJECT(cap_open_w));
   gtk_box_pack_start(GTK_BOX(ringbuffer_hb), ringbuffer_on_tb, FALSE, FALSE, 0);
   gtk_widget_show(ringbuffer_on_tb);
-  
+
   ringbuffer_nbf_lb = gtk_label_new("Number of files");
   gtk_misc_set_alignment(GTK_MISC(ringbuffer_nbf_lb), 1, 0.5);
   gtk_box_pack_start(GTK_BOX(ringbuffer_hb), ringbuffer_nbf_lb, FALSE, FALSE, 6);
@@ -349,9 +349,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   ringbuffer_nbf_sb = gtk_spin_button_new (ringbuffer_nbf_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ringbuffer_nbf_sb), TRUE);
   gtk_widget_set_size_request(ringbuffer_nbf_sb, 40, -1);
-  gtk_box_pack_start (GTK_BOX(ringbuffer_hb), ringbuffer_nbf_sb, TRUE, TRUE, 0); 
+  gtk_box_pack_start (GTK_BOX(ringbuffer_hb), ringbuffer_nbf_sb, TRUE, TRUE, 0);
   gtk_widget_show(ringbuffer_nbf_sb);
-  
+
   /* Display-related options frame */
   display_fr = gtk_frame_new("Display options");
   gtk_container_add(GTK_CONTAINER(main_vb), display_fr);
@@ -407,14 +407,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   count_sb = gtk_spin_button_new (count_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (count_sb), TRUE);
   gtk_widget_set_size_request(count_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(count_hb), count_sb, FALSE, FALSE, 0); 
+  gtk_box_pack_start (GTK_BOX(count_hb), count_sb, FALSE, FALSE, 0);
   gtk_widget_show(count_sb);
-  
+
   count_lb = gtk_label_new("packet(s) captured");
   gtk_misc_set_alignment(GTK_MISC(count_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(count_hb), count_lb, FALSE, FALSE, 0);
   gtk_widget_show(count_lb);
-  
+
   /* Filesize row */
   filesize_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(limit_vb), filesize_hb);
@@ -434,14 +434,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   filesize_sb = gtk_spin_button_new (filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (filesize_sb), TRUE);
   gtk_widget_set_size_request(filesize_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(filesize_hb), filesize_sb, FALSE, FALSE, 0); 
+  gtk_box_pack_start (GTK_BOX(filesize_hb), filesize_sb, FALSE, FALSE, 0);
   gtk_widget_show(filesize_sb);
-  
+
   filesize_lb = gtk_label_new("");
   gtk_misc_set_alignment(GTK_MISC(filesize_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(filesize_hb), filesize_lb, FALSE, FALSE, 0);
   gtk_widget_show(filesize_lb);
-  
+
   /* Duration row */
   duration_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(limit_vb), duration_hb);
@@ -461,14 +461,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   duration_sb = gtk_spin_button_new (duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (duration_sb), TRUE);
   gtk_widget_set_size_request(duration_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(duration_hb), duration_sb, FALSE, FALSE, 0); 
+  gtk_box_pack_start (GTK_BOX(duration_hb), duration_sb, FALSE, FALSE, 0);
   gtk_widget_show(duration_sb);
-  
+
   duration_lb = gtk_label_new("second(s)");
   gtk_misc_set_alignment(GTK_MISC(duration_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(duration_hb), duration_lb, FALSE, FALSE, 0);
   gtk_widget_show(duration_lb);
-  
+
   /* Resolution options frame */
   resolv_fr = gtk_frame_new("Name resolution");
   gtk_container_add(GTK_CONTAINER(main_vb), resolv_fr);
@@ -498,7 +498,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 		g_resolv_flags & RESOLV_TRANSPORT);
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
   gtk_widget_show(t_resolv_cb);
-  
+
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -628,7 +628,7 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
      the ESC key being pressed and act as if the "Cancel" button had
      been selected. */
   dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
-  
+
   gtk_widget_show(fs);
 }
 
@@ -645,7 +645,7 @@ static void
 cap_prep_fs_cancel_cb(GtkWidget *w _U_, gpointer data)
 {
   gtk_widget_destroy(GTK_WIDGET(data));
-}  
+}
 
 static void
 cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data _U_)
@@ -745,7 +745,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   if (cfile.cfilter)
     g_free(cfile.cfilter);
   g_assert(filter_text != NULL);
-  cfile.cfilter = g_strdup(filter_text); 
+  cfile.cfilter = g_strdup(filter_text);
 
   save_file = gtk_entry_get_text(GTK_ENTRY(file_te));
   if (save_file && save_file[0]) {
@@ -909,7 +909,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
        in real time" captures, so make its toggle button insensitive. */
     gtk_widget_set_sensitive(GTK_WIDGET(auto_scroll_cb), FALSE);
   }
-  
+
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_on_tb))) {
     /* Ring buffer mode enabled.  Make the spin button for the number
        of ring buffer files, and its label, sensitive. */
