@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.34 2002/05/11 22:53:58 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.35 2002/05/15 03:28:43 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -900,9 +900,10 @@ void dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset,
 {
 	if (tvb_length_remaining(tvb, offset) != 0) {
 
-		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "[Long frame (%d bytes): SPOOLSS]",
-				    tvb_length_remaining(tvb, offset));
+		proto_tree_add_text(
+			tree, tvb, offset, tvb_length_remaining(tvb, offset), 
+			"[Long frame (%d bytes): SPOOLSS]",
+			tvb_length_remaining(tvb, offset));
 
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO,
