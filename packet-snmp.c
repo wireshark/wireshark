@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.43 2000/07/08 08:33:29 guy Exp $
+ * $Id: packet-snmp.c,v 1.44 2000/07/25 07:37:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,7 +87,7 @@
     *	   as that includes <ucd-snmp/snmp.h>, and that defines a whole
     *	   bunch of values that we also define ourselves.
     *
-    * So we only include it if "snmp_set_full_objid" is defined as
+    * So we only include it if "snmp_set_suffix_only" is defined as
     * a macro.
     */
 #  ifdef snmp_set_suffix_only
