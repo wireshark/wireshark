@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.55 2004/01/20 18:47:23 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.56 2004/01/20 19:33:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,7 +172,7 @@ gui_prefs_show(void)
 	gtk_container_border_width( GTK_CONTAINER(main_vb), 5 );
 
 	/* Main horizontal box  */
-	/* XXX - Is therea a better way to center the table? */
+	/* XXX - Is there a better way to center the table? */
 	hbox = gtk_hbox_new(FALSE, 7);
 	gtk_box_pack_start (GTK_BOX(main_vb), hbox, TRUE, FALSE, 0);
 
@@ -181,7 +181,7 @@ gui_prefs_show(void)
 	gtk_box_pack_start( GTK_BOX(hbox), main_tb, TRUE, FALSE, 0 );
 	gtk_table_set_row_spacings( GTK_TABLE(main_tb), 10 );
 	gtk_table_set_col_spacings( GTK_TABLE(main_tb), 15 );
-	gtk_table_set_col_spacing( GTK_TABLE(main_tb), 1, 50 );
+	gtk_table_set_col_spacing( GTK_TABLE(main_tb), 0, 50 );
 
 	/* Scrollbar placement */
 	scrollbar_om = create_preference_option_menu(main_tb, pos++,
