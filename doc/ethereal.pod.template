@@ -1728,10 +1728,12 @@ B<http://www.ethereal.com>.
   Martijn Schipper         <martijn.schipper [AT] intersil.com>
   Wayne Parrott            <wayne_p [AT] pacific.net.au>
   Laurent Meyer            <laurent.meyer [AT] thales-avionics.com>
+  Lars Roland              <Lars.Roland [AT] gmx.net>
+  Miha Jemec               <m.jemec [AT] iskratel.si>
+  Markus Friedl            <markus [AT] openbsd.org>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
-  Markus Friedl            <markus [AT] openbsd.org>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
