@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.113 2000/12/14 08:20:29 guy Exp $
+ * $Id: packet-ip.c,v 1.114 2000/12/14 21:44:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1107,7 +1107,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       icmp_code, code_str);
 
     if (!pinfo->fragmented && length >= reported_length) {
-      /* The packet isn't part of a fragmented datagarm and isn't
+      /* The packet isn't part of a fragmented datagram and isn't
          truncated, so we can checksum it. */
 
       computed_cksum = ip_checksum(tvb_get_ptr(tvb, 0, reported_length),
