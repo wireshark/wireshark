@@ -2,7 +2,7 @@
 * Routines for megaco packet disassembly
 * RFC 3015
 *
-* $Id: packet-megaco.c,v 1.6 2003/07/01 08:00:06 guy Exp $
+* $Id: packet-megaco.c,v 1.7 2003/07/08 17:42:24 guy Exp $
 *
 * Christian Falckenberg, 2002/10/17
 * Copyright (c) 2002 by Christian Falckenberg
@@ -211,50 +211,50 @@ static dissector_handle_t sdp_handle;
 static void
 dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint        tvb_len, len;
-    gint        tvb_offset,tvb_current_offset,tvb_previous_offset,tvb_next_offset,tokenlen;
-    gint		tvb_command_start_offset, tvb_command_end_offset;
-    gint		tvb_descriptors_start_offset, tvb_descriptors_end_offset;
-    proto_tree  *megaco_tree, *megaco_tree_command_line, *ti, *sub_ti;
-    proto_item* (*my_proto_tree_add_string)(proto_tree*, int, tvbuff_t*, gint, gint, const char*);
+	gint		tvb_len, len;
+	gint		tvb_offset,tvb_current_offset,tvb_previous_offset,tvb_next_offset,tokenlen;
+	gint		tvb_command_start_offset, tvb_command_end_offset;
+	gint		tvb_descriptors_start_offset, tvb_descriptors_end_offset;
+	proto_tree  *megaco_tree, *megaco_tree_command_line, *ti, *sub_ti;
+	proto_item* (*my_proto_tree_add_string)(proto_tree*, int, tvbuff_t*, gint, gint, const char*);
 	
-    guint8		word[7];
-    guint8		transaction[30];
-    guint8		TermID[30];
-    guint8		tempchar;
-    gint		tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
+	guint8		word[7];
+	guint8		transaction[30];
+	guint8		TermID[30];
+	guint8		tempchar;
+	gint		tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
 	
-    
 	
-    /* Initialize variables */
-    tvb_len						= tvb_length(tvb);
-    megaco_tree					= NULL;
-    ti							= NULL;
-    tvb_previous_offset			= 0;
-    tvb_current_offset			= 0;
-    tvb_next_offset				= 0;
-    tvb_command_start_offset	= 0;
-    tvb_command_end_offset		= 0;
-    tvb_RBRKT					= 0;
-    tvb_LBRKT					= 0;
-    RBRKT_counter				= 0;
-    LBRKT_counter				= 0;
 	
-    /*
+	/* Initialize variables */
+	tvb_len						= tvb_length(tvb);
+	megaco_tree					= NULL;
+	ti							= NULL;
+	tvb_previous_offset			= 0;
+	tvb_current_offset			= 0;
+	tvb_next_offset				= 0;
+	tvb_command_start_offset	= 0;
+	tvb_command_end_offset		= 0;
+	tvb_RBRKT					= 0;
+	tvb_LBRKT					= 0;
+	RBRKT_counter				= 0;
+	LBRKT_counter				= 0;
+	
+	/*
 	* Check to see whether we're really dealing with MEGACO by looking
 	* for the "MEGACO" string or a "!".This needs to be improved when supporting
 	* binary encodings.
 	*/
-    if(!tvb_get_nstringz0(tvb,0,sizeof(word),word)) return;
-    if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, 0 ) != '!') return;
+	if(!tvb_get_nstringz0(tvb,0,sizeof(word),word)) return;
+	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, 0 ) != '!') return;
 	
 	
-    /* Display MEGACO in protocol column */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	/* Display MEGACO in protocol column */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_add_str(pinfo->cinfo, COL_PROTOCOL, "MEGACO");
 	
 	
-		/* Display transaction in info column
+	/* Display transaction in info column
 	* tvb_previous_offset ll be on the of the action */
 	
 	tvb_offset = tvb_find_guint8(tvb, 0, tvb_len, ':');
@@ -313,10 +313,10 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	
 	
-    /* Build the info tree if we've been given a root */
-    if (tree){
+	/* Build the info tree if we've been given a root */
+	if (tree){
 		/* Create megaco subtree */
-		ti = proto_tree_add_item(tree,proto_megaco,tvb,0,0, FALSE);
+		ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
 		megaco_tree = proto_item_add_subtree(ti, ett_megaco);
 		
 		if(global_megaco_dissect_tree)
@@ -390,7 +390,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvb_previous_offset = tvb_skip_wsp(tvb, tvb_current_offset +1);
 		
 		tvb_current_offset  = tvb_find_guint8(tvb, tvb_previous_offset,
-						      tvb_len, '{');
+							  tvb_len, '{');
 		
 		tokenlen = tvb_current_offset - tvb_previous_offset;
 		
@@ -494,7 +494,6 @@ nextcontext:
 		/* The following loop find the individual contexts, commands and call the for every Descriptor a subroutine */
 		
 		do {
-			
 			tvb_command_end_offset = tvb_find_guint8(tvb, tvb_command_end_offset +1,
 				tvb_len, ',');
 			
@@ -785,24 +784,19 @@ nextcontext:
 			tvb_LBRKT = tvb_command_start_offset;
 			tvb_RBRKT = tvb_command_start_offset;
 			
-		}
-		
-		
-		
-		
-	} while ( tvb_command_end_offset < tvb_len );
-	
-    }
+			}
+		} while ( tvb_command_end_offset < tvb_len );
+	}
 }
 
 static void
 dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, packet_info *pinfo, gint tvb_descriptors_start_offset, gint tvb_descriptors_end_offset)
 {
-	gint        tvb_len, len;
-    gint        tvb_current_offset,tvb_previous_offset,tokenlen;
+	gint		tvb_len, len;
+	gint		tvb_current_offset,tvb_previous_offset,tokenlen;
 	gint		tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
-	guint8      tempchar;
-    tvb_len  	= tvb_length(tvb);
+	guint8	  tempchar;
+	tvb_len  	= tvb_length(tvb);
 
 
 	len				= 0;
@@ -817,7 +811,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, 
 	
 	tvb_LBRKT = tvb_skip_wsp(tvb, tvb_descriptors_start_offset +1);
 	
-    tvb_previous_offset = tvb_LBRKT;
+	tvb_previous_offset = tvb_LBRKT;
 	tvb_RBRKT = tvb_descriptors_start_offset;
 	
 	
@@ -2487,7 +2481,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 void
 proto_register_megaco(void)
 {
-    static hf_register_info hf[] = {
+	static hf_register_info hf[] = {
 		{ &hf_megaco_audit_descriptor,
 		{ "Audit Descriptor", "megaco.audit", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Audit Descriptor of the megaco Command ", HFILL }},
@@ -2590,8 +2584,8 @@ proto_register_megaco(void)
 		
 		
 		/* Add more fields here */
-    };
-    static gint *ett[] = {
+	};
+	static gint *ett[] = {
 		&ett_megaco,
 			&ett_megaco_command_line,
 			&ett_megaco_descriptors,
@@ -2609,41 +2603,41 @@ proto_register_megaco(void)
 			&ett_megaco_signalsdescriptor,
 			&ett_megaco_requestedsignal,
 	};
-    module_t *megaco_module;
+	module_t *megaco_module;
 	
-    proto_megaco = proto_register_protocol("MEGACO",
+	proto_megaco = proto_register_protocol("MEGACO",
 					   "MEGACO", "megaco");
 	
-    proto_register_field_array(proto_megaco, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_megaco, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 	
-    /* Register our configuration options, particularly our ports */
+	/* Register our configuration options, particularly our ports */
 	
-    megaco_module = prefs_register_protocol(proto_megaco, proto_reg_handoff_megaco);
+	megaco_module = prefs_register_protocol(proto_megaco, proto_reg_handoff_megaco);
 	
-    prefs_register_uint_preference(megaco_module, "tcp.txt_port",
+	prefs_register_uint_preference(megaco_module, "tcp.txt_port",
 		"MEGACO Text TCP Port",
 		"Set the TCP port for MEGACO text messages",
 		10, &global_megaco_txt_tcp_port);
 	
-    prefs_register_uint_preference(megaco_module, "udp.txt_port",
+	prefs_register_uint_preference(megaco_module, "udp.txt_port",
 		"MEGACO Text UDP Port",
 		"Set the UDP port for MEGACO text messages",
 		10, &global_megaco_txt_udp_port);
 	
 #if 0
-    prefs_register_uint_preference(megaco_module, "tcp.bin_port",
+	prefs_register_uint_preference(megaco_module, "tcp.bin_port",
 		"MEGACO Binary TCP Port",
 		"Set the TCP port for MEGACO binary messages",
 		10, &global_megaco_bin_tcp_port);
 	
-    prefs_register_uint_preference(megaco_module, "udp.bin_port",
+	prefs_register_uint_preference(megaco_module, "udp.bin_port",
 		"MEGACO Binary UDP Port",
 		"Set the UDP port for MEGACO binary messages",
 		10, &global_megaco_bin_udp_port);
 #endif
 	
-    prefs_register_bool_preference(megaco_module, "display_raw_text",
+	prefs_register_bool_preference(megaco_module, "display_raw_text",
 		"Display raw text for MEGACO message",
 		"Specifies that the raw text of the "
 		"MEGACO message should be displayed "
@@ -2651,7 +2645,7 @@ proto_register_megaco(void)
 		"dissection tree",
 		&global_megaco_raw_text);
 	
-    prefs_register_bool_preference(megaco_module, "display_dissect_tree",
+	prefs_register_bool_preference(megaco_module, "display_dissect_tree",
 		"Display tree dissection for MEGACO message",
 		"Specifies that the dissection tree of the "
 		"MEGACO message should be displayed "
@@ -2667,49 +2661,49 @@ proto_register_megaco(void)
 void
 proto_reg_handoff_megaco(void)
 {
-    static int megaco_prefs_initialized = FALSE;
-    static dissector_handle_t megaco_text_handle;
+	static int megaco_prefs_initialized = FALSE;
+	static dissector_handle_t megaco_text_handle;
 	
 	sdp_handle = find_dissector("sdp");
 	
-    if (!megaco_prefs_initialized) {
+	if (!megaco_prefs_initialized) {
 		megaco_text_handle = create_dissector_handle(dissect_megaco_text,
 			proto_megaco);
 		megaco_prefs_initialized = TRUE;
-    }
-    else {
+	}
+	else {
 		dissector_delete("tcp.port", txt_tcp_port, megaco_text_handle);
 		dissector_delete("udp.port", txt_udp_port, megaco_text_handle);
 #if 0
 		dissector_delete("tcp.port", bin_tcp_port, megaco_bin_handle);
 		dissector_delete("udp.port", bin_udp_port, megaco_bin_handle);
 #endif
-    }
+	}
 	
-    /* Set our port number for future use */
+	/* Set our port number for future use */
 	
-    txt_tcp_port = global_megaco_txt_tcp_port;
-    txt_udp_port = global_megaco_txt_udp_port;
+	txt_tcp_port = global_megaco_txt_tcp_port;
+	txt_udp_port = global_megaco_txt_udp_port;
 	
 #if 0
-    bin_tcp_port = global_megaco_bin_tcp_port;
-    bin_udp_port = global_megaco_bin_udp_port;
+	bin_tcp_port = global_megaco_bin_tcp_port;
+	bin_udp_port = global_megaco_bin_udp_port;
 #endif
 	
-    dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_text_handle);
-    dissector_add("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
+	dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_text_handle);
+	dissector_add("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
 #if 0
-    dissector_add("tcp.port", global_megaco_bin_tcp_port, megaco_bin_handle);
-    dissector_add("udp.port", global_megaco_bin_udp_port, megaco_bin_handle);
+	dissector_add("tcp.port", global_megaco_bin_tcp_port, megaco_bin_handle);
+	dissector_add("udp.port", global_megaco_bin_udp_port, megaco_bin_handle);
 #endif
-    /* XXX - text or binary?  Does that depend on the port number? */
-    dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
+	/* XXX - text or binary?  Does that depend on the port number? */
+	dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
 }
 
 /*
 * tvb_skip_wsp - Returns the position in tvb of the first non-whitespace
-*                character following offset or offset + maxlength -1 whichever
-*                is smaller.
+*		 character following offset or offset + maxlength -1 whichever
+*		 is smaller.
 *
 * Parameters:
 * tvb - The tvbuff in which we are skipping whitespaces, tab and end_of_line characters.
@@ -2749,7 +2743,7 @@ static gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
 
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){
-    proto_reg_handoff_megaco();
+	proto_reg_handoff_megaco();
 }
 
 G_MODULE_EXPORT void
@@ -2759,11 +2753,11 @@ plugin_init(plugin_address_table_t *pat
 #endif
 			){
 	/* initialise the table of pointers needed in Win32 DLLs */
-    plugin_address_table_init(pat);
+	plugin_address_table_init(pat);
 	/* register the new protocol, protocol fields, and subtrees */
-    if (proto_megaco == -1) { /* execute protocol initialization only once */
+	if (proto_megaco == -1) { /* execute protocol initialization only once */
 		proto_register_megaco();
-    }
+	}
 }
 
 #endif
