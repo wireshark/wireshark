@@ -54,7 +54,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	rpc_defrag.h	\
 	rtp_pt.h	\
 	sctpppids.h	\
-	sha1.h	\
 	smb.h	\
 	t35.h	\
 	tap.h	\

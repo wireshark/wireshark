@@ -1,6 +1,8 @@
 /*
  *  FIPS-180-1 compliant SHA-1 implementation
  *
+ *  $Id$
+ *
  *  Copyright (C) 2001-2003  Christophe Devine
  *
  *  This program is free software; you can redistribute it and/or modify

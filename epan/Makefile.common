@@ -52,6 +52,7 @@ LIBETHEREAL_SRC = 		\
 	prefs.c			\
 	proto.c			\
 	range.c			\
+	sha1.c			\
 	sna-utils.c		\
 	strutil.c		\
 	timestamp.c		\
@@ -98,6 +99,7 @@ LIBETHEREAL_INCLUDES = 		\
 	proto.h			\
 	range.h			\
 	report_err.h		\
+	sha1.h			\
 	slab.h			\
 	sna-utils.h		\
 	strutil.h		\
@@ -117,7 +119,6 @@ DISSECTOR_SUPPORT_SRC =	\
 	../ptvcursor.c	\
 	../reassemble.c	\
 	../req_resp_hdrs.c	\
-	../sha1.c	\
 	../t35.c	\
 	../tap.c	\
 	../xdlc.c	\

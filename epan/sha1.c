@@ -1,6 +1,8 @@
 /*
  *  FIPS-180-1 compliant SHA-1 implementation
  *
+ *  $Id$
+ *
  *  Copyright (C) 2001-2003  Christophe Devine
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +27,7 @@
 #include <string.h>
 #include <glib.h>
 
-#include "sha1.h"
+#include <epan/sha1.h>
 
 #define GET_UINT32(n,b,i)                       \
 {                                               \
