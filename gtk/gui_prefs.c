@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.30 2002/01/11 07:40:31 guy Exp $
+ * $Id: gui_prefs.c,v 1.31 2002/01/12 11:09:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -258,16 +258,18 @@ create_option_check_button(GtkWidget *main_vb, const gchar *key,
     GtkWidget *main_tb, int table_position, const gchar *label_text,
     gboolean active)
 {
-	GtkWidget *hbox, *check_box;
+	GtkWidget *label, *check_box;
 
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), hbox, 1, 3,
+	label = gtk_label_new(label_text);
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1,
 	    table_position, table_position + 1);
 
-	check_box = gtk_check_button_new_with_label(label_text);
+	check_box = gtk_check_button_new();
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_box), active);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), check_box, 1, 2,
+	    table_position, table_position + 1);
 
-	gtk_box_pack_start( GTK_BOX(hbox), check_box, FALSE, FALSE, 0 );
 	gtk_object_set_data(GTK_OBJECT(main_vb), key, check_box);
 }
 
