@@ -27,13 +27,6 @@
 	</para>
 	</listitem>
 	</orderedlist>
-	<note><title>Note!</title>
-	<para>
-	Win32: The library formats for GCC (cygwin) .a and MSVC .lib are
-	different, only the MSVC library variants are currently 
-	recommended / supported.
-	</para>	
-	</note>
 	<tip><title>Tip!</title>
 	<para>
 	Win32: All required libraries for the MSVC
@@ -46,8 +39,55 @@
 	</para>
   </section>
 	
+  <section id="ChLibsFormat">
+    <title>Binary library formats</title>
+	<para>
+	Binary libraries are available in different formats, depending on the C 
+	compiler (see <xref linkend="ChToolsCompiler"/>) used to build it and of 
+	course the platform they were build for.
+	</para>
+	
+	<section id="ChLibsFormatUnix">
+	<title>Unix</title>
+	<para>
+	If you have installed unix binary libraries on your system, they will 
+	match the C compiler. If not already installed, the libraries should be
+	available as a package from the platform installer, or you can download
+	and compile the source and install that binaries then.
+	</para>
+	</section>
+
+	<section id="ChLibsFormatWin32MSVC6">
+	<title>Win32: MSVC V6</title>
+	<para>
+	Recommended for current Win32 Ethereal releases.
+	Most of the Win32 binary libraries you will find on the web are in this
+	format. You will recognize MSVC libraries by the .lib/.dll file extension.
+	</para>
+	</section>
+
+	<section id="ChLibsFormatWin32MSVC2003">
+	<title>Win32: MSVC 2003</title>
+	<para>
+	Currently not widely available, but the first libraries in that format can 
+	be seen on the web. These libraries have the same .lib/.dll file 
+	extension, but unfortunately they are not completely compatible as they 
+	are linked with different dependant libraries, see <xref 
+	linkend="ChToolsCompiler"/> for some further explanations.
+	</para>
+	</section>
+
+	<section id="ChLibsFormatWin32Cygwin">
+	<title>Win32: cygwin gcc</title>
+	<para>
+	Cygwin provides most of the required libraries (with file extension .a/.lib) 
+	for Ethereal suitable for cygwin's gcc compiler.
+	</para>
+	</section>
+  </section>
+	
   <section id="ChLibsSetup">
-    <title>Win32: Automated library download</title>
+	<title>Win32: Automated library download</title>
 	<tip><title>Tip!</title>
 	<para>
 	It's a really good idea to use the Win32 automated library download to 
@@ -85,18 +125,12 @@
 	Then it will download and install (unpack) all required libraries into the
 	directory specified by ETHEREAL_LIBS.
 	</para>
+	<para>
+	If you have problems downloading the library files, see the wget proxy 
+	comment in <xref linkend="ChToolsWget"/>.
+	</para>
   </section>
 
-  <section id="ChLibsCygwin">
-    <title>Win32: cygwin libraries</title>
-	<para>
-	It is not recommended to use the cygwin libraries!
-	</para>
-	<para>
-	XXX - explain why!
-	</para>
-  </section>
-	
   <section id="ChLibsGtk">
 	<title>GTK+ / GLib / GDK / Pango / ATK / GNU gettext / GNU libiconv</title>
 	<para>
@@ -122,7 +156,7 @@
 	</para>
 
 	<section id="ChLibsUnixGTK">
-	<title>Unix: ...</title>
+	<title>Unix</title>
 	<para>
 	The GLib/GTK+ libraries are available for many unix-like platforms and 
 	cygwin.
@@ -135,7 +169,7 @@
 	</section>
 
 	<section id="ChLibsWin32GTK">
-	<title>Win32 native: ...</title>
+	<title>Win32 native</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>.
@@ -150,7 +184,7 @@
 	</para>
 	
 	<section id="ChLibsUnixSNMP">
-	<title>Unix: Net SNMP</title>
+	<title>Unix</title>
 	<para>
 	If this library isn't already installed and also not available as a 
 	package for your platform, you can get it at: 
@@ -159,7 +193,7 @@
 	</section>
 
 	<section id="ChLibsWin32SNMP">
-	<title>Win32 native: Net SNMP</title>
+	<title>Win32 native</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
@@ -177,7 +211,7 @@ utilities."
 	</para>
 	
 	<section id="ChLibsUnixADNS">
-	<title>Unix: GNU ADNS</title>
+	<title>Unix</title>
 	<para>
 	If this library isn't already installed and also not available as a 
 	package for your platform, you can get it at: 
@@ -186,7 +220,7 @@ utilities."
 	</section>
 
 	<section id="ChLibsWin32ADNS">
-	<title>Win32 native: GNU ADNS</title>
+	<title>Win32 native</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://adns.jgaa.com/"/>
@@ -203,7 +237,7 @@ utilities."
 	</para>
 	
 	<section id="ChLibsUnixPCRE">
-	<title>Unix: PCRE</title>
+	<title>Unix</title>
 	<para>
 	If this library isn't already installed and also not available as a 
 	package for your platform, you can get it at: 
@@ -212,7 +246,7 @@ utilities."
 	</section>
 
 	<section id="ChLibsWin32PCRE">
-	<title>Win32 native: PCRE</title>
+	<title>Win32 native</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
@@ -233,7 +267,7 @@ utilities."
 	</para>
 
 	<section id="ChLibsUnixZlib">
-	<title>Unix: zlib</title>
+	<title>Unix</title>
 	<para>
 	If this library isn't already installed and also not available as a 
 	package for your platform, you can get it at: 
@@ -242,10 +276,14 @@ utilities."
 	</section>
 
 	<section id="ChLibsWin32Zlib">
-	<title>Win32 native: zlib</title>
+	<title>Win32 native</title>
 	<para>
 	You can get the latest version at: 
 	<ulink url="http://gnuwin32.sourceforge.net/packages/zlib.htm"/>
+	</para>
+	<para>
+	(A version for the MSVC2003 compiler can be found at:
+	<ulink url="http://www.winimage.com/zLibDll/"/>)
 	</para>
 	</section>
 

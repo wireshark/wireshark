@@ -51,15 +51,64 @@
 	development tasks in <xref linkend="ChapterSources"/>.
 	</para>
 	<para>
-	At the end of this chapter, some recommendations are given for the
+	Some recommendations are given for the
 	easiest way to get a win32 development platform up and running, see 
-	<xref linkend="ChToolsWin32"/>.
+	<xref linkend="ChToolsWin32Recommended"/>.
 	</para>
   </section>
   
+  <section id="ChToolsInstall">
+	<title>Installation</title>
+	<para>
+	The installation of the tools depend on the platform you use:
+	</para>
 	
-	<section id="ChToolsCygwin">
-	<title>Win32: Cygwin</title>
+	<section id="ChToolsInstallUnix">
+	<title>Unix</title>
+	<para>
+	All the tools required are usually installed on a unix developer machine.
+	</para>
+	<para>
+	If a tool is not already installed on your system, you will typically use 
+	the installation package from your distribution.
+	</para>
+	<para>
+	If an install package is not available, or you have a reason not to use 
+	it (maybe because it's simply too old), you can install that tool 
+	from source code, the following sections will provide you with the webpage
+	addresses where you can get these sources. 
+	</para>
+	</section>
+	
+	<section id="ChToolsInstallWin32">
+	<title>Win32</title>
+	<para>
+	There are typically two different ways to install the tools, native tools
+	and the tools provided using the cygwin packages. Have a look at 
+	<xref linkend="ChToolsWin32Recommended"/> for an overview of the 
+	recommended tools.
+	</para>
+	
+	<section id="ChToolsInstallWin32Native">
+	<title>Native</title>
+	<para>
+	The native tools will typically be a bit faster, but more complicated to 
+	install. You will have to download a lot of tools from different webpages, 
+	and install them in the ways they have to be installed. The default 
+	installation location will typically not be the 
+	<filename>c:\program files</filename> folder.
+	</para>
+	</section>
+	
+	<section id="ChToolsInstallCygwin">
+	<title>Cygwin</title>
+	<para>
+	Installation of the cygwin tools is very simple. As cygwin uses an 
+	unix emulation layer,
+	it might be a bit slower compared to the native tools, but at an 
+	acceptable level. All tools will be installed into one folder, the default 
+	is <filename>c:\cygwin</filename>.
+	</para>
 	<para>
 	Cygwin provides a unix emulation layer with a lot of unix based tools
 	on the win32 platform. Although cygwin consists of several
@@ -87,8 +136,127 @@
 	If you want to add additional cygwin packages, you should start the
 	setup.exe again, and select them in the packages window. You will find a 
 	list of required / recommended packages needed to develop Ethereal in
-	<xref linkend="ChToolsWin32"/>.
+	<xref linkend="ChToolsWin32Recommended"/>.
 	</para>	
+	</section>
+	</section>
+	
+  </section>
+
+	<section id="ChToolsWin32Recommended">
+	<title>Win32: Recommended tools</title>
+	<para>
+	As there are different forms of the Win32 tools available, the following 
+	will give an overview of the recommended tools (which are highlighted in 
+	bold face).
+	
+	<table frame='all'><title>The mandatory tools</title>
+	<tgroup cols='3' align='left' colsep='1' rowsep='1'>
+	<colspec colname='c1'/>
+	<colspec colname='c2'/>
+	<colspec colname='c3'/>
+	<thead>
+	<row>
+	  <entry>Tool</entry>
+	  <entry><link linkend="ChToolsInstallCygwin">Cygwin</link> packet</entry>
+	  <entry>Win32 native</entry>
+	</row>
+	</thead>
+	<tbody>
+	<row>
+	  <entry><xref linkend="ChToolsBash"/></entry>
+	  <entry><command>bash</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsCompiler"/></entry>
+	  <entry>gcc</entry>
+	  <entry><command>cl.exe (MSVC)</command></entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsDebugger"/></entry>
+	  <entry>DDD</entry>
+	  <entry><command>integrated debugger (MSVC)</command></entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsMake"/></entry>
+	  <entry>make</entry>
+	  <entry><command>nmake.exe (MSVC)</command></entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsPython"/></entry>
+	  <entry><command>python</command></entry>
+	  <entry><ulink url="http://python.org/download/"/></entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsPerl"/></entry>
+	  <entry><command>perl</command></entry>
+	  <entry><ulink url="http://www.ActiveState.com"/></entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsSed"/></entry>
+	  <entry><command>sed</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsYacc"/></entry>
+	  <entry><command>yacc</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsLexx"/></entry>
+	  <entry><command>lexx</command></entry>
+	  <entry>-</entry>
+	</row>
+	</tbody>
+	</tgroup>
+	</table>	
+	
+	<table frame='all'><title>The optional tools</title>
+	<tgroup cols='3' align='left' colsep='1' rowsep='1'>
+	<colspec colname='c1'/>
+	<colspec colname='c2'/>
+	<colspec colname='c3'/>
+	<thead>
+	<row>
+	  <entry>Tool</entry>
+	  <entry><link linkend="ChToolsInstallCygwin">Cygwin</link> packet</entry>
+	  <entry>Win32 native</entry>
+	</row>
+	</thead>
+	<tbody>
+	<row>
+	  <entry><xref linkend="ChToolsSubversion"/></entry>
+	  <entry>svn</entry>
+	  <entry><command><ulink url="http://tortoisesvn.tigris.org/">TortoiseSVN</ulink></command></entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsDiff"/></entry>
+	  <entry><command>diff</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsPatch"/></entry>
+	  <entry><command>patch</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsWget"/></entry>
+	  <entry><command>wget</command></entry>
+	  <entry>-</entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsNSIS"/></entry>
+	  <entry>-</entry>
+	  <entry>
+	  <command><ulink url="http://nsis.sourceforge.net">NSIS</ulink></command>
+	  </entry>
+	</row>
+	</tbody>
+	</tgroup>
+	</table>	
+	XXX - mark, which cygwin packages are installed by default.
+	</para>
 	</section>
 
 	<section id="ChToolsBash">
@@ -101,7 +269,8 @@
 	<title>Unix: GNU bash</title>
 	<para>
 	The bash is available for most of the unix-like platforms and as the 
-	<application>bash</application> package from the cygwin setup.
+	<application>bash</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If the bash isn't already installed and also not available as a package 
@@ -142,12 +311,13 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	<para>
 	Although some effort is currently made to use gcc from the cygwin
 	environment, the mainline for several reasons is still using Microsoft 
-	Visual Studio's compiler.
+	Visual Studio's C compiler.
 	</para>
 	</note>
 	<para>
 	The gcc C compiler is available for most of the unix-like platforms and 
-	also as a cygwin package.
+	as the <application>gcc</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If gcc isn't already installed and also not available as a package 
@@ -278,7 +448,9 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	<title>Unix: GNU gdb</title>
 	<para>
 	gdb is the debugger for the gcc compiler. It is available for many (if 
-	not all) unix-like platforms and cygwin.
+	not all) unix-like platforms and as the <application>gdb</application> 
+	package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>	
 	</para>
 	<para>
 	If you don't like debugging using the command line, there are some GUI 
@@ -316,7 +488,9 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	<para>
 	The GNU Data Display Debugger is a good GUI frontend for gdb (and a lot of 
 	other command line debuggers), so you have to install gdb first. It is 
-	available for many unix-like platforms and cygwin.
+	available for many unix-like platforms and as the 
+	<application>ddd</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If GNU DDD isn't already installed and also not available as a package for 
@@ -368,7 +542,8 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	</note>
 	<para>
 	GNU make is available for most of the unix-like platforms and 
-	also as a cygwin package.
+	also as the <application>make</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If GNU make isn't already installed and also not available as a package 
@@ -443,7 +618,8 @@ Stop.]]]>
 	<title>Unix: python</title>
 	<para>
 	Python is available for most of the unix-like platforms and as the 
-	<application>python</application> package from the cygwin setup.
+	<application>python</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>
 	</para>
 	<para>
 	If Python isn't already installed and also not available as a package 
@@ -492,7 +668,8 @@ Stop.]]]>
 	<title>Unix: perl</title>
 	<para>
 	Perl is available for most of the unix-like platforms and as the 
-	<application>perl</application> package from the cygwin setup.
+	<application>perl</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If Perl isn't already installed and also not available as a package 
@@ -568,7 +745,8 @@ Built 18:08:02 Feb  4 2003
 	<title>Unix: sed</title>
 	<para>
 	Sed is available for most of the unix-like platforms and as the 
-	<application>sed</application> package from the cygwin setup.
+	<application>sed</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If Sed isn't already installed and also not available as a package 
@@ -614,7 +792,8 @@ to the extent permitted by law.]]>
 	<title>Unix: bison</title>
 	<para>
 	Bison is available for most of the unix-like platforms and as the 
-	<application>bison</application> package from the cygwin setup.
+	<application>bison</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If GNU Bison isn't already installed and also not available as a package 
@@ -661,7 +840,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<title>Unix: flex</title>
 	<para>
 	Flex is available for most of the unix-like platforms and as the 
-	<application>flex</application> package from the cygwin setup.
+	<application>flex</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If GNU Flex isn't already installed and also not available as a package 
@@ -722,7 +902,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<title>Unix: svn</title>
 	<para>
 	SVN is available for most of the unix-like platforms and as the 
-	<application>SVN</application> package from the cygwin setup.
+	<application>SVN</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>
 	</para>
 	<para>
 	If Subversion isn't already installed and also not available as a package 
@@ -786,7 +967,8 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	<title>Unix: GNU diff</title>
 	<para>
 	Diff is available for most of the unix-like platforms and as the 
-	<application>diffutils</application> package from the cygwin setup.
+	<application>diffutils</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If GNU diff isn't already installed and also not available as a package 
@@ -847,7 +1029,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<title>Unix: patch</title>
 	<para>
 	Patch is available for most of the unix-like platforms and as the 
-	<application>patch</application> package from the cygwin setup.
+	<application>patch</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	If GNU patch isn't already installed and also not available as a package 
@@ -895,7 +1078,8 @@ written by Larry Wall and Paul Eggert]]>
 	</para>
 	<para>
 	GNU wget is available for most of the unix-like platforms and as the 
-	<application>wget</application> package from the cygwin setup.
+	<application>wget</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
 	You will only need wget, if you want to use the win32 automated library 
@@ -956,120 +1140,6 @@ written by Larry Wall and Paul Eggert]]>
 	</section>
 
 
-	<section id="ChToolsWin32">
-	<title>Win32: Summary of recommended tools</title>
-	<para>
-	The recommended tools are highlighted in bold face.
-	
-	<table frame='all'><title>The mandatory tools</title>
-	<tgroup cols='3' align='left' colsep='1' rowsep='1'>
-	<colspec colname='c1'/>
-	<colspec colname='c2'/>
-	<colspec colname='c3'/>
-	<thead>
-	<row>
-	  <entry>Tool</entry>
-	  <entry>Cygwin packet</entry>
-	  <entry>Win32 native</entry>
-	</row>
-	</thead>
-	<tbody>
-	<row>
-	  <entry><xref linkend="ChToolsBash"/></entry>
-	  <entry><command>bash</command></entry>
-	  <entry>-</entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsCompiler"/></entry>
-	  <entry>gcc</entry>
-	  <entry><command>cl.exe (MSVC)</command></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsDebugger"/></entry>
-	  <entry>DDD</entry>
-	  <entry><command>integrated debugger (MSVC)</command></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsMake"/></entry>
-	  <entry>make</entry>
-	  <entry><command>nmake.exe (MSVC)</command></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsPython"/></entry>
-	  <entry><command>python</command></entry>
-	  <entry><ulink url="http://python.org/download/"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsPerl"/></entry>
-	  <entry><command>perl</command></entry>
-	  <entry><ulink url="http://www.ActiveState.com"/></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsSed"/></entry>
-	  <entry><command>sed</command></entry>
-	  <entry>-</entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsYacc"/></entry>
-	  <entry><command>yacc</command></entry>
-	  <entry>-</entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsLexx"/></entry>
-	  <entry><command>lexx</command></entry>
-	  <entry>-</entry>
-	</row>
-	</tbody>
-	</tgroup>
-	</table>	
-	
-	<table frame='all'><title>The optional tools</title>
-	<tgroup cols='3' align='left' colsep='1' rowsep='1'>
-	<colspec colname='c1'/>
-	<colspec colname='c2'/>
-	<colspec colname='c3'/>
-	<thead>
-	<row>
-	  <entry>Tool</entry>
-	  <entry>Cygwin packet</entry>
-	  <entry>Win32 native</entry>
-	</row>
-	</thead>
-	<tbody>
-	<row>
-	  <entry><xref linkend="ChToolsSubversion"/></entry>
-	  <entry>svn</entry>
-	  <entry><command><ulink url="http://tortoisesvn.tigris.org/">TortoiseSVN</ulink></command></entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsDiff"/></entry>
-	  <entry><command>diff</command></entry>
-	  <entry>-</entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsPatch"/></entry>
-	  <entry><command>patch</command></entry>
-	  <entry>-</entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsWget"/></entry>
-	  <entry><command>wget</command></entry>
-	  <entry>-</entry>
-	</row>
-	<row>
-	  <entry><xref linkend="ChToolsNSIS"/></entry>
-	  <entry>-</entry>
-	  <entry>
-	  <command><ulink url="http://nsis.sourceforge.net">NSIS</ulink></command>
-	  </entry>
-	</row>
-	</tbody>
-	</tgroup>
-	</table>	
-	XXX - mark, which cygwin packages are installed by default.
-	</para>
-	</section>
-
 	<section id="ChToolsWin32Verify">
 	<title>Win32: Verify installed tools</title>
 	<para>
@@ -1108,8 +1178,7 @@ written by Larry Wall and Paul Eggert]]>
         unzip: /usr/bin/unzip
         wget: /usr/bin/wget]]>
 	</programlisting>
-	</para>
-	
+	</para>	
 	</section>
 
 </chapter>

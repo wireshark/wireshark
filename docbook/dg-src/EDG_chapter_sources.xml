@@ -287,6 +287,13 @@
 	here you will get the latest infos for Ethereal development for all
 	supported platforms.
 	</para>
+	<tip><title>Tip!</title>
+	<para>
+	It is a very good idea, to first test your complete build environment 
+	(including running and debugging Ethereal) before doing any changes 
+	to the source code (unless otherwise noted).
+	</para>
+	</tip>
 	<para>
 	The following steps for the first time generation differs on the two
 	major platforms.
@@ -338,9 +345,34 @@ make
 
   <section id="ChSrcRunFirstTime">
 	<title>Run generated Ethereal for the first time</title>
+	<tip><title>Tip!</title>
+	<para>
+	An already installed Ethereal may interfere with your newly generated 
+	version in various ways. If you have any problems getting your Ethereal 
+	running the first time, it might be a good idea to remove the previously 
+	installed version first.
+	</para>
+	</tip>
 	<para>
 	XXX - add more info here.
 	</para>
+  </section>
+	
+  <section id="ChSrcDebug">
+	<title>Debug your generated Ethereal</title>
+	<para>
+	See the above info on running Ethereal.
+	</para>
+	<para>
+	XXX - add more info here.
+	</para>
+	
+	<section id="ChSrcWin32Debug">
+	<title>Win32 native</title>
+	<para>
+	XXX - add more info here.
+	</para>
+	</section>
   </section>
 	
   <section id="ChSrcChange">
