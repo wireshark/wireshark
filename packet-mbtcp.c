@@ -10,7 +10,7 @@
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.13 2003/04/18 04:45:00 guy Exp $
+ * $Id: packet-mbtcp.c,v 1.14 2003/05/08 00:42:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,8 +96,8 @@
 
 /* Modbus header */
 typedef struct _modbus_hdr {
-	gchar	unit_id;	/* unit identifier (previously slave addr) */
-	gchar	function_code; 	/* Modbus function code */
+	guint8	unit_id;	/* unit identifier (previously slave addr) */
+	guint8	function_code; 	/* Modbus function code */
 } modbus_hdr;
 
 /* Modbus/TCP header, containing the Modbus header */
