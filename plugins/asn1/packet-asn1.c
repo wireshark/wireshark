@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.5 2003/10/29 10:54:17 guy Exp $
+ * $Id: packet-asn1.c,v 1.6 2003/10/30 11:56:36 guy Exp $
  *
  * A plugin for:
  *
@@ -2580,7 +2580,7 @@ read_asn1_type_table(char *filename)
 
 	f = fopen(filename, "rb");
 	if (f == 0) {
-		if (strcmp(filename, default_asn1_filename) != NULL ||
+		if (strcmp(filename, default_asn1_filename) != 0 ||
 		    errno != ENOENT)
 			g_warning("error opening %s, %s", filename, strerror(errno));
 		return;
