@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.76 2002/09/03 08:39:16 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.77 2002/09/08 12:04:42 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,14 +91,16 @@ static const value_string drep_fp_vals[] = {
  */
 #define DCE_C_RPC_AUTHN_PROTOCOL_NONE		0
 #define DCE_C_RPC_AUTHN_PROTOCOL_KRB5		1
-#define DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO          9
+#define DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO         9
 #define DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP	10
+#define DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN       68
 
 static const value_string authn_protocol_vals[] = {
 	{ DCE_C_RPC_AUTHN_PROTOCOL_NONE,    "None" },
 	{ DCE_C_RPC_AUTHN_PROTOCOL_KRB5,    "Kerberos 5" },
 	{ DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,  "SPNEGO" },
 	{ DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP, "NTLMSSP" },
+	{ DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN,"NETLOGON Secure Channel" },
 	{ 0, NULL }
 };
 
