@@ -1228,7 +1228,6 @@ main(int argc, char *argv[])
 	} else if (strcmp(optarg, "ps") == 0) {
 		output_action = WRITE_TEXT;
 		print_format = PR_FMT_PS;
-		verbose = TRUE;
 	} else if (strcmp(optarg, "pdml") == 0) {
 		output_action = WRITE_XML;
 		verbose = TRUE;
