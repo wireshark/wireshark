@@ -2302,6 +2302,10 @@ Tim Endean		<endeant [AT] hotmail.com> {
 	Dissector for INAP protocol
 }
 
+Charlie Lenahan		<clenahan [AT] fortresstech.com> {
+	Support for the Cisco DTP Protocol
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 

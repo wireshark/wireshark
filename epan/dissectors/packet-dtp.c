@@ -1,0 +1,238 @@
+/* packet-dtp.c
+ * Routines for the disassembly for Dynamic Trunking Protocol
+ *
+ * $Id:$
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ *
+ *
+ * DTP support added by Charlie Lenahan <clenahan@fortresstech.com>
+ *
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ */
+
+#include "config.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+#include <glib.h>
+#include <epan/packet.h>
+
+/*
+ * It's incomplete, and it appears to be inaccurate in a number of places,
+ * but it's all I could find....
+ */
+
+static int proto_dtp = -1;
+static int hf_dtp_version = -1;
+static int hf_dtp_tlvtype = -1;
+static int hf_dtp_tlvlength = -1;
+static int hf_dtp_some_mac = -1;
+
+
+static gint ett_dtp = -1;
+static gint ett_dtp_tlv = -1;
+
+static void dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree, proto_item *ti, guint8 type);
+
+
+#define	TRUNK_NAME_NUM		0x01
+#define	TYPE_2_NUM		0x02
+#define	TYPE_3_NUM		0x03
+#define	SOMEMAC_NUM		    0x04
+
+
+static const value_string dtp_tlv_type_vals[] = {
+	{ TRUNK_NAME_NUM, "Trunk Name" },
+	{ TYPE_2_NUM, "Type 2" },
+	{ TYPE_3_NUM, "Type 3" },
+	{ SOMEMAC_NUM,  "Some MAC" },
+	{ 0,                NULL }
+};
+
+
+static void
+dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *dtp_tree = NULL;
+	proto_tree *tlv_tree=NULL;
+	int offset = 0;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "Dynamic Trunking Protocol");
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_dtp, tvb, offset, -1, FALSE);
+		dtp_tree = proto_item_add_subtree(ti, ett_dtp);
+	}
+
+        /* We assume version */
+	proto_tree_add_item(dtp_tree, hf_dtp_version, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	while (tvb_length_remaining(tvb, offset) ) {
+		int type, length, valuelength;
+
+		type = tvb_get_ntohs(tvb, offset);
+		length = tvb_get_ntohs(tvb, offset + 2);
+		valuelength = (length-4);
+    
+		/* make sure still in valid tlv  */
+		if ((valuelength < 1) || ( length > tvb_length_remaining(tvb, offset) ))
+			break;
+
+		ti = proto_tree_add_text(dtp_tree, tvb, offset, length, "%s", 
+                    val_to_str(type, dtp_tlv_type_vals, "Unknown TLV type: 0x%02x"));
+
+		tlv_tree = proto_item_add_subtree(ti, ett_dtp_tlv);
+		proto_tree_add_uint(tlv_tree, hf_dtp_tlvtype, tvb, offset, 2, type);
+		offset+=2;
+
+		proto_tree_add_uint(tlv_tree, hf_dtp_tlvlength, tvb, offset, 2, length);
+		offset+=2;
+
+
+		if (valuelength > 0) {
+			dissect_dtp_tlv(tvb, offset, valuelength, tlv_tree, ti, type);
+		}
+
+		offset += valuelength;
+        }
+}
+
+static void
+dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length,
+    proto_tree *tree, proto_item *ti, guint8 type)
+{
+	switch (type) {
+
+	case TRUNK_NAME_NUM:
+		if (length > 0) {
+			proto_item_set_text(ti, "Trunk Name: %s", tvb_get_ptr(tvb, offset,length));
+			proto_tree_add_text(tree, tvb, offset, length, "Trunk Name: %s", tvb_get_ptr(tvb, offset,length));
+		} else {
+			proto_item_set_text(ti, "Trunk Name: Bad length %u", length);
+			proto_tree_add_text(tree, tvb, offset, length, "Trunk Name: Bad length %u", length);
+		}
+		break;
+
+	case TYPE_2_NUM:
+		if (length > 0) {
+			proto_item_set_text(ti,
+			    "Type 2: 0x%02x",
+			    tvb_get_guint8(tvb, offset));
+			proto_tree_add_text(tree, tvb, offset, 1,
+			    "Type 2: 0x%02x",
+			    tvb_get_guint8(tvb, offset));
+		} else {
+			proto_item_set_text(ti,
+			    "Type 2: Bad length %u",
+			    length);
+			proto_tree_add_text(tree, tvb, offset, length,
+			    "Type 2: Bad length %u",
+			    length);
+		}
+		break;
+
+	case TYPE_3_NUM:
+		if (length > 0 ) {
+			proto_item_set_text(ti,
+			    "Type 3: 0x%02x",
+			    tvb_get_guint8(tvb, offset));
+			proto_tree_add_text(tree, tvb, offset, 1,
+			    "Type 3: 0x%02x",
+			    tvb_get_guint8(tvb, offset));
+		} else {
+			proto_item_set_text(ti,
+			    "Type 3: Bad length %u",
+			    length);
+			proto_tree_add_text(tree, tvb, offset, length,
+			    "Type 3: Bad length %u",
+			    length);
+		}
+		break;
+
+
+	case SOMEMAC_NUM:
+		if (length == 6) {
+	                const guint8 *macptr=tvb_get_ptr(tvb,offset,length);
+
+			proto_item_set_text(ti, "Some MAC: %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x", 
+                    		macptr[0], macptr[1], macptr[2], macptr[3], macptr[4], macptr[5]);
+            		proto_tree_add_ether(tree, hf_dtp_some_mac, tvb, offset,length,macptr);
+		} else {
+			proto_item_set_text(ti,
+			    "Some MAC: Bad length %u",
+			    length);
+			proto_tree_add_text(tree, tvb, offset, length,
+			    "Some MAC: Bad length %u",
+			    length);
+		}
+		break;
+
+	default:
+		proto_tree_add_text(tree, tvb, offset, length, "Data");
+		break;
+	}
+}
+
+void
+proto_register_dtp(void)
+{
+	static hf_register_info hf[] = {
+	{ &hf_dtp_version,
+		{ "Version",	"dtp.version", FT_UINT8, BASE_HEX, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_dtp_tlvtype,
+		{ "Type",	"dtp.tlv_type", FT_UINT16, BASE_HEX, 
+		VALS(dtp_tlv_type_vals), 0x0, "", HFILL }},
+
+	{ &hf_dtp_tlvlength,
+		{ "Length",	"dtp.tlv_len", FT_UINT16, BASE_DEC, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_dtp_some_mac,
+		{ "Some MAC", "vtp.some_mac", FT_ETHER, BASE_NONE, 
+		NULL, 0x0, "MAC Address of something", HFILL }},
+
+        };
+
+	static gint *ett[] = {
+		&ett_dtp,
+		&ett_dtp_tlv,
+	};
+
+    proto_dtp = proto_register_protocol("Dynamic Trunking Protocol", "DTP", "dtp");
+    proto_register_field_array(proto_dtp, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_dtp(void)
+{
+	dissector_handle_t dtp_handle;
+
+	dtp_handle = create_dissector_handle(dissect_dtp, proto_dtp);
+	dissector_add("llc.cisco_pid", 0x2004, dtp_handle);
+}
