@@ -511,6 +511,9 @@ SVN repository (checked in).
    in a header file. If not, a header file is not needed at all. */
 #include "packet-PROTOABBREV.h"
 
+/* Forward declaration we need below */
+void proto_reg_handoff_PROTOABBREV(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_PROTOABBREV = -1;
 static int hf_PROTOABBREV_FIELDABBREV = -1;
@@ -691,7 +694,7 @@ proto_reg_handoff_PROTOABBREV(void)
 {
         static gboolean inited = FALSE;
         
-        if( inited ) {
+        if( !inited ) {
 
 	dissector_handle_t PROTOABBREV_handle;
 
