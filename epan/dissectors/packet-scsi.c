@@ -4354,6 +4354,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         switch (devtype) {
         case SCSI_DEV_SBC:
+        case SCSI_DEV_CDROM:	/* XXX - is this right? */
             valstr = match_strval (opcode, scsi_sbc2_val);
             cmd = SCSI_CMND_SBC2;
             break;
