@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.72 2003/07/25 04:11:49 gram Exp $
+ * $Id: packet-wsp.c,v 1.73 2003/07/29 21:30:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1614,6 +1614,7 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint URILenOffset
 	if (tree)
 		ti = proto_tree_add_uint (tree, hf_wsp_header_uri_len,tvb,URILenOffset,count,uriLen);
 
+	tvb_ensure_bytes_exist(tvb, URIOffset, uriLen);
 	if (tree)
 		ti = proto_tree_add_item (tree, hf_wsp_header_uri,tvb,URIOffset,uriLen,bo_little_endian);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
