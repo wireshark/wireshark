@@ -618,7 +618,7 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	MAPI skeleton dissector
 	DCE/RPC fragment reassembly
 	TCP ACK/SEQ number analysis and relative sequence numbers
-	TAP system and RPCSTAT example for tethereal and Gtk2
+	TAP system and ONC RPC and DCE RPC examples
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.80 2002/10/22 00:59:24 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.81 2002/10/23 03:49:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,9 @@
 #include <epan/conversation.h>
 #include "prefs.h"
 #include "reassemble.h"
+#include "tap.h"
+
+static int dcerpc_tap = -1;
 
 static const value_string pckt_vals[] = {
     { PDU_REQ,        "Request"},
@@ -493,6 +496,40 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
     value->opnum_hf = opnum_hf;
 
     g_hash_table_insert (dcerpc_uuids, key, value);
+}
+
+/* Function to find the name of a registered protocol
+ * or NULL if the protocol/version is not known to ethereal.
+ */
+char *
+dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver)
+{
+    dcerpc_uuid_key key;
+    dcerpc_uuid_value *sub_proto;
+
+    key.uuid = *uuid;
+    key.ver = ver;
+    if(!(sub_proto = g_hash_table_lookup (dcerpc_uuids, &key))){
+        return NULL;
+    }
+    return sub_proto->name;
+}
+
+/* Function to find the subdissector table of a registered protocol
+ * or NULL if the protocol/version is not known to ethereal.
+ */
+dcerpc_sub_dissector *
+dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver)
+{
+    dcerpc_uuid_key key;
+    dcerpc_uuid_value *sub_proto;
+
+    key.uuid = *uuid;
+    key.ver = ver;
+    if(!(sub_proto = g_hash_table_lookup (dcerpc_uuids, &key))){
+        return NULL;
+    }
+    return sub_proto->procs;
 }
 
 
@@ -1399,6 +1436,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
             }
         }
     }
+    tap_queue_packet(dcerpc_tap, pinfo, info);
     return 0;
 }
 
@@ -3698,6 +3736,7 @@ proto_register_dcerpc (void)
                                     &dcerpc_reassemble);
     register_init_routine(dcerpc_reassemble_init);
     dcerpc_uuids = g_hash_table_new (dcerpc_uuid_hash, dcerpc_uuid_equal);
+    dcerpc_tap=register_tap("dcerpc");
 }
 
 void

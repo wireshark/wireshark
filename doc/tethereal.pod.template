@@ -309,6 +309,21 @@ Get B<Tethereal> to collect various types of statistics and display the result
 after finishing reading the capture file.
 Currently implemented statistics are:
 
+B<-z> dcerpc,rtt,I<uuid>,I<major>.I<minor>[,I<filter>]
+
+Collect call/reply RTT data for DCERPC interface I<uuid>, 
+version I<major>.I<minor>.
+Data collected is number of calls for each procedure, MinRTT, MaxRTT 
+and AvgRTT. 
+Example: use B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0> to collect data for CIFS SAMR Interface.  
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4> to collect SAMR
+RTT statistics for a specific host.
+
+
 B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected
@@ -328,6 +343,7 @@ Collect call/reply RTT data for all known ONC-RPC programs/versions.
 Data collected is number of calls for each protocol/version, MinRTT, 
 MaxRTT and AvgRTT. 
 This option can only be used once on the command line.
+
 
 =back
 
