@@ -717,6 +717,21 @@ on those calls that match that filter.
 Example: use B<-z "h225,srt,ip.addr==1.2.3.4"> to only collect stats for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
+B<-z> sip,stat[I<,filter>]
+
+This option will activate a counter for SIP messages. You will get the number 
+of occurences of each SIP Method and of each SIP Status-Code. Additionally you 
+also get the number of resent SIP Messages (only for SIP over UDP).  
+
+Example: use B<-z sip,stat>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filter string is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "sip,stat,ip.addr==1.2.3.4"> to only collect stats for
+SIP packets exchanged by the host at IP address 1.2.3.4 .
+
 =back
 
 =head1 CAPTURE FILTER SYNTAX
