@@ -1,60 +1,62 @@
-== December ?, 2002
+== December 7, 2002
 
 Ethereal 0.9.8 has been released.
 
 
-New Features
+New and Updated Features
 
-- The Windows installer once again includes SNMP support.
+  The TAP subsystem received major updates.  Tethereal can display
+  more statistics, and several graphs have been added to Ethereal.
 
-- New graphs
+  A protocol hierarchy statistics tap was added to tethereal.  This code
+  may be used to replace the hierarchy statistics code in Ethereal.
+  
+  More updates have been added to TCP analysis.
 
-- The total running time of the capture is now displayed in the capture
+  After a long hiatus, the Windows installer once again includes SNMP
+  support.
+
+  The total running time of the capture is now displayed in the capture
   progress dialog box.  The capture progress dialog also shows ARP packets.
+
+  The look of the plugins dialog was revamped.
+
 
 Bug Fixes and Updates
 
-- Windows "Update list of packets in real time" crash (SA?)
+  A bug which caused Ethereal under Windows to crash when "Update list of
+  packets in real time" was enabled has been fixed.
 
-- BGP infinite loop (SA)
+  Serious problems with the BGP, LMP, PPP, and TDS dissectors have been
+  discovered.  See 
+  
+    http://www.ethereal.com/appnotes/enpa-sa-00007.html
+  
+  for more details.
 
-- LMP EndVerifyAck message crash (SA)
+  The stability of the text2pcap utility has been improved.
 
-- The stability of the text2pcap has been improved.
+  In tethereal, the packet count is properly displayed when you ^C out of a
+  capture.
 
-- Net-SNMP linking has been improved.
 
 New Protocols
 
-ARCNET,
-PCLI,
-
+  ARCNET, ClearCase NFS, DCERPC LSA_DS, HyperSCSI, MDNS, PCLI, RPL
 
 
 Updated Protocols
 
-AFP,
-AFS,
-BGP,
-DCERPC,
-DCERPC EPM,
-DCERPC NDR,
-DCERPC UPDATE, 
-HTTP,
-IPv6CP,
-IPX,
-NDPS,
-NDS,
-NFS,
-PPPoE,
-RSVP,
-SCSI,
-SPX,
-SRVLOC,
-WEP,
-YPSERV,
+  AFP, AFS, BACNet, BGP, DCERPC, DCERPC EPM, DCERPC LSA, DCERPC NDR,
+  DCERPC NT, DCERPC SAMR, DCERPC UPDATE, GTP, HTTP, IPv6CP, IPX, iSCSI,
+  ISDN, LAPD, LDAP, M2PA, NDPS, NDS, NetBIOS, NFS, NTLMSSP, OSPF, PPP,
+  PPPoE, Q.931, RPC, RSVP, SCSI, SCTP, SMB, SNMP, Spanning Tree, SPNEGO,
+  SPOOLSS, SPX, SRVLOC, TCP, Telnet, V.120, WEP, YPSERV
 
 
+Updated Capture File Support
+
+  AIX tcpdump, NetXRay, Sniffer, snoop
 
 
 == September 28, 2002
