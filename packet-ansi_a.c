@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.5 2003/11/09 22:30:05 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.6 2003/11/09 22:32:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2081,7 +2081,7 @@ elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     curr_offset += 2;
 
-r    sprintf(add_string, " - (%u) (0x%04x)", value, value);
+    sprintf(add_string, " - (%u) (0x%04x)", value, value);
 
     /* no length check possible */
 
