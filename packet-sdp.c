@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.43 2004/01/09 00:56:04 guy Exp $
+ * $Id: packet-sdp.c,v 1.44 2004/01/13 23:18:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,11 +139,15 @@ static int ett_sdp_session_attribute = -1;
 static int ett_sdp_media = -1;
 static int ett_sdp_media_attribute = -1;
 
+
+#define SDP_MAX_RTP_CHANNELS 4
+
 typedef struct {
-	char *media_port;
-	char *media_proto;
 	char *connection_address;
 	char *connection_type;
+	char *media_port[SDP_MAX_RTP_CHANNELS];
+	char *media_proto[SDP_MAX_RTP_CHANNELS];
+	gint8 media_count;
 } transport_info_t;
 
 /* static functions */
@@ -185,16 +189,24 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t 	*conv=NULL;
 
 	transport_info_t transport_info;
+
 	guint32 	ipv4_address=0;
 	guint32 	ipv4_port=0;
 	gboolean 	is_rtp=FALSE;
 	gboolean 	is_ipv4_addr=FALSE;
 	struct in_addr	ipaddr;
+	gint		n;
 
-	transport_info.media_port=NULL;
-	transport_info.media_proto=NULL;
+	/* Initialise RTP channel info */
 	transport_info.connection_address=NULL;
 	transport_info.connection_type=NULL;
+	for (n=0; n < SDP_MAX_RTP_CHANNELS; n++)
+	{
+	    transport_info.media_port[n]=NULL;
+	    transport_info.media_proto[n]=NULL;
+	}
+	transport_info.media_count = 0;
+
 
 	/*
 	 * As RFC 2327 says, "SDP is purely a format for session
@@ -332,59 +344,67 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	/* Now look, if we have strings collected.
-	 * Try to convert ipv4 address and port into binary format,
+	 * Try to convert ipv4 addresses and ports into binary format,
 	 * so we can use them to detect rtp and rtcp streams.
 	 * Don't forget to free the strings!
 	 */
 
-	if(transport_info.media_port!=NULL) {
-		ipv4_port = atol(transport_info.media_port);
-		g_free(transport_info.media_port);
+	for (n = 0; n < transport_info.media_count; n++)
+	{
+	    if(transport_info.media_port[n]!=NULL) {
+		    ipv4_port = atol(transport_info.media_port[n]);
+		    g_free(transport_info.media_port[n]);
+	    }
+	    if(transport_info.media_proto[n]!=NULL) {
+		    /* Check if media protocol is RTP */
+		    is_rtp = (strcmp(transport_info.media_proto[n],"RTP/AVP")==0);
+		    g_free(transport_info.media_proto[n]);
+	    }
+	    if(transport_info.connection_address!=NULL) {
+		    if(transport_info.connection_type!=NULL &&
+			strcmp(transport_info.connection_type,"IP4")==0) {
+			    if(inet_aton(transport_info.connection_address, &ipaddr)
+				!=0 ) {
+				    /* connection_address could be converted to a valid ipv4 address*/
+				    is_ipv4_addr=TRUE;
+				    ipv4_address = ipaddr.s_addr;
+			    }
+		    }
+	    }
+
+	    /* Add rtp and rtcp conversation, if available */
+	    if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && is_rtp && is_ipv4_addr){
+		    src_addr.type=AT_IPv4;
+		    src_addr.len=4;
+		    src_addr.data=(char *)&ipv4_address;
+
+		    if(rtp_handle){
+			    conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			    if(!conv){
+				    conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
+				    conversation_set_dissector(conv, rtp_handle);
+			    }
+		    }
+
+		    if(rtcp_handle){
+			    ipv4_port++;
+			    conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			    if(!conv){
+				    conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
+				    conversation_set_dissector(conv, rtcp_handle);
+			    }
+		    }
+	    }
 	}
-	if(transport_info.media_proto!=NULL) {
-		/* Check if media protocol is RTP */
-		is_rtp = (strcmp(transport_info.media_proto,"RTP/AVP")==0);
-		g_free(transport_info.media_proto);
-	}
-	if(transport_info.connection_address!=NULL) {
-		if(transport_info.connection_type!=NULL &&
-		    strcmp(transport_info.connection_type,"IP4")==0) {
-			if(inet_aton(transport_info.connection_address, &ipaddr)
-			    !=0 ) {
-				/* connection_address could be converted to a valid ipv4 address*/
-				is_ipv4_addr=TRUE;
-				ipv4_address = ipaddr.s_addr;
-			}
-		}
+
+	/* Free up 'connection info' strings */
+	if(transport_info.connection_address) {
 		g_free(transport_info.connection_address);
 	}
 	if(transport_info.connection_type!=NULL) {
 		g_free(transport_info.connection_type);
 	}
 
-	/* Add rtp and rtcp conversation, if available */
-	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && is_rtp && is_ipv4_addr){
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(char *)&ipv4_address;
-
-		if(rtp_handle){
-			conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
-			if(!conv){
-				conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
-				conversation_set_dissector(conv, rtp_handle);
-			}
-		}
-
-		if(rtcp_handle){
-			ipv4_port++;
-			conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
-			if(!conv){
-				conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
-				conversation_set_dissector(conv, rtcp_handle);
-			}
-		}
-	}
 
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
@@ -484,6 +504,10 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   proto_tree_add_item(sdp_owner_tree,hf_owner_address, tvb, offset, -1, FALSE);
 }
 
+/*
+ * XXX - this can leak memory if an exception is thrown after we've fetched
+ * a string.
+ */
 static void
 dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
 			    transport_info_t *transport_info){
@@ -515,6 +539,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
   tokenlen = next_offset - offset;
   /* Save connection address type */
   transport_info->connection_type = tvb_get_string(tvb, offset, tokenlen);
+
 
   proto_tree_add_item(sdp_connection_info_tree,
 		      hf_connection_info_address_type,tvb,
@@ -777,7 +802,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   if(next_offset != -1){
     tokenlen = next_offset - offset;
     /* Save port info */
-    transport_info->media_port = tvb_get_string(tvb, offset, tokenlen);
+    transport_info->media_port[transport_info->media_count] = tvb_get_string(tvb, offset, tokenlen);
 
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
 			offset, tokenlen, FALSE);
@@ -796,7 +821,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       return;
     tokenlen = next_offset - offset;
     /* Save port info */
-    transport_info->media_port = tvb_get_string(tvb, offset, tokenlen);
+    transport_info->media_port[transport_info->media_count] = tvb_get_string(tvb, offset, tokenlen);
 
     /* XXX Remember Port */
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
@@ -811,7 +836,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
   tokenlen = next_offset - offset;
   /* Save port protocol */
-  transport_info->media_proto = tvb_get_string(tvb, offset, tokenlen);
+  transport_info->media_proto[transport_info->media_count] = tvb_get_string(tvb, offset, tokenlen);
 
   /* XXX Remember Protocol */
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb,
@@ -832,6 +857,12 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     proto_tree_add_item(sdp_media_tree, hf_media_format, tvb,
 			offset, tokenlen, FALSE);
   } while (next_offset != -1);
+
+  /* Increase the count of media channels, but don't walk off the end
+     of the arrays. */
+  if (transport_info->media_count < (SDP_MAX_RTP_CHANNELS-1)){
+    transport_info->media_count++;
+  }
 
   /* XXX Dissect traffic to "Port" as "Protocol"
    *     Remember this Port/Protocol pair so we can tear it down again later
