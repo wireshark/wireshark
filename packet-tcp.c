@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.175 2003/03/01 04:24:40 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.176 2003/03/01 05:02:53 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2314,6 +2314,39 @@ proto_register_tcp(void)
 		{ &hf_tcp_segments,
 		{ "TCP Segments", "tcp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
 			"TCP Segments", HFILL }},
+		{ &hf_tcp_option_mss,
+		  { "TCP MSS Option", "tcp.options.mss", FT_NONE, BASE_NONE, 
+		    NULL, 0x0, "TCP MSS Option", HFILL }},
+		{ &hf_tcp_option_window,
+		  { "TCP Window Option", "tcp.options.window", FT_NONE, 
+		    BASE_NONE, NULL, 0x0, "TCP Window Option", HFILL}},
+		{ &hf_tcp_option_sack_perm, 
+		  { "TCP Sack Perm Option", "tcp.options.sack_perm", FT_NONE,
+		    BASE_NONE, NULL, 0x0, "TCP Sack Perm Option", HFILL}},
+		{ &hf_tcp_option_sack,
+		  { "TCP Sack Option", "tcp.options.sack", FT_NONE, BASE_NONE,
+		    NULL, 0x0, "TCP Sack Option", HFILL}},
+		{ &hf_tcp_option_echo,
+		  { "TCP Echo Option", "tcp.options.echo", FT_NONE, BASE_NONE,
+		    NULL, 0x0, "TCP Sack Echo", HFILL}},
+		{ &hf_tcp_option_echo_reply,
+		  { "TCP Echo Reply Option", "tcp.options.echo_reply", FT_NONE,
+		    BASE_NONE, NULL, 0x0, "TCP Echo Reply Option", HFILL}},
+		{ &hf_tcp_option_time_stamp,
+		  { "TCP Time Stamp Option", "tcp.options.time_stamp", FT_NONE,
+		    BASE_NONE, NULL, 0x0, "TCP Time Stamp Option", HFILL}},
+		{ &hf_tcp_option_cc,
+		  { "TCP CC Option", "tcp.options.cc", FT_NONE, BASE_NONE,
+		    NULL, 0x0, "TCP CC Option", HFILL}},
+		{ &hf_tcp_option_ccnew,
+		  { "TCP CC New Option", "tcp.options.ccnew", FT_NONE, 
+		    BASE_NONE, NULL, 0x0, "TCP CC New Option", HFILL}},
+		{ &hf_tcp_option_ccecho,
+		  { "TCP CC Echo Option", "tcp.options.ccecho", FT_NONE,
+		    BASE_NONE, NULL, 0x0, "TCP CC Echo Option", HFILL}},
+		{ &hf_tcp_option_md5,
+		  { "TCP MD5 Option", "tcp.options.md5", FT_NONE, BASE_NONE,
+		    NULL, 0x0, "TCP MD5 Option", HFILL}},
 	};
 	static gint *ett[] = {
 		&ett_tcp,
