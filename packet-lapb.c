@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-lapb.c,v 1.11 2000/03/12 04:47:42 gram Exp $
+ * $Id: packet-lapb.c,v 1.12 2000/03/15 19:17:08 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,7 +113,7 @@ proto_register_lapb(void)
 	  	"" }},
 
 	{ &hf_lapb_control,
-	  { "Control Field", "lapb.control", FT_STRING, BASE_NONE, NULL, 0x0,
+	  { "Control Field", "lapb.control", FT_UINT8, BASE_HEX, NULL, 0x0,
 	  	"" }},
     };
     static gint *ett[] = {
