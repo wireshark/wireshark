@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.111 2001/12/21 20:18:39 guy Exp $
+ * $Id: tethereal.c,v 1.112 2001/12/21 20:32:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -623,18 +623,17 @@ main(int argc, char *argv[])
     exit(2);
   }
 
-  /* Don't let them do ringbuffer stuff without saving to a file or without
-     specifying a maximum capture file size. */
   if (cfile.ringbuffer_on) {
-    /* Ringbuffer works just under certain conditions:*/ 
+    /* Ring buffer works only under certain conditions:
+       a) ring buffer does not work if you're not saving the capture to
+          a file;
+       b) it makes no sense to enable the ring buffer if the maximum
+          file size is set to "infinite". */
     if (cfile.save_file == NULL) {
-       /* Ringbuffer does not work with temporary files */
       fprintf(stderr, "tethereal: Ring buffer requested, but capture isn't being saved to a file.\n");
       exit(2);
     }
     if (cfile.autostop_filesize == 0) {
-       /* It makes no sense to enable the ring buffer if the maximum
-          file size is set to infinite */
       fprintf(stderr, "tethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
       exit(2);
     }
