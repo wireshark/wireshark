@@ -1,4 +1,4 @@
-$Id: README.macos,v 1.5 2004/03/22 23:40:44 guy Exp $
+$Id: README.macos,v 1.6 2004/03/22 23:50:43 guy Exp $
 
 This file tries to help building Ethereal for Mac OS X (Ethereal does
 not work on earlier versions of Mac OS).
@@ -48,8 +48,14 @@ do "sudo ranlib /usr/lib/libjpeg.a" after "make install-lib".
 
 For libpng, use scripts/makefile.darwin, not scripts/makefile.macosx.
 
-In case you also have gtk1 installed, you will need to run configure
-with the "--enable-gtk2" argument.
+You will need to run Ethereal's configure script with the
+"--enable-gtk2" argument - by default, it'll try to configure with GLib
+1.2[.x] and GTK+ 1.2[.x], in which case:
+
+	if they're not installed, the configure script will fail;
+
+	if they are installed, the configure script will configure
+	Ethereal to build with them.
 
 Another problem are compile errors in the wiretap directory like the
 following:
