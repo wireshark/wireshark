@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.10 2002/04/14 22:56:02 guy Exp $
+ * $Id: packet-dsi.c,v 1.11 2002/04/22 08:50:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,11 +39,11 @@
 # include <netinet/in.h>
 #endif
 
-#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
-#include <epan/conversation.h>
+
+#include "prefs.h"
+#include "packet-frame.h"
 
 /* The information in this module (DSI) comes from:
 
@@ -63,7 +63,7 @@
  * |-------------------------------|
  * |reserved field                 |
  * |-------------------------------|
-*/
+ */
 
 static int proto_dsi = -1;
 static int hf_dsi_flags = -1;
@@ -75,7 +75,9 @@ static int hf_dsi_reserved = -1;
 
 static gint ett_dsi = -1;
 
-static dissector_handle_t dsi_handle;
+/* desegmentation of DSI */
+static gboolean dsi_desegment = TRUE;
+
 static dissector_handle_t data_handle;
 
 #define TCP_PORT_DSI			548
@@ -110,333 +112,170 @@ static const value_string func_vals[] = {
   {DSIFUNC_ATTN,	"Attention" },
   {0,			NULL } };
 
-
-static GMemChunk *vals = NULL;
-
-typedef struct {
-	int	state;
-	guint8	flags,command;
-	guint16	requestid;
-	gint32	code;
-	guint32	length;		/* total length of this DSI request/reply */
-	guint32	reserved;
-	guint32	seen;		/* bytes seen so far */
-}hash_entry_t;
-
-enum {NONE,FIRSTDATA,MOREDATA,DONE};
-
-#define hash_init_count 20
-#define hash_val_length (sizeof(hash_entry_t))
-
-static guint32 last_abs_sec = 0;
-static guint32 last_abs_usec= 0;
-static guint32 highest_num = 0;
-
-/* Hash functions */
-gint  dsi_equal (gconstpointer v, gconstpointer v2);
-guint dsi_hash  (gconstpointer v);
- 
-static guint dsi_packet_init_count = 200;
-
-typedef struct {
-	guint32	packetnum;
-} dsi_request_key;
- 
-typedef struct {
-	guint8	flags;
-	guint8	command;
-	guint16	requestid;
-	guint32	length;
-	guint32	seen;		/* bytes seen so far, including this packet */
-} dsi_request_val;
- 
-static GHashTable *dsi_request_hash = NULL;
-static GMemChunk *dsi_request_keys = NULL;
-static GMemChunk *dsi_request_records = NULL;
-
-/* Hash Functions */
-gint  dsi_equal (gconstpointer v, gconstpointer v2)
-{
-	dsi_request_key *val1 = (dsi_request_key*)v;
-	dsi_request_key *val2 = (dsi_request_key*)v2;
-
-	if (val1->packetnum == val2->packetnum) {
-		return 1;
-	}
-	return 0;
-}
-
-guint dsi_hash  (gconstpointer v)
-{
-        dsi_request_key *dsi_key = (dsi_request_key*)v;
-        return GPOINTER_TO_UINT(dsi_key->packetnum);
-}
-
-void
-dsi_hash_insert(guint32 packetnum, guint8 flags, guint8 command,
-	guint16 requestid, guint32 length, guint32 seen)
-{
-	dsi_request_val         *request_val;
-	dsi_request_key         *request_key;
-
-	/* Now remember info about this continuation packet */
-
-	request_key = g_mem_chunk_alloc(dsi_request_keys);
-	request_key->packetnum = packetnum;
-
-	request_val = g_mem_chunk_alloc(dsi_request_records);
-	request_val->flags = flags;
-	request_val->command = command;
-	request_val->requestid = requestid;
-	request_val->length = length;
-	request_val->seen = seen;
-
-	g_hash_table_insert(dsi_request_hash, request_key, request_val);
-}
-
-/* Returns TRUE or FALSE. If TRUE, the record was found */
-
-gboolean
-dsi_hash_lookup(guint32 packetnum, guint8 *flags, guint8 *command,
-                guint16 *requestid, guint32 *length, guint32 *seen)
-{
-	dsi_request_val         *request_val;
-	dsi_request_key         request_key;
-
-	request_key.packetnum = packetnum;
-
-	request_val = (dsi_request_val*)
-		g_hash_table_lookup(dsi_request_hash, &request_key);
-
-	if (request_val) {
-		*flags		= request_val->flags;
-		*command	= request_val->command;
-		*requestid	= request_val->requestid;
-		*length		= request_val->length;
-		*seen		= request_val->seen;
-		return TRUE;
-	}
-	else {
-		return FALSE;
-	}
-}
-
-/* The state_machine remembers information about continuation packets */
-/* returns TRUE if it found a previously known continuation packet */
-gboolean
-dsi_state_machine( hash_entry_t *hash_info, tvbuff_t *tvb, packet_info *pinfo,
-	int offset)
-{
-	frame_data *fd;
-	guint32	data_here;
-	guint8	flags,command;
-	guint16	requestid;
-	guint32	length;
-	guint32	seen;
-	gboolean found_hash;
-
-	fd=pinfo->fd;
-
-	found_hash=dsi_hash_lookup(fd->num, &flags, &command, &requestid,
-		&length, &seen);
-	if (found_hash==TRUE)
-	{
-		hash_info->flags = flags;
-		hash_info->command = command;
-		hash_info->requestid = requestid;
-		hash_info->length = length;
-		hash_info->seen = seen;
-		return TRUE;
-	}
-
-	/* is this sequentially the next packet? */
-	if (highest_num > fd->num)
-	{
-		hash_info->state = NONE;
-		return FALSE;
-	}
-
-	highest_num = fd->num;
-
-	if ((hash_info->state == NONE) || (hash_info->state == DONE))
-	{
-		hash_info->state = NONE;
-		hash_info->length = tvb_get_ntohl(tvb, offset+8);
-		data_here = tvb_length_remaining(tvb, offset+16);
-		if (data_here < hash_info->length)
-		{
-			hash_info->flags = tvb_get_guint8(tvb, offset);
-			hash_info->command = tvb_get_guint8(tvb, offset+1);
-			hash_info->requestid = tvb_get_ntohs(tvb, offset+2);
-			hash_info->code = tvb_get_ntohl(tvb, offset+4);
-			hash_info->reserved = tvb_get_ntohl(tvb, offset+12);
-			hash_info->seen = data_here;
-			hash_info->state = FIRSTDATA;
-		}
-		return FALSE;
-	}
-
-
-	if (hash_info->state == FIRSTDATA)
-		hash_info->state = MOREDATA;
-
-	/* we must be receiving more data */
-	data_here = tvb_length_remaining(tvb, offset);
-	hash_info->seen += data_here;
-	if (hash_info->seen >= hash_info->length)
-		hash_info->state = DONE;
-
-	dsi_hash_insert(fd->num, hash_info->flags,
-		hash_info->command, hash_info->requestid,
-		hash_info->length,hash_info->seen);
-
-	return FALSE;
-}
-
 static void
-dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         proto_tree      *dsi_tree;
 	proto_item	*ti;
-	conversation_t	*conversation;
-	hash_entry_t	*hash_info;
-	gint		offset = 0;
-	gboolean	prev_cont;	/* TRUE if a previously known
-					* continuation packet */
-	char		cont_str[256];
-
-	gchar	*flag_str;
-	gchar	*func_str;
-	guint8	dsi_flags,dsi_command;
-	guint16 dsi_requestid;
-	gint32 	dsi_code;
-	guint32 dsi_length;
-	guint32 dsi_reserved;
+	guint8		dsi_flags,dsi_command;
+	guint16		dsi_requestid;
+	gint32		dsi_code;
+	guint32		dsi_length;
+	guint32		dsi_reserved;
  
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	conversation = find_conversation(&pinfo->src, &pinfo->dst, PT_TCP,
-		pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL)
-	{
-		conversation = conversation_new(&pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
-	conversation_set_dissector(conversation, dsi_handle);
-	hash_info = conversation_get_proto_data(conversation, proto_dsi);
-	if (hash_info == NULL)
-	{
-		hash_info = g_mem_chunk_alloc(vals);
-		hash_info->state = NONE;
-		conversation_add_proto_data(conversation, proto_dsi,
-			hash_info);
-	}
-
-	prev_cont=dsi_state_machine( hash_info, tvb, pinfo, offset);
-
-	if ((hash_info->state == NONE) && (prev_cont!=TRUE))
-	{
-		dsi_flags = tvb_get_guint8(tvb, offset);
-		dsi_command = tvb_get_guint8(tvb, offset+1);
-		dsi_requestid = tvb_get_ntohs(tvb, offset+2);
-		dsi_code = tvb_get_ntohl(tvb, offset+4);
-		dsi_length = tvb_get_ntohl(tvb, offset+8);
-		dsi_reserved = tvb_get_ntohl(tvb, offset+12);
-	}else
-	{
-		dsi_flags = hash_info->flags;
-		dsi_command = hash_info->command;
-		dsi_requestid = hash_info->requestid;
-		dsi_code = hash_info->code;
-		dsi_length = hash_info->length;
-		dsi_reserved = hash_info->reserved;
-	}
+	dsi_flags = tvb_get_guint8(tvb, 0);
+	dsi_command = tvb_get_guint8(tvb, 1);
+	dsi_requestid = tvb_get_ntohs(tvb, 2);
+	dsi_code = tvb_get_ntohl(tvb, 4);
+	dsi_length = tvb_get_ntohl(tvb, 8);
+	dsi_reserved = tvb_get_ntohl(tvb, 12);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if ((func_str = match_strval(dsi_command, func_vals)))
-		{
-			flag_str = match_strval(dsi_flags, flag_vals);
-			if ((hash_info->state == MOREDATA) ||
-				(hash_info->state == DONE) ||
-				(prev_cont == TRUE))
-			{
-				sprintf(cont_str,"Continued: %d/%d",
-					hash_info->seen,hash_info->length);
-			}else
-			{
-				cont_str[0]=0;
-			}
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%d) %s",
-				flag_str,func_str,dsi_requestid,
-				cont_str);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%u)",
+			val_to_str(dsi_flags, flag_vals,
+				   "Unknown flag (0x%02x)"),
+			val_to_str(dsi_command, func_vals,
+				   "Unknown function (0x%02x)"),
+			dsi_requestid);
 	}
 
 
-	if (tree)
-	{
-		ti = proto_tree_add_item(tree, proto_dsi, tvb, offset, -1,
-		    FALSE);
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_dsi, tvb, 0, -1, FALSE);
 		dsi_tree = proto_item_add_subtree(ti, ett_dsi);
 
-		if (prev_cont == TRUE)
-		{
-			proto_tree_add_uint(dsi_tree, hf_dsi_requestid, tvb,
-				0, 0, dsi_requestid);
-			call_dissector(data_handle,tvb, pinfo, dsi_tree);
-		}else
-		{
-			proto_tree_add_uint(dsi_tree, hf_dsi_flags, tvb,
-				offset, 1, dsi_flags);
-			proto_tree_add_uint(dsi_tree, hf_dsi_command, tvb,
-				offset+1, 1, dsi_command);
-			proto_tree_add_uint(dsi_tree, hf_dsi_requestid, tvb,
-				offset+2, 2, dsi_requestid);
-			proto_tree_add_int(dsi_tree, hf_dsi_code, tvb,
-				offset+4, 4, dsi_code);
-			proto_tree_add_uint_format(dsi_tree, hf_dsi_length, tvb,
-				offset+8, 4, dsi_length,
-				"Length: %d bytes", dsi_length);
-			proto_tree_add_uint(dsi_tree, hf_dsi_reserved, tvb,
-				offset+12, 4, dsi_reserved);
-			call_dissector(data_handle,tvb_new_subset(tvb, 16,-1,tvb_reported_length_remaining(tvb,16)), pinfo, dsi_tree);
-		}
-
+		proto_tree_add_uint(dsi_tree, hf_dsi_flags, tvb,
+			0, 1, dsi_flags);
+		proto_tree_add_uint(dsi_tree, hf_dsi_command, tvb,
+			1, 1, dsi_command);
+		proto_tree_add_uint(dsi_tree, hf_dsi_requestid, tvb,
+			2, 2, dsi_requestid);
+		proto_tree_add_int(dsi_tree, hf_dsi_code, tvb,
+			4, 4, dsi_code);
+		proto_tree_add_uint_format(dsi_tree, hf_dsi_length, tvb,
+			8, 4, dsi_length,
+			"Length: %u bytes", dsi_length);
+		proto_tree_add_uint(dsi_tree, hf_dsi_reserved, tvb,
+			12, 4, dsi_reserved);
+		call_dissector(data_handle,tvb_new_subset(tvb, 16,-1,tvb_reported_length_remaining(tvb,16)), pinfo, dsi_tree);
 	}
 }
 
-static void dsi_reinit( void){                                              
+static void
+dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	volatile int offset = 0;
+	int length_remaining;
+	guint32 plen;
+	int length;
+	tvbuff_t *next_tvb;
 
-	last_abs_sec = 0;
-	last_abs_usec= 0;
-	highest_num = 0;
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		length_remaining = tvb_length_remaining(tvb, offset);
 
-	if (vals)
-		g_mem_chunk_destroy(vals);
-	if (dsi_request_hash)
-		g_hash_table_destroy(dsi_request_hash);
-	if (dsi_request_keys)
-		g_mem_chunk_destroy(dsi_request_keys);
-	if (dsi_request_records)
-		g_mem_chunk_destroy(dsi_request_records);
+		/*
+		 * Can we do reassembly?
+		 */
+		if (dsi_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the DSI header split across segment
+			 * boundaries?
+			 */
+			if (length_remaining < 12) {
+				/*
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len = 12 - length_remaining;
+				return;
+			}
+		}
 
-	dsi_request_hash = g_hash_table_new(dsi_hash, dsi_equal);
+		/*
+		 * Get the length of the DSI packet.
+		 */
+		plen = tvb_get_ntohl(tvb, offset+8);
 
-	dsi_request_keys = g_mem_chunk_new("dsi_request_keys",
-		sizeof(dsi_request_key),
-		dsi_packet_init_count * sizeof(dsi_request_key),
-		G_ALLOC_AND_FREE);
-	dsi_request_records = g_mem_chunk_new("dsi_request_records",
-		sizeof(dsi_request_val),
-		dsi_packet_init_count * sizeof(dsi_request_val),
-		G_ALLOC_AND_FREE);
+		/*
+		 * Can we do reassembly?
+		 */
+		if (dsi_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the DSI packet split across segment
+			 * boundaries?
+			 */
+			if ((guint32)length_remaining < plen + 16) {
+				/*
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len =
+				    (plen + 16) - length_remaining;
+				return;
+			}
+		}
 
-	vals = g_mem_chunk_new("dsi_vals", hash_val_length,
-		hash_init_count * hash_val_length,
-		G_ALLOC_AND_FREE);
+		/*
+		 * Construct a tvbuff containing the amount of the payload
+		 * we have available.  Make its reported length the
+		 * amount of data in the DSI packet.
+		 *
+		 * XXX - if reassembly isn't enabled. the subdissector
+		 * will throw a BoundsError exception, rather than a
+		 * ReportedBoundsError exception.  We really want
+		 * a tvbuff where the length is "length", the reported
+		 * length is "plen + 16", and the "if the snapshot length
+		 * were infinite" length is the minimum of the
+		 * reported length of the tvbuff handed to us and "plen+16",
+		 * with a new type of exception thrown if the offset is
+		 * within the reported length but beyond that third length,
+		 * with that exception getting the "Unreassembled Packet"
+		 * error.
+		 */
+		length = length_remaining;
+		if ((guint32)length > plen + 16)
+			length = plen + 16;
+		next_tvb = tvb_new_subset(tvb, offset, length, plen + 16);
+
+		/*
+		 * Dissect the DSI packet.
+		 *
+		 * Catch the ReportedBoundsError exception; if this
+		 * particular message happens to get a ReportedBoundsError
+		 * exception, that doesn't mean that we should stop
+		 * dissecting DSI messages within this frame or chunk
+		 * of reassembled data.
+		 *
+		 * If it gets a BoundsError, we can stop, as there's nothing
+		 * more to see, so we just re-throw it.
+		 */
+		TRY {
+			dissect_dsi_packet(next_tvb, pinfo, tree);
+		}
+		CATCH(BoundsError) {
+			RETHROW;
+		}
+		CATCH(ReportedBoundsError) {
+			show_reported_bounds_error(tvb, pinfo, tree);
+		}
+		ENDTRY;
+
+		/*
+		 * Skip the DSI header and the payload.
+		 */
+		offset += plen + 16;
+	}
 }
 
 void
@@ -478,19 +317,26 @@ proto_register_dsi(void)
   static gint *ett[] = {
     &ett_dsi,
   };
+  module_t *dsi_module;
 
   proto_dsi = proto_register_protocol("Data Stream Interface", "DSI", "dsi");
   proto_register_field_array(proto_dsi, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_init_routine( &dsi_reinit);
-
-  dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
+  dsi_module = prefs_register_protocol(proto_dsi, NULL);
+  prefs_register_bool_preference(dsi_module, "desegment",
+    "Desegment all DSI messages spanning multiple TCP segments",
+    "Whether the DSI dissector should desegment all messages spanning multiple TCP segments",
+    &dsi_desegment);
 }
 
 void
 proto_reg_handoff_dsi(void)
 {
-  data_handle = find_dissector("data");
+  static dissector_handle_t dsi_handle;
+
+  dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
   dissector_add("tcp.port", TCP_PORT_DSI, dsi_handle);
+
+  data_handle = find_dissector("data");
 }
