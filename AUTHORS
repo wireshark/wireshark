@@ -741,6 +741,7 @@ Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	Display filter operator: matches (PCRE syntax)
 	Compuserve GIF image dissector
 	JPEG File Interchange Format (JFIF) dissector
+	Dissector for message/http media type
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
