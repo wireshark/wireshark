@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.9 2000/12/20 05:45:27 gram Exp $
+ * $Id: packet-mgcp.c,v 1.10 2000/12/25 09:37:35 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -434,32 +434,32 @@ proto_register_mgcp(void)
 
   mgcp_module = prefs_register_module("mgcp", "MGCP", proto_reg_handoff_mgcp);
 
-  prefs_register_uint_preference(mgcp_module, "tcp.port", 
+  prefs_register_uint_preference(mgcp_module, "tcp.gateway_port", 
 				 "MGCP Gateway TCP Port",
-				 "Set the port for  gateway messages (if other"
-				 " than the default of 2427)",
+				 "Set the UDP port for gateway messages "
+				 "(if other than the default of 2427)",
 				 10, &global_mgcp_gateway_tcp_port);
 
-  prefs_register_uint_preference(mgcp_module, "udp.port", 
-				 "MGCP UDP Gateway Port",
-				 "Set the port for  gateway messages (if other"
-				 " than the default of 2427)",
+  prefs_register_uint_preference(mgcp_module, "udp.gateway_port", 
+				 "MGCP Gateway UDP Port",
+				 "Set the TCP port for gateway messages "
+				 "(if other than the default of 2427)",
 				 10, &global_mgcp_gateway_udp_port);
 
-  prefs_register_uint_preference(mgcp_module, "tcp.port", 
+  prefs_register_uint_preference(mgcp_module, "tcp.callagent_port", 
 				 "MGCP Callagent TCP Port",
-				 "Set the port for  callagent messages" 
+				 "Set the TCP port for callagent messages "
 				 "(if other than the default of 2727)",
 				 10, &global_mgcp_callagent_tcp_port);
 
-  prefs_register_uint_preference(mgcp_module, "udp.port", 
-				 "MGCP UDP Gateway Port",
-				 "Set the port for  callagent messages "
+  prefs_register_uint_preference(mgcp_module, "udp.callagent_port", 
+				 "MGCP Callagent UDP Port",
+				 "Set the UDP port for callagent messages "
 				 "(if other than the default of 2727)",
 				 10, &global_mgcp_callagent_udp_port);
 
 
-  prefs_register_bool_preference(mgcp_module, "display raw text toggle", 
+  prefs_register_bool_preference(mgcp_module, "display_raw_text", 
                                  "Display raw text for MGCP message", 
                                  "Specifies that the raw text of the "
                                  "MGCP message should be displayed "
@@ -467,7 +467,7 @@ proto_register_mgcp(void)
 				 "dissection tree",
                                  &global_mgcp_raw_text);
 
-  prefs_register_bool_preference(mgcp_module, "display dissect tree", 
+  prefs_register_bool_preference(mgcp_module, "display_dissect_tree", 
                                  "Display tree dissection for MGCP message", 
                                  "Specifies that the dissection tree of the "
                                  "MGCP message should be displayed "
