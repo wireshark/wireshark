@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.48 1999/07/28 03:33:34 guy Exp $
+ * $Id: file.c,v 1.49 1999/07/28 03:38:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -774,11 +774,16 @@ thaw_clist(capture_file *cf)
 {
   int i;
 
-  /* Make the column sizes dynamic, so that they adjust to the
-     appropriate sizes. */
   for (i = 0; i < cf->cinfo.num_cols; i++) {
-    if (get_column_resize_type(cf->cinfo.col_fmt[i]) != RESIZE_MANUAL)
+    if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_MANUAL) {
+      /* Set this column's width to the appropriate value. */
+      gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
+				cf->cinfo.col_width[i]);
+    } else {
+      /* Make this column's size dynamic, so that it adjusts to the
+         appropriate size. */
       gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
+    }
   }
   gtk_clist_thaw(GTK_CLIST(packet_list));
 
