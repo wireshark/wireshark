@@ -6,7 +6,7 @@
  *
  * (C) Olivier Biot, 2004 <Olivier.Biot (ad) siemens.com>
  *
- * $Id: packet-text-media.c,v 1.4 2004/01/26 23:49:43 obiot Exp $
+ * $Id: packet-text-media.c,v 1.5 2004/02/16 18:47:57 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,8 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (data_name && check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", data_name);
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)",
+				data_name);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_text_lines,
