@@ -254,6 +254,7 @@ Heikki Vatiainen <hessu[AT]cs.tut.fi> {
 	Enhancements to the "bad sed" tests
 	Make "get_host_ipaddr()" require dotted-quad IP addresses to
 	    really be quads
+	CGMP-over-Ethernet II support
 }
 
 Greg Hankins <gregh[AT]twoguys.org> {

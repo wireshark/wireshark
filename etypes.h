@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.23 2002/02/17 00:16:19 guy Exp $
+ * $Id: etypes.h,v 1.24 2002/03/23 22:02:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,10 @@
  * Created by Microsoft Network Monitor as a summary packet.
  */
 #define ETHERTYPE_TRAIN		0x1984
+#endif
+
+#ifndef ETHERTYPE_CGMP
+#define ETHERTYPE_CGMP		0x2001
 #endif
 
 #ifndef ETHERTYPE_3C_NBP_DGRAM
