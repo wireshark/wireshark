@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.28 2004/02/21 02:15:06 guy Exp $
+ * $Id: plugin_api_list.c,v 1.29 2004/02/21 02:20:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -396,8 +396,6 @@ void col_set_writable(column_info *, gboolean);
 const char *decode_enumerated_bitfield_shifted(guint32, guint32, int,
     const value_string *, const char *);
 
-guint32 dissect_per_bit_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int);
-
 int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
   const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
@@ -412,3 +410,5 @@ guint tvb_strsize(tvbuff_t *tvb, gint offset);
 void report_open_failure(const char *filename, int err, gboolean for_writing);
 
 void report_read_failure(const char *filename, int err);
+
+guint32 dissect_per_bit_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int);
