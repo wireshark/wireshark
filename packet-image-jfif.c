@@ -1,9 +1,12 @@
 /* packet-image-jfif.c
  *
  * Routines for JFIF image/jpeg media dissection
- * Copyright 2004, Olivier Biot <olivier.biot (ad) siemens.com>
+ * Copyright 2004, Olivier Biot.
  *
- * $Id: packet-image-jfif.c,v 1.3 2004/02/14 11:13:16 obiot Exp $
+ * $Id: packet-image-jfif.c,v 1.4 2004/03/08 22:03:58 obiot Exp $
+ *
+ * Refer to the AUTHORS file or the AUTHORS section in the man page
+ * for contacting the author(s) of this file.
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

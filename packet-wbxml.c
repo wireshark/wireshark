@@ -1,9 +1,12 @@
 /* packet-wbxml.c
  *
- * Routines for wbxml dissection
- * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
+ * Routines for WAP Binary XML dissection
+ * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.28 2004/03/08 21:41:47 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.29 2004/03/08 22:03:59 obiot Exp $
+ *
+ * Refer to the AUTHORS file or the AUTHORS section in the man page
+ * for contacting the author(s) of this file.
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

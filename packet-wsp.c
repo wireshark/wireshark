@@ -2,21 +2,27 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.110 2004/02/28 22:56:36 guy Exp $
+ * $Id: packet-wsp.c,v 1.111 2004/03/08 22:03:59 obiot Exp $
+ *
+ * Refer to the AUTHORS file or the AUTHORS section in the man page
+ * for contacting the author(s) of this file.
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
- * Updated by Neil Hunter <neil.hunter@energis-squared.com>
- * WTLS support by Alexandre P. Ferreira (Splice IP)
- * Openwave header support by Dermot Bradley <dermot.bradley@openwave.com>
+ * Updated by Neil Hunter.
+ *
+ * WTLS support by Alexandre P. Ferreira (Splice IP).
+ *
+ * Openwave header support by Dermot Bradley (Openwave).
+ *
  * Code optimizations, header value dissection simplification with parse error
  * notification and macros, extra missing headers, WBXML registration,
  * summary line of WSP PDUs,
  * Session Initiation Request dissection
- * by Olivier Biot <olivier.biot(ad)siemens.com>.
+ * by Olivier Biot.
  *
  * TODO - Move parts of dissection before and other parts after "if (tree)",
  * for example skip almost all but content type in replies if tree is closed.

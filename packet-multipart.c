@@ -1,9 +1,12 @@
 /* packet-multipart.c
  * Routines for multipart media encapsulation dissection
- * Copyright 2004, Anders Broman <anders.broman[at]ericsson.com>
- * Copyright 2004, Olivier Biot <olivier.biot[at]siemens.com>
+ * Copyright 2004, Anders Broman.
+ * Copyright 2004, Olivier Biot.
  *
- * $Id: packet-multipart.c,v 1.7 2004/02/11 09:19:02 guy Exp $
+ * $Id: packet-multipart.c,v 1.8 2004/03/08 22:03:59 obiot Exp $
+ *
+ * Refer to the AUTHORS file or the AUTHORS section in the man page
+ * for contacting the author(s) of this file.
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

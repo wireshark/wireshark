@@ -1,6 +1,6 @@
 /* packet-smpp.c
  * Routines for Short Message Peer to Peer dissection
- * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
+ * Copyright 2001, Tom Uijldert.
  *
  * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
@@ -8,8 +8,10 @@
  * Dissection of multiple SMPP PDUs within one packet
  * provided by Chris Wilson.
  *
- * $Id: packet-smpp.c,v 1.28 2004/01/27 00:20:36 obiot Exp $
+ * $Id: packet-smpp.c,v 1.29 2004/03/08 22:03:59 obiot Exp $
  *
+ * Refer to the AUTHORS file or the AUTHORS section in the man page
+ * for contacting the author(s) of this file.
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

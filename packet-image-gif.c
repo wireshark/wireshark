@@ -1,9 +1,12 @@
 /* packet-image-gif.c
  *
  * Routines for image/gif media dissection
- * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
+ * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-image-gif.c,v 1.3 2004/01/03 12:43:51 obiot Exp $
+ * $Id: packet-image-gif.c,v 1.4 2004/03/08 22:03:58 obiot Exp $
+ *
+ * Refer to the AUTHORS file or the AUTHORS section in the man page
+ * for contacting the author(s) of this file.
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

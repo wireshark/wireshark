@@ -2,11 +2,14 @@
  * Routines for text-based media dissection.
  *
  * NOTE - The media type is either found in pinfo->match_string
- *        or in pinfo->provate_data.
+ *        or in pinfo->private_data.
  *
- * (C) Olivier Biot, 2004 <Olivier.Biot (ad) siemens.com>
+ * (C) Olivier Biot, 2004.
  *
- * $Id: packet-text-media.c,v 1.5 2004/02/16 18:47:57 obiot Exp $
+ * $Id: packet-text-media.c,v 1.6 2004/03/08 22:03:59 obiot Exp $
+ *
+ * Refer to the AUTHORS file or the AUTHORS section in the man page
+ * for contacting the author(s) of this file.
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
