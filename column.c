@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.25 1999/10/17 06:10:57 guy Exp $
+ * $Id: column.c,v 1.26 1999/12/29 10:48:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -219,7 +219,7 @@ get_column_longest_string(gint format)
       return "000000";
       break;
     case COL_PROTOCOL:
-      return "NBNS (UDP)";
+      return "NetBIOS";	/* not the longest, but the longest is too long */
       break;
     case COL_PACKET_LENGTH:
       return "000000";

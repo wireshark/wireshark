@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.33 1999/11/16 11:42:39 guy Exp $
+ * $Id: packet-nbns.c,v 1.34 1999/12/29 10:48:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1121,7 +1121,7 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	nbns_data_offset = offset;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NBNS (UDP)");
+		col_add_str(fd, COL_PROTOCOL, "NBNS");
 
 	if (pi.captured_len < NBNS_HDRLEN) {
 		col_add_str(fd, COL_INFO, "Short NBNS packet");
@@ -1304,7 +1304,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NBDS (UDP)");
+		col_add_str(fd, COL_PROTOCOL, "NBDS");
 	if (check_col(fd, COL_INFO)) {
 		col_add_fstr(fd, COL_INFO, "%s", message[message_index]);
 	}
@@ -1576,9 +1576,9 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    (memcmp(pd + offset + 4, "\377SMB", 4) != 0))) {
  
 	  if (check_col(fd, COL_PROTOCOL))
-	    col_add_str(fd, COL_PROTOCOL, "NBSS (TCP)");
+	    col_add_str(fd, COL_PROTOCOL, "NBSS");
 	  if (check_col(fd, COL_INFO)) {
-	    col_add_fstr(fd, COL_INFO, "NBSS (TCP) Continuation Message");
+	    col_add_fstr(fd, COL_INFO, "NBSS Continuation Message");
 	  }
 
 	  if (tree)
@@ -1589,7 +1589,7 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #endif
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NBSS (TCP)");
+		col_add_str(fd, COL_PROTOCOL, "NBSS");
 	if (check_col(fd, COL_INFO)) {
 		col_add_fstr(fd, COL_INFO,
 		    val_to_str(msg_type, message_types, "Unknown (%x)"));
