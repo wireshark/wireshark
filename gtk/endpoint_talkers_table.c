@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.22 2003/10/07 10:07:47 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.23 2003/10/07 17:29:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,8 @@
 #include "globals.h"
 #include "tap.h"
 #include "gtk/find_dlg.h"
+#include "color.h"
+#include "gtk/color_dlg.h"
 
 extern GtkWidget   *main_display_filter_widget;
 
