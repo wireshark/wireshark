@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.46 2000/08/13 14:09:03 deniel Exp $
+ * $Id: packet-tr.c,v 1.47 2000/10/17 11:05:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -183,6 +183,7 @@ capture_tr(const u_char *pd, int offset, packet_counts *ld) {
 	int			x;
 	guint8			trn_rif_bytes;
 	guint8			actual_rif_bytes;
+	guint16			first2_sr;
 
 	/* The trn_hdr struct, as separate variables */
 	guint8			trn_fc;		/* field control field */
@@ -213,31 +214,26 @@ capture_tr(const u_char *pd, int offset, packet_counts *ld) {
 
 	trn_rif_bytes = pd[offset + 14] & 31;
 
-	/* sometimes we have a RCF but no RIF... half source-routed? */
+	/* the Linux 2.0 TR code strips source-route bits in
+	 * order to test for SR. This can be removed from most
+	 * packets with oltr, but not all. So, I try to figure out
+	 * which packets should have been SR here. I'll check to
+	 * see if there's a SNAP or IPX field right after
+	 * my RIF fields.
+	 */
 	if (!source_routed && trn_rif_bytes > 0) {
-		 /* I'll check for 2 bytes of RIF and mark the packet as source
-		  * routed even though I'm not sure _what_ that kind of packet is */
-		if (trn_rif_bytes == 2) {
-			source_routed = 1;
-		}
-		/* the Linux 2.0 TR code strips source-route bits in
-		 * order to test for SR. This can be removed from most
-		 * packets with oltr, but not all. So, I try to figure out
-		 * which packets should have been SR here. I'll check to
-		 * see if there's a SNAP or IPX field right after
-		 * my RIF fields.
-		 */
-		else if ( (
-			pd[offset + 0x0e + trn_rif_bytes] == 0xaa &&
-			pd[offset + 0x0f + trn_rif_bytes] == 0xaa &&
-			pd[offset + 0x10 + trn_rif_bytes] == 0x03) ||
-			  (
-			pd[offset + 0x0e + trn_rif_bytes] == 0xe0 &&
-			pd[offset + 0x0f + trn_rif_bytes] == 0xe0) ) {
+		if (pd[offset + 0x0e] != pd[offset + 0x0f]) {
+			first2_sr = pntohs(&pd[offset + 0xe0 + trn_rif_bytes]);
+			if (
+				(first2_sr == 0xaaaa &&
+				pd[offset + 0x10 + trn_rif_bytes] == 0x03) ||
 
-			source_routed = 1;
-		}
+				first2_sr == 0xe0e0 ||
+				first2_sr == 0xe0aa ) {
 
+				source_routed = 1;
+			}
+		}
 	}
 
 	if (source_routed) {
@@ -308,6 +304,9 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	volatile int		source_routed = 0;
 	volatile guint8		trn_rif_bytes;
 	volatile guint8		actual_rif_bytes;
+	volatile guint8		c1_nonsr;
+	volatile guint8		c2_nonsr;
+	volatile guint16	first2_sr;
 
 	/* I make tr_tvb static because I need to set it before any TRY block.
 	 * If tr_tvb were not static, the possibility exists that the value
@@ -362,36 +361,39 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	trn_rif_bytes = tvb_get_guint8(tr_tvb, 14) & 31;
 
-	/* sometimes we have a RCF but no RIF... half source-routed? */
-	/* I'll check for 2 bytes of RIF and the 0x70 byte */
+	/* the Linux 2.0 TR code strips source-route bits in
+	 * order to test for SR. This can be removed from most
+	 * packets with oltr, but not all. So, I try to figure out
+	 * which packets should have been SR here. I'll check to
+	 * see if there's a SNAP or IPX field right after
+	 * my RIF fields.
+	 */
 	if (!source_routed && trn_rif_bytes > 0) {
-		if (trn_rif_bytes == 2) {
-			source_routed = 1;
-		}
-		/* the Linux 2.0 TR code strips source-route bits in
-		 * order to test for SR. This can be removed from most
-		 * packets with oltr, but not all. So, I try to figure out
-		 * which packets should have been SR here. I'll check to
-		 * see if there's a SNAP or IPX field right after
-		 * my RIF fields.
-		 */
-		else {
-			TRY {
-				if ( ( tvb_get_ntohs(tr_tvb, trn_rif_bytes + 0x0e) == 0xaaaa &&
+		TRY {
+
+			c1_nonsr = tvb_get_guint8(tr_tvb, 14);
+			c2_nonsr = tvb_get_guint8(tr_tvb, 15);
+
+			if (c1_nonsr != c2_nonsr) {
+
+				first2_sr = tvb_get_ntohs(tr_tvb, trn_rif_bytes + 0x0e);
+
+				if ( ( first2_sr == 0xaaaa &&
 					tvb_get_guint8(tr_tvb, trn_rif_bytes + 0x10) == 0x03)   ||
-					  
-					tvb_get_ntohs(tr_tvb, trn_rif_bytes + 0x0e) == 0xe0e0 ) {
+					
+					first2_sr == 0xe0e0 || 
+					first2_sr == 0xe0aa ) {
 
 					source_routed = 1;
 				}
 			}
-			CATCH(BoundsError) {
-				/* We had no information beyond the TR header. Just assume
-				 * this is a normal (non-Linux) TR header. */
-				;
-			}
-			ENDTRY;
 		}
+		CATCH(BoundsError) {
+			/* We had no information beyond the TR header. Just assume
+			 * this is a normal (non-Linux) TR header. */
+			;
+		}
+		ENDTRY;
 	}
 
 	if (source_routed) {
