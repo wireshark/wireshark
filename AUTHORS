@@ -228,6 +228,10 @@ Thomas Parvais <thomas.parvais@advalvas.be> {
 	updates to L2TP support
 }
 
+Gerrit Gehnen <G.Gehnen@atrie.de> {
+	support for "Inactive Subset" of ISO CLNP
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

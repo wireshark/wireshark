@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.16 2000/01/13 06:07:53 guy Exp $
+ * $Id: packet-osi.c,v 1.17 2000/01/20 19:16:33 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -1450,6 +1450,18 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   u_char src_len, dst_len, nsel;
   u_int first_offset = offset;
 
+  if (pd[offset]==NLPID_NULL) {
+    if (tree) {
+      ti = proto_tree_add_item(tree, proto_clnp, offset, 1, NULL);
+      clnp_tree = proto_item_add_subtree(ti, ett_clnp);
+      proto_tree_add_item_format(clnp_tree, hf_clnp_id, offset, 1, 
+				 clnp.cnf_proto_id,
+				 "Inactive subset");
+    } 
+    dissect_cotp(pd, offset+1, fd, tree);
+    return;
+  } 
+ 
   if (fd->cap_len < offset + sizeof(clnp)) {
     dissect_data(pd, offset, fd, tree);
     return;
@@ -1601,6 +1613,7 @@ void dissect_osi(const u_char *pd, int offset, frame_data *fd,
     /* ESIS is not currently decoded */
 
     case NLPID_ISO8473_CLNP:
+    case NLPID_NULL:	/* "Inactive Subset" of ISO 8473 CLNP */
       if (check_col(fd, COL_PROTOCOL)) {
 	col_add_str(fd, COL_PROTOCOL, "CLNP");
       }      
