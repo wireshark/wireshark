@@ -12,6 +12,7 @@ Overview of changes in Ethereal 0.7.7:
 * Remove compilation warnings in packet-snmp.c (Tomislav)
 * Remove compilation warnings from packet-smb.c (Richard)
 * Add make-reg-dotc to let non-GNU makes work. (Guy)
+* Fix AIX compilation (Guy, Gilbert)
 
 Overview of changes in Ethereal 0.7.6:
 * Fix xdlc bug (Guy, Gilbert)
