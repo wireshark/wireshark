@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.24 2000/04/13 06:09:35 guy Exp $
+ * $Id: packet-osi.c,v 1.25 2000/04/13 07:52:55 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -108,8 +108,20 @@ struct clnp_header {
 #define CNF_MORE_SEGS		0x40
 #define CNF_SEG_OK		0x80
 
-#define ER_NPDU			0x01
 #define DT_NPDU			0x1C
+#define MD_NPDU			0x1D
+#define ER_NPDU			0x01
+#define ERQ_NPDU		0x1E
+#define ERP_NPDU		0x1F
+
+static const value_string npdu_type_vals[] = {
+  { DT_NPDU,	"DT" },
+  { MD_NPDU,	"MD" },
+  { ER_NPDU,	"ER" },
+  { ERQ_NPDU,	"ERQ" },
+  { ERP_NPDU,	"ERP" },
+  { 0,		NULL }
+};
 
 /* field position */
 
@@ -269,7 +281,7 @@ static int osi_decode_DR(const u_char *pd, int offset,
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			"TPDU code: Ox%x (DR)", tpdu); 
+			"TPDU code: 0x%x (DR)", tpdu); 
     proto_tree_add_text(cotp_tree, offset +  2, 2, 
 			"Destination reference: 0x%04x", dst_ref);
     proto_tree_add_text(cotp_tree, offset +  4, 2, 
@@ -362,7 +374,7 @@ static int osi_decode_DT(const u_char *pd, int offset,
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			"TPDU code: Ox%x (DT)", tpdu); 
+			"TPDU code: 0x%x (DT)", tpdu); 
 
     if (li != LI_NORMAL_DT_CLASS_01)
       proto_tree_add_text(cotp_tree, offset +  2, 2, 
@@ -502,7 +514,7 @@ static int osi_decode_ED(const u_char *pd, int offset,
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			"TPDU code: Ox%x (ED)", tpdu); 
+			"TPDU code: 0x%x (ED)", tpdu); 
     proto_tree_add_text(cotp_tree, offset +  2, 2, 
 			"Destination reference: 0x%04x", dst_ref);
 
@@ -585,7 +597,7 @@ static int osi_decode_RJ(const u_char *pd, int offset,
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			"TPDU code: Ox%x (RJ)", tpdu); 
+			"TPDU code: 0x%x (RJ)", tpdu); 
     if (li == LI_NORMAL_RJ)
       proto_tree_add_text(cotp_tree, offset +  1, 1, 
 			  "Credit: %d", cdt);
@@ -687,7 +699,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			"TPDU code: Ox%x (%s)", tpdu,
+			"TPDU code: 0x%x (%s)", tpdu,
 			(tpdu == CR_TPDU) ? "CR" : "CC"); 
     proto_tree_add_text(cotp_tree, offset +  2, 2, 
 			"Destination reference: 0x%04x", dst_ref);
@@ -973,7 +985,7 @@ static int osi_decode_DC(const u_char *pd, int offset,
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			"TPDU code: Ox%x (DC)", tpdu); 
+			"TPDU code: 0x%x (DC)", tpdu); 
     proto_tree_add_text(cotp_tree, offset +  2, 2, 
 			"Destination reference: 0x%04x", dst_ref);
     proto_tree_add_text(cotp_tree, offset +  4, 2, 
@@ -1026,7 +1038,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
       proto_tree_add_text(cotp_tree, offset,      1,
 			  "Length indicator: %d", li);
       proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			  "TPDU code: Ox%x (AK)", tpdu); 
+			  "TPDU code: 0x%x (AK)", tpdu); 
       proto_tree_add_text(cotp_tree, offset +  1, 1, 
 			  "Credit: %d", cdt);
       proto_tree_add_text(cotp_tree, offset +  2, 2, 
@@ -1132,7 +1144,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
       proto_tree_add_text(cotp_tree, offset,      1,
 			  "Length indicator: %d", li);
       proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			  "TPDU code: Ox%x (AK)", tpdu); 
+			  "TPDU code: 0x%x (AK)", tpdu); 
       proto_tree_add_text(cotp_tree, offset +  2, 2, 
 			  "Destination reference: 0x%04x", dst_ref);
       proto_tree_add_text(cotp_tree, offset +  4, 4, 
@@ -1285,7 +1297,7 @@ static int osi_decode_EA(const u_char *pd, int offset,
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			"TPDU code: Ox%x (EA)", tpdu); 
+			"TPDU code: 0x%x (EA)", tpdu); 
     proto_tree_add_text(cotp_tree, offset +  2, 2, 
 			"Destination reference: 0x%04x", dst_ref);
 
@@ -1370,7 +1382,7 @@ static int osi_decode_ER(const u_char *pd, int offset,
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
-			"TPDU code: Ox%x (ER)", tpdu); 
+			"TPDU code: 0x%x (ER)", tpdu); 
     proto_tree_add_text(cotp_tree, offset +  2, 2, 
 			"Destination reference: 0x%04x", dst_ref);
     proto_tree_add_text(cotp_tree, offset +  4, 1, 
@@ -1491,13 +1503,21 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   proto_item *ti;
   u_char src_len, dst_len, nsel;
   u_int first_offset = offset;
+  char flag_string[6+1];
+  char *pdu_type_string;
   guint16 segment_length;
+  guint16 segment_offset = 0;
   guint len;
+
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "CLNP");
 
   /* avoid alignment problem */
   memcpy(&clnp, &pd[offset], sizeof(clnp));
 
   if (clnp.cnf_proto_id == NLPID_NULL) {
+    if (check_col(fd, COL_INFO))
+      col_add_str(fd, COL_INFO, "Inactive subset");
     if (tree) {
       ti = proto_tree_add_item(tree, proto_clnp, offset, 1, NULL);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);
@@ -1523,6 +1543,21 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   /* fixed part decoding */
 
   segment_length = EXTRACT_SHORT(&clnp.cnf_seglen_msb);
+  flag_string[0] = '\0';
+  if (clnp.cnf_type & CNF_SEG_OK)
+    strcat(flag_string, "S");
+  if (clnp.cnf_type & CNF_MORE_SEGS) {
+    if (flag_string[0] != '\0')
+      strcat(flag_string, " ");
+    strcat(flag_string, "M");
+  }
+  if (clnp.cnf_type & CNF_ERR_OK) {
+    if (flag_string[0] != '\0')
+      strcat(flag_string, " ");
+    strcat(flag_string, "E");
+  }
+  pdu_type_string = val_to_str(clnp.cnf_type & CNF_TYPE, npdu_type_vals,
+				"Unknown (0x%02x)");
   if (tree) {
     ti = proto_tree_add_item(tree, proto_clnp, offset, clnp.cnf_hdr_len, NULL);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
@@ -1538,13 +1573,10 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 			       clnp.cnf_ttl, clnp.cnf_ttl / 2);
     proto_tree_add_uint_format(clnp_tree, hf_clnp_type, offset +  4, 1, 
 			       clnp.cnf_type,
-			       "Type code: 0x%02x (%s%s%s%s)",
+			       "Type code: 0x%02x (%s %s)",
 			       clnp.cnf_type,
-			       (clnp.cnf_type & CNF_SEG_OK) ? "S " : "",
-			       (clnp.cnf_type & CNF_MORE_SEGS) ? "M " : "",
-			       (clnp.cnf_type & CNF_ERR_OK) ? "E " : "",
-			       (clnp.cnf_type & CNF_TYPE) == DT_NPDU ? 
-			       "DT" : "ER");
+			       flag_string,
+			       pdu_type_string);
     proto_tree_add_item(clnp_tree, hf_clnp_pdu_length, offset +  5, 2, 
 			segment_length);
     proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, offset +  7, 2,
@@ -1556,6 +1588,8 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   /* stop here if header is not complete */
 
   if (!BYTES_ARE_IN_FRAME(offset, clnp.cnf_hdr_len)) {
+    if (check_col(fd, COL_INFO))
+      col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
     dissect_data(pd, offset, fd, tree);
     return;
   }
@@ -1594,19 +1628,22 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 
   offset += dst_len + src_len + 2;
 
-  if (tree && (clnp.cnf_type & CNF_SEG_OK)) {
-    struct clnp_segment seg;
-    memcpy(&seg, &pd[offset], sizeof(seg));
+  if (clnp.cnf_type & CNF_SEG_OK) {
+    struct clnp_segment seg;			/* XXX - not used */
+    memcpy(&seg, &pd[offset], sizeof(seg));	/* XXX - not used */
     
-    proto_tree_add_text(clnp_tree, offset, 2, 
+    segment_offset = EXTRACT_SHORT(&pd[offset + 2]);
+    if (tree) {
+      proto_tree_add_text(clnp_tree, offset, 2, 
 			"Data unit identifier: 0x%04x",
 			EXTRACT_SHORT(&pd[offset]));
-    proto_tree_add_text(clnp_tree, offset + 2 , 2,
+      proto_tree_add_text(clnp_tree, offset + 2 , 2,
 			"Segment offset: %u", 
-			EXTRACT_SHORT(&pd[offset + 2]));
-    proto_tree_add_text(clnp_tree, offset + 4 , 2,
+			segment_offset);
+      proto_tree_add_text(clnp_tree, offset + 4 , 2,
 			"Total length: %u", 
 			EXTRACT_SHORT(&pd[offset + 4]));
+    }
     
     offset += 6;
   }
@@ -1632,15 +1669,35 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 
   offset = first_offset + clnp.cnf_hdr_len;
 
-  if (!IS_DATA_IN_FRAME(offset))
+  /* For now, dissect the payload of segments other than the initial
+     segment as data, rather than handing them off to the transport
+     protocol, just as we do with fragments other than the first
+     fragment in a fragmented IP datagram; in the future, we will
+     probably reassemble fragments for IP, and may reassemble segments
+     for CLNP. */
+  if ((clnp.cnf_type & CNF_SEG_OK) && segment_offset != 0) {
+    if (check_col(fd, COL_INFO))
+      col_add_fstr(fd, COL_INFO, "Fragmented %s NPDU %s (off=%u)",
+		pdu_type_string, flag_string, segment_offset);
+    dissect_data(pd, offset, fd, tree);
     return;
+  }
+
+  if (!IS_DATA_IN_FRAME(offset)) {
+    if (check_col(fd, COL_INFO))
+      col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+    return;
+  }
 
   /* continue with COTP if any */
 
   if (nsel == NSEL_TP) 	/* just guessing here - valid for DECNet-OSI */
     dissect_cotp_internal(pd, offset, fd, tree, FALSE);
-  else
+  else {
+    if (check_col(fd, COL_INFO))
+      col_add_fstr(fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
     dissect_data(pd, offset, fd, tree);
+  }
 
 } /* dissect_clnp */
 
@@ -1677,9 +1734,6 @@ void dissect_osi(const u_char *pd, int offset, frame_data *fd,
 
     case NLPID_ISO8473_CLNP:
     case NLPID_NULL:	/* "Inactive Subset" of ISO 8473 CLNP */
-      if (check_col(fd, COL_PROTOCOL)) {
-	col_add_str(fd, COL_PROTOCOL, "CLNP");
-      }      
       dissect_clnp(pd, offset, fd, tree);
       break;
     case NLPID_ISO9542_ESIS:
