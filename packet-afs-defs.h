@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.1 2000/11/03 17:32:51 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.2 2000/11/03 18:37:24 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -469,6 +469,14 @@ static const value_string ubik_lock_types[] = {
 	{ 0,		NULL },
 };
 
+static const value_string vice_lock_types[] = {
+	{ 0,		"read" },
+	{ 1,		"write" },
+	{ 2,		"extend" },
+	{ 3,		"release" },
+	{ 0,		NULL },
+};
+
 static const value_string volume_types[] = {
 	{ 0,		"read-write" },
 	{ 1,		"read-only" },
@@ -519,6 +527,13 @@ static int hf_afs_fs_symlink_content = -1;
 static int hf_afs_fs_volid = -1;
 static int hf_afs_fs_volname = -1;
 static int hf_afs_fs_timestamp = -1;
+static int hf_afs_fs_offlinemsg = -1;
+static int hf_afs_fs_motd = -1;
+static int hf_afs_fs_xstats_version = -1;
+static int hf_afs_fs_xstats_timestamp = -1;
+static int hf_afs_fs_cps_spare2 = -1;
+static int hf_afs_fs_cps_spare3 = -1;
+static int hf_afs_fs_vicelocktype = -1;
 
 static int hf_afs_fs_status_anonymousaccess = -1;
 static int hf_afs_fs_status_author = -1;
@@ -549,6 +564,12 @@ static int hf_afs_fs_status_spare3 = -1;
 static int hf_afs_fs_status_spare4 = -1;
 static int hf_afs_fs_status_synccounter = -1;
 
+static int hf_afs_fs_volsync_spare1 = -1;
+static int hf_afs_fs_volsync_spare2 = -1;
+static int hf_afs_fs_volsync_spare3 = -1;
+static int hf_afs_fs_volsync_spare4 = -1;
+static int hf_afs_fs_volsync_spare5 = -1;
+static int hf_afs_fs_volsync_spare6 = -1;
 
 static int hf_afs_fs_acl_datasize = -1;
 static int hf_afs_fs_acl_count_negative = -1;

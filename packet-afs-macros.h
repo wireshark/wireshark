@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.1 2000/11/03 17:32:51 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.2 2000/11/03 18:37:24 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -190,7 +190,7 @@
 /* Output a FetchStatus */
 #define OUT_FS_AFSFetchStatus(label) \
 	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, 6*4, \
+		ti = proto_tree_add_text(tree, NullTVB, curoffset, 21*4, \
 			label); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_status); \
@@ -220,8 +220,18 @@
 
 /* Output a VolSync */
 #define OUT_FS_AFSVolSync() \
-	{ \
-		SKIP(6*sizeof(guint32)); \
+	{ 	proto_tree *save, *ti; \
+		ti = proto_tree_add_text(tree, NullTVB, curoffset, 6*4, \
+			"VolSync"); \
+		save = tree; \
+		tree = proto_item_add_subtree(ti, ett_afs_volsync); \
+		OUT_UINT(hf_afs_fs_volsync_spare1); \
+		OUT_UINT(hf_afs_fs_volsync_spare2); \
+		OUT_UINT(hf_afs_fs_volsync_spare3); \
+		OUT_UINT(hf_afs_fs_volsync_spare4); \
+		OUT_UINT(hf_afs_fs_volsync_spare5); \
+		OUT_UINT(hf_afs_fs_volsync_spare6); \
+		tree = save; \
 	}
 
 /* Output a AFSCBFids */
@@ -230,8 +240,23 @@
 /* Output a AFSCBs */
 #define OUT_FS_AFSCBs()
 
-/* Output a ViceLockType */
-#define OUT_FS_ViceLockType()
+/* Output a AFSBulkStats */
+#define OUT_FS_AFSBulkStats()
+
+/* Output a AFSFetchVolumeStatus */
+#define OUT_FS_AFSFetchVolumeStatus()
+
+/* Output a AFSStoreVolumeStatus */
+#define OUT_FS_AFSStoreVolumeStatus()
+
+/* Output a ViceStatistics structure */
+#define OUT_FS_ViceStatistics()
+
+/* Output a AFS_CollData structure */
+#define OUT_FS_AFS_CollData()
+
+/* Output a VolumeInfo structure */
+#define OUT_FS_VolumeInfo()
 
 /* Output a AFS acl */
 #define ACLOUT(who, positive, acl, bytes) \

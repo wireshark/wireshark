@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.1 2000/11/03 17:32:51 nneul Exp $
+ * $Id: packet-afs-register-info.h,v 1.2 2000/11/03 18:37:24 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,7 +133,21 @@
 	FT_STRING, BASE_HEX, 0, 0, "Volume Name" }},
 { &hf_afs_fs_timestamp, { "Timestamp", "afs.fs.timestamp", 
 	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Timestamp" }},
-
+{ &hf_afs_fs_offlinemsg, { "Offline Message", "afs.fs.offlinemsg", 
+	FT_STRING, BASE_HEX, 0, 0, "Volume Name" }},
+{ &hf_afs_fs_motd, { "Message of the Day", "afs.fs.motd", 
+	FT_STRING, BASE_HEX, 0, 0, "Message of the Day" }},
+{ &hf_afs_fs_xstats_version, { "XStats Version", "afs.fs.xstats.version", 
+	FT_UINT32, BASE_DEC, 0, 0, "XStats Version" }},
+{ &hf_afs_fs_xstats_timestamp, { "XStats Timestamp", "afs.fs.xstats.timestamp", 
+	FT_UINT32, BASE_DEC, 0, 0, "XStats Timestamp" }},
+{ &hf_afs_fs_cps_spare2, { "CPS Spare2", "afs.fs.cps.spare2", 
+	FT_UINT32, BASE_DEC, 0, 0, "CPS Spare2" }},
+{ &hf_afs_fs_cps_spare3, { "CPS Spare3", "afs.fs.cps.spare3", 
+	FT_UINT32, BASE_DEC, 0, 0, "CPS Spare3" }},
+{ &hf_afs_fs_vicelocktype, { "Vice Lock Type", "afs.fs.vicelocktype", 
+	FT_UINT32, BASE_DEC, VALS(vice_lock_types), 0, "Vice Lock Type" }},
+		
 { &hf_afs_fs_status_mask, { "Mask", "afs.fs.status.mask", 
 	FT_UINT32, BASE_HEX, 0, 0, "Mask" }},
 { &hf_afs_fs_status_mask_setmodtime, { "Set Modification Time", "afs.fs.status.mask.setmodtime", 
@@ -190,6 +204,20 @@
 	FT_UINT32, BASE_DEC, 0, 0, "Sync Counter" }},
 { &hf_afs_fs_status_length, { "Length", "afs.fs.status.length", 
 	FT_UINT32, BASE_DEC, 0, 0, "Length" }},
+
+
+{ &hf_afs_fs_volsync_spare1, { "Spare 1", "afs.fs.volsync.spare1", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 1" }},
+{ &hf_afs_fs_volsync_spare2, { "Spare 2", "afs.fs.volsync.spare2", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 2" }},
+{ &hf_afs_fs_volsync_spare3, { "Spare 3", "afs.fs.volsync.spare3", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 3" }},
+{ &hf_afs_fs_volsync_spare4, { "Spare 4", "afs.fs.volsync.spare4", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 4" }},
+{ &hf_afs_fs_volsync_spare5, { "Spare 5", "afs.fs.volsync.spare5", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 5" }},
+{ &hf_afs_fs_volsync_spare6, { "Spare 6", "afs.fs.volsync.spare6", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 6" }},
 
 
 { &hf_afs_fs_acl_count_positive, {
