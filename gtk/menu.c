@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.43 2000/08/22 14:21:27 deniel Exp $
+ * $Id: menu.c,v 1.44 2000/09/09 08:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,10 +104,13 @@ static GtkItemFactoryEntry menu_items[] =
   {"/File/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/File/_Quit", "<control>Q", GTK_MENU_FUNC(file_quit_cmd_cb), 0, NULL},
   {"/_Edit", NULL, NULL, 0, "<Branch>" },
+#if 0
+  /* Un-#if this when we actually implement Cut/Copy/Paste. */
   {"/Edit/Cut", "<control>X", NULL, 0, NULL},
   {"/Edit/Copy", "<control>C", NULL, 0, NULL},
   {"/Edit/Paste", "<control>V", NULL, 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
+#endif
   {"/Edit/_Find Frame...", "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, NULL},
   {"/Edit/_Go To Frame...", "<control>G", GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
@@ -230,9 +233,13 @@ menus_init(void) {
     gtk_item_factory_create_items_ac(factory, nmenu_items, menu_items, NULL,2);
     set_menus_for_unsaved_capture_file(FALSE);
     set_menus_for_capture_file(FALSE);
+#if 0
+    /* Un-#if this when we actually implement Cut/Copy/Paste.
+       Then make sure you enable them when they can be done. */
     set_menu_sensitivity("/Edit/Cut", FALSE);
     set_menu_sensitivity("/Edit/Copy", FALSE);
     set_menu_sensitivity("/Edit/Paste", FALSE);
+#endif
     set_menus_for_captured_packets(FALSE);
     set_menus_for_selected_packet(FALSE);
     set_menus_for_selected_tree_row(FALSE);
