@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -867,13 +867,11 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_clear(pinfo->cinfo, COL_INFO);
     }
 
-    value = tvb_get_string(tvb, value_offset, value_len);
-
     if (check_col(pinfo->cinfo, COL_INFO)) {
+        value = tvb_get_string(tvb, value_offset, value_len);
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", (char *)g_datalist_get_data(&msg_types, value));
+        g_free(value);
     }
-
-    g_free(value);
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items.
@@ -930,6 +928,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             tag_str = tvb_get_string(tvb, field_offset, tag_len);
             tag = atoi(tag_str);
+            g_free(tag_str);
 
             value = tvb_get_string(tvb, value_offset, value_len);
 
@@ -2917,7 +2916,6 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             field_offset = offset = ctrla_offset + 1;
             ctrla_offset = tvb_find_guint8(tvb, field_offset, -1, 0x01);
 
-            g_free(tag_str);
             g_free(value);
             tag_str = NULL;
         }
