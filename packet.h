@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.67 1999/07/08 20:31:42 guy Exp $
+ * $Id: packet.h,v 1.68 1999/07/10 14:01:53 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,10 +26,6 @@
 
 #ifndef __PACKET_H__
 #define __PACKET_H__
-
-#ifndef __PROTO_H__
-#include "proto.h"
-#endif
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
@@ -69,25 +65,17 @@
   #endif
 #endif
 
-/* Useful when you have an array whose size you can tell at compile-time */
-#define array_length(x)	(sizeof x / sizeof x[0])
-
-
 /* Useful when highlighting regions inside a dissect_*() function. With this
  * macro, you can highlight from an arbitrary offset to the end of the
  * frame. See dissect_data() for an example.
  */
 #define END_OF_FRAME	(fd->cap_len - offset)
-		
-/* To pass one of two strings, singular or plural */
-#define plurality(d,s,p) ((d) == 1 ? (s) : (p))
+
 
 typedef struct _column_info {
   gint       num_cols; /* Number of columns */
-  gchar    **col_title;/* Column title */
   gboolean **fmt_matx; /* Specifies which formats apply to a column */
   gchar    **col_data; /* Column data */
-  gint     *col_width; /* Column width */
 } column_info;
 
 #define COL_MAX_LEN 256
@@ -96,7 +84,6 @@ typedef struct _packet_counts {
   gint           tcp;
   gint           udp;
   gint           ospf;
-  gint           gre;
   gint           other;
   gint           total;
 } packet_counts;
@@ -112,8 +99,9 @@ typedef struct _frame_data {
   guint32      del_usecs; /* Delta microseconds */
   long         file_off;  /* File offset */
   column_info *cinfo;     /* Column formatting information */
-  int          lnk_t;     /* Per-packet encapsulation/data-link type */
-  gboolean     passed_dfilter; /* TRUE = display, FALSE = no display */
+#ifdef WITH_WIRETAP
+  int		lnk_t;     /* Per-packet encapsulation/data-link type */
+#endif
 } frame_data;
 
 typedef struct _packet_info {
@@ -149,14 +137,11 @@ typedef struct tcp_extra_data {
    add_subtree() call. */
 
 enum {
-	ETT_NONE,
 	ETT_FRAME,
 	ETT_IEEE8023,
 	ETT_ETHER2,
 	ETT_LLC,
 	ETT_TOKEN_RING,
-	ETT_TOKEN_RING_AC,
-	ETT_TOKEN_RING_FC,
 	ETT_TR_IERR_CNT,
 	ETT_TR_NERR_CNT,
 	ETT_TR_MAC,
@@ -181,17 +166,12 @@ enum {
 	ETT_IPX,
 	ETT_SPX,
 	ETT_NCP,
-	ETT_NCP_REQUEST_FIELDS,
-	ETT_NCP_REPLY_FIELDS,
 	ETT_DNS,
 	ETT_DNS_FLAGS,
 	ETT_DNS_QRY,
 	ETT_DNS_QD,
 	ETT_DNS_ANS,
 	ETT_DNS_RR,
-	ETT_ISAKMP,
-	ETT_ISAKMP_FLAGS,
-	ETT_ISAKMP_PAYLOAD,
 	ETT_RIP,
 	ETT_RIP_VEC,
 	ETT_OSPF,
@@ -243,50 +223,15 @@ enum {
 	ETT_TELNET,
 	ETT_TELNET_SUBOPT,
 	ETT_NNTP,
-	ETT_SNMP,
 	ETT_NBSS,
 	ETT_NBSS_FLAGS,
 	ETT_SMB,
 	ETT_SMB_FLAGS,
-	ETT_SMB_FLAGS2,
 	ETT_SMB_DIALECTS,
 	ETT_SMB_MODE,
-	ETT_SMB_CAPABILITIES,
+	ETT_SMB_CAPS,
 	ETT_SMB_RAWMODE,
 	ETT_SMB_AFLAGS,
-	ETT_PPTP,
-	ETT_GRE,
-	ETT_GRE_FLAGS,
- 	ETT_PPPOED,
- 	ETT_PPPOED_TAGS,
- 	ETT_PPPOES,
- 	ETT_LCP,
- 	ETT_IPCP,
-        ETT_RSVP,
-        ETT_RSVP_UNKNOWN_CLASS,
-        ETT_RSVP_HDR,
-        ETT_RSVP_SESSION,
-        ETT_RSVP_SGROUP,
-        ETT_RSVP_HOP,
-        ETT_RSVP_INTEGRITY,
-        ETT_RSVP_TIME_VALUES,
-        ETT_RSVP_ERROR,
-        ETT_RSVP_SCOPE,
-        ETT_RSVP_STYLE,
-        ETT_RSVP_FLOWSPEC,
-        ETT_RSVP_FILTER_SPEC,
-        ETT_RSVP_SENDER_TEMPLATE,
-        ETT_RSVP_SENDER_TSPEC,
-        ETT_RSVP_ADSPEC,
-        ETT_RSVP_POLICY,
-        ETT_RSVP_CONFIRM,
-        ETT_RSVP_ADSPEC_SUBTREE1,
-        ETT_RSVP_ADSPEC_SUBTREE2,
-        ETT_RSVP_ADSPEC_SUBTREE3,
-	ETT_RTSP,
-	ETT_SDP,
-	ETT_RADIUS,
-	ETT_RADIUS_AVP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -310,9 +255,7 @@ enum {
 /* Utility routines used by packet*.c */
 gchar*     ether_to_str(const guint8 *);
 gchar*     ip_to_str(const guint8 *);
-gchar*	   abs_time_to_str(struct timeval*);
 gchar*     time_secs_to_str(guint32);
-gchar*     bytes_to_str(const guint8 *, int);
 const u_char *find_line_end(const u_char *data, const u_char *dataend,
     const u_char **eol);
 int        get_token_len(const u_char *linep, const u_char *lineend,
@@ -327,7 +270,6 @@ const char *decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
 const char *decode_numeric_bitfield(guint32 val, guint32 mask, int width,
   const char *fmt);
 gint       check_col(frame_data *, gint);
-void       col_add_cls_time(frame_data *);
 #if __GNUC__ == 2
 void       col_add_fstr(frame_data *, gint, gchar *, ...)
     __attribute__((format (printf, 3, 4)));
@@ -337,9 +279,28 @@ void       col_append_fstr(frame_data *, gint, gchar *, ...)
 void       col_add_fstr(frame_data *, gint, gchar *, ...);
 void       col_append_fstr(frame_data *, gint, gchar *, ...);
 #endif
-void       col_add_str(frame_data *, gint, const gchar *);
+void       col_add_str(frame_data *, gint, gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
 
+/* Routines in packet.c */
+
+typedef struct GtkWidget proto_tree;
+typedef struct GtkWidget proto_item;
+
+struct GtkWidget;
+
+void proto_item_set_len(proto_item *ti, gint len);
+proto_tree* proto_tree_new(void);
+void proto_item_add_subtree(proto_item *ti, proto_tree *subtree, gint idx);
+
+#if __GNUC__ == 2
+proto_item* proto_tree_add_item(proto_tree *tree, gint start, gint len,
+		gchar *format, ...)
+    __attribute__((format (printf, 4, 5)));
+#else
+proto_item* proto_tree_add_item(proto_tree *tree, gint start, gint len,
+		gchar *format, ...);
+#endif
 
 void dissect_packet(const u_char *, frame_data *, proto_tree *);
 /*
@@ -400,25 +361,17 @@ void dissect_ipv6(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ipx(const u_char *, int, frame_data *, proto_tree *);
 void dissect_llc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_lpd(const u_char *, int, frame_data *, proto_tree *);
-void dissect_nbdgm(const u_char *, int, frame_data *, proto_tree *, int);
-void dissect_nbipx_ns(const u_char *, int, frame_data *, proto_tree *, int);
+void dissect_nbdgm(const u_char *, int, frame_data *, proto_tree *);
+void dissect_nbipx_ns(const u_char *, int, frame_data *, proto_tree *);
 void dissect_nbns(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ncp(const u_char *, int, frame_data *, proto_tree *, int);
-void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *, int);
+void dissect_ncp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *);
 void dissect_osi(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);
-void dissect_pppoed(const u_char *, int, frame_data *, proto_tree *);
-void dissect_pppoes(const u_char *, int, frame_data *, proto_tree *);
-void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_radius(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
-void dissect_rsvp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_rtsp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_sdp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_snmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_tftp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_tftp(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_trmac(const u_char *, int, frame_data *, proto_tree *);
 void dissect_udp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines(const u_char *, int, frame_data *, proto_tree *);
@@ -428,7 +381,6 @@ void dissect_vines_icp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_ipc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_rtp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_payload_ppp(const u_char *, int, frame_data *, proto_tree *);
 
 void dissect_ftp(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_ftpdata(const u_char *, int, frame_data *, proto_tree *, int);
@@ -437,18 +389,16 @@ void dissect_nntp(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_pop(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_smb(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_telnet(const u_char *, int, frame_data *, proto_tree *, int);
-void dissect_pptp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_gre(const u_char *, int, frame_data *, proto_tree *);
 
 void init_dissect_udp(void);
 
 /* These functions are in ethertype.c */
+gchar *ethertype_to_str(guint16 etype, const char *fmt);
 void capture_ethertype(guint16 etype, int offset,
 		const u_char *pd, guint32 cap_len, packet_counts *ld);
 void ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, proto_tree *tree,
-		proto_tree *fh_tree, int item_id);
-extern const value_string etype_vals[];
+		proto_tree *fh_tree);
 
 /* These functions are in packet-arp.c */
 gchar *arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type);
