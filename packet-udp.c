@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.66 2000/04/17 02:39:55 guy Exp $
+ * $Id: packet-udp.c,v 1.67 2000/04/17 02:47:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -127,7 +127,7 @@ decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
       dissector_try_port(udp_dissector_table, uh_dport, pd, offset, fd, tree))
     return;
 
-  /* XXX - we should do all of this through the table of ports. */
+  /* XXX - we should do these with the subdissector table as well. */
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)
   if (PORT_IS(UDP_PORT_NCP))
     dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
