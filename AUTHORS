@@ -180,6 +180,8 @@ Greg Hankins <gregh@cc.gatech.edu> {
 
 Heikki Vatiainen <hessu@cs.tut.fi> {
 	SAP (Session Announcement Protocol) support
+	VRRP (Virtual Router Redundancy)
+	HSRP (Hot Standby Router Protocol)
 }
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
