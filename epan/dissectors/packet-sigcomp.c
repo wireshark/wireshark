@@ -418,8 +418,10 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb, offset, partial_state_len, partial_state_str);
 		g_free(partial_state_str);
 		offset = offset + partial_state_len;
-		proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
-			tvb_reported_length_remaining(tvb, offset));
+		if(msg_len>0)
+			proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
+				tvb_reported_length_remaining(tvb, offset));
+
 		if ( decompress ) {
 			msg_len = tvb_reported_length_remaining(tvb, offset);
 			msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
@@ -538,9 +540,9 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset = offset + len;
 		msg_len = tvb_reported_length_remaining(tvb, offset);
-
-		proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
-			tvb_reported_length_remaining(tvb, offset));
+		if(msg_len>0)
+			proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
+				tvb_reported_length_remaining(tvb, offset));
 		if ( decompress ){
 
 			msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
@@ -617,10 +619,11 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 	guint16 value = 0;
 	proto_item *item, *item2;
 	guint UDVM_address = start_address;
-	gboolean is_memory_address; 
+	gboolean is_memory_address;
+	guint16 msg_length = tvb_reported_length_remaining(udvm_tvb, offset);
 
 
-	while (tvb_reported_length_remaining(udvm_tvb, offset) > 0) { 
+	while (msg_length > offset) { 
 		instruction = tvb_get_guint8(udvm_tvb, offset);
 		instruction_no ++;
 		UDVM_address = start_address + offset;
@@ -1441,11 +1444,23 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			 * %state_retention_priority)
 			 */
 			/* %requested_feedback_location */
+			if ((msg_length-1) < offset){
+				item2 = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, 0, -1,
+						"All remaining parameters = 0(Not in the uploaded code as UDVM buffer initalized to Zero");
+				PROTO_ITEM_SET_GENERATED(item2);
+				return;
+			}
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_req_feedback_loc, 
 				udvm_tvb, start_offset, len, value);
 			/* returned_parameters_location */
+			if ((msg_length-1) < offset){
+				item2 = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset-1, -1,
+						"All remaining parameters = 0(Not in the uploaded code as UDVM buffer initalized to Zero");
+				PROTO_ITEM_SET_GENERATED(item2);
+				return;
+			}
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_ret_param_loc, 
