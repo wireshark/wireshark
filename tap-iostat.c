@@ -1,7 +1,7 @@
 /* tap-iostat.c
  * iostat   2002 Ronnie Sahlberg
  *
- * $Id: tap-iostat.c,v 1.6 2003/04/23 08:20:01 guy Exp $
+ * $Id: tap-iostat.c,v 1.7 2003/04/24 12:25:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #endif
 
 #include <string.h>
+#include "epan/epan_dissect.h"
 #include "epan/packet_info.h"
 #include "tap.h"
 #include "register.h"
@@ -45,64 +46,33 @@ typedef struct _io_stat_t {
 	char **filters;
 } io_stat_t;	
 
+#define CALC_TYPE_BYTES	0
+#define CALC_TYPE_COUNT	1
+#define CALC_TYPE_SUM	2
+#define CALC_TYPE_MIN	3
+#define CALC_TYPE_MAX	4
+#define CALC_TYPE_AVG	5
+
 typedef struct _io_stat_item_t {
 	io_stat_t *parent;
 	struct _io_stat_item_t *next;
 	struct _io_stat_item_t *prev;
 	gint32 time;		/* unit is ms since start of capture */
+	int calc_type;
+	int hf_index;
 	guint32 frames;
-	guint32 bytes;
+	guint32 num;
+	guint32 counter;
 } io_stat_item_t;
 
-#ifdef REMOVED
-/* Tethereal does not use the reset callback.
-   But if someone ports this feature to Gtk with a nice gui, this is what
-   reset should look like.
-*/
-static void
-iostat_reset(io_stat_item_t *mit)
-{
-	io_stat_item_t *it;
-
-	mit->prev=mit;
-	mit->time=0;
-	mit->frames=0;
-	mit->bytes=0;
-	while(mit->next){
-		it=mit->next;
-		mit=mit->next->next;
-		g_free(it);
-	}
-}
-
-/* function to remove and clean up an io stat. would be used by Gtk/Gtk2 version
-   io iostat when the iostat window is closed.
-*/
-static void 
-iostat_cleanup(io_stat_t *io)
-{
-	int i;
-
-	for(i=0;i<io->num_items;i++){
-		if(filters[i]){
-			g_free(filters[i]);
-			filters[i]=NULL;
-		}
-		iostat_reset(&io->items[i]);
-		remove_tap_listener(&io->items[i]);
-	}
-	g_free(io->items);
-	g_free(io->filters);
-	g_free(io);
-}
-
-#endif
 
 static int
 iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, void *dummy _U_)
 {
 	io_stat_item_t *it;
 	gint32 current_time;
+	GPtrArray *gp;
+	guint i;
 
 	current_time=((pinfo->fd->rel_secs*1000)+(pinfo->fd->rel_usecs/1000));
 
@@ -125,13 +95,156 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 		it->time=(current_time / mit->parent->interval) * mit->parent->interval;
 		it->frames=0;
-		it->bytes=0;
+		it->counter=0;
+		it->num=0;
+		it->calc_type=it->prev->calc_type;
+		it->hf_index=it->prev->hf_index;
 	}
 
 	/* it will now give us the current structure to use to store the data in */
 	it->frames++;
-	it->bytes+=pinfo->fd->pkt_len;
-	
+
+	switch(it->calc_type){
+	case CALC_TYPE_BYTES:
+		it->counter+=pinfo->fd->pkt_len;
+		break;
+	case CALC_TYPE_COUNT:
+		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+		if(gp){
+			it->counter+=gp->len;
+		}
+		break;
+	case CALC_TYPE_SUM:
+		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+		if(gp){
+			for(i=0;i<gp->len;i++){
+				it->counter+=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+			}
+		}
+		break;
+	case CALC_TYPE_MIN:
+		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+		if(gp){
+			int type;
+			guint32 val;
+			nstime_t *new_time;
+
+			type=proto_registrar_get_ftype(it->hf_index);
+			for(i=0;i<gp->len;i++){
+				switch(type){
+				case FT_UINT8:
+				case FT_UINT16:
+				case FT_UINT24:
+				case FT_UINT32:
+					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if(val<it->counter){
+						it->counter=val;
+					}				
+					break;
+				case FT_INT8:
+				case FT_INT16:
+				case FT_INT24:
+				case FT_INT32:
+					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if((gint32)val<(gint32)(it->counter)){
+						it->counter=val;
+					}				
+					break;
+				case FT_RELATIVE_TIME:
+					new_time=fvalue_get(((field_info *)gp->pdata[i])->value);
+					val=new_time->secs*1000+new_time->nsecs/1000000;
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if(val<it->counter){
+						it->counter=val;
+					}				
+					break;
+				}
+			}
+		}
+		break;
+	case CALC_TYPE_MAX:
+		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+		if(gp){
+			int type;
+			guint32 val;
+			nstime_t *new_time;
+
+			type=proto_registrar_get_ftype(it->hf_index);
+			for(i=0;i<gp->len;i++){
+				switch(type){
+				case FT_UINT8:
+				case FT_UINT16:
+				case FT_UINT24:
+				case FT_UINT32:
+					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if(val>it->counter){
+						it->counter=val;
+					}				
+					break;
+				case FT_INT8:
+				case FT_INT16:
+				case FT_INT24:
+				case FT_INT32:
+					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if((gint32)val>(gint32)(it->counter)){
+						it->counter=val;
+					}				
+					break;
+				case FT_RELATIVE_TIME:
+					new_time=fvalue_get(((field_info *)gp->pdata[i])->value);
+					val=new_time->secs*1000+new_time->nsecs/1000000;
+					if((it->frames==1)&&(i==0)){
+						it->counter=val;
+					} else if(val>it->counter){
+						it->counter=val;
+					}				
+					break;
+				}
+			}
+		}
+		break;
+	case CALC_TYPE_AVG:
+		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+		if(gp){
+			int type;
+			guint32 val;
+			nstime_t *new_time;
+
+			type=proto_registrar_get_ftype(it->hf_index);
+			for(i=0;i<gp->len;i++){
+				it->num++;
+				switch(type){
+				case FT_UINT8:
+				case FT_UINT16:
+				case FT_UINT24:
+				case FT_UINT32:
+				case FT_INT8:
+				case FT_INT16:
+				case FT_INT24:
+				case FT_INT32:
+					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					it->counter+=val;
+					break;
+				case FT_RELATIVE_TIME:
+					new_time=fvalue_get(((field_info *)gp->pdata[i])->value);
+					val=new_time->secs*1000+new_time->nsecs/1000000;
+					it->counter+=val;
+					break;
+				}
+			}
+		}
+		break;
+	}
+
 	return TRUE;
 }
 
@@ -141,7 +254,8 @@ iostat_draw(io_stat_item_t *mit)
 	io_stat_t *iot;
 	io_stat_item_t **items;
 	guint32 *frames;
-	guint32 *bytes;
+	guint32 *counters;
+	guint32 *num;
 	guint32 i,more_items;
 	gint t;
 
@@ -161,13 +275,33 @@ iostat_draw(io_stat_item_t *mit)
 	printf("\n");
 	printf("Time            ");
 	for(i=0;i<iot->num_items;i++){
-		printf("|frames|  bytes  ");
+		switch(iot->items[i].calc_type){
+		case CALC_TYPE_BYTES:
+			printf("|frames|  bytes  ");
+			break;
+		case CALC_TYPE_COUNT:
+			printf("|          COUNT ");
+			break;
+		case CALC_TYPE_SUM:
+			printf("|            SUM ");
+			break;
+		case CALC_TYPE_MIN:
+			printf("|            MIN ");
+			break;
+		case CALC_TYPE_MAX:
+			printf("|            MAX ");
+			break;
+		case CALC_TYPE_AVG:
+			printf("|            AVG ");
+			break;
+		}
 	}
 	printf("\n");
 
 	items=g_malloc(sizeof(io_stat_item_t *)*iot->num_items);
 	frames=g_malloc(sizeof(guint32)*iot->num_items);
-	bytes=g_malloc(sizeof(guint32)*iot->num_items);
+	counters=g_malloc(sizeof(guint32)*iot->num_items);
+	num=g_malloc(sizeof(guint32)*iot->num_items);
 	/* preset all items at the first interval */
 	for(i=0;i<iot->num_items;i++){
 		items[i]=&iot->items[i];
@@ -179,7 +313,8 @@ iostat_draw(io_stat_item_t *mit)
 		more_items=0;
 		for(i=0;i<iot->num_items;i++){
 			frames[i]=0;
-			bytes[i]=0;
+			counters[i]=0;
+			num[i]=0;
 		}
 		for(i=0;i<iot->num_items;i++){
 			if(items[i] && (t>=(items[i]->time+iot->interval))){
@@ -188,7 +323,8 @@ iostat_draw(io_stat_item_t *mit)
 
 			if(items[i] && (t<(items[i]->time+iot->interval)) && (t>=items[i]->time) ){
 				frames[i]=items[i]->frames;
-				bytes[i]=items[i]->bytes;
+				counters[i]=items[i]->counter;
+				num[i]=items[i]->num;
 			}
 
 			if(items[i]){
@@ -201,7 +337,79 @@ iostat_draw(io_stat_item_t *mit)
 				t/1000,t%1000,
 				(t+iot->interval)/1000,(t+iot->interval)%1000);
 			for(i=0;i<iot->num_items;i++){
-				printf("%6d %9d ",frames[i],bytes[i]);
+				switch(iot->items[i].calc_type){
+				case CALC_TYPE_BYTES:
+					printf("%6d %9d ",frames[i],counters[i]);
+					break;
+				case CALC_TYPE_COUNT:
+					printf("        %8d ", counters[i]);
+					break;
+				case CALC_TYPE_SUM:
+					printf("        %8d ", counters[i]);
+					break;
+				case CALC_TYPE_MIN:
+					switch(proto_registrar_get_ftype(iot->items[i].hf_index)){
+					case FT_UINT8:
+					case FT_UINT16:
+					case FT_UINT24:
+					case FT_UINT32:
+						printf("        %8u ", counters[i]);
+						break;
+					case FT_INT8:
+					case FT_INT16:
+					case FT_INT24:
+					case FT_INT32:
+						printf("        %8d ", counters[i]);
+						break;
+					case FT_RELATIVE_TIME:
+						printf("      %6d.%03d ", counters[i]/1000, counters[i]%1000);
+						break;
+					}
+					break;
+				case CALC_TYPE_MAX:
+					switch(proto_registrar_get_ftype(iot->items[i].hf_index)){
+					case FT_UINT8:
+					case FT_UINT16:
+					case FT_UINT24:
+					case FT_UINT32:
+						printf("        %8u ", counters[i]);
+						break;
+					case FT_INT8:
+					case FT_INT16:
+					case FT_INT24:
+					case FT_INT32:
+						printf("        %8d ", counters[i]);
+						break;
+					case FT_RELATIVE_TIME:
+						printf("      %6d.%03d ", counters[i]/1000, counters[i]%1000);
+						break;
+					}
+					break;
+				case CALC_TYPE_AVG:
+					if(num[i]==0){
+						num[i]=1;
+					}
+					switch(proto_registrar_get_ftype(iot->items[i].hf_index)){
+					case FT_UINT8:
+					case FT_UINT16:
+					case FT_UINT24:
+					case FT_UINT32:
+						printf("        %8u ", counters[i]/num[i]);
+						break;
+					case FT_INT8:
+					case FT_INT16:
+					case FT_INT24:
+					case FT_INT32:
+						printf("        %8d ", counters[i]/num[i]);
+						break;
+					case FT_RELATIVE_TIME:
+						counters[i]/=num[i];
+						printf("      %6d.%03d ", counters[i]/1000, counters[i]%1000);
+						break;
+					}
+					break;
+
+				}
 			}
 			printf("\n");
 		}
@@ -213,24 +421,147 @@ iostat_draw(io_stat_item_t *mit)
 
 	g_free(items);
 	g_free(frames);
-	g_free(bytes);
+	g_free(counters);
+	g_free(num);
 }
 
+
+static int
+get_calc_field(char *filter, char **flt)
+{
+	char field[256];
+	int i;
+	header_field_info *hfi;
+
+	*flt="";
+	for(i=0;filter[i];i++){
+		if(i>=255){
+			fprintf(stderr,"get_calc_field(): Too long field name: %s\n", filter);
+			exit(10);
+		}
+		if(filter[i]==')'){
+			break;
+		}
+		field[i]=filter[i];
+		field[i+1]=0;
+	}
+	if(filter[i]==')'){
+		*flt=&filter[i+1];
+	}
+
+	hfi=proto_registrar_get_byname(field);
+	if(!hfi){
+		fprintf(stderr, "get_calc_field(): No such field %s\n", field);
+		exit(10);
+	}
+	
+	return hfi->id;
+}
 
 static void
 register_io_tap(io_stat_t *io, int i, char *filter)
 {
 	GString *error_string;
+	char *flt;
 
 	io->items[i].prev=&io->items[i];
 	io->items[i].next=NULL;
 	io->items[i].parent=io;
 	io->items[i].time=0;
+	io->items[i].calc_type=CALC_TYPE_BYTES;
 	io->items[i].frames=0;
-	io->items[i].bytes=0;
+	io->items[i].counter=0;
+	io->items[i].num=0;
 	io->filters[i]=filter;
+	flt=filter;
 
-	error_string=register_tap_listener("frame", &io->items[i], filter, NULL, (void*)iostat_packet, i?NULL:(void*)iostat_draw);
+	if(!filter){
+		filter="";
+	}
+	if(!strncmp("COUNT(", filter, 6)){
+		io->items[i].calc_type=CALC_TYPE_COUNT;
+		io->items[i].hf_index=get_calc_field(filter+6, &flt);
+	} else if (!strncmp("SUM(", filter, 4)){
+		io->items[i].calc_type=CALC_TYPE_SUM;
+		io->items[i].hf_index=get_calc_field(filter+4, &flt);
+		switch(proto_registrar_get_nth(io->items[i].hf_index)->type){
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			break;
+		default:
+			fprintf(stderr, "register_io_tap(): Invalid field type. SUM(x) only supports 8,16,24 and 32 byte integer fields\n");
+			exit(10);
+		}
+	} else if (!strncmp("MIN(", filter, 4)){
+		io->items[i].calc_type=CALC_TYPE_MIN;
+		io->items[i].hf_index=get_calc_field(filter+4, &flt);
+		switch(proto_registrar_get_nth(io->items[i].hf_index)->type){
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+		case FT_RELATIVE_TIME:
+			break;
+		default:
+			fprintf(stderr, "register_io_tap(): Invalid field type. MIN(x) only supports 8,16,24 and 32 byte integer fields and relative time fields\n");
+			exit(10);
+		}
+	} else if (!strncmp("MAX(", filter, 4)){
+		io->items[i].calc_type=CALC_TYPE_MAX;
+		io->items[i].hf_index=get_calc_field(filter+4, &flt);
+		switch(proto_registrar_get_nth(io->items[i].hf_index)->type){
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+		case FT_RELATIVE_TIME:
+			break;
+		default:
+			fprintf(stderr, "register_io_tap(): Invalid field type. MAX(x) only supports 8,16,24 and 32 byte integer fields and relative time fields\n");
+			exit(10);
+		}
+	} else if (!strncmp("AVG(", filter, 4)){
+		io->items[i].calc_type=CALC_TYPE_AVG;
+		io->items[i].hf_index=get_calc_field(filter+4, &flt);
+		switch(proto_registrar_get_nth(io->items[i].hf_index)->type){
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+		case FT_RELATIVE_TIME:
+			break;
+		default:
+			fprintf(stderr, "register_io_tap(): Invalid field type. AVG(x) only supports 8,16,24 and 32 byte integer fields and relative time fields\n");
+			exit(10);
+		}
+	}
+
+/*
+CALC_TYPE_SUM	2
+CALC_TYPE_MIN	3
+CALC_TYPE_MAX	4
+CALC_TYPE_AVG	5
+*/
+
+	error_string=register_tap_listener("frame", &io->items[i], flt, NULL, (void*)iostat_packet, i?NULL:(void*)iostat_draw);
 	if(error_string){
 		g_free(io->items);
 		g_free(io);
