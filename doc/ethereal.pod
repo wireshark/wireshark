@@ -1424,16 +1424,16 @@ protocols built into Ethereal are.
 
 See manual page of tcpdump(8).
 
-=head1 READ FILTER SYNTAX
+=head1 DISPLAY FILTER SYNTAX
 
-Read filters help you remove the noise from a packet trace and let you
-see only the packets that interest you.  If a packet meets the
-requirements expressed in your read filter, then it is printed.  Read
-filters let you compare the fields within a protocol against a specific
-value, compare fields against fields, and to check the existence of
-specified fields or protocols.
+Display filters help you remove the noise from a packet trace and let
+you see only the packets that interest you.  If a packet meets the
+requirements expressed in your display filter, then it is displayed in
+the list of packets.  Display filters let you compare the fields within
+a protocol against a specific value, compare fields against fields, and
+to check the existence of specified fields or protocols.
 
-The simplest read filter allows you to check for the existence of a
+The simplest display filter allows you to check for the existence of a
 protocol or field.  If you want to see all packets which contain the IPX
 protocol, the filter would be "ipx".  (Without the quotation marks) To
 see all packets that contain a Token-Ring RIF field, use "tr.rif".
@@ -1468,17 +1468,17 @@ Furthermore, each protocol field is typed. The types are:
     Double-precision floating point number
 
 An integer may be expressed in decimal, octal, or hexadecimal notation. 
-The following three read filters are equivalent:
+The following three display filters are equivalent:
 
     frame.pkt_len > 10
     frame.pkt_len > 012
     frame.pkt_len > 0xa
 
-Boolean values are either true or false.  In a read filter expression
+Boolean values are either true or false.  In a display filter expression
 testing the value of a Boolean field, "true" is expressed as 1 or any
 other non-zero value, and "false" is expressed as zero.  For example, a
 token-ring packet's source route field is boolean.  To find any
-source-routed packets, a read filter would be:
+source-routed packets, a display filter would be:
 
     tr.sr == 1
 
@@ -1506,7 +1506,7 @@ by using the hostname:
 IPv4 addresses can be compared with the same logical relations as numbers:
 eq, ne, gt, ge, lt, and le.  The IPv4 address is stored in host order,
 so you do not have to worry about how the endianness of an IPv4 address
-when using it in a read filter.
+when using it in a display filter.
 
 Classless InterDomain Routing (CIDR) notation can be used to test if an
 IPv4 address is in a certain subnet.  For example, this display filter
@@ -1606,7 +1606,7 @@ abbreviations:
     not, !    Logical NOT
 
 Expressions can be grouped by parentheses as well.  The following are
-all valid read filter expression:
+all valid display filter expression:
 
     tcp.port == 80 and ip.src == 192.168.2.1
     not llc
@@ -1624,7 +1624,7 @@ two expressions are not equivalent:
 
 The first filter says "show me IP packets where an ip.addr exists that
 does not equal 192.168.4.1".  That is, as long as one ip.addr in the
-packet does not equal 192.168.44.1, the packet passes the read
+packet does not equal 192.168.44.1, the packet passes the display
 filter.  The second filter "don't show me any packets that have at least
 one ip.addr field equal to 192.168.4.1".  If one ip.addr is 192.168.4.1,
 the packet does not pass.  If B<neither> ip.addr fields is 192.168.4.1,
@@ -1637,7 +1637,7 @@ not equal 192.168.4.1".
 
 Be careful with multiply-recurring fields; they can be confusing.
 
-Care must also be taken when using the read filter to remove noise
+Care must also be taken when using the display filter to remove noise
 from the packet trace. If you want to e.g. filter out all IP multicast
 packets to address 224.1.2.3, then using:
 
@@ -1645,7 +1645,7 @@ packets to address 224.1.2.3, then using:
 
 may be too restrictive. Filtering with "ip.dst" selects only those
 B<IP> packets that satisfy the rule. Any other packets, including all
-non-IP packets, will not be printed. For printing also the non-IP
+non-IP packets, will not be displayed. For displaying also the non-IP
 packets, you can use one of the following two expressions:
 
     not ip or ip.dst ne 224.1.2.3
@@ -1658,7 +1658,7 @@ multiply occuring fields was discussed.
 
 For a complete table of protocol and protocol fields that are filterable
 in B<Ethereal> see ethereal-filter(4). The abbreviation of the protocol
-or field is given.  This abbreviation is what you use in the read filter.
+or field is given.  This abbreviation is what you use in the display filter.
 The type of the field is also given.
 
 =head1 FILES
