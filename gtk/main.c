@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.11 1999/09/30 06:50:01 guy Exp $
+ * $Id: main.c,v 1.12 1999/09/30 07:19:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -647,6 +647,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
       case 'w':        /* Write to capture file xxx */
         cf.save_file = g_strdup(optarg);
+        cf.user_saved = TRUE;	/* it's not a temporary file */
 	break;
       case 'W':        /* Write to capture file FD xxx */
         cf.save_file_fd = atoi(optarg);
