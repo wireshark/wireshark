@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.16 1999/08/22 02:52:48 guy Exp $
+ * $Id: wtap.c,v 1.17 1999/08/22 03:50:31 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -94,6 +94,7 @@ static const char *wtap_errlist[] = {
 	"File contains record data we don't support",
 	NULL,
 	"Files can't be saved in that format",
+	"Files from that network type can't be saved in that format",
 	"That format doesn't support per-packet encapsulations",
 	NULL,
 	NULL,

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.32 1999/08/22 02:52:48 guy Exp $
+ * $Id: wtap.h,v 1.33 1999/08/22 03:50:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -320,17 +320,20 @@ int wtap_pcap_encap_to_wtap_encap(int encap);
 	/* The file couldn't be opened, reason unknown */
 #define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-5
 	/* Wiretap can't save files in the specified format */
-#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-6
+#define	WTAP_ERR_UNSUPPORTED_ENCAP		-6
+	/* Wiretap can't save files in the specified format with the
+	   specified encapsulation */
+#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-7
 	/* The specified format doesn't support per-packet encapsulations */
-#define	WTAP_ERR_CANT_CLOSE			-7
+#define	WTAP_ERR_CANT_CLOSE			-8
 	/* The file couldn't be closed, reason unknown */
-#define	WTAP_ERR_CANT_READ			-8
+#define	WTAP_ERR_CANT_READ			-9
 	/* An attempt to read failed, reason unknown */
-#define	WTAP_ERR_SHORT_READ			-9
+#define	WTAP_ERR_SHORT_READ			-10
 	/* An attempt to read read less data than it should have */
-#define	WTAP_ERR_BAD_RECORD			-10
+#define	WTAP_ERR_BAD_RECORD			-11
 	/* We read an invalid record */
-#define	WTAP_ERR_SHORT_WRITE			-11
+#define	WTAP_ERR_SHORT_WRITE			-12
 	/* An attempt to write wrote less data than it should have */
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a

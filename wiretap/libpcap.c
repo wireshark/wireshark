@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.12 1999/08/22 02:29:37 guy Exp $
+ * $Id: libpcap.c,v 1.13 1999/08/22 03:50:31 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -292,7 +292,7 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 	static const guint32 pcap_magic = PCAP_MAGIC;
 	struct pcap_hdr file_hdr;
 	static const int wtap_encap[] = {
-		0,		/* WTAP_ENCAP_UNKNOWN -> DLT_NULL */
+		-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
 		1,		/* WTAP_ENCAP_ETHERNET -> DLT_EN10MB */
 		6,		/* WTAP_ENCAP_TR -> DLT_IEEE802 */
 		8,		/* WTAP_ENCAP_SLIP -> DLT_SLIP */
@@ -302,13 +302,22 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 		7,		/* WTAP_ENCAP_ARCNET -> DLT_ARCNET */
 		11,		/* WTAP_ENCAP_ATM_RFC1483 -> DLT_ATM_RFC1483 */
 		19,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
+		-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
+		-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
 		0		/* WTAP_ENCAP_NULL -> DLT_NULL */
 	};
+	#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 	int nwritten;
 
 	/* Per-packet encapsulations aren't supported. */
 	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
 		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return 0;
+	}
+
+	if (wdh->encap < 0 || wdh->encap >= NUM_WTAP_ENCAPS
+	    || wtap_encap[wdh->encap] == -1) {
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return 0;
 	}
 
