@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.279 2002/12/19 02:58:53 guy Exp $
+ * $Id: main.c,v 1.280 2003/01/08 01:59:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,6 +104,7 @@
 #include "menu.h"
 #include "../menu.h"
 #include "color.h"
+#include "color_filters.h"
 #include "color_utils.h"
 #include "filter_prefs.h"
 #include "file_dlg.h"
@@ -2141,6 +2142,7 @@ main(int argc, char *argv[])
       g_free(tap_opt);
     }
 
+    colors_init();
     colfilter_init();
 
     /* If we were given the name of a capture file, read it in now;

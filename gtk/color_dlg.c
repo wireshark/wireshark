@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.21 2002/11/09 20:00:35 oabad Exp $
+ * $Id: color_dlg.c,v 1.22 2003/01/08 01:59:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,9 @@
 
 #include "gtk/main.h"
 #include <epan/packet.h>
+#include "color.h"
 #include "colors.h"
+#include "color_filters.h"
 #include "color_dlg.h"
 #include "color_utils.h"
 #include "file.h"

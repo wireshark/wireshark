@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.37 2002/11/14 10:32:22 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.38 2003/01/08 01:59:41 guy Exp $
 
 include ..\config.nmake
 
@@ -36,9 +36,10 @@ ETHEREAL_TAP_OBJECTS = $(ETHEREAL_TAP_SRC:.c=.obj)
 OBJECTS=capture_dlg.obj \
 	capture_prefs.obj \
 	color_dlg.obj    \
+	color_filters.obj \
+	column_prefs.obj \
 	colors.obj       \
 	color_utils.obj  \
-	column_prefs.obj \
 	decode_as_dlg.obj \
 	dfilter_expr_dlg.obj \
 	display_opts.obj \

@@ -1,7 +1,7 @@
-/* colors.h
- * Definitions for color structures and routines
+/* color_filters.h
+ * Definitions for color filters
  *
- * $Id: colors.h,v 1.11 2003/01/08 01:59:42 guy Exp $
+ * $Id: color_filters.h,v 1.1 2003/01/08 01:59:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,13 +21,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#ifndef  __COLORS_H__
-#define  __COLORS_H__
+#ifndef  __COLOR_FILTERS_H__
+#define  __COLOR_FILTERS_H__
 
-extern GdkColor WHITE;
-extern GdkColor BLACK;
+#define MAXCOLORS	255
+#define MAX_COLOR_FILTER_NAME_LEN 33
+#define MAX_COLOR_FILTER_STRING_LEN 256
 
-void colors_init(void);
-gboolean get_color(GdkColor *new_color);
+#define CFILTERS_CONTAINS_FILTER(filter) \
+	((filter)->num_of_filters != 0)
+
+void colfilter_init(void);
+
+gboolean write_filters(void);
+
+color_filter_t *new_color_filter(gchar *name, gchar *filter_string);
+void delete_color_filter(color_filter_t *colorf);
 
 #endif
