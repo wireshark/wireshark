@@ -2,7 +2,7 @@
 #
 # Copyright 2004 Jörg Mayer (see AUTHORS file)
 #
-# $Id: make-version.pl,v 1.3 2004/01/18 01:41:13 obiot Exp $
+# $Id: make-version.pl,v 1.4 2004/01/18 05:17:23 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,8 @@ my $current;
 my $last = "";
 
 
+# Recursively find all files named Entries and call lastentry on them.
+# Args: Startdirectory
 sub findentries {
 	my $currentdir = shift;
 
@@ -46,6 +48,8 @@ sub findentries {
 	closedir DIR;
 }
 
+# Check all entries in $file. In case they are newer, update $last accordingly
+# Args: Entries file
 sub lastentry {
 	my $file = shift;
 
@@ -70,6 +74,9 @@ sub lastentry {
 
 &findentries(".");
 
+# In case that there are no Entries files but the sources are based on a cvs snapshot,
+# it is possible to add a file cvsversion to the toplevel directory containing the
+# cvs version string YYYYMMDDhhmmss
 if ($last eq "" && -f "cvsversion") {
 	$last = `cat cvsversion`;
 }
@@ -79,6 +86,8 @@ if ( $last ne "" ) {
 	$last = "/* #define CVSVERSION \"\" */\n";
 }
 
+# Only write to cvsversion.h, if this changes its contents: This avoids needless
+# rebuilds of tethereal, mergecap etc.
 my $needsupdate=0;
 
 if (! open(OLDVER, "<cvsversion.h")) {
