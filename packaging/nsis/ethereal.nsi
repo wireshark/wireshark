@@ -275,6 +275,7 @@ File "..\..\doc\ethereal-filter.html"
 SetOutPath $INSTDIR\diameter
 File "..\..\dictionary.dtd"
 File "..\..\dictionary.xml"
+File "..\..\imscxdx.xml"
 File "..\..\mobileipv4.xml"
 File "..\..\nasreq.xml"
 File "..\..\sunping.xml"
