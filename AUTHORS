@@ -1278,6 +1278,7 @@ Jaime Fournier <jafour1[AT]yahoo.com> {
 
 Markus Steinmann <ms[AT]seh.de> {
 	Add IPX SAP for SEH's InterCon Printserver
+	Support for writing LANalyzer files
 }
 
 Tsutomu Mieno <iitom[AT]utouto.com> {

@@ -1,20 +1,20 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.33 2002/06/07 07:27:35 guy Exp $
+ * $Id: lanalyzer.c,v 1.34 2002/06/27 22:46:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -36,19 +36,90 @@
 	http://secinf.net/info/nw/lan/trace.txt
  */
 
-/* Record types. */
-#define REC_TRACE_HEADER	0x1001
-#define REC_CYCLIC_TRACE_HEADER	0x1007
-#define REC_TRACE_SUMMARY	0x1002
-#define REC_TRACE_PACKET_DATA	0x1005
-
 /* LANalyzer board types (which indicate the type of network on which
    the capture was done). */
 #define BOARD_325		226	/* LANalyzer 325 (Ethernet) */
 #define BOARD_325TR		227	/* LANalyzer 325TR (Token-ring) */
 
+
+static const gint8 LA_HeaderRegularFake[] = {
+0x01,0x10,0x4c,0x00,0x01,0x05,0x54,0x72,0x61,0x63,0x65,0x20,0x44,0x69,0x73,0x70,
+0x6c,0x61,0x79,0x20,0x54,0x72,0x61,0x63,0x65,0x20,0x46,0x69,0x6c,0x65,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      };
+
+static const gint8 LA_RxChannelNameFake[] = {
+0x06,0x10,0x80,0x00,0x43,0x68,0x61,0x6e ,0x6e,0x65,0x6c,0x31,0x00,0x43,0x68,0x61,
+0x6e,0x6e,0x65,0x6c,0x32,0x00,0x43,0x68 ,0x61,0x6e,0x6e,0x65,0x6c,0x33,0x00,0x43,
+0x68,0x61,0x6e,0x6e,0x65,0x6c,0x34,0x00 ,0x43,0x68,0x61,0x6e,0x6e,0x65,0x6c,0x35,
+0x00,0x43,0x68,0x61,0x6e,0x6e,0x65,0x6c ,0x36,0x00,0x43,0x68,0x61,0x6e,0x6e,0x65,
+0x6c,0x37,0x00,0x43,0x68,0x61,0x6e,0x6e ,0x65,0x6c,0x38,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00
+      };
+
+static const gint8 LA_TxChannelNameFake[] = {
+                    0x0b,0x10,0x36,0x00 ,0x54,0x72,0x61,0x6e,0x73,0x31,0x00,0x00,
+0x00,0x54,0x72,0x61,0x6e,0x73,0x32,0x00 ,0x00,0x00,0x54,0x72,0x61,0x6e,0x73,0x33,
+0x00,0x00,0x00,0x54,0x72,0x61,0x6e,0x73 ,0x34,0x00,0x00,0x00,0x54,0x72,0x61,0x6e,
+0x73,0x35,0x00,0x00,0x00,0x54,0x72,0x61 ,0x6e,0x73,0x36,0x00,0x00,0x00
+      };
+
+static const gint8 LA_RxTemplateNameFake[] = {
+                                                                       0x35,0x10,
+0x90,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00
+      };
+
+static const gint8 LA_TxTemplateNameFake[] = {
+          0x36,0x10,0x36,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00
+      };
+
+static const gint8 LA_DisplayOptionsFake[] = {
+                                                             0x0a,0x10,0x0a,0x01,
+0x00,0x00,0x01,0x00,0x01,0x02,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00
+      };
+
+static const gint8 LA_CyclicInformationFake[] = {
+                                                   0x09,0x10,0x1a,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      };
+
 static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset);
-static void lanalyzer_close(wtap *wth);
+static void     lanalyzer_close(wtap *wth);
+static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
 int lanalyzer_open(wtap *wth, int *err)
 {
@@ -74,7 +145,7 @@ int lanalyzer_open(wtap *wth, int *err)
 	record_type = pletohs(LE_record_type);
 	record_length = pletohs(LE_record_length); /* make sure to do this for while() loop */
 
-	if (record_type != REC_TRACE_HEADER && record_type != REC_CYCLIC_TRACE_HEADER) {  
+	if (record_type != RT_HeaderRegular && record_type != RT_HeaderCyclic) {
 		return 0;
 	}
 
@@ -115,7 +186,7 @@ int lanalyzer_open(wtap *wth, int *err)
 		/*g_message("Record 0x%04X Length %d", record_type, record_length);*/
 		switch (record_type) {
 			/* Trace Summary Record */
-			case REC_TRACE_SUMMARY:
+			case RT_Summary:
 				errno = WTAP_ERR_CANT_READ;
 				bytes_read = file_read(summary, 1, sizeof summary,
 				    wth->fh);
@@ -180,7 +251,7 @@ int lanalyzer_open(wtap *wth, int *err)
 				break;
 
 			/* Trace Packet Data Record */
-			case REC_TRACE_PACKET_DATA:
+			case RT_PacketData:
 				/* Go back header number ob ytes so that lanalyzer_read
 				 * can read this header */
 				if (file_seek(wth->fh, -bytes_read, SEEK_CUR, err) == -1) {
@@ -193,7 +264,7 @@ int lanalyzer_open(wtap *wth, int *err)
 			default:
 				; /* no action */
 		}
-	} 
+	}
 }
 
 #define DESCRIPTOR_LEN	32
@@ -236,7 +307,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset)
 	/* Only Trace Packet Data Records should occur now that we're in
 	 * the middle of reading packets.  If any other record type exists
 	 * after a Trace Packet Data Record, mark it as an error. */
-	if (record_type != REC_TRACE_PACKET_DATA) {
+	if (record_type != RT_PacketData) {
 		g_message("lanalyzer: record type %u seen after trace summary record",
 		    record_type);
 		*err = WTAP_ERR_BAD_RECORD;
@@ -297,4 +368,433 @@ static void
 lanalyzer_close(wtap *wth)
 {
 	g_free(wth->capture.lanalyzer);
+}
+
+/*---------------------------------------------------
+ * Returns 0 or error
+ * Write one block with error control
+ *---------------------------------------------------*/
+static int swrite(const void* what, guint size, FILE *hd)
+{
+	size_t nwritten;
+	
+	nwritten = fwrite(what, 1, size, hd);
+	if (nwritten != size) {
+		if (nwritten == 0 && ferror(hd))
+			return errno;
+		else
+			return WTAP_ERR_SHORT_WRITE;
+            }
+	return 0; /* ok */
+}
+
+/*---------------------------------------------------
+ * Returns 0 or error
+ * Write one block with error control
+ *---------------------------------------------------*/
+static int s0write(guint cnt, FILE *hd)
+{
+	static gint8 z64[64];
+	size_t nwritten;
+	size_t snack;
+
+	while (cnt) {
+            snack = cnt > 64 ? 64 : cnt;
+            nwritten = fwrite(z64, 1, snack, hd);
+            if (nwritten != snack) {
+		      if (nwritten == 0 && ferror(hd))
+			      return errno;
+		      else
+			      return WTAP_ERR_SHORT_WRITE;
+                  }
+            cnt -= snack;
+            }
+	return 0; /* ok */
+}
+
+/*---------------------------------------------------
+ * Returns 0 or error
+ * Write one block with error control
+ *---------------------------------------------------*/
+static int s8write(const guint8 s8, FILE *hd)
+{
+	size_t nwritten;
+	
+	nwritten = fwrite(&s8, 1, 1, hd);
+	if (nwritten != 1) {
+		if (nwritten == 0 && ferror(hd))
+			return errno;
+		else
+			return WTAP_ERR_SHORT_WRITE;
+            }
+	return 0; /* ok */
+}
+/*---------------------------------------------------
+ * Returns 0 or error
+ * Write one block with error control
+ *---------------------------------------------------*/
+static int s16write(const guint16 s16, FILE *hd)
+{
+	size_t nwritten;
+	
+	nwritten = fwrite(&s16, 1, 2, hd);
+	if (nwritten != 2) {
+		if (nwritten == 0 && ferror(hd))
+			return errno;
+		else
+			return WTAP_ERR_SHORT_WRITE;
+            }
+	return 0; /* ok */
+}
+/*---------------------------------------------------
+ * Returns 0 or error
+ * Write one block with error control
+ *---------------------------------------------------*/
+static int s32write(const guint32 s32, FILE *hd)
+{
+	size_t nwritten;
+	
+	nwritten = fwrite(&s32, 1, 4, hd);
+	if (nwritten != 4) {
+		if (nwritten == 0 && ferror(hd))
+			return errno;
+		else
+			return WTAP_ERR_SHORT_WRITE;
+            }
+	return 0; /* ok */
+}
+/*---------------------------------------------------
+ *
+ * calculates C.c = A.a - B.b
+ *---------------------------------------------------*/
+static void my_timersub(const struct timeval *a,
+                        const struct timeval *b,
+                              struct timeval *c)
+{
+      gint32 usec = a->tv_usec;
+
+      c->tv_sec = a->tv_sec - b->tv_sec;
+      if (b->tv_usec > usec) {
+           c->tv_sec--;
+           usec += 1000000;
+           }
+      c->tv_usec = usec - b->tv_usec;
+}
+/*---------------------------------------------------
+ * Write a record for a packet to a dump file.
+ * Returns TRUE on success, FALSE on failure.
+ *---------------------------------------------------*/
+static gboolean lanalyzer_dump(wtap_dumper *wdh,
+	const struct wtap_pkthdr *phdr,
+	const union wtap_pseudo_header *pseudo_header _U_,
+	const u_char *pd, int *err)
+{
+      double x;
+      int    i;
+      int    len;
+
+      LA_TmpInfo *itmp = (LA_TmpInfo*)(wdh->dump.opaque);
+      struct timeval td;
+      int    thisSize = phdr->caplen + LA_PacketRecordSize + LA_RecordHeaderSize;
+
+      if (wdh->bytes_dumped + thisSize > LA_ProFileLimit) {
+            /* printf(" LA_ProFileLimit reached\n");     */
+            *err = EFBIG;
+            return FALSE; /* and don't forget the header */
+            }
+
+      len = phdr->caplen + (phdr->caplen ? LA_PacketRecordSize : 0);
+
+      *err = s16write(htoles(0x1005), wdh->fh);
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(len), wdh->fh);
+      if (*err)
+            return FALSE;
+
+
+      if (!itmp->init) {
+            /* collect some information for the
+             * finally written header
+             */
+            itmp->start   = phdr->ts;
+            itmp->pkts    = 0;
+            itmp->init    = TRUE;
+            itmp->encap   = wdh->encap;
+            itmp->lastlen = 0;
+            }
+
+      my_timersub(&(phdr->ts),&(itmp->start),&td);
+
+      x   = (double) td.tv_usec;
+      x  += (double) td.tv_sec * 1000000;
+      x  *= 2;
+
+      *err = s16write(htoles(0x0001), wdh->fh);           /* pr.rx_channels */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(0x0008), wdh->fh);           /* pr.rx_errors   */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(phdr->len + 4), wdh->fh);    /* pr.rx_frm_len  */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(phdr->caplen), wdh->fh);     /* pr.rx_frm_sln  */
+      if (*err)
+            return FALSE;
+
+      for (i = 0; i < 3; i++) {
+            *err = s16write(htoles((guint16) x), wdh->fh);/* pr.rx_time[i]  */
+            if (*err)
+                  return FALSE;
+            x /= 0xffff;
+            }
+
+      *err = s32write(htolel(++itmp->pkts), wdh->fh);      /* pr.pktno      */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(itmp->lastlen), wdh->fh);     /* pr.prlen      */
+      if (*err)
+            return FALSE;
+      itmp->lastlen = len;
+
+      *err = s0write(12, wdh->fh);
+      if (*err)
+		return FALSE;
+
+      *err = swrite(pd , phdr->caplen , wdh->fh);
+      if (*err)
+		return FALSE;
+
+      wdh->bytes_dumped += thisSize;
+
+      return TRUE;
+}
+
+/*---------------------------------------------------
+ * Returns 0 if we could write the specified encapsulation type,
+ * an error indication otherwise.
+ *---------------------------------------------------*/
+int lanalyzer_dump_can_write_encap(int encap)
+{
+      /* Per-packet encapsulations aren't supported. */
+      if (encap == WTAP_ENCAP_PER_PACKET)
+                  return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+
+      if ( encap != WTAP_ENCAP_ETHERNET
+        && encap != WTAP_ENCAP_TOKEN_RING )
+                  return WTAP_ERR_UNSUPPORTED_ENCAP;
+      /*
+       * printf("lanalyzer_dump_can_write_encap(%d)\n",encap);
+       */
+      return 0;
+}
+
+/*---------------------------------------------------
+ * Returns TRUE on success, FALSE on failure; sets "*err" to an
+ * error code on failure
+ *---------------------------------------------------*/
+gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
+{
+      int   jump;
+      void  *tmp;
+
+      /* This is a LANalyzer file */
+
+      tmp = g_malloc(sizeof(LA_TmpInfo));
+      if (!tmp) {
+	      *err = errno;
+	      return FALSE;
+            }
+
+      ((LA_TmpInfo*)tmp)->init = FALSE;
+      wdh->dump.opaque         = tmp;
+      wdh->subtype_write       = lanalyzer_dump;
+      wdh->subtype_close       = lanalyzer_dump_close;
+
+      /* Some of the fields in the file header aren't known yet so
+       just skip over it for now.  It will be created after all
+       of the packets have been written. */
+
+      jump = sizeof (LA_HeaderRegularFake)
+           + sizeof (LA_RxChannelNameFake)
+           + sizeof (LA_TxChannelNameFake)
+           + sizeof (LA_RxTemplateNameFake)
+           + sizeof (LA_TxTemplateNameFake)
+           + sizeof (LA_DisplayOptionsFake)
+           + LA_SummaryRecordSize
+           + LA_SubfileSummaryRecordSize
+           + sizeof (LA_CyclicInformationFake)
+           + LA_IndexRecordSize;
+
+      if (fseek(wdh->fh, jump, SEEK_SET) == -1) {
+	      *err = errno;
+	      return FALSE;
+            }
+      wdh->bytes_dumped = jump;
+      return TRUE;
+}
+
+/*---------------------------------------------------
+ *
+ *---------------------------------------------------*/
+static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
+{
+      LA_TmpInfo *itmp   = (LA_TmpInfo*)(wdh->dump.opaque);
+      struct tm  *fT     = localtime(&(itmp->start.tv_sec));
+      guint16 board_type = itmp->encap == WTAP_ENCAP_TOKEN_RING
+                              ? BOARD_325TR     /* LANalyzer Board Type */
+                              : BOARD_325;      /* LANalyzer Board Type */
+
+      fseek(wdh->fh, 0, SEEK_SET);
+
+      *err = swrite(&LA_HeaderRegularFake,  sizeof LA_HeaderRegularFake, wdh->fh);
+      if (*err)
+		return FALSE;
+      *err = swrite(&LA_RxChannelNameFake , sizeof LA_RxChannelNameFake , wdh->fh);
+      if (*err)
+		return FALSE;
+      *err = swrite(&LA_TxChannelNameFake , sizeof LA_TxChannelNameFake , wdh->fh);
+      if (*err)
+		return FALSE;
+      *err = swrite(&LA_RxTemplateNameFake, sizeof LA_RxTemplateNameFake, wdh->fh);
+      if (*err)
+		return FALSE;
+      *err = swrite(&LA_TxTemplateNameFake, sizeof LA_TxTemplateNameFake, wdh->fh);
+      if (*err)
+		return FALSE;
+      *err = swrite(&LA_DisplayOptionsFake, sizeof LA_DisplayOptionsFake, wdh->fh);
+      if (*err)
+		return FALSE;
+      /*-----------------------------------------------------------------*/
+      *err = s16write(htoles(RT_Summary), wdh->fh);        /* rid */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(SummarySize), wdh->fh);       /* rlen */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_mday, wdh->fh);                /* s.datcre.day */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_mon+1, wdh->fh);               /* s.datcre.mon */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(fT->tm_year + 1900), wdh->fh);/* s.datcre.year */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_mday, wdh->fh);                /* s.datclo.day */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_mon+1, wdh->fh);               /* s.datclo.mon */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(fT->tm_year + 1900), wdh->fh);/* s.datclo.year */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_sec, wdh->fh);                 /* s.timeopn.second */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_min, wdh->fh);                 /* s.timeopn.minute */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_hour, wdh->fh);                /* s.timeopn.hour */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_mday, wdh->fh);                /* s.timeopn.mday */
+      if (*err)
+            return FALSE;
+      *err = s0write(2, wdh->fh);
+      if (*err)
+		return FALSE;
+      *err = s8write(fT->tm_sec, wdh->fh);                 /* s.timeclo.second */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_min, wdh->fh);                 /* s.timeclo.minute */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_hour, wdh->fh);                /* s.timeclo.hour */
+      if (*err)
+            return FALSE;
+      *err = s8write(fT->tm_mday, wdh->fh);                /* s.timeclo.mday */
+      if (*err)
+            return FALSE;
+      *err = s0write(2, wdh->fh);
+      if (*err)
+		return FALSE;
+      *err = s0write(6, wdh->fh);                          /* EAddr  == 0      */
+      if (*err)
+		return FALSE;
+      *err = s16write(htoles(1), wdh->fh);                 /* s.mxseqno */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(0), wdh->fh);                 /* s.slcoffo */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(1514), wdh->fh);              /* s.mxslc */
+      if (*err)
+            return FALSE;
+      *err = s32write(htolel(itmp->pkts), wdh->fh);        /* s.totpktt */
+      if (*err)
+            return FALSE;
+      *err = s0write(12, wdh->fh);                         /* statrg == 0; ? -1*/
+      if (*err)                                            /* stptrg == 0; ? -1*/
+		return FALSE;                                  /* s.mxpkta[0]=0    */
+      *err = s32write(htolel(itmp->pkts), wdh->fh);        /* sr.s.mxpkta[1]  */
+      if (*err)
+            return FALSE;
+      *err = s0write(34*4, wdh->fh);                       /* s.mxpkta[2-33]=0  */
+      if (*err)
+		return FALSE;
+      *err = s16write(htoles(board_type), wdh->fh);
+      if (*err)
+            return FALSE;
+      *err = s0write(20, wdh->fh);                         /* board_version == 0 */
+      if (*err)
+            return FALSE;
+      /*-----------------------------------------------------------------*/
+      *err = s16write(htoles(RT_SubfileSummary), wdh->fh);    /* ssr.rid */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(LA_SubfileSummaryRecordSize-4), wdh->fh);    /* ssr.rlen */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(1), wdh->fh);                    /* ssr.seqno */
+      if (*err)
+            return FALSE;
+      *err = s32write(htolel(itmp->pkts), wdh->fh);           /* ssr.totpkts */
+      if (*err)
+            return FALSE;
+      /*-----------------------------------------------------------------*/
+      *err = swrite(&LA_CyclicInformationFake, sizeof LA_CyclicInformationFake, wdh->fh);
+      if (*err)
+		return FALSE;
+      /*-----------------------------------------------------------------*/
+      *err = s16write(htoles(RT_Index), wdh->fh);             /* rid */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(LA_IndexRecordSize -4), wdh->fh);/* rlen */
+      if (*err)
+            return FALSE;
+      *err = s16write(htoles(LA_IndexSize), wdh->fh);         /* idxsp */
+      if (*err)
+            return FALSE;
+      *err = s0write(LA_IndexRecordSize - 6, wdh->fh);
+      if (*err)
+            return FALSE;
+
+      return TRUE;
+}
+
+/*---------------------------------------------------
+ * Finish writing to a dump file.
+ * Returns TRUE on success, FALSE on failure.
+ *---------------------------------------------------*/
+static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err)
+{
+      if (wdh->dump.opaque) {
+            lanalyzer_dump_header(wdh,err);
+            g_free(wdh->dump.opaque);
+            wdh->dump.opaque = 0;
+            }
+      return *err ? FALSE : TRUE;
 }
