@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.12 2004/01/29 22:37:45 ulfl Exp $
+ * $Id: compat_macros.h,v 1.13 2004/01/31 12:13:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,6 +136,9 @@ dlg_radio_button_new_with_label_with_mnemonic( \
 #define TOGGLE_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
 dlg_toggle_button_new_with_label_with_mnemonic(label_text, accel_group)
 
+#define PRIMARY_TEXT_START ""
+#define PRIMARY_TEXT_END ""
+
 #else /* GTK_MAJOR_VERSION >= 2 */
 
 #define SIGNAL_CONNECT(widget, name, callback, arg) \
@@ -219,6 +222,9 @@ gtk_radio_button_new_with_mnemonic_from_widget( \
 
 #define TOGGLE_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
 gtk_toggle_button_new_with_mnemonic(label_text)
+
+#define PRIMARY_TEXT_START "<span weight=\"bold\" size=\"larger\">"
+#define PRIMARY_TEXT_END "</span>"
 
 #endif /* GTK_MAJOR_VERSION */
 

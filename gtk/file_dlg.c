@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.87 2004/01/31 03:22:39 guy Exp $
+ * $Id: file_dlg.c,v 1.88 2004/01/31 12:13:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -361,9 +361,10 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+    dialog = simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, 
                 ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
-                "Save your capture file before open a new one?");
+                PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
+                "If you open a new capture file without saving, your capture data will be discarded.");
     simple_dialog_set_cb(dialog, file_open_answered_cb, widget);
   } else {
     /* unchanged file, just open a new one */
@@ -487,9 +488,11 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+    dialog = simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, 
                 ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
-                "Save your capture file before closing it?");
+                PRIMARY_TEXT_START "Save capture file before closing?" PRIMARY_TEXT_END "\n\n"
+                "If you close without saving, your capture data will be discarded.");
+
     simple_dialog_set_cb(dialog, file_close_confirmed_cb, NULL);
   } else {
     /* unchanged file, just close it */

@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.20 2004/01/31 03:22:42 guy Exp $
+ * $Id: simple_dialog.c,v 1.21 2004/01/31 12:13:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,17 +62,16 @@ static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
  *
  */
 
-#define ESD_MAX_MSG_LEN 2048
 gpointer
 simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
   GtkWidget   *win, *main_vb, *top_hb, *type_pm, *msg_label,
-              *bbox, *bt;
+              *bbox, *ok_bt, *bt;
   GdkPixmap   *pixmap;
   GdkBitmap   *mask;
   GtkStyle    *style;
   GdkColormap *cmap;
   va_list      ap;
-  gchar        message[ESD_MAX_MSG_LEN];
+  gchar        message[2048];
   gchar      **icon;
 
   /* Main window */
@@ -81,13 +80,13 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
     icon = stock_dialog_warning_48_xpm;
     win = dlg_window_new("Ethereal: Warning");
     break;
+  case ESD_TYPE_QUESTION:
+    icon = stock_dialog_question_48_xpm;
+    win = dlg_window_new("Ethereal: Question");
+    break;
   case ESD_TYPE_ERROR:
     icon = stock_dialog_error_48_xpm;
     win = dlg_window_new("Ethereal: Error");
-    break;
-  case ESD_TYPE_QUEST:
-    icon = stock_dialog_question_48_xpm;
-    win = dlg_window_new("Ethereal: Question");
     break;
   case ESD_TYPE_INFO :
   default :
@@ -96,19 +95,24 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
     break;
   }
 
+#if GTK_MAJOR_VERSION >= 2
+  /* the GNOME HIG suggest to keep the title empty for simple dialogs */
+  /* at least on win32 systems, this isn't possible, so use the programs name */
+  gtk_window_set_title(GTK_WINDOW(win), "Ethereal");
+#endif
+
   if (type & ESD_TYPE_MODAL)
     gtk_window_set_modal(GTK_WINDOW(win), TRUE);
-
-  gtk_container_border_width(GTK_CONTAINER(win), 7);
+  gtk_container_border_width(GTK_CONTAINER(win), 6);
 
   /* Container for our rows */
-  main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  main_vb = gtk_vbox_new(FALSE, 12);
   gtk_container_add(GTK_CONTAINER(win), main_vb);
   gtk_widget_show(main_vb);
 
   /* Top row: Icon and message text */
-  top_hb = gtk_hbox_new(FALSE, 10);
+  top_hb = gtk_hbox_new(FALSE, 12);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
   gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
   gtk_widget_show(top_hb);
 
@@ -123,11 +127,18 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
 
   /* Load our vararg list into the message string */
   va_start(ap, msg_format);
-  vsnprintf(message, ESD_MAX_MSG_LEN, msg_format, ap);
+  vsnprintf(message, sizeof(message), msg_format, ap);
   va_end(ap);
 
   msg_label = gtk_label_new(message);
+
+#if GTK_MAJOR_VERSION >= 2
+  gtk_label_set_markup(GTK_LABEL(msg_label), message);
+#endif
+
+  gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
+  gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5, 0.0);
   gtk_container_add(GTK_CONTAINER(top_hb), msg_label);
   gtk_widget_show(msg_label);
 
@@ -136,8 +147,8 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
   case(ESD_BTN_OK):
     bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
     break;
-  case(ESD_BTN_OK | ESD_BTN_CANCEL):
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+  case(ESD_BTN_CLEAR | ESD_BTN_CANCEL):
+    bbox = dlg_button_row_new(GTK_STOCK_CLEAR, GTK_STOCK_CANCEL, NULL);
     break;
   case(ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL):
     bbox = dlg_button_row_new(GTK_STOCK_YES, GTK_STOCK_NO, GTK_STOCK_CANCEL, NULL);
@@ -150,15 +161,16 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  if(ok_bt) {
+      OBJECT_SET_DATA(ok_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_OK));
+      SIGNAL_CONNECT(ok_bt, "clicked", simple_dialog_cancel_cb, win);
+  }
+
+  bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLEAR);
   if(bt) {
-      OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_OK));
+      OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CLEAR));
       SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
-      gtk_widget_grab_default(bt);
-    /* Catch the "key_press_event" signal in the window, so that we can catch
-       the ESC key being pressed and act as if the "OK" button had
-       been selected. */
-    dlg_set_cancel(win, bt);
   }
 
   bt = OBJECT_GET_DATA(bbox, GTK_STOCK_YES);
@@ -182,6 +194,14 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
        been selected. */
       dlg_set_cancel(win, bt);
       gtk_widget_grab_default(bt);
+  }
+
+  if(!bt) {
+      /* Catch the "key_press_event" signal in the window, so that we can catch
+       the ESC key being pressed and act as if the "OK" button had
+       been selected. */
+    dlg_set_cancel(win, ok_bt);
+    gtk_widget_grab_default(ok_bt);
   }
 
   gtk_widget_show(win);

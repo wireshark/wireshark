@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.19 2004/01/29 22:37:45 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.20 2004/01/31 12:13:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -174,7 +174,7 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
-#if /*!WIN32 ||*/ GTK_MAJOR_VERSION >= 2
+#if !WIN32 && GTK_MAJOR_VERSION >= 2
     /* beware: sequence of buttons are important! */
 
     /* XXX: this can be implemented more elegant of course, but it works as it should */

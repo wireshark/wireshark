@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.38 2004/01/31 03:22:39 guy Exp $
+ * $Id: color_dlg.c,v 1.39 2004/01/31 12:13:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1090,7 +1090,7 @@ color_save_cb(GtkButton *button _U_, gpointer user_data _U_)
 
 /* Remove all user defined color filters and revert to the global file. */
 static void
-color_clear_cb(GtkWidget *widget, gpointer user_data _U_)
+color_clear_cmd(GtkWidget *widget)
 {
     GtkWidget * color_filters;
     
@@ -1109,7 +1109,37 @@ color_clear_cb(GtkWidget *widget, gpointer user_data _U_)
     colorize_packets(&cfile);
 
     /* Destroy the dialog box. */
+    /* XXX: is this useful? user might want to continue with editing new colors */
     gtk_widget_destroy(colorize_win);
+}
+
+/* clear button: user responded to question */
+void color_clear_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
+{
+    switch(btn) {
+    case(ESD_BTN_CLEAR):
+        color_clear_cmd(data);
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+/* clear button: ask user before really doing it */
+void
+color_clear_cb(GtkWidget *widget, gpointer data _U_) {
+    gpointer  dialog;
+
+    /* ask user, if he/she is really sure */
+    dialog = simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, 
+                ESD_BTN_CLEAR | ESD_BTN_CANCEL, 
+                PRIMARY_TEXT_START "Remove all your personal color settings?" PRIMARY_TEXT_END "\n\n"
+                "This will revert the color settings to global defaults.\n\n"
+                "Are you really sure?");
+
+    simple_dialog_set_cb(dialog, color_clear_answered_cb, widget);
 }
 
 /* Exit dialog and apply new list of color filters to the capture. */

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.381 2004/01/31 03:22:41 guy Exp $
+ * $Id: main.c,v 1.382 2004/01/31 12:13:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1180,10 +1180,10 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+    dialog = simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, 
                 ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
-                "Save packets to \"%s\" before quit?",
-                cf_get_display_name(&cfile));
+                PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
+                "If you quit the program without saving, your capture data will be discarded.");
     simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
     return TRUE;
   } else {
@@ -1256,10 +1256,10 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_QUEST | ESD_TYPE_MODAL, 
+    dialog = simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, 
                 ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
-                "Save packets to \"%s\" before quit?",
-                cf_get_display_name(&cfile));
+                PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
+                "If you quit the program without saving, your capture data will be discarded.");
     simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
   } else {
     /* unchanged file, just exit */
