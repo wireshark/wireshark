@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.3 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: file_dlg.c,v 1.4 2002/09/09 20:39:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,6 +175,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_RFILTER_TE_KEY);
   rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
+    g_free(cf_name);
     simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
     return;
   }
@@ -185,6 +186,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	/* It's a directory - set the file selection box to display that
 	   directory, don't try to open the directory as a capture file. */
 	set_last_open_dir(cf_name);
+	g_free(cf_name);
 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
     	return;
   }
@@ -548,17 +550,39 @@ file_set_save_marked_sensitive(void)
 static void
 file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   gchar	*cf_name;
+  gchar *dirname;
 
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
-  gtk_widget_hide(GTK_WIDGET (fs));
-  gtk_widget_destroy(GTK_WIDGET (fs));
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(cf_name) == EISDIR) {
+        /* It's a directory - set the file selection box to display that
+           directory, and leave the selection box displayed. */
+        set_last_open_dir(cf_name);
+        g_free(cf_name);
+        gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+        return;
+  }
 
   /* Write out the packets (all, or only the ones that are currently
      displayed or marked) to the file with the specified name. */
-  save_cap_file(cf_name, &cfile, filtered, marked, filetype);
 
-  /* If "save_cap_file()" saved the file name we handed it, it saved
-     a copy, so we should free up our copy. */
+  if (! save_cap_file(cf_name, &cfile, filtered, marked, filetype)) {
+    /* The write failed; don't dismiss the open dialog box,
+       just leave it around so that the user can, after they
+       dismiss the alert box popped up for the error, try again. */
+    g_free(cf_name);
+    return;
+  }
+
+  /* The write succeeded; get rid of the file selection box. */
+  gtk_widget_hide(GTK_WIDGET (fs));
+  gtk_widget_destroy(GTK_WIDGET (fs));
+
+  /* Save the directory name for future file dialogs. */
+  dirname = get_dirname(cf_name);  /* Overwrites cf_name */
+  set_last_open_dir(dirname);
   g_free(cf_name);
 }
 

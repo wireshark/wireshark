@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.5 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: capture_dlg.c,v 1.6 2002/09/09 20:39:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "pcap-util.h"
 #include "prefs.h"
 #include "ringbuffer.h"
+#include <epan/filesystem.h>
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -86,7 +87,7 @@ static void
 cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data);
 
 static void
-cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data);
+cap_prep_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 
 static void
 capture_prep_adjust_sensitivity(GtkWidget *tb, gpointer parent_w);
@@ -527,7 +528,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
      widgets. */
   capture_prep_adjust_sensitivity(NULL, cap_open_w);
 
-  /* Catch the "activate" signal on the frame number and file name text
+  /* Catch the "activate" signal on the filter and file name text
      entries, so that if the user types Return there, we act as if the
      "OK" button had been selected, as happens if Return is typed if some
      widget that *doesn't* handle the Return key has the input focus. */
@@ -583,6 +584,11 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
 
   fs = gtk_file_selection_new ("Ethereal: Capture File");
 
+  /* If we've opened a file, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+
   gtk_object_set_data(GTK_OBJECT(fs), E_CAP_FILE_TE_KEY, file_te);
 
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
@@ -594,7 +600,7 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
   /* Call a handler when the file selection box is destroyed, so we can inform
      our caller, if any, that it's been destroyed. */
   g_signal_connect(G_OBJECT(fs), "destroy",
-                   G_CALLBACK(cap_prep_fs_destroy_cb), NULL);
+                   G_CALLBACK(cap_prep_fs_destroy_cb), file_te);
 
   g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(fs)->ok_button), "clicked",
                    G_CALLBACK(cap_prep_fs_ok_cb), fs);
@@ -614,10 +620,32 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
 static void
 cap_prep_fs_ok_cb(GtkWidget *w _U_, gpointer data)
 {
+  gchar     *cf_name;
+  gchar     *dirname;
+
+  cf_name = g_strdup(gtk_file_selection_get_filename(
+    GTK_FILE_SELECTION (data)));
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(cf_name) == EISDIR) {
+        /* It's a directory - set the file selection box to display it. */
+        set_last_open_dir(cf_name);
+        g_free(cf_name);
+        gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
+          last_open_dir);
+        return;
+  }
+
   gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
-      E_CAP_FILE_TE_KEY)),
-      gtk_file_selection_get_filename (GTK_FILE_SELECTION(data)));
+      E_CAP_FILE_TE_KEY)), cf_name);
+
   gtk_widget_destroy(GTK_WIDGET(data));
+
+  /* Save the directory name for future file dialogs. */
+  dirname = get_dirname(cf_name);  /* Overwrites cf_name */
+  set_last_open_dir(dirname);
+  g_free(cf_name);
 }
 
 static void
@@ -627,7 +655,7 @@ cap_prep_fs_cancel_cb(GtkWidget *w _U_, gpointer data)
 }
 
 static void
-cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data _U_)
+cap_prep_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te)
 {
   GtkWidget *caller;
 
@@ -642,6 +670,10 @@ cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data _U_)
   /* Now nuke this window. */
   gtk_grab_remove(GTK_WIDGET(win));
   gtk_widget_destroy(GTK_WIDGET(win));
+
+  /* Give the focus to the file text entry widget so the user can just press
+     Return to start the capture. */
+  gtk_widget_grab_focus(file_te);
 }
 
 static void
@@ -656,7 +688,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   gchar *if_text;
   gchar *if_name;
   const gchar *filter_text;
-  const gchar *save_file;
+  const gchar *g_save_file;
+  gchar *save_file;
 
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
   snap_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);
@@ -726,10 +759,10 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   g_assert(filter_text != NULL);
   cfile.cfilter = g_strdup(filter_text);
 
-  save_file = gtk_entry_get_text(GTK_ENTRY(file_te));
-  if (save_file && save_file[0]) {
+  g_save_file = gtk_entry_get_text(GTK_ENTRY(file_te));
+  if (g_save_file && g_save_file[0]) {
     /* User specified a file to which the capture should be written. */
-    save_file = g_strdup(save_file);
+    save_file = g_strdup(g_save_file);
   } else {
     /* User didn't specify a file; save to a temporary file. */
     save_file = NULL;
@@ -779,6 +812,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
       simple_dialog(ESD_TYPE_CRIT, NULL,
         "You must specify a file size at which to rotate the capture files\n"
         "if you want to use the ring buffer.");
+      g_free(save_file);
       return;
     }
   }
@@ -793,6 +827,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
   do_capture(save_file);
+  if (save_file != NULL)
+    g_free(save_file);
 }
 
 static void

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.10 2002/09/07 09:28:05 sahlberg Exp $
+ * $Id: main.c,v 1.11 2002/09/09 20:39:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1789,7 +1789,7 @@ main(int argc, char *argv[])
            sync_mode takes precedence;
            c) it makes no sense to enable the ring buffer if the maximum
            file size is set to "infinite". */
-        if (cfile.save_file == NULL) {
+        if (save_file == NULL) {
             fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
             capture_opts.ringbuffer_on = FALSE;
         }
@@ -1991,6 +1991,8 @@ main(int argc, char *argv[])
                        argument. */
                     s = get_dirname(cf_name);
                     set_last_open_dir(s);
+                    g_free(cf_name);
+                    cf_name = NULL;
                 } else {
                     if (rfcode != NULL)
                         dfilter_free(rfcode);
@@ -2058,6 +2060,13 @@ main(int argc, char *argv[])
         if (start_capture) {
             /* "-k" was specified; start a capture. */
             do_capture(save_file);
+            if (save_file != NULL) {
+                 /* Save the directory name for future file dialogs. */
+                 s = get_dirname(save_file);  /* Overwrites save_file */
+                 set_last_open_dir(s);
+                 g_free(save_file);
+                 save_file = NULL;
+            }
         }
         else {
             set_menus_for_capture_in_progress(FALSE);
@@ -2500,7 +2509,10 @@ set_last_open_dir(char *dirname)
 
     if (dirname) {
         len = strlen(dirname);
-        if (dirname[len-1] != G_DIR_SEPARATOR) {
+        if (dirname[len-1] == G_DIR_SEPARATOR) {
+            last_open_dir = g_strconcat(dirname, NULL);
+        }
+        else {
             last_open_dir = g_strconcat(dirname, G_DIR_SEPARATOR_S,
                                         NULL);
         }

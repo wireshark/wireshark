@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.3 2002/09/05 18:48:52 jmayer Exp $
+ * $Id: print_dlg.c,v 1.4 2002/09/09 20:39:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,9 @@
 #include "simple_dialog.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
+#include "main.h"
 #include <epan/epan_dissect.h>
+#include <epan/filesystem.h>
 #ifdef _WIN32
 #include <io.h>
 #include "print_mswin.h"
@@ -54,7 +56,7 @@ static void print_cmd_toggle_detail(GtkWidget *widget, gpointer data);
 static void print_file_cb(GtkWidget *file_bt, gpointer file_te);
 static void print_fs_ok_cb(GtkWidget *w, gpointer data);
 static void print_fs_cancel_cb(GtkWidget *w, gpointer data);
-static void print_fs_destroy_cb(GtkWidget *win, gpointer data);
+static void print_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 static void print_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
 static void print_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void print_destroy_cb(GtkWidget *win, gpointer user_data);
@@ -220,6 +222,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
   gtk_widget_set_sensitive(file_te, print_to_file);
   gtk_widget_show(file_te);
+  if (print_to_file)
+    gtk_widget_grab_focus(file_te);
 
   g_signal_connect(G_OBJECT(file_bt), "clicked",
                    G_CALLBACK(print_file_cb), GTK_OBJECT(file_te));
@@ -417,6 +421,12 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
   }
 
   fs = gtk_file_selection_new ("Ethereal: Print to File");
+
+  /* If we've opened a file, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+
   gtk_object_set_data(GTK_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
 
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
@@ -428,7 +438,7 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
   /* Call a handler when the file selection box is destroyed, so we can inform
      our caller, if any, that it's been destroyed. */
   g_signal_connect(G_OBJECT(fs), "destroy",
-                   G_CALLBACK(print_fs_destroy_cb), NULL);
+                   G_CALLBACK(print_fs_destroy_cb), file_te);
 
   g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(fs)->ok_button), "clicked",
                    G_CALLBACK(print_fs_ok_cb), fs);
@@ -448,11 +458,31 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
 static void
 print_fs_ok_cb(GtkWidget *w _U_, gpointer data)
 {
+  gchar     *cf_name;
+  gchar     *dirname;
+
+  cf_name = g_strdup(gtk_file_selection_get_filename(
+    GTK_FILE_SELECTION (data)));
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(cf_name) == EISDIR) {
+        /* It's a directory - set the file selection box to display it. */
+        set_last_open_dir(cf_name);
+        g_free(cf_name);
+        gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
+          last_open_dir);
+        return;
+  }
 
   gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
-      PRINT_FILE_TE_KEY)),
-      gtk_file_selection_get_filename (GTK_FILE_SELECTION(data)));
+      PRINT_FILE_TE_KEY)), cf_name);
   gtk_widget_destroy(GTK_WIDGET(data));
+
+  /* Save the directory name for future file dialogs. */
+  dirname = get_dirname(cf_name);  /* Overwrites cf_name */
+  set_last_open_dir(dirname);
+  g_free(cf_name);
 }
 
 static void
@@ -462,7 +492,7 @@ print_fs_cancel_cb(GtkWidget *w _U_, gpointer data)
 }
 
 static void
-print_fs_destroy_cb(GtkWidget *win, gpointer data _U_)
+print_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te)
 {
   GtkWidget *caller;
 
@@ -477,6 +507,10 @@ print_fs_destroy_cb(GtkWidget *win, gpointer data _U_)
   /* Now nuke this window. */
   gtk_grab_remove(GTK_WIDGET(win));
   gtk_widget_destroy(GTK_WIDGET(win));
+
+  /* Give the focus to the file text entry widget so the user can just press
+     Return to print to the file. */
+  gtk_widget_grab_focus(file_te);
 }
 
 #ifdef _WIN32

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.3 2002/09/07 14:56:57 jmayer Exp $
+ * $Id: follow_dlg.c,v 1.4 2002/09/09 20:39:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,6 +61,7 @@
 #include "util.h"
 #include "ui_util.h"
 #include <epan/epan_dissect.h>
+#include <epan/filesystem.h>
 
 /* Show Stream */
 typedef enum {
@@ -749,7 +750,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     /* If we've opened a file, start out by showing the files in the directory
        in which that file resided. */
     if (last_open_dir)
-	gtk_file_selection_complete(GTK_FILE_SELECTION(new_win),
+	gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win),
 				    last_open_dir);
 
     /* Connect the ok_button to file_save_as_ok_cb function and pass along a
@@ -780,22 +781,40 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 	gchar		*to_name;
 	follow_info_t	*follow_info;
 	FILE		*fh;
+	gchar		*dirname;
 
 	to_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 
-	gtk_widget_hide(GTK_WIDGET(fs));
-	follow_info = gtk_object_get_data(GTK_OBJECT(fs), E_FOLLOW_INFO_KEY);
-	gtk_widget_destroy(GTK_WIDGET(fs));
+	/* Perhaps the user specified a directory instead of a file.
+	   Check whether they did. */
+	if (test_for_directory(to_name) == EISDIR) {
+	       /* It's a directory - set the file selection box to display that
+	          directory, and leave the selection box displayed. */
+	       set_last_open_dir(to_name);
+	       g_free(to_name);
+	       gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs),
+	               last_open_dir);
+	       return;
+	}
 
 	fh = fopen(to_name, "wb");
 	if (fh == NULL) {
 		simple_dialog(ESD_TYPE_WARN, NULL,
 			file_write_error_message(errno), to_name);
+		g_free(to_name);
 		return;
 	}
 
+	gtk_widget_hide(GTK_WIDGET(fs));
+	follow_info = gtk_object_get_data(GTK_OBJECT(fs), E_FOLLOW_INFO_KEY);
+	gtk_widget_destroy(GTK_WIDGET(fs));
+
 	follow_read_stream(follow_info, follow_print_text, fh);
 	fclose(fh);
+
+	/* Save the directory name for future file dialogs. */
+	dirname = get_dirname(to_name);  /* Overwrites to_name */
+	set_last_open_dir(dirname);
 	g_free(to_name);
 }
 

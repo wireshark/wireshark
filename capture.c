@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.189 2002/08/28 21:00:05 jmayer Exp $
+ * $Id: capture.c,v 1.190 2002/09/09 20:38:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -289,7 +289,7 @@ quote_encapsulate(const char *string)
 /* Open a specified file, or create a temporary file, and start a capture
    to the file in question. */
 void
-do_capture(char *capfile_name)
+do_capture(const char *save_file)
 {
   char tmpname[128+1];
   gboolean is_tempfile;
@@ -301,8 +301,14 @@ do_capture(char *capfile_name)
   int capture_succeeded;
   gboolean stats_known;
   struct pcap_stat stats;
+  gchar *capfile_name;
 
-  if (capfile_name != NULL) {
+  if (save_file != NULL) {
+    /* If the Sync option is set, we return to the caller while the capture
+     * is in progress.  Therefore we need to take a copy of save_file in
+     * case the caller destroys it after we return.
+     */
+    capfile_name = g_strdup(save_file);
     if (capture_opts.ringbuffer_on) {
       /* ringbuffer is enabled */
       cfile.save_file_fd = ringbuf_init(capfile_name,
@@ -331,11 +337,14 @@ do_capture(char *capfile_name)
       simple_dialog(ESD_TYPE_CRIT, NULL,
 	file_open_error_message(errno, TRUE, WTAP_FILE_PCAP), capfile_name);
     }
+    g_free(capfile_name);
     return;
   }
   close_cap_file(&cfile);
   g_assert(cfile.save_file == NULL);
   cfile.save_file = capfile_name;
+  /* cfile.save_file is "g_free"ed below, which is equivalent to
+     "g_free(capfile_name)". */
 
   if (capture_opts.sync_mode) {	/* do the capture in a child process */
     char ssnap[24];
@@ -676,7 +685,8 @@ do_capture(char *capfile_name)
         case READ_ABORTED:
           /* Exit by leaving the main loop, so that any quit functions
              we registered get called. */
-          gtk_main_quit();
+          if (gtk_main_level() > 0)
+            gtk_main_quit();
           return;
         }
       }
