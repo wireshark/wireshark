@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.5 1999/09/19 15:54:53 deniel Exp $
+ * $Id: globals.h,v 1.6 1999/09/23 06:27:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,7 +101,6 @@ extern GtkStyle *item_style;
 extern int sync_mode;	/* allow sync */
 extern int sync_pipe[2]; /* used to sync father */
 extern int fork_mode;	/* fork a child to do the capture */
-extern int sigusr2_received;
 extern int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 #endif
 

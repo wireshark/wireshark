@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.2 1999/09/11 06:23:28 guy Exp $
+ * $Id: capture_dlg.c,v 1.3 1999/09/23 06:27:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,7 @@
 #define E_CAP_COUNT_KEY "cap_count"
 #define E_CAP_OPEN_KEY  "cap_open"
 #define E_CAP_SNAP_KEY  "cap_snap"
+#define E_CAP_SYNC_KEY  "cap_sync"
 
 /* Capture filter key */
 #define E_CAP_FILT_TE_KEY "cap_filt_te"
@@ -106,7 +107,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
                 *count_lb, *count_cb, *main_vb, *if_hb, *count_hb,
                 *filter_hb, *filter_bt, *filter_te, *caplen_hb,
                 *bbox, *ok_bt, *cancel_bt, *snap_lb,
-                *snap_sb;
+                *snap_sb, *sync_cb;
   GtkAdjustment *adj;
   GList         *if_list, *count_list = NULL;
   gchar         *count_item1 = "0 (Infinite)", count_item2[16];
@@ -205,6 +206,11 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start (GTK_BOX(caplen_hb), snap_sb, FALSE, FALSE, 3); 
   gtk_widget_show(snap_sb);
   
+  sync_cb = gtk_check_button_new_with_label("Update list of packets in real time");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), sync_mode);
+  gtk_container_add(GTK_CONTAINER(main_vb), sync_cb);
+  gtk_widget_show(sync_cb);
+  
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -232,30 +238,33 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILT_KEY,  filter_te);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_KEY, count_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_KEY,  snap_sb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
 
   gtk_widget_show(cap_open_w);
 }
 
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
-  GtkWidget *if_cb, *filter_te, *count_cb, *snap_sb;
+  GtkWidget *if_cb, *filter_te, *count_cb, *snap_sb, *sync_cb;
   gchar *filter_text;
-  char tmpname[128+1];
 
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
   filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILT_KEY);
   count_cb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_KEY);
   snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_KEY);
+  sync_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SYNC_KEY);
 
-  if (cf.iface) g_free(cf.iface);
+  if (cf.iface)
+    g_free(cf.iface);
   cf.iface =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
 
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
-  if (cf.cfilter) g_free(cf.cfilter);
+  if (cf.cfilter)
+    g_free(cf.cfilter);
   cf.cfilter = NULL; /* ead 06/16/99 */
   if (filter_text && filter_text[0]) {
-	  cf.cfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te))); 
+    cf.cfilter = g_strdup(filter_text); 
   }
   cf.count = atoi(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry)));
   cf.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
@@ -263,87 +272,21 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     cf.snap = WTAP_MAX_PACKET_SIZE;
   else if (cf.snap < MIN_PACKET_SIZE)
     cf.snap = MIN_PACKET_SIZE;
+  if (GTK_TOGGLE_BUTTON (sync_cb)->active) {
+    /* They requested that the summary window be updated as packets are
+       captured. */
+    sync_mode = TRUE;
+    fork_mode = TRUE; /* -S implies -F */
+  } else {
+    /* They requested that the summary window not be updated as packets are
+       captured. */
+    sync_mode = FALSE;
+    fork_mode = FALSE;
+  }
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
-  /* Choose a random name for the capture buffer */
-  if (cf.save_file && !cf.user_saved) {
-	unlink(cf.save_file); /* silently ignore error */
-	g_free(cf.save_file);
-  }
-  cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
-  cf.save_file = g_strdup(tmpname);
-  cf.user_saved = 0;
-  
-  if( fork_mode ){	/*  use fork() for capture */
-    int  fork_child;
-    char ssnap[24];
-    char scount[24];	/* need a constant for len of numbers */
-    char save_file_fd[24];
-    int err;
-
-    sprintf(ssnap,"%d",cf.snap); /* in lieu of itoa */
-    sprintf(scount,"%d",cf.count);
-    sprintf(save_file_fd,"%d",cf.save_file_fd);
-    signal(SIGCHLD, SIG_IGN);
-    if (sync_mode) pipe(sync_pipe);
-    if((fork_child = fork()) == 0){
-      /* args: -k -- capture
-       * -i interface specification
-       * -w file to write
-       * -W file descriptor to write
-       * -c count to capture
-       * -Q quit after capture (forces -k)
-       * -s snaplen
-       * -S sync mode
-       * -m / -b fonts
-       * -f "filter expression"
-       */
-       if (sync_mode) {
-	 close(1);
-	 dup(sync_pipe[1]);
-	 close(sync_pipe[0]);
-	 execlp(ethereal_path, "ethereal", "-k", "-Q", "-i", cf.iface,
-		"-w", cf.save_file, "-W", save_file_fd,
-		"-c", scount, "-s", ssnap, "-S", 
-		"-m", medium_font, "-b", bold_font,
-		(cf.cfilter == NULL)? 0 : "-f",
-		(cf.cfilter == NULL)? 0 : cf.cfilter,
-		(const char *)NULL);	
-       }
-       else {
-	 execlp(ethereal_path, "ethereal", "-k", "-Q", "-i", cf.iface,
-		"-w", cf.save_file, "-W", save_file_fd,
-		"-c", scount, "-s", ssnap,
-		"-m", medium_font, "-b", bold_font,
-		(cf.cfilter == NULL)? 0 : "-f",
-		(cf.cfilter == NULL)? 0 : cf.cfilter,
-		(const char *)NULL);
-       }
-    }
-    else {
-       cf.filename = cf.save_file;
-       if (sync_mode) {
-	 close(sync_pipe[1]);
-	 while (!sigusr2_received) {
-	   struct timeval timeout = {1,0};
-	   select(0, NULL, NULL, NULL, &timeout);
-	   if (kill(fork_child, 0) == -1 && errno == ESRCH) 
-	     break;
-	 }
-	 if (sigusr2_received) {
-	   err = tail_cap_file(cf.save_file, &cf);
-	   if (err != 0) {
-	     simple_dialog(ESD_TYPE_WARN, NULL,
-			file_open_error_message(err, FALSE), cf.save_file);
-	   }
-	 }
-	 sigusr2_received = FALSE;
-       }
-    }
-  }
-  else
-    capture();
+  do_capture();
 }
 
 static void

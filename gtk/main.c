@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.6 1999/09/22 01:26:33 ashokn Exp $
+ * $Id: main.c,v 1.7 1999/09/23 06:27:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,7 +118,6 @@ GtkStyle *item_style;
 int sync_mode;	/* allow sync */
 int sync_pipe[2]; /* used to sync father */
 int fork_mode;	/* fork a child to do the capture */
-int sigusr2_received = 0;
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 #endif
 
@@ -444,14 +443,6 @@ main_realize_cb(GtkWidget *w, gpointer data) {
 #endif
 }
 
-#ifdef HAVE_LIBPCAP
-static void 
-sigusr2_handler(int sig) {
-  sigusr2_received = 1;
-  signal(SIGUSR2, sigusr2_handler);
-}
-#endif
-
 /* call initialization routines at program startup time */
 static void
 ethereal_proto_init(void) {
@@ -689,11 +680,6 @@ main(int argc, char *argv[])
     }
 #endif
   }
-
-#ifdef HAVE_LIBPCAP
-  if (sync_mode)
-    signal(SIGUSR2, sigusr2_handler);
-#endif
 
   /* Build the column format array */  
   for (i = 0; i < cf.cinfo.num_cols; i++) {
