@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.66 2004/05/26 11:04:15 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.67 2004/05/27 08:22:04 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -207,7 +207,6 @@ static gint hf_krb_KDCOptions_enc_tkt_in_skey = -1;
 static gint hf_krb_KDCOptions_renew = -1;
 static gint hf_krb_KDCOptions_validate = -1;
 static gint hf_krb_KDC_REQ_BODY = -1;
-static gint hf_krb_SAFE = -1;
 static gint hf_krb_PRIV_BODY = -1;
 static gint hf_krb_ENC_PRIV = -1;
 static gint hf_krb_authenticator_enc = -1;
@@ -251,7 +250,6 @@ static gint ett_krb_request = -1;
 static gint ett_krb_recordmark = -1;
 static gint ett_krb_ticket = -1;
 static gint ett_krb_ticket_enc = -1;
-static gint ett_krb_SAFE = -1;
 static gint ett_krb_PRIV = -1;
 static gint ett_krb_PRIV_enc = -1;
 
@@ -1219,6 +1217,9 @@ dissect_krb5_msg_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 			"Unknown msg type %#x"));
 	}
 	do_col_info=FALSE;
+
+	/* append the application type to the subtree */
+	proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
 
 	return offset;
 }
@@ -2546,7 +2547,7 @@ static int
 dissect_krb5_SAFE(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 
-	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, SAFE_sequence, hf_krb_SAFE, ett_krb_SAFE);
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, SAFE_sequence, -1, -1);
 
 	return offset;
 }
@@ -3285,7 +3286,6 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
     }
 
-
     offset=dissect_ber_choice(pinfo, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1);
 
     proto_item_set_len(item, offset);
@@ -3486,9 +3486,6 @@ proto_register_kerberos(void)
 	{ &hf_krb_PRIV_BODY, {
 	    "PRIV_BODY", "kerberos.priv_body", FT_NONE, BASE_NONE,
 	    NULL, 0, "Kerberos PRIVate BODY", HFILL }},
-	{ &hf_krb_SAFE, {
-	    "SAFE", "kerberos.safe", FT_NONE, BASE_NONE,
-	    NULL, 0, "Kerberos SAFE structure", HFILL }},
 	{ &hf_krb_encrypted_PRIV, {
 	    "Encrypted PRIV", "kerberos.enc_priv", FT_NONE, BASE_NONE,
 	    NULL, 0, "Kerberos Encrypted PRIVate blob data", HFILL }},
@@ -3732,7 +3729,6 @@ proto_register_kerberos(void)
         &ett_krb_recordmark,
         &ett_krb_ticket,
 	&ett_krb_ticket_enc,
-        &ett_krb_SAFE,
         &ett_krb_PRIV,
         &ett_krb_PRIV_enc,
         &ett_krb_EncTicketPart,
