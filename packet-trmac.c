@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.14 1999/09/09 04:47:17 gram Exp $
+ * $Id: packet-trmac.c,v 1.15 1999/09/17 04:20:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -36,9 +36,27 @@
 #include "packet.h"
 
 static int proto_trmac = -1;
+static int hf_trmac_mv = -1;
+static int hf_trmac_length = -1;
+static int hf_trmac_srcclass = -1;
+static int hf_trmac_dstclass = -1;
+static int hf_trmac_sv = -1;
+static int hf_trmac_errors_iso = -1;
+static int hf_trmac_errors_line = -1;
+static int hf_trmac_errors_internal = -1;
+static int hf_trmac_errors_burst = -1;
+static int hf_trmac_errors_ac = -1;
+static int hf_trmac_errors_abort = -1;
+static int hf_trmac_errors_noniso = -1;
+static int hf_trmac_errors_lost = -1;
+static int hf_trmac_errors_congestion = -1;
+static int hf_trmac_errors_fc = -1;
+static int hf_trmac_errors_freq = -1;
+static int hf_trmac_errors_token = -1;
+static int hf_trmac_naun = -1;
 
 /* Major Vector */
-static value_string major_vectors[] = {
+static value_string major_vector_vs[] = {
 		{ 0x00, "Response" },
 		{ 0x02, "Beacon" },
 		{ 0x03, "Claim Token" },
@@ -66,6 +84,16 @@ static value_string major_vectors[] = {
 		{ 0x00, NULL }
 };
 
+/* Src. and Dest. Classes */
+static value_string classes_vs[] = {
+	{ 0x00, "Ring Station" },
+	{ 0x01, "LLC Manager" },
+	{ 0x04, "Configuration Report Server" },
+	{ 0x05, "Ring Parameter Server" },
+	{ 0x06, "Ring Error Monitor" },
+	{ 0x00, NULL }
+};
+
 
 /* Sub-vectors */
 static int
@@ -87,6 +115,8 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 	proto_tree_add_text(tree, pkt_offset, 1,
 		"Subvector Length: %d bytes", sv_length);*/
 
+	proto_tree_add_item_hidden(tree, hf_trmac_sv, pkt_offset+1, 1, pd[1]);
+
 	switch(pd[1]) {
 		case 0x01: /* Beacon Type */
 			beacon_type = pntohs(&pd[2]);
@@ -100,8 +130,7 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 			break;
 
 		case 0x02: /* NAUN */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
-				"NAUN: %s", ether_to_str((guint8*)&pd[2]));
+			proto_tree_add_item(tree, hf_trmac_naun, pkt_offset+1, sv_length-1, (guint8*)&pd[2]);
 			break;
 
 		case 0x03: /* Local Ring Number */
@@ -199,41 +228,29 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 
 		case 0x2D: /* Isolating Error Counts */
 			memcpy(errors, &pd[2], 6);
-			ti = proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
-				"Isolating Error Counts (%d total)",
+			ti = proto_tree_add_item(tree, hf_trmac_errors_iso, pkt_offset+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
 			sv_tree = proto_item_add_subtree(ti, ETT_TR_IERR_CNT);
 
-			proto_tree_add_text(sv_tree, pkt_offset+2, 1,
-				"Line Errors: %d", errors[0]);
-			proto_tree_add_text(sv_tree, pkt_offset+3, 1,
-				"Internal Errors: %d", errors[1]);
-			proto_tree_add_text(sv_tree, pkt_offset+4, 1,
-				"Burst Errors: %d", errors[2]);
-			proto_tree_add_text(sv_tree, pkt_offset+5, 1,
-				"A/C Errors: %d", errors[3]);
-			proto_tree_add_text(sv_tree, pkt_offset+6, 1,
-				"Abort delimiter transmitted: %d", errors[4]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_line, pkt_offset+2, 1, errors[0]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_internal, pkt_offset+3, 1, errors[1]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_burst, pkt_offset+4, 1, errors[2]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_ac, pkt_offset+5, 1, errors[3]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_abort, pkt_offset+6, 1, errors[4]);
 
 			break;
 
 		case 0x2E: /* Non-Isolating Error Counts */
 			memcpy(errors, &pd[2], 6);
-			ti = proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
-				"Non-Isolating Error Counts (%d total)",
+			ti = proto_tree_add_item(tree, hf_trmac_errors_noniso, pkt_offset+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
 			sv_tree = proto_item_add_subtree(ti, ETT_TR_NERR_CNT);
 
-			proto_tree_add_text(sv_tree, pkt_offset+2, 1,
-				"Lost Frame Errors: %d", errors[0]);
-			proto_tree_add_text(sv_tree, pkt_offset+3, 1,
-				"Receiver Congestion: %d", errors[1]);
-			proto_tree_add_text(sv_tree, pkt_offset+4, 1,
-				"Frame-Copied Congestion: %d", errors[2]);
-			proto_tree_add_text(sv_tree, pkt_offset+5, 1,
-				"Frequency Errors: %d", errors[3]);
-			proto_tree_add_text(sv_tree, pkt_offset+6, 1,
-				"Token Errors: %d", errors[4]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_lost, pkt_offset+2, 1, errors[0]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_congestion, pkt_offset+3, 1, errors[1]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_fc, pkt_offset+4, 1, errors[2]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_freq, pkt_offset+5, 1, errors[3]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_token, pkt_offset+6, 1, errors[4]);
 			break;
 
 		case 0x30: /* Error Code */
@@ -253,16 +270,15 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*mac_tree = NULL;
 	proto_item	*ti;
-	int			mv_length, sv_length, sv_offset, sv_additional;
-	char		*class[] = { "Ring Station", "LLC Manager", "", "",
-		"Configuration Report Server", "Ring Parameter Server",
-		"Ring Error Monitor" };
+	int		mv_length, sv_length, sv_offset, sv_additional;
+	guint8		mv_val;
 	char		*mv_text;
 
+	mv_val = pd[offset+3];
 	mv_length = pntohs(&pd[offset]);
 
 	/* Interpret the major vector */
-	mv_text = val_to_str(pd[offset+3], major_vectors, "Unknown Major Vector: %d\n");
+	mv_text = val_to_str(mv_val, major_vector_vs, "Unknown Major Vector: %d\n");
 
 	/* Summary information */
 	if (check_col(fd, COL_PROTOCOL))
@@ -275,18 +291,11 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ti = proto_tree_add_item(tree, proto_trmac, offset, mv_length, NULL);
 		mac_tree = proto_item_add_subtree(ti, ETT_TR_MAC);
 
-		if (mv_text)
-			proto_tree_add_text(mac_tree, offset+3, 1, "Major Vector Command: %s",
-							mv_text);
-		else
-			proto_tree_add_text(mac_tree, offset+3, 1, "Major Vector Command: %02X (Unknown)",
-							pd[offset+3]);
-		proto_tree_add_text(mac_tree, offset, 2, "Total Length: %d bytes",
-			mv_length);
-		proto_tree_add_text(mac_tree, offset+2, 1, "Source Class: %s",
-			class[ pd[offset+2] & 0x0f ]);
-		proto_tree_add_text(mac_tree, offset+2, 1, "Destination Class: %s",
-			class[ pd[offset+2] >> 4 ]);
+		proto_tree_add_item(mac_tree, hf_trmac_mv, offset+3, 1, mv_val);
+		proto_tree_add_item_format(mac_tree, hf_trmac_length, offset, 2, mv_length,
+				"Total Length: %d bytes", mv_length);
+		proto_tree_add_item(mac_tree, hf_trmac_srcclass, offset+2, 1, pd[offset+2] & 0x0f);
+		proto_tree_add_item(mac_tree, hf_trmac_dstclass, offset+2, 1, pd[offset+2] >> 4 );
 
 		/* interpret the subvectors */
 		sv_offset = 0;
@@ -309,11 +318,62 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 void
 proto_register_trmac(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "trmac.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+        static hf_register_info hf[] = {
+                { &hf_trmac_mv,
+                { "Major Vector",			"trmac.mvec", FT_VALS_UINT8, VALS(major_vector_vs) }},
+
+                { &hf_trmac_length,
+                { "Total Length",			"trmac.length", FT_UINT8, NULL }},
+
+                { &hf_trmac_srcclass,
+                { "Source Class",			"trmac.srcclass", FT_VALS_UINT8, VALS(classes_vs) }},
+
+                { &hf_trmac_dstclass,
+                { "Destination Class",			"trmac.dstclass", FT_VALS_UINT8, VALS(classes_vs) }},
+
+                { &hf_trmac_sv,
+                { "Sub-Vector",				"trmac.svec", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_iso,
+		{ "Isolating Errors",			"trmac.errors.iso", FT_UINT16, NULL }},
+
+		{ &hf_trmac_errors_line,
+		{ "Line Errors",			"trmac.errors.line", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_internal,
+		{ "Internal Errors",			"trmac.errors.internal", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_burst,
+		{ "Burst Errors",			"trmac.errors.burst", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_ac,
+		{ "A/C Errors",				"trmac.errors.ac", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_abort,
+		{ "Abort Delimiter Transmitted Errors",	"trmac.errors.abort", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_noniso,
+		{ "Non-Isolating Errors",		"trmac.errors.noniso", FT_UINT16, NULL }},
+
+		{ &hf_trmac_errors_lost,
+		{ "Lost Frame Errors",			"trmac.errors.lost", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_congestion,
+		{ "Receiver Congestion Errors",		"trmac.errors.congestion", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_fc,
+		{ "Frame-Copied Errors",		"trmac.errors.fc", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_freq,
+		{ "Frequency Errors",			"trmac.errors.freq", FT_UINT8, NULL }},
+
+		{ &hf_trmac_errors_token,
+		{ "Token Errors",			"trmac.errors.token", FT_UINT8, NULL }},
+
+		{ &hf_trmac_naun,
+		{ "NAUN",				"trmac.naun", FT_ETHER, NULL }}
+        };
 
         proto_trmac = proto_register_protocol("Token-Ring Media Access Control", "trmac");
- /*       proto_register_field_array(proto_trmac, hf, array_length(hf));*/
+	proto_register_field_array(proto_trmac, hf, array_length(hf));
 }

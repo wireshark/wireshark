@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.26 1999/09/15 06:26:42 gram Exp $
+ * $Id: packet-tr.c,v 1.27 1999/09/17 04:20:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -56,6 +56,7 @@ static int hf_tr_rif = -1;
 static int hf_tr_rif_ring = -1;
 static int hf_tr_rif_bridge = -1;
 
+#define TR_MIN_HEADER_LEN 14
 #define TR_MAX_HEADER_LEN 32
 
 static const value_string ac_vals[] = {
@@ -294,7 +295,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
 
-	if (fd->cap_len < TR_MAX_HEADER_LEN) {
+	if (fd->cap_len < TR_MIN_HEADER_LEN) {
 		dissect_data(pd, offset, fd, tree);
 		return;
 	}
