@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.14 2001/07/08 11:32:02 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.15 2001/07/08 19:31:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -425,10 +425,8 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	proto_tree_add_item(tree, hf_lmnt_token, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* unknown token */
-	proto_tree_add_text(tree, tvb, offset, 2, "Unknown Token: 0x%04x",
-	    tvb_get_letohs(tvb, offset));
-	offset += 2;
+	/* LM token(? - was "Unknown Token") */
+	offset = display_LM_token(tvb, offset, pinfo, tree);
 
 	return offset;
 }
