@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.34 2001/01/07 22:08:31 guy Exp $
+ * $Id: packet-gre.c,v 1.35 2001/01/07 22:35:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,7 +65,7 @@ static gint ett_gre_wccp2_redirect_header = -1;
 #define	GRE_IP		0x0800
 #define GRE_WCCP	0x883E
 #define GRE_IPX		0x8137
-#define GRE_FR          0x6559
+#define GRE_FR		0x6559
 
 static void add_flags_and_ver(proto_tree *, guint16, tvbuff_t *, int, int);
 static void dissect_gre_wccp2_redirect_header(tvbuff_t *, int, proto_tree *);
