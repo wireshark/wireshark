@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.14 1999/08/24 06:14:16 guy Exp $
+ * $Id: packet-ppp.c,v 1.15 1999/08/25 03:56:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -263,69 +263,78 @@ dissect_lcp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
   }
 }
 
+static gboolean
+dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
+		proto_tree *tree, proto_tree *fh_tree ) {
+  guint16 ppp_prot;
+  static const value_string ppp_vals[] = {
+    {PPP_IP,     "IP"                                 },
+    {PPP_AT,     "Appletalk"                          },
+    {PPP_IPX,    "Netware IPX/SPX"                    },
+    {PPP_VINES,  "Vines"                              },
+    {PPP_IPV6,   "IPv6"                               },
+    {PPP_LCP,    "Link Control Protocol"              },
+    {PPP_IPCP,   "Internet Protocol Control Protocol" },
+    {0,          NULL                                 } };
+
+  ppp_prot = pntohs(&pd[0+offset]);
+
+  if (tree) {
+    proto_tree_add_text(fh_tree, 0+offset, 2, "Protocol: %s (0x%04x)",
+      val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
+  }
+
+  switch (ppp_prot) {
+    case PPP_IP:
+      dissect_ip(pd, 2+offset, fd, tree);
+      return TRUE;
+    case PPP_AT:
+      dissect_ddp(pd, 2+offset, fd, tree);
+      return TRUE;
+    case PPP_IPX:
+      dissect_ipx(pd, 2+offset, fd, tree);
+      return TRUE;
+    case PPP_VINES:
+      dissect_vines(pd, 2+offset, fd, tree);
+      return TRUE;
+    case PPP_IPV6:
+      dissect_ipv6(pd, 2+offset, fd, tree);
+      return TRUE;
+    case PPP_LCP:
+      dissect_lcp(pd, 2+offset, fd, tree);
+      return TRUE;
+    case PPP_IPCP:
+      dissect_ipcp(pd, 2+offset, fd, tree);
+      return TRUE;
+    default:
+      if (check_col(fd, COL_INFO))
+        col_add_fstr(fd, COL_INFO, "PPP %s (0x%04x)",
+		val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
+      dissect_data(pd, 2+offset, fd, tree);
+      return FALSE;
+  }
+}
+
 void
 dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
-  e_ppphdr   ph;
-  proto_tree *fh_tree;
   proto_item *ti;
-
-/*  ph.ppp_addr = pd[0+offset]; */
-/* ph.ppp_ctl  = pd[1+offset]; */
-  ph.ppp_prot = pntohs(&pd[0+offset]);
+  proto_tree *fh_tree = NULL;
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
     ti = proto_tree_add_item(tree, proto_ppp, 0+offset, 2, NULL);
     fh_tree = proto_item_add_subtree(ti, ETT_PPP);
-    proto_tree_add_text(fh_tree, 0+offset, 2, "Protocol: %s (0x%04x)",
-      val_to_str(ph.ppp_prot, ppp_vals, "Unknown"), ph.ppp_prot);
   }
 
-  switch (ph.ppp_prot) {
-    case PPP_IP:
-      dissect_ip(pd, 2+offset, fd, tree);
-      break;
-    case PPP_AT:
-      dissect_ddp(pd, 2+offset, fd, tree);
-      break;
-    case PPP_IPX:
-      dissect_ipx(pd, 2+offset, fd, tree);
-      break;
-    case PPP_VINES:
-      dissect_vines(pd, 2+offset, fd, tree);
-      break;
-    case PPP_IPV6:
-      dissect_ipv6(pd, 2+offset, fd, tree);
-      break;
-    case PPP_LCP:
-      dissect_lcp(pd, 2+offset, fd, tree);
-      break;
-    case PPP_IPCP:
-      dissect_ipcp(pd, 2+offset, fd, tree);
-      break;
-    default:
-      dissect_data(pd, 2+offset, fd, tree);
-      if (check_col(fd, COL_INFO))
-        col_add_fstr(fd, COL_INFO, "PPP %s (0x%04x)", 
-					val_to_str(ph.ppp_prot, ppp_vals, "Unknown"), ph.ppp_prot);
-      break;
-  }
+  dissect_ppp_stuff(pd, offset, fd, tree, fh_tree);
 }
 
 void
 dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   e_ppphdr   ph;
-  proto_tree *fh_tree;
   proto_item *ti;
-
-  static const value_string ppp_vals[] = {
-    {PPP_IP,     "IP"             },
-    {PPP_AT,     "Appletalk"      },
-    {PPP_IPX,    "Netware IPX/SPX"},
-    {PPP_VINES,  "Vines"          },
-    {PPP_IPV6,   "IPv6"           },
-    {0,           NULL            } };
+  proto_tree *fh_tree = NULL;
 
   ph.ppp_addr = pd[0];
   ph.ppp_ctl  = pd[1];
@@ -340,8 +349,6 @@ dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
     col_add_str(fd, COL_RES_DL_DST, "N/A" );
   if(check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "PPP" );
-  if(check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "PPP" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
@@ -350,31 +357,11 @@ dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
     fh_tree = proto_item_add_subtree(ti, ETT_PPP);
     proto_tree_add_text(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
     proto_tree_add_text(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
-    proto_tree_add_text(fh_tree, 2, 2, "Protocol: %s (0x%04x)",
-      val_to_str(ph.ppp_prot, ppp_vals, "Unknown"), ph.ppp_prot);
   }
 
-  switch (ph.ppp_prot) {
-    case PPP_IP:
-      dissect_ip(pd, 4, fd, tree);
-      break;
-    case PPP_AT:
-      dissect_ddp(pd, 4, fd, tree);
-      break;
-    case PPP_IPX:
-      dissect_ipx(pd, 4, fd, tree);
-      break;
-    case PPP_VINES:
-      dissect_vines(pd, 4, fd, tree);
-      break;
-    case PPP_IPV6:
-      dissect_ipv6(pd, 4, fd, tree);
-      break;
-    default:
-      dissect_data(pd, 4, fd, tree);
-      if (check_col(fd, COL_PROTOCOL))
-        col_add_fstr(fd, COL_PROTOCOL, "0x%04x", ph.ppp_prot);
-      break;
+  if (!dissect_ppp_stuff(pd, 2, fd, tree, fh_tree)) {
+    if (check_col(fd, COL_PROTOCOL))
+      col_add_fstr(fd, COL_PROTOCOL, "0x%04x", ph.ppp_prot);
   }
 }
 
