@@ -3,8 +3,10 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
+ * Copyright 2002, Ronnie Sahlberg
+ *   rewrote entire dissector
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.32 2002/06/21 14:24:38 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.33 2002/06/21 14:27:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
