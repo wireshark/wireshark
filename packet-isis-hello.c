@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.3 2000/03/12 04:47:41 gram Exp $
+ * $Id: packet-isis-hello.c,v 1.4 2000/03/20 22:52:42 gram Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -531,34 +531,34 @@ void
 proto_register_isis_hello(void) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_hello_circuit_reserved,
-		{ "Circuit type",		"", FT_UINT8, BASE_HEX, NULL, 
-		  0x0, "" }},
+		{ "Circuit type",	"isis_hello.circuite_type",
+			FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_source_id,
-		{ "Source ID",		"isis_hello.source_id", FT_ETHER, 
-		  BASE_HEX, NULL, 0x0, "" }},
+		{ "Source ID",		"isis_hello.source_id",
+			FT_ETHER, BASE_HEX, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_holding_timer,
 		{ "Holding timer",	"isis_hello.holding_timer", 
-		  FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
+			FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_pdu_length,
-		{ "PDU length",           "isis_hello.pdu_length", FT_UINT16, 
-		  BASE_DEC, NULL, 0x0, "" }},
+		{ "PDU length",           "isis_hello.pdu_length",
+			FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_priority_reserved,
-		 { "Priority",		"",FT_UINT8, BASE_DEC, NULL, 
+		 { "Priority",		"isis_hello.priority",FT_UINT8, BASE_DEC, NULL, 
 		  ISIS_HELLO_P_RESERVED_MASK, "" }},
 
 		{ &hf_isis_hello_lan_id,
-		{ "LAN ID", "", FT_STRING, BASE_DEC, NULL, 0x0, "" }},
+		{ "LAN ID", "isis_hello.lan_id", FT_STRING, BASE_DEC, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_local_circuit_id,
 		{ "Local circuit ID", "isis_hello.local_circuit_id", FT_UINT8,
 		   BASE_DEC, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_clv_ipv4_int_addr,
-		{ "IPv4 interface address", "", FT_IPv4,
+		{ "IPv4 interface address", "isis_hello.clv_ipv4_int_addr", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "" }},
 
 	};
@@ -573,7 +573,7 @@ proto_register_isis_hello(void) {
 		&ett_isis_hello_clv_ipv4_int_addr,
 	};
 
-	proto_isis_hello = proto_register_protocol("ISIS hello", "ISIS-hello");
+	proto_isis_hello = proto_register_protocol("ISIS hello", "isis_hello");
 	proto_register_field_array(proto_isis_hello, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

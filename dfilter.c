@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.32 1999/11/15 06:32:13 gram Exp $
+ * $Id: dfilter.c,v 1.33 2000/03/20 22:52:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,10 +114,16 @@ dfilter_init(void)
 	num_symbols = proto_registrar_n();
 	for (i=0; i < num_symbols; i++) {
 		s = proto_registrar_get_abbrev(i);
-		if (s) {
-			symbol = DFILTER_LEX_ABBREV_OFFSET + i;
-			g_tree_insert(dfilter_tokens, s, GINT_TO_POINTER(symbol));
+		g_assert(s);		/* Not Null */
+		g_assert(s[0] != 0);	/* Not empty string */
+		/* Make sure we don't have duplicate abbreviation */
+		if (g_tree_lookup(dfilter_tokens, s)) {
+			g_message("Already have abbreviation \"%s\"", s);
+			g_assert(0);
 		}
+		/*g_message("Adding %s", s);*/
+		symbol = DFILTER_LEX_ABBREV_OFFSET + i;
+		g_tree_insert(dfilter_tokens, s, GINT_TO_POINTER(symbol));
 	}
 }
 

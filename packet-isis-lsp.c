@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.3 2000/01/24 03:33:32 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.4 2000/03/20 22:52:42 gram Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -907,7 +907,7 @@ proto_register_isis_lsp(void) {
 		  BASE_HEX, NULL, 0x0, "" }},
 
 		{ &hf_isis_lsp_clv_ipv4_int_addr,
-		{ "IPv4 interface address: ", "", FT_IPv4,
+		{ "IPv4 interface address: ", "isis_lsp.clv_ipv4_int_addr", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "" }},
 	};
 	static gint *ett[] = {

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.62 2000/03/06 19:59:09 guy Exp $
+ * $Id: packet-smb.c,v 1.63 2000/03/20 22:52:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -10195,10 +10195,6 @@ extern void register_proto_smb_mailslot( void);
 void
 proto_register_smb(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "smb.abbreviation", TYPE, VALS_POINTER }},
-        };*/
 	static gint *ett[] = {
 		&ett_smb,
 		&ett_smb_fileattributes,
@@ -10224,12 +10220,10 @@ proto_register_smb(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&smb_init_protocol);
 	
-
 	register_proto_smb_browse();
 	register_proto_smb_logon( );
 	register_proto_smb_mailslot();
 	register_proto_smb_pipe();
-	register_proto_smb_mailslot();
 
 }
 

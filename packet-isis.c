@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.4 2000/03/12 04:47:41 gram Exp $
+ * $Id: packet-isis.c,v 1.5 2000/03/20 22:52:43 gram Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -343,7 +343,7 @@ proto_register_isis(void) {
 		&ett_isis,
 	};
 
-	proto_isis = proto_register_protocol("clnp ISIS", "ISIS");
+	proto_isis = proto_register_protocol("clnp ISIS", "isis");
 	proto_register_field_array(proto_isis, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.23 2000/03/12 04:47:43 gram Exp $
+ * $Id: packet-nfs.c,v 1.24 2000/03/20 22:52:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -3063,13 +3063,13 @@ proto_register_nfs(void)
 			"rtmult", "nfs.fsinfo.rtmult", FT_UINT32, BASE_DEC,
 			NULL, 0, "suggested READ multiple" }},
 		{ &hf_nfs_fsinfo_wtmax, {
-			"wtmax", "nfs.fsinfo.rtmax", FT_UINT32, BASE_DEC,
+			"wtmax", "nfs.fsinfo.wtmax", FT_UINT32, BASE_DEC,
 			NULL, 0, "maximum WRITE request" }},
 		{ &hf_nfs_fsinfo_wtpref, {
-			"wtpref", "nfs.fsinfo.rtpref", FT_UINT32, BASE_DEC,
+			"wtpref", "nfs.fsinfo.wtpref", FT_UINT32, BASE_DEC,
 			NULL, 0, "preferred WRITE request" }},
 		{ &hf_nfs_fsinfo_wtmult, {
-			"wtmult", "nfs.fsinfo.rtmult", FT_UINT32, BASE_DEC,
+			"wtmult", "nfs.fsinfo.wtmult", FT_UINT32, BASE_DEC,
 			NULL, 0, "suggested WRITE multiple" }},
 		{ &hf_nfs_fsinfo_dtpref, {
 			"dtpref", "nfs.fsinfo.dtpref", FT_UINT32, BASE_DEC,

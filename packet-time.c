@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TIME Option Extension
  *
- * $Id: packet-time.c,v 1.2 2000/03/06 20:04:53 guy Exp $
+ * $Id: packet-time.c,v 1.3 2000/03/20 22:52:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,7 +74,7 @@ proto_register_time(void)
 
   static hf_register_info hf[] = {
     { &hf_time_time,
-      { "Time", "time",
+      { "Time", "time.time",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
       	"Seconds since 00:00 (midnight) 1 January 1900 GMT" }}
   };

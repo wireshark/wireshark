@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.50 2000/03/12 04:47:40 gram Exp $
+ * $Id: packet-ipx.c,v 1.51 2000/03/20 22:52:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -918,12 +918,12 @@ proto_register_ipx(void)
 
 	static hf_register_info hf_sap[] = {
 		{ &hf_sap_request,
-		{ "Request",			"sap.request", 
+		{ "Request",			"ipxsap.request", 
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
 		  "TRUE if SAP request" }},
 
 		{ &hf_sap_response,
-		{ "Response",			"sap.response", 
+		{ "Response",			"ipxsap.response", 
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
 		  "TRUE if SAP response" }}
 	};
@@ -961,7 +961,7 @@ proto_register_ipx(void)
 	proto_ipxmsg = proto_register_protocol ("IPX Message", "ipxmsg");
 	proto_register_field_array(proto_ipxmsg, hf_ipxmsg, array_length(hf_ipxmsg));
 
-	proto_sap = proto_register_protocol ("Service Advertisement Protocol", "sap");
+	proto_sap = proto_register_protocol ("Service Advertisement Protocol", "ipxsap");
 	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
 
 	proto_register_subtree_array(ett, array_length(ett));

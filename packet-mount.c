@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.11 2000/03/09 12:13:20 girlich Exp $
+ * $Id: packet-mount.c,v 1.12 2000/03/20 22:52:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -628,7 +628,7 @@ proto_register_mount(void)
 			FT_UINT16, BASE_DEC,
 			NULL, 0, "Maximum amount of data that can be written atomically to a pipe" }},
 		{ &hf_mount_pathconf_vdisable, {
-			"VDISABLE character", "mount.pathconf.pipe_buf",
+			"VDISABLE character", "mount.pathconf.vdisable_char",
 			FT_UINT8, BASE_HEX,
 			NULL, 0, "Character value to disable a terminal special character" }},
 		{ &hf_mount_pathconf_mask, {

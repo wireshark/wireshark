@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.2 2000/03/13 16:36:31 gram Exp $
+ * $Id: packet-mpls.c,v 1.3 2000/03/20 22:52:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,7 +73,7 @@ static const value_string special_labels[] = {
 enum mpls_filter_keys {
 
     /* Is the packet MPLS-encapsulated? */
-    MPLSF_PACKET,
+/*    MPLSF_PACKET,*/
 
     /* MPLS encap properties */
     MPLSF_LABEL,
@@ -87,9 +87,9 @@ enum mpls_filter_keys {
 static int mpls_filter[MPLSF_MAX];
 static hf_register_info mplsf_info[] = {
 
-    {&mpls_filter[MPLSF_PACKET], 
+/*    {&mpls_filter[MPLSF_PACKET], 
      {"MPLS Label Switched Packet", "mpls", FT_UINT8, BASE_NONE, NULL, 0x0, 
-      "" }},
+      "" }},*/
 
     {&mpls_filter[MPLSF_LABEL], 
      {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, VALS(special_labels), 0x0, 
