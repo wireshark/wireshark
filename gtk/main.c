@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.58 1999/12/02 04:30:13 gerald Exp $
+ * $Id: main.c,v 1.59 1999/12/02 05:25:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1030,7 +1030,7 @@ main(int argc, char *argv[])
         break;
 #endif
       case 'r':        /* Read capture file xxx */
-        cf_name = optarg;
+        cf_name = g_strdup(optarg);
         break;
       case 'R':        /* Read file filter */
         rfilter = optarg;
