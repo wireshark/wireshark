@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.60 2003/03/12 00:07:32 guy Exp $
+ * $Id: util.c,v 1.61 2003/05/23 05:25:18 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -586,4 +586,37 @@ compute_timestamp_diff(gint *diffsec, gint *diffusec,
       (*diffsec)--;
     }
   }
+}
+
+/* Decode a base64 string in-place - simple and slow algorithm.
+   Return length of result. Taken from rproxy/librsync/base64.c by
+   Andrew Tridgell. */
+
+size_t base64_decode(char *s)
+{
+	static const char b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	int bit_offset, byte_offset, idx, i, n;
+	unsigned char *d = (unsigned char *)s;
+	char *p;
+
+	n=i=0;
+
+	while (*s && (p=strchr(b64, *s))) {
+		idx = (int)(p - b64);
+		byte_offset = (i*6)/8;
+		bit_offset = (i*6)%8;
+		d[byte_offset] &= ~((1<<(8-bit_offset))-1);
+		if (bit_offset < 3) {
+			d[byte_offset] |= (idx << (2-bit_offset));
+			n = byte_offset+1;
+		} else {
+			d[byte_offset] |= (idx >> (bit_offset-2));
+			d[byte_offset+1] = 0;
+			d[byte_offset+1] |= (idx << (8-(bit_offset-2))) & 0xFF;
+			n = byte_offset+2;
+		}
+		s++; i++;
+	}
+
+	return n;
 }

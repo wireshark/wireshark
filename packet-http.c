@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.61 2003/02/24 01:17:45 guy Exp $
+ * $Id: packet-http.c,v 1.62 2003/05/23 05:25:18 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
+#include "util.h"
 #include "packet-http.h"
 
 typedef enum _http_type {
@@ -83,39 +84,6 @@ static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 static dissector_handle_t ntlmssp_handle=NULL;
-
-/* Decode a base64 string in-place - simple and slow algorithm.
-   Return length of result. Taken from rproxy/librsync/base64.c by
-   Andrew Tridgell. */
-
-static size_t base64_decode(char *s)
-{
-	static const char b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	int bit_offset, byte_offset, idx, i, n;
-	unsigned char *d = (unsigned char *)s;
-	char *p;
-
-	n=i=0;
-
-	while (*s && (p=strchr(b64, *s))) {
-		idx = (int)(p - b64);
-		byte_offset = (i*6)/8;
-		bit_offset = (i*6)%8;
-		d[byte_offset] &= ~((1<<(8-bit_offset))-1);
-		if (bit_offset < 3) {
-			d[byte_offset] |= (idx << (2-bit_offset));
-			n = byte_offset+1;
-		} else {
-			d[byte_offset] |= (idx >> (bit_offset-2));
-			d[byte_offset+1] = 0;
-			d[byte_offset+1] |= (idx << (8-(bit_offset-2))) & 0xFF;
-			n = byte_offset+2;
-		}
-		s++; i++;
-	}
-
-	return n;
-}
 
 /* Return a tvb that contains the binary representation of a base64
    string */
