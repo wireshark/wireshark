@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.53 1999/12/09 20:41:25 oabad Exp $
+ * $Id: packet-tcp.c,v 1.54 1999/12/09 20:54:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,29 +89,32 @@ static gint ett_tcp_option_sack = -1;
 
 /* TCP Ports */
 
-#define TCP_PORT_FTPDATA  20
-#define TCP_PORT_FTP      21
-#define TCP_PORT_TELNET   23
-#define TCP_PORT_SMTP     25
-#define TCP_PORT_HTTP     80
-#define TCP_PORT_TACACS   49
-#define TCP_PORT_POP      110
-#define TCP_PORT_NNTP     119
-#define TCP_PORT_NTP      123
-#define TCP_PORT_NBSS     139
-#define TCP_PORT_IMAP     143
-#define TCP_PORT_BGP      179
-#define TCP_PORT_SRVLOC   427
-#define TCP_PORT_PRINTER  515
-#define TCP_PORT_NCP      524
-#define TCP_ALT_PORT_HTTP 8080
-#define TCP_PORT_PPTP     1723
-#define TCP_PORT_RTSP     554
-#define TCP_PORT_YHOO     5050
-#define TCP_PORT_MAPI     1065
-#define TCP_PORT_TNS      1521
-#define TCP_PORT_IRC      6667 /* good candidate for dynamic port specification */
-#define TCP_PORT_LDAP	  389
+#define TCP_PORT_FTPDATA		20
+#define TCP_PORT_FTP			21
+#define TCP_PORT_TELNET			23
+#define TCP_PORT_SMTP			25
+#define TCP_PORT_HTTP			80
+#define TCP_PORT_TACACS			49
+#define TCP_PORT_POP			110
+#define TCP_PORT_NNTP			119
+#define TCP_PORT_NTP			123
+#define TCP_PORT_NBSS			139
+#define TCP_PORT_IMAP			143
+#define TCP_PORT_BGP			179
+#define TCP_PORT_LDAP			389
+#define TCP_PORT_SRVLOC			427
+#define TCP_PORT_PRINTER		515
+#define TCP_PORT_NCP			524
+#define TCP_PORT_RTSP			554
+#define TCP_PORT_MAPI			1065
+#define TCP_PORT_TNS			1521
+#define TCP_PORT_PPTP			1723
+#define TCP_PORT_PROXY_HTTP		3128
+#define TCP_PORT_PROXY_ADMIN_HTTP	3132
+#define TCP_PORT_YHOO			5050
+#define TCP_ALT_PORT_HTTP		8080
+#define TCP_PORT_IRC			6667
+	/* good candidate for dynamic port specification */
 
 /* TCP structs and definitions */
 
@@ -538,7 +541,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       pi.match_port = TCP_PORT_PPTP;
       dissect_pptp(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_HTTP) || PORT_IS(TCP_ALT_PORT_HTTP)
-            || PORT_IS(631))
+            || PORT_IS(631) || PORT_IS(TCP_PORT_PROXY_HTTP)
+            || PORT_IS(TCP_PORT_PROXY_ADMIN_HTTP))
       dissect_http(pd, offset, fd, tree);
     else if (PORT_IS(TCP_PORT_NBSS)) {
       pi.match_port = TCP_PORT_NBSS;
