@@ -268,9 +268,8 @@ system-dependent, but is likely either F</var/tmp> or F</tmp>.
 Allows you to sets the format of the packet timestamp displayed in the
 packet list window to relative, absolute, or delta, to enable or disable
 the automatic scrolling of the packet list while a live capture is in
-progress, to enable or disable translation of addresses to names in the
-display, or to enable or disable interpretation of the IPv4 TOS field as
-the Differentiated Services field.
+progress or to enable or disable translation of addresses to names in the
+display.
 
 =item Display:Match Selected
 

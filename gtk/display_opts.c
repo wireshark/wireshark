@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.14 2000/08/11 13:33:09 deniel Exp $
+ * $Id: display_opts.c,v 1.15 2000/08/22 14:37:29 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,7 +69,6 @@ extern GtkWidget *packet_list;
 #define E_DISPLAY_TIME_DELTA_KEY "display_time_delta"
 #define E_DISPLAY_AUTO_SCROLL_KEY "display_auto_scroll"
 #define E_DISPLAY_NAME_RESOLUTION_KEY "display_name_resolution"
-#define E_DISPLAY_IP_DSCP_KEY "display_ip_dscp"
 
 static void display_opt_ok_cb(GtkWidget *, gpointer);
 static void display_opt_apply_cb(GtkWidget *, gpointer);
@@ -89,9 +88,6 @@ static GtkWidget *display_opt_w;
 static ts_type initial_timestamp_type;
 static ts_type current_timestamp_type;
 
-static gboolean initial_g_ip_dscp_actif;
-static gboolean current_g_ip_dscp_actif;
-
 void
 display_opt_cb(GtkWidget *w, gpointer d) {
   GtkWidget     *button, *main_vb, *bbox, *ok_bt, *apply_bt, *cancel_bt;
@@ -103,21 +99,16 @@ display_opt_cb(GtkWidget *w, gpointer d) {
     return;
   }
 
-  /* Save the timestamp type and "Display TOS as DiffServ" values as of
-     when the dialog box was first popped up, so that "Cancel" can put
-     them back if we've changed either of them with "Apply". */
+  /* Save the timestamp type value as of when the dialog box was first popped
+     up, so that "Cancel" can put it back if we've changed it with "Apply". */
   initial_timestamp_type = timestamp_type;
-  initial_g_ip_dscp_actif = g_ip_dscp_actif;
 
-  /* Save the current timestamp type and "Display TOS as DiffServ" values,
-     so that we know whether they were changed; we don't want to redisplay
-     the time fields unless we've changed the way they should be displayed
-     (as redisplaying the time fields could be expensive - we have to scan
-     through all the packets and rebuild the packet list), and we don't
-     want to reconstruct the packet list if we've changed the "Display
-     TOS as DiffServ" value (as that is also expensive). */
+  /* Save the current timestamp type so that we know whether it has changed;
+     we don't want to redisplay the time fields unless we've changed the way 
+     they should be displayed (as redisplaying the time fields could be 
+     expensive - we have to scan through all the packets and rebuild the 
+     packet list).*/
   current_timestamp_type = timestamp_type;
-  current_g_ip_dscp_actif = g_ip_dscp_actif;
 
   display_opt_w = dlg_window_new();
   gtk_window_set_title(GTK_WINDOW(display_opt_w), "Ethereal: Display Options");
@@ -181,15 +172,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
-  
-  button = dlg_check_button_new_with_label_with_mnemonic(
-		"Decode IPv4 TOS field as _DiffServ Field", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), g_ip_dscp_actif);
-  gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_IP_DSCP_KEY,
-		      button);
-  gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
-  gtk_widget_show(button);
-  
+    
   /* Button row: OK, Apply, and Cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -271,32 +254,12 @@ get_display_options(GtkWidget *parent_w)
 					     E_DISPLAY_NAME_RESOLUTION_KEY);
   g_resolving_actif = (GTK_TOGGLE_BUTTON (button)->active);
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
-					     E_DISPLAY_IP_DSCP_KEY);
-  g_ip_dscp_actif = (GTK_TOGGLE_BUTTON (button)->active);
 }
 
 static void
 update_display(void)
 {
-  if (g_ip_dscp_actif != current_g_ip_dscp_actif) {
-
-    /* XXX - we "know" here that the IP dissector doesn't need to be
-       notified if this preference changed.
-
-       Ultimately, we should probably remove this item from the
-       "Display options" dialog box, as it can be changed from the
-       "IP" tab in the "Preferences" dialog box. */
-
-    current_g_ip_dscp_actif = g_ip_dscp_actif;
-    current_timestamp_type = timestamp_type;	/* in case it changed too */
-
-    /* Redissect all the packets, and re-evaluate the display filter.
-       This will also change the time stamp display, as we're completely
-       regenerating the display list. */
-    redissect_packets(&cfile);
-  } else {
-    if (timestamp_type != current_timestamp_type) {
+  if (timestamp_type != current_timestamp_type) {
       /* Time stamp format changed; update the display.
 
          XXX - redissecting the packets could actually be faster;
@@ -309,18 +272,15 @@ update_display(void)
 	 code which doesn't have to scan the entire list to find the
 	 last element), even though the latter involves doing more work
 	 per packet. */
-      current_timestamp_type = timestamp_type;
-      change_time_formats(&cfile);
-    }
+    current_timestamp_type = timestamp_type;
+    change_time_formats(&cfile);
   }
 }
 
 static void
 display_opt_close_cb(GtkWidget *close_bt, gpointer parent_w)
 {
-  /* Revert the timestamp type and "Display TOS as DiffServ" flag
-     to the values they had when we started. */
-  g_ip_dscp_actif = initial_g_ip_dscp_actif;
+  /* Revert the timestamp type to the value it has when we started. */
   timestamp_type = initial_timestamp_type;
 
   /* Update the display if either of those changed. */
