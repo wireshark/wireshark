@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.318 2003/09/25 08:20:01 guy Exp $
+ * $Id: file.c,v 1.319 2003/09/25 08:31:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1203,16 +1203,23 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
                following_frame->num >= selected_frame->num);
       g_assert(preceding_frame == NULL ||
                preceding_frame->num <= selected_frame->num);
-      if (following_frame != NULL || preceding_frame != NULL) {
-        /* At least one frame was displayed; if following_frame is non-null,
-           it's the first displayed frame after the selected frame, and if
-           preceding_frame is non-null, it's the last displayed frame before
-           the selected frame. */
-        if (preceding_frame == NULL ||
-            (following_frame->num - selected_frame->num <=
-             selected_frame->num - preceding_frame->num)) {
-          /* There is no previous frame, or the next frame is closer to the
-             selected frame than the previous frame. */
+      if (following_frame == NULL) {
+        /* No frame after the selected frame passed the filter, so we
+           have to select the last displayed frame before the selected
+           frame. */
+        selected_row = preceding_row;
+      } else if (preceding_frame == NULL) {
+        /* No frame before the selected frame passed the filter, so we
+           have to select the first displayed frame after the selected
+           frame. */
+        selected_row = following_row;
+      } else {
+        /* Choose the closer of the last displayed frame before the
+           selected frame and the first displayed frame after the
+           selected frame; in case of a tie, choose the first displayed
+           frame after the selected frame. */
+        if (following_frame->num - selected_frame->num <=
+            selected_frame->num - preceding_frame->num) {
           selected_row = following_row;
         } else {
           /* The previous frame is closer to the selected frame than the
