@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.370 2004/01/23 20:34:11 guy Exp $
+ * $Id: main.c,v 1.371 2004/01/23 21:22:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2180,83 +2180,82 @@ main(int argc, char *argv[])
 
   /* Try to load the regular and boldface fixed-width fonts */
 #if GTK_MAJOR_VERSION < 2
-  bold_font_name = font_boldify(prefs->PREFS_GUI_FONT_NAME);
-  m_r_font = gdk_font_load(prefs->PREFS_GUI_FONT_NAME);
+  bold_font_name = font_boldify(prefs->gui_font_name1);
+  m_r_font = gdk_font_load(prefs->gui_font_name1);
   m_b_font = gdk_font_load(bold_font_name);
-#else
-  m_r_font = pango_font_description_from_string(prefs->PREFS_GUI_FONT_NAME);
-  m_b_font = pango_font_description_copy(m_r_font);
-  pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
-#endif
   if (m_r_font == NULL || m_b_font == NULL) {
     /* XXX - pop this up as a dialog box? no */
     if (m_r_font == NULL) {
 #ifdef HAVE_LIBPCAP
       if (!capture_child)
 #endif
-#if GTK_MAJOR_VERSION < 2
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
-#else
-	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to Monospace 9\n",
-#endif
-		prefs->PREFS_GUI_FONT_NAME);
+		prefs->gui_font_name1);
     } else {
-#if GTK_MAJOR_VERSION < 2
       gdk_font_unref(m_r_font);
-#else
-      pango_font_description_free(m_r_font);
-#endif
     }
     if (m_b_font == NULL) {
 #ifdef HAVE_LIBPCAP
       if (!capture_child)
 #endif
-#if GTK_MAJOR_VERSION < 2
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		bold_font_name);
-#else
-        fprintf(stderr, "ethereal: Warning: bold font %s not found - defaulting"
-                        " to Monospace 9\n", prefs->PREFS_GUI_FONT_NAME);
-#endif
     } else {
-#if GTK_MAJOR_VERSION < 2
       gdk_font_unref(m_b_font);
-#else
-      pango_font_description_free(m_b_font);
-#endif
     }
-#if GTK_MAJOR_VERSION < 2
     g_free(bold_font_name);
     if ((m_r_font = gdk_font_load("6x13")) == NULL) {
       fprintf(stderr, "ethereal: Error: font 6x13 not found\n");
-#else
-    if ((m_r_font = pango_font_description_from_string("Monospace 9")) == NULL)
-    {
-            fprintf(stderr, "ethereal: Error: font Monospace 9 not found\n");
-#endif
       exit(1);
     }
-#if GTK_MAJOR_VERSION < 2
     if ((m_b_font = gdk_font_load("6x13bold")) == NULL) {
       fprintf(stderr, "ethereal: Error: font 6x13bold not found\n");
-#else
-    if ((m_b_font = pango_font_description_copy(m_r_font)) == NULL) {
-            fprintf(stderr, "ethereal: Error: font Monospace 9 bold not found\n");
-#endif
       exit(1);
     }
-    g_free(prefs->PREFS_GUI_FONT_NAME);
-#if GTK_MAJOR_VERSION < 2
-    prefs->PREFS_GUI_FONT_NAME = g_strdup("6x13");
-#else
-    pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
-    prefs->PREFS_GUI_FONT_NAME = g_strdup("Monospace 9");
-#endif
+    g_free(prefs->gui_font_name1);
+    prefs->gui_font_name1 = g_strdup("6x13");
   }
+#else /* GTK_MAJOR_VERSION */
+  m_r_font = pango_font_description_from_string(prefs->gui_font_name2);
+  m_b_font = pango_font_description_copy(m_r_font);
+  pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
+  if (m_r_font == NULL || m_b_font == NULL) {
+    /* XXX - pop this up as a dialog box? no */
+    if (m_r_font == NULL) {
+#ifdef HAVE_LIBPCAP
+      if (!capture_child)
+#endif
+	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to Monospace 9\n",
+		prefs->gui_font_name2);
+    } else {
+      pango_font_description_free(m_r_font);
+    }
+    if (m_b_font == NULL) {
+#ifdef HAVE_LIBPCAP
+      if (!capture_child)
+#endif
+        fprintf(stderr, "ethereal: Warning: bold font %s not found - defaulting"
+                        " to Monospace 9\n", prefs->gui_font_name2);
+    } else {
+      pango_font_description_free(m_b_font);
+    }
+    if ((m_r_font = pango_font_description_from_string("Monospace 9")) == NULL)
+    {
+      fprintf(stderr, "ethereal: Error: font Monospace 9 not found\n");
+      exit(1);
+    }
+    if ((m_b_font = pango_font_description_copy(m_r_font)) == NULL) {
+      fprintf(stderr, "ethereal: Error: font Monospace 9 bold not found\n");
+      exit(1);
+    }
+    g_free(prefs->gui_font_name2);
+    pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
+    prefs->gui_font_name2 = g_strdup("Monospace 9");
+  }
+#endif /* GTK_MAJOR_VERSION */
 
   /* Call this for the side-effects that set_fonts() produces */
   set_fonts(m_r_font, m_b_font);
-
 
 #ifdef HAVE_LIBPCAP
   /* Is this a "child" ethereal, which is only supposed to pop up a
