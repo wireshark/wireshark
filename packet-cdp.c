@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.52 2004/03/13 09:35:41 guy Exp $
+ * $Id: packet-cdp.c,v 1.53 2004/03/16 19:13:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,7 +108,7 @@ static const value_string type_vals[] = {
 	{ TYPE_CAPABILITIES, 	"Capabilities" },
 	{ TYPE_IOS_VERSION,  	"Software version" },
 	{ TYPE_PLATFORM,        "Platform" },
-	{ TYPE_IP_PREFIX,       "IP Prefix (used for ODR)" },
+	{ TYPE_IP_PREFIX,       "IP Prefix/Gateway (used for ODR)" },
 	{ TYPE_PROTOCOL_HELLO,  "Protocol Hello" },
 	{ TYPE_VTP_MGMT_DOMAIN, "VTP Management Domain" },
 	{ TYPE_NATIVE_VLAN,     "Native VLAN" },
@@ -305,27 +305,43 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += length;
 		break;
             case TYPE_IP_PREFIX:
-		tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
+		if (length == 8) {
+		    /* if length is 8 then this is default gw not prefix */
+		    tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
+			    length, "ODR Default gateway: %s",
+			    ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+			    offset + TLV_TYPE, 2, type);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+			    offset + TLV_LENGTH, 2, length);
+		    proto_tree_add_text(tlv_tree, tvb, offset+4, 4,
+				"ODR Default gateway = %s",
+				ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+		    offset += 8;
+		} else {  
+		    tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
 			    length, "IP Prefixes: %d",length/5);
 
-			    /* the actual number of prefixes is (length-4)/5
-			    but if the variable is not a "float" but "integer"
-			    then length/5=(length-4)/5  :)  */
+		    /* the actual number of prefixes is (length-4)/5
+		    but if the variable is not a "float" but "integer"
+		    then length/5=(length-4)/5  :)  */
 
-		tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 			    offset + TLV_TYPE, 2, type);
-		proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 			    offset + TLV_LENGTH, 2, length);
-		offset += 4;
-		length -= 4;
-		while (length > 0) {
+		    offset += 4;
+		    length -= 4;
+		    while (length > 0) {
 			proto_tree_add_text(tlv_tree, tvb, offset, 5,
 				"IP Prefix = %s/%u",
 				ip_to_str(tvb_get_ptr(tvb, offset, 4)),
 				tvb_get_guint8(tvb,offset+4));
 			offset += 5;
 			length -= 5;
+		    }
 		}
 		break;
 	    case TYPE_PROTOCOL_HELLO:
