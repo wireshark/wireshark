@@ -1,7 +1,7 @@
 /* endpoint_talkers_tr.c
  * endpoint_talkers_tr   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tr.c,v 1.2 2003/08/23 13:58:54 sahlberg Exp $
+ * $Id: endpoint_talkers_tr.c,v 1.3 2003/08/24 03:00:11 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,18 +71,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static char *
 tr_address_to_str(address *addr)
 {
-	static int i=0;
-	static char *strp, str[4][18];
-
-	i++;
-	if(i>=4){
-		i=0;
-	}
-	strp=str[i];
-
-	sprintf(strp, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
-
-	return strp;
+  return address_to_str(addr);
 }
 
 static void

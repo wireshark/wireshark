@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.32 2003/08/24 02:50:31 sahlberg Exp $
+ * $Id: to_str.c,v 1.33 2003/08/24 03:00:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,7 +120,9 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
 /* Wrapper for the most common case of asking
  * for a string using a colon as the hex-digit separator.
  */
-
+/* XXX FIXME   
+remove this one later when every call has been converted to address_to_str() 
+*/
 gchar *
 ether_to_str(const guint8 *ad)
 {
@@ -590,6 +592,9 @@ rel_time_to_secs_str(nstime_t *rel_time)
 }
 
 
+/* XXX FIXME   
+remove this one later when every call has been converted to address_to_str() 
+*/
 gchar *
 fc_to_str(const guint8 *ad)
 {
@@ -740,6 +745,12 @@ address_to_str(address *addr)
   strp=str[i];
 
   switch(addr->type){
+  case AT_ETHER:
+    sprintf(strp, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
+    return strp;
+  case AT_FC:
+    sprintf(strp, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
+    return strp;
   case AT_IPv4:
     ip_to_str_buf(addr->data, strp);	
     return strp;
