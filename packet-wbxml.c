@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.7 2003/03/27 19:23:10 guy Exp $
+ * $Id: packet-wbxml.c,v 1.8 2003/04/16 18:29:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,6 +111,7 @@ static gint ett_wbxml_content = -1;
 #define WBXML_EMN_10		0x0d
 #define WBXML_DRMREL_10		0x0e
 
+	/* http://www.wapforum.org/wina/wbxml-public-docid.htm */
 static const value_string vals_wbxml_public_ids[] = {
 	/* 0x00 = literal public identifier */
 	{ 0x01, "Unknown / missing Public Identifier" },
@@ -127,6 +128,23 @@ static const value_string vals_wbxml_public_ids[] = {
 	{ 0x0c, "-//WAPFORUM//DTD WTA-WML 1.2//EN (WTA-WML 1.2)" },
 	{ 0x0d, "-//WAPFORUM//DTD EMN 1.0//EN (Email Notification 1.0)" },
 	{ 0x0e, "-//WAPFORUM//DTD DRMREL 1.0//EN (DRMREL 1.0)" },
+	
+	/* Registered values */
+	{ 0x1100, "-//PHONE.COM//DTD ALERT 1.0//EN" },
+	{ 0x1101, "-//PHONE.COM//DTD CACHE-OPERATION 1.0//EN" },
+	{ 0x1102, "-//PHONE.COM//DTD SIGNAL 1.0//EN" },
+	{ 0x1103, "-//PHONE.COM//DTD LIST 1.0//EN" },
+	{ 0x1104, "-//PHONE.COM//DTD LISTCMD 1.0//EN" },
+	{ 0x1105, "-//PHONE.COM//DTD CHANNEL 1.0//EN" },
+	{ 0x1106, "-//PHONE.COM//DTD MMC 1.0//EN" },
+	{ 0x1107, "-//PHONE.COM//DTD BEARER-CHOICE 1.0//EN" },
+	{ 0x1108, "-//PHONE.COM//DTD WML 1.1//EN (WML+ 1.1)" },
+	{ 0x1109, "-//PHONE.COM//DTD CHANNEL 1.1//EN" },
+	{ 0x110a, "-//PHONE.COM//DTD LIST 1.1//EN" },
+	{ 0x110b, "-//PHONE.COM//DTD LISTCMD 1.1//EN" },
+	{ 0x110c, "-//PHONE.COM//DTD MMC 1.1//EN" },
+	{ 0x110d, "-//PHONE.COM//DTD WML 1.3//EN (WML+ 1.3)" },
+	{ 0x110e, "-//PHONE.COM//DTD MMC 2.0//EN" },
 	
 	{ 0x00, NULL }
 };
