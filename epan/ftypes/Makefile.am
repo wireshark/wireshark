@@ -1,7 +1,6 @@
 # Makefile.am
-# Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.1 2001/02/01 20:21:19 gram Exp $
+# $Id: Makefile.am,v 1.2 2001/02/01 20:31:21 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
