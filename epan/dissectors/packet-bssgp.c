@@ -487,13 +487,13 @@ get_byte_offset(guint64 bo) {
 
 static guint32
 get_start_octet(guint64 bo) {
-  return floor((gint64)bo / 8.0);
+  return (guint32) floor((gint64)bo / 8.0);
 }
 
 static guint32
 get_end_octet(guint64 bo, guint32 bl) 
 {
-  return ceil((gint64)(bo + bl) / 8.0);
+  return (guint32) ceil((gint64)(bo + bl) / 8.0);
 }
 
 static guint32
@@ -2208,7 +2208,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       }
     }
     proto_item_set_len(ti, get_num_octets_spanned(start_bo, 
-						  bo - start_bo));
+						  (guint32) (bo - start_bo)));
   }
   else {
     pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
@@ -2805,7 +2805,7 @@ decode_iei_lsa_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
   proto_item *ti, *ti2, *pi;
   proto_tree *tf, *tf2;
   int num_lsa_infos, i;
-  guint32 data, value;
+  guint8 data, value;
 
   value_string tab_priority[] = {
     { 0, "Priority 1 = lowest priority" },

@@ -710,7 +710,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 /* 	  proto_tree_add_text(subtree, tvb, off, 1, */
 /* 			      "flags: %d", */
 /* 			      (guint32)tvb_get_guint8(tvb, off)); */
-	  dhcpv6_domain(subtree,tvb, off+1, optlen-1);
+	  dhcpv6_domain(subtree,tvb, off+1, (guint16) (optlen-1));
 	  break;
 
 	case OPTION_IAPREFIX:
