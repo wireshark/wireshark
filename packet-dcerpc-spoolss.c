@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.67 2002/12/13 06:07:04 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.68 2003/01/10 05:01:48 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -193,6 +193,19 @@ static int hf_spoolss_enumprinterdata_value_offered = -1;
 static int hf_spoolss_enumprinterdata_data_offered = -1;
 static int hf_spoolss_enumprinterdata_value_needed = -1;
 static int hf_spoolss_enumprinterdata_data_needed = -1;
+
+/* enumprinterdataex */
+
+static int hf_spoolss_enumprinterdataex_num_values = -1;
+static int hf_spoolss_enumprinterdataex_name_offset = -1;
+static int hf_spoolss_enumprinterdataex_name_len = -1;
+static int hf_spoolss_enumprinterdataex_name = -1;
+static int hf_spoolss_enumprinterdataex_val_type = -1;
+static int hf_spoolss_enumprinterdataex_val_offset = -1;
+static int hf_spoolss_enumprinterdataex_val_len = -1;
+static int hf_spoolss_enumprinterdataex_val_dword_low = -1;
+static int hf_spoolss_enumprinterdataex_val_dword_high = -1;
+static int hf_spoolss_enumprinterdataex_val_sz = -1;
 
 /* SetJob */
 
@@ -6576,61 +6589,119 @@ static int SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static gint ett_printer_enumdataex_value = -1;
+
 static int
 dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset, 
-				    packet_info *pinfo, proto_tree *tree)
+				    packet_info *pinfo, proto_tree *tree,
+				    char *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
 	guint32 start = offset;
 	guint32 name_offset, name_len, val_offset, val_len, val_type;
 	char *name;
-
-	if (di->conformant_run)
-		return offset;
+	proto_item *item;
+	proto_tree *subtree;
 
 	/* Get offset of value name */
 
-	offset = prs_uint32(tvb, offset, pinfo, NULL, &name_offset, NULL);
-	offset = prs_uint32(tvb, offset, pinfo, NULL, &name_len, NULL);
-	prs_uint16uni(tvb, start + name_offset, pinfo, NULL, (void **) &name, 
-		      NULL);
-	offset = prs_uint32(tvb, offset, pinfo, NULL, &val_type, NULL);
-	offset = prs_uint32(tvb, offset, pinfo, NULL, &val_offset, NULL);
-	offset = prs_uint32(tvb, offset, pinfo, NULL, &val_len, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep,
+		hf_spoolss_enumprinterdataex_name_offset, &name_offset);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep,
+		hf_spoolss_enumprinterdataex_name_len, &name_len);
+
+	dissect_spoolss_uint16uni(
+		tvb, start + name_offset, pinfo, NULL, drep, 
+		&name, "Name");
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "Name: ");
+
+	subtree = proto_item_add_subtree(item, ett_printer_enumdataex_value);
+
+	proto_item_append_text(item, name);
+			       
+	proto_tree_add_text(
+		subtree, tvb, offset - 8, 4, "Name offset: %d", name_offset);
+
+	proto_tree_add_text(
+		subtree, tvb, offset - 4, 4, "Name len: %d", name_len);
+
+	proto_tree_add_text(
+		subtree, tvb, start + name_offset, (strlen(name) + 1) * 2,
+		"Name: %s", name);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_printerdata_type, &val_type);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_enumprinterdataex_val_offset, &val_offset);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep,
+		hf_spoolss_enumprinterdataex_val_len, &val_len);
 
 	switch(val_type) {
 	case DCERPC_REG_DWORD: {
-		/* needs to be broken into two 16-byte ints because it may
-		   not be aligned */
 		guint32 value;
-		guint16 low, hi;
-		prs_uint16(tvb, start + val_offset, pinfo, NULL, &low, NULL);
-		prs_uint16(tvb, start + val_offset +2, pinfo, NULL, &hi, NULL);
-		value = (hi << 16) | low;
-		proto_tree_add_text(tree, tvb, start + val_offset, 4, 
-				    "%s: REG_DWORD: %d", name, value);
+		guint16 low, high;
+		int offset2 = offset + val_offset;
+
+		/* Needs to be broken into two 16-byte ints because it may
+		   not be aligned. */
+
+		offset2 = dissect_ndr_uint16(
+			tvb, offset2, pinfo, subtree, drep,
+			hf_spoolss_enumprinterdataex_val_dword_low, &low);
+
+		offset2 = dissect_ndr_uint16(
+			tvb, offset2, pinfo, subtree, drep,
+			hf_spoolss_enumprinterdataex_val_dword_high, &high);
+
+		value = (high << 16) | low;
+
+		proto_tree_add_text(subtree, tvb, start + val_offset, 4, 
+				    "Value: %d", value);
+
+		proto_item_append_text(item, ", Value: %d", value);
+
 		break;
 	}
 	case DCERPC_REG_SZ: {
 		char *value;
-		prs_uint16uni(tvb, start + val_offset, pinfo, NULL, 
-			      (void **) &value, NULL);
-		proto_tree_add_text(tree, tvb, start + val_offset, val_len, 
-				    "%s: REG_SZ: %s", name, value);
+
+		dissect_spoolss_uint16uni(
+			tvb, start + val_offset, pinfo, subtree, drep, 
+			&value, "Value");
+
+		proto_item_append_text(item, ", Value: %s", value);
+
+		g_free(value);
+
 		break;
 	}
 	case DCERPC_REG_BINARY:
-		proto_tree_add_text(tree, tvb, start + val_offset, val_len,
-				    "%s: REG_BINARY", name);
+
+		/* FIXME: nicer way to display this */
+
+		proto_tree_add_text(subtree, tvb, start + val_offset, val_len,
+				    "Value: <binary data>");
 		break;
 
 	default:
-		proto_tree_add_text(tree, tvb, start + val_offset, val_len,
+		proto_tree_add_text(subtree, tvb, start + val_offset, val_len,
 				    "%s: unknown type %d", name, val_type);
 	}
+
+	g_free(name);
+
 	return offset;
 }
 
+static gint ett_PRINTER_DATA_CTR;
 
 static int SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset, 
 				   packet_info *pinfo, proto_tree *tree, 
@@ -6638,34 +6709,43 @@ static int SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 size, start, numvals, i;
-	int len=tvb_length(tvb);
+	guint32 size, num_values;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
 				    "Request in frame %u", dcv->req_frame);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, &size, "Buffer size");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_buffer_size, &size);
+
+	dissect_ndr_uint32(
+		tvb, offset + size + 4, pinfo, NULL, drep, hf_spoolss_returned,
+		&num_values);
 
 	if (size) {
-		start = offset;
+		proto_item *item;
+		proto_tree *subtree;
+		int offset2 = offset;
+		guint32 i;
 
-		/* get number of values */
-		prs_uint32(tvb, len-8, pinfo, NULL, &numvals, NULL);
+		item = proto_tree_add_text(
+			tree, tvb, offset, 0, "Printer data");
 
-		for (i=0; i < numvals; i++) {
-			offset = dissect_spoolss_printer_enum_values(tvb, 
-						 offset, pinfo, tree);
-		}
-	/* go to end of buffer data */
-	offset = start + size; 
+		subtree = proto_item_add_subtree(item, ett_PRINTER_DATA_CTR);
+
+		for (i=0; i < num_values; i++)
+			offset2 = dissect_spoolss_printer_enum_values(
+				tvb, offset2, pinfo, subtree, drep);
 	}
+
+	offset += size;
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_needed, NULL);
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, 
-			    "Number of Values");
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_returned, NULL);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -7117,7 +7197,7 @@ proto_register_dcerpc_spoolss(void)
 		  { "Printer data type", "spoolss.printerdata.type", FT_UINT32, BASE_DEC,
 		    VALS(reg_datatypes), 0, "Printer data type", HFILL }},
 
-		{ &hf_spoolss_printerdata_type,
+		{ &hf_spoolss_printerdata_size,
 		  { "Printer data size", "spoolss.printerdata.size", FT_UINT32,
 		    BASE_DEC, NULL, 0, "Printer data size", HFILL }},
 
@@ -7154,6 +7234,58 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_enumprinterdata_data_needed,
 		  { "Data size needed", "spoolss.enumprinterdata.data_needed", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, "Buffer size needed for printerdata data", HFILL }},
+
+		/* EnumprinterdataEx */
+
+		{ &hf_spoolss_enumprinterdataex_num_values,
+		  { "Num values", "spoolss.enumprinterdataex.num_values",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "Number of values returned", HFILL }},
+
+		{ &hf_spoolss_enumprinterdataex_name_offset,
+		  { "Name offset", "spoolss.enumprinterdataex.name_offset",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "Name offset", HFILL }},
+
+		{ &hf_spoolss_enumprinterdataex_name_len,
+		  { "Name len", "spoolss.enumprinterdataex.name_len",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "Name len", HFILL }},
+
+		{ &hf_spoolss_enumprinterdataex_name,
+		  { "Name", "spoolss.enumprinterdataex.name", 
+		    FT_STRING, BASE_NONE, NULL, 0, "Name", HFILL }},
+
+		{ &hf_spoolss_enumprinterdataex_val_type,
+		  { "Value type", "spoolss.enumprinterdataex.value_type",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "Value type", HFILL }},
+
+		{ &hf_spoolss_enumprinterdataex_val_offset,
+		  { "Value offset", "spoolss.enumprinterdataex.value_offset",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "Value offset", HFILL }},
+
+		{ &hf_spoolss_enumprinterdataex_val_len,
+		  { "Value len", "spoolss.enumprinterdataex.value_len",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "Value len", HFILL }},
+
+		{ &hf_spoolss_enumprinterdataex_val_dword_high,
+		  { "DWORD value (high)", 
+		    "spoolss.enumprinterdataex.val_dword.high",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, 
+		    "DWORD value (high)", HFILL }},
+
+		{ &hf_spoolss_enumprinterdataex_val_dword_low,
+		  { "DWORD value (low)", 
+		    "spoolss.enumprinterdataex.val_dword.low",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, 
+		    "DWORD value (low)", HFILL }},
+
+		{ &hf_spoolss_enumprinterdataex_val_sz,
+		  { "SZ value", "spoolss.printerdata.val_sz", 
+		    FT_STRING, BASE_NONE, NULL, 0, "SZ value", HFILL }},
 
 		/* GetPrinterDriver2 */
 
@@ -8178,6 +8310,8 @@ proto_register_dcerpc_spoolss(void)
 		&ett_printer_attributes,
 		&ett_job_status,
 		&ett_enumprinters_flags,
+		&ett_PRINTER_DATA_CTR,
+		&ett_printer_enumdataex_value,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
