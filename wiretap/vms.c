@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.14 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: vms.c,v 1.15 2002/10/10 21:47:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -315,7 +315,6 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
     time.tm_min = 1;
     time.tm_sec = 1;
 
-
     /* Skip lines until one starts with a hex number */
     do {
         if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
@@ -362,6 +361,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
             time.tm_mon = (p - months) / 3;
         time.tm_year -= 1900;
 
+	time.tm_isdst = -1;
         wth->phdr.ts.tv_sec = mktime(&time);
 
         wth->phdr.ts.tv_usec = csec * 10000;
