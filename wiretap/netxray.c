@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.59 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: netxray.c,v 1.60 2002/10/22 18:48:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -161,6 +161,14 @@ int netxray_open(wtap *wth, int *err)
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_FDDI_BITSWAPPED,
+		/*
+		 * XXX - PPP captures may look like Ethernet, perhaps
+		 * because they're using NDIS to capture on the
+		 * same machine and it provides simulated-Ethernet
+		 * packets, but at least one ISDN capture uses the
+		 * same network type value but isn't shaped like
+		 * Ethernet.
+		 */
 		WTAP_ENCAP_ETHERNET,	/* WAN(PPP), but shaped like Ethernet */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
 		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
