@@ -168,6 +168,8 @@ static const struct {
 	{ 10,		WTAP_ENCAP_FDDI },
 #endif
 
+	{ 32,		WTAP_ENCAP_REDBACK },
+
 	/*
 	 * 50 is DLT_PPP_SERIAL in NetBSD; it appears that DLT_PPP
 	 * on BSD (at least according to standard tcpdump) has, as

@@ -352,6 +352,7 @@ Fred Reimer             <fwr[AT]ga.prestige.net> {
 Florian Lohoff          <flo[AT]rfc822.org> {
 	Various enhancements to RADIUS support
 	Fixes to L2TP result and error code dissection
+	Redback SmartEdge SE400/800 tcpdump disassembly
 }
 
 Jochen Friedrich        <jochen+ethereal[AT]scram.de> {
