@@ -2755,6 +2755,10 @@ class RestrictedCharacterStringType (CharacterStringType):
       if (self.eth_tsname() == 'GeneralString'):
         body = ectx.eth_fn_call('dissect_per_'  + self.eth_tsname(), ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),))
+      elif (self.eth_tsname() == 'GeneralizedTime'):
+        body = ectx.eth_fn_call('dissect_per_'  + 'VisibleString', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                     (minv, maxv)))
       else:
         body = ectx.eth_fn_call('dissect_per_'  + self.eth_tsname(), ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
@@ -2841,7 +2845,7 @@ class GeneralizedTime (RestrictedCharacterStringType):
       out += ectx.eth_type_fn_ftr(tname)
       return out
     else:
-      return RestrictedCharacterStringType(self, proto, tname, ectx)
+      return RestrictedCharacterStringType.eth_type_fn(self, proto, tname, ectx)
 
 class UTCTime (RestrictedCharacterStringType):
   def eth_tsname(self):
