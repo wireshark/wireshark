@@ -313,8 +313,6 @@ static const struct radius_attribute attrs[]={
 };
 #define NUM_ATTR (sizeof(attrs)/sizeof(struct radius_attribute))
 
-#define MAX_STRVAL 16
-
 #define RADIUS_VENDOR_SPECIFIC 26
 #define SKIP_HDR_LEN 6
 
@@ -334,7 +332,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
   guint      offset0;
   guint      radius_offset;
   guint      i;
-  guchar     str_val[MAX_STRVAL];
+  guint8     *str_val;
   guint      radius_vendor_id = 0;
 
   /* None of this really matters if we don't have a tree */
@@ -357,15 +355,30 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
   {
 
     radius_type = tvb_get_guint8(tvb, offset);
-	radius_len = tvb_get_guint8(tvb, offset + 1);
+    radius_len = tvb_get_guint8(tvb, offset + 1);
+    if (radius_len < 2)
+    {
+      proto_tree_add_text(radius_tree, tvb, offset, 2,
+                "Bogus RADIUS length %lu, should be >= 2",
+                (unsigned long)radius_len);
+      break;
+    }
 
     if (radius_type == RADIUS_VENDOR_SPECIFIC)
     {
+      if (radius_len < SKIP_HDR_LEN)
+      {
+        proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+                  "Bogus RADIUS length %lu, should be >= %u",
+                  (unsigned long)radius_len, SKIP_HDR_LEN);
+        offset += radius_len;
+        continue;
+      }
       radius_vendor_id = tvb_get_ntohl(tvb, offset +2); 
 
       if(radius_vendor_id != VENDOR_THE3GPP2)
       {
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+        proto_tree_add_text(radius_tree, tvb, offset, radius_len,
                 "Unknown Vendor-specific Attribute (Vendor Id: %x)", radius_vendor_id);
         offset += radius_len;
         continue;
@@ -377,25 +390,28 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
       /**** ad-hoc ***/
       if(radius_type == 31)
       {
-        strncpy(str_val, tvb_get_ptr(tvb,offset+2,radius_len-2), 
-                radius_len-2);
-        if(radius_len-2 < MAX_STRVAL) {
-          str_val[radius_len-2] = '\0';
-        }
-        else {
-          str_val[MAX_STRVAL-1] = '\0';
-        }
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+      	str_val = tvb_get_string(tvb,offset+2,radius_len-2);
+        proto_tree_add_text(radius_tree, tvb, offset, radius_len,
             "MSID: %s", str_val);
+        g_free(str_val);
       }
       else if (radius_type == 46)
       {
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-            "Acct Session Time: %d",tvb_get_ntohl(tvb,offset+2));
+        if (radius_len < 2+4)
+        {
+          proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+                    "Bogus RADIUS length %lu, should be >= %u",
+                    (unsigned long)radius_len, 2+4);
+        }
+        else
+        {
+          proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+              "Acct Session Time: %d",tvb_get_ntohl(tvb,offset+2));
+        }
       }
       else
       {
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+        proto_tree_add_text(radius_tree, tvb, offset, radius_len,
               "Unknown RADIUS Attributes (Type: %d)", radius_type);
       }
 
@@ -403,18 +419,38 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
       continue;
     }
     
-	radius_len = tvb_get_guint8(tvb, offset + 1);
-
     offset += SKIP_HDR_LEN;
+    radius_len -= SKIP_HDR_LEN;
     radius_offset = 0;
 
-	/* Detect Airlink Record Type */
+    /* Detect Airlink Record Type */
 
-    while (radius_len - 6 > radius_offset)
+    while (radius_len > radius_offset)
     {
+      if (radius_len < radius_offset + 2)
+      {
+        proto_tree_add_text(radius_tree, tvb, offset + radius_offset, 2,
+                  "Bogus RADIUS length %lu, should be >= %u",
+                  (unsigned long)(radius_len + SKIP_HDR_LEN),
+                  radius_offset + 2 + SKIP_HDR_LEN);
+        return;
+      }
 
       radius_subtype = tvb_get_guint8(tvb, offset + radius_offset);	
-      attribute_len = tvb_get_guint8(tvb, offset + radius_offset + 1);	
+      attribute_len = tvb_get_guint8(tvb, offset + radius_offset + 1);
+      if (attribute_len < 2)
+      {
+        proto_tree_add_text(radius_tree, tvb, offset + radius_offset, 2,
+                  "Bogus attribute length %u, should be >= 2", attribute_len);
+        return;
+      }
+      if (attribute_len > radius_len - radius_offset)
+      {
+        proto_tree_add_text(radius_tree, tvb, offset + radius_offset, 2,
+                  "Bogus attribute length %u, should be <= %lu",
+                  attribute_len, (unsigned long)(radius_len - radius_offset));
+        return;
+      }
 
       attribute_type = -1;
       for(i = 0; i < NUM_ATTR; i++) {
@@ -422,56 +458,50 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
             attribute_type = i;
             break;
         }
-	  }
+      }
 
       if(attribute_type >= 0) {
         switch(attrs[attribute_type].data_type) {
         case ATTR_TYPE_INT:
-          ti = proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
+          proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
             attribute_len, "3GPP2: %s (%04x)", attrs[attribute_type].attrname,
             tvb_get_ntohl(tvb,offset + radius_offset + 2));
           break;
         case ATTR_TYPE_IPV4:
-          ti = proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
+          proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
             attribute_len, "3GPP2: %s (%s)", attrs[attribute_type].attrname,
             ip_to_str(tvb_get_ptr(tvb,offset + radius_offset + 2,4)));
           break;
         case ATTR_TYPE_TYPE:
-          ti = proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
+          proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
             attribute_len, "3GPP2: %s (%s)", attrs[attribute_type].attrname,
             val_to_str(tvb_get_ntohl(tvb,offset+radius_offset+2),
             a11_airlink_types,"Unknown"));
           break;
         case ATTR_TYPE_STR:
-          strncpy(str_val, tvb_get_ptr(tvb,offset+radius_offset+2,attribute_len - 2),
-             attribute_len - 2);
-          if(attribute_len - 2 < MAX_STRVAL) {
-             str_val[attribute_len - 2] = '\0';
-          }
-          else {
-            str_val[MAX_STRVAL-1] = '\0';
-          }
-          ti = proto_tree_add_text(radius_tree, tvb, offset+radius_offset,
+          str_val = tvb_get_string(tvb,offset+radius_offset+2,attribute_len-2);
+          proto_tree_add_text(radius_tree, tvb, offset+radius_offset,
              attribute_len,
             "3GPP2: %s (%s)", attrs[attribute_type].attrname, str_val);
+          g_free(str_val);
           break;
         case ATTR_TYPE_NULL:
           break;
         default:
-          ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+          proto_tree_add_text(radius_tree, tvb, offset+radius_offset, attribute_len,
             "RADIUS: %s", attrs[attribute_type].attrname);
           break;
         }
       }
       else {
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+        proto_tree_add_text(radius_tree, tvb, offset+radius_offset, attribute_len,
           "RADIUS: Unknown 3GPP2 Attribute (Type:%d, SubType:%d)",
           radius_type,radius_subtype);
       }
 
       radius_offset += attribute_len;
     }
-    offset += radius_len - 6;
+    offset += radius_len;
 
   }
 
@@ -501,140 +531,210 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   /* And, handle each extension */
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
-	/* Get our extension info */
-	ext_type = tvb_get_guint8(tvb, offset);
-	if (ext_type == GEN_AUTH_EXT) {
-	  /*
-	   * Very nasty . . breaks normal extensions, since the length is
-	   * in the wrong place :(
-	   */
-	  ext_subtype = tvb_get_guint8(tvb, offset + 1);
-	  ext_len = tvb_get_ntohs(tvb, offset + 2);
-	  hdrLen = 4;
-    } else if (ext_type == CVSE_EXT || ext_type == OLD_CVSE_EXT) {
-	  ext_len = tvb_get_ntohs(tvb, offset + 2);
-      ext_subtype = tvb_get_guint8(tvb, offset + 8);	
+    /* Get our extension info */
+    ext_type = tvb_get_guint8(tvb, offset);
+    if (ext_type == GEN_AUTH_EXT) {
+      /*
+       * Very nasty . . breaks normal extensions, since the length is
+       * in the wrong place :(
+       */
+      ext_subtype = tvb_get_guint8(tvb, offset + 1);
+      ext_len = tvb_get_ntohs(tvb, offset + 2);
       hdrLen = 4;
-	} else {
-	  ext_len = tvb_get_guint8(tvb, offset + 1);
-	  hdrLen = 2;
-	}
-	
-	ti = proto_tree_add_text(exts_tree, tvb, offset, ext_len + hdrLen,
-				 "Extension: %s",
-				 val_to_str(ext_type, a11_ext_types,
-				            "Unknown Extension %u"));
-	ext_tree = proto_item_add_subtree(ti, ett_a11_ext);
+    } else if (ext_type == CVSE_EXT || ext_type == OLD_CVSE_EXT) {
+      ext_len = tvb_get_ntohs(tvb, offset + 2);
+      ext_subtype = tvb_get_guint8(tvb, offset + 8);    
+      hdrLen = 4;
+    } else {
+      ext_len = tvb_get_guint8(tvb, offset + 1);
+      hdrLen = 2;
+    }
+    
+    ti = proto_tree_add_text(exts_tree, tvb, offset, ext_len + hdrLen,
+                 "Extension: %s",
+                 val_to_str(ext_type, a11_ext_types,
+                            "Unknown Extension %u"));
+    ext_tree = proto_item_add_subtree(ti, ett_a11_ext);
 
-	proto_tree_add_item(ext_tree, hf_a11_ext_type, tvb, offset, 1, ext_type);
-	offset++;
+    proto_tree_add_item(ext_tree, hf_a11_ext_type, tvb, offset, 1, ext_type);
+    offset++;
 
-	if (ext_type == SS_EXT) {
-	  proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 1, ext_len);
-	  offset++;
-	}
-	else if(ext_type == CVSE_EXT || ext_type == OLD_CVSE_EXT) {
-	  offset++;
-	  proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 2, ext_len);
-	  offset+=2;
-	}
-	else if (ext_type != GEN_AUTH_EXT) {
-	  /* Another nasty hack since GEN_AUTH_EXT broke everything */
-	  proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 1, ext_len);
-	  offset++;
-	}
+    if (ext_type == SS_EXT) {
+      proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 1, ext_len);
+      offset++;
+    }
+    else if(ext_type == CVSE_EXT || ext_type == OLD_CVSE_EXT) {
+      offset++;
+      proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 2, ext_len);
+      offset+=2;
+    }
+    else if (ext_type != GEN_AUTH_EXT) {
+      /* Another nasty hack since GEN_AUTH_EXT broke everything */
+      proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 1, ext_len);
+      offset++;
+    }
 
-	switch(ext_type) {
-	case SS_EXT:
-	  proto_tree_add_item(ext_tree, hf_a11_ses_ptype, tvb, offset, 2, FALSE);
-	  proto_tree_add_item(ext_tree, hf_a11_ses_key, tvb, offset+2, 4, FALSE);
-	  proto_tree_add_item(ext_tree, hf_a11_ses_sidver, tvb, offset+7, 1, FALSE);
-	  proto_tree_add_item(ext_tree, hf_a11_ses_mnsrid, tvb, offset+8, 2, FALSE);
-	  proto_tree_add_item(ext_tree, hf_a11_ses_msid_type, tvb, offset+10, 2, FALSE);
-	  proto_tree_add_item(ext_tree, hf_a11_ses_msid_len, tvb, offset+12, 1, FALSE);
-	  proto_tree_add_item(ext_tree, hf_a11_ses_msid, tvb, offset+13, ext_len-13, FALSE);
-	  break;
-	case MH_AUTH_EXT:
-	case MF_AUTH_EXT:
-	case FH_AUTH_EXT:
-	case RU_AUTH_EXT:
-	  /* All these extensions look the same.  4 byte SPI followed by a key */
-	  proto_tree_add_item(ext_tree, hf_a11_aext_spi, tvb, offset, 4, FALSE);
-	  proto_tree_add_item(ext_tree, hf_a11_aext_auth, tvb, offset+4, ext_len-4,
-						  FALSE);
-	  break;
-	case MN_NAI_EXT:
-	  proto_tree_add_item(ext_tree, hf_a11_next_nai, tvb, offset, 
-						  ext_len, FALSE);
-	  break;
+    switch(ext_type) {
+    case SS_EXT:
+      if (ext_len < 2)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_ses_ptype, tvb, offset, 2, FALSE);
+      offset += 2;
+      ext_len -= 2;
+      if (ext_len < 4)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_ses_key, tvb, offset, 4, FALSE);
+      offset += 4;
+      ext_len -= 4;
+      if (ext_len < 2)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_ses_sidver, tvb, offset+1, 1, FALSE);
+      offset += 2;
+      ext_len -= 2;
+      if (ext_len < 2)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_ses_mnsrid, tvb, offset, 2, FALSE);
+      offset += 2;
+      ext_len -= 2;
+      proto_tree_add_item(ext_tree, hf_a11_ses_msid_type, tvb, offset, 2, FALSE);
+      offset += 2;
+      ext_len -= 2;
+      if (ext_len < 1)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_ses_msid_len, tvb, offset, 1, FALSE);
+      offset += 1;
+      ext_len -= 1;
+      if (ext_len == 0)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_ses_msid, tvb, offset, ext_len, FALSE);
+      break;
+    case MH_AUTH_EXT:
+    case MF_AUTH_EXT:
+    case FH_AUTH_EXT:
+    case RU_AUTH_EXT:
+      /* All these extensions look the same.  4 byte SPI followed by a key */
+      if (ext_len < 4)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_aext_spi, tvb, offset, 4, FALSE);
+      offset += 4;
+      ext_len -= 4;
+      if (ext_len == 0)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_aext_auth, tvb, offset, ext_len,
+                          FALSE);
+      break;
+    case MN_NAI_EXT:
+      if (ext_len == 0)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_next_nai, tvb, offset, 
+                          ext_len, FALSE);
+      break;
 
-	case GEN_AUTH_EXT:      /* RFC 3012 */
-	  /*
-	   * Very nasty . . breaks normal extensions, since the length is
-	   * in the wrong place :(
-	   */
-	  proto_tree_add_uint(ext_tree, hf_a11_ext_stype, tvb, offset, 1, ext_subtype);
-	  offset++;
-	  proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 2, ext_len);
-	  offset+=2;
-	  /* SPI */
-	  proto_tree_add_item(ext_tree, hf_a11_aext_spi, tvb, offset, 4, FALSE);
-	  /* Key */
-	  proto_tree_add_item(ext_tree, hf_a11_aext_auth, tvb, offset + 4,
-						  ext_len - 4, FALSE);
-	  
-	  break;
-	case OLD_CVSE_EXT:      /* RFC 3115 */
-	case CVSE_EXT:          /* RFC 3115 */
-	  proto_tree_add_item(ext_tree, hf_a11_vse_vid, tvb, offset, 4, FALSE);
-	  proto_tree_add_item(ext_tree, hf_a11_vse_apptype, tvb, offset+4, 2, FALSE);
-	  apptype = tvb_get_ntohs(tvb, offset+4);
+    case GEN_AUTH_EXT:      /* RFC 3012 */
+      /*
+       * Very nasty . . breaks normal extensions, since the length is
+       * in the wrong place :(
+       */
+      proto_tree_add_uint(ext_tree, hf_a11_ext_stype, tvb, offset, 1, ext_subtype);
+      offset++;
+      proto_tree_add_uint(ext_tree, hf_a11_ext_len, tvb, offset, 2, ext_len);
+      offset+=2;
+      /* SPI */
+      if (ext_len < 4)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_aext_spi, tvb, offset, 4, FALSE);
+      offset += 4;
+      ext_len -= 4;
+      /* Key */
+      if (ext_len == 0)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_aext_auth, tvb, offset,
+                          ext_len, FALSE);
+      
+      break;
+    case OLD_CVSE_EXT:      /* RFC 3115 */
+    case CVSE_EXT:          /* RFC 3115 */
+      if (ext_len < 4)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_vse_vid, tvb, offset, 4, FALSE);
+      offset += 4;
+      ext_len -= 4;
+      if (ext_len < 2)
+        break;
+      apptype = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_uint(ext_tree, hf_a11_vse_apptype, tvb, offset, 2, apptype);
+      offset += 2;
+      ext_len -= 2;
       if(apptype == 0x0101) {
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
-          dissect_a11_radius(tvb, offset+6, ext_tree, ext_len + hdrLen - 8);
+          dissect_a11_radius(tvb, offset, ext_tree, ext_len + 2);
         }
       }
-	  break;
-	case OLD_NVSE_EXT:      /* RFC 3115 */
-	case NVSE_EXT:          /* RFC 3115 */
-	  proto_tree_add_item(ext_tree, hf_a11_vse_vid, tvb, offset+2, 4, FALSE);
-	  proto_tree_add_item(ext_tree, hf_a11_vse_apptype, tvb, offset+6, 2, FALSE);
+      break;
+    case OLD_NVSE_EXT:      /* RFC 3115 */
+    case NVSE_EXT:          /* RFC 3115 */
+      if (ext_len < 6)
+        break;
+      proto_tree_add_item(ext_tree, hf_a11_vse_vid, tvb, offset+2, 4, FALSE);
+      offset += 6;
+      ext_len -= 6;
+      proto_tree_add_item(ext_tree, hf_a11_vse_apptype, tvb, offset, 2, FALSE);
 
-	  apptype = tvb_get_ntohs(tvb, offset+6);
+      if (ext_len < 2)
+        break;
+      apptype = tvb_get_ntohs(tvb, offset);
+      offset += 2;
+      ext_len -= 2;
       switch(apptype) {
         case 0x0401:
-          proto_tree_add_item(ext_tree, hf_a11_vse_panid, tvb, offset+8, 5, FALSE);
-          proto_tree_add_item(ext_tree, hf_a11_vse_canid, tvb, offset+13, 5, FALSE);
+          if (ext_len < 5)
+            break;
+          proto_tree_add_item(ext_tree, hf_a11_vse_panid, tvb, offset, 5, FALSE);
+          offset += 5;
+          ext_len -= 5;
+          if (ext_len < 5)
+            break;
+          proto_tree_add_item(ext_tree, hf_a11_vse_canid, tvb, offset, 5, FALSE);
           break;
         case 0x0501:
-          proto_tree_add_item(ext_tree, hf_a11_vse_ppaddr, tvb, offset+8, 4, FALSE);
+          if (ext_len < 4)
+            break;
+          proto_tree_add_item(ext_tree, hf_a11_vse_ppaddr, tvb, offset, 4, FALSE);
           break;
         case 0x0601:
-          proto_tree_add_item(ext_tree, hf_a11_vse_dormant, tvb, offset+8, 2, FALSE);
+          if (ext_len < 2)
+            break;
+          proto_tree_add_item(ext_tree, hf_a11_vse_dormant, tvb, offset, 2, FALSE);
           break;
         case 0x0701:
-          proto_tree_add_item(ext_tree, hf_a11_vse_code, tvb, offset+8, 1, FALSE);
+          if (ext_len < 1)
+            break;
+          proto_tree_add_item(ext_tree, hf_a11_vse_code, tvb, offset, 1, FALSE);
           break;
         case 0x0801:
-          proto_tree_add_item(ext_tree, hf_a11_vse_pdit, tvb, offset+8, 1, FALSE);
+          if (ext_len < 1)
+            break;
+          proto_tree_add_item(ext_tree, hf_a11_vse_pdit, tvb, offset, 1, FALSE);
           break;
         case 0x0802:
-          proto_tree_add_text(ext_tree, tvb, offset+8, -1, "Session Parameter - Always On");
+          proto_tree_add_text(ext_tree, tvb, offset, -1, "Session Parameter - Always On");
           break;
         case 0x0901:
-          proto_tree_add_item(ext_tree, hf_a11_vse_srvopt, tvb, offset+8, 2, FALSE);
+          if (ext_len < 2)
+            break;
+          proto_tree_add_item(ext_tree, hf_a11_vse_srvopt, tvb, offset, 2, FALSE);
           break;
       }
 
-	  break;
-	case MF_CHALLENGE_EXT:  /* RFC 3012 */
-	  /* The default dissector is good here.  The challenge is all hex anyway. */
-	default:
-	  proto_tree_add_item(ext_tree, hf_a11_ext, tvb, offset, ext_len, FALSE);
-	  break;
-	} /* ext type */
+      break;
+    case MF_CHALLENGE_EXT:  /* RFC 3012 */
+      /* The default dissector is good here.  The challenge is all hex anyway. */
+    default:
+      proto_tree_add_item(ext_tree, hf_a11_ext, tvb, offset, ext_len, FALSE);
+      break;
+    } /* ext type */
 
-	offset += ext_len;
+    offset += ext_len;
   } /* while data remaining */
 
 } /* dissect_a11_extensions */
