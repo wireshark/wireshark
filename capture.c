@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.243 2004/03/02 22:07:21 ulfl Exp $
+ * $Id: capture.c,v 1.244 2004/03/04 19:31:20 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -266,7 +266,7 @@ do_capture(const char *save_file)
     if (capture_opts.multi_files_on) {
       /* ringbuffer is enabled */
       cfile.save_file_fd = ringbuf_init(capfile_name,
-          (capture_opts.has_ring_num_files) ? capture_opts.num_files : 0);
+          (capture_opts.has_ring_num_files) ? capture_opts.ring_num_files : 0);
     } else {
       /* Try to open/create the specified file for use as a capture buffer. */
       cfile.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
@@ -396,9 +396,9 @@ sync_pipe_do_capture(gboolean is_tempfile) {
     sprintf(save_file_fd,"%d",cfile.save_file_fd);	/* in lieu of itoa */
     argv = sync_pipe_add_arg(argv, &argc, save_file_fd);
 
-    if (capture_opts.has_autostop_count) {
+    if (capture_opts.has_autostop_packets) {
       argv = sync_pipe_add_arg(argv, &argc, "-c");
-      sprintf(scount,"%d",capture_opts.autostop_count);
+      sprintf(scount,"%d",capture_opts.autostop_packets);
       argv = sync_pipe_add_arg(argv, &argc, scount);
     }
 
@@ -1403,9 +1403,11 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   time_t      upd_time, cur_time;
   time_t      start_time;
   int         err, inpkts;
-  condition  *cnd_stop_capturesize = NULL;
-  condition  *cnd_stop_timeout = NULL;
-  condition  *cnd_ring_timeout = NULL;
+  condition  *cnd_file_duration = NULL;
+  condition  *cnd_autostop_files = NULL;
+  condition  *cnd_autostop_size = NULL;
+  condition  *cnd_autostop_duration = NULL;
+  guint32     autostop_files = 0;
   char        errmsg[4096+1];
   gboolean    write_ok;
   gboolean    close_ok;
@@ -1428,7 +1430,6 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 #ifdef MUST_DO_SELECT
   int         pcap_fd = 0;
 #endif
-  guint32     num_files = capture_opts.num_files;
 
   /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
@@ -1478,8 +1479,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 
   ld.go             = TRUE;
   ld.counts.total   = 0;
-  if (capture_opts.has_autostop_count)
-    ld.max          = capture_opts.autostop_count;
+  if (capture_opts.has_autostop_packets)
+    ld.max          = capture_opts.autostop_packets;
   else
     ld.max          = 0;	/* no limit */
   ld.err            = 0;	/* no error seen yet */
@@ -1756,20 +1757,26 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   if (capture_child)
     signal(SIGUSR1, stop_capture_signal_handler);
 #endif
+
   /* initialize capture stop conditions */
   init_capture_stop_conditions();
   /* create stop conditions */
   if (capture_opts.has_autostop_filesize)
-    cnd_stop_capturesize =
-        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize * 1000);
+    cnd_autostop_size =
+        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize * 1024);
   if (capture_opts.has_autostop_duration)
-    cnd_stop_timeout =
+    cnd_autostop_duration =
         cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts.autostop_duration);
 
-  if (capture_opts.multi_files_on && capture_opts.has_ring_duration)
-    cnd_ring_timeout =
-	cnd_new(CND_CLASS_TIMEOUT, capture_opts.ringbuffer_duration);
+  if (capture_opts.multi_files_on) {
+      if (capture_opts.has_file_duration)
+        cnd_file_duration =
+	    cnd_new(CND_CLASS_TIMEOUT, capture_opts.file_duration);
 
+      if (capture_opts.has_autostop_files)
+        cnd_autostop_files =
+	    cnd_new(CND_CLASS_CAPTURESIZE, capture_opts.autostop_files);
+  }
 
   /* WOW, everything is prepared! */
   /* please fasten your seat belts, we will enter now the actual capture loop */
@@ -1868,18 +1875,24 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 
     if (inpkts > 0) {
       ld.sync_packets += inpkts;
-      /* check capture stop conditons */
-      if (cnd_stop_capturesize != NULL && cnd_eval(cnd_stop_capturesize,
+
+      /* check capture size condition */
+      if (cnd_autostop_size != NULL && cnd_eval(cnd_autostop_size,
                     (guint32)wtap_get_bytes_dumped(ld.pdh))){
-        /* Capture file reached its maximum size. */
-        if (num_files > 1 || capture_opts.multi_files_on) {
+        /* Capture size limit reached, do we have another file? */
+        if (capture_opts.multi_files_on) {
+          if (cnd_autostop_files != NULL && cnd_eval(cnd_autostop_files, ++autostop_files)) {
+            /* no files left: stop here */
+            ld.go = FALSE;
+            continue;
+          }
+
           /* Switch to the next ringbuffer file */
           if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
-            num_files--;
-            /* File switch succeeded: reset the condition */
-            cnd_reset(cnd_stop_capturesize);
-            if (cnd_ring_timeout) {
-              cnd_reset(cnd_ring_timeout);
+            /* File switch succeeded: reset the conditions */
+            cnd_reset(cnd_autostop_size);
+            if (cnd_file_duration) {
+              cnd_reset(cnd_file_duration);
             }
           } else {
             /* File switch failed: stop here */
@@ -1887,13 +1900,11 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
             continue;
           }
         } else {
-          /* no files left */
-          if (!capture_opts.multi_files_on) {
-            /* ... and no ringbuffer, stop now */
-            ld.go = FALSE;
-          }
+          /* single file, stop now */
+          ld.go = FALSE;
+          continue;
         }
-      }
+      } /* cnd_autostop_size */
     }
 
     /* Only update once a second so as not to overload slow displays */
@@ -1926,39 +1937,53 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
         ld.sync_packets = 0;
       }
 
-      if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
-        /* The specified capture time has elapsed; stop the capture. */
+      /* check capture duration condition */
+      if (cnd_autostop_duration != NULL && cnd_eval(cnd_autostop_duration)) {
+        /* The maximum capture time has elapsed; stop the capture. */
         ld.go = FALSE;
-      } else if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
-        if(num_files > 1 || capture_opts.multi_files_on) {
-          /* time elasped for this ring file, switch to the next */
+        continue;
+      }
+      
+      /* check capture file duration condition */
+      if (cnd_file_duration != NULL && cnd_eval(cnd_file_duration)) {
+        /* duration limit reached, do we have another file? */
+        if (capture_opts.multi_files_on) {
+          if (cnd_autostop_files != NULL && cnd_eval(cnd_autostop_files, ++autostop_files)) {
+            /* no files left: stop here */
+            ld.go = FALSE;
+            continue;
+          }
+
+          /* Switch to the next ringbuffer file */
           if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
-            /* File switch succeeded: reset the condition */
-            cnd_reset(cnd_ring_timeout);
-            num_files--;
+            /* file switch succeeded: reset the conditions */
+            cnd_reset(cnd_file_duration);
+            if(cnd_autostop_size)
+              cnd_reset(cnd_autostop_size);
           } else {
             /* File switch failed: stop here */
 	        ld.go = FALSE;
+            continue;
           }
         } else {
-          /* no files left */
-          if (!capture_opts.multi_files_on) {
-            /* ... and no ringbuffer, stop now */
-            ld.go = FALSE;
-          }
+          /* single file, stop now */
+          ld.go = FALSE;
+          continue;
         }
-      }
+      } /* cnd_file_duration */
     }
 
   } /* while (ld.go) */
 
   /* delete stop conditions */
-  if (cnd_stop_capturesize != NULL)
-    cnd_delete(cnd_stop_capturesize);
-  if (cnd_stop_timeout != NULL)
-    cnd_delete(cnd_stop_timeout);
-  if (cnd_ring_timeout != NULL)
-    cnd_delete(cnd_ring_timeout);
+  if (cnd_file_duration != NULL)
+    cnd_delete(cnd_file_duration);
+  if (cnd_autostop_files != NULL)
+    cnd_delete(cnd_autostop_files);
+  if (cnd_autostop_size != NULL)
+    cnd_delete(cnd_autostop_size);
+  if (cnd_autostop_duration != NULL)
+    cnd_delete(cnd_autostop_duration);
 
   if (ld.pcap_err) {
     snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",

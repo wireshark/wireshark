@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.42 2004/03/02 22:07:21 ulfl Exp $
+ * $Id: capture.h,v 1.43 2004/03/04 19:31:20 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,24 +42,23 @@ typedef struct {
 
     gboolean multi_files_on;    /* TRUE if ring buffer in use */
 
+	gboolean has_file_duration;	/* TRUE if ring duration specified */
+	gint32 file_duration;     /* Switch file after n seconds */
 	gboolean has_ring_num_files;/* TRUE if ring num_files specified */
-	guint32 num_files;	        /* Number of multiple buffer files */
-	gboolean has_ring_duration;	/* TRUE if ring duration specified */
-	gint32 ringbuffer_duration;     /* Switch file after n seconds */
-
-    gboolean has_autostop_count;	/* TRUE if maximum packet count is
-					   specified */
-	int autostop_count;		/* Maximum packet count */
-	gboolean has_autostop_duration;	/* TRUE if maximum capture duration
-					   is specified */
-	gint32 autostop_duration;	/* Maximum capture duration */
-	gboolean has_autostop_filesize;	/* TRUE if maximum capture file size
-					   is specified */
-	gint32 autostop_filesize;	/* Maximum capture file size */
-
+	guint32 ring_num_files;	        /* Number of multiple buffer files */
     gboolean has_autostop_files;/* TRUE if maximum number of capture files
 					   are specified */
     gint32 autostop_files;      /* Maximum number of capture files */
+
+    gboolean has_autostop_packets;	/* TRUE if maximum packet count is
+					   specified */
+	int autostop_packets;		/* Maximum packet count */
+	gboolean has_autostop_filesize;	/* TRUE if maximum capture file size
+					   is specified */
+	gint32 autostop_filesize;	/* Maximum capture file size */
+	gboolean has_autostop_duration;	/* TRUE if maximum capture duration
+					   is specified */
+	gint32 autostop_duration;	/* Maximum capture duration */
 } capture_options;
 
 extern capture_options capture_opts;

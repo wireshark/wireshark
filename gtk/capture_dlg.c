@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.115 2004/03/02 22:07:23 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.116 2004/03/04 19:31:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -545,12 +545,12 @@ capture_prep(void)
 
   ring_duration_cb = gtk_check_button_new_with_label("Next file every");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_duration_cb),
-			      capture_opts.has_ring_duration);
+			      capture_opts.has_file_duration);
   SIGNAL_CONNECT(ring_duration_cb, "toggled", 
 		 capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(ring_duration_hb), ring_duration_cb, FALSE, FALSE, 0);
 
-  ring_duration_adj = (GtkAdjustment *)gtk_adjustment_new((gfloat)capture_opts.ringbuffer_duration,
+  ring_duration_adj = (GtkAdjustment *)gtk_adjustment_new((gfloat)capture_opts.file_duration,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   ring_duration_sb = gtk_spin_button_new (ring_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ring_duration_sb), TRUE);
@@ -572,7 +572,7 @@ capture_prep(void)
   SIGNAL_CONNECT(ringbuffer_nbf_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(ringbuffer_nbf_hb), ringbuffer_nbf_cb, FALSE, FALSE, 0);
 
-  ringbuffer_nbf_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) capture_opts.num_files,
+  ringbuffer_nbf_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) capture_opts.ring_num_files,
     2/*RINGBUFFER_MIN_NUM_FILES*/, RINGBUFFER_MAX_NUM_FILES, 1.0, 10.0, 0.0);
   ringbuffer_nbf_sb = gtk_spin_button_new (ringbuffer_nbf_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ringbuffer_nbf_sb), TRUE);
@@ -619,11 +619,11 @@ capture_prep(void)
 
   count_cb = gtk_check_button_new_with_label("... after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(count_cb),
-		capture_opts.has_autostop_count);
+		capture_opts.has_autostop_packets);
   SIGNAL_CONNECT(count_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(count_hb), count_cb, FALSE, FALSE, 0);
 
-  count_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_count,
+  count_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_packets,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   count_sb = gtk_spin_button_new (count_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (count_sb), TRUE);
@@ -972,6 +972,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
             *duration_cb, *duration_sb,
             *ring_filesize_cb, *ring_filesize_sb,
             *ring_duration_cb, *ring_duration_sb,
+            *files_cb, *files_sb,
             *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
   gchar *entry_text;
   gchar *if_text;
@@ -1004,6 +1005,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_SB_KEY);
   duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_CB_KEY);
   duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_SB_KEY);
+  files_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILES_CB_KEY);
+  files_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILES_SB_KEY);
   m_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_M_RESOLVE_KEY);
   n_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_N_RESOLVE_KEY);
   t_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_T_RESOLVE_KEY);
@@ -1068,10 +1071,10 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     save_file = NULL;
   }
 
-  capture_opts.has_autostop_count =
+  capture_opts.has_autostop_packets =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(count_cb));
-  if (capture_opts.has_autostop_count)
-    capture_opts.autostop_count =
+  if (capture_opts.has_autostop_packets)
+    capture_opts.autostop_packets =
       gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(count_sb));
 
   capture_opts.has_autostop_duration =
@@ -1097,13 +1100,13 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   capture_opts.has_ring_num_files =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb));  
 
-  capture_opts.num_files =
+  capture_opts.ring_num_files =
     gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(ringbuffer_nbf_sb));
-  if (capture_opts.num_files > RINGBUFFER_MAX_NUM_FILES)
-    capture_opts.num_files = RINGBUFFER_MAX_NUM_FILES;
+  if (capture_opts.ring_num_files > RINGBUFFER_MAX_NUM_FILES)
+    capture_opts.ring_num_files = RINGBUFFER_MAX_NUM_FILES;
 #if RINGBUFFER_MIN_NUM_FILES > 0
-  else if (capture_opts.num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts.num_files = RINGBUFFER_MIN_NUM_FILES;
+  else if (capture_opts.ring_num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts.ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 
   capture_opts.multi_files_on =
@@ -1141,11 +1144,17 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
         gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(filesize_sb));
   }
 
-  capture_opts.has_ring_duration =
+  capture_opts.has_file_duration =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_duration_cb));
-  if (capture_opts.has_ring_duration)
-    capture_opts.ringbuffer_duration =
+  if (capture_opts.has_file_duration)
+    capture_opts.file_duration =
       gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(ring_duration_sb));
+
+  capture_opts.has_autostop_files =
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(files_cb));
+  if (capture_opts.has_autostop_files)
+    capture_opts.autostop_files =
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(files_sb));
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 

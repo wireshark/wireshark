@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.411 2004/03/02 22:07:23 ulfl Exp $
+ * $Id: main.c,v 1.412 2004/03/04 19:31:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1525,7 +1525,7 @@ get_ring_arguments(const char *arg)
     *p++ = '\0';
   }
 
-  capture_opts.num_files = 
+  capture_opts.ring_num_files = 
     get_natural_int(arg, "number of ring buffer files");
 
   if (colonp == NULL)
@@ -1548,8 +1548,8 @@ get_ring_arguments(const char *arg)
     return FALSE;
   }
 
-  capture_opts.has_ring_duration = TRUE;
-  capture_opts.ringbuffer_duration = get_positive_int(p,
+  capture_opts.has_file_duration = TRUE;
+  capture_opts.file_duration = get_positive_int(p,
 						      "ring buffer duration");
 
   *colonp = ':';	/* put the colon back */
@@ -2017,8 +2017,8 @@ main(int argc, char *argv[])
   capture_opts.snaplen = MIN_PACKET_SIZE;
   capture_opts.linktype = -1;
 
-  capture_opts.has_autostop_count = FALSE;
-  capture_opts.autostop_count = 1;
+  capture_opts.has_autostop_packets = FALSE;
+  capture_opts.autostop_packets = 1;
   capture_opts.has_autostop_duration = FALSE;
   capture_opts.autostop_duration = 1;
   capture_opts.has_autostop_filesize = FALSE;
@@ -2028,9 +2028,9 @@ main(int argc, char *argv[])
 
   capture_opts.multi_files_on = FALSE;
   capture_opts.has_ring_num_files = TRUE;
-  capture_opts.num_files = 2;
-  capture_opts.has_ring_duration = FALSE;
-  capture_opts.ringbuffer_duration = 1;
+  capture_opts.ring_num_files = 2;
+  capture_opts.has_file_duration = FALSE;
+  capture_opts.file_duration = 1;
 
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
@@ -2125,8 +2125,8 @@ main(int argc, char *argv[])
         break;
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
-        capture_opts.has_autostop_count = TRUE;
-        capture_opts.autostop_count = get_positive_int(optarg, "packet count");
+        capture_opts.has_autostop_packets = TRUE;
+        capture_opts.autostop_packets = get_positive_int(optarg, "packet count");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2573,11 +2573,11 @@ main(int argc, char *argv[])
   }
 
   /* Check the value range of the ringbuffer_num_files parameter */
-  if (capture_opts.num_files > RINGBUFFER_MAX_NUM_FILES)
-    capture_opts.num_files = RINGBUFFER_MAX_NUM_FILES;
+  if (capture_opts.ring_num_files > RINGBUFFER_MAX_NUM_FILES)
+    capture_opts.ring_num_files = RINGBUFFER_MAX_NUM_FILES;
 #if RINGBUFFER_MIN_NUM_FILES > 0
   else if (capture_opts.num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts.num_files = RINGBUFFER_MIN_NUM_FILES;
+    capture_opts.ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 #endif
 
