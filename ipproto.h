@@ -2,7 +2,7 @@
  * Declarations of IP protocol numbers, and of routines for converting
  * IP protocol numbers into strings.
  *
- * $Id: ipproto.h,v 1.9 2003/08/07 21:08:07 guy Exp $
+ * $Id: ipproto.h,v 1.10 2003/11/02 22:12:35 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,6 +168,7 @@
 #define IP_PROTO_SCTP		132		/* Stream Control Transmission Protocol */
 #define IP_PROTO_FC             133             /* Fibre Channel */
 #define IP_PROTO_RSVPE2EI       134             /* RSVP E2E Ignore - RFC3175 */
+#define IP_PROTO_NCS_HEARTBEAT  224             /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 
 extern const char *ipprotostr(int proto);
 

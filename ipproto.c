@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.22 2003/08/07 21:08:07 guy Exp $
+ * $Id: ipproto.c,v 1.23 2003/11/02 22:12:35 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,6 +177,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_SCTP,    "SCTP" },
     { IP_PROTO_FC,      "Fibre Channel" },
     { IP_PROTO_RSVPE2EI,"RSVP E2EI" },
+    { IP_PROTO_NCS_HEARTBEAT,"Novell NCS Heartbeat" },
     { 0,		NULL },
 };
 
