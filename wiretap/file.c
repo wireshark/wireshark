@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.31 1999/12/04 05:14:38 guy Exp $
+ * $Id: file.c,v 1.32 1999/12/04 05:37:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -236,6 +236,7 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 	wdh->snaplen = snaplen;
 	wdh->encap = encap;
 
+	wdh->private.opaque = NULL;
 	for (dtp = &dump_open_table[0]; dtp->dump_open != NULL; dtp++) {
 		if (filetype == dtp->type) {
 			if (!(*dtp->dump_open)(wdh, err)) {
