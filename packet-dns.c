@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.37 2000/03/21 05:15:11 guy Exp $
+ * $Id: packet-dns.c,v 1.38 2000/03/21 06:21:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -612,23 +612,33 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
   dptr += 2;
   cur_offset += 2;
 
+  if (fd != NULL)
+    col_append_fstr(fd, COL_INFO, " %s", type_name);
+  if (dns_tree != NULL) {
+    trr = proto_tree_add_notext(dns_tree, offset,
+				(dptr - data_start) + data_len);
+    rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		     long_type_name, class_name, ttl, data_len);
+  }
+
   switch (type) {
+
   case T_A:
-    if (fd != NULL) {
-      col_append_fstr(fd, COL_INFO, " %s %s", type_name,
-			ip_to_str((guint8 *)dptr));
+    if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+      /* We ran past the end of the captured data in the packet. */
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr,
+		"%s: type %s, class %s, <Address goes past end of captured data in packet>",
+		       name, type_name, class_name);
+      }
+      return 0;
     }
+    if (fd != NULL)
+      col_append_fstr(fd, COL_INFO, " %s", ip_to_str((guint8 *)dptr));
     if (dns_tree != NULL) {
-      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s, addr %s",
+      proto_item_set_text(trr, "%s: type %s, class %s, addr %s",
 		     name, type_name, class_name,
 		     ip_to_str((guint8 *)dptr));
-      rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		     long_type_name, class_name, ttl, data_len);
-      if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
-	/* We ran past the end of the captured data in the packet. */
-	return 0;
-      }
       proto_tree_add_text(rr_tree, cur_offset, 4, "Addr: %s",
 		     ip_to_str((guint8 *)dptr));
     }
@@ -640,18 +650,20 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       int ns_name_len;
       
       ns_name_len = get_dns_name(pd, cur_offset, dns_data_offset, ns_name, sizeof(ns_name));
-      if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s %s", type_name, ns_name);
-      if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		       "%s: type %s, class %s, ns %s",
-		       name, type_name, class_name, ns_name);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
-	if (ns_name_len < 0) {
-	  /* We ran past the end of the captured data in the packet. */
-	  return 0;
+      if (ns_name_len < 0) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <Nameserver name goes past end of captured data in packet>",
+		       name, type_name, class_name);
 	}
+	return 0;
+      }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", ns_name);
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr, "%s: type %s, class %s, ns %s",
+		       name, type_name, class_name, ns_name);
 	proto_tree_add_text(rr_tree, cur_offset, ns_name_len, "Name server: %s",
 			ns_name);
       }
@@ -664,18 +676,20 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       int cname_len;
       
       cname_len = get_dns_name(pd, cur_offset, dns_data_offset, cname, sizeof(cname));
-      if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s %s", type_name, cname);
-      if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s, cname %s",
-		     name, type_name, class_name, cname);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
-	if (cname_len < 0) {
-	  /* We ran past the end of the captured data in the packet. */
-	  return 0;
+      if (cname_len < 0) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <Primary name goes past end of captured data in packet>",
+		       name, type_name, class_name);
 	}
+	return 0;
+      }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", cname);
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr, "%s: type %s, class %s, cname %s",
+		     name, type_name, class_name, cname);
 	proto_tree_add_text(rr_tree, cur_offset, cname_len, "Primary name: %s",
 			cname);
       }
@@ -695,28 +709,25 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       guint32 minimum;
 
       mname_len = get_dns_name(pd, cur_offset, dns_data_offset, mname, sizeof(mname));
-      if (mname_len >= 0)
-	rname_len = get_dns_name(pd, cur_offset + mname_len, dns_data_offset, rname, sizeof(rname));
-      else {
-      	/* We ran past the end of the captured data in the packet. */
-	rname_len = -1;
+      if (mname_len < 0) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <mname goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
       }
       if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s %s", type_name, mname);
+	col_append_fstr(fd, COL_INFO, " %s", mname);
       if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s, mname %s",
+	proto_item_set_text(trr, "%s: type %s, class %s, mname %s",
 		     name, type_name, class_name, mname);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
-	if (mname_len < 0) {
-	  /* We ran past the end of the captured data in the packet. */
-	  return 0;
-	}
 	proto_tree_add_text(rr_tree, cur_offset, mname_len, "Primary name server: %s",
 		       mname);
 	cur_offset += mname_len;
       
+	rname_len = get_dns_name(pd, cur_offset, dns_data_offset, rname, sizeof(rname));
 	if (rname_len < 0) {
 	  /* We ran past the end of the captured data in the packet. */
 	  return 0;
@@ -778,18 +789,20 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       int pname_len;
       
       pname_len = get_dns_name(pd, cur_offset, dns_data_offset, pname, sizeof(pname));
-      if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s %s", type_name, pname);
-      if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s, ptr %s",
-		     name, type_name, class_name, pname);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
-	if (pname_len < 0) {
-	  /* We ran past the end of the captured data in the packet. */
-	  return 0;
+      if (pname_len < 0) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <Domain name goes past end of captured data in packet>",
+		       name, type_name, class_name);
 	}
+	return 0;
+      }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", pname);
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr, "%s: type %s, class %s, ptr %s",
+		     name, type_name, class_name, pname);
 	proto_tree_add_text(rr_tree, cur_offset, pname_len, "Domain name: %s",
 			pname);
       }
@@ -802,32 +815,33 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       int rr_len = data_len;
       guint8 protocol;
       guint8 bits;
+      int mask;
       int port_num;
       int i;
       char bitnames[128+1];
       char portnumstring[10+1];
       
-      if (fd != NULL) {
-	col_append_fstr(fd, COL_INFO, " %s %s", type_name,
-			ip_to_str((guint8 *)dptr));
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <Address goes past end of captured data in packet>",
+		       name, type_name, class_name);
+	}
+	return 0;
       }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", ip_to_str((guint8 *)dptr));
       if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s, addr %s",
+	proto_item_set_text(trr, "%s: type %s, class %s, addr %s",
 		     name, type_name, class_name,
 		     ip_to_str((guint8 *)dptr));
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		     long_type_name, class_name, ttl, data_len);
-	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
-	  /* We ran past the end of the captured data in the packet. */
-	  return 0;
-	}
 	proto_tree_add_text(rr_tree, cur_offset, 4, "Addr: %s",
 		     ip_to_str((guint8 *)dptr));
 	cur_offset += 4;
 	rr_len -= 4;
 
-        if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
 	  /* We ran past the end of the captured data in the packet. */
 	  proto_tree_add_text(rr_tree, cur_offset, END_OF_FRAME,
 		       "<Protocol goes past end of captured data in packet>");
@@ -849,9 +863,10 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	  }
 	  bits = pd[cur_offset];
 	  if (bits != 0) {
+	    mask = 1<<7;
 	    bitnames[0] = '\0';
-	    for (i = 7; i >= 0; i--) {
-	      if (bits & (1 << i)) {
+	    for (i = 0; i < 8; i++) {
+	      if (bits & mask) {
 		if (bitnames[0] != '\0')
 		  strcat(bitnames, ", ");
 		switch (protocol) {
@@ -870,6 +885,7 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 		  break;
 	        }
 	      }
+	      mask >>= 1;
 	      port_num++;
 	    }
 	    proto_tree_add_text(rr_tree, cur_offset, 1,
@@ -891,12 +907,6 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       int os_len;
 
       cpu_offset = cur_offset;
-      if (dns_tree != NULL) {
-        trr = proto_tree_add_notext(dns_tree, offset,
-				(dptr - data_start) + data_len);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
-      }
       if (!BYTES_ARE_IN_FRAME(cpu_offset, 1)) {
 	/* We ran past the end of the captured data in the packet. */
       	if (dns_tree != NULL) {
@@ -937,7 +947,7 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	return 0;
       }
       if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s %.*s %.*s", type_name, cpu_len,
+	col_append_fstr(fd, COL_INFO, " %.*s %.*s", cpu_len,
 	    &pd[cpu_offset + 1], os_len, &pd[os_offset + 1]);
       if (dns_tree != NULL) {
 	proto_item_set_text(trr,
@@ -959,12 +969,6 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       char mx_name[MAXDNAME];
       int mx_name_len;
       
-      if (dns_tree != NULL) {
-	trr = proto_tree_add_notext(dns_tree, offset,
-				(dptr - data_start) + data_len);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
-      }
       if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
 	/* We ran past the end of the captured data in the packet. */
       	if (dns_tree != NULL) {
@@ -986,7 +990,7 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	return 0;
       }
       if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s %u %s", type_name, preference, mx_name);
+	col_append_fstr(fd, COL_INFO, " %u %s", preference, mx_name);
       if (dns_tree != NULL) {
 	proto_item_set_text(trr,
 		       "%s: type %s, class %s, preference %u, mx %s",
@@ -1004,40 +1008,30 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       int txt_offset;
       int txt_len;
 
-      if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s", type_name);
-      txt_offset = cur_offset;
       if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s",
-		     name, type_name, class_name);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
-      }
-      while (rr_len != 0) {
-	if (!BYTES_ARE_IN_FRAME(txt_offset, 1)) {
-	  /* We ran past the end of the captured data in the packet. */
-	  if (dns_tree != NULL) {
+        proto_item_set_text(trr,
+		"%s: type %s, class %s", name, type_name, class_name);
+
+	txt_offset = cur_offset;
+	while (rr_len != 0) {
+	  if (!BYTES_ARE_IN_FRAME(txt_offset, 1)) {
+	    /* We ran past the end of the captured data in the packet. */
 	    proto_tree_add_text(rr_tree, txt_offset, END_OF_FRAME,
 		       "<String goes past end of captured data in packet>");
+	    return 0;
 	  }
-	  return 0;
-	}
-	txt_len = pd[txt_offset];
-	if (!BYTES_ARE_IN_FRAME(txt_offset + 1, txt_len)) {
-	  /* We ran past the end of the captured data in the packet. */
-	  if (dns_tree != NULL) {
+	  txt_len = pd[txt_offset];
+	  if (!BYTES_ARE_IN_FRAME(txt_offset + 1, txt_len)) {
+	    /* We ran past the end of the captured data in the packet. */
 	    proto_tree_add_text(rr_tree, txt_offset, END_OF_FRAME,
 		       "<String goes past end of captured data in packet>");
+	    return 0;
 	  }
-	  return 0;
-	}
-	if (dns_tree != NULL) {
 	  proto_tree_add_text(rr_tree, txt_offset, 1 + txt_len,
 	   "Text: %.*s", txt_len, &pd[txt_offset + 1]);
+	  txt_offset += 1 + txt_len;
+	  rr_len -= 1 + txt_len;
 	}
-        txt_offset += 1 + txt_len;
-        rr_len -= 1 + txt_len;
       }
     }
     break;
@@ -1049,14 +1043,9 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       char signer_name[MAXDNAME];
       int signer_name_len;
 
-      if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s", type_name);
       if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s",
-		     name, type_name, class_name);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
+	proto_item_set_text(trr,
+		"%s: type %s, class %s", name, type_name, class_name);
 
         if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
 	  /* We ran past the end of the captured data in the packet. */
@@ -1149,14 +1138,9 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       proto_item *tf;
       proto_tree *flags_tree;
 
-      if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s", type_name);
       if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s",
-		     name, type_name, class_name);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
+	proto_item_set_text(trr,
+		"%s: type %s, class %s", name, type_name, class_name);
 
         if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
 	  /* We ran past the end of the captured data in the packet. */
@@ -1231,21 +1215,23 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
     break;
 
   case T_AAAA:
+    if (!BYTES_ARE_IN_FRAME(cur_offset, 16)) {
+      /* We ran past the end of the captured data in the packet. */
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr,
+		"%s: type %s, class %s, <Address goes past end of captured data in packet>",
+		       name, type_name, class_name);
+      }
+      return 0;
+    }
     if (fd != NULL) {
-      col_append_fstr(fd, COL_INFO, " %s %s", type_name,
+      col_append_fstr(fd, COL_INFO, " %s", 
 			ip6_to_str((struct e_in6_addr *)dptr));
     }
     if (dns_tree != NULL) {
-      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s, addr %s",
+      proto_item_set_text(trr, "%s: type %s, class %s, addr %s",
 		     name, type_name, class_name,
 		     ip6_to_str((struct e_in6_addr *)dptr));
-      rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		     long_type_name, class_name, ttl, data_len);
-      if (!BYTES_ARE_IN_FRAME(cur_offset, 16)) {
-	/* We ran past the end of the captured data in the packet. */
-	return 0;
-      }
       proto_tree_add_text(rr_tree, cur_offset, 16, "Addr: %s",
 		     ip6_to_str((struct e_in6_addr *)dptr));
     }
@@ -1253,14 +1239,10 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 
   case T_LOC:
     {
-      if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s", type_name);
       if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s",
-		     name, type_name, class_name);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
+	proto_item_set_text(trr,
+		"%s: type %s, class %s", name, type_name, class_name);
+
 	if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
 	  /* We ran past the end of the captured data in the packet. */
 	  return 0;
@@ -1335,26 +1317,34 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 
       next_domain_name_len = get_dns_name(pd, cur_offset, dns_data_offset,
 			next_domain_name, sizeof(next_domain_name));
-      if (fd != NULL)
-	col_append_fstr(fd, COL_INFO, " %s %s", type_name, next_domain_name);
-      if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s, next domain name %s",
-		     name, type_name, class_name, next_domain_name);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
-	if (next_domain_name_len < 0) {
-	  /* We ran past the end of the captured data in the packet. */
-	  return 0;
+      if (next_domain_name_len < 0) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+		"%s: type %s, class %s, <Next domain name goes past end of captured data in packet>",
+		       name, type_name, class_name);
 	}
+	return 0;
+      }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", next_domain_name);
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr, "%s: type %s, class %s, next domain name %s",
+		     name, type_name, class_name, next_domain_name);
 	proto_tree_add_text(rr_tree, cur_offset, next_domain_name_len,
 			"Next domain name: %s", next_domain_name);
 	cur_offset += next_domain_name_len;
 	rr_len -= next_domain_name_len;
 	rr_type = 0;
 	while (rr_len != 0) {
+	  if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+	    /* We ran past the end of the captured data in the packet. */
+	    proto_tree_add_text(rr_tree, cur_offset, END_OF_FRAME,
+		       "<Bit map goes past end of captured data in packet>");
+	    return 0;
+	  }
 	  bits = pd[cur_offset];
-	  mask = 1<<8;
+	  mask = 1<<7;
 	  for (i = 0; i < 8; i++) {
 	    if (bits & mask) {
 	      proto_tree_add_text(rr_tree, cur_offset, 1,
@@ -1375,14 +1365,9 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
     /* TODO: parse more record types */
 
   default:
-    if (fd != NULL)
-      col_append_fstr(fd, COL_INFO, " %s", type_name);
     if (dns_tree != NULL) {
-      trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		     "%s: type %s, class %s",
-		     name, type_name, class_name);
-      rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
+      proto_item_set_text(trr,
+		"%s: type %s, class %s", name, type_name, class_name);
       proto_tree_add_text(rr_tree, cur_offset, data_len, "Data");
     }
     break;
