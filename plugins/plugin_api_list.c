@@ -373,8 +373,8 @@ guint32 dissect_per_object_identifier(tvbuff_t*, guint32, packet_info*, proto_tr
 guint32 dissect_per_boolean(tvbuff_t*, guint32, packet_info *pinfo, proto_tree*, int, gboolean*, proto_item**);
 guint32 dissect_per_integer(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint32*, proto_item**);
 guint32 dissect_per_constrained_integer(tvbuff_t*, guint32, packet_info*, proto_tree*, int, guint32, guint32, guint32*, proto_item**, gboolean);
-guint32 dissect_per_choice(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint, per_choice_t*, char*, guint32*);
-guint32 dissect_per_sequence(tvbuff_t*, guint32, packet_info*, proto_tree *parent_tree, int, gint, per_sequence_t*);
+guint32 dissect_per_choice(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint, const per_choice_t*, char*, guint32*);
+guint32 dissect_per_sequence(tvbuff_t*, guint32, packet_info*, proto_tree *parent_tree, int, gint, const per_sequence_t*);
 guint32 dissect_per_octet_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int, guint32*, guint32*);
 guint32 dissect_per_restricted_character_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int, char*, int);
 
