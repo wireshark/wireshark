@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.115 2004/07/07 04:48:38 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.116 2004/07/09 04:54:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -767,7 +767,9 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       break;
 
     case FIELD_ASSOC_ID:
-      proto_tree_add_item (tree, ff_assoc_id, tvb, offset, 2, TRUE);
+      proto_tree_add_uint(tree, ff_assoc_id, tvb, offset, 2, 
+			  COOK_ASSOC_ID(tvb_get_letohs(tvb,offset)));
+      /* proto_tree_add_item (tree, ff_assoc_id, tvb, offset, 2, TRUE); */
       break;
 
     case FIELD_STATUS_CODE:
