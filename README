@@ -1,9 +1,9 @@
 General Information
 ------- -----------
 
-Ethereal is a network traffic analyzer for Unix-ish operating systems.
-It is based on GTK+, a graphical user interface library, and libpcap,
-a packet capture and filtering library.
+Ethereal is a network traffic analyzer for Unix and Unix-like operating
+systems.  It is based on GTK+, a graphical user interface library,
+and libpcap, a packet capture and filtering library.
 
 The official home of Ethereal is
 
@@ -17,96 +17,30 @@ The latest distribution can be found in the subdirectory
 Installation
 ------------
 
-Ethereal is known to compile and run under Linux (2.0.35) and Solaris
-(2.6).  It should run on other systems without too much trouble.
+Ethereal is known to compile and run on the following systems:
+
+  - Linux (2.0.x)
+  - Solaris (2.5.1, 2.6)
+  - FreeBSD (2.2.5, 2.2.6)
+
+It should run on other systems without too much trouble.
 
 
-Installation Checklist (Short):
-
-  [ ] 1. Unpack the archive.
-
-  [ ] 2. Run './configure; make; make install; make install-man'.
-         If there are any problems, read on:
-
-
-Installation Checklist (Long):
-
-  [ ] 0. This is alpha software.  Beware.
-  
-  [ ] 1. Make sure you have GTK+ installed.  Try running 'gtk-config
-         --version'.  If you need to install/reinstall GTK, you can find
-         it at
-
-         http://www.gtk.org .
-
-         Ethereal should work with the latest stable (1.0.x) version, but
-         I've had reports that it doesn't compile with the development
-         (1.1.x) tree.
-
-  [ ] 2. Make sure you have libpcap installed.  The latest version can be
-         found at
-          
-         ftp://ftp.ee.lbl.gov .
-
-         Make sure you install the headers ('make install-incl') when you
-         install the library.
-
-  [ ] 3. Run './configure' in the Ethereal distribution directory.
-         Running './configure --help' displays a list of options.
-         The file 'INSTALL' contains general instructions for running
-         'configure'.
-
-         Ethereal installs a support file (manuf) in /usr/local/etc by
-         default.  You can change this location with the --sysconfdir
-         option.
-
-  [ ] 4. Run 'make'.  Hopefully, you won't run into any problems.
-
-  [ ] 5. Run './ethereal', and make sure things are working.  You must
-         have root privileges in order to capture live data.
-
-  [ ] 6. Run 'make install'.  If you wish to install the man page, run
-         'make install-man'.  You're done.
-
+Full installation instructions can be found in the INSTALL file.
          
+
 Usage
 -----          
 
 In order to capture packets from the network, you need to be running
-as root.  Although it might be tempting to make the Ethereal executable
-setuid root, please don't - alpha code is by nature not very robust, and
-liable to contain security holes.
+as root, or have access to the appropriate entry under /dev if your
+system is so inclined (BSD-derived systems and Solaris typically fall
+into this category.  Although it might be tempting to make the
+Ethereal executable setuid root, please don't - alpha code is by nature
+not very robust, and liable to contain security holes.
 
-The filtering mechanism is far from complete.  Until the interface
-solidifies, here's a description of what each component of the filter
-dialog:
-
-  - 'Filter name' entry: Gives a name to the filter you are about to create
-    or modify, e.g. 'Web and DNS traffic'
-    
-  - 'Filter string' entry: The text describing the filtering action to
-    take.  It must have the same format as tcpdump filter strings (both
-    programs use the same underlying library), e.g. 
-    
-    'tcp port 80 or tcp port 443 or port 53'
-
-  - 'New' button: If there is text in the two entry boxes, adds it to the
-    list.
-    
-  - 'Change' button: Modifies the currently selected list item to match
-    what's in the two entry boxes.
-    
-  - 'Copy' button: Makes a copy of the currently-selected list item.
-  
-  - 'Delete' button: Deletes the currently-selected list item.
-  
-  - 'OK' button: Sets the selected list item as the active filter.  If
-    nothing is selected, turns filtering off.
-    
-  - 'Save' button: Saves the current filter list in
-    $HOME/.ethereal/filters.
-    
-  - 'Cancel' button: Closes the window without making changes.
+Please consult the man page for a description of each command-line
+option and interface feature.
 
 
 Multiple File Types
