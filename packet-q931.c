@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.8 1999/11/19 09:46:51 guy Exp $
+ * $Id: packet-q931.c,v 1.9 1999/11/25 10:01:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
+#include "packet-q931.h"
 
 /* Q.931 references:
  *
@@ -186,8 +187,8 @@ static const value_string q931_message_type_vals[] = {
 #define	Q931_IE_E2E_TRANSIT_DELAY	0x42	/* End-to-end Transit Delay */
 #define	Q931_IE_TD_SELECTION_AND_INT	0x43	/* Transit Delay Selection and Indication */
 #define	Q931_IE_PL_BINARY_PARAMETERS	0x44	/* Packet layer binary parameters */
-#define	Q931_IE_PL_WINDOW_SIZE		0x45	/* Packet layer Window Size */
-#define	Q931_IE_PL_SIZE			0x46	/* Packet layer Size */
+#define	Q931_IE_PL_WINDOW_SIZE		0x45	/* Packet layer window size */
+#define	Q931_IE_PACKET_SIZE		0x46	/* Packet size */
 #define	Q931_IE_CUG			0x47	/* Closed user group */
 #define	Q931_IE_REVERSE_CHARGE_IND	0x4A	/* Reverse charging indication */
 #define	Q931_IE_CALLING_PARTY_NUMBER	0x6C	/* Calling Party Number */
@@ -263,7 +264,7 @@ static const value_string q931_info_element_vals[] = {
 	{ Q931_IE_TD_SELECTION_AND_INT,		"Transit delay selection and indication" },
 	{ Q931_IE_PL_BINARY_PARAMETERS,		"Packet layer binary parameters" },
 	{ Q931_IE_PL_WINDOW_SIZE,		"Packet layer window size" },
-	{ Q931_IE_PL_SIZE,			"Packet layer size" },
+	{ Q931_IE_PACKET_SIZE,			"Packet size" },
 	{ Q931_IE_CUG,				"Closed user group" },
 	{ Q931_IE_REVERSE_CHARGE_IND,		"Reverse charging indication" },
 	{ Q931_IE_CALLING_PARTY_NUMBER,		"Calling party number" },
@@ -333,7 +334,7 @@ dissect_q931_segmented_message_ie(const u_char *pd, int offset, int len,
  * Dissect a Bearer capability or Low-layer compatibility information element.
  */
 static const value_string q931_bc_coding_standard_vals[] = {
-	{ 0x00, "ITU standardized coding" },
+	{ 0x00, "ITU-T standardized coding" },
 	{ 0x20, "ISO/IEC standard" },
 	{ 0x40, "National standard" },
 	{ 0x60, "Standard defined for this particular network" },
@@ -370,14 +371,14 @@ static const value_string q931_information_transfer_rate_vals[] = {
 };
 	
 static const value_string q931_uil1_vals[] = {
-	{ 0x01, "V.110/X.30 rate adaptation" },
+	{ 0x01, "V.110/I.460/X.30 rate adaption" },
 	{ 0x02, "Recommendation G.711 u-law" },
 	{ 0x03, "Recommendation G.711 A-law" },
 	{ 0x04, "Recommendation G.721 32 kbit/s ADPCM and Recommendation I.460" },
-	{ 0x05, "Recommendation G.722 and G.725 7 kHz audio" },
-	{ 0x06, "Recommendation G.7xx 384 kbit/s video" },
-	{ 0x07, "Non-ITU-standardized rate adaptation" },
-	{ 0x08, "V.120 rate adaptation" },
+	{ 0x05, "Recommendation H.221 and H.242" },
+	{ 0x06, "Recommendation H.223 and H.245" },
+	{ 0x07, "Non-ITU-T-standardized rate adaption" },
+	{ 0x08, "V.120 rate adaption" },
 	{ 0x09, "X.31 HDLC flag stuffing" },
 	{ 0,    NULL },
 };
@@ -456,6 +457,7 @@ static const value_string q931_l1_modem_type_vals[] = {
 	{ 0x1A, "V.27 ter" },
 	{ 0x1B, "V.29" },
 	{ 0x1C, "V.32" },
+	{ 0x1E, "V.34" },
 	{ 0,    NULL }
 };
 
@@ -488,6 +490,7 @@ static const value_string q931_mode_vals[] = {
 #define	Q931_UIL3_X25_PL	0x06
 #define	Q931_UIL3_ISO_8208	0x07	/* X.25-based */
 #define	Q931_UIL3_X223		0x08	/* X.25-based */
+#define	Q931_UIL3_TR_9577	0x0B
 #define	Q931_UIL3_USER_SPEC	0x10
 
 static const value_string q931_uil3_vals[] = {
@@ -497,12 +500,18 @@ static const value_string q931_uil3_vals[] = {
 	{ Q931_UIL3_X223,	"X.223/ISO 8878" },
 	{ 0x09,			"ISO/IEC 8473" },
 	{ 0x0A,			"T.70" },
-	{ 0x0B,			"ISO/IEC TR 9577" },
+	{ Q931_UIL3_TR_9577,	"ISO/IEC TR 9577" },
 	{ Q931_UIL3_USER_SPEC,	"User-specified" },
 	{ 0,			NULL }
 };
 
-static void
+static const value_string q931_uil3_tr_9577_vals[] = {
+	{ 0xCC, "IP" },
+	{ 0xCF, "PPP" },
+	{ 0x00, NULL }
+};
+
+void
 dissect_q931_bearer_capability_ie(const u_char *pd, int offset, int len,
     proto_tree *tree)
 {
@@ -512,6 +521,7 @@ dissect_q931_bearer_capability_ie(const u_char *pd, int offset, int len,
 	guint8 modem_type;
 	guint8 uil2_protocol;
 	guint8 uil3_protocol;
+	guint8 add_l3_info;
 
 	if (len == 0)
 		return;
@@ -635,7 +645,7 @@ dissect_q931_bearer_capability_ie(const u_char *pd, int offset, int len,
 			return;
 		octet = pd[offset];
 		proto_tree_add_text(tree, offset, 1,
-		    "Rate adaptation header %sincluded",
+		    "Rate adaption header %sincluded",
 		    (octet & 0x40) ? "" : "not ");
 		proto_tree_add_text(tree, offset, 1,
 		    "Multiple frame establishment %ssupported",
@@ -724,10 +734,16 @@ l1_done:
 		if (len == 0)
 			return;
 		octet = pd[offset];
-		proto_tree_add_text(tree, offset, 1,
-		    "Mode: %s",
-		    val_to_str(octet & 0x60, q931_mode_vals,
-		      "Unknown (0x%02X)"));
+		if (uil2_protocol == Q931_UIL2_USER_SPEC) {
+			proto_tree_add_text(tree, offset, 1,
+			    "User-specified layer 2 protocol information: 0x%02X",
+			    octet & 0x7F);
+		} else {
+			proto_tree_add_text(tree, offset, 1,
+			    "Mode: %s",
+			    val_to_str(octet & 0x60, q931_mode_vals,
+			      "Unknown (0x%02X)"));
+		}
 		offset += 1;
 		len -= 1;
 
@@ -736,14 +752,8 @@ l1_done:
 		if (len == 0)
 			return;
 		octet = pd[offset];
-		if (uil2_protocol == Q931_UIL2_USER_SPEC) {
-			proto_tree_add_text(tree, offset, 1,
-			    "User-specified layer 2 protocol information: 0x%02X",
-			    octet & 0x7F);
-		} else {
-			proto_tree_add_text(tree, offset, 1,
-			    "Window size: %u k", octet & 0x7F);
-		}
+		proto_tree_add_text(tree, offset, 1,
+		    "Window size: %u k", octet & 0x7F);
 		offset += 1;
 		len -= 1;
 	}
@@ -812,6 +822,22 @@ l2_done:
 			offset += 1;
 			len -= 1;
 			break;
+
+		case Q931_UIL3_TR_9577:
+			add_l3_info = (octet & 0x0F) << 4;
+			if (octet & Q931_IE_VL_EXTENSION)
+				goto l3_done;
+			if (len == 0)
+				return;
+			octet = pd[offset + 1];
+			add_l3_info |= (octet & 0x0F);
+			proto_tree_add_text(tree, offset, 2,
+			    "Additional layer 3 protocol information: %s",
+			    val_to_str(add_l3_info, q931_uil3_tr_9577_vals,
+			      "Unknown (0x%02X)"));
+			offset += 2;
+			len -= 2;
+			break;
 		}
 	}
 l3_done:
@@ -822,7 +848,7 @@ l3_done:
  * Dissect a Cause information element.
  */
 static const value_string q931_cause_coding_standard_vals[] = {
-	{ 0x00, "ITU standardized coding" },
+	{ 0x00, "ITU-T standardized coding" },
 	{ 0x20, "ISO/IEC standard" },
 	{ 0x40, "National standard" },
 	{ 0x60, "Standard specific to identified location" },
@@ -1005,7 +1031,7 @@ dissect_q931_cause_ie(const u_char *pd, int offset, int len,
  * Dissect a Call state information element.
  */
 static const value_string q931_coding_standard_vals[] = {
-	{ 0x00, "ITU standardized coding" },
+	{ 0x00, "ITU-T standardized coding" },
 	{ 0x20, "ISO/IEC standard" },
 	{ 0x40, "National standard" },
 	{ 0x60, "Standard defined for the network" },
@@ -1077,6 +1103,13 @@ static const value_string q931_basic_channel_selection_vals[] = {
 	{ 0,    NULL }
 };
 
+static const value_string q931_not_basic_channel_selection_vals[] = {
+	{ 0x00, "No channel" },
+	{ 0x01, "Channel indicated in following octets" },
+	{ 0x03, "Any channel" },
+	{ 0,    NULL }
+};
+
 #define	Q931_IS_SLOT_MAP		0x10
 	
 static const value_string q931_element_type_vals[] = {
@@ -1112,6 +1145,10 @@ dissect_q931_channel_identification_ie(const u_char *pd, int offset, int len,
 	    "Indicated channel is %sthe D-channel",
 	    (octet & 0x04) ? "" : "not ");
 	if (octet & Q931_NOT_BASIC_CHANNEL) {
+		proto_tree_add_text(tree, offset, 1,
+		    "Channel selection: %s",
+		    val_to_str(octet & 0x03, q931_not_basic_channel_selection_vals,
+		      NULL));
 	} else {
 		proto_tree_add_text(tree, offset, 1,
 		    "Channel selection: %s",
@@ -1192,7 +1229,7 @@ static const value_string q931_progress_description_vals[] = {
 	{ 0,    NULL }
 };
 
-static void
+void
 dissect_q931_progress_indicator_ie(const u_char *pd, int offset, int len,
     proto_tree *tree)
 {
@@ -1232,7 +1269,8 @@ dissect_q931_progress_indicator_ie(const u_char *pd, int offset, int len,
 }
 
 /*
- * Dissect a Network-specific facilities information element.
+ * Dissect a Network-specific facilities or Transit network selection
+ * information element.
  */
 static const value_string q931_netid_type_vals[] = {
 	{ 0x00, "User specified" },
@@ -1269,7 +1307,7 @@ dissect_q931_ns_facilities_ie(const u_char *pd, int offset, int len,
 			return;
 		octet = pd[offset];
 		proto_tree_add_text(tree, offset, 1,
-		    "Progress description: %s",
+		    "Type of network identification: %s",
 		    val_to_str(octet & 0x70, q931_netid_type_vals,
 		      "Unknown (0x%02X)"));
 		proto_tree_add_text(tree, offset, 1,
@@ -1285,7 +1323,7 @@ dissect_q931_ns_facilities_ie(const u_char *pd, int offset, int len,
 		if (netid_len > len)
 			netid_len = len;
 		if (netid_len != 0) {
-			proto_tree_add_text(tree, offset, 1,
+			proto_tree_add_text(tree, offset, netid_len,
 			    "Network identification: %.*s",
 			    netid_len, &pd[offset]);
 			offset += netid_len;
@@ -1343,7 +1381,7 @@ dissect_q931_date_time_ie(const u_char *pd, int offset, int len,
 	}
 	/*
 	 * XXX - what is "year" relative to?  Is "month" 0-origin or
-	 * 1-origin?
+	 * 1-origin?  Q.931 doesn't say....
 	 */
 	proto_tree_add_text(tree, offset, 6,
 	    "Date/time: %u-%u-%u %u:%u:%u",
@@ -1557,6 +1595,42 @@ dissect_q931_td_selection_and_int_ie(const u_char *pd, int offset, int len,
 }
 
 /*
+ * Dissect a Packet layer binary parameters information element.
+ */
+static const value_string q931_fast_selected_vals[] = {
+	{ 0x00, "Fast select not requested" },
+	{ 0x08, "Fast select not requested" },
+	{ 0x10, "Fast select requested with no restriction of response" },
+	{ 0x18, "Fast select requested with restrictions of response" },
+	{ 0x00, NULL }
+};
+
+static void
+dissect_q931_pl_binary_parameters_ie(const u_char *pd, int offset, int len,
+    proto_tree *tree)
+{
+	guint8 octet;
+
+	if (len == 0)
+		return;
+	octet = pd[offset];
+	proto_tree_add_text(tree, offset, 1,
+	    "Fast select: %s",
+	    val_to_str(octet & 0x18, q931_fast_selected_vals,
+	      NULL));
+	proto_tree_add_text(tree, offset, 1,
+	    "%s",
+	    (octet & 0x04) ? "No request/request denied" :
+	    		     "Request indicated/request accepted");
+	proto_tree_add_text(tree, offset, 1,
+	    "%s confirmation",
+	    (octet & 0x02) ? "Link-by-link" : "End-to-end");
+	proto_tree_add_text(tree, offset, 1,
+	    "Modulus %u sequencing",
+	    (octet & 0x01) ? 8 : 128);
+}
+
+/*
  * Dissect a Packet layer window size information element.
  */
 static void
@@ -1577,10 +1651,10 @@ dissect_q931_pl_window_size_ie(const u_char *pd, int offset, int len,
 }
 
 /*
- * Dissect a Packet layer size information element.
+ * Dissect a Packet size information element.
  */
 static void
-dissect_q931_pl_size_ie(const u_char *pd, int offset, int len,
+dissect_q931_packet_size_ie(const u_char *pd, int offset, int len,
     proto_tree *tree)
 {
 	if (len == 0)
@@ -1753,7 +1827,7 @@ dissect_q931_number_ie(const u_char *pd, int offset, int len,
  * Dissect a party subaddress information element.
  */
 static const value_string q931_subaddress_type_vals[] = {
-	{ 0x00, "X.213[23]/ISO 8348 AD2 NSAP" },
+	{ 0x00, "X.213/ISO 8348 Add.2 NSAP" },
 	{ 0x20, "User-specified" },
 	{ 0,    NULL }
 };
@@ -1818,30 +1892,42 @@ dissect_q931_restart_indicator_ie(const u_char *pd, int offset, int len,
 /*
  * Dissect a High-layer compatibility information element.
  */
+#define	Q931_AUDIOVISUAL	0x60
 static const value_string q931_high_layer_characteristics_vals[] = {
-	{ 0x01, "Telephony" },
-	{ 0x04, "F.182 Facsimile Group 2/3" },
-	{ 0x21, "F.184 Facsimile Group 4 Class I" },
-	{ 0x24, "F.230 Teletex, basic and mixed mode, and F.184 Facsimile Group 4, Classes II and III" },
-	{ 0x28, "F.220 Teletex, basic and processable mode" },
-	{ 0x31, "F.200 Teletex, basic mode" },
-	{ 0x32, "F.300 and T.102 syntax-based Videotex" },
-	{ 0x33, "F.300 and T.101 international Videotex interworking" },
-	{ 0x35, "F.60 Telex" },
-	{ 0x38, "X.400 Message Handling Systems" },
-	{ 0x41, "X.200 OSI application" },
-	{ 0x5E, "Reserved for maintenance" },
-	{ 0x5F, "Reserved for management" },
-	{ 0x60, "F.721 Audiovisual" },
-	{ 0,    NULL }
+	{ 0x01,             "Telephony" },
+	{ 0x04,             "F.182 Facsimile Group 2/3" },
+	{ 0x21,             "F.184 Facsimile Group 4 Class I" },
+	{ 0x24,             "F.230 Teletex, basic and mixed mode, and F.184 Facsimile Group 4, Classes II and III" },
+	{ 0x28,             "F.220 Teletex, basic and processable mode" },
+	{ 0x31,             "F.200 Teletex, basic mode" },
+	{ 0x32,             "F.300 and T.102 syntax-based Videotex" },
+	{ 0x33,             "F.300 and T.101 international Videotex interworking" },
+	{ 0x35,             "F.60 Telex" },
+	{ 0x38,             "X.400 Message Handling Systems" },
+	{ 0x41,             "X.200 OSI application" },
+	{ 0x42,             "FTAM application" },
+	{ 0x5E,             "Reserved for maintenance" },
+	{ 0x5F,             "Reserved for management" },
+	{ Q931_AUDIOVISUAL, "F.720/F.821 and F.731 Profile 1a videotelephony" },
+	{ 0x61,             "F.702 and F.731 Profile 1b videoconferencing" },
+	{ 0x62,             "F.702 and F.731 audiographic conferencing" },
+	{ 0,                NULL }
 };
 
-static void
+static const value_string q931_audiovisual_characteristics_vals[] = {
+	{ 0x01, "Capability set of initial channel of H.221" },
+	{ 0x02, "Capability set of subsequent channel of H.221" },
+	{ 0x21, "Capability set of initial channel of an active 3.1kHz audio or speech call" },
+	{ 0x00, NULL }
+};
+
+void
 dissect_q931_high_layer_compat_ie(const u_char *pd, int offset, int len,
     proto_tree *tree)
 {
 	guint8 octet;
 	guint8 coding_standard;
+	guint8 characteristics;
 
 	if (len == 0)
 		return;
@@ -1863,9 +1949,10 @@ dissect_q931_high_layer_compat_ie(const u_char *pd, int offset, int len,
 	if (len == 0)
 		return;
 	octet = pd[offset];
+	characteristics = octet & 0x7F;
 	proto_tree_add_text(tree, offset, 1,
 	    "High layer characteristics identification: %s",
-	    val_to_str(octet & 0x7F, q931_high_layer_characteristics_vals,
+	    val_to_str(characteristics, q931_high_layer_characteristics_vals,
 	      NULL));
 	offset += 1;
 	len -= 1;
@@ -1874,10 +1961,17 @@ dissect_q931_high_layer_compat_ie(const u_char *pd, int offset, int len,
 		if (len == 0)
 			return;
 		octet = pd[offset];
-		proto_tree_add_text(tree, offset, 1,
-		    "Extended high layer characteristics identification: %s",
-		    val_to_str(octet & 0x7F, q931_high_layer_characteristics_vals,
-		      NULL));
+		if (characteristics == Q931_AUDIOVISUAL) {
+			proto_tree_add_text(tree, offset, 1,
+			    "Extended audiovisual characteristics identification: %s",
+			    val_to_str(octet & 0x7F, q931_audiovisual_characteristics_vals,
+			      NULL));
+		} else {
+			proto_tree_add_text(tree, offset, 1,
+			    "Extended high layer characteristics identification: %s",
+			    val_to_str(octet & 0x7F, q931_high_layer_characteristics_vals,
+			      NULL));
+		}
 	}
 }
 
@@ -1893,7 +1987,7 @@ static const value_string q931_protocol_discriminator_vals[] = {
 	{ 0x02,					"X.244" },
 	{ Q931_PROTOCOL_DISCRIMINATOR_IA5,	"IA5 characters" },
 	{ 0x05,					"X.208 and X.209 coded user information" },
-	{ 0x07,					"V.120 rate adaptation" },
+	{ 0x07,					"V.120 rate adaption" },
 	{ 0x08,					"Q.931/I.451 user-network call control messages" },
 	{ 0,					NULL }
 };
@@ -1943,6 +2037,15 @@ dissect_q931_ia5_ie(const u_char *pd, int offset, int len, proto_tree *tree,
 	}
 }
 
+static const value_string q931_codeset_vals[] = {
+	{ 0x00, "Q.931 information elements" },
+	{ 0x04, "Information elements for ISO/IEC use" },
+	{ 0x05, "Information elements for national use" },
+	{ 0x06, "Information elements specific to the local network" },
+	{ 0x07, "User-specific information elements" },
+	{ 0x00, NULL },
+};
+
 void
 dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -1955,7 +2058,7 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	guint8		info_element;
 	guint8		info_element_len;
 	int		codeset;
-	int		non_locking_shift;
+	gboolean	non_locking_shift;
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "Q.931");
@@ -2008,9 +2111,11 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			codeset = info_element & Q931_IE_SHIFT_CODESET;
 			if (q931_tree != NULL) {
 				proto_tree_add_text(q931_tree, offset, 1,
-				    "%s shift to codeset %u",
+				    "%s shift to codeset %u: %s",
 				    (non_locking_shift ? "Non-locking" : "Locking"),
-				    codeset);
+				    codeset,
+				    val_to_str(codeset, q931_codeset_vals,
+				      "Unknown (0x%02X)"));
 			}
 			offset += 1;
 			continue;
@@ -2092,7 +2197,7 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			proto_tree_add_text(ie_tree, offset, 1,
 			    "Information element: %s",
 			    val_to_str(info_element, q931_info_element_vals,
-			      "Unknown"));
+			      "Unknown (0x%02X)"));
 			proto_tree_add_text(ie_tree, offset + 1, 1,
 			    "Length: %u", info_element_len);
 
@@ -2130,6 +2235,7 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				break;
 
 			case Q931_IE_NETWORK_SPECIFIC_FACIL:
+			case Q931_IE_TRANSIT_NETWORK_SEL:
 				dissect_q931_ns_facilities_ie(pd,
 				    offset + 2, info_element_len, ie_tree);
 				break;
@@ -2176,13 +2282,18 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    offset + 2, info_element_len, ie_tree);
 				break;
 
+			case Q931_IE_PL_BINARY_PARAMETERS:
+				dissect_q931_pl_binary_parameters_ie(pd,
+				    offset + 2, info_element_len, ie_tree);
+				break;
+
 			case Q931_IE_PL_WINDOW_SIZE:
 				dissect_q931_pl_window_size_ie(pd,
 				    offset + 2, info_element_len, ie_tree);
 				break;
 
-			case Q931_IE_PL_SIZE:
-				dissect_q931_pl_size_ie(pd,
+			case Q931_IE_PACKET_SIZE:
+				dissect_q931_packet_size_ie(pd,
 				    offset + 2, info_element_len, ie_tree);
 				break;
 
