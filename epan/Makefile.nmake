@@ -24,6 +24,7 @@ OBJECTS=atalk-utils.obj	\
 	epan.obj         \
 	except.obj       \
 	filesystem.obj   \
+	frame_data.obj	\
 	inet_aton.obj	\
 	inet_pton.obj	\
 	inet_ntop.obj	\
