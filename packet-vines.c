@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.55 2003/04/18 19:57:30 guy Exp $
+ * $Id: packet-vines.c,v 1.56 2003/04/19 06:04:20 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -1375,7 +1375,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    "Preferred Gateway: %s",
 						    vines_addr_to_str(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN)));
 				offset += VINES_ADDR_LEN;
-				metric - tvb_get_ntohs(tvb, offset);
+				metric = tvb_get_ntohs(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, 2,
 						    "Metric to Preferred Gateway: %u ticks (%g seconds)",
