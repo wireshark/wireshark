@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.30 2004/03/09 02:12:55 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.31 2004/03/17 19:50:05 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -3087,6 +3087,7 @@ static const wbxml_decoding decode_wv_cspc_11 = {
  * 
  * Wireless Village Client Server Protocol
  ***************************************/
+#ifdef Remove_this_comment_when_WV_CSP_will_be_an_approved_spec
 
 /*****   Global extension tokens   *****/
 /* Same as WV-CSP 1.1 */
@@ -3656,6 +3657,7 @@ static const wbxml_decoding decode_wv_cspc_12 = {
     wbxml_wv_csp_12_attrStart,
     NULL
 };
+#endif /* Remove_this_comment_when_WV_CSP_will_be_an_approved_spec */
 
 
 
