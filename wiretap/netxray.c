@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.4 1999/03/20 09:10:49 guy Exp $
+ * $Id: netxray.c,v 1.5 1999/03/22 15:02:25 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -179,7 +179,7 @@ int netxray_read(wtap *wth)
 		struct netxrayrec_1_x_hdr hdr_1_x;
 		struct netxrayrec_2_x_hdr hdr_2_x;
 	}	hdr;
-	int	hdr_size;
+	int	hdr_size = 0;
 	int	data_offset;
 	double	t;
 
