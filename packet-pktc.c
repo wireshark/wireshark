@@ -9,7 +9,7 @@
  * Ronnie Sahlberg 2004
  * Thomas Anders 2004
  *
- * $Id: packet-pktc.c,v 1.8 2004/06/05 02:57:48 sahlberg Exp $
+ * $Id: packet-pktc.c,v 1.9 2004/06/19 04:10:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -369,7 +369,10 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     offset=dissect_pktc_list_of_ciphersuites(pinfo, tree, tvb, offset, doi);
 
     /* sec param lifetime */
-    proto_tree_add_item(tree, hf_pktc_sec_param_lifetime, tvb, offset, 4, FALSE);
+    proto_tree_add_uint_format(tree, hf_pktc_sec_param_lifetime, tvb, offset, 4,
+                               tvb_get_ntohl(tvb, offset), "%s: %s",
+                               proto_registrar_get_name(hf_pktc_sec_param_lifetime),
+                               time_secs_to_str(tvb_get_ntohl(tvb, offset)));
     offset+=4;
 
     /* grace period */
