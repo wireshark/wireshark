@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.67 2002/01/27 03:04:30 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.68 2002/01/27 22:25:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -334,7 +334,8 @@ add_string_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 }
 
 static const char *
-get_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp, int *lenp)
+get_stringz_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp,
+    int *lenp)
 {
 	int cptr;
 	gint string_len;
@@ -354,14 +355,15 @@ get_pointer_value(tvbuff_t *tvb, int offset, int convert, int *cptrp, int *lenp)
 }
 
 static int
-add_pointer_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
-    proto_tree *tree, int convert, int hf_index)
+add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count,
+    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
 {
 	int cptr;
 	const char *string;
 	gint string_len;
 
-	string = get_pointer_value(tvb, offset, convert, &cptr, &string_len);
+	string = get_stringz_pointer_value(tvb, offset, convert, &cptr,
+	    &string_len);
 	offset += 4;
 
 	/* string */
@@ -381,6 +383,40 @@ add_pointer_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 		} else {
 			proto_tree_add_text(tree, tvb, 0, 0,
 			    "String Param: <String goes past end of frame>");
+		}
+	}
+
+	return offset;
+}
+
+static int
+add_bytes_pointer_param(tvbuff_t *tvb, int offset, int count,
+    packet_info *pinfo, proto_tree *tree, int convert, int hf_index)
+{
+	int cptr;
+
+	/* pointer to byte array */
+	cptr = (tvb_get_letohl(tvb, offset)&0xffff)-convert;
+	offset += 4;
+
+	/* bytes */
+	if (tvb_bytes_exist(tvb, cptr, count)) {
+		if (hf_index != -1) {
+			proto_tree_add_item(tree, hf_index, tvb, cptr,
+			    count, TRUE);
+		} else {
+			proto_tree_add_text(tree, tvb, cptr, count,
+			    "Byte Param: %s",
+			    tvb_bytes_to_str(tvb, cptr, count));
+		}
+	} else {
+		if (hf_index != -1) {
+			proto_tree_add_text(tree, tvb, 0, 0,
+			    "%s: <Bytes go past end of frame>",
+			    proto_registrar_get_name(hf_index));
+		} else {
+			proto_tree_add_text(tree, tvb, 0, 0,
+			    "Byte Param: <Bytes goes past end of frame>");
 		}
 	}
 
@@ -470,7 +506,12 @@ add_abstime_common(tvbuff_t *tvb, int offset, int count,
 
 	nstime.secs = tvb_get_letohl(tvb, offset);
 	nstime.nsecs = 0;
-	if (nstime.secs == -1) {
+	/*
+	 * Sigh.  Sometimes it appears that -1 means "unknown", and
+	 * sometimes it appears that 0 means "unknown", for the last
+	 * logoff date/time.
+	 */
+	if (nstime.secs == -1 || nstime.secs == 0) {
 		proto_tree_add_time_format(tree, hf_index, tvb, offset, 4,
 		    &nstime, "%s: %s", proto_registrar_get_name(hf_index),
 		    absent_name);
@@ -548,13 +589,33 @@ add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
 {
 	int cptr;
 
-	/* pointer to string */
+	/* pointer to byte array */
 	cptr = (tvb_get_letohl(tvb, offset)&0xffff)-convert;
 	offset += 4;
 
-	/* string */
-	/* XXX - should actually carve up the bits */
-	proto_tree_add_item(tree, hf_index, tvb, cptr, 21, TRUE);
+	/* bytes */
+	if (tvb_bytes_exist(tvb, cptr, count)) {
+		if (count == 21) {
+			/*
+			 * The logon hours should be exactly 21 bytes long.
+			 *
+			 * XXX - should actually carve up the bits;
+			 * we need the units per week to do that, though.
+			 */
+			proto_tree_add_item(tree, hf_index, tvb, cptr, count,
+			    TRUE);
+		} else {
+			proto_tree_add_bytes_format(tree, hf_index, tvb,
+			    cptr, count, tvb_get_ptr(tvb, cptr, count),
+			    "%s: %s (wrong length, should be 21, is %d",
+			    proto_registrar_get_name(hf_index),
+			    tvb_bytes_to_str(tvb, cptr, count), count);
+		}
+	} else {
+		proto_tree_add_text(tree, tvb, 0, 0,
+		    "%s: <Bytes go past end of frame>",
+		    proto_registrar_get_name(hf_index));
+	}
 
 	return offset;
 }
@@ -737,7 +798,7 @@ static const item_t lm_data_resp_netshareenum_1[] = {
 	{ &hf_share_name, add_byte_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_share_type, add_word_param, PARAM_WORD },
-	{ &hf_share_comment, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_share_comment, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ NULL, NULL, PARAM_NONE }
 };
 
@@ -766,7 +827,7 @@ static const item_t lm_data_resp_netsharegetinfo_1[] = {
 	{ &hf_share_name, add_byte_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_share_type, add_word_param, PARAM_WORD },
-	{ &hf_share_comment, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_share_comment, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ NULL, NULL, PARAM_NONE }
 };
 
@@ -774,11 +835,11 @@ static const item_t lm_data_resp_netsharegetinfo_2[] = {
 	{ &hf_share_name, add_byte_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_share_type, add_word_param, PARAM_WORD },
-	{ &hf_share_comment, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_share_comment, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_share_permissions, add_word_param, PARAM_WORD }, /* XXX - do as bit fields */
 	{ &hf_share_max_uses, add_max_uses, PARAM_WORD },
 	{ &hf_share_current_uses, add_word_param, PARAM_WORD },
-	{ &hf_share_path, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_share_path, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_share_password, add_byte_param, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
@@ -810,7 +871,7 @@ static const item_t lm_data_serverinfo_1[] = {
 	{ &hf_server_major, add_byte_param, PARAM_BYTES },
 	{ &hf_server_minor, add_byte_param, PARAM_BYTES },
 	{ &no_hf, add_server_type, PARAM_DWORD },
-	{ &hf_server_comment, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_server_comment, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ NULL, NULL, PARAM_NONE }
 };
 
@@ -834,23 +895,24 @@ static const item_t lm_params_resp_netusergetinfo[] = {
 static const item_t lm_data_resp_netusergetinfo_11[] = {
 	{ &hf_user_name, add_byte_param, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
-	{ &hf_comment, add_pointer_param, PARAM_STRINGZ },
-	{ &hf_user_comment, add_pointer_param, PARAM_STRINGZ },
-	{ &hf_full_name, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_comment, add_stringz_pointer_param, PARAM_STRINGZ },
+	{ &hf_user_comment, add_stringz_pointer_param, PARAM_STRINGZ },
+	{ &hf_full_name, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_privilege_level, add_word_param, PARAM_WORD },
 	{ &hf_operator_privileges, add_dword_param, PARAM_DWORD },
 	{ &hf_password_age, add_reltime, PARAM_DWORD },
-	{ &hf_homedir, add_pointer_param, PARAM_STRINGZ },
-	{ &hf_parameters, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_homedir, add_stringz_pointer_param, PARAM_STRINGZ },
+	{ &hf_parameters, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_last_logon, add_abstime_absent_unknown, PARAM_DWORD },
 	{ &hf_last_logoff, add_abstime_absent_unknown, PARAM_DWORD },
 	{ &hf_bad_pw_count, add_word_param, PARAM_WORD },
 	{ &hf_num_logons, add_nlogons, PARAM_WORD },
-	{ &hf_logon_server, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_logon_server, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_country_code, add_word_param, PARAM_WORD },
-	{ &hf_workstations, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_workstations, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_max_storage, add_max_storage, PARAM_DWORD },
-	{ &hf_logon_hours, add_logon_hours, PARAM_DWORD },
+	{ &hf_units_per_week, add_word_param, PARAM_WORD },
+	{ &hf_logon_hours, add_logon_hours, PARAM_BYTES },
 	{ &hf_code_page, add_word_param, PARAM_WORD },
 	{ NULL, NULL, PARAM_NONE }
 };
@@ -941,13 +1003,13 @@ static const item_t lm_params_resp_netwkstagetinfo[] = {
 };
 
 static const item_t lm_data_resp_netwkstagetinfo_10[] = {
-	{ &hf_computer_name, add_pointer_param, PARAM_STRINGZ },
-	{ &hf_user_name, add_pointer_param, PARAM_STRINGZ },
-	{ &hf_workstation_domain, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_computer_name, add_stringz_pointer_param, PARAM_STRINGZ },
+	{ &hf_user_name, add_stringz_pointer_param, PARAM_STRINGZ },
+	{ &hf_workstation_domain, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_workstation_major, add_byte_param, PARAM_BYTES },
 	{ &hf_workstation_minor, add_byte_param, PARAM_BYTES },
-	{ &hf_logon_domain, add_pointer_param, PARAM_STRINGZ },
-	{ &hf_other_domains, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_logon_domain, add_stringz_pointer_param, PARAM_STRINGZ },
+	{ &hf_other_domains, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ NULL, NULL, PARAM_NONE }
 };
 
@@ -957,8 +1019,8 @@ static const item_list_t lm_data_resp_netwkstagetinfo[] = {
 };
 
 static const item_t lm_params_req_netwkstauserlogon[] = {
-	{ &no_hf, add_pointer_param, PARAM_STRINGZ },
-	{ &no_hf, add_pointer_param, PARAM_STRINGZ },
+	{ &no_hf, add_stringz_pointer_param, PARAM_STRINGZ },
+	{ &no_hf, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_detail_level, add_detail_level, PARAM_WORD },
 	{ &no_hf, add_logon_args, PARAM_BYTES },
 	{ &hf_ustruct_size, add_word_param, PARAM_WORD },
@@ -985,9 +1047,9 @@ static const item_t lm_data_resp_netwkstauserlogon_1[] = {
 	{ &hf_password_age, add_reltime, PARAM_DWORD },
 	{ &hf_password_can_change, add_abstime_absent_never, PARAM_DWORD },
 	{ &hf_password_must_change, add_abstime_absent_never, PARAM_DWORD },
-	{ &hf_server_name, add_pointer_param, PARAM_STRINGZ },
-	{ &hf_logon_domain, add_pointer_param, PARAM_STRINGZ },
-	{ &hf_script_path, add_pointer_param, PARAM_STRINGZ },
+	{ &hf_server_name, add_stringz_pointer_param, PARAM_STRINGZ },
+	{ &hf_logon_domain, add_stringz_pointer_param, PARAM_STRINGZ },
+	{ &hf_script_path, add_stringz_pointer_param, PARAM_STRINGZ },
 	{ &hf_reserved, add_dword_param, PARAM_DWORD },
 	{ NULL, NULL, PARAM_NONE }
 };
@@ -1889,6 +1951,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 	int cptr;
 	const char *string;
 	gint string_len;
+	const guint8 *bytes;
 
 	if (aux_count_p != NULL)
 		*aux_count_p = 0;
@@ -2032,14 +2095,14 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				 * We've run out of items in the table;
 				 * fall back on the default.
 				 */
-				offset = add_pointer_param(tvb, offset, 0,
-				    pinfo, tree, convert, -1);
+				offset = add_stringz_pointer_param(tvb, offset,
+				    0, pinfo, tree, convert, -1);
 			} else if (items->type != PARAM_STRINGZ) {
 				/*
 				 * Descriptor character is 'z', but this
 				 * isn't a string parameter.
 				 */
-				string = get_pointer_value(tvb, offset,
+				string = get_stringz_pointer_value(tvb, offset,
 				    convert, &cptr, &string_len);
 				offset += 4;
 				proto_tree_add_text(tree, tvb, cptr, string_len,
@@ -2051,6 +2114,39 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				items++;
 			} else {
 				offset = (*items->func)(tvb, offset, 0,
+				    pinfo, tree, convert, *items->hf_index);
+				items++;
+			}
+			break;
+
+		case 'b':
+			/*
+			 * A pointer to a byte or multi-byte value.
+			 */
+			desc = get_count(desc, &count);
+			if (items->func == NULL) {
+				/*
+				 * We've run out of items in the table;
+				 * fall back on the default.
+				 */
+				offset = add_bytes_pointer_param(tvb, offset,
+				    count, pinfo, tree, convert, -1);
+			} else if (items->type != PARAM_BYTES) {
+				/*
+				 * Descriptor character is 'b', but this
+				 * isn't a byte/bytes parameter.
+				 */
+				cptr = (tvb_get_letohl(tvb, offset)&0xffff)-convert;
+				offset += 4;
+				proto_tree_add_text(tree, tvb, offset, count,
+				    "%s: Value is %s, type is wrong (b)",
+				    (*items->hf_index == -1) ?
+				      "Byte Param" :
+				      proto_registrar_get_name(*items->hf_index),
+				    tvb_bytes_to_str(tvb, cptr, count));
+				items++;
+			} else {
+				offset = (*items->func)(tvb, offset, count,
 				    pinfo, tree, convert, *items->hf_index);
 				items++;
 			}
