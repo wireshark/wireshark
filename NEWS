@@ -154,6 +154,29 @@ Overview of changes in Ethereal 0.9.2:
 * README.developer subtree text updating updates. (Guy)
 * Add better ASN.1 error reporting to LDAP and SNMP dissectors. (Guy)
 * Don't link with the SNMP library by default. (Gerald)
+* Better Python checking in Makefile.nmake. (Andrew Feren)
+* In README.developer, fix two references to "proto_item_set_text()" and
+  "proto_item_append_text()" to use the right names. (Guy)
+* Add support for the Administrative Status object to RSVP. (Ashok)
+* NFS updates. (Mike Frisch)
+* Fix data type and initialization of an unsigned integer in RSVP. (Guy)
+* Fix a typo in the M3UA dissector. (Michael)
+* Update the SCTP CRC32 checksum code to match
+  draft-ietf-tsvwg-sctpcsum-03. (Michael)
+* Warn people against using "ulong" or "ushort" in README.developer. (Guy)
+* Unused variable identification and clean up. (Joerg)
+* Treat LDAP_REQ_UNBIND as a request with nothing in it, order request
+  types in the code. (Guy)
+* Properly handle unknown message types in the LDAP dissector. (Guy)
+* LDAP_REQ_UNBIND and Bind reply fixes. (Guy)
+* Add better ASN.1 BER error reporting to the LDAP dissector. (Guy)
+* Make "get_host_ipaddr()" require dotted-quad IP addresses to really be
+  quads. (Heikki Vatiainen)
+* Report the type of an unrecognized SCTP parameter. (Michael)
+* Check for errors in seeks, "tell"s, and "stat()"s/"fstat()"s, fix memory
+  leaks, other fixes in wiretap code.  (Guy)
+* Update README.win32 to reflect Andrew's Python changes in config.nmake.
+  (Guy)
 
 Overview of changes in Ethereal 0.9.1:
 * Initial DLSw support. (Paul Ionescu, Guy)
