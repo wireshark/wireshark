@@ -45,7 +45,11 @@ static e_uuid_t uuid_ISystemActivator = { 0x000001a0, 0x0000, 0x0000, { 0xc0, 0x
 static guint16  ver_ISystemActivator = 0;
 
 static dcerpc_sub_dissector ISystemActivator_dissectors[] = {
-    { 0, "RemQueryInterface2", NULL, NULL },
+    { 0, "QueryInterfaceIRemoteSCMActivator", NULL, NULL },
+    { 1, "AddRefIRemoteISCMActivator", NULL, NULL },
+    { 2, "ReleaseIRemoteISCMActivator", NULL, NULL },
+    { 3, "RemoteGetClassObject", NULL, NULL },
+    { 4, "RemoteCreateInstance", NULL, NULL },
     { 0, NULL, NULL, NULL },
 };
 
