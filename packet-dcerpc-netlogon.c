@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.78 2003/05/09 01:46:13 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.79 2003/05/15 02:01:39 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5936,7 +5936,98 @@ netlogon_dissect_dsrderegisterdnshostrecords_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* Dissect secure channel stuff */
 
+static int hf_netlogon_secchan_bind_unknown1 = -1;
+static int hf_netlogon_secchan_bind_unknown2 = -1;
+static int hf_netlogon_secchan_domain = -1;
+static int hf_netlogon_secchan_host = -1;
+static int hf_netlogon_secchan_bind_ack_unknown1 = -1;
+static int hf_netlogon_secchan_bind_ack_unknown2 = -1;
+static int hf_netlogon_secchan_bind_ack_unknown3 = -1;
+
+static gint ett_secchan_bind_creds = -1;
+static gint ett_secchan_bind_ack_creds = -1;
+
+int netlogon_dissect_secchan_bind_creds(tvbuff_t *tvb, int offset,
+					packet_info *pinfo, proto_tree *tree,
+					char *drep)
+{
+	int start_offset = offset;
+	proto_item *item = NULL;
+	proto_tree *subtree = NULL;
+	int len;
+
+	if (tree) {
+		item = proto_tree_add_text(
+			tree, tvb, offset, 0,
+			"Secure Channel Bind Credentials");
+		subtree = proto_item_add_subtree(
+			item, ett_secchan_bind_creds);
+	}
+
+	/* We can't use the NDR routines as the DCERPC call data hasn't
+           been initialised since we haven't made a DCERPC call yet, just
+           a bind request. */
+
+	offset = dissect_dcerpc_uint32(
+		tvb, offset, pinfo, subtree, drep, 
+		hf_netlogon_secchan_bind_unknown1, NULL);
+
+	offset = dissect_dcerpc_uint32(
+		tvb, offset, pinfo, subtree, drep, 
+		hf_netlogon_secchan_bind_unknown2, NULL);
+
+	len = tvb_strsize(tvb, offset);
+
+	proto_tree_add_item(
+		subtree, hf_netlogon_secchan_domain, tvb, offset, len, FALSE);
+
+	offset += len;
+
+	len = tvb_strsize(tvb, offset);
+
+	proto_tree_add_item(
+		subtree, hf_netlogon_secchan_host, tvb, offset, len, FALSE);
+
+	offset += len;
+
+	proto_item_set_len(item, offset - start_offset);
+
+	return offset;
+}
+
+int netlogon_dissect_secchan_bind_ack_creds(tvbuff_t *tvb, int offset,
+					    packet_info *pinfo, 
+					    proto_tree *tree, char *drep)
+{
+	proto_item *item = NULL;
+	proto_tree *subtree = NULL;
+
+	if (tree) {
+		item = proto_tree_add_text(
+			tree, tvb, offset, 0,
+			"Secure Channel Bind ACK Credentials");
+		subtree = proto_item_add_subtree(
+			item, ett_secchan_bind_ack_creds);
+	}
+
+	/* Don't use NDR routines here */
+
+	offset = dissect_dcerpc_uint32(
+		tvb, offset, pinfo, subtree, drep, 
+		hf_netlogon_secchan_bind_ack_unknown1, NULL);
+
+	offset = dissect_dcerpc_uint32(
+		tvb, offset, pinfo, subtree, drep, 
+		hf_netlogon_secchan_bind_ack_unknown2, NULL);
+
+	offset = dissect_dcerpc_uint32(
+		tvb, offset, pinfo, subtree, drep, 
+		hf_netlogon_secchan_bind_ack_unknown3, NULL);
+
+	return offset;
+}
 
 static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_UASLOGON, "UasLogon",
@@ -6903,7 +6994,35 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_timelimit,
 		{ "Time Limit", "netlogon.time_limit", FT_RELATIVE_TIME, BASE_NONE,
-		NULL, 0, "", HFILL }}
+		NULL, 0, "", HFILL }},
+
+	{ &hf_netlogon_secchan_bind_unknown1,
+	  { "Unknown1", "netlogon.secchan.bind.unknown1", FT_UINT32, BASE_HEX,
+	    NULL, 0x0, "", HFILL }},
+
+	{ &hf_netlogon_secchan_bind_unknown2,
+	  { "Unknown2", "netlogon.secchan.bind.unknown2", FT_UINT32, BASE_HEX,
+	    NULL, 0x0, "", HFILL }},
+
+	{ &hf_netlogon_secchan_domain,
+	  { "Domain", "netlogon.secchan.domain", FT_STRING, BASE_NONE,
+	    NULL, 0, "", HFILL }},
+
+	{ &hf_netlogon_secchan_host,
+	  { "Host", "netlogon.secchan.host", FT_STRING, BASE_NONE,
+	    NULL, 0, "", HFILL }},
+
+	{ &hf_netlogon_secchan_bind_ack_unknown1,
+	  { "Unknown1", "netlogon.secchan.bind_ack.unknown1", FT_UINT32, 
+	    BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_netlogon_secchan_bind_ack_unknown2,
+	  { "Unknown2", "netlogon.secchan.bind_ack.unknown2", FT_UINT32, 
+	    BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_netlogon_secchan_bind_ack_unknown3,
+	  { "Unknown3", "netlogon.secchan.bind_ack.unknown3", FT_UINT32, 
+	    BASE_HEX, NULL, 0x0, "", HFILL }},
 
 	};
 
@@ -6929,7 +7048,9 @@ static hf_register_info hf[] = {
 		&ett_DOMAIN_TRUST_INFO,
 		&ett_trust_flags,
 		&ett_get_dcname_request_flags,
-		&ett_dc_flags
+		&ett_dc_flags,
+		&ett_secchan_bind_creds,
+		&ett_secchan_bind_ack_creds
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(

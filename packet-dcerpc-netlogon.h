@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\NETLOGON packet disassembly
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-netlogon.h,v 1.11 2003/01/14 05:09:16 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.h,v 1.12 2003/05/15 02:01:39 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,5 +74,15 @@
 #define SEC_CHAN_WKSTA   2
 #define SEC_CHAN_DOMAIN  4
 #define SEC_CHAN_BDC     6
+
+/* Function prototypes */
+
+int netlogon_dissect_secchan_bind_creds(tvbuff_t *tvb, int offset,
+					packet_info *pinfo, proto_tree *tree,
+					char *drep);
+
+int netlogon_dissect_secchan_bind_ack_creds(tvbuff_t *tvb, int offset,
+					    packet_info *pinfo, 
+					    proto_tree *tree, char *drep);
 
 #endif /* packet-dcerpc-netlogon.h */
