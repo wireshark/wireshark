@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.11 2001/07/13 13:54:56 jfoster Exp $
+# $Id: configure.in,v 1.12 2001/07/26 07:25:46 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -15,6 +15,9 @@ AC_PREREQ(2.13)
 
 AM_INIT_AUTOMAKE(libethereal.a, 0.8.19)
 AM_CONFIG_HEADER(config.h)
+
+dnl Check for CPU / vendor / OS
+AC_CANONICAL_HOST
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -59,7 +62,15 @@ then
 		;;
 	esac
 else
+	case "$host_os" in
+	darwin*)
+		CFLAGS="-traditional-cpp $CFLAGS"
+		AC_MSG_RESULT(Apple cc compiler - added -traditional-cpp)
+		;;
+	*)
 	AC_MSG_RESULT(none needed)
+	;;
+	esac
 fi
 
 # Create DATAFILE_DIR #define for config.h
@@ -174,9 +185,35 @@ main ()
 #LIBS="$ac_save_LIBS"
 if test "$ac_cv_glib_supports_modules" = yes ; then
   AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_PLUGINS)
+  have_plugins=yes
 else
   AC_MSG_RESULT(no)
+  have_plugins=no
+fi
+
+dnl
+dnl check whether plugins should be enabled; we don't set PLUGIN_DIR,
+dnl as that's set by the top-level configure script
+dnl
+AC_ARG_WITH(plugins,
+  [  --with-plugins=DIR    support plugins (installed in DIR, if supplied)],
+  [
+  case "$withval" in
+  "" | y | ye | yes )
+    ;;
+  n | no)
+    have_plugins=no
+    ;;
+  *)
+    ;;
+  esac
+  ]
+)
+
+AM_CONDITIONAL(HAVE_PLUGINS, test x$have_plugins = xyes)
+if test x$have_plugins = xyes
+then
+  AC_DEFINE(HAVE_PLUGINS)
 fi
 
 AC_OUTPUT(

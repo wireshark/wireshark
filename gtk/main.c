@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.203 2001/07/05 00:34:40 guy Exp $
+ * $Id: main.c,v 1.204 2001/07/26 07:25:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -839,7 +839,11 @@ main(int argc, char *argv[])
 #ifdef WIN32
   char pcap_version[] = WPCAP_STRING;
 #else
+#ifdef __APPLE__
+  char pcap_version[] = "Unknown";
+#else
   extern char          pcap_version[];
+#endif
 #endif
 #endif
   

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.359 2001/07/23 18:29:32 gram Exp $
+# $Id: Makefile.am,v 1.360 2001/07/26 07:25:43 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -269,6 +269,7 @@ DISSECTOR_SRC = \
 	packet-ypxfr.c \
 	packet-zebra.c
 
+if HAVE_PLUGINS
 plugin_src = \
 	plugins/mgcp/packet-mgcp.c	\
 	plugins/giop/packet-cosnaming.c	\
@@ -289,6 +290,15 @@ plugin_ldadd = \
 	"-dlopen" plugins/gryphon/gryphon.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
 	"-dlopen" plugins/giop/cosnaming.la 
+else
+plugin_src =
+
+plugin_static_ldadd =
+
+plugin_libs =
+
+plugin_ldadd =
+endif
 
 noinst_HEADERS = \
 	packet-afs.h   \
@@ -799,7 +809,11 @@ endif
 #dist-hook:
 #	@rm -f $(distdir)/register.c
 
+if HAVE_PLUGINS
 SUBDIRS = tools wiretap doc epan plugins packaging @ethereal_SUBDIRS@
+else
+SUBDIRS = tools wiretap doc epan packaging @ethereal_SUBDIRS@
+endif
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \

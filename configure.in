@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.133 2001/07/19 21:30:14 guy Exp $
+# $Id: configure.in,v 1.134 2001/07/26 07:25:43 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -14,8 +14,6 @@ AC_INIT(etypes.h)
 AC_PREREQ(2.13)
 
 AM_INIT_AUTOMAKE(ethereal, 0.8.19)
-
-AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
@@ -33,7 +31,6 @@ AC_PATH_PROG(PYTHON, python)
 AC_SUBST(PERL)
 AC_SUBST(LEX)
 AC_SUBST(PYTHON)
-
 
 # Check for packaging utilities
 # For now, we check to see if the various packaging utilites are in our
@@ -123,6 +120,10 @@ else
 		# and a lot don't include the return type
 		CFLAGS="$CFLAGS -Wno-return-type -DFUNCPROTO=15"
 		AC_MSG_RESULT(GCC on Solaris - added -Wno-return-type -DFUNCPROTO=15)
+		;;
+	darwin*)
+		CFLAGS="-traditional-cpp $CFLAGS"
+		AC_MSG_RESULT(Apple cc compiler - added -traditional-cpp)
 		;;
 	*)
 		AC_MSG_RESULT(none needed)
@@ -238,9 +239,10 @@ CFLAGS="$ac_save_CFLAGS"
 LIBS="$ac_save_LIBS"
 if test "$ac_cv_glib_supports_modules" = yes ; then
   AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_PLUGINS)
+  have_plugins=yes
 else
   AC_MSG_RESULT(no)
+  have_plugins=no
 fi
 
 
@@ -285,7 +287,7 @@ AC_SUBST(editcap_man)
 # Enable/disable mergecap
 
 AC_ARG_ENABLE(mergecap,
-[  --enable-mergecap        build mergecap.  [default=yes]],,enable_mergecap=yes)
+[  --enable-mergecap       build mergecap.  [default=yes]],,enable_mergecap=yes)
 
 if test "x$enable_mergecap" = "xyes" ; then
 	mergecap_bin="mergecap"
@@ -301,7 +303,7 @@ AC_SUBST(mergecap_man)
 # Enable/disable text2pcap
 
 AC_ARG_ENABLE(text2pcap,
-[  --enable-text2pcap        build text2pcap.  [default=yes]],,enable_text2pcap=yes)
+[  --enable-text2pcap      build text2pcap.  [default=yes]],,enable_text2pcap=yes)
 
 if test "x$enable_text2pcap" = "xyes" ; then
 	text2pcap_bin="text2pcap"
@@ -414,6 +416,8 @@ if test "x$enable_setuid_install" = "xno" ; then
 else
 	AC_MSG_RESULT(yes)
 fi
+
+AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -582,30 +586,39 @@ AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
 dnl blank for now, but will be used in future
 AC_SUBST(ethereal_SUBDIRS)
 
+dnl
+dnl check whether plugins should be enabled and, if they should be,
 dnl check for plugins directory - stolen from Amanda's configure.in
+dnl
 PLUGIN_DIR="$libdir/ethereal/plugins/$VERSION"
-AC_ARG_WITH(plugindir,
-  [  --with-plugindir=DIR    install plugins in DIR],
+AC_ARG_WITH(plugins,
+  [  --with-plugins[=DIR]    support plugins (installed in DIR, if supplied).],
   [
   case "$withval" in
   "" | y | ye | yes )
-    AC_MSG_ERROR([*** You must supply an argument to the --with-plugindir option.])
-  ;;
+    ;;
   n | no)
-    AC_MSG_ERROR([*** The --without-plugindir option is not supported.])
-  ;;
-  *) PLUGIN_DIR="$withval"
+    have_plugins=no
+    ;;
+  *)
+    PLUGIN_DIR="$withval"
+    ;;
   esac
   ]
 )
 
-PLUGIN_DIR=`(
-  test "x$prefix" = xNONE && prefix=$ac_default_prefix
-  test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
-  eval echo "$PLUGIN_DIR"
-)`
-AC_DEFINE_UNQUOTED(PLUGIN_DIR,"$PLUGIN_DIR", [Plugin installation directory])
-AC_SUBST(PLUGIN_DIR)
+AM_CONDITIONAL(HAVE_PLUGINS, test x$have_plugins = xyes)
+if test x$have_plugins = xyes
+then
+  AC_DEFINE(HAVE_PLUGINS)
+  PLUGIN_DIR=`(
+    test "x$prefix" = xNONE && prefix=$ac_default_prefix
+    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
+    eval echo "$PLUGIN_DIR"
+  )`
+  AC_DEFINE_UNQUOTED(PLUGIN_DIR,"$PLUGIN_DIR", [Plugin installation directory])
+  AC_SUBST(PLUGIN_DIR)
+fi
 
 dnl libtool defs
 AC_LIBTOOL_DLOPEN
@@ -661,9 +674,8 @@ echo "                     Build randpkt : $enable_randpkt"
 echo "                      Build dftest : $enable_dftest"
 echo ""
 echo "                    Install setuid : $setuid_message"
+echo "                       Use plugins : $have_plugins"
 echo "                  Use pcap library : $want_pcap"
 echo "                  Use zlib library : $enable_zlib"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "                  Use SNMP library : $snmp_libs_message"
-
-

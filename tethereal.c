@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.88 2001/07/17 05:32:43 hagbard Exp $
+ * $Id: tethereal.c,v 1.89 2001/07/26 07:25:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,7 +208,11 @@ main(int argc, char *argv[])
 #ifdef WIN32
   char pcap_version[] = WPCAP_STRING;
 #else
+#ifdef __APPLE__
+  char pcap_version[] = "Unknown";
+#else
   extern char          pcap_version[];
+#endif
 #endif
 #endif
 

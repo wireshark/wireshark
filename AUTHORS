@@ -396,6 +396,7 @@ Michael Tuexen <Michael.Tuexen[AT]icn.siemens.de> {
 	ISDN Q.921-User Adaptation Layer (IUA) support
 	SUA Light support
 	MTP3 support
+	MacOS X support
 }
 
 Bruce Korb <bkorb[AT]sco.com> {

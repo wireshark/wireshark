@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.28 2001/07/13 00:55:57 guy Exp $
+# $Id: configure.in,v 1.29 2001/07/26 07:25:49 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -15,6 +15,8 @@ AC_PREREQ(2.13)
 
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
 AM_CONFIG_HEADER(config.h)
+
+AC_CANONICAL_HOST
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -59,7 +61,15 @@ then
 		;;
 	esac
 else
+		case "$host_os" in
+	darwin*)
+		CFLAGS="-traditional-cpp $CFLAGS"
+		AC_MSG_RESULT(Apple cc compiler - added -traditional-cpp)
+		;;
+	*)
 	AC_MSG_RESULT(none needed)
+	;;
+	esac
 fi
 
 # Check for glib.
@@ -95,8 +105,6 @@ LDFLAGS="$LDFLAGS -L/usr/local/lib"
 dnl Checks for header files
 AC_HEADER_STDC
 AC_CHECK_HEADERS(sys/time.h netinet/in.h unistd.h fcntl.h sys/stat.h sys/types.h)
-
-AC_CANONICAL_HOST
 
 # We must know our byte order
 AC_C_BIGENDIAN
