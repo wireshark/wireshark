@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.5 1999/10/07 22:50:45 guy Exp $
+ * $Id: colors.h,v 1.6 1999/11/30 04:23:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,9 +41,6 @@
 #define CFILTERS_CONTAINS_FILTER(cf) \
 	((cf)->colors->num_of_filters != 0)
 
-extern GdkColor 	proto_colors[MAXCOLORS];
-extern GdkColormap*	sys_cmap;
-extern GdkColor	color_light_gray;
 extern GdkColor WHITE;
 extern GdkColor BLACK;
 
@@ -64,97 +61,16 @@ typedef struct _colfilter  {
 } colfilter;
 
 
-
 typedef struct _capture_file cap_file;
 
-
 void colors_init(cap_file *cf);
-void set_color_filter_name(cap_file *cf, gint n, gchar *str);
-gchar* get_color_filter_name(cap_file *cf, gint n);
 
-void set_color_filter_string(cap_file *cf, gint n, gchar *str);
-
-gchar* get_color_filter_string(cap_file *cf, gint n);
 color_filter_t *color_filter(cap_file *cf, gint n);
-
-void new_color_filter(colfilter *filters, gchar *name, gchar *filter_string);
 
 /* ===================== USER INTERFACE ====================== */
 
 void
 color_display_cb(GtkWidget *w, gpointer d);
 
-void
-color_delete_cb                        (GtkWidget       *widget,
-                                        gpointer         user_data);
-void
-color_cancel_cb                        (GtkWidget       *widget,
-                                        gpointer         user_data);
-void
-color_filt_up_cb                       (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-color_filter_down_cb                   (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-rembember_selected_row                 (GtkCList        *clist,
-                                        gint             row,
-                                        gint             column,
-                                        GdkEvent        *event,
-                                        gpointer         user_data);
-
-void
-create_new_cb                          (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-color_change_cb                        (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-color_save_cb                          (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-color_ok_cb                            (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-color_apply_cb                         (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-colorize_cancel_cb                     (GtkObject       *object,
-                                        gpointer         user_data);
-
-void
-colorize_fg_cb                         (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-colorize_bg_cb                         (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-colorize_ok_cb                         (GtkButton       *button,
-                                        gpointer         user_data);
-
-void
-color_cel_cancel_cb                    (GtkObject       *object,
-                                        gpointer         user_data);
-
-void
-color_sel_ok_cb                        (GtkButton       *button,
-                                        gpointer         user_data);
-
-gboolean
-get_color				(GdkColor	*new_color);
-
-GtkWidget* create_color_win (cap_file *cf);
-GtkWidget* create_colorize_win (cap_file *cf,
-				 GtkWidget **colorize_filter_name,
-				 GtkWidget **colorize_filter_text);
 
 #endif
