@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.22 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-q931.c,v 1.23 2001/02/11 23:19:00 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -1454,7 +1454,7 @@ static const value_string q931_signal_vals[] = {
 	{ 0x05, "Confirm tone on" },
 	{ 0x06, "Answer tone on" },
 	{ 0x07, "Call waiting tone on" },
-	{ 0x08, "Off-hoke warning tone on" },
+	{ 0x08, "Off-hook warning tone on" },
 	{ 0x09, "Preemption tone on" },
 	{ 0x3F, "Tones off" },
 	{ 0x40, "Alerting on - pattern 0" },
