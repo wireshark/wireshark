@@ -439,7 +439,7 @@ h225counter_draw(void *phs)
 	for(i=0;i<=CS_MSG_TYPES;i++) {
 		if(hs->cs_msg[i]!=0) {
 			g_snprintf(str[0], sizeof(char[256]),
-                "%s", val_to_str(i,h323_message_body_vals,"unknown cs-messages   "));
+                "%s", val_to_str(i,T_h323_message_body_vals,"unknown cs-messages   "));
 			g_snprintf(str[1], sizeof(char[256]),
                 "%d", hs->cs_msg[i]);
 			gtk_clist_append(hs->table, str);
