@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.7 2004/05/03 22:55:36 guy Exp $
+ * $Id: packet-ber.c,v 1.8 2004/05/11 07:26:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -330,6 +330,7 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 	ber_last_created_item=NULL;
 
 	if(hf_id!=-1){	
+		/* XXX - what if "len" is not 1, 2, 3, or 4? */
 		ber_last_created_item=proto_tree_add_item(tree, hf_id, tvb, offset-len, len, FALSE);
 	}
 	if(value){
@@ -838,6 +839,8 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	asn_namedbit *nb;
+	char *sep;
+	gboolean term;
 
 	/* read header and len for the octet string */
 	offset = dissect_ber_identifier(pinfo, parent_tree, tvb, offset, &class, &pc, &tag);
@@ -878,6 +881,8 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	}
 
 	if (named_bits) {
+		sep = " (";
+		term = FALSE;
 		nb = named_bits;
 		while (nb->p_id) {
 			if (nb->bit < (8*len-pad)) {
@@ -894,13 +899,17 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 			}
 			if (val) {
 				if (item && nb->tstr)
-					proto_item_append_text(item, " %s", nb->tstr);
+					proto_item_append_text(item, "%s%s", sep, nb->tstr);
 			} else {
 				if (item && nb->fstr)
-					proto_item_append_text(item, " %s", nb->fstr);
+					proto_item_append_text(item, "%s%s", sep, nb->fstr);
 			}
 			nb++;
+			sep = ", ";
+			term = TRUE;
 		}
+		if (term)
+			proto_item_append_text(item, ")");
 	}
 
 	return end_offset;
@@ -913,6 +922,8 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	guint32 val;
 	int **bf;
 	header_field_info *hfi;
+	char *sep;
+	gboolean term;
 
 	offset = dissect_ber_bitstring(implicit_tag, pinfo, parent_tree, tvb, offset, NULL, hf_id, ett_id, &tmp_tvb);
 	
@@ -920,13 +931,20 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	if (bit_fields && tree) {
 		val = tvb_get_ntohl(tmp_tvb, 0);
 		bf = bit_fields;
+		sep = " (";
+		term = FALSE;
 		while (*bf) {
 			proto_tree_add_item(tree, **bf, tmp_tvb, 0, 4, FALSE);
 			hfi = proto_registrar_get_nth(**bf);
-			if (val & hfi->bitmask)
-				proto_item_append_text(ber_last_created_item, " %s", hfi->name);
+			if (val & hfi->bitmask) {
+				proto_item_append_text(ber_last_created_item, "%s%s", sep, hfi->name);
+				sep = ", ";
+				term = TRUE;
+			}
 			bf++;
 		}
+		if (term)
+			proto_item_append_text(ber_last_created_item, ")");
 	}
 
 	if (out_tvb)
