@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.11 2001/09/14 07:10:13 guy Exp $
+ * $Id: ftype-time.c,v 1.12 2001/12/28 21:30:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,6 +105,69 @@ cmp_le(fvalue_t *a, fvalue_t *b)
 }
 
 
+/*
+ * Get a nanoseconds value, starting at "p".
+ *
+ * Returns true on success, false on failure.
+ */
+static gboolean
+get_nsecs(char *startp, int *nsecs)
+{
+	int ndigits;
+	int scale;
+	char *p;
+	int val;
+	int digit;
+	int i;
+
+	/*
+	 * How many characters are in the string?
+	 */
+	ndigits = strlen(startp);
+
+	/*
+	 * If there are N characters in the string, the last of the
+	 * characters would be the digit corresponding to 10^(9-N)
+	 * nanoseconds.
+	 */
+	scale = 9 - ndigits;
+
+	/*
+	 * Start at the last character, and work backwards.
+	 */
+	p = startp + ndigits;
+	val = 0;
+	while (p != startp) {
+		p--;
+
+		if (!isdigit((unsigned char)*p)) {
+			/*
+			 * Not a digit - error.
+			 */
+			return FALSE;
+		}
+		digit = *p - '0';
+		if (digit != 0) {
+			/*
+			 * Non-zero digit corresponding to that number
+			 * of (10^scale) units.
+			 *
+			 * If scale is less than zero, this digit corresponds
+			 * to a value less than a nanosecond, so this number
+			 * isn't valid.
+			 */
+			if (scale < 0)
+				return FALSE;
+			for (i = 0; i < scale; i++)
+				digit *= 10;
+			val += digit;
+		}
+		scale++;
+	}
+	*nsecs = val;
+	return TRUE;
+}
+
 static gboolean
 relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 {
@@ -138,12 +201,11 @@ relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 	 * If there's more stuff left in the string, it should be the
 	 * nanoseconds value.
 	 */
-	if (*endptr != '\0') {
+	if (*curptr != '\0') {
 		/*
 		 * Get the nanoseconds value.
 		 */
-		fv->value.time.nsecs = strtoul(curptr, &endptr, 10);
-		if (endptr == curptr || *endptr != '\0')
+		if (!get_nsecs(curptr, &fv->value.time.nsecs))
 			goto fail;
 	} else {
 		/*
@@ -168,7 +230,7 @@ static gboolean
 absolute_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 {
 	struct tm tm;
-	char    *curptr, *endptr;
+	char    *curptr;
 
 	curptr = strptime(s,"%b %d, %Y %H:%M:%S", &tm);
 	if (curptr == NULL)
@@ -185,8 +247,7 @@ absolute_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 		curptr++;	/* skip the "." */
 		if (!isdigit((unsigned char)*curptr))
 			goto fail;	/* not a digit, so not valid */
-		fv->value.time.nsecs = strtoul(curptr, &endptr, 10);
-		if (endptr == curptr || *endptr != '\0')
+		if (!get_nsecs(curptr, &fv->value.time.nsecs))
 			goto fail;
 	} else {
 		/*
