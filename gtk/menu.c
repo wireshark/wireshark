@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.182 2004/04/25 16:04:12 ulfl Exp $
+ * $Id: menu.c,v 1.183 2004/04/25 22:14:17 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,12 +161,12 @@ static GtkItemFactoryEntry menu_items[] =
                              0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/Export/as \"_PostScript\" file...", NULL, export_ps_cmd_cb,
                              0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/File/Export/as \"P_SML\" file...", NULL, export_psml_cmd_cb,
+    ITEM_FACTORY_ENTRY("/File/Export/as XML - \"P_SML\" (packet summary) file...", NULL, export_psml_cmd_cb,
                              0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/File/Export/as \"P_DML\" file...", NULL, export_pdml_cmd_cb,
+    ITEM_FACTORY_ENTRY("/File/Export/as XML - \"P_DML\" (packet details) file...", NULL, export_pdml_cmd_cb,
                              0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/Export/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/File/Export/_Selected Packet Bytes...", "<control>H", savehex_cb,
+    ITEM_FACTORY_ENTRY("/File/Export/Selected Packet _Bytes...", "<control>H", savehex_cb,
                              0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", "<control>P", file_print_cmd_cb,
