@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.36 2002/11/13 21:45:56 guy Exp $
+ * $Id: packet-mount.c,v 1.37 2002/11/14 02:31:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -886,7 +886,7 @@ proto_register_mount(void)
 			"V3 Procedure", "mount.procedure_v3", FT_UINT32, BASE_DEC,
 			VALS(mount3_proc_vals), 0, "V3 Procedure", HFILL }},
 		{ &hf_sgi_mount_procedure_v1, {
-			"SGI V1 rocedure", "mount.procedure_sgi)v1", FT_UINT32, BASE_DEC,
+			"SGI V1 procedure", "mount.procedure_sgi_v1", FT_UINT32, BASE_DEC,
 			VALS(sgi_mount1_proc_vals), 0, "SGI V1 Procedure", HFILL }},
 		{ &hf_mount_path, {
 			"Path", "mount.path", FT_STRING, BASE_DEC,
