@@ -539,7 +539,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
        XXX - do something if this fails? */
     switch (cf_finish_tail(capture_opts->cf, &err)) {
 
-    case CF_OK:
+    case CF_READ_OK:
         if(cf_packet_count(capture_opts->cf) == 0) {
           simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
           "%sNo packets captured!%s\n\n"
@@ -549,13 +549,13 @@ sync_pipe_input_cb(gint source, gpointer user_data)
           cf_close(capture_opts->cf);
         }
         break;
-    case CF_ERROR:
+    case CF_READ_ERROR:
       /* Just because we got an error, that doesn't mean we were unable
          to read any of the file; we handle what we could get from the
          file. */
       break;
 
-    case CF_ABORTED:
+    case CF_READ_ABORTED:
       /* Exit by leaving the main loop, so that any quit functions
          we registered get called. */
       main_window_quit();
@@ -630,8 +630,8 @@ sync_pipe_input_cb(gint source, gpointer user_data)
      XXX - do something if this fails? */
   switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
 
-  case CF_OK:
-  case CF_ERROR:
+  case CF_READ_OK:
+  case CF_READ_ERROR:
     /* Just because we got an error, that doesn't mean we were unable
        to read any of the file; we handle what we could get from the
        file.
@@ -639,7 +639,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
        XXX - abort on a read error? */
     break;
 
-  case CF_ABORTED:
+  case CF_READ_ABORTED:
     /* Kill the child capture process; the user wants to exit, and we
        shouldn't just leave it running. */
     kill_capture_child(capture_opts);

@@ -36,9 +36,14 @@
 
 /** Return values from functions that read capture files. */
 typedef enum {
-	CF_OK,			/**< operation succeeded */
-	CF_ERROR,		/**< operation got an error (function may provide err with details) */
-	CF_ABORTED		/**< operation aborted by user */
+	CF_OK,		/**< operation succeeded */
+	CF_ERROR	/**< operation got an error (function may provide err with details) */
+} cf_status_t;
+
+typedef enum {
+	CF_READ_OK,		/**< operation succeeded */
+	CF_READ_ERROR,		/**< operation got an error (function may provide err with details) */
+	CF_READ_ABORTED		/**< operation aborted by user */
 } cf_read_status_t;
 
 /** Return values from functions that print sets of packets. */
@@ -54,9 +59,9 @@ typedef enum {
  * @param cf the capture file to be opened
  * @param fname the filename to be opened
  * @param is_tempfile is this a temporary file?
- * @return TRUE on success, FALSE on failure
+ * @return one of cf_status_t
  */
-gboolean cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
+cf_status_t cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
 
 /**
  * Close a capture file.
@@ -88,9 +93,9 @@ cf_read_status_t cf_read(capture_file *cf);
  * @param fname the filename to be read from
  * @param is_tempfile is this a temporary file?
  * @param err the error code, if an error had occured
- * @return TRUE on success, FALSE on failure
+ * @return one of cf_status_t
  */
-gboolean cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
+cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
 
 /**
  * Read packets from the "end" of a capture file.
@@ -118,9 +123,9 @@ cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
  * @param fname the filename to save to
  * @param range the range of packets to save
  * @param save_format the format of the file to save (libpcap, ...)
- * @return TRUE on success, FALSE on failure
+ * @return one of cf_status_t
  */
-gboolean cf_save(capture_file * cf, const char *fname, packet_range_t *range, guint save_format);
+cf_status_t cf_save(capture_file * cf, const char *fname, packet_range_t *range, guint save_format);
 
 /**
  * Get a displayable name of the capture file.
@@ -193,9 +198,9 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode);
  * @param cf the capture file
  * @param dfilter the display filter
  * @param force TRUE if do in any case, FALSE only if dfilter changed
- * @return TRUE on success, FALSE on failure
+ * @return one of cf_status_t
  */
-gboolean cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
+cf_status_t cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
 
 /**
  * At least one "Refence Time" flag has changed, rescan all packets.
@@ -222,9 +227,9 @@ void cf_redissect_packets(capture_file *cf);
  * Rescan all packets and just run taps - don't reconstruct the display.
  * 
  * @param cf the capture file
- * @return TRUE on success, FALSE on failure
+ * @return one of cf_read_status_t
  */
-gboolean cf_retap_packets(capture_file *cf);
+cf_read_status_t cf_retap_packets(capture_file *cf);
 
 /**
  * The time format has changed, rescan all packets.

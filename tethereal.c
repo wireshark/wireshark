@@ -3196,7 +3196,7 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
   fprintf(stderr, "\n");
 }
 
-gboolean
+cf_status_t
 cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   wtap       *wth;
@@ -3243,13 +3243,13 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   firstsec = 0, firstusec = 0;
   prevsec = 0, prevusec = 0;
 
-  return TRUE;
+  return CF_OK;
 
 fail:
   snprintf(err_msg, sizeof err_msg,
            cf_open_error_message(*err, err_info, FALSE, 0), fname);
   fprintf(stderr, "tethereal: %s\n", err_msg);
-  return FALSE;
+  return CF_ERROR;
 }
 
 #ifdef HAVE_LIBPCAP

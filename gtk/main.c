@@ -511,15 +511,15 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
   gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
   char      *s;
-  gboolean   status;
+  cf_status_t cf_status;
 
   s = g_strdup(dftext);
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  status = cf_filter_packets(cf, s, force);
-  if (status) {
+  cf_status = cf_filter_packets(cf, s, force);
+  if (cf_status == CF_OK) {
     li = g_list_first(filter_list);
     while (li) {
       if (li->data && strcmp(s, li->data) == 0)
@@ -543,7 +543,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
   if (free_filter)
     g_free(s);
 
-  return status;
+  return (cf_status == CF_OK);
 }
 
 
@@ -1443,14 +1443,14 @@ dnd_merge_files(int in_file_count, char **in_filenames)
 
     switch (cf_read(&cfile)) {
 
-    case CF_OK:
-    case CF_ERROR:
+    case CF_READ_OK:
+    case CF_READ_ERROR:
 	/* Just because we got an error, that doesn't mean we were unable
 	   to read any of the file; we handle what we could get from the
 	   file. */
 	break;
 
-    case CF_ABORTED:
+    case CF_READ_ABORTED:
 	/* The user bailed out of re-reading the capture file; the
 	   capture file has been closed - just free the capture file name
 	   string and return (without changing the last containing
@@ -2581,14 +2581,14 @@ main(int argc, char *argv[])
           /* Read the capture file. */
           switch (cf_read(&cfile)) {
 
-          case CF_OK:
-          case CF_ERROR:
+          case CF_READ_OK:
+          case CF_READ_ERROR:
             /* Just because we got an error, that doesn't mean we were unable
                to read any of the file; we handle what we could get from the
                file. */
             break;
 
-          case CF_ABORTED:
+          case CF_READ_ABORTED:
             /* Exit now. */
             gtk_exit(0);
             break;

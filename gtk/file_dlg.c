@@ -715,14 +715,14 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
 
   switch (cf_read(&cfile)) {
 
-  case CF_OK:
-  case CF_ERROR:
+  case CF_READ_OK:
+  case CF_READ_ERROR:
     /* Just because we got an error, that doesn't mean we were unable
        to read any of the file; we handle what we could get from the
        file. */
     break;
 
-  case CF_ABORTED:
+  case CF_READ_ABORTED:
     /* The user bailed out of re-reading the capture file; the
        capture file has been closed - just free the capture file name
        string and return (without changing the last containing
@@ -1086,14 +1086,14 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
 
   switch (cf_read(&cfile)) {
 
-  case CF_OK:
-  case CF_ERROR:
+  case CF_READ_OK:
+  case CF_READ_ERROR:
     /* Just because we got an error, that doesn't mean we were unable
        to read any of the file; we handle what we could get from the
        file. */
     break;
 
-  case CF_ABORTED:
+  case CF_READ_ABORTED:
     /* The user bailed out of re-reading the capture file; the
        capture file has been closed - just free the capture file name
        string and return (without changing the last containing

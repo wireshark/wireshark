@@ -246,14 +246,14 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
     }
     switch (cf_read(capture_opts->cf)) {
 
-    case CF_OK:
-    case CF_ERROR:
+    case CF_READ_OK:
+    case CF_READ_ERROR:
       /* Just because we got an error, that doesn't mean we were unable
          to read any of the file; we handle what we could get from the
          file. */
       break;
 
-    case CF_ABORTED:
+    case CF_READ_ABORTED:
       /* Exit by leaving the main loop, so that any quit functions
          we registered get called. */
       main_window_nested_quit();

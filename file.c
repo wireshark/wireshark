@@ -142,7 +142,7 @@ static   gboolean copy_binary_file(const char *from_filename, const char *to_fil
 #define	FRAME_DATA_CHUNK_SIZE	1024
 
 
-gboolean
+cf_status_t
 cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   wtap       *wth;
@@ -211,11 +211,11 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 	G_ALLOC_AND_FREE);
   g_assert(cf->plist_chunk);
 
-  return TRUE;
+  return CF_OK;
 
 fail:
   cf_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
-  return FALSE;
+  return CF_ERROR;
 }
 
 /* Reset everything to a pristine state */
@@ -436,7 +436,7 @@ cf_read(capture_file *cf)
       cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
       packet_list_thaw();		/* undo our freeze */
       cf_close(cf);
-      return CF_ABORTED;
+      return CF_READ_ABORTED;
     }
     read_packet(cf, data_offset);
   }
@@ -523,20 +523,20 @@ cf_read(capture_file *cf)
     }
     snprintf(err_str, sizeof err_str, errmsg);
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_str);
-    return CF_ERROR;
+    return CF_READ_ERROR;
   } else
-    return CF_OK;
+    return CF_READ_OK;
 }
 
 #ifdef HAVE_LIBPCAP
-gboolean
+cf_status_t
 cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   gchar *capture_msg;
-  gboolean status;
+  cf_status_t cf_status;
 
-  status = cf_open(cf, fname, is_tempfile, err);
-  if (status) {
+  cf_status = cf_open(cf, fname, is_tempfile, err);
+  if (cf_status == CF_OK) {
     /* Disable menu items that make no sense if you're currently running
        a capture. */
     set_menus_for_capture_in_progress(TRUE);
@@ -552,7 +552,7 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
     g_free(capture_msg);
 
   }
-  return status;
+  return cf_status;
 }
 
 cf_read_status_t
@@ -589,13 +589,13 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
        this will cause an EOF on the pipe from the child, so
        "cf_finish_tail()" will be called, and it will clean up
        and exit. */
-    return CF_ABORTED;
+    return CF_READ_ABORTED;
   } else if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
-    return CF_ERROR;
+    return CF_READ_ERROR;
   } else
-    return CF_OK;
+    return CF_READ_OK;
 }
 
 cf_read_status_t
@@ -625,7 +625,7 @@ cf_finish_tail(capture_file *cf, int *err)
        file; we return CF_ABORTED so our caller can do whatever
        is appropriate when that happens. */
     cf_close(cf);
-    return CF_ABORTED;
+    return CF_READ_ABORTED;
   }
 
   packet_list_thaw();
@@ -675,9 +675,9 @@ cf_finish_tail(capture_file *cf, int *err)
   if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
-    return CF_ERROR;
+    return CF_READ_ERROR;
   } else {
-    return CF_OK;
+    return CF_READ_OK;
   }
 }
 #endif /* HAVE_LIBPCAP */
@@ -1197,7 +1197,7 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
   return (!got_read_error && !got_write_error);
 }
 
-gboolean
+cf_status_t
 cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 {
   dfilter_t *dfcode;
@@ -1206,7 +1206,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 
   /* if new filter equals old one, do nothing unless told to do so */
   if (!force && strcmp(filter_new, filter_old) == 0) {
-    return TRUE;
+    return CF_OK;
   }
 
   if (dftext == NULL) {
@@ -1233,7 +1233,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
       g_free(safe_dfilter_error_msg);
       g_free(safe_dftext);
       g_free(dftext);
-      return FALSE;
+      return CF_ERROR;
     }
 
     /* Was it empty? */
@@ -1259,7 +1259,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   } else {
     rescan_packets(cf, "Filtering", dftext, TRUE, FALSE);
   }
-  return TRUE;
+  return CF_OK;
 }
 
 void
@@ -1691,7 +1691,7 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
   return TRUE;
 }
 
-gboolean
+cf_read_status_t
 cf_retap_packets(capture_file *cf)
 {
   packet_range_t range;
@@ -1712,15 +1712,15 @@ cf_retap_packets(capture_file *cf)
 
   case PSP_STOPPED:
     /* Well, the user decided to abort the refiltering.
-       Return FALSE so our caller knows they did that. */
+       Return CF_READ_ABORTED so our caller knows they did that. */
     return FALSE;
 
   case PSP_FAILED:
     /* Error while retapping. */
-    return FALSE;
+    return CF_READ_ERROR;
   }
 
-  return TRUE;
+  return CF_READ_OK;
 }
 
 typedef struct {
@@ -3084,7 +3084,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   return TRUE;
 }
 
-gboolean
+cf_status_t
 cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_format)
 {
   gchar        *from_filename;
@@ -3254,14 +3254,14 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
          What should we return if it fails or is aborted? */
       switch (cf_read(cf)) {
 
-      case CF_OK:
-      case CF_ERROR:
+      case CF_READ_OK:
+      case CF_READ_ERROR:
 	/* Just because we got an error, that doesn't mean we were unable
 	   to read any of the file; we handle what we could get from the
 	   file. */
 	break;
 
-      case CF_ABORTED:
+      case CF_READ_ABORTED:
 	/* The user bailed out of re-reading the capture file; the
 	   capture file has been closed - just return (without
 	   changing any menu settings; "cf_close()" set them
@@ -3271,12 +3271,12 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
       set_menus_for_unsaved_capture_file(FALSE);
     }
   }
-  return TRUE;
+  return CF_OK;
 
 fail:
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
-  return FALSE;
+  return CF_ERROR;
 }
 
 static void
@@ -3529,14 +3529,14 @@ cf_reload(capture_file *cf) {
   if (cf_open(cf, filename, is_tempfile, &err) == CF_OK) {
     switch (cf_read(cf)) {
 
-    case CF_OK:
-    case CF_ERROR:
+    case CF_READ_OK:
+    case CF_READ_ERROR:
       /* Just because we got an error, that doesn't mean we were unable
          to read any of the file; we handle what we could get from the
          file. */
       break;
 
-    case CF_ABORTED:
+    case CF_READ_ABORTED:
       /* The user bailed out of re-reading the capture file; the
          capture file has been closed - just free the capture file name
          string and return (without changing the last containing
