@@ -3072,7 +3072,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	     	 */
 		g_hash_table_insert(state->seqtable,
 				    GINT_TO_POINTER(state->sequencenumber), 
-				    (int *)opcode);
+				    GINT_TO_POINTER(opcode));
 
 	    	break;
 
@@ -3083,7 +3083,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 		if (opcode >= X_FirstExtension && opcode <= X_LastExtension) {
 			g_hash_table_insert(state->seqtable,
 					    GINT_TO_POINTER(state->sequencenumber), 
-					    (int *)opcode);
+					    GINT_TO_POINTER(opcode));
 		}
 
 		/*
@@ -4566,8 +4566,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 
 	sequence_number = VALUE16(tvb, offset + 2);
-	opcode = (int)g_hash_table_lookup(state->seqtable,
-					  GINT_TO_POINTER(sequence_number));
+	opcode = GPOINTER_TO_INT(g_hash_table_lookup(state->seqtable,
+					  GINT_TO_POINTER(sequence_number)));
 
 	if (state->iconn_frame == 0 &&  state->resync == FALSE) {
 

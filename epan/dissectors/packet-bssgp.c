@@ -470,6 +470,7 @@ proto_tree_add_bitfield8(proto_tree *tree, tvbuff_t *tvb, int offset, guint8 mas
   return pi;
 }
 
+#if 0
 static proto_item *
 proto_tree_add_bitfield16(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 mask) {
   /* XXX: Use varargs */
@@ -479,6 +480,7 @@ proto_tree_add_bitfield16(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 m
 				       label);
  return pi;
 }
+#endif
 
 static guint8
 get_byte_offset(guint64 bo) {
@@ -956,7 +958,7 @@ translate_abqp_source_statistics_descriptor(guint8 value, build_info_t *bi) {
 }
 
 static char*
-translate_abqp_max_bit_rate_for_dl_extended(guint8 value, build_info_t *bi) {
+translate_abqp_max_bit_rate_for_dl_extended(guint8 value, build_info_t *bi _U_) {
   static char result[BSSGP_TRANSLATION_MAX_LEN];
 
   if (value == 0) {
@@ -971,7 +973,7 @@ translate_abqp_max_bit_rate_for_dl_extended(guint8 value, build_info_t *bi) {
 }
 
 static char*
-translate_abqp_guaranteed_bit_rate_for_dl_extended(guint8 value, build_info_t *bi) {
+translate_abqp_guaranteed_bit_rate_for_dl_extended(guint8 value, build_info_t *bi _U_) {
   static char result[BSSGP_TRANSLATION_MAX_LEN];
 
   if (value == 0) {
@@ -1053,6 +1055,7 @@ translate_msrac_extended_dtm_gprs_multislot_class(guint8 value, guint8 dgmsc) {
   return "Error"; /* Dummy */
 }
 
+#if 0
 static guint8
 translate_msrac_high_multislot_capability(guint8 capability, guint8 class) {
   switch (capability) {
@@ -1148,6 +1151,7 @@ translate_msrac_high_multislot_capability(guint8 capability, guint8 class) {
   g_assert_not_reached();
   return 0;
 }
+#endif
 
 static char*
 translate_channel_needed(guint8 value) {
@@ -1911,7 +1915,7 @@ decode_iei_location_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
 
 static void
 decode_msrac_additional_access_technologies(proto_tree *tree, tvbuff_t *tvb, 
-					    guint64 bo, guint32 length) {
+					    guint64 bo, guint32 length _U_) {
   proto_item *pi;
   guint8 value;
   guint8 bl; /* Bit length */
@@ -1959,7 +1963,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   proto_item *ti, *pi;
   proto_tree *tf;
   guint8 value, i;
-  guint8 dgmsc, demsc; /* DTM GPRS/EGPRS Multi Slot Class */
+  guint8 dgmsc = 0, demsc = 0; /* DTM GPRS/EGPRS Multi Slot Class */
   guint8 bl; /* Bit length */
   guint64 start_bo = bo;
 

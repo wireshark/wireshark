@@ -135,7 +135,7 @@ main(int argc, char **argv)
 		epan_cleanup();
 		exit(2);
 	}
-	printf("dfilter ptr = 0x%08x\n", (unsigned int) df);
+	printf("dfilter ptr = 0x%08x\n", GPOINTER_TO_INT(df));
 
 	printf("\n\n");
 

@@ -82,7 +82,7 @@ static int dissect_aim_chat_userinfo_list(tvbuff_t *tvb, packet_info *pinfo, pro
 	return offset;
 }
 
-static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree)
+static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree _U_)
 {
 	char buddyname[MAX_BUDDYNAME_LENGTH+1];
 	guchar msg[1000];

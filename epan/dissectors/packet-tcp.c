@@ -443,7 +443,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 			}			
 			if(seq<tnp->nxtpdu && nxtseq>tnp->nxtpdu){
 				g_hash_table_insert(tcp_pdu_tracking_table, 
-					GINT_TO_POINTER(pinfo->fd->num), (void *)tnp->nxtpdu);
+					GINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(tnp->nxtpdu));
 				offset+=tnp->nxtpdu-seq;
 				break;
 			}
@@ -478,7 +478,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 			return -1;
 		}
 
-		pduseq=(guint32)g_hash_table_lookup(tcp_pdu_tracking_table, GINT_TO_POINTER(pinfo->fd->num));
+		pduseq=GPOINTER_TO_UINT(g_hash_table_lookup(tcp_pdu_tracking_table, GINT_TO_POINTER(pinfo->fd->num)));
 		if(pduseq){
 			offset+=pduseq-seq;
 		}
