@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.14 2002/04/08 02:18:14 gerald Exp $
+; $Id: ethereal.nsi.in,v 1.15 2002/06/01 22:17:22 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -67,11 +67,18 @@ File "c:\program files\common files\GNU\gnu-intl.dll"
 File "..\..\README"
 File "..\..\README.win32"
 File "..\..\manuf"
+
+;
+; Install the Diameter DTD and XML files in the "diameter" subdirectory
+; of the installation directory.
+; 
+SetOutPath $INSTDIR\diameter
 File "..\..\dictionary.dtd"
 File "..\..\dictionary.xml"
 File "..\..\mobileipv4.xml"
 File "..\..\nasreq.xml"
 File "..\..\sunping.xml"
+SetOutPath $INSTDIR
 
 ; Write the uninstall keys for Windows
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "Ethereal"
