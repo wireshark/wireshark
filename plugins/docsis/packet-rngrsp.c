@@ -2,7 +2,7 @@
  * Routines for Ranging Response Message dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-rngrsp.c,v 1.7 2004/01/05 19:28:34 ulfl Exp $
+ * $Id: packet-rngrsp.c,v 1.8 2004/01/07 05:13:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,62 +70,6 @@ static const value_string rng_stat_vals[] = {
 /* Initialize the subtree pointers */
 static gint ett_docsis_rngrsp = -1;
 
-/* These Routines convert the specified type to a signed integer
- * using a Two's Compliment Format */
-
-gint8
-byte_to_signed (guint8 i)
-{
-  gint16 val;
-  if (i & 0x80)
-    {
-      val = ((~i) + 1);
-      val = -val;
-    }
-  else
-    {
-      val = i;
-    }
-  return (gint8) (val);
-}
-
-gint16
-short_to_signed (guint16 i)
-{
-  gint16 val;
-
-  if (i & 0x8000)
-    {
-      val = (gint16) ((~i) + 1);
-      val = -val;
-    }
-  else
-    {
-      val = (gint16) i;
-    }
-
-  return (val);
-}
-
-gint32
-long_to_signed (guint32 i)
-{
-  gint32 val;
-
-  if (i & 0x80000000)
-    {
-      val = (gint32) ((~i) + 1);
-      val = -val;
-    }
-  else
-    {
-      val = (gint16) i;
-    }
-
-  return (val);
-
-}
-
 /* Code to actually dissect the packets */
 static void
 dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
@@ -178,7 +122,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    case RNGRSP_TIMING:
 	      if (tlvlen == 4)
 		{
-		  tim = long_to_signed (tvb_get_ntohl (tvb, pos));
+		  tim = tvb_get_ntohl (tvb, pos);
 		  proto_tree_add_int (rngrsp_tree,
 				      hf_docsis_rngrsp_timing_adj, tvb, pos,
 				      tlvlen, tim);
@@ -191,7 +135,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    case RNGRSP_PWR_LEVEL_ADJ:
 	      if (tlvlen == 1)
 		{
-		  pwr = byte_to_signed (tvb_get_guint8 (tvb, pos));
+		  pwr = tvb_get_guint8 (tvb, pos);
 		  proto_tree_add_int (rngrsp_tree, hf_docsis_rngrsp_power_adj,
 				      tvb, pos, tlvlen, pwr);
 		}
