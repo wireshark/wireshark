@@ -6,7 +6,7 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.6 2003/10/01 21:51:59 guy Exp $
+ * $Id: packet-enip.c,v 1.7 2003/10/06 08:10:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1673,17 +1673,18 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length 
             if( msg_req_siz % 2 )
             {
                /* Pad byte */
-               proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz-3, 1, "Pad Byte (0x%02X)",
-                  tvb_get_guint8( tvb, offset+2+req_path_size+6+msg_req_siz-3 ) );
+               proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+4+msg_req_siz, 1, "Pad Byte (0x%02X)",
+                  tvb_get_guint8( tvb, offset+2+req_path_size+4+msg_req_siz ) );
+               msg_req_siz++;	/* include the padding */
             }
 
             /* Route Path Size */
-   		   route_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+6+msg_req_siz-2 )*2;
-   		   proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz-2, 1, "Route Path Size: %d (words)", route_path_size/2 );
+            route_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+4+msg_req_siz )*2;
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+4+msg_req_siz, 1, "Route Path Size: %d (words)", route_path_size/2 );
 
-   		   /* Reserved */
-            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz-1, 1, "Reserved (0x%02X)",
-                tvb_get_guint8( tvb, offset+2+req_path_size+6+msg_req_siz-1 ) );
+            /* Reserved */
+            proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+5+msg_req_siz, 1, "Reserved (0x%02X)",
+                tvb_get_guint8( tvb, offset+2+req_path_size+5+msg_req_siz ) );
 
             /* Route Path */
             temp_item = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz, route_path_size, "Route Path");
