@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.59 2003/06/30 21:30:54 guy Exp $
+ * $Id: packet-vines.c,v 1.60 2003/07/19 02:49:54 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -1015,14 +1015,6 @@ static const value_string vines_rtp_node_type_vals[] = {
 static const value_string vines_rtp_controller_type_vals[] = {
 	{ 0x00, "Default Card" },
 	{ 0x01, "Multibuffer" },
-	{ 0,    NULL }
-};
-
-static const value_string vines_rtp_compatibility_flags_vals[] = {
-	{ 0x00, "Same Revision" },
-	{ 0x01, "Version Mismatch" },
-	{ 0x02, "Old Neighbors" },
-	{ 0x03, "Automatic" },
 	{ 0,    NULL }
 };
 
