@@ -137,7 +137,17 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, &u32Pointer);
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
+						&u32Pointer);
+    if (u32Pointer) {
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+							&u32ArraySize);
+
+		while (u16DelFromSet--) {
+			offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
+							hf_oxid_oid, pu64OId);
+		}
+	}
 
 	return offset;
 }
