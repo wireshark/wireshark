@@ -144,10 +144,14 @@ extern void stat_branch_to_str(const stat_node* node, GString* s, guint indent) 
 /* frees the resources allocated by a stat_tree node */
 static void free_stat_node( stat_node* node ) {
 	stat_node* child;
+    stat_node* next;
 	
 	if (node->children) {
-		for (child = node->children; child; child = child->next ) 
+        for (child = node->children; child; child = next ) {
+            /* child->next will be gone after free_stat_node, so cache it here */
+            next = child->next;
 			free_stat_node(child);
+        }
 	}
 	
 	if(node->st->cfg->free_node_pr) node->st->cfg->free_node_pr(node);
@@ -164,13 +168,17 @@ static void free_stat_node( stat_node* node ) {
 /* destroys the whole tree instance */
 extern void free_stats_tree(stats_tree* st) {
 	stat_node* child;
+	stat_node* next;
 	
 	g_free(st->filter);
 	g_hash_table_destroy(st->names);
 	g_ptr_array_free(st->parents,FALSE);
 	
-	for (child = st->root.children; child; child = child->next ) 
+    for (child = st->root.children; child; child = next ) {
+        /* child->next will be gone after free_stat_node, so cache it here */
+        next = child->next;
 		free_stat_node(child);
+    }
 	
 	if (st->cfg->free_tree_pr)
 		st->cfg->free_tree_pr(st);
@@ -209,8 +217,11 @@ extern void reset_stats_tree(void* p) {
 extern void reinit_stats_tree(void* p) {
 	stats_tree* st = p;
 	stat_node* child;
+	stat_node* next;
 	
-	for (child = st->root.children; child; child = child->next) {
+	for (child = st->root.children; child; child = next) {
+        /* child->next will be gone after free_stat_node, so cache it here */
+        next = child->next;
 		free_stat_node(child);
 	}
 	
