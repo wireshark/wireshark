@@ -1,7 +1,7 @@
 /* capture_combo_utils.c
  * Utilities for combo box of interface names
  *
- * $Id: capture_combo_utils.c,v 1.1 2003/09/10 05:35:25 guy Exp $
+ * $Id: capture_combo_utils.c,v 1.2 2003/09/26 23:11:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@ capture_dev_descr_find(const gchar *if_name)
 			return NULL;
 		/* found left parenthesis, start of description */
 		else if (*p == '(') {
+			ct = 0;
 			lp++;
 			/* skip over left parenthesis */
 			p++;
