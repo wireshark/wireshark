@@ -2,7 +2,7 @@
  * Routines for Decoding FC header for IP/FC
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-ipfc.c,v 1.2 2002/12/08 21:56:06 guy Exp $
+ * $Id: packet-ipfc.c,v 1.3 2002/12/08 22:01:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,12 +41,10 @@
 static int proto_ipfc              = -1;
 static int hf_ipfc_network_da = -1;
 static int hf_ipfc_network_sa = -1;
-static int hf_ipfc_llc = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ipfc = -1;
-static dissector_table_t ipfc_dissector_table;
-static dissector_handle_t data_handle;
+static dissector_handle_t llc_handle;
 
 static void
 dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -71,14 +69,10 @@ dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                fcwwn_to_str (tvb_get_ptr (tvb, offset, 8)));
         proto_tree_add_string (ipfc_tree, hf_ipfc_network_sa, tvb, offset+8, 8,
                                fcwwn_to_str (tvb_get_ptr (tvb, offset+8, 8)));
-        /* This is a dummy add to just switch to llc */
-        proto_tree_add_uint_hidden (ipfc_tree, hf_ipfc_llc, tvb, offset, 16, 0);
     }
 
     next_tvb = tvb_new_subset (tvb, 16, -1, -1);
-    if (!dissector_try_port (ipfc_dissector_table, 0, next_tvb, pinfo, tree)) {
-        call_dissector (data_handle, next_tvb, pinfo, tree);
-    }
+    call_dissector(llc_handle, next_tvb, pinfo, tree);
 }
 
 /* Register the protocol with Ethereal */
@@ -99,9 +93,6 @@ proto_register_ipfc (void)
         { &hf_ipfc_network_sa,
           {"Network SA", "ipfc.nethdr.sa", FT_STRING, BASE_HEX, NULL,
            0x0, "", HFILL}},
-        { &hf_ipfc_llc,
-          {"LLC/SNAP", "ipfc.llc", FT_UINT8, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
     };
 
     /* Setup protocol subtree array */
@@ -115,9 +106,6 @@ proto_register_ipfc (void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ipfc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    ipfc_dissector_table = register_dissector_table ("ipfc.llc", "IPFC",
-                                                     FT_UINT8, BASE_HEX);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -133,5 +121,5 @@ proto_reg_handoff_ipfc (void)
     dissector_add("fc.ftype", FC_FTYPE_IP, ipfc_handle);
     dissector_add("wtap_encap", WTAP_ENCAP_IP_OVER_FC, ipfc_handle);
 
-    data_handle = find_dissector ("data");
+    llc_handle = find_dissector ("llc");
 }

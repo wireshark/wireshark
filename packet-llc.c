@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.103 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-llc.c,v 1.104 2002/12/08 22:01:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -560,5 +560,4 @@ proto_reg_handoff_llc(void)
 	dissector_add("udp.port", UDP_PORT_LLC3, llc_handle);
 	dissector_add("udp.port", UDP_PORT_LLC4, llc_handle);
 	dissector_add("udp.port", UDP_PORT_LLC5, llc_handle);
-	dissector_add("ipfc.llc", 0, llc_handle);
 }
