@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.30 2000/05/28 17:04:10 oabad Exp $
+ * $Id: packet-x25.c,v 1.31 2000/05/29 22:35:11 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1303,69 +1303,69 @@ get_x25_pkt_len(tvbuff_t *tvb)
 	called_len  = (bytex >> 0) & 0x0F;
 	calling_len = (bytex >> 4) & 0x0F;
 	length = 4 + (called_len + calling_len + 1) / 2; /* addr */
-	if (length < tvb_length(tvb))
+	if (length < tvb_reported_length(tvb))
 	    length += (1 + tvb_get_guint8(tvb, length)); /* facilities */
 
-	return MIN(tvb_length(tvb),length);
+	return MIN(tvb_reported_length(tvb),length);
 
     case X25_CALL_ACCEPTED:
 	bytex = tvb_get_guint8(tvb, 3);
 	called_len  = (bytex >> 0) & 0x0F;
 	calling_len = (bytex >> 4) & 0x0F;
 	length = 4 + (called_len + calling_len + 1) / 2; /* addr */
-	if (length < tvb_length(tvb))
+	if (length < tvb_reported_length(tvb))
 	    length += (1 + tvb_get_guint8(tvb, length)); /* facilities */
 
-	return MIN(tvb_length(tvb),length);
+	return MIN(tvb_reported_length(tvb),length);
 
     case X25_CLEAR_REQUEST:
     case X25_RESET_REQUEST:
     case X25_RESTART_REQUEST:
-	return MIN(tvb_length(tvb),5);
+	return MIN(tvb_reported_length(tvb),5);
 
     case X25_DIAGNOSTIC:
-	return MIN(tvb_length(tvb),4);
+	return MIN(tvb_reported_length(tvb),4);
 
     case X25_CLEAR_CONFIRMATION:
     case X25_INTERRUPT:
     case X25_INTERRUPT_CONFIRMATION:
     case X25_RESET_CONFIRMATION:
     case X25_RESTART_CONFIRMATION:
-	return MIN(tvb_length(tvb),3);
+	return MIN(tvb_reported_length(tvb),3);
 
     case X25_REGISTRATION_REQUEST:
 	bytex = tvb_get_guint8(tvb, 3);
 	dce_len = (bytex >> 0) & 0x0F;
 	dte_len = (bytex >> 4) & 0x0F;
 	length = 4 + (dte_len + dce_len + 1) / 2; /* addr */
-	if (length < tvb_length(tvb))
+	if (length < tvb_reported_length(tvb))
 	    length += (1 + tvb_get_guint8(tvb, length)); /* registration */
 
-	return MIN(tvb_length(tvb),length);
+	return MIN(tvb_reported_length(tvb),length);
 
     case X25_REGISTRATION_CONFIRMATION:
 	bytex = tvb_get_guint8(tvb, 5);
 	dce_len = (bytex >> 0) & 0x0F;
 	dte_len = (bytex >> 4) & 0x0F;
 	length = 6 + (dte_len + dce_len + 1) / 2; /* addr */
-	if (length < tvb_length(tvb))
+	if (length < tvb_reported_length(tvb))
 	    length += (1 + tvb_get_guint8(tvb, length)); /* registration */
 
-	return MIN(tvb_length(tvb),length);
+	return MIN(tvb_reported_length(tvb),length);
     }
 
-    if ((byte2 & 0x01) == X25_DATA) return MIN(tvb_length(tvb),3);
+    if ((byte2 & 0x01) == X25_DATA) return MIN(tvb_reported_length(tvb),3);
 
     switch (byte2 & 0x1F)
     {
     case X25_RR:
-	return MIN(tvb_length(tvb),3);
+	return MIN(tvb_reported_length(tvb),3);
 
     case X25_RNR:
-	return MIN(tvb_length(tvb),3);
+	return MIN(tvb_reported_length(tvb),3);
 
     case X25_REJ:
-	return MIN(tvb_length(tvb),3);
+	return MIN(tvb_reported_length(tvb),3);
     }
 
     return 0;
@@ -1468,7 +1468,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (localoffset < x25_pkt_len) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
 
-	if (localoffset < tvb_length(tvb)) /* user data */
+	if (localoffset < tvb_reported_length(tvb)) /* user data */
 	{
 	    guint8 spi;
 	    guint8 prt_id;
@@ -1552,9 +1552,9 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		unknown:
 		    if (x25_tree) {
 			proto_tree_add_text(x25_tree, tvb, localoffset,
-				tvb_length(tvb)-localoffset, "Data");
+				tvb_reported_length(tvb)-localoffset, "Data");
 		    }
-		    localoffset = tvb_length(tvb);
+		    localoffset = tvb_reported_length(tvb);
 		}
 	    }
 	}
@@ -1581,11 +1581,11 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (localoffset < x25_pkt_len) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
 
-	if (localoffset < tvb_length(tvb)) { /* user data */
+	if (localoffset < tvb_reported_length(tvb)) { /* user data */
 	    if (x25_tree)
 	        proto_tree_add_text(x25_tree, tvb, localoffset,
-				    tvb_length(tvb)-localoffset, "Data");
-	    localoffset=tvb_length(tvb);
+				    tvb_reported_length(tvb)-localoffset, "Data");
+	    localoffset=tvb_reported_length(tvb);
 	}
 	break;
     case X25_CLEAR_REQUEST:
@@ -1623,10 +1623,10 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	localoffset = x25_pkt_len;
 
-	if (localoffset < tvb_length(tvb)) /* extended clear conf format */
+	if (localoffset < tvb_reported_length(tvb)) /* extended clear conf format */
 	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo->fd, toa);
 
-	if (localoffset < tvb_length(tvb)) /* facilities */
+	if (localoffset < tvb_reported_length(tvb)) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
 	break;
     case X25_DIAGNOSTIC:
@@ -1748,7 +1748,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb_get_guint8(tvb, localoffset) & 0x7F,
 			"Registration");
 	}
-	localoffset = tvb_length(tvb);
+	localoffset = tvb_reported_length(tvb);
 	break;
     case X25_REGISTRATION_CONFIRMATION:
 	if(check_col(pinfo->fd, COL_INFO))
@@ -1775,7 +1775,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb_get_guint8(tvb, localoffset) & 0x7F,
 			"Registration");
 	}
-	localoffset = tvb_length(tvb);
+	localoffset = tvb_reported_length(tvb);
 	break;
     default :
 	localoffset = 2;
@@ -1912,7 +1912,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset += (modulo == 8) ? 1 : 2;
     }
 
-    if (localoffset >= tvb_length(tvb)) return;
+    if (localoffset >= tvb_reported_length(tvb)) return;
 
     next_tvb = tvb_new_subset(tvb, localoffset, -1, -1);
     tvb_compat(next_tvb, &next_pd, &next_offset);
@@ -1946,7 +1946,7 @@ proto_register_x25(void)
 	  { "Modulo", "x25.mod", FT_UINT16, BASE_DEC, VALS(vals_modulo), 0x3000,
 	  	"Specifies whether the frame is modulo 8 or 128" } },
 	{ &hf_x25_lcn,
-	  { "Logical Channel", "x25.lcn", FT_UINT16, BASE_HEX, NULL, 0x0FFF,
+	  { "Logical Channel", "x25.lcn", FT_UINT16, BASE_DEC, NULL, 0x0FFF,
 	  	"Logical Channel Number" } },
 	{ &hf_x25_type,
 	  { "Packet Type", "x25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x0,
