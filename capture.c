@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.197 2002/12/18 06:44:50 guy Exp $
+ * $Id: capture.c,v 1.198 2002/12/29 01:19:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1138,7 +1138,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
         "Unexpected error from select: %s", strerror(errno));
       goto error;
     } else if (sel_ret > 0) {
-      b = read(fd, &magic+bytes_read, sizeof magic-bytes_read);
+      b = read(fd, ((char *)&magic)+bytes_read, sizeof magic-bytes_read);
       if (b <= 0) {
         if (b == 0)
           snprintf(errmsg, errmsgl, "End of file on pipe during open");
