@@ -1,12 +1,11 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.9 2001/02/01 20:21:21 gram Exp $
+ * $Id: color_dlg.c,v 1.10 2001/12/02 00:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,7 +46,9 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
-		
+#include "dfilter_expr_dlg.h"
+
+
 static GtkWidget* colorize_dialog_new(colfilter *filter);
 static void add_filter_to_clist(gpointer filter_arg, gpointer clist_arg);
 static void color_filter_up_cb(GtkButton *button, gpointer user_data);
@@ -90,6 +91,14 @@ static gchar *titles[2] = { "Name", "Filter String" };
 #define COLOR_SELECTION_BG	"color_selection_bg"
 #define COLOR_SELECTION_PARENT	"color_selection_parent"
 
+static void
+filter_expr_cb(GtkWidget *w, gpointer filter_te)
+{
+
+        dfilter_expr_dlg_new(GTK_WIDGET(filter_te));
+}
+
+
 /* Callback for the "Display:Colorize Display" menu item. */
 void
 color_display_cb(GtkWidget *w, gpointer d)
@@ -111,6 +120,7 @@ colorize_dialog_new (colfilter *filter)
   GtkWidget *vbox1;
   GtkWidget *hbox1;
   GtkWidget *vbox2;
+  GtkWidget *vbox4;
   GtkWidget *color_filter_up;
   GtkWidget *label4;
   GtkWidget *color_filter_down;
@@ -147,6 +157,7 @@ colorize_dialog_new (colfilter *filter)
   gtk_widget_show (hbox1);
   gtk_box_pack_start (GTK_BOX (vbox1), hbox1, TRUE, TRUE, 0);
 
+  /* vbox2 holds the Up and Down Buttons and label */
   vbox2 = gtk_vbox_new (TRUE, 0);
   gtk_widget_ref (vbox2);
   gtk_object_set_data_full (GTK_OBJECT (color_win), "vbox2", vbox2,
@@ -178,7 +189,9 @@ colorize_dialog_new (colfilter *filter)
   gtk_widget_show (color_filter_down);
   gtk_box_pack_start (GTK_BOX (vbox2), color_filter_down, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, color_filter_down, ("Move filter lower in list"), NULL);
+  /* End vbox2 */
 
+  /* create the list of filters */
   scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_ref (scrolledwindow1);
   gtk_object_set_data_full (GTK_OBJECT (color_win), "scrolledwindow1", scrolledwindow1,
@@ -188,12 +201,6 @@ colorize_dialog_new (colfilter *filter)
 
   color_filters = gtk_clist_new_with_titles(2, titles);
 
-#if 0
-  /* I don't seem to need this, but just in case, I'll if0 it */
-  gtk_object_set_data_full (GTK_OBJECT (color_win), "color_filters",
-                            color_filters,
-                            (GtkDestroyNotify) gtk_widget_unref);
-#endif
   g_slist_foreach(filter_list, add_filter_to_clist, color_filters);
 
   gtk_widget_show (color_filters);
@@ -202,21 +209,25 @@ colorize_dialog_new (colfilter *filter)
   gtk_clist_set_column_width (GTK_CLIST (color_filters), 0, 80);
   gtk_clist_set_column_width (GTK_CLIST (color_filters), 1, 80);
   gtk_clist_column_titles_show (GTK_CLIST (color_filters));
+  /* end list of filters */
 
-  hbox2 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_ref (hbox2);
-  gtk_object_set_data_full (GTK_OBJECT (color_win), "hbox2", hbox2,
+  /* hbox2 is  first button row convert to vbox4 */
+  vbox4 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox4);
+  gtk_object_set_data_full (GTK_OBJECT (color_win), "vbox4", vbox4,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (hbox2);
-  gtk_box_pack_start (GTK_BOX (vbox1), hbox2, TRUE, FALSE, 5);
-  gtk_widget_set_usize (hbox2, -2, 30);
+  gtk_widget_show (vbox4);
+  gtk_box_pack_start (GTK_BOX (hbox1), vbox4, TRUE, FALSE, 5);
+#if 0
+  gtk_widget_set_usize (vbox4, -2, 30);
+#endif
 
   color_new = gtk_button_new_with_label (("New"));
   gtk_widget_ref (color_new);
   gtk_object_set_data_full (GTK_OBJECT (color_win), "color_new", color_new,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_new);
-  gtk_box_pack_start (GTK_BOX (hbox2), color_new, TRUE, FALSE, 5);
+  gtk_box_pack_start (GTK_BOX (vbox4), color_new, FALSE, FALSE, 5);
   gtk_widget_set_usize (color_new, 50, 20);
   gtk_tooltips_set_tip (tooltips, color_new, ("Create a new colorization filter after selected filter"), NULL);
 
@@ -226,7 +237,7 @@ colorize_dialog_new (colfilter *filter)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_edit);
   gtk_widget_set_usize(color_edit, 50, 20);
-  gtk_box_pack_start (GTK_BOX (hbox2), color_edit, TRUE, FALSE, 5);
+  gtk_box_pack_start (GTK_BOX (vbox4), color_edit, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_edit, ("Change color of selected filter"), NULL);
   gtk_widget_set_sensitive (color_edit,
       (filter->num_of_filters != 0));
@@ -236,7 +247,7 @@ colorize_dialog_new (colfilter *filter)
   gtk_object_set_data_full (GTK_OBJECT (color_win), "color_delete", color_delete,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_delete);
-  gtk_box_pack_start (GTK_BOX (hbox2), color_delete, TRUE, FALSE, 5);
+  gtk_box_pack_start (GTK_BOX (vbox4), color_delete, FALSE, FALSE, 5);
   gtk_widget_set_usize (color_delete, 50, 20);
   gtk_tooltips_set_tip (tooltips, color_delete, ("Delete selected colorization filter"), NULL);
 
@@ -245,10 +256,11 @@ colorize_dialog_new (colfilter *filter)
   gtk_object_set_data_full (GTK_OBJECT (color_win), "color_save", color_save,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_save);
-  gtk_box_pack_start (GTK_BOX (hbox2), color_save, TRUE, FALSE, 5);
+  gtk_box_pack_start (GTK_BOX (vbox4), color_save, FALSE, FALSE, 5);
   gtk_widget_set_usize (color_save, 50, 20);
   gtk_tooltips_set_tip (tooltips, color_save, ("Save all filters to disk"), NULL);
 
+  /* hbox3 is bottom button row */
   hbox3 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox3);
   gtk_object_set_data_full (GTK_OBJECT (color_win), "hbox3", hbox3,
@@ -432,8 +444,9 @@ remember_selected_row                 (GtkCList        *clist,
 }
 
 /* Called when the dialog box is being destroyed; destroy any edit
-   dialogs opened from this dialog, and null out the pointer to this
-   dialog. */
+ * dialogs opened from this dialog, and null out the pointer to this
+ * dialog.
+ jjj*/
 static void
 color_destroy_cb                       (GtkButton       *button,
                                         gpointer         user_data)
@@ -618,6 +631,7 @@ edit_color_filter_dialog_new (colfilter *filter,
   GtkWidget *hbox6;
   GtkWidget *color_filter_name;
   GtkWidget *hbox7;
+  GtkWidget *add_expression_bt;
   GtkWidget *color_filter_text;
   GtkWidget *hbox5;
   GtkWidget *colorize_filter_fg;
@@ -697,6 +711,8 @@ edit_color_filter_dialog_new (colfilter *filter,
   gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "*colorize_filter_text", *colorize_filter_text,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_entry_set_text(GTK_ENTRY(*colorize_filter_text), colorf->filter_text);
+
+
 #if 0
   style = gtk_style_copy(gtk_widget_get_style(*colorize_filter_text));
   style->base[GTK_STATE_NORMAL] = colorf->bg_color;
@@ -706,6 +722,14 @@ edit_color_filter_dialog_new (colfilter *filter,
   gtk_widget_show (*colorize_filter_text);
   gtk_box_pack_start (GTK_BOX (hbox7), *colorize_filter_text, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, *colorize_filter_text, ("This is the editable text of the filter"), NULL);
+
+  /* Create the "Add Expression..." button, to pop up a dialog
+  for constructing filter comparison expressions. */
+  add_expression_bt = gtk_button_new_with_label("Add Expression...");
+  gtk_signal_connect(GTK_OBJECT(add_expression_bt), "clicked",
+      GTK_SIGNAL_FUNC(filter_expr_cb), *colorize_filter_text);
+  gtk_box_pack_start (GTK_BOX(hbox7), add_expression_bt, FALSE, FALSE, 3);
+  gtk_widget_show(add_expression_bt);
 
   hbox5 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox5);

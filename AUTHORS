@@ -109,6 +109,7 @@ Richard Sharpe <sharpe[AT]ns.aus.com> {
 }
 
 John McDermott <jjm[AT]jkintl.com> {
+	Packet coloring support
 	Pseudo-real-time capture
 }
 

@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.15 2001/10/24 07:18:39 guy Exp $
+ * $Id: colors.c,v 1.16 2001/12/02 00:16:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,7 +21,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
+/*
+ * Updated 1 Dec 10 jjm
+ */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -59,31 +61,14 @@ static GdkColormap*	our_cmap = NULL;
 GdkColor	WHITE = { 0, 65535, 65535, 65535 };
 GdkColor	BLACK = { 0, 0, 0, 0 };
 
-/* This structure is used to allow you to compile in default colors if
- * you wish.  They can be later changed by a user.
- */
-#ifdef READ_DEFAULT_COLOR_LIST
-struct _default_colors {
-	gchar* proto;
-	gchar* color; /* background only */
-} default_colors[]  = {
-	{"arp",	"green2"},
-	{"ip",	"light red"},
-	{"tcp",  "light blue"}
-};
-#endif
-
+/* Initialize the filter structures (reading from file) */
 colfilter *
 colfilter_new(void)
 {
   colfilter *filter;
   gboolean got_white, got_black;
-#ifdef READ_DEFAULT_COLOR_LIST
-  color_filter_t *colorf;
-  gint i;
-  GdkColor color;
-#endif
 
+  /* Create the filter header */
   filter = (colfilter *)g_malloc(sizeof(colfilter));
   filter->num_of_filters = 0;
 
@@ -104,37 +89,15 @@ colfilter_new(void)
       simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color black.");
   }
 
-#ifdef READ_DEFAULT_COLOR_LIST
-  /* Now process defaults */
-  for (i = 0 ; i < sizeof default_colors/sizeof (struct _default_colors); i++){
-	gdk_color_parse(default_colors[i].color, &color);
-	
-	if( !get_color(&color)){
-		/* oops */
-		simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color %s.",
-		    default_colors[i].color);
-	}
-
-	colorf = new_color_filter(filter, default_colors[i].proto,
-	    default_colors[i].proto);
-	colorf->bg_color = color;
-
-	if (!dfilter_compile(default_colors[i].proto,
-	    &colorf->c_colorfilter)) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
-		  "Cannot compile default color filter %s.\n%s",
-		  default_colors[i].proto, dfilter_error_msg);
-		/* should reject this filter */
-	}
-	filter->num_of_filters++;
-  }
-#endif
   read_filters(filter);
   return filter;
 }
 
+/* Create a new filter */
 color_filter_t *
-new_color_filter(colfilter *filters, gchar *name, gchar *filter_string)
+new_color_filter(colfilter *filters,    /* The filter list (unused) */
+                 gchar *name,           /* The name of the filter to create */
+                 gchar *filter_string)  /* The string representing the filter */
 {
 	color_filter_t *colorf;
 
@@ -150,6 +113,8 @@ new_color_filter(colfilter *filters, gchar *name, gchar *filter_string)
 }
 
 void
+
+/* delete the specified filter */
 delete_color_filter(color_filter_t *colorf)
 {
 	if (colorf->filter_name != NULL)
@@ -162,12 +127,14 @@ delete_color_filter(color_filter_t *colorf)
 	g_free(colorf);
 }
 
+/* read filters from the file */
 static gboolean
 read_filters(colfilter *filter)
 {
 	/* TODO: Lots more syntax checking on the file */
 	/* I hate these fixed length names! TODO: make more dynamic */
-	/* XXX - buffer overflow possibility here */
+	/* XXX - buffer overflow possibility here
+   * sscanf blocks max size of name and filter_exp; buf is used for reading only */
 	gchar name[256],filter_exp[256], buf[1024];
 	guint16 fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
 	GdkColor fg_color, bg_color;
@@ -179,8 +146,7 @@ read_filters(colfilter *filter)
 
 	/* decide what file to open (from dfilter code) */
 
-	/* should only be called by colors_init.
-	 */
+	/* should only be called by colors_init */
 	if(filter == NULL)
 		return FALSE;
 	/* we have a clist */
@@ -199,25 +165,27 @@ read_filters(colfilter *filter)
 
 	do{
 	  if(!fgets(buf,sizeof buf, f))
-		break;
+      break;
 		
 	  if(strspn( buf," \t") == (size_t)((strchr(buf,'*') - buf))){
-		/* leading # comment */
-		continue;
+		  /* leading # comment */
+		  continue;
 	  }
 
-	  /* we get the @ delimiter.  It is not in any strings */
-	  if(sscanf(buf," @%[^@]@%[^@]@[%hu,%hu,%hu][%hu,%hu,%hu]",
-		name, filter_exp, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 8){
-		/* we got a filter */
+	  /* we get the @ delimiter.  It is not in any strings
+       * Format is @name@filter expression@[background r,g,b][foreground r,g,b]
+       */
+	  if(sscanf(buf," @%256[^@]@%256[^@]@[%hu,%hu,%hu][%hu,%hu,%hu]",
+      name, filter_exp, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 8){
+      /* we got a filter */
 
 	    if(!dfilter_compile(filter_exp, &temp_dfilter)) {
-		simple_dialog(ESD_TYPE_CRIT, NULL,
-		 "Could not compile color filter %s from saved filters.\n%s",
-		 name, dfilter_error_msg);
-		continue;
+        simple_dialog(ESD_TYPE_CRIT, NULL,
+		    "Could not compile color filter %s from saved filters.\n%s",
+		    name, dfilter_error_msg);
+		    continue;
 	    }
-            colorf = new_color_filter(filter, name, filter_exp);
+      colorf = new_color_filter(filter, name, filter_exp);
 	    colorf->c_colorfilter = temp_dfilter;
 	    filter->num_of_filters++;
 	    fg_color.red = fg_r;
@@ -227,24 +195,23 @@ read_filters(colfilter *filter)
 	    bg_color.green = bg_g;
 	    bg_color.blue = bg_b;
 	    if( !get_color(&fg_color)){
-		/* oops */
-		simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate fg color specified"
-		  "in input file for %s.", name);
-
-		i++;
-		continue;
+		    /* oops */
+		    simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate fg color specified"
+		    "in input file for %s.", name);
+		    i++;
+		    continue;
 	    }
 	    if( !get_color(&bg_color)){
-		/* oops */
-		simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate bg color specified"
-		  "in input file for %s.", name);
-		i++;
-		continue;
+		    /* oops */
+		    simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate bg color specified"
+		    "in input file for %s.", name);
+		    i++;
+		    continue;
 	    }
 
-            colorf->bg_color = bg_color;
-            colorf->fg_color = fg_color;
-	    i++;
+        colorf->bg_color = bg_color;
+        colorf->fg_color = fg_color;
+	      i++;
 	  }    /* if sscanf */
 	} while( !feof(f));
 	return TRUE;
@@ -266,7 +233,8 @@ write_filter(gpointer filter_arg, gpointer file_arg)
 	    colorf->fg_color.green,
 	    colorf->fg_color.blue);
 }
-	
+
+/* save filters in filter file */
 gboolean
 write_filters(colfilter *filter)
 {
@@ -297,18 +265,19 @@ write_filters(colfilter *filter)
 	return TRUE;
 }
 
+/* allocate a color from the color map */
 gboolean
 get_color (GdkColor *new_color)
 {
     GdkVisual *pv;
 
     if (!our_cmap) {
-	if ( !gdk_colormap_alloc_color (sys_cmap, new_color, FALSE, TRUE)) {
-	    pv = gdk_visual_get_best();
-	    if ( !(our_cmap = gdk_colormap_new(pv, TRUE)))
-		simple_dialog(ESD_TYPE_WARN, NULL, "Could not create new colormap");
-	} else
-	    return (TRUE);
+      if ( !gdk_colormap_alloc_color (sys_cmap, new_color, FALSE, TRUE)) {
+        pv = gdk_visual_get_best();
+	      if ( !(our_cmap = gdk_colormap_new(pv, TRUE)))
+		      simple_dialog(ESD_TYPE_WARN, NULL, "Could not create new colormap");
+      } else
+	      return (TRUE);
     }
     return ( gdk_colormap_alloc_color ( our_cmap, new_color, FALSE, TRUE) );
 }
