@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.11 1999/12/19 10:39:35 guy Exp $
+ * $Id: colors.h,v 1.1 2000/02/12 08:15:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
