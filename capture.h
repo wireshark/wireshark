@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.44 2004/03/13 22:49:30 ulfl Exp $
+ * $Id: capture.h,v 1.45 2004/04/13 18:01:39 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,7 +101,8 @@ typedef struct {
 
 /* create the capture info dialog */
 extern void capture_info_create(
-capture_info    *cinfo);
+capture_info    *cinfo,
+gchar           *iface);
 
 /* Update the capture info counters in the dialog */
 extern void capture_info_update(

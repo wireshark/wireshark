@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.370 2004/03/08 23:45:24 guy Exp $
+ * $Id: file.c,v 1.371 2004/04/13 18:01:39 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -529,6 +529,7 @@ int
 cf_start_tail(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   int     err;
+  gchar *capture_msg;
 
   err = cf_open(fname, is_tempfile, cf);
   if (err == 0) {
@@ -540,7 +541,9 @@ cf_start_tail(char *fname, gboolean is_tempfile, capture_file *cf)
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
 
-    statusbar_push_file_msg(" <live capture in progress>");
+    capture_msg = g_strdup_printf(" %s: <live capture in progress>", cf->iface);
+
+    statusbar_push_file_msg(capture_msg);
   }
   return err;
 }

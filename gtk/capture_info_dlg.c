@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.13 2004/03/13 15:15:22 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.14 2004/04/13 18:01:40 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,12 +84,14 @@ capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_)
 /* create the capture info dialog */
 /* will keep pointers to the fields in the counts parameter */
 void capture_info_create(
-capture_info    *cinfo)
+capture_info    *cinfo,
+gchar           *iface)
 {
   unsigned int      i;
   GtkWidget         *main_vb, *stop_bt, *counts_tb;
   GtkWidget         *counts_fr, *running_tb, *running_label, *bbox;
   capture_info_ui_t *info;
+  gchar             *cap_w_title;
 
   info = g_malloc0(sizeof(capture_info_ui_t));
   info->counts[0].title = "Total";
@@ -117,7 +119,9 @@ capture_info    *cinfo)
   info->counts[11].title = "Other";
   info->counts[11].value_ptr = &(cinfo->counts->other);
 
-  info->cap_w = dlg_window_new("Ethereal: Capture");
+  cap_w_title = g_strdup_printf("Ethereal: Capture - Interface %s", iface);
+
+  info->cap_w = dlg_window_new(cap_w_title);
   gtk_window_set_modal(GTK_WINDOW(info->cap_w), TRUE);
 
   /* Container for capture display widgets */

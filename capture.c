@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.248 2004/03/23 06:48:31 guy Exp $
+ * $Id: capture.c,v 1.249 2004/04/13 18:01:39 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1756,7 +1756,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* start capture info dialog */
   capture_ui.callback_data  = &ld;
   capture_ui.counts         = &ld.counts;
-  capture_info_create(&capture_ui);
+  capture_info_create(&capture_ui, cfile.iface);
 
   start_time = time(NULL);
   upd_time = time(NULL);
