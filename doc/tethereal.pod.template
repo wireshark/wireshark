@@ -701,7 +701,7 @@ you to look at the nth byte of a packet regardless of its frame type
 The following syntax governs slices:
 
 	[i:j]	i = start_offset, j = length
-	[i-j]	i = start_offet, j = end_offset, inclusive.
+	[i-j]	i = start_offset, j = end_offset, inclusive.
 	[i]	i = start_offset, length = 1
 	[:j]	start_offset = 0, length = j
 	[i:]	start_offset = i, end_offset = end_of_field
@@ -768,7 +768,7 @@ packets to address 224.1.2.3, then using:
 
 may be too restrictive. Filtering with "ip.dst" selects only those
 B<IP> packets that satisfy the rule. Any other packets, including all
-non-IP packets, will not printed. For printing also the non-IP
+non-IP packets, will not be printed. For printing also the non-IP
 packets, you can use one of the following two expressions:
 
     not ip or ip.dst ne 224.1.2.3
