@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.64 2002/03/05 11:55:58 guy Exp $
+ * $Id: capture_dlg.c,v 1.65 2002/03/05 12:03:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -672,7 +672,6 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   gchar *if_name;
   gchar *filter_text;
   gchar *save_file;
-  int value;
 
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
   snap_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);

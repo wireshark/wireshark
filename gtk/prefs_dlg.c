@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.43 2002/03/05 11:55:59 guy Exp $
+ * $Id: prefs_dlg.c,v 1.44 2002/03/05 12:03:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -585,7 +585,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
     const enum_val_t *enumvals, gint current_val)
 {
 	GtkTooltips *tooltips;
-	GtkWidget *label, *menu_box, *menu, *menu_item, *option_menu;
+	GtkWidget *menu_box, *menu, *menu_item, *option_menu;
 	int menu_index, index;
 	const enum_val_t *enum_valp;
 	GtkWidget *event_box;
@@ -676,14 +676,10 @@ create_preference_entry(GtkWidget *main_tb, int table_position,
 static void
 pref_fetch(pref_t *pref, gpointer user_data)
 {
-  GtkWidget *label;
-  char *label_string;
   char *str_val;
   char *p;
   guint uval;
   gboolean bval;
-  GSList *rb_entry;
-  GtkWidget *button;
   gint enumval;
   gboolean *pref_changed_p = user_data;
 

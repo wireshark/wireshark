@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.47 2002/03/05 11:56:00 guy Exp $
+ * $Id: proto_draw.c,v 1.48 2002/03/05 12:03:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,7 @@ GtkWidget *
 get_notebook_bv_ptr(GtkWidget *nb_ptr)
 {
   int num;
-  GtkWidget *bv_page, *bv;
+  GtkWidget *bv_page;
 
   num = gtk_notebook_get_current_page(GTK_NOTEBOOK(nb_ptr));
   bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num);
@@ -890,7 +890,6 @@ proto_tree_draw_node(GNode *node, gpointer data)
 	gchar		*label_ptr;
 	GtkCTreeNode	*parent;
 	gboolean	is_leaf, is_expanded;
-	int		i;
 
 	if (!fi->visible)
 		return;

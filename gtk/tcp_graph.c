@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.16 2002/03/05 11:56:00 guy Exp $
+ * $Id: tcp_graph.c,v 1.17 2002/03/05 12:03:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -668,7 +668,6 @@ static void create_drawing_area (struct graph *g)
 {
 	GdkColormap *colormap;
 	GdkColor color;
-	GtkWidget *frame, *box;
 #define WINDOW_TITLE_LENGTH 64
 	char window_title[WINDOW_TITLE_LENGTH];
 

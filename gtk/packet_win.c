@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.34 2002/03/05 11:55:59 guy Exp $
+ * $Id: packet_win.c,v 1.35 2002/03/05 12:03:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -210,7 +210,6 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
 	gpointer user_data)
 {
 	field_info *finfo;
-	int i;
 	GtkWidget *byte_view;
 	const guint8 *data;
 	guint len;

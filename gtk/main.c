@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.239 2002/03/05 11:55:59 guy Exp $
+ * $Id: main.c,v 1.240 2002/03/05 12:03:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -761,7 +761,6 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_, gpointer 
 	gboolean        has_blurb = FALSE;
 	guint           length = 0, byte_len;
 	GtkWidget	*byte_view;
-	tvbuff_t	*byte_tvb;
 	const guint8	*byte_data;
 
 	g_assert(node);
