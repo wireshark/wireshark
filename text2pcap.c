@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.1 2001/05/16 21:32:04 ashokn Exp $
+ * $Id: text2pcap.c,v 1.2 2001/05/21 03:17:14 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,14 +79,29 @@
  * snaplength is automatically set to 64K.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <unistd.h>
-#include <netinet/in.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#ifdef HAVE_WINSOCK_H
+# include <winsock.h>
+#endif
 #include <errno.h>
 #include <assert.h>
+
+#ifdef NEED_GETOPT_H
+# include "getopt.h"
+#endif
 
 #ifndef TRUE
 #define TRUE 1
@@ -147,9 +162,9 @@ FILE *yyin;
 typedef enum {
     INIT,             /* Waiting for start of new packet */
     START_OF_LINE,    /* Starting from beginning of line */
-    OFFSET,           /* Just read the offset */
-    BYTE,             /* Just read a byte */
-    TEXT,             /* Just read text - ignore until EOL */
+    READ_OFFSET,      /* Just read the offset */
+    READ_BYTE,        /* Just read a byte */
+    READ_TEXT,        /* Just read text - ignore until EOL */
 } parser_state_t;
 parser_state_t state = INIT;
 
@@ -262,9 +277,6 @@ write_byte (char *str)
 {
     unsigned long num;
 
-    if (debug>=2) 
-        fprintf(stderr, __FUNCTION__);
-    
     num = parse_num(str, FALSE);
     packet_buf[curr_offset] = num;
     curr_offset ++;
@@ -379,9 +391,6 @@ write_file_header (void)
 {
     struct pcap_hdr fh;
 
-    if (debug>=2) 
-        fprintf(stderr, __FUNCTION__);
-
     fh.magic = PCAP_MAGIC;
     fh.version_major = 2;
     fh.version_minor = 4;
@@ -399,9 +408,6 @@ write_file_header (void)
 static void
 start_new_packet (void)
 {
-    if (debug>=2) 
-        fprintf(stderr, __FUNCTION__);
-
     if (debug>=1) 
         fprintf(stderr, "Start new packet\n");
 
@@ -417,9 +423,6 @@ start_new_packet (void)
 static void
 process_directive (char *str)
 {
-    if (debug>=2) 
-        fprintf(stderr, __FUNCTION__);
-
     fprintf(stderr, "\n--- Directive [%s] currently unsupported ---\n", str+10);
 
 }
@@ -460,7 +463,7 @@ parse_token (token_t token, char *str)
             if (num==0) {
                 /* New packet starts here */
                 start_new_packet();
-                state = OFFSET;
+                state = READ_OFFSET;
             }
             break;
         default:
@@ -479,7 +482,7 @@ parse_token (token_t token, char *str)
             if (num==0) {
                 /* New packet starts here */
                 start_new_packet();
-                state = OFFSET;
+                state = READ_OFFSET;
             } else if (num != curr_offset) {
                 /* Bad offset; switch to INIT state */
                 if (debug>=1)
@@ -488,7 +491,7 @@ parse_token (token_t token, char *str)
                 write_current_packet();
                 state = INIT;
             } else 
-                state = OFFSET;
+                state = READ_OFFSET;
             break;
         default:
             break;
@@ -496,17 +499,17 @@ parse_token (token_t token, char *str)
         break;
 
     /* ----- Processing packet, read offset -----------------------------------*/
-    case OFFSET:
+    case READ_OFFSET:
         switch(token) {
         case T_BYTE:
             /* Record the byte */
-            state = BYTE;
+            state = READ_BYTE;
             write_byte(str);
             break;
         case T_TEXT:
         case T_DIRECTIVE:
         case T_OFFSET:
-            state = TEXT;
+            state = READ_TEXT;
             break;
         case T_EOL:
             state = START_OF_LINE;
@@ -517,7 +520,7 @@ parse_token (token_t token, char *str)
         break;
 
     /* ----- Processing packet, read byte -------------------------------------*/
-    case BYTE:
+    case READ_BYTE:
         switch(token) {
         case T_BYTE:
             /* Record the byte */
@@ -526,7 +529,7 @@ parse_token (token_t token, char *str)
         case T_TEXT:
         case T_DIRECTIVE:
         case T_OFFSET:
-            state = TEXT;
+            state = READ_TEXT;
             break;
         case T_EOL:
             state = START_OF_LINE;
@@ -537,7 +540,7 @@ parse_token (token_t token, char *str)
         break;
 
     /* ----- Processing packet, read text -------------------------------------*/
-    case TEXT:
+    case READ_TEXT:
         switch(token) {
         case T_EOL:
             state = START_OF_LINE;

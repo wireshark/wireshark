@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.106 2001/05/20 22:20:33 guy Exp $
+# $Id: Makefile.nmake,v 1.107 2001/05/21 03:17:14 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -271,7 +271,7 @@ dftest_LIBS= epan\ethereal.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
-EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
+EXECUTABLES=ethereal.exe tethereal.exe editcap.exe text2pcap.exe
 
 RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res
 
@@ -293,6 +293,12 @@ editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).li
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
+<<
+
+text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj
 <<
 
 dftest.exe	: $(dftest_OBJECTS) $(EXTRA_OBJECTS)
@@ -329,9 +335,13 @@ register.c: $(DISSECTOR_SRC)
 #	to use python if PYTHON is defined, otherwise try to use shell.
 #	@sh make-reg-dotc . $(DISSECTOR_SRC)
 
+text2pcap-scanner.c : text2pcap-scanner.l
+	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
+
 clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) \
-		tethereal.obj editcap.obj register.c rdps.obj config.h \
+		tethereal.obj editcap.obj text2pcap.obj \
+		text2pcap-scanner.c register.c rdps.obj config.h \
 		ps.c packet-ncp2222.c register.c
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
