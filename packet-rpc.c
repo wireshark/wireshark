@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.20 1999/12/02 10:20:42 girlich Exp $
+ * $Id: packet-rpc.c,v 1.21 1999/12/06 09:51:56 girlich Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -448,10 +448,21 @@ dissect_rpc_opaque_data(const u_char *pd, int offset, frame_data *fd, proto_tree
 		if (string_length) {
 			if (string_length != string_length_copy) {
 				if (string_data) {
-					string_buffer_print = (char*)g_malloc(string_length_copy + 1 + 12);
+					/* alloc maximum data area */
+					string_buffer_print = (char*)g_malloc(string_length_copy + 12 + 1);
+					/* copy over the data */
 					memcpy(string_buffer_print,string_buffer,string_length_copy);
-					memcpy(string_buffer_print+string_length_copy,
-						"<TRUNCATED>", 12);
+					/* append a 0 byte for sure printing */
+					string_buffer_print[string_length_copy] = '\0';
+					/* append <TRUNCATED> */
+					/* This way, we get the TRUNCATED even
+					   in the case of totally wrong packets,
+					   where \0 are inside the string.
+					   TRUNCATED will appear at the
+					   first \0 or at the end (where we 
+					   put the securing \0).
+					*/
+					strcat(string_buffer_print,"<TRUNCATED>");
 				}
 				else {
 					string_buffer_print = g_strdup("<DATA><TRUNCATED>");
