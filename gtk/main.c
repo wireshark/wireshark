@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.189 2001/04/05 05:58:05 gram Exp $
+ * $Id: main.c,v 1.190 2001/04/09 22:35:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1287,8 +1287,7 @@ main(int argc, char *argv[])
              good thing, given that "get_dirname()" does write over its
              argument. */
           s = get_dirname(cf_name);
-          if (s != NULL)
-            last_open_dir = s;
+	  set_last_open_dir(s);
         } else {
           if (rfcode != NULL)
             dfilter_free(rfcode);
@@ -1690,3 +1689,23 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(top_level);
 }
 
+
+void
+set_last_open_dir(char *dirname)
+{
+	int len;
+
+	if (last_open_dir) {
+		g_free(last_open_dir);
+	}
+
+	if (dirname) {
+		len = strlen(dirname);
+		if (dirname[len-1] != '/') {
+			last_open_dir = g_strconcat(dirname, "/", NULL);
+		}
+	}
+	else {
+		last_open_dir = NULL;
+	}
+}

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.36 2001/02/01 20:21:21 gram Exp $
+ * $Id: file_dlg.c,v 1.37 2001/04/09 22:35:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,7 @@
 #include "file_dlg.h"
 #include "dlg_utils.h"
 #include "util.h"
+#include "main.h"
 
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
@@ -92,7 +93,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data)
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
-    gtk_file_selection_complete(GTK_FILE_SELECTION(file_open_w), last_open_dir);
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w), last_open_dir);
 
   resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		  "Enable name resolution", NULL);
@@ -165,9 +166,8 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   if (test_for_directory(cf_name) == EISDIR) {
 	/* It's a directory - set the file selection box to display that
 	   directory, don't try to open the directory as a capture file. */
-	g_free(last_open_dir);
-	last_open_dir = cf_name;
-	gtk_file_selection_complete(GTK_FILE_SELECTION(fs), last_open_dir);
+	set_last_open_dir(cf_name);
+	gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
     	return;
   }
 
@@ -218,24 +218,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
      if any; we can write over cf_name, which is a good thing, given that
      "get_dirname()" does write over its argument. */
   s = get_dirname(cf_name);
-  if (s != NULL) {
-    /* Well, there is a directory in there... */
-    if (last_open_dir != NULL) {
-      /* ...and we already have one saved... */
-      if (strcmp(last_open_dir, s) != 0) {
-      	/* ...and it's not the same as this one, so free the old one
-	   and assign a copy of the new one to it. */
-	g_free(last_open_dir);
-	last_open_dir = g_strdup(s);
-      }
-    } else {
-      /* ...and we don't already have one saved, so just save this one. */
-      last_open_dir = g_strdup(s);
-    }
-  } else {
-    /* There was no directory in there. */
-    last_open_dir = NULL;
-  }
+  set_last_open_dir(s);
 
   g_free(cf_name);
 }
@@ -418,7 +401,7 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
-    gtk_file_selection_complete(GTK_FILE_SELECTION(file_save_as_w), last_open_dir);
+    gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w), last_open_dir);
 
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */
