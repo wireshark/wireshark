@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.43 2002/07/09 13:32:29 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.44 2002/07/10 06:54:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,6 +78,7 @@ static int hf_netlogon_level16 = -1;
 static int hf_netlogon_validation_level = -1;
 static int hf_netlogon_reference = -1;
 static int hf_netlogon_next_reference = -1;
+static int hf_netlogon_timestamp = -1;
 static int hf_netlogon_level = -1;
 static int hf_netlogon_challenge = -1;
 static int hf_netlogon_reserved = -1;
@@ -275,6 +276,10 @@ netlogon_dissect_VALIDATION_UAS_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_bad_pw_count, NULL);
 
+	/* XXX - are these all UNIX "time_t"s, like the time stamps in
+	   credentials?
+
+	   Or are they, as per some RAP-based operations, UTIMEs? */
 	proto_tree_add_text(tree, tvb, offset, 4, "Last Logon: unknown time format");
 	offset+= 4;
 
@@ -726,6 +731,7 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	dcerpc_info *di;
+	nstime_t ts;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -736,7 +742,17 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
 	offset = netlogon_dissect_CREDENTIAL(tvb, offset,
 		pinfo, tree, drep);
 
-	proto_tree_add_text(tree, tvb, offset, 4, "Timestamp: unknown time format");
+	/*
+	 * XXX - this appears to be a UNIX time_t in some credentials, but
+	 * appears to be random junk in other credentials.
+	 * For example, it looks like a UNIX time_t in "credential"
+	 * AUTHENTICATORs, but like random junk in "return_authenticator"
+	 * AUTHENTICATORs.
+	 */
+	ALIGN_TO_4_BYTES;
+	ts.secs = tvb_get_letohl(tvb, offset);
+	ts.nsecs = 0;
+	proto_tree_add_time(tree, hf_netlogon_timestamp, tvb, offset, 4, &ts);
 	offset+= 4;
 
 	return offset;
@@ -6167,6 +6183,10 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_next_reference,
 		{ "Next Reference", "netlogon.next_reference", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "", HFILL }},
+
+	{ &hf_netlogon_timestamp,
+		{ "Timestamp", "netlogon.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "", HFILL }},
 
 	{ &hf_netlogon_user_rid,
 		{ "User RID", "netlogon.rid", FT_UINT32, BASE_DEC, 
