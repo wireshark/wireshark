@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.135 2004/07/05 16:42:19 ulfl Exp $
+ * $Id: proto.c,v 1.136 2004/07/09 21:52:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3706,7 +3706,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 	int			abbrev_len;
 	char			*buf, *stringified, *format, *ptr;
 	int			dfilter_len, i;
-	gint			start, length;
+	gint			start, length, length_remaining;
 	guint8			c;
 
 	hfinfo = finfo->hfinfo;
@@ -3891,8 +3891,9 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			/*
 			 * Don't go past the end of that tvbuff.
 			 */
-			if ((gint)length > tvb_length_remaining(finfo->ds_tvb, finfo->start))
-				length = tvb_length_remaining(finfo->ds_tvb, finfo->start);
+			length_remaining = tvb_length_remaining(finfo->ds_tvb, finfo->start);
+			if (length > length_remaining)
+				length = length_remaining;
 			if (length <= 0)
 				return NULL;
 			
@@ -3903,7 +3904,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			sprintf(ptr, "frame[%d:%d] == ", finfo->start, length);
 			ptr = buf+strlen(buf);
 
-			for (i=0;i<length-finfo->start; i++) {
+			for (i=0;i<length; i++) {
 				c = tvb_get_guint8(finfo->ds_tvb, start);
 				start++;
 				if (i == 0 ) {
