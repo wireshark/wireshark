@@ -21,12 +21,10 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 #DISSECTOR_SRC = $(DISSECTOR_SRC:../=)
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
-DISSECTOR_SUPPORT_SRC = $(DISSECTOR_SUPPORT_SRC:../../=)
-DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
-
-#dissectors.lib: ../../config.h $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS)
-dissectors.lib: register.obj packet-ncp2222.c x11-declarations.h x11-register-info.h ../../config.h $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
-	link /lib /out:dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
+#dissectors.lib: ../../config.h $(DISSECTOR_OBJECTS) $(EXTRA_OBJECTS)
+dissectors.lib: register.obj packet-ncp2222.c x11-declarations.h x11-register-info.h ../../config.h $(DISSECTOR_OBJECTS)
+	echo dissectors.lib
+	link /lib /out:dissectors.lib $(DISSECTOR_OBJECTS)
 
 #
 # The header files listed here are built from x11-fields using Perl;
