@@ -252,6 +252,8 @@ Heikki Vatiainen <hessu[AT]cs.tut.fi> {
 	MSDP support
 	IPv6 name resolution support on Solaris 8
 	Enhancements to the "bad sed" tests
+	Make "get_host_ipaddr()" require dotted-quad IP addresses to
+	    really be quads
 }
 
 Greg Hankins <gregh[AT]twoguys.org> {

@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.22 2002/03/02 20:48:10 guy Exp $
+ * $Id: resolv.c,v 1.23 2002/03/03 21:42:54 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -1396,6 +1396,15 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 		} else {
 			return FALSE;
 		}
+	} else {
+		/* Does the string really contain dotted-quad IP?
+		 * Check against inet_atons that accept strings such as
+		 * "130.230" as valid addresses and try to convert them
+		 * to some form of a classful (host.net) notation.
+		 */
+		unsigned int a0, a1, a2, a3;
+		if (sscanf(host, "%d.%d.%d.%d", &a0, &a1, &a2, &a3) != 4)
+			return FALSE;
 	}
 
 	*addrp = ntohl(ipaddr.s_addr);
