@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.67 2003/10/16 09:55:10 guy Exp $
+ * $Id: packet-gtp.c,v 1.68 2003/10/22 02:24:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2696,7 +2696,7 @@ decode_gtp_chrg_char(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	chrg_char = tvb_get_ntohs(tvb, offset+1);
 
 	te = proto_tree_add_uint (tree, hf_gtp_chrg_char, tvb, offset, 3, chrg_char);
-	//"%s: %x", val_to_str (GTP_EXT_CHRG_CHAR, gtp_val, "Unknown message"), chrg_char);
+	/*"%s: %x", val_to_str (GTP_EXT_CHRG_CHAR, gtp_val, "Unknown message"), chrg_char);*/
 	ext_tree_chrg_char = proto_item_add_subtree(te, ett_gtp_chrg_char);
 
 	proto_tree_add_uint (ext_tree_chrg_char, hf_gtp_chrg_char_s, tvb, offset+1, 2, chrg_char);
