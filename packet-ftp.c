@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.34 2001/09/03 10:33:05 guy Exp $
+ * $Id: packet-ftp.c,v 1.35 2001/09/03 20:52:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,55 @@ static gint ett_ftp_data = -1;
 static void
 dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+/*
+ * Handle a response to a PASV command.
+ *
+ * We ignore the IP address in the reply, and use the address from which
+ * the request came.
+ *
+ * XXX - are there cases where they differ?  What if the FTP server is
+ * behind a NAT box, so that the address it puts into the reply isn't
+ * the address at which you should contact it?  Do all NAT boxes detect
+ * FTP PASV replies and rewrite the address?  (I suspect not.)
+ *
+ * RFC 959 doesn't say much about the syntax of the 227 reply.
+ *
+ * A proposal from Dan Bernstein at
+ *
+ *	http://cr.yp.to/ftp/retr.html
+ *
+ * "recommend[s] that clients use the following strategy to parse the
+ * response line: look for the first digit after the initial space; look
+ * for the fourth comma after that digit; read two (possibly negative)
+ * integers, separated by a comma; the TCP port number is p1*256+p2, where
+ * p1 is the first integer modulo 256 and p2 is the second integer modulo
+ * 256."
+ *
+ * wget 1.5.3 looks for a digit, although it doesn't handle negative
+ * integers.
+ *
+ * The FTP code in the source of the cURL library, at
+ *
+ *	http://curl.haxx.se/lxr/source/lib/ftp.c
+ *
+ * says that cURL "now scans for a sequence of six comma-separated numbers
+ * and will take them as IP+port indicators"; it loops, doing "sscanf"s
+ * looking for six numbers separated by commas, stepping the start pointer
+ * in the scanf one character at a time - i.e., it tries rather exhaustively.
+ *
+ * An optimization would be to scan for a digit, and start there, and if
+ * the scanf doesn't find six values, scan for the next digit and try
+ * again; this will probably succeed on the first try.
+ *
+ * The cURL code also says that "found reply-strings include":
+ *
+ *	"227 Entering Passive Mode (127,0,0,1,4,51)"
+ *	"227 Data transfer will passively listen to 127,0,0,1,4,51"
+ *	"227 Entering passive mode. 127,0,0,1,4,51"
+ *
+ * so it appears that you can't assume there are parentheses around
+ * the address and port number.
+ */
 static void
 handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
 {
@@ -73,9 +122,7 @@ handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
 	char *p, *endp;
 	u_char c;
 	int i;
-	u_long byte;
-	guint32 address_val;
-	address server_addr;
+	int address[4], port[2];
 	guint16 server_port;
 	conversation_t 	*conversation;
 
@@ -87,104 +134,73 @@ handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
 	args[linelen] = '\0';
 	p = args;
 
-	/*
-	 * Skip any leading non-digit characters.
-	 */
-	while ((c = *p) != '\0' && !isdigit(c))
-		p++;
+	for (;;) {
+		/*
+		 * Look for a digit.
+		 */
+		while ((c = *p) != '\0' && !isdigit(c))
+			p++;
 
-	/*
-	 * Get the server's IP address.
-	 * XXX - RFC 959 doesn't say much about the syntax of the 227
-	 * reply; we infer that the 6 tokens are separated by commas.
-	 * XXX - what about IPv6?
-	 */
-	address_val = 0;
-	for (i = 0; i < 4; i++) {
-		if (*p == '-') {
+		if (*p == '\0') {
 			/*
-			 * Negative numbers aren't allowed (and "strtoul()
-			 * doesn't reject them, sigh.
+			 * We ran out of text without finding anything.
 			 */
-			goto done;
+			break;
 		}
-		byte = strtoul(p, &endp, 10);
-		if (p == endp || *endp != ',') {
+			
+		/*
+		 * See if we have six numbers.
+		 */
+		i = sscanf(p, "%d,%d,%d,%d,%d,%d",
+		    &address[0], &address[1], &address[2], &address[3],
+		    &port[0], &port[1]);
+		if (i == 6) {
 			/*
-			 * Not a valid number.
+			 * We have a winner!
+			 * Set up a conversation, to be dissected as FTP data.
 			 */
-			goto done;
+			server_port = ((port[0] & 0xFF)<<8) | (port[1] & 0xFF);
+
+			/*
+			 * XXX - should this call to "find_conversation()"
+			 * just use "pinfo->src" and "server_port", and
+			 * wildcard everything else?
+			 */
+			conversation = find_conversation(&pinfo->src,
+			    &pinfo->dst, PT_TCP, server_port, 0, NO_PORT_B);
+			if (conversation == NULL) {
+				/*
+				 * XXX - should this call to
+				 * "conversation_new()" just use "pinfo->src"
+				 * and "server_port", and wildcard everything
+				 * else?
+				 *
+				 * XXX - what if we did find a conversation?
+				 * As we create it only on the first pass
+				 * through the packets, if we find one, it's
+				 * presumably an unrelated conversation.
+				 * Should we remove the old one from the hash
+				 * table and put this one in its place?
+				 * Can the conversaton code handle
+				 * conversations not in the hash table?
+				 */
+				conversation = conversation_new(&pinfo->src,
+				    &pinfo->dst, PT_TCP, server_port, 0,
+				    NO_PORT2);
+				conversation_set_dissector(conversation,
+				    dissect_ftpdata);
+			}
+			break;
 		}
-		address_val = (address_val << 8) | byte;
-		p = endp + 1;
+
+		/*
+		 * Well, that didn't work.  Skip the first number we found,
+		 * and keep trying.
+		 */
+		while ((c = *p) != '\0' && isdigit(c))
+			p++;
 	}
 
-	/*
-	 * Get the port number.
-	 */
-	if (*p == '-') {
-		/*
-		 * Negative numbers aren't allowed (and "strtoul()
-		 * doesn't reject them, sigh.
-		 */
-		goto done;
-	}
-	byte = strtoul(p, &endp, 10);
-	if (p == endp || *endp != ',') {
-		/*
-		 * Not a valid number.
-		 */
-		goto done;
-	}
-	server_port = byte << 8;
-	p = endp + 1;
-	if (*p == '-') {
-		/*
-		 * Negative numbers aren't allowed (and "strtoul()
-		 * doesn't reject them, sigh.
-		 */
-		goto done;
-	}
-	byte = strtoul(p, &endp, 10);
-	if (p == endp || (*endp != '\0' && *endp != ')' && !isspace(*endp))) {
-		/*
-		 * Not a valid number.
-		 */
-		goto done;
-	}
-	server_port |= byte;
-
-	/*
-	 * Set up a conversation, to be dissected as FTP data.
-	 */
-	server_addr.type = AT_IPv4;
-	server_addr.len = 4;
-	address_val = ntohl(address_val);
-	server_addr.data = (guint8 *)&address_val;
-	/*
-	 * XXX - should this call to "find_conversation()" just use
-	 * "server_addr" and "server_port", and wildcard everything else?
-	 */
-	if (find_conversation(&server_addr, &pinfo->dst, PT_TCP, server_port, 0,
-	    NO_PORT_B) == NULL) {
-		/*
-		 * XXX - should this call to "conversation_new()" just use
-		 * "server_addr" and "server_port", and wildcard everything
-		 * else?
-		 *
-		 * XXX - what if we did find a conversation?  As we create
-		 * it only on the first pass through the packets, if we
-		 * find one, it's presumably an unrelated conversation.
-		 * Should we remove the old one from the hash table and
-		 * put this one in its place?  Can the conversaton code
-		 * handle conversations not in the hash table?
-		 */
-		conversation = conversation_new(&server_addr, &pinfo->dst,
-		    PT_TCP, server_port, 0, NO_PORT2);
-		conversation_set_dissector(conversation, dissect_ftpdata);
-	}
-
-done:
 	g_free(args);
 }	
 
@@ -265,6 +281,12 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * This is a response; see if it's a passive-mode
 			 * response.
+			 *
+			 * XXX - check for "229" responses to EPSV
+			 * commands, to handle IPv6, as per RFC 2428?
+			 *
+			 * XXX - does anybody do FOOBAR, as per RFC 1639,
+			 * or has that been supplanted by RFC 2428?
 			 */
 			if (tokenlen == 3 &&
 			    strncmp("227", line, tokenlen) == 0)
@@ -416,5 +438,5 @@ void
 proto_reg_handoff_ftp(void)
 {
   dissector_add("tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata, proto_ftp_data);
-  dissector_add("tcp.port", TCP_PORT_FTP, &dissect_ftp, proto_ftp_data);
+  dissector_add("tcp.port", TCP_PORT_FTP, &dissect_ftp, proto_ftp);
 }
