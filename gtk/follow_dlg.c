@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.67 2004/06/25 07:04:02 jmayer Exp $
+ * $Id: follow_dlg.c,v 1.68 2004/06/29 03:27:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -800,7 +800,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 #ifdef _WIN32
         win_printer = TRUE;
         /*XXX should use temp file stuff in util routines */
-        print_dest = g_strdup(mkstemp("etherealXXXXXX"));
+        print_dest = g_strdup(tmpnam(NULL));
         to_file = TRUE;
 #else
         print_dest = prefs.pr_cmd;

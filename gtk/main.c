@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.447 2004/06/25 07:04:02 jmayer Exp $
+ * $Id: main.c,v 1.448 2004/06/29 03:27:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1300,7 +1300,7 @@ dnd_merge_files(int in_file_count, char **in_filenames)
 
 
     /*XXX should use temp file stuff in util routines? */
-    cf_merged_name = g_strdup(mkstemp("etherealXXXXXX"));
+    cf_merged_name = g_strdup(tmpnam(NULL));
 
     /* merge the files in chonological order */
     merge_ok = merge_n_files(cf_merged_name, in_file_count, in_filenames, FALSE, &err);
