@@ -1099,7 +1099,8 @@ show_disconnect_pdu(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 							*offset = asn->offset;
 							return;
 			}
-			if( *offset == RELEASE_REQUEST_OR_RESPONSE_REASON )  /* is it a reason ? */
+
+			if( tvb_get_guint8(tvb, *offset) == RELEASE_REQUEST_OR_RESPONSE_REASON )  /* is it a reason ? */
 			{
 			itu = proto_tree_add_text(acse_tree, tvb, *offset,ABORT_REASON_LEN,
 					"Reason");
@@ -1111,6 +1112,8 @@ show_disconnect_pdu(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 				if (read_length(asn, acse_tree_pc, 0, &new_item_len) !=
 								ASN1_ERR_NOERROR)
 				{
+				proto_tree_add_text(acse_tree, tvb, *offset, item_len,
+							"Can't decode item length");
 							*offset = asn->offset;
 							return;
 				}
@@ -1123,64 +1126,6 @@ show_disconnect_pdu(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 			*offset = asn->offset+new_item_len;
 			asn->offset = *offset;
 			}
-			/*  do we have User information field  ?  */
-			if(item_len > 0)
-			{
-				show_acse_user_information(asn,acse_tree,tvb,offset,item_len);
-			}
-			/*   align the pointer */
-			(*offset)=start+save_len;
-			asn->offset = (*offset);
-}
-
-static void
-show_finish_pdu(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
-*tvb,int *offset,int item_len)
-{
-	gint		length;
-	gint		value;
-    proto_tree	*acse_tree_pc = NULL;
-	proto_item	*itu;
-	guint		new_item_len;
-	guint		start = *offset;
-	int			save_len = item_len;
-/* do we have enough bytes to dissect this item ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
-			{
-					proto_tree_add_text(acse_tree, tvb, *offset, item_len,
-							"Wrong Item.Need %u bytes but have %u", item_len,length);
-							*offset = asn->offset;
-							return;
-			}
-
-			if(item_len <= 0)
-			{
-					proto_tree_add_text(acse_tree, tvb, *offset, item_len,
-							"Reason not specified");
-							*offset = asn->offset;
-							return;
-			}
-			itu = proto_tree_add_text(acse_tree, tvb, *offset,ABORT_REASON_LEN,
-					"Reason");
-			acse_tree_pc = proto_item_add_subtree(itu, ett_acse_ms);
-			(*offset)++; /* skip type  */
-			asn->offset =  *offset;
-			item_len--;
-			/* get length  */
-				if (read_length(asn, acse_tree_pc, 0, &new_item_len) !=
-								ASN1_ERR_NOERROR)
-				{
-							*offset = asn->offset;
-							return;
-				}
-			/*  try to get reason  */
-			value	=	get_integer_value(asn,new_item_len,offset);
-
-			proto_tree_add_text(acse_tree_pc, tvb, *offset+1,new_item_len,
-					val_to_str(value,release_request_reason,"Unknown item (0x%02x)"));
-			item_len-=(asn->offset-*offset)+new_item_len;
-			*offset = asn->offset+new_item_len;
-			asn->offset = *offset;
 			/*  do we have User information field  ?  */
 			if(item_len > 0)
 			{
@@ -1518,7 +1463,7 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 					}
 				return FALSE;
 				}
-				show_finish_pdu(&asn,acse_tree,tvb,&offset,rest_len);
+				show_disconnect_pdu(&asn,acse_tree,tvb,&offset,rest_len);
 				break;
 		case SES_DISCONNECT:
 			proto_tree_add_uint(acse_tree, hf_acse_type, tvb, offset-1, 1, s_type);
