@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.72 2004/04/25 08:01:06 ulfl Exp $
+ * $Id: print_dlg.c,v 1.73 2004/04/25 12:04:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,7 +67,7 @@ static void print_destroy_cb(GtkWidget *win, gpointer user_data);
 
 
 
-#define PRINT_ARGS_KEY           "printer_args"
+#define PRINT_ARGS_KEY            "printer_args"
 
 #define PRINT_PS_RB_KEY           "printer_ps_radio_button"
 #define PRINT_PDML_RB_KEY         "printer_pdml_radio_button"
@@ -89,12 +89,9 @@ static void print_destroy_cb(GtkWidget *win, gpointer user_data);
  * somebody tries to do "File:Print" while there's already a "Print" window
  * up, we just pop up the existing one, rather than creating a new one.
  */
-static GtkWidget *print_w;
+static GtkWidget *print_w = NULL;
 
 static print_args_t  print_args;
-
-static gchar * print_file;
-static gchar * print_cmd;
 
 static gboolean print_prefs_init = FALSE;
 
@@ -147,14 +144,13 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       print_prefs_init          = TRUE;
       args->format              = prefs.pr_format;
       args->to_file             = prefs.pr_dest;
-      args->dest                = NULL;
+      args->file                = g_strdup(prefs.pr_file);
+      args->cmd                 = g_strdup(prefs.pr_cmd);
       args->print_summary       = TRUE;
       args->print_dissections   = print_dissections_as_displayed;
       args->print_hex           = FALSE;
       args->print_formfeed      = FALSE;
-      print_cmd                 = prefs.pr_cmd;
-      print_file                = prefs.pr_file;
-
+  
       /* init the printing range */
       packet_range_init(&args->range);
   }
@@ -250,7 +246,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   file_te = gtk_entry_new();
   OBJECT_SET_DATA(dest_cb, PRINT_FILE_TE_KEY, file_te);
   gtk_tooltips_set_tip (tooltips, file_te, ("Enter Output filename"), NULL);
-  gtk_entry_set_text(GTK_ENTRY(file_te), print_file);
+  gtk_entry_set_text(GTK_ENTRY(file_te), args->file);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), file_te, 1, 2, 0, 1);
   gtk_widget_set_sensitive(file_te, args->to_file);
   gtk_widget_show(file_te);
@@ -276,10 +272,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   cmd_te = gtk_entry_new();
   OBJECT_SET_DATA(dest_cb, PRINT_CMD_TE_KEY, cmd_te);
-  if (prefs.pr_cmd)
-    gtk_entry_set_text(GTK_ENTRY(cmd_te), prefs.pr_cmd);
   gtk_tooltips_set_tip (tooltips, cmd_te, ("Enter print command"), NULL);
-  gtk_entry_set_text(GTK_ENTRY(cmd_te), print_cmd);
+  gtk_entry_set_text(GTK_ENTRY(cmd_te), args->cmd);
   gtk_table_attach_defaults(GTK_TABLE(printer_tb), cmd_te, 1, 2, 1, 2);
   gtk_widget_set_sensitive(cmd_te, !args->to_file);
   gtk_widget_show(cmd_te);
@@ -394,6 +388,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(formfeed_cb);
 
 
+  OBJECT_SET_DATA(print_w, PRINT_ARGS_KEY, args);
   OBJECT_SET_DATA(print_w, PRINT_SUMMARY_CB_KEY, summary_cb);
   OBJECT_SET_DATA(print_w, PRINT_DETAILS_CB_KEY, details_cb);
   OBJECT_SET_DATA(print_w, PRINT_COLLAPSE_ALL_RB_KEY, collapse_all_rb);
@@ -539,7 +534,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
         "Printing to file, but no file specified.");
       return;
     }
-    args->dest = g_strdup(g_dest);
+    g_free(args->file);
+    args->file = g_strdup(g_dest);
     /* Save the directory name for future file dialogs. */
     f_name = g_strdup(g_dest);
     dirname = get_dirname(f_name);  /* Overwrites f_name */
@@ -549,10 +545,12 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 #ifdef _WIN32
     win_printer_flag = TRUE;
     /*XXX should use temp file stuff in util routines */
-    args->dest = g_strdup(tmpnam(NULL));
+    g_free(args->file);
+    args->file = g_strdup(tmpnam(NULL));
     args->to_file = TRUE;
 #else
-    args->dest = g_strdup(gtk_entry_get_text(GTK_ENTRY(OBJECT_GET_DATA(ok_bt,
+    g_free(args->cmd);
+    args->cmd = g_strdup(gtk_entry_get_text(GTK_ENTRY(OBJECT_GET_DATA(ok_bt,
       PRINT_CMD_TE_KEY))));
 #endif
   }
@@ -607,15 +605,15 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   case PP_OPEN_ERROR:
     if (args->to_file)
-      open_failure_alert_box(args->dest, errno, TRUE);
+      open_failure_alert_box(args->file, errno, TRUE);
     else
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't run print command %s.",
-        args->dest);
+        args->cmd);
     break;
 
   case PP_WRITE_ERROR:
     if (args->to_file)
-      write_failure_alert_box(args->dest, errno);
+      write_failure_alert_box(args->file, errno);
     else
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	"Error writing to print command: %s", strerror(errno));
@@ -624,14 +622,12 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
 #ifdef _WIN32
   if (win_printer_flag) {
-    print_mswin(args->dest);
+    print_mswin(args->file);
 
     /* trash temp file */
-    remove(args->dest);
+    remove(args->file);
   }
 #endif
-
-  g_free(args->dest);
 }
 
 static void
@@ -644,7 +640,7 @@ print_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 static void
 print_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
-  GtkWidget *fs;
+  GtkWidget     *fs;
 
   /* Is there a file selection dialog associated with this
      Print File dialog? */

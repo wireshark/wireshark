@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.378 2004/04/24 23:13:45 ulfl Exp $
+ * $Id: file.c,v 1.379 2004/04/25 12:04:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1610,8 +1610,13 @@ print_packets(capture_file *cf, print_args_t *print_args)
   int         line_len;
   psp_return_t ret;
 
-  callback_args.print_fh = open_print_dest(print_args->to_file,
-                                           print_args->dest);
+  if(print_args->to_file) {
+      callback_args.print_fh = open_print_dest(print_args->to_file,
+                                               print_args->file);
+  } else {
+      callback_args.print_fh = open_print_dest(print_args->to_file,
+                                               print_args->cmd);
+  }
   if (callback_args.print_fh == NULL)
     return PP_OPEN_ERROR;	/* attempt to open destination failed */
 

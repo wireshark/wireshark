@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.42 2004/04/24 23:13:46 ulfl Exp $
+ * $Id: print.h,v 1.43 2004/04/25 12:04:07 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -57,8 +57,8 @@ typedef enum {
 typedef struct {
   print_format_e    format;		/* plain text, PostScript, PDML, ... */
   gboolean	to_file;	/* TRUE if we're printing to a file */
-  char		*dest;		/* if printing to file, pathname;
-				   if not, command string */
+  char		*file;		/* file output pathname */
+  char		*cmd;		/* print command string (not win32) */
   packet_range_t range;
 
   gboolean	print_summary;	/* TRUE if we should just print summary;
