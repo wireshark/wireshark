@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.14 2000/08/05 07:02:27 guy Exp $
+ * $Id: filter_prefs.c,v 1.15 2000/08/07 22:35:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,7 +132,7 @@ get_filter_list(void)
     name_begin++;
     name_end[0] = '\0';
     filt_begin  = name_end + 1;
-    while(isspace(filt_begin[0])) filt_begin++;
+    while(isspace((guchar)filt_begin[0])) filt_begin++;
     /* No filter string */
     if (filt_begin[0] == '\0') {
       g_warning("Malformed filter in '%s' line %d.", ff_path, line);
