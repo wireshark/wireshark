@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.109 2004/06/06 14:29:06 gerald Exp $
+ * $Id: packet-ieee80211.c,v 1.110 2004/06/26 09:48:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1839,7 +1839,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	  reported_len -= 4;
 	  if (tree)
 	    {
-	      guint32 fcs = crc32_tvb_802(tvb, hdr_len + len);
+	      guint32 fcs = crc32_802_tvb(tvb, hdr_len + len);
 	      guint32 sent_fcs = tvb_get_ntohl(tvb, hdr_len + len);
 	      if (fcs == sent_fcs)
 		proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
@@ -2931,7 +2931,7 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
 #if 0
     printf("%02x\n", *dpos);
 #endif
-    crc = crc32_table[(crc ^ *dpos++) & 0xff] ^ (crc >> 8);
+    crc = crc32_ccitt_table[(crc ^ *dpos++) & 0xff] ^ (crc >> 8);
   }
   crc = ~crc;
 

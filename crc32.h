@@ -1,7 +1,7 @@
 /* crc32.h
  * Declaration of CRC-32 routine and table
  *
- * $Id: crc32.h,v 1.3 2003/08/26 06:18:17 guy Exp $
+ * $Id: crc32.h,v 1.4 2004/06/26 09:48:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,8 +24,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-extern const guint32 crc32_table[256];
+extern const guint32 crc32_ccitt_table[256];
 
-extern guint32 crc32_tvb(tvbuff_t *tvb, unsigned int len);
-extern guint32 crc32_tvb_802(tvbuff_t *tvb, unsigned int len);
-
+extern guint32 crc32_ccitt_tvb(tvbuff_t *tvb, unsigned int len);
+extern guint32 crc32_802_tvb(tvbuff_t *tvb, unsigned int len);

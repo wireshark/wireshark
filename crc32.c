@@ -1,7 +1,7 @@
 /* crc32.c
  * CRC-32 routine
  *
- * $Id: crc32.c,v 1.3 2003/08/26 06:18:16 guy Exp $
+ * $Id: crc32.c,v 1.4 2004/06/26 09:48:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,7 @@
  *	x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11 + x^8 + x^7 +
  *	    x^5 + x^4 + x^2 + x + 1
  */
-const guint32 crc32_table[256] = {
+const guint32 crc32_ccitt_table[256] = {
         0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419,
         0x706af48f, 0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4,
         0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07,
@@ -97,14 +97,14 @@ const guint32 crc32_table[256] = {
 };
 
 guint32
-crc32_tvb(tvbuff_t *tvb, unsigned int len)
+crc32_ccitt_tvb(tvbuff_t *tvb, unsigned int len)
 {
   unsigned int i;
   const unsigned char* buf = tvb_get_ptr(tvb, 0, len);
   guint32 crc32 = 0xFFFFFFFF;
 
   for (i = 0; i < len; i++)
-    crc32 = crc32_table[(crc32 ^ buf[i]) & 0xff] ^ (crc32 >> 8);
+    crc32 = crc32_ccitt_table[(crc32 ^ buf[i]) & 0xff] ^ (crc32 >> 8);
 
   return ( ~crc32 );
 }
@@ -119,11 +119,11 @@ crc32_tvb(tvbuff_t *tvb, unsigned int len)
  * to cope with 802.x sending stuff out in reverse bit order?
  */
 guint32
-crc32_tvb_802(tvbuff_t *tvb, unsigned int len)
+crc32_802_tvb(tvbuff_t *tvb, unsigned int len)
 {
   guint32 c_crc;
 
-  c_crc = crc32_tvb(tvb, len);
+  c_crc = crc32_ccitt_tvb(tvb, len);
 
   /* Byte reverse. */
   c_crc = ((unsigned char)(c_crc>>0)<<24) |
