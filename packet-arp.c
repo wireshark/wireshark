@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.17 1999/09/12 06:11:35 guy Exp $
+ * $Id: packet-arp.c,v 1.18 1999/10/03 17:12:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,15 @@
 #include "etypes.h"
 
 static int proto_arp = -1;
+static int hf_arp_hard_type = -1;
+static int hf_arp_proto_type = -1;
+static int hf_arp_hard_size = -1;
+static int hf_arp_proto_size = -1;
+static int hf_arp_opcode = -1;
+static int hf_arp_src_ether = -1;
+static int hf_arp_src_proto = -1;
+static int hf_arp_dst_ether = -1;
+static int hf_arp_dst_proto = -1;
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
@@ -150,6 +159,7 @@ arphrdtype_to_str(guint16 hwtype, const char *fmt) {
 #define	AR_HLN		4
 #define	AR_PLN		5
 #define	AR_OP		6
+#define MIN_ARP_HEADER_SIZE	8
 
 void
 dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -170,15 +180,25 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     {ARPOP_RREPLY,   "RARP reply"  },
     {0,              NULL          } };
 
-  /* To do: Check for {cap len,pkt len} < struct len */
+  if (!BYTES_ARE_IN_FRAME(offset, MIN_ARP_HEADER_SIZE)) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
   ar_hrd = pntohs(&pd[offset + AR_HRD]);
   ar_pro = pntohs(&pd[offset + AR_PRO]);
   ar_hln = (guint8) pd[offset + AR_HLN];
   ar_pln = (guint8) pd[offset + AR_PLN];
   ar_op  = pntohs(&pd[offset + AR_OP]);
 
+  if (!BYTES_ARE_IN_FRAME(offset, 
+			  MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2)) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
   /* Extract the addresses.  */
-  sha_offset = offset + 8;
+  sha_offset = offset + MIN_ARP_HEADER_SIZE;
   sha_str = arphrdaddr_to_str((guint8 *) &pd[sha_offset], ar_hln, ar_hrd);
   spa_offset = sha_offset + ar_hln;
   spa_str = arpproaddr_to_str((guint8 *) &pd[spa_offset], ar_pln, ar_pro);
@@ -228,40 +248,74 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
       ti = proto_tree_add_item_format(tree, proto_arp, offset,
-        8 + 2*ar_hln + 2*ar_pln, NULL, op_str);
+				      MIN_ARP_HEADER_SIZE + 2*ar_hln + 
+				      2*ar_pln, NULL, op_str);
     else
       ti = proto_tree_add_item_format(tree, proto_arp, offset,
-        8 + 2*ar_hln + 2*ar_pln, NULL, "Unknown ARP (opcode 0x%04x)", ar_op);
+				      MIN_ARP_HEADER_SIZE + 2*ar_hln + 
+				      2*ar_pln, NULL,
+				      "Unknown ARP (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ETT_ARP);
-    proto_tree_add_text(arp_tree, offset + AR_HRD, 2,
-      "Hardware type: %s", arphrdtype_to_str(ar_hrd, "Unknown (0x%04x)"));
-    proto_tree_add_text(arp_tree, offset + AR_PRO, 2,
-      "Protocol type: %s", val_to_str(ar_pro, etype_vals, "Unknown (0x%04x)"));
-    proto_tree_add_text(arp_tree, offset + AR_HLN, 1,
-      "Hardware size: %d", ar_hln);
-    proto_tree_add_text(arp_tree, offset + AR_PLN, 1,
-      "Protocol size: %d", ar_pln);
-    proto_tree_add_text(arp_tree, offset + AR_OP,  2,
-      "Opcode: 0x%04x (%s)", ar_op, op_str ? op_str : "Unknown");
-    proto_tree_add_text(arp_tree, sha_offset, ar_hln,
-      "Sender hardware address: %s", sha_str);
-    proto_tree_add_text(arp_tree, spa_offset, ar_pln,
-      "Sender protocol address: %s", spa_str);
-    proto_tree_add_text(arp_tree, tha_offset, ar_hln,
-      "Target hardware address: %s", tha_str);
-    proto_tree_add_text(arp_tree, tpa_offset, ar_pln,
-      "Target protocol address: %s", tpa_str);
+    proto_tree_add_item_format(arp_tree, hf_arp_hard_type, offset + AR_HRD, 2,
+			       ar_hrd,
+			       "Hardware type: %s", 
+			       arphrdtype_to_str(ar_hrd, "Unknown (0x%04x)"));
+    proto_tree_add_item_format(arp_tree, hf_arp_proto_type, offset + AR_PRO, 2,
+			       ar_pro,
+			       "Protocol type: %s", 
+			       val_to_str(ar_pro, etype_vals, 
+					  "Unknown (0x%04x)"));
+    proto_tree_add_item_format(arp_tree, hf_arp_hard_size, offset + AR_HLN, 1,
+			       ar_hln,
+			       "Hardware size: %d", 
+			       ar_hln);
+    proto_tree_add_item_format(arp_tree, hf_arp_proto_type, offset + AR_PLN, 1,
+			       ar_pln,
+			       "Protocol size: %d", 
+			       ar_pln);
+    proto_tree_add_item_format(arp_tree, hf_arp_opcode, offset + AR_OP,  2,
+			       ar_op,
+			       "Opcode: 0x%04x (%s)", 
+			       ar_op, op_str ? op_str : "Unknown");
+    proto_tree_add_item_format(arp_tree, hf_arp_src_ether, sha_offset, ar_hln,
+			       &pd[sha_offset],			       
+			       "Sender hardware address: %s", sha_str);
+    proto_tree_add_item_format(arp_tree, hf_arp_src_proto, spa_offset, ar_pln,
+			       &pd[spa_offset],
+			       "Sender protocol address: %s", spa_str);
+    proto_tree_add_item_format(arp_tree, hf_arp_dst_ether, tha_offset, ar_hln,
+			       &pd[tha_offset],
+			       "Target hardware address: %s", tha_str);
+    proto_tree_add_item_format(arp_tree, hf_arp_dst_proto, tpa_offset, ar_pln,
+			       &pd[tpa_offset],
+			       "Target protocol address: %s", tpa_str);
   }
 }
 
 void
 proto_register_arp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "arp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  static hf_register_info hf[] = {
+    { &hf_arp_hard_type,
+      { "Hardware type",	       	"arp.hw.type",	 FT_UINT16, NULL }},
+    { &hf_arp_proto_type,
+      { "Protocol type",		"arp.proto.type",FT_UINT16, NULL }},
+    { &hf_arp_hard_size,
+      { "Hardware size",		"arp.hw.size",	 FT_UINT8, NULL }},
+    { &hf_arp_proto_size,
+      { "Protocol size",		"arp.proto.size",FT_UINT8, NULL }},
+    { &hf_arp_opcode,
+      { "Opcode",			"arp.opcode",	 FT_UINT16, NULL }},
+    { &hf_arp_src_ether,
+      { "Sender hardware address",	"arp.src.hw",	 FT_BYTES, NULL }},
+    { &hf_arp_src_proto,
+      { "Sender protocol address",	"arp.src.proto", FT_BYTES, NULL }},
+    { &hf_arp_dst_ether,
+      { "Target hardware address",	"arp.dst.hw",	 FT_BYTES, NULL }},
+    { &hf_arp_dst_proto,
+      { "Target protocol address",	"arp.dst.proto", FT_BYTES, NULL }}
+  };
 
-        proto_arp = proto_register_protocol("Address Resolution Protocol", "arp");
- /*       proto_register_field_array(proto_arp, hf, array_length(hf));*/
+  proto_arp = proto_register_protocol("Address Resolution Protocol", "arp");
+  proto_register_field_array(proto_arp, hf, array_length(hf));
 }
