@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.23 1999/11/19 05:12:50 gram Exp $
+ * $Id: packet-eth.c,v 1.24 1999/11/20 03:27:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -185,13 +185,8 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	fh_tree = proto_item_add_subtree(ti, ett_ether2);
 
-	proto_tree_add_item_format(fh_tree, hf_eth_dst, offset+0, 6, &pd[offset+0],
-		"Destination: %s (%s)", ether_to_str((guint8 *) &pd[offset+0]),
-		get_ether_name((u_char *) &pd[offset+0]));
-
-	proto_tree_add_item_format(fh_tree, hf_eth_src, offset+6, 6, &pd[offset+6],
-		"Source: %s (%s)", ether_to_str((guint8 *) &pd[offset+6]),
-		get_ether_name((u_char *) &pd[offset+6]));
+	proto_tree_add_item(fh_tree, hf_eth_dst, offset+0, 6, &pd[offset+0]);
+	proto_tree_add_item(fh_tree, hf_eth_src, offset+6, 6, &pd[offset+6]);
     }
   }
   offset += ETH_HEADER_SIZE;
