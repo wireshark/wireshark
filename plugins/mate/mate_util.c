@@ -1217,6 +1217,9 @@ extern AVPL* new_avpl_exact_match(guint8* name,AVPL* src, AVPL* op, gboolean cop
 	dbg_print(dbg_avpl_op,3,dbg_fp,"new_avpl_every_match: %X src=%X op=%X name='%s'",newavpl,src,op,name);
 #endif
 
+	if (op->len == 0)
+		return newavpl;
+		
 	cs = src->null.next;
 	co = op->null.next;
 	while(1) {
