@@ -342,8 +342,8 @@ selected.
 
 =item Tools:Plugins
 
-Allows you to use and configure dynamically loadable modules (see
-L<"Plugins"> below).
+Allows you to see what dynamically loadable dissector plugin modules
+have been loaded (see I<"Plugins"> below).
 
 =item Tools:Follow TCP Stream
 
@@ -694,20 +694,18 @@ the display.
 
 =item Plugins
 
-The I<Plugins> dialog lets you view and configure the plugins available
-on your system.
+The I<Plugins> dialog lets you view the dissector plugin modules
+available on your system.
 
-The I<Plugins List> shows the name, description, version and state
-(enabled or not) of each plugin found on your system. The plugins are
-searched in the following directories: F</usr/share/ethereal/plugins>,
-F</usr/local/share/ethereal/plugins> and F<~/.ethereal/plugins>
-
-A plugin must be activated using the I<Enable> button in order to use it
-to dissect packets. It can also be deactivated with the I<Disable> button.
-
-The I<Filter> button shows the filter used to select packets which should
-be dissected by a plugin (see L<"DISPLAY FILTER SYNTAX"> below). This
-filter can be modified.
+The I<Plugins List> shows the name and version of each dissector plugin
+module found on your system.  The plugins are searched in the following
+directories: F</usr/share/ethereal/plugins>,
+F</usr/local/share/ethereal/plugins> and F<~/.ethereal/plugins>.  Note
+that a dissector plugin module may support more than one protocol; there
+is not necessarily a one-to-one correspondence between dissector plugin
+modules and protocols.  Protocols supported by a dissector plugin module
+are enabled and disabled using the I<Edit:Protocols> dialog box, just as
+protocols built into Ethereal are.
 
 =head1 CAPTURE FILTER SYNTAX
 
