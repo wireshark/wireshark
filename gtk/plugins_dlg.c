@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.29 2002/12/02 10:53:34 oabad Exp $
+ * $Id: plugins_dlg.c,v 1.30 2003/03/02 17:14:08 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
     main_frame = gtk_frame_new("Plugins List");
     gtk_box_pack_start(GTK_BOX(main_vbox), main_frame, TRUE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(main_frame), 10);
+    gtk_container_set_border_width(GTK_CONTAINER(main_frame), 5);
     gtk_widget_show(main_frame);
 
     frame_hbox = gtk_hbox_new(FALSE,0);
@@ -82,7 +82,7 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
     scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(frame_hbox), scrolledwindow, TRUE, TRUE, 0);
-    WIDGET_SET_SIZE(scrolledwindow, 400, 150);
+    WIDGET_SET_SIZE(scrolledwindow, 250, 200);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_widget_show(scrolledwindow);
@@ -117,14 +117,14 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
     frame_vbnbox = gtk_vbutton_box_new();
     gtk_box_pack_start(GTK_BOX(frame_hbox), frame_vbnbox, FALSE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(frame_vbnbox), 20);
+    gtk_container_set_border_width(GTK_CONTAINER(frame_vbnbox), 5);
     gtk_button_box_set_layout(GTK_BUTTON_BOX(frame_vbnbox),
                               GTK_BUTTONBOX_SPREAD);
     gtk_widget_show(frame_vbnbox);
 
     main_hbnbox = gtk_hbutton_box_new();
     gtk_box_pack_start(GTK_BOX(main_vbox), main_hbnbox, FALSE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(main_hbnbox), 10);
+    gtk_container_set_border_width(GTK_CONTAINER(main_hbnbox), 5);
     gtk_button_box_set_layout(GTK_BUTTON_BOX(main_hbnbox),
                               GTK_BUTTONBOX_SPREAD);
     gtk_widget_show(main_hbnbox);
