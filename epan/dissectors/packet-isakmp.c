@@ -456,6 +456,12 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
 			      "Payload");
       }
     }
+    else if (payload_length > length) {
+        proto_tree_add_text(ntree, tvb, offset + 4, 0,
+            "Payload (bogus, length is %u, greater than remaining length %d",
+            payload_length, length);
+        return;
+    }
     else {
         proto_tree_add_text(ntree, tvb, offset + 4, 0,
             "Payload (bogus, length is %u, must be at least 4)",
