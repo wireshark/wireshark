@@ -9,12 +9,12 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.12 2001/03/23 14:44:02 jfoster Exp $
+ * $Id: tvbuff.h,v 1.13 2001/05/27 21:34:05 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -119,7 +119,7 @@ guint tvb_decrement_usage_count(tvbuff_t*, guint count);
 
 /* Set a callback function to call when a tvbuff is actually freed
  * (once the usage count drops to 0). One argument is passed to
- * that callback --- the guint* that points to the real data.
+ * that callback --- a void* that points to the real data.
  * Obviously, this only applies to a TVBUFF_REAL_DATA tvbuff. */
 void tvb_set_free_cb(tvbuff_t*, tvbuff_free_cb_t);
 
