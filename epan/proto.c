@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.51.2.2 2002/02/24 20:42:44 gram Exp $
+ * $Id: proto.c,v 1.51.2.3 2002/03/06 22:38:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,7 +95,7 @@ proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length
 static void
 proto_tree_set_time(field_info *fi, nstime_t *value_ptr);
 static void
-proto_tree_set_string(field_info *fi, const char* value);
+proto_tree_set_string(field_info *fi, const char* value, gboolean);
 static void
 proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
 static void
@@ -621,20 +621,19 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				new_fi->length = length;
 			}
 			else {
+				/* In this case, length signifies maximum length. */
+
 				/* This g_strdup'ed memory is freed in proto_tree_free_node() */
 				string = g_malloc(length);
 
 				CLEANUP_PUSH(g_free, string);
 
-				found_length = tvb_get_nstringz(tvb, start, length, string);
-				if (found_length < 1) {
-					found_length = tvb_get_nstringz0(tvb, start, length, string);
-				}
+				found_length = tvb_get_nstringz0(tvb, start, length, string);
 
 				CLEANUP_POP;
 				new_fi->length = found_length + 1;
 			}
-			proto_tree_set_string(new_fi, string);
+			proto_tree_set_string(new_fi, string, TRUE);
 
 			break;
 
@@ -657,7 +656,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	}
 	CLEANUP_POP;
 
-	/* Don't add to proto_item to proto_tree until now so that any exceptions
+	/* Don't add new node to proto_tree until now so that any exceptions
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
 	pi = proto_tree_add_node(tree, new_fi);
 
@@ -1126,7 +1125,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	g_assert(hfinfo->type == FT_STRING);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
-	proto_tree_set_string(new_fi, value);
+	proto_tree_set_string(new_fi, value, FALSE);
 
 	return pi;
 }
@@ -1168,9 +1167,10 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 
 /* Set the FT_STRING value */
 static void
-proto_tree_set_string(field_info *fi, const char* value)
+proto_tree_set_string(field_info *fi, const char* value,
+		gboolean already_allocated)
 {
-	fvalue_set(fi->value, (gpointer) value, FALSE);
+	fvalue_set(fi->value, (gpointer) value, already_allocated);
 }
 
 static void
@@ -1186,7 +1186,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 	string = g_malloc(length + 1);
 	tvb_memcpy(tvb, string, start, length);
 	string[length] = '\0';
-	fvalue_set(fi->value, string, TRUE);
+	proto_tree_set_string(fi, string, TRUE);
 }
 
 /* Add a FT_ETHER to a proto_tree */
