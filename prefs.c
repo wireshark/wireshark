@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.115 2003/12/23 21:29:25 guy Exp $
+ * $Id: prefs.c,v 1.116 2003/12/28 21:10:26 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -883,7 +883,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 
   if (init_prefs) {
     /* Initialize preferences to wired-in default values.
-       They may be overridded by the global preferences file or the
+       They may be overridden by the global preferences file or the
        user's preferences file. */
     init_prefs       = FALSE;
     prefs.pr_format  = PR_FMT_TEXT;
@@ -988,6 +988,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_geometry_main_width    = DEF_WIDTH;
     prefs.gui_geometry_main_height   =        -1;
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
+    prefs.gui_recent_files_count_max = 10;
     prefs.gui_fileopen_dir           = g_strdup("");
     prefs.gui_fileopen_remembered_dir = NULL;
 

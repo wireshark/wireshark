@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.128 2003/12/17 22:13:07 guy Exp $
+ * $Id: menu.c,v 1.129 2003/12/28 21:10:26 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -741,7 +741,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 		/* if this element string is already in the list, or 
 		 * this element is above maximum count (too old), remove it */
 		if (strncmp(widget_cf_name, cf_name, 1000) == 0 ||
-				cnt >= recent_files_count_max) {
+				cnt >= prefs.gui_recent_files_count_max) {
             remove_menu_recent_capture_file(li->data);
 			cnt--;
 		}
