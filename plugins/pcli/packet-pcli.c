@@ -1,7 +1,7 @@
 /* packet-pcli.c
  * Routines for Packet Cable Lawful Intercept packet disassembly
  *
- * $Id: packet-pcli.c,v 1.2 2002/10/08 08:26:31 guy Exp $
+ * $Id: packet-pcli.c,v 1.3 2002/10/10 19:06:04 hagbard Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -114,8 +114,8 @@ dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_uint(pcli_tree,hf_pcli_cccid,tvb,
 			0,4,cccid);
     next_tvb = tvb_new_subset(tvb,4,-1,-1);
-    call_dissector(ip_handle,next_tvb,pinfo,tree);
   }
+  call_dissector(ip_handle,next_tvb,pinfo,tree);
 }
 
 void 
