@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.36 2000/05/31 05:07:46 guy Exp $
+ * $Id: packet-snmp.c,v 1.37 2000/06/17 05:56:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,10 @@
 
 #define MAX_STRING_LEN 1024	/* TBC */
 
+#ifdef linux
+#include <dlfcn.h>
+#endif
+
 #include <glib.h>
 
 #include "packet.h"
@@ -67,12 +71,12 @@
 #  include <ucd-snmp/mib.h>
 
    /*
-    * Sigh.  UCD SNMP 4.1.1 makes "snmp_set_full_objid()" a macro
-    * that calls "ds_set_boolean()" with the first two arguments
-    * being DS_LIBRARY_ID and DS_LIB_PRINT_FULL_OID; this means that,
+    * Sigh.  UCD SNMP 4.1.1 makes "snmp_set_suffix_only()" a macro
+    * that calls "ds_set_int()" with the first two arguments
+    * being DS_LIBRARY_ID and DS_LIB_PRINT_SUFFIX_ONLY; this means that,
     * when building with 4.1.1, we need to arrange that
     * <ucd-snmp/default_store.h> is included, to define those two values
-    * and to declare "ds_set_boolean()".
+    * and to declare "ds_int()".
     *
     * However:
     *
@@ -86,7 +90,7 @@
     * So we only include it if "snmp_set_full_objid" is defined as
     * a macro.
     */
-#  ifdef snmp_set_full_objid
+#  ifdef snmp_set_suffix_only
 #   include <ucd-snmp/default_store.h>
 #  endif
 
@@ -1849,6 +1853,12 @@ dissect_smux(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_snmp(void)
 {
+#ifdef linux
+	void *libsnmp_handle;
+	int (*snmp_set_suffix_only_p)(int);
+	int (*ds_set_int_p)(int, int, int);
+#endif
+
         static hf_register_info hf[] = {
 		{ &hf_snmpv3_flags,
 		{ "SNMPv3 Flags", "snmpv3.flags", FT_UINT8, BASE_HEX, NULL,
@@ -1862,10 +1872,6 @@ proto_register_snmp(void)
 		{ &hf_snmpv3_flags_report,
 		{ "Reportable", "snmpv3.flags.report", FT_BOOLEAN, 8,
 		    TFS(&flags_set_truth), TH_REPORT, "" }},
-/*
-                { &hf_variable,
-                { "Name",           "snmp.abbreviation", TYPE, VALS_POINTER }},
-*/
         };
 	static gint *ett[] = {
 		&ett_snmp,
@@ -1879,9 +1885,95 @@ proto_register_snmp(void)
 	/* UCD or CMU SNMP */
 	init_mib();
 #ifdef HAVE_UCD_SNMP_SNMP_H
-	snmp_set_full_objid(TRUE);
-#endif
-#endif
+#ifdef linux
+	/* As per the comment near the beginning of the file, UCD SNMP 4.1.1
+	   changed "snmp_set_suffix_only()" from a function to a macro,
+	   removing "snmp_set_suffix_only()" from the library; this means
+	   that binaries that call "snmp_set_suffix_only()" and
+	   that are linked against shared libraries from earlier versions
+	   of the UCD SNMP library won't run with shared libraries from
+	   4.1.1.
+
+	   This is a problem on Red Hat Linux, as pre-6.2 releases
+	   came with pre-4.1.1 UCD SNMP, while 6.2 comes the 4.1.1.
+	   Versions of Ethereal built on pre-6.2 releases don't run
+	   on 6.2, and the current Ethereal RPMs are built on pre-6.2
+	   releases, causing problems when users running 6.2 download
+	   them and try to use them.
+
+	   Building the releases on 6.2 isn't necessarily the answer,
+	   as "snmp_set_suffix_only()" expands to a call to "ds_set_int()"
+	   with a second argument not supported by at least some pre-4.1.1
+	   versions of the library - it appears that the 4.0.1 library,
+	   at least, checks for invalid arguments and returns an error
+	   rather than stomping random memory, but that means that you
+	   won't get get OIDs displayed as module-name::sub-OID.
+
+	   So we use a trick similar to one I've seen mentioned as
+	   used in Windows applications to let you build binaries
+	   that run on many different versions of Windows 9x and
+	   Windows NT, that use features present on later versions
+	   if run on those later versions, but that avoid calling,
+	   when run on older versions, routines not present on those
+	   older versions.
+
+	   I.e., we load "libsnmp.so" with "dlopen()", and call
+	   "dlsym()" to try to find "snmp_set_suffix_only()"; if we
+	   don't find it, we make the appropriate call to
+	   "ds_set_int()" instead.
+
+	   We do this only on Linux, for now, as we've only seen the
+	   problem on Red Hat; it may show up on other OSes that bundle
+	   UCD SNMP, or on OSes where it's not bundled but for which
+	   binary packages are built that link against a shared version
+	   of the UCD SNMP library.  If we run into one of those, we
+	   can do this under those OSes as well, *if* "dlopen()" makes
+	   the run-time linker use the same search rules as it uses when
+	   loading libraries with which the application is linked.
+
+	   (Perhaps we could use the GLib wrappers for run-time linking,
+	   *if* they're thin enough; however, as this code is currently
+	   used only on Linux, we don't worry about that for now.) */
+
+	libsnmp_handle = dlopen("libsnmp.so", RTLD_LAZY|RTLD_GLOBAL);
+	if (libsnmp_handle == NULL) {
+		/* We didn't find "libsnmp.so"; we may be linked
+		   statically, in which case whatever call the following
+		   line of code makes will presumably work, as
+		   we have the routine it calls wired into our binary. */
+		snmp_set_suffix_only(2);
+	} else {
+		/* OK, we have it loaded.  Do we have
+		   "snmp_set_suffix_only()"? */
+		snmp_set_suffix_only_p = dlsym(libsnmp_handle,
+		    "snmp_set_suffix_only");
+		if (snmp_set_suffix_only_p != NULL) {
+			/* Yes - call it. */
+			(*snmp_set_suffix_only_p)(2);
+		} else {
+			/* No; do we have "ds_set_int()"? */
+			ds_set_int_p = dlsym(libsnmp_handle, "ds_set_int");
+			if (ds_set_int_p != NULL) {
+				/* Yes - cal it with DS_LIBRARY_ID,
+				   DS_LIB_PRINT_SUFFIX_ONLY, and 2 as
+				   arguments.
+
+				   We do *not* use DS_LIBRARY_ID or
+				   DS_LIB_PRINT_SUFFIX_ONLY by name, so that
+				   we don't require that Ethereal be built
+				   with versions of UCD SNMP that include
+				   that value; instead, we use their values
+				   in UCD SNMP 4.1.1, which are 0 and 4,
+				   respectively. */
+				(*ds_set_int_p)(0, 4, 2);
+			}
+		}
+	}
+#else /* linux */
+	snmp_set_suffix_only(2);
+#endif /* linux */
+#endif /* HAVE_UCD_SNMP_SNMP_H */
+#endif /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
         proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
         proto_smux = proto_register_protocol("SNMP Multiplex Protocol", "smux");
         proto_register_field_array(proto_snmp, hf, array_length(hf));
