@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.5 2000/05/31 05:07:14 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.6 2000/06/19 08:33:49 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -61,11 +61,11 @@ static gint ett_isis_psnp_authentication = -1;
 static gint ett_isis_psnp_clv_unknown = -1;
 
 static void dissect_snp_lsp_entries(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree );
+		guint length, int id_length, frame_data *fd, proto_tree *tree );
 static void dissect_l1_snp_authentication_clv(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree );
+		guint length, int id_length, frame_data *fd, proto_tree *tree );
 static void dissect_l2_snp_authentication_clv(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree );
+		guint length, int id_length, frame_data *fd, proto_tree *tree );
 
 static const isis_clv_handle_t clv_l1_csnp_opts[] = {
 	{
@@ -163,7 +163,7 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
 	}
 };
 /*
- * Name: dissect_snp_payload()
+ * Name: dissect_snp_lsp_entries()
  *
  * Description:
  *	All the snp packets use a common payload format.  We have up
@@ -176,7 +176,8 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
  * Input:
  *	u_char * : packet data
  *	int : offset into packet data where we are.
- *	int : length of payload to decode.
+ *	guint : length of payload to decode.
+ *	int : length of IDs in packet.
  *	frame_data * : frame data (complete frame)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *
@@ -185,31 +186,36 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
  */
 static void 
 dissect_snp_lsp_entries(const u_char *pd, int offset, guint length, 
-		frame_data *fd, proto_tree *tree ) {
-	isis_snp_t *ps;
-
-	ps = (isis_snp_t *) &pd[offset];
+		int id_length, frame_data *fd, proto_tree *tree ) {
 	while ( length > 0 ) {
-		if ( length < sizeof(isis_psnp_t) ) {
+		if ( length < 2+id_length+2+4+2 ) {
 			isis_dissect_unknown(offset, length, tree, fd,
 				"Short SNP header entry (%d vs %d)", length,
-				sizeof(isis_psnp_t) );
+				2+id_length+2+4+2 );
 			return;
 		}
 		
 		proto_tree_add_text(tree, NullTVB, offset, 2, "Remaining life      : %d",
-			pntohs(&ps->isis_snp_remaining_lifetime));
-		isis_lsp_decode_lsp_id( "LSP ID              ", tree, offset + 2,
-			&ps->isis_snp_lsp_id );
-		proto_tree_add_text(tree, NullTVB, offset+10, 4, 
+			pntohs(&pd[offset]));
+		length -= 2;
+		offset += 2;
+
+		isis_lsp_decode_lsp_id( "LSP ID              ", tree, pd,
+			offset, id_length);
+		length -= id_length + 2;
+		offset += id_length + 2;
+
+		proto_tree_add_text(tree, NullTVB, offset, 4, 
 			"LSP Sequence Number : 0x%04x",
-			pntohl(&ps->isis_snp_sequence_number));
-		proto_tree_add_text(tree, NullTVB, offset+14, 2, 
+			pntohl(&pd[offset]));
+		length -= 4;
+		offset += 4;
+
+		proto_tree_add_text(tree, NullTVB, offset, 2, 
 			"LSP checksum        : 0x%02x",
-			pntohs(&ps->isis_snp_checksum));
-		length -= sizeof ( isis_snp_t );
-		offset += sizeof ( isis_snp_t );
-		ps++;
+			pntohs(&pd[offset]));
+		length -= 2;
+		offset += 2;
 	}
 
 }
@@ -223,25 +229,26 @@ dissect_snp_lsp_entries(const u_char *pd, int offset, guint length,
  *
  * Input:
  *	int : type (l1 csnp, l2 csnp)
+ *	int : header length of packet.
+ *	int : length of IDs in packet.
  *	u_char * : packet data
- *	int : offset into packet data where we are.
- *	guint : length of clv we are decoding
- *	frame_data * : frame data (complete frame)
- *	proto_tree * : protocol display tree to fill out.  May be NULL
+ *	int offset : our offset into packet data.
+ *	frame_data * : frame data
+ *	proto_tree * : protocol display tree to add to.  May be NULL.
  *
  * Output:
  *      void, but we will add to proto tree if !NULL.
  */
 void 
-isis_dissect_isis_csnp(int type, int header_length, const u_char *pd, 
-		int offset, frame_data *fd, proto_tree *tree){
-	isis_csnp_t	*ilp;
+isis_dissect_isis_csnp(int type, int header_length, int id_length,
+		const u_char *pd, int offset, frame_data *fd, proto_tree *tree){
 	proto_item	*ti;
 	proto_tree	*csnp_tree = NULL;
 	int		hlen;
+	guint16		pdu_length;
 	int 		len;
 
-	hlen = sizeof(*ilp);
+	hlen = 2+id_length+1+id_length+2+id_length+2;
 
 	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {
 		isis_dissect_unknown(offset, hlen, tree, fd,
@@ -250,36 +257,49 @@ isis_dissect_isis_csnp(int type, int header_length, const u_char *pd,
 		return;
 	}
 	
-	ilp = (isis_csnp_t *) &pd[offset];
-
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_csnp, NullTVB,
 			offset, END_OF_FRAME, FALSE);
 		csnp_tree = proto_item_add_subtree(ti, ett_isis_csnp);
-		proto_tree_add_uint(csnp_tree, hf_isis_csnp_pdu_length, NullTVB,
-			offset, 2, pntohs(&ilp->isis_csnp_pdu_length));
-		proto_tree_add_text(csnp_tree, NullTVB, offset + 2, 7, 
-			"Source id    : %s",
-				print_system_id( pd + offset + 2, 7 ) );
-		isis_lsp_decode_lsp_id( "Start LSP id ", csnp_tree, offset + 9,
-			&ilp->isis_csnp_start_lsp_id );
-		isis_lsp_decode_lsp_id( "End   LSP id ", csnp_tree, offset + 17,
-			&ilp->isis_csnp_end_lsp_id );
 	}
 
-	offset += hlen;
-	len = pntohs(&ilp->isis_csnp_pdu_length);
-	len -= header_length;
+	pdu_length = pntohs(&pd[offset]);
+	if (tree) {
+		proto_tree_add_uint(csnp_tree, hf_isis_csnp_pdu_length, NullTVB,
+			offset, 2, pdu_length);
+	}
+	offset += 2;
+
+	if (tree) {
+		proto_tree_add_text(csnp_tree, NullTVB, offset, id_length + 1, 
+			"Source id    : %s",
+				print_system_id( pd + offset, id_length + 1 ) );
+	}
+	offset += id_length + 1;
+
+	if (tree) {
+		isis_lsp_decode_lsp_id( "Start LSP id ", csnp_tree, pd, offset,
+			id_length );
+	}
+	offset += id_length + 2;
+
+	if (tree) {
+		isis_lsp_decode_lsp_id( "End   LSP id ", csnp_tree, pd, offset,
+			id_length );
+	}
+	offset += id_length + 2;
+
+	len = pdu_length - header_length;
 	if (len < 0) {
 		return;
 	}
 	/* Call into payload dissector */
 	if (type == ISIS_TYPE_L1_CSNP ) {
-		isis_dissect_clvs ( clv_l1_csnp_opts, len, pd, offset, fd,
-			csnp_tree, ett_isis_csnp_clv_unknown );
+		isis_dissect_clvs ( clv_l1_csnp_opts, len, id_length, pd,
+			offset, fd, csnp_tree, ett_isis_csnp_clv_unknown );
 	} else {
-		isis_dissect_clvs ( clv_l2_csnp_opts, len, pd, offset, fd,
-			csnp_tree, ett_isis_csnp_clv_unknown );
+		isis_dissect_clvs ( clv_l2_csnp_opts, len, id_length, pd,
+			offset, fd, csnp_tree, ett_isis_csnp_clv_unknown );
 	}
 }
 
@@ -291,25 +311,27 @@ isis_dissect_isis_csnp(int type, int header_length, const u_char *pd,
  *	to pull apart the lsp id payload.
  *
  * Input:
+ *	int : type (l1 psnp, l2 psnp)
+ *	int : header length of packet.
+ *	int : length of IDs in packet.
  *	u_char * : packet data
- *	int : offset into packet data where we are.
- *	guint : length of clv we are decoding
- *	frame_data * : frame data (complete frame)
- *	proto_tree * : protocol display tree to fill out.  May be NULL
+ *	int offset : our offset into packet data.
+ *	frame_data * : frame data
+ *	proto_tree * : protocol display tree to add to.  May be NULL.
  *
  * Output:
  *      void, but we will add to proto tree if !NULL.
  */
 void 
-isis_dissect_isis_psnp(int type, int header_length, const u_char *pd, 
-		int offset, frame_data *fd, proto_tree *tree){
-	isis_psnp_t	*ilp;
+isis_dissect_isis_psnp(int type, int header_length, int id_length,
+		const u_char *pd, int offset, frame_data *fd, proto_tree *tree){
 	proto_item	*ti;
 	proto_tree	*psnp_tree = NULL;
 	int		hlen;
+	guint16		pdu_length;
 	int 		len;
 
-	hlen = sizeof(*ilp);
+	hlen = 2+id_length+1;
 
 	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {
 		isis_dissect_unknown(offset, hlen, tree, fd,
@@ -318,22 +340,27 @@ isis_dissect_isis_psnp(int type, int header_length, const u_char *pd,
 		return;
 	}
 	
-	ilp = (isis_psnp_t *) &pd[offset];
-
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_psnp, NullTVB,
 			offset, END_OF_FRAME, FALSE);
 		psnp_tree = proto_item_add_subtree(ti, ett_isis_psnp);
-		proto_tree_add_uint(psnp_tree, hf_isis_psnp_pdu_length, NullTVB,
-			offset, 2, pntohs(&ilp->isis_psnp_pdu_length));
-		proto_tree_add_text(psnp_tree, NullTVB, offset + 2, 7, 
-			"Source id: %s",
-			print_system_id( pd + offset + 2, 7 ) );
 	}
 
-	offset += hlen;
-	len = pntohs(&ilp->isis_psnp_pdu_length);
-	len -= header_length;
+	pdu_length = pntohs(&pd[offset]);
+	if (tree) {
+		proto_tree_add_uint(psnp_tree, hf_isis_psnp_pdu_length, NullTVB,
+			offset, 2, pdu_length);
+	}
+	offset += 2;
+
+	if (tree) {
+		proto_tree_add_text(psnp_tree, NullTVB, offset, id_length + 1,
+			"Source id: %s",
+			print_system_id( pd + offset, id_length + 1 ) );
+	}
+	offset += id_length + 1;
+
+	len = pdu_length - header_length;
 	if (len < 0) {
 		isis_dissect_unknown(offset, header_length, tree, fd,
 			"packet header length %d went beyond packet",
@@ -342,11 +369,11 @@ isis_dissect_isis_psnp(int type, int header_length, const u_char *pd,
 	}
 	/* Call into payload dissector */
 	if (type == ISIS_TYPE_L1_CSNP ) {
-		isis_dissect_clvs ( clv_l1_csnp_opts, len, pd, offset, fd,
-			psnp_tree, ett_isis_psnp_clv_unknown );
+		isis_dissect_clvs ( clv_l1_csnp_opts, len, id_length, pd,
+			offset, fd, psnp_tree, ett_isis_psnp_clv_unknown );
 	} else {
-		isis_dissect_clvs ( clv_l2_csnp_opts, len, pd, offset, fd,
-			psnp_tree, ett_isis_psnp_clv_unknown );
+		isis_dissect_clvs ( clv_l2_csnp_opts, len, id_length, pd,
+			offset, fd, psnp_tree, ett_isis_psnp_clv_unknown );
 	}
 }
 
@@ -361,6 +388,7 @@ isis_dissect_isis_psnp(int type, int header_length, const u_char *pd,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -369,7 +397,7 @@ isis_dissect_isis_psnp(int type, int header_length, const u_char *pd,
  */
 static void 
 dissect_l1_snp_authentication_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_authentication_clv(pd, offset, length, fd, tree, 
 		"Per area authentication" );
 }
@@ -385,6 +413,7 @@ dissect_l1_snp_authentication_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -393,7 +422,7 @@ dissect_l1_snp_authentication_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_l2_snp_authentication_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_authentication_clv(pd, offset, length, fd, tree, 
 		"Per domain authentication" );
 }
@@ -472,4 +501,3 @@ proto_register_isis_psnp(void) {
 	proto_register_field_array(proto_isis_psnp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
-

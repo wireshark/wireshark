@@ -1,7 +1,7 @@
 /* packet-isis-hello.h
  * Declares for hello handling inside isis.
  *
- * $Id: packet-isis-hello.h,v 1.1 1999/12/15 04:34:18 guy Exp $
+ * $Id: packet-isis-hello.h,v 1.2 2000/06/19 08:33:48 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -30,29 +30,12 @@
 #define _PACKET_ISIS_HELLO_H
 
 /*
- * Declare L1/L2 hello base header.  
+ * Declarations for L1/L2 hello base header.  
  */
-typedef struct {
-	guint8	isis_hello_circuit_reserved;	/* circuit type & reserved */
 #define ISIS_HELLO_CTYPE_MASK		0x03
 #define ISIS_HELLO_CT_RESERVED_MASK	0xfc
-	guint8	isis_hello_source_id[6];	/* source id */
-	guint8	isis_hello_holding_timer[2];	/* holding timer */
-	guint8	isis_hello_pdu_length[2];	/* full length, including hdr */
-	guint8	isis_hello_priority_reserved;	/* priority & reserved */
 #define ISIS_HELLO_PRIORITY_MASK	0x7f
 #define ISIS_HELLO_P_RESERVED_MASK	0x80
-	guint8	isis_hello_lan_id[7];		/* LAN id */
-} isis_hello_t;
-
-#define isis_hello_circuit isis_hello_circuit_reserved&ISIS_HELLO_CTYPE_MASK
-#define isis_hello_creserved \
-	isis_hello_circuit_reserved&ISIS_HELLO_CT_RESERVED_MASK
-
-#define isis_hello_priority \
-	isis_hello_priority_reserved&ISIS_HELLO_PRIORITY_MASK
-#define isis_hello_preserved \
-	isis_hello_priority_reserved&ISIS_HELLO_P_RESERVED_MASK
 
 #define ISIS_HELLO_TYPE_RESERVED	0
 #define ISIS_HELLO_TYPE_LEVEL_1		1
@@ -108,5 +91,6 @@ typedef struct {
  * are only valid from with isis decodes.
  */
 extern void isis_dissect_isis_hello(int hello_type, int header_length,
-	const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+	int id_length, const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree);
 #endif /* _PACKET_ISIS_HELLO_H */

@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.1 1999/12/15 04:34:18 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.2 2000/06/19 08:33:49 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -30,27 +30,8 @@
 #define _PACKET_ISIS_LSP_H
 
 /*
- * Declare what an LSP id looks like (used by LSP and sequence number
- * packets)
+ * Declarations for L1/L2 LSP base header.  
  */
-typedef struct {
-	guint8	source_id[6];			/* source id part */
-	guint8	psuodonode_id;			/* psn id */
-	guint8	lsp_number;			/* frag number */
-} isis_lsp_id_t;
-   
-
-/*
- * Declare L1/L2 LSP base header.  
- */
-typedef struct {
-	guint8	isis_lsp_pdu_length[2];		/* pdu length including hdr */
-	guint8	isis_lsp_remaining_life[2];	/* seconds before expiration */
-	isis_lsp_id_t isis_lsp_id;
-	guint8	isis_lsp_sequence_number[4];
-	guint8	isis_lsp_checksum[2];
-	guint8	isis_lsp_type_block;		/* partition/att/hip/istype */
-} isis_lsp_t;
 
 #define ISIS_LSP_PARTITION_MASK	0x80
 #define ISIS_LSP_ATT_MASK	0x78
@@ -112,8 +93,9 @@ typedef struct {
  * are only valid from with isis decodes.
  */
 extern void isis_dissect_isis_lsp(int hello_type, int header_length,
-        const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
-extern void isis_lsp_decode_lsp_id(char *tstr, proto_tree *tree, int offset,
-                isis_lsp_id_t *id );
+	int id_length, const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree);
+extern void isis_lsp_decode_lsp_id(char *tstr, proto_tree *tree,
+	const u_char *pd, int offset, int id_length);
 
 #endif /* _PACKET_ISIS_LSP_H */

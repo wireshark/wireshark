@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.7 2000/05/31 05:07:12 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.8 2000/06/19 08:33:48 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -82,27 +82,27 @@ static const value_string isis_lsp_istype_vals[] = {
  * Predclare dissectors for use in clv dissection.
  */
 static void dissect_lsp_area_address_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l1_is_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l1_es_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l2_is_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_partition_dis_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_prefix_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_nlpid_clv(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l1_auth_clv(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l2_auth_clv(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 	{
@@ -289,6 +289,7 @@ dissect_metric(proto_tree *tree, int offset, guint8 value,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -297,7 +298,7 @@ dissect_metric(proto_tree *tree, int offset, guint8 value,
  */
 static void 
 dissect_lsp_ip_reachability_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	proto_item 	*ti;
 	proto_tree	*ntree = NULL;
 	guint32		src, mask;
@@ -344,6 +345,7 @@ dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -352,7 +354,7 @@ dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_nlpid_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_nlpid_clv(pd, offset, length, fd, tree );
 }
 
@@ -367,6 +369,7 @@ dissect_lsp_nlpid_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -375,7 +378,7 @@ dissect_lsp_nlpid_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_ip_int_clv(pd, offset, length, fd, tree, 
 		hf_isis_lsp_clv_ipv4_int_addr );
 }
@@ -391,6 +394,7 @@ dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -399,7 +403,7 @@ dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_l1_auth_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_authentication_clv(pd, offset, length, fd, tree, 
 		"Per area authentication" );
 }
@@ -415,6 +419,7 @@ dissect_lsp_l1_auth_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -423,7 +428,7 @@ dissect_lsp_l1_auth_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_l2_auth_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_authentication_clv(pd, offset, length, fd, tree, 
 		"Per domain authentication" );
 }
@@ -439,6 +444,7 @@ dissect_lsp_l2_auth_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : offset into packet data where we are.
  *	guint : length of clv we are decoding
+ *	int : length of IDs in packet.
  *	frame_data * : frame data (complete frame)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *
@@ -447,7 +453,7 @@ dissect_lsp_l2_auth_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_area_address_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_area_address_clv(pd, offset, length, fd, tree );
 }
 
@@ -467,6 +473,7 @@ dissect_lsp_area_address_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : offset into packet data where we are.
  *	guint : length of clv we are decoding
+ *	int : length of IDs in packet.
  *	frame_data * : frame data (complete frame)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : set to decode first octet as virtual vs reserved == 0
@@ -477,16 +484,14 @@ dissect_lsp_area_address_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree,
+		guint length, int id_length, frame_data *fd, proto_tree *tree,
 		int show_virtual, int is_eis) {
 	proto_item 	*ti;
 	proto_tree	*ntree = NULL;
 	int		tlen;
 
-	if (is_eis) {
-		tlen = 10;
-	} else {
-		tlen = 11;
+	if (!is_eis) {
+		id_length++;	/* IDs are one octet longer in IS neighbours */
 		if ( tree ) {
 			if ( show_virtual ) {
 				/* virtual path flag */
@@ -500,8 +505,8 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 		}
 		offset++;
 		length--;
-			
 	}
+	tlen = 4 + id_length;
 
 	while ( length > 0 ) {
 		if (length<tlen) {
@@ -515,13 +520,13 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 		 */
 		if ( tree ) {
 			if ( is_eis ) {
-				ti = proto_tree_add_text ( tree, NullTVB, offset, 11, 
+				ti = proto_tree_add_text ( tree, NullTVB, offset, tlen, 
 					"ES Neighbor: %s",
-					print_system_id( pd + offset + 4, 6 ) );
+				print_system_id( pd + offset + 4, id_length ) );
 			} else {
-				ti = proto_tree_add_text ( tree, NullTVB, offset, 11, 
+				ti = proto_tree_add_text ( tree, NullTVB, offset, tlen, 
 					"IS Neighbor:  %s",
-               print_system_id( pd + offset + 4, 6 ) );
+				print_system_id( pd + offset + 4, id_length ) );
 			}
 			ntree = proto_item_add_subtree(ti, 
 				ett_isis_lsp_clv_is_neighbors);
@@ -533,6 +538,9 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 				"Expense",FALSE );
 			dissect_metric ( ntree, offset + 3, pd[offset+3], 
 				"Error", FALSE );
+			proto_tree_add_text ( ntree, NullTVB, offset + 4, id_length, 
+				"Neighbour ID: %s",
+				print_system_id( pd + offset + 4, id_length ) );
 		}
 		offset += tlen;
 		length -= tlen;
@@ -550,6 +558,7 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : offset into packet data where we are.
  *	guint : length of clv we are decoding
+ *	int : length of IDs in packet.
  *	frame_data * : frame data (complete frame)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *
@@ -558,9 +567,9 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_l1_is_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
-	dissect_lsp_eis_neighbors_clv_inner( pd, offset, length, fd, tree,TRUE,
-		FALSE );
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	dissect_lsp_eis_neighbors_clv_inner( pd, offset, length, id_length,
+		fd, tree, TRUE, FALSE );
 }
 
 /*
@@ -574,6 +583,7 @@ dissect_lsp_l1_is_neighbors_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : offset into packet data where we are.
  *	guint : length of clv we are decoding
+ *	int : length of IDs in packet.
  *	frame_data * : frame data (complete frame)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *
@@ -582,9 +592,9 @@ dissect_lsp_l1_is_neighbors_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_l1_es_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
-	dissect_lsp_eis_neighbors_clv_inner( pd, offset, length, fd, tree,
-		TRUE, TRUE);
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	dissect_lsp_eis_neighbors_clv_inner( pd, offset, length, id_length,
+		fd, tree, TRUE, TRUE);
 }
 
 /*
@@ -599,6 +609,7 @@ dissect_lsp_l1_es_neighbors_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : offset into packet data where we are.
  *	guint : length of clv we are decoding
+ *	int : length of IDs in packet.
  *	frame_data * : frame data (complete frame)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *
@@ -607,9 +618,9 @@ dissect_lsp_l1_es_neighbors_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_l2_is_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
-	dissect_lsp_eis_neighbors_clv_inner(pd,offset, length, fd, tree, FALSE,
-		FALSE);
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	dissect_lsp_eis_neighbors_clv_inner(pd, offset, length, id_length,
+		fd, tree, FALSE, FALSE);
 }
 
 /*
@@ -617,13 +628,14 @@ dissect_lsp_l2_is_neighbors_clv(const u_char *pd, int offset,
  *
  * Description:
  *	This CLV is used to indicate which system is the designated
- *	IS for partition repair.  This means just putting out the 6 octet
- *	IS.
+ *	IS for partition repair.  This means just putting out the
+ *	"id_length"-octet IS.
  *
  * Input:
  *	u_char * : packet data
  *	int : offset into packet data where we are.
  *	guint : length of clv we are decoding
+ *	int : length of IDs in packet.
  *	frame_data * : frame data (complete frame)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *
@@ -632,23 +644,24 @@ dissect_lsp_l2_is_neighbors_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_partition_dis_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 
-	if ( length < 6 ) {
+	if ( length < id_length ) {
 		isis_dissect_unknown(offset, length, tree, fd,
-				"short lsp parition DIS(%d vs 6)", length );
+				"short lsp parition DIS(%d vs %d)", length,
+				id_length );
 		return;
 	}
 	/* 
 	 * Gotta build a sub-tree for all our pieces
 	 */
 	if ( tree ) {
-		proto_tree_add_text ( tree, NullTVB, offset+4, 6, 
+		proto_tree_add_text ( tree, NullTVB, offset, id_length, 
 			"Partition designated L2 IS: %s",
-			print_system_id( pd + offset, 6 ) );
+			print_system_id( pd + offset, id_length ) );
 	}
-	length -= 6;
-	offset +=  6;
+	length -= id_length;
+	offset += id_length;
 	if ( length > 0 ){
 		isis_dissect_unknown(offset, length, tree, fd,
 				"Long lsp parition DIS, %d left over", length );
@@ -668,6 +681,7 @@ dissect_lsp_partition_dis_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : offset into packet data where we are.
  *	guint : length of clv we are decoding
+ *	int : length of IDs in packet.
  *	frame_data * : frame data (complete frame)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *
@@ -676,7 +690,7 @@ dissect_lsp_partition_dis_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_lsp_prefix_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	char *sbuf;
 	int mylen;
 
@@ -735,20 +749,21 @@ dissect_lsp_prefix_neighbors_clv(const u_char *pd, int offset,
  * Input:
  *	char * : title string
  *	proto_tree * : tree to display into. REQUIRED
+ *	u_char * : packet data
  *	int : offset into packet data where we are.
- *	isis_lsp_id_t * : id to display.
+ *	int : length of IDs in packet.
  *
  * Output:
  *      void, but we will add to proto tree
  */
 void
-isis_lsp_decode_lsp_id(char *tstr, proto_tree *tree, int offset, 
-		isis_lsp_id_t *id ) {
-	proto_tree_add_text(tree, NullTVB, offset, 8, 
+isis_lsp_decode_lsp_id(char *tstr, proto_tree *tree, const u_char *pd,
+		int offset, int id_length ) {
+	proto_tree_add_text(tree, NullTVB, offset, id_length + 2,
 		"%s: %s.%02x-%02x", tstr,
-			print_system_id( id->source_id, 6 ),
-			id->psuodonode_id,
-			id->lsp_number );
+			print_system_id( pd + offset, id_length ),
+			pd[offset + id_length],
+			pd[offset + id_length + 1] );
 }
 
 /*
@@ -759,26 +774,28 @@ isis_lsp_decode_lsp_id(char *tstr, proto_tree *tree, int offset,
  *	de-mangler with the right list of valid CLVs.
  *
  * Input:
+ *	int : LSP type, a la packet-isis.h ISIS_TYPE_* values
+ *	int : header length of packet.
+ *	int : length of IDs in packet.
  *	u_char * : packet data
- *	int : offset into packet data where we are.
- *	guint : length of clv we are decoding
- *	frame_data * : frame data (complete frame)
- *	proto_tree * : protocol display tree to fill out.  May be NULL
+ *	int offset : our offset into packet data.
+ *	frame_data * : frame data
+ *	proto_tree * : protocol display tree to add to.  May be NULL.
  *
  * Output:
  *      void, but we will add to proto tree if !NULL.
  */
 void 
-isis_dissect_isis_lsp(int lsp_type, int header_length, 
+isis_dissect_isis_lsp(int lsp_type, int header_length, int id_length,
 		const u_char *pd, int offset, frame_data *fd, proto_tree *tree){
-	isis_lsp_t	*ilp;
 	proto_item	*ti;
 	proto_tree	*lsp_tree = NULL;
 	int		hlen;
+	guint16		pdu_length;
 	char		sbuf[128];
 	int		inx, q, some, value, len;
 
-	hlen = sizeof(*ilp);
+	hlen = 2+2+id_length+2+4+2+1;
 
 	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {
 		isis_dissect_unknown(offset, hlen, tree, fd,
@@ -787,32 +804,52 @@ isis_dissect_isis_lsp(int lsp_type, int header_length,
 		return;
 	}
 	
-	ilp = (isis_lsp_t *) &pd[offset];
-
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_lsp, NullTVB,
 			offset, END_OF_FRAME, FALSE);
 		lsp_tree = proto_item_add_subtree(ti, ett_isis_lsp);
-		proto_tree_add_uint(lsp_tree, hf_isis_lsp_pdu_length, NullTVB,
-			offset, 2, pntohs(&ilp->isis_lsp_pdu_length));
-		proto_tree_add_uint(lsp_tree, hf_isis_lsp_remaining_life, NullTVB,
-			offset + 2, 2, pntohs(&ilp->isis_lsp_remaining_life));
-		isis_lsp_decode_lsp_id("LSP ID", lsp_tree, offset + 4, 
-			&ilp->isis_lsp_id );
-		proto_tree_add_uint(lsp_tree, hf_isis_lsp_sequence_number, NullTVB,
-			offset + 12, 4, 
-			pntohl(&ilp->isis_lsp_sequence_number));
+	}
 
+	pdu_length = pntohs(&pd[offset]);
+	if (tree) {
+		proto_tree_add_uint(lsp_tree, hf_isis_lsp_pdu_length, NullTVB,
+			offset, 2, pdu_length);
+	}
+	offset += 2;
+
+	if (tree) {
+		proto_tree_add_uint(lsp_tree, hf_isis_lsp_remaining_life, NullTVB,
+			offset, 2, pntohs(&pd[offset]));
+	}
+	offset += 2;
+
+	if (tree) {
+		isis_lsp_decode_lsp_id("LSP ID", lsp_tree, pd, offset,
+			id_length );
+	}
+	offset += id_length + 2;
+
+	if (tree) {
+		proto_tree_add_uint(lsp_tree, hf_isis_lsp_sequence_number, NullTVB,
+			offset, 4, 
+			pntohl(&pd[offset]));
+	}
+	offset += 4;
+
+	if (tree) {
 		/* XXX -> we could validate the cksum here! */
 		proto_tree_add_uint(lsp_tree, hf_isis_lsp_checksum, NullTVB,
-			offset + 16, 2, pntohs(&ilp->isis_lsp_checksum));
+			offset, 2, pntohs(&pd[offset]));
+	}
+	offset += 2;
 
+	if (tree) {
 		/*
 		 * We need to build our type block values. 
 		 */
 		sbuf[0] = 0;
 		some = 0;
-		value = ISIS_LSP_ATT(ilp->isis_lsp_type_block);
+		value = ISIS_LSP_ATT(pd[offset]);
 		inx = 0;
 		for ( q = (1<<ISIS_LSP_ATT_SHIFT); q > 0; q = q >> 1 ){
 			if (q & value) { 
@@ -828,19 +865,17 @@ isis_dissect_isis_lsp(int lsp_type, int header_length,
 		}
 		proto_tree_add_text(lsp_tree, NullTVB, offset + 18, 1, 
 			"Type block(0x%02x): P:%d, Supported metric(s): %s, OL:%d, istype:%s",
-			ilp->isis_lsp_type_block, 
-			ISIS_LSP_PARTITION(ilp->isis_lsp_type_block) ? 1 : 0,
+			pd[offset],
+			ISIS_LSP_PARTITION(pd[offset]) ? 1 : 0,
 			sbuf,
-			ISIS_LSP_HIPPITY(ilp->isis_lsp_type_block) ? 1 : 0,
-			val_to_str(ISIS_LSP_IS_TYPE(ilp->isis_lsp_type_block),
+			ISIS_LSP_HIPPITY(pd[offset]) ? 1 : 0,
+			val_to_str(ISIS_LSP_IS_TYPE(pd[offset]),
 				isis_lsp_istype_vals, "Unknown (0x%x)")
 			);
-
 	}
+	offset += 1;
 
-	offset += hlen;
-	len = pntohs(&ilp->isis_lsp_pdu_length);
-	len -= header_length;
+	len = pdu_length - header_length;
 	if (len < 0) {
 		isis_dissect_unknown(offset, header_length, tree, fd,
 			"packet header length %d went beyond packet",
@@ -852,11 +887,11 @@ isis_dissect_isis_lsp(int lsp_type, int header_length,
 	 * our list of valid ones!
 	 */
 	if (lsp_type == ISIS_TYPE_L1_LSP){
-		isis_dissect_clvs ( clv_l1_lsp_opts, len, pd, offset, fd, 
-			lsp_tree, ett_isis_lsp_clv_unknown );
+		isis_dissect_clvs ( clv_l1_lsp_opts, len, id_length, pd,
+			offset, fd, lsp_tree, ett_isis_lsp_clv_unknown );
 	} else {
-		isis_dissect_clvs ( clv_l2_lsp_opts, len, pd, offset, fd, 
-			lsp_tree, ett_isis_lsp_clv_unknown );
+		isis_dissect_clvs ( clv_l2_lsp_opts, len, id_length, pd,
+			offset, fd, lsp_tree, ett_isis_lsp_clv_unknown );
 	}
 }
 /*

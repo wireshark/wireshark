@@ -1,7 +1,7 @@
 /* packet-isis-snp.h
  * Defines and such for CSNP, PSNP, and their payloads
  *
- * $Id: packet-isis-snp.h,v 1.1 1999/12/15 04:34:19 guy Exp $
+ * $Id: packet-isis-snp.h,v 1.2 2000/06/19 08:33:50 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -63,40 +63,12 @@
 #define ISIS_CLV_L2_PSNP_AUTHENTICATION		133
 
 /*
- * Declare L1/L2 CSNP header
- */
-typedef struct {
-	guint8	isis_csnp_pdu_length[2];	/* pdu length including hdr */
-	guint8	isis_csnp_source_id[7];		/* source sysid */
-	isis_lsp_id_t isis_csnp_start_lsp_id;		/* start LSP id */
-	isis_lsp_id_t isis_csnp_end_lsp_id;		/* end LSP id */
-} isis_csnp_t;
-
-/*
- * Declare L1/L2 PSNP header
- */
-typedef struct {
-	guint8	isis_psnp_pdu_length[2];	/* pdu length including hdr */
-	guint8	isis_psnp_source_id[7];		/* source sysid */
-} isis_psnp_t;
-
-/*
- * Declare SNP payload element
- */
-typedef struct {
-	guint8	isis_snp_remaining_lifetime[2];	/* lifetime of LSP */
-	isis_lsp_id_t isis_snp_lsp_id;		/* target LSP id */
-	guint8	isis_snp_sequence_number[4];	/* sequence number of LSP */
-	guint8	isis_snp_checksum[2];		/* checksum of LSP */
-} isis_snp_t;
-
-/*
  * Published API functions.  NOTE, this are "local" API functions and
  * are only valid from with isis decodes.
  */
-extern void isis_dissect_isis_csnp(int type, int header_length,
-        const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
-extern void isis_dissect_isis_psnp(int type, int header_length,
+extern void isis_dissect_isis_csnp(int type, int header_length, int id_length,
+	const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+extern void isis_dissect_isis_psnp(int type, int header_length, int id_length,
         const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 #endif /* _PACKET_ISIS_CSNP_H */

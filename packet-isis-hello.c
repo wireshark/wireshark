@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.8 2000/05/31 05:07:12 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.9 2000/06/19 08:33:48 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -74,17 +74,17 @@ static const value_string isis_hello_circuit_type_vals[] = {
  * Predclare dissectors for use in clv dissection.
  */
 static void dissect_hello_area_address_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_hello_is_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_hello_padding_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_hello_nlpid_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_hello_ip_int_addr_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_hello_auth_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree);
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 
 static const isis_clv_handle_t clv_l1_hello_opts[] = {
 	{
@@ -244,6 +244,7 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -252,7 +253,7 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
  */
 static void 
 dissect_hello_nlpid_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_nlpid_clv(pd, offset, length, fd, tree );
 }
 
@@ -267,6 +268,7 @@ dissect_hello_nlpid_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -275,7 +277,7 @@ dissect_hello_nlpid_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_hello_ip_int_addr_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_ip_int_clv(pd, offset, length, fd, tree, 
 		hf_isis_hello_clv_ipv4_int_addr );
 }
@@ -292,6 +294,7 @@ dissect_hello_ip_int_addr_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -300,7 +303,7 @@ dissect_hello_ip_int_addr_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_hello_auth_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_authentication_clv(pd, offset, length, fd, tree, 
 		"Per Link authentication" );
 }
@@ -316,6 +319,7 @@ dissect_hello_auth_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -324,7 +328,7 @@ dissect_hello_auth_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_hello_area_address_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_area_address_clv(pd, offset, length, fd, tree );
 }
 
@@ -339,6 +343,7 @@ dissect_hello_area_address_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : offset into packet data where we are.
  *	guint : length of clv we are decoding
+ *	int : length of IDs in packet.
  *	frame_data * : frame data (complete frame)
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	gint : tree id to use for proto tree.
@@ -348,7 +353,7 @@ dissect_hello_area_address_clv(const u_char *pd, int offset,
  */
 void 
 dissect_hello_is_neighbors_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree ) {
+		guint length, int id_length, frame_data *fd, proto_tree *tree ) {
 	while ( length > 0 ) {
 		if (length<6) {
 			isis_dissect_unknown(offset, length, tree, fd, 
@@ -380,6 +385,7 @@ dissect_hello_is_neighbors_clv(const u_char *pd, int offset,
  *	u_char * : packet data
  *	int : current offset into packet data
  *	guint : length of this clv
+ *	int : length of IDs in packet.
  *	frame_data * : frame data
  *	proto_tree * : proto tree to build on (may be null)
  *
@@ -388,7 +394,7 @@ dissect_hello_is_neighbors_clv(const u_char *pd, int offset,
  */
 static void 
 dissect_hello_padding_clv(const u_char *pd, int offset, guint length, 
-		frame_data *fd, proto_tree *tree) {
+		int id_length, frame_data *fd, proto_tree *tree) {
 	/* nothing to do here! */
 }
 
@@ -397,12 +403,13 @@ dissect_hello_padding_clv(const u_char *pd, int offset, guint length,
  * 
  * Description:
  *	This procedure rips apart the various types of ISIS hellos.  L1H and
- *	L2H's are identicle for the most part, while the PTP hello has
+ *	L2H's are identical for the most part, while the PTP hello has
  *	a shorter header.
  *
  * Input:
- *	int : hello type, alla packet-isis.h ISIS_TYPE_* values
+ *	int : hello type, a la packet-isis.h ISIS_TYPE_* values
  *	int : header length of packet.
+ *	int : length of IDs in packet.
  *	u_char * : packet data
  *	int offset : our offset into packet data.
  *	frame_data * : frame data
@@ -412,18 +419,18 @@ dissect_hello_padding_clv(const u_char *pd, int offset, guint length,
  *	void, will modify proto_tree if not NULL.
  */	
 void 
-isis_dissect_isis_hello(int hello_type, int header_length, 
+isis_dissect_isis_hello(int hello_type, int header_length, int id_length,
 		const u_char *pd, int offset, frame_data *fd, proto_tree *tree){
-	isis_hello_t	*ihp;
 	proto_item	*ti;
 	proto_tree	*hello_tree = NULL;
 	int 		len;
 	int		hlen;
+	guint16		pdu_length;
 
 	if (hello_type == ISIS_TYPE_PTP_HELLO) {
-		hlen = sizeof(*ihp) - 6;	/* make length correct */
+		hlen = 1+id_length+2+2+1;
 	} else {
-		hlen = sizeof(*ihp);
+		hlen = 1+id_length+2+2+1+id_length+1;
 	}
 
 	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {
@@ -433,47 +440,69 @@ isis_dissect_isis_hello(int hello_type, int header_length,
 		return;
 	}
 
-	ihp = (isis_hello_t *) &pd[offset];	
-
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_hello, NullTVB,
 			offset, END_OF_FRAME, FALSE);
 		hello_tree = proto_item_add_subtree(ti, ett_isis_hello);
-		proto_tree_add_uint_format(hello_tree, 
+		proto_tree_add_uint_format(hello_tree,
 			hf_isis_hello_circuit_reserved,
-			NullTVB, offset, 1, ihp->isis_hello_circuit_reserved,
+			NullTVB, offset, 1, pd[offset],
 			"Circuit type              : %s, reserved(0x%02x == 0)",
-				val_to_str(ihp->isis_hello_circuit, 
+				val_to_str(pd[offset]&ISIS_HELLO_CTYPE_MASK,
 					isis_hello_circuit_type_vals,
 					"Unknown (0x%x)"),
-				ihp->isis_hello_creserved
+				pd[offset]&ISIS_HELLO_CT_RESERVED_MASK
 			);
+	}
+	offset += 1;
 
-		proto_tree_add_string_format(hello_tree, hf_isis_hello_lan_id, NullTVB,
-			            offset + 1, 6, ihp->isis_hello_source_id,
+	if (tree) {
+		proto_tree_add_bytes_format(hello_tree, hf_isis_hello_source_id, NullTVB,
+			            offset, id_length, &pd[offset],
 			            "SystemID{ Sender of PDU } : %s", 
-                     print_system_id( pd + offset + 1, 6 ) );
+                     print_system_id( pd + offset, id_length ) );
+        }
+	offset += id_length;
+
+	if (tree) {
 		proto_tree_add_uint(hello_tree, hf_isis_hello_holding_timer, NullTVB,
-			            offset + 7, 2,pntohs(&ihp->isis_hello_holding_timer[0]));
+			            offset, 2, pntohs(&pd[offset]));
+	}
+	offset += 2;
+
+	pdu_length = pntohs(&pd[offset]);
+	if (tree) {
 		proto_tree_add_uint(hello_tree, hf_isis_hello_pdu_length, NullTVB,
-			            offset + 9, 2,pntohs(&ihp->isis_hello_pdu_length[0]));
+			            offset, 2, pdu_length);
+	}
+	offset += 2;
+
+	if (tree) {
 		proto_tree_add_uint_format(hello_tree, hf_isis_hello_priority_reserved, NullTVB,
-			            offset + 11, 1, ihp->isis_hello_priority_reserved,
+			            offset, 1, pd[offset],
 			            "Priority                  : %d, reserved(0x%02x == 0)",
-				         ihp->isis_hello_priority, ihp->isis_hello_preserved );
-		if (hello_type == ISIS_TYPE_PTP_HELLO) {
+				        pd[offset]&ISIS_HELLO_PRIORITY_MASK,
+					pd[offset]&ISIS_HELLO_P_RESERVED_MASK );
+	}
+	offset += 1;
+
+	if (hello_type == ISIS_TYPE_PTP_HELLO) {
+		if (tree) {
 			proto_tree_add_uint(hello_tree, hf_isis_hello_local_circuit_id, NullTVB,
-				         offset + 12, 1, ihp->isis_hello_lan_id[0] );
-		} else { 
-			proto_tree_add_string_format(hello_tree, hf_isis_hello_lan_id, NullTVB, 
-                     offset + 12, 7, ihp->isis_hello_lan_id,
-				         "SystemID{ Designated IS } : %s",
-					      print_system_id( pd + offset + 12, 7 ) );
+				         offset, 1, pd[offset] );
 		}
+		offset += 1;
+	} else { 
+		if (tree) {
+			proto_tree_add_bytes_format(hello_tree, hf_isis_hello_lan_id, NullTVB, 
+		                     offset, id_length + 1, &pd[offset],
+				         "SystemID{ Designated IS } : %s",
+					      print_system_id( pd + offset, id_length + 1 ) );
+		}
+		offset += id_length + 1;
 	}
 
-	offset += hlen;
-	len = pntohs(&ihp->isis_hello_pdu_length[0]);
+	len = pdu_length;
 	len -= header_length;
 	if (len < 0) {
 		isis_dissect_unknown(offset, header_length, tree, fd, 
@@ -486,14 +515,14 @@ isis_dissect_isis_hello(int hello_type, int header_length,
 	 * our list of valid ones!
 	 */
 	if (hello_type == ISIS_TYPE_L1_HELLO){
-		isis_dissect_clvs ( clv_l1_hello_opts, len, pd, offset, fd, 
-			hello_tree, ett_isis_hello_clv_unknown );
+		isis_dissect_clvs ( clv_l1_hello_opts, len, id_length, pd,
+			offset, fd, hello_tree, ett_isis_hello_clv_unknown );
 	} else if (hello_type == ISIS_TYPE_L2_HELLO) {
-		isis_dissect_clvs ( clv_l2_hello_opts, len, pd, offset, fd, 
-			hello_tree, ett_isis_hello_clv_unknown );
+		isis_dissect_clvs ( clv_l2_hello_opts, len, id_length, pd,
+			offset, fd, hello_tree, ett_isis_hello_clv_unknown );
 	} else {
-		isis_dissect_clvs ( clv_ptp_hello_opts, len, pd, offset, fd, 
-			hello_tree, ett_isis_hello_clv_unknown );
+		isis_dissect_clvs ( clv_ptp_hello_opts, len, id_length, pd,
+			offset, fd, hello_tree, ett_isis_hello_clv_unknown );
 	}
 }
 
@@ -520,7 +549,7 @@ proto_register_isis_hello(void) {
 
 		{ &hf_isis_hello_source_id,
 		{ "SystemID{ Sender of PDU } ", "isis_hello.source_id",
-			FT_ETHER, BASE_HEX, NULL, 0x0, "" }},
+			FT_BYTES, BASE_HEX, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_holding_timer,
 		{ "Holding timer             ", "isis_hello.holding_timer", 
@@ -531,20 +560,20 @@ proto_register_isis_hello(void) {
 			FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_priority_reserved,
-		 { "Priority                 ", "isis_hello.priority",FT_UINT8, BASE_DEC, NULL, 
-		    ISIS_HELLO_P_RESERVED_MASK, "" }},
+		 { "Priority                 ", "isis_hello.priority",
+			FT_UINT8, BASE_DEC, NULL, ISIS_HELLO_P_RESERVED_MASK, "" }},
 
 		{ &hf_isis_hello_lan_id,
-		{ "SystemID{ Designated IS } ", "isis_hello.lan_id", FT_STRING, BASE_DEC, NULL,
-         0x0, "" }},
+		{ "SystemID{ Designated IS } ", "isis_hello.lan_id",
+			FT_BYTES, BASE_DEC, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_local_circuit_id,
-		{ "Local circuit ID          ", "isis_hello.local_circuit_id", FT_UINT8,
-		   BASE_DEC, NULL, 0x0, "" }},
+		{ "Local circuit ID          ", "isis_hello.local_circuit_id",
+			FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
 
 		{ &hf_isis_hello_clv_ipv4_int_addr,
-		{ "IPv4 interface address    ", "isis_hello.clv_ipv4_int_addr", FT_IPv4,
-		   BASE_NONE, NULL, 0x0, "" }},
+		{ "IPv4 interface address    ", "isis_hello.clv_ipv4_int_addr",
+			FT_IPv4, BASE_NONE, NULL, 0x0, "" }},
 
 	};
 	static gint *ett[] = {
@@ -562,4 +591,3 @@ proto_register_isis_hello(void) {
 	proto_register_field_array(proto_isis_hello, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
-

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.10 2000/05/31 05:07:15 guy Exp $
+ * $Id: packet-isis.c,v 1.11 2000/06/19 08:33:50 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -137,6 +137,7 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 	isis_hdr_t *ihdr;
 	proto_item *ti;
 	proto_tree *isis_tree = NULL;
+	int id_length;
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "ISIS");
@@ -199,45 +200,66 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 	}
 
 	/*
+	 * Interpret the system ID length.
+	 */
+	id_length = ihdr->isis_system_id_len;
+	if (id_length == 0)
+		id_length = 6;	/* zero means 6-octet ID field length */
+	else if (id_length == 255) {
+		id_length = 0;	/* 255 means null ID field */
+		/* XXX - what about the LAN ID? */
+	}
+	/* XXX - otherwise, must be in the range 1 through 8 */
+
+	/*
 	 * Advance offset (we are past the header).
 	 */
 	offset += sizeof(*ihdr);
 	switch (ihdr->isis_type) {
 	case ISIS_TYPE_L1_HELLO:
 		isis_dissect_isis_hello(ISIS_TYPE_L1_HELLO, 
-			ihdr->isis_header_length, pd, offset, fd, isis_tree);
+			ihdr->isis_header_length, id_length,
+			pd, offset, fd, isis_tree);
 		break;
 	case ISIS_TYPE_L2_HELLO:
 		isis_dissect_isis_hello(ISIS_TYPE_L2_HELLO, 
-			ihdr->isis_header_length, pd, offset, fd, isis_tree);
+			ihdr->isis_header_length, id_length,
+			pd, offset, fd, isis_tree);
 		break;
 	case ISIS_TYPE_PTP_HELLO:
 		isis_dissect_isis_hello(ISIS_TYPE_PTP_HELLO, 
-			ihdr->isis_header_length, pd, offset, fd, isis_tree);
+			ihdr->isis_header_length, id_length,
+			pd, offset, fd, isis_tree);
 		break;
 	case ISIS_TYPE_L1_LSP:
-		isis_dissect_isis_lsp(ISIS_TYPE_L1_LSP, ihdr->isis_header_length,
+		isis_dissect_isis_lsp(ISIS_TYPE_L1_LSP,
+			ihdr->isis_header_length, id_length,
 			pd, offset, fd, isis_tree);
 		break;
 	case ISIS_TYPE_L2_LSP:
-		isis_dissect_isis_lsp(ISIS_TYPE_L2_LSP, ihdr->isis_header_length,
+		isis_dissect_isis_lsp(ISIS_TYPE_L2_LSP,
+			ihdr->isis_header_length, id_length,
 			pd, offset, fd, isis_tree);
 		break;
 	case ISIS_TYPE_L1_CSNP:
 		isis_dissect_isis_csnp(ISIS_TYPE_L1_CSNP, 
-			ihdr->isis_header_length, pd, offset, fd, isis_tree);
+			ihdr->isis_header_length, id_length,
+			pd, offset, fd, isis_tree);
 		break;
 	case ISIS_TYPE_L2_CSNP:
 		isis_dissect_isis_csnp(ISIS_TYPE_L2_CSNP,
-			ihdr->isis_header_length, pd, offset, fd, isis_tree);
+			ihdr->isis_header_length, id_length,
+			pd, offset, fd, isis_tree);
 		break;
 	case ISIS_TYPE_L1_PSNP:
 		isis_dissect_isis_psnp(ISIS_TYPE_L1_PSNP, 
-			ihdr->isis_header_length, pd, offset, fd, isis_tree);
+			ihdr->isis_header_length, id_length,
+			pd, offset, fd, isis_tree);
 		break;
 	case ISIS_TYPE_L2_PSNP:
 		isis_dissect_isis_psnp(ISIS_TYPE_L2_PSNP,
-			ihdr->isis_header_length, pd, offset, fd, isis_tree);
+			ihdr->isis_header_length, id_length,
+			pd, offset, fd, isis_tree);
 		break;
 	default:
 		isis_dissect_unknown(offset, END_OF_FRAME, tree, fd,

@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.5 2000/05/31 05:07:12 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.6 2000/06/19 08:33:47 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -288,7 +288,7 @@ isis_dissect_nlpid_clv(const u_char *pd, int offset,
  *	void, but we will add to proto tree if !NULL.
  */
 void 
-isis_dissect_clvs(const isis_clv_handle_t *opts, int len, 
+isis_dissect_clvs(const isis_clv_handle_t *opts, int len, int id_length,
 		const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		gint unknown_tree_id ) { 
 	guint8 code;
@@ -326,7 +326,8 @@ isis_dissect_clvs(const isis_clv_handle_t *opts, int len,
 			} else {
 				clv_tree = NULL;
 			}
-			opts[q].dissect(pd, offset, length, fd, clv_tree );
+			opts[q].dissect(pd, offset, length, id_length, fd,
+				clv_tree );
 		} else {
 			if (tree) { 
 				snprintf ( sbuf, sizeof(sbuf), 
