@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.52 2003/12/17 20:52:38 guy Exp $
+ * $Id: packet-sip.c,v 1.53 2004/01/02 02:03:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,9 @@ static gint proto_sip = -1;
 static gint proto_raw_sip = -1;
 static gint hf_msg_hdr = -1;
 static gint hf_Method = -1;
+static gint hf_Request_Line = -1;
 static gint hf_Status_Code = -1;
+static gint hf_Status_Line = -1;
 static gint hf_sip_to_addr = -1;
 static gint hf_sip_from_addr = -1;
 static gint hf_sip_tag = -1;
@@ -465,22 +467,27 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ts = proto_tree_add_item(tree, proto_sip, tvb, 0, -1, FALSE);
                 sip_tree = proto_item_add_subtree(ts, ett_sip);
 
-                ti = proto_tree_add_text(sip_tree, tvb, 0, next_offset,
-                                         "%s line: %s", descr,
-                                         tvb_format_text(tvb, 0, linelen));
-                reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
-
 		switch (line_type) {
 
                 case REQUEST_LINE:
+		        ti = proto_tree_add_string(sip_tree, hf_Request_Line, tvb, 0, linelen,
+                                              tvb_format_text(tvb, 0, linelen));
+                        reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
                         dfilter_sip_request_line(tvb, reqresp_tree, token_1_len);
                         break;
 
                 case STATUS_LINE:
+                        ti = proto_tree_add_string(sip_tree, hf_Status_Line, tvb, 0, linelen,
+                                              tvb_format_text(tvb, 0, linelen));
+                        reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
                         dfilter_sip_status_line(tvb, reqresp_tree);
                         break;
 
 		case OTHER_LINE:
+                        ti = proto_tree_add_text(sip_tree, tvb, 0, next_offset,
+                                                 "%s line: %s", descr,
+                                                 tvb_format_text(tvb, 0, linelen));
+                        reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
 		        proto_tree_add_text(sip_tree, tvb, 0, -1,
 		            "Continuation data");
 		        return TRUE;
@@ -1006,11 +1013,21 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"SIP Method", HFILL }
 		},
+                { &hf_Request_Line,
+                       { "Request-Line",                "sip.Request-Line",
+                       FT_STRING, BASE_NONE,NULL,0x0,
+                       "SIP Request-Line", HFILL }
+                },
                 { &hf_Status_Code,
 		       { "Status-Code", 		"sip.Status-Code", 
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"SIP Status Code", HFILL }
 		},
+		{ &hf_Status_Line,
+		       { "Status-Line",                 "sip.Status-Line",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+                       "SIP Status-Line", HFILL }
+                },
                 { &hf_sip_to_addr,
 		       { "SIP to address", 		"sip.from_addr", 
 		       FT_STRING, BASE_NONE,NULL,0x0,
