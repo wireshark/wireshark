@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.7 1999/08/28 21:59:30 gram Exp $
+ * $Id: packet-rsvp.c,v 1.8 1999/08/29 04:15:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -382,7 +382,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    obj->class, object_type);
 		switch(obj->type) {
 		case 1: {
-		    rsvp_session_ipv4 *sess = (rsvp_session_ipv4 *)obj;
+		    /*rsvp_session_ipv4 *sess = (rsvp_session_ipv4 *)obj;*/
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 1 - IPv4");
 		    /*
