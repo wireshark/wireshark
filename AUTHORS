@@ -1769,6 +1769,10 @@ Oleg Terletsky <oleg.terletsky [AT] comverse.com> {
 	LWRES support
 }
 
+Michael Lum <mlum [AT] telostech.com> {
+	Support for saving list of disabled protocols
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

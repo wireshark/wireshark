@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.43 2003/07/22 03:14:28 gerald Exp $
+ * $Id: prefs.h,v 1.44 2003/08/07 00:41:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,14 +226,16 @@ extern void prefs_register_modules(void);
 
    If we got an error (other than "it doesn't exist") trying to read
    the global preferences file, stuff the errno into "*gpf_errno_return"
-   and a pointer to the path of the file into "*gpf_path_return", and
+   on an open error and into "*gpf_read_errno_return" on a read error,
+   stuff a pointer to the path of the file into "*gpf_path_return", and
    return NULL.
 
    If we got an error (other than "it doesn't exist") trying to read
    the user's preferences file, stuff the errno into "*pf_errno_return"
-   and a pointer to the path of the file into "*pf_path_return", and
+   on an open error and into "*pf_read_errno_return" on a read error,
+   stuff a pointer to the path of the file into "*pf_path_return", and
    return NULL. */
-extern e_prefs *read_prefs(int *, char **, int *, char **);
+extern e_prefs *read_prefs(int *, int *, char **, int *, int *, char **);
 
 /* Write out "prefs" to the user's preferences file, and return 0.
 

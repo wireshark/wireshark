@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.25 2003/01/26 19:35:31 deniel Exp $
+ * $Id: proto_dlg.c,v 1.26 2003/08/07 00:41:28 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -38,11 +38,15 @@
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "proto_dlg.h"
+#include "simple_dialog.h"
 #include "compat_macros.h"
+#include "disabled_protos.h"
+#include <epan/filesystem.h>
 
 static gboolean proto_delete_cb(GtkWidget *, gpointer);
 static void proto_ok_cb(GtkWidget *, gpointer);
 static void proto_apply_cb(GtkWidget *, gpointer);
+static void proto_save_cb(GtkWidget *, gpointer);
 static void proto_cancel_cb(GtkWidget *, gpointer);
 static void proto_destroy_cb(GtkWidget *, gpointer);
 
@@ -244,6 +248,16 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(button);
 
 #if GTK_MAJOR_VERSION < 2
+  button = gtk_button_new_with_label ("Save");
+#else
+  button = gtk_button_new_from_stock(GTK_STOCK_SAVE);
+#endif
+  SIGNAL_CONNECT(button, "clicked", proto_save_cb, proto_w);
+  GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+  gtk_box_pack_start(GTK_BOX (bbox), button, TRUE, TRUE, 0);
+  gtk_widget_show(button);
+
+#if GTK_MAJOR_VERSION < 2
   button = gtk_button_new_with_label ("Cancel");
 #else
   button = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
@@ -430,6 +444,42 @@ proto_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 {
   if (set_proto_selection(GTK_WIDGET(parent_w)))
     redissect_packets(&cfile);
+}
+
+static void
+proto_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
+{
+  gboolean must_redissect = FALSE;
+  char *pf_dir_path;
+  char *pf_path;
+  int pf_save_errno;
+
+  /* Create the directory that holds personal configuration files, if
+     necessary.  */
+  if (create_persconffile_dir(&pf_dir_path) == -1) {
+     simple_dialog(ESD_TYPE_WARN, NULL,
+      "Can't create directory\n\"%s\"\nfor disabled protocols file: %s.", pf_dir_path,
+      strerror(errno));
+     g_free(pf_dir_path);
+  } else {
+    /*
+     * make disabled/enabled protocol settings current
+     */
+    must_redissect = set_proto_selection(GTK_WIDGET(parent_w));
+
+    save_disabled_protos_list(&pf_path, &pf_save_errno);
+    if (pf_path != NULL) {
+	simple_dialog(ESD_TYPE_WARN, NULL,
+	    "Could not save to your disabled protocols file\n\"%s\": %s.",
+	    pf_path, strerror(pf_save_errno));
+	g_free(pf_path);
+    }
+  }
+
+  if (must_redissect) {
+    /* Redissect all the packets, and re-evaluate the display filter. */
+    redissect_packets(&cfile);
+  }
 }
 
 static void

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.303 2003/07/25 04:11:51 gram Exp $
+ * $Id: main.c,v 1.304 2003/08/07 00:41:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,6 +84,7 @@
 #include "summary.h"
 #include "file.h"
 #include "filters.h"
+#include "disabled_protos.h"
 #include "prefs.h"
 #include "menu.h"
 #include "../menu.h"
@@ -1445,9 +1446,12 @@ main(int argc, char *argv[])
   WSADATA 	       wsaData;
 #endif  /* WIN32 */
 
-  char                *gpf_path, *cf_path, *df_path;
-  char                *pf_path;
-  int                  gpf_open_errno, pf_open_errno, cf_open_errno, df_open_errno;
+  char                *gpf_path, *pf_path;
+  char                *cf_path, *df_path, *dp_path;
+  int                  gpf_open_errno, gpf_read_errno;
+  int                  pf_open_errno, pf_read_errno;
+  int                  cf_open_errno, df_open_errno;
+  int                  dp_open_errno, dp_read_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
@@ -1601,7 +1605,8 @@ main(int argc, char *argv[])
   gtk_init (&argc, &argv);
 
   /* Read the preference files. */
-  prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
+  prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+                     &pf_open_errno, &pf_read_errno, &pf_path);
 
 #ifdef HAVE_LIBPCAP
   capture_opts.has_snaplen = FALSE;
@@ -1645,6 +1650,9 @@ main(int argc, char *argv[])
 
   /* Read the display filter file. */
   read_filter_list(DFILTER_LIST, &df_path, &df_open_errno);
+
+  /* Read the disabled protocols file. */
+  read_disabled_protos_list(&dp_path, &dp_open_errno, &dp_read_errno);
 
   init_cap_file(&cfile);
 
@@ -1977,6 +1985,11 @@ main(int argc, char *argv[])
      line that their preferences have changed. */
   prefs_apply_all();
 
+  /* disabled protocols as per configuration file */
+  if (dp_path == NULL) {
+    set_disabled_protos_list();
+  }
+
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)
     fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
@@ -2215,24 +2228,40 @@ main(int argc, char *argv[])
   }
 #endif
 
-  /* If the global preferences file exists but we failed to open it,
-     pop up an alert box; we defer that until now, so that the alert
-     box is more likely to come up on top of the main window. */
+  /* If the global preferences file exists but we failed to open it
+     or had an error reading it, pop up an alert box; we defer that
+     until now, so that the alert box is more likely to come up on top of
+     the main window. */
   if (gpf_path != NULL) {
+    if (gpf_open_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, NULL,
         "Could not open global preferences file\n\"%s\": %s.", gpf_path,
         strerror(gpf_open_errno));
+    }
+    if (gpf_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
+        strerror(gpf_read_errno));
+    }
   }
 
-  /* If the user's preferences file exists but we failed to open it,
-     pop up an alert box; we defer that until now, so that the alert
-     box is more likely to come up on top of the main window. */
+  /* If the user's preferences file exists but we failed to open it
+     or had an error reading it, pop up an alert box; we defer that
+     until now, so that the alert box is more likely to come up on top of
+     the main window. */
   if (pf_path != NULL) {
+    if (pf_open_errno != 0) {
       simple_dialog(ESD_TYPE_WARN, NULL,
         "Could not open your preferences file\n\"%s\": %s.", pf_path,
         strerror(pf_open_errno));
-      g_free(pf_path);
-      pf_path = NULL;
+    }
+    if (pf_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
+        strerror(pf_read_errno));
+    }
+    g_free(pf_path);
+    pf_path = NULL;
   }
 
   /* If the user's capture filter file exists but we failed to open it,
@@ -2253,6 +2282,24 @@ main(int argc, char *argv[])
         "Could not open your display filter file\n\"%s\": %s.", df_path,
         strerror(df_open_errno));
       g_free(df_path);
+  }
+
+  /* If the user's disabled protocols file exists but we failed to open it,
+     or had an error reading it, pop up an alert box; we defer that until now,
+     so that the alert box is more likely to come up on top of the main
+     window. */
+  if (dp_path != NULL) {
+    if (dp_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
+        strerror(dp_open_errno));
+    }
+    if (dp_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
+        strerror(dp_read_errno));
+    }
+    g_free(dp_path);
   }
 
 #ifdef HAVE_LIBPCAP
@@ -2289,68 +2336,69 @@ main(int argc, char *argv[])
 
   gtk_main();
 
-	/* Try to save our geometry.  GTK+ provides two routines to get a
-		 window's position relative to the X root window.  If I understand the
-		 documentation correctly, gdk_window_get_deskrelative_origin applies
-		 mainly to Enlightenment and gdk_window_get_root_origin applies for
-		 all other WMs.
+  /* Try to save our geometry.  GTK+ provides two routines to get a
+     window's position relative to the X root window.  If I understand the
+     documentation correctly, gdk_window_get_deskrelative_origin applies
+     mainly to Enlightenment and gdk_window_get_root_origin applies for
+     all other WMs.
 
-	   The code below tries both routines, and picks the one that returns
-	   the upper-left-most coordinates.
+     The code below tries both routines, and picks the one that returns
+     the upper-left-most coordinates.
 
-	   More info at:
+     More info at:
 
-	   http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
-	   http://www.gtk.org/faq/#AEN600 */
+	http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
+	http://www.gtk.org/faq/#AEN600 */
 
-	/* Re-read our saved preferences. */
-	/* XXX - Move all of this into a separate function? */
-	prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
+  /* Re-read our saved preferences. */
+  /* XXX - Move all of this into a separate function? */
+  prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+	             &pf_open_errno, &pf_read_errno, &pf_path);
 
-	if (pf_path == NULL) {
- 		if (prefs->gui_geometry_save_position) {
-			if (top_level->window != NULL) {
-				gdk_window_get_root_origin(top_level->window, &root_x, &root_y);
-				if (gdk_window_get_deskrelative_origin(top_level->window,
-							&desk_x, &desk_y)) {
-					if (desk_x <= root_x && desk_y <= root_y) {
-						root_x = desk_x;
-						root_y = desk_y;
-					}
-				}
-			}
-			if (prefs->gui_geometry_main_x != root_x) {
-				prefs->gui_geometry_main_x = root_x;
-				prefs_write_needed = TRUE;
-			}
-			if (prefs->gui_geometry_main_y != root_y) {
-				prefs->gui_geometry_main_y = root_y;
-				prefs_write_needed = TRUE;
-			}
-		}
-
-		if (prefs->gui_geometry_save_size) {
-			if (top_level->window != NULL) {
-				/* XXX - Is this the "approved" method? */
-				gdk_window_get_size(top_level->window, &top_width, &top_height);
-			}
-			if (prefs->gui_geometry_main_width != top_width) {
-				prefs->gui_geometry_main_width = top_width;
-				prefs_write_needed = TRUE;
-			}
-			if (prefs->gui_geometry_main_height != top_height) {
-				prefs->gui_geometry_main_height = top_height;
-				prefs_write_needed = TRUE;
-			}
-		}
-
-		if (prefs_write_needed) {
-			write_prefs(&pf_path);
-		}
-	} else {
-		/* Ignore errors silently */
-		g_free(pf_path);
+  if (pf_path == NULL) {
+    if (prefs->gui_geometry_save_position) {
+      if (top_level->window != NULL) {
+	gdk_window_get_root_origin(top_level->window, &root_x, &root_y);
+	if (gdk_window_get_deskrelative_origin(top_level->window,
+					       &desk_x, &desk_y)) {
+	  if (desk_x <= root_x && desk_y <= root_y) {
+	    root_x = desk_x;
+	    root_y = desk_y;
+	  }
 	}
+      }
+      if (prefs->gui_geometry_main_x != root_x) {
+	prefs->gui_geometry_main_x = root_x;
+	prefs_write_needed = TRUE;
+      }
+      if (prefs->gui_geometry_main_y != root_y) {
+	prefs->gui_geometry_main_y = root_y;
+	prefs_write_needed = TRUE;
+      }
+    }
+
+    if (prefs->gui_geometry_save_size) {
+      if (top_level->window != NULL) {
+	/* XXX - Is this the "approved" method? */
+	gdk_window_get_size(top_level->window, &top_width, &top_height);
+      }
+      if (prefs->gui_geometry_main_width != top_width) {
+	prefs->gui_geometry_main_width = top_width;
+	prefs_write_needed = TRUE;
+      }
+      if (prefs->gui_geometry_main_height != top_height) {
+	prefs->gui_geometry_main_height = top_height;
+	prefs_write_needed = TRUE;
+      }
+    }
+
+    if (prefs_write_needed) {
+      write_prefs(&pf_path);
+    }
+  } else {
+    /* Ignore errors silently */
+    g_free(pf_path);
+  }
 
   epan_cleanup();
   g_free(rc_file);

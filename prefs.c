@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.103 2003/08/04 17:32:46 guy Exp $
+ * $Id: prefs.c,v 1.104 2003/08/07 00:41:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -847,7 +847,7 @@ print.file: /a/very/long/path/
 
 #define DEF_NUM_COLS    6
 
-static void read_prefs_file(const char *pf_path, FILE *pf);
+static int read_prefs_file(const char *pf_path, FILE *pf);
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
@@ -861,10 +861,12 @@ static void read_prefs_file(const char *pf_path, FILE *pf);
    and a pointer to the path of the file into "*pf_path_return", and
    return NULL. */
 e_prefs *
-read_prefs(int *gpf_errno_return, char **gpf_path_return,
-	   int *pf_errno_return, char **pf_path_return)
+read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
+	   char **gpf_path_return, int *pf_errno_return,
+	   int *pf_read_errno_return, char **pf_path_return)
 {
   int         i;
+  int         err;
   char       *pf_path;
   FILE       *pf;
   fmt_data   *cfmt;
@@ -994,7 +996,14 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
   *gpf_path_return = NULL;
   if ((pf = fopen(gpf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    read_prefs_file(gpf_path, pf);
+    err = read_prefs_file(gpf_path, pf);
+    if (err != 0) {
+      /* We had an error reading the file; return the errno and the
+         pathname, so our caller can report the error. */
+      *gpf_errno_return = 0;
+      *gpf_read_errno_return = err;
+      *gpf_path_return = gpf_path;
+    }
     fclose(pf);
   } else {
     /* We failed to open it.  If we failed for some reason other than
@@ -1002,6 +1011,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
        caller can report the error. */
     if (errno != ENOENT) {
       *gpf_errno_return = errno;
+      *gpf_read_errno_return = 0;
       *gpf_path_return = gpf_path;
     }
   }
@@ -1013,16 +1023,23 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
   *pf_path_return = NULL;
   if ((pf = fopen(pf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    read_prefs_file(pf_path, pf);
+    err = read_prefs_file(pf_path, pf);
+    if (err != 0) {
+      /* We had an error reading the file; return the errno and the
+         pathname, so our caller can report the error. */
+      *pf_errno_return = 0;
+      *pf_read_errno_return = err;
+      *pf_path_return = pf_path;
+    } else
+      g_free(pf_path);
     fclose(pf);
-    g_free(pf_path);
-    pf_path = NULL;
   } else {
     /* We failed to open it.  If we failed for some reason other than
        "it doesn't exist", return the errno and the pathname, so our
        caller can report the error. */
     if (errno != ENOENT) {
       *pf_errno_return = errno;
+      *pf_read_errno_return = 0;
       *pf_path_return = pf_path;
     }
   }
@@ -1030,7 +1047,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
   return &prefs;
 }
 
-static void
+static int
 read_prefs_file(const char *pf_path, FILE *pf)
 {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
@@ -1161,6 +1178,10 @@ read_prefs_file(const char *pf_path, FILE *pf)
       g_warning ("%s line %d: Incomplete preference", pf_path, pline);
     }
   }
+  if (ferror(pf))
+    return errno;
+  else
+    return 0;
 }
 
 /*

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.190 2003/07/25 04:11:50 gram Exp $
+ * $Id: tethereal.c,v 1.191 2003/08/07 00:41:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,6 +76,7 @@
 #include <epan/timestamp.h>
 #include <epan/packet.h>
 #include "file.h"
+#include "disabled_protos.h"
 #include "prefs.h"
 #include "column.h"
 #include "print.h"
@@ -748,9 +749,11 @@ main(int argc, char *argv[])
   WSADATA		wsaData;
 #endif	/* _WIN32 */
 
-  char                *gpf_path;
-  char                *pf_path;
-  int                  gpf_open_errno, pf_open_errno;
+  char                *gpf_path, *pf_path;
+  char                *dp_path;
+  int                  gpf_open_errno, gpf_read_errno;
+  int                  pf_open_errno, pf_read_errno;
+  int                  dp_open_errno, dp_read_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             capture_filter_specified = FALSE;
@@ -810,20 +813,49 @@ main(int argc, char *argv[])
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
 
-  prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
+  prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+                     &pf_open_errno, &pf_read_errno, &pf_path);
   if (gpf_path != NULL) {
-    fprintf(stderr, "Can't open global preferences file \"%s\": %s.\n", pf_path,
-        strerror(gpf_open_errno));
+    if (gpf_open_errno != 0) {
+      fprintf(stderr, "Can't open global preferences file \"%s\": %s.\n",
+              pf_path, strerror(gpf_open_errno));
+    }
+    if (gpf_read_errno != 0) {
+      fprintf(stderr, "I/O error reading global preferences file \"%s\": %s.\n",
+              pf_path, strerror(gpf_read_errno));
+    }
   }
   if (pf_path != NULL) {
-    fprintf(stderr, "Can't open your preferences file \"%s\": %s.\n", pf_path,
-        strerror(pf_open_errno));
+    if (pf_open_errno != 0) {
+      fprintf(stderr, "Can't open your preferences file \"%s\": %s.\n", pf_path,
+              strerror(pf_open_errno));
+    }
+    if (pf_read_errno != 0) {
+      fprintf(stderr, "I/O error reading your preferences file \"%s\": %s.\n",
+              pf_path, strerror(pf_read_errno));
+    }
     g_free(pf_path);
     pf_path = NULL;
   }
 
   /* Set the name resolution code's flags from the preferences. */
   g_resolv_flags = prefs->name_resolve;
+
+  /* Read the disabled protocols file. */
+  read_disabled_protos_list(&dp_path, &dp_open_errno, &dp_read_errno);
+  if (dp_path != NULL) {
+    if (dp_open_errno != 0) {
+      fprintf(stderr,
+        "Could not open your disabled protocols file\n\"%s\": %s.\n", dp_path,
+        strerror(dp_open_errno));
+    }
+    if (dp_read_errno != 0) {
+      fprintf(stderr,
+        "I/O error reading your disabled protocols file\n\"%s\": %s.\n", dp_path,
+        strerror(dp_read_errno));
+    }
+    g_free(dp_path);
+  }
 
 #ifdef _WIN32
   /* Load Wpcap, if possible */
@@ -1174,6 +1206,11 @@ main(int argc, char *argv[])
      changed either from one of the preferences file or from the command
      line that their preferences have changed. */
   prefs_apply_all();
+
+  /* disabled protocols as per configuration file */
+  if (dp_path == NULL) {
+    set_disabled_protos_list();
+  }
 
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)
