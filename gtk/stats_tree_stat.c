@@ -27,7 +27,6 @@
  TODO:
 
  - make GTK+ 1.2[.x] implementation columns autoresize
- - make top-level node in GTK+ 1.2[.x] implementation start out open
  
 */
 
@@ -123,6 +122,11 @@ static void setup_gtk_node_pr(stat_node* node) {
 		text[0] = node->name;
 		node->pr->node = gtk_ctree_insert_node(GTK_CTREE(node->st->pr->ctree),
 		    parent, NULL, text, 0, NULL, NULL, NULL, NULL, FALSE, FALSE);
+		if (!parent) {
+			/* Force the root node to be expanded. */
+			gtk_ctree_expand(GTK_CTREE(node->st->pr->ctree),
+			    node->pr->node);
+		}
 	}
 #endif
 }
