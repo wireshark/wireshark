@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-gsm_map.c                                                         */
+/* .\packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -201,6 +201,10 @@ static int hf_gsm_map_xres = -1;                  /* OCTET_STRING_SIZE_4_16 */
 static int hf_gsm_map_ck = -1;                    /* OCTET_STRING_SIZE_16 */
 static int hf_gsm_map_ik = -1;                    /* OCTET_STRING_SIZE_16 */
 static int hf_gsm_map_autn = -1;                  /* OCTET_STRING_SIZE_16 */
+static int hf_gsm_map_imei = -1;                  /* Imei */
+static int hf_gsm_map_requestedEquipmentInfo = -1;  /* T_requestedEquipmentInfo */
+static int hf_gsm_map_equipmentStatus = -1;       /* EquipmentStatus */
+static int hf_gsm_map_bmuef = -1;                 /* T_bmuef */
 static int hf_gsm_map_bearerService = -1;         /* OCTET_STRING */
 static int hf_gsm_map_teleservice = -1;           /* Teleservice */
 static int hf_gsm_map_BasicServiceGroupList_item = -1;  /* BasicService */
@@ -424,7 +428,6 @@ static int hf_gsm_map_qos2_Negotiated = -1;       /* OCTET_STRING_SIZE_1_3 */
 static int hf_gsm_map_ps_PDP_ActiveReachableForPaging = -1;  /* T_ps_PDP_ActiveReachableForPaging */
 static int hf_gsm_map_ps_PDP_ActiveReachableForPaging_item = -1;  /* T_ps_PDP_ActiveReachableForPaging_item */
 static int hf_gsm_map_netDetNotReachable = -1;    /* T_netDetNotReachable */
-static int hf_gsm_map_imei = -1;                  /* Imei */
 static int hf_gsm_map_ms_Classmark2 = -1;         /* OCTET_STRING_SIZE_3 */
 static int hf_gsm_map_gprs_MS_Class = -1;         /* T_gprs_MS_Class */
 static int hf_gsm_map_mSNetworkCapability = -1;   /* OCTET_STRING_SIZE_1_8 */
@@ -668,6 +671,8 @@ static int hf_gsm_map_T_offeredCamel4CSIs_t_csi = -1;
 static int hf_gsm_map_T_offeredCamel4CSIs_mt_sms_csi = -1;
 static int hf_gsm_map_T_offeredCamel4CSIs_mg_csi = -1;
 static int hf_gsm_map_T_offeredCamel4CSIs_psi_enhancements = -1;
+static int hf_gsm_map_T_requestedEquipmentInfo_equipmentStatus = -1;
+static int hf_gsm_map_T_requestedEquipmentInfo_bmuef = -1;
 static int hf_gsm_map_Odb_GeneralData_allOGCallsBarred = -1;
 static int hf_gsm_map_Odb_GeneralData_internationalOGCallsBarred = -1;
 static int hf_gsm_map_Odb_GeneralData_internationalOGCallsNotToHPLMNCountryBarred = -1;
@@ -812,6 +817,10 @@ static gint ett_gsm_map_T_tripletList = -1;
 static gint ett_gsm_map_T_tripletList_item = -1;
 static gint ett_gsm_map_T_quintupletList = -1;
 static gint ett_gsm_map_T_quintupletList_item = -1;
+static gint ett_gsm_map_CheckIMEIv2Arg = -1;
+static gint ett_gsm_map_T_requestedEquipmentInfo = -1;
+static gint ett_gsm_map_ChekIMEIv3Res = -1;
+static gint ett_gsm_map_T_bmuef = -1;
 static gint ett_gsm_map_BasicService = -1;
 static gint ett_gsm_map_BasicServiceGroupList = -1;
 static gint ett_gsm_map_Odb_GeneralData = -1;
@@ -1122,6 +1131,8 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	char *digit_str;
 
 	length = tvb_length(tvb);
+	if (length < offset)
+		return NULL;
 	length = length - offset;
 	digit_str = g_malloc(length+1);
 
@@ -3247,6 +3258,9 @@ dissect_gsm_map_Imei(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
   return offset;
 }
+static int dissect_imei(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_Imei(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imei);
+}
 static int dissect_imei_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_Imei(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_imei);
 }
@@ -3255,6 +3269,39 @@ static int dissect_imei_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 static int
 dissect_gsm_map_CheckIMEIArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_gsm_map_Imei(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+static const asn_namedbit T_requestedEquipmentInfo_bits[] = {
+  {  0, &hf_gsm_map_T_requestedEquipmentInfo_equipmentStatus, -1, -1, NULL, NULL },
+  {  1, &hf_gsm_map_T_requestedEquipmentInfo_bmuef, -1, -1, NULL, NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_gsm_map_T_requestedEquipmentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                 T_requestedEquipmentInfo_bits, hf_index, ett_gsm_map_T_requestedEquipmentInfo,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_requestedEquipmentInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_T_requestedEquipmentInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_requestedEquipmentInfo);
+}
+
+static const ber_sequence_t CheckIMEIv2Arg_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imei },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_requestedEquipmentInfo },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_CheckIMEIv2Arg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                CheckIMEIv2Arg_sequence, hf_index, ett_gsm_map_CheckIMEIv2Arg);
 
   return offset;
 }
@@ -3271,6 +3318,41 @@ static const value_string gsm_map_EquipmentStatus_vals[] = {
 static int
 dissect_gsm_map_EquipmentStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_equipmentStatus(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_EquipmentStatus(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_equipmentStatus);
+}
+
+static const ber_sequence_t T_bmuef_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uesbi_IuA_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uesbi_IuB_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_T_bmuef(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                T_bmuef_sequence, hf_index, ett_gsm_map_T_bmuef);
+
+  return offset;
+}
+static int dissect_bmuef(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_T_bmuef(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_bmuef);
+}
+
+static const ber_sequence_t ChekIMEIv3Res_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_equipmentStatus },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_bmuef },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ChekIMEIv3Res(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ChekIMEIv3Res_sequence, hf_index, ett_gsm_map_ChekIMEIv3Res);
 
   return offset;
 }
@@ -10743,7 +10825,11 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ProcessGroupCallSignallingArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 43: /*checkIMEI*/
-    offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  if (application_context_version < 2 ){
+		  offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  }else{
+		  offset=dissect_gsm_map_CheckIMEIv2Arg(FALSE, tvb, offset, pinfo, tree, -1);
+	  }
     break;
   case 44: /*mt-forwardSM*/
     offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -10942,7 +11028,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     dissect_gsm_map_SendGroupCallEndSignalRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 43: /*checkIMEI*/
-    offset=dissect_gsm_map_EquipmentStatus(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_EquipmentStatus(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_equipmentStatus);
     break;
   case 45: /*sendRoutingInfoForSM*/
     offset=dissect_gsm_map_RoutingInfoForSMRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -11537,11 +11623,11 @@ void proto_register_gsm_map(void) {
         FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_p_values), 0x04,
         "P bit", HFILL }},
 	{ &hf_gsm_map_Ss_Status_r_bit,
-      { "R bit", "ss_status_r_bit",
+      { "R bit", "gsm_map.ss_status_r_bit",
         FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_r_values), 0x02,
         "R bit", HFILL }},
 	{ &hf_gsm_map_Ss_Status_a_bit,
-      { "A bit", "ss_status_a_bit",
+      { "A bit", "gsm_map.ss_status_a_bit",
         FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_a_values), 0x01,
         "A bit", HFILL }},
 
@@ -11855,11 +11941,11 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_map_uesbi_IuA,
       { "uesbi-IuA", "gsm_map.uesbi_IuA",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "PrepareHandoverV3Arg/uesbi-Iu/uesbi-IuA", HFILL }},
+        "", HFILL }},
     { &hf_gsm_map_uesbi_IuB,
       { "uesbi-IuB", "gsm_map.uesbi_IuB",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "PrepareHandoverV3Arg/uesbi-Iu/uesbi-IuB", HFILL }},
+        "", HFILL }},
     { &hf_gsm_map_handoverNumber,
       { "handoverNumber", "gsm_map.handoverNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -11984,6 +12070,22 @@ void proto_register_gsm_map(void) {
       { "autn", "gsm_map.autn",
         FT_BYTES, BASE_HEX, NULL, 0,
         "SendAuthenticationInfoV3Res/authenticationSetList/quintupletList/_item/autn", HFILL }},
+    { &hf_gsm_map_imei,
+      { "imei", "gsm_map.imei",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_gsm_map_requestedEquipmentInfo,
+      { "requestedEquipmentInfo", "gsm_map.requestedEquipmentInfo",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CheckIMEIv2Arg/requestedEquipmentInfo", HFILL }},
+    { &hf_gsm_map_equipmentStatus,
+      { "equipmentStatus", "gsm_map.equipmentStatus",
+        FT_UINT32, BASE_DEC, VALS(gsm_map_EquipmentStatus_vals), 0,
+        "ChekIMEIv3Res/equipmentStatus", HFILL }},
+    { &hf_gsm_map_bmuef,
+      { "bmuef", "gsm_map.bmuef",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ChekIMEIv3Res/bmuef", HFILL }},
     { &hf_gsm_map_bearerService,
       { "bearerService", "gsm_map.bearerService",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -12876,10 +12978,6 @@ void proto_register_gsm_map(void) {
       { "netDetNotReachable", "gsm_map.netDetNotReachable",
         FT_UINT32, BASE_DEC, VALS(gsm_map_T_netDetNotReachable_vals), 0,
         "SubscriberInfo/ps-SubscriberState/netDetNotReachable", HFILL }},
-    { &hf_gsm_map_imei,
-      { "imei", "gsm_map.imei",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
     { &hf_gsm_map_ms_Classmark2,
       { "ms-Classmark2", "gsm_map.ms_Classmark2",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -13848,6 +13946,14 @@ void proto_register_gsm_map(void) {
       { "psi-enhancements", "gsm_map.psi-enhancements",
         FT_BOOLEAN, 8, NULL, 0x02,
         "", HFILL }},
+    { &hf_gsm_map_T_requestedEquipmentInfo_equipmentStatus,
+      { "equipmentStatus", "gsm_map.equipmentStatus",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_gsm_map_T_requestedEquipmentInfo_bmuef,
+      { "bmuef", "gsm_map.bmuef",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
     { &hf_gsm_map_Odb_GeneralData_allOGCallsBarred,
       { "allOGCallsBarred", "gsm_map.allOGCallsBarred",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -14218,6 +14324,10 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_T_tripletList_item,
     &ett_gsm_map_T_quintupletList,
     &ett_gsm_map_T_quintupletList_item,
+    &ett_gsm_map_CheckIMEIv2Arg,
+    &ett_gsm_map_T_requestedEquipmentInfo,
+    &ett_gsm_map_ChekIMEIv3Res,
+    &ett_gsm_map_T_bmuef,
     &ett_gsm_map_BasicService,
     &ett_gsm_map_BasicServiceGroupList,
     &ett_gsm_map_Odb_GeneralData,
