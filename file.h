@@ -55,6 +55,29 @@ typedef enum {
 	CF_PRINT_WRITE_ERROR    /**< print operation failed while writing to the printer */
 } cf_print_status_t;
 
+typedef enum {
+    cf_cb_file_closed,
+    cf_cb_file_read_start,
+    cf_cb_file_read_finished,
+    cf_cb_live_capture_started,
+    cf_cb_live_capture_finished,
+    cf_cb_packet_selected,
+    cf_cb_packet_unselected,
+    cf_cb_field_unselected,
+    cf_cb_file_safe_started,
+    cf_cb_file_safe_finished,
+    cf_cb_file_safe_reload_finished,
+    cf_cb_file_safe_failed
+} cf_cbs;
+
+typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
+
+extern void
+cf_callback_add(cf_callback_t func, gpointer user_data);
+
+extern void
+cf_callback_remove(cf_callback_t func);
+
 /**
  * Open a capture file.
  *

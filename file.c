@@ -73,15 +73,12 @@
 #include "packet-range.h"
 #include "print.h"
 #include "file.h"
-#include "main_window.h"
-#include "menu.h"
 #include "util.h"
 #include "merge.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "progress_dlg.h"
 #include "ui_util.h"
-#include "statusbar.h"
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/conversation.h>
@@ -89,7 +86,6 @@
 #include <epan/tap.h>
 #include "tap_dfilter_dlg.h"
 #include <epan/dissectors/packet-data.h>
-#include "capture_ui_utils.h"
 
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY
@@ -142,6 +138,39 @@ static   gboolean copy_binary_file(const char *from_filename, const char *to_fil
 /* Number of "frame_data" structures per memory chunk.
    XXX - is this the right number? */
 #define	FRAME_DATA_CHUNK_SIZE	1024
+
+
+typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
+
+/* one callback for now, we could have a list later */
+cf_callback_t cf_cb = NULL;
+gpointer cf_cb_user_data = NULL;
+
+void
+cf_callback_invoke(int event, gpointer data)
+{
+    g_assert(cf_cb != NULL);
+    cf_cb(event, data, cf_cb_user_data);
+}
+
+
+void
+cf_callback_add(cf_callback_t func, gpointer user_data)
+{
+    /* More than one callback listener is currently not implemented,
+       but should be easy to do. */
+    g_assert(cf_cb == NULL);
+    cf_cb = func;
+    cf_cb_user_data = user_data;
+}
+
+void
+cf_callback_remove(cf_callback_t func)
+{
+    g_assert(cf_cb != NULL);
+    cf_cb = NULL;
+    cf_cb_user_data = NULL;
+}
 
 
 cf_status_t
@@ -227,10 +256,6 @@ cf_close(capture_file *cf)
   /* Die if we're in the middle of reading a file. */
   g_assert(cf->state != FILE_READ_IN_PROGRESS);
 
-  /* Destroy all windows, which refer to the
-     capture file we're closing. */
-  destroy_cfile_wins();
-
   if (cf->wth) {
     wtap_close(cf->wth);
     cf->wth = NULL;
@@ -274,75 +299,12 @@ cf_close(capture_file *cf)
   cf->esec  = 0;
   cf->eusec = 0;
 
-  /* Clear any file-related status bar messages.
-     XXX - should be "clear *ALL* file-related status bar messages;
-     will there ever be more than one on the stack? */
-  statusbar_pop_file_msg();
-
-  /* Restore the standard title bar message. */
-  set_main_window_name("The Ethereal Network Analyzer");
-
-  /* Disable all menu items that make sense only if you have a capture. */
-  set_menus_for_capture_file(FALSE);
-  set_menus_for_unsaved_capture_file(FALSE);
-  set_menus_for_captured_packets(FALSE);
-  set_menus_for_selected_packet(cf);
-  set_menus_for_capture_in_progress(FALSE);
-  set_menus_for_selected_tree_row(cf);
-
-  /* Set up main window for no capture file. */
-  main_set_for_capture_file(FALSE);
+  cf_callback_invoke(cf_cb_file_closed, cf);
 
   reset_tap_listeners();
 
   /* We have no file open. */
   cf->state = FILE_CLOSED;
-}
-
-/* Set the file name in the status line, in the name for the main window,
-   and in the name for the main window's icon. */
-static void
-set_display_filename(capture_file *cf)
-{
-  const gchar *name_ptr;
-  size_t       msg_len;
-  static const gchar done_fmt_nodrops[] = " File: %s %s %02u:%02u:%02u";
-  static const gchar done_fmt_drops[] = " File: %s %s %02u:%02u:%02u Drops: %u";
-  gchar       *done_msg;
-  gchar       *win_name_fmt = "%s - Ethereal";
-  gchar       *win_name;
-  gchar       *size_str;
-
-  name_ptr = cf_get_display_name(cf);
-	
-  if (!cf->is_tempfile) {
-    /* Add this filename to the list of recent files in the "Recent Files" submenu */
-    add_menu_recent_capture_file(cf->filename);
-  }
-
-  if (cf->f_len/1024/1024 > 10) {
-    size_str = g_strdup_printf("%ld MB", cf->f_len/1024/1024);
-  } else if (cf->f_len/1024 > 10) {
-    size_str = g_strdup_printf("%ld KB", cf->f_len/1024);
-  } else {
-    size_str = g_strdup_printf("%ld bytes", cf->f_len);
-  }
-
-  if (cf->drops_known) {
-    done_msg = g_strdup_printf(done_fmt_drops, name_ptr, size_str, 
-        cf->esec/3600, cf->esec%3600/60, cf->esec%60, cf->drops);
-  } else {
-    done_msg = g_strdup_printf(done_fmt_nodrops, name_ptr, size_str,
-        cf->esec/3600, cf->esec%3600/60, cf->esec%60);
-  }
-  statusbar_push_file_msg(done_msg);
-  g_free(done_msg);
-
-  msg_len = strlen(name_ptr) + strlen(win_name_fmt) + 1;
-  win_name = g_malloc(msg_len);
-  snprintf(win_name, msg_len, win_name_fmt, name_ptr);
-  set_main_window_name(win_name);
-  g_free(win_name);
 }
 
 cf_read_status_t
@@ -373,14 +335,13 @@ cf_read(capture_file *cf)
   int          progbar_quantum;
 
   cum_bytes=0;
+
   reset_tap_listeners();
   tap_dfilter_dlg_update();
+
+  cf_callback_invoke(cf_cb_file_read_start, cf);
+
   name_ptr = get_basename(cf->filename);
-
-  load_msg = g_strdup_printf(" Loading: %s", name_ptr);
-  statusbar_push_file_msg(load_msg);
-  g_free(load_msg);
-
   load_msg = g_strdup_printf(load_fmt, name_ptr);
 
   /* Update the progress bar when it gets to this value. */
@@ -471,19 +432,7 @@ cf_read(capture_file *cf)
   cf->current_frame = cf->first_displayed;
   packet_list_thaw();
 
-  statusbar_pop_file_msg();
-  set_display_filename(cf);
-
-  /* Enable menu items that make sense if you have a capture file you've
-     finished reading. */
-  set_menus_for_capture_file(TRUE);
-  set_menus_for_unsaved_capture_file(!cf->user_saved);
-
-  /* Set up main window for a capture file. */
-  main_set_for_capture_file(TRUE);
-
-  /* Enable menu items that make sense if you have some captured packets. */
-  set_menus_for_captured_packets(TRUE);
+  cf_callback_invoke(cf_cb_file_read_finished, cf);
 
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
@@ -540,28 +489,11 @@ cf_read(capture_file *cf)
 cf_status_t
 cf_start_tail(capture_file *cf, const char *fname, const char *iface, gboolean is_tempfile, int *err)
 {
-  gchar *capture_msg;
   cf_status_t cf_status;
 
   cf_status = cf_open(cf, fname, is_tempfile, err);
   if (cf_status == CF_OK) {
-    /* Disable menu items that make no sense if you're currently running
-       a capture. */
-    set_menus_for_capture_in_progress(TRUE);
-
-    /* Enable menu items that make sense if you have some captured
-       packets (yes, I know, we don't have any *yet*). */
-    set_menus_for_captured_packets(TRUE);
-
-    /* Set up main window for a capture file. */
-    main_set_for_capture_file(TRUE);
-
-    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(iface));
-
-    statusbar_push_file_msg(capture_msg);
-
-    g_free(capture_msg);
-
+    cf_callback_invoke(cf_cb_live_capture_started, cf);
   }
   return cf_status;
 }
@@ -669,22 +601,7 @@ cf_finish_tail(capture_file *cf, int *err)
      WTAP_ENCAP_PER_PACKET). */
   cf->lnk_t = wtap_file_encap(cf->wth);
 
-  /* Pop the "<live capture in progress>" message off the status bar. */
-  statusbar_pop_file_msg();
-
-  set_display_filename(cf);
-
-  /* Enable menu items that make sense if you're not currently running
-     a capture. */
-  set_menus_for_capture_in_progress(FALSE);
-
-  /* Enable menu items that make sense if you have a capture file
-     you've finished reading. */
-  set_menus_for_capture_file(TRUE);
-  set_menus_for_unsaved_capture_file(!cf->user_saved);
-
-  /* Set up main window for a capture file. */
-  main_set_for_capture_file(TRUE);
+  cf_callback_invoke(cf_cb_live_capture_finished, cf);
 
   if (*err != 0) {
     /* We got an error reading the capture file.
@@ -706,9 +623,6 @@ cf_get_display_name(capture_file *cf)
     /* Get the last component of the file name, and use that. */
     if (cf->filename){
       displayname = get_basename(cf->filename);
-      
-      /* Add this filename to the list of recent files in the "Recent Files" submenu */
-      add_menu_recent_capture_file(cf->filename);
     } else {
       displayname="(No file)";
     }
@@ -2984,14 +2898,7 @@ cf_select_packet(capture_file *cf, int row)
   epan_dissect_run(cf->edt, &cf->pseudo_header, cf->pd, cf->current_frame,
           NULL);
 
-  /* Display the GUI protocol tree and hex dump.
-     XXX - why do we dump core if we call "proto_tree_draw()"
-     before calling "add_byte_views()"? */
-  add_main_byte_views(cf->edt);
-  main_proto_tree_draw(cf->edt->tree);
-
-  /* A packet is selected. */
-  set_menus_for_selected_packet(cf);
+  cf_callback_invoke(cf_cb_packet_selected, cf);
 }
 
 /* Unselect the selected packet, if any. */
@@ -3004,12 +2911,10 @@ cf_unselect_packet(capture_file *cf)
     cf->edt = NULL;
   }
 
-  /* Clear out the display of that packet. */
-  clear_tree_and_hex_views();
-
   /* No packet is selected. */
   cf->current_frame = NULL;
-  set_menus_for_selected_packet(cf);
+
+  cf_callback_invoke(cf_cb_packet_unselected, cf);
 
   /* No protocol tree means no selected field. */
   cf_unselect_field(cf);
@@ -3019,9 +2924,9 @@ cf_unselect_packet(capture_file *cf)
 void
 cf_unselect_field(capture_file *cf)
 {
-  statusbar_pop_field_msg();
   cf->finfo_selected = NULL;
-  set_menus_for_selected_tree_row(cf);
+
+  cf_callback_invoke(cf_cb_field_unselected, cf);
 }
 
 /*
@@ -3090,21 +2995,13 @@ cf_status_t
 cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_format)
 {
   gchar        *from_filename;
-  const gchar  *name_ptr;
-  gchar        *save_msg, *save_fmt = " Saving: %s...";
-  size_t        msg_len;
   int           err;
   gboolean      do_copy;
   wtap_dumper  *pdh;
   struct stat   infile, outfile;
   save_callback_args_t callback_args;
 
-  name_ptr = get_basename(fname);
-  msg_len = strlen(name_ptr) + strlen(save_fmt) + 2;
-  save_msg = g_malloc(msg_len);
-  snprintf(save_msg, msg_len, save_fmt, name_ptr);
-  statusbar_push_file_msg(save_msg);
-  g_free(save_msg);
+  cf_callback_invoke(cf_cb_file_safe_started, (gpointer) fname);
 
   /*
    * Check that the from file is not the same as to file
@@ -3235,8 +3132,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     }
   }
 
-  /* Pop the "Saving:" message off the status bar. */
-  statusbar_pop_file_msg();
+  cf_callback_invoke(cf_cb_file_safe_finished, NULL);
 
   if (packet_range_process_all(range)) {
     /* We saved the entire capture, not just some packets from it.
@@ -3270,14 +3166,13 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
 	   correctly for the "no capture file open" state). */
 	break;
       }
-      set_menus_for_unsaved_capture_file(FALSE);
+      cf_callback_invoke(cf_cb_file_safe_reload_finished, NULL);
     }
   }
   return CF_OK;
 
 fail:
-  /* Pop the "Saving:" message off the status bar. */
-  statusbar_pop_file_msg();
+  cf_callback_invoke(cf_cb_file_safe_failed, NULL);
   return CF_ERROR;
 }
 

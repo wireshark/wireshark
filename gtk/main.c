@@ -142,6 +142,7 @@
 #include "webbrowser.h"
 #include "capture_dlg.h"
 #include "../image/eicon3d64.xpm"
+#include "capture_ui_utils.h"
 
 
 
@@ -1240,6 +1241,265 @@ register_ethereal_tap(char *cmd, void (*func)(char *arg))
 
 }
 
+/* Set the file name in the status line, in the name for the main window,
+   and in the name for the main window's icon. */
+static void
+set_display_filename(capture_file *cf)
+{
+  const gchar *name_ptr;
+  size_t       msg_len;
+  static const gchar done_fmt_nodrops[] = " File: %s %s %02u:%02u:%02u";
+  static const gchar done_fmt_drops[] = " File: %s %s %02u:%02u:%02u Drops: %u";
+  gchar       *done_msg;
+  gchar       *win_name_fmt = "%s - Ethereal";
+  gchar       *win_name;
+  gchar       *size_str;
+
+  name_ptr = cf_get_display_name(cf);
+	
+  if (!cf->is_tempfile) {
+    /* Add this filename to the list of recent files in the "Recent Files" submenu */
+    add_menu_recent_capture_file(cf->filename);
+  }
+
+  if (cf->f_len/1024/1024 > 10) {
+    size_str = g_strdup_printf("%ld MB", cf->f_len/1024/1024);
+  } else if (cf->f_len/1024 > 10) {
+    size_str = g_strdup_printf("%ld KB", cf->f_len/1024);
+  } else {
+    size_str = g_strdup_printf("%ld bytes", cf->f_len);
+  }
+
+  if (cf->drops_known) {
+    done_msg = g_strdup_printf(done_fmt_drops, name_ptr, size_str, 
+        cf->esec/3600, cf->esec%3600/60, cf->esec%60, cf->drops);
+  } else {
+    done_msg = g_strdup_printf(done_fmt_nodrops, name_ptr, size_str,
+        cf->esec/3600, cf->esec%3600/60, cf->esec%60);
+  }
+  statusbar_push_file_msg(done_msg);
+  g_free(done_msg);
+
+  msg_len = strlen(name_ptr) + strlen(win_name_fmt) + 1;
+  win_name = g_malloc(msg_len);
+  snprintf(win_name, msg_len, win_name_fmt, name_ptr);
+  set_main_window_name(win_name);
+  g_free(win_name);
+}
+
+
+void
+main_cf_cb_file_closed(capture_file *cf)
+{
+    /* Destroy all windows, which refer to the
+       capture file we're closing. */
+    destroy_cfile_wins();
+
+    /* Clear any file-related status bar messages.
+       XXX - should be "clear *ALL* file-related status bar messages;
+       will there ever be more than one on the stack? */
+    statusbar_pop_file_msg();
+
+    /* Restore the standard title bar message. */
+    set_main_window_name("The Ethereal Network Analyzer");
+
+    /* Disable all menu items that make sense only if you have a capture. */
+    set_menus_for_capture_file(FALSE);
+    set_menus_for_unsaved_capture_file(FALSE);
+    set_menus_for_captured_packets(FALSE);
+    set_menus_for_selected_packet(cf);
+    set_menus_for_capture_in_progress(FALSE);
+    set_menus_for_selected_tree_row(cf);
+
+    /* Set up main window for no capture file. */
+    main_set_for_capture_file(FALSE);
+}
+
+void
+main_cf_cb_file_read_start(capture_file *cf)
+{
+  const gchar *name_ptr;
+  gchar       *load_msg;
+
+  name_ptr = get_basename(cf->filename);
+
+  load_msg = g_strdup_printf(" Loading: %s", name_ptr);
+  statusbar_push_file_msg(load_msg);
+  g_free(load_msg);
+}
+
+void
+main_cf_cb_file_read_finished(capture_file *cf)
+{
+    statusbar_pop_file_msg();
+    set_display_filename(cf);
+
+    /* Enable menu items that make sense if you have a capture file you've
+     finished reading. */
+    set_menus_for_capture_file(TRUE);
+    set_menus_for_unsaved_capture_file(!cf->user_saved);
+
+    /* Enable menu items that make sense if you have some captured packets. */
+    set_menus_for_captured_packets(TRUE);
+
+    /* Set up main window for a capture file. */
+    main_set_for_capture_file(TRUE);
+}
+
+void
+main_cf_cb_live_capture_started(capture_options *capture_opts)
+{
+    gchar *capture_msg;
+
+    /* Disable menu items that make no sense if you're currently running
+       a capture. */
+    set_menus_for_capture_in_progress(TRUE);
+
+    /* Enable menu items that make sense if you have some captured
+       packets (yes, I know, we don't have any *yet*). */
+    set_menus_for_captured_packets(TRUE);
+
+    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
+
+    statusbar_push_file_msg(capture_msg);
+
+    g_free(capture_msg);
+
+    /* Set up main window for a capture file. */
+    main_set_for_capture_file(TRUE);
+}
+
+void
+main_cf_cb_live_capture_finished(capture_file *cf)
+{
+    /* Pop the "<live capture in progress>" message off the status bar. */
+    statusbar_pop_file_msg();
+
+    set_display_filename(cf);
+
+    /* Enable menu items that make sense if you're not currently running
+     a capture. */
+    set_menus_for_capture_in_progress(FALSE);
+
+    /* Enable menu items that make sense if you have a capture file
+     you've finished reading. */
+    set_menus_for_capture_file(TRUE);
+    set_menus_for_unsaved_capture_file(!cf->user_saved);
+
+    /* Set up main window for a capture file. */
+    main_set_for_capture_file(TRUE);
+}
+
+void
+main_cf_cb_packet_selected(gpointer data)
+{
+    capture_file *cf = data;
+
+    /* Display the GUI protocol tree and hex dump.
+      XXX - why do we dump core if we call "proto_tree_draw()"
+      before calling "add_byte_views()"? */
+    add_main_byte_views(cf->edt);
+    main_proto_tree_draw(cf->edt->tree);
+
+    /* A packet is selected. */
+    set_menus_for_selected_packet(cf);
+}
+
+void
+main_cf_cb_packet_unselected(capture_file *cf)
+{
+    /* Clear out the display of that packet. */
+    clear_tree_and_hex_views();
+
+    /* No packet is selected. */
+    set_menus_for_selected_packet(cf);
+}
+
+void
+main_cf_cb_field_unselected(capture_file *cf)
+{
+    statusbar_pop_field_msg();
+    set_menus_for_selected_tree_row(cf);
+}
+
+void
+main_cf_cb_file_safe_started(gchar * filename)
+{
+    const gchar  *name_ptr;
+    gchar        *save_msg;
+
+    name_ptr = get_basename(filename);
+
+    save_msg = g_strdup_printf(" Saving: %s...", name_ptr);
+
+    statusbar_push_file_msg(save_msg);
+    g_free(save_msg);
+}
+
+void
+main_cf_cb_file_safe_finished(gpointer data _U_)
+{
+    /* Pop the "Saving:" message off the status bar. */
+    statusbar_pop_file_msg();
+}
+
+void
+main_cf_cb_file_safe_failed(gpointer data _U_)
+{
+    /* Pop the "Saving:" message off the status bar. */
+    statusbar_pop_file_msg();
+}
+
+void
+main_cf_cb_file_safe_reload_finished(gpointer data _U_)
+{
+    set_menus_for_unsaved_capture_file(FALSE);
+}
+
+void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
+{
+    switch(event) {
+    case(cf_cb_file_closed):
+        main_cf_cb_file_closed(data);
+        break;
+    case(cf_cb_file_read_start):
+        main_cf_cb_file_read_start(data);
+        break;
+    case(cf_cb_file_read_finished):
+        main_cf_cb_file_read_finished(data);
+        break;
+    case(cf_cb_live_capture_started):
+        main_cf_cb_live_capture_started(data);
+        break;
+    case(cf_cb_live_capture_finished):
+        main_cf_cb_live_capture_finished(data);
+        break;
+    case(cf_cb_packet_selected):
+        main_cf_cb_packet_selected(data);
+        break;
+    case(cf_cb_packet_unselected):
+        main_cf_cb_packet_unselected(data);
+        break;
+    case(cf_cb_field_unselected):
+        main_cf_cb_field_unselected(data);
+        break;
+    case(cf_cb_file_safe_started):
+        main_cf_cb_file_safe_started(data);
+        break;
+    case(cf_cb_file_safe_finished):
+        main_cf_cb_file_safe_finished(data);
+        break;
+    case(cf_cb_file_safe_reload_finished):
+        main_cf_cb_file_safe_reload_finished(data);
+        break;
+    case(cf_cb_file_safe_failed):
+        main_cf_cb_file_safe_failed(data);
+        break;
+    default:
+        g_warning("main_cf_callback: event %u unknown", event);
+        g_assert_not_reached();
+    }
+}
 
 /* And now our feature presentation... [ fade to music ] */
 int
@@ -1316,6 +1576,8 @@ main(int argc, char *argv[])
 
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
+
+  cf_callback_add(main_cf_callback, NULL);
 
 #if GTK_MAJOR_VERSION < 2 && GTK_MINOR_VERSION < 3
   /* initialize our GTK eth_clist_type */
