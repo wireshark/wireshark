@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.h,v 1.1 1998/09/23 05:25:11 gram Exp $
+ * $Id: packet-ncp.h,v 1.2 1998/10/15 21:12:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -38,12 +38,19 @@
 #define NCP_REQUEST              (0x2222)
 #define NCP_DEALLOC_SLOT_REQUEST (0x5555)
 
-struct ncp_request_header {
+struct ncp_common_header {
 	guint16   type       ;
 	guint8    sequence   ;
 	guint8    conn_low   ;
 	guint8    task       ;
 	guint8    conn_high  ;
+};
+struct ncp_request_header {
+/*	guint16   type       ;
+	guint8    sequence   ;
+	guint8    conn_low   ;
+	guint8    task       ;
+	guint8    conn_high  ;*/
 	guint8    function   ;
 	guint8    data[0]    ;
 };
@@ -52,11 +59,11 @@ struct ncp_request_header {
 #define NCP_POSITIVE_ACK         (0x9999)
 
 struct ncp_reply_header {
-	guint16   type              ;
+/*	guint16   type              ;
 	guint8    sequence          ;
 	guint8    conn_low          ;
 	guint8    task              ;
-	guint8    conn_high         ;
+	guint8    conn_high         ;*/
 	guint8    completion_code   ;
 	guint8    connection_state  ;
 	guint8    data[0]           ;

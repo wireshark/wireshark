@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.2 1998/09/27 22:12:33 gerald Exp $
+ * $Id: packet-ncp.c,v 1.3 1998/10/15 21:12:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,6 +43,8 @@
 
 #include "ethereal.h"
 #include "packet.h"
+#include "packet-ipx.h"
+#include "packet-ncp.h"
 
 /* The information in this module comes from:
 	NetWare LAN Analysis, Second Edition
@@ -98,6 +100,7 @@ ncp2222_func(u_short func) {
 		{ 23,	"Binding and Rights Services" },
 		{ 34,	"Transaction Tacking Services" },
 		{ 35,	"Apple File Services" },
+		{ 72,	"File Services" }, /* guess */
 		{ 86,	"Extended Attributes Services" },
 		{ 87,	"File and Directory Services" },
 		{ 88,	"Auditing Services" },
@@ -153,6 +156,12 @@ ncp2222_subfunc(u_short func, u_short subfunc) {
 		{ 0,	NULL }
 	};
 
+	/* File services */ /* guess */
+	static struct req_info ncp_72[] = {
+		{ 0xbb,	"Read" },
+		{ 0,	NULL }
+	};
+
 	/* Auditing Services */
 	static struct req_info	ncp_88[] = {
 		{ 1,	"Query Volume Audit Status" },
@@ -169,17 +178,19 @@ ncp2222_subfunc(u_short func, u_short subfunc) {
 		case 35:
 			info_ptr = ncp_35;
 			break;
+		case 72:
+			info_ptr = ncp_72;
+			break;
 		case 88:
 			info_ptr = ncp_88;
 			break;
 		default:
-			return "Unkown function";
+			return "Unknown function";
 	}
 
 
 	while (info_ptr[i].text != NULL) {
 		if (info_ptr[i].req == subfunc) {
-			printf("subfunc=%s\n", info_ptr[i].text);
 			return info_ptr[i].text;
 		}
 		i++;
@@ -194,67 +205,82 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	GtkWidget	*ncp_tree, *ti;
 	guint16		ncp_type;
 	int			ncp_hdr;
-
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "NCP");
-		strcpy(fd->win_info[COL_INFO], "NCP");
-	}
+	struct ncp_common_header	header;
+	struct ncp_request_header	request;
+	struct ncp_reply_header		reply;
+	char						*ncp_type_text[] = { "Request", "Reply" };
 
 	ncp_type = pntohs(&pd[offset]);
+	header.type = ncp_type;
+	header.sequence = pd[offset+2];
+	header.conn_low = pd[offset+3];
+	header.task = pd[offset+4];
+	header.conn_high = pd[offset+5];
 
 	if (ncp_type == 0x1111 || ncp_type == 0x2222 || ncp_type == 0x5555 ||
 		ncp_type == 0x7777) {
-		ncp_hdr = 6;
+		ncp_hdr = 7;
+		request.function = pd[offset+6];
 	}
 	else if (ncp_type == 0x3333 || ncp_type == 0x9999) {
 		ncp_hdr = 8;
+		reply.completion_code = pd[offset+6];
+		reply.connection_state = pd[offset+7];
 	}
 	else {
 		ncp_hdr = 1; /* ? */
 	}
 
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "NCP");
+		/* I take advantage of the ncp_hdr length to use as an index into
+		 * ncp_type_text[]. Ugly hack, but quick.  */
+		sprintf(fd->win_info[COL_INFO], "%s", ncp_type_text[ncp_hdr - 7]);
+	}
+
+
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, ncp_hdr,
+		ti = add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
 			"NetWare Core Protocol");
 		ncp_tree = gtk_tree_new();
 		add_subtree(ti, ncp_tree, ETT_NCP);
 
 		add_item_to_tree(ncp_tree, offset,      2,
-			"Type: %s", req_text( pntohs( &pd[offset] ) ) );
+			"Type: %s", req_text( header.type ));
 
 		add_item_to_tree(ncp_tree, offset+2,    1,
-			"Sequence Number: %d", pd[offset+2]);
+			"Sequence Number: %d", header.sequence);
 
 		add_item_to_tree(ncp_tree, offset+3,    1,
-			"Connection Number Low: %d", pd[offset+3]);
+			"Connection Number Low: %d", header.conn_low);
 
 		add_item_to_tree(ncp_tree, offset+4,    1,
-			"Task Number: %d", pd[offset+4]);
+			"Task Number: %d", header.task);
 
 		add_item_to_tree(ncp_tree, offset+5,    1,
-			"Connection Number High: %d", pd[offset+5]);
+			"Connection Number High: %d", header.conn_high);
 
 		if (ncp_hdr == 8) {
 			add_item_to_tree(ncp_tree, offset+6,    1,
-				"Completion Code: %d", pd[offset+6]);
+				"Completion Code: %d", reply.completion_code);
 
 			add_item_to_tree(ncp_tree, offset+7,    1,
-				"Connection Status: %d", pd[offset+7]);
+				"Connection Status: %d", reply.connection_state);
+		}
+		else {
+			add_item_to_tree(ncp_tree, offset+6,		1,
+				"Function Code: %s (%d)",
+				ncp2222_func(request.function), request.function);
 		}
 
 		offset += ncp_hdr;
 
 		if (ncp_type == 0x2222) {
 			/* my offset is different now */
-			add_item_to_tree(ncp_tree, offset,		1,
-				"Function Code: %s (%d)",
-				ncp2222_func(pd[offset]), pd[offset]);
-
-			add_item_to_tree(ncp_tree, offset+2,	1,
+			add_item_to_tree(ncp_tree, offset+1,	1,
 				"Subfunction Code: %s (%d)",
-				ncp2222_subfunc(pd[offset], pd[offset+2]), pd[offset+2]);
+				ncp2222_subfunc(pd[offset-1], pd[offset]), pd[offset]);
 
-			offset += 3;
 		}
 
 		dissect_data(pd, offset, fd, tree);
