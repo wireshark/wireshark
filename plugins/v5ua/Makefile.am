@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for V5UA plugin
 #
-# $Id: Makefile.am,v 1.3 2004/04/14 22:13:28 obiot Exp $
+# $Id: Makefile.am,v 1.4 2004/04/25 21:07:25 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = v5ua.la
 v5ua_la_SOURCES = packet-v5ua.c moduleinfo.h
 v5ua_la_LDFLAGS = -module -avoid-version
-v5ua_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
+v5ua_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

@@ -2,7 +2,7 @@
 # Automake file for Cisco SS7 Session Management dissector
 # Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
 #
-# $Id: Makefile.am,v 1.2 2004/04/14 22:13:23 obiot Exp $
+# $Id: Makefile.am,v 1.3 2004/04/25 21:07:16 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = ciscosm.la
 ciscosm_la_SOURCES = packet-sm.c moduleinfo.h
 ciscosm_la_LDFLAGS = -module -avoid-version
-ciscosm_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
+ciscosm_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

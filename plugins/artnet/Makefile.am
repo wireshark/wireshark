@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/ArtNET
 #
-# $Id: Makefile.am,v 1.4 2004/04/14 22:13:23 obiot Exp $
+# $Id: Makefile.am,v 1.5 2004/04/25 21:07:16 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = artnet.la
 artnet_la_SOURCES = packet-artnet.c moduleinfo.h
 artnet_la_LDFLAGS = -module -avoid-version
-artnet_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
+artnet_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/asn1
 #
-# $Id: Makefile.am,v 1.5 2004/04/14 22:13:23 obiot Exp $
+# $Id: Makefile.am,v 1.6 2004/04/25 21:07:16 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = asn1.la
 asn1_la_SOURCES = packet-asn1.c moduleinfo.h
 asn1_la_LDFLAGS = -module -avoid-version
-asn1_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
+asn1_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

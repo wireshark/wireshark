@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/RDM
 #
-# $Id: Makefile.am,v 1.2 2004/04/14 22:13:26 obiot Exp $
+# $Id: Makefile.am,v 1.3 2004/04/25 21:07:23 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = rdm.la
 rdm_la_SOURCES = packet-rdm.c moduleinfo.h
 rdm_la_LDFLAGS = -module -avoid-version
-rdm_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
+rdm_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

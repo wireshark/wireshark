@@ -2,7 +2,7 @@
 # Automake file for Cisco SS7 Reliable UDP dissector
 # Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
 #
-# $Id: Makefile.am,v 1.2 2004/04/14 22:13:28 obiot Exp $
+# $Id: Makefile.am,v 1.3 2004/04/25 21:07:24 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = rudp.la
 rudp_la_SOURCES = packet-rudp.c moduleinfo.h
 rudp_la_LDFLAGS = -module -avoid-version
-rudp_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
+rudp_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

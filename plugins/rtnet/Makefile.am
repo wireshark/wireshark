@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/RTNET
 #
-# $Id: Makefile.am,v 1.4 2004/04/14 22:13:27 obiot Exp $
+# $Id: Makefile.am,v 1.5 2004/04/25 21:07:24 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = rtnet.la
 rtnet_la_SOURCES = packet-rtnet.c moduleinfo.h
 rtnet_la_LDFLAGS = -module -avoid-version
-rtnet_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
+rtnet_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

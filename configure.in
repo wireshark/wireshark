@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.256 2004/04/22 20:02:58 obiot Exp $
+# $Id: configure.in,v 1.257 2004/04/25 21:07:15 obiot Exp $
 #
 AC_INIT(etypes.h)
 
@@ -966,6 +966,12 @@ else
   AC_DEFINE(PLUGIN_DIR, NULL, [Plugin installation directory])
 fi
 AC_SUBST(plugindir)
+
+#
+# The plugin dissectors reside in ./plugins/PROTO/
+#
+PLUGIN_LIBS="-L../../epan -lethereal $GLIB_LIBS"
+AC_SUBST(PLUGIN_LIBS)
 
 dnl libtool defs
 #
