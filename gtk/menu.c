@@ -1632,7 +1632,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_toolbar_for_captured_packets(have_captured_packets);
   packets_bar_update();
-  main_set_for_capture_file(have_captured_packets);
 }
 
 /* Enable or disable menu items based on whether a packet is selected and,

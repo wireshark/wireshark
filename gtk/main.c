@@ -123,6 +123,7 @@
 
 #include "main.h"
 #include "menu.h"
+#include "../main_window.h"
 #include "../menu.h"
 #include "file_dlg.h"
 #include <epan/column.h>

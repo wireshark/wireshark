@@ -73,6 +73,7 @@
 #include "packet-range.h"
 #include "print.h"
 #include "file.h"
+#include "main_window.h"
 #include "menu.h"
 #include "util.h"
 #include "merge.h"
@@ -289,6 +290,9 @@ cf_close(capture_file *cf)
   set_menus_for_capture_in_progress(FALSE);
   set_menus_for_selected_tree_row(cf);
 
+  /* Set up main window for no capture file. */
+  main_set_for_capture_file(FALSE);
+
   reset_tap_listeners();
 
   /* We have no file open. */
@@ -475,6 +479,9 @@ cf_read(capture_file *cf)
   set_menus_for_capture_file(TRUE);
   set_menus_for_unsaved_capture_file(!cf->user_saved);
 
+  /* Set up main window for a capture file. */
+  main_set_for_capture_file(TRUE);
+
   /* Enable menu items that make sense if you have some captured packets. */
   set_menus_for_captured_packets(TRUE);
 
@@ -545,6 +552,9 @@ cf_start_tail(capture_file *cf, const char *fname, const char *iface, gboolean i
     /* Enable menu items that make sense if you have some captured
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
+
+    /* Set up main window for a capture file. */
+    main_set_for_capture_file(TRUE);
 
     capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(iface));
 
@@ -672,6 +682,9 @@ cf_finish_tail(capture_file *cf, int *err)
      you've finished reading. */
   set_menus_for_capture_file(TRUE);
   set_menus_for_unsaved_capture_file(!cf->user_saved);
+
+  /* Set up main window for a capture file. */
+  main_set_for_capture_file(TRUE);
 
   if (*err != 0) {
     /* We got an error reading the capture file.
