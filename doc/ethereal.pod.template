@@ -589,13 +589,9 @@ The row of buttons on the left perform the following actions:
 
 =over 6
 
-=item New
+=item Add New
 
 Adds a new column to the list.
-
-=item Change
-
-Modifies the currently selected list item.
 
 =item Delete
 
