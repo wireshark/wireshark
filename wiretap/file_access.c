@@ -1,6 +1,6 @@
 /* file_access.c
  *
- * $Id: file_access.c,v 1.7 2003/12/01 06:59:10 sharpe Exp $
+ * $Id: file_access.c,v 1.8 2003/12/02 19:37:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -50,6 +50,7 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "lanalyzer.h"
+#include "airopeek9.h"
 #include "ngsniffer.h"
 #include "radcom.h"
 #include "ascend.h"
@@ -106,6 +107,7 @@ static int (*const open_routines[])(wtap *, int *) = {
 	visual_open,
 	_5views_open,
 	network_instruments_open,
+	airopeek9_open,
 
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
@@ -447,6 +449,10 @@ static const struct file_type_info {
 	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
 	{ "Network Instruments Observer version 9", "niobserverv9",
 	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
+
+	/* WTAP_FILE_AIROPEEK_V9 */
+	{ "AiroPeek trace (V9 file format)", NULL,
+	  NULL, NULL },
 };
 
 /* Name that should be somewhat descriptive. */

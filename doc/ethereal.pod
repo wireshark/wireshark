@@ -2057,6 +2057,7 @@ B<http://www.ethereal.com>.
   Dave Sclarsky            <dave_sclarsky [AT] cnt.com>
   Scott Hovis              <scott.hovis [AT] ums.msfc.nasa.gov>
   David Fort               <david.fort [AT] irisa.fr>
+  Martijn Schipper         <mschipper [AT] globespanvirata.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>

@@ -1935,6 +1935,11 @@ David Fort <david.fort [AT] irisa.fr> {
 	DNS DSS RR support
 }
 
+Martijn Schipper <mschipper [AT] globespanvirata.com> {
+	Support for reading AiroPeek files in V9 capture file format
+	(AiroPeek 2.x)
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
