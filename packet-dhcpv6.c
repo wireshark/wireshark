@@ -3,14 +3,16 @@
  * Jun-ichiro itojun Hagino <itojun@iijlab.net>
  * IItom Tsutomu MIENO <iitom@utouto.com>
  * SHIRASAKI Yasuhiro <yasuhiro@gnome.gr.jp>
+ * Tony Lindstrom <tony.lindstrom@ericsson.com>
  *
- * $Id: packet-dhcpv6.c,v 1.7 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-dhcpv6.c,v 1.8 2003/08/18 18:20:11 guy Exp $
  *
  * The information used comes from:
- * draft-ietf-dhc-dhcpv6-26.txt
- * draft-troan-dhcpv6-opt-prefix-delegation-01.txt
- * draft-ietf-dhc-dhcpv6-opt-dnsconfig-02.txt
- *
+ * draft-ietf-dhc-dhcpv6-28.txt
+ * draft-ietf-dhc-dhcpv6-opt-prefix-delegation-04.txt
+ * draft-ietf-dhc-dhcpv6-opt-dnsconfig-03.txt
+ * draft-ietf-dhc-dhcpv6-opt-nisconfig-02.txt
+ * draft-ietf-dhc-dhcpv6-opt-timeconfig-02.txt
  * Note that protocol constants are still subject to change, based on IANA
  * assignment decisions.
  *
@@ -70,7 +72,7 @@ static guint ett_dhcpv6_option = -1;
 
 #define	OPTION_CLIENTID		1
 #define	OPTION_SERVERID		2
-#define	OPTION_IA		3
+#define	OPTION_IA_NA		3
 #define	OPTION_IA_TA		4
 #define	OPTION_IAADDR		5
 #define	OPTION_ORO		6
@@ -87,13 +89,19 @@ static guint ett_dhcpv6_option = -1;
 #define	OPTION_VENDOR_OPTS	17
 #define	OPTION_INTERFACE_ID	18
 #define	OPTION_RECONF_MSG	19
-#define	OPTION_RECONF_NONCE	20
+#define	OPTION_RECONF_ACCEPT	20
 
-#define	OPTION_DNS_SERVERS	25
-#define	OPTION_DOMAIN_LIST	26
-#define	OPTION_PREFIXDEL	30
-#define	OPTION_PREFIX_INFO	31
-#define	OPTION_PREFIXREQ	32
+#define	OPTION_IA_PD		21
+#define	OPTION_IAPREFIX		22
+#define OPTION_DNS_RESOLVERS	30
+#define OPTION_DOMAIN_LIST      31
+#define OPTION_NIS_SERVERS	35
+#define OPTION_NISP_SERVERS	36
+#define OPTION_NIS_DOMAIN_NAME  37
+#define OPTION_NISP_DOMAIN_NAME 38
+#define OPTION_NTP_SERVERS	40
+#define OPTION_TIME_ZONE	41
+/* define OPTION_DNS_SERVERS	50 */
 
 #define	DUID_LLT		1
 #define	DUID_EN			2
@@ -120,7 +128,7 @@ static const value_string msgtype_vals[] = {
 static const value_string opttype_vals[] = {
 	{ OPTION_CLIENTID,	"Client Identifier" },
 	{ OPTION_SERVERID,	"Server Identifier" },
-	{ OPTION_IA,		"Identify Association" },
+	{ OPTION_IA_NA,		"Identify Association" },
 	{ OPTION_IA_TA,		"Identify Association for Temporary Address" },
 	{ OPTION_IAADDR,	"IA Address" },
 	{ OPTION_ORO,		"Option Request" },
@@ -137,12 +145,18 @@ static const value_string opttype_vals[] = {
 	{ OPTION_VENDOR_OPTS,	"Vendor-specific Information" },
 	{ OPTION_INTERFACE_ID,	"Interface-Id" },
 	{ OPTION_RECONF_MSG,	"Reconfigure Message" },
-	{ OPTION_RECONF_NONCE,	"Reconfigure Nonce" },
-	{ OPTION_DNS_SERVERS,	"Domain Name Server" },
+	{ OPTION_RECONF_ACCEPT,	"Reconfigure Accept" },
+	{ OPTION_IA_PD,		"Identify Association for Prefix Delegation" },
+	{ OPTION_IAPREFIX,	"IA Prefix" },
+	{ OPTION_DNS_RESOLVERS,	"DNS Resolver" },
 	{ OPTION_DOMAIN_LIST,	"Domain Search List" },
-	{ OPTION_PREFIXDEL,	"Prefix Delegation" },
-	{ OPTION_PREFIX_INFO,	"Prefix Information" },
-	{ OPTION_PREFIXREQ,	"Prefix Request" },
+	{ OPTION_NIS_SERVERS,	"Network Information Server" },
+	{ OPTION_NISP_SERVERS,	"Network Information Server V2" },
+	{ OPTION_NIS_DOMAIN_NAME, "Network Information Server Domain Name" },
+	{ OPTION_NISP_DOMAIN_NAME,"Network Information Server V2 Domain Name" },
+	{ OPTION_NTP_SERVERS,	"Network Time Protocol Server" },
+	{ OPTION_TIME_ZONE,	"Time zone" },
+/*	{ OPTION_DNS_SERVERS,	"Domain Name Server" }, */
 	{ 0,	NULL }
 };
 
@@ -150,13 +164,11 @@ static const value_string statuscode_vals[] =
 {
 	{0, "Success" },
 	{1, "UnspecFail" },
-	{2, "AuthFailed" },
-	{3, "AddrUnvail" },
-	{4, "NoAddrAvail" },
-	{5, "NoBinding" },
-	{6, "ConfNoMatch" },
-	{7, "NotOnLink" },
-	{8, "UseMulticast" },
+	{2, "NoAddrAvail" },
+	{3, "NoBinding" },
+	{4, "NotOnLink" },
+	{5, "UseMulticast" },
+	{6, "NoPrefixAvail" },
 	{0, NULL }
 };
 
@@ -176,6 +188,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 {
 	guint16	opttype;
 	guint16	optlen;
+	guint16	temp_optlen = 0;
 	proto_item *ti;
 	proto_tree *subtree;
 	int i;
@@ -268,11 +281,16 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 			break;
 		}
 		break;
-	case OPTION_IA:
-	  if (optlen < 12) {
-	    proto_tree_add_text(subtree, tvb, off,
-				optlen, "IA: malformed option");
-	    break;
+	case OPTION_IA_NA:
+	case OPTION_IA_PD:
+          if (optlen < 12) {
+             if (opttype == OPTION_IA_NA)
+                proto_tree_add_text(subtree, tvb, off,
+                                    optlen, "IA_NA: malformed option");
+             else
+                proto_tree_add_text(subtree, tvb, off,
+                                    optlen, "IA_PD: malformed option");
+             break;
 	  }
 	  proto_tree_add_text(subtree, tvb, off, 4,
 			      "IAID: %u",
@@ -281,9 +299,11 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 			      "T1: %u", tvb_get_ntohl(tvb, off+4));
 	  proto_tree_add_text(subtree, tvb, off+8, 4,
 			      "T2: %u", tvb_get_ntohl(tvb, off+8));
-	  if (optlen > 12) {
-	    gboolean at_end_;
-	    dhcpv6_option(tvb, subtree, off+12, off + optlen - 12, &at_end_);
+
+          temp_optlen = 12;
+	  while ((optlen - temp_optlen) > 0) {
+	    gboolean at_end_ = FALSE;
+	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, &at_end_);
 	  }
 	  break;
 	case OPTION_IA_TA:
@@ -295,32 +315,51 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	  proto_tree_add_text(subtree, tvb, off, 4,
 			      "IAID: %u",
 			      tvb_get_ntohl(tvb, off));
-	  if (optlen > 4) {
+          temp_optlen = 4;
+	  while ((optlen - temp_optlen) > 0) {
 	    gboolean at_end_;
-	    dhcpv6_option(tvb, subtree, off+4, off + optlen - 4, &at_end_);
+	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, &at_end_);
 	  }
 	  break;
 	case OPTION_IAADDR:
-	  if (optlen < 24) {
-	    proto_tree_add_text(subtree, tvb, off,
-				optlen, "IAADDR: malformed option");
-	    break;
-	  }
-	  tvb_memcpy(tvb, (guint8 *)&in6, off, sizeof(in6));
-	  proto_tree_add_text(subtree, tvb, off,
-			      sizeof(in6), "IPv6 address: %s",
-				ip6_to_str(&in6));
-	  proto_tree_add_text(subtree, tvb, off+16, 4,
-			      "preferred-lifetime: %u",
-			      tvb_get_ntohl(tvb, off+16));
-	  proto_tree_add_text(subtree, tvb, off+20, 4,
-			      "valid-lifetime: %u",
-			      tvb_get_ntohl(tvb, off+20));
-	  if (optlen > 24) {
-	    gboolean at_end_;
-	    dhcpv6_option(tvb, subtree, off+24, off + optlen - 24, &at_end_);
-	  }
-	  break;
+        {
+           guint32 preferred_lifetime, valid_lifetime;
+
+           if (optlen < 24) {
+              proto_tree_add_text(subtree, tvb, off,
+                                  optlen, "IAADDR: malformed option");
+              break;
+           }
+           tvb_memcpy(tvb, (guint8 *)&in6, off, sizeof(in6));
+           proto_tree_add_text(subtree, tvb, off,
+                               sizeof(in6), "IPv6 address: %s",
+                               ip6_to_str(&in6));
+           
+           preferred_lifetime = tvb_get_ntohl(tvb, off + 16);
+           valid_lifetime = tvb_get_ntohl(tvb, off + 20);
+           
+           if (preferred_lifetime == DHCPV6_LEASEDURATION_INFINITY) {
+              proto_tree_add_text(subtree, tvb, off + 16, 4,
+                                  "Preferred lifetime: infinity");
+           } else {
+              proto_tree_add_text(subtree, tvb, off + 16, 4,
+                                  "Preferred lifetime: %u", preferred_lifetime);
+           }
+           if (valid_lifetime == DHCPV6_LEASEDURATION_INFINITY) {
+              proto_tree_add_text(subtree, tvb, off + 20, 4,
+                                  "Valid lifetime: infinity");
+           } else {
+              proto_tree_add_text(subtree, tvb, off + 20, 4,
+                                  "Valid lifetime: %u", valid_lifetime);
+           }
+           
+           temp_optlen = 24;
+           while ((optlen - temp_optlen) > 0) {
+              gboolean at_end_;
+              temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, &at_end_);
+           }
+        }
+        break;
 	case OPTION_ORO:
 		for (i = 0; i < optlen; i += 2) {
 		    guint16 requested_opt_code;
@@ -361,7 +400,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	  } else {
 	    gboolean at_end_;
 	    dhcpv6_option(tvb, subtree, off, off + optlen, &at_end_);
-	  }
+          } 
 	  break;
 	case OPTION_AUTH:
 	  if (optlen < 15) {
@@ -466,16 +505,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 					 msgtype_vals,
 					 "Message Type %u"));
 	  break;
-	case OPTION_RECONF_NONCE:
-	  if (optlen != 8) {
-	    proto_tree_add_text(subtree, tvb, off,
-				optlen, "RECONF_NONCE: malformed option");
-	    break;
-	  }
-	  proto_tree_add_text(subtree, tvb, off, optlen,
-			      "Reconfigure-nonce");
-	  break;
-	case OPTION_DNS_SERVERS:
+/*	case OPTION_DNS_SERVERS:
 		if (optlen % 16) {
 			proto_tree_add_text(subtree, tvb, off, optlen,
 				"DNS servers address: malformed option");
@@ -488,50 +518,123 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 				ip6_to_str(&in6));
 		}
 		break;
+*/
+	case OPTION_DNS_RESOLVERS:
+		if (optlen % 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"DNS resolvers address: malformed option");
+			break;
+		}
+		for (i = 0; i < optlen; i += 16) {
+			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			proto_tree_add_text(subtree, tvb, off + i,
+				sizeof(in6), "DNS resolvers address: %s",
+				ip6_to_str(&in6));
+		}
+		break;
 	case OPTION_DOMAIN_LIST:
 	  if (optlen > 0) {
 	    proto_tree_add_text(subtree, tvb, off, optlen, "Search String");
 	  }
 	  break;
-	case OPTION_PREFIXDEL:
+	case OPTION_NIS_SERVERS:
+		if (optlen % 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"NIS servers address: malformed option");
+			break;
+		}
+		for (i = 0; i < optlen; i += 16) {
+			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			proto_tree_add_text(subtree, tvb, off + i,
+				sizeof(in6), "NIS servers address: %s",
+				ip6_to_str(&in6));
+		}
+		break;
+	case OPTION_NISP_SERVERS:
+		if (optlen % 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"NISP servers address: malformed option");
+			break;
+		}
+		for (i = 0; i < optlen; i += 16) {
+			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			proto_tree_add_text(subtree, tvb, off + i,
+				sizeof(in6), "NISP servers address: %s",
+				ip6_to_str(&in6));
+		}
+		break;
+	case OPTION_NIS_DOMAIN_NAME:
+	  if (optlen > 0) {
+	    proto_tree_add_text(subtree, tvb, off, optlen, "nis-domain-name");
+	  }
+	  break;
+	case OPTION_NISP_DOMAIN_NAME:
+	  if (optlen > 0) {
+	    proto_tree_add_text(subtree, tvb, off, optlen, "nisp-domain-name");
+	  }
+	  break;
+	case OPTION_NTP_SERVERS:
+		if (optlen % 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"NTP servers address: malformed option");
+			break;
+		}
+		for (i = 0; i < optlen; i += 16) {
+			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			proto_tree_add_text(subtree, tvb, off + i,
+				sizeof(in6), "NTP servers address: %s",
+				ip6_to_str(&in6));
+		}
+		break;
+	case OPTION_TIME_ZONE:
+	  if (optlen > 0) {
+	    proto_tree_add_text(subtree, tvb, off, optlen, "time-zone");
+	  }
+	  break;
+	case OPTION_IAPREFIX:
 	    {
-		gboolean at_end_;
-		dhcpv6_option(tvb, subtree, off, off + optlen, &at_end_);
-	    }
-	    break;
-	case OPTION_PREFIX_INFO:
-	    {
-		guint32 lease_duration;
+		guint32 preferred_lifetime, valid_lifetime;
 		guint8  prefix_length;
 		struct e_in6_addr in6;
 
-		lease_duration = tvb_get_ntohl(tvb, off);
-		prefix_length  = tvb_get_guint8(tvb, off + 4);
-		if ( lease_duration == DHCPV6_LEASEDURATION_INFINITY) {
+                if (optlen < 25) {
+                   proto_tree_add_text(subtree, tvb, off,
+                                       optlen, "IAPREFIX: malformed option");
+                   break;
+                }
+
+		preferred_lifetime = tvb_get_ntohl(tvb, off);
+		valid_lifetime = tvb_get_ntohl(tvb, off + 4);
+		prefix_length  = tvb_get_guint8(tvb, off + 8);
+		if (preferred_lifetime == DHCPV6_LEASEDURATION_INFINITY) {
 			proto_tree_add_text(subtree, tvb, off, 4,
-				    "Lease duration: infinity");
+				    "Preferred lifetime: infinity");
 		} else {
 			proto_tree_add_text(subtree, tvb, off, 4,
-				    "Lease duration: %u", lease_duration);
+				    "Preferred lifetime: %u", preferred_lifetime);
 		}
-		proto_tree_add_text(subtree, tvb, off + 4, 1,
+		if (valid_lifetime == DHCPV6_LEASEDURATION_INFINITY) {
+			proto_tree_add_text(subtree, tvb, off + 4, 4,
+				    "Valid lifetime: infinity");
+		} else {
+			proto_tree_add_text(subtree, tvb, off + 4, 4,
+				    "Valid lifetime: %u", valid_lifetime);
+		}
+		proto_tree_add_text(subtree, tvb, off + 8, 1,
 				    "Prefix length: %d", prefix_length);
-		tvb_memcpy(tvb, (guint8 *)&in6, off + 5 , sizeof(in6));
-		proto_tree_add_text(subtree, tvb, off + 5,
+		tvb_memcpy(tvb, (guint8 *)&in6, off + 9 , sizeof(in6));
+		proto_tree_add_text(subtree, tvb, off + 9,
 				    16, "Prefix address: %s",
 				    ip6_to_str(&in6));
-	    }
-	    break;
-	case OPTION_PREFIXREQ:
-	    {
-		guint8  prefix_length;
-		prefix_length  = tvb_get_guint8(tvb, off);
-		proto_tree_add_text(subtree, tvb, off, 1,
-				    "Prefix length: %d", prefix_length);
+                
+                temp_optlen = 25;
+                while ((optlen - temp_optlen) > 0) {
+                   gboolean at_end_;
+                   temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, &at_end_);
+                }
 	    }
 	    break;
 	}
-
 
 	return 4 + optlen;
 }
@@ -543,37 +646,89 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_tree *bp_tree = NULL;
 	proto_item *ti;
-	guint8 msgtype;
+	guint8 msgtype, hop_count ;
 	guint32 xid;
-	int off, eoff;
+	int off = 0;
+        int eoff;
+	struct e_in6_addr in6;
 	gboolean at_end;
+        gboolean relay_msg_option = FALSE;
+        int length;
 
+	eoff = tvb_reported_length(tvb);
 	downstream = 0; /* feature reserved */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	msgtype = tvb_get_guint8(tvb, 0);
-
-	/* XXX relay agent messages have to be decoded differently */
-
-	xid = tvb_get_ntohl(tvb, 0) & 0x00ffffff;
-
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(msgtype,
-				       msgtype_vals,
-				       "Message Type %u"));
-	}
+	msgtype = tvb_get_guint8(tvb, off);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, 0, -1, FALSE);
 		bp_tree = proto_item_add_subtree(ti, ett_dhcpv6);
+        }
 
-		proto_tree_add_uint(bp_tree, hf_dhcpv6_msgtype, tvb, 0, 1,
+        while (msgtype == RELAY_FORW || msgtype == RELAY_REPL) {
+           
+           if (check_col(pinfo->cinfo, COL_INFO)) {
+              col_set_str(pinfo->cinfo, COL_INFO,
+                          val_to_str(msgtype,
+                                     msgtype_vals,
+                                     "Message Type %u"));
+           }
+
+           proto_tree_add_uint(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, msgtype);
+
+           hop_count = tvb_get_guint8(tvb, off+1);
+           proto_tree_add_text(bp_tree, tvb, off+1, 1, "Hop count: %d", hop_count);
+
+           tvb_memcpy(tvb, (guint8 *)&in6, off+2, sizeof(in6));
+           proto_tree_add_text(bp_tree, tvb, off+2, sizeof(in6), 
+                               "Link-address: %s",ip6_to_str(&in6));
+
+           tvb_memcpy(tvb, (guint8 *)&in6, off+18, sizeof(in6));
+           proto_tree_add_text(bp_tree, tvb, off+18, sizeof(in6), 
+                               "Peer-address: %s",ip6_to_str(&in6));
+
+           off += 34;
+           relay_msg_option = FALSE;
+
+           while (!relay_msg_option && off < eoff) {
+              length = dhcpv6_option(tvb, bp_tree, off, eoff, &at_end);
+
+              if (tvb_get_ntohs(tvb, off) == OPTION_RELAY_MSG) {
+                 relay_msg_option = TRUE;
+                 off += 4;
+              }
+              else {
+                 if (length > 0)
+                    off += length;
+                 else {
+                    proto_tree_add_text(bp_tree, tvb, off, eoff, "Message: malformed");
+                    return;
+                 }
+              }
+           }
+           
+           msgtype = tvb_get_guint8(tvb, off);
+        }
+        
+	xid = tvb_get_ntohl(tvb, off) & 0x00ffffff;
+
+        if (!off) {
+           if (check_col(pinfo->cinfo, COL_INFO)) {
+              col_set_str(pinfo->cinfo, COL_INFO,
+                          val_to_str(msgtype,
+                                     msgtype_vals,
+                                     "Message Type %u"));
+           }
+        }
+
+	if (tree) {
+		proto_tree_add_uint(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1,
 			msgtype);
-		proto_tree_add_text(bp_tree, tvb, 1, 3, "Transaction-ID: 0x%08x", xid);
+		proto_tree_add_text(bp_tree, tvb, off+1, 3, "Transaction-ID: 0x%08x", xid);
 #if 0
 		tvb_memcpy(tvb, (guint8 *)&in6, 4, sizeof(in6));
 		proto_tree_add_text(bp_tree, tvb, 4, sizeof(in6),
@@ -581,8 +736,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 	}
 
-	off = 4;
-	eoff = tvb_reported_length(tvb);
+	off += 4;
 
 	at_end = FALSE;
 	while (off < eoff && !at_end)
