@@ -6,7 +6,7 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.10 2004/02/25 09:31:05 guy Exp $
+ * $Id: packet-enip.c,v 1.11 2004/06/02 06:30:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1342,16 +1342,6 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length,
                   encap_sc_rr, "") );
 
 
-
-   /* Add service to info column */
-   if(check_col(pinfo->cinfo, COL_INFO))
-   {
-      col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
-               val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
-                  encap_sc_vals , "Unknown Service (%x)") );
-   }
-
-
 	/* Add Service code */
 	proto_tree_add_item(rrsci_tree, hf_enip_ucm_sc,
 			tvb, offset, 1, TRUE );
@@ -1366,6 +1356,15 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length,
 
 		proto_tree_add_item(item_tree, hf_enip_ucm_genstat,
 			tvb, offset+2, 1, TRUE );
+
+      /* Add reply status to info column */
+      if(check_col(pinfo->cinfo, COL_INFO))
+      {
+         col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
+                  val_to_str( ( tvb_get_guint8( tvb, offset+2 ) ),
+                     encap_cip_gs_vals , "Unknown Response (%x)") );
+      }
+
 
       /* Add additional status size */
       temp_data = tvb_get_guint8( tvb, offset+3 );
@@ -1595,9 +1594,17 @@ add_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length,
 	} /* End of if reply */
 	else
 	{
-	   /* Request */
+	   /* Request message */
 
-	   /* Add path size */
+      /* Add service to info column */
+      if(check_col(pinfo->cinfo, COL_INFO))
+      {
+         col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
+                  val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
+                     encap_sc_vals , "Unknown Service (%x)") );
+      }
+
+	   /* Add path size to tree */
 	   req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 	   proto_tree_add_text( item_tree, tvb, offset+1, 1, "Request Path Size: %d (words)", req_path_size/2 );
 
@@ -1909,8 +1916,7 @@ show_cdf( int encap_service, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
    proto_item *temp_item, *ri, *ci;
    proto_item *sockaddr_item;
 	proto_tree *temp_tree, *cip_tree, *item_tree, *sockaddr_tree;
-	int temp_data, item_count, item_length, item, i;
-	char temp_char;
+	int temp_data, item_count, item_length, item;
 	unsigned char name_length;
 
 	/* Show Common Data Format sub tree */
@@ -2035,7 +2041,7 @@ show_cdf( int encap_service, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                /* Revision */
                temp_data = tvb_get_letohs( tvb, offset+30 );
-               proto_tree_add_text( item_tree, tvb, offset+30, 2, "Revision: v.%d.%02d", temp_data & 0xFF, ( temp_data & 0xFF00 ) >> 8 );
+               proto_tree_add_text( item_tree, tvb, offset+30, 2, "Revision: %d.%02d", temp_data & 0xFF, ( temp_data & 0xFF00 ) >> 8 );
 
                /* Status */
                proto_tree_add_item(item_tree, hf_enip_cpf_lir_status,
@@ -2052,11 +2058,18 @@ show_cdf( int encap_service, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                /* Get the lenth of the name */
                name_length = tvb_get_guint8( tvb, offset+38 );
 
-               /* Product Name Length */
+               /* Product Name */
                proto_tree_add_item(item_tree, hf_enip_cpf_lir_name,
 							tvb, offset+39, name_length, TRUE );
 
-               /* Product Name Length */
+               /* Append product name to info column */
+               if(check_col(pinfo->cinfo, COL_INFO))
+               {
+                  col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
+                      tvb_format_text(tvb, offset+39, name_length));
+               }
+
+               /* State */
                proto_tree_add_item(item_tree, hf_enip_cpf_lir_state,
 							tvb, offset+name_length+39, 1, TRUE );
                break;
@@ -2121,17 +2134,16 @@ show_cdf( int encap_service, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       			   tvb, offset+8, 2, TRUE );
 
                /* Name of service */
-               temp_item = proto_tree_add_text( item_tree, tvb, offset+10, 16, "Name Of Service: " );
+               temp_item = proto_tree_add_text( item_tree, tvb, offset+10, 16, "Name Of Service: %s",
+                   tvb_format_stringzpad(tvb, offset+10, 16) );
 
-               for( i=0; i<16; i++ )
+               /* Append service name to info column */
+               if(check_col(pinfo->cinfo, COL_INFO))
                {
-                    temp_char = tvb_get_guint8( tvb, offset+10+i );
-
-                    if( temp_char == 0 )
-                     break;
-
-                    proto_item_append_text(temp_item, "%c", temp_char );
+                  col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
+                      tvb_format_stringzpad(tvb, offset+10, 16) );
                }
+
                break;
 
 
