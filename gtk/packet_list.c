@@ -33,6 +33,7 @@
 #include "gtkglobals.h"
 #include "epan/epan.h"
 #include "color.h"
+#include "color_filters.h"
 #include "../ui_util.h"
 #include "ui_util.h"
 #include "main.h"

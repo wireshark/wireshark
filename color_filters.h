@@ -27,6 +27,23 @@
 /** @file
  *  Color filters.
  */
+#include "epan/dfilter/dfilter.h"
+
+/* Data for a color filter. */
+typedef struct _color_filter {
+        gchar     *filter_name;   /* name of the filter */
+        gchar     *filter_text;   /* text of the filter expression */
+        color_t    bg_color;      /* background color for packets that match */
+        color_t    fg_color;      /* foreground color for packets that match */
+        dfilter_t *c_colorfilter; /* compiled filter expression */
+        void      *edit_dialog;   /* if filter is being edited, dialog
+                                   * box for it */
+	gboolean    marked;         /* set if the filter is marked in the color dialog box */
+} color_filter_t;
+
+/* List of all color filters. */
+extern GSList *filter_list;
+extern GSList *removed_filter_list;
 
 /** Init the color filters. */
 void colfilter_init(void);
@@ -75,5 +92,14 @@ gboolean read_other_filters(gchar *path, gpointer arg);
  * @return TRUE, if write succeeded
  */
 gboolean write_other_filters(gchar *path, gboolean only_marked);
+
+/** Add a color filter.
+ *
+ * @param colorf the new color filter
+ * @param arg the color filter widget
+ */
+void color_add_filter_cb (color_filter_t *colorf, gpointer arg);
+
+void filter_list_prime_edt(epan_dissect_t *edt);
 
 #endif

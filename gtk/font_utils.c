@@ -44,6 +44,7 @@
 #include "font_utils.h"
 #include "simple_dialog.h"
 
+#include <epan/packet.h>
 #include "packet_list.h"
 #include "proto_draw.h"
 #include "follow_dlg.h"
