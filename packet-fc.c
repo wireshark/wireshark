@@ -4,7 +4,7 @@
  *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
  *                                    tap listener and misc updates
  *
- * $Id: packet-fc.c,v 1.14 2003/08/24 01:06:20 guy Exp $
+ * $Id: packet-fc.c,v 1.15 2003/08/27 23:05:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1313,9 +1313,5 @@ proto_register_fc(void)
 void
 proto_reg_handoff_fc (void)
 {
-    dissector_handle_t fc_handle;
-
-    fc_handle = create_dissector_handle (dissect_fc, proto_fc);
-
     data_handle = find_dissector("data");
 }
