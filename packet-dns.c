@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.45 2000/05/31 05:07:00 guy Exp $
+ * $Id: packet-dns.c,v 1.46 2000/07/18 16:53:51 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -610,15 +610,23 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
 /*
  * SIG and KEY RR algorithms.
  */
-#define	DNS_ALGO_MD5		1	/* MD5/RSA */
-#define	DNS_ALGO_EDATE		253	/* Expiration date */
-#define	DNS_ALGO_PRIVATE	254	/* Private use */	
+#define	DNS_ALGO_RSAMD5		1	/* RSA/MD5 */
+#define	DNS_ALGO_DH		2	/* Diffie-Hellman */
+#define	DNS_ALGO_DSA		3	/* DSA */
+#define	DNS_ALGO_ECC		4	/* Elliptic curve crypto */
+#define	DNS_ALGO_INDIRECT	252	/* Indirect key */
+#define	DNS_ALGO_PRIVATEDNS	253	/* Private, domain name  */
+#define	DNS_ALGO_PRIVATEOID	254	/* Private, OID */	
 
 static const value_string algo_vals[] = {
-	  { DNS_ALGO_MD5,     "MD5/RSA" },
-	  { DNS_ALGO_EDATE,   "Expiration date" },
-	  { DNS_ALGO_PRIVATE, "Private use" },
-	  { 0,                NULL }
+	  { DNS_ALGO_RSAMD5,     "RSA/MD5" },
+	  { DNS_ALGO_DH,         "Diffie-Hellman" },
+	  { DNS_ALGO_DSA,        "DSA" },
+	  { DNS_ALGO_ECC,        "Elliptic curve crypto" },
+	  { DNS_ALGO_INDIRECT,   "Indirect key" },
+	  { DNS_ALGO_PRIVATEDNS, "Private, domain name" },
+	  { DNS_ALGO_PRIVATEOID, "Private, OID" },
+	  { 0,                   NULL }
 };
 
 static int
