@@ -133,10 +133,10 @@ resulting core file can be obtained by starting the debugger and using
 the 'backtrace' command.
 
 $ gdb ethereal core
-> backtrace
+(gdb) backtrace
 ..... prints the stack trace
-> quit
-
+(gdb) quit
+$
 
 Disclaimer
 ----------

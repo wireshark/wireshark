@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.7 1999/08/13 23:47:41 gram Exp $
+ * $Id: dfilter.h,v 1.8 1999/08/20 06:01:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,9 @@ typedef struct {
 	 * faster than the tree when we go back and free the byte arrays */
 	GSList *list_of_byte_arrays;
 
+	/* Error code and text that produced error */
+	gint error;
+	gchar *error_sample;
 } dfilter;
 
 /* Initialization of the symbol table. Called once during program startup */
@@ -60,5 +63,9 @@ gboolean dfilter_apply(dfilter *df, proto_tree *ptree, const guint8* pd);
 /* Clears the current filter int the dfilter */
 void dfilter_clear_filter(dfilter *df);
 
+enum {
+	DFILTER_ERR_NONE,
+	DFILTER_ERR_BAD_ETHER_VAL
+};
 
 #endif /* ! __DFILTER_H__ */

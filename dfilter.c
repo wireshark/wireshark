@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.10 1999/08/14 06:24:27 gram Exp $
+ * $Id: dfilter.c,v 1.11 1999/08/20 06:01:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -161,6 +161,12 @@ dfilter_clear_filter(dfilter *df)
 	df->dftext = NULL;
 	df->dftree = NULL;
 	df->list_of_byte_arrays = NULL;
+
+	if (df->error_sample) {
+		g_free(df->error_sample);
+	}
+	df->error_sample = NULL;
+	df->error = DFILTER_ERR_NONE;
 }
 
 /* Allocates new dfilter, initializes values, and returns pointer to dfilter */

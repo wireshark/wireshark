@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.8 1999/08/14 06:24:27 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.9 1999/08/20 06:01:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,8 +56,6 @@
 #include "dfilter-int.h"
 
 #include "dfilter-grammar.h"
-
-static int ether_str_to_guint8_array(const char *s, guint8 *mac);
 
 /* Flex has a few routines which help us get the scanner to read
  * from a string rather than from a file. POSIX lex only provides
@@ -138,42 +136,11 @@ false		{ dfilter_lval.operand = TOK_FALSE; return TOK_FALSE; }
 }
 
 
-({hex}{hexsep}){1,2}{hex} {		/* small byte array */
+{hex}({hexsep}{hex})+ {			/* byte string, any length */
+	dfilter_lval.string = g_strdup(yytext);
+	return T_VAL_BYTE_STRING;
+}
 
-	dfilter_lval.bytes = byte_str_to_guint8_array(yytext);
-	return T_VAL_BYTES;
-}	
-
-({hex}{hexsep}){3}{hex} {		/* possibly IPv4 address (e.g., 0.0.0.0) */
-
-	dfilter_lval.id = g_strdup(yytext);
-	return T_VAL_UNQUOTED_STRING;
-}	
-
-({hex}{hexsep}){4}{hex} {		/* small byte array */
-
-	dfilter_lval.bytes = byte_str_to_guint8_array(yytext);
-	return T_VAL_BYTES;
-}	
-
-({hex}{hexsep}){5}{hex} {		/* possibly Ether Hardware Address */
-
-	/* it's faster to copy six bytes to dfilter_lval than to create a GByteArray
-	 * structure and append 6 bytes. That means I'll have to handle this
-	 * overloaded meaning of 6 bytes == 1 ether in the parser (what happens
-	 * when a T_VAL_ETHER is passed when an expression expects a T_VAL_BYTES?),
-	 * but the speed of processing T_VAL_ETHER's makes up for the added
-	 * complexity.
-	 */
-	ether_str_to_guint8_array(yytext, dfilter_lval.ether);
-	return T_VAL_ETHER;
-}	
-
-({hex}{hexsep}){6,}{hex} {		/* large byte array */
-
-	dfilter_lval.bytes = byte_str_to_guint8_array(yytext);
-	return T_VAL_BYTES;
-}	
 
 [A-Za-z][A-Za-z0-9\.\_]+	{	/* looks like a protocol or field name */
 
@@ -181,7 +148,7 @@ false		{ dfilter_lval.operand = TOK_FALSE; return TOK_FALSE; }
 	enum ftenum ftype;
 	dfilter_lval.variable = dfilter_lookup_token(yytext);
 	if (dfilter_lval.variable == 0) {
-		dfilter_lval.id = g_strdup(yytext);
+		dfilter_lval.string = g_strdup(yytext);
 		return T_VAL_UNQUOTED_STRING;
 	}
 	
@@ -227,18 +194,18 @@ false		{ dfilter_lval.operand = TOK_FALSE; return TOK_FALSE; }
 }
 
 [0-9]+ {				/* decimal or octal values */
-	dfilter_lval.id = g_strdup(yytext);
+	dfilter_lval.string = g_strdup(yytext);
 	return T_VAL_UNQUOTED_STRING;
 }
 
 
 0[xX][A-Fa-f0-9]+ {			/* hex values */
-	dfilter_lval.id = g_strdup(yytext);
+	dfilter_lval.string = g_strdup(yytext);
 	return T_VAL_UNQUOTED_STRING;
 }
 
 [0-9\:\.]+ {
-	dfilter_lval.id = g_strdup(yytext);
+	dfilter_lval.string = g_strdup(yytext);
 	return T_VAL_UNQUOTED_STRING;
 }
 
@@ -281,36 +248,6 @@ int
 yywrap()
 {
 	return 1; /* stop at EOF, instead of looking for next file */
-}
-
-/* converts a string representing an ether HW address
- * to a guint8 array.
- *
- * Returns 0 on failure, 1 on success
- */
-static int
-ether_str_to_guint8_array(const char *s, guint8 *mac)
-{
-	char ether_str[18]; /* 2+1+2+1+2+1+2+1+2+1+2 + 1 */
-	char *p, *str;
-	int i = 0;
-
-	if (strlen(s) > 17) {
-		return 0;
-	}
-	strcpy(ether_str, s); /* local copy of string */
-	str = ether_str;
-	while ((p = strtok(str, "-:."))) {
-		mac[i] = (guint8) strtoul(p, NULL, 16);
-		i++;
-		/* catch short strings with too many hex bytes: 0.0.0.0.0.0.0 */
-		if (i > 6) {
-			break;
-		}
-		/* subsequent calls to strtok() require NULL as arg 1 */
-		str = NULL;
-	}
-	return 0;
 }
 
 /* converts a string representing a byte array

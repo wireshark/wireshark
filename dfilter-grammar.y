@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.10 1999/08/14 06:24:26 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.11 1999/08/20 06:01:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,7 +69,7 @@ static GNode* dfilter_mknode_join(GNode *n1, enum node_type ntype, int operand, 
 static GNode* dfilter_mknode_unary(int operand, GNode *n2);
 static GNode* dfilter_mknode_numeric_variable(gint id);
 static GNode* dfilter_mknode_numeric_value(guint32 val);
-static GNode* dfilter_mknode_ether_value(guint8*);
+static GNode* dfilter_mknode_ether_value(gchar*);
 static GNode* dfilter_mknode_ether_variable(gint id);
 static GNode* dfilter_mknode_ipxnet_value(guint32);
 static GNode* dfilter_mknode_ipxnet_variable(gint id);
@@ -82,6 +82,7 @@ static GNode* dfilter_mknode_boolean_value(gint truth_value);
 static GNode* dfilter_mknode_boolean_variable(gint id);
 
 static guint32 string_to_value(char *s);
+static int ether_str_to_guint8_array(const char *s, guint8 *mac);
 
 /* This is the dfilter we're currently processing. It's how
  * dfilter_compile communicates with us.
@@ -94,9 +95,7 @@ dfilter *global_df = NULL;;
 	gint		operand;	/* logical, relation, alternation */
 	gint		variable;
 	GNode*		node;
-	gchar*		id;
-	GByteArray*	bytes;
-	guint8		ether[6];
+	gchar*		string;
 	struct {
 		gint	offset;
 		guint	length;
@@ -129,9 +128,8 @@ dfilter *global_df = NULL;;
 %token <variable>	T_FT_STRING
 %token <variable>	T_FT_IPXNET
 
-%token <id>	 	T_VAL_UNQUOTED_STRING
-%token <ether>		T_VAL_ETHER
-%token <bytes>		T_VAL_BYTES
+%token <string>	 	T_VAL_UNQUOTED_STRING
+%token <string>		T_VAL_BYTE_STRING
 %token <byte_range>	T_VAL_BYTE_RANGE
 
 %token <operand>	TOK_AND TOK_OR TOK_NOT TOK_XOR
@@ -226,47 +224,44 @@ numeric_value:	T_VAL_UNQUOTED_STRING
 	 }
 	;
 
-ether_value:	T_VAL_ETHER
-		{
-			$$ = dfilter_mknode_ether_value($1);
+ether_value:	T_VAL_BYTE_STRING
+	{
+		$$ = dfilter_mknode_ether_value($1);
+		g_free($1);
+		if ($$ == NULL) {
+			YYERROR;
 		}
+	}
 	;
 
 ipxnet_value:	T_VAL_UNQUOTED_STRING
-		{
-			$$ = dfilter_mknode_ipxnet_value(string_to_value($1));
-		}
-	;
-
-ipv4_value:	T_VAL_UNQUOTED_STRING
 	{
-		$$ = dfilter_mknode_ipv4_value($1);
+		$$ = dfilter_mknode_ipxnet_value(string_to_value($1));
 		g_free($1);
 	}
 	;
 
-bytes_value:	T_VAL_BYTES
-	{								/* 2 - 5, or > 6 bytes */
-		 $$ = dfilter_mknode_bytes_value($1);
-	}
+ipv4_value:	T_VAL_UNQUOTED_STRING
+		{
+			$$ = dfilter_mknode_ipv4_value($1);
+			g_free($1);
+		}
 
-	|	T_VAL_UNQUOTED_STRING
-	{								/* one or 4 bytes */
+	|	T_VAL_BYTE_STRING
+		{
+			$$ = dfilter_mknode_ipv4_value($1);
+			g_free($1);
+		}
+	;
+
+bytes_value:	T_VAL_BYTE_STRING
+	{
 		GByteArray	*barray;
 
 		/* the next function appends to list_of_byte_arrays for me */
 		barray = byte_str_to_guint8_array($1);
 		$$ = dfilter_mknode_bytes_value(barray);
 		g_free($1);
-	}
-
-	|	T_VAL_ETHER
-	{								/* 6 bytes */
-		GByteArray	*barray = g_byte_array_new();
-
-		global_df->list_of_byte_arrays = g_slist_append(global_df->list_of_byte_arrays, barray);
-		g_byte_array_append(barray, $1, 6);
-		$$ = dfilter_mknode_bytes_value(barray);
 	}
 	;
 
@@ -502,8 +497,9 @@ dfilter_mknode_numeric_value(guint32 val)
 	return gnode;
 }
 
+/* Returns NULL on bad parse of ETHER value */
 static GNode*
-dfilter_mknode_ether_value(guint8 *ether_bytes)
+dfilter_mknode_ether_value(gchar *byte_string)
 {
 	dfilter_node	*node;
 	GNode		*gnode;
@@ -514,7 +510,16 @@ dfilter_mknode_ether_value(guint8 *ether_bytes)
 	node->fill_array_func = fill_array_ether_value;
 	node->check_relation_func = check_relation_ether;
 
-	memcpy(&node->value.ether, ether_bytes, 6);
+	if (!ether_str_to_guint8_array(byte_string, &node->value.ether[0])) {
+		/* Rather than free the mem_chunk allocation, let it
+		 * stay. It will be cleaned up in the next call to
+		 * dfilter_clear() */
+		if (global_df->error_sample)
+			g_free(global_df->error_sample);
+		global_df->error_sample = g_strdup(byte_string);
+		global_df->error = DFILTER_ERR_BAD_ETHER_VAL;
+		return NULL;
+	}
 
 	gnode = g_node_new(node);
 	return gnode;
@@ -619,3 +624,37 @@ dfilter_mknode_existence(gint id)
 
 	return gnode;
 }
+
+/* converts a string representing an ether HW address
+ * to a guint8 array.
+ *
+ * Returns 0 on failure, 1 on success.
+ */
+static int
+ether_str_to_guint8_array(const char *s, guint8 *mac)
+{
+	char	ether_str[18]; /* 2+1+2+1+2+1+2+1+2+1+2 + 1 */
+	char	*p, *str;
+	int	i = 0;
+
+	if (strlen(s) > 17) {
+		return 0;
+	}
+	strcpy(ether_str, s); /* local copy of string */
+	str = ether_str;
+	while ((p = strtok(str, "-:."))) {
+		/* catch short strings with too many hex bytes: 0.0.0.0.0.0.0 */
+		if (i > 5) {
+			return 0;
+		}
+		mac[i] = (guint8) strtoul(p, NULL, 16);
+		i++;
+		/* subsequent calls to strtok() require NULL as arg 1 */
+		str = NULL;
+	}
+	if (i != 6)
+		return 0;	/* failed to read 6 hex pairs */
+	else
+		return 1;	/* read exactly 6 hex pairs */
+}
+
