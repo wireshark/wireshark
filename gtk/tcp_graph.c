@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.58 2004/03/13 15:15:26 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.59 2004/03/17 09:00:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -715,12 +715,12 @@ static void create_drawing_area (struct graph *g)
 					(current.iphdr.saddr>> 8)&0xff,
 					(current.iphdr.saddr>>16)&0xff,
 					(current.iphdr.saddr>>24)&0xff,
-					ntohs(current.tcphdr.source),
+					g_ntohs(current.tcphdr.source),
 					(current.iphdr.daddr    )&0xff,
 					(current.iphdr.daddr>> 8)&0xff,
 					(current.iphdr.daddr>>16)&0xff,
 					(current.iphdr.daddr>>24)&0xff,
-					ntohs(current.tcphdr.dest)
+					g_ntohs(current.tcphdr.dest)
 );
 	g->toplevel = window_new (GTK_WINDOW_TOPLEVEL, window_title);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
