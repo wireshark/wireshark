@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.272 2002/05/03 21:55:12 guy Exp $
+ * $Id: file.c,v 1.273 2002/05/23 06:10:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1782,20 +1782,19 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
       from_filename = cf->filename;
     }
 
-    /* Check that the from file is not the same as to file */
-
     if (do_copy) {
+      /* Check that the from file is not the same as to file */
+      if (strcmp(from_filename, fname) == 0) {
+	simple_dialog(ESD_TYPE_CRIT, NULL, 
+			"Can't save over current capture file: %s!",
+			from_filename);
+	goto done;
+      }
 
-            /* Copy the file, if we haven't moved it. */
-	    if (strncmp(from_filename, fname, sizeof(cf->filename)) == 0) {
-		    simple_dialog(ESD_TYPE_WARN, NULL, 
-				  "Can't save over current capture file: %s!", from_filename);
-		    goto done;
-	    }
-
-	    if (!copy_binary_file(from_filename, fname)) {
-		goto done;
-	    }
+      /* Copy the file, if we haven't moved it. */
+      if (!copy_binary_file(from_filename, fname)) {
+	goto done;
+      }
     }
   } else {
     /* Either we're filtering packets, or we're saving in a different
