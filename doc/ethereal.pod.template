@@ -1783,6 +1783,7 @@ B<http://www.ethereal.com>.
   Marcio Franco            <franco.marcio [AT] rd.francetelecom.fr>
   Kaloian Stoilov          <kalkata [AT] yahoo.com>
   Steven Lass              <stevenlass [AT] mail.com>
+  Jeff Liu                 <jqliu [AT] broadcom.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

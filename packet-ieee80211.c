@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.89 2003/05/28 22:40:18 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.90 2003/06/03 01:20:14 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,7 +223,11 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define TAG_IBSS_PARAMETER 0x06
 #define TAG_CHALLENGE_TEXT 0x10
 #define TAG_ERP_INFO       0x2A
+#define TAG_ERP_INFO_OLD   0x2F	/* IEEE Std 802.11g/D4.0 */
 #define TAG_EXT_SUPP_RATES 0x32
+#define TAG_VENDOR_SPECIFIC_IE	   0xDD
+
+#define WPA_OUI	"\x00\x50\xF2"
 
 /* ************************************************************************* */
 /*                         Frame types, and their names                      */
@@ -665,6 +669,126 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     }
 }
 
+static char *wpa_cipher_str[] = 
+{
+  "NONE",
+  "WEP (40-bit)",
+  "TKIP",
+  "AES (OCB)",
+  "AES (CCM)",
+  "WEP (104-bit)",
+};
+
+static char *
+wpa_cipher_idx2str(uint idx)
+{
+  if (idx < sizeof(wpa_cipher_str)/sizeof(wpa_cipher_str[0]))
+    return wpa_cipher_str[idx];
+  return "UNKNOWN";
+}
+
+static char *wpa_keymgmt_str[] = 
+{
+  "NONE",
+  "WPA",
+  "PSK",
+};
+
+static char *
+wpa_keymgmt_idx2str(uint idx)
+{
+  if (idx < sizeof(wpa_keymgmt_str)/sizeof(wpa_keymgmt_str[0]))
+    return wpa_keymgmt_str[idx];
+  return "UNKNOWN";
+}
+
+void 
+dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
+		int tag_number, int tag_length, int tag_interpretation)
+{
+      guint8 tag_no;
+      guint32 tag_len;
+      const guint8 *tag_val;
+      guint32 tag_val_off = 0;
+      char out_buff[SHORT_STR];
+      int i;
+	
+      tag_no = tvb_get_guint8(tvb, offset);
+      tag_len = tvb_get_guint8(tvb, offset + 1);
+      tag_val = tvb_get_ptr(tvb, offset + 2, tag_len);
+  
+      proto_tree_add_uint(tree, tag_number, tvb, offset, 1, tag_no);
+      offset += 1;
+      
+      proto_tree_add_uint(tree, tag_length, tvb, offset, 1, tag_len);
+      offset += 1;
+
+      if (tag_val_off + 6 <= tag_len && !bcmp(tag_val, WPA_OUI"\x01", 4)) {
+        snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
+                  tag_val[tag_val_off + 3], pletohs(&tag_val[tag_val_off + 4]));
+        proto_tree_add_string(tree, tag_interpretation, tvb, offset, 6, out_buff);
+        offset += 6;
+        tag_val_off += 6;
+        if (tag_val_off + 4 <= tag_len) {
+          /* multicast cipher suite */
+          if (!bcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
+            snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s", 
+                      wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
+            proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
+            offset += 4;
+            tag_val_off += 4;
+            /* unicast cipher suites */
+            if (tag_val_off + 2 <= tag_len) {
+              snprintf(out_buff, SHORT_STR, "# of unicast cipher suites: %u",
+                        pletohs(tag_val + tag_val_off));
+              proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+              offset += 2;
+              tag_val_off += 2;
+              i = 1;
+              while (tag_val_off + 4 <= tag_len) {
+                if (!bcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
+                  snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s", 
+                            i, wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
+                  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
+                  offset += 4;
+                  tag_val_off += 4;
+                  i ++;
+                }
+                else
+                  break;
+              }
+	      /* authenticated key management suites */
+              if (tag_val_off + 2 <= tag_len) {
+                snprintf(out_buff, SHORT_STR, "# of auth key management suites: %u",
+                          pletohs(tag_val + tag_val_off));
+                proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+                offset += 2;
+                tag_val_off += 2;
+                i = 1;
+                while (tag_val_off + 4 <= tag_len) {
+                  if (!bcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
+                    snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s", 
+                              i, wpa_keymgmt_idx2str(tag_val[tag_val_off + 3]));
+                    proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
+                    offset += 4;
+                    tag_val_off += 4;
+                    i ++;
+                  }
+                  else
+                    break;
+                }
+              }
+            }
+          }
+        }
+        if (tag_val_off < tag_len)
+          proto_tree_add_string(tree, tag_interpretation, tvb,
+                                 offset, tag_len - tag_val_off, "Not interpreted");
+      }
+      else
+        proto_tree_add_string(tree, tag_interpretation, 
+        		tvb, offset, tag_len, "Not interpreted");
+}
 
 /* ************************************************************************* */
 /*           Dissect and add tagged (optional) fields to proto tree          */
@@ -700,7 +824,8 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
   /* Next See if tag is reserved - if true, skip it! */
   if (((tag_no >= 7) && (tag_no <= 15))
       || ((tag_no >= 32) && (tag_no <= 255) && (tag_no != TAG_ERP_INFO) &&
-	  (tag_no != TAG_EXT_SUPP_RATES)))
+	  (tag_no != TAG_EXT_SUPP_RATES) &&
+	  (tag_no != TAG_ERP_INFO_OLD) && (tag_no != TAG_VENDOR_SPECIFIC_IE)))
     {
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
 				  "Tag Number: %u (Reserved tag number)",
@@ -871,6 +996,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
     case TAG_ERP_INFO:
+    case TAG_ERP_INFO_OLD:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
 				  "Tag Number: %u (ERP Information)",
 				  tag_no);
@@ -889,6 +1015,9 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
       break;
 
+    case TAG_VENDOR_SPECIFIC_IE:
+      dissect_vendor_specific_ie(tree, tvb, offset, tag_number, tag_length, tag_interpretation);
+      break;
 
 
     default:
