@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.128 1999/11/30 20:49:46 guy Exp $
+ * $Id: file.c,v 1.129 1999/11/30 21:30:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1576,7 +1576,6 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 {
   gchar        *from_filename;
   gchar        *name_ptr, *save_msg, *save_fmt = " Saving: %s...";
-  gchar        *err_fmt  = " Error: Could not save to '%s'";
   size_t        msg_len;
   int           err;
   gboolean      do_copy;
@@ -1757,12 +1756,6 @@ done:
 	set_menu_sensitivity("/File/Save", FALSE);
       }
     }
-  } else {
-    msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
-    save_msg = g_malloc(msg_len);
-    snprintf(save_msg, msg_len, err_fmt, name_ptr);
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, save_msg);
-    g_free(save_msg);
   }
   return err;
 }
