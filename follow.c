@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.21 2000/03/12 04:26:34 guy Exp $
+ * $Id: follow.c,v 1.22 2000/07/07 09:30:56 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -60,7 +60,7 @@ static void write_packet_data( tcp_stream_chunk *, const char * );
    very good one */
 char* 
 build_follow_filter( packet_info *pi ) {
-  char* buf = malloc(1024);
+  char* buf = g_malloc(1024);
   if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
 	&& pi->ipproto == 6 ) {
     /* TCP over IPv4 */
@@ -71,7 +71,7 @@ build_follow_filter( packet_info *pi ) {
 	     pi->srcport, pi->destport );
   }
   else { 
-    free( buf );
+    g_free( buf );
     return NULL;
   }
   memcpy(&ip_address[0], pi->net_src.data, sizeof ip_address[0]);
