@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.191 2002/09/22 16:17:41 gerald Exp $
+ * $Id: capture.c,v 1.192 2002/10/09 08:18:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -433,6 +433,7 @@ do_capture(const char *save_file)
     argv = add_arg(argv, &argc, sync_pipe_fd);
 
     /* Convert filter string to a quote delimited string and pass to child */
+    filterstring = NULL;
     if (cfile.cfilter != NULL && strlen(cfile.cfilter) != 0) {
       argv = add_arg(argv, &argc, "-f");
       filterstring = quote_encapsulate(cfile.cfilter);
@@ -442,7 +443,9 @@ do_capture(const char *save_file)
     /* Spawn process */
     fork_child = spawnvp(_P_NOWAIT, ethereal_path, argv);
     g_free(fontstring);
-    g_free(filterstring);
+    if (filterstring) {
+      g_free(filterstring);
+    }
     /* Keep a copy for later evaluation by _cwait() */
     child_process = fork_child;
 #else
