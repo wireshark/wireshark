@@ -810,6 +810,10 @@ Montonori Shindo <mshindo[at]mshindo.net> {
 	Patches to ppp for chap support
 }
 
+Pasi Eronen <pasi.eronen[at]nixu.com {
+	Patches to the dcerpc dissector for data representation decoding
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
