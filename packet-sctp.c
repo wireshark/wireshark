@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.56 2003/06/07 17:33:30 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.57 2003/06/08 00:38:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -591,12 +591,12 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 }
 
 static void
-dissect_ecn_parameter(_U_ tvbuff_t *parameter_tvb)
+dissect_ecn_parameter(tvbuff_t *parameter_tvb _U_)
 {
 }
 
 static void
-dissect_forward_tsn_supported_parameter(_U_ tvbuff_t *parameter_tvb)
+dissect_forward_tsn_supported_parameter(tvbuff_t *parameter_tvb _U_)
 {
 }
 
@@ -907,7 +907,7 @@ dissect_stale_cookie_error_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, pr
 }
 
 static void
-dissect_out_of_resource_cause(_U_ tvbuff_t *cause_tvb)
+dissect_out_of_resource_cause(tvbuff_t *cause_tvb _U_)
 {
 }
 
@@ -939,7 +939,7 @@ dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo, 
 }
 
 static void
-dissect_invalid_mandatory_parameter_cause(_U_ tvbuff_t *cause_tvb)
+dissect_invalid_mandatory_parameter_cause(tvbuff_t *cause_tvb _U_)
 {
 }
 
@@ -966,7 +966,7 @@ dissect_no_user_data_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_it
 }
 
 static void
-dissect_cookie_received_while_shutting_down_cause(_U_ tvbuff_t *cause_tvb)
+dissect_cookie_received_while_shutting_down_cause(tvbuff_t *cause_tvb _U_)
 {
 }
 
@@ -1540,7 +1540,7 @@ dissect_shutdown_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *
 }
 
 static void
-dissect_shutdown_ack_chunk(_U_ tvbuff_t *chunk_tvb)
+dissect_shutdown_ack_chunk(tvbuff_t *chunk_tvb _U_)
 {
 }
 
@@ -1574,7 +1574,7 @@ dissect_cookie_echo_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_ite
 }
 
 static void
-dissect_cookie_ack_chunk(_U_ tvbuff_t *chunk_tvb)
+dissect_cookie_ack_chunk(tvbuff_t *chunk_tvb _U_)
 {
 }
 
