@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.38 2000/08/21 08:09:01 guy Exp $
+ * $Id: prefs.c,v 1.39 2000/08/21 21:24:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -532,6 +532,15 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
 #else
     prefs.gui_font_name = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-*-");
 #endif
+    prefs.gui_marked_fg.pixel = 65535;
+    prefs.gui_marked_fg.red   = 65535;
+    prefs.gui_marked_fg.green = 65535;
+    prefs.gui_marked_fg.blue  = 65535;
+    prefs.gui_marked_bg.pixel =     0;
+    prefs.gui_marked_bg.red   =     0;
+    prefs.gui_marked_bg.green =     0;
+    prefs.gui_marked_bg.blue  =     0;
+
   }
 
   /* Read the global preferences file, if it exists. */
@@ -745,6 +754,8 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_PTREE_LINE_STYLE "gui.protocol_tree_line_style"
 #define PRS_GUI_PTREE_EXPANDER_STYLE "gui.protocol_tree_expander_style"
 #define PRS_GUI_FONT_NAME "gui.font_name"
+#define PRS_GUI_MARKED_FG "gui.marked_frame.fg"
+#define PRS_GUI_MARKED_BG "gui.marked_frame.bg"
 
 #define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
 #define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
@@ -863,6 +874,18 @@ set_pref(gchar *pref_name, gchar *value)
 	  if (prefs.gui_font_name != NULL)
 		g_free(prefs.gui_font_name);
 	  prefs.gui_font_name = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_MARKED_FG) == 0) {
+    cval = strtoul(value, NULL, 16);
+    prefs.gui_marked_fg.pixel = 0;
+    prefs.gui_marked_fg.red   = RED_COMPONENT(cval);
+    prefs.gui_marked_fg.green = GREEN_COMPONENT(cval);
+    prefs.gui_marked_fg.blue  = BLUE_COMPONENT(cval);
+  } else if (strcmp(pref_name, PRS_GUI_MARKED_BG) == 0) {
+    cval = strtoul(value, NULL, 16);
+    prefs.gui_marked_bg.pixel = 0;
+    prefs.gui_marked_bg.red   = RED_COMPONENT(cval);
+    prefs.gui_marked_bg.green = GREEN_COMPONENT(cval);
+    prefs.gui_marked_bg.blue  = BLUE_COMPONENT(cval);
   } else {
     /* To which module does this preference belong? */
     dotp = strchr(pref_name, '.');
@@ -1115,6 +1138,17 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes.\n");
   fprintf(pf, PRS_GUI_FONT_NAME ": %s\n", prefs.gui_font_name);
 
+  fprintf (pf, "\n# Color preferences for a marked frame.  Each value is a six "
+    "digit hexadecimal value in the form rrggbb.\n");
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_FG,
+    (prefs.gui_marked_fg.red * 255 / 65535),
+    (prefs.gui_marked_fg.green * 255 / 65535),
+    (prefs.gui_marked_fg.blue * 255 / 65535));
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_BG,
+    (prefs.gui_marked_bg.red * 255 / 65535),
+    (prefs.gui_marked_bg.green * 255 / 65535),
+    (prefs.gui_marked_bg.blue * 255 / 65535));
+
   g_list_foreach(modules, write_module_prefs, pf);
 
   fclose(pf);
@@ -1156,6 +1190,8 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_ptree_line_style = src->gui_ptree_line_style;
   dest->gui_ptree_expander_style = src->gui_ptree_expander_style;
   dest->gui_font_name = g_strdup(src->gui_font_name);
+  dest->gui_marked_fg = src->gui_marked_fg;
+  dest->gui_marked_bg = src->gui_marked_bg;
 }
 
 /* Free a set of preferences. */

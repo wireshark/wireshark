@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.208 2000/08/21 15:45:19 deniel Exp $
+ * $Id: file.c,v 1.209 2000/08/21 21:24:01 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -732,9 +732,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
 
     if (fdata->flags.marked) {
-        /* XXX need user-configurable colors here (see packet_list_button_pressed_cb()) */
-        gtk_clist_set_background(GTK_CLIST(packet_list), row, &BLACK);
-        gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &WHITE);
+	gtk_clist_set_background(GTK_CLIST(packet_list), row, &prefs.gui_marked_bg);
+	gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &prefs.gui_marked_fg);
     } else if (filter_list != NULL && (args.colorf != NULL)) {
         gtk_clist_set_background(GTK_CLIST(packet_list), row,
                    &args.colorf->bg_color);

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.146 2000/08/21 19:36:09 deniel Exp $
+ * $Id: main.c,v 1.147 2000/08/21 21:24:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -463,11 +463,10 @@ static void
 set_frame_mark(gboolean set, frame_data *frame, gint row) {
   if (frame == NULL || row == -1) return;
   frame->flags.marked = set;
-  /* XXX need user-configurable colors here */
   gtk_clist_set_background(GTK_CLIST(packet_list), row,
-			   (set) ? &BLACK : &WHITE);
+			   (set) ? &prefs.gui_marked_bg : &WHITE);
   gtk_clist_set_foreground(GTK_CLIST(packet_list), row, 
-			   (set) ? &WHITE : &BLACK); 
+			   (set) ? &prefs.gui_marked_fg : &BLACK); 
 }
 
 static void
