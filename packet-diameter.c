@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.31 2001/11/03 12:19:56 guy Exp $
+ * $Id: packet-diameter.c,v 1.32 2001/11/03 23:13:03 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -1044,10 +1044,13 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
 
   if (check_col(pinfo->fd, COL_INFO)) {
 	col_add_fstr(pinfo->fd, COL_INFO,
-				 "%s%s%s: %s vendor=%s (hop-id=%d) (end-id=%d) RPE=%d%d%d",
+				 "%s%s%s%s%s vendor=%s (hop-id=%d) (end-id=%d) RPE=%d%d%d",
 				 (BadPacket)?"***** Bad Packet!: ":"",
 				 (flags & DIAM_FLAGS_P)?"Proxyable ":"",
 				 (flags & DIAM_FLAGS_E)?" Error":"",
+				 ((BadPacket ||
+				   (flags & (DIAM_FLAGS_P|DIAM_FLAGS_E))) ?
+				   ": " : ""),
 				 commandString, vendorString,
 				 dh.hopByHopId, dh.endToEndId,
 				 (flags & DIAM_FLAGS_R)?1:0,
