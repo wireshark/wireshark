@@ -1862,6 +1862,7 @@ Thierry Martin          <thierry.martin [AT] accellent-group.com> {
 Oleg Terletsky          <oleg.terletsky [AT] comverse.com> {
 	LWRES support
 	AgentX support
+	SCTP chunk statistic
 }
 
 Michael Lum             <mlum [AT] telostech.com> {

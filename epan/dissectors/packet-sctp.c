@@ -1902,9 +1902,6 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     flags_item = NULL;
   };
 
-  /* FIXME
-  sctp_info.msg_type = type;
-  */
   /* now dissect the chunk value */
   switch(type) {
   case SCTP_DATA_CHUNK_ID:
@@ -2174,12 +2171,11 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   memset(&sctp_info, 0, sizeof(struct _sctp_info));
   sctp_info.verification_tag = tvb_get_ntohl(tvb, VERIFICATION_TAG_OFFSET);
   
-  /* FIXME
+  /* FIXME: Do we need to put this into _sctp_info? */
   sctp_info.sport = pinfo->srcport;
   sctp_info.dport = pinfo->destport;
   SET_ADDRESS(&sctp_info.ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&sctp_info.ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
-  */
   
   dissect_sctp_packet(tvb, pinfo, tree, FALSE);
   if (!pinfo->in_error_pkt)

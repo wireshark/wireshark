@@ -125,6 +125,7 @@ TETHEREAL_TAP_SRC =	\
 	tap-protohierstat.c	\
 	tap-rpcstat.c	\
 	tap-rpcprogs.c	\
+	tap-sctpchunkstat.c	\
 	tap-sipstat.c \
 	tap-smbsids.c	\
 	tap-smbstat.c	\

@@ -43,6 +43,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-udp.h>
 #include <epan/dissectors/packet-eth.h>
+#include <epan/dissectors/packet-sctp.h>
 #include <epan/dissectors/packet-tr.h>
 #include <epan/dissectors/packet-fc.h>
 #include <epan/dissectors/packet-fddi.h>
@@ -124,6 +125,65 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	}
 
 	return 1;
+}
+
+
+static int
+iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vsctp)
+{
+	io_users_t *iu=arg;
+	const struct _sctp_info* sctph = vsctp;
+	char name1[256],name2[256], s_sport[10], s_dport[10];
+	io_users_item_t *iui;
+	int direction=0;
+
+	sprintf(s_sport,"%d",sctph->sport);
+	sprintf(s_dport,"%d",sctph->dport);
+	
+	if(sctph->sport > sctph->dport) {
+		direction=0;
+		snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
+		snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
+	} else if(sctph->sport < sctph->dport) {
+		direction=1;
+		snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
+		snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
+	} else {
+		direction=0;
+		snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
+		snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
+	}
+
+	for(iui=iu->items;iui;iui=iui->next){
+		if((!strcmp(iui->name1, name1))
+		 && (!strcmp(iui->name2, name2)) ){
+			break;
+		}
+	}
+
+	if(!iui){
+                iui=g_malloc(sizeof(io_users_item_t));
+                iui->next=iu->items;
+                iu->items=iui;
+/*              iui->addr1=NULL;*/
+                iui->name1=strdup(name1);
+/*              iui->addr2=NULL;*/
+                iui->name2=strdup(name2);
+                iui->frames1=0;
+                iui->frames2=0;
+                iui->bytes1=0;
+                iui->bytes2=0;
+        }
+
+	if(direction){
+                iui->frames1++;
+                iui->bytes1+=pinfo->fd->pkt_len;
+        } else {
+                iui->frames2++;
+                iui->bytes2+=pinfo->fd->pkt_len;
+        }
+
+        return 1;
 }
 
 
@@ -599,6 +659,15 @@ iousers_init(char *optarg)
 		tap_type="ip";
 		tap_type_name="IPv4";
 		packet_func=iousers_ip_packet;
+	} else if(!strncmp(optarg,"conv,sctp",9)) {
+		if(optarg[9]==','){
+				filter=optarg+10;
+		} else {
+                        filter=NULL;
+                }
+		tap_type="sctp";
+		tap_type_name="SCTP";
+		packet_func=iousers_sctp_packet;
 	} else {
 		fprintf(stderr, "tethereal: invalid \"-z conv,<type>[,<filter>]\" argument\n");
 		fprintf(stderr,"   <type> must be one of\n");
@@ -607,6 +676,7 @@ iousers_init(char *optarg)
 		fprintf(stderr,"      \"fddi\"\n");
 		fprintf(stderr,"      \"ip\"\n");
 		fprintf(stderr,"      \"ipx\"\n");
+		fprintf(stderr,"      \"sctp\"\n");
 		fprintf(stderr,"      \"tcp\"\n");
 		fprintf(stderr,"      \"tr\"\n");
 		fprintf(stderr,"      \"udp\"\n");
