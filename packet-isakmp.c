@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.47 2001/10/26 10:30:16 guy Exp $
+ * $Id: packet-isakmp.c,v 1.48 2001/11/05 21:36:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,6 +154,18 @@ static const char *esp_transtypestr[NUM_ESP_TRANS_TYPES] = {
   "RC4",
   "NULL",
   "AES"
+};
+
+#define NUM_IPCOMP_TRANS_TYPES    5
+#define ipcomp_trans2str(t)  \
+  ((t < NUM_IPCOMP_TRANS_TYPES) ? ipcomp_transtypestr[t] : "UNKNOWN-IPCOMP-TRANS-TYPE")
+
+static const char *ipcomp_transtypestr[NUM_IPCOMP_TRANS_TYPES] = {
+  "RESERVED",
+  "OUI",
+  "DEFLATE",
+  "LZS",
+  "LZJH"
 };
 
 #define NUM_ID_TYPES	12
@@ -614,6 +626,11 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 			"Transform ID: %s (%u)",
 			esp_trans2str(transform_id), transform_id);
     break;
+  case 4:	/* IPCOMP */
+    proto_tree_add_text(tree, tvb, offset, 1,
+			"Transform ID: %s (%u)",
+			ipcomp_trans2str(transform_id), transform_id);
+    break;
   }
   offset += 3;
   length -= 3;
@@ -706,7 +723,6 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   
   switch (id_type) {
     case 1:
-    case 4:
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %s",
 			  ip_to_str(tvb_get_ptr(tvb, offset, 4)));
@@ -716,6 +732,12 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %.*s", length,
 			  tvb_get_ptr(tvb, offset, length));
+      break;
+    case 4:
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Identification data: %s/%s",
+			  ip_to_str(tvb_get_ptr(tvb, offset, 4)),
+			  ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
       break;
     default:
       proto_tree_add_text(tree, tvb, offset, length, "Identification Data");

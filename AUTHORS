@@ -867,6 +867,10 @@ Tomas Kukosa <tomas.kukosa[AT]anfdata.cz> {
 	Additional routines made available to plugins
 }
 
+<a.stockmeier[AT]avm.de> {
+	IPCOMP transformation and ID_IPV4_ADDR_SUBNET for ISAKMP
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
