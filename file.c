@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.381 2004/05/01 22:55:21 obiot Exp $
+ * $Id: file.c,v 1.382 2004/05/02 15:04:14 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -278,6 +278,8 @@ cf_close(capture_file *cf)
   set_menus_for_selected_packet(cf);
   set_menus_for_capture_in_progress(FALSE);
   set_menus_for_selected_tree_row(cf);
+
+  reset_tap_listeners();
 
   /* We have no file open. */
   cf->state = FILE_CLOSED;
