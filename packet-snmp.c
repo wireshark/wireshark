@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.118 2003/10/29 22:00:54 guy Exp $
+ * $Id: packet-snmp.c,v 1.119 2003/10/29 22:02:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1154,7 +1154,6 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "agent address", ret);
-			g_free(agent_address);
 			return;
 		}
 		length = asn1.offset - start;
