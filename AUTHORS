@@ -248,6 +248,10 @@ Dietmar Petras <DPetras@ELSA.de> {
 	Time protocol support
 }
 
+Fred Reimer <fwr@ga.prestige.net> {
+	TCP segment length in TCP packet summary
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.57 2000/02/15 21:03:15 gram Exp $
+ * $Id: packet-tcp.c,v 1.58 2000/02/28 08:17:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -441,13 +441,13 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     /* Copy the data into info_str in case one of the option handling
        routines needs to append to it. */
     if (th.th_flags & TH_URG)
-      info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u Urg=%u",
+      info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u Urg=%u Len=%d",
         get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
-        th.th_seq, th.th_ack, th.th_win, th.th_urp);
+        th.th_seq, th.th_ack, th.th_win, th.th_urp, pi.len - offset - hlen);
     else
-      info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u",
+      info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u Len=%d",
         get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
-        th.th_seq, th.th_ack, th.th_win);
+        th.th_seq, th.th_ack, th.th_win, pi.len - offset - hlen);
     /* The info column is actually written after the options are decoded */
   }
   
