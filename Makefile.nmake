@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.339 2003/09/23 18:40:54 guy Exp $
+# $Id: Makefile.nmake,v 1.340 2003/09/26 22:20:06 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -437,6 +437,7 @@ ETHEREAL_COMMON_OBJECTS = \
 	reassemble.obj   \
 	register.obj     \
 	ringbuffer.obj   \
+	t35.obj		\
 	tap.obj		\
 	timestats.obj   \
 	util.obj         \

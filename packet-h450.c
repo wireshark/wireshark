@@ -125,6 +125,7 @@ static int hf_h4501_ROS = -1;
 static int hf_h4501_rosApdus = -1;
 static int hf_h4501_ServiceApdus = -1;
 
+static int hf_h4502_nonStandardData = -1;
 static int hf_h4502_DummyArg = -1;
 static int hf_h4502_CallIdentity = -1;
 static int hf_h4502_CTInitiateArg = -1;
@@ -351,6 +352,14 @@ NOT_DECODED_YET("H.450.1 ExtensionSeq");
 }
 
 
+static int
+dissect_h4502_nonStandardData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree, 
+				hf_h4502_nonStandardData);
+	return offset;
+}
+
 static const value_string Extension_vals[] = {
 	{ 0, "extensionSeq" },
 	{ 1, "nonStandardData" },
@@ -360,7 +369,7 @@ static per_choice_t Extension_choice[] = {
 	{ 0, "extensionSeq", NO_EXTENSIONS, 
 		dissect_h4501_ExtensionSeq },
 	{ 1, "nonStandardData", NO_EXTENSIONS, 
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h4502_nonStandardData },
 	{ 0, NULL, 0, NULL }
 };
 static int
@@ -1109,6 +1118,9 @@ proto_register_h4501(void)
    { &hf_h4501_H225InformationElement,
       { "H225InformationElement", "h4501.H225InformationElement", FT_BYTES, BASE_HEX,
       NULL, 0, "H225InformationElement", HFILL }},
+   { &hf_h4502_nonStandardData,
+      { "nonStandardData", "h4502.nonStandardData", FT_NONE, BASE_NONE,
+	  NULL, 0, "NonStandardParameter SEQUENCE", HFILL }},
    { &hf_h4502_DummyArg,
       { "DummyArg", "h4502.DummyArg", FT_NONE, BASE_NONE,
       NULL, 0, "DummyArg sequence of", HFILL }},

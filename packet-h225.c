@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.13 2003/09/23 18:40:54 guy Exp $
+ * $Id: packet-h225.c,v 1.14 2003/09/26 22:20:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h245.h"
+#include "t35.h"
 
 #define UDP_PORT_RAS1 1718
 #define UDP_PORT_RAS2 1719
@@ -47,11 +48,13 @@
 
 static dissector_handle_t h225ras_handle;
 static dissector_handle_t H323UserInformation_handle;
+static dissector_handle_t data_handle;
 
 static int proto_h225 = -1;
 static int hf_h225_cname = -1;
 static int hf_h225_route = -1;
 static int hf_h225_nonStandardUsageTypes = -1;
+static int hf_h225_nonStandardUsageTypes_item = -1;
 static int hf_h225_PresentationIndicator = -1;
 static int hf_h225_conferenceGoal = -1;
 static int hf_h225_ScnConnectionType = -1;
@@ -448,6 +451,7 @@ static int hf_h225_answeredCall = -1;
 static int hf_h225_ServiceControlIndication = -1;
 static int hf_h225_RasUsageInformation = -1;
 static int hf_h225_nonStandardUsageFields = -1;
+static int hf_h225_nonStandardUsageFields_item = -1;
 static int hf_h225_TimeToLive = -1;
 static int hf_h225_GatekeeperConfirm = -1;
 static int hf_h225_RegistrationRequest = -1;
@@ -476,6 +480,7 @@ static int hf_h225_h4501SupplementaryService = -1;
 static int hf_h225_h245Tunneling = -1;
 static int hf_h225_h245Control = -1;
 static int hf_h225_nonStandardControl = -1;
+static int hf_h225_nonStandardControl_item = -1;
 static int hf_h225_preGrantedARQ = -1;
 static int hf_h225_makeCall = -1;
 static int hf_h225_useGKCallSignalAddressToMakeCall = -1;
@@ -500,10 +505,21 @@ static int hf_h225_H323_UserInformation = -1;
 static int hf_h225_user_data = -1;
 static int hf_h225_protocol_discriminator = -1;
 static int hf_h225_user_information = -1;
+static int hf_h225_object = -1;
+static int hf_h225_t35CountryCode = -1;
+static int hf_h225_t35Extension = -1;
+static int hf_h225_manufacturerCode = -1;
+static int hf_h225_h221NonStandard = -1;
+static int hf_h225_nonStandardIdentifier = -1;
+static int hf_h225_nsp_data = -1;
+static int hf_h225_nonStandardData = -1;
+static int hf_h225_nonStandard = -1;
+static int hf_h225_nonStandardReason = -1;
+static int hf_h225_nonStandardAddress = -1;
 /*aaa*/
 
 static gint ett_h225 = -1;
-static gint ett_h225_nonStandardUsageTypes = -1;
+static gint ett_h225_T_nonStandardUsageTypes = -1;
 static gint ett_h225_PresentationIndicator = -1;
 static gint ett_h225_conferenceGoal = -1;
 static gint ett_h225_ScnConnectionType = -1;
@@ -728,7 +744,7 @@ static gint ett_h225_LocationReject = -1;
 static gint ett_h225_callSpecific = -1;
 static gint ett_h225_ServiceControlIndication = -1;
 static gint ett_h225_RasUsageInformation = -1;
-static gint ett_h225_nonStandardUsageFields = -1;
+static gint ett_h225_T_nonStandardUsageFields = -1;
 static gint ett_h225_GatekeeperConfirm = -1;
 static gint ett_h225_RegistrationRequest = -1;
 static gint ett_h225_supportedH248Packages = -1;
@@ -747,7 +763,7 @@ static gint ett_h225_messageContent = -1;
 static gint ett_h225_H323_UU_PDU = -1;
 static gint ett_h225_h4501SupplementaryService = -1;
 static gint ett_h225_h245Control = -1;
-static gint ett_h225_nonStandardControl = -1;
+static gint ett_h225_T_nonStandardControl = -1;
 static gint ett_h225_preGrantedARQ = -1;
 static gint ett_h225_RegistrationConfirm = -1;
 static gint ett_h225_pdu_item = -1;
@@ -762,14 +778,30 @@ static gint ett_h225_InfoRequestResponse = -1;
 static gint ett_h225_RasMessage = -1;
 static gint ett_h225_H323_UserInformation = -1;
 static gint ett_h225_user_data = -1;
+static gint ett_h225_H221NonStandard = -1;
+static gint ett_h225_NonStandardIdentifier = -1;
+static gint ett_h225_NonStandardParameter = -1;
 /*bbb*/
+
+/* Subdissector tables */
+static dissector_table_t nsp_object_dissector_table;
+static dissector_table_t nsp_h221_dissector_table;
+
 
 static dissector_handle_t h245_handle=NULL;
 static dissector_handle_t h245dg_handle=NULL;
 static dissector_handle_t h4501_handle=NULL;
 
+
+static dissector_handle_t nsp_handle;
+
 static guint32  ipv4_address;
 static guint32  ipv4_port;
+static char object[256];
+static guint32 t35CountryCode;
+static guint32 t35Extension;
+static guint32 manufacturerCode;
+static guint32 h221NonStandard;
 
 static gboolean contains_faststart = FALSE;
 
@@ -1809,21 +1841,173 @@ dissect_h225_SCRresult(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	return offset;
 }
 
+static int
+dissect_h225_object(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, 
+				hf_h225_object, 
+				object);
+	return offset;
+}
 
+static int
+dissect_h225_t35CountryCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, 
+				hf_h225_t35CountryCode, 0, 255,
+				&t35CountryCode, NULL, FALSE);
+	return offset;
+}
+
+
+static int
+dissect_h225_t35Extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, 
+				hf_h225_t35Extension, 0, 255,
+				&t35Extension, NULL, FALSE);
+	return offset;
+}
+
+static int
+dissect_h225_manufacturerCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, 
+				hf_h225_manufacturerCode, 0, 65535,
+				&manufacturerCode, NULL, FALSE);
+	return offset;
+}
+
+static per_sequence_t H221NonStandard_sequence[] = {
+	{ "t35CountryCode", EXTENSION_ROOT, NOT_OPTIONAL,
+		dissect_h225_t35CountryCode },
+	{ "t35Extension", EXTENSION_ROOT, NOT_OPTIONAL, 
+		dissect_h225_t35Extension },
+	{ "manufacturerCode", EXTENSION_ROOT, NOT_OPTIONAL,
+		dissect_h225_manufacturerCode },
+	{ NULL, 0, 0, NULL }
+};
+static int
+dissect_h225_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	t35CountryCode = 0;
+	t35Extension = 0;
+	manufacturerCode = 0;
+
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree, 
+				hf_h225_h221NonStandard, 
+				ett_h225_H221NonStandard, H221NonStandard_sequence);
+
+	h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
+
+   	return offset;
+}
+
+static const value_string NonStandardIdentifier_vals[] = {
+	{ 0,	"object" },
+	{ 1,	"h221NonStandard" },
+	{ 0, NULL }
+};
+static per_choice_t NonStandardIdentifier_choice[] = {
+	{ 0,	"object", EXTENSION_ROOT,
+		dissect_h225_object },
+	{ 1,	"h221NonStandard", EXTENSION_ROOT, 
+		dissect_h225_h221NonStandard },
+	{ 0, NULL, 0, NULL }
+};
+static int
+dissect_h225_nonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint32 value;
+
+	*object = '\0';
+	h221NonStandard = 0;
+
+	offset = dissect_per_choice(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardIdentifier, 
+				ett_h225_NonStandardIdentifier, NonStandardIdentifier_choice, "NonStandardIdentifier", 
+				&value);
+
+	switch (value) {
+		case 0 :  /* object */
+			nsp_handle = dissector_get_string_handle(nsp_object_dissector_table, object);
+			break;
+		case 1 :  /* h221NonStandard */
+			nsp_handle = dissector_get_port_handle(nsp_h221_dissector_table, h221NonStandard);
+			break;
+		default :
+			nsp_handle = NULL;
+    }
+
+	return offset;
+}
+
+static int
+dissect_h225_nsp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint32 value_offset, value_len;
+	tvbuff_t *next_tvb;
+
+	offset = dissect_per_octet_string(tvb, offset, pinfo, tree, 
+				hf_h225_nsp_data, -1, -1, 
+				&value_offset, &value_len);
+
+	if (value_len > 0) {
+		next_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
+		call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
+	}
+
+	return offset;
+}
+
+static per_sequence_t NonStandardParameter_sequence[] = {
+	{ "nonStandardIdentifier", NO_EXTENSIONS, NOT_OPTIONAL,
+		dissect_h225_nonStandardIdentifier },
+	{ "data", NO_EXTENSIONS, NOT_OPTIONAL,
+		dissect_h225_nsp_data },
+	{ NULL, 0, 0, NULL }
+};
+
+int
+dissect_h225_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index)
+{
+	nsp_handle = NULL;
+
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree, 
+				hf_index, 
+				ett_h225_NonStandardParameter, NonStandardParameter_sequence);
+
+	return offset;
+}
+
+
+static int
+dissect_h225_nonStandardData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardData);
+	return offset;
+}
 
 static per_sequence_t GatekeeperInfo_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
 static int 
 dissect_h225_GatekeeperInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_GatekeeperInfo, ett_h225_GatekeeperInfo, GatekeeperInfo_sequence);
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_GatekeeperInfo, ett_h225_GatekeeperInfo, GatekeeperInfo_sequence);
 	return offset;
 }
 
-
+static int
+dissect_h225_nonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandard);
+	return offset;
+}
 
 static const value_string SecurityServiceMode_vals[] = {
 	{ 0, "nonStandard" },
@@ -1833,7 +2017,7 @@ static const value_string SecurityServiceMode_vals[] = {
 };
 static per_choice_t SecurityServiceMode_choice[] = {
 	{ 0, "nonStandard", EXTENSION_ROOT,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandard },
 	{ 1, "none", EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 2, "default", EXTENSION_ROOT,
@@ -1863,7 +2047,7 @@ dissect_h225_SecurityServiceMode_integrity(tvbuff_t *tvb, int offset, packet_inf
 
 static per_sequence_t SecurityCapabilities_sequence[] = {
 	{ "nonStandard", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandard },
 	{ "encryption", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_SecurityServiceMode_encryption },
 	{ "authenticaton", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -1897,7 +2081,7 @@ static const value_string H245Security_vals[] = {
 };
 static per_choice_t H245Security_choice[] = {
 	{ 0, "nonStandard", EXTENSION_ROOT,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandard },
 	{ 1, "noSecurity", EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 2, "tls", EXTENSION_ROOT,
@@ -1914,9 +2098,19 @@ dissect_h225_H245Security(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static int
+dissect_h225_nonStandardUsageTypes_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardUsageTypes_item);
+	return offset;
+}
+
+static int
 dissect_h225_nonStandardUsageTypes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_nonStandardUsageTypes, ett_h225_nonStandardUsageTypes, dissect_h245_NonStandardParameter_with_extension_marker);
+	offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardUsageTypes, 
+				ett_h225_T_nonStandardUsageTypes, dissect_h225_nonStandardUsageTypes_item);
 	return offset;
 }
 
@@ -2002,7 +2196,7 @@ dissect_h225_channelMultiplier(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 static per_sequence_t DataRate_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL, 
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "channelRate", EXTENSION_ROOT, NOT_OPTIONAL, 
 		dissect_h225_channelRate },
 	{ "channelMultiplier", EXTENSION_ROOT, OPTIONAL, 
@@ -2033,7 +2227,7 @@ dissect_h225_dataRatesSupported(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 static per_sequence_t TerminalInfo_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL, 
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
 static int 
@@ -2054,7 +2248,7 @@ dissect_h225_h248Message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 static per_sequence_t StimulusControl_sequence[] = {
 	{ "nonStandard", EXTENSION_ROOT, OPTIONAL, 
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandard },
 	{ "isText", EXTENSION_ROOT, OPTIONAL, 
 		dissect_h225_NULL },
 	{ "h248Message", EXTENSION_ROOT, OPTIONAL, 
@@ -2087,6 +2281,14 @@ dissect_h225_replaceWithConferenceInvite(tvbuff_t *tvb, int offset, packet_info 
 	return offset;
 }
 
+
+static int
+dissect_h225_nonStandardReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardReason);
+	return offset;
+}
 
 static const value_string ReleaseCompleteReason_vals[] = {
 	{ 0, "noBandwidth" },
@@ -2153,7 +2355,7 @@ static per_choice_t ReleaseCompleteReason_choice[] = {
 	{ 16, "newConnectionNeeded", NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
 	{ 17, "nonStandardReason", NOT_EXTENSION_ROOT, 
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardReason },
 	{ 18, "replaceWithConferenceInvite", NOT_EXTENSION_ROOT, 
 		dissect_h225_replaceWithConferenceInvite },
 	{ 19, "genericDataReason", NOT_EXTENSION_ROOT, 
@@ -2457,7 +2659,13 @@ dissect_h225_nsap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	return offset;
 }
 
-
+static int
+dissect_h225_nonStandardAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardAddress);
+	return offset;
+}
 
 static const value_string TransportAddress_vals[] = {
 	{ 0, "ipAddress" },
@@ -2483,7 +2691,7 @@ static per_choice_t TransportAddress_choice[] = {
 	{ 5, "nsap", EXTENSION_ROOT,
 		dissect_h225_nsap },
 	{ 6, "nonStandardAddress", EXTENSION_ROOT,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardAddress },
 	{ 0, NULL, 0, NULL }
 };
 static int
@@ -3678,7 +3886,7 @@ dissect_h225_prefix(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 static per_sequence_t SupportedPrefix_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "prefix", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_prefix },
 	{ NULL, 0, 0, NULL }
@@ -3700,7 +3908,7 @@ dissect_h225_SupportedPrefixes(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 static per_sequence_t H310Caps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3717,7 +3925,7 @@ dissect_h225_H310Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static per_sequence_t H320Caps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3734,7 +3942,7 @@ dissect_h225_H320Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static per_sequence_t H321Caps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3751,7 +3959,7 @@ dissect_h225_H321Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static per_sequence_t H322Caps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3768,7 +3976,7 @@ dissect_h225_H322Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static per_sequence_t H323Caps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3785,7 +3993,7 @@ dissect_h225_H323Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static per_sequence_t H324Caps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3802,7 +4010,7 @@ dissect_h225_H324Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 static per_sequence_t VoiceCaps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3819,7 +4027,7 @@ dissect_h225_VoiceCaps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 static per_sequence_t T120OnlyCaps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3835,7 +4043,7 @@ dissect_h225_T120OnlyCaps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 static per_sequence_t NonStandardProtocol_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3852,7 +4060,7 @@ dissect_h225_NonStandardProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 static per_sequence_t SIPCaps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", EXTENSION_ROOT, OPTIONAL,
@@ -3905,7 +4113,7 @@ static per_sequence_t ConferenceList_sequence[] = {
 	{ "conferenceAlias", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_conferenceAlias },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
 static int 
@@ -3923,7 +4131,7 @@ dissect_h225_conferences(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 static per_sequence_t T38FaxAnnexbOnlyCaps_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "dataRatesSupported", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_dataRatesSupported },
 	{ "supportedPrefixes", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -3959,7 +4167,7 @@ static const value_string SupportedProtocols_vals[] = {
 };
 static per_choice_t SupportedProtocols_choice[] = {
 	{ 0, "nonStandardData", EXTENSION_ROOT,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ 1, "h310", EXTENSION_ROOT,
 		dissect_h225_H310Caps },
 	{ 2, "h320", EXTENSION_ROOT,
@@ -4004,7 +4212,7 @@ static per_sequence_t GatewayInfo_sequence[] = {
 	{ "protocol", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_protocol },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
 static int 
@@ -4015,7 +4223,7 @@ dissect_h225_gateway(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 static per_sequence_t McuInfo_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "protocol", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_protocol },
 	{ NULL, 0, 0, NULL }
@@ -4928,7 +5136,7 @@ static const value_string EncryptIntAlg_vals[] = {
 };
 static per_choice_t EncryptIntAlg_choice[] = {
 	{ 0, "nonStandard", EXTENSION_ROOT,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandard },
 	{ 1, "isoAlgorithm", EXTENSION_ROOT,
 		dissect_h225_isoAlgorithm },
 	{ 0, NULL, 0, NULL }
@@ -4995,7 +5203,7 @@ static const value_string IntegrityMechanism_vals[] = {
 };
 static per_choice_t IntegrityMechanism_choice[] = {
 	{ 0, "nonStandard", EXTENSION_ROOT,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandard },
 	{ 1, "digSig", EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 2, "iso9797", EXTENSION_ROOT,
@@ -5097,7 +5305,7 @@ dissect_h225_undefinedNode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 static per_sequence_t EndPointType_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "vendor", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_VendorIdentifier },
 	{ "gatekeeper", EXTENSION_ROOT, OPTIONAL,
@@ -5279,7 +5487,7 @@ dissect_h225_callSignalAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 static per_sequence_t EndPoint_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "aliasAddress", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_AliasAddress },
 	{ "callSignalAddress", EXTENSION_ROOT, OPTIONAL,
@@ -5354,7 +5562,7 @@ static per_sequence_t BandwidthConfirm_sequence[] = {
 	{ "bandWidth", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_BandWidth },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -5379,7 +5587,7 @@ static per_sequence_t UnregistrationConfirm_sequence[] = {
 	{ "requestSeqNum", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -5400,7 +5608,7 @@ static per_sequence_t NonStandardMessage_sequence[] = {
 	{ "requestSeqNum", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -5425,7 +5633,7 @@ static per_sequence_t InfoRequestAck_sequence[] = {
 	{ "requestSeqNum", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "tokens", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", EXTENSION_ROOT, OPTIONAL,
@@ -5444,7 +5652,7 @@ static per_sequence_t InfoRequestNak_sequence[] = {
 	{ "requestSeqNum", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "nakReason", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_InfoRequestNakReason },
 	{ "altGKInfo", EXTENSION_ROOT, OPTIONAL,
@@ -5470,7 +5678,7 @@ static per_sequence_t ResourcesAvailableConfirm_sequence[] = {
 	{ "protocolIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "tokens", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", EXTENSION_ROOT, OPTIONAL,
@@ -5529,7 +5737,7 @@ static per_sequence_t GatekeeperRequest_sequence[] = {
 	{ "protocolIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "rasAddress", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_rasAddress },
 	{ "endpointType", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -5575,7 +5783,7 @@ static per_sequence_t ServiceControlResponse_sequence[] = {
 	{ "result", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_SCRresult },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "tokens", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", EXTENSION_ROOT, OPTIONAL,
@@ -5603,7 +5811,7 @@ static per_sequence_t DisengageReject_sequence[] = {
 	{ "rejectReason", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_DisengageRejectReason },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "altGKInfo", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_AltGKInfo },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -5633,7 +5841,7 @@ static per_sequence_t BandwidthReject_sequence[] = {
 	{ "allowedBandWidth", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_allowedBandWidth },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "altGKInfo", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_AltGKInfo },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -5661,7 +5869,7 @@ static per_sequence_t UnregistrationReject_sequence[] = {
 	{ "rejectReason", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_UnregRejectReason },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "altGKInfo", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_AltGKInfo },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -5704,7 +5912,7 @@ static per_sequence_t UnregistrationRequest_sequence[] = {
 	{ "endpointAlias", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_endpointAlias },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "endpointIdentifier", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_EndpointIdentifier },
 	{ "alternateEndpoints", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -5864,7 +6072,7 @@ static per_sequence_t RegistrationReject_sequence[] = {
 	{ "protocolIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "rejectReason", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_RegistrationRejectReason },
 	{ "gatekeeperIdentifier", EXTENSION_ROOT, OPTIONAL,
@@ -5897,7 +6105,7 @@ static per_sequence_t GatekeeperReject_sequence[] = {
 	{ "protocolIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "gatekeeperIdentifier", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
 	{ "rejectReason", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -5946,7 +6154,7 @@ static per_sequence_t ResourcesAvailableIndicate_sequence[] = {
 	{ "protocolIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "endpointIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
 	{ "protocols", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -6200,7 +6408,7 @@ static per_sequence_t AdmissionRequest_sequence[] = {
 	{ "callReferenceValue", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_CallReferenceValue },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "callServices", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_callServices },
 	{ "conferenceID", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -6273,7 +6481,7 @@ static per_sequence_t InfoRequest_sequence[] = {
 	{ "callReferenceValue", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_CallReferenceValue },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "replyAddress", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_replyAddress },
 	{ "callIdentifier", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -6321,7 +6529,7 @@ static per_sequence_t RequestInProgress_sequence[] = {
 	{ "requestSeqNum", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "tokens", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", EXTENSION_ROOT, OPTIONAL,
@@ -6368,7 +6576,7 @@ static per_choice_t ServiceControlDescriptor_choice[] = {
 	{ 1, "signal", EXTENSION_ROOT,
 		dissect_h225_H248SignalsDescriptor },
 	{ 2, "nonStandard", EXTENSION_ROOT,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandard },
 	{ 3, "callCreditServiceControl", EXTENSION_ROOT,
 		dissect_h225_CallCreditServiceControl },
 	{ 0, NULL, 0, NULL }
@@ -6574,7 +6782,7 @@ static per_sequence_t AdmissionReject_sequence[] = {
 	{ "rejectReason", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_AdmissionRejectReason },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "altGKInfo", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_AltGKInfo },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -6949,7 +7157,7 @@ static per_sequence_t LocationConfirm_sequence[] = {
 	{ "rasAddress", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_rasAddress },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "DestinationInfo", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_DestinationInfo },
 	{ "destExtraCallInfo", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -6999,7 +7207,7 @@ static per_sequence_t LocationReject_sequence[] = {
 	{ "rejectReason", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_LocationRejectReason },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "altGKInfo", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_AltGKInfo },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -7051,7 +7259,7 @@ static per_sequence_t ServiceControlIndication_sequence[] = {
 	{ "requestSeqNum", EXTENSION_ROOT, NOT_OPTIONAL,
 		 dissect_h225_RequestSeqNum },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "serviceControl", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_serviceControl },
 	{ "endpointIdentifier", EXTENSION_ROOT, OPTIONAL,
@@ -7097,9 +7305,19 @@ NOT_DECODED_YET("endTime");
 }
 
 static int
+dissect_h225_nonStandardUsageFields_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardUsageFields_item);
+	return offset;
+}
+
+static int
 dissect_h225_nonStandardUsageFields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_nonStandardUsageFields, ett_h225_nonStandardUsageFields, dissect_h245_NonStandardParameter_with_extension_marker);
+	offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardUsageFields, 
+				ett_h225_T_nonStandardUsageFields, dissect_h225_nonStandardUsageFields_item);
 	return offset;
 }
 
@@ -7139,7 +7357,7 @@ static per_sequence_t GatekeeperConfirm_sequence[] = {
 	{ "protocolIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "gatekeeperIdentifier", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
 	{ "rasAddress", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -7210,7 +7428,7 @@ static per_sequence_t RegistrationRequest_sequence[] = {
 	{ "protocolIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "discoveryComplete", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_discoveryComplete },
 	{ "callSignalAddress", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -7285,7 +7503,7 @@ static per_sequence_t DisengageConfirm_sequence[] = {
 	{ "requestSeqNum", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "tokens", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -7346,7 +7564,7 @@ static per_sequence_t AdmissionConfirm_sequence[] = {
 	{ "irrFrequency", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_irrFrequency },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "DestinationInfo", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_DestinationInfo },
 	{ "destExtraCallInfo", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -7413,7 +7631,7 @@ static per_sequence_t DisengageRequest_sequence[] = {
 	{ "disengageReason", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_DisengageReason },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "callIdentifier", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
 	{ "gatekeeperIdentifier", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -7481,7 +7699,7 @@ static per_sequence_t LocationRequest_sequence[] = {
 	{ "DestinationInfo", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_DestinationInfo },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "replyAddress", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_replyAddress },
 	{ "SourceInfo", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -7546,7 +7764,7 @@ static per_sequence_t BandwidthRequest_sequence[] = {
 	{ "bandWidth", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_BandWidth },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "callIdentifier", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
 	{ "gatekeeperIdentifier", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -7635,7 +7853,7 @@ static per_sequence_t tunnelledSignallingMessage_sequence[] = {
 	{ "tunnellingRequired", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_NULL },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
 static int 
@@ -7681,9 +7899,19 @@ dissect_h225_h245Control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static int
+dissect_h225_nonStandardControl_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_h225_NonStandardParameter(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardControl_item);
+	return offset;
+}
+
+static int
 dissect_h225_nonStandardControl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_nonStandardControl, ett_h225_nonStandardControl, dissect_h245_NonStandardParameter_with_extension_marker);
+	offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, 
+				hf_h225_nonStandardControl, 
+				ett_h225_T_nonStandardControl, dissect_h225_nonStandardControl_item);
 	return offset;
 }
 
@@ -7692,7 +7920,7 @@ static per_sequence_t H323_UU_PDU_sequence[] = {
 	{ "h323_message_body", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_h323_message_body },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "h4501SupplementaryService", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_h4501SupplementaryService },
 	{ "h245Tunneling", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -7777,7 +8005,7 @@ static per_sequence_t RegistrationConfirm_sequence[] = {
 	{ "protocolIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "callSignalAddress", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_callSignalAddress },
 	{ "terminalAlias", EXTENSION_ROOT, OPTIONAL,
@@ -7900,7 +8128,7 @@ dissect_h225_substituteConfIDs(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 static per_sequence_t perCallInfo_item_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "callReferenceValue", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_CallReferenceValue },
 	{ "conferenceID", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -7977,7 +8205,7 @@ dissect_h225_unsolicited(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 static per_sequence_t InfoRequestResponse_sequence[] = {
 	{ "nonStandardData", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_NonStandardParameter_with_extension_marker },
+		dissect_h225_nonStandardData },
 	{ "requestSeqNum", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
 	{ "endpointType", EXTENSION_ROOT, NOT_OPTIONAL,
@@ -8322,7 +8550,10 @@ proto_register_h225(void)
 		VALS(H245Security_vals), 0, "H245Security choice", HFILL }},
 	{ &hf_h225_nonStandardUsageTypes,
 		{ "nonStandardUsageTypes", "h225.nonStandardUsageTypes", FT_NONE, BASE_NONE,
-		NULL, 0, "nonStandardUsageTypes sequence of", HFILL }},
+		NULL, 0, "SEQUENCE OF NonStandardParameter", HFILL }},
+	{ &hf_h225_nonStandardUsageTypes_item,
+		{ "nonStandardUsageTypes", "h225.nonStandardUsageTypes_item", FT_NONE, BASE_NONE,
+		NULL, 0, "NonStandardParameter", HFILL }},
 	{ &hf_h225_route,
 		{ "route", "h225.route", FT_NONE, BASE_NONE,
 		NULL, 0, "Source Routing route", HFILL }},
@@ -9420,7 +9651,10 @@ proto_register_h225(void)
 		NULL, 0, "RasUsageInformation sequence", HFILL }},
 	{ &hf_h225_nonStandardUsageFields,
 		{ "nonStandardUsageFields", "h225.nonStandardUsageFields", FT_NONE, BASE_NONE,
-		NULL, 0, "nonStandardUsageFields sequence of", HFILL }},
+		NULL, 0, "SEQUENCE OF NonStandardParameter", HFILL }},
+	{ &hf_h225_nonStandardUsageFields_item,
+		{ "nonStandardUsageFields", "h225.nonStandardUsageFields_item", FT_NONE, BASE_NONE,
+		NULL, 0, "NonStandardParameter", HFILL }},
 	{ &hf_h225_TimeToLive,
 		{ "TimeToLive", "h225.TimeToLive", FT_UINT32, BASE_DEC,
 		NULL, 0, "TimeToLive in seconds", HFILL }},
@@ -9504,7 +9738,10 @@ proto_register_h225(void)
 		NULL, 0, "h245Control sequence of", HFILL }},
 	{ &hf_h225_nonStandardControl,
 		{ "nonStandardControl", "h225.nonStandardControl", FT_NONE, BASE_NONE,
-		NULL, 0, "nonStandardControl sequence of", HFILL }},
+		NULL, 0, "SEQUENCE OF NonStandardParameter", HFILL }},
+	{ &hf_h225_nonStandardControl_item,
+		{ "nonStandardControl", "h225.nonStandardControl_item", FT_NONE, BASE_NONE,
+		NULL, 0, "NonStandardParameter", HFILL }},
 	{ &hf_h225_preGrantedARQ,
 		{ "preGrantedARQ", "h225.preGrantedARQ", FT_NONE, BASE_NONE,
 		NULL, 0, "preGrantedARQ sequence", HFILL }},
@@ -9577,6 +9814,40 @@ proto_register_h225(void)
 	{ &hf_h225_user_information,
 		{ "user_information", "h225.user_information", FT_BYTES, BASE_HEX,
 		NULL, 0, "user_information octet string", HFILL }},
+	{ &hf_h225_object,
+		{ "object", "h225.object", FT_STRING, BASE_NONE,
+		NULL, 0, "OBJECT IDENTIFIER", HFILL }},
+	{ &hf_h225_t35CountryCode,
+		{ "t35CountryCode", "h225.t35CountryCode", FT_UINT32, BASE_DEC,
+		VALS(T35CountryCode_vals), 0, "t35CountryCode value", HFILL }},
+	{ &hf_h225_t35Extension,
+		{ "t35Extension", "h225.t35Extension", FT_UINT32, BASE_DEC,
+		NULL, 0, "t35Extension value", HFILL }},
+	{ &hf_h225_manufacturerCode,
+		{ "manufacturerCode", "h225.manufacturerCode", FT_UINT32, BASE_DEC,
+		NULL, 0, "manufacturerCode value", HFILL }},
+	{ &hf_h225_h221NonStandard,
+		{ "h221NonStandard", "h225.h221NonStandard", FT_NONE, BASE_NONE,
+		NULL, 0, "H221NonStandard SEQUENCE", HFILL }},
+	{ &hf_h225_nonStandardIdentifier,
+		{ "nonStandardIdentifier", "h245.NonStandardIdentifier_type", FT_UINT32, BASE_DEC,
+		VALS(NonStandardIdentifier_vals), 0, "NonStandardIdentifier CHOICE", HFILL }},
+	{ &hf_h225_nsp_data,
+		{ "data", "h225.nsp_data", FT_BYTES, BASE_HEX,
+		NULL, 0, "OCTET STRING", HFILL }},
+	{ &hf_h225_nonStandardData,
+		{ "nonStandardData", "h225.nonStandardData", FT_NONE, BASE_NONE,
+		NULL, 0, "NonStandardParameter SEQUENCE", HFILL }},
+	{ &hf_h225_nonStandard,
+		{ "nonStandard", "h225.nonStandard", FT_NONE, BASE_NONE,
+		NULL, 0, "NonStandardParameter SEQUENCE", HFILL }},
+	{ &hf_h225_nonStandardReason,
+		{ "nonStandardReason", "h225.nonStandardReason", FT_NONE, BASE_NONE,
+		NULL, 0, "NonStandardParameter SEQUENCE", HFILL }},
+	{ &hf_h225_nonStandardAddress,
+		{ "nonStandardAddress", "h225.nonStandardAddress", FT_NONE, BASE_NONE,
+		NULL, 0, "NonStandardParameter SEQUENCE", HFILL }},
+
 /*ddd*/
 	};
 
@@ -9637,7 +9908,7 @@ proto_register_h225(void)
 		&ett_h225_SecurityCapabilities_tls,
 		&ett_h225_SecurityCapabilities_ipsec,
 		&ett_h225_RasUsageInfoTypes,
-		&ett_h225_nonStandardUsageTypes,
+		&ett_h225_T_nonStandardUsageTypes,
 		&ett_h225_DataRate,
 		&ett_h225_dataRatesSupported,
 		&ett_h225_TerminalInfo,
@@ -9809,7 +10080,7 @@ proto_register_h225(void)
 		&ett_h225_callSpecific,
 		&ett_h225_ServiceControlIndication,
 		&ett_h225_RasUsageInformation,
-		&ett_h225_nonStandardUsageFields,
+		&ett_h225_T_nonStandardUsageFields,
 		&ett_h225_GatekeeperConfirm,
 		&ett_h225_RegistrationRequest,
 		&ett_h225_supportedH248Packages,
@@ -9828,7 +10099,7 @@ proto_register_h225(void)
 		&ett_h225_H323_UU_PDU,
 		&ett_h225_h4501SupplementaryService,
 		&ett_h225_h245Control,
-		&ett_h225_nonStandardControl,
+		&ett_h225_T_nonStandardControl,
 		&ett_h225_preGrantedARQ,
 		&ett_h225_RegistrationConfirm,
 		&ett_h225_pdu_item,
@@ -9842,6 +10113,9 @@ proto_register_h225(void)
 		&ett_h225_InfoRequestResponse,
 		&ett_h225_H323_UserInformation,
 		&ett_h225_user_data,
+		&ett_h225_H221NonStandard,
+		&ett_h225_NonStandardIdentifier,
+		&ett_h225_NonStandardParameter,
 /*eee*/
 	};
 	module_t *h225_module;
@@ -9855,6 +10129,9 @@ proto_register_h225(void)
 		"Whether the dissector should reassemble H.225 PDUs spanning multiple TCP segments",
 		&h225_reassembly);
 	register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
+
+	nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE); 
+	nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX); 
 }
 
 void
@@ -9866,6 +10143,7 @@ proto_reg_handoff_h225(void)
 	h245_handle = find_dissector("h245");
 	h245dg_handle = find_dissector("h245dg");
 	h4501_handle = find_dissector("h4501");
+	data_handle = find_dissector("data");
 
 	dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
 	dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);

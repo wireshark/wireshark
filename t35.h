@@ -1,8 +1,8 @@
-/* packet-h225.h
- * Routines for H.225 packet dissection
+/* t35.h
+ * T.35 and H.221 tables
  * 2003  Tomas Kukosa
  *
- * $Id: packet-h225.h,v 1.3 2003/09/26 22:20:07 guy Exp $
+ * 
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,12 +23,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __H225_H__
-#define __H225_H__ 
+#ifndef __T35_H__
+#define __T35_H__ 
 
-extern int dissect_h225_NonStandardParameter(tvbuff_t*, int, packet_info*, proto_tree*, int);
+#include "epan/value_string.h"
 
-extern int dissect_h225_AliasAddress(tvbuff_t*, int, packet_info*, proto_tree*);
+extern const value_string T35CountryCode_vals[];
+extern const value_string T35Extension_vals[];
+extern const value_string H221ManufacturerCode_vals[];
 
-
-#endif  /* __H225_H__ */
+#endif  /* __T35_H__ */
