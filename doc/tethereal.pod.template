@@ -677,7 +677,7 @@ Strings are enclosed in double-quotes:
 
     http.request.method == "POST"
 
-Inside doulbe quotes, you may use the backslash to embed a double-quote,
+Inside double quotes, you may use the backslash to embed a double-quote,
 or an arbitrary byte represented in either octal or hexadecimal.
 
     browser.comment = "An embedded \" double-quote"
@@ -689,6 +689,13 @@ Use of hexadecimal to look for "HEAD":
 Use of octal to look for "HEAD":
 
     http.request.method == "\x110EAD"
+
+This means that you must escape backslashes with backslashes inside
+double quotes:
+
+    smb.path == "\\\\SERVER\\SHARE"
+
+to look for \\SERVER\SHARE in "smb.path".
 
 A slice operator also exists.  You can check the substring
 (byte-string) of any protocol or field.  For example, you can filter on
