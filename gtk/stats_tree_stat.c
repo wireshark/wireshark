@@ -155,7 +155,7 @@ static void draw_gtk_tree( void *psp  ) {
 	gchar* fmt;
 	
 	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_branch_max_name_len(&st->root,0));
-	g_string_sprintfa(text,fmt,"",st->name,"Value","Rate","Percent");
+	g_string_sprintfa(text,fmt,"",st->cfg->name,"Value","Rate","Percent");
 	g_free(fmt);
 	g_string_sprintfa(text,"-------------------------------------------------------------------\n");
 
