@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.108 2000/03/02 07:05:56 guy Exp $
+ * $Id: main.c,v 1.109 2000/03/28 20:20:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,6 +88,10 @@
 
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
+#endif
+
+#ifdef NEED_GETOPT_H
+#include "getopt.h"
 #endif
 
 #include "main.h"
@@ -1071,11 +1075,9 @@ main(int argc, char *argv[])
 #endif
   char                *s;
   int                  i;
-#ifndef WIN32
   int                  opt;
   extern char         *optarg;
   gboolean             arg_error = FALSE;
-#endif
 #ifdef HAVE_LIBPCAP
 #ifdef WIN32
   char pcap_version[] = "0.4a6";
@@ -1214,7 +1216,6 @@ main(int argc, char *argv[])
 #endif
    );
 
-#ifndef WIN32
   /* Now get our args */
   while ((opt = getopt(argc, argv, "b:B:c:Df:hi:km:nP:Qr:R:Ss:t:T:w:W:v")) != EOF) {
     switch (opt) {
@@ -1352,16 +1353,13 @@ main(int argc, char *argv[])
         break;
     }
   }
-#endif
 
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)
     fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
 #endif
-#ifndef WIN32
   if (arg_error)
     print_usage();
-#endif
 #ifdef HAVE_LIBPCAP
   if (start_capture) {
     /* We're supposed to do a live capture; did the user specify an interface

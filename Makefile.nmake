@@ -138,6 +138,7 @@ ETHEREAL_COMMON_OBJECTS = \
 	dfilter.obj      \
 	ethertype.obj    \
 	follow.obj       \
+	getopt.obj	 \
 	ipproto.obj      \
 	ipv4.obj         \
 	packet.obj       \

@@ -71,6 +71,7 @@
 #define HAVE_DIRECT_H		1
 #define HAVE_IO_H		1
 #define NEED_INET_V6DEFS_H	1
+#define NEED_GETOPT_H		1
 #define snprintf 		_snprintf
 #define vsnprintf 		_vsnprintf
 #define strncasecmp		strnicmp

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.20 2000/02/22 07:07:46 guy Exp $
+ * $Id: tethereal.c,v 1.21 2000/03/28 20:20:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,6 +63,10 @@
 
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
+#endif
+
+#ifdef NEED_GETOPT_H
+#include "getopt.h"
 #endif
 
 #include "globals.h"
@@ -169,7 +173,11 @@ main(int argc, char *argv[])
   extern char         *optarg;
   gboolean             arg_error = FALSE;
 #ifdef HAVE_LIBPCAP
+#ifdef WIN32
+  char pcap_version[] = "0.4a6";
+#else
   extern char          pcap_version[];
+#endif
 #endif
   char                *pf_path;
   int                  err;
@@ -586,8 +594,10 @@ capture(int packet_count, int out_file_type)
      use "sigaction()" and be done with it? */
   signal(SIGTERM, capture_cleanup);
   signal(SIGINT, capture_cleanup);
+#if !defined(WIN32)
   if ((oldhandler = signal(SIGHUP, capture_cleanup)) != SIG_DFL)
     signal(SIGHUP, oldhandler);
+#endif
 
   /* Let the user know what interface was chosen. */
   printf("Capturing on %s\n", cf.iface);
