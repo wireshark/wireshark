@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.84 2004/01/06 02:29:36 guy Exp $
+ * $Id: packet-bgp.c,v 1.85 2004/01/23 19:19:44 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -553,6 +553,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                         case SAFNUM_UNICAST:
                         case SAFNUM_MULCAST:
                         case SAFNUM_UNIMULC:
+                        case SAFNUM_MPLS_LABEL:
                             length = 16 ;
                             tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8,offset, 16);
                             g_string_sprintf(buf, "%s", ip6_to_str(&ip6addr));
@@ -801,6 +802,32 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             if (total_length < 0)
                 return -1;
             break;
+
+        case SAFNUM_MPLS_LABEL:
+            plen =  tvb_get_guint8(tvb, offset);
+            labnum = decode_MPLS_stack(tvb, offset + 1, lab_stk, sizeof(lab_stk));
+
+            offset += (1 + labnum * 3);
+            if (plen <= (labnum * 3*8)) {
+                proto_tree_add_text(tree, tvb, start_offset, 1,
+                        "%s IPv6 prefix length %u invalid", tag, plen);
+                return -1;
+            }
+            plen -= (labnum * 3*8);
+
+	    length = (plen + 7) / 8;
+	    memset(ip6addr.u6_addr.u6_addr8, 0, 16);
+	    tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset, length);
+	    if (plen % 8)
+		ip6addr.u6_addr.u6_addr8[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
+
+	    ti = proto_tree_add_text(tree, tvb, start_offset,
+		 (offset + length) - start_offset,
+                 "Label Stack=%s, IP=%s/%u",
+                 lab_stk,
+                 ip6_to_str(&ip6addr), plen);
+	    total_length = (1 + labnum * 3) + length;
+	    break;
 
         case SAFNUM_LAB_VPNUNICAST:
         case SAFNUM_LAB_VPNMULCAST:
