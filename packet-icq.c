@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.22 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-icq.c,v 1.23 2000/11/19 19:23:54 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -2051,10 +2051,17 @@ dissect_icqv5Client(const u_char *pd,
     guint16 seqnum1 = 0 , seqnum2 = 0;
     guint32 uin = -1, sessionid = -1;
     guint32 key = -1;
-    guint16 pktsize = -1;	/* The size of the ICQ content */
-    u_char decr_pd[1600];	/* Decrypted content, size should be dynamic */
+    guint16 pktsize = -1;		/* The size of the ICQ content */
+    static u_char *decr_pd = NULL;	/* Decrypted content */
     
     pktsize = END_OF_FRAME;
+
+    if (decr_pd == NULL)
+	decr_pd = (u_char *) g_malloc(sizeof (u_char) * 128);
+    
+    while (sizeof(decr_pd) < pktsize + 3)
+	decr_pd = (u_char *) g_realloc(decr_pd, sizeof (decr_pd) * 2);
+    
     /* First copy the memory, we don't want to overwrite the old content */
     memcpy(decr_pd, &pd[offset], pktsize);
     if (pktsize>0x14) {
