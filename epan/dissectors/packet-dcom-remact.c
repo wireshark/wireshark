@@ -77,6 +77,8 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 	gchar 	szObjName[1000] = { 0 };
 	guint32 u32ObjNameLen = sizeof(szObjName);
 
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
 	offset = dissect_dcom_append_UUID(tvb, offset, pinfo, tree, drep,
 		hf_remact_clsid, "CLSID", -1);
 	
@@ -143,6 +145,8 @@ dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
 	guint32 u32Idx;
 	guint32	u32VariableOffset;
 
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
 						hf_remact_oxid, pu64Oxid);

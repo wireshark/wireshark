@@ -88,6 +88,8 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 	guint32	u32ItemIdx;
 
 
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep, 
                         hf_remunk_ipid, &ipid);
 
@@ -122,6 +124,8 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 	guint32	u32HResult;
 	guint32	u32SubStart;
 
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
 						&u32Pointer);
@@ -189,6 +193,8 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
 	proto_tree *sub_tree;
 	guint32	u32SubStart;
 
+
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
 						&u32Pointer);
