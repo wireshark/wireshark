@@ -44,6 +44,13 @@
  * http://www.cavebear.com/CaveBear/Ethernet/
  * http://standards.ieee.org/regauth/ethertype/type-pub.html
  * http://standards.ieee.org/regauth/ethertype/eth.txt
+ * (The first of the two IEEE URLs is the one that the "EtherType Field
+ * Public Assignments" link on the page at
+ *
+ *	http://standards.ieee.org/regauth/ethertype/index.shtml
+ *
+ * goes to, but it is redirected to the second of those - i.e., both
+ * of the IEEE URLs ultimately go to the same page.)
  */
 
 #ifndef ETHERTYPE_VINES_IP
@@ -210,7 +217,7 @@
 #endif
 
 #ifndef ETHERTYPE_CDMA2000_A10_UBS
-#define ETHERTYPE_CDMA2000_A10_UBS	0x8881	/* the byte stream protocol that is used for IP based micro-mobility bearer interfaces (A10) in cdma2000® based wireless networks */
+#define ETHERTYPE_CDMA2000_A10_UBS	0x8881	/* the byte stream protocol that is used for IP based micro-mobility bearer interfaces (A10) in CDMA2000(R)-based wireless networks */
 #endif
 
 #ifndef ETHERTYPE_EAPOL
