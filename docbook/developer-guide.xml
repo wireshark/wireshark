@@ -28,15 +28,17 @@ DOCUMENT SECTION
 -->
 
   <!ENTITY DocumentTitle "<application>Ethereal</application> Developer's Guide">
-  <!ENTITY DocumentSubTitle "&DocumentVersion; for Ethereal &EtherealCurrentVersion;">
+  <!ENTITY DocumentSubTitle "&DocumentVersion; (&SvnVersion;) for Ethereal &EtherealCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "EDG">
 
   <!ENTITY DocumentCopyrightHolder "Ulf Lamping">
-  <!ENTITY DocumentCopyrightYear "2004">
+  <!ENTITY DocumentCopyrightYear "2004-2005">
 
   <!ENTITY DocumentEdition "Draft">
-  <!ENTITY DocumentVersion "Draft 0.01">
-  <!ENTITY DocumentPubDate "2004">
+  <!ENTITY DocumentVersion "Draft 0.0.2">
+  <!ENTITY DocumentPubDate "2005">
+  <!ENTITY % SvnVersionFile SYSTEM "svn_version.xml">
+  %SvnVersionFile;
 
 <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
 
@@ -51,7 +53,7 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.6">
+  <!ENTITY EtherealCurrentVersion "0.10.9">
 
 <!--
 FILE SECTION
@@ -60,7 +62,7 @@ FILE SECTION
 
 <!-- These refer to graphics files and figures contained in the document -->
 
-  <!ENTITY EtherealLogo SYSTEM "./graphics/ethereal-logo.png" NDATA PNG>
+  <!ENTITY EtherealLogo SYSTEM "./edg_graphics/ethereal-logo.png" NDATA PNG>
   <!ENTITY EtherealFunctionBlocks SYSTEM "./edg_graphics/ethereal-function-blocks.png" NDATA PNG>
 
 <!-- These are the actual files that make up the document -->

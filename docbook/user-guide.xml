@@ -53,7 +53,7 @@ DOCUMENT SECTION
 -->
 
   <!ENTITY DocumentTitle "<application>Ethereal</application> User's Guide">
-  <!ENTITY DocumentSubTitle "&DocumentVersion; for Ethereal &EtherealCurrentVersion;">
+  <!ENTITY DocumentSubTitle "&DocumentVersion; (&SvnVersion;) for Ethereal &EtherealCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "EUG">
 
   <!ENTITY DocumentCopyrightHolder1 "Richard Sharpe">
@@ -65,6 +65,8 @@ DOCUMENT SECTION
   <!ENTITY DocumentVersion "V2.0.2">
   <!ENTITY DocumentPubDate "2005">
 
+  <!ENTITY % SvnVersionFile SYSTEM "svn_version.xml">
+  %SvnVersionFile;
 <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
 
 <!--

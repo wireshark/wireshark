@@ -53,6 +53,14 @@ clean:
 
 eug: eug_validate eug_pdf_a4 eug_html eug_html_chunked eug_chm 
 
+#
+# on every build, record the working copy revision string
+#
+svn_version.xml::
+	echo -n '<!ENTITY SvnVersion "' > svn_version.xml
+	svnversion -n .                   >> svn_version.xml
+	echo '">'   >> svn_version.xml
+    
 eug_images:
 	cp $(DOCBOOKXSL)/images/note.png ./graphics
 	cp $(DOCBOOKXSL)/images/tip.png ./graphics
@@ -64,7 +72,7 @@ eug_validate:
 	$(XMLLINT) --valid --noout user-guide.xml
 
 # create html single page file
-eug_html: eug_images
+eug_html: eug_images svn_version.xml
 	@ echo --- HTML SINGLE PAGE ---
 	mkdir -p eug_html
 	mkdir -p eug_html/graphics
@@ -74,7 +82,7 @@ eug_html: eug_images
 	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl user-guide.xml > eug_html/user-guide.html
 	
 # create html chunked page files
-eug_html_chunked: eug_images
+eug_html_chunked: eug_images svn_version.xml
 	@ echo --- HTML CHUNKED ---
 	mkdir -p eug_html_chunked
 	mkdir -p eug_html_chunked/graphics
@@ -85,7 +93,7 @@ eug_html_chunked: eug_images
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-eug_pdf_us: eug_images
+eug_pdf_us: eug_images svn_version.xml
 ifdef FOP
 	@ echo --- PDF US PAPER ---
 	$(XSLTPROC) --nonet custom_layer_pdf.xsl $(DOCBOOKXSL)/fo/docbook.xsl user-guide.xml > user-guide.fo
@@ -94,7 +102,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-eug_pdf_a4: eug_images
+eug_pdf_a4: eug_images svn_version.xml
 ifdef FOP
 	@ echo --- PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl user-guide.xml > user-guide.fo
@@ -102,7 +110,7 @@ ifdef FOP
 endif
 
 # create MS html help file (through html chunked pages)
-eug_chm: eug_images
+eug_chm: eug_images svn_version.xml
 ifdef HHC
 	@ echo --- MICROSOFT HTML HELP ---
 	mkdir -p eug_chm
@@ -132,7 +140,7 @@ edg_validate:
 	$(XMLLINT) --valid --noout developer-guide.xml
 
 # create html single page file
-edg_html: edg_images
+edg_html: edg_images svn_version.xml
 	@ echo --- HTML SINGLE PAGE ---
 	mkdir -p edg_html
 	mkdir -p edg_html/edg_graphics
@@ -140,7 +148,7 @@ edg_html: edg_images
 	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl developer-guide.xml > edg_html/developer-guide.html
 	
 # create html chunked page files
-edg_html_chunked: edg_images
+edg_html_chunked: edg_images svn_version.xml
 	@ echo --- HTML CHUNKED ---
 	mkdir -p edg_html_chunked
 	mkdir -p edg_html_chunked/edg_graphics
@@ -149,7 +157,7 @@ edg_html_chunked: edg_images
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-edg_pdf_us: edg_images
+edg_pdf_us: edg_images svn_version.xml
 ifdef FOP
 	@ echo --- PDF US PAPER ---
 	$(XSLTPROC) --nonet custom_layer_pdf.xsl $(DOCBOOKXSL)/fo/docbook.xsl developer-guide.xml > developer-guide.fo
@@ -158,7 +166,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-edg_pdf_a4: edg_images
+edg_pdf_a4: edg_images svn_version.xml
 ifdef FOP
 	@ echo --- PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl developer-guide.xml > developer-guide.fo
@@ -166,7 +174,7 @@ ifdef FOP
 endif
 
 # create MS html help file (through html chunked pages)
-edg_chm: edg_images
+edg_chm: edg_images svn_version.xml
 ifdef HHC
 	@ echo --- MICROSOFT HTML HELP ---
 	mkdir -p edg_chm
