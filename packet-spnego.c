@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.26 2002/09/04 21:34:38 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.27 2002/09/04 22:20:57 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -546,7 +546,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	value = g_hash_table_lookup(gssapi_oids, oid_string);
-	printf("OID Value : %0X\n", value);
+
 	if (value)
 	  proto_tree_add_text(tree, tvb, offset, nbytes, 
 			      "supportedMech: %s (%s)",
