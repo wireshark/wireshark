@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.103 2004/01/19 20:10:35 jmayer Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.104 2004/03/23 18:44:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -498,7 +498,12 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_sid(tvb, offset, tree, name, &sid_str, hf_sid);
 
-	dcv->private_data = sid_str;
+	/* dcv can be null, for example when this ndr structure is embedded
+	 * inside non-dcerpc pdus, i.e. kerberos PAC structure
+	 */
+	if(dcv){
+		dcv->private_data = sid_str;
+	}
 
 	return offset;
 }
