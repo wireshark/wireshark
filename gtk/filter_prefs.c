@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.60 2004/02/06 19:19:09 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.61 2004/02/28 04:18:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1312,42 +1312,60 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 	dfilter_expr_dlg_new(filter_te);
 }
 
-void
-filter_te_syntax_check_cb(GtkWidget *w _U_)
+static void
+color_filter_te(GtkWidget *w, guint16 red, guint16 green, guint16 blue)
 {
-    const gchar *strval = "";
-    dfilter_t   *dfp;
     GdkColor    bg;
     GtkStyle    *style;
+
+    bg.pixel    = 0;
+    bg.red      = red;
+    bg.green    = green;
+    bg.blue     = blue;
+
+    style = gtk_style_copy(gtk_widget_get_style(w));
+    style->base[GTK_STATE_NORMAL] = bg;
+    gtk_widget_set_style(w, style);
+}
+
+void
+colorize_filter_te_as_empty(GtkWidget *w)
+{
+    /* white */
+    color_filter_te(w, 0xFFFF, 0xFFFF, 0xFFFF);
+}
+
+void
+colorize_filter_te_as_invalid(GtkWidget *w)
+{
+    /* light red */
+    color_filter_te(w, 0xFFFF, 0xAFFF, 0xAFFF);
+}
+
+void
+colorize_filter_te_as_valid(GtkWidget *w)
+{
+    /* light green */
+    color_filter_te(w, 0xAFFF, 0xFFFF, 0xAFFF);
+}
+
+void
+filter_te_syntax_check_cb(GtkWidget *w)
+{
+    const gchar *strval;
+    dfilter_t   *dfp;
 
     strval = gtk_entry_get_text(GTK_ENTRY(w));
 
     /* colorize filter string entry */
     if (strval && dfilter_compile(strval, &dfp)) {
         /* XXX: do we have to free the dfp again? */
-        if (strlen(strval) == 0) {
-            /* white */
-            bg.pixel    = 0;
-            bg.red      = 0xFFFF;
-            bg.green    = 0xFFFF;
-            bg.blue     = 0xFFFF;
-        } else {
-            /* light green */
-            bg.pixel    = 0;
-            bg.red      = 0xAFFF;
-            bg.green    = 0xFFFF;
-            bg.blue     = 0xAFFF;
-        }
-    } else {
-        /* light red */
-        bg.pixel    = 0;
-        bg.red      = 0xFFFF;
-        bg.green    = 0xAFFF;
-        bg.blue     = 0xAFFF;
-    }
-    style = gtk_style_copy(gtk_widget_get_style(w));
-    style->base[GTK_STATE_NORMAL] = bg;
-    gtk_widget_set_style(w, style);
+        if (strlen(strval) == 0)
+            colorize_filter_te_as_empty(w);
+        else
+            colorize_filter_te_as_valid(w);
+    } else
+        colorize_filter_te_as_invalid(w);
 }
 
 

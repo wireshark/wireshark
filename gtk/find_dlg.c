@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.47 2004/02/27 19:07:19 ulfl Exp $
+ * $Id: find_dlg.c,v 1.48 2004/02/28 04:18:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,9 @@ static gboolean summary_data = FALSE;
 static gboolean decode_data = FALSE;
 
 static void
+find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w);
+
+static void
 find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
 
 static void
@@ -73,10 +76,16 @@ static void
 find_frame_destroy_cb(GtkWidget *win, gpointer user_data);
 
 static void
+hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
+
+static void
 ascii_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
 
 static void
 filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
+
+static guint8 *
+convert_string_to_hex(const char *string, size_t *nbytes);
 
 /*
  * Keep a static pointer to the current "Find Packet" window, if any, so
@@ -152,8 +161,9 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   filter_text_box = gtk_entry_new();
   if (cfile.sfilter) gtk_entry_set_text(GTK_ENTRY(filter_text_box), cfile.sfilter);
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_text_box);
+  OBJECT_SET_DATA(find_frame_w, E_FILT_TE_PTR_KEY, filter_text_box);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_text_box, TRUE, TRUE, 0);
-  SIGNAL_CONNECT(filter_text_box, "changed", filter_te_syntax_check_cb, NULL);
+  SIGNAL_CONNECT(filter_text_box, "changed", find_filter_te_syntax_check_cb, find_frame_w);
   gtk_widget_show(filter_text_box);
 
   direction_frame = gtk_frame_new("Direction");
@@ -320,6 +330,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
    * be delivered before the pointers are attached; the signal
    * handlers expect the pointers to be attached, and won't be happy.
    */
+  SIGNAL_CONNECT(hex_rb, "clicked", hex_selected_cb, find_frame_w);
   SIGNAL_CONNECT(ascii_rb, "clicked", ascii_selected_cb, find_frame_w);
   SIGNAL_CONNECT(filter_rb, "clicked", filter_selected_cb, find_frame_w);
 
@@ -350,6 +361,74 @@ find_frame_with_filter(char *filter)
 	gtk_entry_set_text(GTK_ENTRY(filter_text_box), filter);
 }
 
+/*
+ * Check the filter syntax based on the type of search we're doing.
+ */
+static void
+find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
+{
+  const gchar     *strval;
+  GtkWidget       *hex_rb, *ascii_rb;
+  guint8          *bytes = NULL;
+  size_t           nbytes;
+
+  hex_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_HEXDATA_KEY);
+  ascii_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_ASCIIDATA_KEY);
+
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb))) {
+    /*
+     * Hex search - scan the search string to make sure it's valid hex.
+     */
+    strval = gtk_entry_get_text(GTK_ENTRY(w));
+    if (strval == NULL) {
+      /* XXX - can this happen? */      
+      colorize_filter_te_as_invalid(w);
+    } else {
+      bytes = convert_string_to_hex(strval, &nbytes);
+      if (bytes == NULL)
+        colorize_filter_te_as_invalid(w);
+      else {
+        g_free(bytes);
+        colorize_filter_te_as_valid(w);
+      }
+    }
+  } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (ascii_rb))) {
+    /*
+     * String search.  Make sure the string isn't empty.
+     */
+    strval = gtk_entry_get_text(GTK_ENTRY(w));
+    if (strval == NULL) {
+      /* XXX - can this happen? */      
+      colorize_filter_te_as_invalid(w);
+    } else {
+      if (strcmp(strval, "") == 0)
+        colorize_filter_te_as_invalid(w);
+      else
+        colorize_filter_te_as_valid(w);
+    }
+  } else {
+    /*
+     * Display filter search; check it with "filter_te_syntax_check_cb()".
+     */
+    filter_te_syntax_check_cb(w);
+  }
+}
+
+/* 
+ *  This function will re-check the search text syntax.
+ */  
+static void
+hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
+{
+    GtkWidget   *filter_text_box;
+
+    filter_text_box = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_FILT_TE_PTR_KEY);
+
+    /* Re-check the display filter. */
+    find_filter_te_syntax_check_cb(filter_text_box, parent_w);
+    return;
+}
+
 /* 
  *  This function will disable the string options until
  *  the string search is selected.
@@ -358,7 +437,7 @@ static void
 ascii_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
     GtkWidget   *ascii_rb, *hex_data_rb, *decode_data_rb, *summary_data_rb,
-                *data_combo_cb, *data_case_cb;
+                *data_combo_cb, *data_case_cb, *filter_text_box;
 
     ascii_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_ASCIIDATA_KEY);
     hex_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_HEX_KEY);
@@ -366,13 +445,14 @@ ascii_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
     summary_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_SUMMARY_KEY);
     data_combo_cb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_KEY);
     data_case_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CASE_SEARCH_KEY);
+    filter_text_box = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_FILT_TE_PTR_KEY);
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ascii_rb))) {
-      gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), TRUE);
-      gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), TRUE);
-      gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), TRUE);
-      gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), TRUE);
-      gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), TRUE);
     } else {
         gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), FALSE);
@@ -380,6 +460,8 @@ ascii_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
         gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), FALSE);
     }
+    /* Re-check the display filter. */
+    find_filter_te_syntax_check_cb(filter_text_box, parent_w);
     return;
 }
 
@@ -557,7 +639,16 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (ascii_rb))) {
     /*
      * String search.
-     * Get the character set type.
+     * Make sure we're searching for something, first.
+     */
+    if (strcmp(filter_text, "") == 0) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+           "You didn't specify any text for which to search.");
+      return;
+    }
+
+    /*
+     * We are - get the character set type.
      */
     if (strcmp(string_type, "ASCII Unicode & Non-Unicode") == 0)
       scs_type = SCS_ASCII_AND_UNICODE;
