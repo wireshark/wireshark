@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.24 1999/10/11 17:04:31 deniel Exp $
+ * $Id: dfilter-grammar.y,v 1.25 1999/10/11 19:39:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -261,12 +261,18 @@ ipv4_value:	T_VAL_UNQUOTED_STRING
 		{
 			$$ = dfilter_mknode_ipv4_value($1);
 			g_free($1);
+			if ($$ == NULL) {
+				YYERROR;
+			}
 		}
 
 	|	T_VAL_BYTE_STRING
 		{
 			$$ = dfilter_mknode_ipv4_value($1);
 			g_free($1);
+			if ($$ == NULL) {
+				YYERROR;
+			}
 		}
 	;
 
@@ -274,12 +280,18 @@ ipv6_value:	T_VAL_UNQUOTED_STRING
 		{
 			$$ = dfilter_mknode_ipv6_value($1);
 			g_free($1);
+			if ($$ == NULL) {
+				YYERROR;
+			}
 		}
 
 	|	T_VAL_BYTE_STRING
 		{
 			$$ = dfilter_mknode_ipv6_value($1);
 			g_free($1);
+			if ($$ == NULL) {
+				YYERROR;
+			}
 		}
 	;
 
@@ -552,11 +564,10 @@ dfilter_mknode_ether_value(gchar *byte_string)
 
 	if (!ether_str_to_guint8_array(byte_string, &node->value.ether[0])) {
 		/* Rather than free the mem_chunk allocation, let it
-		 * stay. It will be cleaned up in the next call to
-		 * dfilter_clear() */
-		dfilter_error_msg = &dfilter_error_msg_buf[0];
-		snprintf(dfilter_error_msg, sizeof(dfilter_error_msg_buf),
-			"\"%s\" is not a valid hardware address.", byte_string);
+		 * stay. It will be cleaned up when "dfilter_compile()"
+		 * calls "dfilter_destroy()". */
+		dfilter_fail("\"%s\" is not a valid hardware address.",
+		    byte_string);
 		return NULL;
 	}
 
@@ -581,6 +592,7 @@ dfilter_mknode_ipxnet_value(guint32 ipx_net_val)
 	return gnode;
 }
 
+/* Returns NULL on bad parse of IP value */
 static GNode*
 dfilter_mknode_ipv4_value(char *host)
 {
@@ -593,20 +605,20 @@ dfilter_mknode_ipv4_value(char *host)
 	node->fill_array_func = fill_array_numeric_value; /* cheating ! */
 	node->check_relation_func = check_relation_numeric; /* cheating ! */
 	if (!get_host_ipaddr(host, &node->value.numeric)) {
-		/* "Scientist, you've failed." */
+		/* Rather than free the mem_chunk allocation, let it
+		 * stay. It will be cleaned up when "dfilter_compile()"
+		 * calls "dfilter_destroy()". */
 		dfilter_fail("\"%s\" isn't a valid host name or IP address.",
 		    host);
-
-		/* Stuff a value in here; it doesn't matter what it is,
-		   as we'll throw the tree away anyway. */
-		node->value.numeric = 0;
+		return NULL;
 	}
 	node->value.numeric = htonl(node->value.numeric);
-	gnode = g_node_new(node);
 
+	gnode = g_node_new(node);
 	return gnode;
 }
 
+/* Returns NULL on bad parse of IPv6 value */
 static GNode*
 dfilter_mknode_ipv6_value(char *host)
 {
@@ -621,8 +633,12 @@ dfilter_mknode_ipv6_value(char *host)
 
 	/* XXX should use get_host_ipaddr6 */
 	if (!ipv6_str_to_guint8_array(host, &node->value.ipv6[0])) {
-	  dfilter_fail("\"%s\" isn't a valid IPv6 address.",
-		       host);
+		/* Rather than free the mem_chunk allocation, let it
+		 * stay. It will be cleaned up when "dfilter_compile()"
+		 * calls "dfilter_destroy()". */
+		dfilter_fail("\"%s\" isn't a valid IPv6 address.",
+		    host);
+		return NULL;
 	}
 
 	gnode = g_node_new(node);
