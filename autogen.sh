@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.17 2002/08/26 02:14:55 jmayer Exp $
+# $Id: autogen.sh,v 1.18 2002/08/27 23:00:02 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -89,6 +89,27 @@ fi
 
 aclocal_flags="`./aclocal-flags`"
 
+if glib-config --version >/dev/null 2>&1 ; then
+	echo glib OK
+else
+	cp aclocal-fallback/glib.m4 aclocal-missing/
+fi
+if gtk-config --version >/dev/null 2>&1 ; then
+	echo gtk OK
+else
+	cp aclocal-fallback/gtk.m4 aclocal-missing/
+fi
+if pkg-config glib-2.0 >/dev/null 2>&1 ; then
+	echo glib-2.0 OK
+else
+	cp aclocal-fallback/glib-2.0.m4 aclocal-missing/
+fi
+if pkg-config gtk+-2.0 >/dev/null 2>&1 ; then
+	echo gtk-2.0 OK
+else
+	cp aclocal-fallback/gtk-2.0.m4 aclocal-missing/
+fi
+
 for dir in . epan wiretap ;  do
   echo processing $dir
   (
@@ -98,18 +119,8 @@ for dir in . epan wiretap ;  do
     else
         topdir=..
     fi
-    VER=`aclocal --version | head -1`
-    case $VER in
-      aclocal*1.4 | aclocal*1.4[^0-9]* )
-        echo "Automake 1.4 detected Disabling aclocal-fallback"
-        aclocal_fallback=""
-        ;;
-      * )
-        aclocal_fallback="-I $topdir/aclocal-fallback"
-        ;;
-    esac
-
-    aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags $aclocal_fallback"; \
+    aclocal_missing="-I $topdir/aclocal-missing"
+    aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags $aclocal_missing";
     echo aclocal $aclocalinclude
     aclocal $aclocalinclude || exit 1
     echo autoheader
