@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.106 2003/11/27 21:02:34 guy Exp $
+ * $Id: packet-dns.c,v 1.107 2003/12/10 19:35:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -888,6 +888,42 @@ static const value_string cert_vals[] = {
 	  { 0,                   NULL }
 };
 
+/**
+ *   Compute the key id of a KEY RR depending of the algorithm used.
+ *   If the specified size is bad, or we don't support the algorithm,
+ *   return -1.
+ */
+static int
+compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo) 
+{
+  u_int32_t ac;
+  unsigned char c1, c2;
+
+  if( size < 4 ) {
+    return -1;
+  }
+  
+  switch( algo ) {
+     case DNS_ALGO_RSAMD5:
+       return (tvb_get_guint8(tvb, offset + size - 3) << 8) + tvb_get_guint8( tvb, offset + size - 2 );
+     case DNS_ALGO_RSASHA1:
+       for (ac = 0; size > 1; size -= 2, offset += 2) {
+	 c1 = tvb_get_guint8( tvb, offset );
+	 c2 = tvb_get_guint8( tvb, offset + 1 );
+	 ac +=  (c1 << 8) + c2 ;
+       }
+       if (size > 0) {
+	 c1 = tvb_get_guint8( tvb, offset );
+	 ac += c1 << 8;
+       }
+       ac += (ac >> 16) & 0xffff;
+       return (ac & 0xffff);
+     default:
+       return -1;
+  }
+}
+
+
 static int
 dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   column_info *cinfo, proto_tree *dns_tree, packet_info *pinfo)
@@ -1252,7 +1288,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key footprint: 0x%04x",
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Id of signing key(footprint): %u",
 		tvb_get_ntohs(tvb, cur_offset));
 	cur_offset += 2;
 	rr_len -= 2;
@@ -1274,6 +1310,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint16 flags;
       proto_item *tf;
       proto_tree *flags_tree;
+      guint8 algo;
+      int key_id;
 
       if (dns_tree != NULL) {
         flags = tvb_get_ntohs(tvb, cur_offset);
@@ -1325,12 +1363,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 1;
 	rr_len -= 1;
 
+	algo = tvb_get_guint8(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
-		val_to_str(tvb_get_guint8(tvb, cur_offset), algo_vals,
-	            "Unknown (0x%02X)"));
+		val_to_str(algo, algo_vals, "Unknown (0x%02X)"));
 	cur_offset += 1;
 		rr_len -= 1;
 
+	key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
+	if (key_id != -1)
+	  proto_tree_add_text(rr_tree, tvb, cur_offset-4, rr_len+4, "Key id: %d", key_id);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
       }
     }
