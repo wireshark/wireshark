@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.74 2004/01/07 00:10:52 ulfl Exp $
+ * $Id: file_dlg.c,v 1.75 2004/01/07 19:10:49 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -573,10 +573,12 @@ file_set_save_dynamics(void) {
   gtk_widget_set_sensitive(select_marked_range_d_lb, range.displayed_mark_range && filtered_active);
 
   gtk_widget_set_sensitive(select_manual_range_rb, TRUE);
-  g_snprintf(label_text, sizeof(label_text), "?", /* XXX */ 0);
+  /* TODO - compute the number of packets matching the entered range */
+  g_snprintf(label_text, sizeof(label_text), "?" /* "%u", XXX */);
   gtk_label_set_text(GTK_LABEL(select_manual_range_c_lb), label_text);
   gtk_widget_set_sensitive(select_manual_range_c_lb, !filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "?", /* XXX */ 0);
+  /* TODO - compute the number of packets matching the entered range */
+  g_snprintf(label_text, sizeof(label_text), "?" /* "%u", XXX */);
   gtk_label_set_text(GTK_LABEL(select_manual_range_d_lb), label_text);
   gtk_widget_set_sensitive(select_manual_range_d_lb, filtered_active);
 }
