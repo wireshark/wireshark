@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.103 1999/08/22 07:12:32 guy Exp $
+ * $Id: ethereal.c,v 1.104 1999/08/24 16:27:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1439,6 +1439,8 @@ main(int argc, char *argv[])
   ethereal_proto_init();   /* Init anything that needs initializing */
 
   gtk_widget_show(window);
+
+  colors_init(&cf);
 
   /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop

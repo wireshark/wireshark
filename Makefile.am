@@ -11,6 +11,8 @@ ethereal_SOURCES = \
 	alignment.h    \
 	capture.c      \
 	capture.h      \
+	colors.c       \
+	colors.h       \
 	column.c       \
 	column.h       \
 	dfilter-int.h  \

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.40 1999/08/22 07:19:28 guy Exp $
+ * $Id: file.h,v 1.41 1999/08/24 16:27:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,10 @@
 #include "dfilter.h"
 #endif
 
+#ifndef __COLORS_H__
+#include "colors.h"
+#endif
+
 typedef struct bpf_program bpf_prog;
 
 typedef struct _capture_file {
@@ -66,6 +70,10 @@ typedef struct _capture_file {
   wtap        *wth;       /* Wiretap session */
   dfilter     *rfcode;    /* Compiled read filter program */ 
   gchar       *dfilter;   /* Display filter string */
+#if 0
+  GNode       *dfcode;    /* Compiled display filter program */ 
+#endif
+  colfilter   *colors;	  /* Colors for colorizing packet window */
   dfilter     *dfcode;    /* Compiled display filter program */ 
 #ifdef HAVE_LIBPCAP
   gchar       *cfilter;   /* Capture filter string */

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.33 1999/08/04 03:37:45 gram Exp $
+ * $Id: menu.c,v 1.34 1999/08/24 16:27:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,7 @@
 #include "prefs.h"
 #include "print.h"
 #include "follow.h"
+#include "colors.h"
 
 
 GtkAccelGroup *grp;
@@ -99,6 +100,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/_Display", NULL, NULL, 0, "<Branch>" },
   {"/Display/_Options...", NULL, GTK_MENU_FUNC(display_opt_cb), 0, NULL},
   {"/Display/_Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
+  {"/Display/_Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */

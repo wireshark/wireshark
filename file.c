@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.80 1999/08/22 07:19:27 guy Exp $
+ * $Id: file.c,v 1.81 1999/08/24 16:27:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -446,6 +446,8 @@ static void
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
 {
   gint          i, row;
+  gint		crow;
+  gint 		color;
   proto_tree   *protocol_tree;
 
   /* If we don't have the time stamp of the first packet in the
@@ -470,16 +472,49 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     fdata->cinfo->col_data[i][0] = '\0';
   }
 
-  /* Apply the display filter */
-  if (DFILTER_CONTAINS_FILTER(cf->dfcode)) {
+  /* Apply the filters */
+  if (DFILTER_CONTAINS_FILTER(cf->dfcode) ||
+      CFILTERS_CONTAINS_FILTER(cf)) {
 	protocol_tree = proto_tree_create_root();
 	dissect_packet(buf, fdata, protocol_tree);
-	fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
+	if( DFILTER_CONTAINS_FILTER(cf->dfcode) )
+		fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
+	else
+		fdata->passed_dfilter = TRUE;
+	/* Apply color filtersa.  The debuggery can come out real soon! */
+#ifdef DEBUG_COLOR_FITLERS
+	fprintf(stderr, "Processing %d filters...\n",cf->colors->num_of_filters);
+	fflush(stderr);
+#endif
+	color = -1;
+        for(crow = 0; cf->colors->num_of_filters && 
+	      crow < cf->colors->num_of_filters; crow++) {
+#ifdef DEBUG_COLOR_FILTERS
+            fprintf(stderr, "Does it match filter %s (%d)? ",
+              get_color_filter_name(cf,crow),crow);
+            fflush(stderr);
+#endif
+            if(dfilter_apply(color_filter(cf,crow)->c_colorfilter, protocol_tree,
+		 cf->pd)){
+                color = crow;
+#ifdef DEBUG_COLOR_FILTERS
+                fprintf(stderr,"yes\n");
+#endif
+            }
+#ifdef DEBUG_COLOR_FILTERS
+            else {
+                fprintf(stderr,"no\n") ;
+                fflush(stderr);
+	    }
+#endif
+        }
+
 	proto_tree_free(protocol_tree);
   }
   else {
 	dissect_packet(buf, fdata, NULL);
 	fdata->passed_dfilter = TRUE;
+	color = -1;
   }
   if (fdata->passed_dfilter) {
     if (check_col(fdata, COL_NUMBER))
@@ -525,6 +560,24 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 
     row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
     fdata->row = row;
+
+        if (cf->colors->color_filters && (color != -1)){
+                gtk_clist_set_background(GTK_CLIST(packet_list), row,
+                   &(color_filter(cf,color)->bg_color));
+                gtk_clist_set_foreground(GTK_CLIST(packet_list), row,
+                   &(color_filter(cf,color)->fg_color));
+	} else {
+                gtk_clist_set_background(GTK_CLIST(packet_list), row,
+                   &WHITE);
+                gtk_clist_set_foreground(GTK_CLIST(packet_list), row,
+                   &BLACK);
+
+	}
+
+#ifdef DEBUG_COLOR_FILTERS
+        fprintf(stderr,"Now row %d\n", row+2);
+        fflush(stderr);    
+#endif
 
     /* If this was the selected packet, remember the row it's in, so
        we can re-select it.  ("selected_packet" is 0-origin, as it's
