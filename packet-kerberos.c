@@ -17,7 +17,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.50 2004/03/25 09:17:08 guy Exp $
+ * $Id: packet-kerberos.c,v 1.51 2004/03/26 00:00:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1090,8 +1090,8 @@ static int dissect_krb5_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 	/* push it up two levels in the decode pane */
 	if(it){
-		proto_item_append_text(it->parent, "  %s",address_str);
-		proto_item_append_text(it->parent->parent, "  %s",address_str);
+		proto_item_append_text(proto_item_get_parent(it), "  %s",address_str);
+		proto_item_append_text(proto_item_get_parent_nth(it, 2), "  %s",address_str);
 	}
 
 	offset+=len;
@@ -1190,7 +1190,7 @@ dissect_krb5_name_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 	return offset;
 }
 static ber_sequence name_stringe_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_GENSTR, BER_FLAGS_NOOWNTAG, dissect_krb5_name_string },
+  { BER_CLASS_UNI, BER_UNI_TAG_GenerealString, BER_FLAGS_NOOWNTAG, dissect_krb5_name_string },
 };
 static int 
 dissect_krb5_name_strings(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
