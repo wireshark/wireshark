@@ -2,7 +2,7 @@
  * Routines for Cisco Session Management Protocol dissection
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-sm.c,v 1.3 2004/03/30 18:30:28 guy Exp $
+ * $Id: packet-sm.c,v 1.4 2004/04/25 11:13:59 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,12 +115,8 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(find_dissector("mtp3"), next_tvb, pinfo, tree);
 }
 
-G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat
-#ifndef PLUGINS_NEED_ADDRESS_TABLE
-_U_
-#endif
-)
+void
+proto_register_sm(void)
 {                 
 	static hf_register_info hf[] = {
 		{ &hf_sm_sm_msg_type,
@@ -179,8 +175,35 @@ _U_
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
-G_MODULE_EXPORT void
-plugin_reg_handoff(void)
+void
+plugin_reg_handoff_sm(void)
 {
 	return;
 }
+
+#ifndef ENABLE_STATIC
+
+G_MODULE_EXPORT void
+plugin_init(plugin_address_table_t *pat
+#ifndef PLUGINS_NEED_ADDRESS_TABLE
+_U_
+#endif
+)
+{
+	/* initialise the table of pointers needed in Win32 DLLs */
+	plugin_address_table_init(pat);
+
+	/* register the new protocol, protocol fields, and subtrees */
+	if (proto_sm == -1) { /* execute protocol initialization only once */
+		proto_register_sm();
+	}
+
+}
+
+G_MODULE_EXPORT void
+plugin_reg_handoff(void)
+{
+	plugin_reg_handoff_sm();
+}
+
+#endif

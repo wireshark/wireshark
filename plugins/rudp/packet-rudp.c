@@ -2,7 +2,7 @@
  * Routines for Reliable UDP Protocol.
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rudp.c,v 1.5 2004/03/30 19:36:50 guy Exp $
+ * $Id: packet-rudp.c,v 1.6 2004/04/25 11:14:01 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -125,12 +125,8 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		call_dissector(find_dissector("sm"), next_tvb, pinfo, tree);
 }
 
-G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat
-#ifndef PLUGINS_NEED_ADDRESS_TABLE
-_U_
-#endif
-)
+void
+proto_reg_rudp(void)
 {
 
 	static hf_register_info hf[] = {
@@ -228,8 +224,8 @@ _U_
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
-G_MODULE_EXPORT void
-plugin_reg_handoff(void) {
+void
+proto_reg_handoff_rudp(void) {
 	static dissector_handle_t rudp_handle = NULL;
 
 	if (!rudp_handle) {
@@ -238,3 +234,27 @@ plugin_reg_handoff(void) {
 
 	dissector_add("udp.port", 7000, rudp_handle);
 }
+
+#ifndef ENABLE_STATIC
+
+G_MODULE_EXPORT void
+plugin_reg_handoff(void){
+  proto_reg_handoff_rudp();
+}
+
+G_MODULE_EXPORT void
+plugin_init(plugin_address_table_t *pat
+#ifndef PLUGINS_NEED_ADDRESS_TABLE
+_U_
+#endif
+){
+  /* initialise the table of pointers needed in Win32 DLLs */
+  plugin_address_table_init(pat);
+  /* register the new protocol, protocol fields, and subtrees */
+  if (proto_rudp == -1) { /* execute protocol initialization only once */
+    proto_register_rudp();
+  }
+}
+
+#endif
+

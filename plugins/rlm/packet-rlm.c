@@ -2,7 +2,7 @@
  * Routines for RLM dissection
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rlm.c,v 1.3 2004/03/30 18:30:28 guy Exp $
+ * $Id: packet-rlm.c,v 1.4 2004/04/25 11:14:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -187,12 +187,15 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    that calls all the protocol registration.
 */
 
-G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat
-#ifndef PLUGINS_NEED_ADDRESS_TABLE
-_U_
-#endif
-)
+void
+plugin_reg_handoff_rlm(void)
+{
+	heur_dissector_add("udp", dissect_rlm, proto_rlm);
+	heur_dissector_add("udp", dissect_udp_lapd, proto_get_id_by_filter_name("lapd"));
+}
+
+void
+proto_register_rlm(void)
 {
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
@@ -241,6 +244,24 @@ _U_
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
+#ifndef ENABLE_STATIC
+
+G_MODULE_EXPORT void
+plugin_init(plugin_address_table_t *pat
+#ifndef PLUGINS_NEED_ADDRESS_TABLE
+_U_
+#endif
+)
+{
+
+  /* initialise the table of pointers needed in Win32 DLLs */
+  plugin_address_table_init(pat);
+  /* register the new protocol, protocol fields, and subtrees */
+  if (proto_rlm == -1) { /* execute protocol initialization only once */
+    proto_register_rlm();
+  }
+}
+
 
 /* If this dissector uses sub-dissector registration add a registration routine.
    This format is required because a script is used to find these routines and
@@ -249,7 +270,7 @@ _U_
 G_MODULE_EXPORT void
 plugin_reg_handoff(void)
 {
-	heur_dissector_add("udp", dissect_rlm, proto_rlm);
-	heur_dissector_add("udp", dissect_udp_lapd, proto_get_id_by_filter_name("lapd"));
+	plugin_reg_handoff_rlm();
 }
 
+#endif
