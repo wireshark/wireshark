@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.22 2000/08/18 14:22:20 deniel Exp $
+ * $Id: plugins.c,v 1.23 2000/08/19 17:53:02 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,9 @@ static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/0.8.11";
 #endif
 static gchar *user_plug_dir = NULL;
 static gchar *plugin_status_file = NULL;
+
+#define PLUGINS_STATUS		"plugins.status"
+#define PLUGINS_DIR_NAME	"plugins"
 
 /*
  * add a new plugin to the list
@@ -260,6 +263,7 @@ plugin_replace_filter(const gchar *name, const gchar *version,
  * gryphon.so 0.8.0 1
  * tcp.port == 7000
  */
+
 int
 save_plugin_status()
 {
@@ -268,8 +272,11 @@ save_plugin_status()
     plugin *pt_plug;
 
     if (!plugin_status_file) {
-	plugin_status_file = (gchar *)g_malloc(strlen(get_home_dir()) + 26);
-	sprintf(plugin_status_file, "%s/%s/plugins.status", get_home_dir(), PF_DIR);
+	plugin_status_file = (gchar *)g_malloc(strlen(get_home_dir()) + 
+					       strlen(PF_DIR) +
+					       strlen(PLUGINS_STATUS) + 3);
+	sprintf(plugin_status_file, "%s/%s/%s", 
+		get_home_dir(), PF_DIR, PLUGINS_STATUS);
     }
     statusfile=fopen(plugin_status_file, "w");
     if (!statusfile) {
@@ -352,9 +359,10 @@ check_plugin_status(gchar *name, gchar *version, GModule *handle,
 static void
 plugins_scan_dir(const char *dirname)
 {
+#define FILENAME_LEN	1024
     DIR           *dir;             /* scanned directory */
     struct dirent *file;            /* current file */
-    gchar          filename[512];   /* current file name */
+    gchar          filename[FILENAME_LEN];   /* current file name */
     GModule       *handle;          /* handle returned by dlopen */
     gchar         *name;
     gchar         *version;
@@ -374,8 +382,11 @@ plugins_scan_dir(const char *dirname)
 
     if (!plugin_status_file)
     {
-	plugin_status_file = (gchar *)g_malloc(strlen(get_home_dir()) + 26);
-	sprintf(plugin_status_file, "%s/%s/plugins.status", get_home_dir(), PF_DIR);
+	plugin_status_file = (gchar *)g_malloc(strlen(get_home_dir()) + 
+					       strlen(PF_DIR) +
+					       strlen(PLUGINS_STATUS) + 3);
+	sprintf(plugin_status_file, "%s/%s/%s", 
+		get_home_dir(), PF_DIR, PLUGINS_STATUS);
     }
     statusfile = fopen(plugin_status_file, "r");
 
@@ -391,7 +402,7 @@ plugins_scan_dir(const char *dirname)
             dot = strrchr(file->d_name, '.');
             if (dot == NULL || strcmp(dot, LT_LIB_EXT) != 0) continue;
 
-	    sprintf(filename, "%s/%s", dirname, file->d_name);
+	    snprintf(filename, FILENAME_LEN, "%s/%s", dirname, file->d_name);
 	    if ((handle = g_module_open(filename, 0)) == NULL) continue;
 	    name = (gchar *)file->d_name;
 	    if (g_module_symbol(handle, "version", (gpointer*)&version) == FALSE)
@@ -562,8 +573,11 @@ init_plugins()
 	}
 	if (!user_plug_dir)
 	{
-	    user_plug_dir = (gchar *)g_malloc(strlen(get_home_dir()) + 19);
-	    sprintf(user_plug_dir, "%s/%s/plugins", get_home_dir(), PF_DIR);
+	    user_plug_dir = (gchar *)g_malloc(strlen(get_home_dir()) +
+					      strlen(PF_DIR) +
+					      strlen(PLUGINS_DIR_NAME) + 3);
+	    sprintf(user_plug_dir, "%s/%s/%s", get_home_dir(), 
+		    PF_DIR, PLUGINS_DIR_NAME);
 	}
 	plugins_scan_dir(user_plug_dir);
     }
