@@ -572,10 +572,10 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	    requiring compiler support for them, and updates to the
 	    Diameter, L2TP, NFS, and NLM dissectors to use it and to the
 	    ONC RPC dissector to allow ONC RPC subdissectors to use it
-	SMB tvbuffication
+	SMB tvbuffication and enhancement
 	NDMPv3 support
 	Add time between request and reply as a field to ONC RPC replies
-	File handle to file name resolution in NFS and realted protocols
+	File handle to file name resolution in NFS and related protocols
 	DCE RPC enhancements
 	SAMR updates
 }
