@@ -348,6 +348,11 @@ static const struct {
 	{ 169,		WTAP_ENCAP_GPRS_LLC },
 
 	/*
+	 * 170 and 171 are reserved for ITU-T G.7041/Y.1303 Generic
+	 * Framing Procedure.
+	 */
+
+	/*
 	 * To repeat:
 	 *
 	 * If you need a new encapsulation type for libpcap files, do
