@@ -1,4 +1,4 @@
-$Id: README,v 1.55 2002/03/11 02:12:41 guy Exp $
+$Id: README,v 1.56 2002/05/15 21:50:26 gram Exp $
 
 General Information
 ------- -----------
@@ -174,15 +174,6 @@ support for IPv6 name resolution, use the "--disable-ipv6" option with
 "./configure". If you compile ethereal without IPv6 name resolution,
 you will still be able to decode IPv6 packets, but you'll only see IPv6
 addresses, not host names.
-
-
-NetWare Core Protocol
----------------------
-There are over 400 different NCP packet types. The NCP dissector does
-not understand all of these; support is being added little by little. If
-you have some NCP packets that are not dissected by Ethereal, send
-a trace file to ethereal-dev@ethereal.com and if possible, we will add support
-for those packets types.
 
 
 SNMP
