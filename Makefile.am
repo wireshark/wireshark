@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.699 2004/01/21 21:46:58 jmayer Exp $
+# $Id: Makefile.am,v 1.700 2004/01/23 10:15:37 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -218,6 +218,7 @@ plugin_ldadd =
 endif		# HAVE_PLUGINS
 
 noinst_HEADERS = \
+	packet-acse.h  \
 	packet-afp.h   \
 	packet-afs-defs.h \
 	packet-afs-macros.h \
