@@ -156,7 +156,7 @@ LOCAL_LDFLAGS=/DEBUG
 PDB_FILE=vc*.pdb
 
 # add cygwin binaries to the path
-PATH=c:\cygwin\bin;$(PATH)
+PATH=$(PATH);c:\cygwin\bin
 
 # add some required DLLs to the path 
 PATH=$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(PATH)
