@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.55 2003/12/23 00:01:07 guy Exp $
+ * $Id: packet-rtsp.c,v 1.56 2003/12/23 01:25:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -686,6 +686,17 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				/*
 				 * If the Content-Type: header says this
 				 * is SDP, dissect the payload as SDP.
+				 *
+				 * XXX - we should just do the same
+				 * sort of entity header processing
+				 * that HTTP does, and use the
+				 * "media_type" dissector table on
+				 * the content type.
+				 *
+				 * We should use those for Transport:
+				 * and Content-Length: as well (and
+				 * should process Content-Length: in
+				 * HTTP).
 				 */
 				if (is_content_sdp(line, linelen))
 					is_sdp = TRUE;
@@ -709,6 +720,18 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 *
 	 * If no content length was supplied, the amount of data to be
 	 * processed is the amount of data remaining in the frame.
+	 *
+	 * XXX - RFC 2326 says that a content length must be specified
+	 * in requests that have a body, although section 4.4 speaks
+	 * of a server closing the connection indicating the end of
+	 * a reply body.
+	 *
+	 * If there was no Content-Length entity header, we should
+	 * accumulate all data until the end of the connection.
+	 * That'd require that the TCP dissector call subdissectors
+	 * for all frames with FIN, even if they contain no data,
+	 * which would require subdissectors to deal intelligently
+	 * with empty segments.
 	 */
 	datalen = tvb_length_remaining(tvb, offset);
 	if (content_length != -1) {
@@ -716,22 +739,24 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			datalen = content_length;
 
 		/*
-		 * XXX - for now, if the content length is greater
-		 * than the amount of data left in this frame (not
-		 * the amount of *captured* data left in the frame
-		 * minus the current offset, but the amount of *actual*
-		 * data that was reported to be in the frame minus
-		 * the current offset), limit it to the amount
-		 * of data left in this frame.
-		 *
-		 * If we ever handle data that crosses frame
-		 * boundaries, we'll need to remember the actual
+		 * XXX - limit the reported length in the tvbuff we'll
+		 * hand to a subdissector to be no greater than the
 		 * content length.
+		 *
+		 * We really need both unreassembled and "how long it'd
+		 * be if it were reassembled" lengths for tvbuffs, so
+		 * that we throw the appropriate exceptions for
+		 * "not enough data captured" (running past the length),
+		 * "packet needed reassembly" (within the length but
+		 * running past the unreassembled length), and
+		 * "packet is malformed" (running past the reassembled
+		 * length).
 		 */
 		reported_datalen = tvb_reported_length_remaining(tvb, offset);
-		if (content_length > reported_datalen)
-			content_length = reported_datalen;
-	}
+		if (reported_datalen > content_length)
+			reported_datalen = content_length;
+	} else
+		reported_datalen = -1;
 
 	if (datalen > 0) {
 		/*
@@ -758,12 +783,12 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 *
 			 * The amount of data to be processed that's in
 			 * this frame, regardless of whether it was
-			 * captured or not, is "content_length",
+			 * captured or not, is "reported_datalen",
 			 * which, if no content length was specified,
 			 * is -1, i.e. "to the end of the frame.
 			 */
 			new_tvb = tvb_new_subset(tvb, offset, datalen,
-			    content_length);
+			    reported_datalen);
 			call_dissector(sdp_handle, new_tvb, pinfo, tree);
 		} else {
 			if (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR) {
