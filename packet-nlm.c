@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.15 2001/02/04 09:04:11 guy Exp $
+ * $Id: packet-nlm.c,v 1.16 2001/05/23 19:29:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -687,7 +687,7 @@ proto_register_nlm(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_nlm_cookie, {
-			"cookie", "nlm.cookie", FT_STRING, BASE_DEC,
+			"cookie", "nlm.cookie", FT_BYTES, BASE_DEC,
 			NULL, 0, "cookie" }},
 		{ &hf_nlm_block, {
 			"block", "nlm.block", FT_BOOLEAN, BASE_NONE,
@@ -702,7 +702,7 @@ proto_register_nlm(void)
 			"caller_name", "nlm.lock.caller_name", FT_STRING, BASE_NONE,
 			NULL, 0, "caller_name" }},
 		{ &hf_nlm_lock_owner, {
-			"owner", "nlm.lock.owner", FT_STRING, BASE_DEC,
+			"owner", "nlm.lock.owner", FT_BYTES, BASE_DEC,
 			NULL, 0, "owner" }},
 		{ &hf_nlm_lock_svid, {
 			"svid", "nlm.lock.svid", FT_UINT32, BASE_DEC,

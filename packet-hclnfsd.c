@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.4 2001/04/11 18:55:34 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.5 2001/05/23 19:29:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -683,11 +683,11 @@ proto_register_hclnfsd(void)
 			NULL, 0, "Lockname" }},
 
 		{ &hf_hclnfsd_unknown_data, {
-			"Unknown", "hclnfsd.unknown_data", FT_STRING, BASE_DEC,
+			"Unknown", "hclnfsd.unknown_data", FT_BYTES, BASE_DEC,
 			NULL, 0, "Data" }},
 
 		{ &hf_hclnfsd_lockowner, {
-			"Lockowner", "hclnfsd.lockowner", FT_STRING, BASE_DEC,
+			"Lockowner", "hclnfsd.lockowner", FT_BYTES, BASE_DEC,
 			NULL, 0, "Lockowner" }},
 
 		{ &hf_hclnfsd_printername, {
