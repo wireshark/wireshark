@@ -181,27 +181,35 @@
 #define is_valid_tds_type(x) ((x) >= TDS_QUERY_PKT && (x) <= TDS_XXX7_PKT)
 
 /* The following constants are imported more or less directly from FreeTDS */
+/* TODO Update from current version of FreeTDS tds.h                       */
 
-#define TDS5_DYN_TOKEN      231  /* 0xE7    TDS 5.0 only              */
-#define TDS5_DYNRES_TOKEN   236  /* 0xEC    TDS 5.0 only              */
-#define TDS5_DYN3_TOKEN     215  /* 0xD7    TDS 5.0 only              */
+#define TDS5_PARAMS_TOKEN   215  /* 0xD7    TDS 5.0 only              */
+#define TDS5_DYNAMIC_TOKEN  231  /* 0xE7    TDS 5.0 only              */
+#define TDS5_PARAMFMT_TOKEN 236  /* 0xEC    TDS 5.0 only              */
+#define TDS5_PARAMFMT2_TOKEN 32  /* 0x20    TDS 5.0 only              */
 #define TDS_LANG_TOKEN       33  /* 0x21    TDS 5.0 only              */
-#define TDS_CLOSE_TOKEN     113  /* 0x71    TDS 5.0 only? ct_close()  */
+#define TDS5_ORDERBY2_TOKEN  34  /* 0x22    TDS 5.0 only              */
+#define TDS5_CURDECLARE2_TOKEN  35  /* 0x23    TDS 5.0 only              */
+#define TDS5_ROWFMT2_TOKEN   97  /* 0x61    TDS 5.0 only              */
+#define TDS5_MSG_TOKEN      101  /* 0x65    TDS 5.0 only              */
+#define TDS_LOGOUT_TOKEN    113  /* 0x71    TDS 5.0 only? ct_close()  */
 #define TDS_RET_STAT_TOKEN  121  /* 0x79                              */
-#define TDS_124_TOKEN       124  /* 0x7C    TDS 4.2 only - TDS_PROCID */
+#define TDS_PROCID_TOKEN    124  /* 0x7C    TDS 4.2 only - TDS_PROCID */
 #define TDS7_RESULT_TOKEN   129  /* 0x81    TDS 7.0 only              */
 #define TDS_COL_NAME_TOKEN  160  /* 0xA0    TDS 4.2 only              */
 #define TDS_COL_INFO_TOKEN  161  /* 0xA1    TDS 4.2 only - TDS_COLFMT */
+#define TDS5_DYNAMIC2_TOKEN 163  /* 0xA3    TDS 5.0 only              */
 /*#define  TDS_TABNAME   164 */
 /*#define  TDS_COL_INFO   165 */
-#define TDS_167_TOKEN       167  /* 0xA7                              */
-#define TDS_168_TOKEN       168  /* 0xA8                              */
+#define TDS_COMPUTE_NAMES_TOKEN   167	/* 0xA7 */
+#define TDS_COMPUTE_RESULT_TOKEN  168	/* 0xA8 */
 #define TDS_ORDER_BY_TOKEN  169  /* 0xA9    TDS_ORDER                 */
 #define TDS_ERR_TOKEN       170  /* 0xAA                              */
 #define TDS_MSG_TOKEN       171  /* 0xAB                              */
 #define TDS_PARAM_TOKEN     172  /* 0xAC    RETURNVALUE?              */
 #define TDS_LOGIN_ACK_TOKEN 173  /* 0xAD                              */
-#define TDS_174_TOKEN       174  /* 0xAE    TDS_CONTROL               */
+#define TDS_CONTROL_TOKEN   174  /* 0xAE    TDS_CONTROL               */
+#define TDS_KEY_TOKEN       202  /* 0xCA                              */
 #define TDS_ROW_TOKEN       209  /* 0xD1                              */
 #define TDS_CMP_ROW_TOKEN   211  /* 0xD3                              */
 #define TDS_CAP_TOKEN       226  /* 0xE2                              */
@@ -212,6 +220,26 @@
 #define TDS_DONE_TOKEN      253  /* 0xFD    TDS_DONE                  */
 #define TDS_DONEPROC_TOKEN  254  /* 0xFE    TDS_DONEPROC              */
 #define TDS_DONEINPROC_TOKEN 255  /* 0xFF    TDS_DONEINPROC            */
+
+/* Microsoft internal stored procedure id's */
+
+#define TDS_SP_CURSOR           1
+#define TDS_SP_CURSOROPEN       2
+#define TDS_SP_CURSORPREPARE    3
+#define TDS_SP_CURSOREXECUTE    4
+#define TDS_SP_CURSORPREPEXEC   5
+#define TDS_SP_CURSORUNPREPARE  6
+#define TDS_SP_CURSORFETCH      7
+#define TDS_SP_CURSOROPTION     8
+#define TDS_SP_CURSORCLOSE      9
+#define TDS_SP_EXECUTESQL      10
+#define TDS_SP_PREPARE         11
+#define TDS_SP_EXECUTE         12
+#define TDS_SP_PREPEXEC        13
+#define TDS_SP_PREPEXECRPC     14
+#define TDS_SP_UNPREPARE       15
+
+/* Sybase Data Types */
 
 #define SYBCHAR      47   /* 0x2F */
 #define SYBVARCHAR   39   /* 0x27 */
@@ -328,6 +356,55 @@ static dissector_handle_t tds_tcp_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t data_handle;
 
+/* TDS protocol type preference */
+/*   XXX: This preference is used as a 'hint' for cases where interpretation is ambiguous */
+/*        Currently the hint is global                                                    */
+/*   TODO: Consider storing protocol type with each conversation                          */
+/*        (when type is determined and using the preference as a default) ??              */
+
+#define TDS_PROTOCOL_NOT_SPECIFIED   0
+#define TDS_PROTOCOL_4      4
+#define TDS_PROTOCOL_5      5
+#define TDS_PROTOCOL_7      7
+#define TDS_PROTOCOL_8      8
+
+static gint tds_protocol_type = TDS_PROTOCOL_NOT_SPECIFIED;
+
+const enum_val_t tds_protocol_type_options[] = {
+  {"not_specified", "Not Specified", TDS_PROTOCOL_NOT_SPECIFIED},
+  {"tds4", "TDS 4", TDS_PROTOCOL_4},  /* TDS 4.2 and TDS 4.6 */
+  {"tds5", "TDS 5", TDS_PROTOCOL_5},
+  {"tds7", "TDS 7", TDS_PROTOCOL_7},
+  {"tds8", "TDS 8", TDS_PROTOCOL_8},
+  {NULL, NULL, -1}
+};
+
+#define TDS_PROTO_PREF_NOT_SPECIFIED (tds_protocol_type == TDS_NOT_SPECIFIED)
+#define TDS_PROTO_PREF_TDS4 (tds_protocol_type == TDS_PROTOCOL_4)
+#define TDS_PROTO_PREF_TDS5 (tds_protocol_type == TDS_PROTOCOL_5)
+#define TDS_PROTO_PREF_TDS7 (tds_protocol_type == TDS_PROTOCOL_7)
+#define TDS_PROTO_PREF_TDS8 (tds_protocol_type == TDS_PROTOCOL_8)
+#define TDS_PROTO_PREF_TDS7_TDS8 ( TDS_PROTO_PREF_TDS7 || TDS_PROTO_PREF_TDS8 )
+
+/* TDS "endian type" */
+/*   XXX: Assumption is that all TDS conversations being decoded in a particular capture */
+/*        have the same endian type                                                      */
+/*   TODO: consider storing endian type with each conversation                           */
+/*         (using pref as the default)                                                   */
+
+static gint tds_little_endian = TRUE;
+
+const enum_val_t tds_endian_type_options[] = {
+    {"little_endian", "Little Endian", TRUE},
+    {"big_endian"   , "Big Endian"   , FALSE},
+    {NULL, NULL, -1}
+};
+
+
+/* TCP port preferences for TDS decode */
+
+static range_t *tds_tcp_ports = NULL;
+
 /* These correspond to the netlib packet type field */
 static const value_string packet_type_names[] = {
 	{TDS_QUERY_PKT,  "Query Packet"},
@@ -363,24 +440,26 @@ static const value_string status_names[] = {
 
 /* The one byte token at the start of each TDS PDU */
 static const value_string token_names[] = {
-	{TDS5_DYN_TOKEN, "Dynamic SQL"},
-	{TDS5_DYNRES_TOKEN, "Dynamic Results"},
-	{TDS5_DYN3_TOKEN, "Dynamic (Unknown)"},
+	{TDS5_DYNAMIC_TOKEN, "TDS5 Dynamic SQL"},
+	{TDS5_PARAMFMT_TOKEN, "TDS5 Parameter Format"},
+	{TDS5_PARAMFMT2_TOKEN, "TDS5 Parameter2 Format"},
+	{TDS5_PARAMS_TOKEN, "TDS5 Parameters"},
 	{TDS_LANG_TOKEN, "Language"},
-	{TDS_CLOSE_TOKEN, "Close Connection"},
+	{TDS_LOGOUT_TOKEN, "Logout"},
 	{TDS_RET_STAT_TOKEN, "Return Status"},
-	{TDS_124_TOKEN, "Proc ID"},
+	{TDS_PROCID_TOKEN, "Proc ID"},
 	{TDS7_RESULT_TOKEN, "TDS7+ Results"},
 	{TDS_COL_NAME_TOKEN, "Column Names"},
 	{TDS_COL_INFO_TOKEN, "Column Info"},
-	{TDS_167_TOKEN, "Unknown (167)"},
-	{TDS_168_TOKEN, "Unknown (168)"},
+	{TDS_COMPUTE_NAMES_TOKEN, "Compute Names"},
+	{TDS_COMPUTE_RESULT_TOKEN, "Compute Results"},
 	{TDS_ORDER_BY_TOKEN, "Order By"},
 	{TDS_ERR_TOKEN, "Error Message"},
 	{TDS_MSG_TOKEN, "Info Message"},
 	{TDS_PARAM_TOKEN, "Paramater"},
 	{TDS_LOGIN_ACK_TOKEN, "Login Acknowledgement"},
-	{TDS_174_TOKEN, "Unknown (174)"},
+	{TDS_CONTROL_TOKEN, "TDS Control"},
+	{TDS_KEY_TOKEN, "TDS Key"},
 	{TDS_ROW_TOKEN, "Row"},
 	{TDS_CMP_ROW_TOKEN, "Compute Row"},
 	{TDS_CAP_TOKEN, "Capabilities"},
@@ -391,7 +470,32 @@ static const value_string token_names[] = {
 	{TDS_DONE_TOKEN, "Done"},
 	{TDS_DONEPROC_TOKEN, "Done Proc"},
 	{TDS_DONEINPROC_TOKEN, "Done In Proc"},
+	{TDS5_DYNAMIC2_TOKEN, "TDS5 Dynamic2"},
+	{TDS5_ORDERBY2_TOKEN, "TDS5 OrderBy2"},
+	{TDS5_CURDECLARE2_TOKEN, "TDS5 CurDeclare2"},
+	{TDS5_ROWFMT2_TOKEN, "TDS5 RowFmt2"},
+	{TDS5_MSG_TOKEN, "TDS5 Msg"},
 	{0, NULL},
+};
+
+
+static const value_string internal_stored_proc_id_names[] = {
+    {TDS_SP_CURSOR,          "sp_cursor"         },
+    {TDS_SP_CURSOROPEN,      "sp_cursoropen"     },
+    {TDS_SP_CURSORPREPARE,   "sp_cursorprepare"  },
+    {TDS_SP_CURSOREXECUTE,   "sp_cursorexecute"  },
+    {TDS_SP_CURSORPREPEXEC,  "sp_cursorprepexec" },
+    {TDS_SP_CURSORUNPREPARE, "sp_cursorunprepare"},
+    {TDS_SP_CURSORFETCH,     "sp_cursorfetch"    },
+    {TDS_SP_CURSOROPTION,    "sp_cursoroption"   },
+    {TDS_SP_CURSORCLOSE,     "sp_cursorclose"    },
+    {TDS_SP_EXECUTESQL,      "sp_executesql"     },
+    {TDS_SP_PREPARE,         "sp_prepare"        },
+    {TDS_SP_EXECUTE,         "sp_execute"        },
+    {TDS_SP_PREPEXEC,        "sp_prepexec"       },
+    {TDS_SP_PREPEXECRPC,     "sp_prepexecrpc"    },
+    {TDS_SP_UNPREPARE,       "sp_unprepare"      },
+	{0,                      NULL                },
 };
 
 static const value_string env_chg_names[] = {
@@ -401,7 +505,7 @@ static const value_string env_chg_names[] = {
         {4, "Blocksize"},
         {5, "Unicode Locale ID"},
         {6, "Unicode Comparison Style"},
-	{7, "Collation Info"},
+        {7, "Collation Info"},
         {0, NULL},
 };
 
@@ -454,11 +558,12 @@ struct tds7_login_packet_hdr {
 
 /* all the standard memory management stuff */
 #define tds_column_length (sizeof(struct _tds_col))
-#define tds_column_init_count 10
+#define tds_column_init_count 40
 
 static GMemChunk *tds_column = NULL;
 
 /* support routines */
+
 static void
 dissect_tds_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint offset, guint length)
@@ -468,6 +573,84 @@ dissect_tds_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	ntlmssp_tvb = tvb_new_subset(tvb, offset, length, length);
 	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
 }
+
+/*  */
+
+static guint16
+tds_tvb_get_xxtohs(tvbuff_t *tvb, gint offset, gint tds_little_endian) {
+    if (tds_little_endian)
+        return tvb_get_letohs(tvb, offset);
+    else
+        return tvb_get_ntohs(tvb, offset);
+}
+
+static guint32
+tds_tvb_get_xxtohl(tvbuff_t *tvb, gint offset, gint tds_little_endian) {
+    if (tds_little_endian)
+        return tvb_get_letohl(tvb, offset);
+    else
+        return tvb_get_ntohl(tvb, offset);
+}
+
+
+static int tds_token_is_fixed_size(guint8 token)
+{
+     switch (token) {
+          case TDS_DONE_TOKEN:
+          case TDS_DONEPROC_TOKEN:
+          case TDS_DONEINPROC_TOKEN:
+          case TDS_RET_STAT_TOKEN:
+          case TDS7_RESULT_TOKEN:
+          case TDS_PROCID_TOKEN:
+          case TDS_LOGOUT_TOKEN:
+               return 1;
+          default:
+               return 0;
+     }
+}
+
+
+static int tds_get_fixed_token_size(guint8 token)
+{
+     switch(token) {
+          case TDS_DONE_TOKEN:
+          case TDS_DONEPROC_TOKEN:
+          case TDS_DONEINPROC_TOKEN:
+          case TDS_PROCID_TOKEN:
+               return 8;
+          case TDS_RET_STAT_TOKEN:
+               return 4;
+          case TDS_LOGOUT_TOKEN:
+               return 1;
+          case TDS7_RESULT_TOKEN:
+          default:
+               return 0;
+     }
+}
+
+static guint tds_get_variable_token_size(tvbuff_t *tvb, gint offset, guint8 token, guint *len_field_size_p)
+{
+    switch(token) {
+        /* some tokens have a 4 byte length field */
+        case TDS5_PARAMFMT2_TOKEN:
+        case TDS_LANG_TOKEN:
+        case TDS5_ORDERBY2_TOKEN:
+        case TDS5_CURDECLARE2_TOKEN:
+        case TDS5_ROWFMT2_TOKEN:
+        case TDS5_DYNAMIC2_TOKEN:
+            *len_field_size_p = 4;
+            return tds_tvb_get_xxtohl(tvb, offset, tds_little_endian) + 5;
+        /* some have a 1 byte length field */
+        case TDS5_MSG_TOKEN:
+            *len_field_size_p = 1;
+            return tvb_get_guint8(tvb, offset) +2;
+        /* and most have a 2 byte length field */
+        default:
+            *len_field_size_p = 2;
+            return tds_tvb_get_xxtohs(tvb, offset, tds_little_endian) + 3;
+    }
+}
+
 
 static void
 dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -483,16 +666,96 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	query_hdr = proto_tree_add_text(tree, tvb, offset, -1, "TDS Query Packet");
 	query_tree = proto_item_add_subtree(query_hdr, ett_tds7_query);
 	len = tvb_reported_length_remaining(tvb, offset);
-	if((len < 2) || tvb_get_guint8(tvb, offset+1) !=0)
+
+	if (TDS_PROTO_PREF_TDS4 || 
+	    (!TDS_PROTO_PREF_TDS7_TDS8 &&
+	     ((len < 2) || tvb_get_guint8(tvb, offset+1) != 0)))
 		is_unicode = FALSE;
 	
-	if (is_unicode) {
+	if (is_unicode)
 		msg = tvb_fake_unicode(tvb, offset, len/2, TRUE);
-		proto_tree_add_text(query_tree, tvb, offset, len, "Query: %s", msg);
-		g_free(msg);
-		offset += len;
-	}
+	else
+		msg = tvb_get_string(tvb, offset, len);
+	
+	proto_tree_add_text(query_tree, tvb, offset, len, "Query: %s", msg);
+	g_free(msg);
+	offset += len;
 }
+
+
+static void 
+dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree) {
+    gboolean is_unicode = FALSE;
+    char *msg;
+
+    proto_tree_add_text(tree, tvb, offset, 1 , "Status: %u", tvb_get_guint8(tvb, offset));
+    offset += 1;
+    len    -= 1;
+
+    if (is_unicode)
+        msg = tvb_fake_unicode(tvb, offset, (len)/2, TRUE);
+    else
+        msg = tvb_get_string(tvb, offset, len);
+	
+    proto_tree_add_text(tree, tvb, offset, len, "Language text: %s", msg);
+    g_free(msg);
+}
+
+static void
+dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint offset;
+    guint pos;
+    guint token_len_field_size = 2;
+    guint8 token;
+    guint token_sz;
+    proto_item *query_hdr;
+    proto_tree *query_tree;
+    proto_item *token_item;
+    proto_tree *token_tree;
+    
+    offset = 0;
+    query_hdr = proto_tree_add_text(tree, tvb, offset, -1, "TDS5 Query Packet");
+    query_tree = proto_item_add_subtree(query_hdr, ett_tds7_query);
+
+    /*
+     * Until we reach the end of the packet, read tokens.
+     */
+    pos = offset;
+    while (tvb_reported_length_remaining(tvb, pos) > 0) {
+
+        /* our token */
+        token = tvb_get_guint8(tvb, pos);
+        if (tds_token_is_fixed_size(token))
+            token_sz = tds_get_fixed_token_size(token) + 1;
+        else
+            token_sz = tds_get_variable_token_size(tvb, pos+1, token, &token_len_field_size);
+
+        token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
+                    "Token 0x%02x %s", token,
+                    val_to_str(token, token_names, "Unknown Token Type"));
+        token_tree = proto_item_add_subtree(token_item, ett_tds_token);
+
+        /*
+         * If it's a variable token, put the length field in here
+         * instead of replicating this for each token subdissector.
+         */
+        if (!tds_token_is_fixed_size(token))
+            proto_tree_add_text(token_tree, tvb, pos+1, token_len_field_size, "Length: %u", token_sz);
+
+        switch (token) {
+            case TDS_LANG_TOKEN:
+                dissect_tds5_lang_token(tvb, pos + 5, token_sz -5, token_tree);
+                break;
+            default:
+                break;
+        }
+
+        pos += token_sz;
+
+    }  /* while */
+}
+
 
 static void
 dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -520,7 +783,8 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	header_tree = proto_item_add_subtree(header_hdr, ett_tds7_hdr);
 	
 	td7hdr.total_packet_size = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(header_tree, hf_tds7_login_total_size, tvb, offset, sizeof(td7hdr.total_packet_size), td7hdr.total_packet_size);
+	proto_tree_add_uint(header_tree, hf_tds7_login_total_size, tvb, offset, 
+        sizeof(td7hdr.total_packet_size), td7hdr.total_packet_size);
 	offset += sizeof(td7hdr.total_packet_size);
 	
 	td7hdr.tds_version = tvb_get_ntohl(tvb, offset);
@@ -629,35 +893,6 @@ static int get_size_by_coltype(int servertype)
       default:             return -1; break;
    }
 }
-static int tds_is_fixed_token(int token)
-{
-     switch (token) {
-          case TDS_DONE_TOKEN:
-          case TDS_DONEPROC_TOKEN:
-          case TDS_DONEINPROC_TOKEN:
-          case TDS_RET_STAT_TOKEN:
-          case TDS7_RESULT_TOKEN:
-               return 1;
-          default:
-               return 0;
-     }
-}
-static int tds_get_token_size(int token)
-{
-     switch(token) {
-          case TDS_DONE_TOKEN:
-          case TDS_DONEPROC_TOKEN:
-          case TDS_DONEINPROC_TOKEN:
-               return 8;
-          case TDS_RET_STAT_TOKEN:
-               return 4;
-          case TDS_124_TOKEN:
-               return 8;
-          default:
-               return 0;
-     }
-}
-
 # if 0
 /*
  * data_to_string should take column data and turn it into something we can
@@ -714,24 +949,79 @@ tds_get_row_size(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset)
 }
 
 /*
- * Read the results token and store the relevant information in the
- * _netlib_data structure for later use (see tds_get_row_size).
+ * Process TDS 4 "COL_INFO" token and store relevant information in the 
+ * _netlib_data structure for later use (see tds_get_row_size)
+ * 
+ * XXX Can TDS 4 be "big-endian" ? we'll assume yes.
+ *
  */
 static gboolean
-read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset)
+dissect_tds_col_info_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset)
 {
-	guint len, name_len;
+    guint next, cur;
+    guint col;
+
+    next = offset + tds_tvb_get_xxtohs(tvb, offset+1, tds_little_endian) + 3;
+    cur = offset + 3;
+
+    col = 0;
+    while (cur < next) {
+
+        if (col >= MAX_COLUMNS) {
+            nl_data->num_cols = 0;
+            return FALSE;
+        }
+        
+        nl_data->columns[col] = g_mem_chunk_alloc(tds_column);
+
+        nl_data->columns[col]->name[0] ='\0'; 
+
+        nl_data->columns[col]->utype = tds_tvb_get_xxtohs(tvb, cur, tds_little_endian);
+        cur += 2;
+
+        cur += 2; /* unknown */
+
+        nl_data->columns[col]->ctype = tvb_get_guint8(tvb,cur);
+        cur++;
+
+        if (!is_fixed_coltype(nl_data->columns[col]->ctype)) {
+            nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
+            cur ++;
+        } else {
+            nl_data->columns[col]->csize =
+                get_size_by_coltype(nl_data->columns[col]->ctype);
+        }
+
+        col += 1;
+
+    } /* while */
+
+    nl_data->num_cols = col;
+    return TRUE;
+}
+
+
+/*
+ * Read the results token and store the relevant information in the
+ * _netlib_data structure for later use (see tds_get_row_size).
+ *
+ * TODO: check we don't go past end of the token
+ */
+static gboolean
+read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset, guint len)
+{
+	guint name_len;
 	guint cur;
 	guint i;
 
-	len = tvb_get_letohs(tvb, offset+1);
-	cur = offset + 3;
+	cur = offset;
 
 	/*
 	 * This would be the logical place to check for little/big endianess
 	 * if we didn't see the login packet.
+	 * XXX: We'll take a hint
 	 */
-	nl_data->num_cols = tvb_get_letohs(tvb, cur);
+	nl_data->num_cols = tds_tvb_get_xxtohs(tvb, cur, tds_little_endian);
 	if (nl_data->num_cols > MAX_COLUMNS) {
 		nl_data->num_cols = 0;
 		return FALSE;
@@ -747,7 +1037,7 @@ read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset)
 
 		cur++; /* unknown */
 
-		nl_data->columns[i]->utype = tvb_get_letohs(tvb, cur);
+		nl_data->columns[i]->utype = tds_tvb_get_xxtohs(tvb, cur, tds_little_endian);
 		cur += 2;
 
 		cur += 2; /* unknown */
@@ -807,13 +1097,16 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, guint8 t
 		if (tvb_get_guint8(tvb, 8) != TDS_LANG_TOKEN) {
 			return FALSE;
 		}
-	/* check if it is MS SQL default port */
-	} else if ((pinfo->srcport != 1433 &&
-		pinfo->destport != 1433) && (pinfo->srcport != 2433 && pinfo->destport != 2433)) {
-		/* otherwise, we can not ensure this is netlib */
-		/* beyond a reasonable doubt.                  */
-          		return FALSE;
 	}
+	/*
+	 * See if either tcp.destport or tcp.srcport is specified
+	 * in the preferences as being a TDS port.
+	 */
+	else if (!value_is_in_range(tds_tcp_ports, pinfo->srcport) && 
+		 !value_is_in_range(tds_tcp_ports, pinfo->destport)) {
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
@@ -900,14 +1193,14 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *t
 	char *msg;
 	gboolean is_unicode = FALSE;
 
-	proto_tree_add_text(tree, tvb, offset, 4, "SQL Error Number: %d", tvb_get_letohl(tvb, offset));
+	proto_tree_add_text(tree, tvb, offset, 4, "SQL Error Number: %d", tds_tvb_get_xxtohl(tvb, offset, tds_little_endian));
 	offset += 4;
 	proto_tree_add_text(tree, tvb, offset, 1, "State: %u", tvb_get_guint8(tvb, offset));
 	offset +=1;
 	proto_tree_add_text(tree, tvb, offset, 1, "Severity Level: %u", tvb_get_guint8(tvb, offset));
 	offset +=1;
 
-	msg_len = tvb_get_letohs(tvb, offset);
+	msg_len = tds_tvb_get_xxtohs(tvb, offset, tds_little_endian);
 	proto_tree_add_text(tree, tvb, offset, 1, "Error message length: %u characters", msg_len);
 	offset +=2;
 
@@ -956,7 +1249,7 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *t
 		g_free(msg);
 	}
 
-	proto_tree_add_text(tree, tvb, offset, 2, "line number: %d", tvb_get_letohs(tvb, offset));
+	proto_tree_add_text(tree, tvb, offset, 2, "line number: %d", tds_tvb_get_xxtohs(tvb, offset, tds_little_endian));
 }
 
 static void
@@ -1080,7 +1373,7 @@ dissect_tds_done_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset += 2;
 	proto_tree_add_text(tree, tvb, offset, 2, "Operation");
 	offset += 2;
-	proto_tree_add_text(tree, tvb, offset, 4, "row count: %u", tvb_get_letohl(tvb, offset));
+	proto_tree_add_text(tree, tvb, offset, 4, "row count: %u", tds_tvb_get_xxtohl(tvb, offset, tds_little_endian));
 	offset += 2;
 }
 
@@ -1089,24 +1382,46 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	guint len;
-	const char *val;
+	guint16 sp_id;
+	char *val;
 
 	/*
 	 * RPC name.
-	 * XXX - how can we determine whether this is ASCII or Unicode?
 	 */
-	len = tvb_get_letohs(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 2, "RPC Name Length: %u", len);
-	offset += 2;
-	if (len != 0) {
-		val = tvb_fake_unicode(tvb, offset, len, TRUE);
-		len *= 2;
-		proto_tree_add_text(tree, tvb, offset, len, "RPC Name: %s",
-		    val);
-		offset += len;
+	switch(tds_protocol_type) {
+		case TDS_PROTOCOL_4:
+			len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 1, "RPC Name Length: %u", len);
+			offset += 1;
+			val = tvb_get_string(tvb, offset, len);
+			proto_tree_add_text(tree, tvb, offset, len, "RPC Name: %s", val);
+			g_free(val);
+			offset += len;
+			break;
+
+		case TDS_PROTOCOL_7:
+		case TDS_PROTOCOL_8:
+		default:	  /* unspecified: try as if TDS7/TDS8 */
+			len = tvb_get_letohs(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 2, "RPC Name Length: %u", len);
+			offset += 2;
+			if (len == 0xFFFF) {
+				sp_id = tvb_get_letohs(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, 2, "RPC Stored Proc ID: %u (%s)", 
+				    sp_id,
+				    val_to_str(sp_id, internal_stored_proc_id_names, "Unknown"));
+				offset += 2;
+			}
+			else if (len != 0) {
+				val = tvb_fake_unicode(tvb, offset, len, TRUE);
+				len *= 2;
+				proto_tree_add_text(tree, tvb, offset, len, "RPC Name: %s", val);
+				g_free(val);
+				offset += len;
+			}
+			break;
 	}
-	
-	proto_tree_add_text(tree, tvb, offset, -1, "Unknown data");
+	proto_tree_add_text(tree, tvb, offset, -1, "Params (not dissected)");
 }
 
 static void
@@ -1116,9 +1431,12 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *token_item;
 	proto_tree *token_tree;
 	guint pos, token_sz = 0;
+	guint token_len_field_size = 2;
 	guint8 token;
 	struct _netlib_data nl_data;
 	gint length_remaining;
+
+	g_mem_chunk_reset(tds_column);   /* in case exception thrown the previous time thru this code */
 
 	memset(&nl_data, '\0', sizeof nl_data);
 
@@ -1130,8 +1448,9 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* our token */
 		token = tvb_get_guint8(tvb, pos);
 
-		if (tds_is_fixed_token(token)) {
-			token_sz = tds_get_token_size(token) + 1;
+		/* TODO Handle TDS_PARAMFMT, TDS_PARAMS [similar to TDS_RESULTS, TDS_ROW] */
+		if (tds_token_is_fixed_size(token)) {
+			token_sz = tds_get_fixed_token_size(token) + 1;
 		} else if (token == TDS_ROW_TOKEN) {
 			/*
 			 * Rows are special; they have no size field and
@@ -1139,11 +1458,9 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			token_sz = tds_get_row_size(tvb, &nl_data, pos + 1);
 		} else
-			token_sz = tvb_get_letohs(tvb, pos + 1) + 3;
+			token_sz = tds_get_variable_token_size(tvb, pos+1, token, &token_len_field_size);
 
 		length_remaining = tvb_ensure_length_remaining(tvb, pos);
-		if (token_sz > (guint)length_remaining)
-			token_sz = (guint)length_remaining;
 
 		token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
                     "Token 0x%02x %s", token,
@@ -1154,35 +1471,52 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * If it's a variable token, put the length field in here
 		 * instead of replicating this for each token subdissector.
 		 */
-		if (!tds_is_fixed_token(token) && token != TDS_ROW_TOKEN) {
-			proto_tree_add_text(token_tree, tvb, pos+1, 2,
-			    "Length: %u", tvb_get_letohs(tvb, pos+1));
+		if (!tds_token_is_fixed_size(token) && token != TDS_ROW_TOKEN) {
+			proto_tree_add_text(token_tree, tvb, pos+1, token_len_field_size, "Length: %u", token_sz);
 		}
 
+		if (token_sz > (guint)length_remaining)
+			token_sz = (guint)length_remaining;
+
 		switch (token) {
+
+		case TDS_COL_NAME_TOKEN:
+			/*
+			 * TDS 4.2
+			 * TODO dissect token to get "column names" to fill in _netlib_data
+			 */
+			break;
+
+		case TDS_COL_INFO_TOKEN:
+			/*
+			 * TDS 4.2: get the column info 
+			 */
+			dissect_tds_col_info_token(tvb, &nl_data, pos);
+			break;
 
 		case TDS_RESULT_TOKEN:
 			/*
 			 * If it's a result token, we need to stash the
 			 * column info.
 			 */
-			read_results_tds5(tvb, &nl_data, pos);
+			read_results_tds5(tvb, &nl_data, pos + 3, token_sz - 3);
 			break;
 
 		case TDS_ENV_CHG_TOKEN:
-			dissect_tds_env_chg(tvb, pos + 3, token_sz - 3,
-			    token_tree);
+			dissect_tds_env_chg(tvb, pos + 3, token_sz - 3, token_tree);
 			break;
 
 		case TDS_AUTH_TOKEN:
-			dissect_tds_ntlmssp(tvb, pinfo, token_tree, pos + 3,
-			    token_sz - 3);
+			dissect_tds_ntlmssp(tvb, pinfo, token_tree, pos + 3, token_sz - 3);
 			break;
 		case TDS_ERR_TOKEN:
 		case TDS_MSG_TOKEN:
 			dissect_tds_err_token(tvb, pos + 3, token_sz - 3, token_tree);
 			break;
+
 		case TDS_DONE_TOKEN:
+		case TDS_DONEPROC_TOKEN:
+		case TDS_DONEINPROC_TOKEN:
 			dissect_tds_done_token(tvb, pos + 1, token_tree);
 			break;
 		case TDS_LOGIN_ACK_TOKEN:
@@ -1196,6 +1530,9 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* and step to the end of the token, rinse, lather, repeat */
 		pos += token_sz;
 	}
+	/* reset tds_column mem_chunk since finished processing response */
+	/*  (pointers to atoms in nl_data being discarded) */
+	g_mem_chunk_reset(tds_column);
 }
 
 static void
@@ -1252,6 +1589,10 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/*
 	 * Deal with fragmentation.
+	 *
+	 * TODO: handle case where netlib headers 'packet-number'.is always 0
+	 *       use fragment_add_seq_next in this case ?
+	 *       
 	 */
 	save_fragmented = pinfo->fragmented;
 	if (tds_defragment &&
@@ -1290,7 +1631,9 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		}
 	}
+
 	if (next_tvb != NULL) {
+
 		switch (type) {
 
 		case TDS_RPC_PKT:
@@ -1306,6 +1649,9 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case TDS_QUERY_PKT:
 			dissect_tds_query_packet(next_tvb, pinfo, tds_tree);
+			break;
+		case TDS_QUERY5_PKT:
+			dissect_tds_query5_packet(next_tvb, pinfo, tds_tree);
 			break;
 		case TDS_NTLMAUTH_PKT:
 			dissect_tds_ntlmssp(next_tvb, pinfo, tds_tree, offset - 8, -1);
@@ -1735,6 +2081,7 @@ proto_register_netlib(void)
 			"", HFILL }
 		},
 	};
+
 	static gint *ett[] = {
 		&ett_tds,
 		&ett_tds_fragments,
@@ -1753,8 +2100,6 @@ proto_register_netlib(void)
 	proto_register_field_array(proto_tds, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	tds_tcp_handle = create_dissector_handle(dissect_tds_tcp, proto_tds);
-
 	tds_module = prefs_register_protocol(proto_tds, NULL);
 	prefs_register_bool_preference(tds_module, "desegment_buffers",
 	    "Reassemble TDS buffers spanning multiple TCP segments",
@@ -1765,6 +2110,18 @@ proto_register_netlib(void)
 	    "Reassemble fragmented TDS messages with multiple buffers",
 	    "Whether the TDS dissector should defragment messages spanning multiple Netlib buffers",
 	    &tds_defragment);
+	prefs_register_enum_preference(tds_module, "protocol_type",
+	    "TDS Protocol Type",
+	    "Hint as to version of TDS protocol being decoded",
+	    &tds_protocol_type, tds_protocol_type_options, FALSE);
+	prefs_register_enum_preference(tds_module, "endian_type",
+	    "TDS decode as",
+	    "Hint as to whether to decode TDS protocol as little-endian or big-endian. (TDS7/8 always decoded as little-endian)",
+	    &tds_little_endian, tds_endian_type_options, FALSE);
+	prefs_register_range_preference(tds_module, "tcp_ports",
+	    "TDS TCP ports",
+	    "Additional TCP ports to decode as TDS",
+	    &tds_tcp_ports, 0xFFFF);
 
 	register_init_routine(tds_init);
 }
@@ -1776,8 +2133,12 @@ proto_register_netlib(void)
 void
 proto_reg_handoff_tds(void)
 {
-	/* dissector_add("tcp.port", 1433, dissect_tds,
-	    proto_tds); */
+	tds_tcp_handle = create_dissector_handle(dissect_tds_tcp, proto_tds);
+
+	/* Initial TDS ports: MS SQL default ports */
+	dissector_add("tcp.port", 1433, tds_tcp_handle);
+	dissector_add("tcp.port", 2433, tds_tcp_handle);
+
 	heur_dissector_add("tcp", dissect_tds_tcp_heur, proto_tds);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
