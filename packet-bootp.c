@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.50 2001/05/01 21:39:41 guy Exp $
+ * $Id: packet-bootp.c,v 1.51 2001/05/03 07:02:50 girlich Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -545,7 +545,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 					tvb_get_ntohl(tvb, voff+13));
 		    md5_ptr = tvb_get_ptr(tvb, voff+17, 16);
 		    for (i=0; i<16; i++)
-			sprintf(&(md5_str[i*3]), "%02X ", (uint8_t) md5_ptr[i]);
+			sprintf(&(md5_str[i*3]), "%02X ", (guint8) md5_ptr[i]);
 		    md5_str[48] = 0;
 		    proto_tree_add_text(v_tree, tvb, voff+17, 16, "HMAC MD5 Hash: %s", md5_str);
 		}
