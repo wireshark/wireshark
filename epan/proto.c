@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.69 2002/05/14 10:15:10 guy Exp $
+ * $Id: proto.c,v 1.70 2002/06/19 19:21:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2175,7 +2175,7 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	default:
 		break;
 	}
-	/* if this is a bitfield, compure bitshift */
+	/* if this is a bitfield, compute bitshift */
 	if (hfinfo->bitmask) {
 		while ((hfinfo->bitmask & (1 << hfinfo->bitshift)) == 0)
 			hfinfo->bitshift++;
