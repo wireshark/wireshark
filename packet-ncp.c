@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.26 1999/12/14 21:57:03 nneul Exp $
+ * $Id: packet-ncp.c,v 1.27 1999/12/15 04:20:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -548,16 +548,16 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	struct ncp_common_header	header;
 
 	if ( pi.ptype == PT_TCP || pi.ptype == PT_UDP ) {
-		memcpy(&ncpiph, &pd[offset], sizeof(ncpiph));
-		ncpiph.signature = ntohl(ncpiph.signature);
-		ncpiph.length = ntohl(ncpiph.length);
+		ncpiph.signature = pntohl(&pd[offset]);
+		ncpiph.length = pntohl(&pd[offset + 4]);
 		offset += 8;
 		if ( ncpiph.signature == NCPIP_RQST ) {
-			memcpy(&ncpiphrq, &pd[offset], sizeof(ncpiphrq));
-			ncpiphrq.rplybufsize = ntohl(ncpiphrq.rplybufsize);
+			ncpiphrq.version = pntohl(&pd[offset]);
+			ncpiphrq.rplybufsize = pntohl(&pd[offset + 4]);
 			offset += 8;
 		};
 	};
+
 	memcpy(&header, &pd[offset], sizeof(header));
 	header.type = ntohs(header.type);
 
