@@ -6,7 +6,7 @@
  * Adds support for the data packet protocol for the SliMP3
  * See www.slimdevices.com for details.
  *
- * $Id: packet-slimp3.c,v 1.5 2002/04/29 08:20:09 guy Exp $
+ * $Id: packet-slimp3.c,v 1.6 2002/05/06 01:45:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 
 static int proto_slimp3 = -1;
 static int hf_slimp3_opcode = -1;
