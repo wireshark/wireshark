@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.22 1999/05/12 20:44:58 deniel Exp $
+ * $Id: packet-ip.c,v 1.23 1999/05/20 02:41:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,6 +75,8 @@ typedef struct _e_icmp {
 #define ICMP_SOURCEQUENCH  4
 #define ICMP_REDIRECT      5
 #define ICMP_ECHO          8
+#define ICMP_RTRADVERT     9
+#define ICMP_RTRSOLICIT   10
 #define ICMP_TIMXCEED     11
 #define ICMP_PARAMPROB    12
 #define ICMP_TSTAMP       13
@@ -787,6 +789,9 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *ti;
   guint16    cksum;
   gchar      type_str[64], code_str[64] = "";
+  guint8     num_addrs = 0;
+  guint8     addr_entry_size = 0;
+  int        i;
 
   /* Avoids alignment problems on many architectures. */
   memcpy(&ih, &pd[offset], sizeof(e_icmp));
@@ -818,6 +823,12 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       break;
     case ICMP_ECHO:
       strcpy(type_str, "Echo (ping) request");
+      break;
+    case ICMP_RTRADVERT:
+      strcpy(type_str, "Router advertisement");
+      break;
+    case ICMP_RTRSOLICIT:
+      strcpy(type_str, "Router solicitation");
       break;
     case ICMP_TIMXCEED:
       strcpy(type_str, "Time-to-live exceeded");
@@ -874,7 +885,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(icmp_tree, offset +  2, 2, "Checksum: 0x%04x",
       ih.icmp_cksum);
 
-    /* Decode the second 4 byte of the packet. */
+    /* Decode the second 4 bytes of the packet. */
     switch (ih.icmp_type) {
       case ICMP_ECHOREPLY:
       case ICMP_ECHO:
@@ -888,6 +899,17 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	  pntohs(&pd[offset +  4]));
 	proto_tree_add_item(icmp_tree, offset +  6, 2, "Sequence number: %u",
 	  pntohs(&pd[offset +  6]));
+	break;
+
+      case ICMP_RTRADVERT:
+        num_addrs = pd[offset + 4];
+	proto_tree_add_item(icmp_tree, offset +  4, 1, "Number of addresses: %u",
+	  num_addrs);
+	addr_entry_size = pd[offset + 5];
+	proto_tree_add_item(icmp_tree, offset +  5, 1, "Address entry size: %u",
+	  addr_entry_size);
+	proto_tree_add_item(icmp_tree, offset +  6, 2, "Lifetime: %s",
+	  time_secs_to_str(pntohs(&pd[offset +  6])));
 	break;
 
       case ICMP_PARAMPROB:
@@ -919,6 +941,19 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       case ICMP_ECHOREPLY:
       case ICMP_ECHO:
 	dissect_data(pd, offset + 8, fd, icmp_tree);
+	break;
+
+      case ICMP_RTRADVERT:
+        if (addr_entry_size == 2) {
+	  for (i = 0; i < num_addrs; i++) {
+	    proto_tree_add_item(icmp_tree, offset + 8 + (i*8), 4,
+	      "Router address: %s",
+	      ip_to_str((guint8 *)&pd[offset +  8 + (i*8)]));
+	    proto_tree_add_item(icmp_tree, offset + 12 + (i*8), 4,
+	      "Preference level: %d", pntohl(&pd[offset + 12 + (i*8)]));
+	  }
+	} else
+	  dissect_data(pd, offset + 8, fd, icmp_tree);
 	break;
 
       case ICMP_TSTAMP:
