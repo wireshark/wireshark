@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.36 2004/04/09 01:07:30 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.37 2004/04/09 03:32:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@ static int hf_h225_route = -1;
 static int hf_h225_nonStandardUsageTypes = -1;
 static int hf_h225_nonStandardUsageTypes_item = -1;
 static int hf_h225_PresentationIndicator = -1;
+static int hf_h225_CryptoH323Token = -1;
 static int hf_h225_conferenceGoal = -1;
 static int hf_h225_ScnConnectionType = -1;
 static int hf_h225_ScnConnectionAggregation = -1;
@@ -89,6 +90,7 @@ static int hf_h225_DisengageRejectReason = -1;
 static int hf_h225_InfoRequestNakReason = -1;
 static int hf_h225_SCRresult = -1;
 static int hf_h225_GatekeeperInfo = -1;
+static int hf_h225_cryptoEPPwdHash = -1;
 static int hf_h225_SecurityServiceMode_encryption = -1;
 static int hf_h225_SecurityServiceMode_authentication = -1;
 static int hf_h225_SecurityServiceMode_integrity = -1;
@@ -158,6 +160,7 @@ static int hf_h225_globalCallId = -1;
 static int hf_h225_threadId = -1;
 static int hf_h225_CallLinkage = -1;
 static int hf_h225_tokens = -1;
+static int hf_h225_CryptoH323Tokens = -1;
 static int hf_h225_needToRegister = -1;
 static int hf_h225_priority = -1;
 static int hf_h225_AlternateGK = -1;
@@ -196,7 +199,6 @@ static int hf_h225_ssrc = -1;
 static int hf_h225_RTPsessionId = -1;
 static int hf_h225_associatedSessionIds = -1;
 static int hf_h225_RTPSession = -1;
-static int hf_h225_cryptoTokens = -1;
 static int hf_h225_ProtocolIdentifier = -1;
 static int hf_h225_isoAlgorithm = -1;
 static int hf_h225_iso9797 = -1;
@@ -541,11 +543,17 @@ static int hf_h235_nonStandardIdentifier = -1;
 static int hf_h235_nsp_data = -1;
 static int hf_h235_AuthenticationMechanisms = -1;
 static int hf_h235_AuthenticationMechanism = -1;
+static int hf_h235_CryptoToken = -1;
+static int hf_h235_cryptoEncryptedToken = -1;
+static int hf_h235_HASHED = -1;
+static int hf_h235_Params = -1;
+static int hf_h235_ranInt = -1;
 /*aaa*/
 
 static gint ett_h225 = -1;
 static gint ett_h225_T_nonStandardUsageTypes = -1;
 static gint ett_h225_PresentationIndicator = -1;
+static gint ett_h225_CryptoH323Token = -1;
 static gint ett_h225_conferenceGoal = -1;
 static gint ett_h225_ScnConnectionType = -1;
 static gint ett_h225_ScnConnectionAggregation = -1;
@@ -570,6 +578,7 @@ static gint ett_h225_DisengageRejectReason = -1;
 static gint ett_h225_InfoRequestNakReason = -1;
 static gint ett_h225_SCRresult = -1;
 static gint ett_h225_GatekeeperInfo = -1;
+static gint ett_h225_cryptoEPPwdHash = -1;
 static gint ett_h225_SecurityServiceMode_encryption = -1;
 static gint ett_h225_SecurityServiceMode_authentication = -1;
 static gint ett_h225_SecurityServiceMode_integrity = -1;
@@ -599,6 +608,7 @@ static gint ett_h225_InfoRequestResponseStatus = -1;
 static gint ett_h225_CallIdentifier = -1;
 static gint ett_h225_CallLinkage = -1;
 static gint ett_h225_tokens = -1;
+static gint ett_h225_CryptoH323Tokens = -1;
 static gint ett_h225_AlternateGK = -1;
 static gint ett_h225_alternateGatekeeper = -1;
 static gint ett_h225_AltGKInfo = -1;
@@ -610,7 +620,6 @@ static gint ett_h225_Q954Details = -1;
 static gint ett_h225_QseriesOptions = -1;
 static gint ett_h225_associatedSessionIds = -1;
 static gint ett_h225_RTPSession = -1;
-static gint ett_h225_cryptoTokens = -1;
 static gint ett_h225_StatusUUIE = -1;
 static gint ett_h225_StatusInquiryUUIE = -1;
 static gint ett_h225_SetupAcknowledgeUUIE = -1;
@@ -812,6 +821,10 @@ static gint ett_h235_ClearToken = -1;
 static gint ett_h235_NonStandardParameter = -1;
 static gint ett_h235_AuthenticationMechanisms = -1;
 static gint ett_h235_AuthenticationMechanism = -1;
+static gint ett_h235_CryptoToken = -1;
+static gint ett_h235_cryptoEncryptedToken = -1;
+static gint ett_h235_HASHED = -1;
+static gint ett_h235_Params = -1;
 /*bbb*/
 
 /* Subdissector tables */
@@ -2982,6 +2995,14 @@ dissect_h225_globalCallId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 static int
+dissect_h225_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_h225_algorithmOID, NULL);
+	return offset;
+}
+
+
+static int
 dissect_h225_threadId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h225_threadId, 16, 16, NULL, NULL);
@@ -3188,11 +3209,79 @@ dissect_h235_AuthenticationMechanism_sequence_of(tvbuff_t *tvb, int offset, pack
 }
 
 
+static int
+dissect_h235_ENCRYPTED_EncodedGeneralToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("ENCRYPTED_EncodedGeneralToken");
+	return offset;
+}
+static per_sequence_t cryptoEncryptedToken_sequence[] = {
+	{ "tokenOID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h235_tokenOID },
+	{ "token", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h235_ENCRYPTED_EncodedGeneralToken },
+	{ NULL, 0, 0, NULL }
+};
+static int
+dissect_h235_cryptoEncryptedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree,
+				hf_h235_cryptoEncryptedToken,
+				ett_h235_cryptoEncryptedToken, cryptoEncryptedToken_sequence);
+
+	return offset;
+}
+static int
+dissect_h235_cryptoSignedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("cryptoSignedToken");
+	return offset;
+}
+static int
+dissect_h235_cryptoHashedToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("cryptoHashedToken");
+	return offset;
+}
+static int
+dissect_h235_cryptoPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("cryptoPwdEncr");
+	return offset;
+}
+static const value_string CryptoToken_vals[] = {
+	{ 0, "cryptoEncryptedToken" },
+	{ 1, "cryptoSignedToken" },
+	{ 2, "cryptoHashedToken" },
+	{ 3, "cryptoPwdEncr" },
+	{ 0, NULL}
+};
+static per_choice_t CryptoToken_choice[] = {
+	{ 0, "cryptoEncryptedToken", ASN1_EXTENSION_ROOT,
+		dissect_h235_cryptoEncryptedToken },
+	{ 1, "cryptoSignedToken", ASN1_EXTENSION_ROOT,
+		dissect_h235_cryptoSignedToken },
+	{ 2, "cryptoHashedToken", ASN1_EXTENSION_ROOT,
+		dissect_h235_cryptoHashedToken },
+	{ 3, "cryptoPwdEncr", ASN1_EXTENSION_ROOT,
+		dissect_h235_cryptoPwdEncr },
+	{ 0, NULL, 0, NULL }
+};
+static int
+dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h235_CryptoToken, ett_h235_CryptoToken, CryptoToken_choice, "CryptoToken", NULL);
+
+	return offset;
+}
+
+
+
 
 
 
 static int
-dissect_h225_ClearToken(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+dissect_h235_ClearToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset = dissect_per_sequence(tvb, offset, pinfo, tree,
 				hf_h235_ClearToken,
@@ -3201,13 +3290,200 @@ dissect_h225_ClearToken(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 	return offset;
 }
 
+
 static int
-dissect_h225_tokens(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h235_ranInt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_tokens, ett_h225_tokens, dissect_h225_ClearToken);
+	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+		tree, hf_h235_ranInt, 0, 4294967295UL,
+		NULL, NULL, FALSE);
+	return offset;
+}
+static int
+dissect_h235_iv8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("iv8");
+	return offset;
+}
+static int
+dissect_h235_iv16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("iv16");
+	return offset;
+}
+static int
+dissect_h235_iv(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("iv");
+	return offset;
+}
+static int
+dissect_h235_clearSalt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("clearSalt");
 	return offset;
 }
 
+static per_sequence_t Params_sequence[] = {
+	{ "ranInt", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_ranInt },
+	{ "iv8", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_iv8 },
+	{ "iv16", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_iv16 },
+	{ "iv", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_iv },
+	{ "clearSalt", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_clearSalt },
+	{ NULL, 0, 0, NULL }
+};
+static int
+dissect_h235_Params(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_h235_Params, ett_h235_Params, Params_sequence);
+
+	return offset;
+}
+static int
+dissect_h235_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("H235 hash");
+/*offset = dissect_per_bit_string(tvb, offset, pinfo, tree, int hf_index, int min_len, int max_len);*/
+	return offset;
+}
+
+
+static per_sequence_t HASHED_sequence[] = {
+	{ "algorithmOID", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h225_algorithmOID },
+	{ "paramS", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h235_Params },
+	{ "hash", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h235_hash },
+	{ NULL, 0, 0, NULL }
+};
+static int
+dissect_h235_HASHED(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree,
+				hf_h235_HASHED,
+				ett_h235_HASHED, HASHED_sequence);
+
+	return offset;
+}
+
+static int
+dissect_h225_tokens(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_tokens, ett_h225_tokens, dissect_h235_ClearToken);
+	return offset;
+}
+
+
+
+static int
+dissect_h225_HASHED_EncodedPwdCertToken(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_h235_HASHED(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+static per_sequence_t cryptoEPPwdHash_sequence[] = {
+	{ "alias", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h225_AliasAddress },
+	{ "timeStamp", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h235_timeStamp },
+	{ "token", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h225_HASHED_EncodedPwdCertToken },
+	{ NULL, 0, 0, NULL }
+};
+static int
+dissect_h225_cryptoEPPwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_cryptoEPPwdHash, ett_h225_cryptoEPPwdHash, cryptoEPPwdHash_sequence);
+
+	return offset;
+}
+static int
+dissect_h225_cryptoGKPwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("cryptoGKPwdHash");
+	return offset;
+}
+static int
+dissect_h225_cryptoEPPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("cryptoEPPwdEncr");
+	return offset;
+}
+static int
+dissect_h225_cryptoGKPwdEncr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("cryptoGKPwdEncr");
+	return offset;
+}
+static int
+dissect_h225_cryptoEPCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("cryptoEPCert");
+	return offset;
+}
+static int
+dissect_h225_cryptoGKCert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("cryptoGKCert");
+	return offset;
+}
+static int
+dissect_h225_cryptoFastStart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("cryptoFastStart");
+	return offset;
+}
+static const value_string CryptoH323Token_vals[] = {
+	{ 0, "cryptoEPPwdHash" },
+	{ 1, "cryptoGKPwdHash" },
+	{ 2, "cryptoEPPwdEncr" },
+	{ 3, "cryptoGKPwdEncr" },
+	{ 4, "cryptoEPCert" },
+	{ 5, "cryptoGKCert" },
+	{ 6, "cryptoFastStart" },
+	{ 7, "nestedcryptoToken" },
+	{ 0, NULL}
+};
+static per_choice_t CryptoH323Token_choice[] = {
+	{ 0, "cryptoEPPwdHash", ASN1_EXTENSION_ROOT,
+		dissect_h225_cryptoEPPwdHash },
+	{ 1, "cryptoGKPwdHash", ASN1_EXTENSION_ROOT,
+		dissect_h225_cryptoGKPwdHash },
+	{ 2, "cryptoEPPwdEncr", ASN1_EXTENSION_ROOT,
+		dissect_h225_cryptoEPPwdEncr },
+	{ 3, "cryptoGKPwdEncr", ASN1_EXTENSION_ROOT,
+		dissect_h225_cryptoGKPwdEncr },
+	{ 4, "cryptoEPCert", ASN1_EXTENSION_ROOT,
+		dissect_h225_cryptoEPCert },
+	{ 5, "cryptoGKCert", ASN1_EXTENSION_ROOT,
+		dissect_h225_cryptoGKCert },
+	{ 6, "cryptoFastStart", ASN1_EXTENSION_ROOT,
+		dissect_h225_cryptoFastStart },
+	{ 7, "nestedcryptoToken", ASN1_EXTENSION_ROOT,
+		dissect_h235_CryptoToken },
+	{ 0, NULL, 0, NULL }
+};
+static int
+dissect_h225_CryptoH323Token(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_CryptoH323Token, ett_h225_CryptoH323Token, CryptoH323Token_choice, "CryptoH323Token", NULL);
+
+	return offset;
+}
+static int
+dissect_h225_CryptoH323Token_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_CryptoH323Tokens, ett_h225_CryptoH323Tokens, dissect_h225_CryptoH323Token);
+
+	return offset;
+}
 
 static int
 dissect_h225_needToRegister(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -3590,21 +3866,6 @@ dissect_h225_RTPSession(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	return offset;
 }
 
-static int
-dissect_h225_CryptoH323Token(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-NOT_DECODED_YET("CryptoH323Token");
-	return offset;
-}
-
-
-static int
-dissect_h225_cryptoTokens(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h225_cryptoTokens, ett_h225_cryptoTokens, dissect_h225_CryptoH323Token);
-	return offset;
-}
-
 
 static int
 dissect_h225_ProtocolIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -3621,7 +3882,7 @@ static per_sequence_t StatusUUIE_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
 static int
@@ -3638,7 +3899,7 @@ static per_sequence_t StatusInquiryUUIE_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
 static int
@@ -3655,7 +3916,7 @@ static per_sequence_t SetupAcknowledgeUUIE_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
 static int
@@ -3672,7 +3933,7 @@ static per_sequence_t NotifyUUIE_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
 static int
@@ -5300,7 +5561,7 @@ static per_sequence_t InformationUUIE_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
 	{ "fastConnectRefused", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -5670,7 +5931,7 @@ static per_sequence_t CallProceedingUUIE_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
 	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -5729,7 +5990,7 @@ static per_sequence_t ProgressUUIE_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "fastStart", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
 	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -5799,7 +6060,7 @@ static per_sequence_t EndPoint_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "priority", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_priority },
 	{ "remoteExtensionAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -5829,13 +6090,6 @@ NOT_DECODED_YET("icv");
 	return offset;
 }
 
-static int
-dissect_h225_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_h225_algorithmOID, NULL);
-	return offset;
-}
-
 static per_sequence_t ICV_sequence[] = {
 	{ "algorithmOID", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h225_algorithmOID },
@@ -5860,7 +6114,7 @@ static per_sequence_t BandwidthConfirm_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -5885,7 +6139,7 @@ static per_sequence_t UnregistrationConfirm_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -5906,7 +6160,7 @@ static per_sequence_t NonStandardMessage_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -5931,7 +6185,7 @@ static per_sequence_t InfoRequestAck_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ NULL, 0, 0, NULL }
@@ -5954,7 +6208,7 @@ static per_sequence_t InfoRequestNak_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ NULL, 0, 0, NULL }
@@ -5976,7 +6230,7 @@ static per_sequence_t ResourcesAvailableConfirm_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -6047,7 +6301,7 @@ static per_sequence_t GatekeeperRequest_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "authenticationCapability", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h235_AuthenticationMechanism_sequence_of },
 	{ "algorithmOIDs", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6081,7 +6335,7 @@ static per_sequence_t ServiceControlResponse_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "featureSet", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6111,7 +6365,7 @@ static per_sequence_t DisengageReject_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6141,7 +6395,7 @@ static per_sequence_t BandwidthReject_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6169,7 +6423,7 @@ static per_sequence_t UnregistrationReject_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6216,7 +6470,7 @@ static per_sequence_t UnregistrationRequest_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "reason", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6379,7 +6633,7 @@ static per_sequence_t RegistrationReject_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6412,7 +6666,7 @@ static per_sequence_t GatekeeperReject_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6461,7 +6715,7 @@ static per_sequence_t ResourcesAvailableIndicate_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6576,7 +6830,7 @@ static per_sequence_t UnknownMessageResponse_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "messageNotUnderstood", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6727,7 +6981,7 @@ static per_sequence_t AdmissionRequest_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "transportQOS", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6786,7 +7040,7 @@ static per_sequence_t InfoRequest_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "uuiesRequested", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -6830,7 +7084,7 @@ static per_sequence_t RequestInProgress_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "delay", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -6944,7 +7198,7 @@ static per_sequence_t AlertingUUIE_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of  },
 	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
 	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -6992,7 +7246,7 @@ static per_sequence_t ReleaseCompleteUUIE_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "busyAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_busyAddress },
 	{ "presentationIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7041,7 +7295,7 @@ static per_sequence_t FacilityUUIE_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "conferences", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_conferences },
 	{ "h245Address", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7085,7 +7339,7 @@ static per_sequence_t AdmissionReject_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "callSignalAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_callSignalAddress },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7249,7 +7503,7 @@ static per_sequence_t SetupUUIE_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
 	{ "mediaWaitForConnect", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -7326,7 +7580,7 @@ static per_sequence_t ConnectUUIE_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
 	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -7473,7 +7727,7 @@ static per_sequence_t LocationConfirm_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "alternateTransportAddresses", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7515,7 +7769,7 @@ static per_sequence_t LocationReject_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7571,7 +7825,7 @@ static per_sequence_t ServiceControlIndication_sequence[] = {
 	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "featureSet", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7671,7 +7925,7 @@ static per_sequence_t GatekeeperConfirm_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "algorithmOID", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_algorithmOID },
 	{ "integrity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7752,7 +8006,7 @@ static per_sequence_t RegistrationRequest_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "keepAlive", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -7809,7 +8063,7 @@ static per_sequence_t DisengageConfirm_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7880,7 +8134,7 @@ static per_sequence_t AdmissionConfirm_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "transportQOS", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7941,7 +8195,7 @@ static per_sequence_t DisengageRequest_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "answeredCall", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -8013,7 +8267,7 @@ static per_sequence_t LocationRequest_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "desiredProtocols", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -8074,7 +8328,7 @@ static per_sequence_t BandwidthRequest_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "answeredCall", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -8334,7 +8588,7 @@ static per_sequence_t RegistrationConfirm_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "willRespondToIRR", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -8475,7 +8729,7 @@ static per_sequence_t perCallInfo_item_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "substituteConfIDs", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_substituteConfIDs },
 	{ "pdu", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -8542,7 +8796,7 @@ static per_sequence_t InfoRequestResponse_sequence[] = {
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_cryptoTokens },
+		dissect_h225_CryptoH323Token_sequence_of },
 	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ "needResponse", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
@@ -8792,6 +9046,9 @@ proto_register_h225(void)
 	{ &hf_h225_PresentationIndicator,
 		{ "PresentationIndicator", "h225.PresentationIndicator", FT_UINT32, BASE_DEC,
 		VALS(PresentationIndicator_vals), 0, "PresentationIndicator choice", HFILL }},
+	{ &hf_h225_CryptoH323Token,
+		{ "CryptoH323Token", "h225.CryptoH323Token", FT_UINT32, BASE_DEC,
+		VALS(CryptoH323Token_vals), 0, "CryptoH323Token choice", HFILL }},
 	{ &hf_h225_conferenceGoal,
 		{ "conferenceGoal", "h225.conferenceGoal", FT_UINT32, BASE_DEC,
 		VALS(conferenceGoal_vals), 0, "conferenceGoal choice", HFILL }},
@@ -8864,6 +9121,9 @@ proto_register_h225(void)
 	{ &hf_h225_GatekeeperInfo,
 		{ "GatekeeperInfo", "h225.GatekeeperInfo", FT_NONE, BASE_NONE,
 		NULL, 0, "GatekeeperInfo sequence", HFILL }},
+	{ &hf_h225_cryptoEPPwdHash,
+		{ "cryptoEPPwdHash", "h225.cryptoEPPwdHash", FT_NONE, BASE_NONE,
+		NULL, 0, "cryptoEPPwdHash sequence", HFILL }},
 	{ &hf_h225_SecurityServiceMode_encryption,
 		{ "Encryption", "h225.SecurityServiceMode_encryption", FT_UINT32, BASE_DEC,
 		VALS(SecurityServiceMode_vals), 0, "Encryption SecurityServiceMode choice", HFILL }},
@@ -9083,6 +9343,9 @@ proto_register_h225(void)
 	{ &hf_h225_tokens,
 		{ "tokens", "h225.tokens", FT_NONE, BASE_NONE,
 		NULL, 0, "tokens sequence of", HFILL }},
+	{ &hf_h225_CryptoH323Tokens,
+		{ "CryptoH323Tokens", "h225.cryptoh323tokens", FT_NONE, BASE_NONE,
+		NULL, 0, "sequence of cryptoh323tokens", HFILL }},
 	{ &hf_h225_needToRegister,
 		{ "needToRegister", "h225.needToRegister", FT_BOOLEAN, 8,
 		TFS(&tfs_needToRegister_bit), 0x01, "needToRegister boolean", HFILL }},
@@ -9197,9 +9460,6 @@ proto_register_h225(void)
 	{ &hf_h225_RTPSession,
 		{ "RTPSession", "h225.RTPSession", FT_NONE, BASE_NONE,
 		NULL, 0, "RTPSession sequence", HFILL }},
-	{ &hf_h225_cryptoTokens,
-		{ "cryptoTokens", "h225.cryptoTokens", FT_NONE, BASE_NONE,
-		NULL, 0, "cryptoTokens sequence of", HFILL }},
 	{ &hf_h225_tunnelledProtocolObjectID,
 		{ "tunnelledProtocolObjectID", "h225.tunnelledProtocolObjectID", FT_STRING, BASE_NONE,
 		NULL, 0, "tunnelledProtocolObjectID object", HFILL }},
@@ -10213,7 +10473,7 @@ proto_register_h225(void)
 		NULL, 0, "OID of this ClearToken object", HFILL }},
 
 	{ &hf_h235_timeStamp,
-		{ "timeStamp", "h235.timeStamp", FT_STRING, BASE_NONE,
+		{ "timeStamp", "h235.timeStamp", FT_UINT32, BASE_DEC,
 		NULL, 0, "Timestamp of this object", HFILL }},
 
 	{ &hf_h235_password,
@@ -10239,6 +10499,26 @@ proto_register_h225(void)
 	{ &hf_h235_AuthenticationMechanism,
 		{ "AuthenticationMechanism", "h235.AuthenticationMechanism", FT_UINT32, BASE_DEC,
 		VALS(AuthenticationMechanism_vals), 0, "AuthenticationMechanism choice", HFILL }},
+
+	{ &hf_h235_CryptoToken,
+		{ "CryptoToken", "h235.CryptoToken", FT_UINT32, BASE_DEC,
+		VALS(CryptoToken_vals), 0, "CryptoToken choice", HFILL }},
+
+	{ &hf_h235_cryptoEncryptedToken,
+		{ "cryptoEncryptedToken", "h235.cryptoEncryptedToken", FT_NONE, BASE_NONE,
+		NULL, 0, "cryptoEncryptedToken SEQUENCE", HFILL }},
+
+	{ &hf_h235_HASHED,
+		{ "HASHED", "h235.HASHED", FT_NONE, BASE_NONE,
+		NULL, 0, "HASHED SEQUENCE", HFILL }},
+
+	{ &hf_h235_Params,
+		{ "Params", "h235.Params", FT_NONE, BASE_NONE,
+		NULL, 0, "H235 Params sequence", HFILL }},
+
+	{ &hf_h235_ranInt,
+		{ "ranInt", "h235.ranInt", FT_UINT32, BASE_DEC,
+		NULL, 0, "A random integer", HFILL }},
 /*ddd*/
 	};
 
@@ -10273,6 +10553,7 @@ proto_register_h225(void)
 		&ett_h225_RasMessage,
 		&ett_h225_GatekeeperRejectReason,
 		&ett_h225_PresentationIndicator,
+		&ett_h225_CryptoH323Token,
 		&ett_h225_conferenceGoal,
 		&ett_h225_ScnConnectionType,
 		&ett_h225_ScnConnectionAggregation,
@@ -10296,6 +10577,7 @@ proto_register_h225(void)
 		&ett_h225_InfoRequestNakReason,
 		&ett_h225_SCRresult,
 		&ett_h225_GatekeeperInfo,
+		&ett_h225_cryptoEPPwdHash,
 		&ett_h225_SecurityCapabilities_tls,
 		&ett_h225_SecurityCapabilities_ipsec,
 		&ett_h225_RasUsageInfoTypes,
@@ -10318,6 +10600,7 @@ proto_register_h225(void)
 		&ett_h225_CallIdentifier,
 		&ett_h225_CallLinkage,
 		&ett_h225_tokens,
+		&ett_h225_CryptoH323Tokens,
 		&ett_h225_AlternateGK,
 		&ett_h225_alternateGatekeeper,
 		&ett_h225_AltGKInfo,
@@ -10329,7 +10612,6 @@ proto_register_h225(void)
 		&ett_h225_QseriesOptions,
 		&ett_h225_associatedSessionIds,
 		&ett_h225_RTPSession,
-		&ett_h225_cryptoTokens,
 		&ett_h225_StatusUUIE,
 		&ett_h225_StatusInquiryUUIE,
 		&ett_h225_SetupAcknowledgeUUIE,
@@ -10513,6 +10795,10 @@ proto_register_h225(void)
 		&ett_h235_NonStandardParameter,
 		&ett_h235_AuthenticationMechanisms,
 		&ett_h235_AuthenticationMechanism,
+		&ett_h235_CryptoToken,
+		&ett_h235_cryptoEncryptedToken,
+		&ett_h235_HASHED,
+		&ett_h235_Params,
 /*eee*/
 	};
 	module_t *h225_module;
