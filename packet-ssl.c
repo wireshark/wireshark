@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.11 2001/12/10 00:25:36 guy Exp $
+ * $Id: packet-ssl.c,v 1.12 2002/01/04 07:01:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,10 @@
 #endif
 
 #include "conversation.h"
+#include "prefs.h"
+
+static gboolean ssl_desegment = TRUE;
+
 
 /*********************************************************************
  *
@@ -670,6 +674,10 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
 
+        /* Desegmentation return check */
+        if (pinfo->desegment_len > 0)
+          return;
+
         /* If we haven't already set the version information for
          * this conversation, do so. */
         if (conv_data == NULL)
@@ -720,6 +728,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     guint8 next_byte;
     proto_tree *ti              = NULL;
     proto_tree *ssl_record_tree = NULL;
+    guint32 available_bytes     = 0;
 
     /*
      * Get the record layer fields of interest
@@ -728,11 +737,26 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     version       = tvb_get_ntohs(tvb, offset + 1);
     record_length = tvb_get_ntohs(tvb, offset + 3);
 
+    if (ssl_is_valid_content_type(content_type)) {
+
+        /*
+         *   Desegmentation test
+         */
+        available_bytes = tvb_length_remaining(tvb, offset + 5);
+        if (ssl_desegment
+            && pinfo->can_desegment
+            && available_bytes < record_length) {
+
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len    = record_length - available_bytes;
+            return offset;
+        }
+      
+    } else {
+      
     /* if we don't have a valid content_type, there's no sense
      * continuing any further
      */
-    if (!ssl_is_valid_content_type(content_type))
-    {
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
 
@@ -744,6 +768,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         }
         return offset + 5 + record_length;
     }
+
 
     /*
      * If GUI, fill in record layer part of tree
@@ -1509,11 +1534,12 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     guint32 initial_offset       = offset;
     guint8  byte                 = 0;
     guint8  record_length_length = 0;
-    gint32  record_length        = -1;
+    guint32 record_length        = 0;
     gint    is_escape            = -1;
     gint16  padding_length       = -1;
     guint8  msg_type             = 0;
     gchar   *msg_type_str        = NULL;
+    guint32 available_bytes      = 0;
 
     proto_tree *ti;
     proto_tree *ssl_record_tree = NULL;
@@ -1548,6 +1574,19 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         record_length += byte;
         byte = tvb_get_guint8(tvb, offset++);
         padding_length = byte;
+    }
+
+    /*
+     *   Desegmentation test
+     */
+    available_bytes = tvb_length_remaining(tvb, offset);
+    if (ssl_desegment
+        && pinfo->can_desegment
+        && available_bytes < record_length) {
+
+        pinfo->desegment_offset = offset;
+        pinfo->desegment_len    = record_length - available_bytes;
+        return offset;
     }
 
     /* add the record layer subtree header */
@@ -1602,7 +1641,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
      * tree by adding the length, is_escape boolean and padding_length,
      * if present in the original packet
      */
-    if (ssl_record_tree && record_length != -1)
+    if (ssl_record_tree)
     {
         /* add the record length */
         ti = proto_tree_add_uint (ssl_record_tree,
@@ -2529,6 +2568,15 @@ proto_register_ssl(void)
      * subtrees used */
     proto_register_field_array(proto_ssl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    {
+      module_t *ssl_module = prefs_register_protocol(proto_ssl, NULL);
+      prefs_register_bool_preference(ssl_module,
+                                     "desegment_ssl_records",
+                                     "Desegment SSL records",
+                                     "When enabled, SSL records that span multiple TCP segments are desegmented",
+                                     &ssl_desegment);
+    }
 }
 
 /* If this dissector uses sub-dissector registration add a registration
