@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.23 2001/04/15 07:30:03 guy Exp $
+ * $Id: packet-ldap.c,v 1.24 2001/04/15 07:35:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -157,10 +157,8 @@ static int read_sequence(ASN1_SCK *a, guint *len)
 {
   guint cls, con, tag;
   gboolean def;
-  int start;
   guint length;
   
-  start = a->offset;
   if (asn1_header_decode(a, &cls, &con, &tag, &def, &length) != ASN1_ERR_NOERROR)
     return 1;
   if (cls != ASN1_UNI || con != ASN1_CON || tag != ASN1_SEQ)
@@ -948,7 +946,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
        case LDAP_REQ_SEARCH:
         ret = dissect_ldap_request_search(&a, msg_tree);
-        /* XXX - do somethign with "ret" */
+        /* XXX - do something with "ret" */
         break;
        case LDAP_REQ_ADD:
         dissect_ldap_request_add(&a, msg_tree);
