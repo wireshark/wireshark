@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.433 2004/05/07 12:15:24 ulfl Exp $
+ * $Id: main.c,v 1.434 2004/05/13 15:28:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,9 +157,8 @@ GtkStyle *item_style;
 #endif
 
 #ifdef WIN32
-static gboolean has_no_console;	/* TRUE if app has no console */
-static gboolean console_was_created; /* TRUE if console was created */
-static void create_console(void);
+static gboolean has_console;	/* TRUE if app has console */
+/*static void create_console(void);*/
 static void destroy_console(void);
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
@@ -2064,6 +2063,12 @@ main(int argc, char *argv[])
     pf_path = NULL;
   }
 
+#ifdef _WIN32
+  if (prefs->gui_console_open == console_open_always) {
+    create_console();
+  }
+#endif
+
 #ifdef HAVE_LIBPCAP
   capture_opts.has_snaplen = FALSE;
   capture_opts.snaplen = MIN_PACKET_SIZE;
@@ -2374,8 +2379,7 @@ main(int argc, char *argv[])
       case 'v':        /* Show version and exit */
         show_version();
 #ifdef WIN32
-        if (console_was_created)
-          destroy_console();
+        destroy_console();
 #endif
         exit(0);
         break;
@@ -2946,8 +2950,7 @@ main(int argc, char *argv[])
   /* For some unknown reason, the "atexit()" call in "create_console()"
      doesn't arrange that "destroy_console()" be called when we exit,
      so we call it here if a console was created. */
-  if (console_was_created)
-    destroy_console();
+  destroy_console();
 #endif
 
   gtk_exit(0);
@@ -2976,7 +2979,7 @@ WinMain (struct HINSTANCE__ *hInstance,
 	 char               *lpszCmdLine,
 	 int                 nCmdShow)
 {
-  has_no_console = TRUE;
+  has_console = FALSE;
   return main (__argc, __argv);
 }
 
@@ -2984,10 +2987,10 @@ WinMain (struct HINSTANCE__ *hInstance,
  * If this application has no console window to which its standard output
  * would go, create one.
  */
-static void
+void
 create_console(void)
 {
-  if (has_no_console) {
+  if (!has_console && prefs.gui_console_open != console_open_never) {
     /* We have no console to which to print the version string, so
        create one and make it the standard input, output, and error. */
     if (!AllocConsole())
@@ -2997,8 +3000,7 @@ create_console(void)
     freopen("CONOUT$", "w", stderr);
 
     /* Well, we have a console now. */
-    has_no_console = FALSE;
-    console_was_created = TRUE;
+    has_console = TRUE;
 
     /* Now register "destroy_console()" as a routine to be called just
        before the application exits, so that we can destroy the console
@@ -3012,9 +3014,11 @@ create_console(void)
 static void
 destroy_console(void)
 {
-  printf("\n\nPress any key to exit\n");
-  _getch();
-  FreeConsole();
+  if (has_console) {
+    printf("\n\nPress any key to exit\n");
+    _getch();
+    FreeConsole();
+  }
 }
 
 /* This routine should not be necessary, at least as I read the GLib
@@ -3032,7 +3036,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 		    const char *message, gpointer user_data)
 {
   create_console();
-  if (console_was_created) {
+  if (has_console) {
     /* For some unknown reason, the above doesn't appear to actually cause
        anything to be sent to the standard output, so we'll just splat the
        message out directly, just to make sure it gets out. */

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.131 2004/05/05 07:31:05 guy Exp $
+ * $Id: prefs.c,v 1.132 2004/05/13 15:28:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,6 +86,9 @@ static gchar	*gui_ptree_expander_style_text[] =
 
 static gchar	*gui_hex_dump_highlight_style_text[] =
 	{ "BOLD", "INVERSE", NULL };
+
+static gchar	*gui_console_open_text[] =
+	{ "NEVER", "AUTOMATIC", "ALWAYS", NULL };
 
 static gchar	*gui_fileopen_style_text[] =
 	{ "LAST_OPENED", "SPECIFIED", NULL };
@@ -990,6 +993,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_geometry_save_position =         0;
     prefs.gui_geometry_save_size     =         1;
     prefs.gui_geometry_save_maximized=         1;
+    prefs.gui_console_open           = console_open_never;
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_files_count_max = 10;
     prefs.gui_fileopen_dir           = g_strdup("");
@@ -1287,6 +1291,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_FONT_NAME_2              "gui.gtk2.font_name"
 #define PRS_GUI_MARKED_FG                "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG                "gui.marked_frame.bg"
+#define PRS_GUI_CONSOLE_OPEN             "gui.console_open"
 #define PRS_GUI_FILEOPEN_STYLE           "gui.fileopen.style"
 #define PRS_GUI_RECENT_COUNT_MAX         "gui.recent_files_count.max"
 #define PRS_GUI_FILEOPEN_DIR             "gui.fileopen.dir"
@@ -1596,6 +1601,10 @@ set_pref(gchar *pref_name, gchar *value)
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_Y) == 0) {         /* deprecated */
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_WIDTH) == 0) {     /* deprecated */
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {    /* deprecated */
+  } else if (strcmp(pref_name, PRS_GUI_CONSOLE_OPEN) == 0) {
+    prefs.gui_console_open =
+	find_index_from_string_array(value, gui_console_open_text,
+				     console_open_never);
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_STYLE) == 0) {
     prefs.gui_fileopen_style =
 	find_index_from_string_array(value, gui_fileopen_style_text,
@@ -2200,6 +2209,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
 		  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
                   
+  fprintf(pf, "\n# Open a console window (WIN32 only)?\n");
+  fprintf(pf, "# One of: NEVER, AUTOMATIC, ALWAYS\n");
+  fprintf(pf, PRS_GUI_CONSOLE_OPEN ": %s\n",
+		  gui_console_open_text[prefs.gui_console_open]);
+
   fprintf(pf, "\n# Where to start the File Open dialog box.\n");
   fprintf(pf, "# One of: LAST_OPENED, SPECIFIED\n");
   fprintf(pf, PRS_GUI_FILEOPEN_STYLE ": %s\n",
@@ -2319,6 +2333,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;
   dest->gui_toolbar_main_style = src->gui_toolbar_main_style;
   dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
+  dest->gui_console_open = src->gui_console_open;
   dest->gui_fileopen_style = src->gui_fileopen_style;
   dest->gui_layout_type = src->gui_layout_type;
   dest->gui_layout_content_1 = src->gui_layout_content_1;

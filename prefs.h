@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.61 2004/05/09 10:03:37 guy Exp $
+ * $Id: prefs.h,v 1.62 2004/05/13 15:28:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,6 +90,15 @@ typedef enum {
     layout_pane_content_pbytes
 } layout_pane_content_e;
 
+/*
+ * open console behaviour (win32 only)
+ */
+typedef enum {
+    console_open_never,
+    console_open_auto,
+    console_open_always,
+} console_open_e;
+
 
 typedef struct _e_prefs {
   gint     pr_format;
@@ -115,6 +124,7 @@ typedef struct _e_prefs {
   gboolean gui_geometry_save_position;
   gboolean gui_geometry_save_size;
   gboolean gui_geometry_save_maximized;
+  console_open_e gui_console_open;
   guint    gui_fileopen_style;
   guint    gui_recent_files_count_max;
   gchar	   *gui_fileopen_dir;

@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.68 2004/04/29 16:35:15 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.69 2004/05/13 15:28:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define GEOMETRY_SIZE_KEY		"geometry_size"
 #define GEOMETRY_MAXIMIZED_KEY		"geometry_maximized"
 
+#define GUI_CONSOLE_OPEN_KEY "console_open"
 #define GUI_FILEOPEN_KEY	"fileopen_behavior"
 #define GUI_RECENT_FILES_COUNT_KEY "recent_files_count"
 #define GUI_FILEOPEN_DIR_KEY	"fileopen_directory"
@@ -129,6 +130,15 @@ static const enum_val_t toolbar_style_vals[] = {
 	{ NULL,             0 }
 };
 
+#ifdef _WIN32
+static const enum_val_t gui_console_open_vals[] = {
+	{ "Never",                      console_open_never },
+	{ "Automatic (advanced user)",  console_open_auto },
+	{ "Always (debugging)",         console_open_always },
+	{ NULL,                         0 }
+};
+#endif
+
 static const enum_val_t gui_fileopen_vals[] = {
 	{ "Remember last directory", FO_STYLE_LAST_OPENED },
 	{ "Always start in:", FO_STYLE_SPECIFIED },
@@ -162,6 +172,9 @@ gui_prefs_show(void)
 	GtkWidget *main_tb, *main_vb, *hbox;
 	GtkWidget *scrollbar_om, *plist_browse_om;
 	GtkWidget *ptree_browse_om, *highlight_style_om;
+#ifdef _WIN32
+	GtkWidget *console_open_om;
+#endif
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
     GtkWidget *filter_toolbar_placement_om;
 	GtkWidget *recent_files_count_max_te;
@@ -263,6 +276,14 @@ gui_prefs_show(void)
 	save_maximized_cb = create_preference_check_button(main_tb, pos++,
 	    "Save maximized state:", NULL, prefs.gui_geometry_save_maximized);
 	OBJECT_SET_DATA(main_vb, GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
+
+#ifdef _WIN32
+	/* How the console window should be opened */
+    console_open_om = create_preference_option_menu(main_tb, pos++,
+       "Open a console window", NULL,
+       gui_console_open_vals, prefs.gui_console_open);
+	OBJECT_SET_DATA(main_vb, GUI_CONSOLE_OPEN_KEY, console_open_om);
+#endif
 
 	/* Allow user to select where they want the File Open dialog to open to
 	 * by default */
@@ -451,6 +472,10 @@ gui_prefs_fetch(GtkWidget *w)
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_SIZE_KEY));
 	prefs.gui_geometry_save_maximized =
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_MAXIMIZED_KEY));
+#ifdef _WIN32
+	prefs.gui_console_open = fetch_enum_value(
+	    OBJECT_GET_DATA(w, GUI_CONSOLE_OPEN_KEY), gui_console_open_vals);
+#endif
 	prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
 	    OBJECT_GET_DATA(w, GUI_FILEOPEN_KEY), gui_fileopen_vals);
 	    
@@ -480,6 +505,12 @@ gui_prefs_fetch(GtkWidget *w)
 void
 gui_prefs_apply(GtkWidget *w _U_)
 {
+
+#ifdef _WIN32
+    if (prefs.gui_console_open == console_open_always) {
+        create_console();
+    }
+#endif
 
 	if (font_changed) {
 		/* This redraws the hex dump windows. */
