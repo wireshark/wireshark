@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.52 2002/08/13 05:38:04 tpot Exp $
+ * $Id: packet-http.c,v 1.53 2002/08/13 09:10:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,7 +132,7 @@ base64_to_tvb(char *base64)
 {
 	tvbuff_t *tvb;
 	char *data = g_strdup(base64);
-	ssize_t len;
+	size_t len;
 
 	len = base64_decode(data);
 	tvb = tvb_new_real_data(data, len, len);
