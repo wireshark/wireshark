@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.66 2002/07/10 02:59:38 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.67 2002/07/10 06:16:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,10 +93,13 @@ static const true_false_string flags_set_truth = {
 /*
  * Authentication services.
  */
+#define DCE_C_RPC_AUTHN_PROTOCOL_NONE		0
+#define DCE_C_RPC_AUTHN_PROTOCOL_KRB5		1
+#define DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP	10
 static const value_string authn_protocol_vals[] = {
-	{ 0, "None" },
-	{ 1, "Kerberos 5" },
-	{ 10, "NTLMSSP" },
+	{ DCE_C_RPC_AUTHN_PROTOCOL_NONE,    "None" },
+	{ DCE_C_RPC_AUTHN_PROTOCOL_KRB5,    "Kerberos 5" },
+	{ DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP, "NTLMSSP" },
 	{ 0, NULL }
 };
 
@@ -1343,16 +1346,22 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                         hf_dcerpc_auth_ctx_id, NULL);
 
-	/* Dissect NTLMSSP Parameters if the auth_type is 10 and this is a
-	   BIND request, BIND response, or AUTH3)
+	/* Dissect the authentication data as NTLMSSP Parameters if the
+	   auth_type is DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP and this is a
+	   BIND request, BIND response, or AUTH3.
+	   Otherwise just show it as "Auth Data".
+	   XXX - dissect it for other authentication types?
 	*/
-	if ((auth_type == 10) &&
+	if ((auth_type == DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP) &&
 	    ((hdr->ptype == PDU_BIND) || (hdr->ptype == PDU_BIND_ACK) ||
 	     (hdr->ptype == PDU_AUTH3))) {
-	  tvbuff_t *ntlmssp_tvb;
-	  ntlmssp_tvb=tvb_new_subset(tvb, offset, hdr->auth_len,
-				     hdr->auth_len);
-	  call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, dcerpc_tree);
+	    tvbuff_t *ntlmssp_tvb;
+	    ntlmssp_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
+					 hdr->auth_len);
+	    call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, dcerpc_tree);
+	} else {
+            proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
+                                 "Auth Data");
 	}
 
         /* figure out where the auth padding starts */
@@ -2346,9 +2355,6 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_cancel_pending, tvb, offset, 1, hdr.flags);
             proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_last_frag, tvb, offset, 1, hdr.flags);
             proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_first_frag, tvb, offset, 1, hdr.flags);
-
-
-
         }
         offset++;
 
@@ -2923,7 +2929,6 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_boolean (dg_flags1_tree, hf_dcerpc_dg_flags1_frag, tvb, offset, 1, hdr.flags1);
             proto_tree_add_boolean (dg_flags1_tree, hf_dcerpc_dg_flags1_last_frag, tvb, offset, 1, hdr.flags1);
             proto_tree_add_boolean (dg_flags1_tree, hf_dcerpc_dg_flags1_rsrvd_01, tvb, offset, 1, hdr.flags1);
-
         }
     }
     offset++;
