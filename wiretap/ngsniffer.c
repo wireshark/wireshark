@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.61 2001/01/17 18:58:42 jfoster Exp $
+ * $Id: ngsniffer.c,v 1.62 2001/01/17 21:29:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -443,7 +443,9 @@ int ngsniffer_open(wtap *wth, int *err)
 
 	/*
 	 * We don't know how to handle the remaining header record types,
-	 * so we just skip them
+	 * so we just skip them - except for REC_HEADER2 records, which
+	 * we look at, for "Internetwork analyzer" captures, to attempt to
+	 * determine what the link-layer encapsulation is.
 	 */
 	if (skip_header_records(wth, err, version.maj_vers) < 0)
 		return -1;
