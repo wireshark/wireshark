@@ -1,13 +1,14 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.21 2001/04/10 21:49:23 guy Exp $
+ * $Id: packet-diameter.c,v 1.22 2001/05/27 21:38:46 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
  * Ethereal - Network traffic analyzer
- * By Johan Feyaerts
- * Copyright 1999 Johan Feyaerts
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
