@@ -27,6 +27,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* Information sources:
+ * http://www.ox.compsoc.net/~glyn/rdt/
+ * http://www.eurescom.de/~pub-deliverables/P900-series/P913/D2appendices/p913d2appf.pdf
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
