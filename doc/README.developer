@@ -400,6 +400,18 @@ the length was added to it, if the length field is greater than 24 bits
 long, so that, if the length value is *very* large and adding it to the
 offset causes an overflow, that overflow is detected.
 
+If you are fetching a length field from the buffer, corresponding to the
+length of a portion of the packet, and subtracting from that length a
+value corresponding to the length of, for example, a header in the
+packet portion in question, *ALWAYS* check that the value of the length
+field is greater than or equal to the length you're subtracting from it,
+and report an error in the packet and stop dissecting the packet if it's
+less than the length you're subtracting from it.  Otherwise, the
+resulting length value will be negative, which will either cause errors
+in the dissector or routines called by the dissector, or, if the value
+is interpreted as an unsigned integer, will cause the value to be
+interpreted as a very large positive value.
+
 Any tvbuff offset that is added to as processing is done on a packet
 should be stored in a 32-bit variable, such as an "int"; if you store it
 in an 8-bit or 16-bit variable, you run the risk of the variable
