@@ -21,7 +21,7 @@
  *
  *      http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-referrals-03.txt
  *
- * $Id: packet-kerberos.c,v 1.54 2004/04/05 00:28:41 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.55 2004/04/05 00:49:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2564,19 +2564,77 @@ dissect_krb5_AP_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 
 
 
+static guint32 KDC_REP_etype;
+static int 
+dissect_krb5_KDC_REP_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_integer(pinfo, tree, tvb, offset, hf_krb_etype, &KDC_REP_etype);
+	if(tree){
+		proto_item_append_text(tree, " %s", 
+			val_to_str(KDC_REP_etype, krb5_encryption_types,
+			"%#x"));
+	}
+	return offset;
+}
 
+#ifdef HAVE_KERBEROS
+static int
+dissect_krb5_decrypt_KDC_REP_data (packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	guint8 *plaintext=NULL;
+	int length;
+
+	length=tvb_length_remaining(tvb, offset);
+
+	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
+	 * 7.5.1
+	 * ASREP/TGSREP encryptedparts are encrypted with usage 
+	 * == 3 or
+	 * == 8 or
+         * == 9
+	 */
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(pinfo, 3, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
+	}
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(pinfo, 8, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
+	}
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(pinfo, 9, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
+	}
+
+	if(plaintext){
+		tvbuff_t *next_tvb;
+		next_tvb = tvb_new_real_data (plaintext,
+                                          length,
+                                          length);
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+            
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(pinfo, next_tvb, "Decrypted Krb5");
+            
+
+		offset=dissect_ber_choice(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1);
+
+	}
+	return offset;
+}
+#endif
 
 
 static int
 dissect_krb5_encrypted_KDC_REP_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, NULL);
+#ifdef HAVE_KERBEROS
+	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, dissect_krb5_decrypt_KDC_REP_data);
+#else
+	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, NULL);
+#endif
 	return offset;
-/*qqq*/
 }
 static ber_sequence encrypted_KDC_REP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, 
-		dissect_krb5_etype },
+		dissect_krb5_KDC_REP_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
 		dissect_krb5_kvno },
 	{ BER_CLASS_CON, 2, 0,
