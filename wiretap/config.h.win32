@@ -1,9 +1,23 @@
-
 /* Define if you have the ANSI C header files.  */
 #define STDC_HEADERS 1
 
-/* Define if you have the <unistd.h> header file.  */
-/* #define HAVE_UNISTD_H */
+/* Define if your processor stores words with the most significant
+   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
+/* #undef WORDS_BIGENDIAN */
+
+/* Define if lex declares yytext as a char * by default, not a char[].  */
+#define YYTEXT_POINTER 1
+
+/* #undef HAVE_GLIB10 */
+
+/* Define if you have the <netinet/in.h> header file.  */
+/* #undef HAVE_NETINET_IN_H */
+
+/* Define if you have the <sys/time.h> header file.  */
+/* #undef HAVE_SYS_TIME_H */
+
+/* Define if you have the z library (-lz).  */
+/* #undef HAVE_LIBZ */
 
 /* Name of package */
 #define PACKAGE "libwtap.a"
