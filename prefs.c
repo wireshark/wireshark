@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.73 2001/11/19 19:53:14 gram Exp $
+ * $Id: prefs.c,v 1.74 2001/12/08 01:45:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1342,9 +1342,17 @@ set_pref(gchar *pref_name, gchar *value)
          * XXX - "Diameter" rather than "diameter" was used in earlier
          * versions of Ethereal; if we didn't find the module, and its name
          * was "Diameter", look for "diameter" instead.
+         *
+         * In addition, the BEEP protocol used to be the BXXP protocol,
+         * so if we didn't find the module, and its name was "bxxp",
+         * look for "beep" instead.
          */
-        if (module == NULL && strcmp(pref_name, "Diameter") == 0)
-          module = find_module("diameter");
+        if (module == NULL) {
+          if (strcmp(pref_name, "Diameter") == 0)
+            module = find_module("diameter");
+          else if (strcmp(pref_name, "bxxp") == 0)
+            module = find_module("beep");
+        }
         *dotp = '.';		/* put the preference string back */
         dotp++;			/* skip past separator to preference name */
         last_dotp = dotp;

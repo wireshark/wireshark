@@ -1271,6 +1271,7 @@ B<http://www.ethereal.com>.
   Taisuke Sasaki           <sasaki[AT]soft.net.fujitsu.co.jp>
   Tim Newsham              <newsham[AT]lava.net>
   Tom Nisbet               <Tnisbet[AT]VisualNetworks.com>
+  Darren New               <dnew[AT]san.rr.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

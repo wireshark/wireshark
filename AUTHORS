@@ -936,6 +936,10 @@ Tom Nisbet <Tnisbet[AT]VisualNetworks.com> {
 	Support for reading Visual Networks traffic capture files
 }
 
+Darren New <dnew[AT]san.rr.com> {
+	BXXP dissector modified to be a BEEP dissector
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
