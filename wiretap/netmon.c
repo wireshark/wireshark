@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.27 2000/03/22 09:52:21 guy Exp $
+ * $Id: netmon.c,v 1.28 2000/03/22 23:47:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -126,6 +126,9 @@ int netmon_open(wtap *wth, int *err)
 	guint32 frame_table_length;
 	int frame_table_size;
 	guint32 *frame_table;
+#ifdef WORDS_BIGENDIAN
+	int i;
+#endif
 
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
