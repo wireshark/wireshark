@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.9 2000/10/21 05:52:21 guy Exp $
+ * $Id: packet-bxxp.c,v 1.10 2000/10/24 20:23:16 sharpe Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -799,7 +799,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* Insert MIME header ... */
 
     if (frame_data && frame_data->mime_hdr)
-      offset += dissect_bxxp_mime_header(tvb, offset, pinfo->fd, hdr);
+      offset += dissect_bxxp_mime_header(tvb, offset, frame_data, hdr);
 
     /* Now for the payload, if any */
 
