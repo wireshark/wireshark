@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.180 2001/12/06 06:35:31 guy Exp $
+ * $Id: packet-smb.c,v 1.181 2001/12/06 07:04:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -832,6 +832,7 @@ static GMemChunk *smb_transact_info_chunk = NULL;
 static int smb_transact_info_init_count = 200;
 
 static GMemChunk *conv_tables_chunk = NULL;
+static GSList *conv_tables = NULL;
 static int conv_tables_count = 10;
 
 
@@ -11579,9 +11580,18 @@ static char *decode_smb_name(unsigned char cmd)
  * XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 
-/*
- * Struct passed to each SMB decode routine of info it may need
- */
+static void
+free_hash_tables(gpointer ctarg, gpointer user_data)
+{
+	conv_tables_t *ct = ctarg;
+
+	if (ct->unmatched)
+		g_hash_table_destroy(ct->unmatched);
+	if (ct->matched)
+		g_hash_table_destroy(ct->matched);
+	if (ct->dcerpc_fid_to_frame)
+		g_hash_table_destroy(ct->dcerpc_fid_to_frame);
+}
 
 static void
 smb_init_protocol(void)
@@ -11596,6 +11606,24 @@ smb_init_protocol(void)
 		g_mem_chunk_destroy(smb_transact2_info_chunk);
 	if (smb_transact_info_chunk)
 		g_mem_chunk_destroy(smb_transact_info_chunk);
+
+	/*
+	 * Free the hash tables attached to the conversation table
+	 * structures, and then free the list of conversation table
+	 * data structures (which doesn't free the data structures
+	 * themselves; that's done by destroying the chunk from
+	 * which they were allocated).
+	 */
+	if (conv_tables) {
+		g_slist_foreach(conv_tables, free_hash_tables, NULL);
+		g_slist_free(conv_tables);
+		conv_tables = NULL;
+	}
+
+	/*
+	 * Now destroy the chunk from which the conversation table
+	 * structures were allocated.
+	 */
 	if (conv_tables_chunk)
 		g_mem_chunk_destroy(conv_tables_chunk);
 
@@ -12883,6 +12911,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		conversation = conversation_new(&pinfo->src, &pinfo->dst, 
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 		si.ct = g_mem_chunk_alloc(conv_tables_chunk);
+		conv_tables = g_slist_prepend(conv_tables, si.ct);
 		si.ct->matched= g_hash_table_new(smb_saved_info_hash_matched, 
 			smb_saved_info_equal_matched);
 		si.ct->unmatched= g_hash_table_new(smb_saved_info_hash_unmatched, 
