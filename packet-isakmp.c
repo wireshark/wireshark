@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.36 2001/02/28 10:22:29 guy Exp $
+ * $Id: packet-isakmp.c,v 1.37 2001/04/04 02:52:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -336,7 +336,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             &next_payload, &payload_length, isakmp_tree);
         if (ntree == NULL)
           break;
-        if (payload_length >= 4) {
+        if (payload_length >= 4) {	/* XXX = > 4? */
           if (payload < NUM_LOAD_TYPES) {
             if (next_payload == LOAD_TYPE_TRANSFORM)
               dissect_transform(tvb, offset + 4, payload_length - 4, ntree, 0);
@@ -348,6 +348,12 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
                 "Payload");
           }
+        }
+        else {
+            proto_tree_add_text(ntree, tvb, offset + 4, 0,
+                "Payload (bogus, length is %u, must be at least 4)",
+                payload_length);
+            payload_length = 4;
         }
         offset += payload_length;
         len -= payload_length;
