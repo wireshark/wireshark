@@ -329,9 +329,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* We'll then delete from the array all the stat_infos that do not belong to this frame */ 
 	i = stat_infos->len;
-	do {
-		if (i==0) break;
-		
+	while (i) {		
 		--i;
 		
 		si = g_ptr_array_index(stat_infos,i);
@@ -343,7 +341,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (si->http_host) g_free(si->http_host);
 			g_free(si);
 		}
-	} while (i);
+	}
 	
 	/* then we'll add the current stat_info to the array */
 	g_ptr_array_add(stat_infos,stat_info);
