@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.119 2003/12/03 09:28:25 guy Exp $
+ * $Id: menu.c,v 1.120 2003/12/03 19:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,8 +113,8 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_SAVE),
     ITEM_FACTORY_STOCK_ENTRY("/File/Save _As...", "<shift><control>S", file_save_as_cmd_cb,
                              0, GTK_STOCK_SAVE_AS),
-    ITEM_FACTORY_STOCK_ENTRY("/File/Save _Highlighted...", "<control>H", savehex_cb,
-                             0, NULL),
+    ITEM_FACTORY_ENTRY("/File/Save _Highlighted...", "<control>H", savehex_cb,
+                             0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", "<control>P", file_print_cmd_cb,
                              0, GTK_STOCK_PRINT),
@@ -439,7 +439,7 @@ menus_init(void) {
 
     /* main */
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
-    gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL,2);
+    gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
     register_all_tap_menus();	/* must be done after creating the main menu */
 
     /* Initialize enabled/disabled state of menu items */
