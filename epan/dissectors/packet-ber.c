@@ -134,12 +134,20 @@ register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *na
 	dissector_add_string("ber.oid", oid, dissector_handle);
 	g_hash_table_insert(oid_table, oid, name);
 }
-/* Register the oid name to get a nice translation in proto dissection */
+/* Register the oid name to get translation in proto dissection */
 void
 register_ber_oid_name(char *oid, char *name)
 {
 	g_hash_table_insert(oid_table, oid, name);
 }
+
+/* Get oid name fom has table to get translation in proto dissection(packet-per.c) */
+char *
+get_ber_oid_name(char *oid)
+{
+	return g_hash_table_lookup(oid_table, oid);
+}
+
 int
 call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {

@@ -40,6 +40,7 @@ proper helper routines
 
 #include <epan/prefs.h>
 #include "packet-per.h"
+#include "packet-ber.h"
 
 
 static int proto_per = -1;
@@ -539,10 +540,11 @@ guint32
 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *value_string)
 {
 	int i,count;
-	char str[256],*strp;
+	char str[256],*strp,*name;
 	guint8 byte;
 	guint32 value;
 	proto_tree *etr=NULL;
+	proto_item *item;
 
 DEBUG_ENTRY("dissect_per_object_identifier");
 
@@ -591,7 +593,14 @@ PER_NOT_DECODED_YET("too long octet_string");
 	}
 	*strp=0;
 
-	proto_tree_add_string(tree, hf_index, tvb, (offset>>3)-count, count, str);
+	item=proto_tree_add_string(tree, hf_index, tvb, (offset>>3)-count, count, str);
+	/* see if we know the name of this oid */
+	if(item){
+		name = get_ber_oid_name(str);
+		if(name){
+			proto_item_append_text(item, " (%s)", name);
+		}
+	}
 
 	if (value_string) {
 		strcpy(value_string, str);

@@ -162,5 +162,6 @@ int call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pin
 void register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name);
 void register_ber_oid_name(char *oid, char *name);
 void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+char * get_ber_oid_name(char *str);
 
 #endif  /* __PACKET_BER_H__ */
