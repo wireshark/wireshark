@@ -1,0 +1,116 @@
+#!/usr/bin/perl -w
+#
+# $Id: make-manuf,v 1.1 2000/11/23 18:22:00 gerald Exp $
+#
+# Make-manuf - Creates a file containing ethernet OUIs and their
+# company IDs.  It merges the databases at
+# http://standards.ieee.org/regauth/oui/index.shtml and
+# http://www.cavebear.com/CaveBear/Ethernet/
+# with entries in our template file.
+#
+# The script reads the comments at the top of "manuf.tmpl" and writes
+# them to "manuf".  It then joins the manufacturer listing in "manuf.tmpl"
+# with the listing in "oui.txt", with the entries in "manuf.tmpl" taking
+# precedence.
+
+eval "require LWP::UserAgent;";
+if( $@ ) {
+  die "LWP isn't installed.  Bailing.\n";
+}
+
+$template = "manuf.tmpl";
+$outfile  = "manuf";
+$inheader = 1;
+$ieee_url = "http://standards.ieee.org/regauth/oui/oui.txt";
+$cb_url   = "http://www.cavebear.com/CaveBear/Ethernet/Ethernet.txt";
+%oui_list = ();
+$hp       = "[0-9a-fA-F]{2}";
+$oui_re   = "$hp:$hp:$hp";
+$cb_re    = "$hp$hp$hp";
+$ieee_re  = "$hp-$hp-$hp";
+
+$tmpl_added   = 0;
+$cb_added     = 0;
+$cb_skipped   = 0;
+$ieee_added   = 0;
+$ieee_skipped = 0;
+
+$agent    = LWP::UserAgent->new;
+
+print "Fetching $cb_url.\n";
+$request  = HTTP::Request->new(GET => $cb_url);
+$result   = $agent->request($request);
+
+if (!$result->is_success) {
+  die ("Error fetching $cb_url: " . $result->status_line . "\n");
+}
+$cb_list = $result->content;
+
+print "Fetching $ieee_url.\n";
+$request  = HTTP::Request->new(GET => $ieee_url);
+$result   = $agent->request($request);
+
+if (!$result->is_success) {
+  die ("Error fetching $ieee_url: " . $result->status_line . "\n");
+}
+$ieee_list = $result->content;
+
+open (TMPL, "< $template") || 
+  die "Couldn't open template file for reading ($template)\n";
+
+open (OUT, "> $outfile") ||
+  die "Couldn't open template file for writing ($template)\n";
+
+# Write out the header and populate the OUI list with our entries.
+while ($line = <TMPL>) {
+  chomp($line);
+  if ($line !~ /^$oui_re\s+\S/ && $inheader) {
+    print(OUT "$line\n");
+  } elsif (($oui, $manuf) = ($line =~ /^($oui_re)\s+(\S.*)$/)) {
+    $inheader = 0;
+    $oui_list{$oui} = $manuf;
+    $tmpl_added++;
+  }
+}
+
+foreach $line (split(/\n/, $cb_list)) {
+  if (($oui, $manuf) = ($line =~ /^($cb_re)\s+(\S.*)$/)) {
+    ($h1, $h2, $h3) = ($oui =~ /($hp)($hp)($hp)/);  # The CaveBear bytes have no separators
+    $oui = "$h1:$h2:$h3";
+    if (exists $oui_list{$oui}) {
+      printf "$oui - Skipping CaveBear \"$manuf\" in favor of \"$oui_list{$oui}\"\n";
+      $cb_skipped++;
+    } else {
+      $oui_list{$oui} = $manuf;
+      $cb_added++;
+    }
+  }
+}
+
+foreach $line (split(/\n/, $ieee_list)) {
+  if (($oui, $manuf) = ($line =~ /^($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
+    $oui =~ tr /-/:/;  # The IEEE bytes are separated by dashes.
+    if (exists $oui_list{$oui}) {
+      printf "$oui - Skipping IEEE \"$manuf\" in favor of \"$oui_list{$oui}\"\n";
+      $ieee_skipped++;
+    } else {
+      $oui_list{$oui} = $manuf;
+      $ieee_added++;
+    }
+  }
+}
+
+foreach $oui (sort(keys %oui_list)) {
+  print(OUT "$oui\t$oui_list{$oui}\n");
+}
+
+$total_added = $tmpl_added + $cb_added + $ieee_added;
+print <<"Fin"
+Original entries : $tmpl_added
+CaveBear added   : $cb_added
+IEEE added       : $ieee_added
+Total            : $total_added
+
+CaveBear skipped : $cb_skipped
+IEEE skipped     : $ieee_skipped
+Fin
