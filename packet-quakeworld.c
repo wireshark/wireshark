@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.17 2003/05/19 03:23:11 gerald Exp $
+ * $Id: packet-quakeworld.c,v 1.18 2003/07/25 04:17:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -360,7 +360,6 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item	*text_item = NULL;
 	proto_tree	*text_tree = NULL;
 	guint8		text[MAX_TEXT_SIZE+1];
-	int		maxbufsize = 0;
 	int		len;
 	int		offset;
 	guint32 marker;

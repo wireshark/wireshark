@@ -1,7 +1,7 @@
 /* packet-beep.c
  * Routines for BEEP packet disassembly
  *
- * $Id: packet-beep.c,v 1.12 2002/11/28 03:57:49 guy Exp $
+ * $Id: packet-beep.c,v 1.13 2003/07/25 04:17:36 gram Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  * Modified 2001 Darren New <dnew@invisible.net> for BEEP.
@@ -271,6 +271,7 @@ dissect_beep_more(tvbuff_t *tvb, int offset,
 
 }
 
+#if 0
 static void dissect_beep_status(tvbuff_t *tvb, int offset,
 				proto_tree *tree)
 {
@@ -304,6 +305,7 @@ static void dissect_beep_status(tvbuff_t *tvb, int offset,
   }
 
 }
+#endif
 
 static int num_len(tvbuff_t *tvb, int offset)
 {

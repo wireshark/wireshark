@@ -6,7 +6,7 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
- * $Id: packet-enip.c,v 1.2 2003/06/12 07:33:26 guy Exp $
+ * $Id: packet-enip.c,v 1.3 2003/07/25 04:17:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1797,7 +1797,7 @@ show_cdf( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset )
                {
                     temp_char = tvb_get_guint8( tvb, offset+10+i );
 
-                    if( temp_char == NULL )
+                    if( temp_char == '\0' )
                      break;
 
                     proto_item_append_text(temp_item, "%c", temp_char );

@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.15 2003/05/19 03:23:11 gerald Exp $
+ * $Id: packet-quake3.c,v 1.16 2003/07/25 04:17:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,7 +149,6 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_item	*text_item = NULL;
 	proto_tree	*text_tree = NULL;
 	guint8		text[2048];
-	int		maxbufsize = 0;
 	int		len;
 	int		offset;
 	guint32		marker;
