@@ -10,7 +10,7 @@
  *
  * Copyright 2003, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3mg.c,v 1.10 2003/09/06 00:05:30 guy Exp $
+ * $Id: packet-mtp3mg.c,v 1.11 2003/12/06 19:14:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,6 @@
 #include "prefs.h"
 
 #include <packet-mtp3.h>
-extern Standard_Type mtp3_standard;
 
 /* MTP3 Service Indicators used by this dissector */
 #define MTP3MG_SI 0
