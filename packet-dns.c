@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.117 2004/01/05 19:31:43 ulfl Exp $
+ * $Id: packet-dns.c,v 1.118 2004/01/20 00:11:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -890,20 +890,19 @@ static const value_string cert_vals[] = {
 
 /**
  *   Compute the key id of a KEY RR depending of the algorithm used.
- *   If we don't support the algorithm, return -1.
  */
-static int
+static guint16
 compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo) 
 {
   guint32 ac;
-  unsigned char c1, c2;
+  guint8 c1, c2;
 
   g_assert(size >= 4);
   
   switch( algo ) {
      case DNS_ALGO_RSAMD5:
-       return (tvb_get_guint8(tvb, offset + size - 3) << 8) + tvb_get_guint8( tvb, offset + size - 2 );
-     case DNS_ALGO_RSASHA1:
+       return (guint16)(tvb_get_guint8(tvb, offset + size - 3) << 8) + tvb_get_guint8( tvb, offset + size - 2 );
+     default:
        for (ac = 0; size > 1; size -= 2, offset += 2) {
 	 c1 = tvb_get_guint8( tvb, offset );
 	 c2 = tvb_get_guint8( tvb, offset + 1 );
@@ -914,9 +913,7 @@ compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
 	 ac += c1 << 8;
        }
        ac += (ac >> 16) & 0xffff;
-       return (ac & 0xffff);
-     default:
-       return -1;
+       return (guint16)(ac & 0xffff);
   }
 }
 
@@ -1330,7 +1327,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       proto_item *tf;
       proto_tree *flags_tree;
       guint8 algo;
-      int key_id;
+      guint16 key_id;
 
       if (dns_tree != NULL) {
 	if (rr_len < 2)
@@ -1395,11 +1392,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	rr_len -= 1;
 
 	key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-	if (key_id == -1)
-	  proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: Unknown (algorithm %s not supported)",
-		val_to_str(algo, algo_vals, "0x%02X"));
-	else
-	  proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %d", key_id);
+	proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %u", key_id);
 
 	if (rr_len != 0)
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
