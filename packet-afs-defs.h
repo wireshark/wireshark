@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.7 2001/03/26 15:27:55 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.8 2002/01/18 21:46:51 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -644,10 +644,23 @@ static int hf_afs_vldb_count = -1;
 static int hf_afs_vldb_numservers = -1;
 static int hf_afs_vldb_server = -1;
 static int hf_afs_vldb_serveruuid = -1;
+static int hf_afs_vldb_serveruniq = -1;
+static int hf_afs_vldb_serverflags = -1;
 static int hf_afs_vldb_partition = -1;
 static int hf_afs_vldb_rovol = -1;
 static int hf_afs_vldb_rwvol = -1;
 static int hf_afs_vldb_bkvol = -1;
+static int hf_afs_vldb_clonevol = -1;
+static int hf_afs_vldb_flags = -1;
+static int hf_afs_vldb_spare1 = -1;
+static int hf_afs_vldb_spare2 = -1;
+static int hf_afs_vldb_spare3 = -1;
+static int hf_afs_vldb_spare4 = -1;
+static int hf_afs_vldb_spare5 = -1;
+static int hf_afs_vldb_spare6 = -1;
+static int hf_afs_vldb_spare7 = -1;
+static int hf_afs_vldb_spare8 = -1;
+static int hf_afs_vldb_spare9 = -1;
 
 static int hf_afs_kauth_errcode = -1;
 static int hf_afs_kauth_princ = -1;

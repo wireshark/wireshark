@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.9 2002/01/18 21:30:05 nneul Exp $
+ * $Id: packet-afs-register-info.h,v 1.10 2002/01/18 21:46:51 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -381,6 +381,8 @@
 	FT_UINT32, BASE_DEC, 0, 0, "Read-Only Volume ID", HFILL }},
 { &hf_afs_vldb_bkvol, { "Backup Volume ID", "afs.vldb.bkvol", 
 	FT_UINT32, BASE_DEC, 0, 0, "Read-Only Volume ID", HFILL }},
+{ &hf_afs_vldb_clonevol, { "Clone Volume ID", "afs.vldb.clonevol", 
+	FT_UINT32, BASE_DEC, 0, 0, "Clone Volume ID", HFILL }},
 { &hf_afs_vldb_name, { "Volume Name", "afs.vldb.name", 
 	FT_STRING, BASE_HEX, 0, 0, "Volume Name", HFILL }},
 { &hf_afs_vldb_partition, { "Partition", "afs.vldb.partition", 
@@ -389,6 +391,30 @@
 	FT_IPv4, BASE_HEX, 0, 0, "Server", HFILL }},
 { &hf_afs_vldb_serveruuid, { "Server UUID", "afs.vldb.serveruuid", 
 	FT_BYTES, BASE_HEX, 0, 0, "Server UUID", HFILL }},
+{ &hf_afs_vldb_serveruniq, { "Server Unique Address", "afs.vldb.serveruniq", 
+	FT_UINT32, BASE_HEX, 0, 0, "Server Unique Address", HFILL }},
+{ &hf_afs_vldb_serverflags, { "Server Flags", "afs.vldb.serverflags", 
+	FT_UINT32, BASE_HEX, 0, 0, "Server Flags", HFILL }},
+{ &hf_afs_vldb_flags, { "Flags", "afs.vldb.flags", 
+	FT_UINT32, BASE_DEC, 0, 0, "Flags", HFILL }},
+{ &hf_afs_vldb_spare1, { "Spare 1", "afs.vldb.spare1", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 1", HFILL }},
+{ &hf_afs_vldb_spare2, { "Spare 2", "afs.vldb.spare2", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 2", HFILL }},
+{ &hf_afs_vldb_spare3, { "Spare 3", "afs.vldb.spare3", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 3", HFILL }},
+{ &hf_afs_vldb_spare4, { "Spare 4", "afs.vldb.spare4", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 4", HFILL }},
+{ &hf_afs_vldb_spare5, { "Spare 5", "afs.vldb.spare5", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 5", HFILL }},
+{ &hf_afs_vldb_spare6, { "Spare 6", "afs.vldb.spare6", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 6", HFILL }},
+{ &hf_afs_vldb_spare7, { "Spare 7", "afs.vldb.spare7", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 7", HFILL }},
+{ &hf_afs_vldb_spare8, { "Spare 8", "afs.vldb.spare8", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 8", HFILL }},
+{ &hf_afs_vldb_spare9, { "Spare 9", "afs.vldb.spare9", 
+	FT_UINT32, BASE_DEC, 0, 0, "Spare 9", HFILL }},
 
 /* BACKUP Server Fields */
 { &hf_afs_backup_errcode, { "Error Code", "afs.backup.errcode", 

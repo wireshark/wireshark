@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.37 2002/01/18 21:30:05 nneul Exp $
+ * $Id: packet-afs.c,v 1.38 2002/01/18 21:46:51 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1427,6 +1427,17 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 					}
 					for (i=0; i<13; i++)
 					{
+						if ( i<nservers )
+						{
+							OUT_UINT(hf_afs_vldb_serveruniq);
+						}
+						else
+						{
+							SKIP(sizeof(guint32));
+						}
+					}
+					for (i=0; i<13; i++)
+					{
 						char part[8];
 						j = tvb_get_ntohl(tvb, offset);
 						strcpy(part, "/vicepa");
@@ -1438,10 +1449,31 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 						}
 						SKIP(4);
 					}
-					SKIP(13 * sizeof(guint32));
+					for (i=0; i<13; i++)
+					{
+						if ( i<nservers )
+						{
+							OUT_UINT(hf_afs_vldb_serverflags);
+						}
+						else
+						{
+							SKIP(sizeof(guint32));
+						}
+					}
 					OUT_UINT(hf_afs_vldb_rwvol);
 					OUT_UINT(hf_afs_vldb_rovol);
 					OUT_UINT(hf_afs_vldb_bkvol);
+					OUT_UINT(hf_afs_vldb_clonevol);
+					OUT_UINT(hf_afs_vldb_flags);
+					OUT_UINT(hf_afs_vldb_spare1);
+					OUT_UINT(hf_afs_vldb_spare2);
+					OUT_UINT(hf_afs_vldb_spare3);
+					OUT_UINT(hf_afs_vldb_spare4);
+					OUT_UINT(hf_afs_vldb_spare5);
+					OUT_UINT(hf_afs_vldb_spare6);
+					OUT_UINT(hf_afs_vldb_spare7);
+					OUT_UINT(hf_afs_vldb_spare8);
+					OUT_UINT(hf_afs_vldb_spare9);
 				}
 				break;
 		}
