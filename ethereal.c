@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.83 1999/08/13 23:47:41 gram Exp $
+ * $Id: ethereal.c,v 1.84 1999/08/14 18:51:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -421,12 +421,16 @@ static void
 file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gchar     *cf_name;
   GtkWidget *filter_te;
-  gchar     *rfilter;
+  gchar     *rfilter, *s;
   int        err;
 
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_RFILTER_TE_KEY);
-  rfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
+  s = gtk_entry_get_text(GTK_ENTRY(filter_te));
+  if (s[0] == '\0')
+	  rfilter = g_strdup(s);
+  else
+	  rfilter = NULL;
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 

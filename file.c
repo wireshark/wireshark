@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.66 1999/08/14 04:23:21 guy Exp $
+ * $Id: file.c,v 1.67 1999/08/14 18:51:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -565,11 +565,13 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 
   passed = TRUE;
   if (rfcode) {
-    protocol_tree = proto_tree_create_root();
-    dissect_packet(buf, fdata, protocol_tree);
-    passed = dfilter_apply(rfcode, protocol_tree, cf->pd);
-    proto_tree_free(protocol_tree);
-  }
+	  if (DFILTER_CONTAINS_FILTER(rfcode)) {
+	    protocol_tree = proto_tree_create_root();
+	    dissect_packet(buf, fdata, protocol_tree);
+	    passed = dfilter_apply(rfcode, protocol_tree, cf->pd);
+	    proto_tree_free(protocol_tree);
+	  }
+  }   
   if (passed) {
     plist_end = cf->plist_end;
     if (plist_end != NULL)
