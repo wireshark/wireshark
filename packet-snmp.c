@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.120 2003/10/29 22:04:57 guy Exp $
+ * $Id: packet-snmp.c,v 1.121 2003/10/29 22:11:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1314,16 +1314,28 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += sequence_length;
 		variable_bindings_length -= sequence_length;
 
+		/*
+		 * Register a cleanup function in case one of our
+		 * tvbuff accesses throws an exception.  We need
+		 * to clean up variable_oid.
+		 */
+		CLEANUP_PUSH(g_free, variable_oid);
+
 		/* Parse the variable's value */
 		ret = snmp_variable_decode(tree, variable_oid,
 		    variable_oid_length, &asn1, offset, &length);
+
+		/*
+		 * We're done with variable_oid, so we can call the cleanup
+		 * handler to free* it, and then pop the cleanup handler.
+		 */
+		CLEANUP_CALL_AND_POP;
+
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "variable", ret);
-			g_free(variable_oid);
 			return;
 		}
-		g_free(variable_oid);
 		offset += length;
 		variable_bindings_length -= length;
 	}
