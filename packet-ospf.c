@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.66 2002/05/14 07:29:13 guy Exp $
+ * $Id: packet-ospf.c,v 1.67 2002/05/14 09:46:38 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -160,6 +160,13 @@ static const value_string ls_type_vals[] = {
 
 };
 
+static const value_string ls_opaque_type_vals[] = {
+	{OSPF_LSA_MPLS_TE, "Traffic Engineering LSA"                },
+	{2,                "Sycamore Optical Topology Descriptions" },
+	{3,                "grace-LSA"                              },
+	{0,                NULL                                     }
+};
+
 static const value_string v3_ls_type_vals[] = {
   	{OSPF_V3_LSTYPE_ROUTER,               "Router-LSA"                   }, 
   	{OSPF_V3_LSTYPE_NETWORK,              "Network-LSA"                  }, 
@@ -223,6 +230,9 @@ enum {
     OSPFF_MSG_LS_ACK,
     
     OSPFF_LS_TYPE,
+    OSPFF_LS_OPAQUE_TYPE,
+
+    OSPFF_LS_MPLS_TE_INSTANCE,
 
     OSPFF_LS_MIN,
     OSPFF_LS_ROUTER,
@@ -281,6 +291,13 @@ static hf_register_info ospff_info[] = {
     {&ospf_filter[OSPFF_LS_TYPE], 
      { "Link-State Advertisement Type", "ospf.lsa", FT_UINT8, BASE_DEC, 
        VALS(ls_type_vals), 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_LS_OPAQUE_TYPE], 
+     { "Link State ID Opaque Type", "ospf.lsid_opaque_type", FT_UINT8, BASE_DEC, 
+       VALS(ls_opaque_type_vals), 0x0, "", HFILL }},
+
+    {&ospf_filter[OSPFF_LS_MPLS_TE_INSTANCE], 
+     { "Link State ID TE-LSA Instance", "ospf.lsid_te_lsa.instance", FT_UINT16, BASE_DEC, 
+       NULL, 0x0, "", HFILL }},
 
     {&ospf_filter[OSPFF_LS_ROUTER], 
      { "Router LSA", "ospf.lsa.router", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -1210,14 +1227,23 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     if (is_opaque(ls_type)) {
     	ls_id_type = tvb_get_guint8(tvb, offset + 4);
-	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 1, "Link State ID Opaque Type: %u",
-			    ls_id_type);
-	/*
-	 * XXX - the interpretation of the opaque ID field is dependent on
-	 * the type field.
-	 */
-	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 5, 3, "Link State ID Opaque ID: %u",
-			    tvb_get_ntoh24(tvb, offset + 5));
+	proto_tree_add_uint(ospf_lsa_tree, ospf_filter[OSPFF_LS_OPAQUE_TYPE],
+			    tvb, offset + 4, 1, ls_id_type);
+
+	switch (ls_id_type) {
+
+	case OSPF_LSA_MPLS_TE:
+	    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 5, 1, "Link State ID TE-LSA Reserved: %u",
+				tvb_get_guint8(tvb, offset + 5));
+	    proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_LS_MPLS_TE_INSTANCE],
+	    			tvb, offset + 6, 2, FALSE);
+	    break;
+
+	default:
+	    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 5, 3, "Link State ID Opaque ID: %u",
+				tvb_get_ntoh24(tvb, offset + 5));
+	    break;
+	}
     } else {
 	ls_id_type = 0;
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Link State ID: %s",
