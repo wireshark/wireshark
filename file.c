@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.7 1998/10/12 01:40:48 gerald Exp $
+ * $Id: file.c,v 1.8 1998/10/12 01:45:17 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -235,7 +235,7 @@ load_cap_file(char *fname, capture_file *cf) {
   if (err == 0) {
     msg_len = strlen(name_ptr) + strlen(done_fmt) + 64;
     load_msg = g_realloc(load_msg, msg_len);
-    snprintf(load_msg, msg_len, done_fmt, name_ptr, cf->count, cf->drops);
+    snprintf(load_msg, msg_len, done_fmt, name_ptr, cf->drops);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
     g_free(load_msg);
 
