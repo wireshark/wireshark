@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.50 2003/06/17 05:38:24 guy Exp $
+# $Id: config.nmake,v 1.51 2003/06/24 18:51:21 gerald Exp $
 
 VERSION=0.9.13
 #
@@ -111,7 +111,8 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-$(GTK_VERSION).lib \
 !IFDEF ADNS_DIR
 ADNS_CFLAGS=/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32
 ADNS_LIBS=$(ADNS_DIR)\adns_win32\lib\adns_dll.lib
-ADNS_CONFIG="#define HAVE_GNU_ADNS 1"
+# Nmake uses carets to escape special characters
+ADNS_CONFIG=^#define HAVE_GNU_ADNS 1
 !else
 ADNS_CFLAGS=
 ADNS_LIBS=
