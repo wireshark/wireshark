@@ -8,7 +8,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-3g-a11.c,v 1.7 2004/03/23 19:31:14 guy Exp $
+ * $Id: packet-3g-a11.c,v 1.8 2004/03/30 19:01:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +97,7 @@ static gint ett_a11_radiuses = -1;
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699
 #define NTP_BASETIME 2208988800ul
+#define THE3GPP2_VENDOR_ID 0x159f
 
 typedef enum {
     REGISTRATION_REQUEST = 1,
@@ -274,13 +275,17 @@ static const struct radius_attribute attrs[]={
   {"Airlink Record",          26, 40,  4, ATTR_TYPE_TYPE},
   {"R-P Session ID",          26, 41,  4, ATTR_TYPE_INT},
   {"Airlink Sequence Number", 26, 42,  4, ATTR_TYPE_INT},
+#if 0
   {"MSID",                    31, -1, 15, ATTR_TYPE_MSID},
+#endif
   {"Serving PCF",             26,  9,  4, ATTR_TYPE_IPV4},
   {"BSID",                    26, 10, 12, ATTR_TYPE_STR},
   {"ESN",                     26, 52, 15, ATTR_TYPE_STR},
   {"User Zone",               26, 11,  4, ATTR_TYPE_INT},
   {"Forward FCH Mux Option",  26, 12,  4, ATTR_TYPE_INT},
   {"Reverse FCH Mux Option",  26, 13,  4, ATTR_TYPE_INT},
+  {"Forward Fundamental Rate (IOS 4.1)",26, 14,  4, ATTR_TYPE_INT},
+  {"Reverse Fundamental Rate (IOS 4.1)",26, 15,  4, ATTR_TYPE_INT},
   {"Service Option",          26, 16,  4, ATTR_TYPE_INT},
   {"Forward Traffic Type",    26, 17,  4, ATTR_TYPE_INT},
   {"Reverse Traffic Type",    26, 18,  4, ATTR_TYPE_INT},
@@ -303,6 +308,9 @@ static const struct radius_attribute attrs[]={
 
 #define MAX_STRVAL 16
 
+#define RADIUS_VENDOR_SPECIFIC 26
+#define SKIP_HDR_LEN 6
+
 static void dissect_a11_radius( tvbuff_t *, int, proto_tree *, int);
 
 /* RADIUS attributed */
@@ -314,11 +322,13 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
   size_t     radius_len;
   guint8     radius_type;
   guint8     radius_subtype;
-  size_t     hdrLen;
-  int     attribute_type;
+  int        attribute_type;
+  guint      attribute_len;
   guint      offset0;
+  guint      radius_offset;
   guint      i;
   guchar     str_val[MAX_STRVAL];
+  guint      radius_vendor_id = 0;
 
   /* None of this really matters if we don't have a tree */
   if (!tree) return;
@@ -330,22 +340,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
     return;
   }
 
-  /* Add our tree, if we have Airlink Records */
-  /* XXX: This is Very Dirty way */
-  radius_type = tvb_get_guint8(tvb, offset);
-  radius_subtype = tvb_get_guint8(tvb, offset + 6);	
-  hdrLen = 6;
-  attribute_type = tvb_get_ntohl(tvb, offset + 8);
-
-  if(radius_type == 26 && radius_subtype == 40) {
-    ti = proto_tree_add_text(tree, tvb, offset - 2, app_len, "%s Airlink Record",
-                             val_to_str(attribute_type, a11_airlink_types, 
-                                        "Unknown"));
-  }
-  else {
-    ti = proto_tree_add_text(tree, tvb, offset - 2, app_len, "Invalid Airlink Records");
-    return;
-  }
+  ti = proto_tree_add_text(tree, tvb, offset - 2, app_len, "Airlink Record");
 
   radius_tree = proto_item_add_subtree(ti, ett_a11_radiuses);
 
@@ -356,79 +351,121 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
 
     radius_type = tvb_get_guint8(tvb, offset);
 	radius_len = tvb_get_guint8(tvb, offset + 1);
-    radius_subtype = tvb_get_guint8(tvb, offset + 6);	
+
+    if (radius_type == RADIUS_VENDOR_SPECIFIC)
+    {
+      radius_vendor_id = tvb_get_ntohl(tvb, offset +2); 
+
+      if(radius_vendor_id != THE3GPP2_VENDOR_ID)
+      {
+        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+                "Unknown Vendor-spcific Attribute (Vendor Id: %x)", radius_vendor_id);
+        offset += radius_len;
+        continue;
+      }
+    }
+    else
+    {
+
+      /**** ad-hoc ***/
+      if(radius_type == 31)
+      {
+        strncpy(str_val, tvb_get_ptr(tvb,offset+2,radius_len-2), 
+                radius_len-2);
+        if(radius_len-2 < MAX_STRVAL) {
+          str_val[radius_len-2] = '\0';
+        }
+        else {
+          str_val[MAX_STRVAL-1] = '\0';
+        }
+        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+            "MSID: %s", str_val);
+      }
+      else if (radius_type == 46)
+      {
+        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+            "Acct Session Time: %d",tvb_get_ntohl(tvb,offset+2));
+      }
+      else
+      {
+        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+              "Unknown RADIUS Attributes (Type: %d)", radius_type);
+      }
+
+      offset += radius_len;
+      continue;
+    }
+    
+	radius_len = tvb_get_guint8(tvb, offset + 1);
+
+    offset += SKIP_HDR_LEN;
+    radius_offset = 0;
 
 	/* Detect Airlink Record Type */
 
-    attribute_type = -1;
-    /* attribute_type = get_attribute_type(radius_type, radius_subtype); */
-    for(i = 0; i < NUM_ATTR; i++) {
-      if (attrs[i].type == radius_type) {
-        if(attrs[i].subtype == -1 || attrs[i].subtype == radius_subtype) {
-          attribute_type = i;
+    while (radius_len - 6 > radius_offset)
+    {
+
+      radius_subtype = tvb_get_guint8(tvb, offset + radius_offset);	
+      attribute_len = tvb_get_guint8(tvb, offset + radius_offset + 1);	
+
+      attribute_type = -1;
+      for(i = 0; i < NUM_ATTR; i++) {
+        if (attrs[i].subtype == radius_subtype) {
+            attribute_type = i;
+            break;
+        }
+	  }
+
+      if(attribute_type >= 0) {
+        switch(attrs[attribute_type].data_type) {
+        case ATTR_TYPE_INT:
+          ti = proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
+            attribute_len, "3GPP2: %s (%04x)", attrs[attribute_type].attrname,
+            tvb_get_ntohl(tvb,offset + radius_offset + 2));
+          break;
+        case ATTR_TYPE_IPV4:
+          ti = proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
+            attribute_len, "3GPP2: %s (%s)", attrs[attribute_type].attrname,
+            ip_to_str(tvb_get_ptr(tvb,offset + radius_offset + 2,4)));
+          break;
+        case ATTR_TYPE_TYPE:
+          ti = proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
+            attribute_len, "3GPP2: %s (%s)", attrs[attribute_type].attrname,
+            val_to_str(tvb_get_ntohl(tvb,offset+radius_offset+2),
+            a11_airlink_types,"Unknown"));
+          break;
+        case ATTR_TYPE_STR:
+          strncpy(str_val, tvb_get_ptr(tvb,offset+radius_offset+2,attribute_len - 2),
+             attribute_len - 2);
+          if(attribute_len - 2 < MAX_STRVAL) {
+             str_val[attribute_len - 2] = '\0';
+          }
+          else {
+            str_val[MAX_STRVAL-1] = '\0';
+          }
+          ti = proto_tree_add_text(radius_tree, tvb, offset+radius_offset,
+             attribute_len,
+            "3GPP2: %s (%s)", attrs[attribute_type].attrname, str_val);
+          break;
+        case ATTR_TYPE_NULL:
+          break;
+        default:
+          ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+            "RADIUS: %s", attrs[attribute_type].attrname);
           break;
         }
       }
-	}
+      else {
+        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
+          "RADIUS: Unknown 3GPP2 Attribute (Type:%d, SubType:%d)",
+          radius_type,radius_subtype);
+      }
 
-    /* defferentiated type */
+      radius_offset += attribute_len;
+    }
+    offset += radius_len - 6;
 
-    if(attribute_type >= 0) {
-      switch(attrs[attribute_type].data_type) {
-      case ATTR_TYPE_INT:
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-          "RADIUS: %s (%04x)", attrs[attribute_type].attrname,
-          tvb_get_ntohl(tvb,offset+8));
-        break;
-      case ATTR_TYPE_IPV4:
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-          "RADIUS: %s (%s)", attrs[attribute_type].attrname,
-          ip_to_str(tvb_get_ptr(tvb,offset+8,4)));
-        break;
-      case ATTR_TYPE_TYPE:
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-          "RADIUS: %s (%s)", attrs[attribute_type].attrname,
-          val_to_str(tvb_get_ntohl(tvb,offset+8),a11_airlink_types,"Unknown"));
-        break;
-      case ATTR_TYPE_STR:
-        strncpy(str_val, tvb_get_ptr(tvb,offset+8,radius_len - 8), radius_len - 8);
-        if(radius_len - 8 < MAX_STRVAL) {
-          str_val[radius_len - 8] = '\0';
-        }
-        else {
-          str_val[MAX_STRVAL-1] = '\0';
-        }
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-          "RADIUS: %s (%s)", attrs[attribute_type].attrname, str_val);
-        break;
-      case ATTR_TYPE_MSID:
-        strncpy(str_val, tvb_get_ptr(tvb,offset+2,radius_len - 2), radius_len - 2);
-        if(radius_len - 2 < MAX_STRVAL) {
-          str_val[radius_len - 2] = '\0';
-        }
-        else {
-          str_val[MAX_STRVAL-1] = '\0';
-        }
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-          "RADIUS: %s (%s)", attrs[attribute_type].attrname, str_val);
-        break;
-      case ATTR_TYPE_NULL:
-        break;
-      default:
-        ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-          "RADIUS: %s", attrs[attribute_type].attrname);
-        break;
-     }
-    }
-    else {
-      ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-        "RADIUS: Unknown Attribute (Type:%d, SubType:%d)", radius_type,radius_subtype);
-    }
-
-    if(radius_len <= 0) {
-      return;
-    }
-    offset += radius_len;
   }
 
 }
@@ -1095,3 +1132,4 @@ proto_reg_handoff_a11(void)
 	a11_handle = find_dissector("a11");
 	dissector_add("udp.port", UDP_PORT_3GA11, a11_handle);
 }
+
