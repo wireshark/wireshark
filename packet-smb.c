@@ -1,8 +1,9 @@
 /* packet-smb.c
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
+ * Still a long way to go ...
  *
- * $Id: packet-smb.c,v 1.1 1999/05/09 04:20:59 sharpe Exp $
+ * $Id: packet-smb.c,v 1.2 1999/05/09 12:56:12 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
