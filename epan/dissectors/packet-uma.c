@@ -25,6 +25,30 @@
  * References:
  * http://www.umatechnology.org/ 
  * UMA Protocols (Stage 3) R1.0.3 (2005-02-26)
+ * 
+ * http://www.3gpp.org/specs/numbering.htm 
+ * 3GPP TS 24.008 V6.2.0 (2003-09)
+ * Technical Specification
+ * 3rd Generation Partnership Project;
+ * Technical Specification Group Core Network;
+ * Mobile radio interface Layer 3 specification;
+ * Core network protocols; Stage 3
+ * (Release 6)
+ *
+ * 3GPP TS 44.018 V6.11.0 (2005-01)
+ * 3rd Generation Partnership Project;
+ * Technical Specification Group GSM/EDGE Radio Access Network;
+ * Mobile radio interface layer 3 specification;
+ * Radio Resource Control (RRC) protocol
+ * (Release 6)
+ *
+ * 3GPP TS 45.009 V6.1.0 (2004-02)
+ * 3rd Generation Partnership Project;
+ * Technical Specification Group GSM/EDGE
+ * Radio Access Network;
+ * Link adaptation
+ * (Release 6)
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -161,12 +185,18 @@ static int hf_uma_urr_channel			= -1;
 static int hf_uma_urr_PDU_in_error		= -1;
 static int hf_uma_urr_sample_size		= -1;
 static int hf_uma_urr_payload_type		= -1;
+static int hf_uma_urr_multirate_speech_ver = -1;
+static int hf_uma_urr_NCSB				= -1;
+static int hf_uma_urr_ICMI				= -1;
+static int hf_uma_urr_start_mode		= -1;
+static int hf_uma_urr_LLC_PDU			= -1;
 static int hf_uma_urr_LBLI				= -1;
 static int hf_uma_urr_TU4003_timer		= -1;
 static int hf_uma_urr_ap_service_name_type = -1;
 static int hf_uma_urr_ap_Service_name_value = -1;
 static int hf_uma_urr_uma_service_zone_icon_ind = -1;
 static int hf_uma_urr_uma_service_zone_str_len = -1;
+static int hf_uma_urr_ms_radio_id		= -1;
 static int hf_uma_urr_uma_service_zone_str = -1;
 static int hf_uma_urr_unc_ipv4			= -1;
 static int hf_uma_unc_FQDN				= -1;
@@ -317,7 +347,7 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 53,		"Sample Size"},
 	{ 54,		"Payload Type"},
 	{ 55,		"Multi-rate Configuration"},
-	{ 56,		"Mobile Station Classmark"},
+	{ 56,		"Mobile Station Classmark 3"},
 	{ 57,		"LLC-PDU"},
 	{ 58,		"Location Black List indicator"},
 	{ 59,		"Reset Indicator"},
@@ -858,6 +888,25 @@ static const value_string sample_size_vals[] = {
 	{ 40,		"40 ms of CS payload included in each RTP/UDP packet"},
 	{ 60,		"60 ms of CS payload included in each RTP/UDP packet"},
 	{ 80,		"80 ms of CS payload included in each RTP/UDP packet"},
+	{ 0,	NULL }
+};
+	
+/*	Multirate speech version Octet 3 Bits 8 7 6 */
+static const value_string multirate_speech_ver_vals[] = {
+	{ 1,		"Adaptive Multirate speech version 1"},
+	{ 2,		"Adaptive Multirate speech version 2"},
+	{ 0,	NULL }
+};
+/* Bit	5 	NSCB: Noise Suppression Control Bit */
+static const value_string NSCB_vals[] = {
+	{ 0,		"Noise Suppression can be used (default)"},
+	{ 1,		"Noise Suppression shall be turned off"},
+	{ 0,	NULL }
+};
+/* Bit	4	ICMI: Initial Codec Mode Indicator */
+static const value_string ICMI_vals[] = {
+	{ 0,		"The initial codec mode is defined by the implicit rule provided in 3GPP TS 05.09"},
+	{ 1,		"The initial codec mode is defined by the Start Mode field"},
 	{ 0,	NULL }
 };
 /* LBLI, Location Black List indicator (octet 3) */
@@ -1435,15 +1484,38 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 55:		
 		/* Multi-rate Configuration 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
+		 * Octet 3 Multirate speech version	NSCB	ICMI	spare	Start mode
 		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_multirate_speech_ver, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_NCSB, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ICMI, tvb, ie_offset, 1, FALSE);
+		/* The initial codec mode is coded as in 3GPP TS 45.009 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_start_mode, tvb, ie_offset, 1, FALSE);
+		octet = ( tvb_get_guint8(tvb,ie_offset) &0xe0 ) >> 5;
+		ie_offset++;
+		switch ( octet){
+		case 1:
+			/* Adaptive Multirate speech version 1 */
+			/* Set of AMR codec modes */
+			break;
+		case 2:
+			/* Adaptive Multirate speech version 2 */
+			break;
+		default:
+			proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"Unknown version");
+			break;
+		}
+		ie_offset++;
+		break;
 	case 56:		
-		/* Mobile Station Classmark 
+		/* Mobile Station Classmark 3 
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present
 		 */
 	case 57:		
 		/* LLC-PDU 
 		 * The rest of the IE is coded as in [TS 48.018], not including IEI and length, if present
 		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LLC_PDU, tvb, ie_offset, ie_len, FALSE);
 		break;
 
 	case 58:		/* Location Black List indicator */
@@ -1489,9 +1561,19 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* UMA PLMN List */
 	case 70:
 		/* Received Signal Level List */
-	case 96:		/* MS Radio Identity */
-		proto_tree_add_text(urr_ie_tree,tvb,offset+1,ie_len,"DATA");
 		break;
+	case 96:		/* MS Radio Identity */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_type_of_id, tvb, ie_offset, 1, FALSE);
+		octet = tvb_get_guint8(tvb,ie_offset);
+		if (( octet & 0xf) == 0){ /* IEEE MAC-address format */
+			ie_offset++;
+			haddr = tvb_get_ptr(tvb, ie_offset, ie_len);
+			proto_tree_add_ether(urr_ie_tree, hf_uma_urr_ms_radio_id, tvb, ie_offset, ie_len, haddr);
+		}else{
+			proto_tree_add_text(urr_ie_tree, tvb, ie_offset, ie_len,"Unknown format");
+		}
+		break;
+
 	case 97:		
 		/* UNC IP Address 
 		 * IP Address type
@@ -1758,7 +1840,7 @@ proto_register_uma(void)
 			"TMSI/P-TMSI", HFILL }
 		},
 		{ &hf_uma_urr_uri,
-			{ "URI","uma.urr.uri",
+			{ "UMA Release Indicator (URI)","uma.urr.uri",
 			FT_UINT8, BASE_DEC, NULL, 0x07,          
 			"URI", HFILL }
 		},
@@ -2234,6 +2316,31 @@ proto_register_uma(void)
 			FT_UINT8,BASE_DEC,  NULL, 0x0,          
 			"Payload Type", HFILL }
 		},
+		{ &hf_uma_urr_multirate_speech_ver,
+			{ "Multirate speech version","uma.urr.multirate_speech_ver",
+			FT_UINT8,BASE_DEC,  VALS(multirate_speech_ver_vals), 0xe0,          
+			"Multirate speech version", HFILL }
+		},
+		{ &hf_uma_urr_NCSB,
+			{ "NSCB: Noise Suppression Control Bit","uma.urr.NCSB",
+			FT_UINT8,BASE_DEC,  VALS(NSCB_vals), 0x10,          
+			"NSCB: Noise Suppression Control Bit", HFILL }
+		},
+		{ &hf_uma_urr_ICMI,
+			{ "ICMI: Initial Codec Mode Indicator","uma.urr.ICMI",
+			FT_UINT8,BASE_DEC,  VALS(ICMI_vals), 0x8,          
+			"ICMI: Initial Codec Mode Indicator", HFILL }
+		},
+		{ &hf_uma_urr_start_mode,
+			{ "Start Mode","uma.urr.start_mode",
+			FT_UINT8,BASE_DEC,  NULL, 0x3,          
+			"Start Mode", HFILL }
+		},
+		{ &hf_uma_urr_LLC_PDU,
+			{ "LLC-PDU","uma.urr.llc_pdu",
+			FT_BYTES,BASE_HEX,  NULL, 0x0,          
+			"LLC-PDU", HFILL }
+		},
 		{ &hf_uma_urr_LBLI,
 			{ "LBLI, Location Black List indicator","uma.urr.LBLI",
 			FT_UINT8,BASE_DEC,  VALS(LBLI_vals), 0x0,          
@@ -2268,6 +2375,11 @@ proto_register_uma(void)
 			{ "Length of UMA Service Zone string","uma.urr.service_zone_str_len",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,          
 			"Length of UMA Service Zone string", HFILL }
+		},
+		{ &hf_uma_urr_ms_radio_id,
+			{ "MS Radio Identity","uma.urr.ms_radio_id",
+			FT_ETHER, BASE_DEC, NULL, 0x00,          
+			"MS Radio Identity", HFILL }
 		},
 		{ &hf_uma_urr_uma_service_zone_str,
 			{ "UMA Service Zone string,","uma.urr.uma_service_zone_str",
