@@ -3,7 +3,7 @@
  * Copyright 2002, Antti J. Tuominen <ajtuomin@tml.hut.fi>
  * Loosely based on packet-aodv.c.
  *
- * $Id: packet-aodv6.c,v 1.3 2002/08/21 21:25:23 tpot Exp $
+ * $Id: packet-aodv6.c,v 1.4 2002/08/22 07:32:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,8 +92,7 @@ typedef struct aodv6_rreq {
 typedef struct aodv6_rrep {
     guint8 type;
     guint8 flags;
-    guint8 res2:1;
-    guint8 prefix:7;
+    guint8 prefix_sz;
     guint8 hop_count;
     guint32 dest_seqno;
     struct e_in6_addr dest_addr;
@@ -118,16 +117,13 @@ typedef struct aodv6_rrep_ack {
 typedef struct aodv6_ext {
     guint8 type;
     guint8 length;
-} ext_t;
-
-static rreq_t rreq;
-static rrep_t rrep;
-static rerr_t rerr;
+} aodv6_ext_t;
 
 /* Initialize the protocol and registered fields */
 static int proto_aodv6 = -1;
 static int hf_aodv6_type = -1;
 static int hf_aodv6_flags = -1;
+static int hf_aodv6_prefix_sz = -1;
 static int hf_aodv6_hopcount = -1;
 static int hf_aodv6_rreq_id = -1;
 static int hf_aodv6_dest_ip = -1;
@@ -161,7 +157,7 @@ dissect_aodv6ext(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
     proto_tree *aodv6ext_tree;
     proto_item *ti;
-    ext_t aodv6ext, *ext;
+    aodv6_ext_t aodv6ext, *ext;
     char *typename;
     int len;
 
@@ -176,13 +172,13 @@ dissect_aodv6ext(tvbuff_t * tvb, int offset, proto_tree * tree)
     tvb_memcpy(tvb, (guint8 *) ext, offset, sizeof(*ext));
     len = ext->length;
 
-    ti = proto_tree_add_text(tree, tvb, offset, sizeof(ext_t) +
+    ti = proto_tree_add_text(tree, tvb, offset, sizeof(aodv6_ext_t) +
 			     len, "AODV6 Extensions");
     aodv6ext_tree = proto_item_add_subtree(ti, ett_aodv6_extensions);
 
     if (len == 0) {
 	proto_tree_add_text(aodv6ext_tree, tvb,
-			    offset + offsetof(ext_t, length), 1,
+			    offset + offsetof(aodv6_ext_t, length), 1,
 			    "Invalid option length: %u", ext->length);
 	return;			/* we must not try to decode this */
     }
@@ -199,13 +195,13 @@ dissect_aodv6ext(tvbuff_t * tvb, int offset, proto_tree * tree)
 	break;
     }
     proto_tree_add_text(aodv6ext_tree, tvb,
-			offset + offsetof(ext_t, type), 1,
+			offset + offsetof(aodv6_ext_t, type), 1,
 			"Type: %u (%s)", ext->type, typename);
     proto_tree_add_text(aodv6ext_tree, tvb,
-			offset + offsetof(ext_t, length), 1,
+			offset + offsetof(aodv6_ext_t, length), 1,
 			"Length: %u bytes", ext->length);
 
-    offset += sizeof(ext_t);
+    offset += sizeof(aodv6_ext_t);
 
     switch (ext->type) {
     case AODV6_EXT_INT:
@@ -234,6 +230,9 @@ dissect_aodv6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	*aodv6_unreach_dest_tree = NULL;
     guint8 type;
     int i, extlen;
+    rreq_t rreq;
+    rrep_t rrep;
+    rerr_t rerr;
 
     /* Make entries in Protocol column and Info column on summary
      * display 
@@ -336,6 +335,7 @@ dissect_aodv6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     case AODV6_RREP:
 	rrep.type = type;
 	rrep.flags = tvb_get_guint8(tvb, offsetof(rrep_t, flags));
+	rrep.prefix_sz = tvb_get_guint8(tvb, offsetof(rrep_t, prefix_sz)) & 0x1F;
 	rrep.hop_count = tvb_get_guint8(tvb, offsetof(rrep_t, hop_count));
 	rrep.dest_seqno = tvb_get_ntohl(tvb, offsetof(rrep_t, dest_seqno));
 	tvb_memcpy(tvb, (guint8 *) & rrep.dest_addr,
@@ -355,6 +355,9 @@ dissect_aodv6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_item_append_text(tj, " R");
 	    if (rrep.flags & RREP_ACK)
 		proto_item_append_text(tj, " A");
+	    proto_tree_add_uint(aodv6_tree, hf_aodv6_prefix_sz,
+				tvb, offsetof(rrep_t, prefix_sz), 1,
+				rrep.prefix_sz);
 	    proto_tree_add_uint(aodv6_tree, hf_aodv6_hopcount,
 				tvb, offsetof(rrep_t, hop_count), 1,
 				rrep.hop_count);
@@ -501,6 +504,11 @@ proto_register_aodv6(void)
 	 {"RERR No Delete", "aodv6.flags.rerr_nodelete",
 	  FT_BOOLEAN, 8, TFS(&flags_set_truth), RERR_NODEL,
 	  "", HFILL}
+	 },
+	{&hf_aodv6_prefix_sz,
+	 {"Prefix Size", "aodv6.prefix_sz",
+	  FT_UINT8, BASE_DEC, NULL, 0x0,
+	  "Prefix Size", HFILL}
 	 },
 	{&hf_aodv6_hopcount,
 	 {"Hop Count", "aodv6.hopcount",

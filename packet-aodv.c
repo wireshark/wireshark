@@ -2,7 +2,7 @@
  * Routines for AODV dissection
  * Copyright 2000, Erik Nordström <erik.nordstrom@it.uu.se>
  *
- * $Id: packet-aodv.c,v 1.4 2002/08/21 21:25:23 tpot Exp $
+ * $Id: packet-aodv.c,v 1.5 2002/08/22 07:32:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,8 +73,7 @@ struct aodv_rreq {
 struct aodv_rrep {
     guint8 type;
     guint8 flags;
-    guint8 res2:3;
-    guint8 prefix:5;
+    guint8 prefix_sz;
     guint8 hop_count;
     guint32 dest_addr;
     guint32 dest_seqno;
@@ -91,14 +90,11 @@ struct aodv_rerr {
     guint32 dest_seqno;
 };
 
-static struct aodv_rreq rreq;
-static struct aodv_rrep rrep;
-static struct aodv_rerr rerr;
-		    
 /* Initialize the protocol and registered fields */
 static int proto_aodv = -1;
 static int hf_aodv_type = -1;
 static int hf_aodv_flags = -1;
+static int hf_aodv_prefix_sz = -1;
 static int hf_aodv_hopcount = -1;
 static int hf_aodv_rreq_id = -1;
 static int hf_aodv_dest_ip = -1;
@@ -130,6 +126,9 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*aodv_unreach_dest_tree = NULL;
     guint8 type;
     int i;
+    struct aodv_rreq rreq;
+    struct aodv_rrep rrep;
+    struct aodv_rerr rerr;
 
 /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -204,6 +203,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case RREP:
 	rrep.type = type;
 	rrep.flags = tvb_get_guint8(tvb, 1);
+	rrep.prefix_sz = tvb_get_guint8(tvb, 2) & 0x1F;
 	rrep.hop_count = tvb_get_guint8(tvb, 3);
 	tvb_memcpy(tvb, (guint8 *)&rrep.dest_addr, 4, 4);
 	rrep.dest_seqno = tvb_get_ntohl(tvb, 8);
@@ -217,6 +217,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(tj, " R");
 	    if (rrep.flags & RREP_ACK)
 		proto_item_append_text(tj, " A");
+	    proto_tree_add_uint(aodv_tree, hf_aodv_prefix_sz, tvb, 3, 1, rrep.prefix_sz);
 	    proto_tree_add_uint(aodv_tree, hf_aodv_hopcount, tvb, 3, 1, rrep.hop_count);
 	    proto_tree_add_ipv4(aodv_tree, hf_aodv_dest_ip, tvb, 4, 4, rrep.dest_addr);
 	    proto_tree_add_uint(aodv_tree, hf_aodv_dest_seqno, tvb, 8, 4, rrep.dest_seqno);
@@ -316,6 +317,11 @@ proto_register_aodv(void)
 	  { "RERR No Delete", "aodv.flags.rerr_nodelete",
 	    FT_BOOLEAN, 8, TFS(&flags_set_truth), RERR_NODEL,    
 	    "", HFILL }
+	},
+	{ &hf_aodv_prefix_sz,
+	  { "Prefix Size", "aodv.prefix_sz",
+	    FT_UINT8, BASE_DEC, NULL, 0x0,    
+	    "Prefix_size", HFILL }
 	},
 	{ &hf_aodv_hopcount,
 	  { "Hop Count", "aodv.hopcount",
