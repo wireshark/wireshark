@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.96 2004/05/14 18:02:38 ulfl Exp $
+ * $Id: proto_draw.c,v 1.97 2004/05/15 00:40:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1626,7 +1626,7 @@ void tree_cell_renderer(GtkTreeViewColumn *tree_column,
         g_object_set (cell, "weight-set", TRUE, NULL);*/
     }
 
-    if(FI_GET_FLAG(fi, FI_LINK)) {
+    if(fi->hfinfo->type == FT_FRAMENUM) {
         g_object_set (cell, "foreground", "blue", NULL);
         g_object_set (cell, "foreground-set", TRUE, NULL);
 
@@ -1756,8 +1756,7 @@ main_proto_tree_draw(proto_tree *protocol_tree)
 void
 tree_view_follow_link(field_info   *fi)
 {
-    if(FI_GET_FLAG(fi, FI_LINK)) {
-        g_assert(fi->hfinfo->type == FT_FRAMENUM);
+    if(fi->hfinfo->type == FT_FRAMENUM) {
         goto_frame(&cfile, fi->value.value.integer);
     }
 }

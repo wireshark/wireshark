@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.47 2004/05/14 17:34:51 ulfl Exp $
+ * $Id: reassemble.c,v 1.48 2004/05/15 00:41:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1569,7 +1569,6 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
 			offset+fd->len-1,
             fd->len);
         PROTO_ITEM_SET_GENERATED(fei);
-	    PROTO_ITEM_SET_LINK(fei);
 		fet = proto_item_add_subtree(fei, *(fit->ett_fragment));
 		if (fd->flags&FD_OVERLAP) {
 			fei=proto_tree_add_boolean(fet,
@@ -1612,7 +1611,6 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
             fd->len
 		);
 	    PROTO_ITEM_SET_GENERATED(fei);
-	    PROTO_ITEM_SET_LINK(fei);
 	}
 }
 
