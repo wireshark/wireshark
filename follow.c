@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.26 2000/08/24 21:05:16 deniel Exp $
+ * $Id: follow.c,v 1.27 2001/05/24 23:07:40 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -223,6 +223,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
 	data += new_len;
 	data_length -= new_len;
       }
+      sc.dlen = data_length;
       sequence = seq[src_index];
       length = newseq - seq[src_index];
       
