@@ -1230,7 +1230,8 @@ Didier Gautheron <dgautheron[AT]magic.fr> {
 	Fix to work with automake 1.7
 	Fix gtk Makefile entry to rebuild "ethereal-tap-register.c"
 	Fix handling of cross in TCP graph code
-	Fix sequence number overflow problems in TCP graph code
+	Fix sequence number overflow problems in TCP graph code and
+	    desegmentation code
 }
 
 Phil Williams <csypbw[AT]comp.leeds.ac.uk> {

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.171 2003/01/28 23:56:40 guy Exp $
+ * $Id: packet-tcp.c,v 1.172 2003/02/18 21:37:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -163,11 +163,11 @@ struct tcp_unacked {
 };
 
 /* Idea for gt: either x > y, or y is much bigger (assume wrap) */
-#define GT_SEQ(x, y) ((gint32)(y - x) < 0)
-#define LT_SEQ(x, y) ((gint32)(x - y) < 0)
-#define GE_SEQ(x, y) ((gint32)(y - x) <= 0)
-#define LE_SEQ(x, y) ((gint32)(x - y) <= 0)
-#define EQ_SEQ(x, y) (x == y)
+#define GT_SEQ(x, y) ((gint32)((y) - (x)) < 0)
+#define LT_SEQ(x, y) ((gint32)((x) - (y)) < 0)
+#define GE_SEQ(x, y) ((gint32)((y) - (x)) <= 0)
+#define LE_SEQ(x, y) ((gint32)((x) - (y)) <= 0)
+#define EQ_SEQ(x, y) ((x) == (y))
 
 static GMemChunk *tcp_acked_chunk = NULL;
 static int tcp_acked_count = 5000;	/* one for almost every other segment in the capture */
@@ -1040,7 +1040,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			tcp_fragment_table,
 			seq - tsk->start_seq,
 			nxtseq - seq,
-			(nxtseq < (tsk->start_seq + tsk->tot_len)) );
+			(LT_SEQ (nxtseq,tsk->start_seq + tsk->tot_len)) );
 
 		if(!ipfd_head){
 			/* fragment_add() returned NULL, This means that
@@ -1105,7 +1105,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		 * Note that the last segment may include more than what
 		 * we needed.
 		 */
-		if(nxtseq >= (tsk->start_seq + tsk->tot_len)){
+		if(GE_SEQ(nxtseq, tsk->start_seq + tsk->tot_len)){
 			/*
 			 * OK, this is the last segment.
 			 * Let's call the subdissector with the desegmented
@@ -1305,7 +1305,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		    tcp_fragment_table,
 		    tsk->seq - tsk->start_seq,
 		    nxtseq - tsk->start_seq,
-		    (nxtseq < tsk->start_seq + tsk->tot_len));
+		    LT_SEQ (nxtseq, tsk->start_seq + tsk->tot_len));
 
 		/* this is the next segment in the sequence we want */
 		new_tsk = g_mem_chunk_alloc(tcp_segment_key_chunk);
