@@ -1,6 +1,6 @@
 /* packet-mip6.c
  *
- * $Id: packet-mip6.c,v 1.2 2003/02/13 22:23:20 guy Exp $
+ * $Id: packet-mip6.c,v 1.3 2003/07/11 09:30:48 guy Exp $
  *
  * Routines for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 
 #include "ipproto.h"
+#include "ip_opts.h"
 #include "packet-mip6.h"
 
 /* Initialize the protocol and registered header fields */
@@ -79,6 +80,11 @@ static int hf_mip6_bad_auth = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mip6 = -1;
+static gint ett_mip6_opt_padn = -1;
+static gint ett_mip6_opt_bra = -1;
+static gint ett_mip6_opt_acoa = -1;
+static gint ett_mip6_opt_ni = -1;
+static gint ett_mip6_opt_bad = -1;
 
 /* Functions to dissect the mobility headers */
 
@@ -305,122 +311,130 @@ dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 
 /* Functions to dissect the mobility options */
 
-static int
-dissect_mip6_opt_pad1(tvbuff_t *tvb, proto_tree *opts_tree, int offset)
+static void
+dissect_mip6_opt_padn(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                      guint optlen, packet_info *pinfo _U_,
+                      proto_tree *opt_tree)
 {
-    int len;
-
-    len = 1;
-    proto_tree_add_text(opts_tree, tvb, offset, len, "Pad1");
-
-    return offset+len;
+    proto_tree_add_text(opt_tree, tvb, offset, optlen,
+                        "%s: %u bytes", optp->name, optlen);
 }
 
-static int
-dissect_mip6_opt_padn(tvbuff_t *tvb, proto_tree *opts_tree, int offset)
+static void
+dissect_mip6_opt_bra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_,
+                     proto_tree *opt_tree)
 {
-    int len;
+    int ri;
 
-    len = (tvb_get_guint8(tvb, offset + 1)) + 2;
-    proto_tree_add_text(opts_tree, tvb, offset, len, "PadN: %u bytes", len);
-
-    return offset+len;
-}
-
-static int
-dissect_mip6_opt_bra(tvbuff_t *tvb, proto_tree *opts_tree, int offset)
-{
-    proto_tree *opt_tree = NULL;
-    proto_item *ti;
-    int len, ri;
-
-    len = (tvb_get_guint8(tvb, offset + 1)) + 2;
-    ti = proto_tree_add_text(opts_tree, tvb, offset, len, 
-                             "Binding Refresh Advice");
-    opt_tree = proto_item_add_subtree(ti, ett_mip6);
-    
-    ri = tvb_get_ntohs(tvb, offset+MIP6_BRA_RI_OFF);
+    ri = tvb_get_ntohs(tvb, offset + 2);
     proto_tree_add_uint_format(opt_tree, hf_mip6_bra_interval, tvb,
-                               offset+MIP6_BRA_RI_OFF, MIP6_BRA_RI_LEN, 
+                               offset, optlen,
                                ri, "Refresh interval: %d (%ld seconds)",
                                ri, (long)ri * 4);
-
-    return offset+len;
 }
 
-static int
-dissect_mip6_opt_acoa(tvbuff_t *tvb, proto_tree *opts_tree, int offset)
+static void
+dissect_mip6_opt_acoa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                      guint optlen, packet_info *pinfo _U_,
+                      proto_tree *opt_tree)
 {
-    proto_tree *opt_tree = NULL;
-    proto_item *ti;
-    int len;
-
-    len = (tvb_get_guint8(tvb, offset + 1)) + 2;
-    ti = proto_tree_add_text(opts_tree, tvb, offset, len,
-                             "Alternate Care-of Address");
-    opt_tree = proto_item_add_subtree(ti, ett_mip6);
-
-    proto_tree_add_item(opt_tree, hf_mip6_acoa_acoa, tvb,
-                        offset+MIP6_ACOA_ACOA_OFF, MIP6_ACOA_ACOA_LEN, FALSE);
-
-    return offset+len;
+    proto_tree_add_ipv6(opt_tree, hf_mip6_acoa_acoa, tvb,
+                        offset, optlen, tvb_get_ptr(tvb, offset + 2, 16));
 }
 
-static int
-dissect_mip6_opt_ni(tvbuff_t *tvb, proto_tree *opts_tree, int offset)
+static void
+dissect_mip6_opt_ni(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                    guint optlen, packet_info *pinfo _U_,
+                    proto_tree *opt_tree)
 {
-    proto_tree *opt_tree = NULL;
-    proto_item *ti;
-    int len;
+    proto_tree *field_tree = NULL;
+    proto_item *tf;
 
-    len = (tvb_get_guint8(tvb, offset + 1)) + 2;
-    ti = proto_tree_add_text(opts_tree, tvb, offset, len, "Nonce Indices");
-    opt_tree = proto_item_add_subtree(ti, ett_mip6);
+    tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
-    proto_tree_add_item(opt_tree, hf_mip6_ni_hni, tvb,
-                        offset+MIP6_NI_HNI_OFF, MIP6_NI_HNI_LEN, FALSE);
-    proto_tree_add_item(opt_tree, hf_mip6_ni_cni, tvb,
-                        offset+MIP6_NI_CNI_OFF, MIP6_NI_CNI_LEN, FALSE);
-
-    return offset+len;
+    proto_tree_add_item(field_tree, hf_mip6_ni_hni, tvb,
+                        offset + 2, 2, FALSE);
+    proto_tree_add_item(field_tree, hf_mip6_ni_cni, tvb,
+                        offset + 4, 2, FALSE);
 }
 
-static int
-dissect_mip6_opt_bad(tvbuff_t *tvb, proto_tree *opts_tree, int offset)
+static void
+dissect_mip6_opt_bad(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                     guint optlen, packet_info *pinfo _U_,
+                     proto_tree *opt_tree)
 {
-    proto_tree *opt_tree = NULL;
-    proto_item *ti;
-    int len;
+    proto_tree *field_tree = NULL;
+    proto_item *tf;
 
-    len = (tvb_get_guint8(tvb, offset + 1)) + 2;
-    ti = proto_tree_add_text(opts_tree, tvb, offset, len,
-                             "Binding Authorization Data");
-    opt_tree = proto_item_add_subtree(ti, ett_mip6);
+    tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
-    proto_tree_add_item(opt_tree, hf_mip6_bad_auth, tvb,
-                        offset+MIP6_BAD_AUTH_OFF, MIP6_BAD_AUTH_LEN, FALSE);
-
-    return offset+len;
+    proto_tree_add_item(field_tree, hf_mip6_bad_auth, tvb,
+                         offset + 2, optlen - 2, FALSE);
 }
 
-static int
-dissect_mip6_opt_unknown(tvbuff_t *tvb, proto_tree *opts_tree, int offset)
-{
-    int len;
+static const ip_tcp_opt mip6_opts[] = {
+  {
+    PAD1,
+    "Pad1",
+    NULL,
+    NO_LENGTH,
+    0,
+    NULL,
+  },
+  {
+    PADN,
+    "PadN",
+    &ett_mip6_opt_padn,
+    VARIABLE_LENGTH,
+    0,
+    dissect_mip6_opt_padn
+  },
+  {
+    BRA,
+    "Binding Refresh Advice",
+    &ett_mip6_opt_bra,
+    FIXED_LENGTH,
+    2,
+    dissect_mip6_opt_bra
+  },
+  {
+    ACOA,
+    "Alternate Care-of Address",
+    &ett_mip6_opt_acoa,
+    FIXED_LENGTH,
+    16,
+    dissect_mip6_opt_acoa
+  },
+  {
+    NI,
+    "Nonce Indices",
+    &ett_mip6_opt_ni,
+    FIXED_LENGTH,
+    4,
+    dissect_mip6_opt_ni
+  },
+  {
+    BAD,
+    "Binding Authorization Data",
+    &ett_mip6_opt_bad,
+    VARIABLE_LENGTH,
+    0,
+    dissect_mip6_opt_bad
+  },
+};
 
-    len = (tvb_get_guint8(tvb, offset + 1)) + 2;
-    proto_tree_add_text(opts_tree, tvb, offset, len, "Unknown option");
-
-    return offset+len;
-}
+#define N_MIP6_OPTS	(sizeof mip6_opts / sizeof mip6_opts[0])
 
 /* Function to dissect mobility options */
 static int
-dissect_mip6_options(tvbuff_t *tvb, proto_tree *mip6_tree, int offset, int len)
+dissect_mip6_options(tvbuff_t *tvb, proto_tree *mip6_tree, int offset, int len,
+                     packet_info *pinfo)
 {
     proto_tree *opts_tree = NULL;
     proto_item *ti;
-    guint8     type;
 
     if (!mip6_tree)
         return len;
@@ -429,32 +443,8 @@ dissect_mip6_options(tvbuff_t *tvb, proto_tree *mip6_tree, int offset, int len)
                              "Mobility Options");
     opts_tree = proto_item_add_subtree(ti, ett_mip6);
 
-    while (offset < len) {
-        type = tvb_get_guint8(tvb, offset);
-        switch (type) {
-        case PAD1:
-            offset = dissect_mip6_opt_pad1(tvb, opts_tree, offset);
-            break;
-        case PADN:
-            offset = dissect_mip6_opt_padn(tvb, opts_tree, offset);
-            break;
-        case BRA:
-            offset = dissect_mip6_opt_bra(tvb, opts_tree, offset);
-            break;
-        case ACOA:
-            offset = dissect_mip6_opt_acoa(tvb, opts_tree, offset);
-            break;
-        case NI:
-            offset = dissect_mip6_opt_ni(tvb, opts_tree, offset);
-            break;
-        case BAD:
-            offset = dissect_mip6_opt_bad(tvb, opts_tree, offset);
-            break;
-        default:
-            dissect_mip6_opt_unknown(tvb, opts_tree, offset);
-            offset = len;
-        }
-    }
+    dissect_ipv6_options(tvb, offset, len,
+       mip6_opts, N_MIP6_OPTS, -1, pinfo, opts_tree);
 
     return len;
 }
@@ -466,7 +456,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *mip6_tree = NULL;
     proto_item *ti;
     guint8     type;
-    guint      len, offset = 0;
+    guint      len, offset = 0, start_offset = offset;
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -539,8 +529,14 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Process mobility options */
-    if (offset < len)
-        dissect_mip6_options(tvb, mip6_tree, offset, len);
+    if (offset < len) {
+        if (len < (offset - start_offset)) {
+            proto_tree_add_text(tree, tvb, 0, 0, "Bogus header length");
+            return;
+        }
+        len -= (offset - start_offset);
+        dissect_mip6_options(tvb, mip6_tree, offset, len, pinfo);
+    }
 }
 
 /* Register the protocol with Ethereal */
@@ -663,7 +659,12 @@ proto_register_mip6(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_mip6
+        &ett_mip6,
+        &ett_mip6_opt_padn,
+        &ett_mip6_opt_bra,
+        &ett_mip6_opt_acoa,
+        &ett_mip6_opt_ni,
+        &ett_mip6_opt_bad,
     };
     
     /* Register the protocol name and description */

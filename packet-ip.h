@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.27 2003/04/29 17:24:35 guy Exp $
+ * $Id: packet-ip.h,v 1.28 2003/07/11 09:30:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,28 +41,6 @@ typedef struct _e_ip
 } e_ip;
 
 void capture_ip(const guchar *, int, int, packet_counts *);
-
-typedef enum {
-  NO_LENGTH,		/* option has no data, hence no length */
-  FIXED_LENGTH,		/* option always has the same length */
-  VARIABLE_LENGTH	/* option is variable-length - optlen is minimum */
-} opt_len_type;
-
-/* Member of table of IP or TCP options. */
-typedef struct ip_tcp_opt {
-  int   optcode;	/* code for option */
-  char  *name;		/* name of option */
-  int   *subtree_index;	/* pointer to subtree index for option */
-  opt_len_type len_type; /* type of option length field */
-  int	optlen;		/* value length should be (minimum if VARIABLE) */
-  void	(*dissect)(const struct ip_tcp_opt *, tvbuff_t *, int, guint,
-  		   packet_info *, proto_tree *);
-			/* routine to dissect option */
-} ip_tcp_opt;
-
-/* Routine to dissect IP or TCP options. */
-void       dissect_ip_tcp_options(tvbuff_t *, int, guint,
-    const ip_tcp_opt *, int, int, packet_info *, proto_tree *);
 
 /* Export the DSCP value-string table for other protocols */
 extern const value_string dscp_vals[];

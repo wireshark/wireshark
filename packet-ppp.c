@@ -2,7 +2,7 @@
  * Routines for ppp packet disassembly
  * RFC 1661, RFC 1662
  *
- * $Id: packet-ppp.c,v 1.113 2003/06/13 04:07:13 guy Exp $
+ * $Id: packet-ppp.c,v 1.114 2003/07/11 09:30:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "packet-ppp.h"
 #include "ppptypes.h"
 #include "etypes.h"
+#include "ip_opts.h"
 #include <epan/atalk-utils.h>
 #include "packet-chdlc.h"
 #include "packet-ip.h"

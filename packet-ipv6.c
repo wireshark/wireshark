@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.98 2003/04/29 17:24:35 guy Exp $
+ * $Id: packet-ipv6.c,v 1.99 2003/07/11 09:30:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
+#include "ip_opts.h"
 #include <epan/resolv.h>
 #include "prefs.h"
 #include "reassemble.h"
@@ -353,6 +354,103 @@ static const value_string rtalertvals[] = {
     { IP6OPT_RTALERT_RSVP, "RSVP" },
     { 0, NULL },
 };
+
+/* Like "dissect_ip_tcp_options()", but assumes the length of an option
+   *doesn't* include the type and length bytes. */
+void
+dissect_ipv6_options(tvbuff_t *tvb, int offset, guint length,
+			const ip_tcp_opt *opttab, int nopts, int eol,
+			packet_info *pinfo, proto_tree *opt_tree)
+{
+  guchar            opt;
+  const ip_tcp_opt *optp;
+  opt_len_type      len_type;
+  unsigned int      optlen;
+  char             *name;
+  char              name_str[7+1+1+2+2+1+1];	/* "Unknown (0x%02x)" */
+  void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
+				int, guint, packet_info *, proto_tree *);
+  guint             len;
+
+  while (length > 0) {
+    opt = tvb_get_guint8(tvb, offset);
+    for (optp = &opttab[0]; optp < &opttab[nopts]; optp++) {
+      if (optp->optcode == opt)
+        break;
+    }
+    if (optp == &opttab[nopts]) {
+      /* We assume that the only NO_LENGTH options are Pad1 options,
+         so that we can treat unknown options as VARIABLE_LENGTH with a
+	 minimum of 0, and at least be able to move on to the next option
+	 by using the length in the option. */
+      optp = NULL;	/* indicate that we don't know this option */
+      len_type = VARIABLE_LENGTH;
+      optlen = 0;
+      snprintf(name_str, sizeof name_str, "Unknown (0x%02x)", opt);
+      name = name_str;
+      dissect = NULL;
+    } else {
+      len_type = optp->len_type;
+      optlen = optp->optlen;
+      name = optp->name;
+      dissect = optp->dissect;
+    }
+    --length;      /* account for type byte */
+    if (len_type != NO_LENGTH) {
+      /* Option has a length. Is it in the packet? */
+      if (length == 0) {
+        /* Bogus - packet must at least include option code byte and
+           length byte! */
+        proto_tree_add_text(opt_tree, tvb, offset,      1,
+              "%s (length byte past end of options)", name);
+        return;
+      }
+      len = tvb_get_guint8(tvb, offset + 1);  /* total including type, len */
+      --length;    /* account for length byte */
+      if (len > length) {
+        /* Bogus - option goes past the end of the header. */
+        proto_tree_add_text(opt_tree, tvb, offset,      length,
+              "%s (option length = %u byte%s says option goes past end of options)",
+	      name, len, plurality(len, "", "s"));
+        return;
+      } else if (len_type == FIXED_LENGTH && len != optlen) {
+        /* Bogus - option length isn't what it's supposed to be for this
+           option. */
+        proto_tree_add_text(opt_tree, tvb, offset,      2 + len,
+              "%s (with option length = %u byte%s; should be %u)", name,
+              len, plurality(len, "", "s"), optlen);
+        return;
+      } else if (len_type == VARIABLE_LENGTH && len < optlen) {
+        /* Bogus - option length is less than what it's supposed to be for
+           this option. */
+        proto_tree_add_text(opt_tree, tvb, offset,      2 + len,
+              "%s (with option length = %u byte%s; should be >= %u)", name,
+              len, plurality(len, "", "s"), optlen);
+        return;
+      } else {
+        if (optp == NULL) {
+          proto_tree_add_text(opt_tree, tvb, offset,    2 + len, "%s (%u byte%s)",
+				name, len, plurality(len, "", "s"));
+        } else {
+          if (dissect != NULL) {
+            /* Option has a dissector. */
+            (*dissect)(optp, tvb, offset,          2 + len, pinfo, opt_tree);
+          } else {
+            /* Option has no data, hence no dissector. */
+            proto_tree_add_text(opt_tree, tvb, offset,  2 + len, "%s", name);
+          }
+        }
+        offset += 2 + len;
+      }
+      length -= len;
+    } else {
+      proto_tree_add_text(opt_tree, tvb, offset,      1, "%s", name);
+      offset += 1;
+    }
+    if (opt == eol)
+      break;
+  }
+}
 
 static int
 dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, char *optname)

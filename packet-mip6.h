@@ -1,6 +1,6 @@
 /* packet-mip6.h
  *
- * $Id: packet-mip6.h,v 1.1 2003/02/04 20:16:57 guy Exp $
+ * $Id: packet-mip6.h,v 1.2 2003/07/11 09:30:48 guy Exp $
  *
  * Definitions for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
@@ -60,16 +60,6 @@ typedef enum {
     NI   = 4,
     BAD  = 5
 } optTypes;
-
-static const value_string mip6_opt_types[]= {
-    {PAD1, "Pad1"},
-    {PADN, "PadN"},
-    {BRA,  "Binding Refresh Advice"},
-    {ACOA, "Alternate Care-of Address"},
-    {NI,   "Nonce Indices"},
-    {BAD,  "Binding Authorization Data"},
-    {0,    NULL}
-};
 
 /* Binding Update flag description */
 static const true_false_string mip6_bu_a_flag_value = {
@@ -198,20 +188,5 @@ static const value_string mip6_be_status_value[] = {
 #define MIP6_BE_STATUS_LEN    1
 #define MIP6_BE_RES_LEN       1
 #define MIP6_BE_HOA_LEN      16
-
-/* Field offsets & lengths for mobility options */
-#define MIP6_BRA_RI_OFF       2
-#define MIP6_BRA_RI_LEN       2
-
-#define MIP6_ACOA_ACOA_OFF    2
-#define MIP6_ACOA_ACOA_LEN   16
-
-#define MIP6_NI_HNI_OFF       2
-#define MIP6_NI_CNI_OFF       4
-#define MIP6_NI_HNI_LEN       2
-#define MIP6_NI_CNI_LEN       2
-
-#define MIP6_BAD_AUTH_OFF     2
-#define MIP6_BAD_AUTH_LEN    12
 
 #endif /* __PACKET_MIP6_H_DEFINED__ */
