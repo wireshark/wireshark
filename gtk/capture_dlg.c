@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.88 2003/11/18 19:29:07 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.89 2003/12/13 11:00:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,8 +219,8 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   if (lt_list != NULL)
     free_pcap_linktype_list(lt_list);
   gtk_option_menu_set_menu(GTK_OPTION_MENU(linktype_om), lt_menu);
-  gtk_widget_set_sensitive(linktype_lb, num_supported_link_types != 0);
-  gtk_widget_set_sensitive(linktype_om, num_supported_link_types != 0);
+  gtk_widget_set_sensitive(linktype_lb, num_supported_link_types >= 2);
+  gtk_widget_set_sensitive(linktype_om, num_supported_link_types >= 2);
 }
 
 void
