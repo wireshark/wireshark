@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.5 2002/11/11 15:39:06 oabad Exp $
+ * $Id: rpc_progs.c,v 1.6 2002/12/16 07:02:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,15 +81,26 @@ rpcprogs_reset(void *dummy _U_)
 {
 	rpc_program_t *rp;
 
-	for(rp=prog_list;rp;rp=rp->next){
-		rp->num=0;	
-		rp->min.secs=0;
-		rp->min.nsecs=0;
-		rp->max.secs=0;
-		rp->max.nsecs=0;
-		rp->tot.secs=0;
-		rp->tot.nsecs=0;
+	while(prog_list){
+		rp=prog_list;
+		prog_list=prog_list->next;
+
+		gtk_widget_destroy(rp->wprogram);
+		rp->wprogram=NULL;
+		gtk_widget_destroy(rp->wversion);
+		rp->wversion=NULL;
+		gtk_widget_destroy(rp->wnum);
+		rp->wnum=NULL;
+		gtk_widget_destroy(rp->wmin);
+		rp->wmin=NULL;
+		gtk_widget_destroy(rp->wmax);
+		rp->wmax=NULL;
+		gtk_widget_destroy(rp->wavg);
+		rp->wavg=NULL;
+		g_free(rp);
 	}
+	gtk_table_resize(GTK_TABLE(table), 1, 6);
+	num_progs=0;
 }
 
 static void
