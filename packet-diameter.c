@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.12 2001/02/05 02:47:31 guy Exp $
+ * $Id: packet-diameter.c,v 1.13 2001/02/16 21:41:00 gram Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -306,7 +306,7 @@ static gchar *rd_value_to_str(e_avphdr *avph,const u_char *pd, int offset)
 	guint32 intval;
 	int dataLen;
 	char *valstr;
-	static char buffer[1024];
+	static char buffer[1024 + 7]; /* 7 = strlen("Value: ") */
 
 	dataLen = avph->avp_length - sizeof(e_avphdr);
 
@@ -314,6 +314,13 @@ static gchar *rd_value_to_str(e_avphdr *avph,const u_char *pd, int offset)
 		dataLen += 4;
 	if (!(avph->avp_flags & AVP_FLAGS_T))
 		dataLen += 4;
+
+	if (dataLen < 0) {
+		return "Data Length too small.";
+	}
+	else if (dataLen >= sizeof(buffer)) {
+		return "Data Length too big.";
+	}
 
 /* prints the values of the attribute value pairs into a text buffer */
 	
@@ -387,17 +394,23 @@ static void dissect_attribute_value_pairs(const u_char *pd, int offset,
 	guint32 vendorId=0;
 	int dataOffset;
 	int fixAmt;
+	int adj;
 	proto_item *avptf;
 	proto_tree *avptree;
 	int vendorOffset, tagOffset;
 	
-	if (avplength==0) {
+	if (avplength <= 0) {
 		proto_tree_add_text(tree, NullTVB,offset,0,
 		    "No Attribute Value Pairs Found");
 		return;
 	}
-	
+
 	while (avplength > 0 ) {
+
+		if (! IS_DATA_IN_FRAME(offset)) {
+			break;
+		}
+
 		vendorOffset = tagOffset = 0;
 		memcpy(&avph,&pd[offset],sizeof(e_avphdr));
 		avph.avp_type = ntohl(avph.avp_type);
@@ -433,7 +446,8 @@ static void dissect_attribute_value_pairs(const u_char *pd, int offset,
 		 */
 		fixAmt = 4 - (avph.avp_length % 4);
 		if (fixAmt == 4) fixAmt = 0;
-		avplength=avplength - (avph.avp_length + fixAmt);
+		adj = avph.avp_length + fixAmt;
+		avplength=avplength - adj;
 		avptpstrval=match_strval(avph.avp_type, diameter_attrib_type_vals);
 		if (avptpstrval == NULL) avptpstrval="Unknown Type";
 		if (!BYTES_ARE_IN_FRAME(offset, avph.avp_length)) {
@@ -481,7 +495,10 @@ static void dissect_attribute_value_pairs(const u_char *pd, int offset,
 			    "Data: (%d bytes) %s",
 			    avph.avp_length - dataOffset, valstr);
 		}
-		offset=offset+avph.avp_length + fixAmt;
+		if (adj <= 0) {
+			break;
+		}
+		offset=offset+avph.avp_length + adj;
 	}
 }
 
