@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.295 2002/11/29 11:02:13 sahlberg Exp $
+ * $Id: file.c,v 1.296 2002/12/01 20:19:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -656,6 +656,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     firstsec  = fdata->abs_secs;
     firstusec = fdata->abs_usecs;
   }
+
   /* If we don't have the time stamp of the previous displayed packet,
      it's because this is the first displayed packet.  Save the time
      stamp of this packet as the time stamp of the previous displayed
@@ -682,9 +683,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      this packet. */
   compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
 	fdata->abs_secs, fdata->abs_usecs, prevsec, prevusec);
-  prevsec = fdata->abs_secs;
-  prevusec = fdata->abs_usecs;
-
 
   /* If either
 
@@ -770,6 +768,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
         packet_list_set_colors(row, &args.colorf->fg_color,
                                &args.colorf->bg_color);
     }
+
+    /* Set the time of the previous displayed frame to the time of this
+       frame. */
+    prevsec = fdata->abs_secs;
+    prevusec = fdata->abs_usecs;
   } else {
     /* This frame didn't pass the display filter, so it's not being added
        to the clist, and thus has no row. */
