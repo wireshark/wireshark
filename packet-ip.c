@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.79 2000/04/13 18:18:45 gram Exp $
+ * $Id: packet-ip.c,v 1.80 2000/04/16 21:37:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,7 @@
 #endif
 
 #include "etypes.h"
+#include "ppptypes.h"
 #include "packet-gre.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
@@ -1521,6 +1522,7 @@ void
 proto_reg_handoff_ip(void)
 {
 	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip);
+	dissector_add("ppp.protocol", PPP_IP, dissect_ip);
 }
 
 void

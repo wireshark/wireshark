@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.13 2000/04/13 18:18:52 gram Exp $
+ * $Id: packet-vines.c,v 1.14 2000/04/16 21:37:06 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -38,6 +38,7 @@
 
 #include <glib.h>
 #include "etypes.h"
+#include "ppptypes.h"
 #include "packet.h"
 #include "packet-vines.h"
 
@@ -45,13 +46,20 @@ static gint ett_vines = -1;
 static gint ett_vines_frp = -1;
 static gint ett_vines_spp = -1;
 
+#if 0
+static void dissect_vines_arp(const u_char *, int, frame_data *, proto_tree *);
+static void dissect_vines_icp(const u_char *, int, frame_data *, proto_tree *);
+static void dissect_vines_ipc(const u_char *, int, frame_data *, proto_tree *);
+static void dissect_vines_rtp(const u_char *, int, frame_data *, proto_tree *);
+#endif
+static void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
+static void dissect_vines(const u_char *, int, frame_data *, proto_tree *);
+
 void
 capture_vines(const u_char *pd, int offset, packet_counts *ld)
 {
   ld->vines++;
 }
-
-
 
 /* AFAIK Vines FRP (Fragmentation Protocol) is used on all media except Ethernet
  * and TR (and probably FDDI) - Fragmentation on these media types is not possible
@@ -126,7 +134,7 @@ vines_addr_to_str(const guint8 *addrp)
   return cur;
 }
 
-void
+static void
 dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 	{
   	e_vip       viph;
@@ -345,4 +353,5 @@ void
 proto_reg_handoff_vines(void)
 {
 	dissector_add("ethertype", ETHERTYPE_VINES, dissect_vines);
+	dissector_add("ppp.protocol", PPP_VINES, dissect_vines);
 }

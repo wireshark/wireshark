@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.30 2000/03/27 17:53:19 gram Exp $
+ * $Id: packet-ppp.c,v 1.31 2000/04/16 21:37:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "ppptypes.h"
 #include "packet-atalk.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
@@ -60,6 +61,8 @@ static gint ett_lcp_callback_opt = -1;
 static gint ett_lcp_multilink_ep_disc_opt = -1;
 static gint ett_lcp_internationalization_opt = -1;
 
+static dissector_table_t subdissector_table;
+
 static int proto_mp = -1;
 static int hf_mp_frag_first = -1;
 static int hf_mp_frag_last = -1;
@@ -75,31 +78,6 @@ typedef struct _e_ppphdr {
   guint8  ppp_ctl;
   guint16 ppp_prot;
 } e_ppphdr;
-
-
-/* Protocol types, from Linux "ppp_defs.h" and
-
-	http://www.isi.edu/in-notes/iana/assignments/ppp-numbers
-
- */
-#define PPP_IP		0x21	/* Internet Protocol */
-#define PPP_AT		0x29	/* AppleTalk Protocol */
-#define PPP_IPX		0x2b	/* IPX protocol */
-#define	PPP_VJC_COMP	0x2d	/* VJ compressed TCP */
-#define	PPP_VJC_UNCOMP	0x2f	/* VJ uncompressed TCP */
-#define	PPP_VINES	0x35	/* Banyan Vines */
-#define PPP_MP		0x3d	/* Multilink PPP */
-#define PPP_IPV6	0x57	/* Internet Protocol Version 6 */
-#define PPP_COMP	0xfd	/* compressed packet */
-#define PPP_IPCP	0x8021	/* IP Control Protocol */
-#define PPP_ATCP	0x8029	/* AppleTalk Control Protocol */
-#define PPP_IPXCP	0x802b	/* IPX Control Protocol */
-#define PPP_CCP		0x80fd	/* Compression Control Protocol */
-#define PPP_LCP		0xc021	/* Link Control Protocol */
-#define PPP_PAP		0xc023	/* Password Authentication Protocol */
-#define PPP_LQR		0xc025	/* Link Quality Report protocol */
-#define PPP_CHAP	0xc223	/* Cryptographic Handshake Auth. Protocol */
-#define PPP_CBCP	0xc029	/* Callback Control Protocol */
 
 static const value_string ppp_vals[] = {
 	{PPP_IP,        "IP"             },
@@ -1007,24 +985,18 @@ dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
   }
   offset += proto_len;
 
+  /* do lookup with the subdissector table */
+  if (dissector_try_port(subdissector_table, ppp_prot, pd, offset, fd, tree))
+      return TRUE;
+
+  /* XXX - make "dissect_lcp()" and "dissect_ipcp()", have them just
+     call "dissect_cp()", and register them as well?
+
+     We can't do that for "dissect_mp()", though, as it takes an additional
+     argument. */
   switch (ppp_prot) {
-    case PPP_IP:
-      dissect_ip(pd, offset, fd, tree);
-      return TRUE;
-    case PPP_AT:
-      dissect_ddp(pd, offset, fd, tree);
-      return TRUE;
-    case PPP_IPX:
-      dissect_ipx(pd, offset, fd, tree);
-      return TRUE;
-    case PPP_VINES:
-      dissect_vines(pd, offset, fd, tree);
-      return TRUE;
     case PPP_MP:
       dissect_mp(pd, offset, fd, tree, fh_tree);
-      return TRUE;
-    case PPP_IPV6:
-      dissect_ipv6(pd, offset, fd, tree);
       return TRUE;
     case PPP_LCP:
       dissect_cp(pd, offset, "L", "Link", ett_lcp, lcp_vals, ett_lcp_options,
@@ -1195,6 +1167,9 @@ proto_register_ppp(void)
         proto_ppp = proto_register_protocol("Point-to-Point Protocol", "ppp");
  /*       proto_register_field_array(proto_ppp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+
+/* subdissector code */
+	subdissector_table = register_dissector_table("ppp.protocol");
 }
 
 void

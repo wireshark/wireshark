@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.32 2000/04/13 18:18:44 gram Exp $
+ * $Id: packet-atalk.c,v 1.33 2000/04/16 21:37:03 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -36,6 +36,7 @@
 #include "packet.h"
 #include "packet-atalk.h"
 #include "etypes.h"
+#include "ppptypes.h"
 
 static int proto_ddp = -1;
 static int hf_ddp_hopcount = -1;
@@ -561,4 +562,5 @@ void
 proto_reg_handoff_atalk(void)
 {
 	dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp);
+	dissector_add("ppp.protocol", PPP_AT, dissect_ddp);
 }
