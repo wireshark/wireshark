@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.120 2003/04/21 08:13:18 guy Exp $
+ * $Id: packet-rpc.c,v 1.121 2003/04/23 10:31:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2849,6 +2849,20 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 		}
 
+		/* PDU tracking
+		  If the length indicates that the PDU continues beyond
+		  the end of this tvb, then tell TCP about it so that it
+		  knows where the next PDU starts.
+		  This is to help TCP detect when PDUs are not aligned to
+		  segment boundaries and allow it to find RPC headers
+		  that starts in the middle of a TCP segment.
+		*/
+		if(!pinfo->fd->flags.visited){
+			if(len>tvb_reported_length_remaining(tvb, offset)){
+				pinfo->want_pdu_tracking=2;
+				pinfo->bytes_until_next_pdu=len-tvb_reported_length_remaining(tvb, offset);
+			}
+		}
 		offset += len;
 		saw_rpc = TRUE;
 	}
