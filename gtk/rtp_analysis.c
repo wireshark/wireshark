@@ -104,6 +104,7 @@ typedef struct column_arrows {
 	GtkWidget *descend_pm;
 } column_arrows;
 
+#define NUM_COLS 9
 #define NUM_GRAPH_ITEMS 100000
 #define MAX_YSCALE 16
 #define AUTO_MAX_YSCALE 0
@@ -254,6 +255,11 @@ GdkColormap *colormap;
 
 /****************************************************************************/
 /* structure that holds the information about the forward and reversed direction */
+typedef struct _bw_history_item {
+        double time;
+        guint32 bytes;
+} bw_history_item;
+#define BUFF_BW 300 
 typedef struct _tap_rtp_stat_t {
 	gboolean first_packet;     /* do not use in code that is called after rtp_packet_analyse */
 	                           /* use (flags & STAT_FLAG_FIRST) instead */
@@ -263,6 +269,11 @@ typedef struct _tap_rtp_stat_t {
 	guint16 seq_num;
 	guint32 timestamp;
 	guint32 delta_timestamp;
+	double bandwidth;
+	bw_history_item bw_history[BUFF_BW];
+	guint16 bw_start_index;
+	guint16 bw_index;
+	guint32 total_bytes;
 	double delay;
 	double jitter;
 	double diff;
@@ -337,11 +348,12 @@ typedef struct _user_data_t {
 
 
 /* Column titles. */
-static gchar *titles[8] =  {
+static gchar *titles[9] =  {
 	"Packet",
 	"Sequence",
 	"Delay (ms)",
 	"Jitter (ms)",
+	"IP BW (kbps)",
 	"Marker",
 	"Status",
 	"Date",
@@ -381,6 +393,14 @@ rtp_reset(void *user_data_arg)
         user_data->reversed.statinfo.diff = 0;
 	user_data->forward.statinfo.jitter = 0;
 	user_data->reversed.statinfo.jitter = 0;
+	user_data->forward.statinfo.bandwidth = 0;
+	user_data->reversed.statinfo.bandwidth = 0;
+	user_data->forward.statinfo.total_bytes = 0;
+	user_data->reversed.statinfo.total_bytes = 0;
+	user_data->forward.statinfo.bw_start_index = 0;
+	user_data->reversed.statinfo.bw_start_index = 0;
+	user_data->forward.statinfo.bw_index = 0;
+	user_data->reversed.statinfo.bw_index = 0;
 	user_data->forward.statinfo.timestamp = 0;
 	user_data->reversed.statinfo.timestamp = 0;
 	user_data->forward.statinfo.max_nr = 0;
@@ -506,7 +526,7 @@ static void rtp_draw(void *prs _U_)
 
 /* forward declarations */
 static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
-                         double delay, double jitter, gchar *status, gboolean marker,
+                         double delay, double jitter, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, GdkColor *color);
 
 static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
@@ -575,7 +595,6 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	guint32 clock_rate;
 
 	statinfo->flags = 0;
-
 	/* check payload type */
 	if (rtpinfo->info_payload_type == PT_CN
 		|| rtpinfo->info_payload_type == PT_CN_OLD)
@@ -585,7 +604,6 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->flags |= STAT_FLAG_FOLLOW_PT_CN;
 	if (rtpinfo->info_payload_type != statinfo->pt)
 		statinfo->flags |= STAT_FLAG_PT_CHANGE;
-
 	statinfo->pt = rtpinfo->info_payload_type;
 	/*
 	 * XXX - should "get_clock_rate()" return 0 for unknown
@@ -601,6 +619,21 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	statinfo->delay = current_time-(statinfo->time);
 	statinfo->jitter = current_jitter;
 	statinfo->diff = current_diff;
+
+	/* calculate the BW in Kbps adding the IP+UDP header to the RTP -> 20bytes(IP)+8bytes(UDP) = 28bytes */
+	statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
+	statinfo->bw_history[statinfo->bw_index].time = current_time;
+	/* check if there are more than 1sec in the history buffer to calculate BW in bps. If so, remove those for the calculation */
+	while ((statinfo->bw_history[statinfo->bw_start_index].time+1)<current_time){
+	 	statinfo->total_bytes -= statinfo->bw_history[statinfo->bw_start_index].bytes;	
+		statinfo->bw_start_index++;
+		if (statinfo->bw_start_index == BUFF_BW) statinfo->bw_start_index=0;
+	};
+	statinfo->total_bytes += rtpinfo->info_data_len + 28;
+	statinfo->bandwidth = (double)(statinfo->total_bytes*8)/1000;
+	statinfo->bw_index++;
+	if (statinfo->bw_index == BUFF_BW) statinfo->bw_index = 0;	
+
 
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->first_packet) {
@@ -697,7 +730,6 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->sequence++;
 		statinfo->flags |= STAT_FLAG_WRONG_SEQ;
 	}
-
 	statinfo->time = current_time;
 	statinfo->timestamp = rtpinfo->info_timestamp;
 	statinfo->stop_seq_nr = rtpinfo->info_seq_num;
@@ -723,7 +755,6 @@ static int rtp_packet_add_info(GtkCList *clist,
 	time_t then;
 	gchar status[40];
 	GdkColor color = COLOR_DEFAULT;
-
 	then = pinfo->fd->abs_secs;
 	msecs = (guint16)(pinfo->fd->abs_usecs/1000);
 	tm_tmp = localtime(&then);
@@ -766,13 +797,13 @@ static int rtp_packet_add_info(GtkCList *clist,
 		}
 		g_snprintf(status,sizeof(status),OK_TEXT);
 	}
-
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
 		add_to_clist(clist,
 			pinfo->fd->num, rtpinfo->info_seq_num,
 			0,
 			0,
+			statinfo->bandwidth,
 			status,
 			rtpinfo->info_marker_set,
 			timeStr, pinfo->fd->pkt_len,
@@ -783,12 +814,12 @@ static int rtp_packet_add_info(GtkCList *clist,
 			pinfo->fd->num, rtpinfo->info_seq_num,
 			statinfo->delay*1000,
 			statinfo->jitter*1000,
+			statinfo->bandwidth,
 			status,
 			rtpinfo->info_marker_set,
 			timeStr, pinfo->fd->pkt_len,
 			&color);
 	}
-
 	return 0;
 }
 
@@ -2173,7 +2204,7 @@ static void on_next_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	clist = user_data->dlg.selected_clist;
 	row = user_data->dlg.selected_row + 1;
 
-	while (gtk_clist_get_text(clist,row,5,&text)) {
+	while (gtk_clist_get_text(clist,row,6,&text)) {
 		if (strcmp(text, OK_TEXT) != 0) {
 			gtk_clist_select_row(clist, row, 0);
 			gtk_clist_moveto(clist, row, 0, 0.5, 0);
@@ -2184,7 +2215,7 @@ static void on_next_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	/* wrap around */
 	row = 0;
-	while (gtk_clist_get_text(clist,row,5,&text) && row<user_data->dlg.selected_row) {
+	while (gtk_clist_get_text(clist,row,6,&text) && row<user_data->dlg.selected_row) {
 		if (strcmp(text, OK_TEXT) != 0) {
 			gtk_clist_select_row(clist, row, 0);
 			gtk_clist_moveto(clist, row, 0, 0.5, 0);
@@ -2239,7 +2270,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 			}
 		}
 		
-		for(j = 0; j < 8; j++) {
+		for(j = 0; j < NUM_COLS; j++) {
 			if (j == 0) {
 				fprintf(fp,"%s",titles[j]);
 			} else {
@@ -2296,7 +2327,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 				return;
 			}
 		}
-		for(j = 0; j < 8; j++) {
+		for(j = 0; j < NUM_COLS; j++) {
 			if (j == 0) {
 				fprintf(fp,"%s",titles[j]);
 			} else {
@@ -2933,17 +2964,16 @@ static void draw_stat(user_data_t *user_data)
 }
 
 
-#define NUM_COLS 8
 
 /****************************************************************************/
 /* append a line to clist */
 static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
-                         double delay, double jitter, gchar *status, gboolean marker,
+                         double delay, double jitter, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, GdkColor *color)
 {
 	guint added_row;
-	gchar *data[8];
-	gchar field[8][32];
+	gchar *data[9];
+	gchar field[9][32];
 
 	data[0]=&field[0][0];
 	data[1]=&field[1][0];
@@ -2953,16 +2983,17 @@ static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
 	data[5]=&field[5][0];
 	data[6]=&field[6][0];
 	data[7]=&field[7][0];
+	data[8]=&field[8][0];
 
 	g_snprintf(field[0], 20, "%u", number);
 	g_snprintf(field[1], 20, "%u", seq_num);
-	g_snprintf(field[2], 20, "%f", delay);
-	g_snprintf(field[3], 20, "%f", jitter);
-	g_snprintf(field[4], 20, "%s", marker? "SET" : "");
-	g_snprintf(field[5], 40, "%s", status);
-	g_snprintf(field[6], 32, "%s", timeStr);
-	g_snprintf(field[7], 20, "%u", pkt_len);
-
+	g_snprintf(field[2], 20, "%.2f", delay);
+	g_snprintf(field[3], 20, "%.2f", jitter);
+	g_snprintf(field[4], 20, "%.2f", bandwidth);
+	g_snprintf(field[5], 20, "%s", marker? "SET" : "");
+	g_snprintf(field[6], 40, "%s", status);
+	g_snprintf(field[7], 32, "%s", timeStr);
+	g_snprintf(field[8], 20, "%u", pkt_len);
 	added_row = gtk_clist_append(GTK_CLIST(clist), data);
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, GUINT_TO_POINTER(number));
 	gtk_clist_set_background(GTK_CLIST(clist), added_row, color);
@@ -2986,20 +3017,21 @@ static gint rtp_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer p
 
 	switch(clist->sort_column){
 	/* columns representing strings */
-	case 4:
 	case 5:
 	case 6:
+	case 7:
 		return strcmp (text1, text2);
 	/* columns representing ints */
 	case 0:
 	case 1:
-	case 7:
+	case 8:
 		i1=atoi(text1);
 		i2=atoi(text2);
 		return i1-i2;
 	/* columns representing floats */
 	case 2:
 	case 3:
+	case 4:
 		f1=atof(text1);
 		f2=atof(text2);
 		if (fabs(f1-f2)<0.0000005)
@@ -3054,7 +3086,7 @@ GtkWidget* create_clist(user_data_t* user_data)
 	GtkWidget* clist_fwd;
 
 	/* clist for the information */
-	clist_fwd = gtk_clist_new(8);
+	clist_fwd = gtk_clist_new(NUM_COLS);
 	gtk_widget_show(clist_fwd);
 	SIGNAL_CONNECT(clist_fwd, "select_row", on_clist_select_row, user_data);
 
@@ -3064,8 +3096,8 @@ GtkWidget* create_clist(user_data_t* user_data)
 	gtk_clist_set_sort_type(GTK_CLIST(clist_fwd), GTK_SORT_ASCENDING);
 
 	/* hide date and length column */
-	gtk_clist_set_column_visibility(GTK_CLIST(clist_fwd), 6, FALSE);
 	gtk_clist_set_column_visibility(GTK_CLIST(clist_fwd), 7, FALSE);
+	gtk_clist_set_column_visibility(GTK_CLIST(clist_fwd), 8, FALSE);
 
 	/* column widths and justification */
 	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 0, 60);
@@ -3073,13 +3105,14 @@ GtkWidget* create_clist(user_data_t* user_data)
 	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 2, 75);
 	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 3, 75);
 	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 4, 50);
+	gtk_clist_set_column_width(GTK_CLIST(clist_fwd), 5, 75);
 	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 0, GTK_JUSTIFY_RIGHT);
 	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 1, GTK_JUSTIFY_RIGHT);
 	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 2, GTK_JUSTIFY_CENTER);
 	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 3, GTK_JUSTIFY_CENTER);
 	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 4, GTK_JUSTIFY_CENTER);
 	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 5, GTK_JUSTIFY_CENTER);
-
+	gtk_clist_set_column_justification(GTK_CLIST(clist_fwd), 6, GTK_JUSTIFY_CENTER);
 	return clist_fwd;
 }
 
