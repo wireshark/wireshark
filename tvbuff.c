@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.16 2000/09/13 20:17:22 gram Exp $
+ * $Id: tvbuff.c,v 1.17 2000/09/13 20:30:06 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -179,6 +179,15 @@ tvb_new(tvbuff_type type)
 	return tvb;
 }
 
+/* We accept a void* instead of a field_info* to satisfy CLEANUP_POP */
+static void
+tvb_free_void(void *tvb)
+{
+	tvb_free((tvbuff_t*)tvb);
+}
+
+
+
 void
 tvb_free(tvbuff_t* tvb)
 {
@@ -296,7 +305,7 @@ tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 
 	tvb = tvb_new(TVBUFF_REAL_DATA);
 
-	CLEANUP_PUSH(tvb_free, tvb);
+	CLEANUP_PUSH(tvb_free_void, tvb);
 
 	tvb_set_real_data(tvb, data, length, reported_length);
 
@@ -470,7 +479,7 @@ tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint
 
 	tvb = tvb_new(TVBUFF_SUBSET);
 
-	CLEANUP_PUSH(tvb_free, tvb);
+	CLEANUP_PUSH(tvb_free_void, tvb);
 
 	tvb_set_subset(tvb, backing, backing_offset, backing_length, reported_length);
 
