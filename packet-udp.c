@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.84 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-udp.c,v 1.85 2001/01/11 16:27:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,8 +84,10 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, int uh_sport, int uh_dport)
 {
   tvbuff_t *next_tvb;
+#ifdef HAVE_PLUGINS
   const u_char *next_pd;
   int next_offset;
+#endif
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
