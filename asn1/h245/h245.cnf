@@ -5,7 +5,7 @@
 #.EXPORTS
 #----------------------------------------------------------------------------------------
 T38FaxProfile
-DataProtocolCapability
+DataProtocolCapability NO_PROT_PREFIX
 OpenLogicalChannel
 
 #----------------------------------------------------------------------------------------
@@ -19,12 +19,12 @@ OpenLogicalChannel
 	        if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, RequestMessage_short_vals, "<unknown>"));
+				val_to_str(value, h245_RequestMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, RequestMessage_vals, "<unknown>"));
+				val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
 		}
 	}
 
@@ -46,12 +46,12 @@ OpenLogicalChannel
 	        if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, ResponseMessage_short_vals, "<unknown>"));
+				val_to_str(value, h245_ResponseMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, ResponseMessage_vals, "<unknown>"));
+				val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
 		}
 	}
 
@@ -69,12 +69,12 @@ OpenLogicalChannel
 	        if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, IndicationMessage_short_vals, "<unknown>"));
+				val_to_str(value, h245_IndicationMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, IndicationMessage_vals, "<unknown>"));
+				val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 		}
 	}
 
@@ -92,12 +92,12 @@ OpenLogicalChannel
 	        if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, CommandMessage_short_vals, "<unknown>"));
+				val_to_str(value, h245_CommandMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
 	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str(value, CommandMessage_vals, "<unknown>"));
+				val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
 		}
 	}
 
@@ -111,7 +111,7 @@ OpenLogicalChannel
                               ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability",
                               &value);
 
-        codec_type = val_to_str(value, AudioCapability_vals, "<unknown>");
+        codec_type = val_to_str(value, h245_AudioCapability_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY VideoCapability
@@ -121,7 +121,7 @@ OpenLogicalChannel
                               ett_h245_VideoCapability, VideoCapability_choice, "VideoCapability",
                               &value);
 
-        codec_type = val_to_str(value, VideoCapability_vals, "<unknown>");
+        codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY Application
@@ -131,7 +131,7 @@ OpenLogicalChannel
                               ett_h245_Application, Application_choice, "Application",
                               &value);
 
-        codec_type = val_to_str(value, Application_vals, "<unknown>");
+        codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationAck
@@ -235,7 +235,7 @@ guint32 value_len;
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY tsapIdentifier
+#.FN_BODY UnicastAddress/iPAddress/tsapIdentifier
 guint32 tsapIdentifier;
 
 
@@ -393,6 +393,7 @@ MultiplexElement/repeatCount ME_repeatCount
 FECCapability/rfc2733 FECC_rfc2733
 RequestModeAck/response Req_mode_ack_response
 UserInputIndication/signalUpdate/rtp Si_rtp
+UnicastAddress/iPAddress/tsapIdentifier TsapIdentifier
 #----------------------------------------------------------------------------------------
 #.FIELD_RENAME
 #----------------------------------------------------------------------------------------
@@ -634,11 +635,15 @@ VBDCapability/type vbd_cap_type
 OpenLogicalChannelAck/reverseLogicalChannelParameters olc_ack_reverseLogicalChannelParameters
 H2250LogicalChannelAckParameters/mediaChannel ack_mediaChannel
 H2250LogicalChannelAckParameters/mediaControlChannel ack_mediaControlChannel
+UnicastAddress/iP6Address/tsapIdentifier ipv6_tsapIdentifier 
+UnicastAddress/iPSourceRouteAddress/tsapIdentifier iPSrcRoute_tsapIdentifier 
+MulticastAddress/iPAddress/tsapIdentifier multicast_tsapIdentifier
+MulticastAddress/iP6Address/tsapIdentifier multicast_IPv6_tsapIdentifier
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 UnicastAddress/iPAddress/network  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 UnicastAddress/iP6Address/network  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
 MulticastAddress/iPAddress/network  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 MulticastAddress/iP6Address/network  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
-RTPPayloadType/payloadDescriptor/rfc-number TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(RFC_number_vals)
+RTPPayloadType/payloadDescriptor/rfc-number TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(h245_RFC_number_vals)
 #----------------------------------------------------------------------------------------

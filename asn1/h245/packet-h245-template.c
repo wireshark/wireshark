@@ -73,7 +73,7 @@ static h245_packet_info h245_pi;
 
 static gboolean h245_reassembly = TRUE;
 static gboolean h245_shorttypes = FALSE;
-static const value_string RequestMessage_short_vals[] = {
+static const value_string h245_RequestMessage_short_vals[] = {
 	{  0,	"NSM" },
 	{  1,	"MSD" },
 	{  2,	"TCS" },
@@ -92,7 +92,7 @@ static const value_string RequestMessage_short_vals[] = {
 	{ 15,	"GR" },
 	{  0, NULL }
 };
-static const value_string ResponseMessage_short_vals[] = {
+static const value_string h245_ResponseMessage_short_vals[] = {
 	{  0,	"NSM" },
 	{  1,	"MSDAck" },
 	{  2,	"MSDReject" },
@@ -120,7 +120,7 @@ static const value_string ResponseMessage_short_vals[] = {
 	{ 24,	"GR" },
 	{  0, NULL }
 };
-static const value_string IndicationMessage_short_vals[] = {
+static const value_string h245_IndicationMessage_short_vals[] = {
 	{  0,	"NSM" },
 	{  1,	"FNU" },
 	{  2,	"MSDRelease" },
@@ -147,7 +147,7 @@ static const value_string IndicationMessage_short_vals[] = {
 	{ 22,	"GI" },
 	{  0, NULL }
 };
-static const value_string CommandMessage_short_vals[] = {
+static const value_string h245_CommandMessage_short_vals[] = {
 	{  0,	"NSM" },
 	{  1,	"MLOC" },
 	{  2,	"STCS" },
@@ -176,7 +176,7 @@ static guint32 rtcp_ipv4_port;
 static gboolean media_channel;
 static gboolean media_control_channel;
 
-static const value_string RFC_number_vals[] = {
+static const value_string h245_RFC_number_vals[] = {
 	{  2190,	"RFC 2190 - H.263 Video Streams" },
 	{  2429,	"RFC 2429 - 1998 Version of ITU-T Rec. H.263 Video (H.263+)" },
 	{  3267,	"RFC 3267 - Adaptive Multi-Rate (AMR) and Adaptive Multi-Rate Wideband (AMR-WB)" },
@@ -225,7 +225,7 @@ void proto_register_h245(void) {
   static hf_register_info hf[] = {
     { &hf_h245_pdu_type,
  { "PDU Type", "h245.pdu_type", FT_UINT32, BASE_DEC,
-		VALS(MultimediaSystemControlMessage_vals), 0, "Type of H.245 PDU", HFILL }},
+		VALS(h245_MultimediaSystemControlMessage_vals), 0, "Type of H.245 PDU", HFILL }},
 #include "packet-h245-hfarr.c"
   };
 
