@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.26 2000/01/24 03:51:35 guy Exp $
+ * $Id: packet-ppp.c,v 1.27 2000/01/29 04:47:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1063,7 +1063,7 @@ dissect_mp(const u_char *pd, int offset, frame_data *fd,
   flags = pd[offset];
   first = flags && MP_FRAG_FIRST;
   last  = flags && MP_FRAG_LAST;
-  memcpy(&seq, &pd[offset + 1], 3);
+  seq = pd[offset+1] << 16 | pd[offset+2] << 8 | pd[offset+3];
 
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "PPP Multilink");
@@ -1097,8 +1097,7 @@ dissect_mp(const u_char *pd, int offset, frame_data *fd,
     proto_tree_add_text(hdr_tree, offset, 1, "%s",
       decode_boolean_bitfield(flags, MP_FRAG_RESERVED, sizeof(flags) * 8,
         "reserved", "reserved"));
-    proto_tree_add_item_format(mp_tree, hf_mp_sequence_num,
-      offset + 1, 3, seq, "Sequence: %lu", seq);
+    proto_tree_add_item(mp_tree, hf_mp_sequence_num, offset + 1, 3, seq);
  }
 
   offset += 4;
@@ -1207,7 +1206,7 @@ proto_register_mp(void)
     	"" }},
 
     { &hf_mp_sequence_num,
-    { "Sequence number",	"mp.seq",	FT_UINT32, BASE_DEC, NULL, 0x0,
+    { "Sequence number",	"mp.seq",	FT_UINT24, BASE_DEC, NULL, 0x0,
     	"" }}
   };
   static gint *ett[] = {
