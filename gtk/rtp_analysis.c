@@ -346,8 +346,8 @@ rtp_reset(void *user_data_arg)
 	user_data->reversed.statinfo.mean_jitter = 0;
 	user_data->forward.statinfo.delta = 0;
 	user_data->reversed.statinfo.delta = 0;
-        user_data->forward.statinfo.diff = 0;
-        user_data->reversed.statinfo.diff = 0;
+	user_data->forward.statinfo.diff = 0;
+	user_data->reversed.statinfo.diff = 0;
 	user_data->forward.statinfo.jitter = 0;
 	user_data->reversed.statinfo.jitter = 0;
 	user_data->forward.statinfo.bandwidth = 0;
@@ -421,56 +421,56 @@ rtp_reset(void *user_data_arg)
 /****************************************************************************/
 static int rtp_packet_add_graph(dialog_graph_graph_t *dgg, tap_rtp_stat_t *statinfo, packet_info *pinfo, guint32 value)
 {
-        dialog_graph_graph_item_t *it;
-        int idx;
+	dialog_graph_graph_item_t *it;
+	int idx;
 	double rtp_time;
 
-        /* we sometimes get called when dgg is disabled.
-           this is a bug since the tap listener should be removed first */
-        if(!dgg->display){
-                return 0;
-        }
+	/* we sometimes get called when dgg is disabled.
+	this is a bug since the tap listener should be removed first */
+	if(!dgg->display){
+		return 0;
+	}
 
-        dgg->ud->dlg.dialog_graph.needs_redraw=TRUE;
+	dgg->ud->dlg.dialog_graph.needs_redraw=TRUE;
 
-        /*
-         * Find which interval this is supposed to to in and store the
-         * interval index as idx
-         */
+	/*
+	* Find which interval this is supposed to to in and store the
+	* interval index as idx
+	*/
 	if (dgg->ud->dlg.dialog_graph.start_time == -1){ /* it is the first */
 		dgg->ud->dlg.dialog_graph.start_time = statinfo->start_time;
-	}	
+	}
 	rtp_time = ((double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000) - dgg->ud->dlg.dialog_graph.start_time;
 	if(rtp_time<0){
 		return FALSE;
-	}	
+	}
 	idx = (guint32)(rtp_time*1000)/dgg->ud->dlg.dialog_graph.interval;
 
-        /* some sanity checks */
-        if((idx<0)||(idx>=NUM_GRAPH_ITEMS)){
-                return FALSE;
-        }
+	/* some sanity checks */
+	if((idx<0)||(idx>=NUM_GRAPH_ITEMS)){
+		return FALSE;
+	}
 
-        /* update num_items */
-        if((guint32)idx > dgg->ud->dlg.dialog_graph.num_items){
-                dgg->ud->dlg.dialog_graph.num_items=idx;
-                dgg->ud->dlg.dialog_graph.max_interval=idx*dgg->ud->dlg.dialog_graph.interval;
-        }
-
-        /*
-         * Find the appropriate dialog_graph_graph_item_t structure
-         */
-        it=&dgg->items[idx];
+	/* update num_items */
+	if((guint32)idx > dgg->ud->dlg.dialog_graph.num_items){
+		dgg->ud->dlg.dialog_graph.num_items=idx;
+		dgg->ud->dlg.dialog_graph.max_interval=idx*dgg->ud->dlg.dialog_graph.interval;
+	}
 
 	/*
-	 * Use the max value to highlight RTP problems
-	 */
+	* Find the appropriate dialog_graph_graph_item_t structure
+	*/
+	it=&dgg->items[idx];
+
+	/*
+	* Use the max value to highlight RTP problems
+	*/
 	if (value > it->value) {
 		it->value=value;
 	}
 	it->flags = it->flags | statinfo->flags;
 
-        return TRUE;
+	return TRUE;
 }
 
 /****************************************************************************/
@@ -512,8 +512,11 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 	else if (rtpinfo->info_version !=2)
 		return 0;
 	/* is it the forward direction?  */
-	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src &&
-		CMP_ADDRESS(&(user_data->ip_src_fwd), &(pinfo->net_src)) == 0)  {
+	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src
+		&& CMP_ADDRESS(&(user_data->ip_src_fwd), &(pinfo->net_src)) == 0
+		&& user_data->port_src_fwd == pinfo->srcport
+		&& CMP_ADDRESS(&(user_data->ip_dst_fwd), &(pinfo->net_dst)) == 0
+		&& user_data->port_dst_fwd == pinfo->destport)  {
 #ifdef USE_CONVERSATION_GRAPH
 		vp.time = ((double)pinfo->fd->rel_secs + (double)pinfo->fd->rel_usecs/1000000);
 		vp.fnumber = pinfo->fd->num;
@@ -528,8 +531,11 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 			&(user_data->forward.statinfo), pinfo, rtpinfo);
 	}
 	/* is it the reversed direction? */
-	else if (user_data->ssrc_rev == rtpinfo->info_sync_src &&
-		CMP_ADDRESS(&(user_data->ip_src_rev), &(pinfo->net_src)) == 0)  {
+	else if (user_data->ssrc_rev == rtpinfo->info_sync_src
+		&& CMP_ADDRESS(&(user_data->ip_src_rev), &(pinfo->net_src)) == 0
+		&& user_data->port_src_rev == pinfo->srcport
+		&& CMP_ADDRESS(&(user_data->ip_dst_rev), &(pinfo->net_dst)) == 0
+		&& user_data->port_dst_rev == pinfo->destport)  {
 #ifdef USE_CONVERSATION_GRAPH
 		vp.time = ((double)pinfo->fd->rel_secs + (double)pinfo->fd->rel_usecs/1000000);
 		vp.fnumber = pinfo->fd->num;
@@ -1075,7 +1081,7 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	user_data->dlg.graph_window = show_conversation_graph(list, title1, title2,
 		&graph_selection_callback, user_data);
 	SIGNAL_CONNECT(user_data->dlg.graph_window, "destroy",
-                       on_destroy_graph, user_data);
+			on_destroy_graph, user_data);
 }
 #endif /*USE_CONVERSATION_GRAPH*/
 
@@ -2128,67 +2134,7 @@ static void draw_stat(user_data_t *user_data);
 /* re-dissects all packets */
 static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 {
-	gchar filter_text[256];
-	dfilter_t *sfcode;
 	GString *error_string;
-	gchar ip_version[3];
-
-	/* try to compile the filter. */
-	strcpy(filter_text,"rtp && ip");
-	if (!dfilter_compile(filter_text, &sfcode)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
-		return;
-	}
-
-	if (user_data->ip_src_fwd.type==AT_IPv6){
-		strcpy(ip_version,"v6");
-	}
-	else{
-		strcpy(ip_version,"");
-	}
-
-
-	if (user_data->ip_src_fwd.type!=AT_NONE){
-		if (user_data->ip_src_rev.type!=AT_NONE){
-			g_snprintf(filter_text,sizeof(filter_text),
-				"rtp && (( ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u ) || ( ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u ))",
-				ip_version,
-				address_to_str(&(user_data->ip_src_fwd)),
-				user_data->port_src_fwd,
-				ip_version,
-				address_to_str(&(user_data->ip_dst_fwd)),
-				user_data->port_dst_fwd,
-				ip_version,
-				address_to_str(&(user_data->ip_src_rev)),
-				user_data->port_src_rev,
-				ip_version,
-				address_to_str(&(user_data->ip_dst_rev)),
-				user_data->port_dst_rev
-				);
-		}
-		else{
-			g_snprintf(filter_text,sizeof(filter_text),
-				"rtp && (ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u )",
-				ip_version,
-				address_to_str(&(user_data->ip_src_fwd)),
-				user_data->port_src_fwd,
-				ip_version,
-				address_to_str(&(user_data->ip_dst_fwd)),
-				user_data->port_dst_fwd
-				);
-			}
-	}
-	else if (user_data->ip_src_rev.type!=AT_NONE){
-		g_snprintf(filter_text,sizeof(filter_text),
-			"rtp && ( ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u )",
-			ip_version,
-			address_to_str(&(user_data->ip_src_rev)),
-			user_data->port_src_rev,
-			ip_version,
-			address_to_str(&(user_data->ip_dst_rev)),
-			user_data->port_dst_rev
-			);
-	}		
 	
 	/* remove tap listener */
 	protect_thread_critical_region();
@@ -2196,7 +2142,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	unprotect_thread_critical_region();
 
 	/* register tap listener */
-	error_string = register_tap_listener("rtp", user_data, filter_text,
+	error_string = register_tap_listener("rtp", user_data, NULL,
 		rtp_reset, rtp_packet, rtp_draw);
 	if (error_string != NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
@@ -2469,17 +2415,17 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	OBJECT_SET_DATA(ok_bt, "both_rb", both_rb);
 	OBJECT_SET_DATA(ok_bt, "user_data", user_data);
 	SIGNAL_CONNECT(ok_bt, "clicked", save_csv_as_ok_cb,
-                       user_data->dlg.save_csv_as_w);
-
-    window_set_cancel_button(user_data->dlg.save_csv_as_w, 
-        GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button, NULL);
+		user_data->dlg.save_csv_as_w);
 	
-    SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "delete_event", window_delete_event_cb, NULL);
+	window_set_cancel_button(user_data->dlg.save_csv_as_w, 
+		GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button, NULL);
+	
+	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "destroy",
-                       save_csv_as_destroy_cb, user_data);
-    
+		save_csv_as_destroy_cb, user_data);
+	
 	gtk_widget_show(user_data->dlg.save_csv_as_w);
-    window_present(user_data->dlg.save_csv_as_w);
+	window_present(user_data->dlg.save_csv_as_w);
 }
 
 
