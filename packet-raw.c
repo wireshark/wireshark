@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.17 2000/05/25 07:42:25 gram Exp $
+ * $Id: packet-raw.c,v 1.18 2000/08/13 08:53:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,9 +40,11 @@
 
 static gint ett_raw = -1;
 
-void
-capture_raw( const u_char *pd, packet_counts *ld ) {
+static const char zeroes[10];
 
+void
+capture_raw(const u_char *pd, packet_counts *ld)
+{
   /* So far, the only time we get raw connection types are with Linux and
    * Irix PPP connections.  We can't tell what type of data is coming down
    * the line, so our safest bet is IP. - GCC
@@ -55,9 +57,18 @@ capture_raw( const u_char *pd, packet_counts *ld ) {
     capture_ppp(pd, 0, ld);
   }
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
-   * on its ippp interfaces. */
+   * on its ippp interfaces... */
   else if (BYTES_ARE_IN_FRAME(0,8) && pd[6] == 0xff && pd[7] == 0x03) {
     capture_ppp(pd, 6, ld);
+  }
+  /* ...except when it just puts out one byte before the PPP header... */
+  else if (BYTES_ARE_IN_FRAME(0,3) && pd[1] == 0xff && pd[2] == 0x03) {
+    capture_ppp(pd, 1, ld);
+  }
+  /* ...and if the connection is currently down, it sends 10 bytes of zeroes
+   * instead of a fake MAC address and PPP header. */
+  else if (BYTES_ARE_IN_FRAME(0,10) && memcmp(pd, zeroes, 10) == 0) {
+    capture_ip(pd, 10, ld);
   }
   else {
     capture_ip(pd, 0, ld);
@@ -105,10 +116,23 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return;
   }
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
-   * on its ippp interfaces. */
+   * on its ippp interfaces... */
   else if (tvb_get_ntohs(tvb, 6) == 0xff03) {
 	next_tvb = tvb_new_subset(tvb, 6, -1, -1);
 	dissect_ppp(next_tvb, pinfo, tree);
+	return;
+  }
+  /* ...except when it just puts out one byte before the PPP header... */
+  else if (tvb_get_ntohs(tvb, 1) == 0xff03) {
+	next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+	dissect_ppp(next_tvb, pinfo, tree);
+	return;
+  }
+  /* ...and if the connection is currently down, it sends 10 bytes of zeroes
+   * instead of a fake MAC address and PPP header. */
+  else if (memcmp(tvb_get_ptr(tvb, 0, 10), zeroes, 10) == 0) {
+	tvb_compat(tvb, &next_pd, &next_offset);
+	dissect_ip(next_pd, next_offset + 10, pinfo->fd, tree);
 	return;
   }
   else {
