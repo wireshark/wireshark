@@ -60,13 +60,13 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @ethereal_bin@ @capinfo_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
+bin_PROGRAMS = @ethereal_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
 bin_SCRIPTS = @idl2eth_bin@
-man1_MANS = @ethereal_man@ @capinfo_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @idl2eth_man@
+man1_MANS = @ethereal_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @idl2eth_man@
 man4_MANS = @etherealfilter_man@
 man_MANS =
 
-EXTRA_PROGRAMS = ethereal tethereal capinfo editcap mergecap dftest \
+EXTRA_PROGRAMS = ethereal tethereal capinfos editcap mergecap dftest \
 	randpkt text2pcap
 EXTRA_SCRIPTS = idl2eth
 
@@ -75,7 +75,7 @@ EXTRA_SCRIPTS = idl2eth
 # contains the "AUTHORS-SHORT" and "manuf" files and a "diameter" directory.
 #
 pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tethereal.html \
-	ethereal-filter.html capinfo.html editcap.html \
+	ethereal-filter.html capinfos.html editcap.html \
 	idl2eth.html mergecap.html text2pcap.html
 
 #
@@ -277,11 +277,11 @@ text2pcap_LDADD = $(text2pcap_optional_objects) \
 mergecap_DEPENDENCIES = wiretap/libwiretap.la
 
 # This is the automake dependency variable for the executable
-capinfo_DEPENDENCIES = wiretap/libwiretap.la
+capinfos_DEPENDENCIES = wiretap/libwiretap.la
 editcap_DEPENDENCIES = wiretap/libwiretap.la
 
 # This automake variable adds to the link-line for the executable
-capinfo_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
+capinfos_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
 editcap_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
 mergecap_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
 
@@ -411,7 +411,7 @@ EXTRA_DIST = \
 	aclocal-fallback/gtk.m4 \
 	aclocal-flags		\
 	autogen.sh		\
-	capinfo.c		\
+	capinfos.c		\
 	capture-wpcap.c		\
 	capture-wpcap.h		\
 	cleanbld.bat		\
@@ -440,7 +440,7 @@ EXTRA_DIST = \
 	doc/README.tapping	\
 	doc/README.tvbuff	\
 	doc/README.xml-output	\
-	doc/capinfo.pod		\
+	doc/capinfos.pod		\
 	doc/dfilter2pod.pl	\
 	doc/editcap.pod		\
 	doc/ethereal-filter.pod.template \
@@ -462,7 +462,7 @@ EXTRA_DIST = \
 	image/Ethereal.icns	\
 	image/Makefile.nmake	\
 	image/README.image	\
-	image/capinfo.rc.in	\
+	image/capinfos.rc.in	\
 	image/clist_ascend.xpm	\
 	image/clist_descend.xpm	\
 	image/dn_arrow.xpm	\
@@ -577,9 +577,9 @@ ethereal-filter.4: tethereal doc/ethereal-filter.pod.template
 	(cd doc ; \
 	$(MAKE) ../ethereal-filter.4 )
 
-capinfo.1: doc/capinfo.pod
+capinfos.1: doc/capinfos.pod
 	(cd doc ; \
-	$(MAKE) ../capinfo.1 )
+	$(MAKE) ../capinfos.1 )
 
 editcap.1: doc/editcap.pod
 	(cd doc ; \
@@ -609,9 +609,9 @@ ethereal-filter.html: tethereal doc/ethereal-filter.pod.template
 	(cd doc ; \
 	$(MAKE) ../ethereal-filter.html )
 
-capinfo.html: doc/capinfo.pod
+capinfos.html: doc/capinfos.pod
 	(cd doc ; \
-	$(MAKE) ../capinfo.html )
+	$(MAKE) ../capinfos.html )
 
 editcap.html: doc/editcap.pod
 	(cd doc ; \

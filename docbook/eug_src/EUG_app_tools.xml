@@ -60,20 +60,20 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
     </para>
   </section>
 
-  <section id="AppToolscapinfo">
-    <title>capinfo: Print information about capture files</title>
+  <section id="AppToolscapinfos">
+    <title>capinfos: Print information about capture files</title>
     <para>
       Included with Ethereal is a small utility called 
-      <command>capinfo</command>, which is a command-line utility to
+      <command>capinfos</command>, which is a command-line utility to
 	  print information about binary capture files.
     </para>
     <para>
-    <example id="AppToolscapinfoEx">
-      <title>Help information available from capinfo</title>
+    <example id="AppToolscapinfosEx">
+      <title>Help information available from capinfos</title>
       <programlisting>	
-$ capinfo -h
-Usage: capinfo [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
-               [-i] [-z] [-h] &lt;capfile&gt;
+$ capinfos -h
+Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
+                [-i] [-z] [-h] &lt;capfile&gt;
   where -t display the capture type of &lt;capfile&gt;
         -c count the number of packets
         -s display the size of the file

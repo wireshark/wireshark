@@ -515,7 +515,7 @@ apt-get install ethereal
 	saved capture files into a single output file.
 	</para></listitem>
 	<listitem><para>
-	<command>Capinfo</command> - Capinfo is a program that provides 
+	<command>Capinfos</command> - Capinfos is a program that provides 
 	information on capture files.
 	</para></listitem>
 	</itemizedlist>

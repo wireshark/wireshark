@@ -4,7 +4,7 @@
 
 include ..\config.nmake
 
-ALL_RC=ethereal.rc libethereal.rc tethereal.rc capinfo.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc
+ALL_RC=ethereal.rc libethereal.rc tethereal.rc capinfos.rc editcap.rc text2pcap.rc mergecap.rc wiretap.rc
 all : $(ALL_RC)
 
 ethereal.rc   : ethereal.rc.in ..\config.nmake
@@ -22,10 +22,10 @@ tethereal.rc  : tethereal.rc.in ..\config.nmake
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< tethereal.rc.in > $@
 
-capinfo.rc    : capinfo.rc.in ..\config.nmake
+capinfos.rc    : capinfos.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
-		< capinfo.rc.in > $@
+		< capinfos.rc.in > $@
 
 editcap.rc    : editcap.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \

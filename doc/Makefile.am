@@ -67,17 +67,17 @@ ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_srcdir)/AUTHORS-SHORT-FORMAT
 ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	../tethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal-filter.pod.template > ethereal-filter.pod
 
-../capinfo.1: capinfo.pod ../config.h
+../capinfos.1: capinfos.pod ../config.h
 	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	$(srcdir)/capinfo.pod > ../capinfo.1
+	$(srcdir)/capinfos.pod > ../capinfos.1
 
-../capinfo.html: capinfo.pod ../config.h
+../capinfos.html: capinfos.pod ../config.h
 	$(POD2HTML)                     \
-	--title="capinfo - The Ethereal Network Analyzer $(VERSION)" \
+	--title="capinfos - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	capinfo.pod > ../capinfo.html
+	capinfos.pod > ../capinfos.html
 
 ../editcap.1: editcap.pod ../config.h
 	$(POD2MAN)                      \
@@ -134,8 +134,8 @@ CLEANFILES =		\
 	../ethereal-filter.html \
 	../ethereal.1	\
 	../ethereal.html	\
-	../capinfo.1	\
-	../capinfo.html	\
+	../capinfos.1	\
+	../capinfos.html	\
 	../editcap.1	\
 	../editcap.html	\
 	../mergecap.1	\

@@ -4,8 +4,12 @@ $Id$
 
 Ethereal 0.10.7 has been released.
 
-  The Windows installer features new GLib/GTK+, Net-SNMP and ADNS libraries which
-  fix several known bugs.  Unfortunately, a few known GLib/GTK+ bugs remain.
+  The Windows installer features new GLib/GTK+, Net-SNMP and ADNS
+  libraries which fix several known bugs.  Unfortunately, a few known
+  GLib/GTK+ bugs remain.
+
+  In order to avoid a naming conflict with the tcpreplay project, the
+  "capinfo" utility has been renamed to "capinfos".
 
 
 New and updated features

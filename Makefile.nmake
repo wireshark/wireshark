@@ -78,7 +78,7 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(ZLIB_LIBS)
 !ENDIF
 
-capinfo_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+capinfos_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS)
 
@@ -111,10 +111,10 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
 
 EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe \
-	capinfo.exe editcap.exe mergecap.exe text2pcap.exe
+	capinfos.exe editcap.exe mergecap.exe text2pcap.exe
 
 RESOURCES=image\ethereal.res image\libethereal.res image\tethereal.res \
-	image\capinfo.res image\editcap.res image\mergecap.res \
+	image\capinfos.res image\editcap.res image\mergecap.res \
 	image\text2pcap.res image\wiretap.res
 
 all: config.h tools image wiretap epan $(EXECUTABLES) $(RESOURCES) doc
@@ -168,10 +168,10 @@ tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) epan image\tethereal.
 		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) image\tethereal.res
 <<
 
-capinfo.exe	: config.h capinfo.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfo.res
+capinfos.exe	: config.h capinfos.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:capinfo.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfo.obj getopt.obj $(capinfo_LIBS) image\capinfo.res
+		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj $(capinfos_LIBS) image\capinfos.res
 <<
 
 editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
@@ -268,7 +268,7 @@ gtk2_distclean:
 clean: gtk2_distclean
 	rm -f $(ethereal_OBJECTS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
-		capinfo.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
+		capinfos.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
 		AUTHORS-SHORT-FORMAT \

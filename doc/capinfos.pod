@@ -1,11 +1,11 @@
 
 =head1 NAME
 
-capinfo - Prints information about binary capture files
+capinfos - Prints information about binary capture files
 
 =head1 SYNOPSYS
 
-B<capinfo>
+B<capinfos>
 S<[ B<-t> ]>
 S<[ B<-c> ]>
 S<[ B<-s> ]>
@@ -21,11 +21,11 @@ I<capfile>
 
 =head1 DESCRIPTION
 
-B<Capinfo> is a program that reads a saved capture file and returns any
-or all of several statistics about that file.  B<Capinfo> is able to detect
+B<Capinfos> is a program that reads a saved capture file and returns any
+or all of several statistics about that file.  B<Capinfos> is able to detect
 and read any capture supported by the B<Ethereal> package.
 
-B<Capinfo> can read the following file formats:
+B<Capinfos> can read the following file formats:
 
 =over 4
 
@@ -109,14 +109,14 @@ Linux Bluez Bluetooth stack B<hcidump -w> traces
 
 =back
 
-There is no need to tell B<Capinfo> what type of
+There is no need to tell B<Capinfos> what type of
 file you are reading; it will determine the file type by itself. 
-B<Capinfo> is also capable of reading any of these file formats if they
-are compressed using gzip.  B<Capinfo> recognizes this directly from the
+B<Capinfos> is also capable of reading any of these file formats if they
+are compressed using gzip.  B<Capinfos> recognizes this directly from the
 file; the '.gz' extension is not required for this purpose.
 
 The user specifies which statistics to report by specifying flags 
-corresponding to the statistic.  If no flags are specified, B<Capinfo> will
+corresponding to the statistic.  If no flags are specified, B<Capinfos> will
 report all statistics available.
 
 =head1 OPTIONS
@@ -144,7 +144,7 @@ in their original form, not as they appear in this file.
 For example, if a packet was originally 1514 bytes and only
 256 of those bytes were saved to the capture file (if packets
 were captured with a snaplen or other slicing option),
-B<Capinfo> will consider the packet to have been 1514 bytes.
+B<Capinfos> will consider the packet to have been 1514 bytes.
 
 =item -u
 
@@ -154,19 +154,19 @@ latest packet seen.
 
 =item -a
 
-Displays the start time of the capture.  B<Capinfo> considers
+Displays the start time of the capture.  B<Capinfos> considers
 the earliest timestamp seen to be the start time, so the
 first packet in the capture is not necessarily the earliest -
 if packets exist "out-of-order", time-wise, in the capture,
-B<Capinfo> detects this.
+B<Capinfos> detects this.
 
 =item -e
 
-Displays the end time of the capture.  B<Capinfo> considers
+Displays the end time of the capture.  B<Capinfos> considers
 the latest timestamp seen to be the end time, so the
 last packet in the capture is not necessarily the latest -
 if packets exist "out-of-order", time-wise, in the capture,
-B<Capinfo> detects this.
+B<Capinfos> detects this.
 
 =item -y
 
@@ -192,7 +192,7 @@ I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<mergecap(1)>, I<editcap(1)>, I<teth
 
 =head1 NOTES
 
-B<Capinfo> is part of the B<Ethereal> distribution.  The latest version
+B<Capinfos> is part of the B<Ethereal> distribution.  The latest version
 of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
 =head1 AUTHORS
