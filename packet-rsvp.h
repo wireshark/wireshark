@@ -4,7 +4,7 @@
  *
  * (C) Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.h,v 1.2 1999/07/13 02:52:55 gram Exp $
+ * $Id: packet-rsvp.h,v 1.3 1999/08/12 05:19:06 gram Exp $
  *
  * For license details, see the COPYING file with this distribution
  *
@@ -134,56 +134,6 @@ static value_string style_vals[] = {
     { RSVP_SE, "Shared-Explicit" }
 };
 
-/*
- * Defines a desired QoS, in a RESV message.
- */
-enum    qos_service_type {
-    QOS_CONTROLLED_LOAD=    5,		/* Controlled Load Service */
-    QOS_GUARANTEED =        2,		/* Guaranteed service */
-    QOS_DEFAULT		 =  1,		/* Default general parameters */
-    QOS_TSPEC =             0,		/* Traffic specification */
-    QOS_UNSPECIFIED =	    -1		/* unspecified */
-    };
-
-static value_string qos_vals[] = {
-    { QOS_CONTROLLED_LOAD, "Controlled-load QoS" },
-    { QOS_GUARANTEED, "Guaranteed rate QoS" },
-    { QOS_DEFAULT, "Default general parameters" },
-    { QOS_UNSPECIFIED, "Unspecified QoS" },
-    { QOS_TSPEC, "Traffic specification" },
-};
-
-static value_string svc_vals[] = {
-    { 127, "Token bucket TSpec" },
-    { 130, "Guaranteed-rate RSpec" }
-};
-
-enum rsvp_spec_types { INTSRV = 2 };
-
-enum intsrv_services {
-	INTSRV_GENERAL = 1,
-	INTSRV_GTD = 2,
-	INTSRV_CLOAD = 5
-};
-
-enum intsrv_field_name {
-	INTSRV_NON_IS_HOPS = 1, INTSRV_COMPOSED_NON_IS_HOPS,
-	INTSRV_IS_HOPS, INTSRV_COMPOSED_IS_HOPS,
-	INTSRV_PATH_BANDWIDTH, INTSRV_MIN_PATH_BANDWIDTH,
-	INTSRV_IF_LATENCY, INTSRV_PATH_LATENCY,
-	INTSRV_MTU, INTSRV_COMPOSED_MTU,
-
-	INTSRV_TOKEN_BUCKET_TSPEC = 127,
-	INTSRV_GTD_RSPEC = 130,
-
-    	INTSRV_DELAY = 131,	/* Gtd Parameter C - Max Delay Bound - bytes */
-	INTSRV_MAX_JITTER,	/* Gtd Parameter D - Max Jitter */
-    	INTSRV_E2E_DELAY,	/* Gtd Parameter Ctot */
-	INTSRV_E2E_MAX_JITTER,	/* Gtd Parameter Dtot */
-    	INTSRV_SHP_DELAY,	/* Gtd Parameter Csum */
-	INTSRV_SHP_MAX_JITTER	/* Gtd Parameter Dsum */
-};
-
 /*------------------------------*
  * Object definitions
  *------------------------------*/
@@ -195,7 +145,7 @@ typedef struct {
     unsigned short length;
     unsigned char class;	
     unsigned char type;
-    unsigned char *data;
+    unsigned char data[0];   /* Don't change this to a pointer */
 } rsvp_object;
 
 /*
@@ -209,7 +159,7 @@ typedef struct {
     unsigned char    sending_ttl;		/* ttl of message */
     unsigned char    reserved_byte;		/* reserved */
     unsigned short   rsvp_length;		/* length of RSVP data */
-    rsvp_object *rsvp_first_object;
+    rsvp_object rsvp_first_object[0];           /* Don't change this to a pointer */
 } rsvp_header;
 
 /*
@@ -299,7 +249,7 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    unsigned long *source;
+    unsigned long source[0]; /* Don't change this to a pointer */
 } rsvp_scope;
 
 /*
@@ -341,18 +291,76 @@ typedef struct {
 } rsvp_template_ipv6;
 
 /*
+ * Defines a desired QoS, in a RESV message.
+ */
+enum    qos_service_type {
+    QOS_QUALITATIVE =     128,          /* Qualitative service */
+    QOS_CONTROLLED_LOAD=    5,		/* Controlled Load Service */
+    QOS_GUARANTEED =        2,		/* Guaranteed service */
+    QOS_TSPEC =             1,		/* Traffic specification */
+    };
+
+static value_string qos_vals[] = {
+    { QOS_QUALITATIVE, "Qualitative QoS" },
+    { QOS_CONTROLLED_LOAD, "Controlled-load QoS" },
+    { QOS_GUARANTEED, "Guaranteed rate QoS" },
+    { QOS_TSPEC, "Traffic specification" },
+};
+
+static value_string svc_vals[] = {
+    { 127, "Token bucket TSpec" },
+    { 128, "Qualitative TSpec" },
+    { 130, "Guaranteed-rate RSpec" }
+};
+
+enum rsvp_spec_types { INTSRV = 2 };
+
+enum intsrv_services {
+	INTSRV_GENERAL = 1,
+	INTSRV_GTD = 2,
+	INTSRV_CLOAD = 5,
+	INTSRV_QUALITATIVE = 128,
+};
+
+static value_string intsrv_services_str[] = { 
+    {INTSRV_GENERAL, "Default General Parameters"},
+    {INTSRV_GTD, "Guaranteed"},
+    {INTSRV_CLOAD, "Controlled Load"},
+    {INTSRV_QUALITATIVE, "Qualitative"},
+};
+
+enum intsrv_field_name {
+	INTSRV_NON_IS_HOPS = 1, INTSRV_COMPOSED_NON_IS_HOPS,
+	INTSRV_IS_HOPS, INTSRV_COMPOSED_IS_HOPS,
+	INTSRV_PATH_BANDWIDTH, INTSRV_MIN_PATH_BANDWIDTH,
+	INTSRV_IF_LATENCY, INTSRV_PATH_LATENCY,
+	INTSRV_MTU, INTSRV_COMPOSED_MTU,
+
+	INTSRV_TOKEN_BUCKET_TSPEC = 127,
+	INTSRV_QUALITATIVE_TSPEC = 128,
+	INTSRV_GTD_RSPEC = 130,
+
+    	INTSRV_DELAY = 131,	/* Gtd Parameter C - Max Delay Bound - bytes */
+	INTSRV_MAX_JITTER,	/* Gtd Parameter D - Max Jitter */
+    	INTSRV_E2E_DELAY,	/* Gtd Parameter Ctot */
+	INTSRV_E2E_MAX_JITTER,	/* Gtd Parameter Dtot */
+    	INTSRV_SHP_DELAY,	/* Gtd Parameter Csum */
+	INTSRV_SHP_MAX_JITTER	/* Gtd Parameter Dsum */
+};
+
+/*
  * Subobjects for Integrated Services
  */
 
 typedef struct {
-    rsvp_object base;
-    unsigned char	version;	
-    unsigned char 	__reserved_;
-    unsigned short	length_in_words;
-					
-    unsigned char	service_header;
-    unsigned char	_reserved;
-    unsigned short	service_length;	
+    unsigned char service_num;
+    unsigned char break_bit;
+    unsigned short length;
+} service_hdr;
+
+typedef struct {					
+    service_hdr svchdr;
+
     unsigned char	param_id;
     unsigned char	flags_tspec;
     unsigned short	parameter_length;
@@ -365,45 +373,57 @@ typedef struct {
 } IS_tspec; /* RFC2210 */
 
 typedef struct {
-    rsvp_object base;
-    unsigned char	version;	
-    unsigned char 	__reserved_;
-    unsigned short	length_in_words;
-					
-    unsigned char	service_header;
-    unsigned char	_reserved;
-    unsigned short	service_length;	
+    service_hdr svchdr;
+    
     unsigned char	param_id;
     unsigned char	flags_tspec;
     unsigned short	parameter_length;
 
-    unsigned long	rate;
-    unsigned long	depth;
-    unsigned long	peak;
-    unsigned long	min_unit;
     unsigned long	max_unit;
+} QUAL_tspec; /* Qualitative */
 
-    unsigned char	param_id_rspec;
+typedef struct {
+    rsvp_object base;
+    unsigned char	version;	
+    unsigned char 	__reserved_;
+    unsigned short	length_in_words;
+
+    unsigned char data[0];      /* Don't change this to a pointer */
+} rsvp_tspec;
+
+typedef struct {
+    unsigned char	param_id;
     unsigned char	flags_rspec;
     unsigned short	param2_length;
     unsigned long	requested_rate;
     unsigned long	slack;
-} IS_flowspec; /* RFC 2210 */
-
-/*
- * ADSPEC objects */
+} IS_rspec;
 
 typedef struct {
-    unsigned char service_num;
-    unsigned char break_bit;
-    unsigned short length;
-} service_hdr;
+    IS_tspec tspec;
+    IS_rspec rspec;
+} IS_flowspec; /* RFC 2210 */
 
-static value_string adspec_services[] = { 
-    {1, "Default General Parameters"},
-    {2, "Guaranteed"},
-    {5, "Controlled Load"},
-};
+typedef struct {
+    service_hdr svchdr;
+    
+    unsigned char	param_id;
+    unsigned char	flags_tspec;
+    unsigned short	parameter_length;
+
+    unsigned long	max_unit;
+} QUAL_flowspec; /* Qualitative */
+
+
+typedef struct {
+    rsvp_object base;
+    unsigned char	version;	
+    unsigned char 	__reserved_;
+    unsigned short	length_in_words;
+
+    unsigned char data[0];      /* Don't change this to a pointer */
+} rsvp_flowspec;
+					
 
 typedef struct {
     unsigned char id;

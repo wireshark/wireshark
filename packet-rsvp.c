@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.4 1999/07/29 05:47:02 gram Exp $
+ * $Id: packet-rsvp.c,v 1.5 1999/08/12 05:19:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -569,8 +569,13 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		break;
 
 	    case RSVP_CLASS_SENDER_TSPEC : {
-		IS_tspec *tspec = (IS_tspec *)obj;
+		rsvp_tspec *tspec = (rsvp_tspec *)obj;
+		IS_tspec *ist;
+		QUAL_tspec *qt;
+		service_hdr  *sh;
+		char *str;
 
+		mylen = obj_length;
 		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_SENDER_TSPEC);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
@@ -584,64 +589,111 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_text(rsvp_object_tree, offset2+2, 2, 
 				 "Data length: %d words, not including header", 
 				 pntohs(pd+offset2+2));
-		proto_tree_add_text(rsvp_object_tree, offset2+4, 1, 
-				 "Service header: %d - %s", 
-				 tspec->service_header,
-				 tspec->service_header==1 ? 
-				 "Default/global information (INTSRV_GENERAL)" : 
-				 "Unknown");
-		proto_tree_add_text(rsvp_object_tree, offset2+6, 2, 
+
+		mylen -=4;
+		offset2 +=4;
+		while (mylen > 4) {
+		    sh = (service_hdr *)(pd+offset2);
+		    str = match_strval(sh->service_num, qos_vals);
+		    if (!str) str = "Unknown";
+
+		    proto_tree_add_text(rsvp_object_tree, offset2, 1, 
+					"Service header: %d - %s", 
+					sh->service_num, str);
+		    proto_tree_add_text(rsvp_object_tree, offset2+2, 2, 
 				 "Length of service %d data: %d words, " 
 				 "not including header", 
-				 tspec->service_header,
-				 pntohs(pd+offset2+6)>>12);
+				 sh->service_num,
+				 ntohs(sh->length));
 
-		/* Token bucket TSPEC */
-		proto_tree_add_text(rsvp_object_tree, offset2+8, 1, 
-				    "Parameter ID: %d - %s", 
-				    tspec->param_id,
-				    tspec->param_id==127 ? "Token Bucket TSpec" :
-				    "Unknown");
-		proto_tree_add_text(rsvp_object_tree, offset2+9, 1, 
-				    "Parameter %d flags: %d", 
-				    tspec->param_id, tspec->flags_tspec);
-		proto_tree_add_text(rsvp_object_tree, offset2+10, 2, 
-				    "Length of parameter %d data: %d words, " 
-				    "not including header",
-				    tspec->param_id,
-				    pntohs(pd+offset2+10));
-		proto_tree_add_text(rsvp_object_tree, offset2+12, 4, 
-				    "Token bucket rate: %ld", 
-				    ieee_to_long(pd+offset2+12));
-		proto_tree_add_text(rsvp_object_tree, offset2+16, 4, 
-				    "Token bucket size: %ld", 
-				    ieee_to_long(pd+offset2+16));
-		proto_tree_add_text(rsvp_object_tree, offset2+20, 4, 
-				    "Peak data rate: %ld", 
-				    ieee_to_long(pd+offset2+20));
-		proto_tree_add_text(rsvp_object_tree, offset2+24, 4, 
-				    "Minimum policed unit: %d", 
-				    pntohl(pd+offset2+24));
-		proto_tree_add_text(rsvp_object_tree, offset2+28, 4, 
-				    "Maximum policed unit: %d", 
-				    pntohl(pd+offset2+28));
+		    offset2+=4; mylen -=4; 
+
+		    switch(sh->service_num) {
+			
+		    case QOS_TSPEC :
+			ist = (IS_tspec *)sh;
+
+			/* Token bucket TSPEC */
+			str = match_strval(ist->param_id, svc_vals);
+			if (!str) str = "Unknown";
+			proto_tree_add_text(rsvp_object_tree, offset2, 1, 
+					    "Parameter %d - %s", 
+					    ist->param_id, str);
+			proto_tree_add_text(rsvp_object_tree, offset2+1, 1, 
+					    "Parameter %d flags: %d", 
+					    ist->param_id, ist->flags_tspec);
+			proto_tree_add_text(rsvp_object_tree, offset2+2, 2, 
+					    "Parameter %d data length: %d words, " 
+					    "not including header",
+					    ist->param_id,
+					    /* pntohs(pd+offset2+10)); */
+					    ntohs(ist->parameter_length));
+			proto_tree_add_text(rsvp_object_tree, offset2+4, 4, 
+					    "Token bucket rate: %ld", 
+					    ieee_to_long(pd+offset2+4));
+			proto_tree_add_text(rsvp_object_tree, offset2+8, 4, 
+					    "Token bucket size: %ld", 
+					    ieee_to_long(pd+offset2+8));
+			proto_tree_add_text(rsvp_object_tree, offset2+12, 4, 
+					    "Peak data rate: %ld", 
+					    ieee_to_long(pd+offset2+12));
+			proto_tree_add_text(rsvp_object_tree, offset2+16, 4, 
+					    "Minimum policed unit: %d", 
+					    pntohl(pd+offset2+16));
+			proto_tree_add_text(rsvp_object_tree, offset2+20, 4, 
+					    "Maximum policed unit: %d", 
+					    pntohl(pd+offset2+20));
+
+			break;
+
+		    case QOS_QUALITATIVE :
+			qt = (QUAL_tspec *)sh;
+
+			/* Token bucket TSPEC */
+			str = match_strval(qt->param_id, svc_vals);
+			if (!str) str = "Unknown";
+			proto_tree_add_text(rsvp_object_tree, offset2, 1, 
+					    "Parameter %d - %s", 
+					    qt->param_id, str);
+			proto_tree_add_text(rsvp_object_tree, offset2+1, 1, 
+					    "Parameter %d flags: %d", 
+					    qt->param_id, qt->flags_tspec);
+			proto_tree_add_text(rsvp_object_tree, offset2+2, 2, 
+					    "Parameter %d data length: %d words, " 
+					    "not including header",
+					    qt->param_id,
+					    /* pntohs(pd+offset2+10)); */
+					    ntohs(qt->parameter_length));
+			proto_tree_add_text(rsvp_object_tree, offset2+4, 4, 
+					    "Maximum policed unit: %d", 
+					    pntohl(pd+offset2+4));
+
+			break;
+
+		    }
+		    offset2 += ntohs(sh->length)*4; 
+		    mylen -= ntohs(sh->length)*4;
+		}
 		    
 		break;
 	    }
 
 	    case RSVP_CLASS_FLOWSPEC : {
-		IS_flowspec *flowspec = (IS_flowspec *)obj;
-		char *qos_str = match_strval(flowspec->service_header, qos_vals);
-		char *is_param_str = match_strval(flowspec->param_id, svc_vals);
+		rsvp_flowspec *flowspec = (rsvp_flowspec *)obj;
+		IS_flowspec *isf;
+		QUAL_flowspec *qf;
+		service_hdr *sh;
+		int mylen;
 
+		char *str;
+
+		mylen = obj_length;
 		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_FLOWSPEC);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
 				    "Class number: %d - %s", 
 				    obj->class, object_type);
-		if (!qos_str) qos_str = "Unknown";
-		if (!is_param_str) is_param_str="Unknown";
 
 		proto_tree_add_text(rsvp_object_tree, offset2, 1, 
 				 "Message format version: %d", 
@@ -649,63 +701,111 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_text(rsvp_object_tree, offset2+2, 2, 
 				 "Data length: %d words, not including header", 
 				 pntohs(pd+offset2+2));
-		proto_tree_add_text(rsvp_object_tree, offset2+4, 1, 
-				 "Service header: %d - %s", 
-				 flowspec->service_header, qos_str);
-		proto_tree_add_text(rsvp_object_tree, offset2+6, 2, 
+
+		mylen -=4;
+		offset2+=4;
+		while (mylen > 4) {
+		    sh = (service_hdr *)(pd+offset2);
+		    str = match_strval(sh->service_num, intsrv_services_str);
+		    if (!str) str = "Unknown";
+
+		    proto_tree_add_text(rsvp_object_tree, offset2, 1, 
+					"Service header: %d - %s", 
+					sh->service_num, str);
+		    proto_tree_add_text(rsvp_object_tree, offset2+2, 2, 
 				 "Length of service %d data: %d words, " 
 				 "not including header", 
-				 flowspec->service_header,
-				 pntohs(pd+offset2+6)>>12);
-		proto_tree_add_text(rsvp_object_tree, offset2+8, 1, 
-				 "Parameter ID: %d - %s", 
-				 flowspec->param_id, is_param_str);
-		proto_tree_add_text(rsvp_object_tree, offset2+9, 1, 
-				 "Parameter %d flags: %d", 
-				 flowspec->param_id, flowspec->flags_tspec);
-		proto_tree_add_text(rsvp_object_tree, offset2+10, 2, 
-				 "Length of parameter %d data: %d words, " 
-				 "not including header",
-				 flowspec->param_id,
-				 pntohs(pd+offset2+10));
-		proto_tree_add_text(rsvp_object_tree, offset2+12, 4, 
-				 "Token bucket rate: %ld", 
-				 ieee_to_long(pd+offset2+12));
-		proto_tree_add_text(rsvp_object_tree, offset2+16, 4, 
-				 "Token bucket size: %ld", 
-				 ieee_to_long(pd+offset2+16));
-		proto_tree_add_text(rsvp_object_tree, offset2+20, 4, 
-				 "Peak data rate: %ld", 
-				 ieee_to_long(pd+offset2+20));
-		proto_tree_add_text(rsvp_object_tree, offset2+24, 4, 
-				 "Minimum policed unit: %d", 
-				 pntohl(pd+offset2+24));
-		proto_tree_add_text(rsvp_object_tree, offset2+28, 4, 
-				 "Maximum policed unit: %d", 
-				 pntohl(pd+offset2+28));
-		if (flowspec->service_header!=QOS_GUARANTEED)
-		    break;
+				 sh->service_num,
+				 ntohs(sh->length));
 
-		/* Guaranteed-rate RSpec */
-		is_param_str = match_strval(flowspec->param_id_rspec, svc_vals);
-		if (!is_param_str) is_param_str="Unknown";
-		proto_tree_add_text(rsvp_object_tree, offset2+32, 1, 
-				 "Parameter ID: %d - %s", 
-				 flowspec->param_id, is_param_str);
-		proto_tree_add_text(rsvp_object_tree, offset2+33, 1, 
-				 "Parameter %d flags: %d", 
-				 flowspec->param_id, flowspec->flags_rspec);
-		proto_tree_add_text(rsvp_object_tree, offset2+34, 2, 
-				 "Length of parameter %d data: %d words, " 
-				 "not including header",
-				 flowspec->param_id,
-				 pntohs(pd+offset2+34));
-		proto_tree_add_text(rsvp_object_tree, offset2+36, 4, 
-				 "Rate: %ld", 
-				 ieee_to_long(pd+offset2+36));
-		proto_tree_add_text(rsvp_object_tree, offset2+40, 4, 
-				 "Slack term: %d", 
-				 pntohl(pd+offset2+40));
+		    offset2+=4; mylen -=4; 
+
+		    switch(sh->service_num) {
+
+		    case QOS_CONTROLLED_LOAD :
+		    case QOS_GUARANTEED :
+			/* Treat both these the same for now */
+			isf = (IS_flowspec *)sh;
+
+			str = match_strval(isf->tspec.param_id, svc_vals);
+			if (!str) str = "Unknown";
+			proto_tree_add_text(rsvp_object_tree, offset2, 1, 
+					    "Parameter %d - %s", 
+					    isf->tspec.param_id, str);
+			proto_tree_add_text(rsvp_object_tree, offset2+1, 1, 
+					    "Parameter %d flags: %d", 
+					    isf->tspec.param_id, isf->tspec.flags_tspec);
+			proto_tree_add_text(rsvp_object_tree, offset2+2, 2, 
+					    "Parameter %d data length: %d words, " 
+					    "not including header",
+					    isf->tspec.param_id,
+					    ntohs(isf->tspec.parameter_length));
+			proto_tree_add_text(rsvp_object_tree, offset2+4, 4, 
+					    "Token bucket rate: %ld", 
+					    ieee_to_long(pd+offset2+4));
+			proto_tree_add_text(rsvp_object_tree, offset2+8, 4, 
+					    "Token bucket size: %ld", 
+					    ieee_to_long(pd+offset2+8));
+			proto_tree_add_text(rsvp_object_tree, offset2+12, 4, 
+					    "Peak data rate: %ld", 
+					    ieee_to_long(pd+offset2+12));
+			proto_tree_add_text(rsvp_object_tree, offset2+16, 4, 
+					    "Minimum policed unit: %d", 
+					    pntohl(pd+offset2+16));
+			proto_tree_add_text(rsvp_object_tree, offset2+20, 4, 
+					    "Maximum policed unit: %d", 
+					    pntohl(pd+offset2+20));
+			if (sh->service_num!=QOS_GUARANTEED)
+			    break;
+			
+			/* Guaranteed-rate RSpec */
+			str = match_strval(isf->rspec.param_id, svc_vals);
+			if (!str) str="Unknown";
+			proto_tree_add_text(rsvp_object_tree, offset2+24, 1, 
+					    "Parameter %d - %s", 
+					    isf->rspec.param_id, str);
+			proto_tree_add_text(rsvp_object_tree, offset2+25, 1, 
+					    "Parameter %d flags: %d", 
+					    isf->rspec.param_id, isf->rspec.flags_rspec);
+			proto_tree_add_text(rsvp_object_tree, offset2+26, 2, 
+					    "Parameter %d data length: %d words, " 
+					    "not including header",
+					    isf->rspec.param_id,
+					    ntohs(isf->rspec.param2_length));
+
+			proto_tree_add_text(rsvp_object_tree, offset2+28, 4, 
+					    "Rate: %ld", 
+					    ieee_to_long(pd+offset2+28));
+			proto_tree_add_text(rsvp_object_tree, offset2+32, 4, 
+					    "Slack term: %d", 
+					    pntohl(pd+offset2+32));
+			break;
+
+		    case QOS_QUALITATIVE :
+			qf = (QUAL_flowspec *)sh;
+
+			str = match_strval(qf->param_id, svc_vals);
+			if (!str) str = "Unknown";
+			proto_tree_add_text(rsvp_object_tree, offset2, 1, 
+					    "Parameter %d - %s", 
+					    qf->param_id, str);
+			proto_tree_add_text(rsvp_object_tree, offset2+1, 1, 
+					    "Parameter %d flags: %d", 
+					    qf->param_id, qf->flags_tspec);
+			proto_tree_add_text(rsvp_object_tree, offset2+2, 2, 
+					    "Parameter %d data length: %d words, " 
+					    "not including header",
+					    qf->param_id,
+					    ntohs(qf->parameter_length));
+			proto_tree_add_text(rsvp_object_tree, offset2+4, 4, 
+					    "Maximum policed unit: %ld", 
+					    pntohl(pd+offset2+4));
+			
+			break;
+		    }
+		    offset2 += ntohs(sh->length)*4;
+		    mylen -= ntohs(sh->length)*4;
+		}
 
 		break;
 	    }
@@ -737,7 +837,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		mylen -= 4;
 		while (mylen > 4) {
 		    shdr = (service_hdr *)(pd + offset2);
-		    str = match_strval(shdr->service_num, adspec_services);
+		    str = match_strval(shdr->service_num, intsrv_services_str);
 
 		    ti = proto_tree_add_text(rsvp_object_tree, offset2, 
 					     (pntohs(&shdr->length)+1)<<2,
