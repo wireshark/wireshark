@@ -1360,7 +1360,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
   proto_tree *flags_tree;
   guint8 e_bit, b_bit, u_bit;
 	
-  if (chunk_length < DATA_CHUNK_HEADER_LENGTH - CHUNK_HEADER_LENGTH) {
+  if (chunk_length <= DATA_CHUNK_HEADER_LENGTH - CHUNK_HEADER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
                            chunk_length + CHUNK_HEADER_LENGTH,
                            DATA_CHUNK_HEADER_LENGTH);
@@ -1405,17 +1405,15 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
         proto_item_append_text(chunk_item, "middle");
     }
 				
-    proto_item_append_text(chunk_item, " segment, TSN: %u, SID: %u, SSN: %u, PPID: %u",
+    proto_item_append_text(chunk_item, " segment, TSN: %u, SID: %u, SSN: %u, PPID: %u, payload length: %u byte%s)",
                            tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET), 
                            tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET),
                            tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET),
-                           payload_proto_id);
+                           payload_proto_id,
+                           chunk_length - DATA_CHUNK_HEADER_LENGTH + CHUNK_HEADER_LENGTH, plurality(chunk_length - DATA_CHUNK_HEADER_LENGTH + CHUNK_HEADER_LENGTH, "", "s"));
   }
-  if (chunk_tree) {
-      proto_item_append_text(chunk_item, ", payload length: %u byte%s)",
-                             chunk_length, plurality(chunk_length, "", "s"));
-  }
-  payload_tvb       = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET, chunk_length, chunk_length);
+
+  payload_tvb       = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET, chunk_length - DATA_CHUNK_HEADER_LENGTH + CHUNK_HEADER_LENGTH, chunk_length - DATA_CHUNK_HEADER_LENGTH + CHUNK_HEADER_LENGTH);
   return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
 }
 
