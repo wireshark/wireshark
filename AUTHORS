@@ -1679,7 +1679,7 @@ Duncan Laurie <duncan [AT] sun.com> {
 	IPMI-over-LAN support (IPMI, RMCP, partial ASF)
 }
 
-Tony Schene <Schene_Tony [AT] emc.com> {
+Tony Schene <schene [AT] pcisys.net> {
 	Initial stub Kerberos kadmin support
 	Kerberos-over-TCP support
 	AUTH_GSSAPI support
