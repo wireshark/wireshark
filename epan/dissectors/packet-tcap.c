@@ -67,8 +67,8 @@
 Tcap_Standard_Type tcap_standard = ITU_TCAP_STANDARD;
 
 #define MAX_SSN 254
-static range_t global_ssn_range;
-static range_t ssn_range;
+static range_t *global_ssn_range;
+static range_t *ssn_range;
 
 static dissector_handle_t tcap_handle;
 
@@ -2866,7 +2866,7 @@ proto_register_tcap(void)
 
     /* Set default SSNs */
     range_convert_str(&global_ssn_range, "5-12", MAX_SSN);
-    memset(&ssn_range, 0, sizeof(ssn_range));
+    ssn_range = range_empty();
 
     prefs_register_range_preference(tcap_module, "ssn", "SCCP SSNs",
 	"SCCP (and SUA) SSNs to decode as TCAP",
@@ -2913,11 +2913,12 @@ proto_reg_handoff_tcap(void)
 
     } else {
 
-	range_foreach(&ssn_range, range_delete_callback);
+	range_foreach(ssn_range, range_delete_callback);
     }
 
-    ssn_range = global_ssn_range;
+    g_free(ssn_range);
+    ssn_range = range_copy(global_ssn_range);
 
-    range_foreach(&ssn_range, range_add_callback);
+    range_foreach(ssn_range, range_add_callback);
 
 }

@@ -249,7 +249,7 @@
 00:00:C7	Arix                   # ARIX CORPORATION
 00:00:C8	AltosCompu             # ALTOS COMPUTER SYSTEMS
 00:00:C9	Emulex                 # EMULEX CORPORATION
-00:00:CA	Applitek
+00:00:CA	ArrisInter             # ARRIS International
 00:00:CB	Compu-Shac             # COMPU-SHACK ELECTRONIC GMBH
 00:00:CC	Densan                 # DENSAN CO., LTD.
 00:00:CD	AlliedTele             # Allied Telesyn Research Ltd.
@@ -4738,6 +4738,45 @@
 00:12:78	Internatio             # International Bar Code
 00:12:79	HewlettPac             # Hewlett Packard
 00:12:7A	SanyuIndus             # Sanyu Industry Co.,Ltd.
+00:12:7B	ViaNetwork             # VIA Networking Technologies, Inc.
+00:12:7C	Pm-Luft                # PM-LUFT AB
+00:12:7D	Mobilearia
+00:12:7E	DigitalLif             # Digital Lifestyles Group, Inc.
+00:12:7F	Cisco
+00:12:80	Cisco
+00:12:81	CieffeSrl              # CIEFFE srl
+00:12:82	Qovia
+00:12:83	NortelNetw             # Nortel Networks
+00:12:84	Lab33Srl               # Lab33 Srl
+00:12:85	GizmondoEu             # Gizmondo Europe Ltd
+00:12:86	Endevco                # ENDEVCO CORP
+00:12:87	DigitalEve             # Digital Everywhere Unterhaltungselektronik GmbH
+00:12:88	2wire                  # 2Wire, Inc
+00:12:89	AdvanceSte             # Advance Sterilization Products
+00:12:8A	MotorolaPc             # Motorola PCS
+00:12:8B	SensoryNet             # Sensory Networks Inc
+00:12:8C	WoodwardGo             # Woodward Governor
+00:12:8D	StbDatense             # STB Datenservice GmbH
+00:12:8E	Q-FreeAsa              # Q-Free ASA
+00:12:8F	Montilio
+00:12:90	KyowaElect             # KYOWA Electric & Machinery Corp.
+00:12:91	KwsCompute             # KWS Computersysteme GmbH
+00:12:92	GriffinTec             # Griffin Technology
+00:12:93	GeEnergy               # GE Energy
+00:12:94	EudynaDevi             # Eudyna Devices Inc.
+00:12:95	Aiware                 # Aiware Inc.
+00:12:96	Addlogix
+00:12:97	O2micro                # O2Micro, Inc.
+00:12:98	MicoElectr             # MICO ELECTRIC(SHENZHEN) LIMITED
+00:12:99	KtechTelec             # Ktech Telecommunications Inc
+00:12:9A	IrtElectro             # IRT Electronics Pty Ltd
+00:12:9B	E2sElectro             # E2S Electronic Engineering Solutions, S.L.
+00:12:9C	Yulinet
+00:12:9D	FirstInter             # FIRST INTERNATIONAL COMPUTER DO BRASIL LTDA
+00:12:9E	SurfCommun             # Surf Communications Inc.
+00:12:9F	Rae                    # RAE Systems, Inc.
+00:12:A0	Neomeridia             # NeoMeridian Sdn Bhd
+00:12:A1	Bluepacket             # BluePacket Communications Co., Ltd.
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -7390,7 +7429,7 @@
 00:E0:23	Telrad
 00:E0:24	GadzooxNet             # GADZOOX NETWORKS
 00:E0:25	Dit                    # dit CO., LTD.
-00:E0:26	EastmanKod             # EASTMAN KODAK CO.
+00:E0:26	RedlakeMas             # Redlake MASD LLC
 00:E0:27	Dux                    # DUX, INC.
 00:E0:28	Aptix                  # APTIX CORPORATION
 00:E0:29	StandardMi             # STANDARD MICROSYSTEMS CORP.

@@ -152,7 +152,7 @@ merge_append_files(int in_file_count, merge_in_file_t in_files[], merge_out_file
  * @return TRUE if function succeeded
  */
 extern gboolean
-merge_n_files(int out_fd, int in_file_count, char **in_filenames, gboolean do_append, int *err);
+merge_n_files(int out_fd, int in_file_count, char **in_filenames, int filetype, gboolean do_append, int *err);
 
 
 #ifdef __cplusplus

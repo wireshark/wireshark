@@ -63,8 +63,14 @@
 #include <ctype.h>
 
 #ifdef HAVE_LIBNETTLE
+#define HAVE_KERBEROS
+#ifdef _WIN32
 #include <des.h>
 #include <cbc.h>
+#else
+#include <nettle/des.h>
+#include <nettle/cbc.h>
+#endif
 #include "crypt-md5.h"
 #include <sys/stat.h>	/* For keyfile manipulation */
 #endif
@@ -75,6 +81,7 @@
 
 #include <epan/strutil.h>
 
+#include <epan/conversation.h>
 #include <epan/dissectors/packet-kerberos.h>
 #include <epan/dissectors/packet-netbios.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -92,6 +99,8 @@
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
+
+static dissector_handle_t kerberos_handle_udp;
 
 /* Desegment Kerberos over TCP messages */
 static gboolean krb_desegment = TRUE;
@@ -685,7 +694,7 @@ read_keytab_file(char *service_key_file)
 			sk->length = DES3_KEY_SIZE;
 			sk->contents = g_malloc(DES3_KEY_SIZE);
 			memcpy(sk->contents, buf + 2, DES3_KEY_SIZE);
-			sprintf(sk->origin, "3DES service key file, key #%d, offset %d", count, ftell(skf));
+			sprintf(sk->origin, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
 			fseek(skf, newline_skip, SEEK_CUR);
 			count++;
@@ -698,8 +707,8 @@ g_warning("added key: %s", sk->origin);
 #define CONFOUNDER_PLUS_CHECKSUM 24
 
 static guint8 *
-decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
-			int usage,
+decrypt_krb5_data(proto_tree _U_ *tree, packet_info *pinfo,
+			int _U_ usage,
 			int length,
 			const char *cryptotext,
 			int keytype)
@@ -3611,6 +3620,23 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
 static void
 dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    conversation_t *conversation;
+
+    /*
+     * UDP replies from the server are sent back to the client's source
+     * port, similar to TFTP.
+     */
+    /* XXX This test may be too general */
+    if (pinfo->destport == UDP_PORT_KERBEROS && pinfo->ptype == PT_UDP) {
+	conversation = find_conversation(&pinfo->src, &pinfo->dst, PT_UDP,
+	       pinfo->srcport, 0, NO_PORT_B);
+	if (conversation == NULL) {
+	    conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
+		    pinfo->srcport, 0, NO_PORT2);
+	    conversation_set_dissector(conversation, kerberos_handle_udp);
+	}
+    }
+
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 
@@ -4234,7 +4260,6 @@ static dcerpc_auth_subdissector_fns gss_kerb_auth_fns = {
 void
 proto_reg_handoff_kerberos(void)
 {
-    dissector_handle_t kerberos_handle_udp;
     dissector_handle_t kerberos_handle_tcp;
 
     kerberos_handle_udp = create_dissector_handle(dissect_kerberos_udp,

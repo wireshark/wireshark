@@ -1,36 +1,17 @@
-#!/usr/bin/perl -w
-
 # $Id$
 
-# Remove tasks from individual author entries from AUTHORS file
-# for use in the about dialog.
+# Convert AUTHORS-SHORT file for use in man page and HTML documentation
+# after processing through pod2man and pod2html.
+#
+# Must be called via perlnoutf.
 
 use strict;
-
-my $subinfo=0;
-my $nextline;
 
 print "=for html <pre>\n\n";
 print "=for man .nf\n\n";
 
-$_ = <>;
-s/\xef\xbb\xbf//;		# Skip UTF-8 byte order mark
-printline() unless /^\n/;
-
 while (<>) {
-	if (/(.*){/) {
-		$subinfo = 1;
-		printline("$1\n");
-	} elsif (/}/) {
-		$subinfo = 0;
-		if (($nextline = <>) !~ /^[\s]*$/) {
-			print($nextline);
-		}
-	} elsif ($subinfo == 1) {
-		next;
-	} else {
-		printline();
-	}
+	printline();
 }
 
 print "\n=for html </pre>\n";

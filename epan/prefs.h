@@ -280,7 +280,7 @@ extern void prefs_register_string_preference(module_t *module, const char *name,
  * Register a preference with a ranged value.
  */
 extern void prefs_register_range_preference(module_t *module, const char *name,
-    const char *title, const char *description, range_t *var,
+    const char *title, const char *description, range_t **var,
     guint32 max_value);
 
 /*

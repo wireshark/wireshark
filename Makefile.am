@@ -300,8 +300,15 @@ svnversion.h: FORCE
 #
 # Build the short version of the authors file for the about dialog
 #
-AUTHORS-SHORT: AUTHORS make-authors-short.pl make-authors-short2.pl
-	$(PERL) $(srcdir)/make-authors-short.pl < AUTHORS > AUTHORS-SHORT
+AUTHORS-SHORT: AUTHORS make-authors-short.pl
+	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-short.pl < AUTHORS > AUTHORS-SHORT
+
+#
+# Build the short version of the authors file with formatting codes for the
+# man page
+#
+AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
+	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
 
 #
 # Build shell scripts by doing variable substitution.
@@ -383,6 +390,7 @@ MAINTAINERCLEANFILES =		\
 
 EXTRA_DIST = \
 	AUTHORS-SHORT		\
+	AUTHORS-SHORT-FORMAT	\
 	FAQ			\
 	INSTALL.configure       \
 	Makefile.common		\
@@ -521,8 +529,8 @@ EXTRA_DIST = \
 	image/icon_layout_6.xpm \
 	image/wiretap.rc.in	\
 	imscxdx.xml		\
+	make-authors-format.pl	\
 	make-authors-short.pl	\
-	make-authors-short2.pl	\
 	make-manuf		\
 	make-tapreg-dotc	\
 	make-version.pl		\
@@ -531,6 +539,7 @@ EXTRA_DIST = \
 	mergecap.c		\
 	mobileipv4.xml		\
 	nasreq.xml		\
+	perlnoutf.pl		\
 	print.ps                \
 	randpkt.c		\
 	rdps.c			\
@@ -556,7 +565,7 @@ else
 SUBDIRS = tools wiretap doc epan packaging help @ethereal_SUBDIRS@
 endif
 
-ethereal.1: doc/ethereal.pod AUTHORS-SHORT
+ethereal.1: doc/ethereal.pod AUTHORS-SHORT-FORMAT
 	(cd doc ; \
 	$(MAKE) ../ethereal.1 )
 
@@ -588,7 +597,7 @@ text2pcap.1: doc/text2pcap.pod
 	(cd doc ; \
 	$(MAKE) ../text2pcap.1 )
 
-ethereal.html: doc/ethereal.pod AUTHORS-SHORT
+ethereal.html: doc/ethereal.pod AUTHORS-SHORT-FORMAT
 	(cd doc ; \
 	$(MAKE) ../ethereal.html )
 

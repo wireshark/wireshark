@@ -1,18 +1,31 @@
-#!/usr/bin/perl -w
-
 # $Id$
+
+# Remove tasks from individual author entries from AUTHORS file
+# for use in the about dialog.
+#
+# Must be called via perlnoutf.
 
 use strict;
 
-# Unset environment variables so perl doesn't
-# interpret bytes as UTF-8 characters
+my $subinfo=0;
+my $nextline;
 
-delete $ENV{LANG};
-delete $ENV{LANGUAGE};
-delete $ENV{LC_ALL};
-delete $ENV{LC_CTYPE};
+$_ = <>;
+s/\xef\xbb\xbf//;		# Skip UTF-8 byte order mark
+print unless /^\n/;
 
-# Call make-authors-short2.pl in same directory, using same interpreter
-
-(my $prog2 = $0) =~ s/\.pl$/2.pl/;
-system($^X, "$prog2", @ARGV);
+while (<>) {
+	if (/(.*){/) {
+		$subinfo = 1;
+		print "$1\n";
+	} elsif (/}/) {
+		$subinfo = 0;
+		if (($nextline = <>) !~ /^[\s]*$/) {
+			print $nextline;
+		}
+	} elsif ($subinfo == 1) {
+		next;
+	} else {
+		print;
+	}
+}

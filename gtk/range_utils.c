@@ -36,6 +36,7 @@
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
+#include "simple_dialog.h"
 
 
 #define RANGE_VALUES_KEY                "range_values"
@@ -58,7 +59,29 @@
 #define RANGE_SELECT_USER_D_KEY         "range_select_user_range_d_lb"
 #define RANGE_SELECT_USER_ENTRY_KEY     "range_select_user_range_entry"
 
+gboolean
+range_check_validity(packet_range_t *range)
+{
+  switch (packet_range_check(range)) {
 
+  case CVT_NO_ERROR:
+    return TRUE;
+
+  case CVT_SYNTAX_ERROR:
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "The specified range of packets isn't a valid range.");
+    return FALSE;
+
+  case CVT_NUMBER_TOO_BIG:
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "The specified range of packets has a packet number that's too large.");
+    return FALSE;
+
+  default:
+    g_assert_not_reached();
+    return FALSE;
+  }
+}
 
 /* update all "dynamic" things */
 void

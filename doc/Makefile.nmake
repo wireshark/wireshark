@@ -32,9 +32,14 @@ doc: ethereal.html tethereal.html ethereal-filter.html capinfo.html \
 man: ethereal.1 tethereal.1 ethereal-filter.4 capinfo.1 editcap.1 \
 	idl2eth.1 mergecap.1 text2pcap.1
 
-ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT
-	copy /B ethereal.pod + ..\AUTHORS-SHORT ethereal-tmp.pod
-	
+ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT-FORMAT
+	copy /B ethereal.pod + ..\AUTHORS-SHORT-FORMAT ethereal-tmp.pod
+
+../AUTHORS-SHORT-FORMAT:
+	cd ..
+	$(MAKE) -f makefile.nmake AUTHORS-SHORT-FORMAT
+	cd doc
+
 ethereal.1: ethereal.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \

@@ -38,6 +38,7 @@
 #endif
 
 #include <epan/packet.h>
+#include "prefs.h"
 /*
 #include "packet-llcgprs.h"
 */
@@ -81,6 +82,9 @@ static gint ett_ui = -1;
 static gint ett_llcgprs_sframe = -1;
 
 static dissector_handle_t data_handle;
+
+static gboolean ignore_cipher_bit = FALSE;
+
 static dissector_table_t llcgprs_subdissector_table;
 static const value_string sapi_t[] = {
 	{  0, "Reserved"},
@@ -264,7 +268,15 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     	  }
 
  		   	  next_tvb = tvb_new_subset(tvb, offset,crc_start-3, -1 );
-		   	  if (epm < 2){
+		   	  if (ignore_cipher_bit || !(epm & 0x2)){
+			  	/*
+			  	 * Either we're ignoring the cipher bit
+			  	 * (because the bit is set but the
+			  	 * data is unciphered), or the cipher
+			  	 * bit isn't set (indicating that the
+			  	 * data is unciphered).  Try dissecting
+			  	 * it with a subdissector.
+			  	 */
 		   	    if  (!dissector_try_port(llcgprs_subdissector_table,sapi, next_tvb, pinfo, tree))
 		   		call_dissector(data_handle, next_tvb, pinfo, tree);
 			  }
@@ -359,6 +371,8 @@ proto_register_llcgprs(void)
 		&ett_llcgprs_sframe,
 	};
 
+	module_t *llcgprs_module;
+	
 /* Register the protocol name and description */
 	proto_llcgprs = proto_register_protocol("Logical Link Control GPRS",
 	    "GPRS-LLC", "llcgprs");
@@ -367,6 +381,12 @@ proto_register_llcgprs(void)
 	proto_register_field_array(proto_llcgprs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector( "llcgprs", dissect_llcgprs, proto_llcgprs);
+	
+	llcgprs_module = prefs_register_protocol ( proto_llcgprs, NULL );
+	prefs_register_bool_preference ( llcgprs_module, "ignore_cipher_bit",
+	    "Ignore cipher bit", 
+	    "Whether to ignore the cipher bit (because it might be set on unciphered data)",
+	    &ignore_cipher_bit );
 }
 
 
@@ -385,4 +405,3 @@ proto_reg_handoff_llcgprs(void)
 */
 	data_handle = find_dissector("data");
 }
-
