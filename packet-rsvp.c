@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.16 2000/03/10 08:41:02 guy Exp $
+ * $Id: packet-rsvp.c,v 1.17 2000/03/13 05:19:50 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -845,6 +845,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     int obj_length;
     int offset2;
     struct e_in6_addr *ip6a;
+    guint32 ip_addr;
 
     hdr = (rsvp_header *)&pd[offset];
     packet_type = match_strval(hdr->message_type, message_type_vals);
@@ -918,8 +919,9 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		case 1: {
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 1 - IPv4");
+		    memcpy(&ip_addr, pd+offset2, 4);
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_IP], 
-					offset2, 4, pntohl(pd+offset2));
+					offset2, 4, ip_addr);
 
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_PROTO], 
 					offset2+4, 1, *(pd+offset2+4));
@@ -950,13 +952,19 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		case 7: {
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 7 - IPv4 LSP");
+		    memcpy(&ip_addr, pd+offset2, 4);
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_IP], 
-					offset2, 4, pntohl(pd+offset2));
+					offset2, 4, ip_addr);
 
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_TUNNEL_ID], 
 					offset2+6, 2, pntohs(pd+offset2+6));
-		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID], 
-					offset2+8, 4, pntohl(pd+offset2+8));
+
+		    memcpy(&ip_addr, pd+offset2+8, 4);
+		    proto_tree_add_text(rsvp_object_tree, offset2+8, 4, 
+					"Extended Tunnel ID: %d (%s)", 
+					ntohl(ip_addr), ip_to_str(pd+offset2+8));
+		    proto_tree_add_item_hidden(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID], 
+					offset2+8, 4, ip_addr);
 		    break;
 		}
 
@@ -1246,8 +1254,9 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		case 1: {
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 1 - IPv4");
+		    memcpy(&ip_addr, pd+offset2, 4);
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SENDER_IP], 
-					offset2, 4, pntohl(pd+offset2));
+					offset2, 4, ip_addr);
 
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SENDER_PORT], 
 					offset2+6, 2, pntohs(pd+offset2+6));
@@ -1269,8 +1278,9 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		case 7: {
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 7 - IPv4 LSP");
+		    memcpy(&ip_addr, pd+offset2, 4);
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SENDER_IP], 
-					offset2, 4, pntohl(pd+offset2));
+					offset2, 4, ip_addr);
 
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SENDER_LSP_ID], 
 					offset2+6, 2, pntohs(pd+offset2+6));
