@@ -7,8 +7,9 @@
 
 /* packet-x509ce.c
  * Routines for X.509 Certificate Extensions packet dissection
+ *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509ce-template.c 12557 2004-11-21 10:00:40Z sahlberg $
+ * $Id: packet-x509ce-template.c 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +56,7 @@ int proto_x509ce = -1;
 static int hf_x509ce_id_ce_invalidityDate = -1;
 static int hf_x509ce_id_ce_baseUpdateTime = -1;
 static int hf_x509ce_object_identifier_id = -1;
+static int hf_x509ce_IPAddress = -1;
 
 /*--- Included file: packet-x509ce-hf.c ---*/
 
@@ -103,7 +105,7 @@ static int hf_x509ce_dNSName = -1;                /* IA5String */
 static int hf_x509ce_directoryName = -1;          /* Name */
 static int hf_x509ce_ediPartyName = -1;           /* EDIPartyName */
 static int hf_x509ce_uniformResourceIdentifier = -1;  /* IA5String */
-static int hf_x509ce_iPAddress = -1;              /* OCTET_STRING */
+static int hf_x509ce_iPAddress = -1;              /* T_iPAddress */
 static int hf_x509ce_registeredID = -1;           /* OBJECT_IDENTIFIER */
 static int hf_x509ce_nameAssigner = -1;           /* DirectoryString */
 static int hf_x509ce_partyName = -1;              /* DirectoryString */
@@ -358,14 +360,15 @@ static int dissect_ediPartyName_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 
 static int
-dissect_x509ce_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
+	offset+=4;
+
 
   return offset;
 }
 static int dissect_iPAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509ce_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_x509ce_iPAddress);
+  return dissect_x509ce_T_iPAddress(TRUE, tvb, offset, pinfo, tree, hf_x509ce_iPAddress);
 }
 
 
@@ -622,7 +625,6 @@ static int dissect_policyQualifierId(packet_info *pinfo, proto_tree *tree, tvbuf
 static int
 dissect_x509ce_PolicyQualifierValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-
 
 
   return offset;
@@ -1566,7 +1568,10 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_object_identifier_id, 
       { "Id", "x509ce.id", FT_STRING, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
-			 
+    { &hf_x509ce_IPAddress,
+      { "iPAddress", "x509ce.IPAddress", FT_IPv4, BASE_NONE, NULL, 0,
+        "IP Address", HFILL }},
+
 
 /*--- Included file: packet-x509ce-hfarr.c ---*/
 
