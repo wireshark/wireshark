@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.44 2004/01/31 04:10:04 guy Exp $
+ * $Id: column-utils.c,v 1.45 2004/02/05 23:57:15 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -291,6 +291,41 @@ col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   va_end(ap);
 }
 
+/* Appends a vararg list to a packet info string.
+ * Prefixes it with the given separator if the column is not empty. */
+void
+col_append_sep_fstr(column_info *cinfo, gint el, const gchar *separator,
+		const gchar *format, ...)
+{
+  va_list ap;
+  int     i;
+  size_t  len, max_len;
+
+  g_assert(cinfo->col_first[el] >= 0);
+  if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+  else
+	max_len = COL_MAX_LEN;
+
+  if (cinfo->col_buf[0]) {
+    col_append_str(cinfo, el, separator ? separator : ", ");
+  }
+  va_start(ap, format);
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+    if (cinfo->fmt_matx[i][el]) {
+      /*
+       * First arrange that we can append, if necessary.
+       */
+      COL_CHECK_APPEND(cinfo, i, max_len);
+      len = strlen(cinfo->col_buf[i]);
+      vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
+    }
+  }
+  va_end(ap);
+}
+
+
+
 /* Prepends a vararg list to a packet info string. */
 #define COL_BUF_MAX_LEN (((COL_MAX_INFO_LEN) > (COL_MAX_LEN)) ? \
 	(COL_MAX_INFO_LEN) : (COL_MAX_LEN))
@@ -396,6 +431,16 @@ col_append_str(column_info *cinfo, gint el, const gchar* str)
       cinfo->col_buf[i][max_len - 1] = 0;
     }
   }
+}
+
+void
+col_append_sep_str(column_info *cinfo, gint el, const gchar* separator,
+    const gchar* str)
+{
+  if (cinfo->col_buf[0]) {
+    col_append_str(cinfo, el, separator ? separator : ", ");
+  }  
+  col_append_str(cinfo, el, str);
 }
 
 static void
