@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.25 2003/03/14 21:50:19 guy Exp $
+ * $Id: packet-aim.c,v 1.26 2003/04/15 04:45:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -402,6 +402,25 @@ static const value_string aim_fnac_family_ssi[] = {
   { 0, NULL }
 };
 
+#define FAMILY_SSI_TYPE_BUDDY         0x0000
+#define FAMILY_SSI_TYPE_GROUP         0x0001
+#define FAMILY_SSI_TYPE_PERMIT        0x0002
+#define FAMILY_SSI_TYPE_DENY          0x0003
+#define FAMILY_SSI_TYPE_PDINFO        0x0004
+#define FAMILY_SSI_TYPE_PRESENCEPREFS 0x0005
+#define FAMILY_SSI_TYPE_ICONINFO      0x0014
+
+static const value_string aim_fnac_family_ssi_types[] = {
+  { FAMILY_SSI_TYPE_BUDDY, "Buddy" },
+  { FAMILY_SSI_TYPE_GROUP, "Group" },
+  { FAMILY_SSI_TYPE_PERMIT, "Permit" },
+  { FAMILY_SSI_TYPE_DENY, "Deny" },
+  { FAMILY_SSI_TYPE_PDINFO, "PDINFO" },
+  { FAMILY_SSI_TYPE_PRESENCEPREFS, "Presence Preferences" },
+  { FAMILY_SSI_TYPE_ICONINFO, "Icon Info" },
+  { 0, NULL }
+};
+
 static const value_string aim_fnac_family_icq[] = {
   { FAMILY_ICQ_ERROR, "Error" },
   { FAMILY_ICQ_LOGINREQUEST, "Login Request" },
@@ -569,6 +588,9 @@ static void dissect_aim_snac_messaging(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo, 
 				 int offset, proto_tree *tree, 
 				 guint16 subtype);
+static void dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
+				      int offset, proto_tree *tree, 
+				      guint16 subtype _U_);
 static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo, 
 				 int offset, proto_tree *tree);
 static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo, 
@@ -605,6 +627,15 @@ static int hf_aim_fnac_subtype_translate = -1;
 static int hf_aim_fnac_subtype_chatnav = -1;
 static int hf_aim_fnac_subtype_chat = -1;
 static int hf_aim_fnac_subtype_ssi = -1;
+static int hf_aim_fnac_subtype_ssi_version = -1;
+static int hf_aim_fnac_subtype_ssi_numitems = -1;
+static int hf_aim_fnac_subtype_ssi_buddyname_len = -1;
+static int hf_aim_fnac_subtype_ssi_buddyname = -1;
+static int hf_aim_fnac_subtype_ssi_gid = -1;
+static int hf_aim_fnac_subtype_ssi_bid = -1;
+static int hf_aim_fnac_subtype_ssi_type = -1;
+static int hf_aim_fnac_subtype_ssi_tlvlen = -1;
+static int hf_aim_fnac_subtype_ssi_data = -1;
 static int hf_aim_fnac_subtype_icq = -1;
 static int hf_aim_fnac_flags = -1;
 static int hf_aim_fnac_id = -1;
@@ -619,6 +650,7 @@ static int hf_aim_userinfo_tlvcount = -1;
 static gint ett_aim          = -1;
 static gint ett_aim_fnac     = -1;
 static gint ett_aim_tlv      = -1;
+static gint ett_aim_ssi      = -1;
 
 /* desegmentation of AIM over TCP */
 static gboolean aim_desegment = TRUE;
@@ -1465,9 +1497,84 @@ static void dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo _U_,
 				 int offset, proto_tree *tree, 
 				 guint16 subtype _U_)
 {
-  /* Show the undissected payload */
-  if (tvb_length_remaining(tvb, offset) > 0)
-    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
+  switch(subtype)
+    {    
+    case FAMILY_SSI_LIST:
+      dissect_aim_snac_ssi_list(tvb, pinfo, offset, tree, subtype);
+      break;
+    default:
+      /* Show the undissected payload */
+      if (tvb_length_remaining(tvb, offset) > 0)
+	proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
+    }
+}
+
+static void dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
+				      int offset, proto_tree *tree, 
+				      guint16 subtype _U_)
+{
+  guint16 buddyname_length = 0;
+  guint16 tlv_len = 0;
+  proto_item *ti;
+  proto_tree *ssi_entry = NULL;
+
+  /* SSI Version */
+  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_version, tvb, offset, 1,
+		      FALSE);
+  offset += 1;
+  
+  /* Number of items */
+  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2,
+		      FALSE);
+  offset += 2;
+  
+  while (tvb_length_remaining(tvb, offset) > 4) {
+    ti = proto_tree_add_text(tree, tvb, offset, 0, "SSI Entry");
+    ssi_entry = proto_item_add_subtree(ti, ett_aim_ssi);
+    
+    /* Buddy Name Length */
+    buddyname_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname_len, 
+			tvb, offset, 2, FALSE);
+    offset += 2;
+    
+    /* Buddy Name */
+    if (buddyname_length > 0) {
+      proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname, tvb, 
+			  offset, buddyname_length, FALSE);
+      offset += buddyname_length;
+    }
+    
+    /* Buddy group ID */
+    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_gid, tvb, offset, 
+			2, FALSE);
+    offset += 2;
+    
+    /* Buddy ID */
+    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_bid, tvb, offset, 
+			2, FALSE);
+    offset += 2;
+    
+    /* Buddy Type */
+    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_type, tvb, offset,
+			2, FALSE);
+    offset += 2;
+    
+    /* Size of the following TLV in bytes (as opposed to the number of 
+       TLV objects in the chain) */
+    tlv_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_tlvlen, tvb, 
+			offset, 2, FALSE);
+    offset += 2;
+    
+    /* For now, we just dump the TLV contents as-is, since there is not a
+       TLV dissection utility that works based on total chain length */
+    if (tlv_len > 0) {
+      proto_tree_add_item(ssi_entry, hf_aim_data, tvb, offset, tlv_len, 
+			  FALSE);
+      offset += tlv_len;
+    }
+  }
 }
 
 static void dissect_aim_snac_fnac_subtype(tvbuff_t *tvb, int offset, 
@@ -1761,6 +1868,33 @@ proto_register_aim(void)
     { &hf_aim_fnac_subtype_ssi,
       { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_ssi), 0x0, "", HFILL }
     },
+    { &hf_aim_fnac_subtype_ssi_version,
+      { "SSI Version", "aim.fnac.ssi.version", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi_numitems,
+      { "SSI Object count", "aim.fnac.ssi.numitems", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi_buddyname_len,
+      { "SSI Buddy Name length", "aim.fnac.ssi.buddyname_len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi_buddyname,
+      { "Buddy Name", "aim.fnac.ssi.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi_gid,
+      { "SSI Buddy Group ID", "aim.fnac.ssi.gid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi_bid,
+      { "SSI Buddy ID", "aim.fnac.ssi.bid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi_type,
+      { "SSI Buddy type", "aim.fnac.ssi.type", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_ssi_types), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi_tlvlen,
+      { "SSI TLV Len", "aim.fnac.ssi.tlvlen", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi_data,
+      { "SSI Buddy Data", "aim.fnac.ssi.data", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
     { &hf_aim_fnac_subtype_icq,
       { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_icq), 0x0, "", HFILL }
     },
@@ -1797,6 +1931,7 @@ proto_register_aim(void)
     &ett_aim,
     &ett_aim_fnac,
     &ett_aim_tlv,
+    &ett_aim_ssi,
   };
   module_t *aim_module;
 
