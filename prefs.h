@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.45 2003/09/08 21:44:41 guy Exp $
+ * $Id: prefs.h,v 1.46 2003/09/10 23:55:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,6 @@
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550
 
-#define MAX_VAR_LEN    48
 #define MAX_VAL_LEN  1024
 
 /*

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.106 2003/09/08 21:44:41 guy Exp $
+ * $Id: prefs.c,v 1.107 2003/09/10 23:55:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -842,6 +842,7 @@ print.file: /a/very/long/path/
  *
  */
 
+#define MAX_VAR_LEN    48
 
 #define DEF_NUM_COLS    6
 
