@@ -1,0 +1,26 @@
+#! /bin/sh
+
+#
+# The first argument is the directory in which the source files live.
+#
+srcdir="$1"
+shift
+
+#
+# All subsequent arguments are the files to scan.
+#
+rm -f register.c-tmp
+echo '/* Do not modify this file.  */' >register.c-tmp
+echo '/* It is created automatically by the Makefile.  */'>>register.c-tmp
+echo '#include "register.h"' >>register.c-tmp
+echo 'void register_all_protocols(void) {' >>register.c-tmp
+for f in "$@"
+do
+	grep '^proto_register_[a-z_0-9A-Z]* *(' $srcdir/$f 2>/dev/null
+done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
+for f in "$@"
+do
+	grep '^void proto_register_[a-z_0-9A-Z]* *(' $srcdir/$f 2>/dev/null
+done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
+echo '}' >>register.c-tmp
+mv register.c-tmp register.c

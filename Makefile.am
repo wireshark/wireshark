@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.97 1999/10/24 00:55:49 guy Exp $
+# $Id: Makefile.am,v 1.98 1999/10/27 01:46:14 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -55,8 +55,8 @@ DISSECTOR_SOURCES = \
 	packet-gre.c   \
 	packet-http.c  \
 	packet-icmpv6.c\
-	packet-icq.c   \
 	packet-icp.c   \
+	packet-icq.c   \
 	packet-ip.c    \
 	packet-ip.h    \
 	packet-ipp.c   \
@@ -202,19 +202,19 @@ wiretap/libwiretap.a gtk/libui.a \
 # We assume that all dissector routines are in "packet-XXX.c" files,
 # or in "packet.c".
 #
+# For some unknown reason, having a big "for" loop in the Makefile
+# to scan all the "packet-XXX.c" files doesn't work with some "make"s;
+# they seem to pass only the first few names in the list to the shell,
+# for some reason.
+#
+# Therefore, we have a script to generate the "register.c" file.
+#
+# The first argument is the directory in which the source files live.
+# All subsequent arguments are the files to scan.
+#
 register.c: packet.c $(DISSECTOR_SOURCES) @SNMP_C@
 	@echo Making register.c
-	@rm -f register.c-tmp
-	@echo '/* Do not modify this file.  */' >register.c-tmp
-	@echo '/* It is created automatically by the Makefile.  */'>>register.c-tmp
-	@echo '#include "register.h"' >>register.c-tmp
-	@echo 'void register_all_protocols(void) {' >>register.c-tmp
-	@for f in packet.c $(DISSECTOR_SOURCES) @SNMP_C@; do grep '^proto_register_[a-z_0-9A-Z]* *(' $(srcdir)/$$f 2>/dev/null; done | \
-	  sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
-	@for f in packet.c $(DISSECTOR_SOURCES) @SNMP_C@; do grep '^void proto_register_[a-z_0-9A-Z]* *(' $(srcdir)/$$f 2>/dev/null; done | \
-	  sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
-	@echo '}' >>register.c-tmp
-	@mv register.c-tmp register.c
+	@./make-reg-dotc $(srcdir) packet.c $(DISSECTOR_SOURCES) @SNMP_C@
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
