@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.306 2003/09/03 23:15:40 guy Exp $
+ * $Id: file.c,v 1.307 2003/09/03 23:40:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1889,8 +1889,11 @@ find_packet(capture_file *cf,
       	/* Yes.  Load its data. */
         if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
         		cf->pd, fdata->cap_len, &err)) {
+          /* Read error.  Report the error, and go back to the frame
+             where we started. */
           simple_dialog(ESD_TYPE_CRIT, NULL,
 			file_read_error_message(err), cf->filename);
+          new_fd = start_fd;
           break;
         }
 
