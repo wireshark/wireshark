@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.41 2004/02/28 16:21:10 ulfl Exp $
+ * $Id: capture.h,v 1.42 2004/03/02 22:07:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,9 +35,19 @@ typedef struct {
 					   length is specified */
 	int snaplen;			/* Maximum captured packet length */
 	int promisc_mode;		/* Capture in promiscuous mode */
+	int linktype;			/* Data link type to use, or -1 for
+					   "use default" */
 	int sync_mode;			/* Fork a child to do the capture,
 					   and sync between them */
-	gboolean has_autostop_count;	/* TRUE if maximum packet count is
+
+    gboolean multi_files_on;    /* TRUE if ring buffer in use */
+
+	gboolean has_ring_num_files;/* TRUE if ring num_files specified */
+	guint32 num_files;	        /* Number of multiple buffer files */
+	gboolean has_ring_duration;	/* TRUE if ring duration specified */
+	gint32 ringbuffer_duration;     /* Switch file after n seconds */
+
+    gboolean has_autostop_count;	/* TRUE if maximum packet count is
 					   specified */
 	int autostop_count;		/* Maximum packet count */
 	gboolean has_autostop_duration;	/* TRUE if maximum capture duration
@@ -46,12 +56,10 @@ typedef struct {
 	gboolean has_autostop_filesize;	/* TRUE if maximum capture file size
 					   is specified */
 	gint32 autostop_filesize;	/* Maximum capture file size */
-	gboolean ringbuffer_on;		/* TRUE if ring buffer in use */
-	guint32 num_files;	        /* Number of multiple buffer files */
-	gboolean has_ring_duration;	/* TRUE if ring duration specified */
-	gint32 ringbuffer_duration;     /* Switch file after n seconds */
-	int linktype;			/* Data link type to use, or -1 for
-					   "use default" */
+
+    gboolean has_autostop_files;/* TRUE if maximum number of capture files
+					   are specified */
+    gint32 autostop_files;      /* Maximum number of capture files */
 } capture_options;
 
 extern capture_options capture_opts;

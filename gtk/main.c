@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.410 2004/02/28 21:55:13 guy Exp $
+ * $Id: main.c,v 1.411 2004/03/02 22:07:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2015,17 +2015,22 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   capture_opts.has_snaplen = FALSE;
   capture_opts.snaplen = MIN_PACKET_SIZE;
+  capture_opts.linktype = -1;
+
   capture_opts.has_autostop_count = FALSE;
   capture_opts.autostop_count = 1;
   capture_opts.has_autostop_duration = FALSE;
   capture_opts.autostop_duration = 1;
   capture_opts.has_autostop_filesize = FALSE;
   capture_opts.autostop_filesize = 1;
-  capture_opts.ringbuffer_on = FALSE;
-  capture_opts.num_files = 1;
+  capture_opts.has_autostop_files = FALSE;
+  capture_opts.autostop_files = 1;
+
+  capture_opts.multi_files_on = FALSE;
+  capture_opts.has_ring_num_files = TRUE;
+  capture_opts.num_files = 2;
   capture_opts.has_ring_duration = FALSE;
   capture_opts.ringbuffer_duration = 1;
-  capture_opts.linktype = -1;
 
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
@@ -2104,7 +2109,8 @@ main(int argc, char *argv[])
         break;
       case 'b':        /* Ringbuffer option */
 #ifdef HAVE_LIBPCAP
-        capture_opts.ringbuffer_on = TRUE;
+        capture_opts.multi_files_on = TRUE;
+        capture_opts.has_ring_num_files = TRUE;
 	if (get_ring_arguments(optarg) == FALSE) {
           fprintf(stderr, "ethereal: Invalid or unknown -b arg \"%s\"\n", optarg);
           exit(1);
@@ -2411,7 +2417,7 @@ main(int argc, char *argv[])
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
-    if (capture_opts.ringbuffer_on) {
+    if (capture_opts.multi_files_on) {
       fprintf(stderr, "ethereal: Ring buffer requested, but a capture is not being done.\n");
       exit(1);
     }
@@ -2426,7 +2432,7 @@ main(int argc, char *argv[])
 
     /* No - was the ring buffer option specified and, if so, does it make
        sense? */
-    if (capture_opts.ringbuffer_on) {
+    if (capture_opts.multi_files_on) {
       /* Ring buffer works only under certain conditions:
 	 a) ring buffer does not work with temporary files;
 	 b) sync_mode and capture_opts.ringbuffer_on are mutually exclusive -
@@ -2435,15 +2441,15 @@ main(int argc, char *argv[])
 	    file size is set to "infinite". */
       if (save_file == NULL) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
-	capture_opts.ringbuffer_on = FALSE;
+	capture_opts.multi_files_on = FALSE;
       }
       if (capture_opts.sync_mode) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
-	capture_opts.ringbuffer_on = FALSE;
+	capture_opts.multi_files_on = FALSE;
       }
       if (!capture_opts.has_autostop_filesize) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
-	capture_opts.ringbuffer_on = FALSE;
+	capture_opts.multi_files_on = FALSE;
       }
     }
   }
