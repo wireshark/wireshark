@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.35 2003/03/11 01:48:55 gerald Exp $
+ * $Id: packet-sip.c,v 1.36 2003/05/29 18:29:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -326,12 +326,31 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hf_index = sip_is_known_sip_header(tvb, offset, &header_len);
 			
 			if (hf_index == -1) {
-                         proto_tree_add_text(hdr_tree, tvb, offset , next_offset - offset, "%s",
-                                            tvb_format_text(tvb, offset, eol));
-			}
-			else	{					    
-		         proto_tree_add_string(hdr_tree, hf_header_array[hf_index], tvb, offset, next_offset - offset , 
-					     tvb_format_text(tvb, offset + header_len + 2, eol - header_len - 2));
+				proto_tree_add_text(hdr_tree, tvb, offset,
+				    next_offset - offset, "%s",
+				    tvb_format_text(tvb, offset, eol));
+			} else {					    
+				/*
+				 * XXX - shouldn't use "tvb_format_text()"
+				 * here; we should add the string *as is*
+				 * to the protocol tree.
+				 */
+				if (tvb_find_guint8(tvb,
+				    offset + header_len + 1, 1, ' ') == -1) {
+					proto_tree_add_string(hdr_tree,
+					    hf_header_array[hf_index], tvb,
+					    offset, next_offset - offset,
+					    tvb_format_text(tvb,
+					      offset + header_len + 1,
+					      eol - header_len - 1));
+				} else { /* eat leading whitespace */
+					proto_tree_add_string(hdr_tree,
+					    hf_header_array[hf_index], tvb,
+					    offset, next_offset - offset,
+					    tvb_format_text(tvb,
+					      offset + header_len + 2,
+					      eol - header_len - 2));
+				}
 			} 
 					    
                         offset = next_offset;
