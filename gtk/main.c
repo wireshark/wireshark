@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.252 2002/05/30 00:44:50 guy Exp $
+ * $Id: main.c,v 1.253 2002/07/06 16:47:17 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -759,7 +759,7 @@ static void
 tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_, gpointer user_data _U_)
 {
 	field_info	*finfo;
-	gchar		*help_str = NULL;
+	gchar		*help_str = NULL, len_str[] = ", 65536 bytes    ";
 	gboolean        has_blurb = FALSE;
 	guint           length = 0, byte_len;
 	GtkWidget	*byte_view;
@@ -786,13 +786,20 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_, gpointer 
 	  } else {
 	    length = strlen(finfo->hfinfo->name);
 	  }
+	  if (finfo->length == 0) {
+	    len_str[0] = '\0';
+	  } else if (finfo->length == 1) {
+	    strcpy (len_str, ", 1 byte");
+	  } else {
+	    sprintf (len_str, ", %d bytes", finfo->length);
+	  }
 	  statusbar_pop_field_msg();	/* get rid of current help msg */
           if (length) {
-	    length += strlen(finfo->hfinfo->abbrev) + 10;
+	    length += strlen(finfo->hfinfo->abbrev) + strlen(len_str) + 10;
 	    help_str = g_malloc(sizeof(gchar) * length);
-	    sprintf(help_str, "%s (%s)", 
+	    sprintf(help_str, "%s (%s)%s", 
 	       (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
-	       finfo->hfinfo->abbrev);
+	       finfo->hfinfo->abbrev, len_str);
 	    statusbar_push_field_msg(help_str);
 	    g_free(help_str);
           } else {
