@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.103 2000/08/21 12:53:10 sharpe Exp $
+ * $Id: packet.c,v 1.104 2000/09/10 06:44:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,6 +106,8 @@ static int proto_short = -1;
 static int proto_malformed = -1;
 
 static gint ett_frame = -1;
+
+static void display_signed_time(gchar *, int, gint32, gint32);
 
 /* Protocol-specific data attched to a frame_data structure - protocol
    index and opaque pointer. */
@@ -368,11 +370,13 @@ abs_time_to_str(struct timeval *abs_time)
         return cur;
 }
 
+#define	REL_TIME_LEN	(1+10+1+6+1)
+
 gchar *
 rel_time_to_str(struct timeval *rel_time)
 {
         static gchar *cur;
-        static char str[3][10+1+6+1];
+        static char str[3][REL_TIME_LEN];
 
         if (cur == &str[0][0]) {
                 cur = &str[1][0];
@@ -382,10 +386,27 @@ rel_time_to_str(struct timeval *rel_time)
                 cur = &str[0][0];
         }
 
-	sprintf(cur, "%ld.%06ld", (long)rel_time->tv_sec,
-		(long)rel_time->tv_usec);
-
+	display_signed_time(cur, REL_TIME_LEN, rel_time->tv_sec,
+	    rel_time->tv_usec);
         return cur;
+}
+
+static void
+display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 usec)
+{
+	char *sign;
+
+	/* If the microseconds part of the time stamp is negative,
+	   print its absolute value and, if the seconds part isn't
+	   (the seconds part should be zero in that case), stick
+	   a "-" in front of the entire time stamp. */
+	sign = "";
+	if (usec < 0) {
+		usec = -usec;
+		if (sec >= 0)
+			sign = "-";
+	}
+	snprintf(buf, buflen, "%s%d.%06d", sign, sec, usec);
 }
 
 /*
@@ -820,15 +841,15 @@ col_set_abs_time(frame_data *fd, int col)
 static void
 col_set_rel_time(frame_data *fd, int col)
 {
-  snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%d.%06d", fd->rel_secs,
-    fd->rel_usecs);
+  display_signed_time(fd->cinfo->col_data[col], COL_MAX_LEN,
+	fd->rel_secs, fd->rel_usecs);
 }
 
 static void
 col_set_delta_time(frame_data *fd, int col)
 {
-  snprintf(fd->cinfo->col_data[col], COL_MAX_LEN, "%d.%06d", fd->del_secs,
-    fd->del_usecs);
+  display_signed_time(fd->cinfo->col_data[col], COL_MAX_LEN,
+	fd->del_secs, fd->del_usecs);
 }
 
 /* Add "command-line-specified" time.

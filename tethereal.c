@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.44 2000/08/23 18:21:57 deniel Exp $
+ * $Id: tethereal.c,v 1.45 2000/09/10 06:44:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -821,15 +821,6 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
     firstusec = fdata->abs_usecs;
   }
 
-  /* Get the time elapsed between the first packet and this packet. */
-  cf->esec = fdata->abs_secs - firstsec;
-  if (firstusec <= fdata->abs_usecs) {
-    cf->eusec = fdata->abs_usecs - firstusec;
-  } else {
-    cf->eusec = (fdata->abs_usecs + 1000000) - firstusec;
-    cf->esec--;
-  }
-  
   /* If we don't have the time stamp of the previous displayed packet,
      it's because this is the first displayed packet.  Save the time
      stamp of this packet as the time stamp of the previous displayed
@@ -840,18 +831,23 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   }
 
   /* Get the time elapsed between the first packet and this packet. */
-  fdata->rel_secs = cf->esec;
-  fdata->rel_usecs = cf->eusec;
+  compute_timestamp_diff(&fdata->rel_secs, &fdata->rel_usecs,
+		fdata->abs_secs, fdata->abs_usecs, firstsec, firstusec);
+
+  /* If it's greater than the current elapsed time, set the elapsed time
+     to it (we check for "greater than" so as not to be confused by
+     time moving backwards). */
+  if (cf->esec < fdata->rel_secs
+	|| (cf->esec == fdata->rel_secs && cf->eusec < fdata->rel_usecs)) {
+    cf->esec = fdata->rel_secs;
+    cf->eusec = fdata->rel_usecs;
+  }
   
   /* Get the time elapsed between the previous displayed packet and
      this packet. */
+  compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
+		fdata->abs_secs, fdata->abs_usecs, prevsec, prevusec);
   fdata->del_secs = fdata->abs_secs - prevsec;
-  if (prevusec <= fdata->abs_usecs) {
-    fdata->del_usecs = fdata->abs_usecs - prevusec;
-  } else {
-    fdata->del_usecs = (fdata->abs_usecs + 1000000) - prevusec;
-    fdata->del_secs--;
-  }
   prevsec = fdata->abs_secs;
   prevusec = fdata->abs_usecs;
 

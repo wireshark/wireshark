@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.20 2000/07/31 04:53:32 guy Exp $
+ * $Id: util.h,v 1.21 2000/09/10 06:44:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,6 +83,9 @@ GList *get_interface_list(int *err, char *err_str);
 void free_interface_list(GList *if_list);
 
 #endif
+
+/* Compute the difference between two seconds/microseconds time stamps. */
+void compute_timestamp_diff(gint *, gint *, guint32, guint32, guint32, guint32);
 
 #ifdef __cplusplus
 }

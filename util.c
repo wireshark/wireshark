@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.43 2000/09/07 09:57:39 guy Exp $
+ * $Id: util.c,v 1.44 2000/09/10 06:44:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -803,4 +803,48 @@ get_home_dir(void)
 #endif
 
 	return home;
+}
+
+/* Compute the difference between two seconds/microseconds time stamps. */
+void
+compute_timestamp_diff(gint *diffsec, gint *diffusec,
+	guint32 sec1, guint32 usec1, guint32 sec2, guint32 usec2)
+{
+  if (sec1 == sec2) {
+    /* The seconds part of the first time is the same as the seconds
+       part of the second time, so if the microseconds part of the first
+       time is less than the microseconds part of the second time, the
+       first time is before the second time.  The microseconds part of
+       the delta should just be the difference between the microseconds
+       part of the first time and the microseconds part of the second
+       time; don't adjust the seconds part of the delta, as it's OK if
+       the microseconds part is negative. */
+
+    *diffsec = sec1 - sec2;
+    *diffusec = usec1 - usec2;
+  } else if (sec1 <= sec2) {
+    /* The seconds part of the first time is less than the seconds part
+       of the second time, so the first time is before the second time.
+
+       Both the "seconds" and "microseconds" value of the delta
+       should have the same sign, so if the difference between the
+       microseconds values would be *positive*, subtract 1,000,000
+       from it, and add one to the seconds value. */
+    *diffsec = sec1 - sec2;
+    if (usec2 >= usec1) {
+      *diffusec = usec1 - usec2;
+    } else {
+      *diffusec = (usec1 - 1000000) - usec2;
+      (*diffsec)++;
+    }
+  } else {
+    /* Oh, good, we're not caught in a chronosynclastic infindibulum. */
+    *diffsec = sec1 - sec2;
+    if (usec2 <= usec1) {
+      *diffusec = usec1 - usec2;
+    } else {
+      *diffusec = (usec1 + 1000000) - usec2;
+      (*diffsec)--;
+    }
+  }
 }

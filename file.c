@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.216 2000/09/09 10:26:35 guy Exp $
+ * $Id: file.c,v 1.217 2000/09/10 06:44:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -614,15 +614,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     firstusec = fdata->abs_usecs;
   }
 
-  /* Get the time elapsed between the first packet and this packet. */
-  cf->esec = fdata->abs_secs - firstsec;
-  if (firstusec <= fdata->abs_usecs) {
-    cf->eusec = fdata->abs_usecs - firstusec;
-  } else {
-    cf->eusec = (fdata->abs_usecs + 1000000) - firstusec;
-    cf->esec--;
-  }
-
   fdata->cinfo = &cf->cinfo;
   for (i = 0; i < fdata->cinfo->num_cols; i++) {
     fdata->cinfo->col_data[i][0] = '\0';
@@ -692,18 +683,22 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     }
 
     /* Get the time elapsed between the first packet and this packet. */
-    fdata->rel_secs = cf->esec;
-    fdata->rel_usecs = cf->eusec;
+    compute_timestamp_diff(&fdata->rel_secs, &fdata->rel_usecs,
+		fdata->abs_secs, fdata->abs_usecs, firstsec, firstusec);
+
+    /* If it's greater than the current elapsed time, set the elapsed time
+       to it (we check for "greater than" so as not to be confused by
+       time moving backwards). */
+    if (cf->esec < fdata->rel_secs
+	|| (cf->esec == fdata->rel_secs && cf->eusec < fdata->rel_usecs)) {
+      cf->esec = fdata->rel_secs;
+      cf->eusec = fdata->rel_usecs;
+    }
   
     /* Get the time elapsed between the previous displayed packet and
        this packet. */
-    fdata->del_secs = fdata->abs_secs - prevsec;
-    if (prevusec <= fdata->abs_usecs) {
-      fdata->del_usecs = fdata->abs_usecs - prevusec;
-    } else {
-      fdata->del_usecs = (fdata->abs_usecs + 1000000) - prevusec;
-      fdata->del_secs--;
-    }
+    compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
+		fdata->abs_secs, fdata->abs_usecs, prevsec, prevusec);
     prevsec = fdata->abs_secs;
     prevusec = fdata->abs_usecs;
 
