@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.183 2000/04/14 05:39:39 gram Exp $
+ * $Id: file.c,v 1.184 2000/05/06 05:19:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1458,8 +1458,8 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 	}
       }
 #else
-		do_copy = TRUE;
-		from_filename = cf->filename;
+      do_copy = TRUE;
+      from_filename = cf->filename;
 #endif
     } else {
       /* It's a permanent file, so we should copy it, and not remove the
