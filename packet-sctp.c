@@ -11,7 +11,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.46 2003/01/13 14:04:31 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.47 2003/01/14 22:54:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -309,6 +309,13 @@ static const value_string sctp_cause_code_values[] = {
 #define SUA_PAYLOAD_PROTOCOL_ID    4
 #define M2PA_PAYLOAD_PROTOCOL_ID   5
 #define V5UA_PAYLOAD_PROTOCOL_ID   6
+#define H248_PAYLOAD_PROTOCOL_ID   7
+#define BICC_PAYLOAD_PROTOCOL_ID   8
+#define TALI_PAYLOAD_PROTOCOL_ID   9
+#define DUA_PAYLOAD_PROTOCOL_ID   10
+#define ASAP_PAYLOAD_PROTOCOL_ID  11
+#define ENRP_PAYLOAD_PROTOCOL_ID  12
+#define H323_PAYLOAD_PROTOCOL_ID  13
 
 static const value_string sctp_payload_proto_id_values[] = {
   { NOT_SPECIFIED_PROTOCOL_ID,           "not specified" },
@@ -318,6 +325,13 @@ static const value_string sctp_payload_proto_id_values[] = {
   { SUA_PAYLOAD_PROTOCOL_ID,             "SUA" },
   { M2PA_PAYLOAD_PROTOCOL_ID,            "M2PA" },
   { V5UA_PAYLOAD_PROTOCOL_ID,            "V5UA" },
+  { H248_PAYLOAD_PROTOCOL_ID,            "H.248/MEGACO" },
+  { BICC_PAYLOAD_PROTOCOL_ID,            "BICC/Q.2150.3" },
+  { TALI_PAYLOAD_PROTOCOL_ID,            "TALI" },
+  { DUA_PAYLOAD_PROTOCOL_ID,             "DUA" },
+  { ASAP_PAYLOAD_PROTOCOL_ID,            "ASAP" },
+  { ENRP_PAYLOAD_PROTOCOL_ID,            "ENRP" },
+  { H323_PAYLOAD_PROTOCOL_ID,            "H.323" },
   { 0,                                   NULL } };
 
 /* The structure of the common header is described by the following constants */
