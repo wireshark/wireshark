@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.3 1999/10/18 12:41:37 gram Exp $
+ * $Id: packet-sna.c,v 1.4 1999/10/20 05:19:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -65,6 +65,20 @@ static int hf_sna_th_nlp_cp = -1;
 static int hf_sna_th_ern = -1;
 static int hf_sna_th_vrn = -1;
 static int hf_sna_th_tpf = -1;
+static int hf_sna_th_vr_cwi = -1;
+static int hf_sna_th_tg_nonfifo_ind = -1;
+static int hf_sna_th_vr_sqti = -1;
+static int hf_sna_th_tg_snf = -1;
+static int hf_sna_th_vrprq = -1;
+static int hf_sna_th_vrprs = -1;
+static int hf_sna_th_vr_cwri = -1;
+static int hf_sna_th_vr_rwi = -1;
+static int hf_sna_th_vr_snf_send = -1;
+static int hf_sna_th_dsaf = -1;
+static int hf_sna_th_osaf = -1;
+static int hf_sna_th_snai = -1;
+static int hf_sna_th_def = -1;
+static int hf_sna_th_oef = -1;
 
 static int hf_sna_rh = -1;
 static int hf_sna_rh_0 = -1;
@@ -223,6 +237,47 @@ static const value_string sna_th_tpf_vals[] = {
 	{ 0x00, "Low Priority" },
 	{ 0x01, "Medium Priority" },
 	{ 0x10, "High Priority" },
+};
+
+/* VR_CWI */
+static const value_string sna_th_vr_cwi_vals[] = {
+	{ 0x0, "Increment window size" },
+	{ 0x1, "Decrement window size" },
+};
+
+/* TG_NONFIFO_IND */
+static const true_false_string sna_th_tg_nonfifo_ind_truth =
+	{ "TG FIFO is not required", "TG FIFO is required" };
+
+/* VR_SQTI */
+static const value_string sna_th_vr_sqti_vals[] = {
+	{ 0x00, "Non-sequenced, Non-supervisory" },
+	{ 0x01, "Non-sequenced, Supervisory" },
+	{ 0x10, "Singly-sequenced" },
+};
+
+/* VRPRQ */
+static const true_false_string sna_th_vrprq_truth = {
+	"VR pacing request is sent asking for a VR pacing response",
+	"No VR pacing response is requested",
+};
+
+/* VRPRS */
+static const true_false_string sna_th_vrprs_truth = {
+	"VR pacing response is sent in response to a VRPRQ bit set",
+	"No pacing response sent",
+};
+
+/* VR_CWRI */
+static const value_string sna_th_vr_cwri_vals[] = {
+	{ 0, "Increment window size by 1" },
+	{ 1, "Decrement window size by 1" },
+};
+
+/* VR_RWI */
+static const true_false_string sna_th_vr_rwi_truth = {
+	"Reset window size to the minimum specified in NC_ACTVR",
+	"Do not reset window size",
 };
 
 static int  dissect_fid0_1 (const u_char*, int, frame_data*, proto_tree*);
@@ -472,6 +527,8 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_item	*bf_item;
 	guint8		th_byte, mft;
 	guint16		th_word;
+	guint16		def, oef, snf, dcf;
+	guint32		dsaf, osaf;
 
 	static int bytes_in_header = 26;
 
@@ -479,11 +536,28 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		return 0;
 	}
 
+	dsaf = pntohl(&pd[offset+8]);
+	osaf = pntohl(&pd[offset+12]);
+	def = pntohs(&pd[offset+18]);
+	oef = pntohs(&pd[offset+20]);
+	snf = pntohs(&pd[offset+22]);
+	dcf = pntohs(&pd[offset+24]);
+
+	/* Addresses in FID 2 are FT_UINT8 */
+	if (check_col(fd, COL_RES_NET_DST))
+		col_add_fstr(fd, COL_RES_NET_DST, "%08X.%04X", dsaf, def);
+	if (check_col(fd, COL_UNRES_NET_DST))
+		col_add_fstr(fd, COL_UNRES_NET_DST, "%08X.%04X", dsaf, def);
+	if (check_col(fd, COL_RES_NET_SRC))
+		col_add_fstr(fd, COL_RES_NET_SRC, "%08X.%04X", osaf, oef);
+	if (check_col(fd, COL_RES_NET_SRC))
+		col_add_fstr(fd, COL_UNRES_NET_SRC, "%08X.%04X", osaf, oef);
+
 	if (!tree) {
 		return bytes_in_header;
 	}
 
-	th_byte = pd[offset+0];
+	th_byte = pd[offset];
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_byte);
@@ -496,7 +570,12 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree_add_item(bf_tree, hf_sna_th_vr_pac_cnt_ind, offset, 1, th_byte);
 	proto_tree_add_item(bf_tree, hf_sna_th_ntwk_prty, offset, 1, th_byte);
 
-	th_byte = pd[offset+1];
+	offset += 1;
+	th_byte = pd[offset];
+
+	/* Create the bitfield tree */
+	bf_item = proto_tree_add_text(tree, offset, 1, "Transmision Header Byte 1");
+	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
 
 	/* Byte 1 */
 	proto_tree_add_item(bf_tree, hf_sna_th_tgsf, offset, 1, th_byte);
@@ -504,7 +583,12 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree_add_item(bf_tree, hf_sna_th_piubf, offset, 1, th_byte);
 
 	mft = th_byte & 0x04;
-	th_byte = pd[offset+2];
+	offset += 1;
+	th_byte = pd[offset];
+
+	/* Create the bitfield tree */
+	bf_item = proto_tree_add_text(tree, offset, 1, "Transmision Header Byte 2");
+	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
 
 	/* Byte 2 */
 	if (mft) {
@@ -515,16 +599,85 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		proto_tree_add_item(bf_tree, hf_sna_th_iern, offset, 1, th_byte);
 	}
 	proto_tree_add_item(bf_tree, hf_sna_th_ern, offset, 1, th_byte);
-	
-	th_byte = pd[offset+3];
+
+	offset += 1;
+	th_byte = pd[offset];
+
+	/* Create the bitfield tree */
+	bf_item = proto_tree_add_text(tree, offset, 1, "Transmision Header Byte 3");
+	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
 
 	/* Byte 3 */
 	proto_tree_add_item(bf_tree, hf_sna_th_vrn, offset, 1, th_byte);
 	proto_tree_add_item(bf_tree, hf_sna_th_tpf, offset, 1, th_byte);
 
-	th_word = pntohs(&pd[offset+4]);
+	offset += 1;
+	th_word = pntohs(&pd[offset]);
+
+	/* Create the bitfield tree */
+	bf_item = proto_tree_add_text(tree, offset, 2, "Transmision Header Bytes 4-5");
+	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
 
 	/* Bytes 4-5 */
+	proto_tree_add_item(bf_tree, hf_sna_th_vr_cwi, offset, 2, th_word);
+	proto_tree_add_item(bf_tree, hf_sna_th_tg_nonfifo_ind, offset, 2, th_word);
+	proto_tree_add_item(bf_tree, hf_sna_th_vr_sqti, offset, 2, th_word);
+
+	/* I'm not sure about byte-order on this one... */
+	proto_tree_add_item(bf_tree, hf_sna_th_tg_snf, offset, 2, th_word);
+
+	offset += 2;
+	th_word = pntohs(&pd[offset]);
+
+	/* Create the bitfield tree */
+	bf_item = proto_tree_add_text(tree, offset, 2, "Transmision Header Bytes 6-7");
+	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+
+	/* Bytes 6-7 */
+	proto_tree_add_item(bf_tree, hf_sna_th_vrprq, offset, 2, th_word);
+	proto_tree_add_item(bf_tree, hf_sna_th_vrprs, offset, 2, th_word);
+	proto_tree_add_item(bf_tree, hf_sna_th_vr_cwri, offset, 2, th_word);
+	proto_tree_add_item(bf_tree, hf_sna_th_vr_rwi, offset, 2, th_word);
+
+	/* I'm not sure about byte-order on this one... */
+	proto_tree_add_item(bf_tree, hf_sna_th_vr_snf_send, offset, 2, th_word);
+
+	offset += 2;
+
+	/* Bytes 8-11 */
+	proto_tree_add_item(tree, hf_sna_th_dsaf, offset, 4, dsaf);
+
+	offset += 4;
+
+	/* Bytes 12-15 */
+	proto_tree_add_item(tree, hf_sna_th_osaf, offset, 4, osaf);
+
+	offset += 4;
+	th_byte = pd[offset];
+
+	/* Create the bitfield tree */
+	bf_item = proto_tree_add_text(tree, offset, 2, "Transmision Header Byte 16");
+	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+
+	/* Byte 16 */
+	proto_tree_add_item(tree, hf_sna_th_snai, offset, 1, th_byte);
+
+	/* We luck out here because in their infinite wisdom the SNA
+	 * architects placed the MPF and EFI fields in the same bitfield
+	 * locations, even though for FID4 they're not in byte 0.
+	 * Thank you IBM! */
+	proto_tree_add_item(tree, hf_sna_th_mpf, offset, 1, th_byte);
+	proto_tree_add_item(tree, hf_sna_th_efi, offset, 1, th_byte);
+
+	offset += 2; /* 1 for byte 16, 1 for byte 17 which is reserved */
+
+	/* Bytes 18-25 */
+	proto_tree_add_item(tree, hf_sna_th_def, offset+0, 2, def);
+	proto_tree_add_item(tree, hf_sna_th_oef, offset+2, 2, oef);
+	proto_tree_add_item(tree, hf_sna_th_snf, offset+4, 2, snf);
+	proto_tree_add_item(tree, hf_sna_th_snf, offset+6, 2, dcf);
+
+	g_assert(offset+8 == 26);
 
 	return bytes_in_header;
 }
@@ -715,6 +868,74 @@ proto_register_sna(void)
 			VALS(sna_th_tpf_vals), 0x03,
 			"" }},
 
+                { &hf_sna_th_vr_cwi,
+                { "Virtual Route Change Window Indicator",	"sna.th.vr_cwi", FT_UINT16, BASE_DEC,
+			VALS(sna_th_vr_cwi_vals), 0x8000,
+			"Used to change the window size of the virtual route by 1." }},
+
+                { &hf_sna_th_tg_nonfifo_ind,
+                { "Transmission Group Non-FIFO Indicator",	"sna.th.tg_nonfifo_ind", FT_BOOLEAN, 16,
+			TFS(&sna_th_tg_nonfifo_ind_truth), 0x4000,
+			"Indicates whether or not FIFO discipline is to enforced in "
+			"transmitting PIUs through the tranmission groups to prevent the PIUs "
+			"getting out of sequence during transmission over the TGs." }},
+
+                { &hf_sna_th_vr_sqti,
+                { "Virtual Route Sequence and Type Indicator",	"sna.th.vr_sqti", FT_UINT16, BASE_HEX,
+			VALS(sna_th_vr_sqti_vals), 0x3000,
+			"Specifies the PIU type." }},
+
+                { &hf_sna_th_tg_snf,
+                { "Transmission Group Sequence Number Field",	"sna.th.tg_snf", FT_UINT16, BASE_DEC,
+			NULL, 0x0fff,
+			"" }},
+
+                { &hf_sna_th_vrprq,
+                { "Virtual Route Pacing Request",	"sna.th.vrprq", FT_BOOLEAN, 16,
+			TFS(&sna_th_vrprq_truth), 0x8000,
+			"" }},
+
+                { &hf_sna_th_vrprs,
+                { "Virtual Route Pacing Response",	"sna.th.vrprs", FT_BOOLEAN, 16,
+			TFS(&sna_th_vrprs_truth), 0x4000,
+			"" }},
+
+                { &hf_sna_th_vr_cwri,
+                { "Virtual Route Change Window Reply Indicator",	"sna.th.vr_cwri", FT_UINT16, BASE_DEC,
+			VALS(sna_th_vr_cwri_vals), 0x2000,
+			"Permits changing of the window size by 1 for PIUs received by the "
+			"sender of this bit." }},
+
+                { &hf_sna_th_vr_rwi,
+                { "Virtual Route Reset Window Indicator",	"sna.th.vr_rwi", FT_BOOLEAN, 16,
+			TFS(&sna_th_vr_rwi_truth), 0x1000,
+			"Indicates severe congestion in a node on the virtual route." }},
+
+                { &hf_sna_th_vr_snf_send,
+                { "Virtual Route Send Sequence Number Field",	"sna.th.vr_snf_send", FT_UINT16, BASE_DEC,
+			NULL, 0x0fff,
+			"" }},
+
+                { &hf_sna_th_dsaf,
+                { "Destination Subarea Address Field",	"sna.th.dsaf", FT_UINT32, BASE_HEX, NULL, 0x0,
+			"" }},
+
+                { &hf_sna_th_osaf,
+                { "Origin Subarea Address Field",	"sna.th.osaf", FT_UINT32, BASE_HEX, NULL, 0x0,
+			"" }},
+
+                { &hf_sna_th_snai,
+                { "SNA Indicator",	"sna.th.snai", FT_BOOLEAN, 8, NULL, 0x10,
+			"Used to identify whether the PIU originated or is destined for "
+			"an SNA or non-SNA device." }},
+
+                { &hf_sna_th_def,
+                { "Destination Element Field",	"sna.th.def", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
+
+                { &hf_sna_th_oef,
+                { "Origin Element Field",	"sna.th.oef", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
 
                 { &hf_sna_rh,
                 { "Request/Response Header",	"sna.rh", FT_NONE, BASE_NONE, NULL, 0x0,
