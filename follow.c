@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.5 1998/12/17 05:42:25 gram Exp $
+ * $Id: follow.c,v 1.6 1999/03/23 20:25:49 deniel Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -45,6 +45,8 @@
 
 extern FILE* data_out_file;
 
+gboolean incomplete_tcp_stream = FALSE;
+
 /* this will build libpcap filter text that will only 
    pass the packets related to the stream. There is a 
    chance that two streams could intersect, but not a 
@@ -73,7 +75,7 @@ static u_long seq[2];
 static u_long src[2] = { 0, 0 };
 
 void 
-reassemble_tcp( u_long sequence, u_long length, const char* data, int synflag, u_long srcx ) {
+reassemble_tcp( u_long sequence, u_long length, const char* data, u_long data_length, int synflag, u_long srcx ) {
   int src_index, j, first = 0;
   u_long newseq;
   tcp_frag *tmp_frag;
@@ -100,6 +102,11 @@ reassemble_tcp( u_long sequence, u_long length, const char* data, int synflag, u
     fprintf( stderr, "ERROR in reassemble_tcp: Too many addresses!\n");
     return;
   }
+
+  if( data_length < length ) {
+    incomplete_tcp_stream = TRUE;
+  }
+
   /* now that we have filed away the srcs, lets get the sequence number stuff 
      figured out */
   if( first ) {
@@ -109,7 +116,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data, int synflag, u
       seq[src_index]++;
     }
     /* write out the packet data */
-    write_packet_data( data, length );
+    write_packet_data( data, data_length );
     return;
   }
   /* if we are here, we have already seen this src, let's
@@ -120,11 +127,24 @@ reassemble_tcp( u_long sequence, u_long length, const char* data, int synflag, u
        info than we have already seen */
     newseq = sequence + length;
     if( newseq > seq[src_index] ) {
+      u_long new_len;
+
       /* this one has more than we have seen. let's get the 
 	 payload that we have not seen. */
-      data += ( seq[src_index] - sequence );
+
+      new_len = seq[src_index] - sequence;
+
+      if ( data_length <= new_len ) {
+	data = NULL;
+	data_length = 0;
+	incomplete_tcp_stream = TRUE;
+      } else {
+	data += new_len;
+	data_length -= new_len;
+      }
       sequence = seq[src_index];
       length = newseq - seq[src_index];
+      
       /* this will now appear to be right on time :) */
     }
   }
@@ -132,7 +152,9 @@ reassemble_tcp( u_long sequence, u_long length, const char* data, int synflag, u
     /* right on time */
     seq[src_index] += length;
     if( synflag ) seq[src_index]++;
-    write_packet_data( data, length );
+    if( data ) {
+      write_packet_data( data, data_length );
+    }
     /* done with the packet, see if it caused a fragment to fit */
     while( check_fragments( src_index ) )
       ;
@@ -141,10 +163,11 @@ reassemble_tcp( u_long sequence, u_long length, const char* data, int synflag, u
     /* out of order packet */
     if( sequence > seq[src_index] ) {
       tmp_frag = (tcp_frag *)malloc( sizeof( tcp_frag ) );
-      tmp_frag->data = (u_char *)malloc( length );
+      tmp_frag->data = (u_char *)malloc( data_length );
       tmp_frag->seq = sequence;
       tmp_frag->len = length;
-      memcpy( tmp_frag->data, data, length );
+      tmp_frag->data_len = data_length;
+      memcpy( tmp_frag->data, data, data_length );
       if( frags[src_index] ) {
 	tmp_frag->next = frags[src_index];
       } else {
@@ -165,7 +188,9 @@ check_fragments( int index ) {
   while( current ) {
     if( current->seq == seq[index] ) {
       /* this fragment fits the stream */
-      write_packet_data( current->data, current->len );
+      if( current->data ) {
+	write_packet_data( current->data, current->data_len );
+      }
       seq[index] += current->len;
       if( prev ) {
 	prev->next = current->next;
@@ -187,6 +212,7 @@ void
 reset_tcp_reassembly() {
   tcp_frag *current, *next;
   int i;
+  incomplete_tcp_stream = FALSE;
   for( i=0; i<2; i++ ) {
     seq[i] = 0;
     src[i] = 0;

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.25 1999/03/23 03:14:33 gram Exp $
+ * $Id: ethereal.c,v 1.26 1999/03/23 20:25:50 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -191,7 +191,13 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 			NULL, "WM destroy" );
     gtk_signal_connect( GTK_OBJECT(streamwindow), "destroy",
 			NULL, "WM destroy" );
-    gtk_window_set_title( GTK_WINDOW(streamwindow), "Contents of TCP stream" );
+    if( incomplete_tcp_stream ) {
+      gtk_window_set_title( GTK_WINDOW(streamwindow), 
+			    "Contents of TCP stream (incomplete)" );
+    } else {
+      gtk_window_set_title( GTK_WINDOW(streamwindow),
+			    "Contents of TCP stream" );
+    }
     gtk_widget_set_usize( GTK_WIDGET(streamwindow), DEF_WIDTH, DEF_HEIGHT );
     gtk_container_border_width( GTK_CONTAINER(streamwindow), 2 );
     /* setup the container */

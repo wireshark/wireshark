@@ -1,6 +1,6 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.2 1998/09/27 22:12:26 gerald Exp $
+ * $Id: follow.h,v 1.3 1999/03/23 20:25:50 deniel Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -30,15 +30,18 @@
 
 #include "packet.h"
 
+extern gboolean incomplete_tcp_stream;
+
 typedef struct _tcp_frag {
   u_long              seq;
   u_long              len;
+  u_long              data_len;
   u_char             *data;
   struct _tcp_frag   *next;
 } tcp_frag;
 
 char* build_follow_filter( packet_info * );
-void reassemble_tcp( u_long, u_long, const char*, int, u_long );
+void reassemble_tcp( u_long, u_long, const char*, u_long, int, u_long );
 int check_fragments( int );
 void  reset_tcp_reassembly( void );
 void write_packet_data( const u_char *, int );
