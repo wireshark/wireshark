@@ -1409,7 +1409,7 @@ Matthew Smart <smart[AT]monkey.org> {
 }
 
 Jamie Fournier <jafour1@yahoo.com>
-	DCE/RPC dissectors for RS_PGO, RS_UNIX
+	DCE/RPC dissectors for RS_MISC, RS_PGO, RS_UNIX
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
