@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.25 1999/08/21 08:45:09 sharpe Exp $
+ * $Id: packet-nbns.c,v 1.26 1999/08/21 17:59:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1277,6 +1277,12 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (flags & NBSS_FLAGS_E)
 		length += 65536;
 
+	/*
+	 * XXX - we should set this based on both "pi.captured_len"
+	 * and "length"....
+	 */
+	max_data = pi.captured_len - offset;
+
 	/* Hmmm, it may be a continuation message ... */
 
 #define RJSHACK 1
@@ -1308,7 +1314,6 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    val_to_str(msg_type, message_types, "Unknown (%x)"));
 	}
 
-	max_data = pi.captured_len - offset;
 	while (max_data > 0) {
 		len = dissect_nbss_packet(pd, offset, fd, tree, max_data);
 		offset += len;
