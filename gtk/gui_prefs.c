@@ -130,12 +130,6 @@ static const enum_val_t highlight_style_vals[] = {
 };
 
 
-static const enum_val_t find_wrap_vals[] = {
-  	{ "FALSE", "No Wrap",  FALSE },
-  	{ "TRUE",  "Wrap",     TRUE },
-	{ NULL,    NULL,       0 }
-};
-
 static const enum_val_t toolbar_style_vals[] = {
   	{ "ICONS", "Icons only",     TB_STYLE_ICONS },
   	{ "TEXT",  "Text only",      TB_STYLE_TEXT },
