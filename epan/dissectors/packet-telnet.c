@@ -1166,7 +1166,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
   guint8 opt_byte;
   int subneg_len;
   const char *opt;
-  gint ett;
+  gint ett = ett_telnet_subopt;;
   int iac_offset;
   guint len;
   void (*dissect)(packet_info *, const char *, tvbuff_t *, int, int, proto_tree *);
@@ -1177,16 +1177,13 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
 
   /* Get the option code */
   opt_byte = tvb_get_guint8(tvb, offset);
-  if (opt_byte > NOPTIONS) {
+  if (opt_byte >= NOPTIONS) {
     opt = "<unknown option>";
-    ett = ett_telnet_subopt;
     dissect = NULL;
   } else {
     opt = options[opt_byte].name;
     if (options[opt_byte].subtree_index != NULL)
       ett = *(options[opt_byte].subtree_index);
-    else
-      ett = ett_telnet_subopt;
     dissect = options[opt_byte].dissect;
   }
   offset++;
