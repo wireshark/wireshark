@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.72 2002/01/10 11:27:56 guy Exp $
+ * $Id: packet-ipv6.c,v 1.73 2002/01/17 06:29:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -657,6 +657,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fragment_data *ipfd_head;
   tvbuff_t   *next_tvb;
   gboolean update_col_info = TRUE;
+  gboolean save_fragmented;
 
   struct ip6_hdr ipv6;
 
@@ -809,6 +810,7 @@ again:
   /* If ipv6_reassemble is on and this is a fragment, then just add the fragment
    * to the hashtable.
    */
+  save_fragmented = pinfo->fragmented;
   if (ipv6_reassemble && frag) {
     /* We're reassembling, and this is part of a fragmented datagram.
        Add the fragment to the hash table if the frame isn't truncated. */
@@ -946,6 +948,7 @@ again:
 
     /* As we haven't reassembled anything, we haven't changed "pi", so
        we don't have to restore it. */
+    pinfo->fragmented = save_fragmented;
     return;
   }
 
@@ -956,6 +959,7 @@ again:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
+  pinfo->fragmented = save_fragmented;
 }
 
 static void

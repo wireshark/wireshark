@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.24 2002/01/04 20:20:08 guy Exp $
+ * $Id: packet-wtp.c,v 1.25 2002/01/17 06:29:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -510,10 +510,12 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		int	dataOffset = offCur + cbHeader + vHeader;
 		guint32 dataLen = tvb_length_remaining(tvb, offCur + cbHeader + vHeader);
+		gboolean save_fragmented;
 
 		if ((pdut == SEGMENTED_INVOKE) || (pdut == SEGMENTED_RESULT) ||
 		    (((pdut == INVOKE) || (pdut == RESULT)) && (!fTTR)))	/* 1st part of segment	*/
 		{
+			save_fragmented = pinfo->fragmented;
 			pinfo->fragmented = TRUE;
 			fd_head = fragment_add_seq(tvb, dataOffset, pinfo, TID,
 					wtp_fragment_table, psn, dataLen, !fTTR);
@@ -533,6 +535,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if (check_col(pinfo->cinfo, COL_INFO))		/* Won't call WSP so display */
 					col_append_str(pinfo->cinfo, COL_INFO, szInfo );
 			}
+			pinfo->fragmented = save_fragmented;
 		}
 		else				/* Normal packet, call next dissector	*/
 		{

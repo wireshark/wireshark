@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.17 2002/01/08 07:17:55 guy Exp $
+ * $Id: packet-frame.c,v 1.18 2002/01/17 06:29:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@ static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
 static int proto_short = -1;
 int proto_malformed = -1;
+static int proto_unreassembled = -1;
 
 static gint ett_frame = -1;
 
@@ -157,10 +158,29 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"[Short Frame: %s]", pinfo->current_proto );
 	}
 	CATCH(ReportedBoundsError) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
-		proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
-				"[Malformed Packet: %s]", pinfo->current_proto );
+		if (pinfo->fragmented) {
+			/*
+			 * We were dissecting an unreassembled fragmented
+			 * packet when the exception was thrown, so the
+			 * problem isn't that the dissector expected
+			 * something but it wasn't in the packet, the
+			 * problem is that the dissector expected something
+			 * but it wasn't in the fragment we dissected.
+			 */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_str(pinfo->cinfo, COL_INFO,
+				    "[Unreassembled Fragmented Packet]");
+			proto_tree_add_protocol_format(tree, proto_unreassembled,
+			    tvb, 0, 0, "[Unreassembled Fragmented Packet: %s]",
+			    pinfo->current_proto );
+		} else {
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_str(pinfo->cinfo, COL_INFO,
+				    "[Malformed Packet]");
+			proto_tree_add_protocol_format(tree, proto_malformed,
+			    tvb, 0, 0, "[Malformed Packet: %s]",
+			    pinfo->current_proto );
+		}
 	}
 	ENDTRY;
 }
@@ -224,11 +244,16 @@ proto_register_frame(void)
 	proto_short = proto_register_protocol("Short Frame", "Short frame", "short");
 	proto_malformed = proto_register_protocol("Malformed Packet",
 	    "Malformed packet", "malformed");
+	proto_unreassembled = proto_register_protocol(
+	    "Unreassembled Fragmented Packet",
+	    "Unreassembled fragmented packet", "unreassembled");
 
-	/* "Short Frame" and "Malformed Packet" aren't really protocols,
-	   they're error indications; disabling them makes no sense. */
+	/* "Short Frame", "Malformed Packet", and "Unreassembled Fragmented
+	   Packet" aren't really protocols, they're error indications;
+	   disabling them makes no sense. */
 	proto_set_cant_disable(proto_short);
 	proto_set_cant_disable(proto_malformed);
+	proto_set_cant_disable(proto_unreassembled);
 
 	/* Our preferences */
 	frame_module = prefs_register_protocol(proto_frame, NULL);

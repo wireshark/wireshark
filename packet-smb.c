@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.194 2002/01/15 10:01:20 guy Exp $
+ * $Id: packet-smb.c,v 1.195 2002/01/17 06:29:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7437,6 +7437,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	int padcnt;
 	fragment_data *r_fd = NULL;
 	tvbuff_t *pd_tvb=NULL;
+	gboolean save_fragmented;
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip != NULL)
@@ -7522,12 +7523,15 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	   In this section we do reassembly of both the data and parameters
 	   blocks of the SMB transaction command.
 	*/
-	if(smb_trans_reassembly){
-		/* do we need reassembly? */
-		if( (td&&(td!=dc)) || (tp&&(tp!=pc)) ){
-			/* oh yeah, either data or parameter section needs 
-			   reassembly
-			*/
+	save_fragmented = pinfo->fragmented;
+	/* do we need reassembly? */
+	if( (td&&(td!=dc)) || (tp&&(tp!=pc)) ){
+		/* oh yeah, either data or parameter section needs 
+		   reassembly...
+		*/
+		pinfo->fragmented = TRUE;
+		if(smb_trans_reassembly){
+			/* ...and we were told to do reassembly */
 			if(pc && ((unsigned int)tvb_length_remaining(tvb, po)>=pc) ){
 				r_fd = smb_trans_defragment(tree, pinfo, tvb, 
 							     po, pc, pd, td+tp);
@@ -7540,8 +7544,8 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		}
 	}
 
-	/* if we got a reassembled fd structure from the reassembly routine we must
-	   create pd_tvb from it 
+	/* if we got a reassembled fd structure from the reassembly routine we
+	   must create pd_tvb from it 
 	*/
 	if(r_fd){
 		proto_tree *tr;
@@ -7603,6 +7607,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	    COUNT_BYTES(dc);
 	  }
 	}
+	pinfo->fragmented = save_fragmented;
 
 	END_OF_SMB
 
@@ -11184,6 +11189,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	fragment_data *r_fd = NULL;
 	tvbuff_t *pd_tvb=NULL, *d_tvb=NULL, *p_tvb=NULL;
 	tvbuff_t *s_tvb=NULL, *sp_tvb=NULL;
+	gboolean save_fragmented;
 
 	si = (smb_info_t *)pinfo->private_data;
 
@@ -11309,12 +11315,15 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	   In this section we do reassembly of both the data and parameters
 	   blocks of the SMB transaction command.
 	*/
-	if(smb_trans_reassembly){
-		/* do we need reassembly? */
-		if( (td!=dc) || (tp!=pc) ){
-			/* oh yeah, either data or parameter section needs 
-			   reassembly
-			*/
+	save_fragmented = pinfo->fragmented;
+	/* do we need reassembly? */
+	if( (td!=dc) || (tp!=pc) ){
+		/* oh yeah, either data or parameter section needs 
+		   reassembly
+		*/
+		pinfo->fragmented = TRUE;
+		if(smb_trans_reassembly){
+			/* ...and we were told to do reassembly */
 			if(pc && (tvb_length_remaining(tvb, po)>=pc) ){
 				r_fd = smb_trans_defragment(tree, pinfo, tvb, 
 							     po, pc, pd, td+tp);
@@ -11492,6 +11501,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		}
 	}
 
+	pinfo->fragmented = save_fragmented;
 	END_OF_SMB
 
 	return offset;

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.155 2002/01/10 11:27:56 guy Exp $
+ * $Id: packet-ip.c,v 1.156 2002/01/17 06:29:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -822,7 +822,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16    ipsum;
   fragment_data *ipfd_head;
   tvbuff_t   *next_tvb;
-  gboolean update_col_info = TRUE;
+  gboolean   update_col_info = TRUE;
+  gboolean   save_fragmented;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
@@ -968,6 +969,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* If ip_defragment is on and this is a fragment, then just add the fragment
    * to the hashtable.
    */
+  save_fragmented = pinfo->fragmented;
   if (ip_defragment && (iph.ip_off & (IP_MF|IP_OFFSET))) {
     /* We're reassembling, and this is part of a fragmented datagram.
        Add the fragment to the hash table if the checksum is ok
@@ -1105,6 +1107,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
     call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+    pinfo->fragmented = save_fragmented;
     return;
   }
 
@@ -1123,6 +1126,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
+  pinfo->fragmented = save_fragmented;
 }
 
 #define ICMP_MIP_EXTENSION_PAD	0

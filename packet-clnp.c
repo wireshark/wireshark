@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.44 2002/01/10 11:27:56 guy Exp $
+ * $Id: packet-clnp.c,v 1.45 2002/01/17 06:29:16 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1596,7 +1596,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean    save_in_error_pkt;
   fragment_data *fd_head;
   tvbuff_t   *volatile next_tvb;
-  gboolean update_col_info = TRUE;
+  gboolean    update_col_info = TRUE;
+  gboolean    save_fragmented;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLNP");
@@ -1822,6 +1823,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* If clnp_reassemble is on and this is a segment, then just add the segment
    * to the hashtable.
    */
+  save_fragmented = pinfo->fragmented;
   if (clnp_reassemble && (cnf_type & CNF_SEG_OK) &&
 	((cnf_type & CNF_MORE_SEGS) || segment_offset != 0)) {
     /* We're reassembling, and this is part of a segmented datagram.
@@ -1962,6 +1964,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* As we haven't reassembled anything, we haven't changed "pi", so
        we don't have to restore it. */
     call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+    pinfo->fragmented = save_fragmented;
     return;
   }
 
@@ -1975,8 +1978,10 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          PDU, skip that? */
 
       if (nsel == (char)tp_nsap_selector || always_decode_transport) { 
-        if (dissect_ositp_internal(next_tvb, pinfo, tree, FALSE))
+        if (dissect_ositp_internal(next_tvb, pinfo, tree, FALSE)) {
+          pinfo->fragmented = save_fragmented;
           return;	/* yes, it appears to be COTP or CLTP */
+        }
       }
       break;
 
@@ -2043,6 +2048,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           pinfo->dst = save_dst;
         }
       }
+      pinfo->fragmented = save_fragmented;
       return;	/* we're done with this PDU */
 
     case ERQ_NPDU:
@@ -2054,7 +2060,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
   call_dissector(data_handle,next_tvb, pinfo, tree);
-
+  pinfo->fragmented = save_fragmented;
 } /* dissect_clnp */
 
 static void
