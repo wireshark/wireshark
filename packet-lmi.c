@@ -2,7 +2,7 @@
  * Routines for Frame Relay Local Management Interface (LMI) disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-lmi.c,v 1.12 2003/01/11 07:01:59 guy Exp $
+ * $Id: packet-lmi.c,v 1.13 2003/10/06 07:26:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,7 @@
  * References:
  *
  * http://www.techfest.com/networking/wan/frrel.htm
- * http://www.frforum.com/5000/frf1_2.pdf
+ * http://www.frforum.com/5000/Approved/FRF.1.2/frf1_2.pdf
  * http://www.cisco.com/univercd/cc/td/doc/cisintwk/ito_doc/frame.htm#xtocid125314
  * http://www.net.aapt.com.au/techref/lmimess.htm
  * http://www.raleigh.ibm.com:80/cgi-bin/bookmgr/BOOKS/EZ305800/1.2.4.4
