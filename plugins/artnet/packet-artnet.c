@@ -1,7 +1,7 @@
 /* packet-artnet.c
  * Routines for Art-Net packet disassembly
  *
- * $Id: packet-artnet.c,v 1.6 2004/01/05 19:28:54 ulfl Exp $
+ * $Id: packet-artnet.c,v 1.7 2004/01/07 04:33:21 guy Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -990,29 +990,27 @@ dissect_artnet_video_palette(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 static guint
 dissect_artnet_video_data(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-  guint8 pos_x, pos_y, len_x, len_y;
+  guint8 len_x, len_y;
   guint32 size;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, FALSE);
   offset += 2;
 
-  pos_x = (guint8) tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_video_data_pos_x, tvb,
-                      offset, 1, pos_x);
+  proto_tree_add_item(tree, hf_artnet_video_data_pos_x, tvb,
+                      offset, 1, FALSE);
   offset += 1;
 
-  pos_y = (guint8) tvb_get_ntohs(tvb, offset);
-  proto_tree_add_uint(tree, hf_artnet_video_data_pos_y, tvb,
-                      offset, 1, pos_y);
+  proto_tree_add_item(tree, hf_artnet_video_data_pos_y, tvb,
+                      offset, 1, FALSE);
   offset += 1;
 
-  len_x = (guint8) tvb_get_ntohs(tvb, offset);
+  len_x = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_data_len_x, tvb,
                       offset, 1, len_x);
   offset += 1;
 
-  len_y = (guint8) tvb_get_ntohs(tvb, offset);
+  len_y = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_data_len_y, tvb,
                       offset, 1, len_y);
   offset += 1;
