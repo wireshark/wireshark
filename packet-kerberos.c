@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.23 2002/08/02 23:35:52 jmayer Exp $
+ * $Id: packet-kerberos.c,v 1.24 2002/08/22 08:47:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include <epan/strutil.h>
 
 #include "asn1.h"
+#include "packet-netbios.h"
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
@@ -1137,6 +1138,9 @@ dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
     int str_len;
     guchar *str;
 
+    char netbios_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+    int netbios_name_type;
+
     KRB_HEAD_DECODE_OR_DIE("sequence of addresses");
     if (tree) {
         item = proto_tree_add_text(tree, asn1p->tvb, offset,
@@ -1165,8 +1169,20 @@ dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
                     break;
 
              	case KRB5_ADDR_NETBIOS:
-               	    proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos2,
-                             		str_len, "Value: %s", str);
+                    if (str_len == NETBIOS_NAME_LEN) {
+                        netbios_name_type = process_netbios_name(str,
+                                                                 netbios_name);
+                        proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos2,
+                                            str_len,
+                                            "Value: %s<%02x> (%s)",
+                                            netbios_name, netbios_name_type,
+                                            netbios_name_type_descr(netbios_name_type));
+                    } else {
+                        proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos2,
+                                            str_len,
+                                            "Value (Invalid length %d, should be 16): \"%s\"",
+                                            str_len, format_text(str, str_len));
+                    }
                	    break;
                     
                 default:
