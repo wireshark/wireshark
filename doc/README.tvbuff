@@ -1,4 +1,4 @@
-$Id: README.tvbuff,v 1.1 2000/05/15 06:48:16 gram Exp $
+$Id: README.tvbuff,v 1.2 2000/05/17 04:34:20 gram Exp $
 
 TVBUFFs and Exceptions
 
@@ -34,7 +34,7 @@ to implement them in C.
 
 The encapsulating class is called a "tvbuff", or "testy, virtual(-izable) buffer".
 They are testy in that they get mad when an attempt is made to access data beyond
-the bounds of their array. In that case, they thrown a BoundsError exception.
+the bounds of their array. In that case, they throw an exception.
 
 They are virtualizable in that new tvbuff's can be made from other tvbuffs, while
 only the original tvbuff may have data. That is, the new tvbuff has virtual data.
@@ -59,7 +59,7 @@ the next dissector).
 
 The syntax for creating a new TVBUFF_SUBSET is:
 
-next_tvb = tvb_new_subset(tvb, offset, length)
+next_tvb = tvb_new_subset(tvb, offset, length, reported_length)
 
 Where:
 	tvb is the tvbuff that the dissector has been working on. It can be
@@ -73,15 +73,26 @@ Where:
 	length is the number of bytes in the new TVBUFF_SUBSET. A length argument
 	of -1 says to use as many bytes as are available in 'tvb'.
 
-The tvb_new_subset() function will throw a BoundsError if the offset/length pair
-that you specify go beyond the bounds of 'tvb'.
+	reported_length is the number of bytes that the current protocol says
+	should be in the payload. A reported_length of -1 says that the protocol
+	doesn't say anything about the size of its payload.
+
+The tvb_new_subset() function will throw an exception if the offset/length pair
+go beyond the boundaries of 'tvb'.
 
 
 The tvbuff is an opaque structure. It's definition is in tvbuff.c, not tvbuff.h, so
 you can't easily access its members. You must use one of the provided accessor methods
-to retrieve data from the tvbuff. All accessors will throw a BoundsError if
-an attempt is made to read beyond the boundaries of the data in the tvbuff.  The
-accessors are:
+to retrieve data from the tvbuff. All accessors will throw an exception if
+an attempt is made to read beyond the boundaries of the data in the tvbuff.
+
+If reported_length is set, then if the attempt to access data goes beyond reported_length,
+a ReportedBoundsError exception is thrown.
+
+Otherwise, if an attempt to access data beyond the bounds of the tvbuff is made,
+a BoundsError exception is thrown.
+
+The accessors are:
 
 
 Single-byte accessor:
@@ -120,6 +131,43 @@ The reason that tvb_get_ptr() have to allocate a copy of its data only occurs
 with TVBUFF_COMPOSITES. If the user request a pointer to a range of bytes that
 spans the member tvbuffs that make up the TVBUFF_COMPOSITE, the data will have
 to be copied to another memory region to assure that all the bytes are contiguous.
+
+
+Modifications to the Dissectors
+
+The dissector prototype will now be:
+
+void/gboolean	dissector(tvbuff_t*, packet_info*, proto_tree*)
+
+The packet_info struct now has the frame_data struct that used to be passed
+to each dissector.  Additionally, packet_info has a char* called 'current_proto'.
+The first thing a dissector should do is set pinfo->current_proto to point
+to a string referring to the name of the protocol (use the same name that appears
+in the COL_PROTO column, if possible). If an exception jumps us out of a dissector,
+dissect_packet() will use pinfo->current_proto to report which dissector encountered
+an exception.
+
+The packet_info struct also has a tvbuff_t* called 'compat_top_tvb'. This points
+to the same tvbuff_t that dissect_packet() creates. This is useful for creating
+a tvbuff (TVBUFF_SUBSET) inside a dissector which itself does not use tvbuffs.
+Once all the dissectors are converted to use tvbuffs, 'compat_top_tvb' will be removed.
+
+A dissector that uses tvbuffs can call another dissector that does not. This code
+snippet shows how:
+
+	tvbuff_t	*next_tvb;
+	const guint8	*next_pd;
+	int		next_offset;
+
+	....
+
+	next_tvb = tvb_new_subset(tvb, offset_of_next_protocol, -1);
+	tvb_compat(next_tvb, &next_pd, &next_offset);
+
+That is, next_pd and next_offset will get assigned values relative to the start of
+the byte array, not relative to the tvbuff. This function, tvb_compat(), is only
+useful while the dissectors are in transition; once all dissectors are converted,
+this function can be removed.
 
 
 Exceptions
