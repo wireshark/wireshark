@@ -3,7 +3,7 @@
  * [ very rough, but mininally functional ]
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-rsync.c,v 1.3 2003/03/01 14:12:38 deniel Exp $
+ * $Id: packet-rsync.c,v 1.4 2003/04/27 20:57:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,7 +117,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conversation_data = conversation_get_proto_data(conversation, proto_rsync);
 
     if (conversation_data == NULL) {
-	conversation_data = malloc(sizeof(struct rsync_conversation_data));
+	conversation_data = g_malloc(sizeof(struct rsync_conversation_data));
 	conversation_data->state = RSYNC_INIT;
 	conversation_add_proto_data(conversation, proto_rsync, conversation_data);
     }
@@ -131,7 +131,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     frame_data = p_get_proto_data(pinfo->fd, proto_rsync);
     if (!frame_data) {
 	/* then we haven't seen this frame before */
-	frame_data = malloc(sizeof(struct rsync_frame_data));
+	frame_data = g_malloc(sizeof(struct rsync_frame_data));
 	frame_data->state = conversation_data->state;
 	p_add_proto_data(pinfo->fd, proto_rsync, frame_data);
     }

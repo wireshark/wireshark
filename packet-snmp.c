@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.107 2003/04/19 09:45:25 guy Exp $
+ * $Id: packet-snmp.c,v 1.108 2003/04/27 20:57:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -540,10 +540,10 @@ format_oid(subid_t *oid, guint oid_length)
 	 * Get the decoded form of the OID, and add its length to the
 	 * length of the result string.
 	 *
-	 * XXX - check for "malloc" and "sprint_realloc_objid()" failure.
+	 * XXX - check for "sprint_realloc_objid()" failure.
 	 */
 	oid_string_len = 256;
-	oid_string = malloc(oid_string_len);
+	oid_string = g_malloc(oid_string_len);
 	*oid_string = '\0';
 	oid_out_len = 0;
 	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
@@ -582,7 +582,7 @@ check_var_length(guint vb_length, guint required_length)
 		/* Enough room for the largest "Length is XXX,
 		   should be XXX" message - 10 digits for each
 		   XXX. */
-		buf = malloc(sizeof badlen_fmt + 10 + 10);
+		buf = g_malloc(sizeof badlen_fmt + 10 + 10);
 		sprintf(buf, badlen_fmt, vb_length, required_length);
 		return buf;
 	}
@@ -669,10 +669,10 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	variable->val_len = val_len;
 
 	/*
-	 * XXX - check for "malloc" and "sprint_realloc_objid()" failure.
+	 * XXX - check for "sprint_realloc_objid()" failure.
 	 */
 	buf_len = 256;
-	buf = malloc(buf_len);
+	buf = g_malloc(buf_len);
 	*buf = '\0';
 	out_len = 0;
 	sprint_realloc_value(&buf, &buf_len, &out_len, 1,  variable_oid,

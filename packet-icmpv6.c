@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.70 2003/02/04 20:16:57 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.71 2003/04/27 20:57:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -216,7 +216,7 @@ again:
 	char *t;
 	int len, i, p;
 	len = (opt->nd_opt_len << 3) - sizeof(*opt);
-	t = (char *)malloc(len * 3);
+	t = g_malloc(len * 3);
 	memset(t, 0, len * 3);
 	p = offset + sizeof(*opt);
 	for (i = 0; i < len; i++) {

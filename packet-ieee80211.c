@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.85 2003/04/20 11:36:13 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.86 2003/04/27 20:57:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2642,8 +2642,6 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
   return 0;
 }
 
-/* XXX need to verify these malloc()s succeed */
-
 static void init_wepkeys(void) {
   char *tmp, *tmp2;
   guint8 *tmp3;
@@ -2669,8 +2667,8 @@ static void init_wepkeys(void) {
   if (wep_keylens != NULL)
     return;
 
-  wep_keys = malloc(num_wepkeys * sizeof(guint8*));
-  wep_keylens = malloc(num_wepkeys * sizeof(int));
+  wep_keys = g_malloc(num_wepkeys * sizeof(guint8*));
+  wep_keylens = g_malloc(num_wepkeys * sizeof(int));
 
   for (i = 0 ; i < num_wepkeys; i++) {
     wep_keys[i] = NULL;
@@ -2693,7 +2691,7 @@ static void init_wepkeys(void) {
 #endif
 #endif
 
-      wep_keys[i] = malloc(32 * sizeof(guint8));
+      wep_keys[i] = g_malloc(32 * sizeof(guint8));
       memset(wep_keys[i], 0, 32 * sizeof(guint8));
       tmp3 = wep_keys[i];
       while ((tmp != NULL) && (*tmp != 0)) {

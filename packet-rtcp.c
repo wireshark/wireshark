@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.35 2002/08/28 21:00:29 jmayer Exp $
+ * $Id: packet-rtcp.c,v 1.36 2003/04/27 20:57:58 deniel Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -230,7 +230,7 @@ static void rtcp_init( void )
 	fake_addr.type = AT_IPv4;
 	fake_addr.len = 4;
 
-	tmp_data = malloc( fake_addr.len );
+	tmp_data = g_malloc( fake_addr.len );
 	for ( i = 0; i < fake_addr.len; i++) {
 		tmp_data[i] = 0;
 	}
@@ -385,7 +385,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 		proto_tree_add_item( tree, hf_rtcp_ssrc_length, tvb, offset, 1, FALSE );
 		offset++;
 
-		reason_text = ( char* ) malloc( reason_length + 1 );
+		reason_text = g_malloc( reason_length + 1 );
 		for ( counter = 0; counter < reason_length; counter++ ) reason_text[ counter ] = tvb_get_guint8( tvb, offset + counter );
 		/* strncpy( reason_text, pd + offset, reason_length ); */
 		reason_text[ reason_length ] = '\0';
@@ -462,7 +462,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 				proto_tree_add_item( sdes_item_tree, hf_rtcp_ssrc_prefix_len, tvb, offset, 1, FALSE );
 				offset++;
 
-				prefix_string = ( char * ) malloc( prefix_len + 1 );
+				prefix_string = g_malloc( prefix_len + 1 );
 				for ( counter = 0; counter < prefix_len; counter++ )
 					prefix_string[ counter ] =
 					    tvb_get_guint8( tvb, offset + counter );
@@ -472,7 +472,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 				free( prefix_string );
 				offset += prefix_len;
 			}
-			prefix_string = ( char * ) malloc( item_len + 1 );
+			prefix_string = g_malloc( item_len + 1 );
 			for ( counter = 0; counter < item_len; counter++ )
 			    prefix_string[ counter ] =
 			        tvb_get_guint8( tvb, offset + counter );
