@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.7 2003/12/29 20:46:12 guy Exp $
+# $Id: Makefile.am,v 1.8 2004/06/04 03:25:35 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -24,9 +24,10 @@
 SUBDIRS = lemon
 
 EXTRA_DIST = \
-	EtherealXML.py	\
-	Makefile.nmake	\
-	cvsdiff-fix.py	\
-	dfilter-test.py \
-	msnchat		\
-	pkt-from-core.py
+	EtherealXML.py		\
+	Makefile.nmake		\
+	cvsdiff-fix.py		\
+	dfilter-test.py 	\
+	msnchat			\
+	pkt-from-core.py	\
+	win32-setup.sh
