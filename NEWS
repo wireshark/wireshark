@@ -1,4 +1,87 @@
-$Id: NEWS,v 1.119 2002/12/08 02:52:57 gerald Exp $
+$Id: NEWS,v 1.120 2003/01/21 02:12:16 gerald Exp $
+
+== January ??, 2003
+
+Ethereal 0.9.9 has been released.
+
+  Please note the next release will NOT be 1.0.  There are still more
+  features to be added before a 1.0 release will be ready.
+  
+  Plugin search behavior was improved under Unix, allowing more than one
+  version of Ethereal to be installed at one time.
+  
+New and Updated Features
+
+  The statistics graphs have been enhanced.
+  
+  Color allocation and handling was improved.
+  
+  The RADIUS dissector can now decrypt user passwords.
+  
+  Tethereal now supports reading from a pipe under Unix.
+  
+  The ATM code received major improvements.
+  
+  The DOS Sniffer code received major improvements as well.
+
+Bug Fixes
+
+  The capture progress window now shows the correct number of elapsed
+  minutes.
+  
+  A potential infinite loop in the TCP graphing code has been fixed.
+
+New Protocols
+
+MEGACO, 
+MySQL, 
+SDLC, 
+X.29, 
+
+Updated Protocols
+
+AFP, 
+AFS, 
+AIM, 
+ASAP, 
+ATM, 
+BPDU, 
+Cisco HDLC, 
+CLNP, 
+DCE RPC, 
+DDTP, 
+H.261, 
+IMSI, 
+IP, 
+IP-over-FC, 
+L2TP, 
+LMI, 
+MTP3, 
+NCP, 
+NetBIOS, 
+NETLOGON, 
+ONC RPC, 
+PIM, 
+PPP, 
+RADIUS, 
+RANAP, 
+RPC, 
+SAMR, 
+SCTP, 
+SPNEGO,
+SRVSVC,  
+SPOOLSS, 
+TNS, 
+X.25, 
+Wellfleet HDLC, 
+
+
+
+Updated Capture File Support
+  
+Firewall-1, Netmon, NetXRay, Radcom, Sniffer, 
+
+
 
 == December 7, 2002
 

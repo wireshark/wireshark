@@ -1,4 +1,251 @@
-$Id: ChangeLog,v 1.14 2002/12/08 03:59:03 gerald Exp $
+$Id: ChangeLog,v 1.15 2003/01/21 02:12:16 gerald Exp $
+
+Overview of changes in Ethereal 0.9.9:
+* Get rid of unneeded comments and includes, fix registration in IPFC (Guy)
+* Fix 802.2 LLC IP-over-FC handoff (Guy)
+* Remove hardcoded plugin search directories (Guy)
+* Add a capture routine for IP-over-FC (Guy)
+* Clean to_str.h up a bit, and put "extern" back (Guy)
+* Apple C compiler workaround, other cleanups in to_str.[ch] (Guy)
+* Add support for a column for the interface and direction in Firewall-1
+  monitor files (Alfred Koebler)
+* Add a new type of column for the circuit ID (Guy)
+* Clean up and rearrange parts of the FC code (Guy)
+* Various fixes/improvements for bytestring_to_str() (Guy)
+* Fix the display of IMSI for operators having a mobile network code
+  greater than 9 (Michal Melerowicz)
+* Replace SUA light w/RANAP, register SCCP upper layer in RANAP. (Michael)
+* Make RC4 support stateful (Devin)
+* Remove hard-coded offsets in connection-oriented DCE/RPC function calls
+  (Devin)
+* Add support for more L2TP AVPs  and correct some AVP names
+  (Andreas Trauer)
+* Add support for the new DLT_ value of 127, for the AVS WLAN header (Guy)
+* Improve buffer handling in SPOOLSS (Guy)
+* Fix USER_LEVEL_1 dissection in SPOOLSS (Tim)
+* More conversions to NDR routines in SPOOLSS (Tim)
+* When processing a connection-oriented DCERPC PDU, don't set the columns
+  until we know that we have the entire PDU (Guy)
+* Support for colored graphs in io_stat also for the Gtk1 version 
+  (Ronald Henderson)
+* Prettify RPC_PROGRAMS table when reading new capture or when closing and
+  opening it again (Ronnie)
+* Cosmetic fix for io_stat (Ronnie)
+* Handle more L2TP AVPs (Andreas)
+* Decrypt RADIUS user passwords (James Harris)
+* NBF reassembly fixes (Guy)
+* Support TAPs in TCP (Jason House)
+* Rename md5.[ch] to crypt-md5.[ch] (Gerald)
+* Fix magic number and capture start time in Radcom captures (Olivier)
+* RADIUS cleanups: variable initialization, character processing, and
+  variable signedness (Guy)
+* Correctly compute the minutes portion of the elapsed time (Guy)
+* Change references from "Visual C" to "Visual C++" (Guy)
+* Fix end timestamp determination in TCP graphs (Guy)
+* Just use "packet_list_set_selected_row()" to select a given row in the
+  packet list in tcp_graph.c (Guy)
+* Add an FT_FRAMENUM field type and modify ONC RPC to use it (Guy)
+* Rename "Go To Specified Frame" to "Go To Corresponding Frame" and
+  put it in the "Tools" menu (Guy)
+* Document "Tools->Go To Corresponding Frame" (Guy)
+* Document FT_FRAMENUM (Guy)
+* Update packet-smb.c to use the new FT_FRAMENUM type (Ronnie)
+* Update reassemble.c/show_item and all callers to use FT_FRAMENUM for the
+  list of packets corresponding to a reassembled pdu (Ronnie)
+* Support putting preferences into arbitrary places in a tree (Guy)
+* Add initial Wellfleet HDLC and Cisco HDLC support to ngsniffer.c
+  (Richard)
+* Supply more information about "WAN/Synchronous" captures in ngsniffer.c
+  (Guy)
+* Make "infer_pkt_encap()" take a pointer and length as arguments in
+  ngsniffer.c (Guy)
+* Add an item for Wellfleet HDLC to wtap.c (Guy)
+* Fix signedness of "fs" and "flags" fields in type 6 records in
+  ngsniffer.c (Guy)
+* Always fetch the version ID in BPDU (Guy)
+* Minor spelling etc updates in SPNEGO (Richard)
+* Make last modifications work with gtk2 (Olivier)
+* Fix join/prune processing offset in PIM (Martin)
+* Add text to the net/bpf.h error in acinclude.m4 (Guy)
+* Fix magic number byte count in capture.c (Guy)
+* Support capturing from a pipe in tethereal (rmkml)
+* Update "-i" and pipe documentation (Guy)
+* Make Is Directory come out right in packet-smb.c (Andrew Bartlett)
+* Make the "rpc.fragment" and "rpc.fragment.error" fields FT_FRAMENUMs
+  (Guy)
+* Support for decrypting DCERPC conversations using NTLMSSP version 1
+  (Devin)
+* Improve DCERPC stub data display (Guy)
+* Use _WIN32 rather than WIN32 throughout capture.c (Guy)
+* Use _WIN32 rather than WIN32 throughout, update error codes, clean up
+  indentation and comments in tethereal.c (Guy)
+* Fix up "snprintf()" and "vsnprintf()" calls in "epan/proto.c" to
+  properly handle string truncation (Ronald)
+* Make "format_text()", on Windows, escape all characters that aren't
+  printable ASCII (Ronald)
+* #ifdef out all the pipe-opening stuff in tethereal.c on Windows (Guy)
+* Re-word-wrap the "you can't capture on PPP/WAN interfaces on NT"
+  message (Guy)
+* Handle the hyphen in QoS inside RADIUS client messages (Flavio Poletti)
+* Make ANSI point codes filterable in MTP3, fix an ANSI SLS bug, other
+  MTP3 enhancements (Jeff Morriss)
+* Add support for NetXRay file format version 002.000, add ATM notes (Guy)
+* Rename WTAP_ENCAP_ATM_SNIFFER to WTAP_ENCAP_ATM_PDUS and add
+  WTAP_ENCAP_ATM_PDUS_UNTRUNCATED (Guy)
+* Use the "xxb" part of the NetXRay file header for WAN capture information
+  (Guy)
+* Return correctly after dissecting Cisco HDLC (Guy)
+* Handle HMVD field correctly in H.261 (Ronnie) 
+* Handle type 7 records in Sniffer version 5 captures (Guy)
+* Add support for SDLC and SDLC encapsulation in DOS Sniffer captures (Guy)
+* Get rid of global variables in CLNP, rename some routines, fix dst_ref
+  field fetching, and register with the X.25 dissector (Guy)
+* Enhance NET_HDLC, NET_ROUTER, HDLC, and pseudo-header fixing in
+  ngsniffer.c (Guy)
+* Fix "hf_nds_time_filter" handling in ncp2222.py (Guy)
+* Fix up the display of the "ncp.nds_time_filter" field (Guy)
+* Fix BYTE_ORDER definition in packet-mtp3mg.c (Guy)
+* Add X.29 support.  Fix Q bit handling in X.25 (Guy)
+* Update DCERPC so that for (NTLMSSP) PDUs that have been decrypted we
+  also call the proper DCERPC subdissector (Ronnie)
+* Add packet-ntlmssp.h, which holds the definition of the datastructure
+  passed from ntlmssp decryption dissector back to the caller (Ronnie)
+* Cast "secs" to "double" before multiplying by 1000000, so that we don't
+  get an overflow if secs*1000000 doesn't fit in 31 bits for Netmon (Guy)
+* If we have Cisco HDLC or PPP packet direction information, display it
+  (Guy)
+* In X.25 show the M bit regardless of whether it's set or not and show
+  sequence numbers in decimal, not hex (Guy)
+* Properly handle ISDN channel numbers in NetXRay captures, handle
+  end-of-packet crud (Guy)
+* Properly handle the direction flag for LAPB/X.25 and ISDN in NetXRay
+  (Guy)
+* Use some fields in the per-packet header for ATM to get the AAL type
+  and traffic type in NetXRay (Guy)
+* Handle oddities in the way Windows Sniffer saves DOS Sniffer ATM 
+  captures (Guy)
+* Handle PRI ISDN NetXRay captures and 802.3/802.3 LANE multicast confusion
+  (Guy)
+* Update packet length, ATM encapsulation, and LLC/SNAP header in Radcom
+  captures (Guy)
+* Separate the routines to allocate colors from the routines to handle
+  color filters (Guy)
+* Sort filenames in Makefile.am (Guy)
+* Add some checks to make sure "gdk_color_parse()" and
+  "gdk_colormap_alloc_color()" succeed in tcp_graph.c (Guy)
+* Support Tazmen Sniffer Protocol and DLT_TZSP captures (Chris Waters)
+* Dissect non-AAL5 ATM packets as single cells and dissect the U2U data as
+  UU and CPI (Guy)
+* Display the X.25 packet type as a bitfield for Data, RR, RNR, and REJ
+  packets, other fixes (Guy)
+* Add a pile of ATM updates (Guy)
+* Fix popup menu creation for GTK+ 2.2 (Olivier)
+* Handle bogus record lentgths in some ATM sniffer file versions (Guy)
+* It appears that a channel number of 0 means DTE->DCE, and a channel
+  number of 1 means DCE->DTE, in DOS Sniffer ATM captures (Guy)
+* Add code to check the AAL5 CRC, and report it as a CRC rather than as a
+  checksum in ATM (Guy)
+* Check the HEC in ATM cells (Guy)
+* Check the CRC-10 on AAL3/4 and OAM cells (Guy)
+* The checksum in DOS ATM Sniffer files appears to be stored in big-endian
+  format (Guy)
+* "sync_pipe[]" isn't exported by "capture.c", so it shouldn't be declared
+  in "capture.h" (Albert)
+* Use "plugindir", not "PLUGIN_DIR", as the variable name in the configure
+  script for the plugin directory, other configure/make fixes (Guy)
+* Use "datafiledir" rather than "DATAFILE_DIR" in configure.in (Guy)
+* Handle raw ATM cells (Guy)
+* Convert SPOOLSS enumprinterdataex rpc to ndr format calls (Tim)
+* Convert SPOOLSS enumprinters and enumprinterkey rpc to ndr routines (Tim)
+* Improve DOS Sniffer ISDN capture recognition (Guy)
+* Rename version variable, more ISDN recognition, improve version 1 parsing
+  for DOS Sniffer captures (Guy)
+* Put the traffic type right after ATM's AAL and dump unknown AAL
+  purportedly-reassembled data as raw data (Guy)
+* Fix a GSSAP assumption in SPNEGO (Guy)
+* Convert more SPOOLSS RPCs to ndr routines (Tim)
+* Convert some incidental prs_* calls to dissect_dcerpc_* equivalents
+  (Tim)
+* Finish converting remaining SPOOLSS RPCs to ndr routines (Tim)
+* Delete all DCERPC NT prs_* functions (Tim)
+* Better checking for LANE LE Control vs 802.3 in DOS Sniffer files (Guy)
+* Improve ATM OAM type and function type handling (Guy)
+* Put the correct/incorrect flag after the ATM CRC value, as is done for
+  other checksums (Guy)
+* Put the LMI message type in the Info column (Guy)
+* Extend the packet-dcerpc-krb5rpc dissectors to call kerberos V (Jaime)
+* Improve dissection of the AIM signon-reply, the request-user-info, and
+  the start of the user-info reply (Devin)
+* Get rid of unused variables in packet-dcerpc-krb5rpc.c (Guy)
+* Get rid of an extra "." at the end of the name of the SAMR "nt.str"
+  field (Guy)
+* Pass DCERPC NT's "hf_nt_str" through fake_unicode() (Guy)
+* Get rid of DCERPC NT's "hf_nt_str" (Guy)
+* Fix Makefile.am's copyright notice, give it an RCS ID, and fix the
+  introductory comment (Guy)
+* Do some simple sanity checking of TNS data before dissecting it (Guy)
+* Add Cisco HDLC support to BPDU (Guy)
+* Only do stuff to X.25 circuits on the first pass (Guy)
+* Add a new "chdlctypes.h" file for Cisco HDLC type values that aren't
+  just Ethernet type values (Guy)
+* When closing IO-Stat window, also close any open Filter dialogs (Ronald)
+* Break AIM dissection into separate functions, add families and entries,
+  constify code (Devin)
+* Fix a typo in SCTP (Michael)
+* Handle the few remaining FC protocols not already supported.  Add support
+  for the MDS Debug Port Adapter (Dinesh)
+* Add a value_string for the secure channel type used in NETLOGON's
+  ServerAuthenticate2 (Tim)
+* Exctract IP header info on the fly, improve length checking (Guy)
+* Set the length of the L2TP tvbuff based on the length in the L2TP
+  header, other length checks (Guy)
+* Try to handle DOS Sniffer version 3 / frame relay captures (Guy)
+* Catch ReportedBoundsError exceptions when dissecting decrypted DCE RPC
+  stub data (Guy)
+* Support additional SCTP payload protocol IDs (Anders Broman)
+* Initial support for MEGACO (Christian Falckenberg)
+* Give MEGACO and RCS ID (Guy)
+* #if 0 out the binary MEGACO protocol stuff and fix the preference
+  description strings (Guy)
+* Don't have two entries for the official SCTP ASAP PPID, have one for it
+  and one for the old one (Guy)
+* Improve filter dialog box creation and destruction (Guy)
+* Consolidate filter dialog code, get rid of unused variables (Guy)
+* Further AIM cleanups (Devin)
+* Add doc/README.tapping to the distribution (Guy)
+* Clean up unused DCERPC NT variables, undo a previous change (Tim)
+* Change the name of the SPOOLSS UINT16UNI proto item, improve RPC error
+  handling (Tim)
+* Update Marc Milgram's email address (Marc)
+* Various time-related AFS improvements (Guy)
+* Change AFP padding to reflect reality, add more Info column text and 
+  decode more login parameters (Didier)
+* Add a dissector for MySQL (Huagang Xie)
+* Make the DDTP dissector reject packets with an invalid version number
+  (Guy)
+* Improve column display and BoundsError handling in IP (Guy)
+* Centralize the dissection of packet data in error packets, and update
+  CLNP, ICMPv6, ICMP, and PPP accordingly (Guy)
+* Properly handle IP packets encapsulated in MSDP Source-Active TLVs, and
+  use the correct length of (S, G) blocks (Guy)
+* MySQL updates: use tcp_dissect_pdus(), unstaticify mysql_handle, make
+  is_response a gboolean, and get rid of unused variables (Guy)
+* Add desegmentation support to AIM, reject packets that don't look like
+  AIM, and properly handle undissected data (Guy)
+* Reject IB packets with opcodes we don't recognize (Guy)
+* Add NAT-D and NAT-OA to the known ISAKMP payloads, add types 3 and 4 as
+  enapsulated tunnel and transport (Yaniv)
+* Get rid of old SCTP ASAP PPID (Michael)
+* Update ASAP to support latest versions of the Internet Drafts (Michael)
+* Add packet-ntlmssp.h to Makefile.am (Gerald)
+* Use "tcp_dissect_pdus()" in XOT, improve packet rejection (Guy)
+
+Left off at: http://www.ethereal.com/lists/ethereal-cvs/200301/msg00131.html
+
+
+
+
+
 
 Overview of changes in Ethereal 0.9.8:
 * Display AFS KAUTH information (Loic Tortay)
