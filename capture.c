@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.122 2000/08/22 06:04:40 guy Exp $
+ * $Id: capture.c,v 1.123 2000/09/14 11:49:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,7 +99,7 @@
 #include "globals.h"
 
 #include "wiretap/libpcap.h"
-#include "wiretap/wtap-int.h"
+#include "wiretap/wtap.h"
 
 #include "packet-clip.h"
 #include "packet-eth.h"
