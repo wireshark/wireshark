@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.148 2001/11/15 10:41:52 guy Exp $
+ * $Id: packet-smb.c,v 1.149 2001/11/16 01:52:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8868,7 +8868,7 @@ dissect_4_2_14_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	
 	/* stream size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_t2_stream_name_length, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_t2_stream_size, tvb, offset, 8, TRUE);
 	COUNT_BYTES_SUBR(8);
 
 	/* allocation size */
