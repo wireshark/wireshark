@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.1 2000/01/24 18:46:45 guy Exp $
+ * $Id: packet-isl.c,v 1.2 2000/01/24 19:26:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,13 +148,16 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "ISL");
+  if (check_col(fd, COL_INFO))
+    col_add_fstr(fd, COL_INFO, "VLAN ID: 0x%04X", pntohs(&pd[offset+20]) >> 1);
+
+  type = (pd[offset+5] >> 4)&0x0F;
 
   if (tree) {
     ti = proto_tree_add_item_format(tree, proto_isl, offset, ISL_HEADER_SIZE,
 		NULL, "ISL");
     fh_tree = proto_item_add_subtree(ti, ett_isl);
     proto_tree_add_item(fh_tree, hf_isl_dst, offset+0, 6, &pd[offset+0]);
-    type = (pd[offset+5] >> 4)&0x0F;
     proto_tree_add_item(fh_tree, hf_isl_type, offset+5, 1, pd[offset+5]);
     switch (type) {
 
@@ -172,53 +175,50 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     proto_tree_add_item(fh_tree, hf_isl_src, offset+6, 6, &pd[offset+6]);
     length = pntohs(&pd[offset+12]);
     proto_tree_add_item(fh_tree, hf_isl_len, offset+12, 2, length);
-    offset += 14;
 
     /* This part looks sort of like a SNAP-encapsulated LLC header... */
-    proto_tree_add_text(fh_tree, offset, 1, "DSAP: 0x%X", pd[offset]);
-    proto_tree_add_text(fh_tree, offset+1, 1, "SSAP: 0x%X", pd[offset+1]);
-    proto_tree_add_text(fh_tree, offset+2, 1, "Control: 0x%X", pd[offset+2]);
+    proto_tree_add_text(fh_tree, offset+14, 1, "DSAP: 0x%X", pd[offset+14]);
+    proto_tree_add_text(fh_tree, offset+15, 1, "SSAP: 0x%X", pd[offset+15]);
+    proto_tree_add_text(fh_tree, offset+16, 1, "Control: 0x%X", pd[offset+16]);
 
     /* ...but this is the manufacturer's ID portion of the source address
        field (which is, admittedly, an OUI). */
-    proto_tree_add_item(fh_tree, hf_isl_hsa, offset+3, 3,
-		pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5]);
-    proto_tree_add_item(fh_tree, hf_isl_vlan_id, offset+6, 2,
-			pntohs(&pd[offset+6]));
-    proto_tree_add_item(fh_tree, hf_isl_bpdu, offset+6, 2,
-			pntohs(&pd[offset+6]));
-    proto_tree_add_item(fh_tree, hf_isl_index, offset+8, 2,
-	pntohs(&pd[offset+8]));
+    proto_tree_add_item(fh_tree, hf_isl_hsa, offset+17, 3,
+		pd[offset+17] << 16 | pd[offset+18] << 8 | pd[offset+19]);
+    proto_tree_add_item(fh_tree, hf_isl_vlan_id, offset+20, 2,
+			pntohs(&pd[offset+20]));
+    proto_tree_add_item(fh_tree, hf_isl_bpdu, offset+20, 2,
+			pntohs(&pd[offset+20]));
+    proto_tree_add_item(fh_tree, hf_isl_index, offset+22, 2,
+	pntohs(&pd[offset+22]));
+  }
 
-    switch (type) {
+  switch (type) {
 
-    case TYPE_ETHER:
-      offset += 12;	/* skip the header */
-      dissect_eth(pd, offset, fd, tree);
-      break;
+  case TYPE_ETHER:
+    dissect_eth(pd, offset+26, fd, tree);
+    break;
 
-    case TYPE_TR:
-      proto_tree_add_item(fh_tree, hf_isl_src_vlan_id, offset+10, 2,
-			pntohs(&pd[offset+10]));
-      proto_tree_add_item(fh_tree, hf_isl_explorer, offset+10, 2,
-			pntohs(&pd[offset+10]));
-      proto_tree_add_item(fh_tree, hf_isl_dst_route_descriptor, offset+12, 2,
-			pntohs(&pd[offset+12]));
-      proto_tree_add_item(fh_tree, hf_isl_src_route_descriptor, offset+14, 2,
-			pntohs(&pd[offset+14]));
-      proto_tree_add_item(fh_tree, hf_isl_fcs_not_incl, offset+16, 1,
-			pd[offset+16]);
-      proto_tree_add_item(fh_tree, hf_isl_esize, offset+16, 1,
-			pd[offset+16]);
-      offset += 17;	/* skip the header */
-      dissect_tr(pd, offset, fd, tree);
-      break;
+  case TYPE_TR:
+    proto_tree_add_item(fh_tree, hf_isl_src_vlan_id, offset+24, 2,
+			pntohs(&pd[offset+24]));
+    proto_tree_add_item(fh_tree, hf_isl_explorer, offset+24, 2,
+			pntohs(&pd[offset+24]));
+    proto_tree_add_item(fh_tree, hf_isl_dst_route_descriptor, offset+26, 2,
+			pntohs(&pd[offset+26]));
+    proto_tree_add_item(fh_tree, hf_isl_src_route_descriptor, offset+28, 2,
+			pntohs(&pd[offset+28]));
+    proto_tree_add_item(fh_tree, hf_isl_fcs_not_incl, offset+30, 1,
+			pd[offset+30]);
+    proto_tree_add_item(fh_tree, hf_isl_esize, offset+16, 1,
+			pd[offset+30]);
+    dissect_tr(pd, offset+31, fd, tree);
+    break;
 
-    default:
-      offset += 12;	/* skip the header */
-      dissect_data(pd, offset, fd, tree);
-      break;
-    }
+  default:
+    offset += 12;	/* skip the header */
+    dissect_data(pd, offset+26, fd, tree);
+    break;
   }
 }
     
