@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.9 2002/03/09 22:46:29 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.10 2002/03/10 21:30:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -433,56 +433,6 @@ extern gint ett_nt_unicode_string;
   the name: string to any higher levels in the tree .
 */
 int
-dissect_ndr_nt_UNICODE_STRING_string (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *parent_tree, 
-                             char *drep)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	guint32 len, off, max_len;
-	guint16 *data16;
-	char *text;
-	int old_offset=offset;
-	header_field_info *hfi;
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"unicode string");
-		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
-	}
-
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_len, &len);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_off, &off);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_max_len, &max_len);
-
-	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16, NULL);
-	text = fake_unicode(data16, max_len);
-
-	hfi = proto_registrar_get_nth(di->hf_index);
-	proto_tree_add_string_format(tree, di->hf_index, 
-		tvb, old_offset, offset-old_offset,
-		text, "%s: %s", hfi->name, text);
-
-	if(tree){
-		proto_item_set_text(tree, "%s:%s", hfi->name, text);
-	}
-
-	proto_item_set_len(item, offset-old_offset);
-  	return offset;
-}
-
-
-int
 dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *tree, 
 			char *drep)
@@ -491,7 +441,7 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	guint16 *data16;
 	char *text;
 	int old_offset;
-	header_field_info *hfi;
+	char *name;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -511,19 +461,19 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	offset = prs_uint16s(tvb, offset, pinfo, tree, max_len, &data16, NULL);
 	text = fake_unicode(data16, max_len);
 
-	hfi = proto_registrar_get_nth(di->hf_index);
+	name = proto_registrar_get_name(di->hf_index);
 	proto_tree_add_string_format(tree, di->hf_index, 
 		tvb, old_offset, offset-old_offset,
-		text, "%s: %s", hfi->name, text);
+		text, "%s: %s", name, text);
 
 	if(tree){
-		proto_item_set_text(tree, "%s:%s", hfi->name, text);
+		proto_item_append_text(tree, ": %s", text);
 		if(di->levels>-1){
 			tree=tree->parent;
-			proto_item_append_text(tree, "%s:%s", hfi->name, text);
+			proto_item_append_text(tree, ": %s", text);
 			while(di->levels>0){
 				tree=tree->parent;
-				proto_item_append_text(tree, "%s ", text);
+				proto_item_append_text(tree, " %s", text);
 				di->levels--;
 			}
 		}
@@ -541,7 +491,7 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
  
   the function takes one additional parameter, level
   which specifies how many additional levels up in the tree where we should
-  append "Name: string"  If unsure, specify levels as 0.
+  append the string.  If unsure, specify levels as 0.
 */
 int
 dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset, 
@@ -552,6 +502,7 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 	proto_tree *tree=NULL;
 	int old_offset=offset;
 	dcerpc_info *di;
+	char *name;
 
 	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
 
@@ -561,17 +512,10 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 		return offset;
 	}
 
+	name = proto_registrar_get_name(hf_index);
 	if(parent_tree){
-		/*
-		 * XXX - this means that if we throw an exception, this
-		 * item might have an empty string as its tag.
-		 *
-		 * Some versions of GCC warn of a zero-length format
-		 * string.  I'm leaving that warning in, as a note that
-		 * we need to handle this better.
-		 */
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"");
+			"%s", name);
 		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
 	}
 
@@ -582,11 +526,9 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 	di->levels=1;
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			"", hf_index, levels);
+			name, hf_index, levels);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 /* UNICODE_STRING  END */
-
-
