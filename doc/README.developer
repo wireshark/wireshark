@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.7 2000/03/03 06:58:28 guy Exp $
+$Id: README.developer,v 1.8 2000/03/09 19:32:31 oabad Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -19,7 +19,25 @@ This section provides skeleton code for a protocol dissector. It also explains
 the basic functions needed to enter values in the traffic summary columns,
 add to the protocol tree, and work with registered header fields.
 
-1.1 Skeleton code.
+1.1 Code style.
+
+1.1.1 Comments.
+
+Don't use C++-style comments (comments beginning with "//" and running to the
+end of the line); Ethereal's dissectors are written in C, and thus run through C
+rather than C++ compilers, and not all C compilers support C++-style comments
+(GCC does, but IBM's C compiler for AIX, for example, doesn't do so by default).
+
+1.1.2 Name convention.
+
+Ethereal uses the underscore_convention rather than the InterCapConvention for
+function names, so new code should probably use underscores rather than
+intercaps for functions and variable names. This is especially important if you
+are writting code that will be called from outside your code.  We are just
+trying to keep thing consistant for other users.
+
+
+1.2 Skeleton code.
 
 Ethereal requires certain things when setting up a protocol dissector. 
 Below is skeleton code for a dissector that you can copy to a file and
@@ -46,7 +64,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.7 2000/03/03 06:58:28 guy Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.8 2000/03/09 19:32:31 oabad Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -55,7 +73,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.7 2000/03/03 06:58:28 guy Exp $
+ * $Id: README.developer,v 1.8 2000/03/09 19:32:31 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -182,7 +200,7 @@ proto_register_PROTOABBREV(void)
 };
 ------------------------------------Cut here------------------------------------
 
-1.2 Explanation of needed substitutions in code skeleton.
+1.3 Explanation of needed substitutions in code skeleton.
 
 In the above code block the following strings should be substituted with
 your information.
@@ -207,15 +225,15 @@ FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
 FIELDDESCR	A brief description of the field.
 
-1.3 The dissector and the data it receives.
+1.4 The dissector and the data it receives.
 
-1.3.1 The dissector has the following header which must be placed into
+1.4.1 The dissector has the following header which must be placed into
 packet-PROTOABBREV.h.
 
 void
 dissect_PROTOABBREV(const u_char *pd, int offset, frame_data *fd, proto_tree *tree); 
 
-1.4 Functions to handle columns in the traffic summary window.
+1.5 Functions to handle columns in the traffic summary window.
 
 The topmost pane of the main window is a list of the packets in the
 capture, possibly filtered by a display filter.
@@ -243,7 +261,7 @@ The value for a column can be specified with one of several functions,
 all of which take the 'fd' argument to the dissector as their first
 argument, and the COL_ value for the column as their second argument.
 
-1.4.1 The col_add_str function.
+1.5.1 The col_add_str function.
 
 'col_add_str' takes a string as its third argument, and sets the value
 for the column to that value.  For example, to set the "Protocol" column
@@ -252,7 +270,7 @@ to "PROTOABBREV":
 	if (check_col(fd, COL_PROTOCOL)) 
 		col_add_str(fd, COL_PROTOCOL, "PROTOABBREV");
 
-1.4.2 The col_add_fstr function.
+1.5.2 The col_add_fstr function.
 
 'col_add_fstr' takes a 'printf'-style format string as its third
 argument, and 'printf'-style arguments corresponding to '%' format
@@ -265,7 +283,7 @@ unsigned integer containing the number of bytes in the request:
 		col_add_fstr(fd, COL_INFO, "%s request, %u bytes",
 		    reqtype, n);
 
-1.4.3 The col_append_str function.
+1.5.3 The col_append_str function.
 
 Sometimes the value of a column, especially the "Info" column, can't be
 conveniently constructed at a single point in the dissection process;
@@ -277,7 +295,7 @@ column.  (Note that no blank separates the appended string from the
 string to which it is appended; if you want a blank there, you must add
 it yourself as part of the string being appended.)
 
-1.4.4 The col_append_fstr function.
+1.5.4 The col_append_fstr function.
 
 'col_append_fstr' is to 'col_add_fstr' as 'col_append_str' is to
 'col_add_str' - it takes, as arguments, the same arguments as
@@ -285,7 +303,7 @@ it yourself as part of the string being appended.)
 current value for the column, rather than replacing the value for that
 column.
 
-1.5 Constructing the protocol tree.
+1.6 Constructing the protocol tree.
 
 The middle pane of the main window, and the topmost pane of a packet
 popup window, are constructed from the "protocol tree" for a packet.
@@ -568,7 +586,7 @@ in a future GUI display-filter creation tool. We might also add tooltips
 to the labels in the GUI protocol tree, in which case the blurb would
 be used as the tooltip text.
 
-1.5.1 Field Registration.
+1.6.1 Field Registration.
 
 Protocol registration is handled by creating an instance of the
 header_field_info struct (or an array of such structs), and
@@ -607,7 +625,7 @@ typedef struct hf_register_info {
 Also be sure to use the handy array_length() macro found in packet.h
 to have the compiler compute the array length for you at compile time.
 
-1.5.2 Adding Items and Values to the Protocol Tree.
+1.6.2 Adding Items and Values to the Protocol Tree.
 
 A protocol item is added to an existing protocol tree with one of a
 handful of proto_tree_add_item*() funtions.
@@ -831,7 +849,7 @@ and later do
 
 after the "type" and "value" fields have been extracted and dissected.
 
-1.6 Editing Makefile.am and Makefile.nmake to add your dissector.
+1.7 Editing Makefile.am and Makefile.nmake to add your dissector.
 
 To arrange that your dissector will be built as part of Ethereal, you
 must add the name of the source file for your dissector, and the header
@@ -851,9 +869,9 @@ in order for you to build Ethereal on your machine, but both changes
 will need to be checked in to the Ethereal source code, to allow it to
 build on all platforms.
 
-1.7 Using the CVS source code tree.
+1.8 Using the CVS source code tree.
 
-1.8 Submitting code for your new dissector.
+1.9 Submitting code for your new dissector.
 
 2. Advanced dissector topics.
 
@@ -861,17 +879,220 @@ build on all platforms.
 
 2.2 Following "conversations."
 
-In ethereal a conversation is ...
+In ethereal a conversation is defined as a series of data packet between two
+address:port combinations.  A conversation is not sensitive to the direction of
+the packet.  The same conversation will be returned for a packet bound from
+ServerA:1000 to ClientA:2000 and the packet from ClientA:2000 to ServerA:1000.
+There are two routine that you will use to work with a conversation:
+conversation_new and find_conversation.
+
 
 2.2.1 The conversation_init function.
 
+This is an internal routine for the conversation code.  As such the you will not
+have to call this routine.  Just be aware that this routine is called at the
+start of each capture and before the packets are filtered with a display filter.
+The routine will destroy all stored conversations.  This routine does NOT clean
+up any data pointers that is passed in the conversation_new 'data' variable.
+You are responsible for this clean up if you pass a malloc'ed pointer in this
+variable.
+
+See item 2.2.4 for more information about the 'data' pointer.
+
+
 2.2.2 The conversation_new function.
+
+This routine will create a new conversation based upon the source address:port
+and destination address:port. If you want store a pointer to memory structure it
+should be passed in the conversation_new 'data' variable. The ptype variable is
+used to differentiate between conversations over different protocols, ie. TCP
+and UDP.
+
+See packet.h for information on the port_type.
+
 
 2.2.3 The find_conversation function.
 
+Call this routine to lookup a conversation. If no conversation is found the
+routine will return a NULL value.  You don't have to worry about interchanging
+the source and destination values.  The conversation routine will automatically
+return the same conversation for packets traveling in both directions.
+
+
+2.2.4 The example conversation code with GMemChunk's
+
+For a conversation between two IP addresses and ports you can use this as an
+example.  This example uses the GMemChunk to allocate memory and stores the data
+pointer in the conversation 'data' variable.
+
+NOTE: Remember to register the init routine (my_dissector_init) in the
+protocol_register routine.
+
+
+/************************ Globals values ************************/
+
+/* the number of entries in the memory chunk array */
+#define my_init_count 10
+
+/* define your structure here */
+typedef struct {
+
+}my_entry_t;
+
+/* the GMemChunk base structure */
+static GMemChunk *my_vals = NULL;
+
+
+/********************* in the dissector routine *********************/
+
+/* the local variables in the dissector */
+
+conversation_t *conversation;
+my_entry_t *data_ptr
+
+
+/* look up the conversation */
+/* pi is a global variable of type packet_info, see  packet.h */
+
+conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
+	pi.srcport, pi.destport);
+
+/* if conversation found get the data pointer that you stored */
+if ( conversation)
+    data_ptr = (my_entry_t*)conversation->data;
+else {
+
+    /* new conversation create local data structure */
+
+    data_ptr = g_mem_chunk_alloc(my_protocol_vals);
+
+    /*** add your code here to setup the new data structure ***/
+
+    /* create the conversation with your data pointer  */
+
+    conversation_new( &pi.src, &pi.dst, pi.ptype,
+	    pi.srcport, pi.destport, (void*)data_ptr);
+}
+
+/* at this point the conversation data is ready */
+
+
+/******************* in the dissector init routine *******************/
+
+#define rlogin_hash_init_count 20
+
+static void
+my_dissector_init( void){
+
+    /* destory memory chunks if needed */
+
+    if ( my_vals)
+	g_mem_chunk_destroy(my_vals);
+
+    /* now create memory chunks */
+
+    my_vals = g_mem_chunk_new( "my_proto_vals",
+	    sizeof( _entry_t),
+	    my_init_count * sizeof( my_entry_t),
+	    G_ALLOC_AND_FREE);
+}
+
+/***************** in the protocol register routine *****************/
+
+/* register re-init routine */
+
+register_init_routine( &my_dissector_init);
+
+
+2.2.4 The example conversation code using conversation index field
+
+Add this latter ............
+
+
 2.3 ??
 
-3.0 Plugins
+3. Plugins
+
+Writing a "plugin" dissector is not very different from writing a standard one.
+All the functions described in the first part of this file can be used in
+plugins exactly as they are used in standard dissectors.
+
+However, there are a few things you need to do (you can look at the gryphon
+plugin for an example) :
+
+3.1 Needed headers
+
+#include "plugins/plugin_api.h"
+
+Some OSes (Win32) have DLLs that cannot reference symbols in the parent
+executable. So, the executable needs to provide a table of pointers for the DLL
+plugin to use. The plugin_api.h header provides definitions for this (or empty
+definitions on OSes which don't need this).
+
+#include "moduleinfo.h"
+
+This header is optional. It is used by the gryphon plugin to provide a VERSION
+macro (different from the ethereal VERSION).
+
+Ex :
+$ cat moduleinfo.h
+/* Included *after* config.h, in order to re-define these macros */
+#ifdef VERSION
+#undef VERSION
+#endif
+
+/* Plugin version number */
+#define VERSION "0.1.2"
+
+3.2 Exported constants
+
+Plugins need to provide the following exported constants (the DLLEXPORT macro is
+defined in plugin_api.h) :
+
+DLLEXPORT const gchar version[] = VERSION;
+DLLEXPORT const gchar desc[] = "DG Gryphon Protocol";
+DLLEXPORT const gchar protocol[] = "tcp";
+DLLEXPORT const gchar filter_string[] = "tcp.port == 7000";
+
+version       : a version number associated with the plugin.
+desc          : description of the dissector (displayed in the plugin selection
+                window).
+protocol      : name of the underlying protocol (e.g. if protocol == "xxx", the
+		plugin will be called from dissect_xxx).  Only "tcp" and "udp"
+		are supported for now.
+filter_string : display filter which is applied to a frame to determine if it
+                should be dissected by this plugin.
+
+The above definitions, taken from the gryphon plugin, show that the gryphon
+plugin will be called in dissect_tcp() if the TCP source or destination port is
+7000.
+
+3.3 Exported functions
+
+The following two functions need to be exported by the plugin :
+
+DLLEXPORT void dissector(const u_char *pd, int offset, frame_data *fd,
+	                 proto_tree *tree)
+
+This function should be similar to any other dissect_xxx() function, except for
+its name.
+
+DLLEXPORT void plugin_init(plugin_address_table_t *pat)
+
+This function is called by ethereal when the plugin is initialized. Here is a
+sample code for the function :
+
+/* initialise the table of pointers needed in Win32 DLLs */
+plugin_address_table_init(pat);
+/* destroy the dfilter tree */
+dfilter_cleanup();
+/* register the new protocol, protocol fields, and subtrees */
+proto_xxx = proto_register_protocol("XXX Protocol", "xxx");
+proto_register_field_array(proto_xxx, hf, array_length(hf));
+proto_register_subtree_array(ett, array_length(ett));
+/* initialize the dfilter tree with all the header field and protocol
+ * abbrevs defined, including xxx */
+dfilter_init();
 
 4.0 Extending Wiretap.
 
@@ -882,3 +1103,5 @@ In ethereal a conversation is ...
 
 James Coe <jammer@cin.net>
 Gilbert Ramirez <gram@xiexie.org>
+Jeff Foster <jfoste@woodward.com>
+Olivier Abad <abad@daba.dhis.net>
