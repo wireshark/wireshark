@@ -1,5 +1,5 @@
 Overview of changes in Ethereal 0.9.2:
-* Properly display tabs characters in SDB dissector. (Guy)
+* Properly display tabs characters in SDP dissector. (Guy)
 * Add more rx decodes to the AFS dissector. (Nathan)
 * Add flag for slow start / jumbo datagram support to RX. (Nathan)
 * Fix rx string parsing issues in AFS dissector. (Nathan)
@@ -40,7 +40,7 @@ Overview of changes in Ethereal 0.9.2:
 * Fixes and enhancements for dissect_ndr_pointer() in the DCE RPC
   dissector. (Ronnie)
 * Display DCE RPC fragment length and ordinal number in decimal. (Guy)
-* Add support for Q.931 over TPKT, other updates. (Guy)
+* Clean up support for Q.931 over TPKT, other updates. (Guy)
 * Move more data structures from packet-iscsi.c to packet-scsi.c. (Guy)
 * Add "execute CDB" support to NDMP dissector, clean up whitespace. (Guy)
 * Improved SCSI/NDMP conversation support. (Guy)
@@ -67,7 +67,8 @@ Overview of changes in Ethereal 0.9.2:
 * Add RPC-over-TCP fragment reassembly support to RPC and NDMP,  including
   bounds error handling.  Desegmentation memory handling improvements.
   (Guy)
-* Place reassembled TCP data in the TCP tree. (Guy)
+* Place TCP segment data in the TCP tree on the final frame of a
+  reassembly. (Guy)
 * Fix addr_tvb_new_real_data declaration in plugin_table.h. (Guy)
 * Add return value type to rpc_defrag.h's rec_dissector_t. (Guy)
 * Translate enterprise OIDs in SNMP traps to strings. (Andrew Hood)
@@ -347,7 +348,8 @@ Overview of changes in Ethereal 0.9.1:
 * Fix "checksum is bad" flag. (Guy)
 * Packet length checking fix for Auto-RP dissector. (Guy)
 * Add dissection of abort packets to RX dissector. (Nathan)
-* Clean up Q.931 heuristic code, update is_tpkt(). (Guy)
+* Clean up Q.931 heuristic code, update is_tpkt(), export TPKT support
+  routines to plugins. (Guy)
 * Protocol tree, tvbuff length checking and offset fixes for SDP, SIP,
   and SliMP3 dissectors. (Guy)
 * STAT and ypserv subtree creation fixes. (Guy)
