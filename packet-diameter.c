@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.44 2002/01/31 01:55:14 guy Exp $
+ * $Id: packet-diameter.c,v 1.45 2002/03/05 00:24:24 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -225,8 +225,7 @@ static int gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
 /* desegmentation of Diameter over TCP */
 static gboolean gbl_diameter_desegment = TRUE;
 
-#define DIAMETER_DIR "diameter"
-#define DICT_FN "dictionary.xml"
+#define DICT_FN  "diameter/dictionary.xml"
 static gchar *gbl_diameterDictionary = NULL;
 
 typedef struct _e_diameterhdr {
