@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.18 2001/02/09 00:11:42 guy Exp $
+ * $Id: packet-wccp.c,v 1.19 2001/03/20 04:30:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,7 +72,7 @@ static gint ett_capabilities_info = -1;
 static gint ett_capability_element = -1;
 
 /*
- * See
+ * Unfortunately,
  *
  *	http://www.ietf.org/internet-drafts/draft-forster-wrec-wccp-v1-00.txt
  *
@@ -80,7 +80,16 @@ static gint ett_capability_element = -1;
  *
  *	http://www.ietf.org/internet-drafts/draft-wilson-wrec-wccp-v2-00.txt
  *
- * for WCCP 2.0, if they haven't expired yet.
+ * for WCCP 2.0, have expired.  At
+ *
+ *	http://www.ietf.org/internet-drafts/draft-forster-wrec-wccp-v1-01.txt
+ *
+ * and
+ *
+ *	http://www.ietf.org/internet-drafts/draft-wilson-wrec-wccp-v2-01.txt
+ *
+ * are notes suggesting that you contact the authors "for more information
+ * or a copy of the document", and giving the e-mail addresses of the authors.
  */
 
 #define UDP_PORT_WCCP	2048
