@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.20 1999/10/16 08:37:30 deniel Exp $
+ * $Id: packet-arp.c,v 1.21 1999/11/04 08:15:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,6 +97,13 @@ static int hf_arp_dst_proto = -1;
 #define ARPOP_RREPLY   4       /* RARP reply.  */
 #endif
 
+static const value_string op_vals[] = {
+  {ARPOP_REQUEST,  "ARP request" },
+  {ARPOP_REPLY,    "ARP reply"   },
+  {ARPOP_RREQUEST, "RARP request"},
+  {ARPOP_RREPLY,   "RARP reply"  },
+  {0,              NULL          } };
+
 gchar *
 arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
   if ((type == ARPHRD_ETHER || type == ARPHRD_EETHER || type == ARPHRD_IEEE802)
@@ -117,39 +124,39 @@ arpproaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
   return bytes_to_str(ad, ad_len);
 }
 
+static const value_string hrd_vals[] = {
+  {ARPHRD_NETROM,   "NET/ROM pseudo"       },
+  {ARPHRD_ETHER,    "Ethernet"             },
+  {ARPHRD_EETHER,   "Experimental Ethernet"},
+  {ARPHRD_AX25,     "AX.25"                },
+  {ARPHRD_PRONET,   "ProNET"               },
+  {ARPHRD_CHAOS,    "Chaos"                },
+  {ARPHRD_IEEE802,  "IEEE 802"             },
+  {ARPHRD_ARCNET,   "ARCNET"               },
+  {ARPHRD_HYPERCH,  "Hyperchannel"         },
+  {ARPHRD_LANSTAR,  "Lanstar"              },
+  {ARPHRD_AUTONET,  "Autonet Short Address"},
+  {ARPHRD_LOCALTLK, "Localtalk"            },
+  {ARPHRD_LOCALNET, "LocalNet"             },
+  {ARPHRD_ULTRALNK, "Ultra link"           },
+  {ARPHRD_SMDS,     "SMDS"                 },
+  {ARPHRD_DLCI,     "Frame Relay DLCI"     },
+  {ARPHRD_ATM,      "ATM"                  },
+  {ARPHRD_HDLC,     "HDLC"                 },
+  {ARPHRD_FIBREC,   "Fibre Channel"        },
+  {ARPHRD_ATM2225,  "ATM (RFC 2225)"       },
+  {ARPHRD_SERIAL,   "Serial Line"          },
+  {ARPHRD_ATM2,     "ATM"                  },
+  {ARPHRD_MS188220, "MIL-STD-188-220"      },
+  {ARPHRD_METRICOM, "Metricom STRIP"       },
+  {ARPHRD_IEEE1394, "IEEE 1394.1995"       },
+  {ARPHRD_MAPOS,    "MAPOS"                },
+  {ARPHRD_TWINAX,   "Twinaxial"            },
+  {ARPHRD_EUI_64,   "EUI-64"               },
+  {0,                NULL                  } };
+
 gchar *
 arphrdtype_to_str(guint16 hwtype, const char *fmt) {
-  static const value_string hrd_vals[] = {
-    {ARPHRD_NETROM,   "NET/ROM pseudo"       },
-    {ARPHRD_ETHER,    "Ethernet"             },
-    {ARPHRD_EETHER,   "Experimental Ethernet"},
-    {ARPHRD_AX25,     "AX.25"                },
-    {ARPHRD_PRONET,   "ProNET"               },
-    {ARPHRD_CHAOS,    "Chaos"                },
-    {ARPHRD_IEEE802,  "IEEE 802"             },
-    {ARPHRD_ARCNET,   "ARCNET"               },
-    {ARPHRD_HYPERCH,  "Hyperchannel"         },
-    {ARPHRD_LANSTAR,  "Lanstar"              },
-    {ARPHRD_AUTONET,  "Autonet Short Address"},
-    {ARPHRD_LOCALTLK, "Localtalk"            },
-    {ARPHRD_LOCALNET, "LocalNet"             },
-    {ARPHRD_ULTRALNK, "Ultra link"           },
-    {ARPHRD_SMDS,     "SMDS"                 },
-    {ARPHRD_DLCI,     "Frame Relay DLCI"     },
-    {ARPHRD_ATM,      "ATM"                  },
-    {ARPHRD_HDLC,     "HDLC"                 },
-    {ARPHRD_FIBREC,   "Fibre Channel"        },
-    {ARPHRD_ATM2225,  "ATM (RFC 2225)"       },
-    {ARPHRD_SERIAL,   "Serial Line"          },
-    {ARPHRD_ATM2,     "ATM"                  },
-    {ARPHRD_MS188220, "MIL-STD-188-220"      },
-    {ARPHRD_METRICOM, "Metricom STRIP"       },
-    {ARPHRD_IEEE1394, "IEEE 1394.1995"       },
-    {ARPHRD_MAPOS,    "MAPOS"                },
-    {ARPHRD_TWINAX,   "Twinaxial"            },
-    {ARPHRD_EUI_64,   "EUI-64"               },
-    {0,                NULL                  } };
-
     return val_to_str(hwtype, hrd_vals, fmt);
 }
 
@@ -173,12 +180,6 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   gchar       *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
-  static const value_string op_vals[] = {
-    {ARPOP_REQUEST,  "ARP request" },
-    {ARPOP_REPLY,    "ARP reply"   },
-    {ARPOP_RREQUEST, "RARP request"},
-    {ARPOP_RREPLY,   "RARP reply"  },
-    {0,              NULL          } };
 
   if (!BYTES_ARE_IN_FRAME(offset, MIN_ARP_HEADER_SIZE)) {
     dissect_data(pd, offset, fd, tree);
@@ -226,15 +227,13 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_INFO)) {
     switch (ar_op) {
       case ARPOP_REQUEST:
-        col_add_fstr(fd, COL_INFO, "Who has %s?  Tell %s",
-          tpa_str, spa_str);
+        col_add_fstr(fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
         break;
       case ARPOP_REPLY:
         col_add_fstr(fd, COL_INFO, "%s is at %s", spa_str, sha_str);
         break;
       case ARPOP_RREQUEST:
-        col_add_fstr(fd, COL_INFO, "Who is %s?  Tell %s",
-          tha_str, sha_str);
+        col_add_fstr(fd, COL_INFO, "Who is %s?  Tell %s", tha_str, sha_str);
         break;
       case ARPOP_RREPLY:
         col_add_fstr(fd, COL_INFO, "%s is at %s", sha_str, spa_str);
@@ -256,25 +255,18 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				      2*ar_pln, NULL,
 				      "Unknown ARP (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ETT_ARP);
-    proto_tree_add_item_format(arp_tree, hf_arp_hard_type, offset + AR_HRD, 2,
-			       ar_hrd,
-			       "Hardware type: %s", 
-			       arphrdtype_to_str(ar_hrd, "Unknown (0x%04x)"));
-    proto_tree_add_item_format(arp_tree, hf_arp_proto_type, offset + AR_PRO, 2,
-			       ar_pro,
-			       "Protocol type: %s", 
-			       val_to_str(ar_pro, etype_vals, 
-					  "Unknown (0x%04x)"));
+    proto_tree_add_item(arp_tree, hf_arp_hard_type, offset + AR_HRD, 2,
+			       ar_hrd);
+    proto_tree_add_item(arp_tree, hf_arp_proto_type, offset + AR_PRO, 2,
+			       ar_pro);
     proto_tree_add_item(arp_tree, hf_arp_hard_size, offset + AR_HLN, 1,
-			ar_hln);
+			       ar_hln);
     proto_tree_add_item(arp_tree, hf_arp_proto_size, offset + AR_PLN, 1,
-			ar_pln);
-    proto_tree_add_item_format(arp_tree, hf_arp_opcode, offset + AR_OP,  2,
-			       ar_op,
-			       "Opcode: 0x%04x (%s)", 
-			       ar_op, op_str ? op_str : "Unknown");
+			       ar_pln);
+    proto_tree_add_item(arp_tree, hf_arp_opcode, offset + AR_OP,  2,
+			       ar_op);
     proto_tree_add_item_format(arp_tree, hf_arp_src_ether, sha_offset, ar_hln,
-			       &pd[sha_offset],			       
+			       &pd[sha_offset],
 			       "Sender hardware address: %s", sha_str);
     proto_tree_add_item_format(arp_tree, hf_arp_src_proto, spa_offset, ar_pln,
 			       &pd[spa_offset],
@@ -294,12 +286,12 @@ proto_register_arp(void)
   static hf_register_info hf[] = {
     { &hf_arp_hard_type,
       { "Hardware type",		"arp.hw.type",	 
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
+	FT_UINT16,	BASE_HEX,	VALS(hrd_vals),	0x0,
       	"" }},
 
     { &hf_arp_proto_type,
       { "Protocol type",		"arp.proto.type",
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
+	FT_UINT16,	BASE_HEX,	VALS(etype_vals),	0x0,
       	"" }},
 
     { &hf_arp_hard_size,
@@ -314,7 +306,7 @@ proto_register_arp(void)
 
     { &hf_arp_opcode,
       { "Opcode",			"arp.opcode",
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
+	FT_UINT16,	BASE_HEX,	VALS(op_vals),	0x0,
       	"" }},
 
     { &hf_arp_src_ether,
