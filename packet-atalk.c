@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.34 2000/05/11 08:14:55 gram Exp $
+ * $Id: packet-atalk.c,v 1.35 2000/05/22 18:09:33 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -35,6 +35,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-atalk.h"
+#include "packet-eigrp.h"
 #include "etypes.h"
 #include "ppptypes.h"
 
@@ -104,6 +105,7 @@ typedef struct _e_ddp {
 #define DDP_RTMPREQ	0x05
 #define DDP_ZIP		0x06
 #define DDP_ADSP	0x07
+#define DDP_EIGRP	0x58
 #define DDP_HEADER_SIZE 13
 
 gchar *
@@ -132,6 +134,7 @@ static const value_string op_vals[] = {
   {DDP_RTMPREQ, "AppleTalk Routing Table request"},
   {DDP_ZIP, "AppleTalk Zone Information Protocol packet"},
   {DDP_ADSP, "AppleTalk Data Stream Protocol"},
+  {DDP_EIGRP, "Cisco EIGRP for AppleTalk"},
   {0, NULL}
 };
 
@@ -421,6 +424,9 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   offset += DDP_HEADER_SIZE;
 
   switch ( ddp.type ) {
+    case DDP_EIGRP:
+      dissect_eigrp(pd, offset, fd, tree);
+      break;
     case DDP_NBP:
       dissect_nbp(pd, offset, fd, tree);
       break;

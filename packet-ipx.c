@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.58 2000/05/19 19:48:01 gram Exp $
+ * $Id: packet-ipx.c,v 1.59 2000/05/22 18:09:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 #include "packet-ipx.h"
 #include "packet-nbipx.h"
 #include "packet-ncp.h"
+#include "packet-eigrp.h"
 #include "resolv.h"
 
 #include "packet-snmp.h"
@@ -111,6 +112,9 @@ dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 static void
 dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
+static void
+dissect_eigrp_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+
 typedef	void	(dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
 
 #define UDP_PORT_IPX    213		/* RFC 1234 */
@@ -154,6 +158,7 @@ struct server_info {
 #define IPX_SOCKET_ATTACHMATE_GW	0x055d
 #define IPX_SOCKET_IPX_MESSAGE		0x4001
 #define IPX_SOCKET_ADSM                 0x8522 /* www.tivoli.com */
+#define IPX_SOCKET_EIGRP                0x85be /* cisco ipx eigrp */
 #define IPX_SOCKET_WIDE_AREA_ROUTER	0x9001
 #define IPX_SOCKET_SNMP_AGENT           0x900F /* RFC 1906 */
 #define IPX_SOCKET_SNMP_SINK            0x9010 /* RFC 1906 */
@@ -190,6 +195,7 @@ static struct port_info	ports[] = {
 	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
 	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
 	{ IPX_SOCKET_ADSM, NULL, "ADSM" },
+	{ IPX_SOCKET_EIGRP, dissect_eigrp_ipx, "Cisco EIGRP for IPX" },
 	{ IPX_SOCKET_WIDE_AREA_ROUTER, NULL, "Wide Area Router" },
 	{ 0x0000,				NULL,
 				NULL }
@@ -819,6 +825,11 @@ dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 }
 
+static void
+dissect_eigrp_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{                                                                                                 
+	dissect_eigrp(pd,offset,fd,tree);                                                                 
+}                                                                                                 
 
 void
 proto_register_ipx(void)

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.85 2000/05/11 08:15:11 gram Exp $
+ * $Id: packet-ip.c,v 1.86 2000/05/22 18:09:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,8 +55,8 @@
 #include "llcsaps.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
+#include "packet-eigrp.h"
 
-static void dissect_eigrp(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_igmp(const u_char *, int, frame_data *, proto_tree *);
 
@@ -1518,7 +1518,7 @@ static const value_string eigrp_opcode_vals[] = {
 	{ 0,				NULL }    
 };
 
-static void
+void
 dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_eigrp     ih;
   proto_tree *eigrp_tree;
