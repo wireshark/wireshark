@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.23 2000/05/08 05:42:54 guy Exp $
+ * $Id: capture_dlg.c,v 1.24 2000/05/08 05:51:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,6 +112,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
                 *caplen_hb,
                 *bbox, *ok_bt, *cancel_bt, *snap_lb,
                 *snap_sb, *sync_cb, *auto_scroll_cb, *resolv_cb;
+  GtkAccelGroup *accel_group;
   GtkAdjustment *adj;
   GList         *if_list, *count_list = NULL;
   gchar         *count_item1 = "0 (Infinite)", count_item2[16];
@@ -134,6 +135,12 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_window_set_title(GTK_WINDOW(cap_open_w), "Ethereal: Capture Preferences");
   gtk_signal_connect(GTK_OBJECT(cap_open_w), "destroy",
 	GTK_SIGNAL_FUNC(capture_prep_destroy_cb), NULL);
+
+  /* Accelerator group for the accelerators (or, as they're called in
+     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
+     Ctrl+<key> is an accelerator). */
+  accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(GTK_WINDOW(cap_open_w), accel_group);
   
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -236,7 +243,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_box_pack_start (GTK_BOX(caplen_hb), snap_sb, FALSE, FALSE, 3); 
   gtk_widget_show(snap_sb);
   
-  sync_cb = gtk_check_button_new_with_label("Update list of packets in real time");
+  sync_cb = dlg_check_button_new_with_label_with_mnemonic(
+		"_Update list of packets in real time", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), sync_mode);
 #ifdef _WIN32
   gtk_widget_set_sensitive(sync_cb, FALSE);
@@ -244,7 +252,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), sync_cb);
   gtk_widget_show(sync_cb);
 
-  auto_scroll_cb = gtk_check_button_new_with_label("Automatic scrolling in live capture");
+  auto_scroll_cb = dlg_check_button_new_with_label_with_mnemonic(
+		"_Automatic scrolling in live capture", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
 #ifdef _WIN32
   gtk_widget_set_sensitive(auto_scroll_cb, FALSE);
@@ -252,7 +261,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), auto_scroll_cb);
   gtk_widget_show(auto_scroll_cb);
 
-  resolv_cb = gtk_check_button_new_with_label("Enable name resolution");
+  resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+		"Enable _name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), g_resolving_actif);
   gtk_container_add(GTK_CONTAINER(main_vb), resolv_cb);
   gtk_widget_show(resolv_cb);

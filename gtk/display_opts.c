@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.6 2000/05/08 05:12:19 guy Exp $
+ * $Id: display_opts.c,v 1.7 2000/05/08 05:51:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -161,8 +161,8 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-  button = dlg_check_button_new_with_label_with_mnemonic("_Name resolution",
-		accel_group);
+  button = dlg_check_button_new_with_label_with_mnemonic(
+  		"Enable _name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), g_resolving_actif);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_NAME_RESOLUTION_KEY,
 		      button);
