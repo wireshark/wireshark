@@ -1,7 +1,7 @@
 /* register.h
  * Definitions for protocol registration
  *
- * $Id: register.h,v 1.1 1999/10/20 06:28:29 guy Exp $
+ * $Id: register.h,v 1.2 2000/04/04 06:17:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,5 +27,6 @@
 #define __REGISTER_H__
 
 extern void register_all_protocols(void);
+extern void register_all_protocol_handoffs(void);
 
 #endif /* __REGISTER_H__ */

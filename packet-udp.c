@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.56 2000/04/04 05:54:59 guy Exp $
+ * $Id: packet-udp.c,v 1.57 2000/04/04 06:17:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,7 +49,6 @@
 #include "packet-auto_rp.h"
 #include "packet-bootp.h"
 #include "packet-dhis.h"
-#include "packet-dns.h"
 #include "packet-hsrp.h"
 #include "packet-icp.h"
 #include "packet-icq.h"
@@ -96,7 +95,6 @@ typedef struct _e_udphdr {
 
 #define UDP_PORT_TIME    37
 #define UDP_PORT_TACACS  49
-#define UDP_PORT_DNS     53
 #define UDP_PORT_BOOTPS  67
 #define UDP_PORT_TFTP    69
 #define UDP_PORT_NTP	123
@@ -275,7 +273,6 @@ proto_register_udp(void)
 
 	dissector_add("udp.port", UDP_PORT_TIME, dissect_time);
 	dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs);
-	dissector_add("udp.port", UDP_PORT_DNS, dissect_dns);
 	dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
 	dissector_add("udp.port", UDP_PORT_NTP, dissect_ntp);
 	dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns);

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.58 2000/04/04 02:34:39 gram Exp $
+ * $Id: proto.c,v 1.59 2000/04/04 06:17:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -193,8 +193,14 @@ proto_init(void)
 	tree_is_expanded[0] = FALSE;
 	num_tree_types = 1;
 
-	/* Have each dissector register its protocols and fields. */
+	/* Have each dissector register its protocols and fields, and
+	   do whatever one-time initialization it needs to do. */
 	register_all_protocols();
+
+	/* Now have the ones that register a "handoff", i.e. that
+	   specify that another dissector for a protocol under which
+	   this dissector's protocol lives call it. */
+	register_all_protocol_handoffs();
 
 	/* Register one special-case FT_TEXT_ONLY field for use when
 		converting ethereal to new-style proto_tree. These fields

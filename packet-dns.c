@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.40 2000/03/30 01:52:39 guy Exp $
+ * $Id: packet-dns.c,v 1.41 2000/04/04 06:17:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,9 @@ static gint ett_dns_flags = -1;
 static gint ett_t_key_flags = -1;
 
 /* DNS structs and definitions */
+
+/* Port used for DNS. */
+#define UDP_PORT_DNS     53
 
 /* Offsets of fields in the DNS header. */
 #define	DNS_ID		0
@@ -1483,7 +1486,7 @@ dissect_answer_records(const u_char *pd, int cur_off, int dns_data_offset,
   return cur_off - start_off;
 }
 
-void
+static void
 dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
   int dns_data_offset;
@@ -1695,4 +1698,10 @@ proto_register_dns(void)
   proto_dns = proto_register_protocol("Domain Name Service", "dns");
   proto_register_field_array(proto_dns, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_dns(void)
+{
+  dissector_add("udp.port", UDP_PORT_DNS, dissect_dns);
 }
