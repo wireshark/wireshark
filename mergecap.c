@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.24 2004/06/30 07:04:42 guy Exp $
+ * $Id: mergecap.c,v 1.25 2004/07/12 21:00:40 ulfl Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -195,12 +195,12 @@ main(int argc, char *argv[])
     out_file.fd = 1 /*stdout*/;
   } else {
     /* open the outfile */
-    out_file.fd = open(out_filename, O_BINARY | O_WRONLY);
+    out_file.fd = open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
   }
-  if(out_file.fd == -1) {
-    fprintf(stderr, "mergecap: couldn't open output file\n");
-    exit(1);
-  }  
+    if(out_file.fd == -1) {
+      fprintf(stderr, "mergecap: couldn't open output file\n");
+      exit(1);
+    }  
     
   /* prepare the outfile */
   if (!merge_open_outfile(&out_file, merge_max_snapshot_length(in_file_count, in_files), &err)) {
