@@ -554,6 +554,8 @@ Packets that have been selected as Time Reference packets will always be
 displayed in the packet pane. Display filters will not affect or hide these 
 packets.
 
+If there is a column displayed for "Culmulative Bytes" this counter will 
+be reset at every Time Reference frame.
 
 =item Edit:Mark Frame
 

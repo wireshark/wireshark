@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.321 2003/11/12 18:48:53 gerald Exp $
+ * $Id: file.c,v 1.322 2003/11/13 08:22:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -804,6 +804,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     /* This frame either passed the display filter list or is marked as
        a time reference frame.  All time reference frames are displayed
        even if they dont pass the display filter */
+    /* if this was a TIME REF frame we should reset the cul bytes field */
+    if(edt->pi.fd->flags.ref_time){
+      cul_bytes = fdata->pkt_len;
+      fdata->cul_bytes  = cul_bytes;
+    }
 
     /* increase cul_bytes with this packets length */
     cul_bytes += fdata->pkt_len;
