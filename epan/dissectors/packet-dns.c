@@ -1887,20 +1887,20 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	if (rr_len < 2)
 	  goto bad_rr;
 	tkey_mode = tvb_get_ntohs(tvb, cur_offset);
-	cur_offset += 2;
-	rr_len -= 2;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Mode: %s",
 		val_to_str(tkey_mode, tkey_modes,
 	            "Unknown (0x%04X)"));
+	cur_offset += 2;
+	rr_len -= 2;
 
 	if (rr_len < 2)
 	  goto bad_rr;
 	tkey_error = tvb_get_ntohs(tvb, cur_offset);
-	cur_offset += 2;
-	rr_len -= 2;
         proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Error: %s",
 		val_to_str(tkey_error, rcode_vals,
 		val_to_str(tkey_error, tsigerror_vals, "Unknown error (%x)")));
+	cur_offset += 2;
+	rr_len -= 2;
 
 	tkey_keylen = tvb_get_ntohs(tvb, cur_offset);
         proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key Size: %u",
@@ -1930,9 +1930,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 			 * How the heck do we know what method is being
 			 * used, so we know how to decode the key?  Do we
 			 * have to look at the algorithm name, e.g.
-			 * "gss.microsoft.com"?  The SMB dissector
-			 * checks whether the security blob begins
-			 * with "NTLMSSP" in some cases.
+			 * "gss.microsoft.com"?  We currently do as the
+			 * the SMB dissector does in some cases, and check
+			 * whether the security blob begins with "NTLMSSP".
 			 */
 			gssapi_tvb = tvb_new_subset(
 				tvb, cur_offset, tkey_keylen, tkey_keylen);
