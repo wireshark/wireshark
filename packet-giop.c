@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.8 1999/10/12 06:20:05 gram Exp $
+ * $Id: packet-giop.c,v 1.9 1999/10/16 19:50:19 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -167,7 +167,7 @@ typedef struct LocateReplyHeader {
 } LocateReplyHeader;
 
 
-u_char *print_object_key(int length, u_char *from) 
+static u_char *print_object_key(int length, u_char *from) 
 {
 #define MAX_OBJECT_KEY_LENGTH 64
   static u_char buffer[MAX_OBJECT_KEY_LENGTH];
