@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.17 2003/08/28 02:12:26 guy Exp $
+ * $Id: packet-tds.c,v 1.18 2003/08/28 02:19:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -946,6 +946,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 status;
 	guint16 size;
 	guint16 channel;
+	guint8 packet_number;
 	gboolean save_fragmented;
 	int len;
 	fragment_data *fd_head;
@@ -977,8 +978,11 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_tree_add_uint(tds_tree, hf_tds_channel, tvb, offset + 4, 2,
 			channel);
-		proto_tree_add_item(tds_tree, hf_tds_packet_number, tvb, offset + 6, 1,
-			FALSE);
+	}
+	packet_number = tvb_get_guint8(tvb, offset + 6);
+	if (tree) {
+		proto_tree_add_uint(tds_tree, hf_tds_packet_number, tvb, offset + 6, 1,
+			packet_number);
 		proto_tree_add_item(tds_tree, hf_tds_window, tvb, offset + 7, 1,
 			FALSE);
 	}
@@ -995,9 +999,9 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    " (Not last buffer)");
 		}
 		len = tvb_reported_length_remaining(tvb, offset);
-		fd_head = fragment_add_seq_next(tvb, offset, pinfo, channel,
+		fd_head = fragment_add_seq_check(tvb, offset, pinfo, channel,
 		    tds_fragment_table, tds_reassembled_table,
-		    len, status == STATUS_NOT_LAST_BUFFER);
+		    packet_number - 1, len, status == STATUS_NOT_LAST_BUFFER);
 		if (fd_head != NULL) {
 			if (fd_head->next != NULL) {
 				next_tvb = process_reassembled_data(tvb,
