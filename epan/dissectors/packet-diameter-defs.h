@@ -96,6 +96,7 @@ static value_string diameter_vendor_specific_vendors[]= {
 	{0, "None"},
 	{5, "ACC"},
 	{9, "Cisco"},
+	{11, "Hewlett Packard"},
 	{42, "Sun Microsystems"},
 	{166, "Shiva"},
 	{307, "Livingston"},
@@ -233,6 +234,34 @@ static value_string diameter_tunnel_medium_type_vals[]= {
 	{13,"Decnet4"},
 	{14,"Vines"},
 	{15,"E-164-NSAP"},
+	{0,NULL}
+};
+
+static value_string diameter_avp_data_addrfamily_vals[]= {
+	{1,"IPv4"},
+	{2,"IPv6"},
+	{3,"NSAP"},
+	{4,"HDLC"},
+	{5,"BBN"},
+	{6,"IEEE-802"},
+	{7,"E-163"},
+	{8,"E-164"},
+	{9,"F-69"},
+	{10,"X-121"},
+	{11,"IPX"},
+	{12,"Appletalk"},
+	{13,"Decnet4"},
+	{14,"Vines"},
+	{15,"E-164-NSAP"},
+	{16,"DNS"},
+	{17,"DistinguishedName"},
+	{18,"AS"},
+	{19,"XTPoIPv4"},
+	{20,"XTPoIPv6"},
+	{21,"XTPNative"},
+	{22,"FibrePortName"},
+	{23,"FibreNodeName"},
+	{24,"GWID"},
 	{0,NULL}
 };
 /*
@@ -625,7 +654,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 277, "Auth-Session-State",          DIAMETER_ENUMERATED,  diameter_auth_session_state_vals},
     { 285, "Re-Auth-Request-Type",        DIAMETER_ENUMERATED,  diameter_re_auth_request_type_vals},
     { 293, "Destination-Host",            DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 283, "Desintation-Realm",           DIAMETER_UTF8STRING,  (value_string *)NULL},
+    { 283, "Destination-Realm",           DIAMETER_UTF8STRING,  (value_string *)NULL},
     { 273, "Disconnect-Cause",            DIAMETER_ENUMERATED,  diameter_disconnect_cause_vals},
     { 281, "Error-Message",               DIAMETER_UTF8STRING,  (value_string *)NULL},
     { 294, "Error-Reporting-Host",        DIAMETER_IDENTITY,    (value_string *)NULL},
@@ -801,6 +830,17 @@ static value_string diameter_command_code_vals[] = {
 	{0, (char *)NULL}
 };
 
+/* stuff for supporting multiple versions */
+typedef enum {
+  DIAMETER_V16,
+  DIAMETER_RFC
+} Version_Type;
+
+static enum_val_t options[] = {
+  { "draft-16", "Diameter base draft version 16 and below",  DIAMETER_V16  },
+  { "rfc3588", "Diameter base RFC 3588 ",                    DIAMETER_RFC  },
+  { NULL, NULL, 0 }
+};
 
 
 

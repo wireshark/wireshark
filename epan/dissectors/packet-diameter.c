@@ -31,7 +31,9 @@
  * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-16.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-sip-app-01.txt
  * http://www.ietf.org/html.charters/aaa-charter.html
- */
+ * http://www.iana.org/assignments/address-family-numbers
+ * http://www.iana.org/assignments/enterprise-numbers
+*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -166,8 +168,8 @@ static ApplicationId   *ApplicationIdHead=NULL;
 
 #define  NTP_TIME_DIFF                   (2208988800UL)
 
-#define TCP_PORT_DIAMETER	1812
-#define SCTP_PORT_DIAMETER	1812
+#define TCP_PORT_DIAMETER	3868
+#define SCTP_PORT_DIAMETER	3868
 
 static const true_false_string reserved_set = {
   "*** Error! Reserved Bit is Set",
@@ -211,6 +213,7 @@ static int hf_diameter_avp_data_uint64 = -1;
 static int hf_diameter_avp_data_int64 = -1;
 static int hf_diameter_avp_data_bytes = -1;
 static int hf_diameter_avp_data_string = -1;
+static int hf_diameter_avp_data_addrfamily = -1;
 static int hf_diameter_avp_data_v4addr = -1;
 static int hf_diameter_avp_data_v6addr = -1;
 static int hf_diameter_avp_data_time = -1;
@@ -282,6 +285,8 @@ typedef struct _e_avphdr {
 
 #define MIN_AVP_SIZE (sizeof(e_avphdr) - sizeof(guint32))
 #define MIN_DIAMETER_SIZE (sizeof(e_diameterhdr))
+
+static Version_Type gbl_version = DIAMETER_RFC;
 
 static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -1567,6 +1572,9 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		}
 		break;
 	  case DIAMETER_IP_ADDRESS:
+    {
+      switch(gbl_version) {
+        case DIAMETER_V16:
 		if (avpDataLength == 4) {
 		  proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v4addr,
 				      tvb, offset, avpDataLength, FALSE);
@@ -1577,7 +1585,28 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
 					      tvb, offset, avpDataLength,
 					      tvb_get_ptr(tvb, offset, avpDataLength),
-					      "Error!  Bad Address Length");
+                  "Error! Bad Address Length (Address in RFC3588 format?)");
+          }
+          break;
+        case DIAMETER_RFC:
+          /* Indicate the address family */
+          proto_tree_add_item(avpi_tree, hf_diameter_avp_data_addrfamily,
+              tvb, offset, 2, FALSE);
+          if (tvb_get_ntohs(tvb, offset) == 0x0001) {
+            proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v4addr,
+                    tvb, offset+2, avpDataLength-2, FALSE);
+          } else if (tvb_get_ntohs(tvb, offset) == 0x0002) {
+            proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v6addr,
+                    tvb, offset+2, avpDataLength-2, FALSE);
+          } else {
+            proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+                    tvb, offset, avpDataLength,
+                    tvb_get_ptr(tvb, offset, avpDataLength),
+                    "Error! Can't Parse Address Family %d (Address in draft v16 format?)",
+                    (int)tvb_get_ntohs(tvb, offset));
+          }
+          break;
+      }
 		}
 		break;
 
@@ -1877,6 +1906,9 @@ proto_register_diameter(void)
 		{ &hf_diameter_avp_data_string,
 		  { "Value","diameter.avp.data.string", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
+		{ &hf_diameter_avp_data_addrfamily,
+		  { "Address Family","diameter.avp.data.addrfamily", FT_UINT16, BASE_DEC,
+		    VALS(diameter_avp_data_addrfamily_vals), 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_v4addr,
 		  { "IPv4 Address","diameter.avp.data.v4addr", FT_IPv4, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
@@ -1908,6 +1940,9 @@ proto_register_diameter(void)
 	/* Register a configuration option for port */
 	diameter_module = prefs_register_protocol(proto_diameter,
 											  proto_reg_handoff_diameter);
+	/* Register a configuration option for Diameter version */
+  prefs_register_enum_preference(diameter_module, "version", "Diameter version", "Standard version used for decoding", (gint *)&gbl_version, options, FALSE);
+
 	prefs_register_uint_preference(diameter_module, "tcp.port",
 								   "Diameter TCP Port",
 								   "Set the TCP port for Diameter messages",
