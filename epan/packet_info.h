@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.31 2003/02/28 20:30:06 guy Exp $
+ * $Id: packet_info.h,v 1.32 2003/04/23 10:20:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,8 +154,34 @@ typedef struct _packet_info {
 				   decremented by 1 each time we pass to the next
 				   subdissector. Thus only the dissector immediately
 				   above the protocol which sets the flag can use it*/
-  int desegment_offset;		/* offset of stuff needing desegmentation */
+  int desegment_offset;		/* offset to stuff needing desegmentation */
   guint32 desegment_len;	/* requested desegmentation additional length */
+  guint16 want_pdu_tracking;	/* >0 if the subdissector has specified
+				   a value in 'bytes_until_next_pdu'.
+				   When a dissector detects that the next PDU
+				   will start beyond the start of the next 
+				   segment, it can set this value to 2 
+				   and 'bytes_until_next_pdu' to the number of 
+				   bytes beyond the next segment where the 
+				   next PDU starts.
+
+				   If the protocol dissector below this 
+				   one is capable of PDU tracking it can
+				   use this hint to detect PDUs that starts
+				   unaligned to the segment boundaries.
+				   The TCP dissector is using this hint from
+				   (some) protocols to detect when a new PDU
+				   starts in the middle of a tcp segment.
+
+				   There is intelligence in the glue between 
+				   dissector layers to make sure that this
+				   request is only passed down to the protocol
+				   immediately below the current one and not
+				   any further.
+				*/
+  guint32 bytes_until_next_pdu;
+
+				    
   int     iplen;
   int     iphdrlen;
   int	  p2p_dir;

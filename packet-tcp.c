@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.190 2003/04/20 11:36:16 guy Exp $
+ * $Id: packet-tcp.c,v 1.191 2003/04/23 10:20:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -234,7 +234,198 @@ struct tcp_analysis {
 	guint32 base_seq1;
 	struct tcp_unacked *ual2;	/* UnAcked List 2*/
 	guint32 base_seq2;
+
+	/* these two lists are used to track when PDUs may start
+	   inside a segment.
+	*/
+	struct tcp_next_pdu *pdu_seq1;
+	struct tcp_next_pdu *pdu_seq2;
 };
+
+
+static GMemChunk *tcp_next_pdu_chunk = NULL;
+static int tcp_next_pdu_count = 20;
+struct tcp_next_pdu {
+	struct tcp_next_pdu *next;
+	guint32 seq;
+};
+static GHashTable *tcp_pdu_tracking_table = NULL;
+
+
+static struct tcp_analysis *
+get_tcp_conversation_data(packet_info *pinfo)
+{
+	conversation_t *conv=NULL;
+	struct tcp_analysis *tcpd=NULL;
+
+	/* Have we seen this conversation before? */
+	if( (conv=find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
+		/* No this is a new conversation. */
+		conv=conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+
+	/* check if we have any data for this conversation */
+	tcpd=conversation_get_proto_data(conv, proto_tcp);
+	if(!tcpd){
+		/* No no such data yet. Allocate and init it */
+		tcpd=g_mem_chunk_alloc(tcp_analysis_chunk);
+		tcpd->ual1=NULL;
+		tcpd->base_seq1=0;
+		tcpd->ual2=NULL;
+		tcpd->base_seq2=0;
+
+		tcpd->pdu_seq1=NULL;
+		tcpd->pdu_seq2=NULL;
+
+		conversation_add_proto_data(conv, proto_tcp, tcpd);
+	}
+
+	return tcpd;
+}
+
+/* This function is called from the tcp analysis code to provide
+   clues on how the seq and ack numbers are changed.
+   To prevent the next_pdu lists from growing uncontrollable in size we
+   use this function to do the following :
+   IF we see an ACK then we assume that the left edge of the window has changed
+      at least to this point and assuming it is rare with reordering and
+      trailing duplicate/retransmitted segments, we just assume that after
+      we have seen the ACK we will not see any more segments prior to the 
+      ACK value.
+      If we will not see any segments prior to the ACK value then we can just
+      delete all next_pdu entries that describe pdu's starting prior to the 
+      ACK.
+      If this heuristics is prooved to be too simplistic we can just enhance it
+      later.
+*/   
+/* XXX this function should be ehnanced to handle sequence number wrapping */
+/* XXX to handle retransmissions and reordered packets maybe we should only
+       discard entries that are more than (guesstimate) 50kb older than the
+       specified sequence number ?
+*/
+static void
+prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
+{
+	struct tcp_next_pdu *tmptnp;
+
+	if(*tnp == NULL){
+		return;
+	}
+
+	for(tmptnp=*tnp;tmptnp;tmptnp=tmptnp->next){
+		if(tmptnp->seq<=seq){
+			struct tcp_next_pdu *oldtnp;
+			oldtnp=tmptnp;
+
+			if(tmptnp==*tnp){
+				tmptnp=tmptnp->next;
+				*tnp=tmptnp;
+				g_mem_chunk_free(tcp_next_pdu_chunk, oldtnp);
+				if(!tmptnp){
+					return;
+				}
+				continue;
+			} else {
+				for(tmptnp=*tnp;tmptnp;tmptnp=tmptnp->next){
+					if(tmptnp->next==oldtnp){
+						tmptnp->next=oldtnp->next;
+						g_mem_chunk_free(tcp_next_pdu_chunk, oldtnp);
+						break;
+					}
+				}
+				if(!tmptnp){
+					return;
+				}
+			}
+		}
+	}
+}
+		
+
+/* if we know that a PDU starts inside this segment, return the adjusted 
+   offset to where that PDU starts or just return offset back
+   and let TCP try to find out what it can about this segment
+*/
+static int
+scan_for_next_pdu(packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq)
+{
+	struct tcp_analysis *tcpd=NULL;
+	struct tcp_next_pdu *tnp=NULL;
+	int direction;
+
+	if(!pinfo->fd->flags.visited){
+		/* find(or create if needed) the conversation for this tcp session */
+		tcpd=get_tcp_conversation_data(pinfo);
+		/* check direction and get pdu start lists */
+		direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+		/* if the addresses are equal, match the ports instead */
+		if(direction==0) {
+			direction= (pinfo->srcport > pinfo->destport)*2-1;
+		}
+		if(direction>=0){
+			tnp=tcpd->pdu_seq1;
+		} else {
+			tnp=tcpd->pdu_seq2;
+		}
+
+		/* scan and see if we find any pdus starting inside this tvb */
+		for(;tnp;tnp=tnp->next){
+			/* XXX here we should also try to handle sequence number
+			   wrapping
+			*/
+			if(seq<tnp->seq && nxtseq>tnp->seq){
+				g_hash_table_insert(tcp_pdu_tracking_table, 
+					(void *)pinfo->fd->num, (void *)tnp->seq);
+				offset+=tnp->seq-seq;
+				break;
+			}
+		}
+	} else {
+		guint32 pduseq;
+
+		pduseq=(guint32)g_hash_table_lookup(tcp_pdu_tracking_table, (void *)pinfo->fd->num);
+		if(pduseq){
+			offset+=pduseq-seq;
+		}
+	}
+
+	return offset;
+}
+
+/* if we saw a PDU that extended beyond the end of the segment,
+   use this function to remember where the next pdu starts
+*/
+static void
+pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 nxtpdu)
+{
+	struct tcp_analysis *tcpd=NULL;
+	struct tcp_next_pdu *tnp=NULL;
+	int direction;
+
+	/* find(or create if needed) the conversation for this tcp session */
+	tcpd=get_tcp_conversation_data(pinfo);
+
+	tnp=g_mem_chunk_alloc(tcp_next_pdu_chunk);
+	tnp->seq=nxtpdu;
+
+	/* check direction and get pdu start list */
+	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+	/* if the addresses are equal, match the ports instead */
+	if(direction==0) {
+		direction= (pinfo->srcport > pinfo->destport)*2-1;
+	}
+	if(direction>=0){
+		tnp->next=tcpd->pdu_seq1;
+		tcpd->pdu_seq1=tnp;
+	} else {
+		tnp->next=tcpd->pdu_seq2;
+		tcpd->pdu_seq2=tnp;
+	}
+	/*QQQ 
+	  Add check for ACKs and purge list of sequence numbers
+	  already acked.
+	*/
+}
 
 static void
 tcp_get_relative_seq_ack(guint32 frame, guint32 *seq, guint32 *ack)
@@ -272,32 +463,17 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag)
 static void
 tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags, guint16 window)
 {
-	conversation_t *conv=NULL;
 	struct tcp_analysis *tcpd=NULL;
 	int direction;
 	struct tcp_unacked *ual1=NULL;
 	struct tcp_unacked *ual2=NULL;
 	struct tcp_unacked *ual=NULL;
-	guint32 base_seq;
-	guint32 base_ack;
+	guint32 base_seq=0;
+	guint32 base_ack=0;
+	struct tcp_next_pdu **tnp=NULL;
 
-	/* Have we seen this conversation before? */
-	if( (conv=find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
-		/* No this is a new conversation. */
-		conv=conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
-
-	/* check if we have any data for this conversation */
-	tcpd=conversation_get_proto_data(conv, proto_tcp);
-	if(!tcpd){
-		/* No no such data yet. Allocate and init it */
-		tcpd=g_mem_chunk_alloc(tcp_analysis_chunk);
-		tcpd->ual1=NULL;
-		tcpd->base_seq1=0;
-		tcpd->ual2=NULL;
-		tcpd->base_seq2=0;
-		conversation_add_proto_data(conv, proto_tcp, tcpd);
-	}
+	/* find(or create if needed) the conversation for this tcp session */
+	tcpd=get_tcp_conversation_data(pinfo);
 
 	/* check direction and get ua lists */
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
@@ -308,22 +484,25 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	if(direction>=0){
 		ual1=tcpd->ual1;
 		ual2=tcpd->ual2;
+		tnp=&tcpd->pdu_seq2;
 		base_seq=tcpd->base_seq1;
 		base_ack=tcpd->base_seq2;
 	} else {
 		ual1=tcpd->ual2;
 		ual2=tcpd->ual1;
+		tnp=&tcpd->pdu_seq1;
 		base_seq=tcpd->base_seq2;
 		base_ack=tcpd->base_seq1;
 	}
 
-	if(base_seq==0){
-		base_seq=seq;
+	if(tcp_relative_seq){
+		if(base_seq==0){
+			base_seq=seq;
+		}
+		if(base_ack==0){
+			base_ack=ack;
+		}
 	}
-	if(base_ack==0){
-		base_ack=ack;
-	}
-
 
 	/* To handle FIN, just add 1 to the length.
 	   else the ACK following the FIN-ACK will look like it was
@@ -351,8 +530,10 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1->ts.secs=pinfo->fd->abs_secs;
 		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
 		ual1->window=window;
-		base_seq=seq;
-		base_ack=ack;
+		if(tcp_relative_seq){
+			base_seq=seq;
+			base_ack=ack;
+		}
 		goto seq_finished;
 	}
 
@@ -369,7 +550,10 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1->ts.secs=pinfo->fd->abs_secs;
 		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
 		ual1->window=window;
-		base_seq=seq;
+		if(tcp_relative_seq){
+			base_seq=seq;
+			base_ack=ack;
+		}
 		goto seq_finished;
 	}
 
@@ -488,6 +672,7 @@ seq_finished:
 			ual=ual2->next;
 			g_mem_chunk_free(tcp_unacked_chunk, ual2);
 		}
+		prune_next_pdu_list(tnp, ack-base_ack);
 		goto ack_finished;
 	}
 
@@ -510,6 +695,7 @@ seq_finished:
 			ual=ual2->next;
 			g_mem_chunk_free(tcp_unacked_chunk, ual2);
 		}
+		prune_next_pdu_list(tnp, ack-base_ack);
 		goto ack_finished;
 	}
 
@@ -545,7 +731,7 @@ seq_finished:
 			tmpual=ual->next;
 			g_mem_chunk_free(tcp_unacked_chunk, ual);
 		}
-
+		prune_next_pdu_list(tnp, ack-base_ack);
 	}
 
 ack_finished:
@@ -809,11 +995,21 @@ tcp_analyze_seq_init(void)
 		g_hash_table_destroy(tcp_rel_seq_table);
 		tcp_rel_seq_table = NULL;
 	}
+	if( tcp_pdu_tracking_table ){
+		g_hash_table_foreach_remove(tcp_rel_seq_table,
+			free_all_acked, NULL);
+		g_hash_table_destroy(tcp_pdu_tracking_table);
+		tcp_pdu_tracking_table = NULL;
+	}
 
 	/*
 	 * Now destroy the chunk from which the conversation table
 	 * structures were allocated.
 	 */
+	if (tcp_next_pdu_chunk) {
+		g_mem_chunk_destroy(tcp_next_pdu_chunk);
+		tcp_next_pdu_chunk = NULL;
+	}
 	if (tcp_analysis_chunk) {
 		g_mem_chunk_destroy(tcp_analysis_chunk);
 		tcp_analysis_chunk = NULL;
@@ -836,6 +1032,12 @@ tcp_analyze_seq_init(void)
 			tcp_acked_equal);
 		tcp_rel_seq_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
+		tcp_pdu_tracking_table = g_hash_table_new(tcp_acked_hash,
+			tcp_acked_equal);
+		tcp_next_pdu_chunk = g_mem_chunk_new("tcp_next_pdu_chunk",
+			sizeof(struct tcp_next_pdu),
+			tcp_next_pdu_count * sizeof(struct tcp_next_pdu),
+			G_ALLOC_ONLY);
 		tcp_analysis_chunk = g_mem_chunk_new("tcp_analysis_chunk",
 			sizeof(struct tcp_analysis),
 			tcp_analysis_count * sizeof(struct tcp_analysis),
@@ -1098,7 +1300,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		   Call the normal subdissector.
 		*/
 		decode_tcp_ports(tvb, offset, pinfo, tree,
-				sport, dport);
+				sport, dport, 0);
 		called_dissector = TRUE;
 
 		/* Did the subdissector ask us to desegment some more data
@@ -1167,7 +1369,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 			/* call subdissector */
 			decode_tcp_ports(next_tvb, 0, pinfo, tree,
-				sport, dport);
+				sport, dport, 0);
 			called_dissector = TRUE;
 
 			/*
@@ -1779,10 +1981,18 @@ static const ip_tcp_opt tcpopts[] = {
 
 void
 decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, int src_port, int dst_port)
+	proto_tree *tree, int src_port, int dst_port, guint32 nxtseq)
 {
   tvbuff_t *next_tvb;
   int low_port, high_port;
+
+/*qqq   see if it is an unaligned PDU */
+  if(nxtseq && tcp_analyze_seq && (!tcp_desegment)){
+    guint32 seq;
+    seq=nxtseq-tvb_reported_length_remaining(tvb, offset);
+    offset=scan_for_next_pdu(pinfo, offset, seq, nxtseq);
+  }
+
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
@@ -1791,7 +2001,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_TCP,
 		src_port, dst_port, next_tvb, pinfo, tree))
-    return;
+    goto end_decode_tcp_ports;
 
   /* Do lookups with the subdissector table.
      We try the port number with the lower value first, followed by the
@@ -1817,17 +2027,28 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   }
   if (low_port != 0 &&
       dissector_try_port(subdissector_table, low_port, next_tvb, pinfo, tree))
-    return;
+    goto end_decode_tcp_ports;
+
   if (high_port != 0 &&
       dissector_try_port(subdissector_table, high_port, next_tvb, pinfo, tree))
-    return;
+    goto end_decode_tcp_ports;
 
   /* do lookup with the heuristic subdissector table */
   if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
-    return;
+    goto end_decode_tcp_ports;
+
 
   /* Oh, well, we don't know this; dissect it as data. */
   call_dissector(data_handle,next_tvb, pinfo, tree);
+  return;
+
+end_decode_tcp_ports:
+  /* if !visited, check want_pdu_tracking and store it in table */
+  /* XXX fix nxtseq so that it always has valid content and skip the ==0 check */
+  if((!pinfo->fd->flags.visited) && nxtseq && tcp_analyze_seq && pinfo->want_pdu_tracking){
+    pdu_store_sequencenumber_of_next_pdu(pinfo, nxtseq+pinfo->bytes_until_next_pdu);
+  }
+
 }
 
 
@@ -2178,7 +2399,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            we don't report it as a malformed frame. */
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
-        decode_tcp_ports(tvb, offset, pinfo, tree, tcph->th_sport, tcph->th_dport);
+        decode_tcp_ports(tvb, offset, pinfo, tree, tcph->th_sport, tcph->th_dport, nxtseq);
         pinfo->fragmented = save_fragmented;
       }
     }

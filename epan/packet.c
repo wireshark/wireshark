@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.90 2003/04/16 05:55:39 guy Exp $
+ * $Id: packet.c,v 1.91 2003/04/23 10:20:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -287,6 +287,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.destport = 0;
 	edt->pi.match_port = 0;
 	edt->pi.can_desegment = 0;
+	edt->pi.want_pdu_tracking = 0;
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
 	edt->pi.private_data = NULL;
         edt->pi.oxid = 0;
@@ -487,6 +488,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 		pinfo->net_dst = save_net_dst;
 		pinfo->src = save_src;
 		pinfo->dst = save_dst;
+		pinfo->want_pdu_tracking = 0;
 	} else {
 		/*
 		 * Just call the subdissector.
@@ -495,6 +497,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	}
 	pinfo->current_proto = saved_proto;
 	pinfo->can_desegment = saved_can_desegment;
+	pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
 	return ret;
 }
 
@@ -1073,6 +1076,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 	}
 	pinfo->current_proto = saved_proto;
 	pinfo->can_desegment=saved_can_desegment;
+	pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
 	return status;
 }
 
