@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.28 2004/03/04 06:43:34 guy Exp $
+# $Id: autogen.sh,v 1.29 2004/03/04 08:25:22 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -98,27 +98,6 @@ $LIBTOOLIZE $LTARGS || exit 1
 rm -f config.guess config.sub
 mv config.guess.save-libtool config.guess
 mv config.sub.save-libtool config.sub
-
-if glib-config --version >/dev/null 2>&1 ; then
-	rm -f aclocal-missing/glib.m4
-else
-	cp aclocal-fallback/glib.m4 aclocal-missing/
-fi
-if gtk-config --version >/dev/null 2>&1 ; then
-	rm -f aclocal-missing/gtk.m4
-else
-	cp aclocal-fallback/gtk.m4 aclocal-missing/
-fi
-if pkg-config glib-2.0 >/dev/null 2>&1 ; then
-	rm -f aclocal-missing/glib-2.0.m4
-else
-	cp aclocal-fallback/glib-2.0.m4 aclocal-missing/
-fi
-if pkg-config gtk+-2.0 >/dev/null 2>&1 ; then
-	rm -f aclocal-missing/gtk-2.0.m4
-else
-	cp aclocal-fallback/gtk-2.0.m4 aclocal-missing/
-fi
 
 for dir in . epan wiretap ;  do
   echo processing $dir
