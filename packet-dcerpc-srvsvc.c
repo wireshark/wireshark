@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.27 2002/06/19 10:22:55 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.28 2002/06/20 10:25:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,8 @@ typedef struct _srvsvc_info {
 static int proto_dcerpc_srvsvc = -1;
 static int hf_srvsvc_reserved = -1;
 static int hf_srvsvc_server = -1;
+static int hf_srvsvc_alerts = -1;
+static int hf_srvsvc_guest = -1;
 static int hf_srvsvc_transport = -1;
 static int hf_srvsvc_session = -1;
 static int hf_srvsvc_session_num_opens = -1;
@@ -71,7 +73,6 @@ static int hf_srvsvc_cur_uses = -1;
 static int hf_srvsvc_con_time = -1;
 static int hf_srvsvc_con_type = -1;
 static int hf_srvsvc_con_num_opens = -1;
-static int hf_srvsvc_con_num_users = -1;
 static int hf_srvsvc_chrqpri = -1;
 static int hf_srvsvc_chrqnumusers = -1;
 static int hf_srvsvc_chrqnumahead = -1;
@@ -90,9 +91,10 @@ static int hf_srvsvc_server_type = -1;
 static int hf_srvsvc_client_type = -1;
 static int hf_srvsvc_server_comment = -1;
 static int hf_srvsvc_users = -1;
+static int hf_srvsvc_disc = -1;
 static int hf_srvsvc_hidden = -1;
 static int hf_srvsvc_announce = -1;
-static int hf_srvsvc_ann_delta = -1;
+static int hf_srvsvc_anndelta = -1;
 static int hf_srvsvc_licences = -1;
 static int hf_srvsvc_user_path = -1;
 static int hf_srvsvc_share = -1;
@@ -105,6 +107,38 @@ static int hf_srvsvc_num_pointers = -1;
 static int hf_srvsvc_preferred_len = -1;
 static int hf_srvsvc_parm_error = -1;
 static int hf_srvsvc_enum_handle = -1;
+static int hf_srvsvc_ulist_mtime = -1;
+static int hf_srvsvc_glist_mtime = -1;
+static int hf_srvsvc_alist_mtime = -1;
+static int hf_srvsvc_security = -1;
+static int hf_srvsvc_numadmin = -1;
+static int hf_srvsvc_lanmask = -1;
+static int hf_srvsvc_chdevs = -1;
+static int hf_srvsvc_chdevqs = -1;
+static int hf_srvsvc_chdevjobs = -1;
+static int hf_srvsvc_connections = -1;
+static int hf_srvsvc_shares = -1;
+static int hf_srvsvc_openfiles = -1;
+static int hf_srvsvc_sessopens = -1;
+static int hf_srvsvc_sessvcs = -1;
+static int hf_srvsvc_sessreqs = -1;
+static int hf_srvsvc_opensearch = -1;
+static int hf_srvsvc_activelocks = -1;
+static int hf_srvsvc_sizreqbufs = -1;
+static int hf_srvsvc_numbigbufs = -1;
+static int hf_srvsvc_numfiletasks = -1;
+static int hf_srvsvc_alertsched = -1;
+static int hf_srvsvc_erroralert = -1;
+static int hf_srvsvc_logonalert = -1;
+static int hf_srvsvc_accessalert = -1;
+static int hf_srvsvc_diskalert = -1;
+static int hf_srvsvc_netioalert = -1;
+static int hf_srvsvc_maxauditsz = -1;
+static int hf_srvsvc_srvheuristics = -1;
+static int hf_srvsvc_auditedevents = -1;
+static int hf_srvsvc_auditprofile = -1;
+static int hf_srvsvc_autopath = -1;
+
 static int hf_srvsvc_unknown_long = -1;
 static int hf_srvsvc_unknown_bytes = -1;
 static int hf_srvsvc_unknown_string = -1;
@@ -487,7 +521,7 @@ srvsvc_dissect_CHARDEVQ_INFO_0_CONTAINER(tvbuff_t *tvb, int offset,
  * IDL   [string] [unique] wchar_t *dev;
  * IDL   long priority;
  * IDL   [string] [unique] wchar_t *devs;
- * IDL   long num_users;
+ * IDL   long users;
  * IDL   long num_ahead;
  * IDL } CHARDEVQ_INFO_1;
  */
@@ -865,7 +899,7 @@ srvsvc_dissect_CONNECT_INFO_0_CONTAINER(tvbuff_t *tvb, int offset,
  * IDL   long conid;
  * IDL   long type;
  * IDL   long num_opens;
- * IDL   long num_users;
+ * IDL   long users;
  * IDL   long time;
  * IDL   [string] [unique] wchar_t *username;
  * IDL   [string] [unique] wchar_t *share;
@@ -886,7 +920,7 @@ srvsvc_dissect_CONNECT_INFO_1(tvbuff_t *tvb, int offset,
                                      hf_srvsvc_con_num_opens, NULL);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_srvsvc_con_num_users, NULL);
+                                     hf_srvsvc_users, NULL);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_srvsvc_con_time, NULL);
@@ -2600,6 +2634,417 @@ srvsvc_dissect_netrsharecheck_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/*
+ * IDL typedef struct {
+ * IDL   long platform_id;
+ * IDL   [string] [unique] wchar_t *server;
+ * IDL } SERVER_INFO_100;
+ */
+static int
+srvsvc_dissect_SERVER_INFO_100(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_platform_id, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long platform_id;
+ * IDL   [string] [unique] wchar_t *server;
+ * IDL   long ver_major;
+ * IDL   long ver_minor;
+ * IDL   long type;
+ * IDL   [string] [unique] wchar_t *comment;
+ * IDL } SERVER_INFO_101;
+ */
+static int
+srvsvc_dissect_SERVER_INFO_101(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_platform_id, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_ver_major, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_ver_minor, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_server_type, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Comment",
+			hf_srvsvc_server_comment, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long platform_id;
+ * IDL   [string] [unique] wchar_t *server;
+ * IDL   long ver_major;
+ * IDL   long ver_minor;
+ * IDL   long type;
+ * IDL   [string] [unique] wchar_t *comment;
+ * IDL   long users;
+ * IDL   long disc;
+ * IDL   long hidden;
+ * IDL   long announce;
+ * IDL   long anndelta;
+ * IDL   long licences;
+ * IDL   [string] [unique] wchar_t *userpath;
+ * IDL } SERVER_INFO_102;
+ */
+static int
+srvsvc_dissect_SERVER_INFO_102(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_platform_id, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_ver_major, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_ver_minor, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_server_type, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Comment",
+			hf_srvsvc_server_comment, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_users, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_disc, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_hidden, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_announce, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_anndelta, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_licences, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "User Path",
+			hf_srvsvc_user_path, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long ulist_mtime;
+ * IDL   long glist_mtime;
+ * IDL   long alist_mtime;
+ * IDL   [string] [unique] wchar_t *alerts;
+ * IDL   long security;
+ * IDL   long numadmin;
+ * IDL   long lanmask;
+ * IDL   [string] [unique] wchar_t *guestaccount;
+ * IDL   long chdevs;
+ * IDL   long chdevqs; 
+ * IDL   long chdevjobs;
+ * IDL   long connections;
+ * IDL   long shares;
+ * IDL   long openfiles;
+ * IDL   long sessopens;
+ * IDL   long sessvcs;
+ * IDL   long sessreqs;
+ * IDL   long opensearch;
+ * IDL   long activelocks;
+ * IDL   long sizreqbufs
+ * IDL   long numbigbufs
+ * IDL   long numfiletasks;
+ * IDL   long alertsched;
+ * IDL   long erroralert;
+ * IDL   long logonalert;
+ * IDL   long accessalert;
+ * IDL   long diskalert;
+ * IDL   long netioalert;
+ * IDL   long maxauditsz;
+ * IDL   [string] [unique] wchar_t *srvheuristics;
+ * IDL } SERVER_INFO_402;
+ */
+static int
+srvsvc_dissect_SERVER_INFO_402(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_ulist_mtime, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_glist_mtime, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_alist_mtime, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Alerts",
+			hf_srvsvc_alerts, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_security, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_numadmin, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_lanmask, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Guest",
+			hf_srvsvc_guest, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_chdevs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_chdevqs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_chdevjobs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_openfiles, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_sessopens, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_sessvcs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_sessreqs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_opensearch, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_activelocks, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_sizreqbufs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_numbigbufs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_numfiletasks, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_alertsched, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_erroralert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_logonalert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_accessalert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_diskalert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_netioalert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_maxauditsz, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server Heuristics",
+			hf_srvsvc_srvheuristics, 0);
+
+	return offset;
+}
+
+
+
+/*
+ * IDL typedef struct {
+ * IDL   long ulist_mtime;
+ * IDL   long glist_mtime;
+ * IDL   long alist_mtime;
+ * IDL   [string] [unique] wchar_t *alerts;
+ * IDL   long security;
+ * IDL   long numadmin;
+ * IDL   long lanmask;
+ * IDL   [string] [unique] wchar_t *guestaccount;
+ * IDL   long chdevs;
+ * IDL   long chdevqs; 
+ * IDL   long chdevjobs;
+ * IDL   long connections;
+ * IDL   long shares;
+ * IDL   long openfiles;
+ * IDL   long sessopens;
+ * IDL   long sessvcs;
+ * IDL   long sessreqs;
+ * IDL   long opensearch;
+ * IDL   long activelocks;
+ * IDL   long sizreqbufs
+ * IDL   long numbigbufs
+ * IDL   long numfiletasks;
+ * IDL   long alertsched;
+ * IDL   long erroralert;
+ * IDL   long logonalert;
+ * IDL   long accessalert;
+ * IDL   long diskalert;
+ * IDL   long netioalert;
+ * IDL   long maxauditsz;
+ * IDL   [string] [unique] wchar_t *srvheuristics;
+ * IDL   long auditedevents;
+ * IDL   long auditprofile;
+ * IDL   [string] [unique] wchar_t *autopath;
+ * IDL } SERVER_INFO_403;
+ */
+static int
+srvsvc_dissect_SERVER_INFO_403(tvbuff_t *tvb, int offset, 
+				   packet_info *pinfo, proto_tree *tree, 
+				   char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_ulist_mtime, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_glist_mtime, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_alist_mtime, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Alerts",
+			hf_srvsvc_alerts, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_security, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_numadmin, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_lanmask, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Guest",
+			hf_srvsvc_guest, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_chdevs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_chdevqs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_chdevjobs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_openfiles, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_sessopens, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_sessvcs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_sessreqs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_opensearch, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_activelocks, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_sizreqbufs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_numbigbufs, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_numfiletasks, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_alertsched, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_erroralert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_logonalert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_accessalert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_diskalert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_netioalert, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_maxauditsz, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server Heuristics",
+			hf_srvsvc_srvheuristics, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_auditedevents, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+			hf_srvsvc_auditprofile, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Autopath",
+			hf_srvsvc_autopath, 0);
+
+	return offset;
+}
 
 
 
@@ -2609,6 +3054,7 @@ srvsvc_dissect_netrsharecheck_rqst(tvbuff_t *tvb, int offset,
 
 
 
+/*qqq*/
 /* new functions in order and with idl above this line */
 
 
@@ -2617,24 +3063,6 @@ srvsvc_dissect_netrsharecheck_rqst(tvbuff_t *tvb, int offset,
 
 
 
-
-static int
-srvsvc_dissect_SRV_INFO_100_struct(tvbuff_t *tvb, int offset, 
-				   packet_info *pinfo, proto_tree *tree, 
-				   char *drep)
-{
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-			      hf_srvsvc_platform_id, NULL);
-
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
-			       srvsvc_dissect_pointer_UNICODE_STRING,
-			       NDR_POINTER_UNIQUE, "Server",
-			       hf_srvsvc_server, 0);
-
-  return offset;
-
-}
 
 static int
 srvsvc_dissect_pointer_comment_UNICODE_STRING(tvbuff_t *tvb, int offset, 
@@ -2646,80 +3074,6 @@ srvsvc_dissect_pointer_comment_UNICODE_STRING(tvbuff_t *tvb, int offset,
 			       srvsvc_dissect_pointer_UNICODE_STRING,
 			       NDR_POINTER_UNIQUE, "Comment",
 			       hf_srvsvc_server_comment, 0);
-
-  return offset;
-
-}
-
-static int
-srvsvc_dissect_SRV_INFO_101_struct(tvbuff_t *tvb, int offset, 
-				   packet_info *pinfo, proto_tree *tree, 
-				   char *drep)
-{
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-			      hf_srvsvc_platform_id, NULL);
-
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
-			       srvsvc_dissect_pointer_UNICODE_STRING,
-			       NDR_POINTER_PTR, "Server",
-			       hf_srvsvc_server, 0);
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-			      hf_srvsvc_ver_major, NULL);
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-			      hf_srvsvc_ver_minor, NULL);
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			      hf_srvsvc_server_type, NULL);
-
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
-			       srvsvc_dissect_pointer_UNICODE_STRING,
-			       NDR_POINTER_UNIQUE, "Comment",
-			       hf_srvsvc_server_comment, 0);
-
-  return offset;
-
-}
-
-/* Seems silly to cut and paste, but that is what I have done ... */
-static int
-srvsvc_dissect_SRV_INFO_102_struct(tvbuff_t *tvb, int offset, 
-				   packet_info *pinfo, proto_tree *tree, 
-				   char *drep)
-{
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-			      hf_srvsvc_platform_id, NULL);
-
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
-			       srvsvc_dissect_pointer_UNICODE_STRING,
-			       NDR_POINTER_PTR, "Server",
-			       hf_srvsvc_server, 0);
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-			      hf_srvsvc_ver_major, NULL);
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-			      hf_srvsvc_ver_minor, NULL);
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			      hf_srvsvc_server_type, NULL);
-
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
-			       srvsvc_dissect_pointer_UNICODE_STRING,
-			       NDR_POINTER_UNIQUE, "Comment",
-			       hf_srvsvc_server_comment, 0);
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-			      hf_srvsvc_users, NULL);
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
-			      hf_srvsvc_hidden, NULL);
-
-  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
-			       srvsvc_dissect_pointer_UNICODE_STRING,
-			       NDR_POINTER_UNIQUE, "User Path",
-			       hf_srvsvc_user_path, 0);
 
   return offset;
 
@@ -2749,21 +3103,21 @@ srvsvc_dissect_SVR_INFO_CTR(tvbuff_t *tvb, int offset,
   switch (level) {
   case 100:
     offset = dissect_ndr_pointer(tvb, offset, pinfo, stree, drep,
-				 srvsvc_dissect_SRV_INFO_100_struct,
+				 srvsvc_dissect_SERVER_INFO_100,
 				 NDR_POINTER_UNIQUE, "Info Level 100", -1, 0);
 
       break;
 
   case 101:
     offset = dissect_ndr_pointer(tvb, offset, pinfo, stree, drep,
-				 srvsvc_dissect_SRV_INFO_101_struct,
+				 srvsvc_dissect_SERVER_INFO_101,
 				 NDR_POINTER_UNIQUE, "Info Level 101", -1, 0);
 
     break;
 
   case 102:
     offset = dissect_ndr_pointer(tvb, offset, pinfo, stree, drep,
-				 srvsvc_dissect_SRV_INFO_102_struct,
+				 srvsvc_dissect_SERVER_INFO_102,
 				 NDR_POINTER_UNIQUE, "Info Level 102", -1, 0);
 
     break;
@@ -2920,6 +3274,12 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_server,
 	    { "Server", "srvsvc.server", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Server Name", HFILL}},
+	  { &hf_srvsvc_alerts,
+	    { "Alerts", "srvsvc.alerts", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Alerts", HFILL}},
+	  { &hf_srvsvc_guest,
+	    { "Guest Account", "srvsvc.guest", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Guest Account", HFILL}},
 	  { &hf_srvsvc_transport,
 	    { "Transport", "srvsvc.transport", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Transport Name", HFILL}},
@@ -2997,6 +3357,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_users,
 	    { "Users", "srvsvc.users", FT_UINT32,
 	      BASE_DEC, NULL, 0x0 , "User Count", HFILL}},
+	  { &hf_srvsvc_disc,
+	    { "Disc", "srvsvc.disc", FT_UINT32,
+	      BASE_DEC, NULL, 0x0 , "", HFILL}},
 	  { &hf_srvsvc_hidden,
 	    { "Hidden", "srvsvc.hidden", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Hidden", HFILL}},
@@ -3006,7 +3369,7 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_announce,
 	    { "Announce", "srvsvc.announce", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Announce", HFILL }},
-	  { &hf_srvsvc_ann_delta,
+	  { &hf_srvsvc_anndelta,
 	    { "Announce Delta", "srvsvc.ann_delta", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Announce Delta", HFILL}},
 	  { &hf_srvsvc_licences,
@@ -3063,15 +3426,105 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_session_user_flags,
 	    { "User Flags", "srvsvc.session.user_flags", FT_UINT32,
 	      BASE_HEX, NULL, 0x0, "User Flags", HFILL}},
-	  { &hf_srvsvc_con_num_users,
-	    { "Num Users", "srvsvc.con_num_users", FT_UINT32,
-	      BASE_DEC, NULL, 0x0, "Num Users", HFILL}},
 	  { &hf_srvsvc_con_type,
 	    { "Connection Type", "srvsvc.con_type", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Connection Type", HFILL}},
 	  { &hf_srvsvc_con_time,
 	    { "Connection Time", "srvsvc.con_time", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Connection Time", HFILL}},
+	  { &hf_srvsvc_ulist_mtime,
+	    { "Ulist mtime", "srvsvc.ulist_mtime", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Ulist mtime", HFILL}},
+	  { &hf_srvsvc_glist_mtime,
+	    { "Glist mtime", "srvsvc.glist_mtime", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Glist mtime", HFILL}},
+	  { &hf_srvsvc_alist_mtime,
+	    { "Alist mtime", "srvsvc.alist_mtime", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Alist mtime", HFILL}},
+	  { &hf_srvsvc_connections,
+	    { "Connections", "srvsvc.connections", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of Connections", HFILL}},
+	  { &hf_srvsvc_shares,
+	    { "Shares", "srvsvc.shares", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of Shares", HFILL}},
+	  { &hf_srvsvc_diskalert,
+	    { "Disk Alerts", "srvsvc.diskalert", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of disk alerts", HFILL}},
+	  { &hf_srvsvc_netioalert,
+	    { "Net I/O Alerts", "srvsvc.netioalert", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of Net I/O Alerts", HFILL}},
+	  { &hf_srvsvc_maxauditsz,
+	    { "Max Audits", "srvsvc.maxaudits", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Maximum number of audits", HFILL}},
+	  { &hf_srvsvc_srvheuristics,
+	    { "Server Heuristics", "srvsvc.srvheuristics", FT_STRING,
+	      BASE_DEC, NULL, 0x0, "Server Heuristics", HFILL}},
+	  { &hf_srvsvc_openfiles,
+	    { "Open Files", "srvsvc.openfiles", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Open Files", HFILL}},
+	  { &hf_srvsvc_opensearch,
+	    { "Open Search", "srvsvc.opensearch", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Open Search", HFILL}},
+	  { &hf_srvsvc_activelocks,
+	    { "Active Locks", "srvsvc.activelocks", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Active Locks", HFILL}},
+	  { &hf_srvsvc_numfiletasks,
+	    { "Num Filetasks", "srvsvc.numfiletasks", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of filetasks", HFILL}},
+	  { &hf_srvsvc_alertsched,
+	    { "Alert Sched", "srvsvc.alertsched", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Alert Schedule", HFILL}},
+	  { &hf_srvsvc_erroralert,
+	    { "Error Alerts", "srvsvc.erroralert", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of error alerts", HFILL}},
+	  { &hf_srvsvc_logonalert,
+	    { "Logon Alerts", "srvsvc.logonalert", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of logon alerts", HFILL}},
+	  { &hf_srvsvc_accessalert,
+	    { "Access Alerts", "srvsvc.accessalert", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of access alerts", HFILL}},
+	  { &hf_srvsvc_sizreqbufs,
+	    { "Siz Req Bufs", "srvsvc.sizreqbufs", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "", HFILL}},
+	  { &hf_srvsvc_numbigbufs,
+	    { "Num Big Bufs", "srvsvc.numbigbufs", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of big buffers", HFILL}},
+	  { &hf_srvsvc_sessopens,
+	    { "Sessions Open", "srvsvc.sessopens", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Sessions Open", HFILL}},
+	  { &hf_srvsvc_sessvcs,
+	    { "Sessions VCs", "srvsvc.sessvcs", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Sessions VCs", HFILL}},
+	  { &hf_srvsvc_sessreqs,
+	    { "Sessions Reqs", "srvsvc.sessreqs", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Sessions Requests", HFILL}},
+	  { &hf_srvsvc_auditedevents,
+	    { "Audited Events", "srvsvc.auditedevents", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of audited events", HFILL}},
+	  { &hf_srvsvc_auditprofile,
+	    { "Audit Profile", "srvsvc.auditprofile", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "Audit Profile", HFILL}},
+	  { &hf_srvsvc_autopath,
+	    { "Autopath", "srvsvc.autopath", FT_STRING,
+	      BASE_DEC, NULL, 0x0, "Autopath", HFILL}},
+	  { &hf_srvsvc_security,
+	    { "Security", "srvsvc.security", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "Security", HFILL}},
+	  { &hf_srvsvc_numadmin,
+	    { "Num Admins", "srvsvc.num_admins", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of Administrators", HFILL}},
+	  { &hf_srvsvc_lanmask,
+	    { "LANMask", "srvsvc.lanmask", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "LANMask", HFILL}},
+	  { &hf_srvsvc_chdevs,
+	    { "Char Devs", "srvsvc.chdevs", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of Char Devices", HFILL}},
+	  { &hf_srvsvc_chdevqs,
+	    { "Char Devqs", "srvsvc.chdevqs", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of Char Device Queues", HFILL}},
+	  { &hf_srvsvc_chdevjobs,
+	    { "Char Dev Jobs", "srvsvc.chdevjobs", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Number of Char Device Jobs", HFILL}},
 	  { &hf_srvsvc_num_entries,
 	    { "Number of entries", "srvsvc.share.num_entries", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Number of Entries", HFILL}},
@@ -3123,3 +3576,4 @@ proto_reg_handoff_dcerpc_srvsvc(void)
                          &uuid_dcerpc_srvsvc, ver_dcerpc_srvsvc, 
                          dcerpc_srvsvc_dissectors);
 }
+
