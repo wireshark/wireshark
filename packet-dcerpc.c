@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.28 2002/01/29 09:13:28 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.29 2002/02/06 06:27:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -469,6 +469,9 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				hf_dcerpc_array_max_count, &di->array_max_count);
 		di->conformant_run=1;
 	} else {
+		/* we dont dont remember where  in the bytestream this fields was */
+		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, 0, 0, di->array_max_count);
+
 		/* real run, dissect the elements */
 		for(i=0;i<di->array_max_count;i++){
 			offset = (*fnct)(tvb, offset, pinfo, tree, drep);
@@ -498,6 +501,11 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				hf_dcerpc_array_actual_count, &di->array_actual_count);
 		di->conformant_run=1;
 	} else {
+		/* we dont dont remember where  in the bytestream these fields were */
+		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, 0, 0, di->array_max_count);
+		proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, 0, 0, di->array_offset);
+		proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, 0, 0, di->array_actual_count);
+
 		/* real run, dissect the elements */
 		for(i=0;i<di->array_actual_count;i++){
 			offset = (*fnct)(tvb, offset, pinfo, tree, drep);

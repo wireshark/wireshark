@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.c,v 1.5 2002/01/29 09:13:28 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.6 2002/02/06 06:27:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@ static int hf_samr_rid_attrib = -1;
 static int hf_samr_rc = -1;
 static int hf_samr_index = -1;
 static int hf_samr_acct_ctrl = -1;
-static int hf_samr_array_max_count = -1;
+static int hf_samr_count = -1;
 
 static int hf_samr_level = -1;
 static int hf_samr_start_idx = -1;
@@ -317,7 +317,7 @@ samr_dissect_SID(tvbuff_t *tvb, int offset,
 	/* the SID contains a conformant array, first we must eat
 	   the 4-byte max_count before we can hand it off */
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_array_max_count, NULL);
+                                     hf_samr_count, NULL);
 
 	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Domain");
 	return offset;
@@ -503,7 +503,7 @@ samr_dissect_USER_DISPINFO_1_ARRAY (tvbuff_t *tvb, int offset,
 
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_array_max_count, &count);
+                                     hf_samr_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_USER_DISPINFO_1_ARRAY_users, NDR_POINTER_PTR,
 			-1);
@@ -573,7 +573,7 @@ samr_dissect_USER_DISPINFO_2_ARRAY (tvbuff_t *tvb, int offset,
 
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_array_max_count, &count);
+                                     hf_samr_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_USER_DISPINFO_2_ARRAY_users, NDR_POINTER_PTR,
 			-1);
@@ -644,7 +644,7 @@ samr_dissect_GROUP_DISPINFO_ARRAY (tvbuff_t *tvb, int offset,
 	}
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_array_max_count, &count);
+                                     hf_samr_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_GROUP_DISPINFO_ARRAY_groups, NDR_POINTER_PTR,
 			-1);
@@ -713,7 +713,7 @@ samr_dissect_ASCII_DISPINFO_ARRAY (tvbuff_t *tvb, int offset,
 	}
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_array_max_count, &count);
+                                     hf_samr_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_ASCII_DISPINFO_ARRAY_users, NDR_POINTER_PTR,
 			-1);
@@ -964,7 +964,7 @@ samr_dissect_USER_GROUP_ARRAY (tvbuff_t *tvb, int offset,
 	}
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_array_max_count, &count);
+                                     hf_samr_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_USER_GROUP_ARRAY_groups, NDR_POINTER_UNIQUE,
 			-1);
@@ -1866,7 +1866,7 @@ samr_dissect_PSID_ARRAY (tvbuff_t *tvb, int offset,
 	}
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_array_max_count, &count);
+                                     hf_samr_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_PSID_ARRAY_sids, NDR_POINTER_UNIQUE,
 			-1);
@@ -1933,7 +1933,7 @@ samr_dissect_INDEX_ARRAY (tvbuff_t *tvb, int offset,
 	}
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_array_max_count, &count);
+                                     hf_samr_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_INDEX_ARRAY_value, NDR_POINTER_UNIQUE,
 			di->hf_index);
@@ -2029,7 +2029,7 @@ samr_dissect_IDX_AND_NAME_ARRAY(tvbuff_t *tvb, int offset,
 	}
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_array_max_count, &count);
+                                     hf_samr_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_IDX_AND_NAME_entry, NDR_POINTER_UNIQUE,
 			di->hf_index);
@@ -2369,8 +2369,8 @@ proto_register_dcerpc_samr(void)
 		{ "Acct Ctrl", "samr.acct_ctrl", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Acct CTRL", HFILL }},
 
-        { &hf_samr_array_max_count,
-          { "Max Count", "samr.array.max_count", FT_UINT32, BASE_DEC, NULL, 0x0, "Maximum Count: Number of elements in the conformant array", HFILL }},
+        { &hf_samr_count,
+          { "Count", "samr.count", FT_UINT32, BASE_DEC, NULL, 0x0, "Number of elements in following array", HFILL }},
 
 	{ &hf_samr_acct_name,
 		{ "Account Name", "samr.acct_name", FT_STRING, BASE_NONE,
@@ -2415,6 +2415,7 @@ proto_register_dcerpc_samr(void)
 		{ "Unknown char", "samr.unknown.char", FT_UINT8, BASE_HEX, 
 		NULL, 0x0, "Unknown char. If you know what this is, contact ethereal developers.", HFILL }},
 
+	/* XXX - is this a standard NT access mask? */
 	{ &hf_samr_access,
 		{ "Access Mask", "samr.access", FT_UINT32, BASE_HEX, 
 		NULL, 0x0, "Access", HFILL }},
