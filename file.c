@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.47 1999/07/28 03:29:02 guy Exp $
+ * $Id: file.c,v 1.48 1999/07/28 03:33:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -301,8 +301,9 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     set_menu_sensitivity("/File/Save As...", TRUE);
     set_menu_sensitivity("/File/Print...", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
+#ifdef HAVE_LIBPCAP
     set_menu_sensitivity("/Capture/Start...", TRUE);
-    set_menu_sensitivity("/Tools/Capture...", TRUE);
+#endif
     set_menu_sensitivity("/Tools/Summary", TRUE);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, " File: <none>");
     return;
@@ -364,8 +365,9 @@ tail_cap_file(char *fname, capture_file *cf) {
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
 
     set_menu_sensitivity("/File/Open...", FALSE);
+#ifdef HAVE_LIBPCAP
     set_menu_sensitivity("/Capture/Start...", FALSE);
-    set_menu_sensitivity("/Tools/Capture...", FALSE);
+#endif
 
     for (i = 0; i < cf->cinfo.num_cols; i++) {
       if (get_column_resize_type(cf->cinfo.col_fmt[i]) == RESIZE_LIVE)
