@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.18 2003/10/01 14:59:40 jmayer Exp $
+# $Id: Makefile.am,v 1.19 2003/10/01 19:41:06 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,7 @@
 	ethereal-filter.pod > ../ethereal-filter.4
 
 ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
-	../tethereal -G fields | $(PERL) ../dfilter2pod.pl ../ethereal-filter.pod.template > ethereal-filter.pod
+	../tethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal-filter.pod.template > ethereal-filter.pod
 
 ../editcap.1: editcap.pod ../config.h
 	$(POD2MAN)                      \
