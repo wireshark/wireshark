@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.65 2003/06/12 10:10:39 guy Exp $
+ * $Id: plugin_table.h,v 1.66 2003/06/13 02:35:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -333,8 +333,8 @@ typedef void (*addr_except_setup_try)(struct except_stacknode *, struct except_c
 
 typedef void (*addr_col_set_fence)(column_info*, gint);
 
-typedef gint (*addr_tvb_get_string)(tvbuff_t*, gint, gint);
-typedef gint (*addr_tvb_get_stringz)(tvbuff_t*, gint, gint*);
+typedef guint8* (*addr_tvb_get_string)(tvbuff_t*, gint, gint);
+typedef guint8* (*addr_tvb_get_stringz)(tvbuff_t*, gint, gint*);
 
 typedef struct  {
 
