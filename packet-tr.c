@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.5 1998/09/27 22:12:39 gerald Exp $
+ * $Id: packet-tr.c,v 1.6 1998/10/13 03:38:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -241,7 +241,7 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 		tcpdump. W/o that, however, I'm guessing that DSAP == SSAP if the
 		frame type is LLC.  It's very much a hack. -- Gilbert Ramirez */
 		if (actual_rif_bytes > trn_rif_bytes) {
-			printf("trn_rif %d    actual_rif %d\n", trn_rif_bytes, actual_rif_bytes);
+			/*printf("trn_rif %d    actual_rif %d\n", trn_rif_bytes, actual_rif_bytes);*/
 			add_item_to_tree(fh_tree, 14 + trn_rif_bytes, actual_rif_bytes - trn_rif_bytes,
 				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
 				"is also running a protocol stack.");
