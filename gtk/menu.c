@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.163 2004/02/12 22:24:28 guy Exp $
+ * $Id: menu.c,v 1.164 2004/02/13 01:09:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1507,7 +1507,7 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(NULL, "/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
-      cf->current_frame != NULL && g_resolv_flags == 0);
+      cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
   set_menu_sensitivity(main_menu_factory, "/Analyze/TCP Stream Analysis",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Match",

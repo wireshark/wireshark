@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.15 2004/01/10 17:31:40 obiot Exp $
+ * $Id: resolv.h,v 1.16 2004/02/13 01:09:51 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -44,6 +44,8 @@ extern guint32 g_resolv_flags;
 #define RESOLV_NETWORK		0x2
 #define RESOLV_TRANSPORT	0x4
 #define RESOLV_CONCURRENT	0x8
+
+#define RESOLV_ALL_ADDRS	(RESOLV_MAC|RESOLV_NETWORK|RESOLV_TRANSPORT)
 #define RESOLV_ALL		0xFFFFFFFF
 
 /* global variables */
