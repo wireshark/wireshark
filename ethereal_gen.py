@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.5 2001/07/12 19:51:42 oabad Exp $
+# $Id: ethereal_gen.py,v 1.6 2001/07/16 20:44:28 oabad Exp $
 #
 #                           
 # ethereal_gen.py (part of idl2eth)           
@@ -195,6 +195,7 @@ class ethereal_gen_C:
 
         self.gen_proto_register()
         self.gen_proto_reg_handoff(oplist)
+        self.gen_plugin_init()
 
         #self.dumpvars()                 # debug
         
@@ -976,6 +977,13 @@ class ethereal_gen_C:
 
 
     #
+    # generate code for plugin initialisation
+    #
+
+    def gen_plugin_init(self):
+        self.st.out(self.template_plugin_init, description=self.description, protocol_name=self.protoname, dissector_name=self.dissname)
+
+    #
     # generate  register_giop_user_module code, and register only
     # unique interfaces that contain operations. Also output
     # a heuristic register in case we want to use that.
@@ -1209,9 +1217,32 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 /* TODO - Use registered fields */
 
 """
-    
 
+    #
+    # plugin_init and plugin_reg_handoff templates
+    #
 
+    template_plugin_init = """
+
+#ifndef __ETHEREAL_STATIC__
+
+G_MODULE_EXPORT void
+plugin_reg_handoff(void){
+   proto_register_handoff_giop_@dissector_name@();
+}
+
+G_MODULE_EXPORT void
+plugin_init(plugin_address_table_t *pat){
+   /* initialise the table of pointers needed in Win32 DLLs */
+   plugin_address_table_init(pat);
+   if (proto_@dissector_name@ == -1) {
+     proto_register_giop_@dissector_name@();
+   }
+}
+
+#endif
+
+"""
 
     #
     # proto_register_<dissector name>(void) templates
@@ -1648,8 +1679,11 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 # include "config.h"
 #endif
 
+#include "plugins/plugin_api.h"
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <gmodule.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -1673,6 +1707,10 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #include "packet.h"
 #include "proto.h"
 #include "packet-giop.h"
+
+#ifndef __ETHEREAL_STATIC__
+G_MODULE_EXPORT const gchar version[] = "0.0.1";
+#endif
 
 """
 
