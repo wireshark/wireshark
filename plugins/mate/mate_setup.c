@@ -733,6 +733,11 @@ static gboolean config_gop(AVPL* avpl) {
 		report_error("MATE: GopDef: no On in: %s",avpl->name);
 		return FALSE;
 	}
+	
+	if (g_hash_table_lookup(matecfg->pducfgs,on) == NULL ) {
+		report_error("MATE: GopDef: Pdu '%s' does not exist in: %s",on,avpl->name);
+		return FALSE;		
+	}
 
 	if (g_hash_table_lookup(matecfg->gops_by_pduname,on) ) {
 		report_error("MATE: GopDef: Gop for Pdu '%s' exists already in: %s",on,avpl->name);
@@ -859,7 +864,7 @@ static gboolean config_gogkey(AVPL* avpl) {
 
 	if ( ! name || ! cfg ) {
 		if ( ! name )
-			report_error("MATE: GogKey: no Name in %s",avpl->name);
+			report_error("MATE: GogKey: no For in %s",avpl->name);
 		else
 			report_error("MATE: GogKey: no such Gop '%s' in %s",name,avpl->name);
 
