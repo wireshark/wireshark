@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.12 2003/04/21 21:28:36 guy Exp $
+; $Id: ethereal.nsi,v 1.13 2003/06/02 18:40:02 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -76,6 +76,7 @@ File "${COMMON_FILES_GNU}\glib-1.3.dll"
 File "${COMMON_FILES_GNU}\gmodule-1.3.dll"
 File "${COMMON_FILES_GNU}\gnu-intl.dll"
 File "${COMMON_FILES_GNU}\zlib.dll"
+File "${COMMON_FILES_GNU}\adns_dll.dll
 File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"

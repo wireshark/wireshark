@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.45 2003/04/07 22:39:25 guy Exp $
+$Id: README.win32,v 1.46 2003/06/02 18:40:00 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -146,14 +146,19 @@ or the mirror site at
 
 Compiling the Ethereal distribution from source
 ===============================================
+
 You'll need the development packages for GLIB, GTK+, WinPcap, zlib,
-and Net-SNMP.  The GLIB, GTK+, and WinPcap packages are available from
-the respctive home pages for each project (the same URLs as listed
+Net-SNMP, and ADNS.  The GLIB, GTK+, and WinPcap packages are available
+from the respctive home pages for each project (the same URLs as listed
 above). The development packages contain header files and stub libaries
-to link against.  Precompiled zlib and Net-SNMP packages are available
-at
+to link against.  Precompiled zlib, Net-SNMP, and ADNS packages are
+available at
 
 	http://www.ethereal.com/distribution/win32/
+
+The ADNS package is also available at its homepage:
+
+	http://adns.jgaa.com/
 
 
 Instructions for MS Visual C++
