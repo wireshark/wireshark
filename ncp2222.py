@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.45 2003/02/05 19:03:51 guy Exp $
+$Id: ncp2222.py,v 1.46 2003/02/05 20:02:34 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1327,7 +1327,7 @@ BackgroundAgedWrites 		= uint32("background_aged_writes", "Background Aged Write
 BackgroundDirtyWrites		= uint32("background_dirty_writes", "Background Dirty Writes")
 BadLogicalConnectionCount 	= uint16("bad_logical_connection_count", "Bad Logical Connection Count")
 BannerName			= fw_string("banner_name", "Banner Name", 14)
-BaseDirectoryID			= uint32("base_directory_id", "Base Directory ID")
+BaseDirectoryID			= uint32("base_directory_id", "Base Directory ID", BE)
 BaseDirectoryID.Display("BASE_HEX")
 binderyContext			= nstring8("bindery_context", "Bindery Context")
 BitMap				= bytes("bit_map", "Bit Map", 512)
@@ -1616,6 +1616,9 @@ DirHandle			= uint8("dir_handle", "Directory Handle")
 DirHandleName			= uint8("dir_handle_name", "Handle Name")
 DirHandleLong			= uint32("dir_handle_long", "Directory Handle")
 DirectoryAccessRights           = uint8("directory_access_rights", "Directory Access Rights")
+#
+# XXX - what do the bits mean here?
+#
 DirectoryAttributes             = uint8("directory_attributes", "Directory Attributes")
 DirectoryBase 			= uint32("dir_base", "Directory Base")
 DirectoryBase.Display("BASE_HEX")
@@ -1623,7 +1626,7 @@ DirectoryCount			= uint16("dir_count", "Directory Count")
 DirectoryEntryNumber	 	= uint32("directory_entry_number", "Directory Entry Number")
 DirectoryEntryNumber.Display('BASE_HEX')
 DirectoryEntryNumberWord 	= uint16("directory_entry_number_word", "Directory Entry Number")
-DirectoryID			= uint16("directory_id", "Directory ID")
+DirectoryID			= uint16("directory_id", "Directory ID", BE)
 DirectoryID.Display("BASE_HEX")
 DirectoryName                   = fw_string("directory_name", "Directory Name",12)
 DirectoryName14                 = fw_string("directory_name_14", "Directory Name", 14)
@@ -2613,7 +2616,7 @@ MACBackupDate                   = uint16("mac_backup_date", "Mac Backup Date")
 MACBackupDate.NWDate()
 MACBackupTime                   = uint16("mac_backup_time", "Mac Backup Time")
 MACBackupTime.NWTime()
-MacBaseDirectoryID 		= uint32("mac_base_directory_id", "Mac Base Directory ID")
+MacBaseDirectoryID 		= uint32("mac_base_directory_id", "Mac Base Directory ID", BE)
 MacBaseDirectoryID.Display("BASE_HEX")
 MACCreateDate                   = uint16("mac_create_date", "Mac Create Date")
 MACCreateDate.NWDate()
@@ -2826,7 +2829,7 @@ NewAccessRights 		= bitfield16("new_access_rights_mask", "New Access Rights", [
 	bf_boolean16(0x0080, "new_access_rights_modify", "Modify"),
 	bf_boolean16(0x0100, "new_access_rights_supervisor", "Supervisor"),
 ])
-NewDirectoryID			= uint32("new_directory_id", "New Directory ID")
+NewDirectoryID			= uint32("new_directory_id", "New Directory ID", BE)
 NewDirectoryID.Display("BASE_HEX")
 NewEAHandle			= uint32("new_ea_handle", "New EA Handle")
 NewEAHandle.Display("BASE_HEX")
@@ -3407,9 +3410,27 @@ ScanItems			= uint32("scan_items", "Number of Items returned from Scan")
 SearchAttributes		= bitfield8("sattr", "Search Attributes", [
 	bf_boolean8(0x01, "sattr_hid", "Hidden"),
 	bf_boolean8(0x02, "sattr_sys", "System"),
-	bf_boolean8(0x04, "sattr_sub", "Subdirectory"),
+	bf_boolean8(0x04, "sattr_sub", "Subdirectories Only"),
 ])	
 SearchAttributesLow		= bitfield16("search_att_low", "Search Attributes", [
+	#
+	# XXX - some requests have a 1-byte SearchAttributes, and
+	# some have a 2-byte SearchAttributes; SearchAttributes is
+	# the 1-byte version and SearchAttributesLow is the 2-byte
+	# version.
+	#
+	# The Novell Web site speaks of bit 1 as "Hidden", bit 2 as
+	# "System", bit 4 as "Subdirectories Only", and bit 15 -
+	# yes, 15 - as "All Files and Directories".  It does so for
+	# both types of SearchAttributes.
+	#
+	# Are those bit flags or bit numbers?  Are they the same for
+	# 1-byte and 2-byte SearchAttributes?  Is the "Subdirectory"
+	# bit here the "Subdirectories Only" bit?
+	#
+	# At least for the 1-byte SearchAttributes, at least some
+	# of them appear to be bit flags.
+	#
 	bf_boolean16(0x0001, "search_att_read_only", "Read Only"),
 	bf_boolean16(0x0002, "search_att_hidden", "Hidden"),
 	bf_boolean16(0x0004, "search_att_system", "System"),
@@ -3431,7 +3452,7 @@ SearchInstance				= uint32("search_instance", "Search Instance")
 SearchNumber                            = uint32("search_number", "Search Number")
 SearchPattern				= nstring8("search_pattern", "Search Pattern")
 SearchSequence				= bytes("search_sequence", "Search Sequence", 9)
-SearchSequenceWord                      = uint16("search_sequence_word", "Search Sequence")
+SearchSequenceWord                      = uint16("search_sequence_word", "Search Sequence", BE)
 Second					= uint8("s_second", "Seconds")
 SecondsRelativeToTheYear2000            = uint32("sec_rel_to_y2k", "Seconds Relative to the Year 2000") 
 SecretStoreVerb                         = val_string8("ss_verb", "Secret Store Verb",[
@@ -8483,12 +8504,16 @@ def define_ncp2222():
 	# 2222/1625, 22/37
 	pkt = NCP(0x1625, "Set Directory Entry Information", 'fileserver')
 	pkt.Request(NO_LENGTH_CHECK, [
+		#
+		# XXX - this didn't match what was in the spec for 22/37
+		# on the Novell Web site.
+		#
 		rec( 10, 1, DirHandle ),
-		rec( 11, 2, SearchAttributesLow ),
-		rec( 13, 4, SequenceNumber ),
-		rec( 17, 2, ChangeBits ),
-		rec( 19, 2, Reserved2 ),
-		rec( 21, 4, Subdirectory ),
+		rec( 11, 1, SearchAttributes ),
+		rec( 12, 4, SequenceNumber ),
+		rec( 16, 2, ChangeBits ),
+		rec( 18, 2, Reserved2 ),
+		rec( 20, 4, Subdirectory ),
                 srec(DOSDirectoryEntryStruct, req_cond="ncp.search_att_sub == TRUE"),
                 srec(DOSFileEntryStruct, req_cond="ncp.search_att_sub == FALSE"),
 	])
@@ -8539,11 +8564,15 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x9000])
 	# 2222/1628, 22/40
 	pkt = NCP(0x1628, "Scan Directory Disk Space", 'fileserver')
-	pkt.Request((15,269), [
+	pkt.Request((17,271), [
+		#
+		# XXX - this didn't match what was in the spec for 22/40
+		# on the Novell Web site.
+		#
 		rec( 10, 1, DirHandle ),
-		rec( 11, 2, SearchAttributesLow ),
-		rec( 13, 1, SequenceByte ),
-		rec( 14, (1, 255), SearchPattern ),
+		rec( 11, 1, SearchAttributes ),
+		rec( 12, 4, SequenceNumber ),
+		rec( 16, (1, 255), SearchPattern ),
 	], info_str=(SearchPattern, "Scan Directory Disk Space: %s", ", %s"))
 	pkt.Reply((148), [
 		rec( 8, 4, SequenceNumber ),
@@ -8647,7 +8676,7 @@ def define_ncp2222():
 	pkt = NCP(0x162E, "Rename Or Move", 'file')
 	pkt.Request( (17,525), [
 		rec( 10, 1, SourceDirHandle ),
-		rec( 11, 1, SearchAttributesLow ),
+		rec( 11, 1, SearchAttributes ),
 		rec( 12, 1, SourcePathComponentCount ),
 		rec( 13, (1,255), SourcePath ),
 		rec( -1, 1, DestDirHandle ),
@@ -8857,7 +8886,7 @@ def define_ncp2222():
 	pkt.Request((15,269), [
 		rec( 10, 2, LastSearchIndex ),
 		rec( 12, 1, DirHandle ),
-		rec( 13, 1, SearchAttributesLow ),
+		rec( 13, 1, SearchAttributes ),
 		rec( 14, (1, 255), FileName ),
 	], info_str=(FileName, "Scan File Information: %s", ", %s"))
 	pkt.Reply( 102, [
@@ -8890,7 +8919,7 @@ def define_ncp2222():
 		rec( 30, 2, ArchivedTime, BE ),
 		rec( 32, 56, Reserved56 ),
 		rec( 88, 1, DirHandle ),
-		rec( 89, 1, SearchAttributesLow ),
+		rec( 89, 1, SearchAttributes ),
 		rec( 90, (1, 255), FileName ),
 	], info_str=(FileName, "Set Information for File: %s", ", %s"))
 	pkt.Reply(8)
@@ -10757,7 +10786,7 @@ def define_ncp2222():
 	pkt = NCP(0x2301, "AFP Create Directory", 'afp')
 	pkt.Request((49, 303), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, BaseDirectoryID, BE ),
+		rec( 11, 4, BaseDirectoryID ),
 		rec( 15, 1, Reserved ),
 		rec( 16, 4, CreatorID ),
 		rec( 20, 4, Reserved4 ),
@@ -10769,7 +10798,7 @@ def define_ncp2222():
 		rec( 48, (1,255), Path ),
 	], info_str=(Path, "AFP Create Directory: %s", ", %s"))
 	pkt.Reply(12, [
-		rec( 8, 4, NewDirectoryID, BE ),
+		rec( 8, 4, NewDirectoryID ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8301, 0x8400, 0x8800, 0x9300, 0x9600, 0x9804,
 			     0x9900, 0x9c03, 0x9e02, 0xa100, 0xa201, 0xfd00, 0xff18])
@@ -10777,7 +10806,7 @@ def define_ncp2222():
 	pkt = NCP(0x2302, "AFP Create File", 'afp')
 	pkt.Request((49, 303), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, BaseDirectoryID, BE ),
+		rec( 11, 4, BaseDirectoryID ),
 		rec( 15, 1, DeleteExistingFileFlag ),
 		rec( 16, 4, CreatorID, BE ),
 		rec( 20, 4, Reserved4 ),
@@ -10789,7 +10818,7 @@ def define_ncp2222():
 		rec( 48, (1,255), Path ),
 	], info_str=(Path, "AFP Create File: %s", ", %s"))
 	pkt.Reply(12, [
-		rec( 8, 4, NewDirectoryID, BE ),
+		rec( 8, 4, NewDirectoryID ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8301, 0x8400, 0x8701, 0x8800,
 			     0x8a00, 0x8d00, 0x8e00, 0x8f00, 0x9300, 0x9600, 0x9804,
@@ -10799,7 +10828,7 @@ def define_ncp2222():
 	pkt = NCP(0x2303, "AFP Delete", 'afp')
 	pkt.Request((16,270), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, BaseDirectoryID, BE ),
+		rec( 11, 4, BaseDirectoryID ),
 		rec( 15, (1,255), Path ),
 	], info_str=(Path, "AFP Delete: %s", ", %s"))
 	pkt.Reply(8)
@@ -10810,7 +10839,7 @@ def define_ncp2222():
 	pkt = NCP(0x2304, "AFP Get Entry ID From Name", 'afp')
 	pkt.Request((16,270), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, BaseDirectoryID, BE ),
+		rec( 11, 4, BaseDirectoryID ),
 		rec( 15, (1,255), Path ),
 	], info_str=(Path, "AFP Get Entry from Name: %s", ", %s"))
 	pkt.Reply(12, [
@@ -10822,7 +10851,7 @@ def define_ncp2222():
 	pkt = NCP(0x2305, "AFP Get File Information", 'afp')
 	pkt.Request((18,272), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, BaseDirectoryID, BE ),
+		rec( 11, 4, BaseDirectoryID ),
 		rec( 15, 2, RequestBitMap, BE ),
 		rec( 17, (1,255), Path ),
 	], info_str=(Path, "AFP Get File Information: %s", ", %s"))
@@ -10881,7 +10910,7 @@ def define_ncp2222():
 	pkt = NCP(0x2308, "AFP Open File Fork", 'afp')
 	pkt.Request((18, 272), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, MacBaseDirectoryID, BE ),
+		rec( 11, 4, MacBaseDirectoryID ),
 		rec( 15, 1, ForkIndicator ),
 		rec( 16, 1, AccessMode ),
 		rec( 17, (1,255), Path ),
@@ -10898,7 +10927,7 @@ def define_ncp2222():
 	pkt = NCP(0x2309, "AFP Set File Information", 'afp')
 	pkt.Request((64, 318), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, MacBaseDirectoryID, BE ),
+		rec( 11, 4, MacBaseDirectoryID ),
 		rec( 15, 2, RequestBitMap, BE ),
 		rec( 17, 2, MacAttr, BE ),
 		rec( 19, 2, CreationDate, BE ),
@@ -10924,7 +10953,7 @@ def define_ncp2222():
 	pkt = NCP(0x230A, "AFP Scan File Information", 'afp')
 	pkt.Request((26, 280), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, MacBaseDirectoryID, BE ),
+		rec( 11, 4, MacBaseDirectoryID ),
 		rec( 15, 4, MacLastSeenID, BE ),
 		rec( 19, 2, DesiredResponseCount, BE ),
 		rec( 21, 2, SearchBitMap, BE ),
@@ -10941,7 +10970,7 @@ def define_ncp2222():
 	pkt = NCP(0x230B, "AFP Alloc Temporary Directory Handle", 'afp')
 	pkt.Request((16,270), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, MacBaseDirectoryID, BE ),
+		rec( 11, 4, MacBaseDirectoryID ),
 		rec( 15, (1,255), Path ),
 	], info_str=(Path, "AFP Allocate Temporary Directory Handle: %s", ", %s"))
 	pkt.Reply(10, [
@@ -10967,7 +10996,7 @@ def define_ncp2222():
 	pkt = NCP(0x230D, "AFP 2.0 Create Directory", 'afp')
 	pkt.Request((55,309), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, BaseDirectoryID, BE ),
+		rec( 11, 4, BaseDirectoryID ),
 		rec( 15, 1, Reserved ),
 		rec( 16, 4, CreatorID, BE ),
 		rec( 20, 4, Reserved4 ),
@@ -10980,7 +11009,7 @@ def define_ncp2222():
 		rec( 54, (1,255), Path ),
 	], info_str=(Path, "AFP 2.0 Create Directory: %s", ", %s"))
 	pkt.Reply(12, [
-		rec( 8, 4, NewDirectoryID, BE ),
+		rec( 8, 4, NewDirectoryID ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8301, 0x8400, 0x8800, 0x9300,
 			     0x9600, 0x9804, 0x9900, 0x9c03, 0x9e00,
@@ -10989,7 +11018,7 @@ def define_ncp2222():
 	pkt = NCP(0x230E, "AFP 2.0 Create File", 'afp')
 	pkt.Request((55,309), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, BaseDirectoryID, BE ),
+		rec( 11, 4, BaseDirectoryID ),
 		rec( 15, 1, DeleteExistingFileFlag ),
 		rec( 16, 4, CreatorID, BE ),
 		rec( 20, 4, Reserved4 ),
@@ -11002,7 +11031,7 @@ def define_ncp2222():
 		rec( 54, (1,255), Path ),
 	], info_str=(Path, "AFP 2.0 Create File: %s", ", %s"))
 	pkt.Reply(12, [
-		rec( 8, 4, NewDirectoryID, BE ),
+		rec( 8, 4, NewDirectoryID ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8301, 0x8400,
 			     0x8701, 0x8800, 0x8a00, 0x8d00, 0x8e00,
@@ -11013,7 +11042,7 @@ def define_ncp2222():
 	pkt = NCP(0x230F, "AFP 2.0 Get File Or Directory Information", 'afp')
 	pkt.Request((18,272), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, BaseDirectoryID, BE ),
+		rec( 11, 4, BaseDirectoryID ),
 		rec( 15, 2, RequestBitMap, BE ),
 		rec( 17, (1,255), Path ),
 	], info_str=(Path, "AFP 2.0 Get Information: %s", ", %s"))
@@ -11050,7 +11079,7 @@ def define_ncp2222():
 	pkt = NCP(0x2310, "AFP 2.0 Set File Information", 'afp')
 	pkt.Request((70, 324), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, MacBaseDirectoryID, BE ),
+		rec( 11, 4, MacBaseDirectoryID ),
 		rec( 15, 2, RequestBitMap, BE ),
 		rec( 17, 2, AttributesDef16 ),
 		rec( 19, 2, CreationDate, BE ),
@@ -11077,7 +11106,7 @@ def define_ncp2222():
 	pkt = NCP(0x2311, "AFP 2.0 Scan File Information", 'afp')
 	pkt.Request((26, 280), [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, MacBaseDirectoryID, BE ),
+		rec( 11, 4, MacBaseDirectoryID ),
 		rec( 15, 4, MacLastSeenID, BE ),
 		rec( 19, 2, DesiredResponseCount, BE ),
 		rec( 21, 2, SearchBitMap, BE ),
@@ -11217,7 +11246,7 @@ def define_ncp2222():
 	], info_str=(Path, "Initialize File Search: %s", ", %s"))
 	pkt.Reply(14, [
 		rec( 8, 1, VolumeNumber ),
-		rec( 9, 2, DirectoryID, BE ),
+		rec( 9, 2, DirectoryID ),
 		rec( 11, 2, SequenceNumber, BE ),
 		rec( 13, 1, AccessRightsMask ),
 	])
@@ -11227,7 +11256,7 @@ def define_ncp2222():
 	pkt = NCP(0x3F, "File Search Continue", 'file', has_length=0 )
 	pkt.Request((14, 268), [
 		rec( 7, 1, VolumeNumber ),
-		rec( 8, 2, DirectoryID, BE ),
+		rec( 8, 2, DirectoryID ),
 		rec( 10, 2, SequenceNumber, BE ),
 		rec( 12, 1, SearchAttributes ),
                 rec( 13, (1,255), Path ),
@@ -11240,6 +11269,17 @@ def define_ncp2222():
 		# presumably it can't show you a matching file or
 		# directory instance - it appears to just leave crap
 		# there.
+		#
+		# XXX - in at least one capture, the client sends
+		# a request with the "Subdirectories Only" bit set,
+		# but the server appears to reply with information
+		# about a file; the DirectoryStamp isn't 0xD1D1.
+		# 0xD1D1 is *not* a valid FileUpdateTime value;
+		# should we base the decision on whether this is
+		# a DirectoryInstance or a FileInstance on the
+		# value of the bytes at 40 and 41, not on the
+		# status of the "Subdirectories Only" bit in the
+		# request?
 		#
 		srec( DirectoryInstance, req_cond="ncp.sattr_sub==TRUE"),
 		srec( FileInstance, req_cond="ncp.sattr_sub!=TRUE"),
