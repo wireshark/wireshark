@@ -10,9 +10,9 @@ Note: This capture filter language is different from the one used for the Ethere
 
 Some common examples:
 ---------------------
-Example Ethernet: capture all traffic to and from the Ethernet address 08.00.08.15.ca.fe
+Example Ethernet: capture all traffic to and from the Ethernet address 08:00:08:15:ca:fe
 
-ether 08.00.08.15.ca.fe
+ether host 08:00:08:15:ca:fe
 
 Example IP: capture all traffic to and from the IP address 192.168.0.10
 
