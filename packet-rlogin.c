@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.20 2001/09/30 23:14:43 guy Exp $
+ * $Id: packet-rlogin.c,v 1.21 2001/10/01 08:29:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,7 +198,13 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 	if ( length == 0)			/* exit if no captured data */
 		return;
 
-	if ( tcpinfo->urgent_pointer &&		/* if control message */
+	/*
+	 * XXX - this works only if the urgent pointer points to something
+	 * in this segment; to make it work if the urgent pointer points
+	 * to something past this segment, we'd have to remember the urgent
+	 * pointer setting for this conversation.
+	 */
+	if ( tcpinfo->urgent &&			/* if urgent pointer set */
 	     length >= tcpinfo->urgent_pointer) {	/* and it's in this frame */
 
 		int urgent_offset = tcpinfo->urgent_pointer - 1;
@@ -338,6 +344,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct tcpinfo *tcpinfo = pinfo->private;
 	conversation_t *conversation;
 	rlogin_hash_entry_t *hash_info;
+	guint length;
 	gint ti_offset;
 
 						/* Lookup this connection*/
@@ -374,29 +381,33 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else 
 			temp[0] = 0;
 
-		if ( tvb_get_guint8(tvb, 0) == '\0')
-			strcat( temp, "Start Handshake"); 
-		else if ( tcpinfo->urgent_pointer)
-			strcat( temp, "Control Message"); 
+		length = tvb_length(tvb);
+		if (length != 0) {
+			if ( tvb_get_guint8(tvb, 0) == '\0')
+				strcat( temp, "Start Handshake"); 
+			else if ( tcpinfo->urgent &&
+				  length >= tcpinfo->urgent_pointer )
+				strcat( temp, "Control Message"); 
 
-		else {				/* check for terminal info */
-			ti_offset = tvb_find_guint8(tvb, 0, -1, 0xff);
-			if (ti_offset != -1 &&
-			    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
-			    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
-				strcat( temp, "Terminal Info");
-			else {
-				int i;
-				int bytes_to_copy;
+			else {			/* check for terminal info */
+				ti_offset = tvb_find_guint8(tvb, 0, -1, 0xff);
+				if (ti_offset != -1 &&
+				    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
+				    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
+					strcat( temp, "Terminal Info");
+				else {
+					int i;
+					int bytes_to_copy;
 
-				strcat( temp, "Data: ");
-				i = strlen( temp);
-				bytes_to_copy = tvb_length(tvb);
-				if (bytes_to_copy > 128)
-					bytes_to_copy = 128;
-				tvb_memcpy(tvb, (guint8 *)&temp[i], 0,
-				    bytes_to_copy);
-				temp[i + bytes_to_copy] = '\0';
+					strcat( temp, "Data: ");
+					i = strlen( temp);
+					bytes_to_copy = tvb_length(tvb);
+					if (bytes_to_copy > 128)
+						bytes_to_copy = 128;
+					tvb_memcpy(tvb, (guint8 *)&temp[i], 0,
+					    bytes_to_copy);
+					temp[i + bytes_to_copy] = '\0';
+				}
 			}
 		}		
 

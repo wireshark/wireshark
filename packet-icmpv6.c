@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.52 2001/09/27 10:35:40 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.53 2001/10/01 08:29:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,7 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     address save_net_dst;
     address save_src;
     address save_dst;
+    gboolean save_in_error_pkt;
 
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
@@ -139,10 +140,20 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	save_src = pinfo->src;
 	save_dst = pinfo->dst;
 
+	/* Save the current value of the "we're inside an error packet"
+	   flag, and set that flag; subdissectors may treat packets
+	   that are the payload of error packets differently from
+	   "real" packets. */
+	save_in_error_pkt = pinfo->in_error_pkt;
+	pinfo->in_error_pkt = TRUE;
+
 	/* Dissect the contained packet.
 	   Catch ReportedBoundsError, and do nothing if we see it,
 	   because it's not an error if the contained packet is short;
-	   there's no guarantee that all of it was included. */
+	   there's no guarantee that all of it was included.
+
+	   XXX - should catch BoundsError, and re-throw it after cleaning
+	   up. */
 	TRY {
 	    call_dissector(ipv6_handle, next_tvb, pinfo, tree);
 	}
@@ -150,6 +161,9 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	    ; /* do nothing */
 	}
 	ENDTRY;
+
+	/* Restore the "we're inside an error packet" flag. */
+	pinfo->in_error_pkt = save_in_error_pkt;
 
 	/* Restore the addresses. */
 	pinfo->dl_src = save_dl_src;

@@ -1,7 +1,7 @@
 /* packet_info.c
  * Routines for handling packet information
  *
- * $Id: packet_info.c,v 1.2 2001/08/04 04:04:35 guy Exp $
+ * $Id: packet_info.c,v 1.3 2001/10/01 08:29:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,8 @@ void blank_packetinfo(void)
   pi.dst.type = AT_NONE;
   pi.ethertype  = 0;
   pi.ipproto  = 0;
+  pi.ipxptype = 0;
+  pi.in_error_pkt = FALSE;
   pi.ptype = PT_NONE;
   pi.srcport  = 0;
   pi.destport = 0;

@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.7 2001/09/30 23:14:43 guy Exp $
+ * $Id: packet-tcp.h,v 1.8 2001/10/01 08:29:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@
  */
 struct tcpinfo {
 	gboolean is_reassembled; /* This is reassembled data. */
+	gboolean urgent;         /* TRUE if "urgent_pointer is valid */
 	guint16	urgent_pointer;  /* Urgent pointer value for the current packet. */
 };
 

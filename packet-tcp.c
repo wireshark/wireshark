@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.110 2001/09/30 23:14:43 guy Exp $
+ * $Id: packet-tcp.c,v 1.111 2001/10/01 08:29:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,13 +92,6 @@ static conv_dissector_list_t conv_subdissector_list;
 
 /* TCP structs and definitions */
 
-typedef struct _e_tcphdr {
-  guint16 th_sport;
-  guint16 th_dport;
-  guint32 th_seq;
-  guint32 th_ack;
-  guint8  th_off_x2; /* combines th_off and th_x2 */
-  guint8  th_flags;
 #define TH_FIN  0x01
 #define TH_SYN  0x02
 #define TH_RST  0x04
@@ -107,10 +100,6 @@ typedef struct _e_tcphdr {
 #define TH_URG  0x20
 #define TH_ECN  0x40
 #define TH_CWR  0x80
-  guint16 th_win;
-  guint16 th_sum;
-  guint16 th_urp;
-} e_tcphdr;
 
 /* Minimum TCP header length. */
 #define	TCPH_MIN_LEN	20
@@ -824,10 +813,17 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  struct tcpinfo tcpinfo;
-  e_tcphdr   th;
+  guint16 th_sport;
+  guint16 th_dport;
+  guint32 th_seq;
+  guint32 th_ack;
+  guint8  th_off_x2; /* combines th_off and th_x2 */
+  guint8  th_flags;
+  guint16 th_win;
+  guint16 th_sum;
+  guint16 th_urp;
   proto_tree *tcp_tree = NULL, *field_tree = NULL;
-  proto_item *ti, *tf;
+  proto_item *ti = NULL, *tf;
   int        offset = 0;
   gchar      flags[64] = "<None>";
   gchar     *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
@@ -843,6 +839,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32    phdr[2];
   guint16    computed_cksum;
   guint      length_remaining;
+  struct tcpinfo tcpinfo;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "TCP");
@@ -851,29 +848,44 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->fd, COL_INFO))
     col_clear(pinfo->fd, COL_INFO);
 
-  /* Avoids alignment problems on many architectures. */
-  tvb_memcpy(tvb, (guint8 *)&th, offset, sizeof(e_tcphdr));
-  th.th_sport = ntohs(th.th_sport);
-  th.th_dport = ntohs(th.th_dport);
-  th.th_win   = ntohs(th.th_win);
-  th.th_sum   = ntohs(th.th_sum);
-  th.th_urp   = ntohs(th.th_urp);
-  th.th_seq   = ntohl(th.th_seq);
-  th.th_ack   = ntohl(th.th_ack);
+  th_sport = tvb_get_ntohs(tvb, offset);
+  th_dport = tvb_get_ntohs(tvb, offset + 2);
+  if (check_col(pinfo->fd, COL_INFO)) {
+    col_append_fstr(pinfo->fd, COL_INFO, "%s > %s",
+      get_tcp_port(th_sport), get_tcp_port(th_dport));
+  }
+  
+  if (tree) {
+    if (tcp_summary_in_tree) {
+	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, 0,
+		tvb_length(tvb),
+		"Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
+		get_tcp_port(th_sport), th_sport,
+		get_tcp_port(th_dport), th_dport);
+    }
+    else {
+	    ti = proto_tree_add_item(tree, proto_tcp, tvb, 0,
+		tvb_length(tvb), FALSE);
+    }
+    tcp_tree = proto_item_add_subtree(ti, ett_tcp);
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, tvb, offset, 2, th_sport,
+	"Source port: %s (%u)", get_tcp_port(th_sport), th_sport);
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, th_dport,
+	"Destination port: %s (%u)", get_tcp_port(th_dport), th_dport);
+    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset, 2, th_sport);
+    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, th_dport);
+  }
 
-  /* Export the urgent pointer, for the benefit of protocols such as
-     rlogin. */
-  tcpinfo.urgent_pointer = th.th_urp;
- 
-  /* Assume we'll pass un-reassembled data to subdissectors. */
-  tcpinfo.is_reassembled = FALSE;
-
-  pinfo->private = &tcpinfo;
-
+  th_seq = tvb_get_ntohl(tvb, offset + 4);
+  th_ack = tvb_get_ntohl(tvb, offset + 8);
+  th_off_x2 = tvb_get_guint8(tvb, offset + 12);
+  th_flags = tvb_get_guint8(tvb, offset + 13);
+  th_win = tvb_get_ntohs(tvb, offset + 14);
+  
   if (check_col(pinfo->fd, COL_INFO) || tree) {  
     for (i = 0; i < 8; i++) {
       bpos = 1 << i;
-      if (th.th_flags & bpos) {
+      if (th_flags & bpos) {
         if (fpos) {
           strcpy(&flags[fpos], ", ");
           fpos += 2;
@@ -884,8 +896,35 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     flags[fpos] = '\0';
   }
-  
-  hlen = hi_nibble(th.th_off_x2) * 4;  /* TCP header length, in bytes */
+
+  if (check_col(pinfo->fd, COL_INFO)) {
+    col_append_fstr(pinfo->fd, COL_INFO, " [%s] Seq=%u Ack=%u Win=%u",
+      flags, th_seq, th_ack, th_win);
+  }
+
+  if (tree) {
+    if (tcp_summary_in_tree)
+      proto_item_append_text(ti, ", Seq: %u", th_seq);
+    proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, th_seq);
+  }
+
+  hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
+
+  if (hlen < TCPH_MIN_LEN) {
+    /* Give up at this point; we put the source and destination port in
+       the tree, before fetching the header length, so that they'll
+       show up if this is in the failing packet in an ICMP error packet,
+       but it's now time to give up if the header length is bogus. */
+    if (check_col(pinfo->fd, COL_INFO))
+      col_append_fstr(pinfo->fd, COL_INFO, ", bogus TCP header length (%u, must be at least %u)",
+        hlen, TCPH_MIN_LEN);
+    if (tree) {
+      proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, hlen,
+       "Header length: %u bytes (bogus, must be at least %u)", hlen,
+       TCPH_MIN_LEN);
+    }
+    return;
+  }
 
   reported_len = tvb_reported_length(tvb);
   len = tvb_length(tvb);
@@ -894,80 +933,47 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   seglen = reported_len - hlen;
 
   /* Compute the sequence number of next octet after this segment. */
-  nxtseq = th.th_seq + seglen;
+  nxtseq = th_seq + seglen;
 
-  if (hlen < TCPH_MIN_LEN) {
-    if (check_col(pinfo->fd, COL_INFO))
-      col_add_fstr(pinfo->fd, COL_INFO, "Bogus TCP header length (%u, must be at least %u)",
-       hlen, TCPH_MIN_LEN);
-    ti = proto_tree_add_item(tree, proto_tcp, tvb, offset, hlen, FALSE);
-    tcp_tree = proto_item_add_subtree(ti, ett_tcp);
-    if (tree) {
-      proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset, 1, hlen,
-       "Header length: %u bytes (bogus, must be at least %u)", hlen,
-       TCPH_MIN_LEN);
-    }
-    return;
-  }
-
-  if (check_col(pinfo->fd, COL_INFO)) {
-    if (th.th_flags & TH_URG)
-      col_append_fstr(pinfo->fd, COL_INFO, "%s > %s [%s] Seq=%u Ack=%u Win=%u Urg=%u Len=%d",
-        get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
-        th.th_seq, th.th_ack, th.th_win, th.th_urp, seglen);
-    else
-      col_append_fstr(pinfo->fd, COL_INFO, "%s > %s [%s] Seq=%u Ack=%u Win=%u Len=%d",
-        get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
-        th.th_seq, th.th_ack, th.th_win, seglen);
-  }
-  
   if (tree) {
-    if (tcp_summary_in_tree && hlen >= TCPH_MIN_LEN) {
-	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, offset,
-	        hlen,
-		"Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u",
-		get_tcp_port(th.th_sport), th.th_sport,
-		get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
-    }
-    else {
-	    ti = proto_tree_add_item(tree, proto_tcp, tvb, offset, hlen, FALSE);
-    }
-    tcp_tree = proto_item_add_subtree(ti, ett_tcp);
-    proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, tvb, offset, 2, th.th_sport,
-	"Source port: %s (%u)", get_tcp_port(th.th_sport), th.th_sport);
-    proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, th.th_dport,
-	"Destination port: %s (%u)", get_tcp_port(th.th_dport), th.th_dport);
-    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset, 2, th.th_sport);
-    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, th.th_dport);
-    proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, th.th_seq);
-    if (nxtseq != th.th_seq)
+    if (tcp_summary_in_tree)
+      proto_item_append_text(ti, ", Ack: %u", th_ack);
+    proto_item_set_len(ti, hlen);
+    if (nxtseq != th_seq)
       proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
-    if (th.th_flags & TH_ACK)
-      proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, th.th_ack);
+    if (th_flags & TH_ACK)
+      proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, th_ack);
     proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, hlen,
 	"Header length: %u bytes", hlen);
     tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 13, 1,
-	th.th_flags, "Flags: 0x%04x (%s)", th.th_flags, flags);
+	th_flags, "Flags: 0x%04x (%s)", th_flags, flags);
     field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_cwr, tvb, offset + 13, 1, th.th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_ecn, tvb, offset + 13, 1, th.th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_urg, tvb, offset + 13, 1, th.th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_ack, tvb, offset + 13, 1, th.th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_push, tvb, offset + 13, 1, th.th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_reset, tvb, offset + 13, 1, th.th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, th.th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, th.th_flags);
-    proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, th.th_win);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_cwr, tvb, offset + 13, 1, th_flags);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_ecn, tvb, offset + 13, 1, th_flags);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_urg, tvb, offset + 13, 1, th_flags);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_ack, tvb, offset + 13, 1, th_flags);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_push, tvb, offset + 13, 1, th_flags);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_reset, tvb, offset + 13, 1, th_flags);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, th_flags);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, th_flags);
+    proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, th_win);
   }
+
+  /* Assume we'll pass un-reassembled data to subdissectors. */
+  tcpinfo.is_reassembled = FALSE;
+
+  pinfo->private = &tcpinfo;
 
   /*
    * Assume, initially, that we can't desegment.
    */
   pinfo->can_desegment = FALSE;
 
+  th_sum = tvb_get_ntohs(tvb, offset + 16);
   if (!pinfo->fragmented && len >= reported_len) {
-    /* The packet isn't part of a fragmented datagram and isn't
-       truncated, so we can checksum it.
+    /* The packet isn't part of a fragmented datagram, isn't being
+       returned inside an ICMP error packet, and isn't truncated, so we
+       can checksum it.
        XXX - make a bigger scatter-gather list once we do fragment
        reassembly? */
 
@@ -1005,31 +1011,49 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * Is desegmentation enabled?
        */
       if (tcp_desegment) {
-      	/* Yes - indicate that we will desegment. */
-        pinfo->can_desegment = TRUE;
+	/* Yes - is this segment being returned in an error packet? */
+	if (!pinfo->in_error_pkt) {
+	  /* No - indicate that we will desegment.
+	     We do NOT want to desegment segments returned in error
+	     packets, as they're not part of a TCP connection. */
+	  pinfo->can_desegment = TRUE;
+	}
       }
       proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-         offset + 16, 2, th.th_sum, "Checksum: 0x%04x (correct)", th.th_sum);
+         offset + 16, 2, th_sum, "Checksum: 0x%04x (correct)", th_sum);
     } else {
       proto_tree_add_boolean_hidden(tcp_tree, hf_tcp_checksum_bad, tvb,
 	   offset + 16, 2, TRUE);
       proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-           offset + 16, 2, th.th_sum,
-	   "Checksum: 0x%04x (incorrect, should be 0x%04x)", th.th_sum,
-	   in_cksum_shouldbe(th.th_sum, computed_cksum));
+           offset + 16, 2, th_sum,
+	   "Checksum: 0x%04x (incorrect, should be 0x%04x)", th_sum,
+	   in_cksum_shouldbe(th_sum, computed_cksum));
     }
   } else {
     proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-       offset + 16, 2, th.th_sum, "Checksum: 0x%04x", th.th_sum);
+       offset + 16, 2, th_sum, "Checksum: 0x%04x", th_sum);
   }
-  if (th.th_flags & TH_URG)
-    proto_tree_add_uint(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, th.th_urp);
+  if (th_flags & TH_URG) {
+    th_urp = tvb_get_ntohs(tvb, offset + 18);
+    /* Export the urgent pointer, for the benefit of protocols such as
+       rlogin. */
+    tcpinfo.urgent = TRUE;
+    tcpinfo.urgent_pointer = th_urp;
+    if (check_col(pinfo->fd, COL_INFO))
+      col_append_fstr(pinfo->fd, COL_INFO, " Urg=%u", th_urp);
+    if (tcp_tree != NULL)
+      proto_tree_add_uint(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, th_urp);
+  } else
+    tcpinfo.urgent = FALSE;
+
+  if (check_col(pinfo->fd, COL_INFO))
+    col_append_fstr(pinfo->fd, COL_INFO, " Len=%d", seglen);
 
   /* Decode TCP options, if any. */
-  if (tree  && hlen > sizeof (e_tcphdr)) {
+  if (tree && hlen > TCPH_MIN_LEN) {
     /* There's more than just the fixed-length header.  Decode the
        options. */
-    optlen = hlen - sizeof (e_tcphdr); /* length of options, in bytes */
+    optlen = hlen - TCPH_MIN_LEN; /* length of options, in bytes */
     tf = proto_tree_add_text(tcp_tree, tvb, offset +  20, optlen,
       "Options: (%d bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ett_tcp_options);
@@ -1041,14 +1065,14 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += hlen;
 
   pinfo->ptype = PT_TCP;
-  pinfo->srcport = th.th_sport;
-  pinfo->destport = th.th_dport;
+  pinfo->srcport = th_sport;
+  pinfo->destport = th_dport;
   
   /* Check the packet length to see if there's more data
      (it could be an ACK-only packet) */
   length_remaining = tvb_length_remaining(tvb, offset);
   if (length_remaining != 0) {
-    if (th.th_flags & TH_RST) {
+    if (th_flags & TH_RST) {
       /*
        * RFC1122 says:
        *
@@ -1071,20 +1095,20 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Can we desegment this segment? */
       if (pinfo->can_desegment) {
         /* Yes. */
-        desegment_tcp(tvb, pinfo, offset, th.th_seq, nxtseq, th.th_sport, th.th_dport, tree, tcp_tree);
+        desegment_tcp(tvb, pinfo, offset, th_seq, nxtseq, th_sport, th_dport, tree, tcp_tree);
       } else {
         /* No - just call the subdissector. */
-        decode_tcp_ports(tvb, offset, pinfo, tree, th.th_sport, th.th_dport);
+        decode_tcp_ports(tvb, offset, pinfo, tree, th_sport, th_dport);
       }
     }
   }
  
   if( data_out_file ) {
-    reassemble_tcp( th.th_seq,		/* sequence number */
+    reassemble_tcp( th_seq,		/* sequence number */
         seglen,				/* data length */
         tvb_get_ptr(tvb, offset, length_remaining),	/* data */
         length_remaining,		/* captured data length */
-        ( th.th_flags & TH_SYN ),	/* is syn set? */
+        ( th_flags & TH_SYN ),		/* is syn set? */
         &pinfo->net_src,
 	&pinfo->net_dst,
 	pinfo->srcport,
