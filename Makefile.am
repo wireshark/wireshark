@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.167 2000/02/15 21:01:50 gram Exp $
+# $Id: Makefile.am,v 1.168 2000/02/15 21:17:57 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -503,6 +503,8 @@ install-exec-hook:
 	-chmod +s $(DESTDIR)$(bindir)/ethereal
 	-chmod +s $(DESTDIR)$(bindir)/tethereal
 	-chmod +s $(DESTDIR)$(bindir)/ethereal_static
+else
+install-exec-hook:
 endif
 
 #
