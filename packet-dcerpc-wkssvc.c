@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.16 2003/04/30 20:26:02 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.17 2003/04/30 21:29:06 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,33 @@ static int hf_wkssvc_max_cmds = -1;
 static int hf_wkssvc_sess_timeout = -1;
 static int hf_wkssvc_siz_char_buf = -1;
 static int hf_wkssvc_max_threads = -1;
+static int hf_wkssvc_lock_quota = -1;
+static int hf_wkssvc_lock_increment = -1;
+static int hf_wkssvc_lock_maximum = -1;
+static int hf_wkssvc_pipe_increment = -1;
+static int hf_wkssvc_pipe_maximum = -1;
+static int hf_wkssvc_cache_file_timeout = -1;
+static int hf_wkssvc_dormant_file_limit = -1;
+static int hf_wkssvc_read_ahead_throughput = -1;
+static int hf_wkssvc_num_mailslot_buffers = -1;
+static int hf_wkssvc_num_srv_announce_buffers = -1;
+static int hf_wkssvc_max_illegal_datagram_events = -1;
+static int hf_wkssvc_illegal_datagram_event_reset_frequency = -1;
+static int hf_wkssvc_log_election_packets = -1;
+static int hf_wkssvc_use_opportunistic_locking = -1; 
+static int hf_wkssvc_use_unlock_behind = -1; 
+static int hf_wkssvc_use_close_behind = -1; 
+static int hf_wkssvc_buf_named_pipes = -1;
+static int hf_wkssvc_use_lock_read_unlock = -1;
+static int hf_wkssvc_utilize_nt_caching = -1;
+static int hf_wkssvc_use_raw_read = -1;
+static int hf_wkssvc_use_raw_write = -1;
+static int hf_wkssvc_use_write_raw_data = -1;
+static int hf_wkssvc_use_encryption = -1; 
+static int hf_wkssvc_buf_files_deny_write = -1;
+static int hf_wkssvc_buf_read_only_files = -1;
+static int hf_wkssvc_force_core_create_mode = -1;
+static int hf_wkssvc_use_512_byte_max_transfer = -1;
 static gint ett_dcerpc_wkssvc = -1;
 
 extern const value_string platform_id_vals[];
@@ -226,6 +253,87 @@ wkssvc_dissect_WKS_INFO_502(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_max_threads, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_lock_quota, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_lock_increment, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_lock_maximum, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_pipe_increment, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_pipe_maximum, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_cache_file_timeout, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_dormant_file_limit, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_read_ahead_throughput, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_num_mailslot_buffers, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_num_srv_announce_buffers, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_max_illegal_datagram_events, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			    hf_wkssvc_illegal_datagram_event_reset_frequency, 
+				    NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_log_election_packets, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_use_opportunistic_locking, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_use_unlock_behind, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_use_close_behind, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_buf_named_pipes, NULL);			
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_use_lock_read_unlock, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_utilize_nt_caching, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_use_raw_read, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_use_raw_write, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_use_write_raw_data, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_use_encryption, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_buf_files_deny_write, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_buf_read_only_files, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_force_core_create_mode, NULL);	
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_use_512_byte_max_transfer, NULL);	
 
 	return offset;
 }
@@ -637,6 +745,87 @@ proto_register_dcerpc_wkssvc(void)
 	    { "Character Buffer Size", "wkssvc.size.char.buff", FT_INT32,
 	      BASE_DEC, NULL, 0x0, "Character Buffer Size", HFILL}},
 	  { &hf_wkssvc_max_threads, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_lock_quota, 
+	    { "Lock Quota", "wkssvc.lock.quota", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Lock Quota", HFILL}},
+	  { &hf_wkssvc_lock_increment, 
+	    { "Lock Increment", "wkssvc.lock.increment", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Lock Increment", HFILL}},
+	  { &hf_wkssvc_lock_maximum, 
+	    { "Lock Maximum", "wkssvc.lock.maximum", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Lock Maximum", HFILL}},
+	  { &hf_wkssvc_pipe_increment, 
+	    { "Pipe Increment", "wkssvc.pipe.increment", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Pipe Increment", HFILL}},
+	  { &hf_wkssvc_pipe_maximum, 
+	    { "Pipe Maximum", "wkssvc.pipe.maximum", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Pipe Maximum", HFILL}},
+	  { &hf_wkssvc_cache_file_timeout, 
+	    { "Cache File Timeout", "wkssvc.cache.file.timeout", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Cache File Timeout", HFILL}},
+	  { &hf_wkssvc_dormant_file_limit, 
+	    { "Dormant File Limit", "wkssvc.dormant.file.limit", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Dormant File Limit", HFILL}},
+	  { &hf_wkssvc_read_ahead_throughput, 
+	    { "Read Ahead Throughput", "wkssvc.read.ahead.throughput", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Read Ahead Throughput", HFILL}},
+	  { &hf_wkssvc_num_mailslot_buffers, 
+	    { "Num Mailslot Buffers", "wkssvc.num.mailslot.buffers", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Num Mailslot Buffers", HFILL}},
+	  { &hf_wkssvc_num_srv_announce_buffers, 
+	    { "Num Srv Announce Buffers", "wkssvc.num.srv.announce.buffers", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Num Srv Announce Buffers", HFILL}},
+	  { &hf_wkssvc_max_illegal_datagram_events, 
+	    { "Max Illegal Datagram Events", "wkssvc.max.illegal.datagram.events", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Max Illegal Datagram Events", HFILL}},
+	  { &hf_wkssvc_illegal_datagram_event_reset_frequency, 
+	    { "Illegal Datagram Event Reset Frequency", "wkssvc.illegal.datagram.reset.frequency", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Illegal Datagram Event Reset Frequency", HFILL}},
+	  { &hf_wkssvc_log_election_packets, 
+	    { "Log Election Packets", "wkssvc.log.election.packets", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Log Election Packets", HFILL}},
+	  { &hf_wkssvc_use_opportunistic_locking, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_use_unlock_behind, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_use_close_behind, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_buf_named_pipes, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_use_lock_read_unlock, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_utilize_nt_caching, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_use_raw_read, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_use_raw_write, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_use_write_raw_data, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_use_encryption, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_buf_files_deny_write, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_buf_read_only_files, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_force_core_create_mode, 
+	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
+	  { &hf_wkssvc_use_512_byte_max_transfer, 
 	    { "Maximum Threads", "wkssvc.maximum.threads", FT_INT32,
 	      BASE_DEC, NULL, 0x0, "Maximum Threads", HFILL}},
 	};
