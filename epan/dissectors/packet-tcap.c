@@ -65,7 +65,7 @@
 #include "packet-tcap.h"
 #include "packet-ber.h"
 
-Tcap_Standard_Type tcap_standard = ITU_TCAP_STANDARD;
+gint tcap_standard = ITU_TCAP_STANDARD;
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -2894,7 +2894,7 @@ proto_register_tcap(void)
 
     prefs_register_enum_preference(tcap_module, "standard", "TCAP standard",
 	"The SS7 standard used in TCAP packets",
-	(gint *)&tcap_standard, tcap_options, FALSE);
+	&tcap_standard, tcap_options, FALSE);
 
     prefs_register_bool_preference(tcap_module, "lock_info_col", "Lock Info column",
 	"Always show TCAP in Info column",

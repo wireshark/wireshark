@@ -311,7 +311,7 @@ typedef enum {
   M3UA_RFC
 } Version_Type;
 
-static Version_Type version = M3UA_RFC;
+static gint version = M3UA_RFC;
 
 static void
 dissect_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
@@ -1983,7 +1983,7 @@ proto_register_m3ua(void)
   /* Register the protocol name and description */
   proto_m3ua = proto_register_protocol("MTP 3 User Adaptation Layer", "M3UA",  "m3ua");
   m3ua_module = prefs_register_protocol(proto_m3ua, NULL);
-  prefs_register_enum_preference(m3ua_module, "version", "M3UA Version", "Version used by Ethereal", (gint *)&version, options, FALSE);
+  prefs_register_enum_preference(m3ua_module, "version", "M3UA Version", "Version used by Ethereal", &version, options, FALSE);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_m3ua, hf, array_length(hf));

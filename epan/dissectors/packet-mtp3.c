@@ -92,13 +92,13 @@ typedef enum {
   ITU_PC_STRUCTURE_4_3_4_3 = 3
 } ITU_PC_Structure_Type;
 
-ITU_PC_Structure_Type itu_pc_structure = ITU_PC_STRUCTURE_NONE;
+gint itu_pc_structure = ITU_PC_STRUCTURE_NONE;
 
 #include <packet-mtp3.h>
-Standard_Type mtp3_standard = ITU_STANDARD;
+gint mtp3_standard = ITU_STANDARD;
 
 static gboolean mtp3_use_ansi_5_bit_sls = FALSE;
-static mtp3_net_addr_fmt_e mtp3_net_addr_fmt = MTP3_NET_ADDR_FMT_DASHED;
+static gint mtp3_net_addr_fmt = MTP3_NET_ADDR_FMT_DASHED;
 static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
 
 #define SIO_LENGTH                1
@@ -667,11 +667,11 @@ proto_register_mtp3(void)
 
   prefs_register_enum_preference(mtp3_module, "standard", "MTP3 standard",
 				 "The SS7 standard used in MTP3 packets",
-				 (gint *)&mtp3_standard, mtp3_options, FALSE);
+				 &mtp3_standard, mtp3_options, FALSE);
 
   prefs_register_enum_preference(mtp3_module, "itu_pc_structure", "ITU Pointcode structure",
 				 "The structure of the pointcodes in ITU networks",
-				 (gint *)&itu_pc_structure, itu_pc_structures, FALSE);
+				 &itu_pc_structure, itu_pc_structures, FALSE);
 
   prefs_register_bool_preference(mtp3_module, "ansi_5_bit_sls",
 				 "Use 5-bit SLS (ANSI only)",
@@ -680,7 +680,7 @@ proto_register_mtp3(void)
 
   prefs_register_enum_preference(mtp3_module, "net_addr_format", "Network Address Format",
 				 "Format for point code in the network address columns",
-				 (gint *)&mtp3_net_addr_fmt, mtp3_net_addr_fmt_str_e, FALSE);
+				 &mtp3_net_addr_fmt, mtp3_net_addr_fmt_str_e, FALSE);
 }
 
 void

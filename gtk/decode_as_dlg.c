@@ -1541,7 +1541,7 @@ void
 decode_sctp_list_menu_start(GtkWidget **list_p, GtkWidget **scrolled_win_p)
 {
 #if GTK_MAJOR_VERSION < 2
-    gchar             *titles[E_LIST_S_COLUMNS] = {"Short Name", "Table Name"};
+/*    gchar             *titles[E_LIST_S_COLUMNS] = {"Short Name", "Table Name"};*/
     GtkCList          *list;
     gint               column;
 #else

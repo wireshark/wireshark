@@ -335,7 +335,7 @@ typedef enum {
   SUA_RFC
 } Version_Type;
 
-static Version_Type version = SUA_RFC;
+static gint version = SUA_RFC;
 
 static void
 dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn);
@@ -2003,7 +2003,7 @@ proto_register_sua(void)
 
   sua_module = prefs_register_protocol(proto_sua, NULL);
   prefs_register_obsolete_preference(sua_module, "sua_version");
-  prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Ethereal", (gint *)&version, options, FALSE);
+  prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Ethereal", &version, options, FALSE);
 
   sua_ssn_dissector_table = register_dissector_table("sua.ssn", "SUA SSN", FT_UINT8, BASE_DEC);
 }

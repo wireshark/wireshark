@@ -2112,7 +2112,11 @@ gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
  * Return "ip6" if it is IPv6, "ip" otherwise (including the case
  * that we don't know)
  */
-const char* host_ip_af(const char *host)
+const char* host_ip_af(const char *host
+#ifndef HAVE_GETHOSTBYNAME2
+_U_
+#endif
+)
 {
 #ifdef HAVE_GETHOSTBYNAME2
 	struct hostent *h;
