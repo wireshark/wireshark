@@ -2,14 +2,12 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.2 2000/05/27 15:46:02 gram Exp $
+ * $Id: packet-mip.c,v 1.3 2000/05/27 17:51:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -161,13 +159,6 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     
 	type = tvb_get_guint8(tvb, 0);
 
-/* This field shows up as the "Info" column in the display; you should make
-   it, if possible, summarize what's in the packet, so that a user looking
-   at the list of packets can tell what type of packet it is.
-
-   "col_add_fstr()" can be used instead of "col_add_str()"; it takes
-   "printf()"-like arguments. */
-
 	if (type==1) {
 
 	  if (check_col(fd, COL_INFO)) 
@@ -199,8 +190,6 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  if (check_col(fd, COL_INFO)) 
 		 col_add_str(fd, COL_INFO, "Mobile IP Registration Reply");
 
-/* In the interest of speed, if "tree" is NULL, don't do any work not
-   necessary to generate protocol tree items. */
 	  if (tree) {
 		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), NULL);
 	   	 mip_tree = proto_item_add_subtree(ti, ett_mip);
@@ -232,7 +221,7 @@ void proto_register_mip(void)
 		   FT_BOOLEAN, 8, NULL, 128,          
 		   "Simultaneous Bindings Allowed" }
 	  },
-     { &hf_mip_b,
+	  { &hf_mip_b,
 		 {"Broadcast Datagrams",           "mip.b",
 		   FT_BOOLEAN, 8, NULL, 64,          
 		   "Broadcast Datagrams requested" }
@@ -255,7 +244,7 @@ void proto_register_mip(void)
 	  { &hf_mip_v,
 		 { "Van Jacobson",           "mip.v",
 		   FT_BOOLEAN, 8, NULL, 4,          
-		   "Van Jacbson" }
+		   "Van Jacobson" }
 	  },
 	  { &hf_mip_code,
 		 { "Reply Code",           "mip.code",
@@ -270,13 +259,13 @@ void proto_register_mip(void)
 	  { &hf_mip_homeaddr,
 		 { "Home Address",           "mip.homeaddr",
 			FT_IPv4, BASE_NONE, NULL, 0,          
-			"Mobile Nodes home address." }
+			"Mobile Node's home address." }
 	  },
 	  
 	  { &hf_mip_haaddr,
 		 { "Home Agent",           "mip.haaddr",
 			FT_IPv4, BASE_NONE, NULL, 0,          
-			"Home agent Ip Address." }
+			"Home agent IP Address." }
 	  },
 	  { &hf_mip_coa,
 		 { "Care of Address",           "mip.coa",
@@ -307,10 +296,8 @@ void proto_register_mip(void)
 	proto_register_subtree_array(ett, array_length(ett));
 };
 
-
-
 void
 proto_reg_handoff_mip(void)
 {
-  dissector_add("udp.port", UDP_PORT_MIP, dissect_mip);
+	dissector_add("udp.port", UDP_PORT_MIP, dissect_mip);
 }
