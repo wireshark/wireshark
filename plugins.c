@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.10 2000/02/09 19:37:47 gram Exp $
+ * $Id: plugins.c,v 1.11 2000/03/15 19:09:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,9 +58,8 @@
 #include "util.h"
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
-#include "plugins/plugin_api.h"
+#include "plugins/plugin_table.h"
 plugin_address_table_t	patable;
-extern int hf_text_only;
 #endif
 
 /* linked list of all plugins */
@@ -450,28 +449,37 @@ init_plugins()
     {
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
-#ifdef pi
-#undef pi
-#endif
 	/* Intialize address table */
-	patable.check_col			= check_col;
-	patable.col_add_fstr			= col_add_fstr;
-	patable.col_append_fstr			= col_append_str;
-	patable.col_add_str			= col_add_str;
-	patable.col_append_str			= col_append_str;
+	patable.p_check_col			= check_col;
+	patable.p_col_add_fstr			= col_add_fstr;
+	patable.p_col_append_fstr		= col_append_str;
+	patable.p_col_add_str			= col_add_str;
+	patable.p_col_append_str		= col_append_str;
 
-	patable.dfilter_init			= dfilter_init;
-	patable.dfilter_cleanup			= dfilter_cleanup;
+	patable.p_dfilter_init			= dfilter_init;
+	patable.p_dfilter_cleanup		= dfilter_cleanup;
 
-	patable.pi				= &pi;
+	patable.p_pi				= &pi;
 
-	patable.proto_register_protocol		= proto_register_protocol;
-	patable.proto_register_field_array	= proto_register_field_array;
-	patable.proto_register_subtree_array	= proto_register_subtree_array;
+	patable.p_proto_register_protocol	= proto_register_protocol;
+	patable.p_proto_register_field_array	= proto_register_field_array;
+	patable.p_proto_register_subtree_array	= proto_register_subtree_array;
 
-	patable.proto_item_add_subtree		= proto_item_add_subtree;
-	patable._proto_tree_add_item_value	= _proto_tree_add_item_value;
-	patable.hf_text_only			= hf_text_only;
+	patable.p_proto_item_add_subtree	= proto_item_add_subtree;
+	patable.p_proto_tree_add_item		= proto_tree_add_item;
+	patable.p_proto_tree_add_item_hidden	= proto_tree_add_item_hidden;
+	patable.p_proto_tree_add_protocol_format = proto_tree_add_protocol_format;
+	patable.p_proto_tree_add_bytes_format	= proto_tree_add_bytes_format;
+	patable.p_proto_tree_add_time_format	= proto_tree_add_time_format;
+	patable.p_proto_tree_add_ipxnet_format	= proto_tree_add_ipxnet_format;
+	patable.p_proto_tree_add_ipv4_format	= proto_tree_add_ipv4_format;
+	patable.p_proto_tree_add_ipv6_format	= proto_tree_add_ipv6_format;
+	patable.p_proto_tree_add_ether_format	= proto_tree_add_ether_format;
+	patable.p_proto_tree_add_string_format	= proto_tree_add_string_format;
+	patable.p_proto_tree_add_boolean_format	= proto_tree_add_boolean_format;
+	patable.p_proto_tree_add_uint_format	= proto_tree_add_uint_format;
+	patable.p_proto_tree_add_text		= proto_tree_add_text;
+	patable.p_proto_tree_add_notext		= proto_tree_add_notext;
 #endif
 
 	plugins_scan_dir(std_plug_dir);

@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.2 2000/02/07 17:23:47 gram Exp $
+ * $Id: plugin_api.h,v 1.3 2000/03/15 19:09:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -23,96 +23,69 @@
  *
  */
 
+#ifdef PLUGINS_NEED_ADDRESS_TABLE
+#define DLLEXPORT    __declspec(dllexport)
+
+/* Some OSes (Win32) have DLLs that cannot reference symbols in the parent
+   executable, so the executable needs to provide a collection of pointers
+   to those functions for the DLL plugin to use. */
+
+/* #defines for those functions that call through pointers.
+   #defined in this fashion so that the declaration of the functions,
+   from the system header files, turn into declarations of pointers
+   to functions, and the calls to it in plugins, in the plugins, turn
+   into calls through the pointers. */
+#define	check_col			(*p_check_col)
+#define	col_add_fstr			(*p_col_add_fstr)
+#define	col_append_fstr			(*p_col_append_fstr)
+#define	col_add_str			(*p_col_add_str)
+#define	col_append_str			(*p_col_append_str)
+
+#define	dfilter_init			(*p_dfilter_init)
+#define	dfilter_cleanup			(*p_dfilter_cleanup)
+
+#define	proto_register_protocol		(*p_proto_register_protocol)
+#define	proto_register_field_array	(*p_proto_register_field_array)
+#define	proto_register_subtree_array	(*p_proto_register_subtree_array)
+
+#define	proto_item_add_subtree		(*p_proto_item_add_subtree)
+#define	proto_tree_add_item		(*p_proto_tree_add_item)
+#define	proto_tree_add_item_hidden	(*p_proto_tree_add_item_hidden)
+#define	proto_tree_add_protocol_format	(*p_proto_tree_add_protocol_format)
+#define	proto_tree_add_bytes_format	(*p_proto_tree_add_bytes_format)
+#define	proto_tree_add_time_format	(*p_proto_tree_add_time_format)
+#define	proto_tree_add_ipxnet_format	(*p_proto_tree_add_ipxnet_format)
+#define	proto_tree_add_ipv4_format	(*p_proto_tree_add_ipv4_format)
+#define	proto_tree_add_ipv6_format	(*p_proto_tree_add_ipv6_format)
+#define	proto_tree_add_ether_format	(*p_proto_tree_add_ether_format)
+#define	proto_tree_add_string_format	(*p_proto_tree_add_string_format)
+#define	proto_tree_add_boolean_format	(*p_proto_tree_add_boolean_format)
+#define	proto_tree_add_uint_format	(*p_proto_tree_add_uint_format)
+#define	proto_tree_add_text		(*p_proto_tree_add_text)
+#define	proto_tree_add_notext		(*p_proto_tree_add_notext)
+
+#define pi	(*p_pi)
+
+#else
+
+/* ! PLUGINS_NEED_ADDRESS_TABLE */
+#define DLLEXPORT 
+
+#endif
+
 #ifndef __PACKET_H__
 #include "packet.h"
 #endif
 
+#include "dfilter.h"
+
+#include "plugin_table.h"
+
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
-#define DLLEXPORT    __declspec(dllexport)
-
-/* Some OSes (Win32) have DLLs that cannot reference symbols in the parent executable.
-   So, the executable needs to provide a table of pointers for the DLL plugin to use. */
-
-/* Typedefs to make our plugin_address_table_t struct look prettier */
-typedef gint (*addr_check_col)(frame_data*, gint);
-typedef void (*addr_col_add_fstr)(frame_data*, gint, gchar*, ...);
-typedef void (*addr_col_append_fstr)(frame_data*, gint, gchar*, ...);
-typedef void (*addr_col_add_str)(frame_data*, gint, const gchar*);
-typedef void (*addr_col_append_str)(frame_data*, gint, gchar*);
-
-typedef void (*addr_dfilter_init)(void);
-typedef void (*addr_dfilter_cleanup)(void);
-
-typedef int (*addr_proto_register_protocol)(char*, char*);
-typedef void (*addr_proto_register_field_array)(int, hf_register_info*, int);
-typedef void (*addr_proto_register_subtree_array)(int**, int);
-
-typedef proto_tree* (*addr_proto_item_add_subtree)(proto_item*, gint);
-typedef proto_item* (*addr_proto_tree_add_item)(proto_tree*, int, gint, gint, ...);
-typedef proto_item* (*addr_proto_tree_add_item_hidden)(proto_tree*, int, gint, gint, ...);
-typedef proto_item* (*addr_proto_tree_add_item_format)(proto_tree*, int, gint, gint, ...);
-typedef proto_item* (*addr_proto_tree_add_notext)(proto_tree*, gint, gint, ...);
-typedef proto_item* (*addr_proto_tree_add_item_value)(proto_tree*, int, gint, gint, int, int,
-				va_list);
-extern packet_info *p_pi;
-
-typedef struct  {
-
-	addr_check_col				check_col;
-	addr_col_add_fstr			col_add_fstr;
-	addr_col_append_fstr			col_append_fstr;
-	addr_col_add_str			col_add_str;
-	addr_col_append_str			col_append_str;
-
-	addr_dfilter_init			dfilter_init;
-	addr_dfilter_cleanup			dfilter_cleanup;
-
-	packet_info				*pi;
-
-	addr_proto_register_protocol		proto_register_protocol;
-	addr_proto_register_field_array		proto_register_field_array;
-	addr_proto_register_subtree_array	proto_register_subtree_array;
-
-	addr_proto_item_add_subtree		proto_item_add_subtree;
-	addr_proto_tree_add_item_value		_proto_tree_add_item_value;
-	int					hf_text_only;
-} plugin_address_table_t;
-
 /* The parent executable will send us the pointer to a filled in
-   plugin_address_table_t struct, and we keep a copy of that pointer
-   so that we can use functions in the parent executable. */
+   plugin_address_table_t struct, and we copy the pointers from
+   that table so that we can use functions from the parent executable. */
 void plugin_address_table_init(plugin_address_table_t*);
-
-/* Wrapper functions that use plugin_address_table_t */
-gint check_col(frame_data*, gint);
-void col_add_fstr(frame_data*, gint, gchar*, ...);
-void col_append_fstr(frame_data*, gint, gchar*, ...);
-void col_add_str(frame_data*, gint, const gchar*);
-void col_append_str(frame_data*, gint, gchar*);
-
-void dfilter_init(void);
-void dfilter_cleanup(void);
-
-int proto_register_protocol(char*, char*);
-void proto_register_field_array(int, hf_register_info*, int);
-void proto_register_subtree_array(int**, int);
-
-proto_tree* proto_item_add_subtree(proto_item*, gint);
-proto_item* proto_tree_add_item(proto_tree*, int, gint, gint, ...);
-proto_item* proto_tree_add_item_hidden(proto_tree*, int, gint, gint, ...);
-proto_item* proto_tree_add_item_format(proto_tree*, int, gint, gint, ...);
-proto_item* proto_tree_add_notext(proto_tree*, gint, gint, ...);
-proto_item* proto_tree_add_text(proto_tree*, gint, gint, ...);
-
-#define pi	(*p_pi)
-
-
 #else
-
-/* ! PLUGINS_NEED_ACCESS_TABLE */
-#define DLLEXPORT 
-typedef void	plugin_address_table_t;
-#define plugin_address_table_init(x) ;
-
+#define plugin_address_table_init(x)    ;
 #endif
-
