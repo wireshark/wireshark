@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.5 2000/05/08 04:23:45 guy Exp $
+ * $Id: display_opts.c,v 1.6 2000/05/08 05:12:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,7 @@
 #include "packet.h"
 #include "file.h"
 #include "display_opts.h"
+#include "ui_util.h"
 #include "dlg_utils.h"
 
 extern capture_file  cf;
@@ -78,27 +79,28 @@ extern GtkWidget *packet_list;
 static void display_opt_ok_cb(GtkWidget *, gpointer);
 static void display_opt_apply_cb(GtkWidget *, gpointer);
 static void display_opt_close_cb(GtkWidget *, gpointer);
+static void display_opt_destroy_cb(GtkWidget *, gpointer);
 
 /*
- * Keep track of whether the "Display Options" window is active, so that,
- * if it is, selecting "Display/Options" doesn't pop up another such
- * window.
+ * Keep a static pointer to the current "Display Options" window, if any,
+ * so that if somebody tries to do "Display:Options" while there's already
+ * a "Display Options" window up, we just pop up the existing one, rather
+ * than creating a new one.
  */
-static int display_opt_window_active;
+static GtkWidget *display_opt_w;
+
 static ts_type prev_timestamp_type;
 
 void
 display_opt_cb(GtkWidget *w, gpointer d) {
-  GtkWidget     *display_opt_w, *button, *main_vb, *bbox, *ok_bt, *apply_bt, *cancel_bt;
+  GtkWidget     *button, *main_vb, *bbox, *ok_bt, *apply_bt, *cancel_bt;
   GtkAccelGroup *accel_group;
 
-  /* If there's already a "Display Options" window active, don't pop
-     up another one.
-
-     XXX - this should arguably give the input focus to the active
-     "Display Options" window, if possible. */
-  if (display_opt_window_active)
+  if (display_opt_w != NULL) {
+    /* There's already a "Display Options" dialog box; reactivate it. */
+    reactivate_window(display_opt_w);
     return;
+  }
 
   /* Save the current timestamp type, so that "Cancel" can put it back
      if we've changed it with "Apply". */
@@ -106,7 +108,9 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 
   display_opt_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(display_opt_w), "Ethereal: Display Options");
-  
+  gtk_signal_connect(GTK_OBJECT(display_opt_w), "destroy",
+	GTK_SIGNAL_FUNC(display_opt_destroy_cb), NULL);
+
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
      Ctrl+<key> is an accelerator). */
@@ -207,7 +211,6 @@ display_opt_cb(GtkWidget *w, gpointer d) {
      been selected. */
   dlg_set_cancel(display_opt_w, cancel_bt);
 
-  display_opt_window_active = TRUE;
   gtk_widget_show(display_opt_w);
 }
 
@@ -243,7 +246,6 @@ display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   g_ip_dscp_actif = (GTK_TOGGLE_BUTTON (button)->active);
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
-  display_opt_window_active = FALSE;
 
   change_time_formats(&cf);
 }
@@ -292,5 +294,11 @@ display_opt_close_cb(GtkWidget *close_bt, gpointer parent_w) {
 
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
-  display_opt_window_active = FALSE;
+}
+
+static void
+display_opt_destroy_cb(GtkWidget *win, gpointer user_data)
+{
+  /* Note that we no longer have a "Display Options" dialog box. */
+  display_opt_w = NULL;
 }
