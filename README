@@ -2,7 +2,7 @@ General Information
 ------- -----------
 
 Ethereal is a network traffic analyzer for Unix and Unix-like operating
-systems.  It is uses GTK+, a graphical user interface library,
+systems.  It uses GTK+, a graphical user interface library,
 and libpcap, a packet capture and filtering library.
 
 The official home of Ethereal is
