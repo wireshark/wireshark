@@ -48,7 +48,13 @@ will be written to the capture file.
 
 If the B<-T> flag, the encapsulation type of the output capture file
 will be forced to the specified type, rather than being the type
-appropriate to the encapsulation type of the input capture file.
+appropriate to the encapsulation type of the input capture file.  Note
+that this merely forces the encapsulation type of the output file to be
+the specified type; the packet headers of the packets will not be
+translated from the encapsulation type of the input capture file to the
+specified encapsulation type (for example, it will not translate an
+Ethernet capture to an FDDI capture if an Ethernet capture is read and
+'B<-T fddi>' is specified).
 
 =head1 OPTIONS
 
