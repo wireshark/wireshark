@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.3 2000/02/12 08:42:28 guy Exp $
+ * $Id: colors.c,v 1.4 2000/07/20 05:09:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -188,7 +188,7 @@ read_filters(colfilter *filter)
 
 	if ((f = fopen(path, "r")) == NULL) {
 	  if (errno != ENOENT) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+	    simple_dialog(ESD_TYPE_CRIT, NULL,
 	      "Could not open filter file\n\"%s\": %s.", path,
 	      strerror(errno));
 	  }
@@ -214,7 +214,7 @@ read_filters(colfilter *filter)
 		/* we got a filter */
 
 	    if(dfilter_compile(filter_exp, &temp_dfilter) != 0){
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_CRIT, NULL,
 		 "Could not compile color filter %s from saved filters.\n%s",
 		 name, dfilter_error_msg);
 		continue;
@@ -280,7 +280,7 @@ write_filters(colfilter *filter)
 	sprintf(path, "%s/%s", get_home_dir(), name);
 
 	if ((f = fopen(path, "w+")) == NULL) {
-	  simple_dialog(ESD_TYPE_WARN, NULL,
+	  simple_dialog(ESD_TYPE_CRIT, NULL,
 		"Could not open\n%s\nfor writing: %s.",
 		path, strerror(errno));
 	  g_free(path);

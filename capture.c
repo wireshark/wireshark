@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.111 2000/07/05 02:52:33 guy Exp $
+ * $Id: capture.c,v 1.112 2000/07/20 05:09:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -173,9 +173,14 @@ do_capture(char *capfile_name)
     is_tempfile = TRUE;
   }
   if (cfile.save_file_fd == -1) {
-    simple_dialog(ESD_TYPE_WARN, NULL,
-	"The file to which the capture would be saved (\"%s\")"
+    if (is_tempfile) {
+      simple_dialog(ESD_TYPE_CRIT, NULL,
+	"The temporary file to which the capture would be saved (\"%s\")"
 	"could not be opened: %s.", capfile_name, strerror(errno));
+    } else {
+      simple_dialog(ESD_TYPE_CRIT, NULL,
+	file_open_error_message(errno, TRUE), capfile_name);
+    }
     return;
   }
   close_cap_file(&cfile, info_bar);
@@ -206,7 +211,7 @@ do_capture(char *capfile_name)
       unlink(cfile.save_file);
       g_free(cfile.save_file);
       cfile.save_file = NULL;
-      simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't create sync pipe: %s",
+      simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't create sync pipe: %s",
                         strerror(error));
       return;
     }
@@ -236,7 +241,7 @@ do_capture(char *capfile_name)
       unlink(cfile.save_file);
       g_free(cfile.save_file);
       cfile.save_file = NULL;
-      simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't create sync pipe: %s",
+      simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't create sync pipe: %s",
 			strerror(error));
       return;
     }
@@ -296,7 +301,7 @@ do_capture(char *capfile_name)
       unlink(cfile.save_file);
       g_free(cfile.save_file);
       cfile.save_file = NULL;
-      simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't create child process: %s",
+      simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't create child process: %s",
 			strerror(error));
       return;
     }
@@ -363,7 +368,7 @@ do_capture(char *capfile_name)
       } else {
 	/* We weren't able to open the capture file; complain, and
 	   close the sync pipe. */
-	simple_dialog(ESD_TYPE_WARN, NULL,
+	simple_dialog(ESD_TYPE_CRIT, NULL,
 			file_open_error_message(err, FALSE), cfile.save_file);
 
 	/* Close the sync pipe. */
@@ -1076,7 +1081,7 @@ error:
     send_errmsg_to_parent(errmsg);
   } else {
     /* Display the dialog box ourselves; there's no parent. */
-    simple_dialog(ESD_TYPE_WARN, NULL, errmsg);
+    simple_dialog(ESD_TYPE_CRIT, NULL, errmsg);
   }
   if (pch != NULL)
     pcap_close(pch);

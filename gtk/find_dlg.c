@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.12 2000/07/05 02:45:40 guy Exp $
+ * $Id: find_dlg.c,v 1.13 2000/07/20 05:09:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -195,14 +195,14 @@ find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
    */
   if (dfilter_compile(filter_text, &sfcode) != 0) {
     /* The attempt failed; report an error. */
-    simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
+    simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
     return;
   }
 
   /* Was it empty? */
   if (sfcode == NULL) {
     /* Yes - complain. */
-    simple_dialog(ESD_TYPE_WARN, NULL,
+    simple_dialog(ESD_TYPE_CRIT, NULL,
        "You didn't specify a filter to use when searching for a frame.");
     return;
   }
@@ -218,7 +218,7 @@ find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   if (!find_packet(&cfile, sfcode)) {
     /* We didn't find the packet. */
-    simple_dialog(ESD_TYPE_WARN, NULL, "No packet matched that filter.");
+    simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched that filter.");
     return;
   }
 

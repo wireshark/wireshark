@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.28 2000/07/05 02:45:38 guy Exp $
+ * $Id: capture_dlg.c,v 1.29 2000/07/20 05:09:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -432,7 +432,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
   if_name = strtok(if_text, " \t");
   if (if_name == NULL) {
-    simple_dialog(ESD_TYPE_WARN, NULL,
+    simple_dialog(ESD_TYPE_CRIT, NULL,
       "You didn't specify an interface on which to capture packets.");
     g_free(if_name);
     return;

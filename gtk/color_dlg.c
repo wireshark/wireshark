@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.4 2000/07/05 02:45:38 guy Exp $
+ * $Id: color_dlg.c,v 1.5 2000/07/20 05:09:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -565,7 +565,7 @@ color_save_cb                          (GtkButton       *button,
   colfilter *filter = (colfilter *)user_data;
 
   if (!write_filters(filter))
-	simple_dialog(ESD_TYPE_WARN, NULL, "Could not open filter file: %s",
+	simple_dialog(ESD_TYPE_CRIT, NULL, "Could not open filter file: %s",
 	    strerror(errno));
 
 }
@@ -891,7 +891,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
   filter_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_text_entry)));
 
   if(strchr(filter_name,'@') || strchr(filter_text,'@')){
-	simple_dialog(ESD_TYPE_WARN,NULL, "Filter names and strings must not"
+	simple_dialog(ESD_TYPE_CRIT, NULL, "Filter names and strings must not"
 	  " use the '@' character. Filter unchanged.");
 	g_free(filter_name);
   	g_free(filter_text);
@@ -899,7 +899,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
   }
 
   if(dfilter_compile(filter_text, &compiled_filter) != 0 ){
-	simple_dialog(ESD_TYPE_WARN, NULL, "Filter \"%s\" did not compile correctly.\n"
+	simple_dialog(ESD_TYPE_CRIT, NULL, "Filter \"%s\" did not compile correctly.\n"
 		" Please try again. Filter unchanged.\n%s\n", filter_name,
 		dfilter_error_msg);
   } else {
@@ -1073,7 +1073,7 @@ color_sel_ok_cb                        (GtkButton       *button,
   new_color.blue  = (guint16)(new_colors[2]*65535.0);
 
   if ( ! get_color(&new_color) ){
-	simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color.  Try again.");
+	simple_dialog(ESD_TYPE_CRIT, NULL, "Could not allocate color.  Try again.");
   } else {
 	/* Find the "Edit color filter" dialog box with which this is
 	   associated. */

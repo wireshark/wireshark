@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.129 2000/07/09 03:29:40 guy Exp $
+ * $Id: main.c,v 1.130 2000/07/20 05:10:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -325,7 +325,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(streamwindow));
     gtk_widget_show( streamwindow );
   } else {
-    simple_dialog(ESD_TYPE_WARN, NULL,
+    simple_dialog(ESD_TYPE_CRIT, NULL,
       "Error following stream.  Please make\n"
       "sure you have a TCP packet selected.");
   }
@@ -513,7 +513,7 @@ follow_print_stream(GtkWidget *w, gpointer parent_w)
                        to_file = TRUE;
                        break;
                default: /* "Can't happen" */
-                       simple_dialog(ESD_TYPE_WARN, NULL,
+                       simple_dialog(ESD_TYPE_CRIT, NULL,
                                "Couldn't figure out where to send the print "
                                "job. Check your preferences.");
                        return;
@@ -604,7 +604,7 @@ match_selected_cb(GtkWidget *w, gpointer data)
     filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
     if (!finfo_selected) {
-	simple_dialog(ESD_TYPE_WARN, NULL,
+	simple_dialog(ESD_TYPE_CRIT, NULL,
 		      "Error determining selected bytes.  Please make\n"
 		      "sure you have selected a field within the tree\n"
 		      "view to be matched.");
@@ -1588,7 +1588,7 @@ main(int argc, char *argv[])
     if (cf_name) {
       if (rfilter != NULL) {
         if (dfilter_compile(rfilter, &rfcode) != 0) {
-          simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
+          simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
           rfilter_parse_failed = TRUE;
         }
       }

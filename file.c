@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.198 2000/07/09 23:22:18 guy Exp $
+ * $Id: file.c,v 1.199 2000/07/20 05:09:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -183,7 +183,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   return (0);
 
 fail:
-  simple_dialog(ESD_TYPE_WARN, NULL,
+  simple_dialog(ESD_TYPE_CRIT, NULL,
 			file_open_error_message(err, FALSE), fname);
   return (err);
 }
@@ -415,7 +415,7 @@ read_cap_file(capture_file *cf, int *err)
       break;
     }
     snprintf(err_str, sizeof err_str, errmsg);
-    simple_dialog(ESD_TYPE_WARN, NULL, err_str);
+    simple_dialog(ESD_TYPE_CRIT, NULL, err_str);
     return (READ_ERROR);
   } else
     return (READ_SUCCESS);
@@ -818,7 +818,7 @@ filter_packets(capture_file *cf, gchar *dftext)
      */
     if (dfilter_compile(dftext, &dfcode) != 0) {
       /* The attempt failed; report an error. */
-      simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
+      simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
       return 0;
     }
 
@@ -1651,7 +1651,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 	     the temporary directory, and that might be fixable - but
 	     is it worth requiring the user to go off and fix it?) */
 	  err = errno;
-	  simple_dialog(ESD_TYPE_WARN, NULL,
+	  simple_dialog(ESD_TYPE_CRIT, NULL,
 				file_rename_error_message(err), fname);
 	  goto done;
 	}
@@ -1672,7 +1672,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
       from_fd = open(from_filename, O_RDONLY | O_BINARY);
       if (from_fd < 0) {
       	err = errno;
-	simple_dialog(ESD_TYPE_WARN, NULL,
+	simple_dialog(ESD_TYPE_CRIT, NULL,
 			file_open_error_message(err, TRUE), from_filename);
 	goto done;
       }
@@ -1685,7 +1685,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
       to_fd = open(fname, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
       if (to_fd < 0) {
       	err = errno;
-	simple_dialog(ESD_TYPE_WARN, NULL,
+	simple_dialog(ESD_TYPE_CRIT, NULL,
 			file_open_error_message(err, TRUE), fname);
 	close(from_fd);
 	goto done;
@@ -1698,7 +1698,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 	    err = errno;
 	  else
 	    err = WTAP_ERR_SHORT_WRITE;
-	  simple_dialog(ESD_TYPE_WARN, NULL,
+	  simple_dialog(ESD_TYPE_CRIT, NULL,
 				file_write_error_message(err), fname);
 	  close(from_fd);
 	  close(to_fd);
@@ -1707,7 +1707,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
       }
       if (nread < 0) {
       	err = errno;
-	simple_dialog(ESD_TYPE_WARN, NULL,
+	simple_dialog(ESD_TYPE_CRIT, NULL,
 			file_read_error_message(err), from_filename);
 	close(from_fd);
 	close(to_fd);
@@ -1716,7 +1716,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
       close(from_fd);
       if (close(to_fd) < 0) {
       	err = errno;
-	simple_dialog(ESD_TYPE_WARN, NULL,
+	simple_dialog(ESD_TYPE_CRIT, NULL,
 		file_close_error_message(err), fname);
 	goto done;
       }
@@ -1727,7 +1727,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
        we have to do it by writing the packets out in Wiretap. */
     pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, &err);
     if (pdh == NULL) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_CRIT, NULL,
 			file_open_error_message(err, TRUE), fname);
       goto done;
     }
@@ -1752,7 +1752,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 		pd, fdata->cap_len);
 
         if (!wtap_dump(pdh, &hdr, &pseudo_header, pd, &err)) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+	    simple_dialog(ESD_TYPE_CRIT, NULL,
 				file_write_error_message(err), fname);
 	    wtap_dump_close(pdh, &err);
 	    goto done;
@@ -1811,7 +1811,7 @@ done:
 }
 
 char *
-file_open_error_message(int err, int for_writing)
+file_open_error_message(int err, gboolean for_writing)
 {
   char *errmsg;
   static char errmsg_errno[1024+1];
@@ -1873,6 +1873,10 @@ file_open_error_message(int err, int for_writing)
       errmsg = "You do not have permission to create or write to the file \"%s\".";
     else
       errmsg = "You do not have permission to read the file \"%s\".";
+    break;
+
+  case EISDIR:
+    errmsg = "\"%s\" is a directory (folder), not a file.";
     break;
 
   default:

@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.8 2000/07/05 02:45:40 guy Exp $
+ * $Id: goto_dlg.c,v 1.9 2000/07/20 05:09:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,7 +145,7 @@ goto_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
        XXX - what about negative numbers (which "strtoul()" allows)?
        Can we hack up signal handlers for the widget to make it
        reject attempts to type in characters other than digits? */
-    simple_dialog(ESD_TYPE_WARN, NULL,
+    simple_dialog(ESD_TYPE_CRIT, NULL,
 		"The frame number you entered isn't a valid number.");
     return;
   }
@@ -153,12 +153,12 @@ goto_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   switch (goto_frame(&cfile, fnumber)) {
 
   case NO_SUCH_FRAME:
-    simple_dialog(ESD_TYPE_WARN, NULL, "There is no frame with that frame number.");
+    simple_dialog(ESD_TYPE_CRIT, NULL, "There is no frame with that frame number.");
     return;
 
   case FRAME_NOT_DISPLAYED:
     /* XXX - add it to the display filter? */
-    simple_dialog(ESD_TYPE_WARN, NULL, "The frame with that frame number is not currently being displayed.");
+    simple_dialog(ESD_TYPE_CRIT, NULL, "The frame with that frame number is not currently being displayed.");
     return;
 
   case FOUND_FRAME:

@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.3 2000/07/05 02:45:42 guy Exp $
+ * $Id: simple_dialog.c,v 1.4 2000/07/20 05:10:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,7 +90,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
     icon = icon_excl_xpm;
     break;
   case ESD_TYPE_CRIT :
-    gtk_window_set_title(GTK_WINDOW(win), "Ethereal: Critical");
+    gtk_window_set_title(GTK_WINDOW(win), "Ethereal: Error");
     icon = icon_excl_xpm;
     break;
   case ESD_TYPE_INFO :

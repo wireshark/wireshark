@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.14 2000/07/05 02:45:40 guy Exp $
+ * $Id: plugins_dlg.c,v 1.15 2000/07/20 05:10:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -253,7 +253,7 @@ plugins_enable_cb(GtkWidget *button, gpointer clist)
 
     if ((pt_plug = enable_plugin(selected_name, selected_version)) == NULL)
     {
-	simple_dialog(ESD_TYPE_WARN, NULL, "Plugin not found");
+	simple_dialog(ESD_TYPE_CRIT, NULL, "Plugin not found");
 	return;
     }
 
@@ -290,7 +290,7 @@ plugins_disable_cb(GtkWidget *button, gpointer clist)
 
     if ((pt_plug = disable_plugin(selected_name, selected_version)) == NULL)
     {
-	simple_dialog(ESD_TYPE_WARN, NULL, "Plugin not found");
+	simple_dialog(ESD_TYPE_CRIT, NULL, "Plugin not found");
 	return;
     }
     gtk_clist_set_text(GTK_CLIST(clist), selected_row, 3, "No");
@@ -375,7 +375,7 @@ filter_ok_cb(GtkWidget *button, gpointer parent_w)
 	filter_string = gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if (dfilter_compile(filter_string, &filter) != 0)
 	{
-	    simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
+	    simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
 	}
 	else
 	    plugin_replace_filter(selected_name, selected_version,
