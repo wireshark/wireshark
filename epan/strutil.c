@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.2 2000/09/29 19:02:37 guy Exp $
+ * $Id: strutil.c,v 1.3 2000/09/30 05:44:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,6 +84,11 @@ find_line_end(const u_char *data, const u_char *dataend, const u_char **eol)
           lineend++;
         }
       }
+    } else {
+      /*
+       * Yes - the EOL starts with the LF.
+       */
+      *eol = lineend;
     }
 
     /*
