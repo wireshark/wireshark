@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.1 2000/02/14 04:02:09 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.2 2000/02/14 04:18:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,11 +145,6 @@ find_lanman(int lanman_num)
 
 }
 
-
-/*
- * The routines for mailslot and pipe dissecting should be migrated to another 
- * file soon?
- */
 
 #define NETSHAREENUM   0x00  /* 00  */
 #define NETSERVERENUM2 0x68  /* 104 */
@@ -1236,9 +1231,7 @@ register_proto_smb_pipe( void){
 
 
     	proto_smb_lanman = proto_register_protocol(
-    		"Microsoft Windows Lanman Protocol", "Lanman");           
+    		"Microsoft Windows Lanman Protocol", "lanman");
 
-	proto_register_subtree_array(ett, array_length(ett));          
-
+	proto_register_subtree_array(ett, array_length(ett));
 }
-
