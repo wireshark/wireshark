@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.2 1999/01/07 16:15:36 gram Exp $
+ * $Id: snoop.c,v 1.3 1999/02/20 06:46:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -27,7 +27,7 @@
 /* See RFC 1761 for a description of the "snoop" file format. */
 
 /* Magic number in "snoop" files. */
-static char snoop_magic[] = {
+static const char snoop_magic[] = {
 	's', 'n', 'o', 'o', 'p', '\0', '\0', '\0'
 };
 
