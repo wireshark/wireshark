@@ -2,12 +2,11 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.62 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-tr.c,v 1.63 2001/07/03 04:56:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -439,12 +438,12 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ENDTRY;
 
 
-	/* XXX - copy it to some buffer associated with "pi", rather than
+	/* XXX - copy it to some buffer associated with "*pinfo", rather than
 	   just making "trn_shost_nonsr" static? */
-	SET_ADDRESS(&pi.dl_src,	AT_ETHER, 6, trn_shost_nonsr);
-	SET_ADDRESS(&pi.src,	AT_ETHER, 6, trn_shost_nonsr);
-	SET_ADDRESS(&pi.dl_dst,	AT_ETHER, 6, trn_dhost);
-	SET_ADDRESS(&pi.dst,	AT_ETHER, 6, trn_dhost);
+	SET_ADDRESS(&pinfo->dl_src,	AT_ETHER, 6, trn_shost_nonsr);
+	SET_ADDRESS(&pinfo->src,	AT_ETHER, 6, trn_shost_nonsr);
+	SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, trn_dhost);
+	SET_ADDRESS(&pinfo->dst,	AT_ETHER, 6, trn_dhost);
 
 	/* protocol analysis tree */
 	if (tree) {

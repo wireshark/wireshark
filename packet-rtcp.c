@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.17 2001/06/20 04:45:51 guy Exp $
+ * $Id: packet-rtcp.c,v 1.18 2001/07/03 04:56:45 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -248,14 +248,14 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	 * a heuristic dissector called before us!
 	 * So we first check if the frame is really meant for us.
 	 */
-	if ( ( pconv = find_conversation( &pi.src, &fake_addr, pi.ptype,
-	    pi.srcport, 0, 0 ) ) == NULL ) {
+	if ( ( pconv = find_conversation( &pinfo->src, &fake_addr, pinfo->ptype,
+	    pinfo->srcport, 0, 0 ) ) == NULL ) {
 		/*
 		 * The source ip:port combination was not what we were
 		 * looking for, check the destination
 		 */
-		if ( ( pconv = find_conversation( &pi.dst, &fake_addr,
-		    pi.ptype, pi.destport, 0, 0 ) ) == NULL ) {
+		if ( ( pconv = find_conversation( &pinfo->dst, &fake_addr,
+		    pinfo->ptype, pinfo->destport, 0, 0 ) ) == NULL ) {
 			return FALSE;
 		}
 	}

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.40 2001/05/14 18:25:34 guy Exp $
+ * $Id: packet-ospf.c,v 1.41 2001/07/03 04:56:45 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -14,7 +14,6 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -221,7 +220,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	length = tvb_length(tvb);
 	/* XXX - include only the length from the OSPF header? */
 	reported_length = tvb_reported_length(tvb);
-	if (!pi.fragmented && length >= reported_length
+	if (!pinfo->fragmented && length >= reported_length
 		&& length >= OSPF_HEADER_LENGTH) {
 	    /* The packet isn't part of a fragmented datagram and isn't
 	       truncated, so we can checksum it. */

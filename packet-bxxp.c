@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.19 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-bxxp.c,v 1.20 2001/07/03 04:56:45 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -487,12 +487,12 @@ dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
 
 static void
 set_mime_hdr_flags(int more, struct bxxp_request_val *request_val, 
-		   struct bxxp_proto_data *frame_data)
+		   struct bxxp_proto_data *frame_data, packet_info *pinfo)
 {
 
   if (!request_val) return; /* Nothing to do ??? */
 
-  if (pi.destport == tcp_port) { /* Going to the server ... client */
+  if (pinfo->destport == tcp_port) { /* Going to the server ... client */
 
     if (request_val->c_mime_hdr) {
 
@@ -582,7 +582,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
        * will get it wrong!
        */
 
-      set_mime_hdr_flags(more, request_val, frame_data);
+      set_mime_hdr_flags(more, request_val, frame_data, pinfo);
 
     }
     else {  /* Protocol violation, so dissect rest as undisectable */
@@ -723,7 +723,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if ((more = dissect_bxxp_more(tvb, offset, pinfo->fd, hdr)) >= 0) {
 
-      set_mime_hdr_flags(more, request_val, frame_data);
+      set_mime_hdr_flags(more, request_val, frame_data, pinfo);
 
     }
     else { 
@@ -1015,7 +1015,7 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (!frame_data) {
 
-    conversation = find_conversation(&pinfo->src, &pinfo->dst, pi.ptype,
+    conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
 				       pinfo->srcport, pinfo->destport, 0);
     if (conversation == NULL) { /* No conversation, create one */
 	conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,

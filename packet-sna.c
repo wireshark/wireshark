@@ -2,12 +2,11 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.30 2001/06/18 02:17:52 guy Exp $
+ * $Id: packet-sna.c,v 1.31 2001/07/03 04:56:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -312,7 +311,7 @@ static const true_false_string sna_th_vr_rwi_truth = {
 static int  dissect_fid0_1 (tvbuff_t*, packet_info*, proto_tree*);
 static int  dissect_fid2 (tvbuff_t*, packet_info*, proto_tree*);
 static int  dissect_fid3 (tvbuff_t*, proto_tree*);
-static int  dissect_fid4 (tvbuff_t*, proto_tree*);
+static int  dissect_fid4 (tvbuff_t*, packet_info*, proto_tree*);
 static int  dissect_fid5 (tvbuff_t*, proto_tree*);
 static int  dissect_fidf (tvbuff_t*, proto_tree*);
 static void dissect_rh (tvbuff_t*, int, proto_tree*);
@@ -370,7 +369,7 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			th_header_len = dissect_fid3(tvb, th_tree);
 			break;
 		case 0x4:
-			th_header_len = dissect_fid4(tvb, th_tree);
+			th_header_len = dissect_fid4(tvb, pinfo, th_tree);
 			break;
 		case 0x5:
 			th_header_len = dissect_fid5(tvb, th_tree);
@@ -552,7 +551,7 @@ dissect_fid3(tvbuff_t *tvb, proto_tree *tree)
 
 
 static int
-dissect_fid4(tvbuff_t *tvb, proto_tree *tree)
+dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
@@ -702,8 +701,8 @@ dissect_fid4(tvbuff_t *tvb, proto_tree *tree)
 	/* Addresses in FID 4 are discontiguous, sigh */
 	dst.saf = dsaf;
 	dst.ef = def;
-	SET_ADDRESS(&pi.net_dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, (guint8* )&dst);
-	SET_ADDRESS(&pi.dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, (guint8 *)&dst);
+	SET_ADDRESS(&pinfo->net_dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, (guint8* )&dst);
+	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, (guint8 *)&dst);
 
 
 	oef = tvb_get_ntohs(tvb, 20);
@@ -714,8 +713,8 @@ dissect_fid4(tvbuff_t *tvb, proto_tree *tree)
 	/* Addresses in FID 4 are discontiguous, sigh */
 	src.saf = osaf;
 	src.ef = oef;
-	SET_ADDRESS(&pi.net_src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, (guint8 *)&src);
-	SET_ADDRESS(&pi.src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, (guint8 *)&src);
+	SET_ADDRESS(&pinfo->net_src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, (guint8 *)&src);
+	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, (guint8 *)&src);
 
 	if (tree) {
 		proto_tree_add_item(tree, hf_sna_th_snf, tvb, offset+4, 2, FALSE);

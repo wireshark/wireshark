@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.18 2001/06/21 22:35:33 guy Exp $
+ * $Id: packet-sctp.c,v 1.19 2001/07/03 04:56:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -987,8 +987,8 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
 {
   /* do lookup with the subdissector table */
   if (dissector_try_port (sctp_ppi_dissector_table, ppi,  payload_tvb, pinfo, tree) ||
-      dissector_try_port(sctp_port_dissector_table, pi.srcport,  payload_tvb, pinfo, tree) ||
-      dissector_try_port(sctp_port_dissector_table, pi.destport, payload_tvb, pinfo, tree)){
+      dissector_try_port(sctp_port_dissector_table, pinfo->srcport,  payload_tvb, pinfo, tree) ||
+      dissector_try_port(sctp_port_dissector_table, pinfo->destport, payload_tvb, pinfo, tree)){
     return TRUE;
   }
   else {

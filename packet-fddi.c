@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.50 2001/07/03 01:23:21 guy Exp $
+ * $Id: packet-fddi.c,v 1.51 2001/07/03 04:56:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,8 +310,8 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "dst" static? */
-  SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &dst[0]);
-  SET_ADDRESS(&pi.dst, AT_ETHER, 6, &dst[0]);
+  SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, &dst[0]);
+  SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, &dst[0]);
 
   if (fh_tree) {
     proto_tree_add_ether(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst);
@@ -331,8 +331,8 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "src" static? */
-  SET_ADDRESS(&pi.dl_src, AT_ETHER, 6, &src[0]);
-  SET_ADDRESS(&pi.src, AT_ETHER, 6, &src[0]);
+  SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, &src[0]);
+  SET_ADDRESS(&pinfo->src, AT_ETHER, 6, &src[0]);
 
   if (fh_tree) {
       proto_tree_add_ether(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src);

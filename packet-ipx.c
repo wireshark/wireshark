@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.87 2001/06/29 09:46:52 guy Exp $
+ * $Id: packet-ipx.c,v 1.88 2001/07/03 04:56:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -229,10 +229,10 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	src_net_node = tvb_get_ptr(tvb, 18, 10);
 	dst_net_node = tvb_get_ptr(tvb, 6,  10);
 
-	SET_ADDRESS(&pi.net_src,	AT_IPX, 10, src_net_node);
-	SET_ADDRESS(&pi.src,		AT_IPX, 10, src_net_node);
-	SET_ADDRESS(&pi.net_dst,	AT_IPX, 10, dst_net_node);
-	SET_ADDRESS(&pi.dst,		AT_IPX, 10, dst_net_node);
+	SET_ADDRESS(&pinfo->net_src,	AT_IPX, 10, src_net_node);
+	SET_ADDRESS(&pinfo->src,	AT_IPX, 10, src_net_node);
+	SET_ADDRESS(&pinfo->net_dst,	AT_IPX, 10, dst_net_node);
+	SET_ADDRESS(&pinfo->dst,	AT_IPX, 10, dst_net_node);
 
 	if (check_col(pinfo->fd, COL_INFO))
 		col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%04X)",

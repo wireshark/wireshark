@@ -4,10 +4,10 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.16 2001/06/21 15:13:42 girlich Exp $
+ * $Id: packet-quake.c,v 1.17 2001/07/03 04:56:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -240,8 +240,8 @@ dissect_quake_CCREP_ACCEPT
 	conversation_t *c;
 
 	port = tvb_get_letohl(tvb, 0);
-	c = conversation_new( &pi.src, &pi.dst, PT_UDP, port, pi.destport,
-	    NULL, 0);
+	c = conversation_new( &pinfo->src, &pinfo->dst, PT_UDP, port,
+	    pinfo->destport, NULL, 0);
 	if (c) {
 		conversation_set_dissector(c, dissect_quake);
 	}

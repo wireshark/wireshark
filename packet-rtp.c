@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.21 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-rtp.c,v 1.22 2001/07/03 04:56:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -261,14 +261,14 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	 * a heuristic dissector called before us!
 	 * So we first check if the frame is really meant for us.
 	 */
-	if ( ( pconv = find_conversation( &pi.src, &fake_addr, pi.ptype,
-	    pi.srcport, 0, 0 ) ) == NULL ) {
+	if ( ( pconv = find_conversation( &pinfo->src, &fake_addr, pinfo->ptype,
+	    pinfo->srcport, 0, 0 ) ) == NULL ) {
 		/*
 		 * The source ip:port combination was not what we were
 		 * looking for, check the destination
 		 */
-		if ( ( pconv = find_conversation( &pi.dst, &fake_addr,
-		    pi.ptype, pi.destport, 0, 0 ) ) == NULL ) {
+		if ( ( pconv = find_conversation( &pinfo->dst, &fake_addr,
+		    pinfo->ptype, pinfo->destport, 0, 0 ) ) == NULL ) {
 			return FALSE;
 		}
 	}

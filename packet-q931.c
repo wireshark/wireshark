@@ -2,14 +2,13 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.30 2001/06/18 02:17:50 guy Exp $
+ * $Id: packet-q931.c,v 1.31 2001/07/03 04:56:45 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -2365,7 +2364,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if ( ( tvb_get_guint8( tvb, offset ) == 0x7E ) && 
 		   ( tvb_get_guint8( tvb, offset + 3 ) == 0x05 ) && 
-		   /* ( ( pi.srcport == 1720 ) || ( pi.destport == 1720 ) ) && */
+		   /* ( ( pinfo->srcport == 1720 ) || ( pinfo->destport == 1720 ) ) && */
 		   ( protocol_discriminator == NLPID_Q_931 ) )  {
 			info_element_len = tvb_get_ntohs( tvb, offset + 1 );
 			is_h323_h225 = TRUE;
