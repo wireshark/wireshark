@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.6 2000/02/09 19:17:50 gram Exp $
+$Id: README.win32,v 1.7 2000/03/03 07:06:13 guy Exp $
 
 Ethereal can be compiled on Win32 platforms. Some libraries are
 needed, however.
@@ -57,7 +57,7 @@ source tree to work for your local configuration. You should not
 have to modify any other Makefile.
 
 Be sure that your command-line environment is set up to compile
-and linke with MSVC. When installing MSVC, you can have your
+and link with MSVC. When installing MSVC, you can have your
 system's environment set up to always allow compiling from the
 command line, or you can invoke the vcvars32.bat script.
 
