@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.108 2004/06/05 02:40:23 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.109 2004/06/24 05:23:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1104,7 +1104,7 @@ samr_dissect_connect2_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_connect4_rqst(tvbuff_t *tvb, int offset,
+samr_dissect_connect3_4_rqst(tvbuff_t *tvb, int offset,
 			   packet_info *pinfo, proto_tree *tree,
 			   guint8 *drep)
 {
@@ -1112,7 +1112,7 @@ samr_dissect_connect4_rqst(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Server", hf_samr_server, cb_wstr_postprocess,
-		GINT_TO_POINTER(CB_STR_COL_INFO | 1));
+		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				     hf_samr_unknown_long, NULL);
@@ -1125,7 +1125,7 @@ samr_dissect_connect4_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
+samr_dissect_connect2_3_4_reply(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              guint8 *drep)
 {
@@ -1134,7 +1134,7 @@ samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	guint32 status;
-	char *server = (char *)dcv->private_data, *pol_name;
+	char *server = (char *)dcv->private_data, *pol_name = NULL;
 	
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, &hnd_item,
@@ -1144,10 +1144,22 @@ samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
 				  hf_samr_rc, &status);
 
 	if (status == 0) {
-		if (server)
-			pol_name = g_strdup_printf("Connect2(%s)", server);
-		else
-			pol_name = g_strdup("Connect2 handle");
+                if (server) {
+                        if (dcv->opnum == SAMR_CONNECT2)
+                                pol_name = g_strdup_printf("Connect2(%s)", server);
+                        if (dcv->opnum == SAMR_CONNECT3)
+                                pol_name = g_strdup_printf("Connect3(%s)", server);
+                        if (dcv->opnum == SAMR_CONNECT4)
+                                pol_name = g_strdup_printf("Connect4(%s)", server);
+                }
+                else {
+                        if (dcv->opnum == SAMR_CONNECT2)
+                                pol_name = g_strdup("Connect2 handle");
+                        if (dcv->opnum == SAMR_CONNECT3)
+                                pol_name = g_strdup("Connect3 handle");
+                        if (dcv->opnum == SAMR_CONNECT4)
+                                pol_name = g_strdup("Connect4 handle");
+                }
 
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
@@ -4615,6 +4627,89 @@ samr_dissect_query_information_user_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+
+static int
+samr_dissect_connect5_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                          proto_tree *tree, guint8 *drep)
+{
+       offset = dissect_ndr_pointer_cb(
+               tvb, offset, pinfo, tree, drep,
+               dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
+               "Server", hf_samr_server, cb_wstr_postprocess,
+               GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
+
+       offset = dissect_nt_access_mask(
+               tvb, offset, pinfo, tree, drep, hf_samr_access,
+               &samr_connect_access_mask_info, NULL);
+
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                   hf_samr_unknown_long, NULL);
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                   hf_samr_unknown_long, NULL);
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                   hf_samr_unknown_long, NULL);
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                   hf_samr_unknown_long, NULL);
+
+       return offset;
+
+}
+
+
+static int
+samr_dissect_connect5_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                          proto_tree *tree, guint8 *drep)
+{
+       dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+       dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+       e_ctx_hnd policy_hnd;
+       proto_item *hnd_item;
+       guint32 status;
+       char *server = (char *)dcv->private_data, *pol_name;
+
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                   hf_samr_unknown_long, NULL);
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                   hf_samr_unknown_long, NULL);
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                   hf_samr_unknown_long, NULL);
+
+       offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                   hf_samr_unknown_long, NULL);
+
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+                                      hf_samr_hnd, &policy_hnd, 
+                                      &hnd_item, TRUE, FALSE);
+
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+                                 hf_samr_rc, &status);
+
+       if (status == 0) {
+               if (server)
+                       pol_name = g_strdup_printf("Connect5(%s)", server);
+               else
+                       pol_name = g_strdup("Connect5 handle");
+
+               dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+
+               if (hnd_item != NULL)
+                       proto_item_append_text(hnd_item, ": %s", pol_name);
+
+               g_free(pol_name);
+       }
+
+       return offset;
+}
+
+
+
 static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_CONNECT, "SamrConnect",
 		samr_dissect_connect_anon_rqst,
@@ -4789,7 +4884,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_get_domain_password_information_reply },
 	{ SAMR_CONNECT2, "SamrConnect2",
 		samr_dissect_connect2_rqst,
-		samr_dissect_connect2_reply },
+		samr_dissect_connect2_3_4_reply },
         { SAMR_SET_USERINFO2, "SamrSetInformationUser2",
 		samr_dissect_set_information_user2_rqst,
 		samr_dissect_set_information_user2_reply },
@@ -4800,14 +4895,16 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_get_boot_key_information_rqst,
 		samr_dissect_get_boot_key_information_reply },
 	{ SAMR_CONNECT3, "SamrConnect3",
-		samr_dissect_connect4_rqst,
-		samr_dissect_connect2_reply },
+		samr_dissect_connect3_4_rqst,
+		samr_dissect_connect2_3_4_reply },
 	{ SAMR_CONNECT4, "SamrConnect4",
-		samr_dissect_connect4_rqst,
-		samr_dissect_connect2_reply },
+		samr_dissect_connect3_4_rqst,
+		samr_dissect_connect2_3_4_reply },
 	{ SAMR_UNICODE_CHANGE_PASSWORD_USER3, "SamrUnicodeChangePasswordUser3",
 		NULL, NULL },
-	{ SAMR_CONNECT5, "SamrConnect5", NULL, NULL },
+	{ SAMR_CONNECT5, "SamrConnect5",
+		samr_dissect_connect5_rqst, 
+		samr_dissect_connect5_reply },
 	{ SAMR_RID_TO_SID, "SamrRidToSid", NULL, NULL },
 	{ SAMR_SET_DSRM_PASSWORD, "SamrSetDSRMPassword", NULL, NULL },
 	{ SAMR_VALIDATE_PASSWORD, "SamrValidatePassword", NULL, NULL },
