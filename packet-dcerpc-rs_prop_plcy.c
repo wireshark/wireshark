@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_prop_plcy.idl
  *
- * $Id: packet-dcerpc-rs_prop_plcy.c,v 1.1 2004/02/10 23:38:34 guy Exp $
+ * $Id: packet-dcerpc-rs_prop_plcy.c,v 1.2 2004/03/25 06:39:00 ulfl Exp $
  *      
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@ static e_uuid_t uuid_rs_prop_plcy =
   { 0xe6ac5cb8, 0xde3e, 0x11ca, {0x93, 0x76, 0x08, 0x00, 0x1e, 0x03, 0x94,
 				 0xc7} };
 
-static guint16 ver_rs_prop_plcy = 1.1;
+static guint16 ver_rs_prop_plcy = 1 /*1.1*/;
 
 
 static dcerpc_sub_dissector rs_prop_plcy_dissectors[] = {
