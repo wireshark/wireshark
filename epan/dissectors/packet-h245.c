@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h245.c                                                            */
+/* .\packet-h245.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.c */
@@ -74,6 +74,7 @@ static dissector_handle_t MultimediaSystemControlMessage_handle;
 
 static void reset_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type = -1;
+static int hf_h245Manufacturer = -1;
 static int h245_tap = -1;
 static int ett_h245 = -1;
 static h245_packet_info h245_pi;
@@ -182,6 +183,10 @@ static guint32 rtcp_ipv4_address;
 static guint32 rtcp_ipv4_port;
 static gboolean media_channel;
 static gboolean media_control_channel;
+static guint32 t35CountryCode;
+static guint32 t35Extension;
+static guint32 manufacturerCode;
+static guint32 h221NonStandard;
 
 static const value_string h245_RFC_number_vals[] = {
 	{  2190,	"RFC 2190 - H.263 Video Streams" },
@@ -275,16 +280,16 @@ static int hf_h245_mobileMultilinkReconfigurationIndication = -1;  /* MobileMult
 static int hf_h245_genericIndication = -1;        /* GenericMessage */
 static int hf_h245_messageIdentifier = -1;        /* CapabilityIdentifier */
 static int hf_h245_subMessageIdentifer = -1;      /* T_subMessageIdentifer */
-static int hf_h245_messageContent = -1;           /* SEQUNCE_OF_GenericParameter */
+static int hf_h245_messageContent = -1;           /* SEQUENCE_OF_GenericParameter */
 static int hf_h245_messageContent_item = -1;      /* GenericParameter */
 static int hf_h245_nonStandardData = -1;          /* NonStandardParameter */
 static int hf_h245_nonStandardIdentifier = -1;    /* NonStandardIdentifier */
 static int hf_h245_nsd_data = -1;                 /* OCTET_STRING */
 static int hf_h245_object = -1;                   /* OBJECT_IDENTIFIER */
 static int hf_h245_h221NonStandardID = -1;        /* H221NonStandardID */
-static int hf_h245_t35CountryCode = -1;           /* INTEGER_0_255 */
-static int hf_h245_t35Extension = -1;             /* INTEGER_0_255 */
-static int hf_h245_manufacturerCode = -1;         /* INTEGER_0_65535 */
+static int hf_h245_t35CountryCode = -1;           /* T_t35CountryCode */
+static int hf_h245_t35Extension = -1;             /* T_t35Extension */
+static int hf_h245_manufacturerCode = -1;         /* T_manufacturerCode */
 static int hf_h245_terminalType = -1;             /* INTEGER_0_255 */
 static int hf_h245_statusDeterminationNumber = -1;  /* INTEGER_0_16777215 */
 static int hf_h245_decision = -1;                 /* T_decision */
@@ -446,12 +451,12 @@ static int hf_h245_decentralizedConferenceMC = -1;  /* BOOLEAN */
 static int hf_h245_rtcpVideoControlCapability = -1;  /* BOOLEAN */
 static int hf_h245_mediaPacketizationCapability = -1;  /* MediaPacketizationCapability */
 static int hf_h245_transportCapability = -1;      /* TransportCapability */
-static int hf_h245_redundancyEncodingCapability = -1;  /* SEQUNCE_SIZE_1_256_OF_RedundancyEncodingCapability */
+static int hf_h245_redundancyEncodingCapability = -1;  /* SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability */
 static int hf_h245_redundancyEncodingCapability_item = -1;  /* RedundancyEncodingCapability */
 static int hf_h245_logicalChannelSwitchingCapability = -1;  /* BOOLEAN */
 static int hf_h245_t120DynamicPortCapability = -1;  /* BOOLEAN */
 static int hf_h245_h261aVideoPacketization = -1;  /* BOOLEAN */
-static int hf_h245_rtpPayloadType2 = -1;          /* SEQUNCE_SIZE_1_256_OF_RTPPayloadType */
+static int hf_h245_rtpPayloadType2 = -1;          /* SEQUENCE_SIZE_1_256_OF_RTPPayloadType */
 static int hf_h245_rtpPayloadType2_item = -1;     /* RTPPayloadType */
 static int hf_h245_qosMode = -1;                  /* QOSMode */
 static int hf_h245_tokenRate = -1;                /* INTEGER_1_4294967295 */
@@ -476,13 +481,13 @@ static int hf_h245_atm_AAL5_BIDIR = -1;           /* NULL */
 static int hf_h245_atm_AAL5_compressed = -1;      /* T_atm_AAL5_compressed */
 static int hf_h245_variable_delta = -1;           /* BOOLEAN */
 static int hf_h245_mediaTransport = -1;           /* MediaTransportType */
-static int hf_h245_qOSCapabilities = -1;          /* SEQUNCE_SIZE_1_256_OF_QOSCapability */
+static int hf_h245_qOSCapabilities = -1;          /* SEQUENCE_SIZE_1_256_OF_QOSCapability */
 static int hf_h245_qOSCapabilities_item = -1;     /* QOSCapability */
-static int hf_h245_mediaChannelCapabilities = -1;  /* SEQUNCE_SIZE_1_256_OF_MediaChannelCapability */
+static int hf_h245_mediaChannelCapabilities = -1;  /* SEQUENCE_SIZE_1_256_OF_MediaChannelCapability */
 static int hf_h245_mediaChannelCapabilities_item = -1;  /* MediaChannelCapability */
 static int hf_h245_redundancyEncodingMethod = -1;  /* RedundancyEncodingMethod */
 static int hf_h245_primaryEncoding = -1;          /* CapabilityTableEntryNumber */
-static int hf_h245_secondaryEncoding2 = -1;       /* SEQUNCE_SIZE_1_256_OF_CapabilityTableEntryNumber */
+static int hf_h245_secondaryEncoding2 = -1;       /* SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber */
 static int hf_h245_secondaryEncoding2_item = -1;  /* CapabilityTableEntryNumber */
 static int hf_h245_rtpAudioRedundancyEncoding = -1;  /* NULL */
 static int hf_h245_rtpH263VideoRedundancyEncoding = -1;  /* RTPH263VideoRedundancyEncoding */
@@ -490,16 +495,16 @@ static int hf_h245_numberOfThreads = -1;          /* INTEGER_1_16 */
 static int hf_h245_framesBetweenSyncPoints = -1;  /* INTEGER_1_256 */
 static int hf_h245_frameToThreadMapping = -1;     /* T_frameToThreadMapping */
 static int hf_h245_roundrobin = -1;               /* NULL */
-static int hf_h245_custom = -1;                   /* SEQUNCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping */
+static int hf_h245_custom = -1;                   /* SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping */
 static int hf_h245_custom_item = -1;              /* RTPH263VideoRedundancyFrameMapping */
-static int hf_h245_containedThreads = -1;         /* SEQUNCE_SIZE_1_256_OF_INTEGER_0_15 */
+static int hf_h245_containedThreads = -1;         /* T_containedThreads */
 static int hf_h245_containedThreads_item = -1;    /* INTEGER_0_15 */
 static int hf_h245_threadNumber = -1;             /* INTEGER_0_15 */
-static int hf_h245_frameSequence = -1;            /* SEQUNCE_SIZE_1_256_OF_INTEGER_0_255 */
+static int hf_h245_frameSequence = -1;            /* T_frameSequence */
 static int hf_h245_frameSequence_item = -1;       /* INTEGER_0_255 */
 static int hf_h245_multicastCapability = -1;      /* BOOLEAN */
 static int hf_h245_multiUniCastConference = -1;   /* BOOLEAN */
-static int hf_h245_mediaDistributionCapability = -1;  /* SEQUNCE_OF_MediaDistributionCapability */
+static int hf_h245_mediaDistributionCapability = -1;  /* SEQUENCE_OF_MediaDistributionCapability */
 static int hf_h245_mediaDistributionCapability_item = -1;  /* MediaDistributionCapability */
 static int hf_h245_centralizedControl = -1;       /* BOOLEAN */
 static int hf_h245_distributedControl = -1;       /* BOOLEAN */
@@ -507,9 +512,9 @@ static int hf_h245_centralizedAudio = -1;         /* BOOLEAN */
 static int hf_h245_distributedAudio = -1;         /* BOOLEAN */
 static int hf_h245_centralizedVideo = -1;         /* BOOLEAN */
 static int hf_h245_distributedVideo = -1;         /* BOOLEAN */
-static int hf_h245_centralizedData = -1;          /* SEQUNCE_OF_DataApplicationCapability */
+static int hf_h245_centralizedData = -1;          /* SEQUENCE_OF_DataApplicationCapability */
 static int hf_h245_centralizedData_item = -1;     /* DataApplicationCapability */
-static int hf_h245_distributedData = -1;          /* SEQUNCE_OF_DataApplicationCapability */
+static int hf_h245_distributedData = -1;          /* SEQUENCE_OF_DataApplicationCapability */
 static int hf_h245_distributedData_item = -1;     /* DataApplicationCapability */
 static int hf_h245_h261VideoCapability = -1;      /* H261VideoCapability */
 static int hf_h245_h262VideoCapability = -1;      /* H262VideoCapability */
@@ -517,9 +522,9 @@ static int hf_h245_h263VideoCapability = -1;      /* H263VideoCapability */
 static int hf_h245_is11172VideoCapability = -1;   /* IS11172VideoCapability */
 static int hf_h245_genericVideoCapability = -1;   /* GenericCapability */
 static int hf_h245_extendedVideoCapability = -1;  /* ExtendedVideoCapability */
-static int hf_h245_videoCapability = -1;          /* SEQUNCE_OF_VideoCapability */
+static int hf_h245_videoCapability = -1;          /* SEQUENCE_OF_VideoCapability */
 static int hf_h245_videoCapability_item = -1;     /* VideoCapability */
-static int hf_h245_videoCapabilityExtension = -1;  /* SEQUNCE_OF_GenericCapability */
+static int hf_h245_videoCapabilityExtension = -1;  /* SEQUENCE_OF_GenericCapability */
 static int hf_h245_videoCapabilityExtension_item = -1;  /* GenericCapability */
 static int hf_h245_qcifMPI_1_4 = -1;              /* INTEGER_1_4 */
 static int hf_h245_cifMPI_1_4 = -1;               /* INTEGER_1_4 */
@@ -648,7 +653,7 @@ static int hf_h245_customPCF_item = -1;           /* T_customPCF_item */
 static int hf_h245_customMPI = -1;                /* INTEGER_1_2048 */
 static int hf_h245_pixelAspectInformation = -1;   /* T_pixelAspectInformation */
 static int hf_h245_anyPixelAspectRatio = -1;      /* BOOLEAN */
-static int hf_h245_pixelAspectCode = -1;          /* SET_SIZE_1_14_OF_INTEGER_1_14 */
+static int hf_h245_pixelAspectCode = -1;          /* T_pixelAspectCode */
 static int hf_h245_pixelAspectCode_item = -1;     /* INTEGER_1_14 */
 static int hf_h245_extendedPAR = -1;              /* T_extendedPAR */
 static int hf_h245_extendedPAR_item = -1;         /* T_extendedPAR_item */
@@ -818,7 +823,7 @@ static int hf_h245_integrityCapability = -1;      /* IntegrityCapability */
 static int hf_h245_EncryptionCapability_item = -1;  /* MediaEncryptionAlgorithm */
 static int hf_h245_algorithm = -1;                /* OBJECT_IDENTIFIER */
 static int hf_h245_antiSpamAlgorithm = -1;        /* OBJECT_IDENTIFIER */
-static int hf_h245_ui_nonStandard = -1;           /* SEQUNCE_SIZE_1_16_OF_NonStandardParameter */
+static int hf_h245_ui_nonStandard = -1;           /* SEQUENCE_SIZE_1_16_OF_NonStandardParameter */
 static int hf_h245_nonStandard_item = -1;         /* NonStandardParameter */
 static int hf_h245_basicString = -1;              /* NULL */
 static int hf_h245_iA5String = -1;                /* NULL */
@@ -830,15 +835,15 @@ static int hf_h245_encryptedBasicString = -1;     /* NULL */
 static int hf_h245_encryptedIA5String = -1;       /* NULL */
 static int hf_h245_encryptedGeneralString = -1;   /* NULL */
 static int hf_h245_secureDTMF = -1;               /* NULL */
-static int hf_h245_nonStandardParams = -1;        /* SEQUNCE_OF_NonStandardParameter */
+static int hf_h245_nonStandardParams = -1;        /* SEQUENCE_OF_NonStandardParameter */
 static int hf_h245_nonStandardData_item = -1;     /* NonStandardParameter */
 static int hf_h245_chairControlCapability = -1;   /* BOOLEAN */
 static int hf_h245_videoIndicateMixingCapability = -1;  /* BOOLEAN */
 static int hf_h245_multipointVisualizationCapability = -1;  /* BOOLEAN */
 static int hf_h245_capabilityIdentifier = -1;     /* CapabilityIdentifier */
-static int hf_h245_collapsing = -1;               /* SEQUNCE_OF_GenericParameter */
+static int hf_h245_collapsing = -1;               /* SEQUENCE_OF_GenericParameter */
 static int hf_h245_collapsing_item = -1;          /* GenericParameter */
-static int hf_h245_nonCollapsing = -1;            /* SEQUNCE_OF_GenericParameter */
+static int hf_h245_nonCollapsing = -1;            /* SEQUENCE_OF_GenericParameter */
 static int hf_h245_nonCollapsing_item = -1;       /* GenericParameter */
 static int hf_h245_nonCollapsingRaw = -1;         /* OCTET_STRING */
 static int hf_h245_transport = -1;                /* DataProtocolCapability */
@@ -848,7 +853,7 @@ static int hf_h245_uuid = -1;                     /* OCTET_STRING_SIZE_16 */
 static int hf_h245_domainBased = -1;              /* IA5String_SIZE_1_64 */
 static int hf_h245_parameterIdentifier = -1;      /* ParameterIdentifier */
 static int hf_h245_parameterValue = -1;           /* ParameterValue */
-static int hf_h245_supersedes = -1;               /* SEQUNCE_OF_ParameterIdentifier */
+static int hf_h245_supersedes = -1;               /* SEQUENCE_OF_ParameterIdentifier */
 static int hf_h245_supersedes_item = -1;          /* ParameterIdentifier */
 static int hf_h245_standard = -1;                 /* INTEGER_0_127 */
 static int hf_h245_logical = -1;                  /* NULL */
@@ -858,7 +863,7 @@ static int hf_h245_unsignedMax = -1;              /* INTEGER_0_65535 */
 static int hf_h245_unsigned32Min = -1;            /* INTEGER_0_4294967295 */
 static int hf_h245_unsigned32Max = -1;            /* INTEGER_0_4294967295 */
 static int hf_h245_octetString = -1;              /* OCTET_STRING */
-static int hf_h245_genericParameter = -1;         /* SEQUNCE_OF_GenericParameter */
+static int hf_h245_genericParameter = -1;         /* SEQUENCE_OF_GenericParameter */
 static int hf_h245_genericParameter_item = -1;    /* GenericParameter */
 static int hf_h245_multiplexFormat = -1;          /* MultiplexFormat */
 static int hf_h245_controlOnMuxStream = -1;       /* BOOLEAN */
@@ -985,9 +990,9 @@ static int hf_h245_n401 = -1;                     /* INTEGER_1_4095 */
 static int hf_h245_loopbackTestProcedure = -1;    /* BOOLEAN */
 static int hf_h245_sessionID_0_255 = -1;          /* INTEGER_0_255 */
 static int hf_h245_associatedSessionID = -1;      /* INTEGER_1_255 */
-static int hf_h245_mediaChannel = -1;             /* TransportAddress */
+static int hf_h245_mediaChannel = -1;             /* T_mediaChannel */
 static int hf_h245_mediaGuaranteedDelivery = -1;  /* BOOLEAN */
-static int hf_h245_mediaControlChannel = -1;      /* TransportAddress */
+static int hf_h245_mediaControlChannel = -1;      /* T_mediaControlChannel */
 static int hf_h245_mediaControlGuaranteedDelivery = -1;  /* BOOLEAN */
 static int hf_h245_destination = -1;              /* TerminalLabel */
 static int hf_h245_mediaPacketization = -1;       /* T_mediaPacketization */
@@ -1001,9 +1006,9 @@ static int hf_h245_payloadType = -1;              /* INTEGER_0_127 */
 static int hf_h245_secondaryEncoding3 = -1;       /* DataType */
 static int hf_h245_rtpRedundancyEncoding = -1;    /* T_rtpRedundancyEncoding */
 static int hf_h245_primary = -1;                  /* RedundancyEncodingElement */
-static int hf_h245_secondary = -1;                /* SEQUNCE_OF_RedundancyEncodingElement */
+static int hf_h245_secondary = -1;                /* SEQUENCE_OF_RedundancyEncodingElement */
 static int hf_h245_secondary_item = -1;           /* RedundancyEncodingElement */
-static int hf_h245_elements = -1;                 /* SEQUNCE_OF_MultiplePayloadStreamElement */
+static int hf_h245_elements = -1;                 /* SEQUENCE_OF_MultiplePayloadStreamElement */
 static int hf_h245_elements_item = -1;            /* MultiplePayloadStreamElement */
 static int hf_h245_rfc2733 = -1;                  /* RFC2733Data */
 static int hf_h245_fec_data_mode = -1;            /* FECdata_mode */
@@ -1032,7 +1037,7 @@ static int hf_h245_strict = -1;                   /* NULL */
 static int hf_h245_loose = -1;                    /* NULL */
 static int hf_h245_network = -1;                  /* OCTET_STRING_SIZE_4 */
 static int hf_h245_iPSrcRoute_tsapIdentifier = -1;  /* INTEGER_0_65535 */
-static int hf_h245_route = -1;                    /* SEQUNCE_OF_OCTET_STRING_SIZE_4 */
+static int hf_h245_route = -1;                    /* T_route */
 static int hf_h245_route_item = -1;               /* OCTET_STRING_SIZE_4 */
 static int hf_h245_nsap = -1;                     /* OCTET_STRING_SIZE_1_20 */
 static int hf_h245_nonStandardAddress = -1;       /* NonStandardParameter */
@@ -1044,7 +1049,7 @@ static int hf_h245_mip6_network = -1;             /* OCTET_STRING_SIZE_16 */
 static int hf_h245_multicast_IPv6_tsapIdentifier = -1;  /* INTEGER_0_65535 */
 static int hf_h245_synchFlag = -1;                /* INTEGER_0_255 */
 static int hf_h245_h235Key = -1;                  /* OCTET_STRING_SIZE_1_65535 */
-static int hf_h245_escrowentry = -1;              /* SEQUNCE_SIZE_1_256_OF_EscrowData */
+static int hf_h245_escrowentry = -1;              /* SEQUENCE_SIZE_1_256_OF_EscrowData */
 static int hf_h245_escrowentry_item = -1;         /* EscrowData */
 static int hf_h245_escrowID = -1;                 /* OBJECT_IDENTIFIER */
 static int hf_h245_escrowValue = -1;              /* BIT_STRING_SIZE_1_65535 */
@@ -1068,8 +1073,8 @@ static int hf_h245_waitForCommunicationMode = -1;  /* NULL */
 static int hf_h245_invalidDependentChannel = -1;  /* NULL */
 static int hf_h245_replacementForRejected = -1;   /* NULL */
 static int hf_h245_sessionID = -1;                /* INTEGER_1_255 */
-static int hf_h245_ack_mediaChannel = -1;         /* T_mediaChannel */
-static int hf_h245_ack_mediaControlChannel = -1;  /* T_mediaControlChannel */
+static int hf_h245_ack_mediaChannel = -1;         /* Ack_mediaChannel */
+static int hf_h245_ack_mediaControlChannel = -1;  /* Ack_mediaControlChannel */
 static int hf_h245_flowControlToZero = -1;        /* BOOLEAN */
 static int hf_h245_CloseLogicalChannel_source = -1;  /* T_source */
 static int hf_h245_user = -1;                     /* NULL */
@@ -1085,11 +1090,11 @@ static int hf_h245_req_chan_clos_rej_cause = -1;  /* RequestChannelCloseRejectCa
 static int hf_h245_multiplexEntryDescriptors = -1;  /* SET_SIZE_1_15_OF_MultiplexEntryDescriptor */
 static int hf_h245_multiplexEntryDescriptors_item = -1;  /* MultiplexEntryDescriptor */
 static int hf_h245_multiplexTableEntryNumber = -1;  /* MultiplexTableEntryNumber */
-static int hf_h245_elementList = -1;              /* SEQUNCE_SIZE_1_256_OF_MultiplexElement */
+static int hf_h245_elementList = -1;              /* SEQUENCE_SIZE_1_256_OF_MultiplexElement */
 static int hf_h245_elementList_item = -1;         /* MultiplexElement */
 static int hf_h245_Me_type = -1;                  /* Me_type */
 static int hf_h245_logicalChannelNum = -1;        /* INTEGER_0_65535 */
-static int hf_h245_subElementList = -1;           /* SEQUNCE_SIZE_2_255_OF_MultiplexElement */
+static int hf_h245_subElementList = -1;           /* SEQUENCE_SIZE_2_255_OF_MultiplexElement */
 static int hf_h245_subElementList_item = -1;      /* MultiplexElement */
 static int hf_h245_me_repeatCount = -1;           /* ME_repeatCount */
 static int hf_h245_finite_1_65535 = -1;           /* INTEGER_1_65535 */
@@ -1106,7 +1111,7 @@ static int hf_h245_entryNumbers_item = -1;        /* MultiplexTableEntryNumber *
 static int hf_h245_rejectionDescriptions2 = -1;   /* SET_SIZE_1_15_OF_RequestMultiplexEntryRejectionDescriptions */
 static int hf_h245_rejectionDescriptions2_item = -1;  /* RequestMultiplexEntryRejectionDescriptions */
 static int hf_h245_req_mux_rej_cause = -1;        /* RequestMultiplexEntryRejectionDescriptionsCause */
-static int hf_h245_requestedModes = -1;           /* SEQUNCE_SIZE_1_256_OF_ModeDescription */
+static int hf_h245_requestedModes = -1;           /* SEQUENCE_SIZE_1_256_OF_ModeDescription */
 static int hf_h245_requestedModes_item = -1;      /* ModeDescription */
 static int hf_h245_req_mode_ack_response = -1;    /* Req_mode_ack_response */
 static int hf_h245_willTransmitMostPreferredMode = -1;  /* NULL */
@@ -1134,10 +1139,10 @@ static int hf_h245_multiplexedStreamModeParameters = -1;  /* MultiplexedStreamMo
 static int hf_h245_logicalChannelNumber = -1;     /* LogicalChannelNumber */
 static int hf_h245_mediaMode = -1;                /* T_mediaMode */
 static int hf_h245_prmary_dtmode = -1;            /* RedundancyEncodingDTModeElement */
-static int hf_h245_secondary2 = -1;               /* SEQUNCE_OF_RedundancyEncodingDTModeElement */
+static int hf_h245_secondary2 = -1;               /* SEQUENCE_OF_RedundancyEncodingDTModeElement */
 static int hf_h245_secondary2_item = -1;          /* RedundancyEncodingDTModeElement */
 static int hf_h245_re_type = -1;                  /* Re_type */
-static int hf_h245_mpsmElements = -1;             /* SEQUNCE_OF_MultiplePayloadStreamElementMode */
+static int hf_h245_mpsmElements = -1;             /* SEQUENCE_OF_MultiplePayloadStreamElementMode */
 static int hf_h245_mpsmElements_item = -1;        /* MultiplePayloadStreamElementMode */
 static int hf_h245_rfc2733Mode = -1;              /* T_rfc2733Mode */
 static int hf_h245_fec_mode = -1;                 /* FEC_mode */
@@ -1234,6 +1239,8 @@ static int hf_h245_communicationModeTable_item = -1;  /* CommunicationModeTableE
 static int hf_h245_terminalLabel = -1;            /* TerminalLabel */
 static int hf_h245_sessionDescription = -1;       /* BMPString_SIZE_1_128 */
 static int hf_h245_entryDataType = -1;            /* T_dataType */
+static int hf_h245_cm_mediaChannel = -1;          /* Cm_mediaChannel */
+static int hf_h245_cm_mediaControlChannel = -1;   /* TransportAddress */
 static int hf_h245_sessionDependency = -1;        /* INTEGER_1_255 */
 static int hf_h245_terminalListRequest = -1;      /* NULL */
 static int hf_h245_makeMeChair = -1;              /* NULL */
@@ -1288,7 +1295,7 @@ static int hf_h245_grantedSendThisSource = -1;    /* NULL */
 static int hf_h245_deniedSendThisSource = -1;     /* NULL */
 static int hf_h245_requestAllTerminalIDsResponse = -1;  /* RequestAllTerminalIDsResponse */
 static int hf_h245_remoteMCResponse = -1;         /* RemoteMCResponse */
-static int hf_h245_terminalInformation = -1;      /* SEQUNCE_OF_TerminalInformation */
+static int hf_h245_terminalInformation = -1;      /* SEQUENCE_OF_TerminalInformation */
 static int hf_h245_terminalInformation_item = -1;  /* TerminalInformation */
 static int hf_h245_masterActivate = -1;           /* NULL */
 static int hf_h245_slaveActivate = -1;            /* NULL */
@@ -1401,11 +1408,11 @@ static int hf_h245_videoBadMBs = -1;              /* T_videoBadMBs */
 static int hf_h245_firstMB = -1;                  /* INTEGER_1_9216 */
 static int hf_h245_numberOfMBs1_1_9216 = -1;      /* INTEGER_1_9216 */
 static int hf_h245_temporalReference = -1;        /* INTEGER_0_1023 */
-static int hf_h245_lostPicture = -1;              /* SEQUNCE_OF_PictureReference */
+static int hf_h245_lostPicture = -1;              /* SEQUENCE_OF_PictureReference */
 static int hf_h245_lostPicture_item = -1;         /* PictureReference */
 static int hf_h245_lostPartialPicture = -1;       /* T_lostPartialPicture */
 static int hf_h245_pictureReference = -1;         /* PictureReference */
-static int hf_h245_recoveryReferencePicture = -1;  /* SEQUNCE_OF_PictureReference */
+static int hf_h245_recoveryReferencePicture = -1;  /* SEQUENCE_OF_PictureReference */
 static int hf_h245_recoveryReferencePicture_item = -1;  /* PictureReference */
 static int hf_h245_encryptionUpdateCommand = -1;  /* T_encryptionUpdateCommand */
 static int hf_h245_encryptionUpdateAck = -1;      /* T_encryptionUpdateAck */
@@ -1541,7 +1548,7 @@ static gint ett_h245_ResponseMessage = -1;
 static gint ett_h245_CommandMessage = -1;
 static gint ett_h245_IndicationMessage = -1;
 static gint ett_h245_GenericMessage = -1;
-static gint ett_h245_SEQUNCE_OF_GenericParameter = -1;
+static gint ett_h245_SEQUENCE_OF_GenericParameter = -1;
 static gint ett_h245_NonStandardMessage = -1;
 static gint ett_h245_NonStandardParameter = -1;
 static gint ett_h245_NonStandardIdentifier = -1;
@@ -1588,9 +1595,9 @@ static gint ett_h245_V76Capability = -1;
 static gint ett_h245_V75Capability = -1;
 static gint ett_h245_H2250Capability = -1;
 static gint ett_h245_T_mcCapability = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_RedundancyEncodingCapability = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability = -1;
 static gint ett_h245_MediaPacketizationCapability = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_RTPPayloadType = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RTPPayloadType = -1;
 static gint ett_h245_RSVPParameters = -1;
 static gint ett_h245_QOSMode = -1;
 static gint ett_h245_ATMParameters = -1;
@@ -1599,25 +1606,25 @@ static gint ett_h245_MediaTransportType = -1;
 static gint ett_h245_T_atm_AAL5_compressed = -1;
 static gint ett_h245_MediaChannelCapability = -1;
 static gint ett_h245_TransportCapability = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_QOSCapability = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_MediaChannelCapability = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_QOSCapability = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_MediaChannelCapability = -1;
 static gint ett_h245_RedundancyEncodingCapability = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_CapabilityTableEntryNumber = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber = -1;
 static gint ett_h245_RedundancyEncodingMethod = -1;
 static gint ett_h245_RTPH263VideoRedundancyEncoding = -1;
 static gint ett_h245_T_frameToThreadMapping = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_15 = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping = -1;
+static gint ett_h245_T_containedThreads = -1;
 static gint ett_h245_RTPH263VideoRedundancyFrameMapping = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_255 = -1;
+static gint ett_h245_T_frameSequence = -1;
 static gint ett_h245_MultipointCapability = -1;
-static gint ett_h245_SEQUNCE_OF_MediaDistributionCapability = -1;
+static gint ett_h245_SEQUENCE_OF_MediaDistributionCapability = -1;
 static gint ett_h245_MediaDistributionCapability = -1;
-static gint ett_h245_SEQUNCE_OF_DataApplicationCapability = -1;
+static gint ett_h245_SEQUENCE_OF_DataApplicationCapability = -1;
 static gint ett_h245_VideoCapability = -1;
 static gint ett_h245_ExtendedVideoCapability = -1;
-static gint ett_h245_SEQUNCE_OF_VideoCapability = -1;
-static gint ett_h245_SEQUNCE_OF_GenericCapability = -1;
+static gint ett_h245_SEQUENCE_OF_VideoCapability = -1;
+static gint ett_h245_SEQUENCE_OF_GenericCapability = -1;
 static gint ett_h245_H261VideoCapability = -1;
 static gint ett_h245_H262VideoCapability = -1;
 static gint ett_h245_H263VideoCapability = -1;
@@ -1642,7 +1649,7 @@ static gint ett_h245_T_mPI = -1;
 static gint ett_h245_T_customPCF = -1;
 static gint ett_h245_T_customPCF_item = -1;
 static gint ett_h245_T_pixelAspectInformation = -1;
-static gint ett_h245_SET_SIZE_1_14_OF_INTEGER_1_14 = -1;
+static gint ett_h245_T_pixelAspectCode = -1;
 static gint ett_h245_T_extendedPAR = -1;
 static gint ett_h245_T_extendedPAR_item = -1;
 static gint ett_h245_H263VideoModeCombos = -1;
@@ -1681,13 +1688,13 @@ static gint ett_h245_MediaEncryptionAlgorithm = -1;
 static gint ett_h245_AuthenticationCapability = -1;
 static gint ett_h245_IntegrityCapability = -1;
 static gint ett_h245_UserInputCapability = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_16_OF_NonStandardParameter = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_16_OF_NonStandardParameter = -1;
 static gint ett_h245_ConferenceCapability = -1;
-static gint ett_h245_SEQUNCE_OF_NonStandardParameter = -1;
+static gint ett_h245_SEQUENCE_OF_NonStandardParameter = -1;
 static gint ett_h245_GenericCapability = -1;
 static gint ett_h245_CapabilityIdentifier = -1;
 static gint ett_h245_GenericParameter = -1;
-static gint ett_h245_SEQUNCE_OF_ParameterIdentifier = -1;
+static gint ett_h245_SEQUENCE_OF_ParameterIdentifier = -1;
 static gint ett_h245_ParameterIdentifier = -1;
 static gint ett_h245_ParameterValue = -1;
 static gint ett_h245_MultiplexedStreamCapability = -1;
@@ -1745,10 +1752,10 @@ static gint ett_h245_RTPPayloadType = -1;
 static gint ett_h245_T_payloadDescriptor = -1;
 static gint ett_h245_RedundancyEncoding = -1;
 static gint ett_h245_T_rtpRedundancyEncoding = -1;
-static gint ett_h245_SEQUNCE_OF_RedundancyEncodingElement = -1;
+static gint ett_h245_SEQUENCE_OF_RedundancyEncodingElement = -1;
 static gint ett_h245_RedundancyEncodingElement = -1;
 static gint ett_h245_MultiplePayloadStream = -1;
-static gint ett_h245_SEQUNCE_OF_MultiplePayloadStreamElement = -1;
+static gint ett_h245_SEQUENCE_OF_MultiplePayloadStreamElement = -1;
 static gint ett_h245_MultiplePayloadStreamElement = -1;
 static gint ett_h245_FECData = -1;
 static gint ett_h245_RFC2733Data = -1;
@@ -1764,12 +1771,12 @@ static gint ett_h245_T_iPXAddress = -1;
 static gint ett_h245_T_iP6Address = -1;
 static gint ett_h245_T_iPSourceRouteAddress = -1;
 static gint ett_h245_T_routing = -1;
-static gint ett_h245_SEQUNCE_OF_OCTET_STRING_SIZE_4 = -1;
+static gint ett_h245_T_route = -1;
 static gint ett_h245_MulticastAddress = -1;
 static gint ett_h245_MIPAddress = -1;
 static gint ett_h245_MIP6Address = -1;
 static gint ett_h245_EncryptionSync = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_EscrowData = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_EscrowData = -1;
 static gint ett_h245_EscrowData = -1;
 static gint ett_h245_OpenLogicalChannelAck = -1;
 static gint ett_h245_OLC_ack_reverseLogicalChannelParameters = -1;
@@ -1792,10 +1799,10 @@ static gint ett_h245_RequestChannelCloseRelease = -1;
 static gint ett_h245_MultiplexEntrySend = -1;
 static gint ett_h245_SET_SIZE_1_15_OF_MultiplexEntryDescriptor = -1;
 static gint ett_h245_MultiplexEntryDescriptor = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_MultiplexElement = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement = -1;
 static gint ett_h245_MultiplexElement = -1;
 static gint ett_h245_Me_type = -1;
-static gint ett_h245_SEQUNCE_SIZE_2_255_OF_MultiplexElement = -1;
+static gint ett_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement = -1;
 static gint ett_h245_ME_repeatCount = -1;
 static gint ett_h245_MultiplexEntrySendAck = -1;
 static gint ett_h245_SET_SIZE_1_15_OF_MultiplexTableEntryNumber = -1;
@@ -1812,7 +1819,7 @@ static gint ett_h245_RequestMultiplexEntryRejectionDescriptions = -1;
 static gint ett_h245_RequestMultiplexEntryRejectionDescriptionsCause = -1;
 static gint ett_h245_RequestMultiplexEntryRelease = -1;
 static gint ett_h245_RequestMode = -1;
-static gint ett_h245_SEQUNCE_SIZE_1_256_OF_ModeDescription = -1;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_ModeDescription = -1;
 static gint ett_h245_RequestModeAck = -1;
 static gint ett_h245_Req_mode_ack_response = -1;
 static gint ett_h245_RequestModeReject = -1;
@@ -1825,11 +1832,11 @@ static gint ett_h245_H235Mode = -1;
 static gint ett_h245_T_mediaMode = -1;
 static gint ett_h245_MultiplexedStreamModeParameters = -1;
 static gint ett_h245_RedundancyEncodingDTMode = -1;
-static gint ett_h245_SEQUNCE_OF_RedundancyEncodingDTModeElement = -1;
+static gint ett_h245_SEQUENCE_OF_RedundancyEncodingDTModeElement = -1;
 static gint ett_h245_RedundancyEncodingDTModeElement = -1;
 static gint ett_h245_Re_type = -1;
 static gint ett_h245_MultiplePayloadStreamMode = -1;
-static gint ett_h245_SEQUNCE_OF_MultiplePayloadStreamElementMode = -1;
+static gint ett_h245_SEQUENCE_OF_MultiplePayloadStreamElementMode = -1;
 static gint ett_h245_MultiplePayloadStreamElementMode = -1;
 static gint ett_h245_FECMode = -1;
 static gint ett_h245_T_rfc2733Mode = -1;
@@ -1899,7 +1906,7 @@ static gint ett_h245_T_broadcastMyLogicalChannelResponse = -1;
 static gint ett_h245_T_makeTerminalBroadcasterResponse = -1;
 static gint ett_h245_T_sendThisSourceResponse = -1;
 static gint ett_h245_RequestAllTerminalIDsResponse = -1;
-static gint ett_h245_SEQUNCE_OF_TerminalInformation = -1;
+static gint ett_h245_SEQUENCE_OF_TerminalInformation = -1;
 static gint ett_h245_TerminalInformation = -1;
 static gint ett_h245_RemoteMCRequest = -1;
 static gint ett_h245_RemoteMCResponse = -1;
@@ -1951,7 +1958,7 @@ static gint ett_h245_T_videoFastUpdateGOB = -1;
 static gint ett_h245_T_videoFastUpdateMB = -1;
 static gint ett_h245_T_progressiveRefinementStart = -1;
 static gint ett_h245_T_videoBadMBs = -1;
-static gint ett_h245_SEQUNCE_OF_PictureReference = -1;
+static gint ett_h245_SEQUENCE_OF_PictureReference = -1;
 static gint ett_h245_T_lostPartialPicture = -1;
 static gint ett_h245_T_encryptionUpdateCommand = -1;
 static gint ett_h245_T_encryptionUpdateAck = -1;
@@ -2149,129 +2156,40 @@ static int dissect_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static int
-dissect_h245_INTEGER_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_T_t35CountryCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 255U, NULL, NULL, FALSE);
+                                           0U, 255U, &t35CountryCode, NULL, FALSE);
 
   return offset;
 }
 static int dissect_t35CountryCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_t35CountryCode);
-}
-static int dissect_t35Extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_t35Extension);
-}
-static int dissect_terminalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_terminalType);
-}
-static int dissect_h233IVResponseTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_h233IVResponseTime);
-}
-static int dissect_maxPendingReplacementFor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_maxPendingReplacementFor);
-}
-static int dissect_frameSequence_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_frameSequence_item);
-}
-static int dissect_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_version);
-}
-static int dissect_booleanArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_booleanArray);
-}
-static int dissect_sessionID_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_sessionID_0_255);
-}
-static int dissect_synchFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_synchFlag);
-}
-static int dissect_firstGOB_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_firstGOB_0_255);
-}
-static int dissect_longTermPictureIndex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_longTermPictureIndex);
-}
-static int dissect_subPictureNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_subPictureNumber);
-}
-static int dissect_compositionNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_compositionNumber);
-}
-static int dissect_temporalReference_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_temporalReference_0_255);
+  return dissect_h245_T_t35CountryCode(tvb, offset, pinfo, tree, hf_h245_t35CountryCode);
 }
 
 
 
 static int
-dissect_h245_INTEGER_0_65535(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_T_t35Extension(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 65535U, NULL, NULL, FALSE);
+                                           0U, 255U, &t35Extension, NULL, FALSE);
+
+  return offset;
+}
+static int dissect_t35Extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_t35Extension(tvb, offset, pinfo, tree, hf_h245_t35Extension);
+}
+
+
+
+static int
+dissect_h245_T_manufacturerCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 65535U, &manufacturerCode, NULL, FALSE);
 
   return offset;
 }
 static int dissect_manufacturerCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_manufacturerCode);
-}
-static int dissect_forwardMaximumSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_forwardMaximumSDUSize);
-}
-static int dissect_backwardMaximumSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_backwardMaximumSDUSize);
-}
-static int dissect_maximumAl2SDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAl2SDUSize);
-}
-static int dissect_maximumAl3SDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAl3SDUSize);
-}
-static int dissect_maximumAL1MPDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAL1MPDUSize);
-}
-static int dissect_maximumAL2MSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAL2MSDUSize);
-}
-static int dissect_maximumAL3MSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAL3MSDUSize);
-}
-static int dissect_maxNTUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maxNTUSize);
-}
-static int dissect_bppMaxKb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_bppMaxKb);
-}
-static int dissect_unsignedMin(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_unsignedMin);
-}
-static int dissect_unsignedMax(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_unsignedMax);
-}
-static int dissect_portNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_portNumber);
-}
-static int dissect_resourceID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_resourceID);
-}
-static int dissect_ipv6_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_ipv6_tsapIdentifier);
-}
-static int dissect_iPSrcRoute_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_iPSrcRoute_tsapIdentifier);
-}
-static int dissect_multicast_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_multicast_tsapIdentifier);
-}
-static int dissect_multicast_IPv6_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_multicast_IPv6_tsapIdentifier);
-}
-static int dissect_logicalChannelNum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_logicalChannelNum);
-}
-static int dissect_requestedInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_requestedInterval);
-}
-static int dissect_currentInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_currentInterval);
+  return dissect_h245_T_manufacturerCode(tvb, offset, pinfo, tree, hf_h245_manufacturerCode);
 }
 
 static const per_sequence_t H221NonStandardID_sequence[] = {
@@ -2283,8 +2201,14 @@ static const per_sequence_t H221NonStandardID_sequence[] = {
 
 static int
 dissect_h245_H221NonStandardID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  t35CountryCode = 0;
+  t35Extension = 0;
+  manufacturerCode = 0;
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h245_H221NonStandardID, H221NonStandardID_sequence);
+
+  h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
+  proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
 
   return offset;
 }
@@ -2412,6 +2336,55 @@ dissect_h245_NonStandardMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 }
 static int dissect_nonStandardMsg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_NonStandardMessage(tvb, offset, pinfo, tree, hf_h245_nonStandardMsg);
+}
+
+
+
+static int
+dissect_h245_INTEGER_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 255U, NULL, NULL, FALSE);
+
+  return offset;
+}
+static int dissect_terminalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_terminalType);
+}
+static int dissect_h233IVResponseTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_h233IVResponseTime);
+}
+static int dissect_maxPendingReplacementFor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_maxPendingReplacementFor);
+}
+static int dissect_frameSequence_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_frameSequence_item);
+}
+static int dissect_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_version);
+}
+static int dissect_booleanArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_booleanArray);
+}
+static int dissect_sessionID_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_sessionID_0_255);
+}
+static int dissect_synchFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_synchFlag);
+}
+static int dissect_firstGOB_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_firstGOB_0_255);
+}
+static int dissect_longTermPictureIndex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_longTermPictureIndex);
+}
+static int dissect_subPictureNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_subPictureNumber);
+}
+static int dissect_compositionNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_compositionNumber);
+}
+static int dissect_temporalReference_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_temporalReference_0_255);
 }
 
 
@@ -3199,6 +3172,76 @@ dissect_h245_T_aal1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 }
 static int dissect_aal1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_T_aal1(tvb, offset, pinfo, tree, hf_h245_aal1);
+}
+
+
+
+static int
+dissect_h245_INTEGER_0_65535(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 65535U, NULL, NULL, FALSE);
+
+  return offset;
+}
+static int dissect_forwardMaximumSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_forwardMaximumSDUSize);
+}
+static int dissect_backwardMaximumSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_backwardMaximumSDUSize);
+}
+static int dissect_maximumAl2SDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAl2SDUSize);
+}
+static int dissect_maximumAl3SDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAl3SDUSize);
+}
+static int dissect_maximumAL1MPDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAL1MPDUSize);
+}
+static int dissect_maximumAL2MSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAL2MSDUSize);
+}
+static int dissect_maximumAL3MSDUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maximumAL3MSDUSize);
+}
+static int dissect_maxNTUSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_maxNTUSize);
+}
+static int dissect_bppMaxKb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_bppMaxKb);
+}
+static int dissect_unsignedMin(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_unsignedMin);
+}
+static int dissect_unsignedMax(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_unsignedMax);
+}
+static int dissect_portNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_portNumber);
+}
+static int dissect_resourceID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_resourceID);
+}
+static int dissect_ipv6_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_ipv6_tsapIdentifier);
+}
+static int dissect_iPSrcRoute_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_iPSrcRoute_tsapIdentifier);
+}
+static int dissect_multicast_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_multicast_tsapIdentifier);
+}
+static int dissect_multicast_IPv6_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_multicast_IPv6_tsapIdentifier);
+}
+static int dissect_logicalChannelNum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_logicalChannelNum);
+}
+static int dissect_requestedInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_requestedInterval);
+}
+static int dissect_currentInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_currentInterval);
 }
 
 static const per_sequence_t T_aal5_sequence[] = {
@@ -5240,23 +5283,23 @@ static int dissect_supersedes_item(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static int
-dissect_h245_SEQUNCE_OF_GenericParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_GenericParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_GenericParameter, dissect_messageContent_item);
+                                   ett_h245_SEQUENCE_OF_GenericParameter, dissect_messageContent_item);
 
   return offset;
 }
 static int dissect_messageContent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_GenericParameter(tvb, offset, pinfo, tree, hf_h245_messageContent);
+  return dissect_h245_SEQUENCE_OF_GenericParameter(tvb, offset, pinfo, tree, hf_h245_messageContent);
 }
 static int dissect_collapsing(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_GenericParameter(tvb, offset, pinfo, tree, hf_h245_collapsing);
+  return dissect_h245_SEQUENCE_OF_GenericParameter(tvb, offset, pinfo, tree, hf_h245_collapsing);
 }
 static int dissect_nonCollapsing(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_GenericParameter(tvb, offset, pinfo, tree, hf_h245_nonCollapsing);
+  return dissect_h245_SEQUENCE_OF_GenericParameter(tvb, offset, pinfo, tree, hf_h245_nonCollapsing);
 }
 static int dissect_genericParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_GenericParameter(tvb, offset, pinfo, tree, hf_h245_genericParameter);
+  return dissect_h245_SEQUENCE_OF_GenericParameter(tvb, offset, pinfo, tree, hf_h245_genericParameter);
 }
 
 
@@ -5298,14 +5341,14 @@ static int dissect_parameterValue(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static int
-dissect_h245_SEQUNCE_OF_ParameterIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_ParameterIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_ParameterIdentifier, dissect_supersedes_item);
+                                   ett_h245_SEQUENCE_OF_ParameterIdentifier, dissect_supersedes_item);
 
   return offset;
 }
 static int dissect_supersedes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_ParameterIdentifier(tvb, offset, pinfo, tree, hf_h245_supersedes);
+  return dissect_h245_SEQUENCE_OF_ParameterIdentifier(tvb, offset, pinfo, tree, hf_h245_supersedes);
 }
 
 static const per_sequence_t GenericParameter_sequence[] = {
@@ -5458,17 +5501,17 @@ static int dissect_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 
 static int
-dissect_h245_SEQUNCE_OF_DataApplicationCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_DataApplicationCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_DataApplicationCapability, dissect_centralizedData_item);
+                                   ett_h245_SEQUENCE_OF_DataApplicationCapability, dissect_centralizedData_item);
 
   return offset;
 }
 static int dissect_centralizedData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_DataApplicationCapability(tvb, offset, pinfo, tree, hf_h245_centralizedData);
+  return dissect_h245_SEQUENCE_OF_DataApplicationCapability(tvb, offset, pinfo, tree, hf_h245_centralizedData);
 }
 static int dissect_distributedData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_DataApplicationCapability(tvb, offset, pinfo, tree, hf_h245_distributedData);
+  return dissect_h245_SEQUENCE_OF_DataApplicationCapability(tvb, offset, pinfo, tree, hf_h245_distributedData);
 }
 
 static const per_sequence_t MediaDistributionCapability_sequence[] = {
@@ -5496,14 +5539,14 @@ static int dissect_mediaDistributionCapability_item(tvbuff_t *tvb, int offset, p
 
 
 static int
-dissect_h245_SEQUNCE_OF_MediaDistributionCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_MediaDistributionCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_MediaDistributionCapability, dissect_mediaDistributionCapability_item);
+                                   ett_h245_SEQUENCE_OF_MediaDistributionCapability, dissect_mediaDistributionCapability_item);
 
   return offset;
 }
 static int dissect_mediaDistributionCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_MediaDistributionCapability(tvb, offset, pinfo, tree, hf_h245_mediaDistributionCapability);
+  return dissect_h245_SEQUENCE_OF_MediaDistributionCapability(tvb, offset, pinfo, tree, hf_h245_mediaDistributionCapability);
 }
 
 static const per_sequence_t MultipointCapability_sequence[] = {
@@ -5609,15 +5652,15 @@ static int dissect_rtpPayloadType(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_RTPPayloadType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_256_OF_RTPPayloadType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_RTPPayloadType, dissect_rtpPayloadType2_item,
+                                               ett_h245_SEQUENCE_SIZE_1_256_OF_RTPPayloadType, dissect_rtpPayloadType2_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_rtpPayloadType2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_RTPPayloadType(tvb, offset, pinfo, tree, hf_h245_rtpPayloadType2);
+  return dissect_h245_SEQUENCE_SIZE_1_256_OF_RTPPayloadType(tvb, offset, pinfo, tree, hf_h245_rtpPayloadType2);
 }
 
 static const per_sequence_t MediaPacketizationCapability_sequence[] = {
@@ -5755,15 +5798,15 @@ static int dissect_qosCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_QOSCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_256_OF_QOSCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_QOSCapability, dissect_qOSCapabilities_item,
+                                               ett_h245_SEQUENCE_SIZE_1_256_OF_QOSCapability, dissect_qOSCapabilities_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_qOSCapabilities(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_QOSCapability(tvb, offset, pinfo, tree, hf_h245_qOSCapabilities);
+  return dissect_h245_SEQUENCE_SIZE_1_256_OF_QOSCapability(tvb, offset, pinfo, tree, hf_h245_qOSCapabilities);
 }
 
 static const per_sequence_t T_atm_AAL5_compressed_sequence[] = {
@@ -5831,15 +5874,15 @@ static int dissect_mediaChannelCapabilities_item(tvbuff_t *tvb, int offset, pack
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_MediaChannelCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_256_OF_MediaChannelCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_MediaChannelCapability, dissect_mediaChannelCapabilities_item,
+                                               ett_h245_SEQUENCE_SIZE_1_256_OF_MediaChannelCapability, dissect_mediaChannelCapabilities_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_mediaChannelCapabilities(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_MediaChannelCapability(tvb, offset, pinfo, tree, hf_h245_mediaChannelCapabilities);
+  return dissect_h245_SEQUENCE_SIZE_1_256_OF_MediaChannelCapability(tvb, offset, pinfo, tree, hf_h245_mediaChannelCapabilities);
 }
 
 static const per_sequence_t TransportCapability_sequence[] = {
@@ -5900,15 +5943,15 @@ static int dissect_skippedFrameCount(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_T_frameSequence(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_255, dissect_frameSequence_item,
+                                               ett_h245_T_frameSequence, dissect_frameSequence_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_frameSequence(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_255(tvb, offset, pinfo, tree, hf_h245_frameSequence);
+  return dissect_h245_T_frameSequence(tvb, offset, pinfo, tree, hf_h245_frameSequence);
 }
 
 static const per_sequence_t RTPH263VideoRedundancyFrameMapping_sequence[] = {
@@ -5930,15 +5973,15 @@ static int dissect_custom_item(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping, dissect_custom_item,
+                                               ett_h245_SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping, dissect_custom_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_custom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping(tvb, offset, pinfo, tree, hf_h245_custom);
+  return dissect_h245_SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping(tvb, offset, pinfo, tree, hf_h245_custom);
 }
 
 
@@ -5968,15 +6011,15 @@ static int dissect_frameToThreadMapping(tvbuff_t *tvb, int offset, packet_info *
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_15(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_T_containedThreads(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_15, dissect_containedThreads_item,
+                                               ett_h245_T_containedThreads, dissect_containedThreads_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_containedThreads(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_15(tvb, offset, pinfo, tree, hf_h245_containedThreads);
+  return dissect_h245_T_containedThreads(tvb, offset, pinfo, tree, hf_h245_containedThreads);
 }
 
 static const per_sequence_t RTPH263VideoRedundancyEncoding_sequence[] = {
@@ -6058,15 +6101,15 @@ static int dissect_capabilityTableEntryNumbers_item(tvbuff_t *tvb, int offset, p
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_CapabilityTableEntryNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_CapabilityTableEntryNumber, dissect_secondaryEncoding2_item,
+                                               ett_h245_SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber, dissect_secondaryEncoding2_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_secondaryEncoding2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_CapabilityTableEntryNumber(tvb, offset, pinfo, tree, hf_h245_secondaryEncoding2);
+  return dissect_h245_SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber(tvb, offset, pinfo, tree, hf_h245_secondaryEncoding2);
 }
 
 static const per_sequence_t RedundancyEncodingCapability_sequence[] = {
@@ -6089,15 +6132,15 @@ static int dissect_redundancyEncodingCapability_item(tvbuff_t *tvb, int offset, 
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_RedundancyEncodingCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_RedundancyEncodingCapability, dissect_redundancyEncodingCapability_item,
+                                               ett_h245_SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability, dissect_redundancyEncodingCapability_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_redundancyEncodingCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_RedundancyEncodingCapability(tvb, offset, pinfo, tree, hf_h245_redundancyEncodingCapability);
+  return dissect_h245_SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability(tvb, offset, pinfo, tree, hf_h245_redundancyEncodingCapability);
 }
 
 static const per_sequence_t H2250Capability_sequence[] = {
@@ -6681,15 +6724,15 @@ static int dissect_pixelAspectCode_item(tvbuff_t *tvb, int offset, packet_info *
 
 
 static int
-dissect_h245_SET_SIZE_1_14_OF_INTEGER_1_14(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_T_pixelAspectCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_set_of(tvb, offset, pinfo, tree, hf_index,
-                                          ett_h245_SET_SIZE_1_14_OF_INTEGER_1_14, dissect_pixelAspectCode_item,
+                                          ett_h245_T_pixelAspectCode, dissect_pixelAspectCode_item,
                                           1, 14);
 
   return offset;
 }
 static int dissect_pixelAspectCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SET_SIZE_1_14_OF_INTEGER_1_14(tvb, offset, pinfo, tree, hf_h245_pixelAspectCode);
+  return dissect_h245_T_pixelAspectCode(tvb, offset, pinfo, tree, hf_h245_pixelAspectCode);
 }
 
 static const per_sequence_t T_extendedPAR_item_sequence[] = {
@@ -7112,26 +7155,26 @@ static int dissect_is11172VideoCapability(tvbuff_t *tvb, int offset, packet_info
 
 
 static int
-dissect_h245_SEQUNCE_OF_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_VideoCapability, dissect_videoCapability_item);
+                                   ett_h245_SEQUENCE_OF_VideoCapability, dissect_videoCapability_item);
 
   return offset;
 }
 static int dissect_videoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_VideoCapability(tvb, offset, pinfo, tree, hf_h245_videoCapability);
+  return dissect_h245_SEQUENCE_OF_VideoCapability(tvb, offset, pinfo, tree, hf_h245_videoCapability);
 }
 
 
 static int
-dissect_h245_SEQUNCE_OF_GenericCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_GenericCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_GenericCapability, dissect_videoCapabilityExtension_item);
+                                   ett_h245_SEQUENCE_OF_GenericCapability, dissect_videoCapabilityExtension_item);
 
   return offset;
 }
 static int dissect_videoCapabilityExtension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_GenericCapability(tvb, offset, pinfo, tree, hf_h245_videoCapabilityExtension);
+  return dissect_h245_SEQUENCE_OF_GenericCapability(tvb, offset, pinfo, tree, hf_h245_videoCapabilityExtension);
 }
 
 static const per_sequence_t ExtendedVideoCapability_sequence[] = {
@@ -7575,14 +7618,14 @@ static int dissect_h233EncryptionReceiveCapability(tvbuff_t *tvb, int offset, pa
 
 
 static int
-dissect_h245_SEQUNCE_OF_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_NonStandardParameter, dissect_nonStandardData_item);
+                                   ett_h245_SEQUENCE_OF_NonStandardParameter, dissect_nonStandardData_item);
 
   return offset;
 }
 static int dissect_nonStandardParams(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_NonStandardParameter(tvb, offset, pinfo, tree, hf_h245_nonStandardParams);
+  return dissect_h245_SEQUENCE_OF_NonStandardParameter(tvb, offset, pinfo, tree, hf_h245_nonStandardParams);
 }
 
 static const per_sequence_t ConferenceCapability_sequence[] = {
@@ -7712,15 +7755,15 @@ static int dissect_h235SecurityCapability(tvbuff_t *tvb, int offset, packet_info
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_16_OF_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_16_OF_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_16_OF_NonStandardParameter, dissect_nonStandard_item,
+                                               ett_h245_SEQUENCE_SIZE_1_16_OF_NonStandardParameter, dissect_nonStandard_item,
                                                1, 16);
 
   return offset;
 }
 static int dissect_ui_nonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_16_OF_NonStandardParameter(tvb, offset, pinfo, tree, hf_h245_ui_nonStandard);
+  return dissect_h245_SEQUENCE_SIZE_1_16_OF_NonStandardParameter(tvb, offset, pinfo, tree, hf_h245_ui_nonStandard);
 }
 
 
@@ -8247,14 +8290,14 @@ static int dissect_secondary_item(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static int
-dissect_h245_SEQUNCE_OF_RedundancyEncodingElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_RedundancyEncodingElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_RedundancyEncodingElement, dissect_secondary_item);
+                                   ett_h245_SEQUENCE_OF_RedundancyEncodingElement, dissect_secondary_item);
 
   return offset;
 }
 static int dissect_secondary(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_RedundancyEncodingElement(tvb, offset, pinfo, tree, hf_h245_secondary);
+  return dissect_h245_SEQUENCE_OF_RedundancyEncodingElement(tvb, offset, pinfo, tree, hf_h245_secondary);
 }
 
 static const per_sequence_t T_rtpRedundancyEncoding_sequence[] = {
@@ -8311,14 +8354,14 @@ static int dissect_elements_item(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static int
-dissect_h245_SEQUNCE_OF_MultiplePayloadStreamElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_MultiplePayloadStreamElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_MultiplePayloadStreamElement, dissect_elements_item);
+                                   ett_h245_SEQUENCE_OF_MultiplePayloadStreamElement, dissect_elements_item);
 
   return offset;
 }
 static int dissect_elements(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_MultiplePayloadStreamElement(tvb, offset, pinfo, tree, hf_h245_elements);
+  return dissect_h245_SEQUENCE_OF_MultiplePayloadStreamElement(tvb, offset, pinfo, tree, hf_h245_elements);
 }
 
 static const per_sequence_t MultiplePayloadStream_sequence[] = {
@@ -9378,14 +9421,14 @@ static int dissect_routing(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static int
-dissect_h245_SEQUNCE_OF_OCTET_STRING_SIZE_4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_T_route(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_OCTET_STRING_SIZE_4, dissect_route_item);
+                                   ett_h245_T_route, dissect_route_item);
 
   return offset;
 }
 static int dissect_route(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_OCTET_STRING_SIZE_4(tvb, offset, pinfo, tree, hf_h245_route);
+  return dissect_h245_T_route(tvb, offset, pinfo, tree, hf_h245_route);
 }
 
 static const per_sequence_t T_iPSourceRouteAddress_sequence[] = {
@@ -9529,14 +9572,45 @@ dissect_h245_TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int dissect_localAreaAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_h245_localAreaAddress);
 }
-static int dissect_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_h245_mediaChannel);
-}
-static int dissect_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_h245_mediaControlChannel);
+static int dissect_cm_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_h245_cm_mediaControlChannel);
 }
 static int dissect_signalAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_h245_signalAddress);
+}
+
+
+static int
+dissect_h245_T_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+
+
+	media_channel = TRUE;
+  offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
+
+
+
+	media_channel = FALSE;
+  return offset;
+}
+static int dissect_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_mediaChannel(tvb, offset, pinfo, tree, hf_h245_mediaChannel);
+}
+
+
+static int
+dissect_h245_T_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+
+
+	media_control_channel = TRUE;
+  offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
+
+
+
+	media_control_channel = FALSE;
+  return offset;
+}
+static int dissect_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_mediaControlChannel(tvb, offset, pinfo, tree, hf_h245_mediaControlChannel);
 }
 
 
@@ -9740,9 +9814,33 @@ static const per_choice_t OLC_rev_multiplexParameters_choice[] = {
 
 static int
 dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+
+
+	media_channel = FALSE;
+	media_control_channel = FALSE;
+
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_h245_OLC_rev_multiplexParameters, OLC_rev_multiplexParameters_choice, "OLC_rev_multiplexParameters",
                               NULL);
+
+	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
+		address src_addr;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(char *)&ipv4_address;
+
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+	}
+	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
+		address src_addr;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(char *)&rtcp_ipv4_address;
+
+		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
+	}
 
   return offset;
 }
@@ -9943,15 +10041,15 @@ static int dissect_escrowentry_item(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_EscrowData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_256_OF_EscrowData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_EscrowData, dissect_escrowentry_item,
+                                               ett_h245_SEQUENCE_SIZE_1_256_OF_EscrowData, dissect_escrowentry_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_escrowentry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_EscrowData(tvb, offset, pinfo, tree, hf_h245_escrowentry);
+  return dissect_h245_SEQUENCE_SIZE_1_256_OF_EscrowData(tvb, offset, pinfo, tree, hf_h245_escrowentry);
 }
 
 static const per_sequence_t EncryptionSync_sequence[] = {
@@ -10138,15 +10236,15 @@ static int dissect_entryNumbers_item(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_2_255_OF_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_2_255_OF_MultiplexElement, dissect_subElementList_item,
+                                               ett_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement, dissect_subElementList_item,
                                                2, 255);
 
   return offset;
 }
 static int dissect_subElementList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_2_255_OF_MultiplexElement(tvb, offset, pinfo, tree, hf_h245_subElementList);
+  return dissect_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement(tvb, offset, pinfo, tree, hf_h245_subElementList);
 }
 
 
@@ -10215,15 +10313,15 @@ dissect_h245_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_MultiplexElement, dissect_elementList_item,
+                                               ett_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement, dissect_elementList_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_elementList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_MultiplexElement(tvb, offset, pinfo, tree, hf_h245_elementList);
+  return dissect_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement(tvb, offset, pinfo, tree, hf_h245_elementList);
 }
 
 static const per_sequence_t MultiplexEntryDescriptor_sequence[] = {
@@ -11057,14 +11155,14 @@ static int dissect_secondary2_item(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static int
-dissect_h245_SEQUNCE_OF_RedundancyEncodingDTModeElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_RedundancyEncodingDTModeElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_RedundancyEncodingDTModeElement, dissect_secondary2_item);
+                                   ett_h245_SEQUENCE_OF_RedundancyEncodingDTModeElement, dissect_secondary2_item);
 
   return offset;
 }
 static int dissect_secondary2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_RedundancyEncodingDTModeElement(tvb, offset, pinfo, tree, hf_h245_secondary2);
+  return dissect_h245_SEQUENCE_OF_RedundancyEncodingDTModeElement(tvb, offset, pinfo, tree, hf_h245_secondary2);
 }
 
 static const per_sequence_t RedundancyEncodingDTMode_sequence[] = {
@@ -11103,14 +11201,14 @@ static int dissect_mpsmElements_item(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static int
-dissect_h245_SEQUNCE_OF_MultiplePayloadStreamElementMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_MultiplePayloadStreamElementMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_MultiplePayloadStreamElementMode, dissect_mpsmElements_item);
+                                   ett_h245_SEQUENCE_OF_MultiplePayloadStreamElementMode, dissect_mpsmElements_item);
 
   return offset;
 }
 static int dissect_mpsmElements(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_MultiplePayloadStreamElementMode(tvb, offset, pinfo, tree, hf_h245_mpsmElements);
+  return dissect_h245_SEQUENCE_OF_MultiplePayloadStreamElementMode(tvb, offset, pinfo, tree, hf_h245_mpsmElements);
 }
 
 static const per_sequence_t MultiplePayloadStreamMode_sequence[] = {
@@ -11423,15 +11521,15 @@ static int dissect_requestedModes_item(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static int
-dissect_h245_SEQUNCE_SIZE_1_256_OF_ModeDescription(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_SIZE_1_256_OF_ModeDescription(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h245_SEQUNCE_SIZE_1_256_OF_ModeDescription, dissect_requestedModes_item,
+                                               ett_h245_SEQUENCE_SIZE_1_256_OF_ModeDescription, dissect_requestedModes_item,
                                                1, 256);
 
   return offset;
 }
 static int dissect_requestedModes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_SIZE_1_256_OF_ModeDescription(tvb, offset, pinfo, tree, hf_h245_requestedModes);
+  return dissect_h245_SEQUENCE_SIZE_1_256_OF_ModeDescription(tvb, offset, pinfo, tree, hf_h245_requestedModes);
 }
 
 static const per_sequence_t RequestMode_sequence[] = {
@@ -12295,7 +12393,7 @@ static int dissect_olc_ack_reverseLogicalChannelParameters(tvbuff_t *tvb, int of
 
 
 static int
-dissect_h245_T_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_Ack_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
 
 	media_channel = TRUE;
@@ -12307,12 +12405,12 @@ dissect_h245_T_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
   return offset;
 }
 static int dissect_ack_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_T_mediaChannel(tvb, offset, pinfo, tree, hf_h245_ack_mediaChannel);
+  return dissect_h245_Ack_mediaChannel(tvb, offset, pinfo, tree, hf_h245_ack_mediaChannel);
 }
 
 
 static int
-dissect_h245_T_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_Ack_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
 
 	media_control_channel = TRUE;
@@ -12324,7 +12422,7 @@ dissect_h245_T_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo
   return offset;
 }
 static int dissect_ack_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_T_mediaControlChannel(tvb, offset, pinfo, tree, hf_h245_ack_mediaControlChannel);
+  return dissect_h245_Ack_mediaControlChannel(tvb, offset, pinfo, tree, hf_h245_ack_mediaControlChannel);
 }
 
 static const per_sequence_t H2250LogicalChannelAckParameters_sequence[] = {
@@ -12987,6 +13085,17 @@ static int dissect_entryDataType(tvbuff_t *tvb, int offset, packet_info *pinfo, 
   return dissect_h245_T_dataType(tvb, offset, pinfo, tree, hf_h245_entryDataType);
 }
 
+
+static int
+dissect_h245_Cm_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_h245_TransportAddress(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_cm_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_Cm_mediaChannel(tvb, offset, pinfo, tree, hf_h245_cm_mediaChannel);
+}
+
 static const per_sequence_t CommunicationModeTableEntry_sequence[] = {
   { "nonStandard"                 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nonStandardParams },
   { "sessionID"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sessionID },
@@ -12994,9 +13103,9 @@ static const per_sequence_t CommunicationModeTableEntry_sequence[] = {
   { "terminalLabel"               , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_terminalLabel },
   { "sessionDescription"          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sessionDescription },
   { "dataType"                    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_entryDataType },
-  { "mediaChannel"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mediaChannel },
+  { "mediaChannel"                , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cm_mediaChannel },
   { "mediaGuaranteedDelivery"     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mediaGuaranteedDelivery },
-  { "mediaControlChannel"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mediaControlChannel },
+  { "mediaControlChannel"         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_cm_mediaControlChannel },
   { "mediaControlGuaranteedDelivery", ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_mediaControlGuaranteedDelivery },
   { "redundancyEncoding"          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_redundancyEncoding },
   { "sessionDependency"           , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_sessionDependency },
@@ -13343,14 +13452,14 @@ static int dissect_terminalInformation_item(tvbuff_t *tvb, int offset, packet_in
 
 
 static int
-dissect_h245_SEQUNCE_OF_TerminalInformation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_TerminalInformation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_TerminalInformation, dissect_terminalInformation_item);
+                                   ett_h245_SEQUENCE_OF_TerminalInformation, dissect_terminalInformation_item);
 
   return offset;
 }
 static int dissect_terminalInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_TerminalInformation(tvb, offset, pinfo, tree, hf_h245_terminalInformation);
+  return dissect_h245_SEQUENCE_OF_TerminalInformation(tvb, offset, pinfo, tree, hf_h245_terminalInformation);
 }
 
 static const per_sequence_t RequestAllTerminalIDsResponse_sequence[] = {
@@ -14285,17 +14394,17 @@ static int dissect_recoveryReferencePicture_item(tvbuff_t *tvb, int offset, pack
 
 
 static int
-dissect_h245_SEQUNCE_OF_PictureReference(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_SEQUENCE_OF_PictureReference(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h245_SEQUNCE_OF_PictureReference, dissect_lostPicture_item);
+                                   ett_h245_SEQUENCE_OF_PictureReference, dissect_lostPicture_item);
 
   return offset;
 }
 static int dissect_lostPicture(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_PictureReference(tvb, offset, pinfo, tree, hf_h245_lostPicture);
+  return dissect_h245_SEQUENCE_OF_PictureReference(tvb, offset, pinfo, tree, hf_h245_lostPicture);
 }
 static int dissect_recoveryReferencePicture(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUNCE_OF_PictureReference(tvb, offset, pinfo, tree, hf_h245_recoveryReferencePicture);
+  return dissect_h245_SEQUENCE_OF_PictureReference(tvb, offset, pinfo, tree, hf_h245_recoveryReferencePicture);
 }
 
 static const per_sequence_t T_lostPartialPicture_sequence[] = {
@@ -16180,6 +16289,9 @@ void proto_register_h245(void) {
     { &hf_h245_pdu_type,
  { "PDU Type", "h245.pdu_type", FT_UINT32, BASE_DEC,
 		VALS(h245_MultimediaSystemControlMessage_vals), 0, "Type of H.245 PDU", HFILL }},
+	{ &hf_h245Manufacturer,
+		{ "H.245 Manufacturer", "h245.Manufacturer", FT_UINT32, BASE_HEX,
+		VALS(H221ManufacturerCode_vals), 0, "h245.H.221 Manufacturer", HFILL }},
 
 /*--- Included file: packet-h245-hfarr.c ---*/
 
@@ -16537,7 +16649,7 @@ void proto_register_h245(void) {
         "NonStandardIdentifier/h221NonStandard", HFILL }},
     { &hf_h245_t35CountryCode,
       { "t35CountryCode", "h245.t35CountryCode",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(T35CountryCode_vals), 0,
         "NonStandardIdentifier/h221NonStandard/t35CountryCode", HFILL }},
     { &hf_h245_t35Extension,
       { "t35Extension", "h245.t35Extension",
@@ -19350,7 +19462,7 @@ void proto_register_h245(void) {
     { &hf_h245_mediaChannel,
       { "mediaChannel", "h245.mediaChannel",
         FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
-        "", HFILL }},
+        "H2250LogicalChannelParameters/mediaChannel", HFILL }},
     { &hf_h245_mediaGuaranteedDelivery,
       { "mediaGuaranteedDelivery", "h245.mediaGuaranteedDelivery",
         FT_BOOLEAN, 8, NULL, 0,
@@ -19358,7 +19470,7 @@ void proto_register_h245(void) {
     { &hf_h245_mediaControlChannel,
       { "mediaControlChannel", "h245.mediaControlChannel",
         FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
-        "", HFILL }},
+        "H2250LogicalChannelParameters/mediaControlChannel", HFILL }},
     { &hf_h245_mediaControlGuaranteedDelivery,
       { "mediaControlGuaranteedDelivery", "h245.mediaControlGuaranteedDelivery",
         FT_BOOLEAN, 8, NULL, 0,
@@ -20343,6 +20455,14 @@ void proto_register_h245(void) {
       { "dataType", "h245.dataType",
         FT_UINT32, BASE_DEC, VALS(h245_T_dataType_vals), 0,
         "CommunicationModeTableEntry/dataType", HFILL }},
+    { &hf_h245_cm_mediaChannel,
+      { "mediaChannel", "h245.mediaChannel",
+        FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
+        "CommunicationModeTableEntry/mediaChannel", HFILL }},
+    { &hf_h245_cm_mediaControlChannel,
+      { "mediaControlChannel", "h245.mediaControlChannel",
+        FT_UINT32, BASE_DEC, VALS(h245_TransportAddress_vals), 0,
+        "CommunicationModeTableEntry/mediaControlChannel", HFILL }},
     { &hf_h245_sessionDependency,
       { "sessionDependency", "h245.sessionDependency",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -21532,7 +21652,7 @@ void proto_register_h245(void) {
     &ett_h245_CommandMessage,
     &ett_h245_IndicationMessage,
     &ett_h245_GenericMessage,
-    &ett_h245_SEQUNCE_OF_GenericParameter,
+    &ett_h245_SEQUENCE_OF_GenericParameter,
     &ett_h245_NonStandardMessage,
     &ett_h245_NonStandardParameter,
     &ett_h245_NonStandardIdentifier,
@@ -21579,9 +21699,9 @@ void proto_register_h245(void) {
     &ett_h245_V75Capability,
     &ett_h245_H2250Capability,
     &ett_h245_T_mcCapability,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_RedundancyEncodingCapability,
+    &ett_h245_SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability,
     &ett_h245_MediaPacketizationCapability,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_RTPPayloadType,
+    &ett_h245_SEQUENCE_SIZE_1_256_OF_RTPPayloadType,
     &ett_h245_RSVPParameters,
     &ett_h245_QOSMode,
     &ett_h245_ATMParameters,
@@ -21590,25 +21710,25 @@ void proto_register_h245(void) {
     &ett_h245_T_atm_AAL5_compressed,
     &ett_h245_MediaChannelCapability,
     &ett_h245_TransportCapability,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_QOSCapability,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_MediaChannelCapability,
+    &ett_h245_SEQUENCE_SIZE_1_256_OF_QOSCapability,
+    &ett_h245_SEQUENCE_SIZE_1_256_OF_MediaChannelCapability,
     &ett_h245_RedundancyEncodingCapability,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_CapabilityTableEntryNumber,
+    &ett_h245_SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber,
     &ett_h245_RedundancyEncodingMethod,
     &ett_h245_RTPH263VideoRedundancyEncoding,
     &ett_h245_T_frameToThreadMapping,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_15,
+    &ett_h245_SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping,
+    &ett_h245_T_containedThreads,
     &ett_h245_RTPH263VideoRedundancyFrameMapping,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_INTEGER_0_255,
+    &ett_h245_T_frameSequence,
     &ett_h245_MultipointCapability,
-    &ett_h245_SEQUNCE_OF_MediaDistributionCapability,
+    &ett_h245_SEQUENCE_OF_MediaDistributionCapability,
     &ett_h245_MediaDistributionCapability,
-    &ett_h245_SEQUNCE_OF_DataApplicationCapability,
+    &ett_h245_SEQUENCE_OF_DataApplicationCapability,
     &ett_h245_VideoCapability,
     &ett_h245_ExtendedVideoCapability,
-    &ett_h245_SEQUNCE_OF_VideoCapability,
-    &ett_h245_SEQUNCE_OF_GenericCapability,
+    &ett_h245_SEQUENCE_OF_VideoCapability,
+    &ett_h245_SEQUENCE_OF_GenericCapability,
     &ett_h245_H261VideoCapability,
     &ett_h245_H262VideoCapability,
     &ett_h245_H263VideoCapability,
@@ -21633,7 +21753,7 @@ void proto_register_h245(void) {
     &ett_h245_T_customPCF,
     &ett_h245_T_customPCF_item,
     &ett_h245_T_pixelAspectInformation,
-    &ett_h245_SET_SIZE_1_14_OF_INTEGER_1_14,
+    &ett_h245_T_pixelAspectCode,
     &ett_h245_T_extendedPAR,
     &ett_h245_T_extendedPAR_item,
     &ett_h245_H263VideoModeCombos,
@@ -21672,13 +21792,13 @@ void proto_register_h245(void) {
     &ett_h245_AuthenticationCapability,
     &ett_h245_IntegrityCapability,
     &ett_h245_UserInputCapability,
-    &ett_h245_SEQUNCE_SIZE_1_16_OF_NonStandardParameter,
+    &ett_h245_SEQUENCE_SIZE_1_16_OF_NonStandardParameter,
     &ett_h245_ConferenceCapability,
-    &ett_h245_SEQUNCE_OF_NonStandardParameter,
+    &ett_h245_SEQUENCE_OF_NonStandardParameter,
     &ett_h245_GenericCapability,
     &ett_h245_CapabilityIdentifier,
     &ett_h245_GenericParameter,
-    &ett_h245_SEQUNCE_OF_ParameterIdentifier,
+    &ett_h245_SEQUENCE_OF_ParameterIdentifier,
     &ett_h245_ParameterIdentifier,
     &ett_h245_ParameterValue,
     &ett_h245_MultiplexedStreamCapability,
@@ -21736,10 +21856,10 @@ void proto_register_h245(void) {
     &ett_h245_T_payloadDescriptor,
     &ett_h245_RedundancyEncoding,
     &ett_h245_T_rtpRedundancyEncoding,
-    &ett_h245_SEQUNCE_OF_RedundancyEncodingElement,
+    &ett_h245_SEQUENCE_OF_RedundancyEncodingElement,
     &ett_h245_RedundancyEncodingElement,
     &ett_h245_MultiplePayloadStream,
-    &ett_h245_SEQUNCE_OF_MultiplePayloadStreamElement,
+    &ett_h245_SEQUENCE_OF_MultiplePayloadStreamElement,
     &ett_h245_MultiplePayloadStreamElement,
     &ett_h245_FECData,
     &ett_h245_RFC2733Data,
@@ -21755,12 +21875,12 @@ void proto_register_h245(void) {
     &ett_h245_T_iP6Address,
     &ett_h245_T_iPSourceRouteAddress,
     &ett_h245_T_routing,
-    &ett_h245_SEQUNCE_OF_OCTET_STRING_SIZE_4,
+    &ett_h245_T_route,
     &ett_h245_MulticastAddress,
     &ett_h245_MIPAddress,
     &ett_h245_MIP6Address,
     &ett_h245_EncryptionSync,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_EscrowData,
+    &ett_h245_SEQUENCE_SIZE_1_256_OF_EscrowData,
     &ett_h245_EscrowData,
     &ett_h245_OpenLogicalChannelAck,
     &ett_h245_OLC_ack_reverseLogicalChannelParameters,
@@ -21783,10 +21903,10 @@ void proto_register_h245(void) {
     &ett_h245_MultiplexEntrySend,
     &ett_h245_SET_SIZE_1_15_OF_MultiplexEntryDescriptor,
     &ett_h245_MultiplexEntryDescriptor,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_MultiplexElement,
+    &ett_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement,
     &ett_h245_MultiplexElement,
     &ett_h245_Me_type,
-    &ett_h245_SEQUNCE_SIZE_2_255_OF_MultiplexElement,
+    &ett_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement,
     &ett_h245_ME_repeatCount,
     &ett_h245_MultiplexEntrySendAck,
     &ett_h245_SET_SIZE_1_15_OF_MultiplexTableEntryNumber,
@@ -21803,7 +21923,7 @@ void proto_register_h245(void) {
     &ett_h245_RequestMultiplexEntryRejectionDescriptionsCause,
     &ett_h245_RequestMultiplexEntryRelease,
     &ett_h245_RequestMode,
-    &ett_h245_SEQUNCE_SIZE_1_256_OF_ModeDescription,
+    &ett_h245_SEQUENCE_SIZE_1_256_OF_ModeDescription,
     &ett_h245_RequestModeAck,
     &ett_h245_Req_mode_ack_response,
     &ett_h245_RequestModeReject,
@@ -21816,11 +21936,11 @@ void proto_register_h245(void) {
     &ett_h245_T_mediaMode,
     &ett_h245_MultiplexedStreamModeParameters,
     &ett_h245_RedundancyEncodingDTMode,
-    &ett_h245_SEQUNCE_OF_RedundancyEncodingDTModeElement,
+    &ett_h245_SEQUENCE_OF_RedundancyEncodingDTModeElement,
     &ett_h245_RedundancyEncodingDTModeElement,
     &ett_h245_Re_type,
     &ett_h245_MultiplePayloadStreamMode,
-    &ett_h245_SEQUNCE_OF_MultiplePayloadStreamElementMode,
+    &ett_h245_SEQUENCE_OF_MultiplePayloadStreamElementMode,
     &ett_h245_MultiplePayloadStreamElementMode,
     &ett_h245_FECMode,
     &ett_h245_T_rfc2733Mode,
@@ -21890,7 +22010,7 @@ void proto_register_h245(void) {
     &ett_h245_T_makeTerminalBroadcasterResponse,
     &ett_h245_T_sendThisSourceResponse,
     &ett_h245_RequestAllTerminalIDsResponse,
-    &ett_h245_SEQUNCE_OF_TerminalInformation,
+    &ett_h245_SEQUENCE_OF_TerminalInformation,
     &ett_h245_TerminalInformation,
     &ett_h245_RemoteMCRequest,
     &ett_h245_RemoteMCResponse,
@@ -21942,7 +22062,7 @@ void proto_register_h245(void) {
     &ett_h245_T_videoFastUpdateMB,
     &ett_h245_T_progressiveRefinementStart,
     &ett_h245_T_videoBadMBs,
-    &ett_h245_SEQUNCE_OF_PictureReference,
+    &ett_h245_SEQUENCE_OF_PictureReference,
     &ett_h245_T_lostPartialPicture,
     &ett_h245_T_encryptionUpdateCommand,
     &ett_h245_T_encryptionUpdateAck,
