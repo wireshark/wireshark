@@ -1,4 +1,4 @@
-$Id: TODO,v 1.8 2000/08/25 20:50:31 guy Exp $
+$Id: TODO,v 1.9 2001/04/21 07:49:24 guy Exp $
 
 Things to do:
 =============
@@ -37,8 +37,11 @@ tcpdump over ssh:
 where "filter" filters out our own ssh packets (using the infromation
 from $SSH_CLIENT). Any takers?
 
-*) Of course, packet defragmentating. IP, TCP, UDP, etc. need to be
-reassembled and re-analyzed.
+*) Of course, packet defragmentating.  IP fragments are now reassembled,
+but IPv6 fragments need to be reassembled and re-analyzed; we would also
+want to support reassembling TCP data streams and breaking the resulting
+stream into higher-level packets.  Other protocols where we might want
+to reassemble packets include NBDS and OSI CLNP.
 
 *) I'd like to someday re-write the display filter routines to have a more
 powerful syntax.
