@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.32 2002/11/10 11:00:29 oabad Exp $
+ * $Id: display_opts.c,v 1.33 2004/01/01 13:41:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,9 +60,9 @@ static void display_opt_close_cb(GtkWidget *, gpointer);
 static void display_opt_destroy_cb(GtkWidget *, gpointer);
 
 /*
- * Keep a static pointer to the current "Display Options" window, if any,
+ * Keep a static pointer to the current "View Options" window, if any,
  * so that if somebody tries to do "Display:Options" while there's already
- * a "Display Options" window up, we just pop up the existing one, rather
+ * a "View Options" window up, we just pop up the existing one, rather
  * than creating a new one.
  */
 static GtkWidget *display_opt_w;
@@ -78,7 +78,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 #endif
 
   if (display_opt_w != NULL) {
-    /* There's already a "Display Options" dialog box; reactivate it. */
+    /* There's already a "View Options" dialog box; reactivate it. */
     reactivate_window(display_opt_w);
     return;
   }
@@ -94,7 +94,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
      packet list).*/
   current_timestamp_type = timestamp_type;
 
-  display_opt_w = dlg_window_new("Ethereal: Display Options");
+  display_opt_w = dlg_window_new("Ethereal: View Options");
   SIGNAL_CONNECT(display_opt_w, "destroy", display_opt_destroy_cb, NULL);
 
 #if GTK_MAJOR_VERSION < 2
@@ -155,10 +155,10 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 #if GTK_MAJOR_VERSION < 2
   button = dlg_radio_button_new_with_label_with_mnemonic(
                gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
-               "Seconds since _previous frame", accel_group);
+               "Seconds since _previous packet", accel_group);
 #else
   button = gtk_radio_button_new_with_mnemonic_from_widget(
-               GTK_RADIO_BUTTON(button), "Seconds since _previous frame");
+               GTK_RADIO_BUTTON(button), "Seconds since _previous packet");
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == DELTA));
@@ -360,6 +360,6 @@ display_opt_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 static void
 display_opt_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-  /* Note that we no longer have a "Display Options" dialog box. */
+  /* Note that we no longer have a "View Options" dialog box. */
   display_opt_w = NULL;
 }
