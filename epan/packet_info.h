@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.11 2001/11/21 23:16:23 gram Exp $
+ * $Id: packet_info.h,v 1.12 2001/11/29 09:05:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,7 +106,12 @@ typedef struct _packet_info {
   guint32 srcport;		/* source port */
   guint32 destport;		/* destination port */
   guint32 match_port;
-  gboolean can_desegment;	/* TRUE if this segment could be desegmented */
+  guint16 can_desegment;	/* >0 if this segment could be desegmented.
+				   A dissector that can offer this API (e.g. TCP)
+				   sets can_desegment=2, then can_desegment is
+				   decremented by 1 each time we pass to the next
+				   subdissector. Thus only the dissector immediately
+				   above the protocol which sets the flag can use it*/
   int desegment_offset;		/* offset of stuff needing desegmentation */
   guint32 desegment_len;	/* requested desegmentation additional length */
   int     iplen;

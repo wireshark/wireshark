@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.117 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-tcp.c,v 1.118 2001/11/29 09:05:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -959,7 +959,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Assume, initially, that we can't desegment.
    */
-  pinfo->can_desegment = FALSE;
+  pinfo->can_desegment = 0;
 
   th_sum = tvb_get_ntohs(tvb, offset + 16);
   if (!pinfo->fragmented && len >= reported_len) {
@@ -1008,7 +1008,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /* No - indicate that we will desegment.
 	     We do NOT want to desegment segments returned in error
 	     packets, as they're not part of a TCP connection. */
-	  pinfo->can_desegment = TRUE;
+	  pinfo->can_desegment = 2;
 	}
       }
       proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,

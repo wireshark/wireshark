@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.175 2001/11/29 08:36:56 guy Exp $
+ * $Id: packet-smb.c,v 1.176 2001/11/29 09:05:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -686,6 +686,9 @@ smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 {
 	fragment_data *fd_head=NULL;
 	smb_info_t *si;
+	int more_frags;
+
+	more_frags=totlen>(pos+count);
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip == NULL) {
@@ -709,12 +712,19 @@ smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 	if(!pinfo->fd->flags.visited){
 		fd_head = fragment_add(tvb, offset, pinfo,
 				       si->sip->frame_req, smb_trans_fragment_table,
-				       pos, count, totlen>(pos+count));
+				       pos, count, more_frags);
 	} else {
 		fd_head = fragment_get(pinfo, si->sip->frame_req, smb_trans_fragment_table);
 	}
 
-	if(fd_head && fd_head->flags&FD_DEFRAGMENTED){
+	/* we only show the defragmented packet for the first fragment,
+	   or else we might end up with dissecting one HUGE transaction PDU
+	   a LOT of times. (first fragment is the only one containing the setup
+	   bytes)
+	   I have seen ONE Transaction PDU that is ~60kb, spanning many Transaction 
+	   SMBs. Takes a LOT of time dissecting and is not fun.
+	*/
+	if( (pos==0) && fd_head && fd_head->flags&FD_DEFRAGMENTED){
 		return fd_head;
 	} else {
 		return NULL;
@@ -10708,7 +10718,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 							     po, pc, pd, td+tp);
 				
 			}
-			if(dc && (tvb_length_remaining(tvb, od)>=dc) ){
+			if((r_fd==NULL) && dc && (tvb_length_remaining(tvb, od)>=dc) ){
 				r_fd = smb_trans_defragment(tree, pinfo, tvb, 
 							     od, dc, dd+tp, td+tp);
 			}

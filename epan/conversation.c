@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.16 2001/11/27 07:13:31 guy Exp $
+ * $Id: conversation.c,v 1.17 2001/11/29 09:05:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -918,16 +918,29 @@ try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
     proto_tree *tree)
 {
 	conversation_t *conversation;
+	guint16 saved_can_desegment;
+
+	/* can_desegment is set to 2 by anyone which offers this api/service.
+	   then everytime a subdissector is called it is decremented by one.
+	   thus only the subdissector immediately ontop of whoever offers this
+	   service can use it.
+	*/
+	saved_can_desegment=pinfo->can_desegment;
+	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 
 	conversation = find_conversation(addr_a, addr_b, ptype, port_a,
 	    port_b, 0);
 	
 	if (conversation != NULL) {
-		if (conversation->dissector_handle == NULL)
+		if (conversation->dissector_handle == NULL){
+			pinfo->can_desegment=saved_can_desegment;
 			return FALSE;
+		}
 		call_dissector(conversation->dissector_handle, tvb, pinfo,
 		    tree);
+		pinfo->can_desegment=saved_can_desegment;
 		return TRUE;
 	}
+	pinfo->can_desegment=saved_can_desegment;
 	return FALSE;
 }

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.43 2001/11/27 07:13:32 guy Exp $
+ * $Id: packet.c,v 1.44 2001/11/29 09:05:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -366,6 +366,15 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	dtbl_entry_t *dtbl_entry;
 	const char *saved_proto;
 	guint32 saved_match_port;
+	guint16 saved_can_desegment;
+
+	/* can_desegment is set to 2 by anyone which offers this api/service.
+	   then everytime a subdissector is called it is decremented by one.
+	   thus only the subdissector immediately ontop of whoever offers this
+	   serveice can use it.
+	*/
+	saved_can_desegment=pinfo->can_desegment;
+	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(port));
@@ -380,6 +389,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 			 * so that other dissectors might have a chance
 			 * to dissect this packet.
 			 */
+			pinfo->can_desegment=saved_can_desegment;
 			return FALSE;
 		}
 			
@@ -396,9 +406,11 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		(*dtbl_entry->current.dissector)(tvb, pinfo, tree);
 		pinfo->current_proto = saved_proto;
 		pinfo->match_port = saved_match_port;
+		pinfo->can_desegment=saved_can_desegment;
 		return TRUE;
-	} else
-		return FALSE;
+	} 
+	pinfo->can_desegment=saved_can_desegment;
+	return FALSE;
 }
 
 gint
@@ -617,10 +629,20 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 	const char *saved_proto;
 	GSList *entry;
 	heur_dtbl_entry_t *dtbl_entry;
+	guint16 saved_can_desegment;
+
+	/* can_desegment is set to 2 by anyone which offers this api/service.
+	   then everytime a subdissector is called it is decremented by one.
+	   thus only the subdissector immediately ontop of whoever offers this
+	   service can use it.
+	*/
+	saved_can_desegment=pinfo->can_desegment;
+	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 
 	status = FALSE;
 	saved_proto = pinfo->current_proto;
 	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
+		pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 		dtbl_entry = (heur_dtbl_entry_t *)entry->data;
 		if (dtbl_entry->proto_index != -1 &&
 		    !proto_is_protocol_enabled(dtbl_entry->proto_index)) {
@@ -640,6 +662,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 		}
 	}
 	pinfo->current_proto = saved_proto;
+	pinfo->can_desegment=saved_can_desegment;
 	return status;
 }
 
