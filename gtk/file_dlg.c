@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.115 2004/06/20 03:05:57 guy Exp $
+ * $Id: file_dlg.c,v 1.116 2004/06/20 07:28:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <string.h>
 
 #include <gtk/gtk.h>
 
@@ -264,7 +266,7 @@ static void
 file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 {
     GtkWidget *prev = OBJECT_GET_DATA(file_sel, PREVIEW_TABLE_KEY);
-    gchar* cf_name;
+    const gchar* cf_name;
     gboolean have_preview;
 
     /* get the filename */
