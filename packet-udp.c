@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.28 1999/10/14 05:10:32 guy Exp $
+ * $Id: packet-udp.c,v 1.29 1999/10/15 18:33:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -221,6 +221,9 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   /* Skip over header */
   offset += 8;
+
+ pi.srcport = uh_sport;
+ pi.destport = uh_dport;
 
   /* XXX - we should do all of this through the table of ports. */
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)
