@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.25 1999/10/05 07:06:05 guy Exp $
+ * $Id: file.c,v 1.26 1999/10/18 01:51:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -36,6 +36,7 @@
 #include "ngsniffer.h"
 #include "radcom.h"
 #include "ascend.h"
+#include "nettl.h"
 #include "libpcap.h"
 #include "snoop.h"
 #include "iptrace.h"
@@ -68,7 +69,8 @@ static int (*open_routines[])(wtap *, int *) = {
 	netmon_open,
 	netxray_open,
 	radcom_open,
-	ascend_open
+	ascend_open,
+	nettl_open
 };
 
 int wtap_def_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.25 1999/10/06 03:29:35 guy Exp $
+ * $Id: wtap.c,v 1.26 1999/10/18 01:51:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -98,6 +98,9 @@ const char *wtap_file_type_string(wtap *wth)
 		case WTAP_FILE_ASCEND:
 			return "Lucent/Ascend access server trace";
 
+		case WTAP_FILE_NETTL:
+			return "HP-UX nettl traces";
+
 		default:
 			g_error("Unknown capture file type %d", wth->file_type);
 			return NULL;
@@ -182,6 +185,10 @@ void wtap_close(wtap *wth)
 
 		case WTAP_FILE_ASCEND:
 			g_free(wth->capture.ascend);
+			break;
+
+		case WTAP_FILE_NETTL:
+			g_free(wth->capture.nettl);
 			break;
 
 		/* default:

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.43 1999/10/06 03:29:36 guy Exp $
+ * $Id: wtap.h,v 1.44 1999/10/18 01:51:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -93,7 +93,7 @@
 #define WTAP_ENCAP_ASCEND				14
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			15
+#define WTAP_NUM_ENCAP_TYPES			16
 
 /* File types that can be read by wiretap.
    We may eventually support writing some or all of these file types,
@@ -112,6 +112,7 @@
 #define WTAP_FILE_NETXRAY_2_001			12
 #define WTAP_FILE_RADCOM			13
 #define WTAP_FILE_ASCEND			14
+#define WTAP_FILE_NETTL				15
 
 /*
  * Maximum packet size we'll support.
@@ -147,6 +148,10 @@ typedef struct {
 typedef struct {
 	time_t	start;
 } radcom_t;
+
+typedef struct {
+	time_t	start;
+} nettl_t;
 
 typedef struct {
 	time_t	start;
@@ -305,6 +310,7 @@ typedef struct wtap {
 		lanalyzer_t		*lanalyzer;
 		ngsniffer_t		*ngsniffer;
 		radcom_t		*radcom;
+		nettl_t			*nettl;
 		netmon_t		*netmon;
 		netxray_t		*netxray;
 		ascend_t		*ascend;
