@@ -2,10 +2,10 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.21 2001/06/18 02:17:54 guy Exp $
+ * $Id: packet-wsp.c,v 1.22 2001/06/18 22:27:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Didier Jorand
  *
  * WAP dissector based on original work by Ben Fowler
@@ -66,7 +66,15 @@ static int hf_wsp_header_pdu_type				= HF_EMPTY;
 static int hf_wsp_version_major					= HF_EMPTY;
 static int hf_wsp_version_minor					= HF_EMPTY;
 static int hf_wsp_capability_length				= HF_EMPTY;
-static int hf_wsp_capabilities_section			= HF_EMPTY;
+static int hf_wsp_capabilities_section				= HF_EMPTY;
+static int hf_wsp_capabilities_client_SDU			= HF_EMPTY;
+static int hf_wsp_capabilities_server_SDU			= HF_EMPTY;
+static int hf_wsp_capabilities_protocol_opt			= HF_EMPTY;
+static int hf_wsp_capabilities_method_MOR			= HF_EMPTY;
+static int hf_wsp_capabilities_push_MOR				= HF_EMPTY;
+static int hf_wsp_capabilities_extended_methods			= HF_EMPTY;
+static int hf_wsp_capabilities_header_code_pages		= HF_EMPTY;
+static int hf_wsp_capabilities_aliases				= HF_EMPTY;
 static int hf_wsp_header_uri_len				= HF_EMPTY;
 static int hf_wsp_header_uri					= HF_EMPTY;
 static int hf_wsp_server_session_id				= HF_EMPTY;
@@ -79,6 +87,7 @@ static int hf_wsp_parameter_well_known_charset	= HF_EMPTY;
 static int hf_wsp_reply_data					= HF_EMPTY;
 static int hf_wsp_post_data						= HF_EMPTY;
 
+static int hf_wsp_header_shift_code					= HF_EMPTY;
 static int hf_wsp_header_accept					= HF_EMPTY;
 static int hf_wsp_header_accept_str				= HF_EMPTY;
 static int hf_wsp_header_accept_charset			= HF_EMPTY;
@@ -419,6 +428,9 @@ static guint add_parameter (proto_tree *, tvbuff_t *, guint);
 static guint add_parameter_charset (proto_tree *, tvbuff_t *, guint, guint);
 static void add_post_data (proto_tree *, tvbuff_t *, guint);
 static void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
+static gint get_long_integer (tvbuff_t *, guint *, guint , guint *);
+static void add_capabilities (proto_tree *tree, tvbuff_t *tvb);
+static guint get_uintvar (tvbuff_t *, guint, guint);
 
 /* Code to actually dissect the packets */
 static void
@@ -446,7 +458,6 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *wsp_tree;
 /*	proto_tree *wsp_header_fixed; */
-	proto_tree *wsp_capabilities;
 	
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
@@ -539,8 +550,8 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
 					if (capabilityLength > 0)
 					{
-						ti = proto_tree_add_item (wsp_tree, hf_wsp_capabilities_section,tvb,offset,capabilityLength,bo_little_endian);
-						wsp_capabilities = proto_item_add_subtree( ti, ett_capabilities );
+						tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
+						add_capabilities (wsp_tree, tmp_tvb);
 						offset += capabilityLength;
 					}
 
@@ -571,8 +582,8 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
 					if (capabilityLength > 0)
 					{
-						ti = proto_tree_add_item (wsp_tree, hf_wsp_capabilities_section,tvb,offset,capabilityLength,bo_little_endian);
-						wsp_capabilities = proto_item_add_subtree( ti, ett_capabilities );
+						tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
+						add_capabilities (wsp_tree, tmp_tvb);
 						offset += capabilityLength;
 					}
 
@@ -706,6 +717,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 	guint count = 0;
 	guint valueStart = 0;
 	guint valueEnd = 0;
+	guint pageCode = 1;
 
 #ifdef DEBUG
 	fprintf (stderr, "dissect_wsp: Offset is %d, size is %d\n", offset, headersLen);
@@ -734,13 +746,17 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 
 		if (peek < 32)		/* Short-cut shift delimeter */
 		{
-			fprintf (stderr, "dissect_wsp: header: short-cut shift %d (0x%02X)\n", peek, peek);
-			offset++;
+			pageCode = peek;
+			proto_tree_add_uint (wsp_headers, hf_wsp_header_shift_code, tvb , offset, 1, peek);
+			offset+=1;
+			continue;
 		}
 		else if (peek == 0x7F)	/* Shift delimeter */
 		{
-			fprintf (stderr, "dissect_wsp: header: shift delimeter %d (0x%02X)\n", peek, peek);
-			offset++;
+			pageCode = tvb_get_guint8(tvb,offset+1);
+			proto_tree_add_uint (wsp_headers, hf_wsp_header_shift_code, tvb , offset, 2, pageCode);
+			offset+=2;
+			continue;
 		}
 		else if (peek < 127)
 		{
@@ -800,10 +816,18 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 		fprintf (stderr, "dissect_wsp: Creating value buffer from offset %d, size=%d\n", headerStart, (offset-headerStart));
 #endif
 
-		header_buff = tvb_new_subset (tvb, headerStart, (offset-headerStart), (offset-headerStart));
-		value_buff = tvb_new_subset (tvb, valueStart, (valueEnd-valueStart), (valueEnd-valueStart));
+		if (pageCode == 1)
+		{
+			header_buff = tvb_new_subset (tvb, headerStart, (offset-headerStart), (offset-headerStart));
+			value_buff = tvb_new_subset (tvb, valueStart, (valueEnd-valueStart), (valueEnd-valueStart));
+			add_header (wsp_headers, header_buff, value_buff);
+		}
+		else 
+		{
+			proto_tree_add_text (wsp_headers, tvb , headerStart, valueEnd-headerStart,
+				       "Unsupported Header (0x%02X)", (tvb_get_guint8 (tvb, headerStart) & 0x7F));
+		}
 
-		add_header (wsp_headers, header_buff, value_buff);
 	}
 }
 
@@ -818,9 +842,11 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 	guint valueLen = tvb_reported_length (value_buff);
 	guint peek = 0;
 	struct timeval timeValue;
+	guint offsetNew = 0;
 	guint value = 0;
 	guint valueLength = 0;
 	char valString[100];
+	char valNum1[100];
 	char *valMatch = NULL;
 	double q_value = 1.0;
 
@@ -847,14 +873,84 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 		switch (headerType)
 		{
 			case 0x00:		/* Accept */
-				if (peek & 0x80)
+				if (peek & 0x80) /* Constrained-media (short-integer) */
 				{
 					proto_tree_add_uint (tree, hf_wsp_header_accept, header_buff, offset, headerLen, (peek & 0x7F));
+					break;
 				}
-				else
+				if (peek >= 32) /* Constrained-media (text) */
 				{
-					proto_tree_add_string (tree, hf_wsp_header_accept_str,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
+					proto_tree_add_string (tree, hf_wsp_header_accept_str,header_buff,offset,headerLen,
+								tvb_get_ptr (value_buff, 0, valueLen));
+					break;
 				}
+				/* general form (short length) */
+				offsetNew = offset+1;
+				valueLength = tvb_get_guint8 (value_buff, offsetNew);
+				if (valueLength & 0x80) /* short integer */
+				{
+					valMatch = match_strval(valueLength & 0x7f, vals_content_types);
+					offsetNew++;
+				}
+				else if (valueLength < 32) /* long integer */
+				{
+					if (get_long_integer(value_buff,&offsetNew,offset+peek,&value) < 0)
+					{
+						fprintf (stderr, "dissect_wsp: accept get_long_interger invalid\n");
+					}
+					valMatch = match_strval(value, vals_content_types);
+					offsetNew+=valueLength;
+					if (valMatch == NULL)
+					{
+						snprintf(valNum1,100,"Unsupported type (%d)",value);
+						valMatch = valNum1;
+					}
+				}
+				else /* text */
+				{
+					/* TODO */
+				}
+				if ((offsetNew - offset) < peek) /* Parameter */
+				{
+					value = tvb_get_guint8 (value_buff, offsetNew);
+					offsetNew++;
+					if (value & 0x80) /* well Know type */
+					{
+						switch (value & 0x7f)
+						{
+							case 0x03 :
+								valueLength = tvb_get_guint8 (value_buff, offsetNew);
+								if (valueLength & 0x80) /* short integer */
+								{
+									value = valueLength & 0x7F;
+									offsetNew++;
+								}
+								else if (valueLength < 32) /* Long integer */
+								{
+									if (get_long_integer(value_buff,&offsetNew,offset+peek,&value) < 0)
+									{
+										fprintf (stderr, "dissect_wsp: accept get_long_interger parameter invalid\n");
+									}
+								}
+								snprintf (valString, 100, "%s type %d", valMatch,value);
+								break;
+							case 0x00 :
+							case 0x01 :
+							case 0x02 :
+							case 0x04 :
+							default :
+								break;
+						}
+					}
+				}
+				else  /* no parameter */
+				{
+					snprintf (valString, 100, "%s", valMatch);
+				}
+				/* Add string to tree */
+				proto_tree_add_string (tree, hf_wsp_header_accept_str,
+						       header_buff, 0, headerLen, valString);
+					
 				break;
 
 			case 0x01:		/* Accept-Charset */
@@ -947,10 +1043,10 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 							snprintf (valString, 100, "%s; Q=%5.3f", valMatch,q_value);
 						}
 					}
+                                        /* Add string to tree */
+                                        proto_tree_add_string (tree, hf_wsp_header_accept_charset_str,
+				                               header_buff, 0, headerLen, valString);
 
-					/* Add string to tree */
-					proto_tree_add_string (tree, hf_wsp_header_accept_charset_str,
-						header_buff, 0, headerLen, valString);
 				}
 				else						/* Constrained-charset */
 				{
@@ -1235,6 +1331,161 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 		}
 	}
 
+}
+
+static void
+add_capabilities (proto_tree *tree, tvbuff_t *tvb)
+{
+	proto_item *ti;
+	proto_tree *wsp_capabilities;
+	guint offset = 0;
+	guint offsetStr = 0;
+	guint capabilitiesLen = tvb_reported_length (tvb);
+	guint8 capabilitiesStart = 0;
+	guint peek = 0;
+	guint length = 0;
+	guint value = 0;
+	guint i;
+	char valString[200];
+
+#ifdef DEBUG
+	fprintf (stderr, "dissect_wsp: Offset is %d, size is %d\n", offset, capabilitiesLen);
+#endif
+
+	/* End of buffer */
+	if (capabilitiesLen <= 0)
+	{
+		fprintf (stderr, "dissect_wsp: Capabilities = 0\n");
+		return;
+	}
+
+#ifdef DEBUG
+	fprintf (stderr, "dissect_wsp: capabilities to process\n");
+#endif
+
+	ti = proto_tree_add_item (tree, hf_wsp_capabilities_section,tvb,offset,capabilitiesLen,bo_little_endian);
+	wsp_capabilities = proto_item_add_subtree( ti, ett_capabilities );
+
+	/* Parse Headers */
+
+	while (offset < capabilitiesLen)
+	{
+		/* Loop round each header */
+		capabilitiesStart = offset;
+		length = tvb_get_guint8 (tvb, capabilitiesStart);
+
+		if (length >= 127)		/* length */
+		{
+#ifdef DEBUG
+			fprintf (stderr, "dissect_wsp: capabilities length invalid %d\n",length);
+#endif
+			offset+=length;
+			continue;
+		}
+		offset++;
+		peek = tvb_get_guint8 (tvb, offset);
+		offset++;
+		switch (peek & 0x7f)
+		{
+			case 0x00 : /* Client-SDU-Size */
+				value = get_uintvar (tvb, offset, length+capabilitiesStart+1);
+				proto_tree_add_uint (wsp_capabilities, hf_wsp_capabilities_client_SDU, tvb, capabilitiesStart, length+1, value);
+				break;
+			case 0x01 : /* Server-SDU-Size */
+				value = get_uintvar (tvb, offset, length+capabilitiesStart+1);
+				proto_tree_add_uint (wsp_capabilities, hf_wsp_capabilities_server_SDU, tvb, capabilitiesStart, length+1, value);
+				break;
+			case 0x02 : /* Protocol Options */ 
+				value = get_uintvar (tvb, offset, length+capabilitiesStart+1);
+				i = 0;
+				valString[0]=0;
+				if (value & 0x80)
+				{
+					i += snprintf(valString+i,200-1,"%s","(Confirmed push facility) ");
+				}
+				if (value & 0x40)
+				{
+					i += snprintf(valString+i,200-1,"%s","(Push facility) ");
+				}
+				if (value & 0x20)
+				{
+					i += snprintf(valString+i,200-1,"%s","(Session resume facility) ");
+				}
+				if (value & 0x10)
+				{
+					i += snprintf(valString+i,200-1,"%s","(Acknowledgement headers) ");
+				}
+				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_protocol_opt, tvb, capabilitiesStart, length+1, valString);
+				break;
+			case 0x03 : /* Method-MOR */ 
+				value = tvb_get_guint8(tvb, offset);
+				proto_tree_add_uint (wsp_capabilities, hf_wsp_capabilities_method_MOR, tvb, capabilitiesStart, length+1, value);
+				break;
+			case 0x04 : /* Push-MOR */ 
+				value = tvb_get_guint8(tvb, offset);
+				proto_tree_add_uint (wsp_capabilities, hf_wsp_capabilities_push_MOR, tvb, capabilitiesStart, length+1, value);
+				break;
+				break;
+			case 0x05 : /* Extended Methods */ 
+				offsetStr = offset;
+				offset++;
+				i = 0;
+				while ((offsetStr-capabilitiesStart) <= length)
+				{
+					value = tvb_get_guint8(tvb, offsetStr);
+					i += snprintf(valString+i,200-i,"(%d - ",value);
+					offsetStr++;
+					for (;(valString[i] = tvb_get_guint8(tvb, offsetStr));i++,offsetStr++);
+					offsetStr++;
+					valString[i++] = ')';
+					valString[i++] = ' ';
+				}
+				valString[i]=0;
+				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_extended_methods, tvb, capabilitiesStart, length+1, valString);
+				break;
+			case 0x06 : /* Header Code Pages */ 
+				offsetStr = offset;
+				offset++;
+				i = 0;
+				while ((offsetStr-capabilitiesStart) <= length)
+				{
+					value = tvb_get_guint8(tvb, offsetStr);
+					i += snprintf(valString+i,200-i,"(%d - ",value);
+					offsetStr++;
+					for (;(valString[i] = tvb_get_guint8(tvb, offsetStr));i++,offsetStr++);
+					offsetStr++;
+					valString[i++] = ')';
+					valString[i++] = ' ';
+				}
+				valString[i]=0;
+				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_header_code_pages, tvb, capabilitiesStart, length+1, valString);
+				break;
+			case 0x07 : /* Aliases */
+				break;
+			default:
+				proto_tree_add_text (wsp_capabilities, tvb , capabilitiesStart, length+1,
+				       "Unsupported Header (0x%02X)", peek & 0x7F);
+				break;
+		}
+		offset=capabilitiesStart+length+1;
+	}
+}
+
+static guint
+get_uintvar (tvbuff_t *tvb, guint offset, guint offsetEnd)
+{
+	guint value = 0;
+	guint octet;
+
+	do
+	{
+       		octet = tvb_get_guint8 (tvb, offset);
+		offset++;
+		value <<= 7;
+		value += octet & 0x7f;
+	}
+	while ((offsetEnd > offset) && (octet & 0x80));
+	return value;
 }
 
 static guint
@@ -1611,6 +1862,14 @@ proto_register_wsp(void)
 				"Data", HFILL
 			}
 		},
+		{ &hf_wsp_header_shift_code,
+			{ 	"Shift code",           
+				"wsp.header.shift",
+				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
+				 FT_UINT8, BASE_HEX, NULL, 0x00,
+				"Shift code", HFILL
+			}
+		},
 		{ &hf_wsp_header_accept,
 			{ 	"Accept",           
 				"wsp.header.accept",
@@ -1784,6 +2043,62 @@ proto_register_wsp(void)
 				"X-WAP.TOD", HFILL
 			}
 		},
+		{ &hf_wsp_capabilities_client_SDU,
+			{	"Client SDU",
+				"wsp.capabilities.client_SDU",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Client SDU", HFILL
+			}
+		},
+		{ &hf_wsp_capabilities_server_SDU,
+			{	"Server SDU",
+				"wsp.capabilities.server_SDU",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Server SDU", HFILL
+			}
+		},
+		{ &hf_wsp_capabilities_protocol_opt,
+			{	"Protocol Options",
+				"wsp.capabilities.protocol_opt",
+				 FT_STRING, BASE_HEX, NULL, 0x00,
+				"Protocol Options", HFILL
+			}
+		},
+		{ &hf_wsp_capabilities_method_MOR,
+			{	"Method MOR",
+				"wsp.capabilities.method_mor",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Method MOR", HFILL
+			}
+		},
+		{ &hf_wsp_capabilities_push_MOR,
+			{	"Push MOR",
+				"wsp.capabilities.push_mor",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Push MOR", HFILL
+			}
+		},
+		{ &hf_wsp_capabilities_extended_methods,
+			{	"Extended Methods",
+				"wsp.capabilities.extend_methods",
+				 FT_STRING, BASE_HEX, NULL, 0x00,
+				"Extended Methods", HFILL
+			}
+		},
+		{ &hf_wsp_capabilities_header_code_pages,
+			{	"Header Code Pages",
+				"wsp.capabilities.code_pages",
+				 FT_STRING, BASE_HEX, NULL, 0x00,
+				"Header Code Pages", HFILL
+			}
+		},
+		{ &hf_wsp_capabilities_aliases,
+			{	"Aliases",
+				"wsp.capabilities.aliases",
+				 FT_UINT8, BASE_HEX, NULL, 0x00,
+				"Aliases", HFILL
+			}
+		},
 		{ &hf_wsp_post_data,
 			{ 	"Post Data",           
 				"wsp.post.data",
@@ -1830,4 +2145,39 @@ proto_reg_handoff_wsp(void)
 	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp, proto_wsp);
 
 	/* This dissector is also called from the WTP and WTLS dissectors */
+}
+
+static gint get_long_integer (tvbuff_t *tvb, guint *offset, guint offset_end, guint *value)
+{
+	guint valueLength;
+
+	valueLength = tvb_get_guint8(tvb,*offset);
+	if ((valueLength+*offset) > offset_end)
+	{
+		*value = 0;
+		return (-1);
+	}
+	(*offset)++;
+	switch (valueLength)
+	{
+		case 1:
+			*value = tvb_get_guint8(tvb,*offset);
+			break;
+		case 2:
+			*value = tvb_get_ntohs(tvb,*offset);
+			break;
+		case 3:
+		        *value = tvb_get_ntoh24(tvb,*offset);
+			break;
+		case 4:
+			*value = tvb_get_ntohl(tvb,*offset);
+			break;
+		default:
+		        /* TODO: Need to read peek octets */
+		        *value = 0;
+		        fprintf (stderr, "dissect_wsp: get_long_integer size %d NYI\n", valueLength);
+	        	break;
+	}
+	(*offset) += valueLength;
+	return 0;
 }
