@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.176 2000/03/29 19:55:42 guy Exp $
+# $Id: Makefile.am,v 1.177 2000/04/04 06:10:44 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -440,7 +440,7 @@ editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-register.c: packet.c $(DISSECTOR_SOURCES)
+register.c: packet.c $(DISSECTOR_SOURCES) $(srcdir)/make-reg-dotc
 	@echo Making register.c
 	@$(srcdir)/make-reg-dotc $(srcdir) packet.c $(DISSECTOR_SOURCES)
 
