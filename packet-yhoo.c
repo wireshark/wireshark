@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.22 2002/01/24 09:20:53 guy Exp $
+ * $Id: packet-yhoo.c,v 1.23 2002/02/01 07:12:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,8 +183,8 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset, 36, TRUE);
 		offset += 36;
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_content, tvb, 
-			offset, tvb_length_remaining(tvb, offset), TRUE);
+		proto_tree_add_item(yhoo_tree, hf_yhoo_content, tvb, -1,
+			offset, TRUE);
 	}
 
 	return TRUE;
