@@ -23,6 +23,12 @@
  */
  
 #include <epan/dissectors/packet-sctp.h>
+#include <epan/address.h>
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#endif
 
 #define SCTP_DATA_CHUNK_ID               0
 #define SCTP_INIT_CHUNK_ID               1
@@ -58,26 +64,29 @@
 #define DATA_CHUNK_TSN_LENGTH         4
 #define DATA_CHUNK_TSN_OFFSET         (CHUNK_VALUE_OFFSET + 0)
 #define DATA_CHUNK_STREAM_ID_OFFSET   (DATA_CHUNK_TSN_OFFSET + DATA_CHUNK_TSN_LENGTH)
+#define DATA_CHUNK_STREAM_ID_LENGTH   2
+#define DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH 2
+#define DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH 4
+#define DATA_CHUNK_HEADER_LENGTH      (CHUNK_HEADER_LENGTH + \
+                                       DATA_CHUNK_TSN_LENGTH + \
+                                       DATA_CHUNK_STREAM_ID_LENGTH + \
+                                       DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH + \
+                                       DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH)
 
 
-typedef struct _v4address {
-	address_type	type;
-	int				len;
-	guint32			data;
-}	v4address;
 
 typedef struct _tsn {
 	guint32	frame_number;
 	guint32      secs;    /* Absolute seconds */
   	guint32      usecs;
-	struct sockaddr_storage	src;
-	struct sockaddr_storage	dst;
+	address	src;
+	address	dst;
 	GList		*tsns;
 } tsn_t;
 
 typedef struct _sctp_tmp_info {
-	struct sockaddr_storage	src;
-	struct sockaddr_storage	dst;
+	address	src;
+	address	dst;
 	guint16 port1;
 	guint16 port2;
 	guint32 verification_tag1;
@@ -107,9 +116,8 @@ struct tsn_sort{
 
 
 typedef struct _sctp_assoc_info {
-	/* guint16	assoc_id; */
-	struct sockaddr_storage	src;
-	struct sockaddr_storage	dst;
+	address	src;
+	address	dst;
 	guint16 port1;
 	guint16 port2;
 	guint32 verification_tag1;
@@ -187,7 +195,6 @@ GList*	children;
 } sctp_allassocs_info_t;
 
 
-/* Data structures for sctp_assoc_analyse */
 
 struct notes {
 	GtkWidget *checktype;
@@ -224,7 +231,6 @@ struct sctp_analyse {
 	guint16 num_children;
 };
 
-/* Data Structures for sctp_graph_dlg */
 
 typedef struct _sctp_graph_t {
 	gboolean needs_redraw;

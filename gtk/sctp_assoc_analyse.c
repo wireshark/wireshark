@@ -41,6 +41,17 @@
 
 #include "sctp_stat.h"
 
+struct v4addr {
+address_type 	type;
+int		len;
+guint32		addr;
+};
+
+struct v6addr {
+address_type 	type;
+int		len;
+guint8		addr[16];
+};
 
 void
 decrease_childcount(struct sctp_analyse *parent)
@@ -112,10 +123,10 @@ on_notebook_switch_page()
 {
 }
 
-static void on_error_bt()
+static void on_error_bt(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 {
 
-	sctp_error_dlg_show();
+	sctp_error_dlg_show(u_data->assoc);
 }
 
 static void on_close_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
@@ -156,9 +167,9 @@ gchar *data[1];
 gchar field[1][32];
 gint added_row;
 GList *list;
-struct sockaddr_in	*v4=NULL;
-struct sockaddr_in6 *v6=NULL;
-struct sockaddr_storage *store=NULL;
+struct v4addr	*v4=NULL;
+struct v6addr *v6=NULL;
+address *store=NULL;
 
 if (u_data->assoc==NULL)
 	return;
@@ -202,25 +213,25 @@ if (u_data->assoc==NULL)
 
 		if (u_data->assoc->addr1!=NULL)
 		{
-		list = g_list_first(u_data->assoc->addr1);
-		while (list)
-		{
-			data[0]=&field[0][0];
-			store = (struct sockaddr_storage *) (list->data);
-			if (store->ss_family==AF_INET)
+			list = g_list_first(u_data->assoc->addr1);
+			while (list)
 			{
-				v4 = (struct sockaddr_in *)(list->data);
-				g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)&(v4->sin_addr.s_addr)));
+				data[0]=&field[0][0];
+				store = (address *) (list->data);
+				if (store->type==AT_IPv4)
+				{
+					v4 = (struct v4addr *)(list->data);
+					g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)&(v4->addr)));
+				}
+				else if (store->type==AT_IPv6)
+				{		
+				v6 = (struct v6addr *)(list->data);
+					g_snprintf(field[0], 30, "%s", ip6_to_str((const struct e_in6_addr *)&(v6->addr)));
+				}
+				added_row = gtk_clist_append(GTK_CLIST(u_data->analyse_nb->page2->clist), data);
+				gtk_clist_set_row_data(GTK_CLIST(u_data->analyse_nb->page2->clist), added_row, u_data->assoc);
+				list = g_list_next(list);
 			}
-			else if (store->ss_family==AF_INET6)
-			{
-				v6 = (struct sockaddr_in6 *)(list->data);
-				g_snprintf(field[0], 30, "%s", ip6_to_str((const struct e_in6_addr *)&(v6->sin6_addr.s6_addr)));
-			}
-			added_row = gtk_clist_append(GTK_CLIST(u_data->analyse_nb->page2->clist), data);
-			gtk_clist_set_row_data(GTK_CLIST(u_data->analyse_nb->page2->clist), added_row, u_data->assoc);
-			list = g_list_next(list);
-		}
 		}
 		else
 		{
@@ -265,16 +276,17 @@ if (u_data->assoc==NULL)
 		while (list)
 		{
 			data[0]=&field[0][0];
-			store = (struct sockaddr_storage *) (list->data);
-			if (store->ss_family==AF_INET)
+			store = (address *) (list->data);
+			if (store->type==AT_IPv4)
 			{
-				v4 = (struct sockaddr_in *)(list->data);
-				g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)&(v4->sin_addr.s_addr)));
+				
+				v4 = (struct v4addr *)(list->data);
+				g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)&(v4->addr)));
 			}
-			else if (store->ss_family==AF_INET6)
+			else if (store->type==AT_IPv6)
 			{
-				v6 = (struct sockaddr_in6 *)(list->data);
-				g_snprintf(field[0], 30, "%s", ip6_to_str((const struct e_in6_addr *)&(v6->sin6_addr.s6_addr)));
+				v6 = (struct v6addr *)(list->data);
+				g_snprintf(field[0], 30, "%s", ip6_to_str((const struct e_in6_addr *)&(v6->addr)));
 			}
 			added_row = gtk_clist_append(GTK_CLIST(u_data->analyse_nb->page3->clist), data);
 			gtk_clist_set_row_data(GTK_CLIST(u_data->analyse_nb->page3->clist), added_row, u_data->assoc);
@@ -402,7 +414,7 @@ void create_analyse_window(struct sctp_analyse* u_data)
 	error_bt = gtk_button_new_with_label ("Show Errors");
 	gtk_box_pack_start(GTK_BOX(hbox), error_bt, FALSE, FALSE, 0);
 	gtk_widget_show(error_bt);
-	SIGNAL_CONNECT(error_bt, "clicked", on_error_bt, NULL);
+	SIGNAL_CONNECT(error_bt, "clicked", on_error_bt, u_data);
 
 
 	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
@@ -662,7 +674,7 @@ gboolean frame_matched;
 frame_data *fdata;
 gchar filter_text[256];
 sctp_assoc_info_t* assoc=NULL;
-struct sockaddr_in *src, *dst;
+struct v4addr *src, *dst;
 
 	strcpy(filter_text,"sctp && ip");
 	if (!dfilter_compile(filter_text, &sfcode)) {
@@ -711,18 +723,19 @@ struct sockaddr_in *src, *dst;
 		assoc = (sctp_assoc_info_t*)(list->data);
 
 		if (assoc->port1 == srcport && assoc->port2 == dstport)
-		{
+		{	
 			srclist = g_list_first(assoc->addr1);
 			while(srclist)
 			{
-				src = (struct sockaddr_in *)(srclist->data);
-				if (src->sin_addr.s_addr == ip_src)
+				src = (struct v4addr *)(srclist->data);
+				
+				if (src->addr == ip_src)
 				{
 					dstlist = g_list_first(assoc->addr2);
 					while(dstlist)
 					{
-						dst = (struct sockaddr_in *)(dstlist->data);
-						if (dst->sin_addr.s_addr == ip_dst)
+						dst = (struct v4addr *)(dstlist->data);
+						if (dst->addr == ip_dst)
 						{
 							u_data->assoc=assoc;
 								create_analyse_window(u_data);
@@ -740,18 +753,18 @@ struct sockaddr_in *src, *dst;
 			return;
 		}
 		else if (assoc->port2 == srcport && assoc->port1 == dstport)
-		{
+		{		
 			srclist = g_list_first(assoc->addr2);
 			while(srclist)
 			{
-				src = (struct sockaddr_in *)(srclist->data);
-				if (src->sin_addr.s_addr == ip_src)
+				src = (struct v4addr *)(srclist->data);
+				if (src->addr == ip_src)
 				{
 					dstlist = g_list_first(assoc->addr1);
 					while(dstlist)
 					{
-						dst = (struct sockaddr_in *)(dstlist->data);
-						if (dst->sin_addr.s_addr == ip_dst)
+						dst = (struct v4addr *)(dstlist->data);
+						if (dst->addr == ip_dst)
 						{
 							u_data->assoc=assoc;
 								create_analyse_window(u_data);
@@ -781,18 +794,18 @@ struct sctp_analyse * u_data;
 
 	/* Register the tap listener */
 	if (sctp_stat_get_info()->is_registered==FALSE)
-		register_tap_listener_sctp_stat();
+	register_tap_listener_sctp_stat();
+	/*  (redissect all packets) */
+	
+	sctp_stat_scan();	
 
-	sctp_stat_scan();
-
-	/* Show the dialog box with the list of streams */
 	u_data = g_malloc(sizeof(struct sctp_analyse));
 	u_data->assoc=NULL;
 	u_data->children=NULL;
 	u_data->analyse_nb=NULL;
 	u_data->window=NULL;
 	u_data->num_children=0;
-
+	retap_packets(&cfile);
 	sctp_analyse_cb(u_data);
 }
 

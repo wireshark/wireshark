@@ -354,7 +354,7 @@ gfloat dis;
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset, u_data->io->pixmap_height-BOTTOM_BORDER, u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset-5, u_data->io->pixmap_height-BOTTOM_BORDER+5);
 	u_data->io->axis_width=u_data->io->pixmap_width-LEFT_BORDER-RIGHT_BORDER-u_data->io->offset;
 
-	u_data->io->x_interval = (u_data->io->axis_width*1.0)/u_data->io->tmp_width;
+	u_data->io->x_interval = (float)((u_data->io->axis_width*1.0)/u_data->io->tmp_width);
 
 	e=0;
 	if (u_data->io->x_interval<1)
@@ -530,7 +530,7 @@ gfloat dis;
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,LEFT_BORDER,TOP_BORDER-u_data->io->offset, LEFT_BORDER-5, TOP_BORDER-u_data->io->offset+5);
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,LEFT_BORDER,TOP_BORDER-u_data->io->offset, LEFT_BORDER+5, TOP_BORDER-u_data->io->offset+5);
 
-	u_data->io->y_interval = ((u_data->io->pixmap_height-TOP_BORDER-BOTTOM_BORDER)*1.0)/(u_data->io->max_y-u_data->io->min_y);
+	u_data->io->y_interval = (float)(((u_data->io->pixmap_height-TOP_BORDER-BOTTOM_BORDER)*1.0)/(u_data->io->max_y-u_data->io->min_y));
 
 	e=0;
 	if (u_data->io->y_interval<1)
@@ -581,9 +581,9 @@ gfloat dis;
 				(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-(i-u_data->io->min_y)*u_data->io->y_interval));
 		}
 	}
-}
-else
-	simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
+	}
+	else
+		simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
 }
 
 
@@ -682,6 +682,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, struct sctp_uda
 			0, 0,
 			widget->allocation.width,
 			widget->allocation.height);
+	sctp_graph_redraw(u_data);
 	return TRUE;
 }
 
@@ -801,10 +802,10 @@ sctp_graph_t *ios;
 	{
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->white_gc,
 			FALSE,
-			(gint)MINI(u_data->io->x_old,u_data->io->x_new),
-			(gint)MINI(u_data->io->y_old,u_data->io->y_new),
-			(gint)abs(u_data->io->x_new-u_data->io->x_old),
-			(gint)abs(u_data->io->y_new-u_data->io->y_old));
+			(gint)floor(MINI(u_data->io->x_old,u_data->io->x_new)),
+			(gint)floor(MINI(u_data->io->y_old,u_data->io->y_new)),
+			(gint)abs((long)(u_data->io->x_new-u_data->io->x_old)),
+			(gint)abs((long)(u_data->io->y_new-u_data->io->y_old)));
 			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
 
 			if(!ios){
@@ -816,8 +817,8 @@ sctp_graph_t *ios;
 			ios->pixmap,
 			0,0,
 			0, 0,
-			(gint)abs(u_data->io->x_new-u_data->io->x_old),
-			(gint)abs(u_data->io->y_new-u_data->io->y_old));
+			(gint)abs((long)(u_data->io->x_new-u_data->io->x_old)),
+			(gint)abs((long)(u_data->io->y_new-u_data->io->y_old)));
 			sctp_graph_redraw(u_data);
 
 	}
@@ -846,13 +847,13 @@ if (event->y>u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 if (event->x < LEFT_BORDER+u_data->io->offset)
 	event->x = LEFT_BORDER+u_data->io->offset;
 
-		if (abs(event->x-u_data->io->x_old)>10 || abs(event->y-u_data->io->y_old)>10)
+		if (abs((long)(event->x-u_data->io->x_old))>10 || abs((long)(event->y-u_data->io->y_old))>10)
 		{
 			gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
 			FALSE,
-			(gint)MINI(u_data->io->x_old,event->x), (gint)MINI(u_data->io->y_old,event->y),
-			(gint)abs(event->x-u_data->io->x_old),
-			(gint)abs(event->y-u_data->io->y_old));
+			(gint)floor(MINI(u_data->io->x_old,event->x)), (gint)floor(MINI(u_data->io->y_old,event->y)),
+			(gint)abs((long)(event->x-u_data->io->x_old)),
+			(gint)abs((long)(event->y-u_data->io->y_old)));
 			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
 
 			if(!ios){
@@ -867,8 +868,8 @@ if (event->x < LEFT_BORDER+u_data->io->offset)
 			u_data->io->draw_area->allocation.width,
 			u_data->io->draw_area->allocation.height);
 
-			x1_tmp=u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width);
-			x2_tmp=u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width);
+			x1_tmp=(unsigned int)floor(u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
+			x2_tmp=(unsigned int)floor(u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
 			helpx=MINI(x1_tmp, x2_tmp);
 			if (helpx==x2_tmp)
 			{
@@ -1084,7 +1085,7 @@ void set_arw_offsets(struct sctp_udata *u_data)
 GArray *s_array=NULL, *t_array=NULL;
 guint32 i, j=0;
 
-	if (u_data->assoc->n_sack_chunks_ep1>0)
+	if (u_data->dir==1 && u_data->assoc->n_sack_chunks_ep1>0)
 	{
 		s_array=u_data->assoc->sort_sack1;
 		t_array=u_data->assoc->sort_tsn1;
@@ -1097,13 +1098,13 @@ guint32 i, j=0;
 				j++;
 			}
 			g_array_index(s_array, struct tsn_sort, i).offset=g_array_index(t_array, struct tsn_sort, j).offset
-			  +g_array_index(t_array, struct tsn_sort, j).length;
+			  +g_array_index(t_array, struct tsn_sort, j).length;			 
 		}
 
 		u_data->assoc->sort_sack1=s_array;
 	}
 
-	if (u_data->assoc->n_sack_chunks_ep2>0)
+	if (u_data->dir==2 && u_data->assoc->n_sack_chunks_ep2>0)
 	{
 		s_array=u_data->assoc->sort_sack2;
 		t_array=u_data->assoc->sort_tsn2;
@@ -1130,7 +1131,7 @@ guint32 i;
 guint32 sum=0;
 guint32 tsntmp=0;
 
-	if (u_data->assoc->n_array_tsn1>0)
+	if (u_data->dir==1 && u_data->assoc->n_array_tsn1>0)
 	{
 		array=u_data->assoc->sort_tsn1;
 		insertion(array,u_data->assoc->n_array_tsn1);
@@ -1138,7 +1139,8 @@ guint32 tsntmp=0;
 		for (i=0; i<u_data->assoc->n_array_tsn1; i++)
 		{
 			g_array_index(array, struct tsn_sort, i).offset=sum;
-			if (g_array_index(array, struct tsn_sort, i).tsnumber>tsntmp)
+			t_sort.tsnumber=g_array_index(array, struct tsn_sort, i).tsnumber;
+			if (t_sort.tsnumber>tsntmp)
 				sum+=g_array_index(array, struct tsn_sort, i).length;
 			tsntmp=t_sort.tsnumber;
 		}
@@ -1146,7 +1148,7 @@ guint32 tsntmp=0;
 		sort=g_array_index(array, struct tsn_sort,i-1);
 		u_data->assoc->sort_tsn1=array;
 	}
-	if (u_data->assoc->n_array_tsn2>0)
+	if (u_data->dir==2 && u_data->assoc->n_array_tsn2>0)
 	{
 		sum=0;
 		array=u_data->assoc->sort_tsn2;
@@ -1155,7 +1157,8 @@ guint32 tsntmp=0;
 		for (i=0; i<u_data->assoc->n_array_tsn2; i++)
 		{
 			g_array_index(array, struct tsn_sort, i).offset=sum;
-			if (g_array_index(array, struct tsn_sort, i).tsnumber>tsntmp)
+			t_sort.tsnumber=g_array_index(array, struct tsn_sort, i).tsnumber;
+			if (t_sort.tsnumber>tsntmp)
 				sum+=g_array_index(array, struct tsn_sort, i).length;
 			tsntmp=t_sort.tsnumber;
 		}
@@ -1175,11 +1178,16 @@ struct sctp_udata *u_data;
 	u_data->io=NULL;
 	u_data->dir = dir;
 	u_data->parent = userdata;
-	set_child(u_data, u_data->parent);
-	increase_childcount(u_data->parent);
-	compute_offsets(u_data);
-	set_arw_offsets(u_data);
-	gtk_sctpgraph_init(u_data);
+	if ((u_data->dir==1 && (u_data->assoc->n_array_tsn1==0 || u_data->assoc->n_sack_chunks_ep1==0))|| (u_data->dir==2 && (u_data->assoc->n_array_tsn2==0 || u_data->assoc->n_sack_chunks_ep2==0)))
+	simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
+	else
+	{
+		set_child(u_data, u_data->parent);
+		increase_childcount(u_data->parent);		
+		compute_offsets(u_data);		
+		set_arw_offsets(u_data);		
+		gtk_sctpgraph_init(u_data);
+		}
 
 }
 

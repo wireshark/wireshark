@@ -30,7 +30,7 @@
 
 #include "globals.h"
 #include "epan/filesystem.h"
-
+#include "simple_dialog.h"
 #include "tap_menu.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
@@ -259,10 +259,11 @@ void sctp_error_dlg_show(sctp_assoc_info_t* assoc)
 {
 GList *list;
 
-printf("dlg_show\n");
 
 	/* selected_assoc=(sctp_assoc_info_t*)get_selected_assoc(); */
 	list =assoc->error_info_list;
+	if (list != NULL)
+	{
 	if (sctp_error_dlg != NULL) {
 		/* There's already a dialog box; reactivate it. */
 		reactivate_window(sctp_error_dlg);
@@ -272,11 +273,14 @@ printf("dlg_show\n");
 		}
 	}
 	else {
-	printf("else\n");
 		/* Create and show the dialog box */
 		gtk_sctperror_dlg();
 		sctp_error_dlg_update(list);
 	}
+	}
+	else
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "No errors found!");
 }
 
 
