@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.301 2002/12/19 11:22:37 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.302 2002/12/31 04:24:18 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10395,9 +10395,9 @@ dissect_4_2_14_5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	COUNT_BYTES_SUBR(4);
 
 	/* delete pending */
-	CHECK_BYTE_COUNT_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_delete_pending, tvb, offset, 2, TRUE);
-	COUNT_BYTES_SUBR(2);
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_delete_pending, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
 
 	/* is directory */
 	CHECK_BYTE_COUNT_SUBR(1);
