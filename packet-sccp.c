@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.12 2003/09/04 14:30:18 tuexen Exp $
+ * $Id: packet-sccp.c,v 1.13 2003/09/05 20:11:45 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1891,17 +1891,17 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *sccp_tree = NULL;
 
   /* Make entry in the Protocol column on summary display */
-  switch(mtp3_standard) {
-    case ITU_STANDARD:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Int. ITU)");
-      break;
-    case ANSI_STANDARD:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (ANSI)");
-      break;
-    case CHINESE_ITU_STANDARD:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Chin. ITU)");
-      break;
-  };      
+  if (check_col(pinfo->cinfo, COL_INFO))    switch(mtp3_standard) {
+      case ITU_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Int. ITU)");
+        break;
+      case ANSI_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (ANSI)");
+        break;
+      case CHINESE_ITU_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Chin. ITU)");
+        break;
+    };      
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
