@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.65 2003/10/03 20:18:15 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.66 2004/03/19 20:40:23 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2093,7 +2093,7 @@ proto_register_sctp(void)
     { &hf_source_port,                              { "Source port",                                 "sctp.srcport",                               FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_destination_port,                         { "Destination port",                            "sctp.dstport",                               FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_port,                                     { "Port",                                        "sctp.port",                                  FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
-    { &hf_verification_tag,                         { "Verification tag",                            "sctp.verfication_tag",                       FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_verification_tag,                         { "Verification tag",                            "sctp.verification_tag",                      FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_checksum,                                 { "Checksum",                                    "sctp.checksum",                              FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_checksum_bad,                             { "Bad checksum",                                "sctp.checksum_bad",                          FT_BOOLEAN, BASE_NONE, NULL,                                           0x0,                                "", HFILL } },
     { &hf_chunk_type,                               { "Chunk type",                                  "sctp.chunk_type",                            FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                "", HFILL } },
