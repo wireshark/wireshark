@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.18 2000/09/28 03:16:29 gram Exp $
+ * $Id: filter_prefs.c,v 1.19 2000/10/25 16:06:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,8 @@
 #define E_FILT_LBL_KEY  "filter_label"
 #define E_FILT_CM_KEY   "in_cancel_mode"
 #define E_FILTER_WIDGET_KEY "filter_widget"
+#define E_FILT_DBLFUNC_KEY "filter_dblfunc"
+#define E_FILT_DBLARG_KEY "filter_dblarg"
 
 typedef struct _filter_def {
   char *name;
@@ -84,7 +86,8 @@ static void filter_dlg_cancel(GtkWidget *cancel_bt, gpointer parent_w);
 static void filter_dlg_destroy(GtkWidget *win, gpointer data);
 static void filter_sel_apply_cb(GtkWidget *cancel_bt, gpointer parent_w);
 
-static GtkWidget *filter_prefs_show(GtkWidget *, gboolean);
+static GtkWidget *filter_prefs_show(GtkWidget *, gboolean,
+                                    GtkSignalFunc, GtkObject *);
 static void       filter_sel_list_cb(GtkWidget *, gpointer);
 static void       filter_sel_new_cb(GtkWidget *, gpointer);
 static void       filter_sel_chg_cb(GtkWidget *, gpointer);
@@ -252,7 +255,9 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te,
 	gtk_container_add(GTK_CONTAINER(main_w), main_vb);
 	gtk_widget_show(main_vb);
 
-	filter_pg = filter_prefs_show(filter_te, wants_apply_button);
+	filter_pg = filter_prefs_show(filter_te, wants_apply_button,
+                                      GTK_SIGNAL_FUNC(filter_dlg_ok),
+                                      GTK_OBJECT(main_w));
 	gtk_box_pack_start(GTK_BOX(main_vb), filter_pg, TRUE, TRUE, 0);
 	gtk_object_set_data(GTK_OBJECT(filter_pg), E_FILT_TE_PTR_KEY, filter_te);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILTER_WIDGET_KEY, filter_pg);
@@ -284,6 +289,8 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te,
 	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
 	gtk_box_pack_start(GTK_BOX(bbox), cancel_bt, TRUE, TRUE, 0);
 	gtk_widget_show(cancel_bt);
+
+              dlg_set_cancel(main_w, cancel_bt);
 
 	gtk_widget_show(main_w);
 
@@ -336,9 +343,30 @@ filter_dlg_destroy(GtkWidget *win, gpointer data)
 	gtk_widget_destroy(GTK_WIDGET(win));
 }
 
+static gint
+filter_sel_list_button_cb (GtkWidget *widget, GdkEventButton *event,
+                           gpointer func_data)
+{
+    GtkWidget *parent = func_data;
+    GtkSignalFunc func;
+    gpointer func_arg;
+
+    if (GTK_IS_LIST_ITEM(widget) && event->type == GDK_2BUTTON_PRESS) {
+        func = gtk_object_get_data(GTK_OBJECT(parent), E_FILT_DBLFUNC_KEY);
+        func_arg = gtk_object_get_data(GTK_OBJECT(parent), E_FILT_DBLARG_KEY);
+
+        if (func)
+            (*func)(NULL, func_arg);
+    }
+
+    return FALSE;
+}
+
 /* Create and display the filter selection widgets. */
 static GtkWidget *
-filter_prefs_show(GtkWidget *w, gboolean wants_apply_button) {
+filter_prefs_show(GtkWidget *w, gboolean wants_apply_button,
+                  GtkSignalFunc func, GtkObject *func_arg)
+{
   GtkWidget  *main_vb, *top_hb, *list_bb, *new_bt, *filter_sc,
              *nl_item, *nl_lb, *middle_hb, *name_lb, *bottom_hb,
              *filter_lb;
@@ -420,11 +448,20 @@ filter_prefs_show(GtkWidget *w, gboolean wants_apply_button) {
     filter_l);
   gtk_widget_show(filter_l);
 
+  gtk_object_set_data(GTK_OBJECT(filter_l), E_FILT_DBLFUNC_KEY, func);
+  gtk_object_set_data(GTK_OBJECT(filter_l), E_FILT_DBLARG_KEY, func_arg);
+
   flp = g_list_first(fl);
   while (flp) {
     filt    = (filter_def *) flp->data;
     nl_lb   = gtk_label_new(filt->name);
     nl_item = gtk_list_item_new();
+
+    gtk_signal_connect(GTK_OBJECT(nl_item),
+                       "button_press_event",
+                       GTK_SIGNAL_FUNC(filter_sel_list_button_cb),
+                       filter_l);
+
     gtk_misc_set_alignment (GTK_MISC (nl_lb), 0.0, 0.5);
     gtk_container_add(GTK_CONTAINER(nl_item), nl_lb);
     gtk_widget_show(nl_lb);
