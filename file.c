@@ -981,6 +981,7 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
       merge_select_frame_type(in_file_count, in_files),
       merge_max_snapshot_length(in_file_count, in_files), &open_err);
   if (pdh == NULL) {
+    close(out_fd);
     merge_close_in_files(in_file_count, in_files);
     free(in_files);
     cf_open_failure_alert_box(out_filename, open_err, err_info, TRUE,

@@ -1057,7 +1057,6 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   g_free(cf_name);
   
   if (merge_status != CF_OK) {
-    close(out_fd);	/* XXX - it's already closed, right? */
     if (rfcode != NULL)
       dfilter_free(rfcode);
     return;

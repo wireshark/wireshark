@@ -148,7 +148,6 @@ dnd_merge_files(int in_file_count, char **in_filenames)
 
     if (!merge_ok) {
         /* merge failed */
-	close(out_fd);	/* XXX - isn't it already closed? */
 	return;
     }
 
@@ -240,12 +239,13 @@ dnd_open_file_cmd(GtkSelectionData *selection_data)
         break;
     case(1):
         /* open and read the capture file (this will close an existing file) */
-	    if (cf_open(&cfile, in_filenames[0], FALSE, &err) == CF_OK) {
-		    cf_read(&cfile);
-            add_menu_recent_capture_file(in_filenames[0]);
-	    } else {
-		    /* the capture file couldn't be read (doesn't exist, file format unknown, ...) */
-	    }
+        if (cf_open(&cfile, in_filenames[0], FALSE, &err) == CF_OK) {
+          /* XXX - add this to the menu if the read fails? */
+          cf_read(&cfile);
+          add_menu_recent_capture_file(in_filenames[0]);
+	} else {
+          /* the capture file couldn't be read (doesn't exist, file format unknown, ...) */
+	}
         break;
     default:
         /* build and show the info dialog */
