@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.19 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-ucp.c,v 1.20 2003/06/26 09:05:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2079,7 +2079,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_R_T,
 	    { "R_T", "ucp.parm.R_T",
-	      FT_STRING, BASE_NONE, NULL, 0x00,
+	      FT_UINT8, BASE_DEC, VALS(vals_parm_R_T), 0x00,
 	      "Message number.",
 	      HFILL
 	    }
