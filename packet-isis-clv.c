@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.20 2002/06/28 22:46:36 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.21 2002/06/29 23:03:24 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -45,6 +45,11 @@
 #include "packet-isis-clv.h"
 #include "nlpid.h"
 
+static void
+free_g_string(void *arg)
+{
+	g_string_free(arg, TRUE);
+}
 
 /*
  * Name: isis_dissect_area_address_clv()
@@ -66,12 +71,8 @@ void
 isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length)
 {	
-	/* allocate space for the following string
-	 * xx.xxxx.xxxx.xxxx.xxxx.xxxx.xxxx
-	 * 32 bytes plus one termination byte */
-	static char	net[33];
-	char		*sbuf = net;
 	int		arealen,area_idx;
+	GString		*gstr;
 
 	while ( length > 0 ) {
 		arealen = tvb_get_guint8(tvb, offset);
@@ -83,32 +84,46 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		}
 		if ( arealen > length) {
 			isis_dissect_unknown(tvb, tree, offset,
-				"short address, packet say %d, we have %d left",
+				"short address, packet says %d, we have %d left",
 				arealen, length );
 			return;
 		}
 
-		/* 
-		 * Lets turn the area address into "standard" 0000.0000.etc
-		 * format string.  
-                 * this is a private routine as the print_nsap_net in epan/osi_utils.c
-                 * is incomplete and we need only a subset -
-                 * actually some nice placing of dots ....
-		 */
- 
-                sbuf = net;
-                for (area_idx = 0; area_idx < arealen; area_idx++) {
-                    sbuf+=sprintf(sbuf, "%02x", tvb_get_guint8(tvb, offset+area_idx+1));
-                    if (((area_idx & 1) == 0) && (area_idx + 1 < arealen)) {
-			sbuf+=sprintf(sbuf, ".");
-                    }
-                }
-                *(sbuf) = '\0';
-
-		/* and spit it out */
 		if ( tree ) {
+			/* 
+			 * Lets turn the area address into "standard"
+			 * xx.xxxx.xxxx.xxxx.xxxx.xxxx.xxxx format string.
+	                 * this is a private routine as the print_nsap_net in
+			 * epan/osi_utils.c is incomplete and we need only
+			 * a subset - actually some nice placing of dots ....
+			 *
+			 * We pick an initial size of 32 bytes.
+			 */
+			gstr = g_string_sized_new(32);
+
+			/*
+			 * Free the GString if we throw an exception.
+			 */
+			CLEANUP_PUSH(free_g_string, gstr);
+
+			for (area_idx = 0; area_idx < arealen; area_idx++) {
+				g_string_sprintfa(gstr, "%02x",
+				    tvb_get_guint8(tvb, offset+area_idx+1));
+				if (((area_idx & 1) == 0) &&
+				    (area_idx + 1 < arealen)) {
+					g_string_sprintfa(gstr, ".");
+				}
+			}
+
+			/* and spit it out */
 			proto_tree_add_text ( tree, tvb, offset, arealen + 1,  
-				"Area address (%d): %s", arealen, net );
+				"Area address (%d): %s", arealen, gstr->str );
+
+			/*
+			 * We're done with the GString, so delete it and
+			 * get rid of the cleanup handler.
+			 */
+			CLEANUP_CALL_AND_POP;
 		}
 		offset += arealen + 1;
 		length -= arealen;	/* length already adjusted for len fld*/
