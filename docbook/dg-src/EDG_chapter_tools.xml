@@ -420,6 +420,10 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	the version 7 C compiler will have the problems described above!
 	</para>
 	</note>
+	<para>
+	XXX - what about the legal issue, as the MSVCRT70.dll had to be shipped 
+	with Ethereal.
+	</para>
 	</section>
 
 	</section>
@@ -562,7 +566,7 @@ PARTICULAR PURPOSE.]]>
 	</section>
 
 	<section id="ChToolsNmake">
-	<title>Win32 native: nmake</title>
+	<title>Win32 native: nmake from MSVC</title>
 	<para>
 	nmake is part of the Microsoft Visual Studio suite, see comment above.
 	</para>
@@ -591,6 +595,35 @@ NMAKE : fatal error U1064: MAKEFILE nicht gefunden und kein Ziel angegeben
 Stop.]]]>
 	</programlisting>
 	However, the version string may vary.
+	</para>
+	</section>
+
+	<section id="ChToolsNmake15">
+	<title>Win32 native: nmake from microsoft.com</title>
+	<warning><title>Warning!</title>
+	<para>
+	It is recommended to use the Microsoft Visual Studio version 6 to compile
+	Ethereal for Win32, see <xref linkend="ChToolsCompiler"/>. Don't follow the
+	instructions in this section, until you now what you are doing.
+	</para>
+	</warning>
+	<para>
+	NMAKE 1.5 can be downloaded from Microsoft.com if you search for 
+	"KB132084". Unpack the archive by running it, and drop the 3 extracted 
+	files in the MSVC++ Toolkit "bin" directory.
+	</para>
+	<para>
+	You will also need <filename>win32.mak</filename>, which you can get from 
+	the MS Win Platform SDK by browsing to <ulink 
+	url="http://www.microsoft.com/msdownload/platformsdk/sdkupdate/"/>
+	where you select the "Core SDK" and only tick the "Build Environment"
+	(31MB) option. After a while, this SDK will be installed.
+	</para>
+	<para>
+	From the start menu, choose "Programs"
+	-> "Microsoft Platform SDK February 2003"
+	-> "Open build environment window"
+	-> (choose your OS Win2K/WinXP/Win2003)
 	</para>
 	</section>
 
