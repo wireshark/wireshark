@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.32 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-isis-hello.c,v 1.33 2002/08/29 18:52:51 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -625,7 +625,7 @@ dissect_hello_padding_clv(tvbuff_t *tvb _U_, proto_tree *tree _U_, int offset _U
  *	void, will modify proto_tree if not NULL.
  */
 void
-isis_dissect_isis_hello(tvbuff_t *tvb, proto_tree *tree, int offset,
+isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	int hello_type, int header_length, int id_length)
 {
 	proto_item	*ti;
@@ -656,9 +656,13 @@ isis_dissect_isis_hello(tvbuff_t *tvb, proto_tree *tree, int offset,
 		source_id = tvb_get_ptr(tvb, offset, id_length);
 		proto_tree_add_bytes_format(hello_tree, hf_isis_hello_source_id, tvb,
 			            offset, id_length, source_id,
-			            "SystemID{ Sender of PDU } : %s",
+			            "System-ID {Sender of PDU} : %s", 
 			            print_system_id( source_id, id_length ) );
-        }
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s",
+			print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ) );
+	}
 	offset += id_length;
 
 	if (tree) {
@@ -681,22 +685,21 @@ isis_dissect_isis_hello(tvbuff_t *tvb, proto_tree *tree, int offset,
 		}
 		offset += 1;
 	} else {
-
-                if (tree) {
-                        octet = tvb_get_guint8(tvb, offset);
-                        proto_tree_add_uint_format(hello_tree, hf_isis_hello_priority_reserved, tvb,
-                                    offset, 1, octet,
-                                    "Priority                  : %d, reserved(0x%02x == 0)",
-                                        octet&ISIS_HELLO_PRIORITY_MASK,
-                                        octet&ISIS_HELLO_P_RESERVED_MASK );
-                }
-                offset += 1;
+		if (tree) {
+			octet = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint_format(hello_tree, hf_isis_hello_priority_reserved, tvb,
+				    offset, 1, octet,
+				    "Priority                  : %d, reserved(0x%02x == 0)",
+					octet&ISIS_HELLO_PRIORITY_MASK,
+					octet&ISIS_HELLO_P_RESERVED_MASK );
+		}
+		offset += 1;
 
 		if (tree) {
 			lan_id = tvb_get_ptr(tvb, offset, id_length+1);
 			proto_tree_add_bytes_format(hello_tree, hf_isis_hello_lan_id, tvb,
-		                     offset, id_length + 1, lan_id,
-				         "SystemID{ Designated IS } : %s",
+				     offset, id_length + 1, lan_id,
+					 "System-ID {Designated IS} : %s",
 					      print_system_id( lan_id, id_length + 1 ) );
 		}
 		offset += id_length + 1;

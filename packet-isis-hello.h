@@ -1,7 +1,7 @@
 /* packet-isis-hello.h
  * Declares for hello handling inside isis.
  *
- * $Id: packet-isis-hello.h,v 1.9 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-isis-hello.h,v 1.10 2002/08/29 18:52:51 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -105,7 +105,7 @@
  * Published API functions.  NOTE, this are "local" API functions and
  * are only valid from with isis decodes.
  */
-extern void isis_dissect_isis_hello(tvbuff_t *tvb, proto_tree *tree,
+extern void isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int offset, int hello_type, int header_length,int id_length);
 extern void isis_register_hello(int proto_isis);
 

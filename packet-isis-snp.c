@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.18 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-isis-snp.c,v 1.19 2002/08/29 18:52:51 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -230,7 +230,7 @@ dissect_snp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      void, but we will add to proto tree if !NULL.
  */
 void
-isis_dissect_isis_csnp(tvbuff_t *tvb, proto_tree *tree, int offset,
+isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	int type, int header_length, int id_length)
 {
 	proto_item	*ti;
@@ -253,20 +253,32 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	if (tree) {
 		proto_tree_add_text(csnp_tree, tvb, offset, id_length + 1,
-			"Source id    : %s",
+			"Source-ID:    %s",
 				print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s",
+			print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
 	}
 	offset += id_length + 1;
 
 	if (tree) {
 		isis_lsp_decode_lsp_id(tvb, csnp_tree, offset,
-			"Start LSP id ", id_length );
+			"Start LSP-ID", id_length );
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s",
+			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
 	}
 	offset += id_length + 2;
 
 	if (tree) {
 		isis_lsp_decode_lsp_id(tvb, csnp_tree, offset,
-			 "End   LSP id ", id_length );
+			 "End LSP-ID  ", id_length );
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s",
+			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
 	}
 	offset += id_length + 2;
 
@@ -305,7 +317,7 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      void, but we will add to proto tree if !NULL.
  */
 void
-isis_dissect_isis_psnp(tvbuff_t *tvb, proto_tree *tree, int offset,
+isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	int type, int header_length, int id_length)
 {
 	proto_item	*ti;
@@ -328,8 +340,12 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	if (tree) {
 		proto_tree_add_text(psnp_tree, tvb, offset, id_length + 1,
-			"Source id: %s",
+			"Source-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length + 1 ) );
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s",
+			print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
 	}
 	offset += id_length + 1;
 

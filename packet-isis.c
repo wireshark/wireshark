@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.33 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-isis.c,v 1.34 2002/08/29 18:52:51 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -221,22 +221,22 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ISIS_TYPE_L1_HELLO:
 	case ISIS_TYPE_L2_HELLO:
 	case ISIS_TYPE_PTP_HELLO:
-		isis_dissect_isis_hello(tvb, isis_tree, offset,
+		isis_dissect_isis_hello(tvb, pinfo, isis_tree, offset,
 			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	case ISIS_TYPE_L1_LSP:
 	case ISIS_TYPE_L2_LSP:
-		isis_dissect_isis_lsp(tvb, isis_tree, offset,
+		isis_dissect_isis_lsp(tvb, pinfo, isis_tree, offset,
 			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	case ISIS_TYPE_L1_CSNP:
 	case ISIS_TYPE_L2_CSNP:
-		isis_dissect_isis_csnp(tvb, isis_tree, offset,
+		isis_dissect_isis_csnp(tvb, pinfo, isis_tree, offset,
 			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	case ISIS_TYPE_L1_PSNP:
 	case ISIS_TYPE_L2_PSNP:
-		isis_dissect_isis_psnp(tvb, isis_tree, offset,
+		isis_dissect_isis_psnp(tvb, pinfo, isis_tree, offset,
 			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	default:

@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.34 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-isis-lsp.c,v 1.35 2002/08/29 18:52:51 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -1524,7 +1524,7 @@ isis_lsp_decode_lsp_id(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      void, but we will add to proto tree if !NULL.
  */
 void
-isis_dissect_isis_lsp(tvbuff_t *tvb, proto_tree *tree, int offset,
+isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	int lsp_type, int header_length, int id_length)
 {
 	proto_item	*ti;
@@ -1554,7 +1554,11 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	if (tree) {
 		isis_lsp_decode_lsp_id(tvb, lsp_tree, offset,
-			"LSP ID", id_length);
+			"LSP-ID", id_length);
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s",
+			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
 	}
 	offset += id_length + 2;
 
@@ -1562,6 +1566,11 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, proto_tree *tree, int offset,
 		proto_tree_add_uint(lsp_tree, hf_isis_lsp_sequence_number, tvb,
 			offset, 4,
 			tvb_get_ntohl(tvb, offset));
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Sequence: 0x%08x, Lifetime: %5us",
+			tvb_get_ntohl(tvb, offset),
+			tvb_get_ntohs(tvb, offset - (id_length+2+2)));
 	}
 	offset += 4;
 
