@@ -1,6 +1,6 @@
 /* nettl.h
  *
- * $Id: nettl.h,v 1.10 2004/01/25 21:55:16 guy Exp $
+ * $Id: nettl.h,v 1.11 2004/03/27 11:16:54 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -78,6 +78,7 @@
 #define NETTL_SUBSYS_BTLAN		0xD2
 #define NETTL_SUBSYS_INTL100		0xE9
 #define NETTL_SUBSYS_IGELAN		0xFC
+#define NETTL_SUBSYS_IETHER		0xFD
 
 
 int nettl_open(wtap *wth, int *err, gchar **err_info);

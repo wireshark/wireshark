@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.34 2004/01/25 21:55:16 guy Exp $
+ * $Id: nettl.c,v 1.35 2004/03/27 11:16:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -279,6 +279,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_BTLAN :
 	case NETTL_SUBSYS_INTL100 :
 	case NETTL_SUBSYS_IGELAN :
+	case NETTL_SUBSYS_IETHER :
 	case NETTL_SUBSYS_NS_LS_IP :
 	case NETTL_SUBSYS_NS_LS_LOOPBACK :
 	case NETTL_SUBSYS_NS_LS_TCP :
