@@ -40,6 +40,12 @@ typedef struct _mgcp_info_t {
   nstime_t req_time;
   gboolean is_duplicate;
   gboolean request_available;
+  guint32	req_num;	/* frame number request seen */
+  gchar *endpointId;
+  gchar *observedEvents;
+  guint32 rspcode;
+  gchar *signalReq;
+  gboolean *hasDigitMap;
 } mgcp_info_t;
 
 /* Item of request list */

@@ -44,6 +44,7 @@
 /* defines voip call state */
 typedef enum _voip_call_state {
         VOIP_CALL_SETUP,
+		VOIP_RINGING,
         VOIP_IN_CALL,
         VOIP_CANCELLED,
         VOIP_COMPLETED,
@@ -51,7 +52,7 @@ typedef enum _voip_call_state {
 		VOIP_UNKNOWN
 } voip_call_state;
 
-extern char *voip_call_state_name[6];
+extern char *voip_call_state_name[7];
 
 typedef enum _voip_call_active_state {
 		VOIP_ACTIVE,
@@ -61,10 +62,11 @@ typedef enum _voip_call_active_state {
 typedef enum _voip_protocol {
 		VOIP_SIP,
 		VOIP_ISUP,
-		VOIP_H323
+		VOIP_H323,
+		VOIP_MGCP
 } voip_protocol;
 
-extern char *voip_protocol_name[3];
+extern char *voip_protocol_name[4];
 
 /* defines specific SIP data */
 
@@ -81,13 +83,13 @@ typedef struct _sip_calls_info {
 } sip_calls_info_t;
 
 /* defines specific ISUP data */
-
 typedef struct _isup_calls_info {
 	guint16			cic;
 	guint32			opc, dpc;
 	guint8			ni;
 } isup_calls_info_t;
 
+/* defines specific H245 data */
 typedef struct _h245_address {
 	guint32 h245_address;
 	guint16 h245_port;
@@ -106,6 +108,13 @@ typedef struct _h323_calls_info {
 	gint32 q931_crv2;
 	guint requestSeqNum;
 } h323_calls_info_t;
+
+/* defines specific MGCP data */
+typedef struct _mgcp_calls_info {
+	gchar *endpointId;
+	gboolean fromEndpoint; /* true if the call was originated from the Endpoint, false for calls from MGC */
+} mgcp_calls_info_t;
+
 
 /* defines a voip call */
 typedef struct _voip_calls_info {
@@ -149,6 +158,7 @@ typedef struct _voip_calls_tapinfo {
 	int mtp3_dummy;
 	int isup_dummy;
 	int q931_dummy;
+	int mgcp_dummy;
 } voip_calls_tapinfo_t;
 
 
@@ -197,6 +207,7 @@ void h245dg_calls_init_tap(void);
 void q931_calls_init_tap(void);
 void sdp_calls_init_tap(void);
 void rtp_init_tap(void);
+void mgcp_calls_init_tap(void);
 
 
 /*
@@ -211,6 +222,7 @@ void remove_tap_listener_h245dg_calls(void);
 void remove_tap_listener_q931_calls(void);
 void remove_tap_listener_sdp_calls(void);
 void remove_tap_listener_rtp(void);
+void remove_tap_listener_mgcp_calls(void);
 
 /*
 * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.

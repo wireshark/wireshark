@@ -49,6 +49,7 @@
 #include "globals.h"
 #include "epan/filesystem.h"
 
+#include <epan/tap.h>
 #include "tap_menu.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
@@ -173,6 +174,9 @@ void voip_calls_remove_tap_listener()
 	remove_tap_listener_q931_calls();
 	remove_tap_listener_sdp_calls();
 	remove_tap_listener_rtp();
+	if (find_tap_id("mgcp")) {
+		remove_tap_listener_mgcp_calls();
+	}
 }
 
 /****************************************************************************/
@@ -672,6 +676,10 @@ voip_calls_init_tap(char *dummy _U_)
 	q931_calls_init_tap();
 	sdp_calls_init_tap();
 	rtp_init_tap();
+	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
+	if (find_tap_id("mgcp")) {
+		mgcp_calls_init_tap();
+	}
 	
 	/* init the Graph Analysys */
 	graph_analysis_data = graph_analysis_init();

@@ -53,14 +53,16 @@
 #include <epan/dissectors/packet-h245.h>
 #include <epan/dissectors/packet-q931.h>
 #include <epan/dissectors/packet-sdp.h>
+#include <plugins/mgcp/packet-mgcp.h>
 #include <epan/dissectors/packet-rtp.h>
 #include "rtp_pt.h"
 
 #include "alert_box.h"
 #include "simple_dialog.h"
 
-char *voip_call_state_name[6]={
+char *voip_call_state_name[7]={
 	"CALL SETUP",
+	"RINGING",
 	"IN CALL",
 	"CANCELLED",
 	"COMPLETED",
@@ -69,10 +71,11 @@ char *voip_call_state_name[6]={
 	};
 
 /* defines whether we can consider the call active */
-char *voip_protocol_name[3]={
+char *voip_protocol_name[4]={
 	"SIP",
 	"ISUP",
-	"H323"
+	"H323",
+	"MGCP"
 	};
 
 
@@ -80,7 +83,7 @@ char *voip_protocol_name[3]={
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
@@ -1436,6 +1439,8 @@ remove_tap_listener_h245dg_calls(void)
 	have_H245dg_tap_listener=FALSE;
 }
 
+static gchar *sdp_summary = NULL;
+static guint32 sdp_frame_num = 0;
 
 /****************************************************************************/
 /****************************TAP for SDP PROTOCOL ***************************/
@@ -1446,11 +1451,16 @@ SDPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 {
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	const sdp_packet_info *pi = SDPinfo;
-	char summary_str[50];
-	
+
+	/* There are protocols like MGCP where the SDP is called before the tap for the
+	   MGCP packet, in those cases we assign the SPD summary to global lastSDPsummary
+	   to use it later 
+	*/
+	g_free(sdp_summary);
+	sdp_frame_num = pinfo->fd->num;
 	/* Append to graph the SDP summary if the packet exists */
-	g_snprintf(summary_str, 50, "SDP (%s)", pi->summary_str);
-	append_to_frame_graph(tapinfo, pinfo->fd->num, summary_str, NULL);
+	sdp_summary = g_strdup_printf("SDP (%s)", pi->summary_str);
+	append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
 
 	return 1;  /* refresh output */
 }
@@ -1502,6 +1512,371 @@ remove_tap_listener_sdp_calls(void)
 }
 
 
+
+/****************************************************************************/
+/* ***************************TAP for MGCP **********************************/
+/****************************************************************************/
+
+/*
+   This function will look for a signal/event in the SignalReq/ObsEvent string
+   and return true if it is found 
+*/
+boolean isSignal(gchar *signal, gchar *signalStr)
+{
+	gint i; 
+	gchar **resultArray;
+	
+	/* if there is no signalStr, just return false */
+	if (signalStr == NULL) return FALSE;
+
+	/* if are both "blank" return true */
+	if ( (*signal == '\0') &&  (*signalStr == '\0') ) return TRUE;
+
+	/* look for signal in signalSre */
+	resultArray = g_strsplit(signalStr, ",", 10);
+
+	for (i = 0; resultArray[i]; i++) {
+		g_strstrip(resultArray[i]);
+		if (strcmp(resultArray[i], signal) == 0) return TRUE;
+	}
+
+	g_strfreev(resultArray);
+	
+	return FALSE;
+}
+
+/*
+   This function will get the Caller ID info and replace the current string
+   This is how it looks the caller Id: rg, ci(02/16/08/29, "3035550002","Ale Sipura 2")
+*/
+void mgcpCallerID(gchar *signalStr, gchar **callerId)
+{
+	gint i; 
+	gchar **resultArray;
+	gchar **arrayStr;
+	
+	/* if there is no signalStr, just return false */
+	if (signalStr == NULL) return;
+
+	arrayStr = g_strsplit(signalStr, "\"", 10);
+
+	if (arrayStr[0] == NULL) return;
+
+	/* look for the ci signal */
+	resultArray = g_strsplit_set(arrayStr[0], ",(", 10);
+
+	for (i = 0; resultArray[i]; i++) {
+		g_strstrip(resultArray[i]);
+		if (strcmp(resultArray[i], "ci") == 0){
+			if (arrayStr[1] != NULL){
+				/* free the previous "From" field of the call, and assign the new */
+				g_free(*callerId);
+				*callerId = g_strdup(arrayStr[1]);
+			}
+			g_strfreev(arrayStr);
+			g_strfreev(resultArray);
+			return;
+		}
+	}
+
+	g_strfreev(arrayStr);
+	g_strfreev(resultArray);
+
+	return;
+}
+
+
+/*
+   This function will get the Dialed Digits and replace the current string
+   This is how it looks the dialed digits 5,5,5,0,0,0,2,#,*
+*/
+void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
+{
+	gchar *tmpStr;
+	gchar resultStr[50];
+	gint i,j; 
+
+	/* if there is no signalStr, just return false */
+	if (signalStr == NULL) return;
+
+	tmpStr = g_strdup(signalStr);
+
+	tmpStr = g_strcanon(tmpStr, "123456790#*", '?');
+
+	for (i = 0, j = 0; tmpStr[i] && i<50; i++) {
+		if (tmpStr[i] != '?')
+			resultStr[j++] = tmpStr[i];
+	}
+	resultStr[j] = '\0';
+
+	if (*resultStr == '\0') return;
+	
+	g_free(*dialedDigits);
+	*dialedDigits = g_strdup(resultStr);
+	g_free(tmpStr);
+
+	return;
+}
+
+
+
+/****************************************************************************/
+/* whenever a MGCP packet is seen by the tap listener */
+static int 
+MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *MGCPinfo)
+{
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+
+	voip_calls_info_t *tmp_listinfo;
+	voip_calls_info_t *strinfo = NULL;
+	mgcp_calls_info_t *tmp_mgcpinfo;
+	GList* list;
+	GList* listGraph;
+	gchar *frame_label = NULL;
+	gchar *comment = NULL;
+	graph_analysis_item_t *gai;
+	boolean new = FALSE;
+	boolean fromEndpoint = FALSE; /* true for calls originated in Endpoints, false for calls from MGC */
+	gdouble diff_time;
+
+	const mgcp_info_t *pi = MGCPinfo;
+
+
+	if ((pi->mgcp_type == MGCP_REQUEST) && !pi->is_duplicate ){
+		/* check wether we already have a call with this Endpoint and it is active*/
+		list = g_list_first(tapinfo->strinfo_list);
+		while (list)
+		{
+			tmp_listinfo=list->data;
+			if ((tmp_listinfo->protocol == VOIP_MGCP) && (tmp_listinfo->call_active_state == VOIP_ACTIVE)){
+				tmp_mgcpinfo = tmp_listinfo->prot_info;
+				if (pi->endpointId != NULL){
+					if (g_ascii_strcasecmp(tmp_mgcpinfo->endpointId,pi->endpointId)==0){
+						/*
+						   check first if it is an ended call. We consider an ended call after 1sec we don't 
+						   get a packet in this Endpoint and the call has been released
+						*/
+						diff_time = (pinfo->fd->rel_secs + (double)pinfo->fd->rel_secs/1000000) - (tmp_listinfo->stop_sec + (double)tmp_listinfo->stop_usec/1000000);
+						if ( ((tmp_listinfo->call_state == VOIP_CANCELLED) || (tmp_listinfo->call_state == VOIP_COMPLETED)  || (tmp_listinfo->call_state == VOIP_REJECTED)) && (diff_time > 1) ){
+							tmp_listinfo->call_active_state = VOIP_INACTIVE;
+						} else {
+							strinfo = (voip_calls_info_t*)(list->data);
+							break;
+						}
+					}
+				}
+			}
+			list = g_list_next (list);
+		}
+		
+		/* there is no call with this Endpoint, lets see if this a new call or not */
+		if (strinfo == NULL){
+			if ( (strcmp(pi->code, "NTFY") == 0) && isSignal("hd", pi->observedEvents) ){ /* off hook transition */
+				/* this is a new call from the Endpoint */	
+				fromEndpoint = TRUE;
+				new = TRUE;
+			} else if (strcmp(pi->code, "CRCX") == 0){
+				/* this is a new call from the MGC */
+				fromEndpoint = FALSE;
+				new = TRUE;
+			}
+			if (!new) return 0;
+		} 
+	} else if ( ((pi->mgcp_type == MGCP_RESPONSE) && pi->request_available) ||
+			((pi->mgcp_type == MGCP_REQUEST) && pi->is_duplicate) ) {
+		/* if it is a response OR if it is a duplicated Request, lets look in the Graph if thre is a request that match */
+		listGraph = g_list_first(tapinfo->graph_analysis->list);
+		while (listGraph)
+		{
+			gai = listGraph->data;
+			if (gai->frame_num == pi->req_num){
+				/* there is a request that match, so look the associated call with this call_num */
+				list = g_list_first(tapinfo->strinfo_list);
+				while (list)
+				{
+					tmp_listinfo=list->data;
+					if (tmp_listinfo->protocol == VOIP_MGCP){
+						if (tmp_listinfo->call_num == gai->conv_num){
+							tmp_mgcpinfo = tmp_listinfo->prot_info;
+							strinfo = (voip_calls_info_t*)(list->data);
+							break;
+						}
+					}
+					list = g_list_next (list);
+				}
+				if (strinfo != NULL) break;
+			}
+			listGraph = g_list_next(listGraph);
+		}
+		/* if there is not a matching request, just return */
+		if (strinfo == NULL) return 0;
+	} else return 0;
+
+	/* not in the list? then create a new entry */
+	if (strinfo==NULL){
+		strinfo = g_malloc(sizeof(voip_calls_info_t));
+		strinfo->call_active_state = VOIP_ACTIVE;
+		strinfo->call_state = VOIP_CALL_SETUP;
+		if (fromEndpoint) {
+			strinfo->from_identity=g_strdup(pi->endpointId);
+			strinfo->to_identity=g_strdup("");
+		} else {
+			strinfo->from_identity=g_strdup("");
+			strinfo->to_identity=g_strdup(pi->endpointId);
+		}
+		g_memmove(&(strinfo->initial_speaker), pinfo->src.data, 4);
+		strinfo->first_frame_num=pinfo->fd->num;
+		strinfo->selected=FALSE;
+		strinfo->start_sec=pinfo->fd->rel_secs;
+		strinfo->start_usec=pinfo->fd->rel_usecs;
+		strinfo->protocol=VOIP_MGCP;
+		strinfo->prot_info=g_malloc(sizeof(mgcp_calls_info_t));
+		tmp_mgcpinfo=strinfo->prot_info;
+		tmp_mgcpinfo->endpointId = g_strdup(pi->endpointId);
+		tmp_mgcpinfo->fromEndpoint = fromEndpoint;
+		strinfo->npackets = 0;
+		strinfo->call_num = tapinfo->ncalls++;
+		tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
+	}
+
+	/* change call state and add to graph */
+	switch (pi->mgcp_type)
+	{
+	case MGCP_REQUEST:
+		if ( (strcmp(pi->code, "NTFY") == 0) && (pi->observedEvents != NULL) ){
+			frame_label = g_strdup_printf("%s ObsEvt:%s",pi->code, pi->observedEvents);
+
+			if (tmp_mgcpinfo->fromEndpoint){
+				/* use the Dialed digits to fill the "To" for the call */
+				mgcpDialedDigits(pi->observedEvents, &(strinfo->to_identity));
+
+			/* from MGC and the user picked up, the call is connected */
+			} else if (isSignal("hd", pi->observedEvents))  
+				strinfo->call_state=VOIP_IN_CALL;
+
+			/* hung up signal */
+			if (isSignal("hu", pi->observedEvents)) {
+				if ((strinfo->call_state == VOIP_CALL_SETUP) || (strinfo->call_state == VOIP_RINGING)){
+					strinfo->call_state = VOIP_CANCELLED;
+				} else {
+					strinfo->call_state = VOIP_COMPLETED;
+				}
+			}	
+			
+		} else if (strcmp(pi->code, "RQNT") == 0) {
+			/* for calls from Endpoint: if there is a "no signal" RQNT and the call was RINGING, we assume this is the CONNECT */
+			if ( tmp_mgcpinfo->fromEndpoint && isSignal("", pi->signalReq) && (strinfo->call_state == VOIP_RINGING) ) { 
+					strinfo->call_state = VOIP_IN_CALL;
+			}
+
+			/* if there is ringback or ring tone, change state to ringing */
+			if ( isSignal("rg", pi->signalReq) || isSignal("rt", pi->signalReq) ) { 
+					strinfo->call_state = VOIP_RINGING;
+			}
+
+			/* if there is a Busy or ReorderTone, and the call was Ringing or Setup the call is Rejected */
+			if ( (isSignal("ro", pi->signalReq) || isSignal("bz", pi->signalReq)) && ((strinfo->call_state == VOIP_CALL_SETUP) || (strinfo->call_state = VOIP_RINGING)) ) { 
+					strinfo->call_state = VOIP_REJECTED;
+			}
+
+			if (pi->signalReq != NULL)
+				frame_label = g_strdup_printf("%s%sSigReq:%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"", pi->signalReq);
+			else
+				frame_label = g_strdup_printf("%s%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"");
+			
+			/* use the CallerID info to fill the "From" for the call */
+			if (!tmp_mgcpinfo->fromEndpoint) mgcpCallerID(pi->signalReq, &(strinfo->from_identity));
+
+		} else if (strcmp(pi->code, "DLCX") == 0) {
+			/*
+			  if there is a DLCX in a call To an Endpoint and the call was not connected, we use
+			  the DLCX as the end of the call
+			*/
+			if (!tmp_mgcpinfo->fromEndpoint){
+				if ((strinfo->call_state == VOIP_CALL_SETUP) || (strinfo->call_state == VOIP_RINGING)){
+					strinfo->call_state = VOIP_CANCELLED;
+				} 
+			} 
+		}
+
+		if (frame_label == NULL) frame_label = g_strdup_printf("%s",pi->code);
+		break;
+	case MGCP_RESPONSE:
+		frame_label = g_strdup_printf("%d (%s)",pi->rspcode, pi->code);
+		break;
+	}
+
+
+	comment = g_strdup_printf("MGCP %s %s%s", tmp_mgcpinfo->endpointId, (pi->mgcp_type == MGCP_REQUEST)?"Request":"Response", pi->is_duplicate?" Duplicate":"");
+
+	strinfo->stop_sec=pinfo->fd->rel_secs;
+	strinfo->stop_usec=pinfo->fd->rel_usecs;
+	strinfo->last_frame_num=pinfo->fd->num;
+	++(strinfo->npackets);
+	/* increment the packets counter of all calls */
+	++(tapinfo->npackets);
+
+	/* add to the graph */
+	add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);  
+	g_free(comment);
+	g_free(frame_label);
+
+	/* add SDP info if apply */
+	if ( (sdp_summary != NULL) && (sdp_frame_num == pinfo->fd->num) ){
+			append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
+			g_free(sdp_summary);
+			sdp_summary = NULL;
+	}
+
+	return 1;  /* refresh output */
+}
+
+
+/****************************************************************************/
+/* TAP INTERFACE */
+/****************************************************************************/
+static gboolean have_MGCP_tap_listener=FALSE;
+/****************************************************************************/
+void
+mgcp_calls_init_tap(void)
+{
+	GString *error_string;
+
+	if(have_MGCP_tap_listener==FALSE)
+	{
+		/* don't register tap listener, if we have it already */
+		/* we send an empty filter, to force a non null "tree" in the mgcp dissector */
+		error_string = register_tap_listener("mgcp", &(the_tapinfo_struct.mgcp_dummy), strdup(""),
+			voip_calls_dlg_reset, 
+			MGCPcalls_packet, 
+			voip_calls_dlg_draw
+			);
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				      error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+		have_MGCP_tap_listener=TRUE;
+	}
+}
+
+
+
+/* XXX just copied from gtk/rpc_stat.c */
+void protect_thread_critical_region(void);
+void unprotect_thread_critical_region(void);
+
+/****************************************************************************/
+void
+remove_tap_listener_mgcp_calls(void)
+{
+	protect_thread_critical_region();
+	remove_tap_listener(&(the_tapinfo_struct.mgcp_dummy));
+	unprotect_thread_critical_region();
+
+	have_MGCP_tap_listener=FALSE;
+}
 
 
 

@@ -226,7 +226,7 @@ static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength,
 static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree,proto_tree *mgcp_tree, proto_tree *ti);
 static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
-				   proto_tree *tree, mgcp_info_t *mi);
+				   proto_tree *tree);
 static void dissect_mgcp_params(tvbuff_t *tvb,
 				proto_tree *tree);
 static void dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offset, gint param_type_len, gint param_val_len);
@@ -378,6 +378,10 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+static mgcp_info_t pi_arr[5]; /* We assuming a maximum of 5 mgcp messaages per packet */
+static int pi_current=0;
+static mgcp_info_t *mi;
+
 static void
 dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     proto_tree *mgcp_tree, proto_tree *ti){
@@ -386,7 +390,28 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gint sectionlen;
   gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
   tvbuff_t *next_tvb;
-  static mgcp_info_t mi;
+
+  /* Initialise stat info for passing to tap */
+  pi_current++;
+  if(pi_current==5){
+      pi_current=0;
+  }
+  mi=&pi_arr[pi_current];
+  
+  
+  mi->mgcp_type = MGCP_OTHERS;
+  mi->code[0] = '\0';
+  mi->transid = 0;
+  mi->req_time.secs=0;
+  mi->req_time.nsecs=0;
+  mi->is_duplicate = FALSE;
+  mi->request_available = FALSE;
+  mi->req_num = 0;
+  mi->endpointId = NULL;
+  mi->observedEvents = NULL;
+  mi->rspcode = 0;
+  mi->signalReq = NULL;
+  mi->hasDigitMap = FALSE;
 
   /* Initialize variables */
   tvb_sectionend = 0;
@@ -409,7 +434,7 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if( sectionlen > 0){
       dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
 					    sectionlen,-1), pinfo,
-			     mgcp_tree, &mi);
+			     mgcp_tree);
     }
     tvb_sectionbegin = tvb_sectionend;
 
@@ -882,8 +907,10 @@ static gboolean is_rfc2234_alpha(guint8 c){
 static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
   gint returnvalue, tvb_current_offset,counter;
   guint8 tempchar;
+  gchar **buf;
   tvb_current_offset = offset;
-  returnvalue = -1;
+  returnvalue = -1;  
+  buf = NULL;
   *hf = NULL;
   if(len > 0){
     tempchar = tvb_get_guint8(tvb,tvb_current_offset);
@@ -956,12 +983,15 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
       break;
     case 'S':
       *hf = &hf_mgcp_param_signalreq;
+	  buf = &(mi->signalReq);
       break;
     case 'D':
       *hf = &hf_mgcp_param_digitmap;
+	  mi->hasDigitMap = TRUE;
       break;
     case 'O':
       *hf = &hf_mgcp_param_observedevent;
+	  buf = &(mi->observedEvents);
       break;
     case 'P':
       *hf = &hf_mgcp_param_connectionparam;
@@ -1015,6 +1045,9 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
       tvb_current_offset = tvb_skip_wsp(tvb,tvb_current_offset,
 					(len - tvb_current_offset + offset));
       returnvalue = tvb_current_offset;
+	  if (buf != NULL) {
+		  *buf = tvb_get_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
+	  }
     }
     else {
       *hf = &hf_mgcp_param_invalid;
@@ -1050,11 +1083,12 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
  
 
 static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
-				   proto_tree *tree, mgcp_info_t *mi){
+				   proto_tree *tree){
   gint tvb_current_offset,tvb_previous_offset,tvb_len,tvb_current_len;
   gint tokennum, tokenlen;
   char *transid = NULL;
   char *code = NULL;
+  char *endpointId = NULL;
   mgcp_type_t mgcp_type = MGCP_OTHERS;
   conversation_t* conversation;
   mgcp_call_info_key mgcp_call_key;
@@ -1107,6 +1141,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 	else if (is_mgcp_rspcode(tvb,tvb_previous_offset,tvb_current_len)){
 	  mgcp_type = MGCP_RESPONSE;
 	  rspcode = atoi(code);
+	  mi->rspcode = rspcode;
 	  proto_tree_add_uint(tree,hf_mgcp_rsp_rspcode, tvb,
 				   tvb_previous_offset, tokenlen,
 				   rspcode);
@@ -1126,10 +1161,11 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
       }
       if(tokennum == 2){
 	if(mgcp_type == MGCP_REQUEST){
+	  endpointId = tvb_format_text(tvb, tvb_previous_offset,tokenlen);
+	  mi->endpointId = g_strdup(endpointId);
 	  my_proto_tree_add_string(tree,hf_mgcp_req_endpoint, tvb,
 				   tvb_previous_offset, tokenlen,
-				   tvb_format_text(tvb, tvb_previous_offset,
-						   tokenlen));
+				   endpointId);
 	}
 	else if(mgcp_type == MGCP_RESPONSE){
 	  if(tvb_current_offset < tvb_len){
@@ -1214,6 +1250,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 			if(mgcp_call->req_num){
 				mi->request_available = TRUE;
 				mgcp_call->responded = TRUE;
+				mi->req_num = mgcp_call->req_num;
 				strcpy(mi->code,mgcp_call->code);
 				proto_tree_add_uint_format(tree, hf_mgcp_req_frame,
 				    tvb, 0, 0, mgcp_call->req_num,
@@ -1317,6 +1354,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 			/* No, so it's a duplicate request.
 			   Mark it as such. */
 			mi->is_duplicate = TRUE;
+			mi->req_num = mgcp_call->req_num;
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO,
 					", Duplicate Request %u",mi->transid);
@@ -1345,7 +1383,6 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 		mgcp_call->req_time.secs=pinfo->fd->abs_secs;
 		mgcp_call->req_time.nsecs=pinfo->fd->abs_usecs*1000;
 		strcpy(mgcp_call->code,mi->code);
-
 		/* store it */
 		g_hash_table_insert(mgcp_calls, new_mgcp_call_key, mgcp_call);
 	}
