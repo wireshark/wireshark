@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.27 2001/09/29 19:31:31 guy Exp $
+$Id: README.win32,v 1.28 2001/10/18 15:44:36 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -45,6 +45,10 @@ install the latest non-beta version of WinPcap, available from:
 	http://netgroup-serv.polito.it/winpcap/
 
 and mirrored at
+
+	http://netgroup-mirror.ethereal.com/winpcap/
+
+and
 
 	http://www.wiretapped.net/security/packet-capture/winpcap/default.htm
 
