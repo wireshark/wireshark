@@ -6,7 +6,7 @@
  *
  * (C) Olivier Biot, 2004.
  *
- * $Id: packet-text-media.c,v 1.8 2004/05/04 07:24:33 guy Exp $
+ * $Id: packet-text-media.c,v 1.9 2004/06/17 20:49:01 etxrab Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -159,4 +159,6 @@ proto_reg_handoff_text_lines(void)
 	/* Other */
 	dissector_add_string("media_type", "text/vnd.sun.j2me.app-descriptor", text_lines_handle);
 	dissector_add_string("media_type", "application/smil", text_lines_handle);
+	dissector_add_string("media_type", "application/vnd.poc.refer-to", text_lines_handle);
+	dissector_add_string("media_type", "application/cpim-pidf+xml", text_lines_handle);
 }
