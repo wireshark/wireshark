@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.56 1999/11/29 08:51:11 guy Exp $
+ * $Id: file.h,v 1.57 1999/11/30 07:27:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -131,7 +131,14 @@ void colorize_packets(capture_file *);
 int print_packets(capture_file *cf, print_args_t *print_args);
 void change_time_formats(capture_file *);
 gboolean find_packet(capture_file *cf, dfilter *sfcode);
-gboolean goto_frame(capture_file *cf, guint fnumber);
+
+typedef enum {
+  FOUND_FRAME,		/* found the frame */
+  NO_SUCH_FRAME,	/* no frame with that number */
+  FRAME_NOT_DISPLAYED	/* frame with that number isn't displayed */
+} goto_result_t;
+goto_result_t goto_frame(capture_file *cf, guint fnumber);
+
 void select_packet(capture_file *, int);
 void unselect_packet(capture_file *);
 

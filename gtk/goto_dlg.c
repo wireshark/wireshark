@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.1 1999/11/08 01:03:40 guy Exp $
+ * $Id: goto_dlg.c,v 1.2 1999/11/30 07:27:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,16 +135,21 @@ goto_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     return;
   }
 
-  if (!goto_frame(&cf, fnumber)) {
-    /* No such frame.
-       XXX - distinguish between "no such frame" and "that frame isn't
-       selected by the display filter" - and, in the latter case, add
-       it to the display filter? */
+  switch (goto_frame(&cf, fnumber)) {
+
+  case NO_SUCH_FRAME:
     simple_dialog(ESD_TYPE_WARN, NULL, "There is no frame with that frame number.");
     return;
-  }
 
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  case FRAME_NOT_DISPLAYED:
+    /* XXX - add it to the display filter? */
+    simple_dialog(ESD_TYPE_WARN, NULL, "The frame with that frame number is not currently being displayed.");
+    return;
+
+  case FOUND_FRAME:
+    gtk_widget_destroy(GTK_WIDGET(parent_w));
+    break;
+  }
 }
 
 static void

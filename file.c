@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.126 1999/11/30 05:32:57 guy Exp $
+ * $Id: file.c,v 1.127 1999/11/30 07:27:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1378,7 +1378,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
     return FALSE;	/* failure */
 }
 
-gboolean
+goto_result_t
 goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fd;
@@ -1386,15 +1386,17 @@ goto_frame(capture_file *cf, guint fnumber)
   for (fd = cf->plist; fd != NULL && fd->num < fnumber; fd = fd->next)
     ;
 
-  if (fd != NULL && fd->passed_dfilter) {
-    /* We found that frame, and it's currently being displayed.
-       Make it visible, and select it. */
-    if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), fd->row))
-      gtk_clist_moveto(GTK_CLIST(packet_list), fd->row, -1, 0.0, 0.0);
-    gtk_clist_select_row(GTK_CLIST(packet_list), fd->row, -1);
-    return TRUE;	/* success */
-  } else
-    return FALSE;	/* failure */
+  if (fd == NULL)
+    return NO_SUCH_FRAME;	/* we didn't find that frame */
+  if (!fd->passed_dfilter)
+    return FRAME_NOT_DISPLAYED;	/* the frame with that number isn't displayed */
+
+  /* We found that frame, and it's currently being displayed.
+     Make it visible, and select it. */
+  if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), fd->row))
+    gtk_clist_moveto(GTK_CLIST(packet_list), fd->row, -1, 0.0, 0.0);
+  gtk_clist_select_row(GTK_CLIST(packet_list), fd->row, -1);
+  return FOUND_FRAME;
 }
 
 /* Select the packet on a given row. */
