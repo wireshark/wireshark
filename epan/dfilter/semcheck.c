@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.25 2004/02/27 12:00:31 obiot Exp $
+ * $Id: semcheck.c,v 1.26 2004/05/09 08:17:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -647,7 +647,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 
 	if (type2 == STTYPE_FIELD) {
 		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_FIELD)\n"));
-		hfinfo2 = sttype_range_hfinfo(st_arg2);
+		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
 		if (!is_bytes_type(ftype2)) {
@@ -724,8 +724,23 @@ check_relation(const char *relation_string, gboolean allow_partial_value,
 #ifdef DEBUG_dfilter
 	static guint i = 0;
 #endif
+header_field_info   *hfinfo;
 
 	DebugLog(("   4 check_relation(\"%s\") [%u]\n", relation_string, i++));
+
+	/* Protocol can only be on LHS (for "contains" or "matches" operators).
+	 * Check to see if protocol is on RHS.  This catches the case where the
+	 * user has written "fc" on the RHS, probably intending a byte value
+	 * rather than the fibre channel protocol.
+	 */
+
+	if (stnode_type_id(st_arg2) == STTYPE_FIELD) {
+		hfinfo = stnode_data(st_arg2);
+		if (hfinfo->type == FT_PROTOCOL)
+			dfilter_fail("Protocol (\"%s\") cannot appear on right-hand side of comparison.", hfinfo->abbrev);
+			THROW(TypeError);
+	}
+
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 			check_relation_LHS_FIELD(relation_string, can_func,
