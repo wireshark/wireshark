@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.203 2003/08/29 11:15:13 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.204 2003/08/29 11:40:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -805,9 +805,12 @@ ack_finished:
 			if(ual->num_acks>1){
 				struct tcp_acked *ta;
 				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-				ta->flags|=TCP_A_DUPLICATE_ACK;
-				ta->dupack_num=ual->num_acks-1;
-				ta->dupack_frame=ual->ack_frame;
+				/* keepalives are not dupacks */
+				if( (!(ta->flags&TCP_A_KEEP_ALIVE)) ){
+					ta->flags|=TCP_A_DUPLICATE_ACK;
+					ta->dupack_num=ual->num_acks-1;
+					ta->dupack_frame=ual->ack_frame;
+				}
 			}
 		}		
 
