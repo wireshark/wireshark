@@ -75,7 +75,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->has_autostop_files      = FALSE;
   capture_opts->autostop_files          = 1;
   capture_opts->has_autostop_packets    = FALSE;            
-  capture_opts->autostop_packets        = 1;
+  capture_opts->autostop_packets        = 0;
   capture_opts->has_autostop_filesize   = FALSE;
   capture_opts->autostop_filesize       = 1024 * 1024;      /* 1 MB */
   capture_opts->has_autostop_duration   = FALSE;
