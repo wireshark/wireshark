@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.52 2002/02/18 01:08:42 guy Exp $
+ * $Id: proto.c,v 1.53 2002/02/18 22:26:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,11 +74,12 @@ proto_tree_add_node(proto_tree *tree, field_info *fi);
 
 static field_info *
 alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-        gint start, gint length);
+        gint start, gint *length);
 
 static proto_item *
 proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-        gint start, gint length, field_info **pfi);
+        gint start, gint *length, field_info **pfi);
+
 static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap);
 
@@ -377,7 +378,7 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint lengt
 {
 	proto_item	*pi;
 
-	pi = proto_tree_add_pi(tree, hf_text_only, tvb, start, length, NULL);
+	pi = proto_tree_add_pi(tree, hf_text_only, tvb, start, &length, NULL);
 	if (pi == NULL)
 		return(NULL);
 
@@ -525,13 +526,13 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	guint32		value, n;
 	char		*string;
 	int		found_length;
-    GHashTable  *hash;
-    GPtrArray   *ptrs;
+	GHashTable	*hash;
+	GPtrArray	*ptrs;
 
 	if (!tree)
 		return(NULL);
 
-	new_fi = alloc_field_info(tree, hfindex, tvb, start, length);
+	new_fi = alloc_field_info(tree, hfindex, tvb, start, &length);
 
 	if (new_fi == NULL)
 		return(NULL);
@@ -694,7 +695,7 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_NONE);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, NULL);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, NULL);
 
 	va_start(ap, format);
 	proto_tree_set_representation(pi, format, ap);
@@ -727,7 +728,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gin
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_PROTOCOL);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 
 	va_start(ap, format);
 	proto_tree_set_representation(pi, format, ap);
@@ -758,7 +759,7 @@ proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_BYTES);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_bytes(new_fi, start_ptr, length);
 
 	return pi;
@@ -834,7 +835,7 @@ proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	g_assert(hfinfo->type == FT_ABSOLUTE_TIME ||
 				hfinfo->type == FT_RELATIVE_TIME);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_time(new_fi, value_ptr);
 
 	return pi;
@@ -897,7 +898,7 @@ proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_IPXNET);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_ipxnet(new_fi, value);
 
 	return pi;
@@ -960,7 +961,7 @@ proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_IPv4);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_ipv4(new_fi, value);
 
 	return pi;
@@ -1023,7 +1024,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_IPv6);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_ipv6(new_fi, value_ptr);
 
 	return pi;
@@ -1114,7 +1115,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_STRING);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_string(new_fi, value);
 
 	return pi;
@@ -1193,7 +1194,7 @@ proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_ETHER);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_ether(new_fi, value);
 
 	return pi;
@@ -1262,7 +1263,7 @@ proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_BOOLEAN);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_boolean(new_fi, value);
 
 	return pi;
@@ -1325,7 +1326,7 @@ proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo->type == FT_DOUBLE);
 
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length, &new_fi);
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_double(new_fi, value);
 
 	return pi;
@@ -1391,7 +1392,7 @@ proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
-			pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
+			pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length,
 					&new_fi);
 			proto_tree_set_uint(new_fi, value);
 			break;
@@ -1478,7 +1479,7 @@ proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gin
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
-			pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
+			pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length,
 					&new_fi);
 			proto_tree_set_int(new_fi, value);
 			break;
@@ -1570,8 +1571,8 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
  * Sets *pfi to address of newly-allocated field_info struct, if pfi is
  * non-NULL. */
 static proto_item *
-proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
-		field_info **pfi)
+proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+    gint *length, field_info **pfi)
 {
 	proto_item	*pi;
 	field_info	*fi;
@@ -1601,7 +1602,8 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 }
 
 static field_info *
-alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length)
+alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+    gint *length)
 {
 	header_field_info	*hfinfo;
 	field_info		*fi;
@@ -1610,20 +1612,41 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint 
 	 * We only allow a null tvbuff if the item has a zero length,
 	 * i.e. if there's no data backing it.
 	 */
-	g_assert(tvb != NULL || length == 0);
+	g_assert(tvb != NULL || *length == 0);
 
 	g_assert(hfindex >= 0 && (guint) hfindex < gpa_hfinfo->len);
 	hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(hfinfo != NULL);
 
-	if (length == -1) {
+	if (*length == -1) {
 		/*
-		 * For FT_NONE or FT_PROTOCOL fields, this means "set the
-		 * length to what remains in the tvbuff"; the assumption
-		 * is that the length can only be determined by dissection,
-		 * so we set it to that value so that, if we throw an
-		 * exception while dissecting, it has what is probably the
-		 * right value.
+		 * For FT_NONE, FT_PROTOCOL, FT_BYTES, and FT_STRING fields,
+		 * a length of -1 means "set the length to what remains in
+		 * the tvbuff".
+		 *
+		 * The assumption is either that
+		 *
+		 *	1) the length of the item can only be determined
+		 *	   by dissection (typically true of items with
+		 *	   subitems, which are probably FT_NONE or
+		 *	   FT_PROTOCOL)
+		 *
+		 * or
+		 *
+		 *	2) if the tvbuff is "short" (either due to a short
+		 *	   snapshot length or due to lack of reassembly of
+		 *	   fragments/segments/whatever), we want to display
+		 *	   what's available in the field (probably FT_BYTES
+		 *	   or FT_STRING) and then throw an exception later
+		 *
+		 * or
+		 *
+		 *	3) the field is defined to be "what's left in the
+		 *	   packet"
+		 *
+		 * so we set the length to what remains in the tvbuff so
+		 * that, if we throw an exception while dissecting, it
+		 * has what is probably the right value.
 		 *
 		 * It's not valid for any other type of field.
 		 */
@@ -1631,7 +1654,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint 
 			 hfinfo->type == FT_NONE ||
 			 hfinfo->type == FT_BYTES ||
 			 hfinfo->type == FT_STRING);
-		length = tvb_ensure_length_remaining(tvb, start);
+		*length = tvb_ensure_length_remaining(tvb, start);
 	}
 
 	fi = g_mem_chunk_alloc(gmc_field_info);
@@ -1640,7 +1663,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint 
 	if (tvb) {
 		fi->start += tvb_raw_offset(tvb);
 	}
-	fi->length = length;
+	fi->length = *length;
 	fi->tree_type = ETT_NONE;
 	fi->visible = PTREE_DATA(tree)->visible;
 	fi->representation = NULL;
