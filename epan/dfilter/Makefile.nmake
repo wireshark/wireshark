@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.12 2004/01/22 19:27:59 ulfl Exp $
+# $Id: Makefile.nmake,v 1.13 2004/05/06 20:48:36 obiot Exp $
 
 include ..\..\config.nmake
 
@@ -37,12 +37,12 @@ OBJECTS = \
 dfilter.lib	: $(OBJECTS)
 	lib /out:dfilter.lib $(OBJECTS)
 
-$(OBJECTS): ..\config.h
+$(OBJECTS): ..\..\config.h
 
-..\config.h:
-	cd ..
-	$(MAKE) -f makefile.nmake config.h
-	cd dfilter
+..\..\config.h: ..\..\config.h.win32 ..\..\config.nmake
+	cd ..\..
+	$(MAKE) -f Makefile.nmake config.h
+	cd epan\dfilter
 
 clean:
 	rm -f $(OBJECTS) dfilter.lib $(PDB_FILE)
