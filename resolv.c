@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.21 1999/11/22 06:03:46 gram Exp $
+ * $Id: resolv.c,v 1.22 2000/01/10 17:32:52 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -55,7 +55,9 @@
 #include <netdb.h>
 #endif
 
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
 
 #include <signal.h>
 

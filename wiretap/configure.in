@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.18 1999/12/04 05:14:38 guy Exp $
+# $Id: configure.in,v 1.19 2000/01/10 17:33:17 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -87,7 +87,7 @@ dnl defined, have it take an "off_t" as its second argument, and
 dnl put it into a file that doesn't require HAVE_UNISTD_H.
 dnl
 AC_HEADER_STDC
-AC_CHECK_HEADERS(sys/time.h netinet/in.h)
+AC_CHECK_HEADERS(sys/time.h netinet/in.h unistd.h)
 
 AC_CANONICAL_HOST
 

@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.8 1999/10/31 19:34:46 guy Exp $
+ * $Id: ascend-grammar.y,v 1.9 2000/01/10 17:33:16 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -87,7 +87,7 @@ char    b;
 
 %token <s> STRING KEYWORD COUNTER
 %token <d> WDS_PREFIX DECNUM HEXNUM
-%token <b> BYTE
+%token <b> HEXBYTE
 
 %type <s> string dataln datagroup
 %type <d> wds_prefix decnum hexnum
@@ -164,7 +164,7 @@ wdd_hdr: KEYWORD decnum decnum decnum KEYWORD decnum decnum decnum KEYWORD strin
 }
 ;
  
-byte: BYTE {
+byte: HEXBYTE {
   if (bcur < caplen) {
     pkt_data[bcur] = $1;
     bcur++;

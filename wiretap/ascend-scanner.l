@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.9 1999/11/24 19:29:45 guy Exp $
+ * $Id: ascend-scanner.l,v 1.10 2000/01/10 17:33:16 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -29,6 +29,11 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#ifdef HAVE_IO_H
+#include <io.h> 	/* for isatty() on win32 */
+#endif
+
 #include "wtap.h"
 #include "ascend.h"
 #include "ascend-grammar.h"
@@ -151,7 +156,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_gen_byte>{H}{2} {
   ascendlval.b = strtol(ascendtext, NULL, 16);
-  return BYTE;
+  return HEXBYTE;
 }
 
 <INITIAL,sc_gen_byte>{WDD_DATE} {

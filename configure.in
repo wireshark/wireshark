@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.71 2000/01/09 20:05:37 guy Exp $
+# $Id: configure.in,v 1.72 2000/01/10 17:32:50 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -154,10 +154,12 @@ fi
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h stdarg.h netdb.h)
-AC_CHECK_HEADERS(sys/stat.h sys/sockio.h sys/types.h netinet/in.h sys/socket.h net/if.h)
-AC_CHECK_HEADERS(sys/wait.h)
+AC_CHECK_HEADERS(sys/stat.h sys/sockio.h sys/types.h sys/socket.h)
+AC_CHECK_HEADERS(sys/wait.h sys/param.h)
+AC_CHECK_HEADERS(netinet/in.h net/if.h)
 AC_CHECK_HEADERS(stddef.h)
 AC_CHECK_HEADERS(dlfcn.h)
+AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
 
 dnl SNMP Check
 AC_ARG_ENABLE(snmp,

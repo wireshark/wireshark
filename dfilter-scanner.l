@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.26 1999/10/19 05:45:45 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.27 2000/01/10 17:32:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,10 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
+#endif
+
+#ifdef HAVE_IO_H
+#include <io.h>         /* for isatty() on win32 */
 #endif
 
 #ifdef HAVE_SYS_TYPES_H

@@ -25,4 +25,7 @@
 /* Version number of package */
 #define VERSION "0.0.0"
 
-#define HAVE_WINSOCK_H
+#define HAVE_WINSOCK_H		1
+#define HAVE_IO_H		1
+#define open			_open
+#define close			_close

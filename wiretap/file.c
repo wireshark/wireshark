@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.43 1999/12/15 01:34:17 guy Exp $
+ * $Id: file.c,v 1.44 2000/01/10 17:33:17 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -23,12 +23,18 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <errno.h>
+
+#ifdef HAVE_IO_H
+#include <io.h>	/* open/close on win32 */
+#endif
+
 #include "wtap.h"
 #include "file.h"
 #include "buffer.h"

@@ -1,6 +1,6 @@
 /* inet_pton.h
  *
- * $Id: inet_v6defs.h,v 1.1 1999/10/14 06:55:09 guy Exp $
+ * $Id: inet_v6defs.h,v 1.2 2000/01/10 17:32:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,9 @@
 extern int inet_pton(int af, const char *src, void *dst);
 extern const char *inet_ntop(int af, const void *src, char *dst,
     size_t size);
+
+struct in_addr;
+extern int inet_aton(const char* cp_arg, struct in_addr *addr);
 
 /*
  * Those OSes may also not have AF_INET6, so declare it here if it's not

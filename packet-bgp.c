@@ -63,7 +63,10 @@
 #include "packet.h"
 #include "packet-bgp.h"
 #include "packet-ipv6.h"
+
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN, "OPEN Message" },

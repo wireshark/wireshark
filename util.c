@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.24 1999/12/09 07:19:05 guy Exp $
+ * $Id: util.c,v 1.25 2000/01/10 17:32:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,11 @@
 #endif
 
 #include "util.h"
+
+#ifdef HAVE_IO_H
+#include <io.h>
+typedef int mode_t;	/* for win32 */
+#endif
 
 static char *
 setup_tmpdir(char *dir)

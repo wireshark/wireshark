@@ -95,9 +95,15 @@
 /* Version number of package */
 #define VERSION "0.8.0"
 
-#define HAVE_WINSOCK_H
-#define snprintf _snprintf
-#define vsnprintf _vsnprintf
-#define HAVE_DIRECT_H
-#define HAVE_IO_H
-#define strncasecmp strnicmp
+#define HAVE_WINSOCK_H          1
+#define HAVE_DIRECT_H           1
+#define HAVE_IO_H               1
+#define NEED_INET_V6DEFS_H      1
+#define snprintf                _snprintf
+#define vsnprintf               _vsnprintf
+#define strncasecmp             strnicmp
+#define open                    _open
+#define close                   _close
+#define popen                   _popen
+#define pclose                  _pclose
+

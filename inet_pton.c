@@ -15,16 +15,41 @@
  * SOFTWARE.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_pton.c,v 1.2 1999/10/14 06:55:10 guy Exp $";
+static char rcsid[] = "$Id: inet_pton.c,v 1.3 2000/01/10 17:32:51 gram Exp $";
 #endif /* LIBC_SCCS and not lint */
 
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
+#endif
+
 #include <sys/types.h>
+
+#ifdef HAVE_WINSOCK_H
+#include <winsock.h>
+#define EAFNOSUPPORT	WSAEAFNOSUPPORT
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_ARPA_NAMESER_H
 #include <arpa/nameser.h>
+#endif
+
 #include <string.h>
 #include <errno.h>
 
