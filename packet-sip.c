@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.51 2003/12/17 20:39:31 guy Exp $
+ * $Id: packet-sip.c,v 1.52 2003/12/17 20:52:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -394,7 +394,6 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *next_tvb;
         gboolean is_known_request;
 	gboolean found_match = FALSE;
-	gboolean content_type_exist = FALSE;
         char *descr;
         guint token_1_len;
 	guint current_method_idx = 0;
@@ -690,7 +689,6 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						content_type_parameter_str = tvb_get_string(tvb, semicolon_offset + 1, content_type_parameter_str_len);
 					}
 					media_type_str = tvb_get_string(tvb, value_offset, content_type_len);
-					content_type_exist = TRUE;
 					break;
 
 				case POS_CONTACT :
@@ -731,7 +729,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* give the content type parameters to sub dissectors */
 		
-		if ( content_type_exist ) {
+		if ( media_type_str != NULL ) {
 			pinfo->private_data = content_type_parameter_str;
 			found_match = dissector_try_string(media_type_dissector_table,
 							   media_type_str,
