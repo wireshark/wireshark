@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.22 2001/04/19 01:08:16 guy Exp $
+dnl $Id: acinclude.m4,v 1.23 2001/05/11 01:09:59 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ AC_DEFUN(AC_ETHEREAL_IPV6_STACK,
 	for i in v6d toshiba kame inria zeta linux; do
 		case $i in
 		v6d)
-			AC_EGREP_CPP(yes, [dnl
+			AC_EGREP_CPP(yes, [
 #include </usr/local/v6/include/sys/types.h>
 #ifdef __V6D__
 yes
@@ -116,7 +116,7 @@ yes
 				CFLAGS="-I/usr/local/v6/include $CFLAGS"])
 			;;
 		toshiba)
-			AC_EGREP_CPP(yes, [dnl
+			AC_EGREP_CPP(yes, [
 #include <sys/param.h>
 #ifdef _TOSHIBA_INET6
 yes
@@ -126,7 +126,7 @@ yes
 				CFLAGS="-DINET6 $CFLAGS"])
 			;;
 		kame)
-			AC_EGREP_CPP(yes, [dnl
+			AC_EGREP_CPP(yes, [
 #include <netinet/in.h>
 #ifdef __KAME__
 yes
@@ -136,7 +136,7 @@ yes
 				CFLAGS="-DINET6 $CFLAGS"])
 			;;
 		inria)
-			AC_EGREP_CPP(yes, [dnl
+			AC_EGREP_CPP(yes, [
 #include <netinet/in.h>
 #ifdef IPV6_INRIA_VERSION
 yes
@@ -144,7 +144,7 @@ yes
 				[v6type=$i; CFLAGS="-DINET6 $CFLAGS"])
 			;;
 		zeta)
-			AC_EGREP_CPP(yes, [dnl
+			AC_EGREP_CPP(yes, [
 #include <sys/param.h>
 #ifdef _ZETA_MINAMI_INET6
 yes
