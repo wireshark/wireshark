@@ -34,6 +34,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -259,8 +260,9 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
 void
 capture_opt_add(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture)
 {
+#ifdef _WIN32
     int i;
-
+#endif
 
     switch(opt) {
     case 'a':        /* autostop criteria */
