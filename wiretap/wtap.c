@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.38 2000/03/22 07:06:55 guy Exp $
+ * $Id: wtap.c,v 1.39 2000/04/08 00:33:04 sharpe Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -200,6 +200,11 @@ void wtap_close(wtap *wth)
 	}
 
 	g_free(wth);
+}
+
+int wtap_read(wtap *wth, int *err)
+{
+  return wth -> subtype_read(wth, err);
 }
 
 int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
