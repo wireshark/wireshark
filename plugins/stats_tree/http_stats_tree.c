@@ -146,7 +146,7 @@ static int http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_
 
 
 static int st_node_requests_by_host = -1;
-static const guint8* st_str_requests_by_host = "HTTP requests by HTTP Host";
+static const guint8* st_str_requests_by_host = "HTTP Requests by HTTP Host";
 
 static void http_req_stats_tree_init(stats_tree* st) {
 	st_node_requests_by_host = create_node(st, st_str_requests_by_host, 0, TRUE);
@@ -174,15 +174,15 @@ static int http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, ep
 }
 
 static const guint8* st_str_packets = "Total HTTP Packets";
-static const guint8* st_str_responses = "HTTP responses";
+static const guint8* st_str_responses = "HTTP Response Packets";
 static const guint8* st_str_resp_broken = "???: broken";
 static const guint8* st_str_resp_100 = "1xx: Informational";
 static const guint8* st_str_resp_200 = "2xx: Success";
 static const guint8* st_str_resp_300 = "3xx: Redirection";
 static const guint8* st_str_resp_400 = "4xx: Client Error";
 static const guint8* st_str_resp_500 = "5xx: Server Error";
-static const guint8* st_str_requests = "HTTP requests";
-static const guint8* st_str_other = "Other HTTP packets";
+static const guint8* st_str_requests = "HTTP Request Packets";
+static const guint8* st_str_other = "Other HTTP Packets";
 
 static int st_node_packets = -1;
 static int st_node_responses = -1;
