@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.1 2000/04/13 18:18:45 gram Exp $
+ * $Id: packet-ethertype.c,v 1.2 2000/04/13 19:38:55 gram Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -35,6 +35,10 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ip.h"
+#include "packet-ipx.h"
+#include "packet-vlan.h"
+#include "packet-vines.h"
 #include "etypes.h"
 
 static dissector_table_t ethertype_dissector_table;
