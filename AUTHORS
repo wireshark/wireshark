@@ -449,7 +449,7 @@ Dug Song                <dugsong[AT]monkey.org> {
 	RPCSEC_GSS credential/verifier dissection for ONC RPC
 }
 
-Michael Tüxen          <tuexen [AT] fh-muenster.de> {
+Michael Tüxen           <tuexen [AT] fh-muenster.de> {
 	SCTP support
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
@@ -462,7 +462,7 @@ Michael Tüxen          <tuexen [AT] fh-muenster.de> {
 	SCCP-atop-M3UA support
 	M2UA support
 	ASAP support
-        ENRP support
+	ENRP support
 	Fix SCTP port number for M2PA
 }
 
