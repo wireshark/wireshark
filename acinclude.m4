@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.75 2004/05/14 10:33:00 jmayer Exp $
+dnl $Id: acinclude.m4,v 1.76 2004/05/18 11:11:37 jmayer Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -886,12 +886,12 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  ac_krb5_version=`grep -i heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'` 
 	else
 	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
-	  if test -x $KRB5_CONFIG
+	  if test -x "$KRB5_CONFIG"
 	  then
-	    KRB5_FLAGS=`$KRB5_CONFIG --cflags`
+	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
             CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
-	    KRB5_LIBS=`$KRB5_CONFIG --libs`
+	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
 	    # Looks like krb5-config is lacking -lresolv on some systems
 	    AC_MSG_CHECKING(whether library list looks OK)
 	    if echo "$KRB5_LIBS" | grep resolv >/dev/null
@@ -903,7 +903,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	    fi
 
 	    #LIBS="$LIBS $KRB5_LIBS"
-	    ac_krb5_version=`$KRB5_CONFIG --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'`
+	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'`
  	  fi
 	fi
 
