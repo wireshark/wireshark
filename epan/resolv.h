@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.3 2000/10/19 22:59:24 guy Exp $
+ * $Id: resolv.h,v 1.4 2001/01/31 05:52:24 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -78,7 +78,8 @@ extern u_char *get_ipxnet_name(const guint32 addr);
 extern u_char *get_ether_addr(u_char *name);
 
 /* returns the ipx network corresponding to name. If name is unknown,
- * 0 is returned and 'known' is set to TRUE. */
+ * 0 is returned and 'known' is set to FALSE. On success, 'known'
+ * is set to TRUE. */
 guint32 get_ipxnet_addr(u_char *name, gboolean *known);
 
 /* adds a hostname/IP in the hash table */
