@@ -1,7 +1,7 @@
 /* progress_dlg.h
  * Definitions for progress dialog box routines
  *
- * $Id: progress_dlg.h,v 1.6 2004/01/21 22:00:28 ulfl Exp $
+ * $Id: progress_dlg.h,v 1.7 2004/06/04 20:04:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,47 +25,62 @@
 #ifndef __PROGRESS_DLG_H__
 #define __PROGRESS_DLG_H__
 
-/*
- * Progress (modal) dialog box routines.
+/** @file
+ *  Progress (modal) dialog box routines.
+ *  @ingroup dialog_group
  */
 
+/** Progress dialog data. */
 struct progdlg;
 
+/** Progress dialog data. */
 typedef struct progdlg progdlg_t;
 
-/*
- * Create and pop up the progress dialog; allocate a "progdlg_t"
+/**
+ * Create and pop up the progress dialog. Allocates a "progdlg_t"
  * and initialize it to contain all information the implementation
  * needs in order to manipulate the dialog, and return a pointer to
  * it.
  *
- * The first argument is the task to do, e.g. "Loading".
- * The second argument is the item to do, e.g. "capture.cap".
- * The third argument is a pointer to a Boolean variable that will be
- *   set to TRUE if the user hits that button.
+ * @param task_title the task to do, e.g. "Loading"
+ * @param item_title the item to do, e.g. "capture.cap"
+ * @param stop_flag a pointer to a Boolean variable that will be
+ *   set to TRUE if the user hits that button
+ * @return the newly created progress dialog
  */
 progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title,
     gboolean *stop_flag);
 
-/* Create a progress dialog, but only if it's not likely to disappear
- * immediately, which can be disconcerting for the user.
+/**
+ * Create a progress dialog, but only if it's not likely to disappear
+ * immediately. This can be disconcerting for the user. 
  *
- * The first three arguments are as for create_progress_dlg().
- * Following those is a pointer to a GTimeVal structure which holds
- * the time at which the caller started to process the data, and the
- * current progress (0..1).
+ * @param task_title the task to do, e.g. "Loading"
+ * @param item_title the item to do, e.g. "capture.cap"
+ * @param stop_flag a pointer to a Boolean variable that will be
+ *   set to TRUE if the user hits that button
+ * @param start_time a pointer to a GTimeVal structure which holds
+ *   the time at which the caller started to process the data
+ * @param progress the current progress (0..1)
+ * @return the newly created progress dialog
  */
 progdlg_t *
 delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
     gboolean *stop_flag, const GTimeVal *start_time, gfloat progress);
 
-/*
+/**
  * Update the progress information of the progress dialog box.
+ *
+ * @param dlg the progress dialog from create_progress_dlg()
+ * @param percentage the current percentage value (0..1)
+ * @param status the new status string to show, e.g. "3000KB of 6000KB"
  */
 void update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status);
 
-/*
+/**
  * Destroy the progress bar.
+ *
+ * @param dlg the progress dialog from create_progress_dlg()
  */
 void destroy_progress_dlg(progdlg_t *dlg);
 
