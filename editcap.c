@@ -1,10 +1,11 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.5 2000/01/17 08:06:03 sharpe Exp $
+ * $Id: editcap.c,v 1.6 2000/01/17 20:21:40 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
+ * Further improved by Richard Sharpe.
  */
 
 #include <stdio.h>
@@ -46,7 +47,7 @@ void add_selection(char *sel)
 
   printf("Add_Selected: %s\n", sel);
 
-  if ((locn = index(sel, '-')) == NULL) { /* No dash, so a single number? */
+  if ((locn = strchr(sel, '-')) == NULL) { /* No dash, so a single number? */
 
     printf("Not inclusive ...");
 
