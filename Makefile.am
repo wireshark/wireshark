@@ -13,6 +13,7 @@ ethereal_SOURCES = \
 	capture.h      \
 	column.c       \
 	column.h       \
+	dfilter-int.h  \
 	dfilter-grammar.y \
 	dfilter-scanner.l \
 	dfilter.c      \
