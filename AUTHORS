@@ -22,7 +22,7 @@ Hannes R. Boehm      <hannes@boehm.org> {
 
     OSPFv2 
     RIPv1, RIPv2
-    started IPv6 support (help needed - I don't have IPv6)
+    CDP (Cisco Discover Protocol Version 1)
 }
 
 Mike Hall            <mlh@io.com>{
