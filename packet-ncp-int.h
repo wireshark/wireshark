@@ -6,7 +6,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp-int.h,v 1.17 2003/09/24 03:34:00 guy Exp $
+ * $Id: packet-ncp-int.h,v 1.18 2004/06/15 09:23:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,6 +98,7 @@ typedef struct {
 	char			object_name[256];
 	gboolean		nds_frag;
 	guint32			nds_end_frag;
+    guint32         nds_frag_num;
 } ncp_req_hash_value;
 
 void dissect_ncp_request(tvbuff_t*, packet_info*, guint16,

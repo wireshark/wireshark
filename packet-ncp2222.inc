@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.70 2004/02/29 08:01:22 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.71 2004/06/15 09:23:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4127,7 +4127,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
     for (i = 0; i < 9; i++) {
         if (!frags[i].nds_fragmented)
 	{
-                frags[i].nds_frag = 0;
+                frags[i].nds_frag = 0xfffffff0;
         }
     }
     /* Check to see if defragmentation is enabeled in the dissector */
@@ -4173,13 +4173,14 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
     }
     /* Get the fragment flag */
     nds_frag = tvb_get_letohl(tvb, 12);
+    
     /* Now we need to find if this is a new fragment or already one defined. */
     /* We currently limit the maximum number of simultaneous fragments to 100. */
     for (i=0; i<100; i++)
     {
-        if (frags[i].nds_frag == nds_frag || frags[i].nds_frag == 0)
+        if (frags[i].nds_frag == nds_frag || frags[i].nds_frag == 0xfffffff0)
         {
-                if (frags[i].nds_frag == 0)
+                if (frags[i].nds_frag == 0xfffffff0)
                 {
                         frags[i].nds_length = 0;
                         frags[i].nds_frag = nds_frag;
@@ -4189,6 +4190,13 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
         }
     }
     frag_count = i;
+    
+    /* is this the end of an existing fragment or just another reply */
+    if (nds_frag == 0xffffffff && request_value->nds_frag_num == 0xffffffff)
+    {
+                dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+                return;
+    } 
     
     /* Now we process the fragments */
     if (request_value->nds_frag || (request_value->nds_end_frag == pinfo->fd->num)) 
@@ -4263,7 +4271,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
                                      break;
                              }
                          }
-                         if (frags[i].nds_frag == 0)
+                         if (frags[i].nds_frag == 0xffffffff)
                          {
                                  /* Error can't find fragment */
                                  /*g_assert(0);*/
@@ -4784,7 +4792,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 			error_string = ncp_error_string(ncp_rec->errors, completion_code);
 		}
 		else {
-			error_string = "Not OK";
+			error_string = "Original Request Packet not Found";
 		}
 	}
         if (type == NCP_SERVICE_REPLY && ncp_rec && ncp_rec->func==0x68 &&
@@ -8222,6 +8230,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         	if (ncp_rec && !ncp_tree) {
        			run_req_cond = TRUE;
         	}
+                /* Keep track of the Fragment number in the request for defrag logic */
+                request_value->nds_frag_num = nds_frag;
         }
                 
 	/* If we have to handle a request condition, or have to
