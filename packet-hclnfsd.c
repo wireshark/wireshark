@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.10 2002/04/01 22:30:34 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.11 2002/04/01 22:40:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -169,7 +169,6 @@ static int
 dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 request_type;
-	guint32 ip;
 	char *ident = NULL;
 	char *username = NULL;
 	char *password = NULL;
@@ -179,12 +178,7 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	proto_item *ident_item = NULL;
 	proto_tree *ident_tree = NULL;
 
-	ip = tvb_get_ntohl(tvb, offset);
-	ip = ((ip & 0x000000ff) << 24) | 
-		((ip & 0x0000ff00) << 8) | 
-		((ip & 0x00ff0000) >> 8) | 
-		((ip & 0xff000000) >> 24);
-	proto_tree_add_ipv4(tree, hf_hclnfsd_server_ip, tvb, offset, 4, ip);
+	proto_tree_add_item(tree, hf_hclnfsd_server_ip, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	request_type = tvb_get_ntohl(tvb, offset);
@@ -303,11 +297,7 @@ dissect_hclnfsd_grp_to_number_reply(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 dissect_hclnfsd_return_host_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 ip;
-
-	ip = tvb_get_ntohl(tvb, offset);
-	ip=((ip&0x000000ff)<<24)|((ip&0x0000ff00)<<8)|((ip&0x00ff0000)>>8)|((ip&0xff000000)>>24);
-	proto_tree_add_ipv4(tree, hf_hclnfsd_host_ip, tvb, offset, 4, ip);
+	proto_tree_add_item(tree, hf_hclnfsd_host_ip, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	return offset;
