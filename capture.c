@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.183 2002/06/22 10:21:00 guy Exp $
+ * $Id: capture.c,v 1.184 2002/07/15 23:25:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1477,7 +1477,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	"Please check that you have the proper interface specified.\n"
 	"\n"
 	"Note that the driver Ethereal uses for packet capture on Windows\n"
-	"doesn't support capturing on PPP/WAN interfaces in Windows NT/2000.\n",
+	"doesn't support capturing on PPP/WAN interfaces in Windows NT/2000/XP/.NET Server.\n",
 	open_err_str);
     goto error;
 #else
@@ -1496,29 +1496,28 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       }
 
       if (ld.pipe_err == PIPNEXIST) {
+	/* Pipe doesn't exist, so output message for interface */
 
-      /* Pipe doesn't exist, so output message for interface */
-
-      /* If we got a "can't find PPA for XXX" message, warn the user (who
-         is running Ethereal on HP-UX) that they don't have a version
-	 of libpcap that properly handles HP-UX (libpcap 0.6.x and later
-	 versions, which properly handle HP-UX, say "can't find /dev/dlpi
-	 PPA for XXX" rather than "can't find PPA for XXX"). */
-      if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
-	libpcap_warn =
-	  "\n\n"
-	  "You are running Ethereal with a version of the libpcap library\n"
-	  "that doesn't handle HP-UX network devices well; this means that\n"
-	  "Ethereal may not be able to capture packets.\n"
-	  "\n"
-	  "To fix this, you should install libpcap 0.6.2, or a later version\n"
-	  "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
-	  "packaged binary form from the Software Porting And Archive Centre\n"
-	  "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
-	  "at the URL lists a number of mirror sites.";
-      else
-	libpcap_warn = "";
-      snprintf(errmsg, sizeof errmsg,
+	/* If we got a "can't find PPA for XXX" message, warn the user (who
+	   is running Ethereal on HP-UX) that they don't have a version
+	   of libpcap that properly handles HP-UX (libpcap 0.6.x and later
+	   versions, which properly handle HP-UX, say "can't find /dev/dlpi
+	   PPA for XXX" rather than "can't find PPA for XXX"). */
+	if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
+	  libpcap_warn =
+	    "\n\n"
+	    "You are running Ethereal with a version of the libpcap library\n"
+	    "that doesn't handle HP-UX network devices well; this means that\n"
+	    "Ethereal may not be able to capture packets.\n"
+	    "\n"
+	    "To fix this, you should install libpcap 0.6.2, or a later version\n"
+	    "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
+	    "packaged binary form from the Software Porting And Archive Centre\n"
+	    "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
+	    "at the URL lists a number of mirror sites.";
+	else
+	  libpcap_warn = "";
+	snprintf(errmsg, sizeof errmsg,
 	  "The capture session could not be initiated (%s).\n"
 	  "Please check to make sure you have sufficient permissions, and that\n"
 	  "you have the proper interface or pipe specified.%s", open_err_str,
