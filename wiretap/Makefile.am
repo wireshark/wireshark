@@ -69,14 +69,14 @@ ct-scanner.c : ct-scanner.l
 	@rm -f $@
 	$(CT_LEX) -t $< > $@
 
-rt-scanner.l : rt-scanner-skel.l filterc
+rt-scanner.l : rt-scanner-skel.l filterc $(FILTERS)
 	cat $(FILTERS) | ./filterc > /dev/null
 
 rt-scanner.c : rt-scanner.l rt-grammar.c
 	@rm -f $@
 	$(RT_LEX) -t $< > $@
 
-rt-grammar.y : rt-grammar-skel.y filterc
+rt-grammar.y : rt-grammar-skel.y filterc $(FILTERS)
 	cat $(FILTERS) | ./filterc > /dev/null
 
 rt-grammar.c : rt-grammar.y
