@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.2 1998/09/16 03:22:12 gerald Exp $
+ * $Id: packet-trmac.c,v 1.3 1998/09/27 22:12:40 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,8 +42,8 @@
 # include <netinet/in.h>
 #endif
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 #include "etypes.h"
 
 struct vec_info {
@@ -86,10 +86,10 @@ mv_text(u_char cmd, int offset, frame_data *fd, GtkWidget *tree) {
 
 	while (mv[i].text != NULL) {
 		if (mv[i].cmd == cmd) {
-			if (fd->win_info[0]) {
+			if (fd->win_info[COL_NUM]) {
 				/* I can do this because no higher-level dissect()
 					will strcpy onto me. */
-				fd->win_info[4] = mv[i].text;
+				fd->win_info[COL_INFO] = mv[i].text;
 			}
 			if (tree) {
 				add_item_to_tree(tree, offset, 1, "Major Vector Command: %s",
@@ -288,8 +288,8 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		"Configuration Report Server", "Ring Parameter Server",
 		"Ring Error Monitor" };
 
-	if (fd->win_info[0]) {
-		strcpy(fd->win_info[3], "TR MAC");
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "TR MAC");
 	}
 
 	mv_length = ntohs(*((guint16*)&pd[offset]));

@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.2 1998/09/16 03:22:10 gerald Exp $
+ * $Id: packet-rip.c,v 1.3 1998/09/27 22:12:38 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,9 +86,9 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     }
 
 
-    if (fd->win_info[0]) {
-        strcpy(fd->win_info[3], version[rip_header->version] );
-        sprintf(fd->win_info[4], "%s", packet_type[rip_header->command]); 
+    if (fd->win_info[COL_NUM]) {
+        strcpy(fd->win_info[COL_PROTOCOL], version[rip_header->version] );
+        sprintf(fd->win_info[COL_INFO], "%s", packet_type[rip_header->command]); 
     }  
 
     if (tree) {
@@ -138,7 +138,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		                                      ip_to_str((guint8 *) &(rip_vektor.next_hop))); 
             }
 
-            add_item_to_tree(rip_vektor_tree, offset + 12 , 4, "Metric: %d", ntohl(rip_vektor.metric)); 
+            add_item_to_tree(rip_vektor_tree, offset + 12 , 4, "Metric: %ld", (long)ntohl(rip_vektor.metric)); 
 
             offset += RIP_VEKTOR_LENGTH;
         };

@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.1 1998/09/17 02:01:48 gerald Exp $
+ * $Id: packet-osi.c,v 1.2 1998/09/27 22:12:34 gerald Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -40,6 +40,7 @@
 #include <pcap.h>
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -240,9 +241,9 @@ static int osi_decode_DR(const u_char *pd, int offset,
       break;
   }
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[3], "COTP");
-    sprintf(fd->win_info[4], "DR TPDU src-ref: 0x%04x dst-ref: 0x%04x %s",
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+    sprintf(fd->win_info[COL_INFO], "DR TPDU src-ref: 0x%04x dst-ref: 0x%04x %s",
 	    src_ref, dst_ref);
   }
 
@@ -275,8 +276,8 @@ static int osi_decode_DT(const u_char *pd, int offset,
 {
   GtkWidget *cotp_tree, *ti;
   u_int    tpdu_nr ;
-  u_short  checksum;
-  u_char   code, length;
+  u_short  checksum = 0;
+  u_char   code = 0, length = 0;
   u_int    fragment = 0;
     
   switch (li) {
@@ -331,9 +332,9 @@ static int osi_decode_DT(const u_char *pd, int offset,
       break;
   }
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[3], "COTP");
-    sprintf(fd->win_info[4], "DT TPDU (%d) dst-ref: 0x%04x %s", 
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+    sprintf(fd->win_info[COL_INFO], "DT TPDU (%d) dst-ref: 0x%04x %s", 
 	    tpdu_nr,
 	    dst_ref,
 	    (fragment)? "(fragment)" : "");
@@ -417,8 +418,8 @@ static int osi_decode_ED(const u_char *pd, int offset,
 {
   GtkWidget *cotp_tree, *ti;
   u_int    tpdu_nr ;
-  u_short  checksum;
-  u_char   code, length;
+  u_short  checksum = 0;
+  u_char   code = 0, length = 0;
 
   /* ED TPDUs are never fragmented */
 
@@ -469,9 +470,9 @@ static int osi_decode_ED(const u_char *pd, int offset,
       break;
   } /* li */
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[3], "COTP");
-    sprintf(fd->win_info[4], "ED TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+    sprintf(fd->win_info[COL_INFO], "ED TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
   }
 
   if (tree) {
@@ -536,7 +537,7 @@ static int osi_decode_RJ(const u_char *pd, int offset,
 {
   GtkWidget *cotp_tree, *ti;
   u_int    tpdu_nr ;
-  u_short  credit;
+  u_short  credit = 0;
 
   switch(li) {
     case LI_NORMAL_RJ   :
@@ -552,9 +553,9 @@ static int osi_decode_RJ(const u_char *pd, int offset,
       break;
   }
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[3], "COTP");
-    sprintf(fd->win_info[4], "RJ TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+    sprintf(fd->win_info[COL_INFO], "RJ TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
   }
 
   if (tree) {
@@ -628,7 +629,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 
   /* CC & CR decoding in the same function */
 
-  GtkWidget *cotp_tree, *ti;
+  GtkWidget *cotp_tree = NULL, *ti;
   u_short src_ref, checksum;
   u_char  class_option, code, length;
   u_int   i = 0;
@@ -638,9 +639,9 @@ static int osi_decode_CC(const u_char *pd, int offset,
   if (class_option > 4)
     return -1;
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[3], "COTP");
-    sprintf(fd->win_info[4], "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+    sprintf(fd->win_info[COL_INFO], "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 	    (tpdu == CR_TPDU) ? "CR" : "CC",
 	    src_ref,
 	    dst_ref);
@@ -667,7 +668,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
   if (tree)
     while(li > P_VAR_PART_CC + i - 1) {
       
-      u_char  c1,c2;
+      u_char  c1;
       u_short s, s1,s2,s3,s4;
       u_int   t1,t2,t3,t4;
       
@@ -889,8 +890,8 @@ static int osi_decode_DC(const u_char *pd, int offset,
 			 frame_data *fd, GtkTree *tree)
 {
   GtkWidget *cotp_tree, *ti;
-  u_short src_ref, checksum;
-  u_char  length, code = 0;
+  u_short src_ref, checksum = 0;
+  u_char  length = 0, code = 0;
 
   if (li > LI_MAX_DC) 
     return -1;
@@ -912,9 +913,9 @@ static int osi_decode_DC(const u_char *pd, int offset,
       break;
   } /* li */
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[3], "COTP");
-    sprintf(fd->win_info[4], "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", 
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+    sprintf(fd->win_info[COL_INFO], "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", 
 	    src_ref,
 	    dst_ref);
   }      
@@ -955,7 +956,7 @@ static int osi_decode_DC(const u_char *pd, int offset,
 static int osi_decode_AK(const u_char *pd, int offset, 
 			 frame_data *fd, GtkTree *tree)
 {
-  GtkWidget *cotp_tree, *ti;
+  GtkWidget *cotp_tree = NULL, *ti;
   u_int      tpdu_nr,i =0, r_lower_window_edge ;
   u_short    cdt_in_ak;
   u_short    checksum, seq_nr, r_seq_nr, r_cdt;
@@ -967,9 +968,9 @@ static int osi_decode_AK(const u_char *pd, int offset,
   if (!is_LI_NORMAL_AK(li)) {
     tpdu_nr = pd[offset + P_TPDU_NR_234];
 
-    if (fd->win_info[0]) {
-      strcpy(fd->win_info[3], "COTP");
-      sprintf(fd->win_info[4], "AK TPDU (%d) dst-ref: 0x%04x", 
+    if (fd->win_info[COL_NUM]) {
+      strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+      sprintf(fd->win_info[COL_INFO], "AK TPDU (%d) dst-ref: 0x%04x", 
 	      tpdu_nr, dst_ref);
     }      
     
@@ -1075,9 +1076,9 @@ static int osi_decode_AK(const u_char *pd, int offset,
     tpdu_nr   = EXTRACT_LONG(&pd[offset + P_TPDU_NR_234]);
     cdt_in_ak = EXTRACT_SHORT(&pd[offset + P_CDT_IN_AK]);
 
-    if (fd->win_info[0]) {
-      strcpy(fd->win_info[3], "COTP");
-      sprintf(fd->win_info[4], "AK TPDU (%d) dst-ref: 0x%04x", 
+    if (fd->win_info[COL_NUM]) {
+      strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+      sprintf(fd->win_info[COL_INFO], "AK TPDU (%d) dst-ref: 0x%04x", 
 	      tpdu_nr, dst_ref);
     }      
     
@@ -1193,9 +1194,9 @@ static int osi_decode_EA(const u_char *pd, int offset,
 {
   GtkWidget *cotp_tree, *ti;
   u_int    tpdu_nr ;
-  u_short  checksum;
-  u_char   code;
-  u_char   length;
+  u_short  checksum = 0;
+  u_char   code = 0;
+  u_char   length = 0;
 
   if (li > LI_MAX_EA) 
     return -1;
@@ -1229,9 +1230,9 @@ static int osi_decode_EA(const u_char *pd, int offset,
       break;
   } /* li */
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[3], "COTP");
-    sprintf(fd->win_info[4], "EA TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+    sprintf(fd->win_info[COL_INFO], "EA TPDU (%d) dst-ref: 0x%04x", tpdu_nr, dst_ref);
   }      
 
   if (tree) {
@@ -1315,9 +1316,9 @@ static int osi_decode_ER(const u_char *pd, int offset,
       break;
   }
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[3], "COTP");
-    sprintf(fd->win_info[4], "ER TPDU dst-ref: 0x%04x", dst_ref);
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_PROTOCOL], "COTP");
+    sprintf(fd->win_info[COL_INFO], "ER TPDU dst-ref: 0x%04x", dst_ref);
   }      
 
   if (tree) {
@@ -1438,7 +1439,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 {
 
   struct clnp_header clnp;
-  GtkWidget *clnp_tree, *ti;
+  GtkWidget *clnp_tree = NULL, *ti;
   u_char src_len, dst_len, nsel;
   u_int first_offset = offset;
 
@@ -1514,10 +1515,10 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 		     print_nsap(&pd[offset + dst_len + 2], src_len));
   }
 
-  if (fd->win_info[0]) {
-    sprintf(fd->win_info[1], "%s", 
+  if (fd->win_info[COL_NUM]) {
+    sprintf(fd->win_info[COL_SOURCE], "%s", 
 	    print_nsap(&pd[offset + dst_len + 2], src_len));
-    sprintf(fd->win_info[2], "%s", 
+    sprintf(fd->win_info[COL_DESTINATION], "%s", 
 	    print_nsap(&pd[offset + 1], dst_len));
   }
 
@@ -1576,38 +1577,38 @@ void dissect_osi(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
       /* only CLNP is currently decoded */
 
     case ISO8473_CLNP:
-      if (fd->win_info[0]) 
+      if (fd->win_info[COL_NUM]) 
 	{
-	  strcpy(fd->win_info[3], "CLNP");
+	  strcpy(fd->win_info[COL_PROTOCOL], "CLNP");
 	}      
       dissect_clnp(pd, offset, fd, tree);
       break;
     case ISO9542_ESIS:
-      if (fd->win_info[0]) 
+      if (fd->win_info[COL_NUM]) 
 	{
-	  strcpy(fd->win_info[3], "ESIS");
+	  strcpy(fd->win_info[COL_PROTOCOL], "ESIS");
 	}
       dissect_data(pd, offset, fd, tree);
       break;
     case ISO9542X25_ESIS:
-      if (fd->win_info[0]) 
+      if (fd->win_info[COL_NUM]) 
 	{
-	  strcpy(fd->win_info[3], "ESIS(X25)");
+	  strcpy(fd->win_info[COL_PROTOCOL], "ESIS(X25)");
 	}
       dissect_data(pd, offset, fd, tree);
       break;
     case ISO10589_ISIS:
-      if (fd->win_info[0]) 
+      if (fd->win_info[COL_NUM]) 
 	{
-	  strcpy(fd->win_info[3], "ISIS");
+	  strcpy(fd->win_info[COL_PROTOCOL], "ISIS");
 	}
       dissect_data(pd, offset, fd, tree);
       break;
     default:
-      if (fd->win_info[0]) 
+      if (fd->win_info[COL_NUM]) 
 	{
-	  strcpy(fd->win_info[3], "ISO");
-	  sprintf(fd->win_info[4], "Unknown ISO protocol (%02x)", pd[offset]);
+	  strcpy(fd->win_info[COL_PROTOCOL], "ISO");
+	  sprintf(fd->win_info[COL_INFO], "Unknown ISO protocol (%02x)", pd[offset]);
 	}
       dissect_data(pd, offset, fd, tree);
       break;

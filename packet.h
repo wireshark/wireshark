@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.9 1998/09/25 23:24:04 gerald Exp $
+ * $Id: packet.h,v 1.10 1998/09/27 22:12:42 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,7 +67,7 @@ typedef struct _frame_data {
   guint32  secs;            /* Seconds */
   guint32  usecs;           /* Microseconds */
   long     file_off;        /* File offset */
-  gchar   *win_info[5];        /* Packet list text */
+  gchar   *win_info[NUM_COLS]; /* Text for packet summary list fields */
 } frame_data;
 
 typedef struct _packet_info {
@@ -273,51 +273,52 @@ typedef struct _e_udphdr {
 /* Tree types.  Each dissect_* routine should have one for each
    add_subtree() call. */
 
-#define ETT_IEEE8023       0
-#define ETT_ETHER2         1
-#define ETT_LLC            2
-#define ETT_TOKEN_RING     3
-#define ETT_TR_IERR_CNT    4
-#define ETT_TR_NERR_CNT    5
-#define ETT_TR_MAC         6
-#define ETT_PPP            7
-#define ETT_ARP            8
-#define ETT_IP             9
-#define ETT_UDP           10
-#define ETT_TCP           11
-#define ETT_ICMP          12
-#define ETT_IGMP          13
-#define ETT_IPX           14
-#define ETT_SPX           15
-#define ETT_NCP           16
-#define ETT_DNS           17
-#define ETT_DNS_ANS       18
-#define ETT_DNS_QRY       19
-#define ETT_RIP           20
-#define ETT_RIP_VEC       21
-#define ETT_OSPF          22
-#define ETT_OSPF_HDR      23
-#define ETT_OSPF_HELLO    24
-#define ETT_OSPF_DESC     25
-#define ETT_OSPF_LSR      26
-#define ETT_OSPF_LSA_UPD  27
-#define ETT_OSPF_LSA      28
-#define ETT_LPD           29
-#define ETT_RAW           30
-#define ETT_BOOTP         31
-#define ETT_BOOTP_OPTION  32
-#define ETT_IPv6	  33
-#define ETT_CLNP          34
-#define ETT_COTP          35
-#define ETT_VINES         36
-#define ETT_VSPP          37
-#define ETT_IPXRIP        38
-#define ETT_IPXSAP        39
-#define ETT_IPXSAP_SERVER 40
-#define ETT_NULL          41
+#define ETT_FRAME          0
+#define ETT_IEEE8023       1
+#define ETT_ETHER2         2
+#define ETT_LLC            3
+#define ETT_TOKEN_RING     4
+#define ETT_TR_IERR_CNT    5
+#define ETT_TR_NERR_CNT    6
+#define ETT_TR_MAC         7
+#define ETT_PPP            8
+#define ETT_ARP            9
+#define ETT_IP            10
+#define ETT_UDP           11
+#define ETT_TCP           12
+#define ETT_ICMP          13
+#define ETT_IGMP          14
+#define ETT_IPX           15
+#define ETT_SPX           16
+#define ETT_NCP           17
+#define ETT_DNS           18
+#define ETT_DNS_ANS       19
+#define ETT_DNS_QRY       20
+#define ETT_RIP           21
+#define ETT_RIP_VEC       22
+#define ETT_OSPF          23
+#define ETT_OSPF_HDR      24
+#define ETT_OSPF_HELLO    25
+#define ETT_OSPF_DESC     26
+#define ETT_OSPF_LSR      27
+#define ETT_OSPF_LSA_UPD  28
+#define ETT_OSPF_LSA      29
+#define ETT_LPD           30
+#define ETT_RAW           31
+#define ETT_BOOTP         32
+#define ETT_BOOTP_OPTION  33
+#define ETT_IPv6	  34
+#define ETT_CLNP          35
+#define ETT_COTP          36
+#define ETT_VINES         37
+#define ETT_VSPP          38
+#define ETT_IPXRIP        39
+#define ETT_IPXSAP        40
+#define ETT_IPXSAP_SERVER 41
+#define ETT_NULL          42
 
 /* Should be the last item number plus one */
-#define NUM_TREE_TYPES 42
+#define NUM_TREE_TYPES 43
 
 /* The version of pcap.h that comes with some systems is missing these
  * #defines.
@@ -339,11 +340,17 @@ typedef struct _e_udphdr {
 gchar*     ether_to_str(guint8 *);
 gchar*     ip_to_str(guint8 *);
 void       packet_hex_print(GtkText *, guint8 *, gint, gint, gint);
+#if __GNUC__ == 2
+GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...)
+    __attribute__((format (printf, 4, 5)));
+#else
 GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...);
+#endif
 void       decode_start_len(GtkTreeItem *, gint*, gint*);
 
 /* Routines in packet.c */
-void dissect_packet(const u_char *, frame_data *, GtkTree *);
+void dissect_packet(const u_char *, guint32 ts_secs, guint32 ts_usecs,
+  frame_data *, GtkTree *);
 void add_subtree(GtkWidget *, GtkWidget*, gint);
 void expand_tree(GtkWidget *, gpointer);
 void collapse_tree(GtkWidget *, gpointer);
@@ -354,6 +361,7 @@ void collapse_tree(GtkWidget *, gpointer);
  * They should never modify the packet data.
  */
 void dissect_eth(const u_char *, frame_data *, GtkTree *);
+void dissect_null(const u_char *, frame_data *, GtkTree *);
 void dissect_ppp(const u_char *, frame_data *, GtkTree *);
 void dissect_raw(const u_char *, frame_data *, GtkTree *);
 void dissect_tr(const u_char *, frame_data *, GtkTree *);
@@ -379,6 +387,7 @@ void dissect_ncp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_osi(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ospf(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, GtkTree *);
+void dissect_rip(const u_char *, int, frame_data *, GtkTree *);
 void dissect_tcp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_trmac(const u_char *, int, frame_data *, GtkTree *);
 void dissect_udp(const u_char *, int, frame_data *, GtkTree *);

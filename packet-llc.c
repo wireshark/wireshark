@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.6 1998/09/23 05:25:10 gram Exp $
+ * $Id: packet-llc.c,v 1.7 1998/09/27 22:12:32 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -34,8 +34,8 @@
 
 #include <stdio.h>
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 #include "etypes.h"
 
 struct sap_info {
@@ -117,7 +117,7 @@ llc_org(const u_char *ptr) {
 void
 dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
-	GtkWidget	*llc_tree, *ti;
+	GtkWidget	*llc_tree = NULL, *ti;
 	guint16		etype;
 	int		is_snap;
 	void		(*dissect) (const u_char *, int, frame_data *, GtkTree *);
@@ -129,8 +129,8 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
 
-	if (fd->win_info[0]) {
-		strcpy(fd->win_info[3], "LLC");
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "LLC");
 	}
   
 	if (tree) {
@@ -147,8 +147,8 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	}
 
 	if (is_snap) {
-		if (fd->win_info[0]) {
-			strcpy(fd->win_info[4], "802.2 LLC (SNAP)");
+		if (fd->win_info[COL_NUM]) {
+			strcpy(fd->win_info[COL_INFO], "802.2 LLC (SNAP)");
 		}
 		if (tree) {
 			add_item_to_tree(llc_tree, offset+3,    3,
@@ -161,8 +161,8 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		ethertype(etype, offset, pd, fd, tree, llc_tree);
 	}		
 	else {
-		if (fd->win_info[0]) {
-			sprintf(fd->win_info[4], "802.2 LLC (%s)", sap_text(pd[offset]));
+		if (fd->win_info[COL_NUM]) {
+			sprintf(fd->win_info[COL_INFO], "802.2 LLC (%s)", sap_text(pd[offset]));
 		}
 
 		dissect = sap_func(pd[offset]);

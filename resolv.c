@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.3 1998/09/25 23:24:06 gerald Exp $
+ * $Id: resolv.c,v 1.4 1998/09/27 22:12:45 gerald Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -54,6 +54,7 @@
 # include <setjmp.h>
 #endif
 
+#include "ethereal.h"
 #include "packet.h"
 #include "resolv.h"
 
@@ -195,7 +196,7 @@ static void abort_network_query(int sig)
 static u_char *host_name_lookup(u_int addr)
 {
 
-  hashname_t *tp;
+  hashname_t * volatile tp;
   hashname_t **table = host_table;
   struct hostent *hostp;
 

@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.2 1998/09/16 03:22:01 gerald Exp $
+ * $Id: packet-arp.c,v 1.3 1998/09/27 22:12:26 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,7 +59,7 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   /* To do: Check for bounds on ar_op */
   ar_op  = ntohs(ea->ar_op);
   
-  if (fd->win_info[0]) { strcpy(fd->win_info[3], "ARP"); }
+  if (fd->win_info[COL_NUM]) { strcpy(fd->win_info[COL_PROTOCOL], "ARP"); }
   
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28, req_type[ar_op - 1]);
@@ -85,37 +85,37 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       "Target IP: %s", ip_to_str((guint8 *) ea->arp_tpa));
   }
 
-  if (ar_pro != ETHERTYPE_IP && fd->win_info[0]) {
-    sprintf(fd->win_info[4], "h/w %d (%d) prot %d (%d) op 0x%04x",
+  if (ar_pro != ETHERTYPE_IP && fd->win_info[COL_NUM]) {
+    sprintf(fd->win_info[COL_INFO], "h/w %d (%d) prot %d (%d) op 0x%04x",
       ar_hrd, ea->ar_hln, ar_pro, ea->ar_pln, ar_op);
     return;
   }
   switch (ar_op) {
     case ARPOP_REQUEST:
-      if (fd->win_info[0]) {
-        sprintf(fd->win_info[4], "Who has %s?  Tell %s",
+      if (fd->win_info[COL_NUM]) {
+        sprintf(fd->win_info[COL_INFO], "Who has %s?  Tell %s",
           ip_to_str((guint8 *) ea->arp_tpa), ip_to_str((guint8 *) ea->arp_spa));
       }
       break;
     case ARPOP_REPLY:
-      if (fd->win_info[0]) {
-        sprintf(fd->win_info[4], "%s is at %s",
+      if (fd->win_info[COL_NUM]) {
+        sprintf(fd->win_info[COL_INFO], "%s is at %s",
           ip_to_str((guint8 *) ea->arp_spa),
           ether_to_str((guint8 *) ea->arp_sha));
       }
       break;
     case ARPOP_RREQUEST:
-      if (fd->win_info[0]) {
-        strcpy(fd->win_info[3], "RARP");
-        sprintf(fd->win_info[4], "Who is %s?  Tell %s",
+      if (fd->win_info[COL_NUM]) {
+        strcpy(fd->win_info[COL_PROTOCOL], "RARP");
+        sprintf(fd->win_info[COL_INFO], "Who is %s?  Tell %s",
           ether_to_str((guint8 *) ea->arp_tha), 
           ether_to_str((guint8 *) ea->arp_sha));
       }
       break;
     case ARPOP_RREPLY:
-      if (fd->win_info[0]) {
-        strcpy(fd->win_info[3], "RARP");
-        sprintf(fd->win_info[4], "%s is at %s",
+      if (fd->win_info[COL_NUM]) {
+        strcpy(fd->win_info[COL_PROTOCOL], "RARP");
+        sprintf(fd->win_info[COL_INFO], "%s is at %s",
           ether_to_str((guint8 *) ea->arp_sha),
           ip_to_str((guint8 *) ea->arp_spa));
       }

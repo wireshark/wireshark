@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.3 1998/09/25 23:24:01 gerald Exp $
+ * $Id: packet-eth.c,v 1.4 1998/09/27 22:12:29 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,8 +33,8 @@
 
 #include <pcap.h>
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 #include "etypes.h"
 #include "resolv.h"
 
@@ -59,10 +59,10 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
   GtkWidget *fh_tree, *ti;
   int   	ethhdr_type;	/* the type of ethernet frame */
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[2], get_ether_name((u_char *)&pd[0]));
-    strcpy(fd->win_info[1], get_ether_name((u_char *)&pd[6]));
-    strcpy(fd->win_info[4], "Ethernet II");
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_DESTINATION], get_ether_name((u_char *)&pd[0]));
+    strcpy(fd->win_info[COL_SOURCE], get_ether_name((u_char *)&pd[6]));
+    strcpy(fd->win_info[COL_INFO], "Ethernet II");
   }
 
   etype = (pd[12] << 8) | pd[13];
@@ -72,24 +72,22 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
     length = etype;
 
   /* Is there an 802.2 layer? I can tell by looking at the first 2
-	bytes after the 802.3 header. If they are 0xffff, then what
-	follows the 802.3 header is an IPX payload, meaning no 802.2.
-	(IPX/SPX is they only thing that can be contained inside a
-	straight 802.3 packet). A non-0xffff value means that there's an
-	802.2 layer inside the 802.3 layer */
-	if (pd[14] == 0xff && pd[15] == 0xff) {
-		ethhdr_type = ETHERNET_802_3;
-	}
-	else {
-		ethhdr_type = ETHERNET_802_2;
-	}
+     bytes after the 802.3 header. If they are 0xffff, then what
+     follows the 802.3 header is an IPX payload, meaning no 802.2.
+     (IPX/SPX is they only thing that can be contained inside a
+     straight 802.3 packet). A non-0xffff value means that there's an
+     802.2 layer inside the 802.3 layer */
+    if (pd[14] == 0xff && pd[15] == 0xff) {
+      ethhdr_type = ETHERNET_802_3;
+    }
+    else {
+      ethhdr_type = ETHERNET_802_2;
+    }
 
-    if (fd->win_info[0]) { sprintf(fd->win_info[4], "802.3"); }
+    if (fd->win_info[COL_NUM]) { sprintf(fd->win_info[COL_INFO], "802.3"); }
     if (tree) {
       ti = add_item_to_tree(GTK_WIDGET(tree), 0, offset,
-        "IEEE 802.3 %s(%d on wire, %d captured)",
-        (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""),
-        fd->pkt_len, fd->cap_len);
+        "IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
       fh_tree = gtk_tree_new();
       add_subtree(ti, fh_tree, ETT_IEEE8023);
@@ -102,18 +100,19 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
       add_item_to_tree(fh_tree, 12, 2, "Length: %d", length);
     }
 
-  } else if (tree) {
-	ethhdr_type = ETHERNET_II;
-    ti = add_item_to_tree(GTK_WIDGET(tree), 0, 14,
-      "Ethernet II (%d on wire, %d captured)", fd->pkt_len, fd->cap_len);
-    fh_tree = gtk_tree_new();
-    add_subtree(ti, fh_tree, ETT_ETHER2);
-    add_item_to_tree(fh_tree, 0, 6, "Destination: %s (%s)",
-      ether_to_str((guint8 *) &pd[0]),
-      get_ether_name((u_char *)&pd[0]));
-    add_item_to_tree(fh_tree, 6, 6, "Source: %s (%s)",
-      ether_to_str((guint8 *) &pd[6]),
-      get_ether_name((u_char *)&pd[6]));
+  } else {
+    ethhdr_type = ETHERNET_II;
+    if (tree) {
+      ti = add_item_to_tree(GTK_WIDGET(tree), 0, 14, "Ethernet II");
+      fh_tree = gtk_tree_new();
+      add_subtree(ti, fh_tree, ETT_ETHER2);
+      add_item_to_tree(fh_tree, 0, 6, "Destination: %s (%s)",
+	ether_to_str((guint8 *) &pd[0]),
+	get_ether_name((u_char *)&pd[0]));
+      add_item_to_tree(fh_tree, 6, 6, "Source: %s (%s)",
+        ether_to_str((guint8 *) &pd[6]),
+        get_ether_name((u_char *)&pd[6]));
+    }
   }
 
 	/* either ethernet802.3 or ethernet802.2 */

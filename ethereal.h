@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.3 1998/09/17 03:12:24 gerald Exp $
+ * $Id: ethereal.h,v 1.4 1998/09/27 22:12:23 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,6 +70,29 @@ typedef struct _selection_info {
   GtkWidget *tree;
   GtkWidget *text;
 } selection_info;
+
+/*
+ * Columns in summary listing.
+ */
+#define	COL_NUM		0
+#define	COL_TIME	1
+#define	COL_SOURCE	2
+#define	COL_DESTINATION	3
+#define	COL_PROTOCOL	4
+#define	COL_INFO	5
+
+#define	NUM_COLS	6
+
+/*
+ * Type of time-stamp shown in the summary display.
+ */
+typedef enum {
+	RELATIVE,
+	ABSOLUTE,
+	DELTA
+} ts_type;
+
+extern ts_type timestamp_type;
 
 void file_sel_ok_cb(GtkWidget *, GtkFileSelection *);
 void blank_packetinfo();

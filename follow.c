@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.1 1998/09/17 03:12:26 gerald Exp $
+ * $Id: follow.c,v 1.2 1998/09/27 22:12:25 gerald Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -29,6 +29,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "ethereal.h"
 #include "packet.h"
 #include "follow.h"
 
@@ -62,7 +63,7 @@ static u_long seq[2];
 static u_long src[2] = { 0, 0 };
 
 void 
-reassemble_tcp( u_long sequence, u_long length, char* data, int synflag, u_long srcx ) {
+reassemble_tcp( u_long sequence, u_long length, const char* data, int synflag, u_long srcx ) {
   int src_index, j, first = 0;
   u_long newseq;
   tcp_frag *tmp_frag;
@@ -191,7 +192,7 @@ reset_tcp_reassembly() {
 }
 
 void 
-write_packet_data( u_char* data, int length ) {
+write_packet_data( const u_char* data, int length ) {
   fwrite( data, 1, length, data_out_file );
 }
   

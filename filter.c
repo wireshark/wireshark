@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.2 1998/09/16 03:21:58 gerald Exp $
+ * $Id: filter.c,v 1.3 1998/09/27 22:12:24 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,7 +32,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <ctype.h>
 
+#include "ethereal.h"
 #include "filter.h"
 #include "packet.h"
 #include "file.h"
@@ -68,7 +70,7 @@ read_filter_list() {
   while (fgets(f_buf, 256, ff)) {
     line++;
     len = strlen(f_buf);
-    if (f_buf[len - 1] = '\n') {
+    if (f_buf[len - 1] == '\n') {
       len--;
       f_buf[len] = '\0';
     }
@@ -109,7 +111,7 @@ filter_sel_cb(GtkWidget *w, gpointer d) {
                  *new_bt, *ok_bt, *save_bt, *cancel_bt, *filter_sc, *nl_item,
                  *nl_lb, *middle_hb, *name_lb, *bottom_hb, *filter_lb;
   GtkWidget      *l_select = NULL;
-  GList          *flp = NULL, *nl = NULL;
+  GList          *flp = NULL;
   filter_def     *filt;
   
   fl = read_filter_list();
@@ -285,7 +287,6 @@ filter_sel_list_cb(GtkWidget *l, gpointer data) {
  
 void
 filter_sel_new_cb(GtkWidget *w, gpointer data) {
-  GList      *nl = NULL;
   filter_def *filt;
   gchar      *name, *strval;
   GtkWidget  *nl_item, *nl_lb;
@@ -317,7 +318,6 @@ filter_sel_chg_cb(GtkWidget *w, gpointer data) {
   GList      *sl, *flp;
   GtkObject  *l_item;
   GtkLabel   *nl_lb;
-  gint        sensitivity = FALSE;
 
   sl     = GTK_LIST(filter_l)->selection;
   name   = gtk_entry_get_text(GTK_ENTRY(name_te));
@@ -343,9 +343,9 @@ filter_sel_chg_cb(GtkWidget *w, gpointer data) {
 
 void
 filter_sel_copy_cb(GtkWidget *w, gpointer data) {
-  GList      *nl = NULL, *sl, *flp;
+  GList      *sl, *flp;
   filter_def *filt, *nfilt;
-  gchar      *name, *strval, *prefix = "Copy of ";
+  gchar      *prefix = "Copy of ";
   GtkObject  *l_item;
   GtkWidget  *nl_item, *nl_lb;
   
@@ -378,7 +378,6 @@ filter_sel_del_cb(GtkWidget *w, gpointer data) {
   GList      *sl, *flp;
   filter_def *filt;
   GtkObject  *l_item;
-  GtkWidget  *nl_item;
   gint        pos;
   
   sl = GTK_LIST(filter_l)->selection;
@@ -455,7 +454,6 @@ filter_sel_save_cb(GtkWidget *w, gpointer data) {
 void
 filter_sel_cancel_cb(GtkWidget *w, gpointer win) {
   filter_def *filt;
-  GList      *sl;
   
   while (fl) {
     if (fl->data) {

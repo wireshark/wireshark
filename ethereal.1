@@ -1,11 +1,11 @@
 .rn '' }`
-''' $RCSfile: ethereal.1,v $$Revision: 1.2 $$Date: 1998/09/17 02:01:47 $
+''' $RCSfile: ethereal.1,v $$Revision: 1.3 $$Date: 1998/09/27 22:12:21 $
 '''
 ''' $Log: ethereal.1,v $
-''' Revision 1.2  1998/09/17 02:01:47  gerald
-''' * Added in Laurent's OSI/ISO CNLP and COTP support.
-''' * Added Laurent's changes to the man (actually pod) page.
-''' * Copied in VERSION file so that others can make doc/Makefile
+''' Revision 1.3  1998/09/27 22:12:21  gerald
+''' Merged in a _huge_ patch from Guy Harris.  It adds a time stap column,
+'''    generalizes the column printing code, adds a "frame" tree item to
+'''    the tree view, and fixes a bunch of miscellaneous coding bugs.
 '''
 '''
 .de Sh
@@ -98,7 +98,7 @@
 .nr % 0
 .rr F
 .\}
-.TH ETHEREAL 1 "0.3.16" "16/Sep/98" "The Ethereal Network Analyzer"
+.TH ETHEREAL 1 "0.3.17" "27/Sep/98" "The Ethereal Network Analyzer"
 .UC
 .if n .hy 0
 .if n .na
@@ -207,6 +207,7 @@ Ethereal \- Interactively browse network traffic
 [\ \fB\-r\fR\ infile\ ]
 [\ \fB\-s\fR\ snaplen\ ]
 [\ \fB\-T\fR\ tree\ view\ height\ ]
+[\ \fB\-t\fR\ time\ stamp\ format\ ]
 [\ \fB\-v\fR\ ]
 [\ \fB\-w\fR\ savefile]
 .SH "DESCRIPTION"
@@ -241,6 +242,9 @@ The default snapshot length to use when capturing live data.  No more than
 to disk.
 .Ip "-T" 4
 Sets the initial height of the tree view (top) pane
+.Ip "-t" 4
+Sets the format of the packet timestamp displayed in the packet list
+window.
 .Ip "-v" 4
 Prints the version and exits.
 .Ip "-w" 4
@@ -268,11 +272,11 @@ using a \*(L"thumb\*(R" at the right end of each divider line.  An informational
 message is also displayed at the bottom of the main window.
 .Sp
 The top section contains the list of network packets that you can scroll
-through and select.  The packet number, source and destination addresses,
-protocol, and description are printed for each packet.  An effort is made
-to display information as high up the protocol stack as possible, e.g. \s-1IP\s0
-addresses are displayed for \s-1IP\s0 packets, but the \s-1MAC\s0 layer address is
-displayed for unknown packet types.
+through and select.  The packet number, packet timestamp, source and
+destination addresses, protocol, and description are printed for each
+packet.  An effort is made to display information as high up the protocol
+stack as possible, e.g. \s-1IP\s0 addresses are displayed for \s-1IP\s0 packets, but the
+\s-1MAC\s0 layer address is displayed for unknown packet types.
 .Sp
 The middle section contains a \fIprotocol tree\fR for the currently-selected
 packet.  The tree displays each field and its value in each protocol header
@@ -396,6 +400,8 @@ routine to be used.
 .IX Item "-s"
 
 .IX Item "-T"
+
+.IX Item "-t"
 
 .IX Item "-v"
 

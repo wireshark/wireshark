@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.3 1998/09/17 03:12:28 gerald Exp $
+ * $Id: packet-tcp.c,v 1.4 1998/09/27 22:12:38 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 
 #include "ethereal.h"
 #include "packet.h"
+#include "follow.h"
 
 extern FILE* data_out_file;
 extern packet_info pi;
@@ -78,9 +79,9 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   }
   flags[fpos] = '\0';
   
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[3], "TCP");
-    sprintf(fd->win_info[4], "Source port: %d  Destination port: %d",
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_PROTOCOL], "TCP");
+    sprintf(fd->win_info[COL_INFO], "Source port: %d  Destination port: %d",
       th.th_sport, th.th_dport);
   }
   

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.3 1998/09/17 03:12:23 gerald Exp $
+ * $Id: ethereal.c,v 1.4 1998/09/27 22:12:21 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <pcap.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -56,9 +57,10 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 
+#include "ethereal.h"
+#include "capture.h"
 #include "packet.h"
 #include "file.h"
-#include "ethereal.h"
 #include "menu.h"
 #include "etypes.h"
 #include "print.h"
@@ -79,6 +81,8 @@ gint         start_capture = 0;
 const gchar *list_item_data_key = "list_item_data";
 
 extern pr_opts printer_opts;
+
+ts_type timestamp_type = RELATIVE;
 
 /* Things to do when the OK button is pressed */
 void
@@ -107,7 +111,6 @@ file_progress_cb(gpointer p) {
 void
 follow_stream_cb( GtkWidget *widget, gpointer data ) {
   char filename1[128];
-  char buf[128];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
   if( pi.ipproto == 6 ) {
     /* we got tcp so we can follow */
@@ -241,7 +244,7 @@ packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
     fd = (frame_data *) l->data;
     fseek(cf.fh, fd->file_off, SEEK_SET);
     fread(cf.pd, sizeof(guint8), fd->cap_len, cf.fh);
-    dissect_packet(cf.pd, fd, GTK_TREE(tree_view));
+    dissect_packet(cf.pd, 0, 0, fd, GTK_TREE(tree_view));
     packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, -1, -1);
   }
   gtk_text_thaw(GTK_TEXT(byte_view));
@@ -316,8 +319,8 @@ print_usage(void) {
   fprintf(stderr, "%s [-v] [-b bold font] [-B byte view height] [-c count] [-h]\n",
 	  PACKAGE);
   fprintf(stderr, "         [-i interface] [-m medium font] [-n] [-P packet list height]\n");
-  fprintf(stderr, "         [-r infile] [-s snaplen] [-T tree view height]\n");
-  fprintf(stderr, "         [-w savefile] \n");
+  fprintf(stderr, "         [-r infile] [-s snaplen] [-t <time stamp format>]\n");
+  fprintf(stderr, "         [-T tree view height] [-w savefile] \n");
 }
 
 int
@@ -332,7 +335,7 @@ main(int argc, char *argv[])
   GtkAcceleratorTable *accel;
   gint                 col_width, pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL;
-  gchar               *cl_title[] = {"No.", "Source", "Destination",
+  gchar               *cl_title[] = {"No.", "Time", "Source", "Destination",
                       "Protocol", "Info"};
   gchar               *medium_font = MONO_MEDIUM_FONT;
   gchar               *bold_font = MONO_BOLD_FONT;
@@ -351,7 +354,7 @@ main(int argc, char *argv[])
   gtk_init (&argc, &argv);
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:hi:m:nP:r:s:T:w:v")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:hi:m:nP:r:s:t:T:w:v")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -386,6 +389,21 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
         cf.snap = atoi(optarg);
+        break;
+      case 't':        /* Time stamp type */
+        if (strcmp(optarg, "r") == 0)
+          timestamp_type = RELATIVE;
+        else if (strcmp(optarg, "a") == 0)
+          timestamp_type = ABSOLUTE;
+        else if (strcmp(optarg, "d") == 0)
+          timestamp_type = DELTA;
+        else {
+          fprintf(stderr, "ethereal: Invalid time stamp type \"%s\"\n",
+            optarg);
+          fprintf(stderr, "It must be \"r\" for relative, \"a\" for absolute,\n");
+          fprintf(stderr, "or \"d\" for delta.\n");
+          exit(1);
+        }
         break;
       case 'T':        /* Tree view pane height */
         tv_size = atoi(optarg);
@@ -459,7 +477,7 @@ main(int argc, char *argv[])
   gtk_widget_show(l_pane);
 
   /* Packet list */
-  packet_list = gtk_clist_new_with_titles(5, cl_title);
+  packet_list = gtk_clist_new_with_titles(NUM_COLS, cl_title);
   pl_style = gtk_style_new();
   gdk_font_unref(pl_style->font);
   pl_style->font = m_r_font;
@@ -472,12 +490,17 @@ main(int argc, char *argv[])
   gtk_clist_set_column_justification(GTK_CLIST(packet_list), 0, 
     GTK_JUSTIFY_RIGHT);
   col_width = (gdk_string_width(pl_style->font, "0") * 7) + 2;
-  gtk_clist_set_column_width(GTK_CLIST(packet_list), 0, col_width);
+  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_NUM, col_width);
+  if (timestamp_type == ABSOLUTE)
+    col_width = gdk_string_width(pl_style->font, "00:00:00.000000");
+  else
+    col_width = gdk_string_width(pl_style->font, "0000.000000");
+  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_TIME, col_width);
   col_width = gdk_string_width(pl_style->font, "00:00:00:00:00:00") + 2;
-  gtk_clist_set_column_width(GTK_CLIST(packet_list), 1, col_width);
-  gtk_clist_set_column_width(GTK_CLIST(packet_list), 2, col_width);
+  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_SOURCE, col_width);
+  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_DESTINATION, col_width);
   col_width = gdk_string_width(pl_style->font, "AppleTalk") + 2;
-  gtk_clist_set_column_width(GTK_CLIST(packet_list), 3, col_width);
+  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_PROTOCOL, col_width);
   gtk_widget_set_usize(packet_list, -1, pl_size);
   gtk_paned_add1(GTK_PANED(u_pane), packet_list);
   gtk_widget_show(packet_list);

@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.5 1998/09/23 05:25:08 gram Exp $
+ * $Id: packet-bootp.c,v 1.6 1998/09/27 22:12:27 gerald Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -47,8 +47,8 @@
 
 #include <pcap.h>
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 #include "etypes.h"
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
@@ -70,7 +70,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 	enum field_type	ftype;
 	u_char			code = pd[voff];
 	int				vlen = pd[voff+1];
-	int				i, consumed;
+	int				i, consumed = 0;
 	GtkWidget		*vti, *v_tree;
 
 	char	*opt53_text[] = {
@@ -264,7 +264,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 
 		/* End Option */
 		case 255:
-			add_item_to_tree(bp_tree, voff, 1, "End Option", code);
+			add_item_to_tree(bp_tree, voff, 1, "End Option");
 			consumed = 1;
 			return consumed;
 
@@ -387,18 +387,17 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 {
 	GtkWidget	*bp_tree, *ti;
 	int			voff, eoff; /* vender offset, end offset */
-	int			vlen;
 
-	if (fd->win_info[0]) {
-		strcpy(fd->win_info[3], "BOOTP");
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "BOOTP");
 
 		/* if hwaddr is 6 bytes, assume MAC */
 		if (pd[offset] == 1 && pd[offset+2] == 6) {
-			sprintf(fd->win_info[4], "Boot Request from %s",
+			sprintf(fd->win_info[COL_INFO], "Boot Request from %s",
 				ether_to_str((guint8*)&pd[offset+28]));
 		}
 		else {
-			strcpy(fd->win_info[4], pd[offset] == 1 ? "Boot Request" :
+			strcpy(fd->win_info[COL_INFO], pd[offset] == 1 ? "Boot Request" :
 				"Boot Reply");
 		}
 	}

@@ -17,6 +17,7 @@ S<[ B<-P> packet list height ]>
 S<[ B<-r> infile ]>
 S<[ B<-s> snaplen ]>
 S<[ B<-T> tree view height ]>
+S<[ B<-t> time stamp format ]>
 S<[ B<-v> ]>
 S<[ B<-w> savefile]>
 
@@ -79,6 +80,11 @@ to disk.
 
 Sets the initial height of the tree view (top) pane
 
+=item -t
+
+Sets the format of the packet timestamp displayed in the packet list
+window.
+
 =item -v
 
 Prints the version and exits.
@@ -134,11 +140,11 @@ using a "thumb" at the right end of each divider line.  An informational
 message is also displayed at the bottom of the main window.
 
 The top section contains the list of network packets that you can scroll
-through and select.  The packet number, source and destination addresses,
-protocol, and description are printed for each packet.  An effort is made
-to display information as high up the protocol stack as possible, e.g. IP
-addresses are displayed for IP packets, but the MAC layer address is
-displayed for unknown packet types.
+through and select.  The packet number, packet timestamp, source and
+destination addresses, protocol, and description are printed for each
+packet.  An effort is made to display information as high up the protocol
+stack as possible, e.g. IP addresses are displayed for IP packets, but the
+MAC layer address is displayed for unknown packet types.
 
 The middle section contains a I<protocol tree> for the currently-selected
 packet.  The tree displays each field and its value in each protocol header

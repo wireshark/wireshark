@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.2 1998/09/16 03:22:08 gerald Exp $
+ * $Id: packet-ospf.c,v 1.3 1998/09/27 22:12:36 gerald Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -77,11 +77,14 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
         case OSPF_LS_ACK:
 	    packet_type="LS Acknowledge";
             break;
-            default:
+       default:
+	    /* XXX - set it to some string with the value of
+	       "ospfh->packet_type"? */
+            break;
     }
-    if (fd->win_info[0]) {
-        strcpy(fd->win_info[3], "OSPF");
-        sprintf(fd->win_info[4], "%s", packet_type); 
+    if (fd->win_info[COL_NUM]) {
+        strcpy(fd->win_info[COL_PROTOCOL], "OSPF");
+        sprintf(fd->win_info[COL_INFO], "%s", packet_type); 
     }  
 
     if (tree) {
@@ -196,7 +199,7 @@ dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) 
 
 	add_item_to_tree(ospf_hello_tree, offset + 6, 1, "Options: %d (%s)",  ospfhello->options, options);
 	add_item_to_tree(ospf_hello_tree, offset + 7, 1, "Router Priority: %d",  ospfhello->priority);
-	add_item_to_tree(ospf_hello_tree, offset + 8, 4, "RouterDeadIntervall: %d seconds",  ntohl(ospfhello->dead_interval));
+	add_item_to_tree(ospf_hello_tree, offset + 8, 4, "RouterDeadIntervall: %ld seconds",  (long)ntohl(ospfhello->dead_interval));
 	add_item_to_tree(ospf_hello_tree, offset + 12, 4, "Designated Router: %s",  ip_to_str((guint8 *) &ospfhello->drouter));
 	add_item_to_tree(ospf_hello_tree, offset + 16, 4, "Backup Designated Router: %s",  ip_to_str((guint8 *) &ospfhello->bdrouter));
 
@@ -271,7 +274,7 @@ dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree
 	}
 
 	add_item_to_tree(ospf_db_desc_tree, offset + 3 , 1, "Flags: %d (%s)", ospf_dbd->flags, flags );
-	add_item_to_tree(ospf_db_desc_tree, offset + 4 , 4, "DD Sequence: %d", ntohl(ospf_dbd->dd_sequence) );
+	add_item_to_tree(ospf_db_desc_tree, offset + 4 , 4, "DD Sequence: %ld", (long)ntohl(ospf_dbd->dd_sequence) );
     }
     /* LS Headers will be processed here */
     /* skip to the end of DB-Desc header */
@@ -300,28 +303,28 @@ dissect_ospf_ls_req(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 
 	     switch( ntohl( ospf_lsr->ls_type ) ){
 		 case OSPF_LSTYPE_ROUTER:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Router-LSA (%d)", 
-	                               ntohl( ospf_lsr->ls_type ) );
+	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Router-LSA (%ld)", 
+	                               (long)ntohl( ospf_lsr->ls_type ) );
 		     break;
 		 case OSPF_LSTYPE_NETWORK:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Network-LSA (%d)", 
-	                               ntohl( ospf_lsr->ls_type ) );
+	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Network-LSA (%ld)", 
+	                               (long)ntohl( ospf_lsr->ls_type ) );
 		     break;
 		 case OSPF_LSTYPE_SUMMERY:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Summary-LSA (IP network) (%d)", 
-	                               ntohl( ospf_lsr->ls_type ) );
+	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Summary-LSA (IP network) (%ld)", 
+	                               (long)ntohl( ospf_lsr->ls_type ) );
 		     break;
 		 case OSPF_LSTYPE_ASBR:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Summary-LSA (ASBR) (%d)", 
-	                               ntohl( ospf_lsr->ls_type ) );
+	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Summary-LSA (ASBR) (%ld)", 
+	                               (long)ntohl( ospf_lsr->ls_type ) );
 		     break;
 		 case OSPF_LSTYPE_ASEXT:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: AS-External-LSA (ASBR) (%d)", 
-	                               ntohl( ospf_lsr->ls_type ) );
+	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: AS-External-LSA (ASBR) (%ld)", 
+	                               (long)ntohl( ospf_lsr->ls_type ) );
 		     break;
 		 default:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: %d (unknown)", 
-	                               ntohl( ospf_lsr->ls_type ) );
+	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: %ld (unknown)", 
+	                               (long)ntohl( ospf_lsr->ls_type ) );
 	     }
 
              add_item_to_tree(ospf_lsr_tree, offset + 4, 4, "Link State ID : %s", 
@@ -347,7 +350,7 @@ dissect_ospf_ls_upd(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	ospf_lsa_upd_tree = gtk_tree_new(); 
 	add_subtree(ti, ospf_lsa_upd_tree, ETT_OSPF_LSA_UPD);
 
-	add_item_to_tree(ospf_lsa_upd_tree, offset, 4, "Nr oF LSAs: %d", ntohl(upd_hdr->lsa_nr) );
+	add_item_to_tree(ospf_lsa_upd_tree, offset, 4, "Nr oF LSAs: %ld", (long)ntohl(upd_hdr->lsa_nr) );
     }
     /* skip to the beginning of the first LSA */
     offset+=4; /* the LS Upd PAcket contains only a 32 bit #LSAs field */
@@ -390,10 +393,6 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
 
     /* data structures for the summary and ASBR LSAs */
     e_ospf_summary_lsa 	*summary_lsa;
-    guint8		*tos;
-    guint16		*tos_metric;
-
-
 
     GtkWidget *ospf_lsa_tree, *ti; 
 
@@ -440,8 +439,8 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
 
         add_item_to_tree(ospf_lsa_tree, offset + 8, 4, "Advertising Router: %s ", 
 	                                             ip_to_str((guint8 *) &(lsa_hdr->adv_router)));
-        add_item_to_tree(ospf_lsa_tree, offset + 12, 4, "LS Sequence Number: 0x%04x ", 
-	                                             ntohl(lsa_hdr->ls_seq));
+        add_item_to_tree(ospf_lsa_tree, offset + 12, 4, "LS Sequence Number: 0x%04lx ", 
+	                                             (unsigned long)ntohl(lsa_hdr->ls_seq));
         add_item_to_tree(ospf_lsa_tree, offset + 16, 2, "LS Checksum: %d ", ntohs(lsa_hdr->ls_checksum));
 
         add_item_to_tree(ospf_lsa_tree, offset + 18, 2, "Length: %d ", ntohs(lsa_hdr->length));

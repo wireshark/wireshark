@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.2 1998/09/16 03:22:09 gerald Exp $
+ * $Id: packet-raw.c,v 1.3 1998/09/27 22:12:37 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,8 +32,8 @@
 #include <stdio.h>
 #include <pcap.h>
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 
 void
 dissect_raw( const u_char *pd, frame_data *fd, GtkTree *tree ) {
@@ -41,10 +41,10 @@ dissect_raw( const u_char *pd, frame_data *fd, GtkTree *tree ) {
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
-  if(fd->win_info[0]) {
-    strcpy(fd->win_info[1], "N/A" );
-    strcpy(fd->win_info[2], "N/A" );
-    strcpy(fd->win_info[4], "Raw packet data" );
+  if(fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_SOURCE], "N/A" );
+    strcpy(fd->win_info[COL_DESTINATION], "N/A" );
+    strcpy(fd->win_info[COL_INFO], "Raw packet data" );
   }
 
   /* populate a tree in the second pane with the status of the link

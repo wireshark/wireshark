@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.6 1998/09/27 03:43:44 gram Exp $
+ * $Id: packet-ipx.c,v 1.7 1998/09/27 22:12:31 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -177,9 +177,9 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	snet = network_to_string((guint8*)&pd[offset+18]);
 	dsocket = pntohs(&pd[offset+16]);
 
-	if (fd->win_info[0]) {
-		strcpy(fd->win_info[3], "IPX");
-		sprintf(fd->win_info[4], "%s (0x%04X)", port_text(dsocket), dsocket);
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "IPX");
+		sprintf(fd->win_info[COL_INFO], "%s (0x%04X)", port_text(dsocket), dsocket);
 	}
 
 	ipx_type = pd[offset+5];
@@ -283,9 +283,9 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	GtkWidget	*spx_tree, *ti;
 
-	if (fd->win_info[0]) {
-		strcpy(fd->win_info[3], "SPX");
-		strcpy(fd->win_info[4], "SPX");
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "SPX");
+		strcpy(fd->win_info[COL_INFO], "SPX");
 	}
 
 	if (tree) {
@@ -325,11 +325,6 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 /* ================================================================= */
 /* IPX RIP                                                           */
 /* ================================================================= */
-/* I don't do NLSP in packet-ipx.c because we don't use Netware Link State
- * Protocol at work, so I can't debug any ethereal code I write for it. If you
- * can supply me a tcpdump output file showing NLSP packets, I'll gladly
- * create dissect_ipxnlsp(). -- gram@verdict.uthscsa.edu
- */
 static void
 dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
@@ -342,13 +337,13 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	operation = pntohs(&pd[offset]) - 1;
 
-	if (fd->win_info[0]) {
-		strcpy(fd->win_info[3], "IPX RIP");
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "IPX RIP");
 		if (operation < 2) {
-			sprintf(fd->win_info[4], rip_type[operation]);
+			sprintf(fd->win_info[COL_INFO], rip_type[operation]);
 		}
 		else {
-			strcpy(fd->win_info[4], "Unknown Packet Type");
+			strcpy(fd->win_info[COL_INFO], "Unknown Packet Type");
 		}
 	}
 
@@ -448,13 +443,13 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	query.query_type = pntohs(&pd[offset]);
 	query.server_type = pntohs(&pd[offset+2]);
 
-	if (fd->win_info[0]) {
-		strcpy(fd->win_info[3], "SAP");
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "SAP");
 		if (query.query_type < 4) {
-			sprintf(fd->win_info[4], sap_type[query.query_type - 1]);
+			sprintf(fd->win_info[COL_INFO], sap_type[query.query_type - 1]);
 		}
 		else {
-			strcpy(fd->win_info[4], "Unknown Packet Type");
+			strcpy(fd->win_info[COL_INFO], "Unknown Packet Type");
 		}
 	}
 
@@ -496,21 +491,9 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 						ether_to_str((guint8*)&pd[cursor+54]));
 				add_item_to_tree(s_tree, cursor+60, 2, "Socket: %s (0x%04X)",
 						port_text(server.server_port), server.server_port);
-
-				/* A hop-count of 16 is unreachable. This type of packet
-				 * is the Server Down notification produced when a server
-				 * is brought down gracefully.
-				 */
-				if (server.intermediate_network >= 16) {
-					add_item_to_tree(s_tree, cursor+62, 2,
-							"Intermediate Networks: %d (Unreachable)",
-							server.intermediate_network);
-				}
-				else {
-					add_item_to_tree(s_tree, cursor+62, 2,
-							"Intermediate Networks: %d",
-							server.intermediate_network);
-				}
+				add_item_to_tree(s_tree, cursor+62, 2,
+						"Intermediate Networks: %d",
+						server.intermediate_network);
 			}
 		}
 		else {  /* queries */

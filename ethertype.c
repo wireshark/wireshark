@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.3 1998/09/17 02:37:45 gerald Exp $
+ * $Id: ethertype.c,v 1.4 1998/09/27 22:12:23 gerald Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -36,8 +36,8 @@
 
 #include <pcap.h>
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 #include "etypes.h"
 
 void
@@ -81,14 +81,14 @@ ethertype(guint16 etype, int offset,
         add_item_to_tree(fh_tree, offset - 2, 2,
           "Type: AppleTalk (0x%04x)", etype);
       }
-      if (fd->win_info[0]) { strcpy(fd->win_info[3], etype_str[3]); }
+      if (fd->win_info[COL_NUM]) { strcpy(fd->win_info[COL_PROTOCOL], etype_str[3]); }
       break;
     case ETHERTYPE_AARP:
       if (tree) {
         add_item_to_tree(fh_tree, offset - 2, 2,
           "Type: AARP (0x%04x)", etype);
       }
-      if (fd->win_info[0]) { strcpy(fd->win_info[3], etype_str[4]); }
+      if (fd->win_info[COL_NUM]) { strcpy(fd->win_info[COL_PROTOCOL], etype_str[4]); }
       break;
     case ETHERTYPE_IPX:
       if (tree) {
@@ -110,7 +110,7 @@ ethertype(guint16 etype, int offset,
           "Type: Unknown (0x%04x)", etype);
 		  dissect_data(pd, offset, fd, tree);
 	  }
-      if (fd->win_info[0]) { sprintf(fd->win_info[3], "0x%04x", etype); }
+      if (fd->win_info[COL_NUM]) { sprintf(fd->win_info[COL_PROTOCOL], "0x%04x", etype); }
       break;
   }
  }

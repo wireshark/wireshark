@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.2 1998/09/16 03:22:05 gerald Exp $
+ * $Id: packet-ipv6.c,v 1.3 1998/09/27 22:12:30 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,7 +53,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
   memcpy(&ipv6, (void *) &pd[offset], 8); 
 
-  if (fd->win_info[0]) {
+  if (fd->win_info[COL_NUM]) {
       switch(ipv6.next_header){
 	  /*
 	  case IP_PROTO_ICMP:
@@ -65,8 +65,8 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
           /* Names are set in the associated dissect_* routines */
 	  /*    break; */
 	 default:
-             strcpy(fd->win_info[3], "IPv6");
-             sprintf(fd->win_info[4], "IPv6 support is still under development (%d)", ipv6.next_header);
+             strcpy(fd->win_info[COL_PROTOCOL], "IPv6");
+             sprintf(fd->win_info[COL_INFO], "IPv6 support is still under development (%d)", ipv6.next_header);
       }
   }
   if (tree) {

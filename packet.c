@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.3 1998/09/25 23:24:03 gerald Exp $
+ * $Id: packet.c,v 1.4 1998/09/27 22:12:42 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,8 +37,8 @@
 # include <netinet/in.h>
 #endif
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 #include "etypes.h"
 #include "file.h"
 
@@ -192,17 +192,74 @@ void
 decode_start_len(GtkTreeItem *ti, gint *pstart, gint *plen)
 {
 	guint32		t_info;
-	int			start, len;
 
 	t_info = (guint32) gtk_object_get_user_data(GTK_OBJECT(ti));
 	*pstart = t_info >> 16;
 	*plen =	t_info & 0xffff;
 }
 
+static const char *mon_names[12] = {
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec"
+};
 
 /* this routine checks the frame type from the cf structure */
 void
-dissect_packet(const u_char *pd, frame_data *fd, GtkTree *tree) {
+dissect_packet(const u_char *pd, guint32 ts_secs, guint32 ts_usecs,
+  frame_data *fd, GtkTree *tree)
+{
+	GtkWidget *fh_tree, *ti;
+	struct tm *tmp;
+	time_t then;
+
+	/* Put in frame header information. */
+	if (fd->win_info[COL_NUM]) {
+	  if (timestamp_type == ABSOLUTE) {
+	    then = fd->secs;
+	    tmp = localtime(&then);
+	    sprintf(fd->win_info[COL_TIME], "%02d:%02d:%02d.%04ld",
+	      tmp->tm_hour,
+	      tmp->tm_min,                                                      
+	      tmp->tm_sec,
+	      (long)fd->usecs/100);
+	  } else
+	    sprintf(fd->win_info[COL_TIME], "%d.%06d", ts_secs, ts_usecs);
+	}
+
+	if (tree) {
+	  ti = add_item_to_tree(GTK_WIDGET(tree), 0, fd->cap_len,
+	    "Frame (%d on wire, %d captured)",
+	    fd->pkt_len, fd->cap_len);
+
+	  fh_tree = gtk_tree_new();
+	  add_subtree(ti, fh_tree, ETT_FRAME);
+	  then = fd->secs;
+	  tmp = localtime(&then);
+	  add_item_to_tree(fh_tree, 0, 0,
+	    "Frame arrived on %s %2d, %d %02d:%02d:%02d.%04ld",
+	    mon_names[tmp->tm_mon],
+	    tmp->tm_mday,
+	    tmp->tm_year + 1900,
+	    tmp->tm_hour,
+	    tmp->tm_min,                                                      
+	    tmp->tm_sec,
+	    (long)fd->usecs/100);
+
+	  add_item_to_tree(fh_tree, 0, 0, "Total frame length: %d bytes",
+	    fd->pkt_len);
+	  add_item_to_tree(fh_tree, 0, 0, "Capture frame length: %d bytes",
+	    fd->cap_len);
+	}
 
 	switch (cf.lnk_t) {
 		case DLT_EN10MB :
@@ -218,7 +275,7 @@ dissect_packet(const u_char *pd, frame_data *fd, GtkTree *tree) {
 			dissect_ppp(pd, fd, tree);
 			break;
 		case DLT_RAW :
-	        dissect_raw(pd, fd, tree);
+			dissect_raw(pd, fd, tree);
 			break;
 	}
 }

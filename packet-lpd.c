@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.2 1998/09/16 03:22:07 gerald Exp $
+ * $Id: packet-lpd.c,v 1.3 1998/09/27 22:12:32 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,8 +43,8 @@
 
 #include <pcap.h>
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 #include "etypes.h"
 
 enum lpr_type { request, response };
@@ -90,13 +90,13 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 
-	if (fd->win_info[0]) {
-		strcpy(fd->win_info[3], "LPD");
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_PROTOCOL], "LPD");
 		if (lpr_packet_type == request) {
-			strcpy(fd->win_info[4], lpd_client_code[pd[offset]]);
+			strcpy(fd->win_info[COL_INFO], lpd_client_code[pd[offset]]);
 		}
 		else {
-			strcpy(fd->win_info[4], "LPD response");
+			strcpy(fd->win_info[COL_INFO], "LPD response");
 		}
 	}
 

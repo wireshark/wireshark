@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.4 1998/09/17 22:28:07 gram Exp $
+ * $Id: packet-tr.c,v 1.5 1998/09/27 22:12:39 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,8 +42,8 @@
 
 #include <pcap.h>
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 #include "etypes.h"
 
 static void
@@ -179,17 +179,17 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 
 
 	/* information window */
-	if (fd->win_info[0]) {
-		strcpy(fd->win_info[2], ether_to_str((guint8 *)&pd[2]));
-		strcpy(fd->win_info[1], ether_to_str(trn_shost_nonsr));
-		strcpy(fd->win_info[3], "TR");
-		sprintf(fd->win_info[4], "Token-Ring %s", fc[frame_type]);
+	if (fd->win_info[COL_NUM]) {
+		strcpy(fd->win_info[COL_DESTINATION], ether_to_str((guint8 *)&pd[2]));
+		strcpy(fd->win_info[COL_SOURCE], ether_to_str(trn_shost_nonsr));
+		strcpy(fd->win_info[COL_PROTOCOL], "TR");
+		sprintf(fd->win_info[COL_INFO], "Token-Ring %s", fc[frame_type]);
 	}
 
 	/* protocol analysis tree */
 	if (tree) {
 		ti = add_item_to_tree(GTK_WIDGET(tree), 0, 14 + actual_rif_bytes,
-		  "Token-Ring (%d on wire, %d captured)", fd->pkt_len, fd->cap_len);
+		  "Token-Ring");
 		fh_tree = gtk_tree_new();
 		add_subtree(ti, fh_tree, ETT_TOKEN_RING);
 		add_item_to_tree(fh_tree, 0, 1,

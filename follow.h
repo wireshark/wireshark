@@ -1,6 +1,6 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.1 1998/09/17 03:12:26 gerald Exp $
+ * $Id: follow.h,v 1.2 1998/09/27 22:12:26 gerald Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -38,8 +38,9 @@ typedef struct _tcp_frag {
 } tcp_frag;
 
 char* build_follow_filter( packet_info * );
-void reassemble_tcp( u_long, u_long, char*, int, u_long );
+void reassemble_tcp( u_long, u_long, const char*, int, u_long );
 int check_fragments( int );
-void write_packet_data( u_char *, int );
+void  reset_tcp_reassembly( void );
+void write_packet_data( const u_char *, int );
 
 #endif

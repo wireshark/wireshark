@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.3 1998/09/27 03:42:33 gram Exp $
+ * $Id: packet-dns.c,v 1.4 1998/09/27 22:12:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,7 @@
 #include <pcap.h>
 
 #include <stdio.h>
+#include <memory.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -40,6 +41,7 @@
 # include <netinet/in.h>
 #endif
 
+#include "ethereal.h"
 #include "packet.h"
 
 
@@ -405,13 +407,13 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   
   query = ! (flags & (1 << 15));
   
-  if (fd->win_info[0]) {    
-    strcpy(fd->win_info[3], "DNS (UDP)");
-    strcpy(fd->win_info[4], query ? "Query" : "Response");
+  if (fd->win_info[COL_NUM]) {    
+    strcpy(fd->win_info[COL_PROTOCOL], "DNS (UDP)");
+    strcpy(fd->win_info[COL_INFO], query ? "Query" : "Response");
   }
   
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
+    ti = add_item_to_tree(GTK_WIDGET(tree), offset, 4,
 			  query ? "DNS query" : "DNS response");
     
     dns_tree = gtk_tree_new();

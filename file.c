@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.4 1998/09/25 23:23:59 gerald Exp $
+ * $Id: file.c,v 1.5 1998/09/27 22:12:24 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
 
@@ -43,16 +44,17 @@
 # include <netinet/in.h>
 #endif
 
-
+#include "menu.h"
+#include "ethereal.h"
 #include "packet.h"
 #include "file.h"
-#include "ethereal.h"
 #include "util.h"
 
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
 
-guint32 ssec, susec;
+static guint32 ssec, susec;
+static guint32 lastsec, lastusec;
 
 int
 open_cap_file(char *fname, capture_file *cf) {
@@ -103,6 +105,7 @@ open_cap_file(char *fname, capture_file *cf) {
     cf->plist = g_list_first(cf->plist);
   }
   ssec = 0, susec = 0;
+  lastsec = 0, lastusec = 0;
   
   if (magic[0] == PCAP_MAGIC || magic[0] == SWAP32(PCAP_MAGIC)) {
 
@@ -251,9 +254,10 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *buf) {
   frame_data   *fdata;
   /* To do: make sure this is big enough. */
-  gchar         p_info[5][256];
+  gchar         p_info[NUM_COLS][256];
   gint          i, row;
   capture_file *cf = (capture_file *) user;
+  guint32 tssecs, tsusecs;
   
   while (gtk_events_pending())
     gtk_main_iteration();
@@ -268,23 +272,54 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
   fdata->secs     = phdr->ts.tv_sec;
   fdata->usecs    = phdr->ts.tv_usec;
 
-  for (i = 0; i < 5; i++) { fdata->win_info[i] = &p_info[i][0]; }
-  sprintf(fdata->win_info[0], "%d", cf->count);
-  dissect_packet(buf, fdata, NULL);
-  row = gtk_clist_append(GTK_CLIST(packet_list), fdata->win_info);
-  for (i = 0; i < 5; i++) { fdata->win_info[i] = NULL; }
-
+  /* If we don't have the time stamp of the first packet, it's because this
+     is the first packet.  Save the time stamp of this packet as the time
+     stamp of the first packet. */
   if (!ssec && !susec) {
     ssec  = fdata->secs;
     susec = fdata->usecs;
   }
+
+  /* Do the same for the time stamp of the previous packet. */
+  if (!lastsec && !lastusec) {
+    lastsec  = fdata->secs;
+    lastusec = fdata->usecs;
+  }
+
+  /* Get the time elapsed between the first packet and this packet. */
   cf->esec = fdata->secs - ssec;
-  if (susec < fdata->usecs) {
+  if (susec <= fdata->usecs) {
     cf->eusec = fdata->usecs - susec;
   } else {
-    cf->eusec = susec - fdata->usecs;
+    cf->eusec = (fdata->usecs + 1000000) - susec;
     cf->esec--;
   }
+
+  /* Compute the time stamp. */
+  switch (timestamp_type) {
+    case RELATIVE:	/* Relative to the first packet */
+      tssecs = cf->esec;
+      tsusecs = cf->eusec;
+      break;
+    case DELTA:		/* Relative to the previous packet */
+      tssecs = fdata->secs - lastsec;
+      if (lastusec <= fdata->usecs) {
+	tsusecs = fdata->usecs - lastusec;
+      } else {
+	tsusecs = (fdata->usecs + 1000000) - lastusec;
+	tssecs--;
+      }
+      break;
+    default:		/* Absolute time, or bogus timestamp_type value */
+      tssecs = 0;	/* Not used */
+      tsusecs = 0;
+      break;
+  }
+  for (i = 0; i < NUM_COLS; i++) { fdata->win_info[i] = &p_info[i][0]; }
+  sprintf(fdata->win_info[COL_NUM], "%d", cf->count);
+  dissect_packet(buf, tssecs, tsusecs, fdata, NULL);
+  row = gtk_clist_append(GTK_CLIST(packet_list), fdata->win_info);
+  for (i = 0; i < NUM_COLS; i++) { fdata->win_info[i] = NULL; }
 
   /* Make sure we always have an available list entry */
   if (cf->plist->next == NULL) {

@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.2 1998/09/16 03:22:19 gerald Exp $
+ * $Id: util.c,v 1.3 1998/09/27 22:12:46 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,8 @@
 #include <strings.h>
 
 #include "util.h"
+
+#include "image/icon-excl.xpm"
 
 const gchar *bm_key = "button mask";
 

@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.1 1998/09/17 02:37:46 gerald Exp $
+ * $Id: packet-vines.c,v 1.2 1998/09/27 22:12:41 gerald Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -53,7 +53,7 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	{
   	e_vip       iph;
   	GtkWidget *vip_tree, *ti;
-  	gchar      tos_str[32];
+/*  	gchar      tos_str[32]; */
 
   /* To do: check for runts, errs, etc. */
   /* Avoids alignment problems on many architectures. */
@@ -66,25 +66,25 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
   	iph.vip_dsub = pntohs(&pd[offset+10]);
   	iph.vip_ssub = pntohs(&pd[offset+16]);
 
-  	if (fd->win_info[0]) 
+  	if (fd->win_info[COL_NUM]) 
   		{
     	switch (iph.vip_proto) 
     		{
       		case VINES_VSPP:      
-        		strcpy(fd->win_info[3], "Vines");
-        		sprintf(fd->win_info[4], "VSPP (%02x)", iph.vip_proto);
+        		strcpy(fd->win_info[COL_PROTOCOL], "Vines");
+        		sprintf(fd->win_info[COL_INFO], "VSPP (%02x)", iph.vip_proto);
         		break;
       		case VINES_DATA:
-        		strcpy(fd->win_info[3], "Vines IP");
-        		sprintf(fd->win_info[4], "DATA (%02x)", iph.vip_proto);
+        		strcpy(fd->win_info[COL_PROTOCOL], "Vines IP");
+        		sprintf(fd->win_info[COL_INFO], "DATA (%02x)", iph.vip_proto);
 				break;
       		default:
-        		strcpy(fd->win_info[3], "Vines IP");
-        		sprintf(fd->win_info[4], "Unknown VIP protocol (%02x)", iph.vip_proto);
+        		strcpy(fd->win_info[COL_PROTOCOL], "Vines IP");
+        		sprintf(fd->win_info[COL_INFO], "Unknown VIP protocol (%02x)", iph.vip_proto);
     		}
 
-    	sprintf(fd->win_info[1], "%08x.%04x", iph.vip_snet, iph.vip_ssub);
-    	sprintf(fd->win_info[2], "%08x.%04x", iph.vip_dnet, iph.vip_dsub);
+    	sprintf(fd->win_info[COL_SOURCE], "%08x.%04x", iph.vip_snet, iph.vip_ssub);
+    	sprintf(fd->win_info[COL_DESTINATION], "%08x.%04x", iph.vip_dnet, iph.vip_dsub);
   		}
   /*
   	iph.ip_tos = IPTOS_TOS(iph.ip_tos);
@@ -138,7 +138,7 @@ void dissect_vspp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	{
   	e_vspp       iph;
   	GtkWidget *vspp_tree, *ti;
-  	gchar      tos_str[32];
+/*  	gchar      tos_str[32];*/
 
   /* To do: check for runts, errs, etc. */
   /* Avoids alignment problems on many architectures. */
@@ -149,26 +149,26 @@ void dissect_vspp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
   	iph.vspp_lclid = ntohs(iph.vspp_lclid);
   	iph.vspp_rmtid = ntohs(iph.vspp_rmtid);
 
-  	if (fd->win_info[0]) 
+  	if (fd->win_info[COL_NUM]) 
   		{
     	switch (iph.vspp_pkttype) 
     		{
       		case VINES_VSPP_DATA:      
-        		strcpy(fd->win_info[3], "Vines");
-        		sprintf(fd->win_info[4], "VSPP Data Port=%04x(Transient) NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x", 
+        		strcpy(fd->win_info[COL_PROTOCOL], "Vines");
+        		sprintf(fd->win_info[COL_INFO], "VSPP Data Port=%04x(Transient) NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x", 
         			iph.vspp_sport, iph.vspp_seq, iph.vspp_ack, iph.vspp_win, iph.vspp_rmtid,
         			iph.vspp_lclid, iph.vspp_dport, iph.vspp_sport);
         		break;
       		case VINES_VSPP_ACK:
-        		strcpy(fd->win_info[3], "Vines");
-        		sprintf(fd->win_info[4], "VSPP Ack Port=%04x(Transient) NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x", 
+        		strcpy(fd->win_info[COL_PROTOCOL], "Vines");
+        		sprintf(fd->win_info[COL_INFO], "VSPP Ack Port=%04x(Transient) NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x", 
         			iph.vspp_sport, iph.vspp_seq, iph.vspp_ack, iph.vspp_win, iph.vspp_rmtid,
         			iph.vspp_lclid);
 
 				break;
       		default:
-        		strcpy(fd->win_info[3], "Vines IP");
-        		sprintf(fd->win_info[4], "Unknown VSPP packet type (%02x)", iph.vspp_pkttype);
+        		strcpy(fd->win_info[COL_PROTOCOL], "Vines IP");
+        		sprintf(fd->win_info[COL_INFO], "Unknown VSPP packet type (%02x)", iph.vspp_pkttype);
     		}
   		}
   /*

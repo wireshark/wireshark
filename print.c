@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.3 1998/09/26 19:28:50 gerald Exp $
+ * $Id: print.c,v 1.4 1998/09/27 22:12:44 gerald Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -37,8 +37,10 @@
 # include <sys/types.h>
 #endif
 
+#include "ethereal.h"
 #include "packet.h"
 #include "print.h"
+#include "ps.h"
 
 static void printer_opts_file_cb(GtkWidget *w, gpointer te);
 static void printer_opts_fs_cancel_cb(GtkWidget *w, gpointer data);
@@ -56,7 +58,6 @@ pr_opts printer_opts;
 
 /* Key for gtk_object_set_data */
 const gchar *print_opt_key = "printer_options_data";
-
 GtkWidget * printer_opts_pg()
 {
 	GtkWidget	*main_vb, *button;
@@ -186,8 +187,10 @@ GtkWidget * printer_opts_pg()
 		GTK_SIGNAL_FUNC(printer_opts_close_cb), (gpointer)temp_pr_opts);
 	gtk_container_add(GTK_CONTAINER(bbox), cancel_bt);
 	gtk_widget_show(cancel_bt);
+
  */
-	return(main_vb);
+ 
+   return(main_vb);
 }
 
 
@@ -324,9 +327,9 @@ void print_tree_text(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree)
 {
 	GList		*children, *child, *widgets, *label;
 	GtkWidget	*subtree;
-	int			num_children, i, j;
+	int		 num_children, i;
 	char		*text;
-	int			num_spaces;
+	int		 num_spaces;
 	char		space[41];
 	gint		data_start, data_len;
 
@@ -447,7 +450,7 @@ void print_tree_ps(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree)
 {
 	GList		*children, *child, *widgets, *label;
 	GtkWidget	*subtree;
-	int			num_children, i, j;
+	int		num_children, i;
 	char		*text;
 	gint		data_start, data_len;
 	char		psbuffer[MAX_LINE_LENGTH]; /* static sized buffer! */

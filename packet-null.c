@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.1 1998/09/25 23:24:02 gerald Exp $
+ * $Id: packet-null.c,v 1.2 1998/09/27 22:12:33 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,8 +37,8 @@
 #include <sys/socket.h>
 #include <pcap.h>
 
-#include "packet.h"
 #include "ethereal.h"
+#include "packet.h"
 
 void
 dissect_null( const u_char *pd, frame_data *fd, GtkTree *tree ) {
@@ -51,11 +51,11 @@ dissect_null( const u_char *pd, frame_data *fd, GtkTree *tree ) {
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
-  if(fd->win_info[0]) {
-    strcpy(fd->win_info[1], "N/A" );
-    strcpy(fd->win_info[2], "N/A" );
-    strcpy(fd->win_info[3], "N/A" );
-    strcpy(fd->win_info[4], "Null/Loopback" );
+  if(fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_SOURCE], "N/A" );
+    strcpy(fd->win_info[COL_DESTINATION], "N/A" );
+    strcpy(fd->win_info[COL_PROTOCOL], "N/A" );
+    strcpy(fd->win_info[COL_INFO], "Null/Loopback" );
   }
 
   /* populate a tree in the second pane with the status of the link
