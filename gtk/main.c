@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.23 1999/10/15 20:33:06 guy Exp $
+ * $Id: main.c,v 1.24 1999/10/19 04:11:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -115,6 +115,9 @@ GtkStyle *item_style;
 /* Specifies byte offsets for object selected in tree */
 static gint tree_selected_start=-1, tree_selected_len=-1; 
 
+static void follow_destroy_cb(GtkWidget *win, gpointer data);
+static void follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w);
+static void follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii);
 
 /* About Ethereal window */
 void
@@ -163,6 +166,7 @@ void
 follow_stream_cb( GtkWidget *w, gpointer data ) {
   char      filename1[128+1];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
+  GtkWidget *hbox, *close_bt, *button;
   int        tmp_fd;
   gchar     *follow_filter;
 
@@ -205,10 +209,15 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     /* the filename1 file now has all the text that was in the session */
     streamwindow = gtk_window_new( GTK_WINDOW_TOPLEVEL);
     gtk_widget_set_name( streamwindow, "TCP stream window" );
-    gtk_signal_connect( GTK_OBJECT(streamwindow), "delete_event",
+/*    gtk_signal_connect( GTK_OBJECT(streamwindow), "delete_event",
 			NULL, "WM destroy" );
     gtk_signal_connect( GTK_OBJECT(streamwindow), "destroy",
-			NULL, "WM destroy" );
+			NULL, "WM destroy" );*/
+    gtk_signal_connect( GTK_OBJECT(streamwindow), "delete_event",
+			GTK_SIGNAL_FUNC(follow_destroy_cb), NULL);
+    gtk_signal_connect( GTK_OBJECT(streamwindow), "destroy",
+			GTK_SIGNAL_FUNC(follow_destroy_cb), NULL);
+			
     if( incomplete_tcp_stream ) {
       gtk_window_set_title( GTK_WINDOW(streamwindow), 
 			    "Contents of TCP stream (incomplete)" );
@@ -238,6 +247,39 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 		      GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0 );
     gtk_widget_show(text);
 
+    /* Create hbox */
+    hbox = gtk_hbox_new( FALSE, 1 );
+    gtk_box_pack_end( GTK_BOX(box), hbox, FALSE, FALSE, 0);
+    gtk_widget_show(hbox);
+
+#define E_FOLLOW_ASCII_KEY "follow_ascii_key"
+
+    /* Create Radio Buttons */
+    button = gtk_radio_button_new_with_label(NULL, "ASCII");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+    gtk_object_set_data(GTK_OBJECT(streamwindow), E_FOLLOW_ASCII_KEY, button);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    gtk_signal_connect(GTK_OBJECT(button), "toggled",
+		    GTK_SIGNAL_FUNC(follow_charset_toggle_cb),
+		    GTK_OBJECT(streamwindow));
+    gtk_widget_show(button);
+
+    button = gtk_radio_button_new_with_label(
+		    gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
+		    "EBCDIC");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    gtk_widget_show(button);
+
+    /* Create Close Button */
+    close_bt = gtk_button_new_with_label("Close");
+    gtk_signal_connect_object(GTK_OBJECT(close_bt), "clicked",
+		    GTK_SIGNAL_FUNC(gtk_widget_destroy),
+		    GTK_OBJECT(streamwindow));
+    gtk_box_pack_end( GTK_BOX(hbox), close_bt, FALSE, FALSE, 0);
+    gtk_widget_show( close_bt );
+
+
     /* create the scrollbar */
     vscrollbar = gtk_vscrollbar_new( GTK_TEXT(text)->vadj );
     gtk_table_attach( GTK_TABLE(table), vscrollbar, 1, 2, 0, 1,
@@ -245,30 +287,16 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     gtk_widget_show( vscrollbar );
     gtk_widget_realize( text );
 
-    /* stop the updates while we fill the text box */
-    gtk_text_freeze( GTK_TEXT(text) );
-    data_out_file = fopen( filename1, "r" );
-    if( data_out_file ) {
-      char buffer[1024];
-      int nchars;
-      while( 1 ) {
-	nchars = fread( buffer, 1, 1024, data_out_file );
-	gtk_text_insert( GTK_TEXT(text), m_r_font, NULL, NULL, buffer, nchars );
-	if( nchars < 1024 ) {
-	  break;
-	}
-      }
-      if( ferror( data_out_file ) ) {
-        simple_dialog(ESD_TYPE_WARN, NULL,
-          "Error reading temporary file %s: %s", filename1, strerror(errno));
-      }
-      fclose( data_out_file );
-    } else {
-      simple_dialog(ESD_TYPE_WARN, NULL,
-        "Could not open temporary file %s: %s", filename1, strerror(errno));
-    }
-    gtk_text_thaw( GTK_TEXT(text) );
-    unlink( filename1 );
+    /* Tuck away the filename and textbox into streamwindow */
+#define E_FOLLOW_FILENAME_KEY "follow_filename_key"
+#define E_FOLLOW_TEXT_KEY "follow_text_key"
+
+    gtk_object_set_data(GTK_OBJECT(streamwindow), E_FOLLOW_FILENAME_KEY,
+		    g_strdup(filename1));
+    gtk_object_set_data(GTK_OBJECT(streamwindow), E_FOLLOW_TEXT_KEY, text);
+
+    follow_load_text(text, filename1, TRUE);
+
     data_out_file = NULL;
     gtk_widget_show( streamwindow );
   } else {
@@ -276,6 +304,93 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
       "Error following stream.  Please make\n"
       "sure you have a TCP packet selected.");
   }
+}
+
+/* The destroy call back has the responsibility of
+ * unlinking the temporary file */
+static void
+follow_destroy_cb(GtkWidget *win, gpointer data)
+{
+	char	*filename;
+
+	filename = (char*) gtk_object_get_data(GTK_OBJECT(win),
+						E_FOLLOW_FILENAME_KEY);
+	g_assert(filename);
+
+	unlink(filename);
+	gtk_widget_destroy(win);
+}
+
+/* Handles the ASCII/EBCDIC toggling */
+static void
+follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w)
+{
+	gboolean	show_ascii = FALSE;
+	GtkWidget	*button, *text;
+	char		*filename;
+
+
+	button = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
+						E_FOLLOW_ASCII_KEY);
+	text = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
+						E_FOLLOW_TEXT_KEY);
+	filename = (char*) gtk_object_get_data(GTK_OBJECT(parent_w),
+						E_FOLLOW_FILENAME_KEY);
+
+	g_assert(button);
+	g_assert(text);
+	g_assert(filename);
+
+	if (GTK_TOGGLE_BUTTON(button)->active)
+		show_ascii = TRUE;
+
+	follow_load_text(text, filename, show_ascii);
+}
+
+static void
+follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
+{
+	int bytes_already;
+
+	/* Delete any info already in text box */
+	bytes_already = gtk_text_get_length(GTK_TEXT(text));
+	if (bytes_already > 0) {
+		gtk_text_set_point(GTK_TEXT(text), 0);
+		gtk_text_forward_delete(GTK_TEXT(text), bytes_already);
+	}
+
+    /* stop the updates while we fill the text box */
+    gtk_text_freeze( GTK_TEXT(text) );
+    data_out_file = fopen( filename, "r" );
+    if( data_out_file ) {
+      char buffer[1024];
+      int nchars;
+      while( 1 ) {
+	nchars = fread( buffer, 1, 1024, data_out_file );
+	if (show_ascii) {
+		/* If our native arch is EBCDIC, call:
+		 * ASCII_TO_EBCDIC(buffer, nchars);
+		 */
+	}
+	else {
+		/* If our native arch is ASCII, call: */
+		EBCDIC_to_ASCII(buffer, nchars);
+	}
+	gtk_text_insert( GTK_TEXT(text), m_r_font, NULL, NULL, buffer, nchars );
+	if( nchars < 1024 ) {
+	  break;
+	}
+      }
+      if( ferror( data_out_file ) ) {
+        simple_dialog(ESD_TYPE_WARN, NULL,
+          "Error reading temporary file %s: %s", filename, strerror(errno));
+      }
+      fclose( data_out_file );
+    } else {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not open temporary file %s: %s", filename, strerror(errno));
+    }
+    gtk_text_thaw( GTK_TEXT(text) );
 }
 
 /* Match selected byte pattern */

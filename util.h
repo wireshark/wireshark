@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.11 1999/08/18 02:59:05 guy Exp $
+ * $Id: util.h,v 1.12 1999/10/19 04:11:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,9 @@ void simple_dialog(gint, gint *, gchar *, ...);
 #endif
 
 int create_tempfile(char *, int, const char *);
+
+void ASCII_to_EBCDIC(guint8 *buf, guint bytes);
+void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
 
 #ifdef __cplusplus
 }
