@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.9 2003/09/03 10:10:17 sahlberg Exp $
+ * $Id: tap-rpcstat.c,v 1.10 2003/11/27 22:14:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,7 +313,7 @@ rpcstat_init(char *optarg)
 	rpc_max_proc=-1;
 	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
 	if(rpc_min_proc==-1){
-		fprintf(stderr,"tethereal: Invalid -Z rpc,rrt,%d,%d\n",rpc_program,rpc_version);
+		fprintf(stderr,"tethereal: Invalid -z rpc,rrt,%d,%d\n",rpc_program,rpc_version);
 		fprintf(stderr,"   Program:%d version:%d is not supported by tethereal.\n", rpc_program, rpc_version);
 		exit(1);
 	}
