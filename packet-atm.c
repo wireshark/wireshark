@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.45 2002/05/24 09:31:06 guy Exp $
+ * $Id: packet-atm.c,v 1.46 2002/05/25 07:40:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -410,13 +410,6 @@ dissect_le_arp_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
-dissect_le_topology_change_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
-{
-  /* Reserved */
-  offset += 92;
-}
-
-static void
 dissect_le_verify_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
   guint8 num_tlvs;
@@ -601,7 +594,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	decode_boolean_bitfield(flags, 0x0100, 8*2,
 				"Topology change", "No topology change"));
       offset += 2;
-      dissect_le_topology_change_frame(tvb, offset, lane_tree);
+      /* 92 reserved bytes */
       break;
 
     case LE_VERIFY_REQUEST:
