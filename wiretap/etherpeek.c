@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.9 2002/01/18 00:48:37 guy Exp $
+ * $Id: etherpeek.c,v 1.10 2002/01/18 01:08:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -132,7 +132,7 @@ static void etherpeek_close(wtap *wth);
 int etherpeek_open(wtap *wth, int *err)
 {
 	etherpeek_header_t ep_hdr;
-	struct timeval start_time;
+	struct timeval reference_time;
 
 	/* EtherPeek files do not start with a magic value large enough
 	 * to be unique; hence we use the following algorithm to determine
@@ -143,7 +143,6 @@ int etherpeek_open(wtap *wth, int *err)
 	 *      probably need to be revisiting when improving EtherPeek
 	 *      support.
 	 */
-	
 	g_assert(sizeof(ep_hdr.master) == ETHERPEEK_MASTER_HDR_SIZE);
 	wtap_file_read_unknown_bytes(
 		&ep_hdr.master, sizeof(ep_hdr.master), wth->fh, err);
@@ -162,7 +161,7 @@ int etherpeek_open(wtap *wth, int *err)
 			&ep_hdr.secondary.m567,
 			sizeof(ep_hdr.secondary.m567), wth->fh, err);
 		wth->data_offset += sizeof(ep_hdr.secondary.m567);
-			
+
 		if ((0 != ep_hdr.secondary.m567.reserved[0]) ||
 		    (0 != ep_hdr.secondary.m567.reserved[1]) ||
 		    (0 != ep_hdr.secondary.m567.reserved[2]) ||
@@ -185,10 +184,10 @@ int etherpeek_open(wtap *wth, int *err)
 		ep_hdr.secondary.m567.timeStop =
 		    ntohl(ep_hdr.secondary.m567.timeStop);
 
-		/* Get the start time as a "struct timeval" */
-		start_time.tv_sec  =
-			ep_hdr.secondary.m567.timeDate - mac2unix;
-		start_time.tv_usec = 0;
+		/* Get the reference time as a "struct timeval" */
+		reference_time.tv_sec  =
+		    ep_hdr.secondary.m567.timeDate - mac2unix;
+		reference_time.tv_usec = 0;
 		break;
 
 	default:
@@ -202,7 +201,7 @@ int etherpeek_open(wtap *wth, int *err)
 	 * the whole ep_hdr structure in host byte order.
 	 */
 	wth->capture.etherpeek = g_malloc(sizeof(etherpeek_t));
-	wth->capture.etherpeek->start_timestamp = start_time;
+	wth->capture.etherpeek->reference_time = reference_time;
 	wth->subtype_close = etherpeek_close;
 	switch (ep_hdr.master.version) {
 
@@ -277,11 +276,11 @@ static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
 	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
 	                              sliceLength, wth->fh, err);
 	wth->data_offset += sliceLength;
-	
+
 	/* fill in packet header values */
 	wth->phdr.len    = length;
 	wth->phdr.caplen = sliceLength;
-	
+
 	t =  (double) timestamp.lower +
 	     (double) timestamp.upper * 4294967296.0;
 	t -= (double) mac2unix * 1000000.0;
@@ -344,10 +343,10 @@ static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset)
 	wth->phdr.len        = length;
 	wth->phdr.caplen     = sliceLength;
 	/* timestamp is in milliseconds since reference_time */
-	wth->phdr.ts.tv_sec  = wth->capture.etherpeek->start_timestamp.tv_sec
+	wth->phdr.ts.tv_sec  = wth->capture.etherpeek->reference_time.tv_sec
 	    + (timestamp / 1000);
 	wth->phdr.ts.tv_usec = 1000 * (timestamp % 1000);
-	
+
 	wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
 	for (i=0; i<NUM_ETHERPEEK_ENCAPS; i++) {
 		if (etherpeek_encap[i].protoNum == protoNum) {

@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.19 2002/01/18 00:25:50 guy Exp $
+ * $Id: wtap-int.h,v 1.20 2002/01/18 01:08:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -117,7 +117,7 @@ typedef struct {
 } csids_t;
 
 typedef struct {
-	struct timeval start_timestamp;
+	struct timeval reference_time;
 } etherpeek_t;
 
 typedef int (*subtype_read_func)(struct wtap*, int*, long*);
