@@ -1258,7 +1258,7 @@ rm -f conftest*
      fi
      GLIB_CFLAGS=""
      GLIB_LIBS=""
-     echo "configure: warning: GLIB 1.1.x or above not found." 1>&2
+     :
   fi
   
   

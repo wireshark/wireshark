@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.7 1999/03/01 18:57:03 gram Exp $
+# $Id: configure.in,v 1.8 1999/03/03 08:51:58 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(wtap.c)
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
@@ -18,8 +18,7 @@ else
 fi
 
 # Checks for glib first, or gtk+ if not present
-AM_PATH_GLIB(1.1.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS",
-                   AC_MSG_WARN(GLIB 1.1.x or above not found.))
+AM_PATH_GLIB(1.1.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS")
 
 if test "x$GLIB_CFLAGS" = x ; then
  AM_PATH_GTK(1.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
