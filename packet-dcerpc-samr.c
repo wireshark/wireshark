@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.86 2003/05/15 02:14:00 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.87 2003/05/21 09:34:54 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2655,7 +2655,7 @@ samr_dissect_lookup_domain_reply(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *parent_tree,
-                             char *drep)
+                             char *drep, int hf_sid)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -2674,7 +2674,14 @@ dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
-
+static int
+dissect_ndr_nt_PSID_no_hf(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *parent_tree,
+                             char *drep)
+{
+	offset=dissect_ndr_nt_PSID(tvb, offset, pinfo, parent_tree, drep, -1);
+	return offset;
+}
 
 static int
 dissect_ndr_nt_PSID_ARRAY_sids (tvbuff_t *tvb, int offset,
@@ -2682,7 +2689,7 @@ dissect_ndr_nt_PSID_ARRAY_sids (tvbuff_t *tvb, int offset,
                              char *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_PSID);
+			dissect_ndr_nt_PSID_no_hf);
 
 	return offset;
 }
@@ -2729,7 +2736,7 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_samr_sid_and_attributes);
 	}
 
-	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep, -1);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_attrib, NULL);

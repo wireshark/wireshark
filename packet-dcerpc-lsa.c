@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.77 2003/05/15 02:14:00 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.78 2003/05/21 09:34:53 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -784,7 +784,7 @@ lsa_dissect_POLICY_PRIMARY_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 
 	/* sid */
 	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -811,7 +811,7 @@ lsa_dissect_POLICY_ACCOUNT_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 
 	/* sid */
 	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -1025,7 +1025,7 @@ lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	/* SID pointer */
-	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep, -1);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -1361,7 +1361,7 @@ lsa_dissect_LSA_TRUST_INFORMATION(tvbuff_t *tvb, int offset,
 
 	/* sid */
 	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -1451,7 +1451,7 @@ lsa_dissect_LSA_TRUST_INFORMATION_EX(tvbuff_t *tvb, int offset,
 
 	/* sid */
 	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	/* direction */
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -2282,7 +2282,7 @@ lsa_dissect_LSA_TRUSTED_DOMAIN(tvbuff_t *tvb, int offset,
 
 	/* sid */
 	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;

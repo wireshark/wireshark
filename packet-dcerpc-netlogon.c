@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.80 2003/05/15 04:58:53 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.81 2003/05/21 09:34:54 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -991,7 +991,7 @@ netlogon_dissect_VALIDATION_SAM_INFO(tvbuff_t *tvb, int offset,
 		hf_netlogon_logon_dom, 0);
 
 	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	for(i=0;i<10;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -1108,7 +1108,7 @@ netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
 		hf_netlogon_logon_dom, 0);
 
 	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	for(i=0;i<10;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -2359,7 +2359,7 @@ netlogon_dissect_DELTA_POLICY(tvbuff_t *tvb, int offset,
 		hf_netlogon_domain_name, 0);
 
 	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	offset = netlogon_dissect_QUOTA_LIMITS(tvb, offset,
 		pinfo, tree, drep);
@@ -3031,23 +3031,23 @@ netlogon_dissect_DELTA_ID_UNION(tvbuff_t *tvb, int offset,
 		break;
 	case 13:
 		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep);
+			pinfo, tree, drep, -1);
 		break;
 	case 14:
 		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep);
+			pinfo, tree, drep, -1);
 		break;
 	case 15:
 		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep);
+			pinfo, tree, drep, -1);
 		break;
 	case 16:
 		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep);
+			pinfo, tree, drep, -1);
 		break;
 	case 17:
 		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep);
+			pinfo, tree, drep, -1);
 		break;
 	case 18:
 		offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, 
@@ -4928,7 +4928,7 @@ netlogon_dissect_DS_DOMAIN_TRUSTS(tvbuff_t *tvb, int offset,
 		hf_netlogon_trust_attribs, &tmp);
 
 	/* SID pointer */
-	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep, -1);
 
 	/* GUID */
 	offset = dissect_nt_GUID(tvb, offset, pinfo, tree, drep);
