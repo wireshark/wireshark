@@ -3246,8 +3246,8 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
   proto_item *ti;
   proto_tree *bs_tree = NULL;
-  gint	      offset, end_offset;
-  int	      length;
+  gint	      offset, end_offset, data_offset;
+  int	      length, data_length;
   tvbuff_t   *ppp_tvb;
   gboolean    first = TRUE;
 
@@ -3332,18 +3332,45 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		  }
 		  return;
 	  }
+
+	  data_offset = offset+1;	/* skip starting frame delimiter */
+	  data_length = end_offset - data_offset;
+
+	  /*
+	   * Is that frame delimiter immediately followed by another one?
+	   * Some PPP implementations put a frame delimiter at the
+	   * beginning and the end of each frame, although RFC 1662
+	   * appears only to require that there be one frame delimiter
+	   * between adjacent frames:
+	   *
+	   *  Each frame begins and ends with a Flag Sequence, which is the
+	   *  binary sequence 01111110 (hexadecimal 0x7e).  All implementations
+	   *  continuously check for this flag, which is used for frame
+	   *  synchronization.
+	   *
+	   *  Only one Flag Sequence is required between two frames.  Two
+	   *  consecutive Flag Sequences constitute an empty frame, which is
+	   *  silently discarded, and not counted as a FCS error.
+	   *
+	   * If the delimiter at the end of this frame is followed by
+	   * another delimiter, we consider the first delimiter part
+	   * of this frame.
+	   */
+	  if (tvb_offset_exists(tvb, end_offset+1) &&
+	      tvb_get_guint8(tvb, end_offset+1) == 0x7e)
+		  end_offset++;
 	  length = end_offset - offset;
 	  if (tree)
-		  proto_tree_add_text(bs_tree, tvb, offset+1, length-1, "PPP Data");
+		  proto_tree_add_text(bs_tree, tvb, offset, length, "PPP Data");
 	  if (length > 1) {
-		  ppp_tvb = remove_escape_chars(tvb, offset + 1, length - 1);
+		  ppp_tvb = remove_escape_chars(tvb, data_offset, data_length);
 		  if (ppp_tvb != NULL) {
 			  add_new_data_source(pinfo, ppp_tvb, "PPP Message");
 			  dissect_ppp_hdlc_common(ppp_tvb, pinfo, tree);
 			  first = FALSE;
 		  }
 	  }
-	  offset = end_offset+1;/* +1 Takes us past the end delimiter */
+	  offset = end_offset;
   } /* end while */
 }
 
