@@ -96,6 +96,7 @@ static int hf_tcp_analysis_out_of_order = -1;
 static int hf_tcp_analysis_lost_packet = -1;
 static int hf_tcp_analysis_ack_lost_packet = -1;
 static int hf_tcp_analysis_window_update = -1;
+static int hf_tcp_analysis_window_full = -1;
 static int hf_tcp_analysis_keep_alive = -1;
 static int hf_tcp_analysis_keep_alive_ack = -1;
 static int hf_tcp_analysis_duplicate_ack = -1;
@@ -212,6 +213,7 @@ static int tcp_acked_count = 5000;	/* one for almost every other segment in the 
 #define TCP_A_OUT_OF_ORDER		0x0200
 #define TCP_A_FAST_RETRANSMISSION	0x0400
 #define TCP_A_WINDOW_UPDATE		0x0800
+#define TCP_A_WINDOW_FULL		0x1000
 struct tcp_acked {
 	guint32 frame_acked;
 	nstime_t ts;
@@ -619,8 +621,8 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	guint32 ack1_frame, ack2_frame;
 	nstime_t *ack1_time, *ack2_time;
 	guint32 num1_acks, num2_acks;
-	gint32 win;
-	gint16  win_scale;
+	gint32 win1,win2;
+	gint16  win_scale1,win_scale2;
 	struct tcp_next_pdu **tnp=NULL;
 
 	/* find(or create if needed) the conversation for this tcp session */
@@ -646,8 +648,10 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		tnp=&tcpd->pdu_seq2;
 		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq1;
 		base_ack=(tcp_relative_seq && (ual2==NULL))?ack:tcpd->base_seq2;
-		win_scale=tcpd->win_scale1;
-		win=tcpd->win1;
+		win_scale1=tcpd->win_scale1;
+		win1=tcpd->win1;
+		win_scale2=tcpd->win_scale2;
+		win2=tcpd->win2;
 	} else {
 		ual1=tcpd->ual2;
 		ual2=tcpd->ual1;
@@ -662,8 +666,10 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		tnp=&tcpd->pdu_seq1;
 		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq2;
 		base_ack=(tcp_relative_seq && (ual2==NULL))?ack:tcpd->base_seq1;
-		win_scale=tcpd->win_scale2;
-		win=tcpd->win2;
+		win_scale1=tcpd->win_scale2;
+		win1=tcpd->win2;
+		win_scale2=tcpd->win_scale1;
+		win2=tcpd->win1;
 	}
 
 	if(!seglen){
@@ -815,7 +821,6 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		}
 	}
 
-
 	/* if this is an empty segment, just skip it all */
 	if( !seglen ){
 		goto seq_finished;
@@ -941,6 +946,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 	ual1=ual;
 
 seq_finished:
+
 
 
 	/* handle the ack numbers */
@@ -1107,7 +1113,7 @@ ack_finished:
 					 * this could then either be a dupack
 					 * or maybe just a window update.
 					 */
-					if(win==window){
+					if(win1==(gint32)window){
 						ta->flags|=TCP_A_DUPLICATE_ACK;
 						ta->dupack_num=num2_acks-1;
 						ta->dupack_frame=ack2_frame;
@@ -1120,6 +1126,23 @@ ack_finished:
 
 	}
 
+	/* see if this semgent has filled up the window completely,
+	 * i.e. same thing as if the other side would start sending
+	 * zero windows back to us.
+	 */
+	if(win_scale2==-1){
+		if( EQ_SEQ( (seq+seglen), (win2+ack1) ) ){
+			struct tcp_acked *ta;
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+			ta->flags|=TCP_A_WINDOW_FULL;
+		}
+	} else {
+		if( EQ_SEQ( (seq+seglen), ((win2<<win_scale2)+ack1) ) ){
+			struct tcp_acked *ta;
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+			ta->flags|=TCP_A_WINDOW_FULL;
+		}
+	}
 
 	/* check for zero window probes 
 	   a zero window probe is when a TCP tries to write 1 byte segments
@@ -1204,7 +1227,7 @@ ack_finished:
 		trs=g_mem_chunk_alloc(tcp_rel_seq_chunk);
 		trs->seq_base=base_seq;
 		trs->ack_base=base_ack;
-		trs->win_scale=win_scale;
+		trs->win_scale=win_scale1;
 		g_hash_table_insert(tcp_rel_seq_table, (void *)pinfo->fd->num, trs);
 	}
 }
@@ -1289,6 +1312,13 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			PROTO_ITEM_SET_GENERATED(flags_item);
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Update] ");
+			}
+		}
+		if( ta->flags&TCP_A_WINDOW_FULL ){
+			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_window_full, tvb, 0, 0, "The transmission window is now completely full");
+			PROTO_ITEM_SET_GENERATED(flags_item);
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Full] ");
 			}
 		}
 		if( ta->flags&TCP_A_KEEP_ALIVE ){
@@ -3139,6 +3169,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_window_update,
 		{ "Window update",		"tcp.analysis.window_update", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This frame is a tcp window update", HFILL }},
+
+		{ &hf_tcp_analysis_window_full,
+		{ "Window full",		"tcp.analysis.window_full", FT_NONE, BASE_NONE, NULL, 0x0,
+			"The this segment has caused the allowed window to become 100% full", HFILL }},
 
 		{ &hf_tcp_analysis_keep_alive,
 		{ "Keep Alive",		"tcp.analysis.keep_alive", FT_NONE, BASE_NONE, NULL, 0x0,
