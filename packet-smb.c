@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.311 2003/03/04 23:09:59 sharpe Exp $
+ * $Id: packet-smb.c,v 1.312 2003/03/14 00:46:54 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1452,8 +1452,8 @@ static const true_false_string tfs_file_attribute_directory = {
 	"This is NOT a directory"
 };
 static const true_false_string tfs_file_attribute_archive = {
-	"This is an ARCHIVE file",
-	"This is NOT an archive file"
+	"This file has been modified since last ARCHIVE",
+	"This file has NOT been modified since last archive"
 };
 static const true_false_string tfs_file_attribute_device = {
 	"This is a DEVICE",
@@ -1527,6 +1527,24 @@ dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 			"File Attributes: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 	}
+	proto_tree_add_boolean(tree, hf_smb_file_attr_encrypted, 
+			       tvb, offset, bytes, mask);	
+	proto_tree_add_boolean(tree, hf_smb_file_attr_not_content_indexed, 
+			       tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_offline, 
+			       tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_compressed, 
+			       tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_reparse, 
+			       tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_sparse, 
+			       tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_temporary, 
+			       tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_normal, 
+			       tvb, offset, bytes, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_attr_device, 
+			       tvb, offset, bytes, mask);
 	proto_tree_add_boolean(tree, hf_smb_file_attr_archive_16bit,
 		tvb, offset, bytes, mask);
 	proto_tree_add_boolean(tree, hf_smb_file_attr_directory_16bit,
