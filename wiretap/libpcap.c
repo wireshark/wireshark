@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.69 2002/03/07 21:31:12 guy Exp $
+ * $Id: libpcap.c,v 1.70 2002/03/07 21:46:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -484,11 +484,11 @@ int libpcap_open(wtap *wth, int *err)
 	 * which correspond to DLT_IEEE802 (used for Token Ring),
 	 * DLT_PPP, and DLT_SLIP_BSDOS, respectively.  We shall
 	 * assume that if the minor version number is 2, and
-	 * the network type is 6, 9, or 15, that it's AIX libpcap;
+	 * the network type is 6, 9, or 15, that it's AIX libpcap.
 	 *
 	 * I'm assuming those older versions of libpcap didn't
 	 * use DLT_IEEE802 for Token Ring, and didn't use DLT_SLIP_BSDOS
-	 * as that came later.  It may have used DLT_SLIP, however, in
+	 * as that came later.  It may have used DLT_PPP, however, in
 	 * which case we're out of luck; we assume it's Token Ring
 	 * in AIX libpcap rather than PPP in standard libpcap, as
 	 * you're probably more likely to be handing an AIX libpcap
