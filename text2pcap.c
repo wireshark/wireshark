@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.11 2002/01/23 08:35:17 guy Exp $
+ * $Id: text2pcap.c,v 1.12 2002/01/29 22:57:30 gram Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/*
+ * Just make sure we include the prototype for strptime as well
+ * (needed for glibc 2.2)
+ */
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 500
+#endif
+#define __USE_XOPEN
+
 #include <time.h>
+
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>

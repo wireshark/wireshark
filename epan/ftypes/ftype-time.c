@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.12 2001/12/28 21:30:34 guy Exp $
+ * $Id: ftype-time.c,v 1.13 2002/01/29 22:57:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,9 +31,10 @@
  * Just make sure we include the prototype for strptime as well
  * (needed for glibc 2.2)
  */
-#ifndef __USE_XOPEN
-#define __USE_XOPEN
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 500
 #endif
+#define __USE_XOPEN
 
 #include <time.h>
 
