@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.26 2000/01/22 05:49:06 guy Exp $
+ * $Id: packet-rpc.c,v 1.27 2000/03/09 12:09:53 girlich Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,6 +119,7 @@ static int hf_rpc_state_auth = -1;
 static int hf_rpc_dup = -1;
 static int hf_rpc_call_dup = -1;
 static int hf_rpc_reply_dup = -1;
+static int hf_rpc_value_follows = -1;
 
 static gint ett_rpc = -1;
 static gint ett_rpc_string = -1;
@@ -586,6 +587,30 @@ dissect_rpc_data(const u_char *pd, int offset, frame_data *fd,
 {
 	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, FALSE,
 	    NULL);
+
+	return offset;
+}
+
+
+int
+dissect_rpc_list(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree, dissect_function_t *rpc_list_dissector)
+{
+	guint32 value_follows;
+
+	while (1) {
+		if (!BYTES_ARE_IN_FRAME(offset,4)) break;
+		value_follows = EXTRACT_UINT(pd, offset+0);
+		proto_tree_add_item(tree,hf_rpc_value_follows,
+			offset+0, 4, value_follows);
+		offset += 4;
+		if (value_follows == 1) {
+			offset = rpc_list_dissector(pd, offset, fd, tree);
+		}
+		else {
+			break;
+		}
+	}
 
 	return offset;
 }
@@ -1303,7 +1328,10 @@ proto_register_rpc(void)
 			NULL, 0, "Duplicate Call" }},
 		{ &hf_rpc_reply_dup, {
 			"Duplicate Reply", "rpc.reply.dup", FT_UINT32, BASE_DEC,
-			NULL, 0, "Duplicate Reply" }}
+			NULL, 0, "Duplicate Reply" }},
+		{ &hf_rpc_value_follows, {
+			"Value Follows", "rpc.value_follows", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "Value Follows" }}
 	};
 	static gint *ett[] = {
 		&ett_rpc,
