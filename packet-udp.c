@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.57 2000/04/04 06:17:29 guy Exp $
+ * $Id: packet-udp.c,v 1.58 2000/04/04 22:26:36 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -189,7 +189,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   {
       plugin *pt_plug = plugin_list;
 
-      if (pt_plug) {
+      if (enabled_plugins_number > 0) {
 	  while (pt_plug) {
 	      if (pt_plug->enabled && !strcmp(pt_plug->protocol, "udp") &&
 		  tree && dfilter_apply(pt_plug->filter, tree, pd)) {
