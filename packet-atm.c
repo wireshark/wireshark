@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.17 2000/05/16 04:44:10 gram Exp $
+ * $Id: packet-atm.c,v 1.18 2000/05/16 06:21:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -374,8 +374,8 @@ static void
 dissect_lane(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
   tvbuff_t	*next_tvb;
+  tvbuff_t	*next_tvb_le_client;
 
-  next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1, -1);
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "ATM LANE");
@@ -392,23 +392,24 @@ dissect_lane(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   case AHLT_LANE_802_3:
   case AHLT_LANE_802_3_MC:
     dissect_le_client(pd, offset, fd, tree);
-    offset += 2;
 
     /* Dissect as Ethernet */
-    dissect_eth(pd, offset, fd, tree);
+    next_tvb_le_client	= tvb_new_subset(pi.compat_top_tvb, offset+2, -1, -1);
+    dissect_eth(next_tvb_le_client, &pi, tree);
     break;
 
   case AHLT_LANE_802_5:
   case AHLT_LANE_802_5_MC:
     dissect_le_client(pd, offset, fd, tree);
-    offset += 2;
 
     /* Dissect as Token-Ring */
-    dissect_tr(next_tvb, &pi, tree);
+    next_tvb_le_client	= tvb_new_subset(pi.compat_top_tvb, offset+2, -1, -1);
+    dissect_tr(next_tvb_le_client, &pi, tree);
     break;
 
   default:
     /* Dump it as raw data. */
+    next_tvb		= tvb_new_subset(pi.compat_top_tvb, offset,   -1, -1);
     dissect_data_tvb(next_tvb, &pi, tree);
     break;
   }

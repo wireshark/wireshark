@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.11 2000/05/11 08:14:54 gram Exp $
+ * $Id: packet-ascend.c,v 1.12 2000/05/16 06:21:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,51 +52,57 @@ static const value_string encaps_vals[] = {
   {0,                NULL          } };
 
 void
-dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
+dissect_ascend( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
   proto_tree *fh_tree;
   proto_item *ti;
+  const guint8 *pd;
+  int offset;
+
+  pinfo->current_proto = "Lucent/Ascend";
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
-  if(check_col(fd, COL_RES_DL_SRC))
-    col_add_str(fd, COL_RES_DL_SRC, "N/A" );
-  if(check_col(fd, COL_RES_DL_DST))
-    col_add_str(fd, COL_RES_DL_DST, "N/A" );
-  if(check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "N/A" );
-  if(check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "Lucent/Ascend packet trace" );
+  if(check_col(pinfo->fd, COL_RES_DL_SRC))
+    col_add_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
+  if(check_col(pinfo->fd, COL_RES_DL_DST))
+    col_add_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
+  if(check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "N/A" );
+  if(check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, "Lucent/Ascend packet trace" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_text(tree, NullTVB, 0, 0, "Lucent/Ascend packet trace" );
+    ti = proto_tree_add_text(tree, tvb, 0, 0, "Lucent/Ascend packet trace" );
     fh_tree = proto_item_add_subtree(ti, ett_raw);
-    proto_tree_add_item(fh_tree, hf_link_type, NullTVB, 0, 0, 
-			fd->pseudo_header.ascend.type);
-    if (fd->pseudo_header.ascend.type == ASCEND_PFX_WDD) {
-      proto_tree_add_item(fh_tree, hf_called_number, NullTVB, 0, 0, 
-			  fd->pseudo_header.ascend.call_num);
-      proto_tree_add_item(fh_tree, hf_chunk, NullTVB, 0, 0,
-			  fd->pseudo_header.ascend.chunk);
-      proto_tree_add_item_hidden(fh_tree, hf_session_id, NullTVB, 0, 0, 0);
+    proto_tree_add_item(fh_tree, hf_link_type, tvb, 0, 0, 
+			pinfo->fd->pseudo_header.ascend.type);
+    if (pinfo->fd->pseudo_header.ascend.type == ASCEND_PFX_WDD) {
+      proto_tree_add_item(fh_tree, hf_called_number, tvb, 0, 0, 
+			  pinfo->fd->pseudo_header.ascend.call_num);
+      proto_tree_add_item(fh_tree, hf_chunk, tvb, 0, 0,
+			  pinfo->fd->pseudo_header.ascend.chunk);
+      proto_tree_add_item_hidden(fh_tree, hf_session_id, tvb, 0, 0, 0);
     } else {  /* It's wandsession data */
-      proto_tree_add_item(fh_tree, hf_user_name, NullTVB, 0, 0, 
-			  fd->pseudo_header.ascend.user);
-      proto_tree_add_item(fh_tree, hf_session_id, NullTVB, 0, 0,
-			  fd->pseudo_header.ascend.sess);
-      proto_tree_add_item_hidden(fh_tree, hf_chunk, NullTVB, 0, 0, 0);
+      proto_tree_add_item(fh_tree, hf_user_name, tvb, 0, 0, 
+			  pinfo->fd->pseudo_header.ascend.user);
+      proto_tree_add_item(fh_tree, hf_session_id, tvb, 0, 0,
+			  pinfo->fd->pseudo_header.ascend.sess);
+      proto_tree_add_item_hidden(fh_tree, hf_chunk, tvb, 0, 0, 0);
     }
-    proto_tree_add_item(fh_tree, hf_task, NullTVB, 0, 0, fd->pseudo_header.ascend.task);
+    proto_tree_add_item(fh_tree, hf_task, tvb, 0, 0, pinfo->fd->pseudo_header.ascend.task);
   }
 
-  switch (fd->pseudo_header.ascend.type) {
+  switch (pinfo->fd->pseudo_header.ascend.type) {
     case ASCEND_PFX_WDS_X:
     case ASCEND_PFX_WDS_R:
-      dissect_ppp(pd, 0, fd, tree);
+      tvb_compat(tvb, &pd, &offset);
+      dissect_ppp(pd, offset, pinfo->fd, tree);
       break;
     case ASCEND_PFX_WDD:
-      dissect_eth(pd, 0, fd, tree);
+      dissect_eth(tvb, pinfo, tree);
       break;
     default:
       break;

@@ -1,6 +1,6 @@
 /* packet-eth.h
  *
- * $Id: packet-eth.h,v 1.1 2000/02/15 21:02:08 gram Exp $
+ * $Id: packet-eth.h,v 1.2 2000/05/16 06:21:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,4 +23,4 @@
  */
 
 void capture_eth(const u_char *, int, packet_counts *);
-void dissect_eth(const u_char *, int, frame_data *, proto_tree *);
+void dissect_eth(tvbuff_t *, packet_info *, proto_tree *);
