@@ -66,6 +66,7 @@ void colorref2color_t(COLORREF cr, color_t *ct) {
     green = GetGValue(cr);
     blue  = GetBValue(cr);
 
+    ct->pixel = 0;
     ct->red   = (red   << 8) | red;
     ct->green = (green << 8) | green;
     ct->blue  = (blue  << 8) | blue;

@@ -37,6 +37,7 @@ GENERATED_OBJECTS = \
 	capture-dialog.obj \
 	capture-info-dialog.obj \
 	coloring-rules-dialog.obj \
+	edit-color-filter-dialog.obj \
 	find-packet-dialog.obj \
 	preferences-dialog.obj \
 	progress-dialog.obj

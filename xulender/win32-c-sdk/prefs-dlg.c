@@ -102,7 +102,6 @@ typedef struct _spinner_val_map {
 #define NAMRES_MAX_CONCURRENCY 100000
 
 static color_t  tcolors[MAX_IDX];
-static COLORREF cust_colors[16];
 static HFONT    old_fixed_font = NULL;
 static gboolean font_changed;
 static e_prefs  saved_prefs, tmp_prefs;

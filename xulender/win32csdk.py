@@ -356,6 +356,9 @@ void
 /* Hide dialog "%(cur_window_id)s" */
 void
 %(varname)s_dialog_hide (HWND hw_dlg) {
+    HWND owner = GetWindow(hw_dlg, GW_OWNER);
+    EnableWindow(owner, TRUE);
+    SetActiveWindow(owner);
     ShowWindow(hw_dlg, SW_HIDE);
 }
 

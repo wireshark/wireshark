@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<dialog
+  id="edit-color-filter-dialog"
+  title="Ethereal: Edit Color Filter"
+  >
+
+  <vbox>
+    <groupbox>
+      <caption>Filter</caption>
+      <hbox>
+        <description>Name:</description>
+        <textbox flex="1" id="edit-color-filter.name" />
+      </hbox>
+      <hbox>
+        <description>String:</description>
+        <textbox flex="1" id="edit-color-filter.filter" />
+	<button
+	  label="Expression..."
+	  id="edit-color-filter.expression"
+	  oncommand="edit_color_expression"
+	/>
+      </hbox>
+    </groupbox>
+    <groupbox>
+      <caption>Display Colors</caption>
+      <hbox>
+        <spacer flex="1" />
+	<button
+	  label="Foreground Color..."
+	  id="edit-color-filter.foreground"
+	  oncommand="edit_color_foreground"
+	/>
+	<spacer flex="2" />
+	<button
+	  label="Background Color..."
+	  id="edit-color-filter.background"
+	  oncommand="edit_color_background"
+	/>
+	<spacer flex="1" />
+      </hbox>
+    </groupbox>
+
+    <hbox>
+      <spacer flex="1" />
+      <button
+        id="edit-color-filter.ok"
+        label="OK"
+        default="True"
+        oncommand="edit_color_ok"
+       />
+      <button
+        id="edit-color-filter.cancel"
+        label="Close"
+        oncommand="edit_color_cancel"
+       />
+    </hbox>
+  </vbox>
+</dialog>

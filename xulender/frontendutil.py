@@ -1,5 +1,7 @@
 # frontendutil.py - Frontend utility functions
 
+import sys
+
 def id_to_name(id):
 	'''Convert an id name (which may have dashes or other "odd" charaters to
 	   a valid C-style identifier.'''
@@ -7,15 +9,15 @@ def id_to_name(id):
 	return id
 
 def get_attribute(node, attr_name, notfound = None):
-	'''If a node has a particular attribute, return that attribute. 
+	'''If a node has a particular attribute, return that attribute.
 	   Otherwise return the value of "notfound".'''
 	try:
 		return node.attributes[attr_name].value
 	except:
 		pass
-	
+
 	return notfound
- 
+
 class counter:
 	'''Create a "counter" that increments each time get_count() is called.
 	   This is useful for resource IDs, etc.'''
@@ -32,11 +34,12 @@ class sect_file:
 		self.file_path = file_path
 		self.header = '''/* %s */
 /* THIS FILE HAS BEEN AUTOMATICALLY GENERATED. */
-/* Do not modify by hand. */
-''' % (file_path)
+/* Command: %s */
+/* DO NOT MODIFY BY HAND. */
+''' % (file_path, ' '.join(sys.argv))
 		self.body = ''
 		self.footer = ''
-	
+
 	def write_header(self, text):
 		self.header = self.header + text
 
@@ -45,7 +48,7 @@ class sect_file:
 
 	def write_footer(self, text):
 		self.footer = self.footer + text
-		
+
 	def close(self):
 		print 'Writing ' + self.file_path
 		fp = open(self.file_path, 'w')

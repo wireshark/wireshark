@@ -10,6 +10,8 @@ extern HFONT g_fixed_font;
 
 extern gchar *ethereal_path;
 
+static COLORREF cust_colors[16];
+
 #define ETHEREAL_BYTEVIEW_TREEVIEW   "_ethereal_byteview_treeview"
 #define ETHEREAL_TREEVIEW_BYTEVIEW   "_ethereal_treeview_byteview"
 

@@ -10,6 +10,7 @@
 #include "generated\capture-dialog.rc"
 #include "generated\capture-info-dialog.rc"
 #include "generated\coloring-rules-dialog.rc"
+#include "generated\edit-color-filter-dialog.rc"
 #include "generated\find-packet-dialog.rc"
 #include "generated\ethereal-main.rc"
 #include "generated\preferences-dialog.rc"

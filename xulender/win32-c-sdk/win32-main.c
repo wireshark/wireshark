@@ -83,11 +83,13 @@
 #include "win32-globals.h"
 #include "win32-menu.h"
 #include "capture-util.h"
+#include "color-util.h"
 
 #include "ethereal-main.h"
 #include "capture-dialog.h"
 #include "capture-info-dialog.h"
 #include "coloring-rules-dialog.h"
+#include "edit-color-filter-dialog.h"
 #include "find-packet-dialog.h"
 #include "preferences-dialog.h"
 #include "win32-file-dlg.h"
@@ -1837,13 +1839,6 @@ font_apply() {
     byteview = win32_identifier_get_str("main-byteview");
     win32_element_assert(byteview);
     SendMessage(byteview->h_wnd, WM_SETFONT, (WPARAM) g_fixed_font, TRUE);
-}
-
-/*
- * Called from color_filters.c
- */
-void
-color_add_filter_cb (color_filter_t *colorf, gpointer arg) {
 }
 
 static void
