@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.16 1999/08/25 06:52:04 guy Exp $
+ * $Id: packet-ppp.c,v 1.17 1999/08/25 07:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,47 +93,52 @@ static const value_string ppp_vals[] = {
 /* CP (LCP, IPCP, etc.) codes.
  * from pppd fsm.h 
  */
-#define CONFREQ   1 /* Configuration Request */
-#define CONFACK   2 /* Configuration Ack */
-#define CONFNAK   3 /* Configuration Nak */
-#define CONFREJ   4 /* Configuration Reject */
-#define TERMREQ   5 /* Termination Request */
-#define TERMACK   6 /* Termination Ack */
-#define CODEREJ   7 /* Code Reject */
+#define CONFREQ    1  /* Configuration Request */
+#define CONFACK    2  /* Configuration Ack */
+#define CONFNAK    3  /* Configuration Nak */
+#define CONFREJ    4  /* Configuration Reject */
+#define TERMREQ    5  /* Termination Request */
+#define TERMACK    6  /* Termination Ack */
+#define CODEREJ    7  /* Code Reject */
 
 static const value_string cp_vals[] = {
-	{CONFREQ,    "Configuration Request " },
-	{CONFACK,    "Configuration Ack " },
-	{CONFNAK,    "Configuration Nak " },
-	{CONFREJ,    "Configuration Reject " },
-	{TERMREQ,    "Termination Request " },
-	{TERMACK,    "Termination Ack " },
-	{CODEREJ,    "Code Reject " },
+	{CONFREQ,    "Configuration Request" },
+	{CONFACK,    "Configuration Ack" },
+	{CONFNAK,    "Configuration Nak" },
+	{CONFREJ,    "Configuration Reject" },
+	{TERMREQ,    "Termination Request" },
+	{TERMACK,    "Termination Ack" },
+	{CODEREJ,    "Code Reject" },
 	{0,          NULL            } };
 
 /*
  * LCP-specific packet types.
  */
-#define PROTREJ   8 /* Protocol Reject */
-#define ECHOREQ   9 /* Echo Request */
-#define ECHOREP   10  /* Echo Reply */
-#define DISCREQ   11  /* Discard Request */
+#define PROTREJ    8  /* Protocol Reject */
+#define ECHOREQ    9  /* Echo Request */
+#define ECHOREP    10 /* Echo Reply */
+#define DISCREQ    11 /* Discard Request */
+#define IDENT      12 /* Identification */
+#define TIMEREMAIN 13 /* Time remaining */
+
 #define CBCP_OPT  6 /* Use callback control protocol */
 
 static const value_string lcp_vals[] = {
-	{CONFREQ,    "Configuration Request " },
-	{CONFACK,    "Configuration Ack " },
-	{CONFNAK,    "Configuration Nak " },
-	{CONFREJ,    "Configuration Reject " },
-	{TERMREQ,    "Termination Request " },
-	{TERMACK,    "Termination Ack " },
-	{CODEREJ,    "Code Reject " },
-	{PROTREJ,    "Protocol Reject " },
-	{ECHOREQ,    "Echo Request " },
-	{ECHOREP,    "Echo Reply " },
-	{DISCREQ,    "Discard Request " },
-	{CBCP_OPT,   "Use callback control protocol" },
-	{0,          NULL            } };
+	{CONFREQ,    "Configuration Request" },
+	{CONFACK,    "Configuration Ack" },
+	{CONFNAK,    "Configuration Nak" },
+	{CONFREJ,    "Configuration Reject" },
+	{TERMREQ,    "Termination Request" },
+	{TERMACK,    "Termination Ack" },
+	{CODEREJ,    "Code Reject" },
+	{PROTREJ,    "Protocol Reject" },
+	{ECHOREQ,    "Echo Request" },
+	{ECHOREP,    "Echo Reply" },
+	{DISCREQ,    "Discard Request" },
+	{IDENT,      "Identification" },
+	{TIMEREMAIN, "Time Remaining" },
+	{0,          NULL }
+};
 
 /* Member of table of PPP (LCP, IPCP) options. */
 typedef struct cp_opt cp_opt;
@@ -157,21 +162,57 @@ struct cp_opt {
 #define CI_MAGICNUMBER		5	/* Magic Number */
 #define CI_PCOMPRESSION		7	/* Protocol Field Compression */
 #define CI_ACCOMPRESSION	8	/* Address/Control Field Compression */
-#define CI_CALLBACK		13	/* callback */
+#define CI_FCSALTERNATIVES	9	/* FCS Alternatives (RFC 1570) */
+#define CI_SELF_DESCRIBING_PAD	10	/* Self-Describing Pad (RFC 1570) */
+#define CI_NUMBERED_MODE	11	/* Numbered Mode (RFC 1663) */
+#define CI_CALLBACK		13	/* Callback (RFC 1570) */
+#define CI_MULTILINK_MRRU	17	/* Multilink MRRU (RFC 1717) */
+#define CI_MULTILINK_SSNH	18	/* Multilink Short Sequence Number
+					   Header (RFC 1717) */
+#define CI_MULTILINK_EP_DISC	19	/* Multilink Endpoint Discriminator
+					   (RFC 1717) */
+#define CI_DCE_IDENTIFIER	21	/* DCE Identifier */
+#define CI_MULTILINK_PLUS_PROC	22	/* Multilink Plus Procedure */
+#define CI_LINK_DISC_FOR_BACP	23	/* Link Discriminator for BACP
+					   (RFC 2125) */
+#define CI_LCP_AUTHENTICATION	24	/* LCP Authentication Option */
+#define CI_COBS			25	/* Consistent Overhead Byte
+					   Stuffing */
+#define CI_PREFIX_ELISION	26	/* Prefix elision */
+#define CI_MULTILINK_HDR_FMT	27	/* Multilink header format */
+#define CI_INTERNATIONALIZATION	28	/* Internationalization (RFC 2484) */
+#define	CI_SDL_ON_SONET_SDH	29	/* Simple Data Link on SONET/SDH */
 
 static const value_string lcp_opt_vals[] = {
-	{CI_MRU,          "Maximum Receive Unit" },
-	{CI_ASYNCMAP,     "Async Control Character Map" },
-	{CI_AUTHTYPE,     "Authentication Type" },
-	{CI_QUALITY,      "Quality Protocol" },
-	{CI_MAGICNUMBER,  "Magic Number" },
-	{CI_PCOMPRESSION, "Protocol Field Compression" },
-	{CI_ACCOMPRESSION,"Address/Control Field Compression" },
-	{CI_CALLBACK,     "callback" },
-	{0,               NULL }
+	{CI_MRU,                  "Maximum Receive Unit" },
+	{CI_ASYNCMAP,             "Async Control Character Map" },
+	{CI_AUTHTYPE,             "Authentication Type" },
+	{CI_QUALITY,              "Quality Protocol" },
+	{CI_MAGICNUMBER,          "Magic Number" },
+	{CI_PCOMPRESSION,         "Protocol Field Compression" },
+	{CI_ACCOMPRESSION,        "Address/Control Field Compression" },
+	{CI_FCSALTERNATIVES,      "FCS Alternatives" },
+	{CI_SELF_DESCRIBING_PAD,  "Self-Describing Pad" },
+	{CI_NUMBERED_MODE,        "Numbered Mode" },
+	{CI_CALLBACK,             "Callback" },
+	{CI_MULTILINK_MRRU,       "Multilink MRRU" },
+	{CI_MULTILINK_SSNH,       "Multilink Short Sequence Number Header" },
+	{CI_MULTILINK_EP_DISC,    "Multilink Endpoint Discriminator" },
+	{CI_DCE_IDENTIFIER,       "DCE Identifier" },
+	{CI_MULTILINK_PLUS_PROC,  "Multilink Plus Procedure" },
+	{CI_LINK_DISC_FOR_BACP,   "Link Discriminator for BACP" },
+	{CI_LCP_AUTHENTICATION,   "LCP Authentication" },
+	{CI_COBS,                 "Consistent Overhead Byte Stuffing" },
+	{CI_PREFIX_ELISION,       "Prefix elision" },
+	{CI_MULTILINK_HDR_FMT,    "Multilink header format" },
+	{CI_INTERNATIONALIZATION, "Internationalization" },
+	{CI_SDL_ON_SONET_SDH,     "Simple Data Link on SONET/SDH" },
+	{0,                       NULL }
 };
 
 static void dissect_lcp_mru_opt(const u_char *pd, const cp_opt *optp,
+			int offset, int length, proto_tree *tree);
+static void dissect_lcp_async_map_opt(const u_char *pd, const cp_opt *optp,
 			int offset, int length, proto_tree *tree);
 static void dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp,
 			int offset, int length, proto_tree *tree);
@@ -181,6 +222,8 @@ static void dissect_lcp_magicnumber_opt(const u_char *pd, const cp_opt *optp,
 static const cp_opt lcp_opts[] = {
 	{CI_MRU,           NULL,                      ETT_LCP_MRU_OPT,
 			TRUE,  4, dissect_lcp_mru_opt},
+	{CI_ASYNCMAP,      NULL,                      ETT_LCP_ASYNC_MAP_OPT,
+			TRUE,  6, dissect_lcp_async_map_opt},
 	{CI_AUTHTYPE,      "Authentication protocol", ETT_LCP_AUTHPROT_OPT,
 			FALSE, 4, dissect_lcp_protocol_opt},
 	{CI_QUALITY,       "Quality protocol",        ETT_LCP_QUALPROT_OPT,
@@ -198,18 +241,20 @@ static const cp_opt lcp_opts[] = {
 /*
  * Options.  (IPCP)
  */
-#define CI_ADDRS	1	/* IP Addresses (deprecated) */
-#define CI_COMPRESSTYPE	2	/* Compression Type */
-#define CI_ADDR		3	/* IP Address */
-#define CI_MS_DNS1	129	/* Primary DNS value */
-#define CI_MS_WINS1	130	/* Primary WINS value */
-#define CI_MS_DNS2	131	/* Secondary DNS value */
-#define CI_MS_WINS2	132	/* Secondary WINS value */
+#define CI_ADDRS	1	/* IP Addresses (deprecated) (RFC 1332) */
+#define CI_COMPRESSTYPE	2	/* Compression Type (RFC 1332) */
+#define CI_ADDR		3	/* IP Address (RFC 1332) */
+#define CI_MOBILE_IPv4	4	/* Mobile IPv4 (RFC 2290) */
+#define CI_MS_DNS1	129	/* Primary DNS value (RFC 1877) */
+#define CI_MS_WINS1	130	/* Primary WINS value (RFC 1877) */
+#define CI_MS_DNS2	131	/* Secondary DNS value (RFC 1877) */
+#define CI_MS_WINS2	132	/* Secondary WINS value (RFC 1877) */
 
 static const value_string ipcp_opt_vals[] = {
 	{CI_ADDRS,        "IP Addresses" },
 	{CI_COMPRESSTYPE, "Compression Type" },
 	{CI_ADDR,         "IP Address" }, 
+	{CI_MOBILE_IPv4,  "Mobile IPv4" }, 
 	{CI_MS_DNS1,      "Primary DNS value" },
 	{CI_MS_WINS1,     "Primary WINS value" },
 	{CI_MS_DNS2,      "Secondary DNS value" },
@@ -249,6 +294,14 @@ dissect_lcp_mru_opt(const u_char *pd, const cp_opt *optp, int offset,
 }
 
 static void
+dissect_lcp_async_map_opt(const u_char *pd, const cp_opt *optp, int offset,
+			int length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, offset, length, "Async characters to map: 0x%08x",
+			pntohl(&pd[offset]));
+}
+
+static void
 dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp, int offset,
 			int length, proto_tree *tree)
 {
@@ -256,8 +309,8 @@ dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp, int offset,
   proto_item *tf;
   proto_tree *field_tree = NULL;
   
-  tf = proto_tree_add_text(tree, offset, length, "%s: %u bytes",
-	  optp->name, length);
+  tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
+	  optp->name, length, plurality(length, "", "s"));
   field_tree = proto_item_add_subtree(tf, optp->subtree_index);
   offset += 2;
   length -= 2;
@@ -266,7 +319,9 @@ dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp, int offset,
 		val_to_str(protocol, ppp_vals, "Unknown"), protocol);
   offset += 2;
   length -= 2;
-  proto_tree_add_text(field_tree, offset, length, "Data (%d bytes)", length);
+  if (length > 0)
+    proto_tree_add_text(field_tree, offset, length, "Data (%d byte%s)", length,
+    			plurality(length, "", "s"));
 }
 
 static void
@@ -339,8 +394,9 @@ dissect_cp_opts(const u_char *pd, int offset, int length,
       (*dissect)(pd, optp, offset, opt_len, tree);
     else {
       if (!error) {
-        proto_tree_add_text(tree, offset, opt_len, "%s: %u bytes",
-          val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len);
+        proto_tree_add_text(tree, offset, opt_len, "%s: %u byte%s",
+          val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len,
+          plurality(opt_len, "", "s"));
       }
     }
     offset += opt_len;
@@ -361,7 +417,7 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
 
   guint8 code;
   guint8 id;
-  guint16 length;
+  int length;
   guint16 protocol;
 
   code = pd[0+offset];
@@ -384,6 +440,7 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
 			length);
   }
   offset += 4;
+  length -= 4;
 
   switch (code) {
     case CONFREQ:
@@ -391,10 +448,9 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
     case CONFNAK:
     case CONFREJ:
       if(tree) {
-        if (length > 4) {
-      	  length -= 4;
+        if (length > 0) {
           tf = proto_tree_add_text(fh_tree, offset, length,
-            "Options: (%d bytes)", length);
+            "Options: (%d byte%s)", length, plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, options_subtree_index);
           dissect_cp_opts(pd, offset, length, opt_vals,
           		opts, nopts, field_tree);
@@ -405,11 +461,31 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
     case ECHOREQ:
     case ECHOREP:
     case DISCREQ:
+    case IDENT:
       if(tree) {
 	proto_tree_add_text(fh_tree, offset, 4, "Magic number: 0x%08x",
 			pntohl(&pd[offset]));
 	offset += 4;
-	dissect_data(pd, offset, fd, fh_tree);
+	length -= 4;
+	if (length > 0)
+          proto_tree_add_text(fh_tree, offset, length, "Message (%d byte%s)",
+				length, plurality(length, "", "s"));
+      }
+      break;
+
+    case TIMEREMAIN:
+      if(tree) {
+	proto_tree_add_text(fh_tree, offset, 4, "Magic number: 0x%08x",
+			pntohl(&pd[offset]));
+	offset += 4;
+	length -= 4;
+	proto_tree_add_text(fh_tree, offset, 4, "Seconds remaining: %u",
+			pntohl(&pd[offset]));
+	offset += 4;
+	length -= 4;
+	if (length > 0)
+          proto_tree_add_text(fh_tree, offset, length, "Message (%d byte%s)",
+				length, plurality(length, "", "s"));
       }
       break;
 
@@ -419,18 +495,32 @@ dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
 	proto_tree_add_text(fh_tree, offset, 2, "Rejected protocol: %s (0x%04x)",
 		val_to_str(protocol, ppp_vals, "Unknown"), protocol);
 	offset += 2;
-	dissect_data(pd, offset, fd, fh_tree);
+	length -= 2;
+	if (length > 0)
+          proto_tree_add_text(fh_tree, offset, length, "Rejected packet (%d byte%s)",
+				length, plurality(length, "", "s"));
 		/* XXX - should be dissected as a PPP packet */
       }
       break;
 
     case CODEREJ:
 		/* decode the rejected LCP packet here. */
+      if (length > 0)
+        proto_tree_add_text(fh_tree, offset, length, "Rejected packet (%d byte%s)",
+				length, plurality(length, "", "s"));
+      break;
 
     case TERMREQ:
     case TERMACK:
+      if (length > 0)
+        proto_tree_add_text(fh_tree, offset, length, "Data (%d byte%s)",
+				length, plurality(length, "", "s"));
+      break;
+
     default:
-      dissect_data(pd, offset, fd, tree);
+      if (length > 0)
+        proto_tree_add_text(fh_tree, offset, length, "Stuff (%d byte%s)",
+				length, plurality(length, "", "s"));
       break;
   }
 }

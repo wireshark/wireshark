@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.89 1999/08/25 06:52:04 guy Exp $
+ * $Id: packet.h,v 1.90 1999/08/25 07:32:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -287,6 +287,7 @@ enum {
  	ETT_LCP,
  	ETT_LCP_OPTIONS,
  	ETT_LCP_MRU_OPT,
+ 	ETT_LCP_ASYNC_MAP_OPT,
  	ETT_LCP_AUTHPROT_OPT,
  	ETT_LCP_QUALPROT_OPT,
  	ETT_LCP_MAGICNUM_OPT,
