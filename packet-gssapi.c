@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.2 2002/08/24 00:40:45 guy Exp $
+ * $Id: packet-gssapi.c,v 1.3 2002/08/25 19:22:20 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,7 +117,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ASN1_SCK hnd;
 	int ret, offset = 0;
 	gboolean def;
-	guint len, cls, con, tag, nbytes;
+	guint len1, len, cls, con, tag, nbytes;
 	subid_t *oid;
 	gchar *oid_string;
 	gssapi_oid_value *value;
@@ -133,8 +133,8 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Read header */
 
 	asn1_open(&hnd, tvb, offset);
-
-	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len);
+ 
+	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
 
 	if (ret != ASN1_ERR_NOERROR) {
 		dissect_parse_error(tvb, offset, pinfo, subtree,
@@ -150,6 +150,8 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		goto done;
 	}
 
+	offset = hnd.offset;
+
 	/* Read oid */
 
 	ret = asn1_oid_decode(&hnd, &oid, &len, &nbytes);
@@ -162,8 +164,8 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	oid_string = format_oid(oid, len);
 
-	proto_tree_add_text(
-		subtree, tvb, offset, nbytes, "OID: %s", oid_string);
+	proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s", 
+			    oid_string);
 
 	offset += nbytes;
 
