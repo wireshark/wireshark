@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.67 2004/03/17 18:20:58 jmayer Exp $
+# $Id: configure.in,v 1.68 2004/03/22 17:03:30 gerald Exp $
 #
 AC_INIT(epan.c)
 
@@ -8,7 +8,7 @@ dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(libethereal.a, 0.10.2)
+AM_INIT_AUTOMAKE(libethereal.a, 0.10.3)
 AM_CONFIG_HEADER(config.h)
 
 AM_DISABLE_STATIC
