@@ -22,9 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_MAP_DIALOUGEPDU_H
+#ifndef PACKET_MAP_DIALOGUEPDU_H
 #define PACKET_GSM_MAP_H
 
 #include "packet-MAP_DialoguePDU-exp.h"*/
 
-#endif  /* PACKET_MAP_DIALOUGEPDU_H */
+#endif  /* PACKET_MAP_DIALOGUEPDU_H */

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-MAP_DialoguePDU.c                                                 */
+/* ./packet-MAP_DialoguePDU.c                                                 */
 /* ../../tools/asn2eth.py -X -b -e -p MAP_DialoguePDU -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP_DialoguePDU.asn */
 
 /* Input file: packet-MAP-DialoguePDU-template.c */
@@ -8,7 +8,7 @@
 /* packet-MAP_DialoguePDU_asn1.c
  * Routines for MAP_DialoguePDU packet dissection
  *
- * $Id: packet-MAP_DialoguePDU_asn1-template.c 12203 2004-10-05 09:18:55Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -485,9 +485,10 @@ dissect_MAP_DialoguePDU_MAP_ProviderAbortInfo(gboolean implicit_tag _U_, tvbuff_
 /*--- End of included file: packet-MAP_DialoguePDU-fn.c ---*/
 
 
+void
 dissect_MAP_Dialogue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	    dissect_MAP_DialoguePDU_MAP_DialoguePDU(FALSE, tvb, 0, pinfo, parent_tree, -1);
+  dissect_MAP_DialoguePDU_MAP_DialoguePDU(FALSE, tvb, 0, pinfo, parent_tree, -1);
 }
 
 /*--- proto_register_MAP_DialoguePDU -------------------------------------------*/
@@ -603,4 +604,3 @@ void proto_reg_handoff_MAP_DialoguePDU(void) {
 	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) map-DialoguePDU(1) version1(1)");
 
 }
-
