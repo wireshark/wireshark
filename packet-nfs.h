@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.3 1999/12/09 10:08:05 girlich Exp $ */
+/* $Id: packet-nfs.h,v 1.4 1999/12/14 11:48:03 girlich Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -10,6 +10,16 @@
 
 #define FHSIZE 32
 
+/* verifier */
+#define NFS3_CREATEVERFSIZE 8
+#define NFS3_WRITEVERFSIZE 8
+
+/* for write */
+#define UNSTABLE 0
+#define DATA_SYNC 1
+#define FILE_SYNC 2
+
+/* for create */
 #define UNCHECKED 0
 #define GUARDED 1
 #define EXCLUSIVE 2
