@@ -1,0 +1,29 @@
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
+
+include ../../config.nmake
+
+DISSECTOR_FILES=packet-ess.c packet-ess.h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py ExtendedSecurityServices.asn packet-ess-template.c packet-ess-template.h ess.cnf
+!IFDEF PYTHON
+	$(PYTHON) ../../tools/asn2eth.py -X -b -k -e -p ess -c ess.cnf -s packet-ess-template ExtendedSecurityServices.asn
+!ENDIF
+
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)	\
+		packet-ess-ettarr.c	\
+		packet-ess-hfarr.c	\
+		packet-ess-dis-tab.c	\
+		packet-ess-fn.c		\
+		packet-ess-ett.c	\
+		packet-ess-hf.c
+
+copy_files: generate_dissector
+	xcopy packet-ess.c ..\..\epan\dissectors /d /y
+	xcopy packet-ess.h ..\..\epan\dissectors /d /y

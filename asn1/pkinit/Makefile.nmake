@@ -1,0 +1,23 @@
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
+
+include ../../config.nmake
+
+DISSECTOR_FILES=packet-pkinit.c packet-pkinit.h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py PKINIT.asn packet-pkinit-template.c packet-pkinit-template.h pkinit.cnf
+!IFDEF PYTHON
+	$(PYTHON) ../../tools/asn2eth.py -e -X -b -p pkinit -c pkinit.cnf -s packet-pkinit-template PKINIT.asn
+!ENDIF
+
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)
+
+copy_files: generate_dissector
+	xcopy packet-pkinit.c ..\..\epan\dissectors /d /y
+	xcopy packet-pkinit.h ..\..\epan\dissectors /d /y

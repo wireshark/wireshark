@@ -1,0 +1,23 @@
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
+
+include ../../config.nmake
+
+DISSECTOR_FILES=packet-pkix1explicit.c packet-pkix1explicit.h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py PKIX1EXPLICIT93.asn packet-pkix1explicit-template.c packet-pkix1explicit-template.h pkix1explicit.cnf
+!IFDEF PYTHON
+	$(PYTHON) ../../tools/asn2eth.py -e -X -b -p pkix1explicit -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn 
+!ENDIF
+
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)
+
+copy_files: generate_dissector
+	xcopy packet-pkix1explicit.c ..\..\epan\dissectors /d /y
+	xcopy packet-pkix1explicit.h ..\..\epan\dissectors /d /y

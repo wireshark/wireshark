@@ -1,0 +1,23 @@
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
+
+include ../../config.nmake
+
+DISSECTOR_FILES=packet-x509sat.c packet-x509sat.h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py SelectedAttributeTypes.asn packet-x509sat-template.c packet-x509sat-template.h x509sat.cnf ../x509if/x509if-exp.cnf
+!IFDEF PYTHON
+	$(PYTHON) ../../tools/asn2eth.py -X -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn
+!ENDIF
+
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)
+
+copy_files: generate_dissector
+	xcopy packet-x509sat.c ..\..\epan\dissectors /d /y
+	xcopy packet-x509sat.h ..\..\epan\dissectors /d /y
