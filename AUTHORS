@@ -150,6 +150,7 @@ Nathan Neulinger <nneul@umr.edu> {
 	RX protocol support
 	Andrew File System protocol support
 	802.1q VLAN support
+	Stubs for ypbind/ypserv/ypxfr/portmap/bootparams rpc dissectors
 }
 
 Tomislav Vujec <tvujec@carnet.hr> {

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.5 1999/11/10 15:10:32 nneul Exp $
+ * $Id: packet-rpc.c,v 1.6 1999/11/10 17:23:54 nneul Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -206,49 +206,24 @@ It should vanish, if they are finally present. Up to this point, this
 minimal variant serves as a detector for RPC services and can even find
 request/reply pairs. */
 
-#define	BOOT_PROGRAM	100026
 #define	MNT_PROGRAM	100005
 #define	NLM_PROGRAM	100021
-#define PMAP_PROGRAM	100000
 #define STAT_PROGRAM	100024
-#define YPBIND_PROGRAM	100007
-#define YPSERV_PROGRAM	100004
-#define YPXFR_PROGRAM	100069
 
-static int proto_boot = -1;
 static int proto_mnt = -1;
 static int proto_nlm = -1;
-static int proto_pmap = -1;
 static int proto_stat = -1;
-static int proto_ypbind = -1;
-static int proto_ypserv = -1;
-static int proto_ypxfr = -1;
 
 void init_incomplete_dissect(void)
 {
-	proto_boot = proto_register_protocol("Bootparameters", "BOOT");
-	rpc_init_prog(proto_boot, BOOT_PROGRAM, ETT_BOOT);
-
 	proto_mnt = proto_register_protocol("Mount", "MNT");
 	rpc_init_prog(proto_mnt, MNT_PROGRAM, ETT_MNT);
 
 	proto_nlm = proto_register_protocol("Network Lock Manager", "NLM");
 	rpc_init_prog(proto_nlm, NLM_PROGRAM, ETT_NLM);
 
-	proto_pmap = proto_register_protocol("Portmapper", "PMAP");
-	rpc_init_prog(proto_pmap, PMAP_PROGRAM, ETT_PMAP);
-
 	proto_stat = proto_register_protocol("Status", "STAT");
 	rpc_init_prog(proto_stat, STAT_PROGRAM, ETT_STAT);
-
-	proto_ypbind = proto_register_protocol("Yellow Page Bind", "YPBIND");
-	rpc_init_prog(proto_ypbind, YPBIND_PROGRAM, ETT_YPBIND);
-
-	proto_ypserv = proto_register_protocol("Yellow Page Server", "YPSERV");
-	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ETT_YPSERV);
-
-	proto_ypxfr = proto_register_protocol("Yellow Page Transfer", "YPXFR");
-	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ETT_YPXFR);
 }
 
 

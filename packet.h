@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.130 1999/11/10 15:10:33 nneul Exp $
+ * $Id: packet.h,v 1.131 1999/11/10 17:23:55 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -277,6 +277,7 @@ enum {
 	ETT_CLIP,
 	ETT_BOOTP,
 	ETT_BOOTP_OPTION,
+	ETT_BOOTPARAMS,
 	ETT_IPv6,
 	ETT_BGP,
 	ETT_BGP_OPEN,
@@ -447,10 +448,9 @@ enum {
 	ETT_NFS_FH3,
 	ETT_NFS_NFSTIME3,
 	ETT_NFS_FATTR3,
-	ETT_BOOT,
 	ETT_MNT,
 	ETT_NLM,
-	ETT_PMAP,
+	ETT_PORTMAP,
 	ETT_STAT,
 	ETT_YPBIND,
 	ETT_YPSERV,

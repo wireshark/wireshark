@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.101 1999/11/10 14:44:57 nneul Exp $
+# $Id: Makefile.am,v 1.102 1999/11/10 17:23:53 nneul Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,8 @@ DISSECTOR_SOURCES = \
 	packet-atm.c   \
 	packet-bgp.c   \
 	packet-bootp.c \
+	packet-bootparams.c \
+	packet-bootparams.h \
 	packet-bpdu.c  \
 	packet-cdp.c   \
 	packet-clip.c  \
@@ -87,6 +89,8 @@ DISSECTOR_SOURCES = \
 	packet-ospf.h  \
 	packet-pim.c   \
 	packet-pop.c   \
+	packet-portmap.c   \
+	packet-portmap.h   \
 	packet-ppp.c   \
 	packet-pppoe.c \
 	packet-pptp.c  \
@@ -118,7 +122,13 @@ DISSECTOR_SOURCES = \
 	packet-vlan.c \
 	packet-x25.c   \
 	packet-yhoo.c  \
-	packet-yhoo.h
+	packet-yhoo.h  \
+	packet-ypbind.c \
+	packet-ypbind.h \
+	packet-ypserv.c \
+	packet-ypserv.h \
+	packet-ypxfr.c \
+	packet-ypxfr.h 
 
 ethereal_SOURCES = \
 	alignment.h    \
