@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.285 2003/03/08 07:00:48 guy Exp $
+ * $Id: main.c,v 1.286 2003/03/12 00:07:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,7 @@ guint	     m_font_height, m_font_width;
 PangoFontDescription *m_r_font, *m_b_font;
 #endif
 static guint    main_ctx, file_ctx, help_ctx;
-static GString *comp_info_str;
+static GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
 gint   root_x = G_MAXINT, root_y = G_MAXINT, top_width, top_height;
@@ -172,13 +172,13 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
   simple_dialog(ESD_TYPE_INFO, NULL,
 		"Ethereal - Network Protocol Analyzer\n"
 		"Version " VERSION " (C) 1998-2002 Gerald Combs <gerald@ethereal.com>\n"
-                "Compiled %s\n\n"
+                "%s\n%s\n\n"
 
 		"Check the man page for complete documentation and\n"
 		"for the list of contributors.\n"
 
 		"\nSee http://www.ethereal.com/ for more information.",
-                 comp_info_str->str);
+                 comp_info_str->str, runtime_info_str->str);
 }
 
 #if GTK_MAJOR_VERSION < 2
@@ -1174,8 +1174,8 @@ static void
 print_usage(gboolean print_ver) {
 
   if (print_ver) {
-    fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled %s\n",
-	  comp_info_str->str);
+    fprintf(stderr, "This is GNU " PACKAGE " " VERSION "\n%s\n%s\n",
+	  comp_info_str->str, runtime_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "\n%s [ -vh ] [ -klpQS ] [ -a <capture autostop condition> ] ...\n",
@@ -1204,7 +1204,8 @@ show_version(void)
   create_console();
 #endif
 
-  printf("%s %s, %s\n", PACKAGE, VERSION, comp_info_str->str);
+  printf("%s %s\n%s\n%s\n", PACKAGE, VERSION, comp_info_str->str,
+         runtime_info_str->str);
 }
 
 static int
@@ -1577,9 +1578,8 @@ main(int argc, char *argv[])
 
   init_cap_file(&cfile);
 
-  /* Assemble the compile-time options */
-  comp_info_str = g_string_new("");
-
+  /* Assemble the compile-time version information string */
+  comp_info_str = g_string_new("Compiled ");
   g_string_append(comp_info_str, "with ");
   g_string_sprintfa(comp_info_str,
 #ifdef GTK_MAJOR_VERSION
@@ -1590,7 +1590,11 @@ main(int argc, char *argv[])
 #endif
 
   g_string_append(comp_info_str, ", ");
-  get_version_info(comp_info_str);
+  get_compiled_version_info(comp_info_str);
+
+  /* Assemble the run-time version information string */
+  runtime_info_str = g_string_new("Running ");
+  get_runtime_version_info(runtime_info_str);
 
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {

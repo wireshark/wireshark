@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.59 2003/03/08 11:15:49 guy Exp $
+ * $Id: util.c,v 1.60 2003/03/12 00:07:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,22 +81,17 @@ typedef int mode_t;	/* for win32 */
 #include "util.h"
 
 /*
- * Get various library version and the OS version and append them to
+ * Get various library compile-time versions and append them to
  * the specified GString.
  */
 void
-get_version_info(GString *str)
+get_compiled_version_info(GString *str)
 {
 #ifdef HAVE_LIBPCAP
 #ifdef HAVE_PCAP_VERSION
 	extern char pcap_version[];
 #endif /* HAVE_PCAP_VERSION */
 #endif /* HAVE_LIBPCAP */
-#if defined(WIN32)
-	OSVERSIONINFO info;
-#elif defined(HAVE_SYS_UTSNAME_H)
-	struct utsname name;
-#endif
 
 	g_string_append(str, "with ");
 	g_string_sprintfa(str,
@@ -146,8 +141,22 @@ get_version_info(GString *str)
 #else /* no SNMP library */
 	g_string_append(str, ", without UCD-SNMP or Net-SNMP");
 #endif /* HAVE_SOME_SNMP */
+}
 
-	g_string_append(str, ", running on ");
+/*
+ * Get various library run-time versions, and the OS version, and append
+ * them to the specified GString.
+ */
+void
+get_runtime_version_info(GString *str)
+{
+#if defined(WIN32)
+	OSVERSIONINFO info;
+#elif defined(HAVE_SYS_UTSNAME_H)
+	struct utsname name;
+#endif
+
+	g_string_append(str, "on ");
 #if defined(WIN32)
 	info.dwOSVersionInfoSize = sizeof info;
 	if (!GetVersionEx(&info)) {
@@ -278,7 +287,7 @@ get_version_info(GString *str)
 		g_string_sprintfa(str, "%s %s", name.sysname, name.release);
 	}
 #else
-	g_string_append("an unknown OS");
+	g_string_append(str, "an unknown OS");
 #endif
 }
 

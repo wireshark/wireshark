@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.177 2003/03/08 07:00:46 guy Exp $
+ * $Id: tethereal.c,v 1.178 2003/03/12 00:07:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,7 +104,7 @@
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
-static GString *comp_info_str;
+static GString *comp_info_str, *runtime_info_str;
 static gboolean quiet;
 static gboolean decode;
 static gboolean verbose;
@@ -214,8 +214,8 @@ print_usage(gboolean print_ver)
   int i;
 
   if (print_ver) {
-    fprintf(stderr, "This is GNU t%s %s, compiled %s\n", PACKAGE, VERSION,
-	comp_info_str->str);
+    fprintf(stderr, "This is GNU t%s %s\n%s\n%s\n", PACKAGE, VERSION,
+	comp_info_str->str, runtime_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "\nt%s [ -DvVhqSlp ] [ -a <capture autostop condition> ] ...\n",
@@ -433,10 +433,13 @@ main(int argc, char *argv[])
 
   init_cap_file(&cfile);
 
-  /* Assemble the compile-time options */
-  comp_info_str = g_string_new("");
+  /* Assemble the compile-time version information string */
+  comp_info_str = g_string_new("Compiled ");
+  get_compiled_version_info(comp_info_str);
 
-  get_version_info(comp_info_str);
+  /* Assemble the run-time version information string */
+  runtime_info_str = g_string_new("Running ");
+  get_runtime_version_info(runtime_info_str);
 
   /* Now get our args */
   while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vxz:")) != -1) {
@@ -618,7 +621,8 @@ main(int argc, char *argv[])
         }
         break;
       case 'v':        /* Show version and exit */
-        printf("t%s %s, %s\n", PACKAGE, VERSION, comp_info_str->str);
+        printf("t%s %s\n%s\n%s\n", PACKAGE, VERSION, comp_info_str->str,
+               runtime_info_str->str);
         exit(0);
         break;
       case 'w':        /* Write to capture file xxx */
