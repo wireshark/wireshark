@@ -3,7 +3,7 @@
  * Copyright 2003, Wayne Parrott <wayne_p@pacific.net.au>
  * Copied from packet-yhoo.c and updated
  *
- * $Id: packet-ymsg.c,v 1.1 2003/03/01 00:09:00 guy Exp $
+ * $Id: packet-ymsg.c,v 1.2 2003/03/01 04:12:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,18 @@ static gint ett_ymsg_content = -1;
  * and
  *
  *	http://www.venkydude.com/articles/yahoo.htm
+ *
+ * and
+ *
+ *	http://www.cse.iitb.ac.in/~varunk/YahooProtocol.htm
+ *
+ * and
+ *
+ *	http://www.geocrawler.com/archives/3/4893/2002/1/0/7459037/
+ *
+ * and
+ *
+ *	http://www.geocities.com/ziggycubbe/ym.html
  */
 
 /* Service constants */
