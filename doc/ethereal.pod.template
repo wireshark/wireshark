@@ -1445,6 +1445,7 @@ B<http://www.ethereal.com>.
   Michael Stiller          <ms[AT]2scale.net>
   Antti Tuominen           <ajtuomin[AT]tml.hut.fi>
   Martin Gignac            <lmcgign[AT]mobilitylab.net>
+  John Wells               <wells[AT]ieee.org>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

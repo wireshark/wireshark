@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.169 2002/06/07 10:11:39 guy Exp $
+ * $Id: packet-ip.c,v 1.170 2002/06/09 01:03:17 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1213,7 +1213,7 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 	default:
 	  g_warning("Unknown type(%u)!  I hope the length is right (%u)",
 				type, length);
-	  offset += length;
+	  offset += length + 2;
 	  break;
 	} /* switch type */
   } /* end while */
