@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.64 2001/04/15 07:30:03 guy Exp $
+ * $Id: packet-snmp.c,v 1.65 2001/04/15 07:51:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1000,7 +1000,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
 	length = asn1.offset - start;
 	if (tree) {
-		proto_tree_add_text(tree, NullTVB, offset, length,
+		proto_tree_add_text(tree, tvb, offset, length,
 		    "PDU type: %s", pdu_type_string);
 	}
 	offset += length;
@@ -1024,7 +1024,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Request Id: %#x", request_id);
 		}
 		offset += length;
@@ -1040,10 +1040,10 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		if (tree) {
 			if (pdu_type == SNMP_MSG_GETBULK) {
-				proto_tree_add_text(tree, NullTVB, offset,
+				proto_tree_add_text(tree, tvb, offset,
 				    length, "Non-repeaters: %u", error_status);
 			} else {
-				proto_tree_add_text(tree, NullTVB, offset,
+				proto_tree_add_text(tree, tvb, offset,
 				    length, "Error Status: %s",
 				    val_to_str(error_status, error_statuses,
 				      "Unknown (%d)"));
@@ -1062,10 +1062,10 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		if (tree) {
 			if (pdu_type == SNMP_MSG_GETBULK) {
-				proto_tree_add_text(tree, NullTVB, offset,
+				proto_tree_add_text(tree, tvb, offset,
 				    length, "Max repetitions: %u", error_index);
 			} else {
-				proto_tree_add_text(tree, NullTVB, offset,
+				proto_tree_add_text(tree, tvb, offset,
 				    length, "Error Index: %u", error_index);
 			}
 		}
@@ -1083,7 +1083,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		if (tree) {
 			oid_string = format_oid(enterprise, enterprise_length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Enterprise: %s", oid_string);
 			g_free(oid_string);
 		}
@@ -1122,12 +1122,12 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		length = asn1.offset - start;
 		if (tree) {
 			if (agent_address_length != 4) {
-				proto_tree_add_text(tree, NullTVB, offset,
+				proto_tree_add_text(tree, tvb, offset,
 				    length,
 				    "Agent address: <length is %u, not 4>",
 				    agent_address_length);
 			} else {
-				proto_tree_add_text(tree, NullTVB, offset,
+				proto_tree_add_text(tree, tvb, offset,
 				    length,
 				    "Agent address: %s",
 				    ip_to_str(agent_address));
@@ -1144,7 +1144,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Trap type: %s",
 			    val_to_str(trap_type, trap_types, "Unknown (%u)"));
 		}		
@@ -1158,7 +1158,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Specific trap type: %u (%#x)",
 			    specific_type, specific_type);
 		}		
@@ -1188,7 +1188,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Timestamp: %u", timestamp);
 		}		
 		offset += length;
@@ -1238,7 +1238,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 			sprint_objid(vb_oid_string, variable_oid,
 			    variable_oid_length);
-			proto_tree_add_text(tree, NullTVB, offset, sequence_length,
+			proto_tree_add_text(tree, tvb, offset, sequence_length,
 			    "Object identifier %d: %s (%s)", vb_index,
 			    oid_string, vb_oid_string);
 #ifdef HAVE_SNMP_SNMP_H
@@ -1269,7 +1269,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				unsafe = TRUE;
 #endif /* HAVE_SNMP_SNMP_H */
 #else /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
-			proto_tree_add_text(tree, NullTVB, offset, sequence_length,
+			proto_tree_add_text(tree, tvb, offset, sequence_length,
 			    "Object identifier %d: %s", vb_index,
 			    oid_string);
 #endif /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
@@ -1301,7 +1301,7 @@ static const value_string qos_vals[] = {
 };
 
 static void
-dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
+dissect_snmp2u_parameters(proto_tree *tree, tvbuff_t *tvb, int offset, int length,
     guchar *parameters, int parameters_length)
 {
 	proto_item *item;
@@ -1311,7 +1311,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 	guint8 qos;
 	guint8 len;
 
-	item = proto_tree_add_text(tree, NullTVB, offset, length,
+	item = proto_tree_add_text(tree, tvb, offset, length,
 	    "Parameters");
 	parameters_tree = proto_item_add_subtree(item, ett_parameters);
 	offset += length - parameters_length;
@@ -1319,14 +1319,14 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 	if (parameters_length < 1)
 		return;
 	model = *parameters;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, 1,
+	proto_tree_add_text(parameters_tree, tvb, offset, 1,
 	    "model: %u", model);
 	offset += 1;
 	parameters += 1;
 	parameters_length -= 1;
 	if (model != 1) {
 		/* Unknown model. */
-		proto_tree_add_text(parameters_tree, NullTVB, offset,
+		proto_tree_add_text(parameters_tree, tvb, offset,
 		    parameters_length, "parameters: %s",
 		    bytes_to_str(parameters, parameters_length));
 		return;
@@ -1335,14 +1335,14 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 	if (parameters_length < 1)
 		return;
 	qos = *parameters;
-	item = proto_tree_add_text(parameters_tree, NullTVB, offset, 1,
+	item = proto_tree_add_text(parameters_tree, tvb, offset, 1,
 	    "qoS: 0x%x", qos);
 	qos_tree = proto_item_add_subtree(item, ett_parameters_qos);
-	proto_tree_add_text(qos_tree, NullTVB, offset, 1, "%s",
+	proto_tree_add_text(qos_tree, tvb, offset, 1, "%s",
 	    decode_boolean_bitfield(qos, 0x04,
 		8, "Generation of report PDU allowed",
 		   "Generation of report PDU not allowed"));
-	proto_tree_add_text(qos_tree, NullTVB, offset, 1, "%s",
+	proto_tree_add_text(qos_tree, tvb, offset, 1, "%s",
 	    decode_enumerated_bitfield(qos, 0x03,
 		8, qos_vals, "%s"));
 	offset += 1;
@@ -1351,7 +1351,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 
 	if (parameters_length < 12)
 		return;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, 12,
+	proto_tree_add_text(parameters_tree, tvb, offset, 12,
 	    "agentID: %s", bytes_to_str(parameters, 12));
 	offset += 12;
 	parameters += 12;
@@ -1359,7 +1359,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 
 	if (parameters_length < 4)
 		return;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, 4,
+	proto_tree_add_text(parameters_tree, tvb, offset, 4,
 	    "agentBoots: %u", pntohl(parameters));
 	offset += 4;
 	parameters += 4;
@@ -1367,7 +1367,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 
 	if (parameters_length < 4)
 		return;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, 4,
+	proto_tree_add_text(parameters_tree, tvb, offset, 4,
 	    "agentTime: %u", pntohl(parameters));
 	offset += 4;
 	parameters += 4;
@@ -1375,7 +1375,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 
 	if (parameters_length < 2)
 		return;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, 2,
+	proto_tree_add_text(parameters_tree, tvb, offset, 2,
 	    "maxSize: %u", pntohs(parameters));
 	offset += 2;
 	parameters += 2;
@@ -1384,7 +1384,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 	if (parameters_length < 1)
 		return;
 	len = *parameters;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, 1,
+	proto_tree_add_text(parameters_tree, tvb, offset, 1,
 	    "userLen: %u", len);
 	offset += 1;
 	parameters += 1;
@@ -1392,7 +1392,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 
 	if (parameters_length < len)
 		return;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, len,
+	proto_tree_add_text(parameters_tree, tvb, offset, len,
 	    "userName: %.*s", len, parameters);
 	offset += len;
 	parameters += len;
@@ -1401,7 +1401,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 	if (parameters_length < 1)
 		return;
 	len = *parameters;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, 1,
+	proto_tree_add_text(parameters_tree, tvb, offset, 1,
 	    "authLen: %u", len);
 	offset += 1;
 	parameters += 1;
@@ -1409,7 +1409,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 
 	if (parameters_length < len)
 		return;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, len,
+	proto_tree_add_text(parameters_tree, tvb, offset, len,
 	    "authDigest: %s", bytes_to_str(parameters, len));
 	offset += len;
 	parameters += len;
@@ -1417,7 +1417,7 @@ dissect_snmp2u_parameters(proto_tree *tree, int offset, int length,
 
 	if (parameters_length < 1)
 		return;
-	proto_tree_add_text(parameters_tree, NullTVB, offset, parameters_length,
+	proto_tree_add_text(parameters_tree, tvb, offset, parameters_length,
 	    "contextSelector: %s", bytes_to_str(parameters, parameters_length));
 }
 
@@ -1531,7 +1531,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		ret = asn1_octet_string_decode (&asn1, &community, 
 		    &community_length, &length);
 		if (tree) {
-			dissect_snmp2u_parameters(snmp_tree, offset, length,
+			dissect_snmp2u_parameters(snmp_tree, tvb, offset, length,
 			    community, community_length);
 		}
 		g_free(community);
