@@ -403,7 +403,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	volatile address save_net_dst;
 	volatile address save_src;
 	volatile address save_dst;
-	gint saved_layer_names_len = 0;
+	volatile gint saved_layer_names_len = 0;
 
 	if (handle->protocol != NULL &&
 	    !proto_is_protocol_enabled(handle->protocol)) {
