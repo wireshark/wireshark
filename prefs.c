@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.63 2001/10/16 07:35:11 guy Exp $
+ * $Id: prefs.c,v 1.64 2001/10/21 17:30:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,6 +98,15 @@ gchar	*gui_hex_dump_highlight_style_text[] =
  */
 static GList *modules;
 
+static gint
+module_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
+{
+	const module_t *p1 = p1_arg;
+	const module_t *p2 = p2_arg;
+
+	return g_strcasecmp(p1->name, p2->name);
+}
+
 /*
  * Register a module that will have preferences.
  * Specify the name used for the module in the preferences file, the
@@ -118,7 +127,7 @@ prefs_register_module(const char *name, const char *title,
 	module->numprefs = 0;
 	module->prefs_changed = FALSE;
 
-	modules = g_list_append(modules, module);
+	modules = g_list_insert_sorted(modules, module, module_compare_name);
 
 	return module;
 }
