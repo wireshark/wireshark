@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.34 2004/06/18 14:11:09 ulfl Exp $
+ * $Id: summary_dlg.c,v 1.35 2004/06/18 20:23:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,7 +104,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   time_t        ti_time;
   struct tm    *ti_tm;
-  unsigned long elapsed_time;
+  unsigned int  elapsed_time;
 
   /* initial computations */
   summary_fill_in(&summary);
@@ -153,8 +153,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "Time", "");
 
   /* start time */
-  ti_time = (long)summary.start_time;
-  ti_tm = localtime( &ti_time );
+  ti_time = (time_t)summary.start_time;
+  ti_tm = localtime(&ti_time);
   g_snprintf(string_buff, SUM_STR_MAX,
              "%04d-%02d-%02d %02d:%02d:%02d",
              ti_tm->tm_year + 1900,
@@ -166,8 +166,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "First packet:", string_buff);
 
   /* stop time */
-  ti_time = (long)summary.stop_time;
-  ti_tm = localtime( &ti_time );
+  ti_time = (time_t)summary.stop_time;
+  ti_tm = localtime(&ti_time);
   g_snprintf(string_buff, SUM_STR_MAX,
              "%04d-%02d-%02d %02d:%02d:%02d",
              ti_tm->tm_year + 1900,
@@ -179,7 +179,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "Last packet:", string_buff);
 
   /* elapsed seconds */
-  elapsed_time = (long)summary.elapsed_time;
+  elapsed_time = (unsigned int)summary.elapsed_time;
   if(elapsed_time/86400) {
       g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u", 
         elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
