@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.96 2003/07/30 22:50:39 guy Exp $
+ * $Id: proto.c,v 1.97 2003/07/31 03:52:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3610,46 +3610,14 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 					stringified);
 			break;
 
-		case FT_FLOAT:
-			/*
-			 * 4 bytes for " == ".
-			 * 1 byte for a sign.
-			 * 26 bytes for a Really Big number.
-			 * (XXX - is that platform-dependent?)
-			 * (XXX - Really Small numbers just show up as 0;
-			 * should we use "%.9g" instead?)
-			 * 1 byte for the trailing '\0'.
-			 */
-			dfilter_len = abbrev_len + 4 + 1 + 26 + 1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %." STRINGIFY(FLT_DIG) "f",
-					hfinfo->abbrev,
-					fvalue_get_floating(finfo->value));
-			break;
-
-		case FT_DOUBLE:
-			/*
-			 * 4 bytes for " == ".
-			 * 1 byte for a sign.
-			 * 26 bytes for a Really Big number.
-			 * (XXX - is that platform-dependent?)
-			 * (XXX - Really Small numbers just show up as 0;
-			 * should we use "%.9g" instead?)
-			 * 1 byte for the trailing '\0'.
-			 */
-			dfilter_len = abbrev_len + 4 + 1 + 26 + 1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %." STRINGIFY(DBL_DIG) "g",
-					hfinfo->abbrev,
-					fvalue_get_floating(finfo->value));
-			break;
-
 		/* These use the fvalue's "to_string_repr" method. */
 		case FT_BOOLEAN:
 		case FT_STRING:
 		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
+		case FT_FLOAT:
+		case FT_DOUBLE:
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 			/* Figure out the string length needed.

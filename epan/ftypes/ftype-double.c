@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-double.c,v 1.9 2003/07/25 03:44:02 gram Exp $
+ * $Id: ftype-double.c,v 1.10 2003/07/31 03:52:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <errno.h>
+#include <float.h>
+
+#include "strutil.h"
 
 static void
 double_fvalue_new(fvalue_t *fv)
@@ -76,6 +79,42 @@ val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 	return TRUE;
 }
 
+static int
+float_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	/*
+	 * 1 character for a sign.
+	 * 26 characters for a Really Big Number.
+	 * XXX - is that platform-dependent?
+	 * XXX - smaller for float than for double?
+	 * XXX - can we compute it from FLT_DIG and the like?
+	 */
+	return 1 + 26;
+}
+
+static void
+float_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	sprintf(buf, "%." STRINGIFY(FLT_DIG) "g", fv->value.floating);
+}
+
+static int
+double_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	/*
+	 * 1 character for a sign.
+	 * 26 characters for a Really Big Number.
+	 * XXX - is that platform-dependent?
+	 * XXX - can we compute it from DBL_DIG and the like?
+	 */
+	return 1 + 26;
+}
+
+static void
+double_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	sprintf(buf, "%." STRINGIFY(DBL_DIG) "g", fv->value.floating);
+}
 
 static gboolean
 cmp_eq(fvalue_t *a, fvalue_t *b)
@@ -125,8 +164,8 @@ ftype_register_double(void)
 		NULL,
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		float_val_to_repr,		/* val_to_string_repr */
+		float_val_repr_len,		/* len_string_repr */
 
 		NULL,
 		NULL,
@@ -155,8 +194,8 @@ ftype_register_double(void)
 		NULL,
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		double_val_to_repr,		/* val_to_string_repr */
+		double_val_repr_len,		/* len_string_repr */
 
 		NULL,
 		NULL,
