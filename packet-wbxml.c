@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.14 2003/11/20 22:24:15 guy Exp $
+ * $Id: packet-wbxml.c,v 1.15 2003/11/20 22:50:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3696,5 +3696,8 @@ proto_reg_handoff_wbxml(void)
 			"application/x-wap-prov.browser-bookmarks", wbxml_handle);
 	dissector_add_string("wsp.content_type.literal",
 			"application/x-wap-prov.browser-settings", wbxml_handle);
+	/* Same as application/vnd.nokia.syncset+wbxml */
+	dissector_add_string("wsp.content_type.literal",
+			"application/x-prov.syncset+wbxml", wbxml_handle);
 	
 }
