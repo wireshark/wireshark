@@ -792,6 +792,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
   guint length;
   gboolean def;
   int ret;
+  static const char extensibleMatch[] = "(extensibleMatch not decoded)";
 
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
   if (ret != ASN1_ERR_NOERROR)
@@ -928,8 +929,9 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
       ret = asn1_null_decode(a, length);
       if (ret != ASN1_ERR_NOERROR)
         return ret;
-      *filter = g_strdup("(extensibleMatch not decoded)");
-      *filter_length = strlen(*filter);
+      *filter_length += sizeof extensibleMatch - 1;
+      *filter = g_realloc(*filter, *filter_length);
+      strcat(*filter, extensibleMatch);
       break;
      default:
       return ASN1_ERR_WRONG_TYPE;
