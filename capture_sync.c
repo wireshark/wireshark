@@ -108,7 +108,7 @@ static char *sync_pipe_signame(int);
 
 
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
-static void sync_pipe_wait_for_child(int fork_child, gboolean always_report);
+static void sync_pipe_wait_for_child(capture_options *capture_opts, gboolean always_report);
 
 /* Size of buffer to hold decimal representation of
    signed/unsigned 64-bit int */
@@ -121,6 +121,7 @@ static void sync_pipe_wait_for_child(int fork_child, gboolean always_report);
 #define SP_PACKET_COUNT	'*'	/* followed by count of packets captured since last message */
 #define SP_ERROR_MSG	'!'	/* followed by length of error message that follows */
 #define SP_DROPS	'#'	    /* followed by count of packets dropped in capture */
+#define SP_FILE	    ':'	    /* followed by length of the name of the last opened file that follows */
 
 
 
@@ -138,6 +139,17 @@ sync_pipe_packet_count_to_parent(int packet_count)
     char tmp[SP_DECISIZE+1+1];
     sprintf(tmp, "%d%c", packet_count, SP_PACKET_COUNT);
     write(1, tmp, strlen(tmp));
+}
+
+void
+sync_pipe_filename_to_parent(const char *filename)
+{
+    int msglen = strlen(filename);
+    char lenbuf[SP_DECISIZE+1+1];
+
+    sprintf(lenbuf, "%u%c", msglen, SP_FILE);
+    write(1, lenbuf, strlen(lenbuf));
+    write(1, filename, msglen);
 }
 
 void
@@ -420,7 +432,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 	unlink(capture_opts->save_file);
 	g_free(capture_opts->save_file);
 	capture_opts->save_file = NULL;
-	sync_pipe_wait_for_child(capture_opts->fork_child, TRUE);
+	sync_pipe_wait_for_child(capture_opts, TRUE);
 	return FALSE;
       }
       if (c == SP_CAPSTART || c == SP_ERROR_MSG)
@@ -461,7 +473,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 	  } else if (i == 0) {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "Capture child process failed: EOF reading its error message.");
-	    sync_pipe_wait_for_child(capture_opts->fork_child, FALSE);
+	    sync_pipe_wait_for_child(capture_opts, FALSE);
 	  } else
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);
 	  g_free(msg);
@@ -516,7 +528,6 @@ static gboolean
 sync_pipe_input_cb(gint source, gpointer user_data)
 {
   capture_options *capture_opts = (capture_options *)user_data;
-  gint fork_child = capture_opts->fork_child;
 #define BUFSIZE	4096
   char buffer[BUFSIZE+1], *p = buffer, *q = buffer, *msg, *r;
   int  nread, msglen, chars_to_copy;
@@ -528,7 +539,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
-    sync_pipe_wait_for_child(fork_child, FALSE);
+    sync_pipe_wait_for_child(capture_opts, FALSE);
 
     /* Read what remains of the capture file, and finish the capture.
        XXX - do something if this fails? */
@@ -613,6 +624,40 @@ sync_pipe_input_cb(gint source, gpointer user_data)
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);
       g_free(msg);
       break;
+    case SP_FILE :
+      msglen = atoi(p);
+      p = q + 1;
+      q++;
+      nread--;
+
+      /* Read the entire message.
+         XXX - if the child hasn't sent it all yet, this could cause us
+         to hang until they do. */
+      msg = g_malloc(msglen + 1);
+      r = msg;
+      while (msglen != 0) {
+      	if (nread == 0) {
+      	  /* Read more. */
+          if ((nread = read(source, buffer, BUFSIZE)) <= 0)
+            break;
+          p = buffer;
+          q = buffer;
+        }
+      	chars_to_copy = MIN(msglen, nread);
+        memcpy(r, q, chars_to_copy);
+        r += chars_to_copy;
+        q += chars_to_copy;
+        nread -= chars_to_copy;
+        msglen -= chars_to_copy;
+      }
+      *r = '\0';
+      /*simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);*/
+      /* XXX - save the current filename?! */
+      if(capture_opts->sync_mode) {
+
+      }
+      g_free(msg);
+      break;
     default :
       q++;
       nread--;
@@ -647,15 +692,18 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
 /* the child process is going down, wait until it's completely terminated */
 static void
-sync_pipe_wait_for_child(int fork_child, gboolean always_report)
+sync_pipe_wait_for_child(capture_options *capture_opts, gboolean always_report)
 {
   int  wstatus;
+
+
+  g_assert(capture_opts->fork_child != -1);
 
 #ifdef _WIN32
   /* XXX - analyze the wait status and display more information
      in the dialog box?
      XXX - set "fork_child" to -1 if we find it exited? */
-  if (_cwait(&wstatus, fork_child, _WAIT_CHILD) == -1) {
+  if (_cwait(&wstatus, capture_opts->fork_child, _WAIT_CHILD) == -1) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		"Child capture process stopped unexpectedly");
   }
@@ -689,7 +737,7 @@ sync_pipe_wait_for_child(int fork_child, gboolean always_report)
   }
 
   /* No more child process. */
-  fork_child = -1;
+  capture_opts->fork_child = -1;
 #endif
 }
 
@@ -792,6 +840,7 @@ sync_pipe_signame(int sig)
 void
 sync_pipe_stop(capture_options *capture_opts)
 {
+  /* XXX - in which cases this will be 0? */
   if (capture_opts->fork_child != -1 && capture_opts->fork_child != 0) {
 #ifndef _WIN32
       kill(capture_opts->fork_child, SIGUSR1);
@@ -821,6 +870,7 @@ sync_pipe_stop(capture_options *capture_opts)
 void
 sync_pipe_kill(capture_options *capture_opts)
 {
+  /* XXX - in which cases this will be 0? */
   if (capture_opts->fork_child != -1 && capture_opts->fork_child != 0) {
 #ifndef _WIN32
       kill(capture_opts->fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */

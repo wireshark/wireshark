@@ -1053,6 +1053,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
        progress. */
     fflush(wtap_dump_file(ld.wtap_pdh));
     sync_pipe_capstart_to_parent();
+    sync_pipe_filename_to_parent(capture_opts->save_file);
   }
 
   /* initialize capture stop (and alike) conditions */

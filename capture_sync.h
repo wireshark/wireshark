@@ -69,6 +69,10 @@ sync_pipe_packet_count_to_parent(int packet_count);
 extern void
 sync_pipe_drops_to_parent(int drops);
 
+/** the child has opened a new capture file, notify the parent */
+extern void
+sync_pipe_filename_to_parent(const char *filename);
+
 /** the child encountered an error, notify the parent */
 extern void 
 sync_pipe_errmsg_to_parent(const char *errmsg);

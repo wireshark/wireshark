@@ -78,6 +78,8 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->has_autostop_duration   = FALSE;
   capture_opts->autostop_duration       = 60;               /* 1 min */
 
+
+  capture_opts->fork_child              = -1;               /* invalid process handle */
 }
 
 static int
