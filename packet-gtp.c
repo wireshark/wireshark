@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.49 2002/12/10 19:05:29 guy Exp $
+ * $Id: packet-gtp.c,v 1.50 2003/01/02 20:33:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3377,8 +3377,13 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	guint8      utf8_type = 1;
 
 	/* In RADIUS messages the QoS has a version field of two octets prepended.
+	 * As of 29.061 v.3.a.0, there is an hyphen between "Release Indicator" and
+	 * <release specific QoS IE UTF-8 encoding>. Even if it sounds rather
+	 * inconsistent and unuseful, I will check hyphen presence here and
+	 * will signal its presence.
 	 * */
 	guint8		version_buffer[2];
+	guint8      hyphen;
 
 	/* Will keep the value that will be returned
 	 * */
@@ -3414,6 +3419,15 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			version_buffer[1] = tvb_get_guint8(tvb, offset + 2);
 			proto_tree_add_text (ext_tree_qos, tvb, offset + 1, 2, "Version: %c%c", version_buffer[0], version_buffer[1]);
 
+			/* Hyphen handling */
+			hyphen = tvb_get_guint8(tvb, offset + 3);
+			if (hyphen == ((guint8) '-'))
+			{
+				/* Hyphen is present, put in protocol tree */
+				proto_tree_add_text (ext_tree_qos, tvb, offset + 3, 1, "Hyphen separator: -");
+				offset++; /* "Get rid" of hyphen */
+			}
+			
 			/* Now, we modify offset here and in order to use type later
 			 * effectively.*/
 			offset += 2;
