@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.35 2001/06/05 07:38:37 guy Exp $
+ * $Id: proto_draw.c,v 1.36 2001/07/09 22:54:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include <stdarg.h>
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -182,6 +183,16 @@ collapse_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data)
 
 	val = &tree_is_expanded[finfo->tree_type];
 	*val = FALSE;
+}
+
+static void
+toggle_tree(GtkCTree *ctree, GdkEventKey *event, gpointer user_data)
+{
+	GtkCTreeNode *node;
+
+	if (event->keyval != GDK_Return)
+		return;
+	gtk_ctree_toggle_expansion(ctree, GTK_CTREE_NODE(ctree->clist.selection->data));
 }
 
 /* Which byte the offset is referring to. Associates
@@ -822,6 +833,12 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   gtk_widget_show(tv_scrollw);
   
   tree_view = gtk_ctree_new(1, 0);
+  gtk_signal_connect( GTK_OBJECT(tree_view), "key-press-event",
+		      (GtkSignalFunc) toggle_tree, NULL );
+  gtk_signal_connect( GTK_OBJECT(tree_view), "tree-expand",
+		      (GtkSignalFunc) expand_tree, NULL );
+  gtk_signal_connect( GTK_OBJECT(tree_view), "tree-collapse",
+		      (GtkSignalFunc) collapse_tree, NULL );
   /* I need this next line to make the widget work correctly with hidden
    * column titles and GTK_SELECTION_BROWSE */
   gtk_clist_set_column_auto_resize( GTK_CLIST(tree_view), 0, TRUE );
@@ -874,11 +891,6 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 	g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
 		proto_tree_draw_node, &info);
 
-	gtk_signal_connect( GTK_OBJECT(info.ctree), "tree-expand",
-		(GtkSignalFunc) expand_tree, NULL );
-	gtk_signal_connect( GTK_OBJECT(info.ctree), "tree-collapse",
-		(GtkSignalFunc) collapse_tree, NULL );
-
 	gtk_clist_thaw ( GTK_CLIST(tree_view) );
 }
 
@@ -898,7 +910,8 @@ proto_tree_draw_node(GNode *node, gpointer data)
 	if (!fi->visible)
 		return;
 	i= find_notebook_page( byte_nb_ptr, fi->ds_name);
-	if ( i < 0) return; 	/* no notebook pages ?? */
+	if ( i < 0)
+		return; 	/* no notebook pages ?? */
 	set_notebook_page( byte_nb_ptr, i);
 
 	/* was a free format label produced? */

@@ -233,6 +233,8 @@ Heikki Vatiainen <hessu@cs.tut.fi> {
 	BGP tvbuffification
 	IPv6 and ICMPv6 tvbuffification
 	PIM enhancements and fixes
+	Support for Enter/Return toggling expansion of selected protocol
+	    tree item
 }
 
 Greg Hankins <gregh@twoguys.org> {
