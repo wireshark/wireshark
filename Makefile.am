@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.395 2001/12/15 22:29:50 guy Exp $
+# $Id: Makefile.am,v 1.396 2001/12/15 23:56:04 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -773,6 +773,7 @@ DISTCLEANFILES =	\
 	*~
 
 EXTRA_DIST = \
+	Ethereal.desktop	\
 	aclocal-flags		\
 	capture-wpcap.c		\
 	capture-wpcap.h		\
@@ -806,7 +807,6 @@ EXTRA_DIST = \
 	doc/tethereal.pod.template \
 	doc/text2pcap.pod	\
 	editcap.c		\
-	ethereal.desktop	\
 	ethereal_be.py		\
 	ethereal_gen.py		\
 	mergecap.c		\

@@ -1,8 +1,9 @@
 [Desktop Entry]
-# $Id: ethereal.desktop,v 1.1 2001/12/15 22:29:50 guy Exp $
+# $Id: Ethereal.desktop,v 1.1 2001/12/15 23:56:04 guy Exp $
 Name=Ethereal
 Type=Application
 TryExec=ethereal
+BinaryPattern=ethereal;ethereal-static
 Comment=Network traffic analyzer
 Comment[fi]=Verkkoliikenne analysaattori
 Exec=ethereal
@@ -13,4 +14,3 @@ TerminalOptions=
 MimeType=
 MapNotify=true
 Protocols=
-BinaryPattern=ethereal;
