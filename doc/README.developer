@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.40 2001/11/27 05:05:02 guy Exp $
+$Id: README.developer,v 1.41 2001/11/27 07:21:55 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -85,7 +85,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.40 2001/11/27 05:05:02 guy Exp $"
+The "$Id: README.developer,v 1.41 2001/11/27 07:21:55 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -95,7 +95,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.40 2001/11/27 05:05:02 guy Exp $
+ * $Id: README.developer,v 1.41 2001/11/27 07:21:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1666,13 +1666,27 @@ the secondary protocol dissection.  After the conversation is created
 for the negotiated ports use the conversation_set_dissector to define
 the dissection routine.
 
+The second argument to conversation_set_dissector is a dissector handle,
+which is created with a call to create_dissector_handle or
+register_dissector.
+
+create_dissector_handle takes as arguments a pointer to the dissector
+function and a protocol ID as returned by proto_register_protocol;
+register_dissector takes as arguments a string giving a name for the
+dissector, a pointer to the dissector function, and a protocol ID.
+
+The protocol ID is the ID for the protocol dissected by the function. 
+The function will not be called if the protocol has been disabled by the
+user; instead, the data for the protocol will be dissected as raw data.
+
 An example -
 
+/* the handle for the dynamic dissector *
+static dissector_handle_t sub_dissector_handle;
 
 /* prototype for the dynamic dissector */
 static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *tree);
-
 
 /* in the main protocol dissector, where the next dissector is setup */
 
@@ -1686,9 +1700,20 @@ static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
                 src_port, dst_port, new_conv_info, 0);
 
 /* set the dissector for the new conversation */
-        conversation_set_dissector(conversation, sub_dissector);
+        conversation_set_dissector(conversation, sub_dissector_handle);
 
+		...
 
+void
+proto_register_PROTOABBREV(void)
+{                 
+	...
+
+	sub_dissector_handle = create_dissector_handle(sub_dissector,
+	    proto);
+
+	...
+}
 
 2.4 Dynamic server port dissector registration
 
@@ -1718,10 +1743,10 @@ server port definition, you must create a new conversation.
 
 An example -
 
-/* prototype for the dynamic dissector */
-static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
-                proto_tree *tree);
+/* the handle for the dynamic dissector *
+static dissector_handle_t sub_dissector_handle;
 
+	...
 
 /* in the main protocol dissector, where the next dissector is setup */
 
@@ -1738,7 +1763,7 @@ static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
                 server_src_port, 0, new_conv_info, NO_ADDR2 | NO_PORT2);
 
 /* set the dissector for the new conversation */
-        conversation_set_dissector(conversation, sub_dissector);
+        conversation_set_dissector(conversation, sub_dissector_handle);
 
 
 2.5 Per packet information
