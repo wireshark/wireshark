@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.6 2003/04/23 08:20:01 guy Exp $
+ * $Id: tap-iousers.c,v 1.7 2003/05/19 11:16:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,7 +223,7 @@ iousers_ip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 		iui->bytes2=0;
 	}
 
-	if(!memcmp(&iph->ip_src,iui->addr1,4)){
+	if(!memcmp(&iph->ip_dst,iui->addr1,4)){
 		iui->frames1++;
 		iui->bytes1+=pinfo->fd->pkt_len;
 	} else {
