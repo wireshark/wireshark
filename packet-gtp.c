@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.73 2004/02/27 09:25:27 guy Exp $
+ * $Id: packet-gtp.c,v 1.74 2004/03/30 18:14:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4150,7 +4150,6 @@ static int
 decode_gtp_priv_ext(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length, ext_id;
-	gchar		ext_val[64];
 	proto_tree	*ext_tree_priv_ext;
 	proto_item	*te;
 
@@ -4158,13 +4157,17 @@ decode_gtp_priv_ext(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	ext_tree_priv_ext = proto_item_add_subtree(te, ett_gtp_ext);
 
 	length = tvb_get_ntohs(tvb, offset+1);
-	if (length < 1) return 3+length;
+	if (length >= 2) {
+		ext_id = tvb_get_ntohs(tvb, offset+3);
+		proto_tree_add_uint(ext_tree_priv_ext, hf_gtp_ext_id, tvb, offset+3, 2, ext_id);
 
-	ext_id = tvb_get_ntohs(tvb, offset+3);
-	tvb_memcpy(tvb, ext_val, offset+5, length > 65 ? 63 : length-2);
-	ext_val[length > 65 ? 64 : length-1] = '\0';
-	proto_tree_add_uint(ext_tree_priv_ext, hf_gtp_ext_id, tvb, offset+3, 2, ext_id);
-	proto_tree_add_string(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset+5, length-2, ext_val);
+		/*
+		 * XXX - is this always a text string?  Or should it be
+		 * displayed as hex data?
+		 */
+		if (length > 2)
+			proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset+5, length-2, FALSE);
+	}
 
 	return 3+length;
 }
