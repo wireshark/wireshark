@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.14 1999/11/10 19:47:57 gram Exp $
+ * $Id: radcom.c,v 1.15 1999/11/18 21:48:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -48,7 +48,7 @@ struct unaligned_frame_date {
 	char	usec[4];
 };
 
-static char radcom_magic[8] = {
+static guint8 radcom_magic[8] = {
 	0x42, 0xD2, 0x00, 0x34, 0x12, 0x66, 0x22, 0x88
 };
 
@@ -91,7 +91,7 @@ int radcom_open(wtap *wth, int *err)
 		return 0;
 	}
 
-	if (memcmp(magic, radcom_magic, 8)) {
+	if (memcmp(magic, radcom_magic, 8) != 0) {
 		return 0;
 	}
 
