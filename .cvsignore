@@ -29,6 +29,7 @@ dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c
 dftest
+doxygen.cfg
 editcap
 editcap.1
 editcap.html
