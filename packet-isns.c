@@ -2,6 +2,8 @@
  * Routines for iSNS dissection
  * Copyright 2003, Elipsan, Gareth Bushell <gbushell@elipsan.com>
  *
+ * $Id: packet-isns.c,v 1.2 2003/10/02 22:44:19 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs

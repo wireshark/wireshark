@@ -3,6 +3,8 @@
  * 2003 Tomas Kukosa
  * Based on code from RFC 1950 (Chapter 9. Appendix: Sample code)
  *
+ * $Id: adler32.c,v 1.2 2003/10/02 22:44:18 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs

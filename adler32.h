@@ -2,6 +2,8 @@
  * Compute the Adler32 checksum (RFC 1950)
  * 2003 Tomas Kukosa
  *
+ * $Id: adler32.h,v 1.2 2003/10/02 22:44:19 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs

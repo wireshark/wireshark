@@ -4,6 +4,8 @@
  *
  * Copied from packet-h225.c and packet-h245.c
  *
+ * $Id: packet-h450.c,v 1.3 2003/10/02 22:44:19 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
