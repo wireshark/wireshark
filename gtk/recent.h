@@ -2,7 +2,7 @@
  * Definitions for recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.h,v 1.7 2004/04/27 19:16:11 ulfl Exp $
+ * $Id: recent.h,v 1.8 2004/05/07 08:12:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,9 +36,7 @@ typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
     gboolean    filter_toolbar_show;
     gboolean    packet_list_show;
-    /*gboolean  packet_list_height;*/
     gboolean    tree_view_show;
-    /*gboolean  tree_view_height;*/
     gboolean    byte_view_show;
     gboolean    statusbar_show;
     gint        gui_time_format;
