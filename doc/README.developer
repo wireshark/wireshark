@@ -415,6 +415,12 @@ that where possible you keep to the IANA abbreviated name for the
 protocol, if there is one, or a commonly-used abbreviation for the
 protocol, if any.
 
+Usually, you will put your newly created dissector file into the directory
+epan/dissectors, just like all the other packet-....c files already in there.
+
+Also, please remind to add your dissector file to the corresponding makefile, 
+described in chapter "1.9 Editing Makefile.common to add your dissector" below.
+
 Dissectors that use the dissector registration to tell a lower level
 dissector don't need to define a prototype in the .h file. For other
 dissectors the main dissector routine should have a prototype in a header
