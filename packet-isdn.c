@@ -1,7 +1,7 @@
 /* packet-isdn.c
  * Routines for ISDN packet disassembly
  *
- * $Id: packet-isdn.c,v 1.4 2003/06/10 05:53:33 guy Exp $
+ * $Id: packet-isdn.c,v 1.5 2003/12/21 12:07:09 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,8 +81,8 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *isdn_tree;
 	proto_item *ti;
-	static const char v120_sabme[3] = { 0x08, 0x01, 0x7F };
-	static const char ppp[2] = { 0xFF, 0x03 };
+	static const guint8 v120_sabme[3] = { 0x08, 0x01, 0x7F };
+	static const guint8 ppp[2] = { 0xFF, 0x03 };
 	circuit_t *circuit;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
