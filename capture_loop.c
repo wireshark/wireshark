@@ -840,7 +840,7 @@ static int capture_loop_open_wiretap_output(capture_options *capture_opts, loop_
 
 static gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close) {
   if (capture_opts->multi_files_on) {
-    return ringbuf_wtap_dump_close(&cfile, err_close);
+    return ringbuf_wtap_dump_close(&cfile.save_file, err_close);
   } else {
     return wtap_dump_close(ld->wtap_pdh, err_close);
   }
@@ -1106,7 +1106,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&cfile, &ld.wtap_pdh, &ld.err)) {
+          if (ringbuf_switch_file(&ld.wtap_pdh, &cfile.save_file, &cfile.save_file_fd, &ld.err)) {
             /* File switch succeeded: reset the conditions */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
@@ -1175,7 +1175,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&cfile, &ld.wtap_pdh, &ld.err)) {
+          if (ringbuf_switch_file(&ld.wtap_pdh, &cfile.save_file, &cfile.save_file_fd, &ld.err)) {
             /* file switch succeeded: reset the conditions */
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)

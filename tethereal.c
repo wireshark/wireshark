@@ -2034,7 +2034,7 @@ capture(int out_file_type)
            its maximum size. */
         if (capture_opts.ringbuffer_on) {
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&cfile, &ld.pdh, &loop_err)) {
+          if (ringbuf_switch_file(&ld.pdh, &cfile.save_file, &cfile.save_file_fd, &loop_err)) {
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_stop_capturesize);
 	    if (cnd_ring_timeout) {
@@ -2103,7 +2103,7 @@ capture(int out_file_type)
   if (cfile.save_file != NULL) {
     /* We're saving to a file or files; close all files. */
     if (capture_opts.ringbuffer_on) {
-      dump_ok = ringbuf_wtap_dump_close(&cfile, &err);
+      dump_ok = ringbuf_wtap_dump_close(&cfile.save_file, &err);
     } else {
       dump_ok = wtap_dump_close(ld.pdh, &err);
     }
@@ -2193,7 +2193,7 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
    */
   if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
     /* time elapsed for this ring file, switch to the next */
-    if (ringbuf_switch_file(&cfile, &ldat->pdh, &loop_err)) {
+    if (ringbuf_switch_file(&ldat->pdh, &cfile.save_file, &cfile.save_file_fd, &loop_err)) {
       /* File switch succeeded: reset the condition */
       cnd_reset(cnd_ring_timeout);
     } else {

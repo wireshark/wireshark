@@ -252,7 +252,7 @@ ringbuf_init_wtap_dump_fdopen(int filetype, int linktype, int snaplen, int *err)
  * Switches to the next ringbuffer file
  */
 gboolean
-ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
+ringbuf_switch_file(wtap_dumper **pdh, gchar **save_file, int *save_file_fd, int *err)
 {
   int     next_file_num;
   rb_file *next_rfile = NULL;
@@ -285,8 +285,8 @@ ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
 
   /* switch to the new file */
   rb_data.curr_file_num = next_file_num;
-  cf->save_file = next_rfile->name;
-  cf->save_file_fd = rb_data.fd;
+  *save_file = next_rfile->name;
+  *save_file_fd = rb_data.fd;
   (*pdh) = rb_data.pdh;
 
   return TRUE;
@@ -296,7 +296,7 @@ ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
  * Calls wtap_dump_close() for the current ringbuffer file
  */
 gboolean
-ringbuf_wtap_dump_close(capture_file *cf, int *err)
+ringbuf_wtap_dump_close(gchar **save_file, int *err)
 {
   gboolean  ret_val = TRUE;
 
@@ -312,7 +312,7 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
   }
 
   /* set the save file name to the current file */
-  cf->save_file = rb_data.files[rb_data.curr_file_num].name;
+  *save_file = rb_data.files[rb_data.curr_file_num].name;
   return ret_val;
 }
 
