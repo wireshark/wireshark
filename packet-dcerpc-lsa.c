@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.15 2002/04/17 15:11:30 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.16 2002/04/17 15:39:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -688,6 +688,10 @@ lsa_dissect_POLICY_DEFAULT_QUOTA_INFO(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_quota_max_wss, NULL);
 
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
 	/* pagefile */
         offset = dissect_ndr_uint64 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_unknown_hyper, NULL);
@@ -1297,6 +1301,13 @@ lsa_dissect_lsaclearauditlog_rqst(tvbuff_t *tvb, int offset,
 	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
 		pinfo, tree, drep);
 
+	offset = dissect_ndr_nt_SID(tvb, offset,
+		pinfo, tree, drep);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
 	return offset;
 }
 
@@ -1305,6 +1316,9 @@ static int
 lsa_dissect_lsaclearauditlog_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rc, NULL);
 
