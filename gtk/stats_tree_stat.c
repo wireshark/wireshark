@@ -199,6 +199,7 @@ static void init_gtk_tree(char* optarg) {
 	GString* error_string;
 	GtkWidget *scr_win;
 	guint init_strlen;
+    GtkWidget *main_vb, *bbox, *bt_close;
 #if GTK_MAJOR_VERSION >= 2
 	GtkTreeViewColumn* column;
 	GtkCellRenderer* renderer;
@@ -232,9 +233,9 @@ static void init_gtk_tree(char* optarg) {
 	window_name = g_strdup_printf("%s Stats Tree", st->name);
 	
 	st->pr->win = window_new_with_geom(GTK_WINDOW_TOPLEVEL,window_name,window_name);
-	gtk_window_set_default_size(GTK_WINDOW(st->pr->win), 300, 300);
+	gtk_window_set_default_size(GTK_WINDOW(st->pr->win), 400, 400);
 	g_free(window_name);
-	
+    
 	if(st->filter){
 		title=g_strdup_printf("%s with filter: %s",st->name,st->filter);
 	} else {
@@ -245,7 +246,11 @@ static void init_gtk_tree(char* optarg) {
     gtk_window_set_title(GTK_WINDOW(st->pr->win), title);
 	g_free(title);
 
-	scr_win = scrolled_window_new(NULL, NULL);
+	main_vb = gtk_vbox_new(FALSE, 3);
+	gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+	gtk_container_add(GTK_CONTAINER(st->pr->win), main_vb);
+
+    scr_win = scrolled_window_new(NULL, NULL);
 
 #if GTK_MAJOR_VERSION >= 2
 	
@@ -255,7 +260,7 @@ static void init_gtk_tree(char* optarg) {
 	st->pr->tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (st->pr->store));
 	
 	gtk_container_add( GTK_CONTAINER(scr_win), st->pr->tree);
-	gtk_container_add( GTK_CONTAINER(st->pr->win), scr_win);
+	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
 	
 	/* the columns */
 	renderer = gtk_cell_renderer_text_new ();
@@ -294,7 +299,7 @@ static void init_gtk_tree(char* optarg) {
 	st->pr->textbox = gtk_text_new(NULL,NULL);
 	gtk_text_set_editable(GTK_TEXT(st->pr->textbox),TRUE);
 	gtk_container_add( GTK_CONTAINER(scr_win), GTK_WIDGET(st->pr->textbox));
-	gtk_container_add( GTK_CONTAINER(st->pr->win), scr_win);
+	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
 #endif
 	
 	error_string = register_tap_listener( st->tapname,
@@ -312,6 +317,13 @@ static void init_gtk_tree(char* optarg) {
 		g_string_free(error_string, TRUE);
 	}
 		
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    window_set_cancel_button(st->pr->win, bt_close, window_cancel_button_cb);
+
 	SIGNAL_CONNECT(GTK_WINDOW(st->pr->win), "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(GTK_WINDOW(st->pr->win), "destroy", free_gtk_tree, st);
 	
