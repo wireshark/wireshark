@@ -7,7 +7,7 @@
  * Changed to run on new version of TCAP, many changes for
  * EOC matching, and parameter separation.  (2003)
  *
- * $Id: packet-gsm_map.c,v 1.3 2003/12/21 12:08:35 ulfl Exp $
+ * $Id: packet-gsm_map.c,v 1.4 2003/12/21 21:41:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -522,8 +522,7 @@ op_send_auth_info(ASN1_SCK *asn1, proto_tree *tree)
     proto_item	*item_tree[100], *item;
     proto_tree	*seq_tree[100], *use_tree, *subtree;
     gchar	*str = NULL;
-    gint	ett_param_idx;
-    gint	idx = 0;
+    gint	ett_param_idx, idx;
 
     num_seq = 0;
     use_tree = tree;
@@ -591,6 +590,7 @@ op_send_auth_info(ASN1_SCK *asn1, proto_tree *tree)
 	    str = my_match_strval((guint32) tag, param_1_strings, &idx);
 #else
 	    str = NULL;
+	    idx = 0;
 #endif
 
 	    if (str == NULL)
