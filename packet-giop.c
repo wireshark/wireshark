@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.42 2001/07/05 20:54:56 guy Exp $
+ * $Id: packet-giop.c,v 1.43 2001/07/25 20:21:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1783,6 +1783,9 @@ static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, p
    */
 
   modname = get_modname_from_repoid(repoid); 
+  if (modname == NULL) {
+    return res;			/* unknown module name */
+  }
 
 
   /* Search for Module or interface name */
