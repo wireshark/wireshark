@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.112 2004/02/28 16:21:10 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.113 2004/02/29 10:41:03 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -417,7 +417,7 @@ capture_prep(void)
 
   /* Linktype row */
   linktype_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(capture_vb), linktype_hb);
+  gtk_box_pack_start(GTK_BOX(capture_vb), linktype_hb, FALSE, FALSE, 0);
   gtk_widget_show(linktype_hb);
 
   linktype_lb = gtk_label_new("Link-layer header type:");
@@ -469,7 +469,7 @@ capture_prep(void)
 
   /* Filter row */
   filter_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(capture_vb), filter_hb);
+  gtk_box_pack_start(GTK_BOX(capture_vb), filter_hb, FALSE, FALSE, 0);
   gtk_widget_show(filter_hb);
 
   filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY);
@@ -512,7 +512,7 @@ capture_prep(void)
 
   /* File row */
   file_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(file_vb), file_hb);
+  gtk_box_pack_start(GTK_BOX(file_vb), file_hb, FALSE, FALSE, 0);
   gtk_widget_show(file_hb);
 
   file_lb = gtk_label_new("File:");

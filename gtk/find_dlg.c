@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.49 2004/02/28 22:07:33 ulfl Exp $
+ * $Id: find_dlg.c,v 1.50 2004/02/29 10:41:03 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -206,7 +206,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Filter row */
   filter_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(find_type_vb), filter_hb);
+  gtk_box_pack_start(GTK_BOX(find_type_vb), filter_hb, FALSE, FALSE, 0);
   gtk_widget_show(filter_hb);
 
   filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
