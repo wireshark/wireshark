@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.92 2003/04/14 20:48:31 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.93 2003/04/15 09:23:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3278,7 +3278,13 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			   in this tvb.
 			*/
 
-			/* first, just check if it looks like dcerpc or not */
+			/*
+			 * First, just check if it looks like dcerpc or not.
+			 *
+			 * XXX - this assumes that the dissector is idempotent,
+			 * as it's doing a "trial" dissection building no
+			 * tree; that's not necessarily the case.
+			 */
 			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, NULL);
 			
 			/* no this didnt look like something we know */
