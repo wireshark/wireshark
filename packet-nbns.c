@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.74 2002/02/28 23:09:03 guy Exp $
+ * $Id: packet-nbns.c,v 1.75 2002/05/01 08:34:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1350,7 +1350,7 @@ static const value_string error_codes[] = {
  */
 static int
 dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, int max_data, int is_cifs)
+    proto_tree *tree, int is_cifs)
 {
 	proto_tree	*nbss_tree = NULL;
 	proto_item	*ti = NULL;
@@ -1704,9 +1704,8 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    val_to_str(msg_type, message_types, "Unknown (%02x)"));
 	}
 
-	while (max_data > 0) {
-		len = dissect_nbss_packet(tvb, offset, pinfo, tree, max_data,
-		    is_cifs);
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		len = dissect_nbss_packet(tvb, offset, pinfo, tree, is_cifs);
 		if (len < 0) {
 			/*
 			 * We need more data to dissect this, and
@@ -1722,7 +1721,6 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 		}
 		offset += len;
-		max_data -= len;
 	}
 
 	return;
@@ -1735,11 +1733,9 @@ continuation:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "NBSS Continuation Message");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbss, tvb, 0,
-		    max_data, FALSE);
+		ti = proto_tree_add_item(tree, proto_nbss, tvb, 0, -1, FALSE);
 		nbss_tree = proto_item_add_subtree(ti, ett_nbss);
-		proto_tree_add_text(nbss_tree, tvb, 0, max_data,
-		    "Continuation data");
+		proto_tree_add_text(nbss_tree, tvb, 0, -1, "Continuation data");
 	}
 }
 
