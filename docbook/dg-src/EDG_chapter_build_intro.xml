@@ -43,5 +43,25 @@
 	</para>
   </section>
 
+  <section id="ChCodeGLib">
+	<title>The GLib library</title>
+	<para>
+	Glib is used as a basic platform abstraction library, it's not related to
+	GUI things. 
+	</para>
+	<para>
+	To quote the Glib documentation: <quote>GLib is a general-purpose utility 
+	library, which provides many useful 
+	data types, macros, type conversions, string utilities, file utilities, 
+	a main loop abstraction, and so on. It works on many UNIX-like platforms, 
+	Windows, OS/2 and BeOS. GLib is released under the GNU Library General 
+	Public License (GNU LGPL).</quote>
+	</para>
+	<para>
+	GLib contains lot's of useful things for platform independant development.
+	See XXX for details about GLib.
+	</para>
+  </section>
+
 </chapter>
 <!-- End of EUG Chapter Build Introduction -->

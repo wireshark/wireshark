@@ -86,32 +86,45 @@
 	directory specified by ETHEREAL_LIBS.
 	</para>
   </section>
-	  
-	  
-  <section id="ChLibsGTK">
-	<title>GLIB / GDK / GTK / Pango / Atk / GNU libiconv / GNU gettext</title>
+
+  <section id="ChLibsGtk">
+	<title>GTK+ / GLib / GDK / Pango / ATK / GNU gettext / GNU libiconv</title>
 	<para>
-	The libraries (and dependant libraries) of the user interface. See 
-	<xref linkend="ChUIWhatGTK"/> for a detailed description of the GTK 
-	libraries.
+	The Glib library is used as a basic platform abstraction library, it's 
+	not related to graphical user interface (GUI) things. For a detailed 
+	description about GLib, see <xref linkend="ChCodeGLib"/>.
 	</para>
-	
+	<para>
+	The GTK and it's dependant libraries are used to build Ethereal's GUI. 
+	For a detailed description of the GTK libraries, see <xref 
+	linkend="ChUIGTK"/>.
+	</para>
+	<para>
+	All other libraries are dependant on the two libraries mentioned above, 
+	you will typically not come in touch with these while doing Ethereal 
+	development. 
+	</para>
+	<para>
+	As the requirements for the GLib/GTK libraries increased in the past, it 
+	depends on the GLib/GTK versions you have, which additional libraries are 
+	required. The 1.x versions only needed GLib/GDK/GTK+, while the 2.x versions
+	require all mentioned libs.
+	</para>
+
 	<section id="ChLibsUnixGTK">
 	<title>Unix: ...</title>
 	<para>
-	Unix: <ulink url="http://www.gtk.org"/>
+	<ulink url="http://www.gtk.org"/>
 	</para>
 	</section>
 
 	<section id="ChLibsWin32GTK">
 	<title>Win32 native: ...</title>
 	<para>
-	Win32 native: <ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>
+	<ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>
 	</para>
 	</section>
-	
   </section>
-  
   
   <section id="ChLibsSNMP">
 	<title>Net SNMP</title>

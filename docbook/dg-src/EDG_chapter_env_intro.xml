@@ -81,15 +81,18 @@
 	
 	<section><title>Microsoft Windows</title>
     <para>
-	<itemizedlist>
-	<listitem><para>Windows Me / 98 / 95</para></listitem>
-	<listitem><para>Windows Server 2003 / XP / 2000 / NT 4.0</para></listitem>
-	</itemizedlist>
 	Thanks to the Win32 API, development on all windows platforms will be 
 	done in a very similar way. However some differences between the platforms 
 	are existing (especially between the NT and 95 based platforms), the 
 	differences will be notified where appropriate. All Windows platforms will 
 	be referred as Win32, Win or Windows might be used with the same meaning.
+	As Windows CE differs a lot compared to the other windows platforms 
+	mentioned, Ethereal will not run on Windows CE and there are no plans to 
+	support it.
+	<itemizedlist>
+	<listitem><para>Windows Me / 98 / 95</para></listitem>
+	<listitem><para>Windows Server 2003 / XP / 2000 / NT 4.0</para></listitem>
+	</itemizedlist>
     </para>
 	</section>
 	
@@ -220,9 +223,7 @@
     </para>
     <para>
 	There are two kinds of distributions: binary and source, both have their 
-	advantages and disadvantages. As it's still very common for unix programs 
-	to give the end user a source tarball and let the user compile it on 
-	their target machine, this is very uncommon for win32 end users.
+	advantages and disadvantages. 
     </para>
 
 	<section id="ChIntroReleaseBinary">
@@ -234,7 +235,8 @@
 	<itemizedlist>
 	<listitem>
     <para>
-	Win32 (.exe file)
+	Win32 (.exe file). The typical windows end user is used to get an setup 
+	.exe file, which will install all the required things for him.
     </para>
 	</listitem>
 	<listitem>
@@ -261,6 +263,13 @@
 
 	<section id="ChIntroReleaseSource">
 	<title>Source code distributions</title>
+    <para>
+	It's still common for unix developers to give the end user a source 
+	tarball and let the user compile it on their target machine (configure, 
+	make, make install). However, for different unix (linux) distributions 
+	it's becoming more common to release binary packages (e.g. .deb or .rpm 
+	files) these days.
+    </para>
     <para>
 	You should use the released sources if you want to build Ethereal from
 	source on your platform for productive use. However, if you going to 
@@ -469,9 +478,11 @@ $
   </section>
   </section>
 
-  <section id="ChIntroOtherSources"><title>Other sources of developer information</title>
+  <section id="ChIntroOtherSources"><title>Other sources of developer information
+  </title>
     <para>
-	There are various other sources of information for Ethereal developers:
+	If you don't find the information you need inside this book, there are 
+	various other sources of information:
 	<itemizedlist>
 	<listitem>
 	<para>
@@ -480,17 +491,19 @@ $
 	</listitem>
 	<listitem>
 	<para>
-    there are various documentation files inside the source code, see the README.xxx files
+    there are various documentation files on different topics inside the 
+	source code, see all the README.xxx files
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-    tool documentation of the various tools used (e.g. manpages of sed, gcc, ...)
+    tool documentation of the various tools used 
+	(e.g. manpages of sed, gcc, ...)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-    the developer mailing list <ulink url="&EtherealDevMailList;"/>
+    the different mailing lists <xref linkend="ChIntroMailingLists"/>
 	</para>
 	</listitem>
 	<listitem>

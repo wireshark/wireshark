@@ -44,8 +44,8 @@
 	</para>
   </section>
   
-	<section id="ChUIWhatGTK">
-	<title>What is GTK?</title>
+	<section id="ChUIGTK">
+	<title>The GTK library</title>
 	<para>
 	Ethereal is based on the GTK toolkit, see: <ulink url="http://www.gtk.org"/>
 	for

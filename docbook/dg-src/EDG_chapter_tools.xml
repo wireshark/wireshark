@@ -14,7 +14,7 @@
 	they are only needed to build it.
 	</para>
 	<para>
-	These tools have
+	All these tools have
 	their roots on unix like platforms, but win32 ports are also
 	available. Therefore the tools are available in different "flavours":
 	<itemizedlist>
@@ -27,7 +27,8 @@
   	</listitem>
   	<listitem>
 	<para>
-	Win32 native: native Win32 tools, no emulation required
+	Win32 native: some tools are available as native Win32 tools, no 
+	emulation is required
 	</para>
   	</listitem>
 	</itemizedlist>
@@ -63,9 +64,7 @@
 	Cygwin provides a unix emulation layer with a lot of unix based tools
 	on the win32 platform. Although cygwin consists of several
 	seperate packages, the installation and update is done through only a
-	single
-	setup.exe, which acts similar like other unix package managers (like
-	the RedHat Package Manager for example).
+	single setup.exe, which acts similar like other web based installers.
 	</para>
 	<para>
 	You will find this network based setup.exe at: <ulink 
@@ -81,12 +80,14 @@
 	</para>
 	<para>
 	Under: "Start -&gt; Programs -&gt; Cygwin -&gt; Cygwin Bash Shell" you
-	should now be able to start a new cygwin bash shell (similar to the
-	command line in win32, but more powerful).
+	should now be able to start a new cygwin bash shell, which is similar to 
+	the command line (command.exe/cmd.exe) in win32, but much more powerful.
 	</para>
 	<para>
 	If you want to add additional cygwin packages, you should start the
-	setup.exe again, and select them in the packages window.
+	setup.exe again, and select them in the packages window. You will find a 
+	list of required / recommended packages needed to develop Ethereal in
+	<xref linkend="ChToolsWin32"/>.
 	</para>	
 	</section>
 
@@ -804,42 +805,42 @@ written by Larry Wall and Paul Eggert]]>
 	</thead>
 	<tbody>
 	<row>
-	  <entry>bash</entry>
+	  <entry><xref linkend="ChToolsBash"/></entry>
 	  <entry><command>bash</command></entry>
 	  <entry>-</entry>
 	</row>
 	<row>
-	  <entry>C compiler</entry>
+	  <entry><xref linkend="ChToolsCompiler"/></entry>
 	  <entry>gcc</entry>
 	  <entry><command>cl.exe (MSVC)</command></entry>
 	</row>
 	<row>
-	  <entry>make</entry>
+	  <entry><xref linkend="ChToolsMake"/></entry>
 	  <entry>make</entry>
 	  <entry><command>nmake.exe (MSVC)</command></entry>
 	</row>
 	<row>
-	  <entry>python interpreter</entry>
+	  <entry><xref linkend="ChToolsPython"/></entry>
 	  <entry><command>python</command></entry>
 	  <entry><ulink url="http://python.org/download/"/></entry>
 	</row>
 	<row>
-	  <entry>perl interpreter</entry>
+	  <entry><xref linkend="ChToolsPerl"/></entry>
 	  <entry><command>perl</command></entry>
 	  <entry><ulink url="http://www.ActiveState.com"/></entry>
 	</row>
 	<row>
-	  <entry>sed</entry>
+	  <entry><xref linkend="ChToolsSed"/></entry>
 	  <entry><command>sed</command></entry>
 	  <entry>-</entry>
 	</row>
 	<row>
-	  <entry>yacc</entry>
+	  <entry><xref linkend="ChToolsYacc"/></entry>
 	  <entry><command>yacc</command></entry>
 	  <entry>-</entry>
 	</row>
 	<row>
-	  <entry>lexx</entry>
+	  <entry><xref linkend="ChToolsLexx"/></entry>
 	  <entry><command>lexx</command></entry>
 	  <entry>-</entry>
 	</row>
@@ -861,27 +862,27 @@ written by Larry Wall and Paul Eggert]]>
 	</thead>
 	<tbody>
 	<row>
-	  <entry>subversion</entry>
+	  <entry><xref linkend="ChToolsSubversion"/></entry>
 	  <entry>svn</entry>
 	  <entry><command><ulink url="http://tortoisesvn.tigris.org/">TortoiseSVN</ulink></command></entry>
 	</row>
 	<row>
-	  <entry>diff</entry>
+	  <entry><xref linkend="ChToolsDiff"/></entry>
 	  <entry><command>diff</command></entry>
 	  <entry>-</entry>
 	</row>
 	<row>
-	  <entry>patch</entry>
+	  <entry><xref linkend="ChToolsPatch"/></entry>
 	  <entry><command>patch</command></entry>
 	  <entry>-</entry>
 	</row>
 	<row>
-	  <entry>wget</entry>
+	  <entry><xref linkend="ChToolsWget"/></entry>
 	  <entry><command>wget</command></entry>
 	  <entry>-</entry>
 	</row>
 	<row>
-	  <entry>nsis</entry>
+	  <entry><xref linkend="ChToolsNSIS"/></entry>
 	  <entry>-</entry>
 	  <entry>
 	  <command><ulink url="http://nsis.sourceforge.net">NSIS</ulink></command>
@@ -890,7 +891,7 @@ written by Larry Wall and Paul Eggert]]>
 	</tbody>
 	</tgroup>
 	</table>	
-	
+	XXX - mark, which cygwin packages are installed by default.
 	</para>
 	</section>
 
