@@ -124,46 +124,49 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->type = MATE_UNK_TYPE;
 	new->transforms = g_ptr_array_new();
 	new->extra = new_avpl(name);
-	new->hfid_proto = -1;
-	new->discard_pdu_attributes = matecfg->discard_pdu_attributes;
-	new->last_to_be_created = matecfg->last_to_be_created;
-	new->drop_pdu = matecfg->drop_pdu;
-	new->drop_gop = matecfg->drop_gop;
-	new->expiration = matecfg->gog_expiration;
-	new->show_pdu_tree = matecfg->show_pdu_tree;
-	new->show_times = matecfg->show_times;
 	new->last_id = 0;
-	new->hfid_ranges = NULL;
-	new->hfids_attr = NULL;
-	new->criterium = NULL;
-	new->start = NULL;
-	new->stop = NULL;
-	new->key = NULL;
-	new->keys = NULL;
-	new->gop_as_subtree = FALSE;
-
 	new->hfid = -1;
-	new->hfid_pdu_rel_time = -1;
-	new->hfid_pdu_time_in_gop = -1;
 	new->my_hfids = g_hash_table_new(g_str_hash,g_str_equal);
 	new->items = g_hash_table_new(g_direct_hash,g_direct_equal);
-
-	new->hfid_gop_pdu = -1;
-	new->hfid_start_time = -1;
-	new->hfid_stop_time = -1;
-	new->hfid_last_time = -1;
-	new->hfid_gop_num_pdus = -1;
-
-	new->hfid_gog_num_of_gops = -1;
-	new->hfid_gog_gop = -1;
-
 	new->ett = -1;
 	new->ett_attr = -1;
 	new->ett_times = -1;
 	new->ett_children = -1;
+	
+	new->discard_pdu_attributes = matecfg->discard_pdu_attributes;
+	new->last_to_be_created = matecfg->last_to_be_created;
+	new->hfid_proto = -1;
+	new->hfid_ranges = NULL;
+	new->hfids_attr = NULL;
+	new->drop_pdu = matecfg->drop_pdu;
+	new->criterium_match_mode = AVPL_NO_MATCH;
+	new->criterium = NULL;
+	new->hfid_pdu_rel_time = -1;
+	new->hfid_pdu_time_in_gop = -1;
+
+	new->expiration = -1.0;
+	new->hfid_start_time = -1;
+	new->hfid_stop_time = -1;
+	new->hfid_last_time = -1;
+	
+	new->start = NULL;
+	new->stop = NULL;
+	new->key = NULL;
+	new->show_pdu_tree = matecfg->show_pdu_tree;
+	new->show_times = matecfg->show_times;
+	new->drop_gop = matecfg->drop_gop;
+	new->idle_timeout = -1.0;
+	new->lifetime = -1.0;
+	new->hfid_gop_pdu = -1;
+	new->hfid_gop_num_pdus = -1;
 
 	new->gop_index = NULL;
 	new->gog_index = NULL;
+
+	new->gop_as_subtree = FALSE;
+	new->keys = NULL;
+	new->hfid_gog_num_of_gops = -1;
+	new->hfid_gog_gop = -1;
 	
 	return new;
 }
@@ -214,8 +217,15 @@ static mate_cfg_pdu* new_pducfg(guint8* name) {
 
 static mate_cfg_gop* new_gopcfg(guint8* name) {
 	mate_cfg_gop* new = new_mate_cfg_item(name);
+	
 	new->type = MATE_GOP_TYPE;
-
+	new->expiration = matecfg->gop_expiration;
+	new->idle_timeout = matecfg->gop_idle_timeout;
+	new->lifetime = matecfg->gop_lifetime;
+	new->show_pdu_tree = matecfg->show_pdu_tree;
+	new->show_times = matecfg->show_times;
+	new->drop_gop = matecfg->drop_gop;
+	
 	g_hash_table_insert(matecfg->gopcfgs,(gpointer) new->name, (gpointer) new);
 
 	new->gop_index = g_hash_table_new(g_str_hash,g_str_equal);
@@ -230,7 +240,7 @@ static mate_cfg_gog* new_gogcfg(guint8* name) {
 
 	new->keys = new_loal(name);
 	new->expiration = matecfg->gog_expiration;
-
+	
 	g_hash_table_insert(matecfg->gogcfgs,new->name,new);
 
 	return new;
@@ -924,7 +934,7 @@ static void print_xxx_transforms(mate_cfg_item* cfg) {
 
 	for (i=0; i < cfg->transforms->len; i++) {
 		tr_name = ((AVPL_Transf*) g_ptr_array_index(cfg->transforms,i))->name;
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=%s; For=%s; Name=%s;\n",cfg_name,cfg->name,tr_name);
+		dbg_print (dbg_cfg,0,dbg_facility,"Action=%s; For=%s; Name=%s;",cfg_name,cfg->name,tr_name);
 	}
 
 }
@@ -935,19 +945,19 @@ static void print_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	void* cookie = NULL;
 	AVPL* avpl;
 
-	dbg_print (dbg_cfg,0,dbg_facility,"Action=GogDef; Name=%s; Expiration=%f;\n",cfg->name,cfg->expiration);
+	dbg_print (dbg_cfg,0,dbg_facility,"Action=GogDef; Name=%s; Expiration=%f;",cfg->name,cfg->expiration);
 
 	if (cfg->keys) {
 		while (( avpl = get_next_avpl(cfg->keys,&cookie) )) {
 			avplstr = avpl_to_str(avpl);
-			dbg_print (dbg_cfg,0,dbg_facility,"Action=GogKey; For=%s; On=%s; %s\n",cfg->name,avpl->name,avplstr);
+			dbg_print (dbg_cfg,0,dbg_facility,"Action=GogKey; For=%s; On=%s; %s",cfg->name,avpl->name,avplstr);
 			g_free(avplstr);
 		}
 	}
 
 	if (cfg->extra) {
 		avplstr = avpl_to_str(cfg->extra);
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=GogExtra; For=%s; %s\n",cfg->name,avplstr);
+		dbg_print (dbg_cfg,0,dbg_facility,"Action=GogExtra; For=%s; %s",cfg->name,avplstr);
 		g_free(avplstr);
 	}
 
@@ -977,24 +987,24 @@ static void print_gop_config(gpointer k _U_ , gpointer v, gpointer p _U_) {
 		g_free(avplstr);
 	}
 
-	dbg_print (dbg_cfg,0,dbg_facility,"%s\n",gopdef->str);
+	dbg_print (dbg_cfg,0,dbg_facility,"%s",gopdef->str);
 
 
 	if (cfg->start) {
 		avplstr = avpl_to_str(cfg->start);
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=GopStart; For=%s; %s\n",cfg->name,avplstr);
+		dbg_print (dbg_cfg,0,dbg_facility,"Action=GopStart; For=%s; %s",cfg->name,avplstr);
 		g_free(avplstr);
 	}
 
 	if (cfg->stop) {
 		avplstr = avpl_to_str(cfg->stop);
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=GopStop; For=%s; %s\n",cfg->name,avplstr);
+		dbg_print (dbg_cfg,0,dbg_facility,"Action=GopStop; For=%s; %s",cfg->name,avplstr);
 		g_free(avplstr);
 	}
 
 	if (cfg->extra) {
 		avplstr = avpl_to_str(cfg->extra);
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=GopExtra; For=%s;  %s\n",cfg->name,avplstr);
+		dbg_print (dbg_cfg,0,dbg_facility,"Action=GopExtra; For=%s;  %s",cfg->name,avplstr);
 		g_free(avplstr);
 	}
 
@@ -1055,7 +1065,7 @@ static void print_transforms(gpointer k, gpointer v, gpointer p _U_) {
 				break;
 		}
 
-		dbg_print (dbg,0,dbg_facility,"\tAction=Transform; Name=%s; Match=%s; Mode=%s; %s %s\n",(guint8*) k,match,mode,match_s,replace_s);
+		dbg_print (dbg,0,dbg_facility,"\tAction=Transform; Name=%s; Match=%s; Mode=%s; %s %s",(guint8*) k,match,mode,match_s,replace_s);
 
 		g_free(match_s);
 		g_free(replace_s);
@@ -1127,7 +1137,7 @@ static void print_gogs_by_gopname(gpointer k, gpointer v, gpointer p _U_) {
 
 	while(( avpl = get_next_avpl((LoAL*)v,&cookie) )) {
 		str = avpl_to_str(avpl);
-		dbg_print(dbg_cfg,0,dbg_facility,"Gop=%s; Gog=%s; --> %s\n",(guint8*)k,avpl->name,str);
+		dbg_print(dbg_cfg,0,dbg_facility,"Gop=%s; Gog=%s; --> %s",(guint8*)k,avpl->name,str);
 		g_free(str);
 	}
 
@@ -1135,7 +1145,7 @@ static void print_gogs_by_gopname(gpointer k, gpointer v, gpointer p _U_) {
 
 static void print_gops_by_pduname(gpointer k, gpointer v, gpointer p _U_) {
 	dbg_print(dbg_cfg,0,dbg_facility,
-			  "PduName=%s; GopName=%s;\n", (guint8*)k,((mate_cfg_gop*)v)->name);
+			  "PduName=%s; GopName=%s;", (guint8*)k,((mate_cfg_gop*)v)->name);
 }
 
 static void print_config(void) {
@@ -1321,13 +1331,15 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		}
 	}
 
-	cookie = NULL;
-	while(( avp = get_next_avp(cfg->start,&cookie) )) {
-		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(cfg,avp->n);
+	if(cfg->start) {
+		cookie = NULL;
+		while(( avp = get_next_avp(cfg->start,&cookie) )) {
+			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
+				new_attr_hfri(cfg,avp->n);
+			}
 		}
 	}
-
+	
 	if (cfg->stop) {
 		cookie = NULL;
 		while(( avp = get_next_avp(cfg->stop,&cookie) )) {

@@ -54,6 +54,7 @@ void dbg_print(const guint* which, guint how, FILE* where, guint8* fmt, ... ) {
 		g_message(debug_buffer);
 	} else {
 		fputs(debug_buffer,where);
+		fputs("\n",where);
 	}
 
 }
@@ -66,7 +67,6 @@ void dbg_print(const guint* which, guint how, FILE* where, guint8* fmt, ... ) {
  * we'll keep only one copy of each as key to a hash with a count of
  * subscribers as value.
  ***************************************************************************/
-/* FIXME: use hash fom glib 1.X not 2.X */
 
 /**
  * scs_init:

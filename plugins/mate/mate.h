@@ -323,6 +323,7 @@ struct _mate_item {
 			/* membership* gops; */
 			mate_gop* gops; /* gops that belong to a gog (NULL in gop) */
 			int num_of_gops; /* how many gops a gog has? */
+			int num_of_counting_gops;  /* how many of them count for gog release */
 			int num_of_released_gops;  /* how many of them have already been released */
 			guint last_n; /* the number of attributes the avpl had the last time we checked */
 			GPtrArray* gog_keys; /* the keys under which this gog is stored in the gogs hash */

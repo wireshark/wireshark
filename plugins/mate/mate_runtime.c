@@ -24,16 +24,6 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-/* TODO:
- + fix debug_print levels
- - timers
-    - on gops
-    - on gogs?
-    - on pdu?
- + transformations
-    + maps
-*/
-
 #include "mate.h"
 
 typedef struct _mate_range mate_range;
@@ -68,83 +58,79 @@ static int* dbg_gop = &zero;
 static int* dbg_gog = &zero;
 static FILE* dbg_facility = NULL;
 
+static void gog_remove_keys (mate_gog* gog);
 
 static gboolean destroy_mate_items(gpointer k _U_, gpointer v, gpointer p _U_) {
 	mate_item* mi = (mate_item*) v;
-	gogkey* gog_key;
-	if (mi->gop_key) g_free(mi->gop_key);
-
-	
-	if (mi->gog_keys) {
-		while (mi->gog_keys->len) {
-			gog_key =  g_ptr_array_remove_index_fast(mi->gog_keys,0);
-			g_free(gog_key->key);
-			g_free(gog_key);
-		}
-		
-		g_ptr_array_free (mi->gog_keys,FALSE);
-	}
 	
 	if (mi->avpl) delete_avpl(mi->avpl,TRUE);
-	return TRUE;
-}
+
+	if (mi->gop_key) {
+		if (g_hash_table_lookup(mi->cfg->gop_index,mi->gop_key) == mi) {
+			g_hash_table_remove(mi->cfg->gop_index,mi->gop_key);
+		}
+		
+		g_free(mi->gop_key);
+	}
 
 
-static gboolean clean_index(gpointer k _U_, gpointer v _U_, gpointer p _U_) {
-	return TRUE;
-}
-
-static gboolean destroy_items_in_cfg(gpointer k _U_, gpointer v, gpointer p _U_) {
-	mate_cfg_item* c =  v;
-	
-	
-	if (c->gop_index) {
-		g_hash_table_foreach_remove(c->gop_index,clean_index,NULL);
+	if (mi->gog_keys) {
+		gog_remove_keys(mi);
+		g_ptr_array_free(mi->gog_keys,FALSE);
 	}
 	
+	g_mem_chunk_free(rd->mate_items,mi);
+
+	return TRUE;
+}
+
+static gboolean return_true(gpointer k _U_, gpointer v _U_, gpointer p _U_) {
+	return TRUE;
+}
+
+static void destroy_items_in_cfg(gpointer k _U_, gpointer v, gpointer p _U_) {
+	mate_cfg_item* c =  v;
+	
+	if (c->gop_index) { 
+		g_hash_table_foreach_remove(c->gop_index,return_true,NULL);
+		g_hash_table_destroy(c->gop_index);	
+		c->gop_index = g_hash_table_new(g_str_hash,g_str_equal);
+	}
+		
 	if (c->gog_index) {
-		g_hash_table_foreach_remove(c->gog_index,clean_index,NULL);
+		g_hash_table_foreach_remove(c->gog_index,return_true,NULL);
+		g_hash_table_destroy(c->gog_index);	
+		c->gog_index = g_hash_table_new(g_str_hash,g_str_equal);
 	}
 	
 	g_hash_table_foreach_remove(c->items,destroy_mate_items,NULL);
-	
+
 	c->last_id = 0;
 	
-	return TRUE;
-}
-
-static void delete_mate_runtime_data(mate_runtime_data*  rdat) {	
-	g_hash_table_destroy(rdat->frames);
-
-	g_hash_table_foreach_remove(mc->pducfgs,destroy_items_in_cfg,NULL);
-	g_hash_table_foreach_remove(mc->gopcfgs,destroy_items_in_cfg,NULL);
-	g_hash_table_foreach_remove(mc->gogcfgs,destroy_items_in_cfg,NULL);	
-	
-	g_mem_chunk_destroy (rdat->mate_items);
-	
-	g_free(rdat);
 }
 
 
 extern void initialize_mate_runtime(void) {
 	
+	dbg_print (dbg,5,dbg_facility,"initialize_mate: entering");
+
 	if (( mc = mate_cfg() )) {
-		if (rd) {
-			delete_mate_runtime_data(rd);
+		if (rd == NULL ) {			
+			rd = g_malloc(sizeof(mate_runtime_data));
+			rd->mate_items = g_mem_chunk_new("mate_items",sizeof(mate_item),1024,G_ALLOC_AND_FREE);
+		} else {
+			g_hash_table_foreach(mc->pducfgs,destroy_items_in_cfg,NULL);
+			g_hash_table_foreach(mc->gopcfgs,destroy_items_in_cfg,NULL);
+			g_hash_table_foreach(mc->gogcfgs,destroy_items_in_cfg,NULL);
+			
+			g_hash_table_destroy(rd->frames);			
 		}
-
-		rd = g_malloc(sizeof(mate_runtime_data));
-
-		mc = mate_cfg();
 
 		rd->current_items = 0;
 		rd->now = -1.0;
-		rd->frames = g_hash_table_new(g_direct_hash,g_direct_equal);
-		rd->mate_items = g_mem_chunk_new("mate_items",sizeof(mate_item),1024,G_ALLOC_AND_FREE);
 		rd->highest_analyzed_frame = 0;
-
-		/* this will be called when the mate's dissector is initialized */
-		dbg_print (dbg,5,dbg_facility,"initialize_mate: entering");
+		rd->frames = g_hash_table_new(g_direct_hash,g_direct_equal);
+		
 
 		dbg_pdu = &(mc->dbg_pdu_lvl);
 		dbg_gop = &(mc->dbg_gop_lvl);
@@ -193,6 +179,7 @@ static mate_item* new_mate_item(mate_cfg_item* cfg) {
 	
 	it->gops = NULL;
 	it->num_of_gops = 0;
+	it->num_of_counting_gops = 0;
 	it->num_of_released_gops = 0;
 	it->last_n = 0;
 	it->gog_keys = NULL;
@@ -231,6 +218,10 @@ static void adopt_gop(mate_gog* gog, mate_gop* gop) {
 	gop->gog = gog;
 	gop->next = NULL;
 	
+	if (gop->cfg->start) {
+		gog->num_of_counting_gops++;
+	}
+	
 	gog->num_of_gops++;
 	
 	if (gog->last_gop) {		
@@ -248,7 +239,7 @@ static void adopt_gop(mate_gog* gog, mate_gop* gop) {
 static mate_gog* new_gog(mate_cfg_gog* cfg, mate_gop* gop) {
 	mate_gog* gog = new_mate_item(cfg);
 	
-	dbg_print (dbg_gog,1,dbg_facility,"new_gog: %s:d for %s:%d",gog->cfg->name,gog->id,gog->cfg->name,gop->id);
+	dbg_print (dbg_gog,1,dbg_facility,"new_gog: %s:%u for %s:%u",gog->cfg->name,gog->id,gop->cfg->name,gop->id);
 
 	gog->avpl = new_avpl(cfg->name);
 	
@@ -259,8 +250,6 @@ static mate_gog* new_gog(mate_cfg_gog* cfg, mate_gop* gop) {
 	
 	return gog;
 }
-
-
 static void apply_transforms(mate_item* item) {
 	AVPL_Transf* transform = NULL;
 	guint i;
@@ -277,7 +266,7 @@ static void apply_extras(AVPL* from, AVPL* to,  mate_cfg_item* cfg) {
 	AVPL* our_extras = NULL;
 	
 	if (cfg->extra) {
-		dbg_print (dbg,3,dbg_facility,"apply_extras: entering: from='%s' to='%s' for='%s'\n",from->name,to->name,cfg->name);
+		dbg_print (dbg,3,dbg_facility,"apply_extras: entering: from='%s' to='%s' for='%s'",from->name,to->name,cfg->name);
 		
 		our_extras = new_avpl_loose_match("",from, cfg->extra, FALSE) ;
 				
@@ -294,7 +283,7 @@ static void gog_remove_keys (mate_gog* gog) {
 	while (gog->gog_keys->len) {
 		gog_key =  g_ptr_array_remove_index_fast(gog->gog_keys,0);
 		
-		if (g_hash_table_lookup(gog_key->cfg->gog_index,gog_key->key)) {
+		if (g_hash_table_lookup(gog_key->cfg->gog_index,gog_key->key) == gog) {
 			g_hash_table_remove(gog_key->cfg->gog_index,gog_key->key);
 		}
 		
@@ -317,13 +306,13 @@ static void reanalyze_gop(mate_gop* gop) {
 	
 	gog->last_time = rd->now;
 	
-	dbg_print (dbg_gog,1,dbg_facility,"reanalize_gop: gop=%s gog=%s\n",gog->cfg->name,gog->id,gog->cfg->name,gop->id);
+	dbg_print (dbg_gog,1,dbg_facility,"reanalize_gop: %s:%d",gop->cfg->name,gop->id);
 	
 	apply_extras(gop->avpl,gog->avpl,gog->cfg);
 	
 	if (gog->last_n != gog->avpl->len) {
 		
-		dbg_print (dbg_gog,2,dbg_facility,"analize_gop: gog has new attributes let's look for new keys\n");
+		dbg_print (dbg_gog,2,dbg_facility,"analize_gop: gog has new attributes let's look for new keys");
 		
 		gog_keys = gog->cfg->keys;
 		
@@ -348,7 +337,7 @@ static void reanalyze_gop(mate_gop* gop) {
 				if (! gog_key ) {
 					/* TODO: try mergeing the gogs */
 				} else {
-					dbg_print (dbg_gog,1,dbg_facility,"analize_gop: new key for gog=%s:%d : %s\n",gog->cfg->name,gog->id,gog_key->key);
+					dbg_print (dbg_gog,1,dbg_facility,"analize_gop: new key for gog=%s:%d : %s",gog->cfg->name,gog->id,gog_key->key);
 					g_ptr_array_add(gog->gog_keys,gog_key);
 					g_hash_table_insert(gog_key->cfg->gog_index,gog_key->key,gog);
 				}
@@ -359,7 +348,7 @@ static void reanalyze_gop(mate_gop* gop) {
 		gog->last_n = gog->avpl->len;
 	}
 	
-	if (gog->num_of_released_gops == gog->num_of_gops) {
+	if (gog->num_of_released_gops == gog->num_of_counting_gops) {
 		gog->released =  TRUE;
 		gog->expiration = gog->cfg->expiration + rd->now;
 	} else {
@@ -378,34 +367,34 @@ static void analize_gop(mate_gop* gop) {
 	
 	if ( ! ( gog = gop->gog ) ) {
 		/* no gog, let's either find one or create it if due */
-		dbg_print (dbg_gog,1,dbg_facility,"analize_gop: no gog\n");
+		dbg_print (dbg_gog,1,dbg_facility,"analize_gop: no gog");
 		
 		gog_keys = g_hash_table_lookup(mc->gogs_by_gopname,gop->cfg->name);
 		
 		if ( ! gog_keys ) {
-			dbg_print (dbg_gog,1,dbg_facility,"analize_gop: no gog_keys for this gop\n");
+			dbg_print (dbg_gog,1,dbg_facility,"analize_gop: no gog_keys for this gop");
 			return;
 		}
 		
 		/* We'll look for any matching gogkeys */
 		
-		dbg_print (dbg_gog,1,dbg_facility,"analize_gop: got gog_keys\n");
+		dbg_print (dbg_gog,1,dbg_facility,"analize_gop: got gog_keys: %s",gog_keys->name) ;
 		
 		while (( curr_gogkey = get_next_avpl(gog_keys,&cookie) )) {
 			
-			dbg_print (dbg_gog,2,dbg_facility,"analize_gop: about to match\n");
+			dbg_print (dbg_gog,2,dbg_facility,"analize_gop: about to match");
 			
 			if (( gogkey_match = new_avpl_exact_match(gop->cfg->name,gop->avpl,curr_gogkey,TRUE) )) {
 				
 				key = avpl_to_str(gogkey_match);
 				
-				dbg_print (dbg_gog,1,dbg_facility,"analize_gop: got gogkey_match: %s\n",key);
+				dbg_print (dbg_gog,1,dbg_facility,"analize_gop: got gogkey_match: %s",key);
 				
 				if (( gog = g_hash_table_lookup(gop->cfg->gog_index,key) )) {
-					dbg_print (dbg_gog,1,dbg_facility,"analize_gop: got already a matching gog\n");
+					dbg_print (dbg_gog,1,dbg_facility,"analize_gop: got already a matching gog");
 					
-					if (gog->num_of_gops == gog->num_of_released_gops && gog->expiration < rd->now) {
-						dbg_print (dbg_gog,1,dbg_facility,"analize_gop: this is a new gog, not the old one, let's create it\n");
+					if (gog->num_of_counting_gops == gog->num_of_released_gops && gog->expiration < rd->now) {
+						dbg_print (dbg_gog,1,dbg_facility,"analize_gop: this is a new gog, not the old one, let's create it");
 						
 						gog_remove_keys(gog);
 						
@@ -413,7 +402,7 @@ static void analize_gop(mate_gop* gop) {
 						
 						break;
 					} else {
-						dbg_print (dbg_gog,1,dbg_facility,"analize_gop: this is our gog\n");
+						dbg_print (dbg_gog,1,dbg_facility,"analize_gop: this is our gog");
 						
 						g_free(key);
 						
@@ -422,19 +411,30 @@ static void analize_gop(mate_gop* gop) {
 						break;
 					}
 				} else {
-					dbg_print (dbg_gog,1,dbg_facility,"analize_gop: no such gog in hash, let's create a new one\n");
+					dbg_print (dbg_gog,1,dbg_facility,"analize_gop: no such gog in hash, let's create a new %s",curr_gogkey->name);
 					
 					cfg = g_hash_table_lookup(mc->gogcfgs,curr_gogkey->name);
+					
 					if (cfg) {
 						gog = new_gog(cfg,gop);
 						gog->num_of_gops = 1;
+						
+						if (gop->cfg->start) {
+							gog->num_of_counting_gops = 1;
+						}
+						
+					} else {
+						dbg_print (dbg_gog,0,dbg_facility,"analize_gop: no such gog_cfg: %s",curr_gogkey->name);
 					}
+					
+					break;
 				}
 				
 				delete_avpl(gogkey_match,TRUE);
 				gogkey_match = NULL;
 			}
-			dbg_print (dbg_gog,1,dbg_facility,"analize_gop: no gogkey_match: %s\n",key);
+			
+			dbg_print (dbg_gog,1,dbg_facility,"analize_gop: no gogkey_match: %s",key);
 		}
 		
 		if (gogkey_match) delete_avpl(gogkey_match,TRUE);
@@ -461,8 +461,13 @@ static void analize_pdu(mate_pdu* pdu) {
 	AVPL* is_stop = NULL;
 	AVPL* gopkey_match = NULL;
 	guint8* avpl_str = NULL;
-
-	dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: %s\n",pdu->cfg->name);
+	LoAL* gog_keys = NULL;
+	AVPL* curr_gogkey = NULL;
+	void* cookie = NULL;
+	AVPL* gogkey_match = NULL;
+	guint8* gogkey = NULL;
+	
+	dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: %s",pdu->cfg->name);
 
 	apply_transforms(pdu);
 
@@ -475,7 +480,7 @@ static void analize_pdu(mate_pdu* pdu) {
 	
 	if (! candidate_gop_key_match) return;
 	
-	dbg_print (dbg_gop,3,dbg_facility,"analize_pdu: got candidate key\n");
+	dbg_print (dbg_gop,3,dbg_facility,"analize_pdu: got candidate key");
 	
 	/* does the pdu matches the prematch candidate key for the gop type? */
 	
@@ -487,12 +492,12 @@ static void analize_pdu(mate_pdu* pdu) {
 		candidate_start = cfg->start;
 		
 		if (candidate_start) {
-			dbg_print (dbg_gop,2,dbg_facility,"analize_pdu: got candidate start\n");
+			dbg_print (dbg_gop,2,dbg_facility,"analize_pdu: got candidate start");
 			is_start = new_avpl_exact_match("",pdu->avpl, candidate_start, FALSE);
 		}
 		
 		if (is_start) {
-			dbg_print (dbg_gop,2,dbg_facility,"analize_pdu: got start match\n");
+			dbg_print (dbg_gop,2,dbg_facility,"analize_pdu: got start match");
 			delete_avpl(is_start,FALSE);	
 		}
 		
@@ -506,23 +511,24 @@ static void analize_pdu(mate_pdu* pdu) {
 				 ( ( gop->cfg->lifetime > 0.0 && gop->time_to_die >= rd->now) || 
 				   ( gop->cfg->idle_timeout > 0.0 && gop->time_to_timeout >= rd->now) ) ) {
 				gop->released = TRUE;
-				if (gop->gog) gop->gog->num_of_released_gops++;
+				
+				if (gop->gog && gop->cfg->start) gop->gog->num_of_released_gops++;
 			}
 			
 			/* TODO: is the gop expired? */
 			
 			gop_key = orig_gop_key;
 			
-			dbg_print (dbg_gop,2,dbg_facility,"analize_pdu: got gop: %s\n",gop_key);
+			dbg_print (dbg_gop,2,dbg_facility,"analize_pdu: got gop: %s",gop_key);
 			
 			if (is_start) {
 				if ( gop->released ) {
-					dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: start on released gop, a new gop\n");
+					dbg_print (dbg_gop,3,dbg_facility,"analize_pdu: start on released gop, a new gop");
 					g_hash_table_remove(cfg->gop_index,gop_key);
 					gop = new_gop(cfg,pdu,gop_key);
 					g_hash_table_insert(cfg->gop_index,gop_key,gop);
 				} else {
-					dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: duplicate start on gop\n");
+					dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: duplicate start on gop");
 				}
 			}
 			
@@ -537,16 +543,56 @@ static void analize_pdu(mate_pdu* pdu) {
 			
 		} else {
 
-			dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: no gop already\n");
+			dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: no gop already");
 
 			if (is_start) {
+				
 				gop = new_gop(cfg,pdu,gop_key);
 				g_hash_table_insert(cfg->gop_index,gop_key,gop);
-			} else {
-				dbg_print (dbg_gop,6,dbg_facility,"analize_pdu: an unassigned pdu\n");
+				
+			} else if (! candidate_start) {
+				/* there is no GopStart, we'll check for matching GogKeys
+				   if we have one we'll create the Gop */
 
+				apply_extras(pdu->avpl,gopkey_match,cfg);
+
+				gog_keys = g_hash_table_lookup(mc->gogs_by_gopname,cfg->name);
+
+				if (gog_keys) {
+					
+					while (( curr_gogkey = get_next_avpl(gog_keys,&cookie) )) {
+						if (( gogkey_match = new_avpl_exact_match(cfg->name,gopkey_match,curr_gogkey,FALSE) )) {
+							gogkey = avpl_to_str(gogkey_match);
+							if (g_hash_table_lookup(cfg->gog_index,gogkey)) {
+								gop = new_gop(cfg,pdu,gop_key);
+								g_hash_table_insert(cfg->gop_index,gop_key,gop);
+								delete_avpl(gogkey_match,FALSE);
+								g_free(gogkey);
+								break;
+							} else {
+								delete_avpl(gogkey_match,FALSE);
+								g_free(gogkey);								
+							}
+						}
+					}
+					
+					if ( ! gop ) {
+						delete_avpl(gogkey_match,FALSE);
+						return;
+					}
+					
+				} else {
+					delete_avpl(gogkey_match,FALSE);
+					return;
+				}
+				
+			} else {
+				dbg_print (dbg_gop,6,dbg_facility,"analize_pdu: an unassigned pdu");
+				
 				pdu->gop = NULL;
 				pdu->next = NULL;
+				
+				delete_avpl(gogkey_match,FALSE);
 
 				return;
 			}
@@ -555,19 +601,21 @@ static void analize_pdu(mate_pdu* pdu) {
 		if ( gop ) {
 			gop->num_of_pdus++;
 			gop->time_to_timeout = cfg->idle_timeout > 0.0 ? cfg->idle_timeout + rd->now : (float) -1.0 ;
+		} else {
+			g_error("No GOP at this point is simply wrong!");
 		}
 		
-		dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: merge with key\n");
+		dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: merge with key");
 
 		merge_avpl(gop->avpl,gopkey_match,TRUE);
 		delete_avpl(gopkey_match,TRUE);
 		
-		dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: apply extras\n");
+		dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: apply extras");
 
 		apply_extras(pdu->avpl,gop->avpl,gop->cfg);
 		
 		avpl_str = avpl_to_str(gop->avpl);
-		dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: Gop Attributes: %s\n",avpl_str);
+		dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: Gop Attributes: %s",avpl_str);
 		g_free(avpl_str);
 		
 		gop->last_time = pdu->rel_time;
@@ -575,26 +623,26 @@ static void analize_pdu(mate_pdu* pdu) {
 		if ( ! gop->released) {
 			candidate_stop = cfg->stop;
 			if (candidate_stop) {
-				dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: got candidate stop\n");
+				dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: got candidate stop");
 				is_stop = new_avpl_exact_match("",pdu->avpl, candidate_stop,FALSE);
 			} else {
 				is_stop = new_avpl("");
 			}
 			
 			if(is_stop) {
-				dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: is a `stop\n");
+				dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: is a `stop");
 				delete_avpl(is_stop,FALSE);
 				
 				if (! gop->released) {
 					gop->released = TRUE;
 					gop->release_time = pdu->rel_time;
-					if (gop->gog) gop->gog->num_of_released_gops++;
+					if (gop->gog && gop->cfg->start) gop->gog->num_of_released_gops++;
 				}
 				
 				if (candidate_stop) pdu->is_stop = TRUE;
 				
 			} else {
-				dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: is not a stop\n");
+				dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: is not a stop");
 			}
 		}
 			
@@ -609,7 +657,7 @@ static void analize_pdu(mate_pdu* pdu) {
 		}
 		
 	} else {
-		dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: no gop_key\n");
+		dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: no gop_key");
 		
 		pdu->gop = NULL;
 	}
@@ -641,19 +689,19 @@ static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 			start = fi->start;
 			end = fi->start + fi->length;
 			
-			dbg_print(dbg_pdu,6,dbg_facility,"get_pdu_fields: found field %i-%i\n",start,end);
+			dbg_print(dbg_pdu,6,dbg_facility,"get_pdu_fields: found field %i-%i",start,end);
 			
 			for (j = 0; j < data->ranges->len; j++) {
 				
 				curr_range = (mate_range*) g_ptr_array_index(data->ranges,j);
 				
-				dbg_print(dbg_pdu,6,dbg_facility,"get_pdu_fields: check if in range %i-%i\n",curr_range->start,curr_range->end);
+				dbg_print(dbg_pdu,6,dbg_facility,"get_pdu_fields: check if in range %i-%i",curr_range->start,curr_range->end);
 				
 				if (curr_range->end >= end && curr_range->start <= start) {
 					avp = new_avp_from_finfo(name, fi);
 					
 					s = avp_to_str(avp);
-					dbg_print(dbg_pdu,5,dbg_facility,"get_pdu_fields: got %s\n",s);
+					dbg_print(dbg_pdu,5,dbg_facility,"get_pdu_fields: got %s",s);
 					g_free(s);
 					
 					if (! insert_avp(data->pdu->avpl,avp) ) {
@@ -679,7 +727,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	gint32 last_start;
 	int hfid;
 
-	dbg_print (dbg_pdu,2,dbg_facility,"new_pdu: type=%s framenum=%i\n",cfg->name,framenum);
+	dbg_print (dbg_pdu,2,dbg_facility,"new_pdu: type=%s framenum=%i",cfg->name,framenum);
 		
 	pdu->avpl = new_avpl(cfg->name);
 	pdu->gop = NULL;
@@ -703,7 +751,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	proto_range->end = proto->start + proto->length;
 	g_ptr_array_add(data.ranges,proto_range);
 	
-	dbg_print(dbg_pdu,3,dbg_facility,"new_pdu: proto range %u-%u\n",proto_range->start,proto_range->end);
+	dbg_print(dbg_pdu,3,dbg_facility,"new_pdu: proto range %u-%u",proto_range->start,proto_range->end);
 	
 	last_start = proto_range->start;
 	
@@ -730,10 +778,10 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 				
 				last_start = range_fi->start;
 				
-				dbg_print(dbg_pdu,3,dbg_facility,"new_pdu: transport(%i) range %i-%i\n",hfid,range->start,range->end);
+				dbg_print(dbg_pdu,3,dbg_facility,"new_pdu: transport(%i) range %i-%i",hfid,range->start,range->end);
 			} else {
 				/* we missed a range  */
-				dbg_print(dbg_pdu,6,dbg_facility,"new_pdu: transport(%i) missed\n",hfid);
+				dbg_print(dbg_pdu,6,dbg_facility,"new_pdu: transport(%i) missed",hfid);
 			}
 			
 		}
@@ -770,7 +818,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 			
 			cfg = g_ptr_array_index(mc->pducfglist,i);
 			
-			dbg_print (dbg_pdu,4,dbg_facility,"mate_analyze_frame: tryning to extract: %s\n",cfg->name);
+			dbg_print (dbg_pdu,4,dbg_facility,"mate_analyze_frame: tryning to extract: %s",cfg->name);
 			protos = (GPtrArray*) g_hash_table_lookup(tree->tree_data->interesting_hfids,(gpointer) cfg->hfid_proto);
 			
 			if (protos)  {
@@ -778,7 +826,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 				
 				for (j = 0; j < protos->len; j++) {
 
-					dbg_print (dbg_pdu,3,dbg_facility,"mate_analyze_frame: found matching proto, extracting: %s\n",cfg->name);
+					dbg_print (dbg_pdu,3,dbg_facility,"mate_analyze_frame: found matching proto, extracting: %s",cfg->name);
 					
 					proto = (field_info*) g_ptr_array_index(protos,j);
 					pdu = new_pdu(cfg, pinfo->fd->num, proto, tree->tree_data->interesting_hfids);
