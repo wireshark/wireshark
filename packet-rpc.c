@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.69 2001/09/12 08:13:33 guy Exp $
+ * $Id: packet-rpc.c,v 1.70 2001/09/12 08:46:39 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1384,8 +1384,7 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean
-dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_heur)
+dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	guint32	msg_type;
@@ -1442,11 +1441,8 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* the first 4 bytes are special in "record marking mode" */
 	if (use_rm) {
-		if (!tvb_bytes_exist(tvb, offset, 4)) {
-			if (!is_heur)
-				dissect_rpc_continuation(tvb, pinfo, tree);
+		if (!tvb_bytes_exist(tvb, offset, 4))
 			return FALSE;
-		}
 		rpc_rm = tvb_get_ntohl(tvb, offset);
 		offset += 4;
 	}
@@ -1456,8 +1452,6 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	if (!tvb_bytes_exist(tvb, offset, 8)) {
 		/* Captured data in packet isn't enough to let us tell. */
-		if (!is_heur)
-			dissect_rpc_continuation(tvb, pinfo, tree);
 		return FALSE;
 	}
 
@@ -1471,8 +1465,6 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (!tvb_bytes_exist(tvb, offset, 16)) {
 			/* Captured data in packet isn't enough to let us
 			   tell. */
-			if (!is_heur)
-				dissect_rpc_continuation(tvb, pinfo, tree);
 			return FALSE;
 		}
 
@@ -1486,8 +1478,6 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    ((rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key))
 		       == NULL)) {
 			/* They're not, so it's probably not an RPC call. */
-			if (!is_heur)
-				dissect_rpc_continuation(tvb, pinfo, tree);
 			return FALSE;
 		}
 		break;
@@ -1528,8 +1518,6 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (conversation == NULL) {
 			/* We haven't seen an RPC call for that conversation,
 			   so we can't check for a reply to that call. */
-			if (!is_heur)
-				dissect_rpc_continuation(tvb, pinfo, tree);
 			return FALSE;
 		}
 
@@ -1540,8 +1528,6 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (rpc_call == NULL) {
 			/* The XID doesn't match a call from that
 			   conversation, so it's probably not an RPC reply. */
-			if (!is_heur)
-				dissect_rpc_continuation(tvb, pinfo, tree);
 			return FALSE;
 		}
 		break;
@@ -1550,8 +1536,6 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* The putative message type field contains neither
 		   RPC_CALL nor RPC_REPLY, so it's not an RPC call or
 		   reply. */
-		if (!is_heur)
-			dissect_rpc_continuation(tvb, pinfo, tree);
 		return FALSE;
 	}
 
@@ -2084,13 +2068,14 @@ dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	return dissect_rpc_common(tvb, pinfo, tree, TRUE);
+	return dissect_rpc_common(tvb, pinfo, tree);
 }
 
 static void
 dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_rpc_common(tvb, pinfo, tree, FALSE);
+	if (!dissect_rpc_common(tvb, pinfo, tree))
+		dissect_rpc_continuation(tvb, pinfo, tree);
 }
 
 /* Discard any state we've saved. */
@@ -2117,7 +2102,6 @@ rpc_init_protocol(void)
 	    200 * sizeof(rpc_call_info_value),
 	    G_ALLOC_ONLY);
 }
-
 
 /* will be called once from register.c at startup time */
 void
