@@ -1,0 +1,300 @@
+/* tap-smbstat.c
+ * smbstat   2003 Ronnie Sahlberg
+ *
+ * $Id: tap-smbstat.c,v 1.1 2003/01/22 00:42:03 sahlberg Exp $
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <stdio.h>
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#include <string.h>
+#include "epan/packet_info.h"
+#include "tap.h"
+#include "epan/value_string.h"
+#include "smb.h"
+#include "register.h"
+
+
+typedef struct _smb_procedure_t {
+	int num;
+	nstime_t min;
+	nstime_t max;
+	nstime_t tot;
+} smb_procedure_t;
+
+/* used to keep track of the statistics for an entire program interface */
+typedef struct _smbstat_t {
+	char *filter;
+	smb_procedure_t proc[256];
+	smb_procedure_t trans2[256];
+	smb_procedure_t nt_trans[256];
+} smbstat_t;
+
+
+
+static int
+smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, void *psi)
+{
+	smbstat_t *ss=(smbstat_t *)pss;
+	smb_info_t *si=psi;
+	nstime_t delta;
+	smb_procedure_t *sp;
+
+	/* we are only interested in reply packets */
+	if(si->request){
+		return 0;
+	}
+	/* if we havnt seen the request, just ignore it */
+	if(!si->sip){
+		return 0;
+	}
+
+	if(si->cmd==0xA0){
+		smb_nt_transact_info_t *sti=(smb_nt_transact_info_t *)si->sip->extra_info;
+
+		/*nt transaction*/
+		sp=&(ss->nt_trans[sti->subcmd]);
+	} else if(si->cmd==0x32){
+		smb_transact2_info_t *st2i=(smb_transact2_info_t *)si->sip->extra_info;
+
+		/*transaction2*/
+		sp=&(ss->trans2[st2i->subcmd]);
+	} else {
+		sp=&(ss->proc[si->cmd]);
+	}
+
+	/* calculate time delta between request and reply */
+	delta.secs=pinfo->fd->abs_secs-si->sip->req_time.secs;
+	delta.nsecs=pinfo->fd->abs_usecs*1000-si->sip->req_time.nsecs;
+	if(delta.nsecs<0){
+		delta.nsecs+=1000000000;
+		delta.secs--;
+	}
+
+	if((sp->max.secs==0)
+	&& (sp->max.nsecs==0) ){
+		sp->max.secs=delta.secs;
+		sp->max.nsecs=delta.nsecs;
+	}
+
+	if((sp->min.secs==0)
+	&& (sp->min.nsecs==0) ){
+		sp->min.secs=delta.secs;
+		sp->min.nsecs=delta.nsecs;
+	}
+
+	if( (delta.secs<sp->min.secs)
+	||( (delta.secs==sp->min.secs)
+	  &&(delta.nsecs<sp->min.nsecs) ) ){
+		sp->min.secs=delta.secs;
+		sp->min.nsecs=delta.nsecs;
+	}
+
+	if( (delta.secs>sp->max.secs)
+	||( (delta.secs==sp->max.secs)
+	  &&(delta.nsecs>sp->max.nsecs) ) ){
+		sp->max.secs=delta.secs;
+		sp->max.nsecs=delta.nsecs;
+	}
+	
+	sp->tot.secs += delta.secs;
+	sp->tot.nsecs += delta.nsecs;
+	if(sp->tot.nsecs>1000000000){
+		sp->tot.nsecs-=1000000000;
+		sp->tot.secs++;
+	}
+	sp->num++;
+
+	return 1;
+}
+
+static void
+smbstat_draw(void *pss)
+{
+	smbstat_t *ss=(smbstat_t *)pss;
+	guint32 i;
+#ifdef G_HAVE_UINT64
+	guint64 td;
+#else
+	guint32 td;
+#endif
+	printf("\n");
+	printf("===================================================================\n");
+	printf("SMB RTT Statistics:\n");
+	printf("Filter: %s\n",ss->filter?ss->filter:"");
+	printf("Commands                   Calls   Min RTT   Max RTT   Avg RTT\n");
+	for(i=0;i<256;i++){
+		/* nothing seen, nothing to do */
+		if(ss->proc[i].num==0){
+			continue;
+		}
+
+		/* we deal with transaction2 later */
+		if(i==0x32){
+			continue;
+		}
+
+		/* we deal with nt transaction later */
+		if(i==0xA0){
+			continue;
+		}
+
+		/* scale it to units of 10us.*/
+		/* for long captures with a large tot time, this can overflow on 32bit */
+		td=(int)ss->proc[i].tot.secs;
+		td=td*100000+(int)ss->proc[i].tot.nsecs/10000;
+		if(ss->proc[i].num){
+			td/=ss->proc[i].num;
+		} else {
+			td=0;
+		}
+
+		printf("%-25s %6d %3d.%05d %3d.%05d %3d.%05d\n",
+			val_to_str(i, smb_cmd_vals, "Unknown (0x%02x)"),
+			ss->proc[i].num,
+			(int)ss->proc[i].min.secs,ss->proc[i].min.nsecs/10000,
+			(int)ss->proc[i].max.secs,ss->proc[i].max.nsecs/10000,
+			td/100000, td%100000
+		);
+	}
+
+	printf("\n");
+	printf("Transaction2 Commands      Calls   Min RTT   Max RTT   Avg RTT\n");
+	for(i=0;i<256;i++){
+		/* nothing seen, nothing to do */
+		if(ss->trans2[i].num==0){
+			continue;
+		}
+
+		/* scale it to units of 10us.*/
+		/* for long captures with a large tot time, this can overflow on 32bit */
+		td=(int)ss->trans2[i].tot.secs;
+		td=td*100000+(int)ss->trans2[i].tot.nsecs/10000;
+		if(ss->trans2[i].num){
+			td/=ss->trans2[i].num;
+		} else {
+			td=0;
+		}
+
+		printf("%-25s %6d %3d.%05d %3d.%05d %3d.%05d\n",
+			val_to_str(i, trans2_cmd_vals, "Unknown (0x%02x)"),
+			ss->trans2[i].num,
+			(int)ss->trans2[i].min.secs,ss->trans2[i].min.nsecs/10000,
+			(int)ss->trans2[i].max.secs,ss->trans2[i].max.nsecs/10000,
+			td/100000, td%100000
+		);
+	}
+
+	printf("\n");
+	printf("NT Transaction Commands    Calls   Min RTT   Max RTT   Avg RTT\n");
+	for(i=0;i<256;i++){
+		/* nothing seen, nothing to do */
+		if(ss->nt_trans[i].num==0){
+			continue;
+		}
+
+		/* scale it to units of 10us.*/
+		/* for long captures with a large tot time, this can overflow on 32bit */
+		td=(int)ss->nt_trans[i].tot.secs;
+		td=td*100000+(int)ss->nt_trans[i].tot.nsecs/10000;
+		if(ss->nt_trans[i].num){
+			td/=ss->nt_trans[i].num;
+		} else {
+			td=0;
+		}
+
+		printf("%-25s %6d %3d.%05d %3d.%05d %3d.%05d\n",
+			val_to_str(i, nt_cmd_vals, "Unknown (0x%02x)"),
+			ss->nt_trans[i].num,
+			(int)ss->nt_trans[i].min.secs,ss->nt_trans[i].min.nsecs/10000,
+			(int)ss->nt_trans[i].max.secs,ss->nt_trans[i].max.nsecs/10000,
+			td/100000, td%100000
+		);
+	}
+
+	printf("===================================================================\n");
+}
+
+
+static void
+smbstat_init(char *optarg)
+{
+	smbstat_t *ss;
+	guint32 i;
+	char *filter=NULL;
+
+
+	if(!strncmp(optarg,"smb,rtt,",8)){
+		filter=optarg+8;
+	} else {
+		filter=NULL;
+	}
+
+	ss=g_malloc(sizeof(smbstat_t));
+	if(filter){
+		ss->filter=g_malloc(strlen(filter)+1);
+		strcpy(ss->filter, filter);
+	} else {
+		ss->filter=NULL;
+	}
+
+	for(i=0;i<256;i++){
+		ss->proc[i].num=0;	
+		ss->proc[i].min.secs=0;
+		ss->proc[i].min.nsecs=0;
+		ss->proc[i].max.secs=0;
+		ss->proc[i].max.nsecs=0;
+		ss->proc[i].tot.secs=0;
+		ss->proc[i].tot.nsecs=0;
+		
+		ss->trans2[i].num=0;	
+		ss->trans2[i].min.secs=0;
+		ss->trans2[i].min.nsecs=0;
+		ss->trans2[i].max.secs=0;
+		ss->trans2[i].max.nsecs=0;
+		ss->trans2[i].tot.secs=0;
+		ss->trans2[i].tot.nsecs=0;
+	}
+
+	if(register_tap_listener("smb", ss, filter, NULL, smbstat_packet, smbstat_draw)){
+		/* error, we failed to attach to the tap. clean up */
+		g_free(ss->filter);
+		g_free(ss);
+
+		fprintf(stderr,"tethereal: smbstat_init() failed to attach to tap.\n");
+		exit(1);
+	}
+}
+
+
+void
+register_tap_listener_smbstat(void)
+{
+	register_ethereal_tap("smb,rtt", smbstat_init, NULL, NULL);
+}
+
