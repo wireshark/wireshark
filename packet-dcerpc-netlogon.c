@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.75 2003/02/10 23:45:56 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.76 2003/02/14 06:17:20 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -488,6 +488,9 @@ netlogon_dissect_LOGON_IDENTITY_INFO(tvbuff_t *tvb, int offset,
 			"IDENTITY_INFO:");
 		tree = proto_item_add_subtree(item, ett_IDENTITY_INFO);
 	}
+
+	/* XXX: It would be nice to get the domain and account name 
+           displayed in COL_INFO. */
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_logon_dom, 0);
@@ -3800,8 +3803,11 @@ netlogon_dissect_netserverauthenticate2_rqst(tvbuff_t *tvb, int offset,
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
 		pinfo, tree, drep);
 
-	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, "User Name", hf_netlogon_acct_name, 0);
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep, 
+		dissect_ndr_wchar_cvstring, NDR_POINTER_REF, 
+		"User Name", hf_netlogon_acct_name, 
+		cb_str_postprocess, GINT_TO_POINTER(CB_STR_COL_INFO | 1));
 
 	offset = netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvb, offset,
 		pinfo, tree, drep);
