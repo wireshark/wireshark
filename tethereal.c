@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.173 2002/12/31 21:18:05 guy Exp $
+ * $Id: tethereal.c,v 1.174 2002/12/31 22:01:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,6 +137,7 @@ typedef struct _loop_data {
   jmp_buf        stopenv;
   gboolean       output_to_pipe;
   int            packet_count;
+#ifndef _WIN32
   gboolean       modified;     /* TRUE if data in the pipe uses modified pcap headers */
   gboolean       byte_swapped; /* TRUE if data in the pipe is byte swapped */
   unsigned int   bytes_to_read, bytes_read; /* Used by pipe_dispatch */
@@ -146,6 +147,7 @@ typedef struct _loop_data {
        } pipe_state;
 
   enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } pipe_err;
+#endif
 } loop_data;
 
 static loop_data ld;
@@ -175,10 +177,12 @@ static void wtap_dispatch_cb_write(guchar *, const struct wtap_pkthdr *, long,
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void wtap_dispatch_cb_print(guchar *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const guchar *);
+#ifndef _WIN32
 static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
 static int pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
 static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
                 struct pcaprec_modified_hdr *, guchar *, char *, int);
+#endif
 
 capture_file cfile;
 ts_type timestamp_type = RELATIVE;
@@ -2225,6 +2229,7 @@ fail:
   return (err);
 }
 
+#ifndef _WIN32
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
 static void
@@ -2508,3 +2513,4 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
   /* Return here rather than inside the switch to prevent GCC warning */
   return -1;
 }
+#endif
