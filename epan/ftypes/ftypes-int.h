@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes-int.h,v 1.2 2001/02/01 20:31:21 gram Exp $
+ * $Id: ftypes-int.h,v 1.3 2001/02/27 19:23:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,7 @@ typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
 typedef gboolean (*FvalueCmp)(fvalue_t*, fvalue_t*);
 
 typedef guint (*FvalueLen)(fvalue_t*);
-typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint, guint);
+typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
 
 struct _ftype_t {
 	const char		*name;

@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: scanner.l,v 1.3 2001/02/27 19:23:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,9 @@
 #include "config.h"
 #endif
 
+#include <stdlib.h>
+#include <errno.h>
+
 #include "glib-util.h"
 #include "dfilter-int.h"
 #include "syntax-tree.h"
@@ -40,8 +43,10 @@
 
 /*#undef YY_NO_UNPUT*/
 
-int set_lval(int token, gpointer data);
-int simple(int token);
+static int set_lval(int token, gpointer data);
+static int set_lval_int(int token, char *s);
+static int simple(int token);
+static gboolean str_to_guint32(char *s, guint32* pint);
 
 %}
 
@@ -88,12 +93,13 @@ VARCHARS	[[:alnum:]_]
 }
 
 <RANGE>[+-]?[[:digit:]]+		{
-	return set_lval(TOKEN_STRING, g_strdup(yytext));
+	return set_lval_int(TOKEN_INTEGER, yytext);
 }
 <RANGE>[+-]?0x[[:xdigit:]]+		{
-	return set_lval(TOKEN_STRING, g_strdup(yytext));
+	return set_lval_int(TOKEN_INTEGER, yytext);
 }
 <RANGE>":"			return simple(TOKEN_COLON);
+<RANGE>","			return simple(TOKEN_COMMA);
 
 <RANGE>"]"			{
 	BEGIN(INITIAL);
@@ -126,7 +132,7 @@ VARCHARS	[[:alnum:]_]
 
 %%
 
-int
+static int
 simple(int token)
 {
 	switch (token) {
@@ -135,6 +141,7 @@ simple(int token)
 		case TOKEN_LBRACKET:
 		case TOKEN_RBRACKET:
 		case TOKEN_COLON:
+		case TOKEN_COMMA:
 		case TOKEN_TEST_EQ:
 		case TOKEN_TEST_NE:
 		case TOKEN_TEST_GT:
@@ -151,7 +158,7 @@ simple(int token)
 	return token;
 }
 
-int
+static int
 set_lval(int token, gpointer data)
 {
 	sttype_id_t	type_id = STTYPE_UNINITIALIZED;
@@ -169,6 +176,56 @@ set_lval(int token, gpointer data)
 
 	stnode_init(df_lval, type_id, data);
 	return token;
+}
+
+static int
+set_lval_int(int token, char *s)
+{
+	sttype_id_t	type_id = STTYPE_UNINITIALIZED;
+	guint32		val;
+
+	if (!str_to_guint32(s, &val)) {
+		return 0;
+	}	
+
+	switch (token) {
+		case TOKEN_INTEGER:
+			type_id = STTYPE_INTEGER;
+			break;
+		default:
+			g_assert_not_reached();
+	}
+
+	stnode_init_int(df_lval, type_id, val);
+	return token;
+}
+
+
+static gboolean
+str_to_guint32(char *s, guint32* pint)
+{
+	char    *endptr;
+	guint32	integer;
+
+	integer = strtoul(s, &endptr, 0);
+
+	if (endptr == s || *endptr != '\0') {
+		/* This isn't a valid number. */
+		dfilter_fail("\"%s\" is not a valid number.", s);
+		return FALSE;
+	}
+	if (errno == ERANGE) {
+		if (integer == ULONG_MAX) {
+			dfilter_fail("\"%s\" causes an integer overflow.", s);
+		}
+		else {
+			dfilter_fail("\"%s\" is not an integer.", s);
+		}
+		return FALSE;
+	}
+
+	*pint = integer;
+	return TRUE;
 }
 
 #include <lemonflex-tail.inc>

@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: semcheck.c,v 1.3 2001/02/27 19:23:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -240,9 +240,8 @@ is_bytes_type(enum ftenum type)
 	return FALSE;
 }
 
-/* This could really be split up... it's too big. */	
 static void
-check_relation(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
+check_relation_LHS_FIELD(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	stnode_t		*new_st;
@@ -251,166 +250,221 @@ check_relation(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
+	drange_node		*rn;
 
 	type1 = stnode_type_id(st_arg1);
 	type2 = stnode_type_id(st_arg2);
-	if (type1 == STTYPE_FIELD) {
-		hfinfo1 = stnode_data(st_arg1);
-		ftype1 = hfinfo1->type;
 
-		if (!can_func(ftype1)) {
+	hfinfo1 = stnode_data(st_arg1);
+	ftype1 = hfinfo1->type;
+
+	if (!can_func(ftype1)) {
+		dfilter_fail("%s (type=%s) cannot participate in specified comparison.",
+				hfinfo1->abbrev, ftype_pretty_name(ftype1));
+		THROW(TypeError);
+	}
+
+
+	if (type2 == STTYPE_FIELD) {
+		hfinfo2 = stnode_data(st_arg2);
+		ftype2 = hfinfo2->type;
+
+		if (!compatible_ftypes(ftype1, ftype2)) {
+			dfilter_fail("%s and %s are not of compatible types.",
+					hfinfo1->abbrev, hfinfo2->abbrev);
+			THROW(TypeError);
+		}
+		/* Do this check even though you'd think that if
+		 * they're compatible, then can_func() would pass. */
+		if (!can_func(ftype2)) {
 			dfilter_fail("%s (type=%s) cannot participate in specified comparison.",
-					hfinfo1->abbrev, ftype_pretty_name(ftype1));
+					hfinfo2->abbrev, ftype_pretty_name(ftype2));
 			THROW(TypeError);
-		}
-
-
-		if (type2 == STTYPE_FIELD) {
-			hfinfo2 = stnode_data(st_arg2);
-			ftype2 = hfinfo2->type;
-
-			if (!compatible_ftypes(ftype1, ftype2)) {
-				dfilter_fail("%s and %s are not of compatible types.",
-						hfinfo1->abbrev, hfinfo2->abbrev);
-				THROW(TypeError);
-			}
-			/* Do this check even though you'd think that if
-			 * they're compatible, then can_func() would pass. */
-			if (!can_func(ftype2)) {
-				dfilter_fail("%s (type=%s) cannot participate in specified comparison.",
-						hfinfo2->abbrev, ftype_pretty_name(ftype2));
-				THROW(TypeError);
-			}
-		}
-		else if (type2 == STTYPE_STRING) {
-			s = stnode_data(st_arg2);
-			fvalue = fvalue_from_string(ftype1, s, dfilter_fail);
-			if (!fvalue) {
-				/* check value_string */
-				fvalue = mk_fvalue_from_val_string(hfinfo1, s);
-				if (!fvalue) {
-					THROW(TypeError);
-				}
-			}
-
-			new_st = stnode_new(STTYPE_FVALUE, fvalue);
-			sttype_test_set2_args(st_node, st_arg1, new_st);
-			stnode_free(st_arg2);
-		}
-		else if (type2 == STTYPE_RANGE) {
-			if (!is_bytes_type(ftype1)) {
-				if (!ftype_can_slice(ftype1)) {
-					dfilter_fail("\"%s\" is a %s and cannot be converted into a sequence of bytes.",
-							hfinfo1->abbrev,
-							ftype_pretty_name(ftype1));
-					THROW(TypeError);
-				}
-
-				/* Convert entire field to bytes */
-				new_st = stnode_new(STTYPE_RANGE, NULL);
-
-				/* st_arg1 is freed in this step */
-				sttype_range_set(new_st, st_arg1, NULL, NULL);
-
-				sttype_test_set2_args(st_node, new_st, st_arg2);
-			}
-		}
-		else {
-			g_assert_not_reached();
 		}
 	}
-	else if (type1 == STTYPE_STRING) {
-		
-		if (type2 == STTYPE_FIELD) {
-			hfinfo2 = stnode_data(st_arg2);
-			ftype2 = hfinfo2->type;
-
-			s = stnode_data(st_arg1);
-			fvalue = fvalue_from_string(ftype2, s, dfilter_fail);
-			if (!fvalue) {
-				/* check value_string */
-				fvalue = mk_fvalue_from_val_string(hfinfo2, s);
-				if (!fvalue) {
-					THROW(TypeError);
-				}
-			}
-
-			new_st = stnode_new(STTYPE_FVALUE, fvalue);
-			sttype_test_set2_args(st_node, new_st, st_arg2);
-			stnode_free(st_arg1);
-		}
-		else if (type2 == STTYPE_STRING) {
-			/* Well now that's silly... */
-			dfilter_fail("Neither \"%s\" nor \"%s\" are field or protocol names.",
-					stnode_data(st_arg1),
-					stnode_data(st_arg2));
-			THROW(TypeError);
-		}
-		else if (type2 == STTYPE_RANGE) {
-			s = stnode_data(st_arg1);
-			fvalue = fvalue_from_string(FT_BYTES, s, dfilter_fail);
+	else if (type2 == STTYPE_STRING) {
+		s = stnode_data(st_arg2);
+		fvalue = fvalue_from_string(ftype1, s, dfilter_fail);
+		if (!fvalue) {
+			/* check value_string */
+			fvalue = mk_fvalue_from_val_string(hfinfo1, s);
 			if (!fvalue) {
 				THROW(TypeError);
 			}
-			new_st = stnode_new(STTYPE_FVALUE, fvalue);
-			sttype_test_set2_args(st_node, new_st, st_arg2);
-			stnode_free(st_arg1);
 		}
-		else {
-			g_assert_not_reached();
-		}
+
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, st_arg1, new_st);
+		stnode_free(st_arg2);
 	}
-	else if (type1 == STTYPE_RANGE) {
-		hfinfo1 = sttype_range_hfinfo(st_arg1);
-		ftype1 = hfinfo1->type;
-
-		if (!ftype_can_slice(ftype1)) {
-			dfilter_fail("\"%s\" is a %s and cannot be sliced into a sequence of bytes.",
-					hfinfo1->abbrev, ftype_pretty_name(ftype1));
-			THROW(TypeError);
-		}
-
-
-		if (type2 == STTYPE_FIELD) {
-			hfinfo2 = sttype_range_hfinfo(st_arg2);
-			ftype2 = hfinfo2->type;
-
-			if (!is_bytes_type(ftype2)) {
-				if (!ftype_can_slice(ftype2)) {
-					dfilter_fail("\"%s\" is a %s and cannot be converted into a sequence of bytes.",
-							hfinfo2->abbrev,
-							ftype_pretty_name(ftype2));
-					THROW(TypeError);
-				}
-
-				/* Convert entire field to bytes */
-				new_st = stnode_new(STTYPE_RANGE, NULL);
-
-				/* st_arg2 is freed in this step */
-				sttype_range_set(new_st, st_arg2, NULL, NULL);
-
-				sttype_test_set2_args(st_node, st_arg1, new_st);
-			}
-		}
-		else if (type2 == STTYPE_STRING) {
-			s = stnode_data(st_arg2);
-			fvalue = fvalue_from_string(FT_BYTES, s, dfilter_fail);
-			if (!fvalue) {
+	else if (type2 == STTYPE_RANGE) {
+		if (!is_bytes_type(ftype1)) {
+			if (!ftype_can_slice(ftype1)) {
+				dfilter_fail("\"%s\" is a %s and cannot be converted into a sequence of bytes.",
+						hfinfo1->abbrev,
+						ftype_pretty_name(ftype1));
 				THROW(TypeError);
 			}
-			new_st = stnode_new(STTYPE_FVALUE, fvalue);
-			sttype_test_set2_args(st_node, st_arg1, new_st);
-			stnode_free(st_arg2);
-		}
-		else if (type2 == STTYPE_RANGE) {
-			/* XXX - check lengths of both ranges */
-		}
-		else {
-			g_assert_not_reached();
+
+			/* Convert entire field to bytes */
+			new_st = stnode_new(STTYPE_RANGE, NULL);
+
+			rn = drange_node_new();
+			drange_node_set_offset(rn, 0);
+			drange_node_set_to_the_end(rn, TRUE);
+			/* st_arg1 is freed in this step */
+			sttype_range_set1(new_st, st_arg1, rn);
+
+			sttype_test_set2_args(st_node, new_st, st_arg2);
 		}
 	}
 	else {
 		g_assert_not_reached();
+	}
+}
+
+static void
+check_relation_LHS_STRING(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	stnode_t		*new_st;
+	sttype_id_t		type1, type2;
+	header_field_info	*hfinfo2;
+	ftenum_t		ftype2;
+	fvalue_t		*fvalue;
+	char			*s;
+
+	type1 = stnode_type_id(st_arg1);
+	type2 = stnode_type_id(st_arg2);
+		
+	if (type2 == STTYPE_FIELD) {
+		hfinfo2 = stnode_data(st_arg2);
+		ftype2 = hfinfo2->type;
+
+		s = stnode_data(st_arg1);
+		fvalue = fvalue_from_string(ftype2, s, dfilter_fail);
+		if (!fvalue) {
+			/* check value_string */
+			fvalue = mk_fvalue_from_val_string(hfinfo2, s);
+			if (!fvalue) {
+				THROW(TypeError);
+			}
+		}
+
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, new_st, st_arg2);
+		stnode_free(st_arg1);
+	}
+	else if (type2 == STTYPE_STRING) {
+		/* Well now that's silly... */
+		dfilter_fail("Neither \"%s\" nor \"%s\" are field or protocol names.",
+				stnode_data(st_arg1),
+				stnode_data(st_arg2));
+		THROW(TypeError);
+	}
+	else if (type2 == STTYPE_RANGE) {
+		s = stnode_data(st_arg1);
+		fvalue = fvalue_from_string(FT_BYTES, s, dfilter_fail);
+		if (!fvalue) {
+			THROW(TypeError);
+		}
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, new_st, st_arg2);
+		stnode_free(st_arg1);
+	}
+	else {
+		g_assert_not_reached();
+	}
+}
+
+static void
+check_relation_LHS_RANGE(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	stnode_t		*new_st;
+	sttype_id_t		type1, type2;
+	header_field_info	*hfinfo1, *hfinfo2;
+	ftenum_t		ftype1, ftype2;
+	fvalue_t		*fvalue;
+	char			*s;
+	drange_node		*rn;
+
+	type1 = stnode_type_id(st_arg1);
+	type2 = stnode_type_id(st_arg2);
+	hfinfo1 = sttype_range_hfinfo(st_arg1);
+	ftype1 = hfinfo1->type;
+
+	if (!ftype_can_slice(ftype1)) {
+		dfilter_fail("\"%s\" is a %s and cannot be sliced into a sequence of bytes.",
+				hfinfo1->abbrev, ftype_pretty_name(ftype1));
+		THROW(TypeError);
+	}
+
+
+	if (type2 == STTYPE_FIELD) {
+		hfinfo2 = sttype_range_hfinfo(st_arg2);
+		ftype2 = hfinfo2->type;
+
+		if (!is_bytes_type(ftype2)) {
+			if (!ftype_can_slice(ftype2)) {
+				dfilter_fail("\"%s\" is a %s and cannot be converted into a sequence of bytes.",
+						hfinfo2->abbrev,
+						ftype_pretty_name(ftype2));
+				THROW(TypeError);
+			}
+
+			/* Convert entire field to bytes */
+			new_st = stnode_new(STTYPE_RANGE, NULL);
+
+			rn = drange_node_new();
+			drange_node_set_offset(rn, 0);
+			drange_node_set_to_the_end(rn, TRUE);
+			/* st_arg2 is freed in this step */
+			sttype_range_set1(new_st, st_arg2, rn);
+
+			sttype_test_set2_args(st_node, st_arg1, new_st);
+		}
+	}
+	else if (type2 == STTYPE_STRING) {
+		s = stnode_data(st_arg2);
+		fvalue = fvalue_from_string(FT_BYTES, s, dfilter_fail);
+		if (!fvalue) {
+			THROW(TypeError);
+		}
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, st_arg1, new_st);
+		stnode_free(st_arg2);
+	}
+	else if (type2 == STTYPE_RANGE) {
+		/* XXX - check lengths of both ranges */
+	}
+	else {
+		g_assert_not_reached();
+	}
+}
+
+
+static void
+check_relation(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	switch (stnode_type_id(st_arg1)) {
+		case STTYPE_FIELD:
+			check_relation_LHS_FIELD(dfw, can_func, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_STRING:
+			check_relation_LHS_STRING(dfw, can_func, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_RANGE:
+			check_relation_LHS_RANGE(dfw, can_func, st_node, st_arg1, st_arg2);
+			break;
+
+		case STTYPE_UNINITIALIZED:
+		case STTYPE_TEST:
+		case STTYPE_INTEGER:
+		case STTYPE_FVALUE:
+		case STTYPE_NUM_TYPES:
+			g_assert_not_reached();
 	}
 }
 

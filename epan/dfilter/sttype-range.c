@@ -1,5 +1,5 @@
 /*
- * $Id: sttype-range.c,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: sttype-range.c,v 1.3 2001/02/27 19:23:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,18 +30,16 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <errno.h>
+#include <glib.h>
+
 #include "proto.h"
+#include "drange.h"
 #include "sttype-range.h"
 
 typedef struct {
 	guint32			magic;
 	header_field_info	*hfinfo;
-	gint			start;
-	gint			end;
-	char			*start_error;
-	char			*end_error;
+	drange			*drange;
 } range_t;
 
 #define RANGE_MAGIC	0xec0990ce
@@ -57,10 +55,7 @@ range_new(gpointer junk)
 
 	range->magic = RANGE_MAGIC;
 	range->hfinfo = NULL;
-	range->start = 0;
-	range->end = -1;
-	range->start_error = NULL;
-	range->end_error = NULL;
+	range->drange = NULL;
 
 	return (gpointer) range;
 }
@@ -71,38 +66,29 @@ range_free(gpointer value)
 	range_t	*range = value;
 	assert_magic(range, RANGE_MAGIC);
 
-	if (range->start_error)
-		g_free(range->start_error);
-	if (range->end_error)
-		g_free(range->end_error);
+	if (range->drange)
+		drange_free(range->drange);
 
 	g_free(range);
 }
 
-static gint
-string_to_gint(char *s, gboolean *success)
-{
-	char	*endptr;
-	gint	val;
-
-	*success = TRUE;
-	val = strtol(s, &endptr, 0);
-
-	if (endptr == s || *endptr != '\0') {
-		*success = FALSE;
-	}
-	else if (errno == ERANGE) {
-		*success = FALSE;
-	}
-
-	return val;
-}
-
-static void
-range_set(stnode_t *node, stnode_t *field, char *start, char *end)
+void
+sttype_range_remove_drange(stnode_t *node)
 {
 	range_t		*range;
-	gboolean	success;
+
+	range = stnode_data(node);
+	assert_magic(range, RANGE_MAGIC);
+
+	range->drange = NULL;
+}
+
+
+/* Set a range */
+void
+sttype_range_set(stnode_t *node, stnode_t *field, GSList* drange_list)
+{
+	range_t		*range;
 
 	range = stnode_data(node);
 	assert_magic(range, RANGE_MAGIC);
@@ -110,75 +96,17 @@ range_set(stnode_t *node, stnode_t *field, char *start, char *end)
 	range->hfinfo = stnode_data(field);
 	stnode_free(field);
 
-	if (start) { 
-		range->start = string_to_gint(start, &success);
-		if (!success) {
-			/* Save the error-causing string for later reporting */
-			range->start_error = g_strdup(start);
-		}
-	}
-	else {
-		range->start = 0;
-	}
-
-	if (end) {
-		range->end = string_to_gint(end, &success);
-
-		if (!success) {
-			/* Save the error-causing string for later reporting */
-			range->end_error = g_strdup(end);
-		}
-	}
-	else {
-		range->end = G_MAXINT;
-	}
+	range->drange = drange_new_from_list(drange_list);
 }
 
 void
-sttype_range_set(stnode_t *node, stnode_t *field, stnode_t *start, stnode_t *end)
+sttype_range_set1(stnode_t *node, stnode_t *field, drange_node *rn)
 {
-	char		*start_str, *end_str;
-
-	if (start) { 
-		start_str = stnode_data(start);
-	}
-	else {
-		start_str = NULL;
-	}
-
-	if (end) {
-		end_str = stnode_data(end);
-	}
-	else {
-		end_str = NULL;
-	}
-
-	range_set(node, field, start_str, end_str);
-
-	if (start)
-		stnode_free(start);
-	if (end)
-		stnode_free(end);
+	sttype_range_set(node, field, g_slist_append(NULL, rn));
 }
-
-void
-sttype_range_set1(stnode_t *node, stnode_t *field, stnode_t *offset)
-{
-	char		*offset_str;
-	
-	g_assert(offset);
-
-	offset_str = stnode_data(offset);
-	range_set(node, field, offset_str, "1");
-	stnode_free(offset);
-}
-
 
 STTYPE_ACCESSOR(header_field_info*, range, hfinfo, RANGE_MAGIC)
-STTYPE_ACCESSOR(gint, range, start, RANGE_MAGIC)
-STTYPE_ACCESSOR(gint, range, end, RANGE_MAGIC)
-STTYPE_ACCESSOR(char*, range, start_error, RANGE_MAGIC)
-STTYPE_ACCESSOR(char*, range, end_error, RANGE_MAGIC)
+STTYPE_ACCESSOR(drange*, range, drange, RANGE_MAGIC)
 
 
 void

@@ -1,5 +1,5 @@
 /*
- * $Id: sttype-range.h,v 1.3 2001/02/27 19:23:28 gram Exp $
+ * $Id: sttype-integer.c,v 1.1 2001/02/27 19:23:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -21,25 +21,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef STTYPE_RANGE_H
-#define STTYPE_RANGE_H
-
-#include "syntax-tree.h"
-#include "drange.h"
-
-STTYPE_ACCESSOR_PROTOTYPE(header_field_info*, range, hfinfo)
-STTYPE_ACCESSOR_PROTOTYPE(drange*, range, drange)
-
-/* Set a range */
-void
-sttype_range_set(stnode_t *node, stnode_t *field, GSList* drange_list);
-
-void
-sttype_range_set1(stnode_t *node, stnode_t *field, drange_node *rn);
-
-/* Clear the 'drange' variable to remove responsibility for
- * freeing it. */
-void
-sttype_range_remove_drange(stnode_t *node);
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
 #endif
+
+#include "ftypes/ftypes.h"
+#include "syntax-tree.h"
+
+void
+sttype_register_integer(void)
+{
+	static sttype_t integer_type = {
+		STTYPE_INTEGER,
+		"INTEGER",
+		NULL,
+		NULL,
+	};
+
+	sttype_register(&integer_type);
+}

@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.h,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: dfvm.h,v 1.3 2001/02/27 19:23:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 #include "proto.h"
 #include "dfilter-int.h"
 #include "syntax-tree.h"
+#include "drange.h"
 
 typedef enum {
 	EMPTY,
@@ -35,7 +36,8 @@ typedef enum {
 	FIELD_ID,
 	INSN_NUMBER,
 	REGISTER,
-	INTEGER
+	INTEGER,
+	DRANGE
 } dfvm_value_type_t;
 
 typedef struct {
@@ -44,6 +46,7 @@ typedef struct {
 	union {
 		fvalue_t	*fvalue;
 		guint32		numeric;
+		drange		*drange;
 	} value;
 
 } dfvm_value_t;

@@ -17,11 +17,13 @@ CFLAGS=/MT /DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
 OBJECTS = \
 	dfilter.obj		\
 	dfvm.obj		\
+	drange.obj		\
 	gencode.obj		\
 	glib-util.obj		\
 	grammar.obj		\
 	scanner.obj		\
 	semcheck.obj		\
+	sttype-integer.obj	\
 	sttype-pointer.obj	\
 	sttype-range.obj	\
 	sttype-string.obj	\
@@ -35,8 +37,6 @@ dfilter.lib	: $(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS) scanner.c grammar.c grammar.h grammar.out dfilter.lib
-
-
 
 scanner.c : scanner.l
 	$(LEX) -Pdf_ -oscanner.c scanner.l

@@ -1,4 +1,4 @@
-/* $Id: grammar.lemon,v 1.1 2001/02/01 20:21:18 gram Exp $ */
+/* $Id: grammar.lemon,v 1.2 2001/02/27 19:23:28 gram Exp $ */
 
 %include {
 #ifdef HAVE_CONFIG_H
@@ -9,6 +9,7 @@
 #include "syntax-tree.h"
 #include "sttype-range.h"
 #include "sttype-test.h"
+#include "drange.h"
 
 /*extern char *df_text;*/
 
@@ -44,6 +45,12 @@
 %type		range		{stnode_t*}
 %destructor	range		{stnode_free($$);}
 
+%type		drnode		{drange_node*}
+%destructor	drnode		{drange_node_free($$);}
+
+%type		drnode_list	{GSList*}
+%destructor	drnode_list	{drange_node_free_list($$);}
+
 /* This is called as soon as a syntax error happens. After that, 
 any "error" symbols are shifted, if possible. */
 %syntax_error {
@@ -65,6 +72,10 @@ any "error" symbols are shifted, if possible. */
 		case STTYPE_STRING:
 			dfilter_fail("The string \"%s\" was unexpected in this context.",
 				stnode_data(TOKEN));
+			break;
+		case STTYPE_INTEGER:
+			dfilter_fail("The integer %u was unexpected in this context.",
+				stnode_value(TOKEN));
 			break;
 		case STTYPE_FIELD:
 			hfinfo = stnode_data(TOKEN);
@@ -143,29 +154,82 @@ entity(E) ::= FIELD(F).		{ E = F; }
 entity(E) ::= STRING(S).	{ E = S; }
 entity(E) ::= range(R).		{ E = R; }
 
-range(R) ::= FIELD(F) LBRACKET STRING(X) COLON STRING(Y) RBRACKET.
+
+/* Ranges */
+range(R) ::= FIELD(F) LBRACKET drnode_list(L) RBRACKET.
 {
 	R = stnode_new(STTYPE_RANGE, NULL);
-	sttype_range_set(R, F, X, Y);
+	sttype_range_set(R, F, L);
+
+	/* Delete the list, but not the drange_nodes that
+	 * the list contains. */
+	g_slist_free(L);
 }
 
-range(R) ::= FIELD(F) LBRACKET STRING(X) COLON RBRACKET.
+drnode_list(L) ::= drnode(D).
 {
-	R = stnode_new(STTYPE_RANGE, NULL);
-	sttype_range_set(R, F, X, NULL);
+	L = g_slist_append(NULL, D);
 }
 
-range(R) ::= FIELD(F) LBRACKET COLON STRING(Y) RBRACKET.
+drnode_list(L) ::= drnode_list(P) COMMA drnode(D).
 {
-	R = stnode_new(STTYPE_RANGE, NULL);
-	sttype_range_set(R, F, NULL, Y);
+	L = g_slist_append(P, D);
 }
 
-range(R) ::= FIELD(F) LBRACKET STRING(Y) RBRACKET.
+/* x:y is offset:length */
+drnode(D) ::= INTEGER(X) COLON INTEGER(Y).
 {
-	R = stnode_new(STTYPE_RANGE, NULL);
-	sttype_range_set1(R, F, Y);
+	D = drange_node_new();
+	drange_node_set_offset(D, stnode_value(X));
+	drange_node_set_length(D, stnode_value(Y));
+	
+	stnode_free(X);
+	stnode_free(Y);
 }
+
+/* x,y == offset:(offset-1) 
+drnode(D) ::= INTEGER(X) HYPHEN INTEGER(Y).
+{
+	D = drange_node_new();
+	drange_node_set_offset(D, stnode_value(X));
+	drange_node_set_length(D, stnode_value(Y));
+	
+	stnode_free(X);
+	stnode_free(Y);
+}
+*/
+
+/* :y == from start to offset */
+drnode(D) ::= COLON INTEGER(Y).
+{
+	D = drange_node_new();
+	drange_node_set_offset(D, 0);
+	drange_node_set_length(D, stnode_value(Y));
+
+	stnode_free(Y);
+}
+
+/* x: from offset to end */
+drnode(D) ::= INTEGER(X) COLON.
+{
+	D = drange_node_new();
+	drange_node_set_offset(D, stnode_value(X));
+	drange_node_set_to_the_end(D, TRUE);
+
+	stnode_free(X);
+}
+
+/* x == x:1 */
+drnode(D) ::= INTEGER(X).
+{
+	D = drange_node_new();
+	drange_node_set_offset(D, stnode_value(X));
+	drange_node_set_length(D, 1);
+
+	stnode_free(X);
+}
+
+
 
 /* Relational tests */
 relation_test(T) ::= entity(E) rel_op2(O) entity(F).

@@ -1,5 +1,5 @@
 /*
- * $Id: syntax-tree.c,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: syntax-tree.c,v 1.3 2001/02/27 19:23:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,7 @@
 static sttype_t* type_list[STTYPE_NUM_TYPES];
 
 /* These are the sttype_t registration function prototypes. */
+void sttype_register_integer(void);
 void sttype_register_pointer(void);
 void sttype_register_range(void);
 void sttype_register_string(void);
@@ -43,6 +44,7 @@ void sttype_register_test(void);
 void
 sttype_init(void)
 {
+	sttype_register_integer();
 	sttype_register_pointer();
 	sttype_register_range();
 	sttype_register_string();
@@ -141,6 +143,13 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 }
 
 void
+stnode_init_int(stnode_t *node, sttype_id_t type_id, guint32 value)
+{
+	stnode_init(node, type_id, NULL);
+	node->value = value;
+}
+
+void
 stnode_free(stnode_t *node)
 {
 	assert_magic(node, STNODE_MAGIC);
@@ -179,8 +188,12 @@ gpointer
 stnode_data(stnode_t *node)
 {
 	assert_magic(node, STNODE_MAGIC);
-	if (node)
-		return node->data;
-	else
-		return NULL;
+	return node->data;
+}
+
+guint32
+stnode_value(stnode_t *node)
+{
+	assert_magic(node, STNODE_MAGIC);
+	return node->value;
 }

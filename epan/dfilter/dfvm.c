@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.c,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: dfvm.c,v 1.3 2001/02/27 19:23:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,6 @@ dfvm_insn_new(dfvm_opcode_t op)
 	insn->arg1 = NULL;
 	insn->arg2 = NULL;
 	insn->arg3 = NULL;
-	insn->arg4 = NULL;
 	return insn;
 }
 
@@ -52,9 +51,6 @@ dfvm_insn_free(dfvm_insn_t *insn)
 	}
 	if (insn->arg3) {
 		dfvm_value_free(insn->arg3);
-	}
-	if (insn->arg4) {
-		dfvm_value_free(insn->arg4);
 	}
 	g_free(insn);
 }
@@ -77,6 +73,9 @@ dfvm_value_free(dfvm_value_t *v)
 	switch (v->type) {
 		case FVALUE:
 			fvalue_free(v->value.fvalue);
+			break;
+		case DRANGE:
+			drange_free(v->value.drange);
 			break;
 		default:
 			/* nothing */
@@ -125,11 +124,9 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 				break;
 
 			case MK_RANGE:
-				fprintf(f, "%05d MK_RANGE\t\treg#%d[%d:%d] -> reg#%d\n",
+				fprintf(f, "%05d MK_RANGE\t\treg#%d[?] -> reg#%d\n",
 					id,
 					arg1->value.numeric,
-					arg3->value.numeric,
-					arg4->value.numeric,
 					arg2->value.numeric);
 				break;
 
@@ -275,7 +272,7 @@ free_register_overhead(dfilter_t* df)
  * to make a new list of fvalue_t's (which are ranges, or byte-slices),
  * and puts the new list into a new register. */
 static void
-mk_range(dfilter_t *df, int from_reg, int to_reg, int start, int end)
+mk_range(dfilter_t *df, int from_reg, int to_reg, drange *drange)
 {
 	GList		*from_list, *to_list;
 	fvalue_t	*old_fv, *new_fv;
@@ -285,8 +282,8 @@ mk_range(dfilter_t *df, int from_reg, int to_reg, int start, int end)
 
 	while (from_list) {
 		old_fv = from_list->data;
-		new_fv = fvalue_slice(old_fv, start, end);
-		/* Assert there because semcheck.c should have
+		new_fv = fvalue_slice(old_fv, drange);
+		/* Assert here because semcheck.c should have
 		 * already caught the cases in which a slice
 		 * cannot be made. */
 		g_assert(new_fv);
@@ -309,7 +306,6 @@ dfvm_apply(dfilter_t *df, tvbuff_t *tvb, proto_tree *tree)
 	dfvm_value_t	*arg1;
 	dfvm_value_t	*arg2;
 	dfvm_value_t	*arg3;
-	dfvm_value_t	*arg4;
 
 	g_assert(tvb);
 	g_assert(tree);
@@ -348,10 +344,9 @@ dfvm_apply(dfilter_t *df, tvbuff_t *tvb, proto_tree *tree)
 
 			case MK_RANGE:
 				arg3 = insn->arg3;
-				arg4 = insn->arg4;
 				mk_range(df,
 						arg1->value.numeric, arg2->value.numeric,
-						arg3->value.numeric, arg4->value.numeric);
+						arg3->value.drange);
 				break;
 
 			case ANY_EQ:

@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.1 2001/02/01 20:21:19 gram Exp $
+ * $Id: ftypes.h,v 1.2 2001/02/27 19:23:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,6 +121,7 @@ ftype_can_le(enum ftenum ftype);
 #endif
 
 #include "tvbuff.h"
+#include "dfilter/drange.h"
 
 typedef struct {
 	ftype_t	*ftype;
@@ -192,6 +193,6 @@ guint
 fvalue_length(fvalue_t *fv);
 
 fvalue_t*
-fvalue_slice(fvalue_t *fv, gint start, gint end);
+fvalue_slice(fvalue_t *fv, drange *drange);
 
 #endif /* ftypes.h */

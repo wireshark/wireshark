@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.2 2001/02/01 20:31:21 gram Exp $
+ * $Id: ftypes.c,v 1.3 2001/02/27 19:23:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -274,68 +274,94 @@ fvalue_length(fvalue_t *fv)
 		return fv->ftype->wire_size;
 }
 
+typedef struct {
+	fvalue_t	*fv;
+	GByteArray	*bytes;
+	gboolean	slice_failure;
+} slice_data_t;
+
+static void
+slice_func(gpointer data, gpointer user_data)
+{
+	drange_node	*drnode = data;
+	slice_data_t	*slice_data = user_data;
+	gint		offset;
+	gint		length;
+	guint		field_length;
+	guint		end_offset;
+	gboolean	to_end;
+	fvalue_t	*fv;
+
+	if (slice_data->slice_failure) {
+		return;
+	}
+
+	offset = drange_node_get_offset(drnode);
+	length = drange_node_get_length(drnode);
+	to_end = drange_node_get_to_the_end(drnode);
+
+	fv = slice_data->fv;
+	field_length = fvalue_length(fv);
+
+/*	g_debug("field_length=%u offset=%d length=%d",
+			field_length, offset, length);*/
+
+	if (offset < 0) {
+		offset = field_length + offset;
+	}
+
+	if (to_end) {
+		end_offset = field_length;
+		length = end_offset - offset;
+	}
+	else {
+		if (length < 0) {
+			end_offset = field_length + length;
+			if (end_offset >= offset) {
+				length = end_offset - offset;
+			}
+			else {
+				length = 0;
+			}
+		}
+		else {
+			end_offset = offset + length;
+		}
+	}
+
+
+/*	g_debug("\t\t(NEW) offset=%d length=%d",
+			offset, length);*/
+
+	if (offset > field_length || end_offset > field_length) {
+		slice_data->slice_failure = TRUE;
+		return;
+	}
+
+	fv->ftype->slice(fv, slice_data->bytes, offset, length);
+}
+
+
 /* Returns a new FT_BYTES fvalue_t* if possible, otherwise NULL */
 fvalue_t*
-fvalue_slice(fvalue_t *fv, gint start, gint end)
+fvalue_slice(fvalue_t *fv, drange *drange)
 {
-	GByteArray	*bytes;
-	guint		data_length, abs_end;
-	guint		offset=0, length=0;
+	slice_data_t	slice_data;
 	fvalue_t	*new_fv;
 
-	if (!fv->ftype->slice) {
-		return NULL;
-	}
+	slice_data.fv = fv;
+	slice_data.bytes = g_byte_array_new();
+	slice_data.slice_failure = FALSE;
 
-	data_length = fvalue_length(fv);
-	bytes = g_byte_array_new();
+	/* XXX - We could make some optimizations here based on
+	 * drange_has_total_length() and
+	 * drange_get_max_offset().
+	 */
 
-	/* Find absolute start position (offset) */
-	if (start < 0) {
-		start = data_length + start;
-		if (start < 0) {
-			offset = 0;
-		}
-		else {
-			offset = start;
-		}
-	}
-	else {
-		offset = start;
-	}
-
-	/* Limit the offset value */
-	if (offset > data_length) {
-		offset = data_length;
-	}
-
-	/* Find absolute end position (abs_end) */
-	if (end < 0) {
-		end = data_length + end;
-		if (end < 0) {
-			abs_end = 0;
-		}
-		else {
-			abs_end = end;
-		}
-	}
-	else {
-		abs_end = end;
-	}
-
-	/* Limit the abs_end value */
-	if (abs_end > data_length) {
-		abs_end = data_length;
-	}
-
-	/* Does end position occur *after* start position? */
-	if (abs_end > offset) {
-		length = abs_end - offset;
-		fv->ftype->slice(fv, bytes, offset, length);
-	}
+	drange_foreach_drange_node(drange, slice_func, &slice_data);
 
 	new_fv = fvalue_new(FT_BYTES);
-	fvalue_set(new_fv, bytes, TRUE);
+	fvalue_set(new_fv, slice_data.bytes, TRUE);
 	return new_fv;
 }
 

@@ -1,5 +1,5 @@
 /*
- * $Id: syntax-tree.h,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: syntax-tree.h,v 1.3 2001/02/27 19:23:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@ typedef enum {
 	STTYPE_STRING,
 	STTYPE_FIELD,
 	STTYPE_FVALUE,
+	STTYPE_INTEGER,
 	STTYPE_RANGE,
 	STTYPE_NUM_TYPES
 } sttype_id_t;
@@ -53,8 +54,11 @@ typedef struct {
 typedef struct {
 	guint32		magic;
 	sttype_t	*type;
-	gpointer	data;
 
+	/* This could be made an enum, but I haven't
+	 * set aside to time to do so. */
+	gpointer	data;
+	guint32		value;
 } stnode_t;
 
 void
@@ -73,6 +77,9 @@ void
 stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data);
 
 void
+stnode_init_int(stnode_t *node, sttype_id_t type_id, guint32 value);
+
+void
 stnode_free(stnode_t *node);
 
 const char*
@@ -83,6 +90,9 @@ stnode_type_id(stnode_t *node);
 
 gpointer
 stnode_data(stnode_t *node);
+
+guint32
+stnode_value(stnode_t *node);
 
 #define assert_magic(obj, mnum) \
         g_assert((obj)); \

@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.6 2001/02/26 23:56:59 guy Exp $
+# $Id: Makefile.am,v 1.7 2001/02/27 19:23:28 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,8 @@ libdfilter_a_SOURCES = \
 	dfilter-int.h		\
 	dfvm.c			\
 	dfvm.h			\
+	drange.c		\
+	drange.h		\
 	gencode.c		\
 	gencode.h		\
 	glib-util.c		\
@@ -49,6 +51,7 @@ libdfilter_a_SOURCES = \
 	scanner.c		\
 	semcheck.c		\
 	semcheck.h		\
+	sttype-integer.c	\
 	sttype-pointer.c	\
 	sttype-range.c		\
 	sttype-range.h		\

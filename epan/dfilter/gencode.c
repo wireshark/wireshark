@@ -1,5 +1,5 @@
 /*
- * $Id: gencode.c,v 1.2 2001/02/11 03:12:46 gram Exp $
+ * $Id: gencode.c,v 1.3 2001/02/27 19:23:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,13 +129,11 @@ dfw_append_mk_range(dfwork_t *dfw, stnode_t *node)
 	val->value.numeric = reg;
 	insn->arg2 = val;
 
-	val = dfvm_value_new(INTEGER);
-	val->value.numeric = sttype_range_start(node);
+	val = dfvm_value_new(DRANGE);
+	val->value.drange = sttype_range_drange(node);
 	insn->arg3 = val;
 
-	val = dfvm_value_new(INTEGER);
-	val->value.numeric = sttype_range_end(node);
-	insn->arg4 = val;
+	sttype_range_remove_drange(node);
 
 	dfw_append_insn(dfw, insn);
 
