@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.2 2002/09/07 10:48:07 oabad Exp $
+ * $Id: filter_prefs.c,v 1.3 2002/09/07 21:21:14 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1155,12 +1155,15 @@ filter_del_bt_clicked_cb(GtkWidget *w, gpointer data)
     GtkTreeSelection  *sel;
     GtkTreeModel      *model;
     GtkTreeIter        iter;
+    GtkTreePath       *path;
 
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(filter_l));
     /* If something was selected */
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
-        pos = gtk_tree_path_to_string(gtk_tree_model_get_path(model, &iter));
+        path = gtk_tree_model_get_path(model, &iter);
+        pos = gtk_tree_path_to_string(path);
+        gtk_tree_path_free(path);
         if (fl_entry != NULL) {
             /* Remove the entry from the filter list. */
             remove_from_filter_list(list, fl_entry);
