@@ -3027,6 +3027,25 @@ static ber_sequence KDC_REQ_BODY_sequence[] = {
 static int
 dissect_krb5_KDC_REQ_BODY(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
+	conversation_t *conversation;
+
+	/*
+	 * UDP replies to KDC_REQs are sent from the server back to the client's
+	 * source port, similar to the way TFTP works.  Set up a conversation
+	 * accordingly.
+	 *
+	 * Ref: Section 7.2.1 of
+	 * http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-07.txt
+	 */
+	if (pinfo->destport == UDP_PORT_KERBEROS && pinfo->ptype == PT_UDP) {
+		conversation = find_conversation(&pinfo->src, &pinfo->dst, PT_UDP,
+			pinfo->srcport, 0, NO_PORT_B);
+		if (conversation == NULL) {
+			conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
+				pinfo->srcport, 0, NO_PORT2);
+			conversation_set_dissector(conversation, kerberos_handle_udp);
+		}
+	}
 
 	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, KDC_REQ_BODY_sequence, hf_krb_KDC_REQ_BODY, ett_krb_request);
 
@@ -3620,23 +3639,6 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
 static void
 dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    conversation_t *conversation;
-
-    /*
-     * UDP replies from the server are sent back to the client's source
-     * port, similar to TFTP.
-     */
-    /* XXX This test may be too general */
-    if (pinfo->destport == UDP_PORT_KERBEROS && pinfo->ptype == PT_UDP) {
-	conversation = find_conversation(&pinfo->src, &pinfo->dst, PT_UDP,
-	       pinfo->srcport, 0, NO_PORT_B);
-	if (conversation == NULL) {
-	    conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
-		    pinfo->srcport, 0, NO_PORT2);
-	    conversation_set_dissector(conversation, kerberos_handle_udp);
-	}
-    }
-
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 
