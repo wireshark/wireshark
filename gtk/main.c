@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.8 1999/09/23 07:20:20 guy Exp $
+ * $Id: main.c,v 1.9 1999/09/23 07:57:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -437,6 +437,10 @@ void
 main_realize_cb(GtkWidget *w, gpointer data) {
 #ifdef HAVE_LIBPCAP
   if (start_capture) {
+    /* XXX - "capture()" used to do this, but we now do it in
+       "do_capture()", before calling "capture()"; will we ever
+       have a capture file open here? */
+    close_cap_file(&cf, info_bar, file_ctx);
     capture();
     start_capture = 0;
   }

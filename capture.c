@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.70 1999/09/23 07:20:11 guy Exp $
+ * $Id: capture.c,v 1.71 1999/09/23 07:57:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,17 +106,6 @@ do_capture(void)
   guint byte_count;
   char *msg;
 
-  if (sync_mode || fork_mode) {
-    /* "capture()" will be run in the child; close the capture now. */
-    close_cap_file(&cf, info_bar, file_ctx);
-  }
-
-  /* Get rid of the old capture file. */
-  if (cf.save_file && !cf.user_saved) {
-    unlink(cf.save_file); /* silently ignore error */
-    g_free(cf.save_file);
-  }
-
   /* Choose a random name for the capture buffer */
   cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
   if (cf.save_file_fd == -1) {
@@ -124,6 +113,13 @@ do_capture(void)
 	"The file to which the capture would be saved (\"%s\")"
 	"could not be opened: %s.", tmpname, strerror(errno));
     return;
+  }
+  close_cap_file(&cf, info_bar, file_ctx);
+  if (cf.save_file != NULL) {
+    /* If the current file is a temporary capture file, remove it. */
+    if (!cf.user_saved)
+      unlink(cf.save_file); /* silently ignore error */
+    g_free(cf.save_file);
   }
   cf.save_file = g_strdup(tmpname);
   cf.user_saved = 0;
@@ -264,8 +260,6 @@ capture(void)
   ld.counts.netbios = 0;
   ld.counts.other   = 0;
   ld.pdh            = NULL;
-
-  close_cap_file(&cf, info_bar, file_ctx);
 
   /* Open the network interface to capture from it. */
   pch = pcap_open_live(cf.iface, cf.snap, 1, 250, err_str);
