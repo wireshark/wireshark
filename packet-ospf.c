@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.75 2003/05/08 10:16:31 guy Exp $
+ * $Id: packet-ospf.c,v 1.76 2003/10/07 17:36:37 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1958,10 +1958,11 @@ dissect_ospf_options(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
             if (options_ospfv3 & OSPF_V3_OPTIONS_V6)
 	        strcat(options_string, "V6");
 
-            if (options_ospfv3 & OSPF_V3_OPTIONS_E)
+            if (options_ospfv3 & OSPF_V3_OPTIONS_E) {
 	        if (options_string[0] != '\0')
 	            strcat(options_string, "/");
 	        strcat(options_string, "E");
+	    }
 
             if (options_ospfv3 & OSPF_V3_OPTIONS_MC) {
 	        if (options_string[0] != '\0')
