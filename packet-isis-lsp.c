@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.10 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.11 2001/04/08 19:32:03 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -64,6 +64,7 @@ static gint ett_isis_lsp_clv_unknown = -1;
 static gint ett_isis_lsp_clv_partition_dis = -1;
 static gint ett_isis_lsp_clv_prefix_neighbors = -1;
 static gint ett_isis_lsp_clv_nlpid = -1;
+static gint ett_isis_lsp_clv_hostname = -1;
 static gint ett_isis_lsp_clv_auth = -1;
 static gint ett_isis_lsp_clv_ipv4_int_addr = -1;
 static gint ett_isis_lsp_clv_ip_reachability = -1;
@@ -97,6 +98,8 @@ static void dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_nlpid_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
+static void dissect_lsp_hostname_clv(const u_char *pd, int offset,
+                guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l1_auth_clv(const u_char *pd, int offset,
@@ -135,6 +138,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		&ett_isis_lsp_clv_nlpid,
 		dissect_lsp_nlpid_clv
 	},
+        {
+                ISIS_CLV_L1_LSP_HOSTNAME,
+                "Hostname",
+                &ett_isis_lsp_clv_hostname,
+                dissect_lsp_hostname_clv
+        },
 	{
 		ISIS_CLV_L1_LSP_IP_INTERFACE_ADDR,
 		"IP Interface address(es)",
@@ -198,6 +207,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 		&ett_isis_lsp_clv_nlpid,
 		dissect_lsp_nlpid_clv
 	},
+        {
+                ISIS_CLV_L2_LSP_HOSTNAME,
+                "Hostname",
+                &ett_isis_lsp_clv_hostname,
+                dissect_lsp_hostname_clv
+        },
 	{
 		ISIS_CLV_L2_LSP_IP_EXT_REACHABLE,
 		"IP external reachability",
@@ -358,6 +373,29 @@ dissect_lsp_nlpid_clv(const u_char *pd, int offset,
 	isis_dissect_nlpid_clv(pd, offset, length, fd, tree );
 }
 
+/*
+ * Name: dissect_lsp_hostname_clv()
+ *
+ * Description:
+ *      Decode for a lsp packets hostname clv.  Calls into the
+ *      clv common one.
+ *
+ * Input:
+ *      u_char * : packet data
+ *      int : current offset into packet data
+ *      guint : length of this clv
+ *      int : length of IDs in packet.
+ *      frame_data * : frame data
+ *      proto_tree * : proto tree to build on (may be null)
+ *
+ * Output:
+ *      void, will modify proto_tree if not null.
+ */
+static void 
+dissect_lsp_hostname_clv(const u_char *pd, int offset, 
+                guint length, int id_length, frame_data *fd, proto_tree *tree) {
+        isis_dissect_hostname_clv(pd, offset, length, fd, tree );
+}
 /*
  * Name: dissect_lsp_ip_int_addr_clv()
  *
@@ -946,6 +984,7 @@ proto_register_isis_lsp(void) {
 		&ett_isis_lsp_clv_prefix_neighbors,
 		&ett_isis_lsp_clv_auth,
 		&ett_isis_lsp_clv_nlpid,
+                &ett_isis_lsp_clv_hostname,
 		&ett_isis_lsp_clv_ipv4_int_addr,
 		&ett_isis_lsp_clv_ip_reachability,
 	};

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.42 2001/04/01 05:48:14 hagbard Exp $
+ * $Id: packet-osi.c,v 1.43 2001/04/08 19:32:03 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -43,6 +43,7 @@
 #include "llcsaps.h"
 #include "aftypes.h"
 #include "nlpid.h"
+#include "ppptypes.h"
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-esis.h"
@@ -152,5 +153,6 @@ void
 proto_reg_handoff_osi(void)
 {
 	dissector_add("llc.dsap", SAP_OSINL, dissect_osi, -1);
+        dissector_add("ppp.protocol", PPP_OSI, dissect_osi, -1);
 	dissector_add("null.type", BSD_AF_ISO, dissect_osi, -1);
 }

@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.11 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.12 2001/04/08 19:32:03 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -479,15 +479,6 @@ isis_dissect_isis_hello(int hello_type, int header_length, int id_length,
 	}
 	offset += 2;
 
-	if (tree) {
-		proto_tree_add_uint_format(hello_tree, hf_isis_hello_priority_reserved, NullTVB,
-			            offset, 1, pd[offset],
-			            "Priority                  : %d, reserved(0x%02x == 0)",
-				        pd[offset]&ISIS_HELLO_PRIORITY_MASK,
-					pd[offset]&ISIS_HELLO_P_RESERVED_MASK );
-	}
-	offset += 1;
-
 	if (hello_type == ISIS_TYPE_PTP_HELLO) {
 		if (tree) {
 			proto_tree_add_uint(hello_tree, hf_isis_hello_local_circuit_id, NullTVB,
@@ -495,6 +486,16 @@ isis_dissect_isis_hello(int hello_type, int header_length, int id_length,
 		}
 		offset += 1;
 	} else { 
+
+                if (tree) {
+                        proto_tree_add_uint_format(hello_tree, hf_isis_hello_priority_reserved, NullTVB,
+                                    offset, 1, pd[offset],
+                                    "Priority                  : %d, reserved(0x%02x == 0)",
+                                        pd[offset]&ISIS_HELLO_PRIORITY_MASK,
+                                        pd[offset]&ISIS_HELLO_P_RESERVED_MASK );
+                }
+                offset += 1;
+
 		if (tree) {
 			proto_tree_add_bytes_format(hello_tree, hf_isis_hello_lan_id, NullTVB, 
 		                     offset, id_length + 1, &pd[offset],

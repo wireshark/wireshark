@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.8 2000/08/11 13:35:17 deniel Exp $
+ * $Id: packet-isis-clv.c,v 1.9 2001/04/08 19:32:03 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -172,6 +172,53 @@ isis_dissect_authentication_clv(const u_char *pd, int offset, guint length,
 		}
 	}
 }
+
+/*
+ * Name: isis_dissect_hostname_clv()
+ *
+ * Description:
+ *      dump the hostname information found in TLV 137
+ *      pls note that the hostname is not null terminated
+ *
+ * Input:
+ *      u_char * : packet data
+ *      int : offset into packet data where we are.
+ *      guint : length of clv we are decoding
+ *      frame_data * : frame data (complete frame)
+ *      proto_tree * : protocol display tree to fill out.  May be NULL
+ *      char * : Password meaning
+ *
+ * Output:
+ *      void, but we will add to proto tree if !NULL.
+ */
+
+
+void
+isis_dissect_hostname_clv(const u_char *pd, int offset,
+                guint length, frame_data *fd, proto_tree *tree ) {
+        char sbuf[256*6];
+        char *s = sbuf;
+        int hlen = length;
+        int old_offset = offset;
+
+
+        if ( !tree ) return;            /* nothing to do! */
+
+        memcpy ( s, &pd[offset], hlen);
+        sbuf[hlen] = 0;                 /* don't forget null termination */
+
+        if ( hlen == 0 ) {
+                sprintf ( sbuf, "--none--" );
+        }
+
+        proto_tree_add_text ( tree, NullTVB, old_offset, hlen,
+                        "Hostname: %s", sbuf );
+}
+
+
+
+
+
 /*
  * Name: isis_dissect_ip_int_clv()
  * 

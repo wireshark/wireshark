@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.2 2000/06/19 08:33:49 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.3 2001/04/08 19:32:03 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -62,6 +62,7 @@
 #define ISIS_CLV_L1_LSP_IP_INT_REACHABLE	128
 #define ISIS_CLV_L1_LSP_NLPID			129
 #define ISIS_CLV_L1_LSP_IP_INTERFACE_ADDR	132
+#define ISIS_CLV_L1_LSP_HOSTNAME                137
 /* 
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!
@@ -81,6 +82,7 @@
 #define ISIS_CLV_L2_LSP_IP_EXT_REACHABLE	130
 #define ISIS_CLV_L2_LSP_IDRP_INFO		131
 #define ISIS_CLV_L2_LSP_IP_INTERFACE_ADDR	132
+#define ISIS_CLV_L2_LSP_HOSTNAME                137
 /* 
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!
