@@ -2,7 +2,7 @@
  *  packet-radiotap.c
  *	Decode packets with a Radiotap header
  *
- * $Id: packet-radiotap.c,v 1.2 2004/02/01 04:20:10 jmayer Exp $
+ * $Id: packet-radiotap.c,v 1.3 2004/02/01 04:29:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,13 +145,13 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void
 capture_radiotap(const guchar *pd, int offset, int len, packet_counts *ld)
 {
-    struct ieee80211_radiotap_header *hdr;
+    const struct ieee80211_radiotap_header *hdr;
 
     if(!BYTES_ARE_IN_FRAME(offset, len, (int)sizeof(*hdr))) {
         ld->other ++;
         return;
     }
-    hdr = (struct ieee80211_radiotap_header *)pd;
+    hdr = (const struct ieee80211_radiotap_header *)pd;
     if(!BYTES_ARE_IN_FRAME(offset, len, hdr->it_len)) {
         ld->other ++;
         return;
