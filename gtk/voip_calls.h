@@ -38,6 +38,7 @@
 
 #include <glib.h>
 #include <stdio.h>
+#include <epan/address.h>
 
 /****************************************************************************/
 /* defines voip call state */
@@ -150,6 +151,33 @@ typedef struct _voip_calls_tapinfo {
 } voip_calls_tapinfo_t;
 
 
+/* defines a RTP stream */
+typedef struct _voip_rtp_stream_info {
+	address src_addr;
+	guint16 src_port;
+	address dest_addr;
+	guint16 dest_port;
+	guint32 ssrc;
+	guint8  pt;
+	guint32 npackets;
+
+	guint32 first_frame_num; /* frame number of first frame */
+	guint32 setup_frame_number; /* frame number of setup message */
+	/* start of recording (GMT) of this stream */
+	guint32 start_rel_sec;         /* start stream rel seconds */
+	guint32 start_rel_usec;        /* start stream rel microseconds */
+	guint32 stop_rel_sec;         /* stop stream rel seconds */
+	guint32 stop_rel_usec;        /* stop stream rel microseconds */
+} voip_rtp_stream_info_t;
+
+/* structure that holds the information about all RTP streams associated with the calls */
+/* struct holding all information of the RTP tap */
+typedef struct _voip_rtp_tapinfo {
+	int     nstreams;       /* number of rtp streams */
+	GList*  list;			/* list with the rtp streams */
+	int rtp_dummy;
+} voip_rtp_tapinfo_t;
+
 /****************************************************************************/
 /* INTERFACE */
 
@@ -167,6 +195,7 @@ void h225_calls_init_tap(void);
 void h245dg_calls_init_tap(void);
 void q931_calls_init_tap(void);
 void sdp_calls_init_tap(void);
+void rtp_init_tap(void);
 
 
 /*
@@ -180,6 +209,7 @@ void remove_tap_listener_h225_calls(void);
 void remove_tap_listener_h245dg_calls(void);
 void remove_tap_listener_q931_calls(void);
 void remove_tap_listener_sdp_calls(void);
+void remove_tap_listener_rtp(void);
 
 /*
 * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.

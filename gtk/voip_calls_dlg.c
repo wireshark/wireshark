@@ -172,6 +172,7 @@ void voip_calls_remove_tap_listener()
 	remove_tap_listener_h245dg_calls();
 	remove_tap_listener_q931_calls();
 	remove_tap_listener_sdp_calls();
+	remove_tap_listener_rtp();
 }
 
 /****************************************************************************/
@@ -605,11 +606,6 @@ void voip_calls_dlg_update(GList *list)
 	gchar label_text[256];
 
 	if (voip_calls_dlg != NULL) {
-
-		/* Add the RTP streams info for the graph */
-		/* deactivated for now */
-/*		add_rtp_streams_graph(); */
-
 		gtk_clist_clear(GTK_CLIST(clist));
 		calls_nb = 0;
 		calls_ns = 0;
@@ -674,6 +670,7 @@ voip_calls_init_tap(char *dummy _U_)
 	h245dg_calls_init_tap();
 	q931_calls_init_tap();
 	sdp_calls_init_tap();
+	rtp_init_tap();
 	
 	/* init the Graph Analysys */
 	graph_analysis_data = graph_analysis_init();
