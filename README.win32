@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.32 2002/04/14 19:24:25 gerald Exp $
+$Id: README.win32,v 1.33 2002/04/14 20:06:02 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -53,7 +53,7 @@ and mirrored at
 
 and
 
-	http://www.wiretapped.net/security/packet-capture/winpcap/default.htm
+	http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/
 
 If you already have an earlier version of WinPcap installed, you need to
 un-install it and install the latest version.  If the older version is
@@ -74,7 +74,7 @@ and mirrored at
 
 and
 
-	http://www.wiretapped.net/security/packet-capture/windump/default.htm
+	http://www.mirrors.wiretapped.net/security/packet-capture/windump/
 
 They also make Analyzer, a GUI sniffer for Win32:
 
