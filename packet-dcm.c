@@ -11,7 +11,7 @@
  *        DICOM packets correctly.  
  *        This should probably be documented somewhere besides here.)
  *
- * $Id: packet-dcm.c,v 1.3 2004/05/08 21:31:52 obiot Exp $
+ * $Id: packet-dcm.c,v 1.4 2004/07/09 23:17:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,8 @@
 #include <ctype.h>
 
 #include <glib.h>
+
+#include "isprint.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -472,7 +474,7 @@ dcm_setSyntax(dcmItem_t *di, char *name)
 char *
 dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, guint32 len)
 {
-    static char buf[512];	/* bad form ??? */
+    static char buf[512+1];	/* bad form ??? */
     const guint8 *vval;
     char *p;
     guint32 tag, val32;
@@ -549,7 +551,7 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 	vval = tvb_get_ptr(tvb, offset, len);
 	i = 0;
 	*p++ = ' ';
-	while (i < len && isprint(*(vval+i)))
+	while (i < len && i < 512 && isprint(*(vval+i)))
 	    *p++ = *(vval + i++);
 	*p = 0;
 	} break;

@@ -13,7 +13,7 @@
  *
  * Implemented in ethereal at April 7-8, 2004
  *
- * $Id: packet-cops.c,v 1.48 2004/05/04 06:01:52 guy Exp $
+ * $Id: packet-cops.c,v 1.49 2004/07/09 23:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,9 @@
 #include <ctype.h>
 
 #include <glib.h>
+
+#include "isprint.h"
+
 #include <epan/packet.h>
 #include "packet-ipv6.h"
 #include "packet-tcp.h"

@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.27 2004/02/20 08:40:30 guy Exp $
+ * $Id: packet-tds.c,v 1.28 2004/07/09 23:17:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,6 +149,8 @@
 #include <ctype.h>
 
 #include <glib.h>
+
+#include "isprint.h"
 
 #include <epan/packet.h>
 #include <epan/conversation.h>

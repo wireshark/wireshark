@@ -4,7 +4,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim.c,v 1.43 2004/06/16 07:51:21 guy Exp $
+ * $Id: packet-aim.c,v 1.44 2004/07/09 23:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,8 @@
 #include <ctype.h>
 
 #include <glib.h>
+
+#include "isprint.h"
 
 #include <epan/packet.h>
 #include <epan/strutil.h>

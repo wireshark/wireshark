@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.128 2004/06/28 22:04:12 gerald Exp $
+ * $Id: packet-snmp.c,v 1.129 2004/07/09 23:17:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,8 @@
 #include <ctype.h>
 
 #include <glib.h>
+
+#include "isprint.h"
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
