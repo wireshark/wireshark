@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.6 1998/09/21 16:16:00 gram Exp $
+ * $Id: packet.h,v 1.7 1998/09/23 05:25:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,12 @@
                          (guint32)*((guint8 *)p+1)<<8|           \
                          (guint32)*((guint8 *)p+0)<<0)
 #endif /* LITTLE_ENDIAN */
+
+/* Useful when highlighting regions inside a dissect_*() function. With this
+ * macro, you can highlight from the start of the packet to the end of the
+ * frame. See dissect_data() for an example.
+ */
+#define END_OF_FRAME	(fd->cap_len - offset)
 
 #define IEEE_802_3_MAX_LEN 1500
 #define BYTE_VIEW_WIDTH    16
@@ -298,9 +304,10 @@ typedef struct _e_udphdr {
 #define ETT_COTP         35
 #define ETT_VINES        36
 #define ETT_VSPP         37
+#define ETT_IPXRIP       38
 
 /* Should be the last item number plus one */
-#define NUM_TREE_TYPES 38
+#define NUM_TREE_TYPES 39
 
 /* The version of pcap.h that comes with some systems is missing these
  * #defines.
@@ -358,6 +365,7 @@ void dissect_ipv6(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ipx(const u_char *, int, frame_data *, GtkTree *);
 void dissect_llc(const u_char *, int, frame_data *, GtkTree *);
 void dissect_lpd(const u_char *, int, frame_data *, GtkTree *);
+void dissect_ncp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_osi(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ospf(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, GtkTree *);

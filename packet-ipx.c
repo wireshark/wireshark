@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.2 1998/09/16 03:22:06 gerald Exp $
+ * $Id: packet-ipx.c,v 1.3 1998/09/23 05:25:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,6 +43,7 @@
 
 #include "ethereal.h"
 #include "packet.h"
+#include "packet-ipx.h"
 
 /* The information in this module (IPX, SPX, NCP) comes from:
 	NetWare LAN Analysis, Second Edition
@@ -50,45 +51,44 @@
 	(c) 1994 Novell, Inc.
 	Novell Press, San Jose.
 	ISBN: 0-7821-1362-1
+
+  And from the ncpfs source code by Volker Lendecke
+
 */
 
 static void
 dissect_spx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree);
-static void
-dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree);
 
+static void
+dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree);
 
 struct port_info {
-	u_short	port;
+	guint16	port;
+	void	(*func) (const u_char *, int, frame_data *, GtkTree *);
 	char	*text;
 };
 
 struct conn_info {
-	u_char	ctrl;
-	char	*text;
-};
-
-struct req_info {
-	u_short	req;
+	guint8	ctrl;
 	char	*text;
 };
 
 /* ================================================================= */
 /* IPX                                                               */
 /* ================================================================= */
-static char*
-port_text(u_short port) {
-	int i=0;
+static struct port_info	ports[] = {
+	{ 0x0451, dissect_ncp,		"NCP" },
+	{ 0x0452, NULL,				"SAP" },
+	{ 0x0453, dissect_ipxrip, 	"RIP" },
+	{ 0x0455, NULL,				"NetBIOS" },
+	{ 0x0456, NULL,				"Diagnostic" },
+	{ 0x0457, NULL,				"Serialization" },
+	{ 0x0000, NULL,				NULL }
+};
 
-	static struct port_info	ports[] = {
-		{ 0x0451, "NCP" },
-		{ 0x0452, "SAP" },
-		{ 0x0453, "RIP" },
-		{ 0x0455, "NetBIOS" },
-		{ 0x0456, "Diagnostic" },
-		{ 0x0457, "Serialization" },
-		{ 0x0000, NULL }
-	};
+static char*
+port_text(guint16 port) {
+	int i=0;
 
 	while (ports[i].text != NULL) {
 		if (ports[i].port == port) {
@@ -97,6 +97,19 @@ port_text(u_short port) {
 		i++;
 	}
 	return "Unknown";
+}
+
+static void*
+port_func(guint16 port) {
+	int i=0;
+
+	while (ports[i].text != NULL) {
+		if (ports[i].port == port) {
+			return ports[i].func;
+		}
+		i++;
+	}
+	return dissect_data;
 }
 
 char *
@@ -148,6 +161,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	char		*dnet, *snet;
 	guint16		dsocket, ssocket;
+	void		(*dissect) (const u_char *, int, frame_data *, GtkTree *);
 
 	/* Calculate here for use in win_info[] and in tree */
 	dnet = network_to_string((guint8*)&pd[offset+6]);
@@ -156,7 +170,6 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	if (fd->win_info[0]) {
 		strcpy(fd->win_info[3], "IPX");
-		/*sprintf(fd->win_info[4], "Network %s --> %s", snet, dnet);*/
 		sprintf(fd->win_info[4], "%s (0x%04X)", port_text(dsocket), dsocket);
 	}
 
@@ -194,19 +207,29 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	switch (ipx_type) {
 		case 0: /* IPX */
-			dissect_data(pd, offset, fd, tree); /* the IPX payload */
+			dissect_data(pd, offset, fd, tree);
 			break;
+
 		case 5: /* SPX */
 			dissect_spx(pd, offset, fd, tree);
 			break;
+
 		case 17: /* NCP */
 			dissect_ncp(pd, offset, fd, tree);
 			break;
+
 		case 20: /* NetBIOS */
-			dissect_data(pd, offset, fd, tree); /* until implemented */
-			break;
-		default:
 			dissect_data(pd, offset, fd, tree);
+			break;
+
+		default:
+			dissect = port_func(dsocket);
+			if (dissect) {
+				dissect(pd, offset, fd, tree);
+			}
+			else {
+				dissect_data(pd, offset, fd, tree);
+			}
 			break;
 	}
 }
@@ -294,201 +317,54 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 }
 
 /* ================================================================= */
-/* NCP                                                               */
+/* IPX RIP                                                           */
 /* ================================================================= */
-static char*
-req_text(u_short req) {
-	int i=0;
-
-	static struct req_info	reqs[] = {
-		{ 0x1111,	"Create a service connection" },
-		{ 0x2222, "Service request" },
-		{ 0x3333, "Service reply" },
-		{ 0x5555, "Destroy service connection" },
-		{ 0x7777, "Burst mode transfer" },
-		{ 0x9999, "Request being processed" },
-		{ 0x0000, NULL }
-	};
-
-	while (reqs[i].text != NULL) {
-		if (reqs[i].req == req) {
-			return reqs[i].text;
-		}
-		i++;
-	}
-	return "Unknown";
-}
-
-static char*
-ncp2222_func(u_short func) {
-	int i=0;
-
-	static struct req_info	ncp[] = {
-		{ 17,	"Print and Queue Services" },
-		{ 21,	"Message Services" },
-		{ 22,	"File and Directory Services" },
-		{ 23,	"Binding and Rights Services" },
-		{ 34,	"Transaction Tacking Services" },
-		{ 35,	"Apple File Services" },
-		{ 86,	"Extended Attributes Services" },
-		{ 87,	"File and Directory Services" },
-		{ 88,	"Auditing Services" },
-		{ 104,	"Netware Directory Services" },
-		{ 123,	"Netware 4.x Statistical Information Services" },
-		{ 0,	NULL }
-	};
-
-	while (ncp[i].text != NULL) {
-		if (ncp[i].req == func) {
-			return ncp[i].text;
-		}
-		i++;
-	}
-	return "Unknown";
-}
-
-static char*
-ncp2222_subfunc(u_short func, u_short subfunc) {
-	int i=0;
-	struct req_info	*info_ptr = NULL;
-
-	/* Accounting Services */
-	static struct req_info	ncp_23[] = {
-		{ 150,	"Get Current Account Status" },
-		{ 151,	"Submit Account Charge" },
-		{ 152,	"Submit Account Hold" },
-		{ 153,	"Submit Account Note" },
-		{ 0,	NULL }
-	};
-
-	/* Apple File Services */
-	static struct req_info	ncp_35[] = {
-		{ 1,	"AFP Create Directory" },
-		{ 2,	"AFP Create File" },
-		{ 3,	"AFP Delete" },
-		{ 4,	"AFP Get Entry ID from Name" },
-		{ 5,	"AFP Get File Information" },
-		{ 6,	"AFP Get Entry ID From NetWare Handle" },
-		{ 7,	"AFP Rename" },
-		{ 8,	"AFP Open File Fork" },
-		{ 9,	"AFP Set File Information" },
-		{ 10,	"AFP Scan File Information" },
-		{ 11,	"AFP 2.0 Alloc Temporary Directory Handle" },
-		{ 12,	"AFP Get Entry ID from Name Path" },
-		{ 13,	"AFP 2.0 Create Directory" },
-		{ 14,	"AFP 2.0 Create File" },
-/* ???	{ 15,	"AFP 2.0 Delete File" }, just guessing */
-		{ 16,	"AFP 2.0 Set File Information" },
-		{ 17,	"AFP 2.0 Scan File Information" },
-		{ 18,	"AFP Get DOS Name from Entry ID" },
-		{ 19,	"AFP Get Macintosh Info on Deleted File" },
-		{ 0,	NULL }
-	};
-
-	/* Auditing Services */
-	static struct req_info	ncp_88[] = {
-		{ 1,	"Query Volume Audit Status" },
-		{ 2,	"Add Audit Property" },
-		{ 3,	"Add Auditor Access" },
-
-		{ 0,	NULL }
-	};
-
-	switch (func) {
-		case 23:
-			info_ptr = ncp_23;
-			break;
-		case 35:
-			info_ptr = ncp_35;
-			break;
-		case 88:
-			info_ptr = ncp_88;
-			break;
-		default:
-			return "Unkown function";
-	}
-
-
-	while (info_ptr[i].text != NULL) {
-		if (info_ptr[i].req == subfunc) {
-			printf("subfunc=%s\n", info_ptr[i].text);
-			return info_ptr[i].text;
-		}
-		i++;
-	}
-	return "Unknown";
-}
-
-
 static void
-dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
-	GtkWidget	*ncp_tree, *ti;
-	guint16		ncp_type;
-	int			ncp_hdr;
+	GtkWidget	*rip_tree, *ti;
+	guint16		operation;
+	struct ipx_rt_def route;
+	int			cursor;
+
+	char		*rip_type[2] = { "Request", "Response" };
+
+	operation = pntohs(&pd[offset]) - 1;
 
 	if (fd->win_info[0]) {
-		strcpy(fd->win_info[3], "NCP");
-		strcpy(fd->win_info[4], "NCP");
-	}
-
-	ncp_type = pntohs(&pd[offset]);
-
-	if (ncp_type == 0x1111 || ncp_type == 0x2222 || ncp_type == 0x5555 ||
-		ncp_type == 0x7777) {
-		ncp_hdr = 6;
-	}
-	else if (ncp_type == 0x3333 || ncp_type == 0x9999) {
-		ncp_hdr = 8;
-	}
-	else {
-		ncp_hdr = 1; /* ? */
+		strcpy(fd->win_info[3], "IPX RIP");
+		if (operation < 2) {
+			sprintf(fd->win_info[4], "RIP %s", rip_type[operation]);
+		}
+		else {
+			strcpy(fd->win_info[4], "IPX RIP");
+		}
 	}
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, ncp_hdr,
-			"NetWare Core Protocol");
-		ncp_tree = gtk_tree_new();
-		add_subtree(ti, ncp_tree, ETT_NCP);
+		ti = add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
+			"IPX Routing Information Protocol");
+		rip_tree = gtk_tree_new();
+		add_subtree(ti, rip_tree, ETT_IPXRIP);
 
-		add_item_to_tree(ncp_tree, offset,      2,
-			"Type: %s", req_text( pntohs( &pd[offset] ) ) );
-
-		add_item_to_tree(ncp_tree, offset+2,    1,
-			"Sequence Number: %d", pd[offset+2]);
-
-		add_item_to_tree(ncp_tree, offset+3,    1,
-			"Connection Number Low: %d", pd[offset+3]);
-
-		add_item_to_tree(ncp_tree, offset+4,    1,
-			"Task Number: %d", pd[offset+4]);
-
-		add_item_to_tree(ncp_tree, offset+5,    1,
-			"Connection Number High: %d", pd[offset+5]);
-
-		if (ncp_hdr == 8) {
-			add_item_to_tree(ncp_tree, offset+6,    1,
-				"Completion Code: %d", pd[offset+6]);
-
-			add_item_to_tree(ncp_tree, offset+7,    1,
-				"Connection Status: %d", pd[offset+7]);
+		if (operation < 2) {
+			add_item_to_tree(rip_tree, offset, 2,
+			"RIP packet type: %s", rip_type[operation]);
+		}
+		else {
+			add_item_to_tree(rip_tree, offset, 2, "Unknown RIP packet type");
 		}
 
-		offset += ncp_hdr;
+		for (cursor = offset + 2; cursor < fd->cap_len; cursor += 8) {
+			memcpy(&route.network, &pd[cursor], 4);
+			route.hops = pntohs(&pd[cursor+4]);
+			route.ticks = pntohs(&pd[cursor+6]);
 
-		if (ncp_type == 0x2222) {
-			/* my offset is different now */
-			add_item_to_tree(ncp_tree, offset,		1,
-				"Function Code: %s (%d)",
-				ncp2222_func(pd[offset]), pd[offset]);
-
-			add_item_to_tree(ncp_tree, offset+2,	1,
-				"Subfunction Code: %s (%d)",
-				ncp2222_subfunc(pd[offset], pd[offset+2]), pd[offset+2]);
-
-			offset += 3;
+			add_item_to_tree(rip_tree, cursor,      8,
+				"Route Vector: %s, %d hop%s, %d tick%s",
+				network_to_string((guint8*)&route.network),
+				route.hops,  route.hops  == 1 ? "" : "s",
+				route.ticks, route.ticks == 1 ? "" : "s");
 		}
-
-		dissect_data(pd, offset, fd, tree);
 	}
 }

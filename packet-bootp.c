@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.4 1998/09/22 18:59:53 gram Exp $
+ * $Id: packet-bootp.c,v 1.5 1998/09/23 05:25:08 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -404,7 +404,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, fd->cap_len - offset,
+		ti = add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
 		  "Bootstrap Protocol");
 		bp_tree = gtk_tree_new();
 		add_subtree(ti, bp_tree, ETT_BOOTP);

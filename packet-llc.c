@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.5 1998/09/17 21:30:58 gram Exp $
+ * $Id: packet-llc.c,v 1.6 1998/09/23 05:25:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -39,7 +39,7 @@
 #include "etypes.h"
 
 struct sap_info {
-	u_char	sap;
+	guint8	sap;
 	void	(*func) (const u_char *, int, frame_data *, GtkTree *);
 	char	*text;
 };

@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-data.c,v 1.2 1998/09/16 03:22:02 gerald Exp $
+ * $Id: packet-data.c,v 1.3 1998/09/23 05:25:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -45,7 +45,7 @@ void
 dissect_data(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	if (fd->cap_len > offset && tree) {
-		(void) add_item_to_tree(GTK_WIDGET(tree), offset, fd->cap_len - offset,
+		(void) add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
 			"Data");
 	}
 }
