@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.18 1999/11/28 03:35:09 gerald Exp $
+ * $Id: follow.c,v 1.19 1999/12/02 04:27:46 gerald Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -274,9 +274,6 @@ reset_tcp_reassembly() {
 
 static void 
 write_packet_data( tcp_stream_chunk *sc, const char *data ) {
-  if (sc->dlen == 0)
-    return;
   fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file );
   fwrite( data, 1, sc->dlen, data_out_file );
 }
-  
