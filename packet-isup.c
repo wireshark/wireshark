@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.61 2004/04/03 22:13:38 etxrab Exp $
+ * $Id: packet-isup.c,v 1.62 2004/07/02 08:27:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5215,8 +5215,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 
    tap_queue_packet(isup_tap, pinfo, &tap_rec);
 
-   bufferlength = tvb_ensure_length_remaining(message_tvb, offset);
-   parameter_tvb = tvb_new_subset(message_tvb, offset, bufferlength, bufferlength);
+   parameter_tvb = tvb_new_subset(message_tvb, offset, -1, -1);
 
    /* distinguish between message types:*/
    switch (message_type) {
@@ -5357,7 +5356,9 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
       break;
     case MESSAGE_TYPE_CHARGE_INFO:
       /* do nothing since format is a national matter */
-      proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+      bufferlength = tvb_length_remaining(message_tvb, offset);
+      if (bufferlength != 0)
+        proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
       break;
     case MESSAGE_TYPE_NETW_RESRC_MGMT:
       /* no dissector necessary since no mandatory parameters included */
@@ -5401,11 +5402,15 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
       break;
     case MESSAGE_TYPE_SUBSEQUENT_DIR_NUM:
       /* do nothing since format is a national matter */
-      proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+      bufferlength = tvb_length_remaining(message_tvb, offset);
+      if (bufferlength != 0)
+        proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
       break;
 
     default:
-      proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
+      bufferlength = tvb_length_remaining(message_tvb, offset);
+      if (bufferlength != 0)
+        proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
       break;
   }
 
