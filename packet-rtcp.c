@@ -442,8 +442,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 		 * end of frame instead.
 		 */
 		while ( ( tvb_get_guint8( tvb, offset ) != RTCP_SDES_END )
-		    && ( tvb_length_remaining( tvb, offset) >= 2 ) ) {
-		/* while ( ( pd[ offset ] != RTCP_SDES_END ) && ( BYTES_ARE_IN_FRAME( offset, 2 ) ) ) { */
+		    && ( tvb_bytes_exist( tvb, offset, 2) ) ) {
 			/* ID, 8 bits */
 			sdes_type = tvb_get_guint8( tvb, offset );
 			proto_tree_add_item( sdes_item_tree, hf_rtcp_ssrc_type, tvb, offset, 1, FALSE );
@@ -678,8 +677,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		 * RTCP message. The last compound message contains padding,
 		 * that enables us to break from the while loop.
 		 */
-		/* while ( BYTES_ARE_IN_FRAME( offset, 4 ) ) { */
-		while ( tvb_length_remaining( tvb, offset) >= 4 ) {
+		while ( tvb_bytes_exist( tvb, offset, 4) ) {
 			/* 
 			 * First retreive the packet_type
 			 */
