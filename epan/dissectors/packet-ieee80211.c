@@ -460,6 +460,10 @@ static int tag_number = -1;
 static int tag_length = -1;
 static int tag_interpretation = -1;
 
+static int tim_length = -1;
+static int tim_dtim_count = -1;
+static int tim_dtim_period = -1;
+static int tim_bmapctl = -1;
 
 
 static int hf_fixed_parameters = -1;	/* Protocol payload for management frames */
@@ -1208,7 +1212,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 					 "Reserved tag number"));
 
   tag_len = tvb_get_guint8(tvb, offset + 1);
-  proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
+  proto_tree_add_uint (tree, (tag_no==5 ? tim_length : tag_length), tvb, offset + 1, 1, tag_len);
 
   tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
 
@@ -1304,13 +1308,43 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 
     case TAG_TIM:
+
       memset (out_buff, 0, SHORT_STR);
-      snprintf (out_buff, SHORT_STR,
-		"DTIM count %u, DTIM period %u, Bitmap control 0x%X, "
-		"(Bitmap suppressed)", tag_data_ptr[0], tag_data_ptr[1],
-		tag_data_ptr[2]);
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-			     tag_len, out_buff);
+      if (tag_len>3) {
+        guint8 bmapctl=tag_data_ptr[2];
+        guint8 bmapoff=bmapctl>>1;
+        guint8 bmaplen=tag_len-3;
+        const guint8* bmap=&tag_data_ptr[3]; 
+        proto_tree_add_uint(tree, tim_dtim_count, tvb,
+                            offset + 2, 1, tag_data_ptr[0]);
+        proto_tree_add_uint(tree, tim_dtim_period, tvb,
+                            offset + 3, 1, tag_data_ptr[1]);
+
+        proto_tree_add_uint_format(tree, tim_bmapctl, tvb,
+                            offset + 4, 1, bmapctl,
+                            "Bitmap Control: 0x%02X (mcast:%u, bitmap offset %u)",
+                            bmapctl, bmapctl&1, bmapoff);
+
+        if (bmaplen>1 || bmap[0]) {
+          int len=snprintf (out_buff, SHORT_STR,
+                            "Bitmap: traffic for AID's:");
+          int i=0;
+          for (i=0;i<bmaplen*8;i++) {
+            if (bmap[i/8] & (1<<(i%8))) {
+              int aid=i+bmapoff*8;
+              len+=snprintf (out_buff+len, SHORT_STR-len," %d", aid);
+              if (len>=SHORT_STR) {
+                break;
+              }
+            }
+          }
+          proto_tree_add_string (tree, tag_interpretation, tvb, offset + 5,
+               bmaplen, out_buff);
+        }
+      } else {
+        snprintf (out_buff, SHORT_STR, "Mailformed TIM: length is %d, should be >=4",tag_len);
+        proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2, tag_len, out_buff);
+      }
       break;
 
 
@@ -3175,6 +3209,26 @@ proto_register_ieee80211 (void)
     {&tag_interpretation,
      {"Tag interpretation", "wlan_mgt.tag.interpretation",
       FT_STRING, BASE_NONE, NULL, 0, "Interpretation of tag", HFILL }},
+
+    {&tim_length,
+     {"TIM length", "wlan_mgt.tim.length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Traffic Indication Map length", HFILL }},
+
+    {&tim_dtim_count,
+     {"DTIM count", "wlan_mgt.tim.dtim_count",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "DTIM count", HFILL }},
+
+    {&tim_dtim_period,
+     {"DTIM period", "wlan_mgt.tim.dtim_period",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "DTIM period", HFILL }},
+
+    {&tim_bmapctl,
+     {"Bitmap control", "wlan_mgt.tim.bmapctl",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Bitmap control", HFILL }},
 
     {&rsn_cap,
      {"RSN Capabilities", "wlan_mgt.rsn.capabilities", FT_UINT16, BASE_HEX,
