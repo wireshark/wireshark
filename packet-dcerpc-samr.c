@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.70 2003/01/31 04:18:08 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.71 2003/02/02 22:47:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -665,6 +665,13 @@ samr_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di;
 
+	/*
+	 * XXX - why does this exist?  Why not just call
+	 * "dissect_ndr_nt_UNICODE_STRING()"?
+	 *
+	 * Is it to arrange that offset not be aligned on a 4-byte
+	 * boundary if "di->conformant_run" is true?
+	 */
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -672,7 +679,7 @@ samr_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-			di->hf_index, 0);
+			di->hf_index, 1);
 	return offset;
 }
 
