@@ -1,3 +1,245 @@
+
+Overview of changes in Ethereal 0.8.19:
+
+* Added 'text2pcap', a utility to convert text hexdumps into pcap files. (Ashok, Guy)
+* Changed 'tethereal -x' output to match hex dump format of text2pcap, Ethereal and
+    others. (Ashok)
+* Rewrote IGMP dissector.  (Ronnie Sahlberg, Guy)
+* packet-smb.c fixes.  (Joerg Mayer, Guy)
+* packet-rpc opaque datum display fix. (Guy)
+* Fix to LDP prefix FEC dissection for IPv4. (Eran Mann, Guy)
+* Cleanups to the "--with-ssl" configuration option, and changes to add
+    compiler flags on Solaris with GCC to cope with X11 header file inadequacies. (Guy)
+* acinclude.m4, configure.in - According to the autoconf documentation, you're not supposed
+    AC_MSG_RESULT without AC_MSG_CHECKING. (Guy)
+* Add tree summary information in packet-ip.c packet-udp.c similar to what's ini
+    packet-tcp.c. (Gerald)
+* packet-isis-lsp.c - Get rid of extra colons, and fix up the display of default metrics.
+    (Jean-Christian Pennetier, Guy)
+* packet-nisplus.c, packet-hclnfsd.c, packet-nlm.c, packet-spray.c - If you put an item
+    into the protocol tree with "dissect_rpc_data_tvb()", it must be FT_BYTES, not FT_STRING. (Guy)
+* acinclude.m4 - Updated SSL tests. (Andy Hood, Guy)
+* MTP3 support. (Michael Tuexen, Guy)
+* DHCP support for Intel PXEclient DHCP requests. (Joerg Mayer, Guy)
+* Appletalk Data Stream Interface (used by AFP-over-TCP) support. (Randy McEoin, Guy)
+* Fix to TCP reassembly code for retransmitted data. (Edgar Iglesias, Guy)
+* packet-igmp.c - Put in limited support for some messages that appeared in the old
+    dissector and that appear in tcpdump's IGMP dissector. (Guy)
+* packet-bootp.c - Enhancements to the two pass decode system (Guy)
+* ISUP support (Martina Obermeier, Guy)
+* packet-igmp.c -  Use "col_add_fstr()" to set the Info column. (Guy)
+* AUTH_DES support (Mike Frisch, Guy)
+* RX and AFS dissectors tvbuffified, and bugs fixed. (Ronnie Sahlberg., Guy)
+* Update IPv6 dissector, set Protocol and Info columns before data fetch
+    so they're set if an exception is throw. )Guy)
+* Update packet-clnp.c and packet-icmpv6.c - save/restore current current addresses
+    when dissecting datagram in an error datagram (Guy)
+* Call the SSCOP, AFS, GVRP, Q.931, Q.2931, H.261, LANE dissectors through a
+    handle. (Guy)
+* Create an ILMI dissector and call it through a handle. (Guy)
+* Give protocol tree windows a horizontal scrollbar. (Guy)
+* Removed "END_OF_FRAME" and "pi" references from tvbuffified dissectors(Guy)
+* Plug a memory leak in file.c, didn't free "epan_dissect_t" when new frame selected (Guy)
+* Fix for packet-icq.c, don't use static buffer to decrypt ICQ data, with pop-up
+    packet window there might be multiple frame with ICQ decodes open. (Guy)
+* Copyright fixes to reflect that Gerald has overall copyright (Guy)
+* Make "ip_to_str()" capable of producing up to four separate address strings. (Guy)
+* Tvbuffified NFS dissector, and some registered-field cleanups (Mike Frisch, Guy)
+* Remove support for old-style dissectors in RPC code (Guy)
+* Remove support for old-style dissectors from dissector_try_port and
+    heuristic dissector code (Guy)
+* Call the Vines IP dissector through a handle, and call the Vines SPP
+    dissector through a handoff table. (Guy)
+* Get rid of some unnecessary settings of "pinfo->current_proto" for dissectors
+    that are called via a handle or dissector table (Guy)
+* MSVC++ doesn't define "uint"; use "guint" in packet-isup.c instead. (Guy)
+* iSCSI protocol support (Mark Burton,Guy)
+* Fix for improper usage of "pinfo->captured_len" to check the length of the
+    packet, that's the length of the *entire* frame, not the length of the
+    current portion. (Johan Jorgensen, Guy)
+* Support for filtering on absolute and relative time fields. (Ronnie Sahlberg, Guy)
+* Fix capture_dlg.c to free the correct string pointer. (Guy)
+* Display all the digits of the microsecond field of an absolute time value. (Guy)
+* Check that the microseconds field of an absolute time is valid, if it's present. (Guy)
+* In proto.c, added support for "Match Selected" on FT_ABSOLUTE_TIME and
+    FT_RELATIVE_TIME fields. (Guy)
+* Support for "-N" flag enabling selected forms of name resolution, (Joerg Meyer, Guy)
+* Support for saving to the preferences file the settings for all types
+    of name resolution. (Guy)
+* Do a case-insensitive check for "true" and "false" in Boolean preferences
+    settings. (Guy)
+* Make the "short name" of MTP Level 3 just "MTP3", matching what we put
+    in the Protocol column, and make the "filter name" "mtp3", as filter
+    names are supposed to be all-lower-case. (Guy)
+* In packet-iscsi.c, don'tcramallthewordsinapreference'snametogether; 
+    underscores_are_permitted_in_those_names. (Guy)
+* Support for leading LWS in RTSP headers. (Robert Tsai, Guy)
+* In packet-ieee80211.c, bug fixes, and WEP support. (Javier Achirica, Guy)
+* Update for packet-ranap.c. (Martin Held, Guy)
+* Handle packets with OUI of 0000F8 like packets with OUI of 000000, needed because 
+    of Cisco bridge behavior. (Guy)
+* Added draft-draves-ipngwg-router-selection-01 support to IPv6. (Guy)
+* Sync some of mobile-ip6 #define symbol names with draft-ietf-ipngwg-2292bis-02. (Guy)
+* Create the tree for an ICMPv6 option before putting something in it. (Guy)
+* Added strptime routine for Windows and MSVC++ 6.0. (Guy)
+* Get rid of NEED_MKSTEMP - nothing uses it. (Guy)
+* Changes to structure initializations not to initialize some but not all
+    members. (Joerg Mayer. Guy)
+* Use guint32 in place of u_int32_t, u_int32_t not uspported on all platforms (Guy)
+* Patch for min function in packet-iscsi.c. (Guy)  
+* Correct the values for sna_rh_ru_category_vals, (Edgar Iglesias, Gilbert)
+* Add an "ADDRESSES_EQUAL()" macro (Guy)
+* Add a "COPY_ADDRESSES()" macro (Guy)
+* Make Ethereal default to promiscuous-mode captures. (Guy)
+* Change "ip.fragment.error", "ip.fragment", and "ip.fragments" fields, to FT_NONE
+    to avoid a possible core dump. (Guy)
+* Enable "Match Selected" only if there's a field selected *and* we can do
+    a "Match Selected" on it. (Guy)
+* Correctly compute the OSI checksum. (Guy)
+* Compensate better for invalid (at least for IPv4) prefix lengths in FECs. (Guy)
+* Juniper Networks vendor ID in RADIUS dissector. (Hannes Gredler, Guy)
+* hmac-md5 authentication support for IS-IS. (Hannes Gredler, Guy)
+* Gnutella support. (B. Johannessen, Guy)
+* Updates for packet-ranap.c. (Martin Held, Guy)
+* packet-isis-lsp.[hc]  (Hannes Gredler, Guy)
+* Pull the resolve.c hash functions into macros. (Guy)
+* Move the fragment reassembly code into "reassemble.[hc]" (Guy)
+* Don't display the data portion of an ER NPDU - we dissect it as a CLNP PDU. (Guy)
+* Add support for reassemmbling IPv6 fragments, and an option to
+    control whether to do it or not. (Guy)
+* Remove "globals.h" include from many files that don't need to do that. (Guy)
+* When printing the contents of a raw-data field, don't use the raw data
+    of the current frame as the source, use the raw data of the tvbuff
+    that's the data source of that field. (Guy)
+* Fix data type definitions in in_chksum.c. (Guy)
+* MP-BGP message support. (Thierry Stagiaire, Guy)
+* Clean up the handling of AVPs in packet-l2tp.c. (Guy)
+* Clean up the handling of MAC addresses in packet-ieee80211.c. (Guy)
+* Rename the arguments and flags for the conversation routines. (Guy)
+* Display hex numbers with a leading 0x in packet-ieee80211.c. (Guy)
+* DVMRP support. (Ronnie Sahlberg, Guy)
+* Only decode the version 2 RTP packets. (Guy)
+* Check for a bogus TCP header length, and don't try to do dissection if
+    it's bogus. (Guy)
+* Fix packet-radius.c added Interim-Update Acct-Status-Type value. (Diana Eichert, Guy)
+* RFC 2250 MPEG1 support. (Francisco Javier Cabello, Guy)
+* LCP-over Ethernet and IPCP-over-Ethernet support. (Laurent Rabret, Guy)
+* packet-rtp.c bug fix. (Francisco Javier Cabello, Guy)
+* Fix handling of error message from child to parent. (Guy)
+* Fix sizeof( *buf) error in packet-bgp.c. (Guy)
+* Handle multiple next hop network addresses in BGPTYPE_MP_REACH_NLRI. (Guy)
+* PAP support. (Laurent Rabret, Guy)
+* Set the Protocol column in dissectors for PPP-specific subprotocols. (Guy)
+* Add the PPP Compression Control Protocol to the list of PPP protocols. (Guy)
+* In packet-isis-lsp.c, upport for External Reachability TLVs, and assorted output
+    improvements.  (Hannes Gredler, Guy)
+* Define __USE_XOPEN in files that use "strptime()". (Joerg Mayer, Guy)
+* signed vs. unsigned variable fixes. (Joerg Mayer, Guy)
+* Explicitly fill in all members of a "header_field_info" structure. (Joerg Mayer, Guy)
+* Crank up the warning level in GCC. (Joerg Mayer, Guy)
+* Support for protocols running atop GIOP. (Frank Singleton, Guy)
+* Update the ICQ decryption code. (Guy)
+* Changes to handle current versions of RPM, which compress man pages.(Craig Rodrigues, Guy)
+* Fix packet-radius.c, don't list the attribute-value pairs there aren't any. (Guy)
+* NFS file handle analysing works now for kernel based NFS v3 servers of Linux
+    2.4.0 too. (Guy)
+* Add code generation support for IDL array types in ethereal_gen.py. (Frank Singleton, Guy)
+* Many corrections and updates for connection-oriented WSP. (Alexandre P. Ferreira, Guy)
+* Fixed problem with labels that didn't have any statements in packet-nfs.c (Guy)
+* Capture child process, should ignore promiscuous preference and use flag from parent. (Guy)
+* Fix compiler warnings in packet-giop.c (Frank Singleton, Guy)
+* Update README.idl2eth. (Frank Singleton, Guy)
+* Not all Python scripts generate dissectors; "make-reg-dotc.py" generates
+    "register.c", and, as such, shouldn't stuff ", HFILL" into its output. (Guy)
+* Handle Negotiate Protocol replies with the "extended security"
+    capability flag set in smb decodes (Guy)
+* RTSP fixes. (nuf si,Guy)
+* In packet-cdp.c catch TLVs with bogus lengths. (Guy)
+* Added the QuakeWorld network protocol dissector. (Ume Girlich)
+* Added the Quake II network protocol dissector. (Ume Girlich)
+* Added M2PA support. (Jeff Morriss, Guy)
+* Support CIDR notation in IPv4 address filtering. (Gilbert)
+* Fix "decode_network()" in decode_as_dlg.c. (Guy)
+* Use HFILL in packet-isis-hello.c packet-rsvp.c to load structures. (Guy)
+* In lemon.c, f length arguments to "%*s" aren't of type "int", cast them to "int",
+    as that's what C requires them to be. (Guy)
+* Update configure to handle non-standard libpcap installs. (Guy)
+* MRDISC support. (Ronnie Sahlberg, Guy)
+* Improved support for CORBA IDL "fixed" types in ethereal_gen.py. (Frank Singleton, Guy)
+* Added NCP types based upon traces from Pete<psailor@uswest.net>. (Gilbert)
+* packet-iscsi.c updates. (Mark Burton, Guy)
+* Create a routine to do the tvbuff-length-adjusting and
+    "pinfo->{len,captured_len}"-adjusting for ip, ipv6 and ipx. (Guy)
+* MSNIP support. (Ronnie Sahlberg, Guy)
+* Fix the AFS macros. (Ronnie Sahlberg, Guy)
+* Tvbuffified ISIS dissector. (Ronnie Sahlberg, Guy)
+* IS-IS updates (Hannes Gredler, Guy)
+* HELLO message support in RSVP. (Hannes Gredler, Guy)
+* Fix ISIS dissector to fetch and store values if needed multiple times. (Guy)
+* Fetch fields from the ISIS header one at a time. (Guy)
+* Tvbuffify the DNS, NBNS, NBDS, and NBSS dissectors. (Guy)
+* For DNS-over-TCP, put the length indicator into the tree for the DNS
+    request/response. (Guy)
+* Add PIMv1 support. (Guy)
+* Update packet-rpc.c to handle ip de-fragmenting. (Guy)
+* Tvbuffify the rlogin dissector and do cleanup. (Guy)
+* Fixes tp packet-rx.c. (Ronnie Sahlberg, Guy)
+* Dissect FDDI control bit fields and add descriptions. (Guy)
+* Update unknow reply status handing in packet-giop.c. (Guy)
+* Update packet-icq.c. (Guy)
+* Update packet-wsp.c packet-wtls.c packet-wtp.c. (Guy)
+* Add subtrees for ServiceContextList and IOR. (Frank Singleton, Guy)
+* Improve make files for static linking of ethereal and tethereal. (Ed Warnicke)
+* Fix Makefile.am x11 field generation. (Uwe Girlich)
+* Fix mgcp plugin for static binaries. (Ed Warnicke)
+* Remove wtap_file call from ethereal and tethereal. (Guy)
+* Fix empty parameter problem in mgcp code. (Alejandro Vaquero, Ed Warnicke)
+* Don't capitalize the names of programs in the summary lines of man pages. (Guy)
+* Signed vs. unsigned in packet-x25.c (Olivier Abad)
+* Support for ANSI flavor of MTP3. (Jeff Morriss, Guy)
+* Tvbuffified SMB NETLOGON dissector and fix bugs, (Ronnie Sahlberg, Guy)
+* Fix static binary support in gryphon plugin. (Ed Warnicke)
+* Updates to packet-smb-login.c based upon Network Monitor decodes. (Guy)
+* Support for draft-rosen-vpn-ospf-bgp-mpls and for additional BGP
+    extended communities. (Aamer Akhter, Guy)
+* Fixed the make dist problem with README.plugins. (Ed Warnicke)
+* Put the settings of the flags into the summary line for the TACACS+
+*   flags field. (Guy)
+* Mark the columns non-writable before dissecting the encapsulated IPv4
+    packet, so that they reflect the MSDP packet rather than the
+    encapsulated packet. (Heikki Vatiainen, Guy)
+* SSL/TLS support. (Scott Renfro, Guy)
+* Support for {Enter,Return} keys toggling expansion of selected protocol
+    tree item. (Heikki Vatiainen, Guy)
+* Autoconf support for glibc IPv6 support. (Pekka Savola, Guy)
+* IGMP fixes and multicast traceroute support. (Heikki Vatiainen, Guy)
+* Improvements to TACACS/XTACACS/TACACS+ dissector. (Paul Ionescu, Guy)
+* MSDP support. (Heikki Vatiainen, Guy)
+* Support for dissectors of protocols running atop DCE RPC. (Todd Sabin, Guy)
+* Cleaned up "get_column_format_matches()". (Todd Sabin, Guy)
+* NCP-over-IP bug fix. Did move past header before passing it on. (David Eisner, Guy)
+* "-t" flag for editcap, to adjust timestamps in frames. (Scott Renfro, Guy)
+* Fix places that used strlen as a variable name, (Heikki Vatiainen, Guy)
+* Fixes to packet-hsrp.c "proto_tree_add_item()" calls. (Heikki Vatiainen, Guy)
+* Additional filterable fields added to packet-vrrp.c. (Heikki Vatiainen., Guy)
+* Mergecap utility for merging capture files. (Scott Renfro, Guy)
+* PGM (Pragmatic General Multicast) support. (Steve Dickson, Guy)
+* Include "mergecap.rc" in the list of things to be built. (Edward Meaney, Guy)
+* Package mergecap.exe and its HTML documentation. (Gilbert)
+* Update NSIS syntax for newest NSIS. (David O'Shea, Gilbert)
+* Set config.nmake to get non-cygwin version of Python.exe, (Gilbert)
+* Tvbuffified SMB BROWSER dissector. (Ronnie Sahlberg, Guy)
+* Add a "time_msecs_to_str()" routine to packet-smb-browse.c. (Guy)
+* text2pcap.c, proto.c, dfilter.c and others... gcc warning fixes.  (Joerg Mayer, Guy)
+* Check for IPv6 support, and check what type of IPv6 support we have. (Guy)
+* Fixes to packet-smb-browse.c and packet-smb-logon.c, add fields, set columns. (Guy)
+* Make leading zero in -t optional for editcap.c. (Scott Renfro, Guy)
+* Add cleanbld.bat for Windows to remove left overs from unix build. (Guy)
+* Update to allow mergecap to merge multiple capture files into one
+*   capture file. (Scott Renfro, Guy)
+* Remove name-clash of type pgm_t in packet-pgm.[ch]. (Uwe Girlich)
+
+
 Overview of changes in Ethereal 0.8.18:
   
 * Improvement of 'make clean' targets. (gilbert)
