@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.24 1999/09/14 08:06:23 guy Exp $
+ * $Id: packet-udp.c,v 1.25 1999/10/02 16:58:41 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,7 +174,11 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *udp_tree;
   proto_item *ti;
 
-  /* To do: Check for {cap len,pkt len} < struct len */
+  if (!BYTES_ARE_IN_FRAME(offset, sizeof(e_udphdr))) {
+    dissect_data(pd, offset, fd, tree);
+    return;
+  }
+
   /* Avoids alignment problems on many architectures. */
   memcpy(&uh, &pd[offset], sizeof(e_udphdr));
   uh_sport = ntohs(uh.uh_sport);
