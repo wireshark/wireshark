@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.12 2001/09/28 05:41:45 guy Exp $
+dnl $Id: acinclude.m4,v 1.13 2002/02/06 09:58:30 guy Exp $
 dnl
 
 #
@@ -71,12 +71,27 @@ AC_DEFUN(AC_WIRETAP_ZLIB_CHECK,
 		#
 		# Well, we at least have the zlib header file.
 		#
-		# Check for "gzseek()" in zlib, because we need it, but
+		# Check for "gzgets()" in zlib, because we need it, but
 		# some older versions of zlib don't have it.  It appears
 		# from the zlib ChangeLog that any released version of zlib
-		# with "gzseek()" should have the other routines we
-		# depend on, such as "gztell()" and "zError()".
+		# with "gzgets()" should have the other routines we
+		# depend on, such as "gzseek()", "gztell()", and "zError()".
 		#
-		AC_CHECK_LIB(z, gzseek,,enable_zlib=no)
+		# Another reason why we require "gzgets()" is that
+		# some versions of zlib that didn't have it, such
+		# as 1.0.8, had a bug in "gzseek()" that meant that it
+		# doesn't work correctly on uncompressed files; this
+		# means we cannot use version 1.0.8.  (Unfortunately,
+		# that's the version that comes with recent X11 source,
+		# and many people who install XFree86 on their Slackware
+		# boxes don't realize that they should configure it to
+		# use the native zlib rather than building and installing
+		# the crappy old version that comes with XFree86.)
+		#
+		# I.e., we can't just avoid using "gzgets()", as
+		# versions of zlib without "gzgets()" are likely to have
+		# a broken "gzseek()".
+		#
+		AC_CHECK_LIB(z, gzgets,,enable_zlib=no)
 	fi
 ])

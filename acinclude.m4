@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.41 2002/02/02 21:07:40 guy Exp $
+dnl $Id: acinclude.m4,v 1.42 2002/02/06 09:58:29 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -367,26 +367,37 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 		#
 		# Well, we at least have the zlib header file.
 		#
-		# Check for "gzseek()" in zlib, because we need it, but
+		# Check for "gzgets()" in zlib, because we need it, but
 		# some older versions of zlib don't have it.  It appears
 		# from the zlib ChangeLog that any released version of zlib
-		# with "gzseek()" should have the other routines we
-		# depend on, such as "gztell()", and "zError()".
-		# (I think they may also get "gzgets()", in which case
-		# we can get rid of our own private "gzgets()"
-		# implementation, as any zlib that's adequate for our
-		# purposes will have "gzgets()".)
+		# with "gzgets()" should have the other routines we
+		# depend on, such as "gzseek()", "gztell()", and "zError()".
 		#
-		AC_CHECK_LIB(z, gzseek,,enable_zlib=no)
+		# Another reason why we require "gzgets()" is that
+		# some versions of zlib that didn't have it, such
+		# as 1.0.8, had a bug in "gzseek()" that meant that it
+		# doesn't work correctly on uncompressed files; this
+		# means we cannot use version 1.0.8.  (Unfortunately,
+		# that's the version that comes with recent X11 source,
+		# and many people who install XFree86 on their Slackware
+		# boxes don't realize that they should configure it to
+		# use the native zlib rather than building and installing
+		# the crappy old version that comes with XFree86.)
+		#
+		# I.e., we can't just avoid using "gzgets()", as
+		# versions of zlib without "gzgets()" are likely to have
+		# a broken "gzseek()".
+		#
+		AC_CHECK_LIB(z, gzgets,,enable_zlib=no)
 	fi
 
 	if test x$enable_zlib != xno
 	then
 		#
 		# Well, we at least have the zlib header file and a zlib
-		# with "gzseek()".
+		# with "gzgets()".
 		#
-		# Now check for "gzseek()" in zlib when linking with the
+		# Now check for "gzgets()" in zlib when linking with the
 		# linker flags for GTK+ applications; people often grab
 		# XFree86 source and build and install it on their systems,
 		# and they appear sometimes to misconfigure XFree86 so that,
@@ -395,15 +406,15 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 		# own zlib in the X11 library directory.
 		#
 		# The XFree86 zlib is an older version that lacks
-		# "gzseek()", and that's the zlib with which Ethereal
+		# "gzgets()", and that's the zlib with which Ethereal
 		# gets linked, so the build of Ethereal fails.
 		#
 		ac_save_CFLAGS="$CFLAGS"
 		ac_save_LIBS="$LIBS"
 		CFLAGS="$CFLAGS $GTK_CFLAGS"
 		LIBS="$GTK_LIBS -lz $LIBS"
-		AC_MSG_CHECKING([for gzseek missing when linking with X11])
-	        AC_TRY_LINK_FUNC(gzseek, AC_MSG_RESULT(no),
+		AC_MSG_CHECKING([for gzgets missing when linking with X11])
+	        AC_TRY_LINK_FUNC(gzgets, AC_MSG_RESULT(no),
 		  [
 		    AC_MSG_RESULT(yes)
 		    AC_MSG_ERROR(old zlib found when linking with X11 - get rid of old zlib.)
