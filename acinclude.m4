@@ -733,20 +733,35 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		#
 		for extras in "" "-L/usr/kerberos/lib -ldes425" "-lkstat"
 		do
-			AC_CHECK_LIB(snmp, sprint_realloc_objid,
-			  [
-				SNMP_LIBS="-lsnmp $extras"; break
-			  ],
-			  [
-				#
-				# Throw away the cached "we didn't find it"
-				# answer, so that if we rerun "configure",
-				# we still do all these checks and don't
-				# just blithely assume we don't need
-				# the extra libraries.
-				#
-				unset ac_cv_lib_snmp_sprint_realloc_objid
-			  ], $SOCKET_LIBS $NSL_LIBS $SSL_LIBS $extras)
+			LIBS="$SOCKET_LIBS $NSL_LIBS $SSL_LIBS $extras"
+			AC_TRY_LINK(
+			[
+			],
+			[
+			sprint_realloc_objid();
+			],
+			[
+			SNMP_LIBS="-lsnmp $extras"; break;
+			],
+			[
+			])
+			
+#        int sprint_realloc_objid(u_char **buf, size_t *buf_len, size_t *out_len, int allow_realloc, const oid *objid, size_t objidlen);
+#        AC_TRY_LINK(includes, body, [if-found], [if-not-found])
+#			AC_CHECK_LIB(snmp, sprint_realloc_objid,
+#			  [
+#				SNMP_LIBS="-lsnmp $extras"; break
+#			  ],
+#			  [
+#				#
+#				# Throw away the cached "we didn't find it"
+#				# answer, so that if we rerun "configure",
+#				# we still do all these checks and don't
+#				# just blithely assume we don't need
+#				# the extra libraries.
+#				#
+#				unset ac_cv_lib_snmp_sprint_realloc_objid
+#			  ], $SOCKET_LIBS $NSL_LIBS $SSL_LIBS $extras)
 		done
 
 		#
@@ -781,11 +796,11 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 #
 AC_DEFUN([AC_ETHEREAL_SSL_CHECK],
 [
-	want_ssl=defaultyes
+	want_ssl=defaultno
 
 	AC_ARG_WITH(ssl,
 changequote(<<, >>)dnl
-<<  --with-ssl[=DIR]        use SSL crypto library (located in directory DIR, if supplied).   [default=yes, if present]>>,
+<<  --with-ssl[=DIR]        use SSL crypto library (located in directory DIR, if supplied).   [default=no]>>,
 changequote([, ])dnl
 	[
 	if   test "x$withval" = "xno";  then
@@ -807,11 +822,23 @@ changequote([, ])dnl
 	fi
 
 	if test "x$want_ssl" = "xyes"; then
-		AC_CHECK_LIB(crypto, EVP_md5,
-		  [
-		    SSL_LIBS=-lcrypto
-		  ],,
-		)
+	    LIBS="-lcrypto"
+            AC_TRY_LINK(
+                [
+		void EVP_md5();
+                ],
+                [
+        	EVP_md5();
+                ],
+                [
+		AC_MSG_RESULT([yes])
+		SSL_LIBS=-lcrypto
+                ],
+                [
+                AC_MSG_RESULT([no])
+                AC_MSG_ERROR([libcrypto failed link test.])
+                ])
+
 	else
 		AC_MSG_RESULT(not required)
 	fi
@@ -920,9 +947,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  CFLAGS="$CFLAGS -I$krb5_dir/include"
 	  ethereal_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$krb5_dir/include"
-	  #ethereal_save_LIBS="$LIBS"
-	  #LIBS="$LIBS -lkrb5 -lasn1 -lcrypto -lroken -lcrypt -lresolv"
-	  KRB5_LIBS="-lkrb5 -lasn1 -lcrypto -lroken -lcrypt -lresolv"
+	  KRB5_LIBS="-lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt -lresolv"
 	  ethereal_save_LDFLAGS="$LDFLAGS"
 	  LDFLAGS="$LDFLAGS -L$krb5_dir/lib"
 	  ac_krb5_version=`grep -i heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'` 
