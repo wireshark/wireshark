@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.16 2002/08/07 08:34:55 guy Exp $
+ * $Id: packet-mmse.c,v 1.17 2002/09/26 00:42:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -867,7 +867,6 @@ proto_reg_handoff_mmse(void)
     /*
      * \todo
      * The bearer could also be http (through the content-type field).
-     * The wsp-dissector should then ofcourse be modified to cater for
-     * such subdissectors...
      */
+    heur_dissector_add("http", dissect_mmse_heur, proto_mmse);
 }
