@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.4 2004/06/03 08:33:29 guy Exp $
+# $Id: asn2eth.py,v 1.5 2004/06/04 11:28:04 sahlberg Exp $
 #
 
 """ASN.1 to Ethereal PER dissector compiler"""
@@ -832,13 +832,14 @@ class EthCnf:
     self.tblcfg = {}
     self.table = {}
     self.fn = {}
-    #                                 Value name             Default value      Duplicity check   Usage check
-    self.tblcfg['EXPORTS']       = { 'val_nm' : 'flag',     'val_dflt' : 0,    'chk_dup' : True, 'chk_use' : True }
-    self.tblcfg['USER_DEFINED']  = { 'val_nm' : 'flag',     'val_dflt' : 0,    'chk_dup' : True, 'chk_use' : True }
-    self.tblcfg['NO_EMIT']       = { 'val_nm' : 'flag',     'val_dflt' : 0,    'chk_dup' : True, 'chk_use' : True }
-    self.tblcfg['MODULE_IMPORT'] = { 'val_nm' : 'proto',    'val_dflt' : None, 'chk_dup' : True, 'chk_use' : True }
-    self.tblcfg['TYPE_RENAME']   = { 'val_nm' : 'eth_name', 'val_dflt' : None, 'chk_dup' : True, 'chk_use' : True }
-    self.tblcfg['FIELD_RENAME']  = { 'val_nm' : 'eth_name', 'val_dflt' : None, 'chk_dup' : True, 'chk_use' : True }
+    #                                   Value name             Default value       Duplicity check   Usage check
+    self.tblcfg['EXPORTS']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['USER_DEFINED']    = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['NO_EMIT']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['MODULE_IMPORT']   = { 'val_nm' : 'proto',    'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['OMIT_ASSIGNMENT'] = { 'val_nm' : 'omit',     'val_dflt' : False, 'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['TYPE_RENAME']     = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['FIELD_RENAME']    = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     for k in self.tblcfg.keys() :
       self.table[k] = {}
 
@@ -914,7 +915,7 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'TYPE_RENAME', 'FIELD_RENAME'):
+        if result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 'TYPE_RENAME', 'FIELD_RENAME'):
           ctx = result.group('name')
         elif result.group('name') in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
@@ -949,6 +950,11 @@ class EthCnf:
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('MODULE_IMPORT', par[0], proto=par[1], fn=fn, lineno=lineno)
+      elif ctx == 'OMIT_ASSIGNMENT':
+        if empty.search(line): continue
+        par = get_par(line, 1, 1, fn=fn, lineno=lineno)
+        if not par: continue
+        self.add_item('OMIT_ASSIGNMENT', par[0], omit=True, fn=fn, lineno=lineno)
       elif ctx == 'TYPE_RENAME':
         if empty.search(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
@@ -1096,6 +1102,7 @@ class Type (Node):
       nm = self.name
     elif ident:
       nm = ident
+    if not ident and ectx.conform.use_item('OMIT_ASSIGNMENT', nm): return # Assignment to omit
     if not ident:  # Assignment
       ectx.eth_reg_assign(nm, self)
       if self.type == 'Type_Ref':
@@ -1237,10 +1244,6 @@ class Type_Assign (Node):
                                         self.val.to_python (ctx),
                                         depend_list)
 
-    def to_eth(self, ctx):
-        ctx.eth_reg_type(self.name.val, self.val)
-        ctx.eth_reg_assign(self.name.val, self.val)
-
 class PyQuote (Node):
     def to_python (self, ctx):
         return ctx.register_pyquote (self.val)
@@ -1356,6 +1359,9 @@ class SequenceOfType (SqType):
   def eth_need_tree(self):
     return True
 
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_SEQUENCE')
+
   def eth_type_fn(self, proto, tname, ectx):
     fname = ectx.eth_type[tname]['ref'][0]
     if self.val.IsNamed ():
@@ -1405,6 +1411,9 @@ class SetOfType (SqType):
 
   def eth_need_tree(self):
     return True
+
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_SET')
 
   def eth_type_fn(self, proto, tname, ectx):
     fname = ectx.eth_type[tname]['ref'][0]
@@ -1560,6 +1569,9 @@ class SetType(SqType):
 
   def eth_need_tree(self):
     return True
+
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_SET')
 
   def eth_type_fn(self, proto, tname, ectx):
     out = "static per_set_new_t %s_sequence_new[] = {\n" % (tname)

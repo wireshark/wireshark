@@ -10,7 +10,7 @@
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id: packet-h235.c,v 1.3 2004/06/03 19:07:05 guy Exp $
+ * $Id: packet-h235.c,v 1.4 2004/06/04 11:28:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,8 +74,6 @@ static int hf_h235_weierstrassA = -1;             /* BIT_STRING_SIZE_0_511 */
 static int hf_h235_weierstrassB = -1;             /* BIT_STRING_SIZE_0_511 */
 static int hf_h235_eckasdh2 = -1;                 /* T_eckasdh2 */
 static int hf_h235_fieldSize = -1;                /* BIT_STRING_SIZE_0_511 */
-static int hf_h235_r = -1;                        /* BIT_STRING_SIZE_0_511 */
-static int hf_h235_s = -1;                        /* BIT_STRING_SIZE_0_511 */
 static int hf_h235_type = -1;                     /* OBJECT_IDENTIFIER */
 static int hf_h235_certificatedata = -1;          /* OCTET_STRING */
 static int hf_h235_default = -1;                  /* NULL */
@@ -122,15 +120,6 @@ static int hf_h235_secureChannel = -1;            /* KeyMaterial */
 static int hf_h235_sharedSecret = -1;             /* ENCRYPTEDxxx */
 static int hf_h235_certProtectedKey = -1;         /* SIGNEDxxx */
 static int hf_h235_secureSharedSecret = -1;       /* V3KeySyncMaterial */
-static int hf_h235_generalId = -1;                /* Identifier */
-static int hf_h235_mrandom = -1;                  /* RandomVal */
-static int hf_h235_srandom = -1;                  /* RandomVal */
-static int hf_h235_encrptval = -1;                /* ENCRYPTEDxxx */
-static int hf_h235_responseRandom = -1;           /* RandomVal */
-static int hf_h235_requesterRandom = -1;          /* RandomVal */
-static int hf_h235_signature = -1;                /* SIGNEDxxx */
-static int hf_h235_requestRandom = -1;            /* RandomVal */
-static int hf_h235_keyMaterial = -1;              /* KeyMaterial */
 static int hf_h235_encryptedSessionKey = -1;      /* OCTET_STRING */
 static int hf_h235_encryptedSaltingKey = -1;      /* OCTET_STRING */
 static int hf_h235_clearSaltingKey = -1;          /* OCTET_STRING */
@@ -155,7 +144,6 @@ static gint ett_h235_ECpoint = -1;
 static gint ett_h235_ECKASDH = -1;
 static gint ett_h235_T_eckasdhp = -1;
 static gint ett_h235_T_eckasdh2 = -1;
-static gint ett_h235_ECGDSASignature = -1;
 static gint ett_h235_TypedCertificate = -1;
 static gint ett_h235_AuthenticationBES = -1;
 static gint ett_h235_AuthenticationMechanism = -1;
@@ -169,10 +157,6 @@ static gint ett_h235_T_cryptoEncryptedToken = -1;
 static gint ett_h235_T_cryptoSignedToken = -1;
 static gint ett_h235_T_cryptoHashedToken = -1;
 static gint ett_h235_H235Key = -1;
-static gint ett_h235_KeySignedMaterial = -1;
-static gint ett_h235_H235CertificateSignature = -1;
-static gint ett_h235_ReturnSig = -1;
-static gint ett_h235_KeySyncMaterial = -1;
 static gint ett_h235_V3KeySyncMaterial = -1;
 
 /*--- End of included file: packet-h235-ett.c ---*/
@@ -233,21 +217,6 @@ dissect_h235_RandomVal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 static int dissect_hf_h235_random(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_random);
 }
-static int dissect_hf_h235_mrandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_mrandom);
-}
-static int dissect_hf_h235_srandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_srandom);
-}
-static int dissect_hf_h235_responseRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_responseRandom);
-}
-static int dissect_hf_h235_requesterRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_requesterRandom);
-}
-static int dissect_hf_h235_requestRandom(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_RandomVal(tvb, offset, pinfo, tree, hf_h235_requestRandom);
-}
 
 
 static int
@@ -275,9 +244,6 @@ static int dissect_hf_h235_generalID(tvbuff_t *tvb, int offset, packet_info *pin
 static int dissect_hf_h235_sendersID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_Identifier(tvb, offset, pinfo, tree, hf_h235_sendersID);
 }
-static int dissect_hf_h235_generalId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_Identifier(tvb, offset, pinfo, tree, hf_h235_generalId);
-}
 
 
 static int
@@ -289,9 +255,6 @@ dissect_h235_KeyMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 }
 static int dissect_hf_h235_secureChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_KeyMaterial(tvb, offset, pinfo, tree, hf_h235_secureChannel);
-}
-static int dissect_hf_h235_keyMaterial(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_KeyMaterial(tvb, offset, pinfo, tree, hf_h235_keyMaterial);
 }
 
 
@@ -431,12 +394,6 @@ static int dissect_hf_h235_weierstrassB(tvbuff_t *tvb, int offset, packet_info *
 static int dissect_hf_h235_fieldSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_fieldSize);
 }
-static int dissect_hf_h235_r(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_r);
-}
-static int dissect_hf_h235_s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_BIT_STRING_SIZE_0_511(tvb, offset, pinfo, tree, hf_h235_s);
-}
 
 static per_sequence_t ECpoint_sequence[] = {
   { "x"                           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_hf_h235_x },
@@ -522,7 +479,6 @@ dissect_h235_ECKASDH(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 static int dissect_hf_h235_eckasdhkey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ECKASDH(tvb, offset, pinfo, tree, hf_h235_eckasdhkey);
 }
-
 
 static per_sequence_t TypedCertificate_sequence[] = {
   { "type"                        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_hf_h235_type },
@@ -721,9 +677,6 @@ static int dissect_hf_h235_cryptoPwdEncr(tvbuff_t *tvb, int offset, packet_info 
 static int dissect_hf_h235_sharedSecret(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h235_sharedSecret);
 }
-static int dissect_hf_h235_encrptval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_ENCRYPTEDxxx(tvb, offset, pinfo, tree, hf_h235_encrptval);
-}
 
 
 static int
@@ -761,9 +714,6 @@ static int dissect_hf_h235_signedToken(tvbuff_t *tvb, int offset, packet_info *p
 }
 static int dissect_hf_h235_certProtectedKey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h235_certProtectedKey);
-}
-static int dissect_hf_h235_signature(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h235_SIGNEDxxx(tvb, offset, pinfo, tree, hf_h235_signature);
 }
 
 static per_sequence_t V3KeySyncMaterial_sequence[] = {
@@ -865,7 +815,6 @@ static int dissect_hf_h235_hashedToken(tvbuff_t *tvb, int offset, packet_info *p
   return dissect_h235_HASHEDxxx(tvb, offset, pinfo, tree, hf_h235_hashedToken);
 }
 
-
 static per_sequence_t T_cryptoEncryptedToken_sequence[] = {
   { "tokenOID"                    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_tokenOID },
   { "token"                       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_hf_h235_encryptedToken },
@@ -946,10 +895,6 @@ dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 }
 
 
-
-
-
-
 /*--- End of included file: packet-h235-fn.c ---*/
 
 
@@ -1027,14 +972,6 @@ void proto_register_h235(void) {
       { "fieldSize", "h235.fieldSize",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ECKASDH/eckasdh2/fieldSize", HFILL }},
-    { &hf_h235_r,
-      { "r", "h235.r",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ECGDSASignature/r", HFILL }},
-    { &hf_h235_s,
-      { "s", "h235.s",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ECGDSASignature/s", HFILL }},
     { &hf_h235_type,
       { "type", "h235.type",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1090,7 +1027,7 @@ void proto_register_h235(void) {
     { &hf_h235_timeStamp,
       { "timeStamp", "h235.timeStamp",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
+        "ClearToken/timeStamp", HFILL }},
     { &hf_h235_password,
       { "password", "h235.password",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1110,7 +1047,7 @@ void proto_register_h235(void) {
     { &hf_h235_certificate,
       { "certificate", "h235.certificate",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
+        "ClearToken/certificate", HFILL }},
     { &hf_h235_generalID,
       { "generalID", "h235.generalID",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1219,42 +1156,6 @@ void proto_register_h235(void) {
       { "secureSharedSecret", "h235.secureSharedSecret",
         FT_NONE, BASE_NONE, NULL, 0,
         "H235Key/secureSharedSecret", HFILL }},
-    { &hf_h235_generalId,
-      { "generalId", "h235.generalId",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h235_mrandom,
-      { "mrandom", "h235.mrandom",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "KeySignedMaterial/mrandom", HFILL }},
-    { &hf_h235_srandom,
-      { "srandom", "h235.srandom",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "KeySignedMaterial/srandom", HFILL }},
-    { &hf_h235_encrptval,
-      { "encrptval", "h235.encrptval",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "KeySignedMaterial/encrptval", HFILL }},
-    { &hf_h235_responseRandom,
-      { "responseRandom", "h235.responseRandom",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_h235_requesterRandom,
-      { "requesterRandom", "h235.requesterRandom",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "H235CertificateSignature/requesterRandom", HFILL }},
-    { &hf_h235_signature,
-      { "signature", "h235.signature",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "H235CertificateSignature/signature", HFILL }},
-    { &hf_h235_requestRandom,
-      { "requestRandom", "h235.requestRandom",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "ReturnSig/requestRandom", HFILL }},
-    { &hf_h235_keyMaterial,
-      { "keyMaterial", "h235.keyMaterial",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "KeySyncMaterial/keyMaterial", HFILL }},
     { &hf_h235_encryptedSessionKey,
       { "encryptedSessionKey", "h235.encryptedSessionKey",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -1296,7 +1197,6 @@ void proto_register_h235(void) {
     &ett_h235_ECKASDH,
     &ett_h235_T_eckasdhp,
     &ett_h235_T_eckasdh2,
-    &ett_h235_ECGDSASignature,
     &ett_h235_TypedCertificate,
     &ett_h235_AuthenticationBES,
     &ett_h235_AuthenticationMechanism,
@@ -1310,10 +1210,6 @@ void proto_register_h235(void) {
     &ett_h235_T_cryptoSignedToken,
     &ett_h235_T_cryptoHashedToken,
     &ett_h235_H235Key,
-    &ett_h235_KeySignedMaterial,
-    &ett_h235_H235CertificateSignature,
-    &ett_h235_ReturnSig,
-    &ett_h235_KeySyncMaterial,
     &ett_h235_V3KeySyncMaterial,
 
 /*--- End of included file: packet-h235-ettarr.c ---*/

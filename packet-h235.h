@@ -10,7 +10,7 @@
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id: packet-h235.h,v 1.3 2004/06/03 19:07:05 guy Exp $
+ * $Id: packet-h235.h,v 1.4 2004/06/04 11:28:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
