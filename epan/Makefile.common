@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.18 2004/04/20 05:07:23 guy Exp $
+# $Id: Makefile.common,v 1.19 2004/04/29 22:40:21 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,7 @@ DISSECTOR_SRC =	\
 	../packet-dcerpc-drsuapi.c	\
 	../packet-dcerpc-dtsprovider.c	\
 	../packet-dcerpc-dtsstime_req.c	\
+	../packet-dcerpc-efs.c	\
 	../packet-dcerpc-epm.c	\
 	../packet-dcerpc-epm4.c	\
 	../packet-dcerpc-fldb.c	\
