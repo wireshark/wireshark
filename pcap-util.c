@@ -198,14 +198,16 @@ void
 if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 {
 	if_addr_t *ip_addr;
+	struct sockaddr_in *ai;
 
 	switch (addr->sa_family) {
 
 	case AF_INET:
+		ai = (struct sockaddr_in *)addr;
 		ip_addr = g_malloc(sizeof(*ip_addr));
 		ip_addr->family = FAM_IPv4;
-		memcpy((void *)&ip_addr->ip_addr.ip4_addr,
-		    (void *)&addr->sa_data, 4);
+		ip_addr->ip_addr.ip4_addr =
+		    *((guint32 *)&(ai->sin_addr.s_addr));
 		if_info->ip_addr = g_slist_append(if_info->ip_addr, ip_addr);
 		break;
 
