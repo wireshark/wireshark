@@ -1,4 +1,4 @@
-/* $Id: grammar.lemon,v 1.7 2003/12/06 16:35:19 gram Exp $ */
+/* $Id: grammar.lemon,v 1.8 2004/02/11 21:20:52 guy Exp $ */
 
 %include {
 #ifdef HAVE_CONFIG_H
@@ -143,10 +143,10 @@ logical_test(T) ::= TEST_NOT expr(E).
 	sttype_test_set1(T, TEST_OP_NOT, E);
 }
 
-logical_test(T) ::= FIELD(F).
+logical_test(T) ::= entity(E).
 {
 	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set1(T, TEST_OP_EXISTS, F);
+	sttype_test_set1(T, TEST_OP_EXISTS, E);
 }
 
 

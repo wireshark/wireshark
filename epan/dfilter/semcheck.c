@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.22 2004/01/01 16:59:20 obiot Exp $
+ * $Id: semcheck.c,v 1.23 2004/02/11 21:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -267,6 +267,46 @@ is_bytes_type(enum ftenum type)
 
 	g_assert_not_reached();
 	return FALSE;
+}
+
+/* Check the semantics of an existence test. */
+static void
+check_exists(stnode_t *st_arg1)
+{
+#ifdef DEBUG_dfilter
+	static guint i = 0;
+#endif
+
+	DebugLog(("   4 check_exists() [%u]\n", i++));
+	switch (stnode_type_id(st_arg1)) {
+		case STTYPE_FIELD:
+			/* This is OK */
+			break;
+		case STTYPE_STRING:
+		case STTYPE_UNPARSED:
+			dfilter_fail("\"%s\" is neither a field nor a protocol name.",
+					stnode_data(st_arg1));
+			THROW(TypeError);
+			break;
+
+		case STTYPE_RANGE:
+			/*
+			 * XXX - why not?  Shouldn't "eth[3:2]" mean
+			 * "check whether the 'eth' field is present and
+			 * has at least 2 bytes starting at an offset of
+			 * 3"?
+			 */
+			dfilter_fail("You cannot test whether a range is present.");
+			THROW(TypeError);
+			break;
+
+		case STTYPE_UNINITIALIZED:
+		case STTYPE_TEST:
+		case STTYPE_INTEGER:
+		case STTYPE_FVALUE:
+		case STTYPE_NUM_TYPES:
+			g_assert_not_reached();
+	}
 }
 
 /* If the LHS of a relation test is a FIELD, run some checks
@@ -717,7 +757,7 @@ check_test(stnode_t *st_node)
 			break;
 
 		case TEST_OP_EXISTS:
-			/* nothing */
+			check_exists(st_arg1);
 			break;
 
 		case TEST_OP_NOT:
