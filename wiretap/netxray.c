@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.89 2004/01/27 08:06:12 guy Exp $
+ * $Id: netxray.c,v 1.90 2004/03/03 22:24:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -646,7 +646,6 @@ reread:
 		wth->phdr.caplen = packet_size - padding;
 		wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - padding;
 	}
-	wth->phdr.pkt_encap = wth->file_encap;
 
 	return TRUE;
 }

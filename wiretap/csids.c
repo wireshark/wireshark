@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.16 2004/01/25 21:55:12 guy Exp $
+ * $Id: csids.c,v 1.17 2004/03/03 22:24:51 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -182,7 +182,6 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
   wth->phdr.caplen = hdr.caplen;
   wth->phdr.ts.tv_sec = hdr.seconds;
   wth->phdr.ts.tv_usec = 0;
-  wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
 
   if( wth->capture.csids->byteswapped == TRUE ) {
     guint16* swap = (guint16*)buf;

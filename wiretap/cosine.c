@@ -1,6 +1,6 @@
 /* cosine.c
  *
- * $Id: cosine.c,v 1.9 2004/02/09 00:06:30 guy Exp $
+ * $Id: cosine.c,v 1.10 2004/03/03 22:24:51 guy Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
@@ -421,7 +421,6 @@ parse_cosine_rec_hdr(wtap *wth, const char *line,
 		wth->phdr.ts.tv_sec = mktime(&tm);
 		wth->phdr.ts.tv_usec = csec * 10000;
 		wth->phdr.len = pkt_len;
-		wth->phdr.pkt_encap = WTAP_ENCAP_COSINE;
 	}
 	/* XXX need to handle other encapsulations like Cisco HDLC,
 	   Frame Relay and ATM */

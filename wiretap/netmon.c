@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.68 2004/01/25 21:55:15 guy Exp $
+ * $Id: netmon.c,v 1.69 2004/03/03 22:24:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -452,7 +452,6 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.ts.tv_usec = usecs;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
-	wth->phdr.pkt_encap = wth->file_encap;
 
 	/*
 	 * Attempt to guess from the packet data, the VPI, and the VCI

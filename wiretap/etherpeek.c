@@ -3,7 +3,7 @@
  * and V7 files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.28 2004/02/06 02:09:11 guy Exp $
+ * $Id: etherpeek.c,v 1.29 2004/03/03 22:24:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -466,7 +466,6 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 		 wth->phdr.caplen -= 4;
 	}
 
-	wth->phdr.pkt_encap = wth->file_encap;
 	return TRUE;
 }
 

@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening EtherPeek and AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.11 2004/02/06 20:50:44 guy Exp $
+ * $Id: airopeek9.c,v 1.12 2004/03/03 22:24:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -545,7 +545,6 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 	break;
     }
 
-    wth->phdr.pkt_encap = wth->file_encap;
     return TRUE;
 }
 

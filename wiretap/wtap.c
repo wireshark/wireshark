@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.89 2004/01/29 10:58:28 guy Exp $
+ * $Id: wtap.c,v 1.90 2004/03/03 22:24:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -368,6 +368,16 @@ wtap_close(wtap *wth)
 gboolean
 wtap_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
 {
+	/*
+	 * Set the packet encapsulation to the file's encapsulation
+	 * value; if that's not WTAP_ENCAP_PER_PACKET, it's the
+	 * right answer (and means that the read routine for this
+	 * capture file type doesn't have to set it), and if it
+	 * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
+	 * anyway.
+	 */
+	wth->phdr.pkt_encap = wth->file_encap;
+
 	if (!wth->subtype_read(wth, err, err_info, data_offset))
 		return FALSE;	/* failure */
 
@@ -377,6 +387,15 @@ wtap_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
 	 */
 	if (wth->phdr.caplen > wth->phdr.len)
 		wth->phdr.caplen = wth->phdr.len;
+
+	/*
+	 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
+	 * probably means the file has that encapsulation type
+	 * but the read routine didn't set this packet's
+	 * encapsulation type.
+	 */
+	g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
+
 	return TRUE;	/* success */
 }
 

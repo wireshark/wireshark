@@ -1,6 +1,6 @@
 /* hcidump.c
  *
- * $Id: hcidump.c,v 1.3 2004/01/25 21:55:13 guy Exp $
+ * $Id: hcidump.c,v 1.4 2004/03/03 22:24:51 guy Exp $
  *
  * Copyright (c) 2003 by Marcel Holtmann <marcel@holtmann.org>
  *
@@ -84,7 +84,6 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.ts.tv_usec = GUINT32_FROM_LE(dh.ts_usec);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = packet_size;
-	wth->phdr.pkt_encap = WTAP_ENCAP_BLUETOOTH_H4;
 
 	wth->pseudo_header.p2p.sent = (dh.in ? FALSE : TRUE);
 

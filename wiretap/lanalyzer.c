@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.46 2004/01/25 21:55:15 guy Exp $
+ * $Id: lanalyzer.c,v 1.47 2004/03/03 22:24:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -385,7 +385,6 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	}
 	wth->phdr.len = true_size;
 	wth->phdr.caplen = packet_size;
-	wth->phdr.pkt_encap = wth->file_encap;
 
 	switch (wth->file_encap) {
 

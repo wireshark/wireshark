@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.44 2004/01/25 21:55:17 guy Exp $
+ * $Id: radcom.c,v 1.45 2004/03/03 22:24:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -350,8 +350,6 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 	    buffer_start_ptr(wth->frame_buffer), length, err))
 		return FALSE;	/* Read error */
 	wth->data_offset += length;
-
-	wth->phdr.pkt_encap = wth->file_encap;
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB) {
 		/* Read the FCS.

@@ -1,6 +1,6 @@
 /* 5views.c
  *
- * $Id: 5views.c,v 1.4 2004/01/25 21:55:11 guy Exp $
+ * $Id: 5views.c,v 1.5 2004/03/03 22:24:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -254,7 +254,6 @@ _5views_read(wtap *wth, int *err, gchar **err_info _U_, long *data_offset)
 	wth->phdr.ts.tv_usec = TimeStamped_Header.NanoSecondes/1000;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
-	wth->phdr.pkt_encap = wth->file_encap;
 
 	switch (wth->file_encap) {
 

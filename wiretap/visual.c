@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.15 2004/01/25 21:55:17 guy Exp $
+ * $Id: visual.c,v 1.16 2004/03/03 22:24:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -311,8 +311,6 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
        with a media type of HDLC can be either Cisco EtherType or PPP. */
     if ((wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR) && (vpkt_hdr.encap_hint == 14))
         wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
-    else
-        wth->phdr.pkt_encap = wth->file_encap;
 
     return TRUE;
 }

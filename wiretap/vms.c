@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.22 2004/02/09 00:06:30 guy Exp $
+ * $Id: vms.c,v 1.23 2004/03/03 22:24:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -444,7 +444,6 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
         wth->phdr.ts.tv_usec = csec * 10000;
         wth->phdr.caplen = pkt_len;
         wth->phdr.len = pkt_len;
-        wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
     }
 
     return pkt_len;

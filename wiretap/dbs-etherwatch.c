@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.16 2004/02/09 00:06:30 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.17 2004/03/03 22:24:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -479,7 +479,6 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 		wth->phdr.ts.tv_usec = csec * 10000;
 		wth->phdr.caplen = eth_hdr_len + pkt_len;
 		wth->phdr.len = eth_hdr_len + pkt_len;
-		wth->phdr.pkt_encap = wth->file_encap;
 	}
 
 	/* Parse the hex dump */

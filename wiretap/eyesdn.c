@@ -1,6 +1,6 @@
 /* eyesdn.c
  *
- * $Id: eyesdn.c,v 1.4 2004/03/03 01:49:16 guy Exp $
+ * $Id: eyesdn.c,v 1.5 2004/03/03 22:24:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -220,7 +220,6 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 
 	wth->data_offset = offset;
 	*data_offset = offset;
-	wth->phdr.pkt_encap = wth->file_encap;
 	return TRUE;
 }
 

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.115 2004/02/19 08:02:06 guy Exp $
+ * $Id: libpcap.c,v 1.116 2004/03/03 22:24:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1180,7 +1180,6 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.ts.tv_usec = hdr.hdr.ts_usec;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
-	wth->phdr.pkt_encap = wth->file_encap;
 
 	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
 		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {

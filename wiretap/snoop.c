@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.68 2004/01/25 21:55:17 guy Exp $
+ * $Id: snoop.c,v 1.69 2004/03/03 22:24:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -505,7 +505,6 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.ts.tv_usec = g_ntohl(hdr.ts_usec);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
-	wth->phdr.pkt_encap = wth->file_encap;
 
 	/*
 	 * If this is ATM LANE traffic, try to guess what type of LANE

@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.32 2004/01/25 21:55:12 guy Exp $
+ * $Id: ascend.c,v 1.33 2004/03/03 22:24:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -333,7 +333,6 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
   wth->phdr.ts.tv_usec = header.usecs;
   wth->phdr.caplen = header.caplen;
   wth->phdr.len = header.len;
-  wth->phdr.pkt_encap = wth->file_encap;
   wth->data_offset = offset;
 
   *data_offset = offset;
