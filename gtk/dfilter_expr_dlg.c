@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.7 2001/02/01 22:01:42 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.8 2001/02/01 22:21:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,7 +89,7 @@ typedef struct protocol_data {
 } protocol_data_t;
 
 static void show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
-    GtkWidget *range_label, GtkWidget *range_entry, guint32 relations);
+    GtkWidget *range_label, GtkWidget *range_entry, ftenum_t ftype);
 static void add_relation_list(GtkWidget *relation_list, char *relation);
 static void build_boolean_values(GtkWidget *value_list_scrolled_win,
     GtkWidget *value_list, const true_false_string *values);
@@ -100,15 +100,6 @@ static void add_value_list_item(GtkWidget *value_list, gchar *string,
 static void display_value_fields(header_field_info *hfinfo,
     gboolean is_comparison, GtkWidget *value_label, GtkWidget *value_entry,
     GtkWidget *value_list, GtkWidget *value_list_scrolled_win);
-
-/*
- * What relations are supported?
- */
-#define EXISTENCE_OK		0x00000001
-#define EQUALITY_OK		0x00000002
-#define ORDER_OK		0x00000004
-#define ORDER_EQUALITY_OK	0x00000008
-#define RANGES_OK		0x00000010
 
 /*
  * Note that this is called every time the user clicks on an item,
@@ -138,7 +129,6 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column,
 	GtkWidget *accept_bt = gtk_object_get_data(GTK_OBJECT(window),
 	    E_DFILTER_EXPR_ACCEPT_BT_KEY);
 	header_field_info *hfinfo, *cur_hfinfo;
-	guint32 relations;
 	const char *value_type;
 	char value_label_string[1024+1];	/* XXX - should be large enough */
 
@@ -163,85 +153,8 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column,
 	gtk_object_set_data(GTK_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY,
 	    hfinfo);
 
-	/*
-	 * Set the relation list column to show all the comparison
-	 * operators supported on it, if any.
-	 */
-	switch (hfinfo->type) {
-
-	case FT_NONE:
-	case FT_PROTOCOL:
-		/*
-		 * You can only test for the field's presence;
-		 * hide the relation stuff.
-		 * XXX - what about "tcp[xx:yy]"?
-		 */
-		relations = 0;
-		break;
-
-	case FT_BOOLEAN:
-		/*
-		 * You can only test whether the field is true or false;
-		 * hide the relation stuff.
-		 */
-		relations = 0;
-		break;
-
-	case FT_UINT8:
-	case FT_UINT16:
-	case FT_UINT24:
-	case FT_UINT32:
-	case FT_INT8:
-	case FT_INT16:
-	case FT_INT24:
-	case FT_INT32:
-	case FT_IPv4:
-		/*
-		 * All comparison operators are allowed, but you can't
-		 * select a subrange of bytes in it.
-		 */
-		relations = EXISTENCE_OK|EQUALITY_OK|ORDER_OK|ORDER_EQUALITY_OK;
-		break;
-
-	case FT_STRING:
-	case FT_STRINGZ:
-	case FT_UINT_STRING:
-	case FT_ETHER:
-	case FT_IPv6:
-	case FT_IPXNET:
-		/*
-		 * Only equality comparisons are allowed, and you can't
-		 * select a subrange of bytes.
-		 */
-		relations = EXISTENCE_OK|EQUALITY_OK;
-		break;
-
-	case FT_DOUBLE:
-	case FT_ABSOLUTE_TIME:
-	case FT_RELATIVE_TIME:
-		/*
-		 * We don't support filtering on these.
-		 */
-		relations = 0;
-		break;
-
-	case FT_BYTES:
-		/*
-		 * Equality and "greater than" and "less than", but *not*
-		 * "greater than or equal to" or "less than or equal to",
-		 * are supported.  XXX - is that an error?
-		 * Ranges are supported.
-		 */
-		relations = EXISTENCE_OK|EQUALITY_OK|ORDER_OK|RANGES_OK;
-		break;
-
-	default:
-		g_assert_not_reached();
-		relations = 0;
-		break;
-	}
 	show_relations(relation_label, relation_list, range_label,
-	    range_entry, relations);
+	    range_entry, hfinfo->type);
 
 	/*
 	 * Set the label for the value to indicate what type of value
@@ -318,58 +231,60 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column,
 
 static void
 show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
-    GtkWidget *range_label, GtkWidget *range_entry, guint32 relations)
+    GtkWidget *range_label, GtkWidget *range_entry, ftenum_t ftype)
 {
 	/*
 	 * Clear out the currently displayed list of relations.
 	 */
 	gtk_list_clear_items(GTK_LIST(relation_list), 0, -1);
-	if (relations == 0) {
+	switch (ftype) {
+
+	case FT_BOOLEAN:
 		/*
 		 * No relational operators are supported; hide the relation
-		 * and range stuff.
+		 * stuff.
 		 */
 		gtk_widget_hide(relation_label);
 		gtk_widget_hide(relation_list);
-		gtk_widget_hide(range_label);
-		gtk_widget_hide(range_entry);
-	} else {
+		break;
+
+	default:
 		/*
 		 * Add the supported relations.
+		 * XXX - pick something better than "is present"
+		 * for protocols.
 		 */
-		if (relations & EXISTENCE_OK)
-			add_relation_list(relation_list, "is present");
-		if (relations & EQUALITY_OK) {
+		add_relation_list(relation_list, "is present");
+		if (ftype_can_eq(ftype))
 			add_relation_list(relation_list, "==");
+		if (ftype_can_ne(ftype))
 			add_relation_list(relation_list, "!=");
-		}
-		if (relations & ORDER_OK) {
+		if (ftype_can_gt(ftype))
 			add_relation_list(relation_list, ">");
+		if (ftype_can_lt(ftype))
 			add_relation_list(relation_list, "<");
-		}
-		if (relations & ORDER_EQUALITY_OK) {
+		if (ftype_can_ge(ftype))
 			add_relation_list(relation_list, ">=");
+		if (ftype_can_le(ftype))
 			add_relation_list(relation_list, "<=");
-		}
 
 		/*
 		 * And show the list.
 		 */
 		gtk_widget_show(relation_label);
 		gtk_widget_show(relation_list);
+	}
 
-		/*
-		 * Are range supported?  If so, show the range stuff,
-		 * otherwise hide it.
-		 */
-		if (relations & RANGES_OK) {
-			gtk_widget_show(range_label);
-			gtk_widget_show(range_entry);
-		} else {
-			gtk_widget_hide(range_label);
-			gtk_widget_hide(range_entry);
-		}
-
+	/*
+	 * Are range supported?  If so, show the range stuff,
+	 * otherwise hide it.
+	 */
+	if (ftype_can_slice(ftype)) {
+		gtk_widget_show(range_label);
+		gtk_widget_show(range_entry);
+	} else {
+		gtk_widget_hide(range_label);
+		gtk_widget_hide(range_entry);
 	}
 }
 
@@ -985,10 +900,14 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	 * as it'll ever need, so the dialog box and widgets start out
 	 * with the right sizes.
 	 *
-	 * XXX - this doesn't work.
+	 * XXX - this doesn't work.  It *doesn't* request as much space
+	 * as it'll ever need.
+	 *
+	 * XXX - FT_UINT8 doesn't support ranges, so even if it did work,
+	 * it wouldn't work right.
 	 */
 	show_relations(relation_label, relation_list, range_label, range_entry,
-	    EXISTENCE_OK|EQUALITY_OK|ORDER_OK|ORDER_EQUALITY_OK|RANGES_OK);
+	    FT_UINT8);
 
 	value_vb = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(value_vb), 5);
