@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.86 2001/07/30 07:36:28 guy Exp $
+ * $Id: packet-smb.c,v 1.87 2001/08/02 07:16:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -9204,6 +9204,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Byte Count (BCC) */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     ByteCount = GSHORT(pd, offset);
 
     if (tree) {
@@ -9739,6 +9742,9 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     /* Build display for: Total Data Count */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     TotalDataCount = GSHORT(pd, offset);
 
     if (tree) {
@@ -9936,6 +9942,9 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
     }
 
     /* Build display for: Byte Count (BCC) */
+
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
 
     ByteCount = GSHORT(pd, offset);
 
@@ -10721,6 +10730,9 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	/* Handle error code */
 
+        if (!BYTES_ARE_IN_FRAME(SMB_offset + 10, 2))
+          return;
+
 	if (GSHORT(pd, SMB_offset + 10) & 0x4000) {
 
 	    /* handle NT 32 bit error code */
@@ -10818,6 +10830,9 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	offset += 1;
 
+        if (!BYTES_ARE_IN_FRAME(offset, 2))
+          return;
+
 	flags2 = GSHORT(pd, offset);
 
 	if (tree) {
@@ -10902,6 +10917,9 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	/* Now the TID, tree ID */
 
+	if (!BYTES_ARE_IN_FRAME(offset, 2))
+	  return;
+
 	tid = GSHORT(pd, offset);
 	si.tid = tid;
 
@@ -10914,6 +10932,9 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	offset += 2;
 
 	/* Now the PID, Process ID */
+
+	if (!BYTES_ARE_IN_FRAME(offset, 2))
+	  return;
 
 	pid = GSHORT(pd, offset);
 	si.pid = pid;
