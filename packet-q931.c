@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.64 2004/01/15 02:23:18 guy Exp $
+ * $Id: packet-q931.c,v 1.65 2004/01/16 18:28:09 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -189,7 +189,7 @@ static const true_false_string tfs_call_ref_flag = {
 
 #define	Q931_IE_SHIFT			0x90
 #define	Q931_IE_SHIFT_NON_LOCKING	0x08	/* non-locking shift */
-#define	Q931_IE_SHIFT_CODESET		0x0F	/* codeset */
+#define	Q931_IE_SHIFT_CODESET		0x07	/* codeset */
 
 #define	Q931_IE_MORE_DATA_OR_SEND_COMP	0xA0	/* More Data or Sending Complete */
 #define	Q931_IE_MORE_DATA		0xA0
@@ -373,7 +373,7 @@ static const value_string q931_info_element_vals7[] = {
 };
 
 /* Codeset array */
-#define NUM_INFO_ELEMENT_VALS	8
+#define NUM_INFO_ELEMENT_VALS	(Q931_IE_SHIFT_CODESET+1)
 static const value_string *q931_info_element_vals[NUM_INFO_ELEMENT_VALS] = {
   q931_info_element_vals0,
   q931_info_element_vals1,
@@ -2357,11 +2357,6 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    ((info_element & Q931_IE_SO_IDENTIFIER_MASK) == Q931_IE_SHIFT)) {
 			non_locking_shift = info_element & Q931_IE_SHIFT_NON_LOCKING;
 			codeset = info_element & Q931_IE_SHIFT_CODESET;
-			if(codeset>=NUM_INFO_ELEMENT_VALS){
-				proto_tree_add_text(q931_tree, tvb, offset, 1,
-					"Invalid codeset: %d", codeset);
-				return;
-			}
 			if (!non_locking_shift)
 				locked_codeset = codeset;
 			if (q931_tree != NULL) {
@@ -2391,11 +2386,6 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    dissector_try_port(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
 					offset += 1;
 					codeset = locked_codeset;
-					if(codeset>=NUM_INFO_ELEMENT_VALS){
-						proto_tree_add_text(q931_tree, tvb, offset, 1,
-						"Invalid codeset: %d", codeset);
-						return;
-					}
 					continue;
 				}
 			}
@@ -2459,11 +2449,6 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			offset += 1;
 			codeset = locked_codeset;
-			if(codeset>=NUM_INFO_ELEMENT_VALS){
-				proto_tree_add_text(q931_tree, tvb, offset, 1,
-				"Invalid codeset: %d", codeset);
-				return;
-			}
 			continue;
 		}
 
@@ -2547,11 +2532,6 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    dissector_try_port(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
 					offset += 2 + info_element_len;
 					codeset = locked_codeset;
-					if(codeset>=NUM_INFO_ELEMENT_VALS){
-						proto_tree_add_text(q931_tree, tvb, offset, 1,
-						"Invalid codeset: %d", codeset);
-						return;
-					}
 					continue;
 				}
 			}
@@ -2761,11 +2741,6 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset += 1 + 1 + info_element_len;
 		}
 		codeset = locked_codeset;
-		if(codeset>=NUM_INFO_ELEMENT_VALS){
-			proto_tree_add_text(q931_tree, tvb, offset, 1,
-			"Invalid codeset: %d", codeset);
-			return;
-		}
 	}
 }
 
