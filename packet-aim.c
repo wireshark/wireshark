@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.24 2003/02/27 02:38:19 guy Exp $
+ * $Id: packet-aim.c,v 1.25 2003/03/14 21:50:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -870,7 +870,7 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Family: %s",
 		    val_to_str(family, aim_fnac_family_ids,
-			       "Unknown Family ID"));
+			       "Unknown Family ID=0x%04x"));
   
   switch(family)
     {
