@@ -778,6 +778,10 @@ Thomas Wittwer <thomas.wittwer[AT]iclip.ch> {
 	"prefs_register_string_preference()" made available to plugins
 }
 
+Palle Lyckegaard <Palle[AT]lyckegaard.dk> {
+	OSPFv3 support
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
