@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.59 2004/01/23 02:38:03 gerald Exp $
+$Id: README.win32,v 1.60 2004/02/12 07:59:58 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -120,6 +120,9 @@ those DLLs are found - when you run Ethereal.  This includes gtk-*.dll,
 glib-*.dll, gmodule-*.dll, gdk-*.dll, intl.dll, and iconv-*.dll.  As of
 the 20000805 GTK+/GLIB distribution, gthread-*.dll is no longer needed.
 
+Note the wiretap*.dll must be in your path as well and if wiretap is changed
+be shure to put the new one in your path.
+
 The Win32 Binary distribution, available from
 
 	http://www.ethereal.com/distribution/win32
@@ -196,6 +199,32 @@ rename the directory.)
 The gettext runtime package provides intl.dll, which is needed by
 GLib 2.2.3.
 
+
+Compiling the Ethereal distribution using GTK+2
+===============================================
+
+The more recent version 2 of the GTK+ can be used to compile 
+Ethereal with, but is still considered experimental.
+
+GTK+2 will look better and nicer in some ways, especially for WIN32 users.
+
+You can get the required libraries from:
+
+http://www.gimp.org/~tml/gimp/win32/downloads.html
+
+If you want to try a build with GTK+2.x these Extra libraries are needed 
+
+    Package                               Default Location
+    -------                               ----------------
+    gtk+-2.2.4-20040124.zip	              C:\ethereal-win32-libs\gtk2
+    gtk+-dev-2.2.4-20040124.zip	          C:\ethereal-win32-libs\gtk2
+    pango-1.2.5-20040124.zip              C:\ethereal-win32-libs\gtk2	
+    pango-dev-1.2.5-20040124.zip          C:\ethereal-win32-libs\gtk2
+    atk-1.4.0.zip                         C:\ethereal-win32-libs\gtk2	
+    atk-dev-1.4.0.zip                     C:\ethereal-win32-libs\gtk2
+
+Be sure to set GTK2_DIR in config.nmake correct, to be able to compile.
+
 Instructions for MS Visual C++
 ----------------------------
 Modify the config.nmake file in the top directory of the Ethereal source
@@ -203,6 +232,13 @@ tree to work for your local configuration; if you don't have Python,
 comment out the line that defines PYTHON, otherwise set it to refer to
 the pathname of your Python interpreter executable.  You should not have
 to modify any other Makefile.
+
+Note that perl is needed to build the documentation, the lines in config.nmake
+
+POD2MAN=$(SH) pod2man
+POD2HTML=$(SH) pod2html
+
+requires Cygwin bash and perl to work.
 
 Many of the file and directory names used in the build process go past
 the old 8.3 naming limitations.  As a result, at least on Windows NT 4.0,
@@ -250,31 +286,30 @@ source.
 
 The "special" files and their requisite tools are:
 
-Source				Output			Tool
-------				------			----
-config.h.win32			config.h		sed
-epan/config.h.win32		epan/config.h		sed
-image/ethereal.rc.in		image/ethereal.rc	sed
-image/tethereal.rc.in		image/tethereal.rc	sed
-image/editcap.rc.in		image/editcap.rc	sed
-image/mergecap.rc.in		image/mergecap.rc	sed
-image/text2pcap.rc.in		image/text2pcap.rc	sed
-packaging/nsis/ethereal.nsi.in	packaging/ethereal.nsi	sed
-wiretap/config.h.win32		wiretap/config.h	sed
-epan/dfilter/dfilter-scanner.l  epan/dfilter/*.c	Flex
-text2pcap-scanner.l		*.c			Flex
-wiretap/ascend-scanner.l	*.c			Flex
-wiretap/ascend-grammar.y	*.c,*.h			Bison/Yacc
-ncp2222.py			packet-ncp2222.c	Python
+Source                          Output                  Tool
+------                          ------                  ----
+config.h.win32                  config.h                sed
+epan/config.h.win32             epan/config.h           sed
+image/ethereal.rc.in            image/ethereal.rc       sed
+image/tethereal.rc.in           image/tethereal.rc      sed
+image/editcap.rc.in             image/editcap.rc        sed
+image/mergecap.rc.in            image/mergecap.rc       sed
+image/text2pcap.rc.in           image/text2pcap.rc      sed
+wiretap/config.h.win32          wiretap/config.h        sed
+epan/dfilter/dfilter-scanner.l  epan/dfilter/*.c        Flex
+text2pcap-scanner.l             *.c                     Flex
+wiretap/ascend-scanner.l        *.c                     Flex
+wiretap/ascend-grammar.y        *.c,*.h                 Bison/Yacc
+ncp2222.py                      packet-ncp2222.c        Python
 
-make-reg-dotc, packet*.c	register.c		Bash + grep + sed
+make-reg-dotc, packet*.c        register.c              Bash + grep + sed
 or
-make-reg-dotc.py, packet*.c	register.c		Python
+make-reg-dotc.py, packet*.c     register.c              Python
 
-make-tapreg-dotc, tap-*.c	tethereal-tap-register.c
-							Bash + grep + sed
+make-tapreg-dotc, tap-*.c       tethereal-tap-register.c
+                                                        Bash + grep + sed
 make-tapreg-dotc, tap files	gtk/ethereal-tap-register.c
-    in the gtk subdirectory				Bash + grep + sed
+    in the gtk subdirectory                             Bash + grep + sed
 
 The Makefile.nmake supplied with the Ethereal distribution will, if
 PYTHON is defined in config.nmake, attempt to make register.c with
@@ -306,6 +341,18 @@ file to specify where the Cygwin binaries are installed.
 Python for Win32 is available from
 
 	http://www.python.org/
+
+
+If you want to build an installer you need to get NSIS from:
+
+http://nsis.sourceforge.net/home/
+
+After installing it, you will probably have to modify the config.nmake
+file to specify where the binaries are installed and wether to use the modern UI or not.
+You will need NSIS version 2 or higher, to build an installer with the modern user interface,
+and for a much smaller installer (using the lzma compression).
+
+In the ethereal directory, type "nmake -f makefile.nmake packaging" to build the installer. 
 
 
 Instructions for Cygwin
