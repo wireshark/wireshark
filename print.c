@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.76 2004/04/17 11:50:13 ulfl Exp $
+ * $Id: print.c,v 1.77 2004/04/20 22:34:08 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -704,14 +704,24 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 
 /* Some formats need stuff at the beginning of the output */
 void
-print_preamble(FILE *fh, gint format)
+print_preamble(FILE *fh, gint format, gchar *filename)
 {
+	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
+
+    
     switch(format) {
     case(PR_FMT_TEXT):
         /* do nothing */
         break;
     case(PR_FMT_PS):
 		print_ps_preamble(fh);
+		fputs("%% Set the font to 8 point\n", fh);
+		fputs("/Courier findfont 8 scalefont setfont\n", fh);
+		fputs("\n", fh);
+		fputs("%% the page title\n", fh);
+		ps_clean_string(psbuffer, filename, MAX_PS_LINE_LENGTH);
+		fprintf(fh, "/eth_pagetitle (%s - Ethereal) def\n", psbuffer);
+		fputs("\n", fh);
         break;
     case(PR_FMT_PDML):
 		fputs("<?xml version=\"1.0\"?>\n", fh);

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.375 2004/04/16 20:20:54 guy Exp $
+ * $Id: file.c,v 1.376 2004/04/20 22:34:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1609,7 +1609,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   if (callback_args.print_fh == NULL)
     return PP_OPEN_ERROR;	/* attempt to open destination failed */
 
-  print_preamble(callback_args.print_fh, print_args->format);
+  print_preamble(callback_args.print_fh, print_args->format, cf->filename);
   if (ferror(callback_args.print_fh)) {
     close_print_dest(print_args->to_file, callback_args.print_fh);
     return PP_WRITE_ERROR;
@@ -1662,9 +1662,9 @@ print_packets(capture_file *cf, print_args_t *print_args)
       }
 
       /* Right-justify the packet number column. */
-      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
+/*      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
         sprintf(cp, "%*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
-      else
+      else*/
         sprintf(cp, "%-*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
       cp += column_len;
       if (i != cf->cinfo.num_cols - 1)

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.235 2004/04/16 23:16:28 guy Exp $
+ * $Id: tethereal.c,v 1.236 2004/04/20 22:34:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2272,7 +2272,7 @@ load_cap_file(capture_file *cf, int out_file_type)
     success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_write, (guchar *) &args,
  			&err, &err_info);
   } else {
-    print_preamble(stdout, print_format);
+    print_preamble(stdout, print_format, cf->filename);
     if (ferror(stdout)) {
       err = errno;
       show_print_file_io_error(err);

@@ -27,10 +27,16 @@ clippath pathbbox
 pop pop		% junk
 
 % 1-inch margins
-/lmargin 72 def
-/tmargin vmax 72 sub def
-/bmargin 72 def
-/pagenumtab hmax 72 sub def
+%/lmargin 72 def
+%/tmargin vmax 72 sub def
+%/bmargin 72 def
+%/pagenumtab hmax 72 sub def
+
+% 1/2-inch margins
+/lmargin 36 def
+/tmargin vmax 56 sub def
+/bmargin 36 def
+/pagenumtab hmax 36 sub def
 
 % Counters
 /vpos vmax 40 sub def
@@ -39,8 +45,9 @@ pop pop		% junk
 % Strings
 /pagenostr 7 string def
 
+
 % Prints text with possible indenting
-/putline {
+/putline_single {
 	exch 10 mul lmargin add		% X
 	vpos 						% Y
 	moveto
@@ -50,30 +57,52 @@ pop pop		% junk
 
 	vpos bmargin le 			% is vpos <= bottom margin?
 	{
-		printpagenum showpage
+		printpageheader
+		showpage
 		/vpos tmargin def
 	}
 	if							% then formfeed and start at top
 } def
 
-% A put line with smaller spacing and no formfeed
-/titleline {
-	lmargin						% X
-	vpos						% Y
-	moveto
-	show
 
-	/vpos vpos 8 sub def
+% Prints text with possible indenting and line wrap
+/putline {
+	/text exch def
+	/indent exch def
+	
+	% wrapat = width / sizeof font (remember: monospaced font)
+	/pagewidth pagenumtab bmargin sub def
+	/cwidth (A) stringwidth pop def
+	/wrapat pagewidth cwidth div cvi def
+		
+	text length wrapat le {
+		% print line
+		indent text 0 text length getinterval putline_single
+	}{
+		% print the lines first part
+		indent text 0 wrapat getinterval putline_single
+		% print wrapped rest
+		indent text wrapat text length wrapat sub getinterval putline
+	}
+	ifelse
 } def
 
+
 % Prints the page number at the top right
-/printpagenum {
+/printpageheader {
 	gsave
 		% Set the font to 8 point
 		/Helvetica findfont 8 scalefont setfont
 
-		pagenumtab					% X
-		vmax 40 sub					% Y
+		% title
+		lmargin						% X
+		vmax 36 sub					% Y
+		moveto
+		eth_pagetitle show
+
+		% this page number
+		pagenumtab (Page ) stringwidth pop sub thispagenum pagenostr cvs stringwidth pop sub 					% X
+		vmax 36 sub					% Y
 		moveto
 		(Page ) show
 		thispagenum pagenostr cvs show
@@ -83,18 +112,16 @@ pop pop		% junk
 	grestore
 } def
 	
-% Set the font to 8 point
-/Helvetica findfont 8 scalefont setfont
-
-% Create the title
-(Ethereal) titleline
-
 % Reset the vertical position
 /vpos tmargin def
 
-% Set the font to 10 point
-/Courier findfont 10 scalefont setfont
 % ---- ethereal preamble end ---- %
+
+% Set the font to 8 point
+/Courier findfont 8 scalefont setfont
+
+% the page title
+/eth_pagetitle (Ethereal) def
 
 % Display our output lines.
 0 (Ethernet II \(98 on wire, 68 captured\)) putline
@@ -124,7 +151,7 @@ pop pop		% junk
 % If this is not the first page, then print the page number
 thispagenum 1 gt				% is thispagenum > 1 ?
 {
-	printpagenum
+	printpageheader
 }
 if
 
