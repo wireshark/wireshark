@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.21 2000/11/12 05:58:34 guy Exp $
+ * $Id: packet-vlan.c,v 1.22 2000/11/13 04:44:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@ static int hf_vlan_cfi = -1;
 static int hf_vlan_id = -1;
 static int hf_vlan_etype = -1;
 static int hf_vlan_len = -1;
+static int hf_vlan_trailer = -1;
 
 static gint ett_vlan = -1;
 
@@ -70,10 +71,14 @@ capture_vlan(const u_char *pd, int offset, packet_counts *ld ) {
 }
 
 static void
-dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  proto_tree *ti, *vlan_tree = NULL;
+dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_tree *ti;
   guint16 tci,encap_proto;
-  tvbuff_t *next_tvb;
+  volatile gboolean is_802_2;
+  tvbuff_t *volatile next_tvb;
+  tvbuff_t *volatile trailer_tvb;
+  proto_tree *volatile vlan_tree;
 
   CHECK_DISPLAY_AS_DATA(proto_vlan, tvb, pinfo, tree);
 
@@ -90,6 +95,8 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
   }
 
+  vlan_tree = NULL;
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_vlan, tvb, 0, 4, FALSE);
     vlan_tree = proto_item_add_subtree(ti, ett_vlan);
@@ -100,12 +107,53 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
+    /* Give the next dissector only 'length' number of bytes */
     proto_tree_add_uint(vlan_tree, hf_vlan_len, tvb, 2, 2, encap_proto);
-    next_tvb = tvb_new_subset(tvb, 4, -1, -1); /* XXX - should TRY() like dissect_eth() */
-    if ( tvb_get_ntohs(next_tvb, 2) == 0xffff ) {
-      dissect_ipx(next_tvb, pinfo, tree);
-    } else {
+    TRY {
+       next_tvb = tvb_new_subset(tvb, 4, encap_proto, encap_proto);
+       trailer_tvb = tvb_new_subset(tvb, 4 + encap_proto, -1, -1);
+    }
+    CATCH2(BoundsError, ReportedBoundsError) {
+      next_tvb = tvb_new_subset(tvb, 4, -1, encap_proto);
+    }
+    ENDTRY;
+
+    /* Is there an 802.2 layer? I can tell by looking at the first 2
+       bytes after the VLAN header. If they are 0xffff, then what
+       follows the VLAN header is an IPX payload, meaning no 802.2.
+       (IPX/SPX is they only thing that can be contained inside a
+       straight 802.3 packet, so presumably the same applies for
+       Ethernet VLAN packets). A non-0xffff value means that there's an
+       802.2 layer inside the VLAN layer */
+    is_802_2 = TRUE;
+    TRY {
+	    if (tvb_get_ntohs(next_tvb, 2) == 0xffff) {
+	      is_802_2 = FALSE;
+	    }
+    }
+    CATCH2(BoundsError, ReportedBoundsError) {
+	    ; /* do nothing */
+
+    }
+    ENDTRY;
+    if (is_802_2 ) {
+      /* 802.2 LLC */
       dissect_llc(next_tvb, pinfo, tree);
+    } else {
+      dissect_ipx(next_tvb, pinfo, tree);
+    }
+
+    /* If there's some bytes left over, mark them. */
+    if (trailer_tvb && tree) {
+      int trailer_length;
+      const guint8    *ptr;
+
+      trailer_length = tvb_length(trailer_tvb);
+      if (trailer_length > 0) {
+        ptr = tvb_get_ptr(trailer_tvb, 0, trailer_length);
+	proto_tree_add_bytes(vlan_tree, hf_vlan_trailer, tvb, 4 + encap_proto,
+			  trailer_length, ptr);
+      }
     }
   } else {
     ethertype(encap_proto, tvb, 4, pinfo, tree, vlan_tree, hf_vlan_etype);
@@ -130,7 +178,10 @@ proto_register_vlan(void)
 		VALS(etype_vals), 0x0, "Type" }},
 	{ &hf_vlan_len, {
 		"Length", "vlan.len", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Length" }}
+		NULL, 0x0, "Length" }},
+	{ &hf_vlan_trailer, {
+		"Trailer", "vlan.trailer", FT_BYTES, BASE_NONE,
+		NULL, 0x0, "VLAN Trailer" }}
   };
   static gint *ett[] = {
 	&ett_vlan,
