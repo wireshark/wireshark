@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.235 2002/03/25 20:01:13 guy Exp $
+ * $Id: packet-smb.c,v 1.236 2002/03/26 08:23:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13032,7 +13032,15 @@ static char *decode_smb_error(guint8 errcls, guint16 errcode)
    name of the largest country. Apologies for this. If this offends you,
    here is the table to change that.
 
-  There might be more info in winnls.h for those that have wincompilers
+   This also includes the code of 0 for "Default", and some fixes for
+   errors in the Unicode Consortium's table.
+
+   Future versions of Microsoft's "winnls.h" header file may include
+   additional codes; the current version matches the Unicode Consortium's
+   table, except for the additional code 0 for "Default", and two
+   errors (that have been reported to the Unicode Consortium, so the
+   page at the URL listed above might include fixes for those errors
+   in the future).
 */
 const value_string ms_country_codes[] = {
 	{  0,	"Default"},
@@ -13065,7 +13073,8 @@ const value_string ms_country_codes[] = {
 	{ 57,	"Colombia"},
 	{ 58,	"Venezuela"},
 	{ 60,	"Malaysia"},
-	{ 62,	"Australia"},
+	{ 61,	"Australia"},
+	{ 62,	"Indonesia"},
 	{ 63,	"Philippines"},
 	{ 64,	"New Zealand"},
 	{ 65,	"Singapore"},
@@ -13127,8 +13136,9 @@ const value_string ms_country_codes[] = {
 	{966,	"Saudi Arabia"},
 	{967,	"Yemen"},
 	{968,	"Oman"},
+	{971,	"United Arab Emirates"},
 	{972,	"Israel"},
-	{973,	"Bahrain/United Arab Emirates"},
+	{973,	"Bahrain"},
 	{974,	"Qatar"},
 	{976,	"Mongolia"},
 	{981,	"Iran"},
