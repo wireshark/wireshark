@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.48 2002/12/05 22:31:13 guy Exp $
+ * $Id: packet-gtp.c,v 1.49 2002/12/10 19:05:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1673,6 +1673,23 @@ id_to_str(const guint8 *ad) {
 }
 
 static gchar *
+imsi_to_str(const guint8 *ad) {
+
+	static gchar	*str[16];
+	gchar		*p;
+	guint8		i, j = 0;
+	
+	p = (gchar *)&str[0];
+	for (i=0;i<8;i++) {
+		if ((ad[i] & 0x0F) <= 9) p[j++] = (ad[i] & 0x0F) + 0x30;
+		if (((ad[i] >> 4) & 0x0F) <= 9) p[j++] = ((ad[i] >> 4) & 0x0F) + 0x30;
+	}
+	p[j] = 0;
+	
+	return p;
+}
+
+static gchar *
 msisdn_to_str(const guint8 *ad, int len) {
 
 	static gchar	*str[17];
@@ -2494,14 +2511,13 @@ decode_gtp_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 static int
 decode_gtp_imsi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
-	guint8	tid_val[8];
-	gchar	*tid_str;
+	guint8	imsi_val[8];
+	gchar	*imsi_str;
 
-	tvb_memcpy(tvb, tid_val, offset+1, 8);
-	tid_val[1] = tid_val[1] & 0x0F;
-	tid_str = id_to_str(tid_val);
+	tvb_memcpy(tvb, imsi_val, offset+1, 8);
+	imsi_str = imsi_to_str (imsi_val);
 
-	proto_tree_add_string(tree, gtp_version ? hf_gtpv1_imsi : hf_gtpv0_imsi, tvb, offset, 9, tid_str);
+	proto_tree_add_string(tree, gtp_version ? hf_gtpv1_imsi : hf_gtpv0_imsi, tvb, offset, 9, imsi_str);
 
 	return 9;
 }
