@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.218 2002/03/15 08:59:52 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.219 2002/03/15 19:47:03 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6457,9 +6457,11 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int old_offset = offset;
+	int old_offset = offset, sa_offset = offset;
+        guint *s_auths = NULL;
 	guint8 revision;
 	guint8 num_auth;
+        guint auth = 0;   /* FIXME: What if it is larger than 32-bits */
 	int i;
 	GString *gstr;
 
@@ -6485,23 +6487,25 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	  /* XXX perhaps we should have these thing searchable?
 	     a new FT_xxx thingie? SMB is quite common!*/
 	  /* identifier authorities */
-	  gstr = g_string_new(NULL);
 
-	  CLEANUP_PUSH(free_g_string, gstr);
-	  
-	  g_string_sprintf(gstr, "S-1");
-
-	  proto_tree_add_text(tree, tvb, offset, 6, "Authorities");
+          /* FIXME: We should dynamically allocate the authorities array,
+             which is only one thing. Then we don't have to allocate two
+             strings below etc ...
+          */
 
 	  for(i=0;i<6;i++){
-	    guint8 auth = tvb_get_guint8(tvb, offset);
+	    auth = (auth << 8) + tvb_get_guint8(tvb, offset);
 
-	    if (auth > 0)
-	      g_string_sprintfa(gstr,"-%u", auth);
 	    offset++;
 	  }
 
-	  proto_tree_add_text(tree, tvb, offset, num_auth * 4, "Sub-authorities");
+	  proto_tree_add_text(tree, tvb, offset - 6, 6, "Authority: %u", auth);
+
+          sa_offset = offset;
+
+	  CLEANUP_PUSH(free, s_auths);
+
+          s_auths = g_malloc(sizeof(guint) * num_auth);
 
 	  /* sub authorities */
 	  for(i=0;i<num_auth;i++){
@@ -6509,13 +6513,21 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	       samba header files. considering that all non-x86 NT ports
 	       are dead we can (?) assume that non le byte encodings
 	       will be "uncommon"?*/
-	    g_string_sprintfa(gstr, "-%u",tvb_get_letohl(tvb, offset));
-	    offset+=4;
+              s_auths[i] = tvb_get_letohl(tvb, offset);
+              offset+=4;
 	  }
 
-	  proto_item_append_text(item, ": %s", gstr->str);  
-
 	  CLEANUP_CALL_AND_POP;
+
+          gstr = g_string_new("");
+          
+          for (i = 0; i < num_auth; i++)
+              g_string_sprintfa(gstr, (i>0 ? "-%u" : "%u"), s_auths[i]);
+
+          proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", gstr->str);
+
+	  proto_item_append_text(item, ": S-1-%u-%s", auth, gstr->str);  
+
 	}
 
 	proto_item_set_len(item, offset-old_offset);
