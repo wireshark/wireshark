@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.145 2002/06/28 09:47:36 guy Exp $
+ * $Id: tethereal.c,v 1.146 2002/06/30 20:26:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -677,11 +677,10 @@ main(int argc, char *argv[])
   ld.output_to_pipe = FALSE;
   if (cfile.save_file != NULL) {
     err = test_for_fifo(cfile.save_file);
-    switch (errno) {
+    switch (err) {
 
     case ENOENT:	/* it doesn't exist, so we'll be creating it,
     			   and it won't be a FIFO */
-    case ENOTDIR:	/* XXX - why ignore this? */
     case 0:		/* found it, but it's not a FIFO */
       break;
 
@@ -884,6 +883,7 @@ capture(int out_file_type)
   void        (*oldhandler)(int);
   int         err = 0;
   volatile int inpkts = 0;
+  int         pcap_cnt;
   char        errmsg[1024+1];
   condition  *volatile cnd_stop_capturesize = NULL;
   condition  *volatile cnd_stop_timeout = NULL;
@@ -1044,7 +1044,37 @@ capture(int out_file_type)
     ld.go = FALSE;
   ld.packet_count = 0;
   while (ld.go) {
-    inpkts = pcap_dispatch(ld.pch, 1, capture_pcap_cb, (u_char *) &ld);
+    if (cnd_stop_capturesize == NULL && cnd_stop_timeout == NULL) {
+      /* We're not stopping at a particular capture file size, and we're
+         not stopping after some particular amount of time has expired,
+         so either we have no stop condition or the only stop condition
+         is a maximum packet count.
+
+         If there's no maximum packet count, pass it -1, meaning "until
+         you run out of packets in the bufferful you read".  Otherwise,
+         pass it the number of packets we have left to capture.
+
+         We don't call "pcap_loop()" as, if we're saving to a file that's
+         a FIFO, we want to flush the FIFO after we're done processing
+         this libpcap bufferful of packets, so that the program
+         reading the FIFO sees the packets immediately and doesn't get
+         any partial packet, forcing it to block in the middle of reading
+         that packet. */
+      if (capture_opts.autostop_count == 0)
+        pcap_cnt = -1;
+      else {
+        if (ld.packet_count >= capture_opts.autostop_count) {
+          /* It appears there's nothing more to capture. */
+          break;
+        }
+        pcap_cnt = capture_opts.autostop_count - ld.packet_count;
+      }
+    } else {
+      /* We need to check the capture file size or the timeout after
+         each packet. */
+      pcap_cnt = 1;
+    }
+    inpkts = pcap_dispatch(ld.pch, pcap_cnt, capture_pcap_cb, (u_char *) &ld);
     if (inpkts < 0) {
       /* Error from "pcap_dispatch()". */
       ld.go = FALSE;
@@ -1057,7 +1087,7 @@ capture(int out_file_type)
     } else if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
       /* The specified capture time has elapsed; stop the capture. */
       ld.go = FALSE;
-    } else if (ld.pdh != NULL && cnd_stop_capturesize != NULL &&
+    } else if (cnd_stop_capturesize != NULL &&
                   cnd_eval(cnd_stop_capturesize, 
                             (guint32)wtap_get_bytes_dumped(ld.pdh))) {
       /* We're saving the capture to a file, and the capture file reached
@@ -1074,6 +1104,13 @@ capture(int out_file_type)
         }
       } else {
         /* No ringbuffer - just stop. */
+        ld.go = FALSE;
+      }
+    }
+    if (ld.output_to_pipe) {
+      /* XXX - flush only if ld.packet_count changed? */
+      if (fflush(wtap_dump_file(ld.pdh))) {
+        err = errno;
         ld.go = FALSE;
       }
     }
@@ -1419,7 +1456,6 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   wtap_dumper  *pdh = args->pdh;
   frame_data    fdata;
   int           err;
-  gboolean      io_ok;
   gboolean      passed;
   epan_dissect_t *edt;
 
@@ -1437,13 +1473,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   if (passed) {
     /* The packet passed the read filter. */
     ld.packet_count++;
-    io_ok = wtap_dump(pdh, phdr, pseudo_header, buf, &err);
-    if (io_ok && ld.output_to_pipe) {
-      io_ok = ! fflush(wtap_dump_file(ld.pdh));
-      if (!io_ok)
-        err = errno;
-    }
-    if (!io_ok) {
+    if (!wtap_dump(pdh, phdr, pseudo_header, buf, &err)) {
 #ifdef HAVE_LIBPCAP
       if (ld.pch != NULL && !quiet) {
       	/* We're capturing packets, so (if -q not specified) we're printing
