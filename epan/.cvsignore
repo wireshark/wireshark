@@ -2,6 +2,7 @@
 .libs
 Makefile
 Makefile.in
+autom4te.cache
 dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c

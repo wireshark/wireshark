@@ -88,6 +88,7 @@ Joerg Mayer      <jmayer[AT]loplof.de> {
 	    flag to define _U_ as something that marks an argument
 	    unused in GCC, and as nothing for other compilers
 	Add _U_ to unused arguments, and turn off "-Wno-unused"
+	.cvsignore fixes
 }
 
 Martin Maciaszek <fastjack[AT]i-s-o.net> {

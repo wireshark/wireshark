@@ -1,5 +1,6 @@
 configure
 aclocal.m4
+autom4te.cache
 config.log
 config.h
 config.status
