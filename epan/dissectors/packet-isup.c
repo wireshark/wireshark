@@ -1194,6 +1194,10 @@ static module_t *isup_module;
 
 static gboolean isup_show_cic_in_info = TRUE;
 
+static int hf_isup_called = -1;
+static int hf_isup_calling = -1;
+static int hf_isup_redirecting = -1;
+
 static int hf_isup_cic = -1;
 static int hf_bicc_cic = -1;
 
@@ -1533,6 +1537,8 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
 								  (offset - 2), e164_info);
   }
   proto_item_set_text(address_digits_item, "Called Party Number: %s", called_number);
+  
+  proto_tree_add_string_hidden(address_digits_tree, hf_isup_called, parameter_tvb, offset - length, length, called_number);
   proto_item_set_text(parameter_item, "Called Party Number: %s", called_number);
 
 }
@@ -2937,6 +2943,9 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
 								  (offset - 2), e164_info);
   }
   proto_item_set_text(address_digits_item, "Calling Party Number: %s", calling_number);
+  
+  proto_tree_add_string_hidden(address_digits_tree, hf_isup_calling, parameter_tvb, offset - length, length, calling_number);
+
   proto_item_set_text(parameter_item, "Calling Party Number: %s", calling_number);
 
 }
@@ -3040,7 +3049,8 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 
   proto_item_set_text(address_digits_item, "Redirecting Number: %s", calling_number);
   proto_item_set_text(parameter_item, "Redirecting Number: %s", calling_number);
-
+  proto_tree_add_string_hidden(address_digits_tree, hf_isup_redirecting, parameter_tvb, offset - length, length, calling_number);
+  
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Redirection number
@@ -6266,6 +6276,21 @@ proto_register_isup(void)
 		{ &hf_iana_icp,
 			{ "IANA ICP",  "nsap.iana_icp",
 			FT_UINT16, BASE_HEX, VALS(iana_icp_values),0x0,
+                      "", HFILL }},
+
+              { &hf_isup_called,
+                      { "ISUP Called Number",  "isup.called",
+                      FT_STRING, BASE_NONE, NULL,0x0,
+                      "", HFILL }},
+
+              { &hf_isup_calling,
+                      { "ISUP Calling Number",  "isup.calling",
+                      FT_STRING, BASE_NONE, NULL,0x0,
+                      "", HFILL }},
+
+              { &hf_isup_redirecting,
+                      { "ISUP Redirecting Number",  "isup.redirecting",
+                      FT_STRING, BASE_NONE, NULL,0x0,
 			"", HFILL }},
 
 	};
