@@ -149,6 +149,8 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../mate
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../megaco
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../mgcp
@@ -189,6 +191,8 @@ distclean: clean
 	cd ../irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../lwres
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../megaco
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
