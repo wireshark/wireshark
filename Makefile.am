@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.516 2002/11/02 22:23:16 sahlberg Exp $
+# $Id: Makefile.am,v 1.517 2002/11/03 17:38:30 oabad Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -720,21 +720,12 @@ ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
 
 # Additional libs that I know how to build. These will be
 # linked into the ethereal executable.
-if USE_GTK2
-ethereal_additional_libs = \
-	wiretap/libwiretap.a	\
-	gtk2/libui.a		\
-	epan/libethereal.a	\
-	epan/ftypes/libftypes.a \
-	epan/dfilter/libdfilter.a
-else
 ethereal_additional_libs = \
 	wiretap/libwiretap.a	\
 	gtk/libui.a		\
 	epan/libethereal.a	\
 	epan/ftypes/libftypes.a \
 	epan/dfilter/libdfilter.a
-endif
 
 # This is the automake dependency variable for the executable
 ethereal_DEPENDENCIES = \
@@ -1119,8 +1110,7 @@ endif
 dist-hook:
 	mkdir -p aclocal-missing
 
-DIST_SUBDIRS = tools wiretap doc epan plugins packaging \
-	gtk gtk2
+DIST_SUBDIRS = tools wiretap doc epan plugins packaging gtk
 
 if HAVE_PLUGINS
 SUBDIRS = tools wiretap doc epan plugins packaging @ethereal_SUBDIRS@

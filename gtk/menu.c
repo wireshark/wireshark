@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.69 2002/10/25 01:08:46 guy Exp $
+ * $Id: menu.c,v 1.70 2002/11/03 17:38:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,6 +93,7 @@ static void set_menu_sensitivity (gchar *, gint);
     */
 
 /* main menu */
+#if GTK_MAJOR_VERSION < 2
 static GtkItemFactoryEntry menu_items[] =
 {
   {"/_File", NULL, NULL, 0, "<Branch>" },
@@ -185,11 +186,106 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Help/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/Help/_About Ethereal...", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL}
 };
+#else
+static GtkItemFactoryEntry menu_items[] =
+{
+  {"/_File", NULL, NULL, 0, "<Branch>", NULL },
+  {"/File/_Open...", "<control>O", GTK_MENU_FUNC(file_open_cmd_cb), 0, "<StockItem>", GTK_STOCK_OPEN },
+  {"/File/_Close", "<control>W", GTK_MENU_FUNC(file_close_cmd_cb), 0, "<StockItem>", GTK_STOCK_CLOSE },
+  {"/File/_Save", "<control>S", GTK_MENU_FUNC(file_save_cmd_cb), 0, "<StockItem>", GTK_STOCK_SAVE },
+  {"/File/Save _As...", NULL, GTK_MENU_FUNC(file_save_as_cmd_cb), 0, "<StockItem>", GTK_STOCK_SAVE_AS },
+  {"/File/_Reload", "<control>R", GTK_MENU_FUNC(file_reload_cmd_cb), 0, "<StockItem>", GTK_STOCK_REFRESH },
+  {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL },
+  {"/File/_Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, "<StockItem>", GTK_STOCK_PRINT },
+  {"/File/Print Pac_ket", "<control>P", GTK_MENU_FUNC(file_print_packet_cmd_cb), 0, NULL, NULL },
+  {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL },
+  {"/File/_Quit", "<control>Q", GTK_MENU_FUNC(file_quit_cmd_cb), 0, "<StockItem>", GTK_STOCK_QUIT },
+  {"/_Edit", NULL, NULL, 0, "<Branch>", NULL },
+#if 0
+  /* Un-#if this when we actually implement Cut/Copy/Paste. */
+  {"/Edit/Cut", "<control>X", NULL, 0, "<StockItem>", GTK_STOCK_CUT },
+  {"/Edit/Copy", "<control>C", NULL, 0, "<StockItem>", GTK_STOCK_COPY },
+  {"/Edit/Paste", "<control>V", NULL, 0, "<StockItem>", GTK_STOCK_PASTE },
+  {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
+#endif
+  {"/Edit/_Find Frame...", "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, "<StockItem>", GTK_STOCK_FIND },
+  {"/Edit/Find _Next", "<control>N", GTK_MENU_FUNC(find_next_cb), 0, "<StockItem>", GTK_STOCK_GO_FORWARD},
+  {"/Edit/Find _Previous", "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, "<StockItem>", GTK_STOCK_GO_BACK},
+  {"/Edit/_Go To Frame...", "<control>G", GTK_MENU_FUNC(goto_frame_cb), 0, "<StockItem>", GTK_STOCK_JUMP_TO },
+  {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL },
+  {"/Edit/_Mark Frame", "<control>M", GTK_MENU_FUNC(mark_frame_cb), 0, NULL, NULL },
+  {"/Edit/Mark _All Frames", NULL, GTK_MENU_FUNC(mark_all_frames_cb), 0, NULL, NULL },
+  {"/Edit/_Unmark All Frames", NULL, GTK_MENU_FUNC(unmark_all_frames_cb), 0, NULL, NULL },
+  {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL },
+  {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), 0, "<StockItem>", GTK_STOCK_PREFERENCES },
+#ifdef HAVE_LIBPCAP
+  {"/Edit/_Capture Filters...", NULL, GTK_MENU_FUNC(cfilter_dialog_cb), 0, NULL, NULL },
+#endif
+  {"/Edit/_Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL, NULL },
+  {"/Edit/P_rotocols...", NULL, GTK_MENU_FUNC(proto_cb), 0, NULL, NULL },
+#ifdef HAVE_LIBPCAP
+  {"/_Capture", NULL, NULL, 0, "<Branch>", NULL },
+  {"/Capture/_Start...", "<control>K", GTK_MENU_FUNC(capture_prep_cb), 0, "<StockItem>", GTK_STOCK_EXECUTE },
+  /*
+   * XXX - this doesn't yet work in Win32.
+   */
+#ifndef _WIN32
+  {"/Capture/S_top", "<control>E", GTK_MENU_FUNC(capture_stop_cb), 0, "<StockItem>", GTK_STOCK_STOP },
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
+  {"/_Display", NULL, NULL, 0, "<Branch>", NULL  },
+  {"/Display/_Options...", NULL, GTK_MENU_FUNC(display_opt_cb), 0, NULL, NULL },
+  {"/Display/_Match", NULL, NULL, 0, "<Branch>", NULL  },
+  {"/Display/Match/_Selected", NULL, GTK_MENU_FUNC(match_selected_cb_replace_ptree), 0, NULL, NULL },
+  {"/Display/Match/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_not_ptree), 0, NULL, NULL },
+  {"/Display/Match/_And Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and_ptree), 0, NULL, NULL },
+  {"/Display/Match/_Or Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or_ptree), 0, NULL, NULL },
+  {"/Display/Match/A_nd Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and_ptree_not), 0, NULL, NULL },
+  {"/Display/Match/O_r Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or_ptree_not), 0, NULL, NULL },
+  {"/Display/_Prepare", NULL, NULL, 0, "<Branch>", NULL  },
+  {"/Display/Prepare/_Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_replace_ptree), 0, NULL, NULL },
+  {"/Display/Prepare/_Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_not_ptree), 0, NULL, NULL },
+  {"/Display/Prepare/_And Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and_ptree), 0, NULL, NULL },
+  {"/Display/Prepare/_Or Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or_ptree), 0, NULL, NULL },
+  {"/Display/Prepare/A_nd Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and_ptree_not), 0, NULL, NULL },
+  {"/Display/Prepare/O_r Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or_ptree_not), 0, NULL, NULL },
+  {"/Display/_Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL, NULL },
+  {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL, NULL },
+  {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL, NULL },
+  {"/Display/_Show Packet In New Window", NULL, GTK_MENU_FUNC(new_window_cb), 0, NULL, NULL },
+  {"/Display/User Specified Decodes...", NULL, GTK_MENU_FUNC(decode_show_cb), 0, NULL, NULL },
+  {"/_Tools", NULL, NULL, 0, "<Branch>", NULL  },
+#ifdef HAVE_PLUGINS
+  {"/Tools/_Plugins...", NULL, GTK_MENU_FUNC(tools_plugins_cmd_cb), 0, NULL, NULL },
+#endif
+  {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL, NULL },
+  {"/Tools/_Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL, NULL },
+/*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
+  {"/_Tools/TCP Stream Analysis", NULL, NULL, 0, "<Branch>", NULL  },
+  {"/_Tools/TCP Stream Analysis/Time-Sequence Graph (Stevens)", NULL, GTK_MENU_FUNC (tcp_graph_cb), 0, NULL, NULL },
+  {"/_Tools/TCP Stream Analysis/Time-Sequence Graph (tcptrace)", NULL, GTK_MENU_FUNC (tcp_graph_cb), 1, NULL, NULL },
+  {"/_Tools/TCP Stream Analysis/Throughput Graph", NULL, GTK_MENU_FUNC (tcp_graph_cb), 2, NULL, NULL },
+  {"/_Tools/TCP Stream Analysis/RTT Graph", NULL, GTK_MENU_FUNC (tcp_graph_cb), 3, NULL, NULL },
+  {"/Tools/_Summary", NULL, GTK_MENU_FUNC(summary_open_cb), 0, NULL, NULL },
+  {"/Tools/Protocol Hierarchy Statistics", NULL, GTK_MENU_FUNC(proto_hier_stats_cb), 0, NULL, NULL },
+  {"/Tools/Statistics", NULL, NULL, 0, "<Branch>", NULL },
+  {"/Tools/Statistics/ONC-RPC", NULL, NULL, 0, "<Branch>", NULL },
+  {"/Tools/Statistics/ONC-RPC/RTT", NULL, GTK_MENU_FUNC(gtk_rpcstat_cb), 0, NULL, NULL },
+  {"/Tools/Statistics/ONC-RPC/Programs", NULL, GTK_MENU_FUNC(gtk_rpcprogs_init), 0, NULL, NULL },
+  {"/Tools/Statistics/DCE-RPC", NULL, NULL, 0, "<Branch>", NULL },
+  {"/Tools/Statistics/DCE-RPC/RTT", NULL, GTK_MENU_FUNC(gtk_dcerpcstat_cb), 0, NULL, NULL },
+  {"/_Help", NULL, NULL, 0, "<LastBranch>", NULL  },
+  {"/Help/_Help", NULL, GTK_MENU_FUNC(help_cb), 0, "<StockItem>", GTK_STOCK_HELP },
+  {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL },
+  {"/Help/_About Ethereal...", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL, NULL }
+};
+#endif
 
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 
 /* packet list popup */
+#if GTK_MAJOR_VERSION < 2
 static GtkItemFactoryEntry packet_list_menu_items[] =
 {
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
@@ -217,7 +313,37 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
   	{"/Print Packet", NULL, GTK_MENU_FUNC(file_print_packet_cmd_cb), 0, NULL},
   	{"/Show Packet In New Window", NULL, GTK_MENU_FUNC(new_window_cb), 0, NULL},
 };
+#else
+static GtkItemFactoryEntry packet_list_menu_items[] =
+{
+	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL, NULL },
+	{"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL, NULL },
+	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL, NULL },
+	{"/<separator>", NULL, NULL, 0, "<Separator>", NULL },
+	{"/Mark Frame", NULL, GTK_MENU_FUNC(mark_frame_cb), 0, NULL, NULL },
+        {"/Match", NULL, NULL, 0, "<Branch>", NULL  },
+        {"/Match/_Selected", NULL, GTK_MENU_FUNC(match_selected_cb_replace_plist), 0, NULL, NULL },
+        {"/Match/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_not_plist), 0, NULL, NULL },
+        {"/Match/_And Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and_plist), 0, NULL, NULL },
+        {"/Match/_Or Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or_plist), 0, NULL, NULL },
+        {"/Match/A_nd Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and_plist_not), 0, NULL, NULL },
+        {"/Match/O_r Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or_plist_not), 0, NULL, NULL },
+        {"/Prepare", NULL, NULL, 0, "<Branch>", NULL  },
+        {"/Prepare/_Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_replace_plist), 0, NULL, NULL },
+        {"/Prepare/_Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_not_plist), 0, NULL, NULL },
+        {"/Prepare/_And Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and_plist), 0, NULL, NULL },
+        {"/Prepare/_Or Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or_plist), 0, NULL, NULL },
+        {"/Prepare/A_nd Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and_plist_not), 0, NULL, NULL },
+        {"/Prepare/O_r Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or_plist_not), 0, NULL, NULL },
+	{"/<separator>", NULL, NULL, 0, "<Separator>", NULL },
+	{"/Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL, NULL },
+	{"/Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL, NULL },
+  	{"/Print Packet", NULL, GTK_MENU_FUNC(file_print_packet_cmd_cb), 0, NULL, NULL },
+  	{"/Show Packet In New Window", NULL, GTK_MENU_FUNC(new_window_cb), 0, NULL, NULL },
+};
+#endif
 
+#if GTK_MAJOR_VERSION < 2
 static GtkItemFactoryEntry tree_view_menu_items[] =
 {
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
@@ -244,13 +370,50 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
 	{"/Collapse All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
 	{"/Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL}
 };
+#else
+static GtkItemFactoryEntry tree_view_menu_items[] =
+{
+	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL, NULL },
+	{"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL, NULL },
+	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL, NULL },
+	{"/<separator>", NULL, NULL, 0, "<Separator>", NULL },
+	{"/Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL, NULL },
+	{"/Protocol Properties...", NULL, GTK_MENU_FUNC(properties_cb), 0, NULL, NULL },
+        {"/Match", NULL, NULL, 0, "<Branch>", NULL  },
+        {"/Match/_Selected", NULL, GTK_MENU_FUNC(match_selected_cb_replace_ptree), 0, NULL, NULL },
+        {"/Match/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_not_ptree), 0, NULL, NULL },
+        {"/Match/_And Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and_ptree), 0, NULL, NULL },
+        {"/Match/_Or Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or_ptree), 0, NULL, NULL },
+        {"/Match/A_nd Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_and_ptree_not), 0, NULL, NULL },
+        {"/Match/O_r Not Selected", NULL, GTK_MENU_FUNC(match_selected_cb_or_ptree_not), 0, NULL, NULL },
+        {"/Prepare", NULL, NULL, 0, "<Branch>", NULL  },
+        {"/Prepare/_Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_replace_ptree), 0, NULL, NULL },
+        {"/Prepare/_Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_not_ptree), 0, NULL, NULL },
+        {"/Prepare/_And Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and_ptree), 0, NULL, NULL },
+        {"/Prepare/_Or Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or_ptree), 0, NULL, NULL },
+        {"/Prepare/A_nd Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_and_ptree_not), 0, NULL, NULL },
+        {"/Prepare/O_r Not Selected", NULL, GTK_MENU_FUNC(prepare_selected_cb_or_ptree_not), 0, NULL, NULL },
+	{"/<separator>", NULL, NULL, 0, "<Separator>", NULL },
+	{"/Collapse All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL, NULL },
+	{"/Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL, NULL }
+};
+#endif
 
+#if GTK_MAJOR_VERSION < 2
 static GtkItemFactoryEntry hexdump_menu_items[] =
 {
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 	{"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL},
 	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL}
 };
+#else
+static GtkItemFactoryEntry hexdump_menu_items[] =
+{
+	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL, NULL },
+	{"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL, NULL },
+	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL, NULL }
+};
+#endif
 
 static int initialize = TRUE;
 static GtkItemFactory *factory = NULL;

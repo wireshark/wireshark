@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.24 2002/09/05 18:47:46 jmayer Exp $
+ * $Id: find_dlg.c,v 1.25 2002/11/03 17:38:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,7 +66,9 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkWidget     *main_vb, *filter_hb, *filter_bt, *filter_te,
                 *direction_hb, *forward_rb, *backward_rb,
                 *bbox, *ok_bt, *cancel_bt;
+#if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
+#endif
   /* No Apply button, but "OK" not only sets our text widget, it
      activates it (i.e., it causes us to do the search). */
   static construct_args_t args = {
@@ -82,14 +84,19 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   find_frame_w = dlg_window_new("Ethereal: Find Frame");
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(find_frame_w), "destroy",
-	GTK_SIGNAL_FUNC(find_frame_destroy_cb), NULL);
+                     GTK_SIGNAL_FUNC(find_frame_destroy_cb), NULL);
 
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
      Ctrl+<key> is an accelerator). */
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(find_frame_w), accel_group);
+#else
+  g_signal_connect(G_OBJECT(find_frame_w), "destroy",
+                   G_CALLBACK(find_frame_destroy_cb), NULL);
+#endif
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -103,8 +110,13 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(filter_hb);
 
   filter_bt = gtk_button_new_with_label("Filter:");
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
+                     GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
+#else
+  g_signal_connect(G_OBJECT(filter_bt), "clicked",
+                   G_CALLBACK(display_filter_construct_cb), &args);
+#endif
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
 
@@ -119,15 +131,24 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), direction_hb);
   gtk_widget_show(direction_hb);
 
+#if GTK_MAJOR_VERSION < 2
   forward_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Forward",
-			accel_group);
+                                                             accel_group);
+#else
+  forward_rb = gtk_radio_button_new_with_mnemonic(NULL, "_Forward");
+#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(forward_rb), !cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_hb), forward_rb, TRUE, TRUE, 0);
   gtk_widget_show(forward_rb);
 
+#if GTK_MAJOR_VERSION < 2
   backward_rb = dlg_radio_button_new_with_label_with_mnemonic(
                gtk_radio_button_group(GTK_RADIO_BUTTON(forward_rb)),
                "_Backward", accel_group);
+#else
+  backward_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+               GTK_RADIO_BUTTON(forward_rb), "_Backward");
+#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(backward_rb), cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_hb), backward_rb, TRUE, TRUE, 0);
   gtk_widget_show(backward_rb);
@@ -139,17 +160,31 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
+#if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-    GTK_SIGNAL_FUNC(find_frame_ok_cb), GTK_OBJECT(find_frame_w));
+                     GTK_SIGNAL_FUNC(find_frame_ok_cb),
+                     GTK_OBJECT(find_frame_w));
+#else
+  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
+  g_signal_connect(G_OBJECT(ok_bt), "clicked",
+                   G_CALLBACK(find_frame_ok_cb), G_OBJECT(find_frame_w));
+#endif
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
+#if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-    GTK_SIGNAL_FUNC(find_frame_close_cb), GTK_OBJECT(find_frame_w));
+                     GTK_SIGNAL_FUNC(find_frame_close_cb),
+                     GTK_OBJECT(find_frame_w));
+#else
+  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+  g_signal_connect(G_OBJECT(cancel_bt), "clicked",
+                   G_CALLBACK(find_frame_close_cb), G_OBJECT(find_frame_w));
+#endif
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
@@ -179,7 +214,7 @@ static void
 find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   GtkWidget *filter_te, *backward_rb;
-  gchar *filter_text;
+  gchar     *filter_text;
   dfilter_t *sfcode;
 
   filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_FIND_FILT_KEY);

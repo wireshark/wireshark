@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.13 2002/09/05 18:47:47 jmayer Exp $
+ * $Id: stream_prefs.c,v 1.14 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,12 @@ stream_prefs_show()
   gchar     *mt[] = { "Client foreground", "Client background",
                       "Server foreground", "Server background" };
   int mcount = sizeof(mt) / sizeof (gchar *);
+#if GTK_MAJOR_VERSION < 2
   gdouble scolor[4];
+#else
+  GtkTextBuffer *buf;
+  GtkTextIter    iter;
+#endif
 
   color_t_to_gdkcolor(&tcolors[CFG_IDX], &prefs.st_client_fg);
   color_t_to_gdkcolor(&tcolors[CBG_IDX], &prefs.st_client_bg);
@@ -72,10 +77,12 @@ stream_prefs_show()
 
   curcolor = &tcolors[CFG_IDX];
 
+#if GTK_MAJOR_VERSION < 2
   scolor[CS_RED]     = (gdouble) (curcolor->red)   / 65535.0;
   scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
   scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
   scolor[CS_OPACITY] = 1.0;
+#endif
 
   /* Enclosing containers for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -99,10 +106,16 @@ stream_prefs_show()
   menu = gtk_menu_new ();
   for (i = 0; i < mcount; i++){
     menuitem = gtk_menu_item_new_with_label (mt[i]);
+#if GTK_MAJOR_VERSION < 2
     gtk_object_set_data(GTK_OBJECT(menuitem), STREAM_CS_KEY,
-      (gpointer) colorsel);
+                        (gpointer) colorsel);
     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
-      GTK_SIGNAL_FUNC(update_current_color), &tcolors[i]);
+                       GTK_SIGNAL_FUNC(update_current_color), &tcolors[i]);
+#else
+    g_object_set_data(G_OBJECT(menuitem), STREAM_CS_KEY, (gpointer)colorsel);
+    g_signal_connect(G_OBJECT(menuitem), "activate",
+                     G_CALLBACK(update_current_color), &tcolors[i]);
+#endif
     gtk_widget_show (menuitem);
     gtk_menu_append (GTK_MENU (menu), menuitem);
   }
@@ -110,26 +123,59 @@ stream_prefs_show()
   gtk_table_attach_defaults(GTK_TABLE(main_tb), optmenu, 1, 2, 0, 1);
   gtk_widget_show(optmenu);
 
+#if GTK_MAJOR_VERSION < 2
   sample = gtk_text_new(FALSE, FALSE);
   height = 2 * (sample->style->font->ascent + sample->style->font->descent);
   width = gdk_string_width(sample->style->font, "Sample server text");
   gtk_widget_set_usize(GTK_WIDGET(sample), width, height);
   gtk_text_set_editable(GTK_TEXT(sample), FALSE);
   gtk_text_insert(GTK_TEXT(sample), NULL, &tcolors[CFG_IDX], &tcolors[CBG_IDX],
-    SAMPLE_CLIENT_TEXT, -1);
+                  SAMPLE_CLIENT_TEXT, -1);
   gtk_text_insert(GTK_TEXT(sample), NULL, &tcolors[SFG_IDX], &tcolors[SBG_IDX],
-    SAMPLE_SERVER_TEXT, -1);
+                  SAMPLE_SERVER_TEXT, -1);
+#else
+  sample = gtk_text_view_new();
+  height = 2 * (gtk_style_get_font(sample->style)->ascent +
+                gtk_style_get_font(sample->style)->descent);
+  width = gdk_string_width(gtk_style_get_font(sample->style),
+                           "Sample server text");
+  gtk_widget_set_size_request(GTK_WIDGET(sample), width, height);
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(sample), FALSE);
+  buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sample));
+  gtk_text_buffer_get_start_iter(buf, &iter);
+  gtk_text_buffer_create_tag(buf, "client",
+                             "foreground-gdk", &tcolors[CFG_IDX],
+                             "background-gdk", &tcolors[CBG_IDX], NULL);
+  gtk_text_buffer_create_tag(buf, "server",
+                             "foreground-gdk", &tcolors[SFG_IDX],
+                             "background-gdk", &tcolors[SBG_IDX], NULL);
+  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_CLIENT_TEXT, -1,
+                                           "client", NULL);
+  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_SERVER_TEXT, -1,
+                                           "server", NULL);
+#endif
   gtk_table_attach_defaults(GTK_TABLE(main_tb), sample, 2, 3, 0, 2);
   gtk_widget_show(sample);
 
+#if GTK_MAJOR_VERSION < 2
   gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel), &scolor[CS_RED]);
+#else
+  gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel),
+                                        curcolor);
+#endif
   gtk_table_attach(GTK_TABLE(main_tb), colorsel, 0, 3, 2, 3,
 		  GTK_SHRINK, GTK_SHRINK, 0, 0);
 
+#if GTK_MAJOR_VERSION < 2
   gtk_object_set_data(GTK_OBJECT(colorsel), STREAM_SAMPLE_KEY,
-    (gpointer) sample);
+                      (gpointer)sample);
   gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed",
-    GTK_SIGNAL_FUNC(update_text_color), NULL);
+                     GTK_SIGNAL_FUNC(update_text_color), NULL);
+#else
+  g_object_set_data(G_OBJECT(colorsel), STREAM_SAMPLE_KEY, (gpointer)sample);
+  g_signal_connect(G_OBJECT(colorsel), "color-changed",
+                   G_CALLBACK(update_text_color), NULL);
+#endif
   gtk_widget_show(colorsel);
 
   gtk_widget_show(main_vb);
@@ -138,9 +184,16 @@ stream_prefs_show()
 
 static void
 update_text_color(GtkWidget *w, gpointer data _U_) {
+#if GTK_MAJOR_VERSION < 2
   GtkText  *sample   = gtk_object_get_data(GTK_OBJECT(w), STREAM_SAMPLE_KEY);
   gdouble   scolor[4];
+#else
+  GtkTextView *sample = gtk_object_get_data(GTK_OBJECT(w), STREAM_SAMPLE_KEY);
+  GtkTextBuffer *buf;
+  GtkTextTag    *tag;
+#endif
 
+#if GTK_MAJOR_VERSION < 2
   gtk_color_selection_get_color(GTK_COLOR_SELECTION(w), &scolor[CS_RED]);
 
   curcolor->red   = (gushort) (scolor[CS_RED]   * 65535.0);
@@ -155,23 +208,41 @@ update_text_color(GtkWidget *w, gpointer data _U_) {
   gtk_text_insert(sample, NULL, &tcolors[SFG_IDX], &tcolors[SBG_IDX],
     SAMPLE_SERVER_TEXT, -1);
   gtk_text_thaw(sample);
+#else
+  gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(w), curcolor);
+
+  buf = gtk_text_view_get_buffer(sample);
+  tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "client");
+  g_object_set(tag, "foreground-gdk", &tcolors[CFG_IDX], "background-gdk",
+               &tcolors[CBG_IDX], NULL);
+  tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "server");
+  g_object_set(tag, "foreground-gdk", &tcolors[SFG_IDX], "background-gdk",
+               &tcolors[SBG_IDX], NULL);
+#endif
 }
 
 static void
 update_current_color(GtkWidget *w, gpointer data)
 {
-  GtkColorSelection *colorsel = GTK_COLOR_SELECTION(gtk_object_get_data(GTK_OBJECT(w),
-    STREAM_CS_KEY));
+  GtkColorSelection *colorsel;
+#if GTK_MAJOR_VERSION < 2
   gdouble            scolor[4];
+#endif
 
+  colorsel = GTK_COLOR_SELECTION(gtk_object_get_data(GTK_OBJECT(w),
+                                                     STREAM_CS_KEY));
   curcolor = (GdkColor *) data;
 
+#if GTK_MAJOR_VERSION < 2
   scolor[CS_RED]     = (gdouble) (curcolor->red)   / 65535.0;
   scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
   scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
   scolor[CS_OPACITY] = 1.0;
 
   gtk_color_selection_set_color(colorsel, &scolor[CS_RED]);
+#else
+  gtk_color_selection_set_current_color(colorsel, curcolor);
+#endif
 }
 
 void

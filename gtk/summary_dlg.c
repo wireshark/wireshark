@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.15 2002/09/05 18:47:47 jmayer Exp $
+ * $Id: summary_dlg.c,v 1.16 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,8 +74,13 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   seconds = summary.stop_time - summary.start_time;
   sum_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(sum_open_w), "Ethereal: Summary");
-  gtk_signal_connect (GTK_OBJECT (sum_open_w), "realize",
-    GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
+#if GTK_MAJOR_VERSION < 2
+  gtk_signal_connect(GTK_OBJECT(sum_open_w), "realize",
+                     GTK_SIGNAL_FUNC(window_icon_realize_cb), NULL);
+#else
+  g_signal_connect(G_OBJECT(sum_open_w), "realize",
+                   G_CALLBACK(window_icon_realize_cb), NULL);
+#endif
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -160,8 +165,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     add_string_to_box(string_buff, data_box);
 
     /* MBit per second */
-    snprintf(string_buff, SUM_STR_MAX, "Avg. Mbit/sec: %.3f", 
-		summary.bytes * 8.0 / (seconds * 1000.0 * 1000.0) );
+    snprintf(string_buff, SUM_STR_MAX, "Avg. Mbit/sec: %.3f",
+             summary.bytes * 8.0 / (seconds * 1000.0 * 1000.0));
     add_string_to_box(string_buff, data_box);
   }
 
@@ -210,10 +215,17 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(bbox);
 
   /* Create Close Button */
+#if GTK_MAJOR_VERSION < 2
   close_bt = gtk_button_new_with_label("Close");
   gtk_signal_connect_object(GTK_OBJECT(close_bt), "clicked",
-    GTK_SIGNAL_FUNC(gtk_widget_destroy),
-    GTK_OBJECT(sum_open_w));
+                            GTK_SIGNAL_FUNC(gtk_widget_destroy),
+                            GTK_OBJECT(sum_open_w));
+#else
+  close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+  g_signal_connect_swapped(G_OBJECT(close_bt), "clicked",
+                           G_CALLBACK(gtk_widget_destroy),
+                           G_OBJECT(sum_open_w));
+#endif
   GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX(bbox), close_bt, FALSE,FALSE, 0);
   gtk_widget_grab_default(close_bt);

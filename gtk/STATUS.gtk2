@@ -70,8 +70,10 @@ Remaining problems :
 - the spacing between lines in the tree view is too big ;
 
 - merge gtk and gtk2 directories. Create a gtk12 directory if necessary.
+  ==> done
 
 - replace gtk_signal_xxx function with g_signal_xxx equivalent. The GTK+
   2.0 documentation says :
   The GTK+ 2.0 signal system merely proxies the GSignal system now. For
   future usage, direct use of the GSignal API is recommended.
+  ==> done

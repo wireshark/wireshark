@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.15 2002/09/05 18:47:47 jmayer Exp $
+ * $Id: progress_dlg.c,v 1.16 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,8 +72,8 @@ struct progdlg {
  * be read.
  */
 progdlg_t *
-create_progress_dlg(const gchar *task_title, const gchar *item_title, const gchar *stop_title,
-    gboolean *stop_flag)
+create_progress_dlg(const gchar *task_title, const gchar *item_title,
+                    const gchar *stop_title, gboolean *stop_flag)
 {
 	progdlg_t *dlg;
 	GtkWidget *dlg_w, *main_vb, *title_lb, *status_lb, *elapsed_lb, *time_left_lb, *percentage_lb;
@@ -81,11 +81,10 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title, const gcha
 	GtkWidget *static_vb, *tmp_lb, *main_hb, *dynamic_vb, *percentage_hb;
 	gchar tmp[100];
 
-
 	dlg = g_malloc(sizeof (progdlg_t));
 
 	g_snprintf(dlg->title, sizeof(dlg->title), "%s: %s",
-		task_title, item_title);
+                   task_title, item_title);
 
 	dlg_w = dlg_window_new(dlg->title);
 	gtk_window_set_modal(GTK_WINDOW(dlg_w), TRUE);
@@ -96,7 +95,6 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title, const gcha
 	main_vb = gtk_vbox_new(FALSE, 1);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(dlg_w), main_vb);
-
 
 	/*
 	 * Static labels (left dialog side, labels aligned to the right)
@@ -157,18 +155,22 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title, const gcha
 	dlg->time_left_lb = (GtkLabel *) time_left_lb;
 
 	/*
-	 * The progress bar (in its own horizontal box, including percentage value)
+         * The progress bar (in its own horizontal box, including
+         * percentage value)
 	 */
 	percentage_hb = gtk_hbox_new(FALSE, 1);
 	gtk_box_pack_start(GTK_BOX(dynamic_vb), percentage_hb, FALSE, TRUE, 3);
 
 	prog_bar = gtk_progress_bar_new();
+#if GTK_MAJOR_VERSION < 2
 	gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
+#endif
 	gtk_box_pack_start(GTK_BOX(percentage_hb), prog_bar, FALSE, TRUE, 3);
 
 	percentage_lb = gtk_label_new("  0%");
 	gtk_misc_set_alignment(GTK_MISC(percentage_lb), 0.0, 0.0);
-	gtk_box_pack_start(GTK_BOX(percentage_hb), percentage_lb, FALSE, TRUE, 3);
+	gtk_box_pack_start(GTK_BOX(percentage_hb), percentage_lb, FALSE, TRUE,
+                           3);
 	dlg->percentage_lb = (GtkLabel *) percentage_lb;
 
 	/*
@@ -200,10 +202,18 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title, const gcha
 	 */
 	stop_bt = gtk_button_new_with_label(stop_title);
 	gtk_box_pack_start(GTK_BOX (bbox), stop_bt, TRUE, TRUE, 0);
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(stop_bt), "clicked",
-	    GTK_SIGNAL_FUNC(stop_cb), (gpointer) stop_flag);
+                           GTK_SIGNAL_FUNC(stop_cb), (gpointer) stop_flag);
 	gtk_signal_connect(GTK_OBJECT(dlg_w), "delete_event",
-	    GTK_SIGNAL_FUNC(delete_event_cb), (gpointer) stop_flag);
+                           GTK_SIGNAL_FUNC(delete_event_cb),
+                           (gpointer) stop_flag);
+#else
+	g_signal_connect(G_OBJECT(stop_bt), "clicked",
+                         G_CALLBACK(stop_cb), (gpointer) stop_flag);
+	g_signal_connect(G_OBJECT(dlg_w), "delete_event",
+                         G_CALLBACK(delete_event_cb), (gpointer) stop_flag);
+#endif
 	GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(stop_bt);
 	GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
@@ -223,66 +233,66 @@ delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
 			    const gchar *stop_title, gboolean *stop_flag,
 			    const GTimeVal *start_time, gfloat progress)
 {
-  GTimeVal    time_now;
-  gfloat      delta_time;
-  gfloat      min_display;
-  progdlg_t   *dlg;
+    GTimeVal    time_now;
+    gfloat      delta_time;
+    gfloat      min_display;
+    progdlg_t  *dlg;
 
 #define INIT_DELAY          0.1 * 1e6
 #define MIN_DISPLAY_DEFAULT 2.0 * 1e6
 
-/* Create a progress dialog, but only if it's not likely to disappear
- * immediately, which can be disconcerting for the user.
- *
- * Arguments are as for create_progress_dlg(), plus:
- *
- * (a) A pointer to a GTimeVal structure which holds the time at which
- *     the caller started to process the data.
- * (b) The current progress as a real number between 0 and 1.
- */
+    /* Create a progress dialog, but only if it's not likely to disappear
+     * immediately, which can be disconcerting for the user.
+     *
+     * Arguments are as for create_progress_dlg(), plus:
+     *
+     * (a) A pointer to a GTimeVal structure which holds the time at which
+     *     the caller started to process the data.
+     * (b) The current progress as a real number between 0 and 1.
+     */
 
-  g_get_current_time(&time_now);
+    g_get_current_time(&time_now);
 
-  /* Get the time elapsed since the caller started processing the data */
+    /* Get the time elapsed since the caller started processing the data */
 
-  delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
-    time_now.tv_usec - start_time->tv_usec;
+    delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
+        time_now.tv_usec - start_time->tv_usec;
 
-  /* Do nothing for the first INIT_DELAY microseconds */
+    /* Do nothing for the first INIT_DELAY microseconds */
 
-  if (delta_time < INIT_DELAY)
-    return NULL;
+    if (delta_time < INIT_DELAY)
+        return NULL;
 
-  /* If we create the progress dialog we want it to be displayed for a
-   * minimum of MIN_DISPLAY_DEFAULT microseconds.  However, if we
-   * previously estimated that the progress dialog didn't need to be
-   * created and the caller's processing is slowing down (perhaps due
-   * to the action of the operating system's scheduler on a compute-
-   * intensive task), we tail off the minimum display time such that
-   * the progress dialog will always be created after
-   * 2*MIN_DISPLAY_DEFAULT microseconds.
-   */
+    /* If we create the progress dialog we want it to be displayed for a
+     * minimum of MIN_DISPLAY_DEFAULT microseconds.  However, if we
+     * previously estimated that the progress dialog didn't need to be
+     * created and the caller's processing is slowing down (perhaps due
+     * to the action of the operating system's scheduler on a compute-
+     * intensive task), we tail off the minimum display time such that
+     * the progress dialog will always be created after
+     * 2*MIN_DISPLAY_DEFAULT microseconds.
+     */
 
-  if (delta_time <= INIT_DELAY + MIN_DISPLAY_DEFAULT)
-    min_display = MIN_DISPLAY_DEFAULT;
-  else
-    min_display = 2 * MIN_DISPLAY_DEFAULT - delta_time;
-             /* = MIN_DISPLAY_DEFAULT - (delta_time - MIN_DISPLAY_DEFAULT) */
+    if (delta_time <= INIT_DELAY + MIN_DISPLAY_DEFAULT)
+        min_display = MIN_DISPLAY_DEFAULT;
+    else
+        min_display = 2 * MIN_DISPLAY_DEFAULT - delta_time;
+    /* = MIN_DISPLAY_DEFAULT - (delta_time - MIN_DISPLAY_DEFAULT) */
 
-  /* Assuming the progress increases linearly, see if the progress
-   * dialog would be displayed for at least min_display microseconds if
-   * we created it now.
-   */
+    /* Assuming the progress increases linearly, see if the progress
+     * dialog would be displayed for at least min_display microseconds if
+     * we created it now.
+     */
 
-  if (progress >= (delta_time / (delta_time + min_display)))
-    return NULL;
+    if (progress >= (delta_time / (delta_time + min_display)))
+        return NULL;
 
-  dlg = create_progress_dlg(task_title, item_title, stop_title, stop_flag);
+    dlg = create_progress_dlg(task_title, item_title, stop_title, stop_flag);
 
-  /* set dialog start_time to the start of processing, not box creation */
-  dlg->start_time = *start_time;
+    /* set dialog start_time to the start of processing, not box creation */
+    dlg->start_time = *start_time;
 
-  return dlg;
+    return dlg;
 }
 
 /*
@@ -347,7 +357,8 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status)
 	g_snprintf(tmp, sizeof(tmp), "%lu%%", ul_percentage);
 	gtk_label_set_text(dlg->percentage_lb, tmp);
 
-	g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_elapsed / 60, ul_elapsed % 60);
+	g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_elapsed / 60,
+                   ul_elapsed % 60);
 	gtk_label_set_text(dlg->elapsed_lb, tmp);
 
 	/* show "Time Left" only,
@@ -355,13 +366,18 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status)
 	if (ul_percentage >= 5 && delta_time >= 3 * 1e6) {
 		ul_left = (delta_time / percentage - delta_time) / 1000 / 1000;
 
-		g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_left / 60, ul_left % 60);
+		g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_left / 60,
+                           ul_left % 60);
 		gtk_label_set_text(dlg->time_left_lb, tmp);
 	}
 
 	/* update progress bar */
 	prog_bar = gtk_object_get_data(GTK_OBJECT(dlg_w), PROG_BAR_KEY);
+#if GTK_MAJOR_VERSION < 2
 	gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), percentage);
+#else
+	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
+#endif
 
 	/*
 	 * Flush out the update and process any input events.

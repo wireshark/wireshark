@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.20 2002/09/21 11:36:27 oabad Exp $
+ * $Id: proto_draw.h,v 1.21 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,11 +50,19 @@ extern void redraw_hex_dump_all(void);
 extern GtkWidget *create_byte_view(gint bv_size, GtkWidget *pane);
 
 extern void add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
-    GtkWidget *byte_nb_ptr);
+                           GtkWidget *byte_nb_ptr);
 
+#if GTK_MAJOR_VERSION < 2
 void packet_hex_print(GtkText *, const guint8 *, frame_data *, field_info *,
 		      guint);
 void packet_hex_reprint(GtkText *);
+void set_ptree_font_all(GdkFont *font);
+#else
+void packet_hex_print(GtkTextView *, const guint8 *, frame_data *, field_info *,
+		      guint);
+void packet_hex_reprint(GtkTextView *);
+void set_ptree_font_all(PangoFontDescription *font);
+#endif
 
 void create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
 		GtkWidget **tv_scrollw_p, GtkWidget **tree_view_p);
@@ -63,6 +71,5 @@ void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view);
 void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view);
 
 void set_ptree_sel_browse_all(gboolean);
-void set_ptree_font_all(GdkFont *font);
 
 #endif

@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.25 2002/09/23 19:09:49 oabad Exp $
+ * $Id: colors.c,v 1.26 2002/11/03 17:38:32 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
 #include "simple_dialog.h"
+#include "gtkglobals.h"
 
 extern capture_file cf;
 
@@ -88,12 +89,14 @@ new_color_filter(gchar *name,           /* The name of the filter to create */
                  gchar *filter_string)  /* The string representing the filter */
 {
 	color_filter_t *colorf;
+        GtkStyle       *style;
 
 	colorf = (color_filter_t *)g_malloc(sizeof (color_filter_t));
 	colorf->filter_name = g_strdup(name);
 	colorf->filter_text = g_strdup(filter_string);
-	gdkcolor_to_color_t(&colorf->bg_color, &WHITE);
-	gdkcolor_to_color_t(&colorf->fg_color, &BLACK);
+        style = gtk_widget_get_style(packet_list);
+	gdkcolor_to_color_t(&colorf->bg_color, &style->base[GTK_STATE_NORMAL]);
+	gdkcolor_to_color_t(&colorf->fg_color, &style->text[GTK_STATE_NORMAL]);
 	colorf->c_colorfilter = NULL;
 	colorf->edit_dialog = NULL;
 	filter_list = g_slist_append(filter_list, colorf);

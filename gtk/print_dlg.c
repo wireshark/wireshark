@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.38 2002/09/22 17:52:36 gerald Exp $
+ * $Id: print_dlg.c,v 1.39 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,23 +98,33 @@ static GtkWidget *print_w;
 void
 file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
+#if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
+#endif
   GtkWidget     *main_vb, *main_tb, *button;
   GtkWidget     *format_rb;
   GtkWidget     *format_hb, *format_lb;
+#if GTK_MAJOR_VERSION < 2
   GSList        *format_grp;
+#endif
   GtkWidget     *dest_rb;
   GtkWidget     *dest_hb, *dest_lb;
 #ifndef _WIN32
   GtkWidget     *cmd_lb, *cmd_te;
 #endif
   GtkWidget     *file_bt_hb, *file_bt, *file_te;
+#if GTK_MAJOR_VERSION < 2
   GSList        *dest_grp;
+#endif
   GtkWidget     *options_hb;
   GtkWidget     *print_type_vb, *summary_rb, *detail_rb, *hex_cb,*marked_cb;
+#if GTK_MAJOR_VERSION < 2
   GSList        *summary_grp;
+#endif
   GtkWidget     *expand_vb, *expand_all_rb, *as_displayed_rb;
+#if GTK_MAJOR_VERSION < 2
   GSList        *expand_grp;
+#endif
   GtkWidget     *bbox, *ok_bt, *cancel_bt;
 
 
@@ -125,14 +135,19 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   print_w = dlg_window_new("Ethereal: Print");
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(print_w), "destroy",
-	GTK_SIGNAL_FUNC(print_destroy_cb), NULL);
+                     GTK_SIGNAL_FUNC(print_destroy_cb), NULL);
 
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
      Ctrl+<key> is an accelerator). */
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(print_w), accel_group);
+#else
+  g_signal_connect(G_OBJECT(print_w), "destroy",
+                   G_CALLBACK(print_destroy_cb), NULL);
+#endif
 
   /* Enclosing containers for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -157,16 +172,28 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_table_attach_defaults(GTK_TABLE(main_tb), format_hb, 1, 2, 0, 1);
   gtk_widget_show(format_hb);
 
+#if GTK_MAJOR_VERSION < 2
   button = dlg_radio_button_new_with_label_with_mnemonic(NULL, "Plain _Text",
-				accel_group);
+                                                         accel_group);
+#else
+  button = gtk_radio_button_new_with_mnemonic(NULL, "Plain _Text");
+#endif
   if (print_format == PR_FMT_TEXT)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
+#if GTK_MAJOR_VERSION < 2
   format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
+#endif
   gtk_box_pack_start(GTK_BOX(format_hb), button, FALSE, FALSE, 10);
   gtk_widget_show(button);
 
+#if GTK_MAJOR_VERSION < 2
   format_rb = dlg_radio_button_new_with_label_with_mnemonic(format_grp,
-				"_PostScript", accel_group);
+                                                            "_PostScript",
+                                                            accel_group);
+#else
+  format_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+                                GTK_RADIO_BUTTON(button), "_PostScript");
+#endif
   if (print_format == PR_FMT_PS)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(format_rb), TRUE);
   gtk_box_pack_start(GTK_BOX(format_hb), format_rb, FALSE, FALSE, 10);
@@ -183,24 +210,44 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(dest_hb);
 
 #ifdef _WIN32
+#if GTK_MAJOR_VERSION < 2
   button = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Printer",
 				accel_group);
- #else
+#else
+  button = gtk_radio_button_new_with_mnemonic(NULL, "_Printer");
+#endif
+#else
+#if GTK_MAJOR_VERSION < 2
   button = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Command",
 				accel_group);
+#else
+  button = gtk_radio_button_new_with_mnemonic(NULL, "_Command");
+#endif
 #endif
   if (!print_to_file)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
+#if GTK_MAJOR_VERSION < 2
   dest_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
+#endif
   gtk_box_pack_start(GTK_BOX(dest_hb), button, FALSE, FALSE, 10);
   gtk_widget_show(button);
 
+#if GTK_MAJOR_VERSION < 2
   dest_rb = dlg_radio_button_new_with_label_with_mnemonic(dest_grp, "_File",
-				accel_group);
+                                                          accel_group);
+#else
+  dest_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+                                GTK_RADIO_BUTTON(button), "_File");
+#endif
   if (print_to_file)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(dest_rb), TRUE);
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(dest_rb), "toggled",
-			GTK_SIGNAL_FUNC(print_cmd_toggle_dest), NULL);
+                     GTK_SIGNAL_FUNC(print_cmd_toggle_dest), NULL);
+#else
+  g_signal_connect(G_OBJECT(dest_rb), "toggled",
+                   G_CALLBACK(print_cmd_toggle_dest), NULL);
+#endif
   gtk_box_pack_start(GTK_BOX(dest_hb), dest_rb, FALSE, FALSE, 10);
   gtk_widget_show(dest_rb);
 
@@ -246,8 +293,13 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   if (print_to_file)
     gtk_widget_grab_focus(file_te);
 
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
-		GTK_SIGNAL_FUNC(print_file_cb), GTK_OBJECT(file_te));
+                     GTK_SIGNAL_FUNC(print_file_cb), GTK_OBJECT(file_te));
+#else
+  g_signal_connect(G_OBJECT(file_bt), "clicked",
+                   G_CALLBACK(print_file_cb), GTK_OBJECT(file_te));
+#endif
 
   /* Horizontal box into which to put two vertical boxes of option
      buttons. */
@@ -264,30 +316,56 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(print_type_vb);
 
   /* "Print summary"/"Print detail" radio buttons */
+#if GTK_MAJOR_VERSION < 2
   summary_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL,
-				"Print _summary", accel_group);
+                                                             "Print _summary",
+                                                             accel_group);
+#else
+  summary_rb = gtk_radio_button_new_with_mnemonic(NULL, "Print _summary");
+#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_rb), FALSE);
+#if GTK_MAJOR_VERSION < 2
   summary_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(summary_rb));
+#endif
   gtk_container_add(GTK_CONTAINER(print_type_vb), summary_rb);
   gtk_widget_show(summary_rb);
+#if GTK_MAJOR_VERSION < 2
   detail_rb = dlg_radio_button_new_with_label_with_mnemonic(summary_grp,
-				"Print _detail", accel_group);
+                                                            "Print _detail",
+                                                            accel_group);
+#else
+  detail_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+                                GTK_RADIO_BUTTON(button), "Print _detail");
+#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(detail_rb), TRUE);
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(detail_rb), "toggled",
-			GTK_SIGNAL_FUNC(print_cmd_toggle_detail), NULL);
+                     GTK_SIGNAL_FUNC(print_cmd_toggle_detail), NULL);
+#else
+  g_signal_connect(G_OBJECT(detail_rb), "toggled",
+                   G_CALLBACK(print_cmd_toggle_detail), NULL);
+#endif
   gtk_container_add(GTK_CONTAINER(print_type_vb), detail_rb);
   gtk_widget_show(detail_rb);
 
   /* "Print hex" check button. */
+#if GTK_MAJOR_VERSION < 2
   hex_cb = dlg_check_button_new_with_label_with_mnemonic("Print _hex data",
-				accel_group);
+                                                         accel_group);
+#else
+  hex_cb = gtk_check_button_new_with_mnemonic("Print _hex data");
+#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_cb), FALSE);
   gtk_container_add(GTK_CONTAINER(print_type_vb), hex_cb);
   gtk_widget_show(hex_cb);
 
   /* "Suppress Unmarked" check button. */
+#if GTK_MAJOR_VERSION < 2
   marked_cb = dlg_check_button_new_with_label_with_mnemonic("Suppress _unmarked frames",
-				accel_group);
+                                                            accel_group);
+#else
+  marked_cb = gtk_check_button_new_with_mnemonic("Suppress _unmarked frames");
+#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(marked_cb), FALSE);
   gtk_container_add(GTK_CONTAINER(print_type_vb), marked_cb);
   gtk_widget_show(marked_cb);
@@ -300,14 +378,27 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(expand_vb);
 
   /* "Expand all levels"/"Print as displayed" radio buttons */
+#if GTK_MAJOR_VERSION < 2
   expand_all_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL,
 				"_Expand all levels", accel_group);
+#else
+  expand_all_rb = gtk_radio_button_new_with_mnemonic(NULL,
+                                                     "_Expand all levels");
+#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), TRUE);
+#if GTK_MAJOR_VERSION < 2
   expand_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(expand_all_rb));
+#endif
   gtk_container_add(GTK_CONTAINER(expand_vb), expand_all_rb);
   gtk_widget_show(expand_all_rb);
+#if GTK_MAJOR_VERSION < 2
   as_displayed_rb = dlg_radio_button_new_with_label_with_mnemonic(expand_grp,
 				"Print _as displayed", accel_group);
+#else
+  as_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+                                GTK_RADIO_BUTTON(expand_all_rb),
+                                "Print _as displayed");
+#endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), FALSE);
   gtk_container_add(GTK_CONTAINER(expand_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
@@ -326,6 +417,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
+#if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FORMAT_RB_KEY, format_rb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_DEST_RB_KEY, dest_rb);
@@ -336,18 +428,42 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUMMARY_RB_KEY, summary_rb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_HEX_CB_KEY, hex_cb);
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
-  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUPPRESS_UNMARKED_CB_KEY, marked_cb);
+  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_EXPAND_ALL_RB_KEY,
+                      expand_all_rb);
+  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUPPRESS_UNMARKED_CB_KEY,
+                      marked_cb);
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-    GTK_SIGNAL_FUNC(print_ok_cb), GTK_OBJECT(print_w));
+                     GTK_SIGNAL_FUNC(print_ok_cb), GTK_OBJECT(print_w));
+#else
+  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_FORMAT_RB_KEY, format_rb);
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_DEST_RB_KEY, dest_rb);
+#ifndef _WIN32
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_CMD_TE_KEY, cmd_te);
+#endif
+
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_SUMMARY_RB_KEY, summary_rb);
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_HEX_CB_KEY, hex_cb);
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_SUPPRESS_UNMARKED_CB_KEY, marked_cb);
+  g_signal_connect(G_OBJECT(ok_bt), "clicked",
+                   G_CALLBACK(print_ok_cb), G_OBJECT(print_w));
+#endif
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
+#if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-    GTK_SIGNAL_FUNC(print_close_cb), GTK_OBJECT(print_w));
+                     GTK_SIGNAL_FUNC(print_close_cb), GTK_OBJECT(print_w));
+#else
+  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+  g_signal_connect(G_OBJECT(cancel_bt), "clicked",
+                   G_CALLBACK(print_close_cb), GTK_OBJECT(print_w));
+#endif
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
@@ -452,6 +568,7 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
   if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
 
+#if GTK_MAJOR_VERSION < 2
   gtk_object_set_data(GTK_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
 
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
@@ -463,14 +580,35 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
   /* Call a handler when the file selection box is destroyed, so we can inform
      our caller, if any, that it's been destroyed. */
   gtk_signal_connect(GTK_OBJECT(fs), "destroy",
-	    GTK_SIGNAL_FUNC(print_fs_destroy_cb), file_te);
+                     GTK_SIGNAL_FUNC(print_fs_destroy_cb), file_te);
 
-  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button),
-    "clicked", (GtkSignalFunc) print_fs_ok_cb, fs);
+  gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button), "clicked",
+                     (GtkSignalFunc) print_fs_ok_cb, fs);
 
   /* Connect the cancel_button to destroy the widget */
-  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button),
-    "clicked", (GtkSignalFunc) print_fs_cancel_cb, fs);
+  gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button),
+                     "clicked", (GtkSignalFunc) print_fs_cancel_cb, fs);
+#else
+  g_object_set_data(G_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
+
+  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
+  g_object_set_data(G_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
+
+  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
+  g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
+
+  /* Call a handler when the file selection box is destroyed, so we can inform
+     our caller, if any, that it's been destroyed. */
+  g_signal_connect(G_OBJECT(fs), "destroy",
+                   G_CALLBACK(print_fs_destroy_cb), file_te);
+
+  g_signal_connect(G_OBJECT (GTK_FILE_SELECTION(fs)->ok_button), "clicked",
+                   G_CALLBACK(print_fs_ok_cb), fs);
+
+  /* Connect the cancel_button to destroy the widget */
+  g_signal_connect(G_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button), "clicked",
+                   G_CALLBACK(print_fs_cancel_cb), fs);
+#endif
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.271 2002/10/25 03:13:09 guy Exp $
+ * $Id: main.c,v 1.272 2002/11/03 17:38:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,8 +148,12 @@ capture_file cfile;
 GtkWidget   *top_level, *packet_list, *tree_view, *byte_nb_ptr,
             *tv_scrollw, *pkt_scrollw;
 static GtkWidget	*info_bar;
+#if GTK_MAJOR_VERSION < 2
 GdkFont     *m_r_font, *m_b_font;
-guint		m_font_height, m_font_width;
+guint	     m_font_height, m_font_width;
+#else
+PangoFontDescription *m_r_font, *m_b_font;
+#endif
 static guint    main_ctx, file_ctx, help_ctx;
 static GString *comp_info_str;
 gchar       *ethereal_path = NULL;
@@ -158,7 +162,9 @@ gint   root_x = G_MAXINT, root_y = G_MAXINT, top_width, top_height;
 
 ts_type timestamp_type = RELATIVE;
 
+#if GTK_MAJOR_VERSION < 2
 GtkStyle *item_style;
+#endif
 
 /* Specifies the field currently selected in the GUI protocol tree */
 field_info *finfo_selected = NULL;
@@ -192,8 +198,13 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
                  comp_info_str->str);
 }
 
+#if GTK_MAJOR_VERSION < 2
 void
 set_fonts(GdkFont *regular, GdkFont *bold)
+#else
+void
+set_fonts(PangoFontDescription *regular, PangoFontDescription *bold)
+#endif
 {
 	/* Yes, assert. The code that loads the font should check
 	 * for NULL and provide its own error message. */
@@ -201,8 +212,10 @@ set_fonts(GdkFont *regular, GdkFont *bold)
 	m_r_font = regular;
 	m_b_font = bold;
 
+#if GTK_MAJOR_VERSION < 2
 	m_font_height = m_r_font->ascent + m_r_font->descent;
 	m_font_width = gdk_string_width(m_r_font, "0");
+#endif
 }
 
 
@@ -671,22 +684,51 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
   file_set_save_marked_sensitive();
 }
 
+#if GTK_MAJOR_VERSION < 2
 static void
-packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_) {
+packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
+{
+    GdkEventButton *event_button = (GdkEventButton *)event;
+    gint row, column;
 
-  GdkEventButton *event_button = (GdkEventButton *)event;
-  gint row, column;
+    if (w == NULL || event == NULL)
+        return;
 
-  if (w == NULL || event == NULL)
-    return;
-
-  if (event->type == GDK_BUTTON_PRESS && event_button->button == 2 &&
-      gtk_clist_get_selection_info(GTK_CLIST(w), event_button->x, event_button->y,
-				   &row, &column)) {
-    frame_data *fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(w), row);
-    set_frame_mark(!fdata->flags.marked, fdata, row);
-  }
+    if (event->type == GDK_BUTTON_PRESS && event_button->button == 2 &&
+        gtk_clist_get_selection_info(GTK_CLIST(w), event_button->x,
+                                     event_button->y, &row, &column)) {
+        frame_data *fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(w),
+                                                                  row);
+        set_frame_mark(!fdata->flags.marked, fdata, row);
+    }
 }
+#else
+static gint
+packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
+{
+    GdkEventButton *event_button = (GdkEventButton *)event;
+    gint row, column;
+
+    if (w == NULL || event == NULL)
+        return FALSE;
+
+    if (event->type == GDK_BUTTON_PRESS &&
+        gtk_clist_get_selection_info(GTK_CLIST(w), event_button->x,
+                                     event_button->y, &row, &column)) {
+        if (event_button->button == 2)
+        {
+            frame_data *fdata = (frame_data *)gtk_clist_get_row_data(GTK_CLIST(w), row);
+            set_frame_mark(!fdata->flags.marked, fdata, row);
+            return TRUE;
+        }
+        else if (event_button->button == 1) {
+            gtk_clist_select_row(GTK_CLIST(w), row, column);
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+#endif
 
 void mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
   if (cfile.current_frame) {
@@ -746,85 +788,126 @@ packet_list_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, gpointer e
 }
 
 
+#if GTK_MAJOR_VERSION < 2
 static void
-tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_, gpointer user_data _U_)
+tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
+                        gpointer user_data _U_)
+#else
+static void
+tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
+#endif
 {
-	field_info	*finfo;
-	gchar		*help_str = NULL;
-	gchar		len_str[2+10+1+5+1];	/* ", {N} bytes\0",
-						   N < 4294967296 */
-	gboolean        has_blurb = FALSE;
-	guint           length = 0, byte_len;
-	GtkWidget	*byte_view;
-	const guint8	*byte_data;
+    field_info   *finfo;
+    gchar        *help_str = NULL;
+    gchar         len_str[2+10+1+5+1]; /* ", {N} bytes\0",
+                                          N < 4294967296 */
+    gboolean      has_blurb = FALSE;
+    guint         length = 0, byte_len;
+    GtkWidget    *byte_view;
+    const guint8 *byte_data;
+#if GTK_MAJOR_VERSION >= 2
+    GtkTreeModel *model;
+    GtkTreeIter   iter;
+#endif
 
-	g_assert(node);
-	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
-	if (!finfo) return;
+#if GTK_MAJOR_VERSION >= 2
+    /* if nothing is selected */
+    if (!gtk_tree_selection_get_selected(sel, &model, &iter))
+    {
+        /*
+         * Which byte view is displaying the current protocol tree
+         * row's data?
+         */
+        byte_view = get_notebook_bv_ptr(byte_nb_ptr);
+        if (byte_view == NULL)
+            return;	/* none */
 
-	set_notebook_page(byte_nb_ptr, finfo->ds_tvb);
+        byte_data = get_byte_view_data_and_length(byte_view, &byte_len);
+        if (byte_data == NULL)
+            return;	/* none */
 
-	byte_view = get_notebook_bv_ptr(byte_nb_ptr);
-	byte_data = get_byte_view_data_and_length(byte_view, &byte_len);
-	g_assert(byte_data != NULL);
+        unselect_field();
+        packet_hex_print(GTK_TEXT_VIEW(byte_view), byte_data,
+                         cfile.current_frame, NULL, byte_len);
+        return;
+    }
+    gtk_tree_model_get(model, &iter, 1, &finfo, -1);
+#else
+    g_assert(node);
+    finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
+#endif
+    if (!finfo) return;
 
-	finfo_selected = finfo;
-	set_menus_for_selected_tree_row(TRUE);
+    set_notebook_page(byte_nb_ptr, finfo->ds_tvb);
 
-	if (finfo->hfinfo) {
-	  if (finfo->hfinfo->blurb != NULL &&
-	      finfo->hfinfo->blurb[0] != '\0') {
-	    has_blurb = TRUE;
-	    length = strlen(finfo->hfinfo->blurb);
-	  } else {
-	    length = strlen(finfo->hfinfo->name);
-	  }
-	  if (finfo->length == 0) {
-	    len_str[0] = '\0';
-	  } else if (finfo->length == 1) {
-	    strcpy (len_str, ", 1 byte");
-	  } else {
-	    snprintf (len_str, sizeof len_str, ", %d bytes", finfo->length);
-	  }
-	  statusbar_pop_field_msg();	/* get rid of current help msg */
-          if (length) {
-	    length += strlen(finfo->hfinfo->abbrev) + strlen(len_str) + 10;
-	    help_str = g_malloc(sizeof(gchar) * length);
-	    sprintf(help_str, "%s (%s)%s",
-	       (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
-	       finfo->hfinfo->abbrev, len_str);
-	    statusbar_push_field_msg(help_str);
-	    g_free(help_str);
-          } else {
+    byte_view = get_notebook_bv_ptr(byte_nb_ptr);
+    byte_data = get_byte_view_data_and_length(byte_view, &byte_len);
+    g_assert(byte_data != NULL);
+
+    finfo_selected = finfo;
+    set_menus_for_selected_tree_row(TRUE);
+
+    if (finfo->hfinfo) {
+        if (finfo->hfinfo->blurb != NULL &&
+            finfo->hfinfo->blurb[0] != '\0') {
+            has_blurb = TRUE;
+            length = strlen(finfo->hfinfo->blurb);
+        } else {
+            length = strlen(finfo->hfinfo->name);
+        }
+        if (finfo->length == 0) {
+            len_str[0] = '\0';
+        } else if (finfo->length == 1) {
+            strcpy (len_str, ", 1 byte");
+        } else {
+            snprintf (len_str, sizeof len_str, ", %d bytes", finfo->length);
+        }
+        statusbar_pop_field_msg();	/* get rid of current help msg */
+        if (length) {
+            length += strlen(finfo->hfinfo->abbrev) + strlen(len_str) + 10;
+            help_str = g_malloc(sizeof(gchar) * length);
+            sprintf(help_str, "%s (%s)%s",
+                    (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
+                    finfo->hfinfo->abbrev, len_str);
+            statusbar_push_field_msg(help_str);
+            g_free(help_str);
+        } else {
             /*
-	     * Don't show anything if the field name is zero-length;
-	     * the pseudo-field for "proto_tree_add_text()" is such
-	     * a field, and we don't want "Text (text)" showing up
-	     * on the status line if you've selected such a field.
-	     *
-	     * XXX - there are zero-length fields for which we *do*
-	     * want to show the field name.
-	     *
-	     * XXX - perhaps the name and abbrev field should be null
-	     * pointers rather than null strings for that pseudo-field,
-	     * but we'd have to add checks for null pointers in some
-	     * places if we did that.
-	     *
-	     * Or perhaps protocol tree items added with
-	     * "proto_tree_add_text()" should have -1 as the field index,
-	     * with no pseudo-field being used, but that might also
-	     * require special checks for -1 to be added.
-	     */
-	    statusbar_push_field_msg("");
-          }
-	}
+             * Don't show anything if the field name is zero-length;
+             * the pseudo-field for "proto_tree_add_text()" is such
+             * a field, and we don't want "Text (text)" showing up
+             * on the status line if you've selected such a field.
+             *
+             * XXX - there are zero-length fields for which we *do*
+             * want to show the field name.
+             *
+             * XXX - perhaps the name and abbrev field should be null
+             * pointers rather than null strings for that pseudo-field,
+             * but we'd have to add checks for null pointers in some
+             * places if we did that.
+             *
+             * Or perhaps protocol tree items added with
+             * "proto_tree_add_text()" should have -1 as the field index,
+             * with no pseudo-field being used, but that might also
+             * require special checks for -1 to be added.
+             */
+            statusbar_push_field_msg("");
+        }
+    }
 
-	packet_hex_print(GTK_TEXT(byte_view), byte_data, cfile.current_frame,
-		finfo, byte_len);
+#if GTK_MAJOR_VERSION < 2
+    packet_hex_print(GTK_TEXT(byte_view), byte_data, cfile.current_frame,
+                     finfo, byte_len);
+#else
+    packet_hex_print(GTK_TEXT_VIEW(byte_view), byte_data, cfile.current_frame,
+                     finfo, byte_len);
+#endif
 }
 
+#if GTK_MAJOR_VERSION < 2
 static void
-tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_, gpointer user_data _U_)
+tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
+                          gpointer user_data _U_)
 {
 	GtkWidget	*byte_view;
 	const guint8	*data;
@@ -846,6 +929,7 @@ tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
 	packet_hex_print(GTK_TEXT(byte_view), data, cfile.current_frame,
 		NULL, len);
 }
+#endif
 
 void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree)
@@ -907,11 +991,17 @@ set_plist_sel_browse(gboolean val)
 }
 
 /* Set the font of the packet list window. */
+#if GTK_MAJOR_VERSION < 2
 void
 set_plist_font(GdkFont *font)
+#else
+void
+set_plist_font(PangoFontDescription *font)
+#endif
 {
-	GtkStyle *style;
 	int i;
+#if GTK_MAJOR_VERSION < 2
+	GtkStyle *style;
 
 	style = gtk_style_new();
 	gdk_font_unref(style->font);
@@ -919,12 +1009,21 @@ set_plist_font(GdkFont *font)
 	gdk_font_ref(font);
 
 	gtk_widget_set_style(packet_list, style);
+#else
+        gtk_widget_modify_font(packet_list, font);
+#endif
 
 	/* Compute static column sizes to use during a "-S" capture, so that
  	   the columns don't resize during a live capture. */
 	for (i = 0; i < cfile.cinfo.num_cols; i++) {
+#if GTK_MAJOR_VERSION < 2
 		cfile.cinfo.col_width[i] = gdk_string_width(font,
 			get_column_longest_string(get_column_format(i)));
+#else
+		cfile.cinfo.col_width[i] =
+                    gdk_string_width(gdk_font_from_description(font),
+			get_column_longest_string(get_column_format(i)));
+#endif
 	}
 }
 
@@ -1181,6 +1280,7 @@ set_autostop_criterion(const char *autostoparg)
 }
 #endif
 
+#if defined WIN32 || GTK_MAJOR_VERSION < 2
 /* 
    Once every 3 seconds we get a callback here which we use to update
    the tap extensions. Since Gtk1 is single threaded we dont have to
@@ -1192,13 +1292,51 @@ update_cb(gpointer data _U_)
 	draw_tap_listeners(FALSE);
 	return 1;
 }
+#else
+
+/* if these three functions are copied to gtk1 ethereal, since gtk1 does not
+   use threads all updte_thread_mutex can be dropped and protect/unprotect 
+   would just be empty functions.
+
+   This allows gtk2-rpcstat.c and friends to be copied unmodified to 
+   gtk1-ethereal and it will just work.
+ */
+static GStaticMutex update_thread_mutex = G_STATIC_MUTEX_INIT;
+gpointer
+update_thread(gpointer data _U_)
+{
+    while(1){
+        GTimeVal tv1, tv2;
+        g_get_current_time(&tv1);
+        g_static_mutex_lock(&update_thread_mutex);
+        gdk_threads_enter();
+        draw_tap_listeners(FALSE);
+        gdk_threads_leave();
+        g_static_mutex_unlock(&update_thread_mutex);
+        g_thread_yield();
+        g_get_current_time(&tv2);
+        if( ((tv1.tv_sec + 2) * 1000000 + tv1.tv_usec) >
+            (tv2.tv_sec * 1000000 + tv2.tv_usec) ){
+            g_usleep(((tv1.tv_sec + 2) * 1000000 + tv1.tv_usec) -
+                     (tv2.tv_sec * 1000000 + tv2.tv_usec));
+        }
+    }
+    return NULL;
+}
+#endif
 void
 protect_thread_critical_region(void)
 {
+#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2
+    g_static_mutex_lock(&update_thread_mutex);
+#endif
 }
 void
 unprotect_thread_critical_region(void)
 {
+#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2
+    g_static_mutex_unlock(&update_thread_mutex);
+#endif
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -1248,7 +1386,9 @@ main(int argc, char *argv[])
   gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs;
   char                 badopt;
+#if GTK_MAJOR_VERSION < 2
   char                *bold_font_name;
+#endif
   gint                 desk_x, desk_y;
   gboolean             prefs_write_needed = FALSE;
 
@@ -1347,8 +1487,19 @@ main(int argc, char *argv[])
     exit(0);
   }
 
+  /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
+#if ! defined WIN32 && GTK_MAJOR_VERSION >= 2 && defined G_THREADS_ENABLED
+  {
+      GThread *ut;
+      g_thread_init(NULL);
+      gdk_threads_init();
+      ut=g_thread_create(update_thread, NULL, FALSE, NULL);
+      g_thread_set_priority(ut, G_THREAD_PRIORITY_LOW);
+  }
+#else  /* WIN32 || GTK1.2 || !G_THREADS_ENABLED */
   /* this is to keep tap extensions updating once every 3 seconds */
   gtk_timeout_add(3000, (GtkFunction)update_cb,(gpointer)NULL);
+#endif /* !WIN32 && GTK2 && G_THREADS_ENABLED */
 
   /* Set the current locale according to the program environment.
    * We haven't localized anything, but some GTK widgets are localized
@@ -1411,19 +1562,19 @@ main(int argc, char *argv[])
   g_string_append(comp_info_str, "with ");
   g_string_sprintfa(comp_info_str,
 #ifdef GTK_MAJOR_VERSION
-    "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
-    GTK_MICRO_VERSION);
+                    "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+                    GTK_MICRO_VERSION);
 #else
-    "GTK+ (version unknown)");
+                    "GTK+ (version unknown)");
 #endif
 
   g_string_append(comp_info_str, ", with ");
   g_string_sprintfa(comp_info_str,
 #ifdef GLIB_MAJOR_VERSION
-    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
-    GLIB_MICRO_VERSION);
+                    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
+                    GLIB_MICRO_VERSION);
 #else
-    "GLib (version unknown)");
+                    "GLib (version unknown)");
 #endif
 
 #ifdef HAVE_LIBPCAP
@@ -1915,40 +2066,79 @@ main(int argc, char *argv[])
   gtk_rc_parse(rc_file);
 
   /* Try to load the regular and boldface fixed-width fonts */
+#if GTK_MAJOR_VERSION < 2
   bold_font_name = boldify(prefs->gui_font_name);
   m_r_font = gdk_font_load(prefs->gui_font_name);
   m_b_font = gdk_font_load(bold_font_name);
+#else
+  m_r_font = pango_font_description_from_string(prefs->gui_font_name);
+  m_b_font = pango_font_description_copy(m_r_font);
+  pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
+#endif
   if (m_r_font == NULL || m_b_font == NULL) {
     /* XXX - pop this up as a dialog box? no */
     if (m_r_font == NULL) {
 #ifdef HAVE_LIBPCAP
       if (!capture_child)
 #endif
+#if GTK_MAJOR_VERSION < 2
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
+#else
+	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to Monospace 9\n",
+#endif
 		prefs->gui_font_name);
     } else {
+#if GTK_MAJOR_VERSION < 2
       gdk_font_unref(m_r_font);
+#else
+      pango_font_description_free(m_r_font);
+#endif
     }
     if (m_b_font == NULL) {
 #ifdef HAVE_LIBPCAP
       if (!capture_child)
 #endif
+#if GTK_MAJOR_VERSION < 2
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		bold_font_name);
+#else
+        fprintf(stderr, "ethereal: Warning: bold font %s not found - defaulting"
+                        " to Monospace 9\n", prefs->gui_font_name);
+#endif
     } else {
+#if GTK_MAJOR_VERSION < 2
       gdk_font_unref(m_b_font);
+#else
+      pango_font_description_free(m_b_font);
+#endif
     }
+#if GTK_MAJOR_VERSION < 2
     g_free(bold_font_name);
     if ((m_r_font = gdk_font_load("6x13")) == NULL) {
       fprintf(stderr, "ethereal: Error: font 6x13 not found\n");
+#else
+    if ((m_r_font = pango_font_description_from_string("Monospace 9")) == NULL)
+    {
+            fprintf(stderr, "ethereal: Error: font Monospace 9 not found\n");
+#endif
       exit(1);
     }
+#if GTK_MAJOR_VERSION < 2
     if ((m_b_font = gdk_font_load("6x13bold")) == NULL) {
       fprintf(stderr, "ethereal: Error: font 6x13bold not found\n");
+#else
+    if ((m_b_font = pango_font_description_copy(m_r_font)) == NULL) {
+            fprintf(stderr, "ethereal: Error: font Monospace 9 bold not found\n");
+#endif
       exit(1);
     }
     g_free(prefs->gui_font_name);
+#if GTK_MAJOR_VERSION < 2
     prefs->gui_font_name = g_strdup("6x13");
+#else
+    pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
+    prefs->gui_font_name = g_strdup("Monospace 9");
+#endif
   }
 
   /* Call this for the side-effects that set_fonts() produces */
@@ -2264,6 +2454,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 }
 #endif
 
+#if GTK_MAJOR_VERSION < 2
 /* Given a font name, construct the name of the next heavier version of
    that font. */
 
@@ -2336,234 +2527,340 @@ not_xlfd:
 	bold_font_name = g_strconcat(font_name, "bold", NULL);
 	return bold_font_name;
 }
-
+#endif
 
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
-  GtkWidget           *main_vbox, *menubar, *u_pane, *l_pane,
-                      *stat_hbox, *column_lb,
-                      *filter_bt, *filter_cm, *filter_te,
-                      *filter_apply,
-                      *filter_reset;
-  GList               *filter_list = NULL;
-  GtkAccelGroup       *accel;
-  GtkStyle            *win_style;
-  GdkBitmap           *ascend_bm, *descend_bm;
-  GdkPixmap           *ascend_pm, *descend_pm;
-  column_arrows       *col_arrows;
-  int			i;
-  /* Display filter construct dialog has an Apply button, and "OK" not
-     only sets our text widget, it activates it (i.e., it causes us to
-     filter the capture). */
-  static construct_args_t args = {
-  	"Ethereal: Display Filter",
-  	TRUE,
-  	TRUE
-  };
+    GtkWidget     *main_vbox, *menubar, *u_pane, *l_pane,
+                  *stat_hbox, *column_lb,
+                  *filter_bt, *filter_cm, *filter_te,
+                  *filter_apply,
+                  *filter_reset;
+    GList         *filter_list = NULL;
+    GtkAccelGroup *accel;
+    GtkStyle      *win_style;
+    GdkBitmap     *ascend_bm, *descend_bm;
+    GdkPixmap     *ascend_pm, *descend_pm;
+    column_arrows *col_arrows;
+    int            i;
+    /* Display filter construct dialog has an Apply button, and "OK" not
+       only sets our text widget, it activates it (i.e., it causes us to
+       filter the capture). */
+    static construct_args_t args = {
+        "Ethereal: Display Filter",
+        TRUE,
+        TRUE
+    };
 
-  /* Main window */
-  top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_widget_set_name(top_level, "main window");
-  gtk_signal_connect(GTK_OBJECT(top_level), "delete_event",
-    GTK_SIGNAL_FUNC(main_window_delete_event_cb), NULL);
-  gtk_signal_connect (GTK_OBJECT (top_level), "realize",
-    GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
-  gtk_window_set_title(GTK_WINDOW(top_level), "The Ethereal Network Analyzer");
-  if (prefs->gui_geometry_save_position) {
-    gtk_widget_set_uposition(GTK_WIDGET(top_level),
-      prefs->gui_geometry_main_x, prefs->gui_geometry_main_y);
-  }
-  if (prefs->gui_geometry_save_size) {
-    gtk_widget_set_usize(GTK_WIDGET(top_level),
-      prefs->gui_geometry_main_width, prefs->gui_geometry_main_height);
-  } else {
-    gtk_widget_set_usize(GTK_WIDGET(top_level), DEF_WIDTH, -1);
-  }
-  gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
-
-  /* Container for menu bar, paned windows and progress/info box */
-  main_vbox = gtk_vbox_new(FALSE, 1);
-  gtk_container_border_width(GTK_CONTAINER(main_vbox), 1);
-  gtk_container_add(GTK_CONTAINER(top_level), main_vbox);
-  gtk_widget_show(main_vbox);
-
-  /* Menu bar */
-  get_main_menu(&menubar, &accel);
-  gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
-  gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
-  gtk_widget_show(menubar);
-
-  /* Panes for the packet list, tree, and byte view */
-  u_pane = gtk_vpaned_new();
-  gtk_paned_gutter_size(GTK_PANED(u_pane), (GTK_PANED(u_pane))->handle_size);
-  l_pane = gtk_vpaned_new();
-  gtk_paned_gutter_size(GTK_PANED(l_pane), (GTK_PANED(l_pane))->handle_size);
-  gtk_container_add(GTK_CONTAINER(main_vbox), u_pane);
-  gtk_widget_show(l_pane);
-  gtk_paned_add2(GTK_PANED(u_pane), l_pane);
-  gtk_widget_show(u_pane);
-
-  /* Packet list */
-  pkt_scrollw = scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(pkt_scrollw),
-    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_widget_show(pkt_scrollw);
-  gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
-
-  packet_list = gtk_clist_new(cfile.cinfo.num_cols);
-  /* Column titles are filled in below */
-  gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
-
-  col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * cfile.cinfo.num_cols);
-
-  set_plist_sel_browse(prefs->gui_plist_sel_browse);
-  set_plist_font(m_r_font);
-  gtk_widget_set_name(packet_list, "packet list");
-  gtk_signal_connect (GTK_OBJECT (packet_list), "click_column",
-    GTK_SIGNAL_FUNC(packet_list_click_column_cb), col_arrows);
-  gtk_signal_connect(GTK_OBJECT(packet_list), "select_row",
-    GTK_SIGNAL_FUNC(packet_list_select_cb), NULL);
-  gtk_signal_connect(GTK_OBJECT(packet_list), "unselect_row",
-    GTK_SIGNAL_FUNC(packet_list_unselect_cb), NULL);
-  for (i = 0; i < cfile.cinfo.num_cols; i++) {
-    if (get_column_resize_type(cfile.cinfo.col_fmt[i]) != RESIZE_MANUAL)
-      gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
-
-    /* Right-justify the packet number column. */
-    if (cfile.cinfo.col_fmt[i] == COL_NUMBER)
-      gtk_clist_set_column_justification(GTK_CLIST(packet_list), i,
-        GTK_JUSTIFY_RIGHT);
-  }
-  gtk_widget_set_usize(packet_list, -1, pl_size);
-  gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
-		     GTK_SIGNAL_FUNC(popup_menu_handler),
-		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
-  gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
-		     GTK_SIGNAL_FUNC(packet_list_button_pressed_cb), NULL);
-  gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);
-  gtk_widget_show(packet_list);
-
-  /* Tree view */
-  item_style = gtk_style_new();
-  gdk_font_unref(item_style->font);
-  item_style->font = m_r_font;
-  create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view);
-  gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
-    GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
-  gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
-    GTK_SIGNAL_FUNC(tree_view_unselect_row_cb), NULL);
-  gtk_signal_connect(GTK_OBJECT(tree_view), "button_press_event",
-		     GTK_SIGNAL_FUNC(popup_menu_handler),
-		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY));
-  gtk_widget_show(tree_view);
-
-  /* Byte view. */
-  byte_nb_ptr = create_byte_view(bv_size, l_pane);
-
-  gtk_signal_connect(GTK_OBJECT(byte_nb_ptr), "button_press_event",
-		     GTK_SIGNAL_FUNC(popup_menu_handler),
-		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
-
-  /* Filter/info box */
-  stat_hbox = gtk_hbox_new(FALSE, 1);
-  gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
-  gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
-  gtk_widget_show(stat_hbox);
-
-  filter_bt = gtk_button_new_with_label("Filter:");
-  gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
-  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
-  gtk_widget_show(filter_bt);
-
-  filter_cm = gtk_combo_new();
-  filter_list = g_list_append (filter_list, "");
-  gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
-  gtk_combo_disable_activate(GTK_COMBO(filter_cm));
-  gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
-  gtk_object_set_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY, filter_list);
-  filter_te = GTK_COMBO(filter_cm)->entry;
-  gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
-  gtk_object_set_data(GTK_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
-  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_cm, TRUE, TRUE, 3);
-  gtk_signal_connect(GTK_OBJECT(filter_te), "activate",
-    GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
-  gtk_widget_show(filter_cm);
-
-  filter_reset = gtk_button_new_with_label("Reset");
-  gtk_object_set_data(GTK_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
-  gtk_signal_connect(GTK_OBJECT(filter_reset), "clicked",
-		     GTK_SIGNAL_FUNC(filter_reset_cb), NULL);
-  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_reset, FALSE, TRUE, 1);
-  gtk_widget_show(filter_reset);
-
-  filter_apply = gtk_button_new_with_label("Apply");
-  gtk_object_set_data(GTK_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
-  gtk_signal_connect(GTK_OBJECT(filter_apply), "clicked",
-                     GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
-  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_apply, FALSE, TRUE, 1);
-  gtk_widget_show(filter_apply);
-
-  /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
-   * of any widget that ends up calling a callback which needs
-   * that text entry pointer */
-  set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Edit/Filters...", E_FILT_TE_PTR_KEY, filter_te);
-  set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Match/Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Match/Not Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Match/And Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Match/Or Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Match/And Not Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Match/Or Not Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Prepare/Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Prepare/Not Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Prepare/And Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Prepare/Or Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Prepare/And Not Selected", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Display/Prepare/Or Not Selected", E_DFILTER_TE_KEY, filter_te);
-  gtk_object_set_data(GTK_OBJECT(popup_menu_object), E_DFILTER_TE_KEY, filter_te);
-  gtk_object_set_data(GTK_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packet_list);
-
-  info_bar = gtk_statusbar_new();
-  main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
-  file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
-  help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
-  gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
-  gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
-  gtk_widget_show(info_bar);
-
-  gtk_widget_show(top_level);
-
-  /* Fill in column titles.  This must be done after the top level window
-     is displayed. */
-  win_style = gtk_widget_get_style(top_level);
-  ascend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &ascend_bm,
-  	&win_style->bg[GTK_STATE_NORMAL], (gchar **)clist_ascend_xpm);
-  descend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &descend_bm,
-  	&win_style->bg[GTK_STATE_NORMAL], (gchar **)clist_descend_xpm);
-  for (i = 0; i < cfile.cinfo.num_cols; i++) {
-    col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-    gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-    column_lb = gtk_label_new(cfile.cinfo.col_title[i]);
-    gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2,
-    	GTK_SHRINK, GTK_SHRINK, 0, 0);
-    gtk_widget_show(column_lb);
-    col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
-    gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
-    	1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-    if (i == 0) {
-      gtk_widget_show(col_arrows[i].ascend_pm);
+    /* Main window */
+    top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_widget_set_name(top_level, "main window");
+#if GTK_MAJOR_VERSION < 2
+    gtk_signal_connect(GTK_OBJECT(top_level), "delete_event",
+                       GTK_SIGNAL_FUNC(main_window_delete_event_cb), NULL);
+    gtk_signal_connect (GTK_OBJECT (top_level), "realize",
+                        GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
+#else
+    g_signal_connect(G_OBJECT(top_level), "delete_event",
+                     G_CALLBACK(main_window_delete_event_cb), NULL);
+    g_signal_connect(G_OBJECT(top_level), "realize",
+                     G_CALLBACK (window_icon_realize_cb), NULL);
+#endif
+    gtk_window_set_title(GTK_WINDOW(top_level), "The Ethereal Network Analyzer");
+    if (prefs->gui_geometry_save_position) {
+        gtk_widget_set_uposition(GTK_WIDGET(top_level),
+                                 prefs->gui_geometry_main_x,
+                                 prefs->gui_geometry_main_y);
     }
-    col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
-    gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
-    	1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-    gtk_clist_set_column_widget(GTK_CLIST(packet_list), i, col_arrows[i].table);
-    gtk_widget_show(col_arrows[i].table);
-  }
-  gtk_clist_column_titles_show(GTK_CLIST(packet_list));
+    if (prefs->gui_geometry_save_size) {
+#if GTK_MAJOR_VERSION < 2
+        gtk_widget_set_usize(GTK_WIDGET(top_level),
+                             prefs->gui_geometry_main_width,
+                             prefs->gui_geometry_main_height);
+#else
+        gtk_widget_set_size_request(GTK_WIDGET(top_level),
+                                    prefs->gui_geometry_main_width,
+                                    prefs->gui_geometry_main_height);
+#endif
+    } else {
+#if GTK_MAJOR_VERSION < 2
+        gtk_widget_set_usize(GTK_WIDGET(top_level), DEF_WIDTH, -1);
+#else
+        gtk_widget_set_size_request(GTK_WIDGET(top_level), DEF_WIDTH, -1);
+#endif
+    }
+    gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
+
+    /* Container for menu bar, paned windows and progress/info box */
+    main_vbox = gtk_vbox_new(FALSE, 1);
+    gtk_container_border_width(GTK_CONTAINER(main_vbox), 1);
+    gtk_container_add(GTK_CONTAINER(top_level), main_vbox);
+    gtk_widget_show(main_vbox);
+
+    /* Menu bar */
+    get_main_menu(&menubar, &accel);
+    gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
+    gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
+    gtk_widget_show(menubar);
+
+    /* Panes for the packet list, tree, and byte view */
+    u_pane = gtk_vpaned_new();
+    gtk_paned_gutter_size(GTK_PANED(u_pane), (GTK_PANED(u_pane))->handle_size);
+    l_pane = gtk_vpaned_new();
+    gtk_paned_gutter_size(GTK_PANED(l_pane), (GTK_PANED(l_pane))->handle_size);
+    gtk_container_add(GTK_CONTAINER(main_vbox), u_pane);
+    gtk_widget_show(l_pane);
+    gtk_paned_add2(GTK_PANED(u_pane), l_pane);
+    gtk_widget_show(u_pane);
+
+    /* Packet list */
+    pkt_scrollw = scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(pkt_scrollw),
+                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_widget_show(pkt_scrollw);
+    gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
+
+    packet_list = gtk_clist_new(cfile.cinfo.num_cols);
+    /* Column titles are filled in below */
+    gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
+
+    col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) *
+                                            cfile.cinfo.num_cols);
+
+    set_plist_sel_browse(prefs->gui_plist_sel_browse);
+    set_plist_font(m_r_font);
+    gtk_widget_set_name(packet_list, "packet list");
+#if GTK_MAJOR_VERSION < 2
+    gtk_signal_connect (GTK_OBJECT (packet_list), "click_column",
+                        GTK_SIGNAL_FUNC(packet_list_click_column_cb),
+                        col_arrows);
+    gtk_signal_connect(GTK_OBJECT(packet_list), "select_row",
+                       GTK_SIGNAL_FUNC(packet_list_select_cb), NULL);
+    gtk_signal_connect(GTK_OBJECT(packet_list), "unselect_row",
+                       GTK_SIGNAL_FUNC(packet_list_unselect_cb), NULL);
+#else
+    g_signal_connect(G_OBJECT(packet_list), "click-column",
+                     G_CALLBACK(packet_list_click_column_cb), col_arrows);
+    g_signal_connect(G_OBJECT(packet_list), "select-row",
+                     G_CALLBACK(packet_list_select_cb), NULL);
+    g_signal_connect(G_OBJECT(packet_list), "unselect-row",
+                     G_CALLBACK(packet_list_unselect_cb), NULL);
+#endif
+    for (i = 0; i < cfile.cinfo.num_cols; i++) {
+        if (get_column_resize_type(cfile.cinfo.col_fmt[i]) != RESIZE_MANUAL)
+            gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
+
+        /* Right-justify the packet number column. */
+        if (cfile.cinfo.col_fmt[i] == COL_NUMBER)
+            gtk_clist_set_column_justification(GTK_CLIST(packet_list), i,
+                                               GTK_JUSTIFY_RIGHT);
+    }
+#if GTK_MAJOR_VERSION < 2
+    gtk_widget_set_usize(packet_list, -1, pl_size);
+    gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
+                       GTK_SIGNAL_FUNC(popup_menu_handler),
+                       gtk_object_get_data(GTK_OBJECT(popup_menu_object),
+                                           PM_PACKET_LIST_KEY));
+    gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
+                       GTK_SIGNAL_FUNC(packet_list_button_pressed_cb), NULL);
+#else
+    gtk_widget_set_size_request(packet_list, -1, pl_size);
+    g_signal_connect(G_OBJECT(packet_list), "button_press_event",
+                     G_CALLBACK(popup_menu_handler),
+                     g_object_get_data(G_OBJECT(popup_menu_object),
+                                       PM_PACKET_LIST_KEY));
+    g_signal_connect(G_OBJECT(packet_list), "button_press_event",
+                     G_CALLBACK(packet_list_button_pressed_cb), NULL);
+#endif
+    gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);
+    gtk_widget_show(packet_list);
+
+    /* Tree view */
+#if GTK_MAJOR_VERSION < 2
+    item_style = gtk_style_new();
+    gdk_font_unref(item_style->font);
+    item_style->font = m_r_font;
+#endif
+    create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view);
+#if GTK_MAJOR_VERSION < 2
+    gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
+                       GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
+    gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
+                       GTK_SIGNAL_FUNC(tree_view_unselect_row_cb), NULL);
+    gtk_signal_connect(GTK_OBJECT(tree_view), "button_press_event",
+                       GTK_SIGNAL_FUNC(popup_menu_handler),
+                       gtk_object_get_data(GTK_OBJECT(popup_menu_object),
+                                           PM_TREE_VIEW_KEY));
+#else
+    g_signal_connect(G_OBJECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view))),
+                     "changed", G_CALLBACK(tree_view_selection_changed_cb),
+                     NULL);
+    g_signal_connect(G_OBJECT(tree_view), "button_press_event",
+                     G_CALLBACK(popup_menu_handler),
+                     g_object_get_data(G_OBJECT(popup_menu_object),
+                                       PM_TREE_VIEW_KEY));
+#endif
+    gtk_widget_show(tree_view);
+
+    /* Byte view. */
+    byte_nb_ptr = create_byte_view(bv_size, l_pane);
+
+#if GTK_MAJOR_VERSION < 2
+    gtk_signal_connect(GTK_OBJECT(byte_nb_ptr), "button_press_event",
+                       GTK_SIGNAL_FUNC(popup_menu_handler),
+                       gtk_object_get_data(GTK_OBJECT(popup_menu_object),
+                                           PM_HEXDUMP_KEY));
+#else
+    g_signal_connect(G_OBJECT(byte_nb_ptr), "button_press_event",
+                     G_CALLBACK(popup_menu_handler),
+                     g_object_get_data(G_OBJECT(popup_menu_object),
+                                       PM_HEXDUMP_KEY));
+#endif
+
+    /* Filter/info box */
+    stat_hbox = gtk_hbox_new(FALSE, 1);
+    gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
+    gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
+    gtk_widget_show(stat_hbox);
+
+    filter_bt = gtk_button_new_with_label("Filter:");
+#if GTK_MAJOR_VERSION < 2
+    gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
+                       GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
+#else
+    g_signal_connect(G_OBJECT(filter_bt), "clicked",
+                     G_CALLBACK(display_filter_construct_cb), &args);
+#endif
+    gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
+    gtk_widget_show(filter_bt);
+
+    filter_cm = gtk_combo_new();
+    filter_list = g_list_append (filter_list, "");
+    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
+    gtk_combo_disable_activate(GTK_COMBO(filter_cm));
+    gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
+    gtk_object_set_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY, filter_list);
+    filter_te = GTK_COMBO(filter_cm)->entry;
+    gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
+    gtk_object_set_data(GTK_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
+    gtk_box_pack_start(GTK_BOX(stat_hbox), filter_cm, TRUE, TRUE, 3);
+#if GTK_MAJOR_VERSION < 2
+    gtk_signal_connect(GTK_OBJECT(filter_te), "activate",
+                       GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
+#else
+    g_signal_connect(G_OBJECT(filter_te), "activate",
+                     G_CALLBACK(filter_activate_cb), filter_te);
+#endif
+    gtk_widget_show(filter_cm);
+
+#if GTK_MAJOR_VERSION < 2
+    filter_reset = gtk_button_new_with_label("Reset");
+    gtk_object_set_data(GTK_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
+    gtk_signal_connect(GTK_OBJECT(filter_reset), "clicked",
+                       GTK_SIGNAL_FUNC(filter_reset_cb), NULL);
+#else
+    filter_reset = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
+    g_object_set_data(G_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
+    g_signal_connect(G_OBJECT(filter_reset), "clicked",
+                     G_CALLBACK(filter_reset_cb), NULL);
+#endif    
+    gtk_box_pack_start(GTK_BOX(stat_hbox), filter_reset, FALSE, TRUE, 1);
+    gtk_widget_show(filter_reset);
+
+#if GTK_MAJOR_VERSION < 2
+    filter_apply = gtk_button_new_with_label("Apply");
+    gtk_object_set_data(GTK_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
+    gtk_signal_connect(GTK_OBJECT(filter_apply), "clicked",
+                       GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
+#else
+    filter_apply = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+    g_object_set_data(G_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
+    g_signal_connect(G_OBJECT(filter_apply), "clicked",
+                     G_CALLBACK(filter_activate_cb), filter_te);
+#endif
+    gtk_box_pack_start(GTK_BOX(stat_hbox), filter_apply, FALSE, TRUE, 1);
+    gtk_widget_show(filter_apply);
+
+    /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
+     * of any widget that ends up calling a callback which needs
+     * that text entry pointer */
+    set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
+    set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
+    set_menu_object_data("/Edit/Filters...", E_FILT_TE_PTR_KEY, filter_te);
+    set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Match/Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Match/Not Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Match/And Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Match/Or Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Match/And Not Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Match/Or Not Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Prepare/Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Prepare/Not Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Prepare/And Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Prepare/Or Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Prepare/And Not Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    set_menu_object_data("/Display/Prepare/Or Not Selected", E_DFILTER_TE_KEY,
+                         filter_te);
+    gtk_object_set_data(GTK_OBJECT(popup_menu_object), E_DFILTER_TE_KEY,
+                        filter_te);
+    gtk_object_set_data(GTK_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY,
+                        packet_list);
+
+    info_bar = gtk_statusbar_new();
+    main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
+    file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
+    help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
+    gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
+    gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
+    gtk_widget_show(info_bar);
+
+    gtk_widget_show(top_level);
+
+    /* Fill in column titles.  This must be done after the top level window
+       is displayed. */
+    win_style = gtk_widget_get_style(top_level);
+    ascend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &ascend_bm,
+                                             &win_style->bg[GTK_STATE_NORMAL],
+                                             (gchar **)clist_ascend_xpm);
+    descend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &descend_bm,
+                                              &win_style->bg[GTK_STATE_NORMAL],
+                                              (gchar **)clist_descend_xpm);
+    for (i = 0; i < cfile.cinfo.num_cols; i++) {
+        col_arrows[i].table = gtk_table_new(2, 2, FALSE);
+        gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
+        column_lb = gtk_label_new(cfile.cinfo.col_title[i]);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2,
+                         GTK_SHRINK, GTK_SHRINK, 0, 0);
+        gtk_widget_show(column_lb);
+        col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table),
+                         col_arrows[i].ascend_pm,
+                         1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        if (i == 0) {
+            gtk_widget_show(col_arrows[i].ascend_pm);
+        }
+        col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table),
+                         col_arrows[i].descend_pm,
+                         1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        gtk_clist_set_column_widget(GTK_CLIST(packet_list), i,
+                                    col_arrows[i].table);
+        gtk_widget_show(col_arrows[i].table);
+    }
+    gtk_clist_column_titles_show(GTK_CLIST(packet_list));
 }
 
 

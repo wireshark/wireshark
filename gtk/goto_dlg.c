@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.17 2002/09/05 18:47:46 jmayer Exp $
+ * $Id: goto_dlg.c,v 1.18 2002/11/03 17:38:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,17 +79,31 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
+#if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-    GTK_SIGNAL_FUNC(goto_frame_ok_cb), GTK_OBJECT(goto_frame_w));
+                     GTK_SIGNAL_FUNC(goto_frame_ok_cb),
+                     GTK_OBJECT(goto_frame_w));
+#else
+  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
+  g_signal_connect(G_OBJECT(ok_bt), "clicked",
+                   G_CALLBACK(goto_frame_ok_cb), G_OBJECT(goto_frame_w));
+#endif
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
+#if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-    GTK_SIGNAL_FUNC(goto_frame_close_cb), GTK_OBJECT(goto_frame_w));
+                     GTK_SIGNAL_FUNC(goto_frame_close_cb),
+                     GTK_OBJECT(goto_frame_w));
+#else
+  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+  g_signal_connect(G_OBJECT(cancel_bt), "clicked",
+                   G_CALLBACK(goto_frame_close_cb), G_OBJECT(goto_frame_w));
+#endif
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
@@ -117,10 +131,10 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 static void
 goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
-  GtkWidget *fnumber_te;
-  gchar *fnumber_text;
-  guint fnumber;
-  char *p;
+  GtkWidget   *fnumber_te;
+  const gchar *fnumber_text;
+  guint        fnumber;
+  char        *p;
 
   fnumber_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_GOTO_FNUMBER_KEY);
 

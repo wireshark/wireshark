@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.15 2002/10/10 01:49:21 jmayer Exp $
+ * $Id: proto_dlg.c,v 1.16 2002/11/03 17:38:34 oabad Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -76,11 +76,20 @@ void proto_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   proto_w = dlg_window_new("Ethereal: Protocol");
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(proto_w), "delete_event",
 		     GTK_SIGNAL_FUNC(proto_delete_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(proto_w), "destroy",
 		     GTK_SIGNAL_FUNC(proto_destroy_cb), NULL);
   gtk_widget_set_usize(GTK_WIDGET(proto_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
+#else
+  g_signal_connect(G_OBJECT(proto_w), "delete_event",
+                   G_CALLBACK(proto_delete_cb), NULL);
+  g_signal_connect(G_OBJECT(proto_w), "destroy",
+                   G_CALLBACK(proto_destroy_cb), NULL);
+  gtk_widget_set_size_request(GTK_WIDGET(proto_w), DEF_WIDTH * 2/3,
+                              DEF_HEIGHT * 2/3);
+#endif
 
   /* Container for each row of widgets */
 
@@ -94,8 +103,13 @@ void proto_cb(GtkWidget *w _U_, gpointer data _U_)
   proto_nb = gtk_notebook_new();
   gtk_container_add(GTK_CONTAINER(main_vb), proto_nb);
   /* XXX do not know why I need this to fill all space around buttons */
+#if GTK_MAJOR_VERSION < 2
   gtk_widget_set_usize(GTK_WIDGET(proto_nb), DEF_WIDTH * 2/3 - 50,
 		       DEF_HEIGHT * 2/3 - 50);
+#else
+  gtk_widget_set_size_request(GTK_WIDGET(proto_nb), DEF_WIDTH * 2/3 - 50,
+		       DEF_HEIGHT * 2/3 - 50);
+#endif
 
   /* Protocol selection panel ("enable/disable" protocols) */
 
@@ -129,22 +143,37 @@ void proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   /* Toggle All */
   button = gtk_button_new_with_label("Toggle All");
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(button), "clicked",
-		  GTK_SIGNAL_FUNC(toggle_all_cb), GTK_OBJECT(proto_w));
+                     GTK_SIGNAL_FUNC(toggle_all_cb), GTK_OBJECT(proto_w));
+#else
+  g_signal_connect(G_OBJECT(button), "clicked",
+                   G_CALLBACK(toggle_all_cb), GTK_OBJECT(proto_w));
+#endif
   gtk_box_pack_start(GTK_BOX(bbox), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
   /* Enable All */
   button = gtk_button_new_with_label("Enable All");
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(button), "clicked",
-		  GTK_SIGNAL_FUNC(enable_all_cb), GTK_OBJECT(proto_w));
+                     GTK_SIGNAL_FUNC(enable_all_cb), GTK_OBJECT(proto_w));
+#else
+  g_signal_connect(G_OBJECT(button), "clicked",
+                   G_CALLBACK(enable_all_cb), GTK_OBJECT(proto_w));
+#endif
   gtk_box_pack_start(GTK_BOX(bbox), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
   /* Disable All */
   button = gtk_button_new_with_label("Disable All");
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(button), "clicked",
-		  GTK_SIGNAL_FUNC(disable_all_cb), GTK_OBJECT(proto_w));
+                     GTK_SIGNAL_FUNC(disable_all_cb), GTK_OBJECT(proto_w));
+#else
+  g_signal_connect(G_OBJECT(button), "clicked",
+                   G_CALLBACK(disable_all_cb), GTK_OBJECT(proto_w));
+#endif
   gtk_box_pack_start(GTK_BOX(bbox), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
@@ -161,24 +190,42 @@ void proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
+#if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
 		     GTK_SIGNAL_FUNC(proto_ok_cb), GTK_OBJECT(proto_w));
+#else
+  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
+  g_signal_connect(G_OBJECT(ok_bt), "clicked",
+                   G_CALLBACK(proto_ok_cb), GTK_OBJECT(proto_w));
+#endif
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
+#if GTK_MAJOR_VERSION < 2
   apply_bt = gtk_button_new_with_label ("Apply");
   gtk_signal_connect(GTK_OBJECT(apply_bt), "clicked",
 		     GTK_SIGNAL_FUNC(proto_apply_cb), GTK_OBJECT(proto_w));
+#else
+  apply_bt = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+  g_signal_connect(G_OBJECT(apply_bt), "clicked",
+                   G_CALLBACK(proto_apply_cb), GTK_OBJECT(proto_w));
+#endif
   GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), apply_bt, TRUE, TRUE, 0);
   gtk_widget_show(apply_bt);
 
+#if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
 		     GTK_SIGNAL_FUNC(proto_cancel_cb), GTK_OBJECT(proto_w));
+#else
+  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+  g_signal_connect(G_OBJECT(cancel_bt), "clicked",
+                   G_CALLBACK(proto_cancel_cb), GTK_OBJECT(proto_w));
+#endif
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);

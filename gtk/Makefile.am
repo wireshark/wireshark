@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.43 2002/10/25 01:08:46 guy Exp $
+# $Id: Makefile.am,v 1.44 2002/11/03 17:38:32 oabad Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,82 @@ CLEANFILES = \
 	libui.a		\
 	*~
 
+if USE_GTK2
+libui_a_SOURCES = \
+	capture_dlg.c	\
+	capture_dlg.h	\
+	capture_prefs.c	\
+	capture_prefs.h	\
+	color_dlg.c	\
+	color_dlg.h	\
+	colors.c	\
+	colors.h	\
+	color_utils.c	\
+	color_utils.h	\
+	column_prefs.c	\
+	column_prefs.h	\
+	dcerpc_stat.c	\
+	dcerpc_stat.h	\
+ 	decode_as_dlg.c	\
+ 	decode_as_dlg.h	\
+	dfilter_expr_dlg.c \
+	dfilter_expr_dlg.h \
+	display_opts.c	\
+	display_opts.h	\
+	dlg_utils.c	\
+	dlg_utils.h	\
+	file_dlg.c	\
+	file_dlg.h	\
+	filter_prefs.c	\
+	filter_prefs.h	\
+	find_dlg.c	\
+	find_dlg.h	\
+	follow_dlg.c	\
+	follow_dlg.h	\
+	goto_dlg.c	\
+	goto_dlg.h	\
+	gtkglobals.h	\
+	gui_prefs.c	\
+	gui_prefs.h	\
+	help_dlg.c	\
+	help_dlg.h	\
+	keys.h		\
+	main.c		\
+	main.h		\
+	menu.c		\
+	menu.h		\
+	nameres_prefs.c	\
+	nameres_prefs.h	\
+	packet_list.c	\
+	packet_win.c	\
+	packet_win.h	\
+	plugins_dlg.c	\
+	prefs_dlg.c	\
+	prefs_dlg.h	\
+	print_dlg.c	\
+	print_prefs.c   \
+	print_prefs.h	\
+	progress_dlg.c	\
+	proto_dlg.c	\
+	proto_dlg.h	\
+	proto_draw.c	\
+	proto_draw.h	\
+	proto_hier_stats_dlg.h	\
+	proto_hier_stats_dlg.c	\
+	rpc_stat.c	\
+	rpc_stat.h	\
+	rpc_progs.c	\
+	rpc_progs.h	\
+	simple_dialog.c	\
+	stream_prefs.c	\
+	stream_prefs.h	\
+	summary_dlg.c   \
+	summary_dlg.h   \
+	tcp_graph.c     \
+	tcp_graph.h     \
+	ui_util.c       \
+	ui_util.h
+else
 libui_a_SOURCES = \
 	capture_dlg.c	\
 	capture_dlg.h	\
@@ -103,6 +179,7 @@ libui_a_SOURCES = \
 	tcp_graph.h     \
 	ui_util.c       \
 	ui_util.h
+endif
 
 EXTRA_DIST = \
 	Makefile.nmake \

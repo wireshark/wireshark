@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.19 2002/09/05 18:47:46 jmayer Exp $
+ * $Id: gtkglobals.h,v 1.20 2002/11/03 17:38:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,14 +25,20 @@
 #ifndef __GTKGLOBALS_H__
 #define __GTKGLOBALS_H__
 
-extern GtkWidget   *top_level, *packet_list, *tree_view, *byte_nb_ptr;
-extern GdkFont     *m_r_font, *m_b_font;
-extern guint m_font_height, m_font_width;
+extern GtkWidget *top_level, *packet_list, *tree_view, *byte_nb_ptr;
+#if GTK_MAJOR_VERSION < 2
+extern GdkFont   *m_r_font, *m_b_font;
+extern guint      m_font_height, m_font_width;
 
-extern GtkStyle *item_style;
+extern GtkStyle  *item_style;
 
-void set_plist_sel_browse(gboolean);
 void set_plist_font(GdkFont *font);
+#else
+extern PangoFontDescription *m_r_font, *m_b_font;
+
+void set_plist_font(PangoFontDescription *font);
+#endif
+void set_plist_sel_browse(gboolean);
 
 #ifdef _WIN32
 /* It appears that isprint() is not working well

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.12 2002/09/21 11:36:27 oabad Exp $
+ * $Id: ui_util.c,v 1.13 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,8 +164,13 @@ setup_scrolled_window(GtkWidget *scrollw)
 
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(scrollw), "destroy",
 		     GTK_SIGNAL_FUNC(forget_scrolled_window), NULL);
+#else
+  g_signal_connect(G_OBJECT(scrollw), "destroy",
+                   G_CALLBACK(forget_scrolled_window), NULL);
+#endif
 }
 
 /* Remove a GtkScrolledWindow from the list of GtkScrolledWindows. */
@@ -203,78 +208,100 @@ set_scrollbar_placement_all(void)
   g_list_foreach(scrolled_windows, set_scrollbar_placement_cb, NULL);
 }
 
-/* List of all GtkCTrees, so we can globally set the line and expander style
-   of all of them. */
-static GList *ctrees;
+/* List of all CTrees/TreeViews, so we can globally set the line and
+ * expander style of all of them. */
+static GList *trees;
 
-static void setup_ctree(GtkWidget *ctree);
-static void forget_ctree(GtkWidget *ctree, gpointer data);
-static void set_ctree_styles(GtkWidget *ctree);
+static void setup_tree(GtkWidget *tree);
+static void forget_tree(GtkWidget *tree, gpointer data);
+static void set_tree_styles(GtkWidget *tree);
 
-/* Create a GtkCTree, give it the right styles, and remember it. */
+/* Create a Tree, give it the right styles, and remember it. */
+#if GTK_MAJOR_VERSION < 2
 GtkWidget *
 ctree_new(gint columns, gint tree_column)
+#else
+GtkWidget *
+tree_view_new(GtkTreeModel *model)
+#endif
 {
-  GtkWidget *ctree;
+  GtkWidget *tree;
 
-  ctree = gtk_ctree_new(columns, tree_column);
-  setup_ctree(ctree);
-  return ctree;
+#if GTK_MAJOR_VERSION < 2
+  tree = gtk_ctree_new(columns, tree_column);
+#else
+  tree = gtk_tree_view_new_with_model(model);
+#endif
+  setup_tree(tree);
+  return tree;
 }
 
+#if GTK_MAJOR_VERSION < 2
 GtkWidget *
 ctree_new_with_titles(gint columns, gint tree_column, gchar *titles[])
 {
-  GtkWidget *ctree;
+  GtkWidget *tree;
 
-  ctree = gtk_ctree_new_with_titles(columns, tree_column, titles);
-  setup_ctree(ctree);
-  return ctree;
+  tree = gtk_ctree_new_with_titles(columns, tree_column, titles);
+  setup_tree(tree);
+  return tree;
 }
+#endif
 
-/* Set a GtkCTree's styles and add it to the list of GtkCTrees. */
+/* Set a Tree's styles and add it to the list of Trees. */
 static void
-setup_ctree(GtkWidget *ctree)
+setup_tree(GtkWidget *tree)
 {
-  set_ctree_styles(ctree);
+  set_tree_styles(tree);
 
-  ctrees = g_list_append(ctrees, ctree);
+  trees = g_list_append(trees, tree);
 
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
-  gtk_signal_connect(GTK_OBJECT(ctree), "destroy",
-		     GTK_SIGNAL_FUNC(forget_ctree), NULL);
+#if GTK_MAJOR_VERSION < 2
+  gtk_signal_connect(GTK_OBJECT(tree), "destroy",
+		     GTK_SIGNAL_FUNC(forget_tree), NULL);
+#else
+  g_signal_connect(G_OBJECT(tree), "destroy",
+                   G_CALLBACK(forget_tree), NULL);
+#endif
 }
 
-/* Remove a GtkCTree from the list of GtkCTrees. */
+/* Remove a Tree from the list of Trees. */
 static void
-forget_ctree(GtkWidget *ctree, gpointer data _U_)
+forget_tree(GtkWidget *tree, gpointer data _U_)
 {
-  ctrees = g_list_remove(ctrees, ctree);
+  trees = g_list_remove(trees, tree);
 }
 
-/* Set the styles of a GtkCTree based upon user preferences. */
+/* Set the styles of a Tree based upon user preferences. */
 static void
-set_ctree_styles(GtkWidget *ctree)
+set_tree_styles(GtkWidget *tree)
 {
+#if GTK_MAJOR_VERSION < 2
   g_assert(prefs.gui_ptree_line_style >= GTK_CTREE_LINES_NONE &&
 	   prefs.gui_ptree_line_style <= GTK_CTREE_LINES_TABBED);
-  gtk_ctree_set_line_style(GTK_CTREE(ctree), prefs.gui_ptree_line_style);
+  gtk_ctree_set_line_style(GTK_CTREE(tree), prefs.gui_ptree_line_style);
   g_assert(prefs.gui_ptree_expander_style >= GTK_CTREE_EXPANDER_NONE &&
 	   prefs.gui_ptree_expander_style <= GTK_CTREE_EXPANDER_CIRCULAR);
-  gtk_ctree_set_expander_style(GTK_CTREE(ctree),
+  gtk_ctree_set_expander_style(GTK_CTREE(tree),
       prefs.gui_ptree_expander_style);
+#else
+  g_assert(prefs.gui_altern_colors >= 0 && prefs.gui_altern_colors <= 1);
+  gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree),
+                               prefs.gui_altern_colors);
+#endif
 }
 
 static void
-set_ctree_styles_cb(gpointer data, gpointer user_data _U_)
+set_tree_styles_cb(gpointer data, gpointer user_data _U_)
 {
-  set_ctree_styles((GtkWidget *)data);
+  set_tree_styles((GtkWidget *)data);
 }
 
-/* Set the styles of all GtkCTrees based upon style values. */
+/* Set the styles of all Trees based upon style values. */
 void
-set_ctree_styles_all(void)
+set_tree_styles_all(void)
 {
-  g_list_foreach(ctrees, set_ctree_styles_cb, NULL);
+  g_list_foreach(trees, set_tree_styles_cb, NULL);
 }

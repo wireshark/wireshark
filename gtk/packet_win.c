@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.40 2002/09/05 18:47:46 jmayer Exp $
+ * $Id: packet_win.c,v 1.41 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,17 +75,23 @@ struct PacketWinData {
 /* List of all the packet-detail windows popped up. */
 static GList *detail_windows;
 
-static void new_tree_view_select_row_cb( GtkCTree *ctree, GList *node,
-	gint column, gpointer user_data);
+#if GTK_MAJOR_VERSION < 2
+static void new_tree_view_select_row_cb(GtkCTree *ctree, GList *node,
+                                        gint column, gpointer user_data);
 
 static void new_tree_view_unselect_row_cb( GtkCTree *ctree, GList *node,
-	gint column, gpointer user_data);
+                                           gint column, gpointer user_data);
+#else
+static void new_tree_view_selection_changed_cb(GtkTreeSelection *sel,
+                                               gpointer user_data);
+
+#endif
 
 static void destroy_new_window(GtkObject *object, gpointer user_data);
 
 void new_window_cb(GtkWidget *w _U_)
 {
-  #define NewWinTitleLen 1000
+#define NewWinTitleLen 1000
   char Title[NewWinTitleLen] = "";
   char *TextPtr;
   gint tv_size = 95, bv_size = 75;
@@ -150,14 +156,22 @@ void new_window_cb(GtkWidget *w _U_)
   detail_windows = g_list_append(detail_windows, DataPtr);
 
   /* load callback handlers */
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
-		GTK_SIGNAL_FUNC(new_tree_view_select_row_cb), DataPtr);
+                     GTK_SIGNAL_FUNC(new_tree_view_select_row_cb), DataPtr);
 
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
-    		GTK_SIGNAL_FUNC(new_tree_view_unselect_row_cb), DataPtr);
+                     GTK_SIGNAL_FUNC(new_tree_view_unselect_row_cb), DataPtr);
 
   gtk_signal_connect(GTK_OBJECT(main_w), "destroy",
-			GTK_SIGNAL_FUNC(destroy_new_window), DataPtr);
+                     GTK_SIGNAL_FUNC(destroy_new_window), DataPtr);
+#else
+  g_signal_connect(G_OBJECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view))),
+                   "changed", G_CALLBACK(new_tree_view_selection_changed_cb),
+                   DataPtr);
+  g_signal_connect(G_OBJECT(main_w), "destroy",
+                   G_CALLBACK(destroy_new_window), DataPtr);
+#endif
 
   /* draw the protocol tree & print hex data */
   add_byte_views(DataPtr->edt, tree_view, DataPtr->bv_nb_ptr);
@@ -178,11 +192,11 @@ destroy_new_window(GtkObject *object _U_, gpointer user_data)
   g_free(DataPtr);
 }
 
-
+#if GTK_MAJOR_VERSION < 2
 /* called when a tree row is selected in the popup packet window */
 static void
 new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
-	gpointer user_data)
+                            gpointer user_data)
 {
 	field_info *finfo;
 	GtkWidget *byte_view;
@@ -213,8 +227,8 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
 
 /* called when a tree row is unselected in the popup packet window */
 static void
-new_tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
-	gpointer user_data)
+new_tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_,
+                              gint column _U_, gpointer user_data)
 {
 	GtkWidget* byte_view;
 	const guint8* data;
@@ -232,6 +246,55 @@ new_tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column 
 	g_assert(data != NULL);
 	packet_hex_reprint(GTK_TEXT(byte_view));
 }
+#else
+/* called when a tree row is (un)selected in the popup packet window */
+static void
+new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
+{
+    field_info   *finfo;
+    GtkWidget    *byte_view;
+    const guint8 *data;
+    guint         len;
+    GtkTreeModel *model;
+    GtkTreeIter   iter;
+
+    struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
+
+    /* if something is selected */
+    if (gtk_tree_selection_get_selected(sel, &model, &iter))
+    {
+        gtk_tree_model_get(model, &iter, 1, &finfo, -1);
+        if (!finfo) return;
+
+        set_notebook_page(DataPtr->bv_nb_ptr, finfo->ds_tvb);
+        byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
+        if (!byte_view)	/* exit if no hex window to write in */
+            return;
+
+        data = get_byte_view_data_and_length(byte_view, &len);
+        if (data == NULL) {
+            data = DataPtr->pd;
+            len =  DataPtr->frame->cap_len;
+        }
+
+        DataPtr->finfo_selected = finfo;
+        packet_hex_print(GTK_TEXT_VIEW(byte_view), data,
+                         DataPtr->frame, finfo, len);
+    }
+    else
+    {
+        DataPtr->finfo_selected = NULL;
+
+        byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
+        if (!byte_view)	/* exit if no hex window to write in */
+            return;
+
+        data = get_byte_view_data_and_length(byte_view, &len);
+        g_assert(data != NULL);
+        packet_hex_reprint(GTK_TEXT_VIEW(byte_view));
+    }
+}
+#endif
 
 /* Functions called from elsewhere to act on all popup packet windows. */
 

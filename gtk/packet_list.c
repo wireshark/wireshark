@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.2 2002/09/23 19:09:49 oabad Exp $
+ * $Id: packet_list.c,v 1.3 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,8 +134,13 @@ packet_list_set_cls_time_width(gint column)
     gint      width;
 
     pl_style = gtk_widget_get_style(packet_list);
+#if GTK_MAJOR_VERSION < 2
     width = gdk_string_width(pl_style->font,
                              get_column_longest_string(COL_CLS_TIME));
+#else
+    width = gdk_string_width(gdk_font_from_description(pl_style->font_desc),
+                             get_column_longest_string(COL_CLS_TIME));
+#endif
     packet_list_set_column_width(column, width);
 }
 

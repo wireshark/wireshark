@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.186 2002/10/25 04:36:45 guy Exp $
+# $Id: configure.in,v 1.187 2002/11/03 17:38:30 oabad Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -246,21 +246,7 @@ fi
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
 # programs to be built with GLib.
 #
-if test "$GTK_OK" = "two" ; then
-	ethereal_bin="ethereal"
-	ethereal_man="ethereal.1"
-	ethereal_SUBDIRS="gtk2"
-
-	# Ignore GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
-elif test "$GTK_OK" = "one" ; then
-	ethereal_bin="ethereal"
-	ethereal_man="ethereal.1"
-	ethereal_SUBDIRS="gtk"
-
-	# Ignore GLIB_CFLAGS
-	AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
-else
+if test "$GTK_OK" = "no" ; then
 	enable_ethereal="no"
 	ethereal_bin=""
 	ethereal_man=""
@@ -269,6 +255,16 @@ else
 		AM_PATH_GLIB_2_0(2.0.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib distribution not found.), gmodule)
 	else
 		AM_PATH_GLIB(1.2.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib distribution not found.), gmodule)
+	fi
+else
+	ethereal_bin="ethereal"
+	ethereal_man="ethereal.1"
+        ethereal_SUBDIRS="gtk"
+	# Honor GLIB_CFLAGS
+	if test "$GTK_OK" = "two" ; then
+		AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
+	else
+		AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR(GLib distribution not found.), gmodule)
 	fi
 fi
 
@@ -746,7 +742,6 @@ AC_OUTPUT(
   Makefile
   doc/Makefile
   gtk/Makefile
-  gtk2/Makefile
   packaging/Makefile
   packaging/nsis/Makefile
   packaging/rpm/Makefile

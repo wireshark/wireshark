@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.28 2002/09/09 20:38:58 guy Exp $
+ * $Id: follow_dlg.c,v 1.29 2002/11/03 17:38:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -216,11 +216,17 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	streamwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name(streamwindow, "TCP stream window");
 
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(streamwindow), "destroy",
 			   GTK_SIGNAL_FUNC(follow_destroy_cb), NULL);
-
-	gtk_signal_connect (GTK_OBJECT (streamwindow), "realize",
-			   GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
+	gtk_signal_connect(GTK_OBJECT(streamwindow), "realize",
+			   GTK_SIGNAL_FUNC(window_icon_realize_cb), NULL);
+#else
+        g_signal_connect(G_OBJECT(streamwindow), "destroy",
+                         G_CALLBACK(follow_destroy_cb), NULL);
+	g_signal_connect(G_OBJECT(streamwindow), "realize",
+                         G_CALLBACK(window_icon_realize_cb), NULL);
+#endif
 	if (incomplete_tcp_stream) {
 	    gtk_window_set_title(GTK_WINDOW(streamwindow),
 				 "Contents of TCP stream (incomplete)");
@@ -228,8 +234,12 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	    gtk_window_set_title(GTK_WINDOW(streamwindow),
 				 "Contents of TCP stream");
 	}
-	gtk_widget_set_usize(GTK_WIDGET(streamwindow), DEF_WIDTH,
-			     DEF_HEIGHT);
+#if GTK_MAJOR_VERSION < 2
+	gtk_widget_set_usize(GTK_WIDGET(streamwindow), DEF_WIDTH, DEF_HEIGHT);
+#else
+	gtk_widget_set_size_request(GTK_WIDGET(streamwindow), DEF_WIDTH,
+                                    DEF_HEIGHT);
+#endif
 	gtk_container_border_width(GTK_CONTAINER(streamwindow), 2);
 
 	/* setup the container */
@@ -240,12 +250,17 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	txt_scrollw = scrolled_window_new(NULL, NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), txt_scrollw, TRUE, TRUE, 0);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				       GTK_POLICY_NEVER,
-				       GTK_POLICY_ALWAYS);
+				       GTK_POLICY_AUTOMATIC,
+				       GTK_POLICY_AUTOMATIC);
 
 	/* create a text box */
+#if GTK_MAJOR_VERSION < 2
 	text = gtk_text_new(NULL, NULL);
 	gtk_text_set_editable(GTK_TEXT(text), FALSE);
+#else
+        text = gtk_text_view_new();
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(text), FALSE);
+#endif
 	gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
 	follow_info->text = text;
 
@@ -284,8 +299,13 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 		 "Entire conversation (%u bytes)",
 		 stats.bytes_written[0] + stats.bytes_written[1]);
 	stream_mi = gtk_menu_item_new_with_label(string);
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(stream_mi), "activate",
 			   GTK_SIGNAL_FUNC(follow_stream_om_both), follow_info);
+#else
+        g_signal_connect(G_OBJECT(stream_mi), "activate",
+                         G_CALLBACK(follow_stream_om_both), follow_info);
+#endif
 	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
 	gtk_widget_show(stream_mi);
 	follow_info->show_stream = BOTH_HOSTS;
@@ -295,8 +315,14 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 		 hostname0, port0, hostname1, port1,
 		 stats.bytes_written[0]);
 	stream_mi = gtk_menu_item_new_with_label(string);
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(stream_mi), "activate",
-			   GTK_SIGNAL_FUNC(follow_stream_om_client), follow_info);
+			   GTK_SIGNAL_FUNC(follow_stream_om_client),
+                           follow_info);
+#else
+	g_signal_connect(G_OBJECT(stream_mi), "activate",
+			 G_CALLBACK(follow_stream_om_client), follow_info);
+#endif
 	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
 	gtk_widget_show(stream_mi);
 
@@ -305,8 +331,14 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 		 hostname1, port1, hostname0, port0,
 		 stats.bytes_written[1]);
 	stream_mi = gtk_menu_item_new_with_label(string);
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(stream_mi), "activate",
-			   GTK_SIGNAL_FUNC(follow_stream_om_server), follow_info);
+			   GTK_SIGNAL_FUNC(follow_stream_om_server),
+                           follow_info);
+#else
+	g_signal_connect(G_OBJECT(stream_mi), "activate",
+			 G_CALLBACK(follow_stream_om_server), follow_info);
+#endif
 	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
 	gtk_widget_show(stream_mi);
 
@@ -319,9 +351,14 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	radio_bt = gtk_radio_button_new_with_label(NULL, "ASCII");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), TRUE);
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(radio_bt), "toggled",
 			   GTK_SIGNAL_FUNC(follow_charset_toggle_cb),
 			   follow_info);
+#else
+        g_signal_connect(G_OBJECT(radio_bt), "toggled",
+                         G_CALLBACK(follow_charset_toggle_cb), follow_info);
+#endif
 	follow_info->ascii_bt = radio_bt;
 	follow_info->show_type = SHOW_ASCII;
 
@@ -331,9 +368,14 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 					    "EBCDIC");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(radio_bt), "toggled",
 			   GTK_SIGNAL_FUNC(follow_charset_toggle_cb),
 			   follow_info);
+#else
+        g_signal_connect(G_OBJECT(radio_bt), "toggled",
+                         G_CALLBACK(follow_charset_toggle_cb), follow_info);
+#endif
 	follow_info->ebcdic_bt = radio_bt;
 
 	/* HEX DUMP radio button */
@@ -342,16 +384,28 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 					    "Hex Dump");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(radio_bt), "toggled",
 			   GTK_SIGNAL_FUNC(follow_charset_toggle_cb),
 			   follow_info);
+#else
+        g_signal_connect(G_OBJECT(radio_bt), "toggled",
+                         G_CALLBACK(follow_charset_toggle_cb), follow_info);
+#endif
 	follow_info->hexdump_bt = radio_bt;
 
 	/* Create Close Button */
+#if GTK_MAJOR_VERSION < 2
 	button = gtk_button_new_with_label("Close");
 	gtk_signal_connect_object(GTK_OBJECT(button), "clicked",
 				  GTK_SIGNAL_FUNC(gtk_widget_destroy),
 				  GTK_OBJECT(streamwindow));
+#else
+        button = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	g_signal_connect_swapped(G_OBJECT(button), "clicked",
+                                 G_CALLBACK(gtk_widget_destroy),
+                                 G_OBJECT(streamwindow));
+#endif
 	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 	/* Catch the "key_press_event" signal in the window, so that we can catch
@@ -360,16 +414,28 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	dlg_set_cancel(streamwindow, button);
 
 	/* Create Save As Button */
+#if GTK_MAJOR_VERSION < 2
 	button = gtk_button_new_with_label("Save As");
 	gtk_signal_connect(GTK_OBJECT(button), "clicked",
 			   GTK_SIGNAL_FUNC(follow_save_as_cmd_cb),
 			   follow_info);
+#else
+        button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
+	g_signal_connect(G_OBJECT(button), "clicked",
+                         G_CALLBACK(follow_save_as_cmd_cb), follow_info);
+#endif
 	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 	/* Create Print Button */
+#if GTK_MAJOR_VERSION < 2
 	button = gtk_button_new_with_label("Print");
 	gtk_signal_connect(GTK_OBJECT(button), "clicked",
 			   GTK_SIGNAL_FUNC(follow_print_stream), follow_info);
+#else
+        button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
+	g_signal_connect(G_OBJECT(button), "clicked",
+                         G_CALLBACK(follow_print_stream), follow_info);
+#endif
 	gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 
@@ -656,6 +722,13 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
 {
     GtkWidget *text = arg;
     GdkColor   fg, bg;
+#if GTK_MAJOR_VERSION >= 2
+    GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
+    GtkTextIter    iter;
+    GtkTextTag    *tag;
+    gsize          outbytes;
+    gchar         *convbuf;
+#endif
 
 #ifdef _WIN32
     /* While our isprint() hack is in place, we
@@ -673,6 +746,16 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
 		    buffer[i] = '.';
 	    }
     }
+#elif GTK_MAJOR_VERSION >= 2
+    int i;
+
+    for (i = 0; i < nchars; i++) {
+        if (buffer[i] == '\n')
+            continue;
+        if (! isprint(buffer[i])) {
+            buffer[i] = '.';
+        }
+    }
 #endif
 
     if (is_server) {
@@ -682,15 +765,33 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
     	color_t_to_gdkcolor(&fg, &prefs.st_client_fg);
     	color_t_to_gdkcolor(&bg, &prefs.st_client_bg);
     }
+#if GTK_MAJOR_VERSION < 2
     gtk_text_insert(GTK_TEXT(text), m_r_font, &fg, &bg, buffer, nchars);
+#else
+    gtk_text_buffer_get_end_iter(buf, &iter);
+    tag = gtk_text_buffer_create_tag(buf, NULL, "foreground-gdk", &fg,
+                                     "background-gdk", &bg, "font-desc",
+                                     m_r_font, NULL);
+    convbuf = g_locale_to_utf8(buffer, nchars, NULL, &outbytes, NULL);
+    gtk_text_buffer_insert_with_tags(buf, &iter, convbuf, outbytes, tag,
+                                     NULL);
+    g_free(convbuf);
+#endif
 }
 
 static void
 follow_load_text(follow_info_t *follow_info)
 {
+#if GTK_MAJOR_VERSION < 2
     int bytes_already;
+#else
+    GtkTextBuffer *buf;
+    
+    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(follow_info->text));
+#endif
 
     /* Delete any info already in text box */
+#if GTK_MAJOR_VERSION < 2
     bytes_already = gtk_text_get_length(GTK_TEXT(follow_info->text));
     if (bytes_already > 0) {
 	gtk_text_set_point(GTK_TEXT(follow_info->text), 0);
@@ -699,8 +800,13 @@ follow_load_text(follow_info_t *follow_info)
 
     /* stop the updates while we fill the text box */
     gtk_text_freeze(GTK_TEXT(follow_info->text));
+#else
+    gtk_text_buffer_set_text(buf, "", -1);
+#endif
     follow_read_stream(follow_info, follow_add_to_gtk_text, follow_info->text);
+#if GTK_MAJOR_VERSION < 2
     gtk_text_thaw(GTK_TEXT(follow_info->text));
+#endif
 }
 
 
@@ -724,8 +830,13 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 
     new_win = gtk_file_selection_new("Ethereal: Save TCP Follow Stream As");
     follow_info->follow_save_as_w = new_win;
+#if GTK_MAJOR_VERSION < 2
     gtk_signal_connect(GTK_OBJECT(new_win), "destroy",
-		    GTK_SIGNAL_FUNC(follow_save_as_destroy_cb), follow_info);
+                       GTK_SIGNAL_FUNC(follow_save_as_destroy_cb), follow_info);
+#else
+    g_signal_connect(G_OBJECT(new_win), "destroy",
+                     G_CALLBACK(follow_save_as_destroy_cb), follow_info);
+#endif
 
     /* Tuck away the follow_info object into the window */
     gtk_object_set_data(GTK_OBJECT(new_win), E_FOLLOW_INFO_KEY,
@@ -740,16 +851,28 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     /* Connect the ok_button to file_save_as_ok_cb function and pass along a
        pointer to the file selection box widget */
     ok_bt = GTK_FILE_SELECTION(new_win)->ok_button;
+#if GTK_MAJOR_VERSION < 2
     gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		       (GtkSignalFunc) follow_save_as_ok_cb,
-		       new_win);
+                       (GtkSignalFunc) follow_save_as_ok_cb,
+                       new_win);
 
     /* Connect the cancel_button to destroy the widget */
     gtk_signal_connect_object(GTK_OBJECT(GTK_FILE_SELECTION
-					 (new_win)->cancel_button),
-			      "clicked",
-			      (GtkSignalFunc) gtk_widget_destroy,
-			      GTK_OBJECT(new_win));
+                                         (new_win)->cancel_button),
+                              "clicked",
+                              (GtkSignalFunc) gtk_widget_destroy,
+                              GTK_OBJECT(new_win));
+#else
+    g_signal_connect(G_OBJECT(ok_bt), "clicked",
+                     G_CALLBACK(follow_save_as_ok_cb), new_win);
+
+    /* Connect the cancel_button to destroy the widget */
+    g_signal_connect_swapped(GTK_OBJECT(GTK_FILE_SELECTION
+                                        (new_win)->cancel_button),
+                             "clicked",
+                             (GtkSignalFunc)gtk_widget_destroy,
+                             GTK_OBJECT(new_win));
+#endif
 
     /* Catch the "key_press_event" signal in the window, so that we can catch
        the ESC key being pressed and act as if the "Cancel" button had

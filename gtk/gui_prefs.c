@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.36 2002/09/05 18:47:46 jmayer Exp $
+ * $Id: gui_prefs.c,v 1.37 2002/11/03 17:38:33 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,8 +59,12 @@ static void fetch_colors(void);
 #define SCROLLBAR_PLACEMENT_KEY		"scrollbar_placement"
 #define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
 #define PTREE_SEL_BROWSE_KEY		"ptree_sel_browse"
+#if GTK_MAJOR_VERSION < 2
 #define PTREE_LINE_STYLE_KEY		"ptree_line_style"
 #define PTREE_EXPANDER_STYLE_KEY	"ptree_expander_style"
+#else
+#define ALTERN_COLORS_KEY               "altern_colors"
+#endif
 #define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 #define GEOMETRY_POSITION_KEY		"geometry_position"
 #define GEOMETRY_SIZE_KEY		"geometry_size"
@@ -84,6 +88,7 @@ static const enum_val_t selection_mode_vals[] = {
 	{ NULL,      0 }
 };
 
+#if GTK_MAJOR_VERSION < 2
 static const enum_val_t line_style_vals[] = {
 	{ "None",   0 },
 	{ "Solid",  1 },
@@ -99,6 +104,13 @@ static const enum_val_t expander_style_vals[] = {
 	{ "Circular", 3 },
 	{ NULL,       0 }
 };
+#else
+static const enum_val_t altern_colors_vals[] = {
+	{ "No",  FALSE },
+	{ "Yes",  TRUE },
+	{ NULL,      0 }
+};
+#endif
 
 static const enum_val_t highlight_style_vals[] = {
   	{ "Bold",     0 },
@@ -126,11 +138,16 @@ static gchar *new_font_name;
 GtkWidget*
 gui_prefs_show(void)
 {
-	GtkWidget	*main_tb, *main_vb, *hbox, *font_bt, *color_bt;
-	GtkWidget	*scrollbar_om, *plist_browse_om;
-	GtkWidget	*ptree_browse_om, *line_style_om;
-	GtkWidget	*expander_style_om, *highlight_style_om;
-	GtkWidget	*save_position_cb, *save_size_cb;
+	GtkWidget *main_tb, *main_vb, *hbox, *font_bt, *color_bt;
+	GtkWidget *scrollbar_om, *plist_browse_om;
+	GtkWidget *ptree_browse_om, *highlight_style_om;
+	GtkWidget *save_position_cb, *save_size_cb;
+#if GTK_MAJOR_VERSION < 2
+	GtkWidget *expander_style_om, *line_style_om;
+#else
+        GtkWidget *altern_colors_om;
+#endif
+        int        pos = 0;
 
 	/* The colors or font haven't been changed yet. */
 	colors_changed = FALSE;
@@ -153,68 +170,89 @@ gui_prefs_show(void)
 	gtk_table_set_col_spacing( GTK_TABLE(main_tb), 1, 50 );
 
 	/* Scrollbar placement */
-	scrollbar_om = create_preference_option_menu(main_tb, 0,
+	scrollbar_om = create_preference_option_menu(main_tb, pos++,
 	    "Vertical scrollbar placement:", NULL, scrollbar_placement_vals,
 	    prefs.gui_scrollbar_on_right);
 	gtk_object_set_data(GTK_OBJECT(main_vb), SCROLLBAR_PLACEMENT_KEY,
 	    scrollbar_om);
 
 	/* Packet list selection browseable */
-	plist_browse_om = create_preference_option_menu(main_tb, 1,
+	plist_browse_om = create_preference_option_menu(main_tb, pos++,
 	    "Packet list mouse behavior:", NULL, selection_mode_vals,
 	    prefs.gui_plist_sel_browse);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PLIST_SEL_BROWSE_KEY,
 	    plist_browse_om);
 
 	/* Proto tree selection browseable */
-	ptree_browse_om = create_preference_option_menu(main_tb, 2,
+	ptree_browse_om = create_preference_option_menu(main_tb, pos++,
 	    "Protocol tree mouse behavior:", NULL, selection_mode_vals,
 	    prefs.gui_ptree_sel_browse);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_SEL_BROWSE_KEY,
 	    ptree_browse_om);
 
+#if GTK_MAJOR_VERSION < 2
 	/* Tree line style */
-	line_style_om = create_preference_option_menu(main_tb, 3,
+	line_style_om = create_preference_option_menu(main_tb, pos++,
 	    "Tree line style:", NULL, line_style_vals,
 	    prefs.gui_ptree_line_style);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_LINE_STYLE_KEY,
 	    line_style_om);
 
 	/* Tree expander style */
-	expander_style_om = create_preference_option_menu(main_tb, 4,
+	expander_style_om = create_preference_option_menu(main_tb, pos++,
 	    "Tree expander style:", NULL, expander_style_vals,
 	    prefs.gui_ptree_expander_style);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_EXPANDER_STYLE_KEY,
 	    expander_style_om);
+#else
+        /* Alternating row colors in list and tree views */
+	altern_colors_om = create_preference_option_menu(main_tb, pos++,
+	    "Alternating row colors in lists and trees:", NULL,
+            altern_colors_vals, prefs.gui_altern_colors);
+	gtk_object_set_data(GTK_OBJECT(main_vb), ALTERN_COLORS_KEY,
+	    altern_colors_om);
+#endif
 
 	/* Hex Dump highlight style */
-	highlight_style_om = create_preference_option_menu(main_tb, 5,
+	highlight_style_om = create_preference_option_menu(main_tb, pos++,
 	    "Hex display highlight style:", NULL, highlight_style_vals,
 	    prefs.gui_hex_dump_highlight_style);
 	gtk_object_set_data(GTK_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY,
 	    highlight_style_om);
 
 	/* Geometry prefs */
-	save_position_cb = create_preference_check_button(main_tb,
-	    6, "Save window position:", NULL, prefs.gui_geometry_save_position);
+	save_position_cb = create_preference_check_button(main_tb, pos++,
+            "Save window position:", NULL, prefs.gui_geometry_save_position);
 	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_POSITION_KEY,
 	    save_position_cb);
 
-	save_size_cb = create_preference_check_button(main_tb,
-	    7, "Save window size:", NULL, prefs.gui_geometry_save_size);
+	save_size_cb = create_preference_check_button(main_tb, pos++,
+	    "Save window size:", NULL, prefs.gui_geometry_save_size);
 	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_SIZE_KEY,
 	    save_size_cb);
 
 	/* "Font..." button - click to open a font selection dialog box. */
+#if GTK_MAJOR_VERSION < 2
 	font_bt = gtk_button_new_with_label("Font...");
 	gtk_signal_connect(GTK_OBJECT(font_bt), "clicked",
-	    GTK_SIGNAL_FUNC(font_browse_cb), NULL);
+                           GTK_SIGNAL_FUNC(font_browse_cb), NULL);
+#else
+        font_bt = gtk_button_new_from_stock(GTK_STOCK_SELECT_FONT);
+	g_signal_connect(G_OBJECT(font_bt), "clicked",
+                         G_CALLBACK(font_browse_cb), NULL);
+#endif
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), font_bt, 2, 3, 0, 1 );
 
 	/* "Colors..." button - click to open a color selection dialog box. */
+#if GTK_MAJOR_VERSION < 2
 	color_bt = gtk_button_new_with_label("Colors...");
 	gtk_signal_connect(GTK_OBJECT(color_bt), "clicked",
-	    GTK_SIGNAL_FUNC(color_browse_cb), NULL);
+                           GTK_SIGNAL_FUNC(color_browse_cb), NULL);
+#else
+        color_bt = gtk_button_new_from_stock(GTK_STOCK_SELECT_COLOR);
+	g_signal_connect(G_OBJECT(color_bt), "clicked",
+                         G_CALLBACK(color_browse_cb), NULL);
+#endif
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), color_bt, 2, 3, 1, 2 );
 
 	/* Show 'em what we got */
@@ -229,7 +267,9 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 {
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	GtkWidget *font_browse_w;
+#if GTK_MAJOR_VERSION < 2
 	static gchar *fixedwidths[] = { "c", "m", NULL };
+#endif
 
 	/* Has a font dialog box already been opened for that top-level
 	   widget? */
@@ -249,20 +289,27 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 
 	/* Call a handler when we're destroyed, so we can inform
 	   our caller, if any, that we've been destroyed. */
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(font_browse_w), "destroy",
-	    GTK_SIGNAL_FUNC(font_browse_destroy), NULL);
+                           GTK_SIGNAL_FUNC(font_browse_destroy), NULL);
+#else
+        g_signal_connect(G_OBJECT(font_browse_w), "destroy",
+                         G_CALLBACK(font_browse_destroy), NULL);
+#endif
 
+#if GTK_MAJOR_VERSION < 2
 	/* Set its filter to show only fixed_width fonts. */
 	gtk_font_selection_dialog_set_filter(
 	    GTK_FONT_SELECTION_DIALOG(font_browse_w),
-	    GTK_FONT_FILTER_BASE,	/* user can't change the filter */
-	    GTK_FONT_ALL,		/* bitmap or scalable are fine */
-	    NULL,			/* all foundries are OK */
-	    NULL,			/* all weights are OK (XXX - normal only?) */
-	    NULL,			/* all slants are OK (XXX - Roman only?) */
-	    NULL,			/* all setwidths are OK */
-	    fixedwidths,		/* ONLY fixed-width fonts */
-	    NULL);			/* all charsets are OK (XXX - ISO 8859/1 only?) */
+	    GTK_FONT_FILTER_BASE, /* user can't change the filter */
+	    GTK_FONT_ALL,	  /* bitmap or scalable are fine */
+	    NULL,		  /* all foundries are OK */
+	    NULL,		  /* all weights are OK (XXX - normal only?) */
+	    NULL,		  /* all slants are OK (XXX - Roman only?) */
+	    NULL,		  /* all setwidths are OK */
+	    fixedwidths,	  /* ONLY fixed-width fonts */
+	    NULL);	/* all charsets are OK (XXX - ISO 8859/1 only?) */
+#endif
 
 	/* Set the font to the current font.
 	   XXX - GTK+ 1.2.8, and probably earlier versions, have a bug
@@ -273,14 +320,15 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 	gtk_font_selection_dialog_set_font_name(
 	    GTK_FONT_SELECTION_DIALOG(font_browse_w), prefs.gui_font_name);
 
+#if GTK_MAJOR_VERSION < 2
 	/* Set the FONT_CALLER_PTR_KEY for the new dialog to point to
 	   our caller. */
 	gtk_object_set_data(GTK_OBJECT(font_browse_w), FONT_CALLER_PTR_KEY,
-	    caller);
+                            caller);
 
 	/* Set the FONT_DIALOG_PTR_KEY for the caller to point to us */
 	gtk_object_set_data(GTK_OBJECT(caller), FONT_DIALOG_PTR_KEY,
-	    font_browse_w);
+                            font_browse_w);
 
 	/* Connect the ok_button to font_browse_ok_cb function and pass along a
 	   pointer to the font selection box widget */
@@ -293,12 +341,31 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 	    GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button),
 	    "clicked", (GtkSignalFunc)gtk_widget_destroy,
 	    GTK_OBJECT(font_browse_w));
+#else
+	/* Set the FONT_CALLER_PTR_KEY for the new dialog to point to
+	   our caller. */
+	g_object_set_data(G_OBJECT(font_browse_w), FONT_CALLER_PTR_KEY, caller);
+
+	/* Set the FONT_DIALOG_PTR_KEY for the caller to point to us */
+	g_object_set_data(G_OBJECT(caller), FONT_DIALOG_PTR_KEY, font_browse_w);
+
+	/* Connect the ok_button to font_browse_ok_cb function and pass along a
+	   pointer to the font selection box widget */
+	g_signal_connect(
+	    G_OBJECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->ok_button),
+	    "clicked", G_CALLBACK(font_browse_ok_cb), font_browse_w);
+
+	/* Connect the cancel_button to destroy the widget */
+	g_signal_connect_swapped(
+	    G_OBJECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button),
+	    "clicked", G_CALLBACK(gtk_widget_destroy), G_OBJECT(font_browse_w));
+#endif
 
 	/* Catch the "key_press_event" signal in the window, so that we can
 	   catch the ESC key being pressed and act as if the "Cancel" button
 	   had been selected. */
 	dlg_set_cancel(font_browse_w,
-	    GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button);
+                       GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button);
 
 	gtk_widget_show(font_browse_w);
 }
@@ -306,8 +373,13 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 static void
 font_browse_ok_cb(GtkWidget *w _U_, GtkFontSelectionDialog *fs)
 {
-	gchar *font_name, *bold_font_name;
+	gchar   *font_name;
+#if GTK_MAJOR_VERSION < 2
+        gchar   *bold_font_name;
 	GdkFont *new_r_font, *new_b_font;
+#else
+        PangoFontDescription *new_r_font, *new_b_font;
+#endif
 
 	font_name = g_strdup(gtk_font_selection_dialog_get_font_name(
 	      GTK_FONT_SELECTION_DIALOG(fs)));
@@ -320,11 +392,15 @@ font_browse_ok_cb(GtkWidget *w _U_, GtkFontSelectionDialog *fs)
 		return;
 	}
 
+#if GTK_MAJOR_VERSION < 2
 	/* Get the name that the boldface version of that font would have. */
 	bold_font_name = boldify(font_name);
 
 	/* Now load those fonts, just to make sure we can. */
 	new_r_font = gdk_font_load(font_name);
+#else
+        new_r_font = pango_font_description_from_string(font_name);
+#endif
 	if (new_r_font == NULL) {
 		/* Oops, that font didn't work.
 		   Tell the user, but don't tear down the font selection
@@ -333,11 +409,19 @@ font_browse_ok_cb(GtkWidget *w _U_, GtkFontSelectionDialog *fs)
 		   "The font you selected cannot be loaded.");
 
 		g_free(font_name);
+#if GTK_MAJOR_VERSION < 2
 		g_free(bold_font_name);
+#endif
 		return;
 	}
 
+#if GTK_MAJOR_VERSION < 2
 	new_b_font = gdk_font_load(bold_font_name);
+#else
+        new_b_font = pango_font_description_copy(new_r_font);
+        pango_font_description_set_weight(new_b_font,
+                                          PANGO_WEIGHT_BOLD);
+#endif
 	if (new_b_font == NULL) {
 		/* Oops, that font didn't work.
 		   Tell the user, but don't tear down the font selection
@@ -346,8 +430,12 @@ font_browse_ok_cb(GtkWidget *w _U_, GtkFontSelectionDialog *fs)
 		   "The font you selected doesn't have a boldface version.");
 
 		g_free(font_name);
+#if GTK_MAJOR_VERSION < 2
 		g_free(bold_font_name);
 		gdk_font_unref(new_r_font);
+#else
+                pango_font_description_free(new_r_font);
+#endif
 		return;
 	}
 
@@ -397,12 +485,18 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_ptree_sel_browse = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), PTREE_SEL_BROWSE_KEY),
 	    selection_mode_vals);
+#if GTK_MAJOR_VERSION < 2
 	prefs.gui_ptree_line_style = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), PTREE_LINE_STYLE_KEY),
 	    line_style_vals);
 	prefs.gui_ptree_expander_style = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), PTREE_EXPANDER_STYLE_KEY),
 	    expander_style_vals);
+#else
+        prefs.gui_altern_colors = fetch_enum_value(
+	    gtk_object_get_data(GTK_OBJECT(w), ALTERN_COLORS_KEY),
+	    altern_colors_vals);
+#endif
 	prefs.gui_hex_dump_highlight_style = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), HEX_DUMP_HIGHLIGHT_STYLE_KEY),
 	    highlight_style_vals);
@@ -426,23 +520,37 @@ gui_prefs_fetch(GtkWidget *w)
 void
 gui_prefs_apply(GtkWidget *w _U_)
 {
+#if GTK_MAJOR_VERSION < 2
 	GdkFont *new_r_font, *new_b_font;
 	char *bold_font_name;
 	GdkFont *old_r_font = NULL, *old_b_font = NULL;
+#else
+        PangoFontDescription *new_r_font, *new_b_font;
+	PangoFontDescription *old_r_font = NULL, *old_b_font = NULL;
+#endif
 
 	if (font_changed) {
 		/* XXX - what if the world changed out from under
 		   us, so that one or both of these fonts cannot
 		   be loaded? */
+#if GTK_MAJOR_VERSION < 2
 		new_r_font = gdk_font_load(prefs.gui_font_name);
 		bold_font_name = boldify(prefs.gui_font_name);
 		new_b_font = gdk_font_load(bold_font_name);
+#else
+                new_r_font = pango_font_description_from_string(prefs.gui_font_name);
+		new_b_font = pango_font_description_copy(new_r_font);
+                pango_font_description_set_weight(new_b_font,
+                                                  PANGO_WEIGHT_BOLD);
+#endif
 		set_plist_font(new_r_font);
 		set_ptree_font_all(new_r_font);
 		old_r_font = m_r_font;
 		old_b_font = m_b_font;
 		set_fonts(new_r_font, new_b_font);
+#if GTK_MAJOR_VERSION < 2
 		g_free(bold_font_name);
+#endif
 	}
 
 	/* Redraw the hex dump windows, in case either the font or the
@@ -459,15 +567,22 @@ gui_prefs_apply(GtkWidget *w _U_)
 	set_scrollbar_placement_all();
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
-	set_ctree_styles_all();
+	set_tree_styles_all();
 	if (colors_changed)
 		update_marked_frames();
 
 	/* We're no longer using the old fonts; unreference them. */
+#if GTK_MAJOR_VERSION < 2
 	if (old_r_font != NULL)
 		gdk_font_unref(old_r_font);
 	if (old_b_font != NULL)
 		gdk_font_unref(old_b_font);
+#else
+        if (old_r_font != NULL)
+		pango_font_description_free(old_r_font);
+	if (old_b_font != NULL)
+		pango_font_description_free(old_b_font);
+#endif
 }
 
 void
@@ -532,9 +647,15 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
 
   GtkWidget *main_vb, *main_tb, *label, *optmenu, *menu, *menuitem;
   GtkWidget *sample, *colorsel, *bbox, *cancel_bt, *ok_bt, *color_w;
-  int        width, height, i;
-  gdouble    scolor[4];
+  int        i;
   GtkWidget *caller = gtk_widget_get_toplevel(w);
+#if GTK_MAJOR_VERSION < 2
+  gdouble    scolor[4];
+  int        width, height;
+#else
+  GtkTextBuffer *buffer;
+  GtkTextIter    iter;
+#endif
 
   /* Has a color dialog box already been opened for that top-level
      widget? */
@@ -550,10 +671,12 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   color_t_to_gdkcolor(&color_info[MFG_IDX].color, &prefs.gui_marked_fg);
   color_t_to_gdkcolor(&color_info[MBG_IDX].color, &prefs.gui_marked_bg);
   curcolor = &color_info[MFG_IDX].color;
+#if GTK_MAJOR_VERSION < 2
   scolor[CS_RED]     = (gdouble) (curcolor->red)   / 65535.0;
   scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
   scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
   scolor[CS_OPACITY] = 1.0;
+#endif
 
   /* Now create a new dialog.
      You can't put your own extra widgets into a color selection
@@ -562,6 +685,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
      into it. */
   color_w = dlg_window_new("Ethereal: Select Color");
 
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(color_w), "delete_event",
     GTK_SIGNAL_FUNC(color_delete_cb), NULL);
 
@@ -569,6 +693,15 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
      if any, that we've been destroyed. */
   gtk_signal_connect(GTK_OBJECT(color_w), "destroy",
 		     GTK_SIGNAL_FUNC(color_destroy_cb), NULL);
+#else
+  g_signal_connect(G_OBJECT(color_w), "delete_event",
+                   G_CALLBACK(color_delete_cb), NULL);
+
+  /* Call a handler when we're destroyed, so we can inform our caller,
+     if any, that we've been destroyed. */
+  g_signal_connect(G_OBJECT(color_w), "destroy",
+                   G_CALLBACK(color_destroy_cb), NULL);
+#endif
 
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -590,9 +723,15 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
     menuitem = gtk_menu_item_new_with_label(color_info[i].label);
     gtk_object_set_data(GTK_OBJECT(menuitem), COLOR_SELECTION_PTR_KEY,
 			(gpointer) colorsel);
+#if GTK_MAJOR_VERSION < 2
     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
 		       GTK_SIGNAL_FUNC(update_current_color),
 		       &color_info[i].color);
+#else
+    g_signal_connect(G_OBJECT(menuitem), "activate",
+                     G_CALLBACK(update_current_color),
+		       &color_info[i].color);
+#endif
     gtk_widget_show(menuitem);
     gtk_menu_append(GTK_MENU (menu), menuitem);
   }
@@ -600,6 +739,7 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   gtk_table_attach_defaults(GTK_TABLE(main_tb), optmenu, 1, 2, 0, 1);
   gtk_widget_show(optmenu);
 
+#if GTK_MAJOR_VERSION < 2
   sample = gtk_text_new(FALSE, FALSE);
   height = sample->style->font->ascent + sample->style->font->descent;
   width = gdk_string_width(sample->style->font, SAMPLE_MARKED_TEXT);
@@ -609,15 +749,35 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
 		  &color_info[MFG_IDX].color,
 		  &color_info[MBG_IDX].color,
 		  SAMPLE_MARKED_TEXT, -1);
+#else
+  sample = gtk_text_view_new();
+  buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sample));
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(sample), FALSE);
+  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(sample), FALSE);
+  gtk_text_buffer_create_tag(buffer, "color", "foreground-gdk",
+                             &color_info[MFG_IDX].color, "background-gdk",
+                             &color_info[MBG_IDX].color, NULL);
+  gtk_text_buffer_get_start_iter(buffer, &iter);
+  gtk_text_buffer_insert_with_tags_by_name(buffer, &iter, SAMPLE_MARKED_TEXT,
+                                           -1, "color", NULL);
+#endif
   gtk_table_attach_defaults(GTK_TABLE(main_tb), sample, 2, 3, 0, 2);
   gtk_widget_show(sample);
+#if GTK_MAJOR_VERSION < 2
   gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel),
 				&scolor[CS_RED]);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), colorsel, 0, 3, 2, 3);
   gtk_object_set_data(GTK_OBJECT(colorsel), COLOR_SAMPLE_PTR_KEY,
 		      (gpointer) sample);
   gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed",
 		     GTK_SIGNAL_FUNC(update_text_color), NULL);
+#else
+  gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel),
+                                        curcolor);
+  g_object_set_data(G_OBJECT(colorsel), COLOR_SAMPLE_PTR_KEY,
+                    (gpointer) sample);
+  g_signal_connect(G_OBJECT(colorsel), "color-changed",
+                   G_CALLBACK(update_text_color), NULL);
+#endif
   gtk_widget_show(colorsel);
   gtk_widget_show(main_vb);
 
@@ -631,17 +791,29 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
+#if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
 		     GTK_SIGNAL_FUNC(color_ok_cb), color_w);
+#else
+  ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
+  g_signal_connect(G_OBJECT(ok_bt), "clicked",
+		   G_CALLBACK(color_ok_cb), color_w);
+#endif
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
+#if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
 			    (GtkSignalFunc)gtk_widget_destroy,
 			    GTK_OBJECT(color_w));
+#else
+  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+  g_signal_connect_swapped(G_OBJECT(cancel_bt), "clicked",
+                           G_CALLBACK(gtk_widget_destroy), G_OBJECT(color_w));
+#endif
   gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
   dlg_set_cancel(color_w, cancel_bt);
@@ -651,29 +823,46 @@ color_browse_cb(GtkWidget *w, gpointer data _U_)
 
 static void
 update_text_color(GtkWidget *w, gpointer data _U_) {
-  GtkText  *sample = gtk_object_get_data(GTK_OBJECT(w), COLOR_SAMPLE_PTR_KEY);
-  gdouble   scolor[4];
+  GtkWidget     *sample = gtk_object_get_data(GTK_OBJECT(w),
+                                              COLOR_SAMPLE_PTR_KEY);
+#if GTK_MAJOR_VERSION < 2
+  gdouble        scolor[4];
 
   gtk_color_selection_get_color(GTK_COLOR_SELECTION(w), &scolor[CS_RED]);
 
   curcolor->red   = (gushort) (scolor[CS_RED]   * 65535.0);
   curcolor->green = (gushort) (scolor[CS_GREEN] * 65535.0);
   curcolor->blue  = (gushort) (scolor[CS_BLUE]  * 65535.0);
+#else
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sample));
+  GtkTextTag    *tag;
 
-  gtk_text_freeze(sample);
-  gtk_text_set_point(sample, 0);
-  gtk_text_forward_delete(sample, gtk_text_get_length(sample));
+  gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(w), curcolor);
+#endif
+
+#if GTK_MAJOR_VERSION < 2
+  gtk_text_freeze(GTK_TEXT(sample));
+  gtk_text_set_point(GTK_TEXT(sample), 0);
+  gtk_text_forward_delete(GTK_TEXT(sample),
+                          gtk_text_get_length(GTK_TEXT(sample)));
   gtk_text_insert(GTK_TEXT(sample), NULL,
 		  &color_info[MFG_IDX].color,
 		  &color_info[MBG_IDX].color,
 		  SAMPLE_MARKED_TEXT, -1);
-  gtk_text_thaw(sample);
+  gtk_text_thaw(GTK_TEXT(sample));
+#else
+  tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buffer),
+                                  "color");
+  g_object_set(tag, "foreground-gdk", &color_info[MFG_IDX].color,
+               "background-gdk", &color_info[MBG_IDX].color, NULL);
+#endif
 }
 
 static void
 update_current_color(GtkWidget *w, gpointer data)
 {
   GtkColorSelection *colorsel;
+#if GTK_MAJOR_VERSION < 2
   gdouble            scolor[4];
 
   colorsel = GTK_COLOR_SELECTION(gtk_object_get_data(GTK_OBJECT(w),
@@ -685,6 +874,12 @@ update_current_color(GtkWidget *w, gpointer data)
   scolor[CS_OPACITY] = 1.0;
 
   gtk_color_selection_set_color(colorsel, &scolor[CS_RED]);
+#else
+  colorsel = GTK_COLOR_SELECTION(g_object_get_data(G_OBJECT(w),
+                                                   COLOR_SELECTION_PTR_KEY));
+  curcolor = (GdkColor *)data;
+  gtk_color_selection_set_current_color(colorsel, curcolor);
+#endif
 }
 
 static void

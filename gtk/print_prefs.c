@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.14 2002/08/28 21:03:49 jmayer Exp $
+ * $Id: print_prefs.c,v 1.15 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,8 +117,14 @@ GtkWidget * printer_prefs_show(void)
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
 	gtk_widget_show(file_te);
 
+#if GTK_MAJOR_VERSION < 2
 	gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
-			GTK_SIGNAL_FUNC(printer_opts_file_cb), GTK_OBJECT(file_te));
+                           GTK_SIGNAL_FUNC(printer_opts_file_cb),
+                           GTK_OBJECT(file_te));
+#else
+        g_signal_connect(G_OBJECT(file_bt), "clicked",
+                         G_CALLBACK(printer_opts_file_cb), G_OBJECT(file_te));
+#endif
 
 	gtk_widget_show(main_vb);
 	return(main_vb);
@@ -143,6 +149,7 @@ printer_opts_file_cb(GtkWidget *file_bt, gpointer file_te) {
   fs = gtk_file_selection_new ("Ethereal: Print to a File");
 	gtk_object_set_data(GTK_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
 
+#if GTK_MAJOR_VERSION < 2
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
   gtk_object_set_data(GTK_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
 
@@ -152,14 +159,33 @@ printer_opts_file_cb(GtkWidget *file_bt, gpointer file_te) {
   /* Call a handler when the file selection box is destroyed, so we can inform
      our caller, if any, that it's been destroyed. */
   gtk_signal_connect(GTK_OBJECT(fs), "destroy",
-	    GTK_SIGNAL_FUNC(printer_opts_fs_destroy_cb), NULL);
+                     GTK_SIGNAL_FUNC(printer_opts_fs_destroy_cb), NULL);
 
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button),
-    "clicked", (GtkSignalFunc) printer_opts_fs_ok_cb, fs);
+                      "clicked", (GtkSignalFunc) printer_opts_fs_ok_cb, fs);
 
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button),
-    "clicked", (GtkSignalFunc) printer_opts_fs_cancel_cb, fs);
+                      "clicked", (GtkSignalFunc) printer_opts_fs_cancel_cb, fs);
+#else
+  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
+  g_object_set_data(G_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
+
+  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
+  g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
+
+  /* Call a handler when the file selection box is destroyed, so we can inform
+     our caller, if any, that it's been destroyed. */
+  g_signal_connect(G_OBJECT(fs), "destroy",
+                   G_CALLBACK(printer_opts_fs_destroy_cb), NULL);
+
+  g_signal_connect(G_OBJECT (GTK_FILE_SELECTION(fs)->ok_button), "clicked",
+                   G_CALLBACK(printer_opts_fs_ok_cb), fs);
+
+  /* Connect the cancel_button to destroy the widget */
+  g_signal_connect(G_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button), "clicked",
+                   G_CALLBACK(printer_opts_fs_cancel_cb), fs);
+#endif
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had

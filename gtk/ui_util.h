@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.5 2002/08/28 21:03:50 jmayer Exp $
+ * $Id: ui_util.h,v 1.6 2002/11/03 17:38:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,12 +44,16 @@ GtkWidget *scrolled_window_new(GtkAdjustment *hadjustment,
    preference. */
 void set_scrollbar_placement_all(void);
 
+#if GTK_MAJOR_VERSION < 2
 /* Create a GtkCTree, give it the right styles, and remember it. */
 GtkWidget *ctree_new(gint columns, gint tree_column);
 GtkWidget *ctree_new_with_titles(gint columns, gint tree_column,
 				 gchar *titles[]);
+#else
+GtkWidget *tree_view_new(GtkTreeModel *model);
+#endif
 
-/* Set the styles of all GtkCTrees based upon user preferences. */
-void set_ctree_styles_all(void);
+/* Set the styles of all Trees based upon user preferences. */
+void set_tree_styles_all(void);
 
 #endif /* __GTKGUIUI_UTIL_H__ */

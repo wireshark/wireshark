@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.27 2002/10/10 01:49:21 jmayer Exp $
+ * $Id: decode_as_dlg.c,v 1.28 2002/11/03 17:38:33 oabad Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -76,31 +76,31 @@ enum srcdst_type {
 #define E_MENU_SRCDST "menu_src_dst"
 
 #define E_PAGE_ACTION "notebook_page_action"
-#define E_PAGE_CLIST  "notebook_page_clist"
+#define E_PAGE_LIST   "notebook_page_list"
 #define E_PAGE_TABLE  "notebook_page_table_name"
 #define E_PAGE_TITLE  "notebook_page_title"
 #define E_PAGE_VALUE  "notebook_page_value"
 
 /*
- * Clist columns for a "Select" clist.
+ * Columns for a "Select" list.
  * Note that most of these columns aren't displayed; they're attached
  * to the row of the table as additional information.
  */
-#define E_CLIST_S_PROTO_NAME 0
-#define E_CLIST_S_TABLE	     1
-/* The following is for debugging in decode_add_to_clist */
-#define E_CLIST_S_MAX	     E_CLIST_S_TABLE
-#define E_CLIST_S_COLUMNS   (E_CLIST_S_MAX + 1)
+#define E_LIST_S_PROTO_NAME 0
+#define E_LIST_S_TABLE	    1
+/* The following is for debugging in decode_add_to_list */
+#define E_LIST_S_MAX	    E_LIST_S_TABLE
+#define E_LIST_S_COLUMNS   (E_LIST_S_MAX + 1)
 
 /*
- * Clist columns for a "Display" clist
+ * Columns for a "Display" list
  */
-#define E_CLIST_D_TABLE	     0
-#define E_CLIST_D_PORT	     1
-#define E_CLIST_D_INITIAL    2
-#define E_CLIST_D_CURRENT    3
-#define E_CLIST_D_MAX	     E_CLIST_D_CURRENT
-#define E_CLIST_D_COLUMNS   (E_CLIST_D_MAX + 1)
+#define E_LIST_D_TABLE	    0
+#define E_LIST_D_PORT	    1
+#define E_LIST_D_INITIAL    2
+#define E_LIST_D_CURRENT    3
+#define E_LIST_D_MAX	    E_LIST_D_CURRENT
+#define E_LIST_D_COLUMNS   (E_LIST_D_MAX + 1)
 
 /**************************************************/
 /*             File Global Variables              */
@@ -219,23 +219,32 @@ decode_build_reset_list (gchar *table_name, gpointer key,
  * hash table.  This is an opaque pointer that can only be handed back
  * to routine in the file packet.c
  *
- * @param user_data A pointer to the clist in which this information
+ * @param user_data A pointer to the list in which this information
  * should be stored.
  */
 static void
 decode_build_show_list (gchar *table_name, gpointer key,
 			gpointer value, gpointer user_data)
 {
+#if GTK_MAJOR_VERSION < 2
     GtkCList  *clist;
-    dissector_handle_t current, initial;
-    gchar     *current_proto_name, *initial_proto_name, *text[E_CLIST_D_COLUMNS];
-    gchar      string1[20];
     gint       row;
+#else
+    GtkListStore *store;
+    GtkTreeIter   iter;
+#endif
+    dissector_handle_t current, initial;
+    gchar     *current_proto_name, *initial_proto_name, *text[E_LIST_D_COLUMNS];
+    gchar      string1[20];
 
     g_assert(user_data);
     g_assert(value);
 
+#if GTK_MAJOR_VERSION < 2
     clist = (GtkCList *)user_data;
+#else
+    store = (GtkListStore *)user_data;
+#endif
     current = dtbl_entry_get_handle(value);
     if (current == NULL)
 	current_proto_name = "(none)";
@@ -247,7 +256,7 @@ decode_build_show_list (gchar *table_name, gpointer key,
     else
 	initial_proto_name = dissector_handle_get_short_name(initial);
 
-    text[E_CLIST_D_TABLE] = get_dissector_table_ui_name(table_name);
+    text[E_LIST_D_TABLE] = get_dissector_table_ui_name(table_name);
     switch (get_dissector_table_base(table_name)) {
 
     case BASE_DEC:
@@ -283,10 +292,18 @@ decode_build_show_list (gchar *table_name, gpointer key,
 	sprintf(string1, "%#o", GPOINTER_TO_UINT(key));
 	break;
     }
-    text[E_CLIST_D_PORT] = string1;
-    text[E_CLIST_D_INITIAL] = initial_proto_name;
-    text[E_CLIST_D_CURRENT] = current_proto_name;
+    text[E_LIST_D_PORT] = string1;
+    text[E_LIST_D_INITIAL] = initial_proto_name;
+    text[E_LIST_D_CURRENT] = current_proto_name;
+#if GTK_MAJOR_VERSION < 2
     row = gtk_clist_prepend(clist, text);
+#else
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, E_LIST_D_TABLE, text[E_LIST_D_TABLE],
+                       E_LIST_D_PORT, text[E_LIST_D_PORT],
+                       E_LIST_D_INITIAL, text[E_LIST_D_INITIAL],
+                       E_LIST_D_CURRENT, text[E_LIST_D_CURRENT], -1);
+#endif
 }
 
 
@@ -384,10 +401,20 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 void
 decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 {
-    GtkWidget *main_vb, *bbox, *ok_bt, *button, *scrolled_window;
-    GtkCList  *clist;
-    gchar     *titles[E_CLIST_D_COLUMNS] = {"Table", "Port", "Initial", "Current"};
-    gint       column;
+    GtkWidget         *main_vb, *bbox, *ok_bt, *button, *scrolled_window;
+    gchar             *titles[E_LIST_D_COLUMNS] = {
+        "Table", "Port", "Initial", "Current"
+    };
+    gint               column;
+#if GTK_MAJOR_VERSION < 2
+    GtkCList          *list;
+#else
+    GtkListStore      *store;
+    GtkTreeView       *list;
+    GtkCellRenderer   *renderer;
+    GtkTreeViewColumn *tc;
+    GtkTreeIter        iter;
+#endif
 
     if (decode_show_w != NULL) {
 	/* There's already a "Decode As" dialog box; reactivate it. */
@@ -396,10 +423,17 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     }
 
     decode_show_w = dlg_window_new("Ethereal: Decode As: Show");
+#if GTK_MAJOR_VERSION < 2
     gtk_signal_connect(GTK_OBJECT(decode_show_w), "delete_event",
 		       GTK_SIGNAL_FUNC(decode_show_delete_cb), NULL);
     gtk_signal_connect(GTK_OBJECT(decode_show_w), "destroy",
 		       GTK_SIGNAL_FUNC(decode_show_destroy_cb), NULL);
+#else
+    g_signal_connect(G_OBJECT(decode_show_w), "delete_event",
+                     G_CALLBACK(decode_show_delete_cb), NULL);
+    g_signal_connect(G_OBJECT(decode_show_w), "destroy",
+                     G_CALLBACK(decode_show_destroy_cb), NULL);
+#endif
 
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
@@ -407,26 +441,54 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_container_add(GTK_CONTAINER(decode_show_w), main_vb);
 
     {
-	/* Initialize clist */
-	clist = GTK_CLIST(gtk_clist_new_with_titles(E_CLIST_D_COLUMNS, titles));
-	gtk_clist_column_titles_passive(clist);
-	for (column = 0; column < E_CLIST_D_COLUMNS; column++)
-	    gtk_clist_set_column_auto_resize(clist, column, TRUE);
-	gtk_clist_set_selection_mode(clist, GTK_SELECTION_EXTENDED);
+	/* Initialize list */
+#if GTK_MAJOR_VERSION < 2
+	list = GTK_CLIST(gtk_clist_new_with_titles(E_LIST_D_COLUMNS, titles));
+	gtk_clist_column_titles_passive(list);
+	for (column = 0; column < E_LIST_D_COLUMNS; column++)
+	    gtk_clist_set_column_auto_resize(list, column, TRUE);
+	gtk_clist_set_selection_mode(list, GTK_SELECTION_EXTENDED);
+#else
+        store = gtk_list_store_new(E_LIST_D_COLUMNS, G_TYPE_STRING,
+                                   G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+        list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
+        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), TRUE);
+        gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), FALSE);
+	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(list),
+                                    GTK_SELECTION_MULTIPLE);
+
+	for (column = 0; column < E_LIST_D_COLUMNS; column++) {
+            renderer = gtk_cell_renderer_text_new();
+            tc = gtk_tree_view_column_new_with_attributes(titles[column],
+                                                          renderer, "text",
+                                                          column, NULL);
+	    gtk_tree_view_column_set_sizing(tc, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+            gtk_tree_view_append_column(list, tc);
+        }
+#endif
 
 	/* Add data */
-	dissector_all_tables_foreach_changed(decode_build_show_list, clist);
-	gtk_clist_sort(clist);
+#if GTK_MAJOR_VERSION < 2
+	dissector_all_tables_foreach_changed(decode_build_show_list, list);
+	gtk_clist_sort(list);
+#else
+	dissector_all_tables_foreach_changed(decode_build_show_list, store);
+	g_object_unref(G_OBJECT(store));
+#endif
 
 	/* Put clist into a scrolled window */
 	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-				       GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(scrolled_window),
-					      GTK_WIDGET(clist));
+                          GTK_WIDGET(list));
 	gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
 	/* Provide a minimum of a couple of rows worth of data */
-	gtk_widget_set_usize(scrolled_window, 0, E_DECODE_MIN_HEIGHT);
+#if GTK_MAJOR_VERSION < 2
+	gtk_widget_set_usize(scrolled_window, -1, E_DECODE_MIN_HEIGHT);
+#else
+	gtk_widget_set_size_request(scrolled_window, -1, E_DECODE_MIN_HEIGHT);
+#endif
     }
 
     /* Button row: OK and reset buttons */
@@ -436,17 +498,31 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 10);
 
     button = gtk_button_new_with_label("Reset Changes");
+#if GTK_MAJOR_VERSION < 2
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
 		       GTK_SIGNAL_FUNC(decode_show_reset_cb),
 		       GTK_OBJECT(decode_show_w));
+#else
+    g_signal_connect(G_OBJECT(button), "clicked",
+                     G_CALLBACK(decode_show_reset_cb), G_OBJECT(decode_show_w));
+#endif
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
-    gtk_widget_set_sensitive(button, (clist->rows != 0));
+#if GTK_MAJOR_VERSION < 2
+    gtk_widget_set_sensitive(button, (list->rows != 0));
 
     ok_bt = gtk_button_new_with_label("OK");
     gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
 		       GTK_SIGNAL_FUNC(decode_show_ok_cb),
 		       GTK_OBJECT(decode_show_w));
+#else
+    gtk_widget_set_sensitive(button,
+                             gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter));
+
+    ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
+    g_signal_connect(G_OBJECT(ok_bt), "clicked",
+                     G_CALLBACK(decode_show_ok_cb), G_OBJECT(decode_show_w));
+#endif
     GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), ok_bt, FALSE, FALSE, 0);
     gtk_widget_grab_default(ok_bt);
@@ -478,33 +554,55 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
  * @param selector An enum value indication which selector value
  * (i.e. IP protocol number, TCP port number, etc.)is to be changed.
  *
- * @param clist The CList in which all the selection information can
+ * @param list The List in which all the selection information can
  * be found.
  *
  * @return gchar * Pointer to the next free location in the string
  * buffer.
  */
 static void
-decode_change_one_dissector (gchar *table_name, gint selector, GtkCList *clist)
+decode_change_one_dissector(gchar *table_name, gint selector, GtkWidget *list)
 {
     dissector_handle_t handle;
     gchar              *abbrev;
+#if GTK_MAJOR_VERSION < 2
     gint               row;
+#else
+    GtkTreeSelection  *selection;
+    GtkTreeModel      *model;
+    GtkTreeIter        iter;
+#endif
 
-    if (!clist->selection) {
+#if GTK_MAJOR_VERSION < 2
+    if (!GTK_CLIST(list)->selection)
+    {
 	abbrev = "(NULL)";
 	handle = NULL;
     } else {
-	row = GPOINTER_TO_INT(clist->selection->data);
-	handle = gtk_clist_get_row_data(clist, row);
-	gtk_clist_get_text(clist, row, E_CLIST_S_PROTO_NAME, &abbrev);
+	row = GPOINTER_TO_INT(GTK_CLIST(list)->selection->data);
+	handle = gtk_clist_get_row_data(GTK_CLIST(list), row);
+	gtk_clist_get_text(GTK_CLIST(list), row, E_LIST_S_PROTO_NAME, &abbrev);
     }
+#else
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+    if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
+    {
+	abbrev = "(NULL)";
+	handle = NULL;
+    } else {
+        gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &abbrev,
+                           E_LIST_S_TABLE+1, &handle, -1);
+    }
+#endif
 
     if (strcmp(abbrev, "(default)") == 0) {
 	dissector_reset(table_name, selector);
     } else {
 	dissector_change(table_name, selector, handle);
     }
+#if GTK_MAJOR_VERSION >= 2
+    g_free(abbrev);
+#endif
 }
 
 
@@ -529,19 +627,19 @@ decode_change_one_dissector (gchar *table_name, gint selector, GtkCList *clist)
 static void
 decode_debug (GtkCList *clist, gchar *leadin)
 {
-    gchar *string, *text[E_CLIST_S_COLUMNS];
+    gchar *string, *text[E_LIST_S_COLUMNS];
     dissector_handle_t handle;
     gint row;
 
     string = g_malloc(1024);
     if (clist->selection) {
 	row = GPOINTER_TO_INT(clist->selection->data);
-	gtk_clist_get_text(clist, row, E_CLIST_S_PROTO_NAME, &text[E_CLIST_S_PROTO_NAME]);
-	gtk_clist_get_text(clist, row, E_CLIST_S_TABLE, &text[E_CLIST_S_TABLE]);
+	gtk_clist_get_text(clist, row, E_LIST_S_PROTO_NAME, &text[E_LIST_S_PROTO_NAME]);
+	gtk_clist_get_text(clist, row, E_LIST_S_TABLE, &text[E_LIST_S_TABLE]);
 	handle = gtk_clist_get_row_data(clist, row);
 	sprintf(string, "%s clist row %d: <put handle here>, name %s, table %s",
-		leadin, row, text[E_CLIST_S_PROTO_NAME],
-		text[E_CLIST_S_TABLE]);
+		leadin, row, text[E_LIST_S_PROTO_NAME],
+		text[E_LIST_S_TABLE]);
     } else {
 	sprintf(string, "%s clist row (none), aka do not decode", leadin);
     }
@@ -564,26 +662,38 @@ decode_debug (GtkCList *clist, gchar *leadin)
 static void
 decode_simple (GtkWidget *notebook_pg)
 {
-    GtkCList *clist;
+    GtkWidget *list;
 #ifdef DEBUG
     gchar *string;
 #endif
     gchar *table_name;
     gint value;
 
-    clist = GTK_CLIST(gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_CLIST));
+#if GTK_MAJOR_VERSION < 2
+    list = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
-	gtk_clist_unselect_all(clist);
+	gtk_clist_unselect_all(GTK_CLIST(list));
+#else
+    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
+    if (requested_action == E_DECODE_NO)
+	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
+#endif
 
 #ifdef DEBUG
     string = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_TITLE);
-    decode_debug(clist, string);
+    decode_debug(GTK_CLIST(list), string);
 #endif
 
+#if GTK_MAJOR_VERSION < 2
     table_name = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_TABLE);
     value = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(notebook_pg),
 						E_PAGE_VALUE));
-    decode_change_one_dissector(table_name, value, clist);
+#else
+    table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
+    value = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(notebook_pg),
+                                              E_PAGE_VALUE));
+#endif
+    decode_change_one_dissector(table_name, value, list);
 }
 
 
@@ -595,32 +705,50 @@ decode_simple (GtkWidget *notebook_pg)
  *
  * @param notebook_pg A pointer to the "transport" notebook page.
  */
+#if GTK_MAJOR_VERSION < 2
 static void
-decode_transport (GtkObject *notebook_pg)
+decode_transport(GtkObject *notebook_pg)
+#else
+static void
+decode_transport(GObject *notebook_pg)
+#endif
 {
     GtkWidget *menu, *menuitem;
-    GtkCList *clist;
+    GtkWidget *list;
     gchar *table_name;
     gint requested_srcdst;
 
-    clist = GTK_CLIST(gtk_object_get_data(notebook_pg, E_PAGE_CLIST));
+#if GTK_MAJOR_VERSION < 2
+    list = gtk_object_get_data(notebook_pg, E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
-	gtk_clist_unselect_all(clist);
+	gtk_clist_unselect_all(GTK_CLIST(list));
 
     menu = gtk_object_get_data(notebook_pg, E_MENU_SRCDST);
+#else
+    list = g_object_get_data(notebook_pg, E_PAGE_LIST);
+    if (requested_action == E_DECODE_NO)
+	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
+
+    menu = g_object_get_data(notebook_pg, E_MENU_SRCDST);
+#endif
+
     menuitem = gtk_menu_get_active(GTK_MENU(menu));
     requested_srcdst = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(menuitem)));
 
 #ifdef DEBUG
     string = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_TITLE);
-    decode_debug(clist, string);
+    decode_debug(GTK_CLIST(list), string);
 #endif
 
-    table_name = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_TABLE);
+#if GTK_MAJOR_VERSION < 2
+    table_name = gtk_object_get_data(notebook_pg, E_PAGE_TABLE);
+#else
+    table_name = g_object_get_data(notebook_pg, E_PAGE_TABLE);
+#endif
     if (requested_srcdst != E_DECODE_DPORT)
-	decode_change_one_dissector(table_name, cfile.edt->pi.srcport, clist);
+	decode_change_one_dissector(table_name, cfile.edt->pi.srcport, list);
     if (requested_srcdst != E_DECODE_SPORT)
-	decode_change_one_dissector(table_name, cfile.edt->pi.destport, clist);
+	decode_change_one_dissector(table_name, cfile.edt->pi.destport, list);
 }
 
 /**************************************************/
@@ -644,7 +772,7 @@ static void
 decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
 {
     GtkWidget *notebook, *notebook_pg;
-    GtkSignalFunc func;
+    void (* func)(GtkWidget *);
     gint page_num;
 
     /* Call the right routine for the page that was currently in front. */
@@ -765,16 +893,28 @@ decode_add_yes_no (void)
     radio_button = gtk_radio_button_new_with_label(NULL, "Decode");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
+#if GTK_MAJOR_VERSION < 2
     gtk_signal_connect(GTK_OBJECT(radio_button), "clicked",
 		       GTK_SIGNAL_FUNC(decode_update_action),
 		       GINT_TO_POINTER(E_DECODE_YES));
+#else
+    g_signal_connect(G_OBJECT(radio_button), "clicked",
+                     G_CALLBACK(decode_update_action),
+                     GINT_TO_POINTER(E_DECODE_YES));
+#endif
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Do not decode");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
+#if GTK_MAJOR_VERSION < 2
     gtk_signal_connect(GTK_OBJECT(radio_button), "clicked",
 		       GTK_SIGNAL_FUNC(decode_update_action),
 		       GINT_TO_POINTER(E_DECODE_NO));
+#else
+    g_signal_connect(G_OBJECT(radio_button), "clicked",
+                     G_CALLBACK(decode_update_action),
+                     GINT_TO_POINTER(E_DECODE_NO));
+#endif
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     return(format_vb);
@@ -853,10 +993,31 @@ decode_add_srcdst_menu (GtkWidget *page)
     return(alignment);
 }
 
-/**************************************************/
-/*        Dialog setup - clist based menus        */
-/**************************************************/
+/*************************************************/
+/*        Dialog setup - list based menus        */
+/*************************************************/
 
+#if GTK_MAJOR_VERSION >= 2
+struct handle_lookup_info {
+    dissector_handle_t handle;
+    gboolean           found;
+};
+
+static gboolean
+lookup_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
+              gpointer data)
+{
+    dissector_handle_t handle;
+    struct handle_lookup_info *hli = (struct handle_lookup_info *)data;
+
+    gtk_tree_model_get(model, iter, E_LIST_S_TABLE+1, &handle, -1);
+    if (hli->handle == handle) {
+        hli->found = TRUE;
+        return TRUE;
+    }
+    return FALSE;
+}
+#endif
 
 /*
  * This routine creates one entry in the list of protocol dissector
@@ -879,100 +1040,170 @@ decode_add_srcdst_menu (GtkWidget *page)
  * to store any information generated by this routine.
  */
 static void
-decode_add_to_clist (gchar *table_name, gpointer value, gpointer user_data)
+decode_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
 {
-    GtkCList  *clist;
     gchar     *proto_name;
-    gchar     *text[E_CLIST_S_COLUMNS];
+    gchar     *text[E_LIST_S_COLUMNS];
     dissector_handle_t handle;
+#if GTK_MAJOR_VERSION < 2
+    GtkCList  *list;
     gint       row;
+#else
+    GtkTreeView  *list;
+    GtkListStore *store;
+    GtkTreeIter   iter;
+    struct handle_lookup_info hli;
+#endif
 
     g_assert(user_data);
     g_assert(value);
 
-    clist = user_data;
+    list = user_data;
     handle = value;
     proto_name = dissector_handle_get_short_name(handle);
 
-    row = gtk_clist_find_row_from_data(clist, handle);
-    if (row != -1) {
-	/*
-	 * We already have an entry for this handle.
-	 * XXX - will this ever happen?
-	 */
-	return;
-    }
+#if GTK_MAJOR_VERSION < 2
+    row = gtk_clist_find_row_from_data(list, handle);
+    /* We already have an entry for this handle.
+     * XXX - will this ever happen? */
+    if (row != -1) return;
+#else
+    hli.handle = handle;
+    hli.found = FALSE;
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(list));
+    gtk_tree_model_foreach(GTK_TREE_MODEL(store), lookup_handle, &hli);
+    /* We already have an entry for this handle.
+     * XXX - will this ever happen? */
+    if (hli.found) return;
+#endif
 
-    text[E_CLIST_S_PROTO_NAME] = proto_name;
-    text[E_CLIST_S_TABLE] = table_name;
-    row = gtk_clist_prepend(clist, text);
-    gtk_clist_set_row_data(clist, row, handle);
+    text[E_LIST_S_PROTO_NAME] = proto_name;
+    text[E_LIST_S_TABLE] = table_name;
+#if GTK_MAJOR_VERSION < 2
+    row = gtk_clist_prepend(list, text);
+    gtk_clist_set_row_data(list, row, handle);
+#else
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter,
+                       E_LIST_S_PROTO_NAME, text[E_LIST_S_PROTO_NAME],
+                       E_LIST_S_TABLE, text[E_LIST_S_TABLE],
+                       E_LIST_S_TABLE+1, handle, -1);
+#endif
 }
 
 
 /*
- * This routine starts the creation of a CList on a notebook page.  It
- * creates both a scrolled window and a clist, adds the clist to the
- * window, and attaches the clist as a data object on the page.
+ * This routine starts the creation of a List on a notebook page.  It
+ * creates both a scrolled window and a list, adds the list to the
+ * window, and attaches the list as a data object on the page.
  *
  * @param page A pointer to the notebook page being created.
  *
- * @param clist_p Will be filled in with the address of a newly
- * created CList.
+ * @param list_p Will be filled in with the address of a newly
+ * created List.
  *
  * @param scrolled_win_p Will be filled in with the address of a newly
  * created GtkScrolledWindow.
  */
 static void
-decode_clist_menu_start (GtkWidget *page, GtkCList **clist_p,
-			 GtkWidget **scrolled_win_p)
+decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
+                       GtkWidget **scrolled_win_p)
 {
-    gchar *titles[E_CLIST_S_COLUMNS] = {"Short Name", "Table Name"};
-    GtkCList  *clist;
     GtkWidget *window;
-    gint column;
-
-    *clist_p = clist =
-	GTK_CLIST(gtk_clist_new_with_titles(E_CLIST_S_COLUMNS, titles));
-    gtk_clist_column_titles_passive(clist);
-#ifndef DEBUG
-    gtk_clist_column_titles_hide(clist);
-    for (column = 1; column < E_CLIST_S_COLUMNS; column++)
-	gtk_clist_set_column_visibility (clist, column, FALSE);
+#if GTK_MAJOR_VERSION < 2
+    gchar             *titles[E_LIST_S_COLUMNS] = {"Short Name", "Table Name"};
+    GtkCList          *list;
+    gint               column;
+#else
+    GtkTreeView       *list;
+    GtkListStore      *store;
+    GtkCellRenderer   *renderer;
+    GtkTreeViewColumn *tc;
 #endif
-    for (column = 0; column < E_CLIST_S_COLUMNS; column++)
-	gtk_clist_set_column_auto_resize(clist, column, TRUE);
-    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_CLIST, clist);
+
+#if GTK_MAJOR_VERSION < 2
+    list = GTK_CLIST(gtk_clist_new_with_titles(E_LIST_S_COLUMNS, titles));
+    gtk_clist_column_titles_passive(list);
+#ifndef DEBUG
+    gtk_clist_column_titles_hide(list);
+    for (column = 1; column < E_LIST_S_COLUMNS; column++)
+	gtk_clist_set_column_visibility (list, column, FALSE);
+#endif
+    for (column = 0; column < E_LIST_S_COLUMNS; column++)
+	gtk_clist_set_column_auto_resize(list, column, TRUE);
+    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_LIST, list);
+#else
+    store = gtk_list_store_new(E_LIST_S_COLUMNS+1, G_TYPE_STRING,
+                               G_TYPE_STRING, G_TYPE_POINTER);
+    list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
+    gtk_tree_view_set_headers_clickable(list, FALSE);
+#ifndef DEBUG
+    gtk_tree_view_set_headers_visible(list, FALSE);
+#endif
+    renderer = gtk_cell_renderer_text_new();
+    tc = gtk_tree_view_column_new_with_attributes("Short Name", renderer,
+                                                  "text", E_LIST_S_PROTO_NAME,
+                                                  NULL);
+    gtk_tree_view_column_set_sizing(tc, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+    gtk_tree_view_append_column(list, tc);
+    g_object_set_data(G_OBJECT(page), E_PAGE_LIST, list);
+#endif
 
     *scrolled_win_p = window = gtk_scrolled_window_new(NULL, NULL);
     /* Provide a minimum of a couple of rows worth of data */
-    gtk_widget_set_usize(window, 0, E_DECODE_MIN_HEIGHT);
+#if GTK_MAJOR_VERSION < 2
+    gtk_widget_set_usize(window, -1, E_DECODE_MIN_HEIGHT);
+#else
+    gtk_widget_set_size_request(window, -1, E_DECODE_MIN_HEIGHT);
+#endif
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(window),
-				   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+				   GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+#if GTK_MAJOR_VERSION < 2
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(window),
-					  GTK_WIDGET(clist));
+					  GTK_WIDGET(list));
+#else
+    gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(list));
+#endif
+
+    *list_p = GTK_WIDGET(list);
 }
 
 /*
- * This routine finishes the creation of a CList on a notebook page.
+ * This routine finishes the creation of a List on a notebook page.
  * It adds the default entry, sets the default entry as the
- * highlighted entry, and sorts the CList.
+ * highlighted entry, and sorts the List.
  *
- * @param clist A pointer the the CList to finish.
+ * @param list A pointer the the List to finish.
  */
 static void
-decode_clist_menu_finish (GtkCList *clist)
+decode_list_menu_finish(GtkWidget *list)
 {
-    gchar *text[E_CLIST_S_COLUMNS];
+    gchar *text[E_LIST_S_COLUMNS];
+#if GTK_MAJOR_VERSION < 2
     gint row;
+#else
+    GtkListStore *store;
+    GtkTreeIter   iter;
+#endif
 
-    text[E_CLIST_S_PROTO_NAME] = "(default)";
-    text[E_CLIST_S_TABLE] = "(none)";
-    row = gtk_clist_prepend(clist, text);
-    gtk_clist_set_row_data(clist, row, NULL);
+    text[E_LIST_S_PROTO_NAME] = "(default)";
+    text[E_LIST_S_TABLE] = "(none)";
+#if GTK_MAJOR_VERSION < 2
+    row = gtk_clist_prepend(GTK_CLIST(list), text);
+    gtk_clist_set_row_data(GTK_CLIST(list), row, NULL);
 
-    gtk_clist_select_row(clist, 0, -1);
-    gtk_clist_sort(clist);
+    gtk_clist_select_row(GTK_CLIST(list), 0, -1);
+    gtk_clist_sort(GTK_CLIST(list));
+#else
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
+    gtk_list_store_prepend(store, &iter);
+    gtk_list_store_set(store, &iter,
+                       E_LIST_S_PROTO_NAME, text[E_LIST_S_PROTO_NAME],
+                       E_LIST_S_TABLE, text[E_LIST_S_TABLE],
+                       E_LIST_S_TABLE+1, NULL, -1);
+
+    gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)), &iter);
+#endif
 }
 
 /*
@@ -986,20 +1217,20 @@ decode_clist_menu_finish (GtkCList *clist)
  * @param page A pointer to the notebook page currently being created.
  *
  * @param table_name The name of the dissector table to use to build
- * this (clist) menu.
+ * this (list) menu.
  *
- * @return GtkWidget * A pointer to the newly created clist within a
+ * @return GtkWidget * A pointer to the newly created list within a
  * scrolled window.
  */
 static GtkWidget *
 decode_add_simple_menu (GtkWidget *page, gchar *table_name)
 {
     GtkWidget *scrolled_window;
-    GtkCList  *clist;
+    GtkWidget *list;
 
-    decode_clist_menu_start(page, &clist, &scrolled_window);
-    dissector_table_foreach_handle(table_name, decode_add_to_clist, clist);
-    decode_clist_menu_finish(clist);
+    decode_list_menu_start(page, &list, &scrolled_window);
+    dissector_table_foreach_handle(table_name, decode_add_to_list, list);
+    decode_list_menu_finish(list);
     return(scrolled_window);
 }
 
@@ -1011,7 +1242,7 @@ decode_add_simple_menu (GtkWidget *page, gchar *table_name)
  * This routine creates a sample notebook page in the dialog box.
  * This notebook page provides a prompt specifying what is being
  * changed and its current value (e.g. "IP Protocol number (17)"), and
- * a clist specifying all the available choices.  The list of choices
+ * a list specifying all the available choices.  The list of choices
  * is conditionally enabled, based upon the setting of the
  * "decode"/"do not decode" radio buttons.
  *
@@ -1214,10 +1445,17 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 
     requested_action = E_DECODE_YES;
     decode_w = dlg_window_new("Ethereal: Decode As");
+#if GTK_MAJOR_VERSION < 2
     gtk_signal_connect(GTK_OBJECT(decode_w), "delete_event",
 		       GTK_SIGNAL_FUNC(decode_delete_cb), NULL);
     gtk_signal_connect(GTK_OBJECT(decode_w), "destroy",
 		       GTK_SIGNAL_FUNC(decode_destroy_cb), NULL);
+#else
+    g_signal_connect(G_OBJECT(decode_w), "delete_event",
+                     G_CALLBACK(decode_delete_cb), NULL);
+    g_signal_connect(G_OBJECT(decode_w), "destroy",
+                     G_CALLBACK(decode_destroy_cb), NULL);
+#endif
 
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
@@ -1241,25 +1479,40 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 10);
 
+#if GTK_MAJOR_VERSION < 2
     ok_bt = gtk_button_new_with_label("OK");
     gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		       GTK_SIGNAL_FUNC(decode_ok_cb),
-		       GTK_OBJECT(decode_w));
+		       GTK_SIGNAL_FUNC(decode_ok_cb), GTK_OBJECT(decode_w));
+#else
+    ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
+    g_signal_connect(G_OBJECT(ok_bt), "clicked",
+                     G_CALLBACK(decode_ok_cb), G_OBJECT(decode_w));
+#endif
     GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), ok_bt, FALSE, FALSE, 0);
     gtk_widget_grab_default(ok_bt);
 
     button = gtk_button_new_with_label("Show Current");
+#if GTK_MAJOR_VERSION < 2
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
 		       GTK_SIGNAL_FUNC(decode_show_cb),
 		       GTK_OBJECT(decode_w));
+#else
+    g_signal_connect(G_OBJECT(button), "clicked",
+		     G_CALLBACK(decode_show_cb), G_OBJECT(decode_w));
+#endif
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
 
+#if GTK_MAJOR_VERSION < 2
     cancel_bt = gtk_button_new_with_label("Cancel");
     gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-		       GTK_SIGNAL_FUNC(decode_cancel_cb),
-		       GTK_OBJECT(decode_w));
+		       GTK_SIGNAL_FUNC(decode_cancel_cb), GTK_OBJECT(decode_w));
+#else
+    cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+    g_signal_connect(G_OBJECT(cancel_bt), "clicked",
+                     G_CALLBACK(decode_cancel_cb), G_OBJECT(decode_w));
+#endif
     GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), cancel_bt, FALSE, FALSE, 0);
 

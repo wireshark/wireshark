@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.26 2002/09/06 21:27:57 guy Exp $
+ * $Id: help_dlg.c,v 1.27 2002/11/03 17:38:33 oabad Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -51,7 +51,7 @@ typedef enum {
 
 static void help_close_cb(GtkWidget *w, gpointer data);
 static void help_destroy_cb(GtkWidget *w, gpointer data);
-static void set_text(GtkWidget *w, char *buffer, int nchars);
+static void insert_text(GtkWidget *w, char *buffer, int nchars);
 static void set_help_text(GtkWidget *w, help_type_t type);
 
 /*
@@ -73,7 +73,11 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   GtkWidget *main_vb, *bbox, *help_nb, *close_bt, *label, *txt_scrollw,
     *overview_vb,
     *proto_vb,
+#if GTK_MAJOR_VERSION < 2
     *dfilter_tb, *dfilter_vsb,
+#else
+    *dfilter_vb,
+#endif
     *cfilter_vb;
 
   if (help_w != NULL) {
@@ -82,14 +86,27 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
+#if GTK_MAJOR_VERSION < 2
   help_w = gtk_window_new(GTK_WINDOW_DIALOG);
+#else
+  help_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+#endif
   gtk_widget_set_name(help_w, "Ethereal Help window" );
   gtk_window_set_title(GTK_WINDOW(help_w), "Ethereal: Help");
+#if GTK_MAJOR_VERSION < 2
   gtk_signal_connect(GTK_OBJECT(help_w), "destroy",
 		     GTK_SIGNAL_FUNC(help_destroy_cb), NULL);
-  gtk_signal_connect (GTK_OBJECT (help_w), "realize",
+  gtk_signal_connect(GTK_OBJECT (help_w), "realize",
 		     GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
   gtk_widget_set_usize(GTK_WIDGET(help_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
+#else
+  g_signal_connect(G_OBJECT(help_w), "destroy",
+                   G_CALLBACK(help_destroy_cb), NULL);
+  g_signal_connect(G_OBJECT(help_w), "realize",
+                   G_CALLBACK(window_icon_realize_cb), NULL);
+  gtk_widget_set_size_request(GTK_WIDGET(help_w), DEF_WIDTH * 2/3,
+                              DEF_HEIGHT * 2/3);
+#endif
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
 
   /* Container for each row of widgets */
@@ -110,6 +127,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_border_width(GTK_CONTAINER(overview_vb), 1);
   txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_box_pack_start(GTK_BOX(overview_vb), txt_scrollw, TRUE, TRUE, 0);
+#if GTK_MAJOR_VERSION < 2
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_NEVER,
 				 GTK_POLICY_ALWAYS);
@@ -117,6 +135,14 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_text_set_editable(GTK_TEXT(overview_text), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(overview_text), TRUE);
   gtk_text_set_line_wrap(GTK_TEXT(overview_text), TRUE);
+#else
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
+				 GTK_POLICY_AUTOMATIC,
+				 GTK_POLICY_AUTOMATIC);
+  overview_text = gtk_text_view_new();
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(overview_text), FALSE);
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(overview_text), GTK_WRAP_WORD);
+#endif
   set_help_text(overview_text, OVERVIEW_HELP);
   gtk_container_add(GTK_CONTAINER(txt_scrollw), overview_text);
   gtk_widget_show(txt_scrollw);
@@ -134,6 +160,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_box_pack_start(GTK_BOX(proto_vb), txt_scrollw, TRUE, TRUE, 0);
+#if GTK_MAJOR_VERSION < 2
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_ALWAYS,
 				 GTK_POLICY_ALWAYS);
@@ -143,6 +170,15 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   set_help_text(proto_text, PROTOCOL_HELP);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(txt_scrollw),
 					proto_text);
+#else
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
+				 GTK_POLICY_AUTOMATIC,
+				 GTK_POLICY_AUTOMATIC);
+  proto_text = gtk_text_view_new();
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(proto_text), FALSE);
+  set_help_text(proto_text, PROTOCOL_HELP);
+  gtk_container_add(GTK_CONTAINER(txt_scrollw), proto_text);
+#endif
   gtk_widget_show(txt_scrollw);
   gtk_widget_show(proto_text);
   gtk_widget_show(proto_vb);
@@ -150,6 +186,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), proto_vb, label);
 
   /* display filter help */
+#if GTK_MAJOR_VERSION < 2
   /* X windows have a maximum size of 32767.  Since the height can easily
      exceed this, we have to jump through some hoops to have a functional
      vertical scroll bar. */
@@ -183,12 +220,42 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   set_help_text(dfilter_text, DFILTER_HELP);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(txt_scrollw),
 					dfilter_text);
+#else
+  dfilter_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(dfilter_vb), 1);
+
+  txt_scrollw = scrolled_window_new(NULL, NULL);
+  gtk_box_pack_start(GTK_BOX(dfilter_vb), txt_scrollw, TRUE, TRUE, 0);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
+				 GTK_POLICY_AUTOMATIC,
+				 GTK_POLICY_AUTOMATIC);
+  dfilter_text = gtk_text_view_new();
+  if (prefs.gui_scrollbar_on_right) {
+    gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(txt_scrollw),
+                                      GTK_CORNER_TOP_LEFT);
+  }
+  else {
+    gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(txt_scrollw),
+                                      GTK_CORNER_TOP_RIGHT);
+  }
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(dfilter_text), FALSE);
+  set_help_text(dfilter_text, DFILTER_HELP);
+  gtk_container_add(GTK_CONTAINER(txt_scrollw), dfilter_text);
+#endif
   gtk_widget_show(txt_scrollw);
   gtk_widget_show(dfilter_text);
+#if GTK_MAJOR_VERSION < 2
   gtk_widget_show(dfilter_tb);
   gtk_widget_show(dfilter_vsb);
+#else
+  gtk_widget_show(dfilter_vb);
+#endif
   label = gtk_label_new("Display Filters");
+#if GTK_MAJOR_VERSION < 2
   gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), dfilter_tb, label);
+#else
+  gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), dfilter_vb, label);
+#endif
 
   /* capture filter help (this one has no horizontal scrollbar) */
 
@@ -196,6 +263,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_border_width(GTK_CONTAINER(cfilter_vb), 1);
   txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_box_pack_start(GTK_BOX(cfilter_vb), txt_scrollw, TRUE, TRUE, 0);
+#if GTK_MAJOR_VERSION < 2
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_NEVER,
 				 GTK_POLICY_ALWAYS);
@@ -203,6 +271,14 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_text_set_editable(GTK_TEXT(cfilter_text), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(cfilter_text), TRUE);
   gtk_text_set_line_wrap(GTK_TEXT(cfilter_text), TRUE);
+#else
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
+				 GTK_POLICY_NEVER,
+				 GTK_POLICY_AUTOMATIC);
+  cfilter_text = gtk_text_view_new();
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(cfilter_text), FALSE);
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(cfilter_text), GTK_WRAP_WORD);
+#endif
   set_help_text(cfilter_text, CFILTER_HELP);
   gtk_container_add(GTK_CONTAINER(txt_scrollw), cfilter_text);
   gtk_widget_show(txt_scrollw);
@@ -220,9 +296,15 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   bbox = gtk_hbox_new(FALSE, 1);
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
+#if GTK_MAJOR_VERSION < 2
   close_bt = gtk_button_new_with_label("Close");
   gtk_signal_connect(GTK_OBJECT(close_bt), "clicked",
 		     GTK_SIGNAL_FUNC(help_close_cb), GTK_OBJECT(help_w));
+#else
+  close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+  g_signal_connect(G_OBJECT(close_bt), "clicked",
+                   G_CALLBACK(help_close_cb), G_OBJECT(help_w));
+#endif
   GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
   gtk_container_add(GTK_CONTAINER(bbox), close_bt);
   gtk_widget_grab_default(close_bt);
@@ -244,17 +326,28 @@ static void help_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
   help_w = NULL;
 }
 
-static void set_text(GtkWidget *w, char *buffer, int nchars)
+static void insert_text(GtkWidget *w, char *buffer, int nchars)
 {
-  gtk_text_insert(GTK_TEXT(w), m_r_font, NULL, NULL, buffer, nchars);
+#if GTK_MAJOR_VERSION < 2
+    gtk_text_insert(GTK_TEXT(w), m_r_font, NULL, NULL, buffer, nchars);
+#else
+    GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
+    GtkTextIter    iter;
+
+    gtk_text_buffer_get_end_iter(buf, &iter);
+    gtk_widget_modify_font(w, m_r_font);
+    if (!g_utf8_validate(buffer, -1, NULL))
+        printf(buffer);
+    gtk_text_buffer_insert(buf, &iter, buffer, nchars);
+#endif
 }
 
 static char *proto_help =
-"The protocols (and packet types) currently supported by "
+"The protocols (and packet types) currently supported by\n"
 "Ethereal are the following:\n\n";
 
 static char *dfilter_help =
-"The following list shows all per-protocol fields that "
+"The following list shows all per-protocol fields that\n"
 "can be used in a display filter:\n";
 
 static char *cfilter_help =
@@ -270,14 +363,14 @@ static char *cfilter_help =
 static char *overview_help =
 "Ethereal is a GUI network protocol analyzer. It lets you interactively "
 "browse packet data from a live network or from a previously saved capture "
-"file. Ethereal knows how to read libpcap capture files, including those "
+"file.\n\nEthereal knows how to read libpcap capture files, including those "
 "of tcpdump. In addition, Ethereal can read capture files from snoop "
 "(including Shomiti) and atmsnoop, LanAlyzer, Sniffer (compressed or "
 "uncompressed), Microsoft Network Monitor, AIX's iptrace, NetXray, "
 "Sniffer Pro, RADCOM's WAN/LAN analyzer, Lucent/Ascend router debug output, "
 "HP-UX's nettl, the dump output from Toshiba's ISDN routers, the output from "
 "i4btrace from the ISDN4BSD project, and output in IPLog format from the "
-"Cisco Secure Intrusion Detection System."
+"Cisco Secure Intrusion Detection System.\n\n"
 "There is no need to tell Ethereal what type of file you are reading; it will "
 "determine the file type by itself. Ethereal is also capable of reading any "
 "of these file formats if they are compressed using gzip. Ethereal recognizes "
@@ -291,8 +384,11 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 #define B_LEN    256
   char buffer[BUFF_LEN];
   header_field_info *hfinfo;
-  int i, len, maxlen = 0, maxlen2 = 0, maxlen3 = 0, nb_lines = 0;
+  int i, len, maxlen = 0, maxlen2 = 0;
+#if GTK_MAJOR_VERSION < 2
+  int maxlen3 = 0, nb_lines = 0;
   int width, height;
+#endif
   const char *type_name;
   char blanks[B_LEN];
   int blks;
@@ -301,7 +397,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
   /*
    * XXX quick hack:
    * the width and height computations are performed to make the
-   * horizontal scrollbar work. This is only necessary for the
+   * horizontal scrollbar work in gtk1.2. This is only necessary for the
    * PROTOCOL_HELP and DFILTER_HELP windows since all others should
    * not have any horizontal scrollbar (line wrapping enabled).
    */
@@ -309,49 +405,60 @@ static void set_help_text(GtkWidget *w, help_type_t type)
   memset(blanks, ' ', B_LEN - 1);
   blanks[B_LEN-1] = '\0';
 
+#if GTK_MAJOR_VERSION < 2
   gtk_text_freeze(GTK_TEXT(w));
+#endif
 
   switch(type) {
 
   case OVERVIEW_HELP :
-    set_text(w, overview_help, -1);
+    insert_text(w, overview_help, -1);
     break;
 
   case PROTOCOL_HELP :
     /* first pass to know the maximum length of first field */
     for (i = proto_get_first_protocol(&cookie); i != -1;
-	    i = proto_get_next_protocol(&cookie)) {
+         i = proto_get_next_protocol(&cookie)) {
       hfinfo = proto_registrar_get_nth(i);
       if ((len = strlen(hfinfo->abbrev)) > maxlen)
 	maxlen = len;
     }
-
     maxlen++;
 
+#if GTK_MAJOR_VERSION < 2
     maxlen2 = strlen(proto_help);
     width = gdk_string_width(m_r_font, proto_help);
-    set_text(w, proto_help, maxlen2);
+    insert_text(w, proto_help, maxlen2);
+#else
+    insert_text(w, proto_help, strlen(proto_help));
+#endif
 
     /* ok, display the correctly aligned strings */
     for (i = proto_get_first_protocol(&cookie); i != -1;
-	    i = proto_get_next_protocol(&cookie)) {
+         i = proto_get_next_protocol(&cookie)) {
       hfinfo = proto_registrar_get_nth(i);
       blks = maxlen - strlen(hfinfo->abbrev);
       snprintf(buffer, BUFF_LEN, "%s%s%s\n",
 	       hfinfo->abbrev,
 	       &blanks[B_LEN - blks - 2],
 	       hfinfo->name);
+#if GTK_MAJOR_VERSION < 2
       if ((len = strlen(buffer)) > maxlen2) {
 	maxlen2 = len;
 	if ((len = gdk_string_width(m_r_font, buffer)) > width)
 	  width = len;
       }
-      set_text(w, buffer, strlen(buffer));
+      insert_text(w, buffer, strlen(buffer));
       nb_lines++;
+#else
+      insert_text(w, buffer, strlen(buffer));
+#endif
     }
 
+#if GTK_MAJOR_VERSION < 2
     height = (2 + nb_lines) * m_font_height;
     gtk_widget_set_usize(GTK_WIDGET(w), 20 + width, 20 + height);
+#endif
     break;
 
   case DFILTER_HELP  :
@@ -371,16 +478,22 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     maxlen++;
     maxlen2++;
 
+#if GTK_MAJOR_VERSION < 2
     maxlen3 = strlen(dfilter_help);
     width = gdk_string_width(m_r_font, dfilter_help);
-    set_text(w, dfilter_help, maxlen3);
+    insert_text(w, dfilter_help, maxlen3);
+#else
+    insert_text(w, dfilter_help, strlen(dfilter_help));
+#endif
 
     for (i = 0; i < proto_registrar_n() ; i++) {
       hfinfo = proto_registrar_get_nth(i);
       if (proto_registrar_is_protocol(i)) {
 	snprintf(buffer, BUFF_LEN, "\n%s:\n", hfinfo->name);
-	set_text(w, buffer, strlen(buffer));
+	insert_text(w, buffer, strlen(buffer));
+#if GTK_MAJOR_VERSION < 2
 	nb_lines += 2;
+#endif
       } else {
 
 	type_name = ftype_pretty_name(hfinfo->type);
@@ -390,34 +503,39 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 		 hfinfo->name,
 		 &blanks[B_LEN - (maxlen2 - strlen(hfinfo->name)) - 2],
 		 type_name);
+#if GTK_MAJOR_VERSION < 2
 	if ((len = strlen(buffer)) > maxlen3) {
 	  maxlen3 = len;
 	  if ((len = gdk_string_width(m_r_font, buffer)) > width)
 	    width = len;
 	}
-	set_text(w, buffer, strlen(buffer));
+	insert_text(w, buffer, strlen(buffer));
 	nb_lines ++;
+#else
+        insert_text(w, buffer, strlen(buffer));
+#endif
       }
     }
-
+#if GTK_MAJOR_VERSION < 2
     height = (1 + nb_lines) * m_font_height;
     gtk_widget_set_usize(GTK_WIDGET(w), 20 + width, 20 + height);
-
+#endif
     break;
   case CFILTER_HELP :
-    set_text(w, cfilter_help, -1);
+    insert_text(w, cfilter_help, -1);
     break;
   default :
     g_assert_not_reached();
     break;
   } /* switch(type) */
-
+#if GTK_MAJOR_VERSION < 2
   gtk_text_thaw(GTK_TEXT(w));
-
+#endif
 } /* set_help_text */
 
 static void clear_help_text(GtkWidget *w)
 {
+#if GTK_MAJOR_VERSION < 2
   GtkText *txt = GTK_TEXT(w);
 
   gtk_text_set_point(txt, 0);
@@ -427,30 +545,45 @@ static void clear_help_text(GtkWidget *w)
      for more information */
   gtk_adjustment_set_value(txt->vadj, 0.0);
   gtk_text_forward_delete(txt, gtk_text_get_length(txt));
+#else
+  GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
+
+  gtk_text_buffer_set_text(buf, "", 0);
+#endif
 }
 
 /* Redraw all the text widgets, to use a new font. */
 void help_redraw(void)
 {
   if (help_w != NULL) {
+#if GTK_MAJOR_VERSION < 2
     gtk_text_freeze(GTK_TEXT(overview_text));
+#endif
     clear_help_text(overview_text);
     set_help_text(overview_text, OVERVIEW_HELP);
+#if GTK_MAJOR_VERSION < 2
     gtk_text_thaw(GTK_TEXT(overview_text));
 
     gtk_text_freeze(GTK_TEXT(proto_text));
+#endif
     clear_help_text(proto_text);
     set_help_text(proto_text, PROTOCOL_HELP);
+#if GTK_MAJOR_VERSION < 2
     gtk_text_thaw(GTK_TEXT(proto_text));
 
     gtk_text_freeze(GTK_TEXT(dfilter_text));
+#endif
     clear_help_text(dfilter_text);
     set_help_text(dfilter_text, DFILTER_HELP);
+#if GTK_MAJOR_VERSION < 2
     gtk_text_thaw(GTK_TEXT(dfilter_text));
 
     gtk_text_freeze(GTK_TEXT(cfilter_text));
+#endif
     clear_help_text(cfilter_text);
     set_help_text(cfilter_text, CFILTER_HELP);
+#if GTK_MAJOR_VERSION < 2
     gtk_text_thaw(GTK_TEXT(cfilter_text));
+#endif
   }
 }

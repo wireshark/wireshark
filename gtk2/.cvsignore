@@ -1,9 +1,0 @@
-Makefile
-Makefile.in
-.deps
-stamp-h.in
-config.status
-aclocal.m4
-*.obj
-*.lib
-*.pdb
