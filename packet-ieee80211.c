@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.97 2003/09/15 18:40:52 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.98 2003/09/20 03:20:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -711,25 +711,15 @@ wpa_keymgmt_idx2str(guint idx)
 
 void 
 dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
-		int tag_number, int tag_length, int tag_interpretation)
+		guint32 tag_len)
 {
-      guint8 tag_no;
-      guint32 tag_len;
       const guint8 *tag_val;
       guint32 tag_val_off = 0;
       char out_buff[SHORT_STR];
       int i;
 	
-      tag_no = tvb_get_guint8(tvb, offset);
-      tag_len = tvb_get_guint8(tvb, offset + 1);
-      tag_val = tvb_get_ptr(tvb, offset + 2, tag_len);
+      tag_val = tvb_get_ptr(tvb, offset, tag_len);
   
-      proto_tree_add_uint(tree, tag_number, tvb, offset, 1, tag_no);
-      offset += 1;
-      
-      proto_tree_add_uint(tree, tag_length, tvb, offset, 1, tag_len);
-      offset += 1;
-
       if (tag_val_off + 6 <= tag_len && !memcmp(tag_val, WPA_OUI"\x01", 4)) {
         snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
                   tag_val[tag_val_off + 3], pletohs(&tag_val[tag_val_off + 4]));
@@ -801,6 +791,23 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 /*           Dissect and add tagged (optional) fields to proto tree          */
 /* ************************************************************************* */
 
+static const value_string tag_num_vals[] = {
+	{ TAG_SSID,               "SSID parameter set" },
+	{ TAG_SUPP_RATES,         "Supported Rates" },
+	{ TAG_EXT_SUPP_RATES,     "Extended Supported Rates" },
+	{ TAG_FH_PARAMETER,       "FH Parameter set" },
+	{ TAG_DS_PARAMETER,       "DS Parameter set" },
+	{ TAG_CF_PARAMETER,       "CF Parameter set" },
+	{ TAG_TIM,                "(TIM) Traffic Indication Map" },
+	{ TAG_IBSS_PARAMETER,     "IBSS Parameter set" },
+	{ TAG_COUNTRY_INFO,       "Country Information" },
+	{ TAG_CHALLENGE_TEXT,     "Challenge text" },
+	{ TAG_ERP_INFO,           "ERP Information" },
+	{ TAG_ERP_INFO_OLD,       "ERP Information" },
+	{ TAG_VENDOR_SPECIFIC_IE, "Vendor Specific" },
+	{ 0,                      NULL }
+};
+
 static const value_string environment_vals[] = {
 	{ 0x20, "Any" },
 	{ 0x4f, "Outdoor" },
@@ -854,17 +861,18 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
     }
 
 
+  proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
+			      "Tag Number: %u (%s)",
+			      tag_no,
+			      val_to_str(tag_no, tag_num_vals, "Unknown"));
+
+  proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
+
   switch (tag_no)
     {
 
 
     case TAG_SSID:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (SSID parameter set)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
-
       memset (out_buff, 0, SHORT_STR);
 
       memcpy (out_buff, tag_data_ptr, (size_t) tag_len);
@@ -878,14 +886,6 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_SUPP_RATES:
     case TAG_EXT_SUPP_RATES:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (%sSupported Rates)",
-				  tag_no,
-				  tag_no == TAG_EXT_SUPP_RATES ? "Extended " :
-				  "");
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
-
       memset (out_buff, 0, SHORT_STR);
       strcpy (out_buff, "Supported rates: ");
       n = strlen (out_buff);
@@ -913,11 +913,6 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
     case TAG_FH_PARAMETER:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (FH Parameter set)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
 
       snprintf (out_buff, SHORT_STR,
@@ -932,11 +927,6 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
     case TAG_DS_PARAMETER:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (DS Parameter set)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
 
       snprintf (out_buff, SHORT_STR, "Current Channel: %u", tag_data_ptr[0]);
@@ -946,11 +936,6 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
     case TAG_CF_PARAMETER:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (CF Parameter set)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
 
       snprintf (out_buff, SHORT_STR,
@@ -964,11 +949,6 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
     case TAG_TIM:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u ((TIM) Traffic Indication Map)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
       snprintf (out_buff, SHORT_STR,
 		"DTIM count %u, DTIM period %u, Bitmap control 0x%X, "
@@ -981,11 +961,6 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
     case TAG_IBSS_PARAMETER:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (IBSS Parameter set)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
       snprintf (out_buff, SHORT_STR, "ATIM window 0x%X",
 		pletohs (tag_data_ptr));
@@ -996,11 +971,6 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
     case TAG_COUNTRY_INFO:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (Country Information)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
       snprintf (out_buff, SHORT_STR,
                                  "Country Code: %c%c, %s Environment, Start Channel: "
@@ -1015,10 +985,6 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
     case TAG_CHALLENGE_TEXT:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (Challenge text)", tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
       snprintf (out_buff, SHORT_STR, "Challenge text: %.47s", tag_data_ptr);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -1030,11 +996,6 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_ERP_INFO:
     case TAG_ERP_INFO_OLD:
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (ERP Information)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
 
       snprintf (out_buff, SHORT_STR,
@@ -1049,7 +1010,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       break;
 
     case TAG_VENDOR_SPECIFIC_IE:
-      dissect_vendor_specific_ie(tree, tvb, offset, tag_number, tag_length, tag_interpretation);
+      dissect_vendor_specific_ie(tree, tvb, offset + 2, tag_len);
       break;
 
 
@@ -2483,12 +2444,12 @@ proto_register_ieee80211 (void)
 
     {&tag_number,
      {"Tag", "wlan_mgt.tag.number",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC, VALS(tag_num_vals), 0,
       "Element ID", HFILL }},
 
     {&tag_length,
      {"Tag length", "wlan_mgt.tag.length",
-      FT_UINT16, BASE_DEC, NULL, 0, "Length of tag", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, "Length of tag", HFILL }},
 
     {&tag_interpretation,
      {"Tag interpretation", "wlan_mgt.tag.interpretation",
