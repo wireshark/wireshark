@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.104 2000/10/16 23:18:03 guy Exp $
+# $Id: configure.in,v 1.105 2000/10/16 23:50:02 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -392,7 +392,7 @@ AM_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
 
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_SUBDIRS(wiretap)
+AC_CONFIG_SUBDIRS(epan wiretap)
 AC_OUTPUT(
   Makefile
   doc/Makefile
