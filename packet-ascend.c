@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.3 1999/09/11 22:36:29 gerald Exp $
+ * $Id: packet-ascend.c,v 1.4 1999/09/13 03:48:58 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,12 +35,13 @@
 
 static int proto_ascend  = -1;
 static int hf_session_id = -1;
+static int hf_chunk      = -1;
 static int hf_task       = -1;
 
 static const value_string encaps_vals[] = {
-  {ASCEND_PFX_ETHER, "Ethernet"    },
-  {ASCEND_PFX_PPP_X, "PPP Transmit"},
-  {ASCEND_PFX_PPP_R, "PPP Receive" },
+  {ASCEND_PFX_WDS_X, "PPP Transmit"},
+  {ASCEND_PFX_WDS_R, "PPP Receive" },
+  {ASCEND_PFX_WDD,   "Ethernet"    },
   {0,                NULL          } };
 
 void
@@ -71,23 +72,35 @@ dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
        can filter on them? */
     proto_tree_add_text(fh_tree, 0, 0, "Link type: %s",
       val_to_str(fd->pseudo_header.ascend.type, encaps_vals, "Unknown (%d)"));
-    proto_tree_add_text(fh_tree, 0, 0, "Username: %s",
-      fd->pseudo_header.ascend.user);
-    proto_tree_add_item_format(fh_tree, hf_session_id, 0, 0,
-      fd->pseudo_header.ascend.sess, "Session: %d",
-      fd->pseudo_header.ascend.sess);
+    if (fd->pseudo_header.ascend.type == ASCEND_PFX_WDD) {
+      proto_tree_add_text(fh_tree, 0, 0, "Called number: %s",
+        fd->pseudo_header.ascend.call_num);
+      proto_tree_add_item_format(fh_tree, hf_chunk, 0, 0,
+        fd->pseudo_header.ascend.chunk, "Chunk: 0x%08x",
+        fd->pseudo_header.ascend.chunk);
+      proto_tree_add_item_hidden(fh_tree, hf_session_id, 0, 0, 0);
+    } else {  /* It's wandsession data */
+      proto_tree_add_text(fh_tree, 0, 0, "Username: %s",
+        fd->pseudo_header.ascend.user);
+      proto_tree_add_item_format(fh_tree, hf_session_id, 0, 0,
+        fd->pseudo_header.ascend.sess, "Session: %d",
+        fd->pseudo_header.ascend.sess);
+      proto_tree_add_item_hidden(fh_tree, hf_chunk, 0, 0, 0);
+    }
     proto_tree_add_item_format(fh_tree, hf_task, 0, 0,
       fd->pseudo_header.ascend.task, "Task: 0x%08X",
       fd->pseudo_header.ascend.task);
   }
 
   switch (fd->pseudo_header.ascend.type) {
-    case ASCEND_PFX_ETHER:
+    case ASCEND_PFX_WDS_X:
+    case ASCEND_PFX_WDS_R:
+      dissect_ppp(pd, fd, tree);
+      break;
+    case ASCEND_PFX_WDD:
       dissect_eth(pd, 0, fd, tree);
       break;
-    case ASCEND_PFX_PPP_X:
-    case ASCEND_PFX_PPP_R:
-      dissect_ppp(pd, fd, tree);
+    default:
       break;
   }
 }
@@ -98,6 +111,9 @@ proto_register_ascend(void)
   static hf_register_info hf[] = {
     { &hf_session_id,
     { "Session ID",	"ascend.sess",	FT_UINT32,	NULL }},
+
+    { &hf_chunk,
+    { "WDD Chunk",	"ascend.chunk",	FT_UINT32,	NULL }},
 
     { &hf_task,
     { "Task",		"ascend.task",	FT_UINT32,	NULL }}

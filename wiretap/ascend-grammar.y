@@ -11,6 +11,18 @@ XMIT-iguana:241:(task: B04E12C0, time: 1975432.85) 53 octets @ 8009EB16
   [0010]: 00 7A 06 D8 B1 CF 00 FB 08 CE 41 62 12 00 50 20 
   [0020]: 29 7C 4C 71 9C 9A 6A 93 A4 60 12 22 38 3F 10 00 
   [0030]: 00 02 04 05 B4 
+
+    Example 'wdd' output data:
+
+Date: 01/12/1990.  Time: 12:22:33
+Cause an attempt to place call to 14082750382
+WD_DIALOUT_DISP: chunk 2515EE type IP.
+(task: 251790, time: 994953.28) 44 octets @ 2782B8
+  [0000]: 00 C0 7B 71 45 6C 00 60 08 16 AA 51 08 00 45 00
+  [0010]: 00 2C 66 1C 40 00 80 06 53 F6 AC 14 00 18 CC 47
+  [0020]: C8 45 0A 31 00 50 3B D9 5B 75 00 00
+ 
+
  */
 
 %{
@@ -39,6 +51,7 @@ ascend_pkthdr *header;
 struct ascend_phdr *pseudo_header;
 char *pkt_data;
 FILE *nfh = NULL;
+struct tm wddt;
 
 %}
  
@@ -48,36 +61,31 @@ guint32 d;
 char    b;
 }
 
-%token <s> USERNAME HEXNUM KEYWORD COUNTER
-%token <d> PREFIX SESSNUM TASKNUM TIMEVAL OCTETS
+%token <s> STRING KEYWORD COUNTER
+%token <d> WDS_PREFIX DECNUM HEXNUM
 %token <b> BYTE
 
-%type <s> username hexnum dataln datagroup
-%type <d> prefix sessnum tasknum timeval octets
+%type <s> string dataln datagroup
+%type <d> wds_prefix decnum hexnum
 %type <b> byte bytegroup
 
 %%
 
 data_packet:
-  | header datagroup
+  | wds_hdr datagroup
+  | wdd_hdr datagroup
 ;
 
-prefix: PREFIX;
+wds_prefix: WDS_PREFIX;
 
-username: USERNAME;
+string: STRING;
 
-sessnum: SESSNUM;
-
-tasknum: TASKNUM;
-
-timeval: TIMEVAL;
-
-octets: OCTETS;
+decnum: DECNUM;
 
 hexnum: HEXNUM;
 
-/*        1        2       3       4       5       6       7       8       9      10     11 */
-header: prefix username sessnum KEYWORD tasknum KEYWORD timeval timeval octets KEYWORD HEXNUM {
+/*            1        2      3      4       5      6       7      8      9      10     11 */
+wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   wirelen = $9;
   caplen = ($9 < ASCEND_MAX_PKT_LEN) ? $9 : ASCEND_MAX_PKT_LEN;
   if (bcount > 0 && bcount <= caplen)
@@ -89,7 +97,43 @@ header: prefix username sessnum KEYWORD tasknum KEYWORD timeval timeval octets K
     /* pseudo_header->user is set in ascend-scanner.l */
     pseudo_header->type = $1;
     pseudo_header->sess = $3;
+    pseudo_header->call_num[0] = '\0';
+    pseudo_header->chunk = 0;
     pseudo_header->task = $5;
+  }
+  
+  bcur = 0;
+}
+;
+/*
+Date: 01/12/1990.  Time: 12:22:33
+Cause an attempt to place call to 14082750382
+WD_DIALOUT_DISP: chunk 2515EE type IP.
+(task: 251790, time: 994953.28) 44 octets @ 2782B8
+*/
+/*          1       2      3      4      5       6      6      6      9      10     11      12     13      14      15      16     17     18     19      20     21*/
+wdd_hdr: KEYWORD decnum decnum decnum KEYWORD decnum decnum decnum KEYWORD string KEYWORD hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
+  wddt.tm_sec  = $4;
+  wddt.tm_min  = $3;
+  wddt.tm_hour = $2;
+  wddt.tm_mday = $6;
+  wddt.tm_mon  = $7;
+  wddt.tm_year = ($8 > 1970) ? $8 - 1900 : 70;
+  
+  wirelen = $19;
+  caplen = ($19 < ASCEND_MAX_PKT_LEN) ? $19 : ASCEND_MAX_PKT_LEN;
+  if (bcount > 0 && bcount <= caplen)
+    caplen = bcount;
+  else
+  secs = mktime(&wddt);
+  usecs = $18;
+  if (pseudo_header != NULL) {
+    /* pseudo_header->call_num is set in ascend-scanner.l */
+    pseudo_header->type = ASCEND_PFX_WDD;
+    pseudo_header->user[0] = '\0';
+    pseudo_header->sess = 0;
+    pseudo_header->chunk = $12;
+    pseudo_header->task = $15;
   }
   
   bcur = 0;
@@ -114,7 +158,7 @@ byte: BYTE {
 } 
 ;
 
-/* There must be a better way to do this... */
+/* XXX  There must be a better way to do this... */
 bytegroup: byte
   | byte byte
   | byte byte byte

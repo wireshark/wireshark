@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.4 1999/09/11 22:36:38 gerald Exp $
+ * $Id: ascend.c,v 1.5 1999/09/13 03:49:04 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -63,25 +63,28 @@ XMIT-iguana:241:(task: B04E12C0, time: 1975432.85) 53 octets @ 8009EB16
 /* How far into the file we should look for packet headers */
 #define ASCEND_MAX_SEEK 1000000
 
+/* XXX  Should we replace this with a more generalized array? */
 /* Magic numbers for Ascend wandsession/wanopening/ether-display data */
-static const char ascend_xmagic[] = { 'X', 'M', 'I', 'T', '-' };
-static const char ascend_rmagic[] = { 'R', 'E', 'C', 'V', '-' };
-static const char ascend_emagic[] = { 'E', 'T', 'H', 'E', 'R', ' ' };
+static const char ascend_xmagic[]  = { 'X', 'M', 'I', 'T', '-' };
+static const char ascend_rmagic[]  = { 'R', 'E', 'C', 'V', '-' };
+static const char ascend_w1magic[] = { 'D', 'a', 't', 'e', ':',  };
+static const char ascend_w2magic[] = { 'W', 'D', '_', 'D', 'I', 'A', 'L', 'O', 'U', 'T', '_', 'D', 'I', 'S', 'P', ':' };
 
-#define ASCEND_X_SIZE (sizeof ascend_xmagic / sizeof ascend_xmagic[0])
-#define ASCEND_R_SIZE (sizeof ascend_rmagic / sizeof ascend_rmagic[0])
-#define ASCEND_E_SIZE (sizeof ascend_emagic / sizeof ascend_emagic[0])
+#define ASCEND_X_SIZE  (sizeof ascend_xmagic  / sizeof ascend_xmagic[0])
+#define ASCEND_R_SIZE  (sizeof ascend_rmagic  / sizeof ascend_rmagic[0])
+#define ASCEND_W1_SIZE (sizeof ascend_w1magic / sizeof ascend_w1magic[0])
+#define ASCEND_W2_SIZE (sizeof ascend_w2magic / sizeof ascend_w2magic[0])
 
 static int ascend_read(wtap *wth, int *err);
 
 /* Seeks to the beginning of the next packet, and returns the
-   byte offset.  Returns 0 on failure.  A valid offset is 0; since
+   byte offset.  Returns -1 on failure.  A valid offset is 0; since
    that causes problems with wtap_loop, offsets are incremented by one. */
 /* XXX - Handle I/O errors. */
 static int ascend_seek(wtap *wth, int max_seek)
 {
-  int byte, bytes_read = 0;
-  int x_level = 0, r_level = 0, e_level = 0;
+  int byte, bytes_read = 0, date_off = 0;
+  int x_level = 0, r_level = 0, w1_level = 0, w2_level = 0;
 
   while (((byte = fgetc(wth->fh)) != EOF) && bytes_read < max_seek) {
     if (byte == ascend_xmagic[x_level]) {
@@ -90,20 +93,34 @@ static int ascend_seek(wtap *wth, int max_seek)
         fseek(wth->fh, -(ASCEND_X_SIZE), SEEK_CUR);
         return ftell(wth->fh) + 1;
       }
-    } else if (byte == ascend_rmagic[r_level]) {
+    } else {
+      x_level = 0;
+    }
+    if (byte == ascend_rmagic[r_level]) {
       r_level++;
       if (r_level >= ASCEND_R_SIZE) {
         fseek(wth->fh, -(ASCEND_R_SIZE), SEEK_CUR);
         return ftell(wth->fh) + 1;
       }
-    } else if (byte == ascend_emagic[e_level]) {
-      e_level++;
-      if (e_level >= ASCEND_E_SIZE) {
-        fseek(wth->fh, -(ASCEND_E_SIZE), SEEK_CUR);
-        return ftell(wth->fh) + 1;
+    } else {
+      r_level = 0;
+    }
+    if (byte == ascend_w1magic[w1_level]) {
+      w1_level++;
+      if (w1_level >= ASCEND_W1_SIZE) {
+        date_off = ftell(wth->fh) - ASCEND_W1_SIZE + 1;
       }
     } else {
-      x_level = r_level = e_level = 0;
+      w1_level = 0;
+    }
+    if (byte == ascend_w2magic[w2_level]) {
+      w2_level++;
+      if (w2_level >= ASCEND_W2_SIZE && date_off) {
+        fseek(wth->fh, date_off - 1, SEEK_SET);
+        return date_off;
+      }
+    } else {
+      w2_level = 0;
     }
     bytes_read++;
   }
