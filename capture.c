@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.117 2000/08/11 13:34:41 deniel Exp $
+ * $Id: capture.c,v 1.118 2000/08/13 08:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -952,7 +952,11 @@ capture(void)
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
   int         err, inpkts;
-  char        errmsg[1024+1];
+  char        errmsg[4096+1];
+#ifndef _WIN32
+  static const char ppamsg[] = "can't find PPA for ";
+  char       *libpcap_warn;
+#endif
   fd_set      set1;
   struct timeval timeout;
 #ifdef linux
@@ -1002,7 +1006,29 @@ capture(void)
   pch = pcap_open_live(cfile.iface, cfile.snap, 1, CAP_READ_TIMEOUT, err_str);
 
   if (pch == NULL) {
-#ifndef _WIN32
+#ifdef _WIN32
+    /* Well, we couldn't start the capture.
+       If this is a child process that does the capturing in sync
+       mode or fork mode, it shouldn't do any UI stuff until we pop up the
+       capture-progress window, and, since we couldn't start the
+       capture, we haven't popped it up. */
+    if (!capture_child) {
+      while (gtk_events_pending()) gtk_main_iteration();
+    }
+
+    /* On Win32 OSes, the capture devices are probably available to all
+       users; don't warn about permissions problems.
+
+       Do, however, warn that Token Ring and PPP devices aren't supported. */
+    snprintf(errmsg, sizeof errmsg,
+	"The capture session could not be initiated (%s).\n"
+	"Please check that you have the proper interface specified.\n"
+	"\n"
+	"Note that the driver Ethereal uses for packet capture on Windows\n"
+	"doesn't support capturing on Token Ring or PPP/WAN interfaces.\n",
+	err_str);
+    goto error;
+#else
     /* try to open cfile.iface as a pipe */
     pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld, err_str);
 
@@ -1015,26 +1041,36 @@ capture(void)
       if (!capture_child) {
 	while (gtk_events_pending()) gtk_main_iteration();
       }
+
+      /* If we got a "can't find PPA for XXX" message, warn the user (who
+         is running Ethereal on HP-UX) that they don't have a version
+	 of libpcap patched to properly handle HP-UX (the patched version
+	 says "can't find /dev/dlpi PPA for XXX" rather than "can't find
+	 PPA for XXX"). */
+      if (strncmp(err_str, ppamsg, sizeof ppamsg - 1) == 0)
+	libpcap_warn =
+	  "\n\n"
+	  "You are running Ethereal with a version of the libpcap library\n"
+	  "that doesn't handle HP-UX network devices well; this means that\n"
+	  "Ethereal may not be able to capture packets.\n"
+	  "\n"
+	  "To fix this, you will need to download the source to Ethereal\n"
+	  "from ethereal.zing.org if you have not already done so, read\n"
+	  "the instructions in the \"README.hpux\" file in the source\n"
+	  "distribution, download the source to libpcap if you have not\n"
+	  "already done so, patch libpcap as per the instructions, rebuild\n"
+	  "and install libpcap, and then build Ethereal (if you have already\n"
+	  "built Ethereal from source, do a \"make distclean\" and re-run\n"
+	  "configure before building).";
+      else
+	libpcap_warn = "";
       snprintf(errmsg, sizeof errmsg,
 	  "The capture session could not be initiated (%s).\n"
 	  "Please check to make sure you have sufficient permissions, and that\n"
-	  "you have the proper interface or pipe specified.", err_str);
+	  "you have the proper interface or pipe specified.%s", err_str,
+	  libpcap_warn);
       goto error;
     }
-#else
-    /* Well, we couldn't start the capture.
-       If this is a child process that does the capturing in sync
-       mode or fork mode, it shouldn't do any UI stuff until we pop up the
-       capture-progress window, and, since we couldn't start the
-       capture, we haven't popped it up. */
-    if (!capture_child) {
-      while (gtk_events_pending()) gtk_main_iteration();
-    }
-    snprintf(errmsg, sizeof errmsg,
-	"The capture session could not be initiated (%s).\n"
-	"Please check to make sure you have sufficient permissions, and that\n"
-	"you have the proper interface specified.", err_str);
-    goto error;
 #endif
   }
 
