@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.270 2004/06/22 15:18:45 gerald Exp $
+# $Id: configure.in,v 1.271 2004/06/22 21:15:41 guy Exp $
 #
 AC_INIT(etypes.h)
 
@@ -167,16 +167,37 @@ fi
 case "$host_os" in
 
 darwin*)
-	AC_MSG_CHECKING(whether to build with Core Foundation and Launch Services)
-	if test -f /System/Library/Frameworks/CoreFoundation.framework/Headers/CFBase.h -a \
-	    -f /System/Library/Frameworks/ApplicationServices.framework/Frameworks/LaunchServices.framework/Headers/LSOpen.h
-	then
+	AC_MSG_CHECKING(whether we can build with Core Foundation and Launch Services)
+	ac_save_LIBS="$LIBS"
+	ac_frameworks="-framework ApplicationServices -framework CoreFoundation"
+	LIBS="$LIBS $ac_frameworks"
+	AC_TRY_LINK(
+	   [
+#       include <CoreFoundation/CFBase.h>
+#       include <CoreFoundation/CFString.h>
+#       include <CoreFoundation/CFURL.h>
+#       include <ApplicationServices/ApplicationServices.h>
+	   ],
+	   [
+	CFStringRef url_CFString;
+	CFURLRef url_CFURL;
+	OSStatus status;
+
+	url_CFString = CFStringCreateWithCString(NULL, "", kCFStringEncodingASCII);
+	url_CFURL = CFURLCreateWithString(NULL, url_CFString, NULL);
+	status = LSOpenCFURLRef(url_CFURL, NULL);
+	   ],
+	   ac_cv_can_use_cf_and_ls=yes,
+	   ac_cv_can_use_cf_and_ls=no,
+	   [echo $ac_n "cross compiling; assumed OK... $ac_c"])
+	if test "$ac_cv_can_use_cf_and_ls" = yes ; then
 		AC_DEFINE(HAVE_OS_X_FRAMEWORKS, 1, [Define to 1 if you have OS X frameworks])
-		FRAMEWORKS="-framework ApplicationServices -framework CoreFoundation"
+		FRAMEWORKS="$ac_frameworks"
 		AC_MSG_RESULT(yes)
 	else
 		AC_MSG_RESULT(no)
 	fi
+	LIBS="$ac_save_LIBS"
 	;;
 esac
 AC_SUBST(FRAMEWORKS)
