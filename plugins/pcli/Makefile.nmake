@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.4 2003/10/10 21:31:52 guy Exp $
+# $Id: Makefile.nmake,v 1.5 2003/11/06 09:05:14 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -11,8 +11,8 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 
 OBJECTS=packet-pcli.obj 
 
-pcli.dll pcli.exp pcli.lib : packet-pcli.obj ..\plugin_api.obj
-	link -dll /out:pcli.dll packet-pcli.obj ..\plugin_api.obj \
+pcli.dll pcli.exp pcli.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:pcli.dll $(OBJECTS) ..\plugin_api.obj \
 	$(GLIB_LIBS)
 
 clean:

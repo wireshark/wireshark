@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.4 2003/10/10 21:31:49 guy Exp $
+# $Id: Makefile.nmake,v 1.5 2003/11/06 09:05:10 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -11,8 +11,8 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 
 OBJECTS=packet-artnet.obj 
 
-artnet.dll artnet.exp artnet.lib : packet-artnet.obj ..\plugin_api.obj
-	link -dll /out:artnet.dll packet-artnet.obj ..\plugin_api.obj \
+artnet.dll artnet.exp artnet.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:artnet.dll $(OBJECTS) ..\plugin_api.obj \
 	$(GLIB_LIBS)
 
 clean:

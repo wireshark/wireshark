@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.6 2003/10/10 21:31:49 guy Exp $
+# $Id: Makefile.nmake,v 1.7 2003/11/06 09:05:12 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -22,20 +22,8 @@ OBJECTS=packet-docsis.obj packet-bpkmattr.obj \
 	packet-dsareq.obj packet-dsdrsp.obj \
 	packet-rngreq.obj packet-vendor.obj
 
-docsis.dll docsis.exp docsis.lib : packet-docsis.obj packet-bpkmattr.obj packet-dsarsp.obj packet-macmgmt.obj packet-rngrsp.obj packet-bpkmreq.obj packet-dscack.obj packet-map.obj packet-tlv.obj packet-bpkmrsp.obj packet-dscreq.obj packet-regack.obj packet-uccreq.obj packet-dscrsp.obj packet-regreq.obj packet-uccrsp.obj packet-dsaack.obj packet-dsdreq.obj packet-regrsp.obj packet-ucd.obj packet-dsareq.obj packet-dsdrsp.obj packet-rngreq.obj packet-vendor.obj ..\plugin_api.obj 
-	link -dll /out:docsis.dll packet-docsis.obj \
-		packet-bpkmattr.obj packet-dsarsp.obj \
-		packet-macmgmt.obj packet-rngrsp.obj \
-		packet-bpkmreq.obj packet-dscack.obj \
-		packet-map.obj packet-tlv.obj \
-		packet-bpkmrsp.obj packet-dscreq.obj \
-		packet-regack.obj packet-uccreq.obj \
-		packet-dscrsp.obj packet-regreq.obj \
-		packet-uccrsp.obj packet-dsaack.obj \
-		packet-dsdreq.obj packet-regrsp.obj \
-		packet-ucd.obj packet-dsareq.obj \
-		packet-dsdrsp.obj packet-rngreq.obj \
-		packet-vendor.obj ..\plugin_api.obj  \
+docsis.dll docsis.exp docsis.lib : $(OBJECTS) ..\plugin_api.obj 
+	link -dll /out:docsis.dll $(OBJECTS) ..\plugin_api.obj  \
 	$(GLIB_LIBS)
 
 clean:

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.3 2003/10/28 20:44:51 guy Exp $
+# $Id: Makefile.nmake,v 1.4 2003/11/06 09:05:11 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -11,8 +11,8 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GTK_CFLAGS) \
 
 OBJECTS=packet-asn1.obj 
 
-asn1.dll asn1.exp asn1.lib : packet-asn1.obj ..\plugin_api.obj
-	link -dll /out:asn1.dll packet-asn1.obj ..\plugin_api.obj \
+asn1.dll asn1.exp asn1.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:asn1.dll $(OBJECTS) ..\plugin_api.obj \
 	$(GTK_LIBS)
 
 clean:

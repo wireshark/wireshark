@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.1 2003/10/14 01:18:11 guy Exp $
+# $Id: Makefile.nmake,v 1.2 2003/11/06 09:05:10 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -11,8 +11,8 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 
 OBJECTS=packet-acn.obj 
 
-acn.dll acn.exp acn.lib : packet-acn.obj ..\plugin_api.obj
-	link -dll /out:acn.dll packet-acn.obj ..\plugin_api.obj \
+acn.dll acn.exp acn.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:acn.dll $(OBJECTS) ..\plugin_api.obj \
 	$(GLIB_LIBS)
 
 clean:

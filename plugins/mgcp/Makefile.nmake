@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.8 2003/10/10 21:31:51 guy Exp $
+# $Id: Makefile.nmake,v 1.9 2003/11/06 09:05:13 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -11,8 +11,8 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 
 OBJECTS=packet-mgcp.obj 
 
-mgcp.dll mgcp.exp mgcp.lib : packet-mgcp.obj ..\plugin_api.obj
-	link -dll /out:mgcp.dll packet-mgcp.obj ..\plugin_api.obj \
+mgcp.dll mgcp.exp mgcp.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:mgcp.dll $(OBJECTS) ..\plugin_api.obj \
 	$(GLIB_LIBS)
 
 clean:

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.3 2003/10/10 21:31:50 guy Exp $
+# $Id: Makefile.nmake,v 1.4 2003/11/06 09:05:12 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -11,8 +11,8 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 
 OBJECTS=packet-lwres.obj 
 
-lwres.dll lwres.exp lwres.lib : packet-lwres.obj ..\plugin_api.obj
-	link -dll /out:lwres.dll packet-lwres.obj ..\plugin_api.obj \
+lwres.dll lwres.exp lwres.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:lwres.dll $(OBJECTS) ..\plugin_api.obj \
 	$(GLIB_LIBS)
 
 clean:
