@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.125 2003/04/29 02:33:47 gerald Exp $
+$Id: NEWS,v 1.126 2003/05/01 03:09:51 gerald Exp $
 
 == April 2?, 2003
 
@@ -10,32 +10,82 @@ New and updated features
 
 TCP sequence number analysis received a few improvements.
 
+General packet reassembly has been improved.
+
+The "Follow TCP Stream" window now allows you to filter out the current
+stream.
+
+The Vines code received significant updates.
+
+Several enhancements were made to the text2pcap utility.
+
 Bug fixes
 
 New protocols
 
+ArtNET,
 Intel ANS,
+IPX WAN,
+iSNS,
 NLSP,
 
 
 Updated protocols
 
-
+802.11
 ACAP,
 AFP,
 AIM,
 AJP,
-DCE RPC,
+ASAP,
+BGP,
+CLNP,
+CPHA,
+DCE/RPC,
+DSI,
+EAP,
+IP,
+IPMI,
+IPv6,
+IPX,
 ISIS,
 ISUP,
+IUA,
+Kerberos,
+LDAP,
+M2PA,
+M2TP,
+M2UA,
+M3UA,
+MGCP,
+Modbus/TCP,
+MTP2,
+MTP3,
+MTP3MG,
+NDMP,
+NDPS,
 NFS,
+NLSP,
 PGM,
 Q.931,
+RANAP,
+RPC,
+RSVP,
 SCCP,
+SCCPMG,
+SCTP,
 SMB,
+SNMP,
+SPX,
+SSH,
+SUA,
 TCP,
+Telnet,
+Vines,
 WBXML,
+WKSSVC,
 WSP,
+WTP,
 
 
 Updated capture file support

@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.20 2003/04/29 02:33:47 gerald Exp $
+$Id: ChangeLog,v 1.21 2003/05/01 03:09:51 gerald Exp $
 
 Overview of changes in Ethereal 0.9.12:
 
@@ -50,10 +50,240 @@ Overview of changes in Ethereal 0.9.12:
 * Improve Netxray/Sniffer gigabit timing (Guy)
 * Add support for NLSP Level 1 Hello packets (Guy)
 * Add NFS_ACL support (Mike Frisch)
+* Add support for draft 7.1 of 802.11g and more 802.11b response codes
+  (Solomon Peachy)
+* Update EAP type 15, add more EAP types (Eric Perie)
+* Add support for WAN Hello packets to NLSP (Guy)
+* Remove redundant sprintfs from packet-isis-clv.c and packet-nlsp.c (Guy)
+* Don't include snprintf.h in packet-isis-clv.c (Guy)
+* Add wiretap/README.developer (Guy)
+* Add an extra argument to get_ms_string() and  (Tim)
+* Add an extra argument to get_unicode_string().  Add more info to
+  COL_INFO (Tim)
+* Add support for Multi Topology Reachable IPv[46] to ISIS (Laurent Rabret)
+* Improve DCERPC/SMB specific rights display (Tim)
+* Add support for SMB-over-IPX (Guy)
+* Add some additional fields to SMB-over-IPX dissection (Guy)
+* Don't include "packet-smb-common.h" in packet-mysql.c (Guy)
+* Rework the way BGP header and packet data is read (Guy)
+* Don't include "nlpid.h" in packet-nlsp.c (Guy)
+* Add support for IPX WAN (Guy)
+* Add "Filter out this stream" button to TCP stream window (emre)
+* Improve IPX port number handling (Guy)
+* Force the rebuilding of Flex output files under Windows (Guy)
+* Add level 2 oplock support, other changes to ncp2222.py (Greg)
+* Flag SPX retransmissions in the Info column (Greg)
+* Fix completion code handling and continuation fragments in NCP2222 (Greg)
+* Add defragmentation support to NDPS, fix bugs, and finish decodes (Greg)
+* Consolidate SPX structs, improve conversation and retransmission handling
+  (Guy)
+* Get rid of unused NDPS variable, fix request/replay frame number display
+  (Guy)
+* Eliminate more unneccessary/unused NDPS stuff (Guy)
+* More NDPS request/reply fixes (Guy)
+* Remove extra newlines and manual Cisco mappings in manuf (Joerg)
+* Export proto_tree_add_none_format() to plugins (Guy)
+* Clean up the handling of the NCP2222 completion code (Guy)
+* Improve NDPS segmentation handling and rename a preference (Guy)
+* Fix some NDPS spelling/punctuation/capitalization/etc. errors (Guy)
+* Add "reassembled_in" field to the reassembly fragment data structure
+  (Guy)
+* Update SMB WriteAndX request decoding to handle pipe bits properly 
+  (Ronnie)
+* Properly decode the packet sequence number in WTP Negative Ack packets
+  (Tom Uijldert)
+* Squelch an SMB compiler warning (Guy)
+* Update ethereal.nsi for NSIS 2.0 (Gerald)
+* Improve SPX retransmission handling efficiency (Guy)
+* Add more SPX filter fields, improve retransmission handling (Guy)
+* Replace a global variable with a string constant in Diameter 
+  (David Frascone)
+* Some COL_INFO goodies for SpoolssWritePrinter (Tim)
+* Fix width of the NT Security Descriptor  revision field in SMB (Ronnie)
+* Decode ISUP element User service info as Q.931 Bearer capability (Anders
+  Broman)
+* Add support for the Chinese ITU variant of SS7 (Jeff Morriss)
+* Improve ISUP info column display (Jeff)
+* Fix SPX retransmitted frame number handling (Guy)
+* Add the sequence number to the SPX retransmission hash key (Guy)
+* Handle IPX packets with no connection control bits set (Guy)
+* Keep M3UA subdissectors from writing to the Info column (Jeff)
+* Completely rewrite DCERPC over SMB reassembly (Ronnie)
+* Improve manuf output, remove redundant entries (Joerg)
+* Update the FAQ to April 10th (Joerg)
+* Constrain dcerpc_fragment_table() to packet-smb-pipe.c (Guy)
+* Misc write mode bit fixes in SMB, update comments (Guy)
+* Improve datastream type display for SPX (Guy)
+* Fix SMB write_andx extra byte handling (Ronnie)
+* Rewrite DCE/RPC fragment reassembly (Ronnie)
+* Consolidate DCE/RPC pipe dissection code (Guy)
+* Dissect user-to-user IEs in ISUP messages as Q.931 UU IE's (Anders)
+* Keep the two sides of a pipe separate when doing DCERPC-over-a-pipe
+  reassembly (Guy)
+* Dissect the "List" subtype in the Server Stored List (SSI) family
+  (Devin)
+* More DSI getserverinfo decoding (Didier)
+* Don't put "[DCE/RPC fragment]" into the Info column if the packet isn't
+  fragmented (Guy)
+* When dissecting SPOOLSS SYSTEM_TIME, include the milliseconds in the
+  top-level summary item (Guy)
+* Add filterable fields to COTP (Laurent Meyer)
+* Have separate fields for the COTP and CLTP PDU types, other changes (Guy)
+* Remove redundant snprintf() in packet-cpha.c (Guy)
+* Add the notion of a "fence" to columns (Guy)
+* Split up column initialization and setup routines (Guy)
+* Add support for Modbus/TCP compliance levels 0, 1, and 2 
+  (Stephen Shelley)
+* Add value_strings to Modbus/TCP (Guy)
+* Add response time stats to MGCP, other stats-related fixes and updates
+  (Lars Roland)
+* Allow users to manually designate traffic as RPC (Ronnie)
+* Print IP ID numbers in both hexadecimal and decimal (Ronnie)
+* Add more (WB)XML DTDs from WINA (Olivier Biot)
+* Improve handling and output of SCSI device ID data (Guy)
+* Support SMB as one of the protocols that can run over OSI COTP (Guy)
+* Reassembly and other fixes for SSH (Guy)
+* Clean up Vines column display, other fixes (Guy)
+* Make reassemble.c/fragment_add() idempotent (Guy)
+* Add support for VINES-over-802.2 LLC, display more packet data (Guy)
+* Add a heuristic dissector table to Vines SPP and register SMB with it
+  (Guy)
+* Add support for Vines IPC (Guy)
+* Add VINES ARP support (Guy)
+* Add support for VINES SRTP (and a stub dissector for RTP) (Guy)
+* Add support for Vines ICP (Guy)
+* Handle non-SNAP LLC Vines packets as such when capturing (Guy)
+* In Vines ARP Assignment Response packets, put the address being assigned
+  in the Info column (Guy)
+* Use config.nmake's NET_SNMP_DIR definition in ethereal.nsi 
+  (Stephen Shelley)
+* IP reassembly updates and improvements (Ronnie)
+* Fix a problem where the RPC tap would not be called
+  if the PDU was short (Ronnie)
+* More Vines updates: RTP, ARP, Echo, class values, others (Guy)
+* Various Vines fixes (Guy)
+* Improve Vines ARP and RTP metrics display, other display tweaks (Guy)
+* More filterable fields in SNMP (Thierry Andry)
+* Squelch an SNMP compiler warning (Guy)
+* Handle the first fragment in reassembly better (Guy)
+* Improve SNMP string display, add filters for SMUX version and PDU type
+  (Guy)
+* Fencify INFO column data in many SS7 dissectors (Michael)
+* Add a col_set_fence call (Michael)
+* Fencify INFO column data for more dissectors (Michael)
+* Fencify ASAP and SCTP (Michael)
+* Add some hefty reassembly improvements (Guy)
+* Use "fragment_add_check()" for IPv6 and CLNP reassembly (Guy)
+* Add a "fragment_add_multiple_ok()" routine (Guy)
+* Remove NULL hf_register_info blurbs in packet-nlsp.c (Gerald)
+* Consolidate fragment_add_check() postprocessing (Guy)
+* Allow previous frames to show the final reassembly frame (Guy)
+* Change LITTLE_ENDIAN to LITTLE_ENDIAN_BYTE_ORDER in MTP2 (Michael)
+* Improve the display of the final reassembly frame (Guy)
+* Remove request/reply information from packet-dcerpc-reg.c (Guy)
+* Display the LDAP message ID and message type (Jean-Baptiste Marchand)
+* Enhance NDMP data display (Guy)
+* Remove an improper "Add Expression" button in the capture filter UI
+  (Brad Hards)
+* Add ArtNET support (Erwin Rol)
+* Add a massive heap of NDPS changes and improvements (Greg Morris)
+* Improve GTK menu sensitivity setting (Guy)
+* Correctly set menu sensitivity in various places (Guy)
+* Various RSVP fixes and improvements (Akira Endoh)
+* Fix SAP_VINES1 in packet-vines.c (Guy)
+* Add the Ethernet type for the Vines Echo protocol (Guy)
+* Update to the io,stat tethereal tap (Ronnie)
+* Does anyone ever read through this? (Gerald)
+* Update to smb rtt stat for ethereal (Ronnie)
+* De-fencify a lot of SS7 code (Michael)
+* Fencify upper layer SCTP info, other Info column updates (Michael)
+* Additional NFSv4 status codes (Mike Frisch)
+* Eliminate unneccessary packet_info pointer arguments in SCTP (Guy)
+* Telnet fixes (David Yon)
+* Make the Telnet "iac_found" variable Boolean, other changes (Guy)
+* Remove undefined RSVP code (Laurent)
+* Remove signal (old debuging code) in CLNP (Laurent)
+* Add IPMI-over-LAN support (Duncan Laurie)
+* Improve tap-related menu creation and sensitivity (Guy)
+* Allow taps to have menu item registration routines (Guy)
+* Convert all Ethereal (GUI) taps to use "register_tap_menu_item(),
+  other updates (Guy)
+* Rework register_tap_listener()'s return value (Guy)
+* Update to TCP to handle hints from dissectors where the next PDU may
+  start (Guy)
+* Add a missed RPC patch (Ronnie)
+* Support for filterable fields in BGP UPDATE messages, add error checking
+  and cleanups (Guy, Marcio Franco)
+* Fix smb transact2 findfirst decoding of info level 2's (Jim McDonough)
+* Don't ignore SIGCHLD in capture.c (Guy)
+* Make io-stat able to calculate COUNT() SUM() MIN() MAX() and AVG() for
+  integers and relative time fields (Ronnie)
+* Fix make-tapreg-dotc directory variable (Didier)
+* Add the ASN.1 routines to the table of routines exported to dissectors
+  (Matthijs Melchior)
+* Dialog box behavior improvements (Guy)
+* Declar exported asn1.h functions as "extern" (Guy)
+* Initialize hf_bgp_cluster_list in packet-bgp.c (Gerald)
+* Obscure manuf email addresses and update entries (Gerald)
+* Improve NCP 123,62 display, add Novell Modular Authentication Service
+  stuff (Greg)
+* Improve NCP string display, other NCP changes (Greg)
+* Filter dialog for the MGCP statistics tap, other stats-related changes
+  (Lars)
+* Initial stub Kerberos kadmin support (Tony Schene)
+* Null freed pointers in packet-ldap.c (Tony)
+* Add Kerberos-over-TCP support (Tony)
+* Show the URL of the I-D giving information on Kerberos-over-TCP (Guy)
+* Begin to parse wkssvc stuff (Richard)
+* New DCERPC pipe for Windows service control (Tim)
+* Finish the dissection of what we know in SRVSVC and WKSSVC (Richard)
+* Put the new "-z" man page examples in boldface, wrap some paragraphs
+  (Guy)
+* Many improvements to text2pcap (Matthijs)
+* Handle non-unicode strings in DCE/RPC code (Ronnie)
+* Clean up the example for the "-m" flag in text2pcap.pod (Guy)
+* Add support for more many more functions to SVCCTL (Ronnie)
+* Call dissect_nt_status() instead of dissect_ndr_uint32() when dissecting
+  DCE/RPC LSA return status codes (Tim)
+* Add mode info levels for NetWkstaGetInfo (Richard)
+* Add support for level 102 info to packet-dcerpc-wkssvc.c (Richard)
+* Use AM_YFLAGS instead of YFLAGS (Joerg)
+* Update some more SVCCTL names (Richard)
+* Replace some unchecked malloc calls by g_malloc (Laurent)
+* Improve nonprintable character handling in DCE/RPC NT (Guy)
+* Improve statistics display (Lars)
+* Document "mgcp,rtd" tap for Ethereal and improve Tethereal's entry (Lars)
+* Fix "asn1_bits_decode()" (Matthijs)
+* Fix several buffer and integer overflow issues discovered by Timo
+  Sirainen (Gerald)
+* Consolidate DCE/RPC specific rights dissection function and name into a
+  structure (Tim)
+* Fix a NULL dereference in packet-smb.c (Ronnie)
+* Check an ICMPv6 reserved field against 0, and displays an indication of
+  whether it's zero or not (Yaniv)
+* Remove the check for the SafeNet VID in packet-isakmp.c (Yaniv)
+* Fix typo in value_string table for LDAP message types (Jean-Baptiste)
+* Add iSNS support (Garth Bushell)
+* Fix display bug for interval in tap-iostat.c (Ronnie)
+* Fix a typo in packet-isis-lsp.c (Laurent Rabret)
+* Don't export IP's "ip_dissector_table" explicitly (Guy)
+* More dissector table export fixes (Guy)
+* Greatly enhance packet-dcerpc-wkssv.c based on one-off VC++ programs
+  (Richard)
+* Add a "proto_item_set_end()" routine to proto.c (Guy)
+* Small manuf update (Joerg)
+* Modify tvb_get_nstringz*() to behave more like snprintf(), fixing
+  previous checkin (Gerald)
+* Add a subtree for the BPDU MSTI flags (Kaloian Stoilov)
+* Export the exception mechanism routines to plugins where appropriate
+  (Matthijs)
+* Fix up the overlap checks in the fragment_add_seq functions for
+  fully-reassembled packets (Guy)
+* Incorporate the AODV6 dissector into the AODV dissector (Guy)
+* Fix typedefs in plugins/plugin_table.h, eliminate duplicate code (Guy)
 * 
 
-
-
+Left off at: http://www.ethereal.com/lists/ethereal-cvs/200304/msg00269.html
 
 
 
