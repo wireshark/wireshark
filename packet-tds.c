@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.15 2003/08/23 05:59:54 guy Exp $
+ * $Id: packet-tds.c,v 1.16 2003/08/27 23:28:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -273,6 +273,19 @@ static int hf_tds_fragment_multiple_tails = -1;
 static int hf_tds_fragment_too_long_fragment = -1;
 static int hf_tds_fragment_error = -1;
 
+static int hf_tds7_login_total_size = -1;
+static int hf_tds7_version = -1;
+static int hf_tds7_packet_size = -1;
+static int hf_tds7_client_version = -1;
+static int hf_tds7_client_pid = -1;
+static int hf_tds7_connection_id = -1;
+static int hf_tds7_option_flags1 = -1;
+static int hf_tds7_option_flags2 = -1;
+static int hf_tds7_sql_type_flags = -1;
+static int hf_tds7_reserved_flags = -1;
+static int hf_tds7_time_zone = -1;
+static int hf_tds7_collation = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_tds = -1;
 static gint ett_tds_fragments = -1;
@@ -415,6 +428,21 @@ struct _netlib_data {
 	struct _tds_col *columns[MAX_COLUMNS];
 };
 
+struct tds7_login_packet_hdr {
+	guint32	total_packet_size;
+	guint32 tds_version;
+	guint32 packet_size;
+	guint32 client_version;
+	guint32 client_pid;
+	guint32	connection_id;
+	guint8  option_flags1;
+	guint8	option_flags2;
+	guint8	sql_type_flags;
+	guint8	reserved_flags;
+	guint32	time_zone;
+	guint32	collation;
+};
+
 /* all the standard memory management stuff */
 #define tds_column_length (sizeof(struct _tds_col))
 #define tds_column_init_count 10
@@ -443,26 +471,79 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *login_tree;
 	proto_item *header_hdr;
 	proto_tree *header_tree;
-
+	proto_item *length_hdr;
+	proto_tree *length_tree;
+	
+	struct tds7_login_packet_hdr td7hdr;
 	gint length_remaining;
 
-	offset = 8+36;
 
 	/* create display subtree for the protocol */
-	login_hdr = proto_tree_add_text(tree, tvb, 8, -1, "TDS7 Login Packet");
+	offset = 0;
+	login_hdr = proto_tree_add_text(tree, tvb, offset, -1, "TDS7 Login Packet");
 	login_tree = proto_item_add_subtree(login_hdr, ett_tds7_login);
-
-	header_hdr = proto_tree_add_text(login_tree, tvb, offset, 50,
-	    "Login Packet Header");
+	header_hdr = proto_tree_add_text(login_tree, tvb, offset, 36, "Login Packet Header");
 	header_tree = proto_item_add_subtree(header_hdr, ett_tds7_hdr);
+	
+	td7hdr.total_packet_size = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(header_tree, hf_tds7_login_total_size, tvb, offset, sizeof(td7hdr.total_packet_size), td7hdr.total_packet_size);
+	offset += sizeof(td7hdr.total_packet_size);
+	
+	td7hdr.tds_version = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(header_tree, hf_tds7_version, tvb, offset, sizeof(td7hdr.tds_version), td7hdr.tds_version);
+	offset += sizeof(td7hdr.tds_version);
+	
+	td7hdr.packet_size = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(header_tree, hf_tds7_packet_size, tvb, offset, sizeof(td7hdr.packet_size), td7hdr.packet_size);
+	offset += sizeof(td7hdr.packet_size);
+	
+	td7hdr.client_version = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(header_tree, hf_tds7_client_version, tvb, offset, sizeof(td7hdr.client_version), td7hdr.client_version);
+        offset += sizeof(td7hdr.client_version);
+	
+	td7hdr.client_pid = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(header_tree, hf_tds7_client_pid, tvb, offset, sizeof(td7hdr.client_pid), td7hdr.client_pid);
+        offset += sizeof(td7hdr.client_pid);
+
+	td7hdr.connection_id= tvb_get_letohl(tvb, offset);
+        proto_tree_add_uint(header_tree, hf_tds7_connection_id, tvb, offset, sizeof(td7hdr.connection_id), td7hdr.connection_id);
+        offset += sizeof(td7hdr.connection_id);
+	
+	td7hdr.option_flags1 = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(header_tree, hf_tds7_option_flags1, tvb, offset, sizeof(td7hdr.option_flags1), td7hdr.option_flags1);
+	offset += sizeof(td7hdr.option_flags1);
+	
+	td7hdr.option_flags2 = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(header_tree, hf_tds7_option_flags2, tvb, offset, sizeof(td7hdr.option_flags2), td7hdr.option_flags2);
+        offset += sizeof(td7hdr.option_flags2);
+
+	td7hdr.sql_type_flags = tvb_get_guint8(tvb, offset);	
+	proto_tree_add_uint(header_tree, hf_tds7_sql_type_flags, tvb, offset, sizeof(td7hdr.sql_type_flags), td7hdr.sql_type_flags);
+	offset += sizeof(td7hdr.sql_type_flags);
+
+	td7hdr.reserved_flags = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(header_tree, hf_tds7_reserved_flags, tvb, offset, sizeof(td7hdr.reserved_flags), td7hdr.reserved_flags);
+	offset += sizeof(td7hdr.reserved_flags);
+	
+	td7hdr.time_zone = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(header_tree, hf_tds7_time_zone, tvb, offset, sizeof(td7hdr.time_zone), td7hdr.time_zone);
+	offset += sizeof(td7hdr.time_zone);
+
+	td7hdr.collation = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(header_tree, hf_tds7_collation, tvb, offset, sizeof(td7hdr.collation), td7hdr.collation);
+	offset += sizeof(td7hdr.collation);
+
+	length_hdr = proto_tree_add_text(login_tree, tvb, offset, 50, "Lengths and offsets");
+        length_tree = proto_item_add_subtree(length_hdr, ett_tds7_hdr);
+
 	for (i = 0; i < 9; i++) {
 		offset2 = tvb_get_letohs(tvb, offset + i*4);
 		len = tvb_get_letohs(tvb, offset + i*4 + 2);
-		proto_tree_add_text(header_tree, tvb, offset + i*4, 2,
+		proto_tree_add_text(length_tree, tvb, offset + i*4, 2,
 		    "%s offset: %u",
 		    val_to_str(i, login_field_names, "Unknown"),
 		    offset2);
-		proto_tree_add_text(header_tree, tvb, offset + i*4 + 2, 2,
+		proto_tree_add_text(length_tree, tvb, offset + i*4 + 2, 2,
 			"%s length: %u",
 			val_to_str(i, login_field_names, "Unknown"),
 			len);
@@ -656,7 +737,6 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, guint8 t
 	guint tds_major, bytes_avail;
 
 	bytes_avail = tvb_length(tvb) - offset;
-
 	/*
 	 * we have two login packet styles, one for TDS 4.2 and 5.0
 	 */
@@ -1324,6 +1404,66 @@ proto_register_netlib(void)
 			FT_NONE, BASE_NONE, NULL, 0x0,
 			"TDS Fragments", HFILL }
 		},
+		{ &hf_tds7_login_total_size,
+			{ "Total Packet Length", "tds7login.total_len",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"TDS7 Login Packet total packet length", HFILL }
+		},
+		{ &hf_tds7_version,
+                        { "TDS version", "tds7login.version",
+                        FT_UINT32, BASE_HEX, NULL, 0x0,
+                        "TDS version", HFILL }
+                },
+		{ &hf_tds7_packet_size,
+                        { "Packet Size", "tds7login.packet_size",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        "Packet size", HFILL }
+                },
+		{ &hf_tds7_client_version,
+                        { "Client version", "tds7login.client_version",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        "Client version", HFILL }
+                },
+		{ &hf_tds7_client_pid,
+                        { "Client PID", "tds7login.client_pid",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        "Client PID", HFILL }
+                },
+		{ &hf_tds7_connection_id,
+                        { "Connection ID", "tds7login.connection_id",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        "Connection ID", HFILL }
+                },
+		{ &hf_tds7_option_flags1,
+                        { "Option Flags 1", "tds7login.option_flags1",
+                        FT_UINT8, BASE_HEX, NULL, 0x0,
+                        "Option Flags 1", HFILL }
+                },
+		{ &hf_tds7_option_flags2,
+                        { "Option Flags 2", "tds7login.option_flags2",
+                        FT_UINT8, BASE_HEX, NULL, 0x0,
+                        "Option Flags 2", HFILL }
+                },
+		{ &hf_tds7_sql_type_flags,
+                        { "SQL Type Flags", "tds7login.sql_type_flags",
+                        FT_UINT8, BASE_HEX, NULL, 0x0,
+                        "SQL Type Flags", HFILL }
+                },
+		{ &hf_tds7_reserved_flags,
+                        { "Reserved Flags", "tds7login.reserved_flags",
+                        FT_UINT8, BASE_HEX, NULL, 0x0,
+                        "reserved flags", HFILL }
+                },
+		{ &hf_tds7_time_zone,
+                        { "Time Zone", "tds7login.time_zone",
+                        FT_UINT32, BASE_HEX, NULL, 0x0,
+                        "Time Zone", HFILL }
+                },
+		{ &hf_tds7_collation,
+                        { "Collation", "tds7login.collation",
+                        FT_UINT32, BASE_HEX, NULL, 0x0,
+                        "Collation", HFILL }
+                },
 	};
 	static gint *ett[] = {
 		&ett_tds,
