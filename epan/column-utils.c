@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.11 2002/01/29 08:44:49 guy Exp $
+ * $Id: column-utils.c,v 1.12 2002/01/31 00:51:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,10 +35,6 @@
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
-#endif
-
-#ifdef NEED_INET_V6DEFS_H
-# include "inet_v6defs.h"
 #endif
 
 #include "column-utils.h"
@@ -191,8 +187,9 @@ void
 col_prepend_fstr(column_info *cinfo, gint el, gchar *format, ...)
 {
   va_list ap;
-  int     i, safe_orig = FALSE;
-  char   *orig = NULL;
+  int     i;
+  char   *orig_buf = NULL;
+  char   *orig;
   size_t  max_len;
   
   if (el == COL_INFO)
@@ -208,10 +205,9 @@ col_prepend_fstr(column_info *cinfo, gint el, gchar *format, ...)
         orig = cinfo->col_data[i];
       } else {
         /* Need to cache the original string */
-        if (!safe_orig) {
-          orig = alloca(max_len);
-          safe_orig = TRUE;
-        }
+        if (orig_buf == NULL)
+          orig_buf = g_malloc(max_len);
+        orig = orig_buf;
 	strncpy(orig, cinfo->col_buf[i], max_len);
 	orig[max_len - 1] = '\0';
       }
@@ -221,6 +217,8 @@ col_prepend_fstr(column_info *cinfo, gint el, gchar *format, ...)
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
+  if (orig_buf != NULL)
+    g_free(orig_buf);
   va_end(ap);
 }
 
