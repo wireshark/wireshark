@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.h,v 1.1 2003/03/06 09:01:47 sahlberg Exp $
+ * $Id: packet-mgcp.h,v 1.2 2003/07/25 17:57:09 guy Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.100 2003/07/22 23:08:47 guy Exp $
+ * $Id: file.h,v 1.101 2003/07/25 17:57:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
