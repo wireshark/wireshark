@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.65 2004/02/24 19:42:22 ulfl Exp $
+$Id: README.win32,v 1.66 2004/04/08 20:36:09 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -169,8 +169,10 @@ The ADNS package is also available at its homepage:
 
 By default, the build process looks for these packages in
 C:\ethereal-win32-libs.  You can place them in a different directory, but
-you must update config.nmake accordingly.  The default location for each
-package is as follows:
+you must update the ETHEREAL_LIBS variable in config.nmake accordingly.
+The default location for each package is listed below.  If you're running
+MSVC++, you cat run "nmake -f makefile.nmake setup" to download each
+file and unpack it in the $ETHEREAL_LIBS directory.
 
     Package                               Default Location
     -------                               ----------------
