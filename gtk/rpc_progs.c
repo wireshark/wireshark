@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.9 2003/04/23 08:20:05 guy Exp $
+ * $Id: rpc_progs.c,v 1.10 2003/09/17 19:39:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -407,6 +407,6 @@ register_tap_listener_gtkrpcprogs(void)
 void
 register_tap_menu_gtkrpcprogs(void)
 {
-	register_tap_menu_item("ONC-RPC/Programs", gtk_rpcprogs_cb);
+	register_tap_menu_item("Statistics/ONC-RPC/Programs", gtk_rpcprogs_cb);
 }
 

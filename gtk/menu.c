@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.95 2003/09/12 02:48:23 sahlberg Exp $
+ * $Id: menu.c,v 1.96 2003/09/17 19:39:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -423,7 +423,7 @@ menus_init(void) {
 void
 register_tap_menu_item(char *name, GtkItemFactoryCallback callback)
 {
-	static const char statspath[] = "/Tools/Statistics/";
+	static const char toolspath[] = "/Tools/";
 	char *p;
 	char *menupath;
 	size_t menupathlen;
@@ -447,9 +447,9 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback)
 		 *
 		 * Construct the absolute path name of that subtree.
 		 */
-		menupathlen = sizeof statspath + (p - name);
+		menupathlen = sizeof toolspath + (p - name);
 		menupath = g_malloc(menupathlen);
-		strcpy(menupath, statspath);
+		strcpy(menupath, toolspath);
 		strncat(menupath, name, p - name);
 
 		/*
@@ -477,13 +477,13 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback)
 	/*
 	 * Construct the main menu path for the menu item.
 	 *
-	 * "sizeof statspath" includes the trailing '\0', so the sum
+	 * "sizeof toolspath" includes the trailing '\0', so the sum
 	 * of that and the length of "name" is enough to hold a string
 	 * containing their concatenation.
 	 */
-	menupathlen = sizeof statspath + strlen(name);
+	menupathlen = sizeof toolspath + strlen(name);
 	menupath = g_malloc(menupathlen);
-	strcpy(menupath, statspath);
+	strcpy(menupath, toolspath);
 	strcat(menupath, name);
 
 	/*

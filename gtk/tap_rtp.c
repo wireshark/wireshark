@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.15 2003/09/06 08:30:26 guy Exp $
+ * $Id: tap_rtp.c,v 1.16 2003/09/17 19:39:33 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -1575,7 +1575,7 @@ register_tap_listener_gtkrtp(void)
 void
 register_tap_menu_gtkrtp(void)
 {
-	register_tap_menu_item("RTP Analysis...", rtp_analyse_cb);
+	register_tap_menu_item("Statistics/RTP Analysis...", rtp_analyse_cb);
 }
 
 
