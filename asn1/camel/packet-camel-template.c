@@ -45,6 +45,7 @@
 #include "packet-q931.h"
 #include "packet-e164.h"
 #include "packet-isup.h"
+#include "packet-gsm_map.c"
 
 #define PNAME  "Camel"
 #define PSNAME "CAMEL"
@@ -90,39 +91,6 @@ static int application_context_version;
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
-static char*
-unpack_digits(tvbuff_t *tvb, int offset){
-
-  int length;
-  guint8 octet;
-  int i=0;
-  char *digit_str;
-
-  length = tvb_length(tvb);
-  length = length - offset;
-  digit_str = g_malloc(length+1);
-
-  while ( offset < length ){
-    octet = tvb_get_guint8(tvb,offset);
-    digit_str[i] = ((octet & 0x0f) + 0x30);
-    i++;
-
-    /*
-     * unpack second value in byte
-     */
-    octet = octet >> 4;
-
-    if (octet == 0x0f)  /* odd number bytes - hit filler */
-      break;
-
-    digit_str[i] = ((octet & 0x0f) + 0x30);
-    i++;
-    offset++;
-
-  }
-  digit_str[i]= '\0';
-  return digit_str;
-}
 
 static const true_false_string camel_extension_value = {
   "No Extension",
