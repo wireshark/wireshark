@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.228 2003/10/30 20:30:19 guy Exp $
+# $Id: configure.in,v 1.229 2003/10/30 22:06:07 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -31,12 +31,12 @@ AC_PROG_YACC
 AM_PROG_LEX
 AC_PATH_PROG(PERL, perl)
 AC_PATH_PROG(POD2MAN, pod2man)
-if test x$POD2MAN = x
+if test "x$POD2MAN" = x
 then
 	#
 	# The alternative is not to build the man pages....
 	#
-	AC_MSG_ERROR(pod2man is not present on this system)
+	AC_MSG_ERROR(I couldn't find pod2man; make sure it's installed and in your path)
 fi
 AC_PATH_PROG(LEX, flex)
 AC_PATH_PROG(PYTHON, python)
