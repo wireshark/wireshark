@@ -1,5 +1,7 @@
 %option noyywrap
 %option nounput 
+%option caseless
+
 %{
 
 	/* xml_lexer.l
@@ -35,72 +37,74 @@
 	static guint8* extracted = NULL;
 	static gint offset;
 	static gint last_offset;
+	static gint text_offset;
 	static gint len;
 	xml_token_t* head;
 	xml_token_t* tail;
-
-#define YY_INPUT(buff,result,max_size) ( (result) = tvb_yyinput((buff),(max_size)) )
-#define ECHO {add_xml_item(XML_GARBLED,XML_CTX_OUT, yyleng, yytext); return 0;} 
 	
-	static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint len, gchar* text);
+#define YY_INPUT(buff,result,max_size) ( (result) = tvb_yyinput((buff),(max_size)) )
+#define ECHO ; 
+	
+	static void add_xml_item(xml_token_type_t type, gint len);
 	static int tvb_yyinput(char* buff, guint max_len);
 	
 %}
-property_dq [A-Za-z][_A-Za-z0-9:]*=["][^\"]*["]
-property_sq [A-Za-z][_A-Za-z0-9:]*='[^\']*'
-property_nq [A-Za-z][_A-Za-z0-9:]*=[_A-Za-z0-9]+
-metatag_start "<?"
-metatag_end "?>"
-comment_start "<!--"
-comment_end  "-->"
+xmlpi_start "<?"
+xmlpi_end "?>"
+
+comment_start <!--
+comment_end  -->
+
+markupdecl_start "<!"
 closetag_start "</"
 tag_start "<"
-tag_end ">"
+
+tag_end >
 closedtag_end "/>"
-name [A-Za-z][-_A-Za-z0-9:]*
-whitespace [ \t\r\n]+
-text [^<]*
-%START COMMENT TAG CLOSE_TAG META_TAG OUT
-%%
-{comment_start}		{ add_xml_item(XML_COMMENT_START, XML_CTX_COMMENT, yyleng, yytext); BEGIN COMMENT;}
-<COMMENT>{comment_end}		{ add_xml_item(XML_COMMENT_END, XML_CTX_COMMENT, yyleng, yytext); BEGIN OUT; }
-<COMMENT>{text}				add_xml_item(XML_TEXT, XML_CTX_COMMENT, yyleng, yytext);
-<COMMENT>{tag_start}		add_xml_item(XML_TEXT, XML_CTX_COMMENT, yyleng, yytext);
+open_brace "["
 
-{closetag_start}		{ add_xml_item(XML_CLOSE_TAG_START, XML_CTX_CLOSETAG, yyleng, yytext); BEGIN CLOSE_TAG; }
-<CLOSE_TAG>{name}			add_xml_item(XML_NAME, XML_CTX_CLOSETAG, yyleng, yytext);
-<CLOSE_TAG>{whitespace}		add_xml_item(XML_WHITESPACE, XML_CTX_CLOSETAG, yyleng,yytext);
-<CLOSE_TAG>{tag_end}		{ add_xml_item(XML_TAG_END, XML_CTX_CLOSETAG, yyleng, yytext); BEGIN OUT; }
+dtd_doctype_stop "]"[:blank:]*>
 
-{metatag_start}		{ add_xml_item(XML_METATAG_START, XML_CTX_METATAG, yyleng, yytext); BEGIN META_TAG; }
-<META_TAG>{property_dq}		add_xml_item(XML_PROPERTY, XML_CTX_METATAG, yyleng, yytext);
-<META_TAG>{property_sq}		add_xml_item(XML_PROPERTY, XML_CTX_METATAG, yyleng, yytext);
-<META_TAG>{property_nq}		add_xml_item(XML_PROPERTY, XML_CTX_METATAG, yyleng, yytext);
-<META_TAG>{whitespace}		add_xml_item(XML_WHITESPACE,  XML_CTX_METATAG, yyleng, yytext);
-<META_TAG>{name}			add_xml_item(XML_NAME,  XML_CTX_METATAG, yyleng, yytext);
-<META_TAG>{metatag_end}		{ add_xml_item(XML_METATAG_END,  XML_CTX_METATAG, yyleng,yytext); BEGIN OUT; }
+whitespace [[:blank:]\r\n]+
+text_start ([^<[:blank:]\r\n]|[^<])
+text_stop <
 
-{tag_start}			{ add_xml_item(XML_TAG_START, XML_CTX_TAG, yyleng, yytext); BEGIN TAG; }
-<TAG>{property_dq}			add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
-<TAG>{property_sq}			add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
-<TAG>{property_nq}			add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
-<TAG>{name}					add_xml_item(XML_NAME, XML_CTX_TAG, yyleng, yytext);
-<TAG>{whitespace}			add_xml_item(XML_WHITESPACE, XML_CTX_TAG, yyleng, yytext);
-<TAG>{closedtag_end}		{add_xml_item(XML_CLOSE_TAG_END, XML_CTX_TAG, yyleng, yytext); BEGIN OUT; }
-<TAG>{tag_end}				{add_xml_item(XML_TAG_END,  XML_CTX_TAG, yyleng, yytext); BEGIN OUT; }
-
-<OUT>{whitespace}			add_xml_item(XML_WHITESPACE,  XML_CTX_OUT, yyleng, yytext);
-<OUT>{text}					add_xml_item(XML_TEXT,  XML_CTX_OUT, yyleng, yytext); 
+%START OUT COMMENT TAG CLOSE_TAG XMLPI DOCTYPE MARKUPDECL TEXT
 %%
 
-static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint the_len, gchar* text) {
+<OUT>{whitespace}			{ add_xml_item(XML_WHITESPACE, yyleng); }
+<OUT>{dtd_doctype_stop}		{ add_xml_item(XML_DOCTYPE_STOP, yyleng); }
+
+<OUT>{text_start}			{ text_offset = offset - yyleng -1; BEGIN TEXT; }
+<TEXT>{text_stop}			{ add_xml_item(XML_TEXT, --offset - text_offset -1 ); BEGIN OUT; }
+
+<OUT>{comment_start}		{ text_offset = offset - yyleng -1; BEGIN COMMENT; }
+<COMMENT>{comment_end}		{ add_xml_item(XML_COMMENT, offset - text_offset -1); BEGIN OUT; }
+
+<OUT>{closetag_start}		{ text_offset = offset - yyleng -1; BEGIN CLOSE_TAG; }
+<CLOSE_TAG>{tag_end}		{ add_xml_item(XML_CLOSE_TAG, offset - text_offset -1); BEGIN OUT; }
+
+<OUT>{xmlpi_start}			{ text_offset = offset - yyleng -1; BEGIN XMLPI; }
+<XMLPI>{xmlpi_end}			{ add_xml_item(XML_XMLPI, offset - text_offset -1); BEGIN OUT; }
+
+<OUT>{markupdecl_start}		{ text_offset = offset - yyleng -1; BEGIN MARKUPDECL; }
+<MARKUPDECL>{open_brace}	{ add_xml_item(XML_DOCTYPE_START, offset - text_offset); BEGIN OUT; }
+<MARKUPDECL>{tag_end}		{ add_xml_item(XML_MARKUPDECL,  offset - text_offset); BEGIN OUT; }
+
+<OUT>{tag_start}				{ text_offset = offset - yyleng -1; BEGIN TAG; }
+<TAG>{closedtag_end}			{ add_xml_item(XML_CLOSEDTAG, offset - text_offset); BEGIN OUT; }
+<TAG>{tag_end}					{ add_xml_item(XML_TAG, offset - text_offset); BEGIN OUT; }
+
+
+
+%%
+
+static void add_xml_item(xml_token_type_t type, gint the_len) {
 	xml_token_t* xi = g_malloc(sizeof(xml_token_t));
 	
 	xi->type = type;
-	xi->ctx = ctx;
 	xi->offset = last_offset;
 	xi->len = the_len;
-	xi->text = text != NULL ? g_strdup(text) : NULL;
 	xi->next = NULL;
 	xi->prev = tail;
 	
@@ -134,14 +138,19 @@ extern xml_token_t* scan_tvb_for_xml_items(tvbuff_t* tvb, gint the_offset, gint 
 	offset = the_offset;
 	last_offset = the_offset;
 	len = the_len;
+	text_offset = offset;
 	extracted = tvb_memdup(tvb,offset,len);
 	
 	head = NULL;
 	tail = NULL;
 	
+	BEGIN OUT;
+	
 	yylex();
 	
 	yyrestart(NULL);
+	
+	g_free(extracted);
 	
 	return head;
 }

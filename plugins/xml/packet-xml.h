@@ -32,32 +32,19 @@ typedef struct _xml_token_t xml_token_t;
 
 typedef enum _xml_token_type_t {
 	XML_WHITESPACE,
-	XML_PROPERTY,
-	XML_COMMENT_START,
-	XML_COMMENT_END,
-	XML_TAG_START,
-	XML_TAG_END,
-	XML_METATAG_START,
-	XML_METATAG_END,
-	XML_CLOSE_TAG_START,
-	XML_CLOSE_TAG_END,
-	XML_NAME,
 	XML_TEXT,
-	XML_GARBLED
+	XML_COMMENT,
+	XML_TAG,
+	XML_CLOSEDTAG,
+	XML_MARKUPDECL,
+	XML_XMLPI,
+	XML_CLOSE_TAG,
+	XML_DOCTYPE_START,
+	XML_DOCTYPE_STOP
 } xml_token_type_t;
-
-typedef enum _xml_context_t {
-	XML_CTX_OUT,
-	XML_CTX_COMMENT,
-	XML_CTX_TAG,
-	XML_CTX_METATAG,
-	XML_CTX_CLOSETAG
-} xml_context_t;
 
 struct _xml_token_t {
 	xml_token_type_t type;
-	xml_context_t ctx;
-	char* text;
 	int offset;
 	int len;
 	xml_token_t* next;

@@ -37,74 +37,40 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
+#include <epan/report_err.h>
 
 #include "packet-xml.h"
 
-#ifdef DEBUG_XML
-static const value_string xml_token_types[] =
-{
-	{XML_WHITESPACE,	"white space"},
-	{XML_PROPERTY,		"property"},
-	{XML_COMMENT_START, "comment start"},
-	{XML_COMMENT_END,   "comment end"},
-	{XML_METATAG_START, "metatag start"},
-	{XML_METATAG_END,   "metatag end"},
-	{XML_TAG_START,		"tag start"},
-	{XML_TAG_END,		"tag end"},
-	{XML_CLOSE_TAG_END,	"close tag end"},
-	{XML_NAME,			"name"},
-	{XML_TEXT,			"text"},
-	{XML_GARBLED,		"garbled"},
-	{0, NULL}
-};
-
-static const value_string xml_ctx_types[] =
-{
-	{XML_CTX_OUT, "no_ctx"},
-	{XML_CTX_COMMENT, "comment"},
-	{XML_CTX_TAG, "tag"},
-	{XML_CTX_METATAG, "meta-tag"},
-	{XML_CTX_CLOSETAG, "close-tag"},
-	{0, NULL}
-};
-
-static int hf_xml_token = -1;
-static int hf_xml_token_type = -1;
-static int hf_xml_ctx_type = -1;
-static int ett_xml_tok = -1;
-
-#endif /* DEBUG_XML */
-
 static int proto_xml = -1;
 static int ett_xml = -1;
-static int hf_xml_metatag = -1;
+static int hf_xml_pi = -1;
+static int hf_xml_markup_decl = -1;
 static int hf_xml_tag = -1;
 static int hf_xml_text = -1;
 
-gboolean is_soap;
-
-static proto_item* proto_tree_add_xml_item(proto_tree* tree, tvbuff_t* tvb, int offset, int len, xml_token_t* xi) {
+static proto_item* proto_tree_add_xml_item(proto_tree* tree, tvbuff_t* tvb, xml_token_t* xi) {
 	proto_item* pi;
 	gchar* txt;
-	int hfid = 0;
+	int hfid;
 	
 	switch (xi->type) {
-		case XML_TAG_END: if (xi->ctx == XML_CTX_TAG) hfid = hf_xml_tag; break;
-		case XML_METATAG_END: hfid = hf_xml_metatag; break;
+		case XML_TAG:   hfid = hf_xml_tag; break;
+		case XML_MARKUPDECL:	hfid = hf_xml_markup_decl; break;
+		case XML_XMLPI: hfid = hf_xml_pi; break;
 		case XML_TEXT: hfid = hf_xml_text; break;
-		default: break;
+		default: hfid = 0; break;
 	}
 
-	txt = tvb_get_string(tvb,offset,len);
+	txt = tvb_get_string(tvb,xi->offset,xi->len);
 
 	if ( hfid ) {
-		pi = proto_tree_add_string_format(tree,hfid,tvb,offset,len,txt,"%s",format_text(txt, len));
+		pi = proto_tree_add_string_format(tree,hfid,tvb,xi->offset,xi->len,txt,format_text(txt, xi->len));
 	} else {
-		pi = proto_tree_add_text(tree,tvb,offset,len,"%s",format_text(txt, len));
+		pi = proto_tree_add_text(tree,tvb,xi->offset,xi->len,"%s",format_text(txt, xi->len));
 	}
 	
 	g_free(txt);
-	
+
 	return pi;
 }
 
@@ -114,89 +80,42 @@ static void dissect_xml(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree)
 	xml_token_t* xi;
 	xml_token_t* next_xi;
 	proto_item* pi = NULL;
-	int curr_offset = 0;
-	int curr_len = 0;
-	GPtrArray* stack;
-#ifdef DEBUG_XML
-	proto_tree* tree2 = NULL;
-	proto_tree* pt = NULL;
-#endif
-	
-	is_soap = FALSE;
-	
-#define push() { g_ptr_array_add(stack,tree); tree = proto_item_add_subtree(pi, ett_xml); }
-#define pop()  { tree = g_ptr_array_remove_index(stack,stack->len - 1); }
-	
+	GPtrArray* stack = g_ptr_array_new();
+
 	if (tree) {
 		pi = proto_tree_add_item(tree, proto_xml, tvb, 0, tvb->length, FALSE);
 		
-#ifdef DEBUG_XML
 		tree = proto_item_add_subtree(pi, ett_xml);
-		
-		pi = proto_tree_add_item(tree, proto_xml, tvb, 0, tvb->length, FALSE);
-		tree2 = proto_item_add_subtree(pi, ett_xml);
-#else
-		tree = proto_item_add_subtree(pi, ett_xml);
-#endif /* DEBUG_XML */
-		
+
 		xml_items = scan_tvb_for_xml_items(tvb, 0, tvb->length);
-		
-		stack = g_ptr_array_new();
-		
-		for (xi = xml_items; xi; xi = xi->next) {
-			
-#ifdef DEBUG_XML
-			pi = proto_tree_add_item(tree2,hf_xml_token,tvb,xi->offset,xi->len,FALSE);
-			pt = proto_item_add_subtree(pi, ett_xml);
-			proto_tree_add_uint(pt,hf_xml_token_type,tvb,0,0,xi->type);
-			proto_tree_add_uint(pt,hf_xml_ctx_type,tvb,0,0,xi->ctx);
-			proto_tree_add_text(pt,tvb,0,0,"[%i,%i] (%i,%i): '%s'",curr_offset,curr_len,xi->offset,xi->len,xi->text);
-#endif /* DEBUG_XML */
-			
-			switch (xi->type) {
-				case XML_COMMENT_START:
-				case XML_METATAG_START:
-				case XML_CLOSE_TAG_START:
-				case XML_TAG_START:
-					curr_offset = xi->offset;
-				case XML_PROPERTY:
-				case XML_NAME:
-					curr_len += xi->len;
-					break;
-				case XML_WHITESPACE:
-					if (xi->ctx == XML_CTX_OUT && curr_len == 0) {
-						curr_offset += xi->len;
-					} else {
-						curr_len += xi->len;						
-					}
-					break;
-				case XML_COMMENT_END:
-				case XML_METATAG_END:
-				case XML_CLOSE_TAG_END:
-				case XML_TEXT:
-					curr_len += xi->len;
-					proto_tree_add_xml_item(tree,tvb,curr_offset,curr_len,xi);
-					curr_offset = curr_offset + curr_len;
-					curr_len = 0;
-					break;
-				case XML_TAG_END:
-					curr_len += xi->len;
-					if (xi->ctx == XML_CTX_CLOSETAG) pop();
-					pi = proto_tree_add_xml_item(tree,tvb,curr_offset,curr_len,xi);
-					if (xi->ctx == XML_CTX_TAG) push();
-					curr_offset = curr_offset + curr_len;
-					curr_len = 0;
-					break;
-				case XML_GARBLED:
-					break;
-			}
-			
-		}
-		
+				
 		for (xi = xml_items; xi; xi = next_xi) {
 			next_xi = xi->next;
+						
+			switch (xi->type) {
+				case XML_WHITESPACE:
+					break;
+				case XML_CLOSEDTAG:
+				case XML_TEXT:
+				case XML_MARKUPDECL:
+				case XML_XMLPI:
+				case XML_COMMENT:
+					proto_tree_add_xml_item(tree,tvb,xi);
+					break;
+				case XML_DOCTYPE_START:
+				case XML_TAG:  
+					pi = proto_tree_add_xml_item(tree,tvb,xi);
+					g_ptr_array_add(stack,tree);
+					tree = proto_item_add_subtree(pi, ett_xml);
+					break;
+				case XML_CLOSE_TAG:
+				case XML_DOCTYPE_STOP: 
+					pi = proto_tree_add_xml_item(tree,tvb,xi); 
+					if ( stack->len ) 
+						tree = g_ptr_array_remove_index(stack,stack->len - 1);
+					break;						
+			}
 			
-			if (xi->text) g_free(xi->text);
 			g_free(xi);
 		}
 		
@@ -209,24 +128,14 @@ void
 proto_register_xml(void)
 {
 	static hf_register_info hf[] = {
-#ifdef DEBUG_XML
-    { &hf_xml_token,
-	{ "XML Token",
-		"xml.token", FT_STRING, BASE_NONE,NULL,0x0,
-		"An XML token", HFILL }},
-    { &hf_xml_token_type,
-	{ "XML Token Type",
-		"xml.token.type", FT_UINT32, BASE_DEC,xml_token_types,0x0,
-		"the type of an XML token", HFILL }},
-	{ &hf_xml_ctx_type,
-	{ "XML Context Type",
-			"xml.ctx.type", FT_UINT32, BASE_DEC,xml_ctx_types,0x0,
-			"the context of an XML token", HFILL }},
-#endif /* DEBUG_XML */
-	{ &hf_xml_metatag,
-	{ "XML Meta Tag",
-		"xml.meta_tag", FT_STRING, BASE_NONE, NULL, 0x0,
-		"XML Meta Tag", HFILL }},
+	{ &hf_xml_pi,
+	{ "XML Processing Instruction",
+		"xml.pi", FT_STRING, BASE_NONE, NULL, 0x0,
+		"XML Processing Instruction", HFILL }},
+	{ &hf_xml_markup_decl,
+	{ "XML Markup Declaration",
+		"xml.markrp_decl", FT_STRING, BASE_NONE, NULL, 0x0,
+		"XML Markup Declaration", HFILL }},
 	{ &hf_xml_tag,
 	{ "XML Tag",
 		"xml.tag", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -238,11 +147,10 @@ proto_register_xml(void)
 	};
 	
 	static gint *ett[] = {
-#ifdef DEBUG_XML
-		&ett_xml_tok,
-#endif /* DEBUG_XML */
 		&ett_xml
 	};
+
+
 	
 	proto_xml = proto_register_protocol("eXtensible Markup Language", "XML", "xml");
 	proto_register_field_array(proto_xml, hf, array_length(hf));
