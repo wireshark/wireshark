@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.2 2000/01/24 19:26:09 guy Exp $
+ * $Id: packet-isl.c,v 1.3 2000/01/24 21:49:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,7 @@ static int hf_isl_hsa = -1;
 static int hf_isl_vlan_id = -1;
 static int hf_isl_bpdu = -1;
 static int hf_isl_index = -1;
+static int hf_isl_crc = -1;
 static int hf_isl_src_vlan_id = -1;
 static int hf_isl_explorer = -1;
 static int hf_isl_dst_route_descriptor = -1;
@@ -191,6 +192,12 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			pntohs(&pd[offset+20]));
     proto_tree_add_item(fh_tree, hf_isl_index, offset+22, 2,
 	pntohs(&pd[offset+22]));
+
+    /* Now for the CRC, which is at the *end* of the packet. */
+    if (BYTES_ARE_IN_FRAME(END_OF_FRAME - 4, 4)) {
+      proto_tree_add_item(fh_tree, hf_isl_crc, END_OF_FRAME - 4, 4,
+	pntohl(&pd[END_OF_FRAME - 4]));
+    }
   }
 
   switch (type) {
@@ -216,7 +223,6 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     break;
 
   default:
-    offset += 12;	/* skip the header */
     dissect_data(pd, offset+26, fd, tree);
     break;
   }
@@ -256,6 +262,9 @@ proto_register_isl(void)
 	{ &hf_isl_index,
 	{ "Index",		"isl.index", FT_UINT16, BASE_DEC, NULL, 0x0,
 		"Port index of packet source" }},
+	{ &hf_isl_crc,
+	{ "CRC",		"isl.crc", FT_UINT32, BASE_HEX, NULL, 0x0,
+		"CRC field of encapsulated frame" }},
 	{ &hf_isl_src_vlan_id,
 	{ "Source VLAN ID",	"isl.src_vlan_id", FT_UINT16, BASE_HEX, NULL,
 		0xFFFE, "Source Virtual LAN ID" }},
