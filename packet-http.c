@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.46 2002/01/24 09:20:48 guy Exp $
+ * $Id: packet-http.c,v 1.47 2002/04/01 21:12:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -292,13 +292,15 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type)
 {
+	int isHttpRequestOrReply = FALSE;
+
 	/*
 	 * From RFC 2774 - An HTTP Extension Framework
 	 *
 	 * Support the command prefix that identifies the presence of
 	 * a "mandatory" header.
 	 */
-	if (strncmp(data, "M-", 2) == 0) {
+	if (linelen >= 2 && strncmp(data, "M-", 2) == 0) {
 		data += 2;
 		linelen -= 2;
 	}
@@ -310,71 +312,118 @@ is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type)
 	 * From draft-ietf-dasl-protocol-00.txt, a now vanished Microsoft draft:
 	 *	SEARCH
 	 */
-	if (linelen >= 4) {
-		if (strncmp(data, "GET ", 4) == 0 ||
-		    strncmp(data, "PUT ", 4) == 0) {
-			if (*type == HTTP_OTHERS)
+	if (linelen >= 5 && strncmp(data, "HTTP/", 5) == 0) {
+		*type = HTTP_RESPONSE;
+		isHttpRequestOrReply = TRUE;	/* response */
+	} else {
+		u_char * ptr = (u_char *)data;
+		int		 index = 0;
+
+		/* Look for the space following the Method */
+		while (index < linelen) {
+			if (*ptr == ' ')
+				break;
+			else {
+				ptr++;
+				index++;
+			}
+		}
+
+		/* Check the methods that have same length */
+		switch (index) {
+
+		case 3:
+			if (strncmp(data, "GET", index) == 0 ||
+			    strncmp(data, "PUT", index) == 0) {
 				*type = HTTP_REQUEST;
-			return TRUE;
-		}
-	}
-	if (linelen >= 5) {
-		if (strncmp(data, "HEAD ", 5) == 0 ||
-		    strncmp(data, "POST ", 5) == 0) {
-			if (*type == HTTP_OTHERS)
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 4:
+			if (strncmp(data, "COPY", index) == 0 ||
+			    strncmp(data, "HEAD", index) == 0 ||
+			    strncmp(data, "LOCK", index) == 0 ||
+			    strncmp(data, "MOVE", index) == 0 ||
+			    strncmp(data, "POLL", index) == 0 ||
+			    strncmp(data, "POST", index) == 0) {
 				*type = HTTP_REQUEST;
-			return TRUE;
-		}
-		if (strncmp(data, "HTTP/", 5) == 0) {
-			if (*type == HTTP_OTHERS)
-				*type = HTTP_RESPONSE;
-			return TRUE;	/* response */
-		}
-	}
-	if (linelen >= 6) {
-		if (strncmp(data, "TRACE ", 6) == 0) {
-			if (*type == HTTP_OTHERS)
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 5:
+			if (strncmp(data, "BCOPY", index) == 0 ||
+				strncmp(data, "BMOVE", index) == 0 ||
+				strncmp(data, "MKCOL", index) == 0 ||
+				strncmp(data, "TRACE", index) == 0) {
 				*type = HTTP_REQUEST;
-			return TRUE;
-		}
-	}
-	if (linelen >= 7) {
-		if (strncmp(data, "DELETE ", 7) == 0) {
-			if (*type == HTTP_OTHERS)
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 6:
+			if (strncmp(data, "DELETE", index) == 0 ||
+				strncmp(data, "SEARCH", index) == 0 ||
+				strncmp(data, "UNLOCK", index) == 0) {
 				*type = HTTP_REQUEST;
-			return TRUE;
-		}
-		if (strncmp(data, "NOTIFY ", 7) == 0 ||
-		    strncmp(data, "SEARCH ", 7) == 0) {
-			if (*type == HTTP_OTHERS)
+				isHttpRequestOrReply = TRUE;
+			}
+			else if (strncmp(data, "NOTIFY", index) == 0) {
 				*type = HTTP_NOTIFICATION;
-			return TRUE;
-		}
-	}
-	if (linelen >= 8) {
-		if (strncmp(data, "OPTIONS ", 8) == 0 ||
-		    strncmp(data, "CONNECT ", 8) == 0) {
-			if (*type == HTTP_OTHERS)
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 7:
+			if (strncmp(data, "BDELETE", index) == 0 ||
+			    strncmp(data, "CONNECT", index) == 0 ||
+			    strncmp(data, "OPTIONS", index) == 0) {
 				*type = HTTP_REQUEST;
-			return TRUE;
-		}
-	}
-	if (linelen >= 10) {
-		if (strncmp(data, "SUBSCRIBE ", 10) == 0) {
-			if (*type == HTTP_OTHERS)
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 8:
+			if (strncmp(data, "PROPFIND", index) == 0) {
+				*type = HTTP_REQUEST;
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 9:
+			if (strncmp(data, "SUBSCRIBE", index) == 0) {
 				*type = HTTP_NOTIFICATION;
-			return TRUE;
-		}
-	}
-	if (linelen >= 12) {
-		if (strncmp(data, "UNSUBSCRIBE ", 10) == 0) {
-			if (*type == HTTP_OTHERS)
+				isHttpRequestOrReply = TRUE;
+			} else if (strncmp(data, "PROPPATCH", index) == 0 ||
+			    strncmp(data, "BPROPFIND", index) == 0) {
+				*type = HTTP_REQUEST;
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 10:
+			if (strncmp(data, "BPROPPATCH", index) == 0) {
+				*type = HTTP_REQUEST;
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		case 11:
+			if (strncmp(data, "UNSUBSCRIBE", index) == 0) {
 				*type = HTTP_NOTIFICATION;
-			return TRUE;
+				isHttpRequestOrReply = TRUE;
+			}
+			break;
+
+		default:
+			break;
 		}
 	}
-	return FALSE;
+
+	return isHttpRequestOrReply;
 }
+
 
 void
 proto_register_http(void)
