@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.15 2000/05/11 08:15:10 gram Exp $
+ * $Id: packet-icq.c,v 1.16 2000/08/04 23:12:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -130,6 +130,8 @@ typedef struct _cmdcode {
 
 #define SRV_ACK			0x000a
 
+#define SRV_SILENT_TOO_LONG	0x001e
+
 #define SRV_GO_AWAY		0x0028
 
 #define SRV_NEW_UIN		0x0046
@@ -205,6 +207,7 @@ cmdcode serverMetaSubCmdCode[] = {
 
 cmdcode serverCmdCode[] = {
     { "SRV_ACK", SRV_ACK },
+    { "SRV_SILENT_TOO_LONG", SRV_SILENT_TOO_LONG },
     { "SRV_GO_AWAY", SRV_GO_AWAY },
     { "SRV_NEW_UIN", SRV_NEW_UIN },
     { "SRV_LOGIN_REPLY", SRV_LOGIN_REPLY },
@@ -217,7 +220,7 @@ cmdcode serverCmdCode[] = {
     { "SRV_NEW_USER", 180 },
     { "SRV_UPDATE_EXT", 200 },
     { "SRV_RECV_MESSAGE", SRV_RECV_MESSAGE },
-    { "SRV_X2", 230 },
+    { "SRV_END_OFFLINE_MESSAGES", 230 },
     { "SRV_NOT_CONNECTED", 240 },
     { "SRV_TRY_AGAIN", 250 },
     { "SRV_SYS_DELIVERED_MESS", SRV_SYS_DELIVERED_MESS },
@@ -229,7 +232,7 @@ cmdcode serverCmdCode[] = {
     { "SRV_UPDATE_FAIL", SRV_UPDATE_FAIL },
     { "SRV_AUTH_UPDATE", 500 },
     { "SRV_MULTI_PACKET", SRV_MULTI },
-    { "SRV_X1", 540 },
+    { "SRV_END_CONTACTLIST_STATUS", 540 },
     { "SRV_RAND_USER", SRV_RAND_USER },
     { "SRV_META_USER", SRV_META_USER },
     { NULL, -1 }
@@ -552,6 +555,36 @@ decrypt_v5(u_char *bfr, guint32 size,guint32 key)
 	    bfr[i+2] ^= (u_char)((k & 0xff0000)>>16);
 	    bfr[i+3] ^= (u_char)((k & 0xff000000)>>24);
 	}
+    }
+}
+
+static void
+dissect_icqv4(const u_char *pd,
+	      int offset,
+	      frame_data *fd, 
+	      proto_tree *tree)
+{
+    /* Not really implemented yet */
+    if (check_col(fd, COL_PROTOCOL)) {
+	col_add_str(fd, COL_PROTOCOL, "ICQv4 (UDP)");
+    }
+    if (check_col(fd, COL_INFO)) {
+	col_add_str(fd, COL_INFO, "ICQ Version 4 protocol");
+    }
+}
+
+static void
+dissect_icqv3(const u_char *pd,
+	      int offset,
+	      frame_data *fd, 
+	      proto_tree *tree)
+{
+    /* Not really implemented yet */
+    if (check_col(fd, COL_PROTOCOL)) {
+	col_add_str(fd, COL_PROTOCOL, "ICQv3 (UDP)");
+    }
+    if (check_col(fd, COL_INFO)) {
+	col_add_str(fd, COL_INFO, "ICQ Version 3 protocol");
     }
 }
 
@@ -1241,11 +1274,15 @@ icqv5_cmd_login(proto_tree* tree,
 					CMD_SEND_MSG,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	if (theTime!=-1)
+	if (theTime!=-1) {
+	    char *aTime = ctime(&theTime);
+
+	    aTime[strlen(aTime)-1] = '\0';
 	    proto_tree_add_text(subtree, NullTVB,
 				offset + CMD_LOGIN_TIME,
 				4,
-				"Time: %ld = %s", (long)theTime, ctime(&theTime));
+				"Time: %ld = %s", (long)theTime, aTime);
+	}
 	if (port!=-1)
 	    proto_tree_add_text(subtree, NullTVB,
 				offset + CMD_LOGIN_PORT,
@@ -1258,12 +1295,12 @@ icqv5_cmd_login(proto_tree* tree,
 				"Passwd: %s", password);
 	if (ipAddrp!=NULL)
 	    proto_tree_add_text(subtree, NullTVB,
-				offset + CMD_LOGIN_PASSWD + CMD_LOGIN_IP,
+				offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP,
 				4,
 				"IP: %s", ip_to_str(ipAddrp));
 	if (status!=-1)
 	    proto_tree_add_text(subtree, NullTVB,
-				offset + CMD_LOGIN_PASSWD + CMD_LOGIN_IP,
+				offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS,
 				4,
 				"Status: %s", findStatus(status));
     }
@@ -2060,22 +2097,10 @@ dissect_icqv5Client(const u_char *pd,
 					"Header");
 	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
 					
-	proto_tree_add_uint_format(icq_header_tree,
-				   hf_icq_sessionid,
-				   NullTVB,
-				   offset+ICQ5_CL_SESSIONID,
-				   4,
-				   sessionid,
-				   "Session ID: 0x%08x",
-				   sessionid);
-	proto_tree_add_uint_format(icq_header_tree,
-				   hf_icq_checkcode,
-				   NullTVB,
-				   offset+ICQ5_CL_CHECKCODE,
-				   4,
-				   key,
-				   "Key: 0x%08x",
-				   key);
+	proto_tree_add_text(icq_header_tree, NullTVB,
+			    offset + ICQ_VERSION,
+			    2,
+			    "Version: %u", version);
 	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_uin,
 				   NullTVB,
@@ -2084,14 +2109,34 @@ dissect_icqv5Client(const u_char *pd,
 				   uin,
 				   "UIN: %u (0x%08X)",
 				   uin, uin);
+	proto_tree_add_uint_format(icq_header_tree,
+				   hf_icq_sessionid,
+				   NullTVB,
+				   offset+ICQ5_CL_SESSIONID,
+				   4,
+				   sessionid,
+				   "Session ID: 0x%08x",
+				   sessionid);
+	proto_tree_add_text(icq_header_tree, NullTVB,
+			    offset + ICQ5_CL_CMD,
+			    2,
+			    "Command: %s (%u)", findClientCmd(cmd), cmd);
 	proto_tree_add_text(icq_header_tree, NullTVB,
 			    offset + ICQ5_CL_SEQNUM1,
 			    2,
-			    "Seqnum1: 0x%04x", seqnum1);
+			    "Seq Number 1: 0x%04x", seqnum1);
 	proto_tree_add_text(icq_header_tree, NullTVB,
-			    offset + ICQ5_CL_SEQNUM1,
+			    offset + ICQ5_CL_SEQNUM2,
 			    2,
-			    "Seqnum2: 0x%04x", seqnum2);
+			    "Seq Number 2: 0x%04x", seqnum2);
+	proto_tree_add_uint_format(icq_header_tree,
+				   hf_icq_checkcode,
+				   NullTVB,
+				   offset+ICQ5_CL_CHECKCODE,
+				   4,
+				   key,
+				   "Key: 0x%08x",
+				   key);
 	switch(cmd) {
 	case CMD_ACK:
 	    icqv5_cmd_ack(icq_tree,
@@ -2198,7 +2243,6 @@ dissect_icqv5Server(const u_char *pd,
     /* Server traffic is easy, not encrypted */
     proto_tree *icq_tree = NULL;
     proto_tree *icq_header_tree = NULL;
-    proto_tree *icq_decode_tree = NULL;
     proto_item *ti = NULL;
     const u_char* decr_pd;
     int changeCol = (pktsize==(guint32)-1);
@@ -2243,6 +2287,10 @@ dissect_icqv5Server(const u_char *pd,
 					"Header");
 	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
 					
+	proto_tree_add_text(icq_header_tree, NullTVB,
+			    offset + ICQ_VERSION,
+			    2,
+			    "Version: %u", version);
 	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_sessionid,
 				   NullTVB,
@@ -2251,6 +2299,10 @@ dissect_icqv5Server(const u_char *pd,
 				   sessionid,
 				   "Session ID: 0x%08x",
 				   sessionid);
+	proto_tree_add_text(icq_header_tree, NullTVB,
+			    offset + ICQ5_SRV_CMD,
+			    2,
+			    "Command: %s (%u)", findServerCmd(cmd), cmd);
 	proto_tree_add_text(icq_header_tree, NullTVB,
 			    offset+ICQ5_SRV_SEQNUM1,
 			    2,
@@ -2331,6 +2383,7 @@ dissect_icqv5Server(const u_char *pd,
 			    fd);
 	    break;
 	case SRV_ACK:
+	case SRV_SILENT_TOO_LONG:
 	case SRV_GO_AWAY:
 	case SRV_NEW_UIN:
 	case SRV_BAD_PASS:
@@ -2353,14 +2406,6 @@ dissect_icqv5Server(const u_char *pd,
 	    fprintf(stderr,"Missing: %s\n", findServerCmd(cmd));
 	    break;
 	}
-
-	ti = proto_tree_add_text(icq_tree, NullTVB,
-				 offset,
-				 pktsize,
-				 "Decoded packet");
-        icq_decode_tree = proto_item_add_subtree(ti,
-						 ett_icq_decode);
-	proto_tree_add_hexdump(icq_decode_tree, offset, decr_pd, pktsize);
     }
 }
 
@@ -2393,6 +2438,12 @@ static void dissect_icq(const u_char *pd,
   switch (version) {
   case 0x0005:
       dissect_icqv5(pd, offset, fd, tree);
+      break;
+  case 0x0004:
+      dissect_icqv4(pd, offset, fd, tree);
+      break;
+  case 0x0003:
+      dissect_icqv3(pd, offset, fd, tree);
       break;
   case 0x0002:
       dissect_icqv2(pd, offset, fd, tree);
