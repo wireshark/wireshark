@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.30 2002/11/11 18:57:00 oabad Exp $
+ * $Id: decode_as_dlg.c,v 1.31 2003/03/01 13:08:59 deniel Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -746,6 +746,34 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     redissect_packets(&cfile);
 }
 
+/*
+ * This routine is called when the user clicks the "Apply" button in the
+ * "Decode As..." dialog window.  This routine calls various helper
+ * routines to set/clear dissector values as requested by the user.
+ * These routines accumulate information on what actions they have
+ * taken, and this summary information is printed by this routine.
+ *
+ * @param apply_bt A pointer to the "Apply" button.
+ *
+ * @param parent_w A pointer to the dialog window.
+ */
+static void
+decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
+{
+    GtkWidget *notebook, *notebook_pg;
+    void (* func)(GtkWidget *);
+    gint page_num;
+
+    /* Call the right routine for the page that was currently in front. */
+    notebook =  OBJECT_GET_DATA(parent_w, E_NOTEBOOK);
+    page_num = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+    notebook_pg = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num);
+
+    func = OBJECT_GET_DATA(notebook_pg, E_PAGE_ACTION);
+    func(notebook_pg);
+
+    redissect_packets(&cfile);
+}
 
 /*
  * This routine is called when the user clicks the "Cancel" button in
@@ -1369,7 +1397,7 @@ void
 decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 {
     GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *cancel_bt, *button;
-    GtkWidget   *button_vb;
+    GtkWidget   *button_vb, *apply_bt;
 
     if (decode_w != NULL) {
 	/* There's already a "Decode As" dialog box; reactivate it. */
@@ -1398,7 +1426,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 	decode_add_notebook(format_hb);
     }
 
-    /* Button row: OK and cancel buttons */
+    /* Button row: OK, Apply and cancel buttons */
     bbox = gtk_hbutton_box_new();
     gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
@@ -1413,6 +1441,15 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), ok_bt, FALSE, FALSE, 0);
     gtk_widget_grab_default(ok_bt);
+
+#if GTK_MAJOR_VERSION < 2
+    apply_bt = gtk_button_new_with_label("Apply");
+#else
+    apply_bt = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+#endif
+    SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
+    GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
+    gtk_box_pack_start(GTK_BOX(bbox), apply_bt, FALSE, FALSE, 0);
 
     button = gtk_button_new_with_label("Show Current");
     SIGNAL_CONNECT(button, "clicked", decode_show_cb, decode_w);
