@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.30 2004/01/04 02:55:03 obiot Exp $
+ * $Id: packet-mmse.c,v 1.31 2004/01/17 00:45:02 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,8 @@
  * Dissector of an encoded Multimedia message PDU, as defined by the WAPForum
  * (http://www.wapforum.org) in "WAP-209-MMSEncapsulation-20020105-a".
  */
+
+/* This file has been edited with 8-space tabs and 4-space indentation */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -165,14 +167,27 @@ static gint ett_mmse = -1;
 /*
  * Valuestrings for header contents
  */
+
+#define PDU_M_SEND_REQ		0x80
+#define PDU_M_SEND_CONF		0x81
+#define PDU_M_NOTIFICATION_IND	0x82
+#define PDU_M_NOTIFYRESP_IND	0x83
+#define PDU_M_RETRIEVE_CONF	0x84
+#define PDU_M_ACKNOWLEDGE_IND	0x85
+#define PDU_M_DELIVERY_IND	0x86
+
+#define pdu_has_content(pdut) \
+	(  ((pdut) == PDU_M_SEND_REQ) \
+	|| ((pdut) == PDU_M_DELIVERY_IND) )
+
 static const value_string vals_message_type[] = {
-    { 0x80, "m-send-req" },
-    { 0x81, "m-send-conf" },
-    { 0x82, "m-notification-ind" },
-    { 0x83, "m-notifyresp-ind" },
-    { 0x84, "m-retrieve-conf" },
-    { 0x85, "m-acknowledge-ind" },
-    { 0x86, "m-delivery-ind" },
+    { PDU_M_SEND_REQ,		"m-send-req" },
+    { PDU_M_SEND_CONF,		"m-send-conf" },
+    { PDU_M_NOTIFICATION_IND,	"m-notification-ind" },
+    { PDU_M_NOTIFYRESP_IND,	"m-notifyresp-ind" },
+    { PDU_M_RETRIEVE_CONF,	"m-retrieve-conf" },
+    { PDU_M_ACKNOWLEDGE_IND,	"m-acknowledge-ind" },
+    { PDU_M_DELIVERY_IND,	"m-delivery-ind" },
     { 0x00, NULL },
 };
 
@@ -246,15 +261,15 @@ get_text_string(tvbuff_t *tvb, guint offset, char **strval)
 {
     guint	 len;
 
-	DebugLog(("get_text_string(tvb = %p, offset = %u, **strval) - start\n",
-				tvb, offset));
+    DebugLog(("get_text_string(tvb = %p, offset = %u, **strval) - start\n", 
+		vb, offset));
     len = tvb_strsize(tvb, offset);
-	DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
+    DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
     if (tvb_get_guint8(tvb, offset) == MM_QUOTE)
-	*strval = tvb_memdup(tvb, offset + 1, len - 1);
+	*strval = (char *)tvb_memdup(tvb, offset + 1, len - 1);
     else
-	*strval = tvb_memdup(tvb, offset, len);
-	DebugLog((" [3] Return(len) == %u\n", len));
+	*strval = (char *)tvb_memdup(tvb, offset, len);
+    DebugLog((" [3] Return(len) == %u\n", len));
     return len;
 }
 
@@ -313,7 +328,7 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, char **strval)
     if (field < 32) {
 	length = get_value_length(tvb, offset, &count);
 	/* \todo	Something with "Char-set", skip for now	*/
-	*strval = tvb_get_string(tvb, offset + count + 1, length - 1);
+	*strval = (char *)tvb_get_string(tvb, offset + count + 1, length - 1);
 	return count + length;
     } else
 	return get_text_string(tvb, offset, strval);
@@ -397,57 +412,74 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint	 count;
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
-    proto_tree *mmse_tree;
+    proto_item	*ti = NULL;
+    proto_tree	*mmse_tree = NULL;
 
-	DebugLog(("dissect_mmse() - START (Packet %u)\n", pinfo->fd->num));
+    DebugLog(("dissect_mmse() - START (Packet %u)\n", pinfo->fd->num));
 
     pdut = tvb_get_guint8(tvb, 1);
+    strval = match_strval(pdut, vals_message_type);
+
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMSE");
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_clear(pinfo->cinfo, COL_INFO);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "MMS %s",
-		     match_strval(pdut, vals_message_type));
+	col_add_fstr(pinfo->cinfo, COL_INFO, "MMS %s", strval);
     }
 
-    /* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items.
+    /* If tree == NULL then we are only interested in protocol dissection
+     * up to reassembly and handoff to subdissectors if applicable; the
+     * columns must be set appropriately too.
+     * If tree != NULL then we also want to display the protocol tree
+     * with its fields.
+     * 
+     * In the interest of speed, skip protocol tree item generation
+     * if tree is NULL.
      */
     if (tree) {
 	DebugLog(("tree != NULL\n"));
-	offset = 2;			/* Skip Message-Type	*/
 
-	/* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_mmse, tvb, 0, -1, FALSE);
+	proto_item_append_text(ti, ", Type: %s", strval);
+	/* create display subtree for the protocol */
 	mmse_tree = proto_item_add_subtree(ti, ett_mmse);
 
 	/* Report PDU-type	*/
 	proto_tree_add_uint(mmse_tree, hf_mmse_message_type, tvb, 0, 2, pdut);
-	/*
-	 * Cycle through MMS-headers
-	 */
+    }
+
+    offset = 2;			/* Skip Message-Type	*/
+
+    /*
+     * Cycle through MMS-headers
+     *
+     * NOTE - some PDUs may convey content which can be handed off
+     *        to subdissectors.
+     */
+    if (tree || pdu_has_content(pdut)) {
 	while ((offset < tvb_reported_length(tvb)) &&
 	       (field = tvb_get_guint8(tvb, offset++)) != MM_CTYPE_HDR)
 	{
-		DebugLog(("\tField =  0x%02X (offset = %u): %s\n",
-					field, offset,
-					val_to_str(field, vals_mm_header_names,
-						"Unknown MMS header 0x%02X")));
+	    DebugLog(("\tField =  0x%02X (offset = %u): %s\n",
+			field, offset,
+			val_to_str(field, vals_mm_header_names,
+			    "Unknown MMS header 0x%02X")));
 	    switch (field)
 	    {
 		case MM_TID_HDR:		/* Text-string	*/
 		    length = get_text_string(tvb, offset, &strval);
-		    proto_tree_add_string(mmse_tree, hf_mmse_transaction_id,
-					  tvb, offset - 1, length + 1,strval);
+		    if (tree) {
+			proto_tree_add_string(mmse_tree, hf_mmse_transaction_id,
+				tvb, offset - 1, length + 1,strval);
+		    }
 		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_VERSION_HDR:		/* nibble-Major/nibble-minor*/
 		    field = tvb_get_guint8(tvb, offset++);
-		    {
+		    if (tree) {
 			guint8	 major, minor;
 
 			major = (field & 0x70) >> 4;
@@ -456,29 +488,36 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    strval = g_strdup_printf("%u", major);
 			else
 			    strval = g_strdup_printf("%u.%u", major, minor);
-		    }
-		    proto_tree_add_string(mmse_tree, hf_mmse_mms_version, tvb,
-			    		  offset - 2, 2, strval);
+			proto_tree_add_string(mmse_tree, hf_mmse_mms_version,
+				tvb, offset - 2, 2, strval);
 			g_free(strval);
+		    }
 		    break;
 		case MM_BCC_HDR:		/* Encoded-string-value	*/
 		    length = get_encoded_strval(tvb, offset, &strval);
-		    proto_tree_add_string(mmse_tree, hf_mmse_bcc, tvb,
-			    		offset - 1, length + 1, strval);
+		    if (tree) {
+			proto_tree_add_string(mmse_tree, hf_mmse_bcc, tvb,
+				offset - 1, length + 1, strval);
+		    }
 		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_CC_HDR:			/* Encoded-string-value	*/
 		    length = get_encoded_strval(tvb, offset, &strval);
-		    proto_tree_add_string(mmse_tree, hf_mmse_cc, tvb,
-			    		offset - 1, length + 1, strval);
+		    if (tree) {
+			proto_tree_add_string(mmse_tree, hf_mmse_cc, tvb,
+				offset - 1, length + 1, strval);
+		    }
 		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_CLOCATION_HDR:		/* Uri-value		*/
 		    length = get_text_string(tvb, offset, &strval);
-		    proto_tree_add_string(mmse_tree, hf_mmse_content_location,
-					  tvb, offset - 1, length + 1,strval);
+		    if (tree) {
+			proto_tree_add_string(mmse_tree,
+				hf_mmse_content_location,
+				tvb, offset - 1, length + 1,strval);
+		    }
 		    g_free(strval);
 		    offset += length;
 		    break;
@@ -490,15 +529,20 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tval = get_long_integer(tvb, offset, &count);
 			tmptime.secs = tval;
 			tmptime.nsecs = 0;
-			proto_tree_add_time(mmse_tree, hf_mmse_date, tvb,
-					    offset - 1, count + 1, &tmptime);
+			if (tree) {
+			    proto_tree_add_time(mmse_tree, hf_mmse_date, tvb,
+				    offset - 1, count + 1, &tmptime);
+			}
 		    }
 		    offset += count;
 		    break;
 		case MM_DREPORT_HDR:		/* Yes|No		*/
 		    field = tvb_get_guint8(tvb, offset++);
-		    proto_tree_add_uint(mmse_tree, hf_mmse_delivery_report, tvb,
-					offset - 2, 2, field);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree,
+				hf_mmse_delivery_report,
+				tvb, offset - 2, 2, field);
+		    }
 		    break;
 		case MM_DTIME_HDR:
 		    /*
@@ -507,7 +551,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     */
 		    length = get_value_length(tvb, offset, &count);
 		    field = tvb_get_guint8(tvb, offset + count);
-		    {
+		    if (tree) {
 			guint		 tval;
 			nstime_t	 tmptime;
 			guint		 cnt;
@@ -518,14 +562,14 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (field == 0x80)
 			    proto_tree_add_time(mmse_tree,
-					        hf_mmse_delivery_time_abs,
-						tvb, offset - 1,
-						length + count + 1, &tmptime);
+				    hf_mmse_delivery_time_abs,
+				    tvb, offset - 1,
+				    length + count + 1, &tmptime);
 			else
 			    proto_tree_add_time(mmse_tree,
-						hf_mmse_delivery_time_rel,
-						tvb, offset - 1,
-						length + count + 1, &tmptime);
+				    hf_mmse_delivery_time_rel,
+				    tvb, offset - 1,
+				    length + count + 1, &tmptime);
 		    }
 		    offset += length + count;
 		    break;
@@ -536,7 +580,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     */
 		    length = get_value_length(tvb, offset, &count);
 		    field = tvb_get_guint8(tvb, offset + count);
-		    {
+		    if (tree) {
 			guint		 tval;
 			nstime_t	 tmptime;
 			guint		 cnt;
@@ -544,14 +588,15 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tval = get_long_integer(tvb, offset + count + 1, &cnt);
 			tmptime.secs = tval;
 			tmptime.nsecs = 0;
+
 			if (field == 0x80)
 			    proto_tree_add_time(mmse_tree, hf_mmse_expiry_abs,
-						tvb, offset - 1,
-						length + count + 1, &tmptime);
+				    tvb, offset - 1,
+				    length + count + 1, &tmptime);
 			else
 			    proto_tree_add_time(mmse_tree, hf_mmse_expiry_rel,
-						tvb, offset - 1,
-						length + count + 1, &tmptime);
+				    tvb, offset - 1,
+				    length + count + 1, &tmptime);
 		    }
 		    offset += length + count;
 		    break;
@@ -561,18 +606,19 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     * 		    |Insert-address-token)
 		     */
 		    length = get_value_length(tvb, offset, &count);
-		    field = tvb_get_guint8(tvb, offset + count);
-		    if (field == 0x81) {
-			proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
-					      offset-1, length + count + 1,
-					      "<insert address>");
-		    } else {
-			(void) get_encoded_strval(tvb, offset + count + 1,
-						  &strval);
-			proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
-					      offset-1, length + count + 1,
-					      strval);
-			g_free(strval);
+		    if (tree) {
+			field = tvb_get_guint8(tvb, offset + count);
+			if (field == 0x81) {
+			    proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
+				    offset-1, length + count + 1,
+				    "<insert address>");
+			} else {
+			    (void) get_encoded_strval(tvb, offset + count + 1,
+						      &strval);
+			    proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
+				    offset-1, length + count + 1, strval);
+			    g_free(strval);
+			}
 		    }
 		    offset += length + count;
 		    break;
@@ -583,87 +629,115 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    field = tvb_get_guint8(tvb, offset);
 		    if (field & 0x80) {
 			offset++;
-			proto_tree_add_uint(mmse_tree,
-					    hf_mmse_message_class_id,
-					    tvb, offset - 2, 2, field);
+			if (tree) {
+			    proto_tree_add_uint(mmse_tree,
+				    hf_mmse_message_class_id,
+				    tvb, offset - 2, 2, field);
+			}
 		    } else {
 			length = get_text_string(tvb, offset, &strval);
-			proto_tree_add_string(mmse_tree,
-					      hf_mmse_message_class_str,
-					      tvb, offset - 1, length + 1,
-					      strval);
+			if (tree) {
+			    proto_tree_add_string(mmse_tree,
+				    hf_mmse_message_class_str,
+				    tvb, offset - 1, length + 1,
+				    strval);
+			}
 			g_free(strval);
 			offset += length;
 		    }
 		    break;
 		case MM_MID_HDR:		/* Text-string		*/
 		    length = get_text_string(tvb, offset, &strval);
-		    proto_tree_add_string(mmse_tree, hf_mmse_message_id, tvb,
-			    		  offset - 1, length + 1, strval);
+		    if (tree) {
+			proto_tree_add_string(mmse_tree, hf_mmse_message_id,
+				tvb, offset - 1, length + 1, strval);
+		    }
 		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_MSIZE_HDR:		/* Long-integer		*/
 		    length = get_long_integer(tvb, offset, &count);
-		    proto_tree_add_uint(mmse_tree, hf_mmse_message_size, tvb,
-			    		offset - 1, count + 1, length);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree, hf_mmse_message_size,
+				tvb, offset - 1, count + 1, length);
+		    }
 		    offset += count;
 		    break;
 		case MM_PRIORITY_HDR:		/* Low|Normal|High	*/
 		    field = tvb_get_guint8(tvb, offset++);
-		    proto_tree_add_uint(mmse_tree, hf_mmse_priority, tvb,
-					offset - 2, 2, field);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree, hf_mmse_priority, tvb,
+				offset - 2, 2, field);
+		    }
 		    break;
 		case MM_RREPLY_HDR:		/* Yes|No		*/
 		    field = tvb_get_guint8(tvb, offset++);
-		    proto_tree_add_uint(mmse_tree, hf_mmse_read_reply, tvb,
-					offset - 2, 2, field);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree, hf_mmse_read_reply, tvb,
+				offset - 2, 2, field);
+		    }
 		    break;
 		case MM_RALLOWED_HDR:		/* Yes|No		*/
 		    field = tvb_get_guint8(tvb, offset++);
-		    proto_tree_add_uint(mmse_tree, hf_mmse_report_allowed, tvb,
-					offset - 2, 2, field);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree, hf_mmse_report_allowed,
+				tvb, offset - 2, 2, field);
+		    }
 		    break;
 		case MM_RSTATUS_HDR:
 		    field = tvb_get_guint8(tvb, offset++);
-		    proto_tree_add_uint(mmse_tree, hf_mmse_response_status, tvb,
-					offset - 2, 2, field);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree, hf_mmse_response_status,
+				tvb, offset - 2, 2, field);
+		    }
 		    break;
 		case MM_RTEXT_HDR:		/* Encoded-string-value	*/
 		    length = get_encoded_strval(tvb, offset, &strval);
-		    proto_tree_add_string(mmse_tree, hf_mmse_response_text, tvb,
-			    		offset - 1, length + 1, strval);
+		    if (tree) {
+			proto_tree_add_string(mmse_tree, hf_mmse_response_text,
+				tvb, offset - 1, length + 1, strval);
+		    }
 		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_SVISIBILITY_HDR:	/* Hide|Show		*/
 		    field = tvb_get_guint8(tvb, offset++);
-		    proto_tree_add_uint(mmse_tree,hf_mmse_sender_visibility,
-			    		tvb, offset - 2, 2, field);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree,hf_mmse_sender_visibility,
+				tvb, offset - 2, 2, field);
+		    }
 		    break;
 		case MM_STATUS_HDR:
 		    field = tvb_get_guint8(tvb, offset++);
-		    proto_tree_add_uint(mmse_tree, hf_mmse_status, tvb,
-					offset - 2, 2, field);
+		    if (tree) {
+			proto_tree_add_uint(mmse_tree, hf_mmse_status, tvb,
+				offset - 2, 2, field);
+		    }
 		    break;
 		case MM_SUBJECT_HDR:		/* Encoded-string-value	*/
 		    length = get_encoded_strval(tvb, offset, &strval);
-		    proto_tree_add_string(mmse_tree, hf_mmse_subject, tvb,
-			    		offset - 1, length + 1, strval);
+		    if (tree) {
+			proto_tree_add_string(mmse_tree, hf_mmse_subject, tvb,
+				offset - 1, length + 1, strval);
+		    }
 		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_TO_HDR:			/* Encoded-string-value	*/
 		    length = get_encoded_strval(tvb, offset, &strval);
-		    proto_tree_add_string(mmse_tree, hf_mmse_to, tvb,
-			    		offset - 1, length + 1, strval);
+		    if (tree) {
+			proto_tree_add_string(mmse_tree, hf_mmse_to, tvb,
+				offset - 1, length + 1, strval);
+		    }
 		    g_free(strval);
 		    offset += length;
 		    break;
 		default:
 		    if (field & 0x80) {
-			proto_tree_add_text(mmse_tree, tvb, offset - 1, 1,
-				"Unknown field (0x%02x)", field);
+			if (tree) {
+			    proto_tree_add_text(mmse_tree, tvb, offset - 1, 1,
+				    "Unknown field (0x%02x)", field);
+			}
 		    } else {
 			guint	 length2;
 			char	 *strval2;
@@ -673,19 +747,21 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			CLEANUP_PUSH(g_free, strval);
 			length2= get_text_string(tvb, offset+length, &strval2);
 
-			proto_tree_add_string_format(mmse_tree,
-						     hf_mmse_ffheader,
-						     tvb, offset,
-						     length + length2,
-						     tvb_get_ptr(tvb,offset,length + length2),
-						     "%s: %s",strval,strval2);
+			if (tree) {
+			    proto_tree_add_string_format(mmse_tree,
+				    hf_mmse_ffheader, tvb, offset,
+				    length + length2,
+				    (const char *) tvb_get_ptr(
+					tvb, offset, length + length2),
+				    "%s: %s",strval,strval2);
+			}
 			g_free(strval2);
 			offset += length + length2;
 			CLEANUP_CALL_AND_POP;
 		    }
 		    break;
 	    }
-		DebugLog(("\tEnd(case)\n"));
+	    DebugLog(("\tEnd(case)\n"));
 	}
 	DebugLog(("\tEnd(switch)\n"));
 	if (field == MM_CTYPE_HDR) {
@@ -697,21 +773,21 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    guint	 type;
 	    const char	*type_str;
 
-		DebugLog(("Content-Type: [from WSP dissector]\n"));
-		DebugLog(("Calling add_content_type() in WSP dissector\n"));
+	    DebugLog(("Content-Type: [from WSP dissector]\n"));
+	    DebugLog(("Calling add_content_type() in WSP dissector\n"));
 	    offset = add_content_type(mmse_tree, tvb, offset, &type, &type_str);
-		DebugLog(("Generating new TVB subset (offset = %u)\n", offset));
+	    DebugLog(("Generating new TVB subset (offset = %u)\n", offset));
 	    tmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		DebugLog(("Add POST data\n"));
+	    DebugLog(("Add POST data\n"));
 	    add_post_data(mmse_tree, tmp_tvb, type, type_str, pinfo);
-		DebugLog(("Done!\n"));
+	    DebugLog(("Done!\n"));
 	}
     } else {
-	DebugLog(("tree == NULL\n"));
-	}
+	DebugLog(("tree == NULL and PDU has no potential content\n"));
+    }
 
     /* If this protocol has a sub-dissector call it here, see section 1.8 */
-	DebugLog(("dissect_mmse() - END\n"));
+    DebugLog(("dissect_mmse() - END\n"));
 }
 
 
@@ -951,5 +1027,5 @@ proto_reg_handoff_mmse(void)
 	/* As the media types for WSP and HTTP are the same, the WSP dissector
 	 * uses the same string dissector table as the HTTP protocol. */
     dissector_add_string("media_type",
-			"application/vnd.wap.mms-message", mmse_handle);
+	    "application/vnd.wap.mms-message", mmse_handle);
 }
