@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.5 1999/08/23 23:24:36 guy Exp $
+ * $Id: xdlc.c,v 1.6 1999/08/27 18:01:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -76,7 +76,8 @@
 #define XDLC_RD		0x40	/* Request Disconnect (response) */
 #define XDLC_UA		0x60	/* Unnumbered Acknowledge */
 #define XDLC_SNRM	0x80	/* Set Normal Response Mode */
-#define XDLC_TEST	0xC0	/* Test */
+#define XDLC_SNRME	0xC0	/* Set Normal Response Mode Extended */
+#define XDLC_TEST	0xE0	/* Test */
 #define XDLC_SIM	0x04	/* Set Initialization Mode (command) */
 #define XDLC_RIM	0x04	/* Request Initialization Mode (response) */
 #define XDLC_FRMR	0x84	/* Frame reject */
@@ -105,6 +106,7 @@ static const value_string modifier_short_vals_cmd[] = {
     { XDLC_DISC,  "DISC" },
     { XDLC_UA,    "UA" },
     { XDLC_SNRM,  "SNRM" },
+    { XDLC_SNRME, "SNRME" },
     { XDLC_TEST,  "TEST" },
     { XDLC_SIM,   "SIM" },
     { XDLC_FRMR,  "FRMR" },
