@@ -2457,7 +2457,8 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   offset += 2;
   length -= 2;
 
-  while (length > 0) {
+  /* XXX - Should we check for a maximum length instead of using a cast? */
+  while (((gint) length) > 0) {
     subopt_type = tvb_get_guint8(tvb, offset);
     subopt_len = tvb_get_guint8(tvb, offset + 1);
     ti = proto_tree_add_text(field_tree, tvb, offset, subopt_len,
