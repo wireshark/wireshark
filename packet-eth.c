@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.45 2000/11/13 05:11:16 guy Exp $
+ * $Id: packet-eth.c,v 1.46 2000/11/13 05:28:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -266,7 +266,25 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     trailer_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE + etype, -1, -1);
 	  }
 	  CATCH2(BoundsError, ReportedBoundsError) {
+	     /* Either:
+
+		  the packet doesn't have "etype" bytes worth of
+		  captured data left in it - or it may not even have
+		  "etype" bytes worth of data in it, period -
+		  so the "tvb_new_subset()" creating "next_tvb"
+		  threw an exception
+
+		or
+
+		  the packet has exactly "etype" bytes worth of
+		  captured data left in it, so the "tvb_new_subset()"
+		  creating "trailer_tvb" threw an exception.
+
+		In either case, this means that all the data in the frame
+		is within the length value, so we give all the data to the
+		next protocol and have no trailer. */
 	     next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, -1, etype);
+	     trailer_tvb = NULL;
 	  }
 	  ENDTRY;
   }
