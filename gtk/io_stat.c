@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.32 2003/10/06 22:10:42 guy Exp $
+ * $Id: io_stat.c,v 1.33 2003/10/06 22:13:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,7 @@ static char *count_type_names[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick", "
 /* unit is in ms */
 #define MAX_TICK_VALUES 4
 #define DEFAULT_TICK_VALUE 2
-static guint max_tick_values[MAX_TICK_VALUES] = { 10, 100, 1000, 10000 };
+static guint tick_interval_values[MAX_TICK_VALUES] = { 10, 100, 1000, 10000 };
 
 #define MAX_CALC_TYPES 5
 #define CALC_TYPE_SUM	0
@@ -1144,19 +1144,19 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 	int i;
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
-		if(max_tick_values[i]>=1000){
-			sprintf(str,"%d sec", max_tick_values[i]/1000);
-		} else if(max_tick_values[i]>=100){
-			sprintf(str,"0.%1d sec", (max_tick_values[i]/100)%10);
-		} else if(max_tick_values[i]>=10){
-			sprintf(str,"0.%02d sec", (max_tick_values[i]/10)%10);
+		if(tick_interval_values[i]>=1000){
+			sprintf(str,"%d sec", tick_interval_values[i]/1000);
+		} else if(tick_interval_values[i]>=100){
+			sprintf(str,"0.%1d sec", (tick_interval_values[i]/100)%10);
+		} else if(tick_interval_values[i]>=10){
+			sprintf(str,"0.%02d sec", (tick_interval_values[i]/10)%10);
 		} else {
-			sprintf(str,"0.%03d sec", (max_tick_values[i])%10);
+			sprintf(str,"0.%03d sec", (tick_interval_values[i])%10);
 		}
 
 		menu_item=gtk_menu_item_new_with_label(str);
 		io->tick_val[i].io=io;
-		io->tick_val[i].interval=max_tick_values[i];
+		io->tick_val[i].interval=tick_interval_values[i];
 		SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, &io->tick_val[i]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
