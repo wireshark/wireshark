@@ -74,13 +74,6 @@ void proto_register_ns_cert_exts(void) {
 
 /*--- proto_reg_handoff_ns_cert_exts ---------------------------------------*/
 void proto_reg_handoff_ns_cert_exts(void) {
-	register_ber_oid_dissector("2.16.840.1.113730.1.1", dissect_CertType_PDU, proto_ns_cert_exts, "ns-cert-exts.cert_type");
-	register_ber_oid_dissector("2.16.840.1.113730.1.2", dissect_BaseUrl_PDU, proto_ns_cert_exts, "ns-cert-exts.base_url");
-	register_ber_oid_dissector("2.16.840.1.113730.1.3", dissect_RevocationUrl_PDU, proto_ns_cert_exts, "ns-cert-exts.revocation-url");
-	register_ber_oid_dissector("2.16.840.1.113730.1.4", dissect_CaRevocationUrl_PDU, proto_ns_cert_exts, "ns-cert-exts.ca-revocation-url");
-	register_ber_oid_dissector("2.16.840.1.113730.1.7", dissect_CertRenewalUrl_PDU, proto_ns_cert_exts, "ns-cert-exts.cert-renewal-url");
-	register_ber_oid_dissector("2.16.840.1.113730.1.8", dissect_CaPolicyUrl_PDU, proto_ns_cert_exts, "ns-cert-exts.ca-policy-url");
-	register_ber_oid_dissector("2.16.840.1.113730.1.12", dissect_SslServerName_PDU, proto_ns_cert_exts, "ns-cert-exts.ssl-server-name");
-	register_ber_oid_dissector("2.16.840.1.113730.1.13", dissect_Comment_PDU, proto_ns_cert_exts, "ns-cert-exts.comment");
+#include "packet-ns_cert_exts-dis-tab.c"
 }
 
