@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.210 2003/10/27 19:34:03 guy Exp $
+ * $Id: packet-tcp.c,v 1.211 2003/10/28 08:50:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -551,7 +551,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		num2_acks=tcpd->num2_acks;
 		tnp=&tcpd->pdu_seq2;
 		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq1;
-		base_ack=(tcp_relative_seq && (ual2==NULL))?seq:tcpd->base_seq2;
+		base_ack=(tcp_relative_seq && (ual2==NULL))?ack:tcpd->base_seq2;
 		win_scale=tcpd->win_scale1;
 	} else {
 		ual1=tcpd->ual2;
@@ -566,7 +566,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		num2_acks=tcpd->num1_acks;
 		tnp=&tcpd->pdu_seq1;
 		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq2;
-		base_ack=(tcp_relative_seq && (ual2==NULL))?seq:tcpd->base_seq1;
+		base_ack=(tcp_relative_seq && (ual2==NULL))?ack:tcpd->base_seq1;
 		win_scale=tcpd->win_scale2;
 	}
 
@@ -757,10 +757,17 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		 *   4 there were no dupacks in the opposite direction.
 		 */
 		outoforder=TRUE;
+#ifdef REMOVED
+		/* dont do this test.  For full-duplex capture devices that 
+		 * capture in both directions using two NICs it is more common
+		 * than one would expect for this to happen since they often
+		 * lose the time integrity between the two NICs
+		 */
 		/* 1 has it already been ACKed ? */
 		if(LT_SEQ(seq,ack1)){
 			outoforder=FALSE;
 		}
+#endif
 		/* 2 have we seen this segment before ? */
 		for(tu=ual1;tu;tu=tu->next){
 			if((tu->frame)&&(tu->seq==seq)){
@@ -1056,6 +1063,7 @@ ack_finished:
 		tcpd->num1_acks=num1_acks;
 		tcpd->num2_acks=num2_acks;
 		tcpd->base_seq1=base_seq;
+		tcpd->base_seq2=base_ack;
 	} else {
 		tcpd->ual1=ual2;
 		tcpd->ual2=ual1;
@@ -1066,6 +1074,7 @@ ack_finished:
 		tcpd->num1_acks=num2_acks;
 		tcpd->num2_acks=num1_acks;
 		tcpd->base_seq2=base_seq;
+		tcpd->base_seq1=base_ack;
 	}
 
 
