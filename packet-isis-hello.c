@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.27 2002/02/09 23:44:38 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.28 2002/04/07 22:36:55 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -79,35 +79,25 @@ static const value_string isis_hello_circuit_type_vals[] = {
  * Predclare dissectors for use in clv dissection.
  */
 static void dissect_hello_padding_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_is_neighbors_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_ptp_adj_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_area_address_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_auth_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_ip_int_addr_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_mt_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_nlpid_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_restart_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length);
+		proto_tree *tree, int offset, int id_length, int length);
 
 
 static const isis_clv_handle_t clv_l1_hello_opts[] = {
@@ -329,8 +319,7 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 
 static void 
 dissect_hello_restart_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length)
+		proto_tree *tree, int offset, int id_length, int length)
 {
 	int restart_options;
 
@@ -355,7 +344,6 @@ dissect_hello_restart_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -366,10 +354,9 @@ dissect_hello_restart_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_nlpid_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length)
+	proto_tree *tree, int offset, int id_length, int length)
 {
-	isis_dissect_nlpid_clv(tvb, pinfo, tree, offset, length);
+	isis_dissect_nlpid_clv(tvb, tree, offset, length);
 }
 
 /*
@@ -381,7 +368,6 @@ dissect_hello_nlpid_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -393,10 +379,9 @@ dissect_hello_nlpid_clv(tvbuff_t *tvb,
 
 static void 
 dissect_hello_mt_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length)
+	proto_tree *tree, int offset, int id_length, int length)
 {
-	isis_dissect_mt_clv(tvb, pinfo, tree, offset, length,
+	isis_dissect_mt_clv(tvb, tree, offset, length,
 		hf_isis_hello_clv_mt );
 }
 
@@ -409,7 +394,6 @@ dissect_hello_mt_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -420,10 +404,9 @@ dissect_hello_mt_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_ip_int_addr_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length)
+	proto_tree *tree, int offset, int id_length, int length)
 {
-	isis_dissect_ip_int_clv(tvb, pinfo, tree, offset, length,
+	isis_dissect_ip_int_clv(tvb, tree, offset, length,
 		hf_isis_hello_clv_ipv4_int_addr );
 }
 
@@ -436,7 +419,6 @@ dissect_hello_ip_int_addr_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -447,10 +429,9 @@ dissect_hello_ip_int_addr_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length)
+	proto_tree *tree, int offset, int id_length, int length)
 {
-	isis_dissect_ipv6_int_clv(tvb, pinfo, tree, offset, length,
+	isis_dissect_ipv6_int_clv(tvb, tree, offset, length,
 		hf_isis_hello_clv_ipv6_int_addr );
 }
 
@@ -464,7 +445,6 @@ dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -475,10 +455,9 @@ dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_auth_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length)
+	proto_tree *tree, int offset, int id_length, int length)
 {
-	isis_dissect_authentication_clv(tvb, pinfo, tree, offset,
+	isis_dissect_authentication_clv(tvb, tree, offset,
 		length, "authentication" );
 }
 
@@ -491,7 +470,6 @@ dissect_hello_auth_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -502,18 +480,16 @@ dissect_hello_auth_clv(tvbuff_t *tvb,
  */
 static void 
 dissect_hello_area_address_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length)
+	proto_tree *tree, int offset, int id_length, int length)
 {
-	isis_dissect_area_address_clv(tvb, pinfo, tree, offset, length);
+	isis_dissect_area_address_clv(tvb, tree, offset, length);
 }
 
 
 
 static void 
 dissect_hello_ptp_adj_clv(tvbuff_t *tvb, 
-		packet_info *pinfo, proto_tree *tree, int offset, 
-		int id_length, int length)
+		proto_tree *tree, int offset, int id_length, int length)
 {
 	char adj_state[20];
 
@@ -561,7 +537,7 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
                                   "Neighbor Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+11) );
 	    break;
 	  default:
-	    isis_dissect_unknown(tvb, pinfo, tree, offset,
+	    isis_dissect_unknown(tvb, tree, offset,
 				 "malformed TLV (%d vs 1,5,11,15)", length );
 	    return;
 	}
@@ -576,7 +552,6 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of IDs in packet.
@@ -586,12 +561,12 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
  *	void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_hello_is_neighbors_clv(tvbuff_t *tvb, packet_info *pinfo,
-		proto_tree *tree, int offset, int id_length, int length)
+dissect_hello_is_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+	int id_length, int length)
 {
 	while ( length > 0 ) {
 		if (length<6) {
-			isis_dissect_unknown(tvb, pinfo, tree, offset,
+			isis_dissect_unknown(tvb, tree, offset,
 				"short is neighbor (%d vs 6)", length );
 			return;
 		}
@@ -617,7 +592,6 @@ dissect_hello_is_neighbors_clv(tvbuff_t *tvb, packet_info *pinfo,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -627,8 +601,8 @@ dissect_hello_is_neighbors_clv(tvbuff_t *tvb, packet_info *pinfo,
  *	void
  */
 static void 
-dissect_hello_padding_clv(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, int offset, int id_length, int length)
+dissect_hello_padding_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+	int id_length, int length)
 {
 	/* nothing to do here! */
 }
@@ -644,7 +618,6 @@ dissect_hello_padding_clv(tvbuff_t *tvb, packet_info *pinfo,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to add to.  May be NULL.
  *	int offset : our offset into packet data.
  *	int : hello type, a la packet-isis.h ISIS_TYPE_* values
@@ -655,8 +628,8 @@ dissect_hello_padding_clv(tvbuff_t *tvb, packet_info *pinfo,
  *	void, will modify proto_tree if not NULL.
  */	
 void 
-isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, int hello_type, int header_length, int id_length)
+isis_dissect_isis_hello(tvbuff_t *tvb, proto_tree *tree, int offset,
+	int hello_type, int header_length, int id_length)
 {
 	proto_item	*ti;
 	proto_tree	*hello_tree = NULL;
@@ -735,7 +708,7 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	len = pdu_length;
 	len -= header_length;
 	if (len < 0) {
-		isis_dissect_unknown(tvb, pinfo, tree, offset,
+		isis_dissect_unknown(tvb, tree, offset,
 			"Packet header length %d went beyond packet", 
 			header_length );
 		return;
@@ -745,15 +718,15 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * our list of valid ones!
 	 */
 	if (hello_type == ISIS_TYPE_L1_HELLO){
-		isis_dissect_clvs(tvb, pinfo, hello_tree, offset,
+		isis_dissect_clvs(tvb, hello_tree, offset,
 			clv_l1_hello_opts, len, id_length,
 			ett_isis_hello_clv_unknown);
 	} else if (hello_type == ISIS_TYPE_L2_HELLO) {
-		isis_dissect_clvs(tvb, pinfo, hello_tree, offset,
+		isis_dissect_clvs(tvb, hello_tree, offset,
 			clv_l2_hello_opts, len, id_length,
 			ett_isis_hello_clv_unknown);
 	} else {
-		isis_dissect_clvs(tvb, pinfo, hello_tree, offset,
+		isis_dissect_clvs(tvb, hello_tree, offset,
 			clv_ptp_hello_opts, len, id_length,
 			ett_isis_hello_clv_unknown);
 	}

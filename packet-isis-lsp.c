@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.26 2002/03/23 22:03:41 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.27 2002/04/07 22:36:55 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -97,62 +97,43 @@ static const value_string isis_lsp_istype_vals[] = {
  * Predclare dissectors for use in clv dissection.
  */
 static void dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_partition_dis_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_l2_is_neighbors_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_l1_es_neighbors_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_l1_is_neighbors_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_area_address_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_l2_auth_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_l1_auth_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_ip_int_addr_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_te_router_id_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_hostname_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_mt_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_nlpid_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 
 
 
@@ -405,7 +386,6 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	guint8 : value of the metric.
@@ -416,8 +396,8 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
  *	void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_metric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, guint8 value, char *pstr, int force_supported ) 
+dissect_metric(tvbuff_t *tvb, proto_tree *tree,	int offset, guint8 value,
+	char *pstr, int force_supported ) 
 {
 	int s;
 
@@ -443,7 +423,6 @@ dissect_metric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -453,8 +432,7 @@ dissect_metric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *	void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
 	proto_item 	*ti;
@@ -476,7 +454,7 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb,
 	  
 	while ( length > 0 ) {
 		if (length<12) {
-			isis_dissect_unknown(tvb, pinfo, tree, offset,
+			isis_dissect_unknown(tvb, tree, offset,
 				"short IP reachability (%d vs 12)", length );
 			return;
 		}
@@ -564,7 +542,6 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb,
  *
  * Input:
  *   tvbuff_t * : tvbuffer for packet data
- *   packet_info * : info for current packet
  *   proto_tree * : proto tree to build on (may be null)
  *   int : current offset into packet data
  *   int : length of IDs in packet.
@@ -574,9 +551,8 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb,
  *   void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length)
+dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
+	int offset, int id_length, int length)
 {
 	proto_item *pi = NULL;
 	proto_tree *subtree = NULL;
@@ -623,7 +599,6 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb,
  *
  * Input:
  *   tvbuff_t * : tvbuffer for packet data
- *   packet_info * : info for current packet
  *   proto_tree * : proto tree to build on (may be null)
  *   int : current offset into packet data
  *   int : length of IDs in packet.
@@ -633,8 +608,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb,
  *   void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
 	proto_item        *ti;
@@ -694,7 +668,6 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -704,11 +677,10 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb,
  *	void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_nlpid_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	isis_dissect_nlpid_clv(tvb, pinfo, tree, offset, length);
+	isis_dissect_nlpid_clv(tvb, tree, offset, length);
 }
 
 /*
@@ -719,23 +691,20 @@ dissect_lsp_nlpid_clv(tvbuff_t *tvb,
  *	clv common one.
  *
  * Input:
- *	u_char * : packet data
+ *      tvbuff_t * : tvbuffer for packet data
+ *      proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	guint : length of this clv
  *	int : length of IDs in packet.
- *	frame_data * : frame data
- *	proto_tree * : proto tree to build on (may be null)
  *
  * Output:
  *	void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_mt_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	isis_dissect_mt_clv(tvb, pinfo, tree, offset, length,
-			    hf_isis_lsp_clv_mt );
+	isis_dissect_mt_clv(tvb, tree, offset, length, hf_isis_lsp_clv_mt );
 }
 
 /*
@@ -747,7 +716,6 @@ dissect_lsp_mt_clv(tvbuff_t *tvb,
  *
  * Input:
  *      tvbuff_t * : tvbuffer for packet data
- *      packet_info * : info for current packet
  *      proto_tree * : proto tree to build on (may be null)
  *      int : current offset into packet data
  *      int : length of IDs in packet.
@@ -757,11 +725,10 @@ dissect_lsp_mt_clv(tvbuff_t *tvb,
  *      void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_hostname_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-        isis_dissect_hostname_clv(tvb, pinfo, tree, offset, length);
+        isis_dissect_hostname_clv(tvb, tree, offset, length);
 }
 
 
@@ -774,7 +741,6 @@ dissect_lsp_hostname_clv(tvbuff_t *tvb,
  *
  * Input:
  *      tvbuff_t * : tvbuffer for packet data
- *      packet_info * : info for current packet
  *      proto_tree * : proto tree to build on (may be null)
  *      int : current offset into packet data
  *      int : length of IDs in packet.
@@ -784,11 +750,10 @@ dissect_lsp_hostname_clv(tvbuff_t *tvb,
  *      void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_te_router_id_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-        isis_dissect_te_router_id_clv(tvb, pinfo, tree, offset, length,
+        isis_dissect_te_router_id_clv(tvb, tree, offset, length,
                 hf_isis_lsp_clv_te_router_id );
 }
 
@@ -802,7 +767,6 @@ dissect_lsp_te_router_id_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -812,11 +776,10 @@ dissect_lsp_te_router_id_clv(tvbuff_t *tvb,
  *	void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_ip_int_addr_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_ip_int_addr_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	isis_dissect_ip_int_clv(tvb, pinfo, tree, offset, length,
+	isis_dissect_ip_int_clv(tvb, tree, offset, length,
 		hf_isis_lsp_clv_ipv4_int_addr );
 }
 
@@ -829,7 +792,6 @@ dissect_lsp_ip_int_addr_clv(tvbuff_t *tvb,
  *
  * Input:
  *   tvbuff_t * : tvbuffer for packet data
- *   packet_info * : info for current packet
  *   proto_tree * : proto tree to build on (may be null)
  *   int : current offset into packet data
  *   int : length of IDs in packet.
@@ -839,11 +801,10 @@ dissect_lsp_ip_int_addr_clv(tvbuff_t *tvb,
  *   void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	isis_dissect_ipv6_int_clv(tvb, pinfo, tree, offset, length,
+	isis_dissect_ipv6_int_clv(tvb, tree, offset, length,
 		hf_isis_lsp_clv_ipv6_int_addr );
 }
 
@@ -856,7 +817,6 @@ dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -866,11 +826,10 @@ dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb,
  *	void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_l1_auth_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_l1_auth_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	isis_dissect_authentication_clv(tvb, pinfo, tree, offset, length,
+	isis_dissect_authentication_clv(tvb, tree, offset, length,
 		"Per area authentication" );
 }
 
@@ -883,7 +842,6 @@ dissect_lsp_l1_auth_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : proto tree to build on (may be null)
  *	int : current offset into packet data
  *	int : length of IDs in packet.
@@ -893,11 +851,10 @@ dissect_lsp_l1_auth_clv(tvbuff_t *tvb,
  *	void, will modify proto_tree if not null.
  */
 static void 
-dissect_lsp_l2_auth_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_l2_auth_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	isis_dissect_authentication_clv(tvb, pinfo, tree, offset, length,
+	isis_dissect_authentication_clv(tvb, tree, offset, length,
 		"Per domain authentication" );
 }
 
@@ -910,7 +867,6 @@ dissect_lsp_l2_auth_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of IDs in packet.
@@ -920,11 +876,10 @@ dissect_lsp_l2_auth_clv(tvbuff_t *tvb,
  *      void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_lsp_area_address_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	isis_dissect_area_address_clv(tvb, pinfo, tree, offset, length);
+	isis_dissect_area_address_clv(tvb, tree, offset, length);
 }
 
 /*
@@ -941,7 +896,6 @@ dissect_lsp_area_address_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of IDs in packet.
@@ -953,9 +907,8 @@ dissect_lsp_area_address_clv(tvbuff_t *tvb,
  *      void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, int offset,
-	int length, int id_length, int show_virtual, int is_eis)
+dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, proto_tree *tree,
+	int offset, int length, int id_length, int show_virtual, int is_eis)
 {
 	proto_item 	*ti;
 	proto_tree	*ntree = NULL;
@@ -981,7 +934,7 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo,
 
 	while ( length > 0 ) {
 		if (length<tlen) {
-			isis_dissect_unknown(tvb, pinfo, tree, offset,
+			isis_dissect_unknown(tvb, tree, offset,
 				"short E/IS reachability (%d vs %d)", length,
 				tlen );
 			return;
@@ -1049,7 +1002,6 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of IDs in packet.
@@ -1059,11 +1011,10 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo,
  *      void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_lsp_l1_is_neighbors_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_l1_is_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	dissect_lsp_eis_neighbors_clv_inner(tvb, pinfo, tree, offset,
+	dissect_lsp_eis_neighbors_clv_inner(tvb, tree, offset,
 		length, id_length, TRUE, FALSE);
 }
 
@@ -1076,7 +1027,6 @@ dissect_lsp_l1_is_neighbors_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of IDs in packet.
@@ -1086,11 +1036,10 @@ dissect_lsp_l1_is_neighbors_clv(tvbuff_t *tvb,
  *      void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_lsp_l1_es_neighbors_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_l1_es_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	dissect_lsp_eis_neighbors_clv_inner(tvb, pinfo, tree, offset,
+	dissect_lsp_eis_neighbors_clv_inner(tvb, tree, offset,
 		length, id_length, TRUE, TRUE);
 }
 
@@ -1104,7 +1053,6 @@ dissect_lsp_l1_es_neighbors_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of IDs in packet.
@@ -1114,11 +1062,10 @@ dissect_lsp_l1_es_neighbors_clv(tvbuff_t *tvb,
  *      void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_lsp_l2_is_neighbors_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_l2_is_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
-	dissect_lsp_eis_neighbors_clv_inner(tvb, pinfo, tree, offset,
+	dissect_lsp_eis_neighbors_clv_inner(tvb, tree, offset,
 		length, id_length, FALSE, FALSE);
 }
 
@@ -1133,7 +1080,6 @@ dissect_lsp_l2_is_neighbors_clv(tvbuff_t *tvb,
  *
  * Input:
  *   tvbuff_t * : tvbuffer for packet data
- *   packet_info * : info for current packet
  *   proto_tree * : protocol display tree to fill out.
  *   int : offset into packet data where we are (beginning of the sub_clv value).
  *
@@ -1141,7 +1087,7 @@ dissect_lsp_l2_is_neighbors_clv(tvbuff_t *tvb,
  *   void
  */
 static void
-dissect_subclv_admin_group (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
+dissect_subclv_admin_group (tvbuff_t *tvb, proto_tree *tree, int offset) {
 	proto_item *ti;
 	proto_tree *ntree;
 	guint32    clv_value;
@@ -1170,15 +1116,15 @@ dissect_subclv_admin_group (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *   for dissect the maximum link bandwidth sub-CLV (code 9).
  *
  * Input:
- *   u_char * : packet data
- *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   tvbuff_t * : tvbuffer for packet data
  *   proto_tree * : protocol display tree to fill out.
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
  *
  * Output:
  *   void
  */
 static void
-dissect_subclv_max_bw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_subclv_max_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	guint32 ui;
 	gfloat  bw;
@@ -1198,15 +1144,15 @@ dissect_subclv_max_bw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
  *   for dissect the reservable link bandwidth sub-CLV (code 10).
  *
  * Input:
- *   u_char * : packet data
- *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   tvbuff_t * : tvbuffer for packet data
  *   proto_tree * : protocol display tree to fill out.
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
  *
  * Output:
  *   void
  */
 static void
-dissect_subclv_rsv_bw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_subclv_rsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	guint32 ui;
 	gfloat  bw;
@@ -1226,15 +1172,15 @@ dissect_subclv_rsv_bw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
  *   for dissect the unreserved bandwidth sub-CLV (code 11).
  *
  * Input:
- *   u_char * : packet data
- *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   tvbuff_t * : tvbuffer for packet data
  *   proto_tree * : protocol display tree to fill out.
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
  *
  * Output:
  *   void
  */
 static void
-dissect_subclv_unrsv_bw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_subclv_unrsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *ntree;
@@ -1264,7 +1210,6 @@ dissect_subclv_unrsv_bw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
  *
  * Input:
  *   tvbuff_t * : tvbuffer for packet data
- *   packet_info * : info for current packet
  *   proto_tree * : protocol display tree to fill out.  May be NULL
  *   int : offset into packet data where we are.
  *   int : length of IDs in packet.
@@ -1274,9 +1219,8 @@ dissect_subclv_unrsv_bw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
  *   void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
-	int id_length, int length)
+dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
+	int offset, int id_length, int length)
 {
 	proto_item *ti;
 	proto_tree *ntree = NULL;
@@ -1307,7 +1251,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb,
 				clv_len  = tvb_get_guint8(tvb, offset+12+i);
 				switch (clv_code) {
 				case 3 :
-					dissect_subclv_admin_group(tvb, pinfo, ntree, offset+13+i);
+					dissect_subclv_admin_group(tvb, ntree, offset+13+i);
 					break;
 				case 6 :
 					proto_tree_add_text (ntree, tvb, offset+11+i, 6,
@@ -1318,13 +1262,13 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb,
 						"IPv4 neighbor address: %s", ip_to_str (tvb_get_ptr(tvb, offset+13+i, 4)) );
 					break;
 				case 9 :
-					dissect_subclv_max_bw (tvb, pinfo, ntree, offset+13+i);
+					dissect_subclv_max_bw (tvb, ntree, offset+13+i);
 					break;
 				case 10:
-					dissect_subclv_rsv_bw (tvb, pinfo, ntree, offset+13+i);
+					dissect_subclv_rsv_bw (tvb, ntree, offset+13+i);
 					break;
 				case 11:
-					dissect_subclv_unrsv_bw (tvb, pinfo, ntree, offset+13+i);
+					dissect_subclv_unrsv_bw (tvb, ntree, offset+13+i);
 					break;
 				case 18:
 					proto_tree_add_text (ntree, tvb, offset+11+i, 5,
@@ -1361,8 +1305,8 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb,
 
 
 
-static void dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+static void
+dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
 	proto_item *ti;
@@ -1441,7 +1385,6 @@ static void dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of IDs in packet.
@@ -1451,13 +1394,12 @@ static void dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb,
  *      void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_lsp_partition_dis_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_partition_dis_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
 	if ( length < id_length ) {
-		isis_dissect_unknown(tvb, pinfo, tree, offset,
-				"short lsp parition DIS(%d vs %d)", length,
+		isis_dissect_unknown(tvb, tree, offset,
+				"short lsp partition DIS(%d vs %d)", length,
 				id_length );
 		return;
 	}
@@ -1472,8 +1414,8 @@ dissect_lsp_partition_dis_clv(tvbuff_t *tvb,
 	length -= id_length;
 	offset += id_length;
 	if ( length > 0 ){
-		isis_dissect_unknown(tvb, pinfo, tree, offset,
-				"Long lsp parition DIS, %d left over", length );
+		isis_dissect_unknown(tvb, tree, offset,
+				"Long lsp partition DIS, %d left over", length );
 		return;
 	}
 }
@@ -1488,7 +1430,6 @@ dissect_lsp_partition_dis_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
  *	int : length of IDs in packet.
@@ -1498,26 +1439,25 @@ dissect_lsp_partition_dis_clv(tvbuff_t *tvb,
  *      void, but we will add to proto tree if !NULL.
  */
 static void 
-dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, 
-	packet_info *pinfo, proto_tree *tree, int offset, 
+dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset, 
 	int id_length, int length)
 {
 	char *sbuf;
 	int mylen;
 
 	if ( length < 4 ) {
-		isis_dissect_unknown(tvb, pinfo, tree, offset,
+		isis_dissect_unknown(tvb, tree, offset,
 			"Short lsp prefix neighbors (%d vs 4)", length );
 		return;
 	}
 	if ( tree ) {
-		dissect_metric (tvb, pinfo, tree, offset,
+		dissect_metric (tvb, tree, offset,
 			tvb_get_guint8(tvb, offset), "Default", TRUE );
-		dissect_metric (tvb, pinfo, tree, offset+1,
+		dissect_metric (tvb, tree, offset+1,
 			tvb_get_guint8(tvb, offset+1), "Delay", FALSE );
-		dissect_metric (tvb, pinfo, tree, offset+2,
+		dissect_metric (tvb, tree, offset+2,
 			tvb_get_guint8(tvb, offset+2), "Expense", FALSE );
-		dissect_metric (tvb, pinfo, tree, offset+3,
+		dissect_metric (tvb, tree, offset+3,
 			tvb_get_guint8(tvb, offset+3), "Error", FALSE );
 	}
 	offset += 4;
@@ -1526,12 +1466,12 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb,
 		mylen = tvb_get_guint8(tvb, offset);
 		length--;
 		if (length<=0) {
-			isis_dissect_unknown(tvb, pinfo, tree, offset,
+			isis_dissect_unknown(tvb, tree, offset,
 				"Zero payload space after length in prefix neighbor" );
 			return;
 		}
 		if ( mylen > length) {
-			isis_dissect_unknown(tvb, pinfo, tree, offset,
+			isis_dissect_unknown(tvb, tree, offset,
 				"Interal length of prefix neighbor too long (%d vs %d)", 
 				mylen, length );
 			return;
@@ -1560,7 +1500,6 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : tree to display into. REQUIRED
  *	int : offset into packet data where we are.
  *	char * : title string
@@ -1570,8 +1509,8 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb,
  *      void, but we will add to proto tree
  */
 void
-isis_lsp_decode_lsp_id(tvbuff_t *tvb, packet_info *pinfo, 
-	proto_tree *tree, int offset, char *tstr, int id_length)
+isis_lsp_decode_lsp_id(tvbuff_t *tvb, proto_tree *tree, int offset,
+	char *tstr, int id_length)
 {
 	proto_tree_add_text(tree, tvb, offset, id_length + 2,
 		"%s: %s.%02x-%02x", tstr,
@@ -1589,7 +1528,6 @@ isis_lsp_decode_lsp_id(tvbuff_t *tvb, packet_info *pinfo,
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : protocol display tree to add to.  May be NULL.
  *	int offset : our offset into packet data.
  *	int : LSP type, a la packet-isis.h ISIS_TYPE_* values
@@ -1600,8 +1538,8 @@ isis_lsp_decode_lsp_id(tvbuff_t *tvb, packet_info *pinfo,
  *      void, but we will add to proto tree if !NULL.
  */
 void 
-isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, int lsp_type, int header_length, int id_length)
+isis_dissect_isis_lsp(tvbuff_t *tvb, proto_tree *tree, int offset,
+	int lsp_type, int header_length, int id_length)
 {
 	proto_item	*ti;
 	proto_tree	*lsp_tree = NULL;
@@ -1629,7 +1567,7 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 2;
 
 	if (tree) {
-		isis_lsp_decode_lsp_id(tvb, pinfo, lsp_tree, offset, 
+		isis_lsp_decode_lsp_id(tvb, lsp_tree, offset, 
 			"LSP ID", id_length);
 	}
 	offset += id_length + 2;
@@ -1682,7 +1620,7 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	len = pdu_length - header_length;
 	if (len < 0) {
-		isis_dissect_unknown(tvb, pinfo, tree, offset,
+		isis_dissect_unknown(tvb, tree, offset,
 			"packet header length %d went beyond packet",
 			 header_length );
 		return;
@@ -1692,11 +1630,11 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * our list of valid ones!
 	 */
 	if (lsp_type == ISIS_TYPE_L1_LSP){
-		isis_dissect_clvs(tvb, pinfo, lsp_tree, offset,
+		isis_dissect_clvs(tvb, lsp_tree, offset,
 			clv_l1_lsp_opts, len, id_length, 
 			ett_isis_lsp_clv_unknown );
 	} else {
-		isis_dissect_clvs(tvb, pinfo, lsp_tree, offset,
+		isis_dissect_clvs(tvb, lsp_tree, offset,
 			clv_l2_lsp_opts, len, id_length, 
 			ett_isis_lsp_clv_unknown );
 	}

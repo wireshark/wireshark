@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.30 2002/01/24 09:20:49 guy Exp $
+ * $Id: packet-isis.c,v 1.31 2002/04/07 22:36:55 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -80,17 +80,17 @@ static const value_string isis_vals[] = {
  *
  * Input
  *	tvbuff_t * : tvbuffer for packet data
- *	packet_info * : info for current packet
  *	proto_tree * : tree of display data.  May be NULL.
  *	int : current offset into packet data
  *	char * : format text
+ *	subsequent args : arguments to format
  *
  * Output:
  *	void (may modify proto tree)
  */
 void
-isis_dissect_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
-	int offset, char *fmat, ...)
+isis_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
+	char *fmat, ...)
 {
 	va_list	ap;
 
@@ -138,7 +138,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Unknown ISIS version (%u vs %u)",
 				isis_version, ISIS_REQUIRED_VERSION );
 		}
-		isis_dissect_unknown(tvb, pinfo, tree, 0,
+		isis_dissect_unknown(tvb, tree, 0,
 			"Unknown ISIS version (%d vs %d)",
 			isis_version, ISIS_REQUIRED_VERSION);
 		return;
@@ -225,26 +225,26 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ISIS_TYPE_L1_HELLO:
 	case ISIS_TYPE_L2_HELLO:
 	case ISIS_TYPE_PTP_HELLO:
-		isis_dissect_isis_hello(tvb, pinfo, isis_tree, offset,
+		isis_dissect_isis_hello(tvb, isis_tree, offset,
 			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	case ISIS_TYPE_L1_LSP:
 	case ISIS_TYPE_L2_LSP:
-		isis_dissect_isis_lsp(tvb, pinfo, isis_tree, offset,
+		isis_dissect_isis_lsp(tvb, isis_tree, offset,
 			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	case ISIS_TYPE_L1_CSNP:
 	case ISIS_TYPE_L2_CSNP:
-		isis_dissect_isis_csnp(tvb, pinfo, isis_tree, offset,
+		isis_dissect_isis_csnp(tvb, isis_tree, offset,
 			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	case ISIS_TYPE_L1_PSNP:
 	case ISIS_TYPE_L2_PSNP:
-		isis_dissect_isis_psnp(tvb, pinfo, isis_tree, offset,
+		isis_dissect_isis_psnp(tvb, isis_tree, offset,
 			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	default:
-		isis_dissect_unknown(tvb, pinfo, tree, offset,
+		isis_dissect_unknown(tvb, tree, offset,
 			"Unknown ISIS packet type");
 	}
 } /* dissect_isis */

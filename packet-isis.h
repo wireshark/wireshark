@@ -1,7 +1,7 @@
 /* packet-isis.h
  * Defines and such for core isis protcol decode.
  *
- * $Id: packet-isis.h,v 1.7 2001/07/02 02:09:26 guy Exp $
+ * $Id: packet-isis.h,v 1.8 2002/04/07 22:36:55 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -21,8 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifndef _PACKET_ISIS_H
@@ -56,7 +54,7 @@
  */
 
 extern char *isis_address_to_string(tvbuff_t *tvb, int offset, int len);
-extern void isis_dissect_unknown(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, int offset, char *fmat, ...);
+extern void isis_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
+	char *fmat, ...);
 
 #endif /* _PACKET_ISIS_H */
