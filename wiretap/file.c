@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.36 1999/12/04 21:20:09 guy Exp $
+ * $Id: file.c,v 1.37 1999/12/04 21:32:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -276,7 +276,8 @@ int wtap_short_string_to_file_type(const char *short_name)
 	int filetype;
 
 	for (filetype = 0; filetype < WTAP_NUM_FILE_TYPES; filetype++) {
-		if (strcmp(short_name, dump_open_table[filetype].short_name) == 0)
+		if (dump_open_table[filetype].short_name != NULL &&
+		    strcmp(short_name, dump_open_table[filetype].short_name) == 0)
 			return filetype;
 	}
 	return -1;	/* no such file type, or we can't write it */
