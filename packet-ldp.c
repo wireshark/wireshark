@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.46 2003/11/13 23:38:33 guy Exp $
+ * $Id: packet-ldp.c,v 1.47 2003/12/04 05:55:45 gram Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -392,7 +392,8 @@ static const value_string fec_vc_interfaceparm[] = {
   {FEC_VC_INTERFACEPARAM_CEMOPTIONS, "CEM options"},
   {FEC_VC_INTERFACEPARAM_VPNID, "VPN Id"},
   {FEC_VC_INTERFACEPARAM_TDMBPS, "CEP/TDM bit-rate"},
-  {FEC_VC_INTERFACEPARAM_FRDLCILEN, "Frame-Relay DLCI Length"}
+  {FEC_VC_INTERFACEPARAM_FRDLCILEN, "Frame-Relay DLCI Length"},
+  {0, NULL},
 };
 
 static const true_false_string fec_vc_cbit = {
@@ -2483,7 +2484,7 @@ proto_register_ldp(void)
       { "Returned PDU Label Space ID", "ldp.msg.tlv.returned.ldpid.lsid", FT_UINT16, BASE_HEX, NULL, 0x0, "LDP Label Space ID", HFILL }},
 
     { &hf_ldp_tlv_returned_msg_ubit,
-      { "Returned Message Unknown bit", "ldp.msg.tlv.returned.msg.ubit", FT_UINT8, BASE_HEX, TFS(&ldp_message_ubit), 0x80, "Message Unknown bit", HFILL }},
+      { "Returned Message Unknown bit", "ldp.msg.tlv.returned.msg.ubit", FT_BOOLEAN, BASE_HEX, TFS(&ldp_message_ubit), 0x80, "Message Unknown bit", HFILL }},
 
     { &hf_ldp_tlv_returned_msg_type,
       { "Returned Message Type", "ldp.msg.tlv.returned.msg.type", FT_UINT16, BASE_HEX, VALS(ldp_message_types), 0x7FFF, "LDP message type", HFILL }},
