@@ -1,8 +1,12 @@
 /* packet-ipx.h
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
+ * NDPS support and SPX Defragmentation added by Greg Morris (gmorris@novell.com)
  *
- * $Id: packet-ipx.h,v 1.23 2003/04/06 02:32:38 guy Exp $
+ * Portions Copyright (c) by Gilbert Ramirez 2000-2002
+ * Portions Copyright (c) Novell, Inc. 2002-2003
+ *
+ * $Id: packet-ipx.h,v 1.24 2003/04/08 00:22:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
