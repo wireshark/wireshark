@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.19 2001/01/09 06:32:08 guy Exp $
+ * $Id: packet-gryphon.c,v 1.20 2001/04/23 23:43:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -90,7 +90,8 @@ dissect_gryphon(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     proto_tree	    *gryphon_tree, *header_tree, *body_tree, *localTree;
     proto_item	    *ti, *header_item, *body_item, *localItem;
     const u_char    *data, *dataend, *msgend;
-    int		    src, msglen, msgpad, dest, frmtyp, i, end_of_frame;
+    int		    msglen, msgpad, end_of_frame;
+    unsigned int    src, dest, i, frmtyp;
     static const u_char *frame_type[] = {"",
     	    	    	                 "Command request",
 			                 "Command response",
@@ -472,7 +473,8 @@ static const value_string ioctls[] = {
 void
 decode_command (int dst, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
 {
-    int     	    cmd, i, padding;
+    int     	    cmd, padding;
+    unsigned int    i;
     proto_tree	    *ft;
     proto_item	    *ti;
 
@@ -510,7 +512,8 @@ decode_command (int dst, const u_char **data, const u_char *dataend, int *offset
 void
 decode_response (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
 {
-    int     	    cmd, i, j, resp;
+    int     	    cmd;
+    unsigned int    i, j, resp;
     proto_tree	    *ft;
     proto_item	    *ti;
 
@@ -735,8 +738,7 @@ cmd_setfilt (int src, const u_char **data, const u_char *dataend, int *offset, i
 void
 cmd_ioctl (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
 {
-    unsigned int    ioctl;
-    int     	    i;
+    unsigned int    ioctl, i;
 
     ioctl = pntohl ((unsigned int *)(*data));
     for (i = 0; i < SIZEOF(ioctls); i++) {
@@ -802,8 +804,7 @@ resp_addfilt (int src, const u_char **data, const u_char *dataend, int *offset, 
 void
 cmd_modfilt (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
 {
-    unsigned char   action;
-    int     	    i;
+    unsigned char   action, i;
 
     if (**data)
     	proto_tree_add_text(pt, NullTVB, *offset, 1, "Filter handle: %hd", **data);
@@ -839,7 +840,7 @@ resp_filthan (int src, const u_char **data, const u_char *dataend, int *offset, 
 
 void
 dfiltmode (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
-    int     	    i;
+    unsigned int    i;
     unsigned char   mode;
     
     mode = **data;
@@ -856,7 +857,7 @@ dfiltmode (int src, const u_char **data, const u_char *dataend, int *offset, int
 
 void
 filtmode (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
-    int     	    i;
+    unsigned int    i;
     unsigned char   mode;
     
     mode = **data;
@@ -873,7 +874,7 @@ filtmode (int src, const u_char **data, const u_char *dataend, int *offset, int 
 
 void
 resp_events (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
-    int     	    i;
+    unsigned int    i;
     proto_tree	    *tree;
     proto_item	    *item;
     
@@ -959,7 +960,8 @@ resp_config (int src, const u_char **data, const u_char *dataend, int *offset, i
     proto_tree	*ft;
     char    	string[33];
     int     	devices;
-    int     	i, j, x;
+    int     	i;
+    unsigned int j, x;
     
     static const value_string protocol_types[] = {
 	{GDUMMY * 256 + GDGDMARKONE,	"Dummy device driver"},
@@ -1085,7 +1087,8 @@ cmd_sched (int src, const u_char **data, const u_char *dataend, int *offset, int
 void
 resp_blm_data (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
 {
-    int     hours, minutes, seconds, fraction, i, x, fract;
+    unsigned int    i;
+    int             hours, minutes, seconds, fraction, x, fract;
     unsigned long   timestamp;
     char    *fields[] = {
     	"Bus load average: %d.%02d%%",
@@ -1246,7 +1249,7 @@ cmd_modresp (int src, const u_char **data, const u_char *dataend, int *offset, i
 {
     unsigned char   action;
     unsigned char   dest = *((*data)-5);
-    int     	    i;
+    unsigned int    i;
 
     if (**data)
     	proto_tree_add_text(pt, NullTVB, *offset, 1, "Response handle: %hd", **data);
@@ -1572,7 +1575,8 @@ speed (int src, const u_char **data, const u_char *dataend, int *offset, int msg
 
 void
 filter_block (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
-    int     length, type, i, operator, padding;
+    unsigned int    type, operator, i;
+    int     length, padding;
     
     proto_tree_add_text(pt, NullTVB, *offset, 2, "Filter field starts at byte %d", pntohs ((unsigned short *)(*data)));
     length = pntohs ((unsigned short *)((*data)+2));

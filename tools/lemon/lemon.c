@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.8 2001/04/18 04:52:51 gram Exp $
+** $Id: lemon.c,v 1.9 2001/04/23 23:45:35 guy Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -166,7 +166,7 @@ struct state {
   struct config *cfp;      /* All configurations in this set */
   int index;               /* Sequencial number for this state */
   struct action *ap;       /* Array of actions for this state */
-  int naction;             /* Number of actions for this state */
+  unsigned int naction;             /* Number of actions for this state */
   int tabstart;            /* First index of the action table */
   int tabdfltact;          /* Default action */
 };
@@ -2113,7 +2113,7 @@ void Parse(struct lemon *gp)
   struct pstate ps;
   FILE *fp;
   char *filebuf;
-  int filesize;
+  size_t filesize;
   int lineno;
   char c;
   char *cp, *nextcp;
@@ -3040,8 +3040,8 @@ void ReportTable(
 
   /* Loop over parser states */
   for(i=0; i<lemp->nstate; i++){
-    int tablesize;              /* size of the hash table */
-    int j,k;                    /* Loop counter */
+    size_t tablesize;           /* size of the hash table */
+    unsigned int j,k;           /* Loop counter */
     int collide[2048];          /* The collision chain for the table */
     struct action *table[2048]; /* Build the hash table here */
 
@@ -3125,7 +3125,7 @@ void ReportTable(
   **    }
   */
   for(i=0; i<lemp->nstate; i++){
-    int tablesize;
+    size_t tablesize;
     stp = lemp->sorted[i];
     tablesize = 1;
     while( tablesize<stp->naction ) tablesize += tablesize;
