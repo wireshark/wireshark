@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.2 2001/01/13 18:29:39 guy Exp $
+ * $Id: packet-m3ua.c,v 1.3 2001/01/14 10:15:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -409,7 +409,6 @@ dissect_m3ua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
 {
   guint8  version, reserved, message_class, message_type;
   guint32 message_length;
-
   /* Extract the common header */
   version        = tvb_get_guint8(common_header_tvb, VERSION_OFFSET);
   reserved       = tvb_get_guint8(common_header_tvb, RESERVED_OFFSET);
@@ -422,26 +421,29 @@ dissect_m3ua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
     col_append_str(pinfo->fd, COL_INFO, " ");
   };
 
-  /* add the components of the common header to the protocol tree */
-  proto_tree_add_uint_format(m3ua_tree, hf_m3ua_version, 
-			     common_header_tvb, VERSION_OFFSET, VERSION_LENGTH,
-			     version, "Version: %u (%s)",
-			     version, val_to_str(version, m3ua_protocol_version_values, "unknown"));
-  proto_tree_add_uint(m3ua_tree, hf_m3ua_reserved,
-		      common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH,
-		      reserved);
-  proto_tree_add_uint_format(m3ua_tree, hf_m3ua_message_class, 
-			     common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH,
+  if (m3ua_tree) {
+    /* add the components of the common header to the protocol tree */
+    proto_tree_add_uint_format(m3ua_tree, hf_m3ua_version, 
+			       common_header_tvb, VERSION_OFFSET, VERSION_LENGTH,
+			       version, "Version: %u (%s)",
+			       version, val_to_str(version, m3ua_protocol_version_values, "unknown"));
+    proto_tree_add_uint(m3ua_tree, hf_m3ua_reserved,
+			common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH,
+			reserved);
+    proto_tree_add_uint_format(m3ua_tree, hf_m3ua_message_class, 
+			       common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH,
 			     message_class, "Message class: %u (%s)",
-			     message_class, val_to_str(message_class, m3ua_message_class_values, "reserved"));
-  proto_tree_add_uint_format(m3ua_tree, hf_m3ua_message_type, 
-			     common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
-			     message_type, "Message type: %u (%s)",
-			     message_type, val_to_str(message_class * 256 + message_type, m3ua_message_class_type_values, "reserved"));
-  proto_tree_add_uint(m3ua_tree, hf_m3ua_message_length,
-		      common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH,
-		      message_length);
+			       message_class, val_to_str(message_class, m3ua_message_class_values, "reserved"));
+    proto_tree_add_uint_format(m3ua_tree, hf_m3ua_message_type, 
+			       common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
+			       message_type, "Message type: %u (%s)",
+			       message_type, val_to_str(message_class * 256 + message_type, m3ua_message_class_type_values, "reserved"));
+    proto_tree_add_uint(m3ua_tree, hf_m3ua_message_length,
+			common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH,
+			message_length);
+  };
 }
+
 static void
 dissect_m3ua_network_appearance_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
@@ -797,24 +799,26 @@ dissect_m3ua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *m3ua
   common_header_tvb = tvb_new_subset(message_tvb, offset, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_m3ua_common_header(common_header_tvb, pinfo, m3ua_tree);
   offset += COMMON_HEADER_LENGTH;
-
-  /* extract zero or more parameters and process them individually */
-  while(tvb_length_remaining(message_tvb, offset)) {
-    length         = tvb_get_ntohs(message_tvb, offset + PARAMETER_LENGTH_OFFSET);
-    padding_length = nr_of_padding_bytes(length);
-    total_length   = length + padding_length;
-    /* create a tvb for the parameter including the padding bytes */
-    parameter_tvb    = tvb_new_subset(message_tvb, offset, total_length, total_length);
-    dissect_m3ua_parameter(parameter_tvb, m3ua_tree); 
-    /* get rid of the handled parameter */
-    offset += total_length;
+  
+  if (m3ua_tree) {
+    /* extract zero or more parameters and process them individually */
+    while(tvb_length_remaining(message_tvb, offset)) {
+      length         = tvb_get_ntohs(message_tvb, offset + PARAMETER_LENGTH_OFFSET);
+      padding_length = nr_of_padding_bytes(length);
+      total_length   = length + padding_length;
+      /* create a tvb for the parameter including the padding bytes */
+      parameter_tvb    = tvb_new_subset(message_tvb, offset, total_length, total_length);
+      dissect_m3ua_parameter(parameter_tvb, m3ua_tree); 
+      /* get rid of the handled parameter */
+      offset += total_length;
+    }
   }
 }
 
 static void
 dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
+  proto_item *m3ua_item;
   proto_tree *m3ua_tree;
 
   CHECK_DISPLAY_AS_DATA(proto_m3ua, message_tvb, pinfo, tree);
@@ -825,21 +829,17 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
     col_set_str(pinfo->fd, COL_PROTOCOL, "M3UA");
   
-  /* clear the Info column so that if we throw an exception it doesn't
-     show stuff from the protocol above us */
-  if (check_col(pinfo->fd, COL_INFO)) 
-    col_clear(pinfo->fd, COL_INFO);
-
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the m3ua protocol tree */
-    ti = proto_tree_add_protocol_format(tree, proto_m3ua, message_tvb, 0, tvb_length(message_tvb), 
-					"MTP 3 User Adaptation Layer");
-    m3ua_tree = proto_item_add_subtree(ti, ett_m3ua);
-    /* dissect the message */
-    dissect_m3ua_message(message_tvb, pinfo, m3ua_tree);
+    m3ua_item = proto_tree_add_item(tree, proto_m3ua, message_tvb, 0, tvb_length(message_tvb), FALSE);
+    m3ua_tree = proto_item_add_subtree(m3ua_item, ett_m3ua);
+  } else {
+    m3ua_tree = NULL;
   };
+  /* dissect the message */
+  dissect_m3ua_message(message_tvb, pinfo, m3ua_tree);
 }
 
 /* Register the protocol with Ethereal */

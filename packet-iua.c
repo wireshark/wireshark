@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-iua.c,v 1.2 2001/01/13 04:30:20 guy Exp $
+ * $Id: packet-iua.c,v 1.3 2001/01/14 10:15:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -430,25 +430,27 @@ dissect_iua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto
     col_append_str(pinfo->fd, COL_INFO, " ");
   };
 
-  /* add the components of the common header to the protocol tree */
-  proto_tree_add_uint_format(iua_tree, hf_iua_version, 
-			     common_header_tvb, VERSION_OFFSET, VERSION_LENGTH,
-			     version, "Version: %u (%s)",
-			     version, val_to_str(version, iua_protocol_version_values, "unknown"));
-  proto_tree_add_uint(iua_tree, hf_iua_reserved,
-		      common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH,
-		      reserved);
-  proto_tree_add_uint_format(iua_tree, hf_iua_message_class, 
-			     common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH,
-			     message_class, "Message class: %u (%s)",
-			     message_class, val_to_str(message_class, iua_message_class_values, "reserved"));
-  proto_tree_add_uint_format(iua_tree, hf_iua_message_type, 
-			     common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
-			     message_type, "Message type: %u (%s)",
-			     message_type, val_to_str(message_class * 256 + message_type, iua_message_class_type_values, "reserved"));
-  proto_tree_add_uint(iua_tree, hf_iua_message_length,
-		      common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH,
-		      message_length);
+  if (iua_tree) {
+    /* add the components of the common header to the protocol tree */
+    proto_tree_add_uint_format(iua_tree, hf_iua_version, 
+			       common_header_tvb, VERSION_OFFSET, VERSION_LENGTH,
+			       version, "Version: %u (%s)",
+			       version, val_to_str(version, iua_protocol_version_values, "unknown"));
+    proto_tree_add_uint(iua_tree, hf_iua_reserved,
+			common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH,
+			reserved);
+    proto_tree_add_uint_format(iua_tree, hf_iua_message_class, 
+			       common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH,
+			       message_class, "Message class: %u (%s)",
+			       message_class, val_to_str(message_class, iua_message_class_values, "reserved"));
+    proto_tree_add_uint_format(iua_tree, hf_iua_message_type, 
+			       common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
+			       message_type, "Message type: %u (%s)",
+			       message_type, val_to_str(message_class * 256 + message_type, iua_message_class_type_values, "reserved"));
+    proto_tree_add_uint(iua_tree, hf_iua_message_length,
+			common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH,
+			message_length);
+  }
 }
 
 static void
@@ -822,23 +824,25 @@ dissect_iua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *iua_t
   dissect_iua_common_header(common_header_tvb, pinfo, iua_tree);
   offset += COMMON_HEADER_LENGTH;
 
-  /* extract zero or more parameters and process them individually */
-  while(tvb_length_remaining(message_tvb, offset)) {
-    length         = tvb_get_ntohs(message_tvb, offset + PARAMETER_LENGTH_OFFSET);
-    padding_length = nr_of_padding_bytes(length);
-    total_length   = length + padding_length;
-    /* create a tvb for the parameter including the padding bytes */
-    parameter_tvb    = tvb_new_subset(message_tvb, offset, total_length, total_length);
-    dissect_iua_parameter(parameter_tvb, iua_tree); 
-    /* get rid of the handled parameter */
-    offset += total_length;
+  if (iua_tree) {
+    /* extract zero or more parameters and process them individually */
+    while(tvb_length_remaining(message_tvb, offset)) {
+      length         = tvb_get_ntohs(message_tvb, offset + PARAMETER_LENGTH_OFFSET);
+      padding_length = nr_of_padding_bytes(length);
+      total_length   = length + padding_length;
+      /* create a tvb for the parameter including the padding bytes */
+      parameter_tvb    = tvb_new_subset(message_tvb, offset, total_length, total_length);
+      dissect_iua_parameter(parameter_tvb, iua_tree); 
+      /* get rid of the handled parameter */
+      offset += total_length;
+    }
   }
 }
 
 static void
 dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
+  proto_item *iua_item;
   proto_tree *iua_tree;
 
   pinfo->current_proto = "IUA";
@@ -853,12 +857,13 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the m3ua protocol tree */
-    ti = proto_tree_add_protocol_format(tree, proto_iua, message_tvb, 0, tvb_length(message_tvb), 
-					"ISDN Q.921-User Adaptation Layer");
-    iua_tree = proto_item_add_subtree(ti, ett_iua);
-    /* dissect the message */
-    dissect_iua_message(message_tvb, pinfo, iua_tree);
+    iua_item = proto_tree_add_item(tree, proto_iua, message_tvb, 0, tvb_length(message_tvb), FALSE);
+    iua_tree = proto_item_add_subtree(iua_item, ett_iua);
+  } else {
+    iua_tree = NULL;
   };
+  /* dissect the message */
+  dissect_iua_message(message_tvb, pinfo, iua_tree);
 }
 
 /* Register the protocol with Ethereal */
