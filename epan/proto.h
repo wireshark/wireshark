@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.54 2003/12/06 06:09:13 gram Exp $
+ * $Id: proto.h,v 1.55 2004/01/03 18:40:08 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -558,7 +558,7 @@ extern gboolean proto_registrar_is_protocol(int n);
 extern gboolean proto_is_protocol_enabled(protocol_t *protocol);
 
 /* Can item #n decoding be disabled? */
-extern gboolean proto_can_disable_protocol(int proto_id);
+extern gboolean proto_can_toggle_protocol(int proto_id);
 
 /* Routines to use to iterate over the protocols and their fields;
  * they return the item number of the protocol in question or the
@@ -589,8 +589,8 @@ extern char *proto_get_protocol_filter_name(int proto_id);
 /* Enable / Disable protocol */
 extern void proto_set_decoding(int proto_id, gboolean enabled);
 
-/* Disable disabling of protocol */
-extern void proto_set_cant_disable(int proto_id);
+/* Disable disabling/enabling of protocol */
+extern void proto_set_cant_toggle(int proto_id);
 
 /* Get length of registered field according to field type.
  * 0 means undeterminable at registration time.

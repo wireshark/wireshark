@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.212 2003/12/18 02:46:45 guy Exp $
+ * $Id: tethereal.c,v 1.213 2004/01/03 18:40:07 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -782,9 +782,10 @@ main(int argc, char *argv[])
 #endif	/* _WIN32 */
 
   char                *gpf_path, *pf_path;
-  char                *dp_path;
+  char                *gdp_path, *dp_path;
   int                  gpf_open_errno, gpf_read_errno;
   int                  pf_open_errno, pf_read_errno;
+  int                  gdp_open_errno, gdp_read_errno;
   int                  dp_open_errno, dp_read_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
@@ -882,7 +883,21 @@ main(int argc, char *argv[])
   g_resolv_flags = prefs->name_resolve;
 
   /* Read the disabled protocols file. */
-  read_disabled_protos_list(&dp_path, &dp_open_errno, &dp_read_errno);
+  read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
+			    &dp_path, &dp_open_errno, &dp_read_errno);
+  if (gdp_path != NULL) {
+    if (gdp_open_errno != 0) {
+      fprintf(stderr,
+        "Could not open global disabled protocols file\n\"%s\": %s.\n",
+	gdp_path, strerror(gdp_open_errno));
+    }
+    if (gdp_read_errno != 0) {
+      fprintf(stderr,
+        "I/O error reading global disabled protocols file\n\"%s\": %s.\n",
+	gdp_path, strerror(gdp_read_errno));
+    }
+    g_free(gdp_path);
+  }
   if (dp_path != NULL) {
     if (dp_open_errno != 0) {
       fprintf(stderr,
@@ -1375,7 +1390,7 @@ main(int argc, char *argv[])
   prefs_apply_all();
 
   /* disabled protocols as per configuration file */
-  if (dp_path == NULL) {
+  if (gdp_path == NULL && dp_path == NULL) {
     set_disabled_protos_list();
   }
 

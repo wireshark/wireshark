@@ -1,7 +1,7 @@
 /* disabled_protos.c
  * Code for reading and writing the disabled protocols file.
  *
- * $Id: disabled_protos.c,v 1.3 2003/11/16 23:17:15 guy Exp $
+ * $Id: disabled_protos.c,v 1.4 2004/01/03 18:40:07 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,11 +42,13 @@
 
 #include "disabled_protos.h"
 
-#define PROTOCOLS_FILE_NAME	"disabled_protos"
+#define GLOBAL_PROTOCOLS_FILE_NAME	"disabled_protos"
+#define PROTOCOLS_FILE_NAME		"disabled_protos"
 
 /*
  * List of disabled protocols
  */
+static GList *global_disabled_protos = NULL;
 static GList *disabled_protos = NULL;
 
 #define INIT_BUF_SIZE	128
@@ -61,13 +63,81 @@ static GList *disabled_protos = NULL;
  * or "*read_errno_return" is set to the error if a read failed.
  */
 
+static int read_disabled_protos_list_file(const char *ff_path, FILE *ff,
+					  GList **flp);
+
 void
-read_disabled_protos_list(char **pref_path_return, int *open_errno_return,
+read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
+			  int *gread_errno_return,
+			  char **path_return, int *open_errno_return,
                           int *read_errno_return)
 {
-  char       *ff_path, *ff_name;
+  int         err;
+  char       *gff_path, *ff_path;
   FILE       *ff;
-  GList      **flp;
+
+  /* Construct the pathname of the global disabled protocols file. */
+  gff_path = get_datafile_path(GLOBAL_PROTOCOLS_FILE_NAME);
+
+  /* Read the global disabled protocols file, if it exists. */
+  *gpath_return = NULL;
+  if ((ff = fopen(gff_path, "r")) != NULL) {
+    /* We succeeded in opening it; read it. */
+    err = read_disabled_protos_list_file(gff_path, ff,
+					 &global_disabled_protos);
+    if (err != 0) {
+      /* We had an error reading the file; return the errno and the
+         pathname, so our caller can report the error. */
+      *gopen_errno_return = 0;
+      *gread_errno_return = err;
+      *gpath_return = gff_path;
+    } else
+      g_free(gff_path);
+    fclose(ff);
+  } else {
+    /* We failed to open it.  If we failed for some reason other than
+       "it doesn't exist", return the errno and the pathname, so our
+       caller can report the error. */
+    if (errno != ENOENT) {
+      *gopen_errno_return = errno;
+      *gread_errno_return = 0;
+      *gpath_return = gff_path;
+    }
+  }
+
+  /* Construct the pathname of the user's disabled protocols file. */
+  ff_path = get_persconffile_path(PROTOCOLS_FILE_NAME, FALSE);
+
+  /* Read the global disabled protocols file, if it exists. */
+  *path_return = NULL;
+  if ((ff = fopen(ff_path, "r")) != NULL) {
+    /* We succeeded in opening it; read it. */
+    err = read_disabled_protos_list_file(ff_path, ff, &disabled_protos);
+    if (err != 0) {
+      /* We had an error reading the file; return the errno and the
+         pathname, so our caller can report the error. */
+      *open_errno_return = 0;
+      *read_errno_return = err;
+      *path_return = ff_path;
+    } else
+      g_free(ff_path);
+    fclose(ff);
+  } else {
+    /* We failed to open it.  If we failed for some reason other than
+       "it doesn't exist", return the errno and the pathname, so our
+       caller can report the error. */
+    if (errno != ENOENT) {
+      *open_errno_return = errno;
+      *read_errno_return = 0;
+      *path_return = ff_path;
+    }
+  }
+}
+
+static int
+read_disabled_protos_list_file(const char *ff_path, FILE *ff,
+			       GList **flp)
+{
   GList      *fl_ent;
   protocol_def *prot;
   int         c;
@@ -75,46 +145,6 @@ read_disabled_protos_list(char **pref_path_return, int *open_errno_return,
   int         prot_name_len;
   int         prot_name_index;
   int         line = 1;
-
-  *pref_path_return = NULL;	/* assume no error */
-
-  ff_name = PROTOCOLS_FILE_NAME;
-  flp = &disabled_protos;
-
-  /* To do: generalize this */
-  ff_path = get_persconffile_path(ff_name, FALSE);
-  if ((ff = fopen(ff_path, "r")) == NULL) {
-    /*
-     * Did that fail because we the file didn't exist?
-     */
-    if (errno != ENOENT) {
-      /*
-       * No.  Just give up.
-       */
-      *pref_path_return = ff_path;
-      *open_errno_return = errno;
-      *read_errno_return = 0;
-      return;
-    }
-
-    /*
-     * Yes.  See if there's a "protocols" file; if so, read it.
-     */
-    g_free(ff_path);
-    ff_path = get_persconffile_path(PROTOCOLS_FILE_NAME, FALSE);
-    if ((ff = fopen(ff_path, "r")) == NULL) {
-      /*
-       * Well, that didn't work, either.  Just give up.
-       * Return an error if the file existed but we couldn't open it.
-       */
-      if (errno != ENOENT) {
-	*pref_path_return = ff_path;
-	*open_errno_return = errno;
-	*read_errno_return = 0;
-      }
-      return;
-    }
-  }
 
   /* If we already have a list of protocols, discard it. */
   if (*flp != NULL) {
@@ -214,16 +244,11 @@ read_disabled_protos_list(char **pref_path_return, int *open_errno_return,
     prot->name   = g_strdup(prot_name);
     *flp = g_list_append(*flp, prot);
   }
-  g_free(ff_path);
-  fclose(ff);
   g_free(prot_name);
-  return;
+  return 0;
 
 error:
-  *pref_path_return = ff_path;
-  *open_errno_return = 0;
-  *read_errno_return = errno;
-  fclose(ff);
+  return errno;
 }
 
 /*
@@ -240,7 +265,7 @@ set_disabled_protos_list(void)
    * assume all protocols are enabled by default
    */
   if (disabled_protos == NULL)
-    return;	/* nothing to disable */
+    goto skip;
 
   fl_ent = g_list_first(disabled_protos);
 
@@ -248,10 +273,31 @@ set_disabled_protos_list(void)
     prot = (protocol_def *) fl_ent->data;
     i = proto_get_id_by_filter_name(prot->name);
     if (i == -1) {
-    	/* XXX - complain here? */
+      /* XXX - complain here? */
     } else {
-      if (proto_can_disable_protocol(i))
-        proto_set_decoding(i, FALSE);
+      if (proto_can_toggle_protocol(i))
+	proto_set_decoding(i, FALSE);
+    }
+
+    fl_ent = fl_ent->next;
+  }
+
+skip:
+  if (global_disabled_protos == NULL)
+    return;
+
+  fl_ent = g_list_first(global_disabled_protos);
+
+  while (fl_ent != NULL) {
+    prot = (protocol_def *) fl_ent->data;
+    i = proto_get_id_by_filter_name(prot->name);
+    if (i == -1) {
+      /* XXX - complain here? */
+    } else {
+      if (proto_can_toggle_protocol(i)) {
+	proto_set_decoding(i, FALSE);
+	proto_set_cant_toggle(i);
+      }
     }
 
     fl_ent = fl_ent->next;
@@ -299,7 +345,7 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
   for (i = proto_get_first_protocol(&cookie); i != -1;
        i = proto_get_next_protocol(&cookie)) {
 
-    if (!proto_can_disable_protocol(i)) {
+    if (!proto_can_toggle_protocol(i)) {
       continue;
     }
 

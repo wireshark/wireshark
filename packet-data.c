@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-data.c,v 1.33 2003/04/22 13:47:37 tuexen Exp $
+ * $Id: packet-data.c,v 1.34 2004/01/03 18:40:07 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,5 +67,5 @@ proto_register_data(void)
 	 * "Data" is used to dissect something whose normal dissector
 	 * is disabled, so it cannot itself be disabled.
 	 */
-	proto_set_cant_disable(proto_data);
+	proto_set_cant_toggle(proto_data);
 }

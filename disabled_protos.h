@@ -1,7 +1,7 @@
 /* disabled_protos.h
  * Declarations of routines for reading and writing the disabled protocols file.
  *
- * $Id: disabled_protos.h,v 1.1 2003/08/07 00:41:26 guy Exp $
+ * $Id: disabled_protos.h,v 1.2 2004/01/03 18:40:07 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,8 +40,10 @@ typedef struct {
  * or "*read_errno_return" is set to the error if we got an error reading
  * the file.
  */
-void read_disabled_protos_list(char **pref_path_return, int *open_errno_return,
-                               int *read_errno_return);
+void read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
+			       int *gread_errno_return,
+			       char **path_return, int *open_errno_return,
+			       int *read_errno_return);
 
 /*
  * Disable protocols as per the stored configuration

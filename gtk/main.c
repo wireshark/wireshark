@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.347 2003/12/29 20:05:59 ulfl Exp $
+ * $Id: main.c,v 1.348 2004/01/03 18:40:08 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1760,10 +1760,12 @@ main(int argc, char *argv[])
   char                *rf_path;
   int                  rf_open_errno;
   char                *gpf_path, *pf_path;
-  char                *cf_path, *df_path, *dp_path;
+  char                *cf_path, *df_path;
+  char                *gdp_path, *dp_path;
   int                  gpf_open_errno, gpf_read_errno;
   int                  pf_open_errno, pf_read_errno;
   int                  cf_open_errno, df_open_errno;
+  int                  gdp_open_errno, gdp_read_errno;
   int                  dp_open_errno, dp_read_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
@@ -1968,7 +1970,8 @@ main(int argc, char *argv[])
   read_filter_list(DFILTER_LIST, &df_path, &df_open_errno);
 
   /* Read the disabled protocols file. */
-  read_disabled_protos_list(&dp_path, &dp_open_errno, &dp_read_errno);
+  read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
+			    &dp_path, &dp_open_errno, &dp_read_errno);
 
   init_cap_file(&cfile);
 
@@ -2433,7 +2436,7 @@ main(int argc, char *argv[])
   prefs_apply_all();
 
   /* disabled protocols as per configuration file */
-  if (dp_path == NULL) {
+  if (gdp_path == NULL && dp_path == NULL) {
     set_disabled_protos_list();
   }
 
@@ -2700,6 +2703,24 @@ main(int argc, char *argv[])
         "Could not open your display filter file\n\"%s\": %s.", df_path,
         strerror(df_open_errno));
       g_free(df_path);
+  }
+
+  /* If the global disabled protocols file exists but we failed to open it,
+     or had an error reading it, pop up an alert box; we defer that until now,
+     so that the alert box is more likely to come up on top of the main
+     window. */
+  if (gdp_path != NULL) {
+    if (gdp_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not open global disabled protocols file\n\"%s\": %s.",
+	gdp_path, strerror(gdp_open_errno));
+    }
+    if (gdp_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "I/O error reading global disabled protocols file\n\"%s\": %s.",
+	gdp_path, strerror(gdp_read_errno));
+    }
+    g_free(gdp_path);
   }
 
   /* If the user's disabled protocols file exists but we failed to open it,

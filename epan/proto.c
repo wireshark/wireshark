@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.128 2003/12/24 23:37:28 guy Exp $
+ * $Id: proto.c,v 1.129 2004/01/03 18:40:08 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,7 @@ struct _protocol {
 	GList	*fields;	/* fields for this protocol */
 	GList	*last_field;	/* pointer to end of list of fields */
 	gboolean is_enabled;	/* TRUE if protocol is enabled */
-	gboolean can_disable;	/* TRUE if protocol can be disabled */
+	gboolean can_toggle;	/* TRUE if is_enabled can be changed */
 };
 
 /* List of all protocols */
@@ -2235,7 +2235,7 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
 	protocol->filter_name = filter_name;
 	protocol->fields = NULL;
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
-	protocol->can_disable = TRUE;
+	protocol->can_toggle = TRUE;
 	protocols = g_list_insert_sorted(protocols, protocol,
 	    proto_compare_name);
 
@@ -2401,12 +2401,12 @@ proto_is_protocol_enabled(protocol_t *protocol)
 }
 
 gboolean
-proto_can_disable_protocol(int proto_id)
+proto_can_toggle_protocol(int proto_id)
 {
 	protocol_t *protocol;
 
 	protocol = find_protocol_by_id(proto_id);
-	return protocol->can_disable;
+	return protocol->can_toggle;
 }
 
 void
@@ -2415,17 +2415,17 @@ proto_set_decoding(int proto_id, gboolean enabled)
 	protocol_t *protocol;
 
 	protocol = find_protocol_by_id(proto_id);
-	g_assert(enabled || protocol->can_disable);
+	g_assert(protocol->can_toggle);
 	protocol->is_enabled = enabled;
 }
 
 void
-proto_set_cant_disable(int proto_id)
+proto_set_cant_toggle(int proto_id)
 {
 	protocol_t *protocol;
 
 	protocol = find_protocol_by_id(proto_id);
-	protocol->can_disable = FALSE;
+	protocol->can_toggle = FALSE;
 }
 
 /* for use with static arrays only, since we don't allocate our own copies
