@@ -9,7 +9,7 @@
  * http://cvs.sourceforge.net/viewcvs.py/soleseek/SoleSeek/doc/protocol.html?rev=HEAD
  * Updated for SoulSeek client version 151
  *
- * $Id: packet-slsk.c,v 1.2 2004/02/12 20:58:01 guy Exp $
+ * $Id: packet-slsk.c,v 1.3 2004/03/17 09:01:16 guy Exp $
  *
  *
  * Ethereal - Network traffic analyzer
@@ -332,7 +332,7 @@ static tvbuff_t* uncompress_packet(tvbuff_t *tvb, int offset, int comprlen){
 	return uncompr_tvb;
 }
 #else
-static tvbuff_t* uncompress_packet(tvbuff_t *tvb, int offset, int comprlen){
+static tvbuff_t* uncompress_packet(tvbuff_t *tvb _U_, int offset _U_, int comprlen _U_){
 	return NULL;
 }
 #endif
