@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.12 2002/02/14 16:48:08 gram Exp $
+ * $Id: packet-ucp.c,v 1.13 2002/02/15 11:24:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1438,7 +1438,7 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleString(hf_ucp_parm_AC);
     UcpHandleByte(hf_ucp_parm_NRq);
     UcpHandleString(hf_ucp_parm_NAdC);
-    UcpHandleString(hf_ucp_parm_NT);
+    UcpHandleByte(hf_ucp_parm_NT);
     UcpHandleInt(hf_ucp_parm_NPID);
     UcpHandleByte(hf_ucp_parm_LRq);
     UcpHandleString(hf_ucp_parm_LRAd);
