@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.58 2003/01/30 06:08:10 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.59 2003/01/30 08:19:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -196,11 +196,11 @@ dissect_ndr_nt_UNICODE_STRING_cb(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *parent_tree,
-			      char *drep, int hf_index)
+			      char *drep, int hf_index, int levels)
 {
 	return dissect_ndr_nt_UNICODE_STRING_cb(
 		tvb, offset, pinfo, parent_tree, drep, hf_index,
-		cb_str_postprocess, GINT_TO_POINTER(CB_STR_ITEM));
+		cb_str_postprocess, GINT_TO_POINTER(2 + levels));
 }
 
 /* functions to dissect a STRING structure, common to many
@@ -300,7 +300,7 @@ dissect_ndr_nt_STRING(tvbuff_t *tvb, int offset,
 {
 	return dissect_ndr_nt_STRING_cb(
 		tvb, offset, pinfo, parent_tree, drep, hf_index,
-		cb_str_postprocess, GINT_TO_POINTER(CB_STR_ITEM));
+		cb_str_postprocess, GINT_TO_POINTER(1));
 }
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
@@ -978,6 +978,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			void *callback_args)
 {
 	gint options = GPOINTER_TO_INT(callback_args);
+	gint levels = CB_STR_ITEM_LEVELS(options);
 	char *s;
 
 	/* Align start_offset on 4-byte boundary. */
@@ -1000,10 +1001,22 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
 	}
 
-	/* Append string to top level pointer proto_item */
-
-	if (options & CB_STR_ITEM)
+	/* Append string to upper-level proto_items */
+	if (levels > 0) {
 		proto_item_append_text(item, ": %s", s);
+		item = item->parent;
+		levels--;
+		if (levels > 0) {
+			proto_item_append_text(item, ": %s", s);
+			item = item->parent;
+			levels--;
+			while (levels > 0) {
+				proto_item_append_text(item, " %s", s);
+				item = item->parent;
+				levels--;
+			}
+		}
+	}
 
 	/* Save string to dcv->private_data */
 
@@ -1023,12 +1036,12 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset, 
 				 packet_info *pinfo, proto_tree *tree, 
 				 char *drep, int type, char *text, 
-				 int hf_index)
+				 int hf_index, int levels)
 {
 	return dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, 
 		dissect_ndr_nt_UNICODE_STRING_str, type, text, hf_index, 
-		cb_str_postprocess, GINT_TO_POINTER(CB_STR_ITEM));
+		cb_str_postprocess, GINT_TO_POINTER(levels + 1));
 }
 
 /*

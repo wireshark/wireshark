@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.75 2003/01/30 05:11:33 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.76 2003/01/30 08:19:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2663,11 +2663,11 @@ static int dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_str_pointer_item(
                 tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-                "Client", hf_spoolss_userlevel_client);
+                "Client", hf_spoolss_userlevel_client, 0);
 
         offset = dissect_ndr_str_pointer_item(
                 tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-                "User", hf_spoolss_userlevel_user);
+                "User", hf_spoolss_userlevel_user, 0);
 
         offset = dissect_ndr_uint32(
                 tvb, offset, pinfo, tree, drep, 
@@ -2751,7 +2751,7 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
 		"Printer name", hf_spoolss_printername, cb_str_postprocess,
-		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_ITEM | CB_STR_SAVE));
+		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
@@ -3322,7 +3322,7 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-		"Server", hf_spoolss_servername);
+		"Server", hf_spoolss_servername, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_printerlocal, NULL);
@@ -4153,7 +4153,7 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_UNIQUE, "Server name", hf_spoolss_servername);
+		NDR_POINTER_UNIQUE, "Server name", hf_spoolss_servername, 0);
 
         offset = dissect_ndr_uint32(
                 tvb, offset, pinfo, tree, drep,
@@ -4223,7 +4223,7 @@ static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-		"Server", hf_spoolss_servername);
+		"Server", hf_spoolss_servername, 0);
 
 	offset = dissect_spoolss_DRIVER_INFO_CTR(
 		tvb, offset, pinfo, tree, drep);
@@ -4273,7 +4273,7 @@ static int dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, subtree, drep, NDR_POINTER_UNIQUE,
-		"Name", hf_spoolss_form_name);
+		"Name", hf_spoolss_form_name, 0);
 
 	/* Eek - we need to know whether this pointer was NULL or not.
 	   Currently there is not any way to do this. */
@@ -5135,15 +5135,15 @@ dissect_spoolss_doc_info_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, subtree, drep, NDR_POINTER_UNIQUE,
-		"Document name", hf_spoolss_documentname);
+		"Document name", hf_spoolss_documentname, 0);
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, subtree, drep, NDR_POINTER_UNIQUE,
-		"Output file", hf_spoolss_outputfile);
+		"Output file", hf_spoolss_outputfile, 0);
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, subtree, drep, NDR_POINTER_UNIQUE,
-		"Data type", hf_spoolss_datatype);
+		"Data type", hf_spoolss_datatype, 0);
 
 	return offset;
 }
@@ -5594,11 +5594,11 @@ static int SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-		"Name", hf_spoolss_servername);
+		"Name", hf_spoolss_servername, 0);
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-		"Environment", hf_spoolss_servername);
+		"Environment", hf_spoolss_servername, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_level, &level);
@@ -5708,7 +5708,7 @@ static int SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-		"Architecture", hf_spoolss_architecture);
+		"Architecture", hf_spoolss_architecture, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_level, &level);

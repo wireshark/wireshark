@@ -3,7 +3,7 @@
  * Copyright 2002-2003, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.7 2003/01/28 06:39:39 tpot Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.8 2003/01/30 08:19:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,13 +88,13 @@ lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_UNIQUE, "NetBIOS domain name pointer", 
-		hf_lsa_ds_dominfo_netb_name);
+		hf_lsa_ds_dominfo_netb_name, 0);
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_UNIQUE, "DNS domain pointer", 
-		hf_lsa_ds_dominfo_dns_name);
+		hf_lsa_ds_dominfo_dns_name, 0);
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_UNIQUE, "DNS forest name pointer", 
-		hf_lsa_ds_dominfo_forest_name);
+		hf_lsa_ds_dominfo_forest_name, 0);
 
 	/* GUID */
 	offset = dissect_nt_GUID(tvb, offset, pinfo, tree, drep);

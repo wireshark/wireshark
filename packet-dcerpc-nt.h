@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.36 2003/01/28 06:27:01 tpot Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.37 2003/01/30 08:19:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,7 +61,7 @@ dissect_ndr_nt_UNICODE_STRING_cb(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *parent_tree,
-			      char *drep, int hf_index);
+			      char *drep, int hf_index, int levels);
 
 int
 dissect_ndr_nt_STRING_string(tvbuff_t *tvb, int offset,
@@ -198,15 +198,16 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset, 
 				 packet_info *pinfo, proto_tree *tree, 
 				 char *drep, int type, char *text, 
-				 int hf_index);
+				 int hf_index, int levels);
 
 /*
  * Helper routines for dissecting NDR strings
  */
 
-#define CB_STR_COL_INFO 1	/* Append string to COL_INFO */
-#define CB_STR_ITEM     2	/* Append string to pointer item */
-#define CB_STR_SAVE     4	/* Save string to dcv->private_data */
+/* Number of levels to go up appending string to pointer item */
+#define CB_STR_ITEM_LEVELS(x)	((x) & 0xFFFF)
+#define CB_STR_COL_INFO 0x10000	/* Append string to COL_INFO */
+#define CB_STR_SAVE     0x20000	/* Save string to dcv->private_data */
 
 void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			proto_item *item, tvbuff_t *tvb, 
