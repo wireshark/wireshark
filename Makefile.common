@@ -23,9 +23,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-
-
-# corresponding headers
+# Header files for dissector helpers
+# XXX - these should be moved to epan/dissectors
 DISSECTOR_SUPPORT_INCLUDES =	\
 	adler32.h	\
 	afn.h	\
@@ -95,7 +94,7 @@ ETHEREAL_COMMON_SRC =	\
 # corresponding headers
 ETHEREAL_COMMON_INCLUDES =	\
 	$(DISSECTOR_SUPPORT_INCLUDES)	\
-	$(BUILT_SOURCES)		\
+	svnversion.h		\
 	capture_stop_conditions.h	\
 	cfile.h	\
 	color.h	\
