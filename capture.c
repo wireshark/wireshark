@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.235 2004/02/03 19:54:08 ulfl Exp $
+ * $Id: capture.c,v 1.236 2004/02/03 20:48:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1538,12 +1538,13 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
         snprintf(errmsg, sizeof errmsg,
           "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
-          "That string looks like a valid display filter (%s).\n"
+          "That string looks like a valid display filter; however, it is not a valid\n"
+          "capture filter (%s).\n"
           "\n"
           "Note that display filters and capture filters don't have the same syntax,\n"
           "so you can't use most display filter expressions as capture filters.\n"
           "\n"
-          "See help for correct capture filter syntax.",
+          "See the help for a description of the capture filter syntax.",
           simple_dialog_primary_start(), cfile.cfilter, simple_dialog_primary_end(),
           pcap_geterr(pch));
 	dfilter_free(rfcode);
@@ -1551,8 +1552,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
         snprintf(errmsg, sizeof errmsg,
           "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
-          "Unable to parse capture filter string (%s),\n"
-          "see help for correct capture filter syntax.",
+          "That string is not a valid capture filter (%s).\n"
+          "See the help for a description of the capture filter syntax.",
           simple_dialog_primary_start(), cfile.cfilter, simple_dialog_primary_end(),
           pcap_geterr(pch));
       }
