@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.43 2004/01/28 20:09:44 guy Exp $
+ * $Id: packet-ethertype.c,v 1.44 2004/02/21 00:33:31 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -31,6 +31,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-eth.h"
+#include "packet-frame.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
@@ -150,7 +151,6 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	tvbuff_t		*next_tvb;
 	guint			length_before;
 	volatile gboolean	dissector_found;
-	const char		*saved_proto, *exception_proto;
 
 	/* Add the Ethernet type to the protocol tree */
 	if (tree) {
@@ -167,44 +167,40 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	length_before = tvb_reported_length(next_tvb);
 
 	/* Look for sub-dissector, and call it if found.
-	   Catch BoundsError and ReportedBoundsError, so that if the
-	   reported length of "next_tvb" was reduced by some dissector
-	   before an exception was thrown, we can still put in an item
-	   for the trailer. */
-	saved_proto = pinfo->current_proto;
+	   Catch exceptions, so that if the reported length of "next_tvb"
+	   was reduced by some dissector before an exception was thrown,
+	   we can still put in an item for the trailer. */
 	TRY {
 		dissector_found = dissector_try_port(ethertype_dissector_table,
 		    etype, next_tvb, pinfo, tree);
 	}
-	CATCH2(BoundsError, ReportedBoundsError) {
-		/* Well, somebody threw an exception; that means that a
-		   dissector was found, so we don't need to dissect
-		   the payload as data or update the protocol or info
-		   columns. */
+	CATCH(BoundsError) {
+		/* Somebody threw BoundsError, which means that:
+
+		     1) a dissector was found, so we don't need to
+		        dissect the payload as data or update the
+		        protocol or info columns;
+
+		     2) dissecting the payload found that the packet was
+		        cut off by a snapshot length before the end of
+		        the payload.  The trailer comes after the payload,
+		        so *all* of the trailer is cut off, and we'll
+		        just get another BoundsError if we add the trailer.
+
+		   Therefore, we just rethrow the exception so it gets
+		   reported; we don't dissect the trailer or do anything
+		   else. */
+		 RETHROW;
+	}
+	CATCH_ALL {
+		/* Somebody threw an exception other than BoundsError, which
+		   means that a dissector was found, so we don't need to
+		   dissect the payload as data or update the protocol or info
+		   columns.  We just show the exception and then drive on
+		   to show the trailer, after noting that a dissector was
+		   found. */
 		dissector_found = TRUE;
-
-		/* Save the protocol for which the exception was
-		   thrown, and restore pinfo->current_proto to the
-		   one for us, so if we throw an exception adding
-		   the trailer (e.g., if we get an FCS when capturing,
-		   but the snapshot length cut off the FCS), the
-		   exception will reflect the appropriate protocol. */
-		exception_proto = pinfo->current_proto;
-		pinfo->current_proto = saved_proto;
-
-		/* Add the trailer, if appropriate. */
-		add_dix_trailer(fh_tree, trailer_id, tvb, next_tvb,
-		    offset_after_etype, length_before, fcs_len);
-
-		/* Put back the protocol for which the exception is
-		   thrown, and rethrow the exception, so the
-		   appropriate indication for the exception can be
-		   put into the tree. */
-		pinfo->current_proto = exception_proto;
-		RETHROW;
-
-		/* XXX - RETHROW shouldn't return. */
-		g_assert_not_reached();
+		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE);
 	}
 	ENDTRY;
 
