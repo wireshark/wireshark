@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h245.c                                                            */
+/* ./packet-h245.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.c */
@@ -16141,7 +16141,7 @@ dissect_h245_Moderfc2733(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 /*--- End of included file: packet-h245-fn.c ---*/
 
 
-
+void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	reset_h245_packet_info(&(h245_pi));
@@ -16151,6 +16151,8 @@ dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	tap_queue_packet(h245_tap, pinfo, &h245_pi);
 }
+
+void
 dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *it;

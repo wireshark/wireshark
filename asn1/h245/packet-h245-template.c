@@ -2,7 +2,7 @@
  * Routines for h245 packet dissection
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-h245_asn1-template.c 12203 2004-10-05 09:18:55Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,7 +191,7 @@ int proto_h245 = -1;
 
 #include "packet-h245-fn.c"
 
-
+void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	reset_h245_packet_info(&(h245_pi));
@@ -201,6 +201,8 @@ dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	tap_queue_packet(h245_tap, pinfo, &h245_pi);
 }
+
+void
 dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *it;
