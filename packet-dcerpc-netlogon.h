@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\NETLOGON packet disassembly
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-netlogon.h,v 1.16 2003/09/27 23:48:04 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.h,v 1.17 2004/03/05 23:12:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,5 +79,12 @@
 #define SEC_CHAN_WKSTA   2
 #define SEC_CHAN_DOMAIN  4
 #define SEC_CHAN_BDC     6
+
+
+/* needed to decrypt PAC_LOGON_INFO in kerberos */
+int 
+netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			guint8 *drep);
 
 #endif /* packet-dcerpc-netlogon.h */

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.96 2004/01/19 20:10:34 jmayer Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.97 2004/03/05 23:12:09 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,8 @@ static int hf_netlogon_group_rid = -1;
 static int hf_netlogon_logon_srv = -1;
 static int hf_netlogon_principal = -1;
 static int hf_netlogon_logon_dom = -1;
+static int hf_netlogon_resourcegroupdomainsid = -1;
+static int hf_netlogon_resourcegroupcount = -1;
 static int hf_netlogon_downlevel_domain_name = -1;
 static int hf_netlogon_dns_domain_name = -1;
 static int hf_netlogon_domain_name = -1;
@@ -1116,6 +1118,146 @@ netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY, NDR_POINTER_UNIQUE,
 		"SID_AND_ATTRIBUTES_ARRAY:", -1);
+
+	return offset;
+}
+
+
+
+
+
+/*
+ * IDL typedef struct {
+ * IDL   uint64 LogonTime;
+ * IDL   uint64 LogoffTime;
+ * IDL   uint64 KickOffTime;
+ * IDL   uint64 PasswdLastSet;
+ * IDL   uint64 PasswdCanChange;
+ * IDL   uint64 PasswdMustChange;
+ * IDL   unicodestring effectivename;
+ * IDL   unicodestring fullname;
+ * IDL   unicodestring logonscript;
+ * IDL   unicodestring profilepath;
+ * IDL   unicodestring homedirectory;
+ * IDL   unicodestring homedirectorydrive;
+ * IDL   short LogonCount;
+ * IDL   short BadPasswdCount;
+ * IDL   long userid;
+ * IDL   long primarygroup;
+ * IDL   long groupcount;
+ * IDL   [unique] GROUP_MEMBERSHIP *groupids;
+ * IDL   long userflags;
+ * IDL   USER_SESSION_KEY key;
+ * IDL   unicodestring logonserver;
+ * IDL   unicodestring domainname;
+ * IDL   [unique] SID logondomainid;
+ * IDL   long expansionroom[10];
+ * IDL   long sidcount;
+ * IDL   [unique] SID_AND_ATTRIBS;
+ * IDL   [unique] SID resourcegroupdomainsid;
+ * IDL   long resourcegroupcount;
+qqq
+ * IDL } PAC_LOGON_INFO;
+ */
+int
+netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			guint8 *drep)
+{
+	int i;
+	guint32 rgc;
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_logon_time);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_logoff_time);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_kickoff_time);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_pwd_last_set_time);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_pwd_can_change_time);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_pwd_must_change_time);
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_acct_name, 0);
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_full_name, 0);
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_logon_script, 0);
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_profile_path, 0);
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_home_dir, 0);
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_dir_drive, 0);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_logon_count16, NULL);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_bad_pw_count16, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_user_rid, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_group_rid, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_num_rids, NULL);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
+		"GROUP_MEMBERSHIP_ARRAY", -1);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_user_flags, NULL);
+
+	offset = netlogon_dissect_USER_SESSION_KEY(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_logon_srv, 0);
+
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_logon_dom, 0);
+
+	offset = dissect_ndr_nt_PSID(tvb, offset,
+		pinfo, tree, drep, -1);
+
+	for(i=0;i<10;i++){
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_netlogon_unknown_long, NULL);
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_num_other_groups, NULL);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY, NDR_POINTER_UNIQUE,
+		"SID_AND_ATTRIBUTES_ARRAY:", -1);
+
+	offset = dissect_ndr_nt_PSID(tvb, offset,
+		pinfo, tree, drep, hf_netlogon_resourcegroupdomainsid);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_resourcegroupcount, &rgc);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
+		"ResourceGroupIDs", -1);
 
 	return offset;
 }
@@ -6464,6 +6606,14 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_logon_dom,
 		{ "Domain", "netlogon.domain", FT_STRING, BASE_NONE,
 		NULL, 0, "Domain", HFILL }},
+
+	{ &hf_netlogon_resourcegroupdomainsid,
+		{ "ResourceGroupDomainSID", "netlogon.resourcegroupdomainsid", FT_STRING, BASE_NONE,
+		NULL, 0, "Resource Group Domain SID", HFILL }},
+
+	{ &hf_netlogon_resourcegroupcount,
+		{ "ResourceGroup count", "netlogon.resourcegroupcount", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of Resource Groups", HFILL }},
 
 	{ &hf_netlogon_computer_name,
 		{ "Computer Name", "netlogon.computer_name", FT_STRING, BASE_NONE,
