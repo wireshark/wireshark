@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.99 2001/12/04 22:28:19 guy Exp $
+ * $Id: wtap.h,v 1.100 2002/01/18 00:25:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -163,6 +163,22 @@
 #include <glib.h>
 #include <stdio.h>
 
+/*
+ * "Pseudo-headers" are used to supply to the clients of wiretap
+ * per-packet information that's not part of the packet payload
+ * proper.
+ *
+ * NOTE: do not use pseudo-header structures to hold information
+ * used by the code to read a particular capture file type; to
+ * keep that sort of state information, add a new structure for
+ * that private information to "wtap-int.h", add a pointer to that
+ * type of structure to the "capture" member of the "struct wtap"
+ * structure, and allocate one of those structures and set that member
+ * in the "open" routine for that capture file type if the open
+ * succeeds.  See various other capture file type handlers for examples
+ * of that.
+ */
+
 /* Packet "pseudo-header" information for X.25 capture files. */
 struct x25_phdr {
 	guint8	flags; /* ENCAP_LAPB : 1st bit means From DCE */
@@ -197,11 +213,6 @@ struct ascend_phdr {
 	char	call_num[ASCEND_MAX_STR_LEN];   /* Called number, from WDD header */
 	guint32	chunk;			/* Chunk number, from WDD header */
 	guint32	task;			/* Task number */
-};
-
-/* Packet "pseudo_header" for etherpeek capture files. */
-struct etherpeek_phdr {
-	struct timeval reference_time;
 };
 
 struct p2p_phdr {
@@ -265,7 +276,6 @@ union wtap_pseudo_header {
 	struct x25_phdr			x25;
 	struct ngsniffer_atm_phdr	ngsniffer_atm;
 	struct ascend_phdr		ascend;
-	struct etherpeek_phdr           etherpeek;
 	struct p2p_phdr			p2p;
 };
 

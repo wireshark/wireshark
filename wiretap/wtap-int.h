@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.18 2001/12/13 05:49:13 gram Exp $
+ * $Id: wtap-int.h,v 1.19 2002/01/18 00:25:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -116,6 +116,10 @@ typedef struct {
 	gboolean byteswapped;
 } csids_t;
 
+typedef struct {
+	struct timeval start_timestamp;
+} etherpeek_t;
+
 typedef int (*subtype_read_func)(struct wtap*, int*, long*);
 typedef int (*subtype_seek_read_func)(struct wtap*, long, union wtap_pseudo_header*,
 					guint8*, int);
@@ -141,6 +145,7 @@ struct wtap {
 		netxray_t		*netxray;
 		ascend_t		*ascend;
 		csids_t			*csids;
+		etherpeek_t		*etherpeek;
 		void			*generic;
 	} capture;
 

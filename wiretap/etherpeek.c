@@ -2,7 +2,7 @@
  * Routines for opening etherpeek files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.7 2001/12/05 07:19:11 guy Exp $
+ * $Id: etherpeek.c,v 1.8 2002/01/18 00:25:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -127,10 +127,12 @@ static const etherpeek_encap_lookup_t etherpeek_encap[] = {
 
 static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset);
 static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset);
+static void etherpeek_close(wtap *wth);
 
 int etherpeek_open(wtap *wth, int *err)
 {
 	etherpeek_header_t ep_hdr;
+	struct timeval start_time;
 
 	/* etherpeek files to not start with a magic value large enough
 	 * to be unique hence we use the following algorithm to determine
@@ -149,74 +151,88 @@ int etherpeek_open(wtap *wth, int *err)
 
 	/* switch on the file version */
 	switch (ep_hdr.master.version) {
-		case 5:
-		case 6:
-		case 7:
-			/* get the secondary header */
-			g_assert(sizeof(ep_hdr.secondary.m567) ==
-			        ETHERPEEK_M567_HDR_SIZE);
-			wtap_file_read_unknown_bytes(
-				&ep_hdr.secondary.m567,
-				sizeof(ep_hdr.secondary.m567), wth->fh, err);
-			wth->data_offset += sizeof(ep_hdr.secondary.m567);
+
+	case 5:
+	case 6:
+	case 7:
+		/* get the secondary header */
+		g_assert(sizeof(ep_hdr.secondary.m567) ==
+		        ETHERPEEK_M567_HDR_SIZE);
+		wtap_file_read_unknown_bytes(
+			&ep_hdr.secondary.m567,
+			sizeof(ep_hdr.secondary.m567), wth->fh, err);
+		wth->data_offset += sizeof(ep_hdr.secondary.m567);
 			
-			if ((0 != ep_hdr.secondary.m567.reserved[0]) ||
-			    (0 != ep_hdr.secondary.m567.reserved[1]) ||
-			    (0 != ep_hdr.secondary.m567.reserved[2]) ||
-			    (0 != ep_hdr.secondary.m567.reserved[3])) {
-				/* still unknown */
-				return 0;
-			}
-
-			/* we have a match for a Mac V5, V6 or V7,
-			 * so it is worth preforming byte swaps
-			 */
-			ep_hdr.secondary.m567.filelength =
-				ntohl(ep_hdr.secondary.m567.filelength);
-			ep_hdr.secondary.m567.numPackets =
-				ntohl(ep_hdr.secondary.m567.numPackets);
-			ep_hdr.secondary.m567.timeDate =
-				ntohl(ep_hdr.secondary.m567.timeDate);
-			ep_hdr.secondary.m567.timeStart =
-				ntohl(ep_hdr.secondary.m567.timeStart);
-			ep_hdr.secondary.m567.timeStop =
-				ntohl(ep_hdr.secondary.m567.timeStop);
-
-			/* populate the pseudo header */
-			wth->pseudo_header.etherpeek.reference_time.tv_sec  =
-				ep_hdr.secondary.m567.timeDate - mac2unix;
-			wth->pseudo_header.etherpeek.reference_time.tv_usec =
-				0;
-			break;
-		default:
+		if ((0 != ep_hdr.secondary.m567.reserved[0]) ||
+		    (0 != ep_hdr.secondary.m567.reserved[1]) ||
+		    (0 != ep_hdr.secondary.m567.reserved[2]) ||
+		    (0 != ep_hdr.secondary.m567.reserved[3])) {
+			/* still unknown */
 			return 0;
+		}
+
+		/* we have a match for a Mac V5, V6 or V7,
+		 * so it is worth performing byte swaps
+		 */
+		ep_hdr.secondary.m567.filelength =
+		    ntohl(ep_hdr.secondary.m567.filelength);
+		ep_hdr.secondary.m567.numPackets =
+		    ntohl(ep_hdr.secondary.m567.numPackets);
+		ep_hdr.secondary.m567.timeDate =
+		    ntohl(ep_hdr.secondary.m567.timeDate);
+		ep_hdr.secondary.m567.timeStart =
+		    ntohl(ep_hdr.secondary.m567.timeStart);
+		ep_hdr.secondary.m567.timeStop =
+		    ntohl(ep_hdr.secondary.m567.timeStop);
+
+		/* Get the start time as a "struct timeval" */
+		start_time.tv_sec  =
+			ep_hdr.secondary.m567.timeDate - mac2unix;
+		start_time.tv_usec = 0;
+		break;
+
+	default:
+		return 0;
 	}
 
-	/* at this point we have recognised the file type and have populated
-	 * the whole ep_hdr structure in host byte order
+	/*
+	 * This is an EtherPeek (or TokenPeek?) file.
+	 *
+	 * At this point we have recognised the file type and have populated
+	 * the whole ep_hdr structure in host byte order.
 	 */
-	
+	wth->capture.etherpeek = g_malloc(sizeof(etherpeek_t));
+	wth->capture.etherpeek->start_timestamp = start_time;
+	wth->subtype_close = etherpeek_close;
 	switch (ep_hdr.master.version) {
-		case 5:
-		case 6:
-			wth->file_type = WTAP_FILE_ETHERPEEK_MAC_V56;
-			wth->subtype_read = etherpeek_read_m56;
-			wth->subtype_seek_read = wtap_def_seek_read;
-			break;
-		case 7:
-			wth->file_type = WTAP_FILE_ETHERPEEK_MAC_V7;
-			wth->subtype_read = etherpeek_read_m7;
-			wth->subtype_seek_read = wtap_def_seek_read;
-			break;
-		default:
-			/* this is impossible */
-			g_assert_not_reached();
-	};
+
+	case 5:
+	case 6:
+		wth->file_type = WTAP_FILE_ETHERPEEK_MAC_V56;
+		wth->subtype_read = etherpeek_read_m56;
+		wth->subtype_seek_read = wtap_def_seek_read;
+		break;
+
+	case 7:
+		wth->file_type = WTAP_FILE_ETHERPEEK_MAC_V7;
+		wth->subtype_read = etherpeek_read_m7;
+		wth->subtype_seek_read = wtap_def_seek_read;
+		break;
+
+	default:
+		/* this is impossible */
+		g_assert_not_reached();
+	}
 
 	wth->file_encap	       = WTAP_ENCAP_PER_PACKET;
 	wth->snapshot_length   = 16384; /* just guessing */
 
 	return 1;
+}
+
+static void etherpeek_close(wtap *wth)
+{
+	g_free(wth->capture.etherpeek);
 }
 
 static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
@@ -328,8 +344,8 @@ static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset)
 	wth->phdr.len        = length;
 	wth->phdr.caplen     = sliceLength;
 	/* timestamp is in milliseconds since reference_time */
-	wth->phdr.ts.tv_sec  = wth->pseudo_header.etherpeek.
-		reference_time.tv_sec + (timestamp / 1000);
+	wth->phdr.ts.tv_sec  = wth->capture.etherpeek->start_timestamp.tv_sec
+	    + (timestamp / 1000);
 	wth->phdr.ts.tv_usec = 1000 * (timestamp % 1000);
 	
 	wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
