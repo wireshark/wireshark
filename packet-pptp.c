@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.23 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-pptp.c,v 1.24 2002/05/01 08:08:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -290,7 +290,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (cntrl_type < NUM_CNTRL_TYPES)
       ( *(strfuncs[cntrl_type].func))(tvb, offset, pinfo, pptp_tree);
     else
-      call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, pptp_tree);
+      call_dissector(data_handle,tvb_new_subset(tvb, offset, -1, -1), pinfo, pptp_tree);
   }
 }
 
@@ -298,11 +298,11 @@ static void
 dissect_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree)
 {
-  call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+  call_dissector(data_handle,tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 }
 
 static void
-dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		  proto_tree *tree)
 {
   guint8		major_ver;
@@ -351,7 +351,7 @@ dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_cntrl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_cntrl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		    proto_tree *tree)
 {
   guint8		major_ver;
@@ -408,7 +408,7 @@ dissect_cntrl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_stop_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_stop_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		 proto_tree *tree)
 {
   guint8		reason;
@@ -427,7 +427,7 @@ dissect_stop_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_stop_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_stop_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		   proto_tree *tree)
 {
   guint8		result;
@@ -448,7 +448,7 @@ dissect_stop_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_echo_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_echo_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		 proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, 4,
@@ -456,7 +456,7 @@ dissect_echo_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_echo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_echo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		   proto_tree *tree)
 {
   guint8		result;
@@ -481,7 +481,7 @@ dissect_echo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_out_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_out_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree)
 {
   guint32		bearer;
@@ -542,7 +542,7 @@ dissect_out_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_out_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_out_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		  proto_tree *tree)
 {
   guint8		result;
@@ -587,7 +587,7 @@ dissect_out_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_in_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_in_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	       proto_tree *tree)
 {
   guint32		bearer;
@@ -636,7 +636,7 @@ dissect_in_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_in_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_in_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		 proto_tree *tree)
 {
   guint8		result;
@@ -673,7 +673,7 @@ dissect_in_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_in_connected(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_in_connected(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		     proto_tree *tree)
 {
   guint32		frame;
@@ -704,7 +704,7 @@ dissect_in_connected(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_clear_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_clear_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		  proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, 2,
@@ -716,7 +716,7 @@ dissect_clear_req(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_disc_notify(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_disc_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		    proto_tree *tree)
 {
   guint8		result;
@@ -751,7 +751,7 @@ dissect_disc_notify(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_error_notify(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_error_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		     proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, 2,
@@ -787,7 +787,7 @@ dissect_error_notify(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_set_link(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_set_link(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		 proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, 2,
