@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.27 2004/01/23 16:08:38 ulfl Exp $
+ * $Id: toolbar.c,v 1.28 2004/02/09 18:32:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -433,6 +433,7 @@ toolbar_new(void)
 
     /* disable all "sensitive" items by default */
     toolbar_init = TRUE;
+    set_toolbar_for_unsaved_capture_file(FALSE);
     set_toolbar_for_captured_packets(FALSE);
     set_toolbar_for_capture_file(FALSE);
 #ifdef HAVE_LIBPCAP
