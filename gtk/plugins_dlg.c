@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.5 1999/12/28 04:40:13 gerald Exp $
+ * $Id: plugins_dlg.c,v 1.6 1999/12/29 07:39:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -160,8 +160,17 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
 }
 
 /*
- * scan /usr/share/ethereal/plugins, /usr/local/share/ethereal/plugins and
- * ~/.ethereal/plugins and fill the clist widget
+ * Scan
+ *
+ *	/usr/lib/ethereal/plugins/0.8
+ *
+ *	/usr/local/lib/ethereal/plugins/0.8
+ *
+ *	PLUGIN_DIR, if it's different from both of the above
+ *
+ *	~/.ethereal/plugins
+ *
+ * and fill the clist widget.
  */
 static void
 plugins_scan(GtkWidget *clist)
