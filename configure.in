@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.190 2003/01/09 23:50:52 guy Exp $
+# $Id: configure.in,v 1.191 2003/01/10 00:03:33 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -163,14 +163,13 @@ else
 fi
 
 # Create DATAFILE_DIR #define for config.h
-DATAFILE_DIR=$sysconfdir
-DATAFILE_DIR=`(
+datafiledir=$sysconfdir
+datafiledir=`(
     test "x$prefix" = xNONE && prefix=$ac_default_prefix
     test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
-    eval echo "$DATAFILE_DIR"
+    eval echo "$datafiledir"
 )`
-AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$DATAFILE_DIR")
-AC_SUBST(DATAFILE_DIR)
+AC_DEFINE_UNQUOTED(DATAFILE_DIR, "$datafiledir")
 
 #
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
