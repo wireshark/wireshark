@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.27 2001/10/29 21:56:50 guy Exp $
+ * $Id: plugin_table.h,v 1.28 2001/11/01 09:53:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -133,8 +133,8 @@ typedef guint8* (*addr_tvb_memdup)(tvbuff_t*, gint, gint);
 
 typedef const guint8* (*addr_tvb_get_ptr)(tvbuff_t*, gint, gint);
 
-typedef gint (*addr_tvb_find_guint8)(tvbuff_t*, gint, guint, guint8);
-typedef gint (*addr_tvb_pbrk_guint8)(tvbuff_t *, gint, guint, guint8 *);
+typedef gint (*addr_tvb_find_guint8)(tvbuff_t*, gint, gint, guint8);
+typedef gint (*addr_tvb_pbrk_guint8)(tvbuff_t *, gint, gint, guint8 *);
 
 typedef gint (*addr_tvb_strnlen)(tvbuff_t*, gint, guint);
 

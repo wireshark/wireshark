@@ -1,7 +1,7 @@
 /* plugin_api_defs.h
  * Define the variables that hold pointers to plugin API functions
  *
- * $Id: plugin_api_defs.h,v 1.1 2001/10/31 10:40:54 guy Exp $
+ * $Id: plugin_api_defs.h,v 1.2 2001/11/01 09:53:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -128,8 +128,8 @@ guint8* (*p_tvb_memdup)(tvbuff_t*, gint, gint);
 
 const guint8* (*p_tvb_get_ptr)(tvbuff_t*, gint, gint);
 
-gint (*p_tvb_find_guint8)(tvbuff_t*, gint, guint, guint8);
-gint (*p_tvb_pbrk_guint8)(tvbuff_t *, gint, guint, guint8 *);
+gint (*p_tvb_find_guint8)(tvbuff_t*, gint, gint, guint8);
+gint (*p_tvb_pbrk_guint8)(tvbuff_t *, gint, gint, guint8 *);
 
 gint (*p_tvb_strnlen)(tvbuff_t*, gint, guint);
 
