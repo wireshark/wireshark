@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.22 2000/11/09 10:50:59 guy Exp $
+ * $Id: packet-giop.c,v 1.23 2000/11/12 03:11:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1206,12 +1206,6 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   /* check magic number and version */
 
 
-  if (check_col (pinfo->fd, COL_PROTOCOL))
-    {
-      col_add_str (pinfo->fd, COL_PROTOCOL, "GIOP");
-    }
-
-
   /*define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE) */
 
   if (tvb_length_remaining(tvb, 0) < GIOP_HEADER_SIZE)
@@ -1233,13 +1227,21 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       return FALSE;
     }
 
+  if (check_col (pinfo->fd, COL_PROTOCOL))
+    {
+      col_add_str (pinfo->fd, COL_PROTOCOL, "GIOP");
+    }
+
   if (header.GIOP_version.major != GIOP_MAJOR ||
       ((minor_version = header.GIOP_version.minor) > GIOP_MINOR))
     {
       /* Bad version number; should we note that and dissect the rest
          as data, or should we return FALSE on the theory that it
          might have been some other packet that happened to begin with
-         "GIOP"? */
+         "GIOP"?  We shouldn't do *both*, so we return TRUE, for now.
+	 If we should return FALSE, we should do so *without* setting
+	 the "Info" column, *without* setting the "Protocol" column,
+	 and *without* adding anything to the protocol tree. */
       if (check_col (pinfo->fd, COL_INFO))
 	{
 	  col_add_fstr (pinfo->fd, COL_INFO, "Version %u.%u",
@@ -1257,7 +1259,7 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			       header.GIOP_version.minor);
 	}
       dissect_data (payload_tvb, pinfo, tree);
-      return FALSE;
+      return TRUE;
     }
 
   stream_is_big_endian = is_big_endian (&header);
