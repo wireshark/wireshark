@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.101 2003/01/07 06:46:50 guy Exp $
+ * $Id: ngsniffer.c,v 1.102 2003/01/09 01:38:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -405,6 +405,7 @@ int ngsniffer_open(wtap *wth, int *err)
 				  the last 2 are "reserved" and are thrown away */
 	guint16 type, length;
 	struct vers_rec version;
+	guint16 maj_vers;
 	guint16	start_date;
 	guint16	start_time;
 	static const int sniffer_encap[] = {
@@ -508,8 +509,8 @@ int ngsniffer_open(wtap *wth, int *err)
 	 * we look at, for "Internetwork analyzer" captures, to attempt to
 	 * determine what the link-layer encapsulation is.
 	 */
-	if (process_header_records(wth, err, pletohs(&version.maj_vers),
-	    &is_router) < 0)
+	maj_vers = pletohs(&version.maj_vers);
+	if (process_header_records(wth, err, maj_vers, &is_router) < 0)
 		return -1;
 
 	/*
@@ -528,6 +529,8 @@ int ngsniffer_open(wtap *wth, int *err)
 
 	/* This is a ngsniffer file */
 	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
+	wth->capture.ngsniffer->maj_vers = maj_vers;
+	wth->capture.ngsniffer->min_vers = pletohs(&version.min_vers);
 
 	/* We haven't allocated any uncompression buffers yet. */
 	wth->capture.ngsniffer->seq.buf = NULL;
@@ -898,7 +901,19 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 			size = pletohs(&frame4.size);
 			true_size = pletohs(&frame4.true_size);
 
-			length -= sizeof frame4;	/* we already read that much */
+			/*
+			 * XXX - it looks as if version 4 captures have
+			 * a bogus record length, based on the assumption
+			 * that the record is a frame2 record.
+			 */
+			if (wth->capture.ngsniffer->maj_vers >= 5)
+				length -= sizeof frame4;	/* we already read that much */
+			else {
+				if (wth->capture.ngsniffer->min_vers >= 95)
+					length -= sizeof frame2;
+				else
+					length -= sizeof frame4;
+			}
 
 			/*
 			 * XXX - use the "time_day" field?  Is that for captures
@@ -911,13 +926,6 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 			goto found;
 
 		case REC_FRAME6:
-			/* XXX - Is this test valid? */
-			if (wth->capture.ngsniffer->is_atm) {
-				g_message("ngsniffer: REC_FRAME6 record in an ATM Sniffer file");
-				*err = WTAP_ERR_BAD_RECORD;
-				return FALSE;
-			}
-
 			/* Read the f_frame6_struct */
 			if (!ngsniffer_read_frame6(wth, FALSE, &frame6, err)) {
 				/* Read error */

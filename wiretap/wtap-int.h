@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.33 2003/01/07 03:52:59 guy Exp $
+ * $Id: wtap-int.h,v 1.34 2003/01/09 01:38:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -53,6 +53,8 @@ typedef struct {
 } ngsniffer_comp_stream_t;
 
 typedef struct {
+	guint	maj_vers;
+	guint	min_vers;
 	double	timeunit;
 	time_t	start;
 	gboolean is_atm;
