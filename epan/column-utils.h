@@ -1,7 +1,7 @@
 /* column-utils.h
  * Definitions for column utility structures and routines
  *
- * $Id: column-utils.h,v 1.10 2003/04/16 04:52:53 guy Exp $
+ * $Id: column-utils.h,v 1.11 2003/04/16 05:55:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,10 @@
 
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
-extern void	col_init(column_info *, gint);
+extern void	col_setup(column_info *, gint);
+
+/* Initialize the data structures for constructing column data. */
+extern void	col_init(column_info *);
 
 /* Utility routines used by packet*.c */
 

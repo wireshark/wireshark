@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.89 2003/04/16 04:52:53 guy Exp $
+ * $Id: packet.c,v 1.90 2003/04/16 05:55:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -249,19 +249,8 @@ void
 dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	       const guchar *pd, frame_data *fd, column_info *cinfo)
 {
-	int i;
-
-	if (cinfo != NULL) {
-		for (i = 0; i < cinfo->num_cols; i++) {
-			cinfo->col_buf[i][0] = '\0';
-			cinfo->col_data[i] = cinfo->col_buf[i];
-			cinfo->col_fence[i] = 0;
-			cinfo->col_expr[i][0] = '\0';
-			cinfo->col_expr_val[i][0] = '\0';
-		}
-
-		col_set_writable(cinfo, TRUE);
-	}
+	if (cinfo != NULL)
+		col_init(cinfo);
 	edt->pi.current_proto = "<Missing Protocol Name>";
 	edt->pi.cinfo = cinfo;
 	edt->pi.fd = fd;

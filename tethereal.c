@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.179 2003/04/16 04:52:50 guy Exp $
+ * $Id: tethereal.c,v 1.180 2003/04/16 05:55:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -780,7 +780,7 @@ main(int argc, char *argv[])
   }
 
   /* Build the column format array */
-  col_init(&cfile.cinfo, prefs->num_cols);
+  col_setup(&cfile.cinfo, prefs->num_cols);
   for (i = 0; i < cfile.cinfo.num_cols; i++) {
     cfile.cinfo.col_fmt[i] = get_column_format(i);
     cfile.cinfo.col_title[i] = g_strdup(get_column_title(i));

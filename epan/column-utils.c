@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.33 2003/04/16 04:52:52 guy Exp $
+ * $Id: column-utils.c,v 1.34 2003/04/16 05:55:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,7 +48,7 @@
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
 void
-col_init(column_info *col_info, gint num_cols)
+col_setup(column_info *col_info, gint num_cols)
 {
   col_info->num_cols	= num_cols;
   col_info->col_fmt	= (gint *) g_malloc(sizeof(gint) * num_cols);
@@ -60,6 +60,22 @@ col_init(column_info *col_info, gint num_cols)
   col_info->col_fence	= (int *) g_malloc(sizeof(int) * num_cols);
   col_info->col_expr	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+}
+
+/* Initialize the data structures for constructing column data. */
+void
+col_init(column_info *cinfo)
+{
+  int i;
+
+  for (i = 0; i < cinfo->num_cols; i++) {
+    cinfo->col_buf[i][0] = '\0';
+    cinfo->col_data[i] = cinfo->col_buf[i];
+    cinfo->col_fence[i] = 0;
+    cinfo->col_expr[i][0] = '\0';
+    cinfo->col_expr_val[i][0] = '\0';
+  }
+  cinfo->writable = TRUE;
 }
 
 gboolean

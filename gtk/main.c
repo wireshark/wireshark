@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.287 2003/04/16 04:52:55 guy Exp $
+ * $Id: main.c,v 1.288 2003/04/16 05:55:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1951,7 +1951,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Build the column format array */
-  col_init(&cfile.cinfo, prefs->num_cols);
+  col_setup(&cfile.cinfo, prefs->num_cols);
   for (i = 0; i < cfile.cinfo.num_cols; i++) {
     cfile.cinfo.col_fmt[i] = get_column_format(i);
     cfile.cinfo.col_title[i] = g_strdup(get_column_title(i));
