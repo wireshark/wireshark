@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.21 2000/08/11 13:34:47 deniel Exp $
+ * $Id: plugins.c,v 1.22 2000/08/18 14:22:20 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -275,11 +275,11 @@ save_plugin_status()
     if (!statusfile) {
 	pf_path = g_malloc(strlen(get_home_dir()) + strlen(PF_DIR) + 2);
 	sprintf(pf_path, "%s/%s", get_home_dir(), PF_DIR);
-	#ifdef WIN32
+#ifdef WIN32
 	mkdir(pf_path);
-	#else
+#else
 	mkdir(pf_path, 0755);
-	#endif
+#endif
 	g_free(pf_path);
 	statusfile=fopen(plugin_status_file, "w");
 	if (!statusfile) return -1;
@@ -396,26 +396,31 @@ plugins_scan_dir(const char *dirname)
 	    name = (gchar *)file->d_name;
 	    if (g_module_symbol(handle, "version", (gpointer*)&version) == FALSE)
 	    {
+	        g_warning("The plugin %s has no version symbol", name);
 		g_module_close(handle);
 		continue;
 	    }
 	    if (g_module_symbol(handle, "protocol", (gpointer*)&protocol) == FALSE)
 	    {
+	        g_warning("The plugin %s has no protocol symbol", name);
 		g_module_close(handle);
 		continue;
 	    }
 	    if (g_module_symbol(handle, "filter_string", (gpointer*)&filter_string) == FALSE)
 	    {
+	        g_warning("The plugin %s has no filter_string symbol", name);
 		g_module_close(handle);
 		continue;
 	    }
 	    if (dfilter_compile(filter_string, &filter) != 0) {
+	        g_warning("The plugin %s has a non compilable filter", name);
 		g_module_close(handle);
 		continue;
 	    }
 	    if (g_module_symbol(handle, "dissector", (gpointer*)&dissector) == FALSE) {
 		if (filter != NULL)
 		    dfilter_destroy(filter);
+	        g_warning("The plugin %s has no dissector symbol", name);
 		g_module_close(handle);
 		continue;
 	    }
