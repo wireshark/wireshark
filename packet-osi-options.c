@@ -5,7 +5,7 @@
  * ISO 10589 ISIS (Intradomain Routeing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routeing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.6 2001/03/09 04:35:22 guy Exp $
+ * $Id: packet-osi-options.c,v 1.7 2001/04/23 04:19:40 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -177,7 +177,7 @@ dissect_option_qos( const u_char type, const u_char sub_type, int offset,
   proto_tree *osi_qos_tree = NULL;
   
   
-  ti = proto_tree_add_text( tree, NullTVB, offset, len,
+  ti = proto_tree_add_text( tree, tvb, offset, len,
                             "Quality of service maintenance: %s",
                        val_to_str( type, osi_opt_qos_vals, "Unknown (0x%x)") );
   
@@ -187,33 +187,33 @@ dissect_option_qos( const u_char type, const u_char sub_type, int offset,
 
     tmp_type = sub_type & OSI_OPT_QOS_SUB_RSVD;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, NullTVB, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type & OSI_OPT_QOS_SUB_SEQ_VS_TRS;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, NullTVB, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type &OSI_OPT_QOS_SUB_CONG_EXPED;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, NullTVB, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type & OSI_OPT_QOS_SUB_TSD_VS_COST;
     
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, NullTVB, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type & OSI_OPT_QOS_SUB_RESERR_TRS;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, NullTVB, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type & OSI_OPT_QOS_SUB_RESERR_COST;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, NullTVB, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
   }
@@ -368,12 +368,6 @@ dissect_osi_options( u_char pdu_type, u_char opt_len, tvbuff_t *tvb,
        return;
      }
      
-     if ( opt_len > END_OF_FRAME ) {
-       proto_tree_add_text( tree, tvb, offset, END_OF_FRAME, 
-           "### Options go past the end of the captured data in this PDU ###" );
-       return;
-     }
-
      ti = proto_tree_add_text( tree, tvb, offset, opt_len,
                                "### Option Section ###" );
      osi_option_tree = proto_item_add_subtree( ti, ott_osi_options );
