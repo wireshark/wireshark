@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.49 2001/09/04 21:04:51 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.50 2001/09/05 19:48:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,7 +101,7 @@ static const value_string names_rrenum_matchcode[] = {
 
 static const value_string names_router_pref[] = {
         { ND_RA_FLAG_RTPREF_HIGH,	"High" }, 
-        { ND_RA_FLAG_RTPREF_MEDIUM,	"Meidum" }, 
+        { ND_RA_FLAG_RTPREF_MEDIUM,	"Medium" }, 
         { ND_RA_FLAG_RTPREF_LOW,	"Low" }, 
         { ND_RA_FLAG_RTPREF_RSV,	"Reserved" }, 
 };
