@@ -70,6 +70,7 @@ DISSECTOR_SRC =	\
 	packet-ansi_map.c	\
 	packet-aodv.c	\
 	packet-ap1394.c	\
+	packet-app-pkix-cert.c	\
 	packet-arcnet.c	\
 	packet-arp.c	\
 	packet-asap.c	\
