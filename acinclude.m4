@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.43 2002/03/12 10:37:01 guy Exp $
+dnl $Id: acinclude.m4,v 1.44 2002/04/08 01:34:38 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -356,13 +356,63 @@ return_pcap_version(void)
 #
 AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 [
+	if test "x$zlib_dir" != "x"
+	then
+	  #
+	  # The user specified a directory in which zlib resides,
+	  # so add the "include" subdirectory of that directory to
+	  # the include file search path and the "lib" subdirectory
+	  # of that directory to the library search path.
+	  #
+	  # XXX - if there's also a zlib in a directory that's
+	  # already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
+	  # make us find the version in the specified directory,
+	  # as the compiler and/or linker will search that other
+	  # directory before it searches the specified directory.
+	  #
+	  ethereal_save_CFLAGS="$CFLAGS"
+	  CFLAGS="$CFLAGS -I$zlib_dir/include"
+	  ethereal_save_CPPLAGS="$CPPLAGS"
+	  CPPFLAGS="$CPPFLAGS -I$zlib_dir/include"
+	  ethereal_save_LIBS="$LIBS"
+	  AC_ETHEREAL_ADD_DASH_L(LIBS, $zlib_dir/lib)
+	fi
+
 	#
 	# Make sure we have "zlib.h".  If we don't, it means we probably
 	# don't have zlib, so don't use it.
 	#
-	AC_CHECK_HEADER(zlib.h,,enable_zlib=no)
+	AC_CHECK_HEADER(zlib.h,,
+	  [
+	    if test "x$zlib_dir" != "x"
+	    then
+	      #
+	      # The user used "--with-zlib=" to specify a directory
+	      # containing zlib, but we didn't find the header file
+	      # there; that either means they didn't specify the
+	      # right directory or are confused about whether zlib
+	      # is, in fact, installed.  Report the error and give up.
+	      #
+	      AC_MSG_ERROR([zlib header not found in directory specified in --with-zlib])
+	    else
+	      if test "x$want_zlib" = "xyes"
+	      then
+		#
+		# The user tried to force us to use the library, but we
+		# couldn't find the header file; report an error.
+		#
+		AC_MSG_ERROR(Header file zlib.h not found.)
+	      else
+		#
+		# We couldn't find the header file; don't use the
+		# library, as it's probably not present.
+		#
+		want_zlib=no
+	      fi
+	    fi
+	  ])
 
-	if test x$enable_zlib != xno
+	if test "x$want_zlib" != "xno"
 	then
 		#
 		# Well, we at least have the zlib header file.
@@ -388,10 +438,41 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 		# versions of zlib without "gzgets()" are likely to have
 		# a broken "gzseek()".
 		#
-		AC_CHECK_LIB(z, gzgets,,enable_zlib=no)
+		AC_CHECK_LIB(z, gzgets,
+		[
+			if test "x$zlib_dir" != "x"
+			then
+				#
+				# Put the "-I" and "-L" flags for zlib at
+				# the beginning of CFLAGS, CPPFLAGS, and
+				# LIBS.
+				#
+				LIBS=""
+				AC_ETHEREAL_ADD_DASH_L(LIBS, $zlib_dir/lib)
+				LIBS="$LIBS -lz $ethereal_save_LIBS"
+			else
+				LIBS="-lz $LIBS"
+			fi
+			AC_DEFINE(HAVE_LIBZ)
+		],[
+			if test "x$zlib_dir" != "x"
+			then
+				#
+				# Restore the versions of CFLAGS, CPPFLAGS,
+				# and LIBS before we added the "-with-zlib="
+				# directory, as we didn't actually find
+				# zlib there, or didn't find a zlib that
+				# contains gzgets there.
+				#
+			        CFLAGS="$ethereal_save_CFLAGS"
+				CPPFLAGS="$ethereal_save_CPPLAGS"
+				LIBS="$ethereal_save_LIBS"
+			fi
+			want_zlib=no
+		])
 	fi
 
-	if test x$enable_zlib != xno
+	if test "x$want_zlib" != "xno"
 	then
 		#
 		# Well, we at least have the zlib header file and a zlib

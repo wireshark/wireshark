@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.37 2002/03/02 20:41:07 guy Exp $
+# $Id: configure.in,v 1.38 2002/04/08 01:34:39 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -165,16 +165,34 @@ AC_ARG_WITH(pcap,
 AC_WIRETAP_PCAP_CHECK
 
 dnl zlib check
-AC_ARG_ENABLE(zlib,
-[  --enable-zlib           use zlib to read compressed data.  [default=yes]],,enable_zlib=yes)
-
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
-if test "x$enable_zlib" = "xno" ; then
-        AC_MSG_RESULT(no)
+
+AC_ARG_WITH(zlib,
+[  --with-zlib[=DIR]       use zlib (located in directory DIR, if supplied) to read compressed data.  [default=yes, if present]],
+[
+	if test $withval = no
+	then
+		want_zlib=no
+	elif test $withval = yes
+	then
+		want_zlib=yes
+	else
+		want_zlib=yes
+		zlib_dir=$withval
+	fi
+],[
+	#
+	# Use zlib if it's present, otherwise don't.
+	#
+	want_zlib=ifpresent
+	zlib_dir=
+])
+if test "x$want_zlib" = "xno" ; then
+	AC_MSG_RESULT(no)
 else
-        AC_MSG_RESULT(yes)
+	AC_MSG_RESULT(yes)
 	AC_WIRETAP_ZLIB_CHECK
-	if test "x$enable_zlib" = "xno" ; then
+	if test "x$want_zlib" = "xno" ; then
 		AC_MSG_RESULT(zlib not found - disabling compressed capture file support)
 	fi
 fi

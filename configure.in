@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.161 2002/03/29 03:33:57 gerald Exp $
+# $Id: configure.in,v 1.162 2002/04/08 01:34:38 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -435,16 +435,34 @@ else
 fi
 
 dnl zlib check
-AC_ARG_ENABLE(zlib,
-[  --enable-zlib           use zlib to read compressed data.  [default=yes]],,enable_zlib=yes)
-
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
-if test "x$enable_zlib" = "xno" ; then
+
+AC_ARG_WITH(zlib,
+[  --with-zlib[=DIR]       use zlib (located in directory DIR, if supplied) to read compressed data.  [default=yes, if present]],
+[
+	if test $withval = no
+	then
+		want_zlib=no
+	elif test $withval = yes
+	then
+		want_zlib=yes
+	else
+		want_zlib=yes
+		zlib_dir=$withval
+	fi
+],[
+	#
+	# Use zlib if it's present, otherwise don't.
+	#
+	want_zlib=ifpresent
+	zlib_dir=
+])
+if test "x$want_zlib" = "xno" ; then
         AC_MSG_RESULT(no)
 else
         AC_MSG_RESULT(yes)
         AC_ETHEREAL_ZLIB_CHECK
-	if test "x$enable_zlib" = "xno" ; then
+	if test "x$want_zlib" = "xno" ; then
 		AC_MSG_RESULT(zlib not found - disabling compressed capture file support)
 	fi
 fi
@@ -715,6 +733,6 @@ echo ""
 echo "                    Install setuid : $setuid_message"
 echo "                       Use plugins : $have_plugins"
 echo "                  Use pcap library : $want_pcap"
-echo "                  Use zlib library : $enable_zlib"
+echo "                  Use zlib library : $want_zlib"
 echo "          Use IPv6 name resolution : $enable_ipv6"
 echo "              Use UCD SNMP library : $snmp_libs_message"
