@@ -2,7 +2,7 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002,2003, Alfred Koebler <ako@icon.de>
  *
- * $Id: packet-fw1.c,v 1.10 2004/01/06 21:11:04 guy Exp $
+ * $Id: packet-fw1.c,v 1.11 2004/01/06 22:05:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ako@icon.de>
@@ -114,6 +114,22 @@ static gint ett_fw1 = -1;
 
 static dissector_handle_t eth_handle;
 
+
+#define	MAX_INTERFACES	20
+static char	*p_interfaces[MAX_INTERFACES];
+static int	interface_anzahl=0;
+
+static void
+fw1_init(void)
+{
+  int		i;
+
+  for (i=0; i<interface_anzahl; i++) {
+    free(p_interfaces[i]);
+  }
+  interface_anzahl = 0;
+}
+
 static void
 dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -129,22 +145,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   char		*p_header;
   int		i;
   gboolean	found;
-
-  #define	MAX_INTERFACES	20
-  static char	*p_interfaces[MAX_INTERFACES];
-  static int	interface_anzahl=0;
   static char	header1[] = "FW1 Monitor";
-
-#ifdef	DID_NOT_FIND_A_PLACE_TO_START_THE_RESET_LIST_OF_INTERFACES
-  if (fw1_reset_list_of_if_on_next_begin) {
-    /* without FW1 summary delete all remembered names of interfaces */
-    for (i=0; i<interface_anzahl && i<MAX_INTERFACES; i++) {
-      free(p_interfaces[i]);
-    }
-    interface_anzahl = 0;
-    fw1_reset_list_of_if_on_next_begin = FALSE;
-  }
-#endif
 
   /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -172,7 +173,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Known interface name - if not, remember it */
   found=FALSE;
-  for (i=0; i<interface_anzahl && i<MAX_INTERFACES; i++) {
+  for (i=0; i<interface_anzahl; i++) {
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
       found=TRUE;
     }
@@ -285,6 +286,8 @@ proto_register_fw1(void)
             &fw1_iflist_with_chain);
 
   register_dissector("fw1", dissect_fw1, proto_fw1);
+
+  register_init_routine(fw1_init);
 }
 
 void
