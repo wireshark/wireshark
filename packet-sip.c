@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.6 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-sip.c,v 1.7 2000/11/18 16:56:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,6 +92,9 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb_format_text(tvb, 0, eol - strlen(" SIP/2.0")) :
                              tvb_format_text(tvb, strlen("SIP/2.0 "), eol - strlen("SIP/2.0 ")));
 
+        msg_offset = sip_get_msg_offset(tvb, offset);
+        if (msg_offset < 0) goto bad;
+
         if (tree) {
                 proto_item *ti, *th;
                 proto_tree *sip_tree, *hdr_tree;
@@ -104,8 +107,6 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     tvb_format_text(tvb, 0, eol));
 
                 offset = next_offset;
-                msg_offset = sip_get_msg_offset(tvb, offset);
-                if (msg_offset < 0) goto bad;
                 th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset, msg_offset - offset, FALSE);
                 hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 
@@ -119,7 +120,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;  /* Skip the CRLF mentioned above */
        }
 
-        if (tvb_length_remaining(tvb, offset) > 0) {
+        if (tvb_length_remaining(tvb, msg_offset) > 0) {
                 next_tvb = tvb_new_subset(tvb, offset, -1, -1);
                 call_dissector(sdp_handle, next_tvb, pinfo, tree);
         }
