@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.4 2000/03/12 04:47:51 gram Exp $
+ * $Id: packet-v120.c,v 1.5 2000/03/17 05:21:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,7 +50,7 @@ static gint ett_v120_address = -1;
 static gint ett_v120_control = -1;
 static gint ett_v120_header = -1;
 
-void dissect_v120_header(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+static int dissect_v120_header(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 void
 dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
@@ -60,6 +60,7 @@ dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
     int addr;
     char info[80];
     int v120len;
+    guint16 control;
 
     if (check_col(fd, COL_PROTOCOL))
 	col_add_str(fd, COL_PROTOCOL, "V.120");
@@ -95,12 +96,8 @@ dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
     else
 	is_response = FALSE;
 
-    if (fd->pkt_len <= 5)
-	v120len = fd->pkt_len;
-    else
-	v120len = 5;
     if (tree) {
-	ti = proto_tree_add_protocol_format(tree, proto_v120, 0, v120len,
+	ti = proto_tree_add_protocol_format(tree, proto_v120, 0, 0,
 					    "V.120");
 	v120_tree = proto_item_add_subtree(ti, ett_v120);
 	addr = pd[1] << 8 | pd[0];
@@ -123,16 +120,24 @@ dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
 	proto_tree_add_text(address_tree, 0, 2,
 		    decode_boolean_bitfield(addr, 0x0100, 2*8,
 			"EA1 = 1", "EA1 = 0 (Error)"), NULL);
-	if (v120len == 5)
-		dissect_v120_header(pd, 4, fd, v120_tree);
     }
-    else
+    else {
 	v120_tree = NULL;
-    dissect_xdlc_control(pd, 2, fd, v120_tree, hf_v120_control,
-	    ett_v120_control, is_response, v120len == 3 ? FALSE : TRUE);
+	ti = NULL;
+    }
+    control = dissect_xdlc_control(pd, 2, fd, v120_tree, hf_v120_control,
+	    ett_v120_control, is_response, TRUE);
+    if (tree) {
+	v120len = 2 + XDLC_CONTROL_LEN(control, TRUE);
+	if (BYTES_ARE_IN_FRAME(v120len, 1))
+		v120len += dissect_v120_header(pd, v120len, fd, v120_tree);
+	proto_item_set_len(ti, v120len);
+	if (IS_DATA_IN_FRAME(v120len))
+		dissect_data(&pd[v120len], v120len, fd, v120_tree);
+    }
 }
 
-void
+static int
 dissect_v120_header(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	char info[80];
@@ -183,7 +188,9 @@ dissect_v120_header(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 		    decode_boolean_bitfield(header, 0x1000, nbits,
 			"RR", "No RR"), NULL);
 	}
+	return header_len;
 }
+
 void
 proto_register_v120(void)
 {
@@ -192,7 +199,7 @@ proto_register_v120(void)
 	  { "Link Address", "v120.address", FT_UINT16, BASE_HEX, NULL,
 		  0x0, "" }},
 	{ &hf_v120_control,
-	  { "Control Field", "v120.control", FT_STRING, BASE_NONE, NULL, 0x0,
+	  { "Control Field", "v120.control", FT_UINT16, BASE_HEX, NULL, 0x0,
 	  	"" }},
 	{ &hf_v120_header,
 	  { "Header Field", "v120.header", FT_STRING, BASE_NONE, NULL, 0x0,
