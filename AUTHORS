@@ -870,7 +870,7 @@ Tomas Kukosa <tomas.kukosa[AT]anfdata.cz> {
 	Additional routines made available to plugins
 }
 
-<a.stockmeier[AT]avm.de> {
+Andreas Stockmeier <a.stockmeier[AT]avm.de> {
 	IPCOMP transformation and ID_IPV4_ADDR_SUBNET for ISAKMP
 	Fix the file dialog box code to use "g_strdup()", not "strdup()"
 	    to copy strings
