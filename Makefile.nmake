@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.279 2003/02/06 01:23:32 guy Exp $
+# $Id: Makefile.nmake,v 1.280 2003/02/18 21:47:56 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -261,6 +261,7 @@ DISSECTOR_SRC = \
 	packet-rpl.c   \
 	packet-rquota.c \
 	packet-rsh.c   \
+	packet-rsync.c \
 	packet-rstat.c \
 	packet-rsvp.c  \
 	packet-rtcp.c  \
