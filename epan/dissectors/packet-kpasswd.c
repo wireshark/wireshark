@@ -31,19 +31,24 @@
 
 #include <epan/packet.h>
 #include "packet-kerberos.h"
+#include "packet-ber.h"
 #include <epan/prefs.h>
 
 static int proto_kpasswd = -1;
 static int hf_kpasswd_message_len = -1;
 static int hf_kpasswd_version = -1;
+static int hf_kpasswd_result = -1;
+static int hf_kpasswd_result_string = -1;
+static int hf_kpasswd_newpassword = -1;
 static int hf_kpasswd_ap_req_len = -1;
 static int hf_kpasswd_ap_req_data = -1;
 static int hf_kpasswd_krb_priv_message = -1;
+static int hf_kpasswd_ChangePasswdData = -1;
 
 static gint ett_kpasswd = -1;
 static gint ett_ap_req_data = -1;
 static gint ett_krb_priv_message = -1;
-
+static gint ett_ChangePasswdData = -1;
 
 
 #define UDP_PORT_KPASSWD		464
@@ -69,8 +74,91 @@ dissect_kpasswd_ap_req_data(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *p
 	dissect_kerberos_main(tvb, pinfo, tree, FALSE, NULL);
 }
 
+
+static int dissect_kpasswd_newpassword(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_kpasswd_newpassword, NULL);
+
+	return offset;
+}
+
+static ber_sequence_t ChangePasswdData_sequence[] = {
+	{ BER_CLASS_CON, 0, 0,
+		dissect_kpasswd_newpassword },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, 
+		dissect_krb5_cname },
+	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, 
+		dissect_krb5_realm },
+	{ 0, 0, 0, NULL }
+};
+
+static int
+dissect_kpasswd_user_data_request(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree)
+{
+    int offset=0;
+
+    offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, ChangePasswdData_sequence, hf_kpasswd_ChangePasswdData, ett_ChangePasswdData);
+
+    return offset;
+}
+
+static kerberos_callbacks cb_req[] = {
+    { KRB_CBTAG_PRIV_USER_DATA,      dissect_kpasswd_user_data_request },
+    { 0, NULL }
+};
+
+#define KRB5_KPASSWD_SUCCESS             0
+#define KRB5_KPASSWD_MALFORMED           1
+#define KRB5_KPASSWD_HARDERROR           2
+#define KRB5_KPASSWD_AUTHERROR           3
+#define KRB5_KPASSWD_SOFTERROR           4
+#define KRB5_KPASSWD_ACCESSDENIED        5
+#define KRB5_KPASSWD_BAD_VERSION         6
+#define KRB5_KPASSWD_INITIAL_FLAG_NEEDED 7
+static const value_string kpasswd_result_types[] = {
+    { KRB5_KPASSWD_SUCCESS, "Success" },
+    { KRB5_KPASSWD_MALFORMED, "Malformed" },
+    { KRB5_KPASSWD_HARDERROR, "HardError" },
+    { KRB5_KPASSWD_AUTHERROR, "AuthError" },
+    { KRB5_KPASSWD_SOFTERROR, "SoftError" },
+    { KRB5_KPASSWD_ACCESSDENIED, "AccessDenied" },
+    { KRB5_KPASSWD_BAD_VERSION, "BadVersion" },
+    { KRB5_KPASSWD_INITIAL_FLAG_NEEDED, "InitialFlagNeeded" },
+    { 0, NULL }
+};
+
+static int
+dissect_kpasswd_user_data_reply(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree)
+{
+    int offset=0;
+    guint16 result;
+
+    /* result */
+    result = tvb_get_letohs(tvb, offset);
+    proto_tree_add_uint(tree, hf_kpasswd_result, tvb, offset, 2, result);
+    offset+=2;
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_set_str(pinfo->cinfo, COL_INFO, 
+                   val_to_str(result, kpasswd_result_types, "Result: %u"));
+
+   
+    /* optional result string */
+    if(tvb_length_remaining(tvb, offset)){
+        proto_tree_add_item(tree, hf_kpasswd_result_string, tvb, offset, tvb_length_remaining(tvb, offset), FALSE); 
+	offset+=tvb_length_remaining(tvb, offset);
+    }
+
+    return offset;
+}
+
+
+static kerberos_callbacks cb_rep[] = {
+    { KRB_CBTAG_PRIV_USER_DATA,      dissect_kpasswd_user_data_reply },
+    { 0, NULL }
+};
+
 static void
-dissect_kpasswd_krb_priv_message(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *parent_tree)
+dissect_kpasswd_krb_priv_message(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *parent_tree, gboolean isrequest)
 {
 	proto_item *it;
 	proto_tree *tree=NULL;
@@ -79,7 +167,11 @@ dissect_kpasswd_krb_priv_message(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tr
 		it=proto_tree_add_item(parent_tree, hf_kpasswd_krb_priv_message, tvb, 0, -1, FALSE);
 		tree=proto_item_add_subtree(it, ett_krb_priv_message);
 	}
-	dissect_kerberos_main(tvb, pinfo, tree, FALSE, NULL);
+	if(isrequest){
+		dissect_kerberos_main(tvb, pinfo, tree, FALSE, cb_req);
+	} else {
+		dissect_kerberos_main(tvb, pinfo, tree, FALSE, cb_rep);
+	}
 }
 
 
@@ -119,7 +211,7 @@ dissect_kpasswd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* KRB-PRIB message */
 	next_tvb=tvb_new_subset(tvb, offset, -1, -1);
-	dissect_kpasswd_krb_priv_message(pinfo, next_tvb, kpasswd_tree);
+	dissect_kpasswd_krb_priv_message(pinfo, next_tvb, kpasswd_tree, (version==0xff80));
 
 }
 
@@ -137,18 +229,31 @@ proto_register_kpasswd(void)
 	{ &hf_kpasswd_version,
 	  	{ "Version", "kpasswd.version", FT_UINT16, BASE_HEX,
 		VALS(vers_vals), 0, "Version", HFILL }},
+	{ &hf_kpasswd_result,
+	  	{ "Result", "kpasswd.result", FT_UINT16, BASE_DEC,
+		VALS(kpasswd_result_types), 0, "Result", HFILL }},
+	{ &hf_kpasswd_result_string,
+	  	{ "Result String", "kpasswd.result_string", FT_STRING, BASE_NONE,
+		NULL, 0, "Result String", HFILL }},
+	{ &hf_kpasswd_newpassword,
+	  	{ "New Password", "kpasswd.new_password", FT_STRING, BASE_NONE,
+		NULL, 0, "New Password", HFILL }},
 	{ &hf_kpasswd_ap_req_data,
 		{ "AP_REQ", "kpasswd.ap_req", FT_NONE, BASE_NONE,
 		NULL, 0, "AP_REQ structure", HFILL }},
 	{ &hf_kpasswd_krb_priv_message,
 		{ "KRB-PRIV", "kpasswd.krb_priv", FT_NONE, BASE_NONE,
 		NULL, 0, "KRB-PRIV message", HFILL }},
+	{ &hf_kpasswd_ChangePasswdData, {
+	    "ChangePasswdData", "kpasswd.ChangePasswdData", FT_NONE, BASE_DEC,
+	    NULL, 0, "Change Password Data structure", HFILL }},
 	};
 
 	static gint *ett[] = {
 		&ett_kpasswd,
 		&ett_ap_req_data,
 		&ett_krb_priv_message,
+		&ett_ChangePasswdData,
 	};
 
 	proto_kpasswd = proto_register_protocol("MS Kpasswd",

@@ -1805,7 +1805,7 @@ dissect_krb5_sname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
 	return offset;
 }
-static int
+int
 dissect_krb5_cname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 
@@ -1815,7 +1815,7 @@ dissect_krb5_cname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 }
 
 
-static int
+int
 dissect_krb5_realm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_realm, NULL, 0);
