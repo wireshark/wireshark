@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.190 2000/06/27 04:35:44 guy Exp $
+ * $Id: file.c,v 1.191 2000/06/27 07:13:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,8 +93,7 @@ gboolean auto_scroll_live = FALSE;
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 
-static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
-    union wtap_pseudo_header *, const u_char *);
+static void read_packet(capture_file *cf, int offset, const u_char *buf);
 
 static void set_selected_row(int row);
 
@@ -143,6 +142,9 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   /* Initialize protocol-specific variables */
   init_all_protocols();
 
+  /* We're about to start reading the file. */
+  cf->state = FILE_READ_IN_PROGRESS;
+
   cf->wth = wth;
   cf->filed = fd;
   cf->f_len = cf_stat.st_size;
@@ -188,6 +190,9 @@ fail:
 void
 close_cap_file(capture_file *cf, void *w)
 {
+  /* Die if we're in the middle of reading a file. */
+  g_assert(cf->state != FILE_READ_IN_PROGRESS);
+
   /* Destroy all popup packet windows, as they refer to packets in the
      capture file we're closing. */
   destroy_packet_wins();
@@ -240,6 +245,9 @@ close_cap_file(capture_file *cf, void *w)
   set_menus_for_captured_packets(FALSE);
   set_menus_for_selected_packet(FALSE);
   set_menus_for_capture_in_progress(FALSE);
+
+  /* We have no file open. */
+  cf->state = FILE_CLOSED;
 }
 
 /* Set the file name in the status line, in the name for the main window,
@@ -277,16 +285,15 @@ set_display_filename(capture_file *cf)
   g_free(win_name);
 }
 
-int
-read_cap_file(capture_file *cf)
+read_status_t
+read_cap_file(capture_file *cf, int *err)
 {
   gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
-  int     success;
-  int     err;
   size_t  msg_len;
   char   *errmsg;
   char    errmsg_errno[1024+1];
   gchar   err_str[2048+1];
+  int     data_offset;
 
   name_ptr = get_basename(cf->filename);
 
@@ -308,17 +315,30 @@ read_cap_file(capture_file *cf)
 #endif
 
   freeze_clist(cf);
-  success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
+
+  while ((data_offset = wtap_read(cf->wth, err)) > 0) {
+    if (cf->state == FILE_READ_ABORTED) {
+      /* Well, the user decided to abort the read.  Close the capture
+         file, and return READ_ABORTED so our caller can do whatever is
+	 appropriate when that happens. */
+      close_cap_file(cf, info_bar);
+      return (READ_ABORTED);
+    }
+    read_packet(cf, data_offset, wtap_buf_ptr(cf->wth));
+  }
+
+  /* We're done reading sequentially through the file. */
+  cf->state = FILE_READ_DONE;
+
+  /* Close the sequential I/O side, to free up memory it requires. */
+  wtap_sequential_close(cf->wth);
+
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
      there's more than one type (and thus whether it's
      WTAP_ENCAP_PER_PACKET). */
-
-  /* We're done reading sequentially through the file; close the
-     sequential I/O side, to free up memory it requires. */
-  wtap_sequential_close(cf->wth);
-
   cf->lnk_t = wtap_file_encap(cf->wth);
+
   cf->current_frame = cf->first_displayed;
   thaw_clist(cf);
 
@@ -341,11 +361,11 @@ read_cap_file(capture_file *cf)
   if (cf->first_displayed != NULL)
     gtk_signal_emit_by_name(GTK_OBJECT(packet_list), "select_row", 0);
 
-  if (!success) {
+  if (data_offset < 0) {
     /* Put up a message box noting that the read failed somewhere along
        the line.  Don't throw out the stuff we managed to read, though,
        if any. */
-    switch (err) {
+    switch (*err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       errmsg = "The capture file is for a network type that Ethereal doesn't support.";
@@ -367,15 +387,15 @@ read_cap_file(capture_file *cf)
 
     default:
       sprintf(errmsg_errno, "An error occurred while reading the"
-                              " capture file: %s.", wtap_strerror(err));
+                              " capture file: %s.", wtap_strerror(*err));
       errmsg = errmsg_errno;
       break;
     }
     snprintf(err_str, sizeof err_str, errmsg);
     simple_dialog(ESD_TYPE_WARN, NULL, err_str);
-    return (err);
+    return (READ_ERROR);
   } else
-    return (0);
+    return (READ_SUCCESS);
 }
 
 #ifdef HAVE_LIBPCAP
@@ -412,14 +432,23 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   return err;
 }
 
-int
-continue_tail_cap_file(capture_file *cf, int to_read)
+read_status_t
+continue_tail_cap_file(capture_file *cf, int to_read, int *err)
 {
-  int err;
+  int data_offset = 0;
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
 
-  wtap_loop(cf->wth, to_read, wtap_dispatch_cb, (u_char *) cf, &err);
+  while (to_read != 0 && (data_offset = wtap_read(cf->wth, err)) > 0) {
+    if (cf->state == FILE_READ_ABORTED) {
+      /* Well, the user decided to exit Ethereal.  Break out of the
+         loop, and let the code below (which is called even if there
+	 aren't any packets left to read) exit. */
+      break;
+    }
+    read_packet(cf, data_offset, wtap_buf_ptr(cf->wth));
+    to_read--;
+  }
 
   gtk_clist_thaw(GTK_CLIST(packet_list));
 
@@ -428,17 +457,48 @@ continue_tail_cap_file(capture_file *cf, int to_read)
   if (auto_scroll_live && cf->plist_end != NULL)
     gtk_clist_moveto(GTK_CLIST(packet_list), 
 		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
-  return err;
+
+  if (cf->state == FILE_READ_ABORTED) {
+    /* Well, the user decided to exit Ethereal.  Return READ_ABORTED
+       so that our caller can kill off the capture child process;
+       this will cause an EOF on the pipe from the child, so
+       "finish_tail_cap_file()" will be called, and it will clean up
+       and exit. */
+    return READ_ABORTED;
+  } else if (data_offset < 0) {
+    /* We got an error reading the capture file.
+       XXX - pop up a dialog box? */
+    return (READ_ERROR);
+  } else
+    return (READ_SUCCESS);
 }
 
-int
-finish_tail_cap_file(capture_file *cf)
+read_status_t
+finish_tail_cap_file(capture_file *cf, int *err)
 {
-  int err;
+  int data_offset;
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
 
-  wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
+  while ((data_offset = wtap_read(cf->wth, err)) > 0) {
+    if (cf->state == FILE_READ_ABORTED) {
+      /* Well, the user decided to abort the read.  Break out of the
+         loop, and let the code below (which is called even if there
+	 aren't any packets left to read) exit. */
+      break;
+    }
+    read_packet(cf, data_offset, wtap_buf_ptr(cf->wth));
+  }
+
+  if (cf->state == FILE_READ_ABORTED) {
+    /* Well, the user decided to abort the read.  We're only called
+       when the child capture process closes the pipe to us (meaning
+       it's probably exited), so we can just close the capture
+       file; we return READ_ABORTED so our caller can do whatever
+       is appropriate when that happens. */
+    close_cap_file(cf, info_bar);
+    return READ_ABORTED;
+  }
 
   thaw_clist(cf);
   if (auto_scroll_live && cf->plist_end != NULL)
@@ -446,6 +506,9 @@ finish_tail_cap_file(capture_file *cf)
        row number. */
     gtk_clist_moveto(GTK_CLIST(packet_list), 
 		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
+
+  /* We're done reading sequentially through the file. */
+  cf->state = FILE_READ_DONE;
 
   /* We're done reading sequentially through the file; close the
      sequential I/O side, to free up memory it requires. */
@@ -471,7 +534,12 @@ finish_tail_cap_file(capture_file *cf)
   set_menus_for_capture_file(TRUE);
   set_menus_for_unsaved_capture_file(!cf->user_saved);
 
-  return err;
+  if (data_offset < 0) {
+    /* We got an error reading the capture file.
+       XXX - pop up a dialog box? */
+    return (READ_ERROR);
+  } else
+    return (READ_SUCCESS);
 }
 #endif /* HAVE_LIBPCAP */
 
@@ -634,11 +702,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 }
 
 static void
-wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-	union wtap_pseudo_header *pseudo_header, const u_char *buf)
+read_packet(capture_file *cf, int offset, const u_char *buf)
 {
+  const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
+  union wtap_pseudo_header *pseudo_header = wtap_pseudoheader(cf->wth);
   frame_data   *fdata;
-  capture_file *cf = (capture_file *) user;
   int           passed;
   proto_tree   *protocol_tree;
   frame_data   *plist_end;
@@ -1600,7 +1668,21 @@ done:
 
       if ((err = open_cap_file(fname, FALSE, cf)) == 0) {
 	/* XXX - report errors if this fails? */
-	err = read_cap_file(cf);
+	switch (read_cap_file(cf, &err)) {
+
+	case READ_SUCCESS:
+	case READ_ERROR:
+	  /* Just because we got an error, that doesn't mean we were unable
+	     to read any of the file; we handle what we could get from the
+	     file. */
+	  break;
+
+	case READ_ABORTED:
+	  /* Exit by leaving the main loop, so that any quit functions
+	     we registered get called. */
+	  gtk_main_quit();
+	  return 0;
+	}
 	set_menus_for_unsaved_capture_file(FALSE);
       }
     }

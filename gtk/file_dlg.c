@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.25 2000/06/27 04:36:00 guy Exp $
+ * $Id: file_dlg.c,v 1.26 2000/06/27 07:13:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -221,7 +221,22 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-  err = read_cap_file(&cfile);
+  switch (read_cap_file(&cfile, &err)) {
+
+  case READ_SUCCESS:
+  case READ_ERROR:
+    /* Just because we got an error, that doesn't mean we were unable
+       to read any of the file; we handle what we could get from the
+       file. */
+    break;
+
+  case READ_ABORTED:
+    /* Exit by leaving the main loop, so that any quit functions
+       we registered get called. */
+    gtk_main_quit();
+    return;
+  }
+    
   /* Save the name of the containing directory specified in the path name,
      if any; we can write over cf_name, which is a good thing, given that
      "get_dirname()" does write over its argument. */
@@ -484,6 +499,7 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   GtkWidget *filter_te;
   gchar *filename;
   gboolean is_tempfile;
+  int err;
 
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
@@ -504,9 +520,23 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   filename = strdup(cfile.filename);
   is_tempfile = cfile.is_tempfile;
   cfile.is_tempfile = FALSE;
-  if (open_cap_file(filename, is_tempfile, &cfile) == 0)
-    read_cap_file(&cfile);
-  else {
+  if (open_cap_file(filename, is_tempfile, &cfile) == 0) {
+    switch (read_cap_file(&cfile, &err)) {
+
+    case READ_SUCCESS:
+    case READ_ERROR:
+      /* Just because we got an error, that doesn't mean we were unable
+         to read any of the file; we handle what we could get from the
+         file. */
+      break;
+
+    case READ_ABORTED:
+      /* Exit by leaving the main loop, so that any quit functions
+         we registered get called. */
+      gtk_main_quit();
+      return;
+    }
+  } else {
     /* The open failed, so "cfile.is_tempfile" wasn't set to "is_tempfile".
        Instead, the file was left open, so we should restore "cfile.is_tempfile"
        ourselves.

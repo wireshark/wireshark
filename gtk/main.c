@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.124 2000/06/27 04:40:15 guy Exp $
+ * $Id: main.c,v 1.125 2000/06/27 07:13:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1097,30 +1097,42 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 	   "main_window_delete_event_cb()" should return its
 	   return value. */
 
-	/* Close any capture file we have open; on some OSes, you can't
-	   unlink a temporary capture file if you have it open.
-	   "close_cap_file()" will unlink it after closing it if
-	   it's a temporary file.
+	/* Are we in the middle of reading a capture? */
+	if (cfile.state == FILE_READ_IN_PROGRESS) {
+		/* Yes, so we can't just close the file and quit, as
+		   that may yank the rug out from under the read in
+		   progress; instead, just set the state to
+		   "FILE_READ_ABORTED" and return - the code doing the read
+		   will check for that and, if it sees that, will clean
+		   up and quit. */
+		cfile.state = FILE_READ_ABORTED;
+	} else {
+		/* Close any capture file we have open; on some OSes, you
+		   can't unlink a temporary capture file if you have it
+		   open.
+		   "close_cap_file()" will unlink it after closing it if
+		   it's a temporary file.
 
-	   We do this here, rather than after the main loop returns,
-	   as, after the main loop returns, the main window may have
-	   been destroyed (if this is called due to a "destroy"
-	   even on the main window rather than due to the user
-	   selecting a menu item), and there may be a crash
-	   or other problem when "close_cap_file()" tries to
-	   clean up stuff in the main window.
+		   We do this here, rather than after the main loop returns,
+		   as, after the main loop returns, the main window may have
+		   been destroyed (if this is called due to a "destroy"
+		   even on the main window rather than due to the user
+		   selecting a menu item), and there may be a crash
+		   or other problem when "close_cap_file()" tries to
+		   clean up stuff in the main window.
 
-	   XXX - is there a better place to put this?
-	   Or should we have a routine that *just* closes the
-	   capture file, and doesn't do anything with the UI,
-	   which we'd call here, and another routine that
-	   calls that routine and also cleans up the UI, which
-	   we'd call elsewhere? */
-	close_cap_file(&cfile, info_bar);
+		   XXX - is there a better place to put this?
+		   Or should we have a routine that *just* closes the
+		   capture file, and doesn't do anything with the UI,
+		   which we'd call here, and another routine that
+		   calls that routine and also cleans up the UI, which
+		   we'd call elsewhere? */
+		close_cap_file(&cfile, info_bar);
 
-	/* Exit by leaving the main loop, so that any quit functions
-	   we registered get called. */
-	gtk_main_quit();
+		/* Exit by leaving the main loop, so that any quit functions
+		   we registered get called. */
+		gtk_main_quit();
+	}
 }
 
 static void 
@@ -1567,7 +1579,20 @@ main(int argc, char *argv[])
 	     capture file, and thus destroyed any previous read filter
 	     attached to "cf". */
           cfile.rfcode = rfcode;
-          err = read_cap_file(&cfile);
+          switch (read_cap_file(&cfile, &err)) {
+
+          case READ_SUCCESS:
+          case READ_ERROR:
+            /* Just because we got an error, that doesn't mean we were unable
+               to read any of the file; we handle what we could get from the
+               file. */
+            break;
+
+          case READ_ABORTED:
+            /* Exit now. */
+            gtk_exit(0);
+            break;
+          }
           /* Save the name of the containing directory specified in the
 	     path name, if any; we can write over cf_name, which is a
              good thing, given that "get_dirname()" does write over its

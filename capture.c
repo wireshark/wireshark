@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.109 2000/06/27 04:35:42 guy Exp $
+ * $Id: capture.c,v 1.110 2000/06/27 07:13:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,6 +113,7 @@ static int sync_pipe[2]; /* used to sync father */
 enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 gboolean capture_child;	/* if this is the child for "-S" */
+static int fork_child;	/* In parent, process ID of child */
 static guint cap_input_id;
 
 #ifdef _WIN32
@@ -182,7 +183,6 @@ do_capture(char *capfile_name)
   cfile.save_file = capfile_name;
 
   if (sync_mode) {	/* do the capture in a child process */
-    int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
     char save_file_fd[24];
@@ -415,7 +415,21 @@ do_capture(char *capfile_name)
       if ((err = open_cap_file(cfile.save_file, is_tempfile, &cfile)) == 0) {
         /* Set the read filter to NULL. */
         cfile.rfcode = NULL;
-        err = read_cap_file(&cfile);
+        switch (read_cap_file(&cfile, &err)) {
+
+        case READ_SUCCESS:
+        case READ_ERROR:
+          /* Just because we got an error, that doesn't mean we were unable
+             to read any of the file; we handle what we could get from the
+             file. */
+          break;
+
+        case READ_ABORTED:
+          /* Exit by leaving the main loop, so that any quit functions
+             we registered get called. */
+          gtk_main_quit();
+          return;
+        }
       }
     }
     /* We're not doing a capture any more, so we don't have a save
@@ -601,7 +615,21 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
       
     /* Read what remains of the capture file, and finish the capture.
        XXX - do something if this fails? */
-    err = finish_tail_cap_file(cf);
+    switch (finish_tail_cap_file(cf, &err)) {
+
+    case READ_SUCCESS:
+    case READ_ERROR:
+      /* Just because we got an error, that doesn't mean we were unable
+         to read any of the file; we handle what we could get from the
+         file. */
+      break;
+
+    case READ_ABORTED:
+      /* Exit by leaving the main loop, so that any quit functions
+         we registered get called. */
+      gtk_main_quit();
+      return;
+    }
 
     /* We're not doing a capture any more, so we don't have a save
        file. */
@@ -634,7 +662,27 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
   /* Read from the capture file the number of records the child told us
      it added.
      XXX - do something if this fails? */
-  err = continue_tail_cap_file(cf, to_read);
+  switch (continue_tail_cap_file(cf, to_read, &err)) {
+
+  case READ_SUCCESS:
+  case READ_ERROR:
+    /* Just because we got an error, that doesn't mean we were unable
+       to read any of the file; we handle what we could get from the
+       file.
+
+       XXX - abort on a read error? */
+    break;
+
+  case READ_ABORTED:
+    /* Kill the child capture process; the user wants to exit, and we
+       shouldn't just leave it running. */
+#ifdef _WIN32
+    /* XXX - kill it. */
+#else
+    kill(fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
+#endif
+    break;
+  }
 
   /* restore pipe handler */
 #ifdef _WIN32
@@ -784,6 +832,12 @@ capture(void)
     }
     goto error;
   }
+
+  /* XXX - capture SIGTERM and close the capture, in case we're on a
+     Linux 2.0[.x] system and you have to explicitly close the capture
+     stream in order to turn promiscuous mode off?  We need to do that
+     in other places as well - and I don't think that works all the
+     time in any case, due to libpcap bugs. */
 
   if (capture_child) {
     /* Well, we should be able to start capturing.

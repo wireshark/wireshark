@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.68 2000/05/19 23:06:07 gram Exp $
+ * $Id: file.h,v 1.69 2000/06/27 07:13:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,7 +69,16 @@
 
 typedef struct bpf_program bpf_prog;
 
+/* Current state of file. */
+typedef enum {
+	FILE_CLOSED,		/* No file open */
+	FILE_READ_IN_PROGRESS,	/* Reading a file we've opened */
+	FILE_READ_ABORTED,	/* Read aborted by user */
+	FILE_READ_DONE		/* Read completed */
+} file_state;
+
 typedef struct _capture_file {
+  file_state   state;     /* Current state of capture file */
   int          filed;     /* File descriptor of capture file */
   gchar       *filename;  /* Name of capture file */
   gboolean     is_tempfile; /* Is capture file a temporary file? */
@@ -113,12 +122,20 @@ typedef struct _capture_file {
   FILE        *print_fh;  /* File we're printing to */
 } capture_file;
 
+/* Return values from "read_cap_file()", "continue_tail_cap_file()",
+   and "finish_tail_cap_file()". */
+typedef enum {
+	READ_SUCCESS,	/* read succeeded */
+	READ_ERROR,	/* read got an error */
+	READ_ABORTED	/* read aborted by user */
+} read_status_t;
+
 int  open_cap_file(char *, gboolean, capture_file *);
 void close_cap_file(capture_file *, void *);
-int  read_cap_file(capture_file *);
+read_status_t read_cap_file(capture_file *, int *);
 int  start_tail_cap_file(char *, gboolean, capture_file *);
-int  continue_tail_cap_file(capture_file *, int);
-int  finish_tail_cap_file(capture_file *);
+read_status_t continue_tail_cap_file(capture_file *, int, int *);
+read_status_t finish_tail_cap_file(capture_file *, int *);
 /* size_t read_frame_header(capture_file *); */
 int  save_cap_file(char *, capture_file *, gboolean, guint);
 
