@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.3 2000/02/19 12:13:52 sharpe Exp $
+ * $Id: packet-smb-pipe.c,v 1.4 2000/03/06 20:03:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -328,7 +328,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  WParam = GSHORT(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 2, "%s: (%04X)", (Name) ? Name : "Entry Count", WParam, WParam);
+	  proto_tree_add_text(tree, pd_p_current, 2, "%s: (%04X)", (Name) ? Name : "Entry Count", WParam);
 
 	  pd_p_current += 2;
 
@@ -918,7 +918,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_text(lanman_tree, loc_offset, AvailCount * 20, "Available Shares", NULL);
+	ti = proto_tree_add_text(lanman_tree, loc_offset, AvailCount * 20, "Available Shares");
 
 	share_tree = proto_item_add_subtree(ti, ett_lanman_shares);
 

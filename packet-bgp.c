@@ -869,7 +869,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_reach_nlri);
 		for (/*nothing*/; snpa > 0; snpa--) {
 		    proto_tree_add_text(subtree3, p - pd + i + aoff + off, 1,
-			"SNPA length: ", p[i + aoff + off]);
+			"SNPA length: %u", p[i + aoff + off]);
 		    off++;
 		    proto_tree_add_text(subtree3, p - pd + i + aoff + off,
 			p[i + aoff + off - 1],
@@ -1134,7 +1134,7 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    }
 
 	    proto_tree_add_text(bgp1_tree, offset + i, BGP_MARKER_SIZE,
-		"Marker", NULL);
+		"Marker");
 		            
 	    if (hlen < BGP_HEADER_SIZE || hlen > BGP_MAX_PACKET_SIZE) {
 		proto_tree_add_text(bgp1_tree,

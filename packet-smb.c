@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.61 2000/02/14 04:02:11 guy Exp $
+ * $Id: packet-smb.c,v 1.62 2000/03/06 19:59:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -825,7 +825,7 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, 2, "Last Write Time: %u", dissect_dos_time(LastWriteTime));
+	proto_tree_add_text(tree, offset, 2, "Last Write Time: %s", dissect_dos_time(LastWriteTime));
 
       }
 
@@ -837,7 +837,7 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, 2, "Last Write Date: %u", dissect_dos_date(LastWriteDate));
+	proto_tree_add_text(tree, offset, 2, "Last Write Date: %s", dissect_dos_date(LastWriteDate));
 
       }
 
@@ -1549,7 +1549,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, 2, "Creation Date: %u", dissect_dos_date(CreationDate));
+	proto_tree_add_text(tree, offset, 2, "Creation Date: %s", dissect_dos_date(CreationDate));
 
       }
 
@@ -1561,7 +1561,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, 2, "Creation Time: %u", dissect_dos_time(CreationTime));
+	proto_tree_add_text(tree, offset, 2, "Creation Time: %s", dissect_dos_time(CreationTime));
 
       }
 
@@ -1573,7 +1573,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, 2, "Last Access Date: %u", dissect_dos_date(LastAccessDate));
+	proto_tree_add_text(tree, offset, 2, "Last Access Date: %s", dissect_dos_date(LastAccessDate));
 
       }
 
@@ -1585,7 +1585,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, 2, "Last Access Time: %u", dissect_dos_time(LastAccessTime));
+	proto_tree_add_text(tree, offset, 2, "Last Access Time: %s", dissect_dos_time(LastAccessTime));
 
       }
 
@@ -1597,7 +1597,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, 2, "Last Write Date: %u", dissect_dos_date(LastWriteDate));
+	proto_tree_add_text(tree, offset, 2, "Last Write Date: %s", dissect_dos_date(LastWriteDate));
 
       }
 
@@ -1609,7 +1609,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, 2, "Last Write Time: %u", dissect_dos_time(LastWriteTime));
+	proto_tree_add_text(tree, offset, 2, "Last Write Time: %s", dissect_dos_time(LastWriteTime));
 
       }
 
@@ -5759,7 +5759,7 @@ dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Creation Date: %u", dissect_dos_date(CreationDate));
+      proto_tree_add_text(tree, offset, 2, "Creation Date: %s", dissect_dos_date(CreationDate));
 
     }
 
@@ -5771,7 +5771,7 @@ dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Creation Time: %u", dissect_dos_time(CreationTime));
+      proto_tree_add_text(tree, offset, 2, "Creation Time: %s", dissect_dos_time(CreationTime));
 
     }
 
@@ -5783,7 +5783,7 @@ dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Last Access Date: %u", dissect_dos_date(LastAccessDate));
+      proto_tree_add_text(tree, offset, 2, "Last Access Date: %s", dissect_dos_date(LastAccessDate));
 
     }
 
@@ -5795,7 +5795,7 @@ dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Last Access Time: %u", dissect_dos_time(LastAccessTime));
+      proto_tree_add_text(tree, offset, 2, "Last Access Time: %s", dissect_dos_time(LastAccessTime));
 
     }
 
@@ -5807,7 +5807,7 @@ dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Last Write Date: %u", dissect_dos_date(LastWriteDate));
+      proto_tree_add_text(tree, offset, 2, "Last Write Date: %s", dissect_dos_date(LastWriteDate));
 
     }
 
@@ -5819,7 +5819,7 @@ dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Last Write Time: %u", dissect_dos_time(LastWriteTime));
+      proto_tree_add_text(tree, offset, 2, "Last Write Time: %s", dissect_dos_time(LastWriteTime));
 
     }
 
@@ -6534,7 +6534,7 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Creation Time: %u", dissect_dos_time(CreationTime));
+      proto_tree_add_text(tree, offset, 2, "Creation Time: %s", dissect_dos_time(CreationTime));
 
     }
 
@@ -6856,7 +6856,7 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Creation Time: %u", dissect_dos_time(CreationTime));
+      proto_tree_add_text(tree, offset, 2, "Creation Time: %s", dissect_dos_time(CreationTime));
 
     }
 
@@ -6868,7 +6868,7 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Creation Date: %u", dissect_dos_date(CreationDate));
+      proto_tree_add_text(tree, offset, 2, "Creation Date: %s", dissect_dos_date(CreationDate));
 
     }
 
@@ -7024,7 +7024,7 @@ dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pare
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Last Write Time: %u", dissect_dos_time(LastWriteTime));
+      proto_tree_add_text(tree, offset, 2, "Last Write Time: %s", dissect_dos_time(LastWriteTime));
 
     }
 
@@ -7036,7 +7036,7 @@ dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pare
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, 2, "Last Write Date: %u", dissect_dos_date(LastWriteDate));
+      proto_tree_add_text(tree, offset, 2, "Last Write Date: %s", dissect_dos_date(LastWriteDate));
 
     }
 

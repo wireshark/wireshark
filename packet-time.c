@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TIME Option Extension
  *
- * $Id: packet-time.c,v 1.1 2000/02/09 17:17:00 gram Exp $
+ * $Id: packet-time.c,v 1.2 2000/03/06 20:04:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,7 +62,7 @@ dissect_time(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (pi.srcport == 37) { 
       guint32 delta_seconds = pntohl(pd+offset);
       proto_tree_add_text(time_tree, offset, 4,
-			  " %lu seconds since midnight 1 January 1900 GMT",
+			  " %u seconds since midnight 1 January 1900 GMT",
 			  delta_seconds);
     }
   }
