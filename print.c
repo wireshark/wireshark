@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.72 2004/04/15 19:05:42 ulfl Exp $
+ * $Id: print.c,v 1.73 2004/04/15 19:56:15 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -178,7 +178,7 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 	if (!fi->visible)
 		return;
 
-	/* was a free format label produced? */
+    /* was a free format label produced? */
 	if (fi->rep) {
 		label_ptr = fi->rep->representation;
 	}
@@ -187,7 +187,8 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		proto_item_fill_label(fi, label_str);
 	}
 
-	print_line(pdata->fh, pdata->level, pdata->format, label_ptr);
+	if (pdata->print_dissections != print_dissections_none)
+    	print_line(pdata->fh, pdata->level, pdata->format, label_ptr);
 
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */

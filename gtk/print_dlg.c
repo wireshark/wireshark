@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.63 2004/04/15 19:07:13 ulfl Exp $
+ * $Id: print_dlg.c,v 1.64 2004/04/15 19:56:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -332,7 +332,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   GtkWidget     *details_sep;
   GtkWidget     *format_fr, *format_vb;
   GtkWidget     *details_cb, *details_vb;
-  GtkWidget     *collapse_all_rb, *as_displayed_rb, *expand_all_rb,*hex_cb;
+  GtkWidget     *none_rb, *collapse_all_rb, *as_displayed_rb, *expand_all_rb,*hex_cb;
 
   GtkWidget     *bbox, *ok_bt, *cancel_bt;
 
@@ -631,20 +631,27 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(format_vb), details_vb);
   gtk_widget_show(details_vb);
 
-  /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
-  collapse_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "All dissections co_llapsed", accel_group);
+  /* "None"/"All collapsed"/"As displayed"/"All Expanded" radio buttons */
+  none_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_No dissections", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(none_rb), FALSE);
+  gtk_tooltips_set_tip (tooltips, none_rb, ("Don't print a packet details tree at all. "
+      "Use this together with the \"Packet hex data\" option, to get a plain packet hexdump."), NULL);
+  gtk_container_add(GTK_CONTAINER(details_vb), none_rb);
+  gtk_widget_show(none_rb);
+
+  collapse_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(none_rb, "All dissections co_llapsed", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(collapse_all_rb), FALSE);
   gtk_tooltips_set_tip (tooltips, collapse_all_rb, ("Print packet details tree \"collapsed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), collapse_all_rb);
   gtk_widget_show(collapse_all_rb);
 
-  as_displayed_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "Dissections as displa_yed", accel_group);
+  as_displayed_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(none_rb, "Dissections as displa_yed", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, as_displayed_rb, ("Print packet details tree \"as displayed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
 
-  expand_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "All dissections e_xpanded", accel_group);
+  expand_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(none_rb, "All dissections e_xpanded", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), FALSE);
   gtk_tooltips_set_tip (tooltips, expand_all_rb, ("Print packet details tree \"expanded\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), expand_all_rb);
@@ -682,6 +689,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(ok_bt, PRINT_FILE_TE_KEY, file_te);
   OBJECT_SET_DATA(ok_bt, PRINT_DETAILS_CB_KEY, details_cb);
   OBJECT_SET_DATA(ok_bt, PRINT_HEX_CB_KEY, hex_cb);
+  OBJECT_SET_DATA(ok_bt, PRINT_COLLAPSE_ALL_RB_KEY, collapse_all_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
   SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, print_w);
@@ -837,8 +845,12 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_HEX_CB_KEY);
   print_args.print_hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
-  print_args.print_dissections = print_dissections_collapsed;
+  print_args.print_dissections = print_dissections_none;
 
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_COLLAPSE_ALL_RB_KEY);
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {
+    print_args.print_dissections = print_dissections_collapsed;
+  }
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_AS_DISPLAYED_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {
     print_args.print_dissections = print_dissections_as_displayed;
