@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.697 2004/01/18 03:49:16 guy Exp $
+# $Id: Makefile.am,v 1.698 2004/01/19 22:26:37 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1052,7 +1052,7 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 # Build the version string
 #
 cvsversion.h:
-	$(PERL) make-version.pl
+	$(PERL) $(srcdir)/make-version.pl
 
 #
 # Build various header files for the X11 dissector.
