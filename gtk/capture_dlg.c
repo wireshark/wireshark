@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.15 2000/01/05 22:31:45 gerald Exp $
+ * $Id: capture_dlg.c,v 1.16 2000/01/06 05:09:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -342,14 +342,19 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   cf.iface = g_strdup(if_name);
   g_free(if_text);
 
+  /* XXX - don't try to get clever and set "cf.filter" to NULL if the
+     filter string is empty, as an indication that we don't have a filter
+     and thus don't have to set a filter when capturing - the version of
+     libpcap in Red Hat Linux 6.1, and versions based on later patches
+     in that series, don't bind the AF_PACKET socket to an interface
+     until a filter is set, which means they aren't bound at all if
+     no filter is set, which means no packets arrive as input on that
+     socket, which means Ethereal never sees any packets. */
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (cf.cfilter)
     g_free(cf.cfilter);
-  if (filter_text && filter_text[0]) {
-    cf.cfilter = g_strdup(filter_text); 
-  } else {
-    cf.cfilter = g_strdup(EMPTY_FILTER);
-  }
+  g_assert(filter_text != NULL);
+  cf.cfilter = g_strdup(filter_text); 
 
   save_file = gtk_entry_get_text(GTK_ENTRY(file_te));
   if (save_file && save_file[0]) {
