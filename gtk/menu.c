@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.190 2004/05/04 20:49:33 guy Exp $
+ * $Id: menu.c,v 1.191 2004/05/04 21:08:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -537,17 +537,17 @@ GList * tap_menu_item_add(
 	GList *curnode)
 {
     menu_item_t *curr;
-	menu_item_t *child;
+    menu_item_t *child;
 
 
-	child = g_malloc(sizeof (menu_item_t));
+    child = g_malloc(sizeof (menu_item_t));
     child->group            = group;
-	child->name             = name;
+    child->name             = name;
     child->callback         = callback;
-	child->selected_packet_enabled = selected_packet_enabled;
-	child->selected_tree_row_enabled = selected_tree_row_enabled;
+    child->selected_packet_enabled = selected_packet_enabled;
+    child->selected_tree_row_enabled = selected_tree_row_enabled;
     child->callback_data    = callback_data;
-	child->enabled          = FALSE;
+    child->enabled          = FALSE;
     child->children         = NULL;
 
     /* insert the new child node into the parent */
@@ -589,19 +589,19 @@ register_tap_menu_item(
     gboolean (*selected_tree_row_enabled)(field_info *),
     gpointer callback_data)
 {
-	/*static const char toolspath[] = "/Statistics/";*/
-	char *toolspath;
-	char *p;
-	char *menupath;
-	size_t menupathlen;
-	menu_item_t *child;
+    /*static const char toolspath[] = "/Statistics/";*/
+    char *toolspath;
+    char *p;
+    char *menupath;
+    size_t menupathlen;
+    menu_item_t *child;
     GList *curnode;
     GList *childnode;
 
     /*
      * The menu path must be relative.
      */
-	g_assert(*name != '/');
+    g_assert(*name != '/');
 
     switch(group) {
     case(REGISTER_TAP_GROUP_GENERIC): toolspath = "/Statistics/"; break;
@@ -1061,8 +1061,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 #if GTK_MAJOR_VERSION < 2
 	menu_item = gtk_menu_item_new_with_label("<Clear File List>");
 #else
-    menu_item = gtk_image_menu_item_new_from_stock
-                    (GTK_STOCK_CLEAR, NULL);
+        menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_CLEAR, NULL);
 #endif
 	gtk_menu_append (GTK_MENU(submenu_recent_files), menu_item);
 	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate", 
@@ -1099,13 +1098,13 @@ add_menu_recent_capture_file(gchar *cf_name) {
 /* write all capture filenames of the menu to the user's recent file */
 void
 menu_recent_file_write_all(FILE *rf) {
-	GtkWidget   *submenu_recent_files;
+    GtkWidget   *submenu_recent_files;
     GList       *children;
-	GList       *child;
-	gchar       *cf_name;
+    GList       *child;
+    gchar       *cf_name;
 
 
-	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
     /* we have to iterate backwards through the children's list,
      * so we get the latest item last in the file.
@@ -1113,16 +1112,16 @@ menu_recent_file_write_all(FILE *rf) {
     children = gtk_container_children(GTK_CONTAINER(submenu_recent_files));
     child = g_list_last(children);
     while(child != NULL) {
-	    /* get capture filename from the menu item label */
-	    cf_name = OBJECT_GET_DATA(child->data, MENU_RECENT_FILES_KEY);
-	    if (cf_name) {
-	        fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
-	    }
+        /* get capture filename from the menu item label */
+        cf_name = OBJECT_GET_DATA(child->data, MENU_RECENT_FILES_KEY);
+        if (cf_name) {
+            fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
+        }
 
         child = g_list_previous(child);
     }
 
-	g_list_free(children);
+    g_list_free(children);
 }
 
 
@@ -1133,7 +1132,7 @@ main_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
     /* save current setting in recent */
     recent.main_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
 
-    main_widgets_rearrange();
+    main_widgets_show_or_hide();
 }
 
 
@@ -1144,7 +1143,7 @@ filter_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
     /* save current setting in recent */
     recent.filter_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
 
-    main_widgets_rearrange();
+    main_widgets_show_or_hide();
 }
 
 
@@ -1188,7 +1187,7 @@ statusbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
     /* save current setting in recent */
     recent.statusbar_show = GTK_CHECK_MENU_ITEM(w)->active;
 
-    main_widgets_rearrange();
+    main_widgets_show_or_hide();
 }
 
 
@@ -1475,7 +1474,7 @@ walk_menu_tree_for_captured_packets(GList *node,
 {
 	gboolean    is_enabled;
 	GList       *child;
-    menu_item_t *node_data = node->data;
+	menu_item_t *node_data = node->data;
 
 	/*
 	 * Is this a leaf node or an interior node?
@@ -1585,7 +1584,7 @@ walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
 {
 	gboolean is_enabled;
 	GList *child;
-    menu_item_t *node_data = node->data;
+	menu_item_t *node_data = node->data;
 
 	/*
 	 * Is this a leaf node or an interior node?
@@ -1689,7 +1688,7 @@ walk_menu_tree_for_selected_tree_row(GList *node, field_info *fi)
 {
 	gboolean is_enabled;
 	GList *child;
-    menu_item_t *node_data = node->data;
+	menu_item_t *node_data = node->data;
 
 	/*
 	 * Is this a leaf node or an interior node?

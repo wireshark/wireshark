@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.430 2004/05/04 20:49:33 guy Exp $
+ * $Id: main.c,v 1.431 2004/05/04 21:08:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3554,7 +3554,6 @@ GtkWidget *main_widget_layout(gint layout_content)
  */
 void main_widgets_rearrange(void) {
     GtkWidget *pane_content[3];
-    gboolean filter_toolbar_show_in_statusbar = prefs.filter_toolbar_show_in_statusbar;
 
     /* be a bit faster */
     gtk_widget_hide(main_vbox);
@@ -3589,12 +3588,10 @@ void main_widgets_rearrange(void) {
     gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
 
     /* main toolbar */
-    if (recent.main_toolbar_show) {
-        gtk_box_pack_start(GTK_BOX(main_vbox), main_tb, FALSE, TRUE, 0);
-    }
+    gtk_box_pack_start(GTK_BOX(main_vbox), main_tb, FALSE, TRUE, 0);
 
     /* filter toolbar in toolbar area */
-    if (recent.filter_toolbar_show && !filter_toolbar_show_in_statusbar) {
+    if (!prefs.filter_toolbar_show_in_statusbar) {
         gtk_box_pack_start(GTK_BOX(main_vbox), filter_tb, FALSE, TRUE, 1);
     }
 
@@ -3659,26 +3656,21 @@ void main_widgets_rearrange(void) {
 
     gtk_container_add(GTK_CONTAINER(main_vbox), main_first_pane);
 
-    /* hide widgets on users recent settings */
-    /* XXX - do we still need this? */
-    main_widgets_show_or_hide();
-
     /* statusbar hbox */
-    if ((recent.filter_toolbar_show && filter_toolbar_show_in_statusbar) || recent.statusbar_show) {
-        gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
-    }
+    gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
 
     /* filter toolbar in statusbar hbox */
-    if (recent.filter_toolbar_show && filter_toolbar_show_in_statusbar) {
+    if (prefs.filter_toolbar_show_in_statusbar) {
         gtk_box_pack_start(GTK_BOX(stat_hbox), filter_tb, FALSE, TRUE, 1);
     }
 
     /* statusbar */
-    if (recent.statusbar_show) {
-        gtk_box_pack_start(GTK_BOX(stat_hbox), status_pane, TRUE, TRUE, 0);
-        gtk_paned_pack1(GTK_PANED(status_pane), info_bar, FALSE, FALSE);
-        gtk_paned_pack2(GTK_PANED(status_pane), packets_bar, FALSE, FALSE);
-    }
+    gtk_box_pack_start(GTK_BOX(stat_hbox), status_pane, TRUE, TRUE, 0);
+    gtk_paned_pack1(GTK_PANED(status_pane), info_bar, FALSE, FALSE);
+    gtk_paned_pack2(GTK_PANED(status_pane), packets_bar, FALSE, FALSE);
+
+    /* hide widgets on users recent settings */
+    main_widgets_show_or_hide();
 
     gtk_widget_show(main_vbox);
 }
@@ -3698,6 +3690,41 @@ void
 main_widgets_show_or_hide(void)
 {
     gboolean main_second_pane_show;
+
+    if (recent.main_toolbar_show) {
+        gtk_widget_show(main_tb);
+    } else {
+        gtk_widget_hide(main_tb);
+    }
+
+    /*
+     * Show the status hbox if either:
+     *
+     *    1) we're showing the filter toolbar and we want it in the status
+     *       line
+     *
+     * or
+     *
+     *    2) we're showing the status bar.
+     */
+    if ((recent.filter_toolbar_show && prefs.filter_toolbar_show_in_statusbar) ||
+         recent.statusbar_show) {
+        gtk_widget_show(stat_hbox);
+    } else {
+        gtk_widget_hide(stat_hbox);
+    }
+
+    if (recent.statusbar_show) {
+        gtk_widget_show(status_pane);
+    } else {
+        gtk_widget_hide(status_pane);
+    }
+
+    if (recent.filter_toolbar_show) {
+        gtk_widget_show(filter_tb);
+    } else {
+        gtk_widget_hide(filter_tb);
+    }
 
     if (recent.packet_list_show) {
         gtk_widget_show(pkt_scrollw);
