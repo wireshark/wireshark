@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8823 OSI Presentation Protocol packets
 *
-* $Id: packet-pres.c,v 1.1 2004/01/13 02:10:25 guy Exp $
+* $Id: packet-pres.c,v 1.2 2004/01/23 09:53:18 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -228,24 +228,22 @@ call_acse_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 			proto_tree_add_text(param_tree, tvb, offset, param_len,
 			    "No ACSE dissector available");
 		}
-		else
-		{
-			/* Yes - call app dissector */
-			tvbuff_t *next_tvb;
+	}
+	else
+	{
+		/* Yes - call app dissector */
+		tvbuff_t *next_tvb;
 
-			next_tvb = tvb_new_subset(tvb, offset, param_len,
-			    param_len);
-			TRY
-			{
-				call_dissector(acse_handle, next_tvb, pinfo,
-				    tree);
-			}
-			CATCH_ALL
-			{
-				show_exception(tvb, pinfo, tree, EXCEPT_CODE);
-			}
-			ENDTRY;
+		next_tvb = tvb_new_subset(tvb, offset, param_len, param_len);
+		TRY
+		{
+			call_dissector(acse_handle, next_tvb, pinfo, tree);
 		}
+		CATCH_ALL
+		{
+			show_exception(tvb, pinfo, tree, EXCEPT_CODE);
+		}
+		ENDTRY;
 	}
 }
 static char*
@@ -743,8 +741,6 @@ new_item_len+(asn->offset-*offset)+1,
 				{
 			case PRESENTATION_CONTEXT_IDENTIFIER:
 				{
-				/*   if Presentation context identifier = 3 we have  ACSE  data */
-				/*  this data we have to send to ACSE dissector      */
 				acse	=	get_integer_value(asn,new_item_len,offset);
 				print_value(asn,pres_tree_ms,tvb,offset,new_item_len);
 				}
@@ -752,13 +748,13 @@ new_item_len+(asn->offset-*offset)+1,
 			case OCTET_ALIGNED:
 				break;
 			case SINGLE_ASN1_TYPE:
-				if( acse == ACSE_PRESENTATION_CONTEXT_IDENTIFIER )
+
 				{
 						proto_item *acse_ms;
 					/*  yes, we have to call ACSE dissector    */
 				acse_ms = proto_tree_add_text(pres_tree_ms, tvb, *offset, 
 new_item_len+(asn->offset-*offset),
-										"Acse data");
+										"User data");
 					/*  call acse dissector  */
 				call_acse_dissector(tvb,*offset,new_item_len,global_pinfo,global_tree,pres_tree_ms);
 				acse = 0;
