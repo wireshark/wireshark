@@ -39,7 +39,7 @@
 #include "packet-isis.h"
 #include "packet-esis.h"
 #include "nlpid.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 
 /* protocols and fields */
 

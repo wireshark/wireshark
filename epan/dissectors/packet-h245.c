@@ -41,7 +41,7 @@
 #include <epan/prefs.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
-#include "t35.h"
+#include <epan/t35.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 

@@ -36,8 +36,8 @@
 #endif
 
 #include <epan/packet.h>
-#include "ipproto.h"
-#include "afn.h"
+#include <epan/ipproto.h>
+#include <epan/afn.h>
 #include "packet-ipv6.h"
 #include <epan/in_cksum.h>
 

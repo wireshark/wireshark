@@ -30,7 +30,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 
 static int proto_etherip = -1;
 static int hf_etherip_ver = -1;

@@ -35,7 +35,7 @@
 #include "packet-vines.h"
 #include "etypes.h"
 #include "ppptypes.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "arcnet_pids.h"
 #include "llcsaps.h"
 

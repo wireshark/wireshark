@@ -60,7 +60,7 @@
 #include "packet-bgp.h"
 #include "packet-ipv6.h"
 #include "packet-frame.h"
-#include "afn.h"
+#include <epan/afn.h>
 #include <epan/prefs.h>
 
 static const value_string bgptypevals[] = {

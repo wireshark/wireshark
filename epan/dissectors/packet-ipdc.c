@@ -45,7 +45,7 @@
 #include "packet-ipdc.h"
 #include "packet-tcp.h"
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include <epan/prefs.h>
 
 static int proto_ipdc = -1;

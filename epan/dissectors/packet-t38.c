@@ -55,7 +55,7 @@
 #include <string.h>
 
 #include <epan/prefs.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "packet-per.h"
 #include <epan/prefs.h>
 #include "packet-tpkt.h"

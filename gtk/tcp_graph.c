@@ -33,7 +33,7 @@
 #include <math.h>		/* rint() */
 #include <string.h>
 
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "globals.h" 		/* cfile */
 #include <epan/packet.h>	/* frame_data */
 #include "gtkglobals.h"		/* packet_list */

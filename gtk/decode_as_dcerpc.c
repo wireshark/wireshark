@@ -33,7 +33,7 @@
 #include "globals.h"
 #include "simple_dialog.h"
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "ui_util.h"
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"

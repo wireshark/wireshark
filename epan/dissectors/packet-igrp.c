@@ -36,7 +36,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 
 #define IGRP_HEADER_LENGTH 12
 #define IGRP_ENTRY_LENGTH 14

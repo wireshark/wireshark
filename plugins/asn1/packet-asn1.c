@@ -92,7 +92,7 @@
 #include <gtk/gtk.h>
 #endif
 
-#include <ipproto.h>
+#include <epan/ipproto.h>
 
 /* Define version if we are not building ethereal statically */
 

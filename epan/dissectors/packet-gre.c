@@ -33,7 +33,7 @@
 #include <epan/in_cksum.h>
 #include "etypes.h"
 #include "greproto.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "llcsaps.h"
 
 /*

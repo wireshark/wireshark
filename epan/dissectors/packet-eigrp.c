@@ -33,7 +33,7 @@
 
 #include <epan/atalk-utils.h>
 #include <epan/addr_and_mask.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "packet-ipx.h"
 
 /*

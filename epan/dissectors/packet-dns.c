@@ -37,7 +37,7 @@
 #include <glib.h>
 #include <epan/ipv6-utils.h>
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include "packet-dns.h"
 #include "packet-tcp.h"

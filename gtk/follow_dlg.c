@@ -62,7 +62,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 #include "compat_macros.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "tap_menu.h"
 #include "print_mswin.h"
 #include "font_utils.h"

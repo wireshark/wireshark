@@ -26,7 +26,6 @@
 # Header files for dissector helpers
 # XXX - these should be moved to epan/dissectors
 DISSECTOR_SUPPORT_INCLUDES =	\
-	afn.h	\
 	aftypes.h	\
 	arcnet_pids.h	\
 	asn1.h	\
@@ -40,7 +39,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	h225-persistentdata.h	\
 	iax2_codec_type.h	\
 	ip_opts.h	\
-	ipproto.h	\
 	isprint.h	\
 	lapd_sapi.h	\
 	llcsaps.h	\
@@ -54,7 +52,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	rtp_pt.h	\
 	sctpppids.h	\
 	smb.h	\
-	t35.h	\
 	x264_prt_id.h	\
 	xmlstub.h
 

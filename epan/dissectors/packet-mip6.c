@@ -30,7 +30,7 @@
 
 #include <epan/packet.h>
 
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "ip_opts.h"
 #include "packet-mip6.h"
 

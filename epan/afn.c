@@ -27,7 +27,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "afn.h"
+#include <epan/afn.h>
 
 const value_string afn_vals[] = {
     { 0, "Reserved" },

@@ -44,7 +44,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include "packet-rsvp.h"
 

@@ -50,7 +50,7 @@
 #include "packet-dns.h"
 #include <epan/in_cksum.h>
 #include <epan/addr_resolv.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))

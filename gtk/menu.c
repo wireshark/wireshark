@@ -38,6 +38,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/timestamp.h>
+#include <epan/ipproto.h>
 
 #include "about_dlg.h"
 #include "capture_dlg.h"
@@ -65,7 +66,6 @@
 #include "gtkglobals.h"
 #include "register.h"
 #include "../menu.h"
-#include "../ipproto.h"
 #include "packet_list.h"
 #include "ethclist.h"
 #include "recent.h"

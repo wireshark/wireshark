@@ -69,7 +69,7 @@
 #include <epan/prefs.h>
 #include "packet-ppp.h"
 #include "ppptypes.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 
 /* Define relevant IP/TCP parameters */

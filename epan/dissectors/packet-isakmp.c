@@ -40,7 +40,7 @@
 
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include <epan/dissectors/packet-x509if.h>
 
 #define isakmp_min(a, b)  ((a<b) ? a : b)

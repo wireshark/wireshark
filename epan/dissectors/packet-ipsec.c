@@ -33,7 +33,7 @@
 #include <epan/packet.h>
 #include "packet-ipsec.h"
 #include <epan/addr_resolv.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include <epan/prefs.h>
 
 /* Place AH payload in sub tree */

@@ -37,7 +37,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 
 static int proto_cphap = -1;
 

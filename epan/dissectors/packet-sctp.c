@@ -49,7 +49,7 @@
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "packet-sctp.h"
 #include "sctpppids.h"
 

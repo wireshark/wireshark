@@ -35,7 +35,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 
 static int proto_ipvs_syncd = -1;

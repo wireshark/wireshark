@@ -71,7 +71,7 @@
 #include <prefs.h>
 #include <epan/in_cksum.h>
 #include "etypes.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 
 #include "packet-rsvp.h"
 #include "packet-ip.h"

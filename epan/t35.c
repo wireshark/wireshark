@@ -23,7 +23,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "t35.h"
+#include <epan/t35.h>
 
 /* Recommendation T.35 (02/2000) */
 /* Annex to ITU Operational Bulletin No. 766 - 15.VI.2002 */

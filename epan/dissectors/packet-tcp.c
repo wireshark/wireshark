@@ -33,7 +33,7 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "ip_opts.h"
 #include "follow.h"
 #include <epan/prefs.h>

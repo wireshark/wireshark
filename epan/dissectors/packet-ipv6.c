@@ -38,7 +38,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include "reassemble.h"
-#include "ipproto.h"
+#include <epan/ipproto.h>
 #include "etypes.h"
 #include "ppptypes.h"
 #include "aftypes.h"
