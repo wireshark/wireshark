@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.87 2003/02/27 03:56:48 guy Exp $
+ * $Id: packet.c,v 1.88 2003/03/01 09:38:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -267,11 +267,23 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.pseudo_header = pseudo_header;
 	edt->pi.data_src = NULL;
 	edt->pi.dl_src.type = AT_NONE;
+	edt->pi.dl_src.len = 0;
+	edt->pi.dl_src.data = NULL;
 	edt->pi.dl_dst.type = AT_NONE;
+	edt->pi.dl_dst.len = 0;
+	edt->pi.dl_dst.data = NULL;
 	edt->pi.net_src.type = AT_NONE;
+	edt->pi.net_src.len = 0;
+	edt->pi.net_src.data = NULL;
 	edt->pi.net_dst.type = AT_NONE;
+	edt->pi.net_dst.len = 0;
+	edt->pi.net_dst.data = NULL;
 	edt->pi.src.type = AT_NONE;
+	edt->pi.src.len = 0;
+	edt->pi.src.data = NULL;
 	edt->pi.dst.type = AT_NONE;
+	edt->pi.dst.len = 0;
+	edt->pi.dst.data = NULL;
 	edt->pi.ethertype = 0;
 	edt->pi.ipproto  = 0;
 	edt->pi.ipxptype = 0;
