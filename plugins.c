@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.9 2000/02/07 17:07:44 gram Exp $
+ * $Id: plugins.c,v 1.10 2000/02/09 19:37:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -361,7 +361,7 @@ plugins_scan_dir(const char *dirname)
 #ifdef WIN32
 #define LT_LIB_EXT ".dll"
 #else
-#define LT_LIB_EXT ".la"
+#define LT_LIB_EXT ".so"
 #endif
 
     if (!plugin_status_file)
