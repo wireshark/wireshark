@@ -65,6 +65,9 @@ static int hf_nsip_ericsson_rp = -1;
 
 static int nsip_udp_port1 = NSIP_UDP_PORT1;
 static int nsip_udp_port2 = NSIP_UDP_PORT2;
+static int global_nsip_udp_port1 = NSIP_UDP_PORT1;
+static int global_nsip_udp_port2 = NSIP_UDP_PORT2;
+
 void proto_reg_handoff_nsip(void);
 
 /* Initialize the protocol and registered fields */
@@ -1277,9 +1280,11 @@ proto_reg_handoff_nsip(void) {
     dissector_delete("udp.port", nsip_udp_port1, nsip_handle);
     dissector_delete("udp.port", nsip_udp_port2, nsip_handle);
   }
+  global_nsip_udp_port1 = nsip_udp_port1;
+  global_nsip_udp_port2 = nsip_udp_port2;
 
-  dissector_add("udp.port", nsip_udp_port1, nsip_handle);
-  dissector_add("udp.port", nsip_udp_port2, nsip_handle);
+  dissector_add("udp.port", global_nsip_udp_port1, nsip_handle);
+  dissector_add("udp.port", global_nsip_udp_port2, nsip_handle);
   
   bssgp_handle = find_dissector("bssgp");
 }
