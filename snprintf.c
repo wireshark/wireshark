@@ -1,5 +1,5 @@
 /*
- * $Id: snprintf.c,v 1.12 2000/11/21 21:24:52 guy Exp $
+ * $Id: snprintf.c,v 1.13 2001/07/12 07:06:25 guy Exp $
  */
 
 /*
@@ -48,6 +48,7 @@
 #endif
 
 #include <stdlib.h>	/* for atoi and for size_t */
+#include <string.h>
 #include <ctype.h>
 
 #include "snprintf.h"

@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.25 2001/06/18 02:17:49 guy Exp $
+ * $Id: packet-mount.c,v 1.26 2001/07/12 07:06:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #endif
 
+#include <string.h>
 
 #include "packet-rpc.h"
 #include "packet-mount.h"
