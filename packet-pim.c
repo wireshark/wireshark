@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.23 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-pim.c,v 1.24 2001/02/08 08:38:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 #include "packet.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
+#include "in_cksum.h"
 
 #define PIM_TYPE(x)	((x) & 0x0f)
 #define PIM_VER(x)	(((x) & 0xf0) >> 4)
@@ -188,7 +189,9 @@ static void
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
     guint8 pim_typever;
-    guint16 pim_cksum;
+    guint length, pim_length;
+    guint16 pim_cksum, computed_cksum;
+    vec_t cksum_vec[1];
     static const value_string type1vals[] = {
 	{ 0, "Query" },
 	{ 1, "Register" },
@@ -256,21 +259,54 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    PIM_TYPE(pim_typever),
 	    "Type: %s (%u)", typestr, PIM_TYPE(pim_typever)); 
 
-	/*
-	 * XXX - RFC 2362 says that this is "the 16-bit one's complement
-	 * of the one's complement sum of the entire PIM message,
-	 * (excluding the data portion in the Register message).  For
-	 * computing the checksum, the checksum field is zeroed."
-	 *
-	 * As I read that, it translates as "this is the IP checksum
-	 * of everything in the PIM packet except for the data portion
-	 * in the Register message" - but, in at least one IPv6
-	 * capture, that doesn't appear to be the case; perhaps it's
-	 * different for PIM-over-IPv6.
-	 */
 	pim_cksum = tvb_get_ntohs(tvb, offset + 2);
-	proto_tree_add_uint(pim_tree, hf_pim_cksum, tvb,
-	    offset + 2, 2, pim_cksum);
+	length = tvb_length(tvb);
+	if (PIM_VER(pim_typever) == 2) {
+	    /*
+	     * Well, it's PIM v2, so we can check whether this is a Register
+	     * mesage, and thus can figure out how much to checksum.
+	     */
+	    if (PIM_TYPE(pim_typever) == 1) {
+		/*
+		 * Register message - the PIM header is 8 bytes long.
+		 */
+		pim_length = 8;
+	    } else {
+		/*
+		 * Other message - checksum the entire packet.
+		 */
+		pim_length = tvb_reported_length(tvb);
+	    }
+	} else {
+	    /*
+	     * We don't know what type of message this is, so say that
+	     * the length is 0, to force it not to be checksummed.
+	     */
+	    pim_length = 0;
+	}
+	if (!pinfo->fragmented && length >= pim_length) {
+	    /*
+	     * The packet isn't part of a fragmented datagram and isn't
+	     * truncated, so we can checksum it.
+	     */
+	    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, pim_length);
+	    cksum_vec[0].len = pim_length;
+	    computed_cksum = in_cksum(&cksum_vec[0], 1);
+	    if (computed_cksum == 0) {
+		proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
+			offset + 2, 2, pim_cksum,
+			"Checksum: 0x%04x (correct)",
+			pim_cksum);
+	    } else {
+		proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
+			offset + 2, 2, pim_cksum,
+			"Checksum: 0x%04x (incorrect, should be 0x%04x)",
+			pim_cksum, in_cksum_shouldbe(pim_cksum, computed_cksum));
+	    }
+	} else {
+	    proto_tree_add_uint(pim_tree, hf_pim_cksum, tvb,
+		offset + 2, 2, pim_cksum);
+	}
 
 	offset += 4;
 
