@@ -1,7 +1,18 @@
-# $Id: config.nmake,v 1.41 2003/06/12 09:45:42 guy Exp $
+# $Id: config.nmake,v 1.42 2003/06/13 22:43:37 guy Exp $
 
 VERSION=0.9.13
-RC_VERSION=0.9.13
+#
+# This should be comma-separated, not dot-separated, as per Graham
+# Bloice's message in
+#
+#	http://www.ethereal.com/lists/ethereal-dev/200303/msg00283.html
+#
+# "The RC_VERSION variable in config.nmake should be comma separated. 
+# This allows the resources to be built correctly and the version
+# number to be correctly displayed in the explorer properties dialog
+# for the executables, and XP's tooltip, rather than 0.0.0.0."
+#
+RC_VERSION=0,9,13
 WTAP_VERSION=0.0
 
 GTK_VERSION=1.3
