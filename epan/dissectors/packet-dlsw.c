@@ -266,6 +266,10 @@ dissect_dlsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      proto_tree_add_text (dlsw_header_tree,tvb, 39,3,"Reserved") ;
      dlchlen=tvb_get_ntohs(tvb,42);
      proto_tree_add_text (dlsw_header_tree,tvb, 42,2,"DLC Header Length = %d",dlchlen) ;
+	 if ( dlchlen > mlen ){
+		proto_tree_add_text (dlsw_header_tree,tvb, 42,2,"dlchlen > mlen, corrupt packet or not a dlsw packet");
+		return;
+	 }
      proto_tree_add_text (dlsw_header_tree,tvb, 44,4,"Origin DLC Port ID     = %u",tvb_get_ntohl(tvb,44)) ;
      proto_tree_add_text (dlsw_header_tree,tvb, 48,4,"Origin DLC             = %u",tvb_get_ntohl(tvb,48)) ;
      proto_tree_add_text (dlsw_header_tree,tvb, 52,4,"Origin Transport ID    = %u",tvb_get_ntohl(tvb,52)) ;
