@@ -389,6 +389,10 @@ Per Flock <per.flock@axis.com> {
 	RFC 2673 bitstring label support
 }
 
+Jack Keane <jkeane@OpenReach.com> {
+	ISAKMP fixes to handle malformed packets
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.28 2000/10/03 22:49:37 guy Exp $
+ * $Id: packet-isakmp.c,v 1.29 2000/10/07 06:58:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -552,6 +552,7 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd,
 
   struct trans_hdr *	hdr	= (struct trans_hdr *)(pd + offset);
   guint16		length	= pntohs(&hdr->length);
+  int                   slength = length;
   proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Transform payload");
   proto_tree *		ntree;
 
@@ -590,8 +591,8 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd,
   }
   offset += sizeof(hdr->transform_id) + sizeof(hdr->reserved2);
   
-  length -= sizeof(*hdr);
-  while (length) {
+  slength -= sizeof(*hdr);
+  while (slength>0) {
     const char *str = NULL;
     int ike_phase1 = 0;
     guint16 type    = pntohs(pd + offset) & 0x7fff;
@@ -611,7 +612,7 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd,
 			  str, type,
 			  value2str(ike_phase1, type, val_len), val_len);
       offset += 4;
-      length -= 4;
+      slength -= 4;
     }
     else {
       guint16	pack_len = 4 + val_len;
@@ -621,7 +622,7 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd,
 			  str, type,
 			  num2str(pd + offset + 4, val_len));
       offset += pack_len;
-      length -= pack_len;
+      slength -= pack_len;
     }
     if (!IS_DATA_IN_FRAME(offset)) {
 	    proto_tree_add_text(ntree, NullTVB, 0, 0,
@@ -940,7 +941,7 @@ dissect_notif(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     offset += hdr->spi_size;
   }
 
-  if (length - sizeof(*hdr)) {
+  if (((int)length - sizeof(*hdr)) > 0) {
     proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr) - hdr->spi_size,
 			"Notification Data");
     offset += (length - sizeof(*hdr) - hdr->spi_size);
@@ -1048,6 +1049,7 @@ dissect_config(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   struct cfg_hdr * 	hdr	 = (struct cfg_hdr *)(pd + offset);
   guint16		length	 = pntohs(&hdr->length);
+  int                   slength  = length;
   proto_item *		ti	 = proto_tree_add_text(tree, NullTVB, offset, length, "Attribute payload");
   proto_tree *		ntree;
 
@@ -1070,9 +1072,9 @@ dissect_config(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->identifier),
                       "Identifier: %u", pntohs(&hdr->identifier));
   offset += sizeof(hdr->identifier);
-  length -= sizeof(*hdr);
+  slength -= sizeof(*hdr);
   
-  while(length) {
+  while(slength>0) {
     guint16 type = pntohs(pd + offset) & 0x7fff;
     guint16 val_len = pntohs(pd + offset + 2);
     
@@ -1080,7 +1082,7 @@ dissect_config(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       proto_tree_add_text(ntree, NullTVB, offset, 4,
 			  "%s (%u)",cfgattrident2str(type),val_len);
       offset += 4;
-      length -= 4;
+      slength -= 4;
     }
     else {
       guint pack_len = 4 + val_len;
@@ -1088,7 +1090,7 @@ dissect_config(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       proto_tree_add_text(ntree, NullTVB, offset, 4,
 			  "%s (%se)", cfgattrident2str(type), num2str(pd + offset + 4, val_len));
       offset += pack_len;
-      length -= pack_len;
+      slength -= pack_len;
     }
   }
 
