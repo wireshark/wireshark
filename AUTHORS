@@ -464,6 +464,7 @@ Kevin Shi <techishi@ms22.hinet.net> {
 
 Mike Frisch <mfrisch@saturn.tlug.org> {
 	NFSv4 support
+	HCLNFSD support
 }
 
 Burke Lau <burke_lau@agilent.com> {
