@@ -7,7 +7,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h245.c,v 1.42 2003/11/22 11:12:19 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.43 2004/01/09 00:56:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -14376,7 +14376,7 @@ dissect_h245_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 		conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
 		if(!conv){
-			conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
 			conversation_set_dissector(conv, rtp_handle);
 		}
 	}
@@ -14400,7 +14400,7 @@ dissect_h245_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 		conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
 		if(!conv){
-			conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
 			conversation_set_dissector(conv, rtcp_handle);
 		}
 	}

@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.41 2002/11/01 00:48:38 sahlberg Exp $
+ * $Id: packet-portmap.c,v 1.42 2004/01/09 00:56:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -125,7 +125,7 @@ dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				conversation_t *conv;
 				conv=find_conversation(&pinfo->src, &pinfo->dst, (port_type)rpc_call->private_data, port, 0, NO_ADDR_B|NO_PORT_B);
 				if(!conv){
-					conv=conversation_new(&pinfo->src, &pinfo->dst, (port_type)rpc_call->private_data, port, 0, NO_ADDR_B|NO_PORT_B);
+					conv=conversation_new(&pinfo->src, &pinfo->dst, (port_type)rpc_call->private_data, port, 0, NO_ADDR2|NO_PORT2);
 				}
 				conversation_set_dissector(conv, rpc_handle);
 			}

@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.26 2003/12/15 04:23:54 guy Exp $
+ * $Id: packet-h225.c,v 1.27 2004/01/09 00:56:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2760,7 +2760,7 @@ dissect_h225_h245Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 		conv=find_conversation(&src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
 		if(!conv){
-			conv=conversation_new(&src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			conv=conversation_new(&src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
 			conversation_set_dissector(conv, h245_handle);
 		}
 	}
