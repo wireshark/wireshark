@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.17 2001/07/20 09:10:16 guy Exp $
+ * $Id: packet-wtp.c,v 1.18 2001/09/10 21:54:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,7 +100,7 @@ static const value_string vals_pdu_type[] = {
 	{ 0, NULL }
 };
 
-static const value_string vals_transmission_trailer[] = {
+static const value_string vals_transaction_trailer[] = {
 	{ 0, "Not last packet" },
 	{ 1, "Last packet of message" },
 	{ 2, "Last packet of group" },
@@ -133,6 +133,13 @@ static const value_string vals_abort_reason_provider[] = {
 	{ 0x07, "Capacity Temporarily Exceeded" },
 	{ 0x08, "No Response" },
 	{ 0x09, "Message Too Large" },
+	{ 0x00, NULL }
+};
+
+static const value_string vals_transaction_classes[] = {
+	{ 0x00, "Unreliable Invoke without Result" },
+	{ 0x01, "Reliable Invoke without Result" },
+	{ 0x02, "Reliable Invoke with Reliable Result" },
 	{ 0x00, NULL }
 };
 
@@ -516,8 +523,8 @@ proto_register_wtp(void)
 		{ &hf_wtp_header_flag_Trailer,
 			{ 	"Trailer Flags",           
 				"wtp.trailer_flags",
-				 FT_UINT8, BASE_HEX, VALS( vals_transmission_trailer ), 0x06,
-				"PDU Type", HFILL
+				 FT_UINT8, BASE_HEX, VALS( vals_transaction_trailer ), 0x06,
+				"Trailer Flags", HFILL
 			}
 		},
 		{ &hf_wtp_header_flag_RID,
@@ -535,10 +542,10 @@ proto_register_wtp(void)
 			}
 		},
 		{ &hf_wtp_header_flag_TID,
-			{ 	"Transmission ID",           
+			{ 	"Transaction ID",           
 				"wtp.TID",
 				 FT_UINT16, BASE_HEX, NULL, 0x7FFF,
-				"Transmission ID", HFILL
+				"Transaction ID", HFILL
 			}
 		},
 		{ &hf_wtp_header_Inv_version,
@@ -572,7 +579,7 @@ proto_register_wtp(void)
 		{ &hf_wtp_header_Inv_TransactionClass,
 			{ 	"Transaction Class",           
 				"wtp.inv.transaction_class",
-				 FT_UINT8, BASE_HEX, NULL, 0x03,
+				 FT_UINT8, BASE_HEX, VALS( vals_transaction_classes ), 0x03,
 				"Transaction Class", HFILL
 			}
 		},

@@ -625,7 +625,7 @@ Inoue <inoue[AT]ainet.or.jp> {
 }
 
 Olivier Biot <Olivier.Biot[AT]siemens.atea.be> {
-	Fix to WTP retransmission indicator dissection
+	Various WTP fixes and enhancements
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
