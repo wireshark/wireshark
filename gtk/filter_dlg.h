@@ -1,7 +1,5 @@
-/* filter_prefs.h
+/* filter_dlg.h
  * Definitions for dialog boxes for filter editing
- * (This used to be a notebook page under "Preferences", hence the
- * "prefs" in the file name.)
  *
  * $Id$
  *
