@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.22 2001/04/19 23:06:22 guy Exp $
+ * $Id: proto.c,v 1.23 2001/04/19 23:21:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2202,7 +2202,6 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 
 	switch(hfinfo->display) {
 		case BASE_DEC:
-		case BASE_NONE:
 		case BASE_BIN: /* I'm lazy */
 			format = "%s: %s (%u)";
 			break;
@@ -2243,7 +2242,6 @@ hfinfo_uint_format(header_field_info *hfinfo)
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
 		case BASE_DEC:
-		case BASE_NONE:
 		case BASE_BIN: /* I'm lazy */
 			format = "%s: %u";
 			break;
@@ -2283,7 +2281,6 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 
 	switch(hfinfo->display) {
 		case BASE_DEC:
-		case BASE_NONE:
 		case BASE_BIN: /* I'm lazy */
 			format = "%s: %s (%d)";
 			break;
@@ -2324,7 +2321,6 @@ hfinfo_int_format(header_field_info *hfinfo)
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
 		case BASE_DEC:
-		case BASE_NONE:
 		case BASE_BIN: /* I'm lazy */
 			format = "%s: %d";
 			break;
@@ -2767,7 +2763,6 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
 		case BASE_DEC:
-		case BASE_NONE:
 		case BASE_OCT: /* I'm lazy */
 		case BASE_BIN: /* I'm lazy */
 			switch(hfinfo->type) {
