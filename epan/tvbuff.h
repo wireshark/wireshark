@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.22 2002/02/18 01:08:42 guy Exp $
+ * $Id: tvbuff.h,v 1.23 2002/03/06 19:17:06 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -308,6 +308,13 @@ extern guint8 * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
  * Returns length of string (not including terminating NUL), or -1 if the string was
  * truncated in the buffer due to not having reached the terminating NUL.
  * In this way, it acts like snprintf().
+ *
+ * When processing a packet where the remaining number of bytes is less
+ * than maxlength, an exception is not thrown if the end of the packet
+ * is reached before the NUL is found. If no NUL is found before reaching
+ * the end of the short packet, -1 is still returned, and the string
+ * is truncated with a NUL, albeit not at buffer[maxlength], but
+ * at the correct spot, terminating the string.
  */
 extern gint tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength,
     guint8* buffer);

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.30 2002/02/18 01:08:42 guy Exp $
+ * $Id: tvbuff.c,v 1.31 2002/03/06 19:17:05 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1324,13 +1324,25 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
  * Returns length of string (not including terminating NUL), or -1 if the string was
  * truncated in the buffer due to not having reached the terminating NUL.
  * In this way, it acts like snprintf().
+ *
+ * When processing a packet where the remaining number of bytes is less
+ * than maxlength, an exception is not thrown if the end of the packet
+ * is reached before the NUL is found. If no NUL is found before reaching
+ * the end of the short packet, -1 is still returned, and the string
+ * is truncated with a NUL, albeit not at buffer[maxlength], but
+ * at the correct spot, terminating the string.
+ *
+ * *bytes_copied will contain the number of bytes actually copied,
+ * including the terminating-NUL.
  */
 gint
-tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
+_tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer,
+		gint *bytes_copied)
 {
 	gint	stringlen;
 	guint	abs_offset, junk_length;
 	gint	limit, len;
+	gboolean decreased_max = FALSE;
 
 	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
 
@@ -1339,32 +1351,69 @@ tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
 		return 0;
 	}
 
-	/* Only copy to end of tvbuff, w/o throwing exception. */
+	/* Only read to end of tvbuff, w/o throwing exception. */
 	len = tvb_length_remaining(tvb, abs_offset);
 
-    /* This should not happen because check_offset_length() would
-     * have already thrown an exception if 'offset' were out-of-bounds.
-     */
-    g_assert(len != -1);
+	/* check_offset_length() won't throw an exception if we're
+	 * looking at the byte immediately after the end of the tvbuff. */
+	if (len == 0) {
+		THROW(ReportedBoundsError);
+	}
 
-    if ((guint)len < maxlength) {
-		limit = maxlength - (tvb_length(tvb) - abs_offset);
+	/* This should not happen because check_offset_length() would
+	* have already thrown an exception if 'offset' were out-of-bounds.
+	*/
+	g_assert(len != -1);
+
+	if ((guint)len < maxlength) {
+		limit = len;
+		decreased_max = TRUE;
 	}
 	else {
 		limit = maxlength;
 	}
 
 	stringlen = tvb_strnlen(tvb, abs_offset, limit);
-
 	/* If NUL wasn't found, copy the data and return -1 */
 	if (stringlen == -1) {
 		tvb_memcpy(tvb, buffer, abs_offset, limit);
+		if (decreased_max) {
+			buffer[limit] = 0;
+			/* Add 1 for the extra NUL that we set at buffer[limit],
+			 * pretending that it was copied as part of the string. */
+			*bytes_copied = limit + 1;
+		}
+		else {
+			*bytes_copied = limit;
+		}
 		return -1;
 	}
 
 	/* Copy the string to buffer */
 	tvb_memcpy(tvb, buffer, abs_offset, stringlen + 1);
+	*bytes_copied = stringlen + 1;
 	return stringlen;
+}
+
+/* Looks for a stringz (NUL-terminated string) in tvbuff and copies
+ * no more than maxlength number of bytes, including terminating NUL, to buffer.
+ * Returns length of string (not including terminating NUL), or -1 if the string was
+ * truncated in the buffer due to not having reached the terminating NUL.
+ * In this way, it acts like snprintf().
+ *
+ * When processing a packet where the remaining number of bytes is less
+ * than maxlength, an exception is not thrown if the end of the packet
+ * is reached before the NUL is found. If no NUL is found before reaching
+ * the end of the short packet, -1 is still returned, and the string
+ * is truncated with a NUL, albeit not at buffer[maxlength], but
+ * at the correct spot, terminating the string.
+ */
+gint
+tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
+{
+	gint bytes_copied;
+
+	return _tvb_get_nstringz(tvb, offset, maxlength, buffer, &bytes_copied);
 }
 
 /* Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
@@ -1374,13 +1423,13 @@ tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
 gint
 tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
 {
-	gint	len;
+	gint	len, bytes_copied;
 
-	len = tvb_get_nstringz(tvb, offset, maxlength, buffer);
+	len = _tvb_get_nstringz(tvb, offset, maxlength, buffer, &bytes_copied);
 
 	if (len == -1) {
 		buffer[maxlength] = 0;
-		return maxlength - 1;
+		return bytes_copied - 1;
 	}
 	else {
 		return len;
