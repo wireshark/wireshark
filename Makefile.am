@@ -115,7 +115,9 @@ plugin_libs = \
 	plugins/v5ua/v5ua.la
 
 if ENABLE_STATIC
-plugin_ldadd = \
+plugin_ldadd = $(plugin_libs)
+
+dummyddd = \
 	plugins/acn/packet-acn.o \
 	plugins/agentx/packet-agentx.o \
 	plugins/artnet/packet-artnet.o \
