@@ -31,7 +31,7 @@ int dissect_pkix1explicit_AlgorithmIdentifier(gboolean implicit_tag, tvbuff_t *t
 int dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 
-/*#include "packet-pkix1explicit-exp.h"*/
+#include "packet-pkix1explicit-exp.h"
 
 #endif  /* PACKET_PKIX1EXPLICIT_H */
 

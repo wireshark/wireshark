@@ -7,6 +7,9 @@
 
 #.EXPORTS
 
+TeletexDomainDefinedAttribute
+TerminalType
+
 #.PDU
 
 #.NO_EMIT

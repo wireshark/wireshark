@@ -66,7 +66,7 @@ dissect_pkix1explicit_Name(gboolean implicit_tag, tvbuff_t *tvb, int offset, pac
   return offset;
 }
 
-static int
+int
 dissect_pkix1explicit_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
