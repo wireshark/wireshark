@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.20 2003/11/08 05:47:12 guy Exp $
+ * $Id: packet-tcp.h,v 1.21 2003/12/30 00:03:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,7 @@ struct tcpheader {
  */
 struct tcpinfo {
 	guint32 seq;             /* Sequence number of first byte in the data */
+	guint32 nxtseq;          /* Sequence number of first byte after data */
 	gboolean is_reassembled; /* This is reassembled data. */
 	gboolean urgent;         /* TRUE if "urgent_pointer" is valid */
 	guint16	urgent_pointer;  /* Urgent pointer value for the current packet. */
@@ -86,5 +87,10 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int);
+
+extern void dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
+				guint32 seq, guint32 nxtseq, guint32 sport,
+				guint32 dport, proto_tree *tree,
+				proto_tree *tcp_tree);
 
 #endif

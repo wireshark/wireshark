@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.220 2003/12/09 00:12:38 guy Exp $
+ * $Id: packet-tcp.c,v 1.221 2003/12/30 00:03:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2385,6 +2385,30 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 	ENDTRY;
 }
 
+void
+dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
+		    guint32 nxtseq, guint32 sport, guint32 dport,
+		    proto_tree *tree, proto_tree *tcp_tree)
+{
+  gboolean save_fragmented;
+
+  /* Can we desegment this segment? */
+  if (pinfo->can_desegment) {
+    /* Yes. */
+    desegment_tcp(tvb, pinfo, offset, seq, nxtseq, sport, dport, tree,
+        tcp_tree);
+  } else {
+    /* No - just call the subdissector.
+       Mark this as fragmented, so if somebody throws an exception,
+       we don't report it as a malformed frame. */
+    save_fragmented = pinfo->fragmented;
+    pinfo->fragmented = TRUE;
+    process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree, sport, dport,
+        nxtseq, TRUE);
+    pinfo->fragmented = save_fragmented;
+  }
+}
+
 static void
 dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2407,7 +2431,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint      length_remaining;
   gboolean   desegment_ok;
   struct tcpinfo tcpinfo;
-  gboolean   save_fragmented;
   static struct tcpheader tcphstruct[4], *tcph;
   static int tcph_count=0;
 
@@ -2588,8 +2611,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
   }
 
-  /* Supply the sequence number of the first byte. */
+  /* Supply the sequence number of the first byte and of the first byte
+     after the segment. */
   tcpinfo.seq = tcph->th_seq;
+  tcpinfo.nxtseq = nxtseq;
 
   /* Assume we'll pass un-reassembled data to subdissectors. */
   tcpinfo.is_reassembled = FALSE;
@@ -2768,20 +2793,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    "Reset cause: %s",
 			    tvb_format_text(tvb, offset, length_remaining));
     } else {
-      /* Can we desegment this segment? */
-      if (pinfo->can_desegment) {
-        /* Yes. */
-        desegment_tcp(tvb, pinfo, offset, tcph->th_seq, nxtseq, tcph->th_sport, tcph->th_dport, tree, tcp_tree);
-      } else {
-        /* No - just call the subdissector.
-           Mark this as fragmented, so if somebody throws an exception,
-           we don't report it as a malformed frame. */
-        save_fragmented = pinfo->fragmented;
-        pinfo->fragmented = TRUE;
-        process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree,
-            tcph->th_sport, tcph->th_dport, nxtseq, TRUE);
-        pinfo->fragmented = save_fragmented;
-      }
+      dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq, nxtseq,
+          tcph->th_sport, tcph->th_dport, tree, tcp_tree);
     }
   }
 

@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.51 2003/12/29 19:05:40 guy Exp $
+ * $Id: packet-socks.c,v 1.52 2003/12/30 00:03:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -900,7 +900,9 @@ static void clear_in_socks_dissector_flag(void *dummy _U_)
 }
 
 static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, socks_hash_entry_t *hash_info) {
+	proto_tree *tree, proto_tree *socks_tree,
+	socks_hash_entry_t *hash_info)
+{
 
 /* Display the results for PING and TRACERT extensions or		*/
 /* Call TCP dissector for the port that was passed during the	    	*/
@@ -910,6 +912,8 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* the payload, and restore the pinfo port after that is done.		*/
 
 	guint32 *ptr;
+	struct tcpinfo *tcpinfo = pinfo->private_data;
+	guint16 save_can_desegment;
 
  	if (( hash_info->command  == PING_COMMAND) ||
  	    ( hash_info->command  == TRACERT_COMMAND))
@@ -932,7 +936,12 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		in_socks_dissector_flag = 1; /* avoid recursive overflow */
 		CLEANUP_PUSH(clear_in_socks_dissector_flag, NULL);
 
-		decode_tcp_ports( tvb, offset, pinfo, tree, pinfo->srcport, pinfo->destport);
+		save_can_desegment = pinfo->can_desegment;
+		pinfo->can_desegment = pinfo->saved_can_desegment;
+		dissect_tcp_payload(tvb, pinfo, offset, tcpinfo->seq,
+		    tcpinfo->nxtseq, pinfo->srcport, pinfo->destport,
+		    tree, socks_tree);
+		pinfo->can_desegment = save_can_desegment;
 
 		CLEANUP_CALL_AND_POP;
 
@@ -946,7 +955,7 @@ static void
 dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	int 		offset = 0;
-	proto_tree      *socks_tree;
+	proto_tree      *socks_tree = NULL;
 	proto_item      *ti;
 	socks_hash_entry_t *hash_info;
 	conversation_t *conversation;
@@ -1067,7 +1076,8 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 /* call next dissector if ready */
 
 	if ( pinfo->fd->num > hash_info->start_done_row){
-		call_next_dissector(tvb, offset, pinfo, tree, hash_info);
+		call_next_dissector(tvb, offset, pinfo, tree, socks_tree,
+		    hash_info);
 	}
 }
 
