@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.314 2003/03/17 09:02:49 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.315 2003/03/25 09:41:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@
 #include "packet-smb-mailslot.h"
 #include "packet-smb-pipe.h"
 #include "packet-dcerpc.h"
+#include "packet-smb-sidsnooping.h"
 
 /*
  * Various specifications and documents about SMB can be found in
@@ -775,6 +776,8 @@ static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	offset += len;			\
 	*bcp -= len;
 
+
+gboolean sid_name_snooping = FALSE;
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    These are needed by the reassembly of SMB Transaction payload and DCERPC over SMB
@@ -7045,7 +7048,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
 	int i;
 	GString *gstr;
 	char sid_string[245];
-
+	char *sid_name;
 
 	/* revision of sid */
 	revision = tvb_get_guint8(tvb, offset);
@@ -7104,8 +7107,17 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
             sprintf(sid_string, "S-1-%u-%s", auth, gstr->str);
           }
 
+          sid_name=NULL;
+          if(sid_name_snooping){
+            sid_name=find_sid_name(sid_string);
+          }
+
           if(parent_tree){
-            item = proto_tree_add_string_format(parent_tree, hf_smb_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s", name, sid_string);
+            if(sid_name){
+              item = proto_tree_add_string_format(parent_tree, hf_smb_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s (%s)", name, sid_string, sid_name);
+            } else {
+              item = proto_tree_add_string_format(parent_tree, hf_smb_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s", name, sid_string);
+            }
             tree = proto_item_add_subtree(item, ett_smb_sid);
           }
 
@@ -18271,6 +18283,11 @@ proto_register_smb(void)
 		"Reassemble DCERPC over SMB",
 		"Whether the dissector should reassemble DCERPC over SMB commands",
 		&smb_dcerpc_reassembly);
+	prefs_register_bool_preference(smb_module, "sid_name_snooping",
+		"Snoop SID to Name mappings",
+		"Whether the dissector should snoop SMB and related CIFS protocols to discover and display Names associated with SIDs",
+		&sid_name_snooping);
+
 	register_init_routine(smb_trans_reassembly_init);
 	register_init_routine(smb_dcerpc_reassembly_init);
 	smb_tap = register_tap("smb");

@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.49 2003/02/25 02:00:33 tpot Exp $
+ * $Id: smb.h,v 1.50 2003/03/25 09:41:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,8 @@
 
 #ifndef _SMB_H
 #define _SMB_H
+
+extern gboolean sid_name_snooping;
 
 /* SMB command codes, from the SNIA CIFS spec. */
 extern const value_string smb_cmd_vals[];
