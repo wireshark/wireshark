@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.81 2004/01/05 19:31:44 ulfl Exp $
+ * $Id: packet-nbns.c,v 1.82 2004/01/06 02:42:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1197,7 +1197,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	case NBDS_ERROR:
-		header.error_code = (guint8) tvb_get_ntohs(tvb, offset+10);
+		header.error_code = tvb_get_guint8(tvb, offset+10);
 		break;
 	}
 
