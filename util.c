@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.69 2003/10/10 06:05:48 guy Exp $
+ * $Id: util.c,v 1.70 2003/10/31 07:57:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,16 @@ typedef int mode_t;	/* for win32 */
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * This has to come after the include of <pcap.h>, as the include of
+ * <pcap.h> might cause <winsock2.h> to be included, and if we've
+ * already included <winsock.h> as a result of including <windows.h>,
+ * we get a bunch of redefinitions.
+ */
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
+#endif
 
 #ifdef HAVE_SOME_SNMP
 
