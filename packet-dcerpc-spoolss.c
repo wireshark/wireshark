@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.24 2002/05/01 05:28:56 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.25 2002/05/01 21:22:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -947,6 +947,13 @@ static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &rel_offset, NULL);
 
+	/*
+	 * XXX - what *is* the length of this security descriptor?
+	 * "prs_PRINTER_INFO_2()" is passed to "defer_ptr()", but
+	 * "defer_ptr" takes, as an argument, a function with a
+	 * different calling sequence from "prs_PRINTER_INFO_2()",
+	 * lacking the "len" argument, so that won't work.
+	 */
 	dissect_nt_sec_desc(tvb, struct_start + rel_offset, tree, len);
 	
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Attributes");
@@ -1696,7 +1703,7 @@ static int prs_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Undocumented");
 	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Length");
 	
-	dissect_nt_sec_desc(tvb, pinfo, offset, subtree, len);
+	dissect_nt_sec_desc(tvb, offset, subtree, len);
 
 	offset += len;
 
