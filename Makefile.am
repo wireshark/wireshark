@@ -24,6 +24,7 @@ ethereal_SOURCES = \
 	packet-eth.c   \
 	packet-fddi.c  \
 	packet-giop.c  \
+	packet-http.c  \
 	packet-llc.c   \
 	packet-lpd.c   \
 	packet-ip.c    \

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.14 1999/02/08 20:02:34 gram Exp $
+ * $Id: packet-tcp.c,v 1.15 1999/02/12 09:03:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -378,12 +378,16 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   /* Skip over header + options */
   offset += hlen;
 
-  /* until we decode those options, I'll check the packet length
-  to see if there's more data. -- gilbert */
+  /* Check the packet length to see if there's more data
+     (it could be an ACK-only packet) */
   if (fd->cap_len > offset) {
     switch(MIN(th.th_sport, th.th_dport)) {
       case TCP_PORT_PRINTER:
         dissect_lpd(pd, offset, fd, tree);
+        break;
+      case TCP_PORT_HTTP:
+      case TCP_ALT_PORT_HTTP:
+        dissect_http(pd, offset, fd, tree);
         break;
       default:
         /* check existence of high level protocols */

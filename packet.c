@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.19 1999/01/28 21:29:36 gram Exp $
+ * $Id: packet.c,v 1.20 1999/02/12 09:03:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -225,6 +225,138 @@ add_item_to_tree(GtkWidget *tree, gint start, gint len,
   gtk_widget_show(ti);
 
   return ti;
+}
+
+/*
+ * Given a pointer into a data buffer, and to the end of the buffer,
+ * find the end of the (putative) line at that position in the data
+ * buffer.
+ */
+const u_char *
+find_line_end(const u_char *data, const u_char *dataend)
+{
+  const u_char *lineend;
+
+  lineend = memchr(data, '\n', dataend - data);
+  if (lineend == NULL) {
+    /*
+     * No newline - line is probably continued in next TCP segment.
+     */
+    lineend = dataend;
+  } else {
+    /*
+     * Is the newline preceded by a carriage return?
+     * (Perhaps it's supposed to be, but that's not guaranteed....)
+     */
+    if (lineend > data && *(lineend - 1) != '\r') {
+      /*
+       * No.  I seem to remember that we once saw lines
+       * ending with LF-CR in an HTTP request or response,
+       * so check if it's *followed* by a carriage return.
+       */
+      if (lineend < (dataend - 1) && *(lineend + 1) == '\r') {
+	/*
+	 * It's <non-LF><LF><CR>; say it ends with the CR.
+	 */
+	lineend++;
+      }
+    }
+
+    /*
+     * Point to the character after the last character.
+     */
+    lineend++;
+  }
+  return lineend;
+}
+
+#define	MAX_COLUMNS_LINE_DETAIL	62
+
+gchar *
+format_line(const u_char *line, int len)
+{
+  static gchar linebuf[MAX_COLUMNS_LINE_DETAIL + 3 + 4 + 1];
+  gchar *linebufp;
+  int column;
+  const u_char *lineend = line + len;
+  u_char c;
+  int i;
+
+  column = 0;
+  linebufp = &linebuf[0];
+  while (line < lineend) {
+    if (column >= MAX_COLUMNS_LINE_DETAIL) {
+      /*
+       * Put "..." and quit.
+       */
+      strcpy(linebufp, " ...");
+      break;
+    }
+    c = *line++;
+    if (isprint(c)) {
+      *linebufp++ = c;
+      column++;
+    } else {
+      *linebufp++ =  '\\';
+      column++;
+      switch (c) {
+
+      case '\\':
+	*linebufp++ = '\\';
+	column++;
+	break;
+
+      case '\a':
+	*linebufp++ = 'a';
+	column++;
+	break;
+
+      case '\b':
+	*linebufp++ = 'b';
+	column++;
+	break;
+
+      case '\f':
+	*linebufp++ = 'f';
+	column++;
+	break;
+
+      case '\n':
+	*linebufp++ = 'n';
+	column++;
+	break;
+
+      case '\r':
+	*linebufp++ = 'r';
+	column++;
+	break;
+
+      case '\t':
+	*linebufp++ = 't';
+	column++;
+	break;
+
+      case '\v':
+	*linebufp++ = 'v';
+	column++;
+	break;
+
+      default:
+	i = (c>>6)&03;
+	*linebufp++ = i + '0';
+	column++;
+	i = (c>>3)&07;
+	*linebufp++ = i + '0';
+	column++;
+	i = (c>>0)&07;
+	*linebufp++ = i + '0';
+	column++;
+	break;
+      }
+    }
+  }
+  *linebufp = '\0';
+  return linebuf;
 }
 
 void

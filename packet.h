@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.36 1999/02/09 00:35:38 guy Exp $
+ * $Id: packet.h,v 1.37 1999/02/12 09:03:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -369,7 +369,9 @@ typedef struct _e_udphdr {
 
 /* TCP Ports */
 
-#define TCP_PORT_PRINTER 515
+#define TCP_PORT_HTTP     80
+#define TCP_PORT_PRINTER  515
+#define TCP_ALT_PORT_HTTP 8080
 
 /* Tree types.  Each dissect_* routine should have one for each
    add_subtree() call. */
@@ -449,6 +451,7 @@ enum {
 	ETT_GIOP,
 	ETT_NBDGM,
 	ETT_CDP,
+	ETT_HTTP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -501,6 +504,8 @@ GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...)
 #else
 GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...);
 #endif
+const u_char *find_line_end(const u_char *data, const u_char *dataend);
+gchar*     format_line(const u_char *line, int len);
 void       set_item_len(GtkWidget *, gint);
 gchar*     val_to_str(guint32, const value_string *, const char *);
 gchar*     match_strval(guint32, const value_string*);
@@ -567,6 +572,7 @@ void dissect_data(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ddp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_dns(const u_char *, int, frame_data *, GtkTree *);
 void dissect_giop(const u_char *, int, frame_data *, GtkTree *);
+void dissect_http(const u_char *, int, frame_data *, GtkTree *);
 void dissect_icmp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_igmp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ip(const u_char *, int, frame_data *, GtkTree *);
