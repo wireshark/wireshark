@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.72 2003/01/06 02:24:57 guy Exp $
+ * $Id: packet-x25.c,v 1.73 2003/01/06 23:34:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2009,8 +2009,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (modulo == 8) {
 		    proto_tree_add_uint(x25_tree, hf_x25_p_r_mod8, tvb,
 			    localoffset, 1, pkt_type);
-		    if (pkt_type & 0x10)
-			proto_tree_add_boolean(x25_tree, hf_x25_mbit_mod8, tvb,
+		    proto_tree_add_boolean(x25_tree, hf_x25_mbit_mod8, tvb,
 			    localoffset, 1, pkt_type);
 		    proto_tree_add_uint(x25_tree, hf_x25_p_s_mod8, tvb,
 			    localoffset, 1, pkt_type);
@@ -2024,10 +2023,9 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    proto_tree_add_uint(x25_tree, hf_x25_p_s_mod128, tvb,
 			    localoffset+1, 1,
 			    tvb_get_guint8(tvb, localoffset+1));
-		    if (tvb_get_guint8(tvb, localoffset+1) & 0x01)
-			proto_tree_add_boolean(x25_tree, hf_x25_mbit_mod128, tvb,
-				localoffset+1, 1,
-				tvb_get_guint8(tvb, localoffset+1));
+		    proto_tree_add_boolean(x25_tree, hf_x25_mbit_mod128, tvb,
+			    localoffset+1, 1,
+			    tvb_get_guint8(tvb, localoffset+1));
 		}
 	    }
 	    localoffset += (modulo == 8) ? 1 : 2;
@@ -2222,10 +2220,10 @@ proto_register_x25(void)
 	  { "Packet Type", "x.25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x0,
 	  	"Packet Type", HFILL }},
 	{ &hf_x25_p_r_mod8,
-	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_HEX, NULL, 0xE0,
+	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_DEC, NULL, 0xE0,
 	  	"Packet Receive Sequence Number", HFILL }},
 	{ &hf_x25_p_r_mod128,
-	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_HEX, NULL, 0xFE,
+	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_DEC, NULL, 0xFE,
 	  	"Packet Receive Sequence Number", HFILL }},
 	{ &hf_x25_mbit_mod8,
 	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, NULL, 0x10,
@@ -2234,10 +2232,10 @@ proto_register_x25(void)
 	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, NULL, 0x01,
 	  	"More Bit", HFILL }},
 	{ &hf_x25_p_s_mod8,
-	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_HEX, NULL, 0x0E,
+	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_DEC, NULL, 0x0E,
 	  	"Packet Send Sequence Number", HFILL }},
 	{ &hf_x25_p_s_mod128,
-	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_HEX, NULL, 0xFE,
+	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_DEC, NULL, 0xFE,
 	  	"Packet Send Sequence Number", HFILL }},
     };
     static gint *ett[] = {
