@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.6 2004/01/10 16:27:40 ulfl Exp $
+ * $Id: compat_macros.h,v 1.7 2004/01/18 00:33:03 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,6 +85,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define GTK_STOCK_NEW               "New"
 #define GTK_STOCK_OK                "OK"
 #define GTK_STOCK_PRINT             "Print"
+#define GTK_STOCK_PROPERTIES        "Properties"
 #define GTK_STOCK_REVERT_TO_SAVED   "Revert"
 #define GTK_STOCK_SAVE              "Save"
 #define GTK_STOCK_SAVE_AS           "Save As"
