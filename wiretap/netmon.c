@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.38 2001/07/13 00:55:58 guy Exp $
+ * $Id: netmon.c,v 1.39 2001/07/15 19:14:03 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -635,14 +635,24 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 
 	file_hdr.network = htoles(wtap_encap[wdh->encap]);
 	tm = localtime(&netmon->first_record_time.tv_sec);
-	file_hdr.ts_year = htoles(1900 + tm->tm_year);
-	file_hdr.ts_month = htoles(tm->tm_mon + 1);
-	file_hdr.ts_dow = htoles(tm->tm_wday);
-	file_hdr.ts_day = htoles(tm->tm_mday);
-	file_hdr.ts_hour = htoles(tm->tm_hour);
-	file_hdr.ts_min = htoles(tm->tm_min);
-	file_hdr.ts_sec = htoles(tm->tm_sec);
-	file_hdr.ts_msec = htoles(netmon->first_record_time.tv_usec/1000);
+    if (tm != NULL) {
+      file_hdr.ts_year  = htoles(1900 + tm->tm_year);
+      file_hdr.ts_month = htoles(tm->tm_mon + 1);
+      file_hdr.ts_dow   = htoles(tm->tm_wday);
+      file_hdr.ts_day   = htoles(tm->tm_mday);
+      file_hdr.ts_hour  = htoles(tm->tm_hour);
+      file_hdr.ts_min   = htoles(tm->tm_min);
+      file_hdr.ts_sec   = htoles(tm->tm_sec);
+    } else {
+      file_hdr.ts_year  = htoles(1900 + 0);
+      file_hdr.ts_month = htoles(0 + 1);
+      file_hdr.ts_dow   = htoles(0);
+      file_hdr.ts_day   = htoles(0);
+      file_hdr.ts_hour  = htoles(0);
+      file_hdr.ts_min   = htoles(0);
+      file_hdr.ts_sec   = htoles(0);
+    }      
+    file_hdr.ts_msec  = htoles(netmon->first_record_time.tv_usec/1000);
 		/* XXX - what about rounding? */
 	file_hdr.frametableoffset = htolel(netmon->frame_table_offset);
 	file_hdr.frametablelength =

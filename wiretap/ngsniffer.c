@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.64 2001/07/06 00:17:36 guy Exp $
+ * $Id: ngsniffer.c,v 1.65 2001/07/15 19:14:03 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -1204,11 +1204,16 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     if (priv->first_frame) {
 	priv->first_frame=FALSE;
 	tm = localtime(&phdr->ts.tv_sec);
-	start_date = (tm->tm_year - (1980 - 1900)) << 9;
-	start_date |= (tm->tm_mon + 1) << 5;
-	start_date |= tm->tm_mday;
-	/* record the start date, not the start time */
-	priv->start = phdr->ts.tv_sec - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
+	if (tm != NULL) {
+	  start_date = (tm->tm_year - (1980 - 1900)) << 9;
+	  start_date |= (tm->tm_mon + 1) << 5;
+	  start_date |= tm->tm_mday;
+	  /* record the start date, not the start time */
+	  priv->start = phdr->ts.tv_sec - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
+	} else {
+	  start_date = 0;
+	  priv->start = 0;
+	}
 
 	/* "sniffer" version ? */
 	maj_vers = 4;

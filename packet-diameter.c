@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.23 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-diameter.c,v 1.24 2001/07/15 19:14:00 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -702,12 +702,16 @@ static gchar *rd_value_to_str(e_avphdr *avph, const u_char *input, int length)
 #endif
 		case DIAMETER_TIME:
 		{
-			struct tm lt;
+			struct tm *lt;
 			intval=pntohl(input);
 			intval -= NTP_TIME_DIFF;
-			lt=*localtime((time_t *)&intval);
-			strftime(buffer, 1024, 
-			    "%a, %d %b %Y %H:%M:%S %z",&lt);
+			lt=localtime((time_t *)&intval);
+			if (lt != NULL) {
+			  strftime(buffer, 1024, 
+			           "%a, %d %b %Y %H:%M:%S %z",lt);
+			} else {
+			  strncpy(buffer, "Not representable", 1024);
+			}
 		}
 		default:
 			/* Do nothing */

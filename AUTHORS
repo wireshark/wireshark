@@ -646,6 +646,9 @@ Scott Renfro <scott@renfro.org> {
 	"-t" flag for editcap, to adjust timestamps in frames
 	SSL/TLS support
 	Mergecap utility for merging capture files
+	Fixes for some calls to "localtime()" that didn't check whether
+	   the call succeeded (it doesn't always do so on Windows, for
+	   example)
 }
 
 Juan Toledo <toledo@users.sourceforge.net> {

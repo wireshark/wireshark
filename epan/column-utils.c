@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.3 2001/04/02 10:38:26 guy Exp $
+ * $Id: column-utils.c,v 1.4 2001/07/15 19:14:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -248,15 +248,19 @@ col_set_abs_date_time(frame_data *fd, int col)
 
   then = fd->abs_secs;
   tmp = localtime(&then);
-  snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN,
-    "%04d-%02d-%02d %02d:%02d:%02d.%04ld",
-    tmp->tm_year + 1900,
-    tmp->tm_mon + 1,
-    tmp->tm_mday,
-    tmp->tm_hour,
-    tmp->tm_min,
-    tmp->tm_sec,
-    (long)fd->abs_usecs/100);
+  if (tmp != NULL) {
+    snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN,
+             "%04d-%02d-%02d %02d:%02d:%02d.%04ld",
+             tmp->tm_year + 1900,
+             tmp->tm_mon + 1,
+             tmp->tm_mday,
+             tmp->tm_hour,
+             tmp->tm_min,
+             tmp->tm_sec,
+             (long)fd->abs_usecs/100);
+  } else {
+    fd->cinfo->col_buf[col][0] = '\0';
+  }
   fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
 }
 
@@ -286,11 +290,15 @@ col_set_abs_time(frame_data *fd, int col)
 
   then = fd->abs_secs;
   tmp = localtime(&then);
-  snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN, "%02d:%02d:%02d.%04ld",
-    tmp->tm_hour,
-    tmp->tm_min,
-    tmp->tm_sec,
-    (long)fd->abs_usecs/100);
+  if (tmp != NULL) {
+    snprintf(fd->cinfo->col_buf[col], COL_MAX_LEN, "%02d:%02d:%02d.%04ld",
+             tmp->tm_hour,
+             tmp->tm_min,
+             tmp->tm_sec,
+             (long)fd->abs_usecs/100);
+  } else {
+    fd->cinfo->col_buf[col][0] = '\0';
+  }
   fd->cinfo->col_data[col] = fd->cinfo->col_buf[col];
 }
 

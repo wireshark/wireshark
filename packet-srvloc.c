@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.24 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-srvloc.c,v 1.25 2001/07/15 19:14:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -193,12 +193,16 @@ dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
     
     seconds = tvb_get_ntohl(tvb, offset) - 2208988800ul;
     stamp = gmtime(&seconds);
-    floatsec = stamp->tm_sec + tvb_get_ntohl(tvb, offset + 4) / 4294967296.0;
-    proto_tree_add_text(tree, tvb, offset, 8,
-			"Timestamp: %04d-%02d-%02d %02d:%02d:%07.4f UTC",
-			stamp->tm_year + 1900, stamp->tm_mon + 1,
-			stamp->tm_mday, stamp->tm_hour, stamp->tm_min,
-			floatsec);
+    if (stamp != NULL) {
+      floatsec = stamp->tm_sec + tvb_get_ntohl(tvb, offset + 4) / 4294967296.0;
+      proto_tree_add_text(tree, tvb, offset, 8,
+                          "Timestamp: %04d-%02d-%02d %02d:%02d:%07.4f UTC",
+                          stamp->tm_year + 1900, stamp->tm_mon + 1,
+                          stamp->tm_mday, stamp->tm_hour, stamp->tm_min,
+                          floatsec);
+    } else {
+      proto_tree_add_text(tree, tvb, offset, 8, "Timestamp not representable");
+    }
     proto_tree_add_text(tree, tvb, offset + 8, 2, "Block Structure Desciptor: %u",
 			tvb_get_ntohs(tvb, offset + 8));
     length = tvb_get_ntohs(tvb, offset + 10);

@@ -1,7 +1,7 @@
 /* to_str.h
  * Routines  for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.9 2001/07/13 00:27:51 guy Exp $
+ * $Id: to_str.c,v 1.10 2001/07/15 19:14:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -411,15 +411,18 @@ abs_time_to_str(struct timeval *abs_time)
         }
 
         tmp = localtime(&abs_time->tv_sec);
-        sprintf(cur, "%s %2d, %d %02d:%02d:%02d.%06ld",
-            mon_names[tmp->tm_mon],
-            tmp->tm_mday,
-            tmp->tm_year + 1900,
-            tmp->tm_hour,
-            tmp->tm_min,
-            tmp->tm_sec,
-            (long)abs_time->tv_usec);
-
+        if (tmp) {
+          sprintf(cur, "%s %2d, %d %02d:%02d:%02d.%06ld",
+                  mon_names[tmp->tm_mon],
+                  tmp->tm_mday,
+                  tmp->tm_year + 1900,
+                  tmp->tm_hour,
+                  tmp->tm_min,
+                  tmp->tm_sec,
+                  (long)abs_time->tv_usec);
+        } else {
+          strncpy(cur, "Not representable", sizeof(str[0]));
+        }
         return cur;
 }
 
