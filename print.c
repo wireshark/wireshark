@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.32 2001/03/24 23:49:14 guy Exp $
+ * $Id: print.c,v 1.33 2001/05/16 21:32:04 ashokn Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -223,7 +223,7 @@ void print_hex_data_text(FILE *fh, register const u_char *cp,
 {
         register int ad, i, j, k;
         u_char c;
-        u_char line[60];
+        u_char line[80];
 	static u_char binhex[16] = {
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -234,13 +234,13 @@ void print_hex_data_text(FILE *fh, register const u_char *cp,
                 c = *cp++;
                 line[j++] = binhex[c>>4];
                 line[j++] = binhex[c&0xf];
-                if (i&1) j++;
+                j++;
 		if (encoding == CHAR_EBCDIC) {
 			c = EBCDIC_to_ASCII1(c);
 		}
-                line[42+k++] = c >= ' ' && c < 0x7f ? c : '.';
+                line[50+k++] = c >= ' ' && c < 0x7f ? c : '.';
                 if ((i & 15) == 15) {
-                        fprintf (fh, "\n%4x  %s", ad, line);
+                        fprintf (fh, "\n%04x  %s", ad, line);
                         /*if (i==15) printf (" %d", length);*/
                         memset (line, ' ', sizeof line);
                         line[sizeof (line)-1] = j = k = 0;
@@ -248,7 +248,7 @@ void print_hex_data_text(FILE *fh, register const u_char *cp,
                 }
         }
 
-        if (line[0] != ' ') fprintf (fh, "\n%4x  %s", ad, line);
+        if (line[0] != ' ') fprintf (fh, "\n%04x  %s", ad, line);
         fprintf(fh, "\n");
         return;
 

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.124 2001/05/16 16:17:50 jfoster Exp $
+# $Id: configure.in,v 1.125 2001/05/16 21:32:04 ashokn Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -270,6 +270,22 @@ else
 fi
 AC_SUBST(editcap_bin)
 AC_SUBST(editcap_man)
+
+
+# Enable/disable text2pcap
+
+AC_ARG_ENABLE(text2pcap,
+[  --enable-text2pcap        build text2pcap.  [default=yes]],,enable_text2pcap=yes)
+
+if test "x$enable_text2pcap" = "xyes" ; then
+	text2pcap_bin="text2pcap"
+	text2pcap_man="text2pcap.1"
+else
+	text2pcap_bin=""
+	text2pcap_man=""
+fi
+AC_SUBST(text2pcap_bin)
+AC_SUBST(text2pcap_man)
 
 
 # Enable/disable dftest
@@ -589,6 +605,7 @@ echo "The Ethereal package has been configured with the following options."
 echo "                    Build ethereal : $enable_ethereal"
 echo "                   Build tethereal : $enable_tethereal"
 echo "                     Build editcap : $enable_editcap"
+echo "                   Build text2pcap : $enable_text2pcap"
 echo "                     Build randpkt : $enable_randpkt"
 echo "                      Build dftest : $enable_dftest"
 echo ""

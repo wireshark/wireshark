@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.317 2001/05/11 00:39:57 guy Exp $
+# $Id: Makefile.am,v 1.318 2001/05/16 21:32:04 ashokn Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -61,11 +61,11 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@
+bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
 man1_MANS = @ethereal_man@ @editcap_man@ @tethereal_man@
 man_MANS = 
 
-EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap dftest
+EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap dftest text2pcap
 
 sysconf_DATA = manuf
 
@@ -519,6 +519,9 @@ tethereal_static_LDADD = wiretap/libwiretap.a	\
 tethereal_LDFLAGS = -export-dynamic
 tethereal_static_LDFLAGS = -Wl,-static
 
+text2pcap_SOURCES = text2pcap.c text2pcap-scanner.l
+text2pcap_DEPENDENCIES = text2pcap.h
+
 editcap_SOURCES = editcap.c
 
 # This is the automake dependency variable for the executable
@@ -631,10 +634,14 @@ EXTRA_DIST = \
 	doc/README.tvbuff	\
 	doc/dfilter2pod.pl	\
 	doc/editcap.pod		\
+	doc/text2pcap.pod	\
 	doc/ethereal.pod.template \
 	doc/randpkt.txt		\
 	doc/tethereal.pod.template \
 	editcap.c		\
+	text2pcap.c             \
+	text2pcap.h             \
+	text2pcap-scanner.l     \
 	getopt.c		\
 	getopt.h		\
 	ieee-float.h		\
@@ -710,6 +717,10 @@ tethereal.1: tethereal doc/tethereal.pod.template
 editcap.1: doc/editcap.pod
 	(cd doc ; \
 	$(MAKE) ../editcap.1 )
+
+text2pcap.1: doc/text2pcap.pod
+	(cd doc ; \
+	$(MAKE) ../text2pcap.1 )
 
 packet-ncp2222.c : ncp2222.py
 	$(PYTHON) $(srcdir)/ncp2222.py > $@
