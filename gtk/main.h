@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.12 2000/02/12 06:46:54 guy Exp $
+ * $Id: main.h,v 1.13 2000/02/12 06:58:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,12 +61,7 @@ void about_ethereal( GtkWidget *, gpointer);
 void blank_packetinfo();
 void follow_stream_cb( GtkWidget *, gpointer);
 void match_selected_cb( GtkWidget *, gpointer);
-void file_open_cmd_cb(GtkWidget *, gpointer);
-void file_save_cmd_cb(GtkWidget *, gpointer);
-void file_save_as_cmd_cb(GtkWidget *, gpointer);
-void file_close_cmd_cb(GtkWidget *, gpointer);
 void file_quit_cmd_cb(GtkWidget *, gpointer);
-void file_reload_cmd_cb(GtkWidget *, gpointer);
 void file_print_cmd_cb(GtkWidget *, gpointer);
 void file_print_packet_cmd_cb(GtkWidget *, gpointer);
 void tools_plugins_cmd_cb(GtkWidget *, gpointer);
