@@ -1,7 +1,7 @@
 /* ringbuffer.c
  * Routines for packet capture windows
  *
- * $Id: ringbuffer.c,v 1.7 2003/06/22 16:06:03 deniel Exp $
+ * $Id: ringbuffer.c,v 1.8 2004/02/25 05:21:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -349,9 +349,11 @@ ringbuf_error_cleanup(void)
     rb_data.fd = -1;
   }
 
-  for (i=0; i < rb_data.num_files; i++) {
-    if (rb_data.files[i].name != NULL) {
-      unlink(rb_data.files[i].name);
+  if (rb_data.files != NULL) {
+    for (i=0; i < rb_data.num_files; i++) {
+      if (rb_data.files[i].name != NULL) {
+        unlink(rb_data.files[i].name);
+      }
     }
   }
   /* free the memory */
