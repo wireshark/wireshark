@@ -1,8 +1,8 @@
 /* packet-eap.c
  * Routines for EAP Extensible Authentication Protocol dissection
- * RFC 2284
+ * RFC 2284, RFC 3748
  *
- * $Id: packet-eap.c,v 1.35 2004/02/03 18:22:32 guy Exp $
+ * $Id: packet-eap.c,v 1.36 2004/06/28 05:41:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,8 @@ References:
 			PPP EAP REQUEST/RESPONSE TYPES
   2) http://www.ietf.org/internet-drafts/draft-ietf-pppext-rfc2284bis-02.txt
   3) RFC2284
+  4) RFC3748
+  5) http://www.iana.org/assignments/eap-numbers	EAP registry
 */
 
 #define EAP_TYPE_ID     1
@@ -73,12 +75,12 @@ References:
 #define EAP_TYPE_TTLS	21
 
 static const value_string eap_type_vals[] = {
-  {EAP_TYPE_ID,  "Identity [RFC2284]" },
-  {EAP_TYPE_NOTIFY,"Notification [RFC2284]" },
-  {EAP_TYPE_NAK, "Nak (Response only) [RFC2284]" },
-  {  4,          "MD5-Challenge [RFC2284]" },
+  {EAP_TYPE_ID,  "Identity [RFC3748]" },
+  {EAP_TYPE_NOTIFY,"Notification [RFC3748]" },
+  {EAP_TYPE_NAK, "Nak (Response only) [RFC3748]" },
+  {  4,          "MD5-Challenge [RFC3748]" },
   {  5,          "One Time Password (OTP) [RFC2289]" },
-  {  6,          "Generic Token Card [RFC2284]" },
+  {  6,          "Generic Token Card [RFC3748]" },
   {  7,          "?? RESERVED ?? " }, /* ??? */
   {  8,          "?? RESERVED ?? " }, /* ??? */
   {  9,          "RSA Public Key Authentication [Whelan]" },
@@ -114,7 +116,12 @@ static const value_string eap_type_vals[] = {
   { 39,          "SecureSuite EAP [Clements]" },
   { 40,          "DeviceConnect EAP [Pitard]" },
   { 41,          "EAP-SPEKE [Zick]" },
-  { 255,         "Vendor-specific [draft-ietf-pppext-rfc2284bis-02.txt]" },
+  { 42,          "EAP-MOBAC [Rixom]" },
+  { 43,          "EAP-FAST [Cam-Winget]" },
+  { 44,          "ZoneLabs EAP (ZLXEAP) [Bogue]" },
+  { 45,          "EAP-Link [Zick]" },
+  { 254,         "RESERVED for the Expanded Type [RFC3748]" },
+  { 255,         "EXPERIMENTAL [RFC3748]" },
   { 0,          NULL }
 
 };
