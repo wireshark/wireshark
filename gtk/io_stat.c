@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.6 2002/11/17 11:43:40 sahlberg Exp $
+ * $Id: io_stat.c,v 1.7 2002/11/19 08:10:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1141,6 +1141,7 @@ init_io_stat_window(io_stat_t *io)
 	create_ctrl_area(io, hbox);
 
 	gtk_widget_show(io->window);
+	gtk_window_set_title(GTK_WINDOW(io->window),"IO-Stat");
 }
 
 
