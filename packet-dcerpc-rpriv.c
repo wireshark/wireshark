@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rpriv.idl
  *
- * $Id: packet-dcerpc-rpriv.c,v 1.2 2002/11/08 19:42:39 guy Exp $
+ * $Id: packet-dcerpc-rpriv.c,v 1.3 2002/11/28 04:57:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,8 +74,8 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	 */                                 
 
    guint32 authn_svc, authz_svc, key_size, key_size2, var1;
-   char *key_t = NULL;
-   char *key_t2 = NULL;
+   const char *key_t = NULL;
+   const char *key_t2 = NULL;
 
    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_authn_svc, &authn_svc);
    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_authz_svc, &authz_svc);
@@ -85,13 +85,13 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
    /* advance to get size of cell, and princ */
 
    proto_tree_add_string (tree, hf_rpriv_get_eptgt_rqst_key_t, tvb, offset, hf_rpriv_get_eptgt_rqst_key_size, tvb_get_ptr (tvb, offset, key_size));
-   key_t = (char *)tvb_get_ptr(tvb,offset,key_size);
+   key_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
    offset += key_size;
 
    offset += 8;
    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size2);
    proto_tree_add_string (tree, hf_rpriv_get_eptgt_rqst_key_t2, tvb, offset, hf_rpriv_get_eptgt_rqst_key_size2, tvb_get_ptr (tvb, offset, key_size2));
-   key_t2 = (char *)tvb_get_ptr(tvb,offset,key_size2);
+   key_t2 = (const char *)tvb_get_ptr(tvb,offset,key_size2);
    offset += key_size2;
 
 

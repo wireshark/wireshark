@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_acct.idl
  *      
- * $Id: packet-dcerpc-rs_acct.c,v 1.2 2002/11/08 19:42:40 guy Exp $
+ * $Id: packet-dcerpc-rs_acct.c,v 1.3 2002/11/28 04:57:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,7 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 		packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	guint32 key_size;
-	char *key_t = NULL;
+	const char *key_t = NULL;
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
 			hf_rs_acct_lookup_rqst_var, NULL);
@@ -74,7 +74,7 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
 		proto_tree_add_string (tree, hf_rs_acct_lookup_rqst_key_t, tvb, offset, hf_rs_acct_lookup_rqst_key_size, tvb_get_ptr (tvb, offset, key_size));
-		key_t = (char *)tvb_get_ptr(tvb,offset,key_size);
+		key_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
 		offset += key_size;
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -98,7 +98,7 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 		packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	guint32 key_size;
-	char *key_t = NULL;
+	const char *key_t = NULL;
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
 			hf_rs_acct_get_projlist_rqst_var1, NULL);
@@ -108,7 +108,7 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 	proto_tree_add_string (tree, hf_rs_acct_get_projlist_rqst_key_t, 
 			tvb, offset, hf_rs_acct_get_projlist_rqst_key_size, 
 			tvb_get_ptr (tvb, offset, key_size));
-	key_t = (char *)tvb_get_ptr(tvb,offset,key_size);
+	key_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
 	offset += key_size;
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {

@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_pgo.idl
  *      
- * $Id: packet-dcerpc-rs_pgo.c,v 1.2 2002/11/08 19:42:40 guy Exp $
+ * $Id: packet-dcerpc-rs_pgo.c,v 1.3 2002/11/28 04:57:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,8 +77,8 @@ rs_pgo_dissect_get_members_rqst (tvbuff_t *tvb, int offset,
                                  packet_info *pinfo, proto_tree *tree,
 		                 char *drep)
 {
-    guint32 name_domain,  sec_rgy_name_max_len, sec_rgy_name_t_size;
-    char *sec_rgy_name_t = NULL;
+     guint32 name_domain,  sec_rgy_name_max_len, sec_rgy_name_t_size;
+     const char *sec_rgy_name_t = NULL;
 
      offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
          hf_rs_pgo_get_members_rqst_name_domain, &name_domain);
@@ -89,7 +89,7 @@ rs_pgo_dissect_get_members_rqst (tvbuff_t *tvb, int offset,
 
      proto_tree_add_string (tree, hf_rs_pgo_get_members_rqst_sec_rgy_name_t, tvb, offset, hf_rs_pgo_get_members_rqst_sec_rgy_name_t_size, tvb_get_ptr (tvb, offset, sec_rgy_name_t_size));
 
-     sec_rgy_name_t = (char *)tvb_get_ptr(tvb,offset,sec_rgy_name_t_size);
+     sec_rgy_name_t = (const char *)tvb_get_ptr(tvb,offset,sec_rgy_name_t_size);
 
      offset += sec_rgy_name_t_size;
 
@@ -124,26 +124,24 @@ rs_pgo_dissect_is_member_rqst (tvbuff_t *tvb, int offset,
                                  packet_info *pinfo, proto_tree *tree,
 		                 char *drep)
 {
-    guint32 var1, var2, key1_size, key2_size, var3;
-    char *key1, *key2; 
-    key1 = NULL; 
-    key2 = NULL; 
-
-
+     guint32 var1, var2, key1_size, key2_size, var3;
+     const char *key1, *key2; 
+     key1 = NULL; 
+     key2 = NULL; 
 
      offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_is_member_rqst_var1, &var1);
      offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_is_member_rqst_var2, &var2);
      offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_is_member_rqst_key1_size, &key1_size);
 
      proto_tree_add_string (tree, hf_rs_pgo_is_member_rqst_key1, tvb, offset, hf_rs_pgo_is_member_rqst_key1_size, tvb_get_ptr (tvb, offset, key1_size));
-     key1 = (char *)tvb_get_ptr(tvb,offset,key1_size);
+     key1 = (const char *)tvb_get_ptr(tvb,offset,key1_size);
      offset += key1_size;
 
      offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_is_member_rqst_var3, &var3);
    /*  offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_is_member_rqst_var4, &var4); */
      offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_is_member_rqst_key2_size, &key2_size);
      proto_tree_add_string (tree, hf_rs_pgo_is_member_rqst_key2, tvb, offset, hf_rs_pgo_is_member_rqst_key2_size, tvb_get_ptr (tvb, offset, key2_size));
-     key2 = (char *)tvb_get_ptr(tvb,offset,key2_size);
+     key2 = (const char *)tvb_get_ptr(tvb,offset,key2_size);
      offset += key2_size;
 
      if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -161,8 +159,8 @@ rs_pgo_dissect_get_rqst (tvbuff_t *tvb, int offset,
 	                         char *drep)
 {
 
-   guint32 name_domain, key_size, var, var2;
-   char *key_t = NULL;
+     guint32 name_domain, key_size, var, var2;
+     const char *key_t = NULL;
 
      offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
          hf_rs_pgo_get_rqst_name_domain, &name_domain);
@@ -176,7 +174,7 @@ rs_pgo_dissect_get_rqst (tvbuff_t *tvb, int offset,
      if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
 
          proto_tree_add_string (tree, hf_rs_pgo_get_rqst_key_t, tvb, offset, hf_rs_pgo_get_rqst_key_size, tvb_get_ptr (tvb, offset, key_size));
-         key_t = (char *)tvb_get_ptr(tvb,offset,key_size);
+         key_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
          offset += (int)key_size;
 
          if (check_col(pinfo->cinfo, COL_INFO)) {
