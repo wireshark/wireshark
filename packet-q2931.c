@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.2 1999/11/25 10:01:18 guy Exp $
+ * $Id: packet-q2931.c,v 1.3 1999/11/25 22:52:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,10 @@ static gint ett_q2931 = -1;
 static gint ett_q2931_ext = -1;
 static gint ett_q2931_ie = -1;
 static gint ett_q2931_ie_ext = -1;
+static gint ett_q2931_nsap = -1;
+
+static void dissect_q2931_ie(const u_char *pd, int offset, int len,
+    proto_tree *tree, guint8 info_element, guint8 info_element_ext);
 
 /*
  * Q.2931 message types.
@@ -86,6 +90,8 @@ static gint ett_q2931_ie_ext = -1;
 #define	Q2931_ADD_PARTY_REJ	0x82
 #define	Q2931_DROP_PARTY	0x83
 #define	Q2931_DROP_PARTY_ACK	0x84
+#define	Q2931_LEAF_SETUP_FAIL	0x90
+#define	Q2931_LEAF_SETUP_REQ	0x91
 
 static const value_string q2931_message_type_vals[] = {
 	{ Q2931_ALERTING,		"ALERTING" },
@@ -108,6 +114,8 @@ static const value_string q2931_message_type_vals[] = {
 	{ Q2931_ADD_PARTY_REJ,		"ADD PARTY REJECT" },
 	{ Q2931_DROP_PARTY,		"DROP PARTY" },
 	{ Q2931_DROP_PARTY_ACK,		"DROP PARTY ACKNOWLEDGE" },
+	{ Q2931_LEAF_SETUP_FAIL,	"LEAF SETUP FAILURE" },
+	{ Q2931_LEAF_SETUP_REQ,		"LEAF SETUP REQUEST" },
 	{ 0,				NULL }
 };
 
@@ -192,6 +200,7 @@ static const value_string ie_action_ind_vals[] = {
 #define	Q2931_IE_RESTART_INDICATOR	0x79
 #define	Q2931_IE_NBAND_LOW_LAYER_COMPAT	0x7C	/* Narrowband Low-Layer Compatibility */
 #define	Q2931_IE_NBAND_HIGH_LAYER_COMPAT 0x7D	/* Narrowband High-Layer Compatibility */
+#define	Q2931_IE_GENERIC_IDENT_TRANSPORT 0x7F	/* Generic identifier transport */
 
 static const value_string q2931_info_element_vals[] = {
 	{ Q2931_IE_NBAND_BEARER_CAP,		"Narrowband bearer capability" },
@@ -222,6 +231,7 @@ static const value_string q2931_info_element_vals[] = {
 	{ Q2931_IE_RESTART_INDICATOR,		"Restart indicator" },
 	{ Q2931_IE_NBAND_LOW_LAYER_COMPAT,	"Narrowband low-layer compatibility" },
 	{ Q2931_IE_NBAND_HIGH_LAYER_COMPAT,	"Narrowband high-layer compatibility" },
+	{ Q2931_IE_GENERIC_IDENT_TRANSPORT,	"Generic identifier transport" },
 	{ 0,					NULL }
 };
 
@@ -491,6 +501,39 @@ dissect_q2931_aal_parameters_ie(const u_char *pd, int offset, int len,
 /*
  * Dissect an ATM traffic descriptor information element.
  */
+#define	Q2931_ATM_CR_FW_PEAK_CLP_0	0x82	/* Forward peak cell rate (CLP = 0) */
+#define	Q2931_ATM_CR_BW_PEAK_CLP_0	0x83	/* Backward peak cell rate (CLP = 0) */
+#define	Q2931_ATM_CR_FW_PEAK_CLP_0_1	0x84	/* Forward peak cell rate (CLP = 0 + 1) */
+#define	Q2931_ATM_CR_BW_PEAK_CLP_0_1	0x85	/* Backward peak cell rate (CLP = 0 + 1) */
+#define	Q2931_ATM_CR_FW_SUST_CLP_0	0x88	/* Forward sustainable cell rate (CLP = 0) */
+#define	Q2931_ATM_CR_BW_SUST_CLP_0	0x89	/* Backward sustainable cell rate (CLP = 0) */
+#define	Q2931_ATM_CR_FW_SUST_CLP_0_1	0x90	/* Forward sustainable cell rate (CLP = 0 + 1) */
+#define	Q2931_ATM_CR_BW_SUST_CLP_0_1	0x91	/* Backward sustainable cell rate (CLP = 0 + 1) */
+#define	Q2931_ATM_CR_FW_MAXB_CLP_0	0xA0	/* Forward maximum burst size (CLP = 0) */
+#define	Q2931_ATM_CR_BW_MAXB_CLP_0	0xA1	/* Backward maximum burst size (CLP = 0) */
+#define	Q2931_ATM_CR_FW_MAXB_CLP_0_1	0xB0	/* Forward maximum burst size (CLP = 0 + 1) */
+#define	Q2931_ATM_CR_BW_MAXB_CLP_0_1	0xB1	/* Backward maximum burst size (CLP = 0 + 1) */
+#define	Q2931_ATM_CR_BEST_EFFORT_IND	0xBE	/* Best effort indicator */
+#define	Q2931_ATM_CR_TRAFFIC_MGMT_OPT	0xBF	/* Traffic management options */
+
+static const value_string q2931_atm_td_subfield_vals[] = {
+	{ Q2931_ATM_CR_FW_PEAK_CLP_0,	"Forward peak cell rate (CLP = 0)" },
+	{ Q2931_ATM_CR_BW_PEAK_CLP_0,	"Backward peak cell rate (CLP = 0)" },
+	{ Q2931_ATM_CR_FW_PEAK_CLP_0_1,	"Forward peak cell rate (CLP = 0 + 1)" },
+	{ Q2931_ATM_CR_BW_PEAK_CLP_0_1,	"Backward peak cell rate (CLP = 0 + 1)" },
+	{ Q2931_ATM_CR_FW_SUST_CLP_0,	"Forward sustainable cell rate (CLP = 0)" },
+	{ Q2931_ATM_CR_BW_SUST_CLP_0,	"Backward sustainable cell rate (CLP = 0)" },
+	{ Q2931_ATM_CR_FW_SUST_CLP_0_1,	"Forward sustainable cell rate (CLP = 0 + 1)" },
+	{ Q2931_ATM_CR_BW_SUST_CLP_0_1,	"Backward sustainable cell rate (CLP = 0 + 1)" },
+	{ Q2931_ATM_CR_FW_MAXB_CLP_0,	"Forward maximum burst size (CLP = 0)" },
+	{ Q2931_ATM_CR_BW_MAXB_CLP_0,	"Backward maximum burst size (CLP = 0)" },
+	{ Q2931_ATM_CR_FW_MAXB_CLP_0_1,	"Forward maximum burst size (CLP = 0 + 1)" },
+	{ Q2931_ATM_CR_BW_MAXB_CLP_0_1,	"Backward maximum burst size (CLP = 0 + 1)" },
+	{ Q2931_ATM_CR_BEST_EFFORT_IND,	"Best effort indicator" },
+	{ Q2931_ATM_CR_TRAFFIC_MGMT_OPT,"Traffic management options" },
+	{ 0x0,				NULL }
+};
+
 static void
 dissect_q2931_atm_cell_rate_ie(const u_char *pd, int offset, int len,
     proto_tree *tree)
@@ -502,176 +545,50 @@ dissect_q2931_atm_cell_rate_ie(const u_char *pd, int offset, int len,
 		identifier = pd[offset];
 		switch (identifier) {
 
-		case 0x82:	/* Forward peak cell rate (CLP = 0) */
+		case Q2931_ATM_CR_FW_PEAK_CLP_0:
+		case Q2931_ATM_CR_BW_PEAK_CLP_0:
+		case Q2931_ATM_CR_FW_PEAK_CLP_0_1:
+		case Q2931_ATM_CR_BW_PEAK_CLP_0_1:
+		case Q2931_ATM_CR_FW_SUST_CLP_0:
+		case Q2931_ATM_CR_BW_SUST_CLP_0:
+		case Q2931_ATM_CR_FW_SUST_CLP_0_1:
+		case Q2931_ATM_CR_BW_SUST_CLP_0_1:
+		case Q2931_ATM_CR_FW_MAXB_CLP_0:
+		case Q2931_ATM_CR_BW_MAXB_CLP_0:
+		case Q2931_ATM_CR_FW_MAXB_CLP_0_1:
+		case Q2931_ATM_CR_BW_MAXB_CLP_0_1:
 			if (len < 4)
 				return;
 			value = (pd[offset + 1] << 16)
 			      | (pd[offset + 2] << 8)
 			      | (pd[offset + 3] << 0);
 			proto_tree_add_text(tree, offset, 4,
-			    "Forward peak cell rate (CLP = 0): %u cell%s/s",
+			    "%s: %u cell%s/s",
+			    val_to_str(identifier, q2931_atm_td_subfield_vals,
+			      NULL),
 			    value, plurality(value, "", "s"));
 			offset += 4;
 			len -= 4;
 			break;
 
-		case 0x83:	/* Backward peak cell rate (CLP = 0) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Backward peak cell rate (CLP = 0): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0x84:	/* Forward peak cell rate (CLP = 0 + 1) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Forward peak cell rate (CLP = 0 + 1): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0x85:	/* Backward peak cell rate (CLP = 0 + 1) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Backward peak cell rate (CLP = 0 + 1): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0x88:	/* Forward sustainable cell rate (CLP = 0) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Forward sustainable cell rate (CLP = 0): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0x89:	/* Backward sustainable cell rate (CLP = 0) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Backward sustainable cell rate (CLP = 0): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0x90:	/* Forward sustainable cell rate (CLP = 0 + 1) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Forward sustainable cell rate (CLP = 0 + 1): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0x91:	/* Backward sustainable cell rate (CLP = 0 + 1) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Backward sustainable cell rate (CLP = 0 + 1): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0xA0:	/* Forward maximum burst size (CLP = 0) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Forward maximum burst size (CLP = 0): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0xA1:	/* Backward maximum burst size (CLP = 0) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Backward maximum burst size (CLP = 0): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0xB0:	/* Forward maximum burst size (CLP = 0 + 1) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Forward maximum burst size (CLP = 0 + 1): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0xB1:	/* Backward maximum burst size (CLP = 0 + 1) */
-			if (len < 4)
-				return;
-			value = (pd[offset + 1] << 16)
-			      | (pd[offset + 2] << 8)
-			      | (pd[offset + 3] << 0);
-			proto_tree_add_text(tree, offset, 4,
-			    "Backward maximum burst size (CLP = 0 + 1): %u cell%s/s",
-			    value, plurality(value, "", "s"));
-			offset += 4;
-			len -= 4;
-			break;
-
-		case 0xBE:	/* best effort indicator */
+		case Q2931_ATM_CR_BEST_EFFORT_IND:
 			/* Yes, its value *IS* 0xBE.... */
 			proto_tree_add_text(tree, offset, 1,
-			    "Best effort indicator");
+			    "%s",
+			    val_to_str(identifier, q2931_atm_td_subfield_vals,
+			      NULL));
 			offset += 1;
 			len -= 1;
 			break;
 
-		case 0xBF:	/* Traffic management options */
+		case Q2931_ATM_CR_TRAFFIC_MGMT_OPT:
 			if (len < 2)
 				return;
 			value = pd[offset + 1];
 			proto_tree_add_text(tree, offset, 2,
-			    "Traffic management options");
+			    "%s",
+			    val_to_str(identifier, q2931_atm_td_subfield_vals,
+			      NULL));
 			proto_tree_add_text(tree, offset + 1, 1,
 			    "%s allowed in forward direction",
 			    (value & 0x80) ? "Frame discard" : "No frame discard");
@@ -679,11 +596,11 @@ dissect_q2931_atm_cell_rate_ie(const u_char *pd, int offset, int len,
 			    "%s allowed in backward direction",
 			    (value & 0x40) ? "Frame discard" : "No frame discard");
 			proto_tree_add_text(tree, offset + 1, 1,
-			    "%s requested in forward direction",
-			    (value & 0x02) ? "Tagging" : "No tagging");
+			    "Tagging %srequested in backward direction",
+			    (value & 0x02) ? "" : "not ");
 			proto_tree_add_text(tree, offset + 1, 1,
-			    "%s requested in backward direction",
-			    (value & 0x01) ? "Tagging" : "No tagging");
+			    "Tagging %srequested in forward direction",
+			    (value & 0x01) ? "" : "not ");
 			offset += 2;
 			len -= 2;
 			break;
@@ -704,20 +621,23 @@ static const value_string q2931_bearer_class_vals[] = {
 	{ 0x01, "BCOB-A" },
 	{ 0x03, "BCOB-C" },
 	{ 0x10, "BCOB-X" },
+	{ 0x18, "Transparent VP Service" },
 	{ 0x00, NULL }
 };
 
-static const value_string q2931_traffic_type_vals[] = {
-	{ 0x00, "No indication" },
-	{ 0x04, "Constant bit rate" },
-	{ 0x08, "Variable bit rate" },
-	{ 0x00, NULL }
-};
-
-static const value_string q2931_timing_requirements_vals[] = {
-	{ 0x00, "No indication" },
-	{ 0x01, "End-to-end timing required" },
-	{ 0x02, "End-to-end timing not required" },
+static const value_string q2931_transfer_capability_vals[] = {
+	{ 0x00, "No bit rate indication" },
+	{ 0x01, "No bit rate indication, end-to-end timing required" },
+	{ 0x02, "No bit rate indication, end-to-end timing not required" },
+	{ 0x04, "CBR" },
+	{ 0x05, "CBR, end-to-end timing required" },
+	{ 0x06, "CBR, end-to-end timing not required" },
+	{ 0x07, "CBR with CLR commitment on CLP=0+1" },
+	{ 0x08, "VBR, no timing requirements indication" },
+	{ 0x09, "Real time VBR" },
+	{ 0x0A, "Non-real time VBR" },
+	{ 0x0B, "Non-real time VBR with CLR commitment on CLP=0+1" },
+	{ 0x0C, "ABR" },
 	{ 0x00, NULL }
 };
 
@@ -754,12 +674,8 @@ dissect_q2931_bband_bearer_cap_ie(const u_char *pd, int offset, int len,
 	if (!(octet & Q2931_IE_EXTENSION)) {
 		octet = pd[offset];
 		proto_tree_add_text(tree, offset, 1,
-		    "Traffic type: %s",
-		    val_to_str(octet & 0x1C, q2931_traffic_type_vals,
-		    "Unknown (0x%02X)"));
-		proto_tree_add_text(tree, offset, 1,
-		    "Timing requirements: %s",
-		    val_to_str(octet & 0x03, q2931_timing_requirements_vals,
+		    "ATM Transfer Capability: %s",
+		    val_to_str(octet & 0x1F, q2931_transfer_capability_vals,
 		    "Unknown (0x%02X)"));
 		offset += 1;
 		len -= 1;
@@ -841,7 +757,6 @@ static const value_string q2931_mode_vals[] = {
 #define	Q2931_UIL3_USER_SPEC	0x10
 
 static const value_string q2931_uil3_vals[] = {
-	{ 0x02,			"Q.931/I.451" },
 	{ Q2931_UIL3_X25_PL,	"X.25, packet layer" },
 	{ Q2931_UIL3_ISO_8208,	"ISO/IEC 8208" },
 	{ Q2931_UIL3_X223,	"X.223/ISO 8878" },
@@ -850,6 +765,14 @@ static const value_string q2931_uil3_vals[] = {
 	{ Q2931_UIL3_TR_9577,	"ISO/IEC TR 9577" },
 	{ Q2931_UIL3_USER_SPEC,	"User-specified" },
 	{ 0,			NULL }
+};
+
+#define	Q2931_TR_9577_IPI_SNAP	0x80
+static const value_string q2931_uil3_tr_9577_vals[] = {
+	{ 0xCC,                   "IP" },
+	{ 0xCF,                   "PPP" },
+	{ Q2931_TR_9577_IPI_SNAP, "SNAP" },
+	{ 0x00,                   NULL }
 };
 
 /*
@@ -862,6 +785,9 @@ dissect_q2931_bband_low_layer_info_ie(const u_char *pd, int offset, int len,
 	guint8 octet;
 	guint8 uil2_protocol;
 	guint8 uil3_protocol;
+	guint8 add_l3_info;
+	guint32 organization_code;
+	guint16 pid;
 
 	if (len == 0)
 		return;
@@ -956,6 +882,8 @@ l2_done:
 			    "Mode: %s",
 			    val_to_str(octet & 0x60, q2931_mode_vals,
 			      "Unknown (0x%02X)"));
+			offset += 1;
+			len -= 1;
 
 			if (octet & Q2931_IE_EXTENSION)
 				goto l3_done;
@@ -987,18 +915,333 @@ l2_done:
 			break;
 
 		case Q2931_UIL3_TR_9577:
-			if (len == 0)
+			add_l3_info = (octet & 0x7F) << 1;
+			if (octet & Q2931_IE_EXTENSION)
+				goto l3_done;
+			if (len < 2)
 				return;
-			proto_tree_add_text(tree, offset, len,
+			add_l3_info |= (pd[offset + 1] & 0x40) >> 6;
+			proto_tree_add_text(tree, offset, 2,
 			    "Additional layer 3 protocol information: %s",
-				bytes_to_str(&pd[offset], len));
-			offset += len;
-			len -= len;
+			    val_to_str(add_l3_info, q2931_uil3_tr_9577_vals,
+			      "Unknown (0x%02X)"));
+			offset += 2;
+			len -= 2;
+			if (add_l3_info == Q2931_TR_9577_IPI_SNAP) {
+				if (len < 6)
+					return;
+				offset += 1;
+				len -= 1;
+				organization_code = 
+				    pd[offset] << 16 | pd[offset+1] << 8 | pd[offset+2];
+				proto_tree_add_text(tree, offset, 3,
+				    "Organization Code: 0x%06X",
+				    organization_code);
+				offset += 3;
+				len -= 3;
+
+				if (len < 2)
+					return;
+				pid = pntohs(&pd[offset]);
+				if (organization_code == 0x000000) {
+					proto_tree_add_text(tree, offset, 2,
+					    "Ethernet type: %s",
+					    val_to_str(pid, etype_vals,
+					        "Unknown (0x%04X)"));
+				} else {
+					proto_tree_add_text(tree, offset, 2,
+					    "Protocol ID: 0x%04X", pid);
+				}
+			}
 			break;
 		}
 	}
 l3_done:
 	;
+}
+
+/*
+ * Dissect a Cause information element.
+ */
+static const value_string q2931_cause_coding_standard_vals[] = {
+	{ 0x00, "ITU-T standardized coding" },
+	{ 0x20, "ISO/IEC standard" },
+	{ 0x40, "National standard" },
+	{ 0x60, "Standard defined for the network" },
+	{ 0,    NULL }
+};
+	
+static const value_string q2931_cause_location_vals[] = {
+	{ 0x00, "User (U)" },
+	{ 0x01, "Private network serving the local user (LPN)" },
+	{ 0x02, "Public network serving the local user (LN)" },
+	{ 0x03, "Transit network (TN)" },
+	{ 0x04, "Public network serving the remote user (RLN)" },
+	{ 0x05, "Private network serving the remote user (RPN)" },
+	{ 0x07, "International network (INTL)" },
+	{ 0x0A, "Network beyond interworking point (BI)" },
+	{ 0,    NULL }
+};
+
+/*
+ * Cause codes for Cause.
+ */
+#define	Q2931_CAUSE_UNALLOC_NUMBER	0x01
+#define	Q2931_CAUSE_NO_ROUTE_TO_DEST	0x03
+#define	Q2931_CAUSE_CALL_REJECTED	0x15
+#define	Q2931_CAUSE_NUMBER_CHANGED	0x16
+#define	Q2931_CAUSE_CELL_RATE_UNAVAIL	0x25
+#define	Q2931_CAUSE_ACCESS_INFO_DISC	0x2B
+#define	Q2931_CAUSE_QOS_UNAVAILABLE	0x31
+#define	Q2931_CAUSE_CHAN_NONEXISTENT	0x52
+#define	Q2931_CAUSE_INCOMPATIBLE_DEST	0x58
+#define	Q2931_CAUSE_MAND_IE_MISSING	0x60
+#define	Q2931_CAUSE_MT_NONEX_OR_UNIMPL	0x61
+#define	Q2931_CAUSE_IE_NONEX_OR_UNIMPL	0x63
+#define	Q2931_CAUSE_INVALID_IE_CONTENTS	0x64
+#define	Q2931_CAUSE_MSG_INCOMPAT_W_CS	0x65
+#define	Q2931_CAUSE_REC_TIMER_EXP	0x66
+
+static const value_string q2931_cause_code_vals[] = {
+	{ Q2931_CAUSE_UNALLOC_NUMBER,	"Unallocated (unassigned) number" },
+	{ 0x02,				"No route to specified transit network" },
+	{ Q2931_CAUSE_NO_ROUTE_TO_DEST,	"No route to destination" },
+	{ 0x10,				"Normal call clearing" },
+	{ 0x11,				"User busy" },
+	{ 0x12,				"No user responding" },
+	{ Q2931_CAUSE_CALL_REJECTED,	"Call rejected" },
+	{ Q2931_CAUSE_NUMBER_CHANGED,	"Number changed" },
+	{ 0x17,				"User rejects calls with calling line identification restriction" },
+	{ 0x1B,				"Destination out of order" },
+	{ 0x1C,				"Invalid number format (incomplete number)" },
+	{ 0x1E,				"Response to STATUS ENQUIRY" },
+	{ 0x1F,				"Normal unspecified" },
+	{ 0x23,				"Requested VPCI/VCI not available" },
+	{ 0x24,				"VPCI/VCI assignment failure" },
+	{ Q2931_CAUSE_CELL_RATE_UNAVAIL,"User cell rate not available" },
+	{ 0x26,				"Network out of order" },
+	{ 0x29,				"Temporary failure" },
+	{ Q2931_CAUSE_ACCESS_INFO_DISC,	"Access information discarded" },
+	{ 0x2D,				"No VPCI/VCI available" },
+	{ 0x2F,				"Resources unavailable, unspecified" },
+	{ Q2931_CAUSE_QOS_UNAVAILABLE,	"Quality of service unavailable" },
+	{ 0x39,				"Bearer capability not authorized" },
+	{ 0x3A,				"Bearer capability not presently available" },
+	{ 0x3F,				"Service or option not available, unspecified" },
+	{ 0x41,				"Bearer capability not implemented" },
+	{ 0x49,				"Unsupported combination of traffic parameters" },
+	{ 0x4E,				"AAL parameters cannot be supported" },
+	{ 0x51,				"Invalid call reference value" },
+	{ Q2931_CAUSE_CHAN_NONEXISTENT,	"Identified channel does not exist" },
+	{ Q2931_CAUSE_INCOMPATIBLE_DEST,"Incompatible destination" },
+	{ 0x59,				"Invalid endpoint reference" },
+	{ 0x5B,				"Invalid transit network selection" },
+	{ 0x5C,				"Too many pending ADD PARTY requests" },
+	{ Q2931_CAUSE_MAND_IE_MISSING,	"Mandatory information element is missing" },
+	{ Q2931_CAUSE_MT_NONEX_OR_UNIMPL,"Message type non-existent or not implemented" },
+	{ Q2931_CAUSE_IE_NONEX_OR_UNIMPL,"Information element nonexistant or not implemented" },
+	{ Q2931_CAUSE_INVALID_IE_CONTENTS,"Invalid information element contents" },
+	{ Q2931_CAUSE_MSG_INCOMPAT_W_CS,"Message not compatible with call state" },
+	{ Q2931_CAUSE_REC_TIMER_EXP,	"Recovery on timer expiry" },
+	{ 0x68,				"Incorrect message length" },
+	{ 0x6F,				"Protocol error, unspecified" },
+	{ 0,				NULL }
+};
+
+static const value_string q2931_cause_condition_vals[] = {
+	{ 0x00, "Unknown" },
+	{ 0x01, "Permanent" },
+	{ 0x02, "Transient" },
+	{ 0x00, NULL }
+};
+
+#define	Q2931_REJ_USER_SPECIFIC		0x00
+#define	Q2931_REJ_IE_MISSING		0x04
+#define	Q2931_REJ_IE_INSUFFICIENT	0x08
+
+static const value_string q2931_rejection_reason_vals[] = {
+	{ 0x00, "User specific" },
+	{ 0x04, "Information element missing" },
+	{ 0x08, "Information element contents are not sufficient" },
+	{ 0x00, NULL }
+};
+
+static void
+dissect_q2931_cause_ie(const u_char *pd, int offset, int len,
+    proto_tree *tree)
+{
+	guint8 octet;
+	guint8 cause_value;
+	guint8 rejection_reason;
+	guint8 info_element;
+	guint8 info_element_ext;
+	guint16 info_element_len;
+
+	if (len == 0)
+		return;
+	octet = pd[offset];
+	proto_tree_add_text(tree, offset, 1,
+	    "Location: %s",
+	    val_to_str(octet & 0x0F, q2931_cause_location_vals,
+	      "Unknown (0x%X)"));
+	offset += 1;
+	len -= 1;
+
+	if (len == 0)
+		return;
+	octet = pd[offset];
+	cause_value = octet & 0x7F;
+	proto_tree_add_text(tree, offset, 1,
+	    "Cause value: %s",
+	    val_to_str(cause_value, q2931_cause_code_vals,
+	      "Unknown (0x%X)"));
+	offset += 1;
+	len -= 1;
+
+	if (len == 0)
+		return;
+	switch (cause_value) {
+
+	case Q2931_CAUSE_UNALLOC_NUMBER:
+	case Q2931_CAUSE_NO_ROUTE_TO_DEST:
+	case Q2931_CAUSE_QOS_UNAVAILABLE:
+		octet = pd[offset];
+		proto_tree_add_text(tree, offset, 1,
+		    "Network service: %s",
+		    (octet & 0x80) ? "User" : "Provider");
+		proto_tree_add_text(tree, offset, 1,
+		    "%s",
+		    (octet & 0x40) ? "Abnormal" : "Normal");
+		proto_tree_add_text(tree, offset, 1,
+		    "Condition: %s",
+		    val_to_str(octet & 0x03, q2931_cause_condition_vals,
+		      "Unknown (0x%X)"));
+		break;
+		
+	case Q2931_CAUSE_CALL_REJECTED:
+		rejection_reason = octet & 0x7C;
+		proto_tree_add_text(tree, offset, 1,
+		    "Rejection reason: %s",
+		    val_to_str(octet & 0x7C, q2931_cause_condition_vals,
+		      "Unknown (0x%X)"));
+		proto_tree_add_text(tree, offset, 1,
+		    "Condition: %s",
+		    val_to_str(octet & 0x03, q2931_cause_condition_vals,
+		      "Unknown (0x%X)"));
+		offset += 1;
+		len -= 1;
+
+		if (len == 0)
+			return;
+		switch (rejection_reason) {
+
+		case Q2931_REJ_USER_SPECIFIC:
+			proto_tree_add_text(tree, offset, len,
+			    "User specific diagnostic: %s",
+			    bytes_to_str(&pd[offset], len));
+			break;
+
+		case Q2931_REJ_IE_MISSING:
+			proto_tree_add_text(tree, offset, 1,
+			    "Missing information element: %s",
+			    val_to_str(pd[offset], q2931_info_element_vals,
+			      "Unknown (0x%02X)"));
+			break;
+
+		case Q2931_REJ_IE_INSUFFICIENT:
+			proto_tree_add_text(tree, offset, 1,
+			    "Insufficient information element: %s",
+			    val_to_str(pd[offset], q2931_info_element_vals,
+			      "Unknown (0x%02X)"));
+			break;
+
+		default:
+			proto_tree_add_text(tree, offset, len,
+			    "Diagnostic: %s",
+			    bytes_to_str(&pd[offset], len));
+			break;
+		}
+		break;
+
+	case Q2931_CAUSE_NUMBER_CHANGED:
+		/*
+		 * UNI 3.1 claims this "is formatted as the called party
+		 * number information element, including information
+		 * element identifier.
+		 */
+		info_element = pd[offset];
+		if (!BYTES_ARE_IN_FRAME(offset + 1, 1))
+			break;	/* ran past end of frame */
+		info_element_ext = pd[offset + 1];
+		if (!BYTES_ARE_IN_FRAME(offset + 2, 2))
+			break;	/* ran past end of frame */
+		info_element_len = pntohs(&pd[offset + 2]);
+		if (!BYTES_ARE_IN_FRAME(offset + 4, info_element_len))
+			break;	/* ran past end of frame */
+		dissect_q2931_ie(pd, offset, info_element_len, tree,
+		    info_element, info_element_ext);
+		break;
+
+	case Q2931_CAUSE_ACCESS_INFO_DISC:
+	case Q2931_CAUSE_INCOMPATIBLE_DEST:
+	case Q2931_CAUSE_MAND_IE_MISSING:
+	case Q2931_CAUSE_IE_NONEX_OR_UNIMPL:
+	case Q2931_CAUSE_INVALID_IE_CONTENTS:
+		do {
+			proto_tree_add_text(tree, offset, 1,
+			    "Information element: %s",
+			    val_to_str(pd[offset], q2931_info_element_vals,
+			      "Unknown (0x%02X)"));
+			offset += 1;
+			len -= 1;
+		} while (len != 0);
+		break;
+
+	case Q2931_CAUSE_CELL_RATE_UNAVAIL:
+		do {
+			proto_tree_add_text(tree, offset, 1,
+			    "Cell rate subfield identifier: %s",
+			    val_to_str(pd[offset], q2931_atm_td_subfield_vals,
+			      "Unknown (0x%02X)"));
+			offset += 1;
+			len -= 1;
+		} while (len != 0);
+		break;
+
+	case Q2931_CAUSE_CHAN_NONEXISTENT:
+		if (len < 2)
+			return;
+		proto_tree_add_text(tree, offset, 2,
+		    "VPCI: %u", pntohs(&pd[offset]));
+		offset += 2;
+		len -= 2;
+
+		if (len < 2)
+			return;
+		proto_tree_add_text(tree, offset, 2,
+		    "VCI: %u", pntohs(&pd[offset]));
+		break;
+
+	case Q2931_CAUSE_MT_NONEX_OR_UNIMPL:
+	case Q2931_CAUSE_MSG_INCOMPAT_W_CS:
+		proto_tree_add_text(tree, offset, 1,
+		    "Message type: %s",
+		    val_to_str(pd[offset], q2931_message_type_vals,
+		      "Unknown (0x%02X)"));
+		break;
+
+	case Q2931_CAUSE_REC_TIMER_EXP:
+		if (len < 3)
+			return;
+		proto_tree_add_text(tree, offset, 3,
+		    "Timer: %.3s", &pd[offset]);
+		break;
+
+	default:
+		proto_tree_add_text(tree, offset, len,
+		    "Diagnostics: %s",
+		    bytes_to_str(&pd[offset], len));
+	}
 }
 
 /*
@@ -1086,6 +1329,8 @@ dissect_q2931_number_ie(const u_char *pd, int offset, int len,
 {
 	guint8 octet;
 	guint8 numbering_plan;
+	proto_item *ti;
+	proto_tree *nsap_tree;
 
 	if (len == 0)
 		return;
@@ -1120,12 +1365,86 @@ dissect_q2931_number_ie(const u_char *pd, int offset, int len,
 
 	if (len == 0)
 		return;
-	if (numbering_plan == Q2931_ISDN_NUMBERING) {
+	switch (numbering_plan) {
+
+	case Q2931_ISDN_NUMBERING:
 		proto_tree_add_text(tree, offset, len, "Number: %.*s",
 		    len, &pd[offset]);
-	} else {
+		break;
+
+	case Q2931_NSAP_ADDRESSING:
+		if (len < 20) {
+			proto_tree_add_text(tree, offset, len,
+			    "Number (too short): %s",
+			    bytes_to_str(&pd[offset], len));
+			return;
+		}
+		ti = proto_tree_add_text(tree, offset, len, "Number");
+		nsap_tree = proto_item_add_subtree(ti, ett_q2931_nsap);
+		switch (pd[offset]) {
+
+		case 0x39:	/* DCC ATM format */
+		case 0xBD:	/* DCC ATM group format */
+			proto_tree_add_text(nsap_tree, offset + 0, 3,
+			    "Data Country Code%s: 0x%04X",
+			    (pd[offset] == 0xBD) ? " (group)" : "",
+			    pntohs(&pd[offset + 1]));
+			proto_tree_add_text(nsap_tree, offset + 3, 10,
+			    "High Order DSP: %s",
+			    bytes_to_str(&pd[offset + 3], 10));
+			proto_tree_add_text(nsap_tree, offset + 13, 6,
+			    "End System Identifier: %s",
+			    bytes_to_str(&pd[offset + 13], 6));
+			proto_tree_add_text(nsap_tree, offset + 19, 1,
+			    "Selector: 0x%02X", pd[offset + 19]);
+			break;
+
+		case 0x47:	/* ICD ATM format */
+		case 0xC5:	/* ICD ATM group format */
+			proto_tree_add_text(nsap_tree, offset, 1,
+			    "International Code Designator%s: 0x%04X",
+			    (pd[offset] == 0xC5) ? " (group)" : "",
+			    pntohs(&pd[offset + 1]));
+			proto_tree_add_text(nsap_tree, offset + 3, 10,
+			    "High Order DSP: %s",
+			    bytes_to_str(&pd[offset + 3], 10));
+			proto_tree_add_text(nsap_tree, offset + 13, 6,
+			    "End System Identifier: %s",
+			    bytes_to_str(&pd[offset + 13], 6));
+			proto_tree_add_text(nsap_tree, offset + 19, 1,
+			    "Selector: 0x%02X", pd[offset + 19]);
+			break;
+
+		case 0x45:	/* E.164 ATM format */
+		case 0xC3:	/* E.164 ATM group format */
+			proto_tree_add_text(nsap_tree, offset + 0, 9,
+			    "E.164 ISDN%s: %s",
+			    (pd[offset] == 0xC3) ? " (group)" : "",
+			    bytes_to_str(&pd[offset + 1], 8));
+			proto_tree_add_text(nsap_tree, offset + 9, 4,
+			    "High Order DSP: %s",
+			    bytes_to_str(&pd[offset + 3], 10));
+			proto_tree_add_text(nsap_tree, offset + 13, 6,
+			    "End System Identifier: %s",
+			    bytes_to_str(&pd[offset + 13], 6));
+			proto_tree_add_text(nsap_tree, offset + 19, 1,
+			    "Selector: 0x%02X", pd[offset + 19]);
+			break;
+
+		default:
+			proto_tree_add_text(nsap_tree, offset, 1,
+			    "Unknown AFI: 0x%02X", pd[offset]);
+			proto_tree_add_text(nsap_tree, offset + 1, len - 1,
+			    "Rest of address: %s",
+			    bytes_to_str(&pd[offset + 1], len - 1));
+			break;
+		}
+		break;
+
+	default:
 		proto_tree_add_text(tree, offset, len, "Number: %s",
 		    bytes_to_str(&pd[offset], len));
+		break;
 	}
 }
 
@@ -1183,6 +1502,7 @@ static const value_string q2931_vp_associated_signalling_vals[] = {
 static const value_string q2931_preferred_exclusive_vals[] = {
 	{ 0x00, "Exclusive VPCI; exclusive VCI" },
 	{ 0x01, "Exclusive VPCI; any VCI" },
+	{ 0x04, "Exclusive VPCI; no VCI" },
 	{ 0x00, NULL }
 };
 
@@ -1464,7 +1784,6 @@ dissect_q2931_oam_traffic_descriptor_ie(const u_char *pd, int offset, int len,
 	offset += 1;
 	len -= 1;
 
-
 	if (len == 0)
 		return;
 	octet = pd[offset];
@@ -1478,8 +1797,73 @@ dissect_q2931_oam_traffic_descriptor_ie(const u_char *pd, int offset, int len,
 	      "Unknown (0x%02X)"));
 }
 
+/*
+ * Dissect an Endpoint reference information element.
+ */
+static const value_string q2931_endpoint_reference_type_vals[] = {
+	{ 0x00, "Locally defined integer" },
+	{ 0,    NULL }
+};
+
 static void
-dissect_q2931_ie(const u_char *pd, int offset, int len,
+dissect_q2931_endpoint_reference_ie(const u_char *pd, int offset, int len,
+    proto_tree *tree)
+{
+	guint8 octet;
+	guint16 value;
+
+	if (len == 0)
+		return;
+	octet = pd[offset];
+	proto_tree_add_text(tree, offset, 1,
+	    "Endpoint reference type: %s",
+	    val_to_str(octet, q2931_endpoint_reference_type_vals,
+	      "Unknown (0x%02X)"));
+	offset += 1;
+	len -= 1;
+
+	if (len < 2)
+		return;
+	value = pntohs(&pd[offset]);
+	proto_tree_add_text(tree, offset, 2,
+	    "Endpoint reference flag: %s",
+	    (value & 0x8000) ? "Message sent to side that originates the endpoint reference" :
+		 	       "Message sent from side that originates the endpoint reference");
+	proto_tree_add_text(tree, offset, 2,
+	    "Endpoint reference identifier value: %u",
+	    value & 0x7FFF);
+}
+
+/*
+ * Dissect an Endpoint state information element.
+ */
+static const value_string q2931_endpoint_reference_party_state_vals[] = {
+	{ 0x00, "Null" },
+	{ 0x01, "ADD PARTY initiated" },
+	{ 0x06, "ADD PARTY received" },
+	{ 0x0B, "DROP PARTY initiated" },
+	{ 0x0C, "DROP PARTY received" },
+	{ 0x0A, "Active" },
+	{ 0,    NULL }
+};
+
+static void
+dissect_q2931_endpoint_state_ie(const u_char *pd, int offset, int len,
+    proto_tree *tree)
+{
+	guint8 octet;
+
+	if (len == 0)
+		return;
+	octet = pd[offset];
+	proto_tree_add_text(tree, offset, 1,
+	    "Endpoint reference party-state: %s",
+	    val_to_str(octet & 0x3F, q2931_endpoint_reference_party_state_vals,
+	      "Unknown (0x%02X)"));
+}
+
+static void
+dissect_q2931_ie_contents(const u_char *pd, int offset, int len,
     proto_tree *tree, guint8 info_element)
 {
 	switch (info_element) {
@@ -1536,6 +1920,10 @@ dissect_q2931_ie(const u_char *pd, int offset, int len,
 		dissect_q2931_party_subaddr_ie(pd, offset, len, tree);
 		break;
 
+	case Q2931_IE_CAUSE:
+		dissect_q2931_cause_ie(pd, offset, len, tree);
+		break;
+
 	case Q2931_IE_CONNECTION_IDENTIFIER:
 		dissect_q2931_connection_identifier_ie(pd, offset, len, tree);
 		break;
@@ -1567,6 +1955,65 @@ dissect_q2931_ie(const u_char *pd, int offset, int len,
 	case Q2931_IE_OAM_TRAFFIC_DESCRIPTOR:
 		dissect_q2931_oam_traffic_descriptor_ie(pd, offset, len, tree);
 		break;
+
+	case Q2931_IE_ENDPOINT_REFERENCE:
+		dissect_q2931_endpoint_reference_ie(pd, offset, len, tree);
+		break;
+
+	case Q2931_IE_ENDPOINT_STATE:
+		dissect_q2931_endpoint_state_ie(pd, offset, len, tree);
+		break;
+	}
+}
+
+static void
+dissect_q2931_ie(const u_char *pd, int offset, int len, proto_tree *tree,
+    guint8 info_element, guint8 info_element_ext)
+{
+	proto_item	*ti;
+	proto_tree	*ie_tree;
+	proto_tree	*ie_ext_tree;
+
+	ti = proto_tree_add_text(tree, offset, 1+1+2+len, "%s",
+	    val_to_str(info_element, q2931_info_element_vals,
+	      "Unknown information element (0x%02X)"));
+	ie_tree = proto_item_add_subtree(ti, ett_q2931_ie);
+	proto_tree_add_text(ie_tree, offset, 1, "Information element: %s",
+	    val_to_str(info_element, q2931_info_element_vals,
+	      "Unknown (0x%02X)"));
+	ti = proto_tree_add_text(ie_tree, offset + 1, 1,
+	    "Information element extension: 0x%02x",
+	    info_element_ext);
+	ie_ext_tree = proto_item_add_subtree(ti, ett_q2931_ie_ext);
+	proto_tree_add_text(ie_ext_tree, offset + 1, 1,
+	    decode_enumerated_bitfield(info_element_ext,
+	        Q2931_IE_COMPAT_CODING_STD, 8,
+		coding_std_vals, "Coding standard: %s"));
+	proto_tree_add_text(ie_ext_tree, offset + 1, 1,
+	    decode_boolean_bitfield(info_element_ext,
+	    Q2931_IE_COMPAT_FOLLOW_INST, 8,
+	    "Follow explicit error handling instructions",
+  	    "Regular error handling procedures apply"));
+	if (info_element_ext & Q2931_IE_COMPAT_FOLLOW_INST) {
+		proto_tree_add_text(ie_ext_tree, offset + 1, 1,
+		    decode_enumerated_bitfield(info_element_ext,
+		        Q2931_IE_COMPAT_ACTION_IND, 8,
+			ie_action_ind_vals,
+			"Action indicator: %s"));
+	}
+	proto_tree_add_text(ie_tree, offset + 2, 2, "Length: %u", len);
+
+	if ((info_element_ext & Q2931_IE_COMPAT_CODING_STD)
+	    == Q2931_ITU_STANDARDIZED_CODING) {
+		dissect_q2931_ie_contents(pd, offset + 4,
+		    len, ie_tree, info_element);
+	} else {
+		/*
+		 * We don't know how it's encoded, so just
+		 * dump it as data and be done with it.
+		 */
+		proto_tree_add_text(ie_tree, offset + 4,  len,
+		    "Data: %s", bytes_to_str(&pd[offset + 4], len));
 	}
 }
 
@@ -1576,8 +2023,6 @@ dissect_q2931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree	*q2931_tree = NULL;
 	proto_item	*ti;
 	proto_tree	*ext_tree;
-	proto_tree	*ie_tree;
-	proto_tree	*ie_ext_tree;
 	guint8		call_ref_len;
 	guint8		call_ref[15];
 	guint8		message_type;
@@ -1656,53 +2101,8 @@ dissect_q2931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		if (!BYTES_ARE_IN_FRAME(offset + 4, info_element_len))
 			break;	/* ran past end of frame */
 		if (q2931_tree != NULL) {
-			ti = proto_tree_add_text(q2931_tree, offset,
-			    1+1+2+info_element_len, "%s",
-			    val_to_str(info_element, q2931_info_element_vals,
-			      "Unknown information element (0x%02X)"));
-			ie_tree = proto_item_add_subtree(ti, ett_q2931_ie);
-			proto_tree_add_text(ie_tree, offset, 1,
-			    "Information element: %s",
-			    val_to_str(info_element, q2931_info_element_vals,
-			      "Unknown (0x%02X)"));
-			ti = proto_tree_add_text(ie_tree, offset + 1, 1,
-			    "Information element extension: 0x%02x",
-			    info_element_ext);
-			ie_ext_tree = proto_item_add_subtree(ti, ett_q2931_ie_ext);
-			proto_tree_add_text(ie_ext_tree, offset + 1, 1,
-			    decode_enumerated_bitfield(info_element_ext,
-			        Q2931_IE_COMPAT_CODING_STD, 8,
-				coding_std_vals, "Coding standard: %s"));
-			proto_tree_add_text(ie_ext_tree, offset + 1, 1,
-			    decode_boolean_bitfield(info_element_ext,
-			    Q2931_IE_COMPAT_FOLLOW_INST, 8,
-			    "Follow explicit error handling instructions",
-		  	    "Regular error handling procedures apply"));
-			if (info_element_ext & Q2931_IE_COMPAT_FOLLOW_INST) {
-				proto_tree_add_text(ie_ext_tree, offset + 1, 1,
-				    decode_enumerated_bitfield(info_element_ext,
-				        Q2931_IE_COMPAT_ACTION_IND, 8,
-					ie_action_ind_vals,
-					"Action indicator: %s"));
-			}
-			proto_tree_add_text(ie_tree, offset + 2, 2,
-			    "Length: %u", info_element_len);
-
-			if ((info_element_ext & Q2931_IE_COMPAT_CODING_STD)
-			    == Q2931_ITU_STANDARDIZED_CODING) {
-				dissect_q2931_ie(pd, offset + 4,
-				    info_element_len, ie_tree, info_element);
-			} else {
-				/*
-				 * We don't know how it's encoded, so just
-				 * dump it as data and be done with it.
-				 */
-				proto_tree_add_text(ie_tree, offset + 4,
-				    info_element_len,
-				    "Data: %s",
-				    bytes_to_str(&pd[offset + 4],
-				    info_element_len));
-			}
+			dissect_q2931_ie(pd, offset, info_element_len,
+			    q2931_tree, info_element, info_element_ext);
 		}
 		if (non_locking_shift)
 			codeset = 0;
@@ -1772,6 +2172,7 @@ proto_register_q2931(void)
         &ett_q2931_ext,
         &ett_q2931_ie,
         &ett_q2931_ie_ext,
+        &ett_q2931_nsap,
     };
 
     proto_q2931 = proto_register_protocol ("Q.2931", "q2931");
