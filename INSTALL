@@ -31,7 +31,7 @@ Installation Checklist
          shared library, a copyright notice, changelog files, and a
          README file - you also need to install a "libpcap-dev" package
          to get header files, a non-shared library, and the man page.
-         Similarly, Red Hat users will need to install a "libpcap-devel"
+         Similarly, Red Hat 5.x users will need to install a "libpcap-devel"
          .rpm to go along with the "libpcap" .rpm.
 
   [ ] 3. Run './configure' in the Ethereal distribution directory.

@@ -1,8 +1,21 @@
 Overview of changes in Ethereal 0.7.3:
 * Fixed bug in RSVP, added RSVP+ support (Ashok)
 * Fixed bug in display filter parsing (Gilbert)
-* Allow compilation from different directory (Brad,
-	<brad@openbsd.org>)
+* Allow compilation from different directory
+	(Brad, <brad@openbsd.org>)
+* Packet colorization (John)
+* Updated RSVP decoder (Ashok)
+* Fixed Token-Ring for more Linux 2.0 drivers
+	(Tom Gallagher <Tom.Gallagher@madge.com>)
+* Change to usage of boolean fields in display filters (Gilbert)
+* Optimized GTKClist (Guy)
+* Handle NBNS continuations (Richard)
+* Started ATM support (Guy)
+* Enhanced user-friendliness via default behaviors and error messages
+	(Guy, Gilbert)
+* Fixed ICMP/IGMP checksums (Richard Jørgensen <ric@tbit.dk>)
+* Removed security-related race-condition when capturing (Guy)
+* Lots and lots o' misc. fixes (Guy)
 
 Overview of changes in Ethereal 0.7.2:
 * Another memory leak fix (Jochen)

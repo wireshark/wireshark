@@ -1,9 +1,9 @@
 General Information
 ------- -----------
 
-Ethereal is a network traffic analyzer for Unix and Unix-like operating
-systems.  It uses GTK+, a graphical user interface library,
-and libpcap, a packet capture and filtering library.
+Ethereal is a network traffic analyzer, or "sniffer", for Unix and
+Unix-like operating systems.  It uses GTK+, a graphical user interface
+library, and libpcap, a packet capture and filtering library.
 
 The official home of Ethereal is
 
@@ -33,12 +33,14 @@ It should run on other systems without too much trouble.
 
 NOTE: the Makefile appears to depend on GNU "make"; it doesn't appear to
 work with the "make" that comes with Solaris 7 nor the BSD "make".
+Perl is also needed to create the man page.
 
-In addition, ethereal requires "flex" - it cannot be built
-with vanilla "lex" - and either "bison" or the Berkeley "yacc". Your flex
+If you decide to modify the yacc grammar or lex scanner, then
+you need "flex" - it cannot be built with vanilla "lex" -
+and either "bison" or the Berkeley "yacc". Your flex
 version must be 2.5.1 or greater. Check this with 'flex -V'.
 
-You must therefore install GNU "make", "flex", and either "bison" or
+You must therefore install Perl, GNU "make", "flex", and either "bison" or
 Berkeley "yacc" on systems that lack them.
 
 Full installation instructions can be found in the INSTALL file.
@@ -111,6 +113,7 @@ library but _do not_ want to have ethereal use it, you can run configure
 with the "--disable-snmp" option. No SNMP support will be compiled into
 ethereal with this option.
 
+
 How to Report a Bug
 -------------------
 Ethereal is still under constant development, so it is possible that you will
@@ -123,14 +126,14 @@ Be sure you tell us:
 
 If the bug is produced by a particular trace file, please be sure to send
 a trace file along with your bug description. Please don't send a trace file
-greather than 1MB when compressed. If the trace file contains sensitive
+greather than 1 MB when compressed. If the trace file contains sensitive
 information (e.g., passwords), then please do not send it.
 
 If Ethereal died on you with a 'segmentation violation', you can help the
-developers a lot if you have your debugger installed. A stack trace using
-your debugger ('gdb' in this example), the ethereal binary, and the
-resulting core file can be obtained by starting the debugger and using
-the 'backtrace' command.
+developers a lot if you have a debugger installed. A stack trace can be
+obtained by using your debugger ('gdb' in this example), the ethereal binary,
+and the resulting core file. Here's an example of how to use the gdb
+command 'backtrace' to do so.
 
 $ gdb ethereal core
 (gdb) backtrace
@@ -146,4 +149,4 @@ Use at your own risk.
 
 
 Gerald Combs <gerald@zing.org>
-Gilbert Ramirez <gram@verdict.uthscsa.edu>
+Gilbert Ramirez <gram@xiexie.org>
