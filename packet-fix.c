@@ -2,7 +2,7 @@
  * Routines for Financial Information eXchange (FIX) Protocol dissection
  * Copyright 2000, PC Drew <drewpc@ibsncentral.com>
  *
- * $Id: packet-fix.c,v 1.4 2003/06/10 05:53:33 guy Exp $
+ * $Id: packet-fix.c,v 1.5 2003/06/12 08:02:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -799,24 +799,6 @@ static void dissect_fix_init(void) {
 
 }
 
-static gboolean return_malformed_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    proto_item *ti;
-    proto_tree *fix_tree;
-
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_clear(pinfo->cinfo, COL_INFO);
-        col_add_str(pinfo->cinfo, COL_INFO, "[Malformed FIX Packet]");
-    }
-
-    if (tree) {
-        /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, FALSE);
-        fix_tree = proto_item_add_subtree(ti, ett_fix);
-        proto_tree_add_text(fix_tree, tvb, 0, -1, "[Malformed FIX Packet]");
-    }
-    return FALSE;
-}
-
 /* Code to actually dissect the packets */
 static gboolean
 dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -842,24 +824,19 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return FALSE;
     }
 
-    /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIX");
-    }
-
     linelen = tvb_find_line_end(tvb, 0, -1, &next, 0);
 
     /* begin string */
     ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
-        return return_malformed_packet(tvb, pinfo, tree);
+        return FALSE;
     }
     offset = ctrla_offset + 1;
 
     /* msg length */
     ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
-        return return_malformed_packet(tvb, pinfo, tree);
+        return FALSE;
     }
     offset = ctrla_offset + 1;
 
@@ -867,26 +844,33 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     field_offset = offset;
     ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
-        return return_malformed_packet(tvb, pinfo, tree);
+        return FALSE;
     }
 
     field_len = ctrla_offset - field_offset + 1;
     equals = tvb_find_guint8(tvb, offset, field_len, '=');
     if (equals == -1) {
-        return return_malformed_packet(tvb, pinfo, tree);
+        return FALSE;
     }
 
     value_offset = equals + 1;
     value_len = ctrla_offset - value_offset;
     if (value_len < 1) {
-        return return_malformed_packet(tvb, pinfo, tree);
+        return FALSE;
+    }
+
+    /* Make entries in Protocol column and Info column on summary display */
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIX");
+    }
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_clear(pinfo->cinfo, COL_INFO);
     }
 
     value = g_malloc(value_len);
     tvb_get_nstringz0(tvb, value_offset, value_len, value);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_clear(pinfo->cinfo, COL_INFO);
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", (char *)g_datalist_get_data(&msg_types, value));
     }
 
@@ -903,7 +887,14 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         field_offset = offset = 0;
         ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
         if (ctrla_offset == -1) {
-            return return_malformed_packet(tvb, pinfo, tree);
+            /* XXX - put an error indication here.  It's too late
+               to return FALSE; we've already started dissecting,
+               and if a heuristic dissector starts dissecting
+               (either updating the columns or creating a protocol
+               tree) and then gives up, it leaves crud behind that
+               messes up other dissectors that might process the
+               packet. */
+            return TRUE;
         }
 
         while(ctrla_offset != -1 && offset < linelen) {
@@ -914,7 +905,14 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             equals = tvb_find_guint8(tvb, offset, field_len, '=');
             if (equals == -1) {
-                return return_malformed_packet(tvb, pinfo, tree);
+                /* XXX - put an error indication here.  It's too late
+                   to return FALSE; we've already started dissecting,
+                   and if a heuristic dissector starts dissecting
+                   (either updating the columns or creating a protocol
+                   tree) and then gives up, it leaves crud behind that
+                   messes up other dissectors that might process the
+                   packet. */
+                return TRUE;
             }
 
             value_offset = equals + 1;
@@ -922,7 +920,14 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             tag_len = equals - field_offset;
             if (tag_len < 1 || value_len < 1) {
-                return return_malformed_packet(tvb, pinfo, tree);
+                /* XXX - put an error indication here.  It's too late
+                   to return FALSE; we've already started dissecting,
+                   and if a heuristic dissector starts dissecting
+                   (either updating the columns or creating a protocol
+                   tree) and then gives up, it leaves crud behind that
+                   messes up other dissectors that might process the
+                   packet. */
+                return TRUE;
             }
             tag_str = g_malloc(tag_len);
             tvb_get_nstringz0(tvb, field_offset, tag_len, tag_str);
