@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.404 2004/02/22 18:44:02 ulfl Exp $
+ * $Id: main.c,v 1.405 2004/02/22 21:35:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3787,7 +3787,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
     set_menu_object_data("/Analyze/Display Filters...", E_FILT_TE_PTR_KEY,
                          filter_te);
-    set_menu_object_data("/Analyze/TCP/Follow Stream", E_DFILTER_TE_KEY,
+    set_menu_object_data("/Transport/TCP/Follow Stream", E_DFILTER_TE_KEY,
                          filter_te);
     set_menu_object_data("/Analyze/Match/Selected", E_DFILTER_TE_KEY,
                          filter_te);

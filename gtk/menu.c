@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.168 2004/02/22 19:48:10 ulfl Exp $
+ * $Id: menu.c,v 1.169 2004/02/22 21:35:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -294,6 +294,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/Summar_y", NULL, summary_open_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Protocol _Hierarchy Statistics", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/_Transport", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/App_lication", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
@@ -564,8 +566,8 @@ register_tap_menu_item(
     gboolean (*selected_tree_row_enabled)(field_info *),
     gpointer callback_data)
 {
-	static const char toolspath[] = "/Analyze/";
-	/*char *toolspath; */
+	//static const char toolspath[] = "/Analyze/";
+	char *toolspath;
 	char *p;
 	char *menupath;
 	size_t menupathlen;
@@ -578,7 +580,7 @@ register_tap_menu_item(
 	 */
 	g_assert(*name != '/');
 
-#if 0
+//#if 0
     switch(layer) {
     case(REGISTER_TAP_LAYER_GENERIC): toolspath = "/Analyze/"; break;
     case(REGISTER_TAP_LAYER_PHYSICAL): toolspath = "/Physical/"; break;
@@ -591,7 +593,19 @@ register_tap_menu_item(
     default:
         g_assert(0);
     }
-#endif
+//#endif
+    switch(layer) {
+    case(REGISTER_TAP_LAYER_GENERIC): toolspath = "/Analyze/"; break;
+    case(REGISTER_TAP_LAYER_PHYSICAL): toolspath = "/Transport/"; break;
+    case(REGISTER_TAP_LAYER_DATA_LINK): toolspath = "/Transport/"; break;
+    case(REGISTER_TAP_LAYER_NETWORK): toolspath = "/Transport/"; break;
+    case(REGISTER_TAP_LAYER_TRANSPORT): toolspath = "/Transport/"; break;
+    case(REGISTER_TAP_LAYER_SESSION): toolspath = "/Application/"; break;
+    case(REGISTER_TAP_LAYER_PRESENTATION): toolspath = "/Application/"; break;
+    case(REGISTER_TAP_LAYER_APPLICATION): toolspath = "/Application/"; break;
+    default:
+        g_assert(0);
+    }
 
     /* add the (empty) root node, if not already done */
     if(tap_menu_tree_root == NULL) {
@@ -726,18 +740,19 @@ guint merge_tap_menus_layered(GList *node, gint layer) {
 
 void merge_all_tap_menus(GList *node) {
 	GtkItemFactoryEntry *entry;
-	static char toolspath[] = "/Analyze/";
 
     entry = g_malloc0(sizeof (GtkItemFactoryEntry));
-	entry->path = toolspath;
 	entry->item_type = "<Separator>";
 
     /* 
      * merge only the menu items of the specific layer,
      * and then append a seperator
      */
+	entry->path = "/Analyze/";
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_GENERIC))
-	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+	    /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+
+	entry->path = "/Transport/";
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_PHYSICAL))
 	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_DATA_LINK))
@@ -745,7 +760,9 @@ void merge_all_tap_menus(GList *node) {
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_NETWORK))
 	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_TRANSPORT))
-	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+	    /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+
+	entry->path = "/Application/";
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_SESSION))
 	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_PRESENTATION))
