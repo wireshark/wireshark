@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.5 1999/09/12 20:23:42 guy Exp $
+ * $Id: print_dlg.c,v 1.6 1999/09/12 23:54:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,7 @@
 #endif
 
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
+static void print_cmd_toggle_detail(GtkWidget *widget, gpointer data);
 static void print_file_cb(GtkWidget *file_bt, gpointer file_te);
 static void print_fs_ok_cb(GtkWidget *w, gpointer data);
 static void print_fs_cancel_cb(GtkWidget *w, gpointer data);
@@ -215,6 +216,8 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_widget_show(summary_rb);
   detail_rb = gtk_radio_button_new_with_label(summary_grp, "Print detail");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(detail_rb), TRUE);
+  gtk_signal_connect(GTK_OBJECT(detail_rb), "toggled",
+			GTK_SIGNAL_FUNC(print_cmd_toggle_detail), NULL);
   gtk_container_add(GTK_CONTAINER(summary_vb), detail_rb);
   gtk_widget_show(detail_rb);
 
@@ -235,6 +238,11 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), FALSE);
   gtk_container_add(GTK_CONTAINER(expand_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
+
+  gtk_object_set_data(GTK_OBJECT(detail_rb), PRINT_EXPAND_ALL_RB_KEY,
+			expand_all_rb);
+  gtk_object_set_data(GTK_OBJECT(detail_rb), PRINT_AS_DISPLAYED_RB_KEY,
+			as_displayed_rb);
 
   /* Button row: OK and Cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -294,6 +302,27 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data)
   gtk_widget_set_sensitive(cmd_te, !to_file);
   gtk_widget_set_sensitive(file_bt, to_file);
   gtk_widget_set_sensitive(file_te, to_file);
+}
+
+static void
+print_cmd_toggle_detail(GtkWidget *widget, gpointer data)
+{
+  GtkWidget     *expand_all_rb, *as_displayed_rb;
+  gboolean      print_detail;
+
+  expand_all_rb = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
+    PRINT_EXPAND_ALL_RB_KEY));
+  as_displayed_rb = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(widget),
+    PRINT_AS_DISPLAYED_RB_KEY));
+  if (GTK_TOGGLE_BUTTON (widget)->active) {
+    /* They selected "Print detail" */
+    print_detail = TRUE;
+  } else {
+    /* They selected "Print summary" */
+    print_detail = FALSE;
+  }
+  gtk_widget_set_sensitive(expand_all_rb, print_detail);
+  gtk_widget_set_sensitive(as_displayed_rb, print_detail);
 }
 
 static void
