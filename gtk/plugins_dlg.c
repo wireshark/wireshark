@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.7 2000/01/03 06:59:23 guy Exp $
+ * $Id: plugins_dlg.c,v 1.8 2000/01/03 20:18:25 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,7 @@ static void plugins_disable_cb(GtkWidget *, gpointer);
 static void plugins_filter_cb(GtkWidget *, gpointer);
 static void filter_ok_cb(GtkWidget *, gpointer);
 static void filter_cancel_cb(GtkWidget *, gpointer);
+static void filter_default_cb(GtkWidget *, gpointer);
 
 void
 tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
@@ -361,6 +362,7 @@ plugins_filter_cb(GtkWidget *button, gpointer clist)
     GtkWidget *filter_hbnbox;
     GtkWidget *ok_bn;
     GtkWidget *cancel_bn;
+    GtkWidget *default_bn;
     plugin    *pt_plug;
 
     if (selected_row == -1) return;
@@ -407,6 +409,12 @@ plugins_filter_cb(GtkWidget *button, gpointer clist)
     gtk_signal_connect(GTK_OBJECT(cancel_bn), "clicked",
 	    GTK_SIGNAL_FUNC(filter_cancel_cb), GTK_OBJECT(filter_window));
 
+    default_bn = gtk_button_new_with_label("Default");
+    gtk_container_add(GTK_CONTAINER(filter_hbnbox), default_bn);
+    gtk_widget_show(default_bn);
+    gtk_signal_connect(GTK_OBJECT(default_bn), "clicked",
+	    GTK_SIGNAL_FUNC(filter_default_cb), GTK_OBJECT(filter_window));
+
     gtk_widget_show(filter_window);
 }
 
@@ -438,5 +446,18 @@ filter_cancel_cb(GtkWidget *close_bt, gpointer parent_w)
 {
     gtk_grab_remove(GTK_WIDGET(parent_w));
     gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+filter_default_cb(GtkWidget *close_bt, gpointer parent_w)
+{
+    GtkWidget *filter_entry;
+    gchar     *filter_string;
+    plugin    *pt_plug;
+
+    filter_entry = gtk_object_get_data(GTK_OBJECT(parent_w), PLUGINS_DFILTER_TE);
+    pt_plug = find_plugin(selected_name, selected_version);
+    filter_string = (gchar *)lt_dlsym(pt_plug->handle, "filter_string");
+    gtk_entry_set_text(GTK_ENTRY(filter_entry), filter_string);
 }
 #endif
