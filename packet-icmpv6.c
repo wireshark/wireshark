@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.21 2000/08/18 12:05:26 itojun Exp $
+ * $Id: packet-icmpv6.c,v 1.22 2000/08/18 15:52:02 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -214,8 +214,7 @@ again:
  * Note that the packet format was changed several times in the past.
  */
 static void
-dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-    proto_tree *parent)
+dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *field_tree;
 	proto_item *tf;
@@ -329,7 +328,7 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	case ICMP6_NI_SUBJ_FQDN:
 	    tf = proto_tree_add_text(tree, NullTVB,
 		offset + sizeof(*ni), sizeof(gint32),
-		"TTL: %d", *(gint32 *)(ni + 1));
+		"TTL: %d", (gint32)pntohl(ni + 1));
 	    /* XXX TBD */
 	    break;
 	case ICMP6_NI_SUBJ_IPV4:
@@ -388,7 +387,7 @@ dissect_nodeinfo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
     }
 
     /* the rest of data */
-    old_dissect_data(pd, offset + off, fd, parent);
+    old_dissect_data(pd, offset + off, fd, tree);
 }
 
 static void
@@ -815,7 +814,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		"Query type: 0x%04x (%s)", pntohs(&ni->ni_qtype),
 		val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype,
 		"Unknown"));
-	    dissect_nodeinfo(pd, offset, fd, icmp6_tree, tree);
+	    dissect_nodeinfo(pd, offset, fd, icmp6_tree);
 	    break;
 	default:
 	    old_dissect_data(pd, offset + sizeof(*dp), fd, tree);
