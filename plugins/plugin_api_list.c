@@ -62,9 +62,9 @@ void register_postseq_cleanup_routine(void (*func)(void));
 gchar* match_strval(guint32, const value_string*);
 gchar* val_to_str(guint32, const value_string *, const char *);
 
-conversation_t *conversation_new(address *, address *,
+conversation_t *conversation_new(guint32, address *, address *,
     port_type, guint32, guint32, guint);
-conversation_t *find_conversation(address *, address *,
+conversation_t *find_conversation(guint32, address *, address *,
     port_type, guint32, guint32, guint);
 void conversation_set_dissector(conversation_t *,
     dissector_handle_t);
