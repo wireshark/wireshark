@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.3 2001/02/27 19:23:28 gram Exp $
+ * $Id: scanner.l,v 1.4 2001/03/02 17:04:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,7 +50,8 @@ static gboolean str_to_guint32(char *s, guint32* pint);
 
 %}
 
-%x RANGE
+%x RANGE_INT
+%x RANGE_PUNCT
 
 BWCHARS		[[:alnum:]\[\]\-_.+!@#%^&*=/:]
 INITVAR		[_A-Za-z]
@@ -87,21 +88,36 @@ VARCHARS	[[:alnum:]_]
 "or"				return simple(TOKEN_TEST_OR);
 
 
-"["				{
-	BEGIN(RANGE);
+"["					{
+	BEGIN(RANGE_INT);
 	return simple(TOKEN_LBRACKET);
 }
 
-<RANGE>[+-]?[[:digit:]]+		{
+<RANGE_INT>[+-]?[[:digit:]]+		{
+	BEGIN(RANGE_PUNCT);
 	return set_lval_int(TOKEN_INTEGER, yytext);
 }
-<RANGE>[+-]?0x[[:xdigit:]]+		{
+<RANGE_INT>[+-]?0x[[:xdigit:]]+		{
+	BEGIN(RANGE_PUNCT);
 	return set_lval_int(TOKEN_INTEGER, yytext);
 }
-<RANGE>":"			return simple(TOKEN_COLON);
-<RANGE>","			return simple(TOKEN_COMMA);
 
-<RANGE>"]"			{
+<RANGE_INT,RANGE_PUNCT>":"		{
+	BEGIN(RANGE_INT);
+	return simple(TOKEN_COLON);
+}
+
+<RANGE_PUNCT>"-"			{
+	BEGIN(RANGE_INT);
+	return simple(TOKEN_HYPHEN);
+}
+
+<RANGE_INT,RANGE_PUNCT>","		{
+	BEGIN(RANGE_INT);
+	return simple(TOKEN_COMMA);
+}
+
+<RANGE_INT,RANGE_PUNCT>"]"		{
 	BEGIN(INITIAL);
 	return simple(TOKEN_RBRACKET);
 }
@@ -142,6 +158,7 @@ simple(int token)
 		case TOKEN_RBRACKET:
 		case TOKEN_COLON:
 		case TOKEN_COMMA:
+		case TOKEN_HYPHEN:
 		case TOKEN_TEST_EQ:
 		case TOKEN_TEST_NE:
 		case TOKEN_TEST_GT:

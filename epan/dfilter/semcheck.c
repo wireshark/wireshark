@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.3 2001/02/27 19:23:28 gram Exp $
+ * $Id: semcheck.c,v 1.4 2001/03/02 17:04:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -310,8 +310,8 @@ check_relation_LHS_FIELD(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node
 			new_st = stnode_new(STTYPE_RANGE, NULL);
 
 			rn = drange_node_new();
-			drange_node_set_offset(rn, 0);
-			drange_node_set_to_the_end(rn, TRUE);
+			drange_node_set_start_offset(rn, 0);
+			drange_node_set_to_the_end(rn);
 			/* st_arg1 is freed in this step */
 			sttype_range_set1(new_st, st_arg1, rn);
 
@@ -417,8 +417,8 @@ check_relation_LHS_RANGE(dfwork_t *dfw, FtypeCanFunc can_func, stnode_t *st_node
 			new_st = stnode_new(STTYPE_RANGE, NULL);
 
 			rn = drange_node_new();
-			drange_node_set_offset(rn, 0);
-			drange_node_set_to_the_end(rn, TRUE);
+			drange_node_set_start_offset(rn, 0);
+			drange_node_set_to_the_end(rn);
 			/* st_arg2 is freed in this step */
 			sttype_range_set1(new_st, st_arg2, rn);
 

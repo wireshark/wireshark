@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.3 2001/02/27 19:23:30 gram Exp $
+ * $Id: ftypes.c,v 1.4 2001/03/02 17:04:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -285,60 +285,78 @@ slice_func(gpointer data, gpointer user_data)
 {
 	drange_node	*drnode = data;
 	slice_data_t	*slice_data = user_data;
-	gint		offset;
-	gint		length;
+	gint		start_offset;
+	gint		length = 0;
+	gint		end_offset = 0;
 	guint		field_length;
-	guint		end_offset;
-	gboolean	to_end;
 	fvalue_t	*fv;
+	drange_node_end_t	ending;
 
 	if (slice_data->slice_failure) {
 		return;
 	}
 
-	offset = drange_node_get_offset(drnode);
-	length = drange_node_get_length(drnode);
-	to_end = drange_node_get_to_the_end(drnode);
+	start_offset = drange_node_get_start_offset(drnode);
+	ending = drange_node_get_ending(drnode);
 
 	fv = slice_data->fv;
 	field_length = fvalue_length(fv);
 
-/*	g_debug("field_length=%u offset=%d length=%d",
-			field_length, offset, length);*/
-
-	if (offset < 0) {
-		offset = field_length + offset;
+	/* Check for negative start */
+	if (start_offset < 0) {
+		start_offset = field_length + start_offset;
 	}
 
-	if (to_end) {
+	/* Check the end type, and set both end_offset and length */
+	if (ending == TO_THE_END) {
 		end_offset = field_length;
-		length = end_offset - offset;
+		length = end_offset - start_offset;
 	}
-	else {
+	else if (ending == LENGTH) {
+		length = drange_node_get_length(drnode);
 		if (length < 0) {
 			end_offset = field_length + length;
-			if (end_offset >= offset) {
-				length = end_offset - offset;
+			if (end_offset > start_offset) {
+				length = end_offset - start_offset + 1;
 			}
 			else {
-				length = 0;
+				slice_data->slice_failure = TRUE;
+				return;
 			}
 		}
 		else {
-			end_offset = offset + length;
+			end_offset = start_offset + length;
 		}
 	}
+	else if (ending == OFFSET) {
+		end_offset = drange_node_get_end_offset(drnode);
+		if (end_offset < 0) {
+			end_offset = field_length + end_offset;
+			if (end_offset > start_offset) {
+				length = end_offset - start_offset + 1;
+			}
+			else {
+				slice_data->slice_failure = TRUE;
+				return;
+			}
+		}
+		else {
+			length = end_offset - start_offset + 1;
+		}
+	}
+	else {
+		g_assert_not_reached();
+	}
 
+/*	g_debug("(NEW) start_offset=%d length=%d end_offset=%d",
+			start_offset, length, end_offset); */
 
-/*	g_debug("\t\t(NEW) offset=%d length=%d",
-			offset, length);*/
-
-	if (offset > field_length || end_offset > field_length) {
+	if (start_offset > field_length || end_offset > field_length) {
 		slice_data->slice_failure = TRUE;
 		return;
 	}
 
-	fv->ftype->slice(fv, slice_data->bytes, offset, length);
+	fv->ftype->slice(fv, slice_data->bytes, start_offset, length);
 }
 
 
