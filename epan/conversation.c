@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.7 2001/06/04 06:46:07 guy Exp $
+ * $Id: conversation.c,v 1.8 2001/06/04 07:27:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -407,26 +407,10 @@ conversation_init(void)
 }
 
 /*
- * Copy an address, allocating a new buffer for the address data.
- */
-static void
-copy_address(address *to, address *from)
-{
-	guint8 *data;
-
-	to->type = from->type;
-	to->len = from->len;
-	data = g_malloc(from->len);
-	memcpy(data, from->data, from->len);
-	to->data = data;
-}
-
-/*
  * Given source and destination addresses and ports for a packet,
  * create a new conversation to contain packets between those address/port
  * pairs. The options field is used to flag the destination address/port 
  * are not given and any value is acceptable.
-
  */
 conversation_t *
 conversation_new(address *src, address *dst, port_type ptype,
@@ -438,8 +422,8 @@ conversation_new(address *src, address *dst, port_type ptype,
 	new_key = g_mem_chunk_alloc(conversation_key_chunk);
 	new_key->next = conversation_keys;
 	conversation_keys = new_key;
-	copy_address(&new_key->src, src);
-	copy_address(&new_key->dst, dst);
+	COPY_ADDRESS(&new_key->src, src);
+	COPY_ADDRESS(&new_key->dst, dst);
 	new_key->ptype = ptype;
 	new_key->port_src = src_port;
 	new_key->port_dst = dst_port;
@@ -527,7 +511,7 @@ void conversation_set_addr( conversation_t *conv, address *addr){
 		    conv->key_ptr);
 	}
 	conv->options &= ~NO_DST_ADDR;
-	copy_address(&conv->key_ptr->dst, addr);
+	COPY_ADDRESS(&conv->key_ptr->dst, addr);
 	if (conv->options & NO_DST_PORT) {
 		g_hash_table_insert(conversation_hashtable_no_dst_port,
 		    conv->key_ptr, conv);

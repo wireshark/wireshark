@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.3 2001/06/04 06:46:07 guy Exp $
+ * $Id: packet_info.h,v 1.4 2001/06/04 07:27:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,10 +54,25 @@ typedef struct _address {
 	(addr)->data = (addr_data); \
 	}
 
+/*
+ * Given two addresses, return "true" if they're equal, "false" otherwise.
+ */
 #define ADDRESSES_EQUAL(addr1, addr2) \
 	((addr1)->type == (addr2)->type && \
 	 (addr1)->len == (addr2)->len && \
 	 memcmp((addr1)->data, (addr2)->data, (addr1)->len) == 0)
+
+/*
+ * Copy an address, allocating a new buffer for the address data.
+ */
+#define COPY_ADDRESS(to, from) { \
+	guint8 *COPY_ADDRESS_data; \
+	(to)->type = (from)->type; \
+	(to)->len = (from)->len; \
+	COPY_ADDRESS_data = g_malloc((from)->len); \
+	memcpy(COPY_ADDRESS_data, (from)->data, (from)->len); \
+	(to)->data = COPY_ADDRESS_data; \
+	}
 
 /* Types of port numbers Ethereal knows about. */
 typedef enum {
