@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.48 2003/12/28 12:43:38 ulfl Exp $
+ * $Id: packet-ldp.c,v 1.49 2004/01/10 14:57:36 obiot Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -201,8 +201,8 @@ static gboolean ldp_desegment = FALSE;
 
 /* Add your functions here */
 
-static int global_ldp_tcp_port = TCP_PORT_LDP;
-static int global_ldp_udp_port = UDP_PORT_LDP;
+static guint32 global_ldp_tcp_port = TCP_PORT_LDP;
+static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 
 /*
  * The following define all the TLV types I know about
@@ -546,6 +546,18 @@ static const value_string tlv_status_data[] = {
   {0, NULL}
 };
 
+/* Define storage class for a string handler function
+ * with a const guint8 * argument, and returning a gchar *
+ */
+typedef gchar *(string_handler_func)(const guint8 *);
+
+/* Default handler for address to string conversion */
+static gchar *
+default_str_handler(const guint8 * bytes _U_)
+{
+	return "<Support for this Address Family not implemented>";
+}
+	
 /* Dissect FEC TLV */
 
 static void
@@ -555,7 +567,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	guint16	family, ix=1, ax;
 	guint8	addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
 	guint8  intparam_len;
-	void *str_handler=NULL;
+	string_handler_func *str_handler = default_str_handler;
 	char *str;
 
 	if (tree) {
@@ -592,7 +604,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 						break;
 					case AFNUM_INET6: /*IPv6*/
 						addr_size=16;
-						str_handler=ip6_to_str;
+						str_handler = (string_handler_func *) ip6_to_str;
 						break;
 					default:
 						implemented=0;
@@ -646,7 +658,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				if( prefix_len % 8 )
 					addr[ax-1] = addr[ax-1]&(0xFF<<(8-prefix_len%8));
 
-				str = (* (char* (*)(guint8 *))str_handler)(addr);
+				str = str_handler((const guint8 *)addr);
 				proto_tree_add_string_format(fec_tree, hf_ldp_tlv_fec_pfval, tvb, offset, prefix_len_octets, str, "Prefix: %s", str);
 
 				offset += prefix_len_octets;
@@ -670,7 +682,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 						break;
 					case AFNUM_INET6: /*IPv6*/
 						addr_size=16;
-						str_handler=ip6_to_str;
+						str_handler = (string_handler_func *) ip6_to_str;
 						break;
 					default:
 						implemented=0;
@@ -722,7 +734,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				for(ax=0; ax+1 <= host_len; ax++)
 					addr[ax]=tvb_get_guint8(tvb, offset+ax);
 
-				str = (* (char* (*)(guint8 *))str_handler)(addr);
+				str = str_handler((const guint8 *)addr);
 				proto_tree_add_string_format(fec_tree, hf_ldp_tlv_fec_hoval, tvb, offset, host_len, str, "Address: %s", str);
 
 				offset += host_len;
@@ -836,7 +848,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	proto_tree *ti = NULL, *val_tree = NULL;
 	guint16	family, ix;
 	guint8	addr_size, *addr;
-	void *str_handler;
+	string_handler_func *str_handler = default_str_handler;
 	char *str;
 
 	if (tree) {
@@ -857,7 +869,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 				break;
 			case AFNUM_INET6: /*IPv6*/
 				addr_size=16;
-				str_handler=ip6_to_str;
+				str_handler = (string_handler_func *) ip6_to_str;
 				break;
 			default:
 				proto_tree_add_text(tree, tvb, offset+2, rem-2,
@@ -882,7 +894,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 							 == NULL)
 				break;
 
-			str = (* (char* (*)(guint8 *))str_handler)(addr);
+			str = str_handler((const guint8 *)addr);
 			proto_tree_add_string_format(val_tree,
 			    hf_ldp_tlv_addrl_addr, tvb, offset, addr_size, str,
 			    "Address %u: %s", ix, str);
