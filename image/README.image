@@ -1,0 +1,46 @@
+This directory contains a set of images and icons for the Ethereal suite of
+applications.  Of particular note for people creating packages for
+distribution are the files ethereal.ico, hi??-app-ethereal.png, and
+lo??-app-ethereal.png.
+
+File descriptions:
+
+File				Description
+
+clist_ascend.xpm		Packet list sort ascending and descending
+clist_descend.xpm		indicators
+
+dn_arrow.xpm			Up and down arrows (originally intended for
+up_arrow.xpm			filter dialogs - not currently used)
+
+eexcl3d64.xpm			3D Exclamation point icon (used in warning
+				and error dialogs)
+
+eicon3d16.xpm			3D Ethereal logo in various sizes with
+eicon3d32.xpm			transparent background, high color
+eicon3d48.xpm
+eicon3d64.xpm
+
+elogo3d48x48.png		3D Ethereal logo on a white background
+
+ethereal.ico			Windows icon file with 16 and 32 pixel
+				3D logo icons, high and low color
+				
+ethereal48x48-trans.png		Old (flat, black & white) logo icons
+ethereal48x48.png
+
+hi16-app-ethereal.png		KDE Icon Factory Styleguide-compliant
+hi32-app-ethereal.png		(http://www.kde.org/artist/introduction.html)
+hi48-app-ethereal.png		icons
+lo16-app-ethereal.png 
+lo32-app-ethereal.png
+lo48-app-ethereal.png
+
+icon-ethereal.xpm		Old icons used in warning, error, and
+icon-excl.xpm			informational dialogs
+
+ethereal.rc.in			MSVC++ resource templates
+editcap.rc.in
+mergecap.rc.in
+tethereal.rc.in
+text2pcap.rc.in
