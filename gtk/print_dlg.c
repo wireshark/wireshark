@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.75 2004/04/25 21:46:19 guy Exp $
+ * $Id: print_dlg.c,v 1.76 2004/04/25 22:34:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -330,7 +330,7 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
   GtkWidget     *main_win;
   GtkWidget     *main_vb;
 
-  GtkWidget     *printer_fr, *printer_vb, *printer_lb;
+  GtkWidget     *printer_fr, *printer_vb, *export_format_lb;
   GtkWidget     *text_rb, *ps_rb, *pdml_rb, *psml_rb;
   GtkWidget     *printer_tb, *dest_cb;
 #ifndef _WIN32
@@ -488,30 +488,10 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
   SIGNAL_CONNECT(dest_cb, "toggled", print_cmd_toggle_dest, NULL);
   SIGNAL_CONNECT(file_bt, "clicked", select_file_cb, "Ethereal: Print to File");
 
-
-  switch(action) {
-  case(output_action_print):
-    printer_lb = NULL;
-    break;
-  case(output_action_export_text):
-    printer_lb = gtk_label_new("... export as ASCII plain text file.");
-    break;
-  case(output_action_export_ps):
-    printer_lb = gtk_label_new("... export as PostScript file (can be easily converted to a PDF file using ghostscript's ps2pdf).");
-    break;
-  case(output_action_export_psml):
-    printer_lb = gtk_label_new("... export as Packet Summary Markup Language (XML) file.");
-    break;
-  case(output_action_export_pdml):
-    printer_lb = gtk_label_new("... export as Packet Details Markup Language (XML) file.");
-    break;
-  default:
-    g_assert_not_reached();
-    printer_lb = NULL;	/* squelch compiler complaint */
-  }
-  if(printer_lb) {
-    gtk_box_pack_start(GTK_BOX(printer_vb), printer_lb, FALSE, FALSE, 0);
-    gtk_widget_show(printer_lb);
+  if(action == output_action_export_ps) {
+    export_format_lb = gtk_label_new("(PostScript files can be easily converted to PDF files using ghostscript's ps2pdf)");
+    gtk_box_pack_start(GTK_BOX(printer_vb), export_format_lb, FALSE, FALSE, 0);
+    gtk_widget_show(export_format_lb);
   }
 
 /*****************************************************/
