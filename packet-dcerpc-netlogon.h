@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\NETLOGON packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-netlogon.h,v 1.6 2002/08/17 03:24:43 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.h,v 1.7 2002/08/27 12:33:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,7 @@
 #define NETLOGON_NETSERVERAUTHENTICATE3			0x1a
 #define NETLOGON_DSRGETDCNAME				0x1b
 #define NETLOGON_DSRGETSITENAME				0x1c
-#define NETLOGON_FUNCTION_1D				0x1d
+#define NETLOGON_NETRLOGONGETDOMAININFO			0x1d
 #define NETLOGON_FUNCTION_1E				0x1e
 #define NETLOGON_NETSERVERPASSWORDSET2			0x1f
 #define NETLOGON_FUNCTION_20				0x20
