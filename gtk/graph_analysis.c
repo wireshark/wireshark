@@ -83,6 +83,7 @@ static void graph_analysis_reset(graph_analysis_data_t* user_data)
 		user_data->nodes[i].type = AT_NONE;
 		user_data->nodes[i].len = 0;
 		g_free((void *)user_data->nodes[i].data);
+		user_data->nodes[i].data = NULL;
 	}
 	
 	user_data->dlg.first_node=0;
@@ -95,15 +96,31 @@ static void graph_analysis_reset(graph_analysis_data_t* user_data)
 /* Reset the user_data structure */
 static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 {
+	int i;
+
+	user_data->num_nodes = 0;
+	user_data->num_items = 0;
+	for (i=0; i<MAX_NUM_NODES; i++){
+		user_data->nodes[i].type = AT_NONE;
+		user_data->nodes[i].len = 0;
+		user_data->nodes[i].data = NULL;
+	}
+	
+	user_data->dlg.first_node=0;
+	user_data->dlg.first_item=0;
+	user_data->dlg.left_x_border=0;
+	user_data->dlg.selected_item=0xFFFFFFFF;    /*not item selected */
     /* init dialog_graph */
     user_data->dlg.needs_redraw=TRUE;
     user_data->dlg.draw_area=NULL;
     user_data->dlg.pixmap=NULL;
+	user_data->dlg.draw_area_comments=NULL;
+    user_data->dlg.pixmap_comments=NULL;
     user_data->dlg.h_scrollbar=NULL;
     user_data->dlg.h_scrollbar_adjustment=NULL;
     user_data->dlg.v_scrollbar=NULL;
     user_data->dlg.v_scrollbar_adjustment=NULL;
-    user_data->dlg.pixmap_width=600;
+    user_data->dlg.pixmap_width=350;
     user_data->dlg.pixmap_height=400;
 	user_data->dlg.first_node=0;
 	user_data->dlg.first_item=0;
@@ -125,8 +142,9 @@ static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data _U_)
 		user_data->nodes[i].type = AT_NONE;
 		user_data->nodes[i].len = 0;
 		g_free((void *)user_data->nodes[i].data);
+		user_data->nodes[i].data = NULL;
 	}
-	g_free(user_data);
+	user_data->dlg.window = NULL;
 }
 
 
@@ -168,12 +186,12 @@ static void draw_arrow(GdkDrawable *pixmap, GdkGC *gc, gint x, gint y, gboolean 
 }
 
 #define MAX_LABEL 50
-#define MAX_COMMENT 60
+#define MAX_COMMENT 100
 #define ITEM_HEIGHT 20
 #define NODE_WIDTH 100
 #define TOP_Y_BORDER 40
 #define BOTTOM_Y_BORDER 0
-#define COMMENT_WIDTH 250
+#define COMMENT_WIDTH 400
 
 /****************************************************************************/
 static void dialog_graph_draw(graph_analysis_data_t* user_data)
@@ -224,9 +242,17 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
                            user_data->dlg.draw_area->allocation.width,
                            user_data->dlg.draw_area->allocation.height);
 
+        gdk_draw_rectangle(user_data->dlg.pixmap_comments,
+                           user_data->dlg.draw_area->style->white_gc,
+                           TRUE,
+                           0, 0,
+                           COMMENT_WIDTH,
+                           user_data->dlg.draw_area->allocation.height);
+
+
 		/* Calculate the y border */
         top_y_border=TOP_Y_BORDER;	/* to display the node address */
-        bottom_y_border=BOTTOM_Y_BORDER;
+        bottom_y_border=2;
 
         draw_height=user_data->dlg.pixmap_height-top_y_border-bottom_y_border;
 
@@ -305,7 +331,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
         left_x_border=label_width+10;
 		user_data->dlg.left_x_border = left_x_border;
 
-        right_x_border=COMMENT_WIDTH;
+        right_x_border=2;
 
 		/* Calculate the number of nodes to display */
         draw_width=user_data->dlg.pixmap_width-right_x_border-left_x_border;
@@ -404,18 +430,18 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 #if GTK_MAJOR_VERSION < 2
 			label_width=gdk_string_width(small_font, label_string);
 			label_height=gdk_string_height(small_font, label_string);
-			gdk_draw_string(user_data->dlg.pixmap,
+			gdk_draw_string(user_data->dlg.pixmap_comments,
                 small_font,
-                user_data->dlg.draw_area->style->black_gc,
-                user_data->dlg.pixmap_width-right_x_border+3,
+                user_data->dlg.draw_area_comments->style->black_gc,
+                2,
                 top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2+label_height/4,
                 label_string);
 #else
 			pango_layout_set_text(small_layout, label_string, -1);
 			pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
-	        gdk_draw_layout(user_data->dlg.pixmap,
+	        gdk_draw_layout(user_data->dlg.pixmap_comments,
                 user_data->dlg.draw_area->style->black_gc,
-                user_data->dlg.pixmap_width-right_x_border+3,
+                2,
                 top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2,
                 small_layout);
 #endif
@@ -533,7 +559,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 						top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2+label_height/4-2,
 						label_string);
 #else
-					gdk_draw_layout(user_data->dlg.pixmap,
+						gdk_draw_layout(user_data->dlg.pixmap,
 						user_data->dlg.div_line_gc,
 						src_port_x,
 						top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2,
@@ -565,7 +591,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 						top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2+label_height/4-2,
 						label_string);
 #else
-					gdk_draw_layout(user_data->dlg.pixmap,
+						gdk_draw_layout(user_data->dlg.pixmap,
 						user_data->dlg.div_line_gc,
 						dst_port_x,
 						top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2,
@@ -582,22 +608,29 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 		/* draw the border on the selected item */
 		if ( (user_data->dlg.selected_item != 0xFFFFFFFF) && ( (user_data->dlg.selected_item>=first_item) && (user_data->dlg.selected_item<=last_item) )){
-			gdk_draw_rectangle(user_data->dlg.pixmap, user_data->dlg.draw_area->style->black_gc,
+				gdk_draw_rectangle(user_data->dlg.pixmap, user_data->dlg.draw_area->style->black_gc,
 				FALSE,
 				left_x_border-1,
 				(user_data->dlg.selected_item-first_item)*ITEM_HEIGHT+TOP_Y_BORDER,
-				user_data->dlg.pixmap_width-COMMENT_WIDTH-left_x_border+1,
+				user_data->dlg.pixmap_width-left_x_border-right_x_border+1,
 				ITEM_HEIGHT);
 		}
 
 
-
+		/* refresh the draw areas */
         gdk_draw_pixmap(user_data->dlg.draw_area->window,
                         user_data->dlg.draw_area->style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.draw_area)],
                         user_data->dlg.pixmap,
                         0, 0,
                         0, 0,
                         user_data->dlg.pixmap_width, user_data->dlg.pixmap_height);
+
+        gdk_draw_pixmap(user_data->dlg.draw_area_comments->window,
+                        user_data->dlg.draw_area_comments->style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.draw_area_comments)],
+                        user_data->dlg.pixmap_comments,
+                        0, 0,
+                        0, 0,
+                        COMMENT_WIDTH, user_data->dlg.pixmap_height);
 
 
         /* update the h_scrollbar */
@@ -619,7 +652,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 		gtk_adjustment_changed(user_data->dlg.v_scrollbar_adjustment);
         gtk_adjustment_value_changed(user_data->dlg.v_scrollbar_adjustment);
-
 }
 
 /****************************************************************************/
@@ -627,19 +659,6 @@ static void dialog_graph_redraw(graph_analysis_data_t* user_data)
 {
         user_data->dlg.needs_redraw=TRUE;
         dialog_graph_draw(user_data); 
-}
-
-/****************************************************************************/
-static gint quit(GtkWidget *widget, GdkEventExpose *event _U_)
-{
-        graph_analysis_data_t *user_data;
-
-        user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
-
-		user_data->dlg.window = NULL;
-
-		user_data = NULL;
-        return TRUE;
 }
 
 /****************************************************************************/
@@ -750,6 +769,27 @@ static gint expose_event(GtkWidget *widget, GdkEventExpose *event)
         return FALSE;
 }
 
+/****************************************************************************/
+static gint expose_event_comments(GtkWidget *widget, GdkEventExpose *event)
+{
+	graph_analysis_data_t *user_data;
+
+	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+        if(!user_data){
+                exit(10);
+        }
+
+
+        gdk_draw_pixmap(widget->window,
+                        widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+                        user_data->dlg.pixmap_comments,
+                        event->area.x, event->area.y,
+                        event->area.x, event->area.y,
+                        event->area.width, event->area.height);
+
+        return FALSE;
+}
+
 static const GdkColor COLOR_GRAY = {0, 0x7fff, 0x7fff, 0x7fff};
 
 /****************************************************************************/
@@ -830,6 +870,38 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 }
 
 /****************************************************************************/
+static gint configure_event_comments(GtkWidget *widget, GdkEventConfigure *event _U_)
+{
+        graph_analysis_data_t *user_data;
+
+        user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+
+        if(!user_data){
+                exit(10);
+        }
+
+        if(user_data->dlg.pixmap_comments){
+                gdk_pixmap_unref(user_data->dlg.pixmap_comments);
+                user_data->dlg.pixmap_comments=NULL;
+        }
+
+        user_data->dlg.pixmap_comments=gdk_pixmap_new(widget->window,
+                        COMMENT_WIDTH,
+                        widget->allocation.height,
+                        -1);
+
+        gdk_draw_rectangle(user_data->dlg.pixmap_comments,
+                        widget->style->white_gc,
+                        TRUE,
+                        0, 0,
+                        COMMENT_WIDTH,
+                        widget->allocation.height);
+
+		dialog_graph_redraw(user_data);
+        return TRUE;
+}
+
+/****************************************************************************/
 static gint h_scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 {
     graph_analysis_data_t *user_data=(graph_analysis_data_t *)data;
@@ -869,6 +941,8 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 {
 	    GtkWidget *vbox;
         GtkWidget *hbox;
+		GtkWidget *scroll_window;
+		GtkWidget *viewport;
 
         hbox=gtk_hbox_new(FALSE, 0);
         gtk_widget_show(hbox);
@@ -876,28 +950,45 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
         vbox=gtk_vbox_new(FALSE, 0);
         gtk_widget_show(vbox);
 
+		/* create "comments" draw area */
+        user_data->dlg.draw_area_comments=gtk_drawing_area_new();
+        WIDGET_SET_SIZE(user_data->dlg.draw_area_comments, COMMENT_WIDTH, user_data->dlg.pixmap_height);
+		scroll_window=gtk_scrolled_window_new(NULL, NULL);
+		WIDGET_SET_SIZE(scroll_window, COMMENT_WIDTH/2, user_data->dlg.pixmap_height);
+		gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll_window), GTK_POLICY_ALWAYS, GTK_POLICY_NEVER);
+		viewport = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window)), gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll_window)));
+		gtk_container_add(GTK_CONTAINER(viewport), user_data->dlg.draw_area_comments);
+		gtk_container_add(GTK_CONTAINER(scroll_window), viewport);
+		gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
+        OBJECT_SET_DATA(user_data->dlg.draw_area_comments, "graph_analysis_data_t", user_data);
+		gtk_widget_add_events (user_data->dlg.draw_area_comments, GDK_BUTTON_PRESS_MASK);
+		SIGNAL_CONNECT(user_data->dlg.draw_area_comments, "scroll_event",  scroll_event, user_data);
 
+		/* create main Graph draw area */
         user_data->dlg.draw_area=gtk_drawing_area_new();
 		GTK_WIDGET_SET_FLAGS(user_data->dlg.draw_area, GTK_CAN_FOCUS);
 		gtk_widget_grab_focus(user_data->dlg.draw_area);
-
-        SIGNAL_CONNECT(user_data->dlg.draw_area, "destroy", quit, user_data);
         OBJECT_SET_DATA(user_data->dlg.draw_area, "graph_analysis_data_t", user_data);
-
         WIDGET_SET_SIZE(user_data->dlg.draw_area, user_data->dlg.pixmap_width, user_data->dlg.pixmap_height);
 
         /* signals needed to handle backing pixmap */
         SIGNAL_CONNECT(user_data->dlg.draw_area, "expose_event", expose_event, NULL);
         SIGNAL_CONNECT(user_data->dlg.draw_area, "configure_event", configure_event, user_data);
+        /* signals needed to handle backing pixmap comments*/
+        SIGNAL_CONNECT(user_data->dlg.draw_area_comments, "expose_event", expose_event_comments, NULL);
+        SIGNAL_CONNECT(user_data->dlg.draw_area_comments, "configure_event", configure_event_comments, user_data);
 
-		gtk_widget_add_events (user_data->dlg.draw_area,
-			 GDK_BUTTON_PRESS_MASK);
+		gtk_widget_add_events (user_data->dlg.draw_area, GDK_BUTTON_PRESS_MASK);
 		SIGNAL_CONNECT(user_data->dlg.draw_area, "button_press_event", button_press_event, user_data);
 		SIGNAL_CONNECT(user_data->dlg.draw_area, "scroll_event",  scroll_event, user_data);
 		SIGNAL_CONNECT(user_data->dlg.draw_area, "key_press_event",  key_press_event, user_data);
-		
+
         gtk_widget_show(user_data->dlg.draw_area);
+		gtk_widget_show(user_data->dlg.draw_area_comments);
+		gtk_widget_show(viewport);
+	
         gtk_box_pack_start(GTK_BOX(vbox), user_data->dlg.draw_area, TRUE, TRUE, 0);
+		gtk_widget_show(scroll_window);
 
         /* create the associated h_scrollbar */
         user_data->dlg.h_scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
@@ -907,6 +998,8 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
         SIGNAL_CONNECT(user_data->dlg.h_scrollbar_adjustment, "value_changed", h_scrollbar_changed, user_data);
 
         gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 0);
+
+        gtk_box_pack_start(GTK_BOX(hbox), scroll_window, FALSE, FALSE, 0);
 
        /* create the associated v_scrollbar */
         user_data->dlg.v_scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
@@ -944,6 +1037,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
         window_set_cancel_button(user_data->dlg.window, bt_close, window_cancel_button_cb);
 
         SIGNAL_CONNECT(user_data->dlg.window, "delete_event", window_delete_event_cb, NULL);
+		SIGNAL_CONNECT(user_data->dlg.window, "destroy", on_destroy, user_data);
 
         gtk_widget_show(user_data->dlg.window);
         window_present(user_data->dlg.window);

@@ -10,7 +10,7 @@
  * Copyright 2004, Iskratel, Ltd, Kranj
  * By Miha Jemec <m.jemec@iskratel.si>
  * 
- * H323, RTP and Graph Support
+ * H323, RTP, MGCP and Graph Support
  * By Alejandro Vaquero, alejandro.vaquero@verso.com
  * Copyright 2005, Verso Technologies Inc.
  *
@@ -548,10 +548,12 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 			if ((strcmp(pi->request_method,"INVITE")==0)&&(ADDRESSES_EQUAL(&tmp_src,&(strinfo->initial_speaker)))){
 				tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
+				strinfo->call_state = VOIP_CALL_SETUP;
 				comment = g_strdup_printf("SIP From: %s To:%s", strinfo->from_identity, strinfo->to_identity);
 			}
 			else if ((strcmp(pi->request_method,"ACK")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
-				&&(ADDRESSES_EQUAL(&tmp_src,&(strinfo->initial_speaker)))&&(tmp_sipinfo->sip_state==SIP_200_REC)){
+				&&(ADDRESSES_EQUAL(&tmp_src,&(strinfo->initial_speaker)))&&(tmp_sipinfo->sip_state==SIP_200_REC)
+				&&(strinfo->call_state == VOIP_CALL_SETUP)){
 				strinfo->call_state = VOIP_IN_CALL;
 				comment = g_strdup_printf("SIP Request");
 			}
@@ -1245,19 +1247,18 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 						strinfo->call_state=VOIP_REJECTED;
 						tapinfo->rejected_calls++;
 					}
+				} else {
+						strinfo->call_state=VOIP_COMPLETED;
+						tapinfo->completed_calls++;
 				}
-					else {
-						strinfo->call_state=VOIP_REJECTED;
-						tapinfo->rejected_calls++;
-					}
-					/* get the Q931 Release cause code */
-					if (q931_frame_num == pinfo->fd->num &&
-						q931_cause_value != 0xFF){		
-						comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
-					} else {			/* Cause not set */
-						comment = g_strdup("H225 No Q931 Rel Cause");
-					}
-					break;
+				/* get the Q931 Release cause code */
+				if (q931_frame_num == pinfo->fd->num &&
+					q931_cause_value != 0xFF){		
+					comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
+				} else {			/* Cause not set */
+					comment = g_strdup("H225 No Q931 Rel Cause");
+				}
+				break;
 			case H225_PROGRESS:
 			case H225_ALERTING:
 			case H225_CALL_PROCEDING:

@@ -84,7 +84,9 @@ typedef struct _dialog_data_t {
 	gboolean needs_redraw;
 	gint selected_row;
     GtkWidget *draw_area;
+	GtkWidget *draw_area_comments;
     GdkPixmap *pixmap;
+    GdkPixmap *pixmap_comments;
     GtkAdjustment *h_scrollbar_adjustment;
     GtkWidget *h_scrollbar;
 	GtkWidget *v_scrollbar;
