@@ -1072,7 +1072,7 @@ draw_ct_table_data(conversations_table *ct)
 }
 
 
-#if (GTK_MAJOR_VERSION > 2)
+#if (GTK_MAJOR_VERSION >= 2)
 static void
 copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -1122,7 +1122,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     GString *error_string;
     GtkWidget *label;
     char title[256];
-#if (GTK_MAJOR_VERSION > 2)
+#if (GTK_MAJOR_VERSION >= 2)
     GtkWidget *copy_bt;
     GtkTooltips *tooltips = gtk_tooltips_new();
 #endif           
@@ -1209,7 +1209,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     /* create popup menu for this table */
     ct_create_popup_menu(conversations);
 
-#if (GTK_MAJOR_VERSION > 2)
+#if (GTK_MAJOR_VERSION >= 2)
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
     copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);

@@ -557,7 +557,7 @@ draw_hostlist_table_data(hostlist_table *hl)
 	gtk_clist_freeze(hl->table);
 }
 
-#if (GTK_MAJOR_VERSION > 2)
+#if (GTK_MAJOR_VERSION >= 2)
 static void
 copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -606,7 +606,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     GtkWidget *column_lb;
     GString *error_string;
     char title[256];
-#if (GTK_MAJOR_VERSION > 2)
+#if (GTK_MAJOR_VERSION >= 2)
     GtkWidget *copy_bt;
     GtkTooltips *tooltips = gtk_tooltips_new();
 #endif           
@@ -686,7 +686,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     /* create popup menu for this table */
     hostlist_create_popup_menu(hosttable);
 
-#if (GTK_MAJOR_VERSION > 2)
+#if (GTK_MAJOR_VERSION >= 2)
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
     copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
