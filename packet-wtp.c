@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.58 2003/12/23 12:07:14 obiot Exp $
+ * $Id: packet-wtp.c,v 1.59 2003/12/30 01:58:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -335,6 +335,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fragment_data	*fd_head = NULL;
     guint8		psn = 0;		/* Packet sequence number*/
     guint16		TID = 0;		/* Transaction-Id	*/
+    int			dataOffset;
+    gint		dataLen;
 
     if (szInfo == NULL)
     	szInfo = g_string_sized_new(32);
@@ -398,6 +400,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    fTTR = transmission_trailer(b0);
 	    TID = tvb_get_ntohs(tvb, offCur + 1);
 	    psn = tvb_get_guint8(tvb, offCur + 3);
+	    if (psn != 0)
+		g_string_sprintfa(szInfo, " (%u)", psn);
 	    cbHeader = 4;
 	    break;
 
@@ -579,31 +583,21 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fprintf( stderr, "dissect_wtp: cbHeader = %d\n", cbHeader );
 #endif
 
-    /* Only update "Info" column when no data in this PDU will
-     * be handed off to a subsequent dissector.
-     */
-    if (check_col(pinfo->cinfo, COL_INFO) &&
-	((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) <= 0) ||
-	 (pdut == ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)) ) {
-#ifdef DEBUG
-	fprintf(stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo->str);
-#endif
-	col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
-    };
-
-	/*
+    /*
      * Any remaining data ought to be WSP data (if not WTP ACK, NACK
-     * or ABORT pdu), so hand off (defragmented) to the WSP dissector.
+     * or ABORT pdu), so, if we have any remaining data, and it's
+     * not an ACK, NACK, or ABORT PDU, hand it off (defragmented) to the
+     * WSP dissector.
      * Note that the last packet of a fragmented WTP message needn't
      * contain any data, so we allow payloadless packets to be
      * reassembled.  (XXX - does the reassembly code handle this
      * for packets other than the last packet?)
      */
-    if ((tvb_reported_length_remaining(tvb, offCur + cbHeader + vHeader) >= 0) &&
+    dataOffset = offCur + cbHeader + vHeader;
+    dataLen = tvb_reported_length_remaining(tvb, dataOffset);
+    if ((dataLen >= 0) &&
 	! ((pdut==ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)))
     {
-	int	dataOffset = offCur + cbHeader + vHeader;
-	gint    dataLen = tvb_reported_length_remaining(tvb, dataOffset);
 	gboolean save_fragmented;
 
 	if (((pdut == SEGMENTED_INVOKE) || (pdut == SEGMENTED_RESULT) ||
@@ -637,8 +631,10 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (check_col(pinfo->cinfo, COL_INFO))
 				/* Won't call WSP so display */
 		    	col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
-			if (tree != NULL)
-			    proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+			if (dataLen != 0) {
+			    if (tree != NULL)
+				proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+			}
 			proto_tree_add_uint(wtp_tree, hf_wtp_reassembled_in,
 					tvb, 0, 0, fd_head->reassembled_in);
 		}
@@ -649,8 +645,10 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO))
 			/* Won't call WSP so display */
 		    col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
-		if (tree != NULL)
-		    proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+		if (dataLen != 0) {
+		    if (tree != NULL)
+			proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+		}
 	    }
 	    pinfo->fragmented = save_fragmented;
 	}
@@ -680,6 +678,17 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		wsp_tvb = tvb_new_subset(tvb, dataOffset, -1, -1);
 		call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
 	    }
+	}
+    } else {
+	/*
+	 * We didn't hand anything to a subsequent dissector, so update
+	 * the Info column.
+	 */
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+#ifdef DEBUG
+	    fprintf(stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo->str);
+#endif
+	    col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
 	}
     }
 }
