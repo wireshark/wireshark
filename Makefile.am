@@ -421,7 +421,6 @@ EXTRA_DIST = \
 	README.tru64		\
 	README.vmware		\
 	README.win32		\
-	TODO			\
 	aclocal-fallback/glib-2.0.m4 \
 	aclocal-fallback/glib.m4 \
 	aclocal-fallback/gtk-2.0.m4 \
