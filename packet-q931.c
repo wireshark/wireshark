@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.49 2002/11/09 08:09:18 guy Exp $
+ * $Id: packet-q931.c,v 1.50 2003/02/28 22:43:56 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -58,6 +58,11 @@ static int hf_q931_call_ref_len = -1;
 static int hf_q931_call_ref_flag = -1;
 static int hf_q931_call_ref = -1;
 static int hf_q931_message_type = -1;
+static int hf_q931_cause_value = -1;
+static int hf_q931_calling_party_number = -1;
+static int hf_q931_called_party_number = -1;
+static int hf_q931_connected_number = -1;
+static int hf_q931_redirecting_number = -1;
 
 static gint ett_q931 = -1;
 static gint ett_q931_ie = -1;
@@ -1061,10 +1066,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Cause value: %s",
-	    val_to_str(octet & 0x7F, q931_cause_code_vals,
-	      "Unknown (0x%02X)"));
+	proto_tree_add_uint(tree, hf_q931_cause_value, tvb, 0, 1, octet & 0x7F);
 	offset += 1;
 	len -= 1;
 
@@ -1821,7 +1823,7 @@ static const value_string q931_redirection_reason_vals[] = {
 
 static void
 dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+    proto_tree *tree, int hfindex)
 {
 	guint8 octet;
 
@@ -1872,8 +1874,7 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, len, "Number: %s",
-	    tvb_format_text(tvb, offset, len));
+	proto_tree_add_item(tree, hfindex, tvb, offset, len, FALSE);
 }
 
 /*
@@ -2452,12 +2453,31 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					break;
 
 				case Q931_IE_CALLING_PARTY_NUMBER:
+					dissect_q931_number_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree,
+					    hf_q931_calling_party_number);
+					break;
+
 				case Q931_IE_CONNECTED_NUMBER_DEFAULT:
+					dissect_q931_number_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree,
+					    hf_q931_connected_number);
+					break;
+
 				case Q931_IE_CALLED_PARTY_NUMBER:
+					dissect_q931_number_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree,
+					    hf_q931_called_party_number);
+					break;
+
 				case Q931_IE_REDIRECTING_NUMBER:
 					dissect_q931_number_ie(tvb,
 					    offset + 2, info_element_len,
-					    ie_tree);
+					    ie_tree,
+					    hf_q931_redirecting_number);
 					break;
 
 				case Q931_IE_CALLING_PARTY_SUBADDR:
@@ -2594,23 +2614,44 @@ proto_register_q931(void)
 	static hf_register_info hf[] = {
 		{ &hf_q931_discriminator,
 		  { "Protocol discriminator", "q931.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
-		  	"", HFILL }},
+			"", HFILL }},
 
 		{ &hf_q931_call_ref_len,
 		  { "Call reference value length", "q931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  	"", HFILL }},
+			"", HFILL }},
 
 		{ &hf_q931_call_ref_flag,
 		  { "Call reference flag", "q931.call_ref_flag", FT_BOOLEAN, BASE_NONE, TFS(&tfs_call_ref_flag), 0x0,
-		  	"", HFILL }},
+			"", HFILL }},
 
 		{ &hf_q931_call_ref,
 		  { "Call reference value", "q931.call_ref", FT_BYTES, BASE_HEX, NULL, 0x0,
-		  	"", HFILL }},
+			"", HFILL }},
 
 		{ &hf_q931_message_type,
 		  { "Message type", "q931.message_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
-		  	"", HFILL }},
+			"", HFILL }},
+
+		{ &hf_q931_cause_value,
+		  { "Cause value", "q931.cause_value", FT_UINT8, BASE_DEC, VALS(q931_cause_code_vals), 0x0,
+			"", HFILL }},
+
+		{ &hf_q931_calling_party_number,
+		  { "Calling party number digits", "q931.calling_party_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_q931_called_party_number,
+		  { "Called party number digits", "q931.called_party_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_q931_connected_number,
+		  { "Called party number digits", "q931.connected_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_q931_redirecting_number,
+		  { "Called party number digits", "q931.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_q931,
