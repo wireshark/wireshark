@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.18 2002/11/17 21:47:41 gerald Exp $
+ * $Id: randpkt.c,v 1.19 2004/02/23 14:37:59 jmayer Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -68,7 +68,7 @@ enum {
 	PKT_NCP2222,
 	PKT_GIOP,
 	PKT_BGP,
-	PKT_TDS,
+	PKT_TDS
 };
 
 typedef struct {
