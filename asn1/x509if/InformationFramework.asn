@@ -26,6 +26,7 @@ IMPORTS
 AttributeId ::= OBJECT IDENTIFIER
 
 -- attribute data types 
+-- XXX This function is implemented by hand inside the template
 -- Attribute ::= SEQUENCE {
 --   type               AttributeId,
 --   values
@@ -93,8 +94,9 @@ DistinguishedName ::= RDNSequence
 RelativeDistinguishedName ::=
   SET SIZE (1..MAX) OF AttributeTypeAndDistinguishedValue
 
+-- XXX This function is implemented by hand inside the template
 AttributeTypeAndDistinguishedValue ::= SEQUENCE {
---  type                  AttributeId,
+--  type                  AttributeId
 --   value                 ATTRIBUTE.&Type({SupportedAttributes}{@type}),
 --  primaryDistinguished  BOOLEAN DEFAULT TRUE,
 --   valuesWithContext

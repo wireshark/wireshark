@@ -42,11 +42,13 @@
 
 /* Initialize the protocol and registered fields */
 int proto_x509if = -1;
+int hf_x509if_ATADV_attribute_id = -1;
 #include "packet-x509if-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x509if_Attribute = -1;
 #include "packet-x509if-ett.c"
+
 
 static ber_sequence Attribute_sequence[] = {
   /*  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_type },*/
@@ -63,6 +65,30 @@ dissect_x509if_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packe
 }
 
 
+
+static char ATADV_attribute_id[64]; /*64 chars should be long enough? */
+static int 
+dissect_hf_x509if_ATADV_attribute_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
+{
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_x509if_ATADV_attribute_id, ATADV_attribute_id);
+  return offset;
+}
+
+static ber_sequence AttributeTypeAndDistinguishedValue_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_ATADV_attribute_id },
+  /*XXX  missing stuff here */
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                AttributeTypeAndDistinguishedValue_sequence, hf_index, ett_x509if_AttributeTypeAndDistinguishedValue);
+
+  return offset;
+}
+
 #include "packet-x509if-fn.c"
 
 
@@ -71,6 +97,10 @@ void proto_register_x509if(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_x509if_ATADV_attribute_id,
+      { "Attribute Id", "x509if.attribute.id",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Attribute Id", HFILL }},
 #include "packet-x509if-hfarr.c"
   };
 
