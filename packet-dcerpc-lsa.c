@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.28 2002/04/28 10:33:30 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.29 2002/04/29 01:25:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2333,9 +2333,9 @@ static int
 lsa_dissect_lsalookupnames_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	/* [out, ref] LSA_REFERENCED_DOMAIN_LIST *domains */
+	/* [out] LSA_REFERENCED_DOMAIN_LIST *domains */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_REFERENCED_DOMAIN_LIST, NDR_POINTER_REF,
+		lsa_dissect_LSA_REFERENCED_DOMAIN_LIST, NDR_POINTER_UNIQUE,
 		"LSA_REFERENCED_DOMAIN_LIST pointer: domains", -1, 0);
 
 	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
