@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.34 2003/06/12 08:33:29 guy Exp $
+ * $Id: packet-sdp.c,v 1.35 2003/10/14 21:26:37 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -685,6 +685,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
       return;
     tokenlen = next_offset - offset;
 
+    /* XXX Remember Port */
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
 			offset, tokenlen, FALSE);
     offset = next_offset + 1;
@@ -697,6 +698,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
 
   tokenlen = next_offset - offset;
 
+  /* XXX Remember Protocol */
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb,
 		      offset, tokenlen, FALSE);
 
@@ -714,6 +716,13 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
 			offset, tokenlen, FALSE);
   } while (next_offset != -1);
 
+  /* XXX Dissect traffic to "Port" as "Protocol"
+   *     Remember this Port/Protocol pair so we can tear it down again later
+   *     Actually, it's harder than that:
+   *         We need to find out the address of the other side first and it
+   *         looks like that info can be found in SIP headers only.
+   */
+ 
 }
 
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti){
