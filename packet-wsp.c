@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.24 2001/07/20 04:39:07 guy Exp $
+ * $Id: packet-wsp.c,v 1.25 2001/07/20 07:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,60 +59,82 @@
 #include "packet-wsp.h"
 
 /* File scoped variables for the protocol and registered fields */
-static int proto_wsp 							= HF_EMPTY;
+static int proto_wsp 					= HF_EMPTY;
 
 /* These fields used by fixed part of header */
-static int hf_wsp_header_tid					= HF_EMPTY;
-static int hf_wsp_header_pdu_type				= HF_EMPTY;
-static int hf_wsp_version_major					= HF_EMPTY;
-static int hf_wsp_version_minor					= HF_EMPTY;
-static int hf_wsp_capability_length				= HF_EMPTY;
-static int hf_wsp_capabilities_section				= HF_EMPTY;
-static int hf_wsp_capabilities_client_SDU			= HF_EMPTY;
-static int hf_wsp_capabilities_server_SDU			= HF_EMPTY;
-static int hf_wsp_capabilities_protocol_opt			= HF_EMPTY;
-static int hf_wsp_capabilities_method_MOR			= HF_EMPTY;
-static int hf_wsp_capabilities_push_MOR				= HF_EMPTY;
-static int hf_wsp_capabilities_extended_methods			= HF_EMPTY;
-static int hf_wsp_capabilities_header_code_pages		= HF_EMPTY;
-static int hf_wsp_capabilities_aliases				= HF_EMPTY;
-static int hf_wsp_header_uri_len				= HF_EMPTY;
-static int hf_wsp_header_uri					= HF_EMPTY;
-static int hf_wsp_server_session_id				= HF_EMPTY;
-static int hf_wsp_header_status					= HF_EMPTY;
-static int hf_wsp_header_length					= HF_EMPTY;
-static int hf_wsp_headers_section				= HF_EMPTY;
-static int hf_wsp_header						= HF_EMPTY;
-static int hf_wsp_content_type					= HF_EMPTY;
-static int hf_wsp_parameter_well_known_charset	= HF_EMPTY;
-static int hf_wsp_reply_data					= HF_EMPTY;
-static int hf_wsp_post_data						= HF_EMPTY;
+static int hf_wsp_header_tid				= HF_EMPTY;
+static int hf_wsp_header_pdu_type			= HF_EMPTY;
+static int hf_wsp_version_major				= HF_EMPTY;
+static int hf_wsp_version_minor				= HF_EMPTY;
+static int hf_wsp_capability_length			= HF_EMPTY;
+static int hf_wsp_capabilities_section			= HF_EMPTY;
+static int hf_wsp_capabilities_client_SDU		= HF_EMPTY;
+static int hf_wsp_capabilities_server_SDU		= HF_EMPTY;
+static int hf_wsp_capabilities_protocol_opt		= HF_EMPTY;
+static int hf_wsp_capabilities_method_MOR		= HF_EMPTY;
+static int hf_wsp_capabilities_push_MOR			= HF_EMPTY;
+static int hf_wsp_capabilities_extended_methods		= HF_EMPTY;
+static int hf_wsp_capabilities_header_code_pages	= HF_EMPTY;
+static int hf_wsp_capabilities_aliases			= HF_EMPTY;
+static int hf_wsp_header_uri_len			= HF_EMPTY;
+static int hf_wsp_header_uri				= HF_EMPTY;
+static int hf_wsp_server_session_id			= HF_EMPTY;
+static int hf_wsp_header_status				= HF_EMPTY;
+static int hf_wsp_header_length				= HF_EMPTY;
+static int hf_wsp_headers_section			= HF_EMPTY;
+static int hf_wsp_header				= HF_EMPTY;
+static int hf_wsp_content_type				= HF_EMPTY;
+static int hf_wsp_content_type_str			= HF_EMPTY;
+static int hf_wsp_parameter_well_known_charset		= HF_EMPTY;
+static int hf_wsp_parameter_type			= HF_EMPTY;
+static int hf_wsp_parameter_name			= HF_EMPTY;
+static int hf_wsp_parameter_filename			= HF_EMPTY;
+static int hf_wsp_parameter_start			= HF_EMPTY;
+static int hf_wsp_parameter_start_info			= HF_EMPTY;
+static int hf_wsp_parameter_comment			= HF_EMPTY;
+static int hf_wsp_parameter_domain			= HF_EMPTY;
+static int hf_wsp_parameter_path			= HF_EMPTY;
+static int hf_wsp_reply_data				= HF_EMPTY;
+static int hf_wsp_post_data				= HF_EMPTY;
 
-static int hf_wsp_header_shift_code					= HF_EMPTY;
-static int hf_wsp_header_accept					= HF_EMPTY;
-static int hf_wsp_header_accept_str				= HF_EMPTY;
+static int hf_wsp_header_shift_code			= HF_EMPTY;
+static int hf_wsp_header_accept				= HF_EMPTY;
+static int hf_wsp_header_accept_str			= HF_EMPTY;
+static int hf_wsp_header_accept_application		= HF_EMPTY;
+static int hf_wsp_header_accept_application_str		= HF_EMPTY;
 static int hf_wsp_header_accept_charset			= HF_EMPTY;
 static int hf_wsp_header_accept_charset_str		= HF_EMPTY;
 static int hf_wsp_header_accept_language		= HF_EMPTY;
-static int hf_wsp_header_accept_language_str	= HF_EMPTY;
+static int hf_wsp_header_accept_language_str		= HF_EMPTY;
 static int hf_wsp_header_accept_ranges			= HF_EMPTY;
+static int hf_wsp_header_accept_ranges_str		= HF_EMPTY;
 static int hf_wsp_header_cache_control			= HF_EMPTY;
+static int hf_wsp_header_cache_control_str		= HF_EMPTY;
+static int hf_wsp_header_cache_control_field_name	= HF_EMPTY;
+static int hf_wsp_header_cache_control_field_name_str	= HF_EMPTY;
 static int hf_wsp_header_content_length			= HF_EMPTY;
-static int hf_wsp_header_age					= HF_EMPTY;
-static int hf_wsp_header_date					= HF_EMPTY;
-static int hf_wsp_header_etag					= HF_EMPTY;
-static int hf_wsp_header_expires				= HF_EMPTY;
+static int hf_wsp_header_age				= HF_EMPTY;
+static int hf_wsp_header_bearer_indication		= HF_EMPTY;
+static int hf_wsp_header_date				= HF_EMPTY;
+static int hf_wsp_header_etag				= HF_EMPTY;
+static int hf_wsp_header_expires			= HF_EMPTY;
 static int hf_wsp_header_last_modified			= HF_EMPTY;
-static int hf_wsp_header_location				= HF_EMPTY;
+static int hf_wsp_header_location			= HF_EMPTY;
 static int hf_wsp_header_if_modified_since		= HF_EMPTY;
-static int hf_wsp_header_server					= HF_EMPTY;
-static int hf_wsp_header_user_agent				= HF_EMPTY;
+static int hf_wsp_header_profile			= HF_EMPTY;
+static int hf_wsp_header_pragma				= HF_EMPTY;
+static int hf_wsp_header_server				= HF_EMPTY;
+static int hf_wsp_header_user_agent			= HF_EMPTY;
+static int hf_wsp_header_warning			= HF_EMPTY;
+static int hf_wsp_header_warning_code			= HF_EMPTY;
+static int hf_wsp_header_warning_agent			= HF_EMPTY;
+static int hf_wsp_header_warning_text			= HF_EMPTY;
 static int hf_wsp_header_application_header		= HF_EMPTY;
 static int hf_wsp_header_application_value		= HF_EMPTY;
-static int hf_wsp_header_x_wap_tod				= HF_EMPTY;
+static int hf_wsp_header_x_wap_tod			= HF_EMPTY;
 static int hf_wsp_header_transfer_encoding		= HF_EMPTY;
-static int hf_wsp_header_transfer_encoding_str	= HF_EMPTY;
-static int hf_wsp_header_via					= HF_EMPTY;
+static int hf_wsp_header_transfer_encoding_str		= HF_EMPTY;
+static int hf_wsp_header_via				= HF_EMPTY;
 
 static int hf_wsp_redirect_flags			= HF_EMPTY;
 static int hf_wsp_redirect_permanent			= HF_EMPTY;
@@ -127,11 +149,15 @@ static int hf_wsp_redirect_ipv4_addr			= HF_EMPTY;
 static int hf_wsp_redirect_addr				= HF_EMPTY;
 
 /* Initialize the subtree pointers */
-static gint ett_wsp 							= ETT_EMPTY;
-static gint ett_header 							= ETT_EMPTY;
-static gint ett_headers							= ETT_EMPTY;
-static gint ett_capabilities					= ETT_EMPTY;
-static gint ett_content_type					= ETT_EMPTY;
+static gint ett_wsp 					= ETT_EMPTY;
+static gint ett_content_type_parameters			= ETT_EMPTY;
+static gint ett_header 					= ETT_EMPTY;
+static gint ett_headers					= ETT_EMPTY;
+static gint ett_header_warning				= ETT_EMPTY;
+static gint ett_header_cache_control_parameters		= ETT_EMPTY;
+static gint ett_header_cache_control_field_names	= ETT_EMPTY;
+static gint ett_capabilities				= ETT_EMPTY;
+static gint ett_content_type				= ETT_EMPTY;
 static gint ett_redirect_flags				= ETT_EMPTY;
 static gint ett_redirect_afl				= ETT_EMPTY;
 
@@ -218,6 +244,150 @@ static const value_string vals_status[] = {
 	{ 0x65, "HTTP Version Not Supported" },
 	{ 0x00, NULL }
 };
+
+/*
+ * Field names.
+ */
+#define FN_ACCEPT		0x00
+#define FN_ACCEPT_CHARSET_DEP	0x01	/* encoding version 1.1, deprecated */
+#define FN_ACCEPT_ENCODING_DEP	0x02	/* encoding version 1.1, deprecated */
+#define FN_ACCEPT_LANGUAGE	0x03
+#define FN_ACCEPT_RANGES	0x04
+#define FN_AGE			0x05
+#define FN_ALLOW		0x06
+#define FN_AUTHORIZATION	0x07
+#define FN_CACHE_CONTROL_DEP	0x08	/* encoding version 1.1, deprecated */
+#define FN_CONNECTION		0x09
+#define FN_CONTENT_BASE		0x0A
+#define FN_CONTENT_ENCODING	0x0B
+#define FN_CONTENT_LANGUAGE	0x0C
+#define FN_CONTENT_LENGTH	0x0D
+#define FN_CONTENT_LOCATION	0x0E
+#define FN_CONTENT_MD5		0x0F
+#define FN_CONTENT_RANGE_DEP	0x10	/* encoding version 1.1, deprecated */
+#define FN_CONTENT_TYPE		0x11
+#define FN_DATE			0x12
+#define FN_ETAG			0x13
+#define FN_EXPIRES		0x14
+#define FN_FROM			0x15
+#define FN_HOST			0x16
+#define FN_IF_MODIFIED_SINCE	0x17
+#define FN_IF_MATCH		0x18
+#define FN_IF_NONE_MATCH	0x19
+#define FN_IF_RANGE		0x1A
+#define FN_IF_UNMODIFIED_SINCE	0x1B
+#define FN_LOCATION		0x1C
+#define FN_LAST_MODIFIED	0x1D
+#define FN_MAX_FORWARDS		0x1E
+#define FN_PRAGMA		0x1F
+#define FN_PROXY_AUTHENTICATE	0x20
+#define FN_PROXY_AUTHORIZATION	0x21
+#define FN_PUBLIC		0x22
+#define FN_RANGE		0x23
+#define FN_REFERER		0x24
+#define FN_RETRY_AFTER		0x25
+#define FN_SERVER		0x26
+#define FN_TRANSFER_ENCODING	0x27
+#define FN_UPGRADE		0x28
+#define FN_USER_AGENT		0x29
+#define FN_VARY			0x2A
+#define FN_VIA			0x2B
+#define FN_WARNING		0x2C
+#define FN_WWW_AUTHENTICATE	0x2D
+#define FN_CONTENT_DISPOSITION	0x2E
+#define FN_X_WAP_APPLICATION_ID	0x2F
+#define FN_X_WAP_CONTENT_URI	0x30
+#define FN_X_WAP_INITIATOR_URI	0x31
+#define FN_ACCEPT_APPLICATION	0x32
+#define FN_BEARER_INDICATION	0x33
+#define FN_PUSH_FLAG		0x34
+#define FN_PROFILE		0x35
+#define FN_PROFILE_DIFF		0x36
+#define FN_PROFILE_WARNING	0x37
+#define FN_EXPECT		0x38
+#define FN_TE			0x39
+#define FN_TRAILER		0x3A
+#define FN_ACCEPT_CHARSET	0x3B	/* encoding version 1.3 */
+#define FN_ACCEPT_ENCODING	0x3C	/* encoding version 1.3 */
+#define FN_CACHE_CONTROL	0x3D	/* encoding version 1.3 */
+#define FN_CONTENT_RANGE	0x3E	/* encoding version 1.3 */
+#define FN_X_WAP_TOD		0x3F
+#define FN_CONTENT_ID		0x40
+#define FN_SET_COOKIE		0x41
+#define FN_COOKIE		0x42
+#define FN_ENCODING_VERSION	0x43
+
+static const value_string vals_field_names[] = {
+	{ FN_ACCEPT,               "Accept" },
+	{ FN_ACCEPT_CHARSET_DEP,   "Accept-Charset (encoding 1.1)" },
+	{ FN_ACCEPT_ENCODING_DEP,  "Accept-Encoding (encoding 1.1)" },
+	{ FN_ACCEPT_LANGUAGE,      "Accept-Language" },
+	{ FN_ACCEPT_RANGES,        "Accept-Ranges" },
+	{ FN_AGE,                  "Age" },
+	{ FN_ALLOW,                "Allow" },
+	{ FN_AUTHORIZATION,        "Authorization" },
+	{ FN_CACHE_CONTROL_DEP,    "Cache-Control (encoding 1.1)" },
+	{ FN_CONNECTION,           "Connection" },
+	{ FN_CONTENT_BASE,         "Content-Base" },
+	{ FN_CONTENT_ENCODING,     "Content-Encoding" },
+	{ FN_CONTENT_LANGUAGE,     "Content-Language" },
+	{ FN_CONTENT_LENGTH,       "Content-Length" },
+	{ FN_CONTENT_LOCATION,     "Content-Location" },
+	{ FN_CONTENT_MD5,          "Content-MD5" },
+	{ FN_CONTENT_RANGE_DEP,    "Content-Range (encoding 1.1)" },
+	{ FN_CONTENT_TYPE,         "Content-Type" },
+	{ FN_DATE,                 "Date" },
+	{ FN_ETAG,                 "Etag" },
+	{ FN_EXPIRES,              "Expires" },
+	{ FN_FROM,                 "From" },
+	{ FN_HOST,                 "Host" },
+	{ FN_IF_MODIFIED_SINCE,    "If-Modified-Since" },
+	{ FN_IF_MATCH,             "If-Match" },
+	{ FN_IF_NONE_MATCH,        "If-None-Match" },
+	{ FN_IF_RANGE,             "If-Range" },
+	{ FN_IF_UNMODIFIED_SINCE,  "If-Unmodified-Since" },
+	{ FN_LOCATION,             "Location" },
+	{ FN_LAST_MODIFIED,        "Last-Modified" },
+	{ FN_MAX_FORWARDS,         "Max-Forwards" },
+	{ FN_PRAGMA,               "Pragma" },
+	{ FN_PROXY_AUTHENTICATE,   "Proxy-Authenticate" },
+	{ FN_PROXY_AUTHORIZATION,  "Proxy-Authorization" },
+	{ FN_PUBLIC,               "Public" },
+	{ FN_RANGE,                "Range" },
+	{ FN_REFERER,              "Referer" },
+	{ FN_RETRY_AFTER,          "Retry-After" },
+	{ FN_SERVER,               "Server" },
+	{ FN_TRANSFER_ENCODING,    "Transfer-Encoding" },
+	{ FN_UPGRADE,              "Upgrade" },
+	{ FN_USER_AGENT,           "User-Agent" },
+	{ FN_VARY,                 "Vary" },
+	{ FN_VIA,                  "Via" },
+	{ FN_WARNING,              "Warning" },
+	{ FN_WWW_AUTHENTICATE,     "WWW-Authenticate" },
+	{ FN_CONTENT_DISPOSITION,  "Content-Disposition" },
+	{ FN_X_WAP_APPLICATION_ID, "X-Wap-Application-ID" },
+	{ FN_X_WAP_CONTENT_URI,    "X-Wap-Content-URI" },
+	{ FN_X_WAP_INITIATOR_URI,  "X-Wap-Initiator-URI" },
+	{ FN_ACCEPT_APPLICATION,   "Accept-Application" },
+	{ FN_BEARER_INDICATION,    "Bearer-Indication" },
+	{ FN_PUSH_FLAG,            "Push-Flag" },
+	{ FN_PROFILE,              "Profile" },
+	{ FN_PROFILE_DIFF,         "Profile-Diff" },
+	{ FN_PROFILE_WARNING,      "Profile-Warning" },
+	{ FN_EXPECT,               "Expect" },
+	{ FN_TE,                   "TE" },
+	{ FN_TRAILER,              "Trailer" },
+	{ FN_ACCEPT_CHARSET,       "Accept-Charset" },
+	{ FN_ACCEPT_ENCODING,      "Accept-Encoding" },
+	{ FN_CACHE_CONTROL,        "Cache-Control" },
+	{ FN_CONTENT_RANGE,        "Content-Range" },
+	{ FN_X_WAP_TOD,            "X-Wap-Tod" },
+	{ FN_CONTENT_ID,           "Content-ID" },
+	{ FN_SET_COOKIE,           "Set-Cookie" },
+	{ FN_COOKIE,               "Cookie" },
+	{ FN_ENCODING_VERSION,     "Encoding-Version" },
+	{ 0,                       NULL }
+};	
 
 static const value_string vals_content_types[] = {
 	{ 0x00, "*/*" },
@@ -377,28 +547,42 @@ static const value_string vals_languages[] = {
 };
 
 static const value_string vals_accept_ranges[] = {
-	{ 0x80, "None" },
-	{ 0x81, "Bytes" },
+	{ 0x00, "None" },
+	{ 0x01, "Bytes" },
 	{ 0x00, NULL }
 };
 
+#define NO_CACHE		0x00
+#define NO_STORE		0x01
+#define MAX_AGE			0x02
+#define MAX_STALE		0x03
+#define MIN_FRESH		0x04
+#define ONLY_IF_CACHED		0x05
+#define PUBLIC			0x06
+#define PRIVATE			0x07
+#define NO_TRANSFORM		0x08
+#define MUST_REVALIDATE		0x09
+#define PROXY_REVALIDATE	0x0A
+#define S_MAXAGE		0x0B
+
 static const value_string vals_cache_control[] = {
-	{ 0x80, "No-cache" },
-	{ 0x81, "No-store" },
-	{ 0x82, "Max-age" },
-	{ 0x83, "Max-stale" },
-	{ 0x84, "Min-fresh" },
-	{ 0x85, "Only-if-cached" },
-	{ 0x86, "Public" },
-	{ 0x87, "Private" },
-	{ 0x88, "No-transform" },
-	{ 0x89, "Must-revalidate" },
-	{ 0x8A, "Proxy-revalidate" },
-	{ 0x00, NULL }
+	{ NO_CACHE,         "No-cache" },
+	{ NO_STORE,         "No-store" },
+	{ MAX_AGE,          "Max-age" },
+	{ MAX_STALE,        "Max-stale" },
+	{ MIN_FRESH,        "Min-fresh" },
+	{ ONLY_IF_CACHED,   "Only-if-cached" },
+	{ PUBLIC,           "Public" },
+	{ PRIVATE,          "Private" },
+	{ NO_TRANSFORM,     "No-transform" },
+	{ MUST_REVALIDATE,  "Must-revalidate" },
+	{ PROXY_REVALIDATE, "Proxy-revalidate" },
+	{ S_MAXAGE,         "S-max-age" },
+	{ 0x00,             NULL }
 };
 
 static const value_string vals_transfer_encoding[] = {
-	{ 0x80, "Chunked" },
+	{ 0x00, "Chunked" },
 	{ 0x00, NULL }
 };
 
@@ -449,23 +633,57 @@ enum {
 	PUT				= 0x61,			/* No sample data */
 };
 
+typedef enum {
+	VALUE_LEN_SUPPLIED,
+	VALUE_IS_TEXT_STRING,
+	VALUE_IN_LEN,
+} value_type_t;
+
 static void add_uri (proto_tree *, tvbuff_t *, guint, guint);
 static void add_headers (proto_tree *, tvbuff_t *);
-static void add_header (proto_tree *, tvbuff_t *, tvbuff_t *);
-static guint get_value_length (tvbuff_t *, guint, guint *);
-static guint add_content_type (proto_tree *, tvbuff_t *, guint, guint *);
-static gint get_date_value (tvbuff_t * ,guint ,struct timeval *);
-static void add_date_value (tvbuff_t * ,guint ,proto_tree * ,int ,
-	tvbuff_t * ,guint ,guint ,struct timeval *, const char *);
-static guint add_parameter (proto_tree *, tvbuff_t *, guint);
-static guint add_parameter_charset (proto_tree *, tvbuff_t *, guint, guint);
-static void add_post_data (proto_tree *, tvbuff_t *, guint);
+static int add_well_known_header (proto_tree *, tvbuff_t *, int, guint8);
+static int add_unknown_header (proto_tree *, tvbuff_t *, int, guint8);
+static int add_application_header (proto_tree *, tvbuff_t *, int);
+static void add_accept_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int);
+static void add_accept_xxx_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int, int, int, const value_string *,
+    const char *);
+static void add_accept_ranges_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int);
+static void add_cache_control_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int);
+static int add_cache_control_field_name (proto_tree *, tvbuff_t *, int, guint);
+static void add_content_type_value (proto_tree *, tvbuff_t *, int, int,
+    tvbuff_t *, value_type_t, int, int, int, guint *, const char **);
+static guint add_content_type (proto_tree *, tvbuff_t *, guint, guint *,
+    const char **);
+static void add_integer_value_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int, int, guint8);
+static void add_string_value_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int, int, guint8);
+static void add_date_value_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int, int, guint8);
+static int add_parameter (proto_tree *, tvbuff_t *, int);
+static void add_untyped_parameter (proto_tree *, tvbuff_t *, int, int);
+static void add_parameter_charset (proto_tree *, tvbuff_t *, int, int);
+static void add_parameter_type (proto_tree *, tvbuff_t *, int, int);
+static void add_parameter_text (proto_tree *, tvbuff_t *, int, int, int,
+    const char *paramName);
+static void add_post_data (proto_tree *, tvbuff_t *, guint, const char *);
 static void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
-static gint get_long_integer (tvbuff_t *, guint *, guint , guint *);
+static void add_pragma_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
+    value_type_t, int);
+static void add_transfer_encoding_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int);
+static void add_warning_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
+    value_type_t, int);
+static void add_accept_application_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int);
 static void add_capabilities (proto_tree *tree, tvbuff_t *tvb);
+static value_type_t get_value_type_len (tvbuff_t *, int, guint *, int *, int *);
 static guint get_uintvar (tvbuff_t *, guint, guint);
-
-/* Code to actually dissect the packets */
+static gint get_integer (tvbuff_t *, guint, guint, value_type_t, guint *);
 
 /* Code to actually dissect the packets */
 static void
@@ -478,7 +696,6 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint8 address_flags_len;
 	int address_len;
 	proto_tree *atf_tree;
-	guint8 bearer_type;
 	guint16 port_num = 0;
 	guint32 address_ipv4 = 0;
 	address redir_address;
@@ -588,6 +805,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint nextOffset = 0;
 	guint contentTypeStart = 0;
 	guint contentType = 0;
+	const char *contentTypeStr;
 	tvbuff_t *tmp_tvb;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
@@ -770,7 +988,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,bo_little_endian);
 
 				contentTypeStart = offset;
-				nextOffset = add_content_type (wsp_tree, tvb, offset, &contentType);
+				nextOffset = add_content_type (wsp_tree,
+				    tvb, offset, &contentType,
+				    &contentTypeStr);
 
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for value-(length of content-type field)*/
@@ -782,7 +1002,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* Runs from start of headers+headerLength to end of frame */
 				offset = nextOffset+headerLength;
 				tmp_tvb = tvb_new_subset (tvb, offset, tvb_reported_length (tvb)-offset, tvb_reported_length (tvb)-offset);
-				add_post_data (wsp_tree, tmp_tvb, contentType);
+				add_post_data (wsp_tree, tmp_tvb,
+				    contentType, contentTypeStr);
 			}
 			break;
 
@@ -795,7 +1016,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,value);
 
 				contentTypeStart = nextOffset;
-				nextOffset = add_content_type (wsp_tree, tvb, nextOffset, &contentType);
+				nextOffset = add_content_type (wsp_tree,
+				    tvb, nextOffset, &contentType,
+				    &contentTypeStr);
 
 				/* Add headers subtree that will hold the headers fields */
 				/* Runs from nextOffset for value-(length of content-type field)*/
@@ -879,11 +1102,6 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 	guint headersLen = tvb_reported_length (tvb);
 	guint8 headerStart = 0;
 	guint peek = 0;
-	tvbuff_t *header_buff;
-	tvbuff_t *value_buff;
-	guint count = 0;
-	guint valueStart = 0;
-	guint valueEnd = 0;
 	guint pageCode = 1;
 
 #ifdef DEBUG
@@ -911,18 +1129,22 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 		headerStart = offset;
 		peek = tvb_get_guint8 (tvb, headerStart);
 
-		if (peek < 32)		/* Short-cut shift delimeter */
+		if (peek < 32)		/* Short-cut shift delimiter */
 		{
 			pageCode = peek;
-			proto_tree_add_uint (wsp_headers, hf_wsp_header_shift_code, tvb , offset, 1, peek);
-			offset+=1;
+			proto_tree_add_uint (wsp_headers,
+			    hf_wsp_header_shift_code, tvb, offset, 1,
+			    pageCode);
+			offset += 1;
 			continue;
 		}
-		else if (peek == 0x7F)	/* Shift delimeter */
+		else if (peek == 0x7F)	/* Shift delimiter */
 		{
-			pageCode = tvb_get_guint8(tvb,offset+1);
-			proto_tree_add_uint (wsp_headers, hf_wsp_header_shift_code, tvb , offset, 2, pageCode);
-			offset+=2;
+			pageCode = tvb_get_guint8(tvb, offset+1);
+			proto_tree_add_uint (wsp_headers,
+			    hf_wsp_header_shift_code, tvb, offset, 2,
+			    pageCode);
+			offset += 2;
 			continue;
 		}
 		else if (peek < 127)
@@ -930,574 +1152,972 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 #ifdef DEBUG
 			fprintf (stderr, "dissect_wsp: header: application-header start %d (0x%02X)\n", peek, peek);
 #endif
-			while (tvb_get_guint8 (tvb, offset++)) { /* Do nothing, just look for NULL */ }
+			/*
+			 * Token-text, followed by Application-specific-value.
+			 */
+			offset = add_application_header (wsp_headers, tvb,
+			    headerStart);
 		}
-		else if (peek & 0x80)	/* Well-known header */
+		else if (peek & 0x80)
 		{
 #ifdef DEBUG
 			fprintf (stderr, "dissect_wsp: header: well-known %d (0x%02X)\n", peek, peek);
 #endif
-			offset++;
+			/*
+			 * Well-known-header; the lower 7 bits of "peek"
+			 * are the header code.
+			 */
+			if (pageCode == 1)
+			{
+				offset = add_well_known_header (wsp_headers,
+				    tvb, headerStart, peek & 0x7F);
+			}
+			else 
+			{
+				offset = add_unknown_header (wsp_headers,
+				    tvb, headerStart, peek & 0x7F);
+			}
 		}
-
-		/* Get value part of header */
-		valueStart = offset;
-		peek = tvb_get_guint8 (tvb, valueStart);
-		if (peek <= 30)
-		{
-#ifdef DEBUG
-			fprintf (stderr, "dissect_wsp: Looking for %d octets\n", peek);
-#endif
-			/* VERIFY: valueStart++; */
-			valueEnd = offset+1+peek;
-			offset += (peek+1);
-		}
-		else if (peek == 31)
-		{
-#ifdef DEBUG
-			fprintf (stderr, "dissect_wsp: Looking for uintvar octets\n");
-#endif
-			count = 0;	/* Initialise count */
-			tvb_get_guintvar (tvb, valueStart, &count);
-			valueEnd = offset+1+count;
-			offset += (count+1);
-		}
-		else if (peek <= 127)
-		{
-#ifdef DEBUG
-			fprintf (stderr, "dissect_wsp: Looking for NULL-terminated string\n");
-#endif
-			valueEnd = valueStart+1;
-			while (tvb_get_guint8 (tvb, valueEnd++)) { /* Do nothing, just look for NULL */ }
-			offset = valueEnd;
-		}
-		else
-		{
-#ifdef DEBUG
-			fprintf (stderr, "dissect_wsp: Value is %d\n", (peek & 0x7F));
-#endif
-			valueEnd = offset+1;
-			offset++;
-		}
-#ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: Creating value buffer from offset %d, size=%d\n", headerStart, (offset-headerStart));
-#endif
-
-		if (pageCode == 1)
-		{
-			header_buff = tvb_new_subset (tvb, headerStart, (offset-headerStart), (offset-headerStart));
-			value_buff = tvb_new_subset (tvb, valueStart, (valueEnd-valueStart), (valueEnd-valueStart));
-			add_header (wsp_headers, header_buff, value_buff);
-		}
-		else 
-		{
-			proto_tree_add_text (wsp_headers, tvb , headerStart, valueEnd-headerStart,
-				       "Unsupported Header (0x%02X)", (tvb_get_guint8 (tvb, headerStart) & 0x7F));
-		}
-
 	}
 }
 
-static void
-add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
+static int
+add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
+    guint8 headerType)
 {
-	guint offset = 0;
-	guint valueStart = 0;
-	guint8 headerType = 0;
-	proto_item *ti;
-	guint headerLen = tvb_reported_length (header_buff);
-	guint valueLen = tvb_reported_length (value_buff);
-	guint peek = 0;
-	struct timeval timeValue;
-	guint offsetNew = 0;
-	guint value = 0;
-	guint valueLength = 0;
-	char valString[100];
-	char valNum1[100];
-	char *valMatch = NULL;
-	double q_value = 1.0;
+	int headerStart;
+	value_type_t valueType;
+	int headerLen;
+	guint valueLen;
+	int valueStart;
+	tvbuff_t *header_buff;
+	tvbuff_t *value_buff;
 
-	/* Initialise time values */
-	timeValue.tv_sec=0;
-	timeValue.tv_usec = 0;
-
-	headerType = tvb_get_guint8 (header_buff, 0);
-	peek = tvb_get_guint8 (value_buff, 0);
 #ifdef DEBUG
 	fprintf (stderr, "dissect_wsp: Got header 0x%02x\n", headerType);
-	fprintf (stderr, "dissect_wsp: First value octet is 0x%02x\n", peek);
 #endif
+	headerStart = offset;
 
-	if (headerType == 0x7F)
-	{
+	/*
+	 * Skip the Short-Integer header type.
+	 */
+	offset++;
+
+	/*
+	 * Get the value type and length (or, if the type is VALUE_IN_LEN,
+	 * meaning the value is a Short-integer, get the value type
+	 * and the value itself).
+	 */ 
+	valueType = get_value_type_len (tvb, offset, &valueLen,
+	    &valueStart, &offset);
+	headerLen = offset - headerStart;
+
+	/*
+	 * Get a tvbuff for the entire header.
+	 * XXX - cut the actual length short so that it doesn't run
+	 * past the actual length of tvb.
+	 */
+	header_buff = tvb_new_subset (tvb, headerStart, headerLen,
+	    headerLen);
+
+	/*
+	 * If the value wasn't in the length, get a tvbuff for the value.
+	 * XXX - can valueLen be 0?
+	 * XXX - cut the actual length short so that it doesn't run
+	 * past the actual length of tvb.
+	 */
+	if (valueType != VALUE_IN_LEN) {
+		value_buff = tvb_new_subset (tvb, valueStart, valueLen,
+		    valueLen);
+	} else {
+		/*
+		 * XXX - when the last dissector is tvbuffified,
+		 * so that NULL is no longer a valid tvb pointer
+		 * value in "proto_tree_add" calls, just
+		 * set "value_buff" to NULL.
+		 *
+		 * XXX - can we already do that?  I.e., will that
+		 * cause us always to crash if we mistakenly try
+		 * to fetch the value of a VALUE_IN_LEN item?
+		 */
+		value_buff = tvb_new_subset (tvb, headerStart, 0, 0);
 	}
-	else if (headerType < 0x1F)
-	{
+
+	switch (headerType) {
+
+	case FN_ACCEPT:			/* Accept */
+		add_accept_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
+		break;
+
+	case FN_ACCEPT_CHARSET_DEP:	/* Accept-Charset */
+		/*
+		 * XXX - should both encoding versions 1.1 and
+		 * 1.3 be handled this way?
+		 */
+		add_accept_xxx_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_accept_charset,
+		    hf_wsp_header_accept_charset_str,
+		    vals_character_sets, "Unknown charset (%u)");
+		break;
+
+	case FN_ACCEPT_LANGUAGE:	/* Accept-Language */
+		add_accept_xxx_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_accept_language,
+		    hf_wsp_header_accept_language_str,
+		    vals_languages, "Unknown language (%u)");
+		break;
+
+	case FN_ACCEPT_RANGES:		/* Accept-Ranges */
+		add_accept_ranges_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
+		break;
+
+	case FN_AGE:			/* Age */
+		add_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen, hf_wsp_header_age,
+		    headerType);
+		break;
+
+	case FN_CACHE_CONTROL_DEP:	/* Cache-Control */
+		/*
+		 * XXX - should both encoding versions 1.1 and
+		 * 1.3 be handled this way?
+		 */
+		add_cache_control_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
+		break;
+				
+	case FN_CONTENT_LENGTH:		/* Content-Length */
+		add_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_content_length,
+		    headerType);
+		break;
+				
+	case FN_DATE:			/* Date */
+		add_date_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_date, headerType);
+		break;
+
+	case FN_ETAG:			/* Etag */
+		add_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_etag, headerType);
+		break;
+
+	case FN_EXPIRES:		/* Expires */
+		add_date_value_header (tree, header_buff, headerLen,
+		    value_buff,	valueType, valueLen,
+		    hf_wsp_header_expires, headerType);
+		break;
+
+	case FN_IF_MODIFIED_SINCE:	/* If-Modified-Since */
+		add_date_value_header (tree, header_buff, headerLen,
+		    value_buff,	valueType, valueLen,
+		    hf_wsp_header_if_modified_since, headerType);
+		break;
+				
+	case FN_LOCATION:		/* Location */
+		add_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_location, headerType);
+		break;
+
+	case FN_LAST_MODIFIED:		/* Last-Modified */
+		add_date_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_last_modified, headerType);
+		break;
+				
+	case FN_PRAGMA:			/* Pragma */
+		add_pragma_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
+		break;
+				
+	case FN_SERVER:			/* Server */
+		add_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_server, headerType);
+		break;
+
+	case FN_TRANSFER_ENCODING:	/* Transfer-Encoding */
+		add_transfer_encoding_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
+		break;
+
+	case FN_USER_AGENT:		/* User-Agent */
+		add_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_user_agent, headerType);
+		break;
+
+	case FN_VIA:			/* Via */
+		add_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_via, headerType);
+		break;
+
+	case FN_WARNING:		/* Warning */
+		add_warning_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
+		break;
+
+	case FN_ACCEPT_APPLICATION:	/* Accept-Application */
+		add_accept_application_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
+		break;
+
+	case FN_BEARER_INDICATION:	/* Bearer-Indication */
+		add_integer_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_bearer_indication, headerType);
+		break;
+
+	case FN_PROFILE:		/* Profile */
+		add_string_value_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen,
+		    hf_wsp_header_profile, headerType);
+		break;
+
+	default:
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Unsupported Header: %s",
+		    val_to_str (headerType, vals_field_names, "Unknown (0x%02X)"));
+		break;
 	}
-	else if (headerType & 0x80)
+	return offset;
+}
+
+static int
+add_unknown_header (proto_tree *tree, tvbuff_t *tvb, int offset,
+    guint8 headerType)
+{
+	int headerStart;
+	int valueStart;
+	value_type_t valueType;
+	int headerLen;
+	guint valueLen;
+	int valueOffset;
+
+	headerStart = offset;
+
+	/*
+	 * Skip the Short-Integer header type.
+	 */
+	offset++;
+
+	valueStart = offset;
+
+	/*
+	 * Get the value type and length (or, if the type is VALUE_IN_LEN,
+	 * meaning the value is a Short-integer, get the value type
+	 * and the value itself).
+	 */ 
+	valueType = get_value_type_len (tvb, valueStart, &valueLen,
+	    &valueOffset, &offset);
+	headerLen = offset - headerStart;
+
+	proto_tree_add_text (tree, tvb, headerStart, headerLen,
+		       "Unsupported Header (0x%02X)", headerType);
+	return offset;
+}
+
+static int
+add_application_header (proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	int startOffset;
+	gint tokenLen;
+	const guint8 *token;
+	value_type_t valueType;
+	int subvalueLen;
+	int subvalueOffset;
+	guint secs;
+	struct timeval timeValue;
+	int asvOffset;
+	gint stringLen;
+
+	startOffset = offset;
+	tokenLen = tvb_strnlen(tvb, startOffset, -1);
+	if (tokenLen == -1) {
+		/*
+		 * Make the length (not including the null byte at the
+		 * end) the remaining reported length of the tvbuffer;
+		 * this should cause us to throw the correct exception
+		 * when we try to do a tvb_get_ptr starting at that
+		 * offset with that length + 1, which is what we want
+		 * (we ran past the end of the buffer trying
+		 * to find the End-of-string).
+		 */
+		tokenLen = tvb_reported_length_remaining (tvb, startOffset);
+	}
+	tokenLen++;	/* include the terminating null byte */
+	token = tvb_get_ptr (tvb, startOffset, tokenLen);
+	offset += tokenLen;
+
+	/*
+	 * Special case header "X-WAP.TOD" that is sometimes followed
+	 * by a 4-byte date value.
+	 *
+	 * XXX - according to the 4-May-2000 WSP spec, X-Wap-Tod is
+	 * encoded as a well known header, with a code of 0x3F.
+	 */
+	if (tokenLen == 10 && strncasecmp ("x-wap.tod", token, 9) == 0)
 	{
-		headerType = headerType & 0x7F;
-		switch (headerType)
+		valueType = get_value_type_len (tvb, offset,
+		    &subvalueLen, &subvalueOffset, &offset);
+		if (get_integer (tvb, subvalueOffset, subvalueLen,
+		    valueType, &secs) == 0)
 		{
-			case 0x00:		/* Accept */
-				if (peek & 0x80) /* Constrained-media (short-integer) */
-				{
-					proto_tree_add_uint (tree, hf_wsp_header_accept, header_buff, offset, headerLen, (peek & 0x7F));
-					break;
-				}
-				if (peek >= 32) /* Constrained-media (text) */
-				{
-					proto_tree_add_string (tree, hf_wsp_header_accept_str,header_buff,offset,headerLen,
-								tvb_get_ptr (value_buff, 0, valueLen));
-					break;
-				}
-				/* general form (short length) */
-				offsetNew = offset+1;
-				valueLength = tvb_get_guint8 (value_buff, offsetNew);
-				if (valueLength & 0x80) /* short integer */
-				{
-					valMatch = match_strval(valueLength & 0x7f, vals_content_types);
-					offsetNew++;
-				}
-				else if (valueLength < 32) /* long integer */
-				{
-					if (get_long_integer(value_buff,&offsetNew,offset+peek,&value) < 0)
-					{
-						fprintf (stderr, "dissect_wsp: accept get_long_interger invalid\n");
-					}
-					valMatch = match_strval(value, vals_content_types);
-					offsetNew+=valueLength;
-					if (valMatch == NULL)
-					{
-						snprintf(valNum1,100,"Unsupported type (%d)",value);
-						valMatch = valNum1;
-					}
-				}
-				else /* text */
-				{
-					/* TODO */
-				}
-				if ((offsetNew - offset) < peek) /* Parameter */
-				{
-					value = tvb_get_guint8 (value_buff, offsetNew);
-					offsetNew++;
-					if (value & 0x80) /* well Know type */
-					{
-						switch (value & 0x7f)
-						{
-							case 0x03 :
-								valueLength = tvb_get_guint8 (value_buff, offsetNew);
-								if (valueLength & 0x80) /* short integer */
-								{
-									value = valueLength & 0x7F;
-									offsetNew++;
-								}
-								else if (valueLength < 32) /* Long integer */
-								{
-									if (get_long_integer(value_buff,&offsetNew,offset+peek,&value) < 0)
-									{
-										fprintf (stderr, "dissect_wsp: accept get_long_interger parameter invalid\n");
-									}
-								}
-								snprintf (valString, 100, "%s type %d", valMatch,value);
-								break;
-							case 0x00 :
-							case 0x01 :
-							case 0x02 :
-							case 0x04 :
-							default :
-								break;
-						}
-					}
-				}
-				else  /* no parameter */
-				{
-					snprintf (valString, 100, "%s", valMatch);
-				}
-				/* Add string to tree */
-				proto_tree_add_string (tree, hf_wsp_header_accept_str,
-						       header_buff, 0, headerLen, valString);
-					
-				break;
-
-			case 0x01:		/* Accept-Charset */
-				if (peek <= 31)				/* Accept-charset-general-form */
-				{
-					/* Get Value-Length */
-					valueLength = get_value_length (value_buff, offset,
-						&valueStart);
-					offset = valueStart;
-
-					peek = tvb_get_guint8 (value_buff, offset);
-					if ((peek >= 0x80) || (peek <= 30))	/* Well-known-charset */
-					{
-						if (peek == 0x80)		/* Any */
-						{
-							value = peek;
-							offset++;
-						}
-						else if (peek & 0x80)	/* Short-Integer */
-						{
-							value = peek & 0x7F;
-							offset++;
-						}
-						else if (peek <= 30)	/* Long-Integer */
-						{
-							offset++;
-	
-							switch (peek)
-							{
-								case 1:
-									value = tvb_get_guint8 (value_buff, offset);
-									break;
-								case 2:
-									value = tvb_get_ntohs (value_buff, offset);
-									break;
-								case 3:
-									value = tvb_get_ntoh24 (value_buff, offset);
-									break;
-								case 4:
-									value = tvb_get_ntohl (value_buff, offset);
-									break;
-								default:
-									/* TODO: Need to read peek octets */
-									value = 0;
-									fprintf (stderr, "dissect_wsp: accept-charset size %d NYI\n", peek);
-									break;
-							}
-							offset += peek;
-						}
-						valMatch = match_strval(value, vals_character_sets);
-					}
-					else						/* Assume Token-text */
-					{
-						fprintf (stderr, "dissect_wsp: Accept-Charset Token-text NYI\n");
-					}
-
-					/* Any remaining data relates to Q-Value */
-					if (offset < valueLen)
-					{
-						peek = tvb_get_guintvar (value_buff, offset, NULL);
-						if (peek <= 100) {
-							peek = (peek - 1) * 10;
-						}
-						else {
-							peek -= 100;
-						}
-						q_value = peek/1000.0;
-					}
-
-					/* Build string including Q values if present */
-					if (q_value == 1.0)			/* Default */
-					{
-						if (valMatch == NULL)
-						{
-							snprintf (valString, 100, "Unknown (%X)", peek);
-						}
-						else
-						{
-							snprintf (valString, 100, "%s", valMatch);
-						}
-					}
-					else
-					{
-						if (valMatch == NULL)
-						{
-							snprintf (valString, 100, "Unknown (%X); Q=%5.3f", peek,q_value);
-						}
-						else
-						{
-							snprintf (valString, 100, "%s; Q=%5.3f", valMatch,q_value);
-						}
-					}
-                                        /* Add string to tree */
-                                        proto_tree_add_string (tree, hf_wsp_header_accept_charset_str,
-				                               header_buff, 0, headerLen, valString);
-
-				}
-				else						/* Constrained-charset */
-				{
-					if (peek == 0x80)		/* Any-charset */
-					{
-						proto_tree_add_string (tree, hf_wsp_header_accept_charset,
-							header_buff, offset, headerLen,
-							"*");
-					}
-					else if (peek & 0x80)	/* Short-Integer */
-					{
-						proto_tree_add_uint (tree, hf_wsp_header_accept_charset,
-							header_buff, offset, headerLen, (peek & 0x7F) );
-					}
-					else					/* Assume *TEXT */
-					{
-						proto_tree_add_string (tree, hf_wsp_header_accept_charset,
-							header_buff, offset, headerLen,
-							tvb_get_ptr (value_buff, 0, valueLen));
-					}
-				}
-				break;
-
-			case 0x03:		/* Accept-Language */
-				if (peek < 31)
-				{
-					/* Peek contains the number of octets to follow */
-					switch (peek)
-					{
-						case 1:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_language, header_buff, offset, 
-								headerLen, tvb_get_guint8 (value_buff, 1) );
-						break;
-						case 2:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_language, header_buff, offset, 
-								headerLen, tvb_get_ntohs (value_buff, 1) );
-						break;
-						case 4:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_language, header_buff, offset, 
-								headerLen, tvb_get_ntohl (value_buff, 1) );
-						break;
-						default:
-							fprintf (stderr, "dissect_wsp: accept-language size %d NYI\n", peek);
-					}
-				}
-				else if (peek & 0x80)
-				{
-					proto_tree_add_uint (tree, hf_wsp_header_accept_language, header_buff, offset, headerLen, (peek & 0x7F) );
-				}
-				else
-				{
-					proto_tree_add_string (tree, hf_wsp_header_accept_language_str, header_buff, offset,headerLen,
-						tvb_get_ptr (value_buff, 0, valueLen));
-				}
-				break;
-
-			case 0x04:		/* Accept-Ranges */
-				if ((peek == 128) || (peek == 129))
-				{
-					proto_tree_add_uint (tree, hf_wsp_header_accept_ranges, header_buff, offset, headerLen, peek);
-				}
-				else
-				{
-					fprintf (stderr, "dissect_wsp: accept-ranges NYI\n");
-				}
-				
-				break;
-
-			case 0x05:		/* Age */
-				switch (valueLen)
-				{
-					case 1:
-						proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_guint8 (value_buff, 0));
-						break;
-					case 2:
-						proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_ntohs (value_buff, 0));
-						break;
-					case 3:
-						proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_ntoh24 (value_buff, 0));
-						break;
-					case 4:
-						proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_ntohl (value_buff, 0));
-						break;
-				};
-				break;
-
-			case 0x08:		/* Cache-Control */
-				if (peek & 0x80)
-				{
-					if (valueLen == 1)	/* Well-known value */
-					{
-						proto_tree_add_uint (tree, hf_wsp_header_cache_control, header_buff, offset, headerLen, peek);
-					}
-					else
-					{
-						if ((peek == 0x82) || (peek == 0x83) || (peek == 0x84))	/* Delta seconds value to follow */
-						{
-							value = tvb_get_guint8 (value_buff, 1);
-							if (value & 0x80)
-							{
-								proto_tree_add_text (tree, header_buff, 0,
-									headerLen, "Cache-Control: %s %d (0x%02X)",
-							    	val_to_str (peek, vals_cache_control,
-							        	"Unknown (0x%02x)"),
-							        (value & 0x7F), peek);
-							}
-							else
-							{
-								fprintf (stderr, "dissect_wsp: Cache-Control integer value Delta seconds NYI\n");
-							}
-						}
-						else if ((peek == 0x80) || (peek == 0x87))	/* Fields to follow */
-						{
-							fprintf (stderr, "dissect_wsp: Cache-Control field values NYI\n");
-						}
-						else
-						{
-							fprintf (stderr, "dissect_wsp: Cache-Control cache extension NYI\n");
-						}
-					}
-				}
-				else
-				{
-					fprintf (stderr, "dissect_wsp: Cache-Control cache extension NYI\n");
-				}
-				break;
-				
-			case 0x0D:		/* Content-Length */
-				if (peek < 31)
-				{
-					switch (peek)
-					{
-						case 1:
-							proto_tree_add_uint (tree,
-								hf_wsp_header_content_length, header_buff, offset,
-								headerLen, tvb_get_guint8 (value_buff, 1) );
-							break;
-						case 2:
-							proto_tree_add_uint (tree,
-								hf_wsp_header_content_length, header_buff, offset,
-								headerLen, tvb_get_ntohs (value_buff, 1) );
-							break;
-						case 3:
-							proto_tree_add_uint (tree,
-								hf_wsp_header_content_length, header_buff, offset,
-								headerLen, (tvb_get_ntohs (value_buff, 1) << 8) +
-								tvb_get_guint8 (value_buff, 3) );
-							break;
-						case 4:
-							proto_tree_add_uint (tree,
-								hf_wsp_header_content_length, header_buff, offset,
-								headerLen, tvb_get_ntohl (value_buff, 1) );
-							break;
-						default:
-							fprintf (stderr, "dissect_wsp: accept-charset size %d NYI\n", peek);
-					}
-				}
-				else if (peek & 0x80)
-				{
-					proto_tree_add_uint (tree, hf_wsp_header_content_length, header_buff, offset, headerLen, (peek & 0x7F));
-				}
-				else
-				{
-					fprintf (stderr, "dissect_wsp: Content-Length long-integer size NYI\n");
-				}
-				break;
-				
-			case 0x12:		/* Date */
-				add_date_value (value_buff, 0, tree,
-					hf_wsp_header_date, header_buff, offset,
-					headerLen, &timeValue, "Date");
-				break;
-
-			case 0x13:		/* Etag */
-				ti = proto_tree_add_string (tree, hf_wsp_header_etag,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				break;
-
-			case 0x14:		/* Expires */
-				add_date_value (value_buff, 0, tree,
-					hf_wsp_header_expires, header_buff, offset,
-					headerLen, &timeValue, "Expires");
-				break;
-
-			case 0x17:		/* If-Modified-Since */
-				add_date_value (value_buff, 0, tree,
-					hf_wsp_header_if_modified_since, header_buff, offset,
-					headerLen, &timeValue, "If-Modified-Since");
-				break;
-				
-			case 0x1C:		/* Location */
-				ti = proto_tree_add_string (tree, hf_wsp_header_location,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				break;
-
-			case 0x1D:		/* Last-Modified */
-				add_date_value (value_buff, 0, tree,
-					hf_wsp_header_last_modified, header_buff, offset,
-					headerLen, &timeValue, "Last-Modified");
-				break;
-				
-			case 0x1F:		/* Pragma */
-				if (peek == 0x80)
-				{
-					proto_tree_add_text (tree, header_buff, 0, headerLen, "Pragma: No-cache");
-				}
-				else
-				{
-					proto_tree_add_text (tree, header_buff, 0, headerLen, "Unsupported Header (0x%02X)", (tvb_get_guint8 (header_buff, 0) & 0x7F));
-				}
-				break;
-				
-			case 0x26:		/* Server */
-				ti = proto_tree_add_string (tree, hf_wsp_header_server,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				break;
-
-			case 0x27:		/* Transfer encoding */
-				if (peek & 0x80)
-				{
-					proto_tree_add_uint (tree, hf_wsp_header_transfer_encoding,
-						header_buff, offset, headerLen, peek);
-				}
-				else
-				{
-					proto_tree_add_string (tree,
-						hf_wsp_header_transfer_encoding_str, header_buff, offset,
-						headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				}
-				break;
-
-			case 0x29:		/* User-Agent */
-				ti = proto_tree_add_string (tree, hf_wsp_header_user_agent,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				break;
-
-			case 0x2B:		/* Via */
-				ti = proto_tree_add_string (tree, hf_wsp_header_via, header_buff,
-					offset, headerLen, tvb_get_ptr (value_buff, 0, valueLen));
-				break;
-
-			default:
-				ti = proto_tree_add_text (tree, header_buff, 0, headerLen, "Unsupported Header (0x%02X)", (tvb_get_guint8 (header_buff, 0) & 0x7F));
-				break;
+			/*
+			 * Fill in the "struct timeval", and add it to the
+			 * protocol tree.
+			 * Note: this will succeed even if it's a Short-integer.
+			 * A Short-integer would work, but, as the time values
+			 * are UNIX seconds-since-the-Epoch value, and as
+			 * there weren't WAP phones or Web servers back in
+			 * late 1969/early 1970, they're unlikely to be used.
+			 */
+			timeValue.tv_sec = secs;
+			timeValue.tv_usec = 0;
+			proto_tree_add_time (tree, hf_wsp_header_x_wap_tod,
+			    tvb, startOffset, offset - startOffset, &timeValue);
+		}
+		else
+		{
+			proto_tree_add_text (tree, tvb, startOffset,
+			    offset - startOffset,
+			    "%s: invalid date value", token);
 		}
 	}
 	else
 	{
-		/* Special case header X-WAP.TOD that is sometimes followed
-		 * by a 4-byte date value */
-		if (strncasecmp ("x-wap.tod", tvb_get_ptr (header_buff, 0, headerLen), 9) == 0)
+		asvOffset = offset;
+		stringLen = tvb_strnlen (tvb, asvOffset, -1);
+		if (stringLen == -1) {
+			/*
+			 * Make the length (not including the null byte at the
+			 * end) the remaining reported length of the tvbuffer;
+			 * this should cause us to throw the correct exception
+			 * when we try to do a tvb_get_ptr starting at that
+			 * offset with that length + 1, which is what we want
+			 * (we ran past the end of the buffer trying
+			 * to find the End-of-string).
+			 */
+			stringLen =
+			    tvb_reported_length_remaining (tvb, asvOffset);
+		}
+		stringLen++;	/* include the terminating null byte */
+		offset += stringLen;
+		proto_tree_add_text (tree, tvb, startOffset,
+		    offset - startOffset,
+		    "%s: %s", token,
+		    tvb_get_ptr (tvb, asvOffset, stringLen));
+	}
+	return offset;
+}
+
+static void
+add_accept_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+	guint contentType;
+	const char *contentTypeStr;
+
+	add_content_type_value (tree, header_buff, 0, headerLen, value_buff,
+	    valueType, valueLen, hf_wsp_header_accept,
+	    hf_wsp_header_accept_str, &contentType, &contentTypeStr);
+}
+
+static void
+add_accept_xxx_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen, int hf_numeric, int hf_string,
+    const value_string *vals, const char *unknown_tag)
+{
+	int offset = 0;
+	int subvalueLen;
+	int subvalueOffset;
+	guint value = 0;
+	char valString[100];
+	const char *valMatch;
+	guint peek;
+	double q_value = 1.0;
+
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Constrained-{charset,language} (Short-Integer).
+		 */
+		proto_tree_add_uint (tree, hf_numeric,
+		    header_buff, 0, headerLen,
+		    valueLen);	/* valueLen is the value */
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Constrained-{charset,language} (text, i.e.
+		 * Extension-Media).
+		 */
+		proto_tree_add_string (tree, hf_string,
+		    header_buff, 0, headerLen,
+		    tvb_get_ptr (value_buff, 0, valueLen));
+		return;
+	}
+
+	/*
+	 * First byte had the 8th bit set.
+	 */
+	if (valueLen == 0) {
+		/*
+		 * Any-{charset,language}.
+		 */
+		proto_tree_add_string (tree, hf_string,
+			header_buff, 0, headerLen,
+			"*");
+		return;
+	}
+
+	/*
+	 * Accept-{charset,language}-general-form; Value-length, followed
+	 * by Well-known-{charset,language} or {Token-text,Text-string},
+	 * possibly followed by a Q-value.
+	 * 
+	 * Get Value-length.
+	 */
+	valueType = get_value_type_len (value_buff, 0, &subvalueLen,
+	    &subvalueOffset, &offset);
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * {Token-text,Text-string}.
+		 */
+		valMatch =
+		    tvb_get_ptr (value_buff, subvalueOffset, subvalueLen);
+		proto_tree_add_string (tree, hf_string,
+			value_buff, 0, valueLen, valMatch);
+	} else {
+		/*
+		 * Well-known-{charset,langugage}; starts with an
+		 * Integer-value.
+		 */
+		if (get_integer (value_buff, subvalueOffset, subvalueLen,
+		    valueType, &value) < 0)
 		{
-			peek = tvb_get_guint8 (value_buff,offset);
-			if (peek < 31) 
-			{
-				timeValue.tv_usec = 0;
-				switch (peek)
-				{
-					case 1:
-						timeValue.tv_sec = tvb_get_guint8 (value_buff, 1);
-						break;
-					case 2:
-						timeValue.tv_sec = tvb_get_ntohs (value_buff, 1);
-						break;
-					case 3:
-						timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
-						break;
-					case 4:
-						timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
-						break;
-					default:
-						timeValue.tv_sec = 0;
-						fprintf (stderr, "dissect_wsp: X-WAP.TOD NYI\n");
-						break;
-				}
-				ti = proto_tree_add_time (tree, hf_wsp_header_x_wap_tod, header_buff, offset, headerLen, &timeValue);
-			}
-			else
-		       	{
-				fprintf (stderr, "dissect_wsp: X-WAP.TOD peek %X NYI\n",peek);
-			}
+			valMatch = "Invalid integer";
 		}
 		else
 		{
-			ti = proto_tree_add_text (tree, header_buff, 0, headerLen, "%s: %s", tvb_get_ptr (header_buff, 0, headerLen), tvb_get_ptr (value_buff, 0, valueLen));
+			valMatch = val_to_str(value, vals, unknown_tag);
 		}
 	}
 
+	/* Any remaining data relates to Q-value */
+	if (offset < valueLen)
+	{
+		peek = tvb_get_guintvar (value_buff, offset, NULL);
+		if (peek <= 100) {
+			peek = (peek - 1) * 10;
+		}
+		else {
+			peek -= 100;
+		}
+		q_value = peek/1000.0;
+	}
+
+	/* Build string including Q-value if present */
+	if (q_value == 1.0)			/* Default */
+	{
+		snprintf (valString, 100, "%s", valMatch);
+	}
+	else
+	{
+		snprintf (valString, 100, "%s; Q=%5.3f", valMatch, q_value);
+	}
+	/* Add string to tree */
+	proto_tree_add_string (tree, hf_string,
+	    header_buff, 0, headerLen, valString);
+}
+
+static void
+add_accept_ranges_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Must be 0 (None) or 1 (Bytes) (the 8th bit was stripped
+		 * off).
+		 */
+		proto_tree_add_uint (tree, hf_wsp_header_accept_ranges,
+		    header_buff, 0, headerLen,
+		    valueLen);	/* valueLen is the value */
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Token-text.
+		 */
+		proto_tree_add_string (tree, hf_wsp_header_accept_ranges_str,
+		    header_buff, 0, headerLen,
+		    tvb_get_ptr (value_buff, 0, valueLen));
+		return;
+	}
+
+	/*
+	 * Not valid.
+	 */
+	fprintf(stderr, "dissect_wsp: Accept-Ranges is neither None, Bytes, nor Token-text\n");
+	return;
+}
+
+static void
+add_cache_control_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+	int offset;
+	int subvalueLen;
+	int subvalueOffset;
+	guint value;
+	proto_item *ti;
+	proto_tree *parameter_tree;
+	proto_tree *field_names_tree;
+	guint delta_secs;
+
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * No-cache, No-store, Max-age, Max-stale, Min-fresh,
+		 * Only-if-cached, Public, Private, No-transform,
+		 * Must-revalidate, Proxy-revalidate, or S-maxage.
+		 */
+		proto_tree_add_uint (tree, hf_wsp_header_cache_control,
+		    header_buff, 0, headerLen,
+		    valueLen);	/* valueLen is the value */
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Cache-extension.
+		 */
+		proto_tree_add_string (tree, hf_wsp_header_cache_control_str,
+		    header_buff, 0, headerLen,
+		    tvb_get_ptr (value_buff, 0, valueLen));
+		return;
+	}
+
+	/*
+	 * Value-length Cache-directive.
+	 * Get first field of Cache-directive.
+	 */
+	valueType = get_value_type_len (value_buff, offset, &subvalueLen,
+	    &subvalueOffset, &offset);
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Cache-extension Parameter.
+		 */
+		ti = proto_tree_add_string (tree, hf_wsp_header_cache_control_str,
+		    header_buff, 0, headerLen,
+		    tvb_get_ptr (value_buff, 0, valueLen));
+		parameter_tree = proto_item_add_subtree (ti,
+		    ett_header_cache_control_parameters);
+
+		/*
+		 * Process the rest of the value as parameters.
+		 */
+		while (tvb_reported_length_remaining (value_buff, offset) > 0) {
+			offset = add_parameter (parameter_tree, value_buff,
+			    offset);
+		}
+		return;
+	}
+	if (get_integer (value_buff, subvalueOffset, subvalueLen, valueType,
+	    &value) < 0)
+	{
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid Cache-Control Cache-directive value");
+	}
+	else
+	{
+		switch (value) {
+
+		case NO_CACHE:
+		case PRIVATE:
+			/*
+			 * Loop, processing Field-names.
+			 */
+			ti = proto_tree_add_uint (tree,
+			    hf_wsp_header_cache_control,
+			    header_buff, 0, headerLen,
+			    value);
+			field_names_tree = proto_item_add_subtree (ti,
+			    ett_header_cache_control_field_names);
+			while (tvb_reported_length_remaining (value_buff, offset)
+			    > 0) {
+				offset = add_cache_control_field_name (tree,
+			    	    value_buff, offset, value);
+			}
+			break;
+
+		case MAX_AGE:
+		case MAX_STALE:
+		case MIN_FRESH:
+			/*
+			 * Get Delta-second-value.
+			 */
+			valueType = get_value_type_len (value_buff, offset,
+			    &subvalueLen, &subvalueOffset, &offset);
+			if (get_integer (value_buff, subvalueOffset,
+			    subvalueLen, valueType, &delta_secs) < 0)
+			{
+				proto_tree_add_text (tree,
+				    header_buff, 0, headerLen,
+				    "Invalid Cache-Control %s Delta-second-value",
+				    match_strval (value, vals_cache_control));
+			}
+			else 
+			{
+				proto_tree_add_uint_format (tree,
+				    hf_wsp_header_cache_control,
+				    header_buff, 0, headerLen,
+				    value,
+				    "Cache-Control: %s %u secs",
+				    match_strval (value, vals_cache_control),
+				    delta_secs);
+			}
+			break;
+
+		default:
+			/*
+			 * This should not happen, but handle it anyway.
+			 */
+			proto_tree_add_uint (tree,
+			    hf_wsp_header_cache_control,
+			    header_buff, 0, headerLen,
+			    value);
+			break;
+		}
+	}
+}
+
+static int
+add_cache_control_field_name (proto_tree *tree, tvbuff_t *value_buff,
+    int offset, guint cache_control_value)
+{
+	value_type_t valueType;
+	int startOffset;
+	int subvalueLen;
+	int subvalueOffset;
+
+	startOffset = offset;
+	valueType = get_value_type_len (value_buff, offset,
+	    &subvalueLen, &subvalueOffset, &offset);
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Token-text.
+		 */
+		proto_tree_add_item (tree, 
+		    hf_wsp_header_cache_control_field_name_str,
+		    value_buff, startOffset, offset - startOffset,
+		    bo_little_endian);
+	}
+	else if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Short-integer Field-name.
+		 */
+		proto_tree_add_uint (tree,
+		    hf_wsp_header_cache_control_field_name,
+		    value_buff, startOffset, offset - startOffset,
+		    subvalueLen);
+	}
+	else
+	{
+		/*
+		 * Long-integer - illegal.
+		 */
+		proto_tree_add_text (tree,
+		    value_buff, startOffset, offset - startOffset,
+		    "Invalid Cache-Control %s Field-name",
+		    match_strval (cache_control_value, vals_cache_control));
+	}	
+	return offset;
+}
+
+static void
+add_pragma_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+	int offset = 0;
+	int subvalueLen;
+	int subvalueOffset;
+
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Invalid.
+		 */
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid Pragma");
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Invalid?
+		 */
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid Pragma");
+		return;
+	}
+
+	/*
+	 * First byte had the 8th bit set.
+	 */
+	if (valueLen == 0) {
+		/*
+		 * No-cache.
+		 */
+		proto_tree_add_string (tree, hf_wsp_header_pragma,
+		    header_buff, 0, headerLen, "No-cache");
+		return;
+	}
+
+	/*
+	 * Value-length, followed by Parameter.
+	 * 
+	 * Get Value-length.
+	 */
+	valueType = get_value_type_len (value_buff, 0, &subvalueLen,
+	    &subvalueOffset, &offset);
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Parameter - a text string.
+		 */
+		proto_tree_add_string (tree, hf_wsp_header_pragma,
+		    header_buff, 0, headerLen,
+		    tvb_get_ptr (value_buff, subvalueOffset, subvalueLen));
+	} else {
+		/*
+		 * Parameter - numeric; illegal?
+		 */
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid Pragma");
+	}
+}
+
+static void
+add_transfer_encoding_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+	int offset = 0;
+
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Invalid.
+		 */
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid Transfer-Encoding value");
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Token-text.
+		 */
+		proto_tree_add_string (tree,
+		    hf_wsp_header_transfer_encoding_str,
+		    header_buff, 0, headerLen,
+		    tvb_get_ptr (value_buff, 0, valueLen));
+		return;
+	}
+
+	/*
+	 * First byte had the 8th bit set.
+	 */
+	if (valueLen == 0) {
+		/*
+		 * Chunked.
+		 */
+		proto_tree_add_uint (tree, hf_wsp_header_transfer_encoding,
+		    header_buff, offset, headerLen, valueLen);
+		return;
+	}
+
+	/*
+	 * Invalid.
+	 */
+	proto_tree_add_text (tree, header_buff, 0, headerLen,
+	    "Invalid Transfer Encoding value");
+}
+
+static void
+add_warning_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+	int offset = 0;
+	proto_item *ti;
+	proto_tree *warning_tree;
+	int subvalueLen;
+	int subvalueOffset;
+
+	/*
+	 * Put the items under a header.
+	 * XXX - make the text of the item summarize the elements.
+	 */
+	ti = proto_tree_add_item (tree, hf_wsp_header_warning,
+	    header_buff, 0, headerLen, bo_little_endian);
+	warning_tree = proto_item_add_subtree(ti, ett_header_warning);
+	
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Warn-code (Short-integer).
+		 */
+		proto_tree_add_uint (warning_tree, hf_wsp_header_warning_code,
+		    header_buff, 0, headerLen,
+		    valueLen);	/* valueLen is the value */
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Invalid.
+		 */
+		proto_tree_add_text (warning_tree, header_buff, 0, headerLen,
+		    "Invalid Warning (all text)");
+		return;
+	}
+
+	/*
+	 * Warning-value; Warn-code, followed by Warn-agent, followed by
+	 * Warn-text.
+	 */
+	/*
+	 * Get Short-integer Warn-code.
+	 */
+	valueType = get_value_type_len (value_buff, offset, &subvalueLen,
+	    &subvalueOffset, &offset);
+	if (valueType != VALUE_IN_LEN)
+	{
+		/*
+		 * Not a Short-integer.
+		 */
+		proto_tree_add_text (warning_tree, value_buff, subvalueOffset,
+		    subvalueLen, "Invalid Warn-code (not a Short-integer)");
+		return;
+	}
+	proto_tree_add_uint (warning_tree, hf_wsp_header_warning_code,
+	    value_buff, subvalueOffset, 1,
+	    subvalueLen);	/* subvalueLen is the value */
+
+	/*
+	 * Warn-agent; must be text.
+	 */
+	valueType = get_value_type_len (value_buff, offset, &subvalueLen,
+	    &subvalueOffset, &offset);
+	if (valueType != VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Not text.
+		 */
+		proto_tree_add_text (warning_tree, value_buff, subvalueOffset,
+		    subvalueLen, "Invalid Warn-agent (not a text string)");
+		return;
+	}
+	proto_tree_add_item (warning_tree,
+		hf_wsp_header_warning_agent,
+		value_buff, subvalueOffset, subvalueLen, bo_little_endian);
+
+	/*
+	 * Warn-text; must be text.
+	 */
+	valueType = get_value_type_len (value_buff, offset, &subvalueLen,
+	    &subvalueOffset, &offset);
+	if (valueType != VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Not text.
+		 */
+		proto_tree_add_text (warning_tree, value_buff, subvalueOffset,
+		    subvalueLen, "Invalid Warn-text (not a text string)");
+		return;
+	}
+	proto_tree_add_item (warning_tree,
+		hf_wsp_header_warning_text,
+		value_buff, subvalueOffset, subvalueLen, bo_little_endian);
+}
+
+static void
+add_accept_application_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+	guint value;
+
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Application-id-value; numeric, so it's App-assigned-code.
+		 */
+		proto_tree_add_uint (tree, hf_wsp_header_accept_application,
+		    header_buff, 0, headerLen,
+		    valueLen);	/* valueLen is the value */
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Uri-value.
+		 */
+		proto_tree_add_string (tree, hf_wsp_header_accept_application_str,
+		    header_buff, 0, headerLen,
+		    tvb_get_ptr (value_buff, 0, valueLen));
+		return;
+	}
+
+	/*
+	 * First byte had the 8th bit set.
+	 */
+	if (valueLen == 0) {
+		/*
+		 * Any-application.
+		 */
+		proto_tree_add_string (tree, hf_wsp_header_accept_application_str,
+			header_buff, 0, headerLen,
+			"*");
+		return;
+	}
+
+	/*
+	 * Integer-value, hence App-assigned-code.
+	 */
+	if (get_integer (value_buff, 0, valueLen, valueType, &value) < 0)
+	{
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+			"Invalid Accept-Application App-assigned-code");
+	}
+	else
+	{
+		proto_tree_add_uint (tree, hf_wsp_header_accept_application,
+		    header_buff, 0, headerLen, value);
+	}
 }
 
 static void
@@ -1638,6 +2258,98 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb)
 	}
 }
 
+static value_type_t
+get_value_type_len (tvbuff_t *tvb, int offset, guint *valueLen,
+    int *valueOffset, int *nextOffset)
+{
+	guint8 peek;
+	guint32 len;
+	guint count;
+	int stringlen;
+
+	/* Get value part of header */
+	peek = tvb_get_guint8 (tvb, offset);
+	if (peek <= 30)
+	{
+		/*
+		 * The value follows "peek", and is "peek" octets long.
+		 */
+#ifdef DEBUG
+		fprintf (stderr, "dissect_wsp: Looking for %d octets\n", peek);
+#endif
+		len = peek;
+		*valueLen = len;	/* Length of value */
+		offset++;		/* Skip the length */
+		*valueOffset = offset;	/* Offset of value */
+		offset += len;		/* Skip the value */
+		*nextOffset = offset;	/* Offset after value */
+		return VALUE_LEN_SUPPLIED;
+	}
+	else if (peek == 31)
+	{
+		/*
+		 * A uintvar giving the length of the value follows
+		 * "peek", and the value follows that.
+		 */
+#ifdef DEBUG
+		fprintf (stderr, "dissect_wsp: Looking for uintvar octets\n");
+#endif
+		offset++;		/* Skip the uintvar indicator */
+		count = 0;		/* Initialise count */
+		len = tvb_get_guintvar (tvb, offset, &count);
+		*valueLen = len;	/* Length of value */
+		offset += count;	/* Skip the length */
+		*valueOffset = offset;	/* Offset of value */
+		offset += len;		/* Skip the value */
+		*nextOffset = offset;	/* Offset after value */
+		return VALUE_LEN_SUPPLIED;
+	}
+	else if (peek <= 127)
+	{
+		/*
+		 * The value is a NUL-terminated string, and "peek"
+		 * is the first octet of the string.
+		 */
+#ifdef DEBUG
+		fprintf (stderr, "dissect_wsp: Looking for NUL-terminated string\n");
+#endif
+		stringlen = tvb_strnlen (tvb, offset, -1);
+		if (stringlen == -1) {
+			/*
+			 * Make the length 1 byte more than the remaining
+			 * reported length of the tvbuffer; this should
+			 * cause us to throw the correct exception
+			 * when we try to make a tvbuff starting at
+			 * offset with that length, which is what we want
+			 * (we ran past the end of the buffer trying
+			 * to find the End-of-string).
+			 */
+			stringlen =
+			    tvb_reported_length_remaining (tvb, offset) + 1;
+		}
+		len = stringlen + 1;	/* Include NUL in length */
+		*valueLen = len;	/* Length of value */
+		*valueOffset = offset;	/* Offset of value */
+		offset += len;		/* Skip the value */
+		*nextOffset = offset;	/* Offset after value */
+		return VALUE_IS_TEXT_STRING;
+	}
+	else
+	{
+		/*
+		 * "peek", with the 8th bit stripped off, is the value.
+		 */
+#ifdef DEBUG
+		fprintf (stderr, "dissect_wsp: Value is %d\n", (peek & 0x7F));
+#endif
+		*valueLen = peek & 0x7F; /* Return the value itself */
+		*valueOffset = offset;	/* Offset of value */
+		offset++;		/* Skip the value */
+		*nextOffset = offset;	/* Offset after value */
+		return VALUE_IN_LEN;
+	}
+}
+
 static guint
 get_uintvar (tvbuff_t *tvb, guint offset, guint offsetEnd)
 {
@@ -1655,177 +2367,529 @@ get_uintvar (tvbuff_t *tvb, guint offset, guint offsetEnd)
 	return value;
 }
 
-static guint
-get_value_length (tvbuff_t *tvb, guint offset, guint *nextOffset)
+static void
+add_content_type_value (proto_tree *tree, tvbuff_t *header_buff,
+    int headerOffset, int headerLen, tvbuff_t *value_buff,
+    value_type_t valueType, int valueLen, int hf_numeric, int hf_string,
+    guint *contentTypep, const char **contentTypeStrp)
 {
-	guint value = 0;
-	guint count = 0;
-	guint octet = tvb_get_guint8 (tvb, offset);
+	proto_item *ti;
+	proto_tree *parameter_tree;
+	const char *contentTypeStr;
+	int offset;
+	int subvalueLen;
+	int subvalueOffset;
+	guint value;
 
-	if (octet <= 30)	/* Short length */
+	if (valueType == VALUE_IN_LEN)
 	{
-		value = octet;
-		*nextOffset = offset+1;
-	}
-	else if (octet == 31)
-	{
-		value = tvb_get_guintvar (tvb, offset+1, &count);
-		*nextOffset = offset+1+count;
-	}
-	else
-	{
-		fprintf (stderr, "dissect_wsp: get_value_length: case NYI\n");
-	}
+		/*
+		 * Constrained-media (Short-Integer).
+		 */
+		proto_tree_add_uint (tree, hf_numeric,
+		    header_buff, headerOffset, headerLen,
+		    valueLen);	/* valueLen is the value */
 
-	return (value);
-}
-
-static guint
-add_content_type (proto_tree *tree, tvbuff_t *tvb, guint offset, guint *contentType)
-{
-	proto_tree *contentTypeTree;
-	guint nextOffset = offset;
-	guint fieldLength = 0;
-	guint octet = tvb_get_guint8 (tvb, offset);
-	guint totalSizeOfField = 0;
-
-	if (octet <= 31)
-	{
-		fieldLength = get_value_length (tvb, offset, &nextOffset);
-		totalSizeOfField = (nextOffset-offset)+fieldLength;
+		/*
+		 * Return the numerical value, and a null string value
+		 * indicating that the value is numerical.
+		 */
+		*contentTypep = valueLen;
+		*contentTypeStrp = NULL;
+		return;
 	}
-	else if (octet & 0x80)
+	if (valueType == VALUE_IS_TEXT_STRING)
 	{
-		fieldLength = 1;
-		totalSizeOfField = 1;
-	}
-	else
-	{
-		fprintf (stderr, "dissect-wsp: Content-type is un-supported\n");
+		/*
+		 * Constrained-media (text, i.e. Extension-Media).
+		 */
+		contentTypeStr = tvb_get_ptr (value_buff, 0, valueLen);
+		proto_tree_add_string (tree, hf_string,
+		    header_buff, headerOffset, headerLen,
+		    contentTypeStr);
+
+		/*
+		 * Return the string value, and set the numerical value
+		 * to 0 (as it shouldn't be used).
+		 */
+		*contentTypep = 0;
+		*contentTypeStrp = contentTypeStr;
+		return;
 	}
 
-	*contentType = (tvb_get_guint8 (tvb, nextOffset) & 0x7F);
-	contentTypeTree = proto_tree_add_uint (tree, hf_wsp_content_type, tvb, offset, totalSizeOfField, (tvb_get_guint8(tvb,nextOffset++) & 0x7F));
-
-	while (nextOffset < (offset+totalSizeOfField))
-	{
-		/* add_parameter */
-		nextOffset = add_parameter (contentTypeTree, tvb, nextOffset);
-	}
-
-	return (offset+totalSizeOfField);
-}
-
-/* Utility function to extract date values from the packet */
-static gint
-get_date_value (tvbuff_t *buffer, guint offset, struct timeval *timeValue)
-{
-	guint ShortLength = 0;
-
-	/* Initialise time values */
-	timeValue->tv_sec=0;
-	timeValue->tv_usec = 0;
-
-	/* Date values are encoded as: Short-length Multi-octet-integer
-	 * Where Short-length = 0-30
+	/*
+	 * Content-general-form; Value-length, followed by Media-range,
+	 * followed by optional Accept-parameters.
+	 *
+	 * Get Value-length.
 	 */
-	ShortLength = tvb_get_guint8 (buffer, offset++);
-	if (ShortLength > 30)
+	valueType = get_value_type_len (value_buff, 0, &subvalueLen,
+	    &subvalueOffset, &offset);
+	if (valueType == VALUE_IS_TEXT_STRING)
 	{
-		fprintf (stderr, "dissect_wsp: Invalid Date-value (Short-length=%d)\n",
-			ShortLength);
-		return (-1);
+		/*
+		 * Extension-Media; value is a string.
+		 */
+		contentTypeStr =
+		    tvb_get_ptr (value_buff, subvalueOffset, subvalueLen);
+		ti = proto_tree_add_string (tree, hf_string, header_buff,
+		    headerOffset, headerLen, contentTypeStr);
+
+		/*
+		 * Return the string value, and set the numerical value
+		 * to 0 (as it shouldn't be used).
+		 */
+		*contentTypep = 0;
+		*contentTypeStrp = contentTypeStr;
+	}
+	else
+	{
+		/*
+		 * Well-known-media; value is an Integer.
+		 */
+		if (get_integer (value_buff, subvalueOffset, subvalueLen,
+		    valueType, &value) < 0)
+		{
+			proto_tree_add_text (tree, header_buff,
+			    headerOffset, headerLen,
+			    "Invalid integer for Well-known-media");
+
+			/*
+			 * Content type is invalid.
+			 * Don't try to parse the rest of the value.
+			 */
+			*contentTypep = 0;
+			*contentTypeStrp = NULL;
+			return;
+		}
+		ti = proto_tree_add_uint (tree, hf_numeric,
+		    header_buff, headerOffset, headerLen, value);
+
+		/*
+		 * Return the numerical value, and a null string value
+		 * indicating that the value is numerical.
+		 */
+		*contentTypep = value;
+		*contentTypeStrp = NULL;
 	}
 
-	switch (ShortLength)
-	{
-		case 1:
-			timeValue->tv_sec = tvb_get_guint8 (buffer, offset);
-			break;
-		case 2:
-			timeValue->tv_sec = tvb_get_ntohs (buffer, offset);
-			break;
-		case 3:
-			timeValue->tv_sec = tvb_get_ntoh24 (buffer, offset);
-			break;
-		case 4:
-			timeValue->tv_sec = tvb_get_ntohl (buffer, offset);
-			break;
-		default:
-			fprintf (stderr, "dissect_wsp: Date-value Short-length of %d NYI\n",
-				ShortLength);
-			return (-1);
-			break;
+	/*
+	 * Process the rest of the value as parameters.
+	 */
+	parameter_tree = proto_item_add_subtree(ti,
+	    ett_content_type_parameters);
+	while (tvb_reported_length_remaining (value_buff, offset) > 0)
+		offset = add_parameter (parameter_tree, value_buff, offset);
+}
+
+static guint
+add_content_type (proto_tree *tree, tvbuff_t *tvb, guint offset,
+    guint *contentTypep, const char **contentTypeStrp)
+{
+	int valueStart;
+	value_type_t valueType;
+	int valueTypeLen;
+	guint valueLen;
+	int valueOffset;
+	tvbuff_t *value_buff;
+
+	valueStart = offset;
+
+	/*
+	 * Get the value type and length (or, if the type is VALUE_IN_LEN,
+	 * meaning the value is a Short-integer, get the value type
+	 * and the value itself).
+	 */ 
+	valueType = get_value_type_len (tvb, valueStart, &valueLen,
+	    &valueOffset, &offset);
+	valueTypeLen = offset - valueStart;
+
+	/*
+	 * Get a tvbuff for the value.
+	 * XXX - can valueLen be 0?
+	 * XXX - cut the actual length short so that it doesn't run
+	 * past the actual length of tvb.
+	 */
+	if (valueType != VALUE_IN_LEN) {
+		value_buff = tvb_new_subset (tvb, valueOffset, valueLen,
+		    valueLen);
+	} else {
+		/*
+		 * XXX - when the last dissector is tvbuffified,
+		 * so that NULL is no longer a valid tvb pointer
+		 * value in "proto_tree_add" calls, just
+		 * set "value_buff" to NULL.
+		 *
+		 * XXX - can we already do that?  I.e., will that
+		 * cause us always to crash if we mistakenly try
+		 * to fetch the value of a VALUE_IN_LEN item?
+		 */
+		value_buff = tvb_new_subset (tvb, valueStart, 0, 0);
 	}
 
-	return (0);
+	add_content_type_value (tree, tvb, valueStart, valueTypeLen, value_buff,
+	    valueType, valueLen, hf_wsp_content_type,
+	    hf_wsp_content_type_str, contentTypep, contentTypeStrp);
+
+	return offset;
+}
+
+static void
+add_integer_value_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen, int hf_numeric, guint8 headerType)
+{
+	guint value;
+
+	if (get_integer (value_buff, 0, valueLen, valueType, &value) < 0)
+	{
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid %s integer value",
+		    match_strval (headerType, vals_field_names));
+	}
+	else
+	{
+		proto_tree_add_uint (tree, hf_numeric,
+		    header_buff, 0, headerLen, value);
+	}
+}
+
+static void
+add_string_value_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen, int hf_string, guint8 headerType)
+{
+	if (valueType != VALUE_IS_TEXT_STRING)
+	{
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid %s string value",
+		    match_strval (headerType, vals_field_names));
+	}
+	else
+	{
+		proto_tree_add_string (tree, hf_string, header_buff,
+			0, headerLen, tvb_get_ptr (value_buff, 0, valueLen));
+	}
 }
 
 /* Utility function to add a date value to the protocol tree */
 static void
-add_date_value (tvbuff_t *buffer, guint offset, proto_tree *tree,
-		int header, tvbuff_t *headerBuffer, guint headerOffset,
-		guint headerLen, struct timeval *timeValue, const char *fieldName)
+add_date_value_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen, int hf_time, guint8 headerType)
 {
+	guint secs;
+	struct timeval timeValue;
+
 	/* Attempt to get the date value from the buffer */
-	if (get_date_value (buffer, offset, timeValue) == 0)
+	if (get_integer (value_buff, 0, valueLen, valueType, &secs) == 0)
 	{
-		/* If successful, add it to the protocol tree */
-		proto_tree_add_time (tree, header, headerBuffer, headerOffset,
-			headerLen, timeValue);
+		/*
+		 * Fill in the "struct timeval", and add it to the
+		 * protocol tree.
+		 * Note: this will succeed even if it's a Short-integer.
+		 * A Short-integer would work, but, as the time values
+		 * are UNIX seconds-since-the-Epoch value, and as
+		 * there weren't WAP phones or Web servers back in
+		 * late 1969/early 1970, they're unlikely to be used.
+		 */
+		timeValue.tv_sec = secs;
+		timeValue.tv_usec = 0;
+		proto_tree_add_time (tree, hf_time, header_buff, 0,
+			headerLen, &timeValue);
 	}
 	else
 	{
-		fprintf (stderr, "dissect_wsp: Invalid %s value\n", fieldName);
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid %s date value",
+		    match_strval (headerType, vals_field_names));
 	}
 }
 
-static guint
-add_parameter (proto_tree *tree, tvbuff_t *tvb, guint offset)
+static int
+add_parameter (proto_tree *tree, tvbuff_t *value_buff, int offset)
 {
-	guint octet = tvb_get_guint8 (tvb, offset);
-	if (octet & 0x80)	/* Short integer */
-	{
-		offset++;
-		octet = octet & 0x7F;
-		switch ( octet )
-		{
-			case 0x01:
-				offset = add_parameter_charset (tree, tvb, offset, offset-1);
-				break;
+	int startOffset;
+	value_type_t valueType;
+	int subvalueLen;
+	int subvalueOffset;
+	guint value;
 
-			default:
-				fprintf (stderr, "dissect-wsp: add_parameter octet=0x%02x\n", octet);
-		};
-	}
-	else
+	startOffset = offset;
+	valueType = get_value_type_len (value_buff, offset,
+	    &subvalueLen, &subvalueOffset, &offset);
+	if (valueType == VALUE_IS_TEXT_STRING)
 	{
-		fprintf (stderr, "dissect-wsp: add_parameter octet=0x%02x\n", octet);
+		/*
+		 * Untyped-parameter.
+		 */
+		add_untyped_parameter (tree, value_buff, startOffset, offset);
+		return offset;
 	}
 
-	return (offset);
-}
-
-static guint
-add_parameter_charset (proto_tree *tree, tvbuff_t *tvb, guint offset, guint startOffset)
-{
-	guint octet = tvb_get_guint8 (tvb, offset);
-	if (octet < 31)
+	/*
+	 * Well-known-parameter-token.
+	 */
+	if (get_integer (value_buff, subvalueOffset,
+	    subvalueLen, valueType, &value) < 0)
 	{
-		offset += octet+1;
-		proto_tree_add_item (tree, hf_wsp_parameter_well_known_charset, tvb, startOffset+1, octet, bo_big_endian);
+	    	proto_tree_add_text (tree, value_buff, startOffset,
+		    offset - startOffset,
+		    "Invalid Well-known-parameter-token");
+		return offset;
 	}
-	else if (octet & 0x80)
-	{
-		offset++;
-		proto_tree_add_uint (tree, hf_wsp_parameter_well_known_charset, tvb, startOffset, offset-startOffset, (octet & 0x7F));
+
+	switch (value) {
+
+	case 0x01:	/* Charset */
+		add_parameter_charset (tree, value_buff, startOffset, offset);
+		break;
+
+	case 0x03:	/* Type */
+		add_parameter_type (tree, value_buff, startOffset, offset);
+		break;
+
+	case 0x05:	/* Name */
+		add_parameter_text (tree, value_buff, startOffset, offset,
+		    hf_wsp_parameter_name, "Name");
+		break;
+
+	case 0x06:	/* Filename */
+		add_parameter_text (tree, value_buff, startOffset, offset,
+		    hf_wsp_parameter_filename, "Filename");
+		break;
+
+	case 0x0A:	/* Start */
+		add_parameter_text (tree, value_buff, startOffset, offset,
+		    hf_wsp_parameter_start, "Start");
+		break;
+
+	case 0x0B:	/* Start-info */
+		add_parameter_text (tree, value_buff, startOffset, offset,
+		    hf_wsp_parameter_start_info, "Start-info");
+		break;
+
+	case 0x0C:	/* Comment */
+		add_parameter_text (tree, value_buff, startOffset, offset,
+		    hf_wsp_parameter_comment, "Comment");
+		break;
+
+	case 0x0D:	/* Domain */
+		add_parameter_text (tree, value_buff, startOffset, offset,
+		    hf_wsp_parameter_domain, "Domain");
+		break;
+
+	case 0x0F:	/* Path */
+		add_parameter_text (tree, value_buff, startOffset, offset,
+		    hf_wsp_parameter_path, "Path");
+		break;
+
+	case 0x00:	/* Q */
+	case 0x02:	/* Level */
+	case 0x07:	/* Differences */
+	case 0x08:	/* Padding */
+	case 0x09:	/* Type (special) */
+	case 0x0E:	/* Max-Age */
+	case 0x10:	/* Secure */
+	default:
+		break;
 	}
 
 	return offset;
 }
 
 static void
-add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType)
+add_untyped_parameter (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
+    int offset)
+{
+	int tokenOffset;
+	gint tokenLen;
+	const guint8 *token;
+	value_type_t valueType;
+	int subvalueLen;
+	int subvalueOffset;
+	guint value;
+	int textvOffset;
+	gint stringLen;
+
+	tokenOffset = offset;
+	tokenLen = tvb_strnlen(value_buff, tokenOffset, -1);
+	if (tokenLen == -1) {
+		/*
+		 * Make the length (not including the null byte at the
+		 * end) the remaining reported length of the tvbuffer;
+		 * this should cause us to throw the correct exception
+		 * when we try to do a tvb_get_ptr starting at that
+		 * offset with that length + 1, which is what we want
+		 * (we ran past the end of the buffer trying
+		 * to find the End-of-string).
+		 */
+		tokenLen = tvb_reported_length_remaining (value_buff, tokenOffset);
+	}
+	tokenLen++;	/* include the terminating null byte */
+	token = tvb_get_ptr (value_buff, tokenOffset, tokenLen);
+	offset += tokenLen;
+
+	/*
+	 * Now an Untyped-value; either an Integer-value or a Text-value.
+	 */
+	valueType = get_value_type_len (value_buff, offset,
+	    &subvalueLen, &subvalueOffset, &offset);
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Text-value.
+		 */
+		textvOffset = offset;
+		stringLen = tvb_strnlen (value_buff, textvOffset, -1);
+		if (stringLen == 0) {
+			/*
+			 * No-value.
+			 */
+			proto_tree_add_text (tree, value_buff, startOffset,
+			    offset - startOffset,
+			    "%s", token);
+			return;
+		}			
+		if (stringLen == -1) {
+			/*
+			 * Make the length (not including the null byte at the
+			 * end) the remaining reported length of the tvbuffer;
+			 * this should cause us to throw the correct exception
+			 * when we try to do a tvb_get_ptr starting at that
+			 * offset with that length + 1, which is what we want
+			 * (we ran past the end of the buffer trying
+			 * to find the End-of-string).
+			 */
+			stringLen =
+			    tvb_reported_length_remaining (value_buff, textvOffset);
+		}
+		stringLen++;	/* include the terminating null byte */
+		offset += stringLen;
+		proto_tree_add_text (tree, value_buff, startOffset,
+		    offset - startOffset,
+		    "%s: %s", token,
+		    tvb_get_ptr (value_buff, textvOffset, stringLen));
+	}
+	else
+	{
+		/*
+		 * Integer-value.
+		 */
+		if (get_integer (value_buff, subvalueOffset, subvalueLen,
+		    valueType, &value) == 0)
+		{
+			proto_tree_add_text (tree, value_buff, startOffset,
+			    offset - startOffset,
+			    "%s: %u", token, value);
+		}
+		else
+		{
+			proto_tree_add_text (tree, value_buff, startOffset,
+			    offset - startOffset,
+			    "%s: Invalid Integer-value", token);
+		}
+	}
+}
+
+static void
+add_parameter_charset (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
+    int offset)
+{
+	value_type_t valueType;
+	int subvalueLen;
+	int subvalueOffset;
+	guint value;
+
+	valueType = get_value_type_len (value_buff, offset,
+	    &subvalueLen, &subvalueOffset, &offset);
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Integer-value.
+		 */
+		proto_tree_add_uint (tree, hf_wsp_parameter_well_known_charset,
+		    value_buff, startOffset, offset - startOffset,
+		    subvalueLen);	/* subvalueLen is the value */
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Invalid.
+		 */
+	    	proto_tree_add_text (tree, value_buff, startOffset,
+		    offset - startOffset, "Invalid Well-known charset");
+		return;
+	}
+
+	/*
+	 * First byte had the 8th bit set.
+	 */
+	if (subvalueLen == 0) {
+		/*
+		 * Any-charset.
+		 * XXX - add this as a field?
+		 */
+		proto_tree_add_text (tree, value_buff, startOffset,
+		    offset- startOffset, "*");
+		return;
+	}
+
+	if (get_integer(value_buff, subvalueOffset, subvalueLen,
+	    valueType, &value) == -1) {
+	    	proto_tree_add_text (tree, value_buff, startOffset,
+		    offset - startOffset, "Length %u not handled in Well-known charset",
+		        subvalueLen);
+	} else {
+		proto_tree_add_uint (tree, hf_wsp_parameter_well_known_charset,
+		    value_buff, startOffset, offset - startOffset, value);
+	}
+}
+
+static void
+add_parameter_type (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
+    int offset)
+{
+	value_type_t valueType;
+	int subvalueLen;
+	int subvalueOffset;
+	guint value;
+
+	valueType = get_value_type_len (value_buff, offset,
+	    &subvalueLen, &subvalueOffset, &offset);
+	if (get_integer(value_buff, subvalueOffset, subvalueLen,
+	    valueType, &value) == -1) {
+	    	proto_tree_add_text (tree, value_buff, startOffset,
+		    offset - startOffset, "Invalid type");
+	} else {
+		proto_tree_add_uint (tree, hf_wsp_parameter_type, value_buff,
+		    startOffset, offset - startOffset, value);
+	}
+}
+
+static void
+add_parameter_text (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
+    int offset, int hf_string, const char *paramName)
+{
+	value_type_t valueType;
+	int subvalueLen;
+	int subvalueOffset;
+
+	valueType = get_value_type_len (value_buff, offset,
+	    &subvalueLen, &subvalueOffset, &offset);
+	if (valueType != VALUE_IS_TEXT_STRING) {
+	    	proto_tree_add_text (tree, value_buff, startOffset,
+		    offset - startOffset, "Invalid %s", paramName);
+	} else {
+		proto_tree_add_item (tree, hf_string, value_buff,
+		    startOffset, offset - startOffset, bo_little_endian);
+	}
+}
+
+static void
+add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
+    const char *contentTypeStr)
 {
 	guint offset = 0;
 	guint variableStart = 0;
@@ -1838,9 +2902,12 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType)
 	/* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian); */
 	ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,tvb_reported_length(tvb),bo_little_endian);
 
-	if (contentType == 0x12)	/* URL Encoded data */
+	if (contentTypeStr == NULL && contentType == 0x12)
 	{
-		/* Iterate through post data */
+		/*
+		 * URL Encoded data.
+		 * Iterate through post data.
+		 */
 		for (offset = 0; offset < tvb_reported_length (tvb); offset++)
 		{
 			peek = tvb_get_guint8 (tvb, offset);
@@ -1908,6 +2975,51 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 
 	g_free (variableBuffer);
 	g_free (valueBuffer);
+}
+
+static gint
+get_integer (tvbuff_t *tvb, guint offset, guint valueLength,
+    value_type_t valueType, guint *value)
+{
+	if (valueType == VALUE_IS_TEXT_STRING) {
+		/*
+		 * Not valid.
+		 */
+		return -1;
+	}
+
+	if (valueType == VALUE_IN_LEN) {
+		/*
+		 * Short-integer.
+		 */
+		*value = valueLength;
+		return 0;
+	}
+
+	/*
+	 * Long-integer.
+	 */
+	switch (valueLength)
+	{
+		case 1:
+			*value = tvb_get_guint8(tvb, offset);
+			break;
+		case 2:
+			*value = tvb_get_ntohs(tvb, offset);
+			break;
+		case 3:
+		        *value = tvb_get_ntoh24(tvb, offset);
+			break;
+		case 4:
+			*value = tvb_get_ntohl(tvb, offset);
+			break;
+		default:
+		        /* TODO: Need to read peek octets */
+		        *value = 0;
+		        fprintf (stderr, "dissect_wsp: get_integer size %u NYI\n", valueLength);
+	        	break;
+	}
+	return 0;
 }
 
 /* Register the protocol with Ethereal */
@@ -2015,11 +3127,74 @@ proto_register_wsp(void)
 				"Content Type", HFILL
 			}
 		},
+		{ &hf_wsp_content_type_str,
+			{ 	"Content Type",           
+				"wsp.content_type.type.string",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Content Type", HFILL
+			}
+		},
 		{ &hf_wsp_parameter_well_known_charset,
 			{ 	"Charset",           
 				"wsp.content_type.parameter.charset",
 				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
 				"Charset", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_type,
+			{ 	"Type",           
+				"wsp.content_type.parameter.type",
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Type", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_name,
+			{ 	"Name",
+				"wsp.content_type.parameter.name",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Name", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_filename,
+			{ 	"Filename",
+				"wsp.content_type.parameter.filename",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Filename", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_start,
+			{ 	"Start",
+				"wsp.content_type.parameter.start",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Start", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_start_info,
+			{ 	"Start-info",
+				"wsp.content_type.parameter.start_info",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Start-info", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_comment,
+			{ 	"Comment",
+				"wsp.content_type.parameter.comment",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Comment", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_domain,
+			{ 	"Domain",
+				"wsp.content_type.parameter.domain",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Domain", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_path,
+			{ 	"Path",
+				"wsp.content_type.parameter.path",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Path", HFILL
 			}
 		},
 		{ &hf_wsp_reply_data,
@@ -2050,6 +3225,20 @@ proto_register_wsp(void)
 				"wsp.header.accept.string",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Accept", HFILL
+			}
+		},
+		{ &hf_wsp_header_accept_application,
+			{ 	"Accept-Application",           
+				"wsp.header.accept_application",
+				 FT_UINT32, BASE_HEX, NULL, 0x00,
+				"Accept-Application", HFILL
+			}
+		},
+		{ &hf_wsp_header_accept_application_str,
+			{ 	"Accept-Application",
+				"wsp.header.accept_application.string",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Accept-Application", HFILL
 			}
 		},
 		{ &hf_wsp_header_accept_charset,
@@ -2087,6 +3276,13 @@ proto_register_wsp(void)
 				"Accept-Ranges", HFILL
 			}
 		},
+		{ &hf_wsp_header_accept_ranges_str,
+			{ 	"Accept-Ranges",           
+				"wsp.header.accept_ranges.string",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Accept-Ranges", HFILL
+			}
+		},
 		{ &hf_wsp_header_age,
 			{ 	"Age",           
 				"wsp.header.age",
@@ -2094,11 +3290,42 @@ proto_register_wsp(void)
 				"Age", HFILL
 			}
 		},
+		{ &hf_wsp_header_bearer_indication,
+			/*
+			 * XXX - what do the values mean?
+			 */
+			{ 	"Bearer-indication",           
+				"wsp.header.bearer_indication",
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Bearer-indication", HFILL
+			}
+		},
 		{ &hf_wsp_header_cache_control,
 			{ 	"Cache-Control",           
 				"wsp.header.cache_control",
 				 FT_UINT8, BASE_HEX, VALS ( vals_cache_control ), 0x00,
 				"Cache-Control", HFILL
+			}
+		},
+		{ &hf_wsp_header_cache_control_str,
+			{ 	"Cache-Control",           
+				"wsp.header.cache_control.string",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Cache-Control", HFILL
+			}
+		},
+		{ &hf_wsp_header_cache_control_field_name,
+			{ 	"Field Name",
+				"wsp.header.cache_control.field_name",
+				 FT_UINT8, BASE_HEX, VALS ( vals_field_names ), 0x00,
+				"Cache-Control field name", HFILL
+			}
+		},
+		{ &hf_wsp_header_cache_control_field_name_str,
+			{ 	"Field Name",
+				"wsp.header.cache_control.field_name.str",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Cache-Control field name", HFILL
 			}
 		},
 		{ &hf_wsp_header_content_length,
@@ -2151,6 +3378,22 @@ proto_register_wsp(void)
 				"If-Modified-Since", HFILL
 			}
 		},
+		{ &hf_wsp_header_pragma,
+			{ 	"Pragma",           
+				"wsp.header.pragma",
+				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"pragma", HFILL
+			}
+		},
+		{ &hf_wsp_header_profile,
+			{ 	"Profile",           
+				"wsp.header.profile",
+				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Profile", HFILL
+			}
+		},
 		{ &hf_wsp_header_server,
 			{ 	"Server",           
 				"wsp.header.server",
@@ -2187,6 +3430,34 @@ proto_register_wsp(void)
 				"wsp.header.via",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Via", HFILL
+			}
+		},
+		{ &hf_wsp_header_warning,
+			{ 	"Warning",
+				"wsp.header.warning",
+				 FT_NONE, BASE_NONE, NULL, 0x00,
+				"Warning", HFILL
+			}
+		},
+		{ &hf_wsp_header_warning_code,
+			{ 	"Warning Code",
+				"wsp.header.warning.code",
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Warning Code", HFILL
+			}
+		},
+		{ &hf_wsp_header_warning_agent,
+			{ 	"Warning Agent",
+				"wsp.header.warning.agent",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Warning Agent", HFILL
+			}
+		},
+		{ &hf_wsp_header_warning_text,
+			{ 	"Warning Text",
+				"wsp.header.warning.text",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Warning Text", HFILL
 			}
 		},
 		{ &hf_wsp_header_application_header,
@@ -2359,8 +3630,12 @@ proto_register_wsp(void)
 /* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_wsp,
+		&ett_content_type_parameters,
 		&ett_header,
 		&ett_headers,
+		&ett_header_warning,
+		&ett_header_cache_control_parameters,
+		&ett_header_cache_control_field_names,
 		&ett_capabilities,
 		&ett_content_type,
 		&ett_redirect_flags,
@@ -2395,39 +3670,4 @@ proto_reg_handoff_wsp(void)
 	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp_fromudp, proto_wsp);
 
 	/* This dissector is also called from the WTP and WTLS dissectors */
-}
-
-static gint get_long_integer (tvbuff_t *tvb, guint *offset, guint offset_end, guint *value)
-{
-	guint valueLength;
-
-	valueLength = tvb_get_guint8(tvb,*offset);
-	if ((valueLength+*offset) > offset_end)
-	{
-		*value = 0;
-		return (-1);
-	}
-	(*offset)++;
-	switch (valueLength)
-	{
-		case 1:
-			*value = tvb_get_guint8(tvb,*offset);
-			break;
-		case 2:
-			*value = tvb_get_ntohs(tvb,*offset);
-			break;
-		case 3:
-		        *value = tvb_get_ntoh24(tvb,*offset);
-			break;
-		case 4:
-			*value = tvb_get_ntohl(tvb,*offset);
-			break;
-		default:
-		        /* TODO: Need to read peek octets */
-		        *value = 0;
-		        fprintf (stderr, "dissect_wsp: get_long_integer size %d NYI\n", valueLength);
-	        	break;
-	}
-	(*offset) += valueLength;
-	return 0;
 }
