@@ -27,7 +27,7 @@ INCLUDES = -I$(top_srcdir)
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = stats_tree.la
-stats_tree_la_SOURCES = pinfo_stats_tree.c http_stats_tree.c stats_tree_plugin.c
+stats_tree_la_SOURCES = http_stats_tree.c stats_tree_plugin.c
 stats_tree_la_LDFLAGS = -module -avoid-version
 stats_tree_la_LIBADD = @PLUGIN_LIBS@
 

@@ -11,7 +11,7 @@ CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap /I. $(GLIB_CFLAGS) \
 
 OBJECTS=plugin_api.obj 
 
-all: $(OBJECTS) acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli rdm rlm rtnet rudp v5ua
+all: $(OBJECTS) acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli rdm rlm rtnet rudp stats_tree v5ua xml
 
 Xplugin_api.c: plugin_gen.py plugin_api_list.c
 	@echo **** Plugin api may be out of date, please generate new files:
@@ -127,8 +127,18 @@ rudp::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+stats_tree:: 
+	cd stats_tree
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
 v5ua:: 
 	cd v5ua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+xml:: 
+	cd xml
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
@@ -174,7 +184,11 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../stats_tree
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../v5ua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../xml
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
@@ -219,7 +233,11 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../stats_tree
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../v5ua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../xml
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 
@@ -264,6 +282,10 @@ maintainer-clean: distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../stats_tree
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../v5ua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../xml
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
