@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.116 2003/12/28 21:10:26 sharpe Exp $
+ * $Id: prefs.c,v 1.117 2003/12/28 23:20:08 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1280,6 +1280,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_MARKED_FG                "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG                "gui.marked_frame.bg"
 #define PRS_GUI_FILEOPEN_STYLE           "gui.fileopen.style"
+#define PRS_GUI_RECENT_COUNT_MAX         "gui.recent_files_count.max"
 #define PRS_GUI_FILEOPEN_DIR             "gui.fileopen.dir"
 #define PRS_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen.remembered_dir"
 #define PRS_GUI_GEOMETRY_SAVE_POSITION   "gui.geometry.save.position"
@@ -1578,6 +1579,12 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.gui_fileopen_style =
 	find_index_from_string_array(value, gui_fileopen_style_text,
 				     FO_STYLE_LAST_OPENED);
+  } else if (strcmp(pref_name, PRS_GUI_RECENT_COUNT_MAX) == 0) {
+    prefs.gui_recent_files_count_max = strtol(value, NULL, 10);
+    if (prefs.gui_recent_files_count_max <= 0) {
+      /* We really should put up a dialog box here ... */
+      prefs.gui_recent_files_count_max = 10;
+    }
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_DIR) == 0) {
     if (prefs.gui_fileopen_dir != NULL)
       g_free(prefs.gui_fileopen_dir);
@@ -2141,8 +2148,11 @@ write_prefs(char **pf_path_return)
                   
   fprintf(pf, "\n# Where to start the File Open dialog box.\n");
   fprintf(pf, "# One of: LAST_OPENED, SPECIFIED\n");
-  fprintf (pf, PRS_GUI_FILEOPEN_STYLE ": %s\n",
+  fprintf(pf, PRS_GUI_FILEOPEN_STYLE ": %s\n",
 		  gui_fileopen_style_text[prefs.gui_fileopen_style]);
+
+  fprintf(pf, PRS_GUI_RECENT_COUNT_MAX ": %d\n",
+	          prefs.gui_recent_files_count_max);
 
   if (prefs.gui_fileopen_dir != NULL) {
     fprintf(pf, "\n# Directory to start in when opening File Open dialog.\n");
