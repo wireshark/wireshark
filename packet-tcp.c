@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.146 2002/07/17 00:42:42 guy Exp $
+ * $Id: packet-tcp.c,v 1.147 2002/08/02 22:41:56 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,12 +90,19 @@ static int hf_tcp_checksum = -1;
 static int hf_tcp_checksum_bad = -1;
 static int hf_tcp_len = -1;
 static int hf_tcp_urgent_pointer = -1;
+static int hf_tcp_analysis_acks_frame = -1;
+static int hf_tcp_analysis_ack_rtt = -1;
+static int hf_tcp_analysis_retransmission = -1;
+static int hf_tcp_analysis_lost_packet = -1;
+static int hf_tcp_analysis_ack_lost_packet = -1;
+static int hf_tcp_analysis_keep_alive = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
 static gint ett_tcp_options = -1;
 static gint ett_tcp_option_sack = -1;
 static gint ett_tcp_segments = -1;
+static gint ett_tcp_analysis = -1;
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -111,6 +118,528 @@ static dissector_handle_t data_handle;
 #define TH_URG  0x20
 #define TH_ECN  0x40
 #define TH_CWR  0x80
+
+
+
+
+/* ************************************************************************** 
+ * stuff to analyze TCP sequencenumbers for retransmissions, missing segments,
+ * RTT and reltive sequence numbers.
+ * **************************************************************************/
+static gboolean tcp_analyze_seq = FALSE;
+static gboolean tcp_relative_seq = FALSE;
+
+static GMemChunk *tcp_unacked_chunk = NULL;
+static int tcp_unacked_count = 500;	/* one for each packet until it is acked*/
+struct tcp_unacked {
+	struct tcp_unacked *next;
+	guint32 frame;
+	guint32	seq;
+	guint32 nextseq;
+	nstime_t ts;
+};
+
+static GMemChunk *tcp_acked_chunk = NULL;
+static int tcp_acked_count = 5000;	/* one for almost every other segment in the capture */
+#define TCP_A_RETRANSMISSION	0x01
+#define TCP_A_LOST_PACKET	0x02
+#define TCP_A_ACK_LOST_PACKET	0x04
+#define TCP_A_KEEP_ALIVE	0x08
+struct tcp_acked {
+	guint32 frame_acked;
+	nstime_t ts;
+	guint8 flags;
+};
+static GHashTable *tcp_analyze_acked_table = NULL;
+
+static GMemChunk *tcp_rel_seq_chunk = NULL;
+static int tcp_rel_seq_count = 10000; /* one for each segment in the capture */
+struct tcp_rel_seq {
+	guint32 seq_base;
+	guint32 ack_base;
+};
+static GHashTable *tcp_rel_seq_table = NULL;
+
+static GMemChunk *tcp_analysis_chunk = NULL;
+static int tcp_analysis_count = 20;	/* one for each conversation */
+struct tcp_analysis {
+	/* these two structs are managed such as CMP_ADDRESS(src,dst)
+	 * ==1,  then stuff sent from src is in ual1
+	 * ==-1, then stuff sent from src is in ual2 and vv
+	 */
+	struct tcp_unacked *ual1;	/* UnAcked List 1*/
+	guint32 base_seq1;
+	struct tcp_unacked *ual2;	/* UnAcked List 2*/
+	guint32 base_seq2;
+};
+
+static void
+tcp_get_relative_seq_ack(guint32 frame, guint32 *seq, guint32 *ack)
+{
+	struct tcp_rel_seq *trs;
+
+	trs=g_hash_table_lookup(tcp_rel_seq_table, (void *)frame);
+	if(!trs){
+		return;
+	}
+
+	(*seq) -= trs->seq_base;
+	(*ack) -= trs->ack_base;
+}
+
+static struct tcp_acked *
+tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag)
+{
+	struct tcp_acked *ta;
+
+	ta=g_hash_table_lookup(tcp_analyze_acked_table, (void *)frame);
+	if((!ta) && createflag){
+		ta=g_mem_chunk_alloc(tcp_acked_chunk);
+		ta->frame_acked=0;
+		ta->ts.secs=0;
+		ta->ts.nsecs=0;
+		ta->flags=0;
+		g_hash_table_insert(tcp_analyze_acked_table, (void *)frame, ta);
+	}
+	return ta;
+}
+
+static void
+tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags)
+{
+	conversation_t *conv=NULL;
+	struct tcp_analysis *tcpd=NULL;
+	int direction;
+	struct tcp_unacked *ual1=NULL;
+	struct tcp_unacked *ual2=NULL;
+	struct tcp_unacked *ual=NULL;
+	guint32 base_seq;
+	guint32 base_ack;
+
+	/* Have we seen this conversation before? */
+	if( (conv=find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
+		/* No this is a new conversation. */
+		conv=conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+
+	/* check if we have any data for this conversation */
+	tcpd=conversation_get_proto_data(conv, proto_tcp);
+	if(!tcpd){
+		/* No no such data yet. Allocate and init it */
+		tcpd=g_mem_chunk_alloc(tcp_analysis_chunk);
+		tcpd->ual1=NULL;
+		tcpd->base_seq1=0;
+		tcpd->ual2=NULL;
+		tcpd->base_seq2=0;
+		conversation_add_proto_data(conv, proto_tcp, tcpd);
+	}
+
+	/* check direction and get ua lists */
+	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+	if(direction==1){
+		ual1=tcpd->ual1;
+		ual2=tcpd->ual2;
+		base_seq=tcpd->base_seq1;
+		base_ack=tcpd->base_seq2;
+	} else {
+		ual1=tcpd->ual2;
+		ual2=tcpd->ual1;
+		base_seq=tcpd->base_seq2;
+		base_ack=tcpd->base_seq1;
+	}
+
+	if(base_seq==0){
+		base_seq=seq;
+	}
+	if(base_ack==0){
+		base_ack=ack;
+	}
+
+	/* handle the sequence numbers */
+	/* if this was a SYN packet, then remove existing list and 
+	 * put SEQ+1 first the list */
+	if(flags&TH_SYN){
+		for(ual=ual1;ual1;ual1=ual){
+			ual=ual1->next;
+			g_mem_chunk_free(tcp_unacked_chunk, ual1);
+		}
+		ual1=g_mem_chunk_alloc(tcp_unacked_chunk);
+		ual1->next=NULL;
+		ual1->frame=pinfo->fd->num;
+		ual1->seq=seq+1;
+		ual1->nextseq=seq+1;
+		ual1->ts.secs=pinfo->fd->abs_secs;
+		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		base_seq=seq;
+		base_ack=ack;
+		goto seq_finished;
+	}
+
+	/* if this is the first segment we see then just add it */
+	if( !ual1 ){
+		ual1=g_mem_chunk_alloc(tcp_unacked_chunk);
+		ual1->next=NULL;
+		ual1->frame=pinfo->fd->num;
+		ual1->seq=seq;
+		ual1->nextseq=seq+seglen;
+		ual1->ts.secs=pinfo->fd->abs_secs;
+		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		base_seq=seq;
+		goto seq_finished;
+	}
+
+	/* if we get past here we know that ual1 points to a segment */
+
+	/* if seq is beyond ual1->nextseq we have lost a segment */
+	if( seq>ual1->nextseq ){
+		struct tcp_acked *ta;
+
+		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		ta->flags|=TCP_A_LOST_PACKET;
+
+		/* just add the segment to the beginning of the list */
+		ual=g_mem_chunk_alloc(tcp_unacked_chunk);
+		ual->next=ual1;
+		ual->frame=pinfo->fd->num;
+		ual->seq=seq;
+		ual->nextseq=seq+seglen;
+		ual->ts.secs=pinfo->fd->abs_secs;
+		ual->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		ual1=ual;
+		goto seq_finished;
+	}
+
+	/* keep-alives are empty semgents with a sequence number -1 of what
+	 * we would expect.
+	 */
+	if( (!seglen) && (seq==(ual1->nextseq-1)) ){
+		struct tcp_acked *ta;
+
+		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		ta->flags|=TCP_A_KEEP_ALIVE;
+		goto seq_finished;
+	}
+
+
+	/* if this is an empty segment, just skip it all */
+	if( !seglen ){
+		goto seq_finished;
+	}
+
+	/* check if the sequence number is lower than expected, i.e. retransmission */
+	if( seq < ual1->nextseq ){
+		struct tcp_acked *ta;
+
+		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		ta->flags|=TCP_A_RETRANSMISSION;
+
+		/* did this segment contain any more data we havent seen yet?
+		 * if so we can just increase nextseq
+		 */
+		if((seq+seglen)>ual1->nextseq){
+			ual1->nextseq=seq+seglen;
+			ual1->frame=pinfo->fd->num;
+			ual1->ts.secs=pinfo->fd->abs_secs;
+			ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		}
+		goto seq_finished;
+	}
+
+	/* just add the segment to the beginning of the list */
+	ual=g_mem_chunk_alloc(tcp_unacked_chunk);
+	ual->next=ual1;
+	ual->frame=pinfo->fd->num;
+	ual->seq=seq;
+	ual->nextseq=seq+seglen;
+	ual->ts.secs=pinfo->fd->abs_secs;
+	ual->ts.nsecs=pinfo->fd->abs_usecs*1000;
+	ual1=ual;
+
+seq_finished:
+
+
+	/* handle the ack numbers */
+
+	/* if we dont have the ack flag its not much we can do */
+	if( !(flags&TH_ACK)){
+		goto ack_finished;
+	}
+
+	/* if we havent seen anything yet in the other direction we dont
+	 * know what this one acks */
+	if( !ual2 ){
+		goto ack_finished;
+	}
+
+	/* if we dont have any real segments in the other direction not 
+	 * acked yet (as we see from the magic frame==0 entry)
+	 * then there is no point in continuing
+	 */
+	if( !ual2->frame ){
+		goto ack_finished;
+	}
+
+	/* if we get here we know ual2 is valid */
+
+	/* if we are acking beyong what we have seen in the other direction
+	 * we must have lost packets. Not much point in keeping the segments
+	 * in the other direction either.
+	 */
+	if( ack>ual2->nextseq ){
+		struct tcp_acked *ta;
+
+		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		ta->flags|=TCP_A_ACK_LOST_PACKET;
+		for(ual=ual2;ual2;ual2=ual){
+			ual=ual2->next;
+			g_mem_chunk_free(tcp_unacked_chunk, ual2);
+		}
+		goto ack_finished;
+	}
+
+
+	/* does this ACK ack all semgents we have seen in the other direction?*/
+	if( ack==ual2->nextseq ){
+		struct tcp_acked *ta;
+
+		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		ta->frame_acked=ual2->frame;
+		ta->ts.secs=pinfo->fd->abs_secs-ual2->ts.secs;
+		ta->ts.nsecs=pinfo->fd->abs_usecs*1000-ual2->ts.nsecs;
+		if(ta->ts.nsecs<0){
+			ta->ts.nsecs+=1000000000;
+			ta->ts.secs--;
+		}
+
+		/* its all been ACKed so we dont need to keep them anymore */
+		for(ual=ual2;ual2;ual2=ual){
+			ual=ual2->next;
+			g_mem_chunk_free(tcp_unacked_chunk, ual2);
+		}
+		goto ack_finished;
+	}
+
+	/* ok it only ACKs part of what we have seen. Find out how much
+	 * update and remove the ACKed segments
+	 */
+	for(ual=ual2;ual->next;ual=ual->next){
+		if(ack>=ual->next->nextseq){
+			break;
+		}
+	}
+	if(ual->next){
+		struct tcp_unacked *tmpual=NULL;
+		struct tcp_unacked *ackedual=NULL;
+		struct tcp_acked *ta;
+
+		/* XXX normal ACK*/
+		ackedual=ual->next;
+
+		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+		ta->frame_acked=ackedual->frame;
+		ta->ts.secs=pinfo->fd->abs_secs-ackedual->ts.secs;
+		ta->ts.nsecs=pinfo->fd->abs_usecs*1000-ackedual->ts.nsecs;
+		if(ta->ts.nsecs<0){
+			ta->ts.nsecs+=1000000000;
+			ta->ts.secs--;
+		}
+
+		/* just delete all ACKed segments */
+		tmpual=ual->next;
+		ual->next=NULL;
+		for(ual=tmpual;ual;ual=tmpual){
+			tmpual=ual->next;
+			g_mem_chunk_free(tcp_unacked_chunk, ual);
+		}
+
+	}
+
+
+ack_finished:
+	/* we might have deleted the entire ual2 list, if this is an ACK, 
+	   make sure ual2 at least has a dummy entry for the current ACK */
+	if( (!ual2) && (flags&TH_ACK) ){
+		ual2=g_mem_chunk_alloc(tcp_unacked_chunk);
+		ual2->next=NULL;
+		ual2->frame=0;
+		ual2->seq=ack;
+		ual2->nextseq=ack;
+		ual2->ts.secs=0;
+		ual2->ts.nsecs=0;
+	}
+
+
+	/* store the lists back in our struct */
+	if(direction==1){
+		tcpd->ual1=ual1;
+		tcpd->ual2=ual2;
+		tcpd->base_seq1=base_seq;
+	} else {
+		tcpd->ual1=ual2;
+		tcpd->ual2=ual1;
+		tcpd->base_seq2=base_seq;
+	}
+
+	if(tcp_relative_seq){
+		struct tcp_rel_seq *trs;
+		/* remember relative seq/ack number base for this packet */
+		trs=g_mem_chunk_alloc(tcp_rel_seq_chunk);
+		trs->seq_base=base_seq;
+		trs->ack_base=base_ack;
+		g_hash_table_insert(tcp_rel_seq_table, (void *)pinfo->fd->num, trs);
+	}
+}
+
+static void
+tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree)
+{
+	struct tcp_acked *ta;
+	proto_item *item;
+	proto_tree *tree;
+
+	ta=tcp_analyze_get_acked_struct(pinfo->fd->num, FALSE);
+	if(!ta){
+		return;
+	}
+
+	item=proto_tree_add_text(parent_tree, tvb, 0, 0, "SEQ/ACK analysis");
+	tree=proto_item_add_subtree(item, ett_tcp_analysis);
+
+	/* encapsulate all proto_tree_add_xxx in ifs so we only print what 
+	   data we actually have */
+	if(ta->frame_acked){
+		proto_tree_add_uint(tree, hf_tcp_analysis_acks_frame, 
+			tvb, 0, 0, ta->frame_acked);
+	}
+	if( ta->ts.secs || ta->ts.nsecs ){
+		proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt, 
+		tvb, 0, 0, &ta->ts);
+	}
+	if( ta->flags&TCP_A_RETRANSMISSION ){
+		proto_tree_add_boolean_format(tree, hf_tcp_analysis_retransmission, tvb, 0, 0, TRUE, "This frame is a (suspected) retransmission");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Retransmission] ");
+		}
+	}
+	if( ta->flags&TCP_A_LOST_PACKET ){
+		proto_tree_add_boolean_format(tree, hf_tcp_analysis_lost_packet, tvb, 0, 0, TRUE, "A segment before this frame was lost");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Previous segment lost] ");
+		}
+	}
+	if( ta->flags&TCP_A_ACK_LOST_PACKET ){
+		proto_tree_add_boolean_format(tree, hf_tcp_analysis_ack_lost_packet, tvb, 0, 0, TRUE, "This frame ACKs a segment we have not seen (lost?)");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ACKed lost segment] ");
+		}
+	}
+	if( ta->flags&TCP_A_KEEP_ALIVE ){
+		proto_tree_add_boolean_format(tree, hf_tcp_analysis_keep_alive, tvb, 0, 0, TRUE, "This is a TCP keep-alive segment");
+		if(check_col(pinfo->cinfo, COL_INFO)){
+			col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
+		}
+	}
+
+}
+
+
+/* Do we still need to do this ...remove_all() even though we dont need
+ * to do anything special?  The glib docs are not clear on this and
+ * its better safe than sorry
+ */
+static gboolean
+free_all_acked(gpointer key_arg _U_, gpointer value _U_, gpointer user_data _U_)
+{
+	return TRUE;
+}
+
+static guint
+tcp_acked_hash(gconstpointer k)
+{
+	guint32 frame = (guint32)k;
+
+	return frame;
+}
+static gint
+tcp_acked_equal(gconstpointer k1, gconstpointer k2)
+{
+	guint32 frame1 = (guint32)k1;
+	guint32 frame2 = (guint32)k2;
+
+	return frame1==frame2;
+}
+
+static void
+tcp_analyze_seq_init(void)
+{
+	/* first destroy the tables */
+	if( tcp_analyze_acked_table ){
+		g_hash_table_foreach_remove(tcp_analyze_acked_table,
+			free_all_acked, NULL);
+		g_hash_table_destroy(tcp_analyze_acked_table);
+		tcp_analyze_acked_table = NULL;
+	}
+	if( tcp_rel_seq_table ){
+		g_hash_table_foreach_remove(tcp_rel_seq_table,
+			free_all_acked, NULL);
+		g_hash_table_destroy(tcp_rel_seq_table);
+		tcp_rel_seq_table = NULL;
+	}
+		
+	/*
+	 * Now destroy the chunk from which the conversation table
+	 * structures were allocated.
+	 */
+	if (tcp_analysis_chunk) {
+		g_mem_chunk_destroy(tcp_analysis_chunk);
+		tcp_analysis_chunk = NULL;
+	}
+	if (tcp_unacked_chunk) {
+		g_mem_chunk_destroy(tcp_unacked_chunk);
+		tcp_unacked_chunk = NULL;
+	}
+	if (tcp_acked_chunk) {
+		g_mem_chunk_destroy(tcp_acked_chunk);
+		tcp_acked_chunk = NULL;
+	}
+	if (tcp_rel_seq_chunk) {
+		g_mem_chunk_destroy(tcp_rel_seq_chunk);
+		tcp_rel_seq_chunk = NULL;
+	}
+
+	if(tcp_analyze_seq){
+		tcp_analyze_acked_table = g_hash_table_new(tcp_acked_hash,
+			tcp_acked_equal);
+		tcp_rel_seq_table = g_hash_table_new(tcp_acked_hash,
+			tcp_acked_equal);
+		tcp_analysis_chunk = g_mem_chunk_new("tcp_analysis_chunk",
+			sizeof(struct tcp_analysis),
+			tcp_analysis_count * sizeof(struct tcp_analysis),
+			G_ALLOC_ONLY);
+		tcp_unacked_chunk = g_mem_chunk_new("tcp_unacked_chunk",
+			sizeof(struct tcp_unacked),
+			tcp_unacked_count * sizeof(struct tcp_unacked),
+			G_ALLOC_ONLY);
+		tcp_acked_chunk = g_mem_chunk_new("tcp_acked_chunk",
+			sizeof(struct tcp_acked),
+			tcp_acked_count * sizeof(struct tcp_acked),
+			G_ALLOC_ONLY);
+		if(tcp_relative_seq){
+			tcp_rel_seq_chunk = g_mem_chunk_new("tcp_rel_seq_chunk",
+				sizeof(struct tcp_rel_seq),
+				tcp_rel_seq_count * sizeof(struct tcp_rel_seq),
+				G_ALLOC_ONLY);
+		}
+	}
+
+}
+
+/* **************************************************************************
+ * End of tcp sequence number analysis 
+ * **************************************************************************/
+
+
+
 
 /* Minimum TCP header length. */
 #define	TCPH_MIN_LEN	20
@@ -1122,6 +1651,39 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->srcport = th_sport;
   pinfo->destport = th_dport;
   
+  th_seq = tvb_get_ntohl(tvb, offset + 4);
+  th_ack = tvb_get_ntohl(tvb, offset + 8);
+  th_off_x2 = tvb_get_guint8(tvb, offset + 12);
+  th_flags = tvb_get_guint8(tvb, offset + 13);
+  th_win = tvb_get_ntohs(tvb, offset + 14);
+  hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
+
+  reported_len = tvb_reported_length(tvb);
+  len = tvb_length(tvb);
+
+  /* Compute the length of data in this segment. */
+  seglen = reported_len - hlen;
+
+  if (tree) { /* Add the seglen as an invisible field */
+
+    proto_tree_add_uint_hidden(ti, hf_tcp_len, tvb, offset, 4, seglen);
+
+  }
+
+  /* handle TCP seq# analysis parse all new segments we see */
+  if(tcp_analyze_seq){
+      if(!(pinfo->fd->flags.visited)){
+          tcp_analyze_sequence_number(pinfo, th_seq, th_ack, seglen, th_flags);
+      }
+      if(tcp_relative_seq){
+          tcp_get_relative_seq_ack(pinfo->fd->num, &th_seq, &th_ack);
+      }
+  }
+
+
+  /* Compute the sequence number of next octet after this segment. */
+  nxtseq = th_seq + seglen;
+
   if (tree) {
     if (tcp_summary_in_tree) {
 	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, 0, -1,
@@ -1141,12 +1703,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, th_dport);
   }
 
-  th_seq = tvb_get_ntohl(tvb, offset + 4);
-  th_ack = tvb_get_ntohl(tvb, offset + 8);
-  th_off_x2 = tvb_get_guint8(tvb, offset + 12);
-  th_flags = tvb_get_guint8(tvb, offset + 13);
-  th_win = tvb_get_ntohs(tvb, offset + 14);
-  
   if (check_col(pinfo->cinfo, COL_INFO) || tree) {  
     for (i = 0; i < 8; i++) {
       bpos = 1 << i;
@@ -1173,8 +1729,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, th_seq);
   }
 
-  hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
-
   if (hlen < TCPH_MIN_LEN) {
     /* Give up at this point; we put the source and destination port in
        the tree, before fetching the header length, so that they'll
@@ -1190,21 +1744,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     return;
   }
-
-  reported_len = tvb_reported_length(tvb);
-  len = tvb_length(tvb);
-
-  /* Compute the length of data in this segment. */
-  seglen = reported_len - hlen;
-
-  if (tree) { /* Add the seglen as an invisible field */
-
-    proto_tree_add_uint_hidden(ti, hf_tcp_len, tvb, offset, 4, seglen);
-
-  }
-
-  /* Compute the sequence number of next octet after this segment. */
-  nxtseq = th_seq + seglen;
 
   if (tree) {
     if (tcp_summary_in_tree)
@@ -1411,6 +1950,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
   }
+
+  /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
+  if(tcp_analyze_seq){
+      tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree);
+  }
 }
 
 void
@@ -1494,9 +2038,33 @@ proto_register_tcp(void)
 		{ "Bad Checksum",		"tcp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_tcp_analysis_retransmission,
+		{ "",		"tcp.analysis.retransmission", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"This frame is a suspected TCP retransmission", HFILL }},
+
+		{ &hf_tcp_analysis_lost_packet,
+		{ "",		"tcp.analysis.lost_segment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"A segment before this one was lost from the capture", HFILL }},
+
+		{ &hf_tcp_analysis_ack_lost_packet,
+		{ "",		"tcp.analysis.ack_lost_segment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"This frame ACKs a lost segment", HFILL }},
+
+		{ &hf_tcp_analysis_keep_alive,
+		{ "",		"tcp.analysis.keep_alive", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"This is a keep-alive segment", HFILL }},
+
 		{ &hf_tcp_len,
 		  { "TCP Segment Len",            "tcp.len", FT_UINT32, BASE_DEC, NULL, 0x0, 
 		    "", HFILL}},
+
+		{ &hf_tcp_analysis_acks_frame,
+		  { "This is an ACK to the segment in frame",            "tcp.analysis.acks_frame", FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "Which previous segment is this an ACK for", HFILL}},
+
+		{ &hf_tcp_analysis_ack_rtt,
+		  { "The RTT to ACK the segment was",            "tcp.analysis.ack_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, 
+		    "How long time it took to ACK the segment (RTT)", HFILL}},
 
 		{ &hf_tcp_urgent_pointer,
 		{ "Urgent pointer",		"tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1508,6 +2076,7 @@ proto_register_tcp(void)
 		&ett_tcp_options,
 		&ett_tcp_option_sack,
 		&ett_tcp_segments,
+		&ett_tcp_analysis
 	};
 	module_t *tcp_module;
 
@@ -1535,7 +2104,16 @@ proto_register_tcp(void)
 	    "Allow subdissector to desegment TCP streams",
 "Whether subdissector can request TCP streams to be desegmented",
 	    &tcp_desegment);
+	prefs_register_bool_preference(tcp_module, "tcp_analyze_sequence_numbers",
+	    "Analyze TCP sequence numbers",
+	    "Make the TCP dissector analyze TCP sequence numbers to find and flag segment retransmissions, missing segments and RTT",
+	    &tcp_analyze_seq);
+	prefs_register_bool_preference(tcp_module, "tcp_relative_sequence_numbers",
+	    "Use relative sequence numbers",
+	    "Make the TCP dissector use relative sequence numbers instead of absolute ones. To use this option you must also enable \"Analyze TCP sequence numbers\".",
+	    &tcp_relative_seq);
 
+	register_init_routine(tcp_analyze_seq_init);
 	register_init_routine(tcp_desegment_init);
 	register_init_routine(tcp_fragment_init);
 }
