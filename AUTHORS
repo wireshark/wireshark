@@ -551,6 +551,7 @@ Ronnie Sahlberg <rsahlber[AT]bigpond.net.au> {
 	Tvbuffified SMB BROWSER dissector
 	TCP segment reassembly and support for it in ONC RPC and NBSS
 	    dissectors
+	Filterable fields for XoT and RIP
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {

@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.24 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-rip.c,v 1.25 2001/09/13 08:08:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,10 +58,26 @@ static const value_string command_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string family_vals[] = {
+	{ 2,	"IP" },
+	{ 0,	NULL }
+};
+
 #define RIP_HEADER_LENGTH 4
 #define RIP_ENTRY_LENGTH 20
 
 static int proto_rip = -1;
+static int hf_rip_command = -1;
+static int hf_rip_version = -1;
+static int hf_rip_routing_domain = -1;
+static int hf_rip_ip = -1;
+static int hf_rip_netmask = -1;
+static int hf_rip_next_hop = -1;
+static int hf_rip_metric = -1;
+static int hf_rip_auth = -1;
+static int hf_rip_auth_passwd = -1;
+static int hf_rip_family = -1;
+static int hf_rip_route_tag = -1;
 
 static gint ett_rip = -1;
 static gint ett_rip_vec = -1;
@@ -101,12 +117,11 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_rip, tvb, 0, tvb_length(tvb), FALSE);
 	rip_tree = proto_item_add_subtree(ti, ett_rip);
 
-	proto_tree_add_text(rip_tree, tvb, 0, 1, "Command: %u (%s)", command,
-		val_to_str(command, command_vals, "Unknown"));
-	proto_tree_add_text(rip_tree, tvb, 1, 1, "Version: %u", version);
+	proto_tree_add_uint(rip_tree, hf_rip_command, tvb, 0, 1, command);
+	proto_tree_add_uint(rip_tree, hf_rip_version, tvb, 1, 1, version);
 	if (version == RIPv2)
-	    proto_tree_add_text(rip_tree, tvb, 2, 2, "Routing Domain: %u",
-				tvb_get_ntohs(tvb, 2));
+	    proto_tree_add_uint(rip_tree, hf_rip_routing_domain, tvb, 2, 2,
+			tvb_get_ntohs(tvb, 2));
 
 	/* skip header */
 	offset = RIP_HEADER_LENGTH;
@@ -140,33 +155,32 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 {
     proto_item *ti;
     proto_tree *rip_vektor_tree;
-    const guint8 *ip;
     guint32 metric;
 
-    ip = tvb_get_ptr(tvb, offset+4, 4);
     metric = tvb_get_ntohl(tvb, offset+16);
     ti = proto_tree_add_text(tree, tvb, offset,
 			     RIP_ENTRY_LENGTH, "IP Address: %s, Metric: %u",
-			     ip_to_str(ip), metric);
+			     ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), metric);
     rip_vektor_tree = proto_item_add_subtree(ti, ett_rip_vec);
 	   
-    proto_tree_add_text(rip_vektor_tree, tvb, offset, 2,
-			"Address Family ID: IP"); 
-    if (version == RIPv2)
-	proto_tree_add_text(rip_vektor_tree, tvb, offset + 2, 2,
-			    "Route Tag: %u", tvb_get_ntohs(tvb, offset+2));
-    proto_tree_add_text(rip_vektor_tree, tvb, offset + 4, 4, "IP Address: %s",
-    				ip_to_str(ip));
+
+    proto_tree_add_uint(rip_vektor_tree, hf_rip_family, tvb, offset, 2, 
+			tvb_get_ntohs(tvb, offset));
     if (version == RIPv2) {
-	proto_tree_add_text(rip_vektor_tree, tvb, offset + 8, 4,
-			    "Netmask: %s", 
-			    ip_to_str(tvb_get_ptr(tvb, offset + 8, 4))); 
-	proto_tree_add_text(rip_vektor_tree, tvb, offset + 12, 4,
-			    "Next Hop: %s", 
-			     ip_to_str(tvb_get_ptr(tvb, offset+12, 4))); 
+	proto_tree_add_uint(rip_vektor_tree, hf_rip_route_tag, tvb, offset+2, 2,
+			tvb_get_ntohs(tvb, offset+2));
     }
-    proto_tree_add_text(rip_vektor_tree, tvb, offset + 16, 4, "Metric: %u",
-			metric);
+
+    proto_tree_add_item(rip_vektor_tree, hf_rip_ip, tvb, offset+4, 4, FALSE);
+
+    if (version == RIPv2) {
+	proto_tree_add_item(rip_vektor_tree, hf_rip_netmask, tvb, offset+8, 4,
+			    FALSE);
+	proto_tree_add_item(rip_vektor_tree, hf_rip_next_hop, tvb, offset+12, 4,
+			    FALSE);
+    }
+    proto_tree_add_uint(rip_vektor_tree, hf_rip_metric, tvb, 
+			offset+16, 4, metric);
 }
 
 static void
@@ -175,42 +189,82 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_item *ti;
     proto_tree *rip_authentication_tree;
     guint16 authtype;
-    char authentication[16];
 
     ti = proto_tree_add_text(tree, tvb, offset, RIP_ENTRY_LENGTH,
 			     "Authentication");
     rip_authentication_tree = proto_item_add_subtree(ti, ett_rip_vec);
 
     authtype = tvb_get_ntohs(tvb, offset + 2);
-    proto_tree_add_text(rip_authentication_tree, tvb, offset + 2, 2,
-    				"Authentication type: %u", authtype);
+    proto_tree_add_uint(rip_authentication_tree, hf_rip_auth, tvb, offset+2, 2,
+		authtype);
     if (authtype == 2) {
-	tvb_get_nstringz0(tvb, offset + 4, 16, authentication);
-	proto_tree_add_text(rip_authentication_tree, tvb, offset + 4, 16,
-				"Password: %s", authentication);
+	proto_tree_add_item(rip_authentication_tree, hf_rip_auth_passwd,
+			tvb, offset+4, 16, TRUE);
     }
 }
 
 void
 proto_register_rip(void)
 {
-/*  static hf_register_info hf[] = {
-	{ &variable,
-	{ "Name",           "rip.abbreviation", TYPE, VALS_POINTER }},
-    };*/
-    static gint *ett[] = {
-	&ett_rip,
-	&ett_rip_vec,
-    };
+	static hf_register_info hf[] = {
+		{ &hf_rip_command,
+			{ "Command", "rip.command", FT_UINT8, BASE_HEX,
+			VALS(command_vals), 0, "What type of RIP Command is this", HFILL }},
 
-    proto_rip = proto_register_protocol("Routing Information Protocol",
-					"RIP", "rip");
-/*  proto_register_field_array(proto_rip, hf, array_length(hf));*/
-    proto_register_subtree_array(ett, array_length(ett));
+		{ &hf_rip_version,
+			{ "Version", "rip.version", FT_UINT8, BASE_DEC,
+			VALS(version_vals), 0, "Version of the RIP protocol", HFILL }},
+
+		{ &hf_rip_family,
+			{ "Address Family", "rip.family", FT_UINT16, BASE_DEC,
+			VALS(family_vals), 0, "Address family", HFILL }},
+
+		{ &hf_rip_routing_domain,
+			{ "Routing Domain", "rip.routing_domain", FT_UINT16, BASE_DEC,
+			NULL, 0, "RIPv2 Routing Domain", HFILL }},
+
+		{ &hf_rip_ip,
+			{ "IP Address", "rip.ip", FT_IPv4, BASE_NONE,
+			NULL, 0, "IP Address", HFILL}},
+
+		{ &hf_rip_netmask,
+			{ "Netmask", "rip.netmask", FT_IPv4, BASE_NONE,
+			NULL, 0, "Netmask", HFILL}},
+
+		{ &hf_rip_next_hop,
+			{ "Next Hop", "rip.next_hop", FT_IPv4, BASE_NONE,
+			NULL, 0, "Next Hop router for this route", HFILL}},
+
+		{ &hf_rip_metric,
+			{ "Metric", "rip.metric", FT_UINT16, BASE_DEC,
+			NULL, 0, "Metric for this route", HFILL }},
+
+		{ &hf_rip_auth,
+			{ "Authentication type", "rip.auth.type", FT_UINT16, BASE_DEC,
+			NULL, 0, "Type of authentication", HFILL }},
+
+		{ &hf_rip_auth_passwd,
+			{ "Password", "rip.auth.passwd", FT_STRING, BASE_DEC,
+			NULL, 0, "Authentication password", HFILL }},
+
+		{ &hf_rip_route_tag,
+			{ "Route Tag", "rip.route_tag", FT_UINT16, BASE_DEC,
+			NULL, 0, "Route Tag", HFILL }},
+
+	};
+	static gint *ett[] = {
+		&ett_rip,
+		&ett_rip_vec,
+	};
+
+	proto_rip = proto_register_protocol("Routing Information Protocol",
+				"RIP", "rip");
+	proto_register_field_array(proto_rip, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_rip(void)
 {
-    dissector_add("udp.port", UDP_PORT_RIP, dissect_rip, proto_rip);
+	dissector_add("udp.port", UDP_PORT_RIP, dissect_rip, proto_rip);
 }
