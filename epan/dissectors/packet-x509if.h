@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* packet-x509if.h                                                            */
-/* ../../tools/asn2eth.py -X -b -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.h */
 /* Include files: packet-x509if-exp.h, packet-x509if-valexp.h */
@@ -39,7 +39,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* packet-x509if-exp.h                                                        */
-/* ../../tools/asn2eth.py -X -b -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 extern const value_string Name_vals[];
 int dissect_x509if_AttributeType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* packet-x509if.c                                                            */
-/* ../../tools/asn2eth.py -X -b -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.c */
 /* Include files: packet-x509if-hf.c, packet-x509if-ett.c, packet-x509if-fn.c, packet-x509if-hfarr.c, packet-x509if-ettarr.c, packet-x509if-val.h */
@@ -56,7 +56,7 @@ int proto_x509if = -1;
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* packet-x509if-hf.c                                                         */
-/* ../../tools/asn2eth.py -X -b -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 static int hf_x509if_rdnSequence = -1;            /* RDNSequence */
 static int hf_x509if_RDNSequence_item = -1;       /* RelativeDistinguishedName */
@@ -77,7 +77,7 @@ static gint ett_x509if_Attribute = -1;
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* packet-x509if-ett.c                                                        */
-/* ../../tools/asn2eth.py -X -b -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 static gint ett_x509if_Name = -1;
 static gint ett_x509if_RDNSequence = -1;
@@ -109,7 +109,7 @@ dissect_x509if_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packe
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* packet-x509if-fn.c                                                         */
-/* ../../tools/asn2eth.py -X -b -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 
 static int
@@ -264,7 +264,7 @@ void proto_register_x509if(void) {
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* packet-x509if-hfarr.c                                                      */
-/* ../../tools/asn2eth.py -X -b -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
     { &hf_x509if_rdnSequence,
       { "rdnSequence", "x509if.rdnSequence",
@@ -304,7 +304,7 @@ void proto_register_x509if(void) {
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* packet-x509if-ettarr.c                                                     */
-/* ../../tools/asn2eth.py -X -b -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
     &ett_x509if_Name,
     &ett_x509if_RDNSequence,

@@ -477,7 +477,7 @@ ber_sequence_try_again:
 				goto ber_sequence_try_again;
 			}
 			if (!(seq->flags & BER_FLAGS_NOTCHKTAG)) {
-				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field");
+				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SEQUENCE");
 				seq++;
 				offset=eoffset;
 				continue;
@@ -522,7 +522,6 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 	int end_offset;
 	int hoffset = offset;
 	header_field_info	*hfinfo;
-
 
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -811,7 +810,7 @@ static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *p
 		if ((seq->class!=class)
 			||(seq->tag!=tag) ){
 			if (!(seq->flags & BER_FLAGS_NOTCHKTAG)) {
-				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field");
+				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SQ OF");
 				offset = eoffset;
 				continue;
 			}

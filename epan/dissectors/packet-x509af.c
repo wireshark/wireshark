@@ -479,9 +479,9 @@ static ber_sequence T_signedCertificate_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signature },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuer },
+  { BER_CLASS_ANY, -1, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_validity },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_subject },
+  { BER_CLASS_ANY, -1, BER_FLAGS_NOOWNTAG, dissect_subject },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_subjectPublicKeyInfo },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuerUniqueIdentifier_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subjectUniqueIdentifier_impl },
@@ -656,7 +656,7 @@ static int dissect_revokedCertificates(packet_info *pinfo, proto_tree *tree, tvb
 static ber_sequence T_signedCertificateList_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signature },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuer },
+  { BER_CLASS_ANY, -1, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_thisUpdate },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_nextUpdate },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_revokedCertificates },
@@ -877,7 +877,7 @@ static int dissect_assertion_subject(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 static ber_sequence SET_OF_AttributeType_set_of[1] = {
-  { -1 /*imported*/, -1 /*imported*/, BER_FLAGS_NOOWNTAG, dissect_attType_item },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_attType_item },
 };
 
 static int
@@ -947,7 +947,7 @@ void proto_register_x509af(void) {
         "", HFILL }},
     { &hf_x509af_issuer,
       { "issuer", "x509af.issuer",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
         "", HFILL }},
     { &hf_x509af_validity,
       { "validity", "x509af.validity",
@@ -955,7 +955,7 @@ void proto_register_x509af(void) {
         "Certificate/signedCertificate/validity", HFILL }},
     { &hf_x509af_subject,
       { "subject", "x509af.subject",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
         "Certificate/signedCertificate/subject", HFILL }},
     { &hf_x509af_subjectPublicKeyInfo,
       { "subjectPublicKeyInfo", "x509af.subjectPublicKeyInfo",
@@ -1159,11 +1159,11 @@ void proto_register_x509af(void) {
         "AttributeCertificateAssertion/subject", HFILL }},
     { &hf_x509af_assertionSubjectName,
       { "subjectName", "x509af.subjectName",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
         "AttributeCertificateAssertion/subject/subjectName", HFILL }},
     { &hf_x509af_assertionIssuer,
       { "issuer", "x509af.issuer",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
         "AttributeCertificateAssertion/issuer", HFILL }},
     { &hf_x509af_attCertValidity,
       { "attCertValidity", "x509af.attCertValidity",
@@ -1175,7 +1175,7 @@ void proto_register_x509af(void) {
         "AttributeCertificateAssertion/attType", HFILL }},
     { &hf_x509af_attType_item,
       { "Item(##)", "x509af.attType_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "AttributeCertificateAssertion/attType/_item", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
