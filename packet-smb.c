@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.174 2001/11/28 11:47:27 guy Exp $
+ * $Id: packet-smb.c,v 1.175 2001/11/29 08:36:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4613,7 +4613,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* If we have seen the request, then print which FID this refers to */
 	si = (smb_info_t *)pinfo->private_data;
 	/* first check if we have seen the request */
-	if(si->sip->frame_req>0){
+	if(si->sip != NULL && si->sip->frame_req>0){
 		add_fid(tvb, pinfo, tree, 0, 0, (int)si->sip->extra_info);
 	}
 
@@ -4773,7 +4773,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* If we have seen the request, then print which FID this refers to */
 	si = (smb_info_t *)pinfo->private_data;
 	/* first check if we have seen the request */
-	if(si->sip->frame_req>0){
+	if(si->sip != NULL && si->sip->frame_req>0){
 		add_fid(tvb, pinfo, tree, 0, 0, (int)si->sip->extra_info);
 	}
 
