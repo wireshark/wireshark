@@ -1,4 +1,4 @@
-$Id: README,v 1.9 1999/01/30 09:44:21 guy Exp $
+$Id: README,v 1.10 1999/02/20 08:12:20 guy Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -75,7 +75,7 @@ knowledge base for "Trace File Format".
 
 Network Monitor
 ---------------
-MicroSoft's Network Monitor file format is supported, at least under ethernet
+Microsoft's Network Monitor file format is supported, at least under Ethernet
 and token-ring. If you have capture files of other datalink types, please send
 them to Guy Harris <guy@netapp.com>.
 
@@ -85,14 +85,23 @@ The Solaris 2.x "snoop" program's format is documented in RFC 1761.
 
 "iptrace"
 ---------
-This is the capture program that comes with AIX 3.x and 4.x. Right now wiretap
-only supports iptrace 2.0 (AIX4) because I don't have access to an AIX3
-machine.  iptrace has an undocumented, yet very simple, file format.
-The interesting thing about iptrace is that it will record packets coming in from
-all network interfaces; a single iptrace file can contain multiple datalink types.
-I have tested iptrace on ethernet and token-ring; if you can provide an iptrace file with
-any other datalink type, I would appreciate a copy. (with the output from
-'ipreport' too, if possible).
+This is the capture program that comes with AIX 3.x and 4.x.  Right now
+wiretap only supports iptrace 2.0 (AIX4) because I don't have access to
+an AIX3 machine.  iptrace has an undocumented, yet very simple, file
+format.  The interesting thing about iptrace is that it will record
+packets coming in from all network interfaces; a single iptrace file can
+contain multiple datalink types.  I have tested iptrace on ethernet and
+token-ring; if you can provide an iptrace file with any other datalink
+type, I would appreciate a copy.  (with the output from 'ipreport' too,
+if possible).
+
+Sniffer Basic (NetXRay)/Windows Sniffer Pro
+-------------------------------------------
+Network Associates' Sniffer Basic (formerly NetXRay from Cinco Networks)
+file format is now partially supported; only Ethernet captures can be
+read, and the packet time stamp isn't correctly computed.  Network
+Associates' Windows Sniffer Pro appears to use a variant of that format;
+it's supported to the same extent.
 
 Gilbert Ramirez
 <gram@verdict.uthscsa.edu>
