@@ -45,7 +45,8 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
-#include "sigcomp-udvm.h"
+#include <epan/sigcomp-udvm.h>
+#include <epan/sigcomp_state_hdlr.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_sigcomp							= -1;
@@ -118,7 +119,15 @@ static gboolean display_udvm_bytecode = FALSE;
 /* Default preference wether to dissect the UDVM code or not */
 static gboolean dissect_udvm_code = TRUE;
 static gboolean display_raw_txt = FALSE;
-/* Default preference wether to print debug info at execution of UDVM */
+/* Default preference wether to decompress the message or not */
+static gboolean decompress = TRUE;
+/* Default preference wether to print debug info at execution of UDVM 
+ * 0 = No printout
+ * 1 = details level 1
+ * 2 = details level 2
+ * 3 = details level 3
+ * 4 = details level 4
+ */
 static gint udvm_print_detail_level = 0;
 
 /* Value strings */
@@ -260,7 +269,14 @@ static int dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_
 static int dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree, 
 							   gint offset, gint *start_offset, guint16 *value);
 static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
-
+/* Initialize the state handler
+ *
+ */
+void
+sigcomp_init_protocol(void)
+{
+	sigcomp_init_udvm();
+} 
 
 /* Code to actually dissect the packets */
 static int
@@ -268,21 +284,29 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-	tvbuff_t *udvm_tvb, *msg_tvb;
-	tvbuff_t *decomp_tvb = NULL;
+	tvbuff_t	 *udvm_tvb, *msg_tvb, *udvm2_tvb;
+	tvbuff_t	*decomp_tvb = NULL;
 	proto_item *ti, *udvm_bytecode_item, *udvm_exe_item;
 	proto_tree *sigcomp_tree, *sigcomp_udvm_tree, *sigcomp_udvm_exe_tree;
-	gint offset = 0;
-	gint bytecode_offset;
-	gint partial_state_len;
-	guint octet;
-	guint8 returned_feedback_field[128];
-	guint8 partial_state[12];
-	guint tbit;
-	guint16 len = 0;
-	guint16 bytecode_len = 0;
-	guint destination;
-	gint msg_len = 0;
+	gint		offset = 0;
+	gint		bytecode_offset;
+	guint16		partial_state_len;
+	guint		octet;
+	guint8		returned_feedback_field[128];
+	guint8		partial_state[12];
+	guint		tbit;
+	guint16		len = 0;
+	guint16		bytecode_len = 0;
+	guint		destination;
+	gint		msg_len = 0;
+	guint8		*buff;
+	guint16		p_id_start;
+	guint8		i;
+	guint16		state_begin;
+	guint16		state_length;
+	guint16		state_address;
+	guint16		state_instruction;
+	guint16		result_code;
 
 /* Is this a SigComp message or not ? */
 	octet = tvb_get_guint8(tvb, offset);
@@ -295,9 +319,6 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_clear(pinfo->cinfo, COL_INFO);
-
-
-
 
 /* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, FALSE);
@@ -395,7 +416,66 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = offset + partial_state_len;
 		proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
 			tvb_reported_length_remaining(tvb, offset));
+		if ( decompress ) {
+			msg_len = tvb_reported_length_remaining(tvb, offset);
+			msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+			/*
+			 * buff					= Where "state" will be stored
+			 * p_id_start			= Partial state identifier start pos in the buffer(buff)
+			 * partial_state_len	= Partial state identifier length
+			 * state_begin			= Where to start to read state from
+			 * state_length			= Lenght of state
+			 * state_address			= Address where to store the state in the buffer(buff)
+			 * state_instruction	=
+			 * TRUE					= Indicates that state_* is in the stored state 
+			 */
+			buff = g_malloc(65536);
+			p_id_start = 0;
+			state_begin = 0;
+			/* These values will be loaded from the buffered state in sigcomp_state_hdlr 
+			 */
+			state_length = 0;
+				state_address = 0;
+			state_instruction =0;
+
+			i = 0;
+			while ( i < partial_state_len ){
+				buff[i] = partial_state[i];
+				i++;
+			}
+
+			result_code = udvm_state_access(tvb, sigcomp_tree, buff, p_id_start, partial_state_len, state_begin, &state_length, 
+				&state_address, state_instruction, FALSE);
+
+
+			if ( result_code != 0 ){
+				proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Ethereal UDVM diagnostic: %s.",
+					    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+				return tvb_length(tvb);
+			}
+
+			udvm_tvb = tvb_new_real_data(buff,state_length+128,state_length+128);
+			udvm2_tvb = tvb_new_subset(udvm_tvb, 128, state_length, state_length);
+			/* TODO Check if buff needs to be free'd */
+			udvm_exe_item = proto_tree_add_text(sigcomp_tree, udvm2_tvb, 0, state_length, 
+				"UDVM execution trace");
+			sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
+
+			decomp_tvb = decompress_sigcomp_message(udvm2_tvb, msg_tvb, pinfo,
+						   sigcomp_udvm_exe_tree, state_address, udvm_print_detail_level);
 		
+
+			if ( decomp_tvb ){
+				proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
+				if ( display_raw_txt )
+					tvb_raw_text_add(decomp_tvb, tree);
+				if (check_col(pinfo->cinfo, COL_PROTOCOL)){
+					col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+					col_set_fence(pinfo->cinfo,COL_PROTOCOL);
+				}
+				call_dissector(sip_handle, decomp_tvb, pinfo, tree);
+			}
+		}/* if decompress */
 
 	}
 	else{
@@ -445,24 +525,26 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
 			tvb_reported_length_remaining(tvb, offset));
+		if ( decompress ){
 
-		msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
-
-		udvm_exe_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
-			"UDVM execution trace");
-		sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
-		decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
+			msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+	
+			udvm_exe_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
+				"UDVM execution trace");
+			sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
+			decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
 						   sigcomp_udvm_exe_tree, destination, udvm_print_detail_level);
-		if ( decomp_tvb ){
-			proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
-			if ( display_raw_txt )
-				tvb_raw_text_add(decomp_tvb, tree);
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-				col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
-				col_set_fence(pinfo->cinfo,COL_PROTOCOL);
+			if ( decomp_tvb ){
+				proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
+				if ( display_raw_txt )
+					tvb_raw_text_add(decomp_tvb, tree);
+				if (check_col(pinfo->cinfo, COL_PROTOCOL)){
+					col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+					col_set_fence(pinfo->cinfo,COL_PROTOCOL);
+				}
+				call_dissector(sip_handle, decomp_tvb, pinfo, tree);
 			}
-			call_dissector(sip_handle, decomp_tvb, pinfo, tree);
-		}
+		} /* if decompress */
 
 	}
 	return tvb_length(tvb);
@@ -2131,6 +2213,10 @@ proto_register_sigcomp(void)
 								   "Display the bytecode of operands",
 								   "preference wether to display the bytecode in UDVM operands or not",
 								   &display_udvm_bytecode);
+	prefs_register_bool_preference(sigcomp_module, "decomp.msg",
+								   "Decompress message",
+								   "preference wether to decompress message or not",
+								   &decompress);
 	prefs_register_bool_preference(sigcomp_module, "display.decomp.msg.as.txt",
 								   "Displays the decompressed message as text",
 								   "preference wether to display the decompressed message as raw text or not",
@@ -2139,6 +2225,9 @@ proto_register_sigcomp(void)
       "Level of detail of UDVM execution",
       "0 = UDVM executes silently, then incrising detail about execution of UDVM instructions, Warning! CPU intense at high detail",
       &udvm_print_detail_level, udvm_detail_vals, FALSE);
+
+	register_init_routine(&sigcomp_init_protocol);
+
 
 
 }
