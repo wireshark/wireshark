@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.13 2002/02/15 11:24:45 guy Exp $
+ * $Id: packet-ucp.c,v 1.14 2002/03/10 03:07:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -681,6 +681,7 @@ ucp_mktime(char *datestr)
     r_time.tm_min  = 10 * (datestr[8] - '0') + (datestr[9] - '0');
     if (datestr[10])
 	r_time.tm_sec  = 10 * (datestr[10] - '0') + (datestr[11] - '0');
+    r_time.tm_isdst = -1;
     return mktime(&r_time);
 }
 
