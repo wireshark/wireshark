@@ -3,7 +3,7 @@
  * [ very rough, but mininally functional ]
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-rsync.c,v 1.5 2003/04/30 02:35:19 gerald Exp $
+ * $Id: packet-rsync.c,v 1.6 2003/07/08 04:06:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,7 +87,7 @@ static unsigned int glb_rsync_tcp_port = TCP_PORT_RSYNC;
 /* Packet dissection routine called by tcp (& udp) when port 873 detected */
 static void
 dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		    gboolean desegment)
+		    gboolean desegment _U_)
 {
     conversation_t			*conversation;
     struct rsync_conversation_data	*conversation_data;
