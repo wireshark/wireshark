@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.103 2004/04/23 23:31:52 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.104 2004/04/23 23:56:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -521,7 +521,7 @@ netlogon_dissect_netrlogonuaslogon_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, "Account", hf_netlogon_acct_name, 0);
+		NDR_POINTER_REF, "Account", hf_netlogon_acct_name, CB_STR_COL_INFO);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_REF, "Workstation", hf_netlogon_workstation, 0);
@@ -588,7 +588,7 @@ netlogon_dissect_netrlogonuaslogoff_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, "Account", hf_netlogon_acct_name, 0);
+		NDR_POINTER_REF, "Account", hf_netlogon_acct_name, CB_STR_COL_INFO);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_REF, "Workstation", hf_netlogon_workstation, 0);
@@ -651,7 +651,7 @@ netlogon_dissect_LOGON_IDENTITY_INFO(tvbuff_t *tvb, int offset,
 		hf_netlogon_logon_id, NULL);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_acct_name, 0);
+		hf_netlogon_acct_name, CB_STR_COL_INFO|3);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_workstation, 0);
@@ -1893,13 +1893,13 @@ netlogon_dissect_netrserverauthenticate_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, "User Name", hf_netlogon_acct_name, 0);
+		NDR_POINTER_REF, "User Name", hf_netlogon_acct_name, CB_STR_COL_INFO);
 
 	offset = netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvb, offset,
 		pinfo, tree, drep);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, "Computer Name", hf_netlogon_computer_name, 0);
+		NDR_POINTER_REF, "Computer Name", hf_netlogon_computer_name, CB_STR_COL_INFO);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
