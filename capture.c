@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.81 1999/11/25 22:37:53 guy Exp $
+ * $Id: capture.c,v 1.82 1999/11/28 09:44:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,7 +135,7 @@ do_capture(char *capfile_name)
   if (cf.save_file_fd == -1) {
     simple_dialog(ESD_TYPE_WARN, NULL,
 	"The file to which the capture would be saved (\"%s\")"
-	"could not be opened: %s.", tmpname, strerror(errno));
+	"could not be opened: %s.", capfile_name, strerror(errno));
     return;
   }
   close_cap_file(&cf, info_bar, file_ctx);
