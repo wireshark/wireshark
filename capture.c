@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.224 2004/01/22 18:13:56 ulfl Exp $
+ * $Id: capture.c,v 1.225 2004/01/22 19:25:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -718,7 +718,7 @@ do_capture(const char *save_file)
 static gboolean 
 cap_pipe_input_cb(gint source, gpointer user_data)
 {
-  capture_file *cf = (capture_file *)data;
+  capture_file *cf = (capture_file *)user_data;
 #define BUFSIZE	4096
   char buffer[BUFSIZE+1], *p = buffer, *q = buffer, *msg, *r;
   int  nread, msglen, chars_to_copy;
