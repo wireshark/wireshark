@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.4 2000/08/08 22:16:42 mhall Exp $
+ * $Id: wtap-int.h,v 1.5 2000/08/11 07:28:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -49,10 +49,11 @@
 
 /* Information for a compressed Sniffer data stream. */
 typedef struct {
-	unsigned char *file_outbuf;
-	unsigned char *nextout;
-	size_t	outbuf_nbytes;
-	long	offset;
+	unsigned char *buf;	/* buffer into which we uncompress data */
+	size_t	nbytes;		/* number of bytes of data in that buffer */
+	int	nextout;	/* offset in that buffer of stream's current position */
+	long	comp_offset;	/* current offset in compressed data stream */
+	long	uncomp_offset;	/* current offset in uncompressed data stream */
 } ngsniffer_comp_stream_t;
 
 typedef struct {
@@ -61,7 +62,9 @@ typedef struct {
 	int	is_atm;
 	ngsniffer_comp_stream_t seq;	/* sequential access */
 	ngsniffer_comp_stream_t rand;	/* random access */
-	long	data_offset;		/* start of possibly-compressed stuff */
+	GList	*first_blob;		/* list element for first blob */
+	GList	*last_blob;		/* list element for last blob */
+	GList	*current_blob;		/* list element for current blob */
 } ngsniffer_t;
 
 typedef struct {

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.47 2000/07/26 00:20:07 guy Exp $
+ * $Id: ngsniffer.c,v 1.48 2000/08/11 07:28:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -254,19 +254,18 @@ static int skip_header_records(wtap *wth, int *err, gint16 version);
 static int ngsniffer_read(wtap *wth, int *err);
 static int ngsniffer_seek_read(wtap *wth, int seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
-static int ngsniffer_read_rec_header(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, guint16 *typep, guint16 *lengthp,
-    int *err);
-static int ngsniffer_read_frame2(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, struct frame2_rec *frame2, int *err);
+static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
+    guint16 *typep, guint16 *lengthp, int *err);
+static int ngsniffer_read_frame2(wtap *wth, gboolean is_random,
+    struct frame2_rec *frame2, int *err);
 static void set_pseudo_header_frame2(union wtap_pseudo_header *pseudo_header,
     struct frame2_rec *frame2);
-static int ngsniffer_read_frame4(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, struct frame4_rec *frame4, int *err);
+static int ngsniffer_read_frame4(wtap *wth, gboolean is_random,
+    struct frame4_rec *frame4, int *err);
 static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4);
-static int ngsniffer_read_rec_data(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, u_char *pd, int length, int *err);
+static int ngsniffer_read_rec_data(wtap *wth, gboolean is_random, u_char *pd,
+    int length, int *err);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -275,9 +274,11 @@ static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
         unsigned char * outbuf, size_t outlen, int *err );
 static int ng_file_read(void *buffer, size_t elementsize, size_t numelements,
-    wtap *wth, FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err);
-static long ng_file_seek(wtap *wth, FILE_T infile,
-    ngsniffer_comp_stream_t *comp_stream, long offset, int whence);
+    wtap *wth, gboolean is_random, int *err);
+static int read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
+    int *err);
+static long ng_file_seek_seq(wtap *wth, long offset, int whence);
+static long ng_file_seek_rand(wtap *wth, long offset, int whence);
 
 int ngsniffer_open(wtap *wth, int *err)
 {
@@ -418,13 +419,18 @@ int ngsniffer_open(wtap *wth, int *err)
 	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
 
 	/* We haven't allocated any uncompression buffers yet. */
-	wth->capture.ngsniffer->seq.file_outbuf = NULL;
-	wth->capture.ngsniffer->rand.file_outbuf = NULL;
+	wth->capture.ngsniffer->seq.buf = NULL;
+	wth->capture.ngsniffer->rand.buf = NULL;
 
-	/* Set the current file offset. */
-	wth->capture.ngsniffer->data_offset = wth->data_offset;
-	wth->capture.ngsniffer->seq.offset = wth->data_offset;
-	wth->capture.ngsniffer->rand.offset = wth->data_offset;
+	/* Set the current file offset; the offset in the compressed file
+	   and in the uncompressed data stream currently the same. */
+	wth->capture.ngsniffer->seq.uncomp_offset = wth->data_offset;
+	wth->capture.ngsniffer->seq.comp_offset = wth->data_offset;
+	wth->capture.ngsniffer->rand.uncomp_offset = wth->data_offset;
+	wth->capture.ngsniffer->rand.comp_offset = wth->data_offset;
+
+	/* We don't yet have any list of compressed blobs. */
+	wth->capture.ngsniffer->first_blob = NULL;
 
 	wth->subtype_read = ngsniffer_read;
 	wth->subtype_seek_read = ngsniffer_seek_read;
@@ -542,8 +548,8 @@ static int ngsniffer_read(wtap *wth, int *err)
 		 * Read the record header.
 		 */
 		record_offset = wth->data_offset;
-		ret = ngsniffer_read_rec_header(wth, wth->fh,
-		    &wth->capture.ngsniffer->seq, &type, &length, err);
+		ret = ngsniffer_read_rec_header(wth, FALSE, &type, &length,
+		    err);
 		if (ret <= 0) {
 			/* Read error or EOF */
 			return ret;
@@ -564,8 +570,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 			}
 
 			/* Read the f_frame2_struct */
-			ret = ngsniffer_read_frame2(wth, wth->fh,
-			    &wth->capture.ngsniffer->seq, &frame2, err);
+			ret = ngsniffer_read_frame2(wth, FALSE, &frame2, err);
 			if (ret < 0) {
 				/* Read error */
 				return ret;
@@ -597,8 +602,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 			}
 
 			/* Read the f_frame4_struct */
-			ret = ngsniffer_read_frame4(wth, wth->fh,
-			    &wth->capture.ngsniffer->seq, &frame4, err);
+			ret = ngsniffer_read_frame4(wth, FALSE, &frame4, err);
 			wth->data_offset += sizeof frame4;
 			time_low = pletohs(&frame4.time_low);
 			time_med = pletohs(&frame4.time_med);
@@ -633,8 +637,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 		 * it is but can't handle it.  Skip past the data
 		 * portion, and keep looping.
 		 */
-		ng_file_seek(wth, wth->fh, &wth->capture.ngsniffer->seq,
-		    length, SEEK_CUR);
+		ng_file_seek_seq(wth, length, SEEK_CUR);
 		wth->data_offset += length;
 	}
 
@@ -647,8 +650,7 @@ found:
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
 	pd = buffer_start_ptr(wth->frame_buffer);
-	if (ngsniffer_read_rec_data(wth, wth->fh,
-	    &wth->capture.ngsniffer->seq, pd, length, err) < 0)
+	if (ngsniffer_read_rec_data(wth, FALSE, pd, length, err) < 0)
 		return -1;	/* Read error */
 	wth->data_offset += length;
 
@@ -694,11 +696,9 @@ static int ngsniffer_seek_read(wtap *wth, int seek_off,
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
 
-	ng_file_seek(wth, wth->random_fh, &wth->capture.ngsniffer->rand,
-	    seek_off, SEEK_SET);
+	ng_file_seek_rand(wth, seek_off, SEEK_SET);
 
-	ret = ngsniffer_read_rec_header(wth, wth->random_fh,
-	    &wth->capture.ngsniffer->rand, &type, &length, &err);
+	ret = ngsniffer_read_rec_header(wth, TRUE, &type, &length, &err);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return ret;
@@ -708,8 +708,7 @@ static int ngsniffer_seek_read(wtap *wth, int seek_off,
 
 	case REC_FRAME2:
 		/* Read the f_frame2_struct */
-		ret = ngsniffer_read_frame2(wth, wth->random_fh,
-		    &wth->capture.ngsniffer->rand, &frame2, &err);
+		ret = ngsniffer_read_frame2(wth, TRUE, &frame2, &err);
 		if (ret < 0) {
 			/* Read error */
 			return ret;
@@ -722,8 +721,7 @@ static int ngsniffer_seek_read(wtap *wth, int seek_off,
 
 	case REC_FRAME4:
 		/* Read the f_frame4_struct */
-		ret = ngsniffer_read_frame4(wth, wth->random_fh,
-		    &wth->capture.ngsniffer->rand, &frame4, &err);
+		ret = ngsniffer_read_frame4(wth, TRUE, &frame4, &err);
 
 		length -= sizeof frame4;	/* we already read that much */
 
@@ -741,13 +739,11 @@ static int ngsniffer_seek_read(wtap *wth, int seek_off,
 	/*
 	 * Got the pseudo-header (if any), now get the data.
 	 */
-	return ngsniffer_read_rec_data(wth, wth->random_fh,
-	    &wth->capture.ngsniffer->rand, pd, packet_size, &err);
+	return ngsniffer_read_rec_data(wth, TRUE, pd, packet_size, &err);
 }
 
-static int ngsniffer_read_rec_header(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, guint16 *typep, guint16 *lengthp,
-    int *err)
+static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
+    guint16 *typep, guint16 *lengthp, int *err)
 {
 	int	bytes_read;
 	char	record_type[2];
@@ -756,7 +752,7 @@ static int ngsniffer_read_rec_header(wtap *wth, FILE_T fh,
 	/*
 	 * Read the record header.
 	 */
-	bytes_read = ng_file_read(record_type, 1, 2, wth, fh, comp_stream, err);
+	bytes_read = ng_file_read(record_type, 1, 2, wth, is_random, err);
 	if (bytes_read != 2) {
 		if (*err != 0)
 			return -1;
@@ -766,8 +762,7 @@ static int ngsniffer_read_rec_header(wtap *wth, FILE_T fh,
 		}
 		return 0;
 	}
-	bytes_read = ng_file_read(record_length, 1, 4, wth, fh, comp_stream,
-	    err);
+	bytes_read = ng_file_read(record_length, 1, 4, wth, is_random, err);
 	if (bytes_read != 4) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -779,14 +774,14 @@ static int ngsniffer_read_rec_header(wtap *wth, FILE_T fh,
 	return 1;	/* success */
 }
 
-static int ngsniffer_read_frame2(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, struct frame2_rec *frame2, int *err)
+static int ngsniffer_read_frame2(wtap *wth, gboolean is_random,
+    struct frame2_rec *frame2, int *err)
 {
 	int bytes_read;
 
 	/* Read the f_frame2_struct */
-	bytes_read = ng_file_read(frame2, 1, sizeof *frame2, wth, fh,
-	    comp_stream, err);
+	bytes_read = ng_file_read(frame2, 1, sizeof *frame2, wth, is_random,
+	    err);
 	if (bytes_read != sizeof *frame2) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -822,14 +817,14 @@ static void set_pseudo_header_frame2(union wtap_pseudo_header *pseudo_header,
 	pseudo_header->x25.flags = (frame2->fs & 0x80) ? 0x00 : 0x80;
 }
 
-static int ngsniffer_read_frame4(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, struct frame4_rec *frame4, int *err)
+static int ngsniffer_read_frame4(wtap *wth, gboolean is_random,
+    struct frame4_rec *frame4, int *err)
 {
 	int bytes_read;
 
 	/* Read the f_frame4_struct */
-	bytes_read = ng_file_read(frame4, 1, sizeof *frame4, wth, fh,
-	    comp_stream, err);
+	bytes_read = ng_file_read(frame4, 1, sizeof *frame4, wth, is_random,
+	    err);
 	if (bytes_read != sizeof *frame4) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -852,12 +847,12 @@ static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
 	pseudo_header->ngsniffer_atm.aal5t_chksum = pletohl(&frame4->atm_info.Trailer.aal5t_chksum);
 }
 
-static int ngsniffer_read_rec_data(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, u_char *pd, int length, int *err)
+static int ngsniffer_read_rec_data(wtap *wth, gboolean is_random, u_char *pd,
+    int length, int *err)
 {
 	int	bytes_read;
 
-	bytes_read = ng_file_read(pd, 1, length, wth, fh, comp_stream, err);
+	bytes_read = ng_file_read(pd, 1, length, wth, is_random, err);
 
 	if (bytes_read != length) {
 		if (*err == 0)
@@ -871,18 +866,27 @@ static int ngsniffer_read_rec_data(wtap *wth, FILE_T fh,
    those used by the random I/O stream. */
 static void ngsniffer_sequential_close(wtap *wth)
 {
-	if (wth->capture.ngsniffer->seq.file_outbuf != NULL) {
-		g_free(wth->capture.ngsniffer->seq.file_outbuf);
-		wth->capture.ngsniffer->seq.file_outbuf = NULL;
+	if (wth->capture.ngsniffer->seq.buf != NULL) {
+		g_free(wth->capture.ngsniffer->seq.buf);
+		wth->capture.ngsniffer->seq.buf = NULL;
 	}
+}
+
+static void free_blob(gpointer data, gpointer user_data)
+{
+	g_free(data);
 }
 
 static void ngsniffer_close(wtap *wth)
 {
-	if (wth->capture.ngsniffer->seq.file_outbuf != NULL)
-		g_free(wth->capture.ngsniffer->seq.file_outbuf);
-	if (wth->capture.ngsniffer->rand.file_outbuf != NULL)
-		g_free(wth->capture.ngsniffer->rand.file_outbuf);
+	if (wth->capture.ngsniffer->seq.buf != NULL)
+		g_free(wth->capture.ngsniffer->seq.buf);
+	if (wth->capture.ngsniffer->rand.buf != NULL)
+		g_free(wth->capture.ngsniffer->rand.buf);
+	if (wth->capture.ngsniffer->first_blob != NULL) {
+		g_list_foreach(wth->capture.ngsniffer->first_blob, free_blob, NULL);
+		g_list_free(wth->capture.ngsniffer->first_blob);
+	}
 	g_free(wth->capture.ngsniffer);
 }
 
@@ -1276,109 +1280,238 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
  */
 #define	OUTBUF_SIZE	65536
 
+/* Information about a compressed blob; we save the offset in the
+   underlying compressed file, and the offset in the uncompressed data
+   stream, of the blob. */
+typedef struct {
+	long	blob_comp_offset;
+	long	blob_uncomp_offset;
+} blob_info_t;
+
 static int
 ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
-    FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err)
+    gboolean is_random, int *err)
 {
-    unsigned char file_inbuf[65536];
-    unsigned char *file_outbuf;
+    FILE_T infile;
+    ngsniffer_comp_stream_t *comp_stream;
     int copybytes = elementsize * numelements; /* bytes left to be copied */
     int copied_bytes = 0; /* bytes already copied */
-    unsigned char* outbuffer = buffer; /* where to write next decompressed data */
-    unsigned short blob_len;
-    gint16 blob_len_host;
-    size_t in_len;
-    size_t read_len;
-    gboolean uncompressed;
-    int out_len;
+    unsigned char *outbuffer = buffer; /* where to write next decompressed data */
+    blob_info_t *blob;
     int bytes_to_copy;
+    int bytes_left;
 
-    if ( wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED ) {
+    if (is_random) {
+	infile = wth->random_fh;
+	comp_stream = &wth->capture.ngsniffer->rand;
+    } else {
+	infile = wth->fh;
+	comp_stream = &wth->capture.ngsniffer->seq;
+    }
+
+    if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
 	errno = WTAP_ERR_CANT_READ;
-	copied_bytes = file_read( buffer, 1, copybytes, infile);
+	copied_bytes = file_read(buffer, 1, copybytes, infile);
 	if (copied_bytes != copybytes)
 	    *err = file_error(infile);
 	return copied_bytes;
     }
 
     /* Allocate the stream buffer if it hasn't already been allocated. */
-    if (comp_stream->file_outbuf == NULL) {
-	comp_stream->file_outbuf = g_malloc(OUTBUF_SIZE);
-	comp_stream->nextout = comp_stream->file_outbuf;
-	comp_stream->outbuf_nbytes = 0;
+    if (comp_stream->buf == NULL) {
+	comp_stream->buf = g_malloc(OUTBUF_SIZE);
+
+	/* If this is a sequential read, the list of blobs is empty (we
+	   have to do a sequential read before we can do any random
+	   reads, as we don't know where to go for a random read
+	   of a packet if we haven't seen the packet in a sequential
+	   read).
+
+	   If we also have a random stream open, allocate the first element
+	   for the list of blobs, and make it the last element as well.
+	   Also make it the current element; as we've done no random reads
+	   yet, the random stream has yet to be moved and is thus
+	   at the beginning of the sequence of blobs. */
+	if (!is_random && wth->random_fh != NULL) {
+	    g_assert(wth->capture.ngsniffer->first_blob == NULL);
+	    blob = g_malloc(sizeof (blob_info_t));
+	    blob->blob_comp_offset = comp_stream->comp_offset;
+	    blob->blob_uncomp_offset = comp_stream->uncomp_offset;
+	    wth->capture.ngsniffer->first_blob =
+		g_list_append(wth->capture.ngsniffer->first_blob, blob);
+	    wth->capture.ngsniffer->last_blob =
+	    	wth->capture.ngsniffer->first_blob;
+	    wth->capture.ngsniffer->current_blob =
+		wth->capture.ngsniffer->first_blob;
+	}
+
+	/* Now read the first blob into the buffer. */
+	if (read_blob(infile, comp_stream, err) < 0)
+	    return -1;
     }
-    file_outbuf = comp_stream->file_outbuf;
     while (copybytes > 0) {
-   	if (comp_stream->outbuf_nbytes == 0) {
-	    /* There's no decompressed stuff to copy; get some more. */
+	bytes_left = comp_stream->nbytes - comp_stream->nextout;
+	if (bytes_left == 0) {
+	    /* There's no decompressed stuff left to copy from the current
+	       blob; get the next blob. */
 
-	    /* Read one 16-bit word which is length of next compressed blob */
-	    errno = WTAP_ERR_CANT_READ;
-	    read_len = file_read( &blob_len, 1, 2, infile );
-	    if ( 2 != read_len ) {
-		*err = file_error(infile);
-		return( -1 );
-	    }
-	    blob_len_host = pletohs(&blob_len);
-
-	    /* Compressed or uncompressed? */
-	    if ( blob_len_host < 0 ) {
-	    	/* Uncompressed blob; blob length is absolute value
-		   of the number. */
-		in_len = -blob_len_host;
-		uncompressed = TRUE;
+	    if (is_random) {
+		/* Move to the next blob in the list. */
+		wth->capture.ngsniffer->current_blob =
+			g_list_next(wth->capture.ngsniffer->current_blob);
+		blob = wth->capture.ngsniffer->current_blob->data;
 	    } else {
-	    	in_len = blob_len_host;
-		uncompressed = FALSE;
+		/* If we also have a random stream open, add a new element,
+		   for this blob, to the list of blobs; we know the list is
+		   non-empty, as we initialized it on the first sequential
+		   read, so we just add the new element at the end, and
+		   adjust the pointer to the last element to refer to it. */
+		if (wth->random_fh != NULL) {
+		    blob = g_malloc(sizeof (blob_info_t));
+		    blob->blob_comp_offset = comp_stream->comp_offset;
+		    blob->blob_uncomp_offset = comp_stream->uncomp_offset;
+		    wth->capture.ngsniffer->last_blob =
+			g_list_append(wth->capture.ngsniffer->last_blob, blob);
+		}
 	    }
 
-	    /* Read the blob */
-	    errno = WTAP_ERR_CANT_READ;
-	    read_len = file_read( file_inbuf, 1, in_len, infile );
-	    if ( in_len != read_len ) {
-		*err = file_error(infile);
-		return( -1 );
-	    }
-
-	    if ( uncompressed ) {
-		memcpy( file_outbuf, file_inbuf, in_len );
-		out_len = in_len;
-	    } else {
-		/* Decompress the blob */
-		out_len = SnifferDecompress( file_inbuf, in_len,
-						file_outbuf, OUTBUF_SIZE, err );
-		if (out_len < 0)
-		    return( -1 );
-	    }
-	    comp_stream->nextout = file_outbuf;
-	    comp_stream->outbuf_nbytes = out_len;
+	    if (read_blob(infile, comp_stream, err) < 0)
+		return -1;
+	    bytes_left = comp_stream->nbytes - comp_stream->nextout;
 	}
    	    
 	bytes_to_copy = copybytes;
-	if (bytes_to_copy > comp_stream->outbuf_nbytes)
-	    bytes_to_copy = comp_stream->outbuf_nbytes;
-	memcpy( outbuffer, comp_stream->nextout, bytes_to_copy );
+	if (bytes_to_copy > bytes_left)
+	    bytes_to_copy = bytes_left;
+	memcpy(outbuffer, &comp_stream->buf[comp_stream->nextout],
+		bytes_to_copy);
 	copybytes -= bytes_to_copy;
 	copied_bytes += bytes_to_copy;
 	outbuffer += bytes_to_copy;
 	comp_stream->nextout += bytes_to_copy;
-	comp_stream->outbuf_nbytes -= bytes_to_copy;
-	comp_stream->offset += bytes_to_copy;
+	comp_stream->uncomp_offset += bytes_to_copy;
     }
-    return( copied_bytes );
+    return copied_bytes;
 }
 
+/* Read a blob from a compressed stream.
+   Return -1 and set "*err" on error, otherwise return 0. */
+static int
+read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err)
+{
+    size_t in_len;
+    size_t read_len;
+    unsigned short blob_len;
+    gint16 blob_len_host;
+    gboolean uncompressed;
+    unsigned char file_inbuf[65536];
+    int out_len;
+
+    /* Read one 16-bit word which is length of next compressed blob */
+    errno = WTAP_ERR_CANT_READ;
+    read_len = file_read(&blob_len, 1, 2, infile);
+    if (2 != read_len) {
+	*err = file_error(infile);
+	return -1;
+    }
+    comp_stream->comp_offset += 2;
+    blob_len_host = pletohs(&blob_len);
+
+    /* Compressed or uncompressed? */
+    if (blob_len_host < 0) {
+    	/* Uncompressed blob; blob length is absolute value of the number. */
+	in_len = -blob_len_host;
+	uncompressed = TRUE;
+    } else {
+    	in_len = blob_len_host;
+	uncompressed = FALSE;
+    }
+
+    /* Read the blob */
+    errno = WTAP_ERR_CANT_READ;
+    read_len = file_read(file_inbuf, 1, in_len, infile);
+    if (in_len != read_len) {
+	*err = file_error(infile);
+	return -1;
+    }
+    comp_stream->comp_offset += in_len;
+
+    if (uncompressed) {
+	memcpy(comp_stream->buf, file_inbuf, in_len);
+	out_len = in_len;
+    } else {
+	/* Decompress the blob */
+	out_len = SnifferDecompress(file_inbuf, in_len,
+				comp_stream->buf, OUTBUF_SIZE, err);
+	if (out_len < 0)
+	    return -1;
+    }
+    comp_stream->nextout = 0;
+    comp_stream->nbytes = out_len;
+    return 0;
+}
+
+/* Seek in the sequential data stream; we can only seek forward, and we
+   do it on compressed files by skipping forward. */
 static long
-ng_file_seek(wtap *wth, FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
-    long offset, int whence)
+ng_file_seek_seq(wtap *wth, long offset, int whence)
 {
    long delta;
    char buf[65536];
    long amount_to_read;
    int err;
 
-   if ( wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED )
-	return file_seek(infile, offset, whence);
+   if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
+	return file_seek(wth->fh, offset, whence);
+
+    switch (whence) {
+
+    case SEEK_SET:
+    	break;		/* "offset" is the target offset */
+
+    case SEEK_CUR:
+	offset += wth->capture.ngsniffer->seq.uncomp_offset;
+	break;		/* "offset" is relative to the current offset */
+
+    case SEEK_END:
+	g_assert_not_reached();	/* "offset" is relative to the end of the file... */
+	break;		/* ...but we don't know where that is. */
+    }
+
+    delta = offset - wth->capture.ngsniffer->seq.uncomp_offset;
+    g_assert(delta >= 0);
+
+    /* Ok, now read and discard "delta" bytes. */
+    while (delta != 0) {
+	amount_to_read = delta;
+	if (amount_to_read > sizeof buf)
+	    amount_to_read = sizeof buf;
+	if (ng_file_read(buf, 1, amount_to_read, wth, FALSE, &err) < 0)
+	    return -1;	/* error */
+	delta -= amount_to_read;
+    }
+    return offset;
+}
+
+/* Seek in the random data stream.
+
+   On compressed files, we see whether we're seeking to a position within
+   the blob we currently have in memory and, if not, we find in the list
+   of blobs the last blob that starts at or before the position to which
+   we're seeking, and read that blob in.  We can then move to the appropriate
+   position within the blob we have in memory (whether it's the blob we
+   already had in memory or, if necessary, the one we read in). */
+static long
+ng_file_seek_rand(wtap *wth, long offset, int whence)
+{
+   ngsniffer_t *ngsniffer;
+   long delta;
+   int err;
+   GList *new, *next;
+   blob_info_t *next_blob, *new_blob;
+
+   if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
+	return file_seek(wth->random_fh, offset, whence);
 
    /* OK, seeking in a compressed data stream is a pain - especially
       given that the compressed Sniffer data stream we're reading
@@ -1397,13 +1530,15 @@ ng_file_seek(wtap *wth, FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
 	the relative position based on the new position and seek forward
 	by reading and throwing away data. */
 
+    ngsniffer = wth->capture.ngsniffer;
+
     switch (whence) {
 
     case SEEK_SET:
     	break;		/* "offset" is the target offset */
 
     case SEEK_CUR:
-	offset += comp_stream->offset;
+	offset += ngsniffer->rand.uncomp_offset;
 	break;		/* "offset" is relative to the current offset */
 
     case SEEK_END:
@@ -1411,50 +1546,92 @@ ng_file_seek(wtap *wth, FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
 	break;		/* ...but we don't know where that is. */
     }
 
-    delta = offset - comp_stream->offset;
-    if (delta < 0) {
-	/* Oh, dear, we're going backwards.  That's a pain.
+    delta = offset - ngsniffer->rand.uncomp_offset;
 
+    /* Is the place to which we're seeking within the current buffer, or
+       will we have to read a different blob into the buffer? */
+    new = NULL;
+    if (delta > 0) {
+	/* We're going forwards.
 	   Is the place to which we're seeking within the current buffer? */
+	if (ngsniffer->rand.nextout + delta >= ngsniffer->rand.nbytes) {
+	    /* No.  Search for a blob that contains the target offset in
+	       the uncompressed byte stream, starting with the blob
+	       following the current blob. */
+	    new = g_list_next(ngsniffer->current_blob);
+	    for (;;) {
+		next = g_list_next(new);
+		if (next == NULL) {
+		    /* No more blobs; the current one is it. */
+		    break;
+		}
 
-	if (comp_stream->nextout - comp_stream->file_outbuf >= -delta) {
-	   /* Yes.  Just adjust "comp_stream->nextout" to point to
-	      the place to which we're seeking, adjust
-	      "comp_stream->outbuf_nbytes" to add back the appropriate
-	      number of bytes, and adjust "comp_stream->offset" to be
-	      the destination offset. */
-	   comp_stream->nextout += delta;
-	   comp_stream->outbuf_nbytes -= delta;
-	   comp_stream->offset += delta;
-	   delta = 0;	/* no skipping necessary */
-	} else {
-	    /* No.  Seek back to the beginning of the compressed data. */
-	    if (file_seek(infile, wth->capture.ngsniffer->data_offset, SEEK_SET) == -1)
-		return -1;
-	    comp_stream->offset = wth->capture.ngsniffer->data_offset;
-	    delta = offset - comp_stream->offset;
-	    if (delta < 0) {
-		/* "I'm sorry, Dave, I can't do that."
-		    After doing a seek, we can only read stuff from the
-		    possibly-compressed region, as we expect compressed
-		    blob lengths. */
-		g_assert_not_reached();
+		next_blob = next->data;
+		/* Does the next blob start after the target offset?
+		   If so, the current blob is the one we want. */
+		if (next_blob->blob_uncomp_offset > offset)
+		    break;
+
+		new = next;
 	    }
+	}
+    } else if (delta < 0) {
+	/* We're going backwards.
+	   Is the place to which we're seeking within the current buffer? */
+	if (ngsniffer->rand.nextout + delta < 0) {
+	    /* No.  Search for a blob that contains the target offset in
+	       the uncompressed byte stream, starting with the blob
+	       preceding the current blob. */
+	    new = g_list_previous(ngsniffer->current_blob);
+	    for (;;) {
+		/* Does this blob start at or before the target offset?
+		   If so, the current blob is the one we want. */
+		new_blob = new->data;
+		if (new_blob->blob_uncomp_offset <= offset)
+		    break;
 
-	    /* Reset the output buffer. */
-	    comp_stream->nextout = comp_stream->file_outbuf;
-	    comp_stream->outbuf_nbytes = 0;
+		/* It doesn't - skip to the previous blob. */
+		new = g_list_previous(new);
+	    }
 	}
     }
 
-    /* Ok, now read and discard "delta" bytes. */
-    while (delta != 0) {
-	amount_to_read = delta;
-	if (amount_to_read > sizeof buf)
-	    amount_to_read = sizeof buf;
-	if (ng_file_read(buf, 1, amount_to_read, wth, infile, comp_stream, &err) < 0)
-	    return -1;	/* error */
-	delta -= amount_to_read;
+    if (new != NULL) {
+	/* The place to which we're seeking isn't in the current buffer;
+	   move to a new blob. */
+	new_blob = new->data;
+
+	/* Seek in the compressed file to the offset in the compressed file
+	   of the beginning of that blob. */
+	if (file_seek(wth->random_fh, new_blob->blob_comp_offset, SEEK_SET) == -1)
+	    return -1;
+
+	/* Make the blob we found the current one. */
+	ngsniffer->current_blob = new;
+
+	/* Now set the current offsets to the offsets of the beginning
+	   of the blob. */
+	ngsniffer->rand.uncomp_offset = new_blob->blob_uncomp_offset;
+	ngsniffer->rand.comp_offset = new_blob->blob_comp_offset;
+
+	/* Now fill the buffer. */
+	if (read_blob(wth->random_fh, &ngsniffer->rand, &err) < 0)
+	    return -1;
+
+	/* Set "delta" to the amount to move within this blob; it had
+	   better be >= 0, and < the amount of uncompressed data in
+	   the blob, as otherwise it'd mean we need to seek before
+	   the beginning or after the end of this blob. */
+	delta = offset - ngsniffer->rand.uncomp_offset;
+	g_assert(delta >= 0 && delta < ngsniffer->rand.nbytes);
     }
+
+    /* OK, the place to which we're seeking is in the buffer; adjust
+       "ngsniffer->rand.nextout" to point to the place to which
+       we're seeking, and adjust "ngsniffer->rand.uncomp_offset" to be
+       the destination offset. */
+    ngsniffer->rand.nextout += delta;
+    ngsniffer->rand.uncomp_offset += delta;
+
     return offset;
 }
