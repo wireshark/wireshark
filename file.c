@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.349 2004/01/25 21:55:09 guy Exp $
+ * $Id: file.c,v 1.350 2004/01/25 22:27:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2964,7 +2964,8 @@ copy_binary_file(char *from_filename, char *to_filename)
   if (nread < 0) {
     err = errno;
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  cf_read_error_message(err, NULL), from_filename);
+		  "An error occurred while reading from the file \"%s\": %s.",
+		  from_filename, strerror(err));
     close(from_fd);
     close(to_fd);
     goto done;
