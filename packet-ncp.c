@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.32 2000/04/08 07:07:30 guy Exp $
+ * $Id: packet-ncp.c,v 1.33 2000/04/17 04:00:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -654,6 +654,26 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 		}
 	}
 
+	if (!fd->flags.visited) {
+		/* This is the first time we've looked at this packet.
+		   Remember the request, so we can find it if we later
+		   a reply to it. */
+		request_key = g_mem_chunk_alloc(ncp_request_keys);
+		request_key->nw_server_address = nw_server_address;
+		request_key->nw_connection = nw_connection;
+		request_key->nw_sequence = nw_sequence;
+
+		request_val = g_mem_chunk_alloc(ncp_request_records);
+		request_val->ncp_type = nw_ncp_type;
+		request_val->ncp_record = ncp2222_find(request.function, request.subfunc);
+
+		g_hash_table_insert(ncp_request_hash, request_key, request_val);
+		#if defined(DEBUG_NCP_HASH)
+		printf("Inserted server %08X connection %d sequence %d (val=%08X)\n",
+			nw_server_address, nw_connection, nw_sequence, request_val);
+		#endif
+	}
+
 	if (ncp_tree) {
 		proto_tree_add_text(ncp_tree, offset+6, 1,
 			"Function Code: 0x%02X (%s)",
@@ -681,23 +701,6 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 			}
 		}
 	}
-	else { /* ! tree */
-		request_key = g_mem_chunk_alloc(ncp_request_keys);
-		request_key->nw_server_address = nw_server_address;
-		request_key->nw_connection = nw_connection;
-		request_key->nw_sequence = nw_sequence;
-
-		request_val = g_mem_chunk_alloc(ncp_request_records);
-		request_val->ncp_type = nw_ncp_type;
-		request_val->ncp_record = ncp2222_find(request.function, request.subfunc);
-
-		g_hash_table_insert(ncp_request_hash, request_key, request_val);
-		#if defined(DEBUG_NCP_HASH)
-		printf("Inserted server %08X connection %d sequence %d (val=%08X)\n",
-			nw_server_address, nw_connection, nw_sequence, request_val);
-		#endif
-	}
-
 }
 
 void
