@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.102 2003/06/26 04:30:29 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.103 2003/07/14 04:46:48 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6302,7 +6302,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    char *drep)
 {
-	guint32 start = offset;
+	guint32 start_offset = offset;
 	guint32 name_offset, name_len, val_offset, val_len, val_type;
 	char *name;
 	proto_item *item;
@@ -6319,7 +6319,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 		hf_enumprinterdataex_name_len, &name_len);
 
 	dissect_spoolss_uint16uni(
-		tvb, start + name_offset, pinfo, NULL, drep, 
+		tvb, start_offset + name_offset, pinfo, NULL, drep, 
 		&name, "Name");
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "Name: ");
@@ -6335,7 +6335,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 		subtree, tvb, offset - 4, 4, "Name len: %d", name_len);
 
 	proto_tree_add_text(
-		subtree, tvb, start + name_offset, (strlen(name) + 1) * 2,
+		subtree, tvb, start_offset + name_offset, (strlen(name) + 1) * 2,
 		"Name: %s", name);
 
 	offset = dissect_ndr_uint32(
@@ -6350,11 +6350,17 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, subtree, drep,
 		hf_enumprinterdataex_val_len, &val_len);
 
+	if (val_len == 0) {
+		proto_tree_add_text(subtree, tvb, start_offset + val_offset, 4, 
+				    "Value: (null)");
+		goto done;
+	}
+
 	switch(val_type) {
 	case DCERPC_REG_DWORD: {
 		guint32 value;
 		guint16 low, high;
-		int offset2 = offset + val_offset;
+		int offset2 = start_offset + val_offset;
 
 		/* Needs to be broken into two 16-byte ints because it may
 		   not be aligned. */
@@ -6369,7 +6375,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 		value = (high << 16) | low;
 
-		proto_tree_add_text(subtree, tvb, start + val_offset, 4, 
+		proto_tree_add_text(subtree, tvb, start_offset + val_offset, 4, 
 				    "Value: %d", value);
 
 		proto_item_append_text(item, ", Value: %d", value);
@@ -6380,7 +6386,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 		char *value;
 
 		dissect_spoolss_uint16uni(
-			tvb, start + val_offset, pinfo, subtree, drep, 
+			tvb, start_offset + val_offset, pinfo, subtree, drep, 
 			&value, "Value");
 
 		proto_item_append_text(item, ", Value: %s", value);
@@ -6393,15 +6399,27 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 		/* FIXME: nicer way to display this */
 
-		proto_tree_add_text(subtree, tvb, start + val_offset, val_len,
-				    "Value: <binary data>");
+		proto_tree_add_text(
+			subtree, tvb, start_offset + val_offset, val_len, 
+			"Value: <binary data>");
+		break;
+
+	case DCERPC_REG_MULTI_SZ:
+
+		/* FIXME: implement REG_MULTI_SZ support */
+
+		proto_tree_add_text(
+			subtree, tvb, start_offset + val_offset, val_len, 
+			"Value: <REG_MULTI_SZ not implemented>");
 		break;
 
 	default:
-		proto_tree_add_text(subtree, tvb, start + val_offset, val_len,
-				    "%s: unknown type %d", name, val_type);
+		proto_tree_add_text(
+			subtree, tvb, start_offset + val_offset, val_len,
+			"%s: unknown type %d", name, val_type);
 	}
 
+ done:
 	g_free(name);
 
 	return offset;
