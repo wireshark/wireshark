@@ -212,7 +212,7 @@ void scs_unsubscribe(SCS_collection* c, guint8* s) {
 			(*ip)--;
 		}
 	} else {
-		g_warning("unsusbcribe: already deleted: '%s'?",s);
+		g_warning("unsusbcribe: not subscribed");
 	}
 }
 

@@ -484,7 +484,7 @@ static void analize_pdu(mate_pdu* pdu) {
 	
 	/* does the pdu matches the prematch candidate key for the gop type? */
 	
-	gopkey_match = new_avpl_exact_match("",pdu->avpl,candidate_gop_key_match, TRUE);
+	gopkey_match = new_avpl_exact_match("gop_key_match",pdu->avpl,candidate_gop_key_match, TRUE);
 	
 	if (gopkey_match) {
 		gop_key = avpl_to_str(gopkey_match);
@@ -577,12 +577,14 @@ static void analize_pdu(mate_pdu* pdu) {
 					}
 					
 					if ( ! gop ) {
-						delete_avpl(gogkey_match,FALSE);
+						g_free(gop_key);
+						delete_avpl(gopkey_match,TRUE);
 						return;
 					}
 					
 				} else {
-					delete_avpl(gogkey_match,FALSE);
+					g_free(gop_key);
+					delete_avpl(gopkey_match,TRUE);
 					return;
 				}
 				
@@ -592,8 +594,8 @@ static void analize_pdu(mate_pdu* pdu) {
 				pdu->gop = NULL;
 				pdu->next = NULL;
 				
-				delete_avpl(gogkey_match,FALSE);
-
+				g_free(gop_key);
+				delete_avpl(gopkey_match,TRUE);
 				return;
 			}
 		}
@@ -700,9 +702,11 @@ static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 				if (curr_range->end >= end && curr_range->start <= start) {
 					avp = new_avp_from_finfo(name, fi);
 					
-					s = avp_to_str(avp);
-					dbg_print(dbg_pdu,5,dbg_facility,"get_pdu_fields: got %s",s);
-					g_free(s);
+					if (*dbg_pdu > 4) {
+						s = avp_to_str(avp);
+						dbg_print(dbg_pdu,5,dbg_facility,"get_pdu_fields: got %s",s);
+						g_free(s);
+					}
 					
 					if (! insert_avp(data->pdu->avpl,avp) ) {
 						delete_avp(avp);
