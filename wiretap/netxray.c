@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.80 2003/03/28 21:59:12 guy Exp $
+ * $Id: netxray.c,v 1.81 2003/03/31 21:11:49 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -81,6 +81,19 @@ struct netxray_hdr {
 #define CAPTYPE_SMDS	10	/* SMDS DXI */
 #define CAPTYPE_BROUTER4 11	/* Bridge/router captured with pod */
 #define CAPTYPE_BROUTER5 12	/* Bridge/router captured with pod */
+
+/*
+ * # of ticks that equal 1 second
+ *
+ * XXX - the third item was 1193180.0, presumably because somebody found
+ * it gave the right answer for some captures, but 3 times that, i.e.
+ * 3579540.0, appears to give the right answer for some other captures.
+ *
+ * Is there something else in the file header to indicate which of those
+ * is correct?
+ */
+static double TpS[] = { 1e6, 1193000.0, 3579540.0 };
+#define NUM_NETXRAY_TIMEUNITS (sizeof TpS / sizeof TpS[0])
 
 /* Version number strings. */
 static const char vers_1_0[] = {
@@ -269,16 +282,13 @@ int netxray_open(wtap *wth, int *err)
 				else
 					timeunit = 1e9;
 			} else {
-				/*
-				 * It appears that the time units for
-				 * these captures are 1/1193000.0 of
-				 * a second, unless hdr.timeunit is 0,
-				 * in which case it's microseconds.
-				 */
-				if (hdr.timeunit == 0)
-					timeunit = 1e6;
-				else
-					timeunit = 1193000.0;
+				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
+					g_message("netxray: Unknown timeunit %u",
+					    hdr.timeunit);
+					*err = WTAP_ERR_UNSUPPORTED;
+					return -1;
+				}
+				timeunit = TpS[hdr.timeunit];
 			}
 			version_major = 2;
 			file_type = WTAP_FILE_NETXRAY_2_00x;
