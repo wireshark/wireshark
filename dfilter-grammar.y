@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.16 1999/08/27 19:27:09 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.17 1999/08/29 04:06:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -299,6 +299,7 @@ any_variable_type:	T_FT_UINT8 { $$ = $1; }
 	|		T_FT_UINT32 { $$ = $1; }
 	|		T_FT_ETHER { $$ = $1; }
 	|		T_FT_IPv4 { $$ = $1; }
+	|		T_FT_IPXNET { $$ = $1; }
 	|		T_FT_NONE { $$ = $1; }
 	|		T_FT_BYTES { $$ = $1; }
 	|		T_FT_BOOLEAN { $$ = $1; }

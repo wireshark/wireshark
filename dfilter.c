@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.16 1999/08/26 06:20:48 gram Exp $
+ * $Id: dfilter.c,v 1.17 1999/08/29 04:06:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -445,16 +445,10 @@ check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8
 static gboolean
 check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree)
 {
-	int		target_field;
-	proto_tree	*subtree;
+	int		target;
 
-	target_field = dnode->value.variable;
-	subtree = proto_find_field(ptree, target_field);
-
-	if (subtree)
-		return TRUE;
-	else
-		return FALSE;
+	target = dnode->value.variable;
+	return proto_check_for_protocol_or_field(ptree, target);
 }
 
 static GArray*
@@ -462,31 +456,27 @@ get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd)
 {
 	GArray		*array;
 	int		parent_protocol;
-	int		target_field;
-	proto_tree	*subtree = NULL; /* where the parent protocol's sub-tree starts */
 	proto_tree_search_info sinfo;
 
 	g_assert(dnode->elem_size > 0);
 	array = g_array_new(FALSE, FALSE, dnode->elem_size);
 
-	target_field = dnode->value.variable;
+	sinfo.target = dnode->value.variable;
+	sinfo.result.array = array;
+	sinfo.packet_data = pd;
+	sinfo.traverse_func = dnode->fill_array_func;
 
 	/* Find the proto_tree subtree where we should start searching.*/
-	if (proto_registrar_is_protocol(target_field)) {
-		subtree = proto_find_protocol(ptree, target_field);
+	if (proto_registrar_is_protocol(sinfo.target)) {
+		proto_find_protocol_multi(ptree, sinfo.target,
+				(GNodeTraverseFunc)proto_get_field_values, &sinfo);
 	}
 	else {
-		parent_protocol = proto_registrar_get_parent(target_field);
+		parent_protocol = proto_registrar_get_parent(sinfo.target);
 		if (parent_protocol >= 0) {
-			subtree = proto_find_protocol(ptree, parent_protocol);
+			proto_find_protocol_multi(ptree, parent_protocol,
+					(GNodeTraverseFunc)proto_get_field_values, &sinfo);
 		}
-	}
-
-	if (subtree) {
-		sinfo.target_field = target_field;
-		sinfo.result_array = array;
-		sinfo.packet_data = pd;
-		proto_get_field_values(subtree, dnode->fill_array_func, &sinfo);
 	}
 
 	return array;
@@ -510,8 +500,8 @@ gboolean fill_array_numeric_variable(GNode *gnode, gpointer data)
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
 	field_info		*fi = (field_info*) (gnode->data);
 
-	if (fi->hfinfo->id == sinfo->target_field) {
-		g_array_append_val(sinfo->result_array, fi->value.numeric);
+	if (fi->hfinfo->id == sinfo->target) {
+		g_array_append_val(sinfo->result.array, fi->value.numeric);
 	}
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
@@ -522,8 +512,8 @@ gboolean fill_array_ether_variable(GNode *gnode, gpointer data)
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
 	field_info		*fi = (field_info*) (gnode->data);
 
-	if (fi->hfinfo->id == sinfo->target_field) {
-		g_array_append_val(sinfo->result_array, fi->value.ether);
+	if (fi->hfinfo->id == sinfo->target) {
+		g_array_append_val(sinfo->result.array, fi->value.ether);
 	}
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
@@ -535,11 +525,11 @@ gboolean fill_array_bytes_variable(GNode *gnode, gpointer data)
 	field_info		*fi = (field_info*) (gnode->data);
 	GByteArray		*barray;
 
-	if (fi->hfinfo->id == sinfo->target_field) {
+	if (fi->hfinfo->id == sinfo->target) {
 		barray = g_byte_array_new();
 		/*list_of_byte_arrays = g_slist_append(list_of_byte_arrays, barray);*/
 		g_byte_array_append(barray, sinfo->packet_data + fi->start + bytes_offset, bytes_length);
-		g_array_append_val(sinfo->result_array, barray);
+		g_array_append_val(sinfo->result.array, barray);
 	}
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
@@ -550,8 +540,8 @@ gboolean fill_array_boolean_variable(GNode *gnode, gpointer data)
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
 	field_info		*fi = (field_info*) (gnode->data);
 
-	if (fi->hfinfo->id == sinfo->target_field) {
-		g_array_append_val(sinfo->result_array, fi->value.boolean);
+	if (fi->hfinfo->id == sinfo->target) {
+		g_array_append_val(sinfo->result.array, fi->value.boolean);
 	}
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.8 1999/08/26 07:01:44 gram Exp $
+ * $Id: proto.h,v 1.9 1999/08/29 04:06:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,10 +112,16 @@ typedef struct field_info {
 } field_info;
 
 
+/* used when calling proto search functions */
 typedef struct proto_tree_search_info {
-	int		target_field;
-	GArray		*result_array;
-	const guint8	*packet_data;
+	int			target;
+	int			parent;
+	const guint8		*packet_data;
+	GNodeTraverseFunc	traverse_func;
+	union {
+		GArray			*array;
+		GNode			*node;
+	} 			result;
 } proto_tree_search_info;
 
 /* Sets up memory used by proto routines. Called at program startup */
@@ -173,10 +179,19 @@ int proto_registrar_get_parent(int n);
 /* Is item #n a protocol? */
 gboolean proto_registrar_is_protocol(int n);
 
-proto_item* proto_find_field(proto_tree* tree, int id);
-proto_item* proto_find_protocol(proto_tree* tree, int protocol_id);
-void proto_get_field_values(proto_tree* subtree, GNodeTraverseFunc fill_array_func,
-	proto_tree_search_info *sinfo);
+/* Checks for existence any protocol or field within a tree.
+ * TRUE = found, FALSE = not found */
+gboolean proto_check_for_protocol_or_field(proto_tree* tree, int id);
+
+/* Search for a protocol subtree, which can occur more than once, and for each successful
+ * find, call the calback function, passing sinfo as the second argument */
+void proto_find_protocol_multi(proto_tree* tree, int target, GNodeTraverseFunc callback,
+			proto_tree_search_info *sinfo);
+
+/* Just a wrapper to call sinfo->traverse_func() for all nodes in the subtree, with the GNode
+ * and sinfo as the two arguments to sinfo->traverse_func(). Useful when you have to process
+ * all nodes in a subtree. */
+gboolean proto_get_field_values(proto_tree* subtree, proto_tree_search_info *sinfo);
 
 /* Dumps a glossary of the protocol and field registrations to STDOUT */
 void proto_registrar_dump(void);
