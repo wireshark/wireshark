@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.16 2003/01/21 20:38:32 jmayer Exp $
+dnl $Id: acinclude.m4,v 1.17 2003/02/26 20:08:33 guy Exp $
 dnl
 
 #
@@ -183,7 +183,7 @@ AC_DEFUN(AC_WIRETAP_ZLIB_CHECK,
 			else
 				LIBS="-lz $LIBS"
 			fi
-			AC_DEFINE(HAVE_LIBZ)
+			AC_DEFINE(HAVE_LIBZ, 1, [Define to use libz library])
 		],[
 			if test "x$zlib_dir" != "x"
 			then

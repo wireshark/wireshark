@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.195 2003/01/30 10:20:41 jmayer Exp $
+# $Id: configure.in,v 1.196 2003/02/26 20:08:30 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -172,7 +172,7 @@ datafiledir=`(
     test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
     eval echo "$datafiledir"
 )`
-AC_DEFINE_UNQUOTED(DATAFILE_DIR, "$datafiledir")
+AC_DEFINE_UNQUOTED(DATAFILE_DIR, "$datafiledir", [Directory for data])
 
 #
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
@@ -598,7 +598,8 @@ if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCO
 		CFLAGS="$CFLAGS `net-snmp-config --cflags`"
 		CPPFLAGS="$CPPLAGS `net-snmp-config --cflags`"
 		SNMP_LIBS=`net-snmp-config --libs`
-		AC_DEFINE(HAVE_NET_SNMP)
+		AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for NET-SNMP])
+		have_net_snmp="yes"
 		AC_MSG_RESULT(yes (net-snmp))
 	else
 		# technically, we should retry ucd-snmp but it's
@@ -616,6 +617,10 @@ else
 		AC_MSG_RESULT(yes (ucd-snmp))
 		AC_ETHEREAL_UCDSNMP_CHECK
 	fi
+fi
+
+if test "x$have_net_snmp" = "xyes" && test "x$have_ucd_snmp" = "xyes"; then
+	AC_DEFINE(HAVE_SOME_SNMP, 1, [Define to if some SNMP support is to be used])
 fi
 
 AC_SUBST(SNMP_LIBS)
@@ -640,7 +645,9 @@ AC_PROG_GCC_TRADITIONAL
 SNPRINTF_C=""
 SNPRINTF_O=""
 AC_CHECK_FUNC(snprintf, SNPRINTF_O="",
-  SNPRINTF_O="snprintf.o" [AC_DEFINE(NEED_SNPRINTF_H)])
+  [SNPRINTF_O="snprintf.o"
+   AC_DEFINE(NEED_SNPRINTF_H, 1, [Define if sprintf.h needs to be included])
+])
 if test "$ac_cv_func_snprintf" = no ; then
   SNPRINTF_C="snprintf.c"
   SNPRINTF_O="snprintf.o"
@@ -649,7 +656,9 @@ AC_SUBST(SNPRINTF_C)
 AC_SUBST(SNPRINTF_O)
 
 AC_CHECK_FUNC(strerror, STRERROR_O="",
-  STRERROR_O="strerror.o" [AC_DEFINE(NEED_STRERROR_H)])
+  [STRERROR_O="strerror.o"
+   AC_DEFINE(NEED_STRERROR_H, 1, [Define if strerror.h needs to be included])
+])
 if test "$ac_cv_func_strerror" = no ; then
   STRERROR_C="strerror.c"
   STRERROR_O="strerror.o"
@@ -685,7 +694,9 @@ AC_SUBST(MKSTEMP_C)
 AC_SUBST(MKSTEMP_O)
 
 AC_CHECK_FUNC(strptime, STRPTIME_O="",
-  STRPTIME_O="strptime.o" [AC_DEFINE(NEED_STRPTIME_H)])
+  [STRPTIME_O="strptime.o"
+   AC_DEFINE(NEED_STRPTIME_H, 1, [Define if strptime.h needs to be included])
+])
 if test "$ac_cv_func_strptime" = no ; then
   STRPTIME_C="strptime.c"
   STRPTIME_O="strptime.o"
@@ -730,7 +741,7 @@ AC_ARG_WITH(plugins,
 AM_CONDITIONAL(HAVE_PLUGINS, test x$have_plugins = xyes)
 if test x$have_plugins = xyes
 then
-  AC_DEFINE(HAVE_PLUGINS)
+  AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
   plugindir=`(
     test "x$prefix" = xNONE && prefix=$ac_default_prefix
     test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
@@ -738,7 +749,7 @@ then
   )`
   AC_DEFINE_UNQUOTED(PLUGIN_DIR, "$plugindir", [Plugin installation directory])
 else
-  AC_DEFINE(PLUGIN_DIR, NULL)
+  AC_DEFINE(PLUGIN_DIR, NULL, [Plugin installation directory])
 fi
 AC_SUBST(plugindir)
 

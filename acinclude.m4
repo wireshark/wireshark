@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.51 2003/02/11 02:31:22 guy Exp $
+dnl $Id: acinclude.m4,v 1.52 2003/02/26 20:08:30 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ AC_DEFUN(AC_ETHEREAL_STRUCT_SA_LEN,
 #include <sys/socket.h>], [struct sockaddr s; s.sa_len;],
 ac_cv_ethereal_struct_sa_len=yes, ac_cv_ethereal_struct_sa_len=no)])
 if test $ac_cv_ethereal_struct_sa_len = yes; then
-  AC_DEFINE(HAVE_SA_LEN)
+  AC_DEFINE(HAVE_SA_LEN, 1, [Define if sa_len field exists in struct sockaddr])
 fi
 ])
 
@@ -323,8 +323,8 @@ and did you also install that package?]]))
 	AC_CHECK_LIB(pcap, pcap_open_live,
 	  [
 	    PCAP_LIBS=-lpcap
-	    AC_DEFINE(HAVE_LIBPCAP)
-	  ], AC_MSG_ERROR(Library libpcap not found.),
+	    AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
+	  ], [AC_MSG_ERROR(Library libpcap not found.)],
 	  $SOCKET_LIBS $NSL_LIBS)
 	AC_SUBST(PCAP_LIBS)
 ])
@@ -353,7 +353,7 @@ AC_DEFUN(AC_ETHEREAL_PCAP_VERSION_CHECK,
 	LIBS="$ac_save_LIBS"
 	if test "$ac_cv_pcap_version_defined" = yes ; then
 		AC_MSG_RESULT(yes)
-		AC_DEFINE(HAVE_PCAP_VERSION)
+		AC_DEFINE(HAVE_PCAP_VERSION, 1, [Define if libpcap version is known])
 	else
 		AC_MSG_RESULT(no)
 	fi
@@ -461,7 +461,7 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 			else
 				LIBS="-lz $LIBS"
 			fi
-			AC_DEFINE(HAVE_LIBZ)
+			AC_DEFINE(HAVE_LIBZ, 1, [Define to use libz library])
 		],[
 			if test "x$zlib_dir" != "x"
 			then
@@ -592,7 +592,8 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 		#
 		# We found it, so we have UCD SNMP.
 		#
-		AC_DEFINE(HAVE_UCD_SNMP)
+		AC_DEFINE(HAVE_UCD_SNMP, 1, [Define to enable support for UCD-SNMP])
+		have_ucd_snmp="yes"
 	],[
 		#
 		# No, we don't have it.

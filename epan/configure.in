@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.36 2003/01/30 10:20:47 jmayer Exp $
+# $Id: configure.in,v 1.37 2003/02/26 20:08:32 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -113,7 +113,7 @@ DATAFILE_DIR=`(
     test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
     eval echo "$DATAFILE_DIR"
 )`
-AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$DATAFILE_DIR")
+AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$DATAFILE_DIR", [Directory for data])
 AC_SUBST(DATAFILE_DIR)
 
 AC_ARG_ENABLE(gtk2,
@@ -149,7 +149,7 @@ AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
 if test "$ac_cv_func_inet_aton" = no ; then
   INET_ATON_C="inet_aton.c"
   INET_ATON_O="inet_aton.o"
-  AC_DEFINE(NEED_INET_ATON_H)
+  AC_DEFINE(NEED_INET_ATON_H, 1, [Define if inet/aton.h needs to be included])
 fi
 AC_SUBST(INET_ATON_C)
 AC_SUBST(INET_ATON_O)
@@ -190,12 +190,14 @@ AC_CHECK_FUNC(inet_ntop, INET_NTOP_O="",
 if test "$ac_cv_func_inet_ntop" = no ; then
   INET_NTOP_C="inet_ntop.c"
   INET_NTOP_O="inet_ntop.o"
-  AC_DEFINE(NEED_INET_V6DEFS_H)
+  AC_DEFINE(NEED_INET_V6DEFS_H, 1, [Define if inet/v6defs.h needs to be included])
 fi
 AC_SUBST(INET_NTOP_C)
 AC_SUBST(INET_NTOP_O)
 
-AC_CHECK_FUNC(strptime, , [AC_DEFINE(NEED_STRPTIME_H)])
+AC_CHECK_FUNC(strptime, ,
+  [AC_DEFINE(NEED_STRPTIME_H, 1, [Define if strptime.h needs to be included])
+])
 
 #
 # Check whether GLib modules are supported, to determine whether we
@@ -254,7 +256,7 @@ AC_ARG_WITH(plugins,
 AM_CONDITIONAL(HAVE_PLUGINS, test x$have_plugins = xyes)
 if test x$have_plugins = xyes
 then
-  AC_DEFINE(HAVE_PLUGINS)
+  AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
 fi
 
 AC_OUTPUT(
