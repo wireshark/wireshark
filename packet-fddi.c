@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.2 1998/10/10 18:23:43 gerald Exp $
+ * $Id: packet-fddi.c,v 1.3 1998/10/13 05:12:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,10 +87,10 @@ void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree)
 
   fc = (int) pd[FDDI_P_FC];
 
-  if (fd->win_info[0]) {
-    strcpy(fd->win_info[2], get_ether_name((u_char *)&pd[FDDI_P_DHOST]));
-    strcpy(fd->win_info[1], get_ether_name((u_char *)&pd[FDDI_P_SHOST]));
-    strcpy(fd->win_info[4], "FDDI");
+  if (fd->win_info[COL_NUM]) {
+    strcpy(fd->win_info[COL_DESTINATION], get_ether_name((u_char *)&pd[FDDI_P_DHOST]));
+    strcpy(fd->win_info[COL_SOURCE], get_ether_name((u_char *)&pd[FDDI_P_SHOST]));
+    strcpy(fd->win_info[COL_INFO], "FDDI");
   }
 
   if (tree) {
