@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.315 2003/09/15 23:20:34 guy Exp $
+ * $Id: main.c,v 1.316 2003/09/23 06:25:10 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -791,10 +791,6 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
         {
             frame_data *fdata = (frame_data *)gtk_clist_get_row_data(GTK_CLIST(w), row);
             set_frame_mark(!fdata->flags.marked, fdata, row);
-            return TRUE;
-        }
-        else if (event_button->button == 1) {
-            gtk_clist_select_row(GTK_CLIST(w), row, column);
             return TRUE;
         }
     }
