@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.7 2000/11/19 08:54:34 guy Exp $
+ * $Id: packet.c,v 1.8 2000/12/03 22:12:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -492,6 +492,20 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
   p = decode_bitfield_value(buf, val, mask, width);
   sprintf(p, fmt, (val & mask) >> shift);
   return buf;
+}
+
+/* Allocate all the data structures for constructing column data, given
+   the number of columns. */
+void
+col_init(column_info *col_info, gint num_cols)
+{
+  col_info->num_cols	= num_cols;
+  col_info->col_fmt	= (gint *) g_malloc(sizeof(gint) * num_cols);
+  col_info->fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * num_cols);
+  col_info->col_width	= (gint *) g_malloc(sizeof(gint) * num_cols);
+  col_info->col_title	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  col_info->col_data	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  col_info->col_buf	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
 }
 
 gboolean

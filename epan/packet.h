@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.11 2000/11/21 14:15:21 girlich Exp $
+ * $Id: packet.h,v 1.12 2000/12/03 22:12:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,6 +68,10 @@ typedef struct _column_info {
 
 #define COL_MAX_LEN 256
 #define COL_MAX_INFO_LEN 4096
+
+/* Allocate all the data structures for constructing column data, given
+   the number of columns. */
+void                 col_init(column_info *, gint);
 
 typedef struct _packet_counts {
   gint           sctp;

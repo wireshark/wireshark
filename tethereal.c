@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.59 2000/11/21 23:50:56 guy Exp $
+ * $Id: tethereal.c,v 1.60 2000/12/03 22:12:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -240,13 +240,7 @@ main(int argc, char *argv[])
   cfile.save_file_fd	= -1;
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
-  cfile.cinfo.num_cols	= prefs->num_cols;
-  cfile.cinfo.col_fmt	= (gint *) g_malloc(sizeof(gint) * cfile.cinfo.num_cols);
-  cfile.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cfile.cinfo.num_cols);
-  cfile.cinfo.col_width	= (gint *) g_malloc(sizeof(gint) * cfile.cinfo.num_cols);
-  cfile.cinfo.col_title	= (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
-  cfile.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
-  cfile.cinfo.col_buf	= (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
+  col_init(&cfile.cinfo, prefs->num_cols);
 
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
