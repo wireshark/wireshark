@@ -1,6 +1,6 @@
 /* packet-docsis.h
  *
- * $Id: packet-docsis.h,v 1.3 2002/08/28 20:38:59 jmayer Exp $
+ * $Id: packet-docsis.h,v 1.4 2002/09/10 19:07:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,7 +24,6 @@
 #ifndef __PACKET_DOCSIS_H__
 #define __PACKET_DOCSIS_H__
 
-void capture_docsis (const guchar *, int, int, packet_counts *);
 void proto_reg_handoff_docsis_bpkmattr (void);
 void proto_reg_handoff_docsis_bpkmreq (void);
 void proto_reg_handoff_docsis_bpkmrsp (void);
@@ -48,6 +47,7 @@ void proto_reg_handoff_docsis_tlv (void);
 void proto_reg_handoff_docsis_uccreq (void);
 void proto_reg_handoff_docsis_uccrsp (void);
 void proto_reg_handoff_docsis_ucd (void);
+void proto_reg_handoff_docsis_vsif (void);
 
 void proto_register_docsis_bpkmattr (void);
 void proto_register_docsis_bpkmreq (void);
@@ -72,5 +72,6 @@ void proto_register_docsis_tlv (void);
 void proto_register_docsis_uccreq (void);
 void proto_register_docsis_uccrsp (void);
 void proto_register_docsis_ucd (void);
+void proto_register_docsis_vsif (void);
 
 #endif

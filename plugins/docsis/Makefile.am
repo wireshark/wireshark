@@ -26,7 +26,7 @@ INCLUDES = -I$(top_srcdir) -I$(includedir)
 plugindir = @PLUGIN_DIR@
 
 plugin_LTLIBRARIES = docsis.la
-docsis_la_SOURCES = packet-docsis.c packet-bpkmattr.c packet-dsarsp.c packet-macmgmt.c packet-rngrsp.c packet-bpkmreq.c packet-dscack.c packet-map.c packet-tlv.c packet-bpkmrsp.c packet-dscreq.c packet-regack.c packet-uccreq.c packet-dscrsp.c packet-regreq.c packet-uccrsp.c packet-dsaack.c packet-dsdreq.c packet-regrsp.c packet-ucd.c packet-dsareq.c packet-dsdrsp.c packet-rngreq.c packet-docsis.h packet-tlv.h moduleinfo.h
+docsis_la_SOURCES = packet-docsis.c packet-bpkmattr.c packet-dsarsp.c packet-macmgmt.c packet-rngrsp.c packet-bpkmreq.c packet-dscack.c packet-map.c packet-tlv.c packet-bpkmrsp.c packet-dscreq.c packet-regack.c packet-uccreq.c packet-dscrsp.c packet-regreq.c packet-uccrsp.c packet-dsaack.c packet-dsdreq.c packet-regrsp.c packet-ucd.c packet-dsareq.c packet-dsdrsp.c packet-rngreq.c packet-vendor.c packet-docsis.h packet-tlv.h moduleinfo.h
 docsis_la_LDFLAGS = -module -avoid-version
 
 # Libs must be cleared, or else libtool won't create a shared module.
@@ -34,7 +34,7 @@ docsis_la_LDFLAGS = -module -avoid-version
 # add them here.
 LIBS =
 
-docsis_la_DEPENDENCIES = packet-docsis-static.o packet-bpkmattr-static.o packet-dsarsp-static.o packet-macmgmt-static.o packet-rngrsp-static.o packet-bpkmreq-static.o packet-dscack-static.o packet-map-static.o packet-tlv-static.o packet-bpkmrsp-static.o packet-dscreq-static.o packet-regack-static.o packet-uccreq-static.o packet-dscrsp-static.o packet-regreq-static.o packet-uccrsp-static.o packet-dsaack-static.o packet-dsdreq-static.o packet-regrsp-static.o packet-ucd-static.o packet-dsareq-static.o packet-dsdrsp-static.o packet-rngreq-static.o
+docsis_la_DEPENDENCIES = packet-docsis-static.o packet-bpkmattr-static.o packet-dsarsp-static.o packet-macmgmt-static.o packet-rngrsp-static.o packet-bpkmreq-static.o packet-dscack-static.o packet-map-static.o packet-tlv-static.o packet-bpkmrsp-static.o packet-dscreq-static.o packet-regack-static.o packet-uccreq-static.o packet-dscrsp-static.o packet-regreq-static.o packet-uccrsp-static.o packet-dsaack-static.o packet-dsdreq-static.o packet-regrsp-static.o packet-ucd-static.o packet-dsareq-static.o packet-dsdrsp-static.o packet-rngreq-static.o packet-vendor-static.o
 
 packet-docsis-static.o:	packet-docsis.c moduleinfo.h
 	$(LTCOMPILE) -c -o packet-docsis-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-docsis.c 
@@ -106,6 +106,8 @@ packet-dsdrsp-static.o:	packet-dsdrsp.c moduleinfo.h
 packet-rngreq-static.o:	packet-rngreq.c moduleinfo.h
 	$(LTCOMPILE) -c -o packet-rngreq-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-rngreq.c
 
+packet-vendor-static.o:	packet-vendor.c moduleinfo.h
+	$(LTCOMPILE) -c -o packet-vendor-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-vendor.c
 
 CLEANFILES = \
 	docsis \

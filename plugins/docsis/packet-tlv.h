@@ -2,6 +2,8 @@
  * Contains Definitions for Configuration types
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
+ * $Id: packet-tlv.h,v 1.3 2002/09/10 19:07:40 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs

@@ -2,6 +2,8 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
+ * $Id: packet-tlv.c,v 1.7 2002/09/10 19:07:39 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -47,6 +49,9 @@
  */
 
 /* Initialize the protocol and registered fields */
+static dissector_handle_t docsis_vsif_handle;
+
+
 static int proto_docsis_tlv = -1;
 static int hf_docsis_tlv = -1;
 static int hf_docsis_tlv_down_freq = -1;
@@ -1782,6 +1787,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
   guint16 pos = 0;
   guint8 type, length;
   guint16 x;
+  tvbuff_t *vsif_tvb;
 
   total_len = tvb_length_remaining (tvb, 0);
 
@@ -2067,8 +2073,8 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 		                   tvb, pos, length, FALSE);
 	      break;
 	    case TLV_VENDOR_SPEC:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_vendor_spec,
-		                   tvb, pos, length, FALSE);
+	      vsif_tvb = tvb_new_subset (tvb, pos, length, length);
+	      call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, tlv_tree);
 	      break;
 	    case TLV_END:
 	      break;
@@ -2846,6 +2852,8 @@ proto_reg_handoff_docsis_tlv (void)
   dissector_handle_t docsis_tlv_handle;
 
   docsis_tlv_handle = find_dissector ("docsis_tlv");
+  docsis_vsif_handle = find_dissector("docsis_vsif");
+
   dissector_add ("docsis", 0xFF, docsis_tlv_handle);
 
 }

@@ -2,6 +2,8 @@
  * Routines for Registration Response Message dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
+ * $Id: packet-regrsp.c,v 1.4 2002/09/10 19:07:39 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs

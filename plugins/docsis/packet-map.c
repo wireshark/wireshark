@@ -2,6 +2,8 @@
  * Routines for MAP Message dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
+ * $Id: packet-map.c,v 1.5 2002/09/10 19:07:38 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
