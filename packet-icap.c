@@ -1,9 +1,10 @@
 /* packet-icap.c
  * Routines for ICAP packet disassembly
+ * RFC 3507
  *
  * Srishylam Simharajan simha@netapp.com
  *
- * $Id: packet-icap.c,v 1.12 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-icap.c,v 1.13 2004/07/09 23:37:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,21 +138,35 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/*
-		 * No.  Does it look like a MIME header?
+		 * No.  Does it look like a header?
 		 */
 		linep = line;
 		loop_done = FALSE;
 		while (linep < lineend && (!loop_done)) {
 			c = *linep++;
-			if (!isprint(c)) {
+
+			/*
+			 * This must be a CHAR to be part of a token; that
+			 * means it must be ASCII.
+			 */
+			if (!isascii(c)) {
 				is_icap = FALSE;
-				break;	/* not printable, not a MIME header */
+				break;	/* not ASCII, thus not a CHAR */
 			}
+
+			/*
+			 * This mustn't be a CTL to be part of a token.
+			 *
+			 * XXX - what about leading LWS on continuation
+			 * lines of a header?
+			 */
+			if (iscntrl(c)) {
+				is_icap = FALSE;
+				break;	/* CTL, not part of a header */
+			}
+
 			switch (c) {
-			case ':':
-				is_icap = TRUE;
-				goto is_icap_header;
-				break;
+
 			case '(':
 			case ')':
 			case '<':
@@ -168,8 +183,28 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case '=':
 			case '{':
 			case '}':
+				/*
+				 * It's a separator, so it's not part of a
+				 * token, so it's not a field name for the
+				 * beginning of a header.
+				 *
+				 * (We don't have to check for HT; that's
+				 * already been ruled out by "iscntrl()".)
+				 *
+				 * XXX - what about ' '?  HTTP's checks
+				 * check for that.
+				 */
 				is_icap = FALSE;
 				loop_done = TRUE;
+				break;
+
+			case ':':
+				/*
+				 * This ends the token; we consider this
+				 * to be a header.
+				 */
+				is_icap = TRUE;
+				goto is_icap_header;
 				break;
 			}
 		}

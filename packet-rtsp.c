@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.66 2004/06/29 20:29:57 etxrab Exp $
+ * $Id: packet-rtsp.c,v 1.67 2004/07/09 23:37:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,6 @@
  * References:
  * RTSP is defined in RFC 2326, http://www.ietf.org/rfc/rfc2326.txt?number=2326
  * http://www.iana.org/assignments/rsvp-parameters
- *
  */
 
 #include "config.h"
@@ -506,7 +505,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gboolean		saw_req_resp_or_header;
 	guchar			c;
 	rtsp_type_t		rtsp_type;
-	gboolean		is_mime_header;
+	gboolean		is_header;
 	int			is_sdp = FALSE;
 	int			datalen;
 	int			content_length;
@@ -619,9 +618,9 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
-		 * We haven't yet concluded that this is a MIME header.
+		 * We haven't yet concluded that this is a header.
 		 */
-		is_mime_header = FALSE;
+		is_header = FALSE;
 
 		/*
 		 * Find the end of the line.
@@ -665,8 +664,23 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		linep = line;
 		while (linep < lineend) {
 			c = *linep++;
-			if (!isprint(c))
-				break;	/* not printable, not a MIME header */
+
+			/*
+			 * This must be a CHAR to be part of a token; that
+			 * means it must be ASCII.
+			 */
+			if (!isascii(c))
+				break;	/* not ASCII, thus not a CHAR */
+
+			/*
+			 * This mustn't be a CTL to be part of a token.
+			 *
+			 * XXX - what about leading LWS on continuation
+			 * lines of a header?
+			 */
+			if (iscntrl(c))
+				break;	/* CTL, not part of a header */
+
 			switch (c) {
 
 			case '(':
@@ -689,16 +703,16 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * It's a tspecial, so it's not
 				 * part of a token, so it's not
 				 * a field name for the beginning
-				 * of a MIME header.
+				 * of a header.
 				 */
 				goto not_rtsp;
 
 			case ':':
 				/*
 				 * This ends the token; we consider
-				 * this to be a MIME header.
+				 * this to be a header.
 				 */
-				is_mime_header = TRUE;
+				is_header = TRUE;
 				goto is_rtsp;
 
 			case ' ':
@@ -789,15 +803,15 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				break;
 			}
 		}
-		if (is_mime_header) {
+		if (is_header) {
 			/*
-			 * Process some MIME headers specially.
+			 * Process some headers specially.
 			 */
-#define MIME_HDR_MATCHES(header) \
+#define HDR_MATCHES(header) \
 	(linelen > STRLEN_CONST(header) && \
 	 strncasecmp(line, (header), STRLEN_CONST(header)) == 0)
 
-			if (MIME_HDR_MATCHES(rtsp_transport)) {
+			if (HDR_MATCHES(rtsp_transport)) {
 				/*
 				 * Based on the port numbers specified
 				 * in the Transport: header, set up
@@ -805,7 +819,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * with the appropriate dissector.
 				 */
 				rtsp_create_conversation(pinfo, line, linelen);
-			} else if (MIME_HDR_MATCHES(rtsp_content_type)) {
+			} else if (HDR_MATCHES(rtsp_content_type)) {
 				/*
 				 * If the Content-Type: header says this
 				 * is SDP, dissect the payload as SDP.
@@ -823,7 +837,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				if (is_content_sdp(line, linelen))
 					is_sdp = TRUE;
-			} else if (MIME_HDR_MATCHES(rtsp_content_length)) {
+			} else if (HDR_MATCHES(rtsp_content_length)) {
 				/*
 				 * Only the amount specified by the
 				 * Content-Length: header should be treated
@@ -832,7 +846,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				content_length = rtsp_get_content_length(line,
 				    linelen);
 
-			} else if (MIME_HDR_MATCHES(rtsp_Session)) {
+			} else if (HDR_MATCHES(rtsp_Session)) {
 				/*
 				 * Extract the session string
 
@@ -858,7 +872,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						tvb_format_text(tvb, value_offset, value_len));
 				}
 
-			} else if (MIME_HDR_MATCHES(rtsp_X_Vig_Msisdn)) {
+			} else if (HDR_MATCHES(rtsp_X_Vig_Msisdn)) {
 				/*
 				 * Extract the X_Vig_Msisdn string
 				 */

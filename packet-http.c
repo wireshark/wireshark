@@ -1,5 +1,7 @@
 /* packet-http.c
  * Routines for HTTP packet disassembly
+ * RFC 1945 (HTTP/1.0)
+ * RFC 2616 (HTTP/1.1)
  *
  * Guy Harris <guy@alum.mit.edu>
  *
@@ -7,7 +9,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.110 2004/06/02 06:35:57 guy Exp $
+ * $Id: packet-http.c,v 1.111 2004/07/09 23:37:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -387,14 +389,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				break;	/* not ASCII, thus not a CHAR */
 
 			/*
-			 * This mustn't be a CTL to be part of a token;
-			 * that means it must be printable.
+			 * This mustn't be a CTL to be part of a token.
 			 *
 			 * XXX - what about leading LWS on continuation
 			 * lines of a header?
 			 */
-			if (!isprint(c))
-				break;	/* not printable, not a header */
+			if (iscntrl(c))
+				break;	/* CTL, not part of a header */
 
 			/*
 			 * This mustn't be a SEP to be part of a token;
@@ -426,7 +427,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * beginning of a header.
 				 *
 				 * (We don't have to check for HT; that's
-				 * already been ruled out by "isprint()".)
+				 * already been ruled out by "iscntrl()".)
 				 */
 				goto not_http;
 
