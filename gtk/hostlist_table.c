@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.3 2004/02/23 05:35:46 guy Exp $
+ * $Id: hostlist_table.c,v 1.4 2004/02/23 22:48:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -324,7 +324,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 	case 0:
 		/* match */
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
-		main_filter_packets(&cfile, str);
+		main_filter_packets(&cfile, str, FALSE);
 		gdk_window_raise(top_level->window);
 		break;
 	case 1:

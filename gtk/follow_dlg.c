@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.49 2004/02/23 19:19:36 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.50 2004/02/23 22:48:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,6 +211,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	   and set the display filter entry accordingly */
 	reset_tcp_reassembly();
 	follow_filter = build_follow_filter(&cfile.edt->pi);
+fprintf(stderr, "Follow filter = \"%s\"\n", follow_filter);
 
 	/* Set the display filter entry accordingly */
 	filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
@@ -234,10 +235,12 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	    sprintf(follow_info->filter_out_filter, "!(%s)", follow_filter);
 	}
 
+
 	gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
 
-	/* Run the display filter so it goes in effect. */
-	main_filter_packets(&cfile, follow_filter);
+	/* Run the display filter so it goes in effect - even if it's the
+	   same as the previous display filter. */
+	main_filter_packets(&cfile, follow_filter, TRUE);
 
 	/* Free the filter string, as we're done with it. */
 	g_free(follow_filter);
@@ -755,7 +758,7 @@ follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
     gtk_entry_set_text(GTK_ENTRY(follow_info->filter_te), follow_info->filter_out_filter);
 
     /* Run the display filter so it goes in effect. */
-    main_filter_packets(&cfile, follow_info->filter_out_filter);
+    main_filter_packets(&cfile, follow_info->filter_out_filter, FALSE);
 
     /* we force a subsequent close */
     gtk_widget_destroy(follow_info->streamwindow);

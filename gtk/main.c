@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.407 2004/02/23 19:19:37 ulfl Exp $
+ * $Id: main.c,v 1.408 2004/02/23 22:48:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -481,7 +481,7 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 
     /* Run the display filter so it goes in effect. */
     if (action&MATCH_SELECTED_APPLY_NOW)
-	main_filter_packets(&cfile, new_filter);
+	main_filter_packets(&cfile, new_filter, FALSE);
 
     /* Free up the new filter text. */
     g_free(new_filter);
@@ -815,8 +815,8 @@ dfilter_combo_add_recent(gchar *s) {
 
 
 /* call filter_packets() and add this filter string to the recent filter list */
-int
-main_filter_packets(capture_file *cf, const gchar *dftext)
+gboolean
+main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 {
   GtkCombo  *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
   GList     *filter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
@@ -824,15 +824,14 @@ main_filter_packets(capture_file *cf, const gchar *dftext)
   gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
   char      *s;
-  int       filter_packets_ret;
-
+  gboolean   filter_packets_ret;
 
   s = g_strdup(dftext);
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  if ((filter_packets_ret = filter_packets(cf, s))) {
+  if ((filter_packets_ret = filter_packets(cf, s, force))) {
     li = g_list_first(filter_list);
     while (li) {
       if (li->data && strcmp(s, li->data) == 0)
@@ -869,7 +868,7 @@ filter_activate_cb(GtkWidget *w _U_, gpointer data)
 
   s = gtk_entry_get_text(GTK_ENTRY(data));
 
-  main_filter_packets(&cfile, s);
+  main_filter_packets(&cfile, s, FALSE);
 }
 
 /* redisplay with no display filter */
@@ -881,7 +880,7 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
   if ((filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY))) {
     gtk_entry_set_text(GTK_ENTRY(filter_te), "");
   }
-  main_filter_packets(&cfile, "");
+  main_filter_packets(&cfile, "", FALSE);
 }
 
 /* mark as reference time frame */

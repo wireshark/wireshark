@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.14 2004/02/06 19:19:11 ulfl Exp $
+ * $Id: service_response_time_table.c,v 1.15 2004/02/23 22:48:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,7 +212,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	switch(action){
 	case 0:
 		/* match */
-		main_filter_packets(&cfile, str);
+		main_filter_packets(&cfile, str, FALSE);
 	case 1:
 		/* prepare */
 		/* do nothing */

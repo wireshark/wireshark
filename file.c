@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.366 2004/02/22 22:33:59 guy Exp $
+ * $Id: file.c,v 1.367 2004/02/23 22:48:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -960,17 +960,16 @@ read_packet(capture_file *cf, long offset)
   }
 }
 
-int
-filter_packets(capture_file *cf, gchar *dftext)
+gboolean
+filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 {
   dfilter_t *dfcode;
   char      *filter_new = dftext ? dftext : "";
   char      *filter_old = cf->dfilter ? cf->dfilter : "";
 
-
-  /* if new filter equals old one, do nothing */
-  if (strcmp(filter_new, filter_old) == 0) {
-    return 1;
+  /* if new filter equals old one, do nothing unless told to do so */
+  if (!force && strcmp(filter_new, filter_old) == 0) {
+    return TRUE;
   }
 
   if (dftext == NULL) {
@@ -992,7 +991,7 @@ filter_packets(capture_file *cf, gchar *dftext)
           simple_dialog_primary_start(), dfilter_error_msg,
           simple_dialog_primary_end(), dftext);
       g_free(dftext);
-      return 0;
+      return FALSE;
     }
 
     /* Was it empty? */
@@ -1018,7 +1017,7 @@ filter_packets(capture_file *cf, gchar *dftext)
   } else {
     rescan_packets(cf, "Filtering", dftext, TRUE, FALSE);
   }
-  return 1;
+  return TRUE;
 }
 
 void

@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.16 2004/02/23 19:19:38 ulfl Exp $
+ * $Id: rtp_stream_dlg.c,v 1.17 2004/02/23 22:48:52 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -393,7 +393,7 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
 /*
-	main_filter_packets(&cfile, filter_string);
+	main_filter_packets(&cfile, filter_string, FALSE);
 	rtpstream_dlg_update(rtpstream_get_info()->strinfo_list);
 */
 }
