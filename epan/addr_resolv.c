@@ -133,9 +133,20 @@
 typedef struct hashipv4 {
   guint			addr;
   gchar   		name[MAXNAMELEN];
-  gboolean              is_dummy_entry;	/* name is IP address in dot format */
+  gboolean              is_dummy_entry;	/* name is IPv4 address in dot format */
   struct hashipv4 	*next;
 } hashipv4_t;
+
+/* hash table used for IPv6 lookup */
+
+#define HASH_IPV6_ADDRESS(addr)	(((addr).s6_addr32[3]) & (HASHHOSTSIZE - 1))
+
+typedef struct hashipv6 {
+  struct e_in6_addr	addr;
+  gchar   		name[MAXNAMELEN];
+  gboolean              is_dummy_entry;	/* name is IPv6 address in colon format */
+  struct hashipv6 	*next;
+} hashipv6_t;
 
 /* hash table used for TCP/UDP/SCTP port lookup */
 
@@ -197,6 +208,7 @@ typedef struct _ipxnet
 } ipxnet_t;
 
 static hashipv4_t	*ipv4_table[HASHHOSTSIZE];
+static hashipv6_t	*ipv6_table[HASHHOSTSIZE];
 static hashport_t	*udp_port_table[HASHPORTSIZE];
 static hashport_t	*tcp_port_table[HASHPORTSIZE];
 static hashport_t	*sctp_port_table[HASHPORTSIZE];
@@ -435,9 +447,38 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
 
 static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 {
-  static gchar name[MAXNAMELEN];
 #ifdef INET6
+  int hash_idx;
+  hashipv6_t * volatile tp;
   struct hostent *hostp;
+
+  *found = TRUE;
+
+  hash_idx = HASH_IPV6_ADDRESS(*addr);
+
+  tp = ipv6_table[hash_idx];
+
+  if( tp == NULL ) {
+    tp = ipv6_table[hash_idx] = (hashipv6_t *)g_malloc(sizeof(hashipv6_t));
+  } else {
+    while(1) {
+      if( memcmp(&tp->addr, addr, sizeof (struct e_in6_addr)) == 0 ) {
+	if (tp->is_dummy_entry)
+	  *found = FALSE;
+	return tp->name;
+      }
+      if (tp->next == NULL) {
+	tp->next = (hashipv6_t *)g_malloc(sizeof(hashipv6_t));
+	tp = tp->next;
+	break;
+      }
+      tp = tp->next;
+    }
+  }
+
+  /* fill in a new entry */
+  tp->addr = *addr;
+  tp->next = NULL;
 
   if (g_resolv_flags & RESOLV_NETWORK) {
 #ifdef AVOID_DNS_TIMEOUT
@@ -451,24 +492,29 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
       hostp = gethostbyaddr((char *)addr, sizeof(*addr), AF_INET6);
 #ifdef AVOID_DNS_TIMEOUT
       alarm(0);
-#endif
+# endif /* AVOID_DNS_TIMEOUT */
+
       if (hostp != NULL) {
-	strncpy(name, hostp->h_name, MAXNAMELEN);
-	name[MAXNAMELEN-1] = '\0';
-	*found = TRUE;
-	return name;
+	strncpy(tp->name, hostp->h_name, MAXNAMELEN);
+	tp->name[MAXNAMELEN-1] = '\0';
+	tp->is_dummy_entry = FALSE;
+	return tp->name;
       }
+
 #ifdef AVOID_DNS_TIMEOUT
     }
-#endif
+# endif /* AVOID_DNS_TIMEOUT */
+
   }
 
   /* unknown host or DNS timeout */
 #endif /* INET6 */
+  ip6_to_str_buf(addr, tp->name);
+  tp->is_dummy_entry = TRUE;
   *found = FALSE;
-  ip6_to_str_buf(addr, name);
-  return (name);
-}
+  return (tp->name);
+
+} /* host_name_lookup6 */
 
 /*
  *  Miscellaneous functions
@@ -1462,6 +1508,7 @@ read_hosts_file (FILE *hf)
   int size = 0;
   gchar *cp;
   guint32 host_addr[4]; /* IPv4 or IPv6 */
+  struct e_in6_addr ipv6_addr;
   gboolean is_ipv6;
   int ret;
 
@@ -1492,14 +1539,20 @@ read_hosts_file (FILE *hf)
     if ((cp = strtok(NULL, " \t")) == NULL)
       continue; /* no host name */
 
-    if (!is_ipv6)
+    if (is_ipv6) {
+      memcpy(&ipv6_addr, host_addr, sizeof ipv6_addr);
+      add_ipv6_name(&ipv6_addr, cp);
+    } else
       add_ipv4_name(host_addr[0], cp);
 
     /*
      * Add the aliases, too, if there are any.
      */
     while ((cp = strtok(NULL, " \t")) != NULL) {
-      if (!is_ipv6)
+      if (is_ipv6) {
+        memcpy(&ipv6_addr, host_addr, sizeof ipv6_addr);
+        add_ipv6_name(&ipv6_addr, cp);
+      } else
         add_ipv4_name(host_addr[0], cp);
     }
   }
@@ -1710,6 +1763,45 @@ extern void add_ipv4_name(guint addr, const gchar *name)
   tp->is_dummy_entry = FALSE;
 
 } /* add_ipv4_name */
+
+extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
+{
+  int hash_idx;
+  hashipv6_t *tp;
+
+  hash_idx = HASH_IPV6_ADDRESS(*addrp);
+
+  tp = ipv6_table[hash_idx];
+
+  if( tp == NULL ) {
+    tp = ipv6_table[hash_idx] = (hashipv6_t *)g_malloc(sizeof(hashipv6_t));
+  } else {
+    while(1) {
+      if (memcmp(&tp->addr, addrp, sizeof (struct e_in6_addr)) == 0) {
+	/* address already known */
+	if (!tp->is_dummy_entry) {
+	  return;
+	} else {
+	  /* replace this dummy entry with the new one */
+	  break;
+	}
+      }
+      if (tp->next == NULL) {
+	tp->next = (hashipv6_t *)g_malloc(sizeof(hashipv6_t));
+	tp = tp->next;
+	break;
+      }
+      tp = tp->next;
+    }
+  }
+
+  strncpy(tp->name, name, MAXNAMELEN);
+  tp->name[MAXNAMELEN-1] = '\0';
+  tp->addr = *addrp;
+  tp->next = NULL;
+  tp->is_dummy_entry = FALSE;
+
+} /* add_ipv6_name */
 
 extern gchar *get_udp_port(guint port)
 {
