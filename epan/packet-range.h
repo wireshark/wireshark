@@ -1,4 +1,4 @@
-/* range.h
+/* packet-range.h
  * Packet range routines (save, print, ...)
  *
  * $Id$
@@ -25,8 +25,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PRINT_RANGE_H__
-#define __PRINT_RANGE_H__
+#ifndef __PACKET_RANGE_H__
+#define __PACKET_RANGE_H__
 
 #include <glib.h>
 
@@ -103,4 +103,4 @@ extern range_process_e packet_range_process_packet(packet_range_t *range, frame_
 extern void packet_range_convert_str(packet_range_t *range, const gchar *es);
 
 
-#endif /* __PRINT_RANGE_H__ */
+#endif /* __PACKET_RANGE_H__ */

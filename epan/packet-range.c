@@ -1,4 +1,4 @@
-/* range.c
+/* packet-range.c
  * Packet range routines (save, print, ...)
  *
  * $Id$
@@ -36,8 +36,7 @@
 
 #include <epan/frame_data.h>
 
-
-#include "range.h"
+#include <epan/packet-range.h>
 
 #include "globals.h"
 

@@ -38,6 +38,7 @@ LIBETHEREAL_SRC = 		\
 	ipv4.c			\
 	osi-utils.c		\
 	packet.c		\
+	packet-range.c		\
 	plugins.c		\
 	proto.c			\
 	sna-utils.c		\
@@ -69,6 +70,7 @@ LIBETHEREAL_INCLUDES = 		\
 	nstime.h		\
 	osi-utils.h		\
 	packet.h		\
+	packet-range.h		\
 	packet_info.h		\
 	pint.h			\
 	plugins.h		\

@@ -32,7 +32,7 @@
 
 #include "globals.h"
 
-#include "range.h"
+#include <epan/packet-range.h>
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"

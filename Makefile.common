@@ -86,7 +86,6 @@ ETHEREAL_COMMON_SRC =	\
 	pcap-util.c	\
 	print.c	\
 	ps.c	\
-	range.c	\
 	ringbuffer.c	\
 	timestats.c	\
 	version_info.c
@@ -105,7 +104,6 @@ ETHEREAL_COMMON_INCLUDES =	\
 	pcap-util-int.h	\
 	print.h	\
 	ps.h	\
-	range.h	\
 	register.h	\
 	ringbuffer.h	\
 	timestats.h	\
