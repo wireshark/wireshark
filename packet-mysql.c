@@ -3,7 +3,7 @@
  *
  * Huagang XIE <huagang@intruvert.com>
  *
- * $Id: packet-mysql.c,v 1.3 2003/01/21 02:42:14 guy Exp $
+ * $Id: packet-mysql.c,v 1.4 2003/02/28 05:18:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -644,78 +644,78 @@ proto_register_mysql(void)
       	"MySQL Capabilities", HFILL }},
 
      { &hf_mysql_cap_long_password,
-	{ "Long Password","tcp.caps.lp", 
+	{ "Long Password","mysql.caps.lp", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_LP,
 		"", HFILL }},
 		
      { &hf_mysql_cap_found_rows,
-	{ "Found Rows","tcp.caps.fr", 
+	{ "Found Rows","mysql.caps.fr", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_FR,
 		"", HFILL }},
 
 		
      { &hf_mysql_cap_long_flag,
-	{ "Long Flag","tcp.caps.lf", 
+	{ "Long Flag","mysql.caps.lf", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_LF,
 		"", HFILL }},
 		
      { &hf_mysql_cap_connect_with_db,
-	{ "Connect With Database","tcp.caps.cd", 
+	{ "Connect With Database","mysql.caps.cd", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_CD,
 		"", HFILL }},
 
 		
      { &hf_mysql_cap_no_schema,
-	{ "Dont Allow database.table.column","tcp.caps.ns", 
+	{ "Dont Allow database.table.column","mysql.caps.ns", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_NS,
 		"", HFILL }},
 
      { &hf_mysql_cap_compress,
-	{ "Can use compression protocol","tcp.caps.CP", 
+	{ "Can use compression protocol","mysql.caps.CP", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_CP,
 		"", HFILL }},
 		
      { &hf_mysql_cap_odbc,
-	{ "ODBC Client","tcp.caps.ob", 
+	{ "ODBC Client","mysql.caps.ob", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_OB,
 		"", HFILL }},
 
 		
      { &hf_mysql_cap_local_files,
-	{ "Can Use LOAD DATA LOCAL","tcp.caps.li", 
+	{ "Can Use LOAD DATA LOCAL","mysql.caps.li", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_LI,
 		"", HFILL }},
 		
      { &hf_mysql_cap_ignore_space,
-	{ "Ignore Spaces before (","tcp.caps.is", 
+	{ "Ignore Spaces before (","mysql.caps.is", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_IS,
 		"", HFILL }},
 
 		
      { &hf_mysql_cap_change_user,
-	{ "Support the mysql_change_user()","tcp.caps.cu", 
+	{ "Support the mysql_change_user()","mysql.caps.cu", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_CU,
 		"", HFILL }},
 
 		
      { &hf_mysql_cap_interactive,
-	{ "an Interactive Client","tcp.caps.ia", 
+	{ "an Interactive Client","mysql.caps.ia", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_IA,
 		"", HFILL }},
 
 		
      { &hf_mysql_cap_ssl,
-	{ "Switch to SSL after handshake","tcp.caps.sl", 
+	{ "Switch to SSL after handshake","mysql.caps.sl", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_SL,
 		"", HFILL }},
 
      { &hf_mysql_cap_ignore_sigpipe,
-	{ "Ignore sigpipes","tcp.caps.ii", 
+	{ "Ignore sigpipes","mysql.caps.ii", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_II,
 		"", HFILL }},
 		
      { &hf_mysql_cap_transactions,
-	{ "Client knows about transactions","tcp.caps.ta", 
+	{ "Client knows about transactions","mysql.caps.ta", 
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_TA,
 		"", HFILL }},
 
