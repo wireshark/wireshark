@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.21 1999/12/06 09:51:56 girlich Exp $
+ * $Id: packet-rpc.c,v 1.22 1999/12/10 10:40:54 girlich Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -374,7 +374,7 @@ char* name, char* type)
 	if (tree) {
 		if (value_high)
 			proto_tree_add_text(tree, offset, 8,
-				"%s: %x%08x", name, value_high, value_low);
+				"%s: 0x%x%08x", name, value_high, value_low);
 		else
 			proto_tree_add_text(tree, offset, 8,
 				"%s: %u", name, value_low);
