@@ -1,4 +1,20 @@
 ------------------------------------------------------------------------
+r12364 | gerald | 2004-10-20 21:11:04 -0500 (Wed, 20 Oct 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.7/packaging/nsis/ethereal.nsi
+   M /releases/ethereal-0.10.7/plugins/opsi/packet-opsi.c
+   M /releases/ethereal-0.10.7/plugins/opsi/packet-opsi.h
+
+Pull in revision 12363 from the main branch.
+
+------------------------------------------------------------------------
+r12360 | gerald | 2004-10-20 14:13:52 -0500 (Wed, 20 Oct 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.7/ChangeLog
+
+Final update.
+
+------------------------------------------------------------------------
 r12359 | gerald | 2004-10-20 14:07:50 -0500 (Wed, 20 Oct 2004) | 2 lines
 Changed paths:
    M /releases/ethereal-0.10.7/Makefile.am
