@@ -6,7 +6,7 @@
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>, 
  * updated by Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-m2pa.c,v 1.9 2002/05/18 22:25:40 guy Exp $
+ * $Id: packet-m2pa.c,v 1.10 2002/06/20 20:58:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 
 #include <epan/packet.h>
 
-#define SCTP_PORT_M2PA             2904
+#define SCTP_PORT_M2PA             3565
 #define M2PA_PAYLOAD_PROTOCOL_ID   5
 
 #define VERSION_LENGTH         1

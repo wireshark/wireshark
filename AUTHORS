@@ -433,6 +433,7 @@ Michael Tuexen <Michael.Tuexen[AT]icn.siemens.de> {
 	SCCP-atop-M3UA support
 	M2UA support
 	ASAP support
+	Fix SCTP port number for M2PA
 }
 
 Bruce Korb <bkorb[AT]sco.com> {
