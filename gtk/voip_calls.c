@@ -1033,14 +1033,14 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	GList* list;
 	guint32 tmp_src, tmp_dst;
 	guint foo;
-
+	
 	const h225_packet_info *pi = H225info;
-
+	
 	/* if not guid and RAS and not LRQ, LCF or LRJ return because did not belong to a call */
 	if ((memcmp(pi->guid, guid_allzero, GUID_LEN) == 0) && (pi->msg_type == H225_RAS) && ((pi->msg_tag < 18) || (pi->msg_tag > 20)))
 		return 0;
 	
-
+	
 	if ( (memcmp(pi->guid, guid_allzero, GUID_LEN) == 0) && (q931_frame_num == pinfo->fd->num) ){
 		/* check wether we already have a call with this Q931 CRV */
 		list = g_list_first(tapinfo->strinfo_list);
@@ -1060,7 +1060,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	} else if ( (pi->msg_type == H225_RAS) && ((pi->msg_tag == 19) || (pi->msg_tag == 20))) { /* RAS LCF or LRJ*/
 		/* if the LCF/LRJ doesn't match to a LRQ, just return */
 		if (!pi->request_available) return 0;
-
+		
 		/* check wether we already have a call with this request SeqNum */
 		list = g_list_first(tapinfo->strinfo_list);
 		while (list)
@@ -1091,7 +1091,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			list = g_list_next (list);
 		}
 	}
-
+	
 	/* not in the list? then create a new entry */
 	if ((strinfo==NULL)){
 		strinfo = g_malloc(sizeof(voip_calls_info_t));
@@ -1099,7 +1099,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		strinfo->call_state = VOIP_UNKNOWN;
 		strinfo->from_identity=g_strdup("");
 		strinfo->to_identity=g_strdup("");
-
+		
 		g_memmove(&(strinfo->initial_speaker), pinfo->src.data,4);
 		strinfo->selected=FALSE;
 		strinfo->first_frame_num=pinfo->fd->num;
@@ -1120,42 +1120,42 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		tmp_h323info->requestSeqNum = 0;
 		strinfo->call_num = tapinfo->ncalls++;
 		strinfo->npackets = 0;
-
-		tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);				
-	} else {
-
-		/* let's analyze the call state */
-
-		g_memmove(&(tmp_src), pinfo->src.data, 4);
-		g_memmove(&(tmp_dst), pinfo->dst.data, 4);
-
-		strinfo->stop_sec=pinfo->fd->rel_secs;
-		strinfo->stop_usec=pinfo->fd->rel_usecs;
-		strinfo->last_frame_num=pinfo->fd->num;
-		++(strinfo->npackets);
-		/* increment the packets counter of all calls */
-		++(tapinfo->npackets);
-
-		/* XXX: it is supposed to be initialized isn't it? */
-		g_assert(tmp_h323info != NULL);
 		
-		/* change the status */
-		if (pi->msg_type == H225_CS){
-			if (tmp_h323info->q931_crv == -1) {
-				tmp_h323info->q931_crv = q931_crv;
-			} else if (tmp_h323info->q931_crv != q931_crv) {
-				tmp_h323info->q931_crv2 = q931_crv;
-			}
-
-			if (pi->is_h245 == TRUE){
-				add_h245_Address(tmp_h323info, pi->h245_address, pi->h245_port);
-			}
-
-			if (pi->cs_type != H225_RELEASE_COMPLET) tmp_h323info->is_h245Tunneling = pi->is_h245Tunneling;
-
-			frame_label = g_strdup(pi->frame_label);
-
-			switch(pi->cs_type){
+		tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);				
+	}
+	
+	/* let's analyze the call state */
+	
+	g_memmove(&(tmp_src), pinfo->src.data, 4);
+	g_memmove(&(tmp_dst), pinfo->dst.data, 4);
+	
+	strinfo->stop_sec=pinfo->fd->rel_secs;
+	strinfo->stop_usec=pinfo->fd->rel_usecs;
+	strinfo->last_frame_num=pinfo->fd->num;
+	++(strinfo->npackets);
+	/* increment the packets counter of all calls */
+	++(tapinfo->npackets);
+	
+	/* XXX: it is supposed to be initialized isn't it? */
+	g_assert(tmp_h323info != NULL);
+	
+	/* change the status */
+	if (pi->msg_type == H225_CS) {
+		if (tmp_h323info->q931_crv == -1) {
+			tmp_h323info->q931_crv = q931_crv;
+		} else if (tmp_h323info->q931_crv != q931_crv) {
+			tmp_h323info->q931_crv2 = q931_crv;
+		}
+		
+		if (pi->is_h245 == TRUE){
+			add_h245_Address(tmp_h323info, pi->h245_address, pi->h245_port);
+		}
+		
+		if (pi->cs_type != H225_RELEASE_COMPLET) tmp_h323info->is_h245Tunneling = pi->is_h245Tunneling;
+		
+		frame_label = g_strdup(pi->frame_label);
+		
+		switch(pi->cs_type){
 			case H225_SETUP:
 				tmp_h323info->is_faststart_Setup = pi->is_faststart;
 				/* set te calling and called number from the Q931 packet */
@@ -1169,24 +1169,24 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 						strinfo->to_identity=g_strdup(q931_called_number);
 					}
 				}
-				/* check if there is an LRQ/LCF that match this Setup */
-				/* TODO: we are just checking the DialedNumer in LRQ/LCF agains the Setup 
-				  we should also check if the h225 signaling IP and port match the destination 
-				  Setup ip and port */
-				list = g_list_first(tapinfo->strinfo_list);
-						foo=	g_list_length(list);
+					/* check if there is an LRQ/LCF that match this Setup */
+					/* TODO: we are just checking the DialedNumer in LRQ/LCF agains the Setup 
+					we should also check if the h225 signaling IP and port match the destination 
+					Setup ip and port */
+					list = g_list_first(tapinfo->strinfo_list);
+				foo=	g_list_length(list);
 				while (list)
 				{
 					tmp_listinfo=list->data;
 					if (tmp_listinfo->protocol == VOIP_H323){
 						tmp2_h323info = tmp_listinfo->prot_info;
-
+						
 						/* check if there called number match a LRQ/LCF */
 						if ( (strcmp(strinfo->to_identity, tmp_listinfo->to_identity)==0)  
-								&& (memcmp(tmp2_h323info->guid, guid_allzero, GUID_LEN) == 0) ){ 
+							 && (memcmp(tmp2_h323info->guid, guid_allzero, GUID_LEN) == 0) ){ 
 							/* change the call graph to the LRQ/LCF to belong to this call */
 							strinfo->npackets += change_call_num_graph(tapinfo, tmp_listinfo->call_num, strinfo->call_num);
-
+							
 							/* remove this LRQ/LCF call entry because we have found the Setup that match them */
 							g_free(tmp_listinfo->from_identity);
 							g_free(tmp_listinfo->to_identity);
@@ -1198,20 +1198,19 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 							break;
 						}
 					}
-					list = g_list_next (list);
 				}
-						foo=	g_list_length(list);
+					foo = g_list_length(list);
 				/* Set the Setup address if it was not set */
 				if (tmp_h323info->h225SetupAddr == 0) g_memmove(&(tmp_h323info->h225SetupAddr), pinfo->src.data,4);
-				strinfo->call_state=VOIP_CALL_SETUP;
+					strinfo->call_state=VOIP_CALL_SETUP;
 				comment = g_strdup_printf("H225 From: %s To:%s  TunnH245:%s FS:%s", strinfo->from_identity, strinfo->to_identity, (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
-											(pi->is_faststart==TRUE?"on":"off"));
+										  (pi->is_faststart==TRUE?"on":"off"));
 				break;
 			case H225_CONNECT:
 				strinfo->call_state=VOIP_IN_CALL;
 				if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
-				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
-											(pi->is_faststart==TRUE?"on":"off"));
+					comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
+											  (pi->is_faststart==TRUE?"on":"off"));
 				break;
 			case H225_RELEASE_COMPLET:
 				g_memmove(&(tmp_src), pinfo->src.data, 4);
@@ -1224,32 +1223,32 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 						tapinfo->rejected_calls++;
 					}
 				}
-				else if (strinfo->call_state == VOIP_IN_CALL){
-					strinfo->call_state = VOIP_COMPLETED;
-					tapinfo->completed_calls++;
-				}
-				/* get the Q931 Release cause code */
-				if (q931_frame_num == pinfo->fd->num &&
-				    q931_cause_value != 0xFF){		
-					comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
-				} else {			/* Cause not set */
-					comment = g_strdup("H225 No Q931 Rel Cause");
-				}
-				break;
+					else {
+						strinfo->call_state=VOIP_REJECTED;
+						tapinfo->rejected_calls++;
+					}
+					/* get the Q931 Release cause code */
+					if (q931_frame_num == pinfo->fd->num &&
+						q931_cause_value != 0xFF){		
+						comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
+					} else {			/* Cause not set */
+						comment = g_strdup("H225 No Q931 Rel Cause");
+					}
+					break;
 			case H225_PROGRESS:
 			case H225_ALERTING:
 			case H225_CALL_PROCEDING:
 				if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
 				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
-											(pi->is_faststart==TRUE?"on":"off"));
+										  (pi->is_faststart==TRUE?"on":"off"));
 				break;
 			default:
 				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
-											(pi->is_faststart==TRUE?"on":"off"));
-
-			}
-		} else if (pi->msg_type == H225_RAS){
-			switch(pi->msg_tag){
+										  (pi->is_faststart==TRUE?"on":"off"));
+				
+		}
+	} else if (pi->msg_type == H225_RAS){
+		switch(pi->msg_tag){
 			case 18:  /* LRQ */
 				if (!pi->is_duplicate){
 					g_free(strinfo->to_identity);
@@ -1264,21 +1263,24 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				break;
 			default:
 				comment = g_strdup("H225 RAS");
-			}
-			frame_label = g_strdup_printf("%s", val_to_str(pi->msg_tag, RasMessage_vals, "<unknown>"));
-		} else {
-			frame_label = g_strdup("H225: Unknown");
-			comment = g_strdup("");
 		}
-
-		/* add to graph analysis */
-		if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment))		/* if the frame number exists in graph, append to it*/
-			add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);  /* if not exist, add to the graph */
-
-		g_free(frame_label);
-		g_free(comment);
+		frame_label = g_strdup_printf("%s", val_to_str(pi->msg_tag, RasMessage_vals, "<unknown>"));
+	} else {
+		frame_label = g_strdup("H225: Unknown");
+		comment = g_strdup("");
 	}
 
+	/* add to graph analysis */
+
+	/* if the frame number exists in graph, append to it*/
+	if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
+		/* if not exist, add to the graph */
+		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);
+	}
+
+	g_free(frame_label);
+	g_free(comment);
+	
 	return 1;  /* refresh output */
 }
 
@@ -1565,7 +1567,7 @@ void mgcpCallerID(gchar *signalStr, gchar **callerId)
 	if (arrayStr[0] == NULL) return;
 
 	/* look for the ci signal */
-	resultArray = g_strsplit_set(arrayStr[0], ",(", 10);
+	resultArray = g_strsplit(arrayStr[0], ",(", 10);
 
 	for (i = 0; resultArray[i]; i++) {
 		g_strstrip(resultArray[i]);
@@ -1602,9 +1604,19 @@ void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 	if (signalStr == NULL) return;
 
 	tmpStr = g_strdup(signalStr);
-
-	tmpStr = g_strcanon(tmpStr, "123456790#*", '?');
-
+	
+	for ( i = 0 ; tmpStr[i] ; i++) {
+		switch (tmpStr[i]) {
+			case '0' : case '1' : case '2' : case '3' : case '4' :
+			case '5' : case '6' : case '7' : case '8' : case '9' :
+			case '#' : case '*' :
+				break;
+			default:
+				tmpStr[i] = '?';
+				break;
+		}
+	}
+	
 	for (i = 0, j = 0; tmpStr[i] && i<50; i++) {
 		if (tmpStr[i] != '?')
 			resultStr[j++] = tmpStr[i];
@@ -1653,7 +1665,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			if ((tmp_listinfo->protocol == VOIP_MGCP) && (tmp_listinfo->call_active_state == VOIP_ACTIVE)){
 				tmp_mgcpinfo = tmp_listinfo->prot_info;
 				if (pi->endpointId != NULL){
-					if (g_ascii_strcasecmp(tmp_mgcpinfo->endpointId,pi->endpointId)==0){
+					if (g_strcasecmp(tmp_mgcpinfo->endpointId,pi->endpointId) == 0){
 						/*
 						   check first if it is an ended call. We consider an ended call after 1sec we don't 
 						   get a packet in this Endpoint and the call has been released
@@ -1784,9 +1796,9 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			}
 
 			if (pi->signalReq != NULL)
-				frame_label = g_strdup_printf("%s%sSigReq:%s",pi->code, (*(pi->hasDigitMap) == TRUE)?" DigitMap ":"", pi->signalReq);
+				frame_label = g_strdup_printf("%s%sSigReq:%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"", pi->signalReq);
 			else
-				frame_label = g_strdup_printf("%s%s",pi->code, (*(pi->hasDigitMap) == TRUE)?" DigitMap ":"");
+				frame_label = g_strdup_printf("%s%s",pi->code, (pi->hasDigitMap == TRUE)?" DigitMap ":"");
 			
 			/* use the CallerID info to fill the "From" for the call */
 			if (!tmp_mgcpinfo->fromEndpoint) mgcpCallerID(pi->signalReq, &(strinfo->from_identity));
