@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.10 2001/10/21 21:48:00 guy Exp $
+ * $Id: colors.c,v 1.11 2001/10/21 21:56:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -174,7 +174,7 @@ read_filters(colfilter *filter)
 	int i;
 	FILE *f;
 	gchar *path;
-	gchar *fname = PF_DIR "/colorfilters";
+	gchar *fname = PF_DIR G_DIR_SEPARATOR_S "colorfilters";
 	dfilter_t *temp_dfilter;
 
 	/* decide what file to open (from dfilter code) */
@@ -276,7 +276,7 @@ write_filters(colfilter *filter)
 {
 	FILE *f;
 	gchar *path;
-	gchar *name = PF_DIR "/colorfilters";
+	gchar *name = PF_DIR G_DIR_SEPARATOR_S "colorfilters";
 	/* decide what file to open (from dfilter code) */
 	path = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(name) +  4);
 	sprintf(path, "%s/%s", get_home_dir(), name);
