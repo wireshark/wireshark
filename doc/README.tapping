@@ -7,12 +7,12 @@ internals are required.
 
 As examples on how to use the tap system see the implementation of 
 tap-rpcstat.c     	(tethereal version)
-gtk2/gtk2-rpcstat.c	(gtk2-ethereal version)
+gtk/gtk-rpcstat.c	(gtk-ethereal version)
 
-If all you need is to keep some counters there's the stats_tree API that
-offers a simple way to make a GUI and tethereal tap-listener see
-README.stats_tree. However keep reading as you'll need much of what's in
-this document.
+If all you need is to keep some counters, there's the stats_tree API,
+which offers a simple way to make a GUI and tethereal tap-listener; see
+README.stats_tree.  However, keep reading, as you'll need much of what's
+in this document.
 
 The tap system consists of two parts:
 1, code in the actual dissectors to allow tapping data from that particular
@@ -48,7 +48,7 @@ have returned, just add 'tap_queue_packet(<protocol>_tap, pinfo, <pointer>);'
 <pointer> is used if the tap has any special additional data to provide to
 the tap listeners. What this points to is dependant on the protocol that
 is tapped, or if there are no useful extra data to provide just specify NULL.
-For packet-rpc.c what we specify there is the persistant structure 'rpc_call'
+For packet-rpc.c what we specify there is the persistent structure 'rpc_call'
 which contains lots of useful information the rpc layer that a listener might
 need.
 
