@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.51 2002/05/05 00:16:34 guy Exp $
+ * $Id: plugins.c,v 1.52 2002/05/05 00:34:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -320,6 +320,8 @@ init_plugins(const char *plugin_dir)
 	patable.p_create_dissector_handle	= create_dissector_handle;
 	patable.p_call_dissector		= call_dissector;
 
+	patable.p_tcp_dissect_pdus		= tcp_dissect_pdus;
+
 	patable.p_proto_is_protocol_enabled	= proto_is_protocol_enabled;
 
 	patable.p_proto_item_get_len		= proto_item_get_len;
@@ -444,7 +446,6 @@ init_plugins(const char *plugin_dir)
 	patable.p_dissect_tpkt_encap		= dissect_tpkt_encap;
 
 	patable.p_set_actual_length		= set_actual_length;
-	patable.p_tcp_dissect_pdus		= tcp_dissect_pdus;
 	patable.p_decode_boolean_bitfield	= decode_boolean_bitfield;
 	patable.p_decode_numeric_bitfield	= decode_numeric_bitfield;
 	patable.p_decode_enumerated_bitfield	= decode_enumerated_bitfield;

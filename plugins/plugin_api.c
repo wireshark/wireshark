@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.38 2002/05/05 00:16:36 guy Exp $
+ * $Id: plugin_api.c,v 1.39 2002/05/05 00:34:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -60,6 +60,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_find_dissector			= pat->p_find_dissector;
 	p_create_dissector_handle		= pat->p_create_dissector_handle;
 	p_call_dissector			= pat->p_call_dissector;
+	p_tcp_dissect_pdus			= pat->p_tcp_dissect_pdus;
 	p_proto_is_protocol_enabled		= pat->p_proto_is_protocol_enabled;
 	p_proto_item_get_len			= pat->p_proto_item_get_len;
 	p_proto_item_set_len			= pat->p_proto_item_set_len;
@@ -168,7 +169,6 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_dissect_tpkt_encap			= pat->p_dissect_tpkt_encap;
 
 	p_set_actual_length			= pat->p_set_actual_length;
-	p_tcp_dissect_pdus			= pat->p_tcp_dissect_pdus;
 	p_decode_boolean_bitfield		= pat->p_decode_boolean_bitfield;
 	p_decode_numeric_bitfield		= pat->p_decode_numeric_bitfield;
 	p_decode_enumerated_bitfield		= pat->p_decode_enumerated_bitfield;

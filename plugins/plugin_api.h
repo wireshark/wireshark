@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.39 2002/05/05 00:16:36 guy Exp $
+ * $Id: plugin_api.h,v 1.40 2002/05/05 00:34:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -70,6 +70,8 @@
 #define find_dissector			(*p_find_dissector)
 #define create_dissector_handle		(*p_create_dissector_handle)
 #define call_dissector			(*p_call_dissector)
+
+#define tcp_dissect_pdus		(*p_tcp_dissect_pdus)
 
 #define proto_is_protocol_enabled	(*p_proto_is_protocol_enabled)
 
@@ -196,8 +198,6 @@
 #define dissect_tpkt_encap		(*p_dissect_tpkt_encap)
 
 #define set_actual_length		(*p_set_actual_length)
-
-#define tcp_dissect_pdus		(*p_tcp_dissect_pdus)
 
 #define decode_boolean_bitfield		(*p_decode_boolean_bitfield)
 #define decode_numeric_bitfield		(*p_decode_numeric_bitfield)
