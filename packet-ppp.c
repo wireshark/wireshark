@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.82 2001/12/19 21:14:49 guy Exp $
+ * $Id: packet-ppp.c,v 1.83 2001/12/20 06:22:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,9 @@
 #define ppp_min(a, b)  ((a<b) ? a : b)
 
 static int proto_ppp = -1;
+static int hf_ppp_address = -1;
+static int hf_ppp_control = -1;
+static int hf_ppp_protocol = -1;
 
 static gint ett_ppp = -1;
 
@@ -2056,8 +2059,8 @@ dissect_ppp_common( tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item_set_len(ti, offset + proto_len);
 
   if (tree) {
-    proto_tree_add_text(fh_tree, tvb, offset, proto_len, "Protocol: %s (0x%04x)",
-      val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
+    proto_tree_add_uint(fh_tree, hf_ppp_protocol, tvb, offset, proto_len,
+      ppp_prot);
   }
 
   next_tvb = tvb_new_subset(tvb, offset + proto_len, -1, -1);
@@ -2319,10 +2322,8 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, proto_offset, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
     if (byte0 == 0xff) {
-      proto_tree_add_text(fh_tree, tvb, 0, 1, "Address: %02x",
-			  tvb_get_guint8(tvb, 0));
-      proto_tree_add_text(fh_tree, tvb, 1, 1, "Control: %02x",
-			  tvb_get_guint8(tvb, 1));
+      proto_tree_add_item(fh_tree, hf_ppp_address, tvb, 0, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_ppp_control, tvb, 1, 1, FALSE);
     }
   }
 
@@ -2335,18 +2336,18 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     rx_fcs_exp = fcs16(0xFFFF, tvb, 0, rx_fcs_offset);
     rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
     if (rx_fcs_got != rx_fcs_exp) {
-      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2, "FCS 16: %04x (incorrect, should be %04x)", rx_fcs_got, rx_fcs_exp);
+      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2, "FCS 16: 0x%04x (incorrect, should be %04x)", rx_fcs_got, rx_fcs_exp);
     } else {
-      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2, "FCS 16: %04x (correct)", rx_fcs_got);
+      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2, "FCS 16: 0x%04x (correct)", rx_fcs_got);
     }
   } else if (ppp_fcs_decode == FCS_32) {
     rx_fcs_offset = tvb_length(tvb) - 4;
     rx_fcs_exp = fcs32(0xFFFFFFFF, tvb, 0, rx_fcs_offset);
     rx_fcs_got = tvb_get_letohl(tvb, rx_fcs_offset);
     if (rx_fcs_got != rx_fcs_exp) {
-      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4, "FCS 32: %08x (incorrect, should be %08x) ", rx_fcs_got, rx_fcs_exp);
+      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4, "FCS 32: 0x%08x (incorrect, should be %08x) ", rx_fcs_got, rx_fcs_exp);
     } else {
-      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4, "FCS 32: %08x (correct)", rx_fcs_got);
+      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4, "FCS 32: 0x%08x (correct)", rx_fcs_got);
     }
   }
 }
@@ -2556,49 +2557,57 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 void
 proto_register_ppp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "ppp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
-	static gint *ett[] = {
-		&ett_ppp,
-	};
+  static hf_register_info hf[] = {
+    { &hf_ppp_address,
+    { "Address", "ppp.address", FT_UINT8, BASE_HEX,
+        NULL, 0x0, "", HFILL }},
 
-	static enum_val_t ppp_options[] = {
-		{"None", 0},
-		{"16-Bit", 1},
-		{"32-Bit", 2},
-		{NULL, -1}
-	};
+    { &hf_ppp_control,
+    { "Control", "ppp.control", FT_UINT8, BASE_HEX,
+        NULL, 0x0, "", HFILL }},
 
-	module_t *ppp_module;
+    { &hf_ppp_protocol,
+    { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX,
+        VALS(ppp_vals), 0x0, "", HFILL }},
+  };
+  static gint *ett[] = {
+    &ett_ppp,
+  };
 
-        proto_ppp = proto_register_protocol("Point-to-Point Protocol",
-	    "PPP", "ppp");
- /*       proto_register_field_array(proto_ppp, hf, array_length(hf));*/
-	proto_register_subtree_array(ett, array_length(ett));
+  static enum_val_t ppp_options[] = {
+    {"None", 0},
+    {"16-Bit", 1},
+    {"32-Bit", 2},
+    {NULL, -1}
+  };
+
+  module_t *ppp_module;
+
+  proto_ppp = proto_register_protocol("Point-to-Point Protocol", "PPP", "ppp");
+  proto_register_field_array(proto_ppp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
-	subdissector_table = register_dissector_table("ppp.protocol",
-	    "PPP protocol", FT_UINT16, BASE_HEX);
+  subdissector_table = register_dissector_table("ppp.protocol",
+	"PPP protocol", FT_UINT16, BASE_HEX);
 
-	register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
-	register_dissector("ppp", dissect_ppp, proto_ppp);
+  register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
+  register_dissector("ppp", dissect_ppp, proto_ppp);
 
-	/* Register the preferences for the ppp protocol */
-	ppp_module = prefs_register_protocol(proto_ppp, NULL);
+  /* Register the preferences for the ppp protocol */
+  ppp_module = prefs_register_protocol(proto_ppp, NULL);
 
-	prefs_register_enum_preference(ppp_module,
-	    "ppp_fcs",
-	    "PPP Frame Checksum Type",
-	    "The type of PPP frame checksum (none, 16-bit, 32-bit)",
-	    &ppp_fcs_decode,
-	    ppp_options, FALSE);
-	prefs_register_bool_preference(ppp_module,
-	    "ppp_vj",
-	    "PPP Van Jacobson Compression",
-	    "Whether Van Jacobson-compressed PPP frames should be decompressed",
-	    &ppp_vj_decomp);
+  prefs_register_enum_preference(ppp_module,
+    "ppp_fcs",
+    "PPP Frame Checksum Type",
+    "The type of PPP frame checksum (none, 16-bit, 32-bit)",
+    &ppp_fcs_decode,
+    ppp_options, FALSE);
+  prefs_register_bool_preference(ppp_module,
+    "ppp_vj",
+    "PPP Van Jacobson Compression",
+    "Whether Van Jacobson-compressed PPP frames should be decompressed",
+    &ppp_vj_decomp);
 }
 
 void
