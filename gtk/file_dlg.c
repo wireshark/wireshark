@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.125 2004/06/29 20:59:23 ulfl Exp $
+ * $Id: file_dlg.c,v 1.126 2004/06/30 05:49:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,11 @@
 #endif
 #include "merge.h"
 #include "util.h"
+
+#ifdef HAVE_IO_H
+#include <io.h> /* open/close on win32 */
+#endif
+
 
 
 static void file_open_ok_cb(GtkWidget *w, gpointer fs);
@@ -989,6 +994,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "An error occurred while merging the files: %s.",
 		  wtap_strerror(err));
+    close(out_fd);
     if (rfcode != NULL)
       dfilter_free(rfcode);
     return;

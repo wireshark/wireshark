@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.449 2004/06/29 20:59:24 ulfl Exp $
+ * $Id: main.c,v 1.450 2004/06/30 05:49:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1310,6 +1310,7 @@ dnd_merge_files(int in_file_count, char **in_filenames)
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "An error occurred while merging the files: \"%s\".",
 		  wtap_strerror(err));
+    close(out_fd);
     return;
   }
 
