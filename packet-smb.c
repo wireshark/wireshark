@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.85 2001/06/20 01:58:48 guy Exp $
+ * $Id: packet-smb.c,v 1.86 2001/07/30 07:36:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -9243,7 +9243,10 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, SMB_offset + ParameterOffset, ParameterCount, "Parameters: %s", format_text(pd + SMB_offset + ParameterOffset, ParameterCount));
+	proto_tree_add_text(tree, NullTVB, SMB_offset + ParameterOffset,
+			    ParameterCount, "Parameters: %s",
+			    bytes_to_str(pd + SMB_offset + ParameterOffset,
+					 ParameterCount));
 
       }
 
@@ -9585,7 +9588,10 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
       
       if (tree) {
 
-	proto_tree_add_text(tree, NullTVB, SMB_offset + ParameterOffset, ParameterCount, "Parameters: %s", format_text(pd + SMB_offset + ParameterOffset, ParameterCount));
+	proto_tree_add_text(tree, NullTVB, SMB_offset + ParameterOffset,
+			    ParameterCount, "Parameters: %s",
+			    bytes_to_str(pd + SMB_offset + ParameterOffset,
+					 ParameterCount));
 	  
       }
 	
