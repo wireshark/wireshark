@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.99 2000/01/25 17:32:52 gram Exp $
+ * $Id: main.c,v 1.100 2000/01/25 17:57:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1456,6 +1456,8 @@ main(int argc, char *argv[])
 	    set_menus_for_capture_in_progress(FALSE);
     }
   }
+#else
+  set_menus_for_capture_in_progress(FALSE);
 #endif
 
   gtk_main();
