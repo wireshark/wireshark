@@ -289,6 +289,11 @@ Mark Muhlestein <mmm@netapp.com> {
 	CIFS-over-TCP support
 }
 
+Graham Bloice <graham.bloice@trihedral.com> {
+	Win32 icon for Ethereal, and Win32 resource-compiler files to
+	    add version/copyright/etc. information to Win32 executables
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.28 2000/04/14 09:00:12 guy Exp $
+# $Id: Makefile.nmake,v 1.29 2000/04/15 04:10:27 guy Exp $
 
 include config.nmake
 
@@ -193,21 +193,23 @@ editcap_LIBS= wiretap\libwtap.lib wsock32.lib user32.lib \
 
 EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
 
-all: $(EXECUTABLES)
+RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res
 
-ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) wiretap gtk plugins
+all: $(EXECUTABLES) $(RESOURCES)
+
+ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap gtk plugins
 	$(LINK) @<<
-		/OUT:ethereal.exe $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS)
+		/OUT:ethereal.exe $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
 <<
 
-tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) wiretap plugins
+tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res wiretap plugins
 	$(LINK) @<<
-		/OUT:tethereal.exe $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS)
+		/OUT:tethereal.exe $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
 <<
 
-editcap.exe	: config.h editcap.obj getopt.obj wiretap
+editcap.exe	: config.h editcap.obj getopt.obj wiretap image\editcap.res
 	$(LINK) @<<
-		/OUT:editcap.exe $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS)
+		/OUT:editcap.exe $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
 <<
 
 config.h	: config.h.win32
