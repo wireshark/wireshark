@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.8 2003/12/14 00:04:22 guy Exp $
+ * $Id: packet-gsm_sms.c,v 1.9 2004/02/20 10:49:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,13 +55,6 @@
 
 
 /* PROTOTYPES/FORWARDS */
-
-#define	RP_DATA_MS_TO_N		0x00
-#define	RP_DATA_N_TO_MS		0x01
-#define	RP_ACK_MS_TO_N		0x02
-#define	RP_ACK_N_TO_MS		0x03
-#define	RP_ERROR_MS_TO_N	0x04
-#define	RP_ERROR_N_TO_MS	0x05
 
 #define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
     if ((edc_len) > (edc_max_len)) \
@@ -110,7 +103,6 @@ static char bigbuf[1024];
 static dissector_handle_t data_handle;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
-static gint g_rp_type;
 
 /*
  * this is the GSM 03.40 definition with the bit 2
@@ -2017,25 +2009,23 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 	return;
     }
 
-    switch (g_rp_type)
+    /*
+     * there does not seem to be a way to determine that this
+     * deliver report is from an RP-ERROR or RP-ACK other
+     * than to look at the next octet
+     *
+     * FCS values are 0x80 and higher
+     * PI uses bit 7 as an extension indicator
+     *
+     * will assume that if bit 7 is set then this octet
+     * is an FCS otherwise PI
+     */
+    offset++;
+    oct = tvb_get_guint8(tvb, offset);
+
+    if (oct & 0x80)
     {
-    case RP_ERROR_MS_TO_N:
-	/* FALLTHRU */
-
-    case RP_ERROR_N_TO_MS:
-	offset++;
-	oct = tvb_get_guint8(tvb, offset);
-
 	dis_field_fcs(tvb, tree, offset, oct);
-
-	if (length < 3)
-	{
-	    proto_tree_add_text(tree,
-		tvb, saved_offset, length,
-		"Short Data (?)");
-	    return;
-	}
-	break;
     }
 
     offset++;
@@ -2202,17 +2192,23 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     DIS_FIELD_MTI(tree, offset);
 
-    switch (g_rp_type)
+    /*
+     * there does not seem to be a way to determine that this
+     * deliver report is from an RP-ERROR or RP-ACK other
+     * than to look at the next octet
+     *
+     * FCS values are 0x80 and higher
+     * PI uses bit 7 as an extension indicator
+     *
+     * will assume that if bit 7 is set then this octet
+     * is an FCS otherwise PI
+     */
+    offset++;
+    oct = tvb_get_guint8(tvb, offset);
+
+    if (oct & 0x80)
     {
-    case RP_ERROR_MS_TO_N:
-	/* FALLTHRU */
-
-    case RP_ERROR_N_TO_MS:
-	offset++;
-	oct = tvb_get_guint8(tvb, offset);
-
 	dis_field_fcs(tvb, tree, offset, oct);
-	break;
     }
 
     offset++;
@@ -2487,7 +2483,6 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree)
     {
 	g_tree = tree;
-	g_rp_type = pinfo->match_port;
 
 	offset = 0;
 
@@ -2606,12 +2601,8 @@ proto_reg_handoff_gsm_sms(void)
 
     gsm_sms_handle = create_dissector_handle(dissect_gsm_sms, proto_gsm_sms);
 
-    dissector_add("gsm_a.sms_tpdu", RP_DATA_MS_TO_N, gsm_sms_handle);
-    dissector_add("gsm_a.sms_tpdu", RP_DATA_N_TO_MS, gsm_sms_handle);
-    dissector_add("gsm_a.sms_tpdu", RP_ACK_MS_TO_N, gsm_sms_handle);
-    dissector_add("gsm_a.sms_tpdu", RP_ACK_N_TO_MS, gsm_sms_handle);
-    dissector_add("gsm_a.sms_tpdu", RP_ERROR_MS_TO_N, gsm_sms_handle);
-    dissector_add("gsm_a.sms_tpdu", RP_ERROR_N_TO_MS, gsm_sms_handle);
+    dissector_add("gsm_a.sms_tpdu", 0, gsm_sms_handle);
+    dissector_add("gsm_map.sms_tpdu", 0, gsm_sms_handle);
 
     data_handle = find_dissector("data");
 }
