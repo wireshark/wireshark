@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.30 2002/02/08 11:02:03 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.31 2002/02/10 23:51:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1848,6 +1848,16 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
+        if (!value) {
+            v.uuid = hdr.if_id;
+            v.ver = hdr.if_ver;
+            v.opnum = hdr.opnum;
+            v.req_frame = pinfo->fd->num;
+            v.rep_frame = -1;
+            v.max_ptr = 0;
+            v.private_data=NULL;
+            value = &v;
+        }
 
 	di.conv = conv;
 	di.call_id = hdr.seqnum;
@@ -1876,23 +1886,24 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
+        if (!value) {
+            v.uuid = hdr.if_id;
+            v.ver = hdr.if_ver;
+            v.opnum = hdr.opnum;
+            v.req_frame=-1;
+            v.rep_frame=pinfo->fd->num;
+            v.private_data=NULL;
+            value = &v;
+        }
 
 	di.conv = conv;
 	di.call_id = 0; 
 	di.smb_fid = -1;
 	di.request = FALSE;
-	if(value) {
-		di.call_data = value;
-	} else {
-		v.uuid = hdr.if_id;
-		v.ver=hdr.if_ver;
-		v.req_frame=-1;
-		v.rep_frame=pinfo->fd->num;
-		v.private_data=NULL;
-		di.call_data = &v;
-	}
+        di.call_data = value;
+
 	dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-			hdr.opnum, FALSE, hdr.drep, &di);
+                            value->opnum, FALSE, hdr.drep, &di);
         break;
     }
 

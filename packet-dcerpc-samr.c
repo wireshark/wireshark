@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.c,v 1.9 2002/02/10 02:23:17 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.10 2002/02/10 23:51:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1898,6 +1898,18 @@ samr_dissect_set_information_domain_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
+samr_dissect_lookup_domain_rqst(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree,
+                             char *drep)
+{
+    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+                                  hf_samr_hnd, NULL);
+    offset = dissect_ndr_nt_UNICODE_STRING (tvb, offset, pinfo, tree, drep,
+                                            hf_samr_domain);
+	return offset;
+}
+
+static int
 samr_dissect_lookup_domain_reply(tvbuff_t *tvb, int offset, 
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
@@ -3306,7 +3318,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 		samr_dissect_context_handle,
 		samr_dissect_rc },
         { SAMR_LOOKUP_DOMAIN, "LOOKUP_DOMAIN",
-		samr_dissect_get_domain_password_information_rqst,
+		samr_dissect_lookup_domain_rqst,
 		samr_dissect_lookup_domain_reply },
         { SAMR_ENUM_DOMAINS, "ENUM_DOMAINS",
 		samr_dissect_enum_domains_rqst,
