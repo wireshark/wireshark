@@ -48,6 +48,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_IP,		"IP"				},
     {ETHERTYPE_IPv6,		"IPv6"				},
     {ETHERTYPE_CENTRINO_PROMISC, "IEEE 802.11 (Centrino promiscuous)" },
+    {ETHERTYPE_XNS_IDP,		"XNS Internet Datagram Protocol" },
     {ETHERTYPE_X25L3,		"X.25 Layer 3"			},
     {ETHERTYPE_ARP,		"ARP"				},
     {ETHERTYPE_REVARP,		"RARP"				},

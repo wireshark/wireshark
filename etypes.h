@@ -80,6 +80,10 @@
 #define ETHERTYPE_3C_NBP_DGRAM	0x3c07
 #endif
 
+#ifndef ETHERTYPE_XNS_IDP
+#define ETHERTYPE_XNS_IDP	0x0600
+#endif
+
 #ifndef ETHERTYPE_IP
 #define ETHERTYPE_IP		0x0800
 #endif

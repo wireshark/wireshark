@@ -28,13 +28,17 @@
 # include "config.h"
 #endif
 
+#if 0
 #include <stdio.h>
 #include <string.h>
+#endif
 #include <glib.h>
 #include <epan/packet.h>
+#if 0
 #include "llcsaps.h"
 #include "ppptypes.h"
 #include "chdlctypes.h"
+#endif
 #include <epan/addr_resolv.h>
 
 static gint ett_retix_bpdu = -1;
@@ -67,7 +71,7 @@ dissect_retix_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);
   }
-  bridge_mac_str = tvb_get_ptr(tvb, 12, 6);
+  bridge_mac_str = tvb_get_ptr(tvb, 10, 6);
   if (check_col(pinfo->cinfo, COL_INFO)){
     col_add_fstr(pinfo->cinfo, COL_INFO, "Bridge MAC %s", ether_to_str(bridge_mac_str)); 
   }
@@ -80,13 +84,13 @@ dissect_retix_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     retix_bpdu_tree = proto_item_add_subtree(ti, ett_retix_bpdu);
   }
 
-  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_root_mac, tvb, 2, 6, FALSE);
+  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_root_mac, tvb, 0, 6, FALSE);
 
-  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_bridge_mac, tvb, 12, 6, FALSE);
+  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_bridge_mac, tvb, 10, 6, FALSE);
 
-  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_max_age, tvb, 22, 2, FALSE);
-  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_hello_time, tvb, 24, 2, FALSE);
-  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_forward_delay, tvb, 26, 2, FALSE);
+  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_max_age, tvb, 20, 2, FALSE);
+  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_hello_time, tvb, 22, 2, FALSE);
+  proto_tree_add_item(retix_bpdu_tree, hf_retix_bpdu_forward_delay, tvb, 24, 2, FALSE);
 
 }
 
@@ -129,8 +133,4 @@ proto_register_retix_bpdu(void)
 void
 proto_reg_handoff_retix_bpdu(void)
 {
-  dissector_handle_t retix_bpdu_handle;
-
-  retix_bpdu_handle = find_dissector("rbpdu");
-  dissector_add("llc.dsap", 0x80, retix_bpdu_handle);
 }
