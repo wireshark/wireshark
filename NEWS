@@ -1,22 +1,135 @@
 $Id$
 
+== March 10, 2005
+
+Ethereal 0.10.10 has been released.
+
+This release fixes three security and stability-related issues:
+
+    The Etheric dissector was susceptible to a buffer
+    overflow. (CAN-2005-0704)
+
+    The GPRS-LLC dissector could crash if the "ignore cipher bit" option
+    was enabled. (CAN-2005-0705)
+
+    The 3GPP2 A11 dissector was susceptible to a buffer
+    overflow. (CAN-2005-0699)
+
+Please see the following advisory for more information:
+  
+    http://www.ethereal.com/appnotes/enpa-sa-00018.html
+    
+Everyone is encouraged to upgrade.
+
+
+New and updated features
+
+    Tree view item context menus now let you browse to the display filter
+    reference and wiki pages for a particular protocol.
+
+    Online help has been expanded.
+
+    VoIP call analysis (including nifty connection diagrams) has been
+    added.
+
+
+New protocol support
+
+  AgentX, BUDB, DTP, G.723, IDP, INAP, KINK, Realplayer Data Protocol, Retix Spanning Tree Protocol, RTCP-XR, XML, XNS, SPP
+
+Updated protocol support
+
+
+3GPP2 A11,
+ACSE,
+AMR,
+ATM,
+BER,
+BSSGP,
+BUTC,
+CDP,
+CLNP,
+CoSine L2,
+DAAP,
+DCE/RPC,
+DCOM,
+DIAMETER,
+DNP,
+DNS,
+Etheric,
+FCP,
+FW-1,
+Gnutella,
+GPRS,
+GSM A,
+GSM MAP,
+H.225,
+H.245,
+H.248,
+H.450,
+HTTP,
+IAX2,
+ICQ,
+IEEE 802.3 Slow Protocols, 
+IEEE 802.11,
+IP,
+iSCSI,
+ISUP,
+Juniper,
+JXTA,
+Kerberos,
+L2TP,
+LDAP,
+MIP,
+MPLS,
+NDMP,
+NSIP,
+NTP,
+OSPF,
+OXID,
+PostgreSQL,
+RADIUS,
+RDT,
+Redback,
+RMCP,
+RTP,
+RTSP,
+SCSI,
+SCTP,
+SDP,
+SPNEGO,
+SSL,
+STUN,
+TCAP,
+TCP,
+TZSP,
+
+
+New and updated capture file support
+
+    DBS Etherwatch, Lucent/Ascend, Nettl, Tcpdump (Redback),
+
+
 == January 19, 2005
 
 Ethereal 0.10.9 has been released.
 
 This release fixes the following security-related issues:
 
-  The COPS dissector could go into an infinite loop.
+  The COPS dissector could go into an infinite loop.  (CAN-2005-0006)
 
-  The DLSw dissector could cause an assertion.
+  The DLSw dissector could cause an assertion, making Ethereal exit
+  prematurely.  (CAN-2005-0007)
 
-  The DNP dissector could cause memory corruption.
+  The DNP dissector could cause memory corruption.  (CAN-2005-0008)
 
-  The Gnutella dissector could cause an assertion.
-  
-  The MMSE dissector could free static memory.
+  The Gnutella dissector could cause an assertion, making Ethereal
+  exit prematurely.  (CAN-2005-0009)
+
+  The MMSE dissector could free static memory.  (CAN-2005-0010)
 
   The X11 protocol dissector is vulnerable to a string buffer overflow.
+  (CAN-2005-0084)
 
 Please see the following advisory for more information:
   
@@ -28,33 +141,33 @@ Everyone is encouraged to upgrade.
 New and updated features
 
   Ethereal will now detect and flag weak 802.11 WEP IVs.
-  
+
   Windows Sniffer timestamp handling has been greatly improved.
-  
-  A bug which made Ethereal crash at startup on Windows 98 and Windows ME
-  systems has been fixed.
-  
+
+  A bug which made Ethereal crash at startup on Windows 98 and Windows
+  ME systems has been fixed.
+
   Ethereal and Tethereal now support a personal "hosts" file.
-  
+
   Invalid field length handling has been greatly improved.
-  
+
   The capture progress window title now shows the interface name.
 
 
 New protocol support
 
-  AMR, CRMF, JXTA, PKIXCMP, PROFINET CBA,
+  ALC, AMR, CRMF, JXTA, NORM, PKIXCMP, PROFINET CBA
 
 Updated protocol support
 
   AIM, ARP, BGP, BOOTP/DHCP, COPS, DAAP, DCERPC EPM, DCERPC, DCOM,
-  DHCPv6, DLSw, DNP, DNS, EAPOL, FC-FCS, FC-SWILS, FC-dNS, FCIP, FCSB3,
-  FIX, GIOP, GSM A, GSM SMS, GTP, Gnutella, H.225, H.245, HTTP, ICMP,
-  IEEE 802.11, IEEE 802a, Kerberos, L2TP, LDAP, LLC, LMP, MGCP, MIME
-  Multipart, MMSE, MPLS, MTP2, NBNS, NDMP, NMAS, NSIP, OLSR, PER, PGM,
-  PPP, PRES, PostgreSQL, Q.931, RADIUS, RMT ALC, RMT NORM, RTCP, RTP,
-  SDP, SEBEK, SIGCOMP, SIP, SLSK, SMB, SMPP, SRVLOC, SSL/TLS, T.38,
-  TACACS, TCAP, TCP, X11, eDonkey, image/GIF, image/JFIF, pflog,
+  DHCPv6, DLSw, DNP, DNS, EAPOL, eDonkey, FC-dNS, FC-FCS, FC-SWILS,
+  FCIP, FCSB3, FIX, GIOP, Gnutella, GSM A, GSM SMS, GTP, H.225, H.245,
+  HTTP, ICMP, IEEE 802.11, IEEE 802a, image/GIF, image/JFIF, Kerberos,
+  L2TP, LDAP, LLC, LMP, MGCP, MIME Multipart, MMSE, MPLS, MTP2, NBNS,
+  NDMP, NMAS, NSIP, OLSR, PER, pflog, PGM, PostgreSQL, PPP, PRES, Q.931,
+  RADIUS, RTCP, RTP, SDP, SEBEK, SIGCOMP, SIP, SLSK, SMB, SMPP, SRVLOC,
+  SSL/TLS, T.38, TACACS, TCAP, TCP, X11
 
 
 New and updated capture file support
