@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.31 2002/04/05 20:04:52 guy Exp $
+ * $Id: packet-x11.c,v 1.32 2002/04/11 09:38:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -652,7 +652,7 @@ static struct maskStruct {
 #define BITMASK8(name) { bitmask(tvb, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 1); }
 #define BITMASK16(name) { bitmask(tvb, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 2); }
 #define BITMASK32(name)  { bitmask(tvb, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 4); }
-#define BOOL(name)     (add_boolean(tvb, t, #name, hf_x11_##name))
+#define BOOL(name)     (add_boolean(tvb, t, hf_x11_##name))
 #define BUTTON(name)   { FIELD8(name); }
 #define CARD8(name)    { FIELD8(name); }
 #define CARD16(name)   (FIELD16(name))
@@ -742,8 +742,7 @@ static void bitmask(tvbuff_t *tvb, proto_tree *t, int hf, int ett, int size)
       cur_offset += size; 
 }
 
-static guint32 add_boolean(tvbuff_t *tvb, proto_tree *t,
-    const char *nameAsChar, int hf)
+static guint32 add_boolean(tvbuff_t *tvb, proto_tree *t, int hf)
 {
       guint32 v = VALUE8(tvb, cur_offset);
       proto_tree_add_boolean(t, hf, tvb, cur_offset, 1, v);

@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.22 2002/02/27 05:45:48 guy Exp $
+ * $Id: packet-wcp.c,v 1.23 2002/04/11 09:38:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,7 +223,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 static wcp_window_t *get_wcp_window_ptr( packet_info *pinfo);
 
 static void
-dissect_wcp_con_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+dissect_wcp_con_req(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 /* WCP connector request message */
 
@@ -244,7 +244,7 @@ dissect_wcp_con_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 }
 
 static void
-dissect_wcp_con_ack( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree){
+dissect_wcp_con_ack( tvbuff_t *tvb, int offset, proto_tree *tree){
 
 /* WCP connector ack message */
 
@@ -255,7 +255,7 @@ dissect_wcp_con_ack( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static void
-dissect_wcp_init( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree){
+dissect_wcp_init( tvbuff_t *tvb, int offset, proto_tree *tree){
 
 /* WCP Initiate Request/Ack message */
 
@@ -268,7 +268,7 @@ dissect_wcp_init( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 
 
 static void
-dissect_wcp_reset( tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree){
+dissect_wcp_reset( tvbuff_t *tvb, int offset, proto_tree *tree){
 
 /* Process WCP Reset Request/Ack message */
 
@@ -345,19 +345,19 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					tvb_get_guint8( tvb, 0));
 			switch (ext_cmd){
 			case CONNECT_REQ:
-				dissect_wcp_con_req( tvb, 1, pinfo, wcp_tree);
+				dissect_wcp_con_req( tvb, 1, wcp_tree);
 				break;
 
 			case CONNECT_ACK:
-				dissect_wcp_con_ack( tvb, 1, pinfo, wcp_tree);
+				dissect_wcp_con_ack( tvb, 1, wcp_tree);
 				break;
 			case INIT_REQ:
 			case INIT_ACK:
-				dissect_wcp_init( tvb, 1, pinfo, wcp_tree);
+				dissect_wcp_init( tvb, 1, wcp_tree);
 				break;
 			case RESET_REQ:
 			case RESET_ACK:
-				dissect_wcp_reset( tvb, 1, pinfo, wcp_tree);
+				dissect_wcp_reset( tvb, 1, wcp_tree);
 				break;
 			default:
 				break;
@@ -403,7 +403,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 
-guint8 *decompressed_entry( guint8 *src, guint8 *dst, int *len, guint8 * buf_start, guint8 *buf_end){
+static guint8 *decompressed_entry( guint8 *src, guint8 *dst, int *len, guint8 * buf_start, guint8 *buf_end){
 
 /* do the decompression for one field */
 

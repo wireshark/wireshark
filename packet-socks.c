@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.36 2002/03/09 22:54:27 guy Exp $
+ * $Id: packet-socks.c,v 1.37 2002/04/11 09:38:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -252,7 +252,7 @@ static GMemChunk *socks_vals = NULL;
 /************************* Support routines ***************************/
 
 
-static int display_string(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static int display_string(tvbuff_t *tvb, int offset,
 	proto_tree *tree, char *label){
 
 /* display a string with a length, characters encoding */
@@ -319,8 +319,7 @@ static char *get_command_name( guint Number){
 }
 
 
-static int display_address(tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree) {
+static int display_address(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 /* decode and display the v5 address, return offset of next byte */
 
@@ -340,7 +339,7 @@ static int display_address(tvbuff_t *tvb, int offset,
 	}	
 	else if ( a_type == 3){	/* domain name address */
 
-		offset += display_string(tvb, offset, pinfo, tree,
+		offset += display_string(tvb, offset, tree,
 			"Remote name");
 	}
 	else if ( a_type == 4){	/* IPv6 address */
@@ -421,7 +420,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		++offset;
 	
 
-		offset = display_address( tvb, offset, pinfo, socks_tree);
+		offset = display_address( tvb, offset, socks_tree);
 		hash_info->udp_remote_port = tvb_get_ntohs(tvb, offset);
 		
 		proto_tree_add_uint( socks_tree, hf_socks_dstport, tvb,
@@ -468,9 +467,9 @@ new_udp_conversation( socks_hash_entry_t *hash_info, packet_info *pinfo){
 
 /**************** Protocol Tree Display routines  ******************/
 
-void
+static void
 display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *parent, proto_tree *tree, socks_hash_entry_t *hash_info) {
+	proto_tree *tree, socks_hash_entry_t *hash_info) {
 
 
 /* Display the protocol tree for the V4 version. This routine uses the	*/
@@ -551,9 +550,9 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }			
 
 
-void 
+static void 
 display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *parent, proto_tree *tree, socks_hash_entry_t *hash_info) {
+	proto_tree *tree, socks_hash_entry_t *hash_info) {
 	
 /* Display the protocol tree for the version. This routine uses the	*/
 /* stored conversation information to decide what to do with the row.	*/
@@ -612,10 +611,10 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
 		++offset;
 						/* process user name	*/
-		offset += display_string( tvb, offset, pinfo, tree,
+		offset += display_string( tvb, offset, tree,
 				"User name");
 						/* process password	*/
-		offset += display_string( tvb, offset, pinfo, tree,
+		offset += display_string( tvb, offset, tree,
 				"Password");
 	}					
 					/* command to the server */	
@@ -645,7 +644,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			"Reserved: 0x%0x (should = 0x00)", tvb_get_guint8(tvb, offset)); 
 		++offset;
 
-		offset = display_address(tvb, offset, pinfo, tree);
+		offset = display_address(tvb, offset, tree);
 /*XXX Add remote port for search somehow */
 						/* Do remote port	*/
 		proto_tree_add_text( tree, tvb, offset, 2,
@@ -1041,11 +1040,11 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		socks_tree = proto_item_add_subtree(ti, ett_socks);
 
 		if ( hash_info->version == 4)
-			display_socks_v4(tvb, offset, pinfo, tree, socks_tree,
+			display_socks_v4(tvb, offset, pinfo, socks_tree,
 				hash_info);
 			
 		else if ( hash_info->version == 5)
-			display_socks_v5(tvb, offset, pinfo, tree, socks_tree,
+			display_socks_v5(tvb, offset, pinfo, socks_tree,
 				hash_info);
 
 				/* if past startup, add the faked stuff */
@@ -1182,3 +1181,4 @@ proto_reg_handoff_socks(void) {
  
  	dissector_add("tcp.port", TCP_PORT_SOCKS, socks_handle);
 }
+
