@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.6 2003/10/03 22:38:56 guy Exp $
+ * $Id: rtp_analysis.c,v 1.7 2003/10/10 10:16:03 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -577,7 +577,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 	}
 
 	/* ulaw? */
-	if (rtpinfo->info_payload_type == 0) {
+	if (rtpinfo->info_payload_type == PT_PCMU) {
 		/* we put the pointer at the beggining of the RTP data, that is
 		* at the end of the current frame minus the length of the
 		* padding count minus length of the RTP data */
@@ -593,7 +593,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 	}
 
 	/* alaw? */
-	else if (rtpinfo->info_payload_type == 8) {
+	else if (rtpinfo->info_payload_type == PT_PCMA) {
 		data = cfile.pd + (pinfo->fd->pkt_len - rtpinfo->info_payload_len);
 		for(i=0; i < (rtpinfo->info_payload_len - rtpinfo->info_padding_count); i++, data++) {
 			tmp = (gint16 )alaw2linear((unsigned char)*data);
