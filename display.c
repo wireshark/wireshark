@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.3 1999/06/19 03:14:29 guy Exp $
+ * $Id: display.c,v 1.4 1999/06/21 19:04:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -124,7 +124,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_widget_show(bbox);
 
   ok_bt = gtk_button_new_with_label ("OK");
-  gtk_signal_connect_object(GTK_OBJECT(ok_bt), "clicked",
+  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
     GTK_SIGNAL_FUNC(display_opt_ok_cb), GTK_OBJECT(display_opt_w));
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
@@ -132,7 +132,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_widget_show(ok_bt);
 
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
+  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
     GTK_SIGNAL_FUNC(display_opt_close_cb), GTK_OBJECT(display_opt_w));
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
@@ -142,39 +142,32 @@ display_opt_cb(GtkWidget *w, gpointer d) {
 }
 
 static void
-display_opt_ok_cb(GtkWidget *w, gpointer data) {
+display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   GtkWidget *button;
 
-#ifdef GTK_HAVE_FEATURES_1_1_0
-  data = w;
-#endif
-
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data),
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
                                               E_DISPLAY_TIME_ABS_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = ABSOLUTE;
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data),
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
                                               E_DISPLAY_TIME_REL_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = RELATIVE;
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data),
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
                                               E_DISPLAY_TIME_DELTA_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = DELTA;
 
-  gtk_widget_destroy(GTK_WIDGET(data));
+  gtk_widget_destroy(GTK_WIDGET(parent_w));
 
   redisplay_packets(&cf);
 }
 
 static void
-display_opt_close_cb(GtkWidget *w, gpointer win) {
+display_opt_close_cb(GtkWidget *close_bt, gpointer parent_w) {
 
-#ifdef GTK_HAVE_FEATURES_1_1_0
-  win = w;
-#endif
-  gtk_grab_remove(GTK_WIDGET(win));
-  gtk_widget_destroy(GTK_WIDGET(win));
+  gtk_grab_remove(GTK_WIDGET(parent_w));
+  gtk_widget_destroy(GTK_WIDGET(parent_w));
 }

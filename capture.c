@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.27 1999/06/19 01:14:48 guy Exp $
+ * $Id: capture.c,v 1.28 1999/06/21 19:04:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -265,7 +265,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_widget_show(bbox);
 
   ok_bt = gtk_button_new_with_label ("OK");
-  gtk_signal_connect_object(GTK_OBJECT(ok_bt), "clicked",
+  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
     GTK_SIGNAL_FUNC(capture_prep_ok_cb), GTK_OBJECT(cap_open_w));
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
@@ -273,7 +273,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_widget_show(ok_bt);
 
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
+  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
     GTK_SIGNAL_FUNC(capture_prep_close_cb), GTK_OBJECT(cap_open_w));
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
@@ -289,17 +289,15 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
 }
 
 static void
-capture_prep_ok_cb(GtkWidget *w, gpointer data) {
+capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   GtkWidget *if_cb, *filter_te, *count_cb, *snap_sb;
 
   gchar *filter_text;
-#ifdef GTK_HAVE_FEATURES_1_1_0
-  data = w;
-#endif
-  if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_IFACE_KEY);
-  filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_FILT_KEY);
-  count_cb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_COUNT_KEY);
-  snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_SNAP_KEY);
+
+  if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
+  filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILT_KEY);
+  count_cb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_KEY);
+  snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_KEY);
 
   if (cf.iface) g_free(cf.iface);
   cf.iface =
@@ -317,7 +315,7 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
   else if (cf.snap < MIN_PACKET_SIZE)
     cf.snap = MIN_PACKET_SIZE;
 
-  gtk_widget_destroy(GTK_WIDGET(data));
+  gtk_widget_destroy(GTK_WIDGET(parent_w));
 
   /* Choose a random name for the capture buffer */
   if (cf.save_file && !cf.user_saved) {
@@ -392,13 +390,10 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
-capture_prep_close_cb(GtkWidget *w, gpointer win) {
-
-#ifdef GTK_HAVE_FEATURES_1_1_0
-  win = w;
-#endif
-  gtk_grab_remove(GTK_WIDGET(win));
-  gtk_widget_destroy(GTK_WIDGET(win));
+capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w)
+{
+  gtk_grab_remove(GTK_WIDGET(parent_w));
+  gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 void

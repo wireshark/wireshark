@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.13 1999/06/19 03:14:30 guy Exp $
+ * $Id: column.c,v 1.14 1999/06/21 19:04:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -429,7 +429,7 @@ column_prefs_show() {
   for (i = 0; i < NUM_COL_FMTS; i++) {
     mitem = gtk_menu_item_new_with_label(col_format_desc(i));
     gtk_menu_append(GTK_MENU(menu), mitem);
-    gtk_signal_connect_object( GTK_OBJECT(mitem), "activate",
+    gtk_signal_connect( GTK_OBJECT(mitem), "activate",
       GTK_SIGNAL_FUNC(column_set_fmt_cb), (gpointer) i);
     gtk_widget_show(mitem);
   }

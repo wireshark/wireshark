@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.17 1999/06/12 07:04:35 guy Exp $
+ * $Id: prefs.c,v 1.18 1999/06/21 19:04:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -139,7 +139,7 @@ prefs_cb(GtkWidget *w, gpointer sp) {
   gtk_widget_show(bbox);
   
   ok_bt = gtk_button_new_with_label ("OK");
-  gtk_signal_connect_object(GTK_OBJECT(ok_bt), "clicked",
+  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
     GTK_SIGNAL_FUNC(prefs_main_ok_cb), GTK_OBJECT(prefs_w));
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
@@ -147,14 +147,14 @@ prefs_cb(GtkWidget *w, gpointer sp) {
   gtk_widget_show(ok_bt);
 
   save_bt = gtk_button_new_with_label ("Save");
-  gtk_signal_connect_object(GTK_OBJECT(save_bt), "clicked",
+  gtk_signal_connect(GTK_OBJECT(save_bt), "clicked",
     GTK_SIGNAL_FUNC(prefs_main_save_cb), GTK_OBJECT(prefs_w));
   GTK_WIDGET_SET_FLAGS(save_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), save_bt, TRUE, TRUE, 0);
   gtk_widget_show(save_bt);
   
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
+  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
     GTK_SIGNAL_FUNC(prefs_main_cancel_cb), GTK_OBJECT(prefs_w));
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
@@ -164,38 +164,30 @@ prefs_cb(GtkWidget *w, gpointer sp) {
 }
 
 void
-prefs_main_ok_cb(GtkWidget *w, gpointer win) {
-
-#ifdef GTK_HAVE_FEATURES_1_1_0
-  win = w;
-#endif
-  printer_prefs_ok(gtk_object_get_data(GTK_OBJECT(win), E_PRINT_PAGE_KEY));
-  filter_prefs_ok(gtk_object_get_data(GTK_OBJECT(win), E_FILTER_PAGE_KEY));
-  column_prefs_ok(gtk_object_get_data(GTK_OBJECT(win), E_COLUMN_PAGE_KEY));
-  gtk_widget_destroy(GTK_WIDGET(win));
+prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
+{
+  printer_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  filter_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_FILTER_PAGE_KEY));
+  column_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
+  gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 void
-prefs_main_save_cb(GtkWidget *w, gpointer win) {
-#ifdef GTK_HAVE_FEATURES_1_1_0
-  win = w;
-#endif
-  printer_prefs_save(gtk_object_get_data(GTK_OBJECT(win), E_PRINT_PAGE_KEY));
-  filter_prefs_save(gtk_object_get_data(GTK_OBJECT(win), E_FILTER_PAGE_KEY));
-  column_prefs_save(gtk_object_get_data(GTK_OBJECT(win), E_COLUMN_PAGE_KEY));
+prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
+{
+  printer_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  filter_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_FILTER_PAGE_KEY));
+  column_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   write_prefs();
 }
 
 void
-prefs_main_cancel_cb(GtkWidget *w, gpointer win) {
-
-#ifdef GTK_HAVE_FEATURES_1_1_0
-  win = w;
-#endif
-  printer_prefs_cancel(gtk_object_get_data(GTK_OBJECT(win), E_PRINT_PAGE_KEY));
-  filter_prefs_cancel(gtk_object_get_data(GTK_OBJECT(win), E_FILTER_PAGE_KEY));
-  column_prefs_cancel(gtk_object_get_data(GTK_OBJECT(win), E_COLUMN_PAGE_KEY));
-  gtk_widget_destroy(GTK_WIDGET(win));
+prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
+{
+  printer_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  filter_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_FILTER_PAGE_KEY));
+  column_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
+  gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 /* Parse through a list of comma-separated, quoted strings.  Return a

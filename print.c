@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.9 1999/03/23 03:14:46 gram Exp $
+ * $Id: print.c,v 1.10 1999/06/21 19:04:35 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -162,7 +162,7 @@ GtkWidget * printer_prefs_show()
   gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
 	gtk_widget_show(file_te);
 
-	gtk_signal_connect_object(GTK_OBJECT(file_bt), "clicked",
+	gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
 			GTK_SIGNAL_FUNC(printer_opts_file_cb), GTK_OBJECT(file_te));
 
 	gtk_widget_show(main_vb);
@@ -171,11 +171,11 @@ GtkWidget * printer_prefs_show()
 
 
 static void
-printer_opts_file_cb(GtkWidget *w, gpointer te) {
+printer_opts_file_cb(GtkWidget *file_bt, gpointer file_te) {
   GtkWidget *fs;
 
   fs = gtk_file_selection_new ("Ethereal: Print to a File");
-	gtk_object_set_data(GTK_OBJECT(fs), PRINT_FILE_TE_KEY, te);
+	gtk_object_set_data(GTK_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
 
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button),
     "clicked", (GtkSignalFunc) printer_opts_fs_ok_cb, fs);
