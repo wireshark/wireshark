@@ -3,10 +3,11 @@
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
  * UDH and WSP dissection of SMS message, Short Message reassembly,
- * "Decode Short Message with Port Number UDH as CL-WSP" preference
+ * "Decode Short Message with Port Number UDH as CL-WSP" preference,
+ * Data Coding Scheme decoding for GSM SMS and GSM CBS,
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.16 2003/07/07 22:42:11 guy Exp $
+ * $Id: packet-smpp.c,v 1.17 2003/08/23 02:15:53 sahlberg Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -185,9 +186,25 @@ static int hf_smpp_its_session_sequence		= -1;
 static int hf_smpp_its_session_ind		= -1;
 
 /*
+ * Data Coding Scheme section
+ */
+static int hf_smpp_dcs = -1;
+static int hf_smpp_dcs_sms_coding_group = -1;
+static int hf_smpp_dcs_text_compression = -1;
+static int hf_smpp_dcs_class_present = -1;
+static int hf_smpp_dcs_charset = -1;
+static int hf_smpp_dcs_class = -1;
+static int hf_smpp_dcs_cbs_coding_group = -1;
+static int hf_smpp_dcs_cbs_language = -1;
+static int hf_smpp_dcs_wap_charset = -1;
+static int hf_smpp_dcs_wap_class = -1;
+static int hf_smpp_dcs_cbs_class = -1;
+
+/*
  * User Data Header section
  */
 static int hf_smpp_udh_length	= -1;
+static int hf_smpp_udh_iei		= -1;
 static int hf_smpp_udh_multiple_messages			= -1;
 static int hf_smpp_udh_multiple_messages_msg_id		= -1;
 static int hf_smpp_udh_multiple_messages_msg_parts	= -1;
@@ -212,6 +229,8 @@ static gint ett_smpp		= -1;
 static gint ett_dlist		= -1;
 static gint ett_dlist_resp	= -1;
 static gint ett_opt_param	= -1;
+static gint ett_dcs			= -1;
+static gint ett_udh						= -1;
 static gint ett_udh_multiple_messages	= -1;
 static gint ett_udh_ports				= -1;
 static gint ett_sm_fragment		= -1;
@@ -648,6 +667,160 @@ static const value_string vals_its_session_ind[] = {
     {  0, NULL }
 };
 
+/* Data Coding Scheme: see 3GPP TS 23.040 and 3GPP TS 23.038 */
+static const value_string vals_dcs_sms_coding_group[] = {
+	{ 0x00, "SMS DCS: General Data Coding indication - Uncompressed text, no message class" },
+	{ 0x01, "SMS DCS: General Data Coding indication - Uncompressed text" },
+	{ 0x02, "SMS DCS: General Data Coding indication - Compressed text, no message class" },
+	{ 0x03, "SMS DCS: General Data Coding indication - Compressed text" },
+	{ 0x04, "SMS DCS: Message Marked for Automatic Deletion - Uncompressed text, no message class" },
+	{ 0x05, "SMS DCS: Message Marked for Automatic Deletion - Uncompressed text" },
+	{ 0x06, "SMS DCS: Message Marked for Automatic Deletion - Compressed text, no message class" },
+	{ 0x07, "SMS DCS: Message Marked for Automatic Deletion - Compressed text" },
+	{ 0x08, "SMS DCS: Reserved" },
+	{ 0x09, "SMS DCS: Reserved" },
+	{ 0x0A, "SMS DCS: Reserved" },
+	{ 0x0B, "SMS DCS: Reserved" },
+	{ 0x0C, "SMS DCS: Message Waiting Indication - Discard Message" },
+	{ 0x0D, "SMS DCS: Message Waiting Indication - Store Message (GSM 7-bit default alphabet)" },
+	{ 0x0E, "SMS DCS: Message Waiting Indication - Store Message (UCS-2 character set)" },
+	{ 0x0F, "SMS DCS: Data coding / message class" },
+	{ 0x00, NULL }
+};
+
+static const true_false_string tfs_dcs_text_compression = {
+	"Compressed text",
+	"Uncompressed text"
+};
+
+static const true_false_string tfs_dcs_class_present = {
+	"Message class is present",
+	"No message class"
+};
+
+static const value_string vals_dcs_charset[] = {
+	{ 0x00, "GSM 7-bit default alphabet" },
+	{ 0x01, "8-bit data" },
+	{ 0x02, "UCS-2 (16-bit) data" },
+	{ 0x03, "Reserved" },
+	{ 0x00, NULL }
+};
+
+static const value_string vals_dcs_class[] = {
+	{ 0x00, "Class 0" },
+	{ 0x01, "Class 1 - ME specific" },
+	{ 0x02, "Class 2 - (U)SIM specific" },
+	{ 0x03, "Class 3 - TE specific" },
+	{ 0x00, NULL }
+};
+
+static const value_string vals_dcs_cbs_coding_group[] = {
+	{ 0x00, "CBS DCS: Language using the GSM 7-bit default alphabet" },
+	{ 0x01, "CBS DCS: Language indication at beginning of message" },
+	{ 0x02, "CBS DCS: Language using the GSM 7-bit default alphabet" },
+	{ 0x03, "CBS DCS: Reserved" },
+	{ 0x04, "CBS DCS: General Data Coding indication - Uncompressed text, no message class" },
+	{ 0x05, "CBS DCS: General Data Coding indication - Uncompressed text" },
+	{ 0x06, "CBS DCS: General Data Coding indication - Compressed text, no message class" },
+	{ 0x07, "CBS DCS: General Data Coding indication - Compressed text" },
+	{ 0x08, "CBS DCS: Reserved" },
+	{ 0x09, "CBS DCS: Message with User Data Header structure" },
+	{ 0x0A, "CBS DCS: Reserved" },
+	{ 0x0B, "CBS DCS: Reserved" },
+	{ 0x0C, "CBS DCS: Reserved" },
+	{ 0x0D, "CBS DCS: Reserved" },
+	{ 0x0E, "CBS DCS: Defined by the WAP Forum" },
+	{ 0x0F, "SMS DCS: Data coding / message class" },
+	{ 0x00, NULL }
+};
+
+static const value_string vals_dcs_cbs_language[] = {
+	{ 0x00, "German" },
+	{ 0x01, "English" },
+	{ 0x02, "Italian" },
+	{ 0x03, "French" },
+	{ 0x04, "Spanish" },
+	{ 0x05, "Dutch" },
+	{ 0x06, "Swedish" },
+	{ 0x07, "Danish" },
+	{ 0x08, "Portuguese" },
+	{ 0x09, "Finnish" },
+	{ 0x0A, "Norwegian" },
+	{ 0x0B, "Greek" },
+	{ 0x0C, "Turkish" },
+	{ 0x0D, "Hungarian" },
+	{ 0x0E, "Polish" },
+	{ 0x0F, "Language not specified" },
+	{ 0x10, "GSM 7-bit default alphabet - message preceeded by language indication" },
+	{ 0x11, "UCS-2 (16-bit) - message preceeded by language indication" },
+	{ 0x20, "Czech" },
+	{ 0x21, "Hebrew" },
+	{ 0x22, "Arabic" },
+	{ 0x23, "Russian" },
+	{ 0x24, "Icelandic" },
+	{ 0x00, NULL }
+};
+
+static const value_string vals_dcs_cbs_class[] = {
+	{ 0x00, "No message class" },
+	{ 0x01, "Class 1 - User defined" },
+	{ 0x02, "Class 2 - User defined" },
+	{ 0x03, "Class 3 - TE specific" },
+	{ 0x00, NULL }
+};
+
+static const value_string vals_dcs_wap_class[] = {
+	{ 0x00, "No message class" },
+	{ 0x01, "Class 1 - ME specific" },
+	{ 0x02, "Class 2 - (U)SIM specific" },
+	{ 0x03, "Class 3 - TE specific" },
+	{ 0x00, NULL }
+};
+
+static const value_string vals_dcs_wap_charset[] = {
+	{ 0x00, "Reserved" },
+	{ 0x01, "8-bit data" },
+	{ 0x02, "Reserved" },
+	{ 0x03, "Reserved" },
+	{ 0x00, NULL }
+};
+
+
+/* 3GPP TS 23.040 V6.1.0 (2003-06) */
+static const value_string vals_udh_iei[] = {
+	{ 0x00, "SMS - Concatenated short messages, 8-bit reference number" },
+	{ 0x01, "SMS - Special SMS Message Indication" },
+	{ 0x02, "Reserved" },
+	{ 0x03, "Value not used to avoid misinterpretation as <LF> character" },
+	{ 0x04, "SMS - Application port addressing scheme, 8 bit address" },
+	{ 0x05, "SMS - Application port addressing scheme, 16 bit address" },
+	{ 0x06, "SMS - SMSC Control Parameters" },
+	{ 0x07, "SMS - UDH Source Indicator" },
+	{ 0x08, "SMS - Concatenated short message, 16-bit reference number" },
+	{ 0x09, "SMS - Wireless Control Message Protocol" },
+	{ 0x0A, "EMS - Text Formatting" },
+	{ 0x0B, "EMS - Predefined Sound" },
+	{ 0x0C, "EMS - User Defined Sound (iMelody max 128 bytes)" },
+	{ 0x0D, "EMS - Predefined Animation" },
+	{ 0x0E, "EMS - Large Animation (16*16 times 4 = 32*4 =128 bytes)" },
+	{ 0x0F, "EMS - Small Animation (8*8 times 4 = 8*4 =32 bytes)" },
+	{ 0x10, "EMS - Large Picture (32*32 = 128 bytes)" },
+	{ 0x11, "EMS - Small Picture (16*16 = 32 bytes)" },
+	{ 0x12, "EMS - Variable Picture" },
+	{ 0x13, "EMS - User prompt indicator" },
+	{ 0x14, "EMS - Extended Object" },
+	{ 0x15, "EMS - Reused Extended Object" },
+	{ 0x16, "EMS - Compression Control" },
+	{ 0x17, "EMS - Object Distribution Indicator" },
+	{ 0x18, "EMS - Standard WVG object" },
+	{ 0x19, "EMS - Character Size WVG object" },
+	{ 0x1A, "EMS - Extended Object Data Request Command" },
+	{ 0x20, "SMS - RFC 822 E-Mail Header" },
+	{ 0x21, "SMS - Hyperlink format element" },
+	{ 0x22, "SMS - Reply Address Element" },
+	{ 0x00, NULL }
+};	
+
 /*!
  * SMPP equivalent of mktime() (3). Convert date to standard 'time_t' format
  *
@@ -711,6 +884,22 @@ smpp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
       proto_tree_add_string(tree, field, tvb, *offset, len,
           tvb_get_ptr(tvb, *offset, len));
     }
+    (*offset) += len;
+}
+
+static void
+smpp_handle_string_z(proto_tree *tree, tvbuff_t *tvb, int field, int *offset,
+		const char *null_string)
+{
+    guint	 len;
+
+    len = tvb_strsize(tvb, *offset);
+    if (len > 1) {
+      proto_tree_add_string(tree, field, tvb, *offset, len,
+          tvb_get_ptr(tvb, *offset, len));
+    } else {
+		proto_tree_add_string(tree, field, tvb, *offset, len, null_string);
+	}
     (*offset) += len;
 }
 
@@ -1089,6 +1278,86 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
     }
 }
 
+static void
+smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset)
+{
+    guint8	 val;
+	int off = *offset;
+	proto_item *subtree = NULL;
+
+    val = tvb_get_guint8(tvb, off);
+	subtree = proto_tree_add_uint(tree,
+			hf_smpp_data_coding, tvb, off, 1, val);
+	proto_item_add_subtree(subtree, ett_dcs);
+	/* SMPP Data Coding Scheme */
+	proto_tree_add_uint(subtree, hf_smpp_dcs, tvb, off, 1, val);
+	/* GSM SMS Data Coding Scheme */
+	proto_tree_add_text(subtree, tvb, off, 1,
+					"GSM SMS Data Coding");
+	proto_tree_add_uint(subtree,
+			hf_smpp_dcs_sms_coding_group, tvb, off, 1, val);
+	if (val>>6 == 2) { /* Reserved */
+			;
+	} else if (val < 0xF0) {
+		proto_tree_add_boolean(subtree,
+				hf_smpp_dcs_text_compression, tvb, off, 1, val);
+		proto_tree_add_boolean(subtree,
+				hf_smpp_dcs_class_present, tvb, off, 1, val);
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_charset, tvb, off, 1, val);
+		if (val & 0x10)
+			proto_tree_add_uint(subtree,
+					hf_smpp_dcs_class, tvb, off, 1, val);
+	} else {
+		if (val & 0x08)
+			proto_tree_add_text(subtree, tvb, off, 1,
+					"SMPP: Bit .... 1... should be 0 (reserved)");
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_charset, tvb, off, 1, val);
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_class, tvb, off, 1, val);
+	}
+	/* Cell Broadcast Service (CBS) Data Coding Scheme */
+	proto_tree_add_text(subtree, tvb, off, 1,
+					"GSM CBS Data Coding");
+	proto_tree_add_uint(subtree,
+			hf_smpp_dcs_cbs_coding_group, tvb, off, 1, val);
+	if (val < 0x40) { /* Language specified */
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_cbs_language, tvb, off, 1, val);
+	} else if (val>>6 == 1) { /* General Data Coding indication */
+		proto_tree_add_boolean(subtree,
+				hf_smpp_dcs_text_compression, tvb, off, 1, val);
+		proto_tree_add_boolean(subtree,
+				hf_smpp_dcs_class_present, tvb, off, 1, val);
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_charset, tvb, off, 1, val);
+		if (val & 0x10)
+			proto_tree_add_uint(subtree,
+					hf_smpp_dcs_class, tvb, off, 1, val);
+	} else if (val>>6 == 2) { /* Message with UDH structure */
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_charset, tvb, off, 1, val);
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_class, tvb, off, 1, val);
+	} else if (val>>4 == 14) { /* WAP Forum */
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_wap_charset, tvb, off, 1, val);
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_wap_class, tvb, off, 1, val);
+	} else if (val>>4 == 15) { /* Data coding / message handling */
+		if (val & 0x08)
+			proto_tree_add_text(subtree, tvb, off, 1,
+					"SMPP: Bit .... 1... should be 0 (reserved)");
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_charset, tvb, off, 1, val);
+		proto_tree_add_uint(subtree,
+				hf_smpp_dcs_cbs_class, tvb, off, 1, val);
+	}
+
+    (*offset)++;
+}
+
 /*!
  * The next set of routines handle the different operations, associated
  * with SMPP.
@@ -1144,36 +1413,37 @@ outbind(proto_tree *tree, tvbuff_t *tvb)
  * Call WSP dissector if port matches WSP traffic.
  */
 static void
-parse_sm_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
+parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 	tvbuff_t *sm_tvb = NULL;
-	proto_item *subtree;
+	proto_item *subtree, *tree;
 	guint8 udh_len, udh, len;
 	guint8 sm_len = tvb_reported_length (tvb);
 	guint8 sm_data_len;
 	guint32 i = 0;
 	/* Multiple Messages UDH */
 	fragment_data *fd_sm = NULL;
-	guint8 sm_id = 0, frags = 0, frag = 0;
+	guint16 sm_id = 0, frags = 0, frag = 0;
 	gboolean save_fragmented = FALSE, try_sm_reassemble = FALSE;
 	/* Port Number UDH */
 	guint16 p_src = 0, p_dst = 0;
 	gboolean ports_available = FALSE;
 
 	udh_len = tvb_get_guint8(tvb, i++);
-	proto_tree_add_uint(tree, hf_smpp_udh_length, tvb, 0, 1, udh_len);
+	tree = proto_tree_add_uint(sm_tree, hf_smpp_udh_length, tvb, 0, 1, udh_len);
+	tree = proto_item_add_subtree(tree, ett_udh);
 	sm_data_len = sm_len - (1 + udh_len);
 	while (i < udh_len) {
 		udh = tvb_get_guint8(tvb, i++);
 		len = tvb_get_guint8(tvb, i++);
+		subtree = proto_tree_add_uint(tree, hf_smpp_udh_iei,
+				tvb, i-2, 2+len, udh);
 		switch (udh) {
-			case 0x00: /* Multiple messages */
-				subtree = proto_tree_add_item(tree,
-						hf_smpp_udh_multiple_messages, tvb, i-2, 2+len, FALSE);
+			case 0x00: /* Multiple messages - 8-bit message ID */
 				if (len == 3) {
 					sm_id = tvb_get_guint8(tvb, i++);
 					frags = tvb_get_guint8(tvb, i++);
-					frag = tvb_get_guint8(tvb, i++);
+					frag  = tvb_get_guint8(tvb, i++);
 					proto_item_append_text(subtree,
 							": Message %u, Part %u of %u", sm_id, frag, frags);
 					subtree = proto_item_add_subtree(subtree,
@@ -1188,37 +1458,74 @@ parse_sm_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 							hf_smpp_udh_multiple_messages_msg_part,
 							tvb, i-1, 1, frag);
 				} else {
-					proto_item_append_text(subtree, "Invalid format!");
+					proto_item_append_text(subtree, " - Invalid format!");
 					i += len;
 				}
 				break;
 
-			case 0x05: /* Port Number UDH */
-				subtree = proto_tree_add_item(tree,
-						hf_smpp_udh_ports, tvb, i-2, 2+len, FALSE);
-				if (len == 4) { /* Port fields */
-					p_src = tvb_get_ntohs(tvb, i);
-					i += 2;
-					p_dst = tvb_get_ntohs(tvb, i);
-					i += 2;
+			case 0x08: /* Multiple messages - 16-bit message ID */
+				if (len == 4) {
+					sm_id = tvb_get_ntohs(tvb, i); i += 2;
+					frags = tvb_get_guint8(tvb, i++);
+					frag  = tvb_get_guint8(tvb, i++);
+					proto_item_append_text(subtree,
+							": Message %u, Part %u of %u", sm_id, frag, frags);
+					subtree = proto_item_add_subtree(subtree,
+							ett_udh_multiple_messages);
+					proto_tree_add_uint (subtree,
+							hf_smpp_udh_multiple_messages_msg_id,
+							tvb, i-4, 2, sm_id);
+					proto_tree_add_uint (subtree,
+							hf_smpp_udh_multiple_messages_msg_parts,
+							tvb, i-2, 1, frags);
+					proto_tree_add_uint (subtree,
+							hf_smpp_udh_multiple_messages_msg_part,
+							tvb, i-1, 1, frag);
+				} else {
+					proto_item_append_text(subtree, " - Invalid format!");
+					i += len;
+				}
+				break;
+
+			case 0x04: /* Port Number UDH - 8-bit address */
+				if (len == 2) { /* Port fields */
+					p_dst = tvb_get_guint8(tvb, i++);
+					p_src = tvb_get_guint8(tvb, i++);
 					proto_item_append_text(subtree,
 							": source port %u, destination port %u",
 							p_src, p_dst);
 					subtree = proto_item_add_subtree(subtree, ett_udh_ports);
-					proto_tree_add_uint (subtree, hf_smpp_udh_ports_src,
-							tvb, i-4, 2, p_src);
 					proto_tree_add_uint (subtree, hf_smpp_udh_ports_dst,
-							tvb, i-2, 2, p_dst);
+							tvb, i-2, 1, p_dst);
+					proto_tree_add_uint (subtree, hf_smpp_udh_ports_src,
+							tvb, i-1, 1, p_src);
 					ports_available = TRUE;
 				} else {
-					proto_item_append_text(subtree, "Invalid format!");
+					proto_item_append_text(subtree, " - Invalid format!");
+					i += len;
+				}
+				break;
+
+			case 0x05: /* Port Number UDH - 16-bit address */
+				if (len == 4) { /* Port fields */
+					p_dst = tvb_get_ntohs(tvb, i); i += 2;
+					p_src = tvb_get_ntohs(tvb, i); i += 2;
+					proto_item_append_text(subtree,
+							": source port %u, destination port %u",
+							p_src, p_dst);
+					subtree = proto_item_add_subtree(subtree, ett_udh_ports);
+					proto_tree_add_uint (subtree, hf_smpp_udh_ports_dst,
+							tvb, i-4, 2, p_dst);
+					proto_tree_add_uint (subtree, hf_smpp_udh_ports_src,
+							tvb, i-2, 2, p_src);
+					ports_available = TRUE;
+				} else {
+					proto_item_append_text(subtree, " - Invalid format!");
 					i += len;
 				}
 				break;
 
 			default:
-				proto_tree_add_text(tree, tvb, i-2, 2+len,
-						"Undecoded UDH (0x%02x)", udh);
 				i += len;
 				break;
 		}
@@ -1227,27 +1534,29 @@ parse_sm_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 		return; /* No more data */
 
 	/* Try reassembling the packets */
-	if ( frags && tvb_bytes_exist (tvb, udh_len, sm_data_len) ) {
+	if ( frags && tvb_bytes_exist (tvb, i, sm_data_len) ) {
 		try_sm_reassemble = TRUE;
 		save_fragmented = pinfo->fragmented;
 		pinfo->fragmented = TRUE;
-		fd_sm = fragment_add_seq_check (tvb, udh_len, pinfo,
+		fd_sm = fragment_add_seq_check (tvb, i, pinfo,
 				sm_id, /* guint32 ID for fragments belonging together */
 				sm_fragment_table, /* list of message fragments */
 				sm_reassembled_table, /* list of reassembled messages */
 				frag-1, /* guint32 fragment sequence number */
 				sm_data_len, /* guint32 fragment length */
-				(frags=frag)); /* Last fragment? */
+				(frag != frags)); /* More fragments? */
 		if (fd_sm) { /* Reassembled */
 			sm_tvb = tvb_new_real_data (fd_sm->data, fd_sm->len, fd_sm->len);
 			tvb_set_child_real_data_tvbuff (tvb, sm_tvb);
 			add_new_data_source (pinfo, sm_tvb, "Reassembled Short Message");
 			pinfo->fragmented = FALSE;
 			/* Show all fragments */
-			show_fragment_seq_tree (fd_sm, &sm_frag_items, tree, pinfo, sm_tvb);
+			show_fragment_seq_tree (fd_sm, &sm_frag_items,
+					sm_tree, pinfo, sm_tvb);
 		} else {
 			if (check_col (pinfo->cinfo, COL_INFO))
-				col_append_str (pinfo->cinfo, COL_INFO, " (Short Message unreassembled)");
+				col_append_str (pinfo->cinfo, COL_INFO,
+						" (Short Message unreassembled)");
 		}
 	}
 	if (ports_available) { /* Port Number UDH is present */
@@ -1262,15 +1571,15 @@ parse_sm_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 					 *  -  reassembled Short Message,
 					 *  -  or to 1st fragment of unreassembled Short Message,
 					 *  -  or to single-fragment messages */
-					call_dissector (wsp_handle, sm_tvb, pinfo, tree);
+					call_dissector (wsp_handle, sm_tvb, pinfo, sm_tree);
 				}
 			} else {
 				if (!dissector_try_port(smpp_dissector_table, p_src,
-							sm_tvb, pinfo, tree)) {
+							sm_tvb, pinfo, sm_tree)) {
 					if (!dissector_try_port(smpp_dissector_table, p_dst,
-							sm_tvb, pinfo, tree)) {
-							if (tree) /* Only display if needed */
-								proto_tree_add_text (tree, sm_tvb, 0, -1,
+							sm_tvb, pinfo, sm_tree)) {
+							if (sm_tree) /* Only display if needed */
+								proto_tree_add_text (sm_tree, sm_tvb, 0, -1,
 										"Message body");
 					}
 				}
@@ -1290,7 +1599,7 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
     guint8	 flag, udhi;
     guint8	 length;
 
-    smpp_handle_string(tree, tvb, hf_smpp_service_type, &offset);
+    smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
@@ -1308,17 +1617,27 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
     offset++;
     smpp_handle_int1(tree, tvb, hf_smpp_protocol_id, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_priority_flag, &offset);
+	if (tvb_get_guint8(tvb,offset)) {
     smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
 				hf_smpp_schedule_delivery_time_r, &offset);
+	} else { /* Time = NULL means Immediate delivery */
+		proto_tree_add_text(tree, tvb, offset++, 1,
+				"Scheduled delivery time: Immediate delivery");
+	}
+	if (tvb_get_guint8(tvb,offset)) {
     smpp_handle_time(tree, tvb, hf_smpp_validity_period,
 				hf_smpp_validity_period_r, &offset);
+	} else { /* Time = NULL means SMSC default validity */
+		proto_tree_add_text(tree, tvb, offset++, 1,
+				"Validity period: SMSC default validity period");
+	}
     flag = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_smpp_regdel_receipt, tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_regdel_acks, tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_regdel_notif, tvb, offset, 1, flag);
     offset++;
     smpp_handle_int1(tree, tvb, hf_smpp_replace_if_present_flag, &offset);
-    smpp_handle_int1(tree, tvb, hf_smpp_data_coding, &offset);
+	smpp_handle_dcs(tree, tvb, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_sm_default_msg_id, &offset);
     length = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_smpp_sm_length, tvb, offset++, 1, length);
@@ -1350,10 +1669,20 @@ replace_sm(proto_tree *tree, tvbuff_t *tvb)
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
+	if (tvb_get_guint8(tvb,offset)) {
     smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
 				hf_smpp_schedule_delivery_time_r, &offset);
+	} else { /* Time = NULL */
+		proto_tree_add_text(tree, tvb, offset++, 1,
+				"Scheduled delivery time: Keep initial delivery time setting");
+	}
+	if (tvb_get_guint8(tvb,offset)) {
     smpp_handle_time(tree, tvb, hf_smpp_validity_period,
 				hf_smpp_validity_period_r, &offset);
+	} else { /* Time = NULL */
+		proto_tree_add_text(tree, tvb, offset++, 1,
+				"Validity period: Keep initial validity period setting");
+	}
     flag = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_smpp_regdel_receipt, tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_regdel_acks, tvb, offset, 1, flag);
@@ -1373,7 +1702,7 @@ cancel_sm(proto_tree *tree, tvbuff_t *tvb)
 {
     int		 offset = 0;
 
-    smpp_handle_string(tree, tvb, hf_smpp_service_type, &offset);
+    smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
@@ -1390,7 +1719,7 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb)
     guint8	 flag;
     guint8	 length;
 
-    smpp_handle_string(tree, tvb, hf_smpp_service_type, &offset);
+    smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
@@ -1407,17 +1736,27 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb)
     offset++;
     smpp_handle_int1(tree, tvb, hf_smpp_protocol_id, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_priority_flag, &offset);
+	if (tvb_get_guint8(tvb,offset)) {
     smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
 				hf_smpp_schedule_delivery_time_r, &offset);
+	} else { /* Time = NULL means Immediate delivery */
+		proto_tree_add_text(tree, tvb, offset++, 1,
+				"Scheduled delivery time: Immediate delivery");
+	}
+	if (tvb_get_guint8(tvb,offset)) {
     smpp_handle_time(tree, tvb, hf_smpp_validity_period,
 				hf_smpp_validity_period_r, &offset);
+	} else { /* Time = NULL means SMSC default validity */
+		proto_tree_add_text(tree, tvb, offset++, 1,
+				"Validity period: SMSC default validity period");
+	}
     flag = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_smpp_regdel_receipt, tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_regdel_acks, tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_regdel_notif, tvb, offset, 1, flag);
     offset++;
     smpp_handle_int1(tree, tvb, hf_smpp_replace_if_present_flag, &offset);
-    smpp_handle_int1(tree, tvb, hf_smpp_data_coding, &offset);
+	smpp_handle_dcs(tree, tvb, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_sm_default_msg_id, &offset);
     length = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_smpp_sm_length, tvb, offset++, 1, length);
@@ -1448,7 +1787,7 @@ data_sm(proto_tree *tree, tvbuff_t *tvb)
     int		 offset = 0;
     guint8	 flag;
 
-    smpp_handle_string(tree, tvb, hf_smpp_service_type, &offset);
+    smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
@@ -1468,7 +1807,7 @@ data_sm(proto_tree *tree, tvbuff_t *tvb)
     proto_tree_add_item(tree, hf_smpp_regdel_acks, tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_regdel_notif, tvb, offset, 1, flag);
     offset++;
-    smpp_handle_int1(tree, tvb, hf_smpp_data_coding, &offset);
+	smpp_handle_dcs(tree, tvb, &offset);
     smpp_handle_tlv(tree, tvb, &offset);
 }
 
@@ -1961,7 +2300,7 @@ proto_register_smpp(void)
 	},
 	{   &hf_smpp_data_coding,
 	    {   "Data coding", "smpp.data_coding",
-		FT_UINT8, BASE_HEX, VALS(vals_data_coding), 0x00,
+		FT_UINT8, BASE_HEX, NULL, 0x00,
 		"Defines the encoding scheme of the message.",
 		HFILL
 	    }
@@ -2408,6 +2747,85 @@ proto_register_smpp(void)
 		HFILL
 	    }
 	},
+	{	&hf_smpp_dcs,
+		{ "SMPP Data Coding Scheme", "smpp.dcs",
+		FT_UINT8, BASE_HEX, VALS(vals_data_coding), 0x00,
+		"Data Coding Scheme according to SMPP.",
+		HFILL
+	    }
+	},
+	{	&hf_smpp_dcs_sms_coding_group,
+		{	"DCS Coding Group for SMS", "smpp.dcs.sms_coding_group",
+			FT_UINT8, BASE_HEX, VALS(vals_dcs_sms_coding_group), 0xF0,
+			"Data Coding Scheme coding group for GSM Short Message Service.",
+			HFILL
+		}
+	},
+	{	&hf_smpp_dcs_text_compression,
+		{	"DCS Text compression", "smpp.dcs.text_compression",
+			FT_BOOLEAN, 8, TFS(&tfs_dcs_text_compression), 0x20,
+			"Indicates if text compression is used.", HFILL
+		}
+	},
+	{	&hf_smpp_dcs_class_present,
+		{	"DCS Class present", "smpp.dcs.class_present",
+			FT_BOOLEAN, 8, TFS(&tfs_dcs_class_present), 0x10,
+			"Indicates if the message class is present (defined).", HFILL
+		}
+	},
+	{	&hf_smpp_dcs_charset,
+		{	"DCS Character set", "smpp.dcs.charset",
+			FT_UINT8, BASE_HEX, VALS(vals_dcs_charset), 0x0C,
+			"Specifies the character set used in the message.", HFILL
+		}
+	},
+	{	&hf_smpp_dcs_class,
+		{	"DCS Message class", "smpp.dcs.class",
+			FT_UINT8, BASE_HEX, VALS(vals_dcs_class), 0x03,
+			"Specifies the message class.", HFILL
+		}
+	},
+	{	&hf_smpp_dcs_cbs_coding_group,
+		{	"DCS Coding Group for CBS", "smpp.dcs.cbs_coding_group",
+			FT_UINT8, BASE_HEX, VALS(vals_dcs_cbs_coding_group), 0xF0,
+			"Data Coding Scheme coding group for GSM Cell Broadcast Service.",
+			HFILL
+		}
+	},
+	{	&hf_smpp_dcs_cbs_language,
+		{	"DCS CBS Message language", "smpp.dcs.cbs_language",
+			FT_UINT8, BASE_HEX, VALS(vals_dcs_cbs_language), 0x3F,
+			"Language of the GSM Cell Broadcast Service message.", HFILL
+		}
+	},
+	{	&hf_smpp_dcs_cbs_class,
+		{	"DCS CBS Message class", "smpp.dcs.cbs_class",
+			FT_UINT8, BASE_HEX, VALS(vals_dcs_cbs_class), 0x03,
+			"Specifies the message class for GSM Cell Broadcast Service, "
+			"for the Data coding / message handling code group.", HFILL
+		}
+	},
+	{	&hf_smpp_dcs_wap_charset,
+		{	"DCS Message coding", "smpp.dcs.wap_coding",
+			FT_UINT8, BASE_HEX, VALS(vals_dcs_wap_charset), 0x0C,
+			"Specifies the used message encoding, "
+			"as specified by the WAP Forum (WAP over GSM USSD).", HFILL
+		}
+	},
+	{	&hf_smpp_dcs_wap_class,
+		{	"DCS CBS Message class", "smpp.dcs.wap_class",
+			FT_UINT8, BASE_HEX, VALS(vals_dcs_wap_class), 0x03,
+			"Specifies the message class for GSM Cell Broadcast Service, "
+			"as specified by the WAP Forum (WAP over GSM USSD).", HFILL
+		}
+	},
+	{   &hf_smpp_udh_iei,
+		{	"IE Id", "smpp.udh.iei",
+		FT_UINT8, BASE_HEX, VALS(vals_udh_iei), 0x00,
+		"Name of the User Data Header Information Element.",
+		HFILL
+		}
+	},
 	{   &hf_smpp_udh_length,
 	    {	"UDH Length", "smpp.udh.len",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
@@ -2424,7 +2842,7 @@ proto_register_smpp(void)
 	},
 	{   &hf_smpp_udh_multiple_messages_msg_id,
 	    {	"Message identifier", "smpp.udh.mm.msg_id",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT16, BASE_DEC, NULL, 0x00,
 		"Identification of the message",
 		HFILL
 	    }
@@ -2524,6 +2942,8 @@ proto_register_smpp(void)
 	    &ett_dlist,
 	    &ett_dlist_resp,
 	    &ett_opt_param,
+		&ett_dcs,
+		&ett_udh,
 	    &ett_udh_multiple_messages,
 	    &ett_udh_ports,
 		&ett_sm_fragment,

@@ -729,6 +729,7 @@ Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	README.win32 updates for Cygwin
 	UDH dissection in SMPP
 	WTP-over-SMPP and WSP-over-SMPP
+	GSM SMS, CBS and DCS support for the SMPP dissector.
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
