@@ -2,12 +2,11 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.21 2001/08/04 00:07:30 guy Exp $
+ * $Id: packet-wccp.c,v 1.22 2001/08/04 01:52:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -67,9 +66,12 @@ static gint ett_wc_view_info = -1;
 static gint ett_router_assignment_element = -1;
 static gint ett_router_assignment_info = -1;
 static gint ett_query_info = -1;
-static gint ett_unknown_info = -1;
 static gint ett_capabilities_info = -1;
 static gint ett_capability_element = -1;
+static gint ett_capability_forwarding_method = -1;
+static gint ett_capability_assignment_method = -1;
+static gint ett_capability_return_method = -1;
+static gint ett_unknown_info = -1;
 
 /*
  * At
@@ -88,7 +90,7 @@ static gint ett_capability_element = -1;
 #define UDP_PORT_WCCP	2048
 
 #define WCCPv1			4
-#define WCCPv2			0x0002
+#define WCCPv2			0x0200
 #define WCCP_HERE_I_AM		7
 #define WCCP_I_SEE_YOU		8
 #define WCCP_ASSIGN_BUCKET	9
@@ -150,6 +152,12 @@ const value_string service_id_vals[] = {
     { 0,    NULL }
 };
 
+typedef struct capability_flag {
+	guint32 value;
+	const char *short_name;
+	const char *long_name;
+} capability_flag;
+
 static void dissect_hash_data(tvbuff_t *tvb, int offset,
     proto_tree *wccp_tree);
 static void dissect_web_cache_list_entry(tvbuff_t *tvb, int offset,
@@ -179,6 +187,9 @@ static gboolean dissect_wccp2_router_query_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
 static gboolean dissect_wccp2_capability_info(tvbuff_t *tvb, int offset,
     int length, proto_tree *info_tree);
+static void dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
+    guint16 capability_len, gint ett, const capability_flag *flags,
+    proto_tree *element_tree);
 
 static void 
 dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -187,7 +198,6 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *wccp_tree = NULL;
 	proto_item *wccp_tree_item;
 	guint32 wccp_message_type;
-	guint32 wccp_version;
 	guint16 length;
 	guint32 cache_count;
 	guint i;
@@ -218,9 +228,8 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (wccp_message_type) {
 
 		case WCCP_HERE_I_AM:
-			wccp_version = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_uint(wccp_tree, hf_wccp_version, tvb,
-			    offset, 4, wccp_version);
+			proto_tree_add_item(wccp_tree, hf_wccp_version, tvb,
+			    offset, 4, FALSE);
 			offset += 4;
 			dissect_hash_data(tvb, offset, wccp_tree);
 			offset += HASH_INFO_SIZE;
@@ -230,9 +239,8 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		case WCCP_I_SEE_YOU:
-			wccp_version = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_uint(wccp_tree, hf_wccp_version, tvb,
-			    offset, 4, wccp_version);
+			proto_tree_add_item(wccp_tree, hf_wccp_version, tvb,
+			    offset, 4, FALSE);
 			offset += 4;
 			proto_tree_add_item(wccp_tree, hf_change_num, tvb, offset,
 			    4, FALSE);
@@ -398,8 +406,8 @@ dissect_wccp2_header(tvbuff_t *tvb, int offset, proto_tree *wccp_tree)
 {
 	guint16 length;
 
-	proto_tree_add_text(wccp_tree, tvb, offset, 2, "Version: 0x%04X",
-	    tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(wccp_tree, hf_wccp_version, tvb, offset, 2,
+	    FALSE);
 	offset += 2;
 	length = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_text(wccp_tree, tvb, offset, 2, "Length: %u",
@@ -1093,34 +1101,34 @@ static const value_string capability_type_vals[] = {
 #define WCCP2_FORWARDING_METHOD_GRE	0x00000001
 #define WCCP2_FORWARDING_METHOD_L2	0x00000002
 
-static const value_string forwarding_method_vals[] = {
-	{ WCCP2_FORWARDING_METHOD_GRE, "IP-GRE" },
-	{ WCCP2_FORWARDING_METHOD_L2,  "L2" },
-	{ WCCP2_FORWARDING_METHOD_GRE | WCCP2_FORWARDING_METHOD_L2, 
-		"L2 | IP-GRE"},
-	{ 0,                           NULL }
+static const capability_flag forwarding_method_flags[] = {
+	{ WCCP2_FORWARDING_METHOD_GRE,
+	  "IP-GRE", "GRE-encapsulated" },
+	{ WCCP2_FORWARDING_METHOD_L2,
+	  "L2", "L2 rewrite" },
+	{ 0, 
+	  NULL, NULL }
 };
 
 #define WCCP2_ASSIGNMENT_METHOD_HASH    0x00000001
 #define WCCP2_ASSIGNMENT_METHOD_MASK    0x00000002
 
-static const value_string assignment_method_vals[] = {
-	{ WCCP2_ASSIGNMENT_METHOD_HASH, "Hash" },
-	{ WCCP2_ASSIGNMENT_METHOD_MASK, "Mask" },
-	{ WCCP2_ASSIGNMENT_METHOD_HASH | WCCP2_ASSIGNMENT_METHOD_MASK, 
-		"Hash | Mask" },
-	{ 0,                            NULL }
+static const capability_flag assignment_method_flags[] = {
+	{ WCCP2_ASSIGNMENT_METHOD_HASH, "Hash", "Hash" },
+	{ WCCP2_ASSIGNMENT_METHOD_MASK, "Mask", "Mask" },
+	{ 0,                            NULL,   NULL }
 };
 
 #define WCCP2_PACKET_RETURN_METHOD_GRE  0x00000001
 #define WCCP2_PACKET_RETURN_METHOD_L2   0x00000002
 
-static const value_string packet_return_method_vals[] = {
-	{ WCCP2_PACKET_RETURN_METHOD_GRE, "IP-GRE" },
-	{ WCCP2_PACKET_RETURN_METHOD_L2,  "L2" },
-	{ WCCP2_PACKET_RETURN_METHOD_GRE | WCCP2_PACKET_RETURN_METHOD_L2,
-		"IP-GRE | L2" },
-	{ 0,                              NULL }
+static const capability_flag packet_return_method_flags[] = {
+	{ WCCP2_PACKET_RETURN_METHOD_GRE,
+	  "IP-GRE", "GRE-encapsulated" },
+	{ WCCP2_PACKET_RETURN_METHOD_L2,
+	  "L2", "L2 rewrite" },
+	{ 0, 
+	  NULL, NULL }
 };
 
 static gboolean
@@ -1129,65 +1137,117 @@ dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, int length,
 {
 	guint16 capability_type;
 	guint16 capability_len;
-	guint32 capability_val;
 	int curr_offset;
 	proto_item *te;
 	proto_tree *element_tree;
 
-	curr_offset = offset;
-	while (curr_offset < (length + offset)) {
+	for (curr_offset = offset; curr_offset < (length + offset);
+	    curr_offset += capability_len) {
 		capability_type = tvb_get_ntohs(tvb, curr_offset);
 		capability_len = tvb_get_ntohs(tvb, curr_offset + 2);
-		capability_val = tvb_get_ntohl(tvb, curr_offset + 4);
-		te = proto_tree_add_text(info_tree, tvb, offset, 8,
-		    "Capability Element");
+		te = proto_tree_add_text(info_tree, tvb, curr_offset,
+		    capability_len, "%s",
+		    val_to_str(capability_type,
+		      capability_type_vals, "Unknown Capability Element (0x%08X)"));
 		element_tree = proto_item_add_subtree(te,
 		    ett_capability_element);
 
-		proto_tree_add_text(element_tree, tvb, offset, 2,
+		proto_tree_add_text(element_tree, tvb, curr_offset, 2,
 		    "Type: %s",
 		    val_to_str(capability_type,
 		      capability_type_vals, "Unknown (0x%08X)"));
-		proto_tree_add_text(element_tree, tvb, offset+2, 2,
+
+		if (capability_len < 4) {
+			proto_tree_add_text(element_tree, tvb, curr_offset+2, 2,
+			    "Length: %u (illegal, must be >= 4)",
+			    capability_len);
+			break;
+		}
+		proto_tree_add_text(element_tree, tvb, curr_offset+2, 2,
 		    "Length: %u", capability_len);
 
-		/*
-		 * XXX - these should be dissected as containing
-		 * Boolean bitfields.
-		 */
 		switch (capability_type) {
 
 		case WCCP2_FORWARDING_METHOD:
-			proto_tree_add_text(element_tree, tvb, offset+4, 4,
-			    "Value: %s",
-			    val_to_str(capability_val,
-			      forwarding_method_vals, "Unknown (0x%08X)"));
+			dissect_32_bit_capability_flags(tvb, curr_offset,
+			    capability_len, ett_capability_forwarding_method,
+			    forwarding_method_flags, element_tree);
 			break;
 
 		case WCCP2_ASSIGNMENT_METHOD:
-			proto_tree_add_text(element_tree, tvb, offset+4, 4,
-			    "Value: %s",
-			    val_to_str(capability_val,
-			      assignment_method_vals, "Unknown (0x%08X)"));
+			dissect_32_bit_capability_flags(tvb, curr_offset,
+			    capability_len, ett_capability_assignment_method,
+			    assignment_method_flags, element_tree);
 			break;
 
 		case WCCP2_PACKET_RETURN_METHOD:
-			proto_tree_add_text(element_tree, tvb, offset+4, 4,
-			    "Value: %s",
-			    val_to_str(capability_val,
-			      packet_return_method_vals, "Unknown (0x%08X)"));
+			dissect_32_bit_capability_flags(tvb, curr_offset,
+			    capability_len, ett_capability_return_method,
+			    packet_return_method_flags, element_tree);
 			break;
 
 		default:
-			proto_tree_add_text(element_tree, tvb, offset+4, 4,
-			    "Value: 0x%08X", capability_val);
+			proto_tree_add_text(element_tree, tvb,
+			    curr_offset+4, capability_len-4,
+			    "Value: %s",
+			    tvb_bytes_to_str(tvb, curr_offset+4, capability_len-4));
 			break;
 		}
 
-		curr_offset += 8;
 	}
 	return TRUE;
+}
 
+static void
+dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
+    guint16 capability_len, gint ett, const capability_flag *flags,
+    proto_tree *element_tree)
+{
+	guint32 capability_val;
+	proto_item *tm;
+	proto_tree *method_tree;
+	int i;
+	char flags_string[128+1];
+	char *p;
+	int space_left;
+	char buf[1025];
+
+	if (capability_len != 8) {
+		proto_tree_add_text(element_tree, tvb,
+		    curr_offset+4, capability_len-4,
+		    "Illegal length (must be 8)");
+		return;
+	}
+
+	capability_val = tvb_get_ntohl(tvb, curr_offset + 4);
+	flags_string[0] = '\0';
+	p = &flags_string[0];
+	space_left = sizeof flags_string;
+	for (i = 0; flags[i].short_name != NULL; i++) {
+		if (capability_val & flags[i].value) {
+			if (p != &flags_string[0]) {
+				snprintf(p, space_left, ",");
+				p = &flags_string[strlen(flags_string)];
+			}
+			snprintf(p, space_left, "%s", flags[i].short_name);
+			p = &flags_string[strlen(flags_string)];
+		}
+	}
+	tm = proto_tree_add_text(element_tree, tvb, curr_offset+4, 4,
+	    "Value: 0x%08X (%s)", capability_val, flags_string);
+	method_tree = proto_item_add_subtree(tm, ett);
+	for (i = 0; flags[i].long_name != NULL; i++) {
+		p = decode_bitfield_value(buf, capability_val,
+		      flags[i].value, 32);
+		strcpy(p, flags[i].long_name);
+		strcat(p, ": ");
+		if (capability_val & flags[i].value)
+		    strcat(p, "Supported");
+		else
+		    strcat(p, "Not supported");
+		proto_tree_add_text(method_tree, tvb, curr_offset+4, 4,
+		    "%s", buf);
+	}
 }
 
 void
@@ -1199,7 +1259,7 @@ proto_register_wccp(void)
 				"The WCCP message that was sent", HFILL }
 		},
 		{ &hf_wccp_version, 
-			{ "WCCP Version", "wccp.version", FT_UINT32, BASE_DEC, VALS(wccp_version_val), 0x0,
+			{ "WCCP Version", "wccp.version", FT_UINT32, BASE_HEX, VALS(wccp_version_val), 0x0,
 				"The WCCP version", HFILL }
 		},
 		{ &hf_hash_revision,
@@ -1239,6 +1299,9 @@ proto_register_wccp(void)
 		&ett_router_assignment_info,
 		&ett_capabilities_info,
 		&ett_capability_element,
+		&ett_capability_forwarding_method,
+		&ett_capability_assignment_method,
+		&ett_capability_return_method,
 		&ett_unknown_info,
 	};
 
