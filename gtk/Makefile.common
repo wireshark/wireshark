@@ -70,10 +70,6 @@ ETHEREAL_GTK_SRC = \
 	range_utils.c \
 	recent.c	\
 	rtp_stream.c	\
-	sctp_stat.c	\
-	sctp_graph_dlg.c	\
-	sctp_byte_graph_dlg.c	\
-	sctp_error_dlg.c	\
 	service_response_time_table.c	\
 	simple_dialog.c	\
 	stream_prefs.c	\
@@ -124,8 +120,6 @@ ETHEREAL_TAP_SRC = \
 	rpc_stat.c	\
 	rtp_analysis.c	\
 	rtp_stream_dlg.c	\
-	sctp_assoc_analyse.c	\
-	sctp_stat_dlg.c	\
 	sip_stat.c	\
 	smb_stat.c	\
 	tcp_graph.c	\
