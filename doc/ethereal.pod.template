@@ -419,6 +419,13 @@ Closes the dialog without making any changes.
 
 =back
 
+=item TCP Streams
+
+The I<TCP Streams> page can be used to change the color of the text
+displayed in the TCP stream window.  To change a color, simply select
+an attribute from the "Set:" menu and use the color selector to get the
+desired color.  The new text colors are displayed in a sample window.
+
 =item Capture Preferences
 
 The I<Capture Preferences> dialog lets you specify various parameters for
