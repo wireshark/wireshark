@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.90 1999/08/15 19:18:44 guy Exp $
+ * $Id: ethereal.c,v 1.91 1999/08/16 23:58:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,30 +192,47 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
   char filename1[128];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
   GtkWidget *filter_te = NULL;
+  int        tmp_fd;
 
   if (w)
   	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
   if( pi.ipproto == 6 ) {
     /* we got tcp so we can follow */
-    /* check to see if we are using a filter */
+    /* Create a temporary file into which to dump the reassembled data
+       from the TCP stream, and set "data_out_file" to refer to it, so
+       that the TCP code will write to it. */
+    snprintf( filename1, sizeof filename1, "%sXXXXXXXXXX", P_tmpdir );
+    tmp_fd = mkstemp( filename1 );
+    if (tmp_fd == -1) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not create temporary file %s: %s", filename1, strerror(errno));
+      unlink(filename1);
+      return;
+    }
+    data_out_file = fdopen( tmp_fd, "w" );
+    if( data_out_file == NULL ) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not create temporary file %s: %s", filename1, strerror(errno));
+      close(tmp_fd);
+      unlink(filename1);
+      return;
+    }
+
+    /* Delete any display filter we currently have. */
     if( cf.dfilter != NULL ) {
       /* get rid of this one */
       g_free( cf.dfilter );
       cf.dfilter = NULL;
     }
+
+    /* Create a new filter that matches all packets in the TCP stream,
+       and set the display filter entry accordingly */
     reset_tcp_reassembly();
-    /* create a new one and set the display filter entry accordingly */
     cf.dfilter = build_follow_filter( &pi );
     if (filter_te)
 	    gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
-    /* Run the display filter so it goes in effect. Also we set
-       data_out_file which tells the tcp code to output the data */
-    strcpy( filename1, tmpnam(NULL) );
-    data_out_file = fopen( filename1, "a" );
-    if( data_out_file == NULL ) {
-      fprintf( stderr, "Could not open tmp file %s\n", filename1 );
-    }
+    /* Run the display filter so it goes in effect. */
     filter_packets(&cf);
     /* the data_out_file should now be full of the streams information */
     fclose( data_out_file );
@@ -259,7 +276,6 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     gtk_widget_realize( text );
     /* stop the updates while we fill the text box */
     gtk_text_freeze( GTK_TEXT(text) );
-    data_out_file = NULL;
     data_out_file = fopen( filename1, "r" );
     if( data_out_file ) {
       char buffer[1024];
@@ -273,6 +289,9 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
       }
       fclose( data_out_file );
       unlink( filename1 );
+    } else {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not open temporary file %s: %s", filename1, strerror(errno));
     }
     gtk_text_thaw( GTK_TEXT(text) );
     data_out_file = NULL;
