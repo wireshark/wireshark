@@ -1781,6 +1781,8 @@ proto_reg_handoff_ses(void)
 	/* define sub dissector */
 	pres_handle = find_dissector("pres");
 
-	/* add our session dissector to cotp dissector list */
+	/* add our session dissector to cotp dissector list 
+	 * and cotp_is dissector list*/
 	heur_dissector_add("cotp", dissect_ses_heur, proto_ses);
+	heur_dissector_add("cotp_is", dissect_ses_heur, proto_ses);
 }
