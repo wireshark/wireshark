@@ -3,7 +3,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.c,v 1.36 2004/03/23 07:39:06 guy Exp $
+ * $Id: packet-aim.c,v 1.37 2004/04/11 20:57:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,6 +164,7 @@ const aim_tlv global_tlvs[] = {
   {  AIM_TLV_ERRORCODE, "Error Code", FT_UINT16 },
   {  AIM_TLV_EMAILADDR, "Account Email address", FT_STRING },
   {  AIM_TLV_REGSTATUS, "Registration Status", FT_UINT16 },
+  {  AIM_TLV_PASSWORD, "Password Hash", FT_BYTES },
   {  AIM_TLV_LATESTBETABUILD, "Latest Beta Build", FT_UINT32 },
   {  AIM_TLV_LATESTBETAURL, "Latest Beta URL", FT_STRING },
   {  AIM_TLV_LATESTBETAINFO, "Latest Beta Info", FT_STRING },
