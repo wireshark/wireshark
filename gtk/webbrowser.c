@@ -55,6 +55,16 @@
 #define MUST_LAUNCH_BROWSER_OURSELVES
 #endif
 
+/*
+ * XXX - we use GLib 2.x routines to launch the browser ourselves, so we
+ * can't do it if we're using GLib 1.2[.x].
+ */
+#ifdef MUST_LAUNCH_BROWSER_OURSELVES
+#if (GLIB_MAJOR_VERSION < 2)
+#undef MUST_LAUNCH_BROWSER_OURSELVES	/* *can't* launch browser ourselves */
+#endif /* (GLIB_MAJOR_VERSION < 2) */
+#endif /* MUST_LAUNCH_BROWSER_OURSELVES */
+
 #ifdef MUST_LAUNCH_BROWSER_OURSELVES
 static gchar*   strreplace       (const gchar      *string,
                                   const gchar      *delimiter,
@@ -103,8 +113,7 @@ browser_open_url (const gchar *url)
   CFRelease(url_CFString);
   return (status == 0);
 
-#elif (GLIB_MAJOR_VERSION >= 2)
-
+#elif defined(MUST_LAUNCH_BROWSER_OURSELVES)
 
   GError    *error = NULL;
   gchar     *browser;
