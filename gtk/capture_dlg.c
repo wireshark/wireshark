@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.108 2004/02/23 23:13:36 guy Exp $
+ * $Id: capture_dlg.c,v 1.109 2004/02/24 02:19:16 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -163,6 +163,7 @@ get_if_name(char *if_text)
      if_name++;		/* skip the colon */
      while (*if_name == ' ')
        if_name++;
+     return if_name;
    }
 #else
   /*
