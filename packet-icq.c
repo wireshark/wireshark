@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.42 2002/05/02 10:46:23 guy Exp $
+ * $Id: packet-icq.c,v 1.43 2002/05/02 10:53:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -463,6 +463,9 @@ dissect_icqv4(tvbuff_t *tvb,
 	      packet_info *pinfo,
 	      proto_tree *tree)
 {
+    proto_tree *icq_tree = NULL;
+    proto_item *ti = NULL;
+
     /* Not really implemented yet */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv4 (UDP)");
@@ -471,12 +474,19 @@ dissect_icqv4(tvbuff_t *tvb,
 	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 4 protocol");
     }
     if (tree) {
-        proto_tree_add_protocol_format(tree,
+        ti = proto_tree_add_protocol_format(tree,
 				 proto_icq,
 				 tvb,
 				 0,
 				 -1,
 				 "ICQv4");
+        icq_tree = proto_item_add_subtree(ti, ett_icq);
+
+	proto_tree_add_text(icq_tree, tvb,
+			    ICQ_VERSION,
+			    2,
+			    "Version: %u",
+			    tvb_get_letohs(tvb, ICQ_VERSION));
     }
 }
 
@@ -485,6 +495,9 @@ dissect_icqv3(tvbuff_t *tvb,
 	      packet_info *pinfo,
 	      proto_tree *tree)
 {
+    proto_tree *icq_tree = NULL;
+    proto_item *ti = NULL;
+
     /* Not really implemented yet */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv3 (UDP)");
@@ -493,12 +506,19 @@ dissect_icqv3(tvbuff_t *tvb,
 	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 3 protocol");
     }
     if (tree) {
-        proto_tree_add_protocol_format(tree,
+        ti = proto_tree_add_protocol_format(tree,
 				 proto_icq,
 				 tvb,
 				 0,
 				 -1,
 				 "ICQv3");
+        icq_tree = proto_item_add_subtree(ti, ett_icq);
+
+	proto_tree_add_text(icq_tree, tvb,
+			    ICQ_VERSION,
+			    2,
+			    "Version: %u",
+			    tvb_get_letohs(tvb, ICQ_VERSION));
     }
 }
 
@@ -507,6 +527,9 @@ dissect_icqv2(tvbuff_t *tvb,
 	      packet_info *pinfo,
 	      proto_tree *tree)
 {
+    proto_tree *icq_tree = NULL;
+    proto_item *ti = NULL;
+
     /* Not really implemented yet */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv2 (UDP)");
@@ -515,12 +538,19 @@ dissect_icqv2(tvbuff_t *tvb,
 	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 2 protocol");
     }
     if (tree) {
-        proto_tree_add_protocol_format(tree,
+        ti = proto_tree_add_protocol_format(tree,
 				 proto_icq,
 				 tvb,
 				 0,
 				 -1,
 				 "ICQv2");
+        icq_tree = proto_item_add_subtree(ti, ett_icq);
+
+	proto_tree_add_text(icq_tree, tvb,
+			    ICQ_VERSION,
+			    2,
+			    "Version: %u",
+			    tvb_get_letohs(tvb, ICQ_VERSION));
     }
 }
 
