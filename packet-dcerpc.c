@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.55 2002/06/07 10:11:38 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.56 2002/06/17 00:04:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,6 +118,65 @@ static const value_string authn_level_vals[] = {
 	{ DCE_C_AUTHN_LEVEL_PKT_PRIVACY,   "Packet privacy" },
 	{ 0,                               NULL }
 };
+
+/*
+ * Flag bits in first flag field in connectionless PDU header.
+ */
+#define PFCL1_RESERVED_01	0x01	/* Reserved for use by implementations */
+#define PFCL1_LASTFRAG		0x02	/* If set, the PDU is the last
+					 * fragment of a multi-PDU
+					 * transmission */
+#define PFCL1_FRAG		0x04	/* If set, the PDU is a fragment of
+					   a multi-PDU transmission */
+#define PFCL1_NOFACK		0x08	/* If set, the receiver is not
+					 * requested to send a `fack' PDU
+					 * for the fragment */
+#define PFCL1_MAYBE		0x10	/* If set, the PDU is for a `maybe'
+					 * request */
+#define PFCL1_IDEMPOTENT	0x20	/* If set, the PDU is for an idempotent
+					 * request */
+#define PFCL1_BROADCAST		0x40	/* If set, the PDU is for a broadcast
+					 * request */
+#define PFCL1_RESERVED_80	0x80	/* Reserved for use by implementations */
+
+/*
+ * Flag bits in second flag field in connectionless PDU header.
+ */
+#define PFCL2_RESERVED_01	0x01	/* Reserved for use by implementations */
+#define PFCL2_CANCEL_PENDING	0x02	/* Cancel pending at the call end */
+#define PFCL2_RESERVED_04	0x04	/* Reserved for future use */
+#define PFCL2_RESERVED_08	0x08	/* Reserved for future use */
+#define PFCL2_RESERVED_10	0x10	/* Reserved for future use */
+#define PFCL2_RESERVED_20	0x20	/* Reserved for future use */
+#define PFCL2_RESERVED_40	0x40	/* Reserved for future use */
+#define PFCL2_RESERVED_80	0x80	/* Reserved for future use */
+
+/*
+ * Flag bits in connection-oriented PDU header.
+ */
+#define PFC_FIRST_FRAG		0x01	/* First fragment */
+#define PFC_LAST_FRAG		0x02	/* Last fragment */
+#define PFC_PENDING_CANCEL	0x04	/* Cancel was pending at sender */
+#define PFC_RESERVED_1		0x08
+#define PFC_CONC_MPX		0x10	/* suports concurrent multiplexing
+					 * of a single connection. */
+#define PFC_DID_NOT_EXECUTE	0x20	/* only meaningful on `fault' packet;
+					 * if true, guaranteed call did not
+					 * execute. */
+#define PFC_MAYBE		0x40	/* `maybe' call semantics requested */
+#define PFC_OBJECT_UUID		0x80	/* if true, a non-nil object UUID
+					 * was specified in the handle, and
+					 * is present in the optional object
+					 * field. If false, the object field
+					 * is omitted. */
+
+/*
+ * Tests whether a connection-oriented PDU is fragmented; returns TRUE if
+ * it's not fragmented (i.e., this is both the first *and* last fragment),
+ * and FALSE otherwise.
+ */
+#define PFC_NOT_FRAGMENTED(hdr) \
+  ((hdr->flags&(PFC_FIRST_FRAG|PFC_LAST_FRAG))==(PFC_FIRST_FRAG|PFC_LAST_FRAG))
 
 static int proto_dcerpc = -1;
 
@@ -1470,7 +1529,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                          opnum, ctx_id);
     }
 
-    if (hdr->flags & 0x80) {
+    if (hdr->flags & PFC_OBJECT_UUID) {
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &obj_id);
         if (dcerpc_tree) {
             proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
@@ -1574,24 +1633,33 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 				    tvb, 0, 0, value->rep_frame);
 	    }
 
-	    /* If we dont have reassembly enabled, or this packet contains the
-	       entire PDU, just call the handoff directly */
-	    if( (!dcerpc_reassemble)
-	      || ((hdr->flags&0x03)==0x03) ){
-		if(hdr->flags&0x01){
+	    /* If we don't have reassembly enabled, or this packet contains
+	       the entire PDU, just call the handoff directly if this is the
+	       first fragment or the PDU isn't fragmented. */
+	    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ){
+		if(hdr->flags&PFC_FIRST_FRAG){
+		    /* First fragment, possibly the only fragment */
                     dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                        	        tvb_new_subset (tvb, offset, length,
                                	                reported_length),
                                	0, opnum, TRUE, hdr->drep, &di, auth_level);
 		} else {
+		    /* PDU is fragmented and this isn't the first fragment */
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 		    }
+		    if (dcerpc_tree) {
+			if (length > 0) {
+			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+			}
+		    }
 		}
             } else if(dcerpc_reassemble){
-	        /*OK we need to do reassembly */
+	        /* It's fragmented, so we need to do reassembly */
 	        /* handle first fragment */
-	        if((hdr->flags&0x03)==0x01){  /* FIRST fragment */
+	        if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
 		    if( (!pinfo->fd->flags.visited) && value->req_frame ){
 			fragment_add(tvb, offset, pinfo, value->req_frame,
 			     dcerpc_reassemble_table,
@@ -1604,23 +1672,14 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 		    }
-		}
-	        if((hdr->flags&0x03)==0x00){  /* MIDDLE fragment(s) */
-		    if( (!pinfo->fd->flags.visited) && value->req_frame ){
-			guint32 tot_len;
-			tot_len = fragment_get_tot_len(pinfo, value->req_frame,
-			               dcerpc_reassemble_table);
-			fragment_add(tvb, offset, pinfo, value->req_frame,
-			     dcerpc_reassemble_table,
-			     tot_len-alloc_hint,
-			     length,
-			     TRUE);
+		    if (dcerpc_tree) {
+			if (length > 0) {
+			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+			}
 		    }
-		    if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
-		    }
-		}
-	        if((hdr->flags&0x03)==0x02){  /* LAST fragment */
+		} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
 		    if( value->req_frame ){
 			fragment_data *ipfd_head;
 			guint32 tot_len;
@@ -1634,6 +1693,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			     TRUE);
 
 			if(ipfd_head){
+			    /* We completed reassembly */
 			    tvbuff_t *next_tvb;
 
 			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
@@ -1647,11 +1707,40 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                                 0, opnum, TRUE, hdr->drep, &di,
                                 auth_level);
 			} else {
+			    /* Reassembly not complete - some fragments
+			       are missing */
 			    if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 			    }
+			    if (dcerpc_tree) {
+				if (length > 0) {
+				    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+						"Fragment data (%d byte%s)", length,
+						plurality(length, "", "s"));
+				}
+			    }
 		    	}
-
+		    }
+		} else {  /* MIDDLE fragment(s) */
+		    if( (!pinfo->fd->flags.visited) && value->req_frame ){
+			guint32 tot_len;
+			tot_len = fragment_get_tot_len(pinfo, value->req_frame,
+			               dcerpc_reassemble_table);
+			fragment_add(tvb, offset, pinfo, value->req_frame,
+			     dcerpc_reassemble_table,
+			     tot_len-alloc_hint,
+			     length,
+			     TRUE);
+		    }
+		    if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		    }
+		    if (dcerpc_tree) {
+			if (length > 0) {
+			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+			}
 		    }
 		}
 	    }
@@ -1748,25 +1837,34 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 				    tvb, 0, 0, value->req_frame);
 	    }
 
-	    /* If we dont have reassembly enabled, or this packet contains the
-	       entire PDU, just call the handoff directly */
-	    if( (!dcerpc_reassemble)
-	      || ((hdr->flags&0x03)==0x03) ){
-		if(hdr->flags&0x01){
+	    /* If we don't have reassembly enabled, or this packet contains
+	       the entire PDU, just call the handoff directly if this is the
+	       first fragment or the PDU isn't fragmented. */
+	    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ){
+		if(hdr->flags&PFC_FIRST_FRAG){
+		    /* First fragment, possibly the only fragment */
                     dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
                                 0, value->opnum, FALSE, hdr->drep, &di,
                                 auth_level);
 		} else {
+		    /* PDU is fragmented and this isn't the first fragment */
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 		    }
+		    if (dcerpc_tree) {
+			if (length > 0) {
+			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+			}
+		    }
 		}
             } else if(dcerpc_reassemble){
-	        /*OK we need to do reassembly */
+	        /* It's fragmented, so we need to do reassembly */
 	        /* handle first fragment */
-	        if((hdr->flags&0x03)==0x01){  /* FIRST fragment */
+	        if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
 		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
 			fragment_add(tvb, offset, pinfo, value->rep_frame,
 			     dcerpc_reassemble_table,
@@ -1779,23 +1877,14 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 		    }
-		}
-	        if((hdr->flags&0x03)==0x00){  /* MIDDLE fragment(s) */
-		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
-			guint32 tot_len;
-			tot_len = fragment_get_tot_len(pinfo, value->rep_frame,
-			               dcerpc_reassemble_table);
-			fragment_add(tvb, offset, pinfo, value->rep_frame,
-			     dcerpc_reassemble_table,
-			     tot_len-alloc_hint,
-			     length,
-			     TRUE);
+		    if (dcerpc_tree) {
+			if (length > 0) {
+			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+			}
 		    }
-		    if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
-		    }
-		}
-	        if((hdr->flags&0x03)==0x02){  /* LAST fragment */
+		} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
 		    if( value->rep_frame ){
 			fragment_data *ipfd_head;
 			guint32 tot_len;
@@ -1809,6 +1898,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			     TRUE);
 
 			if(ipfd_head){
+			    /* We completed reassembly */
 			    tvbuff_t *next_tvb;
 
 			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
@@ -1822,9 +1912,39 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                                 0, value->opnum, FALSE, hdr->drep, &di,
                                 auth_level);
 			} else {
+			    /* Reassembly not complete - some fragments
+			       are missing */
 			    if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 			    }
+			    if (dcerpc_tree) {
+				if (length > 0) {
+				    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+						"Fragment data (%d byte%s)", length,
+						plurality(length, "", "s"));
+				}
+			    }
+			}
+		    }
+		} else {  /* MIDDLE fragment(s) */
+		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
+			guint32 tot_len;
+			tot_len = fragment_get_tot_len(pinfo, value->rep_frame,
+			               dcerpc_reassemble_table);
+			fragment_add(tvb, offset, pinfo, value->rep_frame,
+			     dcerpc_reassemble_table,
+			     tot_len-alloc_hint,
+			     length,
+			     TRUE);
+		    }
+		    if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		    }
+		    if (dcerpc_tree) {
+			if (length > 0) {
+			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
 			}
 		    }
 		}
@@ -2351,13 +2471,33 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	di.request = TRUE;
 	di.call_data = value;
 
-        /*
-         * XXX - authentication level?
-         */
-        dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
-                            tvb_new_subset (tvb, offset, length, 
-                                            reported_length),
-                            0, hdr.opnum, TRUE, hdr.drep, &di, 0);
+	/*
+	 * We currently don't support reassembly of connectionless PDUs.
+	 * We call the handoff only if the PDU isn't fragmented or this
+	 * is the first fragment.
+	 *
+	 * XXX - we should add support for reassembly here.
+	 */
+	if (!(hdr.flags1 & PFCL1_FRAG) || hdr.frag_num == 0) {
+	    /*
+	     * XXX - authentication level?
+	     */
+	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
+				tvb_new_subset (tvb, offset, length, 
+						reported_length),
+				0, hdr.opnum, TRUE, hdr.drep, &di, 0);
+	} else {
+	    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+	    }
+	    if (dcerpc_tree) {
+		if (length > 0) {
+		    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+				"Fragment data (%d byte%s)", length,
+				plurality(length, "", "s"));
+		}
+	    }
+	}
         break;
     case PDU_RESP:
 	if(!(pinfo->fd->flags.visited)){
@@ -2401,13 +2541,33 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	di.request = FALSE;
         di.call_data = value;
 
-        /*
-         * XXX - authentication level?
-         */
-        dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
-                            tvb_new_subset (tvb, offset, length,
-                                            reported_length),
-                            0, value->opnum, FALSE, hdr.drep, &di, 0);
+	/*
+	 * We currently don't support reassembly of connectionless PDUs.
+	 * We call the handoff only if the PDU isn't fragmented or this
+	 * is the first fragment.
+	 *
+	 * XXX - we should add support for reassembly here.
+	 */
+	if (!(hdr.flags1 & PFCL1_FRAG) || hdr.frag_num == 0) {
+	    /*
+	     * XXX - authentication level?
+	     */
+	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
+				tvb_new_subset (tvb, offset, length,
+						reported_length),
+				0, value->opnum, FALSE, hdr.drep, &di, 0);
+	} else {
+	    if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+	    }
+	    if (dcerpc_tree) {
+		if (length > 0) {
+		    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+				"Fragment data (%d byte%s)", length,
+				plurality(length, "", "s"));
+		}
+	    }
+	}
         break;
     }
 
@@ -2487,21 +2647,21 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_cn_flags,
           { "Packet Flags", "dcerpc.cn_flags", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_flags_first_frag,
-          { "First Frag", "dcerpc.cn_flags.first_frag", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x1, "", HFILL }},
+          { "First Frag", "dcerpc.cn_flags.first_frag", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFC_FIRST_FRAG, "", HFILL }},
         { &hf_dcerpc_cn_flags_last_frag,
-          { "Last Frag", "dcerpc.cn_flags.last_frag", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x2, "", HFILL }},
+          { "Last Frag", "dcerpc.cn_flags.last_frag", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFC_LAST_FRAG, "", HFILL }},
         { &hf_dcerpc_cn_flags_cancel_pending,
-          { "Cancel Pending", "dcerpc.cn_flags.cancel_pending", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x4, "", HFILL }},
+          { "Cancel Pending", "dcerpc.cn_flags.cancel_pending", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFC_PENDING_CANCEL, "", HFILL }},
         { &hf_dcerpc_cn_flags_reserved,
-          { "Reserved", "dcerpc.cn_flags.reserved", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x8, "", HFILL }},
+          { "Reserved", "dcerpc.cn_flags.reserved", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFC_RESERVED_1, "", HFILL }},
         { &hf_dcerpc_cn_flags_mpx,
-          { "Multiplex", "dcerpc.cn_flags.mpx", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x10, "", HFILL }},
+          { "Multiplex", "dcerpc.cn_flags.mpx", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFC_CONC_MPX, "", HFILL }},
         { &hf_dcerpc_cn_flags_dne,
-          { "Did Not Execute", "dcerpc.cn_flags.dne", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x20, "", HFILL }},
+          { "Did Not Execute", "dcerpc.cn_flags.dne", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFC_DID_NOT_EXECUTE, "", HFILL }},
         { &hf_dcerpc_cn_flags_maybe,
-          { "Maybe", "dcerpc.cn_flags.maybe", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x40, "", HFILL }},
+          { "Maybe", "dcerpc.cn_flags.maybe", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFC_MAYBE, "", HFILL }},
         { &hf_dcerpc_cn_flags_object,
-          { "Object", "dcerpc.cn_flags.object", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x80, "", HFILL }},
+          { "Object", "dcerpc.cn_flags.object", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFC_OBJECT_UUID, "", HFILL }},
         { &hf_dcerpc_drep,
           { "Data Representation", "dcerpc.drep", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_drep_byteorder,
@@ -2569,39 +2729,39 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_dg_flags1,
           { "Flags1", "dcerpc.dg_flags1", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_flags1_rsrvd_01,
-          { "Reserved", "dcerpc.dg_flags1_rsrvd_01", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x01, "", HFILL }},
+          { "Reserved", "dcerpc.dg_flags1_rsrvd_01", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL1_RESERVED_01, "", HFILL }},
         { &hf_dcerpc_dg_flags1_last_frag,
-          { "Last Fragment", "dcerpc.dg_flags1_last_frag", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x02, "", HFILL }},
+          { "Last Fragment", "dcerpc.dg_flags1_last_frag", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL1_LASTFRAG, "", HFILL }},
         { &hf_dcerpc_dg_flags1_frag,
-          { "Fragment", "dcerpc.dg_flags1_frag", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x04, "", HFILL }},
+          { "Fragment", "dcerpc.dg_flags1_frag", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL1_FRAG, "", HFILL }},
         { &hf_dcerpc_dg_flags1_nofack,
-          { "No Fack", "dcerpc.dg_flags1_nofack", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x08, "", HFILL }},
+          { "No Fack", "dcerpc.dg_flags1_nofack", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL1_NOFACK, "", HFILL }},
         { &hf_dcerpc_dg_flags1_maybe,
-          { "Maybe", "dcerpc.dg_flags1_maybe", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x10, "", HFILL }},
+          { "Maybe", "dcerpc.dg_flags1_maybe", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL1_MAYBE, "", HFILL }},
         { &hf_dcerpc_dg_flags1_idempotent,
-          { "Idempotent", "dcerpc.dg_flags1_idempotent", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x20, "", HFILL }},
+          { "Idempotent", "dcerpc.dg_flags1_idempotent", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL1_IDEMPOTENT, "", HFILL }},
         { &hf_dcerpc_dg_flags1_broadcast,
-          { "Broadcast", "dcerpc.dg_flags1_broadcast", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x40, "", HFILL }},
+          { "Broadcast", "dcerpc.dg_flags1_broadcast", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL1_BROADCAST, "", HFILL }},
         { &hf_dcerpc_dg_flags1_rsrvd_80,
-          { "Reserved", "dcerpc.dg_flags1_rsrvd_80", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x80, "", HFILL }},
+          { "Reserved", "dcerpc.dg_flags1_rsrvd_80", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL1_RESERVED_80, "", HFILL }},
         { &hf_dcerpc_dg_flags2,
           { "Flags2", "dcerpc.dg_flags2", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_01,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_01", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x01, "", HFILL }},
+          { "Reserved", "dcerpc.dg_flags2_rsrvd_01", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL2_RESERVED_01, "", HFILL }},
         { &hf_dcerpc_dg_flags2_cancel_pending,
-          { "Cancel Pending", "dcerpc.dg_flags2_cancel_pending", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x02, "", HFILL }},
+          { "Cancel Pending", "dcerpc.dg_flags2_cancel_pending", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL2_CANCEL_PENDING, "", HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_04,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_04", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x04, "", HFILL }},
+          { "Reserved", "dcerpc.dg_flags2_rsrvd_04", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL2_RESERVED_04, "", HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_08,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_08", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x08, "", HFILL }},
+          { "Reserved", "dcerpc.dg_flags2_rsrvd_08", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL2_RESERVED_08, "", HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_10,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_10", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x10, "", HFILL }},
+          { "Reserved", "dcerpc.dg_flags2_rsrvd_10", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL2_RESERVED_10, "", HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_20,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_20", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x20, "", HFILL }},
+          { "Reserved", "dcerpc.dg_flags2_rsrvd_20", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL2_RESERVED_20, "", HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_40,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_40", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x40, "", HFILL }},
+          { "Reserved", "dcerpc.dg_flags2_rsrvd_40", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL2_RESERVED_40, "", HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_80,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_80", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x80, "", HFILL }},
+          { "Reserved", "dcerpc.dg_flags2_rsrvd_80", FT_BOOLEAN, 8, TFS (&flags_set_truth), PFCL2_RESERVED_80, "", HFILL }},
         { &hf_dcerpc_dg_serial_lo,
           { "Serial Low", "dcerpc.dg_serial_lo", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_serial_hi,
