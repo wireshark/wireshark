@@ -2082,6 +2082,12 @@ Duncan Sargeant <dunc-ethereal-dev [AT] rcpt.to> {
 	Cisco SS7 RUDP, RLM, and Session Management support
 }
 
+Love Hörnquist Åstrand <lha [AT] it.su.se> {
+	HAVE_HEIMDAL_KERBEROS support to allow Ethereal to use heimdal 
+	libraries to decrypt kerberos encrypted blobs.
+}
+
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
