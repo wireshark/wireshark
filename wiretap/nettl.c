@@ -302,14 +302,19 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_NS_LS_LOOPBACK :
 	case NETTL_SUBSYS_NS_LS_TCP :
 	case NETTL_SUBSYS_NS_LS_UDP :
+	case NETTL_SUBSYS_HP_APAPORT :
+	case NETTL_SUBSYS_HP_APALACP :
+	case NETTL_SUBSYS_NS_LS_IPV6 :
+	case NETTL_SUBSYS_NS_LS_ICMPV6 :
 	case NETTL_SUBSYS_NS_LS_ICMP :
 	    if( (encap[3] == NETTL_SUBSYS_NS_LS_IP)
 	     || (encap[3] == NETTL_SUBSYS_NS_LS_LOOPBACK)
 	     || (encap[3] == NETTL_SUBSYS_NS_LS_UDP)
-	     || (encap[3] == NETTL_SUBSYS_NS_LS_TCP) ) {
+	     || (encap[3] == NETTL_SUBSYS_NS_LS_TCP)
+	     || (encap[3] == NETTL_SUBSYS_NS_LS_ICMP)
+	     || (encap[3] == NETTL_SUBSYS_NS_LS_IPV6)
+	     || (encap[3] == NETTL_SUBSYS_NS_LS_ICMPV6) ) {
 		phdr->pkt_encap = WTAP_ENCAP_RAW_IP;
-	    } else if (encap[3] == NETTL_SUBSYS_NS_LS_ICMP) {
-		phdr->pkt_encap = WTAP_ENCAP_UNKNOWN;
 	    } else if (encap[3] == NETTL_SUBSYS_PCI_FDDI) {
 		phdr->pkt_encap = WTAP_ENCAP_FDDI;
 	    } else if( (encap[3] == NETTL_SUBSYS_PCI_TR)
@@ -371,6 +376,26 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		phdr->len = length - 3;
 		length = pntohl(&ip_hdr.caplen);
 		phdr->caplen = length - 3;
+	    } else if (encap[3] == NETTL_SUBSYS_NS_LS_LOOPBACK) {
+	        /* LOOPBACK has an extra 26 bytes of padding */
+		bytes_read = file_read(dummy, 1, 26, fh);
+		if (bytes_read != 26) {
+		    *err = file_error(fh);
+		    if (*err != 0)
+			return -1;
+		    if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		    }
+		    return 0;
+		}
+		offset += 26;
+		length = pntohl(&ip_hdr.length);
+		if (length <= 0)
+			return 0;
+		phdr->len = length - 26;
+		length = pntohl(&ip_hdr.caplen);
+		phdr->caplen = length - 26;
 	    } else {
 		length = pntohl(&ip_hdr.length);
 		if (length <= 0)
