@@ -1,4 +1,4 @@
-$Id: TODO,v 1.12 2003/05/28 22:58:46 guy Exp $
+$Id: TODO,v 1.13 2004/03/01 22:28:32 jmayer Exp $
 
 Things to do:
 =============
@@ -30,7 +30,7 @@ all, in "libpcap"-style capture filters:
 	etc.)
 
 *) I just discovered that sshd sets the SSH_CLIENT variable to source IP,
-sort port, and destination port. That coupled with a destination IP
+source port, and destination port. That coupled with a destination IP
 would give us enough information to carry out remote protocol capturing,
 tcpdump over ssh:
 
