@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.102 2004/03/31 20:25:40 etxrab Exp $
+ * $Id: packet-radius.c,v 1.103 2004/03/31 20:57:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -513,7 +513,7 @@ static const value_string radius_error_cause_attribute_vals[]= {
 static const radius_attr_info radius_attrib[] =
 {
   {1,	RADIUS_STRING,		"User Name", NULL},
-  {2,	RADIUS_USERPASSWORD,"User Password", NULL},
+  {2,	RADIUS_USERPASSWORD,	"User Password", NULL},
   {3,	RADIUS_BINSTRING,	"CHAP Password", NULL},
   {4,	RADIUS_IP_ADDRESS,	"NAS IP Address", NULL},
   {5,	RADIUS_INTEGER4,	"NAS Port", NULL},
