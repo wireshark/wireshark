@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.3 1999/07/13 02:52:48 gram Exp $
+ * $Id: dfilter.h,v 1.4 1999/08/01 04:28:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,7 +68,8 @@ enum node_type {
 	ether,
 	ether_vendor,
 	bytes,
-	ipv4
+	ipv4,
+	ipxnet
 };
 
 typedef gboolean(*CheckRelationFunc) (gint operand, GArray *a, GArray *b);
@@ -100,10 +101,11 @@ typedef struct dfilter_node {
 	}				value;
 
 	/* used for byte-ranges */
-	int				offset;
-	int				length;
+	gint				offset;
+	guint				length;
 } dfilter_node;
 
-
+/* lookup an abbreviation in our token hash, returing the ID # */
+int dfilter_lookup_token(char *abbrev);
 
 #endif /* ! __DFILTER_H__ */

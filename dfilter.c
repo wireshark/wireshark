@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.4 1999/07/11 08:40:51 guy Exp $
+ * $Id: dfilter.c,v 1.5 1999/08/01 04:28:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,22 +54,28 @@
 
 int yyparse(void); /* yacc entry-point */
 
-#define DFILTER_LEX_SYMBOL_OFFSET	1000
 #define DFILTER_LEX_ABBREV_OFFSET	2000
 
-#define DFILTER_LEX_SCOPE_ANY		0
-	
-GScanner *scanner;
+/* Balanced tree of abbreviations and IDs */
+GTree *dfilter_tokens = NULL;
+
+/* Comparision function for tree insertion. A wrapper around strcmp() */
+static int g_strcmp(gconstpointer a, gconstpointer b);
 
 /* Silly global variables used to pass parameter to check_relation_bytes() */
 int bytes_offset = 0;
 int bytes_length = 0;
 
 YYSTYPE yylval;
+
 /* in dfilter-grammar.y */
 extern GMemChunk *gmc_dfilter_nodes; 
 extern GNode *dfilter_tree;
 extern GSList *dfilter_list_byte_arrays;
+
+/* in dfilter-scanner.l */
+void dfilter_scanner_text(char*);
+void dfilter_scanner_cleanup(void);
 
 static gboolean dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8 *pd);
 static gboolean check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd);
@@ -86,86 +92,13 @@ static void clear_byte_array(gpointer data, gpointer user_data);
  */
 #define g_array_index_ptr(a,s,i)      (((guint8*) (a)->data) + (i*s))
 
-static GScannerConfig dfilter_scanner_config =
-{
-  (
-   " \t\n"
-   )                    /* cset_skip_characters */,
-
-  /* I wish I didn't have to start strings with numeric
-	digits, but if I don't, strings like MAC and IPv4
-	addresses get really hard to handle */
-  (
-   G_CSET_a_2_z
-   "_0123456789"
-   G_CSET_A_2_Z
-   )                    /* cset_identifier_first */,
-  (
-   G_CSET_a_2_z
-   ".-_0123456789"
-   G_CSET_A_2_Z
-   )                    /* cset_identifier_nth */,
-  ( "#\n" )             /* cpair_comment_single */,
-
-  FALSE                  /* case_sensitive */,
-
-  FALSE                  /* skip_comment_multi */,
-  FALSE                  /* skip_comment_single */,
-  TRUE                  /* scan_comment_multi */,
-  TRUE                  /* scan_identifier */,
-  TRUE                  /* scan_identifier_1char */,
-  FALSE                 /* scan_identifier_NULL */,
-  TRUE                  /* scan_symbols */,
-  TRUE                  /* scan_binary */,
-  TRUE                  /* scan_octal */,
-  TRUE                  /* scan_float */,
-  TRUE                  /* scan_hex */,
-  TRUE                  /* scan_hex_dollar */,
-  TRUE                  /* scan_string_sq */,
-  FALSE                 /* scan_string_dq */,
-  TRUE                  /* numbers_2_int */,
-  FALSE                 /* int_2_float */,
-  FALSE                 /* identifier_2_string */,
-  TRUE                  /* char_2_token */,
-  TRUE                  /* symbol_2_token */,
-  FALSE                 /* scope_0_fallback */,
-};
-
-typedef struct symtab_record {
-	int	id;
-	char	*token;
-} symtab_record;
-
-symtab_record operator_symtab[] = {
-	{ TOK_AND,		"and" },
-	{ TOK_OR,		"or" },
-	{ TOK_NOT,		"not" },
-	{ TOK_XOR,		"xor" },
-	{ TOK_EQ,		"eq" },
-	{ TOK_NE,		"ne" },
-	{ TOK_GT,		"gt" },
-	{ TOK_GE,		"ge" },
-	{ TOK_LT,		"lt" },
-	{ TOK_LE,		"le" },
-	{ TOK_EXIST,		"exist" },
-	{ TOK_EXISTS,		"exists" },
-	{ TOK_TRUE,		"true" },
-	{ TOK_FALSE,		"false" },
-	{ 0,			NULL }
-};
-
-
 void
 dfilter_init(void)
 {
-	int num_symbols, i, symbol;
+	int i, num_symbols, symbol;
 	char *s;
-	symtab_record *symrec;
 
-	scanner = g_scanner_new(&dfilter_scanner_config);
-	scanner->input_name = "Ethereal Display Filter";
-
-	g_scanner_freeze_symbol_table(scanner);
+	dfilter_tokens = g_tree_new(g_strcmp);
 
 	/* Add the header field and protocol abbrevs to the symbol table */
 	num_symbols = proto_registrar_n();
@@ -173,35 +106,31 @@ dfilter_init(void)
 		s = proto_registrar_get_abbrev(i);
 		if (s) {
 			symbol = DFILTER_LEX_ABBREV_OFFSET + i;
-			g_scanner_scope_add_symbol(scanner,
-				DFILTER_LEX_SCOPE_ANY, s, GINT_TO_POINTER(symbol));
+			g_tree_insert(dfilter_tokens, s, GINT_TO_POINTER(symbol));
 		}
 	}
-
-	/* Add the operators to the symbol table */
-	for (symrec=operator_symtab; symrec->token != NULL; symrec++) {
-		symbol = DFILTER_LEX_SYMBOL_OFFSET + symrec->id;
-		g_scanner_scope_add_symbol(scanner, DFILTER_LEX_SCOPE_ANY,
-			symrec->token, GINT_TO_POINTER(symbol));
-	}
-	g_scanner_thaw_symbol_table(scanner);
 }
+/* I should eventually g_tree_destroy(dfilter_tokens), when ethereal shuts down */
 
+/* Compiles the textual representation of the display filter into a tree
+ * of operations to perform.
+ */
 int
 dfilter_compile(char *dfilter_text, GNode **p_dfcode)
 {
 	int retval;
 
 	g_assert(dfilter_text != NULL);
-	g_scanner_input_text(scanner, dfilter_text, strlen(dfilter_text));
+	dfilter_scanner_text(dfilter_text);
 
 	if (dfilter_tree) {
 		/* clear tree */
 		dfilter_tree = NULL;
 	}
-
+	/* clear the memory that the tree was using for nodes */
 	g_mem_chunk_reset(gmc_dfilter_nodes);
 
+	/* clear the memory that the tree was using for byte arrays */
 	if (dfilter_list_byte_arrays) {
 		g_slist_foreach(dfilter_list_byte_arrays, clear_byte_array, NULL);
 		g_slist_free(dfilter_list_byte_arrays);
@@ -212,7 +141,9 @@ dfilter_compile(char *dfilter_text, GNode **p_dfcode)
 		g_node_destroy(*p_dfcode);
 
 	retval = yyparse();
+	dfilter_scanner_cleanup();
 	*p_dfcode = dfilter_tree;
+
 	return retval;
 }
 
@@ -222,70 +153,6 @@ clear_byte_array(gpointer data, gpointer user_data)
 	GByteArray *barray = data;
 
 	g_byte_array_free(barray, TRUE);
-}
-
-int
-yylex(void)
-{
-	guint 		token;
-
-	if (g_scanner_peek_next_token(scanner) == G_TOKEN_EOF) {
-		return 0;
-	}
-	else {
-		token = g_scanner_get_next_token(scanner);
-	}
-
-	/* Set the yacc-defined tokens back to their yacc-defined values */
-	if (token >= DFILTER_LEX_SYMBOL_OFFSET && token <= DFILTER_LEX_ABBREV_OFFSET) {
-		token -= DFILTER_LEX_SYMBOL_OFFSET;
-		yylval.operand = token;
-	}
-	/* Handle our dynamically-created list of header field abbrevs */
-	else if (token >= DFILTER_LEX_ABBREV_OFFSET) {
-		yylval.variable = token;
-		switch (proto_registrar_get_ftype(token - DFILTER_LEX_ABBREV_OFFSET)) {
-		case FT_UINT8:
-		case FT_VALS_UINT8:
-			token = T_FT_UINT8;
-			break;
-		case FT_UINT16:
-		case FT_VALS_UINT16:
-			token = T_FT_UINT16;
-			break;
-		case FT_UINT32:
-		case FT_VALS_UINT32:
-		case FT_VALS_UINT24:
-			token = T_FT_UINT32;
-			break;
-		case FT_ETHER:
-			token = T_FT_ETHER;
-			break;
-		case FT_IPv4:
-			token = T_FT_IPv4;
-			break;
-		case FT_NONE:
-			token = T_FT_NONE;
-			break;
-		case FT_BYTES:
-			token = T_FT_BYTES;
-			break;
-		case FT_BOOLEAN:
-			token = T_FT_BOOLEAN;
-			break;
-		default:
-			token = 0;
-			break;
-		}
-	}
-	/* unidentified strings. that's how I make numbers come in! */
-	else if (token == G_TOKEN_IDENTIFIER || token == G_TOKEN_IDENTIFIER_NULL) {
-		token = T_VAL_ID;
-		yylval.id = g_strdup(scanner->value.v_identifier);
-	}
-	/* else it's punctuation */
-
-	return token;
 }
 
 void
@@ -300,6 +167,28 @@ dfilter_yyerror(char *fmt, ...)
 	dfilter_tree = NULL;
 	yyerror(fmt);
 }
+
+/* lookup an abbreviation in our token tree, returing the ID #
+ * If the abbreviation doesn't exit, returns 0 */
+int dfilter_lookup_token(char *abbrev)
+{
+	int value;
+
+	g_assert(abbrev != NULL);
+	value =  GPOINTER_TO_INT(g_tree_lookup(dfilter_tokens, abbrev));
+
+	if (value < DFILTER_LEX_ABBREV_OFFSET) {
+		return 0;
+	}
+	return value - DFILTER_LEX_ABBREV_OFFSET;
+}
+
+static int
+g_strcmp(gconstpointer a, gconstpointer b)
+{
+	return strcmp((const char*)a, (const char*)b);
+}
+
 
 gboolean
 dfilter_apply(GNode *dfcode, proto_tree *ptree, const guint8* pd)
@@ -348,6 +237,7 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
 	case string:
 	case abs_time:
 	case bytes:
+	case ipxnet:
 		/* the only time we'll see these at this point is if the display filter
 		 * is really wacky. Just return TRUE */
 		g_assert(!gnode_a && !gnode_b);
@@ -447,8 +337,7 @@ check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree)
 	int		target_field;
 	proto_tree	*subtree;
 
-	target_field = dnode->value.variable - DFILTER_LEX_ABBREV_OFFSET;
-	/*subtree = proto_find_protocol(ptree, target_field);*/
+	target_field = dnode->value.variable;
 	subtree = proto_find_field(ptree, target_field);
 
 	if (subtree)
@@ -469,7 +358,7 @@ get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd)
 	g_assert(dnode->elem_size > 0);
 	array = g_array_new(FALSE, FALSE, dnode->elem_size);
 
-	target_field = dnode->value.variable - DFILTER_LEX_ABBREV_OFFSET;
+	target_field = dnode->value.variable;
 
 	/* Find the proto_tree subtree where we should start searching.*/
 	if (proto_registrar_is_protocol(target_field)) {
@@ -681,7 +570,7 @@ gboolean check_relation_numeric(gint operand, GArray *a, GArray *b)
 gboolean check_relation_ether(gint operand, GArray *a, GArray *b)
 {
 	int	i, j, len_a, len_b;
-	guint8*	ptr_a;
+	guint8	*ptr_a, *ptr_b;
 
 	len_a = a->len;
 	len_b = b->len;
@@ -692,7 +581,8 @@ gboolean check_relation_ether(gint operand, GArray *a, GArray *b)
 		for(i = 0; i < len_a; i++) {
 			ptr_a = g_array_index_ptr(a, 6, i);
 			for (j = 0; j < len_b; j++) {
-				if (memcmp(ptr_a, g_array_index_ptr(b, 6, j), 6) == 0)
+				ptr_b = g_array_index_ptr(b, 6, j);
+				if (memcmp(ptr_a, ptr_b, 6) == 0)
 					return TRUE;
 			}
 		}
@@ -702,7 +592,8 @@ gboolean check_relation_ether(gint operand, GArray *a, GArray *b)
 		for(i = 0; i < len_a; i++) {
 			ptr_a = g_array_index_ptr(a, 6, i);
 			for (j = 0; j < len_b; j++) {
-				if (memcmp(ptr_a, g_array_index_ptr(b, 6, j), 6) != 0)
+				ptr_b = g_array_index_ptr(b, 6, j);
+				if (memcmp(ptr_a, ptr_b, 6) != 0)
 					return TRUE;
 			}
 		}
@@ -809,3 +700,4 @@ gboolean check_relation_boolean(gint operand, GArray *a, GArray *b)
 	g_assert_not_reached();
 	return FALSE;
 }
+

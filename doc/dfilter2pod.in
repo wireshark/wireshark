@@ -9,7 +9,7 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod.in,v 1.1 1999/07/20 08:02:24 guy Exp $
+# $Id: dfilter2pod.in,v 1.2 1999/08/01 04:28:20 gram Exp $
 
 %ftenum_names = (
 	'FT_NONE',	'No value',
@@ -21,11 +21,10 @@
 	'FT_RELATIVE_TIME',	'Time duration',
 	'FT_STRING',		'String',
 	'FT_ETHER',		'6-byte Hardware (MAC) Address',
-	'FT_ETHER_VENDOR',	'3-byte MAC vendor',
 	'FT_BYTES',		'Byte array',
 	'FT_IPv4',		'IPv4 address',
 	'FT_IPv6',		'IPv6 address',
-	'FT_IPXSERVER',		'IPX network or server name',
+	'FT_IPXNET',		'IPX network or server name',
 	'FT_VALS_UINT8',		'Unsigned 8-bit integer',
 	'FT_VALS_UINT16',		'Unsigned 16-bit integer',
 	'FT_VALS_UINT24',		'Unsigned 24-bit integer',

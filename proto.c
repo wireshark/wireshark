@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.6 1999/07/31 02:15:12 guy Exp $
+ * $Id: proto.c,v 1.7 1999/08/01 04:28:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -369,13 +369,11 @@ NOTES
 		case FT_VALS_UINT32:
 		case FT_RELATIVE_TIME:
 		case FT_IPv4:
-		case FT_IPXSERVER:
-			fi->value.numeric = va_arg(ap, guint32);
+		case FT_IPXNET:
+			fi->value.numeric = va_arg(ap, unsigned int);
 			break;
 
 		case FT_ETHER:
-		case FT_ETHER_VENDOR:
-/*			fi->value.ether = va_arg(ap, guint8*);*/
 			memcpy(fi->value.ether, va_arg(ap, guint8*), 6);
 			break;
 
@@ -385,7 +383,8 @@ NOTES
 			break;
 
 		case FT_STRING:
-			fi->value.string = g_strdup(va_arg(ap, char*)); /* XXX */
+			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+			fi->value.string = g_strdup(va_arg(ap, char*));
 			break;
 
 		case FT_TEXT_ONLY:
@@ -548,20 +547,16 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				(s ? s : "Unknown"), fi->value.numeric);
 			break;
 
+		case FT_IPXNET:
+			snprintf(label_str, ITEM_LABEL_LENGTH,
+				"%s: 0x%08X", fi->hfinfo->name, fi->value.numeric);
+			break;
+
 		case FT_ETHER:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", fi->hfinfo->name,
 				ether_to_str(fi->value.ether),
 				get_ether_name(fi->value.ether));
-			break;
-
-		case FT_ETHER_VENDOR:
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %02x:%02x:%02x (%s)", fi->hfinfo->name,
-				fi->value.ether[0],
-				fi->value.ether[1],
-				fi->value.ether[2],
-				get_manuf_name(fi->value.ether));
 			break;
 
 		case FT_IPv4:
@@ -777,9 +772,6 @@ proto_registrar_dump(void)
 			case FT_ETHER:
 				enum_name = "FT_ETHER";
 				break;
-			case FT_ETHER_VENDOR:
-				enum_name = "FT_ETHER_VENDOR";
-				break;
 			case FT_BYTES:
 				enum_name = "FT_BYTES";
 				break;
@@ -789,8 +781,8 @@ proto_registrar_dump(void)
 			case FT_IPv6:
 				enum_name = "FT_IPv6";
 				break;
-			case FT_IPXSERVER:
-				enum_name = "FT_IPXSERVER";
+			case FT_IPXNET:
+				enum_name = "FT_IPXNET";
 				break;
 			case FT_VALS_UINT8:
 				enum_name = "FT_VALS_UINT8";

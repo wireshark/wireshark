@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.4 1999/07/15 15:32:44 gram Exp $
+ * $Id: proto.h,v 1.5 1999/08/01 04:28:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,11 +60,10 @@ enum ftenum {
 	FT_RELATIVE_TIME,
 	FT_STRING,
 	FT_ETHER,
-	FT_ETHER_VENDOR,
 	FT_BYTES,
 	FT_IPv4,
 	FT_IPv6,
-	FT_IPXSERVER,
+	FT_IPXNET,
 	FT_VALS_UINT8,
 	FT_VALS_UINT16,
 	FT_VALS_UINT24,

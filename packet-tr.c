@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.17 1999/07/29 05:47:06 gram Exp $
+ * $Id: packet-tr.c,v 1.18 1999/08/01 04:28:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -40,8 +40,6 @@
 static int proto_tr = -1;
 static int hf_tr_dst = -1;
 static int hf_tr_src = -1;
-static int hf_tr_dst_vendor = -1;
-static int hf_tr_src_vendor = -1;
 static int hf_tr_sr = -1;
 static int hf_tr_ac = -1;
 static int hf_tr_priority = -1;
@@ -348,14 +346,11 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 			decode_enumerated_bitfield(trn_fc, 0x0f, 8, pcf_vals, "%s"));
 
 		proto_tree_add_item(tr_tree, hf_tr_dst, 2, 6, trn_dhost);
-		proto_tree_add_item_hidden(tr_tree, hf_tr_dst_vendor, 2, 3, trn_dhost);
 		proto_tree_add_item(tr_tree, hf_tr_src, 8, 6, trn_shost);
-		proto_tree_add_item_hidden(tr_tree, hf_tr_src_vendor, 8, 3, trn_shost);
 		proto_tree_add_item_hidden(tr_tree, hf_tr_sr, 8, 1, source_routed);
 
 		/* non-source-routed version of src addr */
 		proto_tree_add_item_hidden(tr_tree, hf_tr_src, 8, 6, trn_shost_nonsr);
-		proto_tree_add_item_hidden(tr_tree, hf_tr_src_vendor, 8, 3, trn_shost_nonsr);
 
 		if (source_routed) {
 			/* RCF Byte 1 */
@@ -469,12 +464,6 @@ proto_register_tr(void)
 
 		{ &hf_tr_src,
 		{ "Source",		"tr.src", FT_ETHER, NULL }},
-
-		{ &hf_tr_dst_vendor,
-		{ "Destination Hardware Vendor", "tr.dst_vendor",  FT_ETHER_VENDOR, NULL }},
-
-		{ &hf_tr_src_vendor,
-		{ "Source Hardware Vendor", "tr.src_vendor", FT_ETHER_VENDOR, NULL }},
 
 		{ &hf_tr_sr,
 		{ "Source Routed",	"tr.sr", FT_BOOLEAN, NULL }},

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.13 1999/07/29 05:46:54 gram Exp $
+ * $Id: packet-eth.c,v 1.14 1999/08/01 04:28:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,9 +41,7 @@ extern const value_string etype_vals[];
 /* protocols and header fields */
 static int proto_eth = -1;
 static int hf_eth_dst = -1;
-static int hf_eth_dst_vendor = -1;
 static int hf_eth_src = -1;
-static int hf_eth_src_vendor = -1;
 static int hf_eth_len = -1;
 static int hf_eth_type = -1;
 
@@ -153,9 +151,7 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
 	fh_tree = proto_item_add_subtree(ti, ETT_IEEE8023);
 
 	proto_tree_add_item(fh_tree, hf_eth_dst, 0, 6, &pd[0]);
-	proto_tree_add_item_hidden(fh_tree, hf_eth_dst_vendor, 0, 3, &pd[0]);
 	proto_tree_add_item(fh_tree, hf_eth_src, 6, 6, &pd[6]);
-	proto_tree_add_item_hidden(fh_tree, hf_eth_src_vendor, 6, 3, &pd[6]);
 	proto_tree_add_item(fh_tree, hf_eth_len, 12, 2, length);
     }
 
@@ -202,12 +198,6 @@ proto_register_eth(void)
 
 		{ &hf_eth_src,
 		{ "Source",		"eth.src", FT_ETHER, NULL }},
-
-		{ &hf_eth_dst_vendor,
-		{ "Destination Hardware Vendor", "eth.dst_vendor", FT_ETHER, NULL }},
-
-		{ &hf_eth_src_vendor,
-		{ "Source Hardware Vendor", "eth.src_vendor", FT_ETHER, NULL }},
 
 		{ &hf_eth_len,
 		{ "Length",		"eth.len", FT_UINT16, NULL }},

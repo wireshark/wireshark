@@ -14,6 +14,7 @@ ethereal_SOURCES = \
 	column.h       \
 	config.h       \
 	dfilter-grammar.y \
+	dfilter-scanner.l \
 	dfilter.c      \
 	dfilter.h      \
 	display.c      \
@@ -110,6 +111,7 @@ ethereal_SOURCES = \
 EXTRA_ethereal_SOURCES = \
 	dfilter-grammar.c \
 	dfilter-grammar.h \
+	dfilter-scanner.c \
 	packet-snmp.c	\
 	snprintf.c	\
 	snprintf.h	\
@@ -149,7 +151,6 @@ EXTRA_DIST = \
 	README.tru64		\
 	README.win32		\
 	rdps.c			\
-	ylwrap			\
 	VERSION
 
 SUBDIRS = wiretap @SUBDIRS@

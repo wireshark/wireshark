@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.24 1999/07/29 05:46:57 gram Exp $
+ * $Id: packet-ipx.c,v 1.25 1999/08/01 04:28:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -53,8 +53,13 @@ static int proto_ipx = -1;
 static int hf_ipx_checksum = -1;
 static int hf_ipx_len = -1;
 static int hf_ipx_hops = -1;
+static int hf_ipx_packet_type = -1;
+static int hf_ipx_dnet = -1;
 static int hf_ipx_dnode = -1;
+static int hf_ipx_dsocket = -1;
+static int hf_ipx_snet = -1;
 static int hf_ipx_snode = -1;
+static int hf_ipx_ssocket = -1;
 
 static int proto_spx = -1;
 static int proto_ipxrip = -1;
@@ -130,28 +135,27 @@ port_func(guint16 port) {
 	return NULL;
 }
 
-char *
-ipx_packet_type(u_char val)
-{
-	if (val == 0) {
-		return "IPX";
-	}
-	else if (val == 5) {
-		return "SPX";
-	}
-	else if (val == 17) {
-		return "NCP";
-	}
-	else if (val == 20) {
-		return "NetBIOS Broadcast";
-	}
-	else if (val >= 16 && val <= 31) {
-		return "Experimental Protocol";
-	}
-	else {
-		return "Unknown";
-	}
-}
+static const value_string ipx_packet_type_vals[] = {
+	{ 0,	"IPX" },
+	{ 5,	"SPX" },
+	{ 16,	"Experimental Protocol" },
+	{ 17,	"NCP" },
+	{ 18,	"Experimental Protocol" },
+	{ 19,	"Experimental Protocol" },
+	{ 20,	"NetBIOS Broadcast" },
+	{ 21,	"Experimental Protocol" },
+	{ 22,	"Experimental Protocol" },
+	{ 23,	"Experimental Protocol" },
+	{ 24,	"Experimental Protocol" },
+	{ 25,	"Experimental Protocol" },
+	{ 26,	"Experimental Protocol" },
+	{ 27,	"Experimental Protocol" },
+	{ 28,	"Experimental Protocol" },
+	{ 29,	"Experimental Protocol" },
+	{ 30,	"Experimental Protocol" },
+	{ 31,	"Experimental Protocol" },
+	{ 0,	NULL }
+};
 
 gchar*
 ipxnet_to_string(const guint8 *ad)
@@ -203,12 +207,15 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	guint16		ipx_dsocket, ipx_ssocket;
 	void		(*dissect) (const u_char *, int, frame_data *, proto_tree *, int);
 	int		max_data;
+	guint32		ipx_dnet_val, ipx_snet_val;
 
 	/* Calculate here for use in pinfo and in tree */
 	ipx_dnet = (guint8*)&pd[offset+6];
 	ipx_snet = (guint8*)&pd[offset+18];
 	str_dnet = ipxnet_to_string(ipx_dnet);
 	str_snet = ipxnet_to_string(ipx_snet);
+	ipx_dnet_val = pntohl(ipx_dnet);
+	ipx_snet_val = pntohl(ipx_snet);
 	ipx_dsocket = pntohs(&pd[offset+16]);
 	ipx_ssocket = pntohs(&pd[offset+28]);
 	ipx_dnode = (guint8*)&pd[offset+10];
@@ -242,19 +249,17 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			"Length: %d bytes", ipx_length);
 		proto_tree_add_item_format(ipx_tree, hf_ipx_hops, offset+4, 1, ipx_hops,
 			"Transport Control: %d hops", ipx_hops);
-		proto_tree_add_text(ipx_tree, offset+5,    1, "Packet Type: %s",
-			ipx_packet_type(ipx_type));
-		proto_tree_add_text(ipx_tree, offset+6,    4, "Destination Network: %s",
-			str_dnet);
+		proto_tree_add_item(ipx_tree, hf_ipx_packet_type, offset+5, 1, ipx_type);
+		proto_tree_add_item(ipx_tree, hf_ipx_dnet, offset+6, 4, ipx_dnet_val);
 		proto_tree_add_item(ipx_tree, hf_ipx_dnode, offset+10, 6, ipx_dnode);
-		proto_tree_add_text(ipx_tree, offset+16,   2,
-			"Destination Socket: %s (0x%04X)", port_text(ipx_dsocket),
-			ipx_dsocket);
-		proto_tree_add_text(ipx_tree, offset+18,   4, "Source Network: %s",
-			str_snet);
+		proto_tree_add_item_format(ipx_tree, hf_ipx_dsocket, offset+16, 2,
+			ipx_dsocket, "Destination Socket: %s (0x%04X)",
+			port_text(ipx_dsocket), ipx_dsocket);
+		proto_tree_add_item(ipx_tree, hf_ipx_snet, offset+18, 4, ipx_snet_val);
 		proto_tree_add_item(ipx_tree, hf_ipx_snode, offset+22, 6, ipx_snode);
-		proto_tree_add_text(ipx_tree, offset+28,   2,
-			"Source Socket: %s (0x%04X)", port_text(ipx_ssocket), ipx_ssocket);
+		proto_tree_add_item_format(ipx_tree, hf_ipx_ssocket, offset+28, 2,
+			ipx_ssocket, "Source Socket: %s (0x%04X)", port_text(ipx_ssocket),
+			ipx_ssocket);
 	}
 	offset += 30;
 
@@ -594,11 +599,26 @@ proto_register_ipx(void)
 		{ &hf_ipx_hops,
 		{ "Transport Control (Hops)", "ipx.hops", FT_UINT8, NULL }},
 
+		{ &hf_ipx_packet_type,
+		{ "Packet Type",	"ipx.packet_type", FT_VALS_UINT8, VALS(ipx_packet_type_vals) }},
+
+		{ &hf_ipx_dnet,
+		{ "Destination Network","ipx.dstnet", FT_IPXNET, NULL }},
+
 		{ &hf_ipx_dnode,
 		{ "Destination Node",	"ipx.dstnode", FT_ETHER, NULL }},
 
+		{ &hf_ipx_dsocket,
+		{ "Destination Socket",	"ipx.dstsocket", FT_UINT16, NULL }},
+
+		{ &hf_ipx_snet,
+		{ "Source Network","ipx.srcnet", FT_IPXNET, NULL }},
+
 		{ &hf_ipx_snode,
-		{ "Source Node",	"ipx.srcnode", FT_ETHER, NULL }}
+		{ "Source Node",	"ipx.srcnode", FT_ETHER, NULL }},
+
+		{ &hf_ipx_ssocket,
+		{ "Source Socket",	"ipx.srcsocket", FT_UINT16, NULL }},
 	};
 		
 	proto_ipx = proto_register_protocol ("Internetwork Packet eXchange", "ipx");
