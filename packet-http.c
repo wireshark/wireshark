@@ -3,7 +3,10 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.50 2002/08/02 23:35:50 jmayer Exp $
+ * Copyright 2002, Tim Potter <tpot@samba.org>
+ * Copyright 1999, Andrew Tridgell <tridge@samba.org>
+ *
+ * $Id: packet-http.c,v 1.51 2002/08/13 05:36:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +53,7 @@ static int hf_http_response = -1;
 static int hf_http_request = -1;
 
 static gint ett_http = -1;
+static gint ett_http_ntlmssp = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t http_handle;
@@ -66,6 +70,13 @@ static dissector_handle_t http_handle;
 #define UDP_PORT_SSDP			1900
 
 /*
+ * Some headers that we dissect more deeply - Microsoft's abomination
+ * called NTLMSSP over HTTP.
+ */
+#define NTLMSSP_AUTH    "Authorization: NTLM "
+#define NTLMSSP_WWWAUTH "WWW-Authenticate: NTLM "
+
+/*
  * Protocols implemented atop HTTP.
  */
 typedef enum {
@@ -77,6 +88,73 @@ static int is_http_request_or_reply(const guchar *data, int linelen, http_type_t
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
+
+static dissector_handle_t ntlmssp_handle=NULL;
+
+/* Decode a base64 string in-place - simple and slow algorithm.
+   Return length of result. Taken from rproxy/librsync/base64.c by
+   Andrew Tridgell. */
+
+static size_t base64_decode(char *s)
+{
+	const char *b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	int bit_offset, byte_offset, idx, i, n;
+	unsigned char *d = (unsigned char *)s;
+	char *p;
+
+	n=i=0;
+
+	while (*s && (p=strchr(b64, *s))) {
+		idx = (int)(p - b64);
+		byte_offset = (i*6)/8;
+		bit_offset = (i*6)%8;
+		d[byte_offset] &= ~((1<<(8-bit_offset))-1);
+		if (bit_offset < 3) {
+			d[byte_offset] |= (idx << (2-bit_offset));
+			n = byte_offset+1;
+		} else {
+			d[byte_offset] |= (idx >> (bit_offset-2));
+			d[byte_offset+1] = 0;
+			d[byte_offset+1] |= (idx << (8-(bit_offset-2))) & 0xFF;
+			n = byte_offset+2;
+		}
+		s++; i++;
+	}
+
+	return n;
+}
+
+/* Return a tvb that contains the binary representation of a base64
+   string */
+
+static tvbuff_t *
+base64_to_tvb(char *base64)
+{
+	tvbuff_t *tvb;
+	char *data = g_strdup(base64);
+	ssize_t len;
+
+	len = base64_decode(data);
+	tvb = tvb_new_real_data(data, len, len);
+
+	g_warning("decoded %d bytes of data", len);
+
+	/* XXX: need to set free function */
+
+	return tvb;
+}
+
+static void
+dissect_http_ntlmssp(packet_info *pinfo, proto_tree *tree, char *line)
+{
+	tvbuff_t *ntlmssp_tvb;
+
+	ntlmssp_tvb = base64_to_tvb(line);
+
+	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
+
+	tvb_free(ntlmssp_tvb);
+}
 
 static void
 dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -223,9 +301,28 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Put this line.
 		 */
 		if (tree) {
-			proto_tree_add_text(http_tree, tvb, offset,
-			    next_offset - offset, "%s",
-			    tvb_format_text(tvb, offset, next_offset - offset));
+			proto_tree *hdr_tree;
+			proto_item *hdr_item;
+			char *text;
+
+			text = tvb_format_text(tvb, offset, next_offset - offset);
+
+			hdr_item = proto_tree_add_text(http_tree, tvb, offset,
+			    next_offset - offset, "%s", text);
+
+			if (strncmp(text, NTLMSSP_AUTH, strlen(NTLMSSP_AUTH)) == 0) {
+				hdr_tree = proto_item_add_subtree(
+					hdr_item, ett_http_ntlmssp);
+				text += strlen(NTLMSSP_AUTH);
+				dissect_http_ntlmssp(pinfo, hdr_tree, text);
+			}
+
+			if (strncmp(text, NTLMSSP_WWWAUTH, strlen(NTLMSSP_WWWAUTH)) == 0) {
+				hdr_tree = proto_item_add_subtree(
+					hdr_item, ett_http_ntlmssp);
+				text += strlen(NTLMSSP_WWWAUTH);
+				dissect_http_ntlmssp(pinfo, hdr_tree, text);
+			}
 		}
 		offset = next_offset;
 	}
@@ -445,6 +542,7 @@ proto_register_http(void)
 	};
 	static gint *ett[] = {
 		&ett_http,
+		&ett_http_ntlmssp,
 	};
 
 	proto_http = proto_register_protocol("Hypertext Transfer Protocol",
@@ -510,4 +608,6 @@ proto_reg_handoff_http(void)
 	 */
 	dissector_add("tcp.port", TCP_PORT_SSDP, http_handle);
 	dissector_add("udp.port", UDP_PORT_SSDP, http_handle);
+
+	ntlmssp_handle = find_dissector("ntlmssp");
 }
